@@ -51,6 +51,7 @@ jobs:
             {
               "Author": "Rose",
               "Name": "Olympus",
+              "InternalName": "Olympus",
               "Punchline": "Intelligent White Mage rotation assistant",
               "Description": "Apollo: An intelligent White Mage rotation assistant that handles healing, damage, defensive cooldowns, and resource management with full level-sync awareness.",
               "Tags": ["whm", "white-mage", "combat", "rotation"],
