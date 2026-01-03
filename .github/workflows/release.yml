@@ -1,0 +1,77 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Download Dalamud
+        run: |
+          wget -q https://goatcorp.github.io/dalamud-distrib/stg/latest.zip -O dalamud.zip
+          unzip -q dalamud.zip -d ~/dalamud
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build -c Release --no-restore -p:DalamudLibPath=$HOME/dalamud/
+
+      - name: Create Release Archive
+        run: |
+          cd bin/Release/Olympus
+          zip -r ../../../Olympus.zip *
+
+      - name: Extract Version
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+      - name: Generate repo.json
+        run: |
+          cat > repo.json << 'EOF'
+          [
+            {
+              "Author": "Rose",
+              "Name": "Olympus",
+              "Punchline": "Intelligent White Mage rotation assistant",
+              "Description": "Apollo: An intelligent White Mage rotation assistant that handles healing, damage, defensive cooldowns, and resource management with full level-sync awareness.",
+              "Tags": ["whm", "white-mage", "combat", "rotation"],
+              "RepoUrl": "https://github.com/RoseOfficial/Olympus",
+              "AssemblyVersion": "${{ steps.version.outputs.version }}",
+              "DalamudApiLevel": 10,
+              "DownloadLinkInstall": "https://github.com/RoseOfficial/Olympus/releases/download/${{ github.ref_name }}/Olympus.zip",
+              "DownloadLinkUpdate": "https://github.com/RoseOfficial/Olympus/releases/download/${{ github.ref_name }}/Olympus.zip"
+            }
+          ]
+          EOF
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Olympus.zip
+          generate_release_notes: true
+
+      - name: Commit repo.json
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update repo.json for ${{ github.ref_name }}"
+          file_pattern: repo.json
+          branch: main

@@ -1,0 +1,9 @@
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.log
+packages.lock.json
+.claude/
+CLAUDE.md

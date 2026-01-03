@@ -1,0 +1,14 @@
+<Project Sdk="Dalamud.NET.Sdk/14.0.1">
+
+  <PropertyGroup>
+    <Version>1.2.1</Version>
+    <DalamudLibPath>$(AppData)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
+  </PropertyGroup>
+
+  <!-- Exclude test project from main build -->
+  <ItemGroup>
+    <Compile Remove="Olympus.Tests\**" />
+    <None Remove="Olympus.Tests\**" />
+  </ItemGroup>
+
+</Project>
