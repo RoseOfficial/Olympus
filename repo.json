@@ -6,9 +6,9 @@
     "Description": "Apollo: An intelligent White Mage rotation assistant that handles healing, damage, defensive cooldowns, and resource management with full level-sync awareness.",
     "Tags": ["whm", "white-mage", "combat", "rotation"],
     "RepoUrl": "https://github.com/RoseOfficial/Olympus",
-    "AssemblyVersion": "1.2.1",
+    "AssemblyVersion": "1.2.3",
     "DalamudApiLevel": 11,
-    "DownloadLinkInstall": "https://github.com/RoseOfficial/Olympus/releases/download/v1.2.1/Olympus.zip",
-    "DownloadLinkUpdate": "https://github.com/RoseOfficial/Olympus/releases/download/v1.2.1/Olympus.zip"
+    "DownloadLinkInstall": "https://github.com/RoseOfficial/Olympus/releases/download/v1.2.3/Olympus.zip",
+    "DownloadLinkUpdate": "https://github.com/RoseOfficial/Olympus/releases/download/v1.2.3/Olympus.zip"
   }
 ]
