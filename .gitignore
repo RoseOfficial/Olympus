@@ -5,5 +5,16 @@ obj/
 .vs/
 *.log
 packages.lock.json
+# AI coding assistants
 .claude/
+.cursor/
+.copilot/
+.codeium/
+.tabnine/
+.aider/
+.continue/
+.sourcegraph/
 CLAUDE.md
+CURSOR.md
+COPILOT.md
+AI_NOTES.md
