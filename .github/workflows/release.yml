@@ -70,8 +70,9 @@ jobs:
           generate_release_notes: true
 
       - name: Commit repo.json
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore: update repo.json for ${{ github.ref_name }}"
-          file_pattern: repo.json
-          branch: main
+        run: |
+          git fetch origin main
+          git checkout main
+          git add repo.json
+          git commit -m "Update repo.json for ${{ github.ref_name }}"
+          git push origin main
