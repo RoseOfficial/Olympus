@@ -56,7 +56,7 @@ jobs:
               "Tags": ["whm", "white-mage", "combat", "rotation"],
               "RepoUrl": "https://github.com/RoseOfficial/Olympus",
               "AssemblyVersion": "${{ steps.version.outputs.version }}",
-              "DalamudApiLevel": 10,
+              "DalamudApiLevel": 11,
               "DownloadLinkInstall": "https://github.com/RoseOfficial/Olympus/releases/download/${{ github.ref_name }}/Olympus.zip",
               "DownloadLinkUpdate": "https://github.com/RoseOfficial/Olympus/releases/download/${{ github.ref_name }}/Olympus.zip"
             }

@@ -7,7 +7,7 @@
     "Tags": ["whm", "white-mage", "combat", "rotation"],
     "RepoUrl": "https://github.com/RoseOfficial/Olympus",
     "AssemblyVersion": "1.2.1",
-    "DalamudApiLevel": 10,
+    "DalamudApiLevel": 11,
     "DownloadLinkInstall": "https://github.com/RoseOfficial/Olympus/releases/download/v1.2.1/Olympus.zip",
     "DownloadLinkUpdate": "https://github.com/RoseOfficial/Olympus/releases/download/v1.2.1/Olympus.zip"
   }
