@@ -138,7 +138,7 @@ public static class OverviewTab
 
     private static bool IsSectionVisible(Configuration config, string section)
     {
-        if (config.DebugSectionVisibility.TryGetValue(section, out var visible))
+        if (config.Debug.DebugSectionVisibility.TryGetValue(section, out var visible))
             return visible;
         return true; // Default to visible
     }

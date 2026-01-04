@@ -43,7 +43,7 @@ public sealed class ResurrectionModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableRaise)
+        if (!config.Resurrection.EnableRaise)
         {
             context.Debug.RaiseState = "Disabled";
             return false;
@@ -56,9 +56,9 @@ public sealed class ResurrectionModule : IApolloModule
         }
 
         var mpPercent = (float)player.CurrentMp / player.MaxMp;
-        if (mpPercent < config.RaiseMpThreshold)
+        if (mpPercent < config.Resurrection.RaiseMpThreshold)
         {
-            context.Debug.RaiseState = $"MP {mpPercent:P0} < {config.RaiseMpThreshold:P0}";
+            context.Debug.RaiseState = $"MP {mpPercent:P0} < {config.Resurrection.RaiseMpThreshold:P0}";
             return false;
         }
 
@@ -69,7 +69,7 @@ public sealed class ResurrectionModule : IApolloModule
         }
 
         var target = context.PartyHelper.FindDeadPartyMemberNeedingRaise(player);
-        if (target == null)
+        if (target is null)
         {
             context.Debug.RaiseState = "No target";
             context.Debug.RaiseTarget = "None";
@@ -102,7 +102,7 @@ public sealed class ResurrectionModule : IApolloModule
         }
 
         // Hardcast Raise (if allowed and not moving)
-        if (config.AllowHardcastRaise && !isMoving)
+        if (config.Resurrection.AllowHardcastRaise && !isMoving)
         {
             var swiftcastCooldown = context.ActionService.GetCooldownRemaining(WHMActions.Swiftcast.ActionId);
 
@@ -130,7 +130,7 @@ public sealed class ResurrectionModule : IApolloModule
                 context.Debug.RaiseState = $"Waiting for Swiftcast ({swiftcastCooldown:F1}s)";
             }
         }
-        else if (!hasSwiftcast && !config.AllowHardcastRaise)
+        else if (!hasSwiftcast && !config.Resurrection.AllowHardcastRaise)
         {
             context.Debug.RaiseState = "No Swiftcast (hardcast disabled)";
         }
@@ -147,7 +147,7 @@ public sealed class ResurrectionModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableRaise)
+        if (!config.Resurrection.EnableRaise)
             return false;
 
         if (player.Level < WHMActions.Swiftcast.MinLevel)
@@ -157,7 +157,7 @@ public sealed class ResurrectionModule : IApolloModule
             return false;
 
         var deadMember = context.PartyHelper.FindDeadPartyMemberNeedingRaise(player);
-        if (deadMember == null)
+        if (deadMember is null)
             return false;
 
         if (player.CurrentMp < RaiseMpCost)
@@ -174,7 +174,7 @@ public sealed class ResurrectionModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableThinAir || player.Level < WHMActions.ThinAir.MinLevel)
+        if (!config.Buffs.EnableThinAir || player.Level < WHMActions.ThinAir.MinLevel)
             return false;
 
         if (StatusHelper.HasThinAir(player))

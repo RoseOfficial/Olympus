@@ -88,12 +88,12 @@ public sealed class HealingModule : IApolloModule
             context.PartyHelper.FindBestCureIIITarget(player, cureIIIHealAmount);
 
         // Check if we have enough targets
-        var hasEnoughSelfCenteredTargets = injuredCount >= config.AoEHealMinTargets;
-        var hasEnoughCureIIITargets = cureIIITargetCount >= config.AoEHealMinTargets;
+        var hasEnoughSelfCenteredTargets = injuredCount >= config.Healing.AoEHealMinTargets;
+        var hasEnoughCureIIITargets = cureIIITargetCount >= config.Healing.AoEHealMinTargets;
 
         if (!hasEnoughSelfCenteredTargets && !hasEnoughCureIIITargets)
         {
-            context.Debug.AoEStatus = $"Injured {injuredCount} (self) / {cureIIITargetCount} (CureIII) < min {config.AoEHealMinTargets}";
+            context.Debug.AoEStatus = $"Injured {injuredCount} (self) / {cureIIITargetCount} (CureIII) < min {config.Healing.AoEHealMinTargets}";
             return false;
         }
 
@@ -102,7 +102,7 @@ public sealed class HealingModule : IApolloModule
             player, averageMissingHp, injuredCount, anyHaveRegen, context.CanExecuteOgcd,
             cureIIITargetCount, cureIIITarget);
 
-        if (action == null)
+        if (action is null)
         {
             context.Debug.AoEStatus = "No AoE heal available";
             return false;
@@ -116,11 +116,11 @@ public sealed class HealingModule : IApolloModule
 
         context.Debug.AoESelectedSpell = action.ActionId;
         context.Debug.AoEStatus = $"Executing {action.Name}" +
-            (selectedCureIIITarget != null ? $" on {selectedCureIIITarget.Name}" : "");
+            (selectedCureIIITarget is not null ? $" on {selectedCureIIITarget.Name}" : "");
 
         // Register pending heals
         List<uint> targetIds;
-        if (selectedCureIIITarget != null)
+        if (selectedCureIIITarget is not null)
         {
             targetIds = cureIIITargetIds;
         }
@@ -182,7 +182,7 @@ public sealed class HealingModule : IApolloModule
             return false;
 
         var target = context.PartyHelper.FindLowestHpPartyMember(player);
-        if (target == null)
+        if (target is null)
             return false;
 
         var hasFreecure = StatusHelper.HasFreecure(player);
@@ -190,7 +190,7 @@ public sealed class HealingModule : IApolloModule
 
         var (action, healAmount) = context.HealingSpellSelector.SelectBestSingleHeal(
             player, target, context.CanExecuteOgcd, hasFreecure, hasRegen, regenRemaining);
-        if (action == null)
+        if (action is null)
             return false;
 
         if (isMoving && action.CastTime > 0)
@@ -241,14 +241,14 @@ public sealed class HealingModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableHealing || !config.EnableRegen)
+        if (!config.EnableHealing || !config.Healing.EnableRegen)
             return false;
 
         if (player.Level < WHMActions.Regen.MinLevel)
             return false;
 
         var target = context.PartyHelper.FindRegenTarget(player, GameConstants.RegenHpThreshold, GameConstants.RegenRefreshThreshold);
-        if (target == null)
+        if (target is null)
             return false;
 
         if (isMoving && WHMActions.Regen.CastTime > 0)
@@ -270,7 +270,7 @@ public sealed class HealingModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableEsuna)
+        if (!config.RoleActions.EnableEsuna)
         {
             context.Debug.EsunaState = "Disabled";
             return false;
@@ -289,16 +289,16 @@ public sealed class HealingModule : IApolloModule
         }
 
         var (target, statusId, priority) = FindBestEsunaTarget(context);
-        if (target == null)
+        if (target is null)
         {
             context.Debug.EsunaState = "No target";
             context.Debug.EsunaTarget = "None";
             return false;
         }
 
-        if (priority != DebuffPriority.Lethal && (int)priority > config.EsunaPriorityThreshold)
+        if (priority != DebuffPriority.Lethal && (int)priority > config.RoleActions.EsunaPriorityThreshold)
         {
-            context.Debug.EsunaState = $"Priority {priority} > threshold {config.EsunaPriorityThreshold}";
+            context.Debug.EsunaState = $"Priority {priority} > threshold {config.RoleActions.EsunaPriorityThreshold}";
             return false;
         }
 
@@ -361,7 +361,7 @@ public sealed class HealingModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableHealing || !config.EnableBenediction)
+        if (!config.EnableHealing || !config.Healing.EnableBenediction)
             return false;
 
         if (player.Level < WHMActions.Benediction.MinLevel)
@@ -371,11 +371,11 @@ public sealed class HealingModule : IApolloModule
             return false;
 
         var target = context.PartyHelper.FindLowestHpPartyMember(player);
-        if (target == null)
+        if (target is null)
             return false;
 
         var hpPercent = context.PartyHelper.GetHpPercent(target);
-        if (hpPercent >= config.BenedictionEmergencyThreshold)
+        if (hpPercent >= config.Healing.BenedictionEmergencyThreshold)
             return false;
 
         if (!DistanceHelper.IsInRange(player, target, WHMActions.Benediction.Range))
@@ -400,7 +400,7 @@ public sealed class HealingModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableHealing || !config.EnableTetragrammaton)
+        if (!config.EnableHealing || !config.Healing.EnableTetragrammaton)
             return false;
 
         if (player.Level < WHMActions.Tetragrammaton.MinLevel)
@@ -410,7 +410,7 @@ public sealed class HealingModule : IApolloModule
             return false;
 
         var target = context.PartyHelper.FindLowestHpPartyMember(player);
-        if (target == null)
+        if (target is null)
             return false;
 
         if (!DistanceHelper.IsInRange(player, target, WHMActions.Tetragrammaton.Range))
@@ -446,7 +446,7 @@ public sealed class HealingModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableThinAir || player.Level < WHMActions.ThinAir.MinLevel)
+        if (!config.Buffs.EnableThinAir || player.Level < WHMActions.ThinAir.MinLevel)
             return false;
 
         if (StatusHelper.HasThinAir(player))

@@ -87,7 +87,7 @@ public class DefensiveModuleTests
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableHealing = true;
-        config.EnableDivineBenison = false;
+        config.Defensive.EnableDivineBenison = false;
 
         var actionService = new Mock<IActionService>();
         var partyHelper = new Mock<IPartyHelper>();
@@ -117,7 +117,7 @@ public class DefensiveModuleTests
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableHealing = true;
-        config.EnableDivineBenison = true;
+        config.Defensive.EnableDivineBenison = true;
 
         var actionService = new Mock<IActionService>();
         var partyHelper = new Mock<IPartyHelper>();
@@ -151,7 +151,7 @@ public class DefensiveModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableAquaveil = false;
+        config.Defensive.EnableAquaveil = false;
 
         var actionService = new Mock<IActionService>();
         var partyHelper = new Mock<IPartyHelper>();
@@ -180,7 +180,7 @@ public class DefensiveModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableAquaveil = true;
+        config.Defensive.EnableAquaveil = true;
 
         var actionService = new Mock<IActionService>();
         var partyHelper = new Mock<IPartyHelper>();
@@ -215,7 +215,7 @@ public class DefensiveModuleTests
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableHealing = true;
-        config.EnableTemperance = false;
+        config.Defensive.EnableTemperance = false;
 
         var actionService = new Mock<IActionService>();
         var partyHelper = new Mock<IPartyHelper>();
@@ -245,7 +245,7 @@ public class DefensiveModuleTests
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableHealing = true;
-        config.EnableTemperance = true;
+        config.Defensive.EnableTemperance = true;
 
         var actionService = new Mock<IActionService>();
         var partyHelper = new Mock<IPartyHelper>();
@@ -279,7 +279,7 @@ public class DefensiveModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableLiturgyOfTheBell = false;
+        config.Defensive.EnableLiturgyOfTheBell = false;
 
         var actionService = new Mock<IActionService>();
         var partyHelper = new Mock<IPartyHelper>();
@@ -308,7 +308,7 @@ public class DefensiveModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableLiturgyOfTheBell = true;
+        config.Defensive.EnableLiturgyOfTheBell = true;
 
         var actionService = new Mock<IActionService>();
         actionService.Setup(a => a.IsActionReady(WHMActions.LiturgyOfTheBell.ActionId))
@@ -345,7 +345,7 @@ public class DefensiveModuleTests
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableHealing = true;
-        config.EnablePlenaryIndulgence = false;
+        config.Defensive.EnablePlenaryIndulgence = false;
 
         var actionService = new Mock<IActionService>();
         var partyHelper = new Mock<IPartyHelper>();
@@ -375,7 +375,7 @@ public class DefensiveModuleTests
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableHealing = true;
-        config.EnablePlenaryIndulgence = true;
+        config.Defensive.EnablePlenaryIndulgence = true;
 
         var actionService = new Mock<IActionService>();
         var partyHelper = new Mock<IPartyHelper>();
@@ -410,7 +410,7 @@ public class DefensiveModuleTests
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableHealing = true;
-        config.EnableDivineCaress = false;
+        config.Defensive.EnableDivineCaress = false;
 
         var actionService = new Mock<IActionService>();
         var partyHelper = new Mock<IPartyHelper>();
@@ -444,9 +444,9 @@ public class DefensiveModuleTests
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableHealing = false;
-        config.EnableTemperance = true;
-        config.EnableDivineBenison = true;
-        config.EnablePlenaryIndulgence = true;
+        config.Defensive.EnableTemperance = true;
+        config.Defensive.EnableDivineBenison = true;
+        config.Defensive.EnablePlenaryIndulgence = true;
 
         var actionService = new Mock<IActionService>();
         var partyHelper = new Mock<IPartyHelper>();

@@ -127,12 +127,12 @@ public sealed class DebugWindow : Window
 
     private void DrawSectionToggle(string key, string label)
     {
-        if (!_configuration.DebugSectionVisibility.TryGetValue(key, out var visible))
+        if (!_configuration.Debug.DebugSectionVisibility.TryGetValue(key, out var visible))
             visible = true;
 
         if (ImGui.Checkbox(label, ref visible))
         {
-            _configuration.DebugSectionVisibility[key] = visible;
+            _configuration.Debug.DebugSectionVisibility[key] = visible;
         }
     }
 }

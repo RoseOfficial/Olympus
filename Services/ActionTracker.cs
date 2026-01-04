@@ -55,7 +55,7 @@ public sealed class ActionTracker
         Configuration configuration)
     {
         this.dataManager = dataManager;
-        this.historySize = configuration.ActionHistorySize;
+        this.historySize = configuration.Debug.ActionHistorySize;
     }
 
     /// <summary>

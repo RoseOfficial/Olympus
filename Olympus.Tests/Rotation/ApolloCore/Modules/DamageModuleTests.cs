@@ -105,7 +105,7 @@ public class DamageModuleTests
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableDamage = false;
-        config.EnableStone = true;
+        config.Damage.EnableStone = true;
 
         var enemyMock = CreateMockEnemy();
 
@@ -140,7 +140,7 @@ public class DamageModuleTests
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableDoT = false;
-        config.EnableDia = true;
+        config.Dot.EnableDia = true;
 
         var enemyMock = CreateMockEnemy();
 
@@ -187,7 +187,7 @@ public class DamageModuleTests
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableDamage = true;
-        config.EnableStone = true;
+        config.Damage.EnableStone = true;
 
         var enemyMock = CreateMockEnemy();
 
@@ -226,7 +226,7 @@ public class DamageModuleTests
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableDamage = true;
-        config.EnableGlareIII = true;
+        config.Damage.EnableGlareIII = true;
 
         var enemyMock = CreateMockEnemy();
 
@@ -269,8 +269,8 @@ public class DamageModuleTests
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableDamage = true;
-        config.EnableHoly = true;
-        config.AoEDamageMinTargets = 3;
+        config.Damage.EnableHoly = true;
+        config.Damage.AoEDamageMinTargets = 3;
 
         var targetingServiceMock = MockBuilders.CreateMockTargetingService();
         targetingServiceMock.Setup(x => x.CountEnemiesInRange(It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
@@ -317,9 +317,9 @@ public class DamageModuleTests
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableDamage = true;
-        config.EnableHoly = true;
-        config.EnableStone = true;
-        config.AoEDamageMinTargets = 3;
+        config.Damage.EnableHoly = true;
+        config.Damage.EnableStone = true;
+        config.Damage.AoEDamageMinTargets = 3;
 
         var enemyMock = CreateMockEnemy();
 
@@ -402,7 +402,7 @@ public class DamageModuleTests
         // Arrange - At level 72+, Dia is instant cast while moving
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableDoT = true;
-        config.EnableDia = true;
+        config.Dot.EnableDia = true;
 
         var enemyMock = CreateMockEnemy();
 

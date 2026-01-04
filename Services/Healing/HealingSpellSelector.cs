@@ -52,18 +52,17 @@ public sealed class SpellSelectionDebug
 /// </summary>
 public class HealingSpellSelector : IHealingSpellSelector
 {
-    private readonly IActionService actionService;
     private readonly IPlayerStatsService playerStatsService;
     private readonly IHpPredictionService hpPredictionService;
     private readonly Configuration configuration;
     private readonly IErrorMetricsService? errorMetrics;
+    private readonly SpellCandidateEvaluator evaluator;
 
     // Note: Assize is handled as a DPS oGCD in Apollo, not here
     // Note: Both single-target and AoE heals use tiered priority instead of scoring
 
     // Debug tracking for last selection
     private SpellSelectionDebug? lastSelection;
-    private readonly List<SpellCandidateDebug> currentCandidates = new();
 
     /// <summary>
     /// Gets the last spell selection decision for debugging.
@@ -76,12 +75,24 @@ public class HealingSpellSelector : IHealingSpellSelector
         IHpPredictionService hpPredictionService,
         Configuration configuration,
         IErrorMetricsService? errorMetrics = null)
+        : this(actionService, playerStatsService, hpPredictionService, configuration,
+               new SpellEnablementService(configuration), errorMetrics)
     {
-        this.actionService = actionService;
+    }
+
+    public HealingSpellSelector(
+        IActionService actionService,
+        IPlayerStatsService playerStatsService,
+        IHpPredictionService hpPredictionService,
+        Configuration configuration,
+        ISpellEnablementService enablementService,
+        IErrorMetricsService? errorMetrics = null)
+    {
         this.playerStatsService = playerStatsService;
         this.hpPredictionService = hpPredictionService;
         this.configuration = configuration;
         this.errorMetrics = errorMetrics;
+        this.evaluator = new SpellCandidateEvaluator(actionService, enablementService);
     }
 
     /// <summary>
@@ -103,7 +114,7 @@ public class HealingSpellSelector : IHealingSpellSelector
         bool hasRegen = false,
         float regenRemaining = 0f)
     {
-        currentCandidates.Clear();
+        evaluator.ClearCandidates();
         var (mind, det, wd) = playerStatsService.GetHealingStats(player.Level);
         var missingHp = (int)(target.MaxHp - hpPredictionService.GetPredictedHp(target.EntityId, target.CurrentHp, target.MaxHp));
         var hpPercent = hpPredictionService.GetPredictedHpPercent(target.EntityId, target.CurrentHp, target.MaxHp);
@@ -124,7 +135,7 @@ public class HealingSpellSelector : IHealingSpellSelector
                 LilyCount = lilyCount,
                 BloodLilyCount = bloodLilyCount,
                 LilyStrategy = lilyStrategy.ToString(),
-                Candidates = new List<SpellCandidateDebug>(),
+                Candidates = [],
                 SelectedSpell = null,
                 SelectionReason = "Target doesn't need healing (missingHp <= 0)"
             };
@@ -142,106 +153,97 @@ public class HealingSpellSelector : IHealingSpellSelector
         // Blood Lily optimization: prefer lily heals based on strategy to generate Blood Lilies
         if (lilyCount > 0 && ShouldPreferLilyHeal(lilyCount, bloodLilyCount, hpPercent))
         {
-            var result = TrySelectHeal(WHMActions.AfflatusSolace, player.Level, mind, det, wd, target);
-            if (result.action != null)
+            var result = evaluator.EvaluateSingleTarget(WHMActions.AfflatusSolace, player.Level, mind, det, wd, target);
+            if (result.IsValid && result.Action is not null)
             {
-                selectedAction = result.action;
-                selectedHealAmount = result.healAmount;
+                selectedAction = result.Action;
+                selectedHealAmount = result.HealAmount;
                 selectionReason = $"Tier 1: Lily heal ({lilyCount} lilies, {bloodLilyCount}/3 Blood, {lilyStrategy})";
             }
         }
         else if (lilyCount == 0)
         {
-            TrackRejectedSpell(WHMActions.AfflatusSolace, 0, 0, "No lilies available");
+            evaluator.TrackRejected(WHMActions.AfflatusSolace, 0, "No lilies available");
         }
         else
         {
-            TrackRejectedSpell(WHMActions.AfflatusSolace, 0, 0,
+            evaluator.TrackRejected(WHMActions.AfflatusSolace, 0,
                 $"Strategy {lilyStrategy}: Blood {bloodLilyCount}/3, HP {hpPercent:P0}");
         }
 
         // === TIER 2: Regen (HoT) ===
-        // Regen is the only spell with an HP threshold (90%)
-        // Apply if target is below 90% HP and doesn't have Regen or it's about to expire
-        if (selectedAction == null)
+        // Regen is the only spell with an HP threshold
+        // Apply if target is below threshold HP and doesn't have Regen or it's about to expire
+        if (selectedAction is null)
         {
-            const float RegenHpThreshold = 0.90f;
-            var targetBelowThreshold = hpPercent < RegenHpThreshold;
-            var needsRegen = (!hasRegen || regenRemaining < 3f) && targetBelowThreshold;
+            var targetBelowThreshold = hpPercent < FFXIVConstants.RegenHpThreshold;
+            var needsRegen = (!hasRegen || regenRemaining < FFXIVConstants.RegenRefreshThreshold) && targetBelowThreshold;
 
             if (needsRegen)
             {
-                var result = TrySelectHeal(WHMActions.Regen, player.Level, mind, det, wd, target);
-                if (result.action != null)
+                var result = evaluator.EvaluateSingleTarget(WHMActions.Regen, player.Level, mind, det, wd, target);
+                if (result.IsValid && result.Action is not null)
                 {
-                    selectedAction = result.action;
-                    selectedHealAmount = result.healAmount;
+                    selectedAction = result.Action;
+                    selectedHealAmount = result.HealAmount;
                     selectionReason = hasRegen ? "Tier 2: Regen (refresh)" : "Tier 2: Regen";
                 }
             }
             else if (!targetBelowThreshold)
             {
-                TrackRejectedSpell(WHMActions.Regen, 0, 0, $"HP {hpPercent:P0} >= 90% threshold");
+                evaluator.TrackRejected(WHMActions.Regen, 0, $"HP {hpPercent:P0} >= {FFXIVConstants.RegenHpThreshold:P0} threshold");
             }
             else
             {
-                TrackRejectedSpell(WHMActions.Regen, 0, 0, $"Already has Regen ({regenRemaining:F1}s remaining)");
+                evaluator.TrackRejected(WHMActions.Regen, 0, $"Already has Regen ({regenRemaining:F1}s remaining)");
             }
         }
 
         // === TIER 3: Regular GCD (Cure II with Freecure, or Cure) ===
         // Apply overheal prevention to GCD heals to avoid wasting MP
-        if (selectedAction == null)
+        if (selectedAction is null)
         {
             // Prioritize Cure II if we have Freecure proc
             if (hasFreecure)
             {
-                var result = TrySelectHeal(WHMActions.CureII, player.Level, mind, det, wd, target, missingHp);
-                if (result.action != null)
+                var result = evaluator.EvaluateSingleTarget(WHMActions.CureII, player.Level, mind, det, wd, target, missingHp);
+                if (result.IsValid && result.Action is not null)
                 {
-                    selectedAction = result.action;
-                    selectedHealAmount = result.healAmount;
+                    selectedAction = result.Action;
+                    selectedHealAmount = result.HealAmount;
                     selectionReason = "Tier 3: Cure II (Freecure proc)";
                 }
             }
 
             // Try Cure II without Freecure
-            if (selectedAction == null)
+            if (selectedAction is null)
             {
-                var result = TrySelectHeal(WHMActions.CureII, player.Level, mind, det, wd, target, missingHp);
-                if (result.action != null)
+                var result = evaluator.EvaluateSingleTarget(WHMActions.CureII, player.Level, mind, det, wd, target, missingHp);
+                if (result.IsValid && result.Action is not null)
                 {
-                    selectedAction = result.action;
-                    selectedHealAmount = result.healAmount;
+                    selectedAction = result.Action;
+                    selectedHealAmount = result.HealAmount;
                     selectionReason = "Tier 3: Cure II";
                 }
             }
 
             // Fallback to Cure
-            if (selectedAction == null)
+            if (selectedAction is null)
             {
-                var result = TrySelectHeal(WHMActions.Cure, player.Level, mind, det, wd, target, missingHp);
-                if (result.action != null)
+                var result = evaluator.EvaluateSingleTarget(WHMActions.Cure, player.Level, mind, det, wd, target, missingHp);
+                if (result.IsValid && result.Action is not null)
                 {
-                    selectedAction = result.action;
-                    selectedHealAmount = result.healAmount;
+                    selectedAction = result.Action;
+                    selectedHealAmount = result.HealAmount;
                     selectionReason = "Tier 3: Cure (fallback)";
                 }
             }
         }
 
-        // Build debug info
-        var debugCandidates = new List<SpellCandidateDebug>(currentCandidates);
-        if (selectedAction != null)
+        // Mark selected action and build debug info
+        if (selectedAction is not null)
         {
-            for (int i = 0; i < debugCandidates.Count; i++)
-            {
-                if (debugCandidates[i].ActionId == selectedAction.ActionId)
-                {
-                    debugCandidates[i] = debugCandidates[i] with { WasSelected = true };
-                    break;
-                }
-            }
+            evaluator.MarkAsSelected(selectedAction.ActionId);
         }
 
         lastSelection = new SpellSelectionDebug
@@ -254,120 +256,12 @@ public class HealingSpellSelector : IHealingSpellSelector
             LilyCount = lilyCount,
             BloodLilyCount = bloodLilyCount,
             LilyStrategy = lilyStrategy.ToString(),
-            Candidates = debugCandidates,
+            Candidates = evaluator.GetCandidatesCopy(),
             SelectedSpell = selectedAction?.Name,
             SelectionReason = selectionReason
         };
 
         return (selectedAction, selectedHealAmount);
-    }
-
-    /// <summary>
-    /// Attempts to select a heal spell if it meets all requirements.
-    /// Returns the action and heal amount if valid, or (null, 0) if not.
-    /// </summary>
-    /// <param name="action">The heal action to evaluate.</param>
-    /// <param name="playerLevel">The player's current level.</param>
-    /// <param name="mind">The player's Mind stat.</param>
-    /// <param name="det">The player's Determination stat.</param>
-    /// <param name="wd">The player's weapon damage.</param>
-    /// <param name="target">The target to heal.</param>
-    /// <param name="missingHp">The target's missing HP for overheal prevention. Use 0 to skip overheal check.</param>
-    private (ActionDefinition? action, int healAmount) TrySelectHeal(
-        ActionDefinition action,
-        byte playerLevel,
-        int mind, int det, int wd,
-        IBattleChara target,
-        int missingHp = 0)
-    {
-        // Check level
-        if (playerLevel < action.MinLevel)
-        {
-            TrackRejectedSpell(action, 0, 0, $"Level too low ({playerLevel} < {action.MinLevel})");
-            return (null, 0);
-        }
-
-        // Check config enabled
-        if (!IsSpellEnabled(action))
-        {
-            TrackRejectedSpell(action, 0, 0, "Disabled in config");
-            return (null, 0);
-        }
-
-        // Check cooldown
-        if (!actionService.IsActionReady(action.ActionId))
-        {
-            TrackRejectedSpell(action, 0, 0, "On cooldown");
-            return (null, 0);
-        }
-
-        // Calculate heal amount
-        var healAmount = action.EstimateHealAmount(mind, det, wd, playerLevel);
-
-        // Check for overheal (only for potency-based heals, not Benediction)
-        if (missingHp > 0 && action.HealPotency > 0 && healAmount > missingHp)
-        {
-            TrackRejectedSpell(action, healAmount, 0, $"Would overheal ({healAmount} > {missingHp} missing)");
-            return (null, 0);
-        }
-
-        // Track as valid candidate
-        currentCandidates.Add(new SpellCandidateDebug
-        {
-            SpellName = action.Name,
-            ActionId = action.ActionId,
-            HealAmount = healAmount,
-            Efficiency = 1.0f,
-            Score = 1.0f,
-            Bonuses = "Tiered priority",
-            WasSelected = false,
-            RejectionReason = null
-        });
-
-        return (action, healAmount);
-    }
-
-    private void TrackRejectedSpell(ActionDefinition action, int healAmount, float efficiency, string reason)
-    {
-        currentCandidates.Add(new SpellCandidateDebug
-        {
-            SpellName = action.Name,
-            ActionId = action.ActionId,
-            HealAmount = healAmount,
-            Efficiency = efficiency,
-            Score = 0,
-            Bonuses = "",
-            WasSelected = false,
-            RejectionReason = reason
-        });
-    }
-
-    private bool IsSpellEnabled(ActionDefinition action)
-    {
-        return action.ActionId switch
-        {
-            120 => configuration.EnableCure,           // Cure
-            135 => configuration.EnableCureII,         // Cure II
-            131 => configuration.EnableCureIII,        // Cure III
-            137 => configuration.EnableRegen,          // Regen
-            16531 => configuration.EnableAfflatusSolace, // Afflatus Solace
-            3570 => configuration.EnableTetragrammaton, // Tetragrammaton
-            140 => configuration.EnableBenediction,    // Benediction
-            124 => configuration.EnableMedica,         // Medica
-            133 => configuration.EnableMedicaII,       // Medica II
-            37010 => configuration.EnableMedicaIII,    // Medica III
-            16534 => configuration.EnableAfflatusRapture, // Afflatus Rapture
-            3571 => configuration.EnableAssize,        // Assize
-            3569 => configuration.EnableAsylum,        // Asylum
-            16535 => configuration.EnableAfflatusMisery, // Afflatus Misery
-            7432 => configuration.EnableDivineBenison,   // Divine Benison
-            7433 => configuration.EnablePlenaryIndulgence, // Plenary Indulgence
-            16536 => configuration.EnableTemperance,     // Temperance
-            25861 => configuration.EnableAquaveil,       // Aquaveil
-            25862 => configuration.EnableLiturgyOfTheBell, // Liturgy of the Bell
-            37011 => configuration.EnableDivineCaress,   // Divine Caress
-            _ => true
-        };
     }
 
     /// <summary>
@@ -391,15 +285,15 @@ public class HealingSpellSelector : IHealingSpellSelector
         int cureIIITargetCount = 0,
         IBattleChara? cureIIITarget = null)
     {
-        currentCandidates.Clear();
+        evaluator.ClearCandidates();
         var (mind, det, wd) = playerStatsService.GetHealingStats(player.Level);
         var lilyCount = GetLilyCount();
         var bloodLilyCount = GetBloodLilyCount();
         var lilyStrategy = configuration.Healing.LilyStrategy;
 
         // Skip if not enough targets (check both self-centered and Cure III targets)
-        var hasSelfCenteredTargets = injuredCount >= configuration.AoEHealMinTargets;
-        var hasCureIIITargets = cureIIITargetCount >= configuration.AoEHealMinTargets;
+        var hasSelfCenteredTargets = injuredCount >= configuration.Healing.AoEHealMinTargets;
+        var hasCureIIITargets = cureIIITargetCount >= configuration.Healing.AoEHealMinTargets;
 
         if (!hasSelfCenteredTargets && !hasCureIIITargets)
         {
@@ -413,9 +307,9 @@ public class HealingSpellSelector : IHealingSpellSelector
                 LilyCount = lilyCount,
                 BloodLilyCount = bloodLilyCount,
                 LilyStrategy = lilyStrategy.ToString(),
-                Candidates = new List<SpellCandidateDebug>(),
+                Candidates = [],
                 SelectedSpell = null,
-                SelectionReason = $"Not enough targets (self:{injuredCount}, CureIII:{cureIIITargetCount} < {configuration.AoEHealMinTargets} min)"
+                SelectionReason = $"Not enough targets (self:{injuredCount}, CureIII:{cureIIITargetCount} < {configuration.Healing.AoEHealMinTargets} min)"
             };
             return (null, 0, null);
         }
@@ -433,118 +327,110 @@ public class HealingSpellSelector : IHealingSpellSelector
         // For AoE heals, we use 0 for HP percent since we're healing multiple targets
         if (lilyCount > 0 && hasSelfCenteredTargets && ShouldPreferLilyHeal(lilyCount, bloodLilyCount, 0f))
         {
-            var result = TrySelectAoEHeal(WHMActions.AfflatusRapture, player.Level, mind, det, wd);
-            if (result.action != null)
+            var result = evaluator.EvaluateAoE(WHMActions.AfflatusRapture, player.Level, mind, det, wd);
+            if (result.IsValid && result.Action is not null)
             {
-                selectedAction = result.action;
-                selectedHealAmount = result.healAmount;
+                selectedAction = result.Action;
+                selectedHealAmount = result.HealAmount;
                 selectionReason = $"Tier 1: Lily AoE heal ({lilyCount} lilies, {bloodLilyCount}/3 Blood, {lilyStrategy})";
             }
         }
         else if (lilyCount == 0)
         {
-            TrackRejectedSpell(WHMActions.AfflatusRapture, 0, 0, "No lilies available");
+            evaluator.TrackRejected(WHMActions.AfflatusRapture, 0, "No lilies available");
         }
         else if (!hasSelfCenteredTargets)
         {
-            TrackRejectedSpell(WHMActions.AfflatusRapture, 0, 0, $"Not enough self-centered targets ({injuredCount})");
+            evaluator.TrackRejected(WHMActions.AfflatusRapture, 0, $"Not enough self-centered targets ({injuredCount})");
         }
         else
         {
-            TrackRejectedSpell(WHMActions.AfflatusRapture, 0, 0,
+            evaluator.TrackRejected(WHMActions.AfflatusRapture, 0,
                 $"Strategy {lilyStrategy}: Blood {bloodLilyCount}/3");
         }
 
         // === TIER 1.5: Cure III (targeted AoE, when party is stacked) ===
         // Higher potency (600) than Medica (400), but requires stacked party within 10y
-        if (selectedAction == null && hasCureIIITargets && cureIIITarget != null)
+        if (selectedAction is null && hasCureIIITargets && cureIIITarget is not null)
         {
-            var result = TrySelectAoEHeal(WHMActions.CureIII, player.Level, mind, det, wd);
-            if (result.action != null)
+            var result = evaluator.EvaluateAoE(WHMActions.CureIII, player.Level, mind, det, wd);
+            if (result.IsValid && result.Action is not null)
             {
-                selectedAction = result.action;
-                selectedHealAmount = result.healAmount;
+                selectedAction = result.Action;
+                selectedHealAmount = result.HealAmount;
                 selectedCureIIITarget = cureIIITarget;
                 selectionReason = $"Tier 1.5: Cure III ({cureIIITargetCount} stacked around {cureIIITarget.Name})";
             }
         }
-        else if (selectedAction == null && !hasCureIIITargets)
+        else if (selectedAction is null && !hasCureIIITargets)
         {
-            TrackRejectedSpell(WHMActions.CureIII, 0, 0, $"Not enough stacked targets ({cureIIITargetCount} < {configuration.AoEHealMinTargets})");
+            evaluator.TrackRejected(WHMActions.CureIII, 0, $"Not enough stacked targets ({cureIIITargetCount} < {configuration.Healing.AoEHealMinTargets})");
         }
-        else if (selectedAction == null && cureIIITarget == null)
+        else if (selectedAction is null && cureIIITarget is null)
         {
-            TrackRejectedSpell(WHMActions.CureIII, 0, 0, "No valid Cure III target");
+            evaluator.TrackRejected(WHMActions.CureIII, 0, "No valid Cure III target");
         }
 
         // === TIER 2: Medica III (HoT, highest potency) ===
-        if (selectedAction == null && hasSelfCenteredTargets)
+        if (selectedAction is null && hasSelfCenteredTargets)
         {
             if (anyHaveRegen)
             {
-                TrackRejectedSpell(WHMActions.MedicaIII, 0, 0, "Would overwrite existing regen");
+                evaluator.TrackRejected(WHMActions.MedicaIII, 0, "Would overwrite existing regen");
             }
             else
             {
-                var result = TrySelectAoEHeal(WHMActions.MedicaIII, player.Level, mind, det, wd);
-                if (result.action != null)
+                var result = evaluator.EvaluateAoE(WHMActions.MedicaIII, player.Level, mind, det, wd);
+                if (result.IsValid && result.Action is not null)
                 {
-                    selectedAction = result.action;
-                    selectedHealAmount = result.healAmount;
+                    selectedAction = result.Action;
+                    selectedHealAmount = result.HealAmount;
                     selectionReason = "Tier 2: Medica III (HoT)";
                 }
             }
         }
 
         // === TIER 3: Medica II (HoT) ===
-        if (selectedAction == null && hasSelfCenteredTargets)
+        if (selectedAction is null && hasSelfCenteredTargets)
         {
             if (anyHaveRegen)
             {
-                TrackRejectedSpell(WHMActions.MedicaII, 0, 0, "Would overwrite existing regen");
+                evaluator.TrackRejected(WHMActions.MedicaII, 0, "Would overwrite existing regen");
             }
             else
             {
-                var result = TrySelectAoEHeal(WHMActions.MedicaII, player.Level, mind, det, wd);
-                if (result.action != null)
+                var result = evaluator.EvaluateAoE(WHMActions.MedicaII, player.Level, mind, det, wd);
+                if (result.IsValid && result.Action is not null)
                 {
-                    selectedAction = result.action;
-                    selectedHealAmount = result.healAmount;
+                    selectedAction = result.Action;
+                    selectedHealAmount = result.HealAmount;
                     selectionReason = "Tier 3: Medica II (HoT)";
                 }
             }
         }
 
         // === TIER 4: Medica (fallback) ===
-        if (selectedAction == null && hasSelfCenteredTargets)
+        if (selectedAction is null && hasSelfCenteredTargets)
         {
-            var result = TrySelectAoEHeal(WHMActions.Medica, player.Level, mind, det, wd);
-            if (result.action != null)
+            var result = evaluator.EvaluateAoE(WHMActions.Medica, player.Level, mind, det, wd);
+            if (result.IsValid && result.Action is not null)
             {
-                selectedAction = result.action;
-                selectedHealAmount = result.healAmount;
+                selectedAction = result.Action;
+                selectedHealAmount = result.HealAmount;
                 selectionReason = "Tier 4: Medica (fallback)";
             }
         }
 
-        // Build debug info
-        var debugCandidates = new List<SpellCandidateDebug>(currentCandidates);
-        if (selectedAction != null)
+        // Mark selected action and build debug info
+        if (selectedAction is not null)
         {
-            for (int i = 0; i < debugCandidates.Count; i++)
-            {
-                if (debugCandidates[i].ActionId == selectedAction.ActionId)
-                {
-                    debugCandidates[i] = debugCandidates[i] with { WasSelected = true };
-                    break;
-                }
-            }
+            evaluator.MarkAsSelected(selectedAction.ActionId);
         }
 
         lastSelection = new SpellSelectionDebug
         {
             SelectionType = "AoE",
-            TargetName = selectedCureIIITarget != null
+            TargetName = selectedCureIIITarget is not null
                 ? $"{cureIIITargetCount} stacked around {selectedCureIIITarget.Name}"
                 : $"{injuredCount} injured",
             MissingHp = averageMissingHp,
@@ -553,61 +439,12 @@ public class HealingSpellSelector : IHealingSpellSelector
             LilyCount = lilyCount,
             BloodLilyCount = bloodLilyCount,
             LilyStrategy = lilyStrategy.ToString(),
-            Candidates = debugCandidates,
+            Candidates = evaluator.GetCandidatesCopy(),
             SelectedSpell = selectedAction?.Name,
             SelectionReason = selectionReason
         };
 
         return (selectedAction, selectedHealAmount, selectedCureIIITarget);
-    }
-
-    /// <summary>
-    /// Attempts to select an AoE heal spell if it meets all requirements.
-    /// Returns the action and heal amount if valid, or (null, 0) if not.
-    /// </summary>
-    private (ActionDefinition? action, int healAmount) TrySelectAoEHeal(
-        ActionDefinition action,
-        byte playerLevel,
-        int mind, int det, int wd)
-    {
-        // Check level
-        if (playerLevel < action.MinLevel)
-        {
-            TrackRejectedSpell(action, 0, 0, $"Level too low ({playerLevel} < {action.MinLevel})");
-            return (null, 0);
-        }
-
-        // Check config enabled
-        if (!IsSpellEnabled(action))
-        {
-            TrackRejectedSpell(action, 0, 0, "Disabled in config");
-            return (null, 0);
-        }
-
-        // Check cooldown
-        if (!actionService.IsActionReady(action.ActionId))
-        {
-            TrackRejectedSpell(action, 0, 0, "On cooldown");
-            return (null, 0);
-        }
-
-        // Calculate heal amount
-        var healAmount = action.EstimateHealAmount(mind, det, wd, playerLevel);
-
-        // Track as valid candidate
-        currentCandidates.Add(new SpellCandidateDebug
-        {
-            SpellName = action.Name,
-            ActionId = action.ActionId,
-            HealAmount = healAmount,
-            Efficiency = 1.0f,
-            Score = 1.0f,
-            Bonuses = "Tiered priority",
-            WasSelected = false,
-            RejectionReason = null
-        });
-
-        return (action, healAmount);
     }
 
     /// <summary>
@@ -659,6 +496,6 @@ public class HealingSpellSelector : IHealingSpellSelector
     {
         var lilyCount = GetLilyCount();
         var bloodLilyCount = GetBloodLilyCount();
-        return $"Lilies: {lilyCount}/3 | Blood: {bloodLilyCount}/3 | Strategy: {configuration.Healing.LilyStrategy} | BeneThreshold: {configuration.BenedictionEmergencyThreshold:P0}";
+        return $"Lilies: {lilyCount}/3 | Blood: {bloodLilyCount}/3 | Strategy: {configuration.Healing.LilyStrategy} | BeneThreshold: {configuration.Healing.BenedictionEmergencyThreshold:P0}";
     }
 }

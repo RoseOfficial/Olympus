@@ -54,39 +54,15 @@ public sealed class Apollo
 
     // Movement detection
     private Vector3 _lastPosition;
+    private DateTime _lastMovementTime = DateTime.MinValue;
 
-    // Debug state (exposed for UI)
-    public int DebugAoEInjuredCount { get; private set; }
-    public uint DebugAoESelectedSpell { get; private set; }
-    public string DebugAoEStatus { get; private set; } = "Idle";
-    public float DebugPlayerHpPercent { get; private set; }
-    public int DebugPartyListCount { get; private set; }
-    public int DebugPartyValidCount { get; private set; }
-    public int DebugBattleNpcCount { get; private set; }
-    public string DebugNpcInfo { get; private set; } = "";
-    public string DebugPlanningState { get; private set; } = "Idle";
-    public string DebugPlannedAction { get; private set; } = "None";
-    public string DebugDpsState { get; private set; } = "Idle";
-    public string DebugTargetInfo { get; private set; } = "None";
-    public int DebugLastHealAmount { get; private set; }
-    public string DebugLastHealStats { get; private set; } = "";
-    public string DebugRaiseState { get; private set; } = "Idle";
-    public string DebugRaiseTarget { get; private set; } = "None";
-    public string DebugAoEDpsState { get; private set; } = "Idle";
-    public int DebugAoEDpsEnemyCount { get; private set; }
-    public string DebugAsylumState { get; private set; } = "Idle";
-    public string DebugAsylumTarget { get; private set; } = "None";
-    public string DebugThinAirState { get; private set; } = "Idle";
-    public string DebugDefensiveState { get; private set; } = "Idle";
-    public string DebugTemperanceState { get; private set; } = "Idle";
-    public int DebugLilyCount { get; private set; }
-    public int DebugBloodLilyCount { get; private set; }
-    public string DebugLilyStrategy { get; private set; } = "Balanced";
-    public int DebugSacredSightStacks { get; private set; }
-    public string DebugMiseryState { get; private set; } = "Idle";
-    public string DebugEsunaState { get; private set; } = "Idle";
-    public string DebugEsunaTarget { get; private set; } = "None";
-    public string DebugSurecastState { get; private set; } = "Idle";
+    // Persistent debug state (shared with contexts, exposed for DebugService)
+    private readonly DebugState _debugState = new();
+
+    /// <summary>
+    /// Gets the current debug state. Used by DebugService to display debug information.
+    /// </summary>
+    public DebugState DebugState => _debugState;
 
     public Apollo(
         IPluginLog log,
@@ -208,9 +184,18 @@ public sealed class Apollo
         // Update GCD state
         _actionService.Update(player.IsCasting);
 
-        // Movement detection
-        var isMoving = Vector3.DistanceSquared(player.Position, _lastPosition) > FFXIVTimings.MovementThresholdSquared;
+        // Movement detection with configurable grace period
+        var positionChanged = Vector3.DistanceSquared(player.Position, _lastPosition) > FFXIVTimings.MovementThresholdSquared;
         _lastPosition = player.Position;
+
+        // Track when we last detected actual movement
+        if (positionChanged)
+            _lastMovementTime = DateTime.UtcNow;
+
+        // Consider player as "moving" if position changed OR within grace period after stopping
+        // This prevents stutter-casting when player briefly stops during movement
+        var timeSinceMovement = (DateTime.UtcNow - _lastMovementTime).TotalSeconds;
+        var isMoving = positionChanged || timeSinceMovement < _configuration.MovementTolerance;
 
         // Combat tracking
         var inCombat = (player.StatusFlags & StatusFlags.InCombat) != 0;
@@ -262,12 +247,6 @@ public sealed class Apollo
                     break;
             }
         }
-
-        // Sync debug state from context to public properties (skip if debug window closed)
-        if (_configuration.IsDebugWindowOpen)
-        {
-            SyncDebugState(context);
-        }
     }
 
     /// <summary>
@@ -293,44 +272,7 @@ public sealed class Apollo
             playerStatsService: _playerStatsService,
             targetingService: _targetingService,
             statusHelper: _statusHelper,
-            partyHelper: _partyHelper);
-    }
-
-    /// <summary>
-    /// Syncs debug state from context to public properties.
-    /// </summary>
-    private void SyncDebugState(ApolloContext context)
-    {
-        DebugAoEInjuredCount = context.Debug.AoEInjuredCount;
-        DebugAoESelectedSpell = context.Debug.AoESelectedSpell;
-        DebugAoEStatus = context.Debug.AoEStatus;
-        DebugPlayerHpPercent = context.Debug.PlayerHpPercent;
-        DebugPartyListCount = context.Debug.PartyListCount;
-        DebugPartyValidCount = context.Debug.PartyValidCount;
-        DebugBattleNpcCount = context.Debug.BattleNpcCount;
-        DebugNpcInfo = context.Debug.NpcInfo;
-        DebugPlanningState = context.Debug.PlanningState;
-        DebugPlannedAction = context.Debug.PlannedAction;
-        DebugDpsState = context.Debug.DpsState;
-        DebugTargetInfo = context.Debug.TargetInfo;
-        DebugLastHealAmount = context.Debug.LastHealAmount;
-        DebugLastHealStats = context.Debug.LastHealStats;
-        DebugRaiseState = context.Debug.RaiseState;
-        DebugRaiseTarget = context.Debug.RaiseTarget;
-        DebugAoEDpsState = context.Debug.AoEDpsState;
-        DebugAoEDpsEnemyCount = context.Debug.AoEDpsEnemyCount;
-        DebugAsylumState = context.Debug.AsylumState;
-        DebugAsylumTarget = context.Debug.AsylumTarget;
-        DebugThinAirState = context.Debug.ThinAirState;
-        DebugDefensiveState = context.Debug.DefensiveState;
-        DebugTemperanceState = context.Debug.TemperanceState;
-        DebugLilyCount = context.Debug.LilyCount;
-        DebugBloodLilyCount = context.Debug.BloodLilyCount;
-        DebugLilyStrategy = context.Debug.LilyStrategy;
-        DebugSacredSightStacks = context.Debug.SacredSightStacks;
-        DebugMiseryState = context.Debug.MiseryState;
-        DebugEsunaState = context.Debug.EsunaState;
-        DebugEsunaTarget = context.Debug.EsunaTarget;
-        DebugSurecastState = context.Debug.SurecastState;
+            partyHelper: _partyHelper,
+            debugState: _debugState);
     }
 }

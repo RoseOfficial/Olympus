@@ -14,9 +14,9 @@ public class ConfigurationTests
     {
         var config = new Configuration
         {
-            Enabled = true,
-            EnableCure = false // Changed from default
+            Enabled = true
         };
+        config.Healing.EnableCure = false; // Changed from default
 
         config.ResetToDefaults();
 
@@ -28,9 +28,9 @@ public class ConfigurationTests
     {
         var config = new Configuration
         {
-            Enabled = false,
-            EnableCure = false
+            Enabled = false
         };
+        config.Healing.EnableCure = false;
 
         config.ResetToDefaults();
 
@@ -42,9 +42,9 @@ public class ConfigurationTests
     {
         var config = new Configuration
         {
-            MainWindowVisible = false,
-            EnableCure = false
+            MainWindowVisible = false
         };
+        config.Healing.EnableCure = false;
 
         config.ResetToDefaults();
 
@@ -54,15 +54,13 @@ public class ConfigurationTests
     [Fact]
     public void ResetToDefaults_PreservesDebugWindowVisible()
     {
-        var config = new Configuration
-        {
-            DebugWindowVisible = true,
-            EnableCure = false
-        };
+        var config = new Configuration();
+        config.Debug.DebugWindowVisible = true;
+        config.Healing.EnableCure = false;
 
         config.ResetToDefaults();
 
-        Assert.True(config.DebugWindowVisible);
+        Assert.True(config.Debug.DebugWindowVisible);
     }
 
     #endregion
@@ -72,118 +70,108 @@ public class ConfigurationTests
     [Fact]
     public void ResetToDefaults_ResetsHealingSpells()
     {
-        var config = new Configuration
-        {
-            EnableCure = false,
-            EnableCureII = false,
-            EnableMedica = false,
-            EnableMedicaII = false,
-            EnableMedicaIII = false,
-            EnableCureIII = false,
-            EnableRegen = false,
-            EnableAfflatusSolace = false,
-            EnableAfflatusRapture = false
-        };
+        var config = new Configuration();
+        config.Healing.EnableCure = false;
+        config.Healing.EnableCureII = false;
+        config.Healing.EnableMedica = false;
+        config.Healing.EnableMedicaII = false;
+        config.Healing.EnableMedicaIII = false;
+        config.Healing.EnableCureIII = false;
+        config.Healing.EnableRegen = false;
+        config.Healing.EnableAfflatusSolace = false;
+        config.Healing.EnableAfflatusRapture = false;
 
         config.ResetToDefaults();
 
-        Assert.True(config.EnableCure);
-        Assert.True(config.EnableCureII);
-        Assert.True(config.EnableMedica);
-        Assert.True(config.EnableMedicaII);
-        Assert.True(config.EnableMedicaIII);
-        Assert.True(config.EnableCureIII);
-        Assert.True(config.EnableRegen);
-        Assert.True(config.EnableAfflatusSolace);
-        Assert.True(config.EnableAfflatusRapture);
+        Assert.True(config.Healing.EnableCure);
+        Assert.True(config.Healing.EnableCureII);
+        Assert.True(config.Healing.EnableMedica);
+        Assert.True(config.Healing.EnableMedicaII);
+        Assert.True(config.Healing.EnableMedicaIII);
+        Assert.True(config.Healing.EnableCureIII);
+        Assert.True(config.Healing.EnableRegen);
+        Assert.True(config.Healing.EnableAfflatusSolace);
+        Assert.True(config.Healing.EnableAfflatusRapture);
     }
 
     [Fact]
     public void ResetToDefaults_ResetsOgcdHeals()
     {
-        var config = new Configuration
-        {
-            EnableTetragrammaton = false,
-            EnableBenediction = false,
-            EnableAssize = false,
-            EnableAsylum = false
-        };
+        var config = new Configuration();
+        config.Healing.EnableTetragrammaton = false;
+        config.Healing.EnableBenediction = false;
+        config.Healing.EnableAssize = false;
+        config.Healing.EnableAsylum = false;
 
         config.ResetToDefaults();
 
-        Assert.True(config.EnableTetragrammaton);
-        Assert.True(config.EnableBenediction);
-        Assert.True(config.EnableAssize);
-        Assert.True(config.EnableAsylum);
+        Assert.True(config.Healing.EnableTetragrammaton);
+        Assert.True(config.Healing.EnableBenediction);
+        Assert.True(config.Healing.EnableAssize);
+        Assert.True(config.Healing.EnableAsylum);
     }
 
     [Fact]
     public void ResetToDefaults_ResetsDamageSpells()
     {
-        var config = new Configuration
-        {
-            EnableStone = false,
-            EnableStoneII = false,
-            EnableStoneIII = false,
-            EnableStoneIV = false,
-            EnableGlare = false,
-            EnableGlareIII = false,
-            EnableGlareIV = false,
-            EnableHoly = false,
-            EnableHolyIII = false
-        };
+        var config = new Configuration();
+        config.Damage.EnableStone = false;
+        config.Damage.EnableStoneII = false;
+        config.Damage.EnableStoneIII = false;
+        config.Damage.EnableStoneIV = false;
+        config.Damage.EnableGlare = false;
+        config.Damage.EnableGlareIII = false;
+        config.Damage.EnableGlareIV = false;
+        config.Damage.EnableHoly = false;
+        config.Damage.EnableHolyIII = false;
 
         config.ResetToDefaults();
 
-        Assert.True(config.EnableStone);
-        Assert.True(config.EnableStoneII);
-        Assert.True(config.EnableStoneIII);
-        Assert.True(config.EnableStoneIV);
-        Assert.True(config.EnableGlare);
-        Assert.True(config.EnableGlareIII);
-        Assert.True(config.EnableGlareIV);
-        Assert.True(config.EnableHoly);
-        Assert.True(config.EnableHolyIII);
+        Assert.True(config.Damage.EnableStone);
+        Assert.True(config.Damage.EnableStoneII);
+        Assert.True(config.Damage.EnableStoneIII);
+        Assert.True(config.Damage.EnableStoneIV);
+        Assert.True(config.Damage.EnableGlare);
+        Assert.True(config.Damage.EnableGlareIII);
+        Assert.True(config.Damage.EnableGlareIV);
+        Assert.True(config.Damage.EnableHoly);
+        Assert.True(config.Damage.EnableHolyIII);
     }
 
     [Fact]
     public void ResetToDefaults_ResetsDotSpells()
     {
-        var config = new Configuration
-        {
-            EnableAero = false,
-            EnableAeroII = false,
-            EnableDia = false
-        };
+        var config = new Configuration();
+        config.Dot.EnableAero = false;
+        config.Dot.EnableAeroII = false;
+        config.Dot.EnableDia = false;
 
         config.ResetToDefaults();
 
-        Assert.True(config.EnableAero);
-        Assert.True(config.EnableAeroII);
-        Assert.True(config.EnableDia);
+        Assert.True(config.Dot.EnableAero);
+        Assert.True(config.Dot.EnableAeroII);
+        Assert.True(config.Dot.EnableDia);
     }
 
     [Fact]
     public void ResetToDefaults_ResetsDefensiveSpells()
     {
-        var config = new Configuration
-        {
-            EnableDivineBenison = false,
-            EnablePlenaryIndulgence = false,
-            EnableTemperance = false,
-            EnableAquaveil = false,
-            EnableLiturgyOfTheBell = false,
-            EnableDivineCaress = false
-        };
+        var config = new Configuration();
+        config.Defensive.EnableDivineBenison = false;
+        config.Defensive.EnablePlenaryIndulgence = false;
+        config.Defensive.EnableTemperance = false;
+        config.Defensive.EnableAquaveil = false;
+        config.Defensive.EnableLiturgyOfTheBell = false;
+        config.Defensive.EnableDivineCaress = false;
 
         config.ResetToDefaults();
 
-        Assert.True(config.EnableDivineBenison);
-        Assert.True(config.EnablePlenaryIndulgence);
-        Assert.True(config.EnableTemperance);
-        Assert.True(config.EnableAquaveil);
-        Assert.True(config.EnableLiturgyOfTheBell);
-        Assert.True(config.EnableDivineCaress);
+        Assert.True(config.Defensive.EnableDivineBenison);
+        Assert.True(config.Defensive.EnablePlenaryIndulgence);
+        Assert.True(config.Defensive.EnableTemperance);
+        Assert.True(config.Defensive.EnableAquaveil);
+        Assert.True(config.Defensive.EnableLiturgyOfTheBell);
+        Assert.True(config.Defensive.EnableDivineCaress);
     }
 
     #endregion
@@ -193,66 +181,56 @@ public class ConfigurationTests
     [Fact]
     public void ResetToDefaults_ResetsBenedictionThreshold()
     {
-        var config = new Configuration
-        {
-            BenedictionEmergencyThreshold = 0.10f
-        };
+        var config = new Configuration();
+        config.Healing.BenedictionEmergencyThreshold = 0.10f;
 
         config.ResetToDefaults();
 
-        Assert.Equal(0.30f, config.BenedictionEmergencyThreshold);
+        Assert.Equal(0.30f, config.Healing.BenedictionEmergencyThreshold);
     }
 
     [Fact]
     public void ResetToDefaults_ResetsAoEHealMinTargets()
     {
-        var config = new Configuration
-        {
-            AoEHealMinTargets = 5
-        };
+        var config = new Configuration();
+        config.Healing.AoEHealMinTargets = 5;
 
         config.ResetToDefaults();
 
-        Assert.Equal(3, config.AoEHealMinTargets);
+        Assert.Equal(3, config.Healing.AoEHealMinTargets);
     }
 
     [Fact]
     public void ResetToDefaults_ResetsAoEDamageMinTargets()
     {
-        var config = new Configuration
-        {
-            AoEDamageMinTargets = 5
-        };
+        var config = new Configuration();
+        config.Damage.AoEDamageMinTargets = 5;
 
         config.ResetToDefaults();
 
-        Assert.Equal(3, config.AoEDamageMinTargets);
+        Assert.Equal(3, config.Damage.AoEDamageMinTargets);
     }
 
     [Fact]
     public void ResetToDefaults_ResetsDefensiveCooldownThreshold()
     {
-        var config = new Configuration
-        {
-            DefensiveCooldownThreshold = 0.50f
-        };
+        var config = new Configuration();
+        config.Defensive.DefensiveCooldownThreshold = 0.50f;
 
         config.ResetToDefaults();
 
-        Assert.Equal(0.80f, config.DefensiveCooldownThreshold);
+        Assert.Equal(0.80f, config.Defensive.DefensiveCooldownThreshold);
     }
 
     [Fact]
     public void ResetToDefaults_ResetsRaiseMpThreshold()
     {
-        var config = new Configuration
-        {
-            RaiseMpThreshold = 0.50f
-        };
+        var config = new Configuration();
+        config.Resurrection.RaiseMpThreshold = 0.50f;
 
         config.ResetToDefaults();
 
-        Assert.Equal(0.25f, config.RaiseMpThreshold);
+        Assert.Equal(0.25f, config.Resurrection.RaiseMpThreshold);
     }
 
     #endregion
@@ -262,37 +240,33 @@ public class ConfigurationTests
     [Fact]
     public void ResetToDefaults_ResetsEnemyStrategy()
     {
-        var config = new Configuration
-        {
-            EnemyStrategy = EnemyTargetingStrategy.TankAssist
-        };
+        var config = new Configuration();
+        config.Targeting.EnemyStrategy = EnemyTargetingStrategy.TankAssist;
 
         config.ResetToDefaults();
 
-        Assert.Equal(EnemyTargetingStrategy.LowestHp, config.EnemyStrategy);
+        Assert.Equal(EnemyTargetingStrategy.LowestHp, config.Targeting.EnemyStrategy);
     }
 
     [Fact]
     public void ResetToDefaults_ResetsRoleActions()
     {
-        var config = new Configuration
-        {
-            EnableEsuna = false,
-            EsunaPriorityThreshold = 0,
-            EnableSurecast = true,
-            SurecastMode = 1,
-            EnableRescue = true,
-            RescueMode = 1
-        };
+        var config = new Configuration();
+        config.RoleActions.EnableEsuna = false;
+        config.RoleActions.EsunaPriorityThreshold = 0;
+        config.RoleActions.EnableSurecast = true;
+        config.RoleActions.SurecastMode = 1;
+        config.RoleActions.EnableRescue = true;
+        config.RoleActions.RescueMode = 1;
 
         config.ResetToDefaults();
 
-        Assert.True(config.EnableEsuna);
-        Assert.Equal(2, config.EsunaPriorityThreshold);
-        Assert.False(config.EnableSurecast);
-        Assert.Equal(0, config.SurecastMode);
-        Assert.False(config.EnableRescue);
-        Assert.Equal(0, config.RescueMode);
+        Assert.True(config.RoleActions.EnableEsuna);
+        Assert.Equal(2, config.RoleActions.EsunaPriorityThreshold);
+        Assert.False(config.RoleActions.EnableSurecast);
+        Assert.Equal(0, config.RoleActions.SurecastMode);
+        Assert.False(config.RoleActions.EnableRescue);
+        Assert.Equal(0, config.RoleActions.RescueMode);
     }
 
     #endregion
@@ -315,11 +289,11 @@ public class ConfigurationTests
     {
         var config = new Configuration();
 
-        Assert.Equal(0.30f, config.BenedictionEmergencyThreshold);
-        Assert.Equal(0.80f, config.DefensiveCooldownThreshold);
-        Assert.Equal(0.25f, config.RaiseMpThreshold);
-        Assert.Equal(3, config.AoEHealMinTargets);
-        Assert.Equal(3, config.AoEDamageMinTargets);
+        Assert.Equal(0.30f, config.Healing.BenedictionEmergencyThreshold);
+        Assert.Equal(0.80f, config.Defensive.DefensiveCooldownThreshold);
+        Assert.Equal(0.25f, config.Resurrection.RaiseMpThreshold);
+        Assert.Equal(3, config.Healing.AoEHealMinTargets);
+        Assert.Equal(3, config.Damage.AoEDamageMinTargets);
     }
 
     [Fact]
@@ -328,16 +302,16 @@ public class ConfigurationTests
         var config = new Configuration();
 
         // Esuna enabled with medium priority
-        Assert.True(config.EnableEsuna);
-        Assert.Equal(2, config.EsunaPriorityThreshold);
+        Assert.True(config.RoleActions.EnableEsuna);
+        Assert.Equal(2, config.RoleActions.EsunaPriorityThreshold);
 
         // Surecast disabled by default
-        Assert.False(config.EnableSurecast);
-        Assert.Equal(0, config.SurecastMode);
+        Assert.False(config.RoleActions.EnableSurecast);
+        Assert.Equal(0, config.RoleActions.SurecastMode);
 
         // Rescue disabled by default (dangerous)
-        Assert.False(config.EnableRescue);
-        Assert.Equal(0, config.RescueMode);
+        Assert.False(config.RoleActions.EnableRescue);
+        Assert.Equal(0, config.RoleActions.RescueMode);
     }
 
     [Fact]
@@ -345,8 +319,8 @@ public class ConfigurationTests
     {
         var config = new Configuration();
 
-        Assert.True(config.EnableRaise);
-        Assert.False(config.AllowHardcastRaise); // Hardcast disabled by default
+        Assert.True(config.Resurrection.EnableRaise);
+        Assert.False(config.Resurrection.AllowHardcastRaise); // Hardcast disabled by default
     }
 
     #endregion
@@ -358,23 +332,23 @@ public class ConfigurationTests
     {
         var config = new Configuration();
 
-        Assert.NotNull(config.DebugSectionVisibility);
-        Assert.NotEmpty(config.DebugSectionVisibility);
-        Assert.True(config.DebugSectionVisibility.ContainsKey("GcdPlanning"));
-        Assert.True(config.DebugSectionVisibility.ContainsKey("QuickStats"));
+        Assert.NotNull(config.Debug.DebugSectionVisibility);
+        Assert.NotEmpty(config.Debug.DebugSectionVisibility);
+        Assert.True(config.Debug.DebugSectionVisibility.ContainsKey("GcdPlanning"));
+        Assert.True(config.Debug.DebugSectionVisibility.ContainsKey("QuickStats"));
     }
 
     [Fact]
     public void ResetToDefaults_ResetsDebugSectionVisibility()
     {
         var config = new Configuration();
-        config.DebugSectionVisibility["GcdPlanning"] = false;
-        config.DebugSectionVisibility["CustomSection"] = true;
+        config.Debug.DebugSectionVisibility["GcdPlanning"] = false;
+        config.Debug.DebugSectionVisibility["CustomSection"] = true;
 
         config.ResetToDefaults();
 
-        Assert.True(config.DebugSectionVisibility["GcdPlanning"]);
-        Assert.False(config.DebugSectionVisibility.ContainsKey("CustomSection"));
+        Assert.True(config.Debug.DebugSectionVisibility["GcdPlanning"]);
+        Assert.False(config.Debug.DebugSectionVisibility.ContainsKey("CustomSection"));
     }
 
     #endregion

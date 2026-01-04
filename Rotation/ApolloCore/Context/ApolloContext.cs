@@ -45,7 +45,7 @@ public sealed class ApolloContext : IApolloContext
     public IPartyHelper PartyHelper { get; }
 
     // Debug state (mutable, updated by modules)
-    public DebugState Debug { get; } = new();
+    public DebugState Debug { get; }
 
     public ApolloContext(
         IPlayerCharacter player,
@@ -65,7 +65,8 @@ public sealed class ApolloContext : IApolloContext
         IPlayerStatsService playerStatsService,
         ITargetingService targetingService,
         StatusHelper statusHelper,
-        IPartyHelper partyHelper)
+        IPartyHelper partyHelper,
+        DebugState? debugState = null)
     {
         Player = player;
         InCombat = inCombat;
@@ -85,6 +86,7 @@ public sealed class ApolloContext : IApolloContext
         TargetingService = targetingService;
         StatusHelper = statusHelper;
         PartyHelper = partyHelper;
+        Debug = debugState ?? new DebugState();
     }
 }
 

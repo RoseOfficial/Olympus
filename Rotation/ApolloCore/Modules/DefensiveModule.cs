@@ -62,7 +62,7 @@ public sealed class DefensiveModule : IApolloModule
         var (avgHpPercent, _, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
 
         // Update Temperance state
-        if (!config.EnableHealing || !config.EnableTemperance)
+        if (!config.EnableHealing || !config.Defensive.EnableTemperance)
         {
             context.Debug.TemperanceState = "Disabled";
         }
@@ -77,7 +77,7 @@ public sealed class DefensiveModule : IApolloModule
         }
         else
         {
-            var shouldUse = injuredCount >= 3 || avgHpPercent < config.DefensiveCooldownThreshold;
+            var shouldUse = injuredCount >= 3 || avgHpPercent < config.Defensive.DefensiveCooldownThreshold;
             context.Debug.TemperanceState = shouldUse
                 ? $"Ready ({injuredCount} injured, avg HP {avgHpPercent:P0})"
                 : $"Waiting ({injuredCount} injured, avg HP {avgHpPercent:P0})";
@@ -91,7 +91,7 @@ public sealed class DefensiveModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableHealing || !config.EnableDivineCaress)
+        if (!config.EnableHealing || !config.Defensive.EnableDivineCaress)
             return false;
 
         if (player.Level < WHMActions.DivineCaress.MinLevel)
@@ -119,7 +119,7 @@ public sealed class DefensiveModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableHealing || !config.EnableTemperance)
+        if (!config.EnableHealing || !config.Defensive.EnableTemperance)
         {
             context.Debug.TemperanceState = "Disabled";
             return false;
@@ -138,7 +138,7 @@ public sealed class DefensiveModule : IApolloModule
             return false;
         }
 
-        var shouldUse = injuredCount >= 3 || avgHpPercent < config.DefensiveCooldownThreshold;
+        var shouldUse = injuredCount >= 3 || avgHpPercent < config.Defensive.DefensiveCooldownThreshold;
 
         if (!shouldUse)
         {
@@ -148,7 +148,7 @@ public sealed class DefensiveModule : IApolloModule
 
         // Check action status before attempting execution
         var actionManager = ActionManager.Instance();
-        if (actionManager != null)
+        if (actionManager is not null)
         {
             var status = actionManager->GetActionStatus(ActionType.Action, WHMActions.Temperance.ActionId);
             if (status != 0)
@@ -177,7 +177,7 @@ public sealed class DefensiveModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableHealing || !config.EnablePlenaryIndulgence)
+        if (!config.EnableHealing || !config.Defensive.EnablePlenaryIndulgence)
             return false;
 
         if (player.Level < WHMActions.PlenaryIndulgence.MinLevel)
@@ -186,7 +186,7 @@ public sealed class DefensiveModule : IApolloModule
         if (!context.ActionService.IsActionReady(WHMActions.PlenaryIndulgence.ActionId))
             return false;
 
-        var shouldUse = config.UseDefensivesWithAoEHeals && injuredCount >= config.AoEHealMinTargets;
+        var shouldUse = config.Defensive.UseDefensivesWithAoEHeals && injuredCount >= config.Healing.AoEHealMinTargets;
 
         if (!shouldUse)
             return false;
@@ -207,7 +207,7 @@ public sealed class DefensiveModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableHealing || !config.EnableDivineBenison)
+        if (!config.EnableHealing || !config.Defensive.EnableDivineBenison)
             return false;
 
         if (player.Level < WHMActions.DivineBenison.MinLevel)
@@ -217,7 +217,7 @@ public sealed class DefensiveModule : IApolloModule
             return false;
 
         var tank = context.PartyHelper.FindTankInParty(player);
-        if (tank == null)
+        if (tank is null)
             return false;
 
         if (StatusHelper.HasStatus(tank, StatusHelper.StatusIds.DivineBenison))
@@ -248,7 +248,7 @@ public sealed class DefensiveModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableAquaveil)
+        if (!config.Defensive.EnableAquaveil)
             return false;
 
         if (player.Level < WHMActions.Aquaveil.MinLevel)
@@ -258,7 +258,7 @@ public sealed class DefensiveModule : IApolloModule
             return false;
 
         var tank = context.PartyHelper.FindTankInParty(player);
-        if (tank == null)
+        if (tank is null)
             return false;
 
         if (StatusHelper.HasStatus(tank, StatusHelper.StatusIds.Aquaveil))
@@ -289,7 +289,7 @@ public sealed class DefensiveModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableLiturgyOfTheBell)
+        if (!config.Defensive.EnableLiturgyOfTheBell)
             return false;
 
         if (player.Level < WHMActions.LiturgyOfTheBell.MinLevel)
@@ -305,7 +305,7 @@ public sealed class DefensiveModule : IApolloModule
         Vector3 targetPosition;
         string targetName;
 
-        if (tank != null)
+        if (tank is not null)
         {
             var distance = Vector3.Distance(player.Position, tank.Position);
             if (distance > WHMActions.LiturgyOfTheBell.Range)

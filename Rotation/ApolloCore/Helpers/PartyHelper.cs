@@ -85,9 +85,9 @@ public sealed class PartyHelper : IPartyHelper
             return false;
         if (battleNpc.MaxHp == 0)
             return false;
-        if ((battleNpc.StatusFlags & (StatusFlags)128) != 0)
+        if ((battleNpc.StatusFlags & (StatusFlags)FFXIVConstants.HostileStatusFlag) != 0)
             return false;
-        if (battleNpc.SubKind != 9)
+        if (battleNpc.SubKind != FFXIVConstants.TrustNpcSubKind)
             return false;
 
         npc = battleNpc;
@@ -258,7 +258,7 @@ public sealed class PartyHelper : IPartyHelper
             if (hpPct < lowestHp)
                 lowestHp = hpPct;
 
-            if (hpPct < 0.95f)
+            if (hpPct < FFXIVConstants.InjuredHpThreshold)
                 injured++;
         }
 

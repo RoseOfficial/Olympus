@@ -1,10 +1,39 @@
 namespace Olympus.Config;
 
 /// <summary>
+/// DPS priority mode - controls how aggressively to pursue damage vs healing.
+/// </summary>
+public enum DpsPriorityMode
+{
+    /// <summary>
+    /// Healing first - Only DPS when party is healthy above threshold.
+    /// Safest option, recommended for progression/learning content.
+    /// </summary>
+    HealFirst,
+
+    /// <summary>
+    /// Balanced - More aggressive DPS while still maintaining healing.
+    /// Good for farm content where damage is predictable.
+    /// </summary>
+    Balanced,
+
+    /// <summary>
+    /// DPS first - Maximum damage output, minimal proactive healing.
+    /// For easy content or when another healer covers healing.
+    /// </summary>
+    DpsFirst
+}
+
+/// <summary>
 /// Configuration for damage spells (Stone/Glare and Holy progression).
 /// </summary>
 public sealed class DamageConfig
 {
+    /// <summary>
+    /// DPS priority mode - affects when to prioritize damage vs healing.
+    /// </summary>
+    public DpsPriorityMode DpsPriority { get; set; } = DpsPriorityMode.HealFirst;
+
     // Single-target damage (Stone/Glare progression)
     public bool EnableStone { get; set; } = true;
     public bool EnableStoneII { get; set; } = true;

@@ -61,7 +61,7 @@ public sealed class BuffModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableThinAir)
+        if (!config.Buffs.EnableThinAir)
         {
             context.Debug.ThinAirState = "Disabled";
         }
@@ -88,7 +88,7 @@ public sealed class BuffModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableThinAir)
+        if (!config.Buffs.EnableThinAir)
         {
             context.Debug.ThinAirState = "Disabled";
             return false;
@@ -115,15 +115,15 @@ public sealed class BuffModule : IApolloModule
         var shouldUseThinAir = false;
 
         // Priority 1: Raise incoming (highest MP cost at 2400)
-        if (config.EnableRaise && player.CurrentMp >= RaiseMpCost)
+        if (config.Resurrection.EnableRaise && player.CurrentMp >= RaiseMpCost)
         {
             var deadMember = context.PartyHelper.FindDeadPartyMemberNeedingRaise(player);
-            if (deadMember != null)
+            if (deadMember is not null)
             {
                 var hasSwiftcast = StatusHelper.HasSwiftcast(player);
                 var swiftcastReady = context.ActionService.IsActionReady(WHMActions.Swiftcast.ActionId);
 
-                if (hasSwiftcast || swiftcastReady || config.AllowHardcastRaise)
+                if (hasSwiftcast || swiftcastReady || config.Resurrection.AllowHardcastRaise)
                 {
                     shouldUseThinAir = true;
                     context.Debug.ThinAirState = "For Raise";
@@ -139,7 +139,7 @@ public sealed class BuffModule : IApolloModule
 
             var (injuredCount, _, _, _) = context.PartyHelper.CountPartyMembersNeedingAoEHeal(player, medicaHealAmount);
 
-            if (injuredCount >= config.AoEHealMinTargets)
+            if (injuredCount >= config.Healing.AoEHealMinTargets)
             {
                 shouldUseThinAir = true;
                 context.Debug.ThinAirState = "For AoE Heal";
@@ -150,7 +150,7 @@ public sealed class BuffModule : IApolloModule
         if (!shouldUseThinAir && config.EnableHealing && player.Level >= WHMActions.CureII.MinLevel)
         {
             var target = context.PartyHelper.FindLowestHpPartyMember(player);
-            if (target != null)
+            if (target is not null)
             {
                 var hpPercent = context.PartyHelper.GetHpPercent(target);
                 if (hpPercent < 0.80f)
@@ -183,7 +183,7 @@ public sealed class BuffModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnablePresenceOfMind)
+        if (!config.Buffs.EnablePresenceOfMind)
             return false;
 
         if (player.Level < WHMActions.PresenceOfMind.MinLevel)
@@ -207,7 +207,7 @@ public sealed class BuffModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableHealing || !config.EnableAsylum)
+        if (!config.EnableHealing || !config.Healing.EnableAsylum)
         {
             context.Debug.AsylumState = "Disabled";
             return false;
@@ -229,7 +229,7 @@ public sealed class BuffModule : IApolloModule
         var tank = context.PartyHelper.FindTankInParty(player);
         Vector3 targetPosition;
 
-        if (tank != null)
+        if (tank is not null)
         {
             var tankName = tank.Name?.TextValue ?? "Unknown";
             var distance = Vector3.Distance(player.Position, tank.Position);
@@ -270,7 +270,7 @@ public sealed class BuffModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableAssize)
+        if (!config.Healing.EnableAssize)
             return false;
 
         if (player.Level < WHMActions.Assize.MinLevel)
@@ -317,14 +317,14 @@ public sealed class BuffModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableSurecast)
+        if (!config.RoleActions.EnableSurecast)
         {
             context.Debug.SurecastState = "Disabled";
             return false;
         }
 
         // Manual mode (0) - never auto-execute
-        if (config.SurecastMode == 0)
+        if (config.RoleActions.SurecastMode == 0)
         {
             context.Debug.SurecastState = "Manual mode";
             return false;
@@ -350,7 +350,7 @@ public sealed class BuffModule : IApolloModule
         }
 
         // Mode 1: Use on cooldown in combat
-        if (config.SurecastMode == 1)
+        if (config.RoleActions.SurecastMode == 1)
         {
             if (context.ActionService.ExecuteOgcd(WHMActions.Surecast, player.GameObjectId))
             {
@@ -370,7 +370,7 @@ public sealed class BuffModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableAetherialShift)
+        if (!config.Buffs.EnableAetherialShift)
             return;
 
         if (player.Level < WHMActions.AetherialShift.MinLevel)
@@ -382,11 +382,11 @@ public sealed class BuffModule : IApolloModule
         const float dashDistance = 15f;
         var spellRange = WHMActions.Stone.Range;
         var target = context.TargetingService.FindEnemy(
-            config.EnemyStrategy,
+            config.Targeting.EnemyStrategy,
             spellRange + dashDistance,
             player);
 
-        if (target == null)
+        if (target is null)
             return;
 
         var distance = Vector3.Distance(player.Position, target.Position);

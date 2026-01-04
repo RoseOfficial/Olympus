@@ -50,47 +50,49 @@ public static class MockBuilders
     /// </summary>
     public static Configuration CreateDefaultConfiguration()
     {
-        return new Configuration
+        var config = new Configuration
         {
             // Master switches
             EnableHealing = true,
             EnableDamage = true,
             EnableDoT = true,
 
-            // All healing spells enabled
-            EnableCure = true,
-            EnableCureII = true,
-            EnableCureIII = true,
-            EnableRegen = true,
-            EnableMedica = true,
-            EnableMedicaII = true,
-            EnableMedicaIII = true,
-            EnableAfflatusSolace = true,
-            EnableAfflatusRapture = true,
-            EnableAfflatusMisery = true,
-            EnableTetragrammaton = true,
-            EnableBenediction = true,
-            EnableAssize = true,
-            EnableAsylum = true,
-            EnableDivineBenison = true,
-            EnablePlenaryIndulgence = true,
-            EnableTemperance = true,
-            EnableAquaveil = true,
-            EnableLiturgyOfTheBell = true,
-            EnableDivineCaress = true,
-
-            // Thresholds
-            AoEHealMinTargets = 3,
-            BenedictionEmergencyThreshold = 0.30f,
-            DefensiveCooldownThreshold = 0.80f,
-
-            // Esuna settings
-            EnableEsuna = true,
-            EsunaPriorityThreshold = 2,
-
             // Other settings
             Enabled = true,
         };
+
+        // All healing spells enabled
+        config.Healing.EnableCure = true;
+        config.Healing.EnableCureII = true;
+        config.Healing.EnableCureIII = true;
+        config.Healing.EnableRegen = true;
+        config.Healing.EnableMedica = true;
+        config.Healing.EnableMedicaII = true;
+        config.Healing.EnableMedicaIII = true;
+        config.Healing.EnableAfflatusSolace = true;
+        config.Healing.EnableAfflatusRapture = true;
+        config.Damage.EnableAfflatusMisery = true;
+        config.Healing.EnableTetragrammaton = true;
+        config.Healing.EnableBenediction = true;
+        config.Healing.EnableAssize = true;
+        config.Healing.EnableAsylum = true;
+        config.Defensive.EnableDivineBenison = true;
+        config.Defensive.EnablePlenaryIndulgence = true;
+        config.Defensive.EnableTemperance = true;
+        config.Defensive.EnableAquaveil = true;
+        config.Defensive.EnableLiturgyOfTheBell = true;
+        config.Defensive.EnableDivineCaress = true;
+
+        // Thresholds
+        config.Healing.AoEHealMinTargets = 3;
+        config.Healing.BenedictionEmergencyThreshold = 0.30f;
+        config.Defensive.DefensiveCooldownThreshold = 0.80f;
+
+        // Esuna settings
+        config.RoleActions.EnableEsuna = true;
+        config.RoleActions.EsunaPriorityThreshold = 2;
+
+        return config;
     }
 
     /// <summary>
@@ -99,41 +101,43 @@ public static class MockBuilders
     /// </summary>
     public static Configuration CreateDisabledConfiguration()
     {
-        return new Configuration
+        var config = new Configuration
         {
             // Master switches - keep healing enabled but individual spells disabled
             EnableHealing = true,
             EnableDamage = false,
             EnableDoT = false,
 
-            // All healing spells disabled
-            EnableCure = false,
-            EnableCureII = false,
-            EnableCureIII = false,
-            EnableRegen = false,
-            EnableMedica = false,
-            EnableMedicaII = false,
-            EnableMedicaIII = false,
-            EnableAfflatusSolace = false,
-            EnableAfflatusRapture = false,
-            EnableAfflatusMisery = false,
-            EnableTetragrammaton = false,
-            EnableBenediction = false,
-            EnableAssize = false,
-            EnableAsylum = false,
-            EnableDivineBenison = false,
-            EnablePlenaryIndulgence = false,
-            EnableTemperance = false,
-            EnableAquaveil = false,
-            EnableLiturgyOfTheBell = false,
-            EnableDivineCaress = false,
-
-            // Esuna disabled
-            EnableEsuna = false,
-
             // Other settings
             Enabled = true,
         };
+
+        // All healing spells disabled
+        config.Healing.EnableCure = false;
+        config.Healing.EnableCureII = false;
+        config.Healing.EnableCureIII = false;
+        config.Healing.EnableRegen = false;
+        config.Healing.EnableMedica = false;
+        config.Healing.EnableMedicaII = false;
+        config.Healing.EnableMedicaIII = false;
+        config.Healing.EnableAfflatusSolace = false;
+        config.Healing.EnableAfflatusRapture = false;
+        config.Damage.EnableAfflatusMisery = false;
+        config.Healing.EnableTetragrammaton = false;
+        config.Healing.EnableBenediction = false;
+        config.Healing.EnableAssize = false;
+        config.Healing.EnableAsylum = false;
+        config.Defensive.EnableDivineBenison = false;
+        config.Defensive.EnablePlenaryIndulgence = false;
+        config.Defensive.EnableTemperance = false;
+        config.Defensive.EnableAquaveil = false;
+        config.Defensive.EnableLiturgyOfTheBell = false;
+        config.Defensive.EnableDivineCaress = false;
+
+        // Esuna disabled
+        config.RoleActions.EnableEsuna = false;
+
+        return config;
     }
 
     /// <summary>

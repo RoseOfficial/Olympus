@@ -55,7 +55,7 @@ public class ResurrectionModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableRaise = false;
+        config.Resurrection.EnableRaise = false;
 
         var actionService = new Mock<IActionService>();
         var context = CreateTestContext(
@@ -79,7 +79,7 @@ public class ResurrectionModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableRaise = true;
+        config.Resurrection.EnableRaise = true;
 
         var partyHelper = new Mock<IPartyHelper>();
         var deadMember = MockBuilders.CreateMockBattleChara(entityId: 10, name: "DeadMember", currentHp: 0, isDead: true);
@@ -114,8 +114,8 @@ public class ResurrectionModuleTests
     {
         // Arrange: MP below the 2400 cost for Raise
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableRaise = true;
-        config.RaiseMpThreshold = 0.25f;
+        config.Resurrection.EnableRaise = true;
+        config.Resurrection.RaiseMpThreshold = 0.25f;
 
         var partyHelper = new Mock<IPartyHelper>();
         var deadMember = MockBuilders.CreateMockBattleChara(entityId: 10, name: "DeadMember", currentHp: 0, isDead: true);
@@ -146,8 +146,8 @@ public class ResurrectionModuleTests
     {
         // Arrange: MP above cost but below threshold percentage
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableRaise = true;
-        config.RaiseMpThreshold = 0.50f;  // 50% threshold
+        config.Resurrection.EnableRaise = true;
+        config.Resurrection.RaiseMpThreshold = 0.50f;  // 50% threshold
 
         var partyHelper = new Mock<IPartyHelper>();
         var deadMember = MockBuilders.CreateMockBattleChara(entityId: 10, name: "DeadMember", currentHp: 0, isDead: true);
@@ -179,7 +179,7 @@ public class ResurrectionModuleTests
     {
         // Arrange: No dead party members
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableRaise = true;
+        config.Resurrection.EnableRaise = true;
 
         var partyHelper = new Mock<IPartyHelper>();
         partyHelper.Setup(p => p.FindDeadPartyMemberNeedingRaise(It.IsAny<IPlayerCharacter>()))
@@ -210,8 +210,8 @@ public class ResurrectionModuleTests
     {
         // Arrange: Hardcast disabled, no Swiftcast available
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableRaise = true;
-        config.AllowHardcastRaise = false;
+        config.Resurrection.EnableRaise = true;
+        config.Resurrection.AllowHardcastRaise = false;
 
         var partyHelper = new Mock<IPartyHelper>();
         var deadMember = MockBuilders.CreateMockBattleChara(entityId: 10, name: "DeadMember", currentHp: 0, isDead: true);
@@ -248,8 +248,8 @@ public class ResurrectionModuleTests
     {
         // Arrange: Hardcast enabled but moving
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableRaise = true;
-        config.AllowHardcastRaise = true;
+        config.Resurrection.EnableRaise = true;
+        config.Resurrection.AllowHardcastRaise = true;
 
         var partyHelper = new Mock<IPartyHelper>();
         var deadMember = MockBuilders.CreateMockBattleChara(entityId: 10, name: "DeadMember", currentHp: 0, isDead: true);
@@ -287,7 +287,7 @@ public class ResurrectionModuleTests
     {
         // Arrange: oGCD window with dead member
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableRaise = true;
+        config.Resurrection.EnableRaise = true;
 
         var partyHelper = new Mock<IPartyHelper>();
         var deadMember = MockBuilders.CreateMockBattleChara(entityId: 10, name: "DeadMember", currentHp: 0, isDead: true);
@@ -322,7 +322,7 @@ public class ResurrectionModuleTests
     {
         // Arrange: Level too low for Swiftcast (requires level 18)
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableRaise = true;
+        config.Resurrection.EnableRaise = true;
 
         var partyHelper = new Mock<IPartyHelper>();
         var deadMember = MockBuilders.CreateMockBattleChara(entityId: 10, name: "DeadMember", currentHp: 0, isDead: true);

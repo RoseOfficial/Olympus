@@ -17,32 +17,31 @@ namespace Olympus.Rotation.ApolloCore.Modules;
 /// </summary>
 public sealed class DamageModule : IApolloModule
 {
-    private const float DotRefreshThreshold = 3f;
 
     // Action enable lookup maps
     private static readonly Dictionary<uint, Func<Configuration, bool>> DamageSpellEnabledMap = new()
     {
-        { WHMActions.Stone.ActionId, c => c.EnableDamage && c.EnableStone },
-        { WHMActions.StoneII.ActionId, c => c.EnableDamage && c.EnableStoneII },
-        { WHMActions.StoneIII.ActionId, c => c.EnableDamage && c.EnableStoneIII },
-        { WHMActions.StoneIV.ActionId, c => c.EnableDamage && c.EnableStoneIV },
-        { WHMActions.Glare.ActionId, c => c.EnableDamage && c.EnableGlare },
-        { WHMActions.GlareIII.ActionId, c => c.EnableDamage && c.EnableGlareIII },
-        { WHMActions.GlareIV.ActionId, c => c.EnableDamage && c.EnableGlareIV },
-        { WHMActions.AfflatusMisery.ActionId, c => c.EnableDamage && c.EnableAfflatusMisery },
+        { WHMActions.Stone.ActionId, c => c.EnableDamage && c.Damage.EnableStone },
+        { WHMActions.StoneII.ActionId, c => c.EnableDamage && c.Damage.EnableStoneII },
+        { WHMActions.StoneIII.ActionId, c => c.EnableDamage && c.Damage.EnableStoneIII },
+        { WHMActions.StoneIV.ActionId, c => c.EnableDamage && c.Damage.EnableStoneIV },
+        { WHMActions.Glare.ActionId, c => c.EnableDamage && c.Damage.EnableGlare },
+        { WHMActions.GlareIII.ActionId, c => c.EnableDamage && c.Damage.EnableGlareIII },
+        { WHMActions.GlareIV.ActionId, c => c.EnableDamage && c.Damage.EnableGlareIV },
+        { WHMActions.AfflatusMisery.ActionId, c => c.EnableDamage && c.Damage.EnableAfflatusMisery },
     };
 
     private static readonly Dictionary<uint, Func<Configuration, bool>> DotSpellEnabledMap = new()
     {
-        { WHMActions.Aero.ActionId, c => c.EnableDoT && c.EnableAero },
-        { WHMActions.AeroII.ActionId, c => c.EnableDoT && c.EnableAeroII },
-        { WHMActions.Dia.ActionId, c => c.EnableDoT && c.EnableDia },
+        { WHMActions.Aero.ActionId, c => c.EnableDoT && c.Dot.EnableAero },
+        { WHMActions.AeroII.ActionId, c => c.EnableDoT && c.Dot.EnableAeroII },
+        { WHMActions.Dia.ActionId, c => c.EnableDoT && c.Dot.EnableDia },
     };
 
     private static readonly Dictionary<uint, Func<Configuration, bool>> AoEDamageSpellEnabledMap = new()
     {
-        { WHMActions.Holy.ActionId, c => c.EnableDamage && c.EnableHoly },
-        { WHMActions.HolyIII.ActionId, c => c.EnableDamage && c.EnableHolyIII },
+        { WHMActions.Holy.ActionId, c => c.EnableDamage && c.Damage.EnableHoly },
+        { WHMActions.HolyIII.ActionId, c => c.EnableDamage && c.Damage.EnableHolyIII },
     };
 
     // Movement tracking
@@ -98,8 +97,8 @@ public sealed class DamageModule : IApolloModule
         {
             if (IsDamageSpellEnabled(WHMActions.AfflatusMisery.ActionId, config))
             {
-                target = context.TargetingService.FindEnemy(config.EnemyStrategy, WHMActions.AfflatusMisery.Range, player);
-                if (target != null)
+                target = context.TargetingService.FindEnemy(config.Targeting.EnemyStrategy, WHMActions.AfflatusMisery.Range, player);
+                if (target is not null)
                 {
                     actionDef = WHMActions.AfflatusMisery;
                     context.Debug.DpsState = "Afflatus Misery";
@@ -120,23 +119,23 @@ public sealed class DamageModule : IApolloModule
             context.Debug.MiseryState = bloodLilies < 3 ? $"{bloodLilies}/3 Blood Lily" : $"Level {player.Level} < 74";
         }
 
-        if (isMoving && actionDef == null)
+        if (isMoving && actionDef is null)
         {
             context.Debug.DpsState = "Moving";
             HandleMovingDps(context, ref target, ref actionDef, sacredSightStacks, dotStatusId);
         }
-        else if (!isMoving && actionDef == null)
+        else if (!isMoving && actionDef is null)
         {
             HandleStationaryDps(context, ref target, ref actionDef, sacredSightStacks, dotStatusId);
         }
 
         // Update debug
-        if (target != null)
+        if (target is not null)
         {
             var dist = Vector3.Distance(player.Position, target.Position);
             context.Debug.TargetInfo = $"{target.Name?.TextValue ?? "Unknown"} ({dist:F1}y)";
         }
-        else if (actionDef != null && actionDef.TargetType == ActionTargetType.Self)
+        else if (actionDef is not null && actionDef.TargetType == ActionTargetType.Self)
         {
             context.Debug.TargetInfo = "Self (AoE)";
         }
@@ -146,7 +145,7 @@ public sealed class DamageModule : IApolloModule
         }
 
         // No action to execute
-        if (actionDef == null)
+        if (actionDef is null)
         {
             if (_hadTargetLastFrame)
             {
@@ -157,7 +156,7 @@ public sealed class DamageModule : IApolloModule
         }
 
         // For targeted spells, require a target
-        if (target == null && actionDef.TargetType != ActionTargetType.Self)
+        if (target is null && actionDef.TargetType != ActionTargetType.Self)
         {
             if (_hadTargetLastFrame)
             {
@@ -199,11 +198,11 @@ public sealed class DamageModule : IApolloModule
                     WHMActions.GlareIV.Range,
                     player);
 
-                if (aoeTarget != null)
+                if (aoeTarget is not null)
                 {
                     target = aoeTarget;
                     actionDef = WHMActions.GlareIV;
-                    if (hitCount >= config.AoEDamageMinTargets)
+                    if (hitCount >= config.Damage.AoEDamageMinTargets)
                     {
                         context.Debug.DpsState = $"Glare IV AoE ({hitCount} targets, {sacredSightStacks} stacks)";
                     }
@@ -216,10 +215,10 @@ public sealed class DamageModule : IApolloModule
         }
 
         // Priority 2: Instant DoT spells (Dia at 72+)
-        if (actionDef == null && player.Level >= 72)
+        if (actionDef is null && player.Level >= 72)
         {
-            target = context.TargetingService.FindEnemyNeedingDot(dotStatusId, DotRefreshThreshold, WHMActions.Dia.Range, player);
-            if (target != null && IsDoTSpellEnabled(WHMActions.GetDotForLevel(player.Level).ActionId, config))
+            target = context.TargetingService.FindEnemyNeedingDot(dotStatusId, FFXIVConstants.DotRefreshThreshold, WHMActions.Dia.Range, player);
+            if (target is not null && IsDoTSpellEnabled(WHMActions.GetDotForLevel(player.Level).ActionId, config))
                 actionDef = WHMActions.GetDotForLevel(player.Level);
         }
     }
@@ -240,11 +239,11 @@ public sealed class DamageModule : IApolloModule
                     WHMActions.GlareIV.Range,
                     player);
 
-                if (aoeTarget != null)
+                if (aoeTarget is not null)
                 {
                     target = aoeTarget;
                     actionDef = WHMActions.GlareIV;
-                    if (hitCount >= config.AoEDamageMinTargets)
+                    if (hitCount >= config.Damage.AoEDamageMinTargets)
                     {
                         context.Debug.DpsState = $"Glare IV AoE ({hitCount} targets, {sacredSightStacks} stacks)";
                     }
@@ -257,10 +256,10 @@ public sealed class DamageModule : IApolloModule
         }
 
         // DoT > AoE Damage > Single-target Damage
-        if (actionDef == null)
+        if (actionDef is null)
         {
-            target = context.TargetingService.FindEnemyNeedingDot(dotStatusId, DotRefreshThreshold, WHMActions.Aero.Range, player);
-            if (target != null)
+            target = context.TargetingService.FindEnemyNeedingDot(dotStatusId, FFXIVConstants.DotRefreshThreshold, WHMActions.Aero.Range, player);
+            if (target is not null)
             {
                 var dotAction = WHMActions.GetDotForLevel(player.Level);
                 if (IsDoTSpellEnabled(dotAction.ActionId, config))
@@ -271,15 +270,15 @@ public sealed class DamageModule : IApolloModule
             }
 
             // Check for AoE damage opportunity (Holy family) - only when Sacred Sight not available
-            if (actionDef == null && player.Level >= WHMActions.Holy.MinLevel && sacredSightStacks == 0)
+            if (actionDef is null && player.Level >= WHMActions.Holy.MinLevel && sacredSightStacks == 0)
             {
                 var enemyCount = context.TargetingService.CountEnemiesInRange(WHMActions.Holy.Radius, player);
                 context.Debug.AoEDpsEnemyCount = enemyCount;
 
-                if (enemyCount >= config.AoEDamageMinTargets)
+                if (enemyCount >= config.Damage.AoEDamageMinTargets)
                 {
                     var aoeDamageAction = WHMActions.GetAoEDamageGcdForLevel(player.Level);
-                    if (aoeDamageAction != null && IsAoEDamageSpellEnabled(aoeDamageAction.ActionId, config))
+                    if (aoeDamageAction is not null && IsAoEDamageSpellEnabled(aoeDamageAction.ActionId, config))
                     {
                         actionDef = aoeDamageAction;
                         context.Debug.DpsState = $"AoE: {aoeDamageAction.Name}";
@@ -288,15 +287,15 @@ public sealed class DamageModule : IApolloModule
                 }
                 else
                 {
-                    context.Debug.AoEDpsState = $"{enemyCount} < {config.AoEDamageMinTargets} min";
+                    context.Debug.AoEDpsState = $"{enemyCount} < {config.Damage.AoEDamageMinTargets} min";
                 }
             }
 
             // Fall back to single-target damage
-            if (actionDef == null)
+            if (actionDef is null)
             {
-                target = context.TargetingService.FindEnemy(config.EnemyStrategy, WHMActions.Stone.Range, player);
-                if (target != null)
+                target = context.TargetingService.FindEnemy(config.Targeting.EnemyStrategy, WHMActions.Stone.Range, player);
+                if (target is not null)
                 {
                     var damageAction = WHMActions.GetDamageGcdForLevel(player.Level);
                     if (IsDamageSpellEnabled(damageAction.ActionId, config))

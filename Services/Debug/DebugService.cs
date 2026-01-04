@@ -6,6 +6,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin.Services;
 using Olympus.Models;
 using Olympus.Rotation;
+using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Services.Action;
 using Olympus.Services.Healing;
 using Olympus.Services.Prediction;
@@ -136,40 +137,41 @@ public sealed class DebugService
 
     private DebugRotationState BuildRotationState()
     {
+        var debug = _apollo.DebugState;
         return new DebugRotationState
         {
             // Core state
-            PlanningState = _apollo.DebugPlanningState,
-            PlannedAction = _apollo.DebugPlannedAction,
-            DpsState = _apollo.DebugDpsState,
-            TargetInfo = _apollo.DebugTargetInfo,
+            PlanningState = debug.PlanningState,
+            PlannedAction = debug.PlannedAction,
+            DpsState = debug.DpsState,
+            TargetInfo = debug.TargetInfo,
 
             // Resurrection
-            RaiseState = _apollo.DebugRaiseState,
-            RaiseTarget = _apollo.DebugRaiseTarget,
+            RaiseState = debug.RaiseState,
+            RaiseTarget = debug.RaiseTarget,
 
             // Esuna
-            EsunaState = _apollo.DebugEsunaState,
-            EsunaTarget = _apollo.DebugEsunaTarget,
+            EsunaState = debug.EsunaState,
+            EsunaTarget = debug.EsunaTarget,
 
             // oGCD States
-            ThinAirState = _apollo.DebugThinAirState,
-            AsylumState = _apollo.DebugAsylumState,
-            AsylumTarget = _apollo.DebugAsylumTarget,
-            DefensiveState = _apollo.DebugDefensiveState,
-            TemperanceState = _apollo.DebugTemperanceState,
-            SurecastState = _apollo.DebugSurecastState,
+            ThinAirState = debug.ThinAirState,
+            AsylumState = debug.AsylumState,
+            AsylumTarget = debug.AsylumTarget,
+            DefensiveState = debug.DefensiveState,
+            TemperanceState = debug.TemperanceState,
+            SurecastState = debug.SurecastState,
 
             // DPS Details
-            AoEDpsState = _apollo.DebugAoEDpsState,
-            AoEDpsEnemyCount = _apollo.DebugAoEDpsEnemyCount,
-            MiseryState = _apollo.DebugMiseryState,
+            AoEDpsState = debug.AoEDpsState,
+            AoEDpsEnemyCount = debug.AoEDpsEnemyCount,
+            MiseryState = debug.MiseryState,
 
             // Resources
-            LilyCount = _apollo.DebugLilyCount,
-            BloodLilyCount = _apollo.DebugBloodLilyCount,
-            LilyStrategy = _apollo.DebugLilyStrategy,
-            SacredSightStacks = _apollo.DebugSacredSightStacks
+            LilyCount = debug.LilyCount,
+            BloodLilyCount = debug.BloodLilyCount,
+            LilyStrategy = debug.LilyStrategy,
+            SacredSightStacks = debug.SacredSightStacks
         };
     }
 
@@ -178,21 +180,22 @@ public sealed class DebugService
         var pendingHeals = BuildPendingHeals();
         var recentHeals = BuildRecentHeals();
         var shadowHpEntries = BuildShadowHpEntries();
+        var debug = _apollo.DebugState;
 
         return new DebugHealingState
         {
-            AoEStatus = _apollo.DebugAoEStatus,
-            AoEInjuredCount = _apollo.DebugAoEInjuredCount,
-            AoESelectedSpell = _apollo.DebugAoESelectedSpell,
-            PlayerHpPercent = _apollo.DebugPlayerHpPercent,
-            PartyListCount = _apollo.DebugPartyListCount,
-            PartyValidCount = _apollo.DebugPartyValidCount,
-            BattleNpcCount = _apollo.DebugBattleNpcCount,
-            NpcInfo = _apollo.DebugNpcInfo,
+            AoEStatus = debug.AoEStatus,
+            AoEInjuredCount = debug.AoEInjuredCount,
+            AoESelectedSpell = debug.AoESelectedSpell,
+            PlayerHpPercent = debug.PlayerHpPercent,
+            PartyListCount = debug.PartyListCount,
+            PartyValidCount = debug.PartyValidCount,
+            BattleNpcCount = debug.BattleNpcCount,
+            NpcInfo = debug.NpcInfo,
             PendingHeals = pendingHeals,
             TotalPendingHealAmount = pendingHeals.Sum(h => h.Amount),
-            LastHealAmount = _apollo.DebugLastHealAmount,
-            LastHealStats = _apollo.DebugLastHealStats,
+            LastHealAmount = debug.LastHealAmount,
+            LastHealStats = debug.LastHealStats,
             RecentHeals = recentHeals,
             TotalRecentHealAmount = recentHeals.Sum(h => h.Amount),
             ShadowHpEntries = shadowHpEntries

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Olympus.Data;
 
 namespace Olympus.Services.Calculation;
 
@@ -28,8 +29,8 @@ public static class HealingCalculator
 
         var observedFactor = (double)actual / predicted;
 
-        // Sanity check - factor should be reasonable (0.8 to 1.5)
-        if (observedFactor < 0.8 || observedFactor > 1.5)
+        // Sanity check - factor should be reasonable
+        if (observedFactor < FFXIVConstants.MinCalibrationFactor || observedFactor > FFXIVConstants.MaxCalibrationFactor)
             return;
 
         // Weighted average: give more weight to existing samples as we accumulate

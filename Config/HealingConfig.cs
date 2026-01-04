@@ -54,4 +54,18 @@ public sealed class HealingConfig
     /// Default 0.30 means only use when below 30% HP.
     /// </summary>
     public float BenedictionEmergencyThreshold { get; set; } = 0.30f;
+
+    /// <summary>
+    /// HP percentage threshold for using emergency oGCD heals (Tetragrammaton).
+    /// When any party member is below this threshold, prioritize oGCD heals.
+    /// Default 0.50 means use emergency oGCDs when below 50% HP.
+    /// </summary>
+    public float OgcdEmergencyThreshold { get; set; } = 0.50f;
+
+    /// <summary>
+    /// HP percentage threshold for interrupting DPS with emergency GCD heals.
+    /// When any party member is below this threshold, stop DPS and heal immediately.
+    /// Default 0.40 means interrupt DPS for emergency healing when below 40% HP.
+    /// </summary>
+    public float GcdEmergencyThreshold { get; set; } = 0.40f;
 }

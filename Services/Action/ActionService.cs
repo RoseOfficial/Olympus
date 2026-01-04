@@ -78,7 +78,7 @@ public sealed unsafe class ActionService : IActionService
     public void Update(bool isCasting)
     {
         var actionManager = SafeGameAccess.GetActionManager(_errorMetrics);
-        if (actionManager == null)
+        if (actionManager is null)
             return;
 
         _lastIsCasting = isCasting;
@@ -93,7 +93,7 @@ public sealed unsafe class ActionService : IActionService
 
         _lastAnimationLock = actionManager->AnimationLock;
 
-        if (recastDetail != null && recastDetail->IsActive)
+        if (recastDetail is not null && recastDetail->IsActive)
         {
             _lastGcdTotal = recastDetail->Total;
             _lastGcdElapsed = recastDetail->Elapsed;
@@ -109,7 +109,7 @@ public sealed unsafe class ActionService : IActionService
         {
             CurrentGcdState = GcdState.Casting;
         }
-        else if (_lastAnimationLock > 0.1f)
+        else if (_lastAnimationLock > FFXIVConstants.WeaveWindowBuffer)
         {
             CurrentGcdState = GcdState.AnimationLock;
         }
@@ -139,7 +139,7 @@ public sealed unsafe class ActionService : IActionService
             return false;
 
         var actionManager = SafeGameAccess.GetActionManager(_errorMetrics);
-        if (actionManager == null)
+        if (actionManager is null)
             return false;
 
         // Check if action can be executed
@@ -173,7 +173,7 @@ public sealed unsafe class ActionService : IActionService
             return false;
 
         var actionManager = SafeGameAccess.GetActionManager(_errorMetrics);
-        if (actionManager == null)
+        if (actionManager is null)
             return false;
 
         // Check if action can be executed
@@ -204,7 +204,7 @@ public sealed unsafe class ActionService : IActionService
             return false;
 
         var actionManager = SafeGameAccess.GetActionManager(_errorMetrics);
-        if (actionManager == null)
+        if (actionManager is null)
             return false;
 
         // Check if action can be executed
@@ -235,8 +235,8 @@ public sealed unsafe class ActionService : IActionService
         // 3. Not casting
         // 4. Enough time for oGCD + animation lock before GCD
         // 5. Haven't already used an oGCD this cycle (single weave only)
-        return GcdRemaining > FFXIVTimings.AnimationLockBase + 0.1f
-            && AnimationLockRemaining < 0.1f
+        return GcdRemaining > FFXIVTimings.AnimationLockBase + FFXIVConstants.WeaveWindowBuffer
+            && AnimationLockRemaining < FFXIVConstants.WeaveWindowBuffer
             && !_lastIsCasting
             && !_ogcdUsedThisCycle;
     }
@@ -247,7 +247,7 @@ public sealed unsafe class ActionService : IActionService
     public float GetCooldownRemaining(uint actionId)
     {
         var actionManager = SafeGameAccess.GetActionManager(_errorMetrics);
-        if (actionManager == null)
+        if (actionManager is null)
             return float.MaxValue;
 
         var elapsed = actionManager->GetRecastTimeElapsed(ActionType.Action, actionId);
@@ -273,7 +273,7 @@ public sealed unsafe class ActionService : IActionService
     public bool CanExecuteAction(ActionDefinition action)
     {
         var actionManager = SafeGameAccess.GetActionManager(_errorMetrics);
-        if (actionManager == null)
+        if (actionManager is null)
             return false;
 
         return actionManager->GetActionStatus(ActionType.Action, action.ActionId) == 0;
@@ -284,11 +284,11 @@ public sealed unsafe class ActionService : IActionService
     /// </summary>
     public int GetAvailableWeaveSlots()
     {
-        if (AnimationLockRemaining > 0.1f || _lastIsCasting)
+        if (AnimationLockRemaining > FFXIVConstants.WeaveWindowBuffer || _lastIsCasting)
             return 0;
 
         // Each oGCD takes ~0.7s animation lock
-        var availableTime = GcdRemaining - 0.1f; // Leave small buffer
+        var availableTime = GcdRemaining - FFXIVConstants.WeaveWindowBuffer; // Leave small buffer
         var slots = (int)(availableTime / FFXIVTimings.AnimationLockBase);
 
         return Math.Max(0, Math.Min(2, slots)); // Max 2 weaves (double weave)

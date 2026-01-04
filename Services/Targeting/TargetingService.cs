@@ -54,7 +54,7 @@ public sealed class TargetingService : ITargetingService
         var target = FindEnemyByStrategy(strategy, maxRange, player);
 
         // If TankAssist fails and fallback is enabled, try LowestHp
-        if (target == null && strategy == EnemyTargetingStrategy.TankAssist && _configuration.UseTankAssistFallback)
+        if (target == null && strategy == EnemyTargetingStrategy.TankAssist && _configuration.Targeting.UseTankAssistFallback)
         {
             target = FindEnemyByStrategy(EnemyTargetingStrategy.LowestHp, maxRange, player);
         }
@@ -300,7 +300,7 @@ public sealed class TargetingService : ITargetingService
         // Check if cache is still valid
         var cacheAge = _cacheTimer.ElapsedMilliseconds;
         if (_cachedEnemies.Count > 0 &&
-            cacheAge < _configuration.TargetCacheTtlMs &&
+            cacheAge < _configuration.Targeting.TargetCacheTtlMs &&
             Math.Abs(_lastCacheRange - maxRange) < 0.1f)
         {
             // Validate cached entries are still valid (O(n) with RemoveAll vs O(n²) with RemoveAt)

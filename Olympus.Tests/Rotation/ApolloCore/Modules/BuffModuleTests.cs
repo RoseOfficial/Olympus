@@ -73,7 +73,7 @@ public class BuffModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableThinAir = false;
+        config.Buffs.EnableThinAir = false;
 
         var actionService = new Mock<IActionService>();
         var context = CreateTestContext(
@@ -96,7 +96,7 @@ public class BuffModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableThinAir = true;
+        config.Buffs.EnableThinAir = true;
 
         var actionService = new Mock<IActionService>();
         // Thin Air requires level 58
@@ -124,7 +124,7 @@ public class BuffModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnablePresenceOfMind = false;
+        config.Buffs.EnablePresenceOfMind = false;
 
         var actionService = new Mock<IActionService>();
         var context = CreateTestContext(
@@ -147,7 +147,7 @@ public class BuffModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnablePresenceOfMind = true;
+        config.Buffs.EnablePresenceOfMind = true;
 
         var actionService = new Mock<IActionService>();
         // PoM requires level 30
@@ -176,7 +176,7 @@ public class BuffModuleTests
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableHealing = true;
-        config.EnableAsylum = false;
+        config.Healing.EnableAsylum = false;
 
         var actionService = new Mock<IActionService>();
         var context = CreateTestContext(
@@ -200,7 +200,7 @@ public class BuffModuleTests
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableHealing = true;
-        config.EnableAsylum = true;
+        config.Healing.EnableAsylum = true;
 
         var actionService = new Mock<IActionService>();
         // Asylum requires level 52
@@ -225,7 +225,7 @@ public class BuffModuleTests
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableHealing = false;
-        config.EnableAsylum = true;
+        config.Healing.EnableAsylum = true;
 
         var actionService = new Mock<IActionService>();
         var context = CreateTestContext(
@@ -252,7 +252,7 @@ public class BuffModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableAssize = false;
+        config.Healing.EnableAssize = false;
 
         var actionService = new Mock<IActionService>();
         var context = CreateTestContext(
@@ -275,7 +275,7 @@ public class BuffModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableAssize = true;
+        config.Healing.EnableAssize = true;
 
         var actionService = new Mock<IActionService>();
         // Assize requires level 56
@@ -353,7 +353,7 @@ public class BuffModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableSurecast = false;
+        config.RoleActions.EnableSurecast = false;
 
         var actionService = new Mock<IActionService>();
         var context = CreateTestContext(
@@ -376,8 +376,8 @@ public class BuffModuleTests
     {
         // Arrange: Mode 0 = Manual
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableSurecast = true;
-        config.SurecastMode = 0;
+        config.RoleActions.EnableSurecast = true;
+        config.RoleActions.SurecastMode = 0;
 
         var actionService = new Mock<IActionService>();
         var context = CreateTestContext(
@@ -404,7 +404,7 @@ public class BuffModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableAetherialShift = false;
+        config.Buffs.EnableAetherialShift = false;
 
         var actionService = new Mock<IActionService>();
         var context = CreateTestContext(
@@ -427,7 +427,7 @@ public class BuffModuleTests
     {
         // Arrange: Moving prevents Aetherial Shift
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableAetherialShift = true;
+        config.Buffs.EnableAetherialShift = true;
 
         var actionService = new Mock<IActionService>();
         var context = CreateTestContext(

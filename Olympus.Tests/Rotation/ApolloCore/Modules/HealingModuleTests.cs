@@ -111,7 +111,7 @@ public class HealingModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableBenediction = false;
+        config.Healing.EnableBenediction = false;
 
         var lowHpTarget = MockBuilders.CreateMockBattleChara(
             currentHp: 5000, maxHp: 50000); // 10% HP
@@ -144,8 +144,8 @@ public class HealingModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableBenediction = true;
-        config.BenedictionEmergencyThreshold = 0.30f;
+        config.Healing.EnableBenediction = true;
+        config.Healing.BenedictionEmergencyThreshold = 0.30f;
 
         var target = MockBuilders.CreateMockBattleChara(
             currentHp: 25000, maxHp: 50000); // 50% HP, above 30% threshold
@@ -179,8 +179,8 @@ public class HealingModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableBenediction = true;
-        config.BenedictionEmergencyThreshold = 0.30f;
+        config.Healing.EnableBenediction = true;
+        config.Healing.BenedictionEmergencyThreshold = 0.30f;
 
         var target = MockBuilders.CreateMockBattleChara(
             entityId: 2,
@@ -219,8 +219,8 @@ public class HealingModuleTests
     {
         // Arrange - Benediction requires level 50
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableBenediction = true;
-        config.BenedictionEmergencyThreshold = 0.30f;
+        config.Healing.EnableBenediction = true;
+        config.Healing.BenedictionEmergencyThreshold = 0.30f;
 
         var target = MockBuilders.CreateMockBattleChara(
             currentHp: 5000, maxHp: 50000); // 10% HP
@@ -254,7 +254,7 @@ public class HealingModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableBenediction = true;
+        config.Healing.EnableBenediction = true;
 
         var target = MockBuilders.CreateMockBattleChara(
             currentHp: 5000, maxHp: 50000);
@@ -290,7 +290,7 @@ public class HealingModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableEsuna = false;
+        config.RoleActions.EnableEsuna = false;
 
         var context = CreateTestContext(config: config, inCombat: true);
 
@@ -306,7 +306,7 @@ public class HealingModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableEsuna = true;
+        config.RoleActions.EnableEsuna = true;
 
         var debuffServiceMock = MockBuilders.CreateMockDebuffDetectionService(
             target => (100u, DebuffPriority.Lethal, 10f));
@@ -328,7 +328,7 @@ public class HealingModuleTests
     {
         // Arrange - Esuna requires level 10
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableEsuna = true;
+        config.RoleActions.EnableEsuna = true;
 
         var context = CreateTestContext(
             config: config,
@@ -347,7 +347,7 @@ public class HealingModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableEsuna = true;
+        config.RoleActions.EnableEsuna = true;
 
         var context = CreateTestContext(
             config: config,
@@ -367,7 +367,7 @@ public class HealingModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableEsuna = true;
+        config.RoleActions.EnableEsuna = true;
 
         var debuffedMember = MockBuilders.CreateMockBattleChara(
             entityId: 2, name: "DebuffedPlayer", currentHp: 40000, maxHp: 50000);
@@ -401,7 +401,7 @@ public class HealingModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableRegen = false;
+        config.Healing.EnableRegen = false;
 
         var context = CreateTestContext(config: config, inCombat: true);
 
@@ -416,7 +416,7 @@ public class HealingModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableRegen = true;
+        config.Healing.EnableRegen = true;
 
         var target = MockBuilders.CreateMockBattleChara(
             currentHp: 40000, maxHp: 50000); // 80% HP, needs regen
@@ -453,7 +453,7 @@ public class HealingModuleTests
     {
         // Arrange - Regen requires level 35
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableRegen = true;
+        config.Healing.EnableRegen = true;
 
         var target = MockBuilders.CreateMockBattleChara(
             currentHp: 40000, maxHp: 50000);
@@ -494,7 +494,7 @@ public class HealingModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableTetragrammaton = false;
+        config.Healing.EnableTetragrammaton = false;
 
         var target = MockBuilders.CreateMockBattleChara(
             currentHp: 30000, maxHp: 50000); // 60% HP
@@ -526,7 +526,7 @@ public class HealingModuleTests
     {
         // Arrange - Tetragrammaton requires level 60
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableTetragrammaton = true;
+        config.Healing.EnableTetragrammaton = true;
 
         var target = MockBuilders.CreateMockBattleChara(
             currentHp: 30000, maxHp: 50000);
@@ -558,7 +558,7 @@ public class HealingModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableTetragrammaton = true;
+        config.Healing.EnableTetragrammaton = true;
 
         var target = MockBuilders.CreateMockBattleChara(
             currentHp: 30000, maxHp: 50000);
@@ -592,7 +592,7 @@ public class HealingModuleTests
     {
         // Arrange - Medica requires level 10
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.AoEHealMinTargets = 3;
+        config.Healing.AoEHealMinTargets = 3;
 
         var context = CreateTestContext(
             config: config,
@@ -610,7 +610,7 @@ public class HealingModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.AoEHealMinTargets = 3;
+        config.Healing.AoEHealMinTargets = 3;
 
         var partyHelperMock = MockBuilders.CreateMockPartyHelper();
         partyHelperMock.Setup(x => x.CountPartyMembersNeedingAoEHeal(
@@ -641,7 +641,7 @@ public class HealingModuleTests
     {
         // Arrange
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.AoEHealMinTargets = 3;
+        config.Healing.AoEHealMinTargets = 3;
 
         var partyHelperMock = MockBuilders.CreateMockPartyHelper();
         partyHelperMock.Setup(x => x.CountPartyMembersNeedingAoEHeal(
@@ -753,8 +753,8 @@ public class HealingModuleTests
     {
         // Arrange - Set up scenario where both Benediction and single heal could trigger
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableBenediction = true;
-        config.BenedictionEmergencyThreshold = 0.30f;
+        config.Healing.EnableBenediction = true;
+        config.Healing.BenedictionEmergencyThreshold = 0.30f;
 
         var target = MockBuilders.CreateMockBattleChara(
             entityId: 2,
@@ -808,10 +808,10 @@ public class HealingModuleTests
     {
         // Arrange - Benediction not triggered (target not low enough), but Esuna needed
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableBenediction = true;
-        config.BenedictionEmergencyThreshold = 0.30f;
-        config.EnableEsuna = true;
-        config.EsunaPriorityThreshold = 5;
+        config.Healing.EnableBenediction = true;
+        config.Healing.BenedictionEmergencyThreshold = 0.30f;
+        config.RoleActions.EnableEsuna = true;
+        config.RoleActions.EsunaPriorityThreshold = 5;
 
         var debuffedMember = MockBuilders.CreateMockBattleChara(
             entityId: 2, name: "DebuffedPlayer", currentHp: 40000, maxHp: 50000);
