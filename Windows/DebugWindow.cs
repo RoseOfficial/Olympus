@@ -24,6 +24,16 @@ public sealed class DebugWindow : Window
         SizeCondition = ImGuiCond.FirstUseEver;
     }
 
+    public override void OnOpen()
+    {
+        _configuration.IsDebugWindowOpen = true;
+    }
+
+    public override void OnClose()
+    {
+        _configuration.IsDebugWindowOpen = false;
+    }
+
     public override void Draw()
     {
         var snapshot = _debugService.GetSnapshot();

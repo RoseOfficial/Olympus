@@ -51,4 +51,16 @@ public static class FFXIVTimings
     /// This accounts for server latency and effect application delay.
     /// </summary>
     public const float HealProtectionWindow = 1.0f;
+
+    // HP Prediction
+    /// <summary>Timeout for pending heals if action effect never lands.</summary>
+    public const float HpPredictionTimeoutSeconds = 3.0f;
+
+    // Error Handling
+    /// <summary>Seconds between error log messages to avoid spam.</summary>
+    public const int ErrorThrottleSeconds = 10;
+
+    // Movement Detection
+    /// <summary>Distance squared threshold to detect player movement.</summary>
+    public const float MovementThresholdSquared = 0.001f;
 }

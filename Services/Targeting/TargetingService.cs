@@ -6,6 +6,7 @@ using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin.Services;
+using Olympus.Rotation.ApolloCore.Helpers;
 
 namespace Olympus.Services.Targeting;
 
@@ -302,13 +303,8 @@ public sealed class TargetingService : ITargetingService
             cacheAge < _configuration.TargetCacheTtlMs &&
             Math.Abs(_lastCacheRange - maxRange) < 0.1f)
         {
-            // Validate cached entries are still valid
-            for (int i = _cachedEnemies.Count - 1; i >= 0; i--)
-            {
-                var enemy = _cachedEnemies[i];
-                if (!IsStillValid(enemy))
-                    _cachedEnemies.RemoveAt(i);
-            }
+            // Validate cached entries are still valid (O(n) with RemoveAll vs O(n²) with RemoveAt)
+            _cachedEnemies.RemoveAll(e => !IsStillValid(e));
 
             if (_cachedEnemies.Count > 0)
             {
@@ -368,8 +364,7 @@ public sealed class TargetingService : ITargetingService
         if (enemy.BattleNpcKind != BattleNpcSubKind.Enemy && enemy.SubKind != 0)
             return false;
 
-        var distSquared = Vector3.DistanceSquared(player.Position, enemy.Position);
-        return distSquared <= maxRange * maxRange;
+        return DistanceHelper.IsInRange(player, enemy, maxRange);
     }
 
     private static bool IsStillValid(IBattleNpc enemy)

@@ -11,6 +11,7 @@ public sealed class Configuration : IPluginConfiguration
     // Runtime state
     public bool Enabled { get; set; } = false;
     public bool MainWindowVisible { get; set; } = true;
+    public bool IsDebugWindowOpen { get; set; } = false;
 
     // Master category toggles
     public bool EnableHealing { get; set; } = true;

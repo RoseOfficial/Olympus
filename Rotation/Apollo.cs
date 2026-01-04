@@ -6,6 +6,7 @@ using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
+using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.ApolloCore.Modules;
@@ -42,7 +43,6 @@ public sealed class Apollo
 
     // Error throttling to avoid log spam
     private DateTime _lastErrorTime = DateTime.MinValue;
-    private const int ErrorThrottleSeconds = 10;
     private int _suppressedErrorCount;
 
     // Helpers (shared across modules)
@@ -187,11 +187,11 @@ public sealed class Apollo
         _errorMetrics?.RecordError("Apollo.Execute", ex.Message);
 
         var now = DateTime.UtcNow;
-        if ((now - _lastErrorTime).TotalSeconds >= ErrorThrottleSeconds)
+        if ((now - _lastErrorTime).TotalSeconds >= FFXIVTimings.ErrorThrottleSeconds)
         {
             _lastErrorTime = now;
             _log.Error(ex, "Apollo.Execute error (suppressed {0} errors in last {1}s)",
-                _suppressedErrorCount, ErrorThrottleSeconds);
+                _suppressedErrorCount, FFXIVTimings.ErrorThrottleSeconds);
             _suppressedErrorCount = 0;
         }
     }
@@ -209,7 +209,7 @@ public sealed class Apollo
         _actionService.Update(player.IsCasting);
 
         // Movement detection
-        var isMoving = Vector3.DistanceSquared(player.Position, _lastPosition) > 0.001f;
+        var isMoving = Vector3.DistanceSquared(player.Position, _lastPosition) > FFXIVTimings.MovementThresholdSquared;
         _lastPosition = player.Position;
 
         // Combat tracking
@@ -233,10 +233,13 @@ public sealed class Apollo
         // Create context for modules
         var context = CreateContext(player, inCombat, isMoving);
 
-        // Update debug state from all modules
-        foreach (var module in _modules)
+        // Update debug state from all modules (skip if debug window closed for performance)
+        if (_configuration.IsDebugWindowOpen)
         {
-            module.UpdateDebugState(context);
+            foreach (var module in _modules)
+            {
+                module.UpdateDebugState(context);
+            }
         }
 
         // Execute modules in priority order
@@ -260,8 +263,11 @@ public sealed class Apollo
             }
         }
 
-        // Sync debug state from context to public properties
-        SyncDebugState(context);
+        // Sync debug state from context to public properties (skip if debug window closed)
+        if (_configuration.IsDebugWindowOpen)
+        {
+            SyncDebugState(context);
+        }
     }
 
     /// <summary>

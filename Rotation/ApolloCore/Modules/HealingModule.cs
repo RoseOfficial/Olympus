@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Numerics;
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Models;
@@ -19,8 +18,6 @@ public sealed class HealingModule : IApolloModule
     // Constants
     private const byte CureMinLevel = 2;
     private const byte MedicaMinLevel = 10;
-    private const float RegenRefreshThreshold = 3f;
-    private const float RegenHpThreshold = 0.90f;
 
     public int Priority => 10; // High priority for healing
     public string Name => "Healing";
@@ -250,7 +247,7 @@ public sealed class HealingModule : IApolloModule
         if (player.Level < WHMActions.Regen.MinLevel)
             return false;
 
-        var target = context.PartyHelper.FindRegenTarget(player, RegenHpThreshold, RegenRefreshThreshold);
+        var target = context.PartyHelper.FindRegenTarget(player, GameConstants.RegenHpThreshold, GameConstants.RegenRefreshThreshold);
         if (target == null)
             return false;
 
@@ -338,8 +335,7 @@ public sealed class HealingModule : IApolloModule
             if (member.IsDead)
                 continue;
 
-            if (Vector3.DistanceSquared(player.Position, member.Position) >
-                WHMActions.Esuna.Range * WHMActions.Esuna.Range)
+            if (!DistanceHelper.IsInRange(player, member, WHMActions.Esuna.Range))
                 continue;
 
             var (statusId, priority, remainingTime) = context.DebuffDetectionService.FindHighestPriorityDebuff(member);
@@ -382,8 +378,7 @@ public sealed class HealingModule : IApolloModule
         if (hpPercent >= config.BenedictionEmergencyThreshold)
             return false;
 
-        if (Vector3.DistanceSquared(player.Position, target.Position) >
-            WHMActions.Benediction.Range * WHMActions.Benediction.Range)
+        if (!DistanceHelper.IsInRange(player, target, WHMActions.Benediction.Range))
             return false;
 
         if (context.ActionService.ExecuteOgcd(WHMActions.Benediction, target.GameObjectId))
@@ -418,8 +413,7 @@ public sealed class HealingModule : IApolloModule
         if (target == null)
             return false;
 
-        if (Vector3.DistanceSquared(player.Position, target.Position) >
-            WHMActions.Tetragrammaton.Range * WHMActions.Tetragrammaton.Range)
+        if (!DistanceHelper.IsInRange(player, target, WHMActions.Tetragrammaton.Range))
             return false;
 
         var predictedHp = context.HpPredictionService.GetPredictedHp(target.EntityId, target.CurrentHp, target.MaxHp);

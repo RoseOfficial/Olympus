@@ -290,7 +290,7 @@ public sealed class HpPredictionServiceTests : IDisposable
     }
 
     [Fact]
-    public void GetPredictedHp_AfterTimeout_ClearsPending()
+    public void GetPredictedHp_AfterTimeout_IgnoresPending()
     {
         // Arrange
         const uint entityId = 1;
@@ -306,9 +306,11 @@ public sealed class HpPredictionServiceTests : IDisposable
         // Act - query after timeout
         var result = _service.GetPredictedHp(entityId, currentHp, maxHp);
 
-        // Assert - pending should be cleared
+        // Assert - pending heal should be ignored (not added to predicted HP)
+        // but not cleared from dictionary (will be cleared on next RegisterPendingHeal)
         Assert.Equal(currentHp, result);
-        Assert.False(_service.HasPendingHeals);
+        // Note: HasPendingHeals may still be true since we don't clear during lookup
+        // This is intentional to avoid race conditions when checking multiple party members
     }
 
     #endregion

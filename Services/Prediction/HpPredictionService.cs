@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using Olympus.Data;
 using Olympus.Services;
 
 namespace Olympus.Services.Prediction;
@@ -21,9 +22,6 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
     // When pending heals were registered (for timeout)
     private DateTime _pendingHealTime = DateTime.MinValue;
 
-    // Auto-clear after this many seconds if action effect never lands
-    private const double TimeoutSeconds = 3.0;
-
     public HpPredictionService(ICombatEventService combatEventService)
     {
         _combatEventService = combatEventService;
@@ -42,20 +40,20 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
     /// </summary>
     public uint GetPredictedHp(uint entityId, uint currentHp, uint maxHp)
     {
-        // Check for timeout
-        if (DateTime.UtcNow > _pendingHealTime.AddSeconds(TimeoutSeconds))
-        {
-            _pendingHeals.Clear();
-        }
-
         // Start with shadow HP
         var baseHp = (int)_combatEventService.GetShadowHp(entityId, currentHp);
         var predictedHp = baseHp;
 
-        // Add pending heal if any
+        // Add pending heal if not timed out
+        // Note: Don't clear here - just skip timed-out heals to avoid inconsistent state
+        // when checking multiple party members in the same frame
         if (_pendingHeals.TryGetValue(entityId, out var pendingHeal))
         {
-            predictedHp += pendingHeal;
+            var elapsed = (DateTime.UtcNow - _pendingHealTime).TotalSeconds;
+            if (elapsed <= FFXIVTimings.HpPredictionTimeoutSeconds)
+            {
+                predictedHp += pendingHeal;
+            }
         }
 
         return (uint)Math.Clamp(predictedHp, 0, (int)maxHp);
