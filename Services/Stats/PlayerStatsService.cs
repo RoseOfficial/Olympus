@@ -11,7 +11,7 @@ namespace Olympus.Services.Stats;
 /// Reads player combat stats from game memory.
 /// Uses FFXIVClientStructs to access PlayerState.
 /// </summary>
-public sealed class PlayerStatsService
+public sealed class PlayerStatsService : IPlayerStatsService
 {
     private readonly IPluginLog log;
     private readonly IDataManager dataManager;

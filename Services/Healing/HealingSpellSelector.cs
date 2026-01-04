@@ -48,11 +48,11 @@ public sealed class SpellSelectionDebug
 /// Intelligent healing spell selector that evaluates all available heals
 /// and returns the best option based on predicted healing and efficiency.
 /// </summary>
-public sealed class HealingSpellSelector
+public class HealingSpellSelector
 {
-    private readonly ActionService actionService;
-    private readonly PlayerStatsService playerStatsService;
-    private readonly HpPredictionService hpPredictionService;
+    private readonly IActionService actionService;
+    private readonly IPlayerStatsService playerStatsService;
+    private readonly IHpPredictionService hpPredictionService;
     private readonly Configuration configuration;
 
     // Note: Assize is handled as a DPS oGCD in Apollo, not here
@@ -68,9 +68,9 @@ public sealed class HealingSpellSelector
     public SpellSelectionDebug? LastSelection => lastSelection;
 
     public HealingSpellSelector(
-        ActionService actionService,
-        PlayerStatsService playerStatsService,
-        HpPredictionService hpPredictionService,
+        IActionService actionService,
+        IPlayerStatsService playerStatsService,
+        IHpPredictionService hpPredictionService,
         Configuration configuration)
     {
         this.actionService = actionService;
@@ -582,8 +582,9 @@ public sealed class HealingSpellSelector
 
     /// <summary>
     /// Gets the current Lily count from the WHM job gauge.
+    /// Virtual to allow testing with mocked lily counts.
     /// </summary>
-    private unsafe int GetLilyCount()
+    protected virtual unsafe int GetLilyCount()
     {
         try
         {

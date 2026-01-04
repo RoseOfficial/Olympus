@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using Olympus.Services;
 
 namespace Olympus.Services.Prediction;
 
@@ -9,9 +10,9 @@ namespace Olympus.Services.Prediction;
 /// Tracks pending heals for the currently-casting action only.
 /// This prevents double-healing by making targets appear "healed" immediately.
 /// </summary>
-public sealed class HpPredictionService : IDisposable
+public sealed class HpPredictionService : IHpPredictionService, IDisposable
 {
-    private readonly CombatEventService _combatEventService;
+    private readonly ICombatEventService _combatEventService;
 
     // Pending heals: targetId → healAmount
     // Only tracks ONE action at a time (the current cast)
@@ -23,7 +24,7 @@ public sealed class HpPredictionService : IDisposable
     // Auto-clear after this many seconds if action effect never lands
     private const double TimeoutSeconds = 3.0;
 
-    public HpPredictionService(CombatEventService combatEventService)
+    public HpPredictionService(ICombatEventService combatEventService)
     {
         _combatEventService = combatEventService;
 

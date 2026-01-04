@@ -20,7 +20,7 @@ public record HealEvent(DateTime Timestamp, uint TargetId, string TargetName, ui
 /// Hooks into ActionEffectHandler.Receive to track HP changes in real-time,
 /// before the game's visible HP bars update.
 /// </summary>
-public sealed unsafe class CombatEventService : IDisposable
+public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
 {
     private readonly IPluginLog log;
     private readonly IObjectTable objectTable;

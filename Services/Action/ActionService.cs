@@ -27,7 +27,7 @@ public enum GcdState
 /// Simplified action execution service (RSR-style reactive).
 /// No queuing - calculates and executes best action each frame.
 /// </summary>
-public sealed unsafe class ActionService
+public sealed unsafe class ActionService : IActionService
 {
     private readonly ActionTracker _actionTracker;
 
