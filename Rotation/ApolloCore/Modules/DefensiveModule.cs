@@ -107,7 +107,7 @@ public sealed class DefensiveModule : IApolloModule
         {
             context.Debug.PlannedAction = "Divine Caress";
             context.Debug.DefensiveState = "Divine Caress (triggered)";
-            context.ActionTracker.LogAttempt(WHMActions.DivineCaress.ActionId, player.Name.TextValue, player.CurrentHp, ActionResult.Success, player.Level);
+            context.ActionTracker.LogAttempt(WHMActions.DivineCaress.ActionId, player.Name?.TextValue ?? "Unknown", player.CurrentHp, ActionResult.Success, player.Level);
             return true;
         }
 
@@ -164,7 +164,7 @@ public sealed class DefensiveModule : IApolloModule
         {
             context.Debug.PlannedAction = "Temperance";
             context.Debug.DefensiveState = $"Temperance ({injuredCount} injured, avg HP {avgHpPercent:P0})";
-            context.ActionTracker.LogAttempt(WHMActions.Temperance.ActionId, player.Name.TextValue, player.CurrentHp, ActionResult.Success, player.Level);
+            context.ActionTracker.LogAttempt(WHMActions.Temperance.ActionId, player.Name?.TextValue ?? "Unknown", player.CurrentHp, ActionResult.Success, player.Level);
             return true;
         }
 
@@ -195,7 +195,7 @@ public sealed class DefensiveModule : IApolloModule
         {
             context.Debug.PlannedAction = "Plenary Indulgence";
             context.Debug.DefensiveState = $"Plenary Indulgence ({injuredCount} injured, pre-AoE heal)";
-            context.ActionTracker.LogAttempt(WHMActions.PlenaryIndulgence.ActionId, player.Name.TextValue, player.CurrentHp, ActionResult.Success, player.Level);
+            context.ActionTracker.LogAttempt(WHMActions.PlenaryIndulgence.ActionId, player.Name?.TextValue ?? "Unknown", player.CurrentHp, ActionResult.Success, player.Level);
             return true;
         }
 
@@ -233,9 +233,10 @@ public sealed class DefensiveModule : IApolloModule
 
         if (context.ActionService.ExecuteOgcd(WHMActions.DivineBenison, tank.GameObjectId))
         {
+            var tankName = tank.Name?.TextValue ?? "Unknown";
             context.Debug.PlannedAction = "Divine Benison";
-            context.Debug.DefensiveState = $"Divine Benison on {tank.Name} ({tankHpPct:P0} HP)";
-            context.ActionTracker.LogAttempt(WHMActions.DivineBenison.ActionId, tank.Name.TextValue, tank.CurrentHp, ActionResult.Success, player.Level);
+            context.Debug.DefensiveState = $"Divine Benison on {tankName} ({tankHpPct:P0} HP)";
+            context.ActionTracker.LogAttempt(WHMActions.DivineBenison.ActionId, tankName, tank.CurrentHp, ActionResult.Success, player.Level);
             return true;
         }
 
@@ -273,9 +274,10 @@ public sealed class DefensiveModule : IApolloModule
 
         if (context.ActionService.ExecuteOgcd(WHMActions.Aquaveil, tank.GameObjectId))
         {
+            var tankName = tank.Name?.TextValue ?? "Unknown";
             context.Debug.PlannedAction = "Aquaveil";
-            context.Debug.DefensiveState = $"Aquaveil on {tank.Name} ({tankHpPct:P0} HP)";
-            context.ActionTracker.LogAttempt(WHMActions.Aquaveil.ActionId, tank.Name.TextValue, tank.CurrentHp, ActionResult.Success, player.Level);
+            context.Debug.DefensiveState = $"Aquaveil on {tankName} ({tankHpPct:P0} HP)";
+            context.ActionTracker.LogAttempt(WHMActions.Aquaveil.ActionId, tankName, tank.CurrentHp, ActionResult.Success, player.Level);
             return true;
         }
 
@@ -309,18 +311,18 @@ public sealed class DefensiveModule : IApolloModule
             if (distance > WHMActions.LiturgyOfTheBell.Range)
             {
                 targetPosition = player.Position;
-                targetName = player.Name.TextValue;
+                targetName = player.Name?.TextValue ?? "Unknown";
             }
             else
             {
                 targetPosition = tank.Position;
-                targetName = tank.Name.TextValue;
+                targetName = tank.Name?.TextValue ?? "Unknown";
             }
         }
         else
         {
             targetPosition = player.Position;
-            targetName = player.Name.TextValue;
+            targetName = player.Name?.TextValue ?? "Unknown";
         }
 
         if (context.ActionService.ExecuteGroundTargetedOgcd(WHMActions.LiturgyOfTheBell, targetPosition))

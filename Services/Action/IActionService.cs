@@ -1,3 +1,6 @@
+using System.Numerics;
+using Olympus.Models.Action;
+
 namespace Olympus.Services.Action;
 
 /// <summary>
@@ -49,4 +52,24 @@ public interface IActionService
     /// Gets the number of available weave slots before the GCD is ready.
     /// </summary>
     int GetAvailableWeaveSlots();
+
+    /// <summary>
+    /// Execute a GCD action immediately.
+    /// </summary>
+    bool ExecuteGcd(ActionDefinition action, ulong targetId);
+
+    /// <summary>
+    /// Execute an oGCD action immediately.
+    /// </summary>
+    bool ExecuteOgcd(ActionDefinition action, ulong targetId);
+
+    /// <summary>
+    /// Execute a ground-targeted oGCD action at a specific position.
+    /// </summary>
+    bool ExecuteGroundTargetedOgcd(ActionDefinition action, Vector3 targetPosition);
+
+    /// <summary>
+    /// Checks if a specific action can be executed right now.
+    /// </summary>
+    bool CanExecuteAction(ActionDefinition action);
 }

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
-using FFXIVClientStructs.FFXIV.Client.Game;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Services.Action;
@@ -48,12 +47,13 @@ public sealed class SpellSelectionDebug
 /// Intelligent healing spell selector that evaluates all available heals
 /// and returns the best option based on predicted healing and efficiency.
 /// </summary>
-public class HealingSpellSelector
+public class HealingSpellSelector : IHealingSpellSelector
 {
     private readonly IActionService actionService;
     private readonly IPlayerStatsService playerStatsService;
     private readonly IHpPredictionService hpPredictionService;
     private readonly Configuration configuration;
+    private readonly IErrorMetricsService? errorMetrics;
 
     // Note: Assize is handled as a DPS oGCD in Apollo, not here
     // Note: Both single-target and AoE heals use tiered priority instead of scoring
@@ -71,12 +71,14 @@ public class HealingSpellSelector
         IActionService actionService,
         IPlayerStatsService playerStatsService,
         IHpPredictionService hpPredictionService,
-        Configuration configuration)
+        Configuration configuration,
+        IErrorMetricsService? errorMetrics = null)
     {
         this.actionService = actionService;
         this.playerStatsService = playerStatsService;
         this.hpPredictionService = hpPredictionService;
         this.configuration = configuration;
+        this.errorMetrics = errorMetrics;
     }
 
     /// <summary>
@@ -584,21 +586,9 @@ public class HealingSpellSelector
     /// Gets the current Lily count from the WHM job gauge.
     /// Virtual to allow testing with mocked lily counts.
     /// </summary>
-    protected virtual unsafe int GetLilyCount()
+    protected virtual int GetLilyCount()
     {
-        try
-        {
-            var jobGauge = JobGaugeManager.Instance();
-            if (jobGauge == null)
-                return 0;
-
-            var whmGauge = jobGauge->WhiteMage;
-            return whmGauge.Lily;
-        }
-        catch
-        {
-            return 0;
-        }
+        return SafeGameAccess.GetWhmLilyCount(errorMetrics);
     }
 
     /// <summary>

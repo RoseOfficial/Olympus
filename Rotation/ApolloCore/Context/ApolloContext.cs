@@ -16,8 +16,9 @@ namespace Olympus.Rotation.ApolloCore.Context;
 /// <summary>
 /// Shared context for all Apollo modules.
 /// Contains player state, services, and helper utilities.
+/// Implements IApolloContext for testability.
 /// </summary>
-public sealed class ApolloContext
+public sealed class ApolloContext : IApolloContext
 {
     // Player state
     public IPlayerCharacter Player { get; }
@@ -26,22 +27,22 @@ public sealed class ApolloContext
     public bool CanExecuteGcd { get; }
     public bool CanExecuteOgcd { get; }
 
-    // Services
-    public ActionService ActionService { get; }
+    // Services with interfaces
+    public IActionService ActionService { get; }
     public ActionTracker ActionTracker { get; }
-    public CombatEventService CombatEventService { get; }
+    public ICombatEventService CombatEventService { get; }
     public Configuration Configuration { get; }
-    public DebuffDetectionService DebuffDetectionService { get; }
-    public HealingSpellSelector HealingSpellSelector { get; }
-    public HpPredictionService HpPredictionService { get; }
+    public IDebuffDetectionService DebuffDetectionService { get; }
+    public IHealingSpellSelector HealingSpellSelector { get; }
+    public IHpPredictionService HpPredictionService { get; }
     public IObjectTable ObjectTable { get; }
     public IPartyList PartyList { get; }
-    public PlayerStatsService PlayerStatsService { get; }
-    public TargetingService TargetingService { get; }
+    public IPlayerStatsService PlayerStatsService { get; }
+    public ITargetingService TargetingService { get; }
 
     // Helpers
     public StatusHelper StatusHelper { get; }
-    public PartyHelper PartyHelper { get; }
+    public IPartyHelper PartyHelper { get; }
 
     // Debug state (mutable, updated by modules)
     public DebugState Debug { get; } = new();
@@ -52,19 +53,19 @@ public sealed class ApolloContext
         bool isMoving,
         bool canExecuteGcd,
         bool canExecuteOgcd,
-        ActionService actionService,
+        IActionService actionService,
         ActionTracker actionTracker,
-        CombatEventService combatEventService,
+        ICombatEventService combatEventService,
         Configuration configuration,
-        DebuffDetectionService debuffDetectionService,
-        HealingSpellSelector healingSpellSelector,
-        HpPredictionService hpPredictionService,
+        IDebuffDetectionService debuffDetectionService,
+        IHealingSpellSelector healingSpellSelector,
+        IHpPredictionService hpPredictionService,
         IObjectTable objectTable,
         IPartyList partyList,
-        PlayerStatsService playerStatsService,
-        TargetingService targetingService,
+        IPlayerStatsService playerStatsService,
+        ITargetingService targetingService,
         StatusHelper statusHelper,
-        PartyHelper partyHelper)
+        IPartyHelper partyHelper)
     {
         Player = player;
         InCombat = inCombat;

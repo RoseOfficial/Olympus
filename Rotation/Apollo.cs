@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
-using FFXIVClientStructs.FFXIV.Client.Game;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.ApolloCore.Modules;
@@ -38,10 +38,12 @@ public sealed class Apollo
     private readonly PlayerStatsService _playerStatsService;
     private readonly HealingSpellSelector _healingSpellSelector;
     private readonly DebuffDetectionService _debuffDetectionService;
+    private readonly IErrorMetricsService? _errorMetrics;
 
     // Error throttling to avoid log spam
     private DateTime _lastErrorTime = DateTime.MinValue;
     private const int ErrorThrottleSeconds = 10;
+    private int _suppressedErrorCount;
 
     // Helpers (shared across modules)
     private readonly StatusHelper _statusHelper;
@@ -96,7 +98,8 @@ public sealed class Apollo
         ActionService actionService,
         PlayerStatsService playerStatsService,
         HealingSpellSelector healingSpellSelector,
-        DebuffDetectionService debuffDetectionService)
+        DebuffDetectionService debuffDetectionService,
+        IErrorMetricsService? errorMetrics = null)
     {
         _log = log;
         _actionTracker = actionTracker;
@@ -110,6 +113,7 @@ public sealed class Apollo
         _playerStatsService = playerStatsService;
         _healingSpellSelector = healingSpellSelector;
         _debuffDetectionService = debuffDetectionService;
+        _errorMetrics = errorMetrics;
 
         // Initialize helpers
         _statusHelper = new StatusHelper();
@@ -133,21 +137,60 @@ public sealed class Apollo
     /// Main execution loop - called every frame.
     /// Creates context and delegates to modules in priority order.
     /// </summary>
-    public unsafe void Execute(IPlayerCharacter player)
+    public void Execute(IPlayerCharacter player)
     {
         try
         {
             ExecuteInternal(player);
         }
+        catch (SEHException ex)
+        {
+            // Critical: Structured Exception Handler - game memory is in bad state
+            HandleCriticalError("SEHException", ex);
+        }
+        catch (AccessViolationException ex)
+        {
+            // Critical: Access violation - pointer to invalid memory
+            HandleCriticalError("AccessViolation", ex);
+        }
+        catch (NullReferenceException ex)
+        {
+            // Likely stale pointer or disposed object - log and continue
+            _errorMetrics?.RecordError("Apollo.Execute.NullRef", ex.Message);
+            _suppressedErrorCount++;
+        }
         catch (Exception ex)
         {
-            // Throttle error logging to avoid spam
-            var now = DateTime.UtcNow;
-            if ((now - _lastErrorTime).TotalSeconds >= ErrorThrottleSeconds)
-            {
-                _lastErrorTime = now;
-                _log.Error(ex, "Apollo.Execute error (throttled, next log in {0}s)", ErrorThrottleSeconds);
-            }
+            // General error - throttled logging
+            HandleThrottledError(ex);
+        }
+    }
+
+    /// <summary>
+    /// Handle critical errors that indicate memory corruption.
+    /// </summary>
+    private void HandleCriticalError(string errorType, Exception ex)
+    {
+        _configuration.Enabled = false;
+        _log.Error(ex, "Apollo DISABLED due to {0} - memory access error", errorType);
+        _errorMetrics?.RecordError($"Apollo.Execute.{errorType}", ex.Message);
+    }
+
+    /// <summary>
+    /// Handle general errors with throttling.
+    /// </summary>
+    private void HandleThrottledError(Exception ex)
+    {
+        _suppressedErrorCount++;
+        _errorMetrics?.RecordError("Apollo.Execute", ex.Message);
+
+        var now = DateTime.UtcNow;
+        if ((now - _lastErrorTime).TotalSeconds >= ErrorThrottleSeconds)
+        {
+            _lastErrorTime = now;
+            _log.Error(ex, "Apollo.Execute error (suppressed {0} errors in last {1}s)",
+                _suppressedErrorCount, ErrorThrottleSeconds);
+            _suppressedErrorCount = 0;
         }
     }
 
@@ -156,7 +199,7 @@ public sealed class Apollo
     /// </summary>
     private unsafe void ExecuteInternal(IPlayerCharacter player)
     {
-        var actionManager = ActionManager.Instance();
+        var actionManager = SafeGameAccess.GetActionManager(_errorMetrics);
         if (actionManager == null)
             return;
 

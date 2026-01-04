@@ -1,218 +1,115 @@
-using System.Collections.Generic;
 using Dalamud.Configuration;
+using Olympus.Config;
 using Olympus.Services.Targeting;
 
 namespace Olympus;
 
 public sealed class Configuration : IPluginConfiguration
 {
-    public int Version { get; set; } = 1;
+    public int Version { get; set; } = 2;
 
+    // Runtime state
     public bool Enabled { get; set; } = false;
-
     public bool MainWindowVisible { get; set; } = true;
 
-    // Category toggles (master switches)
+    // Master category toggles
     public bool EnableHealing { get; set; } = true;
     public bool EnableDamage { get; set; } = true;
     public bool EnableDoT { get; set; } = true;
 
-    // Individual healing spells
-    public bool EnableCure { get; set; } = true;
-    public bool EnableCureII { get; set; } = true;
+    // Nested configuration groups
+    public HealingConfig Healing { get; set; } = new();
+    public DamageConfig Damage { get; set; } = new();
+    public DotConfig Dot { get; set; } = new();
+    public DefensiveConfig Defensive { get; set; } = new();
+    public BuffConfig Buffs { get; set; } = new();
+    public ResurrectionConfig Resurrection { get; set; } = new();
+    public TargetingConfig Targeting { get; set; } = new();
+    public RoleActionConfig RoleActions { get; set; } = new();
+    public DebugConfig Debug { get; set; } = new();
 
-    // AoE healing spells
-    public bool EnableMedica { get; set; } = true;
-    public bool EnableMedicaII { get; set; } = true;
-    public bool EnableMedicaIII { get; set; } = true;
-    public bool EnableCureIII { get; set; } = true;
+    #region Legacy Property Wrappers (for backward compatibility)
+    // These properties delegate to nested configs for backward compatibility.
+    // Modules can be updated incrementally to use nested configs directly.
 
-    // Lily heals (Afflatus)
-    public bool EnableAfflatusSolace { get; set; } = true;
-    public bool EnableAfflatusRapture { get; set; } = true;
+    // Healing spells
+    public bool EnableCure { get => Healing.EnableCure; set => Healing.EnableCure = value; }
+    public bool EnableCureII { get => Healing.EnableCureII; set => Healing.EnableCureII = value; }
+    public bool EnableMedica { get => Healing.EnableMedica; set => Healing.EnableMedica = value; }
+    public bool EnableMedicaII { get => Healing.EnableMedicaII; set => Healing.EnableMedicaII = value; }
+    public bool EnableMedicaIII { get => Healing.EnableMedicaIII; set => Healing.EnableMedicaIII = value; }
+    public bool EnableCureIII { get => Healing.EnableCureIII; set => Healing.EnableCureIII = value; }
+    public bool EnableAfflatusSolace { get => Healing.EnableAfflatusSolace; set => Healing.EnableAfflatusSolace = value; }
+    public bool EnableAfflatusRapture { get => Healing.EnableAfflatusRapture; set => Healing.EnableAfflatusRapture = value; }
+    public bool EnableRegen { get => Healing.EnableRegen; set => Healing.EnableRegen = value; }
+    public bool EnableTetragrammaton { get => Healing.EnableTetragrammaton; set => Healing.EnableTetragrammaton = value; }
+    public bool EnableBenediction { get => Healing.EnableBenediction; set => Healing.EnableBenediction = value; }
+    public bool EnableAssize { get => Healing.EnableAssize; set => Healing.EnableAssize = value; }
+    public bool EnableAsylum { get => Healing.EnableAsylum; set => Healing.EnableAsylum = value; }
+    public int AoEHealMinTargets { get => Healing.AoEHealMinTargets; set => Healing.AoEHealMinTargets = value; }
+    public float BenedictionEmergencyThreshold { get => Healing.BenedictionEmergencyThreshold; set => Healing.BenedictionEmergencyThreshold = value; }
 
-    // HoT heals
-    public bool EnableRegen { get; set; } = true;
+    // Buff spells
+    public bool EnablePresenceOfMind { get => Buffs.EnablePresenceOfMind; set => Buffs.EnablePresenceOfMind = value; }
+    public bool EnableThinAir { get => Buffs.EnableThinAir; set => Buffs.EnableThinAir = value; }
+    public bool EnableAetherialShift { get => Buffs.EnableAetherialShift; set => Buffs.EnableAetherialShift = value; }
 
-    // oGCD heals
-    public bool EnableTetragrammaton { get; set; } = true;
-    public bool EnableBenediction { get; set; } = true;
-    public bool EnableAssize { get; set; } = true;
-    public bool EnableAsylum { get; set; } = true;
-    public bool EnablePresenceOfMind { get; set; } = true;
-    public bool EnableThinAir { get; set; } = true;
+    // Damage spells
+    public bool EnableStone { get => Damage.EnableStone; set => Damage.EnableStone = value; }
+    public bool EnableStoneII { get => Damage.EnableStoneII; set => Damage.EnableStoneII = value; }
+    public bool EnableStoneIII { get => Damage.EnableStoneIII; set => Damage.EnableStoneIII = value; }
+    public bool EnableStoneIV { get => Damage.EnableStoneIV; set => Damage.EnableStoneIV = value; }
+    public bool EnableGlare { get => Damage.EnableGlare; set => Damage.EnableGlare = value; }
+    public bool EnableGlareIII { get => Damage.EnableGlareIII; set => Damage.EnableGlareIII = value; }
+    public bool EnableGlareIV { get => Damage.EnableGlareIV; set => Damage.EnableGlareIV = value; }
+    public bool EnableHoly { get => Damage.EnableHoly; set => Damage.EnableHoly = value; }
+    public bool EnableHolyIII { get => Damage.EnableHolyIII; set => Damage.EnableHolyIII = value; }
+    public bool EnableAfflatusMisery { get => Damage.EnableAfflatusMisery; set => Damage.EnableAfflatusMisery = value; }
+    public int AoEDamageMinTargets { get => Damage.AoEDamageMinTargets; set => Damage.AoEDamageMinTargets = value; }
 
-    // Movement abilities
-    public bool EnableAetherialShift { get; set; } = true;
+    // DoT spells
+    public bool EnableAero { get => Dot.EnableAero; set => Dot.EnableAero = value; }
+    public bool EnableAeroII { get => Dot.EnableAeroII; set => Dot.EnableAeroII = value; }
+    public bool EnableDia { get => Dot.EnableDia; set => Dot.EnableDia = value; }
 
-    // Blood Lily damage
-    public bool EnableAfflatusMisery { get; set; } = true;
+    // Defensive cooldowns
+    public bool EnableDivineBenison { get => Defensive.EnableDivineBenison; set => Defensive.EnableDivineBenison = value; }
+    public bool EnablePlenaryIndulgence { get => Defensive.EnablePlenaryIndulgence; set => Defensive.EnablePlenaryIndulgence = value; }
+    public bool EnableTemperance { get => Defensive.EnableTemperance; set => Defensive.EnableTemperance = value; }
+    public bool EnableAquaveil { get => Defensive.EnableAquaveil; set => Defensive.EnableAquaveil = value; }
+    public bool EnableLiturgyOfTheBell { get => Defensive.EnableLiturgyOfTheBell; set => Defensive.EnableLiturgyOfTheBell = value; }
+    public bool EnableDivineCaress { get => Defensive.EnableDivineCaress; set => Defensive.EnableDivineCaress = value; }
+    public float DefensiveCooldownThreshold { get => Defensive.DefensiveCooldownThreshold; set => Defensive.DefensiveCooldownThreshold = value; }
+    public bool UseDefensivesWithAoEHeals { get => Defensive.UseDefensivesWithAoEHeals; set => Defensive.UseDefensivesWithAoEHeals = value; }
 
-    // Defensive oGCDs
-    public bool EnableDivineBenison { get; set; } = true;
-    public bool EnablePlenaryIndulgence { get; set; } = true;
-    public bool EnableTemperance { get; set; } = true;
-    public bool EnableAquaveil { get; set; } = true;
-    public bool EnableLiturgyOfTheBell { get; set; } = true;
-    public bool EnableDivineCaress { get; set; } = true;
+    // Resurrection
+    public bool EnableRaise { get => Resurrection.EnableRaise; set => Resurrection.EnableRaise = value; }
+    public bool AllowHardcastRaise { get => Resurrection.AllowHardcastRaise; set => Resurrection.AllowHardcastRaise = value; }
+    public float RaiseMpThreshold { get => Resurrection.RaiseMpThreshold; set => Resurrection.RaiseMpThreshold = value; }
 
-    /// <summary>
-    /// HP percentage threshold to use defensive cooldowns proactively.
-    /// When party average HP falls below this, start using mitigation.
-    /// Default 0.80 means use when average HP &lt; 80%.
-    /// </summary>
-    public float DefensiveCooldownThreshold { get; set; } = 0.80f;
+    // Targeting
+    public EnemyTargetingStrategy EnemyStrategy { get => Targeting.EnemyStrategy; set => Targeting.EnemyStrategy = value; }
+    public bool UseTankAssistFallback { get => Targeting.UseTankAssistFallback; set => Targeting.UseTankAssistFallback = value; }
+    public int TargetCacheTtlMs { get => Targeting.TargetCacheTtlMs; set => Targeting.TargetCacheTtlMs = value; }
 
-    /// <summary>
-    /// Use defensive cooldowns during AoE heals for synergy.
-    /// E.g., Plenary Indulgence before Medica/Cure III.
-    /// </summary>
-    public bool UseDefensivesWithAoEHeals { get; set; } = true;
+    // Role actions
+    public bool EnableEsuna { get => RoleActions.EnableEsuna; set => RoleActions.EnableEsuna = value; }
+    public int EsunaPriorityThreshold { get => RoleActions.EsunaPriorityThreshold; set => RoleActions.EsunaPriorityThreshold = value; }
+    public bool EnableSurecast { get => RoleActions.EnableSurecast; set => RoleActions.EnableSurecast = value; }
+    public int SurecastMode { get => RoleActions.SurecastMode; set => RoleActions.SurecastMode = value; }
+    public bool EnableRescue { get => RoleActions.EnableRescue; set => RoleActions.EnableRescue = value; }
+    public int RescueMode { get => RoleActions.RescueMode; set => RoleActions.RescueMode = value; }
 
-    /// <summary>
-    /// HP percentage threshold for Benediction (emergency heal).
-    /// Only use Benediction when target HP is below this threshold.
-    /// Default 0.30 means only use when below 30% HP.
-    /// </summary>
-    public float BenedictionEmergencyThreshold { get; set; } = 0.30f;
-
-    // AoE healing settings
-    /// <summary>
-    /// Minimum number of party members below threshold to trigger AoE healing.
-    /// Default 3 means use AoE heal when 3+ party members need healing.
-    /// </summary>
-    public int AoEHealMinTargets { get; set; } = 3;
-
-    // Individual damage spells (Stone/Glare progression)
-    public bool EnableStone { get; set; } = true;
-    public bool EnableStoneII { get; set; } = true;
-    public bool EnableStoneIII { get; set; } = true;
-    public bool EnableStoneIV { get; set; } = true;
-    public bool EnableGlare { get; set; } = true;
-    public bool EnableGlareIII { get; set; } = true;
-    public bool EnableGlareIV { get; set; } = true;
-
-    // AoE damage spells (Holy progression)
-    public bool EnableHoly { get; set; } = true;
-    public bool EnableHolyIII { get; set; } = true;
-
-    /// <summary>
-    /// Minimum number of enemies in range to trigger AoE damage (Holy).
-    /// Default 3 means use Holy when 3+ enemies are within 8y radius.
-    /// </summary>
-    public int AoEDamageMinTargets { get; set; } = 3;
-
-    // Individual DoT spells (Aero/Dia progression)
-    public bool EnableAero { get; set; } = true;
-    public bool EnableAeroII { get; set; } = true;
-    public bool EnableDia { get; set; } = true;
-
-    // Resurrection settings
-    /// <summary>
-    /// Enable automatic resurrection of dead party members.
-    /// </summary>
-    public bool EnableRaise { get; set; } = true;
-
-    /// <summary>
-    /// Allow hardcasting Raise when Swiftcast is on cooldown.
-    /// Hardcast Raise takes 8 seconds and should only be used when safe.
-    /// </summary>
-    public bool AllowHardcastRaise { get; set; } = false;
-
-    /// <summary>
-    /// Minimum MP percentage required before attempting to raise (0.0 - 1.0).
-    /// Default 0.25 means 25% MP minimum (2400 MP for Raise + buffer).
-    /// </summary>
-    public float RaiseMpThreshold { get; set; } = 0.25f;
-
-    // Targeting settings
-    /// <summary>
-    /// Strategy for selecting enemy targets during combat.
-    /// </summary>
-    public EnemyTargetingStrategy EnemyStrategy { get; set; } = EnemyTargetingStrategy.LowestHp;
-
-    /// <summary>
-    /// When using TankAssist strategy, fall back to LowestHp if no tank target is found.
-    /// </summary>
-    public bool UseTankAssistFallback { get; set; } = true;
-
-    /// <summary>
-    /// How long to cache valid enemy list in milliseconds.
-    /// Higher values improve performance but may delay target switching.
-    /// </summary>
-    public int TargetCacheTtlMs { get; set; } = 100;
-
-    // Role Actions - Esuna
-    /// <summary>
-    /// Enable automatic Esuna usage to cleanse debuffs.
-    /// </summary>
-    public bool EnableEsuna { get; set; } = true;
-
-    /// <summary>
-    /// Minimum debuff priority to auto-cleanse (0-3).
-    /// 0 = Lethal only (Doom/Throttle)
-    /// 1 = High+ (also Vulnerability Up)
-    /// 2 = Medium+ (also Paralysis/Silence/Pacification)
-    /// 3 = All dispellable debuffs
-    /// </summary>
-    public int EsunaPriorityThreshold { get; set; } = 2;
-
-    // Role Actions - Surecast
-    /// <summary>
-    /// Enable Surecast role action.
-    /// </summary>
-    public bool EnableSurecast { get; set; } = false;
-
-    /// <summary>
-    /// Surecast usage mode:
-    /// 0 = Manual only (never auto-use)
-    /// 1 = Use on cooldown in combat
-    /// </summary>
-    public int SurecastMode { get; set; } = 0;
-
-    // Role Actions - Rescue
-    /// <summary>
-    /// Enable Rescue role action. Disabled by default - use with extreme caution.
-    /// Rescue can kill party members if used incorrectly.
-    /// </summary>
-    public bool EnableRescue { get; set; } = false;
-
-    /// <summary>
-    /// Rescue mode:
-    /// 0 = Manual only (never auto-use)
-    /// Note: Automatic rescue is not implemented due to extreme risk.
-    /// </summary>
-    public int RescueMode { get; set; } = 0;
-
-    // Debug settings
-    public bool DebugWindowVisible { get; set; } = false;
-    public int ActionHistorySize { get; set; } = 100;
-
-    /// <summary>
-    /// Visibility settings for debug window sections.
-    /// Key is section name, value is whether it's visible.
-    /// </summary>
-    public Dictionary<string, bool> DebugSectionVisibility { get; set; } = new()
+    // Debug
+    public bool DebugWindowVisible { get => Debug.DebugWindowVisible; set => Debug.DebugWindowVisible = value; }
+    public int ActionHistorySize { get => Debug.ActionHistorySize; set => Debug.ActionHistorySize = value; }
+    public System.Collections.Generic.Dictionary<string, bool> DebugSectionVisibility
     {
-        // Overview tab
-        ["GcdPlanning"] = true,
-        ["QuickStats"] = true,
+        get => Debug.DebugSectionVisibility;
+        set => Debug.DebugSectionVisibility = value;
+    }
 
-        // Healing tab
-        ["HpPrediction"] = true,
-        ["AoEHealing"] = true,
-        ["RecentHeals"] = true,
-        ["ShadowHp"] = true,
-
-        // Actions tab
-        ["GcdDetails"] = true,
-        ["SpellUsage"] = true,
-        ["ActionHistory"] = true,
-
-        // Performance tab
-        ["Statistics"] = true,
-        ["Downtime"] = true,
-    };
+    #endregion
 
     /// <summary>
     /// Resets all configuration values to their defaults.
@@ -223,92 +120,27 @@ public sealed class Configuration : IPluginConfiguration
         // Preserve runtime state
         var wasEnabled = Enabled;
         var mainVisible = MainWindowVisible;
-        var debugVisible = DebugWindowVisible;
+        var debugVisible = Debug.DebugWindowVisible;
 
-        // Create a fresh instance to get all default values
-        var defaults = new Configuration();
+        // Reset master toggles
+        EnableHealing = true;
+        EnableDamage = true;
+        EnableDoT = true;
 
-        // Copy all default values from fresh instance
-        // Category toggles
-        EnableHealing = defaults.EnableHealing;
-        EnableDamage = defaults.EnableDamage;
-        EnableDoT = defaults.EnableDoT;
-
-        // Healing spells
-        EnableCure = defaults.EnableCure;
-        EnableCureII = defaults.EnableCureII;
-        EnableMedica = defaults.EnableMedica;
-        EnableMedicaII = defaults.EnableMedicaII;
-        EnableMedicaIII = defaults.EnableMedicaIII;
-        EnableCureIII = defaults.EnableCureIII;
-        EnableAfflatusSolace = defaults.EnableAfflatusSolace;
-        EnableAfflatusRapture = defaults.EnableAfflatusRapture;
-        EnableRegen = defaults.EnableRegen;
-        EnableTetragrammaton = defaults.EnableTetragrammaton;
-        EnableBenediction = defaults.EnableBenediction;
-        EnableAssize = defaults.EnableAssize;
-        EnableAsylum = defaults.EnableAsylum;
-        EnablePresenceOfMind = defaults.EnablePresenceOfMind;
-        EnableThinAir = defaults.EnableThinAir;
-        EnableAetherialShift = defaults.EnableAetherialShift;
-        EnableAfflatusMisery = defaults.EnableAfflatusMisery;
-
-        // Defensive
-        EnableDivineBenison = defaults.EnableDivineBenison;
-        EnablePlenaryIndulgence = defaults.EnablePlenaryIndulgence;
-        EnableTemperance = defaults.EnableTemperance;
-        EnableAquaveil = defaults.EnableAquaveil;
-        EnableLiturgyOfTheBell = defaults.EnableLiturgyOfTheBell;
-        EnableDivineCaress = defaults.EnableDivineCaress;
-        DefensiveCooldownThreshold = defaults.DefensiveCooldownThreshold;
-        UseDefensivesWithAoEHeals = defaults.UseDefensivesWithAoEHeals;
-
-        // Thresholds
-        BenedictionEmergencyThreshold = defaults.BenedictionEmergencyThreshold;
-        AoEHealMinTargets = defaults.AoEHealMinTargets;
-        AoEDamageMinTargets = defaults.AoEDamageMinTargets;
-
-        // Damage spells
-        EnableStone = defaults.EnableStone;
-        EnableStoneII = defaults.EnableStoneII;
-        EnableStoneIII = defaults.EnableStoneIII;
-        EnableStoneIV = defaults.EnableStoneIV;
-        EnableGlare = defaults.EnableGlare;
-        EnableGlareIII = defaults.EnableGlareIII;
-        EnableGlareIV = defaults.EnableGlareIV;
-        EnableHoly = defaults.EnableHoly;
-        EnableHolyIII = defaults.EnableHolyIII;
-
-        // DoT
-        EnableAero = defaults.EnableAero;
-        EnableAeroII = defaults.EnableAeroII;
-        EnableDia = defaults.EnableDia;
-
-        // Resurrection
-        EnableRaise = defaults.EnableRaise;
-        AllowHardcastRaise = defaults.AllowHardcastRaise;
-        RaiseMpThreshold = defaults.RaiseMpThreshold;
-
-        // Targeting
-        EnemyStrategy = defaults.EnemyStrategy;
-        UseTankAssistFallback = defaults.UseTankAssistFallback;
-        TargetCacheTtlMs = defaults.TargetCacheTtlMs;
-
-        // Role actions
-        EnableEsuna = defaults.EnableEsuna;
-        EsunaPriorityThreshold = defaults.EsunaPriorityThreshold;
-        EnableSurecast = defaults.EnableSurecast;
-        SurecastMode = defaults.SurecastMode;
-        EnableRescue = defaults.EnableRescue;
-        RescueMode = defaults.RescueMode;
-
-        // Debug (reset section visibility but not window state)
-        ActionHistorySize = defaults.ActionHistorySize;
-        DebugSectionVisibility = new Dictionary<string, bool>(defaults.DebugSectionVisibility);
+        // Reset all nested configs to fresh instances
+        Healing = new HealingConfig();
+        Damage = new DamageConfig();
+        Dot = new DotConfig();
+        Defensive = new DefensiveConfig();
+        Buffs = new BuffConfig();
+        Resurrection = new ResurrectionConfig();
+        Targeting = new TargetingConfig();
+        RoleActions = new RoleActionConfig();
+        Debug = new DebugConfig();
 
         // Restore preserved values
         Enabled = wasEnabled;
         MainWindowVisible = mainVisible;
-        DebugWindowVisible = debugVisible;
+        Debug.DebugWindowVisible = debugVisible;
     }
 }

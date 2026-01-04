@@ -30,7 +30,7 @@ public enum DebuffPriority
 /// Service for detecting and prioritizing cleansable debuffs on party members.
 /// Uses Lumina Excel data to determine if a status is dispellable.
 /// </summary>
-public sealed class DebuffDetectionService
+public sealed class DebuffDetectionService : IDebuffDetectionService
 {
     private readonly IDataManager _dataManager;
 

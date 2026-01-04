@@ -162,7 +162,7 @@ public sealed class HealingModule : IApolloModule
             var thinAirNote = StatusHelper.HasThinAir(player) ? " + Thin Air" : "";
             context.Debug.PlannedAction = action.Name + thinAirNote;
             context.Debug.PlanningState = "AoE Heal";
-            var targetName = selectedCureIIITarget?.Name.TextValue ?? player.Name.TextValue;
+            var targetName = selectedCureIIITarget?.Name?.TextValue ?? player.Name?.TextValue ?? "Unknown";
             context.ActionTracker.LogAttempt(action.ActionId, targetName, player.CurrentHp, ActionResult.Success, player.Level);
         }
         else
@@ -229,7 +229,7 @@ public sealed class HealingModule : IApolloModule
             var thinAirNote = StatusHelper.HasThinAir(player) ? " + Thin Air" : "";
             context.Debug.PlannedAction = action.Name + thinAirNote;
             context.Debug.PlanningState = "Single Heal";
-            context.ActionTracker.LogAttempt(action.ActionId, target.Name.TextValue, target.CurrentHp, ActionResult.Success, player.Level);
+            context.ActionTracker.LogAttempt(action.ActionId, target.Name?.TextValue ?? "Unknown", target.CurrentHp, ActionResult.Success, player.Level);
         }
         else
         {
@@ -262,7 +262,7 @@ public sealed class HealingModule : IApolloModule
         {
             context.Debug.PlannedAction = "Regen (tank priority)";
             context.Debug.PlanningState = "Regen";
-            context.ActionTracker.LogAttempt(WHMActions.Regen.ActionId, target.Name.TextValue, target.CurrentHp, ActionResult.Success, player.Level);
+            context.ActionTracker.LogAttempt(WHMActions.Regen.ActionId, target.Name?.TextValue ?? "Unknown", target.CurrentHp, ActionResult.Success, player.Level);
         }
 
         return success;
@@ -311,7 +311,7 @@ public sealed class HealingModule : IApolloModule
             return false;
         }
 
-        context.Debug.EsunaTarget = target.Name.TextValue;
+        context.Debug.EsunaTarget = target.Name?.TextValue ?? "Unknown";
         context.Debug.EsunaState = $"Cleansing {priority} debuff";
 
         var success = context.ActionService.ExecuteGcd(WHMActions.Esuna, target.GameObjectId);
@@ -319,7 +319,7 @@ public sealed class HealingModule : IApolloModule
         {
             context.Debug.PlannedAction = "Esuna";
             context.Debug.PlanningState = "Esuna";
-            context.ActionTracker.LogAttempt(WHMActions.Esuna.ActionId, target.Name.TextValue, target.CurrentHp, ActionResult.Success, player.Level);
+            context.ActionTracker.LogAttempt(WHMActions.Esuna.ActionId, target.Name?.TextValue ?? "Unknown", target.CurrentHp, ActionResult.Success, player.Level);
         }
 
         return success;
@@ -389,7 +389,7 @@ public sealed class HealingModule : IApolloModule
         if (context.ActionService.ExecuteOgcd(WHMActions.Benediction, target.GameObjectId))
         {
             context.Debug.PlannedAction = "Benediction";
-            context.ActionTracker.LogAttempt(WHMActions.Benediction.ActionId, target.Name.TextValue,
+            context.ActionTracker.LogAttempt(WHMActions.Benediction.ActionId, target.Name?.TextValue ?? "Unknown",
                 target.CurrentHp, ActionResult.Success, player.Level);
 
             var missingHp = (int)(target.MaxHp - target.CurrentHp);
@@ -437,7 +437,7 @@ public sealed class HealingModule : IApolloModule
         if (context.ActionService.ExecuteOgcd(WHMActions.Tetragrammaton, target.GameObjectId))
         {
             context.Debug.PlannedAction = "Tetragrammaton";
-            context.ActionTracker.LogAttempt(WHMActions.Tetragrammaton.ActionId, target.Name.TextValue,
+            context.ActionTracker.LogAttempt(WHMActions.Tetragrammaton.ActionId, target.Name?.TextValue ?? "Unknown",
                 target.CurrentHp, ActionResult.Success, player.Level);
 
             context.HpPredictionService.RegisterPendingHeal(target.EntityId, healAmount);

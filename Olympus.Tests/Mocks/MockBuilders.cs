@@ -1,10 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
+using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
+using Dalamud.Game.ClientState.Party;
+using Dalamud.Plugin.Services;
 using Moq;
+using Olympus.Rotation.ApolloCore.Context;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
+using Olympus.Services.Debuff;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
+using Olympus.Services.Targeting;
 
 namespace Olympus.Tests.Mocks;
 
@@ -211,5 +220,212 @@ public static class MockBuilders
         mock.Setup(x => x.GetAllPendingHeals()).Returns(new Dictionary<uint, int>());
 
         return mock;
+    }
+
+    /// <summary>
+    /// Creates a mock IDebuffDetectionService with configurable behavior.
+    /// </summary>
+    /// <param name="findHighestPriorityDebuff">
+    /// Function to return debuff info for a target.
+    /// Default: returns no debuff (None priority).
+    /// </param>
+    public static Mock<IDebuffDetectionService> CreateMockDebuffDetectionService(
+        Func<IBattleChara, (uint statusId, DebuffPriority priority, float remainingTime)>? findHighestPriorityDebuff = null)
+    {
+        var mock = new Mock<IDebuffDetectionService>();
+
+        // Default: no debuffs found
+        findHighestPriorityDebuff ??= _ => (0, DebuffPriority.None, 0f);
+
+        mock.Setup(x => x.FindHighestPriorityDebuff(It.IsAny<IBattleChara>()))
+            .Returns((IBattleChara target) => findHighestPriorityDebuff(target));
+
+        mock.Setup(x => x.IsDispellable(It.IsAny<uint>())).Returns(false);
+        mock.Setup(x => x.GetDebuffPriority(It.IsAny<uint>())).Returns(DebuffPriority.None);
+
+        return mock;
+    }
+
+    /// <summary>
+    /// Creates a mock ITargetingService with configurable behavior.
+    /// </summary>
+    /// <param name="findEnemy">Function to find enemy target. Default: returns null.</param>
+    /// <param name="countEnemiesInRange">Number of enemies in range. Default: 0.</param>
+    public static Mock<ITargetingService> CreateMockTargetingService(
+        Func<EnemyTargetingStrategy, float, IPlayerCharacter, IBattleNpc?>? findEnemy = null,
+        int countEnemiesInRange = 0)
+    {
+        var mock = new Mock<ITargetingService>();
+
+        // Default: no enemies found
+        findEnemy ??= (_, _, _) => null;
+
+        mock.Setup(x => x.FindEnemy(It.IsAny<EnemyTargetingStrategy>(), It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
+            .Returns((EnemyTargetingStrategy strategy, float maxRange, IPlayerCharacter player) =>
+                findEnemy(strategy, maxRange, player));
+
+        mock.Setup(x => x.CountEnemiesInRange(It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(countEnemiesInRange);
+
+        mock.Setup(x => x.FindBestAoETarget(It.IsAny<float>(), It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(((IBattleNpc?)null, countEnemiesInRange));
+
+        mock.Setup(x => x.FindEnemyNeedingDot(It.IsAny<uint>(), It.IsAny<float>(), It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
+            .Returns((IBattleNpc?)null);
+
+        return mock;
+    }
+
+    /// <summary>
+    /// Creates a mock IPartyHelper with configurable behavior.
+    /// </summary>
+    /// <param name="partyMembers">List of party members to return. Default: empty list.</param>
+    /// <param name="lowestHpMember">The lowest HP party member. Default: null.</param>
+    /// <param name="deadMember">Dead party member needing raise. Default: null.</param>
+    public static Mock<IPartyHelper> CreateMockPartyHelper(
+        List<IBattleChara>? partyMembers = null,
+        IBattleChara? lowestHpMember = null,
+        IBattleChara? deadMember = null)
+    {
+        var mock = new Mock<IPartyHelper>();
+
+        partyMembers ??= new List<IBattleChara>();
+
+        mock.Setup(x => x.GetAllPartyMembers(It.IsAny<IPlayerCharacter>(), It.IsAny<bool>()))
+            .Returns(partyMembers);
+
+        mock.Setup(x => x.FindLowestHpPartyMember(It.IsAny<IPlayerCharacter>(), It.IsAny<int>()))
+            .Returns(lowestHpMember);
+
+        mock.Setup(x => x.FindDeadPartyMemberNeedingRaise(It.IsAny<IPlayerCharacter>()))
+            .Returns(deadMember);
+
+        mock.Setup(x => x.FindTankInParty(It.IsAny<IPlayerCharacter>()))
+            .Returns((IBattleChara?)null);
+
+        mock.Setup(x => x.GetHpPercent(It.IsAny<IBattleChara>()))
+            .Returns(1.0f);
+
+        mock.Setup(x => x.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
+            .Returns((1.0f, 1.0f, 0));
+
+        mock.Setup(x => x.CountPartyMembersNeedingAoEHeal(It.IsAny<IPlayerCharacter>(), It.IsAny<int>()))
+            .Returns((0, false, new List<(uint, string)>(), 0));
+
+        mock.Setup(x => x.FindBestCureIIITarget(It.IsAny<IPlayerCharacter>(), It.IsAny<int>()))
+            .Returns((null, 0, new List<uint>()));
+
+        mock.Setup(x => x.FindRegenTarget(It.IsAny<IPlayerCharacter>(), It.IsAny<float>(), It.IsAny<float>()))
+            .Returns((IBattleChara?)null);
+
+        mock.Setup(x => x.NeedsRegen(It.IsAny<IBattleChara>(), It.IsAny<float>(), It.IsAny<float>()))
+            .Returns(false);
+
+        return mock;
+    }
+
+    /// <summary>
+    /// Creates a mock IPlayerCharacter with basic properties set.
+    /// </summary>
+    /// <param name="level">Player level. Default: 90.</param>
+    /// <param name="currentHp">Current HP. Default: 50000.</param>
+    /// <param name="maxHp">Max HP. Default: 50000.</param>
+    /// <param name="currentMp">Current MP. Default: 10000.</param>
+    /// <param name="position">Player position. Default: origin.</param>
+    public static Mock<IPlayerCharacter> CreateMockPlayerCharacter(
+        byte level = 90,
+        uint currentHp = 50000,
+        uint maxHp = 50000,
+        uint currentMp = 10000,
+        Vector3? position = null)
+    {
+        var mock = new Mock<IPlayerCharacter>();
+
+        mock.Setup(x => x.Level).Returns(level);
+        mock.Setup(x => x.CurrentHp).Returns(currentHp);
+        mock.Setup(x => x.MaxHp).Returns(maxHp);
+        mock.Setup(x => x.CurrentMp).Returns(currentMp);
+        mock.Setup(x => x.Position).Returns(position ?? Vector3.Zero);
+        mock.Setup(x => x.IsDead).Returns(false);
+        mock.Setup(x => x.IsCasting).Returns(false);
+        mock.Setup(x => x.EntityId).Returns(1u);
+        mock.Setup(x => x.GameObjectId).Returns(1ul);
+
+        return mock;
+    }
+
+    /// <summary>
+    /// Creates a mock IBattleChara (party member) with basic properties set.
+    /// </summary>
+    /// <param name="entityId">Entity ID.</param>
+    /// <param name="name">Character name.</param>
+    /// <param name="currentHp">Current HP.</param>
+    /// <param name="maxHp">Max HP.</param>
+    /// <param name="isDead">Whether the character is dead.</param>
+    /// <param name="position">Character position.</param>
+    public static Mock<IBattleChara> CreateMockBattleChara(
+        uint entityId = 2u,
+        string name = "PartyMember",
+        uint currentHp = 40000,
+        uint maxHp = 50000,
+        bool isDead = false,
+        Vector3? position = null)
+    {
+        var mock = new Mock<IBattleChara>();
+
+        mock.Setup(x => x.EntityId).Returns(entityId);
+        mock.Setup(x => x.GameObjectId).Returns((ulong)entityId);
+        mock.Setup(x => x.CurrentHp).Returns(currentHp);
+        mock.Setup(x => x.MaxHp).Returns(maxHp);
+        mock.Setup(x => x.IsDead).Returns(isDead);
+        mock.Setup(x => x.Position).Returns(position ?? Vector3.Zero);
+
+        // Note: Name property uses SeString which has non-virtual TextValue.
+        // For tests that need Name, they must use the real game objects or
+        // accept that Name.TextValue will return empty/null.
+        // Note: StatusList cannot be easily mocked - tests requiring status checks
+        // should create their own mock setup for specific status IDs.
+
+        return mock;
+    }
+
+    /// <summary>
+    /// Creates a mock IObjectTable.
+    /// </summary>
+    public static Mock<IObjectTable> CreateMockObjectTable()
+    {
+        var mock = new Mock<IObjectTable>();
+        mock.Setup(x => x.GetEnumerator()).Returns(new List<IGameObject>().GetEnumerator());
+        return mock;
+    }
+
+    /// <summary>
+    /// Creates a mock IPartyList.
+    /// </summary>
+    public static Mock<IPartyList> CreateMockPartyList(int length = 0)
+    {
+        var mock = new Mock<IPartyList>();
+        mock.Setup(x => x.Length).Returns(length);
+        mock.Setup(x => x.GetEnumerator()).Returns(new List<IPartyMember>().GetEnumerator());
+        return mock;
+    }
+
+    /// <summary>
+    /// Creates a mock IDataManager.
+    /// </summary>
+    public static Mock<IDataManager> CreateMockDataManager()
+    {
+        var mock = new Mock<IDataManager>();
+        return mock;
+    }
+
+    /// <summary>
+    /// Creates an ActionTracker with mocked dependencies.
+    /// </summary>
+    public static ActionTracker CreateMockActionTracker(Configuration? config = null)
+    {
+        config ??= CreateDefaultConfiguration();
+        var dataManager = CreateMockDataManager();
+        return new ActionTracker(dataManager.Object, config);
     }
 }

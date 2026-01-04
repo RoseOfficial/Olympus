@@ -14,4 +14,9 @@ public interface ICombatEventService
     /// Gets the shadow HP for an entity, or the fallback value if not tracked.
     /// </summary>
     uint GetShadowHp(uint entityId, uint fallbackHp);
+
+    /// <summary>
+    /// Registers a predicted heal amount for calibration when the heal lands.
+    /// </summary>
+    void RegisterPredictionForCalibration(int predictedAmount);
 }

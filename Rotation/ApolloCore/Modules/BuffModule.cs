@@ -170,7 +170,7 @@ public sealed class BuffModule : IApolloModule
         if (context.ActionService.ExecuteOgcd(WHMActions.ThinAir, player.GameObjectId))
         {
             context.Debug.PlannedAction = "Thin Air";
-            context.ActionTracker.LogAttempt(WHMActions.ThinAir.ActionId, player.Name.TextValue, player.CurrentMp, ActionResult.Success, player.Level);
+            context.ActionTracker.LogAttempt(WHMActions.ThinAir.ActionId, player.Name?.TextValue ?? "Unknown", player.CurrentMp, ActionResult.Success, player.Level);
             return true;
         }
 
@@ -195,7 +195,7 @@ public sealed class BuffModule : IApolloModule
         if (context.ActionService.ExecuteOgcd(WHMActions.PresenceOfMind, player.GameObjectId))
         {
             context.Debug.PlannedAction = "Presence of Mind";
-            context.ActionTracker.LogAttempt(WHMActions.PresenceOfMind.ActionId, player.Name.TextValue, player.CurrentHp, ActionResult.Success, player.Level);
+            context.ActionTracker.LogAttempt(WHMActions.PresenceOfMind.ActionId, player.Name?.TextValue ?? "Unknown", player.CurrentHp, ActionResult.Success, player.Level);
             return true;
         }
 
@@ -231,15 +231,16 @@ public sealed class BuffModule : IApolloModule
 
         if (tank != null)
         {
+            var tankName = tank.Name?.TextValue ?? "Unknown";
             var distance = Vector3.Distance(player.Position, tank.Position);
             if (distance > WHMActions.Asylum.Range)
             {
                 context.Debug.AsylumState = $"Tank out of range ({distance:F1}y > {WHMActions.Asylum.Range}y)";
-                context.Debug.AsylumTarget = tank.Name.TextValue;
+                context.Debug.AsylumTarget = tankName;
                 return false;
             }
             targetPosition = tank.Position;
-            context.Debug.AsylumTarget = tank.Name.TextValue;
+            context.Debug.AsylumTarget = tankName;
         }
         else
         {
@@ -281,7 +282,7 @@ public sealed class BuffModule : IApolloModule
         if (context.ActionService.ExecuteOgcd(WHMActions.Assize, player.GameObjectId))
         {
             context.Debug.PlannedAction = "Assize";
-            context.ActionTracker.LogAttempt(WHMActions.Assize.ActionId, player.Name.TextValue, player.CurrentHp, ActionResult.Success, player.Level);
+            context.ActionTracker.LogAttempt(WHMActions.Assize.ActionId, player.Name?.TextValue ?? "Unknown", player.CurrentHp, ActionResult.Success, player.Level);
             return true;
         }
 
@@ -355,7 +356,7 @@ public sealed class BuffModule : IApolloModule
             {
                 context.Debug.PlannedAction = "Surecast";
                 context.Debug.SurecastState = "Executed";
-                context.ActionTracker.LogAttempt(WHMActions.Surecast.ActionId, player.Name.TextValue, player.CurrentHp, ActionResult.Success, player.Level);
+                context.ActionTracker.LogAttempt(WHMActions.Surecast.ActionId, player.Name?.TextValue ?? "Unknown", player.CurrentHp, ActionResult.Success, player.Level);
                 return true;
             }
         }
@@ -411,7 +412,7 @@ public sealed class BuffModule : IApolloModule
             context.Debug.PlannedAction = "Aetherial Shift (gap close)";
             context.ActionTracker.LogAttempt(
                 WHMActions.AetherialShift.ActionId,
-                target.Name.TextValue,
+                target.Name?.TextValue ?? "Unknown",
                 target.CurrentHp,
                 ActionResult.Success,
                 player.Level);

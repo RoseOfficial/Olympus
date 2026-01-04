@@ -30,6 +30,7 @@ public enum GcdState
 public sealed unsafe class ActionService : IActionService
 {
     private readonly ActionTracker _actionTracker;
+    private readonly IErrorMetricsService? _errorMetrics;
 
     // GCD tracking state
     private float _lastGcdTotal;
@@ -65,9 +66,10 @@ public sealed unsafe class ActionService : IActionService
     /// <summary>Last executed action (for debugging).</summary>
     public ActionDefinition? LastExecutedAction => _lastExecutedAction;
 
-    public ActionService(ActionTracker actionTracker)
+    public ActionService(ActionTracker actionTracker, IErrorMetricsService? errorMetrics = null)
     {
         _actionTracker = actionTracker;
+        _errorMetrics = errorMetrics;
     }
 
     /// <summary>
@@ -75,7 +77,7 @@ public sealed unsafe class ActionService : IActionService
     /// </summary>
     public void Update(bool isCasting)
     {
-        var actionManager = ActionManager.Instance();
+        var actionManager = SafeGameAccess.GetActionManager(_errorMetrics);
         if (actionManager == null)
             return;
 
@@ -136,7 +138,7 @@ public sealed unsafe class ActionService : IActionService
         if (!action.IsGCD)
             return false;
 
-        var actionManager = ActionManager.Instance();
+        var actionManager = SafeGameAccess.GetActionManager(_errorMetrics);
         if (actionManager == null)
             return false;
 
@@ -170,7 +172,7 @@ public sealed unsafe class ActionService : IActionService
         if (!action.IsOGCD)
             return false;
 
-        var actionManager = ActionManager.Instance();
+        var actionManager = SafeGameAccess.GetActionManager(_errorMetrics);
         if (actionManager == null)
             return false;
 
@@ -201,7 +203,7 @@ public sealed unsafe class ActionService : IActionService
         if (!action.IsOGCD)
             return false;
 
-        var actionManager = ActionManager.Instance();
+        var actionManager = SafeGameAccess.GetActionManager(_errorMetrics);
         if (actionManager == null)
             return false;
 
@@ -244,7 +246,7 @@ public sealed unsafe class ActionService : IActionService
     /// </summary>
     public float GetCooldownRemaining(uint actionId)
     {
-        var actionManager = ActionManager.Instance();
+        var actionManager = SafeGameAccess.GetActionManager(_errorMetrics);
         if (actionManager == null)
             return float.MaxValue;
 
@@ -270,7 +272,7 @@ public sealed unsafe class ActionService : IActionService
     /// </summary>
     public bool CanExecuteAction(ActionDefinition action)
     {
-        var actionManager = ActionManager.Instance();
+        var actionManager = SafeGameAccess.GetActionManager(_errorMetrics);
         if (actionManager == null)
             return false;
 

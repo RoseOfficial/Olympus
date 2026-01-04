@@ -76,7 +76,8 @@ public sealed class ResurrectionModule : IApolloModule
             return false;
         }
 
-        context.Debug.RaiseTarget = target.Name.TextValue;
+        var targetName = target.Name?.TextValue ?? "Unknown";
+        context.Debug.RaiseTarget = targetName;
 
         var hasSwiftcast = StatusHelper.HasSwiftcast(player);
 
@@ -95,7 +96,7 @@ public sealed class ResurrectionModule : IApolloModule
                 context.Debug.PlannedAction = StatusHelper.HasThinAir(player)
                     ? "Raise (Swiftcast + Thin Air)"
                     : "Raise (Swiftcast)";
-                context.ActionTracker.LogAttempt(WHMActions.Raise.ActionId, target.Name.TextValue, 0, ActionResult.Success, player.Level);
+                context.ActionTracker.LogAttempt(WHMActions.Raise.ActionId, targetName, 0, ActionResult.Success, player.Level);
             }
             return success;
         }
@@ -120,7 +121,7 @@ public sealed class ResurrectionModule : IApolloModule
                     context.Debug.PlannedAction = StatusHelper.HasThinAir(player)
                         ? "Raise (Hardcast + Thin Air)"
                         : "Raise (Hardcast)";
-                    context.ActionTracker.LogAttempt(WHMActions.Raise.ActionId, target.Name.TextValue, 0, ActionResult.Success, player.Level);
+                    context.ActionTracker.LogAttempt(WHMActions.Raise.ActionId, targetName, 0, ActionResult.Success, player.Level);
                 }
                 return success;
             }

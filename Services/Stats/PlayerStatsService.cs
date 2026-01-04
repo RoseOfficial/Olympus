@@ -1,7 +1,6 @@
 using System;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using Olympus.Services.Calculation;
 using LuminaItem = Lumina.Excel.Sheets.Item;
 
@@ -15,6 +14,7 @@ public sealed class PlayerStatsService : IPlayerStatsService
 {
     private readonly IPluginLog log;
     private readonly IDataManager dataManager;
+    private readonly IErrorMetricsService? errorMetrics;
 
     // BaseParam IDs from the game's BaseParam Excel sheet
     // These are used as indices into the Attributes array
@@ -23,51 +23,37 @@ public sealed class PlayerStatsService : IPlayerStatsService
     private const int AttributeMagicDamage = 13;     // Computed magic weapon damage
     private const int AttributeDetermination = 44;
 
-    public PlayerStatsService(IPluginLog log, IDataManager dataManager)
+    public PlayerStatsService(IPluginLog log, IDataManager dataManager, IErrorMetricsService? errorMetrics = null)
     {
         this.log = log;
         this.dataManager = dataManager;
+        this.errorMetrics = errorMetrics;
     }
 
     /// <summary>
     /// Gets the player's current Mind stat.
     /// </summary>
-    public unsafe int GetMind()
+    public int GetMind()
     {
-        try
+        var mind = SafeGameAccess.GetPlayerAttribute(AttributeMind, errorMetrics);
+        if (mind == 0)
         {
-            var playerState = PlayerState.Instance();
-            if (playerState == null)
-                return 0;
-
-            // Attributes array is indexed by BaseParam ID
-            return playerState->Attributes[AttributeMind];
+            errorMetrics?.RecordError("PlayerStatsService", "Mind stat returned 0");
         }
-        catch (Exception ex)
-        {
-            log.Error(ex, "Failed to read Mind stat");
-            return 0;
-        }
+        return mind;
     }
 
     /// <summary>
     /// Gets the player's current Determination stat.
     /// </summary>
-    public unsafe int GetDetermination()
+    public int GetDetermination()
     {
-        try
+        var det = SafeGameAccess.GetPlayerAttribute(AttributeDetermination, errorMetrics);
+        if (det == 0)
         {
-            var playerState = PlayerState.Instance();
-            if (playerState == null)
-                return 0;
-
-            return playerState->Attributes[AttributeDetermination];
+            errorMetrics?.RecordError("PlayerStatsService", "Determination stat returned 0");
         }
-        catch (Exception ex)
-        {
-            log.Error(ex, "Failed to read Determination stat");
-            return 0;
-        }
+        return det;
     }
 
     /// <summary>
@@ -75,23 +61,14 @@ public sealed class PlayerStatsService : IPlayerStatsService
     /// Reads from PlayerState.Attributes[13] (Magic Damage) which is the synced value.
     /// Falls back to level-based estimation if not available.
     /// </summary>
-    public unsafe int GetWeaponDamage(int level)
+    public int GetWeaponDamage(int level)
     {
-        try
-        {
-            var playerState = PlayerState.Instance();
-            if (playerState != null)
-            {
-                var magicDamage = playerState->Attributes[AttributeMagicDamage];
-                if (magicDamage > 0)
-                    return magicDamage;
-            }
-        }
-        catch
-        {
-            // Fall through to estimation
-        }
+        var magicDamage = SafeGameAccess.GetPlayerAttribute(AttributeMagicDamage, errorMetrics);
+        if (magicDamage > 0)
+            return magicDamage;
 
+        // Fall back to estimation
+        errorMetrics?.RecordError("PlayerStatsService", "Magic damage unavailable, using estimation");
         return EstimateWeaponDamage(level);
     }
 
@@ -132,18 +109,16 @@ public sealed class PlayerStatsService : IPlayerStatsService
     /// </summary>
     public unsafe string GetDebugInfo(int level)
     {
+        var playerState = SafeGameAccess.GetPlayerState(errorMetrics);
+        if (playerState == null)
+            return "PlayerState is null";
+
         try
         {
-            var playerState = PlayerState.Instance();
-            if (playerState == null)
-                return "PlayerState is null";
-
-            var mind = playerState->Attributes[AttributeMind];
-            var det = playerState->Attributes[AttributeDetermination];
-            var computedMagDmg = playerState->Attributes[AttributeMagicDamage];
-            var computedPhysDmg = playerState->Attributes[AttributePhysicalDamage];
+            var mind = GetMind();
+            var det = GetDetermination();
+            var computedMagDmg = SafeGameAccess.GetPlayerAttribute(AttributeMagicDamage, errorMetrics);
             var estimatedWd = EstimateWeaponDamage(level);
-            var actualItemWd = GetActualItemWeaponDamage();
 
             // Show computed magic damage from PlayerState (this should be synced!)
             var wdInfo = computedMagDmg > 0
@@ -156,6 +131,7 @@ public sealed class PlayerStatsService : IPlayerStatsService
         }
         catch (Exception ex)
         {
+            errorMetrics?.RecordError("PlayerStatsService.GetDebugInfo", ex.Message);
             return $"Error: {ex.Message}";
         }
     }
@@ -166,12 +142,12 @@ public sealed class PlayerStatsService : IPlayerStatsService
     /// </summary>
     private unsafe int GetActualItemWeaponDamage()
     {
+        var inventoryManager = SafeGameAccess.GetInventoryManager(errorMetrics);
+        if (inventoryManager == null)
+            return 0;
+
         try
         {
-            var inventoryManager = InventoryManager.Instance();
-            if (inventoryManager == null)
-                return 0;
-
             var equippedItems = inventoryManager->GetInventoryContainer(InventoryType.EquippedItems);
             if (equippedItems == null || equippedItems->Size == 0)
                 return 0;
@@ -193,6 +169,7 @@ public sealed class PlayerStatsService : IPlayerStatsService
         }
         catch
         {
+            errorMetrics?.RecordError("PlayerStatsService", "Failed to read actual item weapon damage");
             return 0;
         }
     }

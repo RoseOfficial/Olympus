@@ -1,6 +1,6 @@
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
-using FFXIVClientStructs.FFXIV.Client.Game;
+using Olympus.Services;
 
 namespace Olympus.Rotation.ApolloCore.Helpers;
 
@@ -47,6 +47,10 @@ public sealed class StatusHelper
     /// </summary>
     public static bool HasStatus(IBattleChara chara, uint statusId)
     {
+        // Null check for testing and defensive coding
+        if (chara.StatusList == null)
+            return false;
+
         foreach (var status in chara.StatusList)
         {
             if (status.StatusId == statusId)
@@ -61,6 +65,11 @@ public sealed class StatusHelper
     public static bool HasStatus(IBattleChara chara, uint statusId, out float remainingTime)
     {
         remainingTime = 0f;
+
+        // Null check for testing and defensive coding
+        if (chara.StatusList == null)
+            return false;
+
         foreach (var status in chara.StatusList)
         {
             if (status.StatusId == statusId)
@@ -77,6 +86,10 @@ public sealed class StatusHelper
     /// </summary>
     public static int GetStatusStacks(IBattleChara chara, uint statusId)
     {
+        // Null check for testing and defensive coding
+        if (chara.StatusList == null)
+            return 0;
+
         foreach (var status in chara.StatusList)
         {
             if (status.StatusId == statusId)
@@ -98,6 +111,10 @@ public sealed class StatusHelper
     /// </summary>
     public static bool HasMedicaRegen(IBattleChara chara)
     {
+        // Null check for testing and defensive coding
+        if (chara.StatusList == null)
+            return false;
+
         foreach (var status in chara.StatusList)
         {
             if (status.StatusId == StatusIds.MedicaII || status.StatusId == StatusIds.MedicaIII)
@@ -147,36 +164,10 @@ public sealed class StatusHelper
     /// <summary>
     /// Gets the current Blood Lily count from the WHM job gauge (0-3).
     /// </summary>
-    public static unsafe int GetBloodLilyCount()
-    {
-        try
-        {
-            var jobGauge = JobGaugeManager.Instance();
-            if (jobGauge == null)
-                return 0;
-            return jobGauge->WhiteMage.BloodLily;
-        }
-        catch
-        {
-            return 0;
-        }
-    }
+    public static int GetBloodLilyCount() => SafeGameAccess.GetWhmBloodLilyCount();
 
     /// <summary>
     /// Gets the current Lily count from the WHM job gauge (0-3).
     /// </summary>
-    public static unsafe int GetLilyCount()
-    {
-        try
-        {
-            var jobGauge = JobGaugeManager.Instance();
-            if (jobGauge == null)
-                return 0;
-            return jobGauge->WhiteMage.Lily;
-        }
-        catch
-        {
-            return 0;
-        }
-    }
+    public static int GetLilyCount() => SafeGameAccess.GetWhmLilyCount();
 }

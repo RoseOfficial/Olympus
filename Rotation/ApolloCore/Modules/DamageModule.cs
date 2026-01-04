@@ -127,7 +127,7 @@ public sealed class DamageModule : IApolloModule
         if (target != null)
         {
             var dist = Vector3.Distance(player.Position, target.Position);
-            context.Debug.TargetInfo = $"{target.Name} ({dist:F1}y)";
+            context.Debug.TargetInfo = $"{target.Name?.TextValue ?? "Unknown"} ({dist:F1}y)";
         }
         else if (actionDef != null && actionDef.TargetType == ActionTargetType.Self)
         {
@@ -170,7 +170,7 @@ public sealed class DamageModule : IApolloModule
         if (success)
         {
             context.Debug.PlannedAction = actionDef.Name;
-            var targetName = target?.Name.TextValue ?? player.Name.TextValue;
+            var targetName = target?.Name?.TextValue ?? player.Name?.TextValue ?? "Unknown";
             var targetHp = target?.CurrentHp ?? player.CurrentHp;
             context.ActionTracker.LogAttempt(actionDef.ActionId, targetName, targetHp, ActionResult.Success, player.Level);
         }

@@ -12,7 +12,7 @@ namespace Olympus.Services.Targeting;
 /// <summary>
 /// Centralized targeting service with optimized filtering, caching, and multiple strategies.
 /// </summary>
-public sealed class TargetingService
+public sealed class TargetingService : ITargetingService
 {
     private readonly IObjectTable _objectTable;
     private readonly IPartyList _partyList;

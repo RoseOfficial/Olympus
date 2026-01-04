@@ -13,7 +13,7 @@ namespace Olympus.Rotation.ApolloCore.Helpers;
 /// <summary>
 /// Helper class for party member operations.
 /// </summary>
-public sealed class PartyHelper
+public sealed class PartyHelper : IPartyHelper
 {
     private readonly IObjectTable _objectTable;
     private readonly IPartyList _partyList;
