@@ -54,11 +54,13 @@ jobs:
               "InternalName": "Olympus",
               "Punchline": "Intelligent White Mage rotation assistant",
               "Description": "Apollo: An intelligent White Mage rotation assistant that handles healing, damage, defensive cooldowns, and resource management with full level-sync awareness.",
+              "ApplicableVersion": "any",
               "Tags": ["whm", "white-mage", "combat", "rotation"],
               "RepoUrl": "https://github.com/RoseOfficial/Olympus",
               "AssemblyVersion": "${{ steps.version.outputs.version }}",
               "DalamudApiLevel": 11,
               "DownloadLinkInstall": "https://github.com/RoseOfficial/Olympus/releases/download/${{ github.ref_name }}/Olympus.zip",
+              "DownloadLinkTesting": "https://github.com/RoseOfficial/Olympus/releases/download/${{ github.ref_name }}/Olympus.zip",
               "DownloadLinkUpdate": "https://github.com/RoseOfficial/Olympus/releases/download/${{ github.ref_name }}/Olympus.zip"
             }
           ]
