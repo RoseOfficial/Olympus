@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
+using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Services.Action;
@@ -37,6 +38,8 @@ public sealed class SpellSelectionDebug
     public float TargetHpPercent { get; init; }
     public bool IsWeaveWindow { get; init; }
     public int LilyCount { get; init; }
+    public int BloodLilyCount { get; init; }
+    public string LilyStrategy { get; init; } = "";
     public List<SpellCandidateDebug> Candidates { get; init; } = new();
     public string? SelectedSpell { get; init; }
     public string? SelectionReason { get; init; }
@@ -105,6 +108,8 @@ public class HealingSpellSelector : IHealingSpellSelector
         var missingHp = (int)(target.MaxHp - hpPredictionService.GetPredictedHp(target.EntityId, target.CurrentHp, target.MaxHp));
         var hpPercent = hpPredictionService.GetPredictedHpPercent(target.EntityId, target.CurrentHp, target.MaxHp);
         var lilyCount = GetLilyCount();
+        var bloodLilyCount = GetBloodLilyCount();
+        var lilyStrategy = configuration.Healing.LilyStrategy;
 
         // Skip if target doesn't need healing
         if (missingHp <= 0)
@@ -117,6 +122,8 @@ public class HealingSpellSelector : IHealingSpellSelector
                 TargetHpPercent = hpPercent,
                 IsWeaveWindow = isWeaveWindow,
                 LilyCount = lilyCount,
+                BloodLilyCount = bloodLilyCount,
+                LilyStrategy = lilyStrategy.ToString(),
                 Candidates = new List<SpellCandidateDebug>(),
                 SelectedSpell = null,
                 SelectionReason = "Target doesn't need healing (missingHp <= 0)"
@@ -132,19 +139,25 @@ public class HealingSpellSelector : IHealingSpellSelector
         // with proper priority ordering (emergency heals first, then regular oGCDs)
 
         // === TIER 1: Lily GCD (Afflatus Solace) ===
-        if (lilyCount > 0)
+        // Blood Lily optimization: prefer lily heals based on strategy to generate Blood Lilies
+        if (lilyCount > 0 && ShouldPreferLilyHeal(lilyCount, bloodLilyCount, hpPercent))
         {
             var result = TrySelectHeal(WHMActions.AfflatusSolace, player.Level, mind, det, wd, target);
             if (result.action != null)
             {
                 selectedAction = result.action;
                 selectedHealAmount = result.healAmount;
-                selectionReason = $"Tier 1: Lily heal ({lilyCount} lilies)";
+                selectionReason = $"Tier 1: Lily heal ({lilyCount} lilies, {bloodLilyCount}/3 Blood, {lilyStrategy})";
             }
+        }
+        else if (lilyCount == 0)
+        {
+            TrackRejectedSpell(WHMActions.AfflatusSolace, 0, 0, "No lilies available");
         }
         else
         {
-            TrackRejectedSpell(WHMActions.AfflatusSolace, 0, 0, "No lilies available");
+            TrackRejectedSpell(WHMActions.AfflatusSolace, 0, 0,
+                $"Strategy {lilyStrategy}: Blood {bloodLilyCount}/3, HP {hpPercent:P0}");
         }
 
         // === TIER 2: Regen (HoT) ===
@@ -239,6 +252,8 @@ public class HealingSpellSelector : IHealingSpellSelector
             TargetHpPercent = hpPercent,
             IsWeaveWindow = isWeaveWindow,
             LilyCount = lilyCount,
+            BloodLilyCount = bloodLilyCount,
+            LilyStrategy = lilyStrategy.ToString(),
             Candidates = debugCandidates,
             SelectedSpell = selectedAction?.Name,
             SelectionReason = selectionReason
@@ -379,6 +394,8 @@ public class HealingSpellSelector : IHealingSpellSelector
         currentCandidates.Clear();
         var (mind, det, wd) = playerStatsService.GetHealingStats(player.Level);
         var lilyCount = GetLilyCount();
+        var bloodLilyCount = GetBloodLilyCount();
+        var lilyStrategy = configuration.Healing.LilyStrategy;
 
         // Skip if not enough targets (check both self-centered and Cure III targets)
         var hasSelfCenteredTargets = injuredCount >= configuration.AoEHealMinTargets;
@@ -394,6 +411,8 @@ public class HealingSpellSelector : IHealingSpellSelector
                 TargetHpPercent = 0,
                 IsWeaveWindow = isWeaveWindow,
                 LilyCount = lilyCount,
+                BloodLilyCount = bloodLilyCount,
+                LilyStrategy = lilyStrategy.ToString(),
                 Candidates = new List<SpellCandidateDebug>(),
                 SelectedSpell = null,
                 SelectionReason = $"Not enough targets (self:{injuredCount}, CureIII:{cureIIITargetCount} < {configuration.AoEHealMinTargets} min)"
@@ -410,14 +429,16 @@ public class HealingSpellSelector : IHealingSpellSelector
         IBattleChara? selectedCureIIITarget = null; // Track if Cure III was selected
 
         // === TIER 1: Lily AoE (Afflatus Rapture) ===
-        if (lilyCount > 0 && hasSelfCenteredTargets)
+        // Blood Lily optimization: prefer lily heals based on strategy to generate Blood Lilies
+        // For AoE heals, we use 0 for HP percent since we're healing multiple targets
+        if (lilyCount > 0 && hasSelfCenteredTargets && ShouldPreferLilyHeal(lilyCount, bloodLilyCount, 0f))
         {
             var result = TrySelectAoEHeal(WHMActions.AfflatusRapture, player.Level, mind, det, wd);
             if (result.action != null)
             {
                 selectedAction = result.action;
                 selectedHealAmount = result.healAmount;
-                selectionReason = $"Tier 1: Lily AoE heal ({lilyCount} lilies)";
+                selectionReason = $"Tier 1: Lily AoE heal ({lilyCount} lilies, {bloodLilyCount}/3 Blood, {lilyStrategy})";
             }
         }
         else if (lilyCount == 0)
@@ -427,6 +448,11 @@ public class HealingSpellSelector : IHealingSpellSelector
         else if (!hasSelfCenteredTargets)
         {
             TrackRejectedSpell(WHMActions.AfflatusRapture, 0, 0, $"Not enough self-centered targets ({injuredCount})");
+        }
+        else
+        {
+            TrackRejectedSpell(WHMActions.AfflatusRapture, 0, 0,
+                $"Strategy {lilyStrategy}: Blood {bloodLilyCount}/3");
         }
 
         // === TIER 1.5: Cure III (targeted AoE, when party is stacked) ===
@@ -525,6 +551,8 @@ public class HealingSpellSelector : IHealingSpellSelector
             TargetHpPercent = 0,
             IsWeaveWindow = isWeaveWindow,
             LilyCount = lilyCount,
+            BloodLilyCount = bloodLilyCount,
+            LilyStrategy = lilyStrategy.ToString(),
             Candidates = debugCandidates,
             SelectedSpell = selectedAction?.Name,
             SelectionReason = selectionReason
@@ -592,11 +620,45 @@ public class HealingSpellSelector : IHealingSpellSelector
     }
 
     /// <summary>
+    /// Gets the current Blood Lily count from the WHM job gauge.
+    /// Virtual to allow testing with mocked Blood Lily counts.
+    /// </summary>
+    protected virtual int GetBloodLilyCount()
+    {
+        return SafeGameAccess.GetWhmBloodLilyCount(errorMetrics);
+    }
+
+    /// <summary>
+    /// Determines whether lily heals (Afflatus Solace/Rapture) should be preferred
+    /// over MP-based alternatives based on the configured Blood Lily strategy.
+    /// </summary>
+    /// <param name="lilyCount">Current lily count (0-3).</param>
+    /// <param name="bloodLilyCount">Current Blood Lily count (0-3).</param>
+    /// <param name="targetHpPercent">Target HP percent (for Conservative strategy).</param>
+    /// <returns>True if lily heals should be preferred.</returns>
+    private bool ShouldPreferLilyHeal(int lilyCount, int bloodLilyCount, float targetHpPercent)
+    {
+        if (lilyCount == 0)
+            return false;
+
+        return configuration.Healing.LilyStrategy switch
+        {
+            LilyGenerationStrategy.Aggressive => true,
+            LilyGenerationStrategy.Balanced => bloodLilyCount < 3,
+            LilyGenerationStrategy.Conservative => bloodLilyCount < 3 &&
+                targetHpPercent < configuration.Healing.ConservativeLilyHpThreshold,
+            LilyGenerationStrategy.Disabled => false,
+            _ => bloodLilyCount < 3 // Default to Balanced behavior
+        };
+    }
+
+    /// <summary>
     /// Debug info showing current spell selection state.
     /// </summary>
     public string GetDebugInfo(IPlayerCharacter player)
     {
         var lilyCount = GetLilyCount();
-        return $"Lilies: {lilyCount}/3 | BeneThreshold: {configuration.BenedictionEmergencyThreshold:P0}";
+        var bloodLilyCount = GetBloodLilyCount();
+        return $"Lilies: {lilyCount}/3 | Blood: {bloodLilyCount}/3 | Strategy: {configuration.Healing.LilyStrategy} | BeneThreshold: {configuration.BenedictionEmergencyThreshold:P0}";
     }
 }

@@ -79,7 +79,9 @@ public sealed class Apollo
     public string DebugThinAirState { get; private set; } = "Idle";
     public string DebugDefensiveState { get; private set; } = "Idle";
     public string DebugTemperanceState { get; private set; } = "Idle";
+    public int DebugLilyCount { get; private set; }
     public int DebugBloodLilyCount { get; private set; }
+    public string DebugLilyStrategy { get; private set; } = "Balanced";
     public int DebugSacredSightStacks { get; private set; }
     public string DebugMiseryState { get; private set; } = "Idle";
     public string DebugEsunaState { get; private set; } = "Idle";
@@ -316,7 +318,9 @@ public sealed class Apollo
         DebugThinAirState = context.Debug.ThinAirState;
         DebugDefensiveState = context.Debug.DefensiveState;
         DebugTemperanceState = context.Debug.TemperanceState;
+        DebugLilyCount = context.Debug.LilyCount;
         DebugBloodLilyCount = context.Debug.BloodLilyCount;
+        DebugLilyStrategy = context.Debug.LilyStrategy;
         DebugSacredSightStacks = context.Debug.SacredSightStacks;
         DebugMiseryState = context.Debug.MiseryState;
         DebugEsunaState = context.Debug.EsunaState;

@@ -166,7 +166,9 @@ public sealed class DebugService
             MiseryState = _apollo.DebugMiseryState,
 
             // Resources
+            LilyCount = _apollo.DebugLilyCount,
             BloodLilyCount = _apollo.DebugBloodLilyCount,
+            LilyStrategy = _apollo.DebugLilyStrategy,
             SacredSightStacks = _apollo.DebugSacredSightStacks
         };
     }

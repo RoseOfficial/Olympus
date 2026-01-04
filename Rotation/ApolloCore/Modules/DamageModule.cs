@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Dalamud.Game.ClientState.Objects.Types;
+using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models;
 using Olympus.Models.Action;
@@ -65,9 +66,12 @@ public sealed class DamageModule : IApolloModule
 
     public void UpdateDebugState(ApolloContext context)
     {
+        var lilies = StatusHelper.GetLilyCount();
         var bloodLilies = StatusHelper.GetBloodLilyCount();
         var sacredSightStacks = StatusHelper.GetSacredSightStacks(context.Player);
+        context.Debug.LilyCount = lilies;
         context.Debug.BloodLilyCount = bloodLilies;
+        context.Debug.LilyStrategy = context.Configuration.Healing.LilyStrategy.ToString();
         context.Debug.SacredSightStacks = sacredSightStacks;
     }
 
@@ -80,10 +84,13 @@ public sealed class DamageModule : IApolloModule
         IBattleNpc? target = null;
         ActionDefinition? actionDef = null;
 
-        // Track Blood Lily and Sacred Sight for debug
+        // Track Lily, Blood Lily and Sacred Sight for debug
+        var lilies = StatusHelper.GetLilyCount();
         var bloodLilies = StatusHelper.GetBloodLilyCount();
         var sacredSightStacks = StatusHelper.GetSacredSightStacks(player);
+        context.Debug.LilyCount = lilies;
         context.Debug.BloodLilyCount = bloodLilies;
+        context.Debug.LilyStrategy = config.Healing.LilyStrategy.ToString();
         context.Debug.SacredSightStacks = sacredSightStacks;
 
         // Priority 0: Afflatus Misery (1240p AoE, costs 3 Blood Lily)

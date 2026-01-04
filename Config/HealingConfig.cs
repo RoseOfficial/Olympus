@@ -19,6 +19,19 @@ public sealed class HealingConfig
     public bool EnableAfflatusSolace { get; set; } = true;
     public bool EnableAfflatusRapture { get; set; } = true;
 
+    // Blood Lily optimization
+    /// <summary>
+    /// Blood Lily generation strategy for optimizing Afflatus Misery usage.
+    /// Default Balanced prefers lily heals when Blood Lilies are below 3.
+    /// </summary>
+    public LilyGenerationStrategy LilyStrategy { get; set; } = LilyGenerationStrategy.Balanced;
+
+    /// <summary>
+    /// When using Conservative strategy, only prefer lily heals below this HP threshold.
+    /// Default 0.75 means only use lily heals when target is below 75% HP.
+    /// </summary>
+    public float ConservativeLilyHpThreshold { get; set; } = 0.75f;
+
     // HoT
     public bool EnableRegen { get; set; } = true;
 

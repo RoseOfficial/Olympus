@@ -135,7 +135,9 @@ public sealed class DebugState
     public string TemperanceState { get; set; } = "Idle";
 
     // Resources
+    public int LilyCount { get; set; }
     public int BloodLilyCount { get; set; }
+    public string LilyStrategy { get; set; } = "Balanced";
     public int SacredSightStacks { get; set; }
     public string MiseryState { get; set; } = "Idle";
 

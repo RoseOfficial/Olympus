@@ -209,14 +209,26 @@ public static class WhyStuckTab
         ImGui.Text("WHM Resources");
         ImGui.Separator();
 
+        // Lily gauge (healing lilies)
+        var lilyColor = rotation.LilyCount > 0 ? DebugColors.Success : DebugColors.Dim;
+        ImGui.TextColored(lilyColor, $"Lily: {rotation.LilyCount}/3");
+        if (rotation.LilyCount > 0)
+        {
+            ImGui.SameLine();
+            ImGui.TextColored(DebugColors.Dim, " (Solace/Rapture available)");
+        }
+
         // Blood Lily gauge
-        var lilyColor = rotation.BloodLilyCount >= 3 ? DebugColors.Success : DebugColors.Dim;
-        ImGui.TextColored(lilyColor, $"Blood Lily: {rotation.BloodLilyCount}/3");
+        var bloodLilyColor = rotation.BloodLilyCount >= 3 ? DebugColors.Success : DebugColors.Dim;
+        ImGui.TextColored(bloodLilyColor, $"Blood Lily: {rotation.BloodLilyCount}/3");
         if (rotation.BloodLilyCount >= 3)
         {
             ImGui.SameLine();
             ImGui.TextColored(DebugColors.Success, " (Misery ready!)");
         }
+
+        // Lily Strategy
+        ImGui.TextColored(DebugColors.Dim, $"Lily Strategy: {rotation.LilyStrategy}");
 
         // Sacred Sight stacks
         if (rotation.SacredSightStacks > 0)

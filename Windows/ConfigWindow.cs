@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
+using Olympus.Config;
 using Olympus.Services.Targeting;
 
 namespace Olympus.Windows;
@@ -206,6 +207,39 @@ public sealed class ConfigWindow : Window
                 saveConfiguration();
             }
             ImGui.TextDisabled("Free heals that consume Lily gauge.");
+
+            // Blood Lily Optimization Strategy
+            ImGui.Spacing();
+            var strategyNames = Enum.GetNames<LilyGenerationStrategy>();
+            var currentIndex = (int)configuration.Healing.LilyStrategy;
+            ImGui.SetNextItemWidth(150);
+            if (ImGui.Combo("Lily Strategy", ref currentIndex, strategyNames, strategyNames.Length))
+            {
+                configuration.Healing.LilyStrategy = (LilyGenerationStrategy)currentIndex;
+                saveConfiguration();
+            }
+            var strategyDescription = configuration.Healing.LilyStrategy switch
+            {
+                LilyGenerationStrategy.Aggressive => "Always prefer lily heals when available",
+                LilyGenerationStrategy.Balanced => "Prefer lily heals until Blood Lily is full (3/3)",
+                LilyGenerationStrategy.Conservative => "Only use lily heals below HP threshold",
+                LilyGenerationStrategy.Disabled => "Use normal heal priority (no lily preference)",
+                _ => ""
+            };
+            ImGui.TextDisabled(strategyDescription);
+
+            // Conservative HP threshold (only show when Conservative mode is selected)
+            if (configuration.Healing.LilyStrategy == LilyGenerationStrategy.Conservative)
+            {
+                var threshold = configuration.Healing.ConservativeLilyHpThreshold * 100f;
+                ImGui.SetNextItemWidth(150);
+                if (ImGui.SliderFloat("Conservative HP Threshold", ref threshold, 50f, 90f, "%.0f%%"))
+                {
+                    configuration.Healing.ConservativeLilyHpThreshold = threshold / 100f;
+                    saveConfiguration();
+                }
+                ImGui.TextDisabled("Only use lily heals when target is below this HP%.");
+            }
 
             ImGui.Spacing();
             ImGui.TextDisabled("oGCD Heals:");

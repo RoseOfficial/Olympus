@@ -95,7 +95,9 @@ public sealed class DebugRotationState
     public string MiseryState { get; init; } = "Idle";
 
     // Resources
+    public int LilyCount { get; init; }
     public int BloodLilyCount { get; init; }
+    public string LilyStrategy { get; init; } = "Balanced";
     public int SacredSightStacks { get; init; }
 }
 
