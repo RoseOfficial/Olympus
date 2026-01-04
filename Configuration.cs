@@ -1,3 +1,4 @@
+using System;
 using Dalamud.Configuration;
 using Olympus.Config;
 using Olympus.Services.Targeting;
@@ -17,8 +18,14 @@ public sealed class Configuration : IPluginConfiguration
     /// <summary>
     /// How long to wait after movement stops before casting (in seconds).
     /// Higher values = more conservative (safer), lower = more aggressive (faster DPS).
+    /// Valid range: 0.0 to 2.0 seconds.
     /// </summary>
-    public float MovementTolerance { get; set; } = 0.1f;
+    private float _movementTolerance = 0.1f;
+    public float MovementTolerance
+    {
+        get => _movementTolerance;
+        set => _movementTolerance = Math.Clamp(value, 0.0f, 2.0f);
+    }
 
     // Master category toggles
     public bool EnableHealing { get; set; } = true;
@@ -46,6 +53,9 @@ public sealed class Configuration : IPluginConfiguration
         var wasEnabled = Enabled;
         var mainVisible = MainWindowVisible;
         var debugVisible = Debug.DebugWindowVisible;
+
+        // Reset general behavior
+        MovementTolerance = 0.1f;
 
         // Reset master toggles
         EnableHealing = true;

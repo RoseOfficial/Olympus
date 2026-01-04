@@ -20,7 +20,7 @@ public sealed class PartyHelper : IPartyHelper
     private readonly HpPredictionService _hpPredictionService;
 
     // Tank ClassJob IDs (PLD, WAR, DRK, GNB + base classes GLA, MRD)
-    private static readonly uint[] TankJobIds = { 19, 21, 32, 37, 1, 3 };
+    private static readonly HashSet<uint> TankJobIds = new() { 19, 21, 32, 37, 1, 3 };
 
     public PartyHelper(
         IObjectTable objectTable,
@@ -101,12 +101,7 @@ public sealed class PartyHelper : IPartyHelper
     {
         if (chara is IPlayerCharacter pc)
         {
-            var jobId = pc.ClassJob.RowId;
-            foreach (var tankId in TankJobIds)
-            {
-                if (jobId == tankId)
-                    return true;
-            }
+            return TankJobIds.Contains(pc.ClassJob.RowId);
         }
         return false;
     }

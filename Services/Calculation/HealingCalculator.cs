@@ -11,6 +11,9 @@ namespace Olympus.Services.Calculation;
 /// </summary>
 public static class HealingCalculator
 {
+    // Thread safety lock for calibration data
+    private static readonly object _calibrationLock = new();
+
     // Auto-calibration: tracks predicted vs actual to refine the correction factor
     private static double _calibratedFactor = 1.0;
     private static int _calibrationSamples = 0;
@@ -33,18 +36,21 @@ public static class HealingCalculator
         if (observedFactor < FFXIVConstants.MinCalibrationFactor || observedFactor > FFXIVConstants.MaxCalibrationFactor)
             return;
 
-        // Weighted average: give more weight to existing samples as we accumulate
-        if (_calibrationSamples == 0)
+        lock (_calibrationLock)
         {
-            _calibratedFactor = observedFactor;
-        }
-        else
-        {
-            var weight = Math.Min(_calibrationSamples, MaxCalibrationSamples);
-            _calibratedFactor = (_calibratedFactor * weight + observedFactor) / (weight + 1);
-        }
+            // Weighted average: give more weight to existing samples as we accumulate
+            if (_calibrationSamples == 0)
+            {
+                _calibratedFactor = observedFactor;
+            }
+            else
+            {
+                var weight = Math.Min(_calibrationSamples, MaxCalibrationSamples);
+                _calibratedFactor = (_calibratedFactor * weight + observedFactor) / (weight + 1);
+            }
 
-        _calibrationSamples = Math.Min(_calibrationSamples + 1, MaxCalibrationSamples);
+            _calibrationSamples = Math.Min(_calibrationSamples + 1, MaxCalibrationSamples);
+        }
     }
 
     /// <summary>
@@ -52,7 +58,10 @@ public static class HealingCalculator
     /// </summary>
     public static double GetCorrectionFactor()
     {
-        return _calibrationSamples >= 3 ? _calibratedFactor : DefaultFactor;
+        lock (_calibrationLock)
+        {
+            return _calibrationSamples >= 3 ? _calibratedFactor : DefaultFactor;
+        }
     }
 
     /// <summary>
@@ -60,8 +69,11 @@ public static class HealingCalculator
     /// </summary>
     public static void ResetCalibration()
     {
-        _calibratedFactor = 1.0;
-        _calibrationSamples = 0;
+        lock (_calibrationLock)
+        {
+            _calibratedFactor = 1.0;
+            _calibrationSamples = 0;
+        }
     }
 
     /// <summary>

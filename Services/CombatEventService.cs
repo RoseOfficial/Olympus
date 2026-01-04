@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Threading;
 using Dalamud.Hooking;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
@@ -80,7 +81,7 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
     /// </summary>
     public void RegisterPredictionForCalibration(int rawPredictedHeal)
     {
-        _lastPredictedHealRaw = rawPredictedHeal;
+        Interlocked.Exchange(ref _lastPredictedHealRaw, rawPredictedHeal);
         _lastPredictionTime = DateTime.UtcNow;
     }
 
@@ -239,10 +240,10 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
 
                 // Calibrate if we have a recent prediction (within 3 seconds)
                 var timeSincePrediction = (DateTime.UtcNow - _lastPredictionTime).TotalSeconds;
-                if (_lastPredictedHealRaw > 0 && timeSincePrediction < 3.0)
+                var predictedHeal = Interlocked.Exchange(ref _lastPredictedHealRaw, 0);
+                if (predictedHeal > 0 && timeSincePrediction < 3.0)
                 {
-                    HealingCalculator.CalibrateFromActual(_lastPredictedHealRaw, totalHeal);
-                    _lastPredictedHealRaw = 0; // Clear to avoid reusing
+                    HealingCalculator.CalibrateFromActual(predictedHeal, totalHeal);
                 }
             }
         }

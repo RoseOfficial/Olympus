@@ -10,6 +10,8 @@ namespace Olympus.Services;
 /// </summary>
 public static class SafeGameAccess
 {
+    // FFXIV has 74 player attributes (indices 0-73)
+    private const int MaxAttributeIndex = 74;
     /// <summary>
     /// Safely gets the ActionManager instance.
     /// </summary>
@@ -154,6 +156,13 @@ public static class SafeGameAccess
     /// <returns>The attribute value, or 0 if unavailable.</returns>
     public static unsafe int GetPlayerAttribute(int attributeIndex, IErrorMetricsService? errorMetrics = null)
     {
+        // Bounds check to prevent array access violations
+        if (attributeIndex < 0 || attributeIndex >= MaxAttributeIndex)
+        {
+            errorMetrics?.RecordError("SafeGameAccess", $"Invalid attribute index {attributeIndex} (valid: 0-{MaxAttributeIndex - 1})");
+            return 0;
+        }
+
         var playerState = GetPlayerState(errorMetrics);
         if (playerState == null)
             return 0;
