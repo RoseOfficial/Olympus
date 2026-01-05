@@ -42,8 +42,8 @@ public sealed unsafe class ActionService : IActionService
     private ActionDefinition? _lastExecutedAction;
     private DateTime _lastExecuteTime;
 
-    // Track oGCD usage per GCD cycle (prevents double weaving)
-    private bool _ogcdUsedThisCycle;
+    // Track oGCD usage per GCD cycle (allows up to 2 weaves)
+    private int _ogcdsUsedThisCycle;
 
     /// <summary>Current GCD state.</summary>
     public GcdState CurrentGcdState { get; private set; } = GcdState.Ready;
@@ -116,7 +116,7 @@ public sealed unsafe class ActionService : IActionService
         else if (GcdRemaining <= 0)
         {
             CurrentGcdState = GcdState.Ready;
-            _ogcdUsedThisCycle = false; // Reset for new GCD cycle
+            _ogcdsUsedThisCycle = 0; // Reset for new GCD cycle
         }
         else if (IsInWeaveWindow())
         {
@@ -187,7 +187,7 @@ public sealed unsafe class ActionService : IActionService
         {
             _lastExecutedAction = action;
             _lastExecuteTime = DateTime.UtcNow;
-            _ogcdUsedThisCycle = true; // Mark oGCD used this cycle
+            _ogcdsUsedThisCycle++; // Increment oGCD count for double-weave tracking
         }
 
         return result;
@@ -218,7 +218,7 @@ public sealed unsafe class ActionService : IActionService
         {
             _lastExecutedAction = action;
             _lastExecuteTime = DateTime.UtcNow;
-            _ogcdUsedThisCycle = true; // Mark oGCD used this cycle
+            _ogcdsUsedThisCycle++; // Increment oGCD count for double-weave tracking
         }
 
         return result;
@@ -226,20 +226,25 @@ public sealed unsafe class ActionService : IActionService
 
     /// <summary>
     /// Checks if we're in a valid weave window for oGCDs.
+    /// Supports double-weaving when timing allows.
     /// </summary>
     public bool IsInWeaveWindow()
     {
         // In weave window if:
-        // 1. GCD is rolling (not ready)
-        // 2. No animation lock
-        // 3. Not casting
-        // 4. Enough time for oGCD + animation lock before GCD
-        // 5. Haven't already used an oGCD this cycle (single weave only)
-        return GcdRemaining > FFXIVTimings.AnimationLockBase + FFXIVConstants.WeaveWindowBuffer
+        // 1. Not casting
+        // 2. No animation lock blocking us
+        // 3. Have available weave slots remaining
+        var availableSlots = GetAvailableWeaveSlots();
+        return !_lastIsCasting
             && AnimationLockRemaining < FFXIVConstants.WeaveWindowBuffer
-            && !_lastIsCasting
-            && !_ogcdUsedThisCycle;
+            && availableSlots > _ogcdsUsedThisCycle;
     }
+
+    /// <summary>Number of oGCDs used this GCD cycle.</summary>
+    public int OgcdsUsedThisCycle => _ogcdsUsedThisCycle;
+
+    /// <summary>Whether another oGCD can be weaved this cycle.</summary>
+    public bool CanWeaveAnother => GetAvailableWeaveSlots() > _ogcdsUsedThisCycle;
 
     /// <summary>
     /// Gets cooldown remaining for a specific action.

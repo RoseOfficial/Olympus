@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Olympus.Config;
 using Olympus.Data;
 
 namespace Olympus.Services.Calculation;
@@ -73,6 +74,38 @@ public static class HealingCalculator
         {
             _calibratedFactor = 1.0;
             _calibrationSamples = 0;
+        }
+    }
+
+    /// <summary>
+    /// Loads calibration data from persisted configuration.
+    /// Only loads if the saved data is valid (has enough samples, is not too old, and factor is in valid range).
+    /// </summary>
+    public static void LoadCalibration(CalibrationConfig config)
+    {
+        lock (_calibrationLock)
+        {
+            // Validate data is recent, has enough samples, and factor is within valid range
+            if (config.IsValid() &&
+                config.CalibratedFactor >= FFXIVConstants.MinCalibrationFactor &&
+                config.CalibratedFactor <= FFXIVConstants.MaxCalibrationFactor)
+            {
+                _calibratedFactor = config.CalibratedFactor;
+                _calibrationSamples = config.CalibrationSamples;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Saves current calibration data to configuration for persistence.
+    /// </summary>
+    public static void SaveCalibration(CalibrationConfig config)
+    {
+        lock (_calibrationLock)
+        {
+            config.CalibratedFactor = _calibratedFactor;
+            config.CalibrationSamples = _calibrationSamples;
+            config.LastCalibrationTicks = DateTime.UtcNow.Ticks;
         }
     }
 

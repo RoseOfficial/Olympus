@@ -22,6 +22,11 @@ public sealed class PartyHelper : IPartyHelper
     // Tank ClassJob IDs (PLD, WAR, DRK, GNB + base classes GLA, MRD)
     private static readonly HashSet<uint> TankJobIds = new() { 19, 21, 32, 37, 1, 3 };
 
+    // Party member caching to avoid HashSet allocation every frame
+    private readonly HashSet<uint> _cachedPartyEntityIds = new(8);
+    private int _lastPartyCount = -1;
+    private uint _lastPlayerEntityId;
+
     public PartyHelper(
         IObjectTable objectTable,
         IPartyList partyList,
@@ -42,18 +47,23 @@ public sealed class PartyHelper : IPartyHelper
 
         if (_partyList.Length > 0)
         {
-            // Build set of party member entity IDs for fast lookup
-            var partyEntityIds = new HashSet<uint>();
-            foreach (var partyMember in _partyList)
+            // Rebuild cache only if party composition changed
+            if (_partyList.Length != _lastPartyCount || player.EntityId != _lastPlayerEntityId)
             {
-                if (partyMember.EntityId != player.EntityId)
-                    partyEntityIds.Add(partyMember.EntityId);
+                _cachedPartyEntityIds.Clear();
+                foreach (var partyMember in _partyList)
+                {
+                    if (partyMember.EntityId != player.EntityId)
+                        _cachedPartyEntityIds.Add(partyMember.EntityId);
+                }
+                _lastPartyCount = _partyList.Length;
+                _lastPlayerEntityId = player.EntityId;
             }
 
-            // Iterate objectTable directly for fresh data
+            // Iterate objectTable directly for fresh HP data, using cached IDs
             foreach (var obj in _objectTable)
             {
-                if (obj is IBattleChara chara && partyEntityIds.Contains(obj.EntityId))
+                if (obj is IBattleChara chara && _cachedPartyEntityIds.Contains(obj.EntityId))
                 {
                     if (includeDead || !chara.IsDead)
                         yield return chara;

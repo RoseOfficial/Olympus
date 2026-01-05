@@ -6,6 +6,7 @@ using Dalamud.Plugin.Services;
 using Olympus.Rotation;
 using Olympus.Services;
 using Olympus.Services.Action;
+using Olympus.Services.Calculation;
 using Olympus.Services.Debuff;
 using Olympus.Services.Debug;
 using Olympus.Services.Healing;
@@ -18,7 +19,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.5.6";
+    public const string PluginVersion = "1.5.7";
     private const string CommandName = "/olympus";
 
     // Job IDs for supported classes
@@ -80,6 +81,10 @@ public sealed class Plugin : IDalamudPlugin
         this.condition = condition;
 
         this.configuration = pluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+
+        // Load persisted calibration data for healing calculations
+        HealingCalculator.LoadCalibration(configuration.Calibration);
+
         this.actionTracker = new ActionTracker(dataManager, configuration);
         this.combatEventService = new CombatEventService(gameInteropProvider, log, objectTable);
         this.targetingService = new TargetingService(objectTable, partyList, targetManager, configuration);
@@ -224,6 +229,10 @@ public sealed class Plugin : IDalamudPlugin
 
     public void Dispose()
     {
+        // Save calibration data before shutdown
+        HealingCalculator.SaveCalibration(configuration.Calibration);
+        pluginInterface.SavePluginConfig(configuration);
+
         framework.Update -= OnFrameworkUpdate;
         commandManager.RemoveHandler(CommandName);
 

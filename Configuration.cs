@@ -42,6 +42,7 @@ public sealed class Configuration : IPluginConfiguration
     public TargetingConfig Targeting { get; set; } = new();
     public RoleActionConfig RoleActions { get; set; } = new();
     public DebugConfig Debug { get; set; } = new();
+    public CalibrationConfig Calibration { get; set; } = new();
 
     /// <summary>
     /// Resets all configuration values to their defaults.
@@ -72,6 +73,7 @@ public sealed class Configuration : IPluginConfiguration
         Targeting = new TargetingConfig();
         RoleActions = new RoleActionConfig();
         Debug = new DebugConfig();
+        Calibration = new CalibrationConfig();
 
         // Restore preserved values
         Enabled = wasEnabled;
