@@ -48,4 +48,12 @@ public interface IApolloContext
 
     // Debug state
     DebugState Debug { get; }
+
+    // Cached status checks (computed once per frame)
+    bool HasThinAir { get; }
+    bool HasFreecure { get; }
+    bool HasSwiftcast { get; }
+    int LilyCount { get; }
+    int BloodLilyCount { get; }
+    int SacredSightStacks { get; }
 }

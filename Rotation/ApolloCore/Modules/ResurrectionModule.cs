@@ -1,6 +1,5 @@
 using Olympus.Data;
 using Olympus.Models;
-using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 
@@ -79,9 +78,7 @@ public sealed class ResurrectionModule : IApolloModule
         var targetName = target.Name?.TextValue ?? "Unknown";
         context.Debug.RaiseTarget = targetName;
 
-        var hasSwiftcast = StatusHelper.HasSwiftcast(player);
-
-        if (hasSwiftcast)
+        if (context.HasSwiftcast)
         {
             if (ShouldWaitForThinAir(context))
             {
@@ -93,7 +90,7 @@ public sealed class ResurrectionModule : IApolloModule
             var success = context.ActionService.ExecuteGcd(WHMActions.Raise, target.GameObjectId);
             if (success)
             {
-                context.Debug.PlannedAction = StatusHelper.HasThinAir(player)
+                context.Debug.PlannedAction = context.HasThinAir
                     ? "Raise (Swiftcast + Thin Air)"
                     : "Raise (Swiftcast)";
                 context.ActionTracker.LogAttempt(WHMActions.Raise.ActionId, targetName, 0, ActionResult.Success, player.Level);
@@ -118,7 +115,7 @@ public sealed class ResurrectionModule : IApolloModule
                 var success = context.ActionService.ExecuteGcd(WHMActions.Raise, target.GameObjectId);
                 if (success)
                 {
-                    context.Debug.PlannedAction = StatusHelper.HasThinAir(player)
+                    context.Debug.PlannedAction = context.HasThinAir
                         ? "Raise (Hardcast + Thin Air)"
                         : "Raise (Hardcast)";
                     context.ActionTracker.LogAttempt(WHMActions.Raise.ActionId, targetName, 0, ActionResult.Success, player.Level);
@@ -130,7 +127,7 @@ public sealed class ResurrectionModule : IApolloModule
                 context.Debug.RaiseState = $"Waiting for Swiftcast ({swiftcastCooldown:F1}s)";
             }
         }
-        else if (!hasSwiftcast && !config.Resurrection.AllowHardcastRaise)
+        else if (!context.HasSwiftcast && !config.Resurrection.AllowHardcastRaise)
         {
             context.Debug.RaiseState = "No Swiftcast (hardcast disabled)";
         }
@@ -153,7 +150,7 @@ public sealed class ResurrectionModule : IApolloModule
         if (player.Level < WHMActions.Swiftcast.MinLevel)
             return false;
 
-        if (StatusHelper.HasSwiftcast(player))
+        if (context.HasSwiftcast)
             return false;
 
         var deadMember = context.PartyHelper.FindDeadPartyMemberNeedingRaise(player);
@@ -177,7 +174,7 @@ public sealed class ResurrectionModule : IApolloModule
         if (!config.Buffs.EnableThinAir || player.Level < WHMActions.ThinAir.MinLevel)
             return false;
 
-        if (StatusHelper.HasThinAir(player))
+        if (context.HasThinAir)
             return false;
 
         if (!context.ActionService.IsActionReady(WHMActions.ThinAir.ActionId))

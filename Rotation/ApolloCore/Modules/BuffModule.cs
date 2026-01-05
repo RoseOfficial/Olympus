@@ -1,8 +1,6 @@
 using System;
 using System.Numerics;
 using Olympus.Data;
-using Olympus.Models;
-using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 
@@ -69,7 +67,7 @@ public sealed class BuffModule : IApolloModule
         {
             context.Debug.ThinAirState = $"Level {player.Level} < 58";
         }
-        else if (StatusHelper.HasThinAir(player))
+        else if (context.HasThinAir)
         {
             context.Debug.ThinAirState = "Already active";
         }
@@ -106,7 +104,7 @@ public sealed class BuffModule : IApolloModule
             return false;
         }
 
-        if (StatusHelper.HasThinAir(player))
+        if (context.HasThinAir)
         {
             context.Debug.ThinAirState = "Already active";
             return false;
@@ -120,10 +118,9 @@ public sealed class BuffModule : IApolloModule
             var deadMember = context.PartyHelper.FindDeadPartyMemberNeedingRaise(player);
             if (deadMember is not null)
             {
-                var hasSwiftcast = StatusHelper.HasSwiftcast(player);
                 var swiftcastReady = context.ActionService.IsActionReady(WHMActions.Swiftcast.ActionId);
 
-                if (hasSwiftcast || swiftcastReady || config.Resurrection.AllowHardcastRaise)
+                if (context.HasSwiftcast || swiftcastReady || config.Resurrection.AllowHardcastRaise)
                 {
                     shouldUseThinAir = true;
                     context.Debug.ThinAirState = "For Raise";
@@ -167,10 +164,9 @@ public sealed class BuffModule : IApolloModule
             return false;
         }
 
-        if (context.ActionService.ExecuteOgcd(WHMActions.ThinAir, player.GameObjectId))
+        if (ActionExecutor.ExecuteOgcd(context, WHMActions.ThinAir, player.GameObjectId,
+            player.Name?.TextValue ?? "Unknown", player.CurrentMp))
         {
-            context.Debug.PlannedAction = "Thin Air";
-            context.ActionTracker.LogAttempt(WHMActions.ThinAir.ActionId, player.Name?.TextValue ?? "Unknown", player.CurrentMp, ActionResult.Success, player.Level);
             return true;
         }
 
@@ -183,23 +179,12 @@ public sealed class BuffModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.Buffs.EnablePresenceOfMind)
+        if (!ActionValidator.CanExecute(player, context.ActionService, WHMActions.PresenceOfMind, config,
+            c => c.Buffs.EnablePresenceOfMind))
             return false;
 
-        if (player.Level < WHMActions.PresenceOfMind.MinLevel)
-            return false;
-
-        if (!context.ActionService.IsActionReady(WHMActions.PresenceOfMind.ActionId))
-            return false;
-
-        if (context.ActionService.ExecuteOgcd(WHMActions.PresenceOfMind, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = "Presence of Mind";
-            context.ActionTracker.LogAttempt(WHMActions.PresenceOfMind.ActionId, player.Name?.TextValue ?? "Unknown", player.CurrentHp, ActionResult.Success, player.Level);
-            return true;
-        }
-
-        return false;
+        return ActionExecutor.ExecuteOgcd(context, WHMActions.PresenceOfMind, player.GameObjectId,
+            player.Name?.TextValue ?? "Unknown", player.CurrentHp);
     }
 
     private bool TryExecuteAsylum(ApolloContext context)
@@ -248,16 +233,11 @@ public sealed class BuffModule : IApolloModule
             context.Debug.AsylumTarget = "Self";
         }
 
-        if (context.ActionService.ExecuteGroundTargetedOgcd(WHMActions.Asylum, targetPosition))
+        if (ActionExecutor.ExecuteGroundTargeted(context, WHMActions.Asylum, targetPosition,
+            context.Debug.AsylumTarget, tank?.CurrentHp ?? player.CurrentHp,
+            $"Asylum (on {context.Debug.AsylumTarget})"))
         {
-            context.Debug.PlannedAction = $"Asylum (on {context.Debug.AsylumTarget})";
             context.Debug.AsylumState = "Executed";
-            context.ActionTracker.LogAttempt(
-                WHMActions.Asylum.ActionId,
-                context.Debug.AsylumTarget,
-                tank?.CurrentHp ?? player.CurrentHp,
-                ActionResult.Success,
-                player.Level);
             return true;
         }
 
@@ -270,23 +250,12 @@ public sealed class BuffModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.Healing.EnableAssize)
+        if (!ActionValidator.CanExecute(player, context.ActionService, WHMActions.Assize, config,
+            c => c.Healing.EnableAssize))
             return false;
 
-        if (player.Level < WHMActions.Assize.MinLevel)
-            return false;
-
-        if (!context.ActionService.IsActionReady(WHMActions.Assize.ActionId))
-            return false;
-
-        if (context.ActionService.ExecuteOgcd(WHMActions.Assize, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = "Assize";
-            context.ActionTracker.LogAttempt(WHMActions.Assize.ActionId, player.Name?.TextValue ?? "Unknown", player.CurrentHp, ActionResult.Success, player.Level);
-            return true;
-        }
-
-        return false;
+        return ActionExecutor.ExecuteOgcd(context, WHMActions.Assize, player.GameObjectId,
+            player.Name?.TextValue ?? "Unknown", player.CurrentHp);
     }
 
     private bool TryExecuteLucidDreaming(ApolloContext context)
@@ -303,13 +272,8 @@ public sealed class BuffModule : IApolloModule
         if (!context.ActionService.IsActionReady(WHMActions.LucidDreaming.ActionId))
             return false;
 
-        if (context.ActionService.ExecuteOgcd(WHMActions.LucidDreaming, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = "Lucid Dreaming";
-            return true;
-        }
-
-        return false;
+        return ActionExecutor.ExecuteOgcd(context, WHMActions.LucidDreaming, player.GameObjectId,
+            player.Name?.TextValue ?? "Unknown", player.CurrentMp);
     }
 
     private bool TryExecuteSurecast(ApolloContext context)
@@ -352,11 +316,10 @@ public sealed class BuffModule : IApolloModule
         // Mode 1: Use on cooldown in combat
         if (config.RoleActions.SurecastMode == 1)
         {
-            if (context.ActionService.ExecuteOgcd(WHMActions.Surecast, player.GameObjectId))
+            if (ActionExecutor.ExecuteOgcd(context, WHMActions.Surecast, player.GameObjectId,
+                player.Name?.TextValue ?? "Unknown", player.CurrentHp))
             {
-                context.Debug.PlannedAction = "Surecast";
                 context.Debug.SurecastState = "Executed";
-                context.ActionTracker.LogAttempt(WHMActions.Surecast.ActionId, player.Name?.TextValue ?? "Unknown", player.CurrentHp, ActionResult.Success, player.Level);
                 return true;
             }
         }
@@ -373,10 +336,7 @@ public sealed class BuffModule : IApolloModule
         if (!config.Buffs.EnableAetherialShift)
             return;
 
-        if (player.Level < WHMActions.AetherialShift.MinLevel)
-            return;
-
-        if (!context.ActionService.IsActionReady(WHMActions.AetherialShift.ActionId))
+        if (!ActionValidator.IsAvailable(player, context.ActionService, WHMActions.AetherialShift))
             return;
 
         const float dashDistance = 15f;
@@ -407,15 +367,8 @@ public sealed class BuffModule : IApolloModule
         if (dot < 0.7f)
             return;
 
-        if (context.ActionService.ExecuteOgcd(WHMActions.AetherialShift, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = "Aetherial Shift (gap close)";
-            context.ActionTracker.LogAttempt(
-                WHMActions.AetherialShift.ActionId,
-                target.Name?.TextValue ?? "Unknown",
-                target.CurrentHp,
-                ActionResult.Success,
-                player.Level);
-        }
+        ActionExecutor.ExecuteOgcd(context, WHMActions.AetherialShift, player.GameObjectId,
+            target.Name?.TextValue ?? "Unknown", target.CurrentHp,
+            "Aetherial Shift (gap close)");
     }
 }

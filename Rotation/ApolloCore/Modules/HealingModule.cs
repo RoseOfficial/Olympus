@@ -156,7 +156,7 @@ public sealed class HealingModule : IApolloModule
 
         if (success)
         {
-            var thinAirNote = StatusHelper.HasThinAir(player) ? " + Thin Air" : "";
+            var thinAirNote = context.HasThinAir ? " + Thin Air" : "";
             context.Debug.PlannedAction = action.Name + thinAirNote;
             context.Debug.PlanningState = "AoE Heal";
             var targetName = selectedCureIIITarget?.Name?.TextValue ?? player.Name?.TextValue ?? "Unknown";
@@ -185,11 +185,10 @@ public sealed class HealingModule : IApolloModule
         if (target is null)
             return false;
 
-        var hasFreecure = StatusHelper.HasFreecure(player);
         var hasRegen = StatusHelper.HasRegenActive(target, out var regenRemaining);
 
         var (action, healAmount) = context.HealingSpellSelector.SelectBestSingleHeal(
-            player, target, context.CanExecuteOgcd, hasFreecure, hasRegen, regenRemaining);
+            player, target, context.CanExecuteOgcd, context.HasFreecure, hasRegen, regenRemaining);
         if (action is null)
             return false;
 
@@ -223,7 +222,7 @@ public sealed class HealingModule : IApolloModule
 
         if (success)
         {
-            var thinAirNote = StatusHelper.HasThinAir(player) ? " + Thin Air" : "";
+            var thinAirNote = context.HasThinAir ? " + Thin Air" : "";
             context.Debug.PlannedAction = action.Name + thinAirNote;
             context.Debug.PlanningState = "Single Heal";
             context.ActionTracker.LogAttempt(action.ActionId, target.Name?.TextValue ?? "Unknown", target.CurrentHp, ActionResult.Success, player.Level);
@@ -254,15 +253,15 @@ public sealed class HealingModule : IApolloModule
         if (isMoving && WHMActions.Regen.CastTime > 0)
             return false;
 
-        var success = context.ActionService.ExecuteGcd(WHMActions.Regen, target.GameObjectId);
-        if (success)
+        if (ActionExecutor.ExecuteGcd(context, WHMActions.Regen, target.GameObjectId,
+            target.Name?.TextValue ?? "Unknown", target.CurrentHp, "Regen",
+            appendThinAirNote: false))
         {
             context.Debug.PlannedAction = "Regen (tank priority)";
-            context.Debug.PlanningState = "Regen";
-            context.ActionTracker.LogAttempt(WHMActions.Regen.ActionId, target.Name?.TextValue ?? "Unknown", target.CurrentHp, ActionResult.Success, player.Level);
+            return true;
         }
 
-        return success;
+        return false;
     }
 
     private bool TryExecuteEsuna(ApolloContext context, bool isMoving)
@@ -311,15 +310,14 @@ public sealed class HealingModule : IApolloModule
         context.Debug.EsunaTarget = target.Name?.TextValue ?? "Unknown";
         context.Debug.EsunaState = $"Cleansing {priority} debuff";
 
-        var success = context.ActionService.ExecuteGcd(WHMActions.Esuna, target.GameObjectId);
-        if (success)
+        if (ActionExecutor.ExecuteGcd(context, WHMActions.Esuna, target.GameObjectId,
+            target.Name?.TextValue ?? "Unknown", target.CurrentHp, "Esuna",
+            appendThinAirNote: false))
         {
-            context.Debug.PlannedAction = "Esuna";
-            context.Debug.PlanningState = "Esuna";
-            context.ActionTracker.LogAttempt(WHMActions.Esuna.ActionId, target.Name?.TextValue ?? "Unknown", target.CurrentHp, ActionResult.Success, player.Level);
+            return true;
         }
 
-        return success;
+        return false;
     }
 
     private (IBattleChara? target, uint statusId, DebuffPriority priority) FindBestEsunaTarget(ApolloContext context)
@@ -361,13 +359,8 @@ public sealed class HealingModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableHealing || !config.Healing.EnableBenediction)
-            return false;
-
-        if (player.Level < WHMActions.Benediction.MinLevel)
-            return false;
-
-        if (!context.ActionService.IsActionReady(WHMActions.Benediction.ActionId))
+        if (!ActionValidator.CanExecute(player, context.ActionService, WHMActions.Benediction, config,
+            c => c.EnableHealing && c.Healing.EnableBenediction))
             return false;
 
         var target = context.PartyHelper.FindLowestHpPartyMember(player);
@@ -381,14 +374,10 @@ public sealed class HealingModule : IApolloModule
         if (!DistanceHelper.IsInRange(player, target, WHMActions.Benediction.Range))
             return false;
 
-        if (context.ActionService.ExecuteOgcd(WHMActions.Benediction, target.GameObjectId))
+        var missingHp = (int)(target.MaxHp - target.CurrentHp);
+        if (ActionExecutor.ExecuteHealingOgcd(context, WHMActions.Benediction, target.GameObjectId,
+            target.EntityId, target.Name?.TextValue ?? "Unknown", target.CurrentHp, missingHp))
         {
-            context.Debug.PlannedAction = "Benediction";
-            context.ActionTracker.LogAttempt(WHMActions.Benediction.ActionId, target.Name?.TextValue ?? "Unknown",
-                target.CurrentHp, ActionResult.Success, player.Level);
-
-            var missingHp = (int)(target.MaxHp - target.CurrentHp);
-            context.HpPredictionService.RegisterPendingHeal(target.EntityId, missingHp);
             return true;
         }
 
@@ -400,13 +389,8 @@ public sealed class HealingModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableHealing || !config.Healing.EnableTetragrammaton)
-            return false;
-
-        if (player.Level < WHMActions.Tetragrammaton.MinLevel)
-            return false;
-
-        if (!context.ActionService.IsActionReady(WHMActions.Tetragrammaton.ActionId))
+        if (!ActionValidator.CanExecute(player, context.ActionService, WHMActions.Tetragrammaton, config,
+            c => c.EnableHealing && c.Healing.EnableTetragrammaton))
             return false;
 
         var target = context.PartyHelper.FindLowestHpPartyMember(player);
@@ -428,13 +412,9 @@ public sealed class HealingModule : IApolloModule
         if (healAmount > missingHp * 1.5f)
             return false;
 
-        if (context.ActionService.ExecuteOgcd(WHMActions.Tetragrammaton, target.GameObjectId))
+        if (ActionExecutor.ExecuteHealingOgcd(context, WHMActions.Tetragrammaton, target.GameObjectId,
+            target.EntityId, target.Name?.TextValue ?? "Unknown", target.CurrentHp, healAmount))
         {
-            context.Debug.PlannedAction = "Tetragrammaton";
-            context.ActionTracker.LogAttempt(WHMActions.Tetragrammaton.ActionId, target.Name?.TextValue ?? "Unknown",
-                target.CurrentHp, ActionResult.Success, player.Level);
-
-            context.HpPredictionService.RegisterPendingHeal(target.EntityId, healAmount);
             return true;
         }
 
@@ -449,7 +429,7 @@ public sealed class HealingModule : IApolloModule
         if (!config.Buffs.EnableThinAir || player.Level < WHMActions.ThinAir.MinLevel)
             return false;
 
-        if (StatusHelper.HasThinAir(player))
+        if (context.HasThinAir)
             return false;
 
         if (!context.ActionService.IsActionReady(WHMActions.ThinAir.ActionId))

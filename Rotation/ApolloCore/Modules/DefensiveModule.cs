@@ -1,8 +1,6 @@
 using System.Numerics;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using Olympus.Data;
-using Olympus.Models;
-using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 
@@ -103,11 +101,10 @@ public sealed class DefensiveModule : IApolloModule
         if (!context.ActionService.IsActionReady(WHMActions.DivineCaress.ActionId))
             return false;
 
-        if (context.ActionService.ExecuteOgcd(WHMActions.DivineCaress, player.GameObjectId))
+        if (ActionExecutor.ExecuteOgcd(context, WHMActions.DivineCaress, player.GameObjectId,
+            player.Name?.TextValue ?? "Unknown", player.CurrentHp))
         {
-            context.Debug.PlannedAction = "Divine Caress";
             context.Debug.DefensiveState = "Divine Caress (triggered)";
-            context.ActionTracker.LogAttempt(WHMActions.DivineCaress.ActionId, player.Name?.TextValue ?? "Unknown", player.CurrentHp, ActionResult.Success, player.Level);
             return true;
         }
 
@@ -160,11 +157,10 @@ public sealed class DefensiveModule : IApolloModule
 
         context.Debug.TemperanceState = $"Executing ({injuredCount} injured, avg HP {avgHpPercent:P0})";
 
-        if (context.ActionService.ExecuteOgcd(WHMActions.Temperance, player.GameObjectId))
+        if (ActionExecutor.ExecuteOgcd(context, WHMActions.Temperance, player.GameObjectId,
+            player.Name?.TextValue ?? "Unknown", player.CurrentHp))
         {
-            context.Debug.PlannedAction = "Temperance";
             context.Debug.DefensiveState = $"Temperance ({injuredCount} injured, avg HP {avgHpPercent:P0})";
-            context.ActionTracker.LogAttempt(WHMActions.Temperance.ActionId, player.Name?.TextValue ?? "Unknown", player.CurrentHp, ActionResult.Success, player.Level);
             return true;
         }
 
@@ -177,13 +173,8 @@ public sealed class DefensiveModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableHealing || !config.Defensive.EnablePlenaryIndulgence)
-            return false;
-
-        if (player.Level < WHMActions.PlenaryIndulgence.MinLevel)
-            return false;
-
-        if (!context.ActionService.IsActionReady(WHMActions.PlenaryIndulgence.ActionId))
+        if (!ActionValidator.CanExecute(player, context.ActionService, WHMActions.PlenaryIndulgence, config,
+            c => c.EnableHealing && c.Defensive.EnablePlenaryIndulgence))
             return false;
 
         var shouldUse = config.Defensive.UseDefensivesWithAoEHeals && injuredCount >= config.Healing.AoEHealMinTargets;
@@ -191,11 +182,10 @@ public sealed class DefensiveModule : IApolloModule
         if (!shouldUse)
             return false;
 
-        if (context.ActionService.ExecuteOgcd(WHMActions.PlenaryIndulgence, player.GameObjectId))
+        if (ActionExecutor.ExecuteOgcd(context, WHMActions.PlenaryIndulgence, player.GameObjectId,
+            player.Name?.TextValue ?? "Unknown", player.CurrentHp))
         {
-            context.Debug.PlannedAction = "Plenary Indulgence";
             context.Debug.DefensiveState = $"Plenary Indulgence ({injuredCount} injured, pre-AoE heal)";
-            context.ActionTracker.LogAttempt(WHMActions.PlenaryIndulgence.ActionId, player.Name?.TextValue ?? "Unknown", player.CurrentHp, ActionResult.Success, player.Level);
             return true;
         }
 
@@ -207,13 +197,8 @@ public sealed class DefensiveModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableHealing || !config.Defensive.EnableDivineBenison)
-            return false;
-
-        if (player.Level < WHMActions.DivineBenison.MinLevel)
-            return false;
-
-        if (!context.ActionService.IsActionReady(WHMActions.DivineBenison.ActionId))
+        if (!ActionValidator.CanExecute(player, context.ActionService, WHMActions.DivineBenison, config,
+            c => c.EnableHealing && c.Defensive.EnableDivineBenison))
             return false;
 
         var tank = context.PartyHelper.FindTankInParty(player);
@@ -231,12 +216,11 @@ public sealed class DefensiveModule : IApolloModule
             WHMActions.DivineBenison.Range * WHMActions.DivineBenison.Range)
             return false;
 
-        if (context.ActionService.ExecuteOgcd(WHMActions.DivineBenison, tank.GameObjectId))
+        var tankName = tank.Name?.TextValue ?? "Unknown";
+        if (ActionExecutor.ExecuteOgcd(context, WHMActions.DivineBenison, tank.GameObjectId,
+            tankName, tank.CurrentHp))
         {
-            var tankName = tank.Name?.TextValue ?? "Unknown";
-            context.Debug.PlannedAction = "Divine Benison";
             context.Debug.DefensiveState = $"Divine Benison on {tankName} ({tankHpPct:P0} HP)";
-            context.ActionTracker.LogAttempt(WHMActions.DivineBenison.ActionId, tankName, tank.CurrentHp, ActionResult.Success, player.Level);
             return true;
         }
 
@@ -248,13 +232,8 @@ public sealed class DefensiveModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.Defensive.EnableAquaveil)
-            return false;
-
-        if (player.Level < WHMActions.Aquaveil.MinLevel)
-            return false;
-
-        if (!context.ActionService.IsActionReady(WHMActions.Aquaveil.ActionId))
+        if (!ActionValidator.CanExecute(player, context.ActionService, WHMActions.Aquaveil, config,
+            c => c.Defensive.EnableAquaveil))
             return false;
 
         var tank = context.PartyHelper.FindTankInParty(player);
@@ -272,12 +251,11 @@ public sealed class DefensiveModule : IApolloModule
             WHMActions.Aquaveil.Range * WHMActions.Aquaveil.Range)
             return false;
 
-        if (context.ActionService.ExecuteOgcd(WHMActions.Aquaveil, tank.GameObjectId))
+        var tankName = tank.Name?.TextValue ?? "Unknown";
+        if (ActionExecutor.ExecuteOgcd(context, WHMActions.Aquaveil, tank.GameObjectId,
+            tankName, tank.CurrentHp))
         {
-            var tankName = tank.Name?.TextValue ?? "Unknown";
-            context.Debug.PlannedAction = "Aquaveil";
             context.Debug.DefensiveState = $"Aquaveil on {tankName} ({tankHpPct:P0} HP)";
-            context.ActionTracker.LogAttempt(WHMActions.Aquaveil.ActionId, tankName, tank.CurrentHp, ActionResult.Success, player.Level);
             return true;
         }
 
@@ -289,13 +267,8 @@ public sealed class DefensiveModule : IApolloModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.Defensive.EnableLiturgyOfTheBell)
-            return false;
-
-        if (player.Level < WHMActions.LiturgyOfTheBell.MinLevel)
-            return false;
-
-        if (!context.ActionService.IsActionReady(WHMActions.LiturgyOfTheBell.ActionId))
+        if (!ActionValidator.CanExecute(player, context.ActionService, WHMActions.LiturgyOfTheBell, config,
+            c => c.Defensive.EnableLiturgyOfTheBell))
             return false;
 
         if (injuredCount < 2)
@@ -325,11 +298,10 @@ public sealed class DefensiveModule : IApolloModule
             targetName = player.Name?.TextValue ?? "Unknown";
         }
 
-        if (context.ActionService.ExecuteGroundTargetedOgcd(WHMActions.LiturgyOfTheBell, targetPosition))
+        if (ActionExecutor.ExecuteGroundTargeted(context, WHMActions.LiturgyOfTheBell, targetPosition,
+            targetName, tank?.CurrentHp ?? player.CurrentHp))
         {
-            context.Debug.PlannedAction = "Liturgy of the Bell";
             context.Debug.DefensiveState = $"Bell placed at {targetName} ({injuredCount} injured)";
-            context.ActionTracker.LogAttempt(WHMActions.LiturgyOfTheBell.ActionId, targetName, tank?.CurrentHp ?? player.CurrentHp, ActionResult.Success, player.Level);
             return true;
         }
 

@@ -47,6 +47,21 @@ public sealed class ApolloContext : IApolloContext
     // Debug state (mutable, updated by modules)
     public DebugState Debug { get; }
 
+    // Cached status checks (computed once per frame, lazy-initialized)
+    private bool? _hasThinAir;
+    private bool? _hasFreecure;
+    private bool? _hasSwiftcast;
+    private int? _lilyCount;
+    private int? _bloodLilyCount;
+    private int? _sacredSightStacks;
+
+    public bool HasThinAir => _hasThinAir ??= StatusHelper.HasThinAir(Player);
+    public bool HasFreecure => _hasFreecure ??= StatusHelper.HasFreecure(Player);
+    public bool HasSwiftcast => _hasSwiftcast ??= StatusHelper.HasSwiftcast(Player);
+    public int LilyCount => _lilyCount ??= StatusHelper.GetLilyCount();
+    public int BloodLilyCount => _bloodLilyCount ??= StatusHelper.GetBloodLilyCount();
+    public int SacredSightStacks => _sacredSightStacks ??= StatusHelper.GetSacredSightStacks(Player);
+
     public ApolloContext(
         IPlayerCharacter player,
         bool inCombat,

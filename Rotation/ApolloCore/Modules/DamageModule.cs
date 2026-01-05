@@ -4,7 +4,6 @@ using System.Numerics;
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Config;
 using Olympus.Data;
-using Olympus.Models;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
@@ -65,13 +64,10 @@ public sealed class DamageModule : IApolloModule
 
     public void UpdateDebugState(ApolloContext context)
     {
-        var lilies = StatusHelper.GetLilyCount();
-        var bloodLilies = StatusHelper.GetBloodLilyCount();
-        var sacredSightStacks = StatusHelper.GetSacredSightStacks(context.Player);
-        context.Debug.LilyCount = lilies;
-        context.Debug.BloodLilyCount = bloodLilies;
+        context.Debug.LilyCount = context.LilyCount;
+        context.Debug.BloodLilyCount = context.BloodLilyCount;
         context.Debug.LilyStrategy = context.Configuration.Healing.LilyStrategy.ToString();
-        context.Debug.SacredSightStacks = sacredSightStacks;
+        context.Debug.SacredSightStacks = context.SacredSightStacks;
     }
 
     private void ExecuteDps(ApolloContext context, bool isMoving)
@@ -83,17 +79,14 @@ public sealed class DamageModule : IApolloModule
         IBattleNpc? target = null;
         ActionDefinition? actionDef = null;
 
-        // Track Lily, Blood Lily and Sacred Sight for debug
-        var lilies = StatusHelper.GetLilyCount();
-        var bloodLilies = StatusHelper.GetBloodLilyCount();
-        var sacredSightStacks = StatusHelper.GetSacredSightStacks(player);
-        context.Debug.LilyCount = lilies;
-        context.Debug.BloodLilyCount = bloodLilies;
+        // Use cached values from context
+        context.Debug.LilyCount = context.LilyCount;
+        context.Debug.BloodLilyCount = context.BloodLilyCount;
         context.Debug.LilyStrategy = config.Healing.LilyStrategy.ToString();
-        context.Debug.SacredSightStacks = sacredSightStacks;
+        context.Debug.SacredSightStacks = context.SacredSightStacks;
 
         // Priority 0: Afflatus Misery (1240p AoE, costs 3 Blood Lily)
-        if (bloodLilies >= 3 && player.Level >= WHMActions.AfflatusMisery.MinLevel)
+        if (context.BloodLilyCount >= 3 && player.Level >= WHMActions.AfflatusMisery.MinLevel)
         {
             if (IsDamageSpellEnabled(WHMActions.AfflatusMisery.ActionId, config))
             {
@@ -116,17 +109,17 @@ public sealed class DamageModule : IApolloModule
         }
         else
         {
-            context.Debug.MiseryState = bloodLilies < 3 ? $"{bloodLilies}/3 Blood Lily" : $"Level {player.Level} < 74";
+            context.Debug.MiseryState = context.BloodLilyCount < 3 ? $"{context.BloodLilyCount}/3 Blood Lily" : $"Level {player.Level} < 74";
         }
 
         if (isMoving && actionDef is null)
         {
             context.Debug.DpsState = "Moving";
-            HandleMovingDps(context, ref target, ref actionDef, sacredSightStacks, dotStatusId);
+            HandleMovingDps(context, ref target, ref actionDef, dotStatusId);
         }
         else if (!isMoving && actionDef is null)
         {
-            HandleStationaryDps(context, ref target, ref actionDef, sacredSightStacks, dotStatusId);
+            HandleStationaryDps(context, ref target, ref actionDef, dotStatusId);
         }
 
         // Update debug
@@ -149,7 +142,7 @@ public sealed class DamageModule : IApolloModule
         {
             if (_hadTargetLastFrame)
             {
-                context.ActionTracker.LogAttempt(0, null, null, ActionResult.NoTarget, player.Level);
+                context.ActionTracker.LogAttempt(0, null, null, Models.ActionResult.NoTarget, player.Level);
             }
             _hadTargetLastFrame = false;
             return;
@@ -160,7 +153,7 @@ public sealed class DamageModule : IApolloModule
         {
             if (_hadTargetLastFrame)
             {
-                context.ActionTracker.LogAttempt(0, null, null, ActionResult.NoTarget, player.Level);
+                context.ActionTracker.LogAttempt(0, null, null, Models.ActionResult.NoTarget, player.Level);
             }
             _hadTargetLastFrame = false;
             return;
@@ -172,24 +165,23 @@ public sealed class DamageModule : IApolloModule
         var executionTarget = actionDef.TargetType == ActionTargetType.Self
             ? player.GameObjectId
             : target!.GameObjectId;
-        var success = context.ActionService.ExecuteGcd(actionDef, executionTarget);
-        if (success)
+        var targetName = target?.Name?.TextValue ?? player.Name?.TextValue ?? "Unknown";
+        var targetHp = target?.CurrentHp ?? player.CurrentHp;
+
+        if (ActionExecutor.ExecuteGcd(context, actionDef, executionTarget, targetName, targetHp))
         {
-            context.Debug.PlannedAction = actionDef.Name;
-            var targetName = target?.Name?.TextValue ?? player.Name?.TextValue ?? "Unknown";
-            var targetHp = target?.CurrentHp ?? player.CurrentHp;
-            context.ActionTracker.LogAttempt(actionDef.ActionId, targetName, targetHp, ActionResult.Success, player.Level);
+            // Success - ActionExecutor handles debug state and logging
         }
     }
 
     private void HandleMovingDps(ApolloContext context, ref IBattleNpc? target, ref ActionDefinition? actionDef,
-        int sacredSightStacks, uint dotStatusId)
+        uint dotStatusId)
     {
         var player = context.Player;
         var config = context.Configuration;
 
         // Priority 1: Sacred Sight instant Glare IV
-        if (sacredSightStacks > 0 && player.Level >= WHMActions.GlareIV.MinLevel)
+        if (context.SacredSightStacks > 0 && player.Level >= WHMActions.GlareIV.MinLevel)
         {
             if (IsDamageSpellEnabled(WHMActions.GlareIV.ActionId, config))
             {
@@ -204,11 +196,11 @@ public sealed class DamageModule : IApolloModule
                     actionDef = WHMActions.GlareIV;
                     if (hitCount >= config.Damage.AoEDamageMinTargets)
                     {
-                        context.Debug.DpsState = $"Glare IV AoE ({hitCount} targets, {sacredSightStacks} stacks)";
+                        context.Debug.DpsState = $"Glare IV AoE ({hitCount} targets, {context.SacredSightStacks} stacks)";
                     }
                     else
                     {
-                        context.Debug.DpsState = $"Sacred Sight Glare IV ({sacredSightStacks} stacks)";
+                        context.Debug.DpsState = $"Sacred Sight Glare IV ({context.SacredSightStacks} stacks)";
                     }
                 }
             }
@@ -224,13 +216,13 @@ public sealed class DamageModule : IApolloModule
     }
 
     private void HandleStationaryDps(ApolloContext context, ref IBattleNpc? target, ref ActionDefinition? actionDef,
-        int sacredSightStacks, uint dotStatusId)
+        uint dotStatusId)
     {
         var player = context.Player;
         var config = context.Configuration;
 
         // Priority 0.5: Sacred Sight Glare IV
-        if (sacredSightStacks > 0 && player.Level >= WHMActions.GlareIV.MinLevel)
+        if (context.SacredSightStacks > 0 && player.Level >= WHMActions.GlareIV.MinLevel)
         {
             if (IsDamageSpellEnabled(WHMActions.GlareIV.ActionId, config))
             {
@@ -245,11 +237,11 @@ public sealed class DamageModule : IApolloModule
                     actionDef = WHMActions.GlareIV;
                     if (hitCount >= config.Damage.AoEDamageMinTargets)
                     {
-                        context.Debug.DpsState = $"Glare IV AoE ({hitCount} targets, {sacredSightStacks} stacks)";
+                        context.Debug.DpsState = $"Glare IV AoE ({hitCount} targets, {context.SacredSightStacks} stacks)";
                     }
                     else
                     {
-                        context.Debug.DpsState = $"Sacred Sight Glare IV ({sacredSightStacks} stacks)";
+                        context.Debug.DpsState = $"Sacred Sight Glare IV ({context.SacredSightStacks} stacks)";
                     }
                 }
             }
@@ -270,7 +262,7 @@ public sealed class DamageModule : IApolloModule
             }
 
             // Check for AoE damage opportunity (Holy family) - only when Sacred Sight not available
-            if (actionDef is null && player.Level >= WHMActions.Holy.MinLevel && sacredSightStacks == 0)
+            if (actionDef is null && player.Level >= WHMActions.Holy.MinLevel && context.SacredSightStacks == 0)
             {
                 var enemyCount = context.TargetingService.CountEnemiesInRange(WHMActions.Holy.Radius, player);
                 context.Debug.AoEDpsEnemyCount = enemyCount;
