@@ -1,62 +1,79 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using Olympus.Data;
 using Olympus.Services;
 
 namespace Olympus.Services.Prediction;
 
 /// <summary>
-/// Simplified HP prediction service (RSR-style).
-/// Tracks pending heals for the currently-casting action only.
-/// This prevents double-healing by making targets appear "healed" immediately.
+/// HP prediction service that tracks multiple concurrent pending heals.
+/// Prevents double-healing by making targets appear "healed" immediately after action execution.
+/// Heals are cleared per-target when the actual heal effect lands.
 /// </summary>
 public sealed class HpPredictionService : IHpPredictionService, IDisposable
 {
     private readonly ICombatEventService _combatEventService;
 
-    // Pending heals: targetId → healAmount
-    // Only tracks ONE action at a time (the current cast)
-    private readonly ConcurrentDictionary<uint, int> _pendingHeals = new();
+    /// <summary>
+    /// Represents a single pending heal entry with its amount and registration time.
+    /// </summary>
+    private record PendingHealEntry(int Amount, DateTime RegisteredTime);
 
-    // When pending heals were registered (for timeout)
-    private DateTime _pendingHealTime = DateTime.MinValue;
+    // Pending heals: targetId → list of pending heal entries
+    // Supports multiple concurrent heals per target (e.g., GCD + oGCD weaving)
+    private readonly ConcurrentDictionary<uint, List<PendingHealEntry>> _pendingHealsByTarget = new();
+    private readonly object _healsLock = new();
 
     public HpPredictionService(ICombatEventService combatEventService)
     {
         _combatEventService = combatEventService;
 
-        // Subscribe to heal landed event to clear pending heals
-        _combatEventService.OnLocalPlayerHealLanded += ClearPendingHeals;
+        // Subscribe to heal landed event to clear pending heals for that target
+        _combatEventService.OnLocalPlayerHealLanded += OnHealLanded;
     }
 
     public void Dispose()
     {
-        _combatEventService.OnLocalPlayerHealLanded -= ClearPendingHeals;
+        _combatEventService.OnLocalPlayerHealLanded -= OnHealLanded;
     }
 
     /// <summary>
-    /// Gets predicted HP for an entity (shadow HP + pending heals).
+    /// Called when a heal from the local player lands on a target.
+    /// Clears all pending heals for that specific target.
+    /// </summary>
+    private void OnHealLanded(uint targetId)
+    {
+        ClearPendingHeals(targetId);
+    }
+
+    /// <summary>
+    /// Gets predicted HP for an entity (shadow HP + all pending heals).
     /// </summary>
     public uint GetPredictedHp(uint entityId, uint currentHp, uint maxHp)
     {
         // Start with shadow HP
         var baseHp = (int)_combatEventService.GetShadowHp(entityId, currentHp);
-        var predictedHp = baseHp;
+        var totalPendingHeal = 0;
 
-        // Add pending heal if not timed out
-        // Note: Don't clear here - just skip timed-out heals to avoid inconsistent state
-        // when checking multiple party members in the same frame
-        if (_pendingHeals.TryGetValue(entityId, out var pendingHeal))
+        lock (_healsLock)
         {
-            var elapsed = (DateTime.UtcNow - _pendingHealTime).TotalSeconds;
-            if (elapsed <= FFXIVTimings.HpPredictionTimeoutSeconds)
+            if (_pendingHealsByTarget.TryGetValue(entityId, out var heals))
             {
-                predictedHp += pendingHeal;
+                var now = DateTime.UtcNow;
+                foreach (var heal in heals)
+                {
+                    // Only count non-expired heals
+                    if ((now - heal.RegisteredTime).TotalSeconds <= FFXIVTimings.HpPredictionTimeoutSeconds)
+                    {
+                        totalPendingHeal += heal.Amount;
+                    }
+                }
             }
         }
 
-        return (uint)Math.Clamp(predictedHp, 0, (int)maxHp);
+        return (uint)Math.Clamp(baseHp + totalPendingHeal, 0, (int)maxHp);
     }
 
     /// <summary>
@@ -71,59 +88,127 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
     /// <summary>
     /// Register a pending single-target heal.
     /// Call this immediately BEFORE executing the heal action.
+    /// Multiple heals can be registered for the same target (they accumulate).
     /// </summary>
     public void RegisterPendingHeal(uint targetId, int amount)
     {
-        // Clear any previous pending heals (we only track one action)
-        _pendingHeals.Clear();
+        var entry = new PendingHealEntry(amount, DateTime.UtcNow);
 
-        _pendingHeals[targetId] = amount;
-        _pendingHealTime = DateTime.UtcNow;
+        lock (_healsLock)
+        {
+            if (!_pendingHealsByTarget.TryGetValue(targetId, out var list))
+            {
+                list = new List<PendingHealEntry>();
+                _pendingHealsByTarget[targetId] = list;
+            }
+            list.Add(entry);
+        }
     }
 
     /// <summary>
     /// Register pending AoE heals for multiple targets.
     /// Call this immediately BEFORE executing the AoE heal action.
+    /// Multiple heals can be registered for the same targets (they accumulate).
     /// </summary>
     public void RegisterPendingAoEHeal(IEnumerable<uint> targetIds, int amountPerTarget)
     {
-        // Clear any previous pending heals (we only track one action)
-        _pendingHeals.Clear();
+        var now = DateTime.UtcNow;
 
-        foreach (var targetId in targetIds)
+        lock (_healsLock)
         {
-            _pendingHeals[targetId] = amountPerTarget;
+            foreach (var targetId in targetIds)
+            {
+                var entry = new PendingHealEntry(amountPerTarget, now);
+
+                if (!_pendingHealsByTarget.TryGetValue(targetId, out var list))
+                {
+                    list = new List<PendingHealEntry>();
+                    _pendingHealsByTarget[targetId] = list;
+                }
+                list.Add(entry);
+            }
         }
-        _pendingHealTime = DateTime.UtcNow;
     }
 
     /// <summary>
-    /// Clear all pending heals.
-    /// Call this when action effect lands (via CombatEventService).
+    /// Clear all pending heals for all targets.
     /// </summary>
     public void ClearPendingHeals()
     {
-        _pendingHeals.Clear();
+        lock (_healsLock)
+        {
+            _pendingHealsByTarget.Clear();
+        }
     }
 
     /// <summary>
-    /// Check if there are any pending heals.
+    /// Clear pending heals for a specific target.
+    /// Called when a heal lands on that target.
     /// </summary>
-    public bool HasPendingHeals => !_pendingHeals.IsEmpty;
+    public void ClearPendingHeals(uint targetId)
+    {
+        lock (_healsLock)
+        {
+            _pendingHealsByTarget.TryRemove(targetId, out _);
+        }
+    }
 
     /// <summary>
-    /// Get pending heal amount for a specific target (for debugging).
+    /// Check if there are any pending heals for any target.
+    /// </summary>
+    public bool HasPendingHeals
+    {
+        get
+        {
+            lock (_healsLock)
+            {
+                return _pendingHealsByTarget.Any(kvp => kvp.Value.Count > 0);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Get total pending heal amount for a specific target (for debugging).
+    /// Returns the sum of all non-expired pending heals.
     /// </summary>
     public int GetPendingHealAmount(uint targetId)
     {
-        return _pendingHeals.TryGetValue(targetId, out var amount) ? amount : 0;
+        lock (_healsLock)
+        {
+            if (!_pendingHealsByTarget.TryGetValue(targetId, out var heals))
+                return 0;
+
+            var now = DateTime.UtcNow;
+            return heals
+                .Where(h => (now - h.RegisteredTime).TotalSeconds <= FFXIVTimings.HpPredictionTimeoutSeconds)
+                .Sum(h => h.Amount);
+        }
     }
 
     /// <summary>
     /// Get all pending heals (for debugging).
+    /// Returns a dictionary of targetId → total pending heal amount.
     /// </summary>
     public IReadOnlyDictionary<uint, int> GetAllPendingHeals()
     {
-        return _pendingHeals;
+        lock (_healsLock)
+        {
+            var now = DateTime.UtcNow;
+            var result = new Dictionary<uint, int>();
+
+            foreach (var kvp in _pendingHealsByTarget)
+            {
+                var total = kvp.Value
+                    .Where(h => (now - h.RegisteredTime).TotalSeconds <= FFXIVTimings.HpPredictionTimeoutSeconds)
+                    .Sum(h => h.Amount);
+
+                if (total > 0)
+                {
+                    result[kvp.Key] = total;
+                }
+            }
+
+            return result;
+        }
     }
 }

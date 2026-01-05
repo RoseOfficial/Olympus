@@ -33,6 +33,11 @@ public interface IHpPredictionService
     void ClearPendingHeals();
 
     /// <summary>
+    /// Clear pending heals for a specific target.
+    /// </summary>
+    void ClearPendingHeals(uint targetId);
+
+    /// <summary>
     /// Check if there are any pending heals.
     /// </summary>
     bool HasPendingHeals { get; }

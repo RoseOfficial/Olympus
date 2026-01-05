@@ -152,7 +152,7 @@ public sealed class HpPredictionServiceTests : IDisposable
     }
 
     [Fact]
-    public void RegisterPendingHeal_ReplacesExisting()
+    public void RegisterPendingHeal_MultipleDifferentTargets_AccumulatesSeparately()
     {
         // Arrange
         const uint entityId1 = 1;
@@ -162,9 +162,23 @@ public sealed class HpPredictionServiceTests : IDisposable
         _service.RegisterPendingHeal(entityId1, 1000);
         _service.RegisterPendingHeal(entityId2, 2000);
 
-        // Assert - second registration should clear first
-        Assert.Equal(0, _service.GetPendingHealAmount(entityId1));
+        // Assert - both heals should be tracked independently
+        Assert.Equal(1000, _service.GetPendingHealAmount(entityId1));
         Assert.Equal(2000, _service.GetPendingHealAmount(entityId2));
+    }
+
+    [Fact]
+    public void RegisterPendingHeal_SameTarget_AccumulatesHeals()
+    {
+        // Arrange
+        const uint entityId = 1;
+
+        // Act - register two heals for the same target (simulates GCD + oGCD weaving)
+        _service.RegisterPendingHeal(entityId, 1000);
+        _service.RegisterPendingHeal(entityId, 2000);
+
+        // Assert - heals should accumulate
+        Assert.Equal(3000, _service.GetPendingHealAmount(entityId));
     }
 
     [Fact]
@@ -186,17 +200,16 @@ public sealed class HpPredictionServiceTests : IDisposable
     }
 
     [Fact]
-    public void RegisterPendingAoEHeal_ClearsPrevious()
+    public void RegisterPendingAoEHeal_AccumulatesWithPrevious()
     {
-        // Arrange
-        _service.RegisterPendingHeal(99, 5000);
+        // Arrange - register a single-target heal first
+        _service.RegisterPendingHeal(1, 5000);
 
-        // Act
+        // Act - register AoE heal that includes the same target
         _service.RegisterPendingAoEHeal(new uint[] { 1, 2 }, 1000);
 
-        // Assert - previous heal should be cleared
-        Assert.Equal(0, _service.GetPendingHealAmount(99));
-        Assert.Equal(1000, _service.GetPendingHealAmount(1));
+        // Assert - heals should accumulate for target 1
+        Assert.Equal(6000, _service.GetPendingHealAmount(1));
         Assert.Equal(1000, _service.GetPendingHealAmount(2));
     }
 
@@ -215,6 +228,25 @@ public sealed class HpPredictionServiceTests : IDisposable
         Assert.Equal(0, _service.GetPendingHealAmount(1));
         Assert.Equal(0, _service.GetPendingHealAmount(2));
         Assert.Equal(0, _service.GetPendingHealAmount(3));
+    }
+
+    [Fact]
+    public void ClearPendingHeals_ByTargetId_OnlyClearsSpecificTarget()
+    {
+        // Arrange - register heals for multiple targets
+        _service.RegisterPendingHeal(1, 1000);
+        _service.RegisterPendingHeal(2, 2000);
+        _service.RegisterPendingHeal(3, 3000);
+        Assert.True(_service.HasPendingHeals);
+
+        // Act - clear only target 2
+        _service.ClearPendingHeals(2);
+
+        // Assert - only target 2 should be cleared
+        Assert.True(_service.HasPendingHeals);
+        Assert.Equal(1000, _service.GetPendingHealAmount(1));
+        Assert.Equal(0, _service.GetPendingHealAmount(2));
+        Assert.Equal(3000, _service.GetPendingHealAmount(3));
     }
 
     [Fact]
@@ -266,6 +298,23 @@ public sealed class HpPredictionServiceTests : IDisposable
         Assert.Equal(1000, result[3]);
     }
 
+    [Fact]
+    public void GetAllPendingHeals_WithAccumulatedHeals_ReturnsSums()
+    {
+        // Arrange - register multiple heals for same targets
+        _service.RegisterPendingHeal(1, 1000);
+        _service.RegisterPendingHeal(1, 2000);
+        _service.RegisterPendingHeal(2, 500);
+
+        // Act
+        var result = _service.GetAllPendingHeals();
+
+        // Assert - should return sum for target 1
+        Assert.Equal(2, result.Count);
+        Assert.Equal(3000, result[1]);
+        Assert.Equal(500, result[2]);
+    }
+
     #endregion
 
     #region Timeout Logic
@@ -307,10 +356,25 @@ public sealed class HpPredictionServiceTests : IDisposable
         var result = _service.GetPredictedHp(entityId, currentHp, maxHp);
 
         // Assert - pending heal should be ignored (not added to predicted HP)
-        // but not cleared from dictionary (will be cleared on next RegisterPendingHeal)
         Assert.Equal(currentHp, result);
-        // Note: HasPendingHeals may still be true since we don't clear during lookup
-        // This is intentional to avoid race conditions when checking multiple party members
+    }
+
+    [Fact]
+    public void GetPredictedHp_WithMultiplePendingHeals_SumsAll()
+    {
+        // Arrange - register multiple heals for same target (simulates GCD + oGCD weaving)
+        const uint entityId = 1;
+        const uint currentHp = 3000;
+        const uint maxHp = 10000;
+
+        _service.RegisterPendingHeal(entityId, 2000); // GCD heal
+        _service.RegisterPendingHeal(entityId, 1500); // oGCD heal
+
+        // Act
+        var result = _service.GetPredictedHp(entityId, currentHp, maxHp);
+
+        // Assert - both heals should be summed
+        Assert.Equal(6500u, result); // 3000 + 2000 + 1500
     }
 
     #endregion
@@ -413,17 +477,36 @@ public sealed class HpPredictionServiceTests : IDisposable
     #region Event Subscription
 
     [Fact]
-    public void OnLocalPlayerHealLanded_ClearsPendingHeals()
+    public void OnLocalPlayerHealLanded_ClearsPendingHealsForTarget()
     {
-        // Arrange
+        // Arrange - register heals for multiple targets
         _service.RegisterPendingHeal(1, 1000);
+        _service.RegisterPendingHeal(2, 2000);
         Assert.True(_service.HasPendingHeals);
 
-        // Act - raise the event
-        _mockCombatEvent.Raise(x => x.OnLocalPlayerHealLanded += null);
+        // Act - raise the event for target 1 only
+        _mockCombatEvent.Raise(x => x.OnLocalPlayerHealLanded += null, 1u);
 
-        // Assert
-        Assert.False(_service.HasPendingHeals);
+        // Assert - only target 1's heals should be cleared
+        Assert.True(_service.HasPendingHeals); // Still has heals for target 2
+        Assert.Equal(0, _service.GetPendingHealAmount(1));
+        Assert.Equal(2000, _service.GetPendingHealAmount(2));
+    }
+
+    [Fact]
+    public void OnLocalPlayerHealLanded_ClearsAllHealsForTarget()
+    {
+        // Arrange - register multiple heals for the same target
+        _service.RegisterPendingHeal(1, 1000);
+        _service.RegisterPendingHeal(1, 2000);
+        _service.RegisterPendingHeal(1, 500);
+        Assert.Equal(3500, _service.GetPendingHealAmount(1));
+
+        // Act - raise the event for target 1
+        _mockCombatEvent.Raise(x => x.OnLocalPlayerHealLanded += null, 1u);
+
+        // Assert - all heals for target 1 should be cleared
+        Assert.Equal(0, _service.GetPendingHealAmount(1));
     }
 
     #endregion

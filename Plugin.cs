@@ -18,7 +18,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.5.4";
+    public const string PluginVersion = "1.5.5";
     private const string CommandName = "/olympus";
 
     // Job IDs for supported classes

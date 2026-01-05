@@ -29,9 +29,10 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
 
     /// <summary>
     /// Event raised when a healing effect from the local player lands.
-    /// Subscribers can use this to clear pending heals or perform other actions.
+    /// The uint parameter is the target entity ID that received the heal.
+    /// Subscribers can use this to clear pending heals for that target.
     /// </summary>
-    public event System.Action? OnLocalPlayerHealLanded;
+    public event System.Action<uint>? OnLocalPlayerHealLanded;
 
     // Shadow HP tracking: EntityId -> (CurrentHp, LastActionUpdate)
     // LastActionUpdate is set when HP changes from action effects (heal/damage)
@@ -235,8 +236,8 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
             // When our heal effect lands, notify subscribers and calibrate
             if (isFromLocalPlayer && totalHeal > 0)
             {
-                // Raise event so HpPredictionService can clear pending heals
-                OnLocalPlayerHealLanded?.Invoke();
+                // Raise event so HpPredictionService can clear pending heals for this target
+                OnLocalPlayerHealLanded?.Invoke(targetId);
 
                 // Calibrate if we have a recent prediction (within 3 seconds)
                 var timeSincePrediction = (DateTime.UtcNow - _lastPredictionTime).TotalSeconds;
