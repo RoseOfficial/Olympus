@@ -18,7 +18,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.5.3";
+    public const string PluginVersion = "1.5.4";
     private const string CommandName = "/olympus";
 
     // Job IDs for supported classes
@@ -138,7 +138,8 @@ public sealed class Plugin : IDalamudPlugin
         windowSystem.AddWindow(debugWindow);
 
         mainWindow.IsOpen = configuration.MainWindowVisible;
-        debugWindow.IsOpen = configuration.Debug.DebugWindowVisible;
+        // Debug window always starts closed - user must explicitly open it
+        debugWindow.IsOpen = false;
 
         pluginInterface.UiBuilder.Draw += DrawUI;
         pluginInterface.UiBuilder.OpenConfigUi += OpenConfigUI;

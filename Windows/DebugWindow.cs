@@ -15,7 +15,7 @@ public sealed class DebugWindow : Window
     private readonly Configuration _configuration;
 
     public DebugWindow(DebugService debugService, Configuration configuration)
-        : base("Olympus Debug", ImGuiWindowFlags.None)
+        : base("Olympus Debug", ImGuiWindowFlags.NoSavedSettings)
     {
         _debugService = debugService;
         _configuration = configuration;
