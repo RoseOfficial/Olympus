@@ -36,9 +36,7 @@ jobs:
         run: dotnet build -c Release --no-restore -p:DalamudLibPath=$HOME/dalamud/
 
       - name: Create Release Archive
-        run: |
-          cd bin/Release/Olympus
-          zip -r ../../../Olympus.zip *
+        run: cp bin/Release/Olympus/latest.zip Olympus.zip
 
       - name: Extract Version
         id: version
