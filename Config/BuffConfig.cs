@@ -1,3 +1,5 @@
+using System;
+
 namespace Olympus.Config;
 
 /// <summary>
@@ -8,6 +10,40 @@ public sealed class BuffConfig
     public bool EnablePresenceOfMind { get; set; } = true;
     public bool EnableThinAir { get; set; } = true;
     public bool EnableAetherialShift { get; set; } = true;
+
+    // Predictive Lucid Dreaming Settings
+
+    /// <summary>
+    /// Enable predictive Lucid Dreaming usage based on MP exhaustion forecast.
+    /// When enabled, uses Lucid when MP would drop below threshold within lookahead window.
+    /// Default true enables proactive MP management.
+    /// </summary>
+    public bool EnablePredictiveLucid { get; set; } = true;
+
+    /// <summary>
+    /// MP threshold for predictive Lucid Dreaming trigger.
+    /// Lucid will be used when MP is projected to drop below this in the lookahead window.
+    /// Default 3000 ensures enough MP for emergency heals.
+    /// Valid range: 1000 to 5000.
+    /// </summary>
+    private int _lucidPredictionThreshold = 3000;
+    public int LucidPredictionThreshold
+    {
+        get => _lucidPredictionThreshold;
+        set => _lucidPredictionThreshold = Math.Clamp(value, 1000, 5000);
+    }
+
+    /// <summary>
+    /// How far ahead to look for MP exhaustion (seconds).
+    /// Default 10 means trigger Lucid if MP would drop below threshold in 10 seconds.
+    /// Valid range: 5 to 30.
+    /// </summary>
+    private float _lucidPredictionLookahead = 10f;
+    public float LucidPredictionLookahead
+    {
+        get => _lucidPredictionLookahead;
+        set => _lucidPredictionLookahead = Math.Clamp(value, 5f, 30f);
+    }
 
     // PoM Coordination
     /// <summary>

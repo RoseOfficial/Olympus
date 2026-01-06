@@ -367,8 +367,181 @@ public sealed class ConfigWindow : Window
             }
             ImGui.TextDisabled("Use AoE heal when this many party members need healing.");
 
+            DrawAdvancedHealingSection();
+
             ImGui.EndDisabled();
             ImGui.Unindent();
+        }
+    }
+
+    private void DrawAdvancedHealingSection()
+    {
+        ImGui.Spacing();
+        ImGui.Separator();
+
+        if (ImGui.TreeNode("Advanced Healing Settings"))
+        {
+            // Triage Settings
+            ImGui.TextDisabled("Healing Triage:");
+
+            var useTriage = configuration.Healing.UseDamageIntakeTriage;
+            if (ImGui.Checkbox("Use Damage-Based Triage", ref useTriage))
+            {
+                configuration.Healing.UseDamageIntakeTriage = useTriage;
+                saveConfiguration();
+            }
+            ImGui.TextDisabled("Prioritize healing targets taking active damage.");
+
+            if (configuration.Healing.UseDamageIntakeTriage)
+            {
+                ImGui.Indent();
+                var presetNames = Enum.GetNames<TriagePreset>();
+                var currentPreset = (int)configuration.Healing.TriagePreset;
+                ImGui.SetNextItemWidth(150);
+                if (ImGui.Combo("Triage Preset", ref currentPreset, presetNames, presetNames.Length))
+                {
+                    configuration.Healing.TriagePreset = (TriagePreset)currentPreset;
+                    saveConfiguration();
+                }
+
+                var presetDesc = configuration.Healing.TriagePreset switch
+                {
+                    TriagePreset.Balanced => "Balanced weights across all factors",
+                    TriagePreset.TankFocus => "Prioritize tanks over DPS",
+                    TriagePreset.SpreadDamage => "React to highest damage intake",
+                    TriagePreset.RaidWide => "Focus on lowest HP members",
+                    TriagePreset.Custom => "Use custom weight values below",
+                    _ => ""
+                };
+                ImGui.TextDisabled(presetDesc);
+
+                // Show custom weights only when Custom is selected
+                if (configuration.Healing.TriagePreset == TriagePreset.Custom)
+                {
+                    var damageRate = configuration.Healing.CustomTriageWeights.DamageRate * 100f;
+                    ImGui.SetNextItemWidth(120);
+                    if (ImGui.SliderFloat("Damage Rate", ref damageRate, 0f, 60f, "%.0f%%"))
+                    {
+                        configuration.Healing.CustomTriageWeights.DamageRate = damageRate / 100f;
+                        saveConfiguration();
+                    }
+
+                    var tankBonus = configuration.Healing.CustomTriageWeights.TankBonus * 100f;
+                    ImGui.SetNextItemWidth(120);
+                    if (ImGui.SliderFloat("Tank Bonus", ref tankBonus, 0f, 60f, "%.0f%%"))
+                    {
+                        configuration.Healing.CustomTriageWeights.TankBonus = tankBonus / 100f;
+                        saveConfiguration();
+                    }
+
+                    var missingHp = configuration.Healing.CustomTriageWeights.MissingHp * 100f;
+                    ImGui.SetNextItemWidth(120);
+                    if (ImGui.SliderFloat("Missing HP", ref missingHp, 0f, 60f, "%.0f%%"))
+                    {
+                        configuration.Healing.CustomTriageWeights.MissingHp = missingHp / 100f;
+                        saveConfiguration();
+                    }
+
+                    var accel = configuration.Healing.CustomTriageWeights.DamageAcceleration * 100f;
+                    ImGui.SetNextItemWidth(120);
+                    if (ImGui.SliderFloat("Acceleration", ref accel, 0f, 30f, "%.0f%%"))
+                    {
+                        configuration.Healing.CustomTriageWeights.DamageAcceleration = accel / 100f;
+                        saveConfiguration();
+                    }
+                }
+                ImGui.Unindent();
+            }
+
+            ImGui.Spacing();
+            ImGui.TextDisabled("Assize Healing:");
+
+            var enableAssizeHealing = configuration.Healing.EnableAssizeHealing;
+            if (ImGui.Checkbox("Enable Assize for Healing", ref enableAssizeHealing))
+            {
+                configuration.Healing.EnableAssizeHealing = enableAssizeHealing;
+                saveConfiguration();
+            }
+            ImGui.TextDisabled("Use Assize as a healing oGCD when party needs it.");
+
+            if (configuration.Healing.EnableAssizeHealing)
+            {
+                ImGui.Indent();
+                var assizeMinTargets = configuration.Healing.AssizeHealingMinTargets;
+                ImGui.SetNextItemWidth(120);
+                if (ImGui.SliderInt("Min Injured", ref assizeMinTargets, 1, 8))
+                {
+                    configuration.Healing.AssizeHealingMinTargets = assizeMinTargets;
+                    saveConfiguration();
+                }
+
+                var assizeThreshold = configuration.Healing.AssizeHealingHpThreshold * 100f;
+                ImGui.SetNextItemWidth(120);
+                if (ImGui.SliderFloat("HP Threshold", ref assizeThreshold, 50f, 95f, "%.0f%%"))
+                {
+                    configuration.Healing.AssizeHealingHpThreshold = assizeThreshold / 100f;
+                    saveConfiguration();
+                }
+                ImGui.TextDisabled("Prioritize Assize healing when avg HP below threshold.");
+                ImGui.Unindent();
+            }
+
+            ImGui.Spacing();
+            ImGui.TextDisabled("Preemptive Healing:");
+
+            var enablePreemptive = configuration.Healing.EnablePreemptiveHealing;
+            if (ImGui.Checkbox("Enable Preemptive Healing", ref enablePreemptive))
+            {
+                configuration.Healing.EnablePreemptiveHealing = enablePreemptive;
+                saveConfiguration();
+            }
+            ImGui.TextDisabled("Heal before damage spikes land based on pattern detection.");
+
+            if (configuration.Healing.EnablePreemptiveHealing)
+            {
+                ImGui.Indent();
+                var preemptiveThreshold = configuration.Healing.PreemptiveHealingThreshold * 100f;
+                ImGui.SetNextItemWidth(120);
+                if (ImGui.SliderFloat("HP Trigger", ref preemptiveThreshold, 10f, 80f, "%.0f%%"))
+                {
+                    configuration.Healing.PreemptiveHealingThreshold = preemptiveThreshold / 100f;
+                    saveConfiguration();
+                }
+                ImGui.TextDisabled("Heal if projected HP would drop below this.");
+
+                var spikeConfidence = configuration.Healing.SpikePatternConfidenceThreshold * 100f;
+                ImGui.SetNextItemWidth(120);
+                if (ImGui.SliderFloat("Pattern Confidence", ref spikeConfidence, 30f, 95f, "%.0f%%"))
+                {
+                    configuration.Healing.SpikePatternConfidenceThreshold = spikeConfidence / 100f;
+                    saveConfiguration();
+                }
+                ImGui.TextDisabled("Minimum confidence for spike pattern prediction.");
+
+                var spikeLookahead = configuration.Healing.SpikePredictionLookahead;
+                ImGui.SetNextItemWidth(120);
+                if (ImGui.SliderFloat("Lookahead (sec)", ref spikeLookahead, 0.5f, 5f, "%.1f"))
+                {
+                    configuration.Healing.SpikePredictionLookahead = spikeLookahead;
+                    saveConfiguration();
+                }
+                ImGui.TextDisabled("How far ahead to predict spikes.");
+                ImGui.Unindent();
+            }
+
+            ImGui.Spacing();
+            ImGui.TextDisabled("Experimental:");
+
+            var enableScored = configuration.Healing.EnableScoredHealSelection;
+            if (ImGui.Checkbox("Enable Scored Heal Selection", ref enableScored))
+            {
+                configuration.Healing.EnableScoredHealSelection = enableScored;
+                saveConfiguration();
+            }
+            ImGui.TextDisabled("Use multi-factor scoring instead of tier-based selection.");
+            ImGui.TextColored(new System.Numerics.Vector4(1f, 0.7f, 0.3f, 1f), "EXPERIMENTAL");
+
+            ImGui.TreePop();
         }
     }
 

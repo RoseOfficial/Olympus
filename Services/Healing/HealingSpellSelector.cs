@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Config;
@@ -44,6 +45,30 @@ public sealed class SpellSelectionDebug
     public string? SelectedSpell { get; init; }
     public string? SelectionReason { get; init; }
     public float SecondsAgo => (float)(DateTime.Now - Timestamp).TotalSeconds;
+}
+
+/// <summary>
+/// Context for calculating heal scores.
+/// Contains all factors that influence the heal score calculation.
+/// </summary>
+public sealed record HealScoreContext
+{
+    /// <summary>The action being scored.</summary>
+    public required ActionDefinition Action { get; init; }
+    /// <summary>Predicted heal amount.</summary>
+    public required int HealAmount { get; init; }
+    /// <summary>HP the target is missing.</summary>
+    public required int MissingHp { get; init; }
+    /// <summary>Whether the player has Freecure proc active.</summary>
+    public required bool HasFreecure { get; init; }
+    /// <summary>Whether we're in a weave window (for oGCD bonus).</summary>
+    public required bool IsWeaveWindow { get; init; }
+    /// <summary>Current lily count.</summary>
+    public required int LilyCount { get; init; }
+    /// <summary>Current blood lily count.</summary>
+    public required int BloodLilyCount { get; init; }
+    /// <summary>Whether in MP conservation mode.</summary>
+    public required bool IsInMpConservationMode { get; init; }
 }
 
 /// <summary>
@@ -130,6 +155,14 @@ public class HealingSpellSelector : IHealingSpellSelector
         // MP conservation affects spell selection
         var useMpConservation = isInMpConservationMode &&
                                  configuration.Healing.EnableMpAwareSpellSelection;
+
+        // Route to scored selection if enabled
+        if (configuration.Healing.EnableScoredHealSelection && missingHp > 0)
+        {
+            return SelectBestSingleHealScored(
+                player, target, isWeaveWindow, hasFreecure, hasRegen, regenRemaining,
+                useMpConservation, mind, det, wd, missingHp, hpPercent, lilyCount, bloodLilyCount);
+        }
 
         // Skip if target doesn't need healing
         if (missingHp <= 0)
@@ -569,12 +602,234 @@ public class HealingSpellSelector : IHealingSpellSelector
     }
 
     /// <summary>
+    /// Calculates a score for a heal based on multiple factors.
+    /// Higher scores indicate better heal choices.
+    /// </summary>
+    /// <param name="context">The context containing all scoring factors.</param>
+    /// <returns>A score from 0.0 to 1.0 where higher is better.</returns>
+    private float CalculateHealScore(HealScoreContext context)
+    {
+        var weights = configuration.Healing.ScoreWeights;
+        var action = context.Action;
+        var score = 0f;
+
+        // 1. Potency efficiency: heal amount relative to max possible heal
+        // Normalize by assuming max heal is ~30000 for a Benediction-class ability
+        var potencyEfficiency = Math.Min(context.HealAmount / 30000f, 1f);
+        score += potencyEfficiency * weights.Potency;
+
+        // 2. MP efficiency: prefer no-MP-cost heals
+        // Lily heals (0 MP) get 1.0, Freecure Cure II gets 1.0, normal heals get scaled by cost
+        var mpEfficiency = action.MpCost switch
+        {
+            0 => 1.0f, // Lily heals, Regen tick
+            _ when context.HasFreecure && action.ActionId == WHMActions.CureII.ActionId => 1.0f, // Free Cure II
+            _ => Math.Max(0f, 1f - (action.MpCost / 1500f)) // Scale by MP cost (max ~1500 for expensive heals)
+        };
+        score += mpEfficiency * weights.MpEfficiency;
+
+        // 3. Lily benefit: reward lily heals when building Blood Lilies
+        var lilyBenefit = 0f;
+        var isLilyHeal = action.ActionId == WHMActions.AfflatusSolace.ActionId ||
+                         action.ActionId == WHMActions.AfflatusRapture.ActionId;
+        if (isLilyHeal && context.LilyCount > 0)
+        {
+            // More benefit when blood lilies are low (need to build toward Misery)
+            lilyBenefit = context.BloodLilyCount switch
+            {
+                0 => 1.0f,  // Maximum benefit - need to start building
+                1 => 0.85f, // High benefit - close to Misery
+                2 => 0.70f, // Good benefit - one more for Misery
+                _ => 0.3f   // Minimal benefit - already have Misery ready
+            };
+
+            // Bonus if in MP conservation mode
+            if (context.IsInMpConservationMode)
+                lilyBenefit = Math.Min(1f, lilyBenefit + 0.2f);
+        }
+        score += lilyBenefit * weights.LilyBenefit;
+
+        // 4. Freecure bonus: strongly prefer Cure II when Freecure is active
+        var freecureBonus = 0f;
+        if (context.HasFreecure && action.ActionId == WHMActions.CureII.ActionId)
+        {
+            freecureBonus = 1.0f; // Maximum bonus for using free Cure II
+        }
+        score += freecureBonus * weights.FreecureBonus;
+
+        // 5. oGCD bonus: prefer oGCDs in weave windows to maintain DPS uptime
+        var ogcdBonus = 0f;
+        if (context.IsWeaveWindow && action.IsOGCD)
+        {
+            ogcdBonus = 1.0f;
+        }
+        score += ogcdBonus * weights.OgcdBonus;
+
+        // 6. Overheal penalty: reduce score for excessive overhealing
+        var overhealPenalty = 0f;
+        if (context.MissingHp > 0)
+        {
+            var overhealRatio = (float)context.HealAmount / context.MissingHp;
+            if (overhealRatio > 1.5f)
+            {
+                // Penalize heals that would overheal by more than 50%
+                overhealPenalty = Math.Min(1f, (overhealRatio - 1.5f) / 2f);
+            }
+        }
+        else
+        {
+            // If no HP missing, maximum penalty
+            overhealPenalty = 1.0f;
+        }
+        score -= overhealPenalty * weights.OverhealPenalty;
+
+        return Math.Max(0f, score);
+    }
+
+    /// <summary>
+    /// Selects the best single-target heal using the scored selection system.
+    /// Evaluates all valid heals and returns the highest-scoring option.
+    /// </summary>
+    private (ActionDefinition? action, int healAmount) SelectBestSingleHealScored(
+        IPlayerCharacter player,
+        IBattleChara target,
+        bool isWeaveWindow,
+        bool hasFreecure,
+        bool hasRegen,
+        float regenRemaining,
+        bool isInMpConservationMode,
+        int mind, int det, int wd,
+        int missingHp,
+        float hpPercent,
+        int lilyCount,
+        int bloodLilyCount)
+    {
+        var candidates = new List<(ActionDefinition action, int healAmount, float score, string reason)>();
+
+        // Evaluate Afflatus Solace (Lily heal)
+        if (lilyCount > 0)
+        {
+            var result = evaluator.EvaluateSingleTarget(WHMActions.AfflatusSolace, player.Level, mind, det, wd, target);
+            if (result.IsValid && result.Action is not null)
+            {
+                var score = CalculateHealScore(new HealScoreContext
+                {
+                    Action = result.Action,
+                    HealAmount = result.HealAmount,
+                    MissingHp = missingHp,
+                    HasFreecure = hasFreecure,
+                    IsWeaveWindow = isWeaveWindow,
+                    LilyCount = lilyCount,
+                    BloodLilyCount = bloodLilyCount,
+                    IsInMpConservationMode = isInMpConservationMode
+                });
+                candidates.Add((result.Action, result.HealAmount, score, $"Lily heal (score: {score:F2})"));
+            }
+        }
+
+        // Evaluate Regen (if needed)
+        var needsRegen = (!hasRegen || regenRemaining < FFXIVConstants.RegenRefreshThreshold) &&
+                         hpPercent < FFXIVConstants.RegenHpThreshold;
+        if (needsRegen)
+        {
+            var result = evaluator.EvaluateSingleTarget(WHMActions.Regen, player.Level, mind, det, wd, target);
+            if (result.IsValid && result.Action is not null)
+            {
+                var score = CalculateHealScore(new HealScoreContext
+                {
+                    Action = result.Action,
+                    HealAmount = result.HealAmount,
+                    MissingHp = missingHp,
+                    HasFreecure = hasFreecure,
+                    IsWeaveWindow = isWeaveWindow,
+                    LilyCount = lilyCount,
+                    BloodLilyCount = bloodLilyCount,
+                    IsInMpConservationMode = isInMpConservationMode
+                });
+                candidates.Add((result.Action, result.HealAmount, score, $"Regen (score: {score:F2})"));
+            }
+        }
+
+        // Evaluate Cure II
+        {
+            var result = evaluator.EvaluateSingleTarget(WHMActions.CureII, player.Level, mind, det, wd, target, missingHp);
+            if (result.IsValid && result.Action is not null)
+            {
+                var score = CalculateHealScore(new HealScoreContext
+                {
+                    Action = result.Action,
+                    HealAmount = result.HealAmount,
+                    MissingHp = missingHp,
+                    HasFreecure = hasFreecure,
+                    IsWeaveWindow = isWeaveWindow,
+                    LilyCount = lilyCount,
+                    BloodLilyCount = bloodLilyCount,
+                    IsInMpConservationMode = isInMpConservationMode
+                });
+                var freecureNote = hasFreecure ? " (Freecure!)" : "";
+                candidates.Add((result.Action, result.HealAmount, score, $"Cure II{freecureNote} (score: {score:F2})"));
+            }
+        }
+
+        // Evaluate Cure
+        {
+            var result = evaluator.EvaluateSingleTarget(WHMActions.Cure, player.Level, mind, det, wd, target, missingHp);
+            if (result.IsValid && result.Action is not null)
+            {
+                var score = CalculateHealScore(new HealScoreContext
+                {
+                    Action = result.Action,
+                    HealAmount = result.HealAmount,
+                    MissingHp = missingHp,
+                    HasFreecure = hasFreecure,
+                    IsWeaveWindow = isWeaveWindow,
+                    LilyCount = lilyCount,
+                    BloodLilyCount = bloodLilyCount,
+                    IsInMpConservationMode = isInMpConservationMode
+                });
+                candidates.Add((result.Action, result.HealAmount, score, $"Cure (score: {score:F2})"));
+            }
+        }
+
+        // Select highest scoring candidate
+        if (candidates.Count == 0)
+            return (null, 0);
+
+        var best = candidates.OrderByDescending(c => c.score).First();
+
+        // Track all candidates for debug info
+        foreach (var candidate in candidates)
+        {
+            if (candidate.action.ActionId == best.action.ActionId)
+                evaluator.MarkAsSelected(candidate.action.ActionId);
+        }
+
+        lastSelection = new SpellSelectionDebug
+        {
+            SelectionType = "Single (Scored)",
+            TargetName = target.Name.TextValue,
+            MissingHp = missingHp,
+            TargetHpPercent = hpPercent,
+            IsWeaveWindow = isWeaveWindow,
+            LilyCount = lilyCount,
+            BloodLilyCount = bloodLilyCount,
+            LilyStrategy = configuration.Healing.LilyStrategy.ToString(),
+            Candidates = evaluator.GetCandidatesCopy(),
+            SelectedSpell = best.action.Name,
+            SelectionReason = best.reason
+        };
+
+        return (best.action, best.healAmount);
+    }
+
+    /// <summary>
     /// Debug info showing current spell selection state.
     /// </summary>
     public string GetDebugInfo(IPlayerCharacter player)
     {
         var lilyCount = GetLilyCount();
         var bloodLilyCount = GetBloodLilyCount();
-        return $"Lilies: {lilyCount}/3 | Blood: {bloodLilyCount}/3 | Strategy: {configuration.Healing.LilyStrategy} | BeneThreshold: {configuration.Healing.BenedictionEmergencyThreshold:P0}";
+        var selectionMode = configuration.Healing.EnableScoredHealSelection ? "Scored" : "Tier-Based";
+        return $"Lilies: {lilyCount}/3 | Blood: {bloodLilyCount}/3 | Strategy: {configuration.Healing.LilyStrategy} | Selection: {selectionMode} | BeneThreshold: {configuration.Healing.BenedictionEmergencyThreshold:P0}";
     }
 }

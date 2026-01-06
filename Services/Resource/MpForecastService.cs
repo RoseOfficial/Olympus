@@ -140,6 +140,24 @@ public sealed class MpForecastService : IMpForecastService
         return spendableMp / -netRate;
     }
 
+    /// <inheritdoc />
+    public float GetTimeUntilMpBelowThreshold(int thresholdMp)
+    {
+        var netRate = GetNetMpRate();
+
+        // If gaining MP or stable, won't reach threshold
+        if (netRate >= 0)
+            return float.MaxValue;
+
+        // Calculate MP to lose before hitting threshold
+        var mpToLose = _currentMp - thresholdMp;
+        if (mpToLose <= 0)
+            return 0f; // Already at or below threshold
+
+        // Time = MP to lose / consumption rate (negative rate)
+        return mpToLose / -netRate;
+    }
+
     /// <summary>
     /// Removes expenditures older than the tracking window.
     /// </summary>

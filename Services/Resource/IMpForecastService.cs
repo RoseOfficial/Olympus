@@ -29,6 +29,14 @@ public interface IMpForecastService
     float SecondsUntilOom(int reserveMp = 2400);
 
     /// <summary>
+    /// Calculates when MP will drop below a specific threshold based on current trends.
+    /// Used for predictive Lucid Dreaming activation.
+    /// </summary>
+    /// <param name="thresholdMp">The MP threshold to check against.</param>
+    /// <returns>Seconds until MP reaches threshold, or float.MaxValue if not projected to reach it.</returns>
+    float GetTimeUntilMpBelowThreshold(int thresholdMp);
+
+    /// <summary>
     /// Gets the current MP regeneration rate per second.
     /// Includes natural regen and Lucid Dreaming bonus.
     /// </summary>

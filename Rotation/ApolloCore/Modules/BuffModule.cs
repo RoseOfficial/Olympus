@@ -347,22 +347,54 @@ public sealed class BuffModule : IApolloModule
         if (context.MpForecastService.IsLucidDreamingActive)
             return false;
 
-        // Determine threshold based on context
-        var threshold = 0.70f;
+        var shouldUseLucid = false;
+        var reason = string.Empty;
 
-        // Lower threshold in conservation mode - use Lucid earlier
-        if (context.MpForecastService.IsInConservationMode)
-            threshold = 0.80f;
+        // Priority 1: Predictive Lucid Dreaming (check MP exhaustion forecast)
+        if (config.Buffs.EnablePredictiveLucid)
+        {
+            var timeUntilLow = context.MpForecastService.GetTimeUntilMpBelowThreshold(
+                config.Buffs.LucidPredictionThreshold);
 
-        // Raise prep mode - use Lucid even earlier to build MP for raise
-        if (config.Buffs.EnableRaisePrepMode && ShouldEnterRaisePrepMode(context))
-            threshold = 0.90f;
+            if (timeUntilLow <= config.Buffs.LucidPredictionLookahead)
+            {
+                shouldUseLucid = true;
+                reason = $"Predictive (MP below {config.Buffs.LucidPredictionThreshold} in {timeUntilLow:F0}s)";
+            }
+        }
 
-        if (mpPercent >= threshold)
+        // Priority 2: Threshold-based logic (fallback)
+        if (!shouldUseLucid)
+        {
+            // Determine threshold based on context
+            var threshold = 0.70f;
+
+            // Lower threshold in conservation mode - use Lucid earlier
+            if (context.MpForecastService.IsInConservationMode)
+                threshold = 0.80f;
+
+            // Raise prep mode - use Lucid even earlier to build MP for raise
+            if (config.Buffs.EnableRaisePrepMode && ShouldEnterRaisePrepMode(context))
+                threshold = 0.90f;
+
+            if (mpPercent < threshold)
+            {
+                shouldUseLucid = true;
+                reason = $"MP below {threshold:P0} threshold";
+            }
+        }
+
+        if (!shouldUseLucid)
             return false;
 
-        return ActionExecutor.ExecuteOgcd(context, WHMActions.LucidDreaming, player.GameObjectId,
-            player.Name?.TextValue ?? "Unknown", player.CurrentMp);
+        if (ActionExecutor.ExecuteOgcd(context, WHMActions.LucidDreaming, player.GameObjectId,
+            player.Name?.TextValue ?? "Unknown", player.CurrentMp, reason))
+        {
+            context.Debug.LucidState = reason;
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>

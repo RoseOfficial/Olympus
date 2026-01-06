@@ -114,7 +114,7 @@ public sealed class Apollo : IRotation
 
         // Initialize helpers
         _statusHelper = new StatusHelper();
-        _partyHelper = new PartyHelper(objectTable, partyList, hpPredictionService);
+        _partyHelper = new PartyHelper(objectTable, partyList, hpPredictionService, configuration);
 
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<IApolloModule>
@@ -234,6 +234,18 @@ public sealed class Apollo : IRotation
 
         // Update combat event service with combat state (for lily flush timing)
         _combatEventService.UpdateCombatState(inCombat);
+
+        // Update damage trend service with delta time and party entity IDs
+        // This enables spike pattern detection and prediction
+        if (inCombat)
+        {
+            var partyEntityIds = new List<uint>();
+            foreach (var member in _partyHelper.GetAllPartyMembers(player))
+            {
+                partyEntityIds.Add(member.EntityId);
+            }
+            (_damageTrendService as DamageTrendService)?.Update(1f / 60f, partyEntityIds); // Approximate frame time
+        }
 
         // Track GCD state for debug display
         if (inCombat)

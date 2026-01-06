@@ -221,6 +221,8 @@ public sealed class DebugState
     public string ThinAirState { get; set; } = "Idle";
     public string SurecastState { get; set; } = "Idle";
     public string PoMState { get; set; } = "Idle";
+    public string LucidState { get; set; } = "Idle";
+    public string AssizeState { get; set; } = "Idle";
 
     // Defensive
     public string DefensiveState { get; set; } = "Idle";

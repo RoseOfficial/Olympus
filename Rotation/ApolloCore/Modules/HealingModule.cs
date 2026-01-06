@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
@@ -26,6 +27,10 @@ public sealed class HealingModule : IApolloModule
     {
         // Priority 1: Emergency oGCD heal (Benediction)
         if (context.CanExecuteOgcd && TryExecuteBenediction(context))
+            return true;
+
+        // Priority 1.5: Assize for healing when party needs it
+        if (context.CanExecuteOgcd && context.InCombat && TryExecuteAssizeHealing(context))
             return true;
 
         // Priority 2: Esuna for lethal debuffs
@@ -540,6 +545,55 @@ public sealed class HealingModule : IApolloModule
         return false;
     }
 
+    /// <summary>
+    /// Attempts to use Assize as a healing oGCD when party needs healing.
+    /// Balances DPS value against healing value - triggers when multiple party members are injured.
+    /// </summary>
+    private bool TryExecuteAssizeHealing(ApolloContext context)
+    {
+        var config = context.Configuration;
+        var player = context.Player;
+
+        // Check if Assize healing mode is enabled
+        if (!config.EnableHealing || !config.Healing.EnableAssizeHealing)
+            return false;
+
+        if (player.Level < WHMActions.Assize.MinLevel)
+            return false;
+
+        if (!context.ActionService.IsActionReady(WHMActions.Assize.ActionId))
+            return false;
+
+        // Check party health conditions
+        var (avgHpPercent, _, injuredCount) = context.PartyHealthMetrics;
+
+        // Need enough injured targets AND party HP below threshold
+        var shouldUseForHealing = injuredCount >= config.Healing.AssizeHealingMinTargets &&
+                                  avgHpPercent < config.Healing.AssizeHealingHpThreshold;
+
+        if (!shouldUseForHealing)
+            return false;
+
+        // Execute Assize for healing
+        if (ActionExecutor.ExecuteOgcd(context, WHMActions.Assize, player.GameObjectId,
+            player.Name?.TextValue ?? "Unknown", player.CurrentHp,
+            $"Assize (healing: {injuredCount} injured, {avgHpPercent:P0} avg HP)"))
+        {
+            context.Debug.AssizeState = $"Healing mode ({injuredCount} injured, {avgHpPercent:P0} avg)";
+
+            // Log the healing decision
+            context.LogOgcdDecision(
+                $"{injuredCount} party members",
+                avgHpPercent,
+                "Assize",
+                $"Healing mode - {injuredCount} injured, avg HP {avgHpPercent:P0}");
+
+            return true;
+        }
+
+        return false;
+    }
+
     private static bool ShouldWaitForThinAir(ApolloContext context)
     {
         var config = context.Configuration;
@@ -560,6 +614,7 @@ public sealed class HealingModule : IApolloModule
     /// <summary>
     /// Attempts preemptive healing when a damage spike is detected and a target would be at risk.
     /// This allows healing to start BEFORE the spike lands, rather than reacting after.
+    /// Uses both reactive spike detection and predictive pattern detection.
     /// </summary>
     private bool TryPreemptiveHeal(ApolloContext context, bool isMoving)
     {
@@ -570,13 +625,47 @@ public sealed class HealingModule : IApolloModule
         if (!config.EnableHealing || !config.Healing.EnablePreemptiveHealing)
             return false;
 
-        // Check if a damage spike is imminent
-        if (!context.DamageTrendService.IsDamageSpikeImminent(0.7f))
+        // Two-pronged spike detection:
+        // 1. Reactive: Check if a damage spike is currently imminent
+        // 2. Predictive: Check if a periodic spike pattern predicts incoming damage
+
+        var isReactiveSpike = context.DamageTrendService.IsDamageSpikeImminent(0.7f);
+        var isPredictedSpike = false;
+        var patternConfidence = 0f;
+        var secondsUntilPredictedSpike = float.MaxValue;
+
+        // Check pattern prediction for each party member
+        foreach (var member in context.PartyHelper.GetAllPartyMembers(player))
+        {
+            if (member.IsDead)
+                continue;
+
+            var (predictedSeconds, confidence) = context.DamageTrendService.PredictNextSpike(member.EntityId);
+
+            // Use prediction if confidence exceeds threshold and spike is within lookahead window
+            if (confidence >= config.Healing.SpikePatternConfidenceThreshold &&
+                predictedSeconds <= config.Healing.SpikePredictionLookahead &&
+                confidence > patternConfidence)
+            {
+                isPredictedSpike = true;
+                patternConfidence = confidence;
+                secondsUntilPredictedSpike = predictedSeconds;
+            }
+        }
+
+        // Only proceed if either reactive or predictive spike is detected
+        if (!isReactiveSpike && !isPredictedSpike)
             return false;
 
         // Get spike severity to determine urgency
         var avgPartyHpPercent = context.PartyHealthMetrics.avgHpPercent;
         var spikeSeverity = context.DamageTrendService.GetSpikeSeverity(avgPartyHpPercent);
+
+        // Boost severity for high-confidence predictions
+        if (isPredictedSpike && patternConfidence >= 0.8f)
+        {
+            spikeSeverity = Math.Max(spikeSeverity, 0.5f + (patternConfidence * 0.3f));
+        }
 
         // Only act on significant spikes (severity > 0.4)
         if (spikeSeverity < 0.4f)

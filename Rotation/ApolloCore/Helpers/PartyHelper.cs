@@ -5,6 +5,7 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
+using Olympus.Config;
 using Olympus.Data;
 using Olympus.Services.Prediction;
 
@@ -18,6 +19,7 @@ public sealed class PartyHelper : IPartyHelper
     private readonly IObjectTable _objectTable;
     private readonly IPartyList _partyList;
     private readonly HpPredictionService _hpPredictionService;
+    private readonly Configuration _configuration;
 
     // Tank ClassJob IDs (PLD, WAR, DRK, GNB + base classes GLA, MRD)
     private static readonly HashSet<uint> TankJobIds = new() { 19, 21, 32, 37, 1, 3 };
@@ -38,11 +40,13 @@ public sealed class PartyHelper : IPartyHelper
     public PartyHelper(
         IObjectTable objectTable,
         IPartyList partyList,
-        HpPredictionService hpPredictionService)
+        HpPredictionService hpPredictionService,
+        Configuration configuration)
     {
         _objectTable = objectTable;
         _partyList = partyList;
         _hpPredictionService = hpPredictionService;
+        _configuration = configuration;
     }
 
     /// <summary>
@@ -570,6 +574,9 @@ public sealed class PartyHelper : IPartyHelper
         IBattleChara? mostEndangered = null;
         float highestScore = float.MinValue;
 
+        // Get configurable weights from config
+        var weights = _configuration.Healing.GetEffectiveTriageWeights();
+
         for (var i = 0; i < candidateCount; i++)
         {
             var normalizedDamageRate = _endangeredDamageRates[i] / maxDamageRate;
@@ -582,12 +589,12 @@ public sealed class PartyHelper : IPartyHelper
                 normalizedAcceleration = _endangeredDamageAccelerations[i] / maxAcceleration;
             }
 
-            // Weight: damageRate (35%) + tankBonus (25%) + missingHp (30%) + damageAcceleration (10%)
+            // Weight using configurable triage weights
             // Acceleration bonus rewards targets whose damage intake is increasing (HP dropping faster)
-            var score = (normalizedDamageRate * 0.35f) +
-                        (_endangeredTankBonuses[i] * 0.25f) +
-                        (_endangeredMissingHpPcts[i] * 0.30f) +
-                        (normalizedAcceleration * 0.10f);
+            var score = (normalizedDamageRate * weights.DamageRate) +
+                        (_endangeredTankBonuses[i] * weights.TankBonus) +
+                        (_endangeredMissingHpPcts[i] * weights.MissingHp) +
+                        (normalizedAcceleration * weights.DamageAcceleration);
 
             if (score > highestScore)
             {

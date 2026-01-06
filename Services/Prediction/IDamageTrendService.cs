@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Olympus.Services.Prediction;
 
 /// <summary>
@@ -24,6 +26,12 @@ public enum DamageTrend
 /// </summary>
 public interface IDamageTrendService
 {
+    /// <summary>
+    /// Updates the service each frame. Automatically detects and records spike events.
+    /// </summary>
+    /// <param name="deltaSeconds">Time since last frame.</param>
+    /// <param name="partyEntityIds">Entity IDs of party members to monitor for spikes.</param>
+    void Update(float deltaSeconds, IEnumerable<uint> partyEntityIds);
     /// <summary>
     /// Gets the damage trend for the entire party over the specified time window.
     /// </summary>
@@ -76,4 +84,24 @@ public interface IDamageTrendService
     /// - 0.8+: High severity (spike + low HP party, needs immediate attention)
     /// </returns>
     float GetSpikeSeverity(float avgPartyHpPercent);
+
+    /// <summary>
+    /// Predicts when the next damage spike will occur based on detected patterns.
+    /// Detects periodic damage patterns (e.g., tank buster every 8 seconds).
+    /// </summary>
+    /// <param name="entityId">The entity to predict spikes for.</param>
+    /// <returns>
+    /// A tuple containing:
+    /// - secondsUntilSpike: Time until next predicted spike (float.MaxValue if no pattern detected)
+    /// - confidence: Confidence in the prediction (0.0-1.0)
+    /// </returns>
+    (float secondsUntilSpike, float confidence) PredictNextSpike(uint entityId);
+
+    /// <summary>
+    /// Records a spike event for pattern detection.
+    /// Should be called when a significant damage spike is detected.
+    /// </summary>
+    /// <param name="entityId">The entity that received the spike.</param>
+    /// <param name="damageAmount">The amount of damage from the spike.</param>
+    void RecordSpikeEvent(uint entityId, int damageAmount);
 }

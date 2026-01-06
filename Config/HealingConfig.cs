@@ -3,6 +3,106 @@ using System;
 namespace Olympus.Config;
 
 /// <summary>
+/// Preset triage strategies for healing target prioritization.
+/// </summary>
+public enum TriagePreset
+{
+    /// <summary>Balanced healing priority across all metrics.</summary>
+    Balanced,
+    /// <summary>Prioritize tank healing over DPS.</summary>
+    TankFocus,
+    /// <summary>React to whoever is taking the most damage.</summary>
+    SpreadDamage,
+    /// <summary>Focus on lowest HP members (raid damage scenarios).</summary>
+    RaidWide,
+    /// <summary>Use custom weights defined in CustomTriageWeights.</summary>
+    Custom
+}
+
+/// <summary>
+/// Configurable weights for healing triage prioritization.
+/// All weights should sum to approximately 1.0 for best results.
+/// </summary>
+public sealed class TriageWeights
+{
+    /// <summary>
+    /// Weight for damage intake rate in triage scoring.
+    /// Higher values prioritize targets taking more damage per second.
+    /// Valid range: 0.0 to 1.0.
+    /// </summary>
+    private float _damageRate = 0.35f;
+    public float DamageRate
+    {
+        get => _damageRate;
+        set => _damageRate = Math.Clamp(value, 0f, 1f);
+    }
+
+    /// <summary>
+    /// Bonus weight for tank role in triage scoring.
+    /// Higher values give tanks healing priority over DPS/healers.
+    /// Valid range: 0.0 to 1.0.
+    /// </summary>
+    private float _tankBonus = 0.25f;
+    public float TankBonus
+    {
+        get => _tankBonus;
+        set => _tankBonus = Math.Clamp(value, 0f, 1f);
+    }
+
+    /// <summary>
+    /// Weight for missing HP percentage in triage scoring.
+    /// Higher values prioritize targets with lower HP percentage.
+    /// Valid range: 0.0 to 1.0.
+    /// </summary>
+    private float _missingHp = 0.30f;
+    public float MissingHp
+    {
+        get => _missingHp;
+        set => _missingHp = Math.Clamp(value, 0f, 1f);
+    }
+
+    /// <summary>
+    /// Weight for damage acceleration in triage scoring.
+    /// Higher values prioritize targets whose damage intake is increasing.
+    /// Valid range: 0.0 to 1.0.
+    /// </summary>
+    private float _damageAcceleration = 0.10f;
+    public float DamageAcceleration
+    {
+        get => _damageAcceleration;
+        set => _damageAcceleration = Math.Clamp(value, 0f, 1f);
+    }
+
+    /// <summary>Creates balanced weights (default).</summary>
+    public static TriageWeights Balanced => new()
+        { DamageRate = 0.35f, TankBonus = 0.25f, MissingHp = 0.30f, DamageAcceleration = 0.10f };
+
+    /// <summary>Creates tank-focused weights.</summary>
+    public static TriageWeights TankFocus => new()
+        { DamageRate = 0.25f, TankBonus = 0.45f, MissingHp = 0.20f, DamageAcceleration = 0.10f };
+
+    /// <summary>Creates spread damage weights (react to highest damage intake).</summary>
+    public static TriageWeights SpreadDamage => new()
+        { DamageRate = 0.45f, TankBonus = 0.10f, MissingHp = 0.30f, DamageAcceleration = 0.15f };
+
+    /// <summary>Creates raidwide weights (focus on lowest HP).</summary>
+    public static TriageWeights RaidWide => new()
+        { DamageRate = 0.20f, TankBonus = 0.10f, MissingHp = 0.50f, DamageAcceleration = 0.20f };
+
+    /// <summary>
+    /// Gets the preset weights for a given triage preset.
+    /// </summary>
+    public static TriageWeights FromPreset(TriagePreset preset) => preset switch
+    {
+        TriagePreset.Balanced => Balanced,
+        TriagePreset.TankFocus => TankFocus,
+        TriagePreset.SpreadDamage => SpreadDamage,
+        TriagePreset.RaidWide => RaidWide,
+        _ => Balanced
+    };
+}
+
+/// <summary>
 /// Configuration for healing spells and thresholds.
 /// All numeric values are bounds-checked to prevent invalid configurations.
 /// </summary>
@@ -58,14 +158,66 @@ public sealed class HealingConfig
     public bool EnableAssize { get; set; } = true;
     public bool EnableAsylum { get; set; } = true;
 
+    // Assize Healing Mode
+    /// <summary>
+    /// Enable Assize as a healing oGCD in addition to DPS usage.
+    /// When enabled, Assize will be prioritized during weave windows
+    /// when party healing needs are high, rather than holding for DPS.
+    /// Default true enables dual-purpose Assize usage.
+    /// </summary>
+    public bool EnableAssizeHealing { get; set; } = true;
+
+    /// <summary>
+    /// Minimum number of injured party members to trigger Assize as healing.
+    /// Default 3 means use Assize for healing when 3+ party members are injured.
+    /// Valid range: 1 to 8.
+    /// </summary>
+    private int _assizeHealingMinTargets = 3;
+    public int AssizeHealingMinTargets
+    {
+        get => _assizeHealingMinTargets;
+        set => _assizeHealingMinTargets = Math.Clamp(value, 1, 8);
+    }
+
+    /// <summary>
+    /// Average party HP threshold to trigger Assize healing mode.
+    /// When party average HP is below this, Assize healing is prioritized.
+    /// Default 0.85 means prioritize healing when avg HP below 85%.
+    /// Valid range: 0.5 to 0.95.
+    /// </summary>
+    private float _assizeHealingHpThreshold = 0.85f;
+    public float AssizeHealingHpThreshold
+    {
+        get => _assizeHealingHpThreshold;
+        set => _assizeHealingHpThreshold = Math.Clamp(value, 0.5f, 0.95f);
+    }
+
     // Healing Triage
     /// <summary>
     /// Use damage intake triage to prioritize healing targets.
     /// When enabled, considers damage intake rate along with current HP to determine healing priority.
-    /// Weights: damageRate (35%) + tankBonus (25%) + missingHp (30%) + damageAcceleration (10%).
+    /// Weights are configurable via TriagePreset and CustomTriageWeights.
     /// Default true enables smarter healing decisions based on who is taking the most damage.
     /// </summary>
     public bool UseDamageIntakeTriage { get; set; } = true;
+
+    /// <summary>
+    /// Active triage preset. Set to Custom to use custom weights.
+    /// Default Balanced uses: damageRate 35%, tankBonus 25%, missingHp 30%, acceleration 10%.
+    /// </summary>
+    public TriagePreset TriagePreset { get; set; } = TriagePreset.Balanced;
+
+    /// <summary>
+    /// Custom weights for triage scoring (used when TriagePreset is Custom).
+    /// </summary>
+    public TriageWeights CustomTriageWeights { get; set; } = new();
+
+    /// <summary>
+    /// Gets the effective triage weights based on the current preset.
+    /// </summary>
+    public TriageWeights GetEffectiveTriageWeights() => TriagePreset == TriagePreset.Custom
+        ? CustomTriageWeights
+        : TriageWeights.FromPreset(TriagePreset);
 
     // Thresholds
     /// <summary>
@@ -222,5 +374,128 @@ public sealed class HealingConfig
     {
         get => _preemptiveHealingThreshold;
         set => _preemptiveHealingThreshold = Math.Clamp(value, 0.1f, 0.8f);
+    }
+
+    // Spike Prediction Settings
+
+    /// <summary>
+    /// Confidence threshold for spike pattern detection.
+    /// Only predict spikes when pattern confidence exceeds this value.
+    /// Default 0.6 means at least 60% confidence in the detected pattern.
+    /// Valid range: 0.3 to 0.95.
+    /// </summary>
+    private float _spikePatternConfidenceThreshold = 0.6f;
+    public float SpikePatternConfidenceThreshold
+    {
+        get => _spikePatternConfidenceThreshold;
+        set => _spikePatternConfidenceThreshold = Math.Clamp(value, 0.3f, 0.95f);
+    }
+
+    /// <summary>
+    /// How far ahead to look for spike predictions (seconds).
+    /// Predictions beyond this window are ignored.
+    /// Default 2.0 seconds allows preemptive healing just before a spike.
+    /// Valid range: 0.5 to 5.0.
+    /// </summary>
+    private float _spikePredictionLookahead = 2.0f;
+    public float SpikePredictionLookahead
+    {
+        get => _spikePredictionLookahead;
+        set => _spikePredictionLookahead = Math.Clamp(value, 0.5f, 5.0f);
+    }
+
+    // Scored Heal Selection Settings
+
+    /// <summary>
+    /// Enable scored heal selection instead of tier-based.
+    /// When enabled, all valid heals are scored using multiple factors and the highest score wins.
+    /// This provides more nuanced heal selection that can adapt to complex situations.
+    /// Default false uses the simpler tier-based selection.
+    /// </summary>
+    public bool EnableScoredHealSelection { get; set; } = false;
+
+    /// <summary>
+    /// Weights for the heal scoring system.
+    /// Only used when EnableScoredHealSelection is true.
+    /// </summary>
+    public HealingScoreWeights ScoreWeights { get; set; } = new();
+}
+
+/// <summary>
+/// Configurable weights for the healing score calculation.
+/// All weights should sum to approximately 1.0 for best results.
+/// </summary>
+public sealed class HealingScoreWeights
+{
+    /// <summary>
+    /// Weight for potency efficiency (heal amount relative to potency).
+    /// Higher values favor spells that heal more per potency point.
+    /// Valid range: 0.0 to 1.0.
+    /// </summary>
+    private float _potency = 0.20f;
+    public float Potency
+    {
+        get => _potency;
+        set => _potency = Math.Clamp(value, 0f, 1f);
+    }
+
+    /// <summary>
+    /// Weight for MP efficiency (prefer low/no MP cost heals).
+    /// Higher values favor lilies and procs over MP-costing spells.
+    /// Valid range: 0.0 to 1.0.
+    /// </summary>
+    private float _mpEfficiency = 0.25f;
+    public float MpEfficiency
+    {
+        get => _mpEfficiency;
+        set => _mpEfficiency = Math.Clamp(value, 0f, 1f);
+    }
+
+    /// <summary>
+    /// Weight for Blood Lily generation benefit (building toward Misery).
+    /// Higher values favor lily heals when building blood lilies.
+    /// Valid range: 0.0 to 1.0.
+    /// </summary>
+    private float _lilyBenefit = 0.15f;
+    public float LilyBenefit
+    {
+        get => _lilyBenefit;
+        set => _lilyBenefit = Math.Clamp(value, 0f, 1f);
+    }
+
+    /// <summary>
+    /// Weight for Freecure proc bonus (using free Cure II).
+    /// Higher values strongly prefer using Cure II when Freecure is active.
+    /// Valid range: 0.0 to 1.0.
+    /// </summary>
+    private float _freecureBonus = 0.15f;
+    public float FreecureBonus
+    {
+        get => _freecureBonus;
+        set => _freecureBonus = Math.Clamp(value, 0f, 1f);
+    }
+
+    /// <summary>
+    /// Weight for oGCD bonus (prefer instant casts in weave windows).
+    /// Higher values favor oGCDs during weave windows.
+    /// Valid range: 0.0 to 1.0.
+    /// </summary>
+    private float _ogcdBonus = 0.10f;
+    public float OgcdBonus
+    {
+        get => _ogcdBonus;
+        set => _ogcdBonus = Math.Clamp(value, 0f, 1f);
+    }
+
+    /// <summary>
+    /// Weight for overheal penalty (reduce score for excessive overhealing).
+    /// Higher values more strongly penalize heals that would overheal.
+    /// Valid range: 0.0 to 1.0.
+    /// </summary>
+    private float _overhealPenalty = 0.15f;
+    public float OverhealPenalty
+    {
+        get => _overhealPenalty;
+        set => _overhealPenalty = Math.Clamp(value, 0f, 1f);
     }
 }
