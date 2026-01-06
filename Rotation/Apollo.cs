@@ -15,7 +15,9 @@ using Olympus.Services.Action;
 using Olympus.Services.Debuff;
 using Olympus.Services.Healing;
 using Olympus.Services.Prediction;
+using Olympus.Services.Resource;
 using Olympus.Services.Stats;
+using Olympus.Services.Cache;
 using Olympus.Services.Targeting;
 
 namespace Olympus.Rotation;
@@ -38,6 +40,8 @@ public sealed class Apollo : IRotation
     private readonly ActionTracker _actionTracker;
     private readonly CombatEventService _combatEventService;
     private readonly IDamageIntakeService _damageIntakeService;
+    private readonly IDamageTrendService _damageTrendService;
+    private readonly IMpForecastService _mpForecastService;
     private readonly Configuration _configuration;
     private readonly IObjectTable _objectTable;
     private readonly IPartyList _partyList;
@@ -48,6 +52,9 @@ public sealed class Apollo : IRotation
     private readonly HealingSpellSelector _healingSpellSelector;
     private readonly DebuffDetectionService _debuffDetectionService;
     private readonly IErrorMetricsService? _errorMetrics;
+
+    // Frame-scoped caching for performance optimization
+    private readonly FrameScopedCache _frameCache = new();
 
     // Error throttling to avoid log spam
     private DateTime _lastErrorTime = DateTime.MinValue;
@@ -92,6 +99,8 @@ public sealed class Apollo : IRotation
         _actionTracker = actionTracker;
         _combatEventService = combatEventService;
         _damageIntakeService = damageIntakeService;
+        _damageTrendService = new DamageTrendService(damageIntakeService);
+        _mpForecastService = new MpForecastService();
         _configuration = configuration;
         _objectTable = objectTable;
         _partyList = partyList;
@@ -187,12 +196,21 @@ public sealed class Apollo : IRotation
     /// </summary>
     private unsafe void ExecuteInternal(IPlayerCharacter player)
     {
+        // Invalidate frame cache at start of each frame
+        _frameCache.InvalidateAll();
+
         var actionManager = SafeGameAccess.GetActionManager(_errorMetrics);
         if (actionManager == null)
             return;
 
         // Update GCD state
         _actionService.Update(player.IsCasting);
+
+        // Update MP forecast service with current state
+        _mpForecastService.Update(
+            (int)player.CurrentMp,
+            (int)player.MaxMp,
+            StatusHelper.HasLucidDreaming(player));
 
         // Movement detection with configurable grace period
         var positionChanged = Vector3.DistanceSquared(player.Position, _lastPosition) > FFXIVTimings.MovementThresholdSquared;
@@ -274,10 +292,13 @@ public sealed class Apollo : IRotation
             actionTracker: _actionTracker,
             combatEventService: _combatEventService,
             damageIntakeService: _damageIntakeService,
+            damageTrendService: _damageTrendService,
+            frameCache: _frameCache,
             configuration: _configuration,
             debuffDetectionService: _debuffDetectionService,
             healingSpellSelector: _healingSpellSelector,
             hpPredictionService: _hpPredictionService,
+            mpForecastService: _mpForecastService,
             objectTable: _objectTable,
             partyList: _partyList,
             playerStatsService: _playerStatsService,

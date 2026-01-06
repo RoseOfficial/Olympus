@@ -11,7 +11,9 @@ using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Debuff;
+using Olympus.Services.Cache;
 using Olympus.Services.Prediction;
+using Olympus.Services.Resource;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
 
@@ -462,5 +464,75 @@ public static class MockBuilders
         config ??= CreateDefaultConfiguration();
         var dataManager = CreateMockDataManager();
         return new ActionTracker(dataManager.Object, config);
+    }
+
+    /// <summary>
+    /// Creates a mock IDamageTrendService with configurable behavior.
+    /// </summary>
+    public static Mock<IDamageTrendService> CreateMockDamageTrendService(
+        DamageTrend partyTrend = DamageTrend.Stable,
+        bool spikeImminent = false)
+    {
+        var mock = new Mock<IDamageTrendService>();
+
+        mock.Setup(x => x.GetPartyDamageTrend(It.IsAny<float>()))
+            .Returns(partyTrend);
+
+        mock.Setup(x => x.GetEntityDamageTrend(It.IsAny<uint>(), It.IsAny<float>()))
+            .Returns(partyTrend);
+
+        mock.Setup(x => x.IsDamageSpikeImminent(It.IsAny<float>()))
+            .Returns(spikeImminent);
+
+        mock.Setup(x => x.GetDamageAcceleration(It.IsAny<uint>(), It.IsAny<float>()))
+            .Returns(0f);
+
+        mock.Setup(x => x.GetCurrentDamageRate(It.IsAny<uint>(), It.IsAny<float>()))
+            .Returns(0f);
+
+        return mock;
+    }
+
+    /// <summary>
+    /// Creates a mock IFrameScopedCache with basic behavior.
+    /// </summary>
+    public static Mock<IFrameScopedCache> CreateMockFrameScopedCache()
+    {
+        var mock = new Mock<IFrameScopedCache>();
+
+        mock.Setup(x => x.CurrentTime).Returns(DateTime.UtcNow);
+        mock.Setup(x => x.FrameNumber).Returns(1ul);
+
+        mock.Setup(x => x.GetOrCompute(It.IsAny<string>(), It.IsAny<Func<object>>()))
+            .Returns((string key, Func<object> compute) => compute());
+
+        mock.Setup(x => x.TryGetCached<object>(It.IsAny<string>(), out It.Ref<object?>.IsAny))
+            .Returns(false);
+
+        return mock;
+    }
+
+    /// <summary>
+    /// Creates a mock IMpForecastService with configurable behavior.
+    /// </summary>
+    public static Mock<IMpForecastService> CreateMockMpForecastService(
+        int currentMp = 10000,
+        int maxMp = 10000,
+        bool isLucidDreamingActive = false,
+        bool isInConservationMode = false)
+    {
+        var mock = new Mock<IMpForecastService>();
+
+        mock.Setup(x => x.CurrentMp).Returns(currentMp);
+        mock.Setup(x => x.MaxMp).Returns(maxMp);
+        mock.Setup(x => x.MpPercent).Returns(maxMp > 0 ? (float)currentMp / maxMp : 1f);
+        mock.Setup(x => x.IsLucidDreamingActive).Returns(isLucidDreamingActive);
+        mock.Setup(x => x.IsInConservationMode).Returns(isInConservationMode);
+        mock.Setup(x => x.SecondsUntilOom(It.IsAny<int>())).Returns(float.MaxValue);
+        mock.Setup(x => x.GetMpRegenRate()).Returns(200f);
+        mock.Setup(x => x.GetMpConsumptionRate()).Returns(0f);
+        mock.Setup(x => x.GetNetMpRate()).Returns(200f);
+
+        return mock;
     }
 }

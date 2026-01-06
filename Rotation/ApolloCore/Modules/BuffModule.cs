@@ -112,8 +112,23 @@ public sealed class BuffModule : IApolloModule
 
         var shouldUseThinAir = false;
 
+        // Priority 0: MP Conservation Mode - use Thin Air for any expensive spell when running low
+        if (config.Buffs.EnableMpConservation)
+        {
+            var secondsUntilOom = context.MpForecastService.SecondsUntilOom(RaiseMpCost);
+            if (secondsUntilOom < 30f && context.MpForecastService.IsInConservationMode)
+            {
+                // Use Thin Air for any upcoming expensive spell to conserve MP
+                if (WillCastExpensiveSpell(context))
+                {
+                    shouldUseThinAir = true;
+                    context.Debug.ThinAirState = $"MP Conservation (OOM in {secondsUntilOom:F0}s)";
+                }
+            }
+        }
+
         // Priority 1: Raise incoming (highest MP cost at 2400)
-        if (config.Resurrection.EnableRaise && player.CurrentMp >= RaiseMpCost)
+        if (!shouldUseThinAir && config.Resurrection.EnableRaise && player.CurrentMp >= RaiseMpCost)
         {
             var deadMember = context.PartyHelper.FindDeadPartyMemberNeedingRaise(player);
             if (deadMember is not null)
@@ -299,11 +314,9 @@ public sealed class BuffModule : IApolloModule
 
     private bool TryExecuteLucidDreaming(ApolloContext context)
     {
+        var config = context.Configuration;
         var player = context.Player;
-        var mpPercent = (float)player.CurrentMp / player.MaxMp;
-
-        if (mpPercent >= 0.7f)
-            return false;
+        var mpPercent = context.MpForecastService.MpPercent;
 
         if (player.Level < 24)
             return false;
@@ -311,8 +324,45 @@ public sealed class BuffModule : IApolloModule
         if (!context.ActionService.IsActionReady(WHMActions.LucidDreaming.ActionId))
             return false;
 
+        // Already have Lucid Dreaming active
+        if (context.MpForecastService.IsLucidDreamingActive)
+            return false;
+
+        // Determine threshold based on context
+        var threshold = 0.70f;
+
+        // Lower threshold in conservation mode - use Lucid earlier
+        if (context.MpForecastService.IsInConservationMode)
+            threshold = 0.80f;
+
+        // Raise prep mode - use Lucid even earlier to build MP for raise
+        if (config.Buffs.EnableRaisePrepMode && ShouldEnterRaisePrepMode(context))
+            threshold = 0.90f;
+
+        if (mpPercent >= threshold)
+            return false;
+
         return ActionExecutor.ExecuteOgcd(context, WHMActions.LucidDreaming, player.GameObjectId,
             player.Name?.TextValue ?? "Unknown", player.CurrentMp);
+    }
+
+    /// <summary>
+    /// Checks if we should enter raise preparation mode.
+    /// Active when there's a dead party member and MP is low.
+    /// </summary>
+    private bool ShouldEnterRaisePrepMode(ApolloContext context)
+    {
+        var config = context.Configuration;
+        var player = context.Player;
+
+        // Check if there's someone to raise
+        var deadMember = context.PartyHelper.FindDeadPartyMemberNeedingRaise(player);
+        if (deadMember is null)
+            return false;
+
+        // Check if MP is below raise prep threshold
+        var mpPercent = context.MpForecastService.MpPercent;
+        return mpPercent < config.Buffs.RaisePrepMpThreshold;
     }
 
     private bool TryExecuteSurecast(ApolloContext context)
@@ -364,6 +414,49 @@ public sealed class BuffModule : IApolloModule
         }
 
         context.Debug.SurecastState = "Ready";
+        return false;
+    }
+
+    /// <summary>
+    /// Checks if an expensive spell (800+ MP) is likely to be cast soon.
+    /// Used to decide when to use Thin Air for MP conservation.
+    /// </summary>
+    private bool WillCastExpensiveSpell(ApolloContext context)
+    {
+        var config = context.Configuration;
+        var player = context.Player;
+
+        // Check for incoming raise
+        if (config.Resurrection.EnableRaise)
+        {
+            var deadMember = context.PartyHelper.FindDeadPartyMemberNeedingRaise(player);
+            if (deadMember is not null)
+                return true;
+        }
+
+        // Check for incoming AoE heal (Medica, Medica II, Cure III, etc. are 800-1000 MP)
+        if (config.EnableHealing)
+        {
+            var (mind, det, wd) = context.PlayerStatsService.GetHealingStats(player.Level);
+            var healAmount = WHMActions.Medica.EstimateHealAmount(mind, det, wd, player.Level);
+            var (injuredCount, _, _, _) = context.PartyHelper.CountPartyMembersNeedingAoEHeal(player, healAmount);
+            if (injuredCount >= config.Healing.AoEHealMinTargets)
+                return true;
+        }
+
+        // Check for incoming single-target heal on low HP target
+        if (config.EnableHealing && player.Level >= WHMActions.CureII.MinLevel)
+        {
+            var target = context.PartyHelper.FindLowestHpPartyMember(player);
+            if (target is not null)
+            {
+                var hpPercent = context.PartyHelper.GetHpPercent(target);
+                // Use GCD emergency threshold as indicator of upcoming expensive heal
+                if (hpPercent < config.Healing.GcdEmergencyThreshold)
+                    return true;
+            }
+        }
+
         return false;
     }
 

@@ -56,6 +56,12 @@ public sealed class ActionDefinition
     /// <summary>Duration of applied status in seconds.</summary>
     public float AppliedStatusDuration { get; init; }
 
+    /// <summary>Range squared - pre-computed for distance checks (avoids repeated multiplication).</summary>
+    public float RangeSquared => Range * Range;
+
+    /// <summary>Radius squared - pre-computed for AoE distance checks.</summary>
+    public float RadiusSquared => Radius * Radius;
+
     /// <summary>Whether this action can be cast while moving.</summary>
     public bool IsInstantCast => CastTime <= 0;
 

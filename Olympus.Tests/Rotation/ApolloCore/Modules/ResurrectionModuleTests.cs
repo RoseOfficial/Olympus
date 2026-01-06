@@ -393,6 +393,9 @@ public class ResurrectionModuleTests
 
         var hpPredictionService = new Mock<IHpPredictionService>();
         var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
+        var damageTrendService = MockBuilders.CreateMockDamageTrendService();
+        var frameCache = MockBuilders.CreateMockFrameScopedCache();
+        var mpForecastService = MockBuilders.CreateMockMpForecastService();
         var objectTable = new Mock<IObjectTable>();
         var partyList = new Mock<IPartyList>();
         var playerStatsService = new Mock<IPlayerStatsService>();
@@ -416,10 +419,13 @@ public class ResurrectionModuleTests
             actionTracker,
             combatEventService.Object,
             damageIntakeService.Object,
+            damageTrendService.Object,
+            frameCache.Object,
             config,
             debuffDetectionService.Object,
             healingSpellSelector.Object,
             hpPredictionService.Object,
+            mpForecastService.Object,
             objectTable.Object,
             partyList.Object,
             playerStatsService.Object,

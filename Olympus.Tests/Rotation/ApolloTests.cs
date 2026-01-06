@@ -566,6 +566,10 @@ public class ApolloTests
                 It.IsAny<IBattleChara?>()))
             .Returns(((ActionDefinition?)null, 0, null));
 
+        var damageTrendService = MockBuilders.CreateMockDamageTrendService();
+        var frameCache = MockBuilders.CreateMockFrameScopedCache();
+        var mpForecastService = MockBuilders.CreateMockMpForecastService();
+
         return new ApolloContext(
             playerMock,
             inCombat,
@@ -576,10 +580,13 @@ public class ApolloTests
             actionTracker,
             combatEventService.Object,
             damageIntakeService.Object,
+            damageTrendService.Object,
+            frameCache.Object,
             config,
             debuffDetectionService.Object,
             healingSpellSelectorMock.Object,
             hpPredictionService.Object,
+            mpForecastService.Object,
             objectTable.Object,
             partyList.Object,
             playerStatsService.Object,

@@ -27,6 +27,13 @@ public sealed class PartyHelper : IPartyHelper
     private int _lastPartyCount = -1;
     private uint _lastPlayerEntityId;
 
+    // Pre-allocated arrays for endangered member triage (avoids per-frame allocation)
+    private const int MaxPartySize = 8;
+    private readonly IBattleChara?[] _endangeredMembers = new IBattleChara?[MaxPartySize];
+    private readonly float[] _endangeredDamageRates = new float[MaxPartySize];
+    private readonly float[] _endangeredMissingHpPcts = new float[MaxPartySize];
+    private readonly float[] _endangeredTankBonuses = new float[MaxPartySize];
+
     public PartyHelper(
         IObjectTable objectTable,
         IPartyList partyList,
@@ -186,7 +193,7 @@ public sealed class PartyHelper : IPartyHelper
     {
         if (chara.IsDead)
             return;
-        if (Vector3.DistanceSquared(playerPos, chara.Position) > WHMActions.Cure.Range * WHMActions.Cure.Range)
+        if (Vector3.DistanceSquared(playerPos, chara.Position) > WHMActions.Cure.RangeSquared)
             return;
 
         var predictedHp = _hpPredictionService.GetPredictedHp(chara.EntityId, chara.CurrentHp, chara.MaxHp);
@@ -223,7 +230,7 @@ public sealed class PartyHelper : IPartyHelper
                 continue;
             if (StatusHelper.HasStatus(member, StatusHelper.StatusIds.Raise))
                 continue;
-            if (Vector3.DistanceSquared(player.Position, member.Position) > WHMActions.Raise.Range * WHMActions.Raise.Range)
+            if (Vector3.DistanceSquared(player.Position, member.Position) > WHMActions.Raise.RangeSquared)
                 continue;
 
             return member;
@@ -272,58 +279,117 @@ public sealed class PartyHelper : IPartyHelper
 
     /// <summary>
     /// Finds the best target for Cure III (party member with most injured allies within 10y radius).
+    /// Optimized to pre-filter injured members and use pre-computed squared distances.
     /// </summary>
     public (IBattleChara? target, int count, List<uint> targetIds) FindBestCureIIITarget(
         IPlayerCharacter player, int healAmount)
     {
         if (player.Level < WHMActions.CureIII.MinLevel)
-            return (null, 0, new List<uint>());
+            return (null, 0, _emptyTargetIds);
+
+        // Pre-compute squared distances
+        var rangeSquared = WHMActions.CureIII.RangeSquared;
+        var radiusSquared = WHMActions.CureIII.RadiusSquared;
+        var playerPos = player.Position;
+
+        // First pass: collect all injured members within cast range with their positions
+        var injuredCount = 0;
+        foreach (var member in GetAllPartyMembers(player))
+        {
+            if (member.IsDead)
+                continue;
+
+            if (Vector3.DistanceSquared(playerPos, member.Position) > rangeSquared)
+                continue;
+
+            var predictedHp = _hpPredictionService.GetPredictedHp(member.EntityId, member.CurrentHp, member.MaxHp);
+            var missingHp = member.MaxHp - predictedHp;
+
+            // Cache member data for potential center evaluation
+            _cureIIIMembers[injuredCount] = member;
+            _cureIIIPositions[injuredCount] = member.Position;
+            _cureIIINeedsHeal[injuredCount] = healAmount <= missingHp;
+            injuredCount++;
+
+            if (injuredCount >= MaxPartySize)
+                break;
+        }
+
+        if (injuredCount == 0)
+            return (null, 0, _emptyTargetIds);
+
+        // Count how many members actually need healing
+        var totalNeedingHeal = 0;
+        for (var i = 0; i < injuredCount; i++)
+        {
+            if (_cureIIINeedsHeal[i])
+                totalNeedingHeal++;
+        }
+
+        // No one needs healing
+        if (totalNeedingHeal == 0)
+            return (null, 0, _emptyTargetIds);
 
         IBattleChara? bestTarget = null;
         int bestCount = 0;
-        var bestTargetIds = new List<uint>();
 
-        foreach (var potentialCenter in GetAllPartyMembers(player))
+        // Evaluate each member as a potential center
+        for (var centerIdx = 0; centerIdx < injuredCount; centerIdx++)
         {
-            if (potentialCenter.IsDead)
-                continue;
+            var centerPos = _cureIIIPositions[centerIdx];
+            var countNearby = 0;
 
-            if (Vector3.DistanceSquared(player.Position, potentialCenter.Position) >
-                WHMActions.CureIII.Range * WHMActions.CureIII.Range)
-                continue;
-
-            int countNearby = 0;
-            var nearbyTargetIds = new List<uint>();
-
-            foreach (var member in GetAllPartyMembers(player))
+            // Count nearby members that need healing
+            for (var memberIdx = 0; memberIdx < injuredCount; memberIdx++)
             {
-                if (member.IsDead)
+                if (!_cureIIINeedsHeal[memberIdx])
                     continue;
 
-                if (Vector3.DistanceSquared(potentialCenter.Position, member.Position) >
-                    WHMActions.CureIII.Radius * WHMActions.CureIII.Radius)
-                    continue;
-
-                var predictedHp = _hpPredictionService.GetPredictedHp(member.EntityId, member.CurrentHp, member.MaxHp);
-                var missingHp = member.MaxHp - predictedHp;
-
-                if (healAmount <= missingHp)
+                if (Vector3.DistanceSquared(centerPos, _cureIIIPositions[memberIdx]) <= radiusSquared)
                 {
                     countNearby++;
-                    nearbyTargetIds.Add(member.EntityId);
                 }
+            }
+
+            // Early termination: if all needing-heal members are in range, this is optimal
+            if (countNearby == totalNeedingHeal)
+            {
+                bestTarget = _cureIIIMembers[centerIdx];
+                bestCount = countNearby;
+                break;
             }
 
             if (countNearby > bestCount)
             {
                 bestCount = countNearby;
-                bestTarget = potentialCenter;
-                bestTargetIds = nearbyTargetIds;
+                bestTarget = _cureIIIMembers[centerIdx];
+            }
+        }
+
+        // Build target ID list for the best target (only when we have a result)
+        var bestTargetIds = new List<uint>(bestCount);
+        if (bestTarget is not null && bestCount > 0)
+        {
+            var bestPos = bestTarget.Position;
+            for (var i = 0; i < injuredCount; i++)
+            {
+                if (_cureIIINeedsHeal[i] && Vector3.DistanceSquared(bestPos, _cureIIIPositions[i]) <= radiusSquared)
+                {
+                    bestTargetIds.Add(_cureIIIMembers[i]!.EntityId);
+                }
             }
         }
 
         return (bestTarget, bestCount, bestTargetIds);
     }
+
+    // Shared empty list for early returns (avoids allocation)
+    private static readonly List<uint> _emptyTargetIds = new();
+
+    // Pre-allocated arrays for Cure III target evaluation
+    private readonly IBattleChara?[] _cureIIIMembers = new IBattleChara?[MaxPartySize];
+    private readonly Vector3[] _cureIIIPositions = new Vector3[MaxPartySize];
+    private readonly bool[] _cureIIINeedsHeal = new bool[MaxPartySize];
 
     /// <summary>
     /// Counts party members needing AoE heal and returns all targets in range.
@@ -339,7 +405,7 @@ public sealed class PartyHelper : IPartyHelper
         foreach (var member in GetAllPartyMembers(player))
         {
             if (Vector3.DistanceSquared(player.Position, member.Position) >
-                WHMActions.Medica.Radius * WHMActions.Medica.Radius)
+                WHMActions.Medica.RadiusSquared)
                 continue;
             if (member.IsDead)
                 continue;
@@ -388,7 +454,7 @@ public sealed class PartyHelper : IPartyHelper
                 continue;
 
             if (Vector3.DistanceSquared(player.Position, member.Position) >
-                WHMActions.Regen.Range * WHMActions.Regen.Range)
+                WHMActions.Regen.RangeSquared)
                 continue;
 
             if (!NeedsRegen(member, regenHpThreshold, regenRefreshThreshold))
@@ -425,41 +491,35 @@ public sealed class PartyHelper : IPartyHelper
     /// <summary>
     /// Finds the most endangered party member using damage intake triage.
     /// Weights: damageRate (40%) + tankBonus (30%) + missingHp (30%).
+    /// Optimized single-pass algorithm with deferred normalization.
     /// </summary>
     public IBattleChara? FindMostEndangeredPartyMember(
         IPlayerCharacter player,
         IDamageIntakeService damageIntakeService,
         int healAmount = 0)
     {
-        IBattleChara? mostEndangered = null;
-        float highestScore = float.MinValue;
+        // Use instance-level arrays to avoid allocation (max 8 party members in FFXIV)
+        var candidateCount = 0;
+        float maxDamageRate = 1f; // Minimum 1 to avoid division by zero
 
-        // Get max damage rate for normalization
-        float maxDamageRate = 0f;
+        var playerPos = player.Position;
+        var rangeSquared = WHMActions.Cure.RangeSquared;
+
+        // Single pass: collect candidates and track max damage rate
         foreach (var member in GetAllPartyMembers(player))
         {
             if (member.IsDead)
                 continue;
 
-            var damageRate = damageIntakeService.GetDamageRate(member.EntityId, 5f);
-            if (damageRate > maxDamageRate)
-                maxDamageRate = damageRate;
-        }
+            // Early exit if we have max candidates
+            if (candidateCount >= MaxPartySize)
+                break;
 
-        // Avoid division by zero
-        if (maxDamageRate < 1f)
-            maxDamageRate = 1f;
-
-        foreach (var member in GetAllPartyMembers(player))
-        {
-            if (member.IsDead)
-                continue;
-
-            if (Vector3.DistanceSquared(player.Position, member.Position) > WHMActions.Cure.Range * WHMActions.Cure.Range)
+            // Range check using pre-computed squared value
+            if (Vector3.DistanceSquared(playerPos, member.Position) > rangeSquared)
                 continue;
 
             var predictedHp = _hpPredictionService.GetPredictedHp(member.EntityId, member.CurrentHp, member.MaxHp);
-            var hpPercent = (float)predictedHp / member.MaxHp;
 
             // Skip if already at full HP
             if (predictedHp >= member.MaxHp)
@@ -473,19 +533,39 @@ public sealed class PartyHelper : IPartyHelper
                     continue;
             }
 
-            // Calculate triage score
+            var hpPercent = (float)predictedHp / member.MaxHp;
             var damageRate = damageIntakeService.GetDamageRate(member.EntityId, 5f);
-            var normalizedDamageRate = damageRate / maxDamageRate;
-            var tankBonus = IsTankRole(member) ? 1f : 0f;
-            var missingHpPercent = 1f - hpPercent;
+
+            // Track max damage rate for normalization
+            if (damageRate > maxDamageRate)
+                maxDamageRate = damageRate;
+
+            // Store candidate data in pre-allocated arrays
+            _endangeredMembers[candidateCount] = member;
+            _endangeredDamageRates[candidateCount] = damageRate;
+            _endangeredMissingHpPcts[candidateCount] = 1f - hpPercent;
+            _endangeredTankBonuses[candidateCount] = IsTankRole(member) ? 1f : 0f;
+            candidateCount++;
+        }
+
+        if (candidateCount == 0)
+            return null;
+
+        // Score candidates with actual max damage rate (no second iteration through game objects)
+        IBattleChara? mostEndangered = null;
+        float highestScore = float.MinValue;
+
+        for (var i = 0; i < candidateCount; i++)
+        {
+            var normalizedDamageRate = _endangeredDamageRates[i] / maxDamageRate;
 
             // Weight: damageRate (40%) + tankBonus (30%) + missingHp (30%)
-            var score = (normalizedDamageRate * 0.4f) + (tankBonus * 0.3f) + (missingHpPercent * 0.3f);
+            var score = (normalizedDamageRate * 0.4f) + (_endangeredTankBonuses[i] * 0.3f) + (_endangeredMissingHpPcts[i] * 0.3f);
 
             if (score > highestScore)
             {
                 highestScore = score;
-                mostEndangered = member;
+                mostEndangered = _endangeredMembers[i];
             }
         }
 

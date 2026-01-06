@@ -519,7 +519,10 @@ public class DefensiveModuleTests
             .Returns(((ActionDefinition?)null, 0, (IBattleChara?)null));
 
         var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
+        var damageTrendService = MockBuilders.CreateMockDamageTrendService();
+        var frameCache = MockBuilders.CreateMockFrameScopedCache();
         var hpPredictionService = new Mock<IHpPredictionService>();
+        var mpForecastService = MockBuilders.CreateMockMpForecastService();
         var objectTable = new Mock<IObjectTable>();
         var partyList = new Mock<IPartyList>();
         var playerStatsService = new Mock<IPlayerStatsService>();
@@ -543,10 +546,13 @@ public class DefensiveModuleTests
             actionTracker,
             combatEventService.Object,
             damageIntakeService.Object,
+            damageTrendService.Object,
+            frameCache.Object,
             config,
             debuffDetectionService.Object,
             healingSpellSelector.Object,
             hpPredictionService.Object,
+            mpForecastService.Object,
             objectTable.Object,
             partyList.Object,
             playerStatsService.Object,

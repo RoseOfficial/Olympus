@@ -30,6 +30,7 @@ public sealed class StatusHelper
         public const uint Freecure = 155;
         public const uint SacredSight = 3879;
         public const uint Surecast = 160;
+        public const uint LucidDreaming = 1204;
 
         // Defensive cooldowns
         public const uint DivineBenison = 1218;
@@ -140,6 +141,12 @@ public sealed class StatusHelper
     /// </summary>
     public static bool HasFreecure(IPlayerCharacter player) =>
         HasStatus(player, StatusIds.Freecure);
+
+    /// <summary>
+    /// Checks if player has Lucid Dreaming buff active.
+    /// </summary>
+    public static bool HasLucidDreaming(IPlayerCharacter player) =>
+        HasStatus(player, StatusIds.LucidDreaming);
 
     /// <summary>
     /// Checks if player has Divine Grace status (enables Divine Caress).

@@ -7,7 +7,9 @@ using Olympus.Services.Action;
 using Olympus.Services.Debuff;
 using Olympus.Services.Healing;
 using Olympus.Services.Prediction;
+using Olympus.Services.Resource;
 using Olympus.Services.Stats;
+using Olympus.Services.Cache;
 using Olympus.Services.Targeting;
 
 namespace Olympus.Rotation.ApolloCore.Context;
@@ -29,9 +31,12 @@ public interface IApolloContext
     IActionService ActionService { get; }
     ICombatEventService CombatEventService { get; }
     IDamageIntakeService DamageIntakeService { get; }
+    IDamageTrendService DamageTrendService { get; }
+    IFrameScopedCache FrameCache { get; }
     Configuration Configuration { get; }
     IDebuffDetectionService DebuffDetectionService { get; }
     IHpPredictionService HpPredictionService { get; }
+    IMpForecastService MpForecastService { get; }
     IPlayerStatsService PlayerStatsService { get; }
     ITargetingService TargetingService { get; }
 

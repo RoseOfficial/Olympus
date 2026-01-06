@@ -493,6 +493,9 @@ public class BuffModuleTests
         var hpPredictionService = new Mock<IHpPredictionService>();
         var objectTable = new Mock<IObjectTable>();
         var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
+        var damageTrendService = MockBuilders.CreateMockDamageTrendService();
+        var frameCache = MockBuilders.CreateMockFrameScopedCache();
+        var mpForecastService = MockBuilders.CreateMockMpForecastService();
         var partyList = new Mock<IPartyList>();
         var playerStatsService = new Mock<IPlayerStatsService>();
         playerStatsService.Setup(p => p.GetHealingStats(It.IsAny<byte>()))
@@ -517,10 +520,13 @@ public class BuffModuleTests
             actionTracker,
             combatEventService.Object,
             damageIntakeService.Object,
+            damageTrendService.Object,
+            frameCache.Object,
             config,
             debuffDetectionService.Object,
             healingSpellSelector.Object,
             hpPredictionService.Object,
+            mpForecastService.Object,
             objectTable.Object,
             partyList.Object,
             playerStatsService.Object,

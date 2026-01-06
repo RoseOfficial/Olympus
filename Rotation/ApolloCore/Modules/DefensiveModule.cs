@@ -148,14 +148,19 @@ public sealed class DefensiveModule : IApolloModule
         var highDamageIntake = config.Defensive.UseDynamicDefensiveThresholds &&
                                partyDamageRate >= config.Defensive.DamageSpikeTriggerRate;
 
+        // Check damage trend for proactive Temperance usage
+        var damageSpikeImminent = config.Defensive.UseTemperanceTrendAnalysis &&
+                                  context.DamageTrendService.IsDamageSpikeImminent(0.8f);
+
         // Standard threshold or lowered threshold during high damage
-        var effectiveThreshold = highDamageIntake
+        var effectiveThreshold = highDamageIntake || damageSpikeImminent
             ? config.Defensive.DefensiveCooldownThreshold + 0.10f  // More proactive during damage spike
             : config.Defensive.DefensiveCooldownThreshold;
 
         var shouldUse = injuredCount >= 3 ||
                         avgHpPercent < effectiveThreshold ||
-                        highDamageIntake;
+                        highDamageIntake ||
+                        damageSpikeImminent;
 
         if (!shouldUse)
         {
@@ -182,7 +187,8 @@ public sealed class DefensiveModule : IApolloModule
         if (ActionExecutor.ExecuteOgcd(context, WHMActions.Temperance, player.GameObjectId,
             player.Name?.TextValue ?? "Unknown", player.CurrentHp))
         {
-            var reason = highDamageIntake ? "damage spike" : $"{injuredCount} injured";
+            var reason = damageSpikeImminent ? "spike imminent" :
+                         highDamageIntake ? "damage spike" : $"{injuredCount} injured";
             context.Debug.DefensiveState = $"Temperance ({reason}, avg HP {avgHpPercent:P0})";
             return true;
         }
@@ -231,19 +237,32 @@ public sealed class DefensiveModule : IApolloModule
         if (StatusHelper.HasStatus(tank, StatusHelper.StatusIds.DivineBenison))
             return false;
 
-        var tankHpPct = context.PartyHelper.GetHpPercent(tank);
-        if (tankHpPct >= 0.95f)
+        if (Vector3.DistanceSquared(player.Position, tank.Position) >
+            WHMActions.DivineBenison.RangeSquared)
             return false;
 
-        if (Vector3.DistanceSquared(player.Position, tank.Position) >
-            WHMActions.DivineBenison.Range * WHMActions.DivineBenison.Range)
+        var tankHpPct = context.PartyHelper.GetHpPercent(tank);
+        var tankDamageRate = context.DamageIntakeService.GetDamageRate(tank.EntityId, 3f);
+
+        // Proactive application: Apply if tank is taking significant sustained damage
+        // even if HP is still high (anticipate tank buster)
+        var shouldApplyProactively = config.Defensive.EnableProactiveCooldowns &&
+                                     tankDamageRate >= config.Defensive.ProactiveBenisonDamageRate;
+
+        // Standard application: Apply if tank HP is low
+        var shouldApplyStandard = tankHpPct < 0.95f;
+
+        if (!shouldApplyProactively && !shouldApplyStandard)
             return false;
 
         var tankName = tank.Name?.TextValue ?? "Unknown";
         if (ActionExecutor.ExecuteOgcd(context, WHMActions.DivineBenison, tank.GameObjectId,
             tankName, tank.CurrentHp))
         {
-            context.Debug.DefensiveState = $"Divine Benison on {tankName} ({tankHpPct:P0} HP)";
+            var reason = shouldApplyProactively
+                ? $"proactive, DPS {tankDamageRate:F0}"
+                : $"{tankHpPct:P0} HP";
+            context.Debug.DefensiveState = $"Divine Benison on {tankName} ({reason})";
             return true;
         }
 
@@ -271,7 +290,7 @@ public sealed class DefensiveModule : IApolloModule
             return false;
 
         if (Vector3.DistanceSquared(player.Position, tank.Position) >
-            WHMActions.Aquaveil.Range * WHMActions.Aquaveil.Range)
+            WHMActions.Aquaveil.RangeSquared)
             return false;
 
         var tankName = tank.Name?.TextValue ?? "Unknown";

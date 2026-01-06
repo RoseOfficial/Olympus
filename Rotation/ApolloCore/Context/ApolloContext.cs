@@ -8,7 +8,9 @@ using Olympus.Services.Action;
 using Olympus.Services.Debuff;
 using Olympus.Services.Healing;
 using Olympus.Services.Prediction;
+using Olympus.Services.Resource;
 using Olympus.Services.Stats;
+using Olympus.Services.Cache;
 using Olympus.Services.Targeting;
 
 namespace Olympus.Rotation.ApolloCore.Context;
@@ -32,10 +34,13 @@ public sealed class ApolloContext : IApolloContext
     public ActionTracker ActionTracker { get; }
     public ICombatEventService CombatEventService { get; }
     public IDamageIntakeService DamageIntakeService { get; }
+    public IDamageTrendService DamageTrendService { get; }
+    public IFrameScopedCache FrameCache { get; }
     public Configuration Configuration { get; }
     public IDebuffDetectionService DebuffDetectionService { get; }
     public IHealingSpellSelector HealingSpellSelector { get; }
     public IHpPredictionService HpPredictionService { get; }
+    public IMpForecastService MpForecastService { get; }
     public IObjectTable ObjectTable { get; }
     public IPartyList PartyList { get; }
     public IPlayerStatsService PlayerStatsService { get; }
@@ -81,10 +86,13 @@ public sealed class ApolloContext : IApolloContext
         ActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
+        IDamageTrendService damageTrendService,
+        IFrameScopedCache frameCache,
         Configuration configuration,
         IDebuffDetectionService debuffDetectionService,
         IHealingSpellSelector healingSpellSelector,
         IHpPredictionService hpPredictionService,
+        IMpForecastService mpForecastService,
         IObjectTable objectTable,
         IPartyList partyList,
         IPlayerStatsService playerStatsService,
@@ -102,10 +110,13 @@ public sealed class ApolloContext : IApolloContext
         ActionTracker = actionTracker;
         CombatEventService = combatEventService;
         DamageIntakeService = damageIntakeService;
+        DamageTrendService = damageTrendService;
+        FrameCache = frameCache;
         Configuration = configuration;
         DebuffDetectionService = debuffDetectionService;
         HealingSpellSelector = healingSpellSelector;
         HpPredictionService = hpPredictionService;
+        MpForecastService = mpForecastService;
         ObjectTable = objectTable;
         PartyList = partyList;
         PlayerStatsService = playerStatsService;

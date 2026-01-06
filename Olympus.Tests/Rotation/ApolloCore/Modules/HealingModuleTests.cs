@@ -1036,7 +1036,10 @@ public class HealingModuleTests
 
         var combatEventService = MockBuilders.CreateMockCombatEventService();
         var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
+        var damageTrendService = MockBuilders.CreateMockDamageTrendService();
+        var frameCache = MockBuilders.CreateMockFrameScopedCache();
         var hpPredictionService = MockBuilders.CreateMockHpPredictionService();
+        var mpForecastService = MockBuilders.CreateMockMpForecastService();
         var playerStatsService = MockBuilders.CreateMockPlayerStatsService();
         var targetingService = MockBuilders.CreateMockTargetingService();
         var objectTable = MockBuilders.CreateMockObjectTable();
@@ -1059,10 +1062,13 @@ public class HealingModuleTests
             actionTracker,
             combatEventService.Object,
             damageIntakeService.Object,
+            damageTrendService.Object,
+            frameCache.Object,
             config,
             debuffDetectionService.Object,
             healingSpellSelector,
             hpPredictionService.Object,
+            mpForecastService.Object,
             objectTable.Object,
             partyList.Object,
             playerStatsService.Object,

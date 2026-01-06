@@ -39,4 +39,28 @@ public sealed class DefensiveConfig
     /// Default 2000 means 2000+ party-wide DPS triggers early defensive usage.
     /// </summary>
     public float DamageSpikeTriggerRate { get; set; } = 2000f;
+
+    // Proactive Cooldown Settings
+
+    /// <summary>
+    /// Enable proactive cooldown application based on damage patterns.
+    /// When enabled, defensive cooldowns like Divine Benison will be applied
+    /// before the target's HP drops, based on sustained damage intake.
+    /// </summary>
+    public bool EnableProactiveCooldowns { get; set; } = true;
+
+    /// <summary>
+    /// Tank damage rate threshold for proactive Divine Benison application.
+    /// When tank is taking this much DPS or more, apply Divine Benison proactively
+    /// even if their HP is still high (anticipating tank busters).
+    /// Default 500 means apply when tank is taking 500+ DPS sustained.
+    /// </summary>
+    public float ProactiveBenisonDamageRate { get; set; } = 500f;
+
+    /// <summary>
+    /// Use damage trend analysis for smarter Temperance timing.
+    /// When enabled, Temperance will trigger earlier if damage trend is spiking,
+    /// anticipating incoming party-wide damage.
+    /// </summary>
+    public bool UseTemperanceTrendAnalysis { get; set; } = true;
 }

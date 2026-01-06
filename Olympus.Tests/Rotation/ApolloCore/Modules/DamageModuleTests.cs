@@ -458,7 +458,10 @@ public class DamageModuleTests
         var partyHelper = MockBuilders.CreateMockPartyHelper();
         var combatEventService = MockBuilders.CreateMockCombatEventService();
         var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
+        var damageTrendService = MockBuilders.CreateMockDamageTrendService();
+        var frameCache = MockBuilders.CreateMockFrameScopedCache();
         var hpPredictionService = MockBuilders.CreateMockHpPredictionService();
+        var mpForecastService = MockBuilders.CreateMockMpForecastService();
         var playerStatsService = MockBuilders.CreateMockPlayerStatsService();
         var debuffDetectionService = MockBuilders.CreateMockDebuffDetectionService();
         var objectTable = MockBuilders.CreateMockObjectTable();
@@ -478,10 +481,13 @@ public class DamageModuleTests
             actionTracker,
             combatEventService.Object,
             damageIntakeService.Object,
+            damageTrendService.Object,
+            frameCache.Object,
             config,
             debuffDetectionService.Object,
             healingSpellSelector.Object,
             hpPredictionService.Object,
+            mpForecastService.Object,
             objectTable.Object,
             partyList.Object,
             playerStatsService.Object,
