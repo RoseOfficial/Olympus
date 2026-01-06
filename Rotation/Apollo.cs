@@ -12,6 +12,7 @@ using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.ApolloCore.Modules;
 using Olympus.Services;
 using Olympus.Services.Action;
+using Olympus.Services.Cooldown;
 using Olympus.Services.Debuff;
 using Olympus.Services.Healing;
 using Olympus.Services.Prediction;
@@ -51,6 +52,7 @@ public sealed class Apollo : IRotation
     private readonly PlayerStatsService _playerStatsService;
     private readonly HealingSpellSelector _healingSpellSelector;
     private readonly DebuffDetectionService _debuffDetectionService;
+    private readonly ICooldownPlanner _cooldownPlanner;
     private readonly IErrorMetricsService? _errorMetrics;
 
     // Frame-scoped caching for performance optimization
@@ -93,6 +95,7 @@ public sealed class Apollo : IRotation
         PlayerStatsService playerStatsService,
         HealingSpellSelector healingSpellSelector,
         DebuffDetectionService debuffDetectionService,
+        ICooldownPlanner cooldownPlanner,
         IErrorMetricsService? errorMetrics = null)
     {
         _log = log;
@@ -110,6 +113,7 @@ public sealed class Apollo : IRotation
         _playerStatsService = playerStatsService;
         _healingSpellSelector = healingSpellSelector;
         _debuffDetectionService = debuffDetectionService;
+        _cooldownPlanner = cooldownPlanner;
         _errorMetrics = errorMetrics;
 
         // Initialize helpers
@@ -245,6 +249,12 @@ public sealed class Apollo : IRotation
                 partyEntityIds.Add(member.EntityId);
             }
             (_damageTrendService as DamageTrendService)?.Update(1f / 60f, partyEntityIds); // Approximate frame time
+
+            // Update cooldown planner with party health state for defensive decisions
+            var (avgHpPercent, lowestHpPercent, injuredCount) = _partyHelper.CalculatePartyHealthMetrics(player);
+            // Estimate critical count: members below 30% HP
+            var criticalCount = lowestHpPercent < 0.30f ? Math.Max(1, injuredCount / 2) : 0;
+            _cooldownPlanner.Update(avgHpPercent, lowestHpPercent, injuredCount, criticalCount);
         }
 
         // Track GCD state for debug display
@@ -320,6 +330,7 @@ public sealed class Apollo : IRotation
             targetingService: _targetingService,
             statusHelper: _statusHelper,
             partyHelper: _partyHelper,
+            cooldownPlanner: _cooldownPlanner,
             debugState: _debugState,
             log: _log);
     }

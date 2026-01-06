@@ -532,7 +532,8 @@ public class BuffModuleTests
             playerStatsService.Object,
             targetingService.Object,
             statusHelper,
-            partyHelper.Object);
+            partyHelper.Object,
+            MockBuilders.CreateMockCooldownPlanner().Object);
     }
 
     #endregion

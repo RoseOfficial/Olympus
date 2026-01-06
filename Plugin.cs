@@ -8,6 +8,7 @@ using Olympus.Rotation;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Calculation;
+using Olympus.Services.Cooldown;
 using Olympus.Services.Debuff;
 using Olympus.Services.Debug;
 using Olympus.Services.Healing;
@@ -20,7 +21,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.7.3";
+    public const string PluginVersion = "1.7.4";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -39,6 +40,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly CombatEventService combatEventService;
     private readonly DamageIntakeService damageIntakeService;
     private readonly DamageTrendService damageTrendService;
+    private readonly CooldownPlanner cooldownPlanner;
     private readonly TargetingService targetingService;
     private readonly HpPredictionService hpPredictionService;
     private readonly ActionService actionService;
@@ -89,6 +91,7 @@ public sealed class Plugin : IDalamudPlugin
         this.combatEventService = new CombatEventService(gameInteropProvider, log, objectTable);
         this.damageIntakeService = new DamageIntakeService(combatEventService);
         this.damageTrendService = new DamageTrendService(damageIntakeService);
+        this.cooldownPlanner = new CooldownPlanner(damageIntakeService, damageTrendService, configuration);
         this.targetingService = new TargetingService(objectTable, partyList, targetManager, configuration);
 
         // New action system services
@@ -273,7 +276,8 @@ public sealed class Plugin : IDalamudPlugin
             actionService,
             playerStatsService,
             healingSpellSelector,
-            debuffDetectionService);
+            debuffDetectionService,
+            cooldownPlanner);
     }
 
     #endregion

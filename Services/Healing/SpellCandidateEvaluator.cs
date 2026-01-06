@@ -57,13 +57,15 @@ public class SpellCandidateEvaluator
     /// <param name="wd">The player's weapon damage.</param>
     /// <param name="target">The target to heal (optional, for overheal check).</param>
     /// <param name="missingHp">The target's missing HP for overheal prevention. Use 0 to skip overheal check.</param>
+    /// <param name="overhealTolerancePercent">Overheal tolerance as percentage (0.02 = 2%). Default 0.02.</param>
     /// <returns>Evaluation result indicating if spell is valid.</returns>
     public SpellEvaluationResult EvaluateSingleTarget(
         ActionDefinition action,
         byte playerLevel,
         int mind, int det, int wd,
         IBattleChara? target = null,
-        int missingHp = 0)
+        int missingHp = 0,
+        float overhealTolerancePercent = 0.02f)
     {
         // Check level
         if (playerLevel < action.MinLevel)
@@ -91,11 +93,12 @@ public class SpellCandidateEvaluator
         var healAmount = action.EstimateHealAmount(mind, det, wd, playerLevel);
 
         // Check for overheal (only for potency-based heals, not Benediction)
-        // Allow up to 5% overheal to not reject perfect-fit heals
-        var overhealTolerance = (int)(missingHp * 0.05f);
+        // Use configurable tolerance (default 2%) to minimize waste
+        var overhealTolerance = (int)(missingHp * overhealTolerancePercent);
         if (missingHp > 0 && action.HealPotency > 0 && healAmount > missingHp + overhealTolerance)
         {
-            var reason = $"Would overheal ({healAmount} > {missingHp + overhealTolerance} threshold)";
+            var overhealPercent = missingHp > 0 ? (healAmount - missingHp) * 100f / missingHp : 0;
+            var reason = $"Would overheal ({healAmount} > {missingHp + overhealTolerance} threshold, {overhealPercent:F0}% waste)";
             TrackRejected(action, healAmount, reason);
             return new SpellEvaluationResult { IsValid = false, RejectionReason = reason };
         }
@@ -118,6 +121,29 @@ public class SpellCandidateEvaluator
         ActionDefinition action,
         byte playerLevel,
         int mind, int det, int wd)
+    {
+        return EvaluateAoE(action, playerLevel, mind, det, wd, 0, false, 0.15f);
+    }
+
+    /// <summary>
+    /// Evaluates an AoE heal spell with optional overheal check.
+    /// </summary>
+    /// <param name="action">The heal action to evaluate.</param>
+    /// <param name="playerLevel">The player's current level.</param>
+    /// <param name="mind">The player's Mind stat.</param>
+    /// <param name="det">The player's Determination stat.</param>
+    /// <param name="wd">The player's weapon damage.</param>
+    /// <param name="averageMissingHp">Average missing HP across injured party members.</param>
+    /// <param name="enableOverhealCheck">Whether to check for AoE overheal.</param>
+    /// <param name="overhealTolerancePercent">Overheal tolerance as percentage (0.15 = 15%). Default 0.15.</param>
+    /// <returns>Evaluation result indicating if spell is valid.</returns>
+    public SpellEvaluationResult EvaluateAoE(
+        ActionDefinition action,
+        byte playerLevel,
+        int mind, int det, int wd,
+        int averageMissingHp,
+        bool enableOverhealCheck,
+        float overhealTolerancePercent = 0.15f)
     {
         // Check level
         if (playerLevel < action.MinLevel)
@@ -143,6 +169,19 @@ public class SpellCandidateEvaluator
 
         // Calculate heal amount
         var healAmount = action.EstimateHealAmount(mind, det, wd, playerLevel);
+
+        // Check for AoE overheal (optional, based on configuration)
+        if (enableOverhealCheck && averageMissingHp > 0 && action.HealPotency > 0)
+        {
+            var overhealTolerance = (int)(averageMissingHp * overhealTolerancePercent);
+            if (healAmount > averageMissingHp + overhealTolerance)
+            {
+                var overhealPercent = (healAmount - averageMissingHp) * 100f / averageMissingHp;
+                var reason = $"Would overheal AoE ({healAmount} > avg {averageMissingHp + overhealTolerance} threshold, {overhealPercent:F0}% waste)";
+                TrackRejected(action, healAmount, reason);
+                return new SpellEvaluationResult { IsValid = false, RejectionReason = reason };
+            }
+        }
 
         // Track as valid candidate
         TrackValid(action, healAmount);

@@ -10,6 +10,7 @@ using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
+using Olympus.Services.Cooldown;
 using Olympus.Services.Debuff;
 using Olympus.Services.Cache;
 using Olympus.Services.Prediction;
@@ -532,6 +533,30 @@ public static class MockBuilders
         mock.Setup(x => x.GetMpRegenRate()).Returns(200f);
         mock.Setup(x => x.GetMpConsumptionRate()).Returns(0f);
         mock.Setup(x => x.GetNetMpRate()).Returns(200f);
+
+        return mock;
+    }
+
+    /// <summary>
+    /// Creates a mock ICooldownPlanner with configurable behavior.
+    /// </summary>
+    public static Mock<ICooldownPlanner> CreateMockCooldownPlanner(
+        bool shouldUseMajorDefensive = false,
+        bool shouldUseMinorDefensive = false,
+        bool shouldConserveResources = false,
+        bool isInEmergencyMode = false,
+        bool isDamageSpikeExpected = false,
+        float healingUrgency = 0f)
+    {
+        var mock = new Mock<ICooldownPlanner>();
+
+        mock.Setup(x => x.ShouldUseMajorDefensive()).Returns(shouldUseMajorDefensive);
+        mock.Setup(x => x.ShouldUseMinorDefensive()).Returns(shouldUseMinorDefensive);
+        mock.Setup(x => x.ShouldConserveResources()).Returns(shouldConserveResources);
+        mock.Setup(x => x.IsInEmergencyMode()).Returns(isInEmergencyMode);
+        mock.Setup(x => x.IsDamageSpikeExpected()).Returns(isDamageSpikeExpected);
+        mock.Setup(x => x.GetHealingUrgency()).Returns(healingUrgency);
+        mock.Setup(x => x.GetCooldownPriority(It.IsAny<string>())).Returns(CooldownPriority.Medium);
 
         return mock;
     }

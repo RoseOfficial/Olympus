@@ -6,6 +6,7 @@ using Dalamud.Plugin.Services;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
+using Olympus.Services.Cooldown;
 using Olympus.Services.Debuff;
 using Olympus.Services.Healing;
 using Olympus.Services.Party;
@@ -54,6 +55,9 @@ public sealed class ApolloContext : IApolloContext
 
     // Party analyzer (null until implemented, uses PartyHelper for now)
     public IPartyAnalyzer? PartyAnalyzer { get; }
+
+    // Cooldown planning
+    public ICooldownPlanner CooldownPlanner { get; }
 
     // Debug state (mutable, updated by modules)
     public DebugState Debug { get; }
@@ -107,6 +111,7 @@ public sealed class ApolloContext : IApolloContext
         ITargetingService targetingService,
         StatusHelper statusHelper,
         IPartyHelper partyHelper,
+        ICooldownPlanner cooldownPlanner,
         DebugState? debugState = null,
         IPluginLog? log = null)
     {
@@ -132,6 +137,7 @@ public sealed class ApolloContext : IApolloContext
         TargetingService = targetingService;
         StatusHelper = statusHelper;
         PartyHelper = partyHelper;
+        CooldownPlanner = cooldownPlanner;
         Debug = debugState ?? new DebugState();
         Log = log;
     }

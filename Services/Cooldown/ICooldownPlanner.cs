@@ -28,6 +28,16 @@ public enum CooldownPriority
 public interface ICooldownPlanner
 {
     /// <summary>
+    /// Updates the planner with current party state.
+    /// Should be called once per frame before making cooldown decisions.
+    /// </summary>
+    /// <param name="avgPartyHpPercent">Average party HP percentage.</param>
+    /// <param name="lowestHpPercent">Lowest party member HP percentage.</param>
+    /// <param name="injuredCount">Number of injured party members.</param>
+    /// <param name="criticalCount">Number of critically low party members.</param>
+    void Update(float avgPartyHpPercent, float lowestHpPercent, int injuredCount, int criticalCount);
+
+    /// <summary>
     /// Determines if a major defensive cooldown should be used.
     /// Major defensives are party-wide mitigation (e.g., Temperance, Neutral Sect).
     /// </summary>

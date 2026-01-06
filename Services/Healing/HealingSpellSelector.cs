@@ -195,7 +195,8 @@ public class HealingSpellSelector : IHealingSpellSelector
         bool isWeaveWindow,
         int cureIIITargetCount = 0,
         IBattleChara? cureIIITarget = null,
-        bool isInMpConservationMode = false)
+        bool isInMpConservationMode = false,
+        float partyDamageRate = 0f)
     {
         evaluator.ClearCandidates();
 
@@ -223,7 +224,8 @@ public class HealingSpellSelector : IHealingSpellSelector
             BloodLilyCount = bloodLilyCount,
             LilyStrategy = configuration.Healing.LilyStrategy,
             CombatDuration = combatDuration,
-            Config = configuration.Healing
+            Config = configuration.Healing,
+            PartyDamageRate = partyDamageRate
         };
 
         // Delegate to active strategy

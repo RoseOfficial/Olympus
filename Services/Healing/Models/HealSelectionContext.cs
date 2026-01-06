@@ -118,4 +118,7 @@ public sealed record AoEHealSelectionContext
 
     /// <summary>Configuration for healing behavior.</summary>
     public required HealingConfig Config { get; init; }
+
+    /// <summary>Party-wide damage rate (DPS). Used for damage-aware AoE lily selection.</summary>
+    public float PartyDamageRate { get; init; }
 }

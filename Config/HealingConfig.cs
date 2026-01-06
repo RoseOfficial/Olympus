@@ -419,6 +419,78 @@ public sealed class HealingConfig
     /// Only used when EnableScoredHealSelection is true.
     /// </summary>
     public HealingScoreWeights ScoreWeights { get; set; } = new();
+
+    // Overheal Prevention Settings
+
+    /// <summary>
+    /// Overheal tolerance percentage for single-target heals.
+    /// Heals that would overheal by more than this percentage are rejected.
+    /// Default 0.02 (2%) balances efficiency with not rejecting useful heals.
+    /// Valid range: 0.0 to 0.20.
+    /// </summary>
+    private float _singleTargetOverhealTolerance = 0.02f;
+    public float SingleTargetOverhealTolerance
+    {
+        get => _singleTargetOverhealTolerance;
+        set => _singleTargetOverhealTolerance = Math.Clamp(value, 0f, 0.20f);
+    }
+
+    /// <summary>
+    /// Enable overheal checking for AoE heals.
+    /// When enabled, AoE heals are evaluated against average missing HP.
+    /// Default true prevents wasteful AoE healing on mostly-healthy parties.
+    /// </summary>
+    public bool EnableAoEOverhealCheck { get; set; } = true;
+
+    /// <summary>
+    /// Overheal tolerance percentage for AoE heals.
+    /// More generous than single-target since AoE heals hit multiple targets
+    /// with varying damage levels. Default 0.15 (15%).
+    /// Valid range: 0.0 to 0.50.
+    /// </summary>
+    private float _aoEOverhealTolerance = 0.15f;
+    public float AoEOverhealTolerance
+    {
+        get => _aoEOverhealTolerance;
+        set => _aoEOverhealTolerance = Math.Clamp(value, 0f, 0.50f);
+    }
+
+    // Damage-Aware Lily Selection Settings
+
+    /// <summary>
+    /// Enable damage-rate-aware lily selection.
+    /// When enabled, lily heals are preferred more aggressively when target is taking
+    /// high sustained damage, leveraging their instant-cast advantage.
+    /// </summary>
+    public bool EnableDamageAwareLilySelection { get; set; } = true;
+
+    /// <summary>
+    /// Damage rate (DPS) threshold to aggressively prefer lily heals.
+    /// When target is taking this much DPS or more, prefer lily heals regardless
+    /// of the configured lily strategy to leverage instant-cast advantage.
+    /// Default 400 means targets taking 400+ DPS get priority lily healing.
+    /// Valid range: 0 to 2000.
+    /// </summary>
+    private float _aggressiveLilyDamageRate = 400f;
+    public float AggressiveLilyDamageRate
+    {
+        get => _aggressiveLilyDamageRate;
+        set => _aggressiveLilyDamageRate = Math.Clamp(value, 0f, 2000f);
+    }
+
+    /// <summary>
+    /// Damage rate (DPS) threshold for moderate lily preference.
+    /// When target is taking this much DPS or more, the HP threshold for
+    /// lily usage is raised (more willing to use lilies at higher HP).
+    /// Default 200 means targets taking 200+ DPS get lily heals at higher HP.
+    /// Valid range: 0 to 2000.
+    /// </summary>
+    private float _moderateLilyDamageRate = 200f;
+    public float ModerateLilyDamageRate
+    {
+        get => _moderateLilyDamageRate;
+        set => _moderateLilyDamageRate = Math.Clamp(value, 0f, 2000f);
+    }
 }
 
 /// <summary>

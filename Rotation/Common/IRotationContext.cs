@@ -4,6 +4,7 @@ using Dalamud.Plugin.Services;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Cache;
+using Olympus.Services.Cooldown;
 using Olympus.Services.Debuff;
 using Olympus.Services.Healing;
 using Olympus.Services.Party;
@@ -168,4 +169,9 @@ public interface IHealerRotationContext : IRotationContext
     /// Service for analyzing party health and finding heal targets.
     /// </summary>
     IPartyAnalyzer? PartyAnalyzer { get; }
+
+    /// <summary>
+    /// Service for cooldown planning decisions (defensive cooldowns, resource management).
+    /// </summary>
+    ICooldownPlanner CooldownPlanner { get; }
 }

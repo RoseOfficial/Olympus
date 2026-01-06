@@ -593,6 +593,7 @@ public class ApolloTests
             targetingService.Object,
             statusHelper,
             partyHelper.Object,
+            MockBuilders.CreateMockCooldownPlanner().Object,
             debugState);
     }
 

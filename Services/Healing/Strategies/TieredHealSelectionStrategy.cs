@@ -126,7 +126,8 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
                     context.Player.Level,
                     context.Mind, context.Det, context.Wd,
                     context.Target,
-                    context.MissingHp);
+                    context.MissingHp,
+                    context.Config.SingleTargetOverhealTolerance);
 
                 if (result.IsValid && result.Action is not null)
                 {
@@ -149,7 +150,8 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
                     context.Player.Level,
                     context.Mind, context.Det, context.Wd,
                     context.Target,
-                    context.MissingHp);
+                    context.MissingHp,
+                    context.Config.SingleTargetOverhealTolerance);
 
                 if (result.IsValid && result.Action is not null)
                 {
@@ -167,7 +169,8 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
                     context.Player.Level,
                     context.Mind, context.Det, context.Wd,
                     context.Target,
-                    context.MissingHp);
+                    context.MissingHp,
+                    context.Config.SingleTargetOverhealTolerance);
 
                 if (result.IsValid && result.Action is not null)
                 {
@@ -186,7 +189,8 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
                     context.Player.Level,
                     context.Mind, context.Det, context.Wd,
                     context.Target,
-                    context.MissingHp);
+                    context.MissingHp,
+                    context.Config.SingleTargetOverhealTolerance);
 
                 if (result.IsValid && result.Action is not null)
                 {
@@ -276,7 +280,10 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
             var result = evaluator.EvaluateAoE(
                 WHMActions.CureIII,
                 context.Player.Level,
-                context.Mind, context.Det, context.Wd);
+                context.Mind, context.Det, context.Wd,
+                context.AverageMissingHp,
+                context.Config.EnableAoEOverhealCheck,
+                context.Config.AoEOverhealTolerance);
 
             if (result.IsValid && result.Action is not null)
             {
@@ -308,7 +315,10 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
                 var result = evaluator.EvaluateAoE(
                     WHMActions.MedicaIII,
                     context.Player.Level,
-                    context.Mind, context.Det, context.Wd);
+                    context.Mind, context.Det, context.Wd,
+                    context.AverageMissingHp,
+                    context.Config.EnableAoEOverhealCheck,
+                    context.Config.AoEOverhealTolerance);
 
                 if (result.IsValid && result.Action is not null)
                 {
@@ -331,7 +341,10 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
                 var result = evaluator.EvaluateAoE(
                     WHMActions.MedicaII,
                     context.Player.Level,
-                    context.Mind, context.Det, context.Wd);
+                    context.Mind, context.Det, context.Wd,
+                    context.AverageMissingHp,
+                    context.Config.EnableAoEOverhealCheck,
+                    context.Config.AoEOverhealTolerance);
 
                 if (result.IsValid && result.Action is not null)
                 {
@@ -348,7 +361,10 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
             var result = evaluator.EvaluateAoE(
                 WHMActions.Medica,
                 context.Player.Level,
-                context.Mind, context.Det, context.Wd);
+                context.Mind, context.Det, context.Wd,
+                context.AverageMissingHp,
+                context.Config.EnableAoEOverhealCheck,
+                context.Config.AoEOverhealTolerance);
 
             if (result.IsValid && result.Action is not null)
             {
@@ -370,12 +386,15 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
     /// <summary>
     /// Determines whether lily heals (Afflatus Solace) should be preferred
     /// over MP-based alternatives based on the configured Blood Lily strategy.
-    /// Now considers combat duration for smarter lily flushing.
+    /// Now considers combat duration for smarter lily flushing and damage rate
+    /// for instant-cast advantage during heavy damage.
     /// </summary>
     private static bool ShouldPreferLilyHeal(HealSelectionContext context)
     {
         if (context.LilyCount == 0)
             return false;
+
+        // === HIGH PRIORITY: Always prefer lilies in these situations ===
 
         // Time-aware lily flush: If combat has been going for a while and we have
         // blood lilies ready, prefer lily heals to ensure we get Afflatus Misery off.
@@ -393,6 +412,34 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
         if (context.Config.EnableAggressiveLilyFlush && context.BloodLilyCount >= 2)
             return true;
 
+        // === DAMAGE-RATE-AWARE SELECTION ===
+        // Lily heals are instant-cast GCDs - perfect for high-damage situations
+        // where cast time could mean the target dies mid-cast
+
+        if (context.Config.EnableDamageAwareLilySelection && context.DamageRate > 0)
+        {
+            // High damage: Always prefer lily heals for instant response
+            if (context.DamageRate >= context.Config.AggressiveLilyDamageRate)
+                return true;
+
+            // Moderate damage: Relax HP thresholds for lily usage
+            // Use lilies at higher HP to get ahead of damage
+            if (context.DamageRate >= context.Config.ModerateLilyDamageRate)
+            {
+                // Dynamic threshold: higher damage = higher HP threshold for lilies
+                // At moderate rate, threshold is 75%; scales up to 85% at aggressive rate
+                var damageRatio = (context.DamageRate - context.Config.ModerateLilyDamageRate) /
+                    (context.Config.AggressiveLilyDamageRate - context.Config.ModerateLilyDamageRate);
+                var damageAdjustedThreshold = context.Config.ConservativeLilyHpThreshold +
+                    (damageRatio * 0.10f);
+
+                if (context.HpPercent < damageAdjustedThreshold && context.BloodLilyCount < 3)
+                    return true;
+            }
+        }
+
+        // === STANDARD STRATEGY-BASED SELECTION ===
+
         return context.LilyStrategy switch
         {
             LilyGenerationStrategy.Aggressive => true,
@@ -407,11 +454,14 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
     /// <summary>
     /// Determines whether lily heals (Afflatus Rapture) should be preferred for AoE.
     /// For AoE heals, HP percent is not relevant since we're healing multiple targets.
+    /// Now considers party damage rate for instant-cast advantage during heavy damage.
     /// </summary>
     private static bool ShouldPreferLilyHealForAoE(AoEHealSelectionContext context)
     {
         if (context.LilyCount == 0)
             return false;
+
+        // === HIGH PRIORITY: Always prefer lilies in these situations ===
 
         // Time-aware lily flush
         if (context.CombatDuration > 60f && context.BloodLilyCount >= 2 && context.LilyCount > 0)
@@ -424,6 +474,25 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
         // Aggressive lily flush
         if (context.Config.EnableAggressiveLilyFlush && context.BloodLilyCount >= 2)
             return true;
+
+        // === DAMAGE-RATE-AWARE SELECTION ===
+        // Afflatus Rapture is instant-cast - perfect for heavy party damage
+        // Use higher threshold for party (2x) since party damage is spread across members
+
+        if (context.Config.EnableDamageAwareLilySelection && context.PartyDamageRate > 0)
+        {
+            // High party damage: Always prefer instant AoE lily
+            // Party threshold is 2x single-target since damage is distributed
+            if (context.PartyDamageRate >= context.Config.AggressiveLilyDamageRate * 2)
+                return true;
+
+            // Moderate party damage: Prefer lily when building blood lilies
+            if (context.PartyDamageRate >= context.Config.ModerateLilyDamageRate * 2 &&
+                context.BloodLilyCount < 3)
+                return true;
+        }
+
+        // === STANDARD STRATEGY-BASED SELECTION ===
 
         return context.LilyStrategy switch
         {

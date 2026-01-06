@@ -47,6 +47,7 @@ public interface IHealingSpellSelector
     /// <param name="cureIIITargetCount">Number of valid Cure III targets.</param>
     /// <param name="cureIIITarget">Best target for Cure III (if available).</param>
     /// <param name="isInMpConservationMode">Whether MP is low and should conserve.</param>
+    /// <param name="partyDamageRate">Party-wide damage rate (DPS) for damage-aware lily selection.</param>
     /// <returns>The best action, its heal amount, and Cure III target (if selected).</returns>
     (ActionDefinition? action, int healAmount, IBattleChara? cureIIITarget) SelectBestAoEHeal(
         IPlayerCharacter player,
@@ -56,5 +57,6 @@ public interface IHealingSpellSelector
         bool isWeaveWindow,
         int cureIIITargetCount = 0,
         IBattleChara? cureIIITarget = null,
-        bool isInMpConservationMode = false);
+        bool isInMpConservationMode = false,
+        float partyDamageRate = 0f);
 }

@@ -1074,7 +1074,8 @@ public class HealingModuleTests
             playerStatsService.Object,
             targetingService.Object,
             statusHelper,
-            partyHelper.Object);
+            partyHelper.Object,
+            MockBuilders.CreateMockCooldownPlanner().Object);
     }
 
     /// <summary>
