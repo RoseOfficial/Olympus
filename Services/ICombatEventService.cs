@@ -26,4 +26,14 @@ public interface ICombatEventService
     /// Registers a predicted heal amount for calibration when the heal lands.
     /// </summary>
     void RegisterPredictionForCalibration(int predictedAmount);
+
+    /// <summary>
+    /// Gets aggregated overheal statistics for the current session.
+    /// </summary>
+    CombatEventService.OverhealStatistics GetOverhealStatistics();
+
+    /// <summary>
+    /// Resets all overheal statistics for a new session.
+    /// </summary>
+    void ResetOverhealStatistics();
 }

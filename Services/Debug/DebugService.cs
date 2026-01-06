@@ -94,7 +94,8 @@ public sealed class DebugService
             GcdState = BuildGcdState(),
             Rotation = BuildRotationState(),
             Healing = BuildHealingState(),
-            Actions = BuildActionState()
+            Actions = BuildActionState(),
+            OverhealStats = BuildOverhealStats()
         };
     }
 
@@ -289,12 +290,78 @@ public sealed class DebugService
         };
     }
 
+    private DebugOverhealStats BuildOverhealStats()
+    {
+        var stats = _combatEventService.GetOverhealStatistics();
+        var actionSheet = _dataManager.GetExcelSheet<LuminaAction>();
+
+        // Convert per-spell stats with resolved names
+        var bySpell = stats.BySpell.Select(s => new DebugSpellOverheal
+        {
+            ActionId = s.ActionId,
+            SpellName = actionSheet?.GetRowOrDefault(s.ActionId)?.Name.ToString() ?? s.SpellName,
+            TotalHealing = s.TotalHealing,
+            TotalOverheal = s.TotalOverheal,
+            CastCount = s.CastCount
+        }).OrderByDescending(s => s.TotalHealing).ToList();
+
+        // Convert per-target stats
+        var byTarget = stats.ByTarget.Select(t => new DebugTargetOverheal
+        {
+            TargetId = t.TargetId,
+            TargetName = t.TargetName,
+            TotalHealing = t.TotalHealing,
+            TotalOverheal = t.TotalOverheal,
+            HealCount = t.HealCount
+        }).OrderByDescending(t => t.TotalHealing).ToList();
+
+        // Convert recent overheal events with resolved spell names
+        var recentOverheals = stats.RecentOverhealEvents.Select(e => new DebugOverhealEvent
+        {
+            Timestamp = e.Timestamp,
+            SpellName = ResolveOverhealSpellName(e.SpellName, actionSheet),
+            TargetName = e.TargetName,
+            HealAmount = e.HealAmount,
+            OverhealAmount = e.OverhealAmount
+        }).ToList();
+
+        return new DebugOverhealStats
+        {
+            SessionStartTime = stats.SessionStartTime,
+            SessionDuration = stats.SessionDuration,
+            TotalHealing = stats.TotalHealing,
+            TotalOverheal = stats.TotalOverheal,
+            OverhealPercent = stats.OverhealPercent,
+            BySpell = bySpell,
+            ByTarget = byTarget,
+            RecentOverheals = recentOverheals
+        };
+    }
+
+    private static string ResolveOverhealSpellName(string spellName, Lumina.Excel.ExcelSheet<LuminaAction>? actionSheet)
+    {
+        // SpellName format is "Action{actionId}" - extract the ID and resolve
+        if (spellName.StartsWith("Action") && uint.TryParse(spellName.AsSpan(6), out var actionId))
+        {
+            return actionSheet?.GetRowOrDefault(actionId)?.Name.ToString() ?? spellName;
+        }
+        return spellName;
+    }
+
     /// <summary>
     /// Clears action tracker data.
     /// </summary>
     public void ClearHistory()
     {
         _actionTracker.Clear();
+    }
+
+    /// <summary>
+    /// Resets all overheal statistics for a new tracking session.
+    /// </summary>
+    public void ResetOverhealStatistics()
+    {
+        _combatEventService.ResetOverhealStatistics();
     }
 
     /// <summary>

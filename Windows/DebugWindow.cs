@@ -64,6 +64,12 @@ public sealed class DebugWindow : Window
                 ImGui.EndTabItem();
             }
 
+            if (ImGui.BeginTabItem("Overheal"))
+            {
+                OverhealTab.Draw(snapshot, _configuration, _debugService);
+                ImGui.EndTabItem();
+            }
+
             if (ImGui.BeginTabItem("Actions"))
             {
                 ActionsTab.Draw(snapshot, _configuration, _debugService);
@@ -107,6 +113,15 @@ public sealed class DebugWindow : Window
             DrawSectionToggle("AoEHealing", "AoE Healing");
             DrawSectionToggle("RecentHeals", "Recent Heals");
             DrawSectionToggle("ShadowHp", "Shadow HP");
+
+            ImGui.Spacing();
+            ImGui.Text("Overheal Tab");
+            ImGui.Separator();
+            DrawSectionToggle("OverhealSummary", "Summary");
+            DrawSectionToggle("OverhealBySpell", "By Spell");
+            DrawSectionToggle("OverhealByTarget", "By Target");
+            DrawSectionToggle("OverhealTimeline", "Timeline");
+            DrawSectionToggle("OverhealControls", "Controls");
 
             ImGui.Spacing();
             ImGui.Text("Actions Tab");

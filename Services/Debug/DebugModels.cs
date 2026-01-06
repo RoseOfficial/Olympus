@@ -17,6 +17,7 @@ public sealed class DebugSnapshot
     public DebugRotationState Rotation { get; init; } = new();
     public DebugHealingState Healing { get; init; } = new();
     public DebugActionState Actions { get; init; } = new();
+    public DebugOverhealStats OverhealStats { get; init; } = new();
 }
 
 /// <summary>
@@ -193,4 +194,60 @@ public sealed class DebugSpellUsage
     public string Name { get; init; } = "";
     public uint ActionId { get; init; }
     public int Count { get; init; }
+}
+
+/// <summary>
+/// Overheal statistics for the Overheal tab.
+/// </summary>
+public sealed class DebugOverhealStats
+{
+    public DateTime SessionStartTime { get; init; } = DateTime.Now;
+    public TimeSpan SessionDuration { get; init; }
+    public int TotalHealing { get; init; }
+    public int TotalOverheal { get; init; }
+    public float OverhealPercent { get; init; }
+    public int EffectiveHealing => TotalHealing - TotalOverheal;
+    public List<DebugSpellOverheal> BySpell { get; init; } = new();
+    public List<DebugTargetOverheal> ByTarget { get; init; } = new();
+    public List<DebugOverhealEvent> RecentOverheals { get; init; } = new();
+}
+
+/// <summary>
+/// Per-spell overheal statistics.
+/// </summary>
+public sealed class DebugSpellOverheal
+{
+    public string SpellName { get; init; } = "";
+    public uint ActionId { get; init; }
+    public int TotalHealing { get; init; }
+    public int TotalOverheal { get; init; }
+    public int CastCount { get; init; }
+    public float OverhealPercent => TotalHealing > 0 ? (float)TotalOverheal / TotalHealing * 100f : 0f;
+}
+
+/// <summary>
+/// Per-target overheal statistics.
+/// </summary>
+public sealed class DebugTargetOverheal
+{
+    public string TargetName { get; init; } = "";
+    public uint TargetId { get; init; }
+    public int TotalHealing { get; init; }
+    public int TotalOverheal { get; init; }
+    public int HealCount { get; init; }
+    public float OverhealPercent => TotalHealing > 0 ? (float)TotalOverheal / TotalHealing * 100f : 0f;
+}
+
+/// <summary>
+/// A single overheal event for the timeline.
+/// </summary>
+public sealed class DebugOverhealEvent
+{
+    public DateTime Timestamp { get; init; }
+    public string SpellName { get; init; } = "";
+    public string TargetName { get; init; } = "";
+    public int HealAmount { get; init; }
+    public int OverhealAmount { get; init; }
+    public float SecondsAgo => (float)(DateTime.Now - Timestamp).TotalSeconds;
+    public float OverhealPercent => HealAmount > 0 ? (float)OverhealAmount / HealAmount * 100f : 0f;
 }

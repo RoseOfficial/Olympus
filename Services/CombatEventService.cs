@@ -15,7 +15,7 @@ namespace Olympus.Services;
 /// <summary>
 /// Record of a healing event from the local player.
 /// </summary>
-public record HealEvent(DateTime Timestamp, uint TargetId, string TargetName, uint ActionId, int Amount);
+public record HealEvent(DateTime Timestamp, uint TargetId, string TargetName, uint ActionId, int Amount, int OverhealAmount);
 
 /// <summary>
 /// Hooks into ActionEffectHandler.Receive to track HP changes in real-time,
@@ -54,6 +54,36 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
     private readonly List<HealEvent> recentHeals = new();
     private const int MaxHealHistory = 20;
     private readonly object healLock = new();
+
+    // Overheal statistics tracking (session only)
+    private readonly Dictionary<uint, SpellOverhealStats> spellOverhealStats = new();
+    private readonly Dictionary<uint, TargetOverhealStats> targetOverhealStats = new();
+    private readonly List<OverhealEvent> recentOverhealEvents = new();
+    private const int MaxOverhealHistory = 50;
+    private readonly object overhealLock = new();
+    private DateTime sessionStartTime = DateTime.Now;
+
+    // Internal tracking classes for overheal statistics
+    private sealed class SpellOverhealStats
+    {
+        public string SpellName { get; set; } = "";
+        public int TotalHealing { get; set; }
+        public int TotalOverheal { get; set; }
+        public int CastCount { get; set; }
+    }
+
+    private sealed class TargetOverhealStats
+    {
+        public string TargetName { get; set; } = "";
+        public int TotalHealing { get; set; }
+        public int TotalOverheal { get; set; }
+        public int HealCount { get; set; }
+    }
+
+    /// <summary>
+    /// An overheal event for the timeline.
+    /// </summary>
+    public record OverhealEvent(DateTime Timestamp, string SpellName, string TargetName, int HealAmount, int OverhealAmount);
 
     // For calibration: store the last predicted heal (raw, without correction factor)
     private int _lastPredictedHealRaw;
@@ -157,6 +187,71 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
         }
     }
 
+    /// <summary>
+    /// Gets aggregated overheal statistics for the current session.
+    /// </summary>
+    public OverhealStatistics GetOverhealStatistics()
+    {
+        lock (overhealLock)
+        {
+            var totalHealing = 0;
+            var totalOverheal = 0;
+
+            var bySpell = new List<(uint ActionId, string SpellName, int TotalHealing, int TotalOverheal, int CastCount)>();
+            foreach (var kvp in spellOverhealStats)
+            {
+                totalHealing += kvp.Value.TotalHealing;
+                totalOverheal += kvp.Value.TotalOverheal;
+                bySpell.Add((kvp.Key, kvp.Value.SpellName, kvp.Value.TotalHealing, kvp.Value.TotalOverheal, kvp.Value.CastCount));
+            }
+
+            var byTarget = new List<(uint TargetId, string TargetName, int TotalHealing, int TotalOverheal, int HealCount)>();
+            foreach (var kvp in targetOverhealStats)
+            {
+                byTarget.Add((kvp.Key, kvp.Value.TargetName, kvp.Value.TotalHealing, kvp.Value.TotalOverheal, kvp.Value.HealCount));
+            }
+
+            var recentEvents = recentOverhealEvents.ToList();
+
+            return new OverhealStatistics(
+                sessionStartTime,
+                totalHealing,
+                totalOverheal,
+                bySpell,
+                byTarget,
+                recentEvents);
+        }
+    }
+
+    /// <summary>
+    /// Resets all overheal statistics for a new session.
+    /// </summary>
+    public void ResetOverhealStatistics()
+    {
+        lock (overhealLock)
+        {
+            spellOverhealStats.Clear();
+            targetOverhealStats.Clear();
+            recentOverhealEvents.Clear();
+            sessionStartTime = DateTime.Now;
+        }
+    }
+
+    /// <summary>
+    /// Aggregated overheal statistics for display.
+    /// </summary>
+    public record OverhealStatistics(
+        DateTime SessionStartTime,
+        int TotalHealing,
+        int TotalOverheal,
+        List<(uint ActionId, string SpellName, int TotalHealing, int TotalOverheal, int CastCount)> BySpell,
+        List<(uint TargetId, string TargetName, int TotalHealing, int TotalOverheal, int HealCount)> ByTarget,
+        List<OverhealEvent> RecentOverhealEvents)
+    {
+        public float OverhealPercent => TotalHealing > 0 ? (float)TotalOverheal / TotalHealing * 100f : 0f;
+        public TimeSpan SessionDuration => DateTime.Now - SessionStartTime;
+    }
+
     private void ReceiveDetour(
         uint casterEntityId,
         Character* casterPtr,
@@ -227,22 +322,80 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
             if (isFromLocalPlayer && totalHeal > 0)
             {
                 var targetName = "Unknown";
+                uint targetMaxHp = 0;
+                uint targetCurrentHp = 0;
                 var targetObj = objectTable.SearchById(targetId);
                 if (targetObj != null)
+                {
                     targetName = targetObj.Name.TextValue;
+                    if (targetObj is Dalamud.Game.ClientState.Objects.Types.ICharacter character)
+                    {
+                        targetMaxHp = character.MaxHp;
+                        // HP before heal = current HP (game hasn't updated yet)
+                        targetCurrentHp = character.CurrentHp;
+                    }
+                }
+
+                // Calculate overheal: how much exceeded target's missing HP
+                var overhealAmount = 0;
+                if (targetMaxHp > 0)
+                {
+                    var missingHp = (int)(targetMaxHp - targetCurrentHp);
+                    overhealAmount = Math.Max(0, totalHeal - missingHp);
+                }
 
                 var healEvent = new HealEvent(
                     DateTime.Now,
                     targetId,
                     targetName,
                     header->ActionId,
-                    totalHeal);
+                    totalHeal,
+                    overhealAmount);
 
                 lock (healLock)
                 {
                     recentHeals.Insert(0, healEvent);
                     if (recentHeals.Count > MaxHealHistory)
                         recentHeals.RemoveAt(recentHeals.Count - 1);
+                }
+
+                // Track overheal statistics
+                lock (overhealLock)
+                {
+                    // Per-spell tracking
+                    if (!spellOverhealStats.TryGetValue(header->ActionId, out var spellStats))
+                    {
+                        spellStats = new SpellOverhealStats { SpellName = $"Action{header->ActionId}" };
+                        spellOverhealStats[header->ActionId] = spellStats;
+                    }
+                    spellStats.TotalHealing += totalHeal;
+                    spellStats.TotalOverheal += overhealAmount;
+                    spellStats.CastCount++;
+
+                    // Per-target tracking
+                    if (!targetOverhealStats.TryGetValue(targetId, out var targetStats))
+                    {
+                        targetStats = new TargetOverhealStats { TargetName = targetName };
+                        targetOverhealStats[targetId] = targetStats;
+                    }
+                    targetStats.TargetName = targetName; // Update name in case it changed
+                    targetStats.TotalHealing += totalHeal;
+                    targetStats.TotalOverheal += overhealAmount;
+                    targetStats.HealCount++;
+
+                    // Add to overheal events timeline (only if there was overheal)
+                    if (overhealAmount > 0)
+                    {
+                        recentOverhealEvents.Insert(0, new OverhealEvent(
+                            DateTime.Now,
+                            $"Action{header->ActionId}",
+                            targetName,
+                            totalHeal,
+                            overhealAmount));
+
+                        if (recentOverhealEvents.Count > MaxOverhealHistory)
+                            recentOverhealEvents.RemoveAt(recentOverhealEvents.Count - 1);
+                    }
                 }
             }
 

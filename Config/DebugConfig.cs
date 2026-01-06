@@ -34,6 +34,13 @@ public sealed class DebugConfig
         ["RecentHeals"] = true,
         ["ShadowHp"] = true,
 
+        // Overheal tab
+        ["OverhealSummary"] = true,
+        ["OverhealBySpell"] = true,
+        ["OverhealByTarget"] = true,
+        ["OverhealTimeline"] = true,
+        ["OverhealControls"] = true,
+
         // Actions tab
         ["GcdDetails"] = true,
         ["SpellUsage"] = true,
