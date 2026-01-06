@@ -57,4 +57,9 @@ public interface IApolloContext
     int LilyCount { get; }
     int BloodLilyCount { get; }
     int SacredSightStacks { get; }
+
+    /// <summary>
+    /// Cached party health metrics (avgHpPercent, lowestHpPercent, injuredCount).
+    /// </summary>
+    (float avgHpPercent, float lowestHpPercent, int injuredCount) PartyHealthMetrics { get; }
 }

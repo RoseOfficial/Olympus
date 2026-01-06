@@ -23,9 +23,16 @@ namespace Olympus.Rotation;
 /// <summary>
 /// White Mage rotation module (RSR-style reactive execution).
 /// Orchestrates modular execution: each module handles a specific concern.
+/// Named after the Greek god of healing, light, and music.
 /// </summary>
-public sealed class Apollo
+public sealed class Apollo : IRotation
 {
+    /// <inheritdoc />
+    public string Name => "Apollo";
+
+    /// <inheritdoc />
+    public uint[] SupportedJobIds => [Data.JobRegistry.WhiteMage, Data.JobRegistry.Conjurer];
+
     // Services
     private readonly IPluginLog _log;
     private readonly ActionTracker _actionTracker;

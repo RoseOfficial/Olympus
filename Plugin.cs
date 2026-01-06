@@ -3,6 +3,7 @@ using Dalamud.Game.Command;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using Olympus.Data;
 using Olympus.Rotation;
 using Olympus.Services;
 using Olympus.Services.Action;
@@ -19,12 +20,8 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.5.8";
+    public const string PluginVersion = "1.5.9";
     private const string CommandName = "/olympus";
-
-    // Job IDs for supported classes
-    private const uint WhiteMageJobId = 24;
-    private const uint ConjurerJobId = 6;
 
     private readonly IDalamudPluginInterface pluginInterface;
     private readonly IFramework framework;
@@ -49,6 +46,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly SpellStatusService spellStatusService;
     private readonly DebugService debugService;
     private readonly DebuffDetectionService debuffDetectionService;
+    private readonly RotationManager rotationManager;
     private readonly Apollo apollo;
 
     private readonly WindowSystem windowSystem = new("Olympus");
@@ -123,6 +121,10 @@ public sealed class Plugin : IDalamudPlugin
             playerStatsService,
             healingSpellSelector,
             debuffDetectionService);
+
+        // Register rotations with the rotation manager
+        this.rotationManager = new RotationManager();
+        this.rotationManager.Register(apollo);
 
         // Debug service aggregates all debug data
         this.debugService = new DebugService(
@@ -223,11 +225,12 @@ public sealed class Plugin : IDalamudPlugin
         if (localPlayer == null)
             return;
 
-        // Only run on White Mage or Conjurer
-        if (localPlayer.ClassJob.RowId != WhiteMageJobId && localPlayer.ClassJob.RowId != ConjurerJobId)
+        // Check if we have a rotation for the current job
+        var jobId = localPlayer.ClassJob.RowId;
+        if (!rotationManager.UpdateActiveRotation(jobId))
             return;
 
-        apollo.Execute(localPlayer);
+        rotationManager.Execute(localPlayer);
     }
 
     public void Dispose()

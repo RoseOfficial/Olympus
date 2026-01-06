@@ -392,6 +392,158 @@ public class HealingModuleTests
         Assert.Equal("Moving", context.Debug.EsunaState);
     }
 
+    [Fact]
+    public void TryExecute_Esuna_LethalDebuff_AlwaysCleanses()
+    {
+        // Arrange - Lethal debuffs should always be cleansed regardless of threshold
+        var config = MockBuilders.CreateDefaultConfiguration();
+        config.RoleActions.EnableEsuna = true;
+        config.RoleActions.EsunaPriorityThreshold = 0; // Only lethal threshold
+
+        var debuffedMember = MockBuilders.CreateMockBattleChara(
+            entityId: 2, name: "DebuffedPlayer", currentHp: 40000, maxHp: 50000);
+
+        var partyHelperMock = MockBuilders.CreateMockPartyHelper(
+            partyMembers: new List<IBattleChara> { debuffedMember.Object });
+
+        var debuffServiceMock = MockBuilders.CreateMockDebuffDetectionService(
+            target => (100u, DebuffPriority.Lethal, 10f)); // Lethal debuff (e.g., Doom)
+
+        var actionServiceMock = MockBuilders.CreateMockActionService();
+        actionServiceMock.Setup(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()))
+            .Returns(true);
+
+        var context = CreateTestContext(
+            config: config,
+            partyHelper: partyHelperMock,
+            debuffDetectionService: debuffServiceMock,
+            actionService: actionServiceMock,
+            level: 90,
+            inCombat: true);
+
+        // Act
+        var result = _module.TryExecute(context, isMoving: false);
+
+        // Assert
+        Assert.True(result);
+        actionServiceMock.Verify(
+            x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == WHMActions.Esuna.ActionId),
+                It.IsAny<ulong>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public void TryExecute_Esuna_NonLethalDebuff_RespectsThreshold()
+    {
+        // Arrange - High priority debuff should be skipped when threshold is 0 (lethal only)
+        var config = MockBuilders.CreateDefaultConfiguration();
+        config.RoleActions.EnableEsuna = true;
+        config.RoleActions.EsunaPriorityThreshold = 0; // Only lethal
+
+        var debuffedMember = MockBuilders.CreateMockBattleChara(
+            entityId: 2, name: "DebuffedPlayer", currentHp: 40000, maxHp: 50000);
+
+        var partyHelperMock = MockBuilders.CreateMockPartyHelper(
+            partyMembers: new List<IBattleChara> { debuffedMember.Object });
+
+        var debuffServiceMock = MockBuilders.CreateMockDebuffDetectionService(
+            target => (101u, DebuffPriority.High, 10f)); // High priority, not lethal
+
+        var actionServiceMock = MockBuilders.CreateMockActionService();
+
+        var context = CreateTestContext(
+            config: config,
+            partyHelper: partyHelperMock,
+            debuffDetectionService: debuffServiceMock,
+            actionService: actionServiceMock,
+            level: 90,
+            inCombat: true);
+
+        // Act
+        _module.TryExecute(context, isMoving: false);
+
+        // Assert - Should NOT cleanse because priority 1 (High) > threshold 0
+        Assert.Contains("Priority High > threshold 0", context.Debug.EsunaState);
+        actionServiceMock.Verify(
+            x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == WHMActions.Esuna.ActionId),
+                It.IsAny<ulong>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public void TryExecute_Esuna_HighThreshold_CleansesLowPriority()
+    {
+        // Arrange - With threshold set to 3, all debuffs should be cleansed
+        var config = MockBuilders.CreateDefaultConfiguration();
+        config.RoleActions.EnableEsuna = true;
+        config.RoleActions.EsunaPriorityThreshold = 3; // All debuffs
+
+        var debuffedMember = MockBuilders.CreateMockBattleChara(
+            entityId: 2, name: "DebuffedPlayer", currentHp: 40000, maxHp: 50000);
+
+        var partyHelperMock = MockBuilders.CreateMockPartyHelper(
+            partyMembers: new List<IBattleChara> { debuffedMember.Object });
+
+        var debuffServiceMock = MockBuilders.CreateMockDebuffDetectionService(
+            target => (102u, DebuffPriority.Low, 10f)); // Low priority
+
+        var actionServiceMock = MockBuilders.CreateMockActionService();
+        actionServiceMock.Setup(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()))
+            .Returns(true);
+
+        var context = CreateTestContext(
+            config: config,
+            partyHelper: partyHelperMock,
+            debuffDetectionService: debuffServiceMock,
+            actionService: actionServiceMock,
+            level: 90,
+            inCombat: true);
+
+        // Act
+        var result = _module.TryExecute(context, isMoving: false);
+
+        // Assert
+        Assert.True(result);
+        actionServiceMock.Verify(
+            x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == WHMActions.Esuna.ActionId),
+                It.IsAny<ulong>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public void TryExecute_Esuna_NoDebuff_SkipsEsuna()
+    {
+        // Arrange
+        var config = MockBuilders.CreateDefaultConfiguration();
+        config.RoleActions.EnableEsuna = true;
+        config.RoleActions.EsunaPriorityThreshold = 3;
+
+        var healthyMember = MockBuilders.CreateMockBattleChara(
+            entityId: 2, name: "HealthyPlayer", currentHp: 40000, maxHp: 50000);
+
+        var partyHelperMock = MockBuilders.CreateMockPartyHelper(
+            partyMembers: new List<IBattleChara> { healthyMember.Object });
+
+        var debuffServiceMock = MockBuilders.CreateMockDebuffDetectionService(
+            target => (0u, DebuffPriority.None, 0f)); // No debuff
+
+        var context = CreateTestContext(
+            config: config,
+            partyHelper: partyHelperMock,
+            debuffDetectionService: debuffServiceMock,
+            level: 90,
+            inCombat: true);
+
+        // Act
+        _module.TryExecute(context, isMoving: false);
+
+        // Assert
+        Assert.Equal("No target", context.Debug.EsunaState);
+    }
+
     #endregion
 
     #region Regen Tests

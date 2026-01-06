@@ -51,7 +51,9 @@ public sealed class ConfigWindow : Window
             ImGui.OpenPopup("Reset Confirmation");
         }
 
-        if (ImGui.BeginPopupModal("Reset Confirmation", ref resetPopupOpen, ImGuiWindowFlags.AlwaysAutoResize))
+        // Local variable for popup close button state - must be true to show close button
+        var popupOpen = true;
+        if (ImGui.BeginPopupModal("Reset Confirmation", ref popupOpen, ImGuiWindowFlags.AlwaysAutoResize))
         {
             ImGui.Text("Reset all settings to default values?");
             ImGui.Text("This cannot be undone.");
@@ -74,8 +76,6 @@ public sealed class ConfigWindow : Window
             ImGui.EndPopup();
         }
     }
-
-    private bool resetPopupOpen = true;
 
     private record StrategyInfo(string Name, string Description);
 

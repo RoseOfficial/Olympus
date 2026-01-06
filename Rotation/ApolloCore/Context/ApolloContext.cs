@@ -55,6 +55,7 @@ public sealed class ApolloContext : IApolloContext
     private int? _lilyCount;
     private int? _bloodLilyCount;
     private int? _sacredSightStacks;
+    private (float avgHpPercent, float lowestHpPercent, int injuredCount)? _partyHealthMetrics;
 
     public bool HasThinAir => _hasThinAir ??= StatusHelper.HasThinAir(Player);
     public bool HasFreecure => _hasFreecure ??= StatusHelper.HasFreecure(Player);
@@ -62,6 +63,13 @@ public sealed class ApolloContext : IApolloContext
     public int LilyCount => _lilyCount ??= StatusHelper.GetLilyCount();
     public int BloodLilyCount => _bloodLilyCount ??= StatusHelper.GetBloodLilyCount();
     public int SacredSightStacks => _sacredSightStacks ??= StatusHelper.GetSacredSightStacks(Player);
+
+    /// <summary>
+    /// Cached party health metrics (avgHpPercent, lowestHpPercent, injuredCount).
+    /// Computed once per frame to avoid redundant calculations.
+    /// </summary>
+    public (float avgHpPercent, float lowestHpPercent, int injuredCount) PartyHealthMetrics
+        => _partyHealthMetrics ??= PartyHelper.CalculatePartyHealthMetrics(Player);
 
     public ApolloContext(
         IPlayerCharacter player,

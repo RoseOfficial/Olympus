@@ -20,7 +20,7 @@ public sealed class DefensiveModule : IApolloModule
         if (!context.CanExecuteOgcd || !context.InCombat)
             return false;
 
-        var (avgHpPercent, lowestHpPercent, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(context.Player);
+        var (avgHpPercent, _, injuredCount) = context.PartyHealthMetrics;
 
         // Divine Caress is auto-triggered when Divine Grace (from Temperance) is active
         if (TryExecuteDivineCaress(context))
@@ -57,7 +57,7 @@ public sealed class DefensiveModule : IApolloModule
 
         var player = context.Player;
         var config = context.Configuration;
-        var (avgHpPercent, _, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
+        var (avgHpPercent, _, injuredCount) = context.PartyHealthMetrics;
         var partyDamageRate = context.DamageIntakeService.GetPartyDamageRate(5f);
         var dmgRateStr = partyDamageRate > 0 ? $", DPS {partyDamageRate:F0}" : "";
 
