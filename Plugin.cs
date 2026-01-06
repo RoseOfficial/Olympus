@@ -21,7 +21,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.8.0";
+    public const string PluginVersion = "1.9.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -95,7 +95,7 @@ public sealed class Plugin : IDalamudPlugin
         this.targetingService = new TargetingService(objectTable, partyList, targetManager, configuration);
 
         // New action system services
-        this.hpPredictionService = new HpPredictionService(combatEventService);
+        this.hpPredictionService = new HpPredictionService(combatEventService, configuration);
         this.actionService = new ActionService(actionTracker);
         this.playerStatsService = new PlayerStatsService(log, dataManager);
 

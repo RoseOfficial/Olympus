@@ -35,6 +35,10 @@ public sealed class TetragrammatonHandler : IHealingHandler
         if (target is null)
             return false;
 
+        // Skip if another handler is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId))
+            return false;
+
         if (!DistanceHelper.IsInRange(player, target, WHMActions.Tetragrammaton.Range))
             return false;
 
@@ -74,6 +78,9 @@ public sealed class TetragrammatonHandler : IHealingHandler
         if (ActionExecutor.ExecuteHealingOgcd(context, WHMActions.Tetragrammaton, target.GameObjectId,
             target.EntityId, target.Name?.TextValue ?? "Unknown", target.CurrentHp, healAmount))
         {
+            // Reserve target to prevent other handlers from double-healing
+            context.HealingCoordination.TryReserveTarget(target.EntityId);
+
             var hpPercent = context.PartyHelper.GetHpPercent(target);
             var chargeInfo = $"{currentCharges}/{maxCharges} charges";
 

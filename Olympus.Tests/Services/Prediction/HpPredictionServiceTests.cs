@@ -16,12 +16,16 @@ namespace Olympus.Tests.Services.Prediction;
 public sealed class HpPredictionServiceTests : IDisposable
 {
     private readonly Mock<ICombatEventService> _mockCombatEvent;
+    private readonly Configuration _configuration;
     private readonly HpPredictionService _service;
 
     public HpPredictionServiceTests()
     {
         _mockCombatEvent = MockBuilders.CreateMockCombatEventService();
-        _service = new HpPredictionService(_mockCombatEvent.Object);
+        _configuration = MockBuilders.CreateDefaultConfiguration();
+        // Disable crit variance by default to maintain existing test behavior
+        _configuration.Healing.EnableCritVarianceReduction = false;
+        _service = new HpPredictionService(_mockCombatEvent.Object, _configuration);
     }
 
     public void Dispose()
@@ -440,7 +444,9 @@ public sealed class HpPredictionServiceTests : IDisposable
 
         var mockWithShadow = MockBuilders.CreateMockCombatEventService(
             (id, fallback) => id == entityId ? shadowHp : fallback);
-        using var serviceWithShadow = new HpPredictionService(mockWithShadow.Object);
+        var configNoVariance = MockBuilders.CreateDefaultConfiguration();
+        configNoVariance.Healing.EnableCritVarianceReduction = false;
+        using var serviceWithShadow = new HpPredictionService(mockWithShadow.Object, configNoVariance);
 
         // Act
         var result = serviceWithShadow.GetPredictedHp(entityId, currentHp, maxHp);
@@ -461,7 +467,9 @@ public sealed class HpPredictionServiceTests : IDisposable
 
         var mockWithShadow = MockBuilders.CreateMockCombatEventService(
             (id, fallback) => id == entityId ? shadowHp : fallback);
-        using var serviceWithShadow = new HpPredictionService(mockWithShadow.Object);
+        var configNoVariance = MockBuilders.CreateDefaultConfiguration();
+        configNoVariance.Healing.EnableCritVarianceReduction = false;
+        using var serviceWithShadow = new HpPredictionService(mockWithShadow.Object, configNoVariance);
 
         serviceWithShadow.RegisterPendingHeal(entityId, healAmount);
 
@@ -507,6 +515,139 @@ public sealed class HpPredictionServiceTests : IDisposable
 
         // Assert - all heals for target 1 should be cleared
         Assert.Equal(0, _service.GetPendingHealAmount(1));
+    }
+
+    #endregion
+
+    #region Crit Variance Reduction
+
+    [Fact]
+    public void GetPredictedHp_WithCritVarianceEnabled_ReducesPendingHeals()
+    {
+        // Arrange
+        var mockCombatEvent = MockBuilders.CreateMockCombatEventService();
+        var config = MockBuilders.CreateDefaultConfiguration();
+        config.Healing.EnableCritVarianceReduction = true;
+        config.Healing.CritVarianceReduction = 0.10f; // 10% reduction
+
+        using var service = new HpPredictionService(mockCombatEvent.Object, config);
+
+        const uint entityId = 1;
+        const uint currentHp = 5000;
+        const uint maxHp = 10000;
+        const int healAmount = 2000;
+
+        service.RegisterPendingHeal(entityId, healAmount);
+
+        // Act
+        var result = service.GetPredictedHp(entityId, currentHp, maxHp);
+
+        // Assert - heal should be reduced by 10%: 5000 + (2000 * 0.9) = 6800
+        Assert.Equal(6800u, result);
+    }
+
+    [Fact]
+    public void GetPredictedHp_WithCritVarianceDisabled_NoReduction()
+    {
+        // Arrange
+        var mockCombatEvent = MockBuilders.CreateMockCombatEventService();
+        var config = MockBuilders.CreateDefaultConfiguration();
+        config.Healing.EnableCritVarianceReduction = false;
+        config.Healing.CritVarianceReduction = 0.10f; // 10% reduction (should be ignored)
+
+        using var service = new HpPredictionService(mockCombatEvent.Object, config);
+
+        const uint entityId = 1;
+        const uint currentHp = 5000;
+        const uint maxHp = 10000;
+        const int healAmount = 2000;
+
+        service.RegisterPendingHeal(entityId, healAmount);
+
+        // Act
+        var result = service.GetPredictedHp(entityId, currentHp, maxHp);
+
+        // Assert - no reduction: 5000 + 2000 = 7000
+        Assert.Equal(7000u, result);
+    }
+
+    [Fact]
+    public void GetPredictedHp_WithCritVariance_NoPendingHeals_NoChange()
+    {
+        // Arrange
+        var mockCombatEvent = MockBuilders.CreateMockCombatEventService();
+        var config = MockBuilders.CreateDefaultConfiguration();
+        config.Healing.EnableCritVarianceReduction = true;
+        config.Healing.CritVarianceReduction = 0.10f;
+
+        using var service = new HpPredictionService(mockCombatEvent.Object, config);
+
+        const uint entityId = 1;
+        const uint currentHp = 5000;
+        const uint maxHp = 10000;
+
+        // No pending heals registered
+
+        // Act
+        var result = service.GetPredictedHp(entityId, currentHp, maxHp);
+
+        // Assert - should just return current HP
+        Assert.Equal(currentHp, result);
+    }
+
+    [Fact]
+    public void GetPredictedHp_WithCritVariance_MultiplePendingHeals_ReducesSum()
+    {
+        // Arrange
+        var mockCombatEvent = MockBuilders.CreateMockCombatEventService();
+        var config = MockBuilders.CreateDefaultConfiguration();
+        config.Healing.EnableCritVarianceReduction = true;
+        config.Healing.CritVarianceReduction = 0.08f; // 8% reduction (default)
+
+        using var service = new HpPredictionService(mockCombatEvent.Object, config);
+
+        const uint entityId = 1;
+        const uint currentHp = 3000;
+        const uint maxHp = 10000;
+
+        service.RegisterPendingHeal(entityId, 2000); // GCD heal
+        service.RegisterPendingHeal(entityId, 1000); // oGCD heal
+        // Total pending: 3000, after 8% reduction: 2760
+
+        // Act
+        var result = service.GetPredictedHp(entityId, currentHp, maxHp);
+
+        // Assert - 3000 + (3000 * 0.92) = 3000 + 2760 = 5760
+        Assert.Equal(5760u, result);
+    }
+
+    [Theory]
+    [InlineData(0.0f, 7000u)]  // No reduction
+    [InlineData(0.08f, 6840u)] // 8% reduction (default)
+    [InlineData(0.15f, 6700u)] // 15% reduction
+    [InlineData(0.25f, 6500u)] // 25% reduction (max)
+    public void GetPredictedHp_WithCritVariance_DifferentRates_ReducesCorrectly(float varianceRate, uint expected)
+    {
+        // Arrange
+        var mockCombatEvent = MockBuilders.CreateMockCombatEventService();
+        var config = MockBuilders.CreateDefaultConfiguration();
+        config.Healing.EnableCritVarianceReduction = true;
+        config.Healing.CritVarianceReduction = varianceRate;
+
+        using var service = new HpPredictionService(mockCombatEvent.Object, config);
+
+        const uint entityId = 1;
+        const uint currentHp = 5000;
+        const uint maxHp = 10000;
+        const int healAmount = 2000;
+
+        service.RegisterPendingHeal(entityId, healAmount);
+
+        // Act
+        var result = service.GetPredictedHp(entityId, currentHp, maxHp);
+
+        // Assert
+        Assert.Equal(expected, result);
     }
 
     #endregion

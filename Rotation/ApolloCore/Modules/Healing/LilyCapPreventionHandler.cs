@@ -62,6 +62,10 @@ public sealed class LilyCapPreventionHandler : IHealingHandler
         if (target is null)
             return false;
 
+        // Skip if another handler is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId))
+            return false;
+
         if (!DistanceHelper.IsInRange(context.Player, target, WHMActions.AfflatusSolace.Range))
             return false;
 
@@ -74,6 +78,9 @@ public sealed class LilyCapPreventionHandler : IHealingHandler
         var success = context.ActionService.ExecuteGcd(action, target.GameObjectId);
         if (success)
         {
+            // Reserve target to prevent other handlers from double-healing
+            context.HealingCoordination.TryReserveTarget(target.EntityId);
+
             context.Debug.PlannedAction = $"Afflatus Solace (Lily cap prevention)";
             context.Debug.PlanningState = "Lily Cap Prevention";
             context.ActionTracker.LogAttempt(action.ActionId, target.Name?.TextValue ?? "Unknown",

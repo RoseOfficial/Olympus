@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Config;
+using Olympus.Services.Prediction;
 
 namespace Olympus.Services.Healing.Models;
 
@@ -63,6 +64,12 @@ public sealed record HealSelectionContext
 
     /// <summary>Current damage rate (DPS) being taken by the target. Used for dynamic thresholds.</summary>
     public float DamageRate { get; init; }
+
+    /// <summary>HP trend for the target (stable, falling, rising, critical). Used for survivability triage.</summary>
+    public HpTrend TargetTrend { get; init; } = HpTrend.Stable;
+
+    /// <summary>Estimated time until target dies at current damage rate (seconds). Used for urgency triage.</summary>
+    public float TimeToDeath { get; init; } = float.MaxValue;
 }
 
 /// <summary>

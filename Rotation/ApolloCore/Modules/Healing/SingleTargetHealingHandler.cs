@@ -36,6 +36,10 @@ public sealed class SingleTargetHealingHandler : IHealingHandler
         if (target is null)
             return false;
 
+        // Skip if another handler is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId))
+            return false;
+
         var hasRegen = StatusHelper.HasRegenActive(target, out var regenRemaining);
         var isInMpConservation = context.MpForecastService.IsInConservationMode;
 
@@ -74,6 +78,9 @@ public sealed class SingleTargetHealingHandler : IHealingHandler
 
         if (success)
         {
+            // Reserve target to prevent other handlers from double-healing
+            context.HealingCoordination.TryReserveTarget(target.EntityId);
+
             var thinAirNote = context.HasThinAir ? " + Thin Air" : "";
             context.Debug.PlannedAction = action.Name + thinAirNote;
             context.Debug.PlanningState = "Single Heal";

@@ -6,6 +6,7 @@ namespace Olympus.Rotation.ApolloCore.Modules.Healing;
 
 /// <summary>
 /// Handles Regen HoT maintenance with tank priority.
+/// Supports dynamic threshold based on damage rate.
 /// </summary>
 public sealed class RegenHandler : IHealingHandler
 {
@@ -23,8 +24,15 @@ public sealed class RegenHandler : IHealingHandler
         if (player.Level < WHMActions.Regen.MinLevel)
             return false;
 
-        var target = context.PartyHelper.FindRegenTarget(player, GameConstants.RegenHpThreshold, GameConstants.RegenRefreshThreshold);
+        // Calculate dynamic Regen threshold based on party damage state
+        var regenHpThreshold = GetDynamicRegenThreshold(context);
+
+        var target = context.PartyHelper.FindRegenTarget(player, regenHpThreshold, GameConstants.RegenRefreshThreshold);
         if (target is null)
+            return false;
+
+        // Skip if another handler is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId))
             return false;
 
         if (isMoving && WHMActions.Regen.CastTime > 0)
@@ -34,10 +42,38 @@ public sealed class RegenHandler : IHealingHandler
             target.Name?.TextValue ?? "Unknown", target.CurrentHp, "Regen",
             appendThinAirNote: false))
         {
-            context.Debug.PlannedAction = "Regen (tank priority)";
+            // Reserve target to prevent other handlers from double-healing
+            context.HealingCoordination.TryReserveTarget(target.EntityId);
+
+            var thresholdNote = regenHpThreshold > GameConstants.RegenHpThreshold
+                ? $" (dynamic {regenHpThreshold:P0})"
+                : "";
+            context.Debug.PlannedAction = $"Regen (tank priority{thresholdNote})";
             return true;
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Calculates the dynamic Regen HP threshold based on damage patterns.
+    /// During high-damage phases, Regen is applied at a higher threshold.
+    /// </summary>
+    private static float GetDynamicRegenThreshold(ApolloContext context)
+    {
+        var config = context.Configuration;
+
+        // If dynamic threshold disabled, use default
+        if (!config.Healing.EnableDynamicRegenThreshold)
+            return GameConstants.RegenHpThreshold;
+
+        // Check if anyone is taking high damage
+        var partyDamageRate = context.DamageIntakeService.GetPartyDamageRate(3f);
+
+        // If party is taking significant damage, use higher threshold
+        if (partyDamageRate >= config.Healing.RegenHighDamageDpsThreshold)
+            return config.Healing.RegenHighDamageThreshold;
+
+        return GameConstants.RegenHpThreshold;
     }
 }

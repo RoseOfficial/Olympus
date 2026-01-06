@@ -27,6 +27,10 @@ public sealed class BenedictionHandler : IHealingHandler
         if (target is null)
             return false;
 
+        // Skip if another handler is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId))
+            return false;
+
         var hpPercent = context.PartyHelper.GetHpPercent(target);
 
         // Get current damage rate for dynamic threshold calculation
@@ -63,6 +67,9 @@ public sealed class BenedictionHandler : IHealingHandler
         if (ActionExecutor.ExecuteHealingOgcd(context, WHMActions.Benediction, target.GameObjectId,
             target.EntityId, target.Name?.TextValue ?? "Unknown", target.CurrentHp, missingHp))
         {
+            // Reserve target to prevent other handlers from double-healing
+            context.HealingCoordination.TryReserveTarget(target.EntityId);
+
             // Update debug info with reason
             var thresholdInfo = emergencyThreshold > baseEmergencyThreshold
                 ? $", threshold escalated to {emergencyThreshold:P0}"

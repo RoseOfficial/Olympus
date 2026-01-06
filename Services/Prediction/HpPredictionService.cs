@@ -7,6 +7,8 @@ using Olympus.Services;
 
 namespace Olympus.Services.Prediction;
 
+// Configuration forward declaration - actual class is in Olympus namespace
+
 /// <summary>
 /// HP prediction service that tracks multiple concurrent pending heals.
 /// Prevents double-healing by making targets appear "healed" immediately after action execution.
@@ -15,6 +17,7 @@ namespace Olympus.Services.Prediction;
 public sealed class HpPredictionService : IHpPredictionService, IDisposable
 {
     private readonly ICombatEventService _combatEventService;
+    private readonly Configuration _configuration;
 
     /// <summary>
     /// Represents a single pending heal entry with its amount and registration time.
@@ -26,9 +29,10 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
     private readonly ConcurrentDictionary<uint, List<PendingHealEntry>> _pendingHealsByTarget = new();
     private readonly object _healsLock = new();
 
-    public HpPredictionService(ICombatEventService combatEventService)
+    public HpPredictionService(ICombatEventService combatEventService, Configuration configuration)
     {
         _combatEventService = combatEventService;
+        _configuration = configuration;
 
         // Subscribe to heal landed event to clear pending heals for that target
         _combatEventService.OnLocalPlayerHealLanded += OnHealLanded;
@@ -50,6 +54,7 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
 
     /// <summary>
     /// Gets predicted HP for an entity (shadow HP + all pending heals).
+    /// Applies pessimistic variance reduction when enabled to account for crit variance.
     /// </summary>
     public uint GetPredictedHp(uint entityId, uint currentHp, uint maxHp)
     {
@@ -79,6 +84,14 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
                     totalPendingHeal += heal.Amount;
                 }
             }
+        }
+
+        // Apply pessimistic variance reduction when enabled
+        // This accounts for crit heals landing higher than predicted, which could cause overprediction
+        if (_configuration.Healing.EnableCritVarianceReduction && totalPendingHeal > 0)
+        {
+            var varianceReduction = _configuration.Healing.CritVarianceReduction;
+            totalPendingHeal = (int)(totalPendingHeal * (1f - varianceReduction));
         }
 
         return (uint)Math.Clamp(baseHp + totalPendingHeal, 0, (int)maxHp);

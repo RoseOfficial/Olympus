@@ -6,6 +6,7 @@ using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Services.Healing.Models;
+using Olympus.Services.Prediction;
 
 namespace Olympus.Services.Healing.Strategies;
 
@@ -38,6 +39,15 @@ public sealed record HealScoreContext
 
     /// <summary>Whether in MP conservation mode.</summary>
     public required bool IsInMpConservationMode { get; init; }
+
+    /// <summary>Target's HP trend (stable, falling, rising, critical).</summary>
+    public HpTrend TargetTrend { get; init; } = HpTrend.Stable;
+
+    /// <summary>Estimated time until target dies (seconds).</summary>
+    public float TimeToDeath { get; init; } = float.MaxValue;
+
+    /// <summary>Configuration for survivability trending bonuses.</summary>
+    public required HealingConfig Config { get; init; }
 }
 
 /// <summary>
@@ -82,7 +92,10 @@ public sealed class ScoredHealSelectionStrategy : IHealSelectionStrategy
                     IsWeaveWindow = context.IsWeaveWindow,
                     LilyCount = context.LilyCount,
                     BloodLilyCount = context.BloodLilyCount,
-                    IsInMpConservationMode = context.IsInMpConservationMode
+                    IsInMpConservationMode = context.IsInMpConservationMode,
+                    TargetTrend = context.TargetTrend,
+                    TimeToDeath = context.TimeToDeath,
+                    Config = context.Config
                 }, context.Config.ScoreWeights);
                 candidates.Add((result.Action, result.HealAmount, score, $"Lily heal (score: {score:F2})"));
             }
@@ -110,7 +123,10 @@ public sealed class ScoredHealSelectionStrategy : IHealSelectionStrategy
                     IsWeaveWindow = context.IsWeaveWindow,
                     LilyCount = context.LilyCount,
                     BloodLilyCount = context.BloodLilyCount,
-                    IsInMpConservationMode = context.IsInMpConservationMode
+                    IsInMpConservationMode = context.IsInMpConservationMode,
+                    TargetTrend = context.TargetTrend,
+                    TimeToDeath = context.TimeToDeath,
+                    Config = context.Config
                 }, context.Config.ScoreWeights);
                 candidates.Add((result.Action, result.HealAmount, score, $"Regen (score: {score:F2})"));
             }
@@ -136,7 +152,10 @@ public sealed class ScoredHealSelectionStrategy : IHealSelectionStrategy
                     IsWeaveWindow = context.IsWeaveWindow,
                     LilyCount = context.LilyCount,
                     BloodLilyCount = context.BloodLilyCount,
-                    IsInMpConservationMode = context.IsInMpConservationMode
+                    IsInMpConservationMode = context.IsInMpConservationMode,
+                    TargetTrend = context.TargetTrend,
+                    TimeToDeath = context.TimeToDeath,
+                    Config = context.Config
                 }, context.Config.ScoreWeights);
                 var freecureNote = context.HasFreecure ? " (Freecure!)" : "";
                 candidates.Add((result.Action, result.HealAmount, score, $"Cure II{freecureNote} (score: {score:F2})"));
@@ -163,7 +182,10 @@ public sealed class ScoredHealSelectionStrategy : IHealSelectionStrategy
                     IsWeaveWindow = context.IsWeaveWindow,
                     LilyCount = context.LilyCount,
                     BloodLilyCount = context.BloodLilyCount,
-                    IsInMpConservationMode = context.IsInMpConservationMode
+                    IsInMpConservationMode = context.IsInMpConservationMode,
+                    TargetTrend = context.TargetTrend,
+                    TimeToDeath = context.TimeToDeath,
+                    Config = context.Config
                 }, context.Config.ScoreWeights);
                 candidates.Add((result.Action, result.HealAmount, score, $"Cure (score: {score:F2})"));
             }
@@ -366,6 +388,32 @@ public sealed class ScoredHealSelectionStrategy : IHealSelectionStrategy
             overhealPenalty = 1.0f;
         }
         score -= overhealPenalty * weights.OverhealPenalty;
+
+        // 7. Survivability trending bonuses (if enabled)
+        if (context.Config.EnableSurvivabilityTrending)
+        {
+            // Falling HP bonus: prioritize targets with falling HP
+            if (context.TargetTrend == HpTrend.Falling || context.TargetTrend == HpTrend.Critical)
+            {
+                var fallingBonus = context.Config.FallingTargetUrgencyBonus;
+
+                // Double bonus for critical trend
+                if (context.TargetTrend == HpTrend.Critical)
+                    fallingBonus *= 2f;
+
+                score += fallingBonus;
+            }
+
+            // Low TTD bonus: prioritize targets close to death
+            if (context.TimeToDeath < context.Config.LowTtdThresholdSeconds)
+            {
+                // Scale bonus based on how close to death
+                // At 0 TTD = full bonus, at threshold = 0 bonus
+                var ttdRatio = 1f - (context.TimeToDeath / context.Config.LowTtdThresholdSeconds);
+                var ttdBonus = context.Config.LowTtdUrgencyBonus * ttdRatio;
+                score += ttdBonus;
+            }
+        }
 
         return Math.Max(0f, score);
     }

@@ -159,6 +159,43 @@ public sealed class HealingConfig
     // HoT
     public bool EnableRegen { get; set; } = true;
 
+    // Dynamic Regen Threshold Settings
+
+    /// <summary>
+    /// Enable dynamic Regen threshold based on damage rate.
+    /// When enabled, Regen is applied at higher HP thresholds during high-damage phases
+    /// to ensure the HoT is ticking before damage lands.
+    /// Default true enables proactive Regen application.
+    /// </summary>
+    public bool EnableDynamicRegenThreshold { get; set; } = true;
+
+    /// <summary>
+    /// HP threshold for applying Regen during high-damage phases.
+    /// When target is taking significant damage, apply Regen at this threshold
+    /// instead of the default 90%. Default 0.95 (95%) allows proactive Regen.
+    /// Valid range: 0.85 to 1.0.
+    /// </summary>
+    private float _regenHighDamageThreshold = 0.95f;
+    public float RegenHighDamageThreshold
+    {
+        get => _regenHighDamageThreshold;
+        set => _regenHighDamageThreshold = Math.Clamp(value, 0.85f, 1f);
+    }
+
+    /// <summary>
+    /// Damage rate (DPS) threshold to trigger high-damage Regen threshold.
+    /// When target is taking this much DPS or more, use RegenHighDamageThreshold
+    /// instead of the default threshold.
+    /// Default 300 means apply Regen more proactively when target is taking 300+ DPS.
+    /// Valid range: 0 to 2000.
+    /// </summary>
+    private float _regenHighDamageDpsThreshold = 300f;
+    public float RegenHighDamageDpsThreshold
+    {
+        get => _regenHighDamageDpsThreshold;
+        set => _regenHighDamageDpsThreshold = Math.Clamp(value, 0f, 2000f);
+    }
+
     // oGCD heals
     public bool EnableTetragrammaton { get; set; } = true;
     public bool EnableBenediction { get; set; } = true;
@@ -411,6 +448,29 @@ public sealed class HealingConfig
         set => _spikePredictionLookahead = Math.Clamp(value, 0.5f, 5.0f);
     }
 
+    /// <summary>
+    /// Use the planned healing spell's cast time for preemptive lookahead.
+    /// When enabled, the damage projection uses the spell's cast time instead of a fixed window.
+    /// This allows faster spells (Lily heals = instant) to be more reactive while
+    /// slower spells (Cure II = 1.5s) project further ahead.
+    /// Default true enables smarter preemptive healing timing.
+    /// </summary>
+    public bool UseSpellCastTimeForLookahead { get; set; } = true;
+
+    /// <summary>
+    /// Minimum lookahead time for preemptive healing (seconds).
+    /// When using spell cast time for lookahead, this is the minimum projection window.
+    /// Prevents instant-cast spells from being too reactive.
+    /// Default 0.5 seconds ensures some lookahead even for instant-cast heals.
+    /// Valid range: 0.0 to 2.0.
+    /// </summary>
+    private float _minPreemptiveLookahead = 0.5f;
+    public float MinPreemptiveLookahead
+    {
+        get => _minPreemptiveLookahead;
+        set => _minPreemptiveLookahead = Math.Clamp(value, 0f, 2f);
+    }
+
     // Scored Heal Selection Settings
 
     /// <summary>
@@ -426,6 +486,78 @@ public sealed class HealingConfig
     /// Only used when EnableScoredHealSelection is true.
     /// </summary>
     public HealingScoreWeights ScoreWeights { get; set; } = new();
+
+    // Survivability Trending Settings
+
+    /// <summary>
+    /// Enable survivability trending in heal selection.
+    /// When enabled, targets with falling HP are prioritized higher than targets
+    /// at the same HP percentage but stable/rising HP.
+    /// Default true enables smarter healing triage.
+    /// </summary>
+    public bool EnableSurvivabilityTrending { get; set; } = true;
+
+    /// <summary>
+    /// Urgency bonus multiplier for targets with falling HP.
+    /// Applied when HP trend is Falling or Critical.
+    /// Default 0.2 adds 20% priority bonus for falling targets.
+    /// Valid range: 0.0 to 0.5.
+    /// </summary>
+    private float _fallingTargetUrgencyBonus = 0.2f;
+    public float FallingTargetUrgencyBonus
+    {
+        get => _fallingTargetUrgencyBonus;
+        set => _fallingTargetUrgencyBonus = Math.Clamp(value, 0f, 0.5f);
+    }
+
+    /// <summary>
+    /// Additional urgency bonus for targets with low time-to-death.
+    /// Applied when estimated TTD is below LowTtdThresholdSeconds.
+    /// Default 0.4 adds 40% priority bonus for critically endangered targets.
+    /// Valid range: 0.0 to 1.0.
+    /// </summary>
+    private float _lowTtdUrgencyBonus = 0.4f;
+    public float LowTtdUrgencyBonus
+    {
+        get => _lowTtdUrgencyBonus;
+        set => _lowTtdUrgencyBonus = Math.Clamp(value, 0f, 1f);
+    }
+
+    /// <summary>
+    /// Time-to-death threshold (in seconds) to trigger low TTD urgency bonus.
+    /// When a target's estimated TTD is below this, apply LowTtdUrgencyBonus.
+    /// Default 3.0 seconds triggers urgency for targets dying soon.
+    /// Valid range: 1.0 to 10.0.
+    /// </summary>
+    private float _lowTtdThresholdSeconds = 3f;
+    public float LowTtdThresholdSeconds
+    {
+        get => _lowTtdThresholdSeconds;
+        set => _lowTtdThresholdSeconds = Math.Clamp(value, 1f, 10f);
+    }
+
+    // HP Prediction Crit Variance Settings
+
+    /// <summary>
+    /// Enable pessimistic HP prediction variance to account for heal crits.
+    /// When enabled, predicted HP is reduced slightly to avoid overpredicting
+    /// based on crit heals landing higher than expected.
+    /// Default true enables more conservative HP predictions.
+    /// </summary>
+    public bool EnableCritVarianceReduction { get; set; } = true;
+
+    /// <summary>
+    /// Percentage reduction applied to heal predictions to account for crit variance.
+    /// Higher values make predictions more conservative (assume heals land lower).
+    /// Default 0.08 (8%) accounts for typical crit variance in heal amounts.
+    /// Valid range: 0.0 to 0.25.
+    /// </summary>
+    private float _critVarianceReduction = 0.08f;
+    public float CritVarianceReduction
+    {
+        get => _critVarianceReduction;
+        set => _critVarianceReduction = Math.Clamp(value, 0f, 0.25f);
+    }
 
     // Overheal Prevention Settings
 

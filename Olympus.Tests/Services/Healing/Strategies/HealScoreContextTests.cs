@@ -1,5 +1,7 @@
+using Olympus.Config;
 using Olympus.Data;
 using Olympus.Services.Healing.Strategies;
+using Olympus.Tests.Mocks;
 using Xunit;
 
 namespace Olympus.Tests.Services.Healing.Strategies;
@@ -28,6 +30,7 @@ public class HealScoreContextTests
     [Fact]
     public void HealScoreContext_CanBeCreated_WithValidValues()
     {
+        var config = MockBuilders.CreateDefaultConfiguration();
         var context = new HealScoreContext
         {
             Action = WHMActions.CureII,
@@ -37,7 +40,8 @@ public class HealScoreContextTests
             IsWeaveWindow = false,
             LilyCount = 2,
             BloodLilyCount = 1,
-            IsInMpConservationMode = false
+            IsInMpConservationMode = false,
+            Config = config.Healing
         };
 
         Assert.Equal(WHMActions.CureII, context.Action);
@@ -53,6 +57,7 @@ public class HealScoreContextTests
     [Fact]
     public void HealScoreContext_RecordEquality_WorksCorrectly()
     {
+        var config = MockBuilders.CreateDefaultConfiguration();
         var context1 = new HealScoreContext
         {
             Action = WHMActions.Cure,
@@ -62,7 +67,8 @@ public class HealScoreContextTests
             IsWeaveWindow = false,
             LilyCount = 1,
             BloodLilyCount = 0,
-            IsInMpConservationMode = false
+            IsInMpConservationMode = false,
+            Config = config.Healing
         };
 
         var context2 = new HealScoreContext
@@ -74,7 +80,8 @@ public class HealScoreContextTests
             IsWeaveWindow = false,
             LilyCount = 1,
             BloodLilyCount = 0,
-            IsInMpConservationMode = false
+            IsInMpConservationMode = false,
+            Config = config.Healing
         };
 
         Assert.Equal(context1, context2);
@@ -83,6 +90,7 @@ public class HealScoreContextTests
     [Fact]
     public void HealScoreContext_RecordInequality_WorksCorrectly()
     {
+        var config = MockBuilders.CreateDefaultConfiguration();
         var context1 = new HealScoreContext
         {
             Action = WHMActions.Cure,
@@ -92,7 +100,8 @@ public class HealScoreContextTests
             IsWeaveWindow = false,
             LilyCount = 1,
             BloodLilyCount = 0,
-            IsInMpConservationMode = false
+            IsInMpConservationMode = false,
+            Config = config.Healing
         };
 
         var context2 = new HealScoreContext
@@ -104,7 +113,8 @@ public class HealScoreContextTests
             IsWeaveWindow = false,
             LilyCount = 1,
             BloodLilyCount = 0,
-            IsInMpConservationMode = false
+            IsInMpConservationMode = false,
+            Config = config.Healing
         };
 
         Assert.NotEqual(context1, context2);
@@ -113,6 +123,7 @@ public class HealScoreContextTests
     [Fact]
     public void HealScoreContext_WithMutation_CreatesNewRecord()
     {
+        var config = MockBuilders.CreateDefaultConfiguration();
         var original = new HealScoreContext
         {
             Action = WHMActions.Cure,
@@ -122,7 +133,8 @@ public class HealScoreContextTests
             IsWeaveWindow = false,
             LilyCount = 1,
             BloodLilyCount = 0,
-            IsInMpConservationMode = false
+            IsInMpConservationMode = false,
+            Config = config.Healing
         };
 
         var modified = original with { HasFreecure = true };

@@ -62,6 +62,9 @@ public sealed class ApolloContext : IApolloContext
     // Debug state (mutable, updated by modules)
     public DebugState Debug { get; }
 
+    // Healing coordination (frame-scoped, cleared each frame by HealingModule)
+    public HealingCoordinationState HealingCoordination { get; }
+
     // Optional logging (null in tests)
     public IPluginLog? Log { get; }
 
@@ -139,6 +142,7 @@ public sealed class ApolloContext : IApolloContext
         PartyHelper = partyHelper;
         CooldownPlanner = cooldownPlanner;
         Debug = debugState ?? new DebugState();
+        HealingCoordination = new HealingCoordinationState();
         Log = log;
     }
 

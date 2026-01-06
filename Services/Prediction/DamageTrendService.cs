@@ -551,4 +551,57 @@ public sealed class DamageTrendService : IDamageTrendService
 
         return lastValidDuration;
     }
+
+    // HP Trend classification thresholds
+    private const float HpChangeStableThreshold = 0.02f;    // +/-2% = stable
+    private const float HpChangeCriticalThreshold = 0.10f;  // -10%+ in window = critical
+
+    /// <inheritdoc />
+    public HpTrend GetHpTrend(uint entityId, uint currentHp, uint maxHp, float windowSeconds = 3f)
+    {
+        if (maxHp == 0)
+            return HpTrend.Stable;
+
+        // Get damage taken over the window
+        var damageInWindow = _damageIntakeService.GetRecentDamageIntake(entityId, windowSeconds);
+
+        // TODO: Factor in healing received once heal tracking is available
+        // For now, we only have damage data, so rising HP is inferred from low damage
+        var netDamage = damageInWindow; // Would be damageInWindow - healingInWindow
+
+        // Calculate HP change as percentage of max HP
+        var hpChangePercent = (float)netDamage / maxHp;
+
+        // Classify based on HP change
+        if (hpChangePercent >= HpChangeCriticalThreshold)
+            return HpTrend.Critical;
+
+        if (hpChangePercent >= HpChangeStableThreshold)
+            return HpTrend.Falling;
+
+        if (hpChangePercent <= -HpChangeStableThreshold)
+            return HpTrend.Rising;
+
+        return HpTrend.Stable;
+    }
+
+    /// <inheritdoc />
+    public float EstimateTimeToDeath(uint entityId, uint currentHp, float windowSeconds = 3f)
+    {
+        if (currentHp == 0)
+            return 0f; // Already dead
+
+        // Get current damage rate
+        var damageRate = _damageIntakeService.GetDamageRate(entityId, windowSeconds);
+
+        // If not taking damage or damage rate is negligible, not in danger
+        if (damageRate < MinDamageRateForTrend)
+            return float.MaxValue;
+
+        // Estimate time to death: currentHp / damageRate
+        // This is a simple linear projection - actual TTD may vary with heals/mitigation
+        var ttd = currentHp / damageRate;
+
+        return ttd;
+    }
 }

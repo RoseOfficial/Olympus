@@ -79,13 +79,25 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
         if (target is null)
             return false;
 
+        // Skip if another handler is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId))
+            return false;
+
         // Check if target is actually at risk
         var targetHpPercent = context.PartyHelper.GetHpPercent(target);
         var targetDamageRate = context.DamageTrendService.GetCurrentDamageRate(target.EntityId, 3f);
 
+        // Calculate lookahead window based on configuration
+        // Default to 2 seconds if not using spell cast time
+        var defaultLookahead = 2f;
+
+        // For initial risk assessment, use the configured spike prediction lookahead
+        var initialLookahead = config.Healing.UseSpellCastTimeForLookahead
+            ? Math.Max(config.Healing.MinPreemptiveLookahead, 1.5f) // Use Cure II cast time as initial estimate
+            : defaultLookahead;
+
         // Estimate if target will drop below danger threshold based on current damage rate
-        // If taking 500+ DPS and below 70% HP, they're at risk from a spike
-        var projectedDamage = targetDamageRate * 2f; // 2 second lookahead
+        var projectedDamage = targetDamageRate * initialLookahead;
         var projectedHp = target.CurrentHp > projectedDamage ? target.CurrentHp - (uint)projectedDamage : 0;
         var projectedHpPercent = (float)projectedHp / target.MaxHp;
 
@@ -112,6 +124,9 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
                 if (ActionExecutor.ExecuteHealingOgcd(context, WHMActions.Tetragrammaton, target.GameObjectId,
                     target.EntityId, target.Name?.TextValue ?? "Unknown", target.CurrentHp, healAmount))
                 {
+                    // Reserve target to prevent other handlers from double-healing
+                    context.HealingCoordination.TryReserveTarget(target.EntityId);
+
                     context.Debug.PlannedAction = $"Tetragrammaton (preemptive, spike severity {spikeSeverity:F2})";
                     context.LogOgcdDecision(
                         target.Name?.TextValue ?? "Unknown",
@@ -132,6 +147,9 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
                 if (ActionExecutor.ExecuteHealingOgcd(context, WHMActions.Benediction, target.GameObjectId,
                     target.EntityId, target.Name?.TextValue ?? "Unknown", target.CurrentHp, missingHp))
                 {
+                    // Reserve target to prevent other handlers from double-healing
+                    context.HealingCoordination.TryReserveTarget(target.EntityId);
+
                     context.Debug.PlannedAction = $"Benediction (preemptive, critical spike severity {spikeSeverity:F2})";
                     context.LogOgcdDecision(
                         target.Name?.TextValue ?? "Unknown",
@@ -158,6 +176,9 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
 
                 if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
                 {
+                    // Reserve target to prevent other handlers from double-healing
+                    context.HealingCoordination.TryReserveTarget(target.EntityId);
+
                     var thinAirNote = context.HasThinAir ? " + Thin Air" : "";
                     context.Debug.PlannedAction = $"{action.Name} (preemptive){thinAirNote}";
                     context.Debug.PlanningState = "Preemptive Heal";

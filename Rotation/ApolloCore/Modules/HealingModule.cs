@@ -36,6 +36,9 @@ public sealed class HealingModule : IApolloModule
 
     public bool TryExecute(ApolloContext context, bool isMoving)
     {
+        // Clear frame-scoped coordination state to allow new reservations
+        context.HealingCoordination.Clear();
+
         foreach (var handler in _handlers)
         {
             // Apply execution constraints based on handler type
@@ -58,11 +61,16 @@ public sealed class HealingModule : IApolloModule
     /// Determines if a handler can execute based on current context.
     /// oGCD-only handlers require CanExecuteOgcd, combat-only handlers require InCombat.
     /// </summary>
+    /// <remarks>
+    /// Priority order (lower = executes first):
+    /// Benediction (10) → Assize (15) → Esuna (20) → Tetragrammaton (25) →
+    /// Preemptive (30) → Regen (35) → AoE (40) → Single (50) → LilyCap (80)
+    /// </remarks>
     private static bool CanExecuteHandler(IHealingHandler handler, ApolloContext context)
     {
         return handler.Priority switch
         {
-            // oGCD-only handlers
+            // oGCD-only handlers (free heals - prioritize before GCDs)
             HealingPriority.Benediction => context.CanExecuteOgcd,
             HealingPriority.AssizeHealing => context.CanExecuteOgcd && context.InCombat,
             HealingPriority.Tetragrammaton => context.CanExecuteOgcd,
@@ -73,7 +81,7 @@ public sealed class HealingModule : IApolloModule
             HealingPriority.Regen => context.InCombat,
             HealingPriority.LilyCapPrevention => context.InCombat,
 
-            // Always available handlers
+            // Always available handlers (GCD heals)
             HealingPriority.AoEHeal => true,
             HealingPriority.SingleHeal => true,
 

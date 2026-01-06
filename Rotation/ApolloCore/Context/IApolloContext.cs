@@ -1,5 +1,6 @@
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common;
+using Olympus.Services.Healing;
 using Olympus.Services.Party;
 
 namespace Olympus.Rotation.ApolloCore.Context;
@@ -16,6 +17,12 @@ public interface IApolloContext : IHealerRotationContext
 
     // Debug state
     DebugState Debug { get; }
+
+    // Healing coordination
+    /// <summary>
+    /// Frame-scoped coordination state to prevent multiple handlers from targeting the same entity.
+    /// </summary>
+    HealingCoordinationState HealingCoordination { get; }
 
     // WHM-specific status checks
     /// <summary>

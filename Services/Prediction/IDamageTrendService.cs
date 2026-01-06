@@ -21,6 +21,24 @@ public enum DamageTrend
 }
 
 /// <summary>
+/// HP trend for a target - used for survivability triage.
+/// </summary>
+public enum HpTrend
+{
+    /// <summary>HP is rising (receiving heals or regen ticking).</summary>
+    Rising = 0,
+
+    /// <summary>HP is stable (no significant change).</summary>
+    Stable = 1,
+
+    /// <summary>HP is falling (taking damage).</summary>
+    Falling = 2,
+
+    /// <summary>HP is rapidly falling (critical - taking heavy damage).</summary>
+    Critical = 3
+}
+
+/// <summary>
 /// Service for analyzing damage intake trends over time.
 /// Used to make proactive cooldown decisions (e.g., apply Divine Benison before tank buster).
 /// </summary>
@@ -122,4 +140,25 @@ public interface IDamageTrendService
     /// <param name="thresholdDps">DPS threshold for "high damage".</param>
     /// <returns>Seconds in high-damage phase, or 0 if not in one.</returns>
     float GetHighDamagePhaseDuration(float thresholdDps = 800f);
+
+    /// <summary>
+    /// Gets the HP trend for a specific entity based on recent damage/healing.
+    /// Used for survivability triage - targets with falling HP are more urgent.
+    /// </summary>
+    /// <param name="entityId">The entity to check.</param>
+    /// <param name="currentHp">Current HP of the entity.</param>
+    /// <param name="maxHp">Maximum HP of the entity.</param>
+    /// <param name="windowSeconds">Time window to analyze (default 3 seconds).</param>
+    /// <returns>The detected HP trend.</returns>
+    HpTrend GetHpTrend(uint entityId, uint currentHp, uint maxHp, float windowSeconds = 3f);
+
+    /// <summary>
+    /// Estimates time until an entity dies at current damage rate.
+    /// Returns float.MaxValue if not taking damage or would not die.
+    /// </summary>
+    /// <param name="entityId">The entity to check.</param>
+    /// <param name="currentHp">Current HP of the entity.</param>
+    /// <param name="windowSeconds">Time window for damage rate calculation (default 3 seconds).</param>
+    /// <returns>Estimated seconds until death, or float.MaxValue if not in danger.</returns>
+    float EstimateTimeToDeath(uint entityId, uint currentHp, float windowSeconds = 3f);
 }
