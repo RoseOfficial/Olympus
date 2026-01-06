@@ -1,70 +1,51 @@
-using Dalamud.Game.ClientState.Objects.SubKinds;
-using Dalamud.Game.ClientState.Party;
-using Dalamud.Plugin.Services;
 using Olympus.Rotation.ApolloCore.Helpers;
-using Olympus.Services;
-using Olympus.Services.Action;
-using Olympus.Services.Debuff;
-using Olympus.Services.Healing;
-using Olympus.Services.Prediction;
-using Olympus.Services.Resource;
-using Olympus.Services.Stats;
-using Olympus.Services.Cache;
-using Olympus.Services.Targeting;
+using Olympus.Rotation.Common;
+using Olympus.Services.Party;
 
 namespace Olympus.Rotation.ApolloCore.Context;
 
 /// <summary>
-/// Interface for Apollo context to enable unit testing.
-/// Provides access to player state, services, and helper utilities.
+/// Interface for Apollo (White Mage) context.
+/// Extends the healer rotation context with WHM-specific properties.
 /// </summary>
-public interface IApolloContext
+public interface IApolloContext : IHealerRotationContext
 {
-    // Player state
-    IPlayerCharacter Player { get; }
-    bool InCombat { get; }
-    bool IsMoving { get; }
-    bool CanExecuteGcd { get; }
-    bool CanExecuteOgcd { get; }
-
-    // Services with interfaces
-    IActionService ActionService { get; }
-    ICombatEventService CombatEventService { get; }
-    IDamageIntakeService DamageIntakeService { get; }
-    IDamageTrendService DamageTrendService { get; }
-    IFrameScopedCache FrameCache { get; }
-    Configuration Configuration { get; }
-    IDebuffDetectionService DebuffDetectionService { get; }
-    IHpPredictionService HpPredictionService { get; }
-    IMpForecastService MpForecastService { get; }
-    IPlayerStatsService PlayerStatsService { get; }
-    ITargetingService TargetingService { get; }
-
-    // Services without interfaces (concrete types for now)
-    ActionTracker ActionTracker { get; }
-    IHealingSpellSelector HealingSpellSelector { get; }
-
-    // Dalamud services
-    IObjectTable ObjectTable { get; }
-    IPartyList PartyList { get; }
-
-    // Helpers
+    // WHM-specific helpers
     StatusHelper StatusHelper { get; }
     IPartyHelper PartyHelper { get; }
 
     // Debug state
     DebugState Debug { get; }
 
-    // Cached status checks (computed once per frame)
+    // WHM-specific status checks
+    /// <summary>
+    /// Whether the player has Thin Air active (free MP on next spell).
+    /// </summary>
     bool HasThinAir { get; }
-    bool HasFreecure { get; }
-    bool HasSwiftcast { get; }
-    int LilyCount { get; }
-    int BloodLilyCount { get; }
-    int SacredSightStacks { get; }
 
     /// <summary>
-    /// Cached party health metrics (avgHpPercent, lowestHpPercent, injuredCount).
+    /// Whether the player has Freecure proc (free Cure II).
     /// </summary>
-    (float avgHpPercent, float lowestHpPercent, int injuredCount) PartyHealthMetrics { get; }
+    bool HasFreecure { get; }
+
+    // WHM Job Gauge
+    /// <summary>
+    /// Current Lily count (0-3).
+    /// </summary>
+    int LilyCount { get; }
+
+    /// <summary>
+    /// Current Blood Lily count (0-3).
+    /// </summary>
+    int BloodLilyCount { get; }
+
+    /// <summary>
+    /// Current Sacred Sight stacks for Glare IV (0-3).
+    /// </summary>
+    int SacredSightStacks { get; }
+
+    // Logging helpers (implemented in ApolloContext)
+    void LogHealDecision(string targetName, float hpPercent, string spellName, int predictedHeal, string reason);
+    void LogOgcdDecision(string targetName, float hpPercent, string spellName, string reason);
+    void LogDefensiveDecision(string targetName, float hpPercent, string spellName, float damageRate, string reason);
 }

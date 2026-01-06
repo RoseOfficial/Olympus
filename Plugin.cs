@@ -20,7 +20,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.5.10";
+    public const string PluginVersion = "1.6.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -107,24 +107,10 @@ public sealed class Plugin : IDalamudPlugin
         // Debuff detection service for Esuna
         this.debuffDetectionService = new DebuffDetectionService(dataManager);
 
-        this.apollo = new Apollo(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            healingSpellSelector,
-            debuffDetectionService);
-
-        // Register rotations with the rotation manager
+        // Create and register rotation modules via factory
         this.rotationManager = new RotationManager();
-        this.rotationManager.Register(apollo);
+        this.apollo = CreateApolloRotation();
+        RegisterAvailableRotations();
 
         // Debug service aggregates all debug data
         this.debugService = new DebugService(
@@ -232,6 +218,61 @@ public sealed class Plugin : IDalamudPlugin
 
         rotationManager.Execute(localPlayer);
     }
+
+    #region Rotation Factory
+
+    /// <summary>
+    /// Registers all available rotation modules with the rotation manager.
+    /// Add new rotation registrations here as they are implemented.
+    /// </summary>
+    private void RegisterAvailableRotations()
+    {
+        // Healers
+        rotationManager.Register(apollo);
+
+        // Future: Add more rotations as they're implemented
+        // rotationManager.Register(CreateScholarRotation());
+        // rotationManager.Register(CreateAstrologianRotation());
+        // rotationManager.Register(CreateSageRotation());
+    }
+
+    /// <summary>
+    /// Factory method for creating rotation modules by job ID.
+    /// Returns null if no rotation is available for the specified job.
+    /// </summary>
+    /// <param name="jobId">The job ID to create a rotation for.</param>
+    /// <returns>The rotation instance, or null if not supported.</returns>
+    private IRotation? CreateRotationModule(uint jobId) => jobId switch
+    {
+        JobRegistry.WhiteMage or JobRegistry.Conjurer => CreateApolloRotation(),
+        // Future: Scholar/Arcanist => CreateScholarRotation(),
+        // Future: Astrologian => CreateAstrologianRotation(),
+        // Future: Sage => CreateSageRotation(),
+        _ => null
+    };
+
+    /// <summary>
+    /// Creates the Apollo (White Mage) rotation module.
+    /// </summary>
+    private Apollo CreateApolloRotation()
+    {
+        return new Apollo(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            healingSpellSelector,
+            debuffDetectionService);
+    }
+
+    #endregion
 
     public void Dispose()
     {

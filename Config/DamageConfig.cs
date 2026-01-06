@@ -1,3 +1,5 @@
+using System;
+
 namespace Olympus.Config;
 
 /// <summary>
@@ -26,6 +28,7 @@ public enum DpsPriorityMode
 
 /// <summary>
 /// Configuration for damage spells (Stone/Glare and Holy progression).
+/// All numeric values are bounds-checked to prevent invalid configurations.
 /// </summary>
 public sealed class DamageConfig
 {
@@ -53,6 +56,12 @@ public sealed class DamageConfig
     /// <summary>
     /// Minimum number of enemies in range to trigger AoE damage (Holy).
     /// Default 3 means use Holy when 3+ enemies are within 8y radius.
+    /// Valid range: 1 to 8.
     /// </summary>
-    public int AoEDamageMinTargets { get; set; } = 3;
+    private int _aoEDamageMinTargets = 3;
+    public int AoEDamageMinTargets
+    {
+        get => _aoEDamageMinTargets;
+        set => _aoEDamageMinTargets = Math.Clamp(value, 1, 8);
+    }
 }

@@ -125,24 +125,70 @@ public sealed class FrameScopedCache : IFrameScopedCache
 
 /// <summary>
 /// Well-known cache keys used throughout the plugin.
+/// Provides type-safe key generation for all cached values.
 /// </summary>
 public static class CacheKeys
 {
+    // Fixed keys (no parameters)
     /// <summary>Cache key for party members list.</summary>
     public const string PartyMembers = "PartyMembers";
 
+    /// <summary>Cache key for party damage rate.</summary>
+    public const string PartyDamageRate = "PartyDamageRate";
+
+    /// <summary>Cache key for party health metrics.</summary>
+    public const string PartyHealthMetrics = "PartyHealthMetrics";
+
+    /// <summary>Cache key for party damage trend.</summary>
+    public const string PartyDamageTrend = "PartyDamageTrend";
+
+    /// <summary>Cache key for damage spike status.</summary>
+    public const string DamageSpikeImminent = "DamageSpikeImminent";
+
+    // Parameterized key generators (type-safe)
+    /// <summary>
+    /// Gets the cache key for player stats at a specific level.
+    /// </summary>
+    public static string PlayerStats(int level) => $"PlayerStats_{level}";
+
+    /// <summary>
+    /// Gets the cache key for an entity's damage rate.
+    /// </summary>
+    public static string DamageRate(uint entityId) => $"DamageRate_{entityId}";
+
+    /// <summary>
+    /// Gets the cache key for an entity's damage rate with a specific window.
+    /// </summary>
+    public static string DamageRate(uint entityId, float windowSeconds)
+        => $"DamageRate_{entityId}_{windowSeconds:F1}";
+
+    /// <summary>
+    /// Gets the cache key for an entity's status check.
+    /// </summary>
+    public static string Status(uint entityId, uint statusId) => $"Status_{entityId}_{statusId}";
+
+    /// <summary>
+    /// Gets the cache key for an entity's predicted HP.
+    /// </summary>
+    public static string PredictedHp(uint entityId) => $"PredictedHp_{entityId}";
+
+    /// <summary>
+    /// Gets the cache key for an entity's HP percentage.
+    /// </summary>
+    public static string HpPercent(uint entityId) => $"HpPercent_{entityId}";
+
+    /// <summary>
+    /// Gets the cache key for an entity's damage acceleration.
+    /// </summary>
+    public static string DamageAcceleration(uint entityId) => $"DamageAccel_{entityId}";
+
+    // Legacy prefixes (for backwards compatibility, prefer helper methods above)
     /// <summary>Cache key prefix for player stats by level.</summary>
     public const string PlayerStatsPrefix = "PlayerStats_";
 
     /// <summary>Cache key prefix for entity damage rate.</summary>
     public const string DamageRatePrefix = "DamageRate_";
 
-    /// <summary>Cache key for party damage rate.</summary>
-    public const string PartyDamageRate = "PartyDamageRate";
-
     /// <summary>Cache key prefix for status checks.</summary>
     public const string StatusPrefix = "Status_";
-
-    /// <summary>Cache key for party health metrics.</summary>
-    public const string PartyHealthMetrics = "PartyHealthMetrics";
 }

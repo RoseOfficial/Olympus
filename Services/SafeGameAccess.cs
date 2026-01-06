@@ -1,3 +1,4 @@
+using System;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Gauge;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
@@ -12,97 +13,53 @@ public static class SafeGameAccess
 {
     // FFXIV has 74 player attributes (indices 0-73)
     private const int MaxAttributeIndex = 74;
+
     /// <summary>
-    /// Safely gets the ActionManager instance.
+    /// Generic helper for safely getting game instance pointers.
+    /// Uses nint to work around C# pointer-generic limitation.
     /// </summary>
-    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
-    /// <returns>Pointer to ActionManager, or null if unavailable.</returns>
-    public static unsafe ActionManager* GetActionManager(IErrorMetricsService? errorMetrics = null)
+    private static unsafe nint SafeGetInstance(
+        Func<nint> getInstance,
+        string typeName,
+        IErrorMetricsService? errorMetrics)
     {
         try
         {
-            var instance = ActionManager.Instance();
-            if (instance == null)
-            {
-                errorMetrics?.RecordError("SafeGameAccess", "ActionManager.Instance() returned null");
-            }
+            var instance = getInstance();
+            if (instance == 0)
+                errorMetrics?.RecordError("SafeGameAccess", $"{typeName}.Instance() returned null");
             return instance;
         }
         catch
         {
-            errorMetrics?.RecordError("SafeGameAccess", "ActionManager.Instance() threw exception");
-            return null;
+            errorMetrics?.RecordError("SafeGameAccess", $"{typeName}.Instance() threw exception");
+            return 0;
         }
     }
+
+    /// <summary>
+    /// Safely gets the ActionManager instance.
+    /// </summary>
+    public static unsafe ActionManager* GetActionManager(IErrorMetricsService? errorMetrics = null)
+        => (ActionManager*)SafeGetInstance(() => (nint)ActionManager.Instance(), "ActionManager", errorMetrics);
 
     /// <summary>
     /// Safely gets the PlayerState instance.
     /// </summary>
-    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
-    /// <returns>Pointer to PlayerState, or null if unavailable.</returns>
     public static unsafe PlayerState* GetPlayerState(IErrorMetricsService? errorMetrics = null)
-    {
-        try
-        {
-            var instance = PlayerState.Instance();
-            if (instance == null)
-            {
-                errorMetrics?.RecordError("SafeGameAccess", "PlayerState.Instance() returned null");
-            }
-            return instance;
-        }
-        catch
-        {
-            errorMetrics?.RecordError("SafeGameAccess", "PlayerState.Instance() threw exception");
-            return null;
-        }
-    }
+        => (PlayerState*)SafeGetInstance(() => (nint)PlayerState.Instance(), "PlayerState", errorMetrics);
 
     /// <summary>
     /// Safely gets the JobGaugeManager instance.
     /// </summary>
-    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
-    /// <returns>Pointer to JobGaugeManager, or null if unavailable.</returns>
     public static unsafe JobGaugeManager* GetJobGaugeManager(IErrorMetricsService? errorMetrics = null)
-    {
-        try
-        {
-            var instance = JobGaugeManager.Instance();
-            if (instance == null)
-            {
-                errorMetrics?.RecordError("SafeGameAccess", "JobGaugeManager.Instance() returned null");
-            }
-            return instance;
-        }
-        catch
-        {
-            errorMetrics?.RecordError("SafeGameAccess", "JobGaugeManager.Instance() threw exception");
-            return null;
-        }
-    }
+        => (JobGaugeManager*)SafeGetInstance(() => (nint)JobGaugeManager.Instance(), "JobGaugeManager", errorMetrics);
 
     /// <summary>
     /// Safely gets the InventoryManager instance.
     /// </summary>
-    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
-    /// <returns>Pointer to InventoryManager, or null if unavailable.</returns>
     public static unsafe InventoryManager* GetInventoryManager(IErrorMetricsService? errorMetrics = null)
-    {
-        try
-        {
-            var instance = InventoryManager.Instance();
-            if (instance == null)
-            {
-                errorMetrics?.RecordError("SafeGameAccess", "InventoryManager.Instance() returned null");
-            }
-            return instance;
-        }
-        catch
-        {
-            errorMetrics?.RecordError("SafeGameAccess", "InventoryManager.Instance() threw exception");
-            return null;
-        }
-    }
+        => (InventoryManager*)SafeGetInstance(() => (nint)InventoryManager.Instance(), "InventoryManager", errorMetrics);
 
     /// <summary>
     /// Safely gets the WHM Lily count from the job gauge.

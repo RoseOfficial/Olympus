@@ -24,6 +24,7 @@ public interface IHealingSpellSelector
     /// <param name="hasFreecure">Whether the player has the Freecure proc (prioritizes Cure II).</param>
     /// <param name="hasRegen">Whether the target already has Regen active.</param>
     /// <param name="regenRemaining">Remaining duration of Regen on target (0 if not present).</param>
+    /// <param name="isInMpConservationMode">Whether MP is low and should conserve.</param>
     /// <returns>The best action and its heal amount, or null if no valid heal found.</returns>
     (ActionDefinition? action, int healAmount) SelectBestSingleHeal(
         IPlayerCharacter player,
@@ -31,7 +32,8 @@ public interface IHealingSpellSelector
         bool isWeaveWindow,
         bool hasFreecure = false,
         bool hasRegen = false,
-        float regenRemaining = 0f);
+        float regenRemaining = 0f,
+        bool isInMpConservationMode = false);
 
     /// <summary>
     /// Selects the best AoE heal for the current situation.
@@ -44,6 +46,7 @@ public interface IHealingSpellSelector
     /// <param name="isWeaveWindow">Whether we're in a valid oGCD weave window.</param>
     /// <param name="cureIIITargetCount">Number of valid Cure III targets.</param>
     /// <param name="cureIIITarget">Best target for Cure III (if available).</param>
+    /// <param name="isInMpConservationMode">Whether MP is low and should conserve.</param>
     /// <returns>The best action, its heal amount, and Cure III target (if selected).</returns>
     (ActionDefinition? action, int healAmount, IBattleChara? cureIIITarget) SelectBestAoEHeal(
         IPlayerCharacter player,
@@ -52,5 +55,6 @@ public interface IHealingSpellSelector
         bool anyHaveRegen,
         bool isWeaveWindow,
         int cureIIITargetCount = 0,
-        IBattleChara? cureIIITarget = null);
+        IBattleChara? cureIIITarget = null,
+        bool isInMpConservationMode = false);
 }

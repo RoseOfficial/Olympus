@@ -1,3 +1,4 @@
+using System;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
@@ -7,6 +8,7 @@ using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Debuff;
 using Olympus.Services.Healing;
+using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
 using Olympus.Services.Stats;
@@ -50,8 +52,14 @@ public sealed class ApolloContext : IApolloContext
     public StatusHelper StatusHelper { get; }
     public IPartyHelper PartyHelper { get; }
 
+    // Party analyzer (null until implemented, uses PartyHelper for now)
+    public IPartyAnalyzer? PartyAnalyzer { get; }
+
     // Debug state (mutable, updated by modules)
     public DebugState Debug { get; }
+
+    // Optional logging (null in tests)
+    public IPluginLog? Log { get; }
 
     // Cached status checks (computed once per frame, lazy-initialized)
     private bool? _hasThinAir;
@@ -99,7 +107,8 @@ public sealed class ApolloContext : IApolloContext
         ITargetingService targetingService,
         StatusHelper statusHelper,
         IPartyHelper partyHelper,
-        DebugState? debugState = null)
+        DebugState? debugState = null,
+        IPluginLog? log = null)
     {
         Player = player;
         InCombat = inCombat;
@@ -124,6 +133,49 @@ public sealed class ApolloContext : IApolloContext
         StatusHelper = statusHelper;
         PartyHelper = partyHelper;
         Debug = debugState ?? new DebugState();
+        Log = log;
+    }
+
+    /// <summary>
+    /// Logs a healing decision for debugging.
+    /// Only logs if debug logging is enabled in configuration.
+    /// </summary>
+    /// <param name="targetName">Name of the heal target.</param>
+    /// <param name="hpPercent">Target's HP percentage.</param>
+    /// <param name="spellName">Name of the spell chosen.</param>
+    /// <param name="predictedHeal">Expected heal amount.</param>
+    /// <param name="reason">Why this spell was chosen.</param>
+    public void LogHealDecision(string targetName, float hpPercent, string spellName, int predictedHeal, string reason)
+    {
+        if (Log is null || !Configuration.Debug.EnableVerboseLogging)
+            return;
+
+        Log.Debug("[Heal] {0} at {1:P0} → {2} (est. {3} HP) - {4}",
+            targetName, hpPercent, spellName, predictedHeal, reason);
+    }
+
+    /// <summary>
+    /// Logs an oGCD healing decision.
+    /// </summary>
+    public void LogOgcdDecision(string targetName, float hpPercent, string spellName, string reason)
+    {
+        if (Log is null || !Configuration.Debug.EnableVerboseLogging)
+            return;
+
+        Log.Debug("[oGCD] {0} at {1:P0} → {2} - {3}",
+            targetName, hpPercent, spellName, reason);
+    }
+
+    /// <summary>
+    /// Logs a defensive cooldown decision.
+    /// </summary>
+    public void LogDefensiveDecision(string targetName, float hpPercent, string spellName, float damageRate, string reason)
+    {
+        if (Log is null || !Configuration.Debug.EnableVerboseLogging)
+            return;
+
+        Log.Debug("[Defensive] {0} at {1:P0} (dmg rate: {2:F0} DPS) → {3} - {4}",
+            targetName, hpPercent, damageRate, spellName, reason);
     }
 }
 

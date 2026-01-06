@@ -63,14 +63,16 @@ public interface IPartyHelper
 
     /// <summary>
     /// Finds the most endangered party member using damage intake triage.
-    /// Weights: damageRate (40%) + tankBonus (30%) + missingHp (30%).
+    /// Weights: damageRate (35%) + tankBonus (25%) + missingHp (30%) + damageAcceleration (10%).
     /// </summary>
     /// <param name="player">The local player.</param>
     /// <param name="damageIntakeService">Service providing damage intake data.</param>
     /// <param name="healAmount">Minimum missing HP to consider (prevents overhealing).</param>
+    /// <param name="damageTrendService">Optional service for damage acceleration data.</param>
     /// <returns>The most endangered party member, or null if none need healing.</returns>
     IBattleChara? FindMostEndangeredPartyMember(
         IPlayerCharacter player,
         IDamageIntakeService damageIntakeService,
-        int healAmount = 0);
+        int healAmount = 0,
+        IDamageTrendService? damageTrendService = null);
 }

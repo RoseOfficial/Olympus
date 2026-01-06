@@ -98,9 +98,10 @@ public sealed class HealingModule : IApolloModule
         }
 
         // Get best AoE heal from selector
+        var isInMpConservation = context.MpForecastService.IsInConservationMode;
         var (action, healAmount, selectedCureIIITarget) = context.HealingSpellSelector.SelectBestAoEHeal(
             player, averageMissingHp, injuredCount, anyHaveRegen, context.CanExecuteOgcd,
-            cureIIITargetCount, cureIIITarget);
+            cureIIITargetCount, cureIIITarget, isInMpConservation);
 
         if (action is null)
         {
@@ -161,6 +162,16 @@ public sealed class HealingModule : IApolloModule
             context.Debug.PlanningState = "AoE Heal";
             var targetName = selectedCureIIITarget?.Name?.TextValue ?? player.Name?.TextValue ?? "Unknown";
             context.ActionTracker.LogAttempt(action.ActionId, targetName, player.CurrentHp, ActionResult.Success, player.Level);
+
+            // Log AoE healing decision
+            var avgHpPct = context.PartyHealthMetrics.avgHpPercent;
+            var conservationNote = isInMpConservation ? ", MP conservation" : "";
+            context.LogHealDecision(
+                $"{injuredCount} injured",
+                avgHpPct,
+                action.Name,
+                healAmount,
+                $"AoE heal (avg missing {averageMissingHp} HP){conservationNote}{thinAirNote}");
         }
         else
         {
@@ -183,16 +194,17 @@ public sealed class HealingModule : IApolloModule
 
         // Use damage intake triage if enabled, otherwise fall back to lowest HP
         var target = config.Healing.UseDamageIntakeTriage
-            ? context.PartyHelper.FindMostEndangeredPartyMember(player, context.DamageIntakeService)
+            ? context.PartyHelper.FindMostEndangeredPartyMember(player, context.DamageIntakeService, 0, context.DamageTrendService)
             : context.PartyHelper.FindLowestHpPartyMember(player);
 
         if (target is null)
             return false;
 
         var hasRegen = StatusHelper.HasRegenActive(target, out var regenRemaining);
+        var isInMpConservation = context.MpForecastService.IsInConservationMode;
 
         var (action, healAmount) = context.HealingSpellSelector.SelectBestSingleHeal(
-            player, target, context.CanExecuteOgcd, context.HasFreecure, hasRegen, regenRemaining);
+            player, target, context.CanExecuteOgcd, context.HasFreecure, hasRegen, regenRemaining, isInMpConservation);
         if (action is null)
             return false;
 
@@ -230,6 +242,17 @@ public sealed class HealingModule : IApolloModule
             context.Debug.PlannedAction = action.Name + thinAirNote;
             context.Debug.PlanningState = "Single Heal";
             context.ActionTracker.LogAttempt(action.ActionId, target.Name?.TextValue ?? "Unknown", target.CurrentHp, ActionResult.Success, player.Level);
+
+            // Log healing decision
+            var hpPercent = context.PartyHelper.GetHpPercent(target);
+            var conservationNote = isInMpConservation ? ", MP conservation" : "";
+            var freecureNote = context.HasFreecure ? ", Freecure proc" : "";
+            context.LogHealDecision(
+                target.Name?.TextValue ?? "Unknown",
+                hpPercent,
+                action.Name,
+                healAmount,
+                $"Single-target{conservationNote}{freecureNote}{thinAirNote}");
         }
         else
         {
@@ -372,7 +395,23 @@ public sealed class HealingModule : IApolloModule
             return false;
 
         var hpPercent = context.PartyHelper.GetHpPercent(target);
-        if (hpPercent >= config.Healing.BenedictionEmergencyThreshold)
+
+        // Two-tier Benediction logic:
+        // 1. Emergency: Always use if below emergency threshold (default 30%)
+        // 2. Proactive: Use at higher threshold (default 60%) if taking heavy damage
+        var isEmergency = hpPercent < config.Healing.BenedictionEmergencyThreshold;
+
+        var isProactive = false;
+        var targetDamageRate = 0f;
+        if (!isEmergency && config.Healing.EnableProactiveBenediction &&
+            hpPercent < config.Healing.ProactiveBenedictionHpThreshold)
+        {
+            // Check if target is taking sustained heavy damage
+            targetDamageRate = context.DamageIntakeService.GetDamageRate(target.EntityId, 3f);
+            isProactive = targetDamageRate >= config.Healing.ProactiveBenedictionDamageRate;
+        }
+
+        if (!isEmergency && !isProactive)
             return false;
 
         if (!DistanceHelper.IsInRange(player, target, WHMActions.Benediction.Range))
@@ -382,6 +421,19 @@ public sealed class HealingModule : IApolloModule
         if (ActionExecutor.ExecuteHealingOgcd(context, WHMActions.Benediction, target.GameObjectId,
             target.EntityId, target.Name?.TextValue ?? "Unknown", target.CurrentHp, missingHp))
         {
+            // Update debug info with reason
+            var reason = isEmergency
+                ? $"emergency, {hpPercent:P0} HP"
+                : $"proactive, {hpPercent:P0} HP, DPS {targetDamageRate:F0}";
+            context.Debug.PlannedAction = $"Benediction ({reason})";
+
+            // Log the decision
+            context.LogOgcdDecision(
+                target.Name?.TextValue ?? "Unknown",
+                hpPercent,
+                "Benediction",
+                isEmergency ? "Emergency (below threshold)" : $"Proactive (damage rate {targetDamageRate:F0} DPS)");
+
             return true;
         }
 
@@ -399,7 +451,7 @@ public sealed class HealingModule : IApolloModule
 
         // Use damage intake triage if enabled, otherwise fall back to lowest HP
         var target = config.Healing.UseDamageIntakeTriage
-            ? context.PartyHelper.FindMostEndangeredPartyMember(player, context.DamageIntakeService)
+            ? context.PartyHelper.FindMostEndangeredPartyMember(player, context.DamageIntakeService, 0, context.DamageTrendService)
             : context.PartyHelper.FindLowestHpPartyMember(player);
 
         if (target is null)
@@ -417,12 +469,44 @@ public sealed class HealingModule : IApolloModule
         var (mind, det, wd) = context.PlayerStatsService.GetHealingStats(player.Level);
         var healAmount = WHMActions.Tetragrammaton.EstimateHealAmount(mind, det, wd, player.Level);
 
-        if (healAmount > missingHp * 1.5f)
+        // Dynamic overheal threshold based on damage spike status
+        // Normal: Reject if overheal > 1.5x missing HP
+        // During spike: Allow up to 2.0x (configurable) to save lives
+        var overhealMultiplier = 1.5f;
+        var isSpike = false;
+        if (config.Healing.EnableDynamicTetragrammatonOverheal)
+        {
+            isSpike = context.DamageTrendService.IsDamageSpikeImminent(0.8f);
+            if (isSpike)
+            {
+                overhealMultiplier = config.Healing.TetragrammatonSpikeOverhealMultiplier;
+            }
+        }
+
+        if (healAmount > missingHp * overhealMultiplier)
             return false;
 
         if (ActionExecutor.ExecuteHealingOgcd(context, WHMActions.Tetragrammaton, target.GameObjectId,
             target.EntityId, target.Name?.TextValue ?? "Unknown", target.CurrentHp, healAmount))
         {
+            var hpPercent = context.PartyHelper.GetHpPercent(target);
+            if (isSpike)
+            {
+                context.Debug.PlannedAction = $"Tetragrammaton (spike mode, {overhealMultiplier:F1}x overheal allowed)";
+                context.LogOgcdDecision(
+                    target.Name?.TextValue ?? "Unknown",
+                    hpPercent,
+                    "Tetragrammaton",
+                    $"Spike mode - {overhealMultiplier:F1}x overheal allowed");
+            }
+            else
+            {
+                context.LogOgcdDecision(
+                    target.Name?.TextValue ?? "Unknown",
+                    hpPercent,
+                    "Tetragrammaton",
+                    "Standard oGCD heal");
+            }
             return true;
         }
 

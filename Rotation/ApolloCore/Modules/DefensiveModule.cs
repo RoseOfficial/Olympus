@@ -263,6 +263,15 @@ public sealed class DefensiveModule : IApolloModule
                 ? $"proactive, DPS {tankDamageRate:F0}"
                 : $"{tankHpPct:P0} HP";
             context.Debug.DefensiveState = $"Divine Benison on {tankName} ({reason})";
+
+            // Log defensive decision
+            context.LogDefensiveDecision(
+                tankName,
+                tankHpPct,
+                "Divine Benison",
+                tankDamageRate,
+                shouldApplyProactively ? "Proactive (high damage rate)" : "Standard (HP threshold)");
+
             return true;
         }
 
@@ -285,19 +294,41 @@ public sealed class DefensiveModule : IApolloModule
         if (StatusHelper.HasStatus(tank, StatusHelper.StatusIds.Aquaveil))
             return false;
 
-        var tankHpPct = context.PartyHelper.GetHpPercent(tank);
-        if (tankHpPct >= 0.90f)
-            return false;
-
         if (Vector3.DistanceSquared(player.Position, tank.Position) >
             WHMActions.Aquaveil.RangeSquared)
+            return false;
+
+        var tankHpPct = context.PartyHelper.GetHpPercent(tank);
+        var tankDamageRate = context.DamageIntakeService.GetDamageRate(tank.EntityId, 3f);
+
+        // Proactive application: Apply if tank is taking significant sustained damage
+        // even if HP is still high (anticipate tank buster)
+        var shouldApplyProactively = config.Defensive.EnableProactiveCooldowns &&
+                                     tankDamageRate >= config.Defensive.ProactiveAquaveilDamageRate;
+
+        // Standard application: Apply if tank HP is below threshold
+        var shouldApplyStandard = tankHpPct < 0.90f;
+
+        if (!shouldApplyProactively && !shouldApplyStandard)
             return false;
 
         var tankName = tank.Name?.TextValue ?? "Unknown";
         if (ActionExecutor.ExecuteOgcd(context, WHMActions.Aquaveil, tank.GameObjectId,
             tankName, tank.CurrentHp))
         {
-            context.Debug.DefensiveState = $"Aquaveil on {tankName} ({tankHpPct:P0} HP)";
+            var reason = shouldApplyProactively
+                ? $"proactive, DPS {tankDamageRate:F0}"
+                : $"{tankHpPct:P0} HP";
+            context.Debug.DefensiveState = $"Aquaveil on {tankName} ({reason})";
+
+            // Log defensive decision
+            context.LogDefensiveDecision(
+                tankName,
+                tankHpPct,
+                "Aquaveil",
+                tankDamageRate,
+                shouldApplyProactively ? "Proactive (high damage rate)" : "Standard (HP threshold)");
+
             return true;
         }
 

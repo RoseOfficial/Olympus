@@ -33,6 +33,7 @@ public sealed class PartyHelper : IPartyHelper
     private readonly float[] _endangeredDamageRates = new float[MaxPartySize];
     private readonly float[] _endangeredMissingHpPcts = new float[MaxPartySize];
     private readonly float[] _endangeredTankBonuses = new float[MaxPartySize];
+    private readonly float[] _endangeredDamageAccelerations = new float[MaxPartySize];
 
     public PartyHelper(
         IObjectTable objectTable,
@@ -490,17 +491,19 @@ public sealed class PartyHelper : IPartyHelper
 
     /// <summary>
     /// Finds the most endangered party member using damage intake triage.
-    /// Weights: damageRate (40%) + tankBonus (30%) + missingHp (30%).
+    /// Weights: damageRate (35%) + tankBonus (25%) + missingHp (30%) + damageAcceleration (10%).
     /// Optimized single-pass algorithm with deferred normalization.
     /// </summary>
     public IBattleChara? FindMostEndangeredPartyMember(
         IPlayerCharacter player,
         IDamageIntakeService damageIntakeService,
-        int healAmount = 0)
+        int healAmount = 0,
+        IDamageTrendService? damageTrendService = null)
     {
         // Use instance-level arrays to avoid allocation (max 8 party members in FFXIV)
         var candidateCount = 0;
         float maxDamageRate = 1f; // Minimum 1 to avoid division by zero
+        float maxAcceleration = 1f; // For normalization
 
         var playerPos = player.Position;
         var rangeSquared = WHMActions.Cure.RangeSquared;
@@ -540,11 +543,23 @@ public sealed class PartyHelper : IPartyHelper
             if (damageRate > maxDamageRate)
                 maxDamageRate = damageRate;
 
+            // Get damage acceleration if service is available
+            // Positive acceleration = damage increasing (HP dropping faster)
+            var damageAccel = 0f;
+            if (damageTrendService is not null)
+            {
+                damageAccel = damageTrendService.GetDamageAcceleration(member.EntityId, 5f);
+                // Only track positive acceleration (increasing damage) for max calculation
+                if (damageAccel > maxAcceleration)
+                    maxAcceleration = damageAccel;
+            }
+
             // Store candidate data in pre-allocated arrays
             _endangeredMembers[candidateCount] = member;
             _endangeredDamageRates[candidateCount] = damageRate;
             _endangeredMissingHpPcts[candidateCount] = 1f - hpPercent;
             _endangeredTankBonuses[candidateCount] = IsTankRole(member) ? 1f : 0f;
+            _endangeredDamageAccelerations[candidateCount] = damageAccel;
             candidateCount++;
         }
 
@@ -559,8 +574,20 @@ public sealed class PartyHelper : IPartyHelper
         {
             var normalizedDamageRate = _endangeredDamageRates[i] / maxDamageRate;
 
-            // Weight: damageRate (40%) + tankBonus (30%) + missingHp (30%)
-            var score = (normalizedDamageRate * 0.4f) + (_endangeredTankBonuses[i] * 0.3f) + (_endangeredMissingHpPcts[i] * 0.3f);
+            // Normalize acceleration (only positive values contribute)
+            // Negative acceleration (damage decreasing) gets 0 contribution
+            var normalizedAcceleration = 0f;
+            if (_endangeredDamageAccelerations[i] > 0 && maxAcceleration > 0)
+            {
+                normalizedAcceleration = _endangeredDamageAccelerations[i] / maxAcceleration;
+            }
+
+            // Weight: damageRate (35%) + tankBonus (25%) + missingHp (30%) + damageAcceleration (10%)
+            // Acceleration bonus rewards targets whose damage intake is increasing (HP dropping faster)
+            var score = (normalizedDamageRate * 0.35f) +
+                        (_endangeredTankBonuses[i] * 0.25f) +
+                        (_endangeredMissingHpPcts[i] * 0.30f) +
+                        (normalizedAcceleration * 0.10f);
 
             if (score > highestScore)
             {

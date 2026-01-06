@@ -305,6 +305,7 @@ public sealed class Apollo : IRotation
             targetingService: _targetingService,
             statusHelper: _statusHelper,
             partyHelper: _partyHelper,
-            debugState: _debugState);
+            debugState: _debugState,
+            log: _log);
     }
 }

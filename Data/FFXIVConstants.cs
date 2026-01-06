@@ -52,6 +52,9 @@ public static class FFXIVConstants
     /// <summary>HP percentage for "injured" party member threshold.</summary>
     public const float InjuredHpThreshold = 0.95f;
 
+    /// <summary>HP percentage for "critical" party member threshold (needs emergency healing).</summary>
+    public const float CriticalHpThreshold = 0.40f;
+
     // Action Buffer Timings (small adjustments for weave windows)
     /// <summary>Small timing buffer for weave window calculations.</summary>
     public const float WeaveWindowBuffer = 0.1f;

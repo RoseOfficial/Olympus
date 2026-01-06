@@ -92,6 +92,47 @@ public sealed class DamageTrendService : IDamageTrendService
         return _damageIntakeService.GetDamageRate(entityId, windowSeconds);
     }
 
+    /// <inheritdoc />
+    public float GetSpikeSeverity(float avgPartyHpPercent)
+    {
+        // If no spike detected, severity is 0
+        if (!IsDamageSpikeImminent(0.8f))
+            return 0f;
+
+        // Get the current damage trend for additional context
+        var trend = GetPartyDamageTrend(5f);
+
+        // Base severity from trend type
+        var baseSeverity = trend switch
+        {
+            DamageTrend.Spiking => 0.6f,    // Major spike
+            DamageTrend.Increasing => 0.4f, // Building damage
+            _ => 0.2f                        // Generic spike detection without clear trend
+        };
+
+        // Factor in party HP state - lower HP = higher severity
+        // At 100% HP, multiplier is 0.5 (half severity)
+        // At 50% HP, multiplier is 1.0 (full severity)
+        // At 0% HP, multiplier is 1.5 (critical severity)
+        var hpMultiplier = 1.5f - avgPartyHpPercent;
+
+        // Calculate final severity
+        var severity = baseSeverity * hpMultiplier;
+
+        // Also factor in raw damage rate for additional context
+        var currentRate = _damageIntakeService.GetPartyDamageRate(3f);
+        if (currentRate > 5000f)  // Very high damage intake
+        {
+            severity += 0.2f;
+        }
+        else if (currentRate > 3000f)  // High damage intake
+        {
+            severity += 0.1f;
+        }
+
+        return severity;
+    }
+
     /// <summary>
     /// Gets the damage rate from the previous period (before the recent half-window).
     /// This allows comparing current damage to recent-past damage for trend detection.

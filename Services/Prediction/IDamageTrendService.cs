@@ -62,4 +62,18 @@ public interface IDamageTrendService
     /// <param name="windowSeconds">Time window for calculation.</param>
     /// <returns>Damage per second.</returns>
     float GetCurrentDamageRate(uint entityId, float windowSeconds = 3f);
+
+    /// <summary>
+    /// Gets the severity of a damage spike, factoring in both spike detection and party HP state.
+    /// Higher severity means more urgent need for healing/mitigation.
+    /// </summary>
+    /// <param name="avgPartyHpPercent">Average party HP percentage (0.0-1.0).</param>
+    /// <returns>
+    /// Severity score (0.0-1.0+):
+    /// - 0.0: No spike detected
+    /// - 0.0-0.5: Low severity (spike + healthy party)
+    /// - 0.5-0.8: Medium severity (spike + moderately damaged party)
+    /// - 0.8+: High severity (spike + low HP party, needs immediate attention)
+    /// </returns>
+    float GetSpikeSeverity(float avgPartyHpPercent);
 }

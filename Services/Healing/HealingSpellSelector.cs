@@ -112,7 +112,8 @@ public class HealingSpellSelector : IHealingSpellSelector
         bool isWeaveWindow,
         bool hasFreecure = false,
         bool hasRegen = false,
-        float regenRemaining = 0f)
+        float regenRemaining = 0f,
+        bool isInMpConservationMode = false)
     {
         evaluator.ClearCandidates();
         var (mind, det, wd) = playerStatsService.GetHealingStats(player.Level);
@@ -121,6 +122,10 @@ public class HealingSpellSelector : IHealingSpellSelector
         var lilyCount = GetLilyCount();
         var bloodLilyCount = GetBloodLilyCount();
         var lilyStrategy = configuration.Healing.LilyStrategy;
+
+        // MP conservation affects spell selection
+        var useMpConservation = isInMpConservationMode &&
+                                 configuration.Healing.EnableMpAwareSpellSelection;
 
         // Skip if target doesn't need healing
         if (missingHp <= 0)
@@ -151,14 +156,20 @@ public class HealingSpellSelector : IHealingSpellSelector
 
         // === TIER 1: Lily GCD (Afflatus Solace) ===
         // Blood Lily optimization: prefer lily heals based on strategy to generate Blood Lilies
-        if (lilyCount > 0 && ShouldPreferLilyHeal(lilyCount, bloodLilyCount, hpPercent))
+        // MP conservation: aggressively prefer lily heals when MP is low
+        var shouldUseLily = lilyCount > 0 &&
+            (ShouldPreferLilyHeal(lilyCount, bloodLilyCount, hpPercent) ||
+             (useMpConservation && configuration.Healing.PreferLiliesInConservationMode));
+
+        if (shouldUseLily)
         {
             var result = evaluator.EvaluateSingleTarget(WHMActions.AfflatusSolace, player.Level, mind, det, wd, target);
             if (result.IsValid && result.Action is not null)
             {
                 selectedAction = result.Action;
                 selectedHealAmount = result.HealAmount;
-                selectionReason = $"Tier 1: Lily heal ({lilyCount} lilies, {bloodLilyCount}/3 Blood, {lilyStrategy})";
+                var mpNote = useMpConservation ? ", MP conservation" : "";
+                selectionReason = $"Tier 1: Lily heal ({lilyCount} lilies, {bloodLilyCount}/3 Blood, {lilyStrategy}{mpNote})";
             }
         }
         else if (lilyCount == 0)
@@ -201,9 +212,10 @@ public class HealingSpellSelector : IHealingSpellSelector
 
         // === TIER 3: Regular GCD (Cure II with Freecure, or Cure) ===
         // Apply overheal prevention to GCD heals to avoid wasting MP
+        // MP conservation: prefer Cure over Cure II to save MP and fish for Freecure procs
         if (selectedAction is null)
         {
-            // Prioritize Cure II if we have Freecure proc
+            // Prioritize Cure II if we have Freecure proc (always use free spells)
             if (hasFreecure)
             {
                 var result = evaluator.EvaluateSingleTarget(WHMActions.CureII, player.Level, mind, det, wd, target, missingHp);
@@ -215,8 +227,25 @@ public class HealingSpellSelector : IHealingSpellSelector
                 }
             }
 
-            // Try Cure II without Freecure
-            if (selectedAction is null)
+            // In MP conservation mode, prefer Cure over Cure II (unless Freecure proc)
+            var preferCureForConservation = useMpConservation &&
+                                             configuration.Healing.PreferCureInConservationMode &&
+                                             !hasFreecure;
+
+            if (preferCureForConservation && selectedAction is null)
+            {
+                // Try Cure first (lower MP cost, may proc Freecure)
+                var result = evaluator.EvaluateSingleTarget(WHMActions.Cure, player.Level, mind, det, wd, target, missingHp);
+                if (result.IsValid && result.Action is not null)
+                {
+                    selectedAction = result.Action;
+                    selectedHealAmount = result.HealAmount;
+                    selectionReason = "Tier 3: Cure (MP conservation)";
+                }
+            }
+
+            // Try Cure II without Freecure (normal mode or Cure didn't work)
+            if (selectedAction is null && !preferCureForConservation)
             {
                 var result = evaluator.EvaluateSingleTarget(WHMActions.CureII, player.Level, mind, det, wd, target, missingHp);
                 if (result.IsValid && result.Action is not null)
@@ -227,15 +256,18 @@ public class HealingSpellSelector : IHealingSpellSelector
                 }
             }
 
-            // Fallback to Cure
+            // Fallback to Cure (or Cure II in conservation mode if Cure didn't work)
             if (selectedAction is null)
             {
-                var result = evaluator.EvaluateSingleTarget(WHMActions.Cure, player.Level, mind, det, wd, target, missingHp);
+                var fallbackAction = preferCureForConservation ? WHMActions.CureII : WHMActions.Cure;
+                var result = evaluator.EvaluateSingleTarget(fallbackAction, player.Level, mind, det, wd, target, missingHp);
                 if (result.IsValid && result.Action is not null)
                 {
                     selectedAction = result.Action;
                     selectedHealAmount = result.HealAmount;
-                    selectionReason = "Tier 3: Cure (fallback)";
+                    selectionReason = preferCureForConservation
+                        ? "Tier 3: Cure II (fallback, MP conservation)"
+                        : "Tier 3: Cure (fallback)";
                 }
             }
         }
@@ -283,13 +315,18 @@ public class HealingSpellSelector : IHealingSpellSelector
         bool anyHaveRegen,
         bool isWeaveWindow,
         int cureIIITargetCount = 0,
-        IBattleChara? cureIIITarget = null)
+        IBattleChara? cureIIITarget = null,
+        bool isInMpConservationMode = false)
     {
         evaluator.ClearCandidates();
         var (mind, det, wd) = playerStatsService.GetHealingStats(player.Level);
         var lilyCount = GetLilyCount();
         var bloodLilyCount = GetBloodLilyCount();
         var lilyStrategy = configuration.Healing.LilyStrategy;
+
+        // MP conservation affects spell selection
+        var useMpConservation = isInMpConservationMode &&
+                                 configuration.Healing.EnableMpAwareSpellSelection;
 
         // Skip if not enough targets (check both self-centered and Cure III targets)
         var hasSelfCenteredTargets = injuredCount >= configuration.Healing.AoEHealMinTargets;
@@ -324,15 +361,21 @@ public class HealingSpellSelector : IHealingSpellSelector
 
         // === TIER 1: Lily AoE (Afflatus Rapture) ===
         // Blood Lily optimization: prefer lily heals based on strategy to generate Blood Lilies
+        // MP conservation: aggressively prefer lily heals when MP is low
         // For AoE heals, we use 0 for HP percent since we're healing multiple targets
-        if (lilyCount > 0 && hasSelfCenteredTargets && ShouldPreferLilyHeal(lilyCount, bloodLilyCount, 0f))
+        var shouldUseLilyAoE = lilyCount > 0 && hasSelfCenteredTargets &&
+            (ShouldPreferLilyHeal(lilyCount, bloodLilyCount, 0f) ||
+             (useMpConservation && configuration.Healing.PreferLiliesInConservationMode));
+
+        if (shouldUseLilyAoE)
         {
             var result = evaluator.EvaluateAoE(WHMActions.AfflatusRapture, player.Level, mind, det, wd);
             if (result.IsValid && result.Action is not null)
             {
                 selectedAction = result.Action;
                 selectedHealAmount = result.HealAmount;
-                selectionReason = $"Tier 1: Lily AoE heal ({lilyCount} lilies, {bloodLilyCount}/3 Blood, {lilyStrategy})";
+                var mpNote = useMpConservation ? ", MP conservation" : "";
+                selectionReason = $"Tier 1: Lily AoE heal ({lilyCount} lilies, {bloodLilyCount}/3 Blood, {lilyStrategy}{mpNote})";
             }
         }
         else if (lilyCount == 0)
