@@ -421,4 +421,74 @@ public sealed class PartyHelper : IPartyHelper
 
         return remaining < refreshThreshold;
     }
+
+    /// <summary>
+    /// Finds the most endangered party member using damage intake triage.
+    /// Weights: damageRate (40%) + tankBonus (30%) + missingHp (30%).
+    /// </summary>
+    public IBattleChara? FindMostEndangeredPartyMember(
+        IPlayerCharacter player,
+        IDamageIntakeService damageIntakeService,
+        int healAmount = 0)
+    {
+        IBattleChara? mostEndangered = null;
+        float highestScore = float.MinValue;
+
+        // Get max damage rate for normalization
+        float maxDamageRate = 0f;
+        foreach (var member in GetAllPartyMembers(player))
+        {
+            if (member.IsDead)
+                continue;
+
+            var damageRate = damageIntakeService.GetDamageRate(member.EntityId, 5f);
+            if (damageRate > maxDamageRate)
+                maxDamageRate = damageRate;
+        }
+
+        // Avoid division by zero
+        if (maxDamageRate < 1f)
+            maxDamageRate = 1f;
+
+        foreach (var member in GetAllPartyMembers(player))
+        {
+            if (member.IsDead)
+                continue;
+
+            if (Vector3.DistanceSquared(player.Position, member.Position) > WHMActions.Cure.Range * WHMActions.Cure.Range)
+                continue;
+
+            var predictedHp = _hpPredictionService.GetPredictedHp(member.EntityId, member.CurrentHp, member.MaxHp);
+            var hpPercent = (float)predictedHp / member.MaxHp;
+
+            // Skip if already at full HP
+            if (predictedHp >= member.MaxHp)
+                continue;
+
+            // Skip if heal would overheal too much
+            if (healAmount > 0)
+            {
+                var missingHp = member.MaxHp - predictedHp;
+                if (healAmount > missingHp)
+                    continue;
+            }
+
+            // Calculate triage score
+            var damageRate = damageIntakeService.GetDamageRate(member.EntityId, 5f);
+            var normalizedDamageRate = damageRate / maxDamageRate;
+            var tankBonus = IsTankRole(member) ? 1f : 0f;
+            var missingHpPercent = 1f - hpPercent;
+
+            // Weight: damageRate (40%) + tankBonus (30%) + missingHp (30%)
+            var score = (normalizedDamageRate * 0.4f) + (tankBonus * 0.3f) + (missingHpPercent * 0.3f);
+
+            if (score > highestScore)
+            {
+                highestScore = score;
+                mostEndangered = member;
+            }
+        }
+
+        return mostEndangered;
+    }
 }

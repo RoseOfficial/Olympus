@@ -58,6 +58,8 @@ public sealed class DefensiveModule : IApolloModule
         var player = context.Player;
         var config = context.Configuration;
         var (avgHpPercent, _, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
+        var partyDamageRate = context.DamageIntakeService.GetPartyDamageRate(5f);
+        var dmgRateStr = partyDamageRate > 0 ? $", DPS {partyDamageRate:F0}" : "";
 
         // Update Temperance state
         if (!config.EnableHealing || !config.Defensive.EnableTemperance)
@@ -75,13 +77,19 @@ public sealed class DefensiveModule : IApolloModule
         }
         else
         {
-            var shouldUse = injuredCount >= 3 || avgHpPercent < config.Defensive.DefensiveCooldownThreshold;
+            var highDamageIntake = config.Defensive.UseDynamicDefensiveThresholds &&
+                                   partyDamageRate >= config.Defensive.DamageSpikeTriggerRate;
+            var effectiveThreshold = highDamageIntake
+                ? config.Defensive.DefensiveCooldownThreshold + 0.10f
+                : config.Defensive.DefensiveCooldownThreshold;
+
+            var shouldUse = injuredCount >= 3 || avgHpPercent < effectiveThreshold || highDamageIntake;
             context.Debug.TemperanceState = shouldUse
-                ? $"Ready ({injuredCount} injured, avg HP {avgHpPercent:P0})"
-                : $"Waiting ({injuredCount} injured, avg HP {avgHpPercent:P0})";
+                ? $"Ready ({injuredCount} injured, avg HP {avgHpPercent:P0}{dmgRateStr})"
+                : $"Waiting ({injuredCount} injured, avg HP {avgHpPercent:P0}{dmgRateStr})";
         }
 
-        context.Debug.DefensiveState = $"Monitoring (avg HP {avgHpPercent:P0}, {injuredCount} injured)";
+        context.Debug.DefensiveState = $"Monitoring (avg HP {avgHpPercent:P0}, {injuredCount} injured{dmgRateStr})";
     }
 
     private bool TryExecuteDivineCaress(ApolloContext context)
@@ -135,11 +143,24 @@ public sealed class DefensiveModule : IApolloModule
             return false;
         }
 
-        var shouldUse = injuredCount >= 3 || avgHpPercent < config.Defensive.DefensiveCooldownThreshold;
+        // Calculate party damage rate for dynamic thresholds
+        var partyDamageRate = context.DamageIntakeService.GetPartyDamageRate(5f);
+        var highDamageIntake = config.Defensive.UseDynamicDefensiveThresholds &&
+                               partyDamageRate >= config.Defensive.DamageSpikeTriggerRate;
+
+        // Standard threshold or lowered threshold during high damage
+        var effectiveThreshold = highDamageIntake
+            ? config.Defensive.DefensiveCooldownThreshold + 0.10f  // More proactive during damage spike
+            : config.Defensive.DefensiveCooldownThreshold;
+
+        var shouldUse = injuredCount >= 3 ||
+                        avgHpPercent < effectiveThreshold ||
+                        highDamageIntake;
 
         if (!shouldUse)
         {
-            context.Debug.TemperanceState = $"Waiting ({injuredCount} injured, avg HP {avgHpPercent:P0})";
+            var dmgRateStr = partyDamageRate > 0 ? $", DPS {partyDamageRate:F0}" : "";
+            context.Debug.TemperanceState = $"Waiting ({injuredCount} injured, avg HP {avgHpPercent:P0}{dmgRateStr})";
             return false;
         }
 
@@ -155,12 +176,14 @@ public sealed class DefensiveModule : IApolloModule
             }
         }
 
-        context.Debug.TemperanceState = $"Executing ({injuredCount} injured, avg HP {avgHpPercent:P0})";
+        var execDmgRateStr = partyDamageRate > 0 ? $", DPS {partyDamageRate:F0}" : "";
+        context.Debug.TemperanceState = $"Executing ({injuredCount} injured, avg HP {avgHpPercent:P0}{execDmgRateStr})";
 
         if (ActionExecutor.ExecuteOgcd(context, WHMActions.Temperance, player.GameObjectId,
             player.Name?.TextValue ?? "Unknown", player.CurrentHp))
         {
-            context.Debug.DefensiveState = $"Temperance ({injuredCount} injured, avg HP {avgHpPercent:P0})";
+            var reason = highDamageIntake ? "damage spike" : $"{injuredCount} injured";
+            context.Debug.DefensiveState = $"Temperance ({reason}, avg HP {avgHpPercent:P0})";
             return true;
         }
 

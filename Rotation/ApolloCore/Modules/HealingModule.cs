@@ -181,7 +181,11 @@ public sealed class HealingModule : IApolloModule
         if (player.Level < CureMinLevel)
             return false;
 
-        var target = context.PartyHelper.FindLowestHpPartyMember(player);
+        // Use damage intake triage if enabled, otherwise fall back to lowest HP
+        var target = config.Healing.UseDamageIntakeTriage
+            ? context.PartyHelper.FindMostEndangeredPartyMember(player, context.DamageIntakeService)
+            : context.PartyHelper.FindLowestHpPartyMember(player);
+
         if (target is null)
             return false;
 
@@ -393,7 +397,11 @@ public sealed class HealingModule : IApolloModule
             c => c.EnableHealing && c.Healing.EnableTetragrammaton))
             return false;
 
-        var target = context.PartyHelper.FindLowestHpPartyMember(player);
+        // Use damage intake triage if enabled, otherwise fall back to lowest HP
+        var target = config.Healing.UseDamageIntakeTriage
+            ? context.PartyHelper.FindMostEndangeredPartyMember(player, context.DamageIntakeService)
+            : context.PartyHelper.FindLowestHpPartyMember(player);
+
         if (target is null)
             return false;
 

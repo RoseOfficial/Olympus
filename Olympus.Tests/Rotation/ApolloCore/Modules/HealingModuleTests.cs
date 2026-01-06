@@ -883,6 +883,7 @@ public class HealingModuleTests
             currentMp: currentMp);
 
         var combatEventService = MockBuilders.CreateMockCombatEventService();
+        var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
         var hpPredictionService = MockBuilders.CreateMockHpPredictionService();
         var playerStatsService = MockBuilders.CreateMockPlayerStatsService();
         var targetingService = MockBuilders.CreateMockTargetingService();
@@ -905,6 +906,7 @@ public class HealingModuleTests
             actionService.Object,
             actionTracker,
             combatEventService.Object,
+            damageIntakeService.Object,
             config,
             debuffDetectionService.Object,
             healingSpellSelector,

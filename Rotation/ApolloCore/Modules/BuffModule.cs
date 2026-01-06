@@ -183,8 +183,47 @@ public sealed class BuffModule : IApolloModule
             c => c.Buffs.EnablePresenceOfMind))
             return false;
 
-        return ActionExecutor.ExecuteOgcd(context, WHMActions.PresenceOfMind, player.GameObjectId,
-            player.Name?.TextValue ?? "Unknown", player.CurrentHp);
+        // Check if we should delay PoM for an incoming raise
+        if (config.Buffs.DelayPoMForRaise && config.Resurrection.EnableRaise)
+        {
+            var deadMember = context.PartyHelper.FindDeadPartyMemberNeedingRaise(player);
+            if (deadMember is not null)
+            {
+                // Check if Swiftcast is ready or coming soon
+                var swiftcastReady = context.ActionService.IsActionReady(WHMActions.Swiftcast.ActionId);
+                var swiftcastCooldown = context.ActionService.GetCooldownRemaining(WHMActions.Swiftcast.ActionId);
+
+                // Don't use PoM if Swiftcast is about to be ready and we need to raise
+                if (!swiftcastReady && swiftcastCooldown <= config.Buffs.PoMRaiseDelayCooldown)
+                {
+                    context.Debug.PoMState = $"Delayed for Raise (Swiftcast in {swiftcastCooldown:F1}s)";
+                    return false;
+                }
+            }
+        }
+
+        // Check if we should wait to stack PoM with Assize
+        if (config.Buffs.StackPoMWithAssize && player.Level >= WHMActions.Assize.MinLevel)
+        {
+            var assizeReady = context.ActionService.IsActionReady(WHMActions.Assize.ActionId);
+            var assizeCooldown = context.ActionService.GetCooldownRemaining(WHMActions.Assize.ActionId);
+
+            // If Assize is almost ready (within 5s), delay PoM to stack them
+            if (!assizeReady && assizeCooldown <= 5f && assizeCooldown > 0)
+            {
+                context.Debug.PoMState = $"Waiting for Assize ({assizeCooldown:F1}s)";
+                return false;
+            }
+        }
+
+        if (ActionExecutor.ExecuteOgcd(context, WHMActions.PresenceOfMind, player.GameObjectId,
+            player.Name?.TextValue ?? "Unknown", player.CurrentHp))
+        {
+            context.Debug.PoMState = "Executed";
+            return true;
+        }
+
+        return false;
     }
 
     private bool TryExecuteAsylum(ApolloContext context)

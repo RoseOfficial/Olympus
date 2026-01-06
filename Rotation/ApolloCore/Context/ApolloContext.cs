@@ -31,6 +31,7 @@ public sealed class ApolloContext : IApolloContext
     public IActionService ActionService { get; }
     public ActionTracker ActionTracker { get; }
     public ICombatEventService CombatEventService { get; }
+    public IDamageIntakeService DamageIntakeService { get; }
     public Configuration Configuration { get; }
     public IDebuffDetectionService DebuffDetectionService { get; }
     public IHealingSpellSelector HealingSpellSelector { get; }
@@ -71,6 +72,7 @@ public sealed class ApolloContext : IApolloContext
         IActionService actionService,
         ActionTracker actionTracker,
         ICombatEventService combatEventService,
+        IDamageIntakeService damageIntakeService,
         Configuration configuration,
         IDebuffDetectionService debuffDetectionService,
         IHealingSpellSelector healingSpellSelector,
@@ -91,6 +93,7 @@ public sealed class ApolloContext : IApolloContext
         ActionService = actionService;
         ActionTracker = actionTracker;
         CombatEventService = combatEventService;
+        DamageIntakeService = damageIntakeService;
         Configuration = configuration;
         DebuffDetectionService = debuffDetectionService;
         HealingSpellSelector = healingSpellSelector;
@@ -146,6 +149,7 @@ public sealed class DebugState
     public string AsylumTarget { get; set; } = "None";
     public string ThinAirState { get; set; } = "Idle";
     public string SurecastState { get; set; } = "Idle";
+    public string PoMState { get; set; } = "Idle";
 
     // Defensive
     public string DefensiveState { get; set; } = "Idle";

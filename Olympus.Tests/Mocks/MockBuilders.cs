@@ -194,6 +194,37 @@ public static class MockBuilders
     }
 
     /// <summary>
+    /// Creates a mock IDamageIntakeService with configurable behavior.
+    /// </summary>
+    /// <param name="getRecentDamageIntake">
+    /// Function to get recent damage intake. Default: returns 0.
+    /// </param>
+    /// <param name="getDamageRate">
+    /// Function to get damage rate. Default: returns 0.
+    /// </param>
+    public static Mock<IDamageIntakeService> CreateMockDamageIntakeService(
+        Func<uint, float, int>? getRecentDamageIntake = null,
+        Func<uint, float, float>? getDamageRate = null)
+    {
+        var mock = new Mock<IDamageIntakeService>();
+
+        // Default: no recent damage
+        getRecentDamageIntake ??= (_, _) => 0;
+        getDamageRate ??= (_, _) => 0f;
+
+        mock.Setup(x => x.GetRecentDamageIntake(It.IsAny<uint>(), It.IsAny<float>()))
+            .Returns((uint entityId, float windowSeconds) => getRecentDamageIntake(entityId, windowSeconds));
+
+        mock.Setup(x => x.GetDamageRate(It.IsAny<uint>(), It.IsAny<float>()))
+            .Returns((uint entityId, float windowSeconds) => getDamageRate(entityId, windowSeconds));
+
+        mock.Setup(x => x.GetPartyDamageIntake(It.IsAny<float>())).Returns(0);
+        mock.Setup(x => x.GetPartyDamageRate(It.IsAny<float>())).Returns(0f);
+
+        return mock;
+    }
+
+    /// <summary>
     /// Creates a mock IHpPredictionService with configurable behavior.
     /// </summary>
     /// <param name="getPredictedHp">

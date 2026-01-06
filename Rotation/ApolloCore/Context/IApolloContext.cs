@@ -28,6 +28,7 @@ public interface IApolloContext
     // Services with interfaces
     IActionService ActionService { get; }
     ICombatEventService CombatEventService { get; }
+    IDamageIntakeService DamageIntakeService { get; }
     Configuration Configuration { get; }
     IDebuffDetectionService DebuffDetectionService { get; }
     IHpPredictionService HpPredictionService { get; }

@@ -88,6 +88,7 @@ public sealed class DebugRotationState
     public string DefensiveState { get; init; } = "Idle";
     public string TemperanceState { get; init; } = "Idle";
     public string SurecastState { get; init; } = "Idle";
+    public string PoMState { get; init; } = "Idle";
 
     // DPS Details
     public string AoEDpsState { get; init; } = "Idle";

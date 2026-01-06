@@ -12,6 +12,12 @@ public interface ICombatEventService
     event System.Action<uint>? OnLocalPlayerHealLanded;
 
     /// <summary>
+    /// Event raised when damage is received by any party member.
+    /// Parameters: (entityId, damageAmount)
+    /// </summary>
+    event System.Action<uint, int>? OnDamageReceived;
+
+    /// <summary>
     /// Gets the shadow HP for an entity, or the fallback value if not tracked.
     /// </summary>
     uint GetShadowHp(uint entityId, uint fallbackHp);

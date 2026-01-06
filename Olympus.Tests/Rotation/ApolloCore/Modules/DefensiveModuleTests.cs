@@ -518,6 +518,7 @@ public class DefensiveModuleTests
             It.IsAny<IBattleChara>()))
             .Returns(((ActionDefinition?)null, 0, (IBattleChara?)null));
 
+        var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
         var hpPredictionService = new Mock<IHpPredictionService>();
         var objectTable = new Mock<IObjectTable>();
         var partyList = new Mock<IPartyList>();
@@ -541,6 +542,7 @@ public class DefensiveModuleTests
             actionService.Object,
             actionTracker,
             combatEventService.Object,
+            damageIntakeService.Object,
             config,
             debuffDetectionService.Object,
             healingSpellSelector.Object,

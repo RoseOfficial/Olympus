@@ -478,6 +478,11 @@ public class HealingSpellSelector : IHealingSpellSelector
         if (lilyCount == 0)
             return false;
 
+        // Aggressive lily flush: when at 2 blood lilies, always prefer lily heals
+        // to build the third blood lily for Afflatus Misery before combat ends
+        if (configuration.Healing.EnableAggressiveLilyFlush && bloodLilyCount >= 2)
+            return true;
+
         return configuration.Healing.LilyStrategy switch
         {
             LilyGenerationStrategy.Aggressive => true,

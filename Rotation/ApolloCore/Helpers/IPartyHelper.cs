@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
+using Olympus.Services.Prediction;
 
 namespace Olympus.Rotation.ApolloCore.Helpers;
 
@@ -59,4 +60,17 @@ public interface IPartyHelper
     /// Checks if a target needs Regen.
     /// </summary>
     bool NeedsRegen(IBattleChara target, float hpThreshold, float refreshThreshold);
+
+    /// <summary>
+    /// Finds the most endangered party member using damage intake triage.
+    /// Weights: damageRate (40%) + tankBonus (30%) + missingHp (30%).
+    /// </summary>
+    /// <param name="player">The local player.</param>
+    /// <param name="damageIntakeService">Service providing damage intake data.</param>
+    /// <param name="healAmount">Minimum missing HP to consider (prevents overhealing).</param>
+    /// <returns>The most endangered party member, or null if none need healing.</returns>
+    IBattleChara? FindMostEndangeredPartyMember(
+        IPlayerCharacter player,
+        IDamageIntakeService damageIntakeService,
+        int healAmount = 0);
 }

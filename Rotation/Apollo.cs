@@ -30,6 +30,7 @@ public sealed class Apollo
     private readonly IPluginLog _log;
     private readonly ActionTracker _actionTracker;
     private readonly CombatEventService _combatEventService;
+    private readonly IDamageIntakeService _damageIntakeService;
     private readonly Configuration _configuration;
     private readonly IObjectTable _objectTable;
     private readonly IPartyList _partyList;
@@ -68,6 +69,7 @@ public sealed class Apollo
         IPluginLog log,
         ActionTracker actionTracker,
         CombatEventService combatEventService,
+        IDamageIntakeService damageIntakeService,
         Configuration configuration,
         IObjectTable objectTable,
         IPartyList partyList,
@@ -82,6 +84,7 @@ public sealed class Apollo
         _log = log;
         _actionTracker = actionTracker;
         _combatEventService = combatEventService;
+        _damageIntakeService = damageIntakeService;
         _configuration = configuration;
         _objectTable = objectTable;
         _partyList = partyList;
@@ -263,6 +266,7 @@ public sealed class Apollo
             actionService: _actionService,
             actionTracker: _actionTracker,
             combatEventService: _combatEventService,
+            damageIntakeService: _damageIntakeService,
             configuration: _configuration,
             debuffDetectionService: _debuffDetectionService,
             healingSpellSelector: _healingSpellSelector,

@@ -457,6 +457,7 @@ public class DamageModuleTests
         var player = MockBuilders.CreateMockPlayerCharacter(level: level);
         var partyHelper = MockBuilders.CreateMockPartyHelper();
         var combatEventService = MockBuilders.CreateMockCombatEventService();
+        var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
         var hpPredictionService = MockBuilders.CreateMockHpPredictionService();
         var playerStatsService = MockBuilders.CreateMockPlayerStatsService();
         var debuffDetectionService = MockBuilders.CreateMockDebuffDetectionService();
@@ -476,6 +477,7 @@ public class DamageModuleTests
             actionService.Object,
             actionTracker,
             combatEventService.Object,
+            damageIntakeService.Object,
             config,
             debuffDetectionService.Object,
             healingSpellSelector.Object,

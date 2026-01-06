@@ -34,6 +34,13 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
     /// </summary>
     public event System.Action<uint>? OnLocalPlayerHealLanded;
 
+    /// <summary>
+    /// Event raised when damage is received by any party member.
+    /// Used by DamageIntakeService to track damage patterns for healing triage.
+    /// Parameters: (entityId, damageAmount)
+    /// </summary>
+    public event System.Action<uint, int>? OnDamageReceived;
+
     // Shadow HP tracking: EntityId -> (CurrentHp, LastActionUpdate)
     // LastActionUpdate is set when HP changes from action effects (heal/damage)
     // to prevent InitializeHp from overwriting before game HP catches up
@@ -208,6 +215,12 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
                 var newHp = (uint)Math.Max(0, (int)current.Hp + totalDelta);
                 // Set timestamp to protect this value from being overwritten by InitializeHp
                 shadowHp[targetId] = (newHp, DateTime.UtcNow);
+            }
+
+            // Raise damage received event for damage intake tracking
+            if (totalDelta < 0)
+            {
+                OnDamageReceived?.Invoke(targetId, -totalDelta);
             }
 
             // Track heals from local player

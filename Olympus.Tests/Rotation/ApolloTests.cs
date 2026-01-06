@@ -541,6 +541,7 @@ public class ApolloTests
         var objectTable = MockBuilders.CreateMockObjectTable();
         var partyList = MockBuilders.CreateMockPartyList();
         var debuffDetectionService = MockBuilders.CreateMockDebuffDetectionService();
+        var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
         var actionTracker = MockBuilders.CreateMockActionTracker(config);
         var statusHelper = new StatusHelper();
 
@@ -574,6 +575,7 @@ public class ApolloTests
             actionService.Object,
             actionTracker,
             combatEventService.Object,
+            damageIntakeService.Object,
             config,
             debuffDetectionService.Object,
             healingSpellSelectorMock.Object,

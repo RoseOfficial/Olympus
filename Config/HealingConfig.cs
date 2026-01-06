@@ -32,6 +32,14 @@ public sealed class HealingConfig
     /// </summary>
     public float ConservativeLilyHpThreshold { get; set; } = 0.75f;
 
+    /// <summary>
+    /// Enable aggressive lily flush when approaching Misery.
+    /// When enabled and at 2 Blood Lilies, aggressively use lily heals to build the third
+    /// Blood Lily for Afflatus Misery (1240p AoE). Helps avoid wasting Blood Lilies
+    /// when combat ends.
+    /// </summary>
+    public bool EnableAggressiveLilyFlush { get; set; } = true;
+
     // HoT
     public bool EnableRegen { get; set; } = true;
 
@@ -40,6 +48,15 @@ public sealed class HealingConfig
     public bool EnableBenediction { get; set; } = true;
     public bool EnableAssize { get; set; } = true;
     public bool EnableAsylum { get; set; } = true;
+
+    // Healing Triage
+    /// <summary>
+    /// Use damage intake triage to prioritize healing targets.
+    /// When enabled, considers damage intake rate along with current HP to determine healing priority.
+    /// Weights: damageRate (40%) + tankBonus (30%) + missingHp (30%).
+    /// Default true enables smarter healing decisions based on who is taking the most damage.
+    /// </summary>
+    public bool UseDamageIntakeTriage { get; set; } = true;
 
     // Thresholds
     /// <summary>

@@ -392,6 +392,7 @@ public class ResurrectionModuleTests
             .Returns(((ActionDefinition?)null, 0, (IBattleChara?)null));
 
         var hpPredictionService = new Mock<IHpPredictionService>();
+        var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
         var objectTable = new Mock<IObjectTable>();
         var partyList = new Mock<IPartyList>();
         var playerStatsService = new Mock<IPlayerStatsService>();
@@ -414,6 +415,7 @@ public class ResurrectionModuleTests
             actionService.Object,
             actionTracker,
             combatEventService.Object,
+            damageIntakeService.Object,
             config,
             debuffDetectionService.Object,
             healingSpellSelector.Object,
