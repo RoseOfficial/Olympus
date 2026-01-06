@@ -232,6 +232,9 @@ public sealed class Apollo : IRotation
         else
             _actionTracker.EndCombat();
 
+        // Update combat event service with combat state (for lily flush timing)
+        _combatEventService.UpdateCombatState(inCombat);
+
         // Track GCD state for debug display
         if (inCombat)
         {

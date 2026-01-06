@@ -99,6 +99,7 @@ public sealed class Plugin : IDalamudPlugin
             actionService,
             playerStatsService,
             hpPredictionService,
+            combatEventService,
             configuration);
 
         // Spell status service (provides real-time status of all WHM spells)

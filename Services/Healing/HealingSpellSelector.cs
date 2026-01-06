@@ -54,6 +54,7 @@ public class HealingSpellSelector : IHealingSpellSelector
 {
     private readonly IPlayerStatsService playerStatsService;
     private readonly IHpPredictionService hpPredictionService;
+    private readonly ICombatEventService combatEventService;
     private readonly Configuration configuration;
     private readonly IErrorMetricsService? errorMetrics;
     private readonly SpellCandidateEvaluator evaluator;
@@ -73,9 +74,10 @@ public class HealingSpellSelector : IHealingSpellSelector
         IActionService actionService,
         IPlayerStatsService playerStatsService,
         IHpPredictionService hpPredictionService,
+        ICombatEventService combatEventService,
         Configuration configuration,
         IErrorMetricsService? errorMetrics = null)
-        : this(actionService, playerStatsService, hpPredictionService, configuration,
+        : this(actionService, playerStatsService, hpPredictionService, combatEventService, configuration,
                new SpellEnablementService(configuration), errorMetrics)
     {
     }
@@ -84,12 +86,14 @@ public class HealingSpellSelector : IHealingSpellSelector
         IActionService actionService,
         IPlayerStatsService playerStatsService,
         IHpPredictionService hpPredictionService,
+        ICombatEventService combatEventService,
         Configuration configuration,
         ISpellEnablementService enablementService,
         IErrorMetricsService? errorMetrics = null)
     {
         this.playerStatsService = playerStatsService;
         this.hpPredictionService = hpPredictionService;
+        this.combatEventService = combatEventService;
         this.configuration = configuration;
         this.errorMetrics = errorMetrics;
         this.evaluator = new SpellCandidateEvaluator(actionService, enablementService);
@@ -185,12 +189,24 @@ public class HealingSpellSelector : IHealingSpellSelector
         // === TIER 2: Regen (HoT) ===
         // Regen is the only spell with an HP threshold
         // Apply if target is below threshold HP and doesn't have Regen or it's about to expire
+        // Also skip if pending heals will top off the target (Regen would overheal)
         if (selectedAction is null)
         {
             var targetBelowThreshold = hpPercent < FFXIVConstants.RegenHpThreshold;
             var needsRegen = (!hasRegen || regenRemaining < FFXIVConstants.RegenRefreshThreshold) && targetBelowThreshold;
 
-            if (needsRegen)
+            // Check if pending heals will bring target to 95%+ HP (Regen would mostly overheal)
+            var pendingHeals = hpPredictionService.GetPendingHealAmount(target.EntityId);
+            var projectedHpAfterPending = Math.Min(target.CurrentHp + pendingHeals, target.MaxHp);
+            var projectedHpPercent = (float)projectedHpAfterPending / target.MaxHp;
+            var regenWouldOverheal = projectedHpPercent >= 0.95f;
+
+            if (needsRegen && regenWouldOverheal)
+            {
+                evaluator.TrackRejected(WHMActions.Regen, 0,
+                    $"Pending heals ({pendingHeals} HP) will bring target to {projectedHpPercent:P0}");
+            }
+            else if (needsRegen)
             {
                 var result = evaluator.EvaluateSingleTarget(WHMActions.Regen, player.Level, mind, det, wd, target);
                 if (result.IsValid && result.Action is not null)
@@ -511,6 +527,7 @@ public class HealingSpellSelector : IHealingSpellSelector
     /// <summary>
     /// Determines whether lily heals (Afflatus Solace/Rapture) should be preferred
     /// over MP-based alternatives based on the configured Blood Lily strategy.
+    /// Now considers combat duration for smarter lily flushing.
     /// </summary>
     /// <param name="lilyCount">Current lily count (0-3).</param>
     /// <param name="bloodLilyCount">Current Blood Lily count (0-3).</param>
@@ -520,6 +537,20 @@ public class HealingSpellSelector : IHealingSpellSelector
     {
         if (lilyCount == 0)
             return false;
+
+        // Get combat duration for time-aware lily flushing
+        var combatDuration = combatEventService.GetCombatDurationSeconds();
+
+        // Time-aware lily flush: If combat has been going for a while and we have
+        // blood lilies ready, prefer lily heals to ensure we get Afflatus Misery off.
+        // Lily regenerates every 20 seconds, so after ~60s we should be spending freely.
+        if (combatDuration > 60f && bloodLilyCount >= 2 && lilyCount > 0)
+            return true;
+
+        // If we have full blood lilies (3/3) and lilies available, we should spend
+        // lilies even though blood lily won't increase (prevents lily waste)
+        if (bloodLilyCount >= 3 && lilyCount > 0)
+            return true;
 
         // Aggressive lily flush: when at 2 blood lilies, always prefer lily heals
         // to build the third blood lily for Afflatus Misery before combat ends

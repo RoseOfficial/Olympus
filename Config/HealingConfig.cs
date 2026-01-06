@@ -198,4 +198,29 @@ public sealed class HealingConfig
         get => _gcdEmergencyThreshold;
         set => _gcdEmergencyThreshold = Math.Clamp(value, 0.1f, 0.9f);
     }
+
+    // Preemptive Healing Settings
+
+    /// <summary>
+    /// Enable preemptive healing based on damage spike detection.
+    /// When enabled, healing can begin BEFORE a spike lands if the system
+    /// detects an imminent damage spike and predicts the target will drop
+    /// below a safe threshold.
+    /// Default true enables proactive healing during tank busters and raidwides.
+    /// </summary>
+    public bool EnablePreemptiveHealing { get; set; } = true;
+
+    /// <summary>
+    /// Projected HP threshold for preemptive healing.
+    /// When a damage spike is detected and a target's projected HP would drop
+    /// below this threshold, preemptive healing will trigger.
+    /// Default 0.35 means heal preemptively if target will drop below 35% HP.
+    /// Valid range: 0.1 to 0.8.
+    /// </summary>
+    private float _preemptiveHealingThreshold = 0.35f;
+    public float PreemptiveHealingThreshold
+    {
+        get => _preemptiveHealingThreshold;
+        set => _preemptiveHealingThreshold = Math.Clamp(value, 0.1f, 0.8f);
+    }
 }

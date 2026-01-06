@@ -89,6 +89,10 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
     private int _lastPredictedHealRaw;
     private DateTime _lastPredictionTime;
 
+    // Combat duration tracking
+    private DateTime? _combatStartTime;
+    private bool _isInCombat;
+
     // ActionEffectType values from FFXIVClientStructs
     private const byte EffectTypeDamage = 3;
     private const byte EffectTypeHeal = 4;
@@ -415,6 +419,42 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
             }
         }
     }
+
+    /// <summary>
+    /// Updates the combat state. Call this when entering or leaving combat.
+    /// </summary>
+    public void UpdateCombatState(bool inCombat)
+    {
+        if (inCombat && !_isInCombat)
+        {
+            // Entering combat
+            _combatStartTime = DateTime.UtcNow;
+            _isInCombat = true;
+        }
+        else if (!inCombat && _isInCombat)
+        {
+            // Leaving combat
+            _combatStartTime = null;
+            _isInCombat = false;
+        }
+    }
+
+    /// <summary>
+    /// Gets the duration of the current combat in seconds.
+    /// Returns 0 if not in combat.
+    /// </summary>
+    public float GetCombatDurationSeconds()
+    {
+        if (!_isInCombat || !_combatStartTime.HasValue)
+            return 0f;
+
+        return (float)(DateTime.UtcNow - _combatStartTime.Value).TotalSeconds;
+    }
+
+    /// <summary>
+    /// Whether the player is currently in combat.
+    /// </summary>
+    public bool IsInCombat => _isInCombat;
 
     public void Dispose()
     {

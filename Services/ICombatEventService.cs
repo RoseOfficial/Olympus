@@ -36,4 +36,21 @@ public interface ICombatEventService
     /// Resets all overheal statistics for a new session.
     /// </summary>
     void ResetOverhealStatistics();
+
+    /// <summary>
+    /// Notifies the service that combat state has changed.
+    /// Call this when entering or leaving combat.
+    /// </summary>
+    void UpdateCombatState(bool inCombat);
+
+    /// <summary>
+    /// Gets the duration of the current combat in seconds.
+    /// Returns 0 if not in combat.
+    /// </summary>
+    float GetCombatDurationSeconds();
+
+    /// <summary>
+    /// Whether the player is currently in combat.
+    /// </summary>
+    bool IsInCombat { get; }
 }
