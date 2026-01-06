@@ -149,6 +149,13 @@ public sealed class HealingConfig
     /// </summary>
     public bool EnableAggressiveLilyFlush { get; set; } = true;
 
+    /// <summary>
+    /// Enable Lily cap prevention.
+    /// When enabled and Lilies are at 3/3 (capped), forces Lily heals on anyone with
+    /// any damage to prevent wasting Lily regeneration (1 Lily every 20 seconds).
+    /// </summary>
+    public bool EnableLilyCapPrevention { get; set; } = true;
+
     // HoT
     public bool EnableRegen { get; set; } = true;
 

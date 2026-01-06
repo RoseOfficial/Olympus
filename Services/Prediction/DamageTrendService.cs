@@ -54,6 +54,10 @@ public sealed class DamageTrendService : IDamageTrendService
     private const float MinSpikeCooldown = 2.0f; // Don't record multiple spikes within 2 seconds
     private const float SpikeDamageRateThreshold = 1000f; // DPS threshold to consider a spike
 
+    // Sustained high-damage phase tracking
+    private float _highDamagePhaseStartTime = -1f; // -1 = not in high damage phase
+    private const float DefaultHighDamageThreshold = 800f; // DPS threshold for sustained high damage
+
     /// <summary>
     /// Updates the internal timer and automatically detects spikes.
     /// Should be called each frame with delta time.
@@ -70,7 +74,32 @@ public sealed class DamageTrendService : IDamageTrendService
             DetectAndRecordSpike(entityId);
         }
 
+        // Track sustained high-damage phases
+        UpdateHighDamagePhaseTracking();
+
         CleanupOldSpikes();
+    }
+
+    /// <summary>
+    /// Tracks whether the party is in a sustained high-damage phase.
+    /// </summary>
+    private void UpdateHighDamagePhaseTracking()
+    {
+        var currentPartyDps = _damageIntakeService.GetPartyDamageRate(1.5f);
+
+        if (currentPartyDps >= DefaultHighDamageThreshold)
+        {
+            // Start tracking if not already in high-damage phase
+            if (_highDamagePhaseStartTime < 0)
+            {
+                _highDamagePhaseStartTime = _currentTime;
+            }
+        }
+        else
+        {
+            // Exit high-damage phase
+            _highDamagePhaseStartTime = -1f;
+        }
     }
 
     /// <summary>
@@ -139,7 +168,13 @@ public sealed class DamageTrendService : IDamageTrendService
         // Spike is imminent if:
         // 1. Party damage trend is Spiking with high confidence
         // 2. OR damage is Increasing rapidly
+        // 3. OR we're in a sustained high-damage phase (NEW)
         if (partyTrend == DamageTrend.Spiking)
+            return true;
+
+        // NEW: Check for sustained high-damage phase
+        // This catches scenarios where damage is consistently high but not "spiking"
+        if (IsInHighDamagePhase(DefaultHighDamageThreshold, 2f))
             return true;
 
         if (partyTrend == DamageTrend.Increasing)
@@ -456,5 +491,64 @@ public sealed class DamageTrendService : IDamageTrendService
             var history = kvp.Value;
             history.RemoveAll(spike => spike.Timestamp < cutoffTime);
         }
+    }
+
+    /// <inheritdoc />
+    public bool IsInHighDamagePhase(float thresholdDps = 800f, float durationSeconds = 3f)
+    {
+        // Check if currently above threshold
+        var currentPartyDps = _damageIntakeService.GetPartyDamageRate(1.5f);
+        if (currentPartyDps < thresholdDps)
+            return false;
+
+        // Check duration - if custom threshold differs from default, calculate dynamically
+        if (Math.Abs(thresholdDps - DefaultHighDamageThreshold) < 0.01f)
+        {
+            // Using default threshold - use tracked phase start time
+            if (_highDamagePhaseStartTime < 0)
+                return false;
+
+            var duration = _currentTime - _highDamagePhaseStartTime;
+            return duration >= durationSeconds;
+        }
+
+        // Custom threshold - check damage over the duration window
+        var avgDpsOverDuration = _damageIntakeService.GetPartyDamageRate(durationSeconds);
+        return avgDpsOverDuration >= thresholdDps;
+    }
+
+    /// <inheritdoc />
+    public float GetHighDamagePhaseDuration(float thresholdDps = 800f)
+    {
+        // Check if currently above threshold
+        var currentPartyDps = _damageIntakeService.GetPartyDamageRate(1.5f);
+        if (currentPartyDps < thresholdDps)
+            return 0f;
+
+        // If using default threshold, use tracked start time
+        if (Math.Abs(thresholdDps - DefaultHighDamageThreshold) < 0.01f && _highDamagePhaseStartTime >= 0)
+        {
+            return _currentTime - _highDamagePhaseStartTime;
+        }
+
+        // For custom thresholds, estimate based on how long damage has been consistently high
+        // Check progressively longer windows until damage drops below threshold
+        var windows = new[] { 1f, 2f, 3f, 5f, 8f, 10f, 15f };
+        var lastValidDuration = 0f;
+
+        foreach (var window in windows)
+        {
+            var avgDps = _damageIntakeService.GetPartyDamageRate(window);
+            if (avgDps >= thresholdDps)
+            {
+                lastValidDuration = window;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return lastValidDuration;
     }
 }

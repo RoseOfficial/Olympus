@@ -28,5 +28,8 @@ public enum HealingPriority
     Regen = 60,
 
     /// <summary>oGCD single-target heal (Tetragrammaton).</summary>
-    Tetragrammaton = 70
+    Tetragrammaton = 70,
+
+    /// <summary>Lily cap prevention (use Lilies before they cap out).</summary>
+    LilyCapPrevention = 80
 }

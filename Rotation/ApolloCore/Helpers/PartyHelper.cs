@@ -605,4 +605,41 @@ public sealed class PartyHelper : IPartyHelper
 
         return mostEndangered;
     }
+
+    /// <summary>
+    /// Counts party members within AoE range that are below a certain HP threshold.
+    /// Used for Lily cap prevention to decide between Solace and Rapture.
+    /// </summary>
+    public int CountInjuredInAoERange(IPlayerCharacter player, float radius, float hpThreshold)
+    {
+        var count = 0;
+        var radiusSquared = radius * radius;
+        var playerPos = player.Position;
+
+        foreach (var member in GetAllPartyMembers(player))
+        {
+            if (member.IsDead)
+                continue;
+
+            if (Vector3.DistanceSquared(playerPos, member.Position) > radiusSquared)
+                continue;
+
+            var predictedHp = _hpPredictionService.GetPredictedHp(member.EntityId, member.CurrentHp, member.MaxHp);
+            var hpPercent = (float)predictedHp / member.MaxHp;
+
+            if (hpPercent < hpThreshold)
+                count++;
+        }
+
+        return count;
+    }
+
+    /// <summary>
+    /// Returns all party members (excluding dead) for iteration.
+    /// Wrapper for GetAllPartyMembers with includeDead=false.
+    /// </summary>
+    public IEnumerable<IBattleChara> GetPartyMembers(IPlayerCharacter player)
+    {
+        return GetAllPartyMembers(player, includeDead: false);
+    }
 }

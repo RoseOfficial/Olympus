@@ -104,4 +104,22 @@ public interface IDamageTrendService
     /// <param name="entityId">The entity that received the spike.</param>
     /// <param name="damageAmount">The amount of damage from the spike.</param>
     void RecordSpikeEvent(uint entityId, int damageAmount);
+
+    /// <summary>
+    /// Checks if the party is in a sustained high-damage phase.
+    /// Unlike spike detection (which requires changes in damage rate),
+    /// this detects consistently high damage that may not trigger spike logic.
+    /// </summary>
+    /// <param name="thresholdDps">Minimum DPS to consider "high damage" (default 800).</param>
+    /// <param name="durationSeconds">How long damage must stay high (default 3 seconds).</param>
+    /// <returns>True if in sustained high-damage phase.</returns>
+    bool IsInHighDamagePhase(float thresholdDps = 800f, float durationSeconds = 3f);
+
+    /// <summary>
+    /// Gets the duration the party has been in a high-damage phase.
+    /// Returns 0 if not currently in a high-damage phase.
+    /// </summary>
+    /// <param name="thresholdDps">DPS threshold for "high damage".</param>
+    /// <returns>Seconds in high-damage phase, or 0 if not in one.</returns>
+    float GetHighDamagePhaseDuration(float thresholdDps = 800f);
 }

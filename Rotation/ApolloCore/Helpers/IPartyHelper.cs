@@ -75,4 +75,20 @@ public interface IPartyHelper
         IDamageIntakeService damageIntakeService,
         int healAmount = 0,
         IDamageTrendService? damageTrendService = null);
+
+    /// <summary>
+    /// Counts party members within AoE range that are below a certain HP threshold.
+    /// Used for Lily cap prevention to decide between Solace and Rapture.
+    /// </summary>
+    /// <param name="player">The local player (center of AoE).</param>
+    /// <param name="radius">The radius to check for party members.</param>
+    /// <param name="hpThreshold">HP percent threshold (e.g., 0.99 = below 99% HP).</param>
+    /// <returns>Count of party members below the threshold within range.</returns>
+    int CountInjuredInAoERange(IPlayerCharacter player, float radius, float hpThreshold);
+
+    /// <summary>
+    /// Returns all party members (excluding dead) for iteration.
+    /// Wrapper for GetAllPartyMembers with includeDead=false.
+    /// </summary>
+    IEnumerable<IBattleChara> GetPartyMembers(IPlayerCharacter player);
 }

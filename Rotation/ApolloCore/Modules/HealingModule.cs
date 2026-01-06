@@ -26,7 +26,8 @@ public sealed class HealingModule : IApolloModule
             new AoEHealingHandler(),
             new SingleTargetHealingHandler(),
             new RegenHandler(),
-            new TetragrammatonHandler()
+            new TetragrammatonHandler(),
+            new LilyCapPreventionHandler()
         };
 
         // Sort by priority (already in order, but explicit for clarity)
@@ -70,6 +71,7 @@ public sealed class HealingModule : IApolloModule
             HealingPriority.Esuna => context.InCombat,
             HealingPriority.PreemptiveHeal => context.InCombat,
             HealingPriority.Regen => context.InCombat,
+            HealingPriority.LilyCapPrevention => context.InCombat,
 
             // Always available handlers
             HealingPriority.AoEHeal => true,
