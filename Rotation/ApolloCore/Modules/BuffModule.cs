@@ -110,10 +110,25 @@ public sealed class BuffModule : IApolloModule
             return false;
         }
 
-        var shouldUseThinAir = false;
+        // Get charge information for smarter usage
+        var currentCharges = context.ActionService.GetCurrentCharges(WHMActions.ThinAir.ActionId);
+        var maxCharges = context.ActionService.GetMaxCharges(WHMActions.ThinAir.ActionId, 0);
+        var isAtMaxCharges = currentCharges >= maxCharges && maxCharges > 0;
+        var chargeInfo = $"{currentCharges}/{maxCharges}";
 
-        // Priority 0: MP Conservation Mode - use Thin Air for any expensive spell when running low
-        if (config.Buffs.EnableMpConservation)
+        var shouldUseThinAir = false;
+        var usageReason = "";
+
+        // Priority 0: At max charges - use for any 800+ MP spell to avoid wasting charge regen
+        if (isAtMaxCharges && WillCastExpensiveSpell(context))
+        {
+            shouldUseThinAir = true;
+            usageReason = $"Avoiding cap ({chargeInfo} charges)";
+            context.Debug.ThinAirState = usageReason;
+        }
+
+        // Priority 1: MP Conservation Mode - use Thin Air for any expensive spell when running low
+        if (!shouldUseThinAir && config.Buffs.EnableMpConservation)
         {
             var secondsUntilOom = context.MpForecastService.SecondsUntilOom(RaiseMpCost);
             if (secondsUntilOom < 30f && context.MpForecastService.IsInConservationMode)
@@ -122,12 +137,13 @@ public sealed class BuffModule : IApolloModule
                 if (WillCastExpensiveSpell(context))
                 {
                     shouldUseThinAir = true;
-                    context.Debug.ThinAirState = $"MP Conservation (OOM in {secondsUntilOom:F0}s)";
+                    usageReason = $"MP Conservation (OOM in {secondsUntilOom:F0}s) ({chargeInfo})";
+                    context.Debug.ThinAirState = usageReason;
                 }
             }
         }
 
-        // Priority 1: Raise incoming (highest MP cost at 2400)
+        // Priority 2: Raise incoming (highest MP cost at 2400)
         if (!shouldUseThinAir && config.Resurrection.EnableRaise && player.CurrentMp >= RaiseMpCost)
         {
             var deadMember = context.PartyHelper.FindDeadPartyMemberNeedingRaise(player);
@@ -138,12 +154,13 @@ public sealed class BuffModule : IApolloModule
                 if (context.HasSwiftcast || swiftcastReady || config.Resurrection.AllowHardcastRaise)
                 {
                     shouldUseThinAir = true;
-                    context.Debug.ThinAirState = "For Raise";
+                    usageReason = $"For Raise ({chargeInfo})";
+                    context.Debug.ThinAirState = usageReason;
                 }
             }
         }
 
-        // Priority 2: High-cost AoE heal incoming
+        // Priority 3: High-cost AoE heal incoming
         if (!shouldUseThinAir && config.EnableHealing)
         {
             var (mind, det, wd) = context.PlayerStatsService.GetHealingStats(player.Level);
@@ -154,11 +171,12 @@ public sealed class BuffModule : IApolloModule
             if (injuredCount >= config.Healing.AoEHealMinTargets)
             {
                 shouldUseThinAir = true;
-                context.Debug.ThinAirState = "For AoE Heal";
+                usageReason = $"For AoE Heal ({chargeInfo})";
+                context.Debug.ThinAirState = usageReason;
             }
         }
 
-        // Priority 3: High-cost single heal incoming
+        // Priority 4: High-cost single heal incoming
         if (!shouldUseThinAir && config.EnableHealing && player.Level >= WHMActions.CureII.MinLevel)
         {
             var target = context.PartyHelper.FindLowestHpPartyMember(player);
@@ -168,14 +186,15 @@ public sealed class BuffModule : IApolloModule
                 if (hpPercent < 0.80f)
                 {
                     shouldUseThinAir = true;
-                    context.Debug.ThinAirState = "For Cure II";
+                    usageReason = $"For Cure II ({chargeInfo})";
+                    context.Debug.ThinAirState = usageReason;
                 }
             }
         }
 
         if (!shouldUseThinAir)
         {
-            context.Debug.ThinAirState = "Not needed";
+            context.Debug.ThinAirState = $"Not needed ({chargeInfo})";
             return false;
         }
 

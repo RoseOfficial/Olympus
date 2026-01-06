@@ -72,4 +72,15 @@ public interface IActionService
     /// Checks if a specific action can be executed right now.
     /// </summary>
     bool CanExecuteAction(ActionDefinition action);
+
+    /// <summary>
+    /// Gets the current number of charges available for an action.
+    /// For non-charge actions, returns 1 if ready, 0 if on cooldown.
+    /// </summary>
+    uint GetCurrentCharges(uint actionId);
+
+    /// <summary>
+    /// Gets the maximum number of charges for an action at a given level.
+    /// </summary>
+    ushort GetMaxCharges(uint actionId, uint level);
 }

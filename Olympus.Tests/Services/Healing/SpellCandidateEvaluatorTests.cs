@@ -54,6 +54,8 @@ public class SpellCandidateEvaluatorTests
         public bool ExecuteOgcd(ActionDefinition action, ulong targetId) => true;
         public bool ExecuteGroundTargetedOgcd(ActionDefinition action, Vector3 targetPosition) => true;
         public bool CanExecuteAction(ActionDefinition action) => true;
+        public uint GetCurrentCharges(uint actionId) => readyActions.Contains(actionId) ? 1u : 0u;
+        public ushort GetMaxCharges(uint actionId, uint level) => 1;
     }
 
     /// <summary>

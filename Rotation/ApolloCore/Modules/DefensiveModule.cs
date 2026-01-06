@@ -230,6 +230,11 @@ public sealed class DefensiveModule : IApolloModule
             c => c.EnableHealing && c.Defensive.EnableDivineBenison))
             return false;
 
+        // Get charge information for smarter usage
+        var currentCharges = context.ActionService.GetCurrentCharges(WHMActions.DivineBenison.ActionId);
+        var maxCharges = context.ActionService.GetMaxCharges(WHMActions.DivineBenison.ActionId, 0);
+        var isAtMaxCharges = currentCharges >= maxCharges && maxCharges > 0;
+
         var tank = context.PartyHelper.FindTankInParty(player);
         if (tank is null)
             return false;
@@ -249,19 +254,42 @@ public sealed class DefensiveModule : IApolloModule
         var shouldApplyProactively = config.Defensive.EnableProactiveCooldowns &&
                                      tankDamageRate >= config.Defensive.ProactiveBenisonDamageRate;
 
-        // Standard application: Apply if tank HP is low
-        var shouldApplyStandard = tankHpPct < 0.95f;
+        // Standard application thresholds based on charge count
+        // At max charges: Apply more freely (98% HP) to avoid wasting charge regen
+        // Normal: Apply if tank HP below 95%
+        var hpThreshold = isAtMaxCharges ? 0.98f : 0.95f;
+        var shouldApplyStandard = tankHpPct < hpThreshold;
 
-        if (!shouldApplyProactively && !shouldApplyStandard)
+        // At max charges, also consider applying if tank is taking any damage at all
+        var shouldApplyToAvoidCap = isAtMaxCharges && tankDamageRate > 0;
+
+        if (!shouldApplyProactively && !shouldApplyStandard && !shouldApplyToAvoidCap)
             return false;
 
         var tankName = tank.Name?.TextValue ?? "Unknown";
         if (ActionExecutor.ExecuteOgcd(context, WHMActions.DivineBenison, tank.GameObjectId,
             tankName, tank.CurrentHp))
         {
-            var reason = shouldApplyProactively
-                ? $"proactive, DPS {tankDamageRate:F0}"
-                : $"{tankHpPct:P0} HP";
+            var chargeInfo = $"{currentCharges}/{maxCharges}";
+            string reason;
+            string logReason;
+
+            if (shouldApplyToAvoidCap && !shouldApplyProactively && !shouldApplyStandard)
+            {
+                reason = $"avoiding cap ({chargeInfo} charges)";
+                logReason = $"At max charges - using to avoid cap ({chargeInfo})";
+            }
+            else if (shouldApplyProactively)
+            {
+                reason = $"proactive, DPS {tankDamageRate:F0} ({chargeInfo})";
+                logReason = $"Proactive (high damage rate) ({chargeInfo})";
+            }
+            else
+            {
+                reason = $"{tankHpPct:P0} HP ({chargeInfo})";
+                logReason = $"Standard (HP threshold) ({chargeInfo})";
+            }
+
             context.Debug.DefensiveState = $"Divine Benison on {tankName} ({reason})";
 
             // Log defensive decision
@@ -270,7 +298,7 @@ public sealed class DefensiveModule : IApolloModule
                 tankHpPct,
                 "Divine Benison",
                 tankDamageRate,
-                shouldApplyProactively ? "Proactive (high damage rate)" : "Standard (HP threshold)");
+                logReason);
 
             return true;
         }

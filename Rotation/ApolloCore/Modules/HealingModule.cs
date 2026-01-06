@@ -449,6 +449,11 @@ public sealed class HealingModule : IApolloModule
             c => c.EnableHealing && c.Healing.EnableTetragrammaton))
             return false;
 
+        // Get charge information for smarter usage
+        var currentCharges = context.ActionService.GetCurrentCharges(WHMActions.Tetragrammaton.ActionId);
+        var maxCharges = context.ActionService.GetMaxCharges(WHMActions.Tetragrammaton.ActionId, 0);
+        var isAtMaxCharges = currentCharges >= maxCharges && maxCharges > 0;
+
         // Use damage intake triage if enabled, otherwise fall back to lowest HP
         var target = config.Healing.UseDamageIntakeTriage
             ? context.PartyHelper.FindMostEndangeredPartyMember(player, context.DamageIntakeService, 0, context.DamageTrendService)
@@ -469,12 +474,19 @@ public sealed class HealingModule : IApolloModule
         var (mind, det, wd) = context.PlayerStatsService.GetHealingStats(player.Level);
         var healAmount = WHMActions.Tetragrammaton.EstimateHealAmount(mind, det, wd, player.Level);
 
-        // Dynamic overheal threshold based on damage spike status
-        // Normal: Reject if overheal > 1.5x missing HP
+        // Dynamic overheal threshold based on charge count and damage spike status
+        // At max charges: Be more liberal with usage to avoid wasting charge regen (2.5x)
+        // Normal (1 charge): Reject if overheal > 1.5x missing HP
         // During spike: Allow up to 2.0x (configurable) to save lives
         var overhealMultiplier = 1.5f;
         var isSpike = false;
-        if (config.Healing.EnableDynamicTetragrammatonOverheal)
+
+        if (isAtMaxCharges)
+        {
+            // At max charges, use more freely to avoid wasting charge regen
+            overhealMultiplier = 2.5f;
+        }
+        else if (config.Healing.EnableDynamicTetragrammatonOverheal)
         {
             isSpike = context.DamageTrendService.IsDamageSpikeImminent(0.8f);
             if (isSpike)
@@ -490,14 +502,25 @@ public sealed class HealingModule : IApolloModule
             target.EntityId, target.Name?.TextValue ?? "Unknown", target.CurrentHp, healAmount))
         {
             var hpPercent = context.PartyHelper.GetHpPercent(target);
-            if (isSpike)
+            var chargeInfo = $"{currentCharges}/{maxCharges} charges";
+
+            if (isAtMaxCharges)
+            {
+                context.Debug.PlannedAction = $"Tetragrammaton ({chargeInfo}, avoiding cap)";
+                context.LogOgcdDecision(
+                    target.Name?.TextValue ?? "Unknown",
+                    hpPercent,
+                    "Tetragrammaton",
+                    $"At max charges - using to avoid cap ({chargeInfo})");
+            }
+            else if (isSpike)
             {
                 context.Debug.PlannedAction = $"Tetragrammaton (spike mode, {overhealMultiplier:F1}x overheal allowed)";
                 context.LogOgcdDecision(
                     target.Name?.TextValue ?? "Unknown",
                     hpPercent,
                     "Tetragrammaton",
-                    $"Spike mode - {overhealMultiplier:F1}x overheal allowed");
+                    $"Spike mode - {overhealMultiplier:F1}x overheal allowed ({chargeInfo})");
             }
             else
             {
@@ -505,7 +528,7 @@ public sealed class HealingModule : IApolloModule
                     target.Name?.TextValue ?? "Unknown",
                     hpPercent,
                     "Tetragrammaton",
-                    "Standard oGCD heal");
+                    $"Standard oGCD heal ({chargeInfo})");
             }
             return true;
         }

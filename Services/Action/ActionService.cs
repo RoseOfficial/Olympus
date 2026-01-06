@@ -265,11 +265,15 @@ public sealed unsafe class ActionService : IActionService
     }
 
     /// <summary>
-    /// Checks if a specific action is off cooldown.
+    /// Checks if a specific action is ready to use.
+    /// For charge-based abilities, returns true if any charges are available.
+    /// For non-charge abilities, returns true if cooldown is complete.
     /// </summary>
     public bool IsActionReady(uint actionId)
     {
-        return GetCooldownRemaining(actionId) <= 0;
+        // For charge-based abilities, check if any charges are available
+        // GetCurrentCharges returns 1 for non-charge abilities when ready, 0 when on cooldown
+        return GetCurrentCharges(actionId) > 0;
     }
 
     /// <summary>
@@ -310,5 +314,27 @@ public sealed unsafe class ActionService : IActionService
         return $"GCD: {CurrentGcdState} ({GcdRemaining:F2}s) | " +
                $"AnimLock: {AnimationLockRemaining:F2}s | " +
                $"Last: {lastAction} ({timeSinceLast:F1}s ago)";
+    }
+
+    /// <summary>
+    /// Gets the current number of charges available for an action.
+    /// For non-charge actions, returns 1 if ready, 0 if on cooldown.
+    /// </summary>
+    public uint GetCurrentCharges(uint actionId)
+    {
+        var actionManager = SafeGameAccess.GetActionManager(_errorMetrics);
+        if (actionManager is null)
+            return 0;
+
+        return actionManager->GetCurrentCharges(actionId);
+    }
+
+    /// <summary>
+    /// Gets the maximum number of charges for an action at a given level.
+    /// Pass level 0 to get max charges for current level.
+    /// </summary>
+    public ushort GetMaxCharges(uint actionId, uint level)
+    {
+        return ActionManager.GetMaxCharges(actionId, level);
     }
 }
