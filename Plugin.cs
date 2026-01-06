@@ -20,7 +20,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.7.2";
+    public const string PluginVersion = "1.7.3";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -38,6 +38,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly ActionTracker actionTracker;
     private readonly CombatEventService combatEventService;
     private readonly DamageIntakeService damageIntakeService;
+    private readonly DamageTrendService damageTrendService;
     private readonly TargetingService targetingService;
     private readonly HpPredictionService hpPredictionService;
     private readonly ActionService actionService;
@@ -87,6 +88,7 @@ public sealed class Plugin : IDalamudPlugin
         this.actionTracker = new ActionTracker(dataManager, configuration);
         this.combatEventService = new CombatEventService(gameInteropProvider, log, objectTable);
         this.damageIntakeService = new DamageIntakeService(combatEventService);
+        this.damageTrendService = new DamageTrendService(damageIntakeService);
         this.targetingService = new TargetingService(objectTable, partyList, targetManager, configuration);
 
         // New action system services
@@ -100,7 +102,8 @@ public sealed class Plugin : IDalamudPlugin
             playerStatsService,
             hpPredictionService,
             combatEventService,
-            configuration);
+            configuration,
+            damageTrendService);
 
         // Spell status service (provides real-time status of all WHM spells)
         this.spellStatusService = new SpellStatusService(actionService);

@@ -60,6 +60,9 @@ public sealed record HealSelectionContext
 
     /// <summary>Configuration for healing behavior.</summary>
     public required HealingConfig Config { get; init; }
+
+    /// <summary>Current damage rate (DPS) being taken by the target. Used for dynamic thresholds.</summary>
+    public float DamageRate { get; init; }
 }
 
 /// <summary>

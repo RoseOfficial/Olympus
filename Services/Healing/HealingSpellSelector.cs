@@ -57,6 +57,7 @@ public class HealingSpellSelector : IHealingSpellSelector
     private readonly IPlayerStatsService playerStatsService;
     private readonly IHpPredictionService hpPredictionService;
     private readonly ICombatEventService combatEventService;
+    private readonly IDamageTrendService? damageTrendService;
     private readonly Configuration configuration;
     private readonly IErrorMetricsService? errorMetrics;
     private readonly SpellCandidateEvaluator evaluator;
@@ -79,9 +80,10 @@ public class HealingSpellSelector : IHealingSpellSelector
         IHpPredictionService hpPredictionService,
         ICombatEventService combatEventService,
         Configuration configuration,
+        IDamageTrendService? damageTrendService = null,
         IErrorMetricsService? errorMetrics = null)
         : this(actionService, playerStatsService, hpPredictionService, combatEventService, configuration,
-               new SpellEnablementService(configuration), errorMetrics)
+               new SpellEnablementService(configuration), damageTrendService, errorMetrics)
     {
     }
 
@@ -92,11 +94,13 @@ public class HealingSpellSelector : IHealingSpellSelector
         ICombatEventService combatEventService,
         Configuration configuration,
         ISpellEnablementService enablementService,
+        IDamageTrendService? damageTrendService = null,
         IErrorMetricsService? errorMetrics = null)
     {
         this.playerStatsService = playerStatsService;
         this.hpPredictionService = hpPredictionService;
         this.combatEventService = combatEventService;
+        this.damageTrendService = damageTrendService;
         this.configuration = configuration;
         this.errorMetrics = errorMetrics;
         this.evaluator = new SpellCandidateEvaluator(actionService, enablementService);
@@ -130,6 +134,9 @@ public class HealingSpellSelector : IHealingSpellSelector
         var bloodLilyCount = GetBloodLilyCount();
         var combatDuration = combatEventService.GetCombatDurationSeconds();
 
+        // Get damage rate for dynamic threshold decisions
+        var damageRate = damageTrendService?.GetCurrentDamageRate(target.EntityId) ?? 0f;
+
         // Build context for strategy
         var context = new HealSelectionContext
         {
@@ -150,7 +157,8 @@ public class HealingSpellSelector : IHealingSpellSelector
                 configuration.Healing.EnableMpAwareSpellSelection,
             LilyStrategy = configuration.Healing.LilyStrategy,
             CombatDuration = combatDuration,
-            Config = configuration.Healing
+            Config = configuration.Healing,
+            DamageRate = damageRate
         };
 
         // Delegate to active strategy

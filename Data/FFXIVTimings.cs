@@ -53,8 +53,8 @@ public static class FFXIVTimings
     public const float HealProtectionWindow = 1.0f;
 
     // HP Prediction
-    /// <summary>Timeout for pending heals if action effect never lands.</summary>
-    public const float HpPredictionTimeoutSeconds = 3.0f;
+    /// <summary>Timeout for pending heals if action effect never lands (e.g., interrupted cast).</summary>
+    public const float HpPredictionTimeoutSeconds = 2.0f;
 
     // Error Handling
     /// <summary>Seconds between error log messages to avoid spam.</summary>

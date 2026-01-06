@@ -91,9 +91,11 @@ public class SpellCandidateEvaluator
         var healAmount = action.EstimateHealAmount(mind, det, wd, playerLevel);
 
         // Check for overheal (only for potency-based heals, not Benediction)
-        if (missingHp > 0 && action.HealPotency > 0 && healAmount > missingHp)
+        // Allow up to 5% overheal to not reject perfect-fit heals
+        var overhealTolerance = (int)(missingHp * 0.05f);
+        if (missingHp > 0 && action.HealPotency > 0 && healAmount > missingHp + overhealTolerance)
         {
-            var reason = $"Would overheal ({healAmount} > {missingHp} missing)";
+            var reason = $"Would overheal ({healAmount} > {missingHp + overhealTolerance} threshold)";
             TrackRejected(action, healAmount, reason);
             return new SpellEvaluationResult { IsValid = false, RejectionReason = reason };
         }

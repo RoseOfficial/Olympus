@@ -57,18 +57,26 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
         var baseHp = (int)_combatEventService.GetShadowHp(entityId, currentHp);
         var totalPendingHeal = 0;
 
+        // Copy list under lock to reduce contention, iterate outside lock
+        List<PendingHealEntry>? localHeals = null;
         lock (_healsLock)
         {
-            if (_pendingHealsByTarget.TryGetValue(entityId, out var heals))
+            if (_pendingHealsByTarget.TryGetValue(entityId, out var heals) && heals.Count > 0)
             {
-                var now = DateTime.UtcNow;
-                foreach (var heal in heals)
+                localHeals = new List<PendingHealEntry>(heals);
+            }
+        }
+
+        // Iterate outside lock for better frame performance
+        if (localHeals != null)
+        {
+            var now = DateTime.UtcNow;
+            foreach (var heal in localHeals)
+            {
+                // Only count non-expired heals
+                if ((now - heal.RegisteredTime).TotalSeconds <= FFXIVTimings.HpPredictionTimeoutSeconds)
                 {
-                    // Only count non-expired heals
-                    if ((now - heal.RegisteredTime).TotalSeconds <= FFXIVTimings.HpPredictionTimeoutSeconds)
-                    {
-                        totalPendingHeal += heal.Amount;
-                    }
+                    totalPendingHeal += heal.Amount;
                 }
             }
         }

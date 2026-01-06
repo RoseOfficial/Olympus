@@ -69,9 +69,20 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
         // === TIER 2: Regen (HoT) ===
         // Regen is the only spell with an HP threshold
         // Apply if target is below threshold HP and doesn't have Regen or it's about to expire
+        // Threshold is dynamic based on damage rate: higher damage = apply earlier
         if (selectedAction is null)
         {
-            var targetBelowThreshold = context.HpPercent < FFXIVConstants.RegenHpThreshold;
+            // Dynamic Regen threshold based on damage rate
+            // High damage (>300 DPS): Apply earlier at 75% HP
+            // Low damage (<100 DPS): Defer to 45% HP
+            // Normal: Use default 60%
+            var dynamicRegenThreshold = context.DamageRate switch
+            {
+                > 300f => 0.75f,  // High damage - apply early
+                < 100f => 0.45f,  // Low damage - defer
+                _ => FFXIVConstants.RegenHpThreshold  // Normal (0.60f)
+            };
+            var targetBelowThreshold = context.HpPercent < dynamicRegenThreshold;
             var needsRegen = (!context.HasRegen || context.RegenRemaining < FFXIVConstants.RegenRefreshThreshold)
                 && targetBelowThreshold;
 
@@ -93,7 +104,7 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
             else if (!targetBelowThreshold)
             {
                 evaluator.TrackRejected(WHMActions.Regen, 0,
-                    $"HP {context.HpPercent:P0} >= {FFXIVConstants.RegenHpThreshold:P0} threshold");
+                    $"HP {context.HpPercent:P0} >= {dynamicRegenThreshold:P0} threshold (DPS: {context.DamageRate:F0})");
             }
             else
             {
