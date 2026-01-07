@@ -70,6 +70,25 @@ public sealed record HealSelectionContext
 
     /// <summary>Estimated time until target dies at current damage rate (seconds). Used for urgency triage.</summary>
     public float TimeToDeath { get; init; } = float.MaxValue;
+
+    /// <summary>Total shield value on the target. Shields absorb damage before HP.</summary>
+    public int ShieldValue { get; init; }
+
+    /// <summary>Combined mitigation percentage on the target (0.0-1.0). Reduces incoming damage.</summary>
+    public float MitigationPercent { get; init; }
+
+    /// <summary>Whether the target is invulnerable (Hallowed Ground, Superbolide, etc.).</summary>
+    public bool IsTargetInvulnerable { get; init; }
+
+    /// <summary>
+    /// Effective HP = CurrentHP + Shields. Used for triage decisions.
+    /// </summary>
+    public uint EffectiveHp => (uint)(Target.CurrentHp + ShieldValue);
+
+    /// <summary>
+    /// Survivability info for comprehensive healing decisions.
+    /// </summary>
+    public SurvivabilityInfo? Survivability { get; init; }
 }
 
 /// <summary>
@@ -128,4 +147,13 @@ public sealed record AoEHealSelectionContext
 
     /// <summary>Party-wide damage rate (DPS). Used for damage-aware AoE lily selection.</summary>
     public float PartyDamageRate { get; init; }
+
+    /// <summary>Total shield value across injured party members.</summary>
+    public int TotalPartyShieldValue { get; init; }
+
+    /// <summary>Average mitigation percentage across injured party members.</summary>
+    public float AveragePartyMitigation { get; init; }
+
+    /// <summary>Number of party members with active mitigation buffs.</summary>
+    public int MitigatedMemberCount { get; init; }
 }

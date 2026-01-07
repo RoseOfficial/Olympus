@@ -137,6 +137,9 @@ public class HealingSpellSelector : IHealingSpellSelector
         // Get damage rate for dynamic threshold decisions
         var damageRate = damageTrendService?.GetCurrentDamageRate(target.EntityId) ?? 0f;
 
+        // Get survivability info including shields and damage prediction
+        var survivability = hpPredictionService.GetSurvivabilityInfo(target.EntityId, target.CurrentHp, target.MaxHp);
+
         // Build context for strategy
         var context = new HealSelectionContext
         {
@@ -158,7 +161,13 @@ public class HealingSpellSelector : IHealingSpellSelector
             LilyStrategy = configuration.Healing.LilyStrategy,
             CombatDuration = combatDuration,
             Config = configuration.Healing,
-            DamageRate = damageRate
+            DamageRate = damageRate,
+            // Shield and survivability data
+            ShieldValue = survivability.ShieldValue,
+            MitigationPercent = survivability.MitigationPercent,
+            IsTargetInvulnerable = survivability.IsInvulnerable,
+            TimeToDeath = survivability.TimeUntilDeath,
+            Survivability = survivability
         };
 
         // Delegate to active strategy

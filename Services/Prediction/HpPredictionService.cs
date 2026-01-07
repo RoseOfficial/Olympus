@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Olympus.Data;
 using Olympus.Services;
+using Olympus.Services.Party;
 
 namespace Olympus.Services.Prediction;
 
@@ -13,11 +14,14 @@ namespace Olympus.Services.Prediction;
 /// HP prediction service that tracks multiple concurrent pending heals.
 /// Prevents double-healing by making targets appear "healed" immediately after action execution.
 /// Heals are cleared per-target when the actual heal effect lands.
+/// Now includes shield awareness and damage forecasting for comprehensive survivability prediction.
 /// </summary>
 public sealed class HpPredictionService : IHpPredictionService, IDisposable
 {
     private readonly ICombatEventService _combatEventService;
     private readonly Configuration _configuration;
+    private readonly IShieldTrackingService? _shieldTrackingService;
+    private readonly IDamageTrendService? _damageTrendService;
 
     /// <summary>
     /// Represents a single pending heal entry with its amount and registration time.
@@ -30,9 +34,20 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
     private readonly object _healsLock = new();
 
     public HpPredictionService(ICombatEventService combatEventService, Configuration configuration)
+        : this(combatEventService, configuration, null, null)
+    {
+    }
+
+    public HpPredictionService(
+        ICombatEventService combatEventService,
+        Configuration configuration,
+        IShieldTrackingService? shieldTrackingService,
+        IDamageTrendService? damageTrendService)
     {
         _combatEventService = combatEventService;
         _configuration = configuration;
+        _shieldTrackingService = shieldTrackingService;
+        _damageTrendService = damageTrendService;
 
         // Subscribe to heal landed event to clear pending heals for that target
         _combatEventService.OnLocalPlayerHealLanded += OnHealLanded;
@@ -231,5 +246,111 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
 
             return result;
         }
+    }
+
+    /// <summary>
+    /// Gets effective HP including shields (current HP + shield value).
+    /// </summary>
+    public uint GetEffectiveHp(uint entityId, uint currentHp)
+    {
+        if (_shieldTrackingService == null)
+            return currentHp;
+
+        var shieldValue = _shieldTrackingService.GetTotalShieldValue(entityId);
+        return (uint)(currentHp + shieldValue);
+    }
+
+    /// <summary>
+    /// Gets predicted HP after accounting for pending heals, shields, AND predicted damage.
+    /// This is the most comprehensive HP prediction.
+    /// </summary>
+    public int GetPredictedHpAfterDamage(uint entityId, uint currentHp, uint maxHp, float forecastSeconds = 3f)
+    {
+        // Start with shadow HP (accounts for recent damage not yet reflected in game HP)
+        var baseHp = (int)_combatEventService.GetShadowHp(entityId, currentHp);
+
+        // Add pending heals
+        var pendingHeals = GetPendingHealAmount(entityId);
+        if (_configuration.Healing.EnableCritVarianceReduction && pendingHeals > 0)
+        {
+            var varianceReduction = _configuration.Healing.CritVarianceReduction;
+            pendingHeals = (int)(pendingHeals * (1f - varianceReduction));
+        }
+
+        // Add shields
+        var shieldValue = _shieldTrackingService?.GetTotalShieldValue(entityId) ?? 0;
+
+        // Calculate predicted damage over forecast window
+        var predictedDamage = 0;
+        if (_damageTrendService != null)
+        {
+            var damageRate = _damageTrendService.GetCurrentDamageRate(entityId, forecastSeconds);
+
+            // Apply mitigation to damage prediction
+            var mitigationPercent = _shieldTrackingService?.GetCombinedMitigation(entityId) ?? 0f;
+            var effectiveDamageRate = damageRate * (1f - mitigationPercent);
+
+            predictedDamage = (int)(effectiveDamageRate * forecastSeconds);
+        }
+
+        // Calculate predicted HP
+        var predictedHp = baseHp + pendingHeals + shieldValue - predictedDamage;
+
+        // Clamp to valid range
+        return Math.Clamp(predictedHp, 0, (int)maxHp);
+    }
+
+    /// <summary>
+    /// Gets comprehensive survivability info for a target.
+    /// Includes HP, shields, mitigation, damage rate, and predicted outcome.
+    /// </summary>
+    public SurvivabilityInfo GetSurvivabilityInfo(uint entityId, uint currentHp, uint maxHp, float forecastSeconds = 3f)
+    {
+        // Get pending heals
+        var pendingHeals = GetPendingHealAmount(entityId);
+        if (_configuration.Healing.EnableCritVarianceReduction && pendingHeals > 0)
+        {
+            var varianceReduction = _configuration.Healing.CritVarianceReduction;
+            pendingHeals = (int)(pendingHeals * (1f - varianceReduction));
+        }
+
+        // Get shield and mitigation data
+        var shieldValue = _shieldTrackingService?.GetTotalShieldValue(entityId) ?? 0;
+        var mitigationPercent = _shieldTrackingService?.GetCombinedMitigation(entityId) ?? 0f;
+        var isInvulnerable = _shieldTrackingService?.IsInvulnerable(entityId) ?? false;
+
+        // Get damage data
+        var damageRate = _damageTrendService?.GetCurrentDamageRate(entityId, forecastSeconds) ?? 0f;
+        var effectiveDamageRate = damageRate * (1f - mitigationPercent);
+        var predictedDamage = (int)(effectiveDamageRate * forecastSeconds);
+
+        // Calculate time until death
+        var timeUntilDeath = float.MaxValue;
+        if (_damageTrendService != null && !isInvulnerable)
+        {
+            // Use effective HP (HP + shields) for TTD calculation
+            var effectiveHp = currentHp + (uint)shieldValue;
+            timeUntilDeath = _damageTrendService.EstimateTimeToDeath(entityId, effectiveHp, forecastSeconds);
+
+            // Adjust for mitigation (if they have mitigation, they'll live longer)
+            if (mitigationPercent > 0 && timeUntilDeath < float.MaxValue)
+            {
+                timeUntilDeath /= (1f - mitigationPercent);
+            }
+        }
+
+        return new SurvivabilityInfo
+        {
+            EntityId = entityId,
+            CurrentHp = currentHp,
+            MaxHp = maxHp,
+            PendingHeals = pendingHeals,
+            ShieldValue = shieldValue,
+            MitigationPercent = mitigationPercent,
+            DamageRate = damageRate,
+            PredictedDamage = predictedDamage,
+            TimeUntilDeath = timeUntilDeath,
+            IsInvulnerable = isInvulnerable
+        };
     }
 }

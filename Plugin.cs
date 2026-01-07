@@ -12,6 +12,7 @@ using Olympus.Services.Cooldown;
 using Olympus.Services.Debuff;
 using Olympus.Services.Debug;
 using Olympus.Services.Healing;
+using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
@@ -21,7 +22,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.9.0";
+    public const string PluginVersion = "1.10.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -42,6 +43,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly DamageTrendService damageTrendService;
     private readonly CooldownPlanner cooldownPlanner;
     private readonly TargetingService targetingService;
+    private readonly ShieldTrackingService shieldTrackingService;
     private readonly HpPredictionService hpPredictionService;
     private readonly ActionService actionService;
     private readonly PlayerStatsService playerStatsService;
@@ -93,9 +95,14 @@ public sealed class Plugin : IDalamudPlugin
         this.damageTrendService = new DamageTrendService(damageIntakeService);
         this.cooldownPlanner = new CooldownPlanner(damageIntakeService, damageTrendService, configuration);
         this.targetingService = new TargetingService(objectTable, partyList, targetManager, configuration);
+        this.shieldTrackingService = new ShieldTrackingService(objectTable, partyList, log);
 
         // New action system services
-        this.hpPredictionService = new HpPredictionService(combatEventService, configuration);
+        this.hpPredictionService = new HpPredictionService(
+            combatEventService,
+            configuration,
+            shieldTrackingService,
+            damageTrendService);
         this.actionService = new ActionService(actionTracker);
         this.playerStatsService = new PlayerStatsService(log, dataManager);
 
@@ -207,6 +214,9 @@ public sealed class Plugin : IDalamudPlugin
     {
         // Always update debug service frame counter
         debugService.Update();
+
+        // Always update shield tracking for accurate HP predictions
+        shieldTrackingService.Update();
 
         if (!configuration.Enabled)
             return;
