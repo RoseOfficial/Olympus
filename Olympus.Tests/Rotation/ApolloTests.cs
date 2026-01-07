@@ -594,7 +594,10 @@ public class ApolloTests
             statusHelper,
             partyHelper.Object,
             MockBuilders.CreateMockCooldownPlanner().Object,
-            debugState);
+            coHealerDetectionService: null,
+            bossMechanicDetector: null,
+            shieldTrackingService: null,
+            debugState: debugState);
     }
 
     #endregion

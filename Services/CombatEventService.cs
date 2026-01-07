@@ -41,6 +41,13 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
     /// </summary>
     public event System.Action<uint, int>? OnDamageReceived;
 
+    /// <summary>
+    /// Event raised when any heal effect lands (from any source, not just local player).
+    /// Used by CoHealerDetectionService to track other healers' healing output.
+    /// Parameters: (healerEntityId, targetEntityId, healAmount)
+    /// </summary>
+    public event System.Action<uint, uint, int>? OnAnyHealReceived;
+
     // Shadow HP tracking: EntityId -> (CurrentHp, LastActionUpdate)
     // LastActionUpdate is set when HP changes from action effects (heal/damage)
     // to prevent InitializeHp from overwriting before game HP catches up
@@ -320,6 +327,12 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
             if (totalDelta < 0)
             {
                 OnDamageReceived?.Invoke(targetId, -totalDelta);
+            }
+
+            // Raise heal received event for ALL heals (co-healer tracking)
+            if (totalHeal > 0)
+            {
+                OnAnyHealReceived?.Invoke(casterEntityId, targetId, totalHeal);
             }
 
             // Track heals from local player

@@ -29,8 +29,10 @@ public sealed class SingleTargetHealingHandler : IHealingHandler
             return false;
 
         // Use damage intake triage if enabled, otherwise fall back to lowest HP
+        // Pass ShieldTrackingService for shield-aware triage scoring
         var target = config.Healing.UseDamageIntakeTriage
-            ? context.PartyHelper.FindMostEndangeredPartyMember(player, context.DamageIntakeService, 0, context.DamageTrendService)
+            ? context.PartyHelper.FindMostEndangeredPartyMember(
+                player, context.DamageIntakeService, 0, context.DamageTrendService, context.ShieldTrackingService)
             : context.PartyHelper.FindLowestHpPartyMember(player);
 
         if (target is null)
@@ -39,6 +41,21 @@ public sealed class SingleTargetHealingHandler : IHealingHandler
         // Skip if another handler is already healing this target
         if (context.HealingCoordination.IsTargetReserved(target.EntityId))
             return false;
+
+        // Co-healer awareness: Skip if co-healer has pending heal covering most of missing HP
+        if (config.Healing.EnableCoHealerAwareness && context.CoHealerDetectionService?.HasCoHealer == true)
+        {
+            var coHealerPendingHeals = context.CoHealerDetectionService.CoHealerPendingHeals;
+            if (coHealerPendingHeals.TryGetValue(target.EntityId, out var pendingHeal))
+            {
+                var missingHp = target.MaxHp - target.CurrentHp;
+                var pendingHealPercent = missingHp > 0 ? (float)pendingHeal / missingHp : 1f;
+
+                // Skip if co-healer's pending heal covers enough of the missing HP
+                if (pendingHealPercent >= config.Healing.CoHealerPendingHealThreshold)
+                    return false;
+            }
+        }
 
         var hasRegen = StatusHelper.HasRegenActive(target, out var regenRemaining);
         var isInMpConservation = context.MpForecastService.IsInConservationMode;

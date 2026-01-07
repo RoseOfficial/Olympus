@@ -15,6 +15,7 @@ using Olympus.Services.Action;
 using Olympus.Services.Cooldown;
 using Olympus.Services.Debuff;
 using Olympus.Services.Healing;
+using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
 using Olympus.Services.Stats;
@@ -54,6 +55,11 @@ public sealed class Apollo : IRotation
     private readonly DebuffDetectionService _debuffDetectionService;
     private readonly ICooldownPlanner _cooldownPlanner;
     private readonly IErrorMetricsService? _errorMetrics;
+
+    // Smart healing services
+    private readonly CoHealerDetectionService _coHealerDetectionService;
+    private readonly BossMechanicDetector _bossMechanicDetector;
+    private readonly ShieldTrackingService _shieldTrackingService;
 
     // Frame-scoped caching for performance optimization
     private readonly FrameScopedCache _frameCache = new();
@@ -119,6 +125,13 @@ public sealed class Apollo : IRotation
         // Initialize helpers
         _statusHelper = new StatusHelper();
         _partyHelper = new PartyHelper(objectTable, partyList, hpPredictionService, configuration);
+
+        // Initialize smart healing services
+        _coHealerDetectionService = new CoHealerDetectionService(
+            combatEventService, partyList, objectTable, configuration.Healing);
+        _bossMechanicDetector = new BossMechanicDetector(
+            configuration.Healing, combatEventService, damageIntakeService);
+        _shieldTrackingService = new ShieldTrackingService(objectTable, partyList, log);
 
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<IApolloModule>
@@ -239,6 +252,11 @@ public sealed class Apollo : IRotation
         // Update combat event service with combat state (for lily flush timing)
         _combatEventService.UpdateCombatState(inCombat);
 
+        // Update smart healing services
+        _shieldTrackingService.Update();
+        _coHealerDetectionService.Update(player.EntityId);
+        _bossMechanicDetector.Update();
+
         // Update damage trend service with delta time and party entity IDs
         // This enables spike pattern detection and prediction
         if (inCombat)
@@ -331,6 +349,9 @@ public sealed class Apollo : IRotation
             statusHelper: _statusHelper,
             partyHelper: _partyHelper,
             cooldownPlanner: _cooldownPlanner,
+            coHealerDetectionService: _coHealerDetectionService,
+            bossMechanicDetector: _bossMechanicDetector,
+            shieldTrackingService: _shieldTrackingService,
             debugState: _debugState,
             log: _log);
     }

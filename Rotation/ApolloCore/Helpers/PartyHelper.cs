@@ -7,6 +7,7 @@ using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Config;
 using Olympus.Data;
+using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 
 namespace Olympus.Rotation.ApolloCore.Helpers;
@@ -36,6 +37,12 @@ public sealed class PartyHelper : IPartyHelper
     private readonly float[] _endangeredMissingHpPcts = new float[MaxPartySize];
     private readonly float[] _endangeredTankBonuses = new float[MaxPartySize];
     private readonly float[] _endangeredDamageAccelerations = new float[MaxPartySize];
+
+    // Enhanced triage factors (v1.11.0)
+    private readonly float[] _endangeredShieldPcts = new float[MaxPartySize];
+    private readonly float[] _endangeredMitigations = new float[MaxPartySize];
+    private readonly float[] _endangeredHealerBonuses = new float[MaxPartySize];
+    private readonly float[] _endangeredTtdScores = new float[MaxPartySize];
 
     public PartyHelper(
         IObjectTable objectTable,
@@ -494,15 +501,17 @@ public sealed class PartyHelper : IPartyHelper
     }
 
     /// <summary>
-    /// Finds the most endangered party member using damage intake triage.
-    /// Weights: damageRate (35%) + tankBonus (25%) + missingHp (30%) + damageAcceleration (10%).
+    /// Finds the most endangered party member using enhanced damage intake triage.
+    /// Uses configurable weights including damage rate, tank bonus, missing HP,
+    /// damage acceleration, shield/mitigation penalties, healer bonus, and TTD urgency.
     /// Optimized single-pass algorithm with deferred normalization.
     /// </summary>
     public IBattleChara? FindMostEndangeredPartyMember(
         IPlayerCharacter player,
         IDamageIntakeService damageIntakeService,
         int healAmount = 0,
-        IDamageTrendService? damageTrendService = null)
+        IDamageTrendService? damageTrendService = null,
+        IShieldTrackingService? shieldTrackingService = null)
     {
         // Use instance-level arrays to avoid allocation (max 8 party members in FFXIV)
         var candidateCount = 0;
@@ -564,6 +573,38 @@ public sealed class PartyHelper : IPartyHelper
             _endangeredMissingHpPcts[candidateCount] = 1f - hpPercent;
             _endangeredTankBonuses[candidateCount] = IsTankRole(member) ? 1f : 0f;
             _endangeredDamageAccelerations[candidateCount] = damageAccel;
+
+            // Enhanced triage factors (v1.11.0)
+            // Shield penalty: targets with shields have effective HP buffer
+            var shieldPct = 0f;
+            var mitigation = 0f;
+            if (shieldTrackingService != null)
+            {
+                var shieldValue = shieldTrackingService.GetTotalShieldValue(member.EntityId);
+                shieldPct = member.MaxHp > 0 ? (float)shieldValue / member.MaxHp : 0f;
+                mitigation = shieldTrackingService.GetCombinedMitigation(member.EntityId);
+            }
+            _endangeredShieldPcts[candidateCount] = shieldPct;
+            _endangeredMitigations[candidateCount] = mitigation;
+
+            // Healer bonus: keep co-healer alive for healing throughput
+            var isHealer = false;
+            if (member is IPlayerCharacter pc)
+            {
+                isHealer = JobRegistry.IsHealer(pc.ClassJob.RowId);
+            }
+            _endangeredHealerBonuses[candidateCount] = isHealer ? 1f : 0f;
+
+            // TTD urgency: prioritize targets about to die
+            var ttdScore = 0f;
+            var survivability = _hpPredictionService.GetSurvivabilityInfo(member.EntityId, member.CurrentHp, member.MaxHp);
+            if (survivability.TimeUntilDeath < 10f)
+            {
+                // Normalize: 0s = 1.0, 10s+ = 0.0
+                ttdScore = 1f - (survivability.TimeUntilDeath / 10f);
+            }
+            _endangeredTtdScores[candidateCount] = ttdScore;
+
             candidateCount++;
         }
 
@@ -590,11 +631,15 @@ public sealed class PartyHelper : IPartyHelper
             }
 
             // Weight using configurable triage weights
-            // Acceleration bonus rewards targets whose damage intake is increasing (HP dropping faster)
+            // Enhanced scoring with shield/mitigation penalties and healer/TTD bonuses
             var score = (normalizedDamageRate * weights.DamageRate) +
                         (_endangeredTankBonuses[i] * weights.TankBonus) +
                         (_endangeredMissingHpPcts[i] * weights.MissingHp) +
-                        (normalizedAcceleration * weights.DamageAcceleration);
+                        (normalizedAcceleration * weights.DamageAcceleration) +
+                        (_endangeredHealerBonuses[i] * weights.HealerBonus) +
+                        (_endangeredTtdScores[i] * weights.TtdUrgency) -
+                        (_endangeredShieldPcts[i] * weights.ShieldPenalty) -
+                        (_endangeredMitigations[i] * weights.MitigationPenalty);
 
             if (score > highestScore)
             {

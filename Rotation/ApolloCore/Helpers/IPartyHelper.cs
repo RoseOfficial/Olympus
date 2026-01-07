@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
+using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 
 namespace Olympus.Rotation.ApolloCore.Helpers;
@@ -62,19 +63,22 @@ public interface IPartyHelper
     bool NeedsRegen(IBattleChara target, float hpThreshold, float refreshThreshold);
 
     /// <summary>
-    /// Finds the most endangered party member using damage intake triage.
-    /// Weights: damageRate (35%) + tankBonus (25%) + missingHp (30%) + damageAcceleration (10%).
+    /// Finds the most endangered party member using enhanced damage intake triage.
+    /// Uses configurable weights including damage rate, tank bonus, missing HP,
+    /// damage acceleration, shield/mitigation penalties, healer bonus, and TTD urgency.
     /// </summary>
     /// <param name="player">The local player.</param>
     /// <param name="damageIntakeService">Service providing damage intake data.</param>
     /// <param name="healAmount">Minimum missing HP to consider (prevents overhealing).</param>
     /// <param name="damageTrendService">Optional service for damage acceleration data.</param>
+    /// <param name="shieldTrackingService">Optional service for shield/mitigation data.</param>
     /// <returns>The most endangered party member, or null if none need healing.</returns>
     IBattleChara? FindMostEndangeredPartyMember(
         IPlayerCharacter player,
         IDamageIntakeService damageIntakeService,
         int healAmount = 0,
-        IDamageTrendService? damageTrendService = null);
+        IDamageTrendService? damageTrendService = null,
+        IShieldTrackingService? shieldTrackingService = null);
 
     /// <summary>
     /// Counts party members within AoE range that are below a certain HP threshold.

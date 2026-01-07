@@ -73,8 +73,9 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
             return false;
 
         // Find the most endangered target - use damage trend to identify who's taking the hit
+        // Pass ShieldTrackingService for shield-aware triage scoring
         var target = context.PartyHelper.FindMostEndangeredPartyMember(
-            player, context.DamageIntakeService, 0, context.DamageTrendService);
+            player, context.DamageIntakeService, 0, context.DamageTrendService, context.ShieldTrackingService);
 
         if (target is null)
             return false;
@@ -82,6 +83,21 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
         // Skip if another handler is already healing this target
         if (context.HealingCoordination.IsTargetReserved(target.EntityId))
             return false;
+
+        // Co-healer awareness: Skip if co-healer has pending heal covering most of missing HP
+        if (config.Healing.EnableCoHealerAwareness && context.CoHealerDetectionService?.HasCoHealer == true)
+        {
+            var coHealerPendingHeals = context.CoHealerDetectionService.CoHealerPendingHeals;
+            if (coHealerPendingHeals.TryGetValue(target.EntityId, out var coHealerPending))
+            {
+                var missingHp = target.MaxHp - target.CurrentHp;
+                var pendingHealPercent = missingHp > 0 ? (float)coHealerPending / missingHp : 1f;
+
+                // Skip if co-healer's pending heal covers enough of the missing HP
+                if (pendingHealPercent >= config.Healing.CoHealerPendingHealThreshold)
+                    return false;
+            }
+        }
 
         // Check if target is actually at risk
         var targetHpPercent = context.PartyHelper.GetHpPercent(target);
@@ -106,7 +122,14 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
             return false;
 
         // Check if target already has pending heals that would save them
+        // Include co-healer pending heals in this calculation
         var pendingHeals = context.HpPredictionService.GetPendingHealAmount(target.EntityId);
+        if (config.Healing.EnableCoHealerAwareness && context.CoHealerDetectionService?.HasCoHealer == true)
+        {
+            var coHealerPendingHeals = context.CoHealerDetectionService.CoHealerPendingHeals;
+            if (coHealerPendingHeals.TryGetValue(target.EntityId, out var coHealerPending))
+                pendingHeals += coHealerPending;
+        }
         if (projectedHp + pendingHeals > target.MaxHp * config.Healing.PreemptiveHealingThreshold)
             return false;
 

@@ -15,6 +15,10 @@ public enum TriagePreset
     SpreadDamage,
     /// <summary>Focus on lowest HP members (raid damage scenarios).</summary>
     RaidWide,
+    /// <summary>Shield-aware: reduce priority for shielded/mitigated targets.</summary>
+    ShieldAware,
+    /// <summary>Urgency-based: prioritize targets about to die (low TTD).</summary>
+    UrgencyBased,
     /// <summary>Use custom weights defined in CustomTriageWeights.</summary>
     Custom
 }
@@ -73,6 +77,56 @@ public sealed class TriageWeights
         set => _damageAcceleration = Math.Clamp(value, 0f, 1f);
     }
 
+    // Enhanced triage factors (v1.11.0)
+
+    /// <summary>
+    /// Penalty for targets with active shields.
+    /// Targets with shields have effective HP buffer, so less urgent to heal.
+    /// Valid range: 0.0 to 0.5.
+    /// </summary>
+    private float _shieldPenalty = 0f;
+    public float ShieldPenalty
+    {
+        get => _shieldPenalty;
+        set => _shieldPenalty = Math.Clamp(value, 0f, 0.5f);
+    }
+
+    /// <summary>
+    /// Penalty for targets with active mitigation.
+    /// Mitigated targets take less damage, so less urgent to heal.
+    /// Valid range: 0.0 to 0.5.
+    /// </summary>
+    private float _mitigationPenalty = 0f;
+    public float MitigationPenalty
+    {
+        get => _mitigationPenalty;
+        set => _mitigationPenalty = Math.Clamp(value, 0f, 0.5f);
+    }
+
+    /// <summary>
+    /// Bonus for healers in triage scoring.
+    /// Keep co-healer alive for healing throughput.
+    /// Valid range: 0.0 to 0.5.
+    /// </summary>
+    private float _healerBonus = 0f;
+    public float HealerBonus
+    {
+        get => _healerBonus;
+        set => _healerBonus = Math.Clamp(value, 0f, 0.5f);
+    }
+
+    /// <summary>
+    /// Weight for time-to-death urgency.
+    /// Higher values prioritize targets about to die.
+    /// Valid range: 0.0 to 0.5.
+    /// </summary>
+    private float _ttdUrgency = 0f;
+    public float TtdUrgency
+    {
+        get => _ttdUrgency;
+        set => _ttdUrgency = Math.Clamp(value, 0f, 0.5f);
+    }
+
     /// <summary>Creates balanced weights (default).</summary>
     public static TriageWeights Balanced => new()
         { DamageRate = 0.35f, TankBonus = 0.25f, MissingHp = 0.30f, DamageAcceleration = 0.10f };
@@ -89,6 +143,20 @@ public sealed class TriageWeights
     public static TriageWeights RaidWide => new()
         { DamageRate = 0.20f, TankBonus = 0.10f, MissingHp = 0.50f, DamageAcceleration = 0.20f };
 
+    /// <summary>Creates shield-aware weights (reduce priority for shielded/mitigated targets).</summary>
+    public static TriageWeights ShieldAware => new()
+    {
+        DamageRate = 0.30f, TankBonus = 0.20f, MissingHp = 0.25f, DamageAcceleration = 0.05f,
+        ShieldPenalty = 0.10f, MitigationPenalty = 0.05f, HealerBonus = 0.05f
+    };
+
+    /// <summary>Creates urgency-based weights (prioritize targets about to die).</summary>
+    public static TriageWeights UrgencyBased => new()
+    {
+        DamageRate = 0.25f, TankBonus = 0.15f, MissingHp = 0.20f, DamageAcceleration = 0.10f,
+        ShieldPenalty = 0.05f, MitigationPenalty = 0.05f, HealerBonus = 0.05f, TtdUrgency = 0.15f
+    };
+
     /// <summary>
     /// Gets the preset weights for a given triage preset.
     /// </summary>
@@ -98,6 +166,8 @@ public sealed class TriageWeights
         TriagePreset.TankFocus => TankFocus,
         TriagePreset.SpreadDamage => SpreadDamage,
         TriagePreset.RaidWide => RaidWide,
+        TriagePreset.ShieldAware => ShieldAware,
+        TriagePreset.UrgencyBased => UrgencyBased,
         _ => Balanced
     };
 }
@@ -629,6 +699,123 @@ public sealed class HealingConfig
     {
         get => _moderateLilyDamageRate;
         set => _moderateLilyDamageRate = Math.Clamp(value, 0f, 2000f);
+    }
+
+    // ============================================================
+    // Co-Healer Awareness Settings (v1.11.0)
+    // ============================================================
+
+    /// <summary>
+    /// Enable co-healer detection and coordination.
+    /// When enabled, the plugin detects other healers in the party
+    /// and adjusts healing aggressiveness to avoid double-healing.
+    /// </summary>
+    public bool EnableCoHealerAwareness { get; set; } = true;
+
+    /// <summary>
+    /// Threshold multiplier for healing when co-healer is present.
+    /// Reduces healing aggressiveness to let co-healer share the load.
+    /// e.g., 0.85 means reduce healing thresholds by 15% when co-healer is active.
+    /// Valid range: 0.5 to 1.0.
+    /// </summary>
+    private float _coHealerThresholdMultiplier = 0.85f;
+    public float CoHealerThresholdMultiplier
+    {
+        get => _coHealerThresholdMultiplier;
+        set => _coHealerThresholdMultiplier = Math.Clamp(value, 0.5f, 1f);
+    }
+
+    /// <summary>
+    /// Time window (seconds) to consider co-healer as "active".
+    /// Co-healer is considered active if they healed within this window.
+    /// Valid range: 3 to 30.
+    /// </summary>
+    private float _coHealerActiveWindow = 10f;
+    public float CoHealerActiveWindow
+    {
+        get => _coHealerActiveWindow;
+        set => _coHealerActiveWindow = Math.Clamp(value, 3f, 30f);
+    }
+
+    /// <summary>
+    /// Skip healing if co-healer's pending heal covers this much of target's missing HP.
+    /// e.g., 0.7 means skip if co-healer's incoming heal will restore 70%+ of missing HP.
+    /// Valid range: 0.3 to 1.0.
+    /// </summary>
+    private float _coHealerPendingHealThreshold = 0.7f;
+    public float CoHealerPendingHealThreshold
+    {
+        get => _coHealerPendingHealThreshold;
+        set => _coHealerPendingHealThreshold = Math.Clamp(value, 0.3f, 1f);
+    }
+
+    // ============================================================
+    // Boss Mechanic Awareness Settings (v1.11.0)
+    // ============================================================
+
+    /// <summary>
+    /// Enable boss mechanic awareness.
+    /// When enabled, the plugin detects raidwide and tank buster patterns
+    /// to enable proactive mitigation and healing.
+    /// </summary>
+    public bool EnableMechanicAwareness { get; set; } = true;
+
+    /// <summary>
+    /// Minimum party members affected to consider damage as "raidwide".
+    /// Valid range: 2 to 8.
+    /// </summary>
+    private int _raidwideMinTargets = 4;
+    public int RaidwideMinTargets
+    {
+        get => _raidwideMinTargets;
+        set => _raidwideMinTargets = Math.Clamp(value, 2, 8);
+    }
+
+    /// <summary>
+    /// Minimum HP% damage to consider as "raidwide" per target.
+    /// Valid range: 0.01 to 0.20.
+    /// </summary>
+    private float _raidwideMinDamagePercent = 0.03f;
+    public float RaidwideMinDamagePercent
+    {
+        get => _raidwideMinDamagePercent;
+        set => _raidwideMinDamagePercent = Math.Clamp(value, 0.01f, 0.2f);
+    }
+
+    /// <summary>
+    /// Minimum HP% damage to consider as "tank buster".
+    /// Valid range: 0.05 to 0.50.
+    /// </summary>
+    private float _tankBusterMinDamagePercent = 0.15f;
+    public float TankBusterMinDamagePercent
+    {
+        get => _tankBusterMinDamagePercent;
+        set => _tankBusterMinDamagePercent = Math.Clamp(value, 0.05f, 0.5f);
+    }
+
+    /// <summary>
+    /// How far ahead to predict mechanics for pre-shielding (seconds).
+    /// When a raidwide or tank buster is predicted within this window,
+    /// proactive mitigation/shields will be applied.
+    /// Valid range: 1.0 to 5.0.
+    /// </summary>
+    private float _mechanicPreparationWindow = 3f;
+    public float MechanicPreparationWindow
+    {
+        get => _mechanicPreparationWindow;
+        set => _mechanicPreparationWindow = Math.Clamp(value, 1f, 5f);
+    }
+
+    /// <summary>
+    /// Confidence threshold for mechanic pattern detection.
+    /// Only predict mechanics when pattern confidence exceeds this value.
+    /// Valid range: 0.3 to 0.95.
+    /// </summary>
+    private float _mechanicPatternConfidence = 0.6f;
+    public float MechanicPatternConfidence
+    {
+        get => _mechanicPatternConfidence;
+        set => _mechanicPatternConfidence = Math.Clamp(value, 0.3f, 0.95f);
     }
 }
 

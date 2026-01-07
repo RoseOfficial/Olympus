@@ -59,6 +59,11 @@ public sealed class ApolloContext : IApolloContext
     // Cooldown planning
     public ICooldownPlanner CooldownPlanner { get; }
 
+    // Smart healing services
+    public ICoHealerDetectionService? CoHealerDetectionService { get; }
+    public IBossMechanicDetector? BossMechanicDetector { get; }
+    public IShieldTrackingService? ShieldTrackingService { get; }
+
     // Debug state (mutable, updated by modules)
     public DebugState Debug { get; }
 
@@ -115,6 +120,9 @@ public sealed class ApolloContext : IApolloContext
         StatusHelper statusHelper,
         IPartyHelper partyHelper,
         ICooldownPlanner cooldownPlanner,
+        ICoHealerDetectionService? coHealerDetectionService = null,
+        IBossMechanicDetector? bossMechanicDetector = null,
+        IShieldTrackingService? shieldTrackingService = null,
         DebugState? debugState = null,
         IPluginLog? log = null)
     {
@@ -141,6 +149,9 @@ public sealed class ApolloContext : IApolloContext
         StatusHelper = statusHelper;
         PartyHelper = partyHelper;
         CooldownPlanner = cooldownPlanner;
+        CoHealerDetectionService = coHealerDetectionService;
+        BossMechanicDetector = bossMechanicDetector;
+        ShieldTrackingService = shieldTrackingService;
         Debug = debugState ?? new DebugState();
         HealingCoordination = new HealingCoordinationState();
         Log = log;

@@ -152,15 +152,20 @@ public sealed class DefensiveModule : IApolloModule
         var damageSpikeImminent = config.Defensive.UseTemperanceTrendAnalysis &&
                                   context.DamageTrendService.IsDamageSpikeImminent(0.8f);
 
+        // Check boss mechanic detector for predicted raidwide
+        var raidwideImminent = config.Healing.EnableMechanicAwareness &&
+                               context.BossMechanicDetector?.IsRaidwideImminent == true;
+
         // Standard threshold or lowered threshold during high damage
-        var effectiveThreshold = highDamageIntake || damageSpikeImminent
+        var effectiveThreshold = highDamageIntake || damageSpikeImminent || raidwideImminent
             ? config.Defensive.DefensiveCooldownThreshold + 0.10f  // More proactive during damage spike
             : config.Defensive.DefensiveCooldownThreshold;
 
         var shouldUse = injuredCount >= 3 ||
                         avgHpPercent < effectiveThreshold ||
                         highDamageIntake ||
-                        damageSpikeImminent;
+                        damageSpikeImminent ||
+                        raidwideImminent;
 
         if (!shouldUse)
         {
@@ -187,7 +192,8 @@ public sealed class DefensiveModule : IApolloModule
         if (ActionExecutor.ExecuteOgcd(context, WHMActions.Temperance, player.GameObjectId,
             player.Name?.TextValue ?? "Unknown", player.CurrentHp))
         {
-            var reason = damageSpikeImminent ? "spike imminent" :
+            var reason = raidwideImminent ? "raidwide predicted" :
+                         damageSpikeImminent ? "spike imminent" :
                          highDamageIntake ? "damage spike" : $"{injuredCount} injured";
             context.Debug.DefensiveState = $"Temperance ({reason}, avg HP {avgHpPercent:P0})";
             return true;
@@ -254,6 +260,12 @@ public sealed class DefensiveModule : IApolloModule
         var shouldApplyProactively = config.Defensive.EnableProactiveCooldowns &&
                                      tankDamageRate >= config.Defensive.ProactiveBenisonDamageRate;
 
+        // Check boss mechanic detector for predicted tank buster
+        var tankBusterImminent = config.Healing.EnableMechanicAwareness &&
+                                 context.BossMechanicDetector?.IsTankBusterImminent == true;
+        var shouldApplyForTankBuster = tankBusterImminent &&
+                                       context.BossMechanicDetector?.PredictedTankBuster?.TargetTankEntityId == tank.EntityId;
+
         // Standard application thresholds based on charge count
         // At max charges: Apply more freely (98% HP) to avoid wasting charge regen
         // Normal: Apply if tank HP below 95%
@@ -263,7 +275,7 @@ public sealed class DefensiveModule : IApolloModule
         // At max charges, also consider applying if tank is taking any damage at all
         var shouldApplyToAvoidCap = isAtMaxCharges && tankDamageRate > 0;
 
-        if (!shouldApplyProactively && !shouldApplyStandard && !shouldApplyToAvoidCap)
+        if (!shouldApplyProactively && !shouldApplyStandard && !shouldApplyToAvoidCap && !shouldApplyForTankBuster)
             return false;
 
         var tankName = tank.Name?.TextValue ?? "Unknown";
@@ -274,7 +286,13 @@ public sealed class DefensiveModule : IApolloModule
             string reason;
             string logReason;
 
-            if (shouldApplyToAvoidCap && !shouldApplyProactively && !shouldApplyStandard)
+            if (shouldApplyForTankBuster)
+            {
+                var secondsUntil = context.BossMechanicDetector?.PredictedTankBuster?.SecondsUntil ?? 0;
+                reason = $"tank buster in {secondsUntil:F1}s ({chargeInfo})";
+                logReason = $"Tank buster predicted ({chargeInfo})";
+            }
+            else if (shouldApplyToAvoidCap && !shouldApplyProactively && !shouldApplyStandard)
             {
                 reason = $"avoiding cap ({chargeInfo} charges)";
                 logReason = $"At max charges - using to avoid cap ({chargeInfo})";
@@ -334,19 +352,42 @@ public sealed class DefensiveModule : IApolloModule
         var shouldApplyProactively = config.Defensive.EnableProactiveCooldowns &&
                                      tankDamageRate >= config.Defensive.ProactiveAquaveilDamageRate;
 
+        // Check boss mechanic detector for predicted tank buster
+        var tankBusterImminent = config.Healing.EnableMechanicAwareness &&
+                                 context.BossMechanicDetector?.IsTankBusterImminent == true;
+        var shouldApplyForTankBuster = tankBusterImminent &&
+                                       context.BossMechanicDetector?.PredictedTankBuster?.TargetTankEntityId == tank.EntityId;
+
         // Standard application: Apply if tank HP is below threshold
         var shouldApplyStandard = tankHpPct < 0.90f;
 
-        if (!shouldApplyProactively && !shouldApplyStandard)
+        if (!shouldApplyProactively && !shouldApplyStandard && !shouldApplyForTankBuster)
             return false;
 
         var tankName = tank.Name?.TextValue ?? "Unknown";
         if (ActionExecutor.ExecuteOgcd(context, WHMActions.Aquaveil, tank.GameObjectId,
             tankName, tank.CurrentHp))
         {
-            var reason = shouldApplyProactively
-                ? $"proactive, DPS {tankDamageRate:F0}"
-                : $"{tankHpPct:P0} HP";
+            string reason;
+            string logReason;
+
+            if (shouldApplyForTankBuster)
+            {
+                var secondsUntil = context.BossMechanicDetector?.PredictedTankBuster?.SecondsUntil ?? 0;
+                reason = $"tank buster in {secondsUntil:F1}s";
+                logReason = "Tank buster predicted";
+            }
+            else if (shouldApplyProactively)
+            {
+                reason = $"proactive, DPS {tankDamageRate:F0}";
+                logReason = "Proactive (high damage rate)";
+            }
+            else
+            {
+                reason = $"{tankHpPct:P0} HP";
+                logReason = "Standard (HP threshold)";
+            }
+
             context.Debug.DefensiveState = $"Aquaveil on {tankName} ({reason})";
 
             // Log defensive decision
@@ -355,7 +396,7 @@ public sealed class DefensiveModule : IApolloModule
                 tankHpPct,
                 "Aquaveil",
                 tankDamageRate,
-                shouldApplyProactively ? "Proactive (high damage rate)" : "Standard (HP threshold)");
+                logReason);
 
             return true;
         }
