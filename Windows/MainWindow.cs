@@ -20,7 +20,7 @@ public sealed class MainWindow : Window
         this.openSettings = openSettings;
         this.openDebug = openDebug;
 
-        Size = new Vector2(250, 175);
+        Size = new Vector2(250, 210);
         SizeCondition = ImGuiCond.FirstUseEver;
     }
 
@@ -37,7 +37,9 @@ public sealed class MainWindow : Window
 
         ImGui.Separator();
 
-        ImGui.Text("Module: Apollo (White Mage)");
+        ImGui.Text("Modules:");
+        ImGui.BulletText("Apollo (White Mage)");
+        ImGui.BulletText("Athena (Scholar)");
         ImGui.TextDisabled("Intelligent healing, damage, and cooldown management");
 
         ImGui.Separator();

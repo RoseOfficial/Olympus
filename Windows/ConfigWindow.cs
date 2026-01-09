@@ -18,7 +18,7 @@ public sealed class ConfigWindow : Window
         this.configuration = configuration;
         this.saveConfiguration = saveConfiguration;
 
-        Size = new System.Numerics.Vector2(400, 550);
+        Size = new System.Numerics.Vector2(450, 600);
         SizeCondition = ImGuiCond.FirstUseEver;
     }
 
@@ -31,17 +31,33 @@ public sealed class ConfigWindow : Window
             saveConfiguration();
         }
 
-        ImGui.TextDisabled("When enabled, Apollo will automatically cast spells.");
+        ImGui.TextDisabled("When enabled, the rotation will automatically cast spells.");
 
         ImGui.Separator();
 
-        DrawTargetingSection();
-        DrawHealingSection();
-        DrawDefensiveSection();
-        DrawResurrectionSection();
-        DrawDamageSection();
-        DrawDoTSection();
-        DrawRoleActionsSection();
+        // Tab bar for job selection
+        if (ImGui.BeginTabBar("JobConfigTabs"))
+        {
+            if (ImGui.BeginTabItem("General"))
+            {
+                DrawGeneralTab();
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("White Mage"))
+            {
+                DrawWhiteMageTab();
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("Scholar"))
+            {
+                DrawScholarTab();
+                ImGui.EndTabItem();
+            }
+
+            ImGui.EndTabBar();
+        }
 
         ImGui.Separator();
         ImGui.Spacing();
@@ -959,4 +975,621 @@ public sealed class ConfigWindow : Window
             ImGui.Unindent();
         }
     }
+
+    #region Tab Methods
+
+    private void DrawGeneralTab()
+    {
+        DrawTargetingSection();
+        DrawRoleActionsSection();
+        DrawResurrectionSection();
+    }
+
+    private void DrawWhiteMageTab()
+    {
+        ImGui.TextColored(new System.Numerics.Vector4(1f, 1f, 0.8f, 1f), "Apollo (White Mage) Settings");
+        ImGui.Spacing();
+
+        DrawHealingSection();
+        DrawDefensiveSection();
+        DrawDamageSection();
+        DrawDoTSection();
+    }
+
+    private void DrawScholarTab()
+    {
+        ImGui.TextColored(new System.Numerics.Vector4(0.8f, 0.9f, 1f, 1f), "Athena (Scholar) Settings");
+        ImGui.Spacing();
+
+        DrawScholarHealingSection();
+        DrawScholarFairySection();
+        DrawScholarShieldSection();
+        DrawScholarAetherflowSection();
+        DrawScholarDamageSection();
+    }
+
+    #endregion
+
+    #region Scholar Sections
+
+    private void DrawScholarHealingSection()
+    {
+        if (ImGui.CollapsingHeader("Healing##SCH", ImGuiTreeNodeFlags.DefaultOpen))
+        {
+            ImGui.Indent();
+
+            ImGui.TextDisabled("GCD Heals:");
+
+            var enablePhysick = configuration.Scholar.EnablePhysick;
+            if (ImGui.Checkbox("Enable Physick", ref enablePhysick))
+            {
+                configuration.Scholar.EnablePhysick = enablePhysick;
+                saveConfiguration();
+            }
+
+            var enableAdlo = configuration.Scholar.EnableAdloquium;
+            if (ImGui.Checkbox("Enable Adloquium", ref enableAdlo))
+            {
+                configuration.Scholar.EnableAdloquium = enableAdlo;
+                saveConfiguration();
+            }
+
+            var enableSuccor = configuration.Scholar.EnableSuccor;
+            if (ImGui.Checkbox("Enable Succor", ref enableSuccor))
+            {
+                configuration.Scholar.EnableSuccor = enableSuccor;
+                saveConfiguration();
+            }
+
+            ImGui.Spacing();
+            ImGui.TextDisabled("oGCD Heals:");
+
+            var enableLustrate = configuration.Scholar.EnableLustrate;
+            if (ImGui.Checkbox("Enable Lustrate", ref enableLustrate))
+            {
+                configuration.Scholar.EnableLustrate = enableLustrate;
+                saveConfiguration();
+            }
+
+            var enableExcog = configuration.Scholar.EnableExcogitation;
+            if (ImGui.Checkbox("Enable Excogitation", ref enableExcog))
+            {
+                configuration.Scholar.EnableExcogitation = enableExcog;
+                saveConfiguration();
+            }
+
+            var enableIndom = configuration.Scholar.EnableIndomitability;
+            if (ImGui.Checkbox("Enable Indomitability", ref enableIndom))
+            {
+                configuration.Scholar.EnableIndomitability = enableIndom;
+                saveConfiguration();
+            }
+
+            var enableProtraction = configuration.Scholar.EnableProtraction;
+            if (ImGui.Checkbox("Enable Protraction", ref enableProtraction))
+            {
+                configuration.Scholar.EnableProtraction = enableProtraction;
+                saveConfiguration();
+            }
+
+            var enableRecitation = configuration.Scholar.EnableRecitation;
+            if (ImGui.Checkbox("Enable Recitation", ref enableRecitation))
+            {
+                configuration.Scholar.EnableRecitation = enableRecitation;
+                saveConfiguration();
+            }
+
+            ImGui.Spacing();
+            ImGui.TextDisabled("Single-Target Thresholds:");
+
+            var physickThreshold = configuration.Scholar.PhysickThreshold * 100f;
+            ImGui.SetNextItemWidth(200);
+            if (ImGui.SliderFloat("Physick", ref physickThreshold, 20f, 80f, "%.0f%%"))
+            {
+                configuration.Scholar.PhysickThreshold = physickThreshold / 100f;
+                saveConfiguration();
+            }
+
+            var adloThreshold = configuration.Scholar.AdloquiumThreshold * 100f;
+            ImGui.SetNextItemWidth(200);
+            if (ImGui.SliderFloat("Adloquium", ref adloThreshold, 40f, 90f, "%.0f%%"))
+            {
+                configuration.Scholar.AdloquiumThreshold = adloThreshold / 100f;
+                saveConfiguration();
+            }
+
+            var lustrateThreshold = configuration.Scholar.LustrateThreshold * 100f;
+            ImGui.SetNextItemWidth(200);
+            if (ImGui.SliderFloat("Lustrate", ref lustrateThreshold, 30f, 80f, "%.0f%%"))
+            {
+                configuration.Scholar.LustrateThreshold = lustrateThreshold / 100f;
+                saveConfiguration();
+            }
+
+            var excogThreshold = configuration.Scholar.ExcogitationThreshold * 100f;
+            ImGui.SetNextItemWidth(200);
+            if (ImGui.SliderFloat("Excogitation", ref excogThreshold, 60f, 95f, "%.0f%%"))
+            {
+                configuration.Scholar.ExcogitationThreshold = excogThreshold / 100f;
+                saveConfiguration();
+            }
+            ImGui.TextDisabled("Apply Excogitation proactively at this HP%.");
+
+            ImGui.Spacing();
+            ImGui.TextDisabled("AoE Healing:");
+
+            var aoeThreshold = configuration.Scholar.AoEHealThreshold * 100f;
+            ImGui.SetNextItemWidth(200);
+            if (ImGui.SliderFloat("AoE HP Threshold", ref aoeThreshold, 50f, 90f, "%.0f%%"))
+            {
+                configuration.Scholar.AoEHealThreshold = aoeThreshold / 100f;
+                saveConfiguration();
+            }
+
+            var aoeMinTargets = configuration.Scholar.AoEHealMinTargets;
+            ImGui.SetNextItemWidth(200);
+            if (ImGui.SliderInt("AoE Min Targets##SCH", ref aoeMinTargets, 2, 8))
+            {
+                configuration.Scholar.AoEHealMinTargets = aoeMinTargets;
+                saveConfiguration();
+            }
+
+            ImGui.Spacing();
+            ImGui.TextDisabled("Recitation Priority:");
+
+            var recitationNames = Enum.GetNames<RecitationPriority>();
+            var currentRecitation = (int)configuration.Scholar.RecitationPriority;
+            ImGui.SetNextItemWidth(180);
+            if (ImGui.Combo("Recitation Target", ref currentRecitation, recitationNames, recitationNames.Length))
+            {
+                configuration.Scholar.RecitationPriority = (RecitationPriority)currentRecitation;
+                saveConfiguration();
+            }
+            ImGui.TextDisabled("Which ability to use with Recitation (guaranteed crit, free).");
+
+            ImGui.Spacing();
+            ImGui.TextDisabled("Sacred Soil:");
+
+            var enableSoil = configuration.Scholar.EnableSacredSoil;
+            if (ImGui.Checkbox("Enable Sacred Soil", ref enableSoil))
+            {
+                configuration.Scholar.EnableSacredSoil = enableSoil;
+                saveConfiguration();
+            }
+
+            if (configuration.Scholar.EnableSacredSoil)
+            {
+                ImGui.Indent();
+                var soilThreshold = configuration.Scholar.SacredSoilThreshold * 100f;
+                ImGui.SetNextItemWidth(150);
+                if (ImGui.SliderFloat("Soil HP Threshold", ref soilThreshold, 50f, 90f, "%.0f%%"))
+                {
+                    configuration.Scholar.SacredSoilThreshold = soilThreshold / 100f;
+                    saveConfiguration();
+                }
+
+                var soilMinTargets = configuration.Scholar.SacredSoilMinTargets;
+                ImGui.SetNextItemWidth(150);
+                if (ImGui.SliderInt("Soil Min Targets", ref soilMinTargets, 2, 8))
+                {
+                    configuration.Scholar.SacredSoilMinTargets = soilMinTargets;
+                    saveConfiguration();
+                }
+                ImGui.Unindent();
+            }
+
+            ImGui.Unindent();
+        }
+    }
+
+    private void DrawScholarFairySection()
+    {
+        if (ImGui.CollapsingHeader("Fairy##SCH", ImGuiTreeNodeFlags.DefaultOpen))
+        {
+            ImGui.Indent();
+
+            var autoSummon = configuration.Scholar.AutoSummonFairy;
+            if (ImGui.Checkbox("Auto-Summon Fairy", ref autoSummon))
+            {
+                configuration.Scholar.AutoSummonFairy = autoSummon;
+                saveConfiguration();
+            }
+            ImGui.TextDisabled("Automatically summon Eos if not present.");
+
+            var enableAbilities = configuration.Scholar.EnableFairyAbilities;
+            if (ImGui.Checkbox("Enable Fairy Abilities", ref enableAbilities))
+            {
+                configuration.Scholar.EnableFairyAbilities = enableAbilities;
+                saveConfiguration();
+            }
+            ImGui.TextDisabled("Automatically use Whispering Dawn, Fey Blessing, etc.");
+
+            ImGui.BeginDisabled(!configuration.Scholar.EnableFairyAbilities);
+
+            ImGui.Spacing();
+            ImGui.TextDisabled("Whispering Dawn:");
+
+            var wdThreshold = configuration.Scholar.WhisperingDawnThreshold * 100f;
+            ImGui.SetNextItemWidth(180);
+            if (ImGui.SliderFloat("WD HP Threshold", ref wdThreshold, 50f, 95f, "%.0f%%"))
+            {
+                configuration.Scholar.WhisperingDawnThreshold = wdThreshold / 100f;
+                saveConfiguration();
+            }
+
+            var wdMinTargets = configuration.Scholar.WhisperingDawnMinTargets;
+            ImGui.SetNextItemWidth(180);
+            if (ImGui.SliderInt("WD Min Targets", ref wdMinTargets, 1, 8))
+            {
+                configuration.Scholar.WhisperingDawnMinTargets = wdMinTargets;
+                saveConfiguration();
+            }
+
+            ImGui.Spacing();
+            ImGui.TextDisabled("Fey Blessing:");
+
+            var fbThreshold = configuration.Scholar.FeyBlessingThreshold * 100f;
+            ImGui.SetNextItemWidth(180);
+            if (ImGui.SliderFloat("FB HP Threshold", ref fbThreshold, 50f, 90f, "%.0f%%"))
+            {
+                configuration.Scholar.FeyBlessingThreshold = fbThreshold / 100f;
+                saveConfiguration();
+            }
+
+            ImGui.Spacing();
+            ImGui.TextDisabled("Fey Union:");
+
+            var fuThreshold = configuration.Scholar.FeyUnionThreshold * 100f;
+            ImGui.SetNextItemWidth(180);
+            if (ImGui.SliderFloat("FU HP Threshold", ref fuThreshold, 40f, 80f, "%.0f%%"))
+            {
+                configuration.Scholar.FeyUnionThreshold = fuThreshold / 100f;
+                saveConfiguration();
+            }
+
+            var fuMinGauge = configuration.Scholar.FeyUnionMinGauge;
+            ImGui.SetNextItemWidth(180);
+            if (ImGui.SliderInt("FU Min Gauge", ref fuMinGauge, 10, 100))
+            {
+                configuration.Scholar.FeyUnionMinGauge = fuMinGauge;
+                saveConfiguration();
+            }
+
+            ImGui.Spacing();
+            ImGui.TextDisabled("Seraph:");
+
+            var seraphNames = Enum.GetNames<SeraphUsageStrategy>();
+            var currentSeraph = (int)configuration.Scholar.SeraphStrategy;
+            ImGui.SetNextItemWidth(150);
+            if (ImGui.Combo("Seraph Strategy", ref currentSeraph, seraphNames, seraphNames.Length))
+            {
+                configuration.Scholar.SeraphStrategy = (SeraphUsageStrategy)currentSeraph;
+                saveConfiguration();
+            }
+
+            var seraphThreshold = configuration.Scholar.SeraphPartyHpThreshold * 100f;
+            ImGui.SetNextItemWidth(180);
+            if (ImGui.SliderFloat("Seraph HP Trigger", ref seraphThreshold, 50f, 90f, "%.0f%%"))
+            {
+                configuration.Scholar.SeraphPartyHpThreshold = seraphThreshold / 100f;
+                saveConfiguration();
+            }
+
+            var enableConsolation = configuration.Scholar.EnableConsolation;
+            if (ImGui.Checkbox("Enable Consolation", ref enableConsolation))
+            {
+                configuration.Scholar.EnableConsolation = enableConsolation;
+                saveConfiguration();
+            }
+            ImGui.TextDisabled("Seraph AoE heal + shield ability.");
+
+            ImGui.Spacing();
+            ImGui.TextDisabled("Seraphism (Lv100):");
+
+            var seraphismNames = Enum.GetNames<SeraphismUsageStrategy>();
+            var currentSeraphism = (int)configuration.Scholar.SeraphismStrategy;
+            ImGui.SetNextItemWidth(150);
+            if (ImGui.Combo("Seraphism Strategy", ref currentSeraphism, seraphismNames, seraphismNames.Length))
+            {
+                configuration.Scholar.SeraphismStrategy = (SeraphismUsageStrategy)currentSeraphism;
+                saveConfiguration();
+            }
+
+            ImGui.EndDisabled();
+            ImGui.Unindent();
+        }
+    }
+
+    private void DrawScholarShieldSection()
+    {
+        if (ImGui.CollapsingHeader("Shields##SCH", ImGuiTreeNodeFlags.DefaultOpen))
+        {
+            ImGui.Indent();
+
+            var enableET = configuration.Scholar.EnableEmergencyTactics;
+            if (ImGui.Checkbox("Emergency Tactics", ref enableET))
+            {
+                configuration.Scholar.EnableEmergencyTactics = enableET;
+                saveConfiguration();
+            }
+            ImGui.TextDisabled("Convert next shield to direct healing.");
+
+            if (configuration.Scholar.EnableEmergencyTactics)
+            {
+                var etThreshold = configuration.Scholar.EmergencyTacticsThreshold * 100f;
+                ImGui.SetNextItemWidth(180);
+                if (ImGui.SliderFloat("ET HP Threshold", ref etThreshold, 20f, 60f, "%.0f%%"))
+                {
+                    configuration.Scholar.EmergencyTacticsThreshold = etThreshold / 100f;
+                    saveConfiguration();
+                }
+            }
+
+            ImGui.Spacing();
+
+            var enableDT = configuration.Scholar.EnableDeploymentTactics;
+            if (ImGui.Checkbox("Deployment Tactics", ref enableDT))
+            {
+                configuration.Scholar.EnableDeploymentTactics = enableDT;
+                saveConfiguration();
+            }
+            ImGui.TextDisabled("Spread Galvanize shield to party.");
+
+            if (configuration.Scholar.EnableDeploymentTactics)
+            {
+                var dtMinTargets = configuration.Scholar.DeploymentMinTargets;
+                ImGui.SetNextItemWidth(180);
+                if (ImGui.SliderInt("Deploy Min Targets", ref dtMinTargets, 2, 8))
+                {
+                    configuration.Scholar.DeploymentMinTargets = dtMinTargets;
+                    saveConfiguration();
+                }
+            }
+
+            ImGui.Spacing();
+
+            var avoidSage = configuration.Scholar.AvoidOverwritingSageShields;
+            if (ImGui.Checkbox("Avoid Sage Shield Overwrite", ref avoidSage))
+            {
+                configuration.Scholar.AvoidOverwritingSageShields = avoidSage;
+                saveConfiguration();
+            }
+            ImGui.TextDisabled("Don't apply Galvanize if target has Sage shields.");
+
+            ImGui.Spacing();
+            ImGui.TextDisabled("Expedient:");
+
+            var enableExp = configuration.Scholar.EnableExpedient;
+            if (ImGui.Checkbox("Enable Expedient", ref enableExp))
+            {
+                configuration.Scholar.EnableExpedient = enableExp;
+                saveConfiguration();
+            }
+
+            if (configuration.Scholar.EnableExpedient)
+            {
+                var expThreshold = configuration.Scholar.ExpedientThreshold * 100f;
+                ImGui.SetNextItemWidth(180);
+                if (ImGui.SliderFloat("Expedient HP Trigger", ref expThreshold, 40f, 80f, "%.0f%%"))
+                {
+                    configuration.Scholar.ExpedientThreshold = expThreshold / 100f;
+                    saveConfiguration();
+                }
+            }
+
+            ImGui.Unindent();
+        }
+    }
+
+    private void DrawScholarAetherflowSection()
+    {
+        if (ImGui.CollapsingHeader("Aetherflow##SCH", ImGuiTreeNodeFlags.DefaultOpen))
+        {
+            ImGui.Indent();
+
+            var strategyNames = Enum.GetNames<AetherflowUsageStrategy>();
+            var currentStrategy = (int)configuration.Scholar.AetherflowStrategy;
+            ImGui.SetNextItemWidth(180);
+            if (ImGui.Combo("Aetherflow Strategy", ref currentStrategy, strategyNames, strategyNames.Length))
+            {
+                configuration.Scholar.AetherflowStrategy = (AetherflowUsageStrategy)currentStrategy;
+                saveConfiguration();
+            }
+
+            var strategyDesc = configuration.Scholar.AetherflowStrategy switch
+            {
+                AetherflowUsageStrategy.Balanced => "Balance healing and Energy Drain",
+                AetherflowUsageStrategy.HealingPriority => "Prioritize healing, minimal DPS",
+                AetherflowUsageStrategy.AggressiveDps => "Aggressive Energy Drain when safe",
+                _ => ""
+            };
+            ImGui.TextDisabled(strategyDesc);
+
+            ImGui.Spacing();
+
+            var reserve = configuration.Scholar.AetherflowReserve;
+            ImGui.SetNextItemWidth(180);
+            if (ImGui.SliderInt("Stack Reserve", ref reserve, 0, 3))
+            {
+                configuration.Scholar.AetherflowReserve = reserve;
+                saveConfiguration();
+            }
+            ImGui.TextDisabled("Stacks to keep for emergency healing.");
+
+            var enableED = configuration.Scholar.EnableEnergyDrain;
+            if (ImGui.Checkbox("Enable Energy Drain", ref enableED))
+            {
+                configuration.Scholar.EnableEnergyDrain = enableED;
+                saveConfiguration();
+            }
+
+            var dumpWindow = configuration.Scholar.AetherflowDumpWindow;
+            ImGui.SetNextItemWidth(180);
+            if (ImGui.SliderFloat("Dump Window (sec)", ref dumpWindow, 0f, 15f, "%.1f"))
+            {
+                configuration.Scholar.AetherflowDumpWindow = dumpWindow;
+                saveConfiguration();
+            }
+            ImGui.TextDisabled("Start dumping stacks when Aetherflow CD is below this.");
+
+            ImGui.Spacing();
+            ImGui.TextDisabled("Dissipation:");
+
+            var enableDissipation = configuration.Scholar.EnableDissipation;
+            if (ImGui.Checkbox("Enable Dissipation", ref enableDissipation))
+            {
+                configuration.Scholar.EnableDissipation = enableDissipation;
+                saveConfiguration();
+            }
+            ImGui.TextDisabled("Sacrifice fairy for 3 Aetherflow + 20% heal boost.");
+
+            if (configuration.Scholar.EnableDissipation)
+            {
+                ImGui.Indent();
+                var maxGauge = configuration.Scholar.DissipationMaxFairyGauge;
+                ImGui.SetNextItemWidth(150);
+                if (ImGui.SliderInt("Max Fairy Gauge", ref maxGauge, 0, 100))
+                {
+                    configuration.Scholar.DissipationMaxFairyGauge = maxGauge;
+                    saveConfiguration();
+                }
+                ImGui.TextDisabled("Only use when gauge is below this (avoid waste).");
+
+                var safeHp = configuration.Scholar.DissipationSafePartyHp * 100f;
+                ImGui.SetNextItemWidth(150);
+                if (ImGui.SliderFloat("Safe Party HP", ref safeHp, 60f, 95f, "%.0f%%"))
+                {
+                    configuration.Scholar.DissipationSafePartyHp = safeHp / 100f;
+                    saveConfiguration();
+                }
+                ImGui.TextDisabled("Only use when party HP is above this.");
+                ImGui.Unindent();
+            }
+
+            ImGui.Spacing();
+            ImGui.TextDisabled("MP Management:");
+
+            var enableLucid = configuration.Scholar.EnableLucidDreaming;
+            if (ImGui.Checkbox("Enable Lucid Dreaming", ref enableLucid))
+            {
+                configuration.Scholar.EnableLucidDreaming = enableLucid;
+                saveConfiguration();
+            }
+
+            if (configuration.Scholar.EnableLucidDreaming)
+            {
+                var lucidThreshold = configuration.Scholar.LucidDreamingThreshold * 100f;
+                ImGui.SetNextItemWidth(180);
+                if (ImGui.SliderFloat("Lucid MP Threshold", ref lucidThreshold, 40f, 90f, "%.0f%%"))
+                {
+                    configuration.Scholar.LucidDreamingThreshold = lucidThreshold / 100f;
+                    saveConfiguration();
+                }
+            }
+
+            ImGui.Unindent();
+        }
+    }
+
+    private void DrawScholarDamageSection()
+    {
+        if (ImGui.CollapsingHeader("Damage##SCH", ImGuiTreeNodeFlags.DefaultOpen))
+        {
+            ImGui.Indent();
+
+            ImGui.TextDisabled("Single-Target Damage:");
+
+            var enableSingleTarget = configuration.Scholar.EnableSingleTargetDamage;
+            if (ImGui.Checkbox("Enable Broil/Ruin", ref enableSingleTarget))
+            {
+                configuration.Scholar.EnableSingleTargetDamage = enableSingleTarget;
+                saveConfiguration();
+            }
+            ImGui.TextDisabled("Casted single-target damage spells.");
+
+            var enableRuinII = configuration.Scholar.EnableRuinII;
+            if (ImGui.Checkbox("Enable Ruin II", ref enableRuinII))
+            {
+                configuration.Scholar.EnableRuinII = enableRuinII;
+                saveConfiguration();
+            }
+            ImGui.TextDisabled("Instant damage while moving.");
+
+            ImGui.Spacing();
+            ImGui.TextDisabled("DoT:");
+
+            var enableDot = configuration.Scholar.EnableDot;
+            if (ImGui.Checkbox("Enable Bio/Biolysis", ref enableDot))
+            {
+                configuration.Scholar.EnableDot = enableDot;
+                saveConfiguration();
+            }
+
+            if (configuration.Scholar.EnableDot)
+            {
+                var dotRefresh = configuration.Scholar.DotRefreshThreshold;
+                ImGui.SetNextItemWidth(180);
+                if (ImGui.SliderFloat("DoT Refresh (sec)", ref dotRefresh, 0f, 10f, "%.1f"))
+                {
+                    configuration.Scholar.DotRefreshThreshold = dotRefresh;
+                    saveConfiguration();
+                }
+            }
+
+            ImGui.Spacing();
+            ImGui.TextDisabled("AoE Damage:");
+
+            var enableAoEDamage = configuration.Scholar.EnableAoEDamage;
+            if (ImGui.Checkbox("Enable Art of War", ref enableAoEDamage))
+            {
+                configuration.Scholar.EnableAoEDamage = enableAoEDamage;
+                saveConfiguration();
+            }
+
+            if (configuration.Scholar.EnableAoEDamage)
+            {
+                var aoeDamageMinTargets = configuration.Scholar.AoEDamageMinTargets;
+                ImGui.SetNextItemWidth(180);
+                if (ImGui.SliderInt("Art of War Min Enemies", ref aoeDamageMinTargets, 2, 10))
+                {
+                    configuration.Scholar.AoEDamageMinTargets = aoeDamageMinTargets;
+                    saveConfiguration();
+                }
+            }
+
+            ImGui.Spacing();
+            ImGui.TextDisabled("Aetherflow:");
+
+            var enableAetherflow = configuration.Scholar.EnableAetherflow;
+            if (ImGui.Checkbox("Enable Aetherflow", ref enableAetherflow))
+            {
+                configuration.Scholar.EnableAetherflow = enableAetherflow;
+                saveConfiguration();
+            }
+            ImGui.TextDisabled("Use Aetherflow when stacks are empty.");
+
+            ImGui.Spacing();
+            ImGui.TextDisabled("Raid Buff:");
+
+            var enableChain = configuration.Scholar.EnableChainStratagem;
+            if (ImGui.Checkbox("Enable Chain Stratagem", ref enableChain))
+            {
+                configuration.Scholar.EnableChainStratagem = enableChain;
+                saveConfiguration();
+            }
+            ImGui.TextDisabled("+10% crit rate on target for party.");
+
+            var enableBaneful = configuration.Scholar.EnableBanefulImpaction;
+            if (ImGui.Checkbox("Enable Baneful Impaction", ref enableBaneful))
+            {
+                configuration.Scholar.EnableBanefulImpaction = enableBaneful;
+                saveConfiguration();
+            }
+            ImGui.TextDisabled("AoE follow-up when Impact Imminent is active.");
+
+            ImGui.Unindent();
+        }
+    }
+
+    #endregion
 }

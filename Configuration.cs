@@ -44,6 +44,9 @@ public sealed class Configuration : IPluginConfiguration
     public DebugConfig Debug { get; set; } = new();
     public CalibrationConfig Calibration { get; set; } = new();
 
+    // Job-specific configuration
+    public ScholarConfig Scholar { get; set; } = new();
+
     /// <summary>
     /// Resets all configuration values to their defaults.
     /// Preserves Enabled state and window visibility settings.
@@ -74,6 +77,7 @@ public sealed class Configuration : IPluginConfiguration
         RoleActions = new RoleActionConfig();
         Debug = new DebugConfig();
         Calibration = new CalibrationConfig();
+        Scholar = new ScholarConfig();
 
         // Restore preserved values
         Enabled = wasEnabled;

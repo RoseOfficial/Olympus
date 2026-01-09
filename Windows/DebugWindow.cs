@@ -82,6 +82,12 @@ public sealed class DebugWindow : Window
                 ImGui.EndTabItem();
             }
 
+            if (ImGui.BeginTabItem("Scholar"))
+            {
+                ScholarTab.Draw(_debugService.GetAthenaDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
             ImGui.EndTabBar();
         }
     }

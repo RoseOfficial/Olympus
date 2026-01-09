@@ -7,6 +7,7 @@ using Dalamud.Plugin.Services;
 using Olympus.Models;
 using Olympus.Rotation;
 using Olympus.Rotation.ApolloCore.Context;
+using Olympus.Rotation.AthenaCore.Context;
 using Olympus.Services.Action;
 using Olympus.Services.Healing;
 using Olympus.Services.Prediction;
@@ -18,7 +19,7 @@ namespace Olympus.Services.Debug;
 
 /// <summary>
 /// Central debug data aggregation service.
-/// Collects data from Apollo, ActionTracker, ActionService, CombatEventService, and HpPredictionService
+/// Collects data from Apollo, Athena, ActionTracker, ActionService, CombatEventService, and HpPredictionService
 /// into a single snapshot for the debug window.
 /// </summary>
 public sealed class DebugService
@@ -31,6 +32,7 @@ public sealed class DebugService
     private readonly HealingSpellSelector _healingSpellSelector;
     private readonly SpellStatusService _spellStatusService;
     private readonly Apollo _apollo;
+    private readonly Athena? _athena;
     private readonly IObjectTable _objectTable;
     private readonly IDataManager _dataManager;
 
@@ -49,7 +51,8 @@ public sealed class DebugService
         SpellStatusService spellStatusService,
         Apollo apollo,
         IObjectTable objectTable,
-        IDataManager dataManager)
+        IDataManager dataManager,
+        Athena? athena = null)
     {
         _actionTracker = actionTracker;
         _actionService = actionService;
@@ -59,6 +62,7 @@ public sealed class DebugService
         _healingSpellSelector = healingSpellSelector;
         _spellStatusService = spellStatusService;
         _apollo = apollo;
+        _athena = athena;
         _objectTable = objectTable;
         _dataManager = dataManager;
     }
@@ -408,5 +412,13 @@ public sealed class DebugService
     public SpellStatusSnapshot GetSpellStatus(byte playerLevel)
     {
         return _spellStatusService.GetSnapshot(playerLevel);
+    }
+
+    /// <summary>
+    /// Gets the Athena (Scholar) debug state, if available.
+    /// </summary>
+    public AthenaDebugState? GetAthenaDebugState()
+    {
+        return _athena?.AthenaDebug;
     }
 }

@@ -16,13 +16,15 @@ using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
+using Olympus.Services.Scholar;
+using Olympus.Services.Cache;
 using Olympus.Windows;
 
 namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.11.0";
+    public const string PluginVersion = "1.13.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -53,6 +55,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly DebuffDetectionService debuffDetectionService;
     private readonly RotationManager rotationManager;
     private readonly Apollo apollo;
+    private readonly Athena athena;
 
     private readonly WindowSystem windowSystem = new("Olympus");
     private readonly ConfigWindow configWindow;
@@ -124,6 +127,7 @@ public sealed class Plugin : IDalamudPlugin
         // Create and register rotation modules via factory
         this.rotationManager = new RotationManager();
         this.apollo = CreateApolloRotation();
+        this.athena = CreateAthenaRotation();
         RegisterAvailableRotations();
 
         // Debug service aggregates all debug data
@@ -137,7 +141,8 @@ public sealed class Plugin : IDalamudPlugin
             spellStatusService,
             apollo,
             objectTable,
-            dataManager);
+            dataManager,
+            athena);
 
         this.configWindow = new ConfigWindow(configuration, SaveConfiguration);
         this.mainWindow = new MainWindow(configuration, SaveConfiguration, OpenConfigUI, OpenDebugUI, PluginVersion);
@@ -246,9 +251,9 @@ public sealed class Plugin : IDalamudPlugin
     {
         // Healers
         rotationManager.Register(apollo);
+        rotationManager.Register(athena);
 
         // Future: Add more rotations as they're implemented
-        // rotationManager.Register(CreateScholarRotation());
         // rotationManager.Register(CreateAstrologianRotation());
         // rotationManager.Register(CreateSageRotation());
     }
@@ -262,7 +267,7 @@ public sealed class Plugin : IDalamudPlugin
     private IRotation? CreateRotationModule(uint jobId) => jobId switch
     {
         JobRegistry.WhiteMage or JobRegistry.Conjurer => CreateApolloRotation(),
-        // Future: Scholar/Arcanist => CreateScholarRotation(),
+        JobRegistry.Scholar or JobRegistry.Arcanist => CreateAthenaRotation(),
         // Future: Astrologian => CreateAstrologianRotation(),
         // Future: Sage => CreateSageRotation(),
         _ => null
@@ -288,6 +293,28 @@ public sealed class Plugin : IDalamudPlugin
             healingSpellSelector,
             debuffDetectionService,
             cooldownPlanner);
+    }
+
+    /// <summary>
+    /// Creates the Athena (Scholar) rotation module.
+    /// </summary>
+    private Athena CreateAthenaRotation()
+    {
+        return new Athena(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
+            cooldownPlanner,
+            shieldTrackingService);
     }
 
     #endregion
