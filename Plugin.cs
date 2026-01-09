@@ -24,7 +24,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.14.1";
+    public const string PluginVersion = "1.15.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -62,6 +62,8 @@ public sealed class Plugin : IDalamudPlugin
     private readonly ConfigWindow configWindow;
     private readonly MainWindow mainWindow;
     private readonly DebugWindow debugWindow;
+    private readonly WelcomeWindow welcomeWindow;
+    private readonly TelemetryService telemetryService;
 
     public Plugin(
         IDalamudPluginInterface pluginInterface,
@@ -149,10 +151,15 @@ public sealed class Plugin : IDalamudPlugin
         this.configWindow = new ConfigWindow(configuration, SaveConfiguration);
         this.mainWindow = new MainWindow(configuration, SaveConfiguration, OpenConfigUI, OpenDebugUI, PluginVersion);
         this.debugWindow = new DebugWindow(debugService, configuration);
+        this.welcomeWindow = new WelcomeWindow(configuration, SaveConfiguration);
+
+        // Telemetry service for anonymous usage tracking
+        this.telemetryService = new TelemetryService(configuration, log);
 
         windowSystem.AddWindow(configWindow);
         windowSystem.AddWindow(mainWindow);
         windowSystem.AddWindow(debugWindow);
+        windowSystem.AddWindow(welcomeWindow);
 
         mainWindow.IsOpen = configuration.MainWindowVisible;
         // Debug window always starts closed - user must explicitly open it
@@ -168,6 +175,9 @@ public sealed class Plugin : IDalamudPlugin
         });
 
         this.framework.Update += OnFrameworkUpdate;
+
+        // Send anonymous telemetry ping (fire-and-forget)
+        telemetryService.SendStartupPing(PluginVersion);
     }
 
     private void SaveConfiguration()
@@ -182,6 +192,9 @@ public sealed class Plugin : IDalamudPlugin
         // Only draw windows when logged in (not on login/character select screen)
         if (!clientState.IsLoggedIn)
             return;
+
+        // Show welcome window on first run
+        welcomeWindow.ShowIfNeeded();
 
         windowSystem.Draw();
     }
@@ -336,6 +349,7 @@ public sealed class Plugin : IDalamudPlugin
         pluginInterface.UiBuilder.OpenMainUi -= OpenMainUI;
 
         windowSystem.RemoveAllWindows();
+        telemetryService.Dispose();
         damageIntakeService.Dispose();
         healingIntakeService.Dispose();
         hpPredictionService.Dispose();

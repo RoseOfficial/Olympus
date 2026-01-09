@@ -14,6 +14,11 @@ public sealed class Configuration : IPluginConfiguration
     public bool MainWindowVisible { get; set; } = true;
     public bool IsDebugWindowOpen { get; set; } = false;
 
+    // Community & telemetry
+    public bool HasSeenWelcome { get; set; } = false;
+    public bool TelemetryEnabled { get; set; } = true;
+    public string TelemetryEndpoint { get; set; } = "https://olympus-telemetry.christopherscottkeller.workers.dev/";
+
     // General behavior
     /// <summary>
     /// How long to wait after movement stops before casting (in seconds).
@@ -57,6 +62,7 @@ public sealed class Configuration : IPluginConfiguration
         var wasEnabled = Enabled;
         var mainVisible = MainWindowVisible;
         var debugVisible = Debug.DebugWindowVisible;
+        var seenWelcome = HasSeenWelcome;
 
         // Reset general behavior
         MovementTolerance = 0.1f;
@@ -79,9 +85,14 @@ public sealed class Configuration : IPluginConfiguration
         Calibration = new CalibrationConfig();
         Scholar = new ScholarConfig();
 
+        // Reset telemetry to defaults
+        TelemetryEnabled = true;
+        TelemetryEndpoint = "https://olympus-telemetry.christopherscottkeller.workers.dev/";
+
         // Restore preserved values
         Enabled = wasEnabled;
         MainWindowVisible = mainVisible;
         Debug.DebugWindowVisible = debugVisible;
+        HasSeenWelcome = seenWelcome;
     }
 }

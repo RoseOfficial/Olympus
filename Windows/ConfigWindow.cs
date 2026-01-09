@@ -1,7 +1,9 @@
 using System;
 using System.Linq;
+using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
+using Dalamud.Utility;
 using Olympus.Config;
 using Olympus.Services.Targeting;
 
@@ -24,6 +26,19 @@ public sealed class ConfigWindow : Window
 
     public override void Draw()
     {
+        // Discord community button
+        var discordColor = new Vector4(88f / 255f, 101f / 255f, 242f / 255f, 1.0f);
+        ImGui.PushStyleColor(ImGuiCol.Button, discordColor);
+        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, discordColor * 1.1f);
+        ImGui.PushStyleColor(ImGuiCol.ButtonActive, discordColor * 0.9f);
+        if (ImGui.Button("Join Discord", new Vector2(100, 0)))
+        {
+            Util.OpenLink("https://discord.gg/3gXYyqbdaU");
+        }
+        ImGui.PopStyleColor(3);
+
+        ImGui.SameLine();
+
         var enabled = configuration.Enabled;
         if (ImGui.Checkbox("Enable Rotation", ref enabled))
         {
@@ -619,6 +634,24 @@ public sealed class ConfigWindow : Window
         }
     }
 
+    private void DrawPrivacySection()
+    {
+        if (ImGui.CollapsingHeader("Privacy"))
+        {
+            ImGui.Indent();
+
+            var telemetryEnabled = configuration.TelemetryEnabled;
+            if (ImGui.Checkbox("Send anonymous usage statistics", ref telemetryEnabled))
+            {
+                configuration.TelemetryEnabled = telemetryEnabled;
+                saveConfiguration();
+            }
+            ImGui.TextDisabled("Only sends plugin version. No personal data.");
+
+            ImGui.Unindent();
+        }
+    }
+
     private static readonly string[] DpsPriorityNames = ["Heal First", "Balanced", "DPS First"];
 
     private void DrawDamageSection()
@@ -983,6 +1016,7 @@ public sealed class ConfigWindow : Window
         DrawTargetingSection();
         DrawRoleActionsSection();
         DrawResurrectionSection();
+        DrawPrivacySection();
     }
 
     private void DrawWhiteMageTab()
