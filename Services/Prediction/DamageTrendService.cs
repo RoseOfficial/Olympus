@@ -21,10 +21,12 @@ internal readonly struct SpikeEvent
 /// <summary>
 /// Analyzes damage intake trends over time for proactive cooldown decisions.
 /// Wraps DamageIntakeService and provides trend analysis capabilities.
+/// Now also factors in healing received for more accurate HP trend analysis.
 /// </summary>
 public sealed class DamageTrendService : IDamageTrendService
 {
     private readonly IDamageIntakeService _damageIntakeService;
+    private readonly IHealingIntakeService? _healingIntakeService;
 
     // Thresholds for trend classification
     private const float StableThresholdPercent = 0.15f;  // +/-15% = stable
@@ -44,9 +46,10 @@ public sealed class DamageTrendService : IDamageTrendService
     // Timer for spike timestamps (seconds since service started)
     private float _currentTime = 0f;
 
-    public DamageTrendService(IDamageIntakeService damageIntakeService)
+    public DamageTrendService(IDamageIntakeService damageIntakeService, IHealingIntakeService? healingIntakeService = null)
     {
         _damageIntakeService = damageIntakeService;
+        _healingIntakeService = healingIntakeService;
     }
 
     // Spike detection state per entity
@@ -565,9 +568,11 @@ public sealed class DamageTrendService : IDamageTrendService
         // Get damage taken over the window
         var damageInWindow = _damageIntakeService.GetRecentDamageIntake(entityId, windowSeconds);
 
-        // TODO: Factor in healing received once heal tracking is available
-        // For now, we only have damage data, so rising HP is inferred from low damage
-        var netDamage = damageInWindow; // Would be damageInWindow - healingInWindow
+        // Get healing received over the window (if available)
+        var healingInWindow = _healingIntakeService?.GetRecentHealingIntake(entityId, windowSeconds) ?? 0;
+
+        // Calculate net damage (positive = HP loss, negative = HP gain)
+        var netDamage = damageInWindow - healingInWindow;
 
         // Calculate HP change as percentage of max HP
         var hpChangePercent = (float)netDamage / maxHp;
@@ -594,14 +599,21 @@ public sealed class DamageTrendService : IDamageTrendService
         // Get current damage rate
         var damageRate = _damageIntakeService.GetDamageRate(entityId, windowSeconds);
 
-        // If not taking damage or damage rate is negligible, not in danger
-        if (damageRate < MinDamageRateForTrend)
+        // Get current healing rate (if available)
+        var healingRate = _healingIntakeService?.GetHealingRate(entityId, windowSeconds) ?? 0f;
+
+        // Calculate net damage rate (positive = losing HP, negative = gaining HP)
+        var netDamageRate = damageRate - healingRate;
+
+        // If not losing HP or net damage rate is negligible, not in danger
+        if (netDamageRate < MinDamageRateForTrend)
             return float.MaxValue;
 
-        // Estimate time to death: currentHp / damageRate
-        // This is a simple linear projection - actual TTD may vary with heals/mitigation
-        var ttd = currentHp / damageRate;
+        // Estimate time to death: currentHp / netDamageRate
+        // This factors in both damage and healing for more accurate prediction
+        var ttd = currentHp / netDamageRate;
 
         return ttd;
     }
 }
+
