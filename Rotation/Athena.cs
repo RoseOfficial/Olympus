@@ -55,6 +55,7 @@ public sealed class Athena : IRotation
     private readonly PlayerStatsService _playerStatsService;
     private readonly DebuffDetectionService _debuffDetectionService;
     private readonly ICooldownPlanner _cooldownPlanner;
+    private readonly HealingSpellSelector _healingSpellSelector;
     private readonly IErrorMetricsService? _errorMetrics;
 
     // Scholar-specific services
@@ -112,6 +113,7 @@ public sealed class Athena : IRotation
         PlayerStatsService playerStatsService,
         DebuffDetectionService debuffDetectionService,
         ICooldownPlanner cooldownPlanner,
+        HealingSpellSelector healingSpellSelector,
         ShieldTrackingService shieldTrackingService,
         IErrorMetricsService? errorMetrics = null)
     {
@@ -130,6 +132,7 @@ public sealed class Athena : IRotation
         _playerStatsService = playerStatsService;
         _debuffDetectionService = debuffDetectionService;
         _cooldownPlanner = cooldownPlanner;
+        _healingSpellSelector = healingSpellSelector;
         _shieldTrackingService = shieldTrackingService;
         _errorMetrics = errorMetrics;
 
@@ -350,6 +353,7 @@ public sealed class Athena : IRotation
             statusHelper: _statusHelper,
             partyHelper: _partyHelper,
             cooldownPlanner: _cooldownPlanner,
+            healingSpellSelector: _healingSpellSelector,
             coHealerDetectionService: _coHealerDetectionService,
             bossMechanicDetector: _bossMechanicDetector,
             shieldTrackingService: _shieldTrackingService,

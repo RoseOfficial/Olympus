@@ -1,29 +1,36 @@
 using System.Numerics;
 using Olympus.Data;
 using Olympus.Rotation.AthenaCore.Context;
+using Olympus.Rotation.Common.Modules;
 
 namespace Olympus.Rotation.AthenaCore.Modules;
 
 /// <summary>
-/// Handles defensive and mitigation abilities for Scholar.
-/// Includes Expedient, Deployment Tactics, and proactive shielding.
+/// Scholar-specific defensive module.
+/// Extends base defensive logic with Expedient and Deployment Tactics for shield spreading.
 /// </summary>
-public sealed class DefensiveModule : IAthenaModule
+public sealed class DefensiveModule : BaseDefensiveModule<AthenaContext>, IAthenaModule
 {
-    public int Priority => 20; // After healing, before buffs
-    public string Name => "Defensive";
+    #region Base Class Overrides - Debug State
 
-    public bool TryExecute(AthenaContext context, bool isMoving)
+    protected override void SetDefensiveState(AthenaContext context, string state) =>
+        context.Debug.PlanningState = state;
+
+    protected override void SetPlannedAction(AthenaContext context, string action) =>
+        context.Debug.PlannedAction = action;
+
+    protected override (float avgHpPercent, float lowestHpPercent, int injuredCount) GetPartyHealthMetrics(AthenaContext context) =>
+        context.PartyHelper.CalculatePartyHealthMetrics(context.Player);
+
+    #endregion
+
+    #region Base Class Overrides - Behavioral
+
+    /// <summary>
+    /// SCH-specific defensives: Expedient and Deployment Tactics.
+    /// </summary>
+    protected override bool TryJobSpecificDefensives(AthenaContext context, bool isMoving)
     {
-        var config = context.Configuration.Scholar;
-        var player = context.Player;
-
-        if (!context.InCombat)
-            return false;
-
-        if (!context.CanExecuteOgcd)
-            return false;
-
         // Priority 1: Expedient (party-wide mitigation + speed)
         if (TryExpedient(context))
             return true;
@@ -35,10 +42,9 @@ public sealed class DefensiveModule : IAthenaModule
         return false;
     }
 
-    public void UpdateDebugState(AthenaContext context)
-    {
-        // Defensive state tracking
-    }
+    #endregion
+
+    #region SCH-Specific Methods
 
     private bool TryExpedient(AthenaContext context)
     {
@@ -55,7 +61,7 @@ public sealed class DefensiveModule : IAthenaModule
             return false;
 
         // Check party health - use when party is taking significant damage
-        var (avgHp, lowestHp, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
+        var (avgHp, _, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
         if (avgHp > config.ExpedientThreshold)
             return false;
 
@@ -70,11 +76,10 @@ public sealed class DefensiveModule : IAthenaModule
         if (membersInRange < 3)
             return false;
 
-        var action = SCHActions.Expedient;
-        if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(SCHActions.Expedient, player.GameObjectId))
         {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.PlanningState = "Expedient";
+            SetPlannedAction(context, SCHActions.Expedient.Name);
+            SetDefensiveState(context, "Expedient");
             return true;
         }
 
@@ -117,14 +122,15 @@ public sealed class DefensiveModule : IAthenaModule
         if (beneficiaries < config.DeploymentMinTargets)
             return false;
 
-        var action = SCHActions.DeploymentTactics;
-        if (context.ActionService.ExecuteOgcd(action, deployTarget.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(SCHActions.DeploymentTactics, deployTarget.GameObjectId))
         {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.PlanningState = $"Deploy ({beneficiaries} targets)";
+            SetPlannedAction(context, SCHActions.DeploymentTactics.Name);
+            SetDefensiveState(context, $"Deploy ({beneficiaries} targets)");
             return true;
         }
 
         return false;
     }
+
+    #endregion
 }

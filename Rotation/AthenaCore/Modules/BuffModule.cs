@@ -1,81 +1,66 @@
 using Olympus.Data;
+using Olympus.Models.Action;
 using Olympus.Rotation.AthenaCore.Context;
+using Olympus.Rotation.Common.Modules;
 
 namespace Olympus.Rotation.AthenaCore.Modules;
 
 /// <summary>
-/// Handles buff and utility abilities for Scholar.
-/// Includes Lucid Dreaming and Dissipation.
+/// Scholar-specific buff module.
+/// Extends base buff logic with Dissipation for Aetherflow management.
 /// </summary>
-public sealed class BuffModule : IAthenaModule
+public sealed class BuffModule : BaseBuffModule<AthenaContext>, IAthenaModule
 {
-    public int Priority => 30; // After defensive, before damage
-    public string Name => "Buff";
+    public override string Name => "Buff"; // SCH uses "Buff" instead of "Buffs"
 
-    public bool TryExecute(AthenaContext context, bool isMoving)
+    #region Base Class Overrides - Configuration
+
+    protected override bool IsLucidDreamingEnabled(AthenaContext context) =>
+        context.Configuration.Scholar.EnableLucidDreaming;
+
+    protected override ActionDefinition GetLucidDreamingAction() =>
+        SCHActions.LucidDreaming;
+
+    protected override bool HasLucidDreaming(AthenaContext context) =>
+        context.StatusHelper.HasLucidDreaming(context.Player);
+
+    protected override float GetLucidDreamingThreshold(AthenaContext context) =>
+        context.Configuration.Scholar.LucidDreamingThreshold;
+
+    #endregion
+
+    #region Base Class Overrides - Debug State
+
+    protected override void SetLucidState(AthenaContext context, string state) =>
+        context.Debug.LucidState = state;
+
+    protected override void SetPlannedAction(AthenaContext context, string action) =>
+        context.Debug.PlannedAction = action;
+
+    #endregion
+
+    #region Base Class Overrides - Behavioral
+
+    /// <summary>
+    /// SCH requires combat for buff usage.
+    /// </summary>
+    protected override bool RequiresCombat => true;
+
+    /// <summary>
+    /// SCH-specific buffs: Dissipation (sacrifice fairy for Aetherflow).
+    /// Called after Lucid Dreaming since it's more situational.
+    /// </summary>
+    protected override bool TryJobSpecificUtilities(AthenaContext context, bool isMoving)
     {
-        var config = context.Configuration.Scholar;
-        var player = context.Player;
-
-        if (!context.InCombat)
-            return false;
-
-        if (!context.CanExecuteOgcd)
-            return false;
-
-        // Priority 1: Lucid Dreaming (MP management)
-        if (TryLucidDreaming(context))
-            return true;
-
-        // Priority 2: Dissipation (sacrifice fairy for Aetherflow)
         if (TryDissipation(context))
             return true;
 
         return false;
     }
 
-    public void UpdateDebugState(AthenaContext context)
-    {
-        var player = context.Player;
-        var mpPercent = player.MaxMp > 0 ? (float)player.CurrentMp / player.MaxMp : 1f;
-        context.Debug.LucidState = mpPercent < context.Configuration.Scholar.LucidDreamingThreshold
-            ? $"Low MP ({mpPercent:P0})"
-            : $"OK ({mpPercent:P0})";
-    }
+    #endregion
 
-    private bool TryLucidDreaming(AthenaContext context)
-    {
-        var config = context.Configuration.Scholar;
-        var player = context.Player;
-
-        if (!config.EnableLucidDreaming)
-            return false;
-
-        if (player.Level < SCHActions.LucidDreaming.MinLevel)
-            return false;
-
-        if (!context.ActionService.IsActionReady(SCHActions.LucidDreaming.ActionId))
-            return false;
-
-        // Check if we already have Lucid Dreaming active
-        if (context.StatusHelper.HasLucidDreaming(player))
-            return false;
-
-        // Check MP threshold
-        var mpPercent = player.MaxMp > 0 ? (float)player.CurrentMp / player.MaxMp : 1f;
-        if (mpPercent > config.LucidDreamingThreshold)
-            return false;
-
-        var action = SCHActions.LucidDreaming;
-        if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.LucidState = "Lucid Dreaming";
-            return true;
-        }
-
-        return false;
-    }
+    #region SCH-Specific Methods
 
     private bool TryDissipation(AthenaContext context)
     {
@@ -108,14 +93,24 @@ public sealed class BuffModule : IAthenaModule
         if (avgHp < config.DissipationSafePartyHp)
             return false;
 
-        var action = SCHActions.Dissipation;
-        if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(SCHActions.Dissipation, player.GameObjectId))
         {
-            context.Debug.PlannedAction = action.Name;
+            SetPlannedAction(context, SCHActions.Dissipation.Name);
             context.Debug.PlanningState = "Dissipation";
             return true;
         }
 
         return false;
+    }
+
+    #endregion
+
+    public override void UpdateDebugState(AthenaContext context)
+    {
+        var player = context.Player;
+        var mpPercent = player.MaxMp > 0 ? (float)player.CurrentMp / player.MaxMp : 1f;
+        context.Debug.LucidState = mpPercent < context.Configuration.Scholar.LucidDreamingThreshold
+            ? $"Low MP ({mpPercent:P0})"
+            : $"OK ({mpPercent:P0})";
     }
 }

@@ -1,22 +1,20 @@
 using System;
 using System.Collections.Generic;
-using System.Numerics;
-using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Rotation.Common.Modules;
 
 namespace Olympus.Rotation.ApolloCore.Modules;
 
 /// <summary>
-/// Handles all DPS logic for the WHM rotation.
-/// Includes DoT maintenance, AoE damage, single-target damage, and Afflatus Misery.
+/// WHM-specific damage module.
+/// Extends base damage logic with Sacred Sight, Blood Lily (Afflatus Misery), and Lily gauge handling.
 /// </summary>
-public sealed class DamageModule : IApolloModule
+public sealed class DamageModule : BaseDamageModule<ApolloContext>, IApolloModule
 {
-
     // Action enable lookup maps
     private static readonly Dictionary<uint, Func<Configuration, bool>> DamageSpellEnabledMap = new()
     {
@@ -43,273 +41,213 @@ public sealed class DamageModule : IApolloModule
         { WHMActions.HolyIII.ActionId, c => c.EnableDamage && c.Damage.EnableHolyIII },
     };
 
-    // Movement tracking
-    private bool _hadTargetLastFrame;
+    #region Base Class Overrides - Configuration Properties
 
-    public int Priority => 50; // Low priority - DPS after healing
-    public string Name => "Damage";
+    protected override bool IsDamageEnabled(ApolloContext context) =>
+        context.Configuration.EnableDamage;
 
-    public bool TryExecute(ApolloContext context, bool isMoving)
+    protected override bool IsDoTEnabled(ApolloContext context) =>
+        context.Configuration.EnableDoT;
+
+    protected override bool IsAoEDamageEnabled(ApolloContext context) =>
+        context.Configuration.EnableDamage;
+
+    protected override int AoEMinTargets(ApolloContext context) =>
+        context.Configuration.Damage.AoEDamageMinTargets;
+
+    protected override float DoTRefreshThreshold(ApolloContext context) =>
+        FFXIVConstants.DotRefreshThreshold;
+
+    #endregion
+
+    #region Base Class Overrides - Action Methods
+
+    protected override uint GetDoTStatusId(ApolloContext context) =>
+        StatusHelper.GetDotStatusId(context.Player.Level);
+
+    protected override ActionDefinition? GetDoTAction(ApolloContext context) =>
+        WHMActions.GetDotForLevel(context.Player.Level);
+
+    protected override ActionDefinition? GetAoEDamageAction(ApolloContext context) =>
+        WHMActions.GetAoEDamageGcdForLevel(context.Player.Level);
+
+    protected override ActionDefinition GetSingleTargetAction(ApolloContext context, bool isMoving) =>
+        WHMActions.GetDamageGcdForLevel(context.Player.Level);
+
+    #endregion
+
+    #region Base Class Overrides - Debug State
+
+    protected override void SetDpsState(ApolloContext context, string state) =>
+        context.Debug.DpsState = state;
+
+    protected override void SetAoEDpsState(ApolloContext context, string state) =>
+        context.Debug.AoEDpsState = state;
+
+    protected override void SetAoEDpsEnemyCount(ApolloContext context, int count) =>
+        context.Debug.AoEDpsEnemyCount = count;
+
+    protected override void SetPlannedAction(ApolloContext context, string action) =>
+        context.Debug.PlannedAction = action;
+
+    #endregion
+
+    #region Base Class Overrides - Behavioral
+
+    /// <summary>
+    /// WHM DPS doesn't block other actions.
+    /// </summary>
+    protected override bool BlocksOnExecution => false;
+
+    /// <summary>
+    /// WHM DoT (Dia) is instant at 72+, so can DoT while moving at high levels.
+    /// </summary>
+    protected override bool CanDoT(ApolloContext context, bool isMoving) =>
+        !isMoving || context.Player.Level >= 72; // Dia is instant
+
+    /// <summary>
+    /// Check if action is enabled in WHM config.
+    /// </summary>
+    protected override bool IsActionEnabled(ApolloContext context, ActionDefinition action)
     {
-        if (!context.InCombat)
+        var config = context.Configuration;
+
+        if (DamageSpellEnabledMap.TryGetValue(action.ActionId, out var damageCheck))
+            return damageCheck(config);
+
+        if (DotSpellEnabledMap.TryGetValue(action.ActionId, out var dotCheck))
+            return dotCheck(config);
+
+        if (AoEDamageSpellEnabledMap.TryGetValue(action.ActionId, out var aoeCheck))
+            return aoeCheck(config);
+
+        return true;
+    }
+
+    /// <summary>
+    /// WHM special damage: Afflatus Misery (Blood Lily) and Sacred Sight (Glare IV).
+    /// These have priority over regular damage rotation.
+    /// </summary>
+    protected override bool TrySpecialDamage(ApolloContext context, bool isMoving)
+    {
+        // Priority 1: Afflatus Misery (1240p AoE, costs 3 Blood Lily)
+        if (TryAfflatusMisery(context))
+            return true;
+
+        // Priority 2: Sacred Sight Glare IV (instant, uses stacks)
+        if (TrySacredSightGlare(context))
+            return true;
+
+        return false;
+    }
+
+    /// <summary>
+    /// For AoE, skip Holy when Sacred Sight is available (Glare IV is better).
+    /// </summary>
+    protected override bool TryAoEDamage(ApolloContext context)
+    {
+        // Skip Holy if we have Sacred Sight stacks (Glare IV is better)
+        if (context.SacredSightStacks > 0)
+            return false;
+
+        return base.TryAoEDamage(context);
+    }
+
+    #endregion
+
+    #region WHM-Specific Methods
+
+    private bool TryAfflatusMisery(ApolloContext context)
+    {
+        var player = context.Player;
+        var config = context.Configuration;
+
+        if (context.BloodLilyCount < 3)
         {
-            context.Debug.DpsState = "Not in combat";
+            context.Debug.MiseryState = $"{context.BloodLilyCount}/3 Blood Lily";
             return false;
         }
 
-        ExecuteDps(context, isMoving);
-        context.Debug.PlanningState = "DPS";
-        return false; // DPS doesn't block other actions
+        if (player.Level < WHMActions.AfflatusMisery.MinLevel)
+        {
+            context.Debug.MiseryState = $"Level {player.Level} < 74";
+            return false;
+        }
+
+        if (!IsActionEnabled(context, WHMActions.AfflatusMisery))
+        {
+            context.Debug.MiseryState = "Disabled";
+            return false;
+        }
+
+        var target = context.TargetingService.FindEnemy(
+            config.Targeting.EnemyStrategy,
+            WHMActions.AfflatusMisery.Range,
+            player);
+
+        if (target == null)
+        {
+            context.Debug.MiseryState = "No target";
+            return false;
+        }
+
+        if (context.ActionService.ExecuteGcd(WHMActions.AfflatusMisery, target.GameObjectId))
+        {
+            context.Debug.DpsState = "Afflatus Misery";
+            context.Debug.MiseryState = "Executing";
+            SetPlannedAction(context, WHMActions.AfflatusMisery.Name);
+            return true;
+        }
+
+        return false;
     }
 
-    public void UpdateDebugState(ApolloContext context)
+    private bool TrySacredSightGlare(ApolloContext context)
+    {
+        var player = context.Player;
+        var config = context.Configuration;
+
+        if (context.SacredSightStacks == 0)
+            return false;
+
+        if (player.Level < WHMActions.GlareIV.MinLevel)
+            return false;
+
+        if (!IsActionEnabled(context, WHMActions.GlareIV))
+            return false;
+
+        var (aoeTarget, hitCount) = context.TargetingService.FindBestAoETarget(
+            WHMActions.GlareIV.Radius,
+            WHMActions.GlareIV.Range,
+            player);
+
+        if (aoeTarget == null)
+            return false;
+
+        if (context.ActionService.ExecuteGcd(WHMActions.GlareIV, aoeTarget.GameObjectId))
+        {
+            if (hitCount >= config.Damage.AoEDamageMinTargets)
+            {
+                context.Debug.DpsState = $"Glare IV AoE ({hitCount} targets, {context.SacredSightStacks} stacks)";
+            }
+            else
+            {
+                context.Debug.DpsState = $"Sacred Sight Glare IV ({context.SacredSightStacks} stacks)";
+            }
+            SetPlannedAction(context, WHMActions.GlareIV.Name);
+            return true;
+        }
+
+        return false;
+    }
+
+    #endregion
+
+    public override void UpdateDebugState(ApolloContext context)
     {
         context.Debug.LilyCount = context.LilyCount;
         context.Debug.BloodLilyCount = context.BloodLilyCount;
         context.Debug.LilyStrategy = context.Configuration.Healing.LilyStrategy.ToString();
         context.Debug.SacredSightStacks = context.SacredSightStacks;
     }
-
-    private void ExecuteDps(ApolloContext context, bool isMoving)
-    {
-        var player = context.Player;
-        var config = context.Configuration;
-        var dotStatusId = StatusHelper.GetDotStatusId(player.Level);
-
-        IBattleNpc? target = null;
-        ActionDefinition? actionDef = null;
-
-        // Use cached values from context
-        context.Debug.LilyCount = context.LilyCount;
-        context.Debug.BloodLilyCount = context.BloodLilyCount;
-        context.Debug.LilyStrategy = config.Healing.LilyStrategy.ToString();
-        context.Debug.SacredSightStacks = context.SacredSightStacks;
-
-        // Priority 0: Afflatus Misery (1240p AoE, costs 3 Blood Lily)
-        if (context.BloodLilyCount >= 3 && player.Level >= WHMActions.AfflatusMisery.MinLevel)
-        {
-            if (IsDamageSpellEnabled(WHMActions.AfflatusMisery.ActionId, config))
-            {
-                target = context.TargetingService.FindEnemy(config.Targeting.EnemyStrategy, WHMActions.AfflatusMisery.Range, player);
-                if (target is not null)
-                {
-                    actionDef = WHMActions.AfflatusMisery;
-                    context.Debug.DpsState = "Afflatus Misery";
-                    context.Debug.MiseryState = "Executing";
-                }
-                else
-                {
-                    context.Debug.MiseryState = "No target";
-                }
-            }
-            else
-            {
-                context.Debug.MiseryState = "Disabled";
-            }
-        }
-        else
-        {
-            context.Debug.MiseryState = context.BloodLilyCount < 3 ? $"{context.BloodLilyCount}/3 Blood Lily" : $"Level {player.Level} < 74";
-        }
-
-        if (isMoving && actionDef is null)
-        {
-            context.Debug.DpsState = "Moving";
-            HandleMovingDps(context, ref target, ref actionDef, dotStatusId);
-        }
-        else if (!isMoving && actionDef is null)
-        {
-            HandleStationaryDps(context, ref target, ref actionDef, dotStatusId);
-        }
-
-        // Update debug
-        if (target is not null)
-        {
-            var dist = Vector3.Distance(player.Position, target.Position);
-            context.Debug.TargetInfo = $"{target.Name?.TextValue ?? "Unknown"} ({dist:F1}y)";
-        }
-        else if (actionDef is not null && actionDef.TargetType == ActionTargetType.Self)
-        {
-            context.Debug.TargetInfo = "Self (AoE)";
-        }
-        else
-        {
-            context.Debug.TargetInfo = "None";
-        }
-
-        // No action to execute
-        if (actionDef is null)
-        {
-            if (_hadTargetLastFrame)
-            {
-                context.ActionTracker.LogAttempt(0, null, null, Models.ActionResult.NoTarget, player.Level);
-            }
-            _hadTargetLastFrame = false;
-            return;
-        }
-
-        // For targeted spells, require a target
-        if (target is null && actionDef.TargetType != ActionTargetType.Self)
-        {
-            if (_hadTargetLastFrame)
-            {
-                context.ActionTracker.LogAttempt(0, null, null, Models.ActionResult.NoTarget, player.Level);
-            }
-            _hadTargetLastFrame = false;
-            return;
-        }
-
-        _hadTargetLastFrame = true;
-
-        // Execute
-        var executionTarget = actionDef.TargetType == ActionTargetType.Self
-            ? player.GameObjectId
-            : target!.GameObjectId;
-        var targetName = target?.Name?.TextValue ?? player.Name?.TextValue ?? "Unknown";
-        var targetHp = target?.CurrentHp ?? player.CurrentHp;
-
-        if (ActionExecutor.ExecuteGcd(context, actionDef, executionTarget, targetName, targetHp))
-        {
-            // Success - ActionExecutor handles debug state and logging
-        }
-    }
-
-    private void HandleMovingDps(ApolloContext context, ref IBattleNpc? target, ref ActionDefinition? actionDef,
-        uint dotStatusId)
-    {
-        var player = context.Player;
-        var config = context.Configuration;
-
-        // Priority 1: Sacred Sight instant Glare IV
-        if (context.SacredSightStacks > 0 && player.Level >= WHMActions.GlareIV.MinLevel)
-        {
-            if (IsDamageSpellEnabled(WHMActions.GlareIV.ActionId, config))
-            {
-                var (aoeTarget, hitCount) = context.TargetingService.FindBestAoETarget(
-                    WHMActions.GlareIV.Radius,
-                    WHMActions.GlareIV.Range,
-                    player);
-
-                if (aoeTarget is not null)
-                {
-                    target = aoeTarget;
-                    actionDef = WHMActions.GlareIV;
-                    if (hitCount >= config.Damage.AoEDamageMinTargets)
-                    {
-                        context.Debug.DpsState = $"Glare IV AoE ({hitCount} targets, {context.SacredSightStacks} stacks)";
-                    }
-                    else
-                    {
-                        context.Debug.DpsState = $"Sacred Sight Glare IV ({context.SacredSightStacks} stacks)";
-                    }
-                }
-            }
-        }
-
-        // Priority 2: Instant DoT spells (Dia at 72+)
-        if (actionDef is null && player.Level >= 72)
-        {
-            target = context.TargetingService.FindEnemyNeedingDot(dotStatusId, FFXIVConstants.DotRefreshThreshold, WHMActions.Dia.Range, player);
-            if (target is not null && IsDoTSpellEnabled(WHMActions.GetDotForLevel(player.Level).ActionId, config))
-                actionDef = WHMActions.GetDotForLevel(player.Level);
-        }
-    }
-
-    private void HandleStationaryDps(ApolloContext context, ref IBattleNpc? target, ref ActionDefinition? actionDef,
-        uint dotStatusId)
-    {
-        var player = context.Player;
-        var config = context.Configuration;
-
-        // Priority 0.5: Sacred Sight Glare IV
-        if (context.SacredSightStacks > 0 && player.Level >= WHMActions.GlareIV.MinLevel)
-        {
-            if (IsDamageSpellEnabled(WHMActions.GlareIV.ActionId, config))
-            {
-                var (aoeTarget, hitCount) = context.TargetingService.FindBestAoETarget(
-                    WHMActions.GlareIV.Radius,
-                    WHMActions.GlareIV.Range,
-                    player);
-
-                if (aoeTarget is not null)
-                {
-                    target = aoeTarget;
-                    actionDef = WHMActions.GlareIV;
-                    if (hitCount >= config.Damage.AoEDamageMinTargets)
-                    {
-                        context.Debug.DpsState = $"Glare IV AoE ({hitCount} targets, {context.SacredSightStacks} stacks)";
-                    }
-                    else
-                    {
-                        context.Debug.DpsState = $"Sacred Sight Glare IV ({context.SacredSightStacks} stacks)";
-                    }
-                }
-            }
-        }
-
-        // DoT > AoE Damage > Single-target Damage
-        if (actionDef is null)
-        {
-            target = context.TargetingService.FindEnemyNeedingDot(dotStatusId, FFXIVConstants.DotRefreshThreshold, WHMActions.Aero.Range, player);
-            if (target is not null)
-            {
-                var dotAction = WHMActions.GetDotForLevel(player.Level);
-                if (IsDoTSpellEnabled(dotAction.ActionId, config))
-                {
-                    actionDef = dotAction;
-                    context.Debug.DpsState = "DoT target found";
-                }
-            }
-
-            // Check for AoE damage opportunity (Holy family) - only when Sacred Sight not available
-            if (actionDef is null && player.Level >= WHMActions.Holy.MinLevel && context.SacredSightStacks == 0)
-            {
-                var enemyCount = context.TargetingService.CountEnemiesInRange(WHMActions.Holy.Radius, player);
-                context.Debug.AoEDpsEnemyCount = enemyCount;
-
-                if (enemyCount >= config.Damage.AoEDamageMinTargets)
-                {
-                    var aoeDamageAction = WHMActions.GetAoEDamageGcdForLevel(player.Level);
-                    if (aoeDamageAction is not null && IsAoEDamageSpellEnabled(aoeDamageAction.ActionId, config))
-                    {
-                        actionDef = aoeDamageAction;
-                        context.Debug.DpsState = $"AoE: {aoeDamageAction.Name}";
-                        context.Debug.AoEDpsState = $"{enemyCount} enemies in range";
-                    }
-                }
-                else
-                {
-                    context.Debug.AoEDpsState = $"{enemyCount} < {config.Damage.AoEDamageMinTargets} min";
-                }
-            }
-
-            // Fall back to single-target damage
-            if (actionDef is null)
-            {
-                target = context.TargetingService.FindEnemy(config.Targeting.EnemyStrategy, WHMActions.Stone.Range, player);
-                if (target is not null)
-                {
-                    var damageAction = WHMActions.GetDamageGcdForLevel(player.Level);
-                    if (IsDamageSpellEnabled(damageAction.ActionId, config))
-                    {
-                        actionDef = damageAction;
-                        context.Debug.DpsState = $"Damage: {damageAction.Name}";
-                    }
-                }
-                else
-                {
-                    context.Debug.DpsState = "No enemy found";
-                }
-            }
-        }
-    }
-
-    private static bool IsDamageSpellEnabled(uint actionId, Configuration config) =>
-        DamageSpellEnabledMap.TryGetValue(actionId, out var check) && check(config);
-
-    private static bool IsDoTSpellEnabled(uint actionId, Configuration config) =>
-        DotSpellEnabledMap.TryGetValue(actionId, out var check) && check(config);
-
-    private static bool IsAoEDamageSpellEnabled(uint actionId, Configuration config) =>
-        AoEDamageSpellEnabledMap.TryGetValue(actionId, out var check) && check(config);
 }

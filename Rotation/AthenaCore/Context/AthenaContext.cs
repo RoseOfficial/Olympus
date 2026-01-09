@@ -4,6 +4,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Rotation.AthenaCore.Helpers;
+using Olympus.Rotation.Common;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Cooldown;
@@ -59,6 +60,10 @@ public sealed class AthenaContext : IAthenaContext
 
     // Cooldown planning
     public ICooldownPlanner CooldownPlanner { get; }
+
+    // Healer rotation context requirements
+    public IHealingSpellSelector HealingSpellSelector { get; }
+    public IPartyAnalyzer? PartyAnalyzer { get; }
 
     // Smart healing services
     public ICoHealerDetectionService? CoHealerDetectionService { get; }
@@ -126,7 +131,9 @@ public sealed class AthenaContext : IAthenaContext
         AthenaStatusHelper statusHelper,
         AthenaPartyHelper partyHelper,
         ICooldownPlanner cooldownPlanner,
+        IHealingSpellSelector healingSpellSelector,
         ICoHealerDetectionService? coHealerDetectionService = null,
+        IPartyAnalyzer? partyAnalyzer = null,
         IBossMechanicDetector? bossMechanicDetector = null,
         IShieldTrackingService? shieldTrackingService = null,
         AthenaDebugState? debugState = null,
@@ -157,6 +164,8 @@ public sealed class AthenaContext : IAthenaContext
         StatusHelper = statusHelper;
         PartyHelper = partyHelper;
         CooldownPlanner = cooldownPlanner;
+        HealingSpellSelector = healingSpellSelector;
+        PartyAnalyzer = partyAnalyzer;
         CoHealerDetectionService = coHealerDetectionService;
         BossMechanicDetector = bossMechanicDetector;
         ShieldTrackingService = shieldTrackingService;
@@ -216,29 +225,46 @@ public sealed class AthenaContext : IAthenaContext
 
 /// <summary>
 /// Interface for Athena context (for testability).
+/// Extends the healer rotation context with SCH-specific properties.
 /// </summary>
-public interface IAthenaContext
+public interface IAthenaContext : IHealerRotationContext
 {
-    IPlayerCharacter Player { get; }
-    bool InCombat { get; }
-    bool IsMoving { get; }
-    bool CanExecuteGcd { get; }
-    bool CanExecuteOgcd { get; }
-    IActionService ActionService { get; }
-    Configuration Configuration { get; }
+    // SCH-specific services
     IAetherflowTrackingService AetherflowService { get; }
     IFairyGaugeService FairyGaugeService { get; }
     IFairyStateManager FairyStateManager { get; }
+
+    // SCH Job Gauge
     int AetherflowStacks { get; }
     int FairyGauge { get; }
-    bool HasSwiftcast { get; }
+
+    // SCH-specific status checks
     bool HasRecitation { get; }
     bool HasEmergencyTactics { get; }
     bool HasDissipation { get; }
     bool HasSeraphism { get; }
     bool HasImpactImminent { get; }
-    (float avgHpPercent, float lowestHpPercent, int injuredCount) PartyHealthMetrics { get; }
+
+    // Debug state
     AthenaDebugState Debug { get; }
+
+    // Smart healing services
+    ICoHealerDetectionService? CoHealerDetectionService { get; }
+    IBossMechanicDetector? BossMechanicDetector { get; }
+    IShieldTrackingService? ShieldTrackingService { get; }
+
+    // Helpers
+    AthenaStatusHelper StatusHelper { get; }
+    AthenaPartyHelper PartyHelper { get; }
+
+    // Healing coordination
+    HealingCoordinationState HealingCoordination { get; }
+
+    // Logging helpers
+    void LogHealDecision(string targetName, float hpPercent, string spellName, int predictedHeal, string reason);
+    void LogAetherflowDecision(string spellName, int stacksRemaining, string reason);
+    void LogFairyDecision(string abilityName, FairyState fairyState, string reason);
+    void LogShieldDecision(string targetName, string spellName, int shieldAmount, string reason);
 }
 
 /// <summary>

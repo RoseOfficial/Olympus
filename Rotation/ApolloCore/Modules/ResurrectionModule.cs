@@ -1,172 +1,36 @@
+using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
-using Olympus.Models;
+using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Context;
-using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Rotation.Common.Modules;
 
 namespace Olympus.Rotation.ApolloCore.Modules;
 
 /// <summary>
-/// Handles resurrection logic for the WHM rotation.
-/// Includes Raise (GCD) and Swiftcast for instant raise (oGCD).
+/// WHM-specific resurrection module.
+/// Extends base resurrection with Thin Air synergy for free raises.
 /// </summary>
-public sealed class ResurrectionModule : IApolloModule
+public sealed class ResurrectionModule : BaseResurrectionModule<ApolloContext>, IApolloModule
 {
-    private const int RaiseMpCost = 2400;
+    protected override ActionDefinition RaiseAction => WHMActions.Raise;
+    protected override ActionDefinition SwiftcastAction => WHMActions.Swiftcast;
+    protected override int RaiseMpCost => 2400;
 
-    public int Priority => 5; // Very high priority - dead party members are useless
-    public string Name => "Resurrection";
+    protected override IBattleChara? FindDeadPartyMemberNeedingRaise(ApolloContext context)
+        => context.PartyHelper.FindDeadPartyMemberNeedingRaise(context.Player);
 
-    public bool TryExecute(ApolloContext context, bool isMoving)
-    {
-        // oGCD: Swiftcast for pending raise
-        if (context.CanExecuteOgcd && TrySwiftcastForRaise(context))
-            return true;
+    protected override bool HasSwiftcast(ApolloContext context) => context.HasSwiftcast;
 
-        // GCD: Execute Raise
-        if (context.CanExecuteGcd && TryExecuteRaise(context, isMoving))
-        {
-            context.Debug.PlanningState = "Raise";
-            return true;
-        }
+    protected override void SetRaiseState(ApolloContext context, string state) => context.Debug.RaiseState = state;
+    protected override void SetRaiseTarget(ApolloContext context, string target) => context.Debug.RaiseTarget = target;
+    protected override void SetPlanningState(ApolloContext context, string state) => context.Debug.PlanningState = state;
+    protected override void SetPlannedAction(ApolloContext context, string action) => context.Debug.PlannedAction = action;
 
-        return false;
-    }
-
-    public void UpdateDebugState(ApolloContext context)
-    {
-        // Debug state is updated during execution
-    }
-
-    private bool TryExecuteRaise(ApolloContext context, bool isMoving)
-    {
-        var config = context.Configuration;
-        var player = context.Player;
-
-        if (!config.Resurrection.EnableRaise)
-        {
-            context.Debug.RaiseState = "Disabled";
-            return false;
-        }
-
-        if (player.Level < WHMActions.Raise.MinLevel)
-        {
-            context.Debug.RaiseState = $"Level {player.Level} < 12";
-            return false;
-        }
-
-        var mpPercent = (float)player.CurrentMp / player.MaxMp;
-        if (mpPercent < config.Resurrection.RaiseMpThreshold)
-        {
-            context.Debug.RaiseState = $"MP {mpPercent:P0} < {config.Resurrection.RaiseMpThreshold:P0}";
-            return false;
-        }
-
-        if (player.CurrentMp < RaiseMpCost)
-        {
-            context.Debug.RaiseState = $"MP {player.CurrentMp} < {RaiseMpCost}";
-            return false;
-        }
-
-        var target = context.PartyHelper.FindDeadPartyMemberNeedingRaise(player);
-        if (target is null)
-        {
-            context.Debug.RaiseState = "No target";
-            context.Debug.RaiseTarget = "None";
-            return false;
-        }
-
-        var targetName = target.Name?.TextValue ?? "Unknown";
-        context.Debug.RaiseTarget = targetName;
-
-        if (context.HasSwiftcast)
-        {
-            if (ShouldWaitForThinAir(context))
-            {
-                context.Debug.RaiseState = "Waiting for Thin Air";
-                return false;
-            }
-
-            context.Debug.RaiseState = "Swiftcast Raise";
-            var success = context.ActionService.ExecuteGcd(WHMActions.Raise, target.GameObjectId);
-            if (success)
-            {
-                context.Debug.PlannedAction = context.HasThinAir
-                    ? "Raise (Swiftcast + Thin Air)"
-                    : "Raise (Swiftcast)";
-                context.ActionTracker.LogAttempt(WHMActions.Raise.ActionId, targetName, 0, ActionResult.Success, player.Level);
-            }
-            return success;
-        }
-
-        // Hardcast Raise (if allowed and not moving)
-        if (config.Resurrection.AllowHardcastRaise && !isMoving)
-        {
-            var swiftcastCooldown = context.ActionService.GetCooldownRemaining(WHMActions.Swiftcast.ActionId);
-
-            if (swiftcastCooldown > 10f)
-            {
-                if (ShouldWaitForThinAir(context))
-                {
-                    context.Debug.RaiseState = "Waiting for Thin Air";
-                    return false;
-                }
-
-                context.Debug.RaiseState = "Hardcast Raise";
-                var success = context.ActionService.ExecuteGcd(WHMActions.Raise, target.GameObjectId);
-                if (success)
-                {
-                    context.Debug.PlannedAction = context.HasThinAir
-                        ? "Raise (Hardcast + Thin Air)"
-                        : "Raise (Hardcast)";
-                    context.ActionTracker.LogAttempt(WHMActions.Raise.ActionId, targetName, 0, ActionResult.Success, player.Level);
-                }
-                return success;
-            }
-            else
-            {
-                context.Debug.RaiseState = $"Waiting for Swiftcast ({swiftcastCooldown:F1}s)";
-            }
-        }
-        else if (!context.HasSwiftcast && !config.Resurrection.AllowHardcastRaise)
-        {
-            context.Debug.RaiseState = "No Swiftcast (hardcast disabled)";
-        }
-        else if (isMoving)
-        {
-            context.Debug.RaiseState = "Moving (can't hardcast)";
-        }
-
-        return false;
-    }
-
-    private bool TrySwiftcastForRaise(ApolloContext context)
-    {
-        var config = context.Configuration;
-        var player = context.Player;
-
-        if (!config.Resurrection.EnableRaise)
-            return false;
-
-        if (player.Level < WHMActions.Swiftcast.MinLevel)
-            return false;
-
-        if (context.HasSwiftcast)
-            return false;
-
-        var deadMember = context.PartyHelper.FindDeadPartyMemberNeedingRaise(player);
-        if (deadMember is null)
-            return false;
-
-        if (player.CurrentMp < RaiseMpCost)
-            return false;
-
-        if (!context.ActionService.IsActionReady(WHMActions.Swiftcast.ActionId))
-            return false;
-
-        return context.ActionService.ExecuteOgcd(WHMActions.Swiftcast, player.GameObjectId);
-    }
-
-    private static bool ShouldWaitForThinAir(ApolloContext context)
+    /// <summary>
+    /// WHM should wait for Thin Air before raising if it's available and not already active.
+    /// This provides a free 2400 MP raise.
+    /// </summary>
+    protected override bool ShouldWaitForPreRaiseBuff(ApolloContext context)
     {
         var config = context.Configuration;
         var player = context.Player;
@@ -181,5 +45,22 @@ public sealed class ResurrectionModule : IApolloModule
             return false;
 
         return true;
+    }
+
+    /// <summary>
+    /// Include Thin Air status in raise success notes.
+    /// </summary>
+    protected override string GetRaiseSuccessNote(ApolloContext context, bool hasSwiftcast)
+    {
+        var hasThinAir = context.HasThinAir;
+
+        if (hasSwiftcast && hasThinAir)
+            return " (Swiftcast + Thin Air)";
+        if (hasSwiftcast)
+            return " (Swiftcast)";
+        if (hasThinAir)
+            return " (Thin Air)";
+
+        return "";
     }
 }

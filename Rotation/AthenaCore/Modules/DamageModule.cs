@@ -1,80 +1,129 @@
-using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.AthenaCore.Context;
+using Olympus.Rotation.Common.Modules;
 
 namespace Olympus.Rotation.AthenaCore.Modules;
 
 /// <summary>
-/// Handles all DPS logic for the Scholar rotation.
-/// Includes DoT maintenance, AoE damage, single-target damage, Energy Drain, and Chain Stratagem.
+/// Scholar-specific damage module.
+/// Extends base damage logic with Chain Stratagem, Energy Drain, Baneful Impaction, and Aetherflow management.
 /// </summary>
-public sealed class DamageModule : IAthenaModule
+public sealed class DamageModule : BaseDamageModule<AthenaContext>, IAthenaModule
 {
-    public int Priority => 50; // Low priority - DPS after healing
-    public string Name => "Damage";
+    #region Base Class Overrides - Configuration Properties
 
-    public bool TryExecute(AthenaContext context, bool isMoving)
+    protected override bool IsDamageEnabled(AthenaContext context) =>
+        context.Configuration.Scholar.EnableSingleTargetDamage;
+
+    protected override bool IsDoTEnabled(AthenaContext context) =>
+        context.Configuration.Scholar.EnableDot;
+
+    protected override bool IsAoEDamageEnabled(AthenaContext context) =>
+        context.Configuration.Scholar.EnableAoEDamage;
+
+    protected override int AoEMinTargets(AthenaContext context) =>
+        context.Configuration.Scholar.AoEDamageMinTargets;
+
+    protected override float DoTRefreshThreshold(AthenaContext context) =>
+        context.Configuration.Scholar.DotRefreshThreshold;
+
+    #endregion
+
+    #region Base Class Overrides - Action Methods
+
+    protected override uint GetDoTStatusId(AthenaContext context) =>
+        SCHActions.GetDotStatusId(context.Player.Level);
+
+    protected override ActionDefinition? GetDoTAction(AthenaContext context) =>
+        SCHActions.GetDotForLevel(context.Player.Level);
+
+    protected override ActionDefinition? GetAoEDamageAction(AthenaContext context) =>
+        SCHActions.GetAoEDamageForLevel(context.Player.Level);
+
+    protected override ActionDefinition GetSingleTargetAction(AthenaContext context, bool isMoving) =>
+        SCHActions.GetDamageGcdForLevel(context.Player.Level, isMoving);
+
+    #endregion
+
+    #region Base Class Overrides - Debug State
+
+    protected override void SetDpsState(AthenaContext context, string state) =>
+        context.Debug.DpsState = state;
+
+    protected override void SetAoEDpsState(AthenaContext context, string state) =>
+        context.Debug.AoEDpsState = state;
+
+    protected override void SetAoEDpsEnemyCount(AthenaContext context, int count) =>
+        context.Debug.AoEDpsEnemyCount = count;
+
+    protected override void SetPlannedAction(AthenaContext context, string action) =>
+        context.Debug.PlannedAction = action;
+
+    #endregion
+
+    #region Base Class Overrides - Behavioral
+
+    /// <summary>
+    /// SCH oGCD damage: Chain Stratagem, Baneful Impaction, Energy Drain, Aetherflow.
+    /// </summary>
+    protected override bool TryOgcdDamage(AthenaContext context)
     {
-        var config = context.Configuration;
+        // Priority 1: Chain Stratagem (raid buff)
+        if (TryChainStratagem(context))
+            return true;
+
+        // Priority 2: Baneful Impaction (when Impact Imminent is active)
+        if (TryBanefulImpaction(context))
+            return true;
+
+        // Priority 3: Energy Drain (dump Aetherflow for damage)
+        if (TryEnergyDrain(context))
+            return true;
+
+        // Priority 4: Aetherflow (get stacks)
+        if (TryAetherflow(context))
+            return true;
+
+        return false;
+    }
+
+    /// <summary>
+    /// SCH movement damage: Ruin II is instant cast.
+    /// </summary>
+    protected override bool TryMovementDamage(AthenaContext context)
+    {
+        var config = context.Configuration.Scholar;
         var player = context.Player;
 
-        if (!context.InCombat)
-        {
-            context.Debug.DpsState = "Not in combat";
+        if (!config.EnableRuinII)
             return false;
-        }
 
-        // oGCD damage abilities first
-        if (context.CanExecuteOgcd)
+        if (player.Level < SCHActions.RuinII.MinLevel)
+            return false;
+
+        var target = context.TargetingService.FindEnemy(
+            context.Configuration.Targeting.EnemyStrategy,
+            SCHActions.RuinII.Range,
+            player);
+
+        if (target == null)
+            return false;
+
+        if (context.ActionService.ExecuteGcd(SCHActions.RuinII, target.GameObjectId))
         {
-            // Priority 1: Chain Stratagem (raid buff)
-            if (TryChainStratagem(context))
-                return true;
-
-            // Priority 2: Baneful Impaction (when Impact Imminent is active)
-            if (TryBanefulImpaction(context))
-                return true;
-
-            // Priority 3: Energy Drain (dump Aetherflow for damage)
-            if (TryEnergyDrain(context))
-                return true;
-
-            // Priority 4: Aetherflow (get stacks)
-            if (TryAetherflow(context))
-                return true;
-        }
-
-        // GCD damage
-        if (context.CanExecuteGcd)
-        {
-            // Priority 5: DoT maintenance
-            if (!isMoving && TryDoT(context))
-                return true;
-
-            // Priority 6: AoE damage (Art of War)
-            if (TryAoEDamage(context, isMoving))
-                return true;
-
-            // Priority 7: Single-target damage (Broil family)
-            if (!isMoving && TrySingleTargetDamage(context))
-                return true;
-
-            // Priority 8: Ruin II for movement (instant cast)
-            if (isMoving && TryRuinII(context))
-                return true;
+            SetPlannedAction(context, SCHActions.RuinII.Name);
+            SetDpsState(context, "Ruin II (moving)");
+            return true;
         }
 
         return false;
     }
 
-    public void UpdateDebugState(AthenaContext context)
-    {
-        context.Debug.AetherflowState = $"{context.AetherflowService.CurrentStacks}/3";
-    }
+    #endregion
 
-    #region oGCD Damage
+    #region SCH-Specific oGCD Methods
 
     private bool TryChainStratagem(AthenaContext context)
     {
@@ -90,7 +139,6 @@ public sealed class DamageModule : IAthenaModule
         if (!context.ActionService.IsActionReady(SCHActions.ChainStratagem.ActionId))
             return false;
 
-        // Find a boss or enemy to apply Chain Stratagem
         var target = context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy,
             SCHActions.ChainStratagem.Range,
@@ -99,11 +147,10 @@ public sealed class DamageModule : IAthenaModule
         if (target == null)
             return false;
 
-        var action = SCHActions.ChainStratagem;
-        if (context.ActionService.ExecuteOgcd(action, target.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(SCHActions.ChainStratagem, target.GameObjectId))
         {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DpsState = "Chain Stratagem";
+            SetPlannedAction(context, SCHActions.ChainStratagem.Name);
+            SetDpsState(context, "Chain Stratagem");
             return true;
         }
 
@@ -125,7 +172,6 @@ public sealed class DamageModule : IAthenaModule
         if (!context.StatusHelper.HasImpactImminent(player))
             return false;
 
-        // Find target
         var target = context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy,
             SCHActions.BanefulImpaction.Range,
@@ -134,11 +180,10 @@ public sealed class DamageModule : IAthenaModule
         if (target == null)
             return false;
 
-        var action = SCHActions.BanefulImpaction;
-        if (context.ActionService.ExecuteOgcd(action, target.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(SCHActions.BanefulImpaction, target.GameObjectId))
         {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DpsState = "Baneful Impaction";
+            SetPlannedAction(context, SCHActions.BanefulImpaction.Name);
+            SetDpsState(context, "Baneful Impaction");
             return true;
         }
 
@@ -183,12 +228,11 @@ public sealed class DamageModule : IAthenaModule
         if (target == null)
             return false;
 
-        var action = SCHActions.EnergyDrain;
-        if (context.ActionService.ExecuteOgcd(action, target.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(SCHActions.EnergyDrain, target.GameObjectId))
         {
             context.AetherflowService.ConsumeStack();
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DpsState = "Energy Drain";
+            SetPlannedAction(context, SCHActions.EnergyDrain.Name);
+            SetDpsState(context, "Energy Drain");
             return true;
         }
 
@@ -213,11 +257,10 @@ public sealed class DamageModule : IAthenaModule
         if (context.AetherflowService.CurrentStacks > 0)
             return false;
 
-        var action = SCHActions.Aetherflow;
-        if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(SCHActions.Aetherflow, player.GameObjectId))
         {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DpsState = "Aetherflow";
+            SetPlannedAction(context, SCHActions.Aetherflow.Name);
+            SetDpsState(context, "Aetherflow");
             return true;
         }
 
@@ -226,144 +269,7 @@ public sealed class DamageModule : IAthenaModule
 
     #endregion
 
-    #region GCD Damage
-
-    private bool TryDoT(AthenaContext context)
-    {
-        var config = context.Configuration.Scholar;
-        var player = context.Player;
-
-        if (!config.EnableDot)
-            return false;
-
-        // Get the appropriate DoT for level
-        var dotAction = SCHActions.GetDotForLevel(player.Level);
-        if (dotAction == null)
-            return false;
-
-        var dotStatusId = SCHActions.GetDotStatusId(player.Level);
-        if (dotStatusId == 0)
-            return false;
-
-        // Find enemy needing DoT
-        var target = context.TargetingService.FindEnemyNeedingDot(
-            dotStatusId,
-            config.DotRefreshThreshold,
-            dotAction.Range,
-            player);
-
-        if (target == null)
-            return false;
-
-        if (context.ActionService.ExecuteGcd(dotAction, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = dotAction.Name;
-            context.Debug.DpsState = "DoT";
-            return true;
-        }
-
-        return false;
-    }
-
-    private bool TryAoEDamage(AthenaContext context, bool isMoving)
-    {
-        var config = context.Configuration.Scholar;
-        var player = context.Player;
-
-        if (!config.EnableAoEDamage)
-            return false;
-
-        if (player.Level < SCHActions.ArtOfWar.MinLevel)
-            return false;
-
-        // Count enemies in range
-        var enemyCount = context.TargetingService.CountEnemiesInRange(SCHActions.ArtOfWar.Radius, player);
-        context.Debug.AoEDpsEnemyCount = enemyCount;
-
-        if (enemyCount < config.AoEDamageMinTargets)
-        {
-            context.Debug.AoEDpsState = $"{enemyCount} < {config.AoEDamageMinTargets} min";
-            return false;
-        }
-
-        var action = SCHActions.GetAoEDamageForLevel(player.Level);
-        if (action == null)
-            return false;
-
-        if (context.ActionService.ExecuteGcd(action, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DpsState = $"AoE ({enemyCount} targets)";
-            context.Debug.AoEDpsState = $"{enemyCount} enemies";
-            return true;
-        }
-
-        return false;
-    }
-
-    private bool TrySingleTargetDamage(AthenaContext context)
-    {
-        var config = context.Configuration.Scholar;
-        var player = context.Player;
-
-        if (!config.EnableSingleTargetDamage)
-            return false;
-
-        var target = context.TargetingService.FindEnemy(
-            context.Configuration.Targeting.EnemyStrategy,
-            SCHActions.Ruin.Range,
-            player);
-
-        if (target == null)
-        {
-            context.Debug.DpsState = "No enemy";
-            return false;
-        }
-
-        var action = SCHActions.GetDamageGcdForLevel(player.Level, isMoving: false);
-        if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DpsState = action.Name;
-            return true;
-        }
-
-        return false;
-    }
-
-    private bool TryRuinII(AthenaContext context)
-    {
-        var config = context.Configuration.Scholar;
-        var player = context.Player;
-
-        if (!config.EnableRuinII)
-            return false;
-
-        if (player.Level < SCHActions.RuinII.MinLevel)
-            return false;
-
-        var target = context.TargetingService.FindEnemy(
-            context.Configuration.Targeting.EnemyStrategy,
-            SCHActions.RuinII.Range,
-            player);
-
-        if (target == null)
-            return false;
-
-        var action = SCHActions.RuinII;
-        if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DpsState = "Ruin II (moving)";
-            return true;
-        }
-
-        return false;
-    }
-
-    #endregion
-
-    #region Helper Methods
+    #region Aetherflow Strategy Helpers
 
     private bool ShouldDrainBalanced(AthenaContext context)
     {
@@ -398,4 +304,9 @@ public sealed class DamageModule : IAthenaModule
     }
 
     #endregion
+
+    public override void UpdateDebugState(AthenaContext context)
+    {
+        context.Debug.AetherflowState = $"{context.AetherflowService.CurrentStacks}/3";
+    }
 }
