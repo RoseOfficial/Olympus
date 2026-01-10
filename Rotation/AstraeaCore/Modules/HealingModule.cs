@@ -345,6 +345,9 @@ public sealed class HealingModule : IAstraeaModule
         var action = ASTActions.StellarDetonation;
         if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
         {
+            // Notify service that star was detonated
+            context.EarthlyStarService.OnStarDetonated();
+
             context.Debug.PlannedAction = action.Name;
             context.Debug.EarthlyStarState = isMature ? "Detonated (Mature)" : "Detonated (Immature)";
             context.LogEarthlyStarDecision("Detonated", isMature ? "Mature star, party needs healing" : "Emergency detonate");
@@ -413,22 +416,29 @@ public sealed class HealingModule : IAstraeaModule
         if (!context.ActionService.IsActionReady(ASTActions.EarthlyStar.ActionId))
             return false;
 
-        // Determine placement target
-        ulong targetId = player.GameObjectId;
+        // Determine placement position (Earthly Star is ground-targeted, not entity-targeted)
+        var targetPosition = player.Position;
+        var targetName = "Self";
 
         if (config.StarPlacement == Config.EarthlyStarPlacementStrategy.OnMainTank)
         {
             var tank = context.PartyHelper.FindTankInParty(player);
             if (tank != null)
-                targetId = tank.GameObjectId;
+            {
+                targetPosition = tank.Position;
+                targetName = tank.Name.TextValue;
+            }
         }
 
         var action = ASTActions.EarthlyStar;
-        if (context.ActionService.ExecuteOgcd(action, targetId))
+        if (context.ActionService.ExecuteGroundTargetedOgcd(action, targetPosition))
         {
+            // Notify service for state tracking
+            context.EarthlyStarService.OnStarPlaced(targetPosition);
+
             context.Debug.PlannedAction = action.Name;
             context.Debug.EarthlyStarState = "Placed";
-            context.LogEarthlyStarDecision("Placed", config.StarPlacement.ToString());
+            context.LogEarthlyStarDecision("Placed", $"{config.StarPlacement} ({targetName})");
             return true;
         }
 
