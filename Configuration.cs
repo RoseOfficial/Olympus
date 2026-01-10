@@ -19,6 +19,12 @@ public sealed class Configuration : IPluginConfiguration
     public bool TelemetryEnabled { get; set; } = true;
     public string TelemetryEndpoint { get; set; } = "https://olympus-telemetry.christopherscottkeller.workers.dev/";
 
+    /// <summary>
+    /// The currently active configuration preset.
+    /// Set to Custom when user modifies individual settings after applying a preset.
+    /// </summary>
+    public ConfigurationPreset ActivePreset { get; set; } = ConfigurationPreset.Custom;
+
     // General behavior
     /// <summary>
     /// How long to wait after movement stops before casting (in seconds).

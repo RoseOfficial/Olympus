@@ -13,6 +13,7 @@ public sealed class ConfigWindow : Window
 {
     private readonly Configuration configuration;
     private readonly Action saveConfiguration;
+    private ConfigurationPreset selectedPreset;
 
     public ConfigWindow(Configuration configuration, Action saveConfiguration)
         : base("Olympus Settings", ImGuiWindowFlags.NoCollapse)
@@ -47,6 +48,11 @@ public sealed class ConfigWindow : Window
         }
 
         ImGui.TextDisabled("When enabled, the rotation will automatically cast spells.");
+
+        ImGui.Spacing();
+
+        // Configuration Preset selector
+        DrawPresetSelector();
 
         ImGui.Separator();
 
@@ -100,6 +106,71 @@ public sealed class ConfigWindow : Window
             ImGui.SameLine();
 
             if (ImGui.Button("Cancel", new System.Numerics.Vector2(120, 0)))
+            {
+                ImGui.CloseCurrentPopup();
+            }
+
+            ImGui.EndPopup();
+        }
+    }
+
+    private static readonly string[] PresetNames = Enum.GetNames<ConfigurationPreset>();
+
+    private void DrawPresetSelector()
+    {
+        ImGui.Text("Configuration Preset");
+        ImGui.SameLine();
+        ImGui.TextDisabled("(?)");
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.BeginTooltip();
+            ImGui.Text("Presets quickly configure settings for different content types.");
+            ImGui.Text("Raid: Co-healer aware, balanced DPS");
+            ImGui.Text("Dungeon: Solo healer, aggressive DPS");
+            ImGui.Text("Casual: Safe mode, healing priority");
+            ImGui.EndTooltip();
+        }
+
+        var currentPreset = (int)configuration.ActivePreset;
+        ImGui.SetNextItemWidth(150);
+        if (ImGui.Combo("##PresetCombo", ref currentPreset, PresetNames, PresetNames.Length))
+        {
+            selectedPreset = (ConfigurationPreset)currentPreset;
+            if (selectedPreset != ConfigurationPreset.Custom)
+            {
+                ImGui.OpenPopup("Apply Preset Confirmation");
+            }
+        }
+
+        ImGui.SameLine();
+        ImGui.TextDisabled(ConfigurationPresets.GetDescription(configuration.ActivePreset));
+
+        DrawPresetConfirmationPopup();
+    }
+
+    private void DrawPresetConfirmationPopup()
+    {
+        var popupOpen = true;
+        if (ImGui.BeginPopupModal("Apply Preset Confirmation", ref popupOpen, ImGuiWindowFlags.AlwaysAutoResize))
+        {
+            ImGui.Text($"Apply {selectedPreset} preset?");
+            ImGui.Spacing();
+            ImGui.TextWrapped(ConfigurationPresets.GetDescription(selectedPreset));
+            ImGui.Spacing();
+            ImGui.TextColored(new Vector4(1f, 0.8f, 0.2f, 1f), "This will overwrite behavior settings.");
+            ImGui.TextDisabled("Spell toggles and targeting preferences are preserved.");
+            ImGui.Spacing();
+
+            if (ImGui.Button("Apply", new Vector2(100, 0)))
+            {
+                ConfigurationPresets.ApplyPreset(configuration, selectedPreset);
+                saveConfiguration();
+                ImGui.CloseCurrentPopup();
+            }
+
+            ImGui.SameLine();
+
+            if (ImGui.Button("Cancel", new Vector2(100, 0)))
             {
                 ImGui.CloseCurrentPopup();
             }
