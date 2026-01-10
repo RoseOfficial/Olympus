@@ -1,8 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Numerics;
-using System.Runtime.InteropServices;
-using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -11,6 +7,7 @@ using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.AstraeaCore.Context;
 using Olympus.Rotation.AstraeaCore.Helpers;
 using Olympus.Rotation.AstraeaCore.Modules;
+using Olympus.Rotation.Base;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Astrologian;
@@ -19,9 +16,7 @@ using Olympus.Services.Debuff;
 using Olympus.Services.Healing;
 using Olympus.Services.Party;
 using Olympus.Services.Prediction;
-using Olympus.Services.Resource;
 using Olympus.Services.Stats;
-using Olympus.Services.Cache;
 using Olympus.Services.Targeting;
 
 namespace Olympus.Rotation;
@@ -31,48 +26,31 @@ namespace Olympus.Rotation;
 /// Orchestrates modular execution: each module handles a specific concern.
 /// Named after Astraea, the Greek goddess of stars and justice.
 /// </summary>
-public sealed class Astraea : IRotation
+public sealed class Astraea : BaseHealerRotation<AstraeaContext, IAstraeaModule>
 {
     /// <inheritdoc />
-    public string Name => "Astraea";
+    public override string Name => "Astraea";
 
     /// <inheritdoc />
-    public uint[] SupportedJobIds => [JobRegistry.Astrologian];
+    public override uint[] SupportedJobIds => [JobRegistry.Astrologian];
 
-    // Services
-    private readonly IPluginLog _log;
-    private readonly ActionTracker _actionTracker;
-    private readonly CombatEventService _combatEventService;
-    private readonly IDamageIntakeService _damageIntakeService;
-    private readonly IDamageTrendService _damageTrendService;
-    private readonly IMpForecastService _mpForecastService;
-    private readonly Configuration _configuration;
-    private readonly IObjectTable _objectTable;
-    private readonly IPartyList _partyList;
-    private readonly TargetingService _targetingService;
-    private readonly HpPredictionService _hpPredictionService;
-    private readonly ActionService _actionService;
-    private readonly PlayerStatsService _playerStatsService;
-    private readonly DebuffDetectionService _debuffDetectionService;
-    private readonly ICooldownPlanner _cooldownPlanner;
-    private readonly HealingSpellSelector _healingSpellSelector;
-    private readonly IErrorMetricsService? _errorMetrics;
+    /// <inheritdoc />
+    public override DebugState DebugState => ConvertToApolloDebugState();
+
+    /// <inheritdoc />
+    protected override List<IAstraeaModule> Modules => _modules;
+
+    /// <summary>
+    /// Gets the Astraea-specific debug state.
+    /// </summary>
+    public AstraeaDebugState AstraeaDebug => _debugState;
 
     // Astrologian-specific services
     private readonly CardTrackingService _cardService;
     private readonly EarthlyStarService _earthlyStarService;
 
-    // Smart healing services
-    private readonly CoHealerDetectionService _coHealerDetectionService;
-    private readonly BossMechanicDetector _bossMechanicDetector;
-    private readonly ShieldTrackingService _shieldTrackingService;
-
-    // Frame-scoped caching
-    private readonly FrameScopedCache _frameCache = new();
-
-    // Error throttling
-    private DateTime _lastErrorTime = DateTime.MinValue;
-    private int _suppressedErrorCount;
+    // Debug state
+    private readonly AstraeaDebugState _debugState = new();
 
     // Helpers
     private readonly AstraeaStatusHelper _statusHelper;
@@ -80,23 +58,6 @@ public sealed class Astraea : IRotation
 
     // Modules (sorted by priority)
     private readonly List<IAstraeaModule> _modules;
-
-    // Movement detection
-    private Vector3 _lastPosition;
-    private DateTime _lastMovementTime = DateTime.MinValue;
-
-    // Debug state
-    private readonly AstraeaDebugState _debugState = new();
-
-    /// <summary>
-    /// Gets the Apollo-compatible debug state for UI compatibility.
-    /// </summary>
-    public DebugState DebugState => ConvertToApolloDebugState();
-
-    /// <summary>
-    /// Gets the Astraea-specific debug state.
-    /// </summary>
-    public AstraeaDebugState AstraeaDebug => _debugState;
 
     public Astraea(
         IPluginLog log,
@@ -115,26 +76,23 @@ public sealed class Astraea : IRotation
         HealingSpellSelector healingSpellSelector,
         ShieldTrackingService shieldTrackingService,
         IErrorMetricsService? errorMetrics = null)
+        : base(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
+            healingSpellSelector,
+            cooldownPlanner,
+            errorMetrics)
     {
-        _log = log;
-        _actionTracker = actionTracker;
-        _combatEventService = combatEventService;
-        _damageIntakeService = damageIntakeService;
-        _damageTrendService = new DamageTrendService(damageIntakeService);
-        _mpForecastService = new MpForecastService();
-        _configuration = configuration;
-        _objectTable = objectTable;
-        _partyList = partyList;
-        _targetingService = targetingService;
-        _hpPredictionService = hpPredictionService;
-        _actionService = actionService;
-        _playerStatsService = playerStatsService;
-        _debuffDetectionService = debuffDetectionService;
-        _cooldownPlanner = cooldownPlanner;
-        _healingSpellSelector = healingSpellSelector;
-        _shieldTrackingService = shieldTrackingService;
-        _errorMetrics = errorMetrics;
-
         // Initialize Astrologian-specific services
         _cardService = new CardTrackingService();
         _earthlyStarService = new EarthlyStarService(objectTable);
@@ -142,12 +100,6 @@ public sealed class Astraea : IRotation
         // Initialize helpers
         _statusHelper = new AstraeaStatusHelper();
         _partyHelper = new AstraeaPartyHelper(objectTable, partyList, hpPredictionService, configuration, _statusHelper);
-
-        // Initialize smart healing services
-        _coHealerDetectionService = new CoHealerDetectionService(
-            combatEventService, partyList, objectTable, configuration.Healing);
-        _bossMechanicDetector = new BossMechanicDetector(
-            configuration.Healing, combatEventService, damageIntakeService);
 
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<IAstraeaModule>
@@ -162,131 +114,30 @@ public sealed class Astraea : IRotation
 
         _modules.Sort((a, b) => a.Priority.CompareTo(b.Priority));
 
-        _log.Info("Astraea (Astrologian) rotation initialized");
+        Log.Info("Astraea (Astrologian) rotation initialized");
     }
 
-    /// <summary>
-    /// Main execution loop - called every frame.
-    /// </summary>
-    public void Execute(IPlayerCharacter player)
+    #region Abstract Implementation
+
+    /// <inheritdoc />
+    protected override void UpdateMpForecast(IPlayerCharacter player)
     {
-        try
-        {
-            ExecuteInternal(player);
-        }
-        catch (SEHException ex)
-        {
-            HandleCriticalError("SEHException", ex);
-        }
-        catch (AccessViolationException ex)
-        {
-            HandleCriticalError("AccessViolation", ex);
-        }
-        catch (NullReferenceException ex)
-        {
-            _errorMetrics?.RecordError("Astraea.Execute.NullRef", ex.Message);
-            _suppressedErrorCount++;
-        }
-        catch (Exception ex)
-        {
-            HandleThrottledError(ex);
-        }
-    }
-
-    private void HandleCriticalError(string errorType, Exception ex)
-    {
-        _configuration.Enabled = false;
-        _log.Error(ex, "Astraea DISABLED due to {0} - memory access error", errorType);
-        _errorMetrics?.RecordError($"Astraea.Execute.{errorType}", ex.Message);
-    }
-
-    private void HandleThrottledError(Exception ex)
-    {
-        _suppressedErrorCount++;
-        _errorMetrics?.RecordError("Astraea.Execute", ex.Message);
-
-        var now = DateTime.UtcNow;
-        if ((now - _lastErrorTime).TotalSeconds >= FFXIVTimings.ErrorThrottleSeconds)
-        {
-            _lastErrorTime = now;
-            _log.Error(ex, "Astraea.Execute error (suppressed {0} errors in last {1}s)",
-                _suppressedErrorCount, FFXIVTimings.ErrorThrottleSeconds);
-            _suppressedErrorCount = 0;
-        }
-    }
-
-    private unsafe void ExecuteInternal(IPlayerCharacter player)
-    {
-        // Invalidate frame cache
-        _frameCache.InvalidateAll();
-
-        var actionManager = SafeGameAccess.GetActionManager(_errorMetrics);
-        if (actionManager == null)
-            return;
-
-        // Update GCD state
-        _actionService.Update(player.IsCasting);
-
-        // Update MP forecast
-        _mpForecastService.Update(
+        MpForecastService.Update(
             (int)player.CurrentMp,
             (int)player.MaxMp,
             _statusHelper.HasLucidDreaming(player));
+    }
 
-        // Movement detection
-        var positionChanged = Vector3.DistanceSquared(player.Position, _lastPosition) > FFXIVTimings.MovementThresholdSquared;
-        _lastPosition = player.Position;
-
-        if (positionChanged)
-            _lastMovementTime = DateTime.UtcNow;
-
-        var timeSinceMovement = (DateTime.UtcNow - _lastMovementTime).TotalSeconds;
-        var isMoving = positionChanged || timeSinceMovement < _configuration.MovementTolerance;
-
-        // Combat tracking
-        var inCombat = (player.StatusFlags & StatusFlags.InCombat) != 0;
-        if (inCombat)
-            _actionTracker.StartCombat();
-        else
-            _actionTracker.EndCombat();
-
-        _combatEventService.UpdateCombatState(inCombat);
-
-        // Update smart healing services
-        _shieldTrackingService.Update();
-        _coHealerDetectionService.Update(player.EntityId);
-        _bossMechanicDetector.Update();
+    /// <inheritdoc />
+    protected override void UpdateJobSpecificServices(IPlayerCharacter player, bool inCombat)
+    {
+        // Call base healer service updates
+        base.UpdateJobSpecificServices(player, inCombat);
 
         // Update Earthly Star tracking
         _earthlyStarService.Update();
 
-        // Update damage trend service
-        if (inCombat)
-        {
-            var partyEntityIds = new List<uint>();
-            foreach (var member in _partyHelper.GetAllPartyMembers(player))
-            {
-                partyEntityIds.Add(member.EntityId);
-            }
-            (_damageTrendService as DamageTrendService)?.Update(1f / 60f, partyEntityIds);
-
-            var (avgHpPercent, lowestHpPercent, injuredCount) = _partyHelper.CalculatePartyHealthMetrics(player);
-            var criticalCount = lowestHpPercent < 0.30f ? Math.Max(1, injuredCount / 2) : 0;
-            _cooldownPlanner.Update(avgHpPercent, lowestHpPercent, injuredCount, criticalCount);
-        }
-
-        // Track GCD state for debug
-        if (inCombat)
-        {
-            _actionTracker.TrackGcdState(
-                gcdReady: _actionService.CanExecuteGcd,
-                _actionService.GcdRemaining,
-                player.IsCasting,
-                _actionService.AnimationLockRemaining > 0,
-                _actionService.GcdRemaining > 0);
-        }
-
-        // Update debug state
+        // Update Astrologian-specific debug state
         _debugState.CurrentCardType = _cardService.CurrentCard.ToString();
         _debugState.MinorArcanaType = _cardService.MinorArcanaCard.ToString();
         _debugState.SealCount = _cardService.SealCount;
@@ -294,75 +145,60 @@ public sealed class Astraea : IRotation
         _debugState.IsStarMature = _earthlyStarService.IsStarMature;
         _debugState.StarTimeRemaining = _earthlyStarService.TimeRemaining;
         _debugState.PlayerHpPercent = player.MaxHp > 0 ? (float)player.CurrentHp / player.MaxHp : 1f;
-
-        // Create context for modules
-        var context = CreateContext(player, inCombat, isMoving);
-
-        // Update debug state from all modules
-        if (_configuration.IsDebugWindowOpen)
-        {
-            foreach (var module in _modules)
-            {
-                module.UpdateDebugState(context);
-            }
-        }
-
-        // Execute modules in priority order
-        // Try oGCD modules first during weave windows
-        if (inCombat && _actionService.CanExecuteOgcd)
-        {
-            foreach (var module in _modules)
-            {
-                if (module.TryExecute(context, isMoving))
-                    break;
-            }
-        }
-
-        // Try GCD modules when GCD is ready
-        if (_actionService.CanExecuteGcd)
-        {
-            foreach (var module in _modules)
-            {
-                if (module.TryExecute(context, isMoving))
-                    break;
-            }
-        }
     }
 
-    private AstraeaContext CreateContext(IPlayerCharacter player, bool inCombat, bool isMoving)
+    /// <inheritdoc />
+    protected override AstraeaContext CreateContext(IPlayerCharacter player, bool inCombat, bool isMoving)
     {
         return new AstraeaContext(
             player: player,
             inCombat: inCombat,
             isMoving: isMoving,
-            canExecuteGcd: _actionService.CanExecuteGcd,
-            canExecuteOgcd: _actionService.CanExecuteOgcd,
-            actionService: _actionService,
-            actionTracker: _actionTracker,
-            combatEventService: _combatEventService,
-            damageIntakeService: _damageIntakeService,
-            damageTrendService: _damageTrendService,
-            frameCache: _frameCache,
-            configuration: _configuration,
-            debuffDetectionService: _debuffDetectionService,
-            hpPredictionService: _hpPredictionService,
-            mpForecastService: _mpForecastService,
-            objectTable: _objectTable,
-            partyList: _partyList,
-            playerStatsService: _playerStatsService,
-            targetingService: _targetingService,
+            canExecuteGcd: ActionService.CanExecuteGcd,
+            canExecuteOgcd: ActionService.CanExecuteOgcd,
+            actionService: ActionService,
+            actionTracker: ActionTracker,
+            combatEventService: CombatEventService,
+            damageIntakeService: DamageIntakeService,
+            damageTrendService: DamageTrendService,
+            frameCache: FrameCache,
+            configuration: Configuration,
+            debuffDetectionService: DebuffDetectionService,
+            hpPredictionService: HpPredictionService,
+            mpForecastService: MpForecastService,
+            objectTable: ObjectTable,
+            partyList: PartyList,
+            playerStatsService: PlayerStatsService,
+            targetingService: TargetingService,
             cardService: _cardService,
             earthlyStarService: _earthlyStarService,
             statusHelper: _statusHelper,
             partyHelper: _partyHelper,
-            cooldownPlanner: _cooldownPlanner,
-            healingSpellSelector: _healingSpellSelector,
-            coHealerDetectionService: _coHealerDetectionService,
-            bossMechanicDetector: _bossMechanicDetector,
-            shieldTrackingService: _shieldTrackingService,
+            cooldownPlanner: CooldownPlanner,
+            healingSpellSelector: HealingSpellSelector,
+            coHealerDetectionService: CoHealerDetectionService,
+            bossMechanicDetector: BossMechanicDetector,
+            shieldTrackingService: ShieldTrackingService,
             debugState: _debugState,
-            log: _log);
+            log: Log);
     }
+
+    /// <inheritdoc />
+    protected override IEnumerable<uint> GetPartyEntityIds(IPlayerCharacter player)
+    {
+        foreach (var member in _partyHelper.GetAllPartyMembers(player))
+        {
+            yield return member.EntityId;
+        }
+    }
+
+    /// <inheritdoc />
+    protected override (float avgHpPercent, float lowestHpPercent, int injuredCount) GetPartyHealthMetrics(IPlayerCharacter player)
+    {
+        return _partyHelper.CalculatePartyHealthMetrics(player);
+    }
+
+    #endregion
 
     /// <summary>
     /// Converts Astraea debug state to Apollo debug state for UI compatibility.

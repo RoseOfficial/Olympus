@@ -4,21 +4,19 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 
 namespace Olympus.Rotation.ThemisCore.Helpers;
 
 /// <summary>
-/// Helper class for party-related queries for Paladin.
+/// Paladin party helper with PLD-specific targeting logic.
+/// Extends BasePartyHelper with Cover and co-tank targeting.
 /// </summary>
-public sealed class ThemisPartyHelper
+public sealed class ThemisPartyHelper : BasePartyHelper
 {
-    private readonly IObjectTable _objectTable;
-    private readonly IPartyList _partyList;
-
     public ThemisPartyHelper(IObjectTable objectTable, IPartyList partyList)
+        : base(objectTable, partyList)
     {
-        _objectTable = objectTable;
-        _partyList = partyList;
     }
 
     /// <summary>
@@ -27,12 +25,12 @@ public sealed class ThemisPartyHelper
     /// </summary>
     public IBattleChara? FindCoTank(IPlayerCharacter player)
     {
-        foreach (var member in _partyList)
+        foreach (var member in PartyList)
         {
             if (member.EntityId == player.GameObjectId)
                 continue;
 
-            var partyMember = _objectTable.SearchById(member.EntityId) as IBattleChara;
+            var partyMember = ObjectTable.SearchById(member.EntityId) as IBattleChara;
             if (partyMember != null && JobRegistry.IsTank(partyMember.ClassJob.RowId))
                 return partyMember;
         }
@@ -40,32 +38,11 @@ public sealed class ThemisPartyHelper
     }
 
     /// <summary>
-    /// Gets all party members as IBattleChara.
-    /// </summary>
-    public IEnumerable<IBattleChara> GetAllPartyMembers(IPlayerCharacter player)
-    {
-        // If not in party, just return the player
-        if (_partyList.Length == 0)
-        {
-            yield return player;
-            yield break;
-        }
-
-        foreach (var member in _partyList)
-        {
-            var partyMember = _objectTable.SearchById(member.EntityId) as IBattleChara;
-            if (partyMember != null)
-                yield return partyMember;
-        }
-    }
-
-    /// <summary>
     /// Gets the HP percentage of a character.
     /// </summary>
     public float GetHpPercent(IBattleChara character)
     {
-        if (character.MaxHp == 0) return 1f;
-        return (float)character.CurrentHp / character.MaxHp;
+        return GetRawHpPercent(character);
     }
 
     /// <summary>

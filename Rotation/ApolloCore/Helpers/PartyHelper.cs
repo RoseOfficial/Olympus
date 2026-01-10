@@ -1,37 +1,24 @@
 using System.Collections.Generic;
 using System.Numerics;
-using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Config;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 
 namespace Olympus.Rotation.ApolloCore.Helpers;
 
 /// <summary>
-/// Helper class for party member operations.
+/// White Mage party helper with WHM-specific targeting logic.
+/// Extends HealerPartyHelper with Cure III, Regen, and triage functionality.
 /// </summary>
-public sealed class PartyHelper : IPartyHelper
+public sealed class PartyHelper : HealerPartyHelper, IPartyHelper
 {
-    private readonly IObjectTable _objectTable;
-    private readonly IPartyList _partyList;
-    private readonly HpPredictionService _hpPredictionService;
-    private readonly Configuration _configuration;
-
-    // Tank ClassJob IDs (PLD, WAR, DRK, GNB + base classes GLA, MRD)
-    private static readonly HashSet<uint> TankJobIds = new() { 19, 21, 32, 37, 1, 3 };
-
-    // Party member caching to avoid HashSet allocation every frame
-    private readonly HashSet<uint> _cachedPartyEntityIds = new(8);
-    private int _lastPartyCount = -1;
-    private uint _lastPlayerEntityId;
-
     // Pre-allocated arrays for endangered member triage (avoids per-frame allocation)
-    private const int MaxPartySize = 8;
     private readonly IBattleChara?[] _endangeredMembers = new IBattleChara?[MaxPartySize];
     private readonly float[] _endangeredDamageRates = new float[MaxPartySize];
     private readonly float[] _endangeredMissingHpPcts = new float[MaxPartySize];
@@ -44,103 +31,47 @@ public sealed class PartyHelper : IPartyHelper
     private readonly float[] _endangeredHealerBonuses = new float[MaxPartySize];
     private readonly float[] _endangeredTtdScores = new float[MaxPartySize];
 
+    // Pre-allocated arrays for Cure III target evaluation
+    private readonly IBattleChara?[] _cureIIIMembers = new IBattleChara?[MaxPartySize];
+    private readonly Vector3[] _cureIIIPositions = new Vector3[MaxPartySize];
+    private readonly bool[] _cureIIINeedsHeal = new bool[MaxPartySize];
+
+    // Shared empty list for early returns (avoids allocation)
+    private static readonly List<uint> _emptyTargetIds = new();
+
     public PartyHelper(
         IObjectTable objectTable,
         IPartyList partyList,
         HpPredictionService hpPredictionService,
         Configuration configuration)
+        : base(objectTable, partyList, hpPredictionService, configuration)
     {
-        _objectTable = objectTable;
-        _partyList = partyList;
-        _hpPredictionService = hpPredictionService;
-        _configuration = configuration;
     }
 
-    /// <summary>
-    /// Yields all party members (player + party list or Trust NPCs).
-    /// Iterates objectTable directly for guaranteed fresh HP data.
-    /// </summary>
-    public IEnumerable<IBattleChara> GetAllPartyMembers(IPlayerCharacter player, bool includeDead = false)
+    #region IPartyHelper Implementation
+
+    /// <inheritdoc />
+    public IBattleChara? FindLowestHpPartyMember(IPlayerCharacter player, int healAmount = 0)
     {
-        yield return player;
-
-        if (_partyList.Length > 0)
-        {
-            // Rebuild cache only if party composition changed
-            if (_partyList.Length != _lastPartyCount || player.EntityId != _lastPlayerEntityId)
-            {
-                _cachedPartyEntityIds.Clear();
-                foreach (var partyMember in _partyList)
-                {
-                    if (partyMember.EntityId != player.EntityId)
-                        _cachedPartyEntityIds.Add(partyMember.EntityId);
-                }
-                _lastPartyCount = _partyList.Length;
-                _lastPlayerEntityId = player.EntityId;
-            }
-
-            // Iterate objectTable directly for fresh HP data, using cached IDs
-            foreach (var obj in _objectTable)
-            {
-                if (obj is IBattleChara chara && _cachedPartyEntityIds.Contains(obj.EntityId))
-                {
-                    if (includeDead || !chara.IsDead)
-                        yield return chara;
-                }
-            }
-        }
-        else
-        {
-            // Trust NPC handling
-            foreach (var obj in _objectTable)
-            {
-                if (IsValidTrustNpc(obj, out var npc, includeDead))
-                    yield return npc!;
-            }
-        }
+        return FindLowestHpPartyMember(player, WHMActions.Cure.RangeSquared, healAmount);
     }
 
-    /// <summary>
-    /// Checks if an object is a valid Trust NPC party member.
-    /// </summary>
-    public static bool IsValidTrustNpc(IGameObject obj, out IBattleNpc? npc, bool includeDead = false)
+    /// <inheritdoc />
+    public IBattleChara? FindDeadPartyMemberNeedingRaise(IPlayerCharacter player)
     {
-        npc = null;
-        if (obj.ObjectKind != ObjectKind.BattleNpc)
-            return false;
-        if (obj is not IBattleNpc battleNpc)
-            return false;
-        if (!includeDead && battleNpc.CurrentHp == 0)
-            return false;
-        if (battleNpc.MaxHp == 0)
-            return false;
-        if ((battleNpc.StatusFlags & (StatusFlags)FFXIVConstants.HostileStatusFlag) != 0)
-            return false;
-        if (battleNpc.SubKind != FFXIVConstants.TrustNpcSubKind)
-            return false;
-
-        npc = battleNpc;
-        return true;
+        return FindDeadPartyMemberNeedingRaise(player, WHMActions.Raise.RangeSquared);
     }
 
-    /// <summary>
-    /// Checks if a character is a tank role.
-    /// </summary>
-    public static bool IsTankRole(IBattleChara chara)
-    {
-        if (chara is IPlayerCharacter pc)
-        {
-            return TankJobIds.Contains(pc.ClassJob.RowId);
-        }
-        return false;
-    }
+    #endregion
+
+    #region WHM-Specific Tank Finding
 
     /// <summary>
     /// Finds the tank in the party.
     /// First checks for player tanks by ClassJob, then falls back to
     /// finding the party member that enemies are targeting (for Trust NPCs).
     /// </summary>
-    public IBattleChara? FindTankInParty(IPlayerCharacter player)
+    public override IBattleChara? FindTankInParty(IPlayerCharacter player)
     {
         IBattleChara? effectiveTank = null;
 
@@ -156,7 +87,7 @@ public sealed class PartyHelper : IPartyHelper
         }
 
         // Second pass: For Trust NPCs, find who enemies are targeting
-        foreach (var obj in _objectTable)
+        foreach (var obj in ObjectTable)
         {
             if (obj is not IBattleNpc enemy)
                 continue;
@@ -183,111 +114,9 @@ public sealed class PartyHelper : IPartyHelper
         return effectiveTank;
     }
 
-    /// <summary>
-    /// Finds the lowest HP party member that needs healing.
-    /// Uses predicted HP to account for pending heals.
-    /// </summary>
-    public IBattleChara? FindLowestHpPartyMember(IPlayerCharacter player, int healAmount = 0)
-    {
-        IBattleChara? lowestHpMember = null;
-        float lowestHpPercent = 1f;
+    #endregion
 
-        foreach (var member in GetAllPartyMembers(player))
-        {
-            CheckMemberHp(member, player.Position, healAmount, ref lowestHpMember, ref lowestHpPercent);
-        }
-
-        return lowestHpMember;
-    }
-
-    private void CheckMemberHp(IBattleChara chara, Vector3 playerPos, int healAmount,
-        ref IBattleChara? lowestHpMember, ref float lowestHpPercent)
-    {
-        if (chara.IsDead)
-            return;
-        if (Vector3.DistanceSquared(playerPos, chara.Position) > WHMActions.Cure.RangeSquared)
-            return;
-
-        var predictedHp = _hpPredictionService.GetPredictedHp(chara.EntityId, chara.CurrentHp, chara.MaxHp);
-        var hpPercent = (float)predictedHp / chara.MaxHp;
-
-        if (predictedHp >= chara.MaxHp)
-            return;
-
-        if (healAmount > 0)
-        {
-            var missingHp = chara.MaxHp - predictedHp;
-            if (healAmount > missingHp)
-                return;
-        }
-
-        if (hpPercent < lowestHpPercent)
-        {
-            lowestHpPercent = hpPercent;
-            lowestHpMember = chara;
-        }
-    }
-
-    /// <summary>
-    /// Finds a dead party member that needs resurrection.
-    /// Skips members who already have the "Raise" status (pending res).
-    /// </summary>
-    public IBattleChara? FindDeadPartyMemberNeedingRaise(IPlayerCharacter player)
-    {
-        foreach (var member in GetAllPartyMembers(player, includeDead: true))
-        {
-            if (member.EntityId == player.EntityId)
-                continue;
-            if (!member.IsDead)
-                continue;
-            if (StatusHelper.HasStatus(member, StatusHelper.StatusIds.Raise))
-                continue;
-            if (Vector3.DistanceSquared(player.Position, member.Position) > WHMActions.Raise.RangeSquared)
-                continue;
-
-            return member;
-        }
-
-        return null;
-    }
-
-    /// <summary>
-    /// Gets predicted HP percent for a target (shadow HP + pending heals).
-    /// </summary>
-    public float GetHpPercent(IBattleChara target)
-    {
-        return _hpPredictionService.GetPredictedHpPercent(target.EntityId, target.CurrentHp, target.MaxHp);
-    }
-
-    /// <summary>
-    /// Calculates party health metrics for defensive cooldown decisions.
-    /// Uses RAW game HP (not predicted) for immediate, accurate readings.
-    /// </summary>
-    public (float avgHpPercent, float lowestHpPercent, int injuredCount) CalculatePartyHealthMetrics(IPlayerCharacter player)
-    {
-        float totalHpPercent = 0;
-        float lowestHp = 1f;
-        int count = 0;
-        int injured = 0;
-
-        foreach (var member in GetAllPartyMembers(player))
-        {
-            if (member.IsDead)
-                continue;
-
-            var hpPct = member.MaxHp > 0 ? (float)member.CurrentHp / member.MaxHp : 1f;
-            totalHpPercent += hpPct;
-            count++;
-
-            if (hpPct < lowestHp)
-                lowestHp = hpPct;
-
-            if (hpPct < FFXIVConstants.InjuredHpThreshold)
-                injured++;
-        }
-
-        return (count > 0 ? totalHpPercent / count : 1f, lowestHp, injured);
-    }
+    #region Cure III Targeting
 
     /// <summary>
     /// Finds the best target for Cure III (party member with most injured allies within 10y radius).
@@ -314,7 +143,7 @@ public sealed class PartyHelper : IPartyHelper
             if (Vector3.DistanceSquared(playerPos, member.Position) > rangeSquared)
                 continue;
 
-            var predictedHp = _hpPredictionService.GetPredictedHp(member.EntityId, member.CurrentHp, member.MaxHp);
+            var predictedHp = GetPredictedHp(member);
             var missingHp = member.MaxHp - predictedHp;
 
             // Cache member data for potential center evaluation
@@ -395,13 +224,9 @@ public sealed class PartyHelper : IPartyHelper
         return (bestTarget, bestCount, bestTargetIds);
     }
 
-    // Shared empty list for early returns (avoids allocation)
-    private static readonly List<uint> _emptyTargetIds = new();
+    #endregion
 
-    // Pre-allocated arrays for Cure III target evaluation
-    private readonly IBattleChara?[] _cureIIIMembers = new IBattleChara?[MaxPartySize];
-    private readonly Vector3[] _cureIIIPositions = new Vector3[MaxPartySize];
-    private readonly bool[] _cureIIINeedsHeal = new bool[MaxPartySize];
+    #region AoE Heal Counting
 
     /// <summary>
     /// Counts party members needing AoE heal and returns all targets in range.
@@ -446,11 +271,15 @@ public sealed class PartyHelper : IPartyHelper
 
         hasRegen = StatusHelper.HasMedicaRegen(chara);
 
-        var predictedHp = _hpPredictionService.GetPredictedHp(chara.EntityId, chara.CurrentHp, chara.MaxHp);
+        var predictedHp = GetPredictedHp(chara);
         missingHp = (int)(chara.MaxHp - predictedHp);
 
         return healAmount <= missingHp;
     }
+
+    #endregion
+
+    #region Regen Targeting
 
     /// <summary>
     /// Finds the best target for Regen with tank priority.
@@ -500,6 +329,10 @@ public sealed class PartyHelper : IPartyHelper
         return remaining < refreshThreshold;
     }
 
+    #endregion
+
+    #region Endangered Member Triage
+
     /// <summary>
     /// Finds the most endangered party member using enhanced damage intake triage.
     /// Uses configurable weights including damage rate, tank bonus, missing HP,
@@ -535,7 +368,7 @@ public sealed class PartyHelper : IPartyHelper
             if (Vector3.DistanceSquared(playerPos, member.Position) > rangeSquared)
                 continue;
 
-            var predictedHp = _hpPredictionService.GetPredictedHp(member.EntityId, member.CurrentHp, member.MaxHp);
+            var predictedHp = GetPredictedHp(member);
 
             // Skip if already at full HP
             if (predictedHp >= member.MaxHp)
@@ -597,7 +430,7 @@ public sealed class PartyHelper : IPartyHelper
 
             // TTD urgency: prioritize targets about to die
             var ttdScore = 0f;
-            var survivability = _hpPredictionService.GetSurvivabilityInfo(member.EntityId, member.CurrentHp, member.MaxHp);
+            var survivability = HpPredictionService.GetSurvivabilityInfo(member.EntityId, member.CurrentHp, member.MaxHp);
             if (survivability.TimeUntilDeath < 10f)
             {
                 // Normalize: 0s = 1.0, 10s+ = 0.0
@@ -616,7 +449,7 @@ public sealed class PartyHelper : IPartyHelper
         float highestScore = float.MinValue;
 
         // Get configurable weights from config
-        var weights = _configuration.Healing.GetEffectiveTriageWeights();
+        var weights = Configuration.Healing.GetEffectiveTriageWeights();
 
         for (var i = 0; i < candidateCount; i++)
         {
@@ -651,6 +484,10 @@ public sealed class PartyHelper : IPartyHelper
         return mostEndangered;
     }
 
+    #endregion
+
+    #region AoE Range Counting
+
     /// <summary>
     /// Counts party members within AoE range that are below a certain HP threshold.
     /// Used for Lily cap prevention to decide between Solace and Rapture.
@@ -669,7 +506,7 @@ public sealed class PartyHelper : IPartyHelper
             if (Vector3.DistanceSquared(playerPos, member.Position) > radiusSquared)
                 continue;
 
-            var predictedHp = _hpPredictionService.GetPredictedHp(member.EntityId, member.CurrentHp, member.MaxHp);
+            var predictedHp = GetPredictedHp(member);
             var hpPercent = (float)predictedHp / member.MaxHp;
 
             if (hpPercent < hpThreshold)
@@ -679,12 +516,5 @@ public sealed class PartyHelper : IPartyHelper
         return count;
     }
 
-    /// <summary>
-    /// Returns all party members (excluding dead) for iteration.
-    /// Wrapper for GetAllPartyMembers with includeDead=false.
-    /// </summary>
-    public IEnumerable<IBattleChara> GetPartyMembers(IPlayerCharacter player)
-    {
-        return GetAllPartyMembers(player, includeDead: false);
-    }
+    #endregion
 }

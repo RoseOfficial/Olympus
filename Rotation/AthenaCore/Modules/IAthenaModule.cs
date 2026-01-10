@@ -1,34 +1,12 @@
 using Olympus.Rotation.AthenaCore.Context;
+using Olympus.Rotation.Common;
 
 namespace Olympus.Rotation.AthenaCore.Modules;
 
 /// <summary>
 /// Interface for Athena (Scholar) rotation modules.
-/// Each module handles a specific aspect of the SCH rotation.
+/// Inherits from IHealerRotationModule for consistent module patterns across healers.
 /// </summary>
-public interface IAthenaModule
+public interface IAthenaModule : IHealerRotationModule<AthenaContext>
 {
-    /// <summary>
-    /// Priority order for this module (lower = higher priority).
-    /// </summary>
-    int Priority { get; }
-
-    /// <summary>
-    /// Display name for this module (used in debug output).
-    /// </summary>
-    string Name { get; }
-
-    /// <summary>
-    /// Attempts to execute an action for this module.
-    /// </summary>
-    /// <param name="context">The shared Athena context.</param>
-    /// <param name="isMoving">Whether the player is currently moving.</param>
-    /// <returns>True if an action was executed, false otherwise.</returns>
-    bool TryExecute(AthenaContext context, bool isMoving);
-
-    /// <summary>
-    /// Updates debug state for this module.
-    /// </summary>
-    /// <param name="context">The shared Athena context.</param>
-    void UpdateDebugState(AthenaContext context);
 }
