@@ -49,10 +49,13 @@ public sealed class Configuration : IPluginConfiguration
     public DebugConfig Debug { get; set; } = new();
     public CalibrationConfig Calibration { get; set; } = new();
 
-    // Job-specific configuration
+    // Job-specific configuration - Healers
     public ScholarConfig Scholar { get; set; } = new();
     public AstrologianConfig Astrologian { get; set; } = new();
     public SageConfig Sage { get; set; } = new();
+
+    // Role-specific configuration - Tanks
+    public TankConfig Tank { get; set; } = new();
 
     // Role action settings (used across healers)
     public bool EnableLucidDreaming { get; set; } = true;
@@ -97,6 +100,7 @@ public sealed class Configuration : IPluginConfiguration
         Scholar = new ScholarConfig();
         Astrologian = new AstrologianConfig();
         Sage = new SageConfig();
+        Tank = new TankConfig();
 
         // Reset telemetry to defaults
         TelemetryEnabled = true;

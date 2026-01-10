@@ -106,6 +106,72 @@ public static class SafeGameAccess
     }
 
     /// <summary>
+    /// Safely gets the Paladin Oath Gauge value.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Oath Gauge value (0-100), or 0 if unavailable.</returns>
+    public static unsafe int GetPldOathGauge(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Paladin.OathGauge;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read PLD Oath Gauge");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the current combo action ID.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Current combo action ID, or 0 if no combo active.</returns>
+    public static unsafe uint GetComboAction(IErrorMetricsService? errorMetrics = null)
+    {
+        var actionManager = GetActionManager(errorMetrics);
+        if (actionManager == null)
+            return 0;
+
+        try
+        {
+            return actionManager->Combo.Action;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read combo action");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the combo timer remaining.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Combo time remaining in seconds, or 0 if no combo active.</returns>
+    public static unsafe float GetComboTimer(IErrorMetricsService? errorMetrics = null)
+    {
+        var actionManager = GetActionManager(errorMetrics);
+        if (actionManager == null)
+            return 0f;
+
+        try
+        {
+            return actionManager->Combo.Timer;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read combo timer");
+            return 0f;
+        }
+    }
+
+    /// <summary>
     /// Safely reads a player attribute by index.
     /// </summary>
     /// <param name="attributeIndex">The attribute index (e.g., 5 for Mind, 44 for Determination).</param>

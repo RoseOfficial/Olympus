@@ -18,13 +18,14 @@ using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
 using Olympus.Services.Scholar;
 using Olympus.Services.Cache;
+using Olympus.Services.Tank;
 using Olympus.Windows;
 
 namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.17.0";
+    public const string PluginVersion = "1.18.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -59,6 +60,11 @@ public sealed class Plugin : IDalamudPlugin
     private readonly Athena athena;
     private readonly Astraea astraea;
     private readonly Asclepius asclepius;
+    private readonly Themis themis;
+
+    // Tank services
+    private readonly EnmityService enmityService;
+    private readonly TankCooldownService tankCooldownService;
 
     private readonly WindowSystem windowSystem = new("Olympus");
     private readonly ConfigWindow configWindow;
@@ -130,12 +136,17 @@ public sealed class Plugin : IDalamudPlugin
         // Debuff detection service for Esuna
         this.debuffDetectionService = new DebuffDetectionService(dataManager);
 
+        // Tank services
+        this.enmityService = new EnmityService(objectTable, partyList);
+        this.tankCooldownService = new TankCooldownService(configuration.Tank);
+
         // Create and register rotation modules via factory
         this.rotationManager = new RotationManager();
         this.apollo = CreateApolloRotation();
         this.athena = CreateAthenaRotation();
         this.astraea = CreateAstraeaRotation();
         this.asclepius = CreateAsclepiusRotation();
+        this.themis = CreateThemisRotation();
         RegisterAvailableRotations();
 
         // Debug service aggregates all debug data
@@ -273,6 +284,9 @@ public sealed class Plugin : IDalamudPlugin
         rotationManager.Register(athena);
         rotationManager.Register(astraea);
         rotationManager.Register(asclepius);
+
+        // Tanks
+        rotationManager.Register(themis);
     }
 
     /// <summary>
@@ -287,6 +301,7 @@ public sealed class Plugin : IDalamudPlugin
         JobRegistry.Scholar or JobRegistry.Arcanist => CreateAthenaRotation(),
         JobRegistry.Astrologian => CreateAstraeaRotation(),
         JobRegistry.Sage => CreateAsclepiusRotation(),
+        JobRegistry.Paladin or JobRegistry.Gladiator => CreateThemisRotation(),
         _ => null
     };
 
@@ -379,6 +394,28 @@ public sealed class Plugin : IDalamudPlugin
             cooldownPlanner,
             healingSpellSelector,
             shieldTrackingService);
+    }
+
+    /// <summary>
+    /// Creates the Themis (Paladin) rotation module.
+    /// </summary>
+    private Themis CreateThemisRotation()
+    {
+        return new Themis(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
+            enmityService,
+            tankCooldownService);
     }
 
     #endregion
