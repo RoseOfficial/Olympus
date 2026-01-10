@@ -51,6 +51,7 @@ public sealed class Configuration : IPluginConfiguration
 
     // Job-specific configuration
     public ScholarConfig Scholar { get; set; } = new();
+    public AstrologianConfig Astrologian { get; set; } = new();
 
     /// <summary>
     /// Resets all configuration values to their defaults.
@@ -84,6 +85,7 @@ public sealed class Configuration : IPluginConfiguration
         Debug = new DebugConfig();
         Calibration = new CalibrationConfig();
         Scholar = new ScholarConfig();
+        Astrologian = new AstrologianConfig();
 
         // Reset telemetry to defaults
         TelemetryEnabled = true;

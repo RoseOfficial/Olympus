@@ -24,7 +24,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.15.0";
+    public const string PluginVersion = "1.16.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -57,6 +57,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly RotationManager rotationManager;
     private readonly Apollo apollo;
     private readonly Athena athena;
+    private readonly Astraea astraea;
 
     private readonly WindowSystem windowSystem = new("Olympus");
     private readonly ConfigWindow configWindow;
@@ -132,6 +133,7 @@ public sealed class Plugin : IDalamudPlugin
         this.rotationManager = new RotationManager();
         this.apollo = CreateApolloRotation();
         this.athena = CreateAthenaRotation();
+        this.astraea = CreateAstraeaRotation();
         RegisterAvailableRotations();
 
         // Debug service aggregates all debug data
@@ -267,9 +269,9 @@ public sealed class Plugin : IDalamudPlugin
         // Healers
         rotationManager.Register(apollo);
         rotationManager.Register(athena);
+        rotationManager.Register(astraea);
 
         // Future: Add more rotations as they're implemented
-        // rotationManager.Register(CreateAstrologianRotation());
         // rotationManager.Register(CreateSageRotation());
     }
 
@@ -283,7 +285,7 @@ public sealed class Plugin : IDalamudPlugin
     {
         JobRegistry.WhiteMage or JobRegistry.Conjurer => CreateApolloRotation(),
         JobRegistry.Scholar or JobRegistry.Arcanist => CreateAthenaRotation(),
-        // Future: Astrologian => CreateAstrologianRotation(),
+        JobRegistry.Astrologian => CreateAstraeaRotation(),
         // Future: Sage => CreateSageRotation(),
         _ => null
     };
@@ -316,6 +318,29 @@ public sealed class Plugin : IDalamudPlugin
     private Athena CreateAthenaRotation()
     {
         return new Athena(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
+            cooldownPlanner,
+            healingSpellSelector,
+            shieldTrackingService);
+    }
+
+    /// <summary>
+    /// Creates the Astraea (Astrologian) rotation module.
+    /// </summary>
+    private Astraea CreateAstraeaRotation()
+    {
+        return new Astraea(
             log,
             actionTracker,
             combatEventService,
