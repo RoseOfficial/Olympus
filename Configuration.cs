@@ -52,6 +52,16 @@ public sealed class Configuration : IPluginConfiguration
     // Job-specific configuration
     public ScholarConfig Scholar { get; set; } = new();
     public AstrologianConfig Astrologian { get; set; } = new();
+    public SageConfig Sage { get; set; } = new();
+
+    // Role action settings (used across healers)
+    public bool EnableLucidDreaming { get; set; } = true;
+    private float _lucidDreamingThreshold = 0.70f;
+    public float LucidDreamingThreshold
+    {
+        get => _lucidDreamingThreshold;
+        set => _lucidDreamingThreshold = Math.Clamp(value, 0f, 1f);
+    }
 
     /// <summary>
     /// Resets all configuration values to their defaults.
@@ -86,6 +96,7 @@ public sealed class Configuration : IPluginConfiguration
         Calibration = new CalibrationConfig();
         Scholar = new ScholarConfig();
         Astrologian = new AstrologianConfig();
+        Sage = new SageConfig();
 
         // Reset telemetry to defaults
         TelemetryEnabled = true;

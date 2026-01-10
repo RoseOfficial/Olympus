@@ -24,7 +24,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.16.1";
+    public const string PluginVersion = "1.17.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -58,6 +58,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly Apollo apollo;
     private readonly Athena athena;
     private readonly Astraea astraea;
+    private readonly Asclepius asclepius;
 
     private readonly WindowSystem windowSystem = new("Olympus");
     private readonly ConfigWindow configWindow;
@@ -134,6 +135,7 @@ public sealed class Plugin : IDalamudPlugin
         this.apollo = CreateApolloRotation();
         this.athena = CreateAthenaRotation();
         this.astraea = CreateAstraeaRotation();
+        this.asclepius = CreateAsclepiusRotation();
         RegisterAvailableRotations();
 
         // Debug service aggregates all debug data
@@ -270,9 +272,7 @@ public sealed class Plugin : IDalamudPlugin
         rotationManager.Register(apollo);
         rotationManager.Register(athena);
         rotationManager.Register(astraea);
-
-        // Future: Add more rotations as they're implemented
-        // rotationManager.Register(CreateSageRotation());
+        rotationManager.Register(asclepius);
     }
 
     /// <summary>
@@ -286,7 +286,7 @@ public sealed class Plugin : IDalamudPlugin
         JobRegistry.WhiteMage or JobRegistry.Conjurer => CreateApolloRotation(),
         JobRegistry.Scholar or JobRegistry.Arcanist => CreateAthenaRotation(),
         JobRegistry.Astrologian => CreateAstraeaRotation(),
-        // Future: Sage => CreateSageRotation(),
+        JobRegistry.Sage => CreateAsclepiusRotation(),
         _ => null
     };
 
@@ -341,6 +341,29 @@ public sealed class Plugin : IDalamudPlugin
     private Astraea CreateAstraeaRotation()
     {
         return new Astraea(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
+            cooldownPlanner,
+            healingSpellSelector,
+            shieldTrackingService);
+    }
+
+    /// <summary>
+    /// Creates the Asclepius (Sage) rotation module.
+    /// </summary>
+    private Asclepius CreateAsclepiusRotation()
+    {
+        return new Asclepius(
             log,
             actionTracker,
             combatEventService,
