@@ -4,6 +4,7 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Olympus.Data;
+using Olympus.Ipc;
 using Olympus.Rotation;
 using Olympus.Services;
 using Olympus.Services.Action;
@@ -25,7 +26,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.20.0";
+    public const string PluginVersion = "1.21.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -73,6 +74,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly WelcomeWindow welcomeWindow;
     private readonly TelemetryService telemetryService;
 
+    private readonly OlympusIpc olympusIpc;
     public Plugin(
         IDalamudPluginInterface pluginInterface,
         IFramework framework,
@@ -170,6 +172,9 @@ public sealed class Plugin : IDalamudPlugin
 
         // Telemetry service for anonymous usage tracking
         this.telemetryService = new TelemetryService(configuration, log);
+        
+        // IPC interface for external plugin integration
+        this.olympusIpc = new OlympusIpc(pluginInterface, configuration, SaveConfiguration, log);
 
         windowSystem.AddWindow(configWindow);
         windowSystem.AddWindow(mainWindow);
@@ -434,6 +439,7 @@ public sealed class Plugin : IDalamudPlugin
         pluginInterface.UiBuilder.OpenMainUi -= OpenMainUI;
 
         windowSystem.RemoveAllWindows();
+        olympusIpc.Dispose();
         telemetryService.Dispose();
         damageIntakeService.Dispose();
         healingIntakeService.Dispose();
