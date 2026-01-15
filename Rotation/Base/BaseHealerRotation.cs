@@ -22,7 +22,7 @@ namespace Olympus.Rotation.Base;
 /// </summary>
 /// <typeparam name="TContext">The healer job-specific context type.</typeparam>
 /// <typeparam name="TModule">The healer job-specific module interface type.</typeparam>
-public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TContext, TModule>
+public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TContext, TModule>, IDisposable
     where TContext : IHealerRotationContext
     where TModule : IRotationModule<TContext>
 {
@@ -43,6 +43,7 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
         ActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
+        IDamageTrendService damageTrendService,
         Configuration configuration,
         IObjectTable objectTable,
         IPartyList partyList,
@@ -53,12 +54,14 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
         IDebuffDetectionService debuffDetectionService,
         HealingSpellSelector healingSpellSelector,
         ICooldownPlanner cooldownPlanner,
+        ShieldTrackingService shieldTrackingService,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
             actionTracker,
             combatEventService,
             damageIntakeService,
+            damageTrendService,
             configuration,
             objectTable,
             partyList,
@@ -71,13 +74,13 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
     {
         HealingSpellSelector = healingSpellSelector;
         CooldownPlanner = cooldownPlanner;
+        ShieldTrackingService = shieldTrackingService;
 
-        // Initialize smart healing services
+        // Initialize smart healing services (these are healer-specific and per-rotation)
         CoHealerDetectionService = new CoHealerDetectionService(
             combatEventService, partyList, objectTable, configuration.Healing);
         BossMechanicDetector = new BossMechanicDetector(
             configuration.Healing, combatEventService, damageIntakeService);
-        ShieldTrackingService = new ShieldTrackingService(objectTable, partyList, log);
     }
 
     #endregion
@@ -120,6 +123,18 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
     /// Gets party health metrics for cooldown planning.
     /// </summary>
     protected abstract (float avgHpPercent, float lowestHpPercent, int injuredCount) GetPartyHealthMetrics(IPlayerCharacter player);
+
+    #endregion
+
+    #region IDisposable
+
+    /// <summary>
+    /// Disposes resources used by the healer rotation.
+    /// </summary>
+    public virtual void Dispose()
+    {
+        CoHealerDetectionService.Dispose();
+    }
 
     #endregion
 

@@ -65,6 +65,7 @@ public sealed class Athena : BaseHealerRotation<AthenaContext, IAthenaModule>
         ActionTracker actionTracker,
         CombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
+        IDamageTrendService damageTrendService,
         Configuration configuration,
         IObjectTable objectTable,
         IPartyList partyList,
@@ -82,6 +83,7 @@ public sealed class Athena : BaseHealerRotation<AthenaContext, IAthenaModule>
             actionTracker,
             combatEventService,
             damageIntakeService,
+            damageTrendService,
             configuration,
             objectTable,
             partyList,
@@ -92,6 +94,7 @@ public sealed class Athena : BaseHealerRotation<AthenaContext, IAthenaModule>
             debuffDetectionService,
             healingSpellSelector,
             cooldownPlanner,
+            shieldTrackingService,
             errorMetrics)
     {
         // Initialize Scholar-specific services

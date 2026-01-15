@@ -27,7 +27,7 @@ public sealed class RegenHandler : IHealingHandler
         // Calculate dynamic Regen threshold based on party damage state
         var regenHpThreshold = GetDynamicRegenThreshold(context);
 
-        var target = context.PartyHelper.FindRegenTarget(player, regenHpThreshold, GameConstants.RegenRefreshThreshold);
+        var target = context.PartyHelper.FindRegenTarget(player, regenHpThreshold, FFXIVConstants.RegenRefreshThreshold);
         if (target is null)
             return false;
 
@@ -45,7 +45,7 @@ public sealed class RegenHandler : IHealingHandler
             // Reserve target to prevent other handlers from double-healing
             context.HealingCoordination.TryReserveTarget(target.EntityId);
 
-            var thresholdNote = regenHpThreshold > GameConstants.RegenHpThreshold
+            var thresholdNote = regenHpThreshold > FFXIVConstants.RegenHpThreshold
                 ? $" (dynamic {regenHpThreshold:P0})"
                 : "";
             context.Debug.PlannedAction = $"Regen (tank priority{thresholdNote})";
@@ -65,7 +65,7 @@ public sealed class RegenHandler : IHealingHandler
 
         // If dynamic threshold disabled, use default
         if (!config.Healing.EnableDynamicRegenThreshold)
-            return GameConstants.RegenHpThreshold;
+            return FFXIVConstants.RegenHpThreshold;
 
         // Check if anyone is taking high damage
         var partyDamageRate = context.DamageIntakeService.GetPartyDamageRate(3f);
@@ -74,6 +74,6 @@ public sealed class RegenHandler : IHealingHandler
         if (partyDamageRate >= config.Healing.RegenHighDamageDpsThreshold)
             return config.Healing.RegenHighDamageThreshold;
 
-        return GameConstants.RegenHpThreshold;
+        return FFXIVConstants.RegenHpThreshold;
     }
 }

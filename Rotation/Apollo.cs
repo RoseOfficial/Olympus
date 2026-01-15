@@ -12,6 +12,7 @@ using Olympus.Services.Action;
 using Olympus.Services.Cooldown;
 using Olympus.Services.Debuff;
 using Olympus.Services.Healing;
+using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
@@ -52,6 +53,7 @@ public sealed class Apollo : BaseHealerRotation<ApolloContext, IApolloModule>
         ActionTracker actionTracker,
         CombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
+        IDamageTrendService damageTrendService,
         Configuration configuration,
         IObjectTable objectTable,
         IPartyList partyList,
@@ -62,12 +64,14 @@ public sealed class Apollo : BaseHealerRotation<ApolloContext, IApolloModule>
         HealingSpellSelector healingSpellSelector,
         DebuffDetectionService debuffDetectionService,
         ICooldownPlanner cooldownPlanner,
+        ShieldTrackingService shieldTrackingService,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
             actionTracker,
             combatEventService,
             damageIntakeService,
+            damageTrendService,
             configuration,
             objectTable,
             partyList,
@@ -78,6 +82,7 @@ public sealed class Apollo : BaseHealerRotation<ApolloContext, IApolloModule>
             debuffDetectionService,
             healingSpellSelector,
             cooldownPlanner,
+            shieldTrackingService,
             errorMetrics)
     {
         // Initialize helpers

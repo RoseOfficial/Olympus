@@ -98,6 +98,7 @@ public abstract class BaseRotation<TContext, TModule> : IRotation
         ActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
+        IDamageTrendService damageTrendService,
         Configuration configuration,
         IObjectTable objectTable,
         IPartyList partyList,
@@ -112,7 +113,7 @@ public abstract class BaseRotation<TContext, TModule> : IRotation
         ActionTracker = actionTracker;
         CombatEventService = combatEventService;
         DamageIntakeService = damageIntakeService;
-        DamageTrendService = new DamageTrendService(damageIntakeService);
+        DamageTrendService = damageTrendService;
         MpForecastService = new MpForecastService();
         Configuration = configuration;
         ObjectTable = objectTable;

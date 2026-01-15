@@ -26,7 +26,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.21.0";
+    public const string PluginVersion = "1.22.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -320,6 +320,7 @@ public sealed class Plugin : IDalamudPlugin
             actionTracker,
             combatEventService,
             damageIntakeService,
+            damageTrendService,
             configuration,
             objectTable,
             partyList,
@@ -329,7 +330,8 @@ public sealed class Plugin : IDalamudPlugin
             playerStatsService,
             healingSpellSelector,
             debuffDetectionService,
-            cooldownPlanner);
+            cooldownPlanner,
+            shieldTrackingService);
     }
 
     /// <summary>
@@ -342,6 +344,7 @@ public sealed class Plugin : IDalamudPlugin
             actionTracker,
             combatEventService,
             damageIntakeService,
+            damageTrendService,
             configuration,
             objectTable,
             partyList,
@@ -365,6 +368,7 @@ public sealed class Plugin : IDalamudPlugin
             actionTracker,
             combatEventService,
             damageIntakeService,
+            damageTrendService,
             configuration,
             objectTable,
             partyList,
@@ -388,6 +392,7 @@ public sealed class Plugin : IDalamudPlugin
             actionTracker,
             combatEventService,
             damageIntakeService,
+            damageTrendService,
             configuration,
             objectTable,
             partyList,
@@ -411,6 +416,7 @@ public sealed class Plugin : IDalamudPlugin
             actionTracker,
             combatEventService,
             damageIntakeService,
+            damageTrendService,
             configuration,
             objectTable,
             partyList,
@@ -441,6 +447,13 @@ public sealed class Plugin : IDalamudPlugin
         windowSystem.RemoveAllWindows();
         olympusIpc.Dispose();
         telemetryService.Dispose();
+
+        // Dispose healer rotations (they have event subscriptions)
+        apollo.Dispose();
+        athena.Dispose();
+        astraea.Dispose();
+        asclepius.Dispose();
+
         damageIntakeService.Dispose();
         healingIntakeService.Dispose();
         hpPredictionService.Dispose();

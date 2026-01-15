@@ -64,6 +64,7 @@ public sealed class Astraea : BaseHealerRotation<AstraeaContext, IAstraeaModule>
         ActionTracker actionTracker,
         CombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
+        IDamageTrendService damageTrendService,
         Configuration configuration,
         IObjectTable objectTable,
         IPartyList partyList,
@@ -81,6 +82,7 @@ public sealed class Astraea : BaseHealerRotation<AstraeaContext, IAstraeaModule>
             actionTracker,
             combatEventService,
             damageIntakeService,
+            damageTrendService,
             configuration,
             objectTable,
             partyList,
@@ -91,6 +93,7 @@ public sealed class Astraea : BaseHealerRotation<AstraeaContext, IAstraeaModule>
             debuffDetectionService,
             healingSpellSelector,
             cooldownPlanner,
+            shieldTrackingService,
             errorMetrics)
     {
         // Initialize Astrologian-specific services

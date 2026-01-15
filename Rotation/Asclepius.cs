@@ -67,6 +67,7 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
         ActionTracker actionTracker,
         CombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
+        IDamageTrendService damageTrendService,
         Configuration configuration,
         IObjectTable objectTable,
         IPartyList partyList,
@@ -84,6 +85,7 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
             actionTracker,
             combatEventService,
             damageIntakeService,
+            damageTrendService,
             configuration,
             objectTable,
             partyList,
@@ -94,6 +96,7 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
             debuffDetectionService,
             healingSpellSelector,
             cooldownPlanner,
+            shieldTrackingService,
             errorMetrics)
     {
         // Initialize Sage-specific services
