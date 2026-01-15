@@ -24,6 +24,7 @@ namespace Olympus.Rotation;
 /// Orchestrates modular execution: each module handles a specific concern.
 /// Named after the Greek god of healing, light, and music.
 /// </summary>
+[Rotation("Apollo", JobRegistry.WhiteMage, JobRegistry.Conjurer, Role = RotationRole.Healer)]
 public sealed class Apollo : BaseHealerRotation<ApolloContext, IApolloModule>
 {
     /// <inheritdoc />

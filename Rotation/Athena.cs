@@ -26,6 +26,7 @@ namespace Olympus.Rotation;
 /// Orchestrates modular execution: each module handles a specific concern.
 /// Named after Athena, the Greek goddess of wisdom and strategic warfare.
 /// </summary>
+[Rotation("Athena", JobRegistry.Scholar, JobRegistry.Arcanist, Role = RotationRole.Healer)]
 public sealed class Athena : BaseHealerRotation<AthenaContext, IAthenaModule>
 {
     /// <inheritdoc />

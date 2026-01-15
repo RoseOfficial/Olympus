@@ -27,6 +27,7 @@ namespace Olympus.Rotation;
 /// Orchestrates modular execution: each module handles a specific concern.
 /// Named after Asclepius, the Greek god of medicine.
 /// </summary>
+[Rotation("Asclepius", JobRegistry.Sage, Role = RotationRole.Healer)]
 public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepiusModule>
 {
     /// <inheritdoc />

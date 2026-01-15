@@ -24,6 +24,7 @@ namespace Olympus.Rotation;
 /// Orchestrates modular execution: each module handles a specific concern.
 /// Named after Themis, the Greek goddess of divine law and order.
 /// </summary>
+[Rotation("Themis", JobRegistry.Paladin, JobRegistry.Gladiator, Role = RotationRole.Tank)]
 public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
 {
     /// <inheritdoc />

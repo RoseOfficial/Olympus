@@ -26,6 +26,7 @@ namespace Olympus.Rotation;
 /// Orchestrates modular execution: each module handles a specific concern.
 /// Named after Astraea, the Greek goddess of stars and justice.
 /// </summary>
+[Rotation("Astraea", JobRegistry.Astrologian, Role = RotationRole.Healer)]
 public sealed class Astraea : BaseHealerRotation<AstraeaContext, IAstraeaModule>
 {
     /// <inheritdoc />
