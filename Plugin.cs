@@ -26,7 +26,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.23.0";
+    public const string PluginVersion = "1.24.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -174,7 +174,13 @@ public sealed class Plugin : IDalamudPlugin
         this.telemetryService = new TelemetryService(configuration, log);
         
         // IPC interface for external plugin integration
-        this.olympusIpc = new OlympusIpc(pluginInterface, configuration, SaveConfiguration, log);
+        this.olympusIpc = new OlympusIpc(
+            pluginInterface,
+            configuration,
+            SaveConfiguration,
+            log,
+            PluginVersion,
+            () => rotationManager);
 
         windowSystem.AddWindow(configWindow);
         windowSystem.AddWindow(mainWindow);
@@ -234,6 +240,7 @@ public sealed class Plugin : IDalamudPlugin
             case "toggle":
                 configuration.Enabled = !configuration.Enabled;
                 SaveConfiguration();
+                olympusIpc.NotifyStateChanged(configuration.Enabled);
                 var status = configuration.Enabled ? "enabled" : "disabled";
                 chatGui.Print($"Olympus {status}");
                 log.Info($"Olympus {status}");
