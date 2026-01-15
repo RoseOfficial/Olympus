@@ -53,4 +53,49 @@ public interface IDamageIntakeService
     /// </summary>
     /// <param name="entityId">The entity to clear.</param>
     void ClearEntity(uint entityId);
+
+    /// <summary>
+    /// Forecasts total party damage expected within the specified time window.
+    /// Combines historical damage rate, predicted mechanics, and active DoTs.
+    /// </summary>
+    /// <param name="forecastSeconds">Time window to forecast into (default 5s).</param>
+    /// <returns>Predicted total party damage.</returns>
+    int ForecastPartyDamage(float forecastSeconds = 5f);
+
+    /// <summary>
+    /// Forecasts damage expected for a specific entity within the time window.
+    /// </summary>
+    /// <param name="entityId">The entity to forecast damage for.</param>
+    /// <param name="forecastSeconds">Time window to forecast into.</param>
+    /// <returns>Predicted damage for the entity.</returns>
+    int ForecastEntityDamage(uint entityId, float forecastSeconds = 5f);
+
+    /// <summary>
+    /// Registers an active DoT or bleed effect on an entity.
+    /// </summary>
+    /// <param name="entityId">The entity with the DoT.</param>
+    /// <param name="damagePerTick">Damage per 3-second tick.</param>
+    /// <param name="remainingDuration">Remaining duration in seconds.</param>
+    void RegisterActiveDoT(uint entityId, int damagePerTick, float remainingDuration);
+
+    /// <summary>
+    /// Clears all active DoT tracking for an entity.
+    /// </summary>
+    /// <param name="entityId">The entity to clear DoTs for.</param>
+    void ClearActiveDoTs(uint entityId);
+
+    /// <summary>
+    /// Sets the boss mechanic detector for predictive damage forecasting.
+    /// </summary>
+    /// <param name="detector">The boss mechanic detector to use.</param>
+    void SetBossMechanicDetector(IBossMechanicDetector detector);
+
+    /// <summary>
+    /// Gets forecasted damage for a specific entity as a percentage of their max HP.
+    /// </summary>
+    /// <param name="entityId">The entity to forecast.</param>
+    /// <param name="maxHp">The entity's max HP.</param>
+    /// <param name="forecastSeconds">Time window to forecast into.</param>
+    /// <returns>Predicted damage as a percentage (0.0 to 1.0+).</returns>
+    float ForecastDamagePercent(uint entityId, int maxHp, float forecastSeconds = 5f);
 }

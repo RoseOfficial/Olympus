@@ -27,6 +27,7 @@ public sealed class HealingModule : IApolloModule
             new SingleTargetHealingHandler(),
             new RegenHandler(),
             new TetragrammatonHandler(),
+            new BloodLilyBuildingHandler(),
             new LilyCapPreventionHandler()
         };
 
@@ -64,7 +65,7 @@ public sealed class HealingModule : IApolloModule
     /// <remarks>
     /// Priority order (lower = executes first):
     /// Benediction (10) → Assize (15) → Esuna (20) → Tetragrammaton (25) →
-    /// Preemptive (30) → Regen (35) → AoE (40) → Single (50) → LilyCap (80)
+    /// Preemptive (30) → Regen (35) → AoE (40) → Single (50) → BloodLily (60) → LilyCap (80)
     /// </remarks>
     private static bool CanExecuteHandler(IHealingHandler handler, ApolloContext context)
     {
@@ -79,6 +80,7 @@ public sealed class HealingModule : IApolloModule
             HealingPriority.Esuna => context.InCombat,
             HealingPriority.PreemptiveHeal => context.InCombat,
             HealingPriority.Regen => context.InCombat,
+            HealingPriority.BloodLilyBuilding => context.InCombat,
             HealingPriority.LilyCapPrevention => context.InCombat,
 
             // Always available handlers (GCD heals)

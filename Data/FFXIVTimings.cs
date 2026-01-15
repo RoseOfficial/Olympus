@@ -39,6 +39,12 @@ public static class FFXIVTimings
     /// <summary>GCD must be at least this long for safe double weave.</summary>
     public const float DoubleWeaveThreshold = 2.1f;
 
+    /// <summary>
+    /// Safety buffer for clipping prevention (100ms).
+    /// oGCD will not be used if GcdRemaining &lt; AnimationLock + this buffer.
+    /// </summary>
+    public const float ClipPreventionBuffer = 0.1f;
+
     // Healing Specific
     /// <summary>Time from cast complete to HP change being visible.</summary>
     public const float HealEffectDelay = 0.5f;

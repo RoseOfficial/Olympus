@@ -80,7 +80,7 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
         CoHealerDetectionService = new CoHealerDetectionService(
             combatEventService, partyList, objectTable, configuration.Healing);
         BossMechanicDetector = new BossMechanicDetector(
-            configuration.Healing, combatEventService, damageIntakeService);
+            configuration.Healing, combatEventService, damageIntakeService, partyList, objectTable);
     }
 
     #endregion
@@ -134,6 +134,7 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
     public virtual void Dispose()
     {
         CoHealerDetectionService.Dispose();
+        BossMechanicDetector.Dispose();
     }
 
     #endregion

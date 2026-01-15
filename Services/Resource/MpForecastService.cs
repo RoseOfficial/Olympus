@@ -158,6 +158,47 @@ public sealed class MpForecastService : IMpForecastService
         return mpToLose / -netRate;
     }
 
+    /// <inheritdoc />
+    public int PredictMpAtTime(float secondsFromNow)
+    {
+        if (secondsFromNow <= 0)
+            return _currentMp;
+
+        // Calculate number of ticks in the time window
+        // Server ticks occur every 3 seconds; MP regen happens on ticks
+        var ticksInWindow = secondsFromNow / TickInterval;
+
+        // Calculate regen from ticks
+        var baseRegenPerTick = _maxMp * BaseMpRegenPercent;
+        var lucidBonusPerTick = _hasLucidDreaming ? _maxMp * LucidDreamingBonusPercent : 0;
+        var regenPerTick = baseRegenPerTick + lucidBonusPerTick;
+        var totalRegen = regenPerTick * ticksInWindow;
+
+        // Calculate consumption (linear based on recent rate)
+        var consumptionRate = GetMpConsumptionRate();
+        var totalConsumption = consumptionRate * secondsFromNow;
+
+        // Predict final MP
+        var predictedMp = _currentMp + (int)totalRegen - (int)totalConsumption;
+
+        // Clamp to valid range
+        return Math.Clamp(predictedMp, 0, _maxMp);
+    }
+
+    /// <inheritdoc />
+    public bool CanAffordSpellIn(int mpCost, float castTime)
+    {
+        // If cast is instant, check current MP
+        if (castTime <= 0)
+            return _currentMp >= mpCost;
+
+        // Predict MP at cast completion
+        var predictedMp = PredictMpAtTime(castTime);
+
+        // Can afford if predicted MP >= cost
+        return predictedMp >= mpCost;
+    }
+
     /// <summary>
     /// Removes expenditures older than the tracking window.
     /// </summary>

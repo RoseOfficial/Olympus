@@ -79,4 +79,21 @@ public interface IMpForecastService
     /// <param name="maxMp">Maximum MP.</param>
     /// <param name="hasLucidDreaming">Whether Lucid Dreaming buff is active.</param>
     void Update(int currentMp, int maxMp, bool hasLucidDreaming);
+
+    /// <summary>
+    /// Predicts MP at a specific time in the future.
+    /// Accounts for server tick alignment and regen/consumption rates.
+    /// </summary>
+    /// <param name="secondsFromNow">How far in the future to predict.</param>
+    /// <returns>Predicted MP value (clamped between 0 and MaxMp).</returns>
+    int PredictMpAtTime(float secondsFromNow);
+
+    /// <summary>
+    /// Checks if a spell can be afforded after a cast time elapses.
+    /// Useful for deciding whether to start a cast that would drain MP.
+    /// </summary>
+    /// <param name="mpCost">MP cost of the spell.</param>
+    /// <param name="castTime">Cast time in seconds.</param>
+    /// <returns>True if predicted MP at cast completion is >= cost.</returns>
+    bool CanAffordSpellIn(int mpCost, float castTime);
 }

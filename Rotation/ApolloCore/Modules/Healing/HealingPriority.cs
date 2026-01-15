@@ -42,6 +42,9 @@ public enum HealingPriority
     /// <summary>Single-target GCD heals.</summary>
     SingleHeal = 50,
 
+    /// <summary>Blood Lily building (prefer Lily heals when at 2 Blood Lilies).</summary>
+    BloodLilyBuilding = 60,
+
     /// <summary>Lily cap prevention (use Lilies before they cap out).</summary>
     LilyCapPrevention = 80
 }

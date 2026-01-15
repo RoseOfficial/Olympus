@@ -1,18 +1,24 @@
 using System;
 using System.Collections.Generic;
+using Dalamud.Game.ClientState.Party;
+using Dalamud.Plugin.Services;
 using Olympus.Config;
+using Olympus.Data;
 
 namespace Olympus.Services.Prediction;
 
 /// <summary>
 /// Detects boss mechanic patterns (raidwides, tank busters) for proactive healing.
 /// Uses interval-based pattern detection similar to DamageTrendService.
+/// Automatically subscribes to damage events to detect raidwides and tank busters.
 /// </summary>
-public sealed class BossMechanicDetector : IBossMechanicDetector
+public sealed class BossMechanicDetector : IBossMechanicDetector, IDisposable
 {
     private readonly HealingConfig _config;
     private readonly ICombatEventService _combatEventService;
     private readonly IDamageIntakeService _damageIntakeService;
+    private readonly IPartyList _partyList;
+    private readonly IObjectTable _objectTable;
 
     // Pattern detection constants
     private const int MaxEventHistory = 20;
@@ -20,6 +26,12 @@ public sealed class BossMechanicDetector : IBossMechanicDetector
     private const float MinPatternIntervalSeconds = 10f;  // Minimum interval for pattern detection
     private const float MaxPatternIntervalSeconds = 90f;  // Maximum interval for pattern detection
     private const float IntervalTolerancePercent = 0.25f; // 25% tolerance for interval matching
+
+    // Damage aggregation for raidwide detection
+    private const float DamageAggregationWindowMs = 150f; // 150ms window to aggregate simultaneous hits
+    private const float TankBusterDamageThreshold = 0.15f; // 15% HP = tank buster
+    private readonly List<(DateTime time, uint entityId, int damage, uint maxHp)> _pendingDamageEvents = new();
+    private DateTime _lastAggregationCheck = DateTime.MinValue;
 
     // Raidwide tracking
     private readonly List<RaidwideEvent> _raidwideHistory = new();
@@ -45,11 +57,120 @@ public sealed class BossMechanicDetector : IBossMechanicDetector
     public BossMechanicDetector(
         HealingConfig config,
         ICombatEventService combatEventService,
-        IDamageIntakeService damageIntakeService)
+        IDamageIntakeService damageIntakeService,
+        IPartyList partyList,
+        IObjectTable objectTable)
     {
         _config = config;
         _combatEventService = combatEventService;
         _damageIntakeService = damageIntakeService;
+        _partyList = partyList;
+        _objectTable = objectTable;
+
+        // Subscribe to damage events for automatic detection
+        combatEventService.OnDamageReceived += OnDamageReceived;
+    }
+
+    public void Dispose()
+    {
+        _combatEventService.OnDamageReceived -= OnDamageReceived;
+    }
+
+    /// <summary>
+    /// Handles incoming damage events to detect raidwides and tank busters.
+    /// </summary>
+    private void OnDamageReceived(uint entityId, int damageAmount)
+    {
+        if (!_config.EnableMechanicAwareness) return;
+
+        // Get entity info to determine max HP and role
+        var entity = _objectTable.SearchById(entityId);
+        if (entity is not Dalamud.Game.ClientState.Objects.Types.ICharacter character)
+            return;
+
+        var maxHp = character.MaxHp;
+        if (maxHp == 0) return;
+
+        // Check if this entity is in our party
+        var isPartyMember = false;
+        var isTank = false;
+        foreach (var member in _partyList)
+        {
+            if (member.EntityId == entityId)
+            {
+                isPartyMember = true;
+                isTank = JobRegistry.IsTank(member.ClassJob.RowId);
+                break;
+            }
+        }
+
+        // Also check if solo (party list empty but player is target)
+        if (!isPartyMember)
+        {
+            var localPlayer = _objectTable.LocalPlayer;
+            if (localPlayer != null && entityId == localPlayer.EntityId)
+            {
+                isPartyMember = true;
+                isTank = JobRegistry.IsTank(localPlayer.ClassJob.RowId);
+            }
+        }
+
+        if (!isPartyMember) return;
+
+        // Add to pending events for aggregation
+        _pendingDamageEvents.Add((DateTime.UtcNow, entityId, damageAmount, maxHp));
+
+        // Check for tank buster immediately (high single-target damage to tank)
+        var damagePercent = (float)damageAmount / maxHp;
+        if (isTank && damagePercent >= TankBusterDamageThreshold)
+        {
+            RecordTankBusterDamage(entityId, damagePercent, damageAmount);
+        }
+    }
+
+    /// <summary>
+    /// Processes pending damage events to detect raidwides.
+    /// Called during Update() to aggregate events within the time window.
+    /// </summary>
+    private void ProcessPendingDamageEvents()
+    {
+        if (_pendingDamageEvents.Count == 0) return;
+
+        var now = DateTime.UtcNow;
+        var cutoffTime = now.AddMilliseconds(-DamageAggregationWindowMs);
+
+        // Remove old events
+        _pendingDamageEvents.RemoveAll(e => e.time < cutoffTime);
+
+        // Skip if we just checked (avoid processing same batch multiple times)
+        if ((now - _lastAggregationCheck).TotalMilliseconds < DamageAggregationWindowMs)
+            return;
+
+        _lastAggregationCheck = now;
+
+        // Count unique entities hit in the aggregation window
+        var hitEntities = new HashSet<uint>();
+        var totalDamagePercent = 0f;
+
+        foreach (var evt in _pendingDamageEvents)
+        {
+            if (!hitEntities.Contains(evt.entityId))
+            {
+                hitEntities.Add(evt.entityId);
+                totalDamagePercent += (float)evt.damage / evt.maxHp;
+            }
+        }
+
+        // Detect raidwide: 3+ party members hit simultaneously
+        if (hitEntities.Count >= _config.RaidwideMinTargets)
+        {
+            var avgDamagePercent = totalDamagePercent / hitEntities.Count;
+            if (avgDamagePercent >= _config.RaidwideMinDamagePercent)
+            {
+                RecordRaidwideDamage(hitEntities.Count, avgDamagePercent);
+                _pendingDamageEvents.Clear(); // Clear after recording to avoid double-counting
+            }
+        }
     }
 
     public bool IsRaidwideImminent
@@ -167,6 +288,9 @@ public sealed class BossMechanicDetector : IBossMechanicDetector
         // Increment time based on frame time (assumed ~16ms = 0.016s)
         // In practice, this should be called with actual delta time from framework
         _currentTime += 0.016f;
+
+        // Process pending damage events to detect raidwides
+        ProcessPendingDamageEvents();
 
         CleanupOldEvents();
     }

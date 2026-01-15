@@ -83,4 +83,24 @@ public interface IActionService
     /// Gets the maximum number of charges for an action at a given level.
     /// </summary>
     ushort GetMaxCharges(uint actionId, uint level);
+
+    /// <summary>
+    /// Checks if it's safe to weave an oGCD without clipping the GCD.
+    /// Use this before executing oGCDs to prevent DPS loss from GCD delays.
+    /// </summary>
+    /// <param name="oGcdAnimationLock">Animation lock of the oGCD (default: 0.6s).</param>
+    /// <returns>True if the oGCD can be safely weaved without clipping.</returns>
+    bool IsSafeToWeave(float oGcdAnimationLock = 0.6f);
+
+    /// <summary>
+    /// Checks if a specific oGCD would clip the GCD if used now.
+    /// </summary>
+    /// <param name="oGcdAnimationLock">Animation lock of the oGCD.</param>
+    /// <returns>True if executing the oGCD would cause clipping.</returns>
+    bool WouldClipGcd(float oGcdAnimationLock = 0.6f);
+
+    /// <summary>
+    /// Gets the WeaveOptimizer for intelligent oGCD timing and prioritization.
+    /// </summary>
+    IWeaveOptimizer WeaveOptimizer { get; }
 }
