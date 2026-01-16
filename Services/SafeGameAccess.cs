@@ -195,6 +195,28 @@ public static class SafeGameAccess
     }
 
     /// <summary>
+    /// Safely gets the Gunbreaker Cartridge count.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Cartridge count (0-3), or 0 if unavailable.</returns>
+    public static unsafe int GetGnbCartridges(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Gunbreaker.Ammo;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read GNB Cartridges");
+            return 0;
+        }
+    }
+
+    /// <summary>
     /// Safely gets the current combo action ID.
     /// </summary>
     /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>

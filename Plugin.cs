@@ -26,7 +26,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.27.0";
+    public const string PluginVersion = "1.28.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -64,6 +64,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly Themis themis;
     private readonly Ares ares;
     private readonly Nyx nyx;
+    private readonly Hephaestus hephaestus;
 
     // Tank services
     private readonly EnmityService enmityService;
@@ -153,6 +154,7 @@ public sealed class Plugin : IDalamudPlugin
         this.themis = CreateThemisRotation();
         this.ares = CreateAresRotation();
         this.nyx = CreateNyxRotation();
+        this.hephaestus = CreateHephaestusRotation();
         RegisterAvailableRotations();
 
         // Debug service aggregates all debug data
@@ -305,6 +307,7 @@ public sealed class Plugin : IDalamudPlugin
         rotationManager.Register(themis);
         rotationManager.Register(ares);
         rotationManager.Register(nyx);
+        rotationManager.Register(hephaestus);
     }
 
     /// <summary>
@@ -322,6 +325,7 @@ public sealed class Plugin : IDalamudPlugin
         JobRegistry.Paladin or JobRegistry.Gladiator => CreateThemisRotation(),
         JobRegistry.Warrior or JobRegistry.Marauder => CreateAresRotation(),
         JobRegistry.DarkKnight => CreateNyxRotation(),
+        JobRegistry.Gunbreaker => CreateHephaestusRotation(),
         _ => null
     };
 
@@ -473,6 +477,29 @@ public sealed class Plugin : IDalamudPlugin
     private Nyx CreateNyxRotation()
     {
         return new Nyx(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            damageTrendService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
+            enmityService,
+            tankCooldownService);
+    }
+
+    /// <summary>
+    /// Creates the Hephaestus (Gunbreaker) rotation module.
+    /// </summary>
+    private Hephaestus CreateHephaestusRotation()
+    {
+        return new Hephaestus(
             log,
             actionTracker,
             combatEventService,
