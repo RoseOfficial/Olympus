@@ -15,6 +15,7 @@ using Olympus.Services.Resource;
 using Olympus.Services.Stats;
 using Olympus.Services.Cache;
 using Olympus.Services.Targeting;
+using Olympus.Timeline;
 
 namespace Olympus.Rotation.ApolloCore.Context;
 
@@ -48,6 +49,7 @@ public sealed class ApolloContext : IApolloContext
     public IPartyList PartyList { get; }
     public IPlayerStatsService PlayerStatsService { get; }
     public ITargetingService TargetingService { get; }
+    public ITimelineService? TimelineService { get; }
 
     // Helpers
     public StatusHelper StatusHelper { get; }
@@ -123,6 +125,7 @@ public sealed class ApolloContext : IApolloContext
         ICoHealerDetectionService? coHealerDetectionService = null,
         IBossMechanicDetector? bossMechanicDetector = null,
         IShieldTrackingService? shieldTrackingService = null,
+        ITimelineService? timelineService = null,
         DebugState? debugState = null,
         IPluginLog? log = null)
     {
@@ -152,6 +155,7 @@ public sealed class ApolloContext : IApolloContext
         CoHealerDetectionService = coHealerDetectionService;
         BossMechanicDetector = bossMechanicDetector;
         ShieldTrackingService = shieldTrackingService;
+        TimelineService = timelineService;
         Debug = debugState ?? new DebugState();
         HealingCoordination = new HealingCoordinationState();
         Log = log;

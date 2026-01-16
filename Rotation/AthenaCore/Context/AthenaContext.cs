@@ -17,6 +17,7 @@ using Olympus.Services.Stats;
 using Olympus.Services.Cache;
 using Olympus.Services.Targeting;
 using Olympus.Services.Scholar;
+using Olympus.Timeline;
 
 namespace Olympus.Rotation.AthenaCore.Context;
 
@@ -48,6 +49,7 @@ public sealed class AthenaContext : IAthenaContext
     public IPartyList PartyList { get; }
     public IPlayerStatsService PlayerStatsService { get; }
     public ITargetingService TargetingService { get; }
+    public ITimelineService? TimelineService { get; }
 
     // Scholar-specific services
     public IAetherflowTrackingService AetherflowService { get; }
@@ -136,6 +138,7 @@ public sealed class AthenaContext : IAthenaContext
         IPartyAnalyzer? partyAnalyzer = null,
         IBossMechanicDetector? bossMechanicDetector = null,
         IShieldTrackingService? shieldTrackingService = null,
+        ITimelineService? timelineService = null,
         AthenaDebugState? debugState = null,
         IPluginLog? log = null)
     {
@@ -169,6 +172,7 @@ public sealed class AthenaContext : IAthenaContext
         CoHealerDetectionService = coHealerDetectionService;
         BossMechanicDetector = bossMechanicDetector;
         ShieldTrackingService = shieldTrackingService;
+        TimelineService = timelineService;
         Debug = debugState ?? new AthenaDebugState();
         HealingCoordination = new HealingCoordinationState();
         Log = log;

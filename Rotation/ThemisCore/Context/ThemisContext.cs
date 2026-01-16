@@ -13,6 +13,7 @@ using Olympus.Services.Stats;
 using Olympus.Services.Tank;
 using Olympus.Services.Targeting;
 using Olympus.Rotation.ThemisCore.Helpers;
+using Olympus.Timeline;
 
 namespace Olympus.Rotation.ThemisCore.Context;
 
@@ -42,6 +43,7 @@ public sealed class ThemisContext : IThemisContext
     public IMpForecastService MpForecastService { get; }
     public IPlayerStatsService PlayerStatsService { get; }
     public ITargetingService TargetingService { get; }
+    public ITimelineService? TimelineService { get; }
 
     public IObjectTable ObjectTable { get; }
     public IPartyList PartyList { get; }
@@ -117,6 +119,7 @@ public sealed class ThemisContext : IThemisContext
         int comboStep,
         uint lastComboAction,
         float comboTimeRemaining,
+        ITimelineService? timelineService = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -136,6 +139,7 @@ public sealed class ThemisContext : IThemisContext
         MpForecastService = mpForecastService;
         PlayerStatsService = playerStatsService;
         TargetingService = targetingService;
+        TimelineService = timelineService;
         ObjectTable = objectTable;
         PartyList = partyList;
         Log = log;

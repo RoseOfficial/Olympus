@@ -48,6 +48,13 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
     /// </summary>
     public event System.Action<uint, uint, int>? OnAnyHealReceived;
 
+    /// <summary>
+    /// Event raised when any ability is used (action effect resolves).
+    /// Used by TimelineService for timeline sync.
+    /// Parameters: (sourceEntityId, actionId)
+    /// </summary>
+    public event System.Action<uint, uint>? OnAbilityUsed;
+
     // Shadow HP tracking: EntityId -> (CurrentHp, LastActionUpdate)
     // LastActionUpdate is set when HP changes from action effects (heal/damage)
     // to prevent InitializeHp from overwriting before game HP catches up
@@ -431,6 +438,9 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
                 }
             }
         }
+
+        // Raise ability used event for timeline sync (once per action, not per target)
+        OnAbilityUsed?.Invoke(casterEntityId, header->ActionId);
     }
 
     /// <summary>

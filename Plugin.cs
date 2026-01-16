@@ -20,13 +20,14 @@ using Olympus.Services.Targeting;
 using Olympus.Services.Scholar;
 using Olympus.Services.Cache;
 using Olympus.Services.Tank;
+using Olympus.Timeline;
 using Olympus.Windows;
 
 namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.28.1";
+    public const string PluginVersion = "1.30.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -69,6 +70,9 @@ public sealed class Plugin : IDalamudPlugin
     // Tank services
     private readonly EnmityService enmityService;
     private readonly TankCooldownService tankCooldownService;
+
+    // Timeline service
+    private readonly TimelineService timelineService;
 
     private readonly WindowSystem windowSystem = new("Olympus");
     private readonly ConfigWindow configWindow;
@@ -145,6 +149,10 @@ public sealed class Plugin : IDalamudPlugin
         this.enmityService = new EnmityService(objectTable, partyList);
         this.tankCooldownService = new TankCooldownService(configuration.Tank);
 
+        // Timeline service for fight-aware predictions
+        this.timelineService = new TimelineService(log, combatEventService);
+        combatEventService.OnAbilityUsed += (sourceId, actionId) => timelineService.OnAbilityUsed(sourceId, actionId);
+
         // Create and register rotation modules via factory
         this.rotationManager = new RotationManager();
         this.apollo = CreateApolloRotation();
@@ -174,7 +182,7 @@ public sealed class Plugin : IDalamudPlugin
 
         this.configWindow = new ConfigWindow(configuration, SaveConfiguration);
         this.mainWindow = new MainWindow(configuration, SaveConfiguration, OpenConfigUI, OpenDebugUI, PluginVersion, rotationManager);
-        this.debugWindow = new DebugWindow(debugService, configuration);
+        this.debugWindow = new DebugWindow(debugService, configuration, timelineService);
         this.welcomeWindow = new WelcomeWindow(configuration, SaveConfiguration);
 
         // Telemetry service for anonymous usage tracking
@@ -209,8 +217,22 @@ public sealed class Plugin : IDalamudPlugin
 
         this.framework.Update += OnFrameworkUpdate;
 
+        // Hook territory changed to load timelines for the current zone
+        clientState.TerritoryChanged += OnTerritoryChanged;
+
+        // Load timeline for current zone if already in one
+        if (clientState.TerritoryType != 0)
+        {
+            timelineService.LoadForZone(clientState.TerritoryType);
+        }
+
         // Send anonymous telemetry ping (fire-and-forget)
         telemetryService.SendStartupPing(PluginVersion);
+    }
+
+    private void OnTerritoryChanged(ushort zoneId)
+    {
+        timelineService.LoadForZone(zoneId);
     }
 
     private void SaveConfiguration()
@@ -271,6 +293,9 @@ public sealed class Plugin : IDalamudPlugin
 
         // Always update shield tracking for accurate HP predictions
         shieldTrackingService.Update();
+
+        // Update timeline service for sync and predictions
+        timelineService.Update();
 
         if (!configuration.Enabled)
             return;
@@ -527,6 +552,7 @@ public sealed class Plugin : IDalamudPlugin
         pluginInterface.SavePluginConfig(configuration);
 
         framework.Update -= OnFrameworkUpdate;
+        clientState.TerritoryChanged -= OnTerritoryChanged;
         commandManager.RemoveHandler(CommandName);
 
         pluginInterface.UiBuilder.Draw -= DrawUI;
@@ -546,6 +572,7 @@ public sealed class Plugin : IDalamudPlugin
         damageIntakeService.Dispose();
         healingIntakeService.Dispose();
         hpPredictionService.Dispose();
+        timelineService.Dispose();
         combatEventService.Dispose();
     }
 }

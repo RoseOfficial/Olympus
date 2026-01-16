@@ -25,6 +25,13 @@ public interface ICombatEventService
     event System.Action<uint, uint, int>? OnAnyHealReceived;
 
     /// <summary>
+    /// Event raised when any ability is used (action effect resolves).
+    /// Used for timeline sync.
+    /// Parameters: (sourceEntityId, actionId)
+    /// </summary>
+    event System.Action<uint, uint>? OnAbilityUsed;
+
+    /// <summary>
     /// Gets the shadow HP for an entity, or the fallback value if not tracked.
     /// </summary>
     uint GetShadowHp(uint entityId, uint fallbackHp);

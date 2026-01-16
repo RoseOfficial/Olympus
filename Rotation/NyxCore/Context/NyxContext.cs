@@ -14,6 +14,7 @@ using Olympus.Services.Stats;
 using Olympus.Services.Tank;
 using Olympus.Services.Targeting;
 using Olympus.Rotation.NyxCore.Helpers;
+using Olympus.Timeline;
 
 namespace Olympus.Rotation.NyxCore.Context;
 
@@ -43,6 +44,7 @@ public sealed class NyxContext : INyxContext
     public IMpForecastService MpForecastService { get; }
     public IPlayerStatsService PlayerStatsService { get; }
     public ITargetingService TargetingService { get; }
+    public ITimelineService? TimelineService { get; }
 
     public IObjectTable ObjectTable { get; }
     public IPartyList PartyList { get; }
@@ -140,6 +142,7 @@ public sealed class NyxContext : INyxContext
         int comboStep,
         uint lastComboAction,
         float comboTimeRemaining,
+        ITimelineService? timelineService = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -159,6 +162,7 @@ public sealed class NyxContext : INyxContext
         MpForecastService = mpForecastService;
         PlayerStatsService = playerStatsService;
         TargetingService = targetingService;
+        TimelineService = timelineService;
         ObjectTable = objectTable;
         PartyList = partyList;
         Log = log;

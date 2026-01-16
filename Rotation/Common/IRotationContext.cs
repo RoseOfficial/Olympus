@@ -12,6 +12,7 @@ using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
+using Olympus.Timeline;
 
 namespace Olympus.Rotation.Common;
 
@@ -112,6 +113,12 @@ public interface IRotationContext
     /// Service for enemy targeting.
     /// </summary>
     ITargetingService TargetingService { get; }
+
+    /// <summary>
+    /// Service for fight timeline tracking and mechanic prediction.
+    /// Null if no timeline is loaded for the current zone.
+    /// </summary>
+    ITimelineService? TimelineService { get; }
 
     #endregion
 

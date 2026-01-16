@@ -17,6 +17,7 @@ using Olympus.Services.Sage;
 using Olympus.Services.Stats;
 using Olympus.Services.Cache;
 using Olympus.Services.Targeting;
+using Olympus.Timeline;
 
 namespace Olympus.Rotation.AsclepiusCore.Context;
 
@@ -54,6 +55,7 @@ public sealed class AsclepiusContext : IAsclepiusContext
     public IPartyList PartyList { get; }
     public IPlayerStatsService PlayerStatsService { get; }
     public ITargetingService TargetingService { get; }
+    public ITimelineService? TimelineService { get; }
 
     #endregion
 
@@ -168,6 +170,7 @@ public sealed class AsclepiusContext : IAsclepiusContext
         ICoHealerDetectionService? coHealerDetectionService = null,
         IBossMechanicDetector? bossMechanicDetector = null,
         IShieldTrackingService? shieldTrackingService = null,
+        ITimelineService? timelineService = null,
         AsclepiusDebugState? debugState = null,
         IPluginLog? log = null)
     {
@@ -201,6 +204,7 @@ public sealed class AsclepiusContext : IAsclepiusContext
         CoHealerDetectionService = coHealerDetectionService;
         BossMechanicDetector = bossMechanicDetector;
         ShieldTrackingService = shieldTrackingService;
+        TimelineService = timelineService;
         Debug = debugState ?? new AsclepiusDebugState();
         HealingCoordination = new HealingCoordinationState();
         Log = log;

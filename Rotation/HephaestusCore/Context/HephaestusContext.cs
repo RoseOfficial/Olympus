@@ -14,6 +14,7 @@ using Olympus.Services.Stats;
 using Olympus.Services.Tank;
 using Olympus.Services.Targeting;
 using Olympus.Rotation.HephaestusCore.Helpers;
+using Olympus.Timeline;
 
 namespace Olympus.Rotation.HephaestusCore.Context;
 
@@ -43,6 +44,7 @@ public sealed class HephaestusContext : IHephaestusContext
     public IMpForecastService MpForecastService { get; }
     public IPlayerStatsService PlayerStatsService { get; }
     public ITargetingService TargetingService { get; }
+    public ITimelineService? TimelineService { get; }
 
     public IObjectTable ObjectTable { get; }
     public IPartyList PartyList { get; }
@@ -141,6 +143,7 @@ public sealed class HephaestusContext : IHephaestusContext
         int comboStep,
         uint lastComboAction,
         float comboTimeRemaining,
+        ITimelineService? timelineService = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -160,6 +163,7 @@ public sealed class HephaestusContext : IHephaestusContext
         MpForecastService = mpForecastService;
         PlayerStatsService = playerStatsService;
         TargetingService = targetingService;
+        TimelineService = timelineService;
         ObjectTable = objectTable;
         PartyList = partyList;
         Log = log;

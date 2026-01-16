@@ -1,7 +1,7 @@
 <Project Sdk="Dalamud.NET.Sdk/14.0.1">
 
   <PropertyGroup>
-    <Version>1.28.1</Version>
+    <Version>1.30.0</Version>
     <DalamudLibPath>$(AppData)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
   </PropertyGroup>
 
@@ -9,6 +9,11 @@
   <ItemGroup>
     <Compile Remove="Olympus.Tests\**" />
     <None Remove="Olympus.Tests\**" />
+  </ItemGroup>
+
+  <!-- Embedded timeline resources -->
+  <ItemGroup>
+    <EmbeddedResource Include="Timeline\Data\*.txt" />
   </ItemGroup>
 
 </Project>

@@ -2,6 +2,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
 using Olympus.Services.Debug;
+using Olympus.Timeline;
 using Olympus.Windows.Debug.Tabs;
 
 namespace Olympus.Windows;
@@ -13,12 +14,14 @@ public sealed class DebugWindow : Window
 {
     private readonly DebugService _debugService;
     private readonly Configuration _configuration;
+    private readonly ITimelineService? _timelineService;
 
-    public DebugWindow(DebugService debugService, Configuration configuration)
+    public DebugWindow(DebugService debugService, Configuration configuration, ITimelineService? timelineService = null)
         : base("Olympus Debug", ImGuiWindowFlags.NoSavedSettings)
     {
         _debugService = debugService;
         _configuration = configuration;
+        _timelineService = timelineService;
 
         Size = new Vector2(550, 450);
         SizeCondition = ImGuiCond.FirstUseEver;
@@ -85,6 +88,12 @@ public sealed class DebugWindow : Window
             if (ImGui.BeginTabItem("Scholar"))
             {
                 ScholarTab.Draw(_debugService.GetAthenaDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("Timeline"))
+            {
+                TimelineTab.Draw(_timelineService, _configuration);
                 ImGui.EndTabItem();
             }
 

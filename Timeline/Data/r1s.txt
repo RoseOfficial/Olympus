@@ -1,0 +1,51 @@
+# AAC Light-heavyweight M1 (Savage) - Black Cat Timeline
+# Based on Cactbot format
+# Zone ID: 1226
+
+hideall "--sync--"
+hideall "--Reset--"
+
+# Phase 1: Opening
+0.0 "--sync--" sync /00:0839::The Black Cat will be sealed off/ window 1,0
+5.0 "Quadruple Crossing" sync /^.{14} Black Cat 935B/ window 5,5 # Raidwide
+12.0 "Biscuit Maker" sync /^.{14} Black Cat 9357/ window 5,5 # Tankbuster
+18.0 "Bloody Scratch" sync /^.{14} Black Cat 935D/ window 5,5
+25.0 "Quadruple Crossing" sync /^.{14} Black Cat 935B/ window 5,5 # Raidwide
+
+# Phase 1: Mouser mechanics
+32.0 "One-Two Paw" sync /^.{14} Black Cat 9B79/ window 5,5
+42.0 "Elevate and Eviscerate" sync /^.{14} Black Cat 9360/ window 5,5
+52.0 "Quadruple Crossing" sync /^.{14} Black Cat 935B/ window 5,5 # Raidwide
+
+# Phase 1: Nail Chipper
+60.0 "Nail Chipper" sync /^.{14} Black Cat 9B78/ window 5,5 # Raidwide
+70.0 "Biscuit Maker" sync /^.{14} Black Cat 9357/ window 5,5 # Tankbuster
+80.0 "Quadruple Crossing" sync /^.{14} Black Cat 935B/ window 5,5 # Raidwide
+
+# Intermission
+95.0 "Grimalkin Gale" sync /^.{14} Black Cat 9368/ window 10,10 # Raidwide transition
+
+# Phase 2: Black Cat's phase
+110.0 label "phase2"
+110.0 "--phase--" sync /00:0839::The trial begins/ window 5,5
+115.0 "Leaping Quadruple Crossing" sync /^.{14} Black Cat 936C/ window 5,5 # Raidwide + mechanic
+125.0 "Biscuit Maker" sync /^.{14} Black Cat 9357/ window 5,5 # Tankbuster
+135.0 "Shockwave" sync /^.{14} Black Cat 936A/ window 5,5
+
+# Phase 2: Claws out
+145.0 "Claws Out" sync /^.{14} Black Cat 9B7A/ window 5,5 # Raidwide
+155.0 "Quadruple Crossing" sync /^.{14} Black Cat 935B/ window 5,5 # Raidwide
+165.0 "Overshadow" sync /^.{14} Black Cat 9B7C/ window 5,5 # Stack/Spread
+
+# Phase 2: Mouser 2
+175.0 "One-Two Paw" sync /^.{14} Black Cat 9B79/ window 5,5
+185.0 "Nail Chipper" sync /^.{14} Black Cat 9B78/ window 5,5 # Raidwide
+195.0 "Biscuit Maker" sync /^.{14} Black Cat 9357/ window 5,5 # Tankbuster
+
+# Phase 2: Final stretch
+205.0 "Predaceous Pounce" sync /^.{14} Black Cat 9B7B/ window 5,5
+215.0 "Quadruple Crossing" sync /^.{14} Black Cat 935B/ window 5,5 # Raidwide
+225.0 "Biscuit Maker" sync /^.{14} Black Cat 9357/ window 5,5 # Tankbuster
+
+# Enrage
+600.0 "Enrage" sync /^.{14} Black Cat 9999/ window 100,0

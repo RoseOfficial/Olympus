@@ -17,6 +17,7 @@ using Olympus.Services.Resource;
 using Olympus.Services.Stats;
 using Olympus.Services.Cache;
 using Olympus.Services.Targeting;
+using Olympus.Timeline;
 
 namespace Olympus.Rotation.AstraeaCore.Context;
 
@@ -48,6 +49,7 @@ public sealed class AstraeaContext : IAstraeaContext
     public IPartyList PartyList { get; }
     public IPlayerStatsService PlayerStatsService { get; }
     public ITargetingService TargetingService { get; }
+    public ITimelineService? TimelineService { get; }
 
     // Astrologian-specific services
     public ICardTrackingService CardService { get; }
@@ -154,6 +156,7 @@ public sealed class AstraeaContext : IAstraeaContext
         IPartyAnalyzer? partyAnalyzer = null,
         IBossMechanicDetector? bossMechanicDetector = null,
         IShieldTrackingService? shieldTrackingService = null,
+        ITimelineService? timelineService = null,
         AstraeaDebugState? debugState = null,
         IPluginLog? log = null)
     {
@@ -186,6 +189,7 @@ public sealed class AstraeaContext : IAstraeaContext
         CoHealerDetectionService = coHealerDetectionService;
         BossMechanicDetector = bossMechanicDetector;
         ShieldTrackingService = shieldTrackingService;
+        TimelineService = timelineService;
         Debug = debugState ?? new AstraeaDebugState();
         HealingCoordination = new HealingCoordinationState();
         Log = log;

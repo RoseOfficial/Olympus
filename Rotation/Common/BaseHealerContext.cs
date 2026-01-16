@@ -12,6 +12,7 @@ using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
+using Olympus.Timeline;
 
 namespace Olympus.Rotation.Common;
 
@@ -46,6 +47,7 @@ public abstract class BaseHealerContext : IHealerRotationContext
     public IMpForecastService MpForecastService { get; }
     public IPlayerStatsService PlayerStatsService { get; }
     public ITargetingService TargetingService { get; }
+    public ITimelineService? TimelineService { get; }
 
     #endregion
 
@@ -129,6 +131,7 @@ public abstract class BaseHealerContext : IHealerRotationContext
         IBossMechanicDetector? bossMechanicDetector = null,
         IShieldTrackingService? shieldTrackingService = null,
         IPartyAnalyzer? partyAnalyzer = null,
+        ITimelineService? timelineService = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -156,6 +159,7 @@ public abstract class BaseHealerContext : IHealerRotationContext
         BossMechanicDetector = bossMechanicDetector;
         ShieldTrackingService = shieldTrackingService;
         PartyAnalyzer = partyAnalyzer;
+        TimelineService = timelineService;
         Log = log;
         HealingCoordination = new HealingCoordinationState();
     }
