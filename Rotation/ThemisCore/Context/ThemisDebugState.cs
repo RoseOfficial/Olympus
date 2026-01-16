@@ -6,6 +6,14 @@ namespace Olympus.Rotation.ThemisCore.Context;
 /// </summary>
 public sealed class ThemisDebugState
 {
+    // Execution flow tracking (for debugging)
+    public bool InCombat { get; set; }
+    public bool CanExecuteGcd { get; set; }
+    public bool CanExecuteOgcd { get; set; }
+    public string GcdState { get; set; } = "";
+    public float GcdRemaining { get; set; }
+    public string ExecutionFlow { get; set; } = "";
+
     // Module states
     public string DamageState { get; set; } = "";
     public string MitigationState { get; set; } = "";

@@ -129,7 +129,7 @@ public sealed class EnmityModule : IHephaestusModule
         // Only shirk if we're main tank and should be off-tank
         var target = context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy,
-            3f,
+            FFXIVConstants.MeleeTargetingRange,
             player);
 
         if (target == null)

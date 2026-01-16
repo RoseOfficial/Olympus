@@ -26,7 +26,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.28.0";
+    public const string PluginVersion = "1.28.1";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -166,6 +166,7 @@ public sealed class Plugin : IDalamudPlugin
             playerStatsService,
             healingSpellSelector,
             spellStatusService,
+            rotationManager,
             apollo,
             objectTable,
             dataManager,

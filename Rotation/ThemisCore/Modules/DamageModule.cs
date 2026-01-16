@@ -35,29 +35,34 @@ public sealed class DamageModule : IThemisModule
         }
 
         // GCD damage
-        if (context.CanExecuteGcd)
+        if (!context.CanExecuteGcd)
         {
-            // Priority 1: Magic phase (Requiescat active)
-            if (context.HasRequiescat && TryMagicPhase(context))
-                return true;
-
-            // Priority 2: Atonement chain (Sword Oath stacks)
-            if (context.HasSwordOath && TryAtonementChain(context))
-                return true;
-
-            // Priority 3: Goring Blade (if DoT about to fall off)
-            if (TryGoringBlade(context))
-                return true;
-
-            // Priority 4: Main combo
-            if (TryMainCombo(context))
-                return true;
-
-            // Priority 5: AoE rotation
-            if (TryAoERotation(context))
-                return true;
+            context.Debug.DamageState = "GCD not ready";
+            return false;
         }
 
+        // Priority 1: Magic phase (Requiescat active)
+        if (context.HasRequiescat && TryMagicPhase(context))
+            return true;
+
+        // Priority 2: Atonement chain (Sword Oath stacks)
+        if (context.HasSwordOath && TryAtonementChain(context))
+            return true;
+
+        // Priority 3: Goring Blade (if DoT about to fall off)
+        if (TryGoringBlade(context))
+            return true;
+
+        // Priority 4: Main combo
+        if (TryMainCombo(context))
+            return true;
+
+        // Priority 5: AoE rotation
+        if (TryAoERotation(context))
+            return true;
+
+        // If we get here, no action was taken
+        context.Debug.DamageState = "No action available";
         return false;
     }
 
@@ -76,7 +81,7 @@ public sealed class DamageModule : IThemisModule
         // Find target
         var target = context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy,
-            3f,
+            FFXIVConstants.MeleeTargetingRange,
             player);
 
         if (target == null)
@@ -114,7 +119,7 @@ public sealed class DamageModule : IThemisModule
         if (level >= PLDActions.Intervene.MinLevel)
         {
             var distance = GetDistanceToTarget(context.Player, target);
-            if (distance > 3f && distance <= 20f)
+            if (distance > FFXIVConstants.MeleeTargetingRange && distance <= 20f)
             {
                 if (context.ActionService.IsActionReady(PLDActions.Intervene.ActionId))
                 {
@@ -216,7 +221,7 @@ public sealed class DamageModule : IThemisModule
 
         var target = context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy,
-            3f,
+            FFXIVConstants.MeleeTargetingRange,
             player);
 
         if (target == null)
@@ -263,7 +268,7 @@ public sealed class DamageModule : IThemisModule
 
         var target = context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy,
-            3f,
+            FFXIVConstants.MeleeTargetingRange,
             player);
 
         if (target == null)
@@ -309,7 +314,7 @@ public sealed class DamageModule : IThemisModule
 
         var target = context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy,
-            3f,
+            FFXIVConstants.MeleeTargetingRange,
             player);
 
         if (target == null)
@@ -383,6 +388,8 @@ public sealed class DamageModule : IThemisModule
             return true;
         }
 
+        // ExecuteGcd failed - likely action not usable
+        context.Debug.DamageState = $"Execute failed: {comboAction.Name}";
         return false;
     }
 

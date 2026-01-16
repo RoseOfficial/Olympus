@@ -217,6 +217,13 @@ public sealed class ThemisContext : IThemisContext
 
     private void UpdateDebugState()
     {
+        // Execution flow debug info (critical for diagnosing issues)
+        Debug.InCombat = InCombat;
+        Debug.CanExecuteGcd = CanExecuteGcd;
+        Debug.CanExecuteOgcd = CanExecuteOgcd;
+        Debug.GcdState = ActionService.CurrentGcdState.ToString();
+        Debug.GcdRemaining = ActionService.GcdRemaining;
+
         Debug.ComboStep = ComboStep;
         Debug.ComboTimeRemaining = ComboTimeRemaining;
         Debug.OathGauge = OathGauge;

@@ -29,7 +29,7 @@ public sealed class DamageModule : IAresModule
         // Find target
         var target = context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy,
-            3f, // Melee range
+            FFXIVConstants.MeleeTargetingRange,
             player);
 
         if (target == null)
@@ -182,7 +182,7 @@ public sealed class DamageModule : IAresModule
 
         // Don't use if already in melee range and we want to save charges
         // Use freely if we have multiple charges (level 88+) or need to close gap
-        if (distance <= 3f && level >= 88)
+        if (distance <= FFXIVConstants.MeleeTargetingRange && level >= 88)
         {
             // In melee range with 3 charges - use as extra damage
             if (context.ActionService.ExecuteOgcd(WARActions.Onslaught, target.GameObjectId))
@@ -192,7 +192,7 @@ public sealed class DamageModule : IAresModule
                 return true;
             }
         }
-        else if (distance > 3f && distance <= 20f)
+        else if (distance > FFXIVConstants.MeleeTargetingRange && distance <= 20f)
         {
             // Gap close usage
             if (context.ActionService.ExecuteOgcd(WARActions.Onslaught, target.GameObjectId))

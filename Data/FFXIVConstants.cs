@@ -59,6 +59,14 @@ public static class FFXIVConstants
     /// <summary>Small timing buffer for weave window calculations.</summary>
     public const float WeaveWindowBuffer = 0.1f;
 
+    // Targeting Ranges
+    /// <summary>
+    /// Melee targeting range for center-to-center distance calculations.
+    /// FFXIV measures 3y action range from hitbox edges, but our targeting uses center-to-center.
+    /// 5y accounts for player hitbox (~0.5y) + target hitbox (up to 2y for large enemies).
+    /// </summary>
+    public const float MeleeTargetingRange = 5f;
+
     // Cure III clustering
     /// <summary>Radius for detecting Cure III cluster targets.</summary>
     public const float CureIIIClusterRadius = 10f;

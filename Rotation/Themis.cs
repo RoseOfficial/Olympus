@@ -188,8 +188,11 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
     /// <inheritdoc />
     protected override void SyncDebugState(IThemisContext context)
     {
+        // Map execution flow debug info (critical for troubleshooting)
+        // Format: "GCD:Ready Rem:0.00s Combat:True CanGCD:True Target:Striking Dummy"
+        _debugState.PlanningState = $"GCD:{_themisDebugState.GcdState} Rem:{_themisDebugState.GcdRemaining:F2}s Combat:{_themisDebugState.InCombat} CanGCD:{_themisDebugState.CanExecuteGcd} Tgt:{_themisDebugState.CurrentTarget}";
+
         // Map tank debug state to common debug state fields
-        _debugState.PlanningState = _themisDebugState.DamageState;
         _debugState.PlannedAction = _themisDebugState.PlannedAction;
         _debugState.DpsState = _themisDebugState.DamageState;
         _debugState.DefensiveState = _themisDebugState.MitigationState;

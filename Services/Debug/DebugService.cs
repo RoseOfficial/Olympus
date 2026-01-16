@@ -31,6 +31,7 @@ public sealed class DebugService
     private readonly PlayerStatsService _playerStatsService;
     private readonly HealingSpellSelector _healingSpellSelector;
     private readonly SpellStatusService _spellStatusService;
+    private readonly RotationManager _rotationManager;
     private readonly Apollo _apollo;
     private readonly Athena? _athena;
     private readonly IObjectTable _objectTable;
@@ -49,6 +50,7 @@ public sealed class DebugService
         PlayerStatsService playerStatsService,
         HealingSpellSelector healingSpellSelector,
         SpellStatusService spellStatusService,
+        RotationManager rotationManager,
         Apollo apollo,
         IObjectTable objectTable,
         IDataManager dataManager,
@@ -61,6 +63,7 @@ public sealed class DebugService
         _playerStatsService = playerStatsService;
         _healingSpellSelector = healingSpellSelector;
         _spellStatusService = spellStatusService;
+        _rotationManager = rotationManager;
         _apollo = apollo;
         _athena = athena;
         _objectTable = objectTable;
@@ -142,7 +145,9 @@ public sealed class DebugService
 
     private DebugRotationState BuildRotationState()
     {
-        var debug = _apollo.DebugState;
+        // Use active rotation's debug state (supports all jobs, not just healers)
+        var activeRotation = _rotationManager.ActiveRotation;
+        var debug = activeRotation?.DebugState ?? _apollo.DebugState;
         return new DebugRotationState
         {
             // Core state

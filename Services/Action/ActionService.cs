@@ -95,9 +95,9 @@ public sealed unsafe class ActionService : IActionService
 
     private void UpdateGcdState(ActionManager* actionManager)
     {
-        // Get GCD timing from Stone (shares GCD with all caster spells)
-        var gcdGroup = actionManager->GetRecastGroup(1, 119);
-        var recastDetail = actionManager->GetRecastGroupDetail(gcdGroup);
+        // Group 57 is hardcoded by the game as the global GCD recast group
+        // Works for all jobs (caster, healer, tank, melee, ranged)
+        var recastDetail = actionManager->GetRecastGroupDetail(57);
 
         _lastAnimationLock = actionManager->AnimationLock;
 

@@ -26,7 +26,7 @@ public sealed class DamageModule : INyxModule
         // Find target
         var target = context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy,
-            3f,
+            FFXIVConstants.MeleeTargetingRange,
             player);
 
         if (target == null)

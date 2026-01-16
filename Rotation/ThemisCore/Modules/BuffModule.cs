@@ -86,7 +86,7 @@ public sealed class BuffModule : IThemisModule
         // Find a target to verify we're in combat
         var target = context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy,
-            3f,
+            FFXIVConstants.MeleeTargetingRange,
             player);
 
         if (target == null)
@@ -138,7 +138,7 @@ public sealed class BuffModule : IThemisModule
         // Find a target
         var target = context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy,
-            3f,
+            FFXIVConstants.MeleeTargetingRange,
             player);
 
         if (target == null)
