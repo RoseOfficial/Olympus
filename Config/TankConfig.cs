@@ -18,6 +18,11 @@ public sealed class TankConfig
     public bool EnableDamage { get; set; } = true;
 
     /// <summary>
+    /// Automatically enable tank stance when entering combat.
+    /// </summary>
+    public bool AutoTankStance { get; set; } = true;
+
+    /// <summary>
     /// Enable automatic Provoke when losing aggro.
     /// </summary>
     public bool AutoProvoke { get; set; } = true;

@@ -83,4 +83,43 @@ public static class JobRegistry
     /// Returns true if the job is a Sage.
     /// </summary>
     public static bool IsSage(uint jobId) => jobId == Sage;
+
+    /// <summary>
+    /// Gets the display name for a job ID.
+    /// </summary>
+    public static string GetJobName(uint jobId) => jobId switch
+    {
+        // Healers
+        WhiteMage or Conjurer => "White Mage",
+        Scholar or Arcanist => "Scholar",
+        Astrologian => "Astrologian",
+        Sage => "Sage",
+
+        // Tanks
+        Paladin or Gladiator => "Paladin",
+        Warrior or Marauder => "Warrior",
+        DarkKnight => "Dark Knight",
+        Gunbreaker => "Gunbreaker",
+
+        // Melee DPS
+        Monk or Pugilist => "Monk",
+        Dragoon or Lancer => "Dragoon",
+        Ninja or Rogue => "Ninja",
+        Samurai => "Samurai",
+        Reaper => "Reaper",
+        Viper => "Viper",
+
+        // Ranged Physical DPS
+        Bard or Archer => "Bard",
+        Machinist => "Machinist",
+        Dancer => "Dancer",
+
+        // Casters
+        BlackMage or Thaumaturge => "Black Mage",
+        Summoner => "Summoner",
+        RedMage => "Red Mage",
+        Pictomancer => "Pictomancer",
+
+        _ => "Unknown"
+    };
 }

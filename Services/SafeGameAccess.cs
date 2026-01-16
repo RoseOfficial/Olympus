@@ -128,6 +128,28 @@ public static class SafeGameAccess
     }
 
     /// <summary>
+    /// Safely gets the Warrior Beast Gauge value.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Beast Gauge value (0-100), or 0 if unavailable.</returns>
+    public static unsafe int GetWarBeastGauge(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Warrior.BeastGauge;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read WAR Beast Gauge");
+            return 0;
+        }
+    }
+
+    /// <summary>
     /// Safely gets the current combo action ID.
     /// </summary>
     /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>

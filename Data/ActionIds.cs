@@ -267,6 +267,52 @@ public static class ActionIds
 
     #endregion
 
+    #region Warrior (WAR)
+
+    // WAR GCD Combo
+    public const uint HeavySwing = 31;
+    public const uint Maim = 37;
+    public const uint StormsPath = 42;
+    public const uint StormsEye = 45;
+
+    // WAR GCD AoE
+    public const uint Overpower = 41;
+    public const uint MythrilTempest = 16462;
+
+    // WAR Beast Gauge Spenders
+    public const uint InnerBeast = 49;
+    public const uint FellCleave = 3549;
+    public const uint InnerChaos = 16465;
+    public const uint SteelCyclone = 51;
+    public const uint Decimate = 3550;
+    public const uint ChaoticCyclone = 16463;
+    public const uint PrimalRend = 25753;
+    public const uint PrimalRuination = 36925;
+
+    // WAR oGCD Damage
+    public const uint Upheaval = 7387;
+    public const uint Orogeny = 25752;
+    public const uint Onslaught = 7386;
+
+    // WAR oGCD Buffs
+    public const uint Berserk = 38;
+    public const uint InnerRelease = 7389;
+    public const uint Infuriate = 52;
+    public const uint Defiance = 48;
+
+    // WAR oGCD Defensive
+    public const uint Holmgang = 43;
+    public const uint Vengeance = 44;
+    public const uint Damnation = 36923;
+    public const uint RawIntuition = 3551;
+    public const uint Bloodwhetting = 25751;
+    public const uint ThrillOfBattle = 40;
+    public const uint Equilibrium = 3552;
+    public const uint ShakeItOff = 7388;
+    public const uint NascentFlash = 16464;
+
+    #endregion
+
     #region Status Effect IDs (Common)
 
     // WHM Status Effects

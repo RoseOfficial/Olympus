@@ -26,7 +26,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.24.0";
+    public const string PluginVersion = "1.26.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -62,6 +62,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly Astraea astraea;
     private readonly Asclepius asclepius;
     private readonly Themis themis;
+    private readonly Ares ares;
 
     // Tank services
     private readonly EnmityService enmityService;
@@ -149,6 +150,7 @@ public sealed class Plugin : IDalamudPlugin
         this.astraea = CreateAstraeaRotation();
         this.asclepius = CreateAsclepiusRotation();
         this.themis = CreateThemisRotation();
+        this.ares = CreateAresRotation();
         RegisterAvailableRotations();
 
         // Debug service aggregates all debug data
@@ -166,7 +168,7 @@ public sealed class Plugin : IDalamudPlugin
             athena);
 
         this.configWindow = new ConfigWindow(configuration, SaveConfiguration);
-        this.mainWindow = new MainWindow(configuration, SaveConfiguration, OpenConfigUI, OpenDebugUI, PluginVersion);
+        this.mainWindow = new MainWindow(configuration, SaveConfiguration, OpenConfigUI, OpenDebugUI, PluginVersion, rotationManager);
         this.debugWindow = new DebugWindow(debugService, configuration);
         this.welcomeWindow = new WelcomeWindow(configuration, SaveConfiguration);
 
@@ -299,6 +301,7 @@ public sealed class Plugin : IDalamudPlugin
 
         // Tanks
         rotationManager.Register(themis);
+        rotationManager.Register(ares);
     }
 
     /// <summary>
@@ -314,6 +317,7 @@ public sealed class Plugin : IDalamudPlugin
         JobRegistry.Astrologian => CreateAstraeaRotation(),
         JobRegistry.Sage => CreateAsclepiusRotation(),
         JobRegistry.Paladin or JobRegistry.Gladiator => CreateThemisRotation(),
+        JobRegistry.Warrior or JobRegistry.Marauder => CreateAresRotation(),
         _ => null
     };
 
@@ -419,6 +423,29 @@ public sealed class Plugin : IDalamudPlugin
     private Themis CreateThemisRotation()
     {
         return new Themis(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            damageTrendService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
+            enmityService,
+            tankCooldownService);
+    }
+
+    /// <summary>
+    /// Creates the Ares (Warrior) rotation module.
+    /// </summary>
+    private Ares CreateAresRotation()
+    {
+        return new Ares(
             log,
             actionTracker,
             combatEventService,
