@@ -26,7 +26,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.26.0";
+    public const string PluginVersion = "1.27.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -63,6 +63,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly Asclepius asclepius;
     private readonly Themis themis;
     private readonly Ares ares;
+    private readonly Nyx nyx;
 
     // Tank services
     private readonly EnmityService enmityService;
@@ -151,6 +152,7 @@ public sealed class Plugin : IDalamudPlugin
         this.asclepius = CreateAsclepiusRotation();
         this.themis = CreateThemisRotation();
         this.ares = CreateAresRotation();
+        this.nyx = CreateNyxRotation();
         RegisterAvailableRotations();
 
         // Debug service aggregates all debug data
@@ -302,6 +304,7 @@ public sealed class Plugin : IDalamudPlugin
         // Tanks
         rotationManager.Register(themis);
         rotationManager.Register(ares);
+        rotationManager.Register(nyx);
     }
 
     /// <summary>
@@ -318,6 +321,7 @@ public sealed class Plugin : IDalamudPlugin
         JobRegistry.Sage => CreateAsclepiusRotation(),
         JobRegistry.Paladin or JobRegistry.Gladiator => CreateThemisRotation(),
         JobRegistry.Warrior or JobRegistry.Marauder => CreateAresRotation(),
+        JobRegistry.DarkKnight => CreateNyxRotation(),
         _ => null
     };
 
@@ -446,6 +450,29 @@ public sealed class Plugin : IDalamudPlugin
     private Ares CreateAresRotation()
     {
         return new Ares(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            damageTrendService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
+            enmityService,
+            tankCooldownService);
+    }
+
+    /// <summary>
+    /// Creates the Nyx (Dark Knight) rotation module.
+    /// </summary>
+    private Nyx CreateNyxRotation()
+    {
+        return new Nyx(
             log,
             actionTracker,
             combatEventService,

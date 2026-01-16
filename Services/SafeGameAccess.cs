@@ -150,6 +150,51 @@ public static class SafeGameAccess
     }
 
     /// <summary>
+    /// Safely gets the Dark Knight Blood Gauge value.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Blood Gauge value (0-100), or 0 if unavailable.</returns>
+    public static unsafe int GetDrkBloodGauge(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->DarkKnight.Blood;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read DRK Blood Gauge");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Dark Knight Darkside timer in seconds.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Darkside timer in seconds, or 0 if unavailable.</returns>
+    public static unsafe float GetDrkDarksideTimer(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0f;
+
+        try
+        {
+            // Timer is stored in milliseconds, convert to seconds
+            return jobGauge->DarkKnight.DarksideTimer / 1000f;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read DRK Darkside timer");
+            return 0f;
+        }
+    }
+
+    /// <summary>
     /// Safely gets the current combo action ID.
     /// </summary>
     /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
