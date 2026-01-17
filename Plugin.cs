@@ -28,7 +28,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.33.0";
+    public const string PluginVersion = "1.34.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -69,6 +69,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly Hephaestus hephaestus;
     private readonly Kratos kratos;
     private readonly Zeus zeus;
+    private readonly Hermes hermes;
 
     // Tank services
     private readonly EnmityService enmityService;
@@ -174,6 +175,7 @@ public sealed class Plugin : IDalamudPlugin
         this.hephaestus = CreateHephaestusRotation();
         this.kratos = CreateKratosRotation();
         this.zeus = CreateZeusRotation();
+        this.hermes = CreateHermesRotation();
         RegisterAvailableRotations();
 
         // Debug service aggregates all debug data
@@ -349,6 +351,7 @@ public sealed class Plugin : IDalamudPlugin
         // Melee DPS
         rotationManager.Register(kratos);
         rotationManager.Register(zeus);
+        rotationManager.Register(hermes);
     }
 
     /// <summary>
@@ -369,6 +372,7 @@ public sealed class Plugin : IDalamudPlugin
         JobRegistry.Gunbreaker => CreateHephaestusRotation(),
         JobRegistry.Monk or JobRegistry.Pugilist => CreateKratosRotation(),
         JobRegistry.Dragoon or JobRegistry.Lancer => CreateZeusRotation(),
+        JobRegistry.Ninja or JobRegistry.Rogue => CreateHermesRotation(),
         _ => null
     };
 
@@ -589,6 +593,29 @@ public sealed class Plugin : IDalamudPlugin
     private Zeus CreateZeusRotation()
     {
         return new Zeus(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            damageTrendService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
+            positionalService,
+            timelineService);
+    }
+
+    /// <summary>
+    /// Creates the Hermes (Ninja) rotation module.
+    /// </summary>
+    private Hermes CreateHermesRotation()
+    {
+        return new Hermes(
             log,
             actionTracker,
             combatEventService,

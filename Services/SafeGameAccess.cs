@@ -415,6 +415,54 @@ public static class SafeGameAccess
 
     #endregion
 
+    #region Ninja Gauge
+
+    /// <summary>
+    /// Safely gets the Ninja Ninki gauge value.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Ninki gauge value (0-100), or 0 if unavailable.</returns>
+    public static unsafe int GetNinNinki(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Ninja.Ninki;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read NIN Ninki");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Ninja Kazematoi stacks.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Kazematoi stacks (0-5), or 0 if unavailable.</returns>
+    public static unsafe int GetNinKazematoi(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Ninja.Kazematoi;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read NIN Kazematoi");
+            return 0;
+        }
+    }
+
+    #endregion
+
     /// <summary>
     /// Safely gets the current combo action ID.
     /// </summary>
