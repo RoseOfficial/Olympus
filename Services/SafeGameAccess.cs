@@ -322,6 +322,99 @@ public static class SafeGameAccess
 
     #endregion
 
+    #region Dragoon Gauge
+
+    /// <summary>
+    /// Safely gets the Dragoon Firstmind's Focus count.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Firstmind's Focus count (0-2), or 0 if unavailable.</returns>
+    public static unsafe int GetDrgFirstmindsFocus(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Dragoon.FirstmindsFocusCount;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read DRG Firstmind's Focus");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely checks if Life of the Dragon is active.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>True if Life of the Dragon is active, false otherwise.</returns>
+    public static unsafe bool IsDrgLifeOfDragonActive(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return false;
+
+        try
+        {
+            return jobGauge->Dragoon.LotdTimer > 0;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read DRG Life of the Dragon state");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Life of the Dragon timer in seconds.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Life of the Dragon timer in seconds, or 0 if unavailable.</returns>
+    public static unsafe float GetDrgLifeOfDragonTimer(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0f;
+
+        try
+        {
+            // Timer is stored in milliseconds, convert to seconds
+            return jobGauge->Dragoon.LotdTimer / 1000f;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read DRG Life of the Dragon timer");
+            return 0f;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Dragon Eye count (for Life of the Dragon activation).
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Eye count (0-2), or 0 if unavailable.</returns>
+    public static unsafe int GetDrgEyeCount(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Dragoon.EyeCount;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read DRG Eye count");
+            return 0;
+        }
+    }
+
+    #endregion
+
     /// <summary>
     /// Safely gets the current combo action ID.
     /// </summary>
