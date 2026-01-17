@@ -20,6 +20,7 @@ using Olympus.Services.Targeting;
 using Olympus.Services.Scholar;
 using Olympus.Services.Cache;
 using Olympus.Services.Tank;
+using Olympus.Services.Positional;
 using Olympus.Timeline;
 using Olympus.Windows;
 
@@ -27,7 +28,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.31.0";
+    public const string PluginVersion = "1.32.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -66,10 +67,14 @@ public sealed class Plugin : IDalamudPlugin
     private readonly Ares ares;
     private readonly Nyx nyx;
     private readonly Hephaestus hephaestus;
+    private readonly Kratos kratos;
 
     // Tank services
     private readonly EnmityService enmityService;
     private readonly TankCooldownService tankCooldownService;
+
+    // Melee DPS services
+    private readonly PositionalService positionalService;
 
     // Timeline service
     private readonly TimelineService timelineService;
@@ -149,6 +154,9 @@ public sealed class Plugin : IDalamudPlugin
         this.enmityService = new EnmityService(objectTable, partyList);
         this.tankCooldownService = new TankCooldownService(configuration.Tank);
 
+        // Melee DPS services
+        this.positionalService = new PositionalService();
+
         // Timeline service for fight-aware predictions
         this.timelineService = new TimelineService(log, combatEventService);
         combatEventService.OnAbilityUsed += (sourceId, actionId) => timelineService.OnAbilityUsed(sourceId, actionId);
@@ -163,6 +171,7 @@ public sealed class Plugin : IDalamudPlugin
         this.ares = CreateAresRotation();
         this.nyx = CreateNyxRotation();
         this.hephaestus = CreateHephaestusRotation();
+        this.kratos = CreateKratosRotation();
         RegisterAvailableRotations();
 
         // Debug service aggregates all debug data
@@ -334,6 +343,9 @@ public sealed class Plugin : IDalamudPlugin
         rotationManager.Register(ares);
         rotationManager.Register(nyx);
         rotationManager.Register(hephaestus);
+
+        // Melee DPS
+        rotationManager.Register(kratos);
     }
 
     /// <summary>
@@ -352,6 +364,7 @@ public sealed class Plugin : IDalamudPlugin
         JobRegistry.Warrior or JobRegistry.Marauder => CreateAresRotation(),
         JobRegistry.DarkKnight => CreateNyxRotation(),
         JobRegistry.Gunbreaker => CreateHephaestusRotation(),
+        JobRegistry.Monk or JobRegistry.Pugilist => CreateKratosRotation(),
         _ => null
     };
 
@@ -541,6 +554,29 @@ public sealed class Plugin : IDalamudPlugin
             debuffDetectionService,
             enmityService,
             tankCooldownService);
+    }
+
+    /// <summary>
+    /// Creates the Kratos (Monk) rotation module.
+    /// </summary>
+    private Kratos CreateKratosRotation()
+    {
+        return new Kratos(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            damageTrendService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
+            positionalService,
+            timelineService);
     }
 
     #endregion

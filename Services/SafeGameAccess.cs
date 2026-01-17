@@ -216,6 +216,112 @@ public static class SafeGameAccess
         }
     }
 
+    #region Monk Gauge
+
+    /// <summary>
+    /// Safely gets the Monk Chakra count.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Chakra count (0-5), or 0 if unavailable.</returns>
+    public static unsafe int GetMnkChakra(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Monk.Chakra;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read MNK Chakra");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Monk Beast Chakra array (3 elements for Masterful Blitz).
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Array of 3 Beast Chakra types (0=None, 1=Opo-opo, 2=Raptor, 3=Coeurl).</returns>
+    public static unsafe byte[] GetMnkBeastChakra(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return new byte[3];
+
+        try
+        {
+            var beastChakra = new byte[3];
+            var gauge = jobGauge->Monk;
+            beastChakra[0] = (byte)gauge.BeastChakra[0];
+            beastChakra[1] = (byte)gauge.BeastChakra[1];
+            beastChakra[2] = (byte)gauge.BeastChakra[2];
+            return beastChakra;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read MNK Beast Chakra");
+            return new byte[3];
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Monk Nadi flags (Lunar and Solar).
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Nadi flags (bit 0 = Lunar, bit 1 = Solar).</returns>
+    public static unsafe byte GetMnkNadi(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return (byte)jobGauge->Monk.Nadi;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read MNK Nadi");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Checks if the Monk has Lunar Nadi active.
+    /// </summary>
+    public static unsafe bool HasMnkLunarNadi(IErrorMetricsService? errorMetrics = null)
+    {
+        var nadi = GetMnkNadi(errorMetrics);
+        return (nadi & 0x02) != 0; // Lunar is bit 1
+    }
+
+    /// <summary>
+    /// Checks if the Monk has Solar Nadi active.
+    /// </summary>
+    public static unsafe bool HasMnkSolarNadi(IErrorMetricsService? errorMetrics = null)
+    {
+        var nadi = GetMnkNadi(errorMetrics);
+        return (nadi & 0x01) != 0; // Solar is bit 0
+    }
+
+    /// <summary>
+    /// Gets the count of Beast Chakra currently accumulated.
+    /// </summary>
+    public static unsafe int GetMnkBeastChakraCount(IErrorMetricsService? errorMetrics = null)
+    {
+        var beastChakra = GetMnkBeastChakra(errorMetrics);
+        var count = 0;
+        if (beastChakra[0] != 0) count++;
+        if (beastChakra[1] != 0) count++;
+        if (beastChakra[2] != 0) count++;
+        return count;
+    }
+
+    #endregion
+
     /// <summary>
     /// Safely gets the current combo action ID.
     /// </summary>
