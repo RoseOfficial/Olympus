@@ -463,6 +463,117 @@ public static class SafeGameAccess
 
     #endregion
 
+    #region Samurai Gauge
+
+    /// <summary>
+    /// Safely gets the Samurai Kenki gauge value.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Kenki gauge value (0-100), or 0 if unavailable.</returns>
+    public static unsafe int GetSamKenki(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Samurai.Kenki;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read SAM Kenki");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Samurai Sen flags as a byte.
+    /// Bit flags: Setsu=1, Getsu=2, Ka=4.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Sen flags byte, or 0 if unavailable.</returns>
+    public static unsafe byte GetSamSen(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return (byte)jobGauge->Samurai.SenFlags;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read SAM Sen");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Checks if the Samurai has Setsu (Snow) Sen active.
+    /// </summary>
+    public static unsafe bool HasSamSetsu(IErrorMetricsService? errorMetrics = null)
+    {
+        var sen = GetSamSen(errorMetrics);
+        return (sen & 0x01) != 0; // Setsu is bit 0
+    }
+
+    /// <summary>
+    /// Checks if the Samurai has Getsu (Moon) Sen active.
+    /// </summary>
+    public static unsafe bool HasSamGetsu(IErrorMetricsService? errorMetrics = null)
+    {
+        var sen = GetSamSen(errorMetrics);
+        return (sen & 0x02) != 0; // Getsu is bit 1
+    }
+
+    /// <summary>
+    /// Checks if the Samurai has Ka (Flower) Sen active.
+    /// </summary>
+    public static unsafe bool HasSamKa(IErrorMetricsService? errorMetrics = null)
+    {
+        var sen = GetSamSen(errorMetrics);
+        return (sen & 0x04) != 0; // Ka is bit 2
+    }
+
+    /// <summary>
+    /// Gets the count of active Sen (0-3).
+    /// </summary>
+    public static unsafe int GetSamSenCount(IErrorMetricsService? errorMetrics = null)
+    {
+        var sen = GetSamSen(errorMetrics);
+        var count = 0;
+        if ((sen & 0x01) != 0) count++; // Setsu
+        if ((sen & 0x02) != 0) count++; // Getsu
+        if ((sen & 0x04) != 0) count++; // Ka
+        return count;
+    }
+
+    /// <summary>
+    /// Safely gets the Samurai Meditation stacks.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Meditation stacks (0-3), or 0 if unavailable.</returns>
+    public static unsafe int GetSamMeditation(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Samurai.MeditationStacks;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read SAM Meditation");
+            return 0;
+        }
+    }
+
+    #endregion
+
     /// <summary>
     /// Safely gets the current combo action ID.
     /// </summary>
