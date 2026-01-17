@@ -434,14 +434,14 @@ public static class MNKActions
     };
 
     /// <summary>
-    /// Fire's Reply - Damage oGCD after Riddle of Fire ends (Lv.100)
+    /// Fire's Reply - Damage GCD after Riddle of Fire ends (Lv.100)
     /// </summary>
     public static readonly ActionDefinition FiresReply = new()
     {
         ActionId = 36950,
         Name = "Fire's Reply",
         MinLevel = 100,
-        Category = ActionCategory.oGCD,
+        Category = ActionCategory.GCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
         CastTime = 0f,
