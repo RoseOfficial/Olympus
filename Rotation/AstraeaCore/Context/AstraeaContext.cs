@@ -92,10 +92,17 @@ public sealed class AstraeaContext : IAstraeaContext
     private (float avgHpPercent, float lowestHpPercent, int injuredCount)? _partyHealthMetrics;
 
     // Card state (cached from service)
+    // In Dawntrail, AST draws 4 cards at once
     private Data.ASTActions.CardType? _currentCard;
     private Data.ASTActions.CardType? _minorArcana;
+    private bool? _hasCard;
+    private bool? _hasBalance;
+    private bool? _hasSpear;
     private int? _sealCount;
     private int? _uniqueSealCount;
+    private int? _balanceCount;
+    private int? _spearCount;
+    private int? _totalCardsInHand;
 
     public bool HasSwiftcast => _hasSwiftcast ??= StatusHelper.HasSwiftcast(Player);
     public bool HasLightspeed => _hasLightspeed ??= StatusHelper.HasLightspeed(Player);
@@ -107,12 +114,18 @@ public sealed class AstraeaContext : IAstraeaContext
     public bool HasSynastry => _hasSynastry ??= StatusHelper.HasSynastry(Player);
 
     // Card state properties (cached per frame)
+    // In Dawntrail, AST draws 4 cards at once and plays them individually
     public Data.ASTActions.CardType CurrentCard => _currentCard ??= CardService.CurrentCard;
     public Data.ASTActions.CardType MinorArcana => _minorArcana ??= CardService.MinorArcanaCard;
-    public bool HasCard => CurrentCard != Data.ASTActions.CardType.None;
+    public bool HasCard => _hasCard ??= CardService.HasCard;
+    public bool HasBalance => _hasBalance ??= CardService.HasBalance;
+    public bool HasSpear => _hasSpear ??= CardService.HasSpear;
     public bool HasMinorArcana => MinorArcana != Data.ASTActions.CardType.None;
     public int SealCount => _sealCount ??= CardService.SealCount;
     public int UniqueSealCount => _uniqueSealCount ??= CardService.UniqueSealCount;
+    public int BalanceCount => _balanceCount ??= CardService.BalanceCount;
+    public int SpearCount => _spearCount ??= CardService.SpearCount;
+    public int TotalCardsInHand => _totalCardsInHand ??= CardService.TotalCardsInHand;
     public bool CanUseAstrodyne => SealCount >= 3;
 
     // Earthly Star state (delegated to service)
@@ -254,13 +267,18 @@ public interface IAstraeaContext : IHealerRotationContext
     ICardTrackingService CardService { get; }
     IEarthlyStarService EarthlyStarService { get; }
 
-    // AST Card State
+    // AST Card State (Dawntrail: 4 cards drawn at once)
     Data.ASTActions.CardType CurrentCard { get; }
     Data.ASTActions.CardType MinorArcana { get; }
     bool HasCard { get; }
+    bool HasBalance { get; }
+    bool HasSpear { get; }
     bool HasMinorArcana { get; }
     int SealCount { get; }
     int UniqueSealCount { get; }
+    int BalanceCount { get; }
+    int SpearCount { get; }
+    int TotalCardsInHand { get; }
     bool CanUseAstrodyne { get; }
 
     // Earthly Star State

@@ -470,8 +470,9 @@ public static class ASTActions
     #region Card Actions
 
     /// <summary>
-    /// Astral Draw - Draws a card (Dawntrail rework).
-    /// Generates a seal based on card type.
+    /// Astral Draw - Draws cards from the astral deck (Dawntrail rework).
+    /// In Dawntrail, AST alternates between Astral and Umbral draws.
+    /// Astral Draw provides: Spear (ranged), Arrow (defensive), Spire (curative).
     /// </summary>
     public static readonly ActionDefinition AstralDraw = new()
     {
@@ -487,7 +488,26 @@ public static class ASTActions
     };
 
     /// <summary>
-    /// Play I - Plays The Balance (melee damage buff).
+    /// Umbral Draw - Draws cards from the umbral deck (Dawntrail rework).
+    /// In Dawntrail, AST alternates between Astral and Umbral draws.
+    /// Umbral Draw provides: Balance (melee), Bole (defensive), Ewer (curative).
+    /// </summary>
+    public static readonly ActionDefinition UmbralDraw = new()
+    {
+        ActionId = 37018,
+        Name = "Umbral Draw",
+        MinLevel = 30,
+        Category = ActionCategory.oGCD,
+        TargetType = ActionTargetType.Self,
+        EffectTypes = ActionEffectType.Buff,
+        CastTime = 0f,
+        RecastTime = 55f,
+        MpCost = 0
+    };
+
+    /// <summary>
+    /// Play I - Base action slot (transforms to The Balance or The Spear).
+    /// Use TheBalance or TheSpear actions instead.
     /// </summary>
     public static readonly ActionDefinition PlayI = new()
     {
@@ -501,12 +521,12 @@ public static class ASTActions
         RecastTime = 1f,
         Range = 30f,
         MpCost = 0,
-        AppliedStatusId = 3887, // The Balance buff
+        AppliedStatusId = 3887,
         AppliedStatusDuration = 15f
     };
 
     /// <summary>
-    /// Play II - Plays The Spear (ranged damage buff).
+    /// Play II - Base action slot (transforms to The Arrow or The Bole).
     /// </summary>
     public static readonly ActionDefinition PlayII = new()
     {
@@ -520,7 +540,123 @@ public static class ASTActions
         RecastTime = 1f,
         Range = 30f,
         MpCost = 0,
-        AppliedStatusId = 3888, // The Spear buff
+        AppliedStatusId = 3888,
+        AppliedStatusDuration = 15f
+    };
+
+    /// <summary>
+    /// The Balance - 6% damage buff for melee DPS/tanks, 3% for others.
+    /// Available when Balance is drawn from Astral Draw.
+    /// </summary>
+    public static readonly ActionDefinition TheBalance = new()
+    {
+        ActionId = 37023,
+        Name = "The Balance",
+        MinLevel = 30,
+        Category = ActionCategory.oGCD,
+        TargetType = ActionTargetType.SingleAlly,
+        EffectTypes = ActionEffectType.Buff,
+        CastTime = 0f,
+        RecastTime = 1f,
+        Range = 30f,
+        MpCost = 0,
+        AppliedStatusId = 3887, // The Balance buff
+        AppliedStatusDuration = 15f
+    };
+
+    /// <summary>
+    /// The Spear - 6% damage buff for ranged DPS/healers, 3% for others.
+    /// Available when Spear is drawn from Umbral Draw.
+    /// </summary>
+    public static readonly ActionDefinition TheSpear = new()
+    {
+        ActionId = 37026,
+        Name = "The Spear",
+        MinLevel = 30,
+        Category = ActionCategory.oGCD,
+        TargetType = ActionTargetType.SingleAlly,
+        EffectTypes = ActionEffectType.Buff,
+        CastTime = 0f,
+        RecastTime = 1f,
+        Range = 30f,
+        MpCost = 0,
+        AppliedStatusId = 3889, // The Spear buff
+        AppliedStatusDuration = 15f
+    };
+
+    /// <summary>
+    /// The Bole - Defense buff card from Astral Draw.
+    /// </summary>
+    public static readonly ActionDefinition TheBole = new()
+    {
+        ActionId = 37027,
+        Name = "The Bole",
+        MinLevel = 30,
+        Category = ActionCategory.oGCD,
+        TargetType = ActionTargetType.SingleAlly,
+        EffectTypes = ActionEffectType.Buff,
+        CastTime = 0f,
+        RecastTime = 1f,
+        Range = 30f,
+        MpCost = 0,
+        AppliedStatusId = 3890, // The Bole buff
+        AppliedStatusDuration = 15f
+    };
+
+    /// <summary>
+    /// The Arrow - Utility card from Astral Draw.
+    /// </summary>
+    public static readonly ActionDefinition TheArrow = new()
+    {
+        ActionId = 37024,
+        Name = "The Arrow",
+        MinLevel = 30,
+        Category = ActionCategory.oGCD,
+        TargetType = ActionTargetType.SingleAlly,
+        EffectTypes = ActionEffectType.Buff,
+        CastTime = 0f,
+        RecastTime = 1f,
+        Range = 30f,
+        MpCost = 0,
+        AppliedStatusId = 3888, // The Arrow buff
+        AppliedStatusDuration = 15f
+    };
+
+    /// <summary>
+    /// The Ewer - Utility card from Umbral Draw.
+    /// </summary>
+    public static readonly ActionDefinition TheEwer = new()
+    {
+        ActionId = 37028,
+        Name = "The Ewer",
+        MinLevel = 30,
+        Category = ActionCategory.oGCD,
+        TargetType = ActionTargetType.SingleAlly,
+        EffectTypes = ActionEffectType.Buff,
+        CastTime = 0f,
+        RecastTime = 1f,
+        Range = 30f,
+        MpCost = 0,
+        AppliedStatusId = 3891, // The Ewer buff
+        AppliedStatusDuration = 15f
+    };
+
+    /// <summary>
+    /// The Spire - Utility card from Umbral Draw.
+    /// </summary>
+    public static readonly ActionDefinition TheSpire = new()
+    {
+        ActionId = 37025,
+        Name = "The Spire",
+        MinLevel = 30,
+        Category = ActionCategory.oGCD,
+        TargetType = ActionTargetType.SingleAlly,
+        EffectTypes = ActionEffectType.Buff,
+        CastTime = 0f,
+        RecastTime = 1f,
+        Range = 30f,
+        MpCost = 0,
+        AppliedStatusId = 3892, // The Spire buff
         AppliedStatusDuration = 15f
     };
 

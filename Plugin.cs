@@ -28,7 +28,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.34.0";
+    public const string PluginVersion = "1.35.2";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -41,6 +41,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly IChatGui chatGui;
     private readonly IDataManager dataManager;
     private readonly ICondition condition;
+    private readonly IJobGauges jobGauges;
 
     private readonly Configuration configuration;
     private readonly ActionTracker actionTracker;
@@ -101,7 +102,8 @@ public sealed class Plugin : IDalamudPlugin
         IDataManager dataManager,
         ICondition condition,
         IGameInteropProvider gameInteropProvider,
-        ITargetManager targetManager)
+        ITargetManager targetManager,
+        IJobGauges jobGauges)
     {
         this.pluginInterface = pluginInterface;
         this.framework = framework;
@@ -113,6 +115,7 @@ public sealed class Plugin : IDalamudPlugin
         this.chatGui = chatGui;
         this.dataManager = dataManager;
         this.condition = condition;
+        this.jobGauges = jobGauges;
 
         this.configuration = pluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
 
@@ -191,7 +194,8 @@ public sealed class Plugin : IDalamudPlugin
             apollo,
             objectTable,
             dataManager,
-            athena);
+            athena,
+            astraea);
 
         this.configWindow = new ConfigWindow(configuration, SaveConfiguration);
         this.mainWindow = new MainWindow(configuration, SaveConfiguration, OpenConfigUI, OpenDebugUI, PluginVersion, rotationManager);
@@ -445,7 +449,8 @@ public sealed class Plugin : IDalamudPlugin
             debuffDetectionService,
             cooldownPlanner,
             healingSpellSelector,
-            shieldTrackingService);
+            shieldTrackingService,
+            jobGauges);
     }
 
     /// <summary>

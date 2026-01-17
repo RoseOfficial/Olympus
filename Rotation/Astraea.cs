@@ -77,6 +77,7 @@ public sealed class Astraea : BaseHealerRotation<AstraeaContext, IAstraeaModule>
         ICooldownPlanner cooldownPlanner,
         HealingSpellSelector healingSpellSelector,
         ShieldTrackingService shieldTrackingService,
+        IJobGauges jobGauges,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -98,7 +99,7 @@ public sealed class Astraea : BaseHealerRotation<AstraeaContext, IAstraeaModule>
             errorMetrics)
     {
         // Initialize Astrologian-specific services
-        _cardService = new CardTrackingService();
+        _cardService = new CardTrackingService(jobGauges);
         _earthlyStarService = new EarthlyStarService(objectTable);
 
         // Initialize helpers

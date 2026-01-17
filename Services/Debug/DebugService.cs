@@ -7,6 +7,7 @@ using Dalamud.Plugin.Services;
 using Olympus.Models;
 using Olympus.Rotation;
 using Olympus.Rotation.ApolloCore.Context;
+using Olympus.Rotation.AstraeaCore.Context;
 using Olympus.Rotation.AthenaCore.Context;
 using Olympus.Services.Action;
 using Olympus.Services.Healing;
@@ -34,6 +35,7 @@ public sealed class DebugService
     private readonly RotationManager _rotationManager;
     private readonly Apollo _apollo;
     private readonly Athena? _athena;
+    private readonly Astraea? _astraea;
     private readonly IObjectTable _objectTable;
     private readonly IDataManager _dataManager;
 
@@ -54,7 +56,8 @@ public sealed class DebugService
         Apollo apollo,
         IObjectTable objectTable,
         IDataManager dataManager,
-        Athena? athena = null)
+        Athena? athena = null,
+        Astraea? astraea = null)
     {
         _actionTracker = actionTracker;
         _actionService = actionService;
@@ -66,6 +69,7 @@ public sealed class DebugService
         _rotationManager = rotationManager;
         _apollo = apollo;
         _athena = athena;
+        _astraea = astraea;
         _objectTable = objectTable;
         _dataManager = dataManager;
     }
@@ -425,5 +429,13 @@ public sealed class DebugService
     public AthenaDebugState? GetAthenaDebugState()
     {
         return _athena?.AthenaDebug;
+    }
+
+    /// <summary>
+    /// Gets the Astraea (Astrologian) debug state, if available.
+    /// </summary>
+    public AstraeaDebugState? GetAstraeaDebugState()
+    {
+        return _astraea?.AstraeaDebug;
     }
 }

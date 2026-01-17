@@ -1,5 +1,6 @@
 using Olympus.Config;
 using Olympus.Data;
+using Olympus.Models.Action;
 using Olympus.Rotation.AstraeaCore.Context;
 using Olympus.Rotation.AstraeaCore.Helpers;
 
@@ -52,25 +53,33 @@ public sealed class CardModule : IAstraeaModule
 
     public void UpdateDebugState(AstraeaContext context)
     {
-        // Update card state from service
+        // Update card state from service (Dawntrail: 4 cards in hand)
         context.Debug.CurrentCardType = context.CurrentCard.ToString();
         context.Debug.MinorArcanaType = context.MinorArcana.ToString();
         context.Debug.SealCount = context.SealCount;
         context.Debug.UniqueSealCount = context.UniqueSealCount;
 
+        // Update card state with Dawntrail info - include raw types for debugging
+        // Astral cards (Balance, Bole, Arrow) = Play I for melee
+        // Umbral cards (Spear, Ewer, Spire) = Play II for ranged
+        var totalCards = context.TotalCardsInHand;
+        var astralCount = context.BalanceCount;  // Renamed: counts all astral cards
+        var umbralCount = context.SpearCount;    // Renamed: counts all umbral cards
+        var rawTypes = context.CardService.RawCardTypes;
+        context.Debug.CardState = totalCards > 0
+            ? $"{totalCards} cards ({astralCount} Astral/{umbralCount} Umbral) Raw: {rawTypes}"
+            : "No cards";
+
         // Update draw state
         if (context.HasCard)
-            context.Debug.DrawState = "Card Ready";
+            context.Debug.DrawState = $"Cards: {astralCount} Astral, {umbralCount} Umbral";
         else if (context.ActionService.IsActionReady(ASTActions.AstralDraw.ActionId))
             context.Debug.DrawState = "Ready to Draw";
         else
             context.Debug.DrawState = "On Cooldown";
 
-        // Update Astrodyne state
-        if (context.CanUseAstrodyne)
-            context.Debug.AstrodyneState = $"Ready ({context.UniqueSealCount} unique)";
-        else
-            context.Debug.AstrodyneState = $"{context.SealCount}/3 seals";
+        // Update Astrodyne state (removed in Dawntrail)
+        context.Debug.AstrodyneState = "N/A (Dawntrail)";
 
         // Update Divination state
         if (context.HasDivining)
@@ -150,41 +159,60 @@ public sealed class CardModule : IAstraeaModule
 
     private bool TryPlayCard(AstraeaContext context)
     {
-        var config = context.Configuration.Astrologian;
         var player = context.Player;
 
         // Must have a card to play
         if (!context.HasCard)
-            return false;
-
-        var cardType = context.CurrentCard;
-
-        // Get the appropriate play action and target based on card type
-        var (action, target) = cardType switch
         {
-            ASTActions.CardType.TheBalance => (
-                player.Level >= ASTActions.PlayI.MinLevel ? ASTActions.PlayI : null,
-                context.PartyHelper.FindBalanceTarget(player)),
-            ASTActions.CardType.TheSpear => (
-                player.Level >= ASTActions.PlayII.MinLevel ? ASTActions.PlayII : null,
-                context.PartyHelper.FindSpearTarget(player)),
-            ASTActions.CardType.Lord => (
-                player.Level >= ASTActions.PlayIII.MinLevel ? ASTActions.PlayIII : null,
-                context.PartyHelper.FindLordTarget(player)),
-            _ => (null, null)
-        };
-
-        if (action == null || target == null)
+            context.Debug.PlayState = "No cards in hand";
             return false;
+        }
 
-        if (!context.ActionService.IsActionReady(action.ActionId))
-            return false;
+        // In Dawntrail, we need to use the SPECIFIC card action that matches what's drawn.
+        // The game's GetActionStatus only returns 0 (usable) for the actual drawn card.
+        // Try all card actions - only the one matching our drawn card will succeed.
 
-        if (context.ActionService.ExecuteOgcd(action, target.GameObjectId))
+        var target = context.PartyHelper.FindBalanceTarget(player);
+        if (target == null)
         {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.PlayState = $"{cardType} → {target.Name.TextValue}";
-            context.LogCardDecision(cardType.ToString(), target.Name.TextValue, GetCardTargetReason(cardType, target));
+            context.Debug.PlayState = "No valid target";
+            return false;
+        }
+
+        context.Debug.PlayState = $"Trying cards → {target.Name.TextValue}";
+
+        // Try astral cards (melee DPS buff priority): Balance, Bole, Arrow
+        if (TryPlaySpecificCard(context, ASTActions.TheBalance, target))
+            return true;
+        if (TryPlaySpecificCard(context, ASTActions.TheBole, target))
+            return true;
+        if (TryPlaySpecificCard(context, ASTActions.TheArrow, target))
+            return true;
+
+        // Try umbral cards (ranged DPS buff priority): Spear, Ewer, Spire
+        if (TryPlaySpecificCard(context, ASTActions.TheSpear, target))
+            return true;
+        if (TryPlaySpecificCard(context, ASTActions.TheEwer, target))
+            return true;
+        if (TryPlaySpecificCard(context, ASTActions.TheSpire, target))
+            return true;
+
+        context.Debug.PlayState = "No usable cards";
+        return false;
+    }
+
+    private bool TryPlaySpecificCard(AstraeaContext context, ActionDefinition cardAction, Dalamud.Game.ClientState.Objects.Types.IBattleChara target)
+    {
+        var player = context.Player;
+
+        if (player.Level < cardAction.MinLevel)
+            return false;
+
+        if (context.ActionService.ExecuteOgcd(cardAction, target.GameObjectId))
+        {
+            context.Debug.PlannedAction = cardAction.Name;
+            context.Debug.PlayState = $"{cardAction.Name} → {target.Name.TextValue}";
+            context.LogCardDecision(cardAction.Name, target.Name.TextValue, "Specific card played");
             return true;
         }
 
@@ -193,29 +221,36 @@ public sealed class CardModule : IAstraeaModule
 
     private bool TryDraw(AstraeaContext context)
     {
-        var config = context.Configuration.Astrologian;
         var player = context.Player;
 
-        // Already have a card
-        if (context.HasCard)
-            return false;
-
         if (player.Level < ASTActions.AstralDraw.MinLevel)
-            return false;
-
-        if (!context.ActionService.IsActionReady(ASTActions.AstralDraw.ActionId))
             return false;
 
         // Only draw in combat to avoid wasting cards
         if (!context.InCombat)
             return false;
 
-        var action = ASTActions.AstralDraw;
-        if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
+        // In Dawntrail, AST alternates between Astral and Umbral draws.
+        // The game will only allow one of them based on the current ActiveDraw state.
+        // Try Astral Draw first (gives Spear for ranged), then Umbral Draw (gives Balance for melee).
+        // Note: Don't check IsActionReady - draw actions don't use traditional charges.
+        // ExecuteOgcd will fail gracefully if the action can't be used.
+
+        // Try Astral Draw first
+        if (context.ActionService.ExecuteOgcd(ASTActions.AstralDraw, player.GameObjectId))
         {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DrawState = "Drawing";
-            context.LogCardDecision("Astral Draw", "Self", "Draw new card");
+            context.Debug.PlannedAction = ASTActions.AstralDraw.Name;
+            context.Debug.DrawState = "Drawing (Astral)";
+            context.LogCardDecision("Astral Draw", "Self", "Draw astral cards");
+            return true;
+        }
+
+        // Try Umbral Draw if Astral didn't work
+        if (context.ActionService.ExecuteOgcd(ASTActions.UmbralDraw, player.GameObjectId))
+        {
+            context.Debug.PlannedAction = ASTActions.UmbralDraw.Name;
+            context.Debug.DrawState = "Drawing (Umbral)";
+            context.LogCardDecision("Umbral Draw", "Self", "Draw umbral cards");
             return true;
         }
 
@@ -261,29 +296,6 @@ public sealed class CardModule : IAstraeaModule
         }
 
         return false;
-    }
-
-    #endregion
-
-    #region Helper Methods
-
-    private string GetCardTargetReason(ASTActions.CardType cardType, Dalamud.Game.ClientState.Objects.Types.IBattleChara target)
-    {
-        bool isMelee = AstraeaPartyHelper.IsMeleeDps(target);
-        bool isRanged = AstraeaPartyHelper.IsRangedPhysicalDps(target) || AstraeaPartyHelper.IsCasterDps(target);
-        bool isTank = AstraeaPartyHelper.IsTankRole(target);
-
-        return cardType switch
-        {
-            ASTActions.CardType.TheBalance when isMelee => "Melee DPS (optimal)",
-            ASTActions.CardType.TheBalance when isRanged => "Ranged DPS (fallback)",
-            ASTActions.CardType.TheBalance when isTank => "Tank (no DPS available)",
-            ASTActions.CardType.TheSpear when isRanged => "Ranged DPS (optimal)",
-            ASTActions.CardType.TheSpear when isMelee => "Melee DPS (fallback)",
-            ASTActions.CardType.TheSpear when isTank => "Tank (no DPS available)",
-            ASTActions.CardType.Lord => "DPS target",
-            _ => "Available target"
-        };
     }
 
     #endregion

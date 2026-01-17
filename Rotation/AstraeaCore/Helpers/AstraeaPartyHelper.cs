@@ -66,18 +66,22 @@ public sealed class AstraeaPartyHelper : HealerPartyHelper
 
     /// <summary>
     /// Finds the best target for The Balance card (melee DPS buff).
-    /// Prioritizes melee DPS, then ranged DPS if no melee available.
+    /// Prioritizes: melee DPS > ranged DPS > tank > trust NPC > self.
     /// </summary>
     public IBattleChara? FindBalanceTarget(IPlayerCharacter player)
     {
         IBattleChara? bestMelee = null;
         IBattleChara? bestRanged = null;
+        IBattleChara? bestTank = null;
+        IBattleChara? bestTrustNpc = null;
 
         foreach (var member in GetAllPartyMembers(player))
         {
             if (member.IsDead)
                 continue;
-            if (Vector3.DistanceSquared(player.Position, member.Position) > ASTActions.PlayI.RangeSquared)
+            if (member.EntityId == player.EntityId)
+                continue;
+            if (Vector3.DistanceSquared(player.Position, member.Position) > ASTActions.TheBalance.RangeSquared)
                 continue;
             if (_statusHelper.HasAnyCardBuff(member))
                 continue;
@@ -92,26 +96,48 @@ public sealed class AstraeaPartyHelper : HealerPartyHelper
                 if (bestRanged == null)
                     bestRanged = member;
             }
+            else if (IsTankRole(member))
+            {
+                if (bestTank == null)
+                    bestTank = member;
+            }
+            else if (member is IBattleNpc)
+            {
+                // Trust NPCs don't have ClassJob, so role detection fails
+                // Skip trust NPCs with tank stance, prefer DPS trust NPCs
+                if (!_statusHelper.HasTankStance(member) && bestTrustNpc == null)
+                    bestTrustNpc = member;
+            }
         }
 
-        // Prefer melee for Balance, fallback to ranged
-        return bestMelee ?? bestRanged;
+        // Prefer melee > ranged > tank > trust NPC (non-tank) > self
+        if (bestMelee != null) return bestMelee;
+        if (bestRanged != null) return bestRanged;
+        if (bestTank != null) return bestTank;
+        if (bestTrustNpc != null) return bestTrustNpc;
+
+        // Final fallback to self - playing card on self is better than wasting it
+        return player;
     }
 
     /// <summary>
     /// Finds the best target for The Spear card (ranged DPS buff).
-    /// Prioritizes ranged DPS (physical + caster), then melee if no ranged available.
+    /// Prioritizes: ranged DPS > melee DPS > tank > trust NPC > self.
     /// </summary>
     public IBattleChara? FindSpearTarget(IPlayerCharacter player)
     {
         IBattleChara? bestRanged = null;
         IBattleChara? bestMelee = null;
+        IBattleChara? bestTank = null;
+        IBattleChara? bestTrustNpc = null;
 
         foreach (var member in GetAllPartyMembers(player))
         {
             if (member.IsDead)
                 continue;
-            if (Vector3.DistanceSquared(player.Position, member.Position) > ASTActions.PlayII.RangeSquared)
+            if (member.EntityId == player.EntityId)
+                continue;
+            if (Vector3.DistanceSquared(player.Position, member.Position) > ASTActions.TheSpear.RangeSquared)
                 continue;
             if (_statusHelper.HasAnyCardBuff(member))
                 continue;
@@ -126,21 +152,45 @@ public sealed class AstraeaPartyHelper : HealerPartyHelper
                 if (bestMelee == null)
                     bestMelee = member;
             }
+            else if (IsTankRole(member))
+            {
+                if (bestTank == null)
+                    bestTank = member;
+            }
+            else if (member is IBattleNpc)
+            {
+                // Trust NPCs don't have ClassJob, so role detection fails
+                // Skip trust NPCs with tank stance, prefer DPS trust NPCs
+                if (!_statusHelper.HasTankStance(member) && bestTrustNpc == null)
+                    bestTrustNpc = member;
+            }
         }
 
-        // Prefer ranged for Spear, fallback to melee
-        return bestRanged ?? bestMelee;
+        // Prefer ranged > melee > tank > trust NPC (non-tank) > self
+        if (bestRanged != null) return bestRanged;
+        if (bestMelee != null) return bestMelee;
+        if (bestTank != null) return bestTank;
+        if (bestTrustNpc != null) return bestTrustNpc;
+
+        // Final fallback to self - playing card on self is better than wasting it
+        return player;
     }
 
     /// <summary>
     /// Finds the best target for Lord of Crowns card (AoE damage buff).
-    /// Any DPS is valid target.
+    /// Prioritizes: DPS > tank > trust NPC > self.
     /// </summary>
     public IBattleChara? FindLordTarget(IPlayerCharacter player)
     {
+        IBattleChara? bestDps = null;
+        IBattleChara? bestTank = null;
+        IBattleChara? bestTrustNpc = null;
+
         foreach (var member in GetAllPartyMembers(player))
         {
             if (member.IsDead)
+                continue;
+            if (member.EntityId == player.EntityId)
                 continue;
             if (Vector3.DistanceSquared(player.Position, member.Position) > ASTActions.PlayIII.RangeSquared)
                 continue;
@@ -148,11 +198,31 @@ public sealed class AstraeaPartyHelper : HealerPartyHelper
                 continue;
 
             if (IsDpsRole(member))
-                return member;
+            {
+                if (bestDps == null)
+                    bestDps = member;
+            }
+            else if (IsTankRole(member))
+            {
+                if (bestTank == null)
+                    bestTank = member;
+            }
+            else if (member is IBattleNpc)
+            {
+                // Trust NPCs don't have ClassJob, so role detection fails
+                // Skip trust NPCs with tank stance, prefer DPS trust NPCs
+                if (!_statusHelper.HasTankStance(member) && bestTrustNpc == null)
+                    bestTrustNpc = member;
+            }
         }
 
-        // Fallback to tank if no DPS available
-        return FindTankInParty(player);
+        // Prefer DPS > tank > trust NPC (non-tank) > self
+        if (bestDps != null) return bestDps;
+        if (bestTank != null) return bestTank;
+        if (bestTrustNpc != null) return bestTrustNpc;
+
+        // Final fallback to self - playing card on self is better than wasting it
+        return player;
     }
 
     /// <summary>

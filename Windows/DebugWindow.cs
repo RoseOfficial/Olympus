@@ -91,6 +91,12 @@ public sealed class DebugWindow : Window
                 ImGui.EndTabItem();
             }
 
+            if (ImGui.BeginTabItem("Astrologian"))
+            {
+                AstrologianTab.Draw(_debugService.GetAstraeaDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
             if (ImGui.BeginTabItem("Timeline"))
             {
                 TimelineTab.Draw(_timelineService, _configuration);

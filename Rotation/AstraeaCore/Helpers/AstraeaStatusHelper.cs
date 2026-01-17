@@ -14,6 +14,12 @@ public sealed class AstraeaStatusHelper
     private const ushort SwiftcastStatusId = 167;
     private const ushort LucidDreamingStatusId = 1204;
 
+    // Tank stance status IDs (for detecting Trust NPC tanks)
+    private const ushort IronWillStatusId = 79;      // PLD
+    private const ushort DefianceStatusId = 91;      // WAR
+    private const ushort GritStatusId = 743;         // DRK
+    private const ushort RoyalGuardStatusId = 1833;  // GNB
+
     #endregion
 
     #region Buff Checks
@@ -173,6 +179,28 @@ public sealed class AstraeaStatusHelper
             if (status.StatusId is ASTActions.TheBalanceStatusId or
                 ASTActions.TheSpearStatusId or
                 ASTActions.LordOfCrownsStatusId)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Checks if the target has tank stance active.
+    /// Used to detect Trust NPC tanks since they don't have ClassJob info.
+    /// </summary>
+    public bool HasTankStance(IGameObject target)
+    {
+        if (target is not IBattleChara battleChara)
+            return false;
+
+        foreach (var status in battleChara.StatusList)
+        {
+            if (status.StatusId is IronWillStatusId or
+                DefianceStatusId or
+                GritStatusId or
+                RoyalGuardStatusId)
             {
                 return true;
             }
