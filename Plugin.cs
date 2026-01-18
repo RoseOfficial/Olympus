@@ -28,7 +28,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.41.0";
+    public const string PluginVersion = "1.42.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -76,6 +76,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly Echidna echidna;
     private readonly Prometheus prometheus;
     private readonly Calliope calliope;
+    private readonly Terpsichore terpsichore;
 
     // Tank services
     private readonly EnmityService enmityService;
@@ -189,6 +190,7 @@ public sealed class Plugin : IDalamudPlugin
         this.echidna = CreateEchidnaRotation();
         this.prometheus = CreatePrometheusRotation();
         this.calliope = CreateCalliopeRotation();
+        this.terpsichore = CreateTerpsichoreRotation();
         RegisterAvailableRotations();
 
         // Debug service aggregates all debug data
@@ -399,6 +401,7 @@ public sealed class Plugin : IDalamudPlugin
         JobRegistry.Viper => CreateEchidnaRotation(),
         JobRegistry.Machinist => CreatePrometheusRotation(),
         JobRegistry.Bard or JobRegistry.Archer => CreateCalliopeRotation(),
+        JobRegistry.Dancer => CreateTerpsichoreRotation(),
         _ => null
     };
 
@@ -757,6 +760,28 @@ public sealed class Plugin : IDalamudPlugin
     private Calliope CreateCalliopeRotation()
     {
         return new Calliope(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            damageTrendService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
+            timelineService);
+    }
+
+    /// <summary>
+    /// Creates the Terpsichore (Dancer) rotation module.
+    /// </summary>
+    private Terpsichore CreateTerpsichoreRotation()
+    {
+        return new Terpsichore(
             log,
             actionTracker,
             combatEventService,

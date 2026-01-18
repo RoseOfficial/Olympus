@@ -1136,6 +1136,169 @@ public static class SafeGameAccess
 
     #endregion
 
+    #region Dancer Gauge
+
+    /// <summary>
+    /// Safely gets the Dancer Esprit gauge value.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Esprit gauge value (0-100), or 0 if unavailable.</returns>
+    public static unsafe int GetDncEsprit(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Dancer.Esprit;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read DNC Esprit");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Dancer Feather count.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Feather count (0-4), or 0 if unavailable.</returns>
+    public static unsafe int GetDncFeathers(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Dancer.Feathers;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read DNC Feathers");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Checks if the Dancer is currently in dance mode (Standard or Technical Step).
+    /// Dancing is determined by checking if dance steps are populated.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>True if dancing, false otherwise.</returns>
+    public static unsafe bool IsDncDancing(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return false;
+
+        try
+        {
+            // Dancing is indicated by having dance steps populated
+            // When a dance is initiated, the DanceSteps array is filled with the step sequence
+            return jobGauge->Dancer.DanceSteps[0] != 0;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read DNC Dancing state");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Gets the current step index during a dance (0-based, 0-3).
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Step index (0-3), or 0 if not dancing.</returns>
+    public static unsafe int GetDncStepIndex(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Dancer.StepIndex;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read DNC Step Index");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Gets the dance step at the specified index.
+    /// Values: 0=None, 1=Emboite, 2=Entrechat, 3=Jete, 4=Pirouette.
+    /// </summary>
+    /// <param name="index">Step index (0-3).</param>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Dance step value (1-4), or 0 if invalid.</returns>
+    public static unsafe byte GetDncDanceStep(int index, IErrorMetricsService? errorMetrics = null)
+    {
+        if (index < 0 || index > 3)
+            return 0;
+
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Dancer.DanceSteps[index];
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", $"Failed to read DNC Dance Step {index}");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Gets the next step to execute in the current dance.
+    /// Returns the step at the current StepIndex.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Next dance step value (1-4), or 0 if not dancing.</returns>
+    public static unsafe byte GetDncCurrentStep(IErrorMetricsService? errorMetrics = null)
+    {
+        var stepIndex = GetDncStepIndex(errorMetrics);
+        return GetDncDanceStep(stepIndex, errorMetrics);
+    }
+
+    /// <summary>
+    /// Gets all dance steps as an array.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Array of 4 dance step values.</returns>
+    public static unsafe byte[] GetDncDanceSteps(IErrorMetricsService? errorMetrics = null)
+    {
+        var steps = new byte[4];
+        for (int i = 0; i < 4; i++)
+        {
+            steps[i] = GetDncDanceStep(i, errorMetrics);
+        }
+        return steps;
+    }
+
+    /// <summary>
+    /// Gets the number of steps completed in the current dance.
+    /// Standard Step has 2 steps, Technical Step has 4 steps.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Number of steps completed (0-4).</returns>
+    public static unsafe int GetDncCompletedSteps(IErrorMetricsService? errorMetrics = null)
+    {
+        if (!IsDncDancing(errorMetrics))
+            return 0;
+
+        return GetDncStepIndex(errorMetrics);
+    }
+
+    #endregion
+
     /// <summary>
     /// Safely gets the current combo action ID.
     /// </summary>
