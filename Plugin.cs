@@ -28,7 +28,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.37.0";
+    public const string PluginVersion = "1.38.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -71,6 +71,8 @@ public sealed class Plugin : IDalamudPlugin
     private readonly Kratos kratos;
     private readonly Zeus zeus;
     private readonly Hermes hermes;
+    private readonly Nike nike;
+    private readonly Thanatos thanatos;
 
     // Tank services
     private readonly EnmityService enmityService;
@@ -179,6 +181,8 @@ public sealed class Plugin : IDalamudPlugin
         this.kratos = CreateKratosRotation();
         this.zeus = CreateZeusRotation();
         this.hermes = CreateHermesRotation();
+        this.nike = CreateNikeRotation();
+        this.thanatos = CreateThanatosRotation();
         RegisterAvailableRotations();
 
         // Debug service aggregates all debug data
@@ -356,6 +360,8 @@ public sealed class Plugin : IDalamudPlugin
         rotationManager.Register(kratos);
         rotationManager.Register(zeus);
         rotationManager.Register(hermes);
+        rotationManager.Register(nike);
+        rotationManager.Register(thanatos);
     }
 
     /// <summary>
@@ -377,6 +383,8 @@ public sealed class Plugin : IDalamudPlugin
         JobRegistry.Monk or JobRegistry.Pugilist => CreateKratosRotation(),
         JobRegistry.Dragoon or JobRegistry.Lancer => CreateZeusRotation(),
         JobRegistry.Ninja or JobRegistry.Rogue => CreateHermesRotation(),
+        JobRegistry.Samurai => CreateNikeRotation(),
+        JobRegistry.Reaper => CreateThanatosRotation(),
         _ => null
     };
 
@@ -638,6 +646,52 @@ public sealed class Plugin : IDalamudPlugin
             timelineService);
     }
 
+    /// <summary>
+    /// Creates the Nike (Samurai) rotation module.
+    /// </summary>
+    private Nike CreateNikeRotation()
+    {
+        return new Nike(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            damageTrendService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
+            positionalService,
+            timelineService);
+    }
+
+    /// <summary>
+    /// Creates the Thanatos (Reaper) rotation module.
+    /// </summary>
+    private Thanatos CreateThanatosRotation()
+    {
+        return new Thanatos(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            damageTrendService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
+            positionalService,
+            timelineService);
+    }
+
     #endregion
 
     public void Dispose()
@@ -663,6 +717,9 @@ public sealed class Plugin : IDalamudPlugin
         athena.Dispose();
         astraea.Dispose();
         asclepius.Dispose();
+
+        // Dispose melee DPS rotations that have event subscriptions
+        nike.Dispose();
 
         damageIntakeService.Dispose();
         healingIntakeService.Dispose();

@@ -574,6 +574,129 @@ public static class SafeGameAccess
 
     #endregion
 
+    #region Reaper Gauge
+
+    /// <summary>
+    /// Safely gets the Reaper Soul gauge value.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Soul gauge value (0-100), or 0 if unavailable.</returns>
+    public static unsafe int GetRprSoul(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Reaper.Soul;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read RPR Soul");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Reaper Shroud gauge value.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Shroud gauge value (0-100), or 0 if unavailable.</returns>
+    public static unsafe int GetRprShroud(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Reaper.Shroud;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read RPR Shroud");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Reaper Lemure Shroud stacks during Enshroud.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Lemure Shroud stacks (0-5), or 0 if unavailable.</returns>
+    public static unsafe int GetRprLemureShroud(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Reaper.LemureShroud;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read RPR Lemure Shroud");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Reaper Void Shroud stacks during Enshroud.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Void Shroud stacks (0-5), or 0 if unavailable.</returns>
+    public static unsafe int GetRprVoidShroud(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Reaper.VoidShroud;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read RPR Void Shroud");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Reaper Enshroud timer remaining in seconds.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Enshroud timer in seconds, or 0 if not enshrouded.</returns>
+    public static unsafe float GetRprEnshroudTimer(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0f;
+
+        try
+        {
+            // Timer is stored in milliseconds, convert to seconds
+            return jobGauge->Reaper.EnshroudedTimeRemaining / 1000f;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read RPR Enshroud timer");
+            return 0f;
+        }
+    }
+
+    /// <summary>
+    /// Checks if the Reaper is currently in Enshroud state.
+    /// </summary>
+    public static unsafe bool IsRprEnshrouded(IErrorMetricsService? errorMetrics = null)
+    {
+        return GetRprLemureShroud(errorMetrics) > 0 || GetRprEnshroudTimer(errorMetrics) > 0;
+    }
+
+    #endregion
+
     /// <summary>
     /// Safely gets the current combo action ID.
     /// </summary>
