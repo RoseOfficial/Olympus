@@ -1299,6 +1299,199 @@ public static class SafeGameAccess
 
     #endregion
 
+    #region Black Mage Gauge
+
+    /// <summary>
+    /// Safely gets the Black Mage element stacks.
+    /// Positive = Astral Fire stacks (1-3), Negative = Umbral Ice stacks (-1 to -3).
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Element stacks (-3 to +3), or 0 if unavailable.</returns>
+    public static unsafe int GetBlmElementStacks(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            // ElementStance is positive for Astral Fire (1-3), negative for Umbral Ice (-1 to -3)
+            // Return as-is (positive for Fire, negative for Ice)
+            return jobGauge->BlackMage.ElementStance;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read BLM Element Stacks");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Black Mage element timer in seconds.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Element timer in seconds, or 0 if unavailable.</returns>
+    public static unsafe float GetBlmElementTimer(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0f;
+
+        try
+        {
+            // EnochianTimer is stored in milliseconds, convert to seconds
+            return jobGauge->BlackMage.EnochianTimer / 1000f;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read BLM Element Timer");
+            return 0f;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Black Mage Umbral Heart count.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Umbral Heart count (0-3), or 0 if unavailable.</returns>
+    public static unsafe int GetBlmUmbralHearts(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->BlackMage.UmbralHearts;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read BLM Umbral Hearts");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Black Mage Polyglot stack count.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Polyglot stacks (0-3), or 0 if unavailable.</returns>
+    public static unsafe int GetBlmPolyglotStacks(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->BlackMage.PolyglotStacks;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read BLM Polyglot Stacks");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Black Mage Astral Soul stack count (for Flare Star).
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Astral Soul stacks (0-6), or 0 if unavailable.</returns>
+    public static unsafe int GetBlmAstralSoulStacks(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->BlackMage.AstralSoulStacks;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read BLM Astral Soul Stacks");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely checks if the Black Mage has Paradox available.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>True if Paradox marker is active, false otherwise.</returns>
+    public static unsafe bool GetBlmHasParadox(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return false;
+
+        try
+        {
+            return jobGauge->BlackMage.ParadoxActive;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read BLM Paradox state");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Checks if the Black Mage is currently in Astral Fire.
+    /// </summary>
+    public static unsafe bool IsBlmInAstralFire(IErrorMetricsService? errorMetrics = null)
+    {
+        var stacks = GetBlmElementStacks(errorMetrics);
+        return stacks > 0;
+    }
+
+    /// <summary>
+    /// Checks if the Black Mage is currently in Umbral Ice.
+    /// </summary>
+    public static unsafe bool IsBlmInUmbralIce(IErrorMetricsService? errorMetrics = null)
+    {
+        var stacks = GetBlmElementStacks(errorMetrics);
+        return stacks < 0;
+    }
+
+    /// <summary>
+    /// Gets the Astral Fire stack count (positive only, 0-3).
+    /// </summary>
+    public static unsafe int GetBlmAstralFireStacks(IErrorMetricsService? errorMetrics = null)
+    {
+        var stacks = GetBlmElementStacks(errorMetrics);
+        return stacks > 0 ? stacks : 0;
+    }
+
+    /// <summary>
+    /// Gets the Umbral Ice stack count (positive only, 0-3).
+    /// </summary>
+    public static unsafe int GetBlmUmbralIceStacks(IErrorMetricsService? errorMetrics = null)
+    {
+        var stacks = GetBlmElementStacks(errorMetrics);
+        return stacks < 0 ? -stacks : 0;
+    }
+
+    /// <summary>
+    /// Safely gets the Enochian timer in seconds (time remaining on element).
+    /// Enochian is active when element timer > 0.
+    /// </summary>
+    public static unsafe float GetBlmEnochianTimer(IErrorMetricsService? errorMetrics = null)
+    {
+        return GetBlmElementTimer(errorMetrics);
+    }
+
+    /// <summary>
+    /// Checks if Enochian is currently active.
+    /// </summary>
+    public static unsafe bool IsBlmEnochianActive(IErrorMetricsService? errorMetrics = null)
+    {
+        return GetBlmElementTimer(errorMetrics) > 0;
+    }
+
+    #endregion
+
     /// <summary>
     /// Safely gets the current combo action ID.
     /// </summary>

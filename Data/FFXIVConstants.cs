@@ -73,6 +73,12 @@ public static class FFXIVConstants
     /// </summary>
     public const float RangedTargetingRange = 25f;
 
+    /// <summary>
+    /// Caster DPS targeting range for center-to-center distance calculations.
+    /// Same as ranged physical (25y) for most caster spells.
+    /// </summary>
+    public const float CasterTargetingRange = 25f;
+
     // Cure III clustering
     /// <summary>Radius for detecting Cure III cluster targets.</summary>
     public const float CureIIIClusterRadius = 10f;

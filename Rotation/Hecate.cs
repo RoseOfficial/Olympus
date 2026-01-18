@@ -1,0 +1,195 @@
+using System.Collections.Generic;
+using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Party;
+using Dalamud.Plugin.Services;
+using Olympus.Data;
+using Olympus.Rotation.ApolloCore.Context;
+using Olympus.Rotation.Base;
+using Olympus.Rotation.HecateCore.Context;
+using Olympus.Rotation.HecateCore.Helpers;
+using Olympus.Rotation.HecateCore.Modules;
+using Olympus.Services;
+using Olympus.Services.Action;
+using Olympus.Services.Debuff;
+using Olympus.Services.Prediction;
+using Olympus.Services.Stats;
+using Olympus.Services.Targeting;
+using Olympus.Timeline;
+
+namespace Olympus.Rotation;
+
+/// <summary>
+/// Black Mage rotation module (RSR-style reactive execution).
+/// Orchestrates modular execution: each module handles a specific concern.
+/// Named after Hecate, the Greek goddess of magic and witchcraft.
+/// </summary>
+[Rotation("Hecate", JobRegistry.BlackMage, Role = RotationRole.Caster)]
+public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule>
+{
+    /// <inheritdoc />
+    public override string Name => "Hecate";
+
+    /// <inheritdoc />
+    public override uint[] SupportedJobIds => [JobRegistry.BlackMage, JobRegistry.Thaumaturge];
+
+    /// <inheritdoc />
+    public override DebugState DebugState => _debugState;
+
+    /// <inheritdoc />
+    protected override List<IHecateModule> Modules => _modules;
+
+    /// <summary>
+    /// Gets the Hecate-specific debug state. Used for Black Mage-specific debug display.
+    /// </summary>
+    public HecateDebugState HecateDebug => _hecateDebugState;
+
+    // Persistent debug state
+    private readonly HecateDebugState _hecateDebugState = new();
+
+    // IRotation-compatible debug state (for common debug interface)
+    private readonly DebugState _debugState = new();
+
+    // Helpers (shared across modules)
+    private readonly HecateStatusHelper _statusHelper;
+    private readonly HecatePartyHelper _partyHelper;
+
+    // Modules (sorted by priority - lower = higher priority)
+    private readonly List<IHecateModule> _modules;
+
+    // Timeline service for fight-aware rotation (optional)
+    private readonly ITimelineService? _timelineService;
+
+    // Gauge values (read each frame)
+    private int _elementStacks;
+    private float _elementTimer;
+    private int _umbralHearts;
+    private int _polyglotStacks;
+    private int _astralSoulStacks;
+    private bool _hasParadox;
+
+    public Hecate(
+        IPluginLog log,
+        ActionTracker actionTracker,
+        ICombatEventService combatEventService,
+        IDamageIntakeService damageIntakeService,
+        IDamageTrendService damageTrendService,
+        Configuration configuration,
+        IObjectTable objectTable,
+        IPartyList partyList,
+        ITargetingService targetingService,
+        IHpPredictionService hpPredictionService,
+        ActionService actionService,
+        IPlayerStatsService playerStatsService,
+        IDebuffDetectionService debuffDetectionService,
+        ITimelineService? timelineService = null,
+        IErrorMetricsService? errorMetrics = null)
+        : base(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            damageTrendService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
+            errorMetrics)
+    {
+        _timelineService = timelineService;
+
+        // Initialize helpers
+        _statusHelper = new HecateStatusHelper();
+        _partyHelper = new HecatePartyHelper(objectTable, partyList);
+
+        // Initialize modules (ordered by priority - lower = executed first)
+        _modules = new List<IHecateModule>
+        {
+            new BuffModule(),    // Priority 20 - oGCD management (Ley Lines, Triplecast, Amplifier, Manafont)
+            new DamageModule(),  // Priority 30 - GCD rotation
+        };
+
+        // Sort by priority
+        _modules.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+    }
+
+    #region Abstract Implementation
+
+    /// <inheritdoc />
+    protected override void ReadGaugeValues()
+    {
+        _elementStacks = SafeGameAccess.GetBlmElementStacks(ErrorMetrics);
+        _elementTimer = SafeGameAccess.GetBlmElementTimer(ErrorMetrics);
+        _umbralHearts = SafeGameAccess.GetBlmUmbralHearts(ErrorMetrics);
+        _polyglotStacks = SafeGameAccess.GetBlmPolyglotStacks(ErrorMetrics);
+        _astralSoulStacks = SafeGameAccess.GetBlmAstralSoulStacks(ErrorMetrics);
+        _hasParadox = SafeGameAccess.GetBlmHasParadox(ErrorMetrics);
+    }
+
+    /// <summary>
+    /// Updates MP forecast. Black Mages don't typically need Lucid Dreaming.
+    /// </summary>
+    protected override void UpdateMpForecast(IPlayerCharacter player)
+    {
+        // Black Mages don't use Lucid Dreaming - MP is managed through Umbral Ice
+        MpForecastService.Update(
+            (int)player.CurrentMp,
+            (int)player.MaxMp,
+            hasLucidDreaming: false);
+    }
+
+    /// <inheritdoc />
+    protected override IHecateContext CreateContext(IPlayerCharacter player, bool inCombat, bool isMoving)
+    {
+        return new HecateContext(
+            player: player,
+            inCombat: inCombat,
+            isMoving: isMoving,
+            canExecuteGcd: ActionService.CanExecuteGcd,
+            canExecuteOgcd: ActionService.CanExecuteOgcd,
+            actionService: ActionService,
+            actionTracker: ActionTracker,
+            combatEventService: CombatEventService,
+            damageIntakeService: DamageIntakeService,
+            damageTrendService: DamageTrendService,
+            frameCache: FrameCache,
+            configuration: Configuration,
+            debuffDetectionService: DebuffDetectionService,
+            hpPredictionService: HpPredictionService,
+            mpForecastService: MpForecastService,
+            playerStatsService: PlayerStatsService,
+            targetingService: TargetingService,
+            objectTable: ObjectTable,
+            partyList: PartyList,
+            statusHelper: _statusHelper,
+            partyHelper: _partyHelper,
+            debugState: _hecateDebugState,
+            elementStacks: _elementStacks,
+            elementTimer: _elementTimer,
+            umbralHearts: _umbralHearts,
+            polyglotStacks: _polyglotStacks,
+            astralSoulStacks: _astralSoulStacks,
+            hasParadox: _hasParadox,
+            timelineService: _timelineService,
+            log: Log);
+    }
+
+    /// <inheritdoc />
+    protected override void SyncDebugState(IHecateContext context)
+    {
+        // Map Black Mage debug state to common debug state fields
+        _debugState.PlanningState = _hecateDebugState.PlanningState;
+        _debugState.PlannedAction = _hecateDebugState.PlannedAction;
+        _debugState.DpsState = _hecateDebugState.DamageState;
+        // Note: BuffState is tracked in HecateDebugState but not in common DebugState
+
+        // Party/player info
+        _debugState.PlayerHpPercent = (float)context.Player.CurrentHp / context.Player.MaxHp;
+        _debugState.PartyListCount = context.PartyList.Length;
+    }
+
+    #endregion
+}
