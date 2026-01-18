@@ -1492,6 +1492,278 @@ public static class SafeGameAccess
 
     #endregion
 
+    #region Summoner Gauge
+
+    // Aetherflow bit flags (from FFXIVClientStructs AetherFlags enum)
+    private const byte AetherflowMask = 0x03; // Bits 0-1 contain Aetherflow stacks (0-2)
+    private const byte IfritReadyFlag = 0x04; // Bit 2
+    private const byte TitanReadyFlag = 0x08; // Bit 3
+    private const byte GarudaReadyFlag = 0x10; // Bit 4
+    private const byte PhoenixReadyFlag = 0x20; // Bit 5
+
+    /// <summary>
+    /// Safely gets the Summoner Aetherflow stacks.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Aetherflow stacks (0-2), or 0 if unavailable.</returns>
+    public static unsafe int GetSmnAetherflowStacks(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            // Aetherflow stacks are in bits 0-1 of AetherFlags
+            return (byte)jobGauge->Summoner.AetherFlags & AetherflowMask;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read SMN Aetherflow Stacks");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Summoner attunement type.
+    /// 0 = None, 1 = Ifrit (Ruby), 2 = Titan (Topaz), 3 = Garuda (Emerald)
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Attunement type (0-3), or 0 if unavailable.</returns>
+    public static unsafe int GetSmnAttunement(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return (int)jobGauge->Summoner.AttunementType;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read SMN Attunement");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Summoner attunement stacks remaining.
+    /// Ruby = 2 stacks, Topaz/Emerald = 4 stacks.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Attunement stacks (0-4), or 0 if unavailable.</returns>
+    public static unsafe int GetSmnAttunementStacks(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Summoner.AttunementCount;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read SMN Attunement Stacks");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Summoner attunement timer in seconds.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Attunement timer in seconds, or 0 if unavailable.</returns>
+    public static unsafe float GetSmnAttunementTimer(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0f;
+
+        try
+        {
+            // Timer is stored in milliseconds, convert to seconds
+            return jobGauge->Summoner.AttunementTimer / 1000f;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read SMN Attunement Timer");
+            return 0f;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Summoner summon timer remaining in seconds (for demi-summons).
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Summon timer in seconds, or 0 if unavailable.</returns>
+    public static unsafe float GetSmnSummonTimer(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0f;
+
+        try
+        {
+            // Timer is stored in milliseconds, convert to seconds
+            return jobGauge->Summoner.SummonTimer / 1000f;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read SMN Summon Timer");
+            return 0f;
+        }
+    }
+
+    /// <summary>
+    /// Safely checks if Ifrit is ready to be summoned.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>True if Ifrit can be summoned, false otherwise.</returns>
+    public static unsafe bool GetSmnIfritReady(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return false;
+
+        try
+        {
+            return ((byte)jobGauge->Summoner.AetherFlags & IfritReadyFlag) != 0;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read SMN Ifrit Ready");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Safely checks if Titan is ready to be summoned.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>True if Titan can be summoned, false otherwise.</returns>
+    public static unsafe bool GetSmnTitanReady(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return false;
+
+        try
+        {
+            return ((byte)jobGauge->Summoner.AetherFlags & TitanReadyFlag) != 0;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read SMN Titan Ready");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Safely checks if Garuda is ready to be summoned.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>True if Garuda can be summoned, false otherwise.</returns>
+    public static unsafe bool GetSmnGarudaReady(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return false;
+
+        try
+        {
+            return ((byte)jobGauge->Summoner.AetherFlags & GarudaReadyFlag) != 0;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read SMN Garuda Ready");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Gets the count of primals available to summon (0-3).
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Number of primals available (0-3).</returns>
+    public static unsafe int GetSmnPrimalsAvailable(IErrorMetricsService? errorMetrics = null)
+    {
+        var count = 0;
+        if (GetSmnIfritReady(errorMetrics)) count++;
+        if (GetSmnTitanReady(errorMetrics)) count++;
+        if (GetSmnGarudaReady(errorMetrics)) count++;
+        return count;
+    }
+
+    /// <summary>
+    /// Safely checks if Bahamut is ready (not Phoenix phase).
+    /// The gauge alternates between Bahamut and Phoenix phases.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>True if in Bahamut phase, false if in Phoenix phase.</returns>
+    public static unsafe bool IsSmnBahamutReady(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return false;
+
+        try
+        {
+            // PhoenixReady flag indicates Phoenix phase, absence means Bahamut phase
+            return ((byte)jobGauge->Summoner.AetherFlags & PhoenixReadyFlag) == 0;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read SMN Bahamut Ready");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Safely checks if Phoenix is ready (Phoenix phase).
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>True if in Phoenix phase, false otherwise.</returns>
+    public static unsafe bool IsSmnPhoenixReady(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return false;
+
+        try
+        {
+            return ((byte)jobGauge->Summoner.AetherFlags & PhoenixReadyFlag) != 0;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read SMN Phoenix Ready");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Checks if any demi-summon is currently active.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>True if a demi-summon is active, false otherwise.</returns>
+    public static unsafe bool IsSmnDemiSummonActive(IErrorMetricsService? errorMetrics = null)
+    {
+        return GetSmnSummonTimer(errorMetrics) > 0;
+    }
+
+    /// <summary>
+    /// Checks if in any primal attunement.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>True if attuned to a primal, false otherwise.</returns>
+    public static unsafe bool IsSmnAttuned(IErrorMetricsService? errorMetrics = null)
+    {
+        return GetSmnAttunement(errorMetrics) > 0 && GetSmnAttunementStacks(errorMetrics) > 0;
+    }
+
+    #endregion
+
     /// <summary>
     /// Safely gets the current combo action ID.
     /// </summary>

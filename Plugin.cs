@@ -28,7 +28,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.43.0";
+    public const string PluginVersion = "1.44.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -77,6 +77,8 @@ public sealed class Plugin : IDalamudPlugin
     private readonly Prometheus prometheus;
     private readonly Calliope calliope;
     private readonly Terpsichore terpsichore;
+    private readonly Hecate hecate;
+    private readonly Persephone persephone;
 
     // Tank services
     private readonly EnmityService enmityService;
@@ -191,6 +193,8 @@ public sealed class Plugin : IDalamudPlugin
         this.prometheus = CreatePrometheusRotation();
         this.calliope = CreateCalliopeRotation();
         this.terpsichore = CreateTerpsichoreRotation();
+        this.hecate = CreateHecateRotation();
+        this.persephone = CreatePersephoneRotation();
         RegisterAvailableRotations();
 
         // Debug service aggregates all debug data
@@ -375,6 +379,11 @@ public sealed class Plugin : IDalamudPlugin
         // Ranged Physical DPS
         rotationManager.Register(prometheus);
         rotationManager.Register(calliope);
+        rotationManager.Register(terpsichore);
+
+        // Casters
+        rotationManager.Register(hecate);
+        rotationManager.Register(persephone);
     }
 
     /// <summary>
@@ -402,6 +411,8 @@ public sealed class Plugin : IDalamudPlugin
         JobRegistry.Machinist => CreatePrometheusRotation(),
         JobRegistry.Bard or JobRegistry.Archer => CreateCalliopeRotation(),
         JobRegistry.Dancer => CreateTerpsichoreRotation(),
+        JobRegistry.BlackMage or JobRegistry.Thaumaturge => CreateHecateRotation(),
+        JobRegistry.Summoner => CreatePersephoneRotation(),
         _ => null
     };
 
@@ -782,6 +793,50 @@ public sealed class Plugin : IDalamudPlugin
     private Terpsichore CreateTerpsichoreRotation()
     {
         return new Terpsichore(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            damageTrendService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
+            timelineService);
+    }
+
+    /// <summary>
+    /// Creates the Hecate (Black Mage) rotation module.
+    /// </summary>
+    private Hecate CreateHecateRotation()
+    {
+        return new Hecate(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            damageTrendService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
+            timelineService);
+    }
+
+    /// <summary>
+    /// Creates the Persephone (Summoner) rotation module.
+    /// </summary>
+    private Persephone CreatePersephoneRotation()
+    {
+        return new Persephone(
             log,
             actionTracker,
             combatEventService,
