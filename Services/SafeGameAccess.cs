@@ -1764,6 +1764,107 @@ public static class SafeGameAccess
 
     #endregion
 
+    #region Red Mage Gauge
+
+    /// <summary>
+    /// Safely gets the Red Mage Black Mana gauge value.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Black Mana gauge value (0-100), or 0 if unavailable.</returns>
+    public static unsafe int GetRdmBlackMana(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->RedMage.BlackMana;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read RDM Black Mana");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Red Mage White Mana gauge value.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>White Mana gauge value (0-100), or 0 if unavailable.</returns>
+    public static unsafe int GetRdmWhiteMana(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->RedMage.WhiteMana;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read RDM White Mana");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Red Mage Mana Stack count (for melee finisher combo).
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Mana Stack count (0-3), or 0 if unavailable.</returns>
+    public static unsafe int GetRdmManaStacks(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->RedMage.ManaStacks;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read RDM Mana Stacks");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Gets the mana imbalance between Black and White mana.
+    /// Positive = more Black, Negative = more White.
+    /// </summary>
+    public static unsafe int GetRdmManaImbalance(IErrorMetricsService? errorMetrics = null)
+    {
+        var black = GetRdmBlackMana(errorMetrics);
+        var white = GetRdmWhiteMana(errorMetrics);
+        return black - white;
+    }
+
+    /// <summary>
+    /// Checks if the Red Mage can start melee combo (both mana >= 50).
+    /// </summary>
+    public static unsafe bool CanRdmStartMeleeCombo(IErrorMetricsService? errorMetrics = null)
+    {
+        var black = GetRdmBlackMana(errorMetrics);
+        var white = GetRdmWhiteMana(errorMetrics);
+        return black >= 50 && white >= 50;
+    }
+
+    /// <summary>
+    /// Gets the lower mana value between Black and White.
+    /// </summary>
+    public static unsafe int GetRdmLowerMana(IErrorMetricsService? errorMetrics = null)
+    {
+        var black = GetRdmBlackMana(errorMetrics);
+        var white = GetRdmWhiteMana(errorMetrics);
+        return black < white ? black : white;
+    }
+
+    #endregion
+
     /// <summary>
     /// Safely gets the current combo action ID.
     /// </summary>

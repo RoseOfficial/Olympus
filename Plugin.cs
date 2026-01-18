@@ -28,7 +28,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.44.0";
+    public const string PluginVersion = "1.45.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -79,6 +79,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly Terpsichore terpsichore;
     private readonly Hecate hecate;
     private readonly Persephone persephone;
+    private readonly Circe circe;
 
     // Tank services
     private readonly EnmityService enmityService;
@@ -195,6 +196,7 @@ public sealed class Plugin : IDalamudPlugin
         this.terpsichore = CreateTerpsichoreRotation();
         this.hecate = CreateHecateRotation();
         this.persephone = CreatePersephoneRotation();
+        this.circe = CreateCirceRotation();
         RegisterAvailableRotations();
 
         // Debug service aggregates all debug data
@@ -384,6 +386,7 @@ public sealed class Plugin : IDalamudPlugin
         // Casters
         rotationManager.Register(hecate);
         rotationManager.Register(persephone);
+        rotationManager.Register(circe);
     }
 
     /// <summary>
@@ -412,7 +415,8 @@ public sealed class Plugin : IDalamudPlugin
         JobRegistry.Bard or JobRegistry.Archer => CreateCalliopeRotation(),
         JobRegistry.Dancer => CreateTerpsichoreRotation(),
         JobRegistry.BlackMage or JobRegistry.Thaumaturge => CreateHecateRotation(),
-        JobRegistry.Summoner => CreatePersephoneRotation(),
+        JobRegistry.Summoner or JobRegistry.Arcanist => CreatePersephoneRotation(),
+        JobRegistry.RedMage => CreateCirceRotation(),
         _ => null
     };
 
@@ -837,6 +841,28 @@ public sealed class Plugin : IDalamudPlugin
     private Persephone CreatePersephoneRotation()
     {
         return new Persephone(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            damageTrendService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
+            timelineService);
+    }
+
+    /// <summary>
+    /// Creates the Circe (Red Mage) rotation module.
+    /// </summary>
+    private Circe CreateCirceRotation()
+    {
+        return new Circe(
             log,
             actionTracker,
             combatEventService,
