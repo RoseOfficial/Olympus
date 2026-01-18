@@ -697,6 +697,119 @@ public static class SafeGameAccess
 
     #endregion
 
+    #region Viper Gauge
+
+    /// <summary>
+    /// Safely gets the Viper Rattling Coil stacks.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Rattling Coil stacks (0-3), or 0 if unavailable.</returns>
+    public static unsafe int GetVprRattlingCoilStacks(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Viper.RattlingCoilStacks;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read VPR Rattling Coil");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Viper Anguine Tribute stacks.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Anguine Tribute stacks (0-5), or 0 if unavailable.</returns>
+    public static unsafe int GetVprAnguineTribute(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Viper.AnguineTribute;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read VPR Anguine Tribute");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Viper Serpent Offering gauge value.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Serpent Offering gauge value (0-100), or 0 if unavailable.</returns>
+    public static unsafe int GetVprSerpentOffering(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Viper.SerpentOffering;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read VPR Serpent Offering");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Viper Dread Combo state.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>DreadCombo enum value, or 0 if unavailable.</returns>
+    public static unsafe byte GetVprDreadCombo(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return (byte)jobGauge->Viper.DreadCombo;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read VPR Dread Combo");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Viper Reawakened timer remaining in seconds.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Reawakened timer in seconds, or 0 if not reawakened.</returns>
+    public static unsafe float GetVprReawakenedTimer(IErrorMetricsService? errorMetrics = null)
+    {
+        // Reawakened timer is tracked via Anguine Tribute > 0
+        // The timer itself isn't directly exposed, but Anguine Tribute presence indicates active state
+        var anguineTribute = GetVprAnguineTribute(errorMetrics);
+        return anguineTribute > 0 ? 10f : 0f; // Approximate - Reawaken window is about 10s
+    }
+
+    /// <summary>
+    /// Checks if the Viper is currently in Reawakened state.
+    /// </summary>
+    public static unsafe bool IsVprReawakened(IErrorMetricsService? errorMetrics = null)
+    {
+        return GetVprAnguineTribute(errorMetrics) > 0;
+    }
+
+    #endregion
+
     /// <summary>
     /// Safely gets the current combo action ID.
     /// </summary>

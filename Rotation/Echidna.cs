@@ -1,0 +1,232 @@
+using System.Collections.Generic;
+using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Party;
+using Dalamud.Plugin.Services;
+using Olympus.Data;
+using Olympus.Rotation.ApolloCore.Context;
+using Olympus.Rotation.Base;
+using Olympus.Rotation.EchidnaCore.Context;
+using Olympus.Rotation.EchidnaCore.Helpers;
+using Olympus.Rotation.EchidnaCore.Modules;
+using Olympus.Services;
+using Olympus.Services.Action;
+using Olympus.Services.Debuff;
+using Olympus.Services.Positional;
+using Olympus.Services.Prediction;
+using Olympus.Services.Stats;
+using Olympus.Services.Targeting;
+using Olympus.Timeline;
+
+namespace Olympus.Rotation;
+
+/// <summary>
+/// Viper rotation module (RSR-style reactive execution).
+/// Orchestrates modular execution: each module handles a specific concern.
+/// Named after Echidna, the Greek mother of serpents.
+/// </summary>
+[Rotation("Echidna", JobRegistry.Viper, Role = RotationRole.MeleeDps)]
+public sealed class Echidna : BaseMeleeDpsRotation<IEchidnaContext, IEchidnaModule>
+{
+    /// <inheritdoc />
+    public override string Name => "Echidna";
+
+    /// <inheritdoc />
+    public override uint[] SupportedJobIds => [JobRegistry.Viper];
+
+    /// <inheritdoc />
+    public override DebugState DebugState => _debugState;
+
+    /// <inheritdoc />
+    protected override List<IEchidnaModule> Modules => _modules;
+
+    /// <summary>
+    /// Gets the Echidna-specific debug state. Used for Viper-specific debug display.
+    /// </summary>
+    public EchidnaDebugState EchidnaDebug => _echidnaDebugState;
+
+    // Persistent debug state
+    private readonly EchidnaDebugState _echidnaDebugState = new();
+
+    // IRotation-compatible debug state (for common debug interface)
+    private readonly DebugState _debugState = new();
+
+    // Helpers (shared across modules)
+    private readonly EchidnaStatusHelper _statusHelper;
+    private readonly EchidnaPartyHelper _partyHelper;
+
+    // Modules (sorted by priority - lower = higher priority)
+    private readonly List<IEchidnaModule> _modules;
+
+    // Timeline service for fight-aware rotation (optional)
+    private readonly ITimelineService? _timelineService;
+
+    // Gauge values (read each frame)
+    private int _serpentOffering;
+    private int _anguineTribute;
+    private int _rattlingCoils;
+    private VPRActions.DreadCombo _dreadCombo;
+
+    public Echidna(
+        IPluginLog log,
+        ActionTracker actionTracker,
+        ICombatEventService combatEventService,
+        IDamageIntakeService damageIntakeService,
+        IDamageTrendService damageTrendService,
+        Configuration configuration,
+        IObjectTable objectTable,
+        IPartyList partyList,
+        ITargetingService targetingService,
+        IHpPredictionService hpPredictionService,
+        ActionService actionService,
+        IPlayerStatsService playerStatsService,
+        IDebuffDetectionService debuffDetectionService,
+        IPositionalService positionalService,
+        ITimelineService? timelineService = null,
+        IErrorMetricsService? errorMetrics = null)
+        : base(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            damageTrendService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
+            positionalService,
+            errorMetrics)
+    {
+        _timelineService = timelineService;
+
+        // Initialize helpers
+        _statusHelper = new EchidnaStatusHelper();
+        _partyHelper = new EchidnaPartyHelper(objectTable, partyList);
+
+        // Initialize modules (ordered by priority - lower = executed first)
+        _modules = new List<IEchidnaModule>
+        {
+            new BuffModule(),    // Priority 20 - Buff management (Serpent's Ire)
+            new DamageModule(),  // Priority 30 - DPS rotation
+        };
+
+        // Sort by priority
+        _modules.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+    }
+
+    #region Abstract Implementation
+
+    /// <inheritdoc />
+    protected override void ReadGaugeValues()
+    {
+        _serpentOffering = SafeGameAccess.GetVprSerpentOffering(ErrorMetrics);
+        _anguineTribute = SafeGameAccess.GetVprAnguineTribute(ErrorMetrics);
+        _rattlingCoils = SafeGameAccess.GetVprRattlingCoilStacks(ErrorMetrics);
+        _dreadCombo = (VPRActions.DreadCombo)SafeGameAccess.GetVprDreadCombo(ErrorMetrics);
+    }
+
+    /// <inheritdoc />
+    protected override int DetermineComboStep(uint comboAction, float comboTimer)
+    {
+        // Viper dual wield combos (2.5s GCD):
+        // ST: Steel Fangs → Hunter's Sting → Positional Finisher
+        //     Reaving Fangs → Swiftskin's Sting → Positional Finisher
+        // AoE: Steel Maw → Hunter's Bite → Jagged Maw
+        //      Reaving Maw → Swiftskin's Bite → Bloodied Maw
+        if (comboTimer <= 0)
+            return 0;
+
+        return comboAction switch
+        {
+            // Single target combo starters
+            34606 => 1, // Steel Fangs
+            34607 => 1, // Reaving Fangs
+
+            // Single target second hits
+            34608 => 2, // Hunter's Sting
+            34609 => 2, // Swiftskin's Sting
+
+            // AoE combo starters
+            34614 => 1, // Steel Maw
+            34615 => 1, // Reaving Maw
+
+            // AoE second hits
+            34616 => 2, // Hunter's Bite
+            34617 => 2, // Swiftskin's Bite
+
+            _ => 0
+        };
+    }
+
+    /// <summary>
+    /// Updates MP forecast. Vipers don't use MP for abilities.
+    /// </summary>
+    protected override void UpdateMpForecast(IPlayerCharacter player)
+    {
+        // Vipers don't use MP for any abilities
+        MpForecastService.Update(
+            (int)player.CurrentMp,
+            (int)player.MaxMp,
+            hasLucidDreaming: false);
+    }
+
+    /// <inheritdoc />
+    protected override IEchidnaContext CreateContext(IPlayerCharacter player, bool inCombat, bool isMoving)
+    {
+        return new EchidnaContext(
+            player: player,
+            inCombat: inCombat,
+            isMoving: isMoving,
+            canExecuteGcd: ActionService.CanExecuteGcd,
+            canExecuteOgcd: ActionService.CanExecuteOgcd,
+            actionService: ActionService,
+            actionTracker: ActionTracker,
+            combatEventService: CombatEventService,
+            damageIntakeService: DamageIntakeService,
+            damageTrendService: DamageTrendService,
+            frameCache: FrameCache,
+            configuration: Configuration,
+            debuffDetectionService: DebuffDetectionService,
+            hpPredictionService: HpPredictionService,
+            mpForecastService: MpForecastService,
+            playerStatsService: PlayerStatsService,
+            targetingService: TargetingService,
+            objectTable: ObjectTable,
+            partyList: PartyList,
+            positionalService: PositionalService,
+            statusHelper: _statusHelper,
+            partyHelper: _partyHelper,
+            debugState: _echidnaDebugState,
+            serpentOffering: _serpentOffering,
+            anguineTribute: _anguineTribute,
+            rattlingCoils: _rattlingCoils,
+            dreadCombo: _dreadCombo,
+            comboStep: ComboStep,
+            lastComboAction: LastComboAction,
+            comboTimeRemaining: ComboTimeRemaining,
+            isAtRear: IsAtRear,
+            isAtFlank: IsAtFlank,
+            targetHasPositionalImmunity: TargetHasPositionalImmunity,
+            timelineService: _timelineService,
+            log: Log);
+    }
+
+    /// <inheritdoc />
+    protected override void SyncDebugState(IEchidnaContext context)
+    {
+        // Map Viper debug state to common debug state fields
+        _debugState.PlanningState = _echidnaDebugState.PlanningState;
+        _debugState.PlannedAction = _echidnaDebugState.PlannedAction;
+        _debugState.DpsState = _echidnaDebugState.DamageState;
+        // Note: BuffState is tracked in EchidnaDebugState but not in common DebugState
+
+        // Party/player info
+        _debugState.PlayerHpPercent = (float)context.Player.CurrentHp / context.Player.MaxHp;
+        _debugState.PartyListCount = context.PartyList.Length;
+    }
+
+    #endregion
+}

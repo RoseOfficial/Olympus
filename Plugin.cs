@@ -28,7 +28,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.38.0";
+    public const string PluginVersion = "1.39.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -73,6 +73,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly Hermes hermes;
     private readonly Nike nike;
     private readonly Thanatos thanatos;
+    private readonly Echidna echidna;
 
     // Tank services
     private readonly EnmityService enmityService;
@@ -183,6 +184,7 @@ public sealed class Plugin : IDalamudPlugin
         this.hermes = CreateHermesRotation();
         this.nike = CreateNikeRotation();
         this.thanatos = CreateThanatosRotation();
+        this.echidna = CreateEchidnaRotation();
         RegisterAvailableRotations();
 
         // Debug service aggregates all debug data
@@ -385,6 +387,7 @@ public sealed class Plugin : IDalamudPlugin
         JobRegistry.Ninja or JobRegistry.Rogue => CreateHermesRotation(),
         JobRegistry.Samurai => CreateNikeRotation(),
         JobRegistry.Reaper => CreateThanatosRotation(),
+        JobRegistry.Viper => CreateEchidnaRotation(),
         _ => null
     };
 
@@ -675,6 +678,29 @@ public sealed class Plugin : IDalamudPlugin
     private Thanatos CreateThanatosRotation()
     {
         return new Thanatos(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            damageTrendService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
+            positionalService,
+            timelineService);
+    }
+
+    /// <summary>
+    /// Creates the Echidna (Viper) rotation module.
+    /// </summary>
+    private Echidna CreateEchidnaRotation()
+    {
+        return new Echidna(
             log,
             actionTracker,
             combatEventService,
