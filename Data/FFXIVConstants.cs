@@ -67,6 +67,12 @@ public static class FFXIVConstants
     /// </summary>
     public const float MeleeTargetingRange = 5f;
 
+    /// <summary>
+    /// Ranged physical DPS targeting range for center-to-center distance calculations.
+    /// Most ranged actions have 25y range, so we use that as the standard.
+    /// </summary>
+    public const float RangedTargetingRange = 25f;
+
     // Cure III clustering
     /// <summary>Radius for detecting Cure III cluster targets.</summary>
     public const float CureIIIClusterRadius = 10f;

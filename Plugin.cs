@@ -28,7 +28,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.39.0";
+    public const string PluginVersion = "1.40.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -74,6 +74,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly Nike nike;
     private readonly Thanatos thanatos;
     private readonly Echidna echidna;
+    private readonly Prometheus prometheus;
 
     // Tank services
     private readonly EnmityService enmityService;
@@ -185,6 +186,7 @@ public sealed class Plugin : IDalamudPlugin
         this.nike = CreateNikeRotation();
         this.thanatos = CreateThanatosRotation();
         this.echidna = CreateEchidnaRotation();
+        this.prometheus = CreatePrometheusRotation();
         RegisterAvailableRotations();
 
         // Debug service aggregates all debug data
@@ -364,6 +366,10 @@ public sealed class Plugin : IDalamudPlugin
         rotationManager.Register(hermes);
         rotationManager.Register(nike);
         rotationManager.Register(thanatos);
+        rotationManager.Register(echidna);
+
+        // Ranged Physical DPS
+        rotationManager.Register(prometheus);
     }
 
     /// <summary>
@@ -388,6 +394,7 @@ public sealed class Plugin : IDalamudPlugin
         JobRegistry.Samurai => CreateNikeRotation(),
         JobRegistry.Reaper => CreateThanatosRotation(),
         JobRegistry.Viper => CreateEchidnaRotation(),
+        JobRegistry.Machinist => CreatePrometheusRotation(),
         _ => null
     };
 
@@ -715,6 +722,28 @@ public sealed class Plugin : IDalamudPlugin
             playerStatsService,
             debuffDetectionService,
             positionalService,
+            timelineService);
+    }
+
+    /// <summary>
+    /// Creates the Prometheus (Machinist) rotation module.
+    /// </summary>
+    private Prometheus CreatePrometheusRotation()
+    {
+        return new Prometheus(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            damageTrendService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
             timelineService);
     }
 

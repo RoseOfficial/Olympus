@@ -810,6 +810,139 @@ public static class SafeGameAccess
 
     #endregion
 
+    #region Machinist Gauge
+
+    /// <summary>
+    /// Safely gets the Machinist Heat gauge value.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Heat gauge value (0-100), or 0 if unavailable.</returns>
+    public static unsafe int GetMchHeat(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Machinist.Heat;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read MCH Heat");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Machinist Battery gauge value.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Battery gauge value (0-100), or 0 if unavailable.</returns>
+    public static unsafe int GetMchBattery(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Machinist.Battery;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read MCH Battery");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Machinist Overheated timer remaining in seconds.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Overheated timer in seconds, or 0 if not overheated.</returns>
+    public static unsafe float GetMchOverheatTimer(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0f;
+
+        try
+        {
+            // Timer is stored in milliseconds, convert to seconds
+            return jobGauge->Machinist.OverheatTimeRemaining / 1000f;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read MCH Overheat timer");
+            return 0f;
+        }
+    }
+
+    /// <summary>
+    /// Checks if the Machinist is currently in Overheated state.
+    /// </summary>
+    public static unsafe bool IsMchOverheated(IErrorMetricsService? errorMetrics = null)
+    {
+        return GetMchOverheatTimer(errorMetrics) > 0;
+    }
+
+    /// <summary>
+    /// Safely gets the Machinist Automaton Queen timer remaining in seconds.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Queen timer in seconds, or 0 if Queen not active.</returns>
+    public static unsafe float GetMchQueenTimer(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0f;
+
+        try
+        {
+            // Timer is stored in milliseconds, convert to seconds
+            return jobGauge->Machinist.SummonTimeRemaining / 1000f;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read MCH Queen timer");
+            return 0f;
+        }
+    }
+
+    /// <summary>
+    /// Checks if the Machinist has an Automaton Queen active.
+    /// </summary>
+    public static unsafe bool IsMchQueenActive(IErrorMetricsService? errorMetrics = null)
+    {
+        return GetMchQueenTimer(errorMetrics) > 0;
+    }
+
+    /// <summary>
+    /// Safely gets the Battery value that was used to summon the last Queen.
+    /// Used to calculate Queen damage output.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Last Queen Battery (50-100), or 0 if no Queen was summoned.</returns>
+    public static unsafe int GetMchLastQueenBattery(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Machinist.LastSummonBatteryPower;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read MCH Last Queen Battery");
+            return 0;
+        }
+    }
+
+    #endregion
+
     /// <summary>
     /// Safely gets the current combo action ID.
     /// </summary>

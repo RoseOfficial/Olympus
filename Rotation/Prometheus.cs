@@ -1,0 +1,217 @@
+using System.Collections.Generic;
+using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Party;
+using Dalamud.Plugin.Services;
+using Olympus.Data;
+using Olympus.Rotation.ApolloCore.Context;
+using Olympus.Rotation.Base;
+using Olympus.Rotation.PrometheusCore.Context;
+using Olympus.Rotation.PrometheusCore.Helpers;
+using Olympus.Rotation.PrometheusCore.Modules;
+using Olympus.Services;
+using Olympus.Services.Action;
+using Olympus.Services.Debuff;
+using Olympus.Services.Prediction;
+using Olympus.Services.Stats;
+using Olympus.Services.Targeting;
+using Olympus.Timeline;
+
+namespace Olympus.Rotation;
+
+/// <summary>
+/// Machinist rotation module (RSR-style reactive execution).
+/// Orchestrates modular execution: each module handles a specific concern.
+/// Named after Prometheus, the Greek titan of fire and technology.
+/// </summary>
+[Rotation("Prometheus", JobRegistry.Machinist, Role = RotationRole.RangedDps)]
+public sealed class Prometheus : BaseRangedDpsRotation<IPrometheusContext, IPrometheusModule>
+{
+    /// <inheritdoc />
+    public override string Name => "Prometheus";
+
+    /// <inheritdoc />
+    public override uint[] SupportedJobIds => [JobRegistry.Machinist];
+
+    /// <inheritdoc />
+    public override DebugState DebugState => _debugState;
+
+    /// <inheritdoc />
+    protected override List<IPrometheusModule> Modules => _modules;
+
+    /// <summary>
+    /// Gets the Prometheus-specific debug state. Used for Machinist-specific debug display.
+    /// </summary>
+    public PrometheusDebugState PrometheusDebug => _prometheusDebugState;
+
+    // Persistent debug state
+    private readonly PrometheusDebugState _prometheusDebugState = new();
+
+    // IRotation-compatible debug state (for common debug interface)
+    private readonly DebugState _debugState = new();
+
+    // Helpers (shared across modules)
+    private readonly PrometheusStatusHelper _statusHelper;
+    private readonly PrometheusPartyHelper _partyHelper;
+
+    // Modules (sorted by priority - lower = higher priority)
+    private readonly List<IPrometheusModule> _modules;
+
+    // Timeline service for fight-aware rotation (optional)
+    private readonly ITimelineService? _timelineService;
+
+    // Gauge values (read each frame)
+    private int _heat;
+    private int _battery;
+    private float _overheatRemaining;
+    private float _queenRemaining;
+    private int _lastQueenBattery;
+
+    public Prometheus(
+        IPluginLog log,
+        ActionTracker actionTracker,
+        ICombatEventService combatEventService,
+        IDamageIntakeService damageIntakeService,
+        IDamageTrendService damageTrendService,
+        Configuration configuration,
+        IObjectTable objectTable,
+        IPartyList partyList,
+        ITargetingService targetingService,
+        IHpPredictionService hpPredictionService,
+        ActionService actionService,
+        IPlayerStatsService playerStatsService,
+        IDebuffDetectionService debuffDetectionService,
+        ITimelineService? timelineService = null,
+        IErrorMetricsService? errorMetrics = null)
+        : base(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            damageTrendService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
+            errorMetrics)
+    {
+        _timelineService = timelineService;
+
+        // Initialize helpers
+        _statusHelper = new PrometheusStatusHelper();
+        _partyHelper = new PrometheusPartyHelper(objectTable, partyList);
+
+        // Initialize modules (ordered by priority - lower = executed first)
+        _modules = new List<IPrometheusModule>
+        {
+            new BuffModule(),    // Priority 20 - Buff management (Wildfire, Hypercharge, Queen)
+            new DamageModule(),  // Priority 30 - DPS rotation
+        };
+
+        // Sort by priority
+        _modules.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+    }
+
+    #region Abstract Implementation
+
+    /// <inheritdoc />
+    protected override void ReadGaugeValues()
+    {
+        _heat = SafeGameAccess.GetMchHeat(ErrorMetrics);
+        _battery = SafeGameAccess.GetMchBattery(ErrorMetrics);
+        _overheatRemaining = SafeGameAccess.GetMchOverheatTimer(ErrorMetrics);
+        _queenRemaining = SafeGameAccess.GetMchQueenTimer(ErrorMetrics);
+        _lastQueenBattery = SafeGameAccess.GetMchLastQueenBattery(ErrorMetrics);
+    }
+
+    /// <inheritdoc />
+    protected override int DetermineComboStep(uint comboAction, float comboTimer)
+    {
+        // MCH basic combo: Split Shot -> Slug Shot -> Clean Shot
+        // (Heated versions at higher levels)
+        if (comboTimer <= 0)
+            return 0;
+
+        return comboAction switch
+        {
+            // Combo starters
+            2866 => 1, // Split Shot
+            7411 => 1, // Heated Split Shot
+
+            // Second hits
+            2868 => 2, // Slug Shot
+            7412 => 2, // Heated Slug Shot
+
+            _ => 0
+        };
+    }
+
+    /// <summary>
+    /// Updates MP forecast. Machinists don't use MP for abilities.
+    /// </summary>
+    protected override void UpdateMpForecast(IPlayerCharacter player)
+    {
+        // Machinists don't use MP for any abilities
+        MpForecastService.Update(
+            (int)player.CurrentMp,
+            (int)player.MaxMp,
+            hasLucidDreaming: false);
+    }
+
+    /// <inheritdoc />
+    protected override IPrometheusContext CreateContext(IPlayerCharacter player, bool inCombat, bool isMoving)
+    {
+        return new PrometheusContext(
+            player: player,
+            inCombat: inCombat,
+            isMoving: isMoving,
+            canExecuteGcd: ActionService.CanExecuteGcd,
+            canExecuteOgcd: ActionService.CanExecuteOgcd,
+            actionService: ActionService,
+            actionTracker: ActionTracker,
+            combatEventService: CombatEventService,
+            damageIntakeService: DamageIntakeService,
+            damageTrendService: DamageTrendService,
+            frameCache: FrameCache,
+            configuration: Configuration,
+            debuffDetectionService: DebuffDetectionService,
+            hpPredictionService: HpPredictionService,
+            mpForecastService: MpForecastService,
+            playerStatsService: PlayerStatsService,
+            targetingService: TargetingService,
+            objectTable: ObjectTable,
+            partyList: PartyList,
+            statusHelper: _statusHelper,
+            partyHelper: _partyHelper,
+            debugState: _prometheusDebugState,
+            heat: _heat,
+            battery: _battery,
+            overheatRemaining: _overheatRemaining,
+            queenRemaining: _queenRemaining,
+            lastQueenBattery: _lastQueenBattery,
+            comboStep: ComboStep,
+            lastComboAction: LastComboAction,
+            comboTimeRemaining: ComboTimeRemaining,
+            timelineService: _timelineService,
+            log: Log);
+    }
+
+    /// <inheritdoc />
+    protected override void SyncDebugState(IPrometheusContext context)
+    {
+        // Map Machinist debug state to common debug state fields
+        _debugState.PlanningState = _prometheusDebugState.PlanningState;
+        _debugState.PlannedAction = _prometheusDebugState.PlannedAction;
+        _debugState.DpsState = _prometheusDebugState.DamageState;
+        // Note: BuffState is tracked in PrometheusDebugState but not in common DebugState
+
+        // Party/player info
+        _debugState.PlayerHpPercent = (float)context.Player.CurrentHp / context.Player.MaxHp;
+        _debugState.PartyListCount = context.PartyList.Length;
+    }
+
+    #endregion
+}

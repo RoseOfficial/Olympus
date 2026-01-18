@@ -1,5 +1,11 @@
 # Olympus
 
+![Version](https://img.shields.io/github/v/release/RoseOfficial/Olympus?label=version)
+![Lines of Code](https://tokei.rs/b1/github/RoseOfficial/Olympus?category=code)
+![Code Size](https://img.shields.io/github/languages/code-size/RoseOfficial/Olympus)
+![Last Commit](https://img.shields.io/github/last-commit/RoseOfficial/Olympus)
+![C#](https://img.shields.io/github/languages/top/RoseOfficial/Olympus)
+
 An intelligent rotation assistant for FFXIV that handles healing, damage, mitigation, and resource management with full level-sync awareness.
 
 ## Supported Jobs
@@ -8,7 +14,7 @@ An intelligent rotation assistant for FFXIV that handles healing, damage, mitiga
 |------|------|--------|
 | **Healers** | White Mage, Scholar, Astrologian, Sage | ✅ Complete |
 | **Tanks** | Paladin, Warrior, Dark Knight, Gunbreaker | ✅ Complete |
-| **Melee DPS** | Monk, Dragoon, Ninja | 🔄 3/6 |
+| **Melee DPS** | Monk, Dragoon, Ninja, Samurai, Reaper, Viper | ✅ Complete |
 | **Ranged Physical** | Bard, Machinist, Dancer | ⏳ Coming Soon |
 | **Casters** | Black Mage, Summoner, Red Mage, Pictomancer | ⏳ Coming Soon |
 
@@ -89,12 +95,15 @@ Each rotation is named after a Greek deity matching the job's theme:
 | Melee | Monk | Kratos |
 | Melee | Dragoon | Zeus |
 | Melee | Ninja | Hermes |
+| Melee | Samurai | Nike |
+| Melee | Reaper | Thanatos |
+| Melee | Viper | Echidna |
 
 ## Roadmap
 
 - ✅ All Healers (4/4)
 - ✅ All Tanks (4/4)
-- 🔄 Melee DPS (3/6) - Samurai, Reaper, Viper next
+- ✅ All Melee DPS (6/6)
 - ⏳ Ranged Physical (0/3)
 - ⏳ Casters (0/4)
 
