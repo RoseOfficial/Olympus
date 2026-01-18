@@ -943,6 +943,199 @@ public static class SafeGameAccess
 
     #endregion
 
+    #region Bard Gauge
+
+    /// <summary>
+    /// Safely gets the Bard Soul Voice gauge value.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Soul Voice gauge value (0-100), or 0 if unavailable.</returns>
+    public static unsafe int GetBrdSoulVoice(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Bard.SoulVoice;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read BRD Soul Voice");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Bard song timer remaining in seconds.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Song timer in seconds, or 0 if no song active.</returns>
+    public static unsafe float GetBrdSongTimer(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0f;
+
+        try
+        {
+            // Timer is stored in milliseconds, convert to seconds
+            return jobGauge->Bard.SongTimer / 1000f;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read BRD Song timer");
+            return 0f;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Bard Repertoire stacks (0-4).
+    /// During Wanderer's Minuet: Pitch Perfect stacks
+    /// During Army's Paeon: Speed stacks
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Repertoire stacks (0-4), or 0 if unavailable.</returns>
+    public static unsafe int GetBrdRepertoire(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Bard.Repertoire;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read BRD Repertoire");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Bard current song.
+    /// SongFlags lower bits: 0=None, 1=MagesBallad, 2=ArmysPaeon, 3=WanderersMinuet.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Song enum value (0=None, 1=MB, 2=AP, 3=WM), or 0 if unavailable.</returns>
+    public static unsafe byte GetBrdCurrentSong(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            // Song type is stored in lower 2 bits of SongFlags
+            return (byte)((byte)jobGauge->Bard.SongFlags & 0x3);
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read BRD Current Song");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Gets the count of Coda available for Radiant Finale (0-3).
+    /// Coda flags in SongFlags: MagesBalladCoda=16, ArmysPaeonCoda=32, WanderersMinuetCoda=64.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Coda count (0-3), or 0 if unavailable.</returns>
+    public static unsafe int GetBrdCodaCount(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            var count = 0;
+            var flags = (byte)jobGauge->Bard.SongFlags;
+            if ((flags & 16) != 0) count++; // MagesBalladCoda
+            if ((flags & 32) != 0) count++; // ArmysPaeonCoda
+            if ((flags & 64) != 0) count++; // WanderersMinuetCoda
+            return count;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read BRD Coda count");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Checks if the Bard has Mage's Ballad Coda (flag value 16).
+    /// </summary>
+    public static unsafe bool GetBrdHasMBCoda(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return false;
+
+        try
+        {
+            return ((byte)jobGauge->Bard.SongFlags & 16) != 0;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to check BRD MB Coda");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Checks if the Bard has Army's Paeon Coda (flag value 32).
+    /// </summary>
+    public static unsafe bool GetBrdHasAPCoda(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return false;
+
+        try
+        {
+            return ((byte)jobGauge->Bard.SongFlags & 32) != 0;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to check BRD AP Coda");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Checks if the Bard has Wanderer's Minuet Coda (flag value 64).
+    /// </summary>
+    public static unsafe bool GetBrdHasWMCoda(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return false;
+
+        try
+        {
+            return ((byte)jobGauge->Bard.SongFlags & 64) != 0;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to check BRD WM Coda");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Checks if a song is currently active.
+    /// </summary>
+    public static unsafe bool IsBrdSongActive(IErrorMetricsService? errorMetrics = null)
+    {
+        return GetBrdSongTimer(errorMetrics) > 0;
+    }
+
+    #endregion
+
     /// <summary>
     /// Safely gets the current combo action ID.
     /// </summary>
