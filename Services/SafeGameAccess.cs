@@ -1865,6 +1865,242 @@ public static class SafeGameAccess
 
     #endregion
 
+    #region Pictomancer Gauge
+
+    /// <summary>
+    /// Safely gets the Pictomancer Palette Gauge value (0-100).
+    /// Filled by completing combos.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Palette gauge value (0-100), or 0 if unavailable.</returns>
+    public static unsafe int GetPctPaletteGauge(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Pictomancer.PalleteGauge;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read PCT Palette Gauge");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Pictomancer White Paint stacks (0-5).
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>White Paint stacks (0-5), or 0 if unavailable.</returns>
+    public static unsafe int GetPctWhitePaint(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return jobGauge->Pictomancer.Paint;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read PCT White Paint");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely checks if the Pictomancer has Black Paint available.
+    /// Black Paint is derived from White Paint via Subtractive Palette.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>True if Black Paint is available, false otherwise.</returns>
+    public static unsafe bool GetPctHasBlackPaint(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return false;
+
+        try
+        {
+            // Check the CreatureFlags for Black Paint
+            return ((byte)jobGauge->Pictomancer.CreatureFlags & 0x10) != 0;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read PCT Black Paint");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Pictomancer Creature Canvas state.
+    /// Returns the creature motif type painted on canvas.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Creature motif type (0=None, 1=Pom, 2=Wing, 3=Claw, 4=Maw).</returns>
+    public static unsafe byte GetPctCreatureMotif(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            // CreatureMotifDrawn is an enum, get from CanvasFlags
+            var flags = (byte)jobGauge->Pictomancer.CanvasFlags;
+            // Extract creature type from flags (bits 0-3 indicate creature type)
+            if ((flags & 0x01) != 0) return 1; // Pom
+            if ((flags & 0x02) != 0) return 2; // Wing
+            if ((flags & 0x04) != 0) return 3; // Claw
+            if ((flags & 0x08) != 0) return 4; // Maw
+            return 0;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read PCT Creature Motif");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Safely checks if the Pictomancer has a creature painted on canvas.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>True if a creature is painted, false otherwise.</returns>
+    public static unsafe bool GetPctHasCreatureCanvas(IErrorMetricsService? errorMetrics = null)
+    {
+        return GetPctCreatureMotif(errorMetrics) != 0;
+    }
+
+    /// <summary>
+    /// Safely checks if the Pictomancer has a weapon (hammer) painted on canvas.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>True if weapon is painted, false otherwise.</returns>
+    public static unsafe bool GetPctHasWeaponCanvas(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return false;
+
+        try
+        {
+            return jobGauge->Pictomancer.WeaponMotifDrawn;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read PCT Weapon Canvas");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Safely checks if the Pictomancer has a landscape (starry sky) painted on canvas.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>True if landscape is painted, false otherwise.</returns>
+    public static unsafe bool GetPctHasLandscapeCanvas(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return false;
+
+        try
+        {
+            return jobGauge->Pictomancer.LandscapeMotifDrawn;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read PCT Landscape Canvas");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Safely gets the Pictomancer creature flags.
+    /// Used to track Mog/Madeen portrait state.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Creature flags byte.</returns>
+    public static unsafe byte GetPctCreatureFlags(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return (byte)jobGauge->Pictomancer.CreatureFlags;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read PCT Creature Flags");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Checks if Mog of the Ages portrait is ready (after 2 Living Muses).
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>True if Mog portrait is ready, false otherwise.</returns>
+    public static unsafe bool GetPctMogReady(IErrorMetricsService? errorMetrics = null)
+    {
+        var flags = GetPctCreatureFlags(errorMetrics);
+        // Mog ready flag is bit 1
+        return (flags & 0x02) != 0;
+    }
+
+    /// <summary>
+    /// Checks if Retribution of the Madeen portrait is ready (after 4 Living Muses).
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>True if Madeen portrait is ready, false otherwise.</returns>
+    public static unsafe bool GetPctMadeenReady(IErrorMetricsService? errorMetrics = null)
+    {
+        var flags = GetPctCreatureFlags(errorMetrics);
+        // Madeen ready flag is bit 2
+        return (flags & 0x04) != 0;
+    }
+
+    /// <summary>
+    /// Checks if the Pictomancer can use Subtractive Palette (palette gauge >= 50).
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>True if Subtractive Palette can be used, false otherwise.</returns>
+    public static unsafe bool CanPctUseSubtractivePalette(IErrorMetricsService? errorMetrics = null)
+    {
+        return GetPctPaletteGauge(errorMetrics) >= 50;
+    }
+
+    /// <summary>
+    /// Safely gets the canvas flags for tracking all painted elements.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>Canvas flags byte.</returns>
+    public static unsafe byte GetPctCanvasFlags(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return (byte)jobGauge->Pictomancer.CanvasFlags;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read PCT Canvas Flags");
+            return 0;
+        }
+    }
+
+    #endregion
+
     /// <summary>
     /// Safely gets the current combo action ID.
     /// </summary>

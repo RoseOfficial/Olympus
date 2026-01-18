@@ -28,7 +28,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "1.45.0";
+    public const string PluginVersion = "1.50.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -80,6 +80,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly Hecate hecate;
     private readonly Persephone persephone;
     private readonly Circe circe;
+    private readonly Iris iris;
 
     // Tank services
     private readonly EnmityService enmityService;
@@ -197,6 +198,7 @@ public sealed class Plugin : IDalamudPlugin
         this.hecate = CreateHecateRotation();
         this.persephone = CreatePersephoneRotation();
         this.circe = CreateCirceRotation();
+        this.iris = CreateIrisRotation();
         RegisterAvailableRotations();
 
         // Debug service aggregates all debug data
@@ -387,6 +389,7 @@ public sealed class Plugin : IDalamudPlugin
         rotationManager.Register(hecate);
         rotationManager.Register(persephone);
         rotationManager.Register(circe);
+        rotationManager.Register(iris);
     }
 
     /// <summary>
@@ -417,6 +420,7 @@ public sealed class Plugin : IDalamudPlugin
         JobRegistry.BlackMage or JobRegistry.Thaumaturge => CreateHecateRotation(),
         JobRegistry.Summoner or JobRegistry.Arcanist => CreatePersephoneRotation(),
         JobRegistry.RedMage => CreateCirceRotation(),
+        JobRegistry.Pictomancer => CreateIrisRotation(),
         _ => null
     };
 
@@ -863,6 +867,28 @@ public sealed class Plugin : IDalamudPlugin
     private Circe CreateCirceRotation()
     {
         return new Circe(
+            log,
+            actionTracker,
+            combatEventService,
+            damageIntakeService,
+            damageTrendService,
+            configuration,
+            objectTable,
+            partyList,
+            targetingService,
+            hpPredictionService,
+            actionService,
+            playerStatsService,
+            debuffDetectionService,
+            timelineService);
+    }
+
+    /// <summary>
+    /// Creates the Iris (Pictomancer) rotation module.
+    /// </summary>
+    private Iris CreateIrisRotation()
+    {
+        return new Iris(
             log,
             actionTracker,
             combatEventService,
