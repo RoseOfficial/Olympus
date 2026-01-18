@@ -15,8 +15,8 @@ An intelligent rotation assistant for FFXIV that handles healing, damage, mitiga
 | **Healers** | White Mage, Scholar, Astrologian, Sage | ✅ Complete |
 | **Tanks** | Paladin, Warrior, Dark Knight, Gunbreaker | ✅ Complete |
 | **Melee DPS** | Monk, Dragoon, Ninja, Samurai, Reaper, Viper | ✅ Complete |
-| **Ranged Physical** | Bard, Machinist, Dancer | ⏳ Coming Soon |
-| **Casters** | Black Mage, Summoner, Red Mage, Pictomancer | ⏳ Coming Soon |
+| **Ranged Physical** | Bard, Machinist, Dancer | ✅ Complete |
+| **Casters** | Black Mage, Summoner, Red Mage, Pictomancer | ✅ Complete |
 
 ## Features
 
@@ -39,6 +39,18 @@ An intelligent rotation assistant for FFXIV that handles healing, damage, mitiga
 - Burst window management
 - Combo tracking and resource management
 - oGCD weaving optimization
+
+### Ranged Physical DPS
+- Song/Dance rotation management
+- Proc tracking and optimization
+- Party buff coordination
+- DoT maintenance and refresh timing
+
+### Casters
+- Cast optimization and movement planning
+- Mana management and resource pooling
+- Enochian/Astral/Umbral state tracking
+- Proc usage and priority management
 
 ## Installation
 
@@ -98,14 +110,23 @@ Each rotation is named after a Greek deity matching the job's theme:
 | Melee | Samurai | Nike |
 | Melee | Reaper | Thanatos |
 | Melee | Viper | Echidna |
+| Ranged | Bard | Calliope |
+| Ranged | Machinist | Prometheus |
+| Ranged | Dancer | Terpsichore |
+| Caster | Black Mage | Hecate |
+| Caster | Summoner | Persephone |
+| Caster | Red Mage | Circe |
+| Caster | Pictomancer | Iris |
 
 ## Roadmap
 
 - ✅ All Healers (4/4)
 - ✅ All Tanks (4/4)
 - ✅ All Melee DPS (6/6)
-- ⏳ Ranged Physical (0/3)
-- ⏳ Casters (0/4)
+- ✅ All Ranged Physical (3/3)
+- ✅ All Casters (4/4)
+
+**All 21 combat jobs complete!**
 
 ## Contributing
 
