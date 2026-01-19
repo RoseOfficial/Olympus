@@ -1,3 +1,4 @@
+using Olympus.Services.Party;
 using Olympus.Services.Tank;
 
 namespace Olympus.Rotation.Common;
@@ -17,6 +18,12 @@ public interface ITankRotationContext : IRotationContext
     /// Service for planning tank cooldown usage.
     /// </summary>
     ITankCooldownService TankCooldownService { get; }
+
+    /// <summary>
+    /// Service for coordinating defensive cooldowns with other Olympus instances.
+    /// Null if party coordination is disabled or unavailable.
+    /// </summary>
+    IPartyCoordinationService? PartyCoordinationService { get; }
 
     /// <summary>
     /// Whether the player is currently the main tank (has highest enmity on target).

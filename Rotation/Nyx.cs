@@ -14,6 +14,7 @@ using Olympus.Services.Cooldown;
 using Olympus.Services.Debuff;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
+using Olympus.Services.Party;
 using Olympus.Services.Tank;
 using Olympus.Services.Targeting;
 using Olympus.Timeline;
@@ -78,6 +79,7 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
         IEnmityService enmityService,
         ITankCooldownService tankCooldownService,
         ITimelineService? timelineService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -96,6 +98,7 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
             enmityService,
             tankCooldownService,
             timelineService,
+            partyCoordinationService,
             errorMetrics)
     {
         // Initialize helpers
@@ -196,6 +199,7 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
             lastComboAction: LastComboAction,
             comboTimeRemaining: ComboTimeRemaining,
             timelineService: TimelineService,
+            partyCoordinationService: PartyCoordinationService,
             log: Log);
     }
 

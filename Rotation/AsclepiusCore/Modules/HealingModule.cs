@@ -3,6 +3,7 @@ using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.AsclepiusCore.Context;
 using Olympus.Rotation.AsclepiusCore.Helpers;
+using Olympus.Services.Party;
 
 namespace Olympus.Rotation.AsclepiusCore.Modules;
 
@@ -395,6 +396,16 @@ public sealed class HealingModule : IAsclepiusModule
         if (!config.EnableHolos)
             return false;
 
+        // Check if another instance recently used a party mitigation (cooldown coordination)
+        var partyCoord = context.PartyCoordinationService;
+        var coordConfig = context.Configuration.PartyCoordination;
+        if (coordConfig.EnableCooldownCoordination &&
+            partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
+        {
+            context.Debug.HolosState = "Skipped (remote mit)";
+            return false;
+        }
+
         if (player.Level < SGEActions.Holos.MinLevel)
             return false;
 
@@ -499,6 +510,16 @@ public sealed class HealingModule : IAsclepiusModule
 
         if (!config.EnablePanhaima)
             return false;
+
+        // Check if another instance recently used a party mitigation (cooldown coordination)
+        var partyCoord = context.PartyCoordinationService;
+        var coordConfig = context.Configuration.PartyCoordination;
+        if (coordConfig.EnableCooldownCoordination &&
+            partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
+        {
+            context.Debug.PanhaimaState = "Skipped (remote mit)";
+            return false;
+        }
 
         if (player.Level < SGEActions.Panhaima.MinLevel)
             return false;

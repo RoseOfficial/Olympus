@@ -62,6 +62,31 @@ public sealed class PartyCoordinationConfig
     public bool BroadcastMajorCooldowns { get; set; } = true;
 
     /// <summary>
+    /// Enable cooldown coordination with other Olympus instances.
+    /// When enabled, defensive cooldowns will be checked against remote instances
+    /// to prevent stacking party mitigations.
+    /// </summary>
+    public bool EnableCooldownCoordination { get; set; } = true;
+
+    /// <summary>
+    /// Time window (in seconds) to skip using party mitigation if another instance
+    /// recently used one. Prevents wasteful cooldown stacking.
+    /// Valid range: 1.0 to 10.0 seconds.
+    /// </summary>
+    private float _cooldownOverlapWindowSeconds = 3.0f;
+    public float CooldownOverlapWindowSeconds
+    {
+        get => _cooldownOverlapWindowSeconds;
+        set => _cooldownOverlapWindowSeconds = Math.Clamp(value, 1.0f, 10.0f);
+    }
+
+    /// <summary>
+    /// Log cooldown coordination decisions for debugging.
+    /// Shows when actions are skipped due to remote cooldown usage.
+    /// </summary>
+    public bool LogCooldownCoordination { get; set; } = false;
+
+    /// <summary>
     /// Log coordination events for debugging.
     /// Only enable when troubleshooting coordination issues.
     /// </summary>

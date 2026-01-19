@@ -71,6 +71,9 @@ public sealed class AstraeaContext : IAstraeaContext
     public IBossMechanicDetector? BossMechanicDetector { get; }
     public IShieldTrackingService? ShieldTrackingService { get; }
 
+    // Party coordination
+    public IPartyCoordinationService? PartyCoordinationService { get; }
+
     // Debug state (mutable, updated by modules)
     public AstraeaDebugState Debug { get; }
 
@@ -169,6 +172,7 @@ public sealed class AstraeaContext : IAstraeaContext
         IPartyAnalyzer? partyAnalyzer = null,
         IBossMechanicDetector? bossMechanicDetector = null,
         IShieldTrackingService? shieldTrackingService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         ITimelineService? timelineService = null,
         AstraeaDebugState? debugState = null,
         IPluginLog? log = null)
@@ -202,6 +206,7 @@ public sealed class AstraeaContext : IAstraeaContext
         CoHealerDetectionService = coHealerDetectionService;
         BossMechanicDetector = bossMechanicDetector;
         ShieldTrackingService = shieldTrackingService;
+        PartyCoordinationService = partyCoordinationService;
         TimelineService = timelineService;
         Debug = debugState ?? new AstraeaDebugState();
         HealingCoordination = new HealingCoordinationState();

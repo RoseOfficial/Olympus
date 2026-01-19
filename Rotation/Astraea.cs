@@ -194,6 +194,7 @@ public sealed class Astraea : BaseHealerRotation<AstraeaContext, IAstraeaModule>
             coHealerDetectionService: CoHealerDetectionService,
             bossMechanicDetector: BossMechanicDetector,
             shieldTrackingService: ShieldTrackingService,
+            partyCoordinationService: PartyCoordinationService,
             timelineService: _timelineService,
             debugState: _debugState,
             log: Log);

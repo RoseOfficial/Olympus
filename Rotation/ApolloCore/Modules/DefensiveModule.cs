@@ -3,6 +3,7 @@ using FFXIVClientStructs.FFXIV.Client.Game;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Services.Party;
 
 namespace Olympus.Rotation.ApolloCore.Modules;
 
@@ -174,6 +175,15 @@ public sealed class DefensiveModule : IApolloModule
         {
             var dmgRateStr = partyDamageRate > 0 ? $", DPS {partyDamageRate:F0}" : "";
             context.Debug.TemperanceState = $"Waiting ({injuredCount} injured, avg HP {avgHpPercent:P0}{dmgRateStr})";
+            return false;
+        }
+
+        // Check if another instance recently used a party mitigation (cooldown coordination)
+        var partyCoord = context.PartyCoordinationService;
+        if (config.PartyCoordination.EnableCooldownCoordination &&
+            partyCoord?.WasPartyMitigationUsedRecently(config.PartyCoordination.CooldownOverlapWindowSeconds) == true)
+        {
+            context.Debug.TemperanceState = "Skipped (remote mit active)";
             return false;
         }
 

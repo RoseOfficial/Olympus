@@ -1,5 +1,6 @@
 using Olympus.Data;
 using Olympus.Rotation.HephaestusCore.Context;
+using Olympus.Services.Party;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation.HephaestusCore.Modules;
@@ -486,6 +487,16 @@ public sealed class MitigationModule : IHephaestusModule
         if (level < GNBActions.HeartOfLight.MinLevel)
             return false;
 
+        // Check if another instance recently used a party mitigation (cooldown coordination)
+        var partyCoord = context.PartyCoordinationService;
+        var coordConfig = context.Configuration.PartyCoordination;
+        if (coordConfig.EnableCooldownCoordination &&
+            partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
+        {
+            context.Debug.MitigationState = "Heart of Light skipped (remote mit)";
+            return false;
+        }
+
         // Heart of Light is party-wide magic damage reduction
         // Best used before raidwides
 
@@ -516,6 +527,16 @@ public sealed class MitigationModule : IHephaestusModule
 
         if (level < GNBActions.Reprisal.MinLevel)
             return false;
+
+        // Check if another instance recently used a party mitigation (cooldown coordination)
+        var partyCoord = context.PartyCoordinationService;
+        var coordConfig = context.Configuration.PartyCoordination;
+        if (coordConfig.EnableCooldownCoordination &&
+            partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
+        {
+            context.Debug.MitigationState = "Reprisal skipped (remote mit)";
+            return false;
+        }
 
         // Use Reprisal as a party mitigation tool
         // Best used before raidwides or during pulls with multiple enemies

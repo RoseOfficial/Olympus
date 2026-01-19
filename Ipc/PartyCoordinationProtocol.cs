@@ -259,3 +259,47 @@ public sealed class RemoteOlympusInstance
     /// <summary>Last heartbeat received.</summary>
     public DateTime LastHeartbeat { get; set; }
 }
+
+/// <summary>
+/// Tracks a defensive cooldown used by a remote Olympus instance.
+/// Used to coordinate party mitigation and prevent stacking.
+/// </summary>
+public sealed class RemoteCooldownInfo
+{
+    /// <summary>Instance that used this cooldown.</summary>
+    public Guid InstanceId { get; init; }
+
+    /// <summary>Action ID of the cooldown.</summary>
+    public uint ActionId { get; init; }
+
+    /// <summary>When the cooldown was used (UTC).</summary>
+    public DateTime UsedAt { get; init; }
+
+    /// <summary>Recast time in milliseconds.</summary>
+    public int RecastTimeMs { get; init; }
+
+    /// <summary>
+    /// Remaining seconds until this cooldown is available again.
+    /// Returns 0 if the cooldown has expired.
+    /// </summary>
+    public float RemainingSeconds
+    {
+        get
+        {
+            var elapsed = (float)(DateTime.UtcNow - UsedAt).TotalSeconds;
+            var total = RecastTimeMs / 1000f;
+            return Math.Max(0, total - elapsed);
+        }
+    }
+
+    /// <summary>
+    /// Whether this cooldown is still on recast (not available yet).
+    /// </summary>
+    public bool IsOnCooldown => RemainingSeconds > 0;
+
+    /// <summary>
+    /// Seconds since this cooldown was used.
+    /// Useful for checking if a mitigation was used "recently".
+    /// </summary>
+    public float SecondsSinceUsed => (float)(DateTime.UtcNow - UsedAt).TotalSeconds;
+}

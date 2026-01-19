@@ -3,6 +3,7 @@ using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.AstraeaCore.Context;
 using Olympus.Rotation.Common.Modules;
+using Olympus.Services.Party;
 
 namespace Olympus.Rotation.AstraeaCore.Modules;
 
@@ -58,6 +59,16 @@ public sealed class DefensiveModule : BaseDefensiveModule<AstraeaContext>, IAstr
 
         if (!config.EnableNeutralSect)
             return false;
+
+        // Check if another instance recently used a party mitigation (cooldown coordination)
+        var partyCoord = context.PartyCoordinationService;
+        var coordConfig = context.Configuration.PartyCoordination;
+        if (coordConfig.EnableCooldownCoordination &&
+            partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
+        {
+            context.Debug.NeutralSectState = "Skipped (remote mit)";
+            return false;
+        }
 
         if (player.Level < ASTActions.NeutralSect.MinLevel)
             return false;
@@ -156,6 +167,16 @@ public sealed class DefensiveModule : BaseDefensiveModule<AstraeaContext>, IAstr
 
         if (!config.EnableCollectiveUnconscious)
             return false;
+
+        // Check if another instance recently used a party mitigation (cooldown coordination)
+        var partyCoord = context.PartyCoordinationService;
+        var coordConfig = context.Configuration.PartyCoordination;
+        if (coordConfig.EnableCooldownCoordination &&
+            partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
+        {
+            context.Debug.CollectiveUnconsciousState = "Skipped (remote mit)";
+            return false;
+        }
 
         if (player.Level < ASTActions.CollectiveUnconscious.MinLevel)
             return false;

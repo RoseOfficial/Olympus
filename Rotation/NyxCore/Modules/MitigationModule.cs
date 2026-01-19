@@ -1,5 +1,6 @@
 using Olympus.Data;
 using Olympus.Rotation.NyxCore.Context;
+using Olympus.Services.Party;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation.NyxCore.Modules;
@@ -481,6 +482,16 @@ public sealed class MitigationModule : INyxModule
         if (level < DRKActions.DarkMissionary.MinLevel)
             return false;
 
+        // Check if another instance recently used a party mitigation (cooldown coordination)
+        var partyCoord = context.PartyCoordinationService;
+        var coordConfig = context.Configuration.PartyCoordination;
+        if (coordConfig.EnableCooldownCoordination &&
+            partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
+        {
+            context.Debug.MitigationState = "Dark Missionary skipped (remote mit)";
+            return false;
+        }
+
         // Dark Missionary is party-wide magic damage reduction
         // Best used before raidwides
 
@@ -511,6 +522,16 @@ public sealed class MitigationModule : INyxModule
 
         if (level < DRKActions.Reprisal.MinLevel)
             return false;
+
+        // Check if another instance recently used a party mitigation (cooldown coordination)
+        var partyCoord = context.PartyCoordinationService;
+        var coordConfig = context.Configuration.PartyCoordination;
+        if (coordConfig.EnableCooldownCoordination &&
+            partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
+        {
+            context.Debug.MitigationState = "Reprisal skipped (remote mit)";
+            return false;
+        }
 
         // Use Reprisal as a party mitigation tool
         // Best used before raidwides or during pulls with multiple enemies

@@ -181,4 +181,10 @@ public interface IHealerRotationContext : IRotationContext
     /// Service for cooldown planning decisions (defensive cooldowns, resource management).
     /// </summary>
     ICooldownPlanner CooldownPlanner { get; }
+
+    /// <summary>
+    /// Service for coordinating heals and cooldowns with other Olympus instances.
+    /// Null if party coordination is disabled or unavailable.
+    /// </summary>
+    IPartyCoordinationService? PartyCoordinationService { get; }
 }

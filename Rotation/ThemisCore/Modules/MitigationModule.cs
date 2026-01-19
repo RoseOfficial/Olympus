@@ -1,6 +1,7 @@
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ThemisCore.Context;
+using Olympus.Services.Party;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation.ThemisCore.Modules;
@@ -380,6 +381,16 @@ public sealed class MitigationModule : IThemisModule
         if (level < PLDActions.Reprisal.MinLevel)
             return false;
 
+        // Check if another instance recently used a party mitigation (cooldown coordination)
+        var partyCoord = context.PartyCoordinationService;
+        var coordConfig = context.Configuration.PartyCoordination;
+        if (coordConfig.EnableCooldownCoordination &&
+            partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
+        {
+            context.Debug.MitigationState = "Reprisal skipped (remote mit)";
+            return false;
+        }
+
         // Use Reprisal as a party mitigation tool
         // Best used before raidwides or during pulls with multiple enemies
 
@@ -408,6 +419,16 @@ public sealed class MitigationModule : IThemisModule
 
         if (level < PLDActions.DivineVeil.MinLevel)
             return false;
+
+        // Check if another instance recently used a party mitigation (cooldown coordination)
+        var partyCoord = context.PartyCoordinationService;
+        var coordConfig = context.Configuration.PartyCoordination;
+        if (coordConfig.EnableCooldownCoordination &&
+            partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
+        {
+            context.Debug.MitigationState = "Divine Veil skipped (remote mit)";
+            return false;
+        }
 
         // Divine Veil needs to be triggered by a heal
         // Use proactively when party health is low

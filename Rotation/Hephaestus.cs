@@ -14,6 +14,7 @@ using Olympus.Services.Cooldown;
 using Olympus.Services.Debuff;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
+using Olympus.Services.Party;
 using Olympus.Services.Tank;
 using Olympus.Services.Targeting;
 using Olympus.Timeline;
@@ -78,6 +79,7 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
         IEnmityService enmityService,
         ITankCooldownService tankCooldownService,
         ITimelineService? timelineService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -96,6 +98,7 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
             enmityService,
             tankCooldownService,
             timelineService,
+            partyCoordinationService,
             errorMetrics)
     {
         // Initialize helpers
@@ -194,6 +197,7 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
             lastComboAction: LastComboAction,
             comboTimeRemaining: ComboTimeRemaining,
             timelineService: TimelineService,
+            partyCoordinationService: PartyCoordinationService,
             log: Log);
     }
 

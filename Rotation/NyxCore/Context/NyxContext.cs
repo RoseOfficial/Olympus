@@ -11,6 +11,7 @@ using Olympus.Services.Debuff;
 using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
 using Olympus.Services.Stats;
+using Olympus.Services.Party;
 using Olympus.Services.Tank;
 using Olympus.Services.Targeting;
 using Olympus.Rotation.NyxCore.Helpers;
@@ -59,6 +60,7 @@ public sealed class NyxContext : INyxContext
 
     public IEnmityService EnmityService { get; }
     public ITankCooldownService TankCooldownService { get; }
+    public IPartyCoordinationService? PartyCoordinationService { get; }
     public bool IsMainTank { get; }
     public bool HasTankStance { get; }
     public int ComboStep { get; }
@@ -143,6 +145,7 @@ public sealed class NyxContext : INyxContext
         uint lastComboAction,
         float comboTimeRemaining,
         ITimelineService? timelineService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -169,6 +172,7 @@ public sealed class NyxContext : INyxContext
 
         EnmityService = enmityService;
         TankCooldownService = tankCooldownService;
+        PartyCoordinationService = partyCoordinationService;
         StatusHelper = statusHelper;
         PartyHelper = partyHelper;
         Debug = debugState;

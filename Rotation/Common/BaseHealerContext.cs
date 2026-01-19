@@ -77,6 +77,7 @@ public abstract class BaseHealerContext : IHealerRotationContext
 
     #region Coordination
 
+    public IPartyCoordinationService? PartyCoordinationService { get; }
     public HealingCoordinationState HealingCoordination { get; }
 
     #endregion
@@ -131,6 +132,7 @@ public abstract class BaseHealerContext : IHealerRotationContext
         IBossMechanicDetector? bossMechanicDetector = null,
         IShieldTrackingService? shieldTrackingService = null,
         IPartyAnalyzer? partyAnalyzer = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         ITimelineService? timelineService = null,
         IPluginLog? log = null)
     {
@@ -159,6 +161,7 @@ public abstract class BaseHealerContext : IHealerRotationContext
         BossMechanicDetector = bossMechanicDetector;
         ShieldTrackingService = shieldTrackingService;
         PartyAnalyzer = partyAnalyzer;
+        PartyCoordinationService = partyCoordinationService;
         TimelineService = timelineService;
         Log = log;
         HealingCoordination = new HealingCoordinationState();

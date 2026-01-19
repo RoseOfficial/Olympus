@@ -82,6 +82,46 @@ public interface IPartyCoordinationService
     /// <returns>Total estimated heal amount from remote instances.</returns>
     int GetRemotePendingHealAmount(uint entityId);
 
+    #region Cooldown Coordination
+
+    /// <summary>
+    /// Checks if a specific cooldown is currently active (on recast) on any remote instance.
+    /// </summary>
+    /// <param name="actionId">The action ID to check.</param>
+    /// <returns>True if any remote instance has this cooldown on recast.</returns>
+    bool IsCooldownActiveRemotely(uint actionId);
+
+    /// <summary>
+    /// Gets the count of remote instances that have a specific cooldown on recast.
+    /// </summary>
+    /// <param name="actionId">The action ID to check.</param>
+    /// <returns>Number of remote instances with this cooldown active.</returns>
+    int GetRemoteCooldownCount(uint actionId);
+
+    /// <summary>
+    /// Gets the shortest remaining recast time for a cooldown across all remote instances.
+    /// </summary>
+    /// <param name="actionId">The action ID to check.</param>
+    /// <returns>Shortest remaining recast in seconds, or 0 if no remote has it on cooldown.</returns>
+    float GetShortestRemoteCooldownRemaining(uint actionId);
+
+    /// <summary>
+    /// Checks if any party mitigation was used recently by a remote instance.
+    /// Useful for preventing mitigation stacking within a time window.
+    /// </summary>
+    /// <param name="withinSeconds">Time window to check (default 3 seconds).</param>
+    /// <returns>True if any coordinated mitigation was used within the time window.</returns>
+    bool WasPartyMitigationUsedRecently(float withinSeconds = 3f);
+
+    /// <summary>
+    /// Gets all active remote cooldowns for a specific action.
+    /// </summary>
+    /// <param name="actionId">The action ID to query.</param>
+    /// <returns>List of active cooldown info from remote instances.</returns>
+    IReadOnlyList<RemoteCooldownInfo> GetRemoteCooldowns(uint actionId);
+
+    #endregion
+
     /// <summary>
     /// Updates the service state. Should be called once per frame.
     /// </summary>

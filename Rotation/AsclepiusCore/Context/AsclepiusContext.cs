@@ -95,6 +95,12 @@ public sealed class AsclepiusContext : IAsclepiusContext
 
     #endregion
 
+    #region Party Coordination
+
+    public IPartyCoordinationService? PartyCoordinationService { get; }
+
+    #endregion
+
     #region Debug and Coordination State
 
     public AsclepiusDebugState Debug { get; }
@@ -170,6 +176,7 @@ public sealed class AsclepiusContext : IAsclepiusContext
         ICoHealerDetectionService? coHealerDetectionService = null,
         IBossMechanicDetector? bossMechanicDetector = null,
         IShieldTrackingService? shieldTrackingService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         ITimelineService? timelineService = null,
         AsclepiusDebugState? debugState = null,
         IPluginLog? log = null)
@@ -204,6 +211,7 @@ public sealed class AsclepiusContext : IAsclepiusContext
         CoHealerDetectionService = coHealerDetectionService;
         BossMechanicDetector = bossMechanicDetector;
         ShieldTrackingService = shieldTrackingService;
+        PartyCoordinationService = partyCoordinationService;
         TimelineService = timelineService;
         Debug = debugState ?? new AsclepiusDebugState();
         HealingCoordination = new HealingCoordinationState();

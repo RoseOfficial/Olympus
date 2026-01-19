@@ -66,6 +66,9 @@ public sealed class ApolloContext : IApolloContext
     public IBossMechanicDetector? BossMechanicDetector { get; }
     public IShieldTrackingService? ShieldTrackingService { get; }
 
+    // Party coordination
+    public IPartyCoordinationService? PartyCoordinationService { get; }
+
     // Debug state (mutable, updated by modules)
     public DebugState Debug { get; }
 
@@ -125,6 +128,7 @@ public sealed class ApolloContext : IApolloContext
         ICoHealerDetectionService? coHealerDetectionService = null,
         IBossMechanicDetector? bossMechanicDetector = null,
         IShieldTrackingService? shieldTrackingService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         ITimelineService? timelineService = null,
         DebugState? debugState = null,
         IPluginLog? log = null)
@@ -155,6 +159,7 @@ public sealed class ApolloContext : IApolloContext
         CoHealerDetectionService = coHealerDetectionService;
         BossMechanicDetector = bossMechanicDetector;
         ShieldTrackingService = shieldTrackingService;
+        PartyCoordinationService = partyCoordinationService;
         TimelineService = timelineService;
         Debug = debugState ?? new DebugState();
         HealingCoordination = new HealingCoordinationState();

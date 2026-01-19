@@ -190,6 +190,7 @@ public sealed class Athena : BaseHealerRotation<AthenaContext, IAthenaModule>
             coHealerDetectionService: CoHealerDetectionService,
             bossMechanicDetector: BossMechanicDetector,
             shieldTrackingService: ShieldTrackingService,
+            partyCoordinationService: PartyCoordinationService,
             timelineService: _timelineService,
             debugState: _debugState,
             log: Log);

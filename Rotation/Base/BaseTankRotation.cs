@@ -7,6 +7,7 @@ using Olympus.Rotation.Tank;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Debuff;
+using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
 using Olympus.Services.Tank;
@@ -40,6 +41,7 @@ public abstract class BaseTankRotation<TContext, TModule> : BaseRotation<TContex
     protected readonly IEnmityService EnmityService;
     protected readonly ITankCooldownService TankCooldownService;
     protected readonly ITimelineService? TimelineService;
+    protected readonly IPartyCoordinationService? PartyCoordinationService;
 
     #endregion
 
@@ -88,6 +90,7 @@ public abstract class BaseTankRotation<TContext, TModule> : BaseRotation<TContex
         IEnmityService enmityService,
         ITankCooldownService tankCooldownService,
         ITimelineService? timelineService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -108,6 +111,7 @@ public abstract class BaseTankRotation<TContext, TModule> : BaseRotation<TContex
         EnmityService = enmityService;
         TankCooldownService = tankCooldownService;
         TimelineService = timelineService;
+        PartyCoordinationService = partyCoordinationService;
     }
 
     #endregion

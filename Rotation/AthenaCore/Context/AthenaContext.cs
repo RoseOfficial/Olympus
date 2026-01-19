@@ -72,6 +72,9 @@ public sealed class AthenaContext : IAthenaContext
     public IBossMechanicDetector? BossMechanicDetector { get; }
     public IShieldTrackingService? ShieldTrackingService { get; }
 
+    // Party coordination
+    public IPartyCoordinationService? PartyCoordinationService { get; }
+
     // Debug state (mutable, updated by modules)
     public AthenaDebugState Debug { get; }
 
@@ -138,6 +141,7 @@ public sealed class AthenaContext : IAthenaContext
         IPartyAnalyzer? partyAnalyzer = null,
         IBossMechanicDetector? bossMechanicDetector = null,
         IShieldTrackingService? shieldTrackingService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         ITimelineService? timelineService = null,
         AthenaDebugState? debugState = null,
         IPluginLog? log = null)
@@ -172,6 +176,7 @@ public sealed class AthenaContext : IAthenaContext
         CoHealerDetectionService = coHealerDetectionService;
         BossMechanicDetector = bossMechanicDetector;
         ShieldTrackingService = shieldTrackingService;
+        PartyCoordinationService = partyCoordinationService;
         TimelineService = timelineService;
         Debug = debugState ?? new AthenaDebugState();
         HealingCoordination = new HealingCoordinationState();
