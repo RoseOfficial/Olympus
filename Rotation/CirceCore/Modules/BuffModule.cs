@@ -1,5 +1,6 @@
 using Olympus.Data;
 using Olympus.Rotation.CirceCore.Context;
+using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.CirceCore.Modules;
 
@@ -83,6 +84,23 @@ public sealed class BuffModule : ICirceModule
     {
         // Debug state updated during TryExecute
     }
+
+    #region Timeline Awareness
+
+    /// <summary>
+    /// Checks if burst abilities should be held for an imminent phase transition.
+    /// Returns true if a phase transition is expected within the window.
+    /// </summary>
+    private bool ShouldHoldBurstForPhase(ICirceContext context, float windowSeconds = 8f)
+    {
+        var nextPhase = context.TimelineService?.GetNextMechanic(TimelineEntryType.Phase);
+        if (nextPhase?.IsSoon != true || !nextPhase.Value.IsHighConfidence)
+            return false;
+
+        return nextPhase.Value.SecondsUntil <= windowSeconds;
+    }
+
+    #endregion
 
     #region oGCD Actions
 
@@ -201,6 +219,13 @@ public sealed class BuffModule : ICirceModule
         if (context.HasEmbolden)
             return false;
 
+        // Timeline: Don't waste burst before phase transition
+        if (ShouldHoldBurstForPhase(context))
+        {
+            context.Debug.BuffState = "Holding Embolden (phase soon)";
+            return false;
+        }
+
         // Best used just before melee combo for burst alignment
         // Use when about to enter melee combo (50|50 mana ready)
         if (!context.CanStartMeleeCombo)
@@ -246,6 +271,13 @@ public sealed class BuffModule : ICirceModule
         // Don't use if already at 50|50 or higher (waste of mana)
         if (context.CanStartMeleeCombo)
             return false;
+
+        // Timeline: Don't waste burst before phase transition
+        if (ShouldHoldBurstForPhase(context))
+        {
+            context.Debug.BuffState = "Holding Manafication (phase soon)";
+            return false;
+        }
 
         // Best used when at 40-50 mana to double it for melee combo entry
         // At level 60-89, it adds 50|50

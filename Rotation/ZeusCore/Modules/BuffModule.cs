@@ -1,5 +1,6 @@
 using Olympus.Data;
 using Olympus.Rotation.ZeusCore.Context;
+using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.ZeusCore.Modules;
 
@@ -116,6 +117,23 @@ public sealed class BuffModule : IZeusModule
 
     #endregion
 
+    #region Timeline Awareness
+
+    /// <summary>
+    /// Checks if burst abilities should be held for an imminent phase transition.
+    /// Returns true if a phase transition is expected within the window.
+    /// </summary>
+    private bool ShouldHoldBurstForPhase(IZeusContext context, float windowSeconds = 8f)
+    {
+        var nextPhase = context.TimelineService?.GetNextMechanic(TimelineEntryType.Phase);
+        if (nextPhase?.IsSoon != true || !nextPhase.Value.IsHighConfidence)
+            return false;
+
+        return nextPhase.Value.SecondsUntil <= windowSeconds;
+    }
+
+    #endregion
+
     #region Lance Charge
 
     private bool TryLanceCharge(IZeusContext context)
@@ -137,6 +155,13 @@ public sealed class BuffModule : IZeusModule
         if (!context.ActionService.IsActionReady(DRGActions.LanceCharge.ActionId))
         {
             context.Debug.BuffState = "Lance Charge on cooldown";
+            return false;
+        }
+
+        // Timeline: Don't waste burst before phase transition
+        if (ShouldHoldBurstForPhase(context))
+        {
+            context.Debug.BuffState = "Holding Lance Charge (phase soon)";
             return false;
         }
 
@@ -182,6 +207,13 @@ public sealed class BuffModule : IZeusModule
         if (!context.ActionService.IsActionReady(DRGActions.BattleLitany.ActionId))
         {
             context.Debug.BuffState = "Battle Litany on cooldown";
+            return false;
+        }
+
+        // Timeline: Don't waste burst before phase transition
+        if (ShouldHoldBurstForPhase(context))
+        {
+            context.Debug.BuffState = "Holding Battle Litany (phase soon)";
             return false;
         }
 

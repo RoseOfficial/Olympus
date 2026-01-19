@@ -1,5 +1,6 @@
 using Olympus.Data;
 using Olympus.Rotation.KratosCore.Context;
+using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.KratosCore.Modules;
 
@@ -52,6 +53,23 @@ public sealed class BuffModule : IKratosModule
         // Debug state updated during TryExecute
     }
 
+    #region Timeline Awareness
+
+    /// <summary>
+    /// Checks if burst abilities should be held for an imminent phase transition.
+    /// Returns true if a phase transition is expected within the window.
+    /// </summary>
+    private bool ShouldHoldBurstForPhase(IKratosContext context, float windowSeconds = 8f)
+    {
+        var nextPhase = context.TimelineService?.GetNextMechanic(TimelineEntryType.Phase);
+        if (nextPhase?.IsSoon != true || !nextPhase.Value.IsHighConfidence)
+            return false;
+
+        return nextPhase.Value.SecondsUntil <= windowSeconds;
+    }
+
+    #endregion
+
     #region Riddle of Fire
 
     private bool TryRiddleOfFire(IKratosContext context)
@@ -82,6 +100,13 @@ public sealed class BuffModule : IKratosModule
         if (!context.ActionService.IsActionReady(MNKActions.RiddleOfFire.ActionId))
         {
             context.Debug.BuffState = "RoF on cooldown";
+            return false;
+        }
+
+        // Timeline: Don't waste burst before phase transition
+        if (ShouldHoldBurstForPhase(context))
+        {
+            context.Debug.BuffState = "Holding Riddle of Fire (phase soon)";
             return false;
         }
 
@@ -119,6 +144,13 @@ public sealed class BuffModule : IKratosModule
         if (!context.ActionService.IsActionReady(MNKActions.Brotherhood.ActionId))
         {
             context.Debug.BuffState = "Brotherhood on cooldown";
+            return false;
+        }
+
+        // Timeline: Don't waste burst before phase transition
+        if (ShouldHoldBurstForPhase(context))
+        {
+            context.Debug.BuffState = "Holding Brotherhood (phase soon)";
             return false;
         }
 

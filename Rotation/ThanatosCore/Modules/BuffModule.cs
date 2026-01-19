@@ -1,5 +1,6 @@
 using Olympus.Data;
 using Olympus.Rotation.ThanatosCore.Context;
+using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.ThanatosCore.Modules;
 
@@ -44,6 +45,23 @@ public sealed class BuffModule : IThanatosModule
         // Debug state updated during TryExecute
     }
 
+    #region Timeline Awareness
+
+    /// <summary>
+    /// Checks if burst abilities should be held for an imminent phase transition.
+    /// Returns true if a phase transition is expected within the window.
+    /// </summary>
+    private bool ShouldHoldBurstForPhase(IThanatosContext context, float windowSeconds = 8f)
+    {
+        var nextPhase = context.TimelineService?.GetNextMechanic(TimelineEntryType.Phase);
+        if (nextPhase?.IsSoon != true || !nextPhase.Value.IsHighConfidence)
+            return false;
+
+        return nextPhase.Value.SecondsUntil <= windowSeconds;
+    }
+
+    #endregion
+
     #region Arcane Circle
 
     private bool TryArcaneCircle(IThanatosContext context)
@@ -65,6 +83,13 @@ public sealed class BuffModule : IThanatosModule
         if (!context.ActionService.IsActionReady(RPRActions.ArcaneCircle.ActionId))
         {
             context.Debug.BuffState = "Arcane Circle on cooldown";
+            return false;
+        }
+
+        // Timeline: Don't waste burst before phase transition
+        if (ShouldHoldBurstForPhase(context))
+        {
+            context.Debug.BuffState = "Holding Arcane Circle (phase soon)";
             return false;
         }
 

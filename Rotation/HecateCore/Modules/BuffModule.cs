@@ -1,5 +1,6 @@
 using Olympus.Data;
 using Olympus.Rotation.HecateCore.Context;
+using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.HecateCore.Modules;
 
@@ -53,6 +54,36 @@ public sealed class BuffModule : IHecateModule
     {
         // Debug state updated during TryExecute
     }
+
+    #region Timeline Awareness
+
+    /// <summary>
+    /// Checks if burst abilities should be held for an imminent phase transition.
+    /// Returns true if a phase transition is expected within the window.
+    /// </summary>
+    private bool ShouldHoldBurstForPhase(IHecateContext context, float windowSeconds = 8f)
+    {
+        var nextPhase = context.TimelineService?.GetNextMechanic(TimelineEntryType.Phase);
+        if (nextPhase?.IsSoon != true || !nextPhase.Value.IsHighConfidence)
+            return false;
+
+        return nextPhase.Value.SecondsUntil <= windowSeconds;
+    }
+
+    /// <summary>
+    /// Checks if movement is imminent (for Triplecast/Swiftcast planning).
+    /// Returns true if a movement mechanic is expected soon.
+    /// </summary>
+    private bool IsMovementImminent(IHecateContext context, float windowSeconds = 5f)
+    {
+        var nextMovement = context.TimelineService?.GetNextMechanic(TimelineEntryType.Movement);
+        if (nextMovement?.IsSoon != true || !nextMovement.Value.IsHighConfidence)
+            return false;
+
+        return nextMovement.Value.SecondsUntil <= windowSeconds;
+    }
+
+    #endregion
 
     #region oGCD Actions
 
@@ -114,6 +145,19 @@ public sealed class BuffModule : IHecateModule
         if (context.HasLeyLines)
             return false;
 
+        // Timeline: Don't waste burst before phase transition or movement
+        if (ShouldHoldBurstForPhase(context))
+        {
+            context.Debug.BuffState = "Holding Ley Lines (phase soon)";
+            return false;
+        }
+
+        if (IsMovementImminent(context))
+        {
+            context.Debug.BuffState = "Holding Ley Lines (movement soon)";
+            return false;
+        }
+
         // Use during Fire phase for maximum DPS
         // Or at the start of combat
         if (!context.InAstralFire && context.InCombat)
@@ -155,6 +199,17 @@ public sealed class BuffModule : IHecateModule
             {
                 context.Debug.PlannedAction = BLMActions.Triplecast.Name;
                 context.Debug.BuffState = "Triplecast (movement)";
+                return true;
+            }
+        }
+
+        // Timeline: Use proactively for upcoming movement
+        if (IsMovementImminent(context) && !context.HasInstantCast)
+        {
+            if (context.ActionService.ExecuteOgcd(BLMActions.Triplecast, player.GameObjectId))
+            {
+                context.Debug.PlannedAction = BLMActions.Triplecast.Name;
+                context.Debug.BuffState = "Triplecast (prepping for movement)";
                 return true;
             }
         }

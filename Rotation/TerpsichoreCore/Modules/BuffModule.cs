@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Rotation.TerpsichoreCore.Context;
+using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.TerpsichoreCore.Modules;
 
@@ -87,6 +88,23 @@ public sealed class BuffModule : ITerpsichoreModule
     {
         // Debug state updated during TryExecute
     }
+
+    #region Timeline Awareness
+
+    /// <summary>
+    /// Checks if burst abilities should be held for an imminent phase transition.
+    /// Returns true if a phase transition is expected within the window.
+    /// </summary>
+    private bool ShouldHoldBurstForPhase(ITerpsichoreContext context, float windowSeconds = 8f)
+    {
+        var nextPhase = context.TimelineService?.GetNextMechanic(TimelineEntryType.Phase);
+        if (nextPhase?.IsSoon != true || !nextPhase.Value.IsHighConfidence)
+            return false;
+
+        return nextPhase.Value.SecondsUntil <= windowSeconds;
+    }
+
+    #endregion
 
     #region Dance Execution
 
@@ -181,6 +199,13 @@ public sealed class BuffModule : ITerpsichoreModule
         if (!context.ActionService.IsActionReady(DNCActions.TechnicalStep.ActionId))
             return false;
 
+        // Timeline: Don't waste burst before phase transition
+        if (ShouldHoldBurstForPhase(context))
+        {
+            context.Debug.BuffState = "Holding Technical Step (phase soon)";
+            return false;
+        }
+
         if (context.ActionService.ExecuteOgcd(DNCActions.TechnicalStep, player.GameObjectId))
         {
             context.Debug.PlannedAction = DNCActions.TechnicalStep.Name;
@@ -258,6 +283,13 @@ public sealed class BuffModule : ITerpsichoreModule
 
         if (!context.ActionService.IsActionReady(DNCActions.Devilment.ActionId))
             return false;
+
+        // Timeline: Don't waste burst before phase transition
+        if (ShouldHoldBurstForPhase(context))
+        {
+            context.Debug.BuffState = "Holding Devilment (phase soon)";
+            return false;
+        }
 
         if (context.ActionService.ExecuteOgcd(DNCActions.Devilment, player.GameObjectId))
         {

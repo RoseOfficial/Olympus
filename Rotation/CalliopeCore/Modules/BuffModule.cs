@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Rotation.CalliopeCore.Context;
+using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.CalliopeCore.Modules;
 
@@ -82,6 +83,23 @@ public sealed class BuffModule : ICalliopeModule
     {
         // Debug state updated during TryExecute
     }
+
+    #region Timeline Awareness
+
+    /// <summary>
+    /// Checks if burst abilities should be held for an imminent phase transition.
+    /// Returns true if a phase transition is expected within the window.
+    /// </summary>
+    private bool ShouldHoldBurstForPhase(ICalliopeContext context, float windowSeconds = 8f)
+    {
+        var nextPhase = context.TimelineService?.GetNextMechanic(TimelineEntryType.Phase);
+        if (nextPhase?.IsSoon != true || !nextPhase.Value.IsHighConfidence)
+            return false;
+
+        return nextPhase.Value.SecondsUntil <= windowSeconds;
+    }
+
+    #endregion
 
     #region Pitch Perfect
 
@@ -236,6 +254,13 @@ public sealed class BuffModule : ICalliopeModule
         if (!context.ActionService.IsActionReady(BRDActions.RagingStrikes.ActionId))
             return false;
 
+        // Timeline: Don't waste burst before phase transition
+        if (ShouldHoldBurstForPhase(context))
+        {
+            context.Debug.BuffState = "Holding Raging Strikes (phase soon)";
+            return false;
+        }
+
         if (context.ActionService.ExecuteOgcd(BRDActions.RagingStrikes, player.GameObjectId))
         {
             context.Debug.PlannedAction = BRDActions.RagingStrikes.Name;
@@ -267,6 +292,13 @@ public sealed class BuffModule : ICalliopeModule
 
         if (!context.ActionService.IsActionReady(BRDActions.BattleVoice.ActionId))
             return false;
+
+        // Timeline: Don't waste burst before phase transition
+        if (ShouldHoldBurstForPhase(context))
+        {
+            context.Debug.BuffState = "Holding Battle Voice (phase soon)";
+            return false;
+        }
 
         if (context.ActionService.ExecuteOgcd(BRDActions.BattleVoice, player.GameObjectId))
         {

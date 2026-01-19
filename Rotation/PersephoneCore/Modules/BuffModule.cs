@@ -1,5 +1,6 @@
 using Olympus.Data;
 using Olympus.Rotation.PersephoneCore.Context;
+using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.PersephoneCore.Modules;
 
@@ -75,6 +76,23 @@ public sealed class BuffModule : IPersephoneModule
     {
         // Debug state updated during TryExecute
     }
+
+    #region Timeline Awareness
+
+    /// <summary>
+    /// Checks if burst abilities should be held for an imminent phase transition.
+    /// Returns true if a phase transition is expected within the window.
+    /// </summary>
+    private bool ShouldHoldBurstForPhase(IPersephoneContext context, float windowSeconds = 8f)
+    {
+        var nextPhase = context.TimelineService?.GetNextMechanic(TimelineEntryType.Phase);
+        if (nextPhase?.IsSoon != true || !nextPhase.Value.IsHighConfidence)
+            return false;
+
+        return nextPhase.Value.SecondsUntil <= windowSeconds;
+    }
+
+    #endregion
 
     #region oGCD Actions
 
@@ -212,6 +230,13 @@ public sealed class BuffModule : IPersephoneModule
         // Don't use if already active
         if (context.HasSearingLight)
             return false;
+
+        // Timeline: Don't waste burst before phase transition
+        if (ShouldHoldBurstForPhase(context))
+        {
+            context.Debug.BuffState = "Holding Searing Light (phase soon)";
+            return false;
+        }
 
         // Best used during demi-summon phases for burst alignment
         // Also good to align with party buffs (2-minute windows)

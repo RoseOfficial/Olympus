@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Rotation.NikeCore.Context;
+using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.NikeCore.Modules;
 
@@ -80,6 +81,23 @@ public sealed class BuffModule : INikeModule
     {
         // Debug state updated during TryExecute
     }
+
+    #region Timeline Awareness
+
+    /// <summary>
+    /// Checks if burst abilities should be held for an imminent phase transition.
+    /// Returns true if a phase transition is expected within the window.
+    /// </summary>
+    private bool ShouldHoldBurstForPhase(INikeContext context, float windowSeconds = 8f)
+    {
+        var nextPhase = context.TimelineService?.GetNextMechanic(TimelineEntryType.Phase);
+        if (nextPhase?.IsSoon != true || !nextPhase.Value.IsHighConfidence)
+            return false;
+
+        return nextPhase.Value.SecondsUntil <= windowSeconds;
+    }
+
+    #endregion
 
     #region Shoha
 
@@ -162,6 +180,13 @@ public sealed class BuffModule : INikeModule
 
         if (!context.ActionService.IsActionReady(SAMActions.Ikishoten.ActionId))
             return false;
+
+        // Timeline: Don't waste burst before phase transition
+        if (ShouldHoldBurstForPhase(context))
+        {
+            context.Debug.BuffState = "Holding Ikishoten (phase soon)";
+            return false;
+        }
 
         if (context.ActionService.ExecuteOgcd(SAMActions.Ikishoten, player.GameObjectId))
         {
