@@ -28,7 +28,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "2.2.0";
+    public const string PluginVersion = "2.3.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -445,7 +445,8 @@ public sealed class Plugin : IDalamudPlugin
             healingSpellSelector,
             debuffDetectionService,
             cooldownPlanner,
-            shieldTrackingService);
+            shieldTrackingService,
+            timelineService);
     }
 
     /// <summary>
@@ -469,7 +470,8 @@ public sealed class Plugin : IDalamudPlugin
             debuffDetectionService,
             cooldownPlanner,
             healingSpellSelector,
-            shieldTrackingService);
+            shieldTrackingService,
+            timelineService);
     }
 
     /// <summary>
@@ -494,7 +496,8 @@ public sealed class Plugin : IDalamudPlugin
             cooldownPlanner,
             healingSpellSelector,
             shieldTrackingService,
-            jobGauges);
+            jobGauges,
+            timelineService);
     }
 
     /// <summary>
@@ -518,7 +521,8 @@ public sealed class Plugin : IDalamudPlugin
             debuffDetectionService,
             cooldownPlanner,
             healingSpellSelector,
-            shieldTrackingService);
+            shieldTrackingService,
+            timelineService);
     }
 
     /// <summary>

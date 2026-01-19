@@ -1,5 +1,6 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.AsclepiusCore.Context;
 using Olympus.Rotation.AsclepiusCore.Helpers;
 
@@ -305,14 +306,22 @@ public sealed class HealingModule : IAsclepiusModule
 
         var (avgHp, _, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
 
+        // Check if raidwide is imminent - use proactively for mit + regen
+        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
+            context.TimelineService,
+            context.BossMechanicDetector,
+            context.Configuration.Healing,
+            out var raidwideSource);
+
         // Kerachole is best value - use it liberally for regen + mit
-        if (injuredCount < 2)
+        // If raidwide is coming, use even if party is at high HP
+        if (!raidwideImminent && injuredCount < 2)
         {
             context.Debug.KeracholeState = $"{injuredCount} injured";
             return false;
         }
 
-        if (avgHp > config.KeracholeThreshold)
+        if (!raidwideImminent && avgHp > config.KeracholeThreshold)
         {
             context.Debug.KeracholeState = $"Avg HP {avgHp:P0}";
             return false;
@@ -456,7 +465,15 @@ public sealed class HealingModule : IAsclepiusModule
             return false;
         }
 
-        if (hpPercent > config.HaimaThreshold)
+        // Check if tank buster is imminent - use proactively
+        var tankBusterImminent = TimelineHelper.IsTankBusterImminent(
+            context.TimelineService,
+            context.BossMechanicDetector,
+            context.Configuration.Healing,
+            out var busterSource);
+
+        // Use if tank buster is coming or tank HP is low
+        if (hpPercent > config.HaimaThreshold && !tankBusterImminent)
         {
             context.Debug.HaimaState = $"Tank at {hpPercent:P0}";
             return false;
@@ -494,8 +511,16 @@ public sealed class HealingModule : IAsclepiusModule
 
         var (avgHp, _, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
 
+        // Check if raidwide is imminent - use proactively for AoE shields
+        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
+            context.TimelineService,
+            context.BossMechanicDetector,
+            context.Configuration.Healing,
+            out var raidwideSource);
+
         // Panhaima is a 2-minute CD - save for raidwides
-        if (avgHp > config.PanhaimaThreshold)
+        // Use if raidwide is coming or party HP is low
+        if (avgHp > config.PanhaimaThreshold && !raidwideImminent)
         {
             context.Debug.PanhaimaState = $"Avg HP {avgHp:P0}";
             return false;

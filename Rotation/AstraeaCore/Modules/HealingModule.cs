@@ -2,6 +2,7 @@ using System.Numerics;
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Models.Action;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.AstraeaCore.Context;
 
 namespace Olympus.Rotation.AstraeaCore.Modules;
@@ -317,19 +318,26 @@ public sealed class HealingModule : IAstraeaModule
         // Check if star is mature (Giant Dominance)
         bool isMature = context.IsStarMature;
 
+        // Timeline-aware: check for imminent raidwide
+        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
+            context.TimelineService,
+            context.BossMechanicDetector,
+            context.Configuration.Healing,
+            out _);
+
         // Determine if we should detonate
         bool shouldDetonate = false;
 
         if (isMature)
         {
-            // Mature star: detonate when party needs healing
-            if (avgHp <= config.EarthlyStarDetonateThreshold || injured >= config.EarthlyStarMinTargets)
+            // Mature star: detonate when party needs healing OR raidwide is imminent
+            if (avgHp <= config.EarthlyStarDetonateThreshold || injured >= config.EarthlyStarMinTargets || raidwideImminent)
                 shouldDetonate = true;
         }
         else if (!config.WaitForGiantDominance)
         {
-            // Immature star allowed: detonate if party needs healing
-            if (avgHp <= config.EarthlyStarDetonateThreshold || injured >= config.EarthlyStarMinTargets)
+            // Immature star allowed: detonate if party needs healing or raidwide imminent
+            if (avgHp <= config.EarthlyStarDetonateThreshold || injured >= config.EarthlyStarMinTargets || raidwideImminent)
                 shouldDetonate = true;
         }
         else
@@ -504,9 +512,16 @@ public sealed class HealingModule : IAstraeaModule
         if (!context.ActionService.IsActionReady(ASTActions.Horoscope.ActionId))
             return false;
 
-        // Only prepare if party might need healing soon (proactive)
+        // Timeline-aware: prepare before raidwides
+        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
+            context.TimelineService,
+            context.BossMechanicDetector,
+            context.Configuration.Healing,
+            out _);
+
+        // Only prepare if party might need healing soon (proactive) OR raidwide is imminent
         var (avgHp, _, _) = context.PartyHealthMetrics;
-        if (avgHp > 0.85f)
+        if (avgHp > 0.85f && !raidwideImminent)
             return false;
 
         var action = ASTActions.Horoscope;
@@ -696,7 +711,15 @@ public sealed class HealingModule : IAstraeaModule
         var (count, _) = context.PartyHelper.CountPartyMembersNeedingAoEHeal(player, 0);
         var (avgHp, _, _) = context.PartyHealthMetrics;
 
-        return avgHp <= config.AoEHealThreshold && count >= config.AoEHealMinTargets;
+        // Timeline-aware: use before raidwides
+        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
+            context.TimelineService,
+            context.BossMechanicDetector,
+            context.Configuration.Healing,
+            out _);
+
+        // Use if party needs healing OR raidwide is imminent
+        return (avgHp <= config.AoEHealThreshold && count >= config.AoEHealMinTargets) || raidwideImminent;
     }
 
     #endregion

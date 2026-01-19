@@ -18,6 +18,7 @@ using Olympus.Services.Prediction;
 using Olympus.Services.Scholar;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
+using Olympus.Timeline;
 
 namespace Olympus.Rotation;
 
@@ -58,6 +59,9 @@ public sealed class Athena : BaseHealerRotation<AthenaContext, IAthenaModule>
     private readonly AthenaStatusHelper _statusHelper;
     private readonly AthenaPartyHelper _partyHelper;
 
+    // Timeline integration
+    private readonly ITimelineService? _timelineService;
+
     // Modules (sorted by priority)
     private readonly List<IAthenaModule> _modules;
 
@@ -78,6 +82,7 @@ public sealed class Athena : BaseHealerRotation<AthenaContext, IAthenaModule>
         ICooldownPlanner cooldownPlanner,
         HealingSpellSelector healingSpellSelector,
         ShieldTrackingService shieldTrackingService,
+        ITimelineService? timelineService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -98,6 +103,9 @@ public sealed class Athena : BaseHealerRotation<AthenaContext, IAthenaModule>
             shieldTrackingService,
             errorMetrics)
     {
+        // Store timeline service
+        _timelineService = timelineService;
+
         // Initialize Scholar-specific services
         _aetherflowService = new AetherflowTrackingService();
         _fairyGaugeService = new FairyGaugeService();
@@ -180,6 +188,7 @@ public sealed class Athena : BaseHealerRotation<AthenaContext, IAthenaModule>
             coHealerDetectionService: CoHealerDetectionService,
             bossMechanicDetector: BossMechanicDetector,
             shieldTrackingService: ShieldTrackingService,
+            timelineService: _timelineService,
             debugState: _debugState,
             log: Log);
     }

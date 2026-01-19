@@ -3,6 +3,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.AthenaCore.Context;
 
 namespace Olympus.Rotation.AthenaCore.Modules;
@@ -146,7 +147,16 @@ public sealed class HealingModule : IAthenaModule
             return false;
 
         var hpPercent = context.PartyHelper.GetHpPercent(target);
-        if (hpPercent > config.ExcogitationThreshold)
+
+        // Timeline-aware: proactively use before tank busters
+        var tankBusterImminent = TimelineHelper.IsTankBusterImminent(
+            context.TimelineService,
+            context.BossMechanicDetector,
+            context.Configuration.Healing,
+            out _);
+
+        // Use if HP is low OR tank buster is imminent
+        if (hpPercent > config.ExcogitationThreshold && !tankBusterImminent)
             return false;
 
         var action = SCHActions.Excogitation;
@@ -258,7 +268,16 @@ public sealed class HealingModule : IAthenaModule
             return false;
 
         var (avgHp, _, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
-        if (avgHp > config.SacredSoilThreshold)
+
+        // Timeline-aware: proactively place before raidwides
+        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
+            context.TimelineService,
+            context.BossMechanicDetector,
+            context.Configuration.Healing,
+            out _);
+
+        // Use if party HP is low OR raidwide is imminent
+        if (avgHp > config.SacredSoilThreshold && !raidwideImminent)
             return false;
 
         // Count party members in range
@@ -512,7 +531,15 @@ public sealed class HealingModule : IAthenaModule
         var (count, _) = context.PartyHelper.CountPartyMembersNeedingAoEHeal(player, 0);
         var (avgHp, _, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
 
-        return avgHp <= config.AoEHealThreshold && count >= config.AoEHealMinTargets;
+        // Timeline-aware: pre-shield before raidwides
+        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
+            context.TimelineService,
+            context.BossMechanicDetector,
+            context.Configuration.Healing,
+            out _);
+
+        // Use if party needs healing OR raidwide is imminent (for pre-shielding)
+        return (avgHp <= config.AoEHealThreshold && count >= config.AoEHealMinTargets) || raidwideImminent;
     }
 
     private static bool HasSageShield(AthenaContext context, IBattleChara target)

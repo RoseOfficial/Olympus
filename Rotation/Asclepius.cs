@@ -19,6 +19,7 @@ using Olympus.Services.Prediction;
 using Olympus.Services.Sage;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
+using Olympus.Timeline;
 
 namespace Olympus.Rotation;
 
@@ -60,6 +61,9 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
     private readonly AsclepiusStatusHelper _statusHelper;
     private readonly IPartyHelper _partyHelper;
 
+    // Timeline integration
+    private readonly ITimelineService? _timelineService;
+
     // Modules (sorted by priority)
     private readonly List<IAsclepiusModule> _modules;
 
@@ -80,6 +84,7 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
         ICooldownPlanner cooldownPlanner,
         HealingSpellSelector healingSpellSelector,
         ShieldTrackingService shieldTrackingService,
+        ITimelineService? timelineService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -100,6 +105,9 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
             shieldTrackingService,
             errorMetrics)
     {
+        // Store timeline service
+        _timelineService = timelineService;
+
         // Initialize Sage-specific services
         _addersgallService = new AddersgallTrackingService();
         _adderstingService = new AdderstingTrackingService();
@@ -189,6 +197,7 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
             coHealerDetectionService: CoHealerDetectionService,
             bossMechanicDetector: BossMechanicDetector,
             shieldTrackingService: ShieldTrackingService,
+            timelineService: _timelineService,
             debugState: _debugState,
             log: Log);
     }
