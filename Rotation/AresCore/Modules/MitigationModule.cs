@@ -1,5 +1,6 @@
 using Olympus.Data;
 using Olympus.Rotation.AresCore.Context;
+using Olympus.Timeline;
 
 namespace Olympus.Rotation.AresCore.Modules;
 
@@ -37,6 +38,10 @@ public sealed class MitigationModule : IAresModule
 
         // Update cooldown service
         context.TankCooldownService.Update(hpPercent, damageRate);
+
+        // Timeline-aware proactive mitigation (if timeline data available)
+        if (TryTimelineAwareMitigation(context, hpPercent))
+            return true;
 
         // Priority 1: Emergency invulnerability (Holmgang)
         if (TryHolmgang(context, hpPercent))
@@ -85,6 +90,85 @@ public sealed class MitigationModule : IAresModule
     {
         // Debug state updated during TryExecute
     }
+
+    #region Timeline-Aware Mitigation
+
+    /// <summary>
+    /// Proactively uses defensive cooldowns when timeline predicts incoming tankbuster.
+    /// Pre-stacks mitigation 1.5-4 seconds before predicted damage.
+    /// </summary>
+    private bool TryTimelineAwareMitigation(IAresContext context, float hpPercent)
+    {
+        var nextTB = context.TimelineService?.NextTankBuster;
+        if (nextTB?.IsSoon != true || !nextTB.Value.IsHighConfidence)
+            return false;
+
+        var secondsUntil = nextTB.Value.SecondsUntil;
+
+        // Pre-stack window: 1.5-4 seconds before tankbuster
+        if (secondsUntil < 1.5f || secondsUntil > 4.0f)
+            return false;
+
+        var player = context.Player;
+        var level = player.Level;
+        var reason = $"TB in {secondsUntil:F1}s";
+
+        // Don't stack with Holmgang
+        if (context.HasHolmgang)
+            return false;
+
+        // Priority 1: Bloodwhetting/Raw Intuition (short CD)
+        if (level >= WARActions.RawIntuition.MinLevel &&
+            !context.HasBloodwhetting)
+        {
+            var bloodwhettingAction = WARActions.GetBloodwhettingAction(level);
+            if (context.ActionService.IsActionReady(bloodwhettingAction.ActionId))
+            {
+                if (context.ActionService.ExecuteOgcd(bloodwhettingAction, player.GameObjectId))
+                {
+                    context.Debug.PlannedAction = bloodwhettingAction.Name;
+                    context.Debug.MitigationState = $"Proactive Bloodwhetting ({reason})";
+                    return true;
+                }
+            }
+        }
+
+        // Priority 2: Rampart (if no active mitigation)
+        if (level >= WARActions.Rampart.MinLevel &&
+            !context.HasActiveMitigation &&
+            !context.StatusHelper.HasRampart(player))
+        {
+            if (context.ActionService.IsActionReady(WARActions.Rampart.ActionId))
+            {
+                if (context.ActionService.ExecuteOgcd(WARActions.Rampart, player.GameObjectId))
+                {
+                    context.Debug.PlannedAction = WARActions.Rampart.Name;
+                    context.Debug.MitigationState = $"Proactive Rampart ({reason})";
+                    return true;
+                }
+            }
+        }
+
+        // Priority 3: Vengeance/Damnation (major CD for big hits)
+        if (level >= WARActions.Vengeance.MinLevel &&
+            !context.HasVengeance)
+        {
+            var vengeanceAction = WARActions.GetVengeanceAction(level);
+            if (context.ActionService.IsActionReady(vengeanceAction.ActionId))
+            {
+                if (context.ActionService.ExecuteOgcd(vengeanceAction, player.GameObjectId))
+                {
+                    context.Debug.PlannedAction = vengeanceAction.Name;
+                    context.Debug.MitigationState = $"Proactive Vengeance ({reason})";
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    #endregion
 
     #region Emergency Mitigation
 

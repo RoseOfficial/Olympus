@@ -1,6 +1,7 @@
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ThemisCore.Context;
+using Olympus.Timeline;
 
 namespace Olympus.Rotation.ThemisCore.Modules;
 
@@ -38,6 +39,10 @@ public sealed class MitigationModule : IThemisModule
 
         // Update cooldown service
         context.TankCooldownService.Update(hpPercent, damageRate);
+
+        // Timeline-aware proactive mitigation (if timeline data available)
+        if (TryTimelineAwareMitigation(context, hpPercent))
+            return true;
 
         // Priority 1: Emergency invulnerability (Hallowed Ground)
         if (TryHallowedGround(context, hpPercent))
@@ -82,6 +87,86 @@ public sealed class MitigationModule : IThemisModule
     {
         // Debug state updated during TryExecute
     }
+
+    #region Timeline-Aware Mitigation
+
+    /// <summary>
+    /// Proactively uses defensive cooldowns when timeline predicts incoming tankbuster.
+    /// Pre-stacks mitigation 1.5-4 seconds before predicted damage.
+    /// </summary>
+    private bool TryTimelineAwareMitigation(IThemisContext context, float hpPercent)
+    {
+        var nextTB = context.TimelineService?.NextTankBuster;
+        if (nextTB?.IsSoon != true || !nextTB.Value.IsHighConfidence)
+            return false;
+
+        var secondsUntil = nextTB.Value.SecondsUntil;
+
+        // Pre-stack window: 1.5-4 seconds before tankbuster
+        if (secondsUntil < 1.5f || secondsUntil > 4.0f)
+            return false;
+
+        var player = context.Player;
+        var level = player.Level;
+        var reason = $"TB in {secondsUntil:F1}s";
+
+        // Don't stack with Hallowed Ground
+        if (context.HasHallowedGround)
+            return false;
+
+        // Priority 1: Holy Sheltron (short CD, gauge-based)
+        if (level >= PLDActions.Sheltron.MinLevel &&
+            context.OathGauge >= 50 &&
+            !context.StatusHelper.HasSheltron(player))
+        {
+            var sheltronAction = PLDActions.GetSheltronAction(level);
+            if (context.ActionService.IsActionReady(sheltronAction.ActionId))
+            {
+                if (context.ActionService.ExecuteOgcd(sheltronAction, player.GameObjectId))
+                {
+                    context.Debug.PlannedAction = sheltronAction.Name;
+                    context.Debug.MitigationState = $"Proactive Sheltron ({reason})";
+                    return true;
+                }
+            }
+        }
+
+        // Priority 2: Rampart (if no active mitigation)
+        if (level >= PLDActions.Rampart.MinLevel &&
+            !context.HasActiveMitigation &&
+            !context.StatusHelper.HasRampart(player))
+        {
+            if (context.ActionService.IsActionReady(PLDActions.Rampart.ActionId))
+            {
+                if (context.ActionService.ExecuteOgcd(PLDActions.Rampart, player.GameObjectId))
+                {
+                    context.Debug.PlannedAction = PLDActions.Rampart.Name;
+                    context.Debug.MitigationState = $"Proactive Rampart ({reason})";
+                    return true;
+                }
+            }
+        }
+
+        // Priority 3: Sentinel/Guardian (major CD for big hits)
+        if (level >= PLDActions.Sentinel.MinLevel &&
+            !context.StatusHelper.HasSentinel(player))
+        {
+            var sentinelAction = PLDActions.GetSentinelAction(level);
+            if (context.ActionService.IsActionReady(sentinelAction.ActionId))
+            {
+                if (context.ActionService.ExecuteOgcd(sentinelAction, player.GameObjectId))
+                {
+                    context.Debug.PlannedAction = sentinelAction.Name;
+                    context.Debug.MitigationState = $"Proactive Sentinel ({reason})";
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    #endregion
 
     #region Emergency Mitigation
 

@@ -28,7 +28,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "2.3.0";
+    public const string PluginVersion = "2.4.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -545,7 +545,8 @@ public sealed class Plugin : IDalamudPlugin
             playerStatsService,
             debuffDetectionService,
             enmityService,
-            tankCooldownService);
+            tankCooldownService,
+            timelineService);
     }
 
     /// <summary>
@@ -568,7 +569,8 @@ public sealed class Plugin : IDalamudPlugin
             playerStatsService,
             debuffDetectionService,
             enmityService,
-            tankCooldownService);
+            tankCooldownService,
+            timelineService);
     }
 
     /// <summary>
@@ -591,7 +593,8 @@ public sealed class Plugin : IDalamudPlugin
             playerStatsService,
             debuffDetectionService,
             enmityService,
-            tankCooldownService);
+            tankCooldownService,
+            timelineService);
     }
 
     /// <summary>
@@ -614,7 +617,8 @@ public sealed class Plugin : IDalamudPlugin
             playerStatsService,
             debuffDetectionService,
             enmityService,
-            tankCooldownService);
+            tankCooldownService,
+            timelineService);
     }
 
     /// <summary>

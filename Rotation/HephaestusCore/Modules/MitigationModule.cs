@@ -1,5 +1,6 @@
 using Olympus.Data;
 using Olympus.Rotation.HephaestusCore.Context;
+using Olympus.Timeline;
 
 namespace Olympus.Rotation.HephaestusCore.Modules;
 
@@ -45,6 +46,10 @@ public sealed class MitigationModule : IHephaestusModule
             return false;
         }
 
+        // Timeline-aware proactive mitigation (if timeline data available)
+        if (TryTimelineAwareMitigation(context, hpPercent))
+            return true;
+
         // Priority 1: Emergency invulnerability (Superbolide)
         if (TrySuperbolide(context, hpPercent))
             return true;
@@ -88,6 +93,85 @@ public sealed class MitigationModule : IHephaestusModule
     {
         // Debug state updated during TryExecute
     }
+
+    #region Timeline-Aware Mitigation
+
+    /// <summary>
+    /// Proactively uses defensive cooldowns when timeline predicts incoming tankbuster.
+    /// Pre-stacks mitigation 1.5-4 seconds before predicted damage.
+    /// </summary>
+    private bool TryTimelineAwareMitigation(IHephaestusContext context, float hpPercent)
+    {
+        var nextTB = context.TimelineService?.NextTankBuster;
+        if (nextTB?.IsSoon != true || !nextTB.Value.IsHighConfidence)
+            return false;
+
+        var secondsUntil = nextTB.Value.SecondsUntil;
+
+        // Pre-stack window: 1.5-4 seconds before tankbuster
+        if (secondsUntil < 1.5f || secondsUntil > 4.0f)
+            return false;
+
+        var player = context.Player;
+        var level = player.Level;
+        var reason = $"TB in {secondsUntil:F1}s";
+
+        // Don't stack with Superbolide
+        if (context.HasSuperbolide)
+            return false;
+
+        // Priority 1: Heart of Corundum/Stone (short CD)
+        if (level >= GNBActions.HeartOfStone.MinLevel &&
+            !context.HasHeartOfCorundum)
+        {
+            var heartAction = GNBActions.GetHeartAction(level);
+            if (context.ActionService.IsActionReady(heartAction.ActionId))
+            {
+                if (context.ActionService.ExecuteOgcd(heartAction, player.GameObjectId))
+                {
+                    context.Debug.PlannedAction = heartAction.Name;
+                    context.Debug.MitigationState = $"Proactive Heart ({reason})";
+                    return true;
+                }
+            }
+        }
+
+        // Priority 2: Rampart (if no active mitigation)
+        if (level >= GNBActions.Rampart.MinLevel &&
+            !context.HasActiveMitigation &&
+            !context.StatusHelper.HasRampart(player))
+        {
+            if (context.ActionService.IsActionReady(GNBActions.Rampart.ActionId))
+            {
+                if (context.ActionService.ExecuteOgcd(GNBActions.Rampart, player.GameObjectId))
+                {
+                    context.Debug.PlannedAction = GNBActions.Rampart.Name;
+                    context.Debug.MitigationState = $"Proactive Rampart ({reason})";
+                    return true;
+                }
+            }
+        }
+
+        // Priority 3: Nebula/Great Nebula (major CD for big hits)
+        if (level >= GNBActions.Nebula.MinLevel &&
+            !context.HasNebula)
+        {
+            var nebulaAction = GNBActions.GetNebulaAction(level);
+            if (context.ActionService.IsActionReady(nebulaAction.ActionId))
+            {
+                if (context.ActionService.ExecuteOgcd(nebulaAction, player.GameObjectId))
+                {
+                    context.Debug.PlannedAction = nebulaAction.Name;
+                    context.Debug.MitigationState = $"Proactive Nebula ({reason})";
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    #endregion
 
     #region Emergency Mitigation
 

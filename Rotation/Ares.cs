@@ -16,6 +16,7 @@ using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
 using Olympus.Services.Tank;
 using Olympus.Services.Targeting;
+using Olympus.Timeline;
 
 namespace Olympus.Rotation;
 
@@ -73,6 +74,7 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
         IDebuffDetectionService debuffDetectionService,
         IEnmityService enmityService,
         ITankCooldownService tankCooldownService,
+        ITimelineService? timelineService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -90,6 +92,7 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
             debuffDetectionService,
             enmityService,
             tankCooldownService,
+            timelineService,
             errorMetrics)
     {
         // Initialize helpers
@@ -182,6 +185,7 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
             comboStep: ComboStep,
             lastComboAction: LastComboAction,
             comboTimeRemaining: ComboTimeRemaining,
+            timelineService: TimelineService,
             log: Log);
     }
 

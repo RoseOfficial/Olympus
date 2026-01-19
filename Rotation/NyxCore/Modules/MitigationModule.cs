@@ -1,5 +1,6 @@
 using Olympus.Data;
 using Olympus.Rotation.NyxCore.Context;
+using Olympus.Timeline;
 
 namespace Olympus.Rotation.NyxCore.Modules;
 
@@ -45,6 +46,10 @@ public sealed class MitigationModule : INyxModule
             return false;
         }
 
+        // Timeline-aware proactive mitigation (if timeline data available)
+        if (TryTimelineAwareMitigation(context, hpPercent))
+            return true;
+
         // Priority 1: Emergency invulnerability (Living Dead)
         if (TryLivingDead(context, hpPercent))
             return true;
@@ -88,6 +93,83 @@ public sealed class MitigationModule : INyxModule
     {
         // Debug state updated during TryExecute
     }
+
+    #region Timeline-Aware Mitigation
+
+    /// <summary>
+    /// Proactively uses defensive cooldowns when timeline predicts incoming tankbuster.
+    /// Pre-stacks mitigation 1.5-4 seconds before predicted damage.
+    /// </summary>
+    private bool TryTimelineAwareMitigation(INyxContext context, float hpPercent)
+    {
+        var nextTB = context.TimelineService?.NextTankBuster;
+        if (nextTB?.IsSoon != true || !nextTB.Value.IsHighConfidence)
+            return false;
+
+        var secondsUntil = nextTB.Value.SecondsUntil;
+
+        // Pre-stack window: 1.5-4 seconds before tankbuster
+        if (secondsUntil < 1.5f || secondsUntil > 4.0f)
+            return false;
+
+        var player = context.Player;
+        var level = player.Level;
+        var reason = $"TB in {secondsUntil:F1}s";
+
+        // Don't stack with Living Dead
+        if (context.HasLivingDead)
+            return false;
+
+        // Priority 1: The Blackest Night (if MP available and no Dark Arts)
+        if (level >= DRKActions.TheBlackestNight.MinLevel &&
+            context.HasEnoughMpForTbn &&
+            !context.HasTheBlackestNight &&
+            !context.HasDarkArts) // Don't waste Dark Arts proc
+        {
+            if (context.ActionService.ExecuteOgcd(DRKActions.TheBlackestNight, player.GameObjectId))
+            {
+                context.Debug.PlannedAction = DRKActions.TheBlackestNight.Name;
+                context.Debug.MitigationState = $"Proactive TBN ({reason})";
+                return true;
+            }
+        }
+
+        // Priority 2: Rampart (if no active mitigation)
+        if (level >= DRKActions.Rampart.MinLevel &&
+            !context.HasActiveMitigation &&
+            !context.StatusHelper.HasRampart(player))
+        {
+            if (context.ActionService.IsActionReady(DRKActions.Rampart.ActionId))
+            {
+                if (context.ActionService.ExecuteOgcd(DRKActions.Rampart, player.GameObjectId))
+                {
+                    context.Debug.PlannedAction = DRKActions.Rampart.Name;
+                    context.Debug.MitigationState = $"Proactive Rampart ({reason})";
+                    return true;
+                }
+            }
+        }
+
+        // Priority 3: Shadow Wall/Shadowed Vigil (major CD for big hits)
+        if (level >= DRKActions.ShadowWall.MinLevel &&
+            !context.HasShadowWall)
+        {
+            var shadowWallAction = DRKActions.GetShadowWallAction(level);
+            if (context.ActionService.IsActionReady(shadowWallAction.ActionId))
+            {
+                if (context.ActionService.ExecuteOgcd(shadowWallAction, player.GameObjectId))
+                {
+                    context.Debug.PlannedAction = shadowWallAction.Name;
+                    context.Debug.MitigationState = $"Proactive Shadow Wall ({reason})";
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    #endregion
 
     #region Emergency Mitigation
 
