@@ -817,6 +817,56 @@ public sealed class HealingConfig
         get => _mechanicPatternConfidence;
         set => _mechanicPatternConfidence = Math.Clamp(value, 0.3f, 0.95f);
     }
+
+    // ============================================================
+    // Timeline Integration Settings (v2.1.0)
+    // ============================================================
+
+    /// <summary>
+    /// Enable timeline-based mechanic predictions.
+    /// When enabled and a timeline is active with high confidence,
+    /// the rotation will use precise timing predictions instead of
+    /// reactive pattern detection for raidwides and tank busters.
+    /// </summary>
+    public bool EnableTimelinePredictions { get; set; } = true;
+
+    /// <summary>
+    /// Minimum timeline confidence required to trust predictions.
+    /// Timeline confidence decays over time since the last sync point.
+    /// Higher values require more recent sync for timeline-based decisions.
+    /// Valid range: 0.5 to 1.0.
+    /// </summary>
+    private float _timelineConfidenceThreshold = 0.8f;
+    public float TimelineConfidenceThreshold
+    {
+        get => _timelineConfidenceThreshold;
+        set => _timelineConfidenceThreshold = Math.Clamp(value, 0.5f, 1f);
+    }
+
+    /// <summary>
+    /// Seconds before a raidwide to start preparation (shields, mitigation).
+    /// Longer windows allow more proactive preparation but may waste cooldowns
+    /// if the mechanic timing is off.
+    /// Valid range: 2.0 to 10.0.
+    /// </summary>
+    private float _raidwidePreparationWindow = 5f;
+    public float RaidwidePreparationWindow
+    {
+        get => _raidwidePreparationWindow;
+        set => _raidwidePreparationWindow = Math.Clamp(value, 2f, 10f);
+    }
+
+    /// <summary>
+    /// Seconds before a tank buster to start preparation (benison, aquaveil).
+    /// Shorter than raidwide since tank busters are more predictable.
+    /// Valid range: 1.0 to 6.0.
+    /// </summary>
+    private float _tankBusterPreparationWindow = 3f;
+    public float TankBusterPreparationWindow
+    {
+        get => _tankBusterPreparationWindow;
+        set => _tankBusterPreparationWindow = Math.Clamp(value, 1f, 6f);
+    }
 }
 
 /// <summary>

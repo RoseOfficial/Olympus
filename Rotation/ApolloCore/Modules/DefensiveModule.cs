@@ -152,9 +152,12 @@ public sealed class DefensiveModule : IApolloModule
         var damageSpikeImminent = config.Defensive.UseTemperanceTrendAnalysis &&
                                   context.DamageTrendService.IsDamageSpikeImminent(0.8f);
 
-        // Check boss mechanic detector for predicted raidwide
-        var raidwideImminent = config.Healing.EnableMechanicAwareness &&
-                               context.BossMechanicDetector?.IsRaidwideImminent == true;
+        // Check timeline/pattern detector for predicted raidwide (unified API)
+        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
+            context.TimelineService,
+            context.BossMechanicDetector,
+            config.Healing,
+            out var raidwideSource);
 
         // Standard threshold or lowered threshold during high damage
         var effectiveThreshold = highDamageIntake || damageSpikeImminent || raidwideImminent
@@ -192,7 +195,7 @@ public sealed class DefensiveModule : IApolloModule
         if (ActionExecutor.ExecuteOgcd(context, WHMActions.Temperance, player.GameObjectId,
             player.Name?.TextValue ?? "Unknown", player.CurrentHp))
         {
-            var reason = raidwideImminent ? "raidwide predicted" :
+            var reason = raidwideImminent ? $"raidwide predicted ({raidwideSource})" :
                          damageSpikeImminent ? "spike imminent" :
                          highDamageIntake ? "damage spike" : $"{injuredCount} injured";
             context.Debug.DefensiveState = $"Temperance ({reason}, avg HP {avgHpPercent:P0})";
@@ -260,11 +263,16 @@ public sealed class DefensiveModule : IApolloModule
         var shouldApplyProactively = config.Defensive.EnableProactiveCooldowns &&
                                      tankDamageRate >= config.Defensive.ProactiveBenisonDamageRate;
 
-        // Check boss mechanic detector for predicted tank buster
-        var tankBusterImminent = config.Healing.EnableMechanicAwareness &&
-                                 context.BossMechanicDetector?.IsTankBusterImminent == true;
+        // Check timeline/pattern detector for predicted tank buster (unified API)
+        var tankBusterImminent = TimelineHelper.IsTankBusterImminent(
+            context.TimelineService,
+            context.BossMechanicDetector,
+            config.Healing,
+            out var tankBusterSource);
+        // For pattern-based detection, also check if this is the correct tank
         var shouldApplyForTankBuster = tankBusterImminent &&
-                                       context.BossMechanicDetector?.PredictedTankBuster?.TargetTankEntityId == tank.EntityId;
+            (tankBusterSource == "Timeline" ||
+             context.BossMechanicDetector?.PredictedTankBuster?.TargetTankEntityId == tank.EntityId);
 
         // Standard application thresholds based on charge count
         // At max charges: Apply more freely (98% HP) to avoid wasting charge regen
@@ -288,9 +296,11 @@ public sealed class DefensiveModule : IApolloModule
 
             if (shouldApplyForTankBuster)
             {
-                var secondsUntil = context.BossMechanicDetector?.PredictedTankBuster?.SecondsUntil ?? 0;
-                reason = $"tank buster in {secondsUntil:F1}s ({chargeInfo})";
-                logReason = $"Tank buster predicted ({chargeInfo})";
+                var tbPrediction = TimelineHelper.GetNextTankBuster(
+                    context.TimelineService, context.BossMechanicDetector, config.Healing);
+                var secondsUntil = tbPrediction?.secondsUntil ?? 0;
+                reason = $"tank buster in {secondsUntil:F1}s ({tankBusterSource}) ({chargeInfo})";
+                logReason = $"Tank buster predicted ({tankBusterSource}) ({chargeInfo})";
             }
             else if (shouldApplyToAvoidCap && !shouldApplyProactively && !shouldApplyStandard)
             {
@@ -352,11 +362,16 @@ public sealed class DefensiveModule : IApolloModule
         var shouldApplyProactively = config.Defensive.EnableProactiveCooldowns &&
                                      tankDamageRate >= config.Defensive.ProactiveAquaveilDamageRate;
 
-        // Check boss mechanic detector for predicted tank buster
-        var tankBusterImminent = config.Healing.EnableMechanicAwareness &&
-                                 context.BossMechanicDetector?.IsTankBusterImminent == true;
-        var shouldApplyForTankBuster = tankBusterImminent &&
-                                       context.BossMechanicDetector?.PredictedTankBuster?.TargetTankEntityId == tank.EntityId;
+        // Check timeline/pattern detector for predicted tank buster (unified API)
+        var tankBusterImminentAquaveil = TimelineHelper.IsTankBusterImminent(
+            context.TimelineService,
+            context.BossMechanicDetector,
+            config.Healing,
+            out var aquaveilTankBusterSource);
+        // For pattern-based detection, also check if this is the correct tank
+        var shouldApplyForTankBuster = tankBusterImminentAquaveil &&
+            (aquaveilTankBusterSource == "Timeline" ||
+             context.BossMechanicDetector?.PredictedTankBuster?.TargetTankEntityId == tank.EntityId);
 
         // Standard application: Apply if tank HP is below threshold
         var shouldApplyStandard = tankHpPct < 0.90f;
@@ -373,9 +388,11 @@ public sealed class DefensiveModule : IApolloModule
 
             if (shouldApplyForTankBuster)
             {
-                var secondsUntil = context.BossMechanicDetector?.PredictedTankBuster?.SecondsUntil ?? 0;
-                reason = $"tank buster in {secondsUntil:F1}s";
-                logReason = "Tank buster predicted";
+                var tbPrediction = TimelineHelper.GetNextTankBuster(
+                    context.TimelineService, context.BossMechanicDetector, config.Healing);
+                var secondsUntil = tbPrediction?.secondsUntil ?? 0;
+                reason = $"tank buster in {secondsUntil:F1}s ({aquaveilTankBusterSource})";
+                logReason = $"Tank buster predicted ({aquaveilTankBusterSource})";
             }
             else if (shouldApplyProactively)
             {

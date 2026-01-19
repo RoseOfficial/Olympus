@@ -3,6 +3,7 @@ using System.Numerics;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.ApolloCore.Modules;
 
@@ -284,6 +285,34 @@ public sealed class BuffModule : IApolloModule
             return false;
         }
 
+        // Check if a raidwide is coming (timeline-aware)
+        // Asylum is a HoT that needs time to tick, so deploy 5-8 seconds before raidwide
+        var raidwideInfo = TimelineHelper.GetNextRaidwide(
+            context.TimelineService,
+            context.BossMechanicDetector,
+            config.Healing);
+
+        var shouldDeployForRaidwide = false;
+        var raidwideSource = "None";
+        if (raidwideInfo.HasValue)
+        {
+            var secondsUntil = raidwideInfo.Value.secondsUntil;
+            raidwideSource = raidwideInfo.Value.source;
+
+            // Ideal window: 5-8 seconds before raidwide (HoT needs time to tick)
+            // Too close (<3s): HoT won't have time to provide meaningful healing
+            // Too far (>8s): Save for later, Asylum might not cover the mechanic
+            if (secondsUntil >= 3f && secondsUntil <= 8f)
+            {
+                shouldDeployForRaidwide = true;
+            }
+            else if (secondsUntil < 3f)
+            {
+                context.Debug.AsylumState = $"Too late for raidwide in {secondsUntil:F1}s ({raidwideSource})";
+                // Don't return false here - fall through to standard logic
+            }
+        }
+
         var tank = context.PartyHelper.FindTankInParty(player);
         Vector3 targetPosition;
 
@@ -306,11 +335,18 @@ public sealed class BuffModule : IApolloModule
             context.Debug.AsylumTarget = "Self";
         }
 
+        // Execute with appropriate reason
+        var reason = shouldDeployForRaidwide
+            ? $"pre-raidwide via {raidwideSource}"
+            : $"on {context.Debug.AsylumTarget}";
+
         if (ActionExecutor.ExecuteGroundTargeted(context, WHMActions.Asylum, targetPosition,
             context.Debug.AsylumTarget, tank?.CurrentHp ?? player.CurrentHp,
-            $"Asylum (on {context.Debug.AsylumTarget})"))
+            $"Asylum ({reason})"))
         {
-            context.Debug.AsylumState = "Executed";
+            context.Debug.AsylumState = shouldDeployForRaidwide
+                ? $"Pre-raidwide ({raidwideSource})"
+                : "Executed";
             return true;
         }
 

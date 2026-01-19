@@ -3,6 +3,7 @@ using Olympus.Data;
 using Olympus.Models;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Context;
+using Olympus.Rotation.ApolloCore.Helpers;
 
 namespace Olympus.Rotation.ApolloCore.Modules.Healing;
 
@@ -48,13 +49,29 @@ public sealed class AoEHealingHandler : IHealingHandler
         var (cureIIITarget, cureIIITargetCount, cureIIITargetIds) =
             context.PartyHelper.FindBestCureIIITarget(player, cureIIIHealAmount);
 
+        // Check if a raidwide is imminent (timeline-aware)
+        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
+            context.TimelineService,
+            context.BossMechanicDetector,
+            config.Healing,
+            out var raidwideSource);
+
+        // Lower threshold when raidwide is imminent to ensure party is healthy before damage
+        var effectiveMinTargets = config.Healing.AoEHealMinTargets;
+        if (raidwideImminent && effectiveMinTargets > 2)
+        {
+            // Lower threshold by 1 (but not below 2) when raidwide is coming
+            effectiveMinTargets = config.Healing.AoEHealMinTargets - 1;
+        }
+
         // Check if we have enough targets
-        var hasEnoughSelfCenteredTargets = injuredCount >= config.Healing.AoEHealMinTargets;
-        var hasEnoughCureIIITargets = cureIIITargetCount >= config.Healing.AoEHealMinTargets;
+        var hasEnoughSelfCenteredTargets = injuredCount >= effectiveMinTargets;
+        var hasEnoughCureIIITargets = cureIIITargetCount >= effectiveMinTargets;
 
         if (!hasEnoughSelfCenteredTargets && !hasEnoughCureIIITargets)
         {
-            context.Debug.AoEStatus = $"Injured {injuredCount} (self) / {cureIIITargetCount} (CureIII) < min {config.Healing.AoEHealMinTargets}";
+            context.Debug.AoEStatus = $"Injured {injuredCount} (self) / {cureIIITargetCount} (CureIII) < min {effectiveMinTargets}" +
+                (raidwideImminent ? $" (raidwide via {raidwideSource})" : "");
             return false;
         }
 
@@ -127,12 +144,13 @@ public sealed class AoEHealingHandler : IHealingHandler
             // Log AoE healing decision
             var avgHpPct = context.PartyHealthMetrics.avgHpPercent;
             var conservationNote = isInMpConservation ? ", MP conservation" : "";
+            var timelineNote = raidwideImminent ? $", raidwide via {raidwideSource}" : "";
             context.LogHealDecision(
                 $"{injuredCount} injured",
                 avgHpPct,
                 action.Name,
                 healAmount,
-                $"AoE heal (avg missing {averageMissingHp} HP){conservationNote}{thinAirNote}");
+                $"AoE heal (avg missing {averageMissingHp} HP){conservationNote}{timelineNote}{thinAirNote}");
         }
         else
         {

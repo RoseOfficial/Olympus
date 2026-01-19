@@ -342,6 +342,31 @@ public sealed class WhiteMageSection
             }
 
             ConfigUIHelpers.Spacing();
+            ConfigUIHelpers.SectionLabel("Timeline Integration:");
+
+            var enableTimeline = config.Healing.EnableTimelinePredictions;
+            if (ImGui.Checkbox("Enable Timeline Predictions", ref enableTimeline))
+            {
+                config.Healing.EnableTimelinePredictions = enableTimeline;
+                save();
+            }
+            ImGui.TextDisabled("Use fight timelines for precise mechanic timing.");
+
+            if (config.Healing.EnableTimelinePredictions)
+            {
+                ConfigUIHelpers.BeginIndent();
+                config.Healing.TimelineConfidenceThreshold = ConfigUIHelpers.ThresholdSliderSmall("Confidence Threshold",
+                    config.Healing.TimelineConfidenceThreshold, 50f, 100f, "Min confidence to trust timeline predictions.", save);
+
+                config.Healing.RaidwidePreparationWindow = ConfigUIHelpers.FloatSlider("Raidwide Window (sec)",
+                    config.Healing.RaidwidePreparationWindow, 2f, 10f, "%.1f", "Seconds before raidwide to prepare shields/mitigation.", save);
+
+                config.Healing.TankBusterPreparationWindow = ConfigUIHelpers.FloatSlider("Tank Buster Window (sec)",
+                    config.Healing.TankBusterPreparationWindow, 1f, 6f, "%.1f", "Seconds before tank buster to prepare benison/aquaveil.", save);
+                ConfigUIHelpers.EndIndent();
+            }
+
+            ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel("Experimental:");
 
             var enableScored = config.Healing.EnableScoredHealSelection;

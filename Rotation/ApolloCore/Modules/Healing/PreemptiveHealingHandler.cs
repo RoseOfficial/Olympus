@@ -4,6 +4,7 @@ using Olympus.Models;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.ApolloCore.Modules.Healing;
 
@@ -26,50 +27,75 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
         if (!config.EnableHealing || !config.Healing.EnablePreemptiveHealing)
             return false;
 
-        // Two-pronged spike detection:
-        // 1. Reactive: Check if a damage spike is currently imminent
-        // 2. Predictive: Check if a periodic spike pattern predicts incoming damage
+        // Three-pronged spike detection:
+        // 1. Timeline: Check if a raidwide is predicted by fight timeline (most accurate)
+        // 2. Reactive: Check if a damage spike is currently imminent
+        // 3. Predictive: Check if a periodic spike pattern predicts incoming damage
+
+        var isTimelineRaidwide = TimelineHelper.IsRaidwideImminent(
+            context.TimelineService,
+            context.BossMechanicDetector,
+            config.Healing,
+            out var raidwideSource);
+
+        var timelineRaidwideInfo = isTimelineRaidwide
+            ? TimelineHelper.GetNextRaidwide(context.TimelineService, context.BossMechanicDetector, config.Healing)
+            : null;
 
         var isReactiveSpike = context.DamageTrendService.IsDamageSpikeImminent(0.7f);
         var isPredictedSpike = false;
         var patternConfidence = 0f;
         var secondsUntilPredictedSpike = float.MaxValue;
 
-        // Check pattern prediction for each party member
-        foreach (var member in context.PartyHelper.GetAllPartyMembers(player))
+        // Check pattern prediction for each party member (if no timeline prediction)
+        if (!isTimelineRaidwide)
         {
-            if (member.IsDead)
-                continue;
-
-            var (predictedSeconds, confidence) = context.DamageTrendService.PredictNextSpike(member.EntityId);
-
-            // Use prediction if confidence exceeds threshold and spike is within lookahead window
-            if (confidence >= config.Healing.SpikePatternConfidenceThreshold &&
-                predictedSeconds <= config.Healing.SpikePredictionLookahead &&
-                confidence > patternConfidence)
+            foreach (var member in context.PartyHelper.GetAllPartyMembers(player))
             {
-                isPredictedSpike = true;
-                patternConfidence = confidence;
-                secondsUntilPredictedSpike = predictedSeconds;
+                if (member.IsDead)
+                    continue;
+
+                var (predictedSeconds, confidence) = context.DamageTrendService.PredictNextSpike(member.EntityId);
+
+                // Use prediction if confidence exceeds threshold and spike is within lookahead window
+                if (confidence >= config.Healing.SpikePatternConfidenceThreshold &&
+                    predictedSeconds <= config.Healing.SpikePredictionLookahead &&
+                    confidence > patternConfidence)
+                {
+                    isPredictedSpike = true;
+                    patternConfidence = confidence;
+                    secondsUntilPredictedSpike = predictedSeconds;
+                }
             }
         }
 
-        // Only proceed if either reactive or predictive spike is detected
-        if (!isReactiveSpike && !isPredictedSpike)
+        // Only proceed if timeline, reactive, or predictive spike is detected
+        if (!isTimelineRaidwide && !isReactiveSpike && !isPredictedSpike)
             return false;
 
         // Get spike severity to determine urgency
         var avgPartyHpPercent = context.PartyHealthMetrics.avgHpPercent;
         var spikeSeverity = context.DamageTrendService.GetSpikeSeverity(avgPartyHpPercent);
 
-        // Boost severity for high-confidence predictions
-        if (isPredictedSpike && patternConfidence >= 0.8f)
+        // Timeline predictions get highest severity boost (most reliable source)
+        if (isTimelineRaidwide && timelineRaidwideInfo.HasValue)
+        {
+            var timelineConfidence = timelineRaidwideInfo.Value.confidence;
+            // High confidence timeline prediction = high severity regardless of current state
+            spikeSeverity = Math.Max(spikeSeverity, 0.6f + (timelineConfidence * 0.3f));
+        }
+        // Boost severity for high-confidence pattern predictions
+        else if (isPredictedSpike && patternConfidence >= 0.8f)
         {
             spikeSeverity = Math.Max(spikeSeverity, 0.5f + (patternConfidence * 0.3f));
         }
 
         // Only act on significant spikes (severity > 0.4)
-        if (spikeSeverity < 0.4f)
+        // Timeline predictions bypass this check if we're close to the mechanic
+        var bypassSeverityCheck = isTimelineRaidwide &&
+                                  timelineRaidwideInfo.HasValue &&
+                                  timelineRaidwideInfo.Value.secondsUntil <= 3f;
+        if (!bypassSeverityCheck && spikeSeverity < 0.4f)
             return false;
 
         // Find the most endangered target - use damage trend to identify who's taking the hit
@@ -150,12 +176,13 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
                     // Reserve target to prevent other handlers from double-healing
                     context.HealingCoordination.TryReserveTarget(target.EntityId);
 
-                    context.Debug.PlannedAction = $"Tetragrammaton (preemptive, spike severity {spikeSeverity:F2})";
+                    var sourceNote = isTimelineRaidwide ? $" via {raidwideSource}" : "";
+                    context.Debug.PlannedAction = $"Tetragrammaton (preemptive{sourceNote}, severity {spikeSeverity:F2})";
                     context.LogOgcdDecision(
                         target.Name?.TextValue ?? "Unknown",
                         targetHpPercent,
                         "Tetragrammaton",
-                        $"Preemptive - spike imminent (severity {spikeSeverity:F2}, projected {projectedHpPercent:P0})");
+                        $"Preemptive{sourceNote} - spike imminent (severity {spikeSeverity:F2}, projected {projectedHpPercent:P0})");
                     return true;
                 }
             }
@@ -173,12 +200,13 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
                     // Reserve target to prevent other handlers from double-healing
                     context.HealingCoordination.TryReserveTarget(target.EntityId);
 
-                    context.Debug.PlannedAction = $"Benediction (preemptive, critical spike severity {spikeSeverity:F2})";
+                    var sourceNote = isTimelineRaidwide ? $" via {raidwideSource}" : "";
+                    context.Debug.PlannedAction = $"Benediction (preemptive{sourceNote}, critical severity {spikeSeverity:F2})";
                     context.LogOgcdDecision(
                         target.Name?.TextValue ?? "Unknown",
                         targetHpPercent,
                         "Benediction",
-                        $"Preemptive - critical spike (severity {spikeSeverity:F2}, target at {targetHpPercent:P0})");
+                        $"Preemptive{sourceNote} - critical spike (severity {spikeSeverity:F2}, target at {targetHpPercent:P0})");
                     return true;
                 }
             }
@@ -203,7 +231,8 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
                     context.HealingCoordination.TryReserveTarget(target.EntityId);
 
                     var thinAirNote = context.HasThinAir ? " + Thin Air" : "";
-                    context.Debug.PlannedAction = $"{action.Name} (preemptive){thinAirNote}";
+                    var sourceNote = isTimelineRaidwide ? $" via {raidwideSource}" : "";
+                    context.Debug.PlannedAction = $"{action.Name} (preemptive{sourceNote}){thinAirNote}";
                     context.Debug.PlanningState = "Preemptive Heal";
                     context.ActionTracker.LogAttempt(action.ActionId, target.Name?.TextValue ?? "Unknown",
                         target.CurrentHp, ActionResult.Success, player.Level);
@@ -213,7 +242,7 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
                         targetHpPercent,
                         action.Name,
                         healAmount,
-                        $"Preemptive - spike severity {spikeSeverity:F2}, projected {projectedHpPercent:P0}{thinAirNote}");
+                        $"Preemptive{sourceNote} - spike severity {spikeSeverity:F2}, projected {projectedHpPercent:P0}{thinAirNote}");
                     return true;
                 }
                 else
