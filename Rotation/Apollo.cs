@@ -71,6 +71,7 @@ public sealed class Apollo : BaseHealerRotation<ApolloContext, IApolloModule>
         ICooldownPlanner cooldownPlanner,
         ShieldTrackingService shieldTrackingService,
         ITimelineService? timelineService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -89,6 +90,7 @@ public sealed class Apollo : BaseHealerRotation<ApolloContext, IApolloModule>
             healingSpellSelector,
             cooldownPlanner,
             shieldTrackingService,
+            partyCoordinationService,
             errorMetrics)
     {
         // Store timeline service

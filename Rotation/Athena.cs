@@ -83,6 +83,7 @@ public sealed class Athena : BaseHealerRotation<AthenaContext, IAthenaModule>
         HealingSpellSelector healingSpellSelector,
         ShieldTrackingService shieldTrackingService,
         ITimelineService? timelineService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -101,6 +102,7 @@ public sealed class Athena : BaseHealerRotation<AthenaContext, IAthenaModule>
             healingSpellSelector,
             cooldownPlanner,
             shieldTrackingService,
+            partyCoordinationService,
             errorMetrics)
     {
         // Store timeline service

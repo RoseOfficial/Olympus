@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin.Services;
 using Olympus.Config;
 using Olympus.Data;
+using Olympus.Services.Party;
 
 namespace Olympus.Services.Healing;
 
@@ -17,6 +19,7 @@ public sealed class CoHealerDetectionService : ICoHealerDetectionService, IDispo
     private readonly IPartyList _partyList;
     private readonly IObjectTable _objectTable;
     private readonly HealingConfig _config;
+    private readonly IPartyCoordinationService? _partyCoordination;
 
     // Co-healer detection state
     private uint? _coHealerEntityId;
@@ -36,18 +39,23 @@ public sealed class CoHealerDetectionService : ICoHealerDetectionService, IDispo
         ICombatEventService combatEventService,
         IPartyList partyList,
         IObjectTable objectTable,
-        HealingConfig config)
+        HealingConfig config,
+        IPartyCoordinationService? partyCoordination = null)
     {
         _combatEventService = combatEventService;
         _partyList = partyList;
         _objectTable = objectTable;
         _config = config;
+        _partyCoordination = partyCoordination;
 
         // Subscribe to all heal events
         _combatEventService.OnAnyHealReceived += OnHealReceived;
     }
 
-    public bool HasCoHealer => _coHealerEntityId.HasValue;
+    /// <summary>
+    /// Whether a co-healer is detected (either via party scan or IPC).
+    /// </summary>
+    public bool HasCoHealer => _coHealerEntityId.HasValue || _partyCoordination?.HasRemoteHealers == true;
     public uint? CoHealerEntityId => _coHealerEntityId;
     public uint CoHealerJobId => _coHealerJobId;
 
@@ -82,7 +90,32 @@ public sealed class CoHealerDetectionService : ICoHealerDetectionService, IDispo
         }
     }
 
-    public IReadOnlyDictionary<uint, int> CoHealerPendingHeals => _pendingHeals;
+    /// <summary>
+    /// Gets pending heals from co-healer (including IPC reservations).
+    /// </summary>
+    public IReadOnlyDictionary<uint, int> CoHealerPendingHeals
+    {
+        get
+        {
+            // If no IPC coordination, just return local tracking
+            if (_partyCoordination == null || !_partyCoordination.IsPartyCoordinationEnabled)
+                return _pendingHeals;
+
+            // Merge local tracking with IPC reservations
+            var merged = new Dictionary<uint, int>(_pendingHeals);
+            var remoteReservations = _partyCoordination.GetRemoteReservations();
+
+            foreach (var kvp in remoteReservations)
+            {
+                if (merged.TryGetValue(kvp.Key, out var existing))
+                    merged[kvp.Key] = existing + kvp.Value.EstimatedHealAmount;
+                else
+                    merged[kvp.Key] = kvp.Value.EstimatedHealAmount;
+            }
+
+            return merged;
+        }
+    }
 
     public float SecondsSinceLastHeal
     {

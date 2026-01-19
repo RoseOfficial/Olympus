@@ -85,6 +85,7 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
         HealingSpellSelector healingSpellSelector,
         ShieldTrackingService shieldTrackingService,
         ITimelineService? timelineService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -103,6 +104,7 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
             healingSpellSelector,
             cooldownPlanner,
             shieldTrackingService,
+            partyCoordinationService,
             errorMetrics)
     {
         // Store timeline service

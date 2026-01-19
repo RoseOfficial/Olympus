@@ -33,6 +33,7 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
     protected readonly CoHealerDetectionService CoHealerDetectionService;
     protected readonly BossMechanicDetector BossMechanicDetector;
     protected readonly ShieldTrackingService ShieldTrackingService;
+    protected readonly IPartyCoordinationService? PartyCoordinationService;
 
     #endregion
 
@@ -55,6 +56,7 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
         HealingSpellSelector healingSpellSelector,
         ICooldownPlanner cooldownPlanner,
         ShieldTrackingService shieldTrackingService,
+        IPartyCoordinationService? partyCoordinationService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -75,10 +77,11 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
         HealingSpellSelector = healingSpellSelector;
         CooldownPlanner = cooldownPlanner;
         ShieldTrackingService = shieldTrackingService;
+        PartyCoordinationService = partyCoordinationService;
 
         // Initialize smart healing services (these are healer-specific and per-rotation)
         CoHealerDetectionService = new CoHealerDetectionService(
-            combatEventService, partyList, objectTable, configuration.Healing);
+            combatEventService, partyList, objectTable, configuration.Healing, partyCoordinationService);
         BossMechanicDetector = new BossMechanicDetector(
             configuration.Healing, combatEventService, damageIntakeService, partyList, objectTable);
     }

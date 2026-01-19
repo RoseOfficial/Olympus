@@ -28,7 +28,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "2.5.0";
+    public const string PluginVersion = "2.6.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -91,6 +91,10 @@ public sealed class Plugin : IDalamudPlugin
 
     // Timeline service
     private readonly TimelineService timelineService;
+
+    // Party coordination (multi-Olympus IPC)
+    private readonly PartyCoordinationService? partyCoordinationService;
+    private readonly PartyCoordinationIpc? partyCoordinationIpc;
 
     private readonly WindowSystem windowSystem = new("Olympus");
     private readonly ConfigWindow configWindow;
@@ -175,6 +179,13 @@ public sealed class Plugin : IDalamudPlugin
         // Timeline service for fight-aware predictions
         this.timelineService = new TimelineService(log, combatEventService);
         combatEventService.OnAbilityUsed += (sourceId, actionId) => timelineService.OnAbilityUsed(sourceId, actionId);
+
+        // Party coordination service (multi-Olympus IPC)
+        if (configuration.PartyCoordination.EnablePartyCoordination)
+        {
+            this.partyCoordinationService = new PartyCoordinationService(configuration.PartyCoordination, log);
+            this.partyCoordinationIpc = new PartyCoordinationIpc(pluginInterface, partyCoordinationService, log);
+        }
 
         // Create and register rotation modules via factory
         this.rotationManager = new RotationManager();
@@ -344,6 +355,12 @@ public sealed class Plugin : IDalamudPlugin
         if (localPlayer == null)
             return;
 
+        // Update party coordination service (heartbeat, cleanup)
+        partyCoordinationService?.Update(
+            localPlayer.EntityId,
+            localPlayer.ClassJob.RowId,
+            configuration.Enabled);
+
         // Check if we have a rotation for the current job
         var jobId = localPlayer.ClassJob.RowId;
         if (!rotationManager.UpdateActiveRotation(jobId))
@@ -446,7 +463,8 @@ public sealed class Plugin : IDalamudPlugin
             debuffDetectionService,
             cooldownPlanner,
             shieldTrackingService,
-            timelineService);
+            timelineService,
+            partyCoordinationService);
     }
 
     /// <summary>
@@ -471,7 +489,8 @@ public sealed class Plugin : IDalamudPlugin
             cooldownPlanner,
             healingSpellSelector,
             shieldTrackingService,
-            timelineService);
+            timelineService,
+            partyCoordinationService);
     }
 
     /// <summary>
@@ -497,7 +516,8 @@ public sealed class Plugin : IDalamudPlugin
             healingSpellSelector,
             shieldTrackingService,
             jobGauges,
-            timelineService);
+            timelineService,
+            partyCoordinationService);
     }
 
     /// <summary>
@@ -522,7 +542,8 @@ public sealed class Plugin : IDalamudPlugin
             cooldownPlanner,
             healingSpellSelector,
             shieldTrackingService,
-            timelineService);
+            timelineService,
+            partyCoordinationService);
     }
 
     /// <summary>
@@ -931,6 +952,7 @@ public sealed class Plugin : IDalamudPlugin
 
         windowSystem.RemoveAllWindows();
         olympusIpc.Dispose();
+        partyCoordinationIpc?.Dispose();
         telemetryService.Dispose();
 
         // Dispose healer rotations (they have event subscriptions)

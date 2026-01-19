@@ -60,6 +60,9 @@ public sealed class Configuration : IPluginConfiguration
     public AstrologianConfig Astrologian { get; set; } = new();
     public SageConfig Sage { get; set; } = new();
 
+    // Party coordination (multi-Olympus IPC)
+    public PartyCoordinationConfig PartyCoordination { get; set; } = new();
+
     // Role-specific configuration - Tanks
     public TankConfig Tank { get; set; } = new();
 
@@ -107,6 +110,7 @@ public sealed class Configuration : IPluginConfiguration
         Astrologian = new AstrologianConfig();
         Sage = new SageConfig();
         Tank = new TankConfig();
+        PartyCoordination = new PartyCoordinationConfig();
 
         // Reset telemetry to defaults
         TelemetryEnabled = true;

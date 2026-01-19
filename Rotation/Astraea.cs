@@ -83,6 +83,7 @@ public sealed class Astraea : BaseHealerRotation<AstraeaContext, IAstraeaModule>
         ShieldTrackingService shieldTrackingService,
         IJobGauges jobGauges,
         ITimelineService? timelineService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -101,6 +102,7 @@ public sealed class Astraea : BaseHealerRotation<AstraeaContext, IAstraeaModule>
             healingSpellSelector,
             cooldownPlanner,
             shieldTrackingService,
+            partyCoordinationService,
             errorMetrics)
     {
         // Store timeline service
