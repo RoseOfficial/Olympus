@@ -1,0 +1,103 @@
+# AAC Light-heavyweight M3 (Savage) - Brute Bomber Timeline
+# Based on Cactbot format
+# Zone ID: 1230
+
+hideall "--sync--"
+hideall "--Reset--"
+
+# Phase 1: Opening
+0.0 "--sync--" sync /00:0839::Brute Bomber will be sealed off/ window 1,0
+11.0 "Brutal Impact" sync /^.{14} Brute Bomber 9425/ window 5,5 # Raidwide x4 hits
+13.0 "Brutal Impact" sync /^.{14} Brute Bomber 9425/ window 5,5 # Raidwide
+15.0 "Brutal Impact" sync /^.{14} Brute Bomber 9425/ window 5,5 # Raidwide
+17.0 "Brutal Impact" sync /^.{14} Brute Bomber 9425/ window 5,5 # Raidwide
+21.0 "Knuckle Sandwich" sync /^.{14} Brute Bomber 9423/ window 5,5 # Tankbuster x4 hits
+23.5 "Knuckle Sandwich" sync /^.{14} Brute Bomber 9423/ window 5,5 # Tankbuster
+26.0 "Knuckle Sandwich" sync /^.{14} Brute Bomber 9423/ window 5,5 # Tankbuster
+28.5 "Knuckle Sandwich" sync /^.{14} Brute Bomber 9423/ window 5,5 # Tankbuster
+36.0 "Octuple Lariat" sync /^.{14} Brute Bomber 9420/ window 5,5
+48.0 "Fire Spin" sync /^.{14} Brute Bomber 941C/ window 5,5
+
+# Phase 1: Brutal Impact 2
+60.0 "Brutal Impact" sync /^.{14} Brute Bomber 9425/ window 5,5 # Raidwide x4 hits
+62.0 "Brutal Impact" sync /^.{14} Brute Bomber 9425/ window 5,5 # Raidwide
+64.0 "Brutal Impact" sync /^.{14} Brute Bomber 9425/ window 5,5 # Raidwide
+66.0 "Brutal Impact" sync /^.{14} Brute Bomber 9425/ window 5,5 # Raidwide
+75.0 "Lariat Combo" sync /^.{14} Brute Bomber 9421/ window 5,5
+88.0 "Murderous Mist" sync /^.{14} Brute Bomber 9428/ window 5,5
+98.0 "Octoboom Dive" sync /^.{14} Brute Bomber 9418/ window 5,5
+
+# Phase 2: Doping Draught
+109.0 "Doping Draught" sync /^.{14} Brute Bomber 940F/ window 10,10 # Phase transition
+125.0 "Barbarous Barrage" sync /^.{14} Brute Bomber 9413/ window 5,5
+140.0 "Bombariboom" sync /^.{14} Brute Bomber 9412/ window 5,5
+155.0 "Lariat Combo" sync /^.{14} Brute Bomber 9421/ window 5,5
+168.0 "Fire Spin" sync /^.{14} Brute Bomber 941C/ window 5,5
+180.0 "Octoboom Dive" sync /^.{14} Brute Bomber 9418/ window 5,5
+
+# Phase 2: Tankbuster x6
+195.0 "Knuckle Sandwich" sync /^.{14} Brute Bomber 9423/ window 5,5 # Tankbuster x6 hits
+197.5 "Knuckle Sandwich" sync /^.{14} Brute Bomber 9423/ window 5,5 # Tankbuster
+200.0 "Knuckle Sandwich" sync /^.{14} Brute Bomber 9423/ window 5,5 # Tankbuster
+202.5 "Knuckle Sandwich" sync /^.{14} Brute Bomber 9423/ window 5,5 # Tankbuster
+205.0 "Knuckle Sandwich" sync /^.{14} Brute Bomber 9423/ window 5,5 # Tankbuster
+207.5 "Knuckle Sandwich" sync /^.{14} Brute Bomber 9423/ window 5,5 # Tankbuster
+220.0 "Murderous Mist" sync /^.{14} Brute Bomber 9428/ window 5,5
+235.0 "Octuple Lariat" sync /^.{14} Brute Bomber 9420/ window 5,5
+250.0 "Bombariboom" sync /^.{14} Brute Bomber 9412/ window 5,5
+
+# Phase 2: Tag Team
+265.0 "Tag Team" sync /^.{14} Brute Bomber 9429/ window 10,10 # Add phase
+280.0 "Chain Deathmatch" sync /^.{14} Brute Bomber 942A/ window 5,5
+297.0 "Fusefield" sync /^.{14} Brute Bomber 9750/ window 5,5
+300.0 "Mana Explosion" sync /^.{14} Brute Bomber 9751/ window 5,5 # Raidwide
+315.0 "Lariat Combo" sync /^.{14} Brute Bomber 9421/ window 5,5
+
+# Phase 3: Brutal Impact 3
+330.0 "Brutal Impact" sync /^.{14} Brute Bomber 9425/ window 5,5 # Raidwide x4 hits
+332.0 "Brutal Impact" sync /^.{14} Brute Bomber 9425/ window 5,5 # Raidwide
+334.0 "Brutal Impact" sync /^.{14} Brute Bomber 9425/ window 5,5 # Raidwide
+336.0 "Brutal Impact" sync /^.{14} Brute Bomber 9425/ window 5,5 # Raidwide
+350.0 "Fire Spin" sync /^.{14} Brute Bomber 941C/ window 5,5
+365.0 "Octoboom Dive" sync /^.{14} Brute Bomber 9418/ window 5,5
+380.0 "Murderous Mist" sync /^.{14} Brute Bomber 9428/ window 5,5
+
+# Phase 3: Final Fusedown
+395.0 "Final Fusedown" sync /^.{14} Brute Bomber 9755/ window 10,10 # Phase
+410.0 "Fuses of Fury" sync /^.{14} Brute Bomber 9756/ window 5,5
+425.0 "Bombariboom" sync /^.{14} Brute Bomber 9412/ window 5,5
+
+# Phase 3: Tankbuster x8
+440.0 "Knuckle Sandwich" sync /^.{14} Brute Bomber 9423/ window 5,5 # Tankbuster x8 hits
+442.0 "Knuckle Sandwich" sync /^.{14} Brute Bomber 9423/ window 5,5 # Tankbuster
+444.0 "Knuckle Sandwich" sync /^.{14} Brute Bomber 9423/ window 5,5 # Tankbuster
+446.0 "Knuckle Sandwich" sync /^.{14} Brute Bomber 9423/ window 5,5 # Tankbuster
+448.0 "Knuckle Sandwich" sync /^.{14} Brute Bomber 9423/ window 5,5 # Tankbuster
+450.0 "Knuckle Sandwich" sync /^.{14} Brute Bomber 9423/ window 5,5 # Tankbuster
+452.0 "Knuckle Sandwich" sync /^.{14} Brute Bomber 9423/ window 5,5 # Tankbuster
+454.0 "Knuckle Sandwich" sync /^.{14} Brute Bomber 9423/ window 5,5 # Tankbuster
+465.0 "Octuple Lariat" sync /^.{14} Brute Bomber 9420/ window 5,5
+480.0 "Lariat Combo" sync /^.{14} Brute Bomber 9421/ window 5,5
+
+# Phase 3: Bombarian Special
+495.0 "Tag Team" sync /^.{14} Brute Bomber 9429/ window 10,10 # Add phase 2
+508.0 "Bombarian Special" sync /^.{14} Brute Bomber 9752/ window 10,10 # Raidwide
+520.0 "Chain Deathmatch" sync /^.{14} Brute Bomber 942A/ window 5,5
+535.0 "Fusefield" sync /^.{14} Brute Bomber 9750/ window 5,5
+538.0 "Mana Explosion" sync /^.{14} Brute Bomber 9751/ window 5,5 # Raidwide
+555.0 "Barbarous Barrage" sync /^.{14} Brute Bomber 9413/ window 5,5
+
+# Phase 4: Final stretch
+570.0 "Brutal Impact" sync /^.{14} Brute Bomber 9425/ window 5,5 # Raidwide x4 hits
+572.0 "Brutal Impact" sync /^.{14} Brute Bomber 9425/ window 5,5 # Raidwide
+574.0 "Brutal Impact" sync /^.{14} Brute Bomber 9425/ window 5,5 # Raidwide
+576.0 "Brutal Impact" sync /^.{14} Brute Bomber 9425/ window 5,5 # Raidwide
+590.0 "Octoboom Dive" sync /^.{14} Brute Bomber 9418/ window 5,5
+605.0 "Fire Spin" sync /^.{14} Brute Bomber 941C/ window 5,5
+620.0 "Lariat Combo" sync /^.{14} Brute Bomber 9421/ window 5,5
+635.0 "Murderous Mist" sync /^.{14} Brute Bomber 9428/ window 5,5
+650.0 "Bombariboom" sync /^.{14} Brute Bomber 9412/ window 5,5
+660.0 "Final Fusedown" sync /^.{14} Brute Bomber 9755/ window 5,5
+
+# Enrage
+675.0 "Special Bombarian Special" sync /^.{14} Brute Bomber 9753/ window 100,0 # Enrage

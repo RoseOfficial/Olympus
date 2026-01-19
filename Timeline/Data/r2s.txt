@@ -1,0 +1,68 @@
+# AAC Light-heavyweight M2 (Savage) - Honey B. Lovely Timeline
+# Based on Cactbot format
+# Zone ID: 1228
+
+hideall "--sync--"
+hideall "--Reset--"
+
+# Phase 1: Opening
+0.0 "--sync--" sync /00:0839::Honey B. Lovely will be sealed off/ window 1,0
+10.6 "Call Me Honey" sync /^.{14} Honey B. Lovely 9183/ window 5,5 # Raidwide
+21.0 "Drop of Venom" sync /^.{14} Honey B. Lovely 9185/ window 5,5
+32.0 "Splash of Venom" sync /^.{14} Honey B. Lovely 9187/ window 5,5
+44.0 "Heartsore" sync /^.{14} Honey B. Lovely 9199/ window 5,5
+60.0 "Killer Sting" sync /^.{14} Honey B. Lovely 919C/ window 5,5 # Tankbuster
+
+# Phase 1: 1st Beat
+73.2 "Honey B. Live: 1st Beat" sync /^.{14} Honey B. Lovely 9C24/ window 10,10 # Phase transition
+85.0 "Loveseeker" sync /^.{14} Honey B. Lovely 9192/ window 5,5
+96.0 "Centerstage Combo" sync /^.{14} Honey B. Lovely 91A0/ window 5,5
+108.0 "Outerstage Combo" sync /^.{14} Honey B. Lovely 91A3/ window 5,5
+120.0 "Splash of Venom" sync /^.{14} Honey B. Lovely 9187/ window 5,5
+132.0 "Drop of Venom" sync /^.{14} Honey B. Lovely 9185/ window 5,5
+145.0 "Loveseeker" sync /^.{14} Honey B. Lovely 9192/ window 5,5
+160.0 "Poison Sting" sync /^.{14} Honey B. Lovely 91A9/ window 5,5
+175.0 "Alarm Pheromones" sync /^.{14} Honey B. Lovely 91AB/ window 5,5
+
+# Phase 1: First Finale
+187.2 "Honey B. Finale" sync /^.{14} Honey B. Lovely 918F/ window 10,10 # Raidwide
+201.4 "Killer Sting" sync /^.{14} Honey B. Lovely 919C/ window 5,5 # Tankbuster
+215.0 "Heartsore" sync /^.{14} Honey B. Lovely 9199/ window 5,5
+230.0 "Loveseeker" sync /^.{14} Honey B. Lovely 9192/ window 5,5
+
+# Phase 2: 2nd Beat
+247.6 "Honey B. Live: 2nd Beat" sync /^.{14} Honey B. Lovely 9C25/ window 10,10 # Phase transition
+260.0 "Tempting Twist" sync /^.{14} Honey B. Lovely 918A/ window 5,5
+272.0 "Honey Beeline" sync /^.{14} Honey B. Lovely 918C/ window 5,5
+285.0 "Centerstage Combo" sync /^.{14} Honey B. Lovely 91A0/ window 5,5
+297.0 "Poison Sting" sync /^.{14} Honey B. Lovely 91A9/ window 5,5
+
+# Phase 2: Second Finale
+310.2 "Honey B. Finale" sync /^.{14} Honey B. Lovely 918F/ window 10,10 # Raidwide
+325.0 "Heartsick" sync /^.{14} Honey B. Lovely 919A/ window 5,5
+340.0 "Splash of Venom" sync /^.{14} Honey B. Lovely 9187/ window 5,5
+355.0 "Loveseeker" sync /^.{14} Honey B. Lovely 9192/ window 5,5
+375.0 "Killer Sting" sync /^.{14} Honey B. Lovely 919C/ window 5,5 # Tankbuster
+390.0 "Drop of Venom" sync /^.{14} Honey B. Lovely 9185/ window 5,5
+
+# Phase 3: 3rd Beat
+406.5 "Honey B. Live: 3rd Beat" sync /^.{14} Honey B. Lovely 9C26/ window 10,10 # Phase transition
+420.0 "Bee Sting" sync /^.{14} Honey B. Lovely 91AE/ window 5,5
+438.9 "Big Burst" sync /^.{14} Honey B. Lovely 91B6/ window 10,10 # Raidwide
+450.0 "Loveseeker" sync /^.{14} Honey B. Lovely 9192/ window 5,5
+458.9 "Big Burst" sync /^.{14} Honey B. Lovely 91B6/ window 10,10 # Raidwide
+472.0 "Centerstage Combo" sync /^.{14} Honey B. Lovely 91A0/ window 5,5
+
+# Phase 3: Third Finale
+484.9 "Honey B. Finale" sync /^.{14} Honey B. Lovely 918F/ window 10,10 # Raidwide
+498.0 "Killer Sting" sync /^.{14} Honey B. Lovely 919C/ window 5,5 # Tankbuster
+511.3 "Rotten Heart" sync /^.{14} Honey B. Lovely 91AA/ window 10,10 # Raidwide
+525.0 "Heartsore" sync /^.{14} Honey B. Lovely 9199/ window 5,5
+540.0 "Splash of Venom" sync /^.{14} Honey B. Lovely 9187/ window 5,5
+555.0 "Loveseeker" sync /^.{14} Honey B. Lovely 9192/ window 5,5
+570.0 "Poison Sting" sync /^.{14} Honey B. Lovely 91A9/ window 5,5
+585.0 "Drop of Venom" sync /^.{14} Honey B. Lovely 9185/ window 5,5
+595.0 "Call Me Honey" sync /^.{14} Honey B. Lovely 9183/ window 5,5 # Raidwide
+
+# Enrage
+608.1 "Honey B. Finale" sync /^.{14} Honey B. Lovely 91B8/ window 100,0 # Enrage

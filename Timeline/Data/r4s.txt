@@ -1,0 +1,104 @@
+# AAC Light-heavyweight M4 (Savage) - Wicked Thunder Timeline
+# Based on Cactbot format
+# Zone ID: 1232
+
+hideall "--sync--"
+hideall "--Reset--"
+
+# Phase 1: Opening
+0.0 "--sync--" sync /00:0839::Wicked Thunder will be sealed off/ window 1,0
+15.6 "Wrath of Zeus" sync /^.{14} Wicked Thunder 95EF/ window 10,10 # Raidwide
+28.0 "Bewitching Flight" sync /^.{14} Wicked Thunder 95E0/ window 5,5
+42.0 "Electrifying Witch Hunt" sync /^.{14} Wicked Thunder 95E3/ window 5,5
+58.0 "Widening Witch Hunt" sync /^.{14} Wicked Thunder 95E6/ window 5,5
+72.0 "Narrowing Witch Hunt" sync /^.{14} Wicked Thunder 95E9/ window 5,5
+85.0 "Ion Cluster" sync /^.{14} Wicked Thunder 95EC/ window 5,5
+
+# Phase 1: Second Wrath
+98.4 "Wrath of Zeus" sync /^.{14} Wicked Thunder 95EF/ window 10,10 # Raidwide
+112.0 "Stampeding Thunder" sync /^.{14} Wicked Thunder 95DD/ window 5,5
+126.0 "Bewitching Flight" sync /^.{14} Wicked Thunder 95E0/ window 5,5
+
+# Phase 1: Tankbuster 1
+142.6 "Wicked Jolt" sync /^.{14} Wicked Thunder 95F0/ window 10,10 # Tankbuster
+155.0 "Electrifying Witch Hunt" sync /^.{14} Wicked Thunder 95E3/ window 5,5
+168.0 "Narrowing Witch Hunt" sync /^.{14} Wicked Thunder 95E9/ window 5,5
+182.0 "Widening Witch Hunt" sync /^.{14} Wicked Thunder 95E6/ window 5,5
+195.0 "Ion Cluster" sync /^.{14} Wicked Thunder 95EC/ window 5,5
+
+# Phase 1: Wicked Bolt
+206.4 "Wicked Bolt" sync /^.{14} Wicked Thunder 92C2/ window 5,5 # Raidwide x6 hits
+208.6 "Wicked Bolt" sync /^.{14} Wicked Thunder 92C2/ window 5,5 # Raidwide
+210.8 "Wicked Bolt" sync /^.{14} Wicked Thunder 92C2/ window 5,5 # Raidwide
+213.0 "Wicked Bolt" sync /^.{14} Wicked Thunder 92C2/ window 5,5 # Raidwide
+215.2 "Wicked Bolt" sync /^.{14} Wicked Thunder 92C2/ window 5,5 # Raidwide
+217.4 "Wicked Bolt" sync /^.{14} Wicked Thunder 92C2/ window 5,5 # Raidwide
+230.0 "Stampeding Thunder" sync /^.{14} Wicked Thunder 95DD/ window 5,5
+245.0 "Bewitching Flight" sync /^.{14} Wicked Thunder 95E0/ window 5,5
+260.0 "Electrifying Witch Hunt" sync /^.{14} Wicked Thunder 95E3/ window 5,5
+275.0 "Ion Cluster" sync /^.{14} Wicked Thunder 95EC/ window 5,5
+
+# Phase 1: Tankbuster 2
+288.7 "Wicked Jolt" sync /^.{14} Wicked Thunder 95F0/ window 10,10 # Tankbuster
+302.0 "Widening Witch Hunt" sync /^.{14} Wicked Thunder 95E6/ window 5,5
+315.0 "Narrowing Witch Hunt" sync /^.{14} Wicked Thunder 95E9/ window 5,5
+330.0 "Bewitching Flight" sync /^.{14} Wicked Thunder 95E0/ window 5,5
+345.0 "Electrifying Witch Hunt" sync /^.{14} Wicked Thunder 95E3/ window 5,5
+358.0 "Stampeding Thunder" sync /^.{14} Wicked Thunder 95DD/ window 5,5
+
+# Phase 2: Electrope Edge
+375.2 "Soulshock" sync /^.{14} Wicked Thunder 4E41/ window 10,10 # Raidwide - phase transition
+390.0 "Electrope Edge" sync /^.{14} Wicked Thunder 95F4/ window 5,5
+
+# Phase 2: Cross Tail Switch
+408.1 "Cross Tail Switch" sync /^.{14} Wicked Thunder 95F2/ window 5,5 # Raidwide x10 hits
+409.6 "Cross Tail Switch" sync /^.{14} Wicked Thunder 95F2/ window 5,5 # Raidwide
+411.1 "Cross Tail Switch" sync /^.{14} Wicked Thunder 95F2/ window 5,5 # Raidwide
+412.6 "Cross Tail Switch" sync /^.{14} Wicked Thunder 95F2/ window 5,5 # Raidwide
+414.1 "Cross Tail Switch" sync /^.{14} Wicked Thunder 95F2/ window 5,5 # Raidwide
+415.6 "Cross Tail Switch" sync /^.{14} Wicked Thunder 95F2/ window 5,5 # Raidwide
+417.1 "Cross Tail Switch" sync /^.{14} Wicked Thunder 95F2/ window 5,5 # Raidwide
+418.6 "Cross Tail Switch" sync /^.{14} Wicked Thunder 95F2/ window 5,5 # Raidwide
+420.1 "Cross Tail Switch" sync /^.{14} Wicked Thunder 95F2/ window 5,5 # Raidwide
+421.6 "Cross Tail Switch" sync /^.{14} Wicked Thunder 95F2/ window 5,5 # Raidwide
+426.0 "Wicked Blaze" sync /^.{14} Wicked Thunder 95F7/ window 5,5 # Stack
+438.0 "Electrope Edge" sync /^.{14} Wicked Thunder 95F4/ window 5,5
+
+# Phase 2: Mustard Bomb 1
+453.1 "Mustard Bomb" sync /^.{14} Wicked Thunder 961F/ window 10,10 # Tankbuster
+465.0 "Kindle Cannon" sync /^.{14} Wicked Thunder 9620/ window 5,5
+478.0 "Wicked Blaze" sync /^.{14} Wicked Thunder 95F7/ window 5,5 # Stack
+490.0 "Electrope Edge" sync /^.{14} Wicked Thunder 95F4/ window 5,5
+505.0 "Electron Stream" sync /^.{14} Wicked Thunder 95F8/ window 5,5
+520.0 "Witchgleam" sync /^.{14} Wicked Thunder 960E/ window 5,5
+535.0 "Electrope Transplant" sync /^.{14} Wicked Thunder 9613/ window 5,5
+550.0 "Ion Cluster" sync /^.{14} Wicked Thunder 95EC/ window 5,5
+
+# Phase 2: Wicked Thunder
+563.6 "Wicked Thunder" sync /^.{14} Wicked Thunder 949B/ window 10,10 # Raidwide
+578.0 "Electrope Edge" sync /^.{14} Wicked Thunder 95F4/ window 5,5
+592.0 "Witchgleam" sync /^.{14} Wicked Thunder 960E/ window 5,5
+605.0 "Electron Stream" sync /^.{14} Wicked Thunder 95F8/ window 5,5
+620.0 "Electrope Transplant" sync /^.{14} Wicked Thunder 9613/ window 5,5
+635.0 "Cross Tail Switch" sync /^.{14} Wicked Thunder 95F2/ window 5,5 # Raidwide
+
+# Phase 2: Mustard Bomb 2
+653.1 "Mustard Bomb" sync /^.{14} Wicked Thunder 961F/ window 10,10 # Tankbuster
+665.0 "Kindle Cannon" sync /^.{14} Wicked Thunder 9620/ window 5,5
+678.0 "Wicked Blaze" sync /^.{14} Wicked Thunder 95F7/ window 5,5 # Stack
+692.0 "Electrope Edge" sync /^.{14} Wicked Thunder 95F4/ window 5,5
+705.0 "Ion Cluster" sync /^.{14} Wicked Thunder 95EC/ window 5,5
+720.0 "Electron Stream" sync /^.{14} Wicked Thunder 95F8/ window 5,5
+735.0 "Witchgleam" sync /^.{14} Wicked Thunder 960E/ window 5,5
+
+# Phase 2: Sword Quiver
+743.1 "Sword Quiver" sync /^.{14} Wicked Thunder 95F9/ window 10,10 # Raidwide
+755.0 "Electrope Edge" sync /^.{14} Wicked Thunder 95F4/ window 5,5
+760.0 "Sword Quiver" sync /^.{14} Wicked Thunder 95F9/ window 5,5 # Raidwide
+772.0 "Ion Cluster" sync /^.{14} Wicked Thunder 95EC/ window 5,5
+776.9 "Sword Quiver" sync /^.{14} Wicked Thunder 95F9/ window 5,5 # Raidwide
+788.0 "Electrope Transplant" sync /^.{14} Wicked Thunder 9613/ window 5,5
+795.0 "Cross Tail Switch" sync /^.{14} Wicked Thunder 95F2/ window 5,5 # Raidwide
+
+# Enrage
+804.5 "Wicked Thunder" sync /^.{14} Wicked Thunder 9632/ window 100,0 # Enrage
