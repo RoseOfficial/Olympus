@@ -24,6 +24,9 @@ public sealed class HealingModule : IAsclepiusModule
 
     public bool TryExecute(IAsclepiusContext context, bool isMoving)
     {
+        // Clear frame-scoped coordination state to allow new reservations
+        context.HealingCoordination.Clear();
+
         var config = context.Configuration.Sage;
         var player = context.Player;
 
@@ -151,6 +154,13 @@ public sealed class HealingModule : IAsclepiusModule
             return false;
         }
 
+        // Skip if another handler (local or remote Olympus instance) is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
+        {
+            context.Debug.DruocholeState = "Skipped (reserved)";
+            return false;
+        }
+
         var hpPercent = target.MaxHp > 0 ? (float)target.CurrentHp / target.MaxHp : 1f;
         if (hpPercent > config.DruocholeThreshold)
         {
@@ -161,6 +171,11 @@ public sealed class HealingModule : IAsclepiusModule
         var action = SGEActions.Druochole;
         if (context.ActionService.ExecuteOgcd(action, target.GameObjectId))
         {
+            // Reserve target to prevent other handlers (local or remote) from double-healing
+            var healAmount = action.HealPotency * 10; // Rough estimate
+            context.HealingCoordination.TryReserveTarget(
+                target.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, 0);
+
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Druochole";
             context.Debug.DruocholeState = "Executing";
@@ -203,6 +218,13 @@ public sealed class HealingModule : IAsclepiusModule
             return false;
         }
 
+        // Skip if another handler (local or remote Olympus instance) is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(tank.EntityId, context.PartyCoordinationService))
+        {
+            context.Debug.TaurocholeState = "Skipped (reserved)";
+            return false;
+        }
+
         var hpPercent = tank.MaxHp > 0 ? (float)tank.CurrentHp / tank.MaxHp : 1f;
         if (hpPercent > config.TaurocholeThreshold)
         {
@@ -220,6 +242,11 @@ public sealed class HealingModule : IAsclepiusModule
         var action = SGEActions.Taurochole;
         if (context.ActionService.ExecuteOgcd(action, tank.GameObjectId))
         {
+            // Reserve target to prevent other handlers (local or remote) from double-healing
+            var healAmount = action.HealPotency * 10; // Rough estimate
+            context.HealingCoordination.TryReserveTarget(
+                tank.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, 0);
+
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Taurochole";
             context.Debug.TaurocholeState = "Executing";
@@ -467,6 +494,13 @@ public sealed class HealingModule : IAsclepiusModule
             return false;
         }
 
+        // Skip if another handler (local or remote Olympus instance) is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(tank.EntityId, context.PartyCoordinationService))
+        {
+            context.Debug.HaimaState = "Skipped (reserved)";
+            return false;
+        }
+
         var hpPercent = tank.MaxHp > 0 ? (float)tank.CurrentHp / tank.MaxHp : 1f;
 
         // Don't use if tank already has Haima
@@ -493,6 +527,11 @@ public sealed class HealingModule : IAsclepiusModule
         var action = SGEActions.Haima;
         if (context.ActionService.ExecuteOgcd(action, tank.GameObjectId))
         {
+            // Reserve target to prevent other handlers (local or remote) from double-healing
+            var healAmount = action.HealPotency * 10; // Rough estimate for shield value
+            context.HealingCoordination.TryReserveTarget(
+                tank.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, 0);
+
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Haima";
             context.Debug.HaimaState = "Executing";
@@ -692,6 +731,13 @@ public sealed class HealingModule : IAsclepiusModule
             return false;
         }
 
+        // Skip if another handler (local or remote Olympus instance) is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
+        {
+            context.Debug.KrasisState = "Skipped (reserved)";
+            return false;
+        }
+
         var hpPercent = target.MaxHp > 0 ? (float)target.CurrentHp / target.MaxHp : 1f;
         if (hpPercent > config.KrasisThreshold)
         {
@@ -709,6 +755,11 @@ public sealed class HealingModule : IAsclepiusModule
         var action = SGEActions.Krasis;
         if (context.ActionService.ExecuteOgcd(action, target.GameObjectId))
         {
+            // Reserve target - Krasis increases healing received on this target
+            var healAmount = 1000; // Krasis boosts heals, rough estimate for coordination
+            context.HealingCoordination.TryReserveTarget(
+                target.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, 0);
+
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Krasis";
             context.Debug.KrasisState = "Executing";
@@ -939,6 +990,13 @@ public sealed class HealingModule : IAsclepiusModule
             if (target == null)
                 return false;
 
+            // Skip if another handler (local or remote Olympus instance) is already healing this target
+            if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
+            {
+                context.Debug.EukrasianDiagnosisState = "Skipped (reserved)";
+                return false;
+            }
+
             // Don't stack shields
             if (AsclepiusStatusHelper.HasEukrasianDiagnosisShield(target))
             {
@@ -949,6 +1007,11 @@ public sealed class HealingModule : IAsclepiusModule
             var action = SGEActions.EukrasianDiagnosis;
             if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
             {
+                // Reserve target to prevent other handlers (local or remote) from double-healing
+                var healAmount = action.HealPotency * 10; // Rough estimate for heal + shield
+                context.HealingCoordination.TryReserveTarget(
+                    target.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, 0);
+
                 context.Debug.PlannedAction = action.Name;
                 context.Debug.PlanningState = "E.Diagnosis";
                 context.Debug.EukrasianDiagnosisState = "Executing";
@@ -1002,6 +1065,10 @@ public sealed class HealingModule : IAsclepiusModule
         if (target == null)
             return false;
 
+        // Skip if another handler (local or remote Olympus instance) is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
+            return false;
+
         var hpPercent = target.MaxHp > 0 ? (float)target.CurrentHp / target.MaxHp : 1f;
         if (hpPercent > config.DruocholeThreshold)
             return false;
@@ -1009,6 +1076,12 @@ public sealed class HealingModule : IAsclepiusModule
         var action = SGEActions.Diagnosis;
         if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
         {
+            // Reserve target to prevent other handlers (local or remote) from double-healing
+            var healAmount = action.HealPotency * 10; // Rough estimate
+            var castTimeMs = (int)(action.CastTime * 1000);
+            context.HealingCoordination.TryReserveTarget(
+                target.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, castTimeMs);
+
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Diagnosis";
             context.LogHealDecision(target.Name?.TextValue ?? "Unknown", hpPercent, action.Name, action.HealPotency, "Low HP");

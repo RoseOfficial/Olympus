@@ -19,6 +19,9 @@ public sealed class HealingModule : IAthenaModule
 
     public bool TryExecute(AthenaContext context, bool isMoving)
     {
+        // Clear frame-scoped coordination state to allow new reservations
+        context.HealingCoordination.Clear();
+
         var config = context.Configuration;
         var player = context.Player;
 
@@ -146,6 +149,10 @@ public sealed class HealingModule : IAthenaModule
         if (target == null)
             return false;
 
+        // Skip if another handler (local or remote Olympus instance) is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
+            return false;
+
         var hpPercent = context.PartyHelper.GetHpPercent(target);
 
         // Timeline-aware: proactively use before tank busters
@@ -164,6 +171,11 @@ public sealed class HealingModule : IAthenaModule
         {
             if (!context.StatusHelper.HasRecitation(player))
                 context.AetherflowService.ConsumeStack();
+
+            // Reserve target to prevent other handlers (local or remote) from double-healing
+            var healAmount = action.HealPotency * 10; // Rough estimate
+            context.HealingCoordination.TryReserveTarget(
+                target.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, 0);
 
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Excogitation";
@@ -195,6 +207,10 @@ public sealed class HealingModule : IAthenaModule
         if (target == null)
             return false;
 
+        // Skip if another handler (local or remote Olympus instance) is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
+            return false;
+
         var hpPercent = context.PartyHelper.GetHpPercent(target);
         if (hpPercent > config.LustrateThreshold)
             return false;
@@ -203,6 +219,12 @@ public sealed class HealingModule : IAthenaModule
         if (context.ActionService.ExecuteOgcd(action, target.GameObjectId))
         {
             context.AetherflowService.ConsumeStack();
+
+            // Reserve target to prevent other handlers (local or remote) from double-healing
+            var healAmount = action.HealPotency * 10; // Rough estimate
+            context.HealingCoordination.TryReserveTarget(
+                target.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, 0);
+
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Lustrate";
             return true;
@@ -322,6 +344,10 @@ public sealed class HealingModule : IAthenaModule
         if (target == null)
             return false;
 
+        // Skip if another handler (local or remote Olympus instance) is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
+            return false;
+
         var hpPercent = context.PartyHelper.GetHpPercent(target);
         if (hpPercent > config.ProtractionThreshold)
             return false;
@@ -329,6 +355,12 @@ public sealed class HealingModule : IAthenaModule
         var action = SCHActions.Protraction;
         if (context.ActionService.ExecuteOgcd(action, target.GameObjectId))
         {
+            // Reserve target to prevent other handlers (local or remote) from double-healing
+            // Protraction increases max HP and heals by 10% - estimate as a moderate heal
+            var healAmount = 1000; // Rough estimate for 10% max HP heal
+            context.HealingCoordination.TryReserveTarget(
+                target.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, 0);
+
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Protraction";
             return true;
@@ -432,6 +464,10 @@ public sealed class HealingModule : IAthenaModule
         if (target == null)
             return false;
 
+        // Skip if another handler (local or remote Olympus instance) is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
+            return false;
+
         var hpPercent = context.PartyHelper.GetHpPercent(target);
 
         // Choose between Adloquium and Physick
@@ -473,6 +509,12 @@ public sealed class HealingModule : IAthenaModule
 
         if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
         {
+            // Reserve target to prevent other handlers (local or remote) from double-healing
+            var healAmount = action.HealPotency * 10; // Rough estimate
+            var castTimeMs = (int)(action.CastTime * 1000);
+            context.HealingCoordination.TryReserveTarget(
+                target.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, castTimeMs);
+
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Single Heal";
             return true;

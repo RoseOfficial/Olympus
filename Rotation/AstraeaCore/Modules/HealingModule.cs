@@ -18,6 +18,9 @@ public sealed class HealingModule : IAstraeaModule
 
     public bool TryExecute(AstraeaContext context, bool isMoving)
     {
+        // Clear frame-scoped coordination state to allow new reservations
+        context.HealingCoordination.Clear();
+
         var config = context.Configuration;
         var player = context.Player;
 
@@ -124,9 +127,18 @@ public sealed class HealingModule : IAstraeaModule
         if (target == null)
             return false;
 
+        // Skip if another handler (local or remote Olympus instance) is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
+            return false;
+
         var action = ASTActions.EssentialDignity;
         if (context.ActionService.ExecuteOgcd(action, target.GameObjectId))
         {
+            // Reserve target to prevent other handlers (local or remote) from double-healing
+            var healAmount = action.HealPotency * 10; // Rough estimate (scales with low HP)
+            context.HealingCoordination.TryReserveTarget(
+                target.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, 0);
+
             context.Debug.PlannedAction = action.Name;
             context.Debug.EssentialDignityState = "Used";
             return true;
@@ -153,6 +165,10 @@ public sealed class HealingModule : IAstraeaModule
         if (target == null)
             return false;
 
+        // Skip if another handler (local or remote Olympus instance) is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
+            return false;
+
         var hpPercent = context.PartyHelper.GetHpPercent(target);
         if (hpPercent > config.CelestialIntersectionThreshold)
             return false;
@@ -160,6 +176,11 @@ public sealed class HealingModule : IAstraeaModule
         var action = ASTActions.CelestialIntersection;
         if (context.ActionService.ExecuteOgcd(action, target.GameObjectId))
         {
+            // Reserve target to prevent other handlers (local or remote) from double-healing
+            var healAmount = action.HealPotency * 10; // Rough estimate
+            context.HealingCoordination.TryReserveTarget(
+                target.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, 0);
+
             context.Debug.PlannedAction = action.Name;
             context.Debug.CelestialIntersectionState = "Used";
             return true;
@@ -214,6 +235,10 @@ public sealed class HealingModule : IAstraeaModule
         if (target == null)
             return false;
 
+        // Skip if another handler (local or remote Olympus instance) is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
+            return false;
+
         var hpPercent = context.PartyHelper.GetHpPercent(target);
         if (hpPercent > config.ExaltationThreshold)
             return false;
@@ -221,6 +246,12 @@ public sealed class HealingModule : IAstraeaModule
         var action = ASTActions.Exaltation;
         if (context.ActionService.ExecuteOgcd(action, target.GameObjectId))
         {
+            // Reserve target to prevent other handlers (local or remote) from double-healing
+            // Exaltation heals after 8 seconds for 500 potency
+            var healAmount = action.HealPotency * 10; // Rough estimate
+            context.HealingCoordination.TryReserveTarget(
+                target.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, 0);
+
             context.Debug.PlannedAction = action.Name;
             context.Debug.ExaltationState = "Used";
             return true;
@@ -387,6 +418,10 @@ public sealed class HealingModule : IAstraeaModule
         if (target == null)
             return false;
 
+        // Skip if another handler (local or remote Olympus instance) is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
+            return false;
+
         var hpPercent = context.PartyHelper.GetHpPercent(target);
         if (hpPercent > config.SynastryThreshold)
             return false;
@@ -394,6 +429,11 @@ public sealed class HealingModule : IAstraeaModule
         var action = ASTActions.Synastry;
         if (context.ActionService.ExecuteOgcd(action, target.GameObjectId))
         {
+            // Reserve target - Synastry mirrors heals to this target
+            var healAmount = 1000; // Synastry itself doesn't heal, but reserves the target for coordination
+            context.HealingCoordination.TryReserveTarget(
+                target.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, 0);
+
             context.Debug.PlannedAction = action.Name;
             context.Debug.SynastryState = "Active";
             context.Debug.SynastryTarget = target.Name.TextValue;
@@ -639,6 +679,10 @@ public sealed class HealingModule : IAstraeaModule
         if (target == null)
             return false;
 
+        // Skip if another handler (local or remote Olympus instance) is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
+            return false;
+
         var hpPercent = context.PartyHelper.GetHpPercent(target);
         if (hpPercent > config.AspectedBeneficThreshold)
             return false;
@@ -650,6 +694,11 @@ public sealed class HealingModule : IAstraeaModule
         var action = ASTActions.AspectedBenefic;
         if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
         {
+            // Reserve target to prevent other handlers (local or remote) from double-healing
+            var healAmount = action.HealPotency * 10; // Rough estimate
+            context.HealingCoordination.TryReserveTarget(
+                target.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, 0);
+
             context.Debug.PlannedAction = action.Name;
             context.Debug.SingleHealState = "Aspected Benefic";
             return true;
@@ -668,6 +717,10 @@ public sealed class HealingModule : IAstraeaModule
 
         var target = context.PartyHelper.FindLowestHpPartyMember(player);
         if (target == null)
+            return false;
+
+        // Skip if another handler (local or remote Olympus instance) is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
             return false;
 
         var hpPercent = context.PartyHelper.GetHpPercent(target);
@@ -691,6 +744,12 @@ public sealed class HealingModule : IAstraeaModule
 
         if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
         {
+            // Reserve target to prevent other handlers (local or remote) from double-healing
+            var healAmount = action.HealPotency * 10; // Rough estimate
+            var castTimeMs = (int)(action.CastTime * 1000);
+            context.HealingCoordination.TryReserveTarget(
+                target.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, castTimeMs);
+
             context.Debug.PlannedAction = action.Name;
             context.Debug.SingleHealState = action.Name;
             return true;
