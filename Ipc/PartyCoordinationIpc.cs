@@ -27,6 +27,8 @@ public sealed class PartyCoordinationIpc : IDisposable
     private readonly ICallGateProvider<string, object> _healLandedProvider;
     private readonly ICallGateProvider<string, object> _cooldownUsedProvider;
     private readonly ICallGateProvider<string, object> _aoEHealIntentProvider;
+    private readonly ICallGateProvider<string, object> _raidBuffIntentProvider;
+    private readonly ICallGateProvider<string, object> _burstWindowStartProvider;
 
     // IPC subscribers (for receiving)
     private readonly ICallGateSubscriber<string, object> _heartbeatSubscriber;
@@ -34,6 +36,8 @@ public sealed class PartyCoordinationIpc : IDisposable
     private readonly ICallGateSubscriber<string, object> _healLandedSubscriber;
     private readonly ICallGateSubscriber<string, object> _cooldownUsedSubscriber;
     private readonly ICallGateSubscriber<string, object> _aoEHealIntentSubscriber;
+    private readonly ICallGateSubscriber<string, object> _raidBuffIntentSubscriber;
+    private readonly ICallGateSubscriber<string, object> _burstWindowStartSubscriber;
 
     public PartyCoordinationIpc(
         IDalamudPluginInterface pluginInterface,
@@ -49,6 +53,8 @@ public sealed class PartyCoordinationIpc : IDisposable
         _healLandedProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.HealLanded");
         _cooldownUsedProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.CooldownUsed");
         _aoEHealIntentProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.AoEHealIntent");
+        _raidBuffIntentProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.RaidBuffIntent");
+        _burstWindowStartProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.BurstWindowStart");
 
         // Register action handlers (for broadcast)
         _heartbeatProvider.RegisterAction(OnHeartbeatReceived);
@@ -56,6 +62,8 @@ public sealed class PartyCoordinationIpc : IDisposable
         _healLandedProvider.RegisterAction(OnHealLandedReceived);
         _cooldownUsedProvider.RegisterAction(OnCooldownUsedReceived);
         _aoEHealIntentProvider.RegisterAction(OnAoEHealIntentReceived);
+        _raidBuffIntentProvider.RegisterAction(OnRaidBuffIntentReceived);
+        _burstWindowStartProvider.RegisterAction(OnBurstWindowStartReceived);
 
         // Subscribe to receive messages from other instances
         _heartbeatSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.Heartbeat");
@@ -63,6 +71,8 @@ public sealed class PartyCoordinationIpc : IDisposable
         _healLandedSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.HealLanded");
         _cooldownUsedSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.CooldownUsed");
         _aoEHealIntentSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.AoEHealIntent");
+        _raidBuffIntentSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.RaidBuffIntent");
+        _burstWindowStartSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.BurstWindowStart");
 
         // Wire up service events to IPC broadcasts
         _service.OnHeartbeatReady += SendHeartbeat;
@@ -70,6 +80,8 @@ public sealed class PartyCoordinationIpc : IDisposable
         _service.OnHealLandedReady += SendHealLanded;
         _service.OnCooldownUsedReady += SendCooldownUsed;
         _service.OnAoEHealIntentReady += SendAoEHealIntent;
+        _service.OnRaidBuffIntentReady += SendRaidBuffIntent;
+        _service.OnBurstWindowStartReady += SendBurstWindowStart;
 
         _log.Info("Party coordination IPC initialized");
     }
@@ -138,6 +150,32 @@ public sealed class PartyCoordinationIpc : IDisposable
         catch (Exception ex)
         {
             _log.Warning(ex, "Failed to send AoE heal intent");
+        }
+    }
+
+    private void SendRaidBuffIntent(RaidBuffIntentMessage message)
+    {
+        try
+        {
+            var json = message.ToJson();
+            _raidBuffIntentProvider.SendMessage(json);
+        }
+        catch (Exception ex)
+        {
+            _log.Warning(ex, "Failed to send raid buff intent");
+        }
+    }
+
+    private void SendBurstWindowStart(BurstWindowStartMessage message)
+    {
+        try
+        {
+            var json = message.ToJson();
+            _burstWindowStartProvider.SendMessage(json);
+        }
+        catch (Exception ex)
+        {
+            _log.Warning(ex, "Failed to send burst window start");
         }
     }
 
@@ -225,6 +263,38 @@ public sealed class PartyCoordinationIpc : IDisposable
         }
     }
 
+    private void OnRaidBuffIntentReceived(string json)
+    {
+        try
+        {
+            var message = PartyMessage.FromJson(json) as RaidBuffIntentMessage;
+            if (message != null)
+            {
+                _service.HandleRemoteRaidBuffIntent(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            _log.Warning(ex, "Failed to process raid buff intent");
+        }
+    }
+
+    private void OnBurstWindowStartReceived(string json)
+    {
+        try
+        {
+            var message = PartyMessage.FromJson(json) as BurstWindowStartMessage;
+            if (message != null)
+            {
+                _service.HandleRemoteBurstWindowStart(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            _log.Warning(ex, "Failed to process burst window start");
+        }
+    }
+
     #endregion
 
     public void Dispose()
@@ -235,6 +305,8 @@ public sealed class PartyCoordinationIpc : IDisposable
         _service.OnHealLandedReady -= SendHealLanded;
         _service.OnCooldownUsedReady -= SendCooldownUsed;
         _service.OnAoEHealIntentReady -= SendAoEHealIntent;
+        _service.OnRaidBuffIntentReady -= SendRaidBuffIntent;
+        _service.OnBurstWindowStartReady -= SendBurstWindowStart;
 
         // Unregister IPC handlers
         _heartbeatProvider.UnregisterAction();
@@ -242,6 +314,8 @@ public sealed class PartyCoordinationIpc : IDisposable
         _healLandedProvider.UnregisterAction();
         _cooldownUsedProvider.UnregisterAction();
         _aoEHealIntentProvider.UnregisterAction();
+        _raidBuffIntentProvider.UnregisterAction();
+        _burstWindowStartProvider.UnregisterAction();
 
         _log.Info("Party coordination IPC disposed");
     }

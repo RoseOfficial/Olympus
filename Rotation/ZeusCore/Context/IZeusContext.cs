@@ -1,5 +1,6 @@
 using Olympus.Rotation.Common;
 using Olympus.Rotation.ZeusCore.Helpers;
+using Olympus.Services.Party;
 
 namespace Olympus.Rotation.ZeusCore.Context;
 
@@ -171,6 +172,16 @@ public interface IZeusContext : IMeleeDpsRotationContext
     /// Debug state for this rotation.
     /// </summary>
     ZeusDebugState Debug { get; }
+
+    #endregion
+
+    #region Party Coordination
+
+    /// <summary>
+    /// Service for coordinating raid buffs with other Olympus instances.
+    /// Null if party coordination is disabled or unavailable.
+    /// </summary>
+    IPartyCoordinationService? PartyCoordinationService { get; }
 
     #endregion
 }

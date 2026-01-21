@@ -112,6 +112,49 @@ public sealed class PartyCoordinationConfig
     /// </summary>
     public bool LogCoordinationEvents { get; set; } = false;
 
+    #region Raid Buff Coordination
+
+    /// <summary>
+    /// Enable raid buff coordination with other Olympus instances.
+    /// When enabled, DPS raid buffs (Battle Litany, Battle Voice, Radiant Finale)
+    /// will be synchronized across party members for maximum burst damage.
+    /// Unlike defensive mitigations (which are staggered), raid buffs benefit from synchronization.
+    /// </summary>
+    public bool EnableRaidBuffCoordination { get; set; } = true;
+
+    /// <summary>
+    /// Time window (in seconds) to consider buffs as aligned for burst coordination.
+    /// If another instance is about to use a raid buff within this window, align with them.
+    /// Valid range: 1.0 to 10.0 seconds.
+    /// </summary>
+    private float _raidBuffAlignmentWindowSeconds = 3.0f;
+    public float RaidBuffAlignmentWindowSeconds
+    {
+        get => _raidBuffAlignmentWindowSeconds;
+        set => _raidBuffAlignmentWindowSeconds = Math.Clamp(value, 1.0f, 10.0f);
+    }
+
+    /// <summary>
+    /// Maximum desync time (in seconds) before using buffs independently.
+    /// If buffs are desynchronized by more than this amount (e.g., due to death),
+    /// stop trying to align and use buffs independently until they naturally realign.
+    /// Valid range: 10.0 to 60.0 seconds.
+    /// </summary>
+    private float _maxBuffDesyncSeconds = 30.0f;
+    public float MaxBuffDesyncSeconds
+    {
+        get => _maxBuffDesyncSeconds;
+        set => _maxBuffDesyncSeconds = Math.Clamp(value, 10.0f, 60.0f);
+    }
+
+    /// <summary>
+    /// Log raid buff coordination decisions for debugging.
+    /// Shows when buffs are aligned, delayed, or used independently.
+    /// </summary>
+    public bool LogRaidBuffCoordination { get; set; } = false;
+
+    #endregion
+
     /// <summary>
     /// Minimum estimated heal amount to broadcast an intent.
     /// Prevents broadcasting for trivial heals that don't matter.

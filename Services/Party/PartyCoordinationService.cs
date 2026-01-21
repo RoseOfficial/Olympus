@@ -33,6 +33,14 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     // Remote AoE heal reservation
     private AoEHealReservation? _remoteAoEReservation;
 
+    // Remote raid buff state tracking (key = actionId, value = list of states from remote instances)
+    private readonly Dictionary<uint, List<RemoteRaidBuffState>> _remoteRaidBuffStates = new();
+
+    // Active burst window tracking
+    private DateTime? _burstWindowStart;
+    private float _burstWindowDuration;
+    private uint _burstWindowTriggerAction;
+
     // Heartbeat timing
     private DateTime _lastHeartbeatSent = DateTime.MinValue;
 
@@ -42,6 +50,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     public event Action<HealLandedMessage>? OnHealLandedReady;
     public event Action<CooldownUsedMessage>? OnCooldownUsedReady;
     public event Action<AoEHealIntentMessage>? OnAoEHealIntentReady;
+    public event Action<RaidBuffIntentMessage>? OnRaidBuffIntentReady;
+    public event Action<BurstWindowStartMessage>? OnBurstWindowStartReady;
 
     public PartyCoordinationService(PartyCoordinationConfig config, IPluginLog log)
     {
@@ -296,6 +306,183 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
     #endregion
 
+    #region Raid Buff Coordination
+
+    public bool HasRemoteDps => _remoteInstances.Values.Any(i => i.IsEnabled && JobRegistry.IsDps(i.JobId));
+
+    public bool HasPendingRaidBuffIntent(float withinSeconds = 5f)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableRaidBuffCoordination)
+            return false;
+
+        var now = DateTime.UtcNow;
+
+        foreach (var kvp in _remoteRaidBuffStates)
+        {
+            foreach (var state in kvp.Value)
+            {
+                if (state.IsIntentOnly && !state.IsIntentExpired)
+                {
+                    // Check if activation is expected within the window
+                    var expectedActivation = state.IntentAnnouncedAt.AddSeconds(state.PlannedDelaySeconds);
+                    var timeUntilActivation = (expectedActivation - now).TotalSeconds;
+                    if (timeUntilActivation <= withinSeconds && timeUntilActivation >= -1)
+                        return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public IReadOnlyList<RemoteRaidBuffState> GetPendingRaidBuffIntents()
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableRaidBuffCoordination)
+            return Array.Empty<RemoteRaidBuffState>();
+
+        var result = new List<RemoteRaidBuffState>();
+
+        foreach (var kvp in _remoteRaidBuffStates)
+        {
+            foreach (var state in kvp.Value)
+            {
+                if (state.IsIntentOnly && !state.IsIntentExpired)
+                    result.Add(state);
+            }
+        }
+
+        return result;
+    }
+
+    public bool IsInBurstWindow()
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableRaidBuffCoordination)
+            return false;
+
+        // Check local burst window tracking
+        if (_burstWindowStart.HasValue)
+        {
+            var elapsed = (DateTime.UtcNow - _burstWindowStart.Value).TotalSeconds;
+            if (elapsed < _burstWindowDuration)
+                return true;
+        }
+
+        // Check if any remote instances have active buffs
+        foreach (var kvp in _remoteRaidBuffStates)
+        {
+            foreach (var state in kvp.Value)
+            {
+                if (state.IsBuffActive)
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    public float GetBurstWindowRemaining()
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableRaidBuffCoordination)
+            return 0;
+
+        float maxRemaining = 0;
+
+        // Check local burst window
+        if (_burstWindowStart.HasValue)
+        {
+            var elapsed = (float)(DateTime.UtcNow - _burstWindowStart.Value).TotalSeconds;
+            var remaining = _burstWindowDuration - elapsed;
+            if (remaining > maxRemaining)
+                maxRemaining = remaining;
+        }
+
+        // Check remote buff durations
+        foreach (var kvp in _remoteRaidBuffStates)
+        {
+            foreach (var state in kvp.Value)
+            {
+                if (state.BuffRemainingSeconds > maxRemaining)
+                    maxRemaining = state.BuffRemainingSeconds;
+            }
+        }
+
+        return Math.Max(0, maxRemaining);
+    }
+
+    public void AnnounceRaidBuffIntent(uint actionId, float secondsUntilActivation = 0f)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableRaidBuffCoordination)
+            return;
+
+        if (!CoordinatedRaidBuffs.IsCoordinatedRaidBuff(actionId))
+            return;
+
+        var duration = CoordinatedRaidBuffs.GetBuffDuration(actionId);
+        var message = new RaidBuffIntentMessage(_instanceId, actionId, secondsUntilActivation, duration);
+        OnRaidBuffIntentReady?.Invoke(message);
+
+        if (_config.LogRaidBuffCoordination)
+            _log.Debug("[PartyCoord] Announced raid buff intent: action {0}, activating in {1:F1}s", actionId, secondsUntilActivation);
+    }
+
+    public void OnRaidBuffUsed(uint actionId, int recastTimeMs)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableRaidBuffCoordination)
+            return;
+
+        if (!CoordinatedRaidBuffs.IsCoordinatedRaidBuff(actionId))
+            return;
+
+        var duration = CoordinatedRaidBuffs.GetBuffDuration(actionId);
+        var isMajorBurst = recastTimeMs >= 100_000; // 100+ second CD = major burst
+
+        // Update local burst window tracking
+        _burstWindowStart = DateTime.UtcNow;
+        _burstWindowDuration = duration;
+        _burstWindowTriggerAction = actionId;
+
+        var message = new BurstWindowStartMessage(_instanceId, actionId, duration, isMajorBurst);
+        OnBurstWindowStartReady?.Invoke(message);
+
+        if (_config.LogRaidBuffCoordination)
+            _log.Debug("[PartyCoord] Raid buff activated: action {0}, duration {1:F1}s, major={2}", actionId, duration, isMajorBurst);
+    }
+
+    public bool IsRaidBuffAligned(uint actionId, float toleranceSeconds = 0f)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableRaidBuffCoordination)
+            return true; // No coordination = always "aligned"
+
+        // Use config value if tolerance not specified
+        if (toleranceSeconds <= 0)
+            toleranceSeconds = _config.MaxBuffDesyncSeconds;
+
+        // If no remote data for this action, consider aligned
+        if (!_remoteRaidBuffStates.TryGetValue(actionId, out var states) || states.Count == 0)
+            return true;
+
+        // Check if any remote instance has significantly different cooldown timing
+        foreach (var state in states)
+        {
+            // If they recently used the buff, check how desynced we would be
+            var remoteCdRemaining = state.CooldownRemainingSeconds;
+
+            // If remote CD is much higher (they used it recently but we haven't)
+            // or much lower (we used it recently but they haven't), we're desynced
+            if (remoteCdRemaining > toleranceSeconds)
+            {
+                if (_config.LogRaidBuffCoordination)
+                    _log.Debug("[PartyCoord] Raid buff desynced: action {0}, remote CD remaining {1:F1}s > tolerance {2:F1}s",
+                        actionId, remoteCdRemaining, toleranceSeconds);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    #endregion
+
     public void Update(uint playerEntityId, uint jobId, bool isEnabled)
     {
         if (!_config.EnablePartyCoordination)
@@ -326,6 +513,10 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         _remoteReservations.Clear();
         _remoteCooldowns.Clear();
         _remoteAoEReservation = null;
+        _remoteRaidBuffStates.Clear();
+        _burstWindowStart = null;
+        _burstWindowDuration = 0;
+        _burstWindowTriggerAction = 0;
 
         if (_config.LogCoordinationEvents)
             _log.Debug("[PartyCoord] Cleared all coordination state");
@@ -477,6 +668,116 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
                 message.ActionId, message.HealPotency, message.InstanceId);
     }
 
+    /// <summary>
+    /// Handles incoming raid buff intent from a remote instance.
+    /// </summary>
+    public void HandleRemoteRaidBuffIntent(RaidBuffIntentMessage message)
+    {
+        if (message.InstanceId == _instanceId)
+            return;
+
+        if (!_config.EnableRaidBuffCoordination)
+            return;
+
+        // Only track coordinated raid buffs
+        if (!CoordinatedRaidBuffs.IsCoordinatedRaidBuff(message.ActionId))
+            return;
+
+        var state = new RemoteRaidBuffState
+        {
+            InstanceId = message.InstanceId,
+            ActionId = message.ActionId,
+            IntentAnnouncedAt = DateTime.UtcNow,
+            PlannedDelaySeconds = message.SecondsUntilActivation,
+            ActivatedAt = null,
+            BuffDuration = message.BuffDuration,
+            RecastTimeMs = CoordinatedRaidBuffs.GetDefaultRecastTime(message.ActionId)
+        };
+
+        // Get or create list for this action
+        if (!_remoteRaidBuffStates.TryGetValue(message.ActionId, out var list))
+        {
+            list = new List<RemoteRaidBuffState>();
+            _remoteRaidBuffStates[message.ActionId] = list;
+        }
+
+        // Replace existing state from same instance
+        list.RemoveAll(s => s.InstanceId == message.InstanceId);
+        list.Add(state);
+
+        if (_config.LogRaidBuffCoordination)
+            _log.Debug("[PartyCoord] Remote raid buff intent: action {0}, delay {1:F1}s from instance {2}",
+                message.ActionId, message.SecondsUntilActivation, message.InstanceId);
+    }
+
+    /// <summary>
+    /// Handles incoming burst window start from a remote instance.
+    /// </summary>
+    public void HandleRemoteBurstWindowStart(BurstWindowStartMessage message)
+    {
+        if (message.InstanceId == _instanceId)
+            return;
+
+        if (!_config.EnableRaidBuffCoordination)
+            return;
+
+        // Only track coordinated raid buffs
+        if (!CoordinatedRaidBuffs.IsCoordinatedRaidBuff(message.TriggerActionId))
+            return;
+
+        // Update existing intent state to mark as activated
+        if (_remoteRaidBuffStates.TryGetValue(message.TriggerActionId, out var list))
+        {
+            var existingState = list.Find(s => s.InstanceId == message.InstanceId);
+            if (existingState != null)
+            {
+                existingState.ActivatedAt = DateTime.UtcNow;
+            }
+            else
+            {
+                // No intent was received, create state directly
+                var state = new RemoteRaidBuffState
+                {
+                    InstanceId = message.InstanceId,
+                    ActionId = message.TriggerActionId,
+                    IntentAnnouncedAt = DateTime.UtcNow,
+                    PlannedDelaySeconds = 0,
+                    ActivatedAt = DateTime.UtcNow,
+                    BuffDuration = message.WindowDuration,
+                    RecastTimeMs = CoordinatedRaidBuffs.GetDefaultRecastTime(message.TriggerActionId)
+                };
+                list.Add(state);
+            }
+        }
+        else
+        {
+            // No tracking for this action yet, create new
+            var state = new RemoteRaidBuffState
+            {
+                InstanceId = message.InstanceId,
+                ActionId = message.TriggerActionId,
+                IntentAnnouncedAt = DateTime.UtcNow,
+                PlannedDelaySeconds = 0,
+                ActivatedAt = DateTime.UtcNow,
+                BuffDuration = message.WindowDuration,
+                RecastTimeMs = CoordinatedRaidBuffs.GetDefaultRecastTime(message.TriggerActionId)
+            };
+            _remoteRaidBuffStates[message.TriggerActionId] = new List<RemoteRaidBuffState> { state };
+        }
+
+        // Update local burst window tracking for UI display
+        if (!_burstWindowStart.HasValue || message.WindowDuration > _burstWindowDuration)
+        {
+            _burstWindowStart = DateTime.UtcNow;
+            _burstWindowDuration = message.WindowDuration;
+            _burstWindowTriggerAction = message.TriggerActionId;
+        }
+
+        if (_config.LogRaidBuffCoordination)
+            _log.Debug("[PartyCoord] Remote burst window started: action {0}, duration {1:F1}s, major={2} from instance {3}",
+                message.TriggerActionId, message.WindowDuration, message.IsMajorBurst, message.InstanceId);
+    }
+
     #endregion
 
     #region Cleanup
@@ -515,12 +816,33 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
                 kvp.Value.RemoveAll(c => c.InstanceId == id);
             }
 
+            // Remove raid buff states from disconnected instance
+            foreach (var kvp in _remoteRaidBuffStates)
+            {
+                kvp.Value.RemoveAll(s => s.InstanceId == id);
+            }
+
             if (_config.LogCoordinationEvents)
                 _log.Info("[PartyCoord] Remote instance timed out: {0}", id);
         }
 
         // Clean up expired cooldowns (no longer on recast)
         CleanupExpiredCooldowns();
+
+        // Clean up expired raid buff states
+        CleanupExpiredRaidBuffStates();
+
+        // Clean up burst window if expired
+        if (_burstWindowStart.HasValue)
+        {
+            var elapsed = (DateTime.UtcNow - _burstWindowStart.Value).TotalSeconds;
+            if (elapsed > _burstWindowDuration)
+            {
+                _burstWindowStart = null;
+                _burstWindowDuration = 0;
+                _burstWindowTriggerAction = 0;
+            }
+        }
     }
 
     private void CleanupExpiredCooldowns()
@@ -540,6 +862,37 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         foreach (var key in emptyKeys)
         {
             _remoteCooldowns.Remove(key);
+        }
+    }
+
+    private void CleanupExpiredRaidBuffStates()
+    {
+        // Remove expired intents and inactive buff states
+        foreach (var kvp in _remoteRaidBuffStates)
+        {
+            kvp.Value.RemoveAll(s =>
+            {
+                // Remove expired intents that were never activated
+                if (s.IsIntentOnly && s.IsIntentExpired)
+                    return true;
+
+                // Keep states that are either:
+                // - Still intent (not expired)
+                // - Buff is active
+                // - Cooldown is still running (for alignment tracking)
+                return !s.IsIntentOnly && !s.IsBuffActive && s.CooldownRemainingSeconds <= 0;
+            });
+        }
+
+        // Remove empty lists
+        var emptyKeys = _remoteRaidBuffStates
+            .Where(kvp => kvp.Value.Count == 0)
+            .Select(kvp => kvp.Key)
+            .ToList();
+
+        foreach (var key in emptyKeys)
+        {
+            _remoteRaidBuffStates.Remove(key);
         }
     }
 

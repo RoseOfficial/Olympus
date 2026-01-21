@@ -65,6 +65,22 @@ public static class JobRegistry
         Gunbreaker;
 
     /// <summary>
+    /// Returns true if the job is a DPS (melee, ranged, or caster).
+    /// </summary>
+    public static bool IsDps(uint jobId) => jobId is
+        // Melee DPS
+        Monk or Pugilist or
+        Dragoon or Lancer or
+        Ninja or Rogue or
+        Samurai or Reaper or Viper or
+        // Ranged Physical DPS
+        Bard or Archer or
+        Machinist or Dancer or
+        // Casters
+        BlackMage or Thaumaturge or
+        Summoner or RedMage or Pictomancer;
+
+    /// <summary>
     /// Returns true if the job is a White Mage or Conjurer.
     /// </summary>
     public static bool IsWhiteMage(uint jobId) => jobId is WhiteMage or Conjurer;

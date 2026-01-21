@@ -11,6 +11,7 @@ using Olympus.Rotation.CalliopeCore.Modules;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Debuff;
+using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
@@ -59,6 +60,9 @@ public sealed class Calliope : BaseRangedDpsRotation<ICalliopeContext, ICalliope
     // Timeline service for fight-aware rotation (optional)
     private readonly ITimelineService? _timelineService;
 
+    // Party coordination service for raid buff synchronization (optional)
+    private readonly IPartyCoordinationService? _partyCoordinationService;
+
     // Gauge values (read each frame)
     private int _soulVoice;
     private float _songTimer;
@@ -81,6 +85,7 @@ public sealed class Calliope : BaseRangedDpsRotation<ICalliopeContext, ICalliope
         IPlayerStatsService playerStatsService,
         IDebuffDetectionService debuffDetectionService,
         ITimelineService? timelineService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -99,6 +104,7 @@ public sealed class Calliope : BaseRangedDpsRotation<ICalliopeContext, ICalliope
             errorMetrics)
     {
         _timelineService = timelineService;
+        _partyCoordinationService = partyCoordinationService;
 
         // Initialize helpers
         _statusHelper = new CalliopeStatusHelper();
@@ -181,6 +187,7 @@ public sealed class Calliope : BaseRangedDpsRotation<ICalliopeContext, ICalliope
             lastComboAction: LastComboAction,
             comboTimeRemaining: ComboTimeRemaining,
             timelineService: _timelineService,
+            partyCoordinationService: _partyCoordinationService,
             log: Log);
     }
 

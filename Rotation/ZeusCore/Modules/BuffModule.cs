@@ -1,5 +1,6 @@
 using Olympus.Data;
 using Olympus.Rotation.ZeusCore.Context;
+using Olympus.Services.Party;
 using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.ZeusCore.Modules;
@@ -217,6 +218,32 @@ public sealed class BuffModule : IZeusModule
             return false;
         }
 
+        // Party coordination: Synchronize with other Olympus instances
+        var partyCoord = context.PartyCoordinationService;
+        if (partyCoord != null && partyCoord.IsPartyCoordinationEnabled &&
+            context.Configuration.PartyCoordination.EnableRaidBuffCoordination)
+        {
+            // Check if our buffs are aligned with remote instances
+            // If significantly desynced (e.g., death recovery), use independently
+            if (!partyCoord.IsRaidBuffAligned(DRGActions.BattleLitany.ActionId))
+            {
+                context.Debug.BuffState = "Raid buffs desynced, using independently";
+                // Fall through to execute - don't try to align when heavily desynced
+            }
+            // Check if another DPS is about to use a raid buff
+            // If so, align our burst with theirs
+            else if (partyCoord.HasPendingRaidBuffIntent(
+                context.Configuration.PartyCoordination.RaidBuffAlignmentWindowSeconds))
+            {
+                // Another player is about to burst - align with them
+                context.Debug.BuffState = "Aligning with party burst";
+                // Fall through to execute and announce our intent
+            }
+
+            // Announce our intent to use Battle Litany
+            partyCoord.AnnounceRaidBuffIntent(DRGActions.BattleLitany.ActionId);
+        }
+
         // Battle Litany is a party buff - use with Lance Charge for maximum burst
         // But don't hold it too long (120s CD)
         var shouldUseLitany = context.HasLanceCharge ||
@@ -234,6 +261,10 @@ public sealed class BuffModule : IZeusModule
         {
             context.Debug.PlannedAction = DRGActions.BattleLitany.Name;
             context.Debug.BuffState = "Activating Battle Litany";
+
+            // Notify coordination service that we used the raid buff
+            partyCoord?.OnRaidBuffUsed(DRGActions.BattleLitany.ActionId, 120_000);
+
             return true;
         }
 

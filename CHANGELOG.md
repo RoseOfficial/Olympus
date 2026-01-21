@@ -3,11 +3,29 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v2.11.0 - DPS Raid Buff Coordination
+
+**DPS Coordination**
+- Added cross-instance raid buff synchronization for DPS jobs
+- Dragoon (Zeus): Battle Litany now synchronizes with other Olympus DPS
+- Bard (Calliope): Battle Voice and Radiant Finale now synchronize with party burst
+
+**How It Works**
+- DPS jobs announce their intent before using raid buffs
+- Other Olympus instances align their burst windows when a party member is about to use buffs
+- Handles desync gracefully (e.g., after death) - uses buffs independently until realigned
+
+**Settings**
+- New option: `EnableRaidBuffCoordination` (enabled by default)
+- New option: `RaidBuffAlignmentWindowSeconds` (1-10 seconds, default 3s)
+- New option: `MaxBuffDesyncSeconds` (10-60 seconds, default 30s)
+- New option: `LogRaidBuffCoordination` (debug logging)
+<!-- LATEST-END -->
+
 ## v2.10.1 - Discord Notification Fix
 
 **Bug Fix**
 - Fixed Discord release notifications showing `%0A` instead of actual line breaks
-<!-- LATEST-END -->
 
 ## v2.10.0 - AOE Heal Coordination
 

@@ -140,6 +140,66 @@ public interface IPartyCoordinationService
 
     #endregion
 
+    #region Raid Buff Coordination
+
+    /// <summary>
+    /// Checks if any remote instance has announced intent to use a raid buff within the specified window.
+    /// Used to determine if we should align our buffs with an incoming burst window.
+    /// </summary>
+    /// <param name="withinSeconds">Time window to check for pending intents (default 5 seconds).</param>
+    /// <returns>True if any remote instance has a pending raid buff intent.</returns>
+    bool HasPendingRaidBuffIntent(float withinSeconds = 5f);
+
+    /// <summary>
+    /// Gets all pending raid buff intents from remote instances.
+    /// </summary>
+    /// <returns>List of remote raid buff states with pending intents.</returns>
+    IReadOnlyList<RemoteRaidBuffState> GetPendingRaidBuffIntents();
+
+    /// <summary>
+    /// Checks if the party is currently in a burst window (raid buffs active).
+    /// </summary>
+    /// <returns>True if any remote instance has active raid buffs.</returns>
+    bool IsInBurstWindow();
+
+    /// <summary>
+    /// Gets the remaining time on the current burst window.
+    /// </summary>
+    /// <returns>Seconds remaining in burst window, or 0 if not in burst.</returns>
+    float GetBurstWindowRemaining();
+
+    /// <summary>
+    /// Announces intent to use a raid buff.
+    /// Other instances will receive this and can choose to align their buffs.
+    /// </summary>
+    /// <param name="actionId">The raid buff action ID.</param>
+    /// <param name="secondsUntilActivation">Seconds until the buff will be activated (0 for immediate).</param>
+    void AnnounceRaidBuffIntent(uint actionId, float secondsUntilActivation = 0f);
+
+    /// <summary>
+    /// Notifies that a raid buff was actually used.
+    /// Broadcasts the burst window start to other instances.
+    /// </summary>
+    /// <param name="actionId">The raid buff action ID.</param>
+    /// <param name="recastTimeMs">Recast time in milliseconds.</param>
+    void OnRaidBuffUsed(uint actionId, int recastTimeMs);
+
+    /// <summary>
+    /// Checks if our raid buff is approximately aligned with remote instances.
+    /// Returns false if desync exceeds the configured threshold, indicating we should use buffs independently.
+    /// </summary>
+    /// <param name="actionId">The action ID to check alignment for.</param>
+    /// <param name="toleranceSeconds">Acceptable desync tolerance (default: uses config value).</param>
+    /// <returns>True if buffs are aligned or no remote data exists, false if significantly desynced.</returns>
+    bool IsRaidBuffAligned(uint actionId, float toleranceSeconds = 0f);
+
+    /// <summary>
+    /// Checks if any remote DPS instance is running.
+    /// </summary>
+    bool HasRemoteDps { get; }
+
+    #endregion
+
     /// <summary>
     /// Updates the service state. Should be called once per frame.
     /// </summary>

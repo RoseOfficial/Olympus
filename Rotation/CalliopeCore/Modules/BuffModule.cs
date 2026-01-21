@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Rotation.CalliopeCore.Context;
+using Olympus.Services.Party;
 using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.CalliopeCore.Modules;
@@ -300,10 +301,40 @@ public sealed class BuffModule : ICalliopeModule
             return false;
         }
 
+        // Party coordination: Synchronize with other Olympus instances
+        var partyCoord = context.PartyCoordinationService;
+        if (partyCoord != null && partyCoord.IsPartyCoordinationEnabled &&
+            context.Configuration.PartyCoordination.EnableRaidBuffCoordination)
+        {
+            // Check if our buffs are aligned with remote instances
+            // If significantly desynced (e.g., death recovery), use independently
+            if (!partyCoord.IsRaidBuffAligned(BRDActions.BattleVoice.ActionId))
+            {
+                context.Debug.BuffState = "Raid buffs desynced, using independently";
+                // Fall through to execute - don't try to align when heavily desynced
+            }
+            // Check if another DPS is about to use a raid buff
+            // If so, align our burst with theirs
+            else if (partyCoord.HasPendingRaidBuffIntent(
+                context.Configuration.PartyCoordination.RaidBuffAlignmentWindowSeconds))
+            {
+                // Another player is about to burst - align with them
+                context.Debug.BuffState = "Aligning with party burst";
+                // Fall through to execute and announce our intent
+            }
+
+            // Announce our intent to use Battle Voice
+            partyCoord.AnnounceRaidBuffIntent(BRDActions.BattleVoice.ActionId);
+        }
+
         if (context.ActionService.ExecuteOgcd(BRDActions.BattleVoice, player.GameObjectId))
         {
             context.Debug.PlannedAction = BRDActions.BattleVoice.Name;
             context.Debug.BuffState = "Battle Voice";
+
+            // Notify coordination service that we used the raid buff
+            partyCoord?.OnRaidBuffUsed(BRDActions.BattleVoice.ActionId, 120_000);
+
             return true;
         }
 
@@ -342,10 +373,32 @@ public sealed class BuffModule : ICalliopeModule
         if (!context.ActionService.IsActionReady(BRDActions.RadiantFinale.ActionId))
             return false;
 
+        // Party coordination: Synchronize with other Olympus instances
+        // Note: Radiant Finale follows Battle Voice in the burst sequence,
+        // so we check alignment but don't announce separately (BV already announced)
+        var partyCoord = context.PartyCoordinationService;
+        if (partyCoord != null && partyCoord.IsPartyCoordinationEnabled &&
+            context.Configuration.PartyCoordination.EnableRaidBuffCoordination)
+        {
+            // Check if our buffs are aligned with remote instances
+            if (!partyCoord.IsRaidBuffAligned(BRDActions.RadiantFinale.ActionId))
+            {
+                context.Debug.BuffState = "Raid buffs desynced, using RF independently";
+                // Fall through to execute
+            }
+
+            // Announce Radiant Finale intent (shorter CD than BV, separate coordination)
+            partyCoord.AnnounceRaidBuffIntent(BRDActions.RadiantFinale.ActionId);
+        }
+
         if (context.ActionService.ExecuteOgcd(BRDActions.RadiantFinale, player.GameObjectId))
         {
             context.Debug.PlannedAction = BRDActions.RadiantFinale.Name;
             context.Debug.BuffState = $"Radiant Finale ({context.CodaCount} Coda)";
+
+            // Notify coordination service that we used the raid buff
+            partyCoord?.OnRaidBuffUsed(BRDActions.RadiantFinale.ActionId, 110_000);
+
             return true;
         }
 

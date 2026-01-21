@@ -23,6 +23,12 @@ public enum PartyMessageType
 
     /// <summary>Announce intent to cast an AoE heal.</summary>
     AoEHealIntent = 4,
+
+    /// <summary>Announce intent to use a raid buff (for DPS coordination).</summary>
+    RaidBuffIntent = 5,
+
+    /// <summary>Announce start of a burst window (when raid buff is activated).</summary>
+    BurstWindowStart = 6,
 }
 
 /// <summary>
@@ -78,6 +84,8 @@ public abstract class PartyMessage
                 PartyMessageType.HealLanded => JsonSerializer.Deserialize<HealLandedMessage>(json, PartyMessageJsonContext.Options),
                 PartyMessageType.CooldownUsed => JsonSerializer.Deserialize<CooldownUsedMessage>(json, PartyMessageJsonContext.Options),
                 PartyMessageType.AoEHealIntent => JsonSerializer.Deserialize<AoEHealIntentMessage>(json, PartyMessageJsonContext.Options),
+                PartyMessageType.RaidBuffIntent => JsonSerializer.Deserialize<RaidBuffIntentMessage>(json, PartyMessageJsonContext.Options),
+                PartyMessageType.BurstWindowStart => JsonSerializer.Deserialize<BurstWindowStartMessage>(json, PartyMessageJsonContext.Options),
                 _ => null
             };
         }
@@ -363,4 +371,166 @@ public sealed class AoEHealReservation
     /// Whether this reservation has expired.
     /// </summary>
     public bool IsExpired => DateTime.UtcNow > ExpiresAt;
+}
+
+/// <summary>
+/// Message announcing intent to use a raid buff.
+/// Used to coordinate DPS burst windows between multiple Olympus instances.
+/// Unlike defensive cooldowns (which should be staggered), raid buffs benefit from synchronization.
+/// </summary>
+public sealed class RaidBuffIntentMessage : PartyMessage
+{
+    /// <summary>Action ID of the raid buff being activated.</summary>
+    [JsonPropertyName("act")]
+    public uint ActionId { get; set; }
+
+    /// <summary>
+    /// Seconds until the buff will be activated.
+    /// 0 means immediate activation, positive values indicate delayed activation.
+    /// </summary>
+    [JsonPropertyName("delay")]
+    public float SecondsUntilActivation { get; set; }
+
+    /// <summary>Duration of the buff in seconds.</summary>
+    [JsonPropertyName("dur")]
+    public float BuffDuration { get; set; }
+
+    public RaidBuffIntentMessage() : base(PartyMessageType.RaidBuffIntent) { }
+
+    public RaidBuffIntentMessage(Guid instanceId, uint actionId, float secondsUntilActivation, float buffDuration)
+        : base(PartyMessageType.RaidBuffIntent)
+    {
+        InstanceId = instanceId;
+        ActionId = actionId;
+        SecondsUntilActivation = secondsUntilActivation;
+        BuffDuration = buffDuration;
+    }
+}
+
+/// <summary>
+/// Message announcing the start of a burst window.
+/// Sent when a raid buff is actually activated to signal other instances to align their buffs.
+/// </summary>
+public sealed class BurstWindowStartMessage : PartyMessage
+{
+    /// <summary>Action ID of the buff that triggered the burst window.</summary>
+    [JsonPropertyName("act")]
+    public uint TriggerActionId { get; set; }
+
+    /// <summary>Duration of the burst window in seconds.</summary>
+    [JsonPropertyName("dur")]
+    public float WindowDuration { get; set; }
+
+    /// <summary>
+    /// Whether this is a major burst window (2-minute cooldowns).
+    /// Minor bursts are 60s cooldowns like Lance Charge.
+    /// </summary>
+    [JsonPropertyName("major")]
+    public bool IsMajorBurst { get; set; }
+
+    public BurstWindowStartMessage() : base(PartyMessageType.BurstWindowStart) { }
+
+    public BurstWindowStartMessage(Guid instanceId, uint triggerActionId, float windowDuration, bool isMajorBurst)
+        : base(PartyMessageType.BurstWindowStart)
+    {
+        InstanceId = instanceId;
+        TriggerActionId = triggerActionId;
+        WindowDuration = windowDuration;
+        IsMajorBurst = isMajorBurst;
+    }
+}
+
+/// <summary>
+/// Tracks the state of a remote DPS player's raid buffs.
+/// Used to coordinate burst windows between multiple Olympus instances.
+/// </summary>
+public sealed class RemoteRaidBuffState
+{
+    /// <summary>Instance that owns this state.</summary>
+    public Guid InstanceId { get; init; }
+
+    /// <summary>Action ID of the raid buff.</summary>
+    public uint ActionId { get; init; }
+
+    /// <summary>When the intent was announced (UTC).</summary>
+    public DateTime IntentAnnouncedAt { get; init; }
+
+    /// <summary>Seconds until activation was planned.</summary>
+    public float PlannedDelaySeconds { get; init; }
+
+    /// <summary>When the buff was actually activated (UTC). Null if only intent was announced.</summary>
+    public DateTime? ActivatedAt { get; set; }
+
+    /// <summary>Duration of the buff in seconds.</summary>
+    public float BuffDuration { get; init; }
+
+    /// <summary>Recast time in milliseconds.</summary>
+    public int RecastTimeMs { get; init; }
+
+    /// <summary>
+    /// Whether this is just an intent (not yet activated).
+    /// </summary>
+    public bool IsIntentOnly => ActivatedAt == null;
+
+    /// <summary>
+    /// Whether the buff is currently active.
+    /// </summary>
+    public bool IsBuffActive
+    {
+        get
+        {
+            if (ActivatedAt == null)
+                return false;
+
+            var elapsed = (DateTime.UtcNow - ActivatedAt.Value).TotalSeconds;
+            return elapsed < BuffDuration;
+        }
+    }
+
+    /// <summary>
+    /// Remaining seconds of buff duration.
+    /// Returns 0 if buff is not active.
+    /// </summary>
+    public float BuffRemainingSeconds
+    {
+        get
+        {
+            if (ActivatedAt == null)
+                return 0;
+
+            var elapsed = (float)(DateTime.UtcNow - ActivatedAt.Value).TotalSeconds;
+            return Math.Max(0, BuffDuration - elapsed);
+        }
+    }
+
+    /// <summary>
+    /// Remaining seconds until the cooldown is available again.
+    /// Based on activation time if activated, or intent time if still pending.
+    /// </summary>
+    public float CooldownRemainingSeconds
+    {
+        get
+        {
+            var baseTime = ActivatedAt ?? IntentAnnouncedAt.AddSeconds(PlannedDelaySeconds);
+            var elapsed = (float)(DateTime.UtcNow - baseTime).TotalSeconds;
+            var total = RecastTimeMs / 1000f;
+            return Math.Max(0, total - elapsed);
+        }
+    }
+
+    /// <summary>
+    /// Whether this intent has expired (activation window passed without activation).
+    /// Intent expires 5 seconds after planned activation time.
+    /// </summary>
+    public bool IsIntentExpired
+    {
+        get
+        {
+            if (!IsIntentOnly)
+                return false;
+
+            var expectedActivation = IntentAnnouncedAt.AddSeconds(PlannedDelaySeconds);
+            return DateTime.UtcNow > expectedActivation.AddSeconds(5);
+        }
+    }
 }
