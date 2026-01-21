@@ -42,6 +42,17 @@ jobs:
         id: version
         run: echo "version=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
 
+      - name: Extract Patch Notes
+        id: changelog
+        run: |
+          # Extract content between LATEST-START and LATEST-END markers
+          NOTES=$(sed -n '/<!-- LATEST-START -->/,/<!-- LATEST-END -->/p' CHANGELOG.md | sed '1d;$d' | sed 's/^## .*//')
+          # Escape for GitHub Actions output
+          NOTES="${NOTES//'%'/'%25'}"
+          NOTES="${NOTES//$'\n'/'%0A'}"
+          NOTES="${NOTES//$'\r'/'%0D'}"
+          echo "notes=$NOTES" >> $GITHUB_OUTPUT
+
       - name: Generate repo.json
         run: |
           cat > repo.json << 'EOF'
@@ -83,3 +94,16 @@ jobs:
           git add repo.json
           git commit -m "Update repo.json for ${{ github.ref_name }}"
           git push origin main
+
+      - name: Discord Notification
+        if: success()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          nodetail: true
+          title: "Olympus ${{ github.ref_name }}"
+          description: |
+            ${{ steps.changelog.outputs.notes }}
+
+            **[Download from GitHub](https://github.com/RoseOfficial/Olympus/releases/tag/${{ github.ref_name }})** • Refresh your plugin list to update
+          color: 0x5865F2
