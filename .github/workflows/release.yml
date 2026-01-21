@@ -46,12 +46,12 @@ jobs:
         id: changelog
         run: |
           # Extract content between LATEST-START and LATEST-END markers
-          NOTES=$(sed -n '/<!-- LATEST-START -->/,/<!-- LATEST-END -->/p' CHANGELOG.md | sed '1d;$d' | sed 's/^## .*//')
-          # Escape for GitHub Actions output
-          NOTES="${NOTES//'%'/'%25'}"
-          NOTES="${NOTES//$'\n'/'%0A'}"
-          NOTES="${NOTES//$'\r'/'%0D'}"
-          echo "notes=$NOTES" >> $GITHUB_OUTPUT
+          # Use heredoc syntax to preserve newlines without URL encoding
+          {
+            echo 'notes<<EOF'
+            sed -n '/<!-- LATEST-START -->/,/<!-- LATEST-END -->/p' CHANGELOG.md | sed '1d;$d' | sed 's/^## .*//'
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
 
       - name: Generate repo.json
         run: |

@@ -3,6 +3,12 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v2.10.1 - Discord Notification Fix
+
+**Bug Fix**
+- Fixed Discord release notifications showing `%0A` instead of actual line breaks
+<!-- LATEST-END -->
+
 ## v2.10.0 - AOE Heal Coordination
 
 **Healing**
@@ -16,7 +22,6 @@ All notable changes to Olympus will be documented in this file.
 **Settings**
 - New option: `EnableAoEHealCoordination` (enabled by default)
 - New option: `AoEHealReservationExpiryMs` (configurable 1500-5000ms, default 2500ms)
-<!-- LATEST-END -->
 
 ## v2.9.0 - Cross-Healer Coordination
 
