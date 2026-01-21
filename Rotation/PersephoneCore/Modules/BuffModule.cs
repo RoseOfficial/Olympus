@@ -1,5 +1,6 @@
 using Olympus.Data;
 using Olympus.Rotation.PersephoneCore.Context;
+using Olympus.Services.Party;
 using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.PersephoneCore.Modules;
@@ -246,10 +247,40 @@ public sealed class BuffModule : IPersephoneModule
             return false;
         }
 
+        // Party coordination: Synchronize with other Olympus instances
+        var partyCoord = context.PartyCoordinationService;
+        if (partyCoord != null && partyCoord.IsPartyCoordinationEnabled &&
+            context.Configuration.PartyCoordination.EnableRaidBuffCoordination)
+        {
+            // Check if our buffs are aligned with remote instances
+            // If significantly desynced (e.g., death recovery), use independently
+            if (!partyCoord.IsRaidBuffAligned(SMNActions.SearingLight.ActionId))
+            {
+                context.Debug.BuffState = "Raid buffs desynced, using independently";
+                // Fall through to execute - don't try to align when heavily desynced
+            }
+            // Check if another DPS is about to use a raid buff
+            // If so, align our burst with theirs
+            else if (partyCoord.HasPendingRaidBuffIntent(
+                context.Configuration.PartyCoordination.RaidBuffAlignmentWindowSeconds))
+            {
+                // Another player is about to burst - align with them
+                context.Debug.BuffState = "Aligning with party burst";
+                // Fall through to execute and announce our intent
+            }
+
+            // Announce our intent to use Searing Light
+            partyCoord.AnnounceRaidBuffIntent(SMNActions.SearingLight.ActionId);
+        }
+
         if (context.ActionService.ExecuteOgcd(SMNActions.SearingLight, player.GameObjectId))
         {
             context.Debug.PlannedAction = SMNActions.SearingLight.Name;
             context.Debug.BuffState = "Searing Light (burst)";
+
+            // Notify coordination service that we used the raid buff
+            partyCoord?.OnRaidBuffUsed(SMNActions.SearingLight.ActionId, 120_000);
+
             return true;
         }
 

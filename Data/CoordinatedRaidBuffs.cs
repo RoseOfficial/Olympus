@@ -21,6 +21,9 @@ public static class CoordinatedRaidBuffs
         // Bard
         BRDActions.BattleVoice.ActionId,    // 118 - +20% DH rate (120s CD, 15s duration)
         BRDActions.RadiantFinale.ActionId,  // 25785 - +2-6% damage (110s CD, 20s duration)
+
+        // Summoner
+        SMNActions.SearingLight.ActionId,   // 25801 - +5% damage (120s CD, 20s duration)
     };
 
     /// <summary>
@@ -32,6 +35,7 @@ public static class CoordinatedRaidBuffs
         { DRGActions.BattleLitany.ActionId, 120_000 },   // 2 minutes
         { BRDActions.BattleVoice.ActionId, 120_000 },    // 2 minutes
         { BRDActions.RadiantFinale.ActionId, 110_000 },  // 110 seconds
+        { SMNActions.SearingLight.ActionId, 120_000 },   // 2 minutes
     };
 
     /// <summary>
@@ -43,6 +47,7 @@ public static class CoordinatedRaidBuffs
         { DRGActions.BattleLitany.ActionId, 20f },
         { BRDActions.BattleVoice.ActionId, 15f },
         { BRDActions.RadiantFinale.ActionId, 20f },
+        { SMNActions.SearingLight.ActionId, 20f },
     };
 
     /// <summary>

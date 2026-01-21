@@ -11,6 +11,7 @@ using Olympus.Rotation.PersephoneCore.Modules;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Debuff;
+using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
@@ -59,6 +60,9 @@ public sealed class Persephone : BaseCasterDpsRotation<IPersephoneContext, IPers
     // Timeline service for fight-aware rotation (optional)
     private readonly ITimelineService? _timelineService;
 
+    // Party coordination service for raid buff synchronization (optional)
+    private readonly IPartyCoordinationService? _partyCoordinationService;
+
     // Gauge values (read each frame)
     private int _aetherflowStacks;
     private int _attunement;
@@ -94,6 +98,7 @@ public sealed class Persephone : BaseCasterDpsRotation<IPersephoneContext, IPers
         IPlayerStatsService playerStatsService,
         IDebuffDetectionService debuffDetectionService,
         ITimelineService? timelineService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -112,6 +117,7 @@ public sealed class Persephone : BaseCasterDpsRotation<IPersephoneContext, IPers
             errorMetrics)
     {
         _timelineService = timelineService;
+        _partyCoordinationService = partyCoordinationService;
 
         // Initialize helpers
         _statusHelper = new PersephoneStatusHelper();
@@ -255,6 +261,7 @@ public sealed class Persephone : BaseCasterDpsRotation<IPersephoneContext, IPers
             hasUsedEnkindleThisPhase: _hasUsedEnkindleThisPhase,
             hasUsedAstralFlowThisPhase: _hasUsedAstralFlowThisPhase,
             timelineService: _timelineService,
+            partyCoordinationService: _partyCoordinationService,
             log: Log);
     }
 
