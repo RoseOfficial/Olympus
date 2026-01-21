@@ -38,8 +38,8 @@ public sealed class SingleTargetHealingHandler : IHealingHandler
         if (target is null)
             return false;
 
-        // Skip if another handler is already healing this target
-        if (context.HealingCoordination.IsTargetReserved(target.EntityId))
+        // Skip if another handler (local or remote Olympus instance) is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
             return false;
 
         // Co-healer awareness: Skip if co-healer has pending heal covering most of missing HP
@@ -95,8 +95,10 @@ public sealed class SingleTargetHealingHandler : IHealingHandler
 
         if (success)
         {
-            // Reserve target to prevent other handlers from double-healing
-            context.HealingCoordination.TryReserveTarget(target.EntityId);
+            // Reserve target to prevent other handlers (local or remote) from double-healing
+            var castTimeMs = (int)(action.CastTime * 1000);
+            context.HealingCoordination.TryReserveTarget(
+                target.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, castTimeMs);
 
             var thinAirNote = context.HasThinAir ? " + Thin Air" : "";
             context.Debug.PlannedAction = action.Name + thinAirNote;

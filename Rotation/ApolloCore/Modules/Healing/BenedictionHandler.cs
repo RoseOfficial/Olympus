@@ -27,8 +27,8 @@ public sealed class BenedictionHandler : IHealingHandler
         if (target is null)
             return false;
 
-        // Skip if another handler is already healing this target
-        if (context.HealingCoordination.IsTargetReserved(target.EntityId))
+        // Skip if another handler (local or remote Olympus instance) is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
             return false;
 
         var hpPercent = context.PartyHelper.GetHpPercent(target);
@@ -67,8 +67,9 @@ public sealed class BenedictionHandler : IHealingHandler
         if (ActionExecutor.ExecuteHealingOgcd(context, WHMActions.Benediction, target.GameObjectId,
             target.EntityId, target.Name?.TextValue ?? "Unknown", target.CurrentHp, missingHp))
         {
-            // Reserve target to prevent other handlers from double-healing
-            context.HealingCoordination.TryReserveTarget(target.EntityId);
+            // Reserve target to prevent other handlers (local or remote) from double-healing
+            context.HealingCoordination.TryReserveTarget(
+                target.EntityId, context.PartyCoordinationService, missingHp, WHMActions.Benediction.ActionId, 0);
 
             // Update debug info with reason
             var thresholdInfo = emergencyThreshold > baseEmergencyThreshold

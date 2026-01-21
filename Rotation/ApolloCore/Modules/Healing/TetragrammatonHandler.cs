@@ -35,8 +35,8 @@ public sealed class TetragrammatonHandler : IHealingHandler
         if (target is null)
             return false;
 
-        // Skip if another handler is already healing this target
-        if (context.HealingCoordination.IsTargetReserved(target.EntityId))
+        // Skip if another handler (local or remote Olympus instance) is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
             return false;
 
         if (!DistanceHelper.IsInRange(player, target, WHMActions.Tetragrammaton.Range))
@@ -78,8 +78,9 @@ public sealed class TetragrammatonHandler : IHealingHandler
         if (ActionExecutor.ExecuteHealingOgcd(context, WHMActions.Tetragrammaton, target.GameObjectId,
             target.EntityId, target.Name?.TextValue ?? "Unknown", target.CurrentHp, healAmount))
         {
-            // Reserve target to prevent other handlers from double-healing
-            context.HealingCoordination.TryReserveTarget(target.EntityId);
+            // Reserve target to prevent other handlers (local or remote) from double-healing
+            context.HealingCoordination.TryReserveTarget(
+                target.EntityId, context.PartyCoordinationService, healAmount, WHMActions.Tetragrammaton.ActionId, 0);
 
             var hpPercent = context.PartyHelper.GetHpPercent(target);
             var chargeInfo = $"{currentCharges}/{maxCharges} charges";

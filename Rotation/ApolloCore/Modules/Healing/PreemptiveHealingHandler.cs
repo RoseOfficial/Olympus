@@ -106,8 +106,8 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
         if (target is null)
             return false;
 
-        // Skip if another handler is already healing this target
-        if (context.HealingCoordination.IsTargetReserved(target.EntityId))
+        // Skip if another handler (local or remote Olympus instance) is already healing this target
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
             return false;
 
         // Co-healer awareness: Skip if co-healer has pending heal covering most of missing HP
@@ -173,8 +173,9 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
                 if (ActionExecutor.ExecuteHealingOgcd(context, WHMActions.Tetragrammaton, target.GameObjectId,
                     target.EntityId, target.Name?.TextValue ?? "Unknown", target.CurrentHp, healAmount))
                 {
-                    // Reserve target to prevent other handlers from double-healing
-                    context.HealingCoordination.TryReserveTarget(target.EntityId);
+                    // Reserve target to prevent other handlers (local or remote) from double-healing
+                    context.HealingCoordination.TryReserveTarget(
+                        target.EntityId, context.PartyCoordinationService, healAmount, WHMActions.Tetragrammaton.ActionId, 0);
 
                     var sourceNote = isTimelineRaidwide ? $" via {raidwideSource}" : "";
                     context.Debug.PlannedAction = $"Tetragrammaton (preemptive{sourceNote}, severity {spikeSeverity:F2})";
@@ -197,8 +198,9 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
                 if (ActionExecutor.ExecuteHealingOgcd(context, WHMActions.Benediction, target.GameObjectId,
                     target.EntityId, target.Name?.TextValue ?? "Unknown", target.CurrentHp, missingHp))
                 {
-                    // Reserve target to prevent other handlers from double-healing
-                    context.HealingCoordination.TryReserveTarget(target.EntityId);
+                    // Reserve target to prevent other handlers (local or remote) from double-healing
+                    context.HealingCoordination.TryReserveTarget(
+                        target.EntityId, context.PartyCoordinationService, missingHp, WHMActions.Benediction.ActionId, 0);
 
                     var sourceNote = isTimelineRaidwide ? $" via {raidwideSource}" : "";
                     context.Debug.PlannedAction = $"Benediction (preemptive{sourceNote}, critical severity {spikeSeverity:F2})";
@@ -227,8 +229,10 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
 
                 if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
                 {
-                    // Reserve target to prevent other handlers from double-healing
-                    context.HealingCoordination.TryReserveTarget(target.EntityId);
+                    // Reserve target to prevent other handlers (local or remote) from double-healing
+                    var castTimeMs = (int)(action.CastTime * 1000);
+                    context.HealingCoordination.TryReserveTarget(
+                        target.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, castTimeMs);
 
                     var thinAirNote = context.HasThinAir ? " + Thin Air" : "";
                     var sourceNote = isTimelineRaidwide ? $" via {raidwideSource}" : "";
