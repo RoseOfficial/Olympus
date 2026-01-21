@@ -258,6 +258,15 @@ public sealed class HealingModule : IAthenaModule
             return false;
 
         var action = SCHActions.Indomitability;
+
+        // Check AoE coordination - prevent multiple healers from casting AoE heals simultaneously
+        if (!context.HealingCoordination.TryReserveAoEHeal(
+            context.PartyCoordinationService, action.ActionId, action.HealPotency, 0))
+        {
+            context.Debug.IndomitabilityState = "Skipped (remote AOE reserved)";
+            return false;
+        }
+
         if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
         {
             if (!context.StatusHelper.HasRecitation(player))
@@ -438,6 +447,15 @@ public sealed class HealingModule : IAthenaModule
         }
         else
         {
+            return false;
+        }
+
+        // Check AoE coordination - prevent multiple healers from casting AoE heals simultaneously
+        var castTimeMs = (int)(action.CastTime * 1000);
+        if (!context.HealingCoordination.TryReserveAoEHeal(
+            context.PartyCoordinationService, action.ActionId, action.HealPotency, castTimeMs))
+        {
+            context.Debug.AoEHealState = "Skipped (remote AOE reserved)";
             return false;
         }
 

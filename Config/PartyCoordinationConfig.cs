@@ -69,6 +69,26 @@ public sealed class PartyCoordinationConfig
     public bool EnableCooldownCoordination { get; set; } = true;
 
     /// <summary>
+    /// Enable AoE heal coordination with other Olympus instances.
+    /// When enabled, party-wide heals will be coordinated to prevent
+    /// multiple healers from casting AoE heals simultaneously.
+    /// </summary>
+    public bool EnableAoEHealCoordination { get; set; } = true;
+
+    /// <summary>
+    /// How long AoE heal reservations remain valid (milliseconds).
+    /// After this time, a reservation expires if not fulfilled.
+    /// Should be long enough for cast + application time.
+    /// Valid range: 1500 to 5000.
+    /// </summary>
+    private int _aoEHealReservationExpiryMs = 2500;
+    public int AoEHealReservationExpiryMs
+    {
+        get => _aoEHealReservationExpiryMs;
+        set => _aoEHealReservationExpiryMs = Math.Clamp(value, 1500, 5000);
+    }
+
+    /// <summary>
     /// Time window (in seconds) to skip using party mitigation if another instance
     /// recently used one. Prevents wasteful cooldown stacking.
     /// Valid range: 1.0 to 10.0 seconds.

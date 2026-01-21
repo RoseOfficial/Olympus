@@ -3,6 +3,21 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v2.10.0 - AOE Heal Coordination
+
+**Healing**
+- Added cross-instance party-wide (AOE) heal coordination for all healers
+- Multiple Olympus healers no longer cast AOE heals simultaneously
+- WHM: Medica, Cure III, Afflatus Rapture
+- SCH: Succor, Indomitability
+- AST: Helios, Aspected Helios, Helios Conjunction, Celestial Opposition
+- SGE: Prognosis, Ixochole, Kerachole, Eukrasian Prognosis
+
+**Settings**
+- New option: `EnableAoEHealCoordination` (enabled by default)
+- New option: `AoEHealReservationExpiryMs` (configurable 1500-5000ms, default 2500ms)
+<!-- LATEST-END -->
+
 ## v2.9.0 - Cross-Healer Coordination
 
 **Healing**
@@ -11,7 +26,6 @@ All notable changes to Olympus will be documented in this file.
 - Astrologian (Astraea): Essential Dignity, Celestial Intersection, Exaltation, Aspected Benefic, Benefic, Benefic II
 - Sage (Asclepius): Druochole, Taurochole, Krasis, Haima, Eukrasian Diagnosis, Diagnosis
 - All four healers now coordinate via IPC to prevent double-healing
-<!-- LATEST-END -->
 
 ## v2.8.0 - Cross-Instance Heal Coordination
 

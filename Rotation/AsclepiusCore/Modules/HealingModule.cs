@@ -296,6 +296,15 @@ public sealed class HealingModule : IAsclepiusModule
         }
 
         var action = SGEActions.Ixochole;
+
+        // Check AoE coordination - prevent multiple healers from casting AoE heals simultaneously
+        if (!context.HealingCoordination.TryReserveAoEHeal(
+            context.PartyCoordinationService, action.ActionId, action.HealPotency, 0))
+        {
+            context.Debug.IxocholeState = "Skipped (remote AOE reserved)";
+            return false;
+        }
+
         if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
         {
             context.Debug.PlannedAction = action.Name;
@@ -356,6 +365,15 @@ public sealed class HealingModule : IAsclepiusModule
         }
 
         var action = SGEActions.Kerachole;
+
+        // Check AoE coordination - prevent multiple healers from casting AoE heals simultaneously
+        if (!context.HealingCoordination.TryReserveAoEHeal(
+            context.PartyCoordinationService, action.ActionId, action.HealPotency, 0))
+        {
+            context.Debug.KeracholeState = "Skipped (remote AOE reserved)";
+            return false;
+        }
+
         if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
         {
             context.Debug.PlannedAction = action.Name;
@@ -974,6 +992,14 @@ public sealed class HealingModule : IAsclepiusModule
                 ? SGEActions.EukrasianPrognosisII
                 : SGEActions.EukrasianPrognosis;
 
+            // Check AoE coordination - prevent multiple healers from casting AoE heals simultaneously
+            if (!context.HealingCoordination.TryReserveAoEHeal(
+                context.PartyCoordinationService, action.ActionId, action.HealPotency, 0))
+            {
+                context.Debug.EukrasianPrognosisState = "Skipped (remote AOE reserved)";
+                return false;
+            }
+
             if (context.ActionService.ExecuteGcd(action, player.GameObjectId))
             {
                 context.Debug.PlannedAction = action.Name;
@@ -1045,6 +1071,16 @@ public sealed class HealingModule : IAsclepiusModule
         }
 
         var action = SGEActions.Prognosis;
+
+        // Check AoE coordination - prevent multiple healers from casting AoE heals simultaneously
+        var castTimeMs = (int)(action.CastTime * 1000);
+        if (!context.HealingCoordination.TryReserveAoEHeal(
+            context.PartyCoordinationService, action.ActionId, action.HealPotency, castTimeMs))
+        {
+            context.Debug.AoEStatus = "Skipped (remote AOE reserved)";
+            return false;
+        }
+
         if (context.ActionService.ExecuteGcd(action, player.GameObjectId))
         {
             context.Debug.PlannedAction = action.Name;

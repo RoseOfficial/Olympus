@@ -207,6 +207,15 @@ public sealed class HealingModule : IAstraeaModule
             return false;
 
         var action = ASTActions.CelestialOpposition;
+
+        // Check AoE coordination - prevent multiple healers from casting AoE heals simultaneously
+        if (!context.HealingCoordination.TryReserveAoEHeal(
+            context.PartyCoordinationService, action.ActionId, action.HealPotency, 0))
+        {
+            context.Debug.CelestialOppositionState = "Skipped (remote AOE reserved)";
+            return false;
+        }
+
         if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
         {
             context.Debug.PlannedAction = action.Name;
@@ -653,6 +662,15 @@ public sealed class HealingModule : IAstraeaModule
 
         if (action == null)
             return false;
+
+        // Check AoE coordination - prevent multiple healers from casting AoE heals simultaneously
+        var castTimeMs = (int)(action.CastTime * 1000);
+        if (!context.HealingCoordination.TryReserveAoEHeal(
+            context.PartyCoordinationService, action.ActionId, action.HealPotency, castTimeMs))
+        {
+            context.Debug.AoEHealState = "Skipped (remote AOE reserved)";
+            return false;
+        }
 
         if (context.ActionService.ExecuteGcd(action, player.GameObjectId))
         {

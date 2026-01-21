@@ -22,6 +22,11 @@ public sealed class HealingCoordinationState
     private readonly HashSet<uint> _reservedTargets = new();
 
     /// <summary>
+    /// Whether an AoE heal has been reserved this frame (by local or remote instance).
+    /// </summary>
+    private bool _aoEHealReservedThisFrame;
+
+    /// <summary>
     /// Attempts to reserve a target for healing.
     /// Returns true if the reservation succeeded (target was not already reserved).
     /// Returns false if the target was already reserved by another handler.
@@ -88,6 +93,46 @@ public sealed class HealingCoordinationState
     public void Clear()
     {
         _reservedTargets.Clear();
+        _aoEHealReservedThisFrame = false;
+    }
+
+    /// <summary>
+    /// Attempts to reserve an AoE heal for this frame.
+    /// Checks both local frame state and remote reservations.
+    /// Returns true if the reservation succeeded.
+    /// </summary>
+    /// <param name="partyCoord">Party coordination service (may be null if disabled).</param>
+    /// <param name="actionId">Action ID of the AoE heal.</param>
+    /// <param name="healPotency">Heal potency of the AoE heal.</param>
+    /// <param name="castTimeMs">Cast time in milliseconds (0 for instant).</param>
+    /// <returns>True if successfully reserved, false if already reserved locally or remotely.</returns>
+    public bool TryReserveAoEHeal(IPartyCoordinationService? partyCoord, uint actionId, int healPotency, int castTimeMs)
+    {
+        // Check if already reserved this frame
+        if (_aoEHealReservedThisFrame)
+            return false;
+
+        // Check if reserved by remote Olympus instance
+        if (partyCoord?.IsAoEHealReservedByOther() == true)
+            return false;
+
+        // Reserve locally
+        _aoEHealReservedThisFrame = true;
+
+        // Broadcast intent to other instances
+        partyCoord?.ReserveAoEHeal(actionId, healPotency, castTimeMs);
+
+        return true;
+    }
+
+    /// <summary>
+    /// Checks if an AoE heal is already reserved for this frame.
+    /// </summary>
+    /// <param name="partyCoord">Party coordination service (may be null if disabled).</param>
+    /// <returns>True if an AoE heal is reserved locally or remotely.</returns>
+    public bool IsAoEHealReserved(IPartyCoordinationService? partyCoord)
+    {
+        return _aoEHealReservedThisFrame || partyCoord?.IsAoEHealReservedByOther() == true;
     }
 
     /// <summary>

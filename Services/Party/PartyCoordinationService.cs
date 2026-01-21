@@ -30,6 +30,9 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     // Remote cooldown tracking (key = actionId, value = list of active cooldowns from remote instances)
     private readonly Dictionary<uint, List<RemoteCooldownInfo>> _remoteCooldowns = new();
 
+    // Remote AoE heal reservation
+    private AoEHealReservation? _remoteAoEReservation;
+
     // Heartbeat timing
     private DateTime _lastHeartbeatSent = DateTime.MinValue;
 
@@ -38,6 +41,7 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     public event Action<HealIntentMessage>? OnHealIntentReady;
     public event Action<HealLandedMessage>? OnHealLandedReady;
     public event Action<CooldownUsedMessage>? OnCooldownUsedReady;
+    public event Action<AoEHealIntentMessage>? OnAoEHealIntentReady;
 
     public PartyCoordinationService(PartyCoordinationConfig config, IPluginLog log)
     {
@@ -168,6 +172,36 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         return 0;
     }
 
+    #region AoE Heal Coordination
+
+    public bool IsAoEHealReservedByOther()
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableAoEHealCoordination)
+            return false;
+
+        // Check if remote reservation exists and is not expired
+        if (_remoteAoEReservation != null && !_remoteAoEReservation.IsExpired)
+            return true;
+
+        // Expired, clean up
+        _remoteAoEReservation = null;
+        return false;
+    }
+
+    public void ReserveAoEHeal(uint actionId, int healPotency, int castTimeMs)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableAoEHealCoordination)
+            return;
+
+        var message = new AoEHealIntentMessage(_instanceId, actionId, healPotency, castTimeMs);
+        OnAoEHealIntentReady?.Invoke(message);
+
+        if (_config.LogCoordinationEvents)
+            _log.Debug("[PartyCoord] Reserved AoE heal (action {0}, potency {1})", actionId, healPotency);
+    }
+
+    #endregion
+
     #region Cooldown Coordination
 
     public bool IsCooldownActiveRemotely(uint actionId)
@@ -291,6 +325,7 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         _localReservations.Clear();
         _remoteReservations.Clear();
         _remoteCooldowns.Clear();
+        _remoteAoEReservation = null;
 
         if (_config.LogCoordinationEvents)
             _log.Debug("[PartyCoord] Cleared all coordination state");
@@ -413,6 +448,33 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (_config.LogCoordinationEvents)
             _log.Debug("[PartyCoord] Tracked remote cooldown: action {0}, recast {1}ms from instance {2}",
                 message.ActionId, info.RecastTimeMs, message.InstanceId);
+    }
+
+    /// <summary>
+    /// Handles incoming AoE heal intent from a remote instance.
+    /// </summary>
+    public void HandleRemoteAoEHealIntent(AoEHealIntentMessage message)
+    {
+        if (message.InstanceId == _instanceId)
+            return;
+
+        if (!_config.EnableAoEHealCoordination)
+            return;
+
+        var reservation = new AoEHealReservation
+        {
+            InstanceId = message.InstanceId,
+            ActionId = message.ActionId,
+            HealPotency = message.HealPotency,
+            ReservedAt = DateTime.UtcNow,
+            ExpiresAt = DateTime.UtcNow.AddMilliseconds(_config.AoEHealReservationExpiryMs)
+        };
+
+        _remoteAoEReservation = reservation;
+
+        if (_config.LogCoordinationEvents)
+            _log.Debug("[PartyCoord] Remote AoE heal reservation: action {0}, potency {1} from instance {2}",
+                message.ActionId, message.HealPotency, message.InstanceId);
     }
 
     #endregion

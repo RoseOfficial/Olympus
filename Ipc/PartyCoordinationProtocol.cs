@@ -20,6 +20,9 @@ public enum PartyMessageType
 
     /// <summary>Announce major cooldown usage.</summary>
     CooldownUsed = 3,
+
+    /// <summary>Announce intent to cast an AoE heal.</summary>
+    AoEHealIntent = 4,
 }
 
 /// <summary>
@@ -74,6 +77,7 @@ public abstract class PartyMessage
                 PartyMessageType.HealIntent => JsonSerializer.Deserialize<HealIntentMessage>(json, PartyMessageJsonContext.Options),
                 PartyMessageType.HealLanded => JsonSerializer.Deserialize<HealLandedMessage>(json, PartyMessageJsonContext.Options),
                 PartyMessageType.CooldownUsed => JsonSerializer.Deserialize<CooldownUsedMessage>(json, PartyMessageJsonContext.Options),
+                PartyMessageType.AoEHealIntent => JsonSerializer.Deserialize<AoEHealIntentMessage>(json, PartyMessageJsonContext.Options),
                 _ => null
             };
         }
@@ -204,6 +208,36 @@ public sealed class CooldownUsedMessage : PartyMessage
 }
 
 /// <summary>
+/// Message announcing intent to cast an AoE heal.
+/// Used to reserve the entire party and prevent multiple healers from casting AoE heals simultaneously.
+/// </summary>
+public sealed class AoEHealIntentMessage : PartyMessage
+{
+    /// <summary>Action ID of the AoE heal being cast.</summary>
+    [JsonPropertyName("act")]
+    public uint ActionId { get; set; }
+
+    /// <summary>Heal potency of the AoE heal.</summary>
+    [JsonPropertyName("pot")]
+    public int HealPotency { get; set; }
+
+    /// <summary>Cast time in milliseconds (0 for instant).</summary>
+    [JsonPropertyName("cast")]
+    public int CastTimeMs { get; set; }
+
+    public AoEHealIntentMessage() : base(PartyMessageType.AoEHealIntent) { }
+
+    public AoEHealIntentMessage(Guid instanceId, uint actionId, int healPotency, int castTimeMs)
+        : base(PartyMessageType.AoEHealIntent)
+    {
+        InstanceId = instanceId;
+        ActionId = actionId;
+        HealPotency = healPotency;
+        CastTimeMs = castTimeMs;
+    }
+}
+
+/// <summary>
 /// JSON serialization context for party messages.
 /// </summary>
 internal static class PartyMessageJsonContext
@@ -302,4 +336,31 @@ public sealed class RemoteCooldownInfo
     /// Useful for checking if a mitigation was used "recently".
     /// </summary>
     public float SecondsSinceUsed => (float)(DateTime.UtcNow - UsedAt).TotalSeconds;
+}
+
+/// <summary>
+/// Represents an AoE heal reservation from a remote instance.
+/// Used to prevent multiple healers from casting party-wide heals simultaneously.
+/// </summary>
+public sealed class AoEHealReservation
+{
+    /// <summary>Instance that made the reservation.</summary>
+    public Guid InstanceId { get; init; }
+
+    /// <summary>Action ID of the AoE heal.</summary>
+    public uint ActionId { get; init; }
+
+    /// <summary>Heal potency of the AoE heal.</summary>
+    public int HealPotency { get; init; }
+
+    /// <summary>When the reservation was made.</summary>
+    public DateTime ReservedAt { get; init; }
+
+    /// <summary>When the reservation expires.</summary>
+    public DateTime ExpiresAt { get; init; }
+
+    /// <summary>
+    /// Whether this reservation has expired.
+    /// </summary>
+    public bool IsExpired => DateTime.UtcNow > ExpiresAt;
 }

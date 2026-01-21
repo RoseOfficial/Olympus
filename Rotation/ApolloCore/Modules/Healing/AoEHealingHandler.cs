@@ -93,6 +93,15 @@ public sealed class AoEHealingHandler : IHealingHandler
             return false;
         }
 
+        // Check AoE coordination - prevent multiple healers from casting AoE heals simultaneously
+        var castTimeMs = (int)(action.CastTime * 1000);
+        if (!context.HealingCoordination.TryReserveAoEHeal(
+            context.PartyCoordinationService, action.ActionId, healAmount, castTimeMs))
+        {
+            context.Debug.AoEStatus = "Skipped (remote AOE reserved)";
+            return false;
+        }
+
         context.Debug.AoESelectedSpell = action.ActionId;
         context.Debug.AoEStatus = $"Executing {action.Name}" +
             (selectedCureIIITarget is not null ? $" on {selectedCureIIITarget.Name}" : "");

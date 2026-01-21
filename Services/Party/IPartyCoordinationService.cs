@@ -82,6 +82,24 @@ public interface IPartyCoordinationService
     /// <returns>Total estimated heal amount from remote instances.</returns>
     int GetRemotePendingHealAmount(uint entityId);
 
+    #region AoE Heal Coordination
+
+    /// <summary>
+    /// Checks if an AoE heal is currently reserved by another Olympus instance.
+    /// </summary>
+    /// <returns>True if another instance has reserved an AoE heal.</returns>
+    bool IsAoEHealReservedByOther();
+
+    /// <summary>
+    /// Reserves an AoE heal and broadcasts the intent to other instances.
+    /// </summary>
+    /// <param name="actionId">Action ID of the AoE heal.</param>
+    /// <param name="healPotency">Heal potency of the AoE heal.</param>
+    /// <param name="castTimeMs">Cast time in milliseconds (0 for instant).</param>
+    void ReserveAoEHeal(uint actionId, int healPotency, int castTimeMs);
+
+    #endregion
+
     #region Cooldown Coordination
 
     /// <summary>
