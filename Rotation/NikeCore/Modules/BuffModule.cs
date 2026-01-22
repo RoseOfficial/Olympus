@@ -188,6 +188,21 @@ public sealed class BuffModule : INikeModule
             return false;
         }
 
+        // Party coordination: Align with party burst window
+        var partyCoord = context.PartyCoordinationService;
+        if (partyCoord != null && partyCoord.IsPartyCoordinationEnabled &&
+            context.Configuration.PartyCoordination.EnableRaidBuffCoordination)
+        {
+            // Check if party is about to burst - if so, execute to align
+            if (partyCoord.HasPendingRaidBuffIntent(
+                context.Configuration.PartyCoordination.RaidBuffAlignmentWindowSeconds))
+            {
+                context.Debug.BuffState = "Aligning Ikishoten with party burst";
+                // Fall through to execute - we want to burst WITH the party
+            }
+            // Note: SAM has no raid buff to announce - we just listen and align
+        }
+
         if (context.ActionService.ExecuteOgcd(SAMActions.Ikishoten, player.GameObjectId))
         {
             context.Debug.PlannedAction = SAMActions.Ikishoten.Name;

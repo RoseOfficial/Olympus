@@ -8,6 +8,7 @@ using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Cache;
 using Olympus.Services.Debuff;
+using Olympus.Services.Party;
 using Olympus.Services.Positional;
 using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
@@ -101,6 +102,9 @@ public sealed class NikeContext : INikeContext
     public NikePartyHelper PartyHelper { get; }
     public NikeDebugState Debug { get; }
 
+    // Party Coordination
+    public IPartyCoordinationService? PartyCoordinationService { get; }
+
     #endregion
 
     private readonly IBattleChara? _currentTarget;
@@ -140,6 +144,7 @@ public sealed class NikeContext : INikeContext
         bool targetHasPositionalImmunity,
         SAMActions.IaijutsuType lastIaijutsu,
         ITimelineService? timelineService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -160,6 +165,7 @@ public sealed class NikeContext : INikeContext
         PlayerStatsService = playerStatsService;
         TargetingService = targetingService;
         TimelineService = timelineService;
+        PartyCoordinationService = partyCoordinationService;
         ObjectTable = objectTable;
         PartyList = partyList;
         Log = log;

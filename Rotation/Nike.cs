@@ -12,6 +12,7 @@ using Olympus.Rotation.NikeCore.Modules;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Debuff;
+using Olympus.Services.Party;
 using Olympus.Services.Positional;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
@@ -61,6 +62,9 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>, IDis
     // Timeline service for fight-aware rotation (optional)
     private readonly ITimelineService? _timelineService;
 
+    // Party coordination service for multi-Olympus sync (optional)
+    private readonly IPartyCoordinationService? _partyCoordinationService;
+
     // Gauge values (read each frame)
     private int _kenki;
     private SAMActions.SenType _sen;
@@ -85,6 +89,7 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>, IDis
         IDebuffDetectionService debuffDetectionService,
         IPositionalService positionalService,
         ITimelineService? timelineService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -104,6 +109,7 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>, IDis
             errorMetrics)
     {
         _timelineService = timelineService;
+        _partyCoordinationService = partyCoordinationService;
 
         // Initialize helpers
         _statusHelper = new NikeStatusHelper();
@@ -211,6 +217,7 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>, IDis
             targetHasPositionalImmunity: TargetHasPositionalImmunity,
             lastIaijutsu: _lastIaijutsu,
             timelineService: _timelineService,
+            partyCoordinationService: _partyCoordinationService,
             log: Log);
     }
 
