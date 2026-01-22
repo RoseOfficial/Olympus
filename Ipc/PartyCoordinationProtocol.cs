@@ -29,6 +29,15 @@ public enum PartyMessageType
 
     /// <summary>Announce start of a burst window (when raid buff is activated).</summary>
     BurstWindowStart = 6,
+
+    /// <summary>Broadcast healer gauge state (Lily, Aetherflow, Addersgall counts).</summary>
+    GaugeState = 7,
+
+    /// <summary>Declare healer role (primary/secondary).</summary>
+    RoleDeclaration = 8,
+
+    /// <summary>Announce ground-targeted effect placement (Asylum, Sacred Soil, etc.).</summary>
+    GroundEffectPlaced = 9,
 }
 
 /// <summary>
@@ -86,6 +95,9 @@ public abstract class PartyMessage
                 PartyMessageType.AoEHealIntent => JsonSerializer.Deserialize<AoEHealIntentMessage>(json, PartyMessageJsonContext.Options),
                 PartyMessageType.RaidBuffIntent => JsonSerializer.Deserialize<RaidBuffIntentMessage>(json, PartyMessageJsonContext.Options),
                 PartyMessageType.BurstWindowStart => JsonSerializer.Deserialize<BurstWindowStartMessage>(json, PartyMessageJsonContext.Options),
+                PartyMessageType.GaugeState => JsonSerializer.Deserialize<GaugeStateMessage>(json, PartyMessageJsonContext.Options),
+                PartyMessageType.RoleDeclaration => JsonSerializer.Deserialize<RoleDeclarationMessage>(json, PartyMessageJsonContext.Options),
+                PartyMessageType.GroundEffectPlaced => JsonSerializer.Deserialize<GroundEffectPlacedMessage>(json, PartyMessageJsonContext.Options),
                 _ => null
             };
         }
@@ -571,4 +583,203 @@ public sealed class RemoteRaidBuffState
             return DateTime.UtcNow > expectedActivation.AddSeconds(5);
         }
     }
+}
+
+/// <summary>
+/// Healer role designation for multi-healer coordination.
+/// </summary>
+public enum HealerRole
+{
+    /// <summary>Auto-detect based on job priority.</summary>
+    Auto = 0,
+
+    /// <summary>Primary healer - takes lead on healing, higher thresholds.</summary>
+    Primary = 1,
+
+    /// <summary>Secondary healer - assists, lower thresholds, more DPS focus.</summary>
+    Secondary = 2,
+}
+
+/// <summary>
+/// Message broadcasting healer gauge state.
+/// Used for resource-aware healing decisions.
+/// </summary>
+public sealed class GaugeStateMessage : PartyMessage
+{
+    /// <summary>Job ID of the healer.</summary>
+    [JsonPropertyName("job")]
+    public uint JobId { get; set; }
+
+    /// <summary>Primary resource count (Lily for WHM, Aetherflow for SCH, etc.).</summary>
+    [JsonPropertyName("r1")]
+    public int PrimaryResource { get; set; }
+
+    /// <summary>Secondary resource count (Blood Lily progress for WHM, Fairy Gauge for SCH, etc.).</summary>
+    [JsonPropertyName("r2")]
+    public int SecondaryResource { get; set; }
+
+    /// <summary>Tertiary resource count (cards in hand for AST, Addersting for SGE, etc.).</summary>
+    [JsonPropertyName("r3")]
+    public int TertiaryResource { get; set; }
+
+    public GaugeStateMessage() : base(PartyMessageType.GaugeState) { }
+
+    public GaugeStateMessage(Guid instanceId, uint jobId, int primary, int secondary, int tertiary)
+        : base(PartyMessageType.GaugeState)
+    {
+        InstanceId = instanceId;
+        JobId = jobId;
+        PrimaryResource = primary;
+        SecondaryResource = secondary;
+        TertiaryResource = tertiary;
+    }
+}
+
+/// <summary>
+/// Message declaring healer role in the party.
+/// </summary>
+public sealed class RoleDeclarationMessage : PartyMessage
+{
+    /// <summary>Job ID of the healer.</summary>
+    [JsonPropertyName("job")]
+    public uint JobId { get; set; }
+
+    /// <summary>Declared healer role.</summary>
+    [JsonPropertyName("role")]
+    public HealerRole Role { get; set; }
+
+    /// <summary>Job priority for auto-detection (lower = higher priority).</summary>
+    [JsonPropertyName("pri")]
+    public int JobPriority { get; set; }
+
+    public RoleDeclarationMessage() : base(PartyMessageType.RoleDeclaration) { }
+
+    public RoleDeclarationMessage(Guid instanceId, uint jobId, HealerRole role, int jobPriority)
+        : base(PartyMessageType.RoleDeclaration)
+    {
+        InstanceId = instanceId;
+        JobId = jobId;
+        Role = role;
+        JobPriority = jobPriority;
+    }
+}
+
+/// <summary>
+/// Message announcing ground-targeted effect placement.
+/// Used to prevent overlapping healing zones (Asylum, Sacred Soil, etc.).
+/// </summary>
+public sealed class GroundEffectPlacedMessage : PartyMessage
+{
+    /// <summary>Action ID of the ground effect.</summary>
+    [JsonPropertyName("act")]
+    public uint ActionId { get; set; }
+
+    /// <summary>X position where effect was placed.</summary>
+    [JsonPropertyName("x")]
+    public float PositionX { get; set; }
+
+    /// <summary>Y position where effect was placed.</summary>
+    [JsonPropertyName("y")]
+    public float PositionY { get; set; }
+
+    /// <summary>Z position where effect was placed.</summary>
+    [JsonPropertyName("z")]
+    public float PositionZ { get; set; }
+
+    /// <summary>Radius of the ground effect in yalms.</summary>
+    [JsonPropertyName("rad")]
+    public float Radius { get; set; }
+
+    /// <summary>Duration of the effect in seconds.</summary>
+    [JsonPropertyName("dur")]
+    public float Duration { get; set; }
+
+    public GroundEffectPlacedMessage() : base(PartyMessageType.GroundEffectPlaced) { }
+
+    public GroundEffectPlacedMessage(Guid instanceId, uint actionId, float x, float y, float z, float radius, float duration)
+        : base(PartyMessageType.GroundEffectPlaced)
+    {
+        InstanceId = instanceId;
+        ActionId = actionId;
+        PositionX = x;
+        PositionY = y;
+        PositionZ = z;
+        Radius = radius;
+        Duration = duration;
+    }
+}
+
+/// <summary>
+/// Tracks gauge state from a remote healer instance.
+/// </summary>
+public sealed class RemoteHealerGaugeState
+{
+    /// <summary>Instance that owns this state.</summary>
+    public Guid InstanceId { get; init; }
+
+    /// <summary>Job ID of the healer.</summary>
+    public uint JobId { get; init; }
+
+    /// <summary>Primary resource count.</summary>
+    public int PrimaryResource { get; set; }
+
+    /// <summary>Secondary resource count.</summary>
+    public int SecondaryResource { get; set; }
+
+    /// <summary>Tertiary resource count.</summary>
+    public int TertiaryResource { get; set; }
+
+    /// <summary>Last update time.</summary>
+    public DateTime LastUpdate { get; set; }
+}
+
+/// <summary>
+/// Tracks role declaration from a remote healer instance.
+/// </summary>
+public sealed class RemoteHealerRole
+{
+    /// <summary>Instance that owns this state.</summary>
+    public Guid InstanceId { get; init; }
+
+    /// <summary>Job ID of the healer.</summary>
+    public uint JobId { get; init; }
+
+    /// <summary>Declared role.</summary>
+    public HealerRole Role { get; set; }
+
+    /// <summary>Job priority for auto-detection.</summary>
+    public int JobPriority { get; set; }
+
+    /// <summary>Last update time.</summary>
+    public DateTime LastUpdate { get; set; }
+}
+
+/// <summary>
+/// Tracks an active ground effect from a remote healer instance.
+/// </summary>
+public sealed class RemoteGroundEffect
+{
+    /// <summary>Instance that placed this effect.</summary>
+    public Guid InstanceId { get; init; }
+
+    /// <summary>Action ID of the ground effect.</summary>
+    public uint ActionId { get; init; }
+
+    /// <summary>Center position of the effect.</summary>
+    public System.Numerics.Vector3 Position { get; init; }
+
+    /// <summary>Radius of the effect in yalms.</summary>
+    public float Radius { get; init; }
+
+    /// <summary>When the effect was placed.</summary>
+    public DateTime PlacedAt { get; init; }
+
+    /// <summary>When the effect expires.</summary>
+    public DateTime ExpiresAt { get; init; }
+
+    /// <summary>Whether this effect has expired.</summary>
+    public bool IsExpired => DateTime.UtcNow > ExpiresAt;
+
+    /// <summary>Remaining duration in seconds.</summary>
+    public float RemainingSeconds => Math.Max(0, (float)(ExpiresAt - DateTime.UtcNow).TotalSeconds);
 }

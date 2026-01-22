@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Dalamud.Plugin.Services;
 using Olympus.Config;
 using Olympus.Data;
@@ -41,8 +42,20 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     private float _burstWindowDuration;
     private uint _burstWindowTriggerAction;
 
+    // Healer gauge state tracking
+    private readonly Dictionary<Guid, RemoteHealerGaugeState> _remoteHealerGauges = new();
+
+    // Healer role tracking
+    private readonly Dictionary<Guid, RemoteHealerRole> _remoteHealerRoles = new();
+    private uint _localJobId;
+    private HealerRole _localDeclaredRole = HealerRole.Auto;
+
+    // Ground effect tracking
+    private readonly List<RemoteGroundEffect> _remoteGroundEffects = new();
+
     // Heartbeat timing
     private DateTime _lastHeartbeatSent = DateTime.MinValue;
+    private DateTime _lastGaugeBroadcast = DateTime.MinValue;
 
     // Event callbacks for IPC layer
     public event Action<HeartbeatMessage>? OnHeartbeatReady;
@@ -52,6 +65,9 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     public event Action<AoEHealIntentMessage>? OnAoEHealIntentReady;
     public event Action<RaidBuffIntentMessage>? OnRaidBuffIntentReady;
     public event Action<BurstWindowStartMessage>? OnBurstWindowStartReady;
+    public event Action<GaugeStateMessage>? OnGaugeStateReady;
+    public event Action<RoleDeclarationMessage>? OnRoleDeclarationReady;
+    public event Action<GroundEffectPlacedMessage>? OnGroundEffectPlacedReady;
 
     public PartyCoordinationService(PartyCoordinationConfig config, IPluginLog log)
     {
@@ -591,11 +607,236 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
     #endregion
 
+    #region Healer Gauge Coordination
+
+    public void BroadcastGaugeState(uint jobId, int primary, int secondary, int tertiary)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableHealerGaugeSharing)
+            return;
+
+        var message = new GaugeStateMessage(_instanceId, jobId, primary, secondary, tertiary);
+        OnGaugeStateReady?.Invoke(message);
+
+        if (_config.LogCoordinationEvents)
+            _log.Debug("[PartyCoord] Broadcasting gauge state: {0}/{1}/{2}", primary, secondary, tertiary);
+    }
+
+    public RemoteHealerGaugeState? GetRemoteHealerGaugeState(Guid instanceId)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableHealerGaugeSharing)
+            return null;
+
+        return _remoteHealerGauges.TryGetValue(instanceId, out var state) ? state : null;
+    }
+
+    public IReadOnlyList<RemoteHealerGaugeState> GetAllRemoteHealerGaugeStates()
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableHealerGaugeSharing)
+            return Array.Empty<RemoteHealerGaugeState>();
+
+        return _remoteHealerGauges.Values.ToList();
+    }
+
+    public bool IsAnyRemoteHealerResourceRich(int minimumPrimaryResource = 2)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableHealerGaugeSharing)
+            return false;
+
+        foreach (var state in _remoteHealerGauges.Values)
+        {
+            if (state.PrimaryResource >= minimumPrimaryResource)
+                return true;
+        }
+
+        return false;
+    }
+
+    #endregion
+
+    #region Healer Role Coordination
+
+    public void DeclareHealerRole(uint jobId, HealerRole role)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableHealerRoleCoordination)
+            return;
+
+        _localJobId = jobId;
+        _localDeclaredRole = role;
+
+        var priority = GetHealerJobPriority(jobId);
+        var message = new RoleDeclarationMessage(_instanceId, jobId, role, priority);
+        OnRoleDeclarationReady?.Invoke(message);
+
+        if (_config.LogCoordinationEvents)
+            _log.Debug("[PartyCoord] Declared healer role: {0} (priority {1})", role, priority);
+    }
+
+    public bool IsPrimaryHealer
+    {
+        get
+        {
+            if (!_config.EnablePartyCoordination || !_config.EnableHealerRoleCoordination)
+                return true; // Default to primary if coordination disabled
+
+            // If explicitly set, use that
+            if (_localDeclaredRole == HealerRole.Primary)
+                return true;
+            if (_localDeclaredRole == HealerRole.Secondary)
+                return false;
+
+            // Auto-determine based on job priority
+            var localPriority = GetHealerJobPriority(_localJobId);
+
+            foreach (var remoteRole in _remoteHealerRoles.Values)
+            {
+                // If any remote healer has higher priority (lower number), we're secondary
+                if (remoteRole.JobPriority < localPriority)
+                    return false;
+
+                // If same priority, use instance ID as tiebreaker (lower ID = primary)
+                if (remoteRole.JobPriority == localPriority &&
+                    remoteRole.InstanceId.CompareTo(_instanceId) < 0)
+                    return false;
+            }
+
+            return true;
+        }
+    }
+
+    public RemoteHealerRole? GetRemoteHealerRole(Guid instanceId)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableHealerRoleCoordination)
+            return null;
+
+        return _remoteHealerRoles.TryGetValue(instanceId, out var role) ? role : null;
+    }
+
+    public IReadOnlyList<RemoteHealerRole> GetAllRemoteHealerRoles()
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableHealerRoleCoordination)
+            return Array.Empty<RemoteHealerRole>();
+
+        return _remoteHealerRoles.Values.ToList();
+    }
+
+    public int GetHealerJobPriority(uint jobId)
+    {
+        // WHM has highest priority, SGE lowest
+        // This matches typical healer pairing conventions
+        return jobId switch
+        {
+            JobRegistry.WhiteMage or JobRegistry.Conjurer => 1,
+            JobRegistry.Astrologian => 2,
+            JobRegistry.Scholar or JobRegistry.Arcanist => 3,
+            JobRegistry.Sage => 4,
+            _ => 99, // Non-healers get lowest priority
+        };
+    }
+
+    #endregion
+
+    #region Ground Effect Coordination
+
+    public bool WouldOverlapWithRemoteGroundEffect(Vector3 position, uint actionId, float overlapThreshold = 0.5f)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableGroundEffectCoordination)
+            return false;
+
+        var info = CoordinatedGroundEffects.GetEffectInfo(actionId);
+        if (info == null)
+            return false;
+
+        var localRadius = info.Value.Radius;
+
+        // Check all active remote ground effects
+        foreach (var remote in _remoteGroundEffects)
+        {
+            if (remote.IsExpired)
+                continue;
+
+            // Calculate distance between centers
+            var distance = Vector3.Distance(position, remote.Position);
+
+            // Calculate overlap ratio
+            // If distance < sum of radii, they overlap
+            var sumOfRadii = localRadius + remote.Radius;
+            if (distance < sumOfRadii)
+            {
+                // Calculate how much they overlap (0 = just touching, 1 = same position)
+                var overlap = 1f - (distance / sumOfRadii);
+                if (overlap >= overlapThreshold)
+                {
+                    if (_config.LogCoordinationEvents)
+                        _log.Debug("[PartyCoord] Ground effect would overlap: {0} at ({1:F1},{2:F1},{3:F1}) overlaps {4:P0} with remote {5}",
+                            actionId, position.X, position.Y, position.Z, overlap, remote.ActionId);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public void OnGroundEffectPlaced(uint actionId, Vector3 position)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableGroundEffectCoordination)
+            return;
+
+        var info = CoordinatedGroundEffects.GetEffectInfo(actionId);
+        if (info == null)
+            return;
+
+        var message = new GroundEffectPlacedMessage(
+            _instanceId,
+            actionId,
+            position.X,
+            position.Y,
+            position.Z,
+            info.Value.Radius,
+            info.Value.Duration);
+
+        OnGroundEffectPlacedReady?.Invoke(message);
+
+        if (_config.LogCoordinationEvents)
+            _log.Debug("[PartyCoord] Ground effect placed: {0} at ({1:F1},{2:F1},{3:F1})",
+                actionId, position.X, position.Y, position.Z);
+    }
+
+    public IReadOnlyList<RemoteGroundEffect> GetActiveRemoteGroundEffects()
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableGroundEffectCoordination)
+            return Array.Empty<RemoteGroundEffect>();
+
+        // Return only non-expired effects
+        return _remoteGroundEffects.Where(e => !e.IsExpired).ToList();
+    }
+
+    public bool IsRemoteGroundEffectActiveNear(Vector3 position, float radius = 8f)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableGroundEffectCoordination)
+            return false;
+
+        foreach (var effect in _remoteGroundEffects)
+        {
+            if (effect.IsExpired)
+                continue;
+
+            var distance = Vector3.Distance(position, effect.Position);
+            if (distance < radius + effect.Radius)
+                return true;
+        }
+
+        return false;
+    }
+
+    #endregion
+
     public void Update(uint playerEntityId, uint jobId, bool isEnabled)
     {
         if (!_config.EnablePartyCoordination)
             return;
 
+        _localJobId = jobId;
         var now = DateTime.UtcNow;
 
         // Send heartbeat if interval elapsed
@@ -612,6 +853,9 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
         // Clean up expired local reservations
         CleanupExpiredReservations(now);
+
+        // Clean up expired ground effects
+        CleanupExpiredGroundEffects();
     }
 
     public void Clear()
@@ -625,6 +869,9 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         _burstWindowStart = null;
         _burstWindowDuration = 0;
         _burstWindowTriggerAction = 0;
+        _remoteHealerGauges.Clear();
+        _remoteHealerRoles.Clear();
+        _remoteGroundEffects.Clear();
 
         if (_config.LogCoordinationEvents)
             _log.Debug("[PartyCoord] Cleared all coordination state");
@@ -890,6 +1137,108 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
                 message.TriggerActionId, message.WindowDuration, message.IsMajorBurst, message.InstanceId);
     }
 
+    /// <summary>
+    /// Handles incoming gauge state from a remote healer instance.
+    /// </summary>
+    public void HandleRemoteGaugeState(GaugeStateMessage message)
+    {
+        if (message.InstanceId == _instanceId)
+            return;
+
+        if (!_config.EnableHealerGaugeSharing)
+            return;
+
+        if (_remoteHealerGauges.TryGetValue(message.InstanceId, out var existing))
+        {
+            existing.PrimaryResource = message.PrimaryResource;
+            existing.SecondaryResource = message.SecondaryResource;
+            existing.TertiaryResource = message.TertiaryResource;
+            existing.LastUpdate = DateTime.UtcNow;
+        }
+        else
+        {
+            _remoteHealerGauges[message.InstanceId] = new RemoteHealerGaugeState
+            {
+                InstanceId = message.InstanceId,
+                JobId = message.JobId,
+                PrimaryResource = message.PrimaryResource,
+                SecondaryResource = message.SecondaryResource,
+                TertiaryResource = message.TertiaryResource,
+                LastUpdate = DateTime.UtcNow
+            };
+        }
+
+        if (_config.LogCoordinationEvents)
+            _log.Debug("[PartyCoord] Remote gauge state: {0}/{1}/{2} from instance {3}",
+                message.PrimaryResource, message.SecondaryResource, message.TertiaryResource, message.InstanceId);
+    }
+
+    /// <summary>
+    /// Handles incoming role declaration from a remote healer instance.
+    /// </summary>
+    public void HandleRemoteRoleDeclaration(RoleDeclarationMessage message)
+    {
+        if (message.InstanceId == _instanceId)
+            return;
+
+        if (!_config.EnableHealerRoleCoordination)
+            return;
+
+        if (_remoteHealerRoles.TryGetValue(message.InstanceId, out var existing))
+        {
+            existing.Role = message.Role;
+            existing.JobPriority = message.JobPriority;
+            existing.LastUpdate = DateTime.UtcNow;
+        }
+        else
+        {
+            _remoteHealerRoles[message.InstanceId] = new RemoteHealerRole
+            {
+                InstanceId = message.InstanceId,
+                JobId = message.JobId,
+                Role = message.Role,
+                JobPriority = message.JobPriority,
+                LastUpdate = DateTime.UtcNow
+            };
+        }
+
+        if (_config.LogCoordinationEvents)
+            _log.Debug("[PartyCoord] Remote role declaration: {0} (priority {1}) from instance {2}",
+                message.Role, message.JobPriority, message.InstanceId);
+    }
+
+    /// <summary>
+    /// Handles incoming ground effect placement from a remote healer instance.
+    /// </summary>
+    public void HandleRemoteGroundEffectPlaced(GroundEffectPlacedMessage message)
+    {
+        if (message.InstanceId == _instanceId)
+            return;
+
+        if (!_config.EnableGroundEffectCoordination)
+            return;
+
+        var effect = new RemoteGroundEffect
+        {
+            InstanceId = message.InstanceId,
+            ActionId = message.ActionId,
+            Position = new Vector3(message.PositionX, message.PositionY, message.PositionZ),
+            Radius = message.Radius,
+            PlacedAt = DateTime.UtcNow,
+            ExpiresAt = DateTime.UtcNow.AddSeconds(message.Duration)
+        };
+
+        // Remove any existing effect from the same instance with the same action
+        _remoteGroundEffects.RemoveAll(e =>
+            e.InstanceId == message.InstanceId && e.ActionId == message.ActionId);
+
+        _remoteGroundEffects.Add(effect);
+
+        if (_config.LogCoordinationEvents)
+            _log.Debug("[PartyCoord] Remote ground effect: {0} at ({1:F1},{2:F1},{3:F1}) from instance {4}",
+                message.ActionId, message.PositionX, message.PositionY, message.PositionZ, message.InstanceId);
+    }
+
     #endregion
 
     #region Cleanup
@@ -933,6 +1282,15 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             {
                 kvp.Value.RemoveAll(s => s.InstanceId == id);
             }
+
+            // Remove gauge state from disconnected instance
+            _remoteHealerGauges.Remove(id);
+
+            // Remove role declaration from disconnected instance
+            _remoteHealerRoles.Remove(id);
+
+            // Remove ground effects from disconnected instance
+            _remoteGroundEffects.RemoveAll(e => e.InstanceId == id);
 
             if (_config.LogCoordinationEvents)
                 _log.Info("[PartyCoord] Remote instance timed out: {0}", id);
@@ -1031,6 +1389,11 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         {
             _remoteReservations.Remove(key);
         }
+    }
+
+    private void CleanupExpiredGroundEffects()
+    {
+        _remoteGroundEffects.RemoveAll(e => e.IsExpired);
     }
 
     #endregion

@@ -351,6 +351,16 @@ public sealed class BuffModule : IApolloModule
             context.Debug.AsylumTarget = "Self";
         }
 
+        // Check if another Olympus healer already has a ground effect in this area
+        if (partyCoord?.WouldOverlapWithRemoteGroundEffect(
+            targetPosition,
+            WHMActions.Asylum.ActionId,
+            config.PartyCoordination.GroundEffectOverlapThreshold) == true)
+        {
+            context.Debug.AsylumState = "Skipped (area covered by co-healer)";
+            return false;
+        }
+
         // Execute with appropriate reason
         var reason = shouldDeployForRaidwide
             ? $"pre-raidwide via {raidwideSource}"
@@ -362,6 +372,9 @@ public sealed class BuffModule : IApolloModule
             context.Debug.AsylumTarget, tank?.CurrentHp ?? player.CurrentHp,
             $"Asylum ({reason})"))
         {
+            // Broadcast ground effect placement to other Olympus instances
+            partyCoord?.OnGroundEffectPlaced(WHMActions.Asylum.ActionId, targetPosition);
+
             context.Debug.AsylumState = shouldDeployForRaidwide
                 ? $"Pre-raidwide ({raidwideSource})"
                 : shouldDeployForBurst

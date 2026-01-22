@@ -523,11 +523,24 @@ public sealed class HealingModule : IAstraeaModule
             }
         }
 
+        // Check if another Olympus healer already has a ground effect in this area
+        if (partyCoord?.WouldOverlapWithRemoteGroundEffect(
+            targetPosition,
+            ASTActions.EarthlyStar.ActionId,
+            coordConfig.GroundEffectOverlapThreshold) == true)
+        {
+            context.Debug.EarthlyStarState = "Skipped (area covered)";
+            return false;
+        }
+
         var action = ASTActions.EarthlyStar;
         if (context.ActionService.ExecuteGroundTargetedOgcd(action, targetPosition))
         {
             // Notify service for state tracking
             context.EarthlyStarService.OnStarPlaced(targetPosition);
+
+            // Broadcast ground effect placement to other Olympus instances
+            partyCoord?.OnGroundEffectPlaced(action.ActionId, targetPosition);
 
             context.Debug.PlannedAction = action.Name;
             context.Debug.EarthlyStarState = "Placed";

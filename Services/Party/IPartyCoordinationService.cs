@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Olympus.Ipc;
 
 namespace Olympus.Services.Party;
@@ -225,6 +226,106 @@ public interface IPartyCoordinationService
     /// </summary>
     /// <returns>Seconds until burst, 0 if already active, -1 if unknown.</returns>
     float GetSecondsUntilBurst();
+
+    #endregion
+
+    #region Healer Gauge Coordination
+
+    /// <summary>
+    /// Broadcasts the local healer's gauge state to other instances.
+    /// </summary>
+    /// <param name="jobId">Job ID of the healer.</param>
+    /// <param name="primary">Primary resource count (Lily, Aetherflow, etc.).</param>
+    /// <param name="secondary">Secondary resource count (Blood Lily progress, Fairy Gauge, etc.).</param>
+    /// <param name="tertiary">Tertiary resource count (cards, Addersting, etc.).</param>
+    void BroadcastGaugeState(uint jobId, int primary, int secondary, int tertiary);
+
+    /// <summary>
+    /// Gets the gauge state from a remote healer instance.
+    /// </summary>
+    /// <param name="instanceId">The instance to query.</param>
+    /// <returns>The gauge state, or null if not available.</returns>
+    RemoteHealerGaugeState? GetRemoteHealerGaugeState(Guid instanceId);
+
+    /// <summary>
+    /// Gets all remote healer gauge states.
+    /// </summary>
+    IReadOnlyList<RemoteHealerGaugeState> GetAllRemoteHealerGaugeStates();
+
+    /// <summary>
+    /// Checks if a remote healer has resources available (is "resource-rich").
+    /// A healer is considered resource-rich if they have 2+ of their primary resource.
+    /// </summary>
+    /// <param name="minimumPrimaryResource">Minimum primary resource to consider "rich".</param>
+    bool IsAnyRemoteHealerResourceRich(int minimumPrimaryResource = 2);
+
+    #endregion
+
+    #region Healer Role Coordination
+
+    /// <summary>
+    /// Declares this instance's healer role.
+    /// </summary>
+    /// <param name="jobId">Job ID of the healer.</param>
+    /// <param name="role">The role to declare.</param>
+    void DeclareHealerRole(uint jobId, HealerRole role);
+
+    /// <summary>
+    /// Whether this instance is the primary healer.
+    /// Auto-determined based on job priority if role is Auto.
+    /// </summary>
+    bool IsPrimaryHealer { get; }
+
+    /// <summary>
+    /// Gets the declared role of a remote healer.
+    /// </summary>
+    /// <param name="instanceId">The instance to query.</param>
+    RemoteHealerRole? GetRemoteHealerRole(Guid instanceId);
+
+    /// <summary>
+    /// Gets all remote healer roles.
+    /// </summary>
+    IReadOnlyList<RemoteHealerRole> GetAllRemoteHealerRoles();
+
+    /// <summary>
+    /// Gets the job priority for a healer job (lower = higher priority).
+    /// WHM=1, AST=2, SCH=3, SGE=4.
+    /// </summary>
+    int GetHealerJobPriority(uint jobId);
+
+    #endregion
+
+    #region Ground Effect Coordination
+
+    /// <summary>
+    /// Checks if placing a ground effect at the given position would overlap with
+    /// an existing remote ground effect.
+    /// </summary>
+    /// <param name="position">The position to check.</param>
+    /// <param name="actionId">The action ID to place.</param>
+    /// <param name="overlapThreshold">How much overlap is acceptable (0-1, where 1 = complete overlap).</param>
+    /// <returns>True if placing would overlap significantly with a remote effect.</returns>
+    bool WouldOverlapWithRemoteGroundEffect(Vector3 position, uint actionId, float overlapThreshold = 0.5f);
+
+    /// <summary>
+    /// Notifies that a ground effect was placed.
+    /// Broadcasts to other instances.
+    /// </summary>
+    /// <param name="actionId">The action ID placed.</param>
+    /// <param name="position">The position where it was placed.</param>
+    void OnGroundEffectPlaced(uint actionId, Vector3 position);
+
+    /// <summary>
+    /// Gets all active remote ground effects.
+    /// </summary>
+    IReadOnlyList<RemoteGroundEffect> GetActiveRemoteGroundEffects();
+
+    /// <summary>
+    /// Checks if any remote ground effect is active near the given position.
+    /// </summary>
+    /// <param name="position">The position to check.</param>
+    /// <param name="radius">The radius to check within.</param>
+    bool IsRemoteGroundEffectActiveNear(Vector3 position, float radius = 8f);
 
     #endregion
 

@@ -383,6 +383,18 @@ public sealed class HealingModule : IAsclepiusModule
 
         var action = SGEActions.Kerachole;
 
+        // Check if another Olympus healer already has a ground effect in this area
+        // Kerachole creates a healing zone - avoid stacking with other ground effects
+        if (coordConfig.EnableGroundEffectCoordination &&
+            partyCoord?.WouldOverlapWithRemoteGroundEffect(
+                player.Position,
+                action.ActionId,
+                coordConfig.GroundEffectOverlapThreshold) == true)
+        {
+            context.Debug.KeracholeState = "Skipped (area covered)";
+            return false;
+        }
+
         // Check AoE coordination - prevent multiple healers from casting AoE heals simultaneously
         if (!context.HealingCoordination.TryReserveAoEHeal(
             context.PartyCoordinationService, action.ActionId, action.HealPotency, 0))
@@ -393,6 +405,9 @@ public sealed class HealingModule : IAsclepiusModule
 
         if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
         {
+            // Broadcast ground effect placement to other Olympus instances
+            partyCoord?.OnGroundEffectPlaced(action.ActionId, player.Position);
+
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Kerachole";
             context.Debug.KeracholeState = "Executing";

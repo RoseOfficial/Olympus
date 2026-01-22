@@ -3,6 +3,30 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v2.25.0 - Multi-Healer Ground Effect Coordination
+
+**Healing**
+- Ground-targeted healing zones now coordinate between Olympus healers
+- Prevents inefficient overlap when multiple healers place abilities in the same area
+- WHM Asylum, SCH Sacred Soil, AST Earthly Star, and SGE Kerachole all participate
+
+**How It Works**
+- When you're about to place a ground effect, Olympus checks if a remote healer already has one active nearby
+- If overlap is detected (configurable threshold), your healer skips placement to avoid waste
+- After placing a ground effect, Olympus broadcasts its position to other instances
+
+**New Settings**
+- `EnableGroundEffectCoordination` - Master toggle for ground effect coordination (default: on)
+- `GroundEffectOverlapThreshold` - How much overlap (0-1) before skipping, 0.5 = 50% overlap (default: 0.5)
+- `EnableHealerGaugeSharing` - Infrastructure for future gauge-aware decisions (default: on)
+- `EnableHealerRoleCoordination` - Infrastructure for primary/secondary healer roles (default: on)
+
+**Technical**
+- New IPC message types: GaugeState, RoleDeclaration, GroundEffectPlaced
+- New data registry: CoordinatedGroundEffects.cs with radius/duration for each ability
+- Foundation laid for gauge sharing and role declaration in future updates
+<!-- LATEST-END -->
+
 ## v2.24.0 - Complete Healer Burst Decision Logic
 
 **Healing**
@@ -21,7 +45,6 @@ All notable changes to Olympus will be documented in this file.
 - Added raidwide awareness to Whispering Dawn, Fey Blessing, and Earthly Star placement
 - TimelineHelper.IsRaidwideImminent now accepts optional custom window parameter
 - Completes the healer burst awareness feature from v2.21.0
-<!-- LATEST-END -->
 
 ## v2.23.0 - Tank Defensive Synergy
 

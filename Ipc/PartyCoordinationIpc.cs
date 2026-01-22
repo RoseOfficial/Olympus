@@ -29,6 +29,9 @@ public sealed class PartyCoordinationIpc : IDisposable
     private readonly ICallGateProvider<string, object> _aoEHealIntentProvider;
     private readonly ICallGateProvider<string, object> _raidBuffIntentProvider;
     private readonly ICallGateProvider<string, object> _burstWindowStartProvider;
+    private readonly ICallGateProvider<string, object> _gaugeStateProvider;
+    private readonly ICallGateProvider<string, object> _roleDeclarationProvider;
+    private readonly ICallGateProvider<string, object> _groundEffectPlacedProvider;
 
     // IPC subscribers (for receiving)
     private readonly ICallGateSubscriber<string, object> _heartbeatSubscriber;
@@ -38,6 +41,9 @@ public sealed class PartyCoordinationIpc : IDisposable
     private readonly ICallGateSubscriber<string, object> _aoEHealIntentSubscriber;
     private readonly ICallGateSubscriber<string, object> _raidBuffIntentSubscriber;
     private readonly ICallGateSubscriber<string, object> _burstWindowStartSubscriber;
+    private readonly ICallGateSubscriber<string, object> _gaugeStateSubscriber;
+    private readonly ICallGateSubscriber<string, object> _roleDeclarationSubscriber;
+    private readonly ICallGateSubscriber<string, object> _groundEffectPlacedSubscriber;
 
     public PartyCoordinationIpc(
         IDalamudPluginInterface pluginInterface,
@@ -55,6 +61,9 @@ public sealed class PartyCoordinationIpc : IDisposable
         _aoEHealIntentProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.AoEHealIntent");
         _raidBuffIntentProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.RaidBuffIntent");
         _burstWindowStartProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.BurstWindowStart");
+        _gaugeStateProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.GaugeState");
+        _roleDeclarationProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.RoleDeclaration");
+        _groundEffectPlacedProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.GroundEffectPlaced");
 
         // Register action handlers (for broadcast)
         _heartbeatProvider.RegisterAction(OnHeartbeatReceived);
@@ -64,6 +73,9 @@ public sealed class PartyCoordinationIpc : IDisposable
         _aoEHealIntentProvider.RegisterAction(OnAoEHealIntentReceived);
         _raidBuffIntentProvider.RegisterAction(OnRaidBuffIntentReceived);
         _burstWindowStartProvider.RegisterAction(OnBurstWindowStartReceived);
+        _gaugeStateProvider.RegisterAction(OnGaugeStateReceived);
+        _roleDeclarationProvider.RegisterAction(OnRoleDeclarationReceived);
+        _groundEffectPlacedProvider.RegisterAction(OnGroundEffectPlacedReceived);
 
         // Subscribe to receive messages from other instances
         _heartbeatSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.Heartbeat");
@@ -73,6 +85,9 @@ public sealed class PartyCoordinationIpc : IDisposable
         _aoEHealIntentSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.AoEHealIntent");
         _raidBuffIntentSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.RaidBuffIntent");
         _burstWindowStartSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.BurstWindowStart");
+        _gaugeStateSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.GaugeState");
+        _roleDeclarationSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.RoleDeclaration");
+        _groundEffectPlacedSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.GroundEffectPlaced");
 
         // Wire up service events to IPC broadcasts
         _service.OnHeartbeatReady += SendHeartbeat;
@@ -82,6 +97,9 @@ public sealed class PartyCoordinationIpc : IDisposable
         _service.OnAoEHealIntentReady += SendAoEHealIntent;
         _service.OnRaidBuffIntentReady += SendRaidBuffIntent;
         _service.OnBurstWindowStartReady += SendBurstWindowStart;
+        _service.OnGaugeStateReady += SendGaugeState;
+        _service.OnRoleDeclarationReady += SendRoleDeclaration;
+        _service.OnGroundEffectPlacedReady += SendGroundEffectPlaced;
 
         _log.Info("Party coordination IPC initialized");
     }
@@ -176,6 +194,45 @@ public sealed class PartyCoordinationIpc : IDisposable
         catch (Exception ex)
         {
             _log.Warning(ex, "Failed to send burst window start");
+        }
+    }
+
+    private void SendGaugeState(GaugeStateMessage message)
+    {
+        try
+        {
+            var json = message.ToJson();
+            _gaugeStateProvider.SendMessage(json);
+        }
+        catch (Exception ex)
+        {
+            _log.Warning(ex, "Failed to send gauge state");
+        }
+    }
+
+    private void SendRoleDeclaration(RoleDeclarationMessage message)
+    {
+        try
+        {
+            var json = message.ToJson();
+            _roleDeclarationProvider.SendMessage(json);
+        }
+        catch (Exception ex)
+        {
+            _log.Warning(ex, "Failed to send role declaration");
+        }
+    }
+
+    private void SendGroundEffectPlaced(GroundEffectPlacedMessage message)
+    {
+        try
+        {
+            var json = message.ToJson();
+            _groundEffectPlacedProvider.SendMessage(json);
+        }
+        catch (Exception ex)
+        {
+            _log.Warning(ex, "Failed to send ground effect placed");
         }
     }
 
@@ -295,6 +352,54 @@ public sealed class PartyCoordinationIpc : IDisposable
         }
     }
 
+    private void OnGaugeStateReceived(string json)
+    {
+        try
+        {
+            var message = PartyMessage.FromJson(json) as GaugeStateMessage;
+            if (message != null)
+            {
+                _service.HandleRemoteGaugeState(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            _log.Warning(ex, "Failed to process gauge state");
+        }
+    }
+
+    private void OnRoleDeclarationReceived(string json)
+    {
+        try
+        {
+            var message = PartyMessage.FromJson(json) as RoleDeclarationMessage;
+            if (message != null)
+            {
+                _service.HandleRemoteRoleDeclaration(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            _log.Warning(ex, "Failed to process role declaration");
+        }
+    }
+
+    private void OnGroundEffectPlacedReceived(string json)
+    {
+        try
+        {
+            var message = PartyMessage.FromJson(json) as GroundEffectPlacedMessage;
+            if (message != null)
+            {
+                _service.HandleRemoteGroundEffectPlaced(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            _log.Warning(ex, "Failed to process ground effect placed");
+        }
+    }
+
     #endregion
 
     public void Dispose()
@@ -307,6 +412,9 @@ public sealed class PartyCoordinationIpc : IDisposable
         _service.OnAoEHealIntentReady -= SendAoEHealIntent;
         _service.OnRaidBuffIntentReady -= SendRaidBuffIntent;
         _service.OnBurstWindowStartReady -= SendBurstWindowStart;
+        _service.OnGaugeStateReady -= SendGaugeState;
+        _service.OnRoleDeclarationReady -= SendRoleDeclaration;
+        _service.OnGroundEffectPlacedReady -= SendGroundEffectPlaced;
 
         // Unregister IPC handlers
         _heartbeatProvider.UnregisterAction();
@@ -316,6 +424,9 @@ public sealed class PartyCoordinationIpc : IDisposable
         _aoEHealIntentProvider.UnregisterAction();
         _raidBuffIntentProvider.UnregisterAction();
         _burstWindowStartProvider.UnregisterAction();
+        _gaugeStateProvider.UnregisterAction();
+        _roleDeclarationProvider.UnregisterAction();
+        _groundEffectPlacedProvider.UnregisterAction();
 
         _log.Info("Party coordination IPC disposed");
     }

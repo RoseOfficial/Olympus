@@ -1,4 +1,5 @@
 using System;
+using Olympus.Ipc;
 
 namespace Olympus.Config;
 
@@ -205,4 +206,62 @@ public sealed class PartyCoordinationConfig
         get => _minHealAmountToBroadcast;
         set => _minHealAmountToBroadcast = Math.Clamp(value, 0, 10000);
     }
+
+    #region Multi-Healer Optimization
+
+    /// <summary>
+    /// Enable healer gauge state sharing.
+    /// When enabled, healers will broadcast their resource counts (Lily, Aetherflow, etc.)
+    /// to other Olympus instances for resource-aware healing decisions.
+    /// </summary>
+    public bool EnableHealerGaugeSharing { get; set; } = true;
+
+    /// <summary>
+    /// Enable healer role coordination.
+    /// When enabled, healers will declare primary/secondary roles
+    /// and adjust healing thresholds accordingly.
+    /// </summary>
+    public bool EnableHealerRoleCoordination { get; set; } = true;
+
+    /// <summary>
+    /// Preferred healer role.
+    /// Auto: Auto-detect based on job priority (WHM > AST > SCH > SGE).
+    /// Primary: Take lead on healing, higher thresholds.
+    /// Secondary: Assist, lower thresholds, more DPS focus.
+    /// </summary>
+    public HealerRole PreferredHealerRole { get; set; } = HealerRole.Auto;
+
+    /// <summary>
+    /// HP threshold for secondary healer to assist with healing.
+    /// Secondary healers will only heal targets below this threshold.
+    /// Valid range: 0.30 to 0.80.
+    /// </summary>
+    private float _secondaryHealAssistThreshold = 0.50f;
+    public float SecondaryHealAssistThreshold
+    {
+        get => _secondaryHealAssistThreshold;
+        set => _secondaryHealAssistThreshold = Math.Clamp(value, 0.30f, 0.80f);
+    }
+
+    /// <summary>
+    /// Enable ground effect coordination.
+    /// When enabled, healers will coordinate ground-targeted abilities
+    /// (Asylum, Sacred Soil, Earthly Star, Kerachole) to prevent overlapping.
+    /// </summary>
+    public bool EnableGroundEffectCoordination { get; set; } = true;
+
+    /// <summary>
+    /// Overlap threshold for ground effects (0-1).
+    /// 0.5 = skip if 50% overlap, 1.0 = skip only if identical position.
+    /// Lower values are more conservative.
+    /// Valid range: 0.3 to 1.0.
+    /// </summary>
+    private float _groundEffectOverlapThreshold = 0.5f;
+    public float GroundEffectOverlapThreshold
+    {
+        get => _groundEffectOverlapThreshold;
+        set => _groundEffectOverlapThreshold = Math.Clamp(value, 0.3f, 1.0f);
+    }
+
+    #endregion
 }

@@ -347,6 +347,16 @@ public sealed class HealingModule : IAthenaModule
             return false;
         }
 
+        // Check if another Olympus healer already has a ground effect in this area
+        if (partyCoord?.WouldOverlapWithRemoteGroundEffect(
+            player.Position,
+            SCHActions.SacredSoil.ActionId,
+            coordConfig.GroundEffectOverlapThreshold) == true)
+        {
+            context.Debug.PlanningState = "Sacred Soil skipped (area covered)";
+            return false;
+        }
+
         // Place at player's position (ground target at self)
         var action = SCHActions.SacredSoil;
         if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
@@ -355,6 +365,8 @@ public sealed class HealingModule : IAthenaModule
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Sacred Soil";
             partyCoord?.OnCooldownUsed(action.ActionId, 30_000);
+            // Broadcast ground effect placement to other Olympus instances
+            partyCoord?.OnGroundEffectPlaced(action.ActionId, player.Position);
             return true;
         }
 
