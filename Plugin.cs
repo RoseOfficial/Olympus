@@ -28,7 +28,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "2.18.0";
+    public const string PluginVersion = "2.19.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -710,7 +710,8 @@ public sealed class Plugin : IDalamudPlugin
             playerStatsService,
             debuffDetectionService,
             positionalService,
-            timelineService);
+            timelineService,
+            partyCoordinationService);
     }
 
     /// <summary>

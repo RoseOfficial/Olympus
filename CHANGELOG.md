@@ -3,13 +3,20 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v2.19.0 - Ninja Party Burst Alignment
+
+**DPS Coordination**
+- Ninja (Hermes) now aligns Kunai's Bane burst window with party raid buff windows
+- Listens for pending burst intents and synchronizes burst timing with other Olympus users
+- Maximizes damage during coordinated burst phases
+<!-- LATEST-END -->
+
 ## v2.18.0 - Viper Party Burst Alignment
 
 **DPS Coordination**
 - Viper (Echidna) now aligns Serpent's Ire with party raid buff windows
 - Delays burst briefly when other DPS are about to use Battle Voice, Technical Finish, etc.
 - Maximizes Reawaken damage during coordinated burst phases
-<!-- LATEST-END -->
 
 ## v2.17.0 - Samurai Party Burst Alignment
 

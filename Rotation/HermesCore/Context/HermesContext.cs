@@ -8,6 +8,7 @@ using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Cache;
 using Olympus.Services.Debuff;
+using Olympus.Services.Party;
 using Olympus.Services.Positional;
 using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
@@ -105,6 +106,9 @@ public sealed class HermesContext : IHermesContext
     public MudraHelper MudraHelper { get; }
     public HermesDebugState Debug { get; }
 
+    // Party Coordination
+    public IPartyCoordinationService? PartyCoordinationService { get; }
+
     #endregion
 
     private readonly IBattleChara? _currentTarget;
@@ -143,6 +147,7 @@ public sealed class HermesContext : IHermesContext
         bool isAtFlank,
         bool targetHasPositionalImmunity,
         ITimelineService? timelineService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -163,6 +168,7 @@ public sealed class HermesContext : IHermesContext
         PlayerStatsService = playerStatsService;
         TargetingService = targetingService;
         TimelineService = timelineService;
+        PartyCoordinationService = partyCoordinationService;
         ObjectTable = objectTable;
         PartyList = partyList;
         Log = log;

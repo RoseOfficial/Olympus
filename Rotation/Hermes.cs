@@ -13,6 +13,7 @@ using Olympus.Services.Action;
 using Olympus.Services.Debuff;
 using Olympus.Services.Positional;
 using Olympus.Services.Prediction;
+using Olympus.Services.Party;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
 using Olympus.Timeline;
@@ -61,6 +62,9 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
     // Timeline service for fight-aware rotation (optional)
     private readonly ITimelineService? _timelineService;
 
+    // Party coordination service for burst alignment (optional)
+    private readonly IPartyCoordinationService? _partyCoordinationService;
+
     // Gauge values (read each frame)
     private int _ninki;
     private int _kazematoi;
@@ -81,6 +85,7 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
         IDebuffDetectionService debuffDetectionService,
         IPositionalService positionalService,
         ITimelineService? timelineService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -100,6 +105,7 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
             errorMetrics)
     {
         _timelineService = timelineService;
+        _partyCoordinationService = partyCoordinationService;
 
         // Initialize helpers
         _statusHelper = new HermesStatusHelper();
@@ -197,6 +203,7 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
             isAtFlank: IsAtFlank,
             targetHasPositionalImmunity: TargetHasPositionalImmunity,
             timelineService: _timelineService,
+            partyCoordinationService: _partyCoordinationService,
             log: Log);
     }
 

@@ -1,5 +1,6 @@
 using Olympus.Data;
 using Olympus.Rotation.HermesCore.Context;
+using Olympus.Services.Party;
 using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.HermesCore.Modules;
@@ -124,6 +125,21 @@ public sealed class BuffModule : IHermesModule
         {
             context.Debug.BuffState = $"Holding {action.Name} (phase soon)";
             return false;
+        }
+
+        // Party coordination: Align with party burst window
+        var partyCoord = context.PartyCoordinationService;
+        if (partyCoord != null && partyCoord.IsPartyCoordinationEnabled &&
+            context.Configuration.PartyCoordination.EnableRaidBuffCoordination)
+        {
+            // Check if party is about to burst - if so, execute to align
+            if (partyCoord.HasPendingRaidBuffIntent(
+                context.Configuration.PartyCoordination.RaidBuffAlignmentWindowSeconds))
+            {
+                context.Debug.BuffState = $"Aligning {action.Name} with party burst";
+                // Fall through to execute - we want to burst WITH the party
+            }
+            // Note: NIN has no raid buff to announce - we just listen and align
         }
 
         // Find target
