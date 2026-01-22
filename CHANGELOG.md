@@ -3,6 +3,19 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v2.27.0 - Tank Invulnerability Coordination
+
+**Tank Coordination**
+- Tank invulnerability abilities now coordinate between Olympus instances
+- Prevents both tanks from using invulns simultaneously during emergencies
+- Covers Hallowed Ground (PLD), Holmgang (WAR), Living Dead (DRK), and Superbolide (GNB)
+- After using an invuln, broadcasts to other tanks via IPC
+
+**New Settings**
+- `EnableInvulnerabilityCoordination` - Master toggle for invuln coordination (default: on)
+- `InvulnerabilityStaggerWindowSeconds` - How long to delay if another tank used an invuln recently (1-10s, default: 5s)
+<!-- LATEST-END -->
+
 ## v2.26.0 - Resurrection Coordination
 
 **Healing**
@@ -24,7 +37,6 @@ All notable changes to Olympus will be documented in this file.
 - New IPC message type: RaiseIntent
 - New protocol classes: RaiseIntentMessage, RaiseReservation
 - BaseResurrectionModule now integrates with party coordination service
-<!-- LATEST-END -->
 
 ## v2.25.0 - Multi-Healer Ground Effect Coordination
 

@@ -106,4 +106,21 @@ public sealed class TankConfig
         get => _defensiveStaggerWindowSeconds;
         set => _defensiveStaggerWindowSeconds = Math.Clamp(value, 1f, 10f);
     }
+
+    /// <summary>
+    /// Enable coordination of invulnerability abilities between Olympus tanks.
+    /// When enabled, tanks will avoid using invulns simultaneously to maximize coverage.
+    /// </summary>
+    public bool EnableInvulnerabilityCoordination { get; set; } = true;
+
+    /// <summary>
+    /// Time window in seconds to delay invulnerability if another tank used one recently.
+    /// Range: 1.0 to 10.0 seconds.
+    /// </summary>
+    private float _invulnerabilityStaggerWindowSeconds = 5.0f;
+    public float InvulnerabilityStaggerWindowSeconds
+    {
+        get => _invulnerabilityStaggerWindowSeconds;
+        set => _invulnerabilityStaggerWindowSeconds = Math.Clamp(value, 1f, 10f);
+    }
 }

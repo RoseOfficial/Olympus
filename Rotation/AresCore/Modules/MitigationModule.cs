@@ -201,10 +201,21 @@ public sealed class MitigationModule : IAresModule
         if (!context.ActionService.IsActionReady(WARActions.Holmgang.ActionId))
             return false;
 
+        // Check if another tank recently used an invuln (coordination)
+        var partyCoord = context.PartyCoordinationService;
+        var tankConfig = context.Configuration.Tank;
+        if (tankConfig.EnableInvulnerabilityCoordination &&
+            partyCoord?.WasInvulnerabilityUsedRecently(tankConfig.InvulnerabilityStaggerWindowSeconds) == true)
+        {
+            context.Debug.MitigationState = "Holmgang delayed (remote invuln)";
+            return false;
+        }
+
         if (context.ActionService.ExecuteOgcd(WARActions.Holmgang, target.GameObjectId))
         {
             context.Debug.PlannedAction = WARActions.Holmgang.Name;
             context.Debug.MitigationState = $"Emergency invuln ({hpPercent:P0} HP)";
+            partyCoord?.OnCooldownUsed(WARActions.Holmgang.ActionId, 240_000);
             return true;
         }
 

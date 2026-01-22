@@ -141,6 +141,14 @@ public interface IPartyCoordinationService
     bool WasPersonalDefensiveUsedRecently(float withinSeconds = 3f);
 
     /// <summary>
+    /// Checks if any tank invulnerability was used recently by a remote tank instance.
+    /// Used to prevent both tanks from wasting invulns simultaneously during emergencies.
+    /// </summary>
+    /// <param name="withinSeconds">Time window to check (default 5 seconds).</param>
+    /// <returns>True if any invulnerability was used within the time window.</returns>
+    bool WasInvulnerabilityUsedRecently(float withinSeconds = 5f);
+
+    /// <summary>
     /// Gets all active remote cooldowns for a specific action.
     /// </summary>
     /// <param name="actionId">The action ID to query.</param>

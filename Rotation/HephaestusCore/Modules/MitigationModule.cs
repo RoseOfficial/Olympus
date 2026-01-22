@@ -195,10 +195,21 @@ public sealed class MitigationModule : IHephaestusModule
         if (!context.ActionService.IsActionReady(GNBActions.Superbolide.ActionId))
             return false;
 
+        // Check if another tank recently used an invuln (coordination)
+        var partyCoord = context.PartyCoordinationService;
+        var tankConfig = context.Configuration.Tank;
+        if (tankConfig.EnableInvulnerabilityCoordination &&
+            partyCoord?.WasInvulnerabilityUsedRecently(tankConfig.InvulnerabilityStaggerWindowSeconds) == true)
+        {
+            context.Debug.MitigationState = "Superbolide delayed (remote invuln)";
+            return false;
+        }
+
         if (context.ActionService.ExecuteOgcd(GNBActions.Superbolide, player.GameObjectId))
         {
             context.Debug.PlannedAction = GNBActions.Superbolide.Name;
             context.Debug.MitigationState = $"Emergency invuln ({hpPercent:P0} HP)";
+            partyCoord?.OnCooldownUsed(GNBActions.Superbolide.ActionId, 360_000);
             return true;
         }
 

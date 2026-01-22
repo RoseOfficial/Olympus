@@ -76,10 +76,28 @@ public static class CoordinatedCooldowns
     };
 
     /// <summary>
+    /// Tank invulnerability abilities that should be coordinated.
+    /// When two tanks run Olympus, they avoid using invulns simultaneously.
+    /// </summary>
+    public static readonly HashSet<uint> Invulnerabilities = new()
+    {
+        ActionIds.HallowedGround,           // PLD - 420s CD
+        ActionIds.Holmgang,                 // WAR - 240s CD
+        ActionIds.LivingDead,               // DRK - 300s CD
+        ActionIds.Superbolide,              // GNB - 360s CD
+    };
+
+    /// <summary>
     /// Checks if an action is a personal defensive that should be coordinated between tanks.
     /// </summary>
     public static bool IsPersonalDefensive(uint actionId)
         => PersonalDefensives.Contains(actionId);
+
+    /// <summary>
+    /// Checks if an action is a tank invulnerability that should be coordinated.
+    /// </summary>
+    public static bool IsInvulnerability(uint actionId)
+        => Invulnerabilities.Contains(actionId);
 
     /// <summary>
     /// Maps action IDs to their recast time in milliseconds.
@@ -117,6 +135,12 @@ public static class CoordinatedCooldowns
         { ActionIds.ShadowedVigil, 120_000 },
         { ActionIds.Nebula, 120_000 },
         { ActionIds.GreatNebula, 120_000 },
+
+        // Tank invulnerability cooldowns
+        { ActionIds.HallowedGround, 420_000 },  // PLD - 7 min
+        { ActionIds.Holmgang, 240_000 },        // WAR - 4 min
+        { ActionIds.LivingDead, 300_000 },      // DRK - 5 min
+        { ActionIds.Superbolide, 360_000 },     // GNB - 6 min
     };
 
     /// <summary>

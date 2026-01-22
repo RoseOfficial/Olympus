@@ -190,10 +190,21 @@ public sealed class MitigationModule : IThemisModule
         if (!context.ActionService.IsActionReady(PLDActions.HallowedGround.ActionId))
             return false;
 
+        // Check if another tank recently used an invuln (coordination)
+        var partyCoord = context.PartyCoordinationService;
+        var tankConfig = context.Configuration.Tank;
+        if (tankConfig.EnableInvulnerabilityCoordination &&
+            partyCoord?.WasInvulnerabilityUsedRecently(tankConfig.InvulnerabilityStaggerWindowSeconds) == true)
+        {
+            context.Debug.MitigationState = "Hallowed delayed (remote invuln)";
+            return false;
+        }
+
         if (context.ActionService.ExecuteOgcd(PLDActions.HallowedGround, player.GameObjectId))
         {
             context.Debug.PlannedAction = PLDActions.HallowedGround.Name;
             context.Debug.MitigationState = $"Emergency invuln ({hpPercent:P0} HP)";
+            partyCoord?.OnCooldownUsed(PLDActions.HallowedGround.ActionId, 420_000);
             return true;
         }
 
