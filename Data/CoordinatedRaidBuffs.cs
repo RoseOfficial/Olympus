@@ -24,6 +24,18 @@ public static class CoordinatedRaidBuffs
 
         // Summoner
         SMNActions.SearingLight.ActionId,   // 25801 - +5% damage (120s CD, 20s duration)
+
+        // Red Mage
+        RDMActions.Embolden.ActionId,       // 7520 - +5% damage (120s CD, 20s duration)
+
+        // Dancer
+        DNCActions.TechnicalFinish.ActionId, // 16004 - +5% damage (120s CD, 20s duration)
+
+        // Reaper
+        RPRActions.ArcaneCircle.ActionId,   // 24405 - +3% damage (120s CD, 20s duration)
+
+        // Monk
+        MNKActions.Brotherhood.ActionId,    // 7396 - +5% damage (120s CD, 20s duration)
     };
 
     /// <summary>
@@ -36,6 +48,10 @@ public static class CoordinatedRaidBuffs
         { BRDActions.BattleVoice.ActionId, 120_000 },    // 2 minutes
         { BRDActions.RadiantFinale.ActionId, 110_000 },  // 110 seconds
         { SMNActions.SearingLight.ActionId, 120_000 },   // 2 minutes
+        { RDMActions.Embolden.ActionId, 120_000 },       // 2 minutes
+        { DNCActions.TechnicalFinish.ActionId, 120_000 }, // 2 minutes
+        { RPRActions.ArcaneCircle.ActionId, 120_000 },   // 2 minutes
+        { MNKActions.Brotherhood.ActionId, 120_000 },    // 2 minutes
     };
 
     /// <summary>
@@ -48,6 +64,10 @@ public static class CoordinatedRaidBuffs
         { BRDActions.BattleVoice.ActionId, 15f },
         { BRDActions.RadiantFinale.ActionId, 20f },
         { SMNActions.SearingLight.ActionId, 20f },
+        { RDMActions.Embolden.ActionId, 20f },
+        { DNCActions.TechnicalFinish.ActionId, 20f },
+        { RPRActions.ArcaneCircle.ActionId, 20f },
+        { MNKActions.Brotherhood.ActionId, 20f },
     };
 
     /// <summary>

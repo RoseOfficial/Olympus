@@ -3,13 +3,23 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v2.13.0 - Complete DPS Raid Buff Coordination
+
+**Party Coordination**
+- Added raid buff coordination for remaining DPS jobs
+- Red Mage (Circe): Embolden now synchronizes with party burst windows
+- Dancer (Terpsichore): Technical Finish now synchronizes with party burst windows
+- Reaper (Thanatos): Arcane Circle now synchronizes with party burst windows
+- Monk (Kratos): Brotherhood now synchronizes with party burst windows
+- All DPS raid buffs now coordinate for optimal burst alignment
+<!-- LATEST-END -->
+
 ## v2.12.0 - Summoner Raid Buff Coordination
 
 **Party Coordination**
 - Added Searing Light coordination for Summoner (Persephone)
 - Multiple Olympus users now synchronize Summoner burst windows with other raid buffs
 - Works seamlessly with existing Dragoon and Bard coordination
-<!-- LATEST-END -->
 
 ## v2.11.0 - DPS Raid Buff Coordination
 

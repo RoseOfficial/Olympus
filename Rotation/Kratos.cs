@@ -11,6 +11,7 @@ using Olympus.Rotation.KratosCore.Modules;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Debuff;
+using Olympus.Services.Party;
 using Olympus.Services.Positional;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
@@ -60,6 +61,9 @@ public sealed class Kratos : BaseMeleeDpsRotation<IKratosContext, IKratosModule>
     // Timeline service for fight-aware rotation (optional)
     private readonly ITimelineService? _timelineService;
 
+    // Party coordination service for raid buff synchronization (optional)
+    private readonly IPartyCoordinationService? _partyCoordinationService;
+
     // Gauge values (read each frame)
     private int _chakra;
     private byte[] _beastChakra = new byte[3];
@@ -82,6 +86,7 @@ public sealed class Kratos : BaseMeleeDpsRotation<IKratosContext, IKratosModule>
         IDebuffDetectionService debuffDetectionService,
         IPositionalService positionalService,
         ITimelineService? timelineService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -101,6 +106,7 @@ public sealed class Kratos : BaseMeleeDpsRotation<IKratosContext, IKratosModule>
             errorMetrics)
     {
         _timelineService = timelineService;
+        _partyCoordinationService = partyCoordinationService;
 
         // Initialize helpers
         _statusHelper = new KratosStatusHelper();
@@ -188,6 +194,7 @@ public sealed class Kratos : BaseMeleeDpsRotation<IKratosContext, IKratosModule>
             isAtFlank: IsAtFlank,
             targetHasPositionalImmunity: TargetHasPositionalImmunity,
             timelineService: _timelineService,
+            partyCoordinationService: _partyCoordinationService,
             log: Log);
     }
 

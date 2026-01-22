@@ -157,6 +157,10 @@ public sealed class BuffModule : ITerpsichoreModule
                 {
                     context.Debug.PlannedAction = DNCActions.TechnicalFinish.Name;
                     context.Debug.BuffState = "Technical Finish";
+
+                    // Notify coordination service that we used the raid buff
+                    context.PartyCoordinationService?.OnRaidBuffUsed(DNCActions.TechnicalFinish.ActionId, 120_000);
+
                     return true;
                 }
             }
@@ -204,6 +208,31 @@ public sealed class BuffModule : ITerpsichoreModule
         {
             context.Debug.BuffState = "Holding Technical Step (phase soon)";
             return false;
+        }
+
+        // Party coordination: Synchronize with other Olympus instances
+        var partyCoord = context.PartyCoordinationService;
+        if (partyCoord != null && partyCoord.IsPartyCoordinationEnabled &&
+            context.Configuration.PartyCoordination.EnableRaidBuffCoordination)
+        {
+            // Check if our buffs are aligned with remote instances
+            // If significantly desynced (e.g., death recovery), use independently
+            if (!partyCoord.IsRaidBuffAligned(DNCActions.TechnicalFinish.ActionId))
+            {
+                context.Debug.BuffState = "Raid buffs desynced, using independently";
+                // Fall through to execute - don't try to align when heavily desynced
+            }
+            // Check if another DPS is about to use a raid buff
+            // If so, align our burst with theirs
+            else if (partyCoord.HasPendingRaidBuffIntent(
+                context.Configuration.PartyCoordination.RaidBuffAlignmentWindowSeconds))
+            {
+                context.Debug.BuffState = "Aligning with party burst";
+                // Fall through to execute and announce our intent
+            }
+
+            // Announce our intent to use Technical Finish (the buff effect)
+            partyCoord.AnnounceRaidBuffIntent(DNCActions.TechnicalFinish.ActionId);
         }
 
         if (context.ActionService.ExecuteOgcd(DNCActions.TechnicalStep, player.GameObjectId))

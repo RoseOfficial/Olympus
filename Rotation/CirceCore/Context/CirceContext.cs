@@ -9,6 +9,7 @@ using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Cache;
 using Olympus.Services.Debuff;
+using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
 using Olympus.Services.Stats;
@@ -130,6 +131,9 @@ public sealed class CirceContext : ICirceContext
     public CircePartyHelper PartyHelper { get; }
     public CirceDebugState Debug { get; }
 
+    // Party Coordination
+    public IPartyCoordinationService? PartyCoordinationService { get; }
+
     #endregion
 
     private readonly IBattleChara? _currentTarget;
@@ -163,6 +167,7 @@ public sealed class CirceContext : ICirceContext
         uint comboAction,
         float comboTimer,
         ITimelineService? timelineService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -183,6 +188,7 @@ public sealed class CirceContext : ICirceContext
         PlayerStatsService = playerStatsService;
         TargetingService = targetingService;
         TimelineService = timelineService;
+        PartyCoordinationService = partyCoordinationService;
         ObjectTable = objectTable;
         PartyList = partyList;
         Log = log;

@@ -239,10 +239,40 @@ public sealed class BuffModule : ICirceModule
             }
         }
 
+        // Party coordination: Synchronize with other Olympus instances
+        var partyCoord = context.PartyCoordinationService;
+        if (partyCoord != null && partyCoord.IsPartyCoordinationEnabled &&
+            context.Configuration.PartyCoordination.EnableRaidBuffCoordination)
+        {
+            // Check if our buffs are aligned with remote instances
+            // If significantly desynced (e.g., death recovery), use independently
+            if (!partyCoord.IsRaidBuffAligned(RDMActions.Embolden.ActionId))
+            {
+                context.Debug.BuffState = "Raid buffs desynced, using independently";
+                // Fall through to execute - don't try to align when heavily desynced
+            }
+            // Check if another DPS is about to use a raid buff
+            // If so, align our burst with theirs
+            else if (partyCoord.HasPendingRaidBuffIntent(
+                context.Configuration.PartyCoordination.RaidBuffAlignmentWindowSeconds))
+            {
+                // Another player is about to burst - align with them
+                context.Debug.BuffState = "Aligning with party burst";
+                // Fall through to execute and announce our intent
+            }
+
+            // Announce our intent to use Embolden
+            partyCoord.AnnounceRaidBuffIntent(RDMActions.Embolden.ActionId);
+        }
+
         if (context.ActionService.ExecuteOgcd(RDMActions.Embolden, player.GameObjectId))
         {
             context.Debug.PlannedAction = RDMActions.Embolden.Name;
             context.Debug.BuffState = "Embolden (burst)";
+
+            // Notify coordination service that we used the raid buff
+            partyCoord?.OnRaidBuffUsed(RDMActions.Embolden.ActionId, 120_000);
+
             return true;
         }
 

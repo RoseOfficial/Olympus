@@ -11,6 +11,7 @@ using Olympus.Rotation.TerpsichoreCore.Modules;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Debuff;
+using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
@@ -59,6 +60,9 @@ public sealed class Terpsichore : BaseRangedDpsRotation<ITerpsichoreContext, ITe
     // Timeline service for fight-aware rotation (optional)
     private readonly ITimelineService? _timelineService;
 
+    // Party coordination service for raid buff synchronization (optional)
+    private readonly IPartyCoordinationService? _partyCoordinationService;
+
     // Gauge values (read each frame)
     private int _esprit;
     private int _feathers;
@@ -82,6 +86,7 @@ public sealed class Terpsichore : BaseRangedDpsRotation<ITerpsichoreContext, ITe
         IPlayerStatsService playerStatsService,
         IDebuffDetectionService debuffDetectionService,
         ITimelineService? timelineService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -100,6 +105,7 @@ public sealed class Terpsichore : BaseRangedDpsRotation<ITerpsichoreContext, ITe
             errorMetrics)
     {
         _timelineService = timelineService;
+        _partyCoordinationService = partyCoordinationService;
 
         // Initialize helpers
         _statusHelper = new TerpsichoreStatusHelper();
@@ -198,6 +204,7 @@ public sealed class Terpsichore : BaseRangedDpsRotation<ITerpsichoreContext, ITe
             lastComboAction: LastComboAction,
             comboTimeRemaining: ComboTimeRemaining,
             timelineService: _timelineService,
+            partyCoordinationService: _partyCoordinationService,
             log: Log);
     }
 

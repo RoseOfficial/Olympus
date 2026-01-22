@@ -1,5 +1,6 @@
 using Olympus.Rotation.Common;
 using Olympus.Rotation.TerpsichoreCore.Helpers;
+using Olympus.Services.Party;
 
 namespace Olympus.Rotation.TerpsichoreCore.Context;
 
@@ -163,6 +164,15 @@ public interface ITerpsichoreContext : IRangedDpsRotationContext
     /// Debug state for this rotation.
     /// </summary>
     TerpsichoreDebugState Debug { get; }
+
+    #endregion
+
+    #region Party Coordination
+
+    /// <summary>
+    /// Party coordination service for raid buff synchronization.
+    /// </summary>
+    IPartyCoordinationService? PartyCoordinationService { get; }
 
     #endregion
 }

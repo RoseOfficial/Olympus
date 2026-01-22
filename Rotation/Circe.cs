@@ -11,6 +11,7 @@ using Olympus.Rotation.CirceCore.Modules;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Debuff;
+using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
@@ -59,6 +60,9 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
     // Timeline service for fight-aware rotation (optional)
     private readonly ITimelineService? _timelineService;
 
+    // Party coordination service for raid buff synchronization (optional)
+    private readonly IPartyCoordinationService? _partyCoordinationService;
+
     // Gauge values (read each frame)
     private int _blackMana;
     private int _whiteMana;
@@ -83,6 +87,7 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
         IPlayerStatsService playerStatsService,
         IDebuffDetectionService debuffDetectionService,
         ITimelineService? timelineService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -101,6 +106,7 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
             errorMetrics)
     {
         _timelineService = timelineService;
+        _partyCoordinationService = partyCoordinationService;
 
         // Initialize helpers
         _statusHelper = new CirceStatusHelper();
@@ -175,6 +181,7 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
             comboAction: _comboAction,
             comboTimer: _comboTimer,
             timelineService: _timelineService,
+            partyCoordinationService: _partyCoordinationService,
             log: Log);
     }
 

@@ -1,5 +1,6 @@
 using Olympus.Rotation.Common;
 using Olympus.Rotation.KratosCore.Helpers;
+using Olympus.Services.Party;
 
 namespace Olympus.Rotation.KratosCore.Context;
 
@@ -180,6 +181,15 @@ public interface IKratosContext : IMeleeDpsRotationContext
     /// Debug state for this rotation.
     /// </summary>
     KratosDebugState Debug { get; }
+
+    #endregion
+
+    #region Party Coordination
+
+    /// <summary>
+    /// Party coordination service for raid buff synchronization.
+    /// </summary>
+    IPartyCoordinationService? PartyCoordinationService { get; }
 
     #endregion
 }

@@ -8,6 +8,7 @@ using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Cache;
 using Olympus.Services.Debuff;
+using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
 using Olympus.Services.Stats;
@@ -99,6 +100,9 @@ public sealed class TerpsichoreContext : ITerpsichoreContext
     public TerpsichorePartyHelper PartyHelper { get; }
     public TerpsichoreDebugState Debug { get; }
 
+    // Party Coordination
+    public IPartyCoordinationService? PartyCoordinationService { get; }
+
     #endregion
 
     private readonly IBattleChara? _currentTarget;
@@ -136,6 +140,7 @@ public sealed class TerpsichoreContext : ITerpsichoreContext
         uint lastComboAction,
         float comboTimeRemaining,
         ITimelineService? timelineService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -156,6 +161,7 @@ public sealed class TerpsichoreContext : ITerpsichoreContext
         PlayerStatsService = playerStatsService;
         TargetingService = targetingService;
         TimelineService = timelineService;
+        PartyCoordinationService = partyCoordinationService;
         ObjectTable = objectTable;
         PartyList = partyList;
         Log = log;
