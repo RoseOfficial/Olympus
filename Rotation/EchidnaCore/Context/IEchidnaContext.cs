@@ -1,6 +1,7 @@
 using Olympus.Data;
 using Olympus.Rotation.Common;
 using Olympus.Rotation.EchidnaCore.Helpers;
+using Olympus.Services.Party;
 
 namespace Olympus.Rotation.EchidnaCore.Context;
 
@@ -164,6 +165,15 @@ public interface IEchidnaContext : IMeleeDpsRotationContext
     /// Debug state for this rotation.
     /// </summary>
     EchidnaDebugState Debug { get; }
+
+    #endregion
+
+    #region Party Coordination
+
+    /// <summary>
+    /// Party coordination service for raid buff synchronization.
+    /// </summary>
+    IPartyCoordinationService? PartyCoordinationService { get; }
 
     #endregion
 }

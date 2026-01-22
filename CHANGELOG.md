@@ -3,13 +3,20 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v2.18.0 - Viper Party Burst Alignment
+
+**DPS Coordination**
+- Viper (Echidna) now aligns Serpent's Ire with party raid buff windows
+- Delays burst briefly when other DPS are about to use Battle Voice, Technical Finish, etc.
+- Maximizes Reawaken damage during coordinated burst phases
+<!-- LATEST-END -->
+
 ## v2.17.0 - Samurai Party Burst Alignment
 
 **DPS Coordination**
 - Samurai (Nike) now aligns Ikishoten burst window with party raid buff windows
 - Delays burst briefly when other DPS are about to use Battle Voice, Technical Finish, etc.
 - Maximizes Ogi Namikiri damage during coordinated burst phases
-<!-- LATEST-END -->
 
 ## v2.16.0 - Machinist Party Burst Alignment
 

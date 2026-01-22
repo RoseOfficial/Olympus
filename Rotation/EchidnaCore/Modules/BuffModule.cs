@@ -97,6 +97,21 @@ public sealed class BuffModule : IEchidnaModule
             return false;
         }
 
+        // Party coordination: Align with party burst window
+        var partyCoord = context.PartyCoordinationService;
+        if (partyCoord != null && partyCoord.IsPartyCoordinationEnabled &&
+            context.Configuration.PartyCoordination.EnableRaidBuffCoordination)
+        {
+            // Check if party is about to burst - if so, execute to align
+            if (partyCoord.HasPendingRaidBuffIntent(
+                context.Configuration.PartyCoordination.RaidBuffAlignmentWindowSeconds))
+            {
+                context.Debug.BuffState = "Aligning Serpent's Ire with party burst";
+                // Fall through to execute - we want to burst WITH the party
+            }
+            // Note: VPR has no raid buff to announce - we just listen and align
+        }
+
         // Use Serpent's Ire
         if (context.ActionService.ExecuteOgcd(VPRActions.SerpentsIre, player.GameObjectId))
         {
