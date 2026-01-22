@@ -49,6 +49,39 @@ public static class CoordinatedCooldowns
     };
 
     /// <summary>
+    /// Personal defensive cooldowns that tanks should coordinate.
+    /// When two tanks run Olympus, they stagger major mitigations to maximize uptime.
+    /// </summary>
+    public static readonly HashSet<uint> PersonalDefensives = new()
+    {
+        // Role Action (all tanks)
+        ActionIds.Rampart,                  // 20% mit, 90s CD
+
+        // Paladin
+        ActionIds.Sentinel,                 // 30% mit, 120s CD
+        ActionIds.Guardian,                 // Sentinel upgrade at 92
+
+        // Warrior
+        ActionIds.Vengeance,                // 30% mit, 120s CD
+        ActionIds.Damnation,                // Vengeance upgrade at 92
+        ActionIds.Bloodwhetting,            // 10% mit + heal, 25s CD
+
+        // Dark Knight
+        ActionIds.ShadowWall,               // 30% mit, 120s CD
+        ActionIds.ShadowedVigil,            // Shadow Wall upgrade at 92
+
+        // Gunbreaker
+        ActionIds.Nebula,                   // 30% mit, 120s CD
+        ActionIds.GreatNebula,              // Nebula upgrade at 92
+    };
+
+    /// <summary>
+    /// Checks if an action is a personal defensive that should be coordinated between tanks.
+    /// </summary>
+    public static bool IsPersonalDefensive(uint actionId)
+        => PersonalDefensives.Contains(actionId);
+
+    /// <summary>
     /// Maps action IDs to their recast time in milliseconds.
     /// Used when recast time isn't available from the game API.
     /// </summary>
@@ -72,6 +105,18 @@ public static class CoordinatedCooldowns
         { ActionIds.Macrocosmos, 180_000 },
         { ActionIds.Panhaima, 120_000 },
         { ActionIds.Holos, 120_000 },
+
+        // Personal defensive cooldowns (for tank coordination)
+        { ActionIds.Rampart, 90_000 },
+        { ActionIds.Sentinel, 120_000 },
+        { ActionIds.Guardian, 120_000 },
+        { ActionIds.Vengeance, 120_000 },
+        { ActionIds.Damnation, 120_000 },
+        { ActionIds.Bloodwhetting, 25_000 },
+        { ActionIds.ShadowWall, 120_000 },
+        { ActionIds.ShadowedVigil, 120_000 },
+        { ActionIds.Nebula, 120_000 },
+        { ActionIds.GreatNebula, 120_000 },
     };
 
     /// <summary>

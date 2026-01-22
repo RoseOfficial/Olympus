@@ -319,6 +319,16 @@ public sealed class MitigationModule : IHephaestusModule
         if (context.HasNebula)
             return false;
 
+        // Check if another tank recently used a personal defensive (coordination)
+        var partyCoord = context.PartyCoordinationService;
+        var tankConfig = context.Configuration.Tank;
+        if (tankConfig.EnableDefensiveCoordination &&
+            partyCoord?.WasPersonalDefensiveUsedRecently(tankConfig.DefensiveStaggerWindowSeconds) == true)
+        {
+            context.Debug.MitigationState = "Nebula delayed (remote tank mit)";
+            return false;
+        }
+
         if (!context.ActionService.IsActionReady(nebulaAction.ActionId))
             return false;
 
@@ -326,6 +336,7 @@ public sealed class MitigationModule : IHephaestusModule
         {
             context.Debug.PlannedAction = nebulaAction.Name;
             context.Debug.MitigationState = $"Major CD ({hpPercent:P0} HP)";
+            partyCoord?.OnCooldownUsed(nebulaAction.ActionId, 120_000);
             return true;
         }
 
@@ -356,6 +367,16 @@ public sealed class MitigationModule : IHephaestusModule
         if (!context.Configuration.Tank.UseRampartOnCooldown && context.HasActiveMitigation)
             return false;
 
+        // Check if another tank recently used a personal defensive (coordination)
+        var partyCoord = context.PartyCoordinationService;
+        var tankConfig = context.Configuration.Tank;
+        if (tankConfig.EnableDefensiveCoordination &&
+            partyCoord?.WasPersonalDefensiveUsedRecently(tankConfig.DefensiveStaggerWindowSeconds) == true)
+        {
+            context.Debug.MitigationState = "Rampart delayed (remote tank mit)";
+            return false;
+        }
+
         if (!context.ActionService.IsActionReady(GNBActions.Rampart.ActionId))
             return false;
 
@@ -363,6 +384,7 @@ public sealed class MitigationModule : IHephaestusModule
         {
             context.Debug.PlannedAction = GNBActions.Rampart.Name;
             context.Debug.MitigationState = $"Rampart ({hpPercent:P0} HP)";
+            partyCoord?.OnCooldownUsed(GNBActions.Rampart.ActionId, 90_000);
             return true;
         }
 

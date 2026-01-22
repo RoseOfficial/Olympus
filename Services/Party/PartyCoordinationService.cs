@@ -286,6 +286,27 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         return false;
     }
 
+    public bool WasPersonalDefensiveUsedRecently(float withinSeconds = 3f)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableCooldownCoordination)
+            return false;
+
+        foreach (var kvp in _remoteCooldowns)
+        {
+            // Only check personal defensives
+            if (!CoordinatedCooldowns.IsPersonalDefensive(kvp.Key))
+                continue;
+
+            foreach (var cd in kvp.Value)
+            {
+                if (cd.SecondsSinceUsed <= withinSeconds)
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
     public IReadOnlyList<RemoteCooldownInfo> GetRemoteCooldowns(uint actionId)
     {
         if (!_config.EnablePartyCoordination || !_config.EnableCooldownCoordination)
@@ -696,8 +717,11 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (message.InstanceId == _instanceId)
             return;
 
-        // Only track coordinated cooldowns (party mitigations)
-        if (!CoordinatedCooldowns.IsCoordinatedCooldown(message.ActionId))
+        // Track both party mitigations and personal defensives for coordination
+        var isPartyMitigation = CoordinatedCooldowns.IsCoordinatedCooldown(message.ActionId);
+        var isPersonalDefensive = CoordinatedCooldowns.IsPersonalDefensive(message.ActionId);
+
+        if (!isPartyMitigation && !isPersonalDefensive)
         {
             if (_config.LogCoordinationEvents)
                 _log.Debug("[PartyCoord] Ignoring non-coordinated cooldown: action {0}", message.ActionId);
@@ -723,9 +747,10 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         list.RemoveAll(c => c.InstanceId == message.InstanceId);
         list.Add(info);
 
+        var cdType = isPersonalDefensive ? "personal defensive" : "party mitigation";
         if (_config.LogCoordinationEvents)
-            _log.Debug("[PartyCoord] Tracked remote cooldown: action {0}, recast {1}ms from instance {2}",
-                message.ActionId, info.RecastTimeMs, message.InstanceId);
+            _log.Debug("[PartyCoord] Tracked remote {0}: action {1}, recast {2}ms from instance {3}",
+                cdType, message.ActionId, info.RecastTimeMs, message.InstanceId);
     }
 
     /// <summary>

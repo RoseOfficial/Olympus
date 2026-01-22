@@ -238,6 +238,16 @@ public sealed class MitigationModule : IAresModule
         if (context.HasVengeance)
             return false;
 
+        // Check if another tank recently used a personal defensive (coordination)
+        var partyCoord = context.PartyCoordinationService;
+        var tankConfig = context.Configuration.Tank;
+        if (tankConfig.EnableDefensiveCoordination &&
+            partyCoord?.WasPersonalDefensiveUsedRecently(tankConfig.DefensiveStaggerWindowSeconds) == true)
+        {
+            context.Debug.MitigationState = "Vengeance delayed (remote tank mit)";
+            return false;
+        }
+
         if (!context.ActionService.IsActionReady(vengeanceAction.ActionId))
             return false;
 
@@ -245,6 +255,7 @@ public sealed class MitigationModule : IAresModule
         {
             context.Debug.PlannedAction = vengeanceAction.Name;
             context.Debug.MitigationState = $"Major CD ({hpPercent:P0} HP)";
+            partyCoord?.OnCooldownUsed(vengeanceAction.ActionId, 120_000);
             return true;
         }
 
@@ -275,6 +286,16 @@ public sealed class MitigationModule : IAresModule
         if (!context.Configuration.Tank.UseRampartOnCooldown && context.HasActiveMitigation)
             return false;
 
+        // Check if another tank recently used a personal defensive (coordination)
+        var partyCoord = context.PartyCoordinationService;
+        var tankConfig = context.Configuration.Tank;
+        if (tankConfig.EnableDefensiveCoordination &&
+            partyCoord?.WasPersonalDefensiveUsedRecently(tankConfig.DefensiveStaggerWindowSeconds) == true)
+        {
+            context.Debug.MitigationState = "Rampart delayed (remote tank mit)";
+            return false;
+        }
+
         if (!context.ActionService.IsActionReady(WARActions.Rampart.ActionId))
             return false;
 
@@ -282,6 +303,7 @@ public sealed class MitigationModule : IAresModule
         {
             context.Debug.PlannedAction = WARActions.Rampart.Name;
             context.Debug.MitigationState = $"Rampart ({hpPercent:P0} HP)";
+            partyCoord?.OnCooldownUsed(WARActions.Rampart.ActionId, 90_000);
             return true;
         }
 
@@ -316,6 +338,16 @@ public sealed class MitigationModule : IAresModule
         // Get the appropriate action
         var bloodwhettingAction = WARActions.GetBloodwhettingAction(level);
 
+        // Check if another tank recently used a personal defensive (coordination)
+        var partyCoord = context.PartyCoordinationService;
+        var tankConfig = context.Configuration.Tank;
+        if (tankConfig.EnableDefensiveCoordination &&
+            partyCoord?.WasPersonalDefensiveUsedRecently(tankConfig.DefensiveStaggerWindowSeconds) == true)
+        {
+            context.Debug.MitigationState = "Bloodwhetting delayed (remote tank mit)";
+            return false;
+        }
+
         if (!context.ActionService.IsActionReady(bloodwhettingAction.ActionId))
             return false;
 
@@ -323,6 +355,7 @@ public sealed class MitigationModule : IAresModule
         {
             context.Debug.PlannedAction = bloodwhettingAction.Name;
             context.Debug.MitigationState = $"Bloodwhetting ({hpPercent:P0} HP)";
+            partyCoord?.OnCooldownUsed(bloodwhettingAction.ActionId, 25_000);
             return true;
         }
 

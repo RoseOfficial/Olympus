@@ -3,6 +3,27 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v2.23.0 - Tank Defensive Synergy
+
+**Tank Coordination**
+- Tanks now coordinate personal defensive cooldowns (Rampart, Sentinel, Nebula, etc.)
+- When two Olympus tanks are in the same party, they stagger major mitigations
+- Prevents wasteful overlap where both tanks use defensives on the same hit
+- Maximizes mitigation uptime across tankbuster sequences
+
+**New Settings**
+- `EnableDefensiveCoordination` - Enable tank-to-tank mitigation staggering (default: on)
+- `DefensiveStaggerWindowSeconds` - How long to delay if remote tank used mitigation (1-10s, default: 3s)
+
+**Coordinated Abilities**
+- Rampart (all tanks)
+- Sentinel / Guardian (PLD)
+- Vengeance / Damnation (WAR)
+- Bloodwhetting (WAR)
+- Shadow Wall / Shadowed Vigil (DRK)
+- Nebula / Great Nebula (GNB)
+<!-- LATEST-END -->
+
 ## v2.22.0 - Complete DPS Burst Broadcasting
 
 **DPS Coordination**
@@ -13,7 +34,6 @@ All notable changes to Olympus will be documented in this file.
 **Technical**
 - Added Ikishoten, Kunai's Bane, Serpent's Ire, and Wildfire to coordinated raid buff registry
 - Each job now calls `AnnounceRaidBuffIntent()` before burst and `OnRaidBuffUsed()` after execution
-<!-- LATEST-END -->
 
 ## v2.21.0 - Healer Burst Awareness
 

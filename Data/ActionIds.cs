@@ -313,6 +313,33 @@ public static class ActionIds
 
     #endregion
 
+    #region Dark Knight (DRK)
+
+    // DRK oGCD Defensive
+    public const uint ShadowWall = 3636;
+    public const uint ShadowedVigil = 36924;
+    public const uint TheBlackestNight = 7393;
+    public const uint DarkMind = 3634;
+    public const uint LivingDead = 3638;
+    public const uint Oblation = 25754;
+    public const uint DarkMissionary = 16471;
+
+    #endregion
+
+    #region Gunbreaker (GNB)
+
+    // GNB oGCD Defensive
+    public const uint Nebula = 16148;
+    public const uint GreatNebula = 36935;
+    public const uint Camouflage = 16140;
+    public const uint HeartOfStone = 16161;
+    public const uint HeartOfCorundum = 25758;
+    public const uint Superbolide = 16152;
+    public const uint HeartOfLight = 16160;
+    public const uint Aurora = 16151;
+
+    #endregion
+
     #region Status Effect IDs (Common)
 
     // WHM Status Effects

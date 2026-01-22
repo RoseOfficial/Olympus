@@ -132,6 +132,14 @@ public interface IPartyCoordinationService
     bool WasPartyMitigationUsedRecently(float withinSeconds = 3f);
 
     /// <summary>
+    /// Checks if any personal defensive was used recently by a remote tank instance.
+    /// Used for tank-to-tank mitigation staggering to maximize coverage.
+    /// </summary>
+    /// <param name="withinSeconds">Time window to check (default 3 seconds).</param>
+    /// <returns>True if any personal defensive was used within the time window.</returns>
+    bool WasPersonalDefensiveUsedRecently(float withinSeconds = 3f);
+
+    /// <summary>
     /// Gets all active remote cooldowns for a specific action.
     /// </summary>
     /// <param name="actionId">The action ID to query.</param>

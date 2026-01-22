@@ -88,4 +88,22 @@ public sealed class TankConfig
         get => _aoEMinTargets;
         set => _aoEMinTargets = Math.Clamp(value, 2, 8);
     }
+
+    /// <summary>
+    /// Enable coordination of personal defensive cooldowns between Olympus tanks.
+    /// When enabled, tanks will stagger major mitigations (Rampart, Sentinel, etc.)
+    /// to maximize mitigation uptime across a tankbuster sequence.
+    /// </summary>
+    public bool EnableDefensiveCoordination { get; set; } = true;
+
+    /// <summary>
+    /// Time window in seconds to delay personal defensives if another tank used one recently.
+    /// Range: 1.0 to 10.0 seconds.
+    /// </summary>
+    private float _defensiveStaggerWindowSeconds = 3.0f;
+    public float DefensiveStaggerWindowSeconds
+    {
+        get => _defensiveStaggerWindowSeconds;
+        set => _defensiveStaggerWindowSeconds = Math.Clamp(value, 1f, 10f);
+    }
 }
