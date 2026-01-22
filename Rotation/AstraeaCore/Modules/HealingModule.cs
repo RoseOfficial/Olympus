@@ -618,12 +618,23 @@ public sealed class HealingModule : IAstraeaModule
         if (avgHp > config.MacrocosmosThreshold)
             return false;
 
+        // Check if another instance recently used a party mitigation (cooldown coordination)
+        var partyCoord = context.PartyCoordinationService;
+        var coordConfig = context.Configuration.PartyCoordination;
+        if (coordConfig.EnableCooldownCoordination &&
+            partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
+        {
+            context.Debug.MacrocosmosState = "Skipped (remote mit)";
+            return false;
+        }
+
         // Macrocosmos is a GCD that deals damage and applies the buff
         var action = ASTActions.Macrocosmos;
         if (context.ActionService.ExecuteGcd(action, player.GameObjectId))
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.MacrocosmosState = "Applied";
+            partyCoord?.OnCooldownUsed(action.ActionId, 180_000);
             return true;
         }
 

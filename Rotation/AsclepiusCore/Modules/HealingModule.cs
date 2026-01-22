@@ -481,6 +481,7 @@ public sealed class HealingModule : IAsclepiusModule
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Holos";
             context.Debug.HolosState = "Executing";
+            partyCoord?.OnCooldownUsed(action.ActionId, 120_000);
             return true;
         }
 
@@ -610,6 +611,7 @@ public sealed class HealingModule : IAsclepiusModule
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Panhaima";
             context.Debug.PanhaimaState = "Executing";
+            partyCoord?.OnCooldownUsed(action.ActionId, 120_000);
             return true;
         }
 

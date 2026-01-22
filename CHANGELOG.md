@@ -3,6 +3,19 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v2.15.0 - Tank-Healer Mitigation Avoidance
+
+**Party Coordination**
+- Healers now broadcast party mitigations to other Olympus instances
+- WHM: Temperance, Liturgy of the Bell
+- SCH: Sacred Soil, Expedient
+- AST: Neutral Sect, Collective Unconscious, Macrocosmos
+- SGE: Panhaima, Holos
+- Tanks now check healer mitigations before using party-wide defensives
+- Prevents wasteful stacking (e.g., Divine Veil + Temperance simultaneously)
+- Completes two-way mitigation coordination between tanks and healers
+<!-- LATEST-END -->
+
 ## v2.14.0 - Tank Mitigation Broadcasting
 
 **Party Coordination**
@@ -10,7 +23,6 @@ All notable changes to Olympus will be documented in this file.
 - Prevents multiple tanks from stacking mitigations (Divine Veil, Shake It Off, Dark Missionary, Heart of Light)
 - Reprisal usage is now coordinated between tanks
 - Completes the two-way coordination loop started in v2.7.0
-<!-- LATEST-END -->
 
 ## v2.13.0 - Complete DPS Raid Buff Coordination
 

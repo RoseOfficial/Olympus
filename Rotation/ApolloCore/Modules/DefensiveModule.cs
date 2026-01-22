@@ -209,6 +209,7 @@ public sealed class DefensiveModule : IApolloModule
                          damageSpikeImminent ? "spike imminent" :
                          highDamageIntake ? "damage spike" : $"{injuredCount} injured";
             context.Debug.DefensiveState = $"Temperance ({reason}, avg HP {avgHpPercent:P0})";
+            partyCoord?.OnCooldownUsed(WHMActions.Temperance.ActionId, 120_000);
             return true;
         }
 
@@ -467,10 +468,20 @@ public sealed class DefensiveModule : IApolloModule
             targetName = player.Name?.TextValue ?? "Unknown";
         }
 
+        // Check if another instance recently used a party mitigation (cooldown coordination)
+        var partyCoord = context.PartyCoordinationService;
+        if (config.PartyCoordination.EnableCooldownCoordination &&
+            partyCoord?.WasPartyMitigationUsedRecently(config.PartyCoordination.CooldownOverlapWindowSeconds) == true)
+        {
+            context.Debug.DefensiveState = "Bell skipped (remote mit)";
+            return false;
+        }
+
         if (ActionExecutor.ExecuteGroundTargeted(context, WHMActions.LiturgyOfTheBell, targetPosition,
             targetName, tank?.CurrentHp ?? player.CurrentHp))
         {
             context.Debug.DefensiveState = $"Bell placed at {targetName} ({injuredCount} injured)";
+            partyCoord?.OnCooldownUsed(WHMActions.LiturgyOfTheBell.ActionId, 180_000);
             return true;
         }
 

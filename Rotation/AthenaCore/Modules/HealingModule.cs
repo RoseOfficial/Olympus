@@ -322,6 +322,16 @@ public sealed class HealingModule : IAthenaModule
         if (membersInRange < config.SacredSoilMinTargets)
             return false;
 
+        // Check if another instance recently used a party mitigation (cooldown coordination)
+        var partyCoord = context.PartyCoordinationService;
+        var coordConfig = context.Configuration.PartyCoordination;
+        if (coordConfig.EnableCooldownCoordination &&
+            partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
+        {
+            context.Debug.PlanningState = "Sacred Soil skipped (remote mit)";
+            return false;
+        }
+
         // Place at player's position (ground target at self)
         var action = SCHActions.SacredSoil;
         if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
@@ -329,6 +339,7 @@ public sealed class HealingModule : IAthenaModule
             context.AetherflowService.ConsumeStack();
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Sacred Soil";
+            partyCoord?.OnCooldownUsed(action.ActionId, 30_000);
             return true;
         }
 

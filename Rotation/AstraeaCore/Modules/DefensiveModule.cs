@@ -95,6 +95,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<AstraeaContext>, IAstr
         {
             SetPlannedAction(context, ASTActions.NeutralSect.Name);
             context.Debug.NeutralSectState = "Active";
+            partyCoord?.OnCooldownUsed(ASTActions.NeutralSect.ActionId, 120_000);
             return true;
         }
 
@@ -204,6 +205,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<AstraeaContext>, IAstr
         {
             SetPlannedAction(context, ASTActions.CollectiveUnconscious.Name);
             context.Debug.CollectiveUnconsciousState = "Channeling";
+            partyCoord?.OnCooldownUsed(ASTActions.CollectiveUnconscious.ActionId, 60_000);
             return true;
         }
 

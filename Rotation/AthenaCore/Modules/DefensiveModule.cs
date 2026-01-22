@@ -91,6 +91,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<AthenaContext>, IAthen
         {
             SetPlannedAction(context, SCHActions.Expedient.Name);
             SetDefensiveState(context, "Expedient");
+            partyCoord?.OnCooldownUsed(SCHActions.Expedient.ActionId, 120_000);
             return true;
         }
 
