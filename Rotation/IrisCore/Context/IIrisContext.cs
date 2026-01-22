@@ -1,5 +1,6 @@
 using Olympus.Rotation.Common;
 using Olympus.Rotation.IrisCore.Helpers;
+using Olympus.Services.Party;
 using static Olympus.Data.PCTActions;
 
 namespace Olympus.Rotation.IrisCore.Context;
@@ -294,6 +295,16 @@ public interface IIrisContext : ICasterDpsRotationContext
     /// Whether we need to paint a landscape motif.
     /// </summary>
     bool NeedsLandscapeMotif { get; }
+
+    #endregion
+
+    #region Party Coordination
+
+    /// <summary>
+    /// Service for coordinating raid buffs with other Olympus instances.
+    /// Null if party coordination is disabled or unavailable.
+    /// </summary>
+    IPartyCoordinationService? PartyCoordinationService { get; }
 
     #endregion
 }

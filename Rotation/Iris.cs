@@ -11,6 +11,7 @@ using Olympus.Rotation.IrisCore.Modules;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Debuff;
+using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
@@ -59,6 +60,9 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
     // Timeline service for fight-aware rotation (optional)
     private readonly ITimelineService? _timelineService;
 
+    // Party coordination service for multi-Olympus IPC (optional)
+    private readonly IPartyCoordinationService? _partyCoordinationService;
+
     // Gauge values (read each frame)
     private int _paletteGauge;
     private int _whitePaint;
@@ -88,7 +92,8 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
         IPlayerStatsService playerStatsService,
         IDebuffDetectionService debuffDetectionService,
         ITimelineService? timelineService = null,
-        IErrorMetricsService? errorMetrics = null)
+        IErrorMetricsService? errorMetrics = null,
+        IPartyCoordinationService? partyCoordinationService = null)
         : base(
             log,
             actionTracker,
@@ -106,6 +111,7 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
             errorMetrics)
     {
         _timelineService = timelineService;
+        _partyCoordinationService = partyCoordinationService;
 
         // Initialize helpers
         _statusHelper = new IrisStatusHelper();
@@ -190,7 +196,8 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
             comboAction: _comboAction,
             comboTimer: _comboTimer,
             timelineService: _timelineService,
-            log: Log);
+            log: Log,
+            partyCoordinationService: _partyCoordinationService);
     }
 
     /// <inheritdoc />

@@ -36,6 +36,9 @@ public static class CoordinatedRaidBuffs
 
         // Monk
         MNKActions.Brotherhood.ActionId,    // 7396 - +5% damage (120s CD, 20s duration)
+
+        // Pictomancer
+        PCTActions.StarryMuse.ActionId,     // 34675 - +5% damage (120s CD, 20s duration)
     };
 
     /// <summary>
@@ -52,6 +55,7 @@ public static class CoordinatedRaidBuffs
         { DNCActions.TechnicalFinish.ActionId, 120_000 }, // 2 minutes
         { RPRActions.ArcaneCircle.ActionId, 120_000 },   // 2 minutes
         { MNKActions.Brotherhood.ActionId, 120_000 },    // 2 minutes
+        { PCTActions.StarryMuse.ActionId, 120_000 },      // 2 minutes
     };
 
     /// <summary>
@@ -68,6 +72,7 @@ public static class CoordinatedRaidBuffs
         { DNCActions.TechnicalFinish.ActionId, 20f },
         { RPRActions.ArcaneCircle.ActionId, 20f },
         { MNKActions.Brotherhood.ActionId, 20f },
+        { PCTActions.StarryMuse.ActionId, 20f },
     };
 
     /// <summary>

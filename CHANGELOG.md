@@ -3,13 +3,20 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v2.20.0 - Pictomancer Starry Muse Coordination
+
+**DPS Coordination**
+- Pictomancer (Iris) now aligns Starry Muse (+5% damage) with party raid buff windows
+- Listens for pending burst intents and synchronizes burst timing with other Olympus users
+- Fills gap where Starry Muse was missed during v2.11.0-v2.13.0 DPS raid buff work
+<!-- LATEST-END -->
+
 ## v2.19.0 - Ninja Party Burst Alignment
 
 **DPS Coordination**
 - Ninja (Hermes) now aligns Kunai's Bane burst window with party raid buff windows
 - Listens for pending burst intents and synchronizes burst timing with other Olympus users
 - Maximizes damage during coordinated burst phases
-<!-- LATEST-END -->
 
 ## v2.18.0 - Viper Party Burst Alignment
 

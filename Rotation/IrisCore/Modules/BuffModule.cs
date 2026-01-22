@@ -157,12 +157,40 @@ public sealed class BuffModule : IIrisModule
             return false;
         }
 
-        // Use on cooldown for raid buff alignment
-        // Ideally prepaint all canvases before popping
+        // Party coordination: Synchronize with other Olympus instances
+        var partyCoord = context.PartyCoordinationService;
+        if (partyCoord != null && partyCoord.IsPartyCoordinationEnabled &&
+            context.Configuration.PartyCoordination.EnableRaidBuffCoordination)
+        {
+            // Check if our buffs are aligned with remote instances
+            // If significantly desynced (e.g., death recovery), use independently
+            if (!partyCoord.IsRaidBuffAligned(PCTActions.StarryMuse.ActionId))
+            {
+                context.Debug.BuffState = "Raid buffs desynced, using independently";
+                // Fall through to execute - don't try to align when heavily desynced
+            }
+            // Check if another DPS is about to use a raid buff
+            // If so, align our burst with theirs
+            else if (partyCoord.HasPendingRaidBuffIntent(
+                context.Configuration.PartyCoordination.RaidBuffAlignmentWindowSeconds))
+            {
+                // Another player is about to burst - align with them
+                context.Debug.BuffState = "Aligning with party burst";
+                // Fall through to execute and announce our intent
+            }
+
+            // Announce our intent to use Starry Muse
+            partyCoord.AnnounceRaidBuffIntent(PCTActions.StarryMuse.ActionId);
+        }
+
         if (context.ActionService.ExecuteOgcd(PCTActions.StarryMuse, player.GameObjectId))
         {
             context.Debug.PlannedAction = PCTActions.StarryMuse.Name;
             context.Debug.BuffState = "Starry Muse (burst)";
+
+            // Notify coordination service that we used the raid buff
+            partyCoord?.OnRaidBuffUsed(PCTActions.StarryMuse.ActionId, 120_000);
+
             return true;
         }
 
