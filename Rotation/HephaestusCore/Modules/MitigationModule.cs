@@ -514,6 +514,7 @@ public sealed class MitigationModule : IHephaestusModule
         {
             context.Debug.PlannedAction = GNBActions.HeartOfLight.Name;
             context.Debug.MitigationState = $"Heart of Light ({injuredCount} injured)";
+            partyCoord?.OnCooldownUsed(GNBActions.HeartOfLight.ActionId, 90_000);
             return true;
         }
 
@@ -553,6 +554,7 @@ public sealed class MitigationModule : IHephaestusModule
         {
             context.Debug.PlannedAction = GNBActions.Reprisal.Name;
             context.Debug.MitigationState = $"Reprisal ({enemyCount} enemies)";
+            partyCoord?.OnCooldownUsed(GNBActions.Reprisal.ActionId, 60_000);
             return true;
         }
 

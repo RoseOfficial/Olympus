@@ -3,6 +3,15 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v2.14.0 - Tank Mitigation Broadcasting
+
+**Party Coordination**
+- Tank party mitigations now broadcast to other Olympus instances
+- Prevents multiple tanks from stacking mitigations (Divine Veil, Shake It Off, Dark Missionary, Heart of Light)
+- Reprisal usage is now coordinated between tanks
+- Completes the two-way coordination loop started in v2.7.0
+<!-- LATEST-END -->
+
 ## v2.13.0 - Complete DPS Raid Buff Coordination
 
 **Party Coordination**
@@ -12,7 +21,6 @@ All notable changes to Olympus will be documented in this file.
 - Reaper (Thanatos): Arcane Circle now synchronizes with party burst windows
 - Monk (Kratos): Brotherhood now synchronizes with party burst windows
 - All DPS raid buffs now coordinate for optimal burst alignment
-<!-- LATEST-END -->
 
 ## v2.12.0 - Summoner Raid Buff Coordination
 

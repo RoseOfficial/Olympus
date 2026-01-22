@@ -406,6 +406,7 @@ public sealed class MitigationModule : IThemisModule
         {
             context.Debug.PlannedAction = PLDActions.Reprisal.Name;
             context.Debug.MitigationState = $"Reprisal ({enemyCount} enemies)";
+            partyCoord?.OnCooldownUsed(PLDActions.Reprisal.ActionId, 60_000);
             return true;
         }
 
@@ -445,6 +446,7 @@ public sealed class MitigationModule : IThemisModule
         {
             context.Debug.PlannedAction = PLDActions.DivineVeil.Name;
             context.Debug.MitigationState = $"Divine Veil ({injuredCount} injured)";
+            partyCoord?.OnCooldownUsed(PLDActions.DivineVeil.ActionId, 90_000);
             return true;
         }
 

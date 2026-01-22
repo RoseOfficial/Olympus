@@ -509,6 +509,7 @@ public sealed class MitigationModule : INyxModule
         {
             context.Debug.PlannedAction = DRKActions.DarkMissionary.Name;
             context.Debug.MitigationState = $"Dark Missionary ({injuredCount} injured)";
+            partyCoord?.OnCooldownUsed(DRKActions.DarkMissionary.ActionId, 90_000);
             return true;
         }
 
@@ -548,6 +549,7 @@ public sealed class MitigationModule : INyxModule
         {
             context.Debug.PlannedAction = DRKActions.Reprisal.Name;
             context.Debug.MitigationState = $"Reprisal ({enemyCount} enemies)";
+            partyCoord?.OnCooldownUsed(DRKActions.Reprisal.ActionId, 60_000);
             return true;
         }
 

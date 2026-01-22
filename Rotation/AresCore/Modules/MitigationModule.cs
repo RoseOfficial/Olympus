@@ -439,6 +439,7 @@ public sealed class MitigationModule : IAresModule
         {
             context.Debug.PlannedAction = WARActions.Reprisal.Name;
             context.Debug.MitigationState = $"Reprisal ({enemyCount} enemies)";
+            partyCoord?.OnCooldownUsed(WARActions.Reprisal.ActionId, 60_000);
             return true;
         }
 
@@ -478,6 +479,7 @@ public sealed class MitigationModule : IAresModule
         {
             context.Debug.PlannedAction = WARActions.ShakeItOff.Name;
             context.Debug.MitigationState = $"Shake It Off ({injuredCount} injured)";
+            partyCoord?.OnCooldownUsed(WARActions.ShakeItOff.ActionId, 90_000);
             return true;
         }
 
