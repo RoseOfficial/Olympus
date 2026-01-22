@@ -109,7 +109,9 @@ public sealed class BuffModule : IEchidnaModule
                 context.Debug.BuffState = "Aligning Serpent's Ire with party burst";
                 // Fall through to execute - we want to burst WITH the party
             }
-            // Note: VPR has no raid buff to announce - we just listen and align
+
+            // Announce our intent to use Serpent's Ire burst
+            partyCoord.AnnounceRaidBuffIntent(VPRActions.SerpentsIre.ActionId);
         }
 
         // Use Serpent's Ire
@@ -117,6 +119,10 @@ public sealed class BuffModule : IEchidnaModule
         {
             context.Debug.PlannedAction = VPRActions.SerpentsIre.Name;
             context.Debug.BuffState = "Activating Serpent's Ire";
+
+            // Notify coordination service that we used the burst
+            partyCoord?.OnRaidBuffUsed(VPRActions.SerpentsIre.ActionId, 120_000);
+
             return true;
         }
 

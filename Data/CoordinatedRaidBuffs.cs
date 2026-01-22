@@ -39,6 +39,18 @@ public static class CoordinatedRaidBuffs
 
         // Pictomancer
         PCTActions.StarryMuse.ActionId,     // 34675 - +5% damage (120s CD, 20s duration)
+
+        // Samurai
+        SAMActions.Ikishoten.ActionId,      // 16482 - Grants Ogi Namikiri Ready (120s CD, 20s burst window)
+
+        // Ninja
+        NINActions.KunaisBane.ActionId,     // 36958 - +10% damage vulnerability (120s CD, 15s duration)
+
+        // Viper
+        VPRActions.SerpentsIre.ActionId,    // 34647 - Grants Reawaken gauge (120s CD, 20s burst window)
+
+        // Machinist
+        MCHActions.Wildfire.ActionId,       // 2878 - Burst damage on target (120s CD, 10s duration)
     };
 
     /// <summary>
@@ -56,6 +68,10 @@ public static class CoordinatedRaidBuffs
         { RPRActions.ArcaneCircle.ActionId, 120_000 },   // 2 minutes
         { MNKActions.Brotherhood.ActionId, 120_000 },    // 2 minutes
         { PCTActions.StarryMuse.ActionId, 120_000 },      // 2 minutes
+        { SAMActions.Ikishoten.ActionId, 120_000 },       // 2 minutes
+        { NINActions.KunaisBane.ActionId, 120_000 },      // 2 minutes
+        { VPRActions.SerpentsIre.ActionId, 120_000 },     // 2 minutes
+        { MCHActions.Wildfire.ActionId, 120_000 },        // 2 minutes
     };
 
     /// <summary>
@@ -73,6 +89,10 @@ public static class CoordinatedRaidBuffs
         { RPRActions.ArcaneCircle.ActionId, 20f },
         { MNKActions.Brotherhood.ActionId, 20f },
         { PCTActions.StarryMuse.ActionId, 20f },
+        { SAMActions.Ikishoten.ActionId, 20f },
+        { NINActions.KunaisBane.ActionId, 15f },
+        { VPRActions.SerpentsIre.ActionId, 20f },
+        { MCHActions.Wildfire.ActionId, 10f },
     };
 
     /// <summary>

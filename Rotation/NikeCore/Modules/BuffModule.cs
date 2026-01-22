@@ -200,13 +200,19 @@ public sealed class BuffModule : INikeModule
                 context.Debug.BuffState = "Aligning Ikishoten with party burst";
                 // Fall through to execute - we want to burst WITH the party
             }
-            // Note: SAM has no raid buff to announce - we just listen and align
+
+            // Announce our intent to use Ikishoten burst
+            partyCoord.AnnounceRaidBuffIntent(SAMActions.Ikishoten.ActionId);
         }
 
         if (context.ActionService.ExecuteOgcd(SAMActions.Ikishoten, player.GameObjectId))
         {
             context.Debug.PlannedAction = SAMActions.Ikishoten.Name;
             context.Debug.BuffState = "Ikishoten";
+
+            // Notify coordination service that we used the burst
+            partyCoord?.OnRaidBuffUsed(SAMActions.Ikishoten.ActionId, 120_000);
+
             return true;
         }
 

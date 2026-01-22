@@ -3,6 +3,18 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v2.22.0 - Complete DPS Burst Broadcasting
+
+**DPS Coordination**
+- Samurai (Nike), Ninja (Hermes), Viper (Echidna), and Machinist (Prometheus) now broadcast burst intents
+- Fixes asymmetric coordination where these jobs only listened for party bursts but never announced their own
+- All 4 jobs now properly participate in two-way IPC communication
+
+**Technical**
+- Added Ikishoten, Kunai's Bane, Serpent's Ire, and Wildfire to coordinated raid buff registry
+- Each job now calls `AnnounceRaidBuffIntent()` before burst and `OnRaidBuffUsed()` after execution
+<!-- LATEST-END -->
+
 ## v2.21.0 - Healer Burst Awareness
 
 **Healing**
@@ -24,7 +36,6 @@ All notable changes to Olympus will be documented in this file.
 - Healers now consume this information to optimize timing
 - When `PreferShieldsBeforeBurst` is enabled, Asylum and Kerachole deploy 3-8 seconds before burst
 - When `DelayMitigationsDuringBurst` is enabled, Temperance/Expedient/etc. wait for burst to end (unless HP is critical)
-<!-- LATEST-END -->
 
 ## v2.20.0 - Pictomancer Starry Muse Coordination
 

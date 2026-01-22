@@ -140,13 +140,19 @@ public sealed class BuffModule : IPrometheusModule
                 context.Debug.BuffState = "Aligning Wildfire with party burst";
                 // Fall through to execute - we want to burst WITH the party
             }
-            // Note: MCH has no raid buff to announce - we just listen and align
+
+            // Announce our intent to use Wildfire burst
+            partyCoord.AnnounceRaidBuffIntent(MCHActions.Wildfire.ActionId);
         }
 
         if (context.ActionService.ExecuteOgcd(MCHActions.Wildfire, target.GameObjectId))
         {
             context.Debug.PlannedAction = MCHActions.Wildfire.Name;
             context.Debug.BuffState = "Wildfire applied";
+
+            // Notify coordination service that we used the burst
+            partyCoord?.OnRaidBuffUsed(MCHActions.Wildfire.ActionId, 120_000);
+
             return true;
         }
 

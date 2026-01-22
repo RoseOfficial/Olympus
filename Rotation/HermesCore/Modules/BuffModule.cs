@@ -139,7 +139,9 @@ public sealed class BuffModule : IHermesModule
                 context.Debug.BuffState = $"Aligning {action.Name} with party burst";
                 // Fall through to execute - we want to burst WITH the party
             }
-            // Note: NIN has no raid buff to announce - we just listen and align
+
+            // Announce our intent to use Kunai's Bane burst
+            partyCoord.AnnounceRaidBuffIntent(NINActions.KunaisBane.ActionId);
         }
 
         // Find target
@@ -155,6 +157,10 @@ public sealed class BuffModule : IHermesModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.BuffState = $"Activating {action.Name}";
+
+            // Notify coordination service that we used the burst
+            partyCoord?.OnRaidBuffUsed(NINActions.KunaisBane.ActionId, 120_000);
+
             return true;
         }
 
