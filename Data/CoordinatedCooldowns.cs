@@ -88,6 +88,17 @@ public static class CoordinatedCooldowns
     };
 
     /// <summary>
+    /// Interrupt abilities that should be coordinated.
+    /// Prevents multiple Olympus instances from interrupting the same enemy cast.
+    /// </summary>
+    public static readonly HashSet<uint> Interrupts = new()
+    {
+        ActionIds.Interject,                // Tank role action - interrupt
+        ActionIds.LowBlow,                  // Tank role action - stun (can interrupt some casts)
+        7551,                               // Head Graze - Ranged Physical DPS interrupt
+    };
+
+    /// <summary>
     /// Checks if an action is a personal defensive that should be coordinated between tanks.
     /// </summary>
     public static bool IsPersonalDefensive(uint actionId)
@@ -98,6 +109,12 @@ public static class CoordinatedCooldowns
     /// </summary>
     public static bool IsInvulnerability(uint actionId)
         => Invulnerabilities.Contains(actionId);
+
+    /// <summary>
+    /// Checks if an action is an interrupt that should be coordinated.
+    /// </summary>
+    public static bool IsInterrupt(uint actionId)
+        => Interrupts.Contains(actionId);
 
     /// <summary>
     /// Maps action IDs to their recast time in milliseconds.

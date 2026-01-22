@@ -3,6 +3,25 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v2.29.0 - Interrupt Coordination
+
+**Party Coordination**
+- Tanks and ranged physical DPS now coordinate interrupt abilities between Olympus instances
+- Prevents multiple players from interrupting the same enemy cast
+- Tank interrupts: Interject (Lv.18), Low Blow (Lv.12)
+- Ranged physical DPS interrupt: Head Graze (Lv.24)
+
+**How It Works**
+- When a player is about to interrupt, Olympus checks if another instance is already interrupting that target
+- The first player to interrupt reserves the target via IPC
+- Other players will skip the interrupt to avoid wasting cooldowns
+- Reservations expire based on remaining cast time (with 500ms buffer)
+
+**New Settings**
+- `EnableInterruptCoordination` - Master toggle for interrupt coordination (default: on)
+- `InterruptReservationExpiryMs` - How long interrupt reservations remain valid (1000-5000ms, default: 3000ms)
+<!-- LATEST-END -->
+
 ## v2.28.0 - Esuna Coordination
 
 **Healing**
@@ -19,7 +38,6 @@ All notable changes to Olympus will be documented in this file.
 **New Settings**
 - `EnableCleanseCoordination` - Master toggle for cleanse coordination (default: on)
 - `CleanseReservationExpiryMs` - How long cleanse reservations remain valid (1000-5000ms, default: 2000ms)
-<!-- LATEST-END -->
 
 ## v2.27.0 - Tank Invulnerability Coordination
 

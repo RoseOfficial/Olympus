@@ -255,6 +255,31 @@ public sealed class PartyCoordinationConfig
 
     #endregion
 
+    #region Interrupt Coordination
+
+    /// <summary>
+    /// Enable interrupt coordination with other Olympus instances.
+    /// When enabled, tanks and ranged physical DPS will coordinate interrupt abilities
+    /// (Interject, Head Graze, Low Blow) to prevent multiple instances from
+    /// interrupting the same enemy cast.
+    /// </summary>
+    public bool EnableInterruptCoordination { get; set; } = true;
+
+    /// <summary>
+    /// How long interrupt reservations remain valid (milliseconds).
+    /// After this time, a reservation expires.
+    /// Should be short since interrupts are used on fast enemy casts.
+    /// Valid range: 1000 to 5000.
+    /// </summary>
+    private int _interruptReservationExpiryMs = 3000;
+    public int InterruptReservationExpiryMs
+    {
+        get => _interruptReservationExpiryMs;
+        set => _interruptReservationExpiryMs = Math.Clamp(value, 1000, 5000);
+    }
+
+    #endregion
+
     #region Multi-Healer Optimization
 
     /// <summary>

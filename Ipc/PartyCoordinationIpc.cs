@@ -34,6 +34,7 @@ public sealed class PartyCoordinationIpc : IDisposable
     private readonly ICallGateProvider<string, object> _groundEffectPlacedProvider;
     private readonly ICallGateProvider<string, object> _raiseIntentProvider;
     private readonly ICallGateProvider<string, object> _cleanseIntentProvider;
+    private readonly ICallGateProvider<string, object> _interruptIntentProvider;
 
     // IPC subscribers (for receiving)
     private readonly ICallGateSubscriber<string, object> _heartbeatSubscriber;
@@ -48,6 +49,7 @@ public sealed class PartyCoordinationIpc : IDisposable
     private readonly ICallGateSubscriber<string, object> _groundEffectPlacedSubscriber;
     private readonly ICallGateSubscriber<string, object> _raiseIntentSubscriber;
     private readonly ICallGateSubscriber<string, object> _cleanseIntentSubscriber;
+    private readonly ICallGateSubscriber<string, object> _interruptIntentSubscriber;
 
     public PartyCoordinationIpc(
         IDalamudPluginInterface pluginInterface,
@@ -70,6 +72,7 @@ public sealed class PartyCoordinationIpc : IDisposable
         _groundEffectPlacedProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.GroundEffectPlaced");
         _raiseIntentProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.RaiseIntent");
         _cleanseIntentProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.CleanseIntent");
+        _interruptIntentProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.InterruptIntent");
 
         // Register action handlers (for broadcast)
         _heartbeatProvider.RegisterAction(OnHeartbeatReceived);
@@ -84,6 +87,7 @@ public sealed class PartyCoordinationIpc : IDisposable
         _groundEffectPlacedProvider.RegisterAction(OnGroundEffectPlacedReceived);
         _raiseIntentProvider.RegisterAction(OnRaiseIntentReceived);
         _cleanseIntentProvider.RegisterAction(OnCleanseIntentReceived);
+        _interruptIntentProvider.RegisterAction(OnInterruptIntentReceived);
 
         // Subscribe to receive messages from other instances
         _heartbeatSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.Heartbeat");
@@ -98,6 +102,7 @@ public sealed class PartyCoordinationIpc : IDisposable
         _groundEffectPlacedSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.GroundEffectPlaced");
         _raiseIntentSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.RaiseIntent");
         _cleanseIntentSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.CleanseIntent");
+        _interruptIntentSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.InterruptIntent");
 
         // Wire up service events to IPC broadcasts
         _service.OnHeartbeatReady += SendHeartbeat;
@@ -112,6 +117,7 @@ public sealed class PartyCoordinationIpc : IDisposable
         _service.OnGroundEffectPlacedReady += SendGroundEffectPlaced;
         _service.OnRaiseIntentReady += SendRaiseIntent;
         _service.OnCleanseIntentReady += SendCleanseIntent;
+        _service.OnInterruptIntentReady += SendInterruptIntent;
 
         _log.Info("Party coordination IPC initialized");
     }
@@ -271,6 +277,19 @@ public sealed class PartyCoordinationIpc : IDisposable
         catch (Exception ex)
         {
             _log.Warning(ex, "Failed to send cleanse intent");
+        }
+    }
+
+    private void SendInterruptIntent(InterruptIntentMessage message)
+    {
+        try
+        {
+            var json = message.ToJson();
+            _interruptIntentProvider.SendMessage(json);
+        }
+        catch (Exception ex)
+        {
+            _log.Warning(ex, "Failed to send interrupt intent");
         }
     }
 
@@ -470,6 +489,22 @@ public sealed class PartyCoordinationIpc : IDisposable
         }
     }
 
+    private void OnInterruptIntentReceived(string json)
+    {
+        try
+        {
+            var message = PartyMessage.FromJson(json) as InterruptIntentMessage;
+            if (message != null)
+            {
+                _service.HandleRemoteInterruptIntent(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            _log.Warning(ex, "Failed to process interrupt intent");
+        }
+    }
+
     #endregion
 
     public void Dispose()
@@ -487,6 +522,7 @@ public sealed class PartyCoordinationIpc : IDisposable
         _service.OnGroundEffectPlacedReady -= SendGroundEffectPlaced;
         _service.OnRaiseIntentReady -= SendRaiseIntent;
         _service.OnCleanseIntentReady -= SendCleanseIntent;
+        _service.OnInterruptIntentReady -= SendInterruptIntent;
 
         // Unregister IPC handlers
         _heartbeatProvider.UnregisterAction();
@@ -501,6 +537,7 @@ public sealed class PartyCoordinationIpc : IDisposable
         _groundEffectPlacedProvider.UnregisterAction();
         _raiseIntentProvider.UnregisterAction();
         _cleanseIntentProvider.UnregisterAction();
+        _interruptIntentProvider.UnregisterAction();
 
         _log.Info("Party coordination IPC disposed");
     }

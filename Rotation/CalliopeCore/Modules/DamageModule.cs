@@ -43,6 +43,10 @@ public sealed class DamageModule : ICalliopeModule
             return false;
         }
 
+        // oGCD: Interrupt enemy casts (highest priority)
+        if (context.CanExecuteOgcd && TryInterrupt(context, target))
+            return true;
+
         // Count nearby enemies for AoE decisions
         var enemyCount = context.TargetingService.CountEnemiesInRange(12f, player);
         context.Debug.NearbyEnemies = enemyCount;
@@ -415,6 +419,74 @@ public sealed class DamageModule : ICalliopeModule
             context.Debug.PlannedAction = action.Name;
             context.Debug.DamageState = $"{action.Name} (filler)";
             return true;
+        }
+
+        return false;
+    }
+
+    #endregion
+
+    #region Interrupt
+
+    /// <summary>
+    /// Attempts to interrupt an enemy cast using Head Graze.
+    /// Coordinates with other Olympus instances to prevent duplicate interrupts.
+    /// </summary>
+    private bool TryInterrupt(ICalliopeContext context, IBattleChara target)
+    {
+        var player = context.Player;
+        var level = player.Level;
+
+        // Need at least Head Graze (Lv.24)
+        if (level < BRDActions.HeadGraze.MinLevel)
+            return false;
+
+        // Check if target is casting something interruptible
+        if (!target.IsCasting)
+            return false;
+
+        // Check the cast interruptible flag (game indicates this)
+        if (!target.IsCastInterruptible)
+            return false;
+
+        var targetId = target.EntityId;
+        var partyCoord = context.PartyCoordinationService;
+        var coordConfig = context.Configuration.PartyCoordination;
+
+        // Check IPC reservation
+        if (coordConfig.EnableInterruptCoordination &&
+            partyCoord?.IsInterruptTargetReservedByOther(targetId) == true)
+        {
+            context.Debug.DamageState = "Interrupt reserved by other";
+            return false;
+        }
+
+        // Calculate remaining cast time in milliseconds
+        var remainingCastTime = (target.TotalCastTime - target.CurrentCastTime) * 1000f;
+        var castTimeMs = (int)remainingCastTime;
+
+        // Try Head Graze
+        if (context.ActionService.IsActionReady(BRDActions.HeadGraze.ActionId))
+        {
+            // Reserve the interrupt target
+            if (coordConfig.EnableInterruptCoordination)
+            {
+                if (!partyCoord?.ReserveInterruptTarget(targetId, BRDActions.HeadGraze.ActionId, castTimeMs) ?? false)
+                {
+                    context.Debug.DamageState = "Failed to reserve interrupt";
+                    return false;
+                }
+            }
+
+            if (context.ActionService.ExecuteOgcd(BRDActions.HeadGraze, target.GameObjectId))
+            {
+                context.Debug.PlannedAction = BRDActions.HeadGraze.Name;
+                context.Debug.DamageState = "Interrupted cast";
+                return true;
+            }
+
+            // Failed to execute, clear reservation
+            partyCoord?.ClearInterruptReservation(targetId);
         }
 
         return false;

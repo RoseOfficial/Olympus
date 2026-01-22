@@ -90,7 +90,7 @@ public sealed class AresContext : IAresContext
 
     #endregion
 
-    private readonly IBattleChara? _currentTarget;
+    public IBattleChara? CurrentTarget { get; private set; }
 
     public AresContext(
         IPlayerCharacter player,
@@ -163,13 +163,13 @@ public sealed class AresContext : IAresContext
         PartyHealthMetrics = CalculatePartyHealth(player);
 
         // Get current target
-        _currentTarget = targetingService.FindEnemy(
+        CurrentTarget = targetingService.FindEnemy(
             configuration.Targeting.EnemyStrategy,
             3f,
             player);
 
         // Check main tank status
-        IsMainTank = _currentTarget != null && enmityService.IsMainTankOn(_currentTarget, player.EntityId);
+        IsMainTank = CurrentTarget != null && enmityService.IsMainTankOn(CurrentTarget, player.EntityId);
 
         // Tank stance
         HasDefiance = statusHelper.HasDefiance(player);
@@ -234,6 +234,6 @@ public sealed class AresContext : IAresContext
         Debug.HasActiveMitigation = HasActiveMitigation;
         Debug.ActiveMitigations = StatusHelper.GetActiveMitigations(Player);
         Debug.IsMainTank = IsMainTank;
-        Debug.CurrentTarget = _currentTarget?.Name?.TextValue ?? "None";
+        Debug.CurrentTarget = CurrentTarget?.Name?.TextValue ?? "None";
     }
 }

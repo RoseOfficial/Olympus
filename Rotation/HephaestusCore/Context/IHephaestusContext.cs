@@ -175,4 +175,13 @@ public interface IHephaestusContext : ITankRotationContext
     HephaestusDebugState Debug { get; }
 
     #endregion
+
+    #region Target
+
+    /// <summary>
+    /// Current combat target for interrupt checks.
+    /// </summary>
+    Dalamud.Game.ClientState.Objects.Types.IBattleChara? CurrentTarget { get; }
+
+    #endregion
 }

@@ -61,6 +61,10 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     private readonly Dictionary<uint, CleanseReservation> _localCleanseReservations = new();
     private readonly Dictionary<uint, CleanseReservation> _remoteCleanseReservations = new();
 
+    // Interrupt reservation tracking
+    private readonly Dictionary<uint, InterruptReservation> _localInterruptReservations = new();
+    private readonly Dictionary<uint, InterruptReservation> _remoteInterruptReservations = new();
+
     // Heartbeat timing
     private DateTime _lastHeartbeatSent = DateTime.MinValue;
     private DateTime _lastGaugeBroadcast = DateTime.MinValue;
@@ -78,6 +82,7 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     public event Action<GroundEffectPlacedMessage>? OnGroundEffectPlacedReady;
     public event Action<RaiseIntentMessage>? OnRaiseIntentReady;
     public event Action<CleanseIntentMessage>? OnCleanseIntentReady;
+    public event Action<InterruptIntentMessage>? OnInterruptIntentReady;
 
     public PartyCoordinationService(PartyCoordinationConfig config, IPluginLog log)
     {
@@ -1030,6 +1035,79 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
     #endregion
 
+    #region Interrupt Coordination
+
+    public bool IsInterruptTargetReservedByOther(uint entityId)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableInterruptCoordination)
+            return false;
+
+        // Check remote reservations
+        if (_remoteInterruptReservations.TryGetValue(entityId, out var reservation))
+        {
+            // Check if reservation is still valid
+            if (!reservation.IsExpired)
+                return true;
+
+            // Expired, clean up
+            _remoteInterruptReservations.Remove(entityId);
+        }
+
+        return false;
+    }
+
+    public bool ReserveInterruptTarget(uint entityId, uint actionId, int castTimeMs)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableInterruptCoordination)
+            return true;
+
+        // Check if already reserved by remote
+        if (IsInterruptTargetReservedByOther(entityId))
+            return false;
+
+        var now = DateTime.UtcNow;
+
+        // Create local reservation - expires after enemy's remaining cast time + buffer
+        var reservation = new InterruptReservation
+        {
+            InstanceId = _instanceId,
+            TargetEntityId = entityId,
+            ActionId = actionId,
+            ReservedAt = now,
+            ExpiresAt = now.AddMilliseconds(_config.InterruptReservationExpiryMs)
+        };
+
+        _localInterruptReservations[entityId] = reservation;
+
+        // Broadcast the intent
+        var message = new InterruptIntentMessage(_instanceId, entityId, actionId, castTimeMs);
+        OnInterruptIntentReady?.Invoke(message);
+
+        if (_config.LogCoordinationEvents)
+            _log.Debug("[PartyCoord] Reserved interrupt target {0} (action {1}, cast time: {2}ms)",
+                entityId, actionId, castTimeMs);
+
+        return true;
+    }
+
+    public void ClearInterruptReservation(uint entityId)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableInterruptCoordination)
+            return;
+
+        _localInterruptReservations.Remove(entityId);
+
+        if (_config.LogCoordinationEvents)
+            _log.Debug("[PartyCoord] Cleared interrupt reservation for {0}", entityId);
+    }
+
+    public IReadOnlyDictionary<uint, InterruptReservation> GetRemoteInterruptReservations()
+    {
+        return _remoteInterruptReservations;
+    }
+
+    #endregion
+
     public void Update(uint playerEntityId, uint jobId, bool isEnabled)
     {
         if (!_config.EnablePartyCoordination)
@@ -1061,6 +1139,9 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
         // Clean up expired cleanse reservations
         CleanupExpiredCleanseReservations();
+
+        // Clean up expired interrupt reservations
+        CleanupExpiredInterruptReservations();
     }
 
     public void Clear()
@@ -1081,6 +1162,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         _remoteRaiseReservations.Clear();
         _localCleanseReservations.Clear();
         _remoteCleanseReservations.Clear();
+        _localInterruptReservations.Clear();
+        _remoteInterruptReservations.Clear();
 
         if (_config.LogCoordinationEvents)
             _log.Debug("[PartyCoord] Cleared all coordination state");
@@ -1517,6 +1600,33 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
                 message.TargetEntityId, message.StatusId, message.DebuffPriority, message.InstanceId);
     }
 
+    /// <summary>
+    /// Handles incoming interrupt intent from a remote instance.
+    /// </summary>
+    public void HandleRemoteInterruptIntent(InterruptIntentMessage message)
+    {
+        if (message.InstanceId == _instanceId)
+            return;
+
+        if (!_config.EnableInterruptCoordination)
+            return;
+
+        var reservation = new InterruptReservation
+        {
+            InstanceId = message.InstanceId,
+            TargetEntityId = message.TargetEntityId,
+            ActionId = message.ActionId,
+            ReservedAt = DateTime.UtcNow,
+            ExpiresAt = DateTime.UtcNow.AddMilliseconds(_config.InterruptReservationExpiryMs)
+        };
+
+        _remoteInterruptReservations[message.TargetEntityId] = reservation;
+
+        if (_config.LogCoordinationEvents)
+            _log.Debug("[PartyCoord] Remote interrupt reservation: target {0}, action {1}, cast time: {2}ms from instance {3}",
+                message.TargetEntityId, message.ActionId, message.CastTimeMs, message.InstanceId);
+    }
+
     #endregion
 
     #region Cleanup
@@ -1590,6 +1700,17 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             foreach (var targetId in cleanseReservationsToRemove)
             {
                 _remoteCleanseReservations.Remove(targetId);
+            }
+
+            // Remove interrupt reservations from disconnected instance
+            var interruptReservationsToRemove = _remoteInterruptReservations
+                .Where(r => r.Value.InstanceId == id)
+                .Select(r => r.Key)
+                .ToList();
+
+            foreach (var targetId in interruptReservationsToRemove)
+            {
+                _remoteInterruptReservations.Remove(targetId);
             }
 
             if (_config.LogCoordinationEvents)
@@ -1743,6 +1864,31 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         foreach (var key in expiredRemote)
         {
             _remoteCleanseReservations.Remove(key);
+        }
+    }
+
+    private void CleanupExpiredInterruptReservations()
+    {
+        // Clean up local interrupt reservations
+        var expiredLocal = _localInterruptReservations
+            .Where(r => r.Value.IsExpired)
+            .Select(r => r.Key)
+            .ToList();
+
+        foreach (var key in expiredLocal)
+        {
+            _localInterruptReservations.Remove(key);
+        }
+
+        // Clean up remote interrupt reservations
+        var expiredRemote = _remoteInterruptReservations
+            .Where(r => r.Value.IsExpired)
+            .Select(r => r.Key)
+            .ToList();
+
+        foreach (var key in expiredRemote)
+        {
+            _remoteInterruptReservations.Remove(key);
         }
     }
 

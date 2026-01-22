@@ -180,4 +180,13 @@ public interface INyxContext : ITankRotationContext
     NyxDebugState Debug { get; }
 
     #endregion
+
+    #region Target
+
+    /// <summary>
+    /// Current combat target for interrupt checks.
+    /// </summary>
+    Dalamud.Game.ClientState.Objects.Types.IBattleChara? CurrentTarget { get; }
+
+    #endregion
 }

@@ -113,7 +113,7 @@ public sealed class HephaestusContext : IHephaestusContext
 
     #endregion
 
-    private readonly IBattleChara? _currentTarget;
+    public IBattleChara? CurrentTarget { get; private set; }
 
     public HephaestusContext(
         IPlayerCharacter player,
@@ -188,13 +188,13 @@ public sealed class HephaestusContext : IHephaestusContext
         PartyHealthMetrics = CalculatePartyHealth(player);
 
         // Get current target
-        _currentTarget = targetingService.FindEnemy(
+        CurrentTarget = targetingService.FindEnemy(
             configuration.Targeting.EnemyStrategy,
             3f,
             player);
 
         // Check main tank status
-        IsMainTank = _currentTarget != null && enmityService.IsMainTankOn(_currentTarget, player.EntityId);
+        IsMainTank = CurrentTarget != null && enmityService.IsMainTankOn(CurrentTarget, player.EntityId);
 
         // Tank stance
         HasRoyalGuard = statusHelper.HasRoyalGuard(player);
@@ -220,8 +220,8 @@ public sealed class HephaestusContext : IHephaestusContext
         HasAurora = statusHelper.HasAurora(player);
 
         // DoT checks (on target)
-        HasSonicBreakDot = _currentTarget != null && statusHelper.HasSonicBreakDebuff(_currentTarget);
-        HasBowShockDot = _currentTarget != null && statusHelper.HasBowShockDebuff(_currentTarget);
+        HasSonicBreakDot = CurrentTarget != null && statusHelper.HasSonicBreakDebuff(CurrentTarget);
+        HasBowShockDot = CurrentTarget != null && statusHelper.HasBowShockDebuff(CurrentTarget);
 
         // Update debug state
         UpdateDebugState();
@@ -293,6 +293,6 @@ public sealed class HephaestusContext : IHephaestusContext
 
         // Enmity
         Debug.IsMainTank = IsMainTank;
-        Debug.CurrentTarget = _currentTarget?.Name?.TextValue ?? "None";
+        Debug.CurrentTarget = CurrentTarget?.Name?.TextValue ?? "None";
     }
 }

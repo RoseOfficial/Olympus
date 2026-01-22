@@ -32,6 +32,10 @@ public sealed class MitigationModule : INyxModule
         if (!context.CanExecuteOgcd)
             return false;
 
+        // Priority 0: Interrupt enemy casts (highest priority)
+        if (TryInterrupt(context))
+            return true;
+
         var player = context.Player;
         var level = player.Level;
         var hpPercent = (float)player.CurrentHp / player.MaxHp;
@@ -94,6 +98,103 @@ public sealed class MitigationModule : INyxModule
     {
         // Debug state updated during TryExecute
     }
+
+    #region Interrupt
+
+    /// <summary>
+    /// Attempts to interrupt an enemy cast using Interject or Low Blow.
+    /// Coordinates with other Olympus instances to prevent duplicate interrupts.
+    /// </summary>
+    private bool TryInterrupt(INyxContext context)
+    {
+        var player = context.Player;
+        var level = player.Level;
+
+        // Need at least Interject (Lv.18)
+        if (level < 18)
+            return false;
+
+        // Check current target for interruptible cast
+        var target = context.CurrentTarget;
+        if (target == null)
+            return false;
+
+        // Check if target is casting something interruptible
+        if (!target.IsCasting)
+            return false;
+
+        // Check the cast interruptible flag (game indicates this)
+        if (!target.IsCastInterruptible)
+            return false;
+
+        var targetId = target.EntityId;
+        var partyCoord = context.PartyCoordinationService;
+        var coordConfig = context.Configuration.PartyCoordination;
+
+        // Check IPC reservation
+        if (coordConfig.EnableInterruptCoordination &&
+            partyCoord?.IsInterruptTargetReservedByOther(targetId) == true)
+        {
+            context.Debug.MitigationState = "Interrupt reserved by other";
+            return false;
+        }
+
+        // Calculate remaining cast time in milliseconds
+        var remainingCastTime = (target.TotalCastTime - target.CurrentCastTime) * 1000f;
+        var castTimeMs = (int)remainingCastTime;
+
+        // Try Interject first (dedicated interrupt)
+        if (context.ActionService.IsActionReady(DRKActions.Interject.ActionId))
+        {
+            // Reserve the interrupt target
+            if (coordConfig.EnableInterruptCoordination)
+            {
+                if (!partyCoord?.ReserveInterruptTarget(targetId, DRKActions.Interject.ActionId, castTimeMs) ?? false)
+                {
+                    context.Debug.MitigationState = "Failed to reserve interrupt";
+                    return false;
+                }
+            }
+
+            if (context.ActionService.ExecuteOgcd(DRKActions.Interject, target.GameObjectId))
+            {
+                context.Debug.PlannedAction = DRKActions.Interject.Name;
+                context.Debug.MitigationState = "Interrupted cast";
+                return true;
+            }
+
+            // Failed to execute, clear reservation
+            partyCoord?.ClearInterruptReservation(targetId);
+        }
+
+        // Try Low Blow as backup (stun can interrupt some casts)
+        if (level >= 12 && context.ActionService.IsActionReady(DRKActions.LowBlow.ActionId))
+        {
+            // Reserve the interrupt target
+            if (coordConfig.EnableInterruptCoordination)
+            {
+                if (!partyCoord?.ReserveInterruptTarget(targetId, DRKActions.LowBlow.ActionId, castTimeMs) ?? false)
+                {
+                    context.Debug.MitigationState = "Failed to reserve interrupt";
+                    return false;
+                }
+            }
+
+            if (context.ActionService.ExecuteOgcd(DRKActions.LowBlow, target.GameObjectId))
+            {
+                context.Debug.PlannedAction = DRKActions.LowBlow.Name;
+                context.Debug.MitigationState = "Stunned (interrupt)";
+                return true;
+            }
+
+            // Failed to execute, clear reservation
+            partyCoord?.ClearInterruptReservation(targetId);
+        }
+
+        return false;
+    }
+
+    #endregion
 
     #region Timeline-Aware Mitigation
 

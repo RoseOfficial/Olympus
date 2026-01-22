@@ -44,6 +44,9 @@ public enum PartyMessageType
 
     /// <summary>Announce intent to cleanse a debuff from a party member.</summary>
     CleanseIntent = 11,
+
+    /// <summary>Announce intent to interrupt an enemy cast.</summary>
+    InterruptIntent = 12,
 }
 
 /// <summary>
@@ -106,6 +109,7 @@ public abstract class PartyMessage
                 PartyMessageType.GroundEffectPlaced => JsonSerializer.Deserialize<GroundEffectPlacedMessage>(json, PartyMessageJsonContext.Options),
                 PartyMessageType.RaiseIntent => JsonSerializer.Deserialize<RaiseIntentMessage>(json, PartyMessageJsonContext.Options),
                 PartyMessageType.CleanseIntent => JsonSerializer.Deserialize<CleanseIntentMessage>(json, PartyMessageJsonContext.Options),
+                PartyMessageType.InterruptIntent => JsonSerializer.Deserialize<InterruptIntentMessage>(json, PartyMessageJsonContext.Options),
                 _ => null
             };
         }
@@ -912,6 +916,63 @@ public sealed class CleanseReservation
     public DateTime ReservedAt { get; init; }
 
     /// <summary>When the reservation expires.</summary>
+    public DateTime ExpiresAt { get; init; }
+
+    /// <summary>
+    /// Whether this reservation has expired.
+    /// </summary>
+    public bool IsExpired => DateTime.UtcNow > ExpiresAt;
+}
+
+/// <summary>
+/// Message announcing intent to interrupt an enemy cast.
+/// Used to reserve interrupt targets and prevent multiple instances from interrupting the same enemy cast.
+/// </summary>
+public sealed class InterruptIntentMessage : PartyMessage
+{
+    /// <summary>Entity ID of the enemy being interrupted.</summary>
+    [JsonPropertyName("tid")]
+    public uint TargetEntityId { get; set; }
+
+    /// <summary>Action ID of the interrupt ability being used.</summary>
+    [JsonPropertyName("act")]
+    public uint ActionId { get; set; }
+
+    /// <summary>Remaining cast time of the enemy in milliseconds.</summary>
+    [JsonPropertyName("cast")]
+    public int CastTimeMs { get; set; }
+
+    public InterruptIntentMessage() : base(PartyMessageType.InterruptIntent) { }
+
+    public InterruptIntentMessage(Guid instanceId, uint targetEntityId, uint actionId, int castTimeMs)
+        : base(PartyMessageType.InterruptIntent)
+    {
+        InstanceId = instanceId;
+        TargetEntityId = targetEntityId;
+        ActionId = actionId;
+        CastTimeMs = castTimeMs;
+    }
+}
+
+/// <summary>
+/// Represents an interrupt reservation from a remote instance.
+/// Used to prevent multiple instances from interrupting the same enemy cast.
+/// </summary>
+public sealed class InterruptReservation
+{
+    /// <summary>Instance that made the reservation.</summary>
+    public Guid InstanceId { get; init; }
+
+    /// <summary>Entity ID of the enemy being interrupted.</summary>
+    public uint TargetEntityId { get; init; }
+
+    /// <summary>Action ID of the interrupt ability.</summary>
+    public uint ActionId { get; init; }
+
+    /// <summary>When the reservation was made.</summary>
+    public DateTime ReservedAt { get; init; }
+
+    /// <summary>When the reservation expires (based on enemy cast time + buffer).</summary>
     public DateTime ExpiresAt { get; init; }
 
     /// <summary>

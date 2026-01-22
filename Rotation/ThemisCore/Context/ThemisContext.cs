@@ -88,9 +88,9 @@ public sealed class ThemisContext : IThemisContext
     public ThemisPartyHelper PartyHelper { get; }
     public ThemisDebugState Debug { get; }
 
-    #endregion
+    public IBattleChara? CurrentTarget { get; private set; }
 
-    private readonly IBattleChara? _currentTarget;
+    #endregion
 
     public ThemisContext(
         IPlayerCharacter player,
@@ -163,13 +163,13 @@ public sealed class ThemisContext : IThemisContext
         PartyHealthMetrics = CalculatePartyHealth(player);
 
         // Get current target
-        _currentTarget = targetingService.FindEnemy(
+        CurrentTarget = targetingService.FindEnemy(
             configuration.Targeting.EnemyStrategy,
             3f,
             player);
 
         // Check main tank status
-        IsMainTank = _currentTarget != null && enmityService.IsMainTankOn(_currentTarget, player.EntityId);
+        IsMainTank = CurrentTarget != null && enmityService.IsMainTankOn(CurrentTarget, player.EntityId);
 
         // Status checks
         HasTankStance = statusHelper.HasIronWill(player);
@@ -183,7 +183,7 @@ public sealed class ThemisContext : IThemisContext
         HasHallowedGround = statusHelper.HasHallowedGround(player);
 
         // DoT tracking
-        GoringBladeRemaining = statusHelper.GetGoringBladeRemaining(_currentTarget, player.EntityId);
+        GoringBladeRemaining = statusHelper.GetGoringBladeRemaining(CurrentTarget, player.EntityId);
 
         // TODO: Track Blade of Honor buff
         HasBladeOfHonor = false;
@@ -246,6 +246,6 @@ public sealed class ThemisContext : IThemisContext
         Debug.HasActiveMitigation = HasActiveMitigation;
         Debug.ActiveMitigations = StatusHelper.GetActiveMitigations(Player);
         Debug.IsMainTank = IsMainTank;
-        Debug.CurrentTarget = _currentTarget?.Name?.TextValue ?? "None";
+        Debug.CurrentTarget = CurrentTarget?.Name?.TextValue ?? "None";
     }
 }

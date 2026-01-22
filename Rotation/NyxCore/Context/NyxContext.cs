@@ -111,7 +111,7 @@ public sealed class NyxContext : INyxContext
 
     #endregion
 
-    private readonly IBattleChara? _currentTarget;
+    public IBattleChara? CurrentTarget { get; private set; }
     private readonly float _darksideTimer;
 
     public NyxContext(
@@ -191,13 +191,13 @@ public sealed class NyxContext : INyxContext
         PartyHealthMetrics = CalculatePartyHealth(player);
 
         // Get current target
-        _currentTarget = targetingService.FindEnemy(
+        CurrentTarget = targetingService.FindEnemy(
             configuration.Targeting.EnemyStrategy,
             3f,
             player);
 
         // Check main tank status
-        IsMainTank = _currentTarget != null && enmityService.IsMainTankOn(_currentTarget, player.EntityId);
+        IsMainTank = CurrentTarget != null && enmityService.IsMainTankOn(CurrentTarget, player.EntityId);
 
         // Tank stance
         HasGrit = statusHelper.HasGrit(player);
@@ -302,6 +302,6 @@ public sealed class NyxContext : INyxContext
 
         // Enmity
         Debug.IsMainTank = IsMainTank;
-        Debug.CurrentTarget = _currentTarget?.Name?.TextValue ?? "None";
+        Debug.CurrentTarget = CurrentTarget?.Name?.TextValue ?? "None";
     }
 }

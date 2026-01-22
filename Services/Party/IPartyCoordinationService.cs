@@ -403,6 +403,38 @@ public interface IPartyCoordinationService
 
     #endregion
 
+    #region Interrupt Coordination
+
+    /// <summary>
+    /// Checks if an interrupt target is currently reserved by another Olympus instance.
+    /// </summary>
+    /// <param name="entityId">The entity ID of the enemy being interrupted.</param>
+    /// <returns>True if another instance is already interrupting this enemy.</returns>
+    bool IsInterruptTargetReservedByOther(uint entityId);
+
+    /// <summary>
+    /// Reserves an interrupt target and broadcasts the intent to other instances.
+    /// </summary>
+    /// <param name="entityId">The target entity ID (enemy casting).</param>
+    /// <param name="actionId">The interrupt action ID (Interject, Head Graze, Low Blow).</param>
+    /// <param name="castTimeMs">Remaining cast time of the enemy in milliseconds.</param>
+    /// <returns>True if reservation succeeded.</returns>
+    bool ReserveInterruptTarget(uint entityId, uint actionId, int castTimeMs);
+
+    /// <summary>
+    /// Clears an interrupt reservation after the interrupt completes or fails.
+    /// </summary>
+    /// <param name="entityId">The target entity ID.</param>
+    void ClearInterruptReservation(uint entityId);
+
+    /// <summary>
+    /// Gets all current remote interrupt reservations.
+    /// Key is target entity ID, value is the reservation info.
+    /// </summary>
+    IReadOnlyDictionary<uint, InterruptReservation> GetRemoteInterruptReservations();
+
+    #endregion
+
     /// <summary>
     /// Updates the service state. Should be called once per frame.
     /// </summary>
