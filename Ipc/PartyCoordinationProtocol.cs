@@ -38,6 +38,9 @@ public enum PartyMessageType
 
     /// <summary>Announce ground-targeted effect placement (Asylum, Sacred Soil, etc.).</summary>
     GroundEffectPlaced = 9,
+
+    /// <summary>Announce intent to raise a dead party member.</summary>
+    RaiseIntent = 10,
 }
 
 /// <summary>
@@ -98,6 +101,7 @@ public abstract class PartyMessage
                 PartyMessageType.GaugeState => JsonSerializer.Deserialize<GaugeStateMessage>(json, PartyMessageJsonContext.Options),
                 PartyMessageType.RoleDeclaration => JsonSerializer.Deserialize<RoleDeclarationMessage>(json, PartyMessageJsonContext.Options),
                 PartyMessageType.GroundEffectPlaced => JsonSerializer.Deserialize<GroundEffectPlacedMessage>(json, PartyMessageJsonContext.Options),
+                PartyMessageType.RaiseIntent => JsonSerializer.Deserialize<RaiseIntentMessage>(json, PartyMessageJsonContext.Options),
                 _ => null
             };
         }
@@ -782,4 +786,70 @@ public sealed class RemoteGroundEffect
 
     /// <summary>Remaining duration in seconds.</summary>
     public float RemainingSeconds => Math.Max(0, (float)(ExpiresAt - DateTime.UtcNow).TotalSeconds);
+}
+
+/// <summary>
+/// Message announcing intent to raise a dead party member.
+/// Used to reserve raise targets and prevent multiple healers from raising the same target.
+/// </summary>
+public sealed class RaiseIntentMessage : PartyMessage
+{
+    /// <summary>Entity ID of the raise target (the dead player).</summary>
+    [JsonPropertyName("tid")]
+    public uint TargetEntityId { get; set; }
+
+    /// <summary>Action ID of the raise spell being cast.</summary>
+    [JsonPropertyName("act")]
+    public uint ActionId { get; set; }
+
+    /// <summary>Cast time in milliseconds (0 for Swiftcast raise).</summary>
+    [JsonPropertyName("cast")]
+    public int CastTimeMs { get; set; }
+
+    /// <summary>Whether this raise is using Swiftcast (takes priority over hardcast).</summary>
+    [JsonPropertyName("swift")]
+    public bool UsingSwiftcast { get; set; }
+
+    public RaiseIntentMessage() : base(PartyMessageType.RaiseIntent) { }
+
+    public RaiseIntentMessage(Guid instanceId, uint targetEntityId, uint actionId, int castTimeMs, bool usingSwiftcast)
+        : base(PartyMessageType.RaiseIntent)
+    {
+        InstanceId = instanceId;
+        TargetEntityId = targetEntityId;
+        ActionId = actionId;
+        CastTimeMs = castTimeMs;
+        UsingSwiftcast = usingSwiftcast;
+    }
+}
+
+/// <summary>
+/// Represents a raise reservation from a remote instance.
+/// Used to prevent multiple healers from raising the same dead party member.
+/// </summary>
+public sealed class RaiseReservation
+{
+    /// <summary>Instance that made the reservation.</summary>
+    public Guid InstanceId { get; init; }
+
+    /// <summary>Target entity ID (the dead player).</summary>
+    public uint TargetEntityId { get; init; }
+
+    /// <summary>Action ID of the raise spell.</summary>
+    public uint ActionId { get; init; }
+
+    /// <summary>When the reservation was made.</summary>
+    public DateTime ReservedAt { get; init; }
+
+    /// <summary>Expected cast completion time.</summary>
+    public DateTime ExpectedCompletionTime { get; init; }
+
+    /// <summary>Whether this raise is using Swiftcast.</summary>
+    public bool UsingSwiftcast { get; init; }
+
+    /// <summary>
+    /// Whether this reservation has expired.
+    /// Reservations expire 500ms after expected completion to account for network delay.
+    /// </summary>
+    public bool IsExpired => DateTime.UtcNow > ExpectedCompletionTime.AddMilliseconds(500);
 }

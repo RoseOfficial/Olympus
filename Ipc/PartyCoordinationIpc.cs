@@ -32,6 +32,7 @@ public sealed class PartyCoordinationIpc : IDisposable
     private readonly ICallGateProvider<string, object> _gaugeStateProvider;
     private readonly ICallGateProvider<string, object> _roleDeclarationProvider;
     private readonly ICallGateProvider<string, object> _groundEffectPlacedProvider;
+    private readonly ICallGateProvider<string, object> _raiseIntentProvider;
 
     // IPC subscribers (for receiving)
     private readonly ICallGateSubscriber<string, object> _heartbeatSubscriber;
@@ -44,6 +45,7 @@ public sealed class PartyCoordinationIpc : IDisposable
     private readonly ICallGateSubscriber<string, object> _gaugeStateSubscriber;
     private readonly ICallGateSubscriber<string, object> _roleDeclarationSubscriber;
     private readonly ICallGateSubscriber<string, object> _groundEffectPlacedSubscriber;
+    private readonly ICallGateSubscriber<string, object> _raiseIntentSubscriber;
 
     public PartyCoordinationIpc(
         IDalamudPluginInterface pluginInterface,
@@ -64,6 +66,7 @@ public sealed class PartyCoordinationIpc : IDisposable
         _gaugeStateProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.GaugeState");
         _roleDeclarationProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.RoleDeclaration");
         _groundEffectPlacedProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.GroundEffectPlaced");
+        _raiseIntentProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.RaiseIntent");
 
         // Register action handlers (for broadcast)
         _heartbeatProvider.RegisterAction(OnHeartbeatReceived);
@@ -76,6 +79,7 @@ public sealed class PartyCoordinationIpc : IDisposable
         _gaugeStateProvider.RegisterAction(OnGaugeStateReceived);
         _roleDeclarationProvider.RegisterAction(OnRoleDeclarationReceived);
         _groundEffectPlacedProvider.RegisterAction(OnGroundEffectPlacedReceived);
+        _raiseIntentProvider.RegisterAction(OnRaiseIntentReceived);
 
         // Subscribe to receive messages from other instances
         _heartbeatSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.Heartbeat");
@@ -88,6 +92,7 @@ public sealed class PartyCoordinationIpc : IDisposable
         _gaugeStateSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.GaugeState");
         _roleDeclarationSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.RoleDeclaration");
         _groundEffectPlacedSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.GroundEffectPlaced");
+        _raiseIntentSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.RaiseIntent");
 
         // Wire up service events to IPC broadcasts
         _service.OnHeartbeatReady += SendHeartbeat;
@@ -100,6 +105,7 @@ public sealed class PartyCoordinationIpc : IDisposable
         _service.OnGaugeStateReady += SendGaugeState;
         _service.OnRoleDeclarationReady += SendRoleDeclaration;
         _service.OnGroundEffectPlacedReady += SendGroundEffectPlaced;
+        _service.OnRaiseIntentReady += SendRaiseIntent;
 
         _log.Info("Party coordination IPC initialized");
     }
@@ -233,6 +239,19 @@ public sealed class PartyCoordinationIpc : IDisposable
         catch (Exception ex)
         {
             _log.Warning(ex, "Failed to send ground effect placed");
+        }
+    }
+
+    private void SendRaiseIntent(RaiseIntentMessage message)
+    {
+        try
+        {
+            var json = message.ToJson();
+            _raiseIntentProvider.SendMessage(json);
+        }
+        catch (Exception ex)
+        {
+            _log.Warning(ex, "Failed to send raise intent");
         }
     }
 
@@ -400,6 +419,22 @@ public sealed class PartyCoordinationIpc : IDisposable
         }
     }
 
+    private void OnRaiseIntentReceived(string json)
+    {
+        try
+        {
+            var message = PartyMessage.FromJson(json) as RaiseIntentMessage;
+            if (message != null)
+            {
+                _service.HandleRemoteRaiseIntent(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            _log.Warning(ex, "Failed to process raise intent");
+        }
+    }
+
     #endregion
 
     public void Dispose()
@@ -415,6 +450,7 @@ public sealed class PartyCoordinationIpc : IDisposable
         _service.OnGaugeStateReady -= SendGaugeState;
         _service.OnRoleDeclarationReady -= SendRoleDeclaration;
         _service.OnGroundEffectPlacedReady -= SendGroundEffectPlaced;
+        _service.OnRaiseIntentReady -= SendRaiseIntent;
 
         // Unregister IPC handlers
         _heartbeatProvider.UnregisterAction();
@@ -427,6 +463,7 @@ public sealed class PartyCoordinationIpc : IDisposable
         _gaugeStateProvider.UnregisterAction();
         _roleDeclarationProvider.UnregisterAction();
         _groundEffectPlacedProvider.UnregisterAction();
+        _raiseIntentProvider.UnregisterAction();
 
         _log.Info("Party coordination IPC disposed");
     }

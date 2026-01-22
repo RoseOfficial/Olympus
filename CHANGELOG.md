@@ -3,6 +3,29 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v2.26.0 - Resurrection Coordination
+
+**Healing**
+- All healers now coordinate resurrections between Olympus instances
+- Prevents multiple healers from raising the same dead party member
+- WHM (Raise), SCH (Resurrection), AST (Ascend), and SGE (Egeiro) all participate
+
+**How It Works**
+- When a healer is about to cast Raise, Olympus checks if another instance is already raising that target
+- The first healer to start casting reserves the target via IPC
+- Other healers will skip that target and look for other dead party members (if any)
+- Swiftcast raises take priority over hardcast raises
+
+**New Settings**
+- `EnableRaiseCoordination` - Master toggle for resurrection coordination (default: on)
+- `RaiseReservationExpiryMs` - How long raise reservations remain valid (5000-15000ms, default: 10000ms)
+
+**Technical**
+- New IPC message type: RaiseIntent
+- New protocol classes: RaiseIntentMessage, RaiseReservation
+- BaseResurrectionModule now integrates with party coordination service
+<!-- LATEST-END -->
+
 ## v2.25.0 - Multi-Healer Ground Effect Coordination
 
 **Healing**
@@ -25,7 +48,6 @@ All notable changes to Olympus will be documented in this file.
 - New IPC message types: GaugeState, RoleDeclaration, GroundEffectPlaced
 - New data registry: CoordinatedGroundEffects.cs with radius/duration for each ability
 - Foundation laid for gauge sharing and role declaration in future updates
-<!-- LATEST-END -->
 
 ## v2.24.0 - Complete Healer Burst Decision Logic
 

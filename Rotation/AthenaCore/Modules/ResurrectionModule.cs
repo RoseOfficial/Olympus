@@ -3,6 +3,7 @@ using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.AthenaCore.Context;
 using Olympus.Rotation.Common.Modules;
+using Olympus.Services.Party;
 
 namespace Olympus.Rotation.AthenaCore.Modules;
 
@@ -25,6 +26,7 @@ public sealed class ResurrectionModule : BaseResurrectionModule<AthenaContext>, 
     protected override void SetRaiseTarget(AthenaContext context, string target) => context.Debug.RaiseTarget = target;
     protected override void SetPlanningState(AthenaContext context, string state) => context.Debug.PlanningState = state;
     protected override void SetPlannedAction(AthenaContext context, string action) => context.Debug.PlannedAction = action;
+    protected override IPartyCoordinationService? GetPartyCoordinationService(AthenaContext context) => context.PartyCoordinationService;
 
     // Scholar doesn't have Thin Air equivalent, so no pre-raise buff waiting
 }

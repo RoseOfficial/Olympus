@@ -329,6 +329,39 @@ public interface IPartyCoordinationService
 
     #endregion
 
+    #region Resurrection Coordination
+
+    /// <summary>
+    /// Checks if a raise target is currently reserved by another Olympus instance.
+    /// </summary>
+    /// <param name="entityId">The entity ID of the dead party member.</param>
+    /// <returns>True if another instance is already raising this target.</returns>
+    bool IsRaiseTargetReservedByOther(uint entityId);
+
+    /// <summary>
+    /// Reserves a raise target and broadcasts the intent to other instances.
+    /// </summary>
+    /// <param name="entityId">The target entity ID (dead party member).</param>
+    /// <param name="actionId">The raise action ID.</param>
+    /// <param name="castTimeMs">Cast time in milliseconds (0 for Swiftcast).</param>
+    /// <param name="usingSwiftcast">Whether using Swiftcast.</param>
+    /// <returns>True if reservation succeeded.</returns>
+    bool ReserveRaiseTarget(uint entityId, uint actionId, int castTimeMs, bool usingSwiftcast);
+
+    /// <summary>
+    /// Clears a raise reservation after the raise completes or is interrupted.
+    /// </summary>
+    /// <param name="entityId">The target entity ID.</param>
+    void ClearRaiseReservation(uint entityId);
+
+    /// <summary>
+    /// Gets all current remote raise reservations.
+    /// Key is target entity ID, value is the reservation info.
+    /// </summary>
+    IReadOnlyDictionary<uint, RaiseReservation> GetRemoteRaiseReservations();
+
+    #endregion
+
     /// <summary>
     /// Updates the service state. Should be called once per frame.
     /// </summary>

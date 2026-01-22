@@ -1,5 +1,6 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Models.Action;
+using Olympus.Services.Party;
 
 namespace Olympus.Rotation.Common.Modules;
 
@@ -66,6 +67,12 @@ public abstract class BaseResurrectionModule<TContext> : IHealerRotationModule<T
     /// </summary>
     protected abstract void SetPlannedAction(TContext context, string action);
 
+    /// <summary>
+    /// Gets the party coordination service from the context, if available.
+    /// Returns null if party coordination is not supported/enabled.
+    /// </summary>
+    protected abstract IPartyCoordinationService? GetPartyCoordinationService(TContext context);
+
     #endregion
 
     #region Virtual Methods - Can be overridden for job-specific behavior
@@ -109,7 +116,15 @@ public abstract class BaseResurrectionModule<TContext> : IHealerRotationModule<T
 
         if (deadMember != null)
         {
-            SetRaiseState(context, "Dead member found");
+            var partyCoord = GetPartyCoordinationService(context);
+            if (partyCoord?.IsRaiseTargetReservedByOther((uint)deadMember.GameObjectId) == true)
+            {
+                SetRaiseState(context, "Reserved by other");
+            }
+            else
+            {
+                SetRaiseState(context, "Dead member found");
+            }
             SetRaiseTarget(context, deadMember.Name?.TextValue ?? "Unknown");
         }
         else
@@ -162,6 +177,14 @@ public abstract class BaseResurrectionModule<TContext> : IHealerRotationModule<T
         var targetName = target.Name?.TextValue ?? "Unknown";
         SetRaiseTarget(context, targetName);
 
+        // Check if another Olympus instance is already raising this target
+        var partyCoord = GetPartyCoordinationService(context);
+        if (partyCoord?.IsRaiseTargetReservedByOther((uint)target.GameObjectId) == true)
+        {
+            SetRaiseState(context, "Reserved by other");
+            return false;
+        }
+
         var hasSwiftcast = HasSwiftcast(context);
 
         if (hasSwiftcast)
@@ -172,6 +195,13 @@ public abstract class BaseResurrectionModule<TContext> : IHealerRotationModule<T
                 return false;
             }
 
+            // Try to reserve the target before raising (Swiftcast = instant)
+            if (partyCoord?.ReserveRaiseTarget((uint)target.GameObjectId, RaiseAction.ActionId, 0, usingSwiftcast: true) == false)
+            {
+                SetRaiseState(context, "Failed to reserve");
+                return false;
+            }
+
             SetRaiseState(context, "Swiftcast Raise");
             var success = context.ActionService.ExecuteGcd(RaiseAction, target.GameObjectId);
             if (success)
@@ -179,6 +209,11 @@ public abstract class BaseResurrectionModule<TContext> : IHealerRotationModule<T
                 var note = GetRaiseSuccessNote(context, hasSwiftcast: true);
                 SetPlannedAction(context, $"{RaiseAction.Name}{note}");
                 context.ActionTracker.LogAttempt(RaiseAction.ActionId, targetName, 0, Models.ActionResult.Success, player.Level);
+            }
+            else
+            {
+                // Clear reservation if raise failed
+                partyCoord?.ClearRaiseReservation((uint)target.GameObjectId);
             }
             return success;
         }
@@ -196,6 +231,14 @@ public abstract class BaseResurrectionModule<TContext> : IHealerRotationModule<T
                     return false;
                 }
 
+                // Try to reserve the target before raising (hardcast = ~8s cast time)
+                const int hardcastMs = 8000;
+                if (partyCoord?.ReserveRaiseTarget((uint)target.GameObjectId, RaiseAction.ActionId, hardcastMs, usingSwiftcast: false) == false)
+                {
+                    SetRaiseState(context, "Failed to reserve");
+                    return false;
+                }
+
                 SetRaiseState(context, "Hardcast Raise");
                 var success = context.ActionService.ExecuteGcd(RaiseAction, target.GameObjectId);
                 if (success)
@@ -203,6 +246,11 @@ public abstract class BaseResurrectionModule<TContext> : IHealerRotationModule<T
                     var note = GetRaiseSuccessNote(context, hasSwiftcast: false);
                     SetPlannedAction(context, $"{RaiseAction.Name} (Hardcast){note}");
                     context.ActionTracker.LogAttempt(RaiseAction.ActionId, targetName, 0, Models.ActionResult.Success, player.Level);
+                }
+                else
+                {
+                    // Clear reservation if raise failed
+                    partyCoord?.ClearRaiseReservation((uint)target.GameObjectId);
                 }
                 return success;
             }

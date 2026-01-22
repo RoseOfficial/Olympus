@@ -3,6 +3,7 @@ using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.AsclepiusCore.Context;
 using Olympus.Rotation.Common.Modules;
+using Olympus.Services.Party;
 
 namespace Olympus.Rotation.AsclepiusCore.Modules;
 
@@ -25,6 +26,7 @@ public sealed class ResurrectionModule : BaseResurrectionModule<IAsclepiusContex
     protected override void SetRaiseTarget(IAsclepiusContext context, string target) => context.Debug.RaiseTarget = target;
     protected override void SetPlanningState(IAsclepiusContext context, string state) => context.Debug.PlanningState = state;
     protected override void SetPlannedAction(IAsclepiusContext context, string action) => context.Debug.PlannedAction = action;
+    protected override IPartyCoordinationService? GetPartyCoordinationService(IAsclepiusContext context) => context.PartyCoordinationService;
 
     /// <summary>
     /// SGE doesn't have a pre-raise buff like WHM's Thin Air.

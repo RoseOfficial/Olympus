@@ -53,6 +53,10 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     // Ground effect tracking
     private readonly List<RemoteGroundEffect> _remoteGroundEffects = new();
 
+    // Raise reservation tracking
+    private readonly Dictionary<uint, RaiseReservation> _localRaiseReservations = new();
+    private readonly Dictionary<uint, RaiseReservation> _remoteRaiseReservations = new();
+
     // Heartbeat timing
     private DateTime _lastHeartbeatSent = DateTime.MinValue;
     private DateTime _lastGaugeBroadcast = DateTime.MinValue;
@@ -68,6 +72,7 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     public event Action<GaugeStateMessage>? OnGaugeStateReady;
     public event Action<RoleDeclarationMessage>? OnRoleDeclarationReady;
     public event Action<GroundEffectPlacedMessage>? OnGroundEffectPlacedReady;
+    public event Action<RaiseIntentMessage>? OnRaiseIntentReady;
 
     public PartyCoordinationService(PartyCoordinationConfig config, IPluginLog log)
     {
@@ -831,6 +836,101 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
     #endregion
 
+    #region Resurrection Coordination
+
+    public bool IsRaiseTargetReservedByOther(uint entityId)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableRaiseCoordination)
+            return false;
+
+        // Check remote reservations
+        if (_remoteRaiseReservations.TryGetValue(entityId, out var reservation))
+        {
+            // Check if reservation is still valid
+            if (!reservation.IsExpired)
+                return true;
+
+            // Expired, clean up
+            _remoteRaiseReservations.Remove(entityId);
+        }
+
+        return false;
+    }
+
+    public bool ReserveRaiseTarget(uint entityId, uint actionId, int castTimeMs, bool usingSwiftcast)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableRaiseCoordination)
+            return true;
+
+        // Check if already reserved by remote with higher priority
+        if (_remoteRaiseReservations.TryGetValue(entityId, out var remoteReservation))
+        {
+            if (!remoteReservation.IsExpired)
+            {
+                // Swiftcast raises take priority over hardcast raises
+                if (remoteReservation.UsingSwiftcast && !usingSwiftcast)
+                {
+                    if (_config.LogCoordinationEvents)
+                        _log.Debug("[PartyCoord] Raise target {0} reserved by remote with Swiftcast, skipping hardcast", entityId);
+                    return false;
+                }
+
+                // If both are same type, first reservation wins
+                if (remoteReservation.UsingSwiftcast == usingSwiftcast)
+                {
+                    if (_config.LogCoordinationEvents)
+                        _log.Debug("[PartyCoord] Raise target {0} already reserved by remote, skipping", entityId);
+                    return false;
+                }
+
+                // Our Swiftcast takes priority over their hardcast - proceed and take over
+            }
+        }
+
+        var now = DateTime.UtcNow;
+
+        // Create local reservation
+        var reservation = new RaiseReservation
+        {
+            InstanceId = _instanceId,
+            TargetEntityId = entityId,
+            ActionId = actionId,
+            ReservedAt = now,
+            ExpectedCompletionTime = now.AddMilliseconds(castTimeMs),
+            UsingSwiftcast = usingSwiftcast
+        };
+
+        _localRaiseReservations[entityId] = reservation;
+
+        // Broadcast the intent
+        var message = new RaiseIntentMessage(_instanceId, entityId, actionId, castTimeMs, usingSwiftcast);
+        OnRaiseIntentReady?.Invoke(message);
+
+        if (_config.LogCoordinationEvents)
+            _log.Debug("[PartyCoord] Reserved raise target {0} (Swiftcast: {1}, cast time: {2}ms)",
+                entityId, usingSwiftcast, castTimeMs);
+
+        return true;
+    }
+
+    public void ClearRaiseReservation(uint entityId)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableRaiseCoordination)
+            return;
+
+        _localRaiseReservations.Remove(entityId);
+
+        if (_config.LogCoordinationEvents)
+            _log.Debug("[PartyCoord] Cleared raise reservation for {0}", entityId);
+    }
+
+    public IReadOnlyDictionary<uint, RaiseReservation> GetRemoteRaiseReservations()
+    {
+        return _remoteRaiseReservations;
+    }
+
+    #endregion
+
     public void Update(uint playerEntityId, uint jobId, bool isEnabled)
     {
         if (!_config.EnablePartyCoordination)
@@ -856,6 +956,9 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
         // Clean up expired ground effects
         CleanupExpiredGroundEffects();
+
+        // Clean up expired raise reservations
+        CleanupExpiredRaiseReservations();
     }
 
     public void Clear()
@@ -872,6 +975,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         _remoteHealerGauges.Clear();
         _remoteHealerRoles.Clear();
         _remoteGroundEffects.Clear();
+        _localRaiseReservations.Clear();
+        _remoteRaiseReservations.Clear();
 
         if (_config.LogCoordinationEvents)
             _log.Debug("[PartyCoord] Cleared all coordination state");
@@ -1239,6 +1344,47 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
                 message.ActionId, message.PositionX, message.PositionY, message.PositionZ, message.InstanceId);
     }
 
+    /// <summary>
+    /// Handles incoming raise intent from a remote instance.
+    /// </summary>
+    public void HandleRemoteRaiseIntent(RaiseIntentMessage message)
+    {
+        if (message.InstanceId == _instanceId)
+            return;
+
+        if (!_config.EnableRaiseCoordination)
+            return;
+
+        // Check if we already have a local reservation for this target
+        if (_localRaiseReservations.TryGetValue(message.TargetEntityId, out var localReservation))
+        {
+            // If we're using Swiftcast and they're not, keep our reservation
+            if (localReservation.UsingSwiftcast && !message.UsingSwiftcast)
+            {
+                if (_config.LogCoordinationEvents)
+                    _log.Debug("[PartyCoord] Ignoring remote raise intent for {0} - we have Swiftcast priority",
+                        message.TargetEntityId);
+                return;
+            }
+        }
+
+        var reservation = new RaiseReservation
+        {
+            InstanceId = message.InstanceId,
+            TargetEntityId = message.TargetEntityId,
+            ActionId = message.ActionId,
+            ReservedAt = DateTime.UtcNow,
+            ExpectedCompletionTime = DateTime.UtcNow.AddMilliseconds(message.CastTimeMs),
+            UsingSwiftcast = message.UsingSwiftcast
+        };
+
+        _remoteRaiseReservations[message.TargetEntityId] = reservation;
+
+        if (_config.LogCoordinationEvents)
+            _log.Debug("[PartyCoord] Remote raise reservation: target {0}, Swiftcast: {1}, cast time: {2}ms from instance {3}",
+                message.TargetEntityId, message.UsingSwiftcast, message.CastTimeMs, message.InstanceId);
+    }
+
     #endregion
 
     #region Cleanup
@@ -1291,6 +1437,17 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
             // Remove ground effects from disconnected instance
             _remoteGroundEffects.RemoveAll(e => e.InstanceId == id);
+
+            // Remove raise reservations from disconnected instance
+            var raiseReservationsToRemove = _remoteRaiseReservations
+                .Where(r => r.Value.InstanceId == id)
+                .Select(r => r.Key)
+                .ToList();
+
+            foreach (var targetId in raiseReservationsToRemove)
+            {
+                _remoteRaiseReservations.Remove(targetId);
+            }
 
             if (_config.LogCoordinationEvents)
                 _log.Info("[PartyCoord] Remote instance timed out: {0}", id);
@@ -1394,6 +1551,31 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     private void CleanupExpiredGroundEffects()
     {
         _remoteGroundEffects.RemoveAll(e => e.IsExpired);
+    }
+
+    private void CleanupExpiredRaiseReservations()
+    {
+        // Clean up local raise reservations
+        var expiredLocal = _localRaiseReservations
+            .Where(r => r.Value.IsExpired)
+            .Select(r => r.Key)
+            .ToList();
+
+        foreach (var key in expiredLocal)
+        {
+            _localRaiseReservations.Remove(key);
+        }
+
+        // Clean up remote raise reservations
+        var expiredRemote = _remoteRaiseReservations
+            .Where(r => r.Value.IsExpired)
+            .Select(r => r.Key)
+            .ToList();
+
+        foreach (var key in expiredRemote)
+        {
+            _remoteRaiseReservations.Remove(key);
+        }
     }
 
     #endregion

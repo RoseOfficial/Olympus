@@ -3,6 +3,7 @@ using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.Common.Modules;
+using Olympus.Services.Party;
 
 namespace Olympus.Rotation.ApolloCore.Modules;
 
@@ -25,6 +26,7 @@ public sealed class ResurrectionModule : BaseResurrectionModule<ApolloContext>, 
     protected override void SetRaiseTarget(ApolloContext context, string target) => context.Debug.RaiseTarget = target;
     protected override void SetPlanningState(ApolloContext context, string state) => context.Debug.PlanningState = state;
     protected override void SetPlannedAction(ApolloContext context, string action) => context.Debug.PlannedAction = action;
+    protected override IPartyCoordinationService? GetPartyCoordinationService(ApolloContext context) => context.PartyCoordinationService;
 
     /// <summary>
     /// WHM should wait for Thin Air before raising if it's available and not already active.

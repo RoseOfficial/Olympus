@@ -207,6 +207,30 @@ public sealed class PartyCoordinationConfig
         set => _minHealAmountToBroadcast = Math.Clamp(value, 0, 10000);
     }
 
+    #region Resurrection Coordination
+
+    /// <summary>
+    /// Enable resurrection coordination with other Olympus instances.
+    /// When enabled, healers will coordinate raises to prevent multiple
+    /// instances from raising the same dead party member.
+    /// </summary>
+    public bool EnableRaiseCoordination { get; set; } = true;
+
+    /// <summary>
+    /// How long raise reservations remain valid (milliseconds).
+    /// After this time plus expected cast time, a reservation expires.
+    /// Should be long enough for cast time + network delay buffer.
+    /// Valid range: 5000 to 15000.
+    /// </summary>
+    private int _raiseReservationExpiryMs = 10000;
+    public int RaiseReservationExpiryMs
+    {
+        get => _raiseReservationExpiryMs;
+        set => _raiseReservationExpiryMs = Math.Clamp(value, 5000, 15000);
+    }
+
+    #endregion
+
     #region Multi-Healer Optimization
 
     /// <summary>

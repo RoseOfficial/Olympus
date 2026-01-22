@@ -3,6 +3,7 @@ using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.AstraeaCore.Context;
 using Olympus.Rotation.Common.Modules;
+using Olympus.Services.Party;
 
 namespace Olympus.Rotation.AstraeaCore.Modules;
 
@@ -25,6 +26,7 @@ public sealed class ResurrectionModule : BaseResurrectionModule<AstraeaContext>,
     protected override void SetRaiseTarget(AstraeaContext context, string target) => context.Debug.RaiseTarget = target;
     protected override void SetPlanningState(AstraeaContext context, string state) => context.Debug.PlanningState = state;
     protected override void SetPlannedAction(AstraeaContext context, string action) => context.Debug.PlannedAction = action;
+    protected override IPartyCoordinationService? GetPartyCoordinationService(AstraeaContext context) => context.PartyCoordinationService;
 
     // Astrologian doesn't have Thin Air equivalent, so no pre-raise buff waiting
 }
