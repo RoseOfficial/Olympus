@@ -198,6 +198,26 @@ public interface IPartyCoordinationService
     /// </summary>
     bool HasRemoteDps { get; }
 
+    /// <summary>
+    /// Gets the current burst window state for healer decision-making.
+    /// Aggregates information about pending and active burst windows from remote DPS instances.
+    /// </summary>
+    /// <returns>Current burst window state including timing and activity information.</returns>
+    BurstWindowState GetBurstWindowState();
+
+    /// <summary>
+    /// Convenience method to check if a burst is either imminent or currently active.
+    /// </summary>
+    /// <param name="imminentSeconds">Seconds to consider as "imminent" (default 5 seconds).</param>
+    /// <returns>True if a burst is happening or about to happen.</returns>
+    bool IsBurstImminentOrActive(float imminentSeconds = 5f);
+
+    /// <summary>
+    /// Gets the number of seconds until the next burst window.
+    /// </summary>
+    /// <returns>Seconds until burst, 0 if already active, -1 if unknown.</returns>
+    float GetSecondsUntilBurst();
+
     #endregion
 
     /// <summary>

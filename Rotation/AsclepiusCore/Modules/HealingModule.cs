@@ -350,15 +350,32 @@ public sealed class HealingModule : IAsclepiusModule
             context.Configuration.Healing,
             out var raidwideSource);
 
+        // Burst awareness: Deploy Kerachole proactively before burst windows
+        // Regen + mit provides sustained healing during high-damage DPS phases
+        var burstImminent = false;
+        var coordConfig = context.Configuration.PartyCoordination;
+        var partyCoord = context.PartyCoordinationService;
+        if (coordConfig.EnableHealerBurstAwareness &&
+            coordConfig.PreferShieldsBeforeBurst &&
+            partyCoord != null)
+        {
+            var burstState = partyCoord.GetBurstWindowState();
+            // Deploy Kerachole 3-8 seconds before burst (similar to raidwide logic)
+            if (burstState.IsImminent && burstState.SecondsUntilBurst >= 3f && burstState.SecondsUntilBurst <= 8f)
+            {
+                burstImminent = true;
+            }
+        }
+
         // Kerachole is best value - use it liberally for regen + mit
-        // If raidwide is coming, use even if party is at high HP
-        if (!raidwideImminent && injuredCount < 2)
+        // If raidwide or burst is coming, use even if party is at high HP
+        if (!raidwideImminent && !burstImminent && injuredCount < 2)
         {
             context.Debug.KeracholeState = $"{injuredCount} injured";
             return false;
         }
 
-        if (!raidwideImminent && avgHp > config.KeracholeThreshold)
+        if (!raidwideImminent && !burstImminent && avgHp > config.KeracholeThreshold)
         {
             context.Debug.KeracholeState = $"Avg HP {avgHp:P0}";
             return false;
@@ -449,6 +466,20 @@ public sealed class HealingModule : IAsclepiusModule
         {
             context.Debug.HolosState = "Skipped (remote mit)";
             return false;
+        }
+
+        // Burst awareness: Delay mitigations during burst windows unless emergency
+        if (coordConfig.EnableHealerBurstAwareness &&
+            coordConfig.DelayMitigationsDuringBurst &&
+            partyCoord != null)
+        {
+            var (avgHpCheck, _, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
+            var burstState = partyCoord.GetBurstWindowState();
+            if (burstState.IsActive && avgHpCheck > context.Configuration.Healing.GcdEmergencyThreshold)
+            {
+                context.Debug.HolosState = $"Delayed (burst active)";
+                return false;
+            }
         }
 
         if (player.Level < SGEActions.Holos.MinLevel)
@@ -577,6 +608,20 @@ public sealed class HealingModule : IAsclepiusModule
         {
             context.Debug.PanhaimaState = "Skipped (remote mit)";
             return false;
+        }
+
+        // Burst awareness: Delay mitigations during burst windows unless emergency
+        if (coordConfig.EnableHealerBurstAwareness &&
+            coordConfig.DelayMitigationsDuringBurst &&
+            partyCoord != null)
+        {
+            var (avgHpCheck, _, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
+            var burstState = partyCoord.GetBurstWindowState();
+            if (burstState.IsActive && avgHpCheck > context.Configuration.Healing.GcdEmergencyThreshold)
+            {
+                context.Debug.PanhaimaState = $"Delayed (burst active)";
+                return false;
+            }
         }
 
         if (player.Level < SGEActions.Panhaima.MinLevel)

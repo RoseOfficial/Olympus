@@ -3,13 +3,35 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v2.21.0 - Healer Burst Awareness
+
+**Healing**
+- All healers now aware of DPS burst windows for optimized decision-making
+- Healers can query party burst state (active, imminent, time remaining)
+- WHM (Apollo): Temperance and Liturgy of the Bell consider burst timing
+- SCH (Athena): Expedient considers burst timing
+- AST (Astraea): Neutral Sect and Collective Unconscious consider burst timing
+- SGE (Asclepius): Kerachole, Holos, and Panhaima consider burst timing
+
+**New Settings**
+- `EnableHealerBurstAwareness` - Master toggle for burst-aware healer decisions (default: on)
+- `BurstImminentWindowSeconds` - How many seconds before burst to consider "imminent" (2-10s, default: 5s)
+- `PreferShieldsBeforeBurst` - Deploy HoTs/shields proactively before burst windows (default: off)
+- `DelayMitigationsDuringBurst` - Delay major mitigations during active bursts unless emergency (default: off)
+
+**How It Works**
+- DPS modules already broadcast raid buff intents via IPC
+- Healers now consume this information to optimize timing
+- When `PreferShieldsBeforeBurst` is enabled, Asylum and Kerachole deploy 3-8 seconds before burst
+- When `DelayMitigationsDuringBurst` is enabled, Temperance/Expedient/etc. wait for burst to end (unless HP is critical)
+<!-- LATEST-END -->
+
 ## v2.20.0 - Pictomancer Starry Muse Coordination
 
 **DPS Coordination**
 - Pictomancer (Iris) now aligns Starry Muse (+5% damage) with party raid buff windows
 - Listens for pending burst intents and synchronizes burst timing with other Olympus users
 - Fills gap where Starry Muse was missed during v2.11.0-v2.13.0 DPS raid buff work
-<!-- LATEST-END -->
 
 ## v2.19.0 - Ninja Party Burst Alignment
 

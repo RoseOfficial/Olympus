@@ -155,6 +155,44 @@ public sealed class PartyCoordinationConfig
 
     #endregion
 
+    #region Healer Burst Awareness
+
+    /// <summary>
+    /// Enable healer burst awareness.
+    /// When enabled, healers will be aware of DPS burst windows and can optimize
+    /// HoT deployment, shield timing, and mitigation cooldowns around burst phases.
+    /// </summary>
+    public bool EnableHealerBurstAwareness { get; set; } = true;
+
+    /// <summary>
+    /// Time window (in seconds) to consider a burst as "imminent".
+    /// If a DPS burst is expected within this window, healers may pre-deploy HoTs or shields.
+    /// Valid range: 2.0 to 10.0 seconds.
+    /// </summary>
+    private float _burstImminentWindowSeconds = 5.0f;
+    public float BurstImminentWindowSeconds
+    {
+        get => _burstImminentWindowSeconds;
+        set => _burstImminentWindowSeconds = Math.Clamp(value, 2.0f, 10.0f);
+    }
+
+    /// <summary>
+    /// Deploy HoTs and shields proactively when a burst is imminent.
+    /// When enabled, healers will deploy Asylum, Kerachole, etc. before burst windows
+    /// so the party has sustained healing during high-damage DPS phases.
+    /// </summary>
+    public bool PreferShieldsBeforeBurst { get; set; } = false;
+
+    /// <summary>
+    /// Delay major party mitigations during active burst windows.
+    /// When enabled, abilities like Temperance, Expedient, etc. will be delayed
+    /// during burst windows unless party HP drops to emergency levels.
+    /// This prevents mitigation timing from conflicting with DPS burst alignment.
+    /// </summary>
+    public bool DelayMitigationsDuringBurst { get; set; } = false;
+
+    #endregion
+
     /// <summary>
     /// Minimum estimated heal amount to broadcast an intent.
     /// Prevents broadcasting for trivial heals that don't matter.

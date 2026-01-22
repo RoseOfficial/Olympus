@@ -187,6 +187,19 @@ public sealed class DefensiveModule : IApolloModule
             return false;
         }
 
+        // Burst awareness: Delay mitigations during burst windows unless emergency
+        if (config.PartyCoordination.EnableHealerBurstAwareness &&
+            config.PartyCoordination.DelayMitigationsDuringBurst &&
+            partyCoord != null)
+        {
+            var burstState = partyCoord.GetBurstWindowState();
+            if (burstState.IsActive && avgHpPercent > config.Healing.GcdEmergencyThreshold)
+            {
+                context.Debug.TemperanceState = $"Delayed (burst active, {burstState.SecondsRemaining:F1}s remaining)";
+                return false;
+            }
+        }
+
         // Check action status before attempting execution
         var actionManager = ActionManager.Instance();
         if (actionManager is not null)
@@ -475,6 +488,20 @@ public sealed class DefensiveModule : IApolloModule
         {
             context.Debug.DefensiveState = "Bell skipped (remote mit)";
             return false;
+        }
+
+        // Burst awareness: Delay mitigations during burst windows unless emergency
+        if (config.PartyCoordination.EnableHealerBurstAwareness &&
+            config.PartyCoordination.DelayMitigationsDuringBurst &&
+            partyCoord != null)
+        {
+            var (avgHpPercent, _, _) = context.PartyHealthMetrics;
+            var burstState = partyCoord.GetBurstWindowState();
+            if (burstState.IsActive && avgHpPercent > config.Healing.GcdEmergencyThreshold)
+            {
+                context.Debug.DefensiveState = $"Bell delayed (burst active)";
+                return false;
+            }
         }
 
         if (ActionExecutor.ExecuteGroundTargeted(context, WHMActions.LiturgyOfTheBell, targetPosition,

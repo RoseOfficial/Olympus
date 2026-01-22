@@ -65,6 +65,20 @@ public sealed class DefensiveModule : BaseDefensiveModule<AthenaContext>, IAthen
             return false;
         }
 
+        // Burst awareness: Delay mitigations during burst windows unless emergency
+        if (coordConfig.EnableHealerBurstAwareness &&
+            coordConfig.DelayMitigationsDuringBurst &&
+            partyCoord != null)
+        {
+            var (avgHpCheck, _, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
+            var burstState = partyCoord.GetBurstWindowState();
+            if (burstState.IsActive && avgHpCheck > context.Configuration.Healing.GcdEmergencyThreshold)
+            {
+                SetDefensiveState(context, $"Expedient delayed (burst active)");
+                return false;
+            }
+        }
+
         if (player.Level < SCHActions.Expedient.MinLevel)
             return false;
 

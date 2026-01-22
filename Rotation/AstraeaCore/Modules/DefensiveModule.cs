@@ -70,6 +70,20 @@ public sealed class DefensiveModule : BaseDefensiveModule<AstraeaContext>, IAstr
             return false;
         }
 
+        // Burst awareness: Delay mitigations during burst windows unless emergency
+        if (coordConfig.EnableHealerBurstAwareness &&
+            coordConfig.DelayMitigationsDuringBurst &&
+            partyCoord != null)
+        {
+            var (avgHp, _, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
+            var burstState = partyCoord.GetBurstWindowState();
+            if (burstState.IsActive && avgHp > context.Configuration.Healing.GcdEmergencyThreshold)
+            {
+                context.Debug.NeutralSectState = $"Delayed (burst active)";
+                return false;
+            }
+        }
+
         if (player.Level < ASTActions.NeutralSect.MinLevel)
             return false;
 
@@ -177,6 +191,20 @@ public sealed class DefensiveModule : BaseDefensiveModule<AstraeaContext>, IAstr
         {
             context.Debug.CollectiveUnconsciousState = "Skipped (remote mit)";
             return false;
+        }
+
+        // Burst awareness: Delay mitigations during burst windows unless emergency
+        if (coordConfig.EnableHealerBurstAwareness &&
+            coordConfig.DelayMitigationsDuringBurst &&
+            partyCoord != null)
+        {
+            var (avgHpCheck, _, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
+            var burstState = partyCoord.GetBurstWindowState();
+            if (burstState.IsActive && avgHpCheck > context.Configuration.Healing.GcdEmergencyThreshold)
+            {
+                context.Debug.CollectiveUnconsciousState = $"Delayed (burst active)";
+                return false;
+            }
         }
 
         if (player.Level < ASTActions.CollectiveUnconscious.MinLevel)

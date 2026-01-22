@@ -313,6 +313,22 @@ public sealed class BuffModule : IApolloModule
             }
         }
 
+        // Burst awareness: Deploy Asylum proactively before burst windows
+        // HoTs provide sustained healing during high-damage DPS phases
+        var shouldDeployForBurst = false;
+        var partyCoord = context.PartyCoordinationService;
+        if (config.PartyCoordination.EnableHealerBurstAwareness &&
+            config.PartyCoordination.PreferShieldsBeforeBurst &&
+            partyCoord != null)
+        {
+            var burstState = partyCoord.GetBurstWindowState();
+            // Deploy Asylum 3-8 seconds before burst (similar to raidwide logic)
+            if (burstState.IsImminent && burstState.SecondsUntilBurst >= 3f && burstState.SecondsUntilBurst <= 8f)
+            {
+                shouldDeployForBurst = true;
+            }
+        }
+
         var tank = context.PartyHelper.FindTankInParty(player);
         Vector3 targetPosition;
 
@@ -338,7 +354,9 @@ public sealed class BuffModule : IApolloModule
         // Execute with appropriate reason
         var reason = shouldDeployForRaidwide
             ? $"pre-raidwide via {raidwideSource}"
-            : $"on {context.Debug.AsylumTarget}";
+            : shouldDeployForBurst
+                ? "pre-burst"
+                : $"on {context.Debug.AsylumTarget}";
 
         if (ActionExecutor.ExecuteGroundTargeted(context, WHMActions.Asylum, targetPosition,
             context.Debug.AsylumTarget, tank?.CurrentHp ?? player.CurrentHp,
@@ -346,7 +364,9 @@ public sealed class BuffModule : IApolloModule
         {
             context.Debug.AsylumState = shouldDeployForRaidwide
                 ? $"Pre-raidwide ({raidwideSource})"
-                : "Executed";
+                : shouldDeployForBurst
+                    ? "Pre-burst"
+                    : "Executed";
             return true;
         }
 

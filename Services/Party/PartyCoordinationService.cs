@@ -481,6 +481,93 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         return true;
     }
 
+    public BurstWindowState GetBurstWindowState()
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableRaidBuffCoordination)
+            return BurstWindowState.NoInfo;
+
+        // Check if we have any remote DPS instances
+        if (!HasRemoteDps)
+            return BurstWindowState.NoInfo;
+
+        var isActive = IsInBurstWindow();
+        var remainingSeconds = GetBurstWindowRemaining();
+
+        // Gather pending intents
+        var pendingIntents = GetPendingRaidBuffIntents();
+        var pendingCount = pendingIntents.Count;
+
+        // Calculate seconds until next burst from pending intents
+        float secondsUntilBurst = -1f;
+        if (isActive)
+        {
+            secondsUntilBurst = 0f;
+        }
+        else if (pendingCount > 0)
+        {
+            // Find the soonest pending intent
+            var now = DateTime.UtcNow;
+            foreach (var intent in pendingIntents)
+            {
+                var expectedActivation = intent.IntentAnnouncedAt.AddSeconds(intent.PlannedDelaySeconds);
+                var timeUntil = (float)(expectedActivation - now).TotalSeconds;
+                if (timeUntil > 0 && (secondsUntilBurst < 0 || timeUntil < secondsUntilBurst))
+                    secondsUntilBurst = timeUntil;
+            }
+        }
+
+        return new BurstWindowState
+        {
+            IsActive = isActive,
+            IsImminent = pendingCount > 0 && !isActive,
+            SecondsUntilBurst = secondsUntilBurst,
+            SecondsRemaining = remainingSeconds,
+            PendingBurstCount = pendingCount,
+            HasBurstInfo = true
+        };
+    }
+
+    public bool IsBurstImminentOrActive(float imminentSeconds = 5f)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableRaidBuffCoordination)
+            return false;
+
+        // Check if currently in burst
+        if (IsInBurstWindow())
+            return true;
+
+        // Check if burst is imminent
+        return HasPendingRaidBuffIntent(imminentSeconds);
+    }
+
+    public float GetSecondsUntilBurst()
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableRaidBuffCoordination)
+            return -1f;
+
+        // If already in burst, return 0
+        if (IsInBurstWindow())
+            return 0f;
+
+        // Find the soonest pending intent
+        var pendingIntents = GetPendingRaidBuffIntents();
+        if (pendingIntents.Count == 0)
+            return -1f;
+
+        var now = DateTime.UtcNow;
+        float soonest = float.MaxValue;
+
+        foreach (var intent in pendingIntents)
+        {
+            var expectedActivation = intent.IntentAnnouncedAt.AddSeconds(intent.PlannedDelaySeconds);
+            var timeUntil = (float)(expectedActivation - now).TotalSeconds;
+            if (timeUntil > 0 && timeUntil < soonest)
+                soonest = timeUntil;
+        }
+
+        return soonest < float.MaxValue ? soonest : -1f;
+    }
+
     #endregion
 
     public void Update(uint playerEntityId, uint jobId, bool isEnabled)

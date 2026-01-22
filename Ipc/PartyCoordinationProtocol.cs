@@ -441,6 +441,44 @@ public sealed class BurstWindowStartMessage : PartyMessage
 }
 
 /// <summary>
+/// Represents the current burst window state for healer consumption.
+/// Healers can query this to optimize shield timing, oGCD holds, and defensive cooldown decisions.
+/// </summary>
+public readonly struct BurstWindowState
+{
+    /// <summary>Whether a burst window is currently active (raid buffs are up).</summary>
+    public bool IsActive { get; init; }
+
+    /// <summary>Whether a burst is imminent (intent announced but not yet active).</summary>
+    public bool IsImminent { get; init; }
+
+    /// <summary>Seconds until the next burst window starts. 0 if active, -1 if unknown.</summary>
+    public float SecondsUntilBurst { get; init; }
+
+    /// <summary>Seconds remaining in the current burst window. 0 if not in burst.</summary>
+    public float SecondsRemaining { get; init; }
+
+    /// <summary>Number of DPS players with pending burst intents.</summary>
+    public int PendingBurstCount { get; init; }
+
+    /// <summary>Whether we have burst info from any remote DPS instances.</summary>
+    public bool HasBurstInfo { get; init; }
+
+    /// <summary>
+    /// Creates a default "no burst info" state.
+    /// </summary>
+    public static BurstWindowState NoInfo => new()
+    {
+        IsActive = false,
+        IsImminent = false,
+        SecondsUntilBurst = -1f,
+        SecondsRemaining = 0f,
+        PendingBurstCount = 0,
+        HasBurstInfo = false
+    };
+}
+
+/// <summary>
 /// Tracks the state of a remote DPS player's raid buffs.
 /// Used to coordinate burst windows between multiple Olympus instances.
 /// </summary>
