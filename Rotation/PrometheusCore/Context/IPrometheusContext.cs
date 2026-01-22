@@ -1,5 +1,6 @@
 using Olympus.Rotation.Common;
 using Olympus.Rotation.PrometheusCore.Helpers;
+using Olympus.Services.Party;
 
 namespace Olympus.Rotation.PrometheusCore.Context;
 
@@ -147,6 +148,16 @@ public interface IPrometheusContext : IRangedDpsRotationContext
     /// Debug state for this rotation.
     /// </summary>
     PrometheusDebugState Debug { get; }
+
+    #endregion
+
+    #region Party Coordination
+
+    /// <summary>
+    /// Service for coordinating burst windows with other Olympus instances.
+    /// Null if party coordination is disabled or unavailable.
+    /// </summary>
+    IPartyCoordinationService? PartyCoordinationService { get; }
 
     #endregion
 }

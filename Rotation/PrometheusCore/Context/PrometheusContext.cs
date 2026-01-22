@@ -8,6 +8,7 @@ using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Cache;
 using Olympus.Services.Debuff;
+using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
 using Olympus.Services.Stats;
@@ -96,6 +97,9 @@ public sealed class PrometheusContext : IPrometheusContext
     public PrometheusPartyHelper PartyHelper { get; }
     public PrometheusDebugState Debug { get; }
 
+    // Party Coordination
+    public IPartyCoordinationService? PartyCoordinationService { get; }
+
     #endregion
 
     private readonly IBattleChara? _currentTarget;
@@ -132,7 +136,8 @@ public sealed class PrometheusContext : IPrometheusContext
         uint lastComboAction,
         float comboTimeRemaining,
         ITimelineService? timelineService = null,
-        IPluginLog? log = null)
+        IPluginLog? log = null,
+        IPartyCoordinationService? partyCoordinationService = null)
     {
         Player = player;
         InCombat = inCombat;
@@ -155,6 +160,7 @@ public sealed class PrometheusContext : IPrometheusContext
         ObjectTable = objectTable;
         PartyList = partyList;
         Log = log;
+        PartyCoordinationService = partyCoordinationService;
 
         StatusHelper = statusHelper;
         PartyHelper = partyHelper;

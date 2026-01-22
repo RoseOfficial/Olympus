@@ -128,6 +128,21 @@ public sealed class BuffModule : IPrometheusModule
             return false;
         }
 
+        // Party coordination: Align with party burst window
+        var partyCoord = context.PartyCoordinationService;
+        if (partyCoord != null && partyCoord.IsPartyCoordinationEnabled &&
+            context.Configuration.PartyCoordination.EnableRaidBuffCoordination)
+        {
+            // Check if party is about to burst - if so, hold briefly to align
+            if (partyCoord.HasPendingRaidBuffIntent(
+                context.Configuration.PartyCoordination.RaidBuffAlignmentWindowSeconds))
+            {
+                context.Debug.BuffState = "Aligning Wildfire with party burst";
+                // Fall through to execute - we want to burst WITH the party
+            }
+            // Note: MCH has no raid buff to announce - we just listen and align
+        }
+
         if (context.ActionService.ExecuteOgcd(MCHActions.Wildfire, target.GameObjectId))
         {
             context.Debug.PlannedAction = MCHActions.Wildfire.Name;

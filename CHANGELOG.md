@@ -3,6 +3,14 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v2.16.0 - Machinist Party Burst Alignment
+
+**DPS Coordination**
+- Machinist (Prometheus) now aligns Wildfire with party raid buff windows
+- Delays Wildfire briefly when other DPS are about to use Battle Voice, Technical Finish, etc.
+- Maximizes damage during coordinated burst phases
+<!-- LATEST-END -->
+
 ## v2.15.0 - Tank-Healer Mitigation Avoidance
 
 **Party Coordination**
@@ -14,7 +22,6 @@ All notable changes to Olympus will be documented in this file.
 - Tanks now check healer mitigations before using party-wide defensives
 - Prevents wasteful stacking (e.g., Divine Veil + Temperance simultaneously)
 - Completes two-way mitigation coordination between tanks and healers
-<!-- LATEST-END -->
 
 ## v2.14.0 - Tank Mitigation Broadcasting
 
