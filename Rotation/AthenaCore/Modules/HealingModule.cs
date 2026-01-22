@@ -307,8 +307,25 @@ public sealed class HealingModule : IAthenaModule
             context.Configuration.Healing,
             out _);
 
-        // Use if party HP is low OR raidwide is imminent
-        if (avgHp > config.SacredSoilThreshold && !raidwideImminent)
+        // Burst awareness: Deploy Sacred Soil proactively before burst windows
+        // Mit + regen provides sustained healing during high-damage DPS phases
+        var burstImminent = false;
+        var coordConfig = context.Configuration.PartyCoordination;
+        var partyCoord = context.PartyCoordinationService;
+        if (coordConfig.EnableHealerBurstAwareness &&
+            coordConfig.PreferShieldsBeforeBurst &&
+            partyCoord != null)
+        {
+            var burstState = partyCoord.GetBurstWindowState();
+            // Deploy Sacred Soil 3-8 seconds before burst (similar to raidwide logic)
+            if (burstState.IsImminent && burstState.SecondsUntilBurst >= 3f && burstState.SecondsUntilBurst <= 8f)
+            {
+                burstImminent = true;
+            }
+        }
+
+        // Use if party HP is low OR raidwide is imminent OR burst is imminent
+        if (avgHp > config.SacredSoilThreshold && !raidwideImminent && !burstImminent)
             return false;
 
         // Count party members in range
@@ -323,8 +340,6 @@ public sealed class HealingModule : IAthenaModule
             return false;
 
         // Check if another instance recently used a party mitigation (cooldown coordination)
-        var partyCoord = context.PartyCoordinationService;
-        var coordConfig = context.Configuration.PartyCoordination;
         if (coordConfig.EnableCooldownCoordination &&
             partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
         {

@@ -3,6 +3,26 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v2.24.0 - Complete Healer Burst Decision Logic
+
+**Healing**
+- Scholar and Astrologian now deploy abilities proactively before DPS burst windows
+- SCH (Athena): Sacred Soil, Whispering Dawn, and Fey Blessing consider burst timing
+- AST (Astraea): Earthly Star placement now considers burst timing with longer maturation window
+
+**How It Works**
+- When `PreferShieldsBeforeBurst` is enabled:
+  - Sacred Soil, Whispering Dawn, Fey Blessing deploy 3-8 seconds before burst (same as Asylum/Kerachole)
+  - Earthly Star places 8-12 seconds before burst (longer window for Giant Dominance maturation)
+- These abilities now also check for imminent raidwides (previously only HP threshold)
+- Emergency HP thresholds still override proactive logic
+
+**Technical**
+- Added raidwide awareness to Whispering Dawn, Fey Blessing, and Earthly Star placement
+- TimelineHelper.IsRaidwideImminent now accepts optional custom window parameter
+- Completes the healer burst awareness feature from v2.21.0
+<!-- LATEST-END -->
+
 ## v2.23.0 - Tank Defensive Synergy
 
 **Tank Coordination**
@@ -22,7 +42,6 @@ All notable changes to Olympus will be documented in this file.
 - Bloodwhetting (WAR)
 - Shadow Wall / Shadowed Vigil (DRK)
 - Nebula / Great Nebula (GNB)
-<!-- LATEST-END -->
 
 ## v2.22.0 - Complete DPS Burst Broadcasting
 

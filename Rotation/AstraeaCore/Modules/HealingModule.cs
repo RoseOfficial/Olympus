@@ -473,6 +473,42 @@ public sealed class HealingModule : IAstraeaModule
         if (!context.ActionService.IsActionReady(ASTActions.EarthlyStar.ActionId))
             return false;
 
+        // Timeline-aware: proactively place before raidwides
+        // Earthly Star needs ~10s to mature for full Giant Dominance potency
+        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
+            context.TimelineService,
+            context.BossMechanicDetector,
+            context.Configuration.Healing,
+            out _,
+            windowSeconds: 12f); // Longer window for Star maturation
+
+        // Burst awareness: Place Earthly Star proactively before burst windows
+        // Star needs ~10s to mature, so place 8-12s before burst
+        var burstImminent = false;
+        var coordConfig = context.Configuration.PartyCoordination;
+        var partyCoord = context.PartyCoordinationService;
+        if (coordConfig.EnableHealerBurstAwareness &&
+            coordConfig.PreferShieldsBeforeBurst &&
+            partyCoord != null)
+        {
+            var burstState = partyCoord.GetBurstWindowState();
+            // Place Star 8-12 seconds before burst for maturation
+            if (burstState.IsImminent && burstState.SecondsUntilBurst >= 8f && burstState.SecondsUntilBurst <= 12f)
+            {
+                burstImminent = true;
+            }
+        }
+
+        // Only place proactively if raidwide or burst is imminent
+        // Otherwise, rely on reactive placement when party HP drops
+        if (!raidwideImminent && !burstImminent)
+        {
+            // Reactive placement: only place if party needs healing
+            var (avgHp, _, _) = context.PartyHealthMetrics;
+            if (avgHp > config.EarthlyStarDetonateThreshold)
+                return false;
+        }
+
         // Determine placement position (Earthly Star is ground-targeted, not entity-targeted)
         var targetPosition = player.Position;
         var targetName = "Self";
@@ -495,7 +531,8 @@ public sealed class HealingModule : IAstraeaModule
 
             context.Debug.PlannedAction = action.Name;
             context.Debug.EarthlyStarState = "Placed";
-            context.LogEarthlyStarDecision("Placed", $"{config.StarPlacement} ({targetName})");
+            var reason = raidwideImminent ? "Raidwide imminent" : (burstImminent ? "Burst imminent" : "Reactive");
+            context.LogEarthlyStarDecision("Placed", $"{config.StarPlacement} ({targetName}) - {reason}");
             return true;
         }
 

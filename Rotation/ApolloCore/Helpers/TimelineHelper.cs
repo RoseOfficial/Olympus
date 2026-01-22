@@ -20,14 +20,17 @@ public static class TimelineHelper
     /// <param name="bossMechanicDetector">Boss mechanic detector for fallback (may be null).</param>
     /// <param name="config">Healing configuration with thresholds.</param>
     /// <param name="source">Output: source of the prediction ("Timeline" or "Pattern").</param>
+    /// <param name="windowSeconds">Optional custom window (defaults to config.RaidwidePreparationWindow).</param>
     /// <returns>True if a raidwide is imminent.</returns>
     public static bool IsRaidwideImminent(
         ITimelineService? timelineService,
         IBossMechanicDetector? bossMechanicDetector,
         HealingConfig config,
-        out string source)
+        out string source,
+        float? windowSeconds = null)
     {
         source = "None";
+        var window = windowSeconds ?? config.RaidwidePreparationWindow;
 
         // Priority 1: Timeline predictions (more accurate when synced)
         if (config.EnableTimelinePredictions &&
@@ -37,7 +40,7 @@ public static class TimelineHelper
         {
             var nextRaidwide = timelineService.NextRaidwide;
             if (nextRaidwide.HasValue &&
-                nextRaidwide.Value.SecondsUntil <= config.RaidwidePreparationWindow &&
+                nextRaidwide.Value.SecondsUntil <= window &&
                 nextRaidwide.Value.SecondsUntil > 0)
             {
                 source = "Timeline";

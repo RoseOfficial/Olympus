@@ -1,5 +1,6 @@
 using Olympus.Config;
 using Olympus.Data;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.AthenaCore.Context;
 using Olympus.Services.Scholar;
 
@@ -256,10 +257,38 @@ public sealed class FairyModule : IAthenaModule
         if (!context.ActionService.IsActionReady(SCHActions.FeyBlessing.ActionId))
             return false;
 
-        // Check party health
         var (avgHp, _, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
-        if (avgHp > config.FeyBlessingThreshold)
-            return false;
+
+        // Timeline-aware: deploy proactively before raidwides
+        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
+            context.TimelineService,
+            context.BossMechanicDetector,
+            context.Configuration.Healing,
+            out _);
+
+        // Burst awareness: Deploy Fey Blessing proactively before burst windows
+        // AoE instant heal provides burst healing during high-damage DPS phases
+        var burstImminent = false;
+        var coordConfig = context.Configuration.PartyCoordination;
+        var partyCoord = context.PartyCoordinationService;
+        if (coordConfig.EnableHealerBurstAwareness &&
+            coordConfig.PreferShieldsBeforeBurst &&
+            partyCoord != null)
+        {
+            var burstState = partyCoord.GetBurstWindowState();
+            // Deploy Fey Blessing 3-8 seconds before burst
+            if (burstState.IsImminent && burstState.SecondsUntilBurst >= 3f && burstState.SecondsUntilBurst <= 8f)
+            {
+                burstImminent = true;
+            }
+        }
+
+        // Skip HP check if deploying proactively for raidwide/burst
+        if (!raidwideImminent && !burstImminent)
+        {
+            if (avgHp > config.FeyBlessingThreshold)
+                return false;
+        }
 
         var action = SCHActions.FeyBlessing;
         if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
@@ -289,12 +318,40 @@ public sealed class FairyModule : IAthenaModule
         if (!context.ActionService.IsActionReady(SCHActions.WhisperingDawn.ActionId))
             return false;
 
-        // Check party health and injury count
         var (avgHp, _, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
-        if (avgHp > config.WhisperingDawnThreshold)
-            return false;
-        if (injuredCount < config.WhisperingDawnMinTargets)
-            return false;
+
+        // Timeline-aware: deploy proactively before raidwides
+        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
+            context.TimelineService,
+            context.BossMechanicDetector,
+            context.Configuration.Healing,
+            out _);
+
+        // Burst awareness: Deploy Whispering Dawn proactively before burst windows
+        // AoE HoT provides sustained healing during high-damage DPS phases
+        var burstImminent = false;
+        var coordConfig = context.Configuration.PartyCoordination;
+        var partyCoord = context.PartyCoordinationService;
+        if (coordConfig.EnableHealerBurstAwareness &&
+            coordConfig.PreferShieldsBeforeBurst &&
+            partyCoord != null)
+        {
+            var burstState = partyCoord.GetBurstWindowState();
+            // Deploy Whispering Dawn 3-8 seconds before burst
+            if (burstState.IsImminent && burstState.SecondsUntilBurst >= 3f && burstState.SecondsUntilBurst <= 8f)
+            {
+                burstImminent = true;
+            }
+        }
+
+        // Skip HP check if deploying proactively for raidwide/burst
+        if (!raidwideImminent && !burstImminent)
+        {
+            if (avgHp > config.WhisperingDawnThreshold)
+                return false;
+            if (injuredCount < config.WhisperingDawnMinTargets)
+                return false;
+        }
 
         var action = SCHActions.WhisperingDawn;
         if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
