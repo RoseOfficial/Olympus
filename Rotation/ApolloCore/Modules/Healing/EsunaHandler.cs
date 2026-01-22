@@ -58,6 +58,22 @@ public sealed class EsunaHandler : IHealingHandler
             return false;
         }
 
+        // Check if another Olympus instance is already cleansing this target
+        var partyCoord = context.PartyCoordinationService;
+        var targetEntityId = (uint)target.GameObjectId;
+        if (partyCoord?.IsCleanseTargetReservedByOther(targetEntityId) == true)
+        {
+            context.Debug.EsunaState = "Reserved by other";
+            return false;
+        }
+
+        // Reserve the target before executing
+        if (partyCoord != null && !partyCoord.ReserveCleanseTarget(targetEntityId, statusId, WHMActions.Esuna.ActionId, (int)priority))
+        {
+            context.Debug.EsunaState = "Failed to reserve";
+            return false;
+        }
+
         context.Debug.EsunaTarget = target.Name?.TextValue ?? "Unknown";
         context.Debug.EsunaState = $"Cleansing {priority} debuff";
 
@@ -68,6 +84,8 @@ public sealed class EsunaHandler : IHealingHandler
             return true;
         }
 
+        // Clear reservation if execution failed
+        partyCoord?.ClearCleanseReservation(targetEntityId);
         return false;
     }
 

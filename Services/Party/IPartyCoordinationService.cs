@@ -370,6 +370,39 @@ public interface IPartyCoordinationService
 
     #endregion
 
+    #region Cleanse Coordination
+
+    /// <summary>
+    /// Checks if a cleanse target is currently reserved by another Olympus instance.
+    /// </summary>
+    /// <param name="entityId">The entity ID of the party member with the debuff.</param>
+    /// <returns>True if another instance is already cleansing this target.</returns>
+    bool IsCleanseTargetReservedByOther(uint entityId);
+
+    /// <summary>
+    /// Reserves a cleanse target and broadcasts the intent to other instances.
+    /// </summary>
+    /// <param name="entityId">The target entity ID.</param>
+    /// <param name="statusId">The status ID of the debuff being cleansed.</param>
+    /// <param name="actionId">The cleanse action ID (Esuna).</param>
+    /// <param name="debuffPriority">The priority of the debuff being cleansed.</param>
+    /// <returns>True if reservation succeeded.</returns>
+    bool ReserveCleanseTarget(uint entityId, uint statusId, uint actionId, int debuffPriority);
+
+    /// <summary>
+    /// Clears a cleanse reservation after the cleanse completes or is interrupted.
+    /// </summary>
+    /// <param name="entityId">The target entity ID.</param>
+    void ClearCleanseReservation(uint entityId);
+
+    /// <summary>
+    /// Gets all current remote cleanse reservations.
+    /// Key is target entity ID, value is the reservation info.
+    /// </summary>
+    IReadOnlyDictionary<uint, CleanseReservation> GetRemoteCleanseReservations();
+
+    #endregion
+
     /// <summary>
     /// Updates the service state. Should be called once per frame.
     /// </summary>

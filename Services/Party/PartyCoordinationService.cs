@@ -57,6 +57,10 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     private readonly Dictionary<uint, RaiseReservation> _localRaiseReservations = new();
     private readonly Dictionary<uint, RaiseReservation> _remoteRaiseReservations = new();
 
+    // Cleanse reservation tracking
+    private readonly Dictionary<uint, CleanseReservation> _localCleanseReservations = new();
+    private readonly Dictionary<uint, CleanseReservation> _remoteCleanseReservations = new();
+
     // Heartbeat timing
     private DateTime _lastHeartbeatSent = DateTime.MinValue;
     private DateTime _lastGaugeBroadcast = DateTime.MinValue;
@@ -73,6 +77,7 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     public event Action<RoleDeclarationMessage>? OnRoleDeclarationReady;
     public event Action<GroundEffectPlacedMessage>? OnGroundEffectPlacedReady;
     public event Action<RaiseIntentMessage>? OnRaiseIntentReady;
+    public event Action<CleanseIntentMessage>? OnCleanseIntentReady;
 
     public PartyCoordinationService(PartyCoordinationConfig config, IPluginLog log)
     {
@@ -952,6 +957,79 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
     #endregion
 
+    #region Cleanse Coordination
+
+    public bool IsCleanseTargetReservedByOther(uint entityId)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableCleanseCoordination)
+            return false;
+
+        // Check remote reservations
+        if (_remoteCleanseReservations.TryGetValue(entityId, out var reservation))
+        {
+            // Check if reservation is still valid
+            if (!reservation.IsExpired)
+                return true;
+
+            // Expired, clean up
+            _remoteCleanseReservations.Remove(entityId);
+        }
+
+        return false;
+    }
+
+    public bool ReserveCleanseTarget(uint entityId, uint statusId, uint actionId, int debuffPriority)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableCleanseCoordination)
+            return true;
+
+        // Check if already reserved by remote
+        if (IsCleanseTargetReservedByOther(entityId))
+            return false;
+
+        var now = DateTime.UtcNow;
+
+        // Create local reservation
+        var reservation = new CleanseReservation
+        {
+            InstanceId = _instanceId,
+            TargetEntityId = entityId,
+            StatusId = statusId,
+            ReservedAt = now,
+            ExpiresAt = now.AddMilliseconds(_config.CleanseReservationExpiryMs)
+        };
+
+        _localCleanseReservations[entityId] = reservation;
+
+        // Broadcast the intent
+        var message = new CleanseIntentMessage(_instanceId, entityId, statusId, actionId, debuffPriority);
+        OnCleanseIntentReady?.Invoke(message);
+
+        if (_config.LogCoordinationEvents)
+            _log.Debug("[PartyCoord] Reserved cleanse target {0} (status {1}, priority {2})",
+                entityId, statusId, debuffPriority);
+
+        return true;
+    }
+
+    public void ClearCleanseReservation(uint entityId)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableCleanseCoordination)
+            return;
+
+        _localCleanseReservations.Remove(entityId);
+
+        if (_config.LogCoordinationEvents)
+            _log.Debug("[PartyCoord] Cleared cleanse reservation for {0}", entityId);
+    }
+
+    public IReadOnlyDictionary<uint, CleanseReservation> GetRemoteCleanseReservations()
+    {
+        return _remoteCleanseReservations;
+    }
+
+    #endregion
+
     public void Update(uint playerEntityId, uint jobId, bool isEnabled)
     {
         if (!_config.EnablePartyCoordination)
@@ -980,6 +1058,9 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
         // Clean up expired raise reservations
         CleanupExpiredRaiseReservations();
+
+        // Clean up expired cleanse reservations
+        CleanupExpiredCleanseReservations();
     }
 
     public void Clear()
@@ -998,6 +1079,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         _remoteGroundEffects.Clear();
         _localRaiseReservations.Clear();
         _remoteRaiseReservations.Clear();
+        _localCleanseReservations.Clear();
+        _remoteCleanseReservations.Clear();
 
         if (_config.LogCoordinationEvents)
             _log.Debug("[PartyCoord] Cleared all coordination state");
@@ -1407,6 +1490,33 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
                 message.TargetEntityId, message.UsingSwiftcast, message.CastTimeMs, message.InstanceId);
     }
 
+    /// <summary>
+    /// Handles incoming cleanse intent from a remote instance.
+    /// </summary>
+    public void HandleRemoteCleanseIntent(CleanseIntentMessage message)
+    {
+        if (message.InstanceId == _instanceId)
+            return;
+
+        if (!_config.EnableCleanseCoordination)
+            return;
+
+        var reservation = new CleanseReservation
+        {
+            InstanceId = message.InstanceId,
+            TargetEntityId = message.TargetEntityId,
+            StatusId = message.StatusId,
+            ReservedAt = DateTime.UtcNow,
+            ExpiresAt = DateTime.UtcNow.AddMilliseconds(_config.CleanseReservationExpiryMs)
+        };
+
+        _remoteCleanseReservations[message.TargetEntityId] = reservation;
+
+        if (_config.LogCoordinationEvents)
+            _log.Debug("[PartyCoord] Remote cleanse reservation: target {0}, status {1}, priority {2} from instance {3}",
+                message.TargetEntityId, message.StatusId, message.DebuffPriority, message.InstanceId);
+    }
+
     #endregion
 
     #region Cleanup
@@ -1469,6 +1579,17 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             foreach (var targetId in raiseReservationsToRemove)
             {
                 _remoteRaiseReservations.Remove(targetId);
+            }
+
+            // Remove cleanse reservations from disconnected instance
+            var cleanseReservationsToRemove = _remoteCleanseReservations
+                .Where(r => r.Value.InstanceId == id)
+                .Select(r => r.Key)
+                .ToList();
+
+            foreach (var targetId in cleanseReservationsToRemove)
+            {
+                _remoteCleanseReservations.Remove(targetId);
             }
 
             if (_config.LogCoordinationEvents)
@@ -1597,6 +1718,31 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         foreach (var key in expiredRemote)
         {
             _remoteRaiseReservations.Remove(key);
+        }
+    }
+
+    private void CleanupExpiredCleanseReservations()
+    {
+        // Clean up local cleanse reservations
+        var expiredLocal = _localCleanseReservations
+            .Where(r => r.Value.IsExpired)
+            .Select(r => r.Key)
+            .ToList();
+
+        foreach (var key in expiredLocal)
+        {
+            _localCleanseReservations.Remove(key);
+        }
+
+        // Clean up remote cleanse reservations
+        var expiredRemote = _remoteCleanseReservations
+            .Where(r => r.Value.IsExpired)
+            .Select(r => r.Key)
+            .ToList();
+
+        foreach (var key in expiredRemote)
+        {
+            _remoteCleanseReservations.Remove(key);
         }
     }
 

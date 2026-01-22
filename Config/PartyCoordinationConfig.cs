@@ -231,6 +231,30 @@ public sealed class PartyCoordinationConfig
 
     #endregion
 
+    #region Cleanse Coordination
+
+    /// <summary>
+    /// Enable cleanse coordination with other Olympus instances.
+    /// When enabled, healers will coordinate Esuna usage to prevent multiple
+    /// instances from cleansing the same debuff on the same target.
+    /// </summary>
+    public bool EnableCleanseCoordination { get; set; } = true;
+
+    /// <summary>
+    /// How long cleanse reservations remain valid (milliseconds).
+    /// After this time, a reservation expires.
+    /// Should be short since Esuna is instant cast.
+    /// Valid range: 1000 to 5000.
+    /// </summary>
+    private int _cleanseReservationExpiryMs = 2000;
+    public int CleanseReservationExpiryMs
+    {
+        get => _cleanseReservationExpiryMs;
+        set => _cleanseReservationExpiryMs = Math.Clamp(value, 1000, 5000);
+    }
+
+    #endregion
+
     #region Multi-Healer Optimization
 
     /// <summary>

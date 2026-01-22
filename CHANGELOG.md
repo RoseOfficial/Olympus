@@ -3,6 +3,24 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v2.28.0 - Esuna Coordination
+
+**Healing**
+- Healers now coordinate Esuna usage between Olympus instances
+- Prevents multiple healers from cleansing the same debuff on the same target
+- Currently integrated with Apollo (WHM) - other healers will follow
+
+**How It Works**
+- When a healer is about to cast Esuna, Olympus checks if another instance is already cleansing that target
+- The first healer to cast reserves the target via IPC
+- Other healers will skip that target and look for other party members with cleansable debuffs
+- Reservations expire quickly (2 seconds) since Esuna is instant cast
+
+**New Settings**
+- `EnableCleanseCoordination` - Master toggle for cleanse coordination (default: on)
+- `CleanseReservationExpiryMs` - How long cleanse reservations remain valid (1000-5000ms, default: 2000ms)
+<!-- LATEST-END -->
+
 ## v2.27.0 - Tank Invulnerability Coordination
 
 **Tank Coordination**
@@ -14,7 +32,6 @@ All notable changes to Olympus will be documented in this file.
 **New Settings**
 - `EnableInvulnerabilityCoordination` - Master toggle for invuln coordination (default: on)
 - `InvulnerabilityStaggerWindowSeconds` - How long to delay if another tank used an invuln recently (1-10s, default: 5s)
-<!-- LATEST-END -->
 
 ## v2.26.0 - Resurrection Coordination
 

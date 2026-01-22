@@ -41,6 +41,9 @@ public enum PartyMessageType
 
     /// <summary>Announce intent to raise a dead party member.</summary>
     RaiseIntent = 10,
+
+    /// <summary>Announce intent to cleanse a debuff from a party member.</summary>
+    CleanseIntent = 11,
 }
 
 /// <summary>
@@ -102,6 +105,7 @@ public abstract class PartyMessage
                 PartyMessageType.RoleDeclaration => JsonSerializer.Deserialize<RoleDeclarationMessage>(json, PartyMessageJsonContext.Options),
                 PartyMessageType.GroundEffectPlaced => JsonSerializer.Deserialize<GroundEffectPlacedMessage>(json, PartyMessageJsonContext.Options),
                 PartyMessageType.RaiseIntent => JsonSerializer.Deserialize<RaiseIntentMessage>(json, PartyMessageJsonContext.Options),
+                PartyMessageType.CleanseIntent => JsonSerializer.Deserialize<CleanseIntentMessage>(json, PartyMessageJsonContext.Options),
                 _ => null
             };
         }
@@ -852,4 +856,66 @@ public sealed class RaiseReservation
     /// Reservations expire 500ms after expected completion to account for network delay.
     /// </summary>
     public bool IsExpired => DateTime.UtcNow > ExpectedCompletionTime.AddMilliseconds(500);
+}
+
+/// <summary>
+/// Message announcing intent to cleanse a debuff from a party member.
+/// Used to reserve cleanse targets and prevent multiple healers from cleansing the same target.
+/// </summary>
+public sealed class CleanseIntentMessage : PartyMessage
+{
+    /// <summary>Entity ID of the cleanse target.</summary>
+    [JsonPropertyName("tid")]
+    public uint TargetEntityId { get; set; }
+
+    /// <summary>Status ID of the debuff being cleansed.</summary>
+    [JsonPropertyName("sid")]
+    public uint StatusId { get; set; }
+
+    /// <summary>Action ID of the cleanse spell being cast (Esuna).</summary>
+    [JsonPropertyName("act")]
+    public uint ActionId { get; set; }
+
+    /// <summary>Priority of the debuff being cleansed.</summary>
+    [JsonPropertyName("pri")]
+    public int DebuffPriority { get; set; }
+
+    public CleanseIntentMessage() : base(PartyMessageType.CleanseIntent) { }
+
+    public CleanseIntentMessage(Guid instanceId, uint targetEntityId, uint statusId, uint actionId, int debuffPriority)
+        : base(PartyMessageType.CleanseIntent)
+    {
+        InstanceId = instanceId;
+        TargetEntityId = targetEntityId;
+        StatusId = statusId;
+        ActionId = actionId;
+        DebuffPriority = debuffPriority;
+    }
+}
+
+/// <summary>
+/// Represents a cleanse reservation from a remote instance.
+/// Used to prevent multiple healers from cleansing the same debuff on the same target.
+/// </summary>
+public sealed class CleanseReservation
+{
+    /// <summary>Instance that made the reservation.</summary>
+    public Guid InstanceId { get; init; }
+
+    /// <summary>Target entity ID.</summary>
+    public uint TargetEntityId { get; init; }
+
+    /// <summary>Status ID of the debuff being cleansed.</summary>
+    public uint StatusId { get; init; }
+
+    /// <summary>When the reservation was made.</summary>
+    public DateTime ReservedAt { get; init; }
+
+    /// <summary>When the reservation expires.</summary>
+    public DateTime ExpiresAt { get; init; }
+
+    /// <summary>
+    /// Whether this reservation has expired.
+    /// </summary>
+    public bool IsExpired => DateTime.UtcNow > ExpiresAt;
 }
