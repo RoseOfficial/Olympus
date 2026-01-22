@@ -435,6 +435,60 @@ public interface IPartyCoordinationService
 
     #endregion
 
+    #region Tank Swap Coordination
+
+    /// <summary>
+    /// Whether any remote tank Olympus instances are detected.
+    /// </summary>
+    bool HasRemoteTank { get; }
+
+    /// <summary>
+    /// Gets a pending tank swap request from a remote tank for the specified target.
+    /// Returns null if no pending request exists.
+    /// </summary>
+    /// <param name="targetEntityId">The boss entity ID to check for swap requests.</param>
+    /// <returns>The pending swap reservation, or null if none exists.</returns>
+    TankSwapReservation? GetPendingTankSwapRequest(uint targetEntityId);
+
+    /// <summary>
+    /// Checks if a tank swap is currently in progress for the specified target.
+    /// A swap is in progress if either tank has announced intent and is awaiting confirmation.
+    /// </summary>
+    /// <param name="targetEntityId">The boss entity ID to check.</param>
+    /// <returns>True if a swap is in progress.</returns>
+    bool IsTankSwapInProgress(uint targetEntityId);
+
+    /// <summary>
+    /// Requests a coordinated tank swap with the co-tank.
+    /// </summary>
+    /// <param name="targetEntityId">The boss entity ID to swap on.</param>
+    /// <param name="wantToTakeAggro">True if this tank wants to take aggro (Provoke), false to give (Shirk).</param>
+    /// <param name="priority">Priority/urgency of the swap request.</param>
+    /// <returns>True if the request was successfully sent.</returns>
+    bool RequestTankSwap(uint targetEntityId, bool wantToTakeAggro, int priority = 0);
+
+    /// <summary>
+    /// Confirms a pending tank swap request from the co-tank.
+    /// Call this before executing the corresponding action (Provoke or Shirk).
+    /// </summary>
+    /// <param name="targetEntityId">The boss entity ID being swapped on.</param>
+    /// <returns>True if confirmation was sent successfully.</returns>
+    bool ConfirmTankSwap(uint targetEntityId);
+
+    /// <summary>
+    /// Clears a tank swap reservation after the swap completes or times out.
+    /// </summary>
+    /// <param name="targetEntityId">The boss entity ID.</param>
+    void ClearTankSwapReservation(uint targetEntityId);
+
+    /// <summary>
+    /// Gets all current remote tank swap reservations.
+    /// Key is target entity ID, value is the reservation info.
+    /// </summary>
+    IReadOnlyDictionary<uint, TankSwapReservation> GetRemoteTankSwapReservations();
+
+    #endregion
+
     /// <summary>
     /// Updates the service state. Should be called once per frame.
     /// </summary>

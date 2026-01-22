@@ -280,6 +280,42 @@ public sealed class PartyCoordinationConfig
 
     #endregion
 
+    #region Tank Swap Coordination
+
+    /// <summary>
+    /// Enable tank swap coordination with other Olympus instances.
+    /// When enabled, tanks will coordinate Provoke and Shirk usage to prevent
+    /// redundant actions and enable synchronized tank swaps.
+    /// </summary>
+    public bool EnableTankSwapCoordination { get; set; } = true;
+
+    /// <summary>
+    /// How long tank swap reservations remain valid (milliseconds).
+    /// After this time, a reservation expires and the tank acts solo.
+    /// Should be long enough for coordination but not delay critical swaps.
+    /// Valid range: 3000 to 10000.
+    /// </summary>
+    private int _tankSwapReservationExpiryMs = 5000;
+    public int TankSwapReservationExpiryMs
+    {
+        get => _tankSwapReservationExpiryMs;
+        set => _tankSwapReservationExpiryMs = Math.Clamp(value, 3000, 10000);
+    }
+
+    /// <summary>
+    /// Timeout for co-tank confirmation before acting solo (seconds).
+    /// If co-tank doesn't respond within this time, the tank executes the swap alone.
+    /// Valid range: 0.5 to 3.0 seconds.
+    /// </summary>
+    private float _tankSwapConfirmationTimeoutSeconds = 1.5f;
+    public float TankSwapConfirmationTimeoutSeconds
+    {
+        get => _tankSwapConfirmationTimeoutSeconds;
+        set => _tankSwapConfirmationTimeoutSeconds = Math.Clamp(value, 0.5f, 3.0f);
+    }
+
+    #endregion
+
     #region Multi-Healer Optimization
 
     /// <summary>

@@ -65,6 +65,10 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     private readonly Dictionary<uint, InterruptReservation> _localInterruptReservations = new();
     private readonly Dictionary<uint, InterruptReservation> _remoteInterruptReservations = new();
 
+    // Tank swap reservation tracking
+    private readonly Dictionary<uint, TankSwapReservation> _localTankSwapReservations = new();
+    private readonly Dictionary<uint, TankSwapReservation> _remoteTankSwapReservations = new();
+
     // Heartbeat timing
     private DateTime _lastHeartbeatSent = DateTime.MinValue;
     private DateTime _lastGaugeBroadcast = DateTime.MinValue;
@@ -83,6 +87,7 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     public event Action<RaiseIntentMessage>? OnRaiseIntentReady;
     public event Action<CleanseIntentMessage>? OnCleanseIntentReady;
     public event Action<InterruptIntentMessage>? OnInterruptIntentReady;
+    public event Action<TankSwapIntentMessage>? OnTankSwapIntentReady;
 
     public PartyCoordinationService(PartyCoordinationConfig config, IPluginLog log)
     {
@@ -1108,6 +1113,155 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
     #endregion
 
+    #region Tank Swap Coordination
+
+    public bool HasRemoteTank => _remoteInstances.Values.Any(i => i.IsEnabled && JobRegistry.IsTank(i.JobId));
+
+    public TankSwapReservation? GetPendingTankSwapRequest(uint targetEntityId)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableTankSwapCoordination)
+            return null;
+
+        // Check remote reservations for a pending swap request
+        if (_remoteTankSwapReservations.TryGetValue(targetEntityId, out var reservation))
+        {
+            if (!reservation.IsExpired && !reservation.IsConfirmation)
+                return reservation;
+
+            // Expired or already confirmed, clean up
+            if (reservation.IsExpired)
+                _remoteTankSwapReservations.Remove(targetEntityId);
+        }
+
+        return null;
+    }
+
+    public bool IsTankSwapInProgress(uint targetEntityId)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableTankSwapCoordination)
+            return false;
+
+        // Check if we have a local reservation awaiting confirmation
+        if (_localTankSwapReservations.TryGetValue(targetEntityId, out var localRes))
+        {
+            if (!localRes.IsExpired)
+                return true;
+        }
+
+        // Check if there's a remote swap request
+        if (_remoteTankSwapReservations.TryGetValue(targetEntityId, out var remoteRes))
+        {
+            if (!remoteRes.IsExpired)
+                return true;
+        }
+
+        return false;
+    }
+
+    public bool RequestTankSwap(uint targetEntityId, bool wantToTakeAggro, int priority = 0)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableTankSwapCoordination)
+            return false;
+
+        // Check if there's no remote tank to coordinate with
+        if (!HasRemoteTank)
+            return false;
+
+        // Check if there's already a pending swap from the remote tank
+        var pendingRemote = GetPendingTankSwapRequest(targetEntityId);
+        if (pendingRemote != null)
+        {
+            // Remote tank already requested - check if they want the opposite
+            if (pendingRemote.IntendToTakeAggro != wantToTakeAggro)
+            {
+                // They want to take and we want to give (or vice versa) - this is a match
+                // Confirm their request instead of creating a new one
+                return ConfirmTankSwap(targetEntityId);
+            }
+
+            // Both want the same thing - resolve by priority
+            if (pendingRemote.SwapPriority >= priority)
+            {
+                if (_config.LogCooldownCoordination)
+                    _log.Debug("[PartyCoord] Tank swap request denied - remote has equal or higher priority");
+                return false;
+            }
+        }
+
+        var now = DateTime.UtcNow;
+
+        // Create local reservation
+        var reservation = new TankSwapReservation
+        {
+            InstanceId = _instanceId,
+            TargetEntityId = targetEntityId,
+            IntendToTakeAggro = wantToTakeAggro,
+            IsConfirmation = false,
+            SwapPriority = priority,
+            ReservedAt = now,
+            ExpiresAt = now.AddMilliseconds(_config.TankSwapReservationExpiryMs)
+        };
+
+        _localTankSwapReservations[targetEntityId] = reservation;
+
+        // Broadcast the intent
+        var message = new TankSwapIntentMessage(_instanceId, targetEntityId, wantToTakeAggro, false, priority);
+        OnTankSwapIntentReady?.Invoke(message);
+
+        if (_config.LogCooldownCoordination)
+            _log.Debug("[PartyCoord] Requested tank swap on {0} (take aggro: {1}, priority: {2})",
+                targetEntityId, wantToTakeAggro, priority);
+
+        return true;
+    }
+
+    public bool ConfirmTankSwap(uint targetEntityId)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableTankSwapCoordination)
+            return false;
+
+        // Get the pending remote request to confirm
+        var pendingRemote = GetPendingTankSwapRequest(targetEntityId);
+        if (pendingRemote == null)
+        {
+            if (_config.LogCooldownCoordination)
+                _log.Debug("[PartyCoord] No pending tank swap to confirm for {0}", targetEntityId);
+            return false;
+        }
+
+        // Determine our intent (opposite of what they want)
+        var ourIntent = !pendingRemote.IntendToTakeAggro;
+
+        // Broadcast the confirmation
+        var message = new TankSwapIntentMessage(_instanceId, targetEntityId, ourIntent, true, pendingRemote.SwapPriority);
+        OnTankSwapIntentReady?.Invoke(message);
+
+        if (_config.LogCooldownCoordination)
+            _log.Debug("[PartyCoord] Confirmed tank swap on {0} (take aggro: {1})",
+                targetEntityId, ourIntent);
+
+        return true;
+    }
+
+    public void ClearTankSwapReservation(uint targetEntityId)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableTankSwapCoordination)
+            return;
+
+        _localTankSwapReservations.Remove(targetEntityId);
+        _remoteTankSwapReservations.Remove(targetEntityId);
+
+        if (_config.LogCooldownCoordination)
+            _log.Debug("[PartyCoord] Cleared tank swap reservation for {0}", targetEntityId);
+    }
+
+    public IReadOnlyDictionary<uint, TankSwapReservation> GetRemoteTankSwapReservations()
+    {
+        return _remoteTankSwapReservations;
+    }
+
+    #endregion
+
     public void Update(uint playerEntityId, uint jobId, bool isEnabled)
     {
         if (!_config.EnablePartyCoordination)
@@ -1142,6 +1296,9 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
         // Clean up expired interrupt reservations
         CleanupExpiredInterruptReservations();
+
+        // Clean up expired tank swap reservations
+        CleanupExpiredTankSwapReservations();
     }
 
     public void Clear()
@@ -1164,6 +1321,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         _remoteCleanseReservations.Clear();
         _localInterruptReservations.Clear();
         _remoteInterruptReservations.Clear();
+        _localTankSwapReservations.Clear();
+        _remoteTankSwapReservations.Clear();
 
         if (_config.LogCoordinationEvents)
             _log.Debug("[PartyCoord] Cleared all coordination state");
@@ -1627,6 +1786,35 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
                 message.TargetEntityId, message.ActionId, message.CastTimeMs, message.InstanceId);
     }
 
+    /// <summary>
+    /// Handles incoming tank swap intent from a remote instance.
+    /// </summary>
+    public void HandleRemoteTankSwapIntent(TankSwapIntentMessage message)
+    {
+        if (message.InstanceId == _instanceId)
+            return;
+
+        if (!_config.EnableTankSwapCoordination)
+            return;
+
+        var reservation = new TankSwapReservation
+        {
+            InstanceId = message.InstanceId,
+            TargetEntityId = message.TargetEntityId,
+            IntendToTakeAggro = message.IntendToTakeAggro,
+            IsConfirmation = message.IsConfirmation,
+            SwapPriority = message.SwapPriority,
+            ReservedAt = DateTime.UtcNow,
+            ExpiresAt = DateTime.UtcNow.AddMilliseconds(_config.TankSwapReservationExpiryMs)
+        };
+
+        _remoteTankSwapReservations[message.TargetEntityId] = reservation;
+
+        if (_config.LogCooldownCoordination)
+            _log.Debug("[PartyCoord] Remote tank swap intent: target {0}, take aggro: {1}, confirmation: {2}, priority: {3} from instance {4}",
+                message.TargetEntityId, message.IntendToTakeAggro, message.IsConfirmation, message.SwapPriority, message.InstanceId);
+    }
+
     #endregion
 
     #region Cleanup
@@ -1711,6 +1899,17 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             foreach (var targetId in interruptReservationsToRemove)
             {
                 _remoteInterruptReservations.Remove(targetId);
+            }
+
+            // Remove tank swap reservations from disconnected instance
+            var tankSwapReservationsToRemove = _remoteTankSwapReservations
+                .Where(r => r.Value.InstanceId == id)
+                .Select(r => r.Key)
+                .ToList();
+
+            foreach (var targetId in tankSwapReservationsToRemove)
+            {
+                _remoteTankSwapReservations.Remove(targetId);
             }
 
             if (_config.LogCoordinationEvents)
@@ -1889,6 +2088,31 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         foreach (var key in expiredRemote)
         {
             _remoteInterruptReservations.Remove(key);
+        }
+    }
+
+    private void CleanupExpiredTankSwapReservations()
+    {
+        // Clean up local tank swap reservations
+        var expiredLocal = _localTankSwapReservations
+            .Where(r => r.Value.IsExpired)
+            .Select(r => r.Key)
+            .ToList();
+
+        foreach (var key in expiredLocal)
+        {
+            _localTankSwapReservations.Remove(key);
+        }
+
+        // Clean up remote tank swap reservations
+        var expiredRemote = _remoteTankSwapReservations
+            .Where(r => r.Value.IsExpired)
+            .Select(r => r.Key)
+            .ToList();
+
+        foreach (var key in expiredRemote)
+        {
+            _remoteTankSwapReservations.Remove(key);
         }
     }
 

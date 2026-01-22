@@ -47,6 +47,9 @@ public enum PartyMessageType
 
     /// <summary>Announce intent to interrupt an enemy cast.</summary>
     InterruptIntent = 12,
+
+    /// <summary>Announce intent to perform a tank swap (Provoke or Shirk).</summary>
+    TankSwapIntent = 13,
 }
 
 /// <summary>
@@ -110,6 +113,7 @@ public abstract class PartyMessage
                 PartyMessageType.RaiseIntent => JsonSerializer.Deserialize<RaiseIntentMessage>(json, PartyMessageJsonContext.Options),
                 PartyMessageType.CleanseIntent => JsonSerializer.Deserialize<CleanseIntentMessage>(json, PartyMessageJsonContext.Options),
                 PartyMessageType.InterruptIntent => JsonSerializer.Deserialize<InterruptIntentMessage>(json, PartyMessageJsonContext.Options),
+                PartyMessageType.TankSwapIntent => JsonSerializer.Deserialize<TankSwapIntentMessage>(json, PartyMessageJsonContext.Options),
                 _ => null
             };
         }
@@ -979,4 +983,84 @@ public sealed class InterruptReservation
     /// Whether this reservation has expired.
     /// </summary>
     public bool IsExpired => DateTime.UtcNow > ExpiresAt;
+}
+
+/// <summary>
+/// Message announcing intent to perform a tank swap (Provoke or Shirk).
+/// Used to coordinate tank swaps between two Olympus tank instances.
+/// </summary>
+public sealed class TankSwapIntentMessage : PartyMessage
+{
+    /// <summary>Entity ID of the boss being swapped on.</summary>
+    [JsonPropertyName("tid")]
+    public uint TargetEntityId { get; set; }
+
+    /// <summary>
+    /// True if this tank wants to take aggro (Provoke), false if giving aggro (Shirk).
+    /// </summary>
+    [JsonPropertyName("take")]
+    public bool IntendToTakeAggro { get; set; }
+
+    /// <summary>
+    /// True if this is a confirmation of a remote swap request, false if initiating.
+    /// </summary>
+    [JsonPropertyName("conf")]
+    public bool IsConfirmation { get; set; }
+
+    /// <summary>
+    /// Priority/urgency of the swap request (higher = more urgent).
+    /// Used to resolve conflicts when both tanks request simultaneously.
+    /// </summary>
+    [JsonPropertyName("pri")]
+    public int SwapPriority { get; set; }
+
+    public TankSwapIntentMessage() : base(PartyMessageType.TankSwapIntent) { }
+
+    public TankSwapIntentMessage(Guid instanceId, uint targetEntityId, bool intendToTakeAggro, bool isConfirmation, int swapPriority)
+        : base(PartyMessageType.TankSwapIntent)
+    {
+        InstanceId = instanceId;
+        TargetEntityId = targetEntityId;
+        IntendToTakeAggro = intendToTakeAggro;
+        IsConfirmation = isConfirmation;
+        SwapPriority = swapPriority;
+    }
+}
+
+/// <summary>
+/// Represents a tank swap reservation from a remote instance.
+/// Used to coordinate Provoke and Shirk between two Olympus tanks.
+/// </summary>
+public sealed class TankSwapReservation
+{
+    /// <summary>Instance that made the reservation.</summary>
+    public Guid InstanceId { get; init; }
+
+    /// <summary>Entity ID of the boss being swapped on.</summary>
+    public uint TargetEntityId { get; init; }
+
+    /// <summary>True if the remote tank wants to take aggro (Provoke).</summary>
+    public bool IntendToTakeAggro { get; init; }
+
+    /// <summary>True if this is a confirmation of our swap request.</summary>
+    public bool IsConfirmation { get; init; }
+
+    /// <summary>Priority of the swap request.</summary>
+    public int SwapPriority { get; init; }
+
+    /// <summary>When the reservation was made.</summary>
+    public DateTime ReservedAt { get; init; }
+
+    /// <summary>When the reservation expires.</summary>
+    public DateTime ExpiresAt { get; init; }
+
+    /// <summary>
+    /// Whether this reservation has expired.
+    /// </summary>
+    public bool IsExpired => DateTime.UtcNow > ExpiresAt;
+
+    /// <summary>
+    /// Remaining seconds until this reservation expires.
+    /// </summary>
+    public float RemainingSeconds => Math.Max(0, (float)(ExpiresAt - DateTime.UtcNow).TotalSeconds);
 }

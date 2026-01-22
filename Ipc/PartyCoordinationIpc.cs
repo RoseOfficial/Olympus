@@ -35,6 +35,7 @@ public sealed class PartyCoordinationIpc : IDisposable
     private readonly ICallGateProvider<string, object> _raiseIntentProvider;
     private readonly ICallGateProvider<string, object> _cleanseIntentProvider;
     private readonly ICallGateProvider<string, object> _interruptIntentProvider;
+    private readonly ICallGateProvider<string, object> _tankSwapIntentProvider;
 
     // IPC subscribers (for receiving)
     private readonly ICallGateSubscriber<string, object> _heartbeatSubscriber;
@@ -50,6 +51,7 @@ public sealed class PartyCoordinationIpc : IDisposable
     private readonly ICallGateSubscriber<string, object> _raiseIntentSubscriber;
     private readonly ICallGateSubscriber<string, object> _cleanseIntentSubscriber;
     private readonly ICallGateSubscriber<string, object> _interruptIntentSubscriber;
+    private readonly ICallGateSubscriber<string, object> _tankSwapIntentSubscriber;
 
     public PartyCoordinationIpc(
         IDalamudPluginInterface pluginInterface,
@@ -73,6 +75,7 @@ public sealed class PartyCoordinationIpc : IDisposable
         _raiseIntentProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.RaiseIntent");
         _cleanseIntentProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.CleanseIntent");
         _interruptIntentProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.InterruptIntent");
+        _tankSwapIntentProvider = pluginInterface.GetIpcProvider<string, object>("Olympus.Party.TankSwapIntent");
 
         // Register action handlers (for broadcast)
         _heartbeatProvider.RegisterAction(OnHeartbeatReceived);
@@ -88,6 +91,7 @@ public sealed class PartyCoordinationIpc : IDisposable
         _raiseIntentProvider.RegisterAction(OnRaiseIntentReceived);
         _cleanseIntentProvider.RegisterAction(OnCleanseIntentReceived);
         _interruptIntentProvider.RegisterAction(OnInterruptIntentReceived);
+        _tankSwapIntentProvider.RegisterAction(OnTankSwapIntentReceived);
 
         // Subscribe to receive messages from other instances
         _heartbeatSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.Heartbeat");
@@ -103,6 +107,7 @@ public sealed class PartyCoordinationIpc : IDisposable
         _raiseIntentSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.RaiseIntent");
         _cleanseIntentSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.CleanseIntent");
         _interruptIntentSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.InterruptIntent");
+        _tankSwapIntentSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.TankSwapIntent");
 
         // Wire up service events to IPC broadcasts
         _service.OnHeartbeatReady += SendHeartbeat;
@@ -118,6 +123,7 @@ public sealed class PartyCoordinationIpc : IDisposable
         _service.OnRaiseIntentReady += SendRaiseIntent;
         _service.OnCleanseIntentReady += SendCleanseIntent;
         _service.OnInterruptIntentReady += SendInterruptIntent;
+        _service.OnTankSwapIntentReady += SendTankSwapIntent;
 
         _log.Info("Party coordination IPC initialized");
     }
@@ -290,6 +296,19 @@ public sealed class PartyCoordinationIpc : IDisposable
         catch (Exception ex)
         {
             _log.Warning(ex, "Failed to send interrupt intent");
+        }
+    }
+
+    private void SendTankSwapIntent(TankSwapIntentMessage message)
+    {
+        try
+        {
+            var json = message.ToJson();
+            _tankSwapIntentProvider.SendMessage(json);
+        }
+        catch (Exception ex)
+        {
+            _log.Warning(ex, "Failed to send tank swap intent");
         }
     }
 
@@ -505,6 +524,22 @@ public sealed class PartyCoordinationIpc : IDisposable
         }
     }
 
+    private void OnTankSwapIntentReceived(string json)
+    {
+        try
+        {
+            var message = PartyMessage.FromJson(json) as TankSwapIntentMessage;
+            if (message != null)
+            {
+                _service.HandleRemoteTankSwapIntent(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            _log.Warning(ex, "Failed to process tank swap intent");
+        }
+    }
+
     #endregion
 
     public void Dispose()
@@ -523,6 +558,7 @@ public sealed class PartyCoordinationIpc : IDisposable
         _service.OnRaiseIntentReady -= SendRaiseIntent;
         _service.OnCleanseIntentReady -= SendCleanseIntent;
         _service.OnInterruptIntentReady -= SendInterruptIntent;
+        _service.OnTankSwapIntentReady -= SendTankSwapIntent;
 
         // Unregister IPC handlers
         _heartbeatProvider.UnregisterAction();
@@ -538,6 +574,7 @@ public sealed class PartyCoordinationIpc : IDisposable
         _raiseIntentProvider.UnregisterAction();
         _cleanseIntentProvider.UnregisterAction();
         _interruptIntentProvider.UnregisterAction();
+        _tankSwapIntentProvider.UnregisterAction();
 
         _log.Info("Party coordination IPC disposed");
     }

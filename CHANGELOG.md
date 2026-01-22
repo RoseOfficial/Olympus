@@ -3,6 +3,25 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v2.30.0 - Tank Swap Coordination
+
+**Tank Coordination**
+- Tanks now coordinate Provoke and Shirk between Olympus instances via IPC
+- Prevents redundant actions when both tanks try to swap simultaneously
+- Enables synchronized tank swap sequences for smooth aggro transitions
+
+**How It Works**
+- When a tank needs to swap (losing aggro), Olympus requests coordination from the co-tank
+- The co-tank confirms by preparing to Shirk (or vice versa for Provoke)
+- Both tanks execute their swap actions in sync
+- Falls back to solo action after timeout if co-tank doesn't respond (1.5s default)
+
+**New Settings**
+- `EnableTankSwapCoordination` - Master toggle for tank swap coordination (default: on)
+- `TankSwapReservationExpiryMs` - How long swap reservations remain valid (3000-10000ms, default: 5000ms)
+- `TankSwapConfirmationTimeoutSeconds` - Timeout before acting solo (0.5-3.0s, default: 1.5s)
+<!-- LATEST-END -->
+
 ## v2.29.0 - Interrupt Coordination
 
 **Party Coordination**
@@ -20,7 +39,6 @@ All notable changes to Olympus will be documented in this file.
 **New Settings**
 - `EnableInterruptCoordination` - Master toggle for interrupt coordination (default: on)
 - `InterruptReservationExpiryMs` - How long interrupt reservations remain valid (1000-5000ms, default: 3000ms)
-<!-- LATEST-END -->
 
 ## v2.28.0 - Esuna Coordination
 

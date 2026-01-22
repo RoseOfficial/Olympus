@@ -1,12 +1,14 @@
 using System;
 using Olympus.Data;
 using Olympus.Rotation.HephaestusCore.Context;
+using Olympus.Services.Party;
 
 namespace Olympus.Rotation.HephaestusCore.Modules;
 
 /// <summary>
 /// Handles the Gunbreaker enmity management.
 /// Manages Provoke and Shirk for threat control.
+/// Coordinates with other Olympus tank instances via IPC.
 /// </summary>
 public sealed class EnmityModule : IHephaestusModule
 {
@@ -14,6 +16,7 @@ public sealed class EnmityModule : IHephaestusModule
     public string Name => "Enmity";
 
     private DateTime _lastProvokeTime = DateTime.MinValue;
+    private DateTime _lastSwapRequestTime = DateTime.MinValue;
 
     public bool TryExecute(IHephaestusContext context, bool isMoving)
     {
@@ -72,6 +75,32 @@ public sealed class EnmityModule : IHephaestusModule
             return false;
         }
 
+        var partyCoord = context.PartyCoordinationService;
+        var targetEntityId = (uint)target.GameObjectId;
+
+        // Check if co-tank has requested a swap (they want to give aggro)
+        var pendingSwap = partyCoord?.GetPendingTankSwapRequest(targetEntityId);
+        if (pendingSwap != null && !pendingSwap.IntendToTakeAggro)
+        {
+            // Co-tank wants to give aggro - confirm and execute Provoke
+            if (!context.ActionService.IsActionReady(GNBActions.Provoke.ActionId))
+            {
+                context.Debug.EnmityState = "Provoke on CD (swap pending)";
+                return false;
+            }
+
+            partyCoord?.ConfirmTankSwap(targetEntityId);
+
+            if (context.ActionService.ExecuteOgcd(GNBActions.Provoke, target.GameObjectId))
+            {
+                _lastProvokeTime = DateTime.UtcNow;
+                partyCoord?.ClearTankSwapReservation(targetEntityId);
+                context.Debug.PlannedAction = GNBActions.Provoke.Name;
+                context.Debug.EnmityState = "Provoking (coordinated swap)";
+                return true;
+            }
+        }
+
         // Check if we're losing aggro on the target
         if (!context.EnmityService.IsLosingAggro(target, player.EntityId))
         {
@@ -96,10 +125,27 @@ public sealed class EnmityModule : IHephaestusModule
             return false;
         }
 
-        // Execute Provoke
+        // If we have a remote tank, try coordinated swap first
+        if (partyCoord?.HasRemoteTank == true && !partyCoord.IsTankSwapInProgress(targetEntityId))
+        {
+            var timeSinceLastRequest = (DateTime.UtcNow - _lastSwapRequestTime).TotalSeconds;
+            var timeoutSeconds = context.Configuration.PartyCoordination.TankSwapConfirmationTimeoutSeconds;
+
+            if (timeSinceLastRequest > timeoutSeconds)
+            {
+                // Request coordinated swap
+                partyCoord.RequestTankSwap(targetEntityId, true, 1); // Priority 1 = losing aggro
+                _lastSwapRequestTime = DateTime.UtcNow;
+                context.Debug.EnmityState = "Requesting tank swap";
+                return false; // Wait for confirmation
+            }
+        }
+
+        // Execute Provoke (solo or after timeout)
         if (context.ActionService.ExecuteOgcd(GNBActions.Provoke, target.GameObjectId))
         {
             _lastProvokeTime = DateTime.UtcNow;
+            partyCoord?.ClearTankSwapReservation(targetEntityId);
             context.Debug.PlannedAction = GNBActions.Provoke.Name;
             context.Debug.EnmityState = "Provoking (losing aggro)";
             return true;
@@ -126,7 +172,6 @@ public sealed class EnmityModule : IHephaestusModule
             return false;
         }
 
-        // Only shirk if we're main tank and should be off-tank
         var target = context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy,
             FFXIVConstants.MeleeTargetingRange,
@@ -134,6 +179,42 @@ public sealed class EnmityModule : IHephaestusModule
 
         if (target == null)
             return false;
+
+        var partyCoord = context.PartyCoordinationService;
+        var targetEntityId = (uint)target.GameObjectId;
+
+        // Check if co-tank has requested a swap (they want to take aggro)
+        var pendingSwap = partyCoord?.GetPendingTankSwapRequest(targetEntityId);
+        if (pendingSwap != null && pendingSwap.IntendToTakeAggro)
+        {
+            // Co-tank wants to take aggro - confirm and execute Shirk
+            if (!context.ActionService.IsActionReady(GNBActions.Shirk.ActionId))
+            {
+                context.Debug.EnmityState = "Shirk on CD (swap pending)";
+                return false;
+            }
+
+            // Find co-tank to shirk to
+            var coTankForSwap = context.PartyHelper.FindCoTank(player);
+            if (coTankForSwap == null)
+            {
+                context.Debug.EnmityState = "No co-tank found for swap";
+                return false;
+            }
+
+            partyCoord?.ConfirmTankSwap(targetEntityId);
+
+            if (context.ActionService.ExecuteOgcd(GNBActions.Shirk, coTankForSwap.GameObjectId))
+            {
+                partyCoord?.ClearTankSwapReservation(targetEntityId);
+                context.Debug.PlannedAction = GNBActions.Shirk.Name;
+                context.Debug.EnmityState = "Shirking (coordinated swap)";
+                return true;
+            }
+        }
+
+        // Only shirk if we're main tank and should be off-tank
+        // For now, only shirk when co-tank has aggro and we're #2
 
         // Check if co-tank has aggro
         if (!context.EnmityService.HasCoTankAggro(target, player.EntityId))
