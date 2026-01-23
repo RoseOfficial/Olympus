@@ -3,6 +3,38 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.1.0 - Performance Analytics Foundation
+
+**New Analytics System**
+- Added performance analytics with real-time combat metrics tracking
+- New Analytics window accessible from main window
+- Tracks GCD uptime, deaths, near-deaths, and healing efficiency
+
+**Real-time Metrics**
+- Live combat duration and GCD uptime display
+- Near-death detection when party members drop below configurable HP threshold (default 15%)
+- Death tracking per combat encounter
+- Overheal percentage from CombatEventService integration
+
+**Fight Analysis**
+- Post-fight performance scoring (0-100 scale with letter grades)
+- GCD uptime, cooldown efficiency, healing efficiency, and survival scores
+- Automated issue detection with severity levels
+- Actionable suggestions for improvement
+
+**Session History**
+- Records last 50 fight sessions (configurable)
+- Trend analysis showing improving/declining performance
+- Session comparison with duration, score, and GCD uptime
+- Clear history option for fresh start
+
+**Configuration**
+- Enable/disable tracking toggle
+- Configurable near-death HP threshold (5-30%)
+- Minimum combat duration to record (5-60 seconds)
+- Section visibility toggles for all tabs
+<!-- LATEST-END -->
+
 ## v3.0.0 - Phase 3 Complete: Full Party Coordination
 
 **Milestone Achievement**
@@ -20,7 +52,6 @@ All notable changes to Olympus will be documented in this file.
 - Resurrection targets coordinate to prevent double-raises
 - Esuna targets coordinate to prevent wasted cleanses
 - DPS burst windows align across party
-<!-- LATEST-END -->
 
 ## v2.31.0 - Healer Role & Gauge Coordination
 

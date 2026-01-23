@@ -54,6 +54,7 @@ public sealed class Configuration : IPluginConfiguration
     public RoleActionConfig RoleActions { get; set; } = new();
     public DebugConfig Debug { get; set; } = new();
     public CalibrationConfig Calibration { get; set; } = new();
+    public AnalyticsConfig Analytics { get; set; } = new();
 
     // Job-specific configuration - Healers
     public ScholarConfig Scholar { get; set; } = new();
@@ -85,6 +86,7 @@ public sealed class Configuration : IPluginConfiguration
         var wasEnabled = Enabled;
         var mainVisible = MainWindowVisible;
         var debugVisible = Debug.DebugWindowVisible;
+        var analyticsVisible = Analytics.AnalyticsWindowVisible;
         var seenWelcome = HasSeenWelcome;
 
         // Reset general behavior
@@ -106,6 +108,7 @@ public sealed class Configuration : IPluginConfiguration
         RoleActions = new RoleActionConfig();
         Debug = new DebugConfig();
         Calibration = new CalibrationConfig();
+        Analytics = new AnalyticsConfig();
         Scholar = new ScholarConfig();
         Astrologian = new AstrologianConfig();
         Sage = new SageConfig();
@@ -120,6 +123,7 @@ public sealed class Configuration : IPluginConfiguration
         Enabled = wasEnabled;
         MainWindowVisible = mainVisible;
         Debug.DebugWindowVisible = debugVisible;
+        Analytics.AnalyticsWindowVisible = analyticsVisible;
         HasSeenWelcome = seenWelcome;
     }
 }
