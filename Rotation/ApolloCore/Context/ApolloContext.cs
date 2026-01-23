@@ -15,6 +15,7 @@ using Olympus.Services.Resource;
 using Olympus.Services.Stats;
 using Olympus.Services.Cache;
 using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation.ApolloCore.Context;
@@ -68,6 +69,9 @@ public sealed class ApolloContext : IApolloContext
 
     // Party coordination
     public IPartyCoordinationService? PartyCoordinationService { get; }
+
+    // Training mode
+    public ITrainingService? TrainingService { get; }
 
     // Debug state (mutable, updated by modules)
     public DebugState Debug { get; }
@@ -153,6 +157,7 @@ public sealed class ApolloContext : IApolloContext
         IShieldTrackingService? shieldTrackingService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITimelineService? timelineService = null,
+        ITrainingService? trainingService = null,
         DebugState? debugState = null,
         IPluginLog? log = null)
     {
@@ -184,6 +189,7 @@ public sealed class ApolloContext : IApolloContext
         ShieldTrackingService = shieldTrackingService;
         PartyCoordinationService = partyCoordinationService;
         TimelineService = timelineService;
+        TrainingService = trainingService;
         Debug = debugState ?? new DebugState();
         HealingCoordination = new HealingCoordinationState();
         Log = log;

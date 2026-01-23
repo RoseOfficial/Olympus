@@ -16,6 +16,7 @@ using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation;
@@ -50,6 +51,9 @@ public sealed class Apollo : BaseHealerRotation<ApolloContext, IApolloModule>
     // Timeline integration
     private readonly ITimelineService? _timelineService;
 
+    // Training service
+    private readonly ITrainingService? _trainingService;
+
     // Modules (sorted by priority - lower = higher priority)
     private readonly List<IApolloModule> _modules;
 
@@ -72,6 +76,7 @@ public sealed class Apollo : BaseHealerRotation<ApolloContext, IApolloModule>
         ShieldTrackingService shieldTrackingService,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
+        ITrainingService? trainingService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -95,6 +100,9 @@ public sealed class Apollo : BaseHealerRotation<ApolloContext, IApolloModule>
     {
         // Store timeline service
         _timelineService = timelineService;
+
+        // Store training service
+        _trainingService = trainingService;
 
         // Initialize helpers
         _statusHelper = new StatusHelper();
@@ -168,6 +176,7 @@ public sealed class Apollo : BaseHealerRotation<ApolloContext, IApolloModule>
             shieldTrackingService: ShieldTrackingService,
             partyCoordinationService: PartyCoordinationService,
             timelineService: _timelineService,
+            trainingService: _trainingService,
             debugState: _debugState,
             log: Log);
     }

@@ -1,7 +1,9 @@
 using System;
+using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ApolloCore.Modules.Healing;
 
@@ -89,6 +91,49 @@ public sealed class BenedictionHandler : IHealingHandler
                 hpPercent,
                 "Benediction",
                 logReason);
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var targetName = target.Name?.TextValue ?? "Unknown";
+                var shortReason = isEmergency
+                    ? $"Emergency heal - {targetName} at {hpPercent:P0}"
+                    : $"Proactive heal - {targetName} taking {targetDamageRate:F0} DPS";
+
+                var factors = new[]
+                {
+                    $"Target HP: {hpPercent:P0}",
+                    $"Missing HP: {missingHp:N0}",
+                    $"Damage intake: {targetDamageRate:F0} DPS",
+                    isEmergency
+                        ? $"Below emergency threshold ({emergencyThreshold:P0})"
+                        : $"Above damage rate threshold ({config.Healing.ProactiveBenedictionDamageRate} DPS)",
+                };
+
+                var alternatives = isEmergency
+                    ? new[] { "Tetragrammaton (but smaller heal)", "Cure II (but GCD)" }
+                    : new[] { "Wait for HP to drop further", "Use smaller heal to conserve Benediction" };
+
+                var tip = isEmergency
+                    ? "Benediction is your emergency button - don't hesitate when HP is critical!"
+                    : "Using Benediction proactively on heavy damage prevents emergencies.";
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = WHMActions.Benediction.ActionId,
+                    ActionName = "Benediction",
+                    Category = "Emergency Healing",
+                    TargetName = targetName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Benediction instantly restores target to full HP. Used on {targetName} who was at {hpPercent:P0} HP with {targetDamageRate:F0} damage per second intake. This {(isEmergency ? "emergency" : "proactive")} usage ensures the target survives.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = tip,
+                    ConceptId = isEmergency ? WhmConcepts.EmergencyHealing : WhmConcepts.BenedictionUsage,
+                    Priority = isEmergency ? ExplanationPriority.Critical : ExplanationPriority.High,
+                });
+            }
 
             return true;
         }

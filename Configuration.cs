@@ -56,6 +56,7 @@ public sealed class Configuration : IPluginConfiguration
     public CalibrationConfig Calibration { get; set; } = new();
     public AnalyticsConfig Analytics { get; set; } = new();
     public FFlogsConfig FFLogs { get; set; } = new();
+    public TrainingConfig Training { get; set; } = new();
 
     // Job-specific configuration - Healers
     public ScholarConfig Scholar { get; set; } = new();
@@ -88,6 +89,7 @@ public sealed class Configuration : IPluginConfiguration
         var mainVisible = MainWindowVisible;
         var debugVisible = Debug.DebugWindowVisible;
         var analyticsVisible = Analytics.AnalyticsWindowVisible;
+        var trainingVisible = Training.TrainingWindowVisible;
         var seenWelcome = HasSeenWelcome;
 
         // Reset general behavior
@@ -111,6 +113,7 @@ public sealed class Configuration : IPluginConfiguration
         Calibration = new CalibrationConfig();
         Analytics = new AnalyticsConfig();
         FFLogs = new FFlogsConfig();
+        Training = new TrainingConfig();
         Scholar = new ScholarConfig();
         Astrologian = new AstrologianConfig();
         Sage = new SageConfig();
@@ -126,6 +129,7 @@ public sealed class Configuration : IPluginConfiguration
         MainWindowVisible = mainVisible;
         Debug.DebugWindowVisible = debugVisible;
         Analytics.AnalyticsWindowVisible = analyticsVisible;
+        Training.TrainingWindowVisible = trainingVisible;
         HasSeenWelcome = seenWelcome;
     }
 }

@@ -3,6 +3,7 @@ using Olympus.Rotation.Common;
 using Olympus.Services.Healing;
 using Olympus.Services.Party;
 using Olympus.Services.Prediction;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ApolloCore.Context;
 
@@ -42,6 +43,13 @@ public interface IApolloContext : IHealerRotationContext
     /// Service for tracking shields and mitigation buffs on party members.
     /// </summary>
     IShieldTrackingService? ShieldTrackingService { get; }
+
+    // Training mode
+    /// <summary>
+    /// Service for Training Mode - captures and explains rotation decisions.
+    /// Null if training mode is not available.
+    /// </summary>
+    ITrainingService? TrainingService { get; }
 
     // WHM-specific status checks
     /// <summary>

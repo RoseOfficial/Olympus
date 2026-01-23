@@ -3,6 +3,38 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.6.0 - Training Mode
+
+**Training Mode Foundation**
+- New Training Mode transforms Olympus from a rotation assistant into an intelligent coach
+- Real-time decision explanations during combat help you understand optimal play
+- Learn WHY abilities are chosen, not just watch them be used
+
+**Live Coaching Tab**
+- Real-time explanation feed showing every rotation decision as it happens
+- Current action highlighted with detailed reasoning and decision factors
+- "Alternatives Considered" section explains what other options were evaluated
+- Learning tips for each scenario help build muscle memory
+
+**Progress Tracking**
+- Track which healing concepts you've learned (25+ WHM concepts)
+- Concepts marked as "learned" persist across sessions
+- Identify concepts that need more attention (seen 10+ times but not learned)
+- Visual progress bar shows overall mastery
+
+**How To Use**
+1. Open the Training window from the main Olympus panel
+2. Enable Training Mode using the checkbox
+3. Enter combat - explanations appear as abilities are used
+4. Mark concepts as "learned" in the Progress tab as you understand them
+
+**Technical Details**
+- Minimal performance impact when disabled
+- Explanations captured per-action with timestamp, category, and priority
+- Configurable verbosity (Minimal, Normal, Detailed)
+- Priority filter to focus on important decisions only
+<!-- LATEST-END -->
+
 ## v3.5.0 - FFLogs Integration
 
 **FFLogs API Integration**
@@ -36,7 +68,6 @@ All notable changes to Olympus will be documented in this file.
 2. Enter your Client ID and Secret in the FFLogs tab
 3. Bind your character (name + server + region)
 4. View your rankings!
-<!-- LATEST-END -->
 
 ## v3.4.0 - Personal DPS Tracking
 

@@ -14,6 +14,7 @@ public sealed class MainWindow : Window
     private readonly Action openSettings;
     private readonly Action openDebug;
     private readonly Action openAnalytics;
+    private readonly Action openTraining;
     private readonly RotationManager rotationManager;
 
     public MainWindow(
@@ -22,6 +23,7 @@ public sealed class MainWindow : Window
         Action openSettings,
         Action openDebug,
         Action openAnalytics,
+        Action openTraining,
         string version,
         RotationManager rotationManager)
         : base($"Olympus v{version}", ImGuiWindowFlags.NoCollapse)
@@ -31,9 +33,10 @@ public sealed class MainWindow : Window
         this.openSettings = openSettings;
         this.openDebug = openDebug;
         this.openAnalytics = openAnalytics;
+        this.openTraining = openTraining;
         this.rotationManager = rotationManager;
 
-        Size = new Vector2(250, 260);
+        Size = new Vector2(250, 290);
         SizeCondition = ImGuiCond.FirstUseEver;
     }
 
@@ -94,6 +97,11 @@ public sealed class MainWindow : Window
         if (ImGui.Button("Analytics", new Vector2(-1, 0)))
         {
             openAnalytics();
+        }
+
+        if (ImGui.Button("Training", new Vector2(-1, 0)))
+        {
+            openTraining();
         }
 
         if (ImGui.Button("Debug", new Vector2(-1, 0)))

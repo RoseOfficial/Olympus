@@ -23,6 +23,7 @@ using Olympus.Services.Tank;
 using Olympus.Services.Positional;
 using Olympus.Services.Analytics;
 using Olympus.Services.FFLogs;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 using Olympus.Windows;
 
@@ -30,7 +31,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "3.5.0";
+    public const string PluginVersion = "3.6.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -104,12 +105,16 @@ public sealed class Plugin : IDalamudPlugin
     // FFLogs integration
     private readonly FFlogsService? fflogsService;
 
+    // Training mode
+    private readonly TrainingService trainingService;
+
     private readonly WindowSystem windowSystem = new("Olympus");
     private readonly ConfigWindow configWindow;
     private readonly MainWindow mainWindow;
     private readonly DebugWindow debugWindow;
     private readonly WelcomeWindow welcomeWindow;
     private readonly AnalyticsWindow analyticsWindow;
+    private readonly TrainingWindow trainingWindow;
     private readonly TelemetryService telemetryService;
 
     private readonly OlympusIpc olympusIpc;
@@ -209,6 +214,9 @@ public sealed class Plugin : IDalamudPlugin
         // FFLogs integration
         this.fflogsService = new FFlogsService(configuration.FFLogs, log);
 
+        // Training mode
+        this.trainingService = new TrainingService(configuration.Training, objectTable, log);
+
         // Create and register rotation modules via factory
         this.rotationManager = new RotationManager();
         this.apollo = CreateApolloRotation();
@@ -251,10 +259,11 @@ public sealed class Plugin : IDalamudPlugin
             astraea);
 
         this.configWindow = new ConfigWindow(configuration, SaveConfiguration);
-        this.mainWindow = new MainWindow(configuration, SaveConfiguration, OpenConfigUI, OpenDebugUI, OpenAnalyticsUI, PluginVersion, rotationManager);
+        this.mainWindow = new MainWindow(configuration, SaveConfiguration, OpenConfigUI, OpenDebugUI, OpenAnalyticsUI, OpenTrainingUI, PluginVersion, rotationManager);
         this.debugWindow = new DebugWindow(debugService, configuration, timelineService);
         this.welcomeWindow = new WelcomeWindow(configuration, SaveConfiguration);
         this.analyticsWindow = new AnalyticsWindow(performanceTracker, configuration, fflogsService);
+        this.trainingWindow = new TrainingWindow(trainingService, configuration);
 
         // Telemetry service for anonymous usage tracking
         this.telemetryService = new TelemetryService(configuration, log);
@@ -273,6 +282,7 @@ public sealed class Plugin : IDalamudPlugin
         windowSystem.AddWindow(debugWindow);
         windowSystem.AddWindow(welcomeWindow);
         windowSystem.AddWindow(analyticsWindow);
+        windowSystem.AddWindow(trainingWindow);
 
         mainWindow.IsOpen = configuration.MainWindowVisible;
         // Debug window always starts closed - user must explicitly open it
@@ -312,6 +322,7 @@ public sealed class Plugin : IDalamudPlugin
         configuration.MainWindowVisible = mainWindow.IsOpen;
         configuration.Debug.DebugWindowVisible = debugWindow.IsOpen;
         configuration.Analytics.AnalyticsWindowVisible = analyticsWindow.IsOpen;
+        configuration.Training.TrainingWindowVisible = trainingWindow.IsOpen;
         pluginInterface.SavePluginConfig(configuration);
     }
 
@@ -334,6 +345,8 @@ public sealed class Plugin : IDalamudPlugin
     private void OpenDebugUI() => debugWindow.Toggle();
 
     private void OpenAnalyticsUI() => analyticsWindow.Toggle();
+
+    private void OpenTrainingUI() => trainingWindow.Toggle();
 
     private void OnCommand(string command, string args)
     {
@@ -374,6 +387,9 @@ public sealed class Plugin : IDalamudPlugin
 
         // Update performance analytics (tracks combat state independently)
         performanceTracker.Update();
+
+        // Update training mode
+        trainingService.Update();
 
         if (!configuration.Enabled)
             return;
@@ -494,7 +510,8 @@ public sealed class Plugin : IDalamudPlugin
             cooldownPlanner,
             shieldTrackingService,
             timelineService,
-            partyCoordinationService);
+            partyCoordinationService,
+            trainingService);
     }
 
     /// <summary>
