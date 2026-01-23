@@ -130,7 +130,18 @@ public sealed class Athena : BaseHealerRotation<AthenaContext, IAthenaModule>
 
         _modules.Sort((a, b) => a.Priority.CompareTo(b.Priority));
 
+        // Declare healer role for multi-healer coordination
+        PartyCoordinationService?.DeclareHealerRole(JobRegistry.Scholar, Configuration.PartyCoordination.PreferredHealerRole);
+
         Log.Info("Athena (Scholar) rotation initialized");
+    }
+
+    /// <inheritdoc />
+    protected override void BroadcastHealerGaugeState(IPlayerCharacter player)
+    {
+        var aetherflow = _aetherflowService.CurrentStacks;
+        var fairyGauge = _fairyGaugeService.CurrentGauge;
+        PartyCoordinationService?.BroadcastGaugeState(JobRegistry.Scholar, aetherflow, fairyGauge, 0);
     }
 
     #region Abstract Implementation

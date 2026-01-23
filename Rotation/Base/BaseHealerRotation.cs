@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -34,6 +35,11 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
     protected readonly BossMechanicDetector BossMechanicDetector;
     protected readonly ShieldTrackingService ShieldTrackingService;
     protected readonly IPartyCoordinationService? PartyCoordinationService;
+
+    /// <summary>
+    /// Timer for rate-limiting gauge state broadcasts to once per second.
+    /// </summary>
+    private readonly Stopwatch _gaugeBroadcastTimer = Stopwatch.StartNew();
 
     #endregion
 
@@ -164,6 +170,26 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
             var (avgHpPercent, lowestHpPercent, injuredCount) = GetPartyHealthMetrics(player);
             UpdateCooldownPlanner(avgHpPercent, lowestHpPercent, injuredCount);
         }
+
+        // Broadcast gauge state every 1s (not every frame) for multi-healer coordination
+        if (PartyCoordinationService != null &&
+            PartyCoordinationService.IsPartyCoordinationEnabled &&
+            _gaugeBroadcastTimer.ElapsedMilliseconds >= 1000)
+        {
+            BroadcastHealerGaugeState(player);
+            _gaugeBroadcastTimer.Restart();
+        }
+    }
+
+    /// <summary>
+    /// Override in derived classes to broadcast job-specific gauge state.
+    /// Called once per second when party coordination is enabled.
+    /// </summary>
+    /// <param name="player">The local player character.</param>
+    protected virtual void BroadcastHealerGaugeState(IPlayerCharacter player)
+    {
+        // Default implementation does nothing.
+        // Override in derived healer classes to broadcast job-specific gauge state.
     }
 
     #endregion

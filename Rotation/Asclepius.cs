@@ -131,7 +131,18 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
 
         _modules.Sort((a, b) => a.Priority.CompareTo(b.Priority));
 
+        // Declare healer role for multi-healer coordination
+        PartyCoordinationService?.DeclareHealerRole(JobRegistry.Sage, Configuration.PartyCoordination.PreferredHealerRole);
+
         Log.Info("Asclepius (Sage) rotation initialized");
+    }
+
+    /// <inheritdoc />
+    protected override void BroadcastHealerGaugeState(IPlayerCharacter player)
+    {
+        var addersgall = _addersgallService.CurrentStacks;
+        var addersting = _adderstingService.CurrentStacks;
+        PartyCoordinationService?.BroadcastGaugeState(JobRegistry.Sage, addersgall, addersting, 0);
     }
 
     #region Abstract Implementation

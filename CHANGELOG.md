@@ -3,6 +3,32 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v2.31.0 - Healer Role & Gauge Coordination
+
+**Multi-Healer Optimization**
+- All four healers (WHM, SCH, AST, SGE) now share gauge state with other Olympus instances
+- Healers declare primary/secondary roles based on job priority (WHM > AST > SCH > SGE)
+- Secondary healers use lower healing thresholds (default 50%) to defer healing to the primary
+
+**Gauge Broadcasting**
+- WHM: Lily count and Blood Lily progress
+- SCH: Aetherflow stacks and Fairy Gauge
+- AST: Seal count and current card state
+- SGE: Addersgall and Addersting stacks
+
+**Role-Aware Healing**
+- Each healer context now provides `IsPrimaryHealer` and `GetRoleAdjustedThreshold()` helpers
+- Primary healer maintains normal healing thresholds and takes the lead
+- Secondary healer defers healing unless HP drops below their lower threshold
+- Enables more DPS uptime for secondary healers while maintaining party safety
+
+**Existing Settings Used**
+- `EnableHealerGaugeSharing` - Master toggle for gauge broadcasting (default: on)
+- `EnableHealerRoleCoordination` - Master toggle for role system (default: on)
+- `PreferredHealerRole` - Override auto-detection (Auto/Primary/Secondary)
+- `SecondaryHealAssistThreshold` - HP% threshold for secondary healer (30-80%, default: 50%)
+<!-- LATEST-END -->
+
 ## v2.30.0 - Tank Swap Coordination
 
 **Tank Coordination**
@@ -20,7 +46,6 @@ All notable changes to Olympus will be documented in this file.
 - `EnableTankSwapCoordination` - Master toggle for tank swap coordination (default: on)
 - `TankSwapReservationExpiryMs` - How long swap reservations remain valid (3000-10000ms, default: 5000ms)
 - `TankSwapConfirmationTimeoutSeconds` - Timeout before acting solo (0.5-3.0s, default: 1.5s)
-<!-- LATEST-END -->
 
 ## v2.29.0 - Interrupt Coordination
 

@@ -125,6 +125,7 @@ public sealed class AsclepiusContext : IAsclepiusContext
     private float? _addersgallTimer;
     private int? _adderstingStacks;
     private (float avgHpPercent, float lowestHpPercent, int injuredCount)? _partyHealthMetrics;
+    private bool? _isPrimaryHealer;
 
     public bool HasSwiftcast => _hasSwiftcast ??= AsclepiusStatusHelper.HasSwiftcast(Player);
     public bool HasEukrasia => _hasEukrasia ??= AsclepiusStatusHelper.HasEukrasia(Player);
@@ -142,6 +143,28 @@ public sealed class AsclepiusContext : IAsclepiusContext
 
     public (float avgHpPercent, float lowestHpPercent, int injuredCount) PartyHealthMetrics
         => _partyHealthMetrics ??= PartyHelper.CalculatePartyHealthMetrics(Player);
+
+    /// <summary>
+    /// Whether this healer instance is the primary healer.
+    /// Determined by job priority (WHM > AST > SCH > SGE) or explicit role declaration.
+    /// </summary>
+    public bool IsPrimaryHealer => _isPrimaryHealer ??= PartyCoordinationService?.IsPrimaryHealer ?? true;
+
+    /// <summary>
+    /// Gets a healing threshold adjusted for healer role.
+    /// Secondary healers use a lower threshold (SecondaryHealAssistThreshold) to defer healing.
+    /// </summary>
+    /// <param name="primaryThreshold">The threshold used by the primary healer.</param>
+    /// <returns>The adjusted threshold based on this healer's role.</returns>
+    public float GetRoleAdjustedThreshold(float primaryThreshold)
+    {
+        if (!IsPrimaryHealer && Configuration.PartyCoordination.EnableHealerRoleCoordination)
+        {
+            // Secondary healer uses lower threshold - only heal when HP is truly low
+            return Math.Min(primaryThreshold, Configuration.PartyCoordination.SecondaryHealAssistThreshold);
+        }
+        return primaryThreshold;
+    }
 
     #endregion
 

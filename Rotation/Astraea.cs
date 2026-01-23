@@ -129,7 +129,18 @@ public sealed class Astraea : BaseHealerRotation<AstraeaContext, IAstraeaModule>
 
         _modules.Sort((a, b) => a.Priority.CompareTo(b.Priority));
 
+        // Declare healer role for multi-healer coordination
+        PartyCoordinationService?.DeclareHealerRole(JobRegistry.Astrologian, Configuration.PartyCoordination.PreferredHealerRole);
+
         Log.Info("Astraea (Astrologian) rotation initialized");
+    }
+
+    /// <inheritdoc />
+    protected override void BroadcastHealerGaugeState(IPlayerCharacter player)
+    {
+        var sealCount = _cardService.SealCount;
+        var hasCard = _cardService.CurrentCard != Data.ASTActions.CardType.None ? 1 : 0;
+        PartyCoordinationService?.BroadcastGaugeState(JobRegistry.Astrologian, sealCount, hasCard, 0);
     }
 
     #region Abstract Implementation

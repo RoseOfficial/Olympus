@@ -112,6 +112,17 @@ public sealed class Apollo : BaseHealerRotation<ApolloContext, IApolloModule>
 
         // Sort by priority
         _modules.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+
+        // Declare healer role for multi-healer coordination
+        PartyCoordinationService?.DeclareHealerRole(JobRegistry.WhiteMage, Configuration.PartyCoordination.PreferredHealerRole);
+    }
+
+    /// <inheritdoc />
+    protected override void BroadcastHealerGaugeState(IPlayerCharacter player)
+    {
+        var lilyCount = StatusHelper.GetLilyCount();
+        var bloodLily = StatusHelper.GetBloodLilyCount();
+        PartyCoordinationService?.BroadcastGaugeState(JobRegistry.WhiteMage, lilyCount, bloodLily, 0);
     }
 
     #region Abstract Implementation
