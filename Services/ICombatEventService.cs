@@ -18,6 +18,13 @@ public interface ICombatEventService
     event System.Action<uint, int>? OnDamageReceived;
 
     /// <summary>
+    /// Event raised when the local player deals damage to any target.
+    /// Used for personal DPS tracking in analytics.
+    /// Parameters: (targetEntityId, damageAmount, actionId)
+    /// </summary>
+    event System.Action<uint, int, uint>? OnLocalPlayerDamageDealt;
+
+    /// <summary>
     /// Event raised when any heal effect lands (from any source, not just local player).
     /// Used for co-healer tracking.
     /// Parameters: (healerEntityId, targetEntityId, healAmount)

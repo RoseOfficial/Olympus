@@ -55,6 +55,13 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
     /// </summary>
     public event System.Action<uint, uint>? OnAbilityUsed;
 
+    /// <summary>
+    /// Event raised when the local player deals damage to any target.
+    /// Used for personal DPS tracking in analytics.
+    /// Parameters: (targetEntityId, damageAmount, actionId)
+    /// </summary>
+    public event System.Action<uint, int, uint>? OnLocalPlayerDamageDealt;
+
     // Shadow HP tracking: EntityId -> (CurrentHp, LastActionUpdate)
     // LastActionUpdate is set when HP changes from action effects (heal/damage)
     // to prevent InitializeHp from overwriting before game HP catches up
@@ -334,6 +341,12 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
             if (totalDelta < 0)
             {
                 OnDamageReceived?.Invoke(targetId, -totalDelta);
+
+                // Track damage dealt by local player (for DPS tracking)
+                if (isFromLocalPlayer)
+                {
+                    OnLocalPlayerDamageDealt?.Invoke(targetId, -totalDelta, header->ActionId);
+                }
             }
 
             // Raise heal received event for ALL heals (co-healer tracking)

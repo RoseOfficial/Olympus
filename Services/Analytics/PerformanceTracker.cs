@@ -66,7 +66,7 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         this.dataManager = dataManager;
 
         // Subscribe to combat events
-        combatEventService.OnDamageReceived += OnDamageReceived;
+        combatEventService.OnLocalPlayerDamageDealt += OnLocalPlayerDamageDealt;
         combatEventService.OnLocalPlayerHealLanded += OnHealLanded;
     }
 
@@ -198,11 +198,12 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         }
     }
 
-    private void OnDamageReceived(uint entityId, int damageAmount)
+    private void OnLocalPlayerDamageDealt(uint targetId, int damageAmount, uint actionId)
     {
-        // For DPS tracking - only count damage from local player
-        // CombatEventService fires this for all damage received, so we skip it here
-        // DPS tracking would need a separate hook or event for damage dealt
+        if (!IsTracking)
+            return;
+
+        System.Threading.Interlocked.Add(ref totalDamageDealt, damageAmount);
     }
 
     private void OnHealLanded(uint targetId)
@@ -234,7 +235,7 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         {
             CombatDuration = duration,
             GcdUptime = actionTracker.GetGcdUptime(),
-            PersonalDps = 0, // Would need damage dealt tracking
+            PersonalDps = duration > 0 ? (float)totalDamageDealt / duration : 0f,
             TotalDamage = totalDamageDealt,
             TotalHealing = overhealStats.TotalHealing,
             OverhealPercent = overhealStats.OverhealPercent,
@@ -426,7 +427,7 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         {
             CombatDuration = duration,
             GcdUptime = actionTracker.GetGcdUptime(),
-            PersonalDps = 0,
+            PersonalDps = duration > 0 ? (float)totalDamageDealt / duration : 0f,
             TotalDamage = totalDamageDealt,
             TotalHealing = overhealStats.TotalHealing,
             OverhealPercent = overhealStats.OverhealPercent,
@@ -718,7 +719,7 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
 
     public void Dispose()
     {
-        combatEventService.OnDamageReceived -= OnDamageReceived;
+        combatEventService.OnLocalPlayerDamageDealt -= OnLocalPlayerDamageDealt;
         combatEventService.OnLocalPlayerHealLanded -= OnHealLanded;
     }
 

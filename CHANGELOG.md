@@ -3,6 +3,23 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.4.0 - Personal DPS Tracking
+
+**DPS Metrics**
+- Analytics now displays real personal DPS (damage per second) during combat
+- Total damage dealt is tracked and displayed in real-time
+- DPS calculated from actual damage events, not estimates
+
+**How It Works**
+- Hooks into the same combat event system used for healing tracking
+- Captures all damage dealt by the local player (direct damage, DoTs, AOE)
+- Displays live in the Analytics window Realtime tab
+
+**Fight Summary**
+- Post-fight DPS included in combat metrics
+- Total damage dealt shown alongside healing and other stats
+<!-- LATEST-END -->
+
 ## v3.3.0 - Cooldown Usage Analysis
 
 **Detailed Cooldown Tracking**
@@ -24,7 +41,6 @@ All notable changes to Olympus will be documented in this file.
 **Settings**
 - New `TrackCooldownDetails` option (enabled by default)
 - New section visibility toggle for Cooldown Analysis
-<!-- LATEST-END -->
 
 ## v3.2.0 - Downtime Analysis
 
