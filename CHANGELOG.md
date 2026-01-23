@@ -3,6 +3,29 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.3.0 - Cooldown Usage Analysis
+
+**Detailed Cooldown Tracking**
+- Analytics now shows per-ability cooldown efficiency with visual bars
+- Tracks when and in what combat phase (Opener/Burst/Sustained) abilities were used
+- Detects missed opportunities where cooldowns sat available but unused
+
+**Enhanced Analysis**
+- Each tracked cooldown shows uses vs optimal uses with efficiency percentage
+- Average drift displayed (how late abilities were used on average)
+- Phase breakdown shows opener, burst, and sustained usage counts
+- Missed opportunity windows highlighted with duration
+
+**Actionable Feedback**
+- Primary issue detection: Drift, Missed, Gaps, or Good
+- Contextual tips based on detected issues
+- Perfect usage gets "Excellent" rating with congratulatory message
+
+**Settings**
+- New `TrackCooldownDetails` option (enabled by default)
+- New section visibility toggle for Cooldown Analysis
+<!-- LATEST-END -->
+
 ## v3.2.0 - Downtime Analysis
 
 **Downtime Breakdown**
@@ -23,7 +46,6 @@ All notable changes to Olympus will be documented in this file.
 **Settings**
 - New `TrackDowntimeBreakdown` option (enabled by default)
 - New section visibility toggle for Downtime Analysis
-<!-- LATEST-END -->
 
 ## v3.1.0 - Performance Analytics Foundation
 

@@ -68,4 +68,25 @@ public interface IPerformanceTracker
     /// Event fired when a party member dies.
     /// </summary>
     event Action<uint>? OnDeath;
+
+    /// <summary>
+    /// Records a cooldown use with context for detailed analysis.
+    /// Call this when a tracked ability is used.
+    /// </summary>
+    /// <param name="actionId">The action ID used.</param>
+    /// <param name="context">Optional context (e.g., "burst window", "post-raidwide").</param>
+    void RecordCooldownUse(uint actionId, string? context = null);
+
+    /// <summary>
+    /// Notifies the tracker that a cooldown has become available.
+    /// Call this when a tracked ability comes off cooldown.
+    /// </summary>
+    /// <param name="actionId">The action ID that became ready.</param>
+    void OnCooldownBecameReady(uint actionId);
+
+    /// <summary>
+    /// Gets detailed cooldown analysis for the last completed fight.
+    /// Returns empty list if no session available.
+    /// </summary>
+    IReadOnlyList<CooldownAnalysis> GetCooldownAnalysis();
 }

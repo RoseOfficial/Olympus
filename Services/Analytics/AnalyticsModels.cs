@@ -419,3 +419,200 @@ public sealed class PerformanceTrend
         _ => "Stable"
     };
 }
+
+/// <summary>
+/// Combat phase for contextual cooldown analysis.
+/// </summary>
+public enum CooldownPhase
+{
+    /// <summary>
+    /// First 15 seconds of combat - opener sequence.
+    /// </summary>
+    Opener,
+
+    /// <summary>
+    /// During raid buff window - burst phase.
+    /// </summary>
+    Burst,
+
+    /// <summary>
+    /// Normal rotation outside of special windows.
+    /// </summary>
+    Sustained,
+
+    /// <summary>
+    /// Post-death or post-mechanic recovery period.
+    /// </summary>
+    Recovery
+}
+
+/// <summary>
+/// Record of a single cooldown use with full context.
+/// </summary>
+public sealed class CooldownUseRecord
+{
+    /// <summary>
+    /// The action ID that was used.
+    /// </summary>
+    public uint ActionId { get; init; }
+
+    /// <summary>
+    /// When the ability was used.
+    /// </summary>
+    public DateTime Timestamp { get; init; }
+
+    /// <summary>
+    /// Seconds into the fight when used.
+    /// </summary>
+    public float FightTimeSeconds { get; init; }
+
+    /// <summary>
+    /// How many seconds late the ability was used vs optimal timing.
+    /// 0 = perfect, higher = more drift.
+    /// </summary>
+    public float DriftSeconds { get; init; }
+
+    /// <summary>
+    /// Combat phase when the ability was used.
+    /// </summary>
+    public CooldownPhase Phase { get; init; }
+
+    /// <summary>
+    /// Whether the cooldown was ready when used.
+    /// False indicates a charge-based ability or timing quirk.
+    /// </summary>
+    public bool WasAvailable { get; init; }
+
+    /// <summary>
+    /// Optional context describing why/when used (e.g., "post-raidwide", "burst window").
+    /// </summary>
+    public string? Context { get; init; }
+}
+
+/// <summary>
+/// Record of a missed opportunity to use a cooldown.
+/// </summary>
+public sealed class MissedCooldownOpportunity
+{
+    /// <summary>
+    /// The action ID that was available but not used.
+    /// </summary>
+    public uint ActionId { get; init; }
+
+    /// <summary>
+    /// Display name of the ability.
+    /// </summary>
+    public string AbilityName { get; init; } = "";
+
+    /// <summary>
+    /// When during the fight this opportunity occurred (seconds from start).
+    /// </summary>
+    public float FightTimeSeconds { get; init; }
+
+    /// <summary>
+    /// How long the cooldown sat available without being used (seconds).
+    /// </summary>
+    public float AvailableForSeconds { get; init; }
+
+    /// <summary>
+    /// Reason the ability wasn't used (e.g., "Movement", "Mechanic", "Unknown").
+    /// </summary>
+    public string Reason { get; init; } = "Unknown";
+}
+
+/// <summary>
+/// Enhanced cooldown analysis with per-use details and missed opportunities.
+/// </summary>
+public sealed class CooldownAnalysis
+{
+    /// <summary>
+    /// The action ID being analyzed.
+    /// </summary>
+    public uint ActionId { get; init; }
+
+    /// <summary>
+    /// Display name of the ability.
+    /// </summary>
+    public string Name { get; init; } = "";
+
+    /// <summary>
+    /// Base cooldown duration in seconds.
+    /// </summary>
+    public float CooldownDuration { get; init; }
+
+    /// <summary>
+    /// Number of times this ability was used.
+    /// </summary>
+    public int TimesUsed { get; init; }
+
+    /// <summary>
+    /// Optimal number of uses based on fight duration.
+    /// </summary>
+    public int OptimalUses { get; init; }
+
+    /// <summary>
+    /// Usage efficiency percentage (TimesUsed / OptimalUses * 100).
+    /// </summary>
+    public float Efficiency => OptimalUses > 0 ? (float)TimesUsed / OptimalUses * 100f : 0f;
+
+    /// <summary>
+    /// Average drift in seconds across all uses.
+    /// </summary>
+    public float AverageDrift { get; init; }
+
+    /// <summary>
+    /// Detailed record of each use.
+    /// </summary>
+    public IReadOnlyList<CooldownUseRecord> Uses { get; init; } = Array.Empty<CooldownUseRecord>();
+
+    /// <summary>
+    /// Detected missed opportunities where cooldown sat unused.
+    /// </summary>
+    public IReadOnlyList<MissedCooldownOpportunity> MissedOpportunities { get; init; } = Array.Empty<MissedCooldownOpportunity>();
+
+    /// <summary>
+    /// Number of uses during opener phase (first 15s).
+    /// </summary>
+    public int OpenerUses { get; init; }
+
+    /// <summary>
+    /// Number of uses during burst windows.
+    /// </summary>
+    public int BurstUses { get; init; }
+
+    /// <summary>
+    /// Number of uses during sustained/normal rotation.
+    /// </summary>
+    public int SustainedUses { get; init; }
+
+    /// <summary>
+    /// Total drift accumulated across all uses (seconds).
+    /// </summary>
+    public float TotalDriftSeconds { get; init; }
+
+    /// <summary>
+    /// Count of detected missed use opportunities.
+    /// </summary>
+    public int MissedUsesCount => MissedOpportunities.Count;
+
+    /// <summary>
+    /// Primary issue affecting this cooldown's usage.
+    /// </summary>
+    public string PrimaryIssue { get; init; } = "Good";
+
+    /// <summary>
+    /// Rating for UI display.
+    /// </summary>
+    public string Rating => Efficiency switch
+    {
+        >= 90f => "Excellent",
+        >= 75f => "Good",
+        >= 50f => "Needs Work",
+        _ => "Poor"
+    };
+
+    /// <summary>
+    /// Actionable tip based on detected issues.
+    /// </summary>
+    public string? Tip { get; init; }
+}

@@ -58,6 +58,13 @@ public static class FightSummaryTab
             ImGui.Spacing();
         }
 
+        // Cooldown Analysis Section
+        if (IsSectionVisible(config, "SummaryCooldowns"))
+        {
+            DrawCooldownAnalysis(tracker);
+            ImGui.Spacing();
+        }
+
         // Issues Section
         if (IsSectionVisible(config, "SummaryIssues"))
         {
@@ -279,6 +286,104 @@ public static class FightSummaryTab
             ImGui.SetTooltip(tooltip);
         }
     }
+
+    private static void DrawCooldownAnalysis(IPerformanceTracker tracker)
+    {
+        ImGui.Text("Cooldown Analysis");
+        ImGui.Separator();
+
+        var cooldowns = tracker.GetCooldownAnalysis();
+        if (cooldowns.Count == 0)
+        {
+            ImGui.TextColored(NeutralColor, "No cooldown data available.");
+            return;
+        }
+
+        foreach (var cd in cooldowns)
+        {
+            DrawCooldownEntry(cd);
+            ImGui.Spacing();
+        }
+    }
+
+    private static void DrawCooldownEntry(CooldownAnalysis cd)
+    {
+        // Header: Ability name and cooldown duration
+        ImGui.Text($"{cd.Name} ({cd.CooldownDuration:F0}s)");
+
+        ImGui.Indent(16);
+
+        // Uses line with efficiency bar
+        var efficiencyColor = GetEfficiencyColor(cd.Efficiency);
+        ImGui.Text($"Uses: {cd.TimesUsed}/{cd.OptimalUses} ({cd.Efficiency:F0}%)");
+        ImGui.SameLine(200);
+        DrawEfficiencyBar(cd.Efficiency, efficiencyColor);
+        ImGui.SameLine();
+        ImGui.TextColored(efficiencyColor, cd.Rating);
+
+        // Average drift (if any)
+        if (cd.AverageDrift > 0.5f)
+        {
+            var driftColor = cd.AverageDrift > 5f ? WarningColor : NeutralColor;
+            ImGui.TextColored(driftColor, $"Avg Drift: {cd.AverageDrift:F1}s");
+        }
+
+        // Missed opportunities
+        if (cd.MissedUsesCount > 0)
+        {
+            var totalMissedTime = 0f;
+            foreach (var missed in cd.MissedOpportunities)
+                totalMissedTime += missed.AvailableForSeconds;
+
+            ImGui.TextColored(WarningColor,
+                $"Missed: {cd.MissedUsesCount} opportunity(s) ({totalMissedTime:F0}s total)");
+        }
+
+        // Phase breakdown (if we have detailed data)
+        if (cd.Uses.Count > 0)
+        {
+            var phaseText = new System.Text.StringBuilder();
+            if (cd.OpenerUses > 0) phaseText.Append($"Opener: {cd.OpenerUses}  ");
+            if (cd.BurstUses > 0) phaseText.Append($"Burst: {cd.BurstUses}  ");
+            if (cd.SustainedUses > 0) phaseText.Append($"Sustained: {cd.SustainedUses}");
+
+            if (phaseText.Length > 0)
+            {
+                ImGui.TextColored(NeutralColor, phaseText.ToString());
+            }
+        }
+
+        // Tip based on primary issue
+        if (!string.IsNullOrEmpty(cd.Tip))
+        {
+            ImGui.TextColored(InfoColor, $"Tip: {cd.Tip}");
+        }
+        else if (cd.Rating == "Excellent")
+        {
+            ImGui.TextColored(GradeA, "Perfect usage!");
+        }
+
+        ImGui.Unindent(16);
+    }
+
+    private static void DrawEfficiencyBar(float efficiency, Vector4 color)
+    {
+        // Draw a simple 10-segment bar
+        var filled = (int)Math.Round(efficiency / 10f);
+        var bar = new string('\u2593', filled) + new string('\u2591', 10 - filled);
+
+        ImGui.PushStyleColor(ImGuiCol.Text, color);
+        ImGui.Text($"[{bar}]");
+        ImGui.PopStyleColor();
+    }
+
+    private static Vector4 GetEfficiencyColor(float efficiency) => efficiency switch
+    {
+        >= 90f => GradeA,
+        >= 75f => GradeB,
+        >= 50f => GradeC,
+        _ => GradeF
+    };
 
     private static void DrawIssues(FightSession session)
     {

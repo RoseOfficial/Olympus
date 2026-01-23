@@ -68,6 +68,13 @@ public sealed class AnalyticsConfig
     public bool TrackDowntimeBreakdown { get; set; } = true;
 
     /// <summary>
+    /// Whether to track detailed cooldown usage (per-use records, missed opportunities).
+    /// Provides enhanced analysis with actionable feedback.
+    /// Slightly higher memory usage when enabled.
+    /// </summary>
+    public bool TrackCooldownDetails { get; set; } = true;
+
+    /// <summary>
     /// Cooldowns to track for efficiency metrics.
     /// Maps action ID to cooldown duration in seconds.
     /// Populated automatically based on job when tracking starts.
@@ -89,6 +96,7 @@ public sealed class AnalyticsConfig
         ["SummaryScores"] = true,
         ["SummaryBreakdown"] = true,
         ["SummaryDowntime"] = true,
+        ["SummaryCooldowns"] = true,
         ["SummaryIssues"] = true,
 
         // History tab

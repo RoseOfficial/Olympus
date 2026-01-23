@@ -491,6 +491,217 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         log.Information("PerformanceTracker: History cleared");
     }
 
+    public void RecordCooldownUse(uint actionId, string? context = null)
+    {
+        if (!IsTracking || !config.TrackedCooldowns.ContainsKey(actionId))
+            return;
+
+        var fightTime = CombatDuration;
+        var phase = DeterminePhase(fightTime);
+
+        if (!cooldownStates.TryGetValue(actionId, out var state))
+        {
+            state = new CooldownTrackingState();
+            cooldownStates[actionId] = state;
+        }
+
+        // Calculate drift from optimal timing
+        float drift = 0f;
+        if (state.BecameAvailableAt.HasValue)
+        {
+            drift = (float)(DateTime.Now - state.BecameAvailableAt.Value).TotalSeconds;
+
+            // If cooldown was available for a long time, record it as a missed window
+            if (drift > 5f && config.TrackCooldownDetails)
+            {
+                state.MissedWindows.Add(new MissedOpportunityWindow
+                {
+                    StartFightTime = fightTime - drift,
+                    EndFightTime = fightTime,
+                    Reason = DetermineDelayReason()
+                });
+            }
+
+            state.TotalAvailableTime += drift;
+        }
+
+        state.UseCount++;
+        state.LastUseTime = DateTime.Now;
+        state.DriftValues.Add(drift);
+        state.BecameAvailableAt = null; // Reset availability tracking
+
+        // Record detailed use if enabled
+        if (config.TrackCooldownDetails)
+        {
+            state.UseRecords.Add(new CooldownUseRecord
+            {
+                ActionId = actionId,
+                Timestamp = DateTime.Now,
+                FightTimeSeconds = fightTime,
+                DriftSeconds = drift,
+                Phase = phase,
+                WasAvailable = true,
+                Context = context ?? DetermineUseContext(phase, fightTime)
+            });
+        }
+
+        log.Debug("PerformanceTracker: Recorded {ActionId} use at {FightTime:F1}s, drift: {Drift:F1}s, phase: {Phase}",
+            actionId, fightTime, drift, phase);
+    }
+
+    public void OnCooldownBecameReady(uint actionId)
+    {
+        if (!IsTracking || !config.TrackedCooldowns.ContainsKey(actionId))
+            return;
+
+        if (!cooldownStates.TryGetValue(actionId, out var state))
+        {
+            state = new CooldownTrackingState();
+            cooldownStates[actionId] = state;
+        }
+
+        state.BecameAvailableAt = DateTime.Now;
+    }
+
+    public IReadOnlyList<CooldownAnalysis> GetCooldownAnalysis()
+    {
+        var lastSession = GetLastSession();
+        if (lastSession?.FinalMetrics?.Cooldowns == null)
+            return Array.Empty<CooldownAnalysis>();
+
+        // Build enhanced analysis from the last session's cooldown data
+        return BuildCooldownAnalysisList(lastSession.Duration);
+    }
+
+    private CooldownPhase DeterminePhase(float fightTimeSeconds)
+    {
+        // Opener: first 15 seconds
+        if (fightTimeSeconds <= 15f)
+            return CooldownPhase.Opener;
+
+        // Burst windows: roughly every 2 minutes (120s), lasting ~20s
+        // Common raid buff windows: 0s (opener), 120s, 240s, 360s, etc.
+        var cycleTime = fightTimeSeconds % 120f;
+        if (cycleTime <= 20f)
+            return CooldownPhase.Burst;
+
+        // TODO: Could integrate with PartyCoordinationService to detect actual burst windows
+        return CooldownPhase.Sustained;
+    }
+
+    private string DetermineDelayReason()
+    {
+        // Check if we can determine why cooldown wasn't pressed
+        // This could be expanded with more context from ActionTracker
+        var localPlayer = objectTable.LocalPlayer;
+        if (localPlayer == null)
+            return "Unknown";
+
+        // Check if player was moving (simplified check)
+        // A more sophisticated version would track movement state
+        return "Unknown";
+    }
+
+    private string? DetermineUseContext(CooldownPhase phase, float fightTime)
+    {
+        return phase switch
+        {
+            CooldownPhase.Opener => "Opener",
+            CooldownPhase.Burst => "Burst window",
+            CooldownPhase.Recovery => "Recovery",
+            _ => null
+        };
+    }
+
+    private List<CooldownAnalysis> BuildCooldownAnalysisList(float duration)
+    {
+        var result = new List<CooldownAnalysis>();
+
+        foreach (var (actionId, cooldownDuration) in config.TrackedCooldowns)
+        {
+            if (!cooldownStates.TryGetValue(actionId, out var state))
+                state = new CooldownTrackingState();
+
+            var optimalUses = (int)Math.Floor(duration / cooldownDuration) + 1;
+            var avgDrift = state.DriftValues.Count > 0 ? state.DriftValues.Average() : 0f;
+            var totalDrift = state.DriftValues.Sum();
+
+            // Count uses by phase
+            var openerUses = state.UseRecords.Count(r => r.Phase == CooldownPhase.Opener);
+            var burstUses = state.UseRecords.Count(r => r.Phase == CooldownPhase.Burst);
+            var sustainedUses = state.UseRecords.Count(r => r.Phase == CooldownPhase.Sustained);
+
+            // Build missed opportunities from recorded windows
+            var missedOpportunities = state.MissedWindows
+                .Where(w => w.Duration >= 5f) // Only count significant missed windows
+                .Select(w => new MissedCooldownOpportunity
+                {
+                    ActionId = actionId,
+                    AbilityName = GetActionName(actionId),
+                    FightTimeSeconds = w.StartFightTime,
+                    AvailableForSeconds = w.Duration,
+                    Reason = w.Reason
+                })
+                .ToList();
+
+            // Determine primary issue
+            var efficiency = optimalUses > 0 ? (float)state.UseCount / optimalUses * 100f : 100f;
+            var primaryIssue = DeterminePrimaryIssue(efficiency, avgDrift, missedOpportunities.Count);
+
+            // Generate tip based on issue
+            var tip = GenerateTip(primaryIssue, avgDrift, missedOpportunities.Count);
+
+            result.Add(new CooldownAnalysis
+            {
+                ActionId = actionId,
+                Name = GetActionName(actionId),
+                CooldownDuration = cooldownDuration,
+                TimesUsed = state.UseCount,
+                OptimalUses = optimalUses,
+                AverageDrift = avgDrift,
+                Uses = state.UseRecords.ToList(),
+                MissedOpportunities = missedOpportunities,
+                OpenerUses = openerUses,
+                BurstUses = burstUses,
+                SustainedUses = sustainedUses,
+                TotalDriftSeconds = totalDrift,
+                PrimaryIssue = primaryIssue,
+                Tip = tip
+            });
+        }
+
+        return result;
+    }
+
+    private static string DeterminePrimaryIssue(float efficiency, float avgDrift, int missedCount)
+    {
+        if (efficiency >= 90f && avgDrift < 3f)
+            return "Good";
+
+        if (efficiency < 50f)
+            return "Missed";
+
+        if (avgDrift > 5f)
+            return "Drift";
+
+        if (missedCount > 0)
+            return "Gaps";
+
+        return "Good";
+    }
+
+    private static string? GenerateTip(string primaryIssue, float avgDrift, int missedCount)
+    {
+        return primaryIssue switch
+        {
+            "Drift" => $"Average {avgDrift:F1}s delay - use immediately when available",
+            "Missed" => "Use this ability more - track cooldown with UI or audio cue",
+            "Gaps" => $"{missedCount} window(s) where ability sat unused",
+            "Good" => null,
+            _ => null
+        };
+    }
+
     private string GetActionName(uint actionId)
     {
         var actionSheet = dataManager.GetExcelSheet<Lumina.Excel.Sheets.Action>();
@@ -519,5 +730,22 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         public int UseCount { get; set; }
         public DateTime? LastUseTime { get; set; }
         public List<float> DriftValues { get; } = new();
+
+        // Enhanced tracking for v3.3.0
+        public List<CooldownUseRecord> UseRecords { get; } = new();
+        public DateTime? BecameAvailableAt { get; set; }
+        public float TotalAvailableTime { get; set; }
+        public List<MissedOpportunityWindow> MissedWindows { get; } = new();
+    }
+
+    /// <summary>
+    /// Tracks a window where a cooldown was available but not used.
+    /// </summary>
+    private sealed class MissedOpportunityWindow
+    {
+        public float StartFightTime { get; set; }
+        public float EndFightTime { get; set; }
+        public float Duration => EndFightTime - StartFightTime;
+        public string Reason { get; set; } = "Unknown";
     }
 }
