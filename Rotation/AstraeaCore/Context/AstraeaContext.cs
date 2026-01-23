@@ -17,6 +17,7 @@ using Olympus.Services.Resource;
 using Olympus.Services.Stats;
 using Olympus.Services.Cache;
 using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation.AstraeaCore.Context;
@@ -73,6 +74,9 @@ public sealed class AstraeaContext : IAstraeaContext
 
     // Party coordination
     public IPartyCoordinationService? PartyCoordinationService { get; }
+
+    // Training mode
+    public ITrainingService? TrainingService { get; }
 
     // Debug state (mutable, updated by modules)
     public AstraeaDebugState Debug { get; }
@@ -197,6 +201,7 @@ public sealed class AstraeaContext : IAstraeaContext
         IShieldTrackingService? shieldTrackingService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITimelineService? timelineService = null,
+        ITrainingService? trainingService = null,
         AstraeaDebugState? debugState = null,
         IPluginLog? log = null)
     {
@@ -231,6 +236,7 @@ public sealed class AstraeaContext : IAstraeaContext
         ShieldTrackingService = shieldTrackingService;
         PartyCoordinationService = partyCoordinationService;
         TimelineService = timelineService;
+        TrainingService = trainingService;
         Debug = debugState ?? new AstraeaDebugState();
         HealingCoordination = new HealingCoordinationState();
         Log = log;
@@ -334,6 +340,9 @@ public interface IAstraeaContext : IHealerRotationContext
     // Helpers
     AstraeaStatusHelper StatusHelper { get; }
     AstraeaPartyHelper PartyHelper { get; }
+
+    // Training mode
+    ITrainingService? TrainingService { get; }
 
     // Healing coordination
     HealingCoordinationState HealingCoordination { get; }

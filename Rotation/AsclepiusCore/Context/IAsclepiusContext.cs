@@ -5,6 +5,7 @@ using Olympus.Services.Healing;
 using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Sage;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AsclepiusCore.Context;
 
@@ -145,6 +146,16 @@ public interface IAsclepiusContext : IHealerRotationContext
     /// Whether Philosophia is currently active (party-wide Kardia).
     /// </summary>
     bool HasPhilosophia { get; }
+
+    #endregion
+
+    #region Training Mode
+
+    /// <summary>
+    /// Service for Training Mode - captures and explains rotation decisions.
+    /// Null if training mode is not enabled.
+    /// </summary>
+    ITrainingService? TrainingService { get; }
 
     #endregion
 

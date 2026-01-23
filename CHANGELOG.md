@@ -3,6 +3,25 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.7.0 - Training Mode: Full Healer Coverage
+
+**Multi-Healer Training Support**
+- Training Mode now supports all 4 healers: WHM, SCH, AST, and SGE
+- Each healer has job-specific concepts and learning progress tracking
+- Combined progress view shows mastery across all healer jobs
+
+**Job-Specific Concepts**
+- Scholar (SCH): 28 concepts covering Aetherflow, Fairy, shields, and Chain Stratagem timing
+- Astrologian (AST): 28 concepts covering cards, Earthly Star, Divination, and burst alignment
+- Sage (SGE): 30 concepts covering Kardia, Addersgall, Eukrasia decisions, and shield economy
+- White Mage (WHM): Existing 27 concepts unchanged
+
+**Infrastructure**
+- TrainingService now tracks concepts across all healer jobs
+- Each healer context now has access to TrainingService for decision explanations
+- Progress tracking automatically detects job from concept ID prefix
+<!-- LATEST-END -->
+
 ## v3.6.0 - Training Mode
 
 **Training Mode Foundation**
@@ -33,7 +52,6 @@ All notable changes to Olympus will be documented in this file.
 - Explanations captured per-action with timestamp, category, and priority
 - Configurable verbosity (Minimal, Normal, Detailed)
 - Priority filter to focus on important decisions only
-<!-- LATEST-END -->
 
 ## v3.5.0 - FFLogs Integration
 

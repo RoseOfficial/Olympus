@@ -17,6 +17,7 @@ using Olympus.Services.Stats;
 using Olympus.Services.Cache;
 using Olympus.Services.Targeting;
 using Olympus.Services.Scholar;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation.AthenaCore.Context;
@@ -74,6 +75,9 @@ public sealed class AthenaContext : IAthenaContext
 
     // Party coordination
     public IPartyCoordinationService? PartyCoordinationService { get; }
+
+    // Training mode
+    public ITrainingService? TrainingService { get; }
 
     // Debug state (mutable, updated by modules)
     public AthenaDebugState Debug { get; }
@@ -166,6 +170,7 @@ public sealed class AthenaContext : IAthenaContext
         IShieldTrackingService? shieldTrackingService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITimelineService? timelineService = null,
+        ITrainingService? trainingService = null,
         AthenaDebugState? debugState = null,
         IPluginLog? log = null)
     {
@@ -201,6 +206,7 @@ public sealed class AthenaContext : IAthenaContext
         ShieldTrackingService = shieldTrackingService;
         PartyCoordinationService = partyCoordinationService;
         TimelineService = timelineService;
+        TrainingService = trainingService;
         Debug = debugState ?? new AthenaDebugState();
         HealingCoordination = new HealingCoordinationState();
         Log = log;
@@ -288,6 +294,9 @@ public interface IAthenaContext : IHealerRotationContext
     // Helpers
     AthenaStatusHelper StatusHelper { get; }
     AthenaPartyHelper PartyHelper { get; }
+
+    // Training mode
+    ITrainingService? TrainingService { get; }
 
     // Healing coordination
     HealingCoordinationState HealingCoordination { get; }

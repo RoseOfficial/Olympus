@@ -17,6 +17,7 @@ using Olympus.Services.Sage;
 using Olympus.Services.Stats;
 using Olympus.Services.Cache;
 using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation.AsclepiusCore.Context;
@@ -98,6 +99,12 @@ public sealed class AsclepiusContext : IAsclepiusContext
     #region Party Coordination
 
     public IPartyCoordinationService? PartyCoordinationService { get; }
+
+    #endregion
+
+    #region Training Mode
+
+    public ITrainingService? TrainingService { get; }
 
     #endregion
 
@@ -201,6 +208,7 @@ public sealed class AsclepiusContext : IAsclepiusContext
         IShieldTrackingService? shieldTrackingService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITimelineService? timelineService = null,
+        ITrainingService? trainingService = null,
         AsclepiusDebugState? debugState = null,
         IPluginLog? log = null)
     {
@@ -236,6 +244,7 @@ public sealed class AsclepiusContext : IAsclepiusContext
         ShieldTrackingService = shieldTrackingService;
         PartyCoordinationService = partyCoordinationService;
         TimelineService = timelineService;
+        TrainingService = trainingService;
         Debug = debugState ?? new AsclepiusDebugState();
         HealingCoordination = new HealingCoordinationState();
         Log = log;

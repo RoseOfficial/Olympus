@@ -100,7 +100,7 @@ public sealed class TrainingService : ITrainingService
 
     public LearningProgress GetProgress()
     {
-        var allConcepts = WhmConcepts.AllConcepts;
+        var allConcepts = GetAllHealerConcepts();
         var learned = this.config.LearnedConcepts.Count(c => allConcepts.Contains(c));
 
         // Find concepts with high exposure but not learned (>10 exposures)
@@ -127,6 +127,34 @@ public sealed class TrainingService : ITrainingService
             LearnedConcepts = learned,
             ConceptsNeedingAttention = needingAttention,
             RecentlyDemonstratedConcepts = recentlyDemonstrated,
+        };
+    }
+
+    /// <summary>
+    /// Gets all healer concepts across WHM, SCH, AST, and SGE.
+    /// </summary>
+    private static string[] GetAllHealerConcepts()
+    {
+        return WhmConcepts.AllConcepts
+            .Concat(SchConcepts.AllConcepts)
+            .Concat(AstConcepts.AllConcepts)
+            .Concat(SgeConcepts.AllConcepts)
+            .ToArray();
+    }
+
+    /// <summary>
+    /// Gets concepts for a specific job based on concept ID prefix.
+    /// </summary>
+    /// <param name="jobPrefix">The job prefix (e.g., "whm", "sch", "ast", "sge").</param>
+    public static string[] GetConceptsForJob(string jobPrefix)
+    {
+        return jobPrefix.ToLowerInvariant() switch
+        {
+            "whm" => WhmConcepts.AllConcepts,
+            "sch" => SchConcepts.AllConcepts,
+            "ast" => AstConcepts.AllConcepts,
+            "sge" => SgeConcepts.AllConcepts,
+            _ => Array.Empty<string>(),
         };
     }
 

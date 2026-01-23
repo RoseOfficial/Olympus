@@ -173,3 +173,197 @@ public static class WhmConcepts
         CoHealerAwareness, PartyCoordination,
     };
 }
+
+/// <summary>
+/// Well-known concept IDs for SCH healing.
+/// </summary>
+public static class SchConcepts
+{
+    // Emergency Healing
+    public const string EmergencyHealing = "sch.emergency_healing";
+    public const string LustrateUsage = "sch.lustrate_usage";
+    public const string ExcogitationUsage = "sch.excogitation_usage";
+
+    // Aetherflow Management
+    public const string AetherflowManagement = "sch.aetherflow_management";
+    public const string AetherflowRefresh = "sch.aetherflow_refresh";
+    public const string EnergyDrainUsage = "sch.energy_drain_usage";
+
+    // Fairy Management
+    public const string FairyManagement = "sch.fairy_management";
+    public const string SeraphUsage = "sch.seraph_usage";
+    public const string DissipationUsage = "sch.dissipation_usage";
+    public const string FeyUnionUsage = "sch.fey_union_usage";
+    public const string WhisperingDawnUsage = "sch.whispering_dawn_usage";
+    public const string FeyIlluminationUsage = "sch.fey_illumination_usage";
+    public const string FeyBlessingUsage = "sch.fey_blessing_usage";
+
+    // Shield Economy
+    public const string ShieldTiming = "sch.shield_timing";
+    public const string AdloquiumUsage = "sch.adloquium_usage";
+    public const string SuccorUsage = "sch.succor_usage";
+    public const string DeploymentTactics = "sch.deployment_tactics";
+    public const string EmergencyTacticsUsage = "sch.emergency_tactics_usage";
+    public const string RecitationUsage = "sch.recitation_usage";
+
+    // oGCD Healing
+    public const string IndomitabilityUsage = "sch.indomitability_usage";
+    public const string SacredSoilUsage = "sch.sacred_soil_usage";
+
+    // Damage Optimization
+    public const string DpsOptimization = "sch.dps_optimization";
+    public const string ChainStratagemTiming = "sch.chain_stratagem_timing";
+    public const string DotMaintenance = "sch.dot_maintenance";
+
+    // Utility & Coordination
+    public const string ExpedientUsage = "sch.expedient_usage";
+    public const string RaiseDecision = "sch.raise_decision";
+    public const string CoHealerAwareness = "sch.cohealer_awareness";
+    public const string EsunaUsage = "sch.esuna_usage";
+
+    /// <summary>
+    /// All SCH concepts for counting.
+    /// </summary>
+    public static readonly string[] AllConcepts = new[]
+    {
+        EmergencyHealing, LustrateUsage, ExcogitationUsage,
+        AetherflowManagement, AetherflowRefresh, EnergyDrainUsage,
+        FairyManagement, SeraphUsage, DissipationUsage, FeyUnionUsage,
+        WhisperingDawnUsage, FeyIlluminationUsage, FeyBlessingUsage,
+        ShieldTiming, AdloquiumUsage, SuccorUsage, DeploymentTactics,
+        EmergencyTacticsUsage, RecitationUsage,
+        IndomitabilityUsage, SacredSoilUsage,
+        DpsOptimization, ChainStratagemTiming, DotMaintenance,
+        ExpedientUsage, RaiseDecision, CoHealerAwareness, EsunaUsage,
+    };
+}
+
+/// <summary>
+/// Well-known concept IDs for AST healing.
+/// </summary>
+public static class AstConcepts
+{
+    // Emergency Healing
+    public const string EmergencyHealing = "ast.emergency_healing";
+    public const string EssentialDignityUsage = "ast.essential_dignity_usage";
+    public const string MacrocosmosUsage = "ast.macrocosmos_usage";
+
+    // Card Management
+    public const string CardManagement = "ast.card_management";
+    public const string DrawTiming = "ast.draw_timing";
+    public const string MinorArcanaUsage = "ast.minor_arcana_usage";
+    public const string AstrodyneBuilding = "ast.astrodyne_building";
+    public const string DivinationTiming = "ast.divination_timing";
+    public const string OracleUsage = "ast.oracle_usage";
+
+    // HoT Economy
+    public const string HotManagement = "ast.hot_management";
+    public const string AspectedBeneficUsage = "ast.aspected_benefic_usage";
+    public const string AspectedHeliosUsage = "ast.aspected_helios_usage";
+    public const string CelestialOppositionUsage = "ast.celestial_opposition_usage";
+
+    // Earthly Star
+    public const string EarthlyStarPlacement = "ast.earthly_star_placement";
+    public const string EarthlyStarMaturation = "ast.earthly_star_maturation";
+
+    // oGCD Healing
+    public const string CelestialIntersectionUsage = "ast.celestial_intersection_usage";
+    public const string ExaltationUsage = "ast.exaltation_usage";
+    public const string HoroscopeUsage = "ast.horoscope_usage";
+    public const string SunSignUsage = "ast.sun_sign_usage";
+
+    // Defensive Cooldowns
+    public const string NeutralSectUsage = "ast.neutral_sect_usage";
+    public const string CollectiveUnconsciousUsage = "ast.collective_unconscious_usage";
+
+    // Damage & Utility
+    public const string DpsOptimization = "ast.dps_optimization";
+    public const string DotMaintenance = "ast.dot_maintenance";
+    public const string RaiseDecision = "ast.raise_decision";
+    public const string CoHealerAwareness = "ast.cohealer_awareness";
+    public const string EsunaUsage = "ast.esuna_usage";
+    public const string SynastryUsage = "ast.synastry_usage";
+    public const string LightspeedUsage = "ast.lightspeed_usage";
+
+    /// <summary>
+    /// All AST concepts for counting.
+    /// </summary>
+    public static readonly string[] AllConcepts = new[]
+    {
+        EmergencyHealing, EssentialDignityUsage, MacrocosmosUsage,
+        CardManagement, DrawTiming, MinorArcanaUsage, AstrodyneBuilding,
+        DivinationTiming, OracleUsage,
+        HotManagement, AspectedBeneficUsage, AspectedHeliosUsage, CelestialOppositionUsage,
+        EarthlyStarPlacement, EarthlyStarMaturation,
+        CelestialIntersectionUsage, ExaltationUsage, HoroscopeUsage, SunSignUsage,
+        NeutralSectUsage, CollectiveUnconsciousUsage,
+        DpsOptimization, DotMaintenance, RaiseDecision, CoHealerAwareness,
+        EsunaUsage, SynastryUsage, LightspeedUsage,
+    };
+}
+
+/// <summary>
+/// Well-known concept IDs for SGE healing.
+/// </summary>
+public static class SgeConcepts
+{
+    // Emergency Healing
+    public const string EmergencyHealing = "sge.emergency_healing";
+    public const string HaimaUsage = "sge.haima_usage";
+    public const string PanhaimaUsage = "sge.panhaima_usage";
+    public const string PepsisUsage = "sge.pepsis_usage";
+
+    // Kardia Management
+    public const string KardiaManagement = "sge.kardia_management";
+    public const string KardiaTargetSelection = "sge.kardia_target_selection";
+    public const string SoteriaUsage = "sge.soteria_usage";
+    public const string PhilosophiaUsage = "sge.philosophia_usage";
+
+    // Addersgall Economy
+    public const string AddersgallManagement = "sge.addersgall_management";
+    public const string KeracholeUsage = "sge.kerachole_usage";
+    public const string IxocholeUsage = "sge.ixochole_usage";
+    public const string TaurocholeUsage = "sge.taurochole_usage";
+    public const string DruocholeUsage = "sge.druochole_usage";
+
+    // Eukrasia Decisions
+    public const string EukrasiaDecisions = "sge.eukrasia_decisions";
+    public const string EukrasianDiagnosisUsage = "sge.eukrasian_diagnosis_usage";
+    public const string EukrasianPrognosisUsage = "sge.eukrasian_prognosis_usage";
+    public const string EukrasianDosisUsage = "sge.eukrasian_dosis_usage";
+
+    // oGCD Healing
+    public const string PhysisUsage = "sge.physis_usage";
+    public const string HolosUsage = "sge.holos_usage";
+    public const string PneumaUsage = "sge.pneuma_usage";
+    public const string KrasisUsage = "sge.krasis_usage";
+
+    // Defensive Cooldowns
+    public const string ZoeUsage = "sge.zoe_usage";
+    public const string RhizomataUsage = "sge.rhizomata_usage";
+
+    // Damage & Utility
+    public const string DpsOptimization = "sge.dps_optimization";
+    public const string DotMaintenance = "sge.dot_maintenance";
+    public const string PhlegmaUsage = "sge.phlegma_usage";
+    public const string ToxikonUsage = "sge.toxikon_usage";
+    public const string PsycheUsage = "sge.psyche_usage";
+    public const string RaiseDecision = "sge.raise_decision";
+    public const string CoHealerAwareness = "sge.cohealer_awareness";
+    public const string EsunaUsage = "sge.esuna_usage";
+
+    /// <summary>
+    /// All SGE concepts for counting.
+    /// </summary>
+    public static readonly string[] AllConcepts = new[]
+    {
+        EmergencyHealing, HaimaUsage, PanhaimaUsage, PepsisUsage,
+        KardiaManagement, KardiaTargetSelection, SoteriaUsage, PhilosophiaUsage,
+        AddersgallManagement, KeracholeUsage, IxocholeUsage, TaurocholeUsage, DruocholeUsage,
+        EukrasiaDecisions, EukrasianDiagnosisUsage, EukrasianPrognosisUsage, EukrasianDosisUsage,
+        PhysisUsage, HolosUsage, PneumaUsage, KrasisUsage,
+        ZoeUsage, RhizomataUsage,
+        DpsOptimization, DotMaintenance, PhlegmaUsage, ToxikonUsage, PsycheUsage,
+        RaiseDecision, CoHealerAwareness, EsunaUsage,
+    };
+}

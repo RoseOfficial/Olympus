@@ -18,6 +18,7 @@ using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation;
@@ -61,6 +62,9 @@ public sealed class Astraea : BaseHealerRotation<AstraeaContext, IAstraeaModule>
     // Timeline integration
     private readonly ITimelineService? _timelineService;
 
+    // Training mode
+    private readonly ITrainingService? _trainingService;
+
     // Modules (sorted by priority)
     private readonly List<IAstraeaModule> _modules;
 
@@ -84,6 +88,7 @@ public sealed class Astraea : BaseHealerRotation<AstraeaContext, IAstraeaModule>
         IJobGauges jobGauges,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
+        ITrainingService? trainingService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -107,6 +112,9 @@ public sealed class Astraea : BaseHealerRotation<AstraeaContext, IAstraeaModule>
     {
         // Store timeline service
         _timelineService = timelineService;
+
+        // Store training service
+        _trainingService = trainingService;
 
         // Initialize Astrologian-specific services
         _cardService = new CardTrackingService(jobGauges);
@@ -207,6 +215,7 @@ public sealed class Astraea : BaseHealerRotation<AstraeaContext, IAstraeaModule>
             shieldTrackingService: ShieldTrackingService,
             partyCoordinationService: PartyCoordinationService,
             timelineService: _timelineService,
+            trainingService: _trainingService,
             debugState: _debugState,
             log: Log);
     }
