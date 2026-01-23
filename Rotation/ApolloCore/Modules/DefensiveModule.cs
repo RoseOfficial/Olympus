@@ -1,9 +1,12 @@
+using System;
 using System.Numerics;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Services.Party;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ApolloCore.Modules;
 
@@ -223,6 +226,51 @@ public sealed class DefensiveModule : IApolloModule
                          highDamageIntake ? "damage spike" : $"{injuredCount} injured";
             context.Debug.DefensiveState = $"Temperance ({reason}, avg HP {avgHpPercent:P0})";
             partyCoord?.OnCooldownUsed(WHMActions.Temperance.ActionId, 120_000);
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var shortReason = raidwideImminent
+                    ? $"Pre-raidwide Temperance ({raidwideSource})"
+                    : $"Temperance - {injuredCount} injured, {avgHpPercent:P0} avg HP";
+
+                var factors = new[]
+                {
+                    $"Party average HP: {avgHpPercent:P0}",
+                    $"Injured count: {injuredCount}",
+                    $"Party damage rate: {partyDamageRate:F0} DPS",
+                    $"Effective threshold: {effectiveThreshold:P0}",
+                    raidwideImminent ? $"Raidwide predicted via {raidwideSource}" :
+                    damageSpikeImminent ? "Damage spike imminent (trend analysis)" :
+                    highDamageIntake ? "High party damage intake detected" :
+                    "Multiple party members injured",
+                };
+
+                var alternatives = raidwideImminent
+                    ? new[] { "Liturgy of the Bell (reactive healing)", "Save for later raidwide" }
+                    : new[] { "AoE heals instead", "Wait for better timing", "Save for emergency" };
+
+                var tip = raidwideImminent
+                    ? "Using Temperance BEFORE raidwides provides both mitigation and healing boost - maximize value!"
+                    : "Temperance is your major raid cooldown - don't hold it forever, but use it when the party needs help!";
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = WHMActions.Temperance.ActionId,
+                    ActionName = "Temperance",
+                    Category = "Defensive",
+                    TargetName = "Party",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Temperance provides 10% damage reduction and 20% healing boost for 20 seconds. Used because {reason}. Party average HP was {avgHpPercent:P0} with {injuredCount} injured members.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = tip,
+                    ConceptId = WhmConcepts.TemperanceUsage,
+                    Priority = raidwideImminent || damageSpikeImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -352,6 +400,51 @@ public sealed class DefensiveModule : IApolloModule
                 tankDamageRate,
                 logReason);
 
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var shortReason = shouldApplyForTankBuster
+                    ? $"Pre-tankbuster shield on {tankName}"
+                    : shouldApplyToAvoidCap
+                        ? $"Avoiding charge cap on {tankName}"
+                        : $"Shield on {tankName} at {tankHpPct:P0}";
+
+                var factors = new[]
+                {
+                    $"Tank HP: {tankHpPct:P0}",
+                    $"Tank damage rate: {tankDamageRate:F0} DPS",
+                    $"Charges: {chargeInfo}",
+                    shouldApplyForTankBuster ? $"Tank buster predicted via {tankBusterSource}" :
+                    shouldApplyToAvoidCap ? "At max charges - avoiding waste" :
+                    shouldApplyProactively ? "High sustained damage on tank" :
+                    $"HP below {hpThreshold:P0} threshold",
+                };
+
+                var alternatives = shouldApplyForTankBuster
+                    ? new[] { "Aquaveil (longer mitigation)", "Save for next tank buster" }
+                    : new[] { "Hold for tank buster", "Use on different target" };
+
+                var tip = shouldApplyForTankBuster
+                    ? "Divine Benison before tank busters provides a solid shield - stack with other mitigations!"
+                    : "Divine Benison has charges - don't let them cap! Use proactively on the tank.";
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = WHMActions.DivineBenison.ActionId,
+                    ActionName = "Divine Benison",
+                    Category = "Defensive",
+                    TargetName = tankName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Divine Benison provides a 500 potency shield on {tankName}. {(shouldApplyForTankBuster ? $"Used proactively before predicted tank buster ({tankBusterSource}). " : shouldApplyToAvoidCap ? "Used to avoid wasting charge regeneration. " : "")}Tank HP: {tankHpPct:P0}, damage rate: {tankDamageRate:F0} DPS. Charges: {chargeInfo}.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = tip,
+                    ConceptId = WhmConcepts.DivineBenisonUsage,
+                    Priority = shouldApplyForTankBuster ? ExplanationPriority.High : ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -439,6 +532,48 @@ public sealed class DefensiveModule : IApolloModule
                 tankDamageRate,
                 logReason);
 
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var shortReason = shouldApplyForTankBuster
+                    ? $"Pre-tankbuster mitigation on {tankName}"
+                    : $"Damage reduction on {tankName} at {tankHpPct:P0}";
+
+                var factors = new[]
+                {
+                    $"Tank HP: {tankHpPct:P0}",
+                    $"Tank damage rate: {tankDamageRate:F0} DPS",
+                    shouldApplyForTankBuster ? $"Tank buster predicted via {aquaveilTankBusterSource}" :
+                    shouldApplyProactively ? "High sustained damage on tank" :
+                    $"HP below 90% threshold",
+                    "15% damage reduction for 8 seconds",
+                };
+
+                var alternatives = shouldApplyForTankBuster
+                    ? new[] { "Divine Benison (shield instead)", "Let tank handle it" }
+                    : new[] { "Hold for tank buster", "Use Divine Benison first" };
+
+                var tip = shouldApplyForTankBuster
+                    ? "Aquaveil's 15% mitigation is great before tank busters - it reduces damage before shields absorb!"
+                    : "Aquaveil is best used proactively when the tank is taking sustained damage.";
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = WHMActions.Aquaveil.ActionId,
+                    ActionName = "Aquaveil",
+                    Category = "Defensive",
+                    TargetName = tankName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Aquaveil provides 15% damage reduction on {tankName} for 8 seconds. {(shouldApplyForTankBuster ? $"Used proactively before predicted tank buster ({aquaveilTankBusterSource}). " : "")}Tank HP: {tankHpPct:P0}, damage rate: {tankDamageRate:F0} DPS.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = tip,
+                    ConceptId = WhmConcepts.AquaveilUsage,
+                    Priority = shouldApplyForTankBuster ? ExplanationPriority.High : ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -509,6 +644,45 @@ public sealed class DefensiveModule : IApolloModule
         {
             context.Debug.DefensiveState = $"Bell placed at {targetName} ({injuredCount} injured)";
             partyCoord?.OnCooldownUsed(WHMActions.LiturgyOfTheBell.ActionId, 180_000);
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var shortReason = $"Liturgy placed near {targetName} - {injuredCount} injured";
+
+                var factors = new[]
+                {
+                    $"Injured count: {injuredCount}",
+                    $"Placement: Near {targetName}",
+                    "Heals party when they take damage",
+                    "5 stacks, triggers on damage",
+                    "180 second cooldown",
+                };
+
+                var alternatives = new[]
+                {
+                    "Temperance (mitigation + healing boost)",
+                    "AoE heals (direct healing)",
+                    "Save for bigger damage phase",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = WHMActions.LiturgyOfTheBell.ActionId,
+                    ActionName = "Liturgy of the Bell",
+                    Category = "Defensive",
+                    TargetName = targetName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Liturgy of the Bell placed near {targetName}. This ground-targeted ability heals party members when they take damage, with 5 charges that trigger automatically. Used because {injuredCount} party members are injured and more damage is expected.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Place Liturgy where the party will stack - it triggers on damage, so it's perfect for multi-hit raidwides!",
+                    ConceptId = WhmConcepts.LiturgyOfTheBellUsage,
+                    Priority = ExplanationPriority.High,
+                });
+            }
+
             return true;
         }
 

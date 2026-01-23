@@ -1,7 +1,10 @@
+using System;
+using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.AstraeaCore.Context;
 using Olympus.Rotation.Common.Modules;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AstraeaCore.Modules;
 
@@ -95,6 +98,52 @@ public sealed class BuffModule : BaseBuffModule<AstraeaContext>, IAstraeaModule
         {
             SetPlannedAction(context, ASTActions.Lightspeed.Name);
             context.Debug.LightspeedState = "Active";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var strategyReason = config.LightspeedStrategy switch
+                {
+                    LightspeedUsageStrategy.OnCooldown => "using on cooldown for maximum uptime",
+                    LightspeedUsageStrategy.SaveForMovement => "movement detected",
+                    _ => "manual usage",
+                };
+
+                var shortReason = $"Lightspeed - {strategyReason}";
+
+                var factors = new[]
+                {
+                    $"Strategy: {config.LightspeedStrategy}",
+                    isMoving ? "Currently moving" : "Not moving",
+                    "All GCDs become instant for 15s",
+                    "60s cooldown",
+                    "Great for movement-heavy phases",
+                };
+
+                var alternatives = new[]
+                {
+                    "Save for upcoming movement mechanic",
+                    "Save for emergency raise (instant Ascend)",
+                    "Use Swiftcast for single instant spell",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = ASTActions.Lightspeed.ActionId,
+                    ActionName = "Lightspeed",
+                    Category = "Buff",
+                    TargetName = "Self",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Lightspeed activated ({config.LightspeedStrategy} strategy). {(isMoving ? "Currently moving - Lightspeed allows full GCD usage while mobile." : "Used proactively for instant casts.")} For 15 seconds, all GCDs are instant. This is AST's main tool for maintaining uptime during movement-heavy mechanics!",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Lightspeed is amazing for movement! Use it during mechanics that require constant repositioning. Also great for emergency raises - Ascend becomes instant. Don't hold it too long - 60s cooldown means you can use it liberally.",
+                    ConceptId = AstConcepts.LightspeedUsage,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 

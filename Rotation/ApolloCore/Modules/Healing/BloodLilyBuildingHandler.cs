@@ -1,8 +1,10 @@
+using System;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ApolloCore.Modules.Healing;
 
@@ -110,6 +112,7 @@ public sealed class BloodLilyBuildingHandler : IHealingHandler
 
         context.HpPredictionService.RegisterPendingHeal(target.EntityId, healAmount);
 
+        var targetName = target.Name?.TextValue ?? "Unknown";
         var success = context.ActionService.ExecuteGcd(action, target.GameObjectId);
         if (success)
         {
@@ -118,15 +121,54 @@ public sealed class BloodLilyBuildingHandler : IHealingHandler
             context.Debug.PlannedAction = $"Afflatus Solace (Blood Lily building)";
             context.Debug.PlanningState = "Blood Lily Building";
             context.Debug.MiseryState = $"Building ({context.BloodLilyCount}/3 Blood Lilies)";
-            context.ActionTracker.LogAttempt(action.ActionId, target.Name?.TextValue ?? "Unknown",
+            context.ActionTracker.LogAttempt(action.ActionId, targetName,
                 target.CurrentHp, ActionResult.Success, context.Player.Level);
 
             context.LogHealDecision(
-                target.Name?.TextValue ?? "Unknown",
+                targetName,
                 targetHpPercent,
                 action.Name,
                 healAmount,
                 $"Blood Lily building ({context.BloodLilyCount}/3 Blood, {context.LilyCount}/3 Lilies - next Lily unlock Misery)");
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var strategy = context.Configuration.Healing.LilyStrategy.ToString();
+                var shortReason = $"Blood Lily building - {context.BloodLilyCount}/3 Blood, healing {targetName}";
+
+                var factors = new[]
+                {
+                    $"Blood Lilies: {context.BloodLilyCount}/3 (need 3 for Misery)",
+                    $"Lilies: {context.LilyCount}/3",
+                    $"Target HP: {targetHpPercent:P0}",
+                    $"HP threshold: {hpThreshold:P0} ({strategy} strategy)",
+                    "Using Lily heal builds toward Afflatus Misery (1240p AoE damage)",
+                };
+
+                var alternatives = new[]
+                {
+                    "Cure II (doesn't build Blood Lily)",
+                    "Wait for lower HP target (more healing efficiency)",
+                    "Save Lilies for emergencies",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Afflatus Solace",
+                    Category = "Resource Management",
+                    TargetName = targetName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Afflatus Solace on {targetName} to build toward Afflatus Misery. Currently at {context.BloodLilyCount}/3 Blood Lilies - one more Lily heal will unlock Misery (1240 potency AoE damage). Strategy: {strategy}. Target was at {targetHpPercent:P0} HP, below the {hpThreshold:P0} threshold.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "When at 2 Blood Lilies, prioritize Lily heals over regular GCDs to unlock Misery faster - it's a huge DPS gain!",
+                    ConceptId = WhmConcepts.BloodLilyBuilding,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
         }
         else
         {
@@ -176,6 +218,45 @@ public sealed class BloodLilyBuildingHandler : IHealingHandler
                 action.Name,
                 healAmount,
                 $"Blood Lily building AoE ({context.BloodLilyCount}/3 Blood, {context.LilyCount}/3 Lilies - {injuredCount} injured)");
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var strategy = context.Configuration.Healing.LilyStrategy.ToString();
+                var shortReason = $"Blood Lily building AoE - {context.BloodLilyCount}/3 Blood, {injuredCount} injured";
+
+                var factors = new[]
+                {
+                    $"Blood Lilies: {context.BloodLilyCount}/3 (need 3 for Misery)",
+                    $"Lilies: {context.LilyCount}/3",
+                    $"Injured count: {injuredCount}",
+                    $"HP threshold: {hpThreshold:P0} ({strategy} strategy)",
+                    "AoE Lily heal builds Blood Lily while healing multiple targets",
+                };
+
+                var alternatives = new[]
+                {
+                    "Afflatus Solace (single target)",
+                    "Medica II (doesn't build Blood Lily)",
+                    "Save Lilies for emergencies",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Afflatus Rapture",
+                    Category = "Resource Management",
+                    TargetName = "Party",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Afflatus Rapture to build toward Afflatus Misery while healing {injuredCount} party members. Currently at {context.BloodLilyCount}/3 Blood Lilies - one more Lily heal will unlock Misery (1240 potency AoE damage). Strategy: {strategy}.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Rapture is better than Solace for Blood Lily building when multiple targets need healing - you get both healing efficiency and gauge progress!",
+                    ConceptId = WhmConcepts.AfflatusRaptureUsage,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
         }
         else
         {

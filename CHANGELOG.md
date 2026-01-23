@@ -3,6 +3,41 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.8.0 - Training Mode: Full Explanation Coverage
+
+**Complete Healer Explanations**
+- Every healing decision now provides real-time explanations in Training Mode
+- All 4 healers (WHM, SCH, AST, SGE) are fully instrumented with 60+ decision points
+
+**Scholar (SCH) Explanations**
+- Lustrate, Excogitation, Indomitability, Sacred Soil, and all Aetherflow abilities
+- Whispering Dawn, Fey Blessing, Seraph, Consolation, and Dissipation
+- Expedient, Deployment Tactics, Emergency Tactics
+- Chain Stratagem and Recitation timing
+- Resurrection with Swiftcast coordination
+
+**Astrologian (AST) Explanations**
+- Essential Dignity, Celestial Intersection, Celestial Opposition, Exaltation
+- Earthly Star placement/detonation, Horoscope, Macrocosmos
+- Card system: Draw timing, Play targeting by role, Divination, Minor Arcana, Astrodyne
+- Neutral Sect, Sun Sign, Collective Unconscious
+- Lightspeed and its use as Swiftcast alternative for raises
+
+**Sage (SGE) Explanations**
+- All Addersgall abilities: Druochole, Taurochole, Ixochole, Kerachole
+- Physis II, Holos, Haima, Panhaima, Pepsis
+- Rhizomata, Krasis, Zoe usage and timing
+- Kardia management: placement, Soteria, Philosophia, smart swapping
+- Eukrasian Diagnosis/Prognosis for shielding
+- Pneuma timing for damage + healing
+- MP management with Lucid Dreaming
+
+**Learning Experience**
+- Each explanation includes: factors considered, alternatives evaluated, and learning tips
+- Priority levels (Critical/High/Normal/Low) help focus on important decisions
+- Job-specific tips explain FFXIV healer mechanics and best practices
+<!-- LATEST-END -->
+
 ## v3.7.0 - Training Mode: Full Healer Coverage
 
 **Multi-Healer Training Support**
@@ -20,7 +55,6 @@ All notable changes to Olympus will be documented in this file.
 - TrainingService now tracks concepts across all healer jobs
 - Each healer context now has access to TrainingService for decision explanations
 - Progress tracking automatically detects job from concept ID prefix
-<!-- LATEST-END -->
 
 ## v3.6.0 - Training Mode
 

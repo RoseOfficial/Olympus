@@ -81,6 +81,29 @@ public static class JobRegistry
         Summoner or RedMage or Pictomancer;
 
     /// <summary>
+    /// Returns true if the job is a melee DPS (MNK, DRG, NIN, SAM, RPR, VPR).
+    /// </summary>
+    public static bool IsMeleeDps(uint jobId) => jobId is
+        Monk or Pugilist or
+        Dragoon or Lancer or
+        Ninja or Rogue or
+        Samurai or Reaper or Viper;
+
+    /// <summary>
+    /// Returns true if the job is a ranged physical DPS (BRD, MCH, DNC).
+    /// </summary>
+    public static bool IsRangedPhysicalDps(uint jobId) => jobId is
+        Bard or Archer or
+        Machinist or Dancer;
+
+    /// <summary>
+    /// Returns true if the job is a caster DPS (BLM, SMN, RDM, PCT).
+    /// </summary>
+    public static bool IsCasterDps(uint jobId) => jobId is
+        BlackMage or Thaumaturge or
+        Summoner or RedMage or Pictomancer;
+
+    /// <summary>
     /// Returns true if the job is a White Mage or Conjurer.
     /// </summary>
     public static bool IsWhiteMage(uint jobId) => jobId is WhiteMage or Conjurer;

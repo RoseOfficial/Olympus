@@ -1,6 +1,9 @@
+using System;
+using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ApolloCore.Modules.Healing;
 
@@ -51,6 +54,46 @@ public sealed class AssizeHealingHandler : IHealingHandler
                 avgHpPercent,
                 "Assize",
                 $"Healing mode - {injuredCount} injured, avg HP {avgHpPercent:P0}");
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var shortReason = $"Party heal - {injuredCount} injured, {avgHpPercent:P0} avg HP";
+
+                var factors = new[]
+                {
+                    $"Party average HP: {avgHpPercent:P0}",
+                    $"Injured count: {injuredCount}",
+                    $"Min targets threshold: {config.Healing.AssizeHealingMinTargets}",
+                    $"HP threshold: {config.Healing.AssizeHealingHpThreshold:P0}",
+                    "Also deals damage and restores MP",
+                };
+
+                var alternatives = new[]
+                {
+                    "Hold for DPS burst window",
+                    "Use Medica II for HoT instead",
+                    "Use Afflatus Rapture (builds Blood Lily)",
+                };
+
+                var tip = "Assize heals, damages, and restores MP - try to use it when it provides value in all three areas!";
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = WHMActions.Assize.ActionId,
+                    ActionName = "Assize",
+                    Category = "Healing",
+                    TargetName = "Party",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Assize is a 400 potency party heal that also deals damage and restores 500 MP. Used because {injuredCount} party members are injured and average HP ({avgHpPercent:P0}) is below the threshold ({config.Healing.AssizeHealingHpThreshold:P0}). This provides triple value: healing, damage, and MP.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = tip,
+                    ConceptId = WhmConcepts.AssizeUsage,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
 
             return true;
         }

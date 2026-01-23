@@ -1,8 +1,10 @@
 using System;
 using System.Numerics;
+using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Services.Training;
 using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.ApolloCore.Modules;
@@ -202,6 +204,47 @@ public sealed class BuffModule : IApolloModule
         if (ActionExecutor.ExecuteOgcd(context, WHMActions.ThinAir, player.GameObjectId,
             player.Name?.TextValue ?? "Unknown", player.CurrentMp))
         {
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var shortReason = $"Thin Air - {usageReason}";
+
+                var factors = new[]
+                {
+                    $"Charges: {chargeInfo}",
+                    $"Current MP: {player.CurrentMp:N0}",
+                    usageReason,
+                    "Makes next spell cost 0 MP",
+                };
+
+                var alternatives = new[]
+                {
+                    "Save for Raise (2400 MP saved)",
+                    "Save for AoE heal (1000 MP saved)",
+                    "Use for single-target heal",
+                };
+
+                var tip = isAtMaxCharges
+                    ? "Don't let Thin Air charges cap - use them for any expensive spell!"
+                    : "Thin Air is best used for Raise or AoE heals to maximize MP savings.";
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = WHMActions.ThinAir.ActionId,
+                    ActionName = "Thin Air",
+                    Category = "Buff",
+                    TargetName = null,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Thin Air makes the next GCD spell free (0 MP cost). {usageReason}. Current MP: {player.CurrentMp:N0}, charges: {chargeInfo}.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = tip,
+                    ConceptId = WhmConcepts.OgcdWeaving,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -255,6 +298,44 @@ public sealed class BuffModule : IApolloModule
             player.Name?.TextValue ?? "Unknown", player.CurrentHp))
         {
             context.Debug.PoMState = "Executed";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var shortReason = "Presence of Mind - 20% spell speed buff";
+
+                var factors = new[]
+                {
+                    "20% spell speed increase for 15 seconds",
+                    "Affects both damage spells and heals",
+                    "More DPS and faster emergency response",
+                    "120 second cooldown",
+                };
+
+                var alternatives = new[]
+                {
+                    "Hold for burst window",
+                    "Stack with Assize for more casts",
+                    "Save for healing emergency",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = WHMActions.PresenceOfMind.ActionId,
+                    ActionName = "Presence of Mind",
+                    Category = "Buff",
+                    TargetName = null,
+                    ShortReason = shortReason,
+                    DetailedReason = "Presence of Mind increases spell speed by 20% for 15 seconds. This means more Glares (DPS) and faster emergency heals. Used on cooldown for maximum value.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Presence of Mind is your DPS buff - use it on cooldown during damage phases!",
+                    ConceptId = WhmConcepts.DpsOptimization,
+                    Priority = ExplanationPriority.Low,
+                });
+            }
+
             return true;
         }
 
@@ -380,6 +461,54 @@ public sealed class BuffModule : IApolloModule
                 : shouldDeployForBurst
                     ? "Pre-burst"
                     : "Executed";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var shortReason = shouldDeployForRaidwide
+                    ? $"Pre-raidwide Asylum near {context.Debug.AsylumTarget}"
+                    : shouldDeployForBurst
+                        ? $"Pre-burst Asylum near {context.Debug.AsylumTarget}"
+                        : $"Asylum placed near {context.Debug.AsylumTarget}";
+
+                var factors = new[]
+                {
+                    $"Placement: Near {context.Debug.AsylumTarget}",
+                    "100 potency HoT every 3s for 24s",
+                    "10% healing increase inside",
+                    shouldDeployForRaidwide ? $"Raidwide predicted in {raidwideInfo?.secondsUntil:F1}s via {raidwideSource}" :
+                    shouldDeployForBurst ? "DPS burst window approaching" :
+                    "General healing support",
+                };
+
+                var alternatives = new[]
+                {
+                    "Wait for better positioning",
+                    "Save for raidwide phase",
+                    "Use direct heals instead",
+                };
+
+                var tip = shouldDeployForRaidwide
+                    ? "Deploying Asylum 5-8 seconds before raidwides lets the HoT tick before damage, and the healing boost helps recovery!"
+                    : "Place Asylum where the party will stack - the healing boost affects all heals inside!";
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = WHMActions.Asylum.ActionId,
+                    ActionName = "Asylum",
+                    Category = "Healing",
+                    TargetName = context.Debug.AsylumTarget,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Asylum placed near {context.Debug.AsylumTarget}. This ground-targeted HoT heals for 100 potency every 3 seconds and increases healing received by 10%. {(shouldDeployForRaidwide ? $"Deployed proactively before predicted raidwide ({raidwideSource})." : shouldDeployForBurst ? "Deployed before DPS burst window for sustained healing." : "")}",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = tip,
+                    ConceptId = WhmConcepts.ProactiveHealing,
+                    Priority = shouldDeployForRaidwide ? ExplanationPriority.High : ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 

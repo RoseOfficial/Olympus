@@ -1,9 +1,12 @@
+using System;
 using System.Numerics;
 using Dalamud.Game.ClientState.Objects.Types;
+using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.AstraeaCore.Context;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AstraeaCore.Modules;
 
@@ -132,6 +135,8 @@ public sealed class HealingModule : IAstraeaModule
             return false;
 
         var action = ASTActions.EssentialDignity;
+        var hpPercent = context.PartyHelper.GetHpPercent(target);
+
         if (context.ActionService.ExecuteOgcd(action, target.GameObjectId))
         {
             // Reserve target to prevent other handlers (local or remote) from double-healing
@@ -141,6 +146,50 @@ public sealed class HealingModule : IAstraeaModule
 
             context.Debug.PlannedAction = action.Name;
             context.Debug.EssentialDignityState = "Used";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var targetName = target.Name?.TextValue ?? "Unknown";
+                var isEmergency = hpPercent < 0.3f;
+
+                var shortReason = isEmergency
+                    ? $"Emergency Dignity on {targetName} at {hpPercent:P0}!"
+                    : $"Essential Dignity on {targetName} at {hpPercent:P0}";
+
+                var factors = new[]
+                {
+                    $"Target HP: {hpPercent:P0}",
+                    $"Threshold: {config.EssentialDignityThreshold:P0}",
+                    "Potency scales up to 1100 at low HP!",
+                    "2 charges, 40s recharge",
+                    "oGCD - can weave without clipping",
+                };
+
+                var alternatives = new[]
+                {
+                    "Celestial Intersection (heal + shield)",
+                    "Benefic II (GCD heal)",
+                    "Save charge for emergency",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Essential Dignity",
+                    Category = "Healing",
+                    TargetName = targetName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Essential Dignity on {targetName} at {hpPercent:P0} HP. ED's potency scales from 400 at high HP to 1100 at very low HP, making it most efficient on low HP targets. {(isEmergency ? "Target was in critical condition!" : "Used proactively before HP dropped further.")} 2 charges with 40s recharge - don't sit on max charges!",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Essential Dignity is most efficient at low HP! Don't panic use it at 80% - wait until 50% or below for maximum value. But don't let anyone die holding charges either.",
+                    ConceptId = AstConcepts.EssentialDignityUsage,
+                    Priority = isEmergency ? ExplanationPriority.Critical : ExplanationPriority.High,
+                });
+            }
+
             return true;
         }
 
@@ -183,6 +232,48 @@ public sealed class HealingModule : IAstraeaModule
 
             context.Debug.PlannedAction = action.Name;
             context.Debug.CelestialIntersectionState = "Used";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var targetName = target.Name?.TextValue ?? "Unknown";
+                var isTank = JobRegistry.IsTank(target.ClassJob.RowId);
+
+                var shortReason = $"Celestial Intersection on {targetName} at {hpPercent:P0}";
+
+                var factors = new[]
+                {
+                    $"Target HP: {hpPercent:P0}",
+                    $"Threshold: {config.CelestialIntersectionThreshold:P0}",
+                    isTank ? "Tank target - will get shield" : "Non-tank - heal + regen",
+                    "2 charges, 30s recharge",
+                    "oGCD - weave without GCD clip",
+                };
+
+                var alternatives = new[]
+                {
+                    "Essential Dignity (emergency heal)",
+                    "Aspected Benefic (GCD + regen)",
+                    "Save charge for tank damage",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Celestial Intersection",
+                    Category = "Healing",
+                    TargetName = targetName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Celestial Intersection on {targetName} at {hpPercent:P0} HP. {(isTank ? "Tank target receives 400 potency shield (great for tankbusters!)." : "Non-tank target receives 200 potency heal + 15s regen.")} 2 charges with 30s recharge - keep using them to maximize value!",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Celestial Intersection is excellent for tanks - the shield helps with auto-attacks and tankbusters. For non-tanks, it's a free oGCD heal + regen. Don't sit on charges!",
+                    ConceptId = AstConcepts.CelestialIntersectionUsage,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -220,6 +311,47 @@ public sealed class HealingModule : IAstraeaModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.CelestialOppositionState = "Used";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var (avgHp, _, injured) = context.PartyHealthMetrics;
+
+                var shortReason = $"Celestial Opposition - {injured} injured at {avgHp:P0} avg";
+
+                var factors = new[]
+                {
+                    $"Party avg HP: {avgHp:P0}",
+                    $"Injured count: {injured}",
+                    "200 potency heal + 15s regen",
+                    "60s cooldown",
+                    "oGCD - free healing",
+                };
+
+                var alternatives = new[]
+                {
+                    "Earthly Star (higher potency if mature)",
+                    "Helios Conjunction (GCD AoE)",
+                    "Save for predictable raidwide",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Celestial Opposition",
+                    Category = "Healing",
+                    TargetName = "Party",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Celestial Opposition used on {injured} injured party members at {avgHp:P0} average HP. Provides 200 potency instant heal plus a 15s regen (100 potency/tick). Free oGCD AoE heal on 60s cooldown - excellent value!",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Celestial Opposition is a free AoE heal + regen. Use it liberally! The regen continues ticking even while you DPS. Don't hold it for emergencies - that's what Essential Dignity is for.",
+                    ConceptId = AstConcepts.CelestialOppositionUsage,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -263,6 +395,48 @@ public sealed class HealingModule : IAstraeaModule
 
             context.Debug.PlannedAction = action.Name;
             context.Debug.ExaltationState = "Used";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var targetName = target.Name?.TextValue ?? "Unknown";
+                var isTank = JobRegistry.IsTank(target.ClassJob.RowId);
+
+                var shortReason = $"Exaltation on {targetName} - {(isTank ? "tankbuster prep" : "damage reduction")}";
+
+                var factors = new[]
+                {
+                    $"Target HP: {hpPercent:P0}",
+                    $"Threshold: {config.ExaltationThreshold:P0}",
+                    "10% damage reduction for 8s",
+                    "500 potency heal after 8s",
+                    "60s cooldown",
+                };
+
+                var alternatives = new[]
+                {
+                    "Celestial Intersection (immediate shield)",
+                    "Essential Dignity (emergency heal)",
+                    "Save for predictable tankbuster",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Exaltation",
+                    Category = "Healing",
+                    TargetName = targetName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Exaltation on {targetName} at {hpPercent:P0} HP. Provides 10% damage reduction for 8 seconds, then heals for 500 potency. {(isTank ? "Excellent for tankbusters - the mitigation reduces incoming damage, then the delayed heal tops them off!" : "Good defensive utility even on non-tanks during heavy damage phases.")}",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Exaltation is best used proactively on tanks before tankbusters. The 10% mitigation + delayed heal combo is very efficient. Time it so the heal lands when the target actually needs it!",
+                    ConceptId = AstConcepts.ExaltationUsage,
+                    Priority = isTank ? ExplanationPriority.High : ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -296,6 +470,51 @@ public sealed class HealingModule : IAstraeaModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.HoroscopeState = "Detonated";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var isEnhanced = context.HasHoroscopeHelios;
+
+                var shortReason = isEnhanced
+                    ? $"Horoscope Helios detonated - {injured} at {avgHp:P0}"
+                    : $"Horoscope detonated - {injured} at {avgHp:P0}";
+
+                var factors = new[]
+                {
+                    isEnhanced ? "Enhanced with Helios (400 potency)" : "Basic Horoscope (200 potency)",
+                    $"Party avg HP: {avgHp:P0}",
+                    $"Injured count: {injured}",
+                    $"Min targets: {config.HoroscopeMinTargets}",
+                    "oGCD - free AoE heal",
+                };
+
+                var alternatives = new[]
+                {
+                    "Let it expire naturally (wastes it)",
+                    "Celestial Opposition (if available)",
+                    "Wait for more injured targets",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Horoscope",
+                    Category = "Healing",
+                    TargetName = "Party",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Horoscope detonated on {injured} injured party members at {avgHp:P0} average HP. {(isEnhanced ? "Enhanced with Helios for 400 potency - double the value!" : "Basic 200 potency heal. Consider using Helios after Horoscope to enhance it next time!")} Free oGCD heal that expires after 30s.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = isEnhanced
+                        ? "Great! You enhanced Horoscope with Helios for double potency. This is the optimal way to use Horoscope!"
+                        : "Horoscope can be enhanced to 400 potency by casting Helios/Aspected Helios while it's active. Try to enhance it when possible!",
+                    ConceptId = AstConcepts.HoroscopeUsage,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -330,6 +549,45 @@ public sealed class HealingModule : IAstraeaModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.MacrocosmosState = "Detonated";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var shortReason = $"Microcosmos detonated - {injured} injured at {avgHp:P0}";
+
+                var factors = new[]
+                {
+                    $"Party avg HP: {avgHp:P0}",
+                    $"Injured count: {injured}",
+                    "Heals 50% of damage taken during Macrocosmos",
+                    "Minimum 200 potency heal",
+                    "oGCD detonation",
+                };
+
+                var alternatives = new[]
+                {
+                    "Wait for timer to expire (auto-detonates)",
+                    "Let more damage accumulate",
+                    "Use other heals first",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Microcosmos",
+                    Category = "Healing",
+                    TargetName = "Party",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Microcosmos (Macrocosmos detonation) used on {injured} injured party members at {avgHp:P0} average HP. Heals for 50% of all damage taken during the Macrocosmos buff (minimum 200 potency). The more damage absorbed, the bigger the heal!",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Microcosmos heals based on damage taken during Macrocosmos. Use Macrocosmos BEFORE big raidwides to capture the damage, then detonate for massive healing. Time it with predictable damage!",
+                    ConceptId = AstConcepts.MacrocosmosUsage,
+                    Priority = ExplanationPriority.High,
+                });
+            }
+
             return true;
         }
 
@@ -399,6 +657,54 @@ public sealed class HealingModule : IAstraeaModule
             context.Debug.PlannedAction = action.Name;
             context.Debug.EarthlyStarState = isMature ? "Detonated (Mature)" : "Detonated (Immature)";
             context.LogEarthlyStarDecision("Detonated", isMature ? "Mature star, party needs healing" : "Emergency detonate");
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                string trigger;
+                if (raidwideImminent) trigger = "Raidwide imminent";
+                else if (avgHp <= config.EarthlyStarEmergencyThreshold) trigger = "Emergency HP";
+                else trigger = $"Party HP low ({avgHp:P0})";
+
+                var shortReason = isMature
+                    ? $"Giant Dominance detonated - {trigger}"
+                    : $"Immature Star detonated - {trigger}";
+
+                var factors = new[]
+                {
+                    isMature ? "Star MATURE (Giant Dominance)" : "Star immature",
+                    $"Party avg HP: {avgHp:P0}",
+                    $"Injured count: {injured}",
+                    trigger,
+                    isMature ? "720 potency heal + 720 damage" : "360 potency heal + 360 damage",
+                };
+
+                var alternatives = new[]
+                {
+                    isMature ? "Detonation is optimal when mature" : "Wait for maturation (if safe)",
+                    "Let star expire naturally",
+                    "Use other oGCDs first",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Stellar Detonation",
+                    Category = "Healing",
+                    TargetName = "Party",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Detonated Earthly Star ({(isMature ? "Giant Dominance, 720 potency" : "immature, 360 potency")}). Party avg HP at {avgHp:P0} with {injured} injured. {trigger}. {(isMature ? "Mature star provides maximum healing value!" : "Detonated early due to urgent healing need.")}",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = isMature
+                        ? "Perfect timing! Mature Earthly Star is AST's biggest AoE heal. Always aim for Giant Dominance when possible."
+                        : "Sometimes you have to detonate early. An immature heal is better than letting the party die!",
+                    ConceptId = AstConcepts.EarthlyStarMaturation,
+                    Priority = isMature ? ExplanationPriority.High : ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -446,6 +752,48 @@ public sealed class HealingModule : IAstraeaModule
             context.Debug.PlannedAction = action.Name;
             context.Debug.SynastryState = "Active";
             context.Debug.SynastryTarget = target.Name.TextValue;
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var targetName = target.Name?.TextValue ?? "Unknown";
+                var isTank = JobRegistry.IsTank(target.ClassJob.RowId);
+
+                var shortReason = $"Synastry on {targetName} - sustained healing phase";
+
+                var factors = new[]
+                {
+                    $"Target HP: {hpPercent:P0}",
+                    $"Threshold: {config.SynastryThreshold:P0}",
+                    isTank ? "Tank target - great for sustained tankbuster recovery" : "Non-tank target",
+                    "40% of single-target heals mirrored",
+                    "20s duration, 120s cooldown",
+                };
+
+                var alternatives = new[]
+                {
+                    "Direct heal the target instead",
+                    "Save for tankbuster sequences",
+                    "Use on different target",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Synastry",
+                    Category = "Healing",
+                    TargetName = targetName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Synastry linked to {targetName} at {hpPercent:P0} HP. For the next 20 seconds, 40% of all your single-target heals will be mirrored to {targetName}. {(isTank ? "Excellent for sustained tank healing - heal anyone and the tank gets topped off too!" : "Useful during heavy damage phases.")}",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Synastry is great when you need to heal multiple people but want to keep the tank topped. Link it to the tank, then heal whoever needs it - the tank gets healed too! Best for sustained damage phases.",
+                    ConceptId = AstConcepts.SynastryUsage,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -546,6 +894,50 @@ public sealed class HealingModule : IAstraeaModule
             context.Debug.EarthlyStarState = "Placed";
             var reason = raidwideImminent ? "Raidwide imminent" : (burstImminent ? "Burst imminent" : "Reactive");
             context.LogEarthlyStarDecision("Placed", $"{config.StarPlacement} ({targetName}) - {reason}");
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var (avgHp, _, _) = context.PartyHealthMetrics;
+                var shortReason = raidwideImminent
+                    ? $"Earthly Star placed - raidwide in ~10s!"
+                    : burstImminent
+                        ? $"Earthly Star placed - burst phase in ~10s"
+                        : $"Earthly Star placed at {targetName}";
+
+                var factors = new[]
+                {
+                    $"Placement: {config.StarPlacement} ({targetName})",
+                    reason,
+                    "Needs 10s to mature for Giant Dominance",
+                    "Mature: 720 potency heal + 720 damage",
+                    "Immature: 360 potency heal + 360 damage",
+                };
+
+                var alternatives = new[]
+                {
+                    "Wait for better timing",
+                    "Place on self instead of tank",
+                    "Save for emergency healing",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Earthly Star",
+                    Category = "Healing",
+                    TargetName = targetName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Earthly Star placed at {targetName}'s position. {reason}. Star needs 10 seconds to mature into Giant Dominance (720 potency heal + damage). Placing proactively ensures it's ready when the party needs healing. {config.StarPlacement} strategy places star where it will hit the most party members.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Earthly Star is AST's strongest AoE heal when mature. Place it ~10s before you need it! Don't sit on cooldown - even immature detonation is better than not using it.",
+                    ConceptId = AstConcepts.EarthlyStarPlacement,
+                    Priority = raidwideImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -583,6 +975,45 @@ public sealed class HealingModule : IAstraeaModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.CardState = "Lady Used";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var shortReason = $"Lady of Crowns - emergency AoE heal at {avgHp:P0}";
+
+                var factors = new[]
+                {
+                    $"Party avg HP: {avgHp:P0}",
+                    $"Injured count: {injured}",
+                    $"Threshold: {config.LadyOfCrownsThreshold:P0}",
+                    "400 potency AoE heal",
+                    "Uses Minor Arcana card",
+                };
+
+                var alternatives = new[]
+                {
+                    "Lord of Crowns (400 potency damage)",
+                    "Celestial Opposition (if available)",
+                    "Save Lady for bigger emergency",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Lady of Crowns",
+                    Category = "Healing",
+                    TargetName = "Party",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Lady of Crowns used for emergency AoE healing. Party at {avgHp:P0} average HP with {injured} injured. Lady provides 400 potency AoE heal - saving this from Minor Arcana instead of using Lord for damage is a healing gain when the party needs it!",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Minor Arcana gives either Lord (damage) or Lady (heal). Lady is free AoE healing when you need it! In farm content, you might always use Lord for damage, but in prog or hard content, Lady can save the day.",
+                    ConceptId = AstConcepts.MinorArcanaUsage,
+                    Priority = ExplanationPriority.High,
+                });
+            }
+
             return true;
         }
 
@@ -628,6 +1059,47 @@ public sealed class HealingModule : IAstraeaModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.HoroscopeState = "Prepared";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var shortReason = raidwideImminent
+                    ? "Horoscope prepared - raidwide incoming!"
+                    : $"Horoscope prepared - party at {avgHp:P0}";
+
+                var factors = new[]
+                {
+                    $"Party avg HP: {avgHp:P0}",
+                    raidwideImminent ? "Raidwide damage imminent" : "Proactive preparation",
+                    "200 potency base (400 if enhanced)",
+                    "Use Helios to enhance to 400 potency",
+                    "30s buff duration",
+                };
+
+                var alternatives = new[]
+                {
+                    "Wait for damage before preparing",
+                    "Save for known raidwide timing",
+                    "Use other heals directly",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Horoscope",
+                    Category = "Healing",
+                    TargetName = "Party",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Horoscope prepared for upcoming healing. {(raidwideImminent ? "Raidwide damage expected soon - Horoscope will be ready to detonate!" : $"Party HP at {avgHp:P0} - preparing for healing needs.")} Remember to cast Helios/Aspected Helios to enhance Horoscope from 200 to 400 potency before detonating!",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Horoscope is a two-step ability: 1) Activate it 2) Detonate it. For maximum value, cast Helios after activating to enhance it to 400 potency. Plan ahead - the buff lasts 30s!",
+                    ConceptId = AstConcepts.HoroscopeUsage,
+                    Priority = raidwideImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -685,6 +1157,45 @@ public sealed class HealingModule : IAstraeaModule
             context.Debug.PlannedAction = action.Name;
             context.Debug.MacrocosmosState = "Applied";
             partyCoord?.OnCooldownUsed(action.ActionId, 180_000);
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var shortReason = $"Macrocosmos applied - capturing damage ({membersInRange} in range)";
+
+                var factors = new[]
+                {
+                    $"Party avg HP: {avgHp:P0}",
+                    $"Members in range: {membersInRange}",
+                    $"Min targets: {config.MacrocosmosMinTargets}",
+                    "Captures 50% of damage taken",
+                    "Detonate with Microcosmos for big heal",
+                };
+
+                var alternatives = new[]
+                {
+                    "Save for predictable big raidwide",
+                    "Use other healing first",
+                    "Wait for party to stack",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Macrocosmos",
+                    Category = "Healing",
+                    TargetName = "Party",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Macrocosmos applied to {membersInRange} party members at {avgHp:P0} average HP. For the next 15 seconds, 50% of all damage taken is captured. Detonate with Microcosmos for a massive heal proportional to damage absorbed (minimum 200 potency). This is AST's most powerful healing tool when used correctly!",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Macrocosmos is AMAZING before big raidwides! Apply it before the damage hits, let the party take the hit, then detonate for massive healing. The more damage absorbed, the bigger the heal. Time it with fight mechanics!",
+                    ConceptId = AstConcepts.MacrocosmosUsage,
+                    Priority = ExplanationPriority.High,
+                });
+            }
+
             return true;
         }
 
@@ -737,6 +1248,50 @@ public sealed class HealingModule : IAstraeaModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.AoEHealState = "Casting";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var (avgHp, _, injured) = context.PartyHealthMetrics;
+                var hasRegen = action == ASTActions.AspectedHelios || action == ASTActions.HeliosConjunction;
+
+                var shortReason = $"{action.Name} - {injured} injured at {avgHp:P0}";
+
+                var factors = new[]
+                {
+                    $"Party avg HP: {avgHp:P0}",
+                    $"Injured count: {injured}",
+                    $"Action: {action.Name}",
+                    hasRegen ? "Includes 15s regen" : "Direct heal only",
+                    "GCD heal - uses a GCD",
+                };
+
+                var alternatives = new[]
+                {
+                    "Celestial Opposition (oGCD, free)",
+                    "Earthly Star detonation (if placed)",
+                    "Horoscope detonation (if active)",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = action.Name,
+                    Category = "Healing",
+                    TargetName = "Party",
+                    ShortReason = shortReason,
+                    DetailedReason = $"{action.Name} cast on {injured} injured party members at {avgHp:P0} average HP. {(hasRegen ? "Provides direct healing plus a 15s regen for sustained recovery." : "Direct healing with no regen.")} Remember: oGCD heals like Celestial Opposition are 'free' - use them first before GCD heals when possible!",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = hasRegen
+                        ? "Aspected Helios/Helios Conjunction adds a regen - great value! But always check if oGCD heals can handle it first."
+                        : "Basic Helios is pure healing. Consider using Aspected Helios for the regen if available.",
+                    ConceptId = AstConcepts.AspectedHeliosUsage,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -780,6 +1335,47 @@ public sealed class HealingModule : IAstraeaModule
 
             context.Debug.PlannedAction = action.Name;
             context.Debug.SingleHealState = "Aspected Benefic";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var targetName = target.Name?.TextValue ?? "Unknown";
+
+                var shortReason = $"Aspected Benefic on {targetName} at {hpPercent:P0}";
+
+                var factors = new[]
+                {
+                    $"Target HP: {hpPercent:P0}",
+                    $"Threshold: {config.AspectedBeneficThreshold:P0}",
+                    "Instant cast (can use while moving!)",
+                    "250 potency heal + 15s regen",
+                    "Target didn't have regen already",
+                };
+
+                var alternatives = new[]
+                {
+                    "Essential Dignity (oGCD, emergency)",
+                    "Celestial Intersection (oGCD)",
+                    "Benefic II (higher potency, has cast time)",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Aspected Benefic",
+                    Category = "Healing",
+                    TargetName = targetName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Aspected Benefic on {targetName} at {hpPercent:P0} HP. Instant cast GCD heal (250 potency) plus a 15s regen. Great for healing on the move! Target didn't already have the regen, so full value.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Aspected Benefic is instant cast - your go-to heal while moving! The regen is great value. Check that the target doesn't already have the regen before refreshing.",
+                    ConceptId = AstConcepts.AspectedBeneficUsage,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -831,6 +1427,50 @@ public sealed class HealingModule : IAstraeaModule
 
             context.Debug.PlannedAction = action.Name;
             context.Debug.SingleHealState = action.Name;
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var targetName = target.Name?.TextValue ?? "Unknown";
+                var isBeneficII = action == ASTActions.BeneficII;
+
+                var shortReason = $"{action.Name} on {targetName} at {hpPercent:P0}";
+
+                var factors = new[]
+                {
+                    $"Target HP: {hpPercent:P0}",
+                    isBeneficII ? $"Threshold: {config.BeneficIIThreshold:P0}" : $"Threshold: {config.BeneficThreshold:P0}",
+                    isBeneficII ? "800 potency (high healing)" : "500 potency (basic healing)",
+                    "GCD heal with cast time",
+                    "Use oGCDs first when possible",
+                };
+
+                var alternatives = new[]
+                {
+                    "Essential Dignity (oGCD emergency)",
+                    "Aspected Benefic (instant, adds regen)",
+                    "Celestial Intersection (oGCD)",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = action.Name,
+                    Category = "Healing",
+                    TargetName = targetName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"{action.Name} on {targetName} at {hpPercent:P0} HP. {(isBeneficII ? "Benefic II provides 800 potency - AST's strongest single-target GCD heal." : "Benefic provides 500 potency - basic healing.")} Remember: oGCD heals are 'free' - exhaust those before using GCD heals when possible!",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = isBeneficII
+                        ? "Benefic II is your strongest GCD heal, but it costs a GCD. Make sure you've used Essential Dignity, Celestial Intersection, and Exaltation first!"
+                        : "Benefic is weak. At level 26+, prefer Benefic II for serious healing. Save Benefic for when you need to conserve MP or only need a small top-off.",
+                    ConceptId = AstConcepts.EmergencyHealing,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 

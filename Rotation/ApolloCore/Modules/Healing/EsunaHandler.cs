@@ -1,8 +1,11 @@
+using System;
 using Dalamud.Game.ClientState.Objects.Types;
+using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Services.Debuff;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ApolloCore.Modules.Healing;
 
@@ -74,13 +77,59 @@ public sealed class EsunaHandler : IHealingHandler
             return false;
         }
 
-        context.Debug.EsunaTarget = target.Name?.TextValue ?? "Unknown";
+        var targetName = target.Name?.TextValue ?? "Unknown";
+        context.Debug.EsunaTarget = targetName;
         context.Debug.EsunaState = $"Cleansing {priority} debuff";
 
         if (ActionExecutor.ExecuteGcd(context, WHMActions.Esuna, target.GameObjectId,
-            target.Name?.TextValue ?? "Unknown", target.CurrentHp, "Esuna",
+            targetName, target.CurrentHp, "Esuna",
             appendThinAirNote: false))
         {
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var priorityName = priority.ToString();
+                var shortReason = priority == DebuffPriority.Lethal
+                    ? $"Lethal debuff on {targetName}!"
+                    : $"Cleansing {priorityName} debuff on {targetName}";
+
+                var factors = new[]
+                {
+                    $"Target: {targetName}",
+                    $"Debuff priority: {priorityName}",
+                    $"Status ID: {statusId}",
+                    priority == DebuffPriority.Lethal ? "LETHAL - must cleanse immediately!" : "Dispellable debuff detected",
+                };
+
+                var alternatives = priority == DebuffPriority.Lethal
+                    ? new[] { "Nothing - lethal debuffs must be cleansed" }
+                    : new[] { "Wait for debuff to expire", "Focus on healing instead", "Let co-healer handle it" };
+
+                var tip = priority == DebuffPriority.Lethal
+                    ? "Lethal debuffs kill if not cleansed! Always prioritize these over healing."
+                    : "Look for the dispellable icon (white bar above debuff) to know what can be cleansed.";
+
+                var explanationPriority = priority == DebuffPriority.Lethal
+                    ? ExplanationPriority.Critical
+                    : ExplanationPriority.High;
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = WHMActions.Esuna.ActionId,
+                    ActionName = "Esuna",
+                    Category = "Utility",
+                    TargetName = targetName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Esuna cleanses dispellable debuffs from party members. Used on {targetName} to remove a {priorityName} priority debuff. {(priority == DebuffPriority.Lethal ? "This debuff would kill the target if not removed!" : "Removing debuffs improves party performance and safety.")}",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = tip,
+                    ConceptId = WhmConcepts.EsunaUsage,
+                    Priority = explanationPriority,
+                });
+            }
+
             return true;
         }
 

@@ -1,8 +1,11 @@
+using System;
 using System.Numerics;
+using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.AthenaCore.Context;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Services.Party;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AthenaCore.Modules;
 
@@ -106,6 +109,45 @@ public sealed class DefensiveModule : BaseDefensiveModule<AthenaContext>, IAthen
             SetPlannedAction(context, SCHActions.Expedient.Name);
             SetDefensiveState(context, "Expedient");
             partyCoord?.OnCooldownUsed(SCHActions.Expedient.ActionId, 120_000);
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var shortReason = $"Expedient - party HP {avgHp:P0}, {membersInRange} in range";
+
+                var factors = new[]
+                {
+                    $"Party avg HP: {avgHp:P0}",
+                    $"Threshold: {config.ExpedientThreshold:P0}",
+                    $"Members in range: {membersInRange}",
+                    "10% damage reduction (20s)",
+                    "Sprint effect for movement",
+                };
+
+                var alternatives = new[]
+                {
+                    "Sacred Soil (uses Aetherflow)",
+                    "Fey Illumination (5% magic mit)",
+                    "Save for movement-heavy phase",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = SCHActions.Expedient.ActionId,
+                    ActionName = "Expedient",
+                    Category = "Defensive",
+                    TargetName = "Party",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Expedient for {membersInRange} party members at {avgHp:P0} average HP. Provides 10% damage reduction and sprint effect for 20 seconds. Great for both mitigation and movement-heavy mechanics!",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Expedient is SCH's unique party mitigation + mobility tool. Use it for raidwides or movement-heavy mechanics. The sprint doesn't break on damage!",
+                    ConceptId = SchConcepts.ExpedientUsage,
+                    Priority = ExplanationPriority.High,
+                });
+            }
+
             return true;
         }
 
@@ -152,6 +194,46 @@ public sealed class DefensiveModule : BaseDefensiveModule<AthenaContext>, IAthen
         {
             SetPlannedAction(context, SCHActions.DeploymentTactics.Name);
             SetDefensiveState(context, $"Deploy ({beneficiaries} targets)");
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var targetName = deployTarget.Name?.TextValue ?? "Unknown";
+                var shortReason = $"Deployment Tactics from {targetName} to {beneficiaries} allies";
+
+                var factors = new[]
+                {
+                    $"Shield source: {targetName}",
+                    $"Targets receiving shield: {beneficiaries}",
+                    $"Min targets setting: {config.DeploymentMinTargets}",
+                    "Spreads Galvanize to nearby allies",
+                    "Critical shields spread crit value!",
+                };
+
+                var alternatives = new[]
+                {
+                    "Succor (direct party shield)",
+                    "Wait for better crit shield",
+                    "Sacred Soil (mitigation instead)",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = SCHActions.DeploymentTactics.ActionId,
+                    ActionName = "Deployment Tactics",
+                    Category = "Defensive",
+                    TargetName = targetName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Deployment Tactics spread Galvanize from {targetName} to {beneficiaries} nearby party members. This is highly efficient when spreading a crit Adloquium (crit shield value spreads too!). Great for pre-shielding the party before raidwides.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "For maximum value, Adlo a target and hope for crit (Catalyze), then Deploy to spread the massive shield to the party. Best used before predictable raidwides!",
+                    ConceptId = SchConcepts.DeploymentTactics,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 

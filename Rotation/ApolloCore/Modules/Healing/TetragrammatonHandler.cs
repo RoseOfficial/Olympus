@@ -1,6 +1,9 @@
+using System;
+using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ApolloCore.Modules.Healing;
 
@@ -85,11 +88,13 @@ public sealed class TetragrammatonHandler : IHealingHandler
             var hpPercent = context.PartyHelper.GetHpPercent(target);
             var chargeInfo = $"{currentCharges}/{maxCharges} charges";
 
+            var targetName = target.Name?.TextValue ?? "Unknown";
+
             if (isAtMaxCharges)
             {
                 context.Debug.PlannedAction = $"Tetragrammaton ({chargeInfo}, avoiding cap)";
                 context.LogOgcdDecision(
-                    target.Name?.TextValue ?? "Unknown",
+                    targetName,
                     hpPercent,
                     "Tetragrammaton",
                     $"At max charges - using to avoid cap ({chargeInfo})");
@@ -98,7 +103,7 @@ public sealed class TetragrammatonHandler : IHealingHandler
             {
                 context.Debug.PlannedAction = $"Tetragrammaton (spike mode, {overhealMultiplier:F1}x overheal allowed)";
                 context.LogOgcdDecision(
-                    target.Name?.TextValue ?? "Unknown",
+                    targetName,
                     hpPercent,
                     "Tetragrammaton",
                     $"Spike mode - {overhealMultiplier:F1}x overheal allowed ({chargeInfo})");
@@ -106,11 +111,64 @@ public sealed class TetragrammatonHandler : IHealingHandler
             else
             {
                 context.LogOgcdDecision(
-                    target.Name?.TextValue ?? "Unknown",
+                    targetName,
                     hpPercent,
                     "Tetragrammaton",
                     $"Standard oGCD heal ({chargeInfo})");
             }
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var shortReason = isAtMaxCharges
+                    ? $"Avoiding cap - {targetName} at {hpPercent:P0}"
+                    : isSpike
+                        ? $"Damage spike - {targetName} at {hpPercent:P0}"
+                        : $"oGCD heal - {targetName} at {hpPercent:P0}";
+
+                var factors = new[]
+                {
+                    $"Target HP: {hpPercent:P0}",
+                    $"Missing HP: {missingHp:N0}",
+                    $"Heal amount: {healAmount:N0}",
+                    $"Charges: {chargeInfo}",
+                    isAtMaxCharges ? "At max charges - avoiding waste" :
+                    isSpike ? $"Damage spike imminent - {overhealMultiplier:F1}x overheal allowed" :
+                    $"Standard overheal limit: {overhealMultiplier:F1}x",
+                };
+
+                var alternatives = isAtMaxCharges
+                    ? new[] { "Waste charge regeneration by holding", "Use on tank for mitigation value" }
+                    : isSpike
+                        ? new[] { "Wait for HP to drop (risky)", "Use GCD heal instead (slower)" }
+                        : new[] { "Save for emergency", "Use Cure II instead (GCD)" };
+
+                var tip = isAtMaxCharges
+                    ? "Don't let Tetragrammaton sit at max charges - you're wasting free healing!"
+                    : isSpike
+                        ? "During damage spikes, it's okay to overheal - better safe than dead."
+                        : "Tetragrammaton is free healing - use it before expensive GCD heals.";
+
+                var conceptId = isAtMaxCharges ? WhmConcepts.OgcdWeaving : WhmConcepts.TetragrammatonUsage;
+                var priority = isSpike ? ExplanationPriority.High : ExplanationPriority.Normal;
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = WHMActions.Tetragrammaton.ActionId,
+                    ActionName = "Tetragrammaton",
+                    Category = "Healing",
+                    TargetName = targetName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Tetragrammaton is a 700 potency instant heal with charges. Used on {targetName} at {hpPercent:P0} HP (missing {missingHp:N0}). {(isAtMaxCharges ? "Used to avoid wasting charge regeneration." : isSpike ? "Used proactively due to incoming damage spike." : "Standard efficient oGCD usage.")}",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = tip,
+                    ConceptId = conceptId,
+                    Priority = priority,
+                });
+            }
+
             return true;
         }
 

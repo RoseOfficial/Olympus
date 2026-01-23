@@ -1,9 +1,12 @@
+using System;
 using System.Collections.Generic;
+using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ApolloCore.Modules.Healing;
 
@@ -160,6 +163,65 @@ public sealed class AoEHealingHandler : IHealingHandler
                 action.Name,
                 healAmount,
                 $"AoE heal (avg missing {averageMissingHp} HP){conservationNote}{timelineNote}{thinAirNote}");
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var isCureIII = selectedCureIIITarget is not null;
+                var shortReason = isCureIII
+                    ? $"Cure III on {targetName} - {cureIIITargetCount} stacked"
+                    : $"AoE heal - {injuredCount} injured, {avgHpPct:P0} avg HP";
+
+                var factorsList = new List<string>
+                {
+                    $"Injured count: {injuredCount}",
+                    $"Average party HP: {avgHpPct:P0}",
+                    $"Average missing HP: {averageMissingHp:N0}",
+                    $"Heal amount: {healAmount:N0}",
+                    $"Min targets threshold: {effectiveMinTargets}",
+                };
+
+                if (raidwideImminent)
+                    factorsList.Add($"Raidwide incoming via {raidwideSource}");
+                if (isInMpConservation)
+                    factorsList.Add("MP conservation mode active");
+                if (context.HasThinAir)
+                    factorsList.Add("Thin Air active (free cast!)");
+                if (isCureIII)
+                    factorsList.Add($"Cure III optimal: {cureIIITargetCount} targets stacked");
+
+                var alternatives = new List<string>();
+                if (action.ActionId != WHMActions.Medica.ActionId)
+                    alternatives.Add("Medica (cheaper but weaker)");
+                if (action.ActionId != WHMActions.MedicaII.ActionId && player.Level >= WHMActions.MedicaII.MinLevel)
+                    alternatives.Add("Medica II (adds HoT)");
+                if (action.ActionId != WHMActions.CureIII.ActionId && player.Level >= WHMActions.CureIII.MinLevel)
+                    alternatives.Add("Cure III (if stacked)");
+                if (context.LilyCount > 0 && player.Level >= 76)
+                    alternatives.Add("Afflatus Rapture (builds Blood Lily)");
+
+                var tip = raidwideImminent
+                    ? "Healing before raidwides ensures the party survives - don't wait for HP to drop!"
+                    : isCureIII
+                        ? "Cure III is most efficient when the party is stacked - perfect for stack mechanics!"
+                        : "AoE heals are efficient when multiple targets are injured - single-target heals for just one.";
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = action.Name,
+                    Category = "Healing",
+                    TargetName = isCureIII ? targetName : "Party",
+                    ShortReason = shortReason,
+                    DetailedReason = $"{action.Name} heals {(isCureIII ? $"{cureIIITargetCount} stacked targets around {targetName}" : $"all {injuredCount} injured party members")}. {(raidwideImminent ? $"Used proactively due to incoming raidwide ({raidwideSource}). " : "")}Average party HP was {avgHpPct:P0} with {averageMissingHp:N0} average missing HP.",
+                    Factors = factorsList.ToArray(),
+                    Alternatives = alternatives.ToArray(),
+                    Tip = tip,
+                    ConceptId = raidwideImminent ? WhmConcepts.PartyWideDamage : WhmConcepts.HealingPriority,
+                    Priority = raidwideImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
+                });
+            }
         }
         else
         {

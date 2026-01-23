@@ -1,8 +1,12 @@
+using System;
+using System.Collections.Generic;
+using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ApolloCore.Modules.Healing;
 
@@ -100,21 +104,81 @@ public sealed class SingleTargetHealingHandler : IHealingHandler
             context.HealingCoordination.TryReserveTarget(
                 target.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, castTimeMs);
 
+            var targetName = target.Name?.TextValue ?? "Unknown";
             var thinAirNote = context.HasThinAir ? " + Thin Air" : "";
             context.Debug.PlannedAction = action.Name + thinAirNote;
             context.Debug.PlanningState = "Single Heal";
-            context.ActionTracker.LogAttempt(action.ActionId, target.Name?.TextValue ?? "Unknown", target.CurrentHp, ActionResult.Success, player.Level);
+            context.ActionTracker.LogAttempt(action.ActionId, targetName, target.CurrentHp, ActionResult.Success, player.Level);
 
             // Log healing decision
             var hpPercent = context.PartyHelper.GetHpPercent(target);
             var conservationNote = isInMpConservation ? ", MP conservation" : "";
             var freecureNote = context.HasFreecure ? ", Freecure proc" : "";
             context.LogHealDecision(
-                target.Name?.TextValue ?? "Unknown",
+                targetName,
                 hpPercent,
                 action.Name,
                 healAmount,
                 $"Single-target{conservationNote}{freecureNote}{thinAirNote}");
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var missingHp = target.MaxHp - target.CurrentHp;
+                var shortReason = context.HasFreecure
+                    ? $"Freecure proc! {action.Name} on {targetName}"
+                    : $"{action.Name} on {targetName} at {hpPercent:P0}";
+
+                var factorsList = new List<string>
+                {
+                    $"Target HP: {hpPercent:P0}",
+                    $"Missing HP: {missingHp:N0}",
+                    $"Heal amount: {healAmount:N0}",
+                    hasRegen ? $"Regen active ({regenRemaining:F1}s remaining)" : "No Regen active",
+                };
+
+                if (context.HasFreecure)
+                    factorsList.Add("Freecure proc active (free Cure II!)");
+                if (isInMpConservation)
+                    factorsList.Add("MP conservation mode - using efficient heals");
+                if (context.HasThinAir)
+                    factorsList.Add("Thin Air active (free cast!)");
+
+                var alternatives = new List<string>();
+                if (action.ActionId == WHMActions.CureII.ActionId && !context.HasFreecure)
+                    alternatives.Add("Cure (cheaper but weaker)");
+                if (action.ActionId == WHMActions.Cure.ActionId && player.Level >= WHMActions.CureII.MinLevel)
+                    alternatives.Add("Cure II (stronger but more MP)");
+                if (!hasRegen && player.Level >= WHMActions.Regen.MinLevel)
+                    alternatives.Add("Regen (if not urgent)");
+                if (context.LilyCount > 0)
+                    alternatives.Add("Afflatus Solace (builds Blood Lily)");
+
+                var tip = context.HasFreecure
+                    ? "Always use Freecure procs! Cure II is free when Freecure is active."
+                    : isInMpConservation
+                        ? "In MP conservation mode, prioritize efficient heals and let oGCDs do the work."
+                        : "Single-target GCD heals should be used when oGCDs are on cooldown and the target needs immediate attention.";
+
+                var isTank = JobRegistry.IsTank(target.ClassJob.RowId);
+                var conceptId = isTank ? WhmConcepts.TankPriority : WhmConcepts.HealingPriority;
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = action.Name,
+                    Category = "Healing",
+                    TargetName = targetName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"{action.Name} on {targetName} who was at {hpPercent:P0} HP (missing {missingHp:N0}). {(context.HasFreecure ? "Used Freecure proc for free Cure II. " : "")}{(hasRegen ? $"Target already has Regen ({regenRemaining:F1}s remaining). " : "")}{(isInMpConservation ? "MP conservation mode active - chose efficient heal. " : "")}Heal amount: {healAmount:N0}.",
+                    Factors = factorsList.ToArray(),
+                    Alternatives = alternatives.ToArray(),
+                    Tip = tip,
+                    ConceptId = conceptId,
+                    Priority = hpPercent < 0.3f ? ExplanationPriority.High : ExplanationPriority.Normal,
+                });
+            }
         }
         else
         {

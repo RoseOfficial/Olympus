@@ -1,6 +1,9 @@
+using System;
 using Dalamud.Game.ClientState.Objects.Types;
+using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.AsclepiusCore.Context;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AsclepiusCore.Modules;
 
@@ -76,6 +79,40 @@ public sealed class KardiaModule : IAsclepiusModule
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Placing Kardia";
             context.LogKardiaDecision(target.Name?.TextValue ?? "Unknown", "Place", "Tank needs Kardia");
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var targetName = target.Name?.TextValue ?? "Unknown";
+                var isTank = context.PartyHelper.FindTankInParty(player)?.GameObjectId == target.GameObjectId;
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Kardia",
+                    Category = "Healing",
+                    TargetName = targetName,
+                    ShortReason = $"Kardia placed on {targetName}" + (isTank ? " (tank)" : ""),
+                    DetailedReason = $"Kardia placed on {targetName}. Kardia is SGE's signature ability - every time you deal damage, the Kardia target receives a 170 potency heal! This is PASSIVE healing that costs nothing. Always have Kardia active on someone taking damage (usually the tank).",
+                    Factors = new[]
+                    {
+                        isTank ? "Target: Tank (primary damage taker)" : "Target: Lowest HP party member",
+                        "170 potency heal per damaging GCD",
+                        "No cooldown, instant swap",
+                        "FUNDAMENTAL to SGE gameplay",
+                    },
+                    Alternatives = new[]
+                    {
+                        "Could place on different target",
+                        "No alternatives - Kardia should ALWAYS be placed",
+                    },
+                    Tip = "Kardia is SGE's bread and butter! It provides constant healing while you DPS. Always keep it on someone - usually the tank. Swap it to other targets when needed for quick passive healing!",
+                    ConceptId = SgeConcepts.KardiaManagement,
+                    Priority = ExplanationPriority.High,
+                });
+            }
+
             return true;
         }
 
@@ -120,6 +157,41 @@ public sealed class KardiaModule : IAsclepiusModule
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Soteria";
             context.LogKardiaDecision(kardiaTarget.Name?.TextValue ?? "Unknown", "Soteria", $"HP {hpPercent:P0}");
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var targetName = kardiaTarget.Name?.TextValue ?? "Unknown";
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Soteria",
+                    Category = "Healing",
+                    TargetName = targetName,
+                    ShortReason = $"Soteria - boosting Kardia heals (target at {hpPercent:P0})",
+                    DetailedReason = $"Soteria activated with Kardia target {targetName} at {hpPercent:P0} HP. Soteria increases Kardia healing potency by 50% for 15 seconds (4 stacks consumed by your attacks). Combined with normal DPS, this provides significant sustained healing without spending resources!",
+                    Factors = new[]
+                    {
+                        $"Kardia target HP: {hpPercent:P0}",
+                        $"Threshold: {config.SoteriaThreshold:P0}",
+                        "50% Kardia potency boost (170 → 255 per hit)",
+                        "4 stacks over 15s",
+                        "90s cooldown",
+                    },
+                    Alternatives = new[]
+                    {
+                        "Druochole (direct heal)",
+                        "Taurochole (heal + mit for tanks)",
+                        "Swap Kardia + continue DPS",
+                    },
+                    Tip = "Soteria is FREE extra healing! It boosts Kardia by 50% for 4 attacks. Use it when your Kardia target is taking sustained damage (like during auto-attacks between busters). Great for passive tank healing!",
+                    ConceptId = SgeConcepts.SoteriaUsage,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -155,6 +227,39 @@ public sealed class KardiaModule : IAsclepiusModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Philosophia";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Philosophia",
+                    Category = "Healing",
+                    TargetName = "Party",
+                    ShortReason = $"Philosophia - party-wide Kardia (party at {avgHp:P0})",
+                    DetailedReason = $"Philosophia activated with party at {avgHp:P0} average HP. For 20 seconds, your damaging attacks heal ALL party members for 100 potency (instead of just the Kardia target). This is incredible sustained party healing while you DPS!",
+                    Factors = new[]
+                    {
+                        $"Party avg HP: {avgHp:P0}",
+                        $"Threshold: {config.PhilosophiaThreshold:P0}",
+                        "100 potency party heal per damaging attack",
+                        "20s duration",
+                        "180s cooldown",
+                    },
+                    Alternatives = new[]
+                    {
+                        "Kerachole (AoE regen + mit)",
+                        "Ixochole (instant AoE heal)",
+                        "Physis II (AoE HoT)",
+                    },
+                    Tip = "Philosophia is AMAZING for sustained party healing! For 20 seconds, every attack you land heals the ENTIRE party. Use during periods of sustained party damage - it's like having party-wide Kardia!",
+                    ConceptId = SgeConcepts.PhilosophiaUsage,
+                    Priority = ExplanationPriority.High,
+                });
+            }
+
             return true;
         }
 
@@ -201,6 +306,40 @@ public sealed class KardiaModule : IAsclepiusModule
             context.Debug.PlanningState = "Kardia Swap";
             context.LogKardiaDecision(newTarget.Name?.TextValue ?? "Unknown", "Swap",
                 $"From {currentHpPercent:P0} to {newHpPercent:P0}");
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var oldTargetName = currentTarget.Name?.TextValue ?? "Unknown";
+                var newTargetName = newTarget.Name?.TextValue ?? "Unknown";
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Kardia (Swap)",
+                    Category = "Healing",
+                    TargetName = newTargetName,
+                    ShortReason = $"Kardia swap: {oldTargetName} ({currentHpPercent:P0}) → {newTargetName} ({newHpPercent:P0})",
+                    DetailedReason = $"Kardia swapped from {oldTargetName} ({currentHpPercent:P0} HP) to {newTargetName} ({newHpPercent:P0} HP). The new target has significantly lower HP and will benefit more from Kardia's passive healing. Kardia swaps are instant and free!",
+                    Factors = new[]
+                    {
+                        $"Old target: {oldTargetName} at {currentHpPercent:P0}",
+                        $"New target: {newTargetName} at {newHpPercent:P0}",
+                        $"HP difference: {(currentHpPercent - newHpPercent):P0}",
+                        $"Swap threshold: {config.KardiaSwapThreshold:P0}",
+                    },
+                    Alternatives = new[]
+                    {
+                        "Keep Kardia on current target",
+                        "Direct heal instead of relying on Kardia",
+                    },
+                    Tip = "Smart Kardia swapping is part of SGE mastery! The swap is instant with no cooldown, so don't hesitate to move it to whoever needs it most. Just don't swap too frantically - let it tick a few times before moving again.",
+                    ConceptId = SgeConcepts.KardiaTargetSelection,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 

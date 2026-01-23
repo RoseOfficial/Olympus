@@ -1,8 +1,10 @@
+using System;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.AstraeaCore.Context;
 using Olympus.Rotation.AstraeaCore.Helpers;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AstraeaCore.Modules;
 
@@ -117,6 +119,45 @@ public sealed class CardModule : IAstraeaModule
             context.Debug.PlannedAction = action.Name;
             context.Debug.DivinationState = "Used";
             context.LogCardDecision("Divination", "Party", "Party damage buff");
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var shortReason = "Divination - 6% party damage buff!";
+
+                var factors = new[]
+                {
+                    "6% damage buff for party",
+                    "15s duration",
+                    "120s cooldown",
+                    "Used on cooldown in combat",
+                    "Aligns with other raid buffs",
+                };
+
+                var alternatives = new[]
+                {
+                    "Hold for burst window alignment",
+                    "Wait for more party members in range",
+                    "Coordinate with other AST if present",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Divination",
+                    Category = "Buff",
+                    TargetName = "Party",
+                    ShortReason = shortReason,
+                    DetailedReason = "Divination provides 6% damage buff to all party members in range for 15 seconds. This is AST's main raid contribution beyond healing. Use it on cooldown during burst windows, or align with other 2-minute raid buffs for maximum party DPS.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Divination is your biggest DPS contribution! Try to align it with other 2-minute buffs like Battle Litany, Battle Voice, Chain Stratagem, etc. Don't hold it too long - losing a use is worse than imperfect alignment.",
+                    ConceptId = AstConcepts.DivinationTiming,
+                    Priority = ExplanationPriority.High,
+                });
+            }
+
             return true;
         }
 
@@ -151,6 +192,55 @@ public sealed class CardModule : IAstraeaModule
             context.Debug.PlannedAction = action.Name;
             context.Debug.AstrodyneState = $"Used ({context.UniqueSealCount} unique)";
             context.LogCardDecision("Astrodyne", "Self", $"{context.UniqueSealCount} unique seals");
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var uniqueCount = context.UniqueSealCount;
+                var buffDescription = uniqueCount switch
+                {
+                    3 => "All buffs: Haste + Damage + MP regen",
+                    2 => "Two buffs based on seal types",
+                    _ => "One buff based on seal type",
+                };
+
+                var shortReason = $"Astrodyne ({uniqueCount} unique seals) - {buffDescription}";
+
+                var factors = new[]
+                {
+                    $"Unique seals: {uniqueCount}",
+                    $"Total seals: {context.SealCount}",
+                    buffDescription,
+                    "Consumes all 3 seals",
+                    "120s cooldown",
+                };
+
+                var alternatives = new[]
+                {
+                    uniqueCount < 3 ? "Wait for 3 unique seals (optimal)" : "N/A - already optimal",
+                    "Save for specific buff timing",
+                    "Use immediately to enable more card draws",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Astrodyne",
+                    Category = "Buff",
+                    TargetName = "Self",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Astrodyne consumed {context.SealCount} seals ({uniqueCount} unique). {buffDescription}. 3 unique seals gives maximum value: 10% haste (faster GCDs), 5% damage, and MP regeneration. Playing cards strategically to collect different seal types is key!",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = uniqueCount == 3
+                        ? "Perfect! 3 unique seals gives you all three buffs. This is optimal Astrodyne usage!"
+                        : "Try to collect 3 different seal types for maximum Astrodyne value. Play cards on appropriate targets (melee vs ranged) to control which seals you get.",
+                    ConceptId = AstConcepts.AstrodyneBuilding,
+                    Priority = uniqueCount == 3 ? ExplanationPriority.High : ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -213,6 +303,54 @@ public sealed class CardModule : IAstraeaModule
             context.Debug.PlannedAction = cardAction.Name;
             context.Debug.PlayState = $"{cardAction.Name} → {target.Name.TextValue}";
             context.LogCardDecision(cardAction.Name, target.Name.TextValue, "Specific card played");
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var targetName = target.Name?.TextValue ?? "Unknown";
+                var targetJob = target.ClassJob.RowId;
+                var isMelee = JobRegistry.IsMeleeDps(targetJob) || JobRegistry.IsTank(targetJob);
+                var isAstral = cardAction.ActionId == ASTActions.TheBalance.ActionId ||
+                               cardAction.ActionId == ASTActions.TheBole.ActionId ||
+                               cardAction.ActionId == ASTActions.TheArrow.ActionId;
+
+                var shortReason = $"{cardAction.Name} on {targetName} ({(isMelee ? "melee" : "ranged")})";
+
+                var factors = new[]
+                {
+                    $"Card: {cardAction.Name}",
+                    $"Target: {targetName}",
+                    isAstral ? "Astral card (melee bonus)" : "Umbral card (ranged bonus)",
+                    isMelee ? "Target is melee/tank" : "Target is ranged/caster/healer",
+                    "6% damage buff for 15s",
+                };
+
+                var alternatives = new[]
+                {
+                    "Play on different target",
+                    "Hold for higher DPS player",
+                    "Redraw for different card (if available)",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = cardAction.ActionId,
+                    ActionName = cardAction.Name,
+                    Category = "Card",
+                    TargetName = targetName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Played {cardAction.Name} on {targetName}. {(isAstral ? "Astral cards (Balance/Bole/Arrow) give bonus damage to melee." : "Umbral cards (Spear/Ewer/Spire) give bonus damage to ranged.")} {(isMelee == isAstral ? "Good match! Target role matches card type." : "Role mismatch - still provides 6% buff but no bonus.")} Always prioritize highest DPS players.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = isMelee == isAstral
+                        ? "Great card placement! Matching card type to role maximizes damage buff value."
+                        : "Consider the role matching: Astral cards are better on melee, Umbral cards on ranged. But any buff is better than no buff!",
+                    ConceptId = AstConcepts.CardManagement,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -242,6 +380,13 @@ public sealed class CardModule : IAstraeaModule
             context.Debug.PlannedAction = ASTActions.AstralDraw.Name;
             context.Debug.DrawState = "Drawing (Astral)";
             context.LogCardDecision("Astral Draw", "Self", "Draw astral cards");
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                RecordDrawExplanation(context, "Astral Draw", true);
+            }
+
             return true;
         }
 
@@ -251,10 +396,54 @@ public sealed class CardModule : IAstraeaModule
             context.Debug.PlannedAction = ASTActions.UmbralDraw.Name;
             context.Debug.DrawState = "Drawing (Umbral)";
             context.LogCardDecision("Umbral Draw", "Self", "Draw umbral cards");
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                RecordDrawExplanation(context, "Umbral Draw", false);
+            }
+
             return true;
         }
 
         return false;
+    }
+
+    private void RecordDrawExplanation(AstraeaContext context, string drawType, bool isAstral)
+    {
+        var shortReason = $"{drawType} - getting new cards";
+
+        var factors = new[]
+        {
+            $"Draw type: {drawType}",
+            isAstral ? "Draws Balance/Bole/Arrow" : "Draws Spear/Ewer/Spire",
+            "Dawntrail: Alternates between Astral and Umbral",
+            $"Current cards in hand: {context.TotalCardsInHand}",
+            "Draw immediately to maximize card plays",
+        };
+
+        var alternatives = new[]
+        {
+            "Wait for current cards to be played",
+            "Save draw charges for burst windows",
+            "Let timer expire (not recommended)",
+        };
+
+        context.TrainingService!.RecordDecision(new ActionExplanation
+        {
+            Timestamp = DateTime.Now,
+            ActionId = isAstral ? ASTActions.AstralDraw.ActionId : ASTActions.UmbralDraw.ActionId,
+            ActionName = drawType,
+            Category = "Card",
+            TargetName = "Self",
+            ShortReason = shortReason,
+            DetailedReason = $"{drawType} used to draw new cards. {(isAstral ? "Astral Draw gives Balance/Bole/Arrow (melee-focused cards)." : "Umbral Draw gives Spear/Ewer/Spire (ranged-focused cards).")} In Dawntrail, AST alternates between Astral and Umbral draws automatically. Keep drawing and playing cards to maximize party buff uptime!",
+            Factors = factors,
+            Alternatives = alternatives,
+            Tip = "Card uptime is key to AST DPS contribution! Draw on cooldown, play immediately, and repeat. Don't let cards sit in hand - they provide no value until played.",
+            ConceptId = AstConcepts.DrawTiming,
+            Priority = ExplanationPriority.Normal,
+        });
     }
 
     private bool TryMinorArcana(AstraeaContext context)
@@ -292,6 +481,46 @@ public sealed class CardModule : IAstraeaModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.CardState = "Minor Arcana";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var strategy = config.MinorArcanaStrategy;
+                var shortReason = $"Minor Arcana drawn ({strategy})";
+
+                var factors = new[]
+                {
+                    $"Strategy: {strategy}",
+                    "Will draw Lord (damage) or Lady (heal)",
+                    "60s cooldown",
+                    strategy == MinorArcanaUsageStrategy.SaveForBurst ? "Divination is ready - burst timing" : "Used on cooldown",
+                    "Lord: 250 potency damage, Lady: 400 potency AoE heal",
+                };
+
+                var alternatives = new[]
+                {
+                    "Save for emergency (Lady)",
+                    "Align with burst windows",
+                    "Use Lord immediately for damage",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Minor Arcana",
+                    Category = "Card",
+                    TargetName = "Self",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Minor Arcana drawn using {strategy} strategy. You'll receive either Lord of Crowns (250 potency damage) or Lady of Crowns (400 potency AoE heal). Lord is free damage during DPS phases, Lady is emergency healing. Choose your strategy based on content difficulty!",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "In farm content, use Minor Arcana on cooldown for Lord damage. In progression, consider saving for Lady heals. The 50/50 RNG means you should plan for both outcomes!",
+                    ConceptId = AstConcepts.MinorArcanaUsage,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 

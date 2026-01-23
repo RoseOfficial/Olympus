@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Config;
@@ -5,6 +6,7 @@ using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.AthenaCore.Context;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AthenaCore.Modules;
 
@@ -118,6 +120,53 @@ public sealed class HealingModule : IAthenaModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Recitation";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var followUp = config.RecitationPriority switch
+                {
+                    RecitationPriority.Excogitation => "Excogitation",
+                    RecitationPriority.Indomitability => "Indomitability",
+                    RecitationPriority.Adloquium => "Adloquium",
+                    RecitationPriority.Succor => "Succor",
+                    _ => "Unknown"
+                };
+
+                var shortReason = $"Recitation for guaranteed crit {followUp}";
+
+                var factors = new[]
+                {
+                    $"Next ability: {followUp} (configured priority)",
+                    "Guarantees critical heal on next applicable spell",
+                    "No Aetherflow cost when paired with Aetherflow abilities",
+                    $"Aetherflow stacks: {context.AetherflowService.CurrentStacks}/3",
+                };
+
+                var alternatives = new[]
+                {
+                    "Use Recitation with different follow-up",
+                    "Save for emergency (guaranteed crit heal)",
+                    "Hold for raidwide (Recitation + Indom)",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Recitation",
+                    Category = "Healing",
+                    TargetName = null,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Recitation guarantees a critical heal on the next Adloquium, Succor, Indomitability, or Excogitation. Also removes Aetherflow cost. Planning to follow with {followUp} for maximum value.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Recitation is best used before Excogitation (crit Excog) or before raidwides with Indomitability. The free Aetherflow cost is a nice bonus!",
+                    ConceptId = SchConcepts.RecitationUsage,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -169,7 +218,8 @@ public sealed class HealingModule : IAthenaModule
         var action = SCHActions.Excogitation;
         if (context.ActionService.ExecuteOgcd(action, target.GameObjectId))
         {
-            if (!context.StatusHelper.HasRecitation(player))
+            var hasRecitation = context.StatusHelper.HasRecitation(player);
+            if (!hasRecitation)
                 context.AetherflowService.ConsumeStack();
 
             // Reserve target to prevent other handlers (local or remote) from double-healing
@@ -179,6 +229,48 @@ public sealed class HealingModule : IAthenaModule
 
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Excogitation";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var targetName = target.Name?.TextValue ?? "Unknown";
+                var shortReason = tankBusterImminent
+                    ? $"Excog on {targetName} before tankbuster!"
+                    : $"Excog on {targetName} at {hpPercent:P0}";
+
+                var factors = new[]
+                {
+                    $"Target HP: {hpPercent:P0}",
+                    $"Threshold: {config.ExcogitationThreshold:P0}",
+                    tankBusterImminent ? "Tank buster imminent!" : "No incoming damage predicted",
+                    hasRecitation ? "Recitation active (guaranteed crit, free)" : $"Aetherflow stacks: {context.AetherflowService.CurrentStacks}/3",
+                    "Auto-triggers at 50% HP or lower",
+                };
+
+                var alternatives = new[]
+                {
+                    "Lustrate (immediate heal, same cost)",
+                    "Save Aetherflow for Indomitability (AoE)",
+                    "GCD heal (Adloquium for shield)",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Excogitation",
+                    Category = "Healing",
+                    TargetName = targetName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Excogitation on {targetName} at {hpPercent:P0} HP. {(tankBusterImminent ? "Tank buster detected - proactive Excog provides safety net. " : "")}Excog triggers automatically when target drops below 50% HP, providing a 800 potency heal. {(hasRecitation ? "Recitation made this free and guaranteed critical!" : $"Cost 1 Aetherflow stack ({context.AetherflowService.CurrentStacks}/3 remaining).")}",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Excogitation is SCH's best tank maintenance tool. Apply before damage for automatic healing. Pair with Recitation for massive crit heals!",
+                    ConceptId = SchConcepts.ExcogitationUsage,
+                    Priority = tankBusterImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -227,6 +319,48 @@ public sealed class HealingModule : IAthenaModule
 
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Lustrate";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var targetName = target.Name?.TextValue ?? "Unknown";
+                var shortReason = hpPercent < 0.3f
+                    ? $"Emergency Lustrate on {targetName}!"
+                    : $"Lustrate on {targetName} at {hpPercent:P0}";
+
+                var factors = new[]
+                {
+                    $"Target HP: {hpPercent:P0}",
+                    $"Threshold: {config.LustrateThreshold:P0}",
+                    $"Aetherflow stacks: {context.AetherflowService.CurrentStacks}/3",
+                    "600 potency instant heal",
+                    "oGCD - can weave without clipping",
+                };
+
+                var alternatives = new[]
+                {
+                    "Excogitation (proactive, auto-triggers)",
+                    "Adloquium (GCD, adds shield)",
+                    "Wait for fairy abilities",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Lustrate",
+                    Category = "Healing",
+                    TargetName = targetName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Lustrate on {targetName} at {hpPercent:P0} HP. Lustrate is SCH's emergency single-target oGCD heal at 600 potency. Used 1 Aetherflow stack ({context.AetherflowService.CurrentStacks}/3 remaining). Lustrate is for reactive healing when someone is already low.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Lustrate is best for emergencies. For planned damage, Excogitation is usually better since it's proactive and higher potency (800). Save at least 1 Aetherflow for emergencies!",
+                    ConceptId = SchConcepts.LustrateUsage,
+                    Priority = hpPercent < 0.3f ? ExplanationPriority.Critical : ExplanationPriority.High,
+                });
+            }
+
             return true;
         }
 
@@ -269,11 +403,53 @@ public sealed class HealingModule : IAthenaModule
 
         if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
         {
-            if (!context.StatusHelper.HasRecitation(player))
+            var hasRecitation = context.StatusHelper.HasRecitation(player);
+            if (!hasRecitation)
                 context.AetherflowService.ConsumeStack();
 
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Indomitability";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var (avgHp, _, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
+
+                var shortReason = $"Indomitability - {injuredCount} injured, avg HP {avgHp:P0}";
+
+                var factors = new[]
+                {
+                    $"Party avg HP: {avgHp:P0}",
+                    $"Injured count: {injuredCount}",
+                    hasRecitation ? "Recitation active (guaranteed crit, free)" : $"Aetherflow stacks: {context.AetherflowService.CurrentStacks}/3",
+                    "400 potency AoE heal",
+                    "oGCD - can weave without clipping",
+                };
+
+                var alternatives = new[]
+                {
+                    "Succor (GCD, adds shields)",
+                    "Whispering Dawn (fairy HoT)",
+                    "Fey Blessing (fairy burst)",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Indomitability",
+                    Category = "Healing",
+                    TargetName = "Party",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Indomitability to heal {injuredCount} party members at {avgHp:P0} average HP. 400 potency AoE heal, instant oGCD. {(hasRecitation ? "Recitation made this free and guaranteed critical!" : $"Cost 1 Aetherflow stack ({context.AetherflowService.CurrentStacks}/3 remaining).")} Best used after raidwides when multiple party members are injured.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Indomitability is your primary AoE oGCD heal. Pair with Recitation for burst healing. Use after raidwides rather than before (shields go before, heals go after).",
+                    ConceptId = SchConcepts.IndomitabilityUsage,
+                    Priority = avgHp < 0.5f ? ExplanationPriority.High : ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -367,6 +543,50 @@ public sealed class HealingModule : IAthenaModule
             partyCoord?.OnCooldownUsed(action.ActionId, 30_000);
             // Broadcast ground effect placement to other Olympus instances
             partyCoord?.OnGroundEffectPlaced(action.ActionId, player.Position);
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                string trigger;
+                if (raidwideImminent) trigger = "Raidwide imminent";
+                else if (burstImminent) trigger = "DPS burst window imminent";
+                else trigger = $"Party HP low ({avgHp:P0})";
+
+                var shortReason = $"Sacred Soil - {trigger}";
+
+                var factors = new[]
+                {
+                    trigger,
+                    $"Party avg HP: {avgHp:P0}",
+                    $"Members in range: {membersInRange}",
+                    $"Aetherflow stacks: {context.AetherflowService.CurrentStacks}/3",
+                    "10% damage reduction + HoT (at 78+)",
+                };
+
+                var alternatives = new[]
+                {
+                    "Succor (GCD shield, no mitigation)",
+                    "Expedient (sprint + mitigation)",
+                    "Save Aetherflow for Indomitability",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Sacred Soil",
+                    Category = "Defensive",
+                    TargetName = "Ground",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Sacred Soil placed for {membersInRange} party members. {trigger}. Sacred Soil provides 10% damage reduction and at level 78+ adds a healing-over-time effect (100 potency per tick). Cost 1 Aetherflow stack ({context.AetherflowService.CurrentStacks}/3 remaining). Best used proactively before damage hits.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Sacred Soil is one of SCH's best mitigation tools. At 78+, the HoT makes it extremely valuable. Place it before raidwides, not after!",
+                    ConceptId = SchConcepts.SacredSoilUsage,
+                    Priority = raidwideImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -410,6 +630,46 @@ public sealed class HealingModule : IAthenaModule
 
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Protraction";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var targetName = target.Name?.TextValue ?? "Unknown";
+                var shortReason = $"Protraction on {targetName} at {hpPercent:P0}";
+
+                var factors = new[]
+                {
+                    $"Target HP: {hpPercent:P0}",
+                    $"Threshold: {config.ProtractionThreshold:P0}",
+                    "Increases max HP by 10%",
+                    "Restores HP equal to the increase",
+                    "10s duration, enhances healing received",
+                };
+
+                var alternatives = new[]
+                {
+                    "Lustrate (direct heal)",
+                    "Excogitation (proactive)",
+                    "Adloquium (shield + heal)",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Protraction",
+                    Category = "Healing",
+                    TargetName = targetName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Protraction on {targetName} at {hpPercent:P0} HP. Protraction increases max HP by 10% and heals for the same amount. The 10s buff also increases healing received, making follow-up heals more effective. Free oGCD with no resource cost.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Protraction is a free oGCD that effectively heals and buffs healing received. Great before big damage on a single target!",
+                    ConceptId = SchConcepts.EmergencyHealing,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -451,6 +711,46 @@ public sealed class HealingModule : IAthenaModule
             {
                 context.Debug.PlannedAction = action.Name;
                 context.Debug.PlanningState = "Emergency Tactics";
+
+                // Training mode: capture explanation
+                if (context.TrainingService?.IsTrainingEnabled == true)
+                {
+                    var targetName = target.Name?.TextValue ?? "Unknown";
+                    var shortReason = $"Emergency Tactics - {targetName} already shielded";
+
+                    var factors = new[]
+                    {
+                        $"Target HP: {hpPercent:P0}",
+                        $"Threshold: {config.EmergencyTacticsThreshold:P0}",
+                        "Target has Galvanize (shield)",
+                        "Converts next shield spell to pure heal",
+                        "Prevents shield overwrite waste",
+                    };
+
+                    var alternatives = new[]
+                    {
+                        "Lustrate (uses Aetherflow)",
+                        "Wait for shield to break",
+                        "Use Physick (no shield component)",
+                    };
+
+                    context.TrainingService.RecordDecision(new ActionExplanation
+                    {
+                        Timestamp = DateTime.Now,
+                        ActionId = action.ActionId,
+                        ActionName = "Emergency Tactics",
+                        Category = "Healing",
+                        TargetName = targetName,
+                        ShortReason = shortReason,
+                        DetailedReason = $"Emergency Tactics before healing {targetName} at {hpPercent:P0}. Target already has Galvanize shield, so using Adloquium would overwrite it (wasting the shield). Emergency Tactics converts the shield portion to healing, getting full value from the spell.",
+                        Factors = factors,
+                        Alternatives = alternatives,
+                        Tip = "Emergency Tactics prevents shield waste when the target already has a shield. It's also useful when you need raw healing instead of shields after a raidwide.",
+                        ConceptId = SchConcepts.EmergencyTacticsUsage,
+                        Priority = ExplanationPriority.Normal,
+                    });
+                }
+
                 return true;
             }
         }
@@ -501,6 +801,55 @@ public sealed class HealingModule : IAthenaModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "AoE Heal";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var (avgHp, _, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
+                var raidwideImminent = TimelineHelper.IsRaidwideImminent(
+                    context.TimelineService,
+                    context.BossMechanicDetector,
+                    context.Configuration.Healing,
+                    out _);
+
+                var isSeraphism = action.ActionId == SCHActions.Concitation.ActionId;
+                var shortReason = raidwideImminent
+                    ? $"{action.Name} - pre-shield for raidwide!"
+                    : $"{action.Name} - {injuredCount} injured at {avgHp:P0}";
+
+                var factors = new[]
+                {
+                    $"Party avg HP: {avgHp:P0}",
+                    $"Injured count: {injuredCount}",
+                    raidwideImminent ? "Raidwide damage incoming!" : "No raidwide predicted",
+                    isSeraphism ? "Seraphism active - using Concitation" : "Using Succor",
+                    "Provides heal + Galvanize shield",
+                };
+
+                var alternatives = new[]
+                {
+                    "Indomitability (oGCD, no shield)",
+                    "Whispering Dawn (fairy HoT)",
+                    "Sacred Soil (mitigation + HoT)",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = action.Name,
+                    Category = "Healing",
+                    TargetName = "Party",
+                    ShortReason = shortReason,
+                    DetailedReason = $"{action.Name} cast for {injuredCount} injured party members at {avgHp:P0} average HP. {(raidwideImminent ? "Pre-shielding before incoming raidwide damage. " : "")}Succor/Concitation provides both healing (200 potency) and a Galvanize shield (320 potency). The shield absorbs damage, making it valuable before damage hits.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Succor is best used BEFORE damage (pre-shield) rather than after. After raidwides, prefer oGCD heals like Indomitability to save your GCD for damage.",
+                    ConceptId = SchConcepts.SuccorUsage,
+                    Priority = raidwideImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -573,6 +922,72 @@ public sealed class HealingModule : IAthenaModule
 
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Single Heal";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var targetName = target.Name?.TextValue ?? "Unknown";
+                var isAdlo = action.ActionId == SCHActions.Adloquium.ActionId || action.ActionId == SCHActions.Manifestation.ActionId;
+                var isPhysick = action.ActionId == SCHActions.Physick.ActionId;
+
+                string shortReason;
+                string[] factors;
+                string tip;
+                string conceptId;
+
+                if (isAdlo)
+                {
+                    shortReason = $"{action.Name} on {targetName} at {hpPercent:P0}";
+                    factors = new[]
+                    {
+                        $"Target HP: {hpPercent:P0}",
+                        $"Threshold: {config.AdloquiumThreshold:P0}",
+                        "Provides heal + Galvanize shield",
+                        "Shield can crit for Catalyze bonus",
+                        $"Target had no existing shield",
+                    };
+                    tip = "Adloquium is your primary single-target GCD heal. The shield is valuable before damage. Critical Adlos create massive shields with Catalyze!";
+                    conceptId = SchConcepts.AdloquiumUsage;
+                }
+                else
+                {
+                    shortReason = $"Physick on {targetName} at {hpPercent:P0}";
+                    factors = new[]
+                    {
+                        $"Target HP: {hpPercent:P0}",
+                        $"Threshold: {config.PhysickThreshold:P0}",
+                        "Pure healing (no shield)",
+                        "Low MP cost",
+                        "Used when shield not needed/available",
+                    };
+                    tip = "Physick is generally weak. Use Adloquium for shields or oGCDs like Lustrate when possible. Physick is a last resort.";
+                    conceptId = SchConcepts.AdloquiumUsage;
+                }
+
+                var alternatives = new[]
+                {
+                    "Lustrate (oGCD, uses Aetherflow)",
+                    "Excogitation (proactive)",
+                    isPhysick ? "Adloquium (adds shield)" : "Physick (no shield needed)",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = action.Name,
+                    Category = "Healing",
+                    TargetName = targetName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"{action.Name} on {targetName} at {hpPercent:P0} HP. {(isAdlo ? "Adloquium provides 300 potency heal plus a 540 potency Galvanize shield (or 810 with crit Catalyze). " : "Physick provides 450 potency heal but no shield. It's SCH's weakest GCD heal option. ")}GCD heals should be used sparingly - prefer oGCD heals when available.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = tip,
+                    ConceptId = conceptId,
+                    Priority = hpPercent < 0.3f ? ExplanationPriority.High : ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 

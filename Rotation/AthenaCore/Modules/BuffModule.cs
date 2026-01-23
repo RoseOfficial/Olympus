@@ -1,7 +1,10 @@
+using System;
+using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.AthenaCore.Context;
 using Olympus.Rotation.Common.Modules;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AthenaCore.Modules;
 
@@ -97,6 +100,47 @@ public sealed class BuffModule : BaseBuffModule<AthenaContext>, IAthenaModule
         {
             SetPlannedAction(context, SCHActions.Dissipation.Name);
             context.Debug.PlanningState = "Dissipation";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var fairyGauge = context.FairyGaugeService.CurrentGauge;
+
+                var shortReason = $"Dissipation - need Aetherflow, fairy gauge low ({fairyGauge})";
+
+                var factors = new[]
+                {
+                    $"Aetherflow stacks: 0 (need more)",
+                    $"Fairy gauge: {fairyGauge}/100",
+                    $"Max gauge for Dissipation: {config.DissipationMaxFairyGauge}",
+                    $"Party avg HP: {avgHp:P0} (safe to sacrifice fairy)",
+                    "Grants 3 Aetherflow stacks + 20% healing buff",
+                };
+
+                var alternatives = new[]
+                {
+                    "Wait for Aetherflow to come off cooldown",
+                    "Use Aetherflow first (if available)",
+                    "Don't Dissipate if fairy needed soon",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = SCHActions.Dissipation.ActionId,
+                    ActionName = "Dissipation",
+                    Category = "Resource Management",
+                    TargetName = null,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Dissipation to gain 3 Aetherflow stacks. Fairy gauge was low ({fairyGauge}/100), so minimal loss. Party HP at {avgHp:P0} is safe enough to temporarily lose fairy healing. Also grants 20% healing magic buff for 30s. Fairy returns automatically after 30s.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Dissipation is a trade-off: lose fairy for 30s but gain 3 Aetherflow + 20% healing buff. Use when party is stable and fairy gauge is low. Don't use if you need Whispering Dawn or Fey Blessing soon!",
+                    ConceptId = SchConcepts.DissipationUsage,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 

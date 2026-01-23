@@ -6,6 +6,7 @@ using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common.Modules;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ApolloCore.Modules;
 
@@ -196,6 +197,45 @@ public sealed class DamageModule : BaseDamageModule<ApolloContext>, IApolloModul
             context.Debug.DpsState = "Afflatus Misery";
             context.Debug.MiseryState = "Executing";
             SetPlannedAction(context, WHMActions.AfflatusMisery.Name);
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var targetName = target.Name?.TextValue ?? "Unknown";
+                var shortReason = $"Afflatus Misery on {targetName} - 1240p AoE!";
+
+                var factors = new[]
+                {
+                    "Blood Lilies: 3/3 (Misery ready!)",
+                    "1240 potency AoE damage",
+                    "Instant cast",
+                    "Built from 3 Lily heals",
+                    "One of WHM's strongest damage skills",
+                };
+
+                var alternatives = new[]
+                {
+                    "Nothing - always use Misery when ready",
+                    "Save for add spawn (if imminent)",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = WHMActions.AfflatusMisery.ActionId,
+                    ActionName = "Afflatus Misery",
+                    Category = "Damage",
+                    TargetName = targetName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Afflatus Misery is WHM's strongest GCD damage skill at 1240 potency. It requires 3 Blood Lilies built from using Afflatus Solace/Rapture. Used on {targetName}. Always use Misery when available - it's your reward for using Lily heals!",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Never hold Misery too long - it's a huge DPS gain! Build Blood Lilies with Lily heals to unlock it.",
+                    ConceptId = WhmConcepts.AfflatusMiseryTiming,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 

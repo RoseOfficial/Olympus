@@ -1,8 +1,10 @@
+using System;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.AthenaCore.Context;
 using Olympus.Services.Scholar;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AthenaCore.Modules;
 
@@ -128,6 +130,50 @@ public sealed class FairyModule : IAthenaModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Seraph";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var (avgHp, _, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
+                var usedForDamage = config.SeraphStrategy == SeraphUsageStrategy.SaveForDamage;
+
+                var shortReason = usedForDamage
+                    ? $"Summon Seraph - party HP {avgHp:P0}"
+                    : "Summon Seraph - on cooldown";
+
+                var factors = new[]
+                {
+                    $"Strategy: {config.SeraphStrategy}",
+                    usedForDamage ? $"Party HP: {avgHp:P0} (below threshold)" : "Using on cooldown",
+                    "Transforms Eos into Seraph (22s)",
+                    "Grants 2 charges of Consolation",
+                    "Seraph provides stronger healing",
+                };
+
+                var alternatives = new[]
+                {
+                    "Save for heavy damage phase",
+                    "Use Eos abilities instead",
+                    "Hold for emergency healing",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Summon Seraph",
+                    Category = "Fairy",
+                    TargetName = null,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Summoned Seraph to replace Eos for 22 seconds. {(usedForDamage ? $"Party HP at {avgHp:P0}, below the {config.SeraphPartyHpThreshold:P0} threshold. " : "Using on cooldown for maximum value. ")}Seraph provides 2 Consolation charges (AoE heal + shield) and upgraded Embrace healing. Use both Consolation charges before Seraph expires!",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Seraph is powerful but temporary. Always use both Consolation charges! Plan Seraph for heavy healing phases.",
+                    ConceptId = SchConcepts.SeraphUsage,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -234,6 +280,49 @@ public sealed class FairyModule : IAthenaModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Fey Union";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var targetName = target.Name?.TextValue ?? "Unknown";
+                var hpPercent = context.PartyHelper.GetHpPercent(target);
+                var currentGauge = context.FairyGaugeService.CurrentGauge;
+
+                var shortReason = $"Fey Union on {targetName} at {hpPercent:P0}";
+
+                var factors = new[]
+                {
+                    $"Target HP: {hpPercent:P0}",
+                    $"Threshold: {config.FeyUnionThreshold:P0}",
+                    $"Fairy Gauge: {currentGauge}/100",
+                    "400 potency per tick (sustained)",
+                    "Consumes 10 gauge per tick",
+                };
+
+                var alternatives = new[]
+                {
+                    "Excogitation (proactive heal)",
+                    "Lustrate (instant heal)",
+                    "Let Embrace handle it",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Fey Union",
+                    Category = "Healing",
+                    TargetName = targetName,
+                    ShortReason = shortReason,
+                    DetailedReason = $"Fey Union tether on {targetName} at {hpPercent:P0} HP. Fairy gauge at {currentGauge}/100. Fey Union provides powerful sustained healing (400 potency per tick) while consuming 10 gauge per tick. Best for sustained single-target healing like tank maintenance.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Fey Union is great for tank healing during sustained damage. Cancel it early if you need the gauge for Aetherpact or if the target is full HP.",
+                    ConceptId = SchConcepts.FeyUnionUsage,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -295,6 +384,50 @@ public sealed class FairyModule : IAthenaModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Fey Blessing";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                string trigger;
+                if (raidwideImminent) trigger = "Raidwide imminent";
+                else if (burstImminent) trigger = "DPS burst window imminent";
+                else trigger = $"Party HP low ({avgHp:P0})";
+
+                var shortReason = $"Fey Blessing - {trigger}";
+
+                var factors = new[]
+                {
+                    trigger,
+                    $"Party avg HP: {avgHp:P0}",
+                    $"Injured count: {injuredCount}",
+                    "350 potency instant AoE heal",
+                    "Free fairy ability, no resource cost",
+                };
+
+                var alternatives = new[]
+                {
+                    "Whispering Dawn (HoT instead)",
+                    "Indomitability (Aetherflow cost)",
+                    "Save for emergency burst heal",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Fey Blessing",
+                    Category = "Healing",
+                    TargetName = "Party",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Fey Blessing for {injuredCount} injured party members. {trigger}. Fairy casts 350 potency instant AoE heal. Free burst healing with no resource cost! Great for topping off the party after damage.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Fey Blessing is free burst AoE healing. Use it for immediate party HP recovery. Pairs well with Whispering Dawn (HoT + burst).",
+                    ConceptId = SchConcepts.FeyBlessingUsage,
+                    Priority = raidwideImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -358,6 +491,50 @@ public sealed class FairyModule : IAthenaModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Whispering Dawn";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                string trigger;
+                if (raidwideImminent) trigger = "Raidwide imminent";
+                else if (burstImminent) trigger = "DPS burst window imminent";
+                else trigger = $"Party HP low ({avgHp:P0})";
+
+                var shortReason = $"Whispering Dawn - {trigger}";
+
+                var factors = new[]
+                {
+                    trigger,
+                    $"Party avg HP: {avgHp:P0}",
+                    $"Injured count: {injuredCount}",
+                    "120 potency HoT (21s duration)",
+                    "Free fairy ability, no resource cost",
+                };
+
+                var alternatives = new[]
+                {
+                    "Fey Blessing (instant AoE heal)",
+                    "Indomitability (Aetherflow cost)",
+                    "Save for after next raidwide",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Whispering Dawn",
+                    Category = "Healing",
+                    TargetName = "Party",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Whispering Dawn for {injuredCount} injured party members. {trigger}. Fairy casts a 21s AoE HoT (120 potency per tick). Free healing with no resource cost! Best used after damage or proactively to top party off.",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Whispering Dawn is free sustained healing. Use it often! Great after raidwides or when moving. The fairy has a separate action delay, so don't expect instant casts.",
+                    ConceptId = SchConcepts.WhisperingDawnUsage,
+                    Priority = raidwideImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -391,6 +568,45 @@ public sealed class FairyModule : IAthenaModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Fey Illumination";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var shortReason = $"Fey Illumination - party needs healing boost";
+
+                var factors = new[]
+                {
+                    $"Party avg HP: {avgHp:P0}",
+                    $"Lowest HP: {lowestHp:P0}",
+                    "Increases healing magic potency by 10%",
+                    "5% magic damage reduction",
+                    "20s duration",
+                };
+
+                var alternatives = new[]
+                {
+                    "Direct heals (Indom, Lustrate)",
+                    "Whispering Dawn (HoT)",
+                    "Save for heavy healing phase",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = action.ActionId,
+                    ActionName = "Fey Illumination",
+                    Category = "Defensive",
+                    TargetName = "Party",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Fey Illumination to boost party healing. Party avg HP at {avgHp:P0}, lowest at {lowestHp:P0}. Fey Illumination increases all healing magic potency by 10% and provides 5% magic damage mitigation for 20 seconds. Free fairy ability!",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Fey Illumination is great before heavy healing phases. The 10% healing boost affects all healers, making it excellent for prog or recovery situations.",
+                    ConceptId = SchConcepts.FeyIlluminationUsage,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 

@@ -1,9 +1,11 @@
+using System;
 using System.Numerics;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.AstraeaCore.Context;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Services.Party;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AstraeaCore.Modules;
 
@@ -110,6 +112,47 @@ public sealed class DefensiveModule : BaseDefensiveModule<AstraeaContext>, IAstr
             SetPlannedAction(context, ASTActions.NeutralSect.Name);
             context.Debug.NeutralSectState = "Active";
             partyCoord?.OnCooldownUsed(ASTActions.NeutralSect.ActionId, 120_000);
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var (avgHp, _, injured) = context.PartyHelper.CalculatePartyHealthMetrics(player);
+
+                var shortReason = $"Neutral Sect - enhanced healing + shields ({config.NeutralSectStrategy})";
+
+                var factors = new[]
+                {
+                    $"Strategy: {config.NeutralSectStrategy}",
+                    $"Party avg HP: {avgHp:P0}",
+                    $"Injured count: {injured}",
+                    "20% healing buff for 20s",
+                    "Aspected Benefic/Helios gain shields",
+                };
+
+                var alternatives = new[]
+                {
+                    "Save for predictable heavy damage",
+                    "Coordinate with co-healer",
+                    "Use other defensives first",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = ASTActions.NeutralSect.ActionId,
+                    ActionName = "Neutral Sect",
+                    Category = "Defensive",
+                    TargetName = "Self",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Neutral Sect activated ({config.NeutralSectStrategy} strategy). Party at {avgHp:P0} avg HP with {injured} injured. For 20 seconds: +20% healing potency AND Aspected Benefic/Helios gain shields equal to heal amount. This is AST's strongest defensive buff - use before heavy damage phases!",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Neutral Sect turns your GCD heals into shield heals! Cast Aspected Helios under Neutral Sect for party-wide shields. Best used before known raidwides or when you need both healing AND shielding.",
+                    ConceptId = AstConcepts.NeutralSectUsage,
+                    Priority = ExplanationPriority.High,
+                });
+            }
+
             return true;
         }
 
@@ -169,6 +212,45 @@ public sealed class DefensiveModule : BaseDefensiveModule<AstraeaContext>, IAstr
         {
             SetPlannedAction(context, ASTActions.SunSign.Name);
             context.Debug.SunSignState = "Used";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var shortReason = $"Sun Sign - party shield ({membersInRange} in range)";
+
+                var factors = new[]
+                {
+                    $"Party avg HP: {avgHp:P0}",
+                    $"Members in range: {membersInRange}",
+                    "Neutral Sect is active",
+                    "400 potency AoE shield",
+                    "15s duration",
+                };
+
+                var alternatives = new[]
+                {
+                    "Wait for more party members",
+                    "Save for imminent damage",
+                    "Let Neutral Sect expire (wastes Sun Sign)",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = ASTActions.SunSign.ActionId,
+                    ActionName = "Sun Sign",
+                    Category = "Defensive",
+                    TargetName = "Party",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Sun Sign used on {membersInRange} party members at {avgHp:P0} avg HP. Provides 400 potency AoE shield that lasts 15s. Only available during Neutral Sect - don't waste it by letting Neutral Sect expire without using Sun Sign!",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Sun Sign is ONLY available during Neutral Sect! Make sure to use it before Neutral Sect expires. It's a free 400 potency party shield - great before raidwides.",
+                    ConceptId = AstConcepts.SunSignUsage,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -234,6 +316,45 @@ public sealed class DefensiveModule : BaseDefensiveModule<AstraeaContext>, IAstr
             SetPlannedAction(context, ASTActions.CollectiveUnconscious.Name);
             context.Debug.CollectiveUnconsciousState = "Channeling";
             partyCoord?.OnCooldownUsed(ASTActions.CollectiveUnconscious.ActionId, 60_000);
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var shortReason = $"Collective Unconscious - {membersInRange} in range at {avgHp:P0}";
+
+                var factors = new[]
+                {
+                    $"Party avg HP: {avgHp:P0}",
+                    $"Threshold: {config.CollectiveUnconsciousThreshold:P0}",
+                    $"Members in range: {membersInRange}",
+                    "10% damage reduction (channeled)",
+                    "100 potency regen/tick",
+                };
+
+                var alternatives = new[]
+                {
+                    "Celestial Opposition (doesn't require channeling)",
+                    "Earthly Star (if placed)",
+                    "Neutral Sect + Helios (shields)",
+                };
+
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = ASTActions.CollectiveUnconscious.ActionId,
+                    ActionName = "Collective Unconscious",
+                    Category = "Defensive",
+                    TargetName = "Party",
+                    ShortReason = shortReason,
+                    DetailedReason = $"Collective Unconscious used on {membersInRange} party members at {avgHp:P0} avg HP. Provides 10% damage reduction while channeling plus 100 potency regen/tick. The regen persists for 15s even after you stop channeling. Note: This is a channeled ability - you can't do other actions while holding it!",
+                    Factors = factors,
+                    Alternatives = alternatives,
+                    Tip = "Collective Unconscious is tricky - the 10% mitigation requires you to stand still and channel. In practice, you often just tap it briefly to apply the regen, then cancel to keep DPSing. Full channel only for massive damage phases!",
+                    ConceptId = AstConcepts.CollectiveUnconsciousUsage,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
