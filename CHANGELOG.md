@@ -3,6 +3,25 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.0.0 - Phase 3 Complete: Full Party Coordination
+
+**Milestone Achievement**
+- Phase 3 complete! Olympus instances now fully coordinate across all party members
+
+**Coordination Features (v2.6.0 - v3.0.0)**
+- Healers coordinate single-target and AoE heals to prevent overlap
+- Tanks coordinate party mitigations (Divine Veil, Shake It Off, etc.)
+- Healers broadcast party mitigations (Temperance, Expedient, etc.)
+- Ground healing zones coordinate to prevent stacking
+- Tank swaps coordinate via Provoke/Shirk handshake
+- Interrupts coordinate between tanks and ranged DPS
+- Healers broadcast gauge state for smarter resource decisions
+- Primary/secondary healer roles auto-determined
+- Resurrection targets coordinate to prevent double-raises
+- Esuna targets coordinate to prevent wasted cleanses
+- DPS burst windows align across party
+<!-- LATEST-END -->
+
 ## v2.31.0 - Healer Role & Gauge Coordination
 
 **Multi-Healer Optimization**
@@ -27,7 +46,6 @@ All notable changes to Olympus will be documented in this file.
 - `EnableHealerRoleCoordination` - Master toggle for role system (default: on)
 - `PreferredHealerRole` - Override auto-detection (Auto/Primary/Secondary)
 - `SecondaryHealAssistThreshold` - HP% threshold for secondary healer (30-80%, default: 50%)
-<!-- LATEST-END -->
 
 ## v2.30.0 - Tank Swap Coordination
 
