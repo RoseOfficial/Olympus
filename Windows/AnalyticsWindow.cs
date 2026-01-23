@@ -3,6 +3,7 @@ using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
 using Olympus.Config;
 using Olympus.Services.Analytics;
+using Olympus.Services.FFLogs;
 using Olympus.Windows.Analytics.Tabs;
 
 namespace Olympus.Windows;
@@ -14,12 +15,14 @@ public sealed class AnalyticsWindow : Window
 {
     private readonly IPerformanceTracker performanceTracker;
     private readonly Configuration configuration;
+    private readonly IFFlogsService? fflogsService;
 
-    public AnalyticsWindow(IPerformanceTracker performanceTracker, Configuration configuration)
+    public AnalyticsWindow(IPerformanceTracker performanceTracker, Configuration configuration, IFFlogsService? fflogsService = null)
         : base("Olympus Analytics", ImGuiWindowFlags.NoSavedSettings)
     {
         this.performanceTracker = performanceTracker;
         this.configuration = configuration;
+        this.fflogsService = fflogsService;
 
         Size = new Vector2(500, 400);
         SizeCondition = ImGuiCond.FirstUseEver;
@@ -60,6 +63,12 @@ public sealed class AnalyticsWindow : Window
             if (ImGui.BeginTabItem("History"))
             {
                 HistoryTab.Draw(performanceTracker, configuration.Analytics);
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("FFLogs"))
+            {
+                FFlogsTab.Draw(fflogsService, configuration.FFLogs);
                 ImGui.EndTabItem();
             }
 

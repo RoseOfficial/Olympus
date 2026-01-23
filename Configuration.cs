@@ -55,6 +55,7 @@ public sealed class Configuration : IPluginConfiguration
     public DebugConfig Debug { get; set; } = new();
     public CalibrationConfig Calibration { get; set; } = new();
     public AnalyticsConfig Analytics { get; set; } = new();
+    public FFlogsConfig FFLogs { get; set; } = new();
 
     // Job-specific configuration - Healers
     public ScholarConfig Scholar { get; set; } = new();
@@ -109,6 +110,7 @@ public sealed class Configuration : IPluginConfiguration
         Debug = new DebugConfig();
         Calibration = new CalibrationConfig();
         Analytics = new AnalyticsConfig();
+        FFLogs = new FFlogsConfig();
         Scholar = new ScholarConfig();
         Astrologian = new AstrologianConfig();
         Sage = new SageConfig();

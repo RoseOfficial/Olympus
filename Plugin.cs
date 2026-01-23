@@ -22,6 +22,7 @@ using Olympus.Services.Cache;
 using Olympus.Services.Tank;
 using Olympus.Services.Positional;
 using Olympus.Services.Analytics;
+using Olympus.Services.FFLogs;
 using Olympus.Timeline;
 using Olympus.Windows;
 
@@ -29,7 +30,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "3.4.0";
+    public const string PluginVersion = "3.5.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -99,6 +100,9 @@ public sealed class Plugin : IDalamudPlugin
 
     // Performance analytics
     private readonly PerformanceTracker performanceTracker;
+
+    // FFLogs integration
+    private readonly FFlogsService? fflogsService;
 
     private readonly WindowSystem windowSystem = new("Olympus");
     private readonly ConfigWindow configWindow;
@@ -202,6 +206,9 @@ public sealed class Plugin : IDalamudPlugin
             log,
             dataManager);
 
+        // FFLogs integration
+        this.fflogsService = new FFlogsService(configuration.FFLogs, log);
+
         // Create and register rotation modules via factory
         this.rotationManager = new RotationManager();
         this.apollo = CreateApolloRotation();
@@ -247,7 +254,7 @@ public sealed class Plugin : IDalamudPlugin
         this.mainWindow = new MainWindow(configuration, SaveConfiguration, OpenConfigUI, OpenDebugUI, OpenAnalyticsUI, PluginVersion, rotationManager);
         this.debugWindow = new DebugWindow(debugService, configuration, timelineService);
         this.welcomeWindow = new WelcomeWindow(configuration, SaveConfiguration);
-        this.analyticsWindow = new AnalyticsWindow(performanceTracker, configuration);
+        this.analyticsWindow = new AnalyticsWindow(performanceTracker, configuration, fflogsService);
 
         // Telemetry service for anonymous usage tracking
         this.telemetryService = new TelemetryService(configuration, log);
@@ -988,6 +995,7 @@ public sealed class Plugin : IDalamudPlugin
         windowSystem.RemoveAllWindows();
         olympusIpc.Dispose();
         partyCoordinationIpc?.Dispose();
+        fflogsService?.Dispose();
         telemetryService.Dispose();
 
         // Dispose healer rotations (they have event subscriptions)

@@ -3,6 +3,41 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.5.0 - FFLogs Integration
+
+**FFLogs API Integration**
+- Compare your performance against FFLogs community parses
+- View zone rankings and percentile data directly in the Analytics window
+- New FFLogs tab added to the Analytics window
+
+**Character Lookup**
+- Bind your character by name, server, and region
+- Cached character ID for faster subsequent lookups
+- Easy setup wizard with link to FFLogs API client creation
+
+**Rankings Display**
+- All Stars points and rank for current savage tier
+- Per-encounter best and median percentiles
+- Total kills per encounter
+- Trend indicators showing improvement over time
+
+**Performance Comparison**
+- Compare local DPS to your FFLogs best parse
+- Estimated percentile based on current rankings
+- Improvement tips based on GCD uptime and cooldown efficiency gaps
+
+**Configuration**
+- OAuth credentials stored securely in plugin config
+- Configurable cache expiry (15-240 minutes)
+- Auto-refresh with rate limit awareness
+
+**How To Set Up**
+1. Go to https://www.fflogs.com/api/clients/ and create an API client
+2. Enter your Client ID and Secret in the FFLogs tab
+3. Bind your character (name + server + region)
+4. View your rankings!
+<!-- LATEST-END -->
+
 ## v3.4.0 - Personal DPS Tracking
 
 **DPS Metrics**
@@ -18,7 +53,6 @@ All notable changes to Olympus will be documented in this file.
 **Fight Summary**
 - Post-fight DPS included in combat metrics
 - Total damage dealt shown alongside healing and other stats
-<!-- LATEST-END -->
 
 ## v3.3.0 - Cooldown Usage Analysis
 
