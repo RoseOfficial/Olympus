@@ -82,6 +82,7 @@ public sealed class AnalyticsWindow : Window
             ImGui.Separator();
             DrawSectionToggle("SummaryScores", "Scores");
             DrawSectionToggle("SummaryBreakdown", "Breakdown");
+            DrawSectionToggle("SummaryDowntime", "Downtime Analysis");
             DrawSectionToggle("SummaryIssues", "Issues");
 
             ImGui.Spacing();

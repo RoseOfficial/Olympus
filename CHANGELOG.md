@@ -3,6 +3,28 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.2.0 - Downtime Analysis
+
+**Downtime Breakdown**
+- Analytics now shows why GCD uptime was lost, not just the percentage
+- Categorizes downtime into: Movement, Mechanics, Death, and Unexplained
+- Unexplained downtime highlights the "bad" gaps players should minimize
+
+**Visual Analysis**
+- Progress bars show relative contribution of each downtime category
+- Tooltips explain what each category means
+- Color-coded by severity (neutral for movement, red for unexplained)
+
+**Actionable Feedback**
+- Tips appear when unexplained downtime exceeds 5 seconds
+- Movement-heavy fights get slidecast suggestions
+- Helps players identify specific areas for improvement
+
+**Settings**
+- New `TrackDowntimeBreakdown` option (enabled by default)
+- New section visibility toggle for Downtime Analysis
+<!-- LATEST-END -->
+
 ## v3.1.0 - Performance Analytics Foundation
 
 **New Analytics System**
@@ -33,7 +55,6 @@ All notable changes to Olympus will be documented in this file.
 - Configurable near-death HP threshold (5-30%)
 - Minimum combat duration to record (5-60 seconds)
 - Section visibility toggles for all tabs
-<!-- LATEST-END -->
 
 ## v3.0.0 - Phase 3 Complete: Full Party Coordination
 

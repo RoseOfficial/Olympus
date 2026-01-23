@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Dalamud.Plugin.Services;
 using Olympus.Models;
+using Olympus.Services.Analytics;
 
 using LuminaAction = Lumina.Excel.Sheets.Action;
 
@@ -40,6 +42,15 @@ public sealed class ActionTracker
     public DateTime LastDowntimeTime { get; private set; }
     private bool wasOnGcdLastFrame = true;
     public int DowntimeEventCount { get; private set; }
+
+    // Downtime categorization tracking
+    private float movementDowntimeSeconds;
+    private float deathDowntimeSeconds;
+    private float mechanicDowntimeSeconds;
+    private float unforcedDowntimeSeconds;
+    private Vector3 lastPlayerPosition;
+    private DateTime lastFrameTime;
+    private const float MovementThreshold = 0.5f; // Units moved to count as "moving"
 
 
     // Statistics
@@ -145,9 +156,34 @@ public sealed class ActionTracker
     }
 
     /// <summary>
-    /// Track GCD state each frame - call this every frame when you have a target
+    /// Track GCD state each frame - call this every frame when you have a target.
+    /// Basic overload for backwards compatibility.
     /// </summary>
     public void TrackGcdState(bool gcdReady, float gcdRemaining = 0, bool isCasting = false, bool hasAnimLock = false, bool isActive = false)
+    {
+        TrackGcdState(gcdReady, gcdRemaining, isCasting, hasAnimLock, isActive, true, Vector3.Zero, false);
+    }
+
+    /// <summary>
+    /// Track GCD state each frame with downtime categorization.
+    /// </summary>
+    /// <param name="gcdReady">Whether the GCD is ready to be used.</param>
+    /// <param name="gcdRemaining">Seconds remaining on GCD.</param>
+    /// <param name="isCasting">Whether player is casting.</param>
+    /// <param name="hasAnimLock">Whether player has animation lock.</param>
+    /// <param name="isActive">Whether the rotation is actively trying to use abilities.</param>
+    /// <param name="playerAlive">Whether the player is alive.</param>
+    /// <param name="playerPosition">Current player world position for movement detection.</param>
+    /// <param name="inMechanicWindow">Whether a known boss mechanic is occurring.</param>
+    public void TrackGcdState(
+        bool gcdReady,
+        float gcdRemaining,
+        bool isCasting,
+        bool hasAnimLock,
+        bool isActive,
+        bool playerAlive,
+        Vector3 playerPosition,
+        bool inMechanicWindow)
     {
         // Store debug info
         DebugGcdRemaining = gcdRemaining;
@@ -156,14 +192,87 @@ public sealed class ActionTracker
         DebugGcdReady = gcdReady;
         DebugIsActive = isActive;
 
+        // Calculate frame delta time
+        var now = DateTime.Now;
+        var deltaTime = lastFrameTime != default
+            ? (float)(now - lastFrameTime).TotalSeconds
+            : 0f;
+        lastFrameTime = now;
+
+        // Clamp delta time to avoid spikes during lag or when not called regularly
+        deltaTime = Math.Min(deltaTime, 0.1f);
+
         // Capture the moment downtime starts (transition from on-GCD to ready)
         if (gcdReady && wasOnGcdLastFrame)
         {
             DowntimeEventCount++;
-            LastDowntimeTime = DateTime.Now;
+            LastDowntimeTime = now;
             LastDowntimeReason = $"GCD:{gcdRemaining:F2}s Cast:{isCasting} Anim:{hasAnimLock} Active:{isActive}";
         }
         wasOnGcdLastFrame = !gcdReady;
+
+        // Track categorized downtime when GCD is ready and we're in combat
+        if (gcdReady && combatStartTime != null && deltaTime > 0)
+        {
+            if (!playerAlive)
+            {
+                deathDowntimeSeconds += deltaTime;
+            }
+            else if (HasMovedSignificantly(playerPosition))
+            {
+                movementDowntimeSeconds += deltaTime;
+            }
+            else if (inMechanicWindow)
+            {
+                mechanicDowntimeSeconds += deltaTime;
+            }
+            else
+            {
+                unforcedDowntimeSeconds += deltaTime;
+            }
+        }
+
+        // Update last position for movement tracking
+        if (playerPosition != Vector3.Zero)
+        {
+            lastPlayerPosition = playerPosition;
+        }
+    }
+
+    /// <summary>
+    /// Check if player has moved significantly since last frame.
+    /// </summary>
+    private bool HasMovedSignificantly(Vector3 currentPosition)
+    {
+        if (currentPosition == Vector3.Zero)
+            return false;
+
+        if (lastPlayerPosition == Vector3.Zero)
+        {
+            lastPlayerPosition = currentPosition;
+            return false;
+        }
+
+        var distance = Vector3.Distance(lastPlayerPosition, currentPosition);
+        return distance > MovementThreshold;
+    }
+
+    /// <summary>
+    /// Get breakdown of downtime by cause.
+    /// </summary>
+    public DowntimeBreakdown GetDowntimeBreakdown()
+    {
+        var total = movementDowntimeSeconds + deathDowntimeSeconds +
+                    mechanicDowntimeSeconds + unforcedDowntimeSeconds;
+
+        return new DowntimeBreakdown
+        {
+            TotalDowntimeSeconds = total,
+            MovementSeconds = movementDowntimeSeconds,
+            DeathSeconds = deathDowntimeSeconds,
+            MechanicSeconds = mechanicDowntimeSeconds,
+            UnforcedSeconds = unforcedDowntimeSeconds
+        };
     }
 
     /// <summary>
@@ -176,6 +285,14 @@ public sealed class ActionTracker
             combatStartTime = DateTime.Now;
             totalGcdTimeSeconds = 0f;
             lastCombatGcdUptime = 0f;
+
+            // Reset downtime categorization for new combat
+            movementDowntimeSeconds = 0f;
+            deathDowntimeSeconds = 0f;
+            mechanicDowntimeSeconds = 0f;
+            unforcedDowntimeSeconds = 0f;
+            lastPlayerPosition = Vector3.Zero;
+            lastFrameTime = DateTime.Now;
         }
     }
 
@@ -325,6 +442,14 @@ public sealed class ActionTracker
         totalGcdTimeSeconds = 0f;
         lastCombatGcdUptime = 0f;
         DowntimeEventCount = 0;
+
+        // Reset downtime categorization
+        movementDowntimeSeconds = 0f;
+        deathDowntimeSeconds = 0f;
+        mechanicDowntimeSeconds = 0f;
+        unforcedDowntimeSeconds = 0f;
+        lastPlayerPosition = Vector3.Zero;
+        lastFrameTime = default;
     }
 
     /// <summary>

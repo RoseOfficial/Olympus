@@ -222,6 +222,13 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         // Get overheal stats from CombatEventService
         var overhealStats = combatEventService.GetOverhealStatistics();
 
+        // Build downtime breakdown if enabled
+        DowntimeBreakdown? downtimeBreakdown = null;
+        if (config.TrackDowntimeBreakdown)
+        {
+            downtimeBreakdown = actionTracker.GetDowntimeBreakdown();
+        }
+
         // Build metrics snapshot
         var metrics = new CombatMetricsSnapshot
         {
@@ -234,7 +241,8 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
             Deaths = deathCount,
             NearDeaths = nearDeathCount,
             Cooldowns = BuildCooldownUsage(duration),
-            Timestamp = endTime
+            Timestamp = endTime,
+            DowntimeAnalysis = downtimeBreakdown
         };
 
         // Calculate scores
@@ -407,6 +415,13 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         var duration = CombatDuration;
         var overhealStats = combatEventService.GetOverhealStatistics();
 
+        // Build downtime breakdown if enabled
+        DowntimeBreakdown? downtimeBreakdown = null;
+        if (config.TrackDowntimeBreakdown)
+        {
+            downtimeBreakdown = actionTracker.GetDowntimeBreakdown();
+        }
+
         return new CombatMetricsSnapshot
         {
             CombatDuration = duration,
@@ -418,7 +433,8 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
             Deaths = deathCount,
             NearDeaths = nearDeathCount,
             Cooldowns = BuildCooldownUsage(duration),
-            Timestamp = DateTime.Now
+            Timestamp = DateTime.Now,
+            DowntimeAnalysis = downtimeBreakdown
         };
     }
 

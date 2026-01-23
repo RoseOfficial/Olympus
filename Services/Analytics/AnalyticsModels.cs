@@ -60,6 +60,69 @@ public sealed class CombatMetricsSnapshot
     /// Timestamp when this snapshot was taken.
     /// </summary>
     public DateTime Timestamp { get; init; } = DateTime.Now;
+
+    /// <summary>
+    /// Breakdown of downtime causes (movement, death, mechanics, unexplained).
+    /// Only populated when TrackDowntimeBreakdown is enabled.
+    /// </summary>
+    public DowntimeBreakdown? DowntimeAnalysis { get; init; }
+}
+
+/// <summary>
+/// Breakdown of GCD downtime by cause.
+/// Helps players understand why uptime was lost.
+/// </summary>
+public sealed class DowntimeBreakdown
+{
+    /// <summary>
+    /// Total downtime in seconds (GCD ready but no action taken).
+    /// </summary>
+    public float TotalDowntimeSeconds { get; set; }
+
+    /// <summary>
+    /// Downtime caused by player movement while GCD was ready.
+    /// </summary>
+    public float MovementSeconds { get; set; }
+
+    /// <summary>
+    /// Downtime while player was dead or incapacitated.
+    /// </summary>
+    public float DeathSeconds { get; set; }
+
+    /// <summary>
+    /// Downtime during known boss mechanics (from timeline).
+    /// </summary>
+    public float MechanicSeconds { get; set; }
+
+    /// <summary>
+    /// Unexplained downtime - GCD ready, not moving, not dead, no mechanic.
+    /// This is the "bad" downtime players should minimize.
+    /// </summary>
+    public float UnforcedSeconds { get; set; }
+
+    /// <summary>
+    /// Percentage of downtime from movement.
+    /// </summary>
+    public float MovementPercent => TotalDowntimeSeconds > 0
+        ? MovementSeconds / TotalDowntimeSeconds * 100f : 0f;
+
+    /// <summary>
+    /// Percentage of downtime from death.
+    /// </summary>
+    public float DeathPercent => TotalDowntimeSeconds > 0
+        ? DeathSeconds / TotalDowntimeSeconds * 100f : 0f;
+
+    /// <summary>
+    /// Percentage of downtime from mechanics.
+    /// </summary>
+    public float MechanicPercent => TotalDowntimeSeconds > 0
+        ? MechanicSeconds / TotalDowntimeSeconds * 100f : 0f;
+
+    /// <summary>
+    /// Percentage of unexplained downtime.
+    /// </summary>
+    public float UnforcedPercent => TotalDowntimeSeconds > 0
+        ? UnforcedSeconds / TotalDowntimeSeconds * 100f : 0f;
 }
 
 /// <summary>

@@ -51,6 +51,13 @@ public static class FightSummaryTab
             ImGui.Spacing();
         }
 
+        // Downtime Analysis Section
+        if (IsSectionVisible(config, "SummaryDowntime") && lastSession.FinalMetrics?.DowntimeAnalysis != null)
+        {
+            DrawDowntimeAnalysis(lastSession.FinalMetrics.DowntimeAnalysis);
+            ImGui.Spacing();
+        }
+
         // Issues Section
         if (IsSectionVisible(config, "SummaryIssues"))
         {
@@ -198,6 +205,78 @@ public static class FightSummaryTab
             ImGui.TextColored(nearDeathColor, metrics.NearDeaths.ToString());
 
             ImGui.EndTable();
+        }
+    }
+
+    private static void DrawDowntimeAnalysis(DowntimeBreakdown breakdown)
+    {
+        ImGui.Text("Downtime Analysis");
+        ImGui.Separator();
+
+        var total = breakdown.TotalDowntimeSeconds;
+
+        if (total < 0.1f)
+        {
+            ImGui.TextColored(GradeA, "No significant downtime detected!");
+            return;
+        }
+
+        ImGui.Text($"Total Downtime: {total:F1}s");
+        ImGui.Spacing();
+
+        // Draw individual category bars
+        if (breakdown.MovementSeconds > 0)
+        {
+            DrawDowntimeBar("Movement", breakdown.MovementSeconds, total, NeutralColor, "Moving while GCD was ready");
+        }
+
+        if (breakdown.MechanicSeconds > 0)
+        {
+            DrawDowntimeBar("Mechanics", breakdown.MechanicSeconds, total, GradeC, "Boss mechanic required attention");
+        }
+
+        if (breakdown.DeathSeconds > 0)
+        {
+            DrawDowntimeBar("Death", breakdown.DeathSeconds, total, ErrorColor, "Player was dead/incapacitated");
+        }
+
+        if (breakdown.UnforcedSeconds > 0)
+        {
+            DrawDowntimeBar("Unexplained", breakdown.UnforcedSeconds, total, ErrorColor, "GCD ready with no apparent reason for delay");
+        }
+
+        ImGui.Spacing();
+
+        // Actionable feedback
+        if (breakdown.UnforcedSeconds > 5f)
+        {
+            ImGui.TextColored(WarningColor,
+                $"Tip: {breakdown.UnforcedSeconds:F1}s of unexplained downtime. Try to always be casting or weaving oGCDs.");
+        }
+        else if (breakdown.MovementSeconds > total * 0.5f)
+        {
+            ImGui.TextColored(InfoColor,
+                "Tip: Movement caused most downtime. Use instant casts or slidecast during movement.");
+        }
+    }
+
+    private static void DrawDowntimeBar(string label, float seconds, float total, Vector4 color, string tooltip)
+    {
+        var percent = total > 0 ? seconds / total : 0f;
+
+        ImGui.TextColored(color, $"{label}:");
+        ImGui.SameLine(100);
+        ImGui.Text($"{seconds:F1}s ({percent * 100f:F0}%)");
+
+        // Draw progress bar
+        ImGui.PushStyleColor(ImGuiCol.PlotHistogram, color);
+        ImGui.ProgressBar(percent, new Vector2(-1, 16), "");
+        ImGui.PopStyleColor();
+
+        // Tooltip on hover
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.SetTooltip(tooltip);
         }
     }
 

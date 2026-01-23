@@ -62,6 +62,12 @@ public sealed class AnalyticsConfig
     public bool TrackCooldownDrift { get; set; } = true;
 
     /// <summary>
+    /// Whether to track downtime breakdown (movement, death, mechanics, unexplained).
+    /// Provides detailed explanation of why GCD uptime was lost.
+    /// </summary>
+    public bool TrackDowntimeBreakdown { get; set; } = true;
+
+    /// <summary>
     /// Cooldowns to track for efficiency metrics.
     /// Maps action ID to cooldown duration in seconds.
     /// Populated automatically based on job when tracking starts.
@@ -82,6 +88,7 @@ public sealed class AnalyticsConfig
         // Fight Summary tab
         ["SummaryScores"] = true,
         ["SummaryBreakdown"] = true,
+        ["SummaryDowntime"] = true,
         ["SummaryIssues"] = true,
 
         // History tab

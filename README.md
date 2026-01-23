@@ -52,6 +52,14 @@ An intelligent rotation assistant for FFXIV that handles healing, damage, mitiga
 - Enochian/Astral/Umbral state tracking
 - Proc usage and priority management
 
+### Performance Analytics
+- Real-time GCD uptime tracking
+- Post-fight performance scoring with letter grades
+- Downtime analysis breakdown (movement, death, mechanics, unexplained)
+- Cooldown efficiency and drift tracking
+- Session history with trend analysis
+- Actionable improvement suggestions
+
 ## Installation
 
 ### Requirements
