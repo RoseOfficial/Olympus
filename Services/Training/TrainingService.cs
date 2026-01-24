@@ -170,6 +170,51 @@ public sealed class TrainingService : ITrainingService
         this.log?.Information("Training: Unmarked concept: {Concept}", conceptId);
     }
 
+    #region Lesson Management
+
+    public IReadOnlyList<LessonDefinition> GetLessonsForJob(string jobPrefix)
+    {
+        return LessonRegistry.GetLessonsForJob(jobPrefix);
+    }
+
+    public bool IsLessonComplete(string lessonId)
+    {
+        return this.config.CompletedLessons.Contains(lessonId);
+    }
+
+    public void MarkLessonComplete(string lessonId)
+    {
+        this.config.CompletedLessons.Add(lessonId);
+        this.log?.Information("Training: Marked lesson as complete: {Lesson}", lessonId);
+
+        // Also mark all concepts covered by this lesson as learned
+        var lesson = LessonRegistry.GetLesson(lessonId);
+        if (lesson != null)
+        {
+            foreach (var concept in lesson.ConceptsCovered)
+            {
+                if (!this.config.LearnedConcepts.Contains(concept))
+                {
+                    this.config.LearnedConcepts.Add(concept);
+                }
+            }
+        }
+    }
+
+    public bool AreLessonPrerequisitesMet(string lessonId)
+    {
+        var lesson = LessonRegistry.GetLesson(lessonId);
+        if (lesson == null)
+            return false;
+
+        if (lesson.Prerequisites.Length == 0)
+            return true;
+
+        return lesson.Prerequisites.All(prereq => this.config.CompletedLessons.Contains(prereq));
+    }
+
+    #endregion
+
     public void ClearExplanations()
     {
         lock (this.explanationsLock)

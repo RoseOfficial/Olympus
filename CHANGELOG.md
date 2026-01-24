@@ -3,6 +3,35 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.9.0 - Training Mode: Lessons Tab
+
+**Structured Learning Content**
+- New Lessons tab in Training Mode with 28 total lessons across all 4 healers
+- 7 progressive lessons per job (WHM, SCH, AST, SGE) covering all healing concepts
+- Prerequisites system ensures proper learning progression
+
+**WHM Lessons**
+1. Healer Fundamentals - healing priority, tank focus, oGCD weaving
+2. Emergency Response - Benediction, Tetragrammaton usage
+3. The Lily System - gauge management, Afflatus abilities, Blood Lily
+4. Proactive Healing - Regen, Divine Benison, Assize
+5. Defensive Cooldowns - Temperance, Aquaveil, Liturgy of the Bell
+6. DPS Optimization - Glare priority, DoT maintenance
+7. Utility & Coordination - Esuna, Raise, co-healer awareness
+
+**SCH, AST, SGE Lessons**
+- Each job has 7 tailored lessons covering their unique mechanics
+- SCH: Aetherflow, Fairy management, Shield economy, Seraph
+- AST: Card system, Earthly Star, HoT management, Divination
+- SGE: Kardia, Addersgall, Eukrasia decisions, defensive toolkit
+
+**Learning Features**
+- Track lesson completion with visual progress indicators
+- Each lesson explains key points, related abilities, and practice tips
+- Completing lessons automatically marks all related concepts as learned
+- Locked lessons show prerequisite requirements
+<!-- LATEST-END -->
+
 ## v3.8.0 - Training Mode: Full Explanation Coverage
 
 **Complete Healer Explanations**
@@ -36,7 +65,6 @@ All notable changes to Olympus will be documented in this file.
 - Each explanation includes: factors considered, alternatives evaluated, and learning tips
 - Priority levels (Critical/High/Normal/Low) help focus on important decisions
 - Job-specific tips explain FFXIV healer mechanics and best practices
-<!-- LATEST-END -->
 
 ## v3.7.0 - Training Mode: Full Healer Coverage
 

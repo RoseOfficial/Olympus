@@ -52,6 +52,13 @@ public sealed class TrainingWindow : Window
                 ImGui.EndTabItem();
             }
 
+            if (ImGui.BeginTabItem("Lessons"))
+            {
+                ImGui.Spacing();
+                LessonsTab.Draw(this.trainingService, this.configuration.Training);
+                ImGui.EndTabItem();
+            }
+
             if (ImGui.BeginTabItem("Progress"))
             {
                 ImGui.Spacing();

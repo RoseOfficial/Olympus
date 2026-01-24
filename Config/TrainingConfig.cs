@@ -54,6 +54,11 @@ public sealed class TrainingConfig
     public HashSet<string> LearnedConcepts { get; set; } = new();
 
     /// <summary>
+    /// Lessons the user has marked as "completed" (shown in Lessons tab).
+    /// </summary>
+    public HashSet<string> CompletedLessons { get; set; } = new();
+
+    /// <summary>
     /// How many times each concept has been shown to the user.
     /// Used to identify concepts that may need more attention.
     /// </summary>

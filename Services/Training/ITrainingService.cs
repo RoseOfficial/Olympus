@@ -7,6 +7,33 @@ using System.Collections.Generic;
 /// </summary>
 public interface ITrainingService
 {
+    #region Lesson Management
+
+    /// <summary>
+    /// Gets all lessons for a specific job.
+    /// </summary>
+    /// <param name="jobPrefix">The job prefix (e.g., "whm", "sch", "ast", "sge").</param>
+    IReadOnlyList<LessonDefinition> GetLessonsForJob(string jobPrefix);
+
+    /// <summary>
+    /// Checks if a lesson has been completed.
+    /// </summary>
+    /// <param name="lessonId">The lesson ID to check.</param>
+    bool IsLessonComplete(string lessonId);
+
+    /// <summary>
+    /// Marks a lesson as completed.
+    /// </summary>
+    /// <param name="lessonId">The lesson ID to mark as complete.</param>
+    void MarkLessonComplete(string lessonId);
+
+    /// <summary>
+    /// Checks if all prerequisites for a lesson have been completed.
+    /// </summary>
+    /// <param name="lessonId">The lesson ID to check prerequisites for.</param>
+    bool AreLessonPrerequisitesMet(string lessonId);
+
+    #endregion
     /// <summary>
     /// Whether training mode is currently enabled.
     /// </summary>
