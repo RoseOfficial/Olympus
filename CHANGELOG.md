@@ -3,6 +3,31 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.11.0 - Training Mode: Skill Quizzes
+
+**New Quizzes Tab**
+- 28 skill quizzes (7 per healer) to validate lesson understanding
+- Each quiz has 5 scenario-based questions testing real combat decisions
+- Pass 4 out of 5 to complete a quiz
+
+**Quiz Features**
+- Scenario-based questions simulate real healing situations
+- Multiple choice answers with detailed explanations
+- Review mode shows correct answers and why after submission
+- Best score tracking - your highest attempt is saved
+
+**Quiz Content Coverage**
+- WHM: Emergency healing, Lily system, Benediction timing, oGCD weaving
+- SCH: Aetherflow management, fairy abilities, shield economy, Deployment Tactics
+- AST: Card system, Earthly Star timing, Essential Dignity scaling, HoT economy
+- SGE: Kardia optimization, Addersgall spending, Eukrasia decisions, Phlegma timing
+
+**Progress Tracking**
+- Quiz completion status shown in quiz list
+- Pass/fail indicators with score display
+- Overall progress bar per job
+<!-- LATEST-END -->
+
 ## v3.10.0 - Performance-Based Lesson Recommendations
 
 **Personalized Learning**
@@ -30,7 +55,6 @@ All notable changes to Olympus will be documented in this file.
 - Recommendations persist across sessions until dismissed or completed
 - Completing a recommended lesson removes it from suggestions
 - Works with all 4 healers (WHM, SCH, AST, SGE)
-<!-- LATEST-END -->
 
 ## v3.9.0 - Training Mode: Lessons Tab
 

@@ -220,6 +220,65 @@ public sealed class TrainingService : ITrainingService
 
     #endregion
 
+    #region Skill Quizzes
+
+    public QuizDefinition? GetQuizForLesson(string lessonId)
+    {
+        return QuizRegistry.GetQuizForLesson(lessonId);
+    }
+
+    public bool IsQuizPassed(string quizId)
+    {
+        return this.config.CompletedQuizzes.Contains(quizId);
+    }
+
+    public QuizAttempt? GetBestAttempt(string quizId)
+    {
+        if (this.config.BestQuizAttempts.TryGetValue(quizId, out var attemptData))
+        {
+            return new QuizAttempt
+            {
+                QuizId = quizId,
+                AttemptedAt = attemptData.AttemptedAt,
+                Score = attemptData.Score,
+                Passed = attemptData.Passed,
+                SelectedAnswers = Array.Empty<int>(), // Not persisted in config
+            };
+        }
+
+        return null;
+    }
+
+    public void RecordQuizAttempt(QuizAttempt attempt)
+    {
+        var quiz = QuizRegistry.GetQuiz(attempt.QuizId);
+        if (quiz == null)
+            return;
+
+        // Only keep best attempt (by score)
+        if (!this.config.BestQuizAttempts.TryGetValue(attempt.QuizId, out var existing)
+            || attempt.Score > existing.Score)
+        {
+            this.config.BestQuizAttempts[attempt.QuizId] = new Config.QuizAttemptData
+            {
+                AttemptedAt = attempt.AttemptedAt,
+                Score = attempt.Score,
+                TotalQuestions = quiz.Questions.Length,
+                Passed = attempt.Passed,
+            };
+        }
+
+        // Mark as completed if passed
+        if (attempt.Passed && !this.config.CompletedQuizzes.Contains(attempt.QuizId))
+        {
+            this.config.CompletedQuizzes.Add(attempt.QuizId);
+            this.log?.Information("Training: Quiz passed: {QuizId} ({Score}/{Total})",
+                attempt.QuizId, attempt.Score, quiz.Questions.Length);
+        }
+    }
+
+    #endregion
+
     #region Lesson Recommendations
 
     public IReadOnlyList<LessonRecommendation> GetRecommendations()

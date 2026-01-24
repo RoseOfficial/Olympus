@@ -76,6 +76,26 @@ public sealed class TrainingConfig
         { "RecentHistory", true },
     };
 
+    #region Skill Quizzes (v3.11.0)
+
+    /// <summary>
+    /// Quiz IDs that have been passed.
+    /// </summary>
+    public HashSet<string> CompletedQuizzes { get; set; } = new();
+
+    /// <summary>
+    /// Best attempt for each quiz (keyed by quiz ID).
+    /// </summary>
+    public Dictionary<string, QuizAttemptData> BestQuizAttempts { get; set; } = new();
+
+    /// <summary>
+    /// Whether to require passing the quiz to progress to the next lesson.
+    /// When false, quizzes are optional but encouraged.
+    /// </summary>
+    public bool RequireQuizToProgress { get; set; } = false;
+
+    #endregion
+
     #region Lesson Recommendations (v3.10.0)
 
     /// <summary>
@@ -120,6 +140,32 @@ public enum ExplanationVerbosity
     /// Detailed explanations with all decision factors and numbers.
     /// </summary>
     Detailed,
+}
+
+/// <summary>
+/// Serializable quiz attempt data for config persistence.
+/// </summary>
+public sealed class QuizAttemptData
+{
+    /// <summary>
+    /// When this attempt was made.
+    /// </summary>
+    public DateTime AttemptedAt { get; set; }
+
+    /// <summary>
+    /// Number of correct answers.
+    /// </summary>
+    public int Score { get; set; }
+
+    /// <summary>
+    /// Total number of questions.
+    /// </summary>
+    public int TotalQuestions { get; set; }
+
+    /// <summary>
+    /// Whether the quiz was passed.
+    /// </summary>
+    public bool Passed { get; set; }
 }
 
 /// <summary>

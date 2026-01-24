@@ -61,6 +61,35 @@ public interface ITrainingService
     void ClearDismissedRecommendations();
 
     #endregion
+
+    #region Skill Quizzes
+
+    /// <summary>
+    /// Gets the quiz definition for a lesson.
+    /// </summary>
+    /// <param name="lessonId">The lesson ID to get the quiz for.</param>
+    QuizDefinition? GetQuizForLesson(string lessonId);
+
+    /// <summary>
+    /// Checks if a quiz has been passed.
+    /// </summary>
+    /// <param name="quizId">The quiz ID to check.</param>
+    bool IsQuizPassed(string quizId);
+
+    /// <summary>
+    /// Gets the best attempt for a quiz.
+    /// </summary>
+    /// <param name="quizId">The quiz ID to get the best attempt for.</param>
+    QuizAttempt? GetBestAttempt(string quizId);
+
+    /// <summary>
+    /// Records a quiz attempt.
+    /// </summary>
+    /// <param name="attempt">The attempt to record.</param>
+    void RecordQuizAttempt(QuizAttempt attempt);
+
+    #endregion
+
     /// <summary>
     /// Whether training mode is currently enabled.
     /// </summary>
