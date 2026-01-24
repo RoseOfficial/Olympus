@@ -3,6 +3,34 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.23.0 - BLM Training Mode
+
+**BLM (Hecate) Training Mode**
+- Training Mode now supports Black Mage - first caster DPS job added
+- 25 new BLM concepts covering Astral Fire/Umbral Ice, Enochian, Fire IV rotation, Polyglot, movement optimization, and burst windows
+- 7 progressive lessons from fundamentals to advanced execution
+- 35 quiz questions testing real Black Mage decisions
+
+**Lesson Content**
+- Lesson 1: Fire and Ice Fundamentals - Astral Fire damage, Umbral Ice MP recovery, 30s element timer, Enochian state, Fire III/Blizzard III transitions
+- Lesson 2: Resource Mastery - Umbral Hearts (3 from B4), Polyglot stacks (30s Enochian), overcapping prevention, MP management
+- Lesson 3: Fire Phase Execution - Fire IV spam, Despair finisher, Astral Soul building, Flare Star at 6 stacks
+- Lesson 4: Ice Phase & Thunder - Blizzard IV for hearts, Thunder DoT uptime, Paradox instant in UI3
+- Lesson 5: Proc Management - Firestarter (40% from F4), Thunderhead, proc priority, downtime planning
+- Lesson 6: Cooldown Optimization - Ley Lines placement, Triplecast charges, Manafont extended Fire phase
+- Lesson 7: Advanced Tactics - Movement instant priority (Triplecast > Xeno > Procs > Swift), Xenoglossy burst usage, AoE rotation
+
+**Quiz Features**
+- 7 quizzes (one per lesson) with 5 scenario-based questions each
+- Pass 4 out of 5 to complete a quiz
+- Detailed explanations for every answer
+- Progress tracking and best score persistence
+
+**Caster DPS Training Started**
+- First caster DPS job added to Training Mode
+- SMN, RDM, PCT caster jobs coming next
+<!-- LATEST-END -->
+
 ## v3.22.0 - DNC Training Mode
 
 **DNC (Terpsichore) Training Mode**
@@ -28,7 +56,6 @@ All notable changes to Olympus will be documented in this file.
 
 **Ranged Physical DPS Training Complete**
 - All 3 ranged physical DPS jobs now have Training Mode support (MCH, BRD, DNC)
-<!-- LATEST-END -->
 
 ## v3.21.0 - BRD Training Mode
 

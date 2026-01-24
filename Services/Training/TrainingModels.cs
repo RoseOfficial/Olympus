@@ -1150,6 +1150,69 @@ public static class DncConcepts
 }
 
 /// <summary>
+/// BLM (Hecate) Training Mode concepts covering Black Mage mechanics.
+/// 25 concepts across 6 categories.
+/// </summary>
+public static class BlmConcepts
+{
+    // Element System (5)
+    public const string AstralFire = "blm.astral_fire";
+    public const string UmbralIce = "blm.umbral_ice";
+    public const string ElementTimer = "blm.element_timer";
+    public const string Enochian = "blm.enochian";
+    public const string ElementTransitions = "blm.element_transitions";
+
+    // Gauge Resources (5)
+    public const string UmbralHearts = "blm.umbral_hearts";
+    public const string PolyglotStacks = "blm.polyglot_stacks";
+    public const string AstralSoul = "blm.astral_soul";
+    public const string GaugeOvercapping = "blm.gauge_overcapping";
+    public const string MpManagement = "blm.mp_management";
+
+    // Proc System (4)
+    public const string FirestarterProc = "blm.firestarter_proc";
+    public const string ThunderheadProc = "blm.thunderhead_proc";
+    public const string ProcPriority = "blm.proc_priority";
+    public const string ParadoxMechanic = "blm.paradox_mechanic";
+
+    // Core Rotation (5)
+    public const string FirePhase = "blm.fire_phase";
+    public const string IcePhase = "blm.ice_phase";
+    public const string FireIvSpam = "blm.fire_iv_spam";
+    public const string DespairTiming = "blm.despair_timing";
+    public const string ThunderDot = "blm.thunder_dot";
+
+    // Cooldown Management (3)
+    public const string LeyLines = "blm.ley_lines";
+    public const string Triplecast = "blm.triplecast";
+    public const string Manafont = "blm.manafont";
+
+    // Advanced Execution (3)
+    public const string MovementOptimization = "blm.movement_optimization";
+    public const string XenoglossyUsage = "blm.xenoglossy_usage";
+    public const string AoeRotation = "blm.aoe_rotation";
+
+    /// <summary>
+    /// All BLM concepts for counting.
+    /// </summary>
+    public static readonly string[] AllConcepts = new[]
+    {
+        // Element System
+        AstralFire, UmbralIce, ElementTimer, Enochian, ElementTransitions,
+        // Gauge Resources
+        UmbralHearts, PolyglotStacks, AstralSoul, GaugeOvercapping, MpManagement,
+        // Proc System
+        FirestarterProc, ThunderheadProc, ProcPriority, ParadoxMechanic,
+        // Core Rotation
+        FirePhase, IcePhase, FireIvSpam, DespairTiming, ThunderDot,
+        // Cooldown Management
+        LeyLines, Triplecast, Manafont,
+        // Advanced Execution
+        MovementOptimization, XenoglossyUsage, AoeRotation,
+    };
+}
+
+/// <summary>
 /// Represents a lesson recommendation based on detected performance issues.
 /// </summary>
 public sealed class LessonRecommendation

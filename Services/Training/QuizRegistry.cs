@@ -119,6 +119,13 @@ public static class QuizRegistry
             QuizzesByLessonId[quiz.LessonId] = quiz;
             QuizzesById[quiz.QuizId] = quiz;
         }
+
+        // Register caster DPS quizzes
+        foreach (var quiz in BlmQuizzes.AllQuizzes)
+        {
+            QuizzesByLessonId[quiz.LessonId] = quiz;
+            QuizzesById[quiz.QuizId] = quiz;
+        }
     }
 
     /// <summary>
@@ -165,6 +172,8 @@ public static class QuizRegistry
             "mch" => MchQuizzes.AllQuizzes,
             "brd" => BrdQuizzes.AllQuizzes,
             "dnc" => DncQuizzes.AllQuizzes,
+            // Casters
+            "blm" => BlmQuizzes.AllQuizzes,
             _ => Array.Empty<QuizDefinition>(),
         };
     }
@@ -7606,6 +7615,444 @@ public static class DncQuizzes
                 Options = new[] { "Use it anyway for stacking", "Hold it - IPC shows recent mitigation", "Use it - more mitigation is better", "Cancel theirs and use yours" },
                 CorrectIndex = 1,
                 Explanation = "Shield Samba coordinates via IPC to avoid stacking mitigations. Check if one was used recently before using yours.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition[] AllQuizzes = new[]
+    {
+        Lesson1Quiz, Lesson2Quiz, Lesson3Quiz, Lesson4Quiz, Lesson5Quiz, Lesson6Quiz, Lesson7Quiz,
+    };
+}
+
+/// <summary>
+/// BLM (Hecate) quiz content - 7 quizzes with 5 questions each (35 total).
+/// </summary>
+public static class BlmQuizzes
+{
+    public static readonly QuizDefinition Lesson1Quiz = new()
+    {
+        QuizId = "blm.lesson_1.quiz",
+        LessonId = "blm.lesson_1",
+        Title = "Quiz: Fire and Ice Fundamentals",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_1.q1",
+                ConceptId = BlmConcepts.AstralFire,
+                Scenario = "You're in Astral Fire III and casting Fire spells.",
+                Question = "What effect does Astral Fire have on your Fire spells?",
+                Options = new[] { "Reduces their MP cost", "Increases their damage", "Makes them instant cast", "Reduces their cast time" },
+                CorrectIndex = 1,
+                Explanation = "Astral Fire increases Fire spell damage significantly, but stops MP regeneration entirely.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_1.q2",
+                ConceptId = BlmConcepts.UmbralIce,
+                Scenario = "You've just transitioned to Umbral Ice III.",
+                Question = "What is the primary purpose of Umbral Ice phase?",
+                Options = new[] { "Maximum damage output", "MP recovery", "Proc fishing", "Thunder DoT maintenance" },
+                CorrectIndex = 1,
+                Explanation = "Umbral Ice provides rapid MP recovery so you can return to dealing damage in Astral Fire.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_1.q3",
+                ConceptId = BlmConcepts.ElementTimer,
+                Scenario = "Your element timer is at 5 seconds remaining. You're in Astral Fire.",
+                Question = "What happens if the timer reaches 0?",
+                Options = new[] { "Auto-transition to Ice", "Lose Enochian and all stacks", "Timer pauses", "Nothing - element persists" },
+                CorrectIndex = 1,
+                Explanation = "If the element timer expires, you lose Enochian entirely - a major DPS loss. Always refresh before it reaches 0.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_1.q4",
+                ConceptId = BlmConcepts.ElementTransitions,
+                Scenario = "You're at Astral Fire III with 0 MP.",
+                Question = "How do you transition to Umbral Ice III instantly?",
+                Options = new[] { "Cast Blizzard", "Cast Blizzard III", "Cast Blizzard IV", "Use Transpose" },
+                CorrectIndex = 1,
+                Explanation = "Blizzard III transitions you directly to Umbral Ice III regardless of your current element stack count.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_1.q5",
+                ConceptId = BlmConcepts.Enochian,
+                Scenario = "You accidentally let your element timer drop to 0.",
+                Question = "What resource do you lose along with your element?",
+                Options = new[] { "Polyglot stacks", "Umbral Hearts", "Enochian state", "All of the above" },
+                CorrectIndex = 3,
+                Explanation = "Losing Enochian (active element) means losing your Umbral Hearts and resetting Polyglot progress - a devastating DPS loss.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson2Quiz = new()
+    {
+        QuizId = "blm.lesson_2.quiz",
+        LessonId = "blm.lesson_2",
+        Title = "Quiz: Resource Mastery",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_2.q1",
+                ConceptId = BlmConcepts.UmbralHearts,
+                Scenario = "You're in Umbral Ice III and need Umbral Hearts.",
+                Question = "What spell grants 3 Umbral Hearts?",
+                Options = new[] { "Blizzard III", "Blizzard IV", "Freeze", "Umbral Soul" },
+                CorrectIndex = 1,
+                Explanation = "Blizzard IV grants 3 Umbral Hearts which reduce the MP cost of Fire spells in Astral Fire.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_2.q2",
+                ConceptId = BlmConcepts.PolyglotStacks,
+                Scenario = "You have 2 Polyglot stacks and Enochian has been active for 25 seconds.",
+                Question = "What should you do before gaining a 3rd stack?",
+                Options = new[] { "Let it overcap - stacks are saved", "Use Xenoglossy to spend one", "Switch to Ice phase", "Use Amplifier" },
+                CorrectIndex = 1,
+                Explanation = "At max Polyglot stacks, you waste any new stacks generated. Spend with Xenoglossy before the 30s timer grants another.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_2.q3",
+                ConceptId = BlmConcepts.GaugeOvercapping,
+                Scenario = "Amplifier just came off cooldown. You have 2 Polyglot stacks.",
+                Question = "Should you use Amplifier now?",
+                Options = new[] { "Yes - always use cooldowns immediately", "No - wait until you have 0-1 stacks", "Yes - Amplifier doesn't grant Polyglot", "No - Amplifier is only for emergencies" },
+                CorrectIndex = 1,
+                Explanation = "Wait until you have 0-1 Polyglot stacks before using Amplifier to avoid overcapping and wasting a stack.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_2.q4",
+                ConceptId = BlmConcepts.MpManagement,
+                Scenario = "You're about to enter Fire phase.",
+                Question = "What MP level should you have before transitioning to Astral Fire?",
+                Options = new[] { "At least 5,000 MP", "Full 10,000 MP", "Any amount is fine", "At least 8,000 MP" },
+                CorrectIndex = 1,
+                Explanation = "Always enter Fire phase with full 10,000 MP to maximize Fire IV casts before needing to transition back to Ice.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_2.q5",
+                ConceptId = BlmConcepts.UmbralHearts,
+                Scenario = "You have 3 Umbral Hearts and transition to Astral Fire.",
+                Question = "How do Umbral Hearts affect Fire spells?",
+                Options = new[] { "Increase damage by 10%", "Reduce MP cost significantly", "Make them instant cast", "Reduce cast time" },
+                CorrectIndex = 1,
+                Explanation = "Each Umbral Heart reduces the MP cost of Fire spells, allowing more Fire IV casts per Fire phase.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson3Quiz = new()
+    {
+        QuizId = "blm.lesson_3.quiz",
+        LessonId = "blm.lesson_3",
+        Title = "Quiz: Fire Phase Execution",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_3.q1",
+                ConceptId = BlmConcepts.FireIvSpam,
+                Scenario = "You're in Astral Fire III with 3 Umbral Hearts.",
+                Question = "Does Fire IV refresh your element timer?",
+                Options = new[] { "Yes - all Fire spells refresh it", "No - Fire IV doesn't refresh timer", "Only with Umbral Hearts", "Only at AF3" },
+                CorrectIndex = 1,
+                Explanation = "Fire IV does NOT refresh the element timer. You must weave in Fire, Paradox, or Despair to maintain your timer.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_3.q2",
+                ConceptId = BlmConcepts.DespairTiming,
+                Scenario = "You have 2,400 MP remaining in Astral Fire.",
+                Question = "What should you cast?",
+                Options = new[] { "Fire IV (costs 1,600 with hearts)", "Despair", "Blizzard III to transition", "Fire to refresh timer" },
+                CorrectIndex = 1,
+                Explanation = "Despair consumes all remaining MP. With 2,400 MP (not enough for Fire IV after), Despair is the correct finisher.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_3.q3",
+                ConceptId = BlmConcepts.AstralSoul,
+                Scenario = "You've cast 6 Fire IV spells this Fire phase.",
+                Question = "What ability is now available?",
+                Options = new[] { "Paradox", "Despair", "Flare Star", "Manafont" },
+                CorrectIndex = 2,
+                Explanation = "6 Fire IV casts build 6 Astral Soul stacks, unlocking Flare Star - a massive damage ability.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_3.q4",
+                ConceptId = BlmConcepts.FirePhase,
+                Scenario = "Your element timer is at 8 seconds. You're mid-Fire phase.",
+                Question = "What should you prioritize?",
+                Options = new[] { "Continue Fire IV spam", "Cast Fire or Paradox to refresh timer", "Transition to Ice immediately", "Use Triplecast for faster casts" },
+                CorrectIndex = 1,
+                Explanation = "At 8 seconds, refresh your timer with Fire or Paradox. Losing Enochian mid-phase is catastrophic.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_3.q5",
+                ConceptId = BlmConcepts.AstralSoul,
+                Scenario = "Flare Star is ready but party burst buffs just ended.",
+                Question = "Should you still use Flare Star?",
+                Options = new[] { "No - save it for next burst window", "Yes - use it before transitioning to Ice", "No - Astral Soul stacks carry over", "Doesn't matter - same damage either way" },
+                CorrectIndex = 1,
+                Explanation = "Astral Soul stacks don't carry between phases. Always use Flare Star before leaving Astral Fire.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson4Quiz = new()
+    {
+        QuizId = "blm.lesson_4.quiz",
+        LessonId = "blm.lesson_4",
+        Title = "Quiz: Ice Phase & Thunder",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_4.q1",
+                ConceptId = BlmConcepts.IcePhase,
+                Scenario = "You just transitioned to Umbral Ice III.",
+                Question = "What spell must you cast to prepare for the next Fire phase?",
+                Options = new[] { "Blizzard", "Blizzard III", "Blizzard IV", "Freeze" },
+                CorrectIndex = 2,
+                Explanation = "Blizzard IV grants 3 Umbral Hearts needed for efficient Fire IV casting in the next Fire phase.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_4.q2",
+                ConceptId = BlmConcepts.ThunderDot,
+                Scenario = "Your Thunder DoT has 5 seconds remaining on the boss.",
+                Question = "Should you refresh Thunder now?",
+                Options = new[] { "Yes - keep 100% uptime", "No - refresh at 3s or less", "Yes - but only in Ice phase", "No - Thunder isn't worth the GCD" },
+                CorrectIndex = 1,
+                Explanation = "Refresh Thunder at 3 seconds or less to avoid clipping (losing DoT ticks). At 5s, continue other casts.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_4.q3",
+                ConceptId = BlmConcepts.ParadoxMechanic,
+                Scenario = "You're at Umbral Ice III with Paradox available.",
+                Question = "What's special about Paradox in Umbral Ice III?",
+                Options = new[] { "Higher potency", "Instant cast", "Grants MP", "Applies DoT" },
+                CorrectIndex = 1,
+                Explanation = "Paradox is instant cast in Umbral Ice III, making it excellent for timer refresh and movement.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_4.q4",
+                ConceptId = BlmConcepts.IcePhase,
+                Scenario = "You're in Ice phase with full MP and 3 Umbral Hearts.",
+                Question = "What should you do next?",
+                Options = new[] { "Cast more Blizzard IV", "Transition to Fire with Fire III", "Cast Thunder to maintain DoT", "Stay in Ice for safety" },
+                CorrectIndex = 1,
+                Explanation = "With full MP and Umbral Hearts ready, transition to Fire III immediately to maximize damage uptime.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_4.q5",
+                ConceptId = BlmConcepts.ThunderDot,
+                Scenario = "You need to apply Thunder but have a Thunderhead proc.",
+                Question = "How should you apply Thunder?",
+                Options = new[] { "Cast Thunder III normally", "Use the Thunderhead proc for instant Thunder", "Save the proc for movement", "Thunder DoT isn't important" },
+                CorrectIndex = 1,
+                Explanation = "Thunderhead procs should be used for Thunder application - it's instant and efficient.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson5Quiz = new()
+    {
+        QuizId = "blm.lesson_5.quiz",
+        LessonId = "blm.lesson_5",
+        Title = "Quiz: Proc Management",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_5.q1",
+                ConceptId = BlmConcepts.FirestarterProc,
+                Scenario = "You just got a Firestarter proc from Fire IV.",
+                Question = "How long does the Firestarter proc last?",
+                Options = new[] { "15 seconds", "30 seconds", "45 seconds", "Until your next Fire III" },
+                CorrectIndex = 1,
+                Explanation = "Firestarter lasts 30 seconds. Plan to use it before it expires, especially for movement.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_5.q2",
+                ConceptId = BlmConcepts.ThunderheadProc,
+                Scenario = "You have a Thunderhead proc and need to move.",
+                Question = "Is using Thunderhead for movement a good idea?",
+                Options = new[] { "No - save it for DoT refresh only", "Yes - instant cast is valuable for movement", "No - Thunderhead is weak", "Only if you also need to refresh DoT" },
+                CorrectIndex = 1,
+                Explanation = "Thunderhead is instant cast. Using it for movement maintains uptime while handling mechanics.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_5.q3",
+                ConceptId = BlmConcepts.ProcPriority,
+                Scenario = "You have both Firestarter and Thunderhead procs. A mechanic forces movement in 3 seconds.",
+                Question = "Which proc should you use for movement?",
+                Options = new[] { "Firestarter - higher potency", "Thunderhead - maintains DoT", "Either one - same value", "Depends on Thunder DoT timer" },
+                CorrectIndex = 3,
+                Explanation = "If Thunder DoT needs refresh, use Thunderhead. Otherwise, Firestarter has higher potency for movement.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_5.q4",
+                ConceptId = BlmConcepts.FirestarterProc,
+                Scenario = "Your Firestarter proc has 5 seconds remaining. You're mid-Fire phase with 10 seconds on element timer.",
+                Question = "Should you use Firestarter now?",
+                Options = new[] { "No - save it for emergency timer refresh", "Yes - use before it expires", "No - Fire IV is higher priority", "Only if you need to move" },
+                CorrectIndex = 1,
+                Explanation = "A proc about to expire should be used. Letting Firestarter fall off wastes a free instant Fire III.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_5.q5",
+                ConceptId = BlmConcepts.ProcPriority,
+                Scenario = "You're about to enter downtime (boss untargetable).",
+                Question = "What should you do with active procs?",
+                Options = new[] { "Save them for when boss returns", "Use them before downtime", "Procs persist through downtime", "Convert them to Polyglot" },
+                CorrectIndex = 1,
+                Explanation = "Use procs before downtime - they don't pause and will likely expire. Get the damage in before the boss leaves.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson6Quiz = new()
+    {
+        QuizId = "blm.lesson_6.quiz",
+        LessonId = "blm.lesson_6",
+        Title = "Quiz: Cooldown Optimization",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_6.q1",
+                ConceptId = BlmConcepts.LeyLines,
+                Scenario = "You're about to use Ley Lines but a mechanic requires movement in 10 seconds.",
+                Question = "Should you use Ley Lines?",
+                Options = new[] { "Yes - any uptime is good", "No - wait for a safer window", "Yes - the buff persists outside the circle", "No - Ley Lines only lasts 10 seconds" },
+                CorrectIndex = 1,
+                Explanation = "Ley Lines requires staying in the circle. If you must move in 10s, wait for a mechanic-free window.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_6.q2",
+                ConceptId = BlmConcepts.Triplecast,
+                Scenario = "You have 2 Triplecast charges. Party burst is in 30 seconds.",
+                Question = "How should you manage Triplecast?",
+                Options = new[] { "Use both charges now", "Save both for burst", "Use one now, save one for burst", "Triplecast doesn't matter for burst" },
+                CorrectIndex = 2,
+                Explanation = "Use one charge for current movement needs, but ensure you have a charge available for burst window movement.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_6.q3",
+                ConceptId = BlmConcepts.Manafont,
+                Scenario = "You just cast Despair and have 0 MP. Manafont is available.",
+                Question = "What does using Manafont allow you to do?",
+                Options = new[] { "Transition to Ice faster", "Cast more Fire IVs before Ice phase", "Refresh Enochian", "Gain Umbral Hearts" },
+                CorrectIndex = 1,
+                Explanation = "Manafont restores MP and grants Astral Fire, letting you extend your Fire phase with additional Fire IVs.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_6.q4",
+                ConceptId = BlmConcepts.LeyLines,
+                Scenario = "You see an upcoming raidwide that will require the party to stack.",
+                Question = "Where should you place Ley Lines?",
+                Options = new[] { "At your current position", "At the stack marker location", "Save Ley Lines for after the mechanic", "Ley Lines position doesn't matter" },
+                CorrectIndex = 1,
+                Explanation = "Place Ley Lines at the stack marker so you can stay in the circle while handling the mechanic.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_6.q5",
+                ConceptId = BlmConcepts.Triplecast,
+                Scenario = "A timeline shows heavy movement mechanics in 45 seconds.",
+                Question = "How should you prepare?",
+                Options = new[] { "Ignore it - react when it happens", "Ensure Triplecast charges are available", "Save Swiftcast only", "Movement doesn't affect BLM much" },
+                CorrectIndex = 1,
+                Explanation = "Pre-plan for movement by saving Triplecast charges. Timeline awareness is crucial for BLM optimization.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson7Quiz = new()
+    {
+        QuizId = "blm.lesson_7.quiz",
+        LessonId = "blm.lesson_7",
+        Title = "Quiz: Advanced Tactics",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_7.q1",
+                ConceptId = BlmConcepts.MovementOptimization,
+                Scenario = "You need to move and have: Triplecast (2 charges), Xenoglossy (2 stacks), Firestarter proc, Swiftcast.",
+                Question = "What's the correct priority for movement instants?",
+                Options = new[] { "Xenoglossy > Triplecast > Procs > Swiftcast", "Triplecast > Xenoglossy > Procs > Swiftcast", "Swiftcast > Everything else", "All are equal value" },
+                CorrectIndex = 1,
+                Explanation = "Triplecast gives 3 instants, most efficient. Then Xenoglossy (high potency), procs, and Swiftcast last.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_7.q2",
+                ConceptId = BlmConcepts.XenoglossyUsage,
+                Scenario = "Party raid buffs are active. You have 2 Polyglot stacks and don't need to move.",
+                Question = "Should you use Xenoglossy during buffs?",
+                Options = new[] { "No - save for movement", "Yes - buff window damage is priority", "No - Xenoglossy isn't affected by buffs", "Only if overcapping" },
+                CorrectIndex = 1,
+                Explanation = "Xenoglossy under raid buffs is optimal damage. Don't hoard Polyglot for movement that may never come.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_7.q3",
+                ConceptId = BlmConcepts.AoeRotation,
+                Scenario = "There are 4 enemies grouped together.",
+                Question = "What rotation should you use?",
+                Options = new[] { "Single target - always highest DPS", "AoE rotation with High Fire II and Flare", "Mix of single target and AoE", "Doesn't matter - BLM has weak AoE" },
+                CorrectIndex = 1,
+                Explanation = "At 3+ targets, BLM's AoE rotation (High Fire II spam, Flare finisher, Foul in Ice) is more efficient.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_7.q4",
+                ConceptId = BlmConcepts.AoeRotation,
+                Scenario = "You're in Umbral Ice during AoE and have Foul available.",
+                Question = "When should you use Foul?",
+                Options = new[] { "Only in Astral Fire", "During Umbral Ice phase", "Save it for single target", "Foul isn't good for AoE" },
+                CorrectIndex = 1,
+                Explanation = "Foul is instant and AoE - perfect for Umbral Ice phase in AoE rotation while MP recovers.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "blm.lesson_7.q5",
+                ConceptId = BlmConcepts.MovementOptimization,
+                Scenario = "You're new to a fight and unsure when movement will be required.",
+                Question = "How should you approach resource management?",
+                Options = new[] { "Use everything on cooldown", "Hold all movement tools until needed", "Keep one Triplecast charge and some Polyglot as insurance", "BLM can't adapt to unknown fights" },
+                CorrectIndex = 2,
+                Explanation = "In unfamiliar content, keep emergency resources (1 Triplecast, 1-2 Polyglot) while still using most cooldowns.",
             },
         },
     };
