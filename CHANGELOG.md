@@ -3,6 +3,34 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.24.0 - SMN Training Mode
+
+**SMN (Persephone) Training Mode**
+- Training Mode now supports Summoner - second caster DPS job added
+- 25 new SMN concepts covering Aetherflow, primal attunement, demi-summons, burst abilities, and raid coordination
+- 7 progressive lessons from fundamentals to advanced optimization
+- 35 quiz questions testing real Summoner decisions
+
+**Lesson Content**
+- Lesson 1: Aetherflow Fundamentals - Aetherflow stacks, Energy Drain timing, stack management, overcap prevention
+- Lesson 2: Primal Attunement System - Ifrit/Titan/Garuda phases, attunement stacks, gemshine/brilliance rotation
+- Lesson 3: Primal Favor Abilities - Crimson Cyclone/Strike, Mountain Buster, Slipstream, optimal favor timing
+- Lesson 4: Demi-Summon Phases - Bahamut, Phoenix, Solar Bahamut cycles, Demi-summon rotation
+- Lesson 5: Burst Timing & Enkindle - Enkindle timing, Astral Flow abilities, Deathflare/Rekindle/Sunflare
+- Lesson 6: Searing Light Coordination - Raid buff timing, party burst alignment, Searing Flash
+- Lesson 7: Advanced Rotation Optimization - Primal order, Ruin IV procs, full rotation synthesis
+
+**Quiz Features**
+- 7 quizzes (one per lesson) with 5 scenario-based questions each
+- Pass 4 out of 5 to complete a quiz
+- Detailed explanations for every answer
+- Progress tracking and best score persistence
+
+**Caster DPS Training Progress**
+- Second caster DPS job added to Training Mode (BLM, SMN complete)
+- RDM, PCT caster jobs coming next
+<!-- LATEST-END -->
+
 ## v3.23.0 - BLM Training Mode
 
 **BLM (Hecate) Training Mode**
@@ -29,7 +57,6 @@ All notable changes to Olympus will be documented in this file.
 **Caster DPS Training Started**
 - First caster DPS job added to Training Mode
 - SMN, RDM, PCT caster jobs coming next
-<!-- LATEST-END -->
 
 ## v3.22.0 - DNC Training Mode
 

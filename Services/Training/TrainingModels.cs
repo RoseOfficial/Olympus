@@ -1150,6 +1150,69 @@ public static class DncConcepts
 }
 
 /// <summary>
+/// SMN (Persephone) Training Mode concepts covering Summoner mechanics.
+/// 25 concepts across 6 categories.
+/// </summary>
+public static class SmnConcepts
+{
+    // Aetherflow System (4)
+    public const string AetherflowStacks = "smn.aetherflow_stacks";
+    public const string EnergyDrainUsage = "smn.energy_drain_usage";
+    public const string AetherflowTiming = "smn.aetherflow_timing";
+    public const string FesterNecrotize = "smn.fester_necrotize";
+
+    // Primal Attunement (5)
+    public const string AttunementSystem = "smn.attunement_system";
+    public const string IfritPhase = "smn.ifrit_phase";
+    public const string TitanPhase = "smn.titan_phase";
+    public const string GarudaPhase = "smn.garuda_phase";
+    public const string PrimalOrder = "smn.primal_order";
+
+    // Primal Favor (4)
+    public const string CrimsonCyclone = "smn.crimson_cyclone";
+    public const string MountainBuster = "smn.mountain_buster";
+    public const string Slipstream = "smn.slipstream";
+    public const string FavorTiming = "smn.favor_timing";
+
+    // Demi-Summon System (4)
+    public const string DemiPhases = "smn.demi_phases";
+    public const string BahamutPhase = "smn.bahamut_phase";
+    public const string PhoenixPhase = "smn.phoenix_phase";
+    public const string SolarBahamutPhase = "smn.solar_bahamut_phase";
+
+    // Burst Abilities (4)
+    public const string Enkindle = "smn.enkindle";
+    public const string AstralFlow = "smn.astral_flow";
+    public const string SearingLight = "smn.searing_light";
+    public const string SearingFlash = "smn.searing_flash";
+
+    // Filler & Utility (4)
+    public const string RuinSpells = "smn.ruin_spells";
+    public const string RuinIvProcs = "smn.ruin_iv_procs";
+    public const string AoeRotation = "smn.aoe_rotation";
+    public const string PartyCoordination = "smn.party_coordination";
+
+    /// <summary>
+    /// All SMN concepts for counting.
+    /// </summary>
+    public static readonly string[] AllConcepts = new[]
+    {
+        // Aetherflow System
+        AetherflowStacks, EnergyDrainUsage, AetherflowTiming, FesterNecrotize,
+        // Primal Attunement
+        AttunementSystem, IfritPhase, TitanPhase, GarudaPhase, PrimalOrder,
+        // Primal Favor
+        CrimsonCyclone, MountainBuster, Slipstream, FavorTiming,
+        // Demi-Summon System
+        DemiPhases, BahamutPhase, PhoenixPhase, SolarBahamutPhase,
+        // Burst Abilities
+        Enkindle, AstralFlow, SearingLight, SearingFlash,
+        // Filler & Utility
+        RuinSpells, RuinIvProcs, AoeRotation, PartyCoordination,
+    };
+}
+
+/// <summary>
 /// BLM (Hecate) Training Mode concepts covering Black Mage mechanics.
 /// 25 concepts across 6 categories.
 /// </summary>

@@ -3804,6 +3804,227 @@ public static class DncLessons
 }
 
 /// <summary>
+/// SMN (Persephone) lesson content covering Summoner mechanics.
+/// 7 progressive lessons from fundamentals to advanced execution.
+/// </summary>
+public static class SmnLessons
+{
+    public static readonly LessonDefinition Lesson1 = new()
+    {
+        LessonId = "smn.lesson_1",
+        JobPrefix = "smn",
+        Title = "Aetherflow Fundamentals",
+        LessonNumber = 1,
+        Description = "Learn Summoner's Aetherflow system: generating stacks with Energy Drain, spending with Fester/Necrotize, and timing around the 60-second cooldown.",
+        Prerequisites = Array.Empty<string>(),
+        ConceptsCovered = new[]
+        {
+            SmnConcepts.AetherflowStacks,
+            SmnConcepts.EnergyDrainUsage,
+            SmnConcepts.AetherflowTiming,
+            SmnConcepts.FesterNecrotize,
+        },
+        KeyPoints = new[]
+        {
+            "Energy Drain: Grants 2 Aetherflow stacks and Further Ruin buff (60s CD)",
+            "Fester/Necrotize: Spend stacks for damage - use on cooldown",
+            "Never let Energy Drain sit off cooldown - use it or lose DPS",
+            "Further Ruin enables Ruin IV - a powerful instant-cast proc",
+        },
+        RelatedAbilities = new[] { "Energy Drain", "Fester", "Necrotize", "Ruin IV" },
+        Tips = new[]
+        {
+            "Spend both Aetherflow stacks before Energy Drain comes off cooldown",
+            "Energy Siphon is the AoE version - grants same resources",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson2 = new()
+    {
+        LessonId = "smn.lesson_2",
+        JobPrefix = "smn",
+        Title = "Primal Attunement System",
+        LessonNumber = 2,
+        Description = "Understand the three primal phases: Ifrit (Ruby), Titan (Topaz), and Garuda (Emerald), each with unique attunement stacks and abilities.",
+        Prerequisites = new[] { "smn.lesson_1" },
+        ConceptsCovered = new[]
+        {
+            SmnConcepts.AttunementSystem,
+            SmnConcepts.IfritPhase,
+            SmnConcepts.TitanPhase,
+            SmnConcepts.GarudaPhase,
+        },
+        KeyPoints = new[]
+        {
+            "Summon a primal to gain attunement stacks (2 for Ifrit, 4 for Titan/Garuda)",
+            "Ifrit: Highest damage but has cast times (Ruby Rite)",
+            "Titan: Instant casts with oGCD Mountain Buster procs",
+            "Garuda: Fast instant casts (Emerald Rite) with low damage each",
+            "Each primal must be summoned and fully spent before Demi-Summon",
+        },
+        RelatedAbilities = new[] { "Summon Ifrit", "Summon Titan", "Summon Garuda", "Ruby Rite", "Topaz Rite", "Emerald Rite" },
+        Tips = new[]
+        {
+            "Titan is best for movement-heavy phases - all instants",
+            "Save Ifrit for when you can stand still to cast",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson3 = new()
+    {
+        LessonId = "smn.lesson_3",
+        JobPrefix = "smn",
+        Title = "Primal Favor Abilities",
+        LessonNumber = 3,
+        Description = "Master the unique Primal Favor abilities: Crimson Cyclone/Strike (Ifrit), Mountain Buster (Titan), and Slipstream (Garuda).",
+        Prerequisites = new[] { "smn.lesson_2" },
+        ConceptsCovered = new[]
+        {
+            SmnConcepts.CrimsonCyclone,
+            SmnConcepts.MountainBuster,
+            SmnConcepts.Slipstream,
+            SmnConcepts.FavorTiming,
+        },
+        KeyPoints = new[]
+        {
+            "Crimson Cyclone: Gap closer GCD, followed by Crimson Strike (melee)",
+            "Mountain Buster: oGCD after each Topaz Rite - weave immediately",
+            "Slipstream: 3s channeled AoE - use when you can stand still",
+            "Favor abilities are gained after summoning the upgraded primal",
+        },
+        RelatedAbilities = new[] { "Crimson Cyclone", "Crimson Strike", "Mountain Buster", "Slipstream" },
+        Tips = new[]
+        {
+            "Crimson Strike requires melee range - position yourself before Cyclone",
+            "Slipstream is best used during downtime or safe phases",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson4 = new()
+    {
+        LessonId = "smn.lesson_4",
+        JobPrefix = "smn",
+        Title = "Demi-Summon Phases",
+        LessonNumber = 4,
+        Description = "Understand the Demi-Summon cycle: Bahamut, Phoenix, and Solar Bahamut, each with unique GCDs and abilities.",
+        Prerequisites = new[] { "smn.lesson_3" },
+        ConceptsCovered = new[]
+        {
+            SmnConcepts.DemiPhases,
+            SmnConcepts.BahamutPhase,
+            SmnConcepts.PhoenixPhase,
+            SmnConcepts.SolarBahamutPhase,
+        },
+        KeyPoints = new[]
+        {
+            "Demi-Summons: 15-second phases after spending all 3 primals",
+            "Bahamut: Astral Impulse GCDs, Deathflare finisher",
+            "Phoenix: Fountain of Fire GCDs, party healing via Rekindle",
+            "Solar Bahamut: Umbral Impulse GCDs, Sunflare finisher (Lv.100)",
+            "Cycle: Bahamut → 3 Primals → Phoenix → 3 Primals → Solar Bahamut",
+        },
+        RelatedAbilities = new[] { "Summon Bahamut", "Summon Phoenix", "Summon Solar Bahamut", "Astral Impulse", "Fountain of Fire" },
+        Tips = new[]
+        {
+            "Demi GCDs are all instant - free movement during these phases",
+            "Phoenix phase provides party healing - time it for raidwides if possible",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson5 = new()
+    {
+        LessonId = "smn.lesson_5",
+        JobPrefix = "smn",
+        Title = "Burst: Enkindle & Astral Flow",
+        LessonNumber = 5,
+        Description = "Maximize Demi-Summon damage with Enkindle (Akh Morn/Revelation) and Astral Flow (Deathflare/Rekindle/Sunflare).",
+        Prerequisites = new[] { "smn.lesson_4" },
+        ConceptsCovered = new[]
+        {
+            SmnConcepts.Enkindle,
+            SmnConcepts.AstralFlow,
+            SmnConcepts.SearingFlash,
+        },
+        KeyPoints = new[]
+        {
+            "Enkindle: One-time massive damage oGCD during each Demi phase",
+            "Astral Flow: Changes based on Demi - Deathflare/Rekindle/Sunflare",
+            "Use both Enkindle and Astral Flow once per Demi phase - don't forget!",
+            "Searing Flash: oGCD during Searing Light window for extra damage",
+        },
+        RelatedAbilities = new[] { "Enkindle Bahamut", "Enkindle Phoenix", "Deathflare", "Rekindle", "Sunflare", "Searing Flash" },
+        Tips = new[]
+        {
+            "Enkindle early in the Demi phase to avoid losing it to phase transitions",
+            "Rekindle heals a party member - use on tank or low HP target",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson6 = new()
+    {
+        LessonId = "smn.lesson_6",
+        JobPrefix = "smn",
+        Title = "Searing Light Coordination",
+        LessonNumber = 6,
+        Description = "Master Searing Light timing: aligning with party burst windows and coordinating via IPC for optimal raid DPS.",
+        Prerequisites = new[] { "smn.lesson_5" },
+        ConceptsCovered = new[]
+        {
+            SmnConcepts.SearingLight,
+            SmnConcepts.PartyCoordination,
+        },
+        KeyPoints = new[]
+        {
+            "Searing Light: 5% party damage buff for 20s (2min CD)",
+            "Align with other party raid buffs at 0:00, 2:00, 4:00, etc.",
+            "Use during Demi phases for maximum personal DPS contribution",
+            "IPC coordination prevents overlapping with other raid buffs",
+        },
+        RelatedAbilities = new[] { "Searing Light", "Searing Flash" },
+        Tips = new[]
+        {
+            "Announce burst intent via IPC so party can align cooldowns",
+            "If out of sync, consider delaying to realign with party",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson7 = new()
+    {
+        LessonId = "smn.lesson_7",
+        JobPrefix = "smn",
+        Title = "Advanced Rotation",
+        LessonNumber = 7,
+        Description = "Final lesson: optimizing primal order, handling Ruin IV procs, and AoE rotation.",
+        Prerequisites = new[] { "smn.lesson_6" },
+        ConceptsCovered = new[]
+        {
+            SmnConcepts.PrimalOrder,
+            SmnConcepts.RuinSpells,
+            SmnConcepts.RuinIvProcs,
+            SmnConcepts.AoeRotation,
+        },
+        KeyPoints = new[]
+        {
+            "Optimal order: Titan → Garuda → Ifrit (move-friendly first, Ifrit last)",
+            "Ruin III is your filler between primal/demi phases",
+            "Ruin IV procs: Use before they expire or overcap",
+            "AoE: Tri-disaster filler, primal Catastrophe variants, same Demi rotation",
+        },
+        RelatedAbilities = new[] { "Ruin III", "Ruin IV", "Tri-disaster", "Ruby Catastrophe", "Topaz Catastrophe", "Emerald Catastrophe" },
+        Tips = new[]
+        {
+            "Titan first gives most flexibility for movement later",
+            "Don't hold Ruin IV too long - Energy Drain refreshes the proc",
+        },
+    };
+
+    public static readonly LessonDefinition[] AllLessons = new[]
+    {
+        Lesson1, Lesson2, Lesson3, Lesson4, Lesson5, Lesson6, Lesson7,
+    };
+}
+
+/// <summary>
 /// BLM (Hecate) lesson content covering Black Mage mechanics.
 /// 7 progressive lessons from fundamentals to advanced execution.
 /// </summary>
@@ -4060,6 +4281,7 @@ public static class LessonRegistry
             "dnc" => DncLessons.AllLessons,
             // Casters
             "blm" => BlmLessons.AllLessons,
+            "smn" => SmnLessons.AllLessons,
             _ => Array.Empty<LessonDefinition>(),
         };
     }
@@ -4103,6 +4325,7 @@ public static class LessonRegistry
             .Concat(BrdLessons.AllLessons)
             .Concat(DncLessons.AllLessons)
             .Concat(BlmLessons.AllLessons)
+            .Concat(SmnLessons.AllLessons)
             .ToArray();
     }
 }

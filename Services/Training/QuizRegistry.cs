@@ -126,6 +126,12 @@ public static class QuizRegistry
             QuizzesByLessonId[quiz.LessonId] = quiz;
             QuizzesById[quiz.QuizId] = quiz;
         }
+
+        foreach (var quiz in SmnQuizzes.AllQuizzes)
+        {
+            QuizzesByLessonId[quiz.LessonId] = quiz;
+            QuizzesById[quiz.QuizId] = quiz;
+        }
     }
 
     /// <summary>
@@ -174,6 +180,7 @@ public static class QuizRegistry
             "dnc" => DncQuizzes.AllQuizzes,
             // Casters
             "blm" => BlmQuizzes.AllQuizzes,
+            "smn" => SmnQuizzes.AllQuizzes,
             _ => Array.Empty<QuizDefinition>(),
         };
     }
@@ -8053,6 +8060,444 @@ public static class BlmQuizzes
                 Options = new[] { "Use everything on cooldown", "Hold all movement tools until needed", "Keep one Triplecast charge and some Polyglot as insurance", "BLM can't adapt to unknown fights" },
                 CorrectIndex = 2,
                 Explanation = "In unfamiliar content, keep emergency resources (1 Triplecast, 1-2 Polyglot) while still using most cooldowns.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition[] AllQuizzes = new[]
+    {
+        Lesson1Quiz, Lesson2Quiz, Lesson3Quiz, Lesson4Quiz, Lesson5Quiz, Lesson6Quiz, Lesson7Quiz,
+    };
+}
+
+/// <summary>
+/// SMN (Persephone) quiz content - 7 quizzes with 5 questions each (35 total).
+/// </summary>
+public static class SmnQuizzes
+{
+    public static readonly QuizDefinition Lesson1Quiz = new()
+    {
+        QuizId = "smn.lesson_1.quiz",
+        LessonId = "smn.lesson_1",
+        Title = "Quiz: Aetherflow Fundamentals",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_1.q1",
+                ConceptId = SmnConcepts.AetherflowStacks,
+                Scenario = "Energy Drain just came off cooldown. You have 1 Aetherflow stack remaining.",
+                Question = "What should you do?",
+                Options = new[] { "Use Energy Drain immediately", "Spend the remaining stack first, then Energy Drain", "Save the stack for emergencies", "It doesn't matter" },
+                CorrectIndex = 1,
+                Explanation = "Always spend existing stacks before using Energy Drain. Using it with stacks remaining wastes potential damage.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_1.q2",
+                ConceptId = SmnConcepts.EnergyDrainUsage,
+                Scenario = "You're in the middle of a primal phase with Ifrit summoned.",
+                Question = "What does Energy Drain grant besides Aetherflow stacks?",
+                Options = new[] { "MP restoration", "Further Ruin buff (enables Ruin IV)", "Damage buff", "Haste" },
+                CorrectIndex = 1,
+                Explanation = "Energy Drain grants 2 Aetherflow stacks AND the Further Ruin buff, which enables the powerful Ruin IV instant cast.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_1.q3",
+                ConceptId = SmnConcepts.FesterNecrotize,
+                Scenario = "You have 2 Aetherflow stacks. The boss will be untargetable in 5 seconds for 20 seconds.",
+                Question = "What should you do with your stacks?",
+                Options = new[] { "Save them for after downtime", "Spend both immediately on Fester/Necrotize", "Use one now, save one", "Convert them to healing" },
+                CorrectIndex = 1,
+                Explanation = "Spend both stacks before downtime. Energy Drain will be ready after the 20s downtime anyway, so holding stacks wastes damage.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_1.q4",
+                ConceptId = SmnConcepts.AetherflowTiming,
+                Scenario = "Energy Drain has 10 seconds remaining on cooldown. You have 0 Aetherflow stacks.",
+                Question = "Is this a problem?",
+                Options = new[] { "Yes - you should always have stacks", "No - this is normal if you spent them efficiently", "Yes - you should have saved stacks", "No - Aetherflow doesn't matter much" },
+                CorrectIndex = 1,
+                Explanation = "Having 0 stacks near the end of the 60s cooldown is ideal - it means you spent them efficiently without wasting any.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_1.q5",
+                ConceptId = SmnConcepts.FesterNecrotize,
+                Scenario = "There are 3 enemies. You have 2 Aetherflow stacks.",
+                Question = "Should you use Fester or Painflare?",
+                Options = new[] { "Fester - always single target", "Painflare - it's AoE", "Alternate between them", "Neither - save for boss" },
+                CorrectIndex = 1,
+                Explanation = "At 3+ targets, Painflare (AoE) does more total damage than Fester (single target). Use Painflare for trash packs.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson2Quiz = new()
+    {
+        QuizId = "smn.lesson_2.quiz",
+        LessonId = "smn.lesson_2",
+        Title = "Quiz: Primal Attunement System",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_2.q1",
+                ConceptId = SmnConcepts.AttunementSystem,
+                Scenario = "You just summoned Ifrit.",
+                Question = "How many attunement stacks do you receive?",
+                Options = new[] { "1", "2", "4", "6" },
+                CorrectIndex = 1,
+                Explanation = "Ifrit grants 2 Ruby Arcanum attunements (for 2 Ruby Rite casts), while Titan and Garuda grant 4 each.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_2.q2",
+                ConceptId = SmnConcepts.IfritPhase,
+                Scenario = "You need to move frequently due to mechanics.",
+                Question = "Which primal should you avoid using during heavy movement?",
+                Options = new[] { "Garuda - fast casts", "Titan - instant casts", "Ifrit - has cast times", "Any primal is fine" },
+                CorrectIndex = 2,
+                Explanation = "Ifrit's Ruby Rite has a 2.8s cast time. Save Ifrit for when you can stand still; use Titan/Garuda during movement.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_2.q3",
+                ConceptId = SmnConcepts.TitanPhase,
+                Scenario = "You summoned Titan and used Topaz Rite.",
+                Question = "What should you do immediately after Topaz Rite?",
+                Options = new[] { "Cast another Topaz Rite", "Use Mountain Buster oGCD", "Switch to Ruin III", "Summon Garuda" },
+                CorrectIndex = 1,
+                Explanation = "Each Topaz Rite grants Titan's Favor, enabling Mountain Buster oGCD. Weave it after every Topaz Rite.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_2.q4",
+                ConceptId = SmnConcepts.GarudaPhase,
+                Scenario = "You're comparing Garuda to the other primals.",
+                Question = "What is Garuda's main characteristic?",
+                Options = new[] { "Highest damage per hit", "Instant casts with lower individual damage", "Longest cast times", "Only useful for AoE" },
+                CorrectIndex = 1,
+                Explanation = "Garuda has 4 fast instant-cast Emerald Rites. Lower damage per hit but great mobility and consistent damage.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_2.q5",
+                ConceptId = SmnConcepts.AttunementSystem,
+                Scenario = "You have 1 attunement stack remaining from Titan.",
+                Question = "Can you summon another primal now?",
+                Options = new[] { "Yes - freely switch between primals", "No - must spend all attunement first", "Yes - but you lose the remaining stack", "Only if you cancel with Ruin III" },
+                CorrectIndex = 1,
+                Explanation = "You must spend all attunement stacks before summoning another primal or Demi-Summon. Finish each primal completely.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson3Quiz = new()
+    {
+        QuizId = "smn.lesson_3.quiz",
+        LessonId = "smn.lesson_3",
+        Title = "Quiz: Primal Favor Abilities",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_3.q1",
+                ConceptId = SmnConcepts.CrimsonCyclone,
+                Scenario = "You summoned Ifrit II and have Ifrit's Favor.",
+                Question = "What does Crimson Cyclone do?",
+                Options = new[] { "Ranged instant attack", "Gap closer that puts you in melee range", "Party buff", "DoT application" },
+                CorrectIndex = 1,
+                Explanation = "Crimson Cyclone is a gap closer that dashes you to the target, followed by Crimson Strike which requires melee range.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_3.q2",
+                ConceptId = SmnConcepts.CrimsonCyclone,
+                Scenario = "You used Crimson Cyclone and are now in melee range.",
+                Question = "What must you do next?",
+                Options = new[] { "Use Ruby Rite", "Use Crimson Strike immediately", "Return to range for safety", "Any GCD is fine" },
+                CorrectIndex = 1,
+                Explanation = "After Crimson Cyclone, Crimson Strike becomes available and must be used from melee range. It's a combo sequence.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_3.q3",
+                ConceptId = SmnConcepts.MountainBuster,
+                Scenario = "You used Topaz Rite twice.",
+                Question = "How many Mountain Busters can you use?",
+                Options = new[] { "0 - it's only once per summon", "1 - shared cooldown", "2 - one after each Topaz Rite", "4 - it stacks" },
+                CorrectIndex = 2,
+                Explanation = "Each Topaz Rite grants one use of Mountain Buster. With 4 Topaz Rites, you get 4 Mountain Busters total.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_3.q4",
+                ConceptId = SmnConcepts.Slipstream,
+                Scenario = "You have Garuda's Favor and the boss is casting a long attack.",
+                Question = "When should you use Slipstream?",
+                Options = new[] { "Immediately - always use on cooldown", "When you can channel for 3 seconds without moving", "Save it for burst windows only", "Never - it's weak" },
+                CorrectIndex = 1,
+                Explanation = "Slipstream is a 3-second channel. Use it during safe windows when you won't need to move.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_3.q5",
+                ConceptId = SmnConcepts.FavorTiming,
+                Scenario = "You're about to use your last Emerald Rite but haven't used Slipstream yet.",
+                Question = "Should you use Slipstream before the last Emerald Rite?",
+                Options = new[] { "No - always finish attunement first", "Yes - use Slipstream before attunement ends", "It doesn't matter", "Save Slipstream for next Garuda" },
+                CorrectIndex = 1,
+                Explanation = "Garuda's Favor (Slipstream) can be used anytime during the Garuda phase. Don't forget it before finishing attunement.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson4Quiz = new()
+    {
+        QuizId = "smn.lesson_4.quiz",
+        LessonId = "smn.lesson_4",
+        Title = "Quiz: Demi-Summon Phases",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_4.q1",
+                ConceptId = SmnConcepts.DemiPhases,
+                Scenario = "You've spent all 3 primals.",
+                Question = "What happens next?",
+                Options = new[] { "Primals reset immediately", "Demi-Summon becomes available", "Energy Drain resets", "Nothing - use Ruin III" },
+                CorrectIndex = 1,
+                Explanation = "After spending all 3 primals (Ifrit, Titan, Garuda), you can summon a Demi (Bahamut, Phoenix, or Solar Bahamut).",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_4.q2",
+                ConceptId = SmnConcepts.BahamutPhase,
+                Scenario = "You summoned Demi-Bahamut.",
+                Question = "What replaces Ruin III during this phase?",
+                Options = new[] { "Ruin IV", "Astral Impulse", "Tri-disaster", "Nothing changes" },
+                CorrectIndex = 1,
+                Explanation = "During Demi-Bahamut, Ruin III is replaced by Astral Impulse - an instant cast with higher potency.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_4.q3",
+                ConceptId = SmnConcepts.PhoenixPhase,
+                Scenario = "You're comparing Phoenix to Bahamut.",
+                Question = "What unique utility does Phoenix provide?",
+                Options = new[] { "Higher damage", "Party healing through Rekindle", "Longer duration", "More oGCDs" },
+                CorrectIndex = 1,
+                Explanation = "Phoenix's Astral Flow (Rekindle) heals a party member. Phoenix phase provides raid utility unlike Bahamut.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_4.q4",
+                ConceptId = SmnConcepts.SolarBahamutPhase,
+                Scenario = "You're at level 100 and just finished Phoenix.",
+                Question = "What is the Demi-Summon rotation order?",
+                Options = new[] { "Bahamut → Phoenix → Bahamut → Phoenix", "Bahamut → Phoenix → Solar Bahamut → repeat", "Solar Bahamut every time", "Random based on gauge" },
+                CorrectIndex = 1,
+                Explanation = "At 100, the cycle is Bahamut → Phoenix → Solar Bahamut, then repeats. Solar Bahamut replaces every other Bahamut.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_4.q5",
+                ConceptId = SmnConcepts.DemiPhases,
+                Scenario = "Your Demi-Summon has 3 seconds remaining.",
+                Question = "What should you prioritize?",
+                Options = new[] { "More Astral Impulse GCDs", "Ensuring Enkindle and Astral Flow are used", "Switching to Ruin III early", "Starting primal phase" },
+                CorrectIndex = 1,
+                Explanation = "Enkindle and Astral Flow are powerful one-time abilities per Demi phase. Never let the phase end without using them.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson5Quiz = new()
+    {
+        QuizId = "smn.lesson_5.quiz",
+        LessonId = "smn.lesson_5",
+        Title = "Quiz: Burst: Enkindle & Astral Flow",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_5.q1",
+                ConceptId = SmnConcepts.Enkindle,
+                Scenario = "You just summoned Demi-Bahamut.",
+                Question = "When should you use Enkindle Bahamut?",
+                Options = new[] { "At the very end of the phase", "Early in the phase", "Only during raid buffs", "It doesn't matter" },
+                CorrectIndex = 1,
+                Explanation = "Use Enkindle early to ensure you don't lose it to phase transitions or boss jumps. It has a 20s CD anyway.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_5.q2",
+                ConceptId = SmnConcepts.AstralFlow,
+                Scenario = "You're in Demi-Phoenix phase.",
+                Question = "What does Astral Flow become during Phoenix?",
+                Options = new[] { "Deathflare (damage)", "Rekindle (heal)", "Sunflare (damage)", "Nothing - it's disabled" },
+                CorrectIndex = 1,
+                Explanation = "During Phoenix, Astral Flow becomes Rekindle - a heal that can save a party member or support the healers.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_5.q3",
+                ConceptId = SmnConcepts.SearingFlash,
+                Scenario = "Searing Light is active on you.",
+                Question = "What ability becomes available?",
+                Options = new[] { "Extra Enkindle charge", "Searing Flash oGCD", "Enhanced Ruin IV", "Nothing extra" },
+                CorrectIndex = 1,
+                Explanation = "While Searing Light is active, you can use Searing Flash - a high-potency oGCD. Don't forget to use it!",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_5.q4",
+                ConceptId = SmnConcepts.Enkindle,
+                Scenario = "The boss will jump away in 8 seconds. You just summoned Demi-Bahamut (15s phase).",
+                Question = "What's your priority?",
+                Options = new[] { "Maximize Astral Impulse casts", "Ensure Enkindle and Deathflare are used before the jump", "Wait for boss to return", "Switch to primals early" },
+                CorrectIndex = 1,
+                Explanation = "With limited time, prioritize the one-time abilities (Enkindle, Deathflare) that would be lost if the boss leaves.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_5.q5",
+                ConceptId = SmnConcepts.AstralFlow,
+                Scenario = "You're in Solar Bahamut phase.",
+                Question = "What is Astral Flow during Solar Bahamut?",
+                Options = new[] { "Deathflare", "Rekindle", "Sunflare", "Lux Solaris" },
+                CorrectIndex = 2,
+                Explanation = "During Solar Bahamut, Astral Flow becomes Sunflare - a high-potency AoE damage finisher.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson6Quiz = new()
+    {
+        QuizId = "smn.lesson_6.quiz",
+        LessonId = "smn.lesson_6",
+        Title = "Quiz: Searing Light Coordination",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_6.q1",
+                ConceptId = SmnConcepts.SearingLight,
+                Scenario = "The fight just started.",
+                Question = "When should you use Searing Light?",
+                Options = new[] { "Immediately at pull", "Wait for 2 minutes", "During your first primal phase", "During first Demi-Summon" },
+                CorrectIndex = 3,
+                Explanation = "Align Searing Light with Demi-Summon phases for maximum personal damage, and with party raid buffs at 0:00, 2:00, etc.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_6.q2",
+                ConceptId = SmnConcepts.SearingLight,
+                Scenario = "Searing Light is a 5% party damage buff.",
+                Question = "What is its cooldown?",
+                Options = new[] { "60 seconds", "90 seconds", "120 seconds", "180 seconds" },
+                CorrectIndex = 2,
+                Explanation = "Searing Light has a 120-second (2-minute) cooldown, aligning with standard raid buff windows.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_6.q3",
+                ConceptId = SmnConcepts.PartyCoordination,
+                Scenario = "Your party has multiple raid buff jobs.",
+                Question = "How should SMN coordinate Searing Light?",
+                Options = new[] { "Use whenever available", "Align with other 2-minute buffs", "Hold for emergencies", "Only during Phoenix" },
+                CorrectIndex = 1,
+                Explanation = "Searing Light should align with other 2-minute raid buffs for maximum party benefit. Use IPC to coordinate.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_6.q4",
+                ConceptId = SmnConcepts.SearingLight,
+                Scenario = "Searing Light has 10 seconds remaining. You haven't used Searing Flash.",
+                Question = "What should you do?",
+                Options = new[] { "It's fine - Searing Flash is optional", "Use Searing Flash immediately", "Save it for next Searing Light", "Wait for better timing" },
+                CorrectIndex = 1,
+                Explanation = "Searing Flash is only usable during Searing Light. If you don't use it, you lose it entirely - don't forget!",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_6.q5",
+                ConceptId = SmnConcepts.PartyCoordination,
+                Scenario = "Your Searing Light drifted and is now misaligned with party buffs.",
+                Question = "What should you consider?",
+                Options = new[] { "Keep using on cooldown regardless", "Delay to realign with party burst", "Never delay - always use immediately", "Only use during Bahamut" },
+                CorrectIndex = 1,
+                Explanation = "If your buff drifted, consider a short delay to realign with party burst windows. Coordinated buffs > individual usage.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson7Quiz = new()
+    {
+        QuizId = "smn.lesson_7.quiz",
+        LessonId = "smn.lesson_7",
+        Title = "Quiz: Advanced Rotation",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_7.q1",
+                ConceptId = SmnConcepts.PrimalOrder,
+                Scenario = "You need to optimize primal order for a movement-heavy fight.",
+                Question = "What order is generally recommended?",
+                Options = new[] { "Ifrit → Titan → Garuda", "Titan → Garuda → Ifrit", "Garuda → Ifrit → Titan", "Order doesn't matter" },
+                CorrectIndex = 1,
+                Explanation = "Titan → Garuda → Ifrit puts the casted primal (Ifrit) last, giving you mobility earlier when you might need it.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_7.q2",
+                ConceptId = SmnConcepts.RuinSpells,
+                Scenario = "You're between primal phases with no attunement.",
+                Question = "What GCD should you use?",
+                Options = new[] { "Wait for next summon", "Ruin III as filler", "Only use oGCDs", "Switch to healing" },
+                CorrectIndex = 1,
+                Explanation = "Ruin III is your filler GCD between primal and Demi phases. Never stop casting - ABC (Always Be Casting).",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_7.q3",
+                ConceptId = SmnConcepts.RuinIvProcs,
+                Scenario = "You have Further Ruin buff and Energy Drain is about to come off cooldown.",
+                Question = "Should you use Ruin IV now?",
+                Options = new[] { "No - save it for movement", "Yes - Energy Drain will refresh the buff anyway", "No - Ruin III is better", "Only during burst" },
+                CorrectIndex = 1,
+                Explanation = "Use Ruin IV before Energy Drain refreshes Further Ruin. The new proc overwrites any existing one.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_7.q4",
+                ConceptId = SmnConcepts.AoeRotation,
+                Scenario = "There are 4 enemies grouped up.",
+                Question = "What changes in your rotation?",
+                Options = new[] { "Nothing - same rotation", "Use Catastrophe variants instead of Rite, Painflare instead of Fester", "Only use Demi phases", "Stop using primals" },
+                CorrectIndex = 1,
+                Explanation = "In AoE, use Ruby/Topaz/Emerald Catastrophe instead of Rite, Painflare instead of Fester, and Tri-disaster as filler.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "smn.lesson_7.q5",
+                ConceptId = SmnConcepts.RuinIvProcs,
+                Scenario = "You have Further Ruin and need to move for a mechanic.",
+                Question = "What's the best use of Ruin IV?",
+                Options = new[] { "Save it for damage optimization", "Use it now for instant movement GCD", "Never use during movement", "Only use during Demi phase" },
+                CorrectIndex = 1,
+                Explanation = "Ruin IV is instant cast - perfect for movement. Use it when you need to move and maintain GCD uptime.",
             },
         },
     };

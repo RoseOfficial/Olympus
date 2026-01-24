@@ -156,6 +156,9 @@ public sealed class TrainingService : ITrainingService
             .Concat(VprConcepts.AllConcepts)
             .Concat(MchConcepts.AllConcepts)
             .Concat(BrdConcepts.AllConcepts)
+            .Concat(DncConcepts.AllConcepts)
+            .Concat(BlmConcepts.AllConcepts)
+            .Concat(SmnConcepts.AllConcepts)
             .ToArray();
     }
 
