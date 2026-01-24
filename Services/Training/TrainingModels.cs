@@ -1339,6 +1339,69 @@ public static class RdmConcepts
 }
 
 /// <summary>
+/// PCT (Iris) Training Mode concepts covering Pictomancer mechanics.
+/// 25 concepts across 6 categories.
+/// </summary>
+public static class PctConcepts
+{
+    // Core Mechanics (5)
+    public const string PaletteGauge = "pct.palette_gauge";
+    public const string WhitePaint = "pct.white_paint";
+    public const string BlackPaint = "pct.black_paint";
+    public const string ComboBasics = "pct.combo_basics";
+    public const string SubtractiveCombo = "pct.subtractive_combo";
+
+    // Canvas System (4)
+    public const string CreatureMotifs = "pct.creature_motifs";
+    public const string WeaponCanvas = "pct.weapon_canvas";
+    public const string LandscapeCanvas = "pct.landscape_canvas";
+    public const string CanvasPrepull = "pct.canvas_prepull";
+
+    // Muse Abilities (4)
+    public const string LivingMuse = "pct.living_muse";
+    public const string StrikingMuse = "pct.striking_muse";
+    public const string StarryMuse = "pct.starry_muse";
+    public const string MuseTiming = "pct.muse_timing";
+
+    // Subtractive Palette (4)
+    public const string SubtractivePalette = "pct.subtractive_palette";
+    public const string MonochromaticTones = "pct.monochromatic_tones";
+    public const string PaletteSpending = "pct.palette_spending";
+    public const string FinisherPriority = "pct.finisher_priority";
+
+    // Paint Spenders (3)
+    public const string HolyInWhite = "pct.holy_in_white";
+    public const string CometInBlack = "pct.comet_in_black";
+    public const string RainbowDrip = "pct.rainbow_drip";
+
+    // Advanced (5)
+    public const string StarryMuseBurst = "pct.starry_muse_burst";
+    public const string HammerCombo = "pct.hammer_combo";
+    public const string AoeRotation = "pct.aoe_rotation";
+    public const string MovementOptimization = "pct.movement_optimization";
+    public const string PartyCoordination = "pct.party_coordination";
+
+    /// <summary>
+    /// All PCT concepts for counting.
+    /// </summary>
+    public static readonly string[] AllConcepts = new[]
+    {
+        // Core Mechanics
+        PaletteGauge, WhitePaint, BlackPaint, ComboBasics, SubtractiveCombo,
+        // Canvas System
+        CreatureMotifs, WeaponCanvas, LandscapeCanvas, CanvasPrepull,
+        // Muse Abilities
+        LivingMuse, StrikingMuse, StarryMuse, MuseTiming,
+        // Subtractive Palette
+        SubtractivePalette, MonochromaticTones, PaletteSpending, FinisherPriority,
+        // Paint Spenders
+        HolyInWhite, CometInBlack, RainbowDrip,
+        // Advanced
+        StarryMuseBurst, HammerCombo, AoeRotation, MovementOptimization, PartyCoordination,
+    };
+}
+
+/// <summary>
 /// Represents a lesson recommendation based on detected performance issues.
 /// </summary>
 public sealed class LessonRecommendation

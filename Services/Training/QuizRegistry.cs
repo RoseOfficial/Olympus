@@ -138,6 +138,12 @@ public static class QuizRegistry
             QuizzesByLessonId[quiz.LessonId] = quiz;
             QuizzesById[quiz.QuizId] = quiz;
         }
+
+        foreach (var quiz in PctQuizzes.AllQuizzes)
+        {
+            QuizzesByLessonId[quiz.LessonId] = quiz;
+            QuizzesById[quiz.QuizId] = quiz;
+        }
     }
 
     /// <summary>
@@ -188,6 +194,7 @@ public static class QuizRegistry
             "blm" => BlmQuizzes.AllQuizzes,
             "smn" => SmnQuizzes.AllQuizzes,
             "rdm" => RdmQuizzes.AllQuizzes,
+            "pct" => PctQuizzes.AllQuizzes,
             _ => Array.Empty<QuizDefinition>(),
         };
     }
@@ -8943,6 +8950,444 @@ public static class RdmQuizzes
                 Options = new[] { "Just stop casting", "Use melee combo if mana allows", "Slidecasting only", "Wait for Swiftcast" },
                 CorrectIndex = 1,
                 Explanation = "If you have 50|50 mana, enter melee combo - all three hits are instant and can be used while moving. RDM has great movement tools.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition[] AllQuizzes = new[]
+    {
+        Lesson1Quiz, Lesson2Quiz, Lesson3Quiz, Lesson4Quiz, Lesson5Quiz, Lesson6Quiz, Lesson7Quiz,
+    };
+}
+
+/// <summary>
+/// PCT (Iris) quiz content - 7 quizzes with 5 questions each.
+/// </summary>
+public static class PctQuizzes
+{
+    public static readonly QuizDefinition Lesson1Quiz = new()
+    {
+        QuizId = "pct.lesson_1.quiz",
+        LessonId = "pct.lesson_1",
+        Title = "Quiz: Painting Fundamentals",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_1.q1",
+                ConceptId = PctConcepts.PaletteGauge,
+                Scenario = "Your Palette Gauge is at 45.",
+                Question = "Can you use Subtractive Palette?",
+                Options = new[] { "Yes - any amount works", "No - need 50 minimum", "No - need 100", "Yes - but it's a DPS loss" },
+                CorrectIndex = 1,
+                Explanation = "Subtractive Palette requires at least 50 Palette Gauge to activate. At 45, you need to continue your base combo to build more gauge.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_1.q2",
+                ConceptId = PctConcepts.WhitePaint,
+                Scenario = "You have 5 White Paint stacks and just finished a combo.",
+                Question = "What should you do?",
+                Options = new[] { "Continue combo - more paint is better", "Use Holy in White to spend a stack", "Save paint for burst", "White Paint doesn't cap" },
+                CorrectIndex = 1,
+                Explanation = "White Paint caps at 5 stacks. If you're at max, use Holy in White to spend a stack before your combo finisher grants another, or you'll waste paint.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_1.q3",
+                ConceptId = PctConcepts.ComboBasics,
+                Scenario = "You just used Fire in Red.",
+                Question = "What comes next in the combo?",
+                Options = new[] { "Water in Blue", "Aero in Green", "Holy in White", "Any spell" },
+                CorrectIndex = 1,
+                Explanation = "The base combo is Fire in Red → Aero in Green → Water in Blue. Following this order builds both Palette Gauge and White Paint.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_1.q4",
+                ConceptId = PctConcepts.BlackPaint,
+                Scenario = "You just used Living Muse to summon a creature.",
+                Question = "What proc do you receive?",
+                Options = new[] { "White Paint stack", "Black Paint (Comet ready)", "Rainbow Drip", "No proc from Muses" },
+                CorrectIndex = 1,
+                Explanation = "Using Living Muse to summon a creature grants the Black Paint proc, which enables the powerful Comet in Black spell.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_1.q5",
+                ConceptId = PctConcepts.WhitePaint,
+                Scenario = "You need to move for a mechanic.",
+                Question = "Which ability lets you cast while moving?",
+                Options = new[] { "Fire in Red (hardcast)", "Holy in White (instant)", "Water in Blue (hardcast)", "Subtractive Palette" },
+                CorrectIndex = 1,
+                Explanation = "Holy in White is an instant cast spell. Use it and other instants (Comet in Black, Rainbow Drip) for movement.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson2Quiz = new()
+    {
+        QuizId = "pct.lesson_2.quiz",
+        LessonId = "pct.lesson_2",
+        Title = "Quiz: Canvas Mastery",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_2.q1",
+                ConceptId = PctConcepts.CreatureMotifs,
+                Scenario = "You want to use Living Muse but have no creature painted.",
+                Question = "What must you do first?",
+                Options = new[] { "Use Living Muse anyway", "Paint a Creature Motif (Pom/Wing/Claw/Maw)", "Use Starry Muse instead", "Wait for auto-generation" },
+                CorrectIndex = 1,
+                Explanation = "You must first paint a Creature Motif (Pom, Wing, Claw, or Maw) on your canvas before you can use Living Muse to summon it.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_2.q2",
+                ConceptId = PctConcepts.CanvasPrepull,
+                Scenario = "The countdown to pull is at 15 seconds.",
+                Question = "What should you be doing?",
+                Options = new[] { "Stand still and wait", "Paint all three canvases (Creature, Weapon, Landscape)", "Start your combo early", "Only paint one canvas" },
+                CorrectIndex = 1,
+                Explanation = "Pre-pull preparation: paint all three canvases (Creature, Weapon, Landscape) so you have immediate access to all Muses when combat starts.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_2.q3",
+                ConceptId = PctConcepts.WeaponCanvas,
+                Scenario = "You painted Hammer Motif on your weapon canvas.",
+                Question = "What does this enable?",
+                Options = new[] { "Living Muse", "Striking Muse → Hammer combo", "Starry Muse", "Comet in Black" },
+                CorrectIndex = 1,
+                Explanation = "Hammer Motif on the weapon canvas enables Striking Muse, which activates the powerful 3-hit hammer combo.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_2.q4",
+                ConceptId = PctConcepts.LandscapeCanvas,
+                Scenario = "You painted Starry Sky Motif on your landscape canvas.",
+                Question = "What does this enable?",
+                Options = new[] { "Living Muse", "Striking Muse", "Starry Muse (party buff)", "Holy in White" },
+                CorrectIndex = 2,
+                Explanation = "Starry Sky Motif on the landscape canvas enables Starry Muse, your 2-minute party damage buff.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_2.q5",
+                ConceptId = PctConcepts.CanvasPrepull,
+                Scenario = "Mid-fight, the boss goes untargetable for 10 seconds.",
+                Question = "What should you do during downtime?",
+                Options = new[] { "Wait for boss to return", "Paint any canvases that are empty", "Spam Holy in White", "Use all Muses immediately" },
+                CorrectIndex = 1,
+                Explanation = "Use downtime to paint empty canvases. This prepares you for maximum damage when the boss becomes targetable again.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson3Quiz = new()
+    {
+        QuizId = "pct.lesson_3.quiz",
+        LessonId = "pct.lesson_3",
+        Title = "Quiz: Muse Abilities",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_3.q1",
+                ConceptId = PctConcepts.LivingMuse,
+                Scenario = "You use Living Muse with a Pom Motif painted.",
+                Question = "What happens?",
+                Options = new[] { "Nothing - Pom isn't valid", "Summons Pom Muse + grants Black Paint", "Only grants White Paint", "Activates Starry Muse" },
+                CorrectIndex = 1,
+                Explanation = "Living Muse summons the painted creature (Pom Muse in this case) and grants the Black Paint proc for Comet in Black.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_3.q2",
+                ConceptId = PctConcepts.StarryMuse,
+                Scenario = "Starry Muse has a 120 second cooldown.",
+                Question = "What type of ability is this?",
+                Options = new[] { "Personal damage buff", "2-minute party damage buff", "Healing ability", "Movement tool" },
+                CorrectIndex = 1,
+                Explanation = "Starry Muse is a 2-minute party damage buff (5% damage for 20s). Align it with other raid buffs for maximum benefit.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_3.q3",
+                ConceptId = PctConcepts.MuseTiming,
+                Scenario = "Starry Muse is active (party buff window).",
+                Question = "What should you prioritize during this window?",
+                Options = new[] { "Only use base combo", "Use Living Muse, Comet, Hammer combo, Star Prism", "Save Muses for later", "Focus on painting" },
+                CorrectIndex = 1,
+                Explanation = "During Starry Muse, use all your high-damage abilities: Living Muse (for Comet), Striking Muse (hammer combo), and Star Prism.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_3.q4",
+                ConceptId = PctConcepts.StrikingMuse,
+                Scenario = "You activated Striking Muse with a Hammer Motif.",
+                Question = "What combo does this enable?",
+                Options = new[] { "Fire → Aero → Water", "Hammer Stamp → Hammer Brush → Polishing Hammer", "Thunder → Stone → Blizzard", "No combo - just one hit" },
+                CorrectIndex = 1,
+                Explanation = "Striking Muse enables the hammer combo: Hammer Stamp → Hammer Brush → Polishing Hammer. All three hits are instant.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_3.q5",
+                ConceptId = PctConcepts.LivingMuse,
+                Scenario = "You have Black Paint proc from Living Muse.",
+                Question = "What ability should you use it on?",
+                Options = new[] { "Holy in White", "Comet in Black", "Rainbow Drip", "Any spell" },
+                CorrectIndex = 1,
+                Explanation = "Black Paint enables Comet in Black, one of your highest potency spells. Use it before the proc expires.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson4Quiz = new()
+    {
+        QuizId = "pct.lesson_4.quiz",
+        LessonId = "pct.lesson_4",
+        Title = "Quiz: Subtractive Palette",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_4.q1",
+                ConceptId = PctConcepts.SubtractivePalette,
+                Scenario = "Your Palette Gauge is at 75.",
+                Question = "What should you do?",
+                Options = new[] { "Keep building to 100", "Use Subtractive Palette (50+ is enough)", "Wait for burst window", "Use Holy in White" },
+                CorrectIndex = 1,
+                Explanation = "Subtractive Palette only requires 50 gauge. At 75, you should use it to avoid overcapping - the gauge continues building.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_4.q2",
+                ConceptId = PctConcepts.SubtractiveCombo,
+                Scenario = "You just activated Subtractive Palette.",
+                Question = "What's the correct combo order?",
+                Options = new[] { "Fire → Aero → Water", "Thunder in Cyan → Stone in Yellow → Blizzard in Magenta", "Any order works", "Hammer Stamp → Brush → Polish" },
+                CorrectIndex = 1,
+                Explanation = "After Subtractive Palette, use Thunder in Cyan → Stone in Yellow → Blizzard in Magenta. This combo builds toward Star Prism.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_4.q3",
+                ConceptId = PctConcepts.MonochromaticTones,
+                Scenario = "You completed the full Cyan combo (Thunder → Stone → Blizzard).",
+                Question = "What ability becomes available?",
+                Options = new[] { "Another Subtractive Palette", "Star Prism (finisher)", "Rainbow Drip", "Comet in Black" },
+                CorrectIndex = 1,
+                Explanation = "Completing the Cyan combo (Monochromatic Tones) enables Star Prism, your big finisher ability with high potency.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_4.q4",
+                ConceptId = PctConcepts.PaletteSpending,
+                Scenario = "Your Palette Gauge is at 95 and still building.",
+                Question = "What's the risk?",
+                Options = new[] { "No risk - higher is better", "Overcapping wastes gauge generation", "The gauge will reset", "Abilities become weaker" },
+                CorrectIndex = 1,
+                Explanation = "At 95+ gauge, you risk overcapping. Any gauge generated beyond 100 is wasted. Use Subtractive Palette at 50+ to prevent this.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_4.q5",
+                ConceptId = PctConcepts.SubtractiveCombo,
+                Scenario = "You used Thunder in Cyan but need to move for a mechanic.",
+                Question = "What should you do?",
+                Options = new[] { "Drop the combo and move", "Continue combo - Stone and Blizzard are important", "Use Holy in White instead", "Wait for mechanic to end" },
+                CorrectIndex = 1,
+                Explanation = "Complete the Cyan combo even if you need to use instants between hits. Dropping mid-combo loses significant DPS and Star Prism access.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson5Quiz = new()
+    {
+        QuizId = "pct.lesson_5.quiz",
+        LessonId = "pct.lesson_5",
+        Title = "Quiz: Paint Spenders",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_5.q1",
+                ConceptId = PctConcepts.CometInBlack,
+                Scenario = "You have both Black Paint (Comet ready) and 5 White Paint stacks.",
+                Question = "Which should you use first?",
+                Options = new[] { "Holy in White (prevent cap)", "Comet in Black (higher priority)", "Either - same potency", "Save both for burst" },
+                CorrectIndex = 1,
+                Explanation = "Comet in Black has higher potency and is a proc that can expire. Use it first, then Holy in White to manage White Paint stacks.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_5.q2",
+                ConceptId = PctConcepts.RainbowDrip,
+                Scenario = "You see the Rainbow Drip buff on your bar.",
+                Question = "What is Rainbow Drip?",
+                Options = new[] { "A DoT to apply", "An instant high-potency proc spell", "A defensive cooldown", "A movement ability" },
+                CorrectIndex = 1,
+                Explanation = "Rainbow Drip is a proc that grants an instant high-potency spell. Watch for it and use before it expires.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_5.q3",
+                ConceptId = PctConcepts.HolyInWhite,
+                Scenario = "You have 3 White Paint stacks and no other procs.",
+                Question = "When should you use Holy in White?",
+                Options = new[] { "Only at 5 stacks", "When you need an instant for movement", "Never - save all paint", "Only during burst" },
+                CorrectIndex = 1,
+                Explanation = "Holy in White is valuable for movement since it's instant. Use it when you need mobility or when approaching 5 stacks to avoid capping.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_5.q4",
+                ConceptId = PctConcepts.FinisherPriority,
+                Scenario = "You have Comet ready, Rainbow Drip proc, and 4 White Paint.",
+                Question = "What's the priority order?",
+                Options = new[] { "Rainbow Drip > Comet > Holy", "Comet > Rainbow Drip > Holy", "Holy > Comet > Rainbow Drip", "Use any order" },
+                CorrectIndex = 1,
+                Explanation = "Priority: Comet in Black (highest potency, proc) > Rainbow Drip (high potency, proc) > Holy in White (consistent but lower priority).",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_5.q5",
+                ConceptId = PctConcepts.CometInBlack,
+                Scenario = "Your Black Paint proc has 3 seconds remaining.",
+                Question = "What should you do?",
+                Options = new[] { "Finish current cast then Comet", "Use Comet immediately before it expires", "Let it expire - not worth interrupting", "Save for burst window" },
+                CorrectIndex = 1,
+                Explanation = "Black Paint is a high-value proc. If it's about to expire, prioritize using Comet in Black immediately rather than losing it.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson6Quiz = new()
+    {
+        QuizId = "pct.lesson_6.quiz",
+        LessonId = "pct.lesson_6",
+        Title = "Quiz: Burst Windows",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_6.q1",
+                ConceptId = PctConcepts.StarryMuseBurst,
+                Scenario = "Starry Muse just came off cooldown.",
+                Question = "What should you ensure before using it?",
+                Options = new[] { "Nothing - use immediately", "Have all canvases painted for burst", "Wait for 100 gauge", "Only use at pull" },
+                CorrectIndex = 1,
+                Explanation = "Before Starry Muse, ensure you have canvases painted (especially Creature and Weapon) so you can use Living Muse and Striking Muse during the buff window.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_6.q2",
+                ConceptId = PctConcepts.HammerCombo,
+                Scenario = "You're in your Starry Muse burst window.",
+                Question = "What makes the hammer combo valuable here?",
+                Options = new[] { "It's the only option", "3 instant high-potency hits under raid buffs", "It generates the most gauge", "It's required for Star Prism" },
+                CorrectIndex = 1,
+                Explanation = "The hammer combo (Hammer Stamp → Brush → Polishing Hammer) deals 3 instant high-potency hits, all benefiting from Starry Muse's damage buff.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_6.q3",
+                ConceptId = PctConcepts.PartyCoordination,
+                Scenario = "A Dragoon announces Battle Litany is coming in 5 seconds.",
+                Question = "What should you do with Starry Muse?",
+                Options = new[] { "Use immediately", "Hold briefly to align with Battle Litany", "Save for next burst window", "Battle Litany doesn't affect PCT" },
+                CorrectIndex = 1,
+                Explanation = "Starry Muse is a party buff. Aligning it with other raid buffs (like Battle Litany) multiplies the benefit for the entire party.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_6.q4",
+                ConceptId = PctConcepts.StarryMuseBurst,
+                Scenario = "Starry Muse is active. You have Comet ready and Star Prism available.",
+                Question = "What's the priority?",
+                Options = new[] { "Star Prism first (biggest hit)", "Comet first (proc might expire)", "Base combo only", "Save both for next window" },
+                CorrectIndex = 1,
+                Explanation = "Comet in Black is a proc that can expire. Use it first to ensure you don't lose it, then use Star Prism during the remaining buff duration.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_6.q5",
+                ConceptId = PctConcepts.HammerCombo,
+                Scenario = "Mid-burst, you used Hammer Stamp.",
+                Question = "What must you do next?",
+                Options = new[] { "Use any spell", "Continue with Hammer Brush → Polishing Hammer", "Return to base combo", "Use Star Prism" },
+                CorrectIndex = 1,
+                Explanation = "Once you start the hammer combo, complete it: Hammer Stamp → Hammer Brush → Polishing Hammer. Interrupting wastes the combo.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson7Quiz = new()
+    {
+        QuizId = "pct.lesson_7.quiz",
+        LessonId = "pct.lesson_7",
+        Title = "Quiz: Advanced Optimization",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_7.q1",
+                ConceptId = PctConcepts.AoeRotation,
+                Scenario = "There are 4 enemies grouped together.",
+                Question = "What rotation should you use?",
+                Options = new[] { "Single target on each", "Fire II → Aero II → Water II (AoE combo)", "Only use Holy in White", "AoE isn't worth it" },
+                CorrectIndex = 1,
+                Explanation = "At 3+ targets, use the AoE combo: Fire II in Red → Aero II in Green → Water II in Blue. This generates gauge and paint faster on multiple targets.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_7.q2",
+                ConceptId = PctConcepts.MovementOptimization,
+                Scenario = "A mechanic requires you to move across the arena.",
+                Question = "What's the best way to maintain DPS?",
+                Options = new[] { "Stop casting and run", "Use instants: Holy in White, Comet, Rainbow Drip, Hammer combo", "Only slidecast", "Wait for Swiftcast" },
+                CorrectIndex = 1,
+                Explanation = "PCT has many instant casts: Holy in White (paint), Comet in Black (proc), Rainbow Drip (proc), and the entire hammer combo. Plan these for movement.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_7.q3",
+                ConceptId = PctConcepts.AoeRotation,
+                Scenario = "At what enemy count should you switch to AoE?",
+                Question = "What's the threshold?",
+                Options = new[] { "2 targets", "3 targets", "4 targets", "5 targets" },
+                CorrectIndex = 1,
+                Explanation = "Switch to AoE rotation at 3+ targets. The AoE versions of your spells become more efficient at this point.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_7.q4",
+                ConceptId = PctConcepts.MovementOptimization,
+                Scenario = "You're casting Fire in Red and see an AoE indicator appear under you.",
+                Question = "What technique helps you keep casting longer?",
+                Options = new[] { "Cancel cast immediately", "Slidecast - move near end of cast bar", "Use Surecast", "Stand in the AoE" },
+                CorrectIndex = 1,
+                Explanation = "Slidecasting: Start moving when the cast bar is ~80% complete. The spell still goes off while you're already moving to safety.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "pct.lesson_7.q5",
+                ConceptId = PctConcepts.MovementOptimization,
+                Scenario = "Boss becomes untargetable for phase transition.",
+                Question = "What should you do during this time?",
+                Options = new[] { "Wait for boss return", "Paint empty canvases and prepare for next phase", "Spam Holy in White", "Use all Muses on nothing" },
+                CorrectIndex = 1,
+                Explanation = "Use downtime productively: paint any empty canvases, position for the next phase, and be ready to burst when the boss returns.",
             },
         },
     };

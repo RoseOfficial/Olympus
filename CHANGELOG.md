@@ -3,6 +3,34 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.26.0 - PCT Training Mode
+
+**PCT (Iris) Training Mode**
+- Training Mode now supports Pictomancer - final caster DPS job added
+- 25 new PCT concepts covering Palette Gauge, canvas system, Muse abilities, and burst windows
+- 7 progressive lessons from painting fundamentals to advanced optimization
+- 35 quiz questions testing real Pictomancer decisions
+
+**Lesson Content**
+- Lesson 1: Painting Fundamentals - Palette Gauge, White/Black Paint, base combo rotation
+- Lesson 2: Canvas Mastery - Creature/Weapon/Landscape motifs, pre-pull preparation
+- Lesson 3: Muse Abilities - Living Muse, Striking Muse, Starry Muse timing
+- Lesson 4: Subtractive Palette - Cyan combo, Monochromatic Tones, Star Prism finisher
+- Lesson 5: Paint Spenders - Holy in White, Comet in Black, Rainbow Drip priority
+- Lesson 6: Burst Windows - Starry Muse burst, hammer combo, party coordination
+- Lesson 7: Advanced Optimization - AoE rotation, movement tools, downtime preparation
+
+**Quiz Features**
+- 7 quizzes (one per lesson) with 5 scenario-based questions each
+- Pass 4 out of 5 to complete a quiz
+- Detailed explanations for every answer
+- Progress tracking and best score persistence
+
+**Training Mode Complete**
+- All 21 combat jobs now have full Training Mode support
+- Preparing for v4.0 Training Mode Complete milestone
+<!-- LATEST-END -->
+
 ## v3.25.0 - RDM Training Mode
 
 **RDM (Circe) Training Mode**
@@ -29,7 +57,6 @@ All notable changes to Olympus will be documented in this file.
 **Caster DPS Training Progress**
 - Third caster DPS job added to Training Mode (BLM, SMN, RDM complete)
 - PCT caster job coming next to complete caster training
-<!-- LATEST-END -->
 
 ## v3.24.0 - SMN Training Mode
 
