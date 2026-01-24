@@ -88,6 +88,12 @@ public static class QuizRegistry
             QuizzesByLessonId[quiz.LessonId] = quiz;
             QuizzesById[quiz.QuizId] = quiz;
         }
+
+        foreach (var quiz in RprQuizzes.AllQuizzes)
+        {
+            QuizzesByLessonId[quiz.LessonId] = quiz;
+            QuizzesById[quiz.QuizId] = quiz;
+        }
     }
 
     /// <summary>
@@ -128,6 +134,7 @@ public static class QuizRegistry
             "nin" => NinQuizzes.AllQuizzes,
             "sam" => SamQuizzes.AllQuizzes,
             "mnk" => MnkQuizzes.AllQuizzes,
+            "rpr" => RprQuizzes.AllQuizzes,
             _ => Array.Empty<QuizDefinition>(),
         };
     }
@@ -5379,6 +5386,444 @@ public static class SamQuizzes
                 Options = new[] { "Waste the Sen", "Hagakure for 30 Kenki", "Use Tenka Goken", "Hold for after transition" },
                 CorrectIndex = 1,
                 Explanation = "Hagakure converts Sen to Kenki (10 per Sen). 30 Kenki is better than losing Sen entirely to phase transition.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition[] AllQuizzes = new[]
+    {
+        Lesson1Quiz, Lesson2Quiz, Lesson3Quiz, Lesson4Quiz, Lesson5Quiz, Lesson6Quiz, Lesson7Quiz,
+    };
+}
+
+/// <summary>
+/// RPR (Thanatos) quiz content - 7 quizzes with 5 questions each.
+/// </summary>
+public static class RprQuizzes
+{
+    public static readonly QuizDefinition Lesson1Quiz = new()
+    {
+        QuizId = "rpr.lesson_1.quiz",
+        LessonId = "rpr.lesson_1",
+        Title = "Quiz: Reaper Fundamentals",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_1.q1",
+                ConceptId = RprConcepts.ComboBasics,
+                Scenario = "You just finished a Slice → Waxing Slice → Infernal Slice combo.",
+                Question = "How much Soul Gauge did you gain from this combo?",
+                Options = new[] { "30 Soul Gauge", "20 Soul Gauge", "10 Soul Gauge", "50 Soul Gauge" },
+                CorrectIndex = 2,
+                Explanation = "The basic combo (Slice → Waxing Slice → Infernal Slice) grants 10 Soul Gauge upon completion of Infernal Slice.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_1.q2",
+                ConceptId = RprConcepts.SoulSlice,
+                Scenario = "Soul Slice has 2 charges. You have 40 Soul Gauge.",
+                Question = "Should you use Soul Slice?",
+                Options = new[] { "No - save charges for emergencies", "Yes - use on cooldown to avoid overcapping", "No - wait until Soul Gauge is at 0", "Only use one charge" },
+                CorrectIndex = 1,
+                Explanation = "Soul Slice grants 50 Soul Gauge per use. At 40 Soul, using it won't overcap (90 max). Use charges on cooldown to maximize gauge generation.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_1.q3",
+                ConceptId = RprConcepts.DeathsDesign,
+                Scenario = "Death's Design has 5 seconds remaining on the boss.",
+                Question = "What should you do?",
+                Options = new[] { "Let it fall off", "Refresh with Shadow of Death", "Wait until it expires", "Use Whorl of Death" },
+                CorrectIndex = 1,
+                Explanation = "Death's Design (+10% damage) should never fall off. Refresh it with Shadow of Death when it's getting low to maintain the damage buff.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_1.q4",
+                ConceptId = RprConcepts.DeathsDesign,
+                Scenario = "Death's Design is at 55 seconds duration on the boss.",
+                Question = "Should you use Shadow of Death?",
+                Options = new[] { "Yes - keep refreshing", "No - it's near max (60s)", "Yes - always use on cooldown", "No - Death's Design doesn't stack" },
+                CorrectIndex = 1,
+                Explanation = "Death's Design caps at 60 seconds. At 55s, using Shadow of Death would only add 5s, wasting most of the extension. Wait until it's lower.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_1.q5",
+                ConceptId = RprConcepts.SoulGauge,
+                Scenario = "You have 95 Soul Gauge and both Soul Slice charges are available.",
+                Question = "What should you do?",
+                Options = new[] { "Use Soul Slice immediately", "Spend Soul first with Blood Stalk", "Use both Soul Slice charges", "Wait for Soul to decay" },
+                CorrectIndex = 1,
+                Explanation = "At 95 Soul, using Soul Slice (50 gauge) would overcap. Spend Soul first with Blood Stalk (50 cost) to make room for Soul Slice generation.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson2Quiz = new()
+    {
+        QuizId = "rpr.lesson_2.quiz",
+        LessonId = "rpr.lesson_2",
+        Title = "Quiz: Soul Reaver & Positionals",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_2.q1",
+                ConceptId = RprConcepts.Gibbet,
+                Scenario = "You have Soul Reaver active and are at the boss's side (flank).",
+                Question = "Which ability should you use for the positional bonus?",
+                Options = new[] { "Gallows", "Gibbet", "Either one", "Guillotine" },
+                CorrectIndex = 1,
+                Explanation = "Gibbet has a flank positional. Use it from the boss's side for bonus potency.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_2.q2",
+                ConceptId = RprConcepts.Gallows,
+                Scenario = "You're standing behind the boss (rear) with Soul Reaver active.",
+                Question = "Which ability should you use?",
+                Options = new[] { "Gibbet", "Gallows", "Either one", "Save Soul Reaver" },
+                CorrectIndex = 1,
+                Explanation = "Gallows has a rear positional. Use it from behind the boss for bonus potency.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_2.q3",
+                ConceptId = RprConcepts.EnhancedProcs,
+                Scenario = "You just used Gibbet. What buff did you receive?",
+                Question = "Which Enhanced buff do you now have?",
+                Options = new[] { "Enhanced Gibbet", "Enhanced Gallows", "Enhanced Guillotine", "No buff" },
+                CorrectIndex = 1,
+                Explanation = "Gibbet grants Enhanced Gallows. The next Gallows you use will deal bonus damage.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_2.q4",
+                ConceptId = RprConcepts.SoulReaver,
+                Scenario = "You have 50 Soul Gauge. Gluttony is available.",
+                Question = "How many Soul Reaver stacks does Gluttony grant?",
+                Options = new[] { "1 stack", "2 stacks", "3 stacks", "No stacks" },
+                CorrectIndex = 1,
+                Explanation = "Gluttony grants 2 Soul Reaver stacks, making it more efficient than Blood Stalk (1 stack) for the same Soul cost.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_2.q5",
+                ConceptId = RprConcepts.Positionals,
+                Scenario = "A mechanic forces you to stand in front of the boss. You have Soul Reaver and True North available.",
+                Question = "What should you do?",
+                Options = new[] { "Skip Soul Reaver abilities", "Use True North and do positional", "Just use Gibbet/Gallows anyway", "Wait for mechanic to end" },
+                CorrectIndex = 1,
+                Explanation = "True North allows you to ignore positional requirements. Use it when mechanics prevent proper positioning.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson3Quiz = new()
+    {
+        QuizId = "rpr.lesson_3.quiz",
+        LessonId = "rpr.lesson_3",
+        Title = "Quiz: Shroud Gauge Management",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_3.q1",
+                ConceptId = RprConcepts.ShroudGauge,
+                Scenario = "You use Gibbet to finish a Soul Reaver stack.",
+                Question = "How much Shroud Gauge do you gain?",
+                Options = new[] { "5 Shroud", "10 Shroud", "20 Shroud", "50 Shroud" },
+                CorrectIndex = 1,
+                Explanation = "Each Soul Reaver ability (Gibbet, Gallows, or Guillotine) grants 10 Shroud Gauge.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_3.q2",
+                ConceptId = RprConcepts.Enshroud,
+                Scenario = "You have 50 Shroud Gauge.",
+                Question = "What can you do with this Shroud?",
+                Options = new[] { "Nothing yet", "Enter Enshroud", "Use Lemure's Slice", "Convert to Soul Gauge" },
+                CorrectIndex = 1,
+                Explanation = "Enshroud requires 50 Shroud Gauge to activate. At 50 Shroud, you can enter your burst state.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_3.q3",
+                ConceptId = RprConcepts.Guillotine,
+                Scenario = "You have 2 Soul Reaver stacks and 4 enemies nearby.",
+                Question = "Which Soul Reaver ability should you use?",
+                Options = new[] { "Gibbet", "Gallows", "Guillotine", "Alternate Gibbet/Gallows" },
+                CorrectIndex = 2,
+                Explanation = "Guillotine is the AoE Soul Reaver ability. At 3+ targets, it deals more total damage than single-target options.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_3.q4",
+                ConceptId = RprConcepts.ShroudGauge,
+                Scenario = "You have 90 Shroud Gauge. Blood Stalk is available.",
+                Question = "What should you prioritize?",
+                Options = new[] { "Use Blood Stalk for Soul Reaver", "Enter Enshroud first", "Build more Shroud", "Wait for raid buffs" },
+                CorrectIndex = 1,
+                Explanation = "At 90 Shroud, you're close to capping (100 max). Enter Enshroud to spend Shroud before gaining more from Soul Reaver.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_3.q5",
+                ConceptId = RprConcepts.Guillotine,
+                Scenario = "You use Guillotine on a pack of enemies.",
+                Question = "What buff do you receive?",
+                Options = new[] { "Enhanced Gibbet", "Enhanced Gallows", "Both Enhanced buffs", "No Enhanced buff" },
+                CorrectIndex = 2,
+                Explanation = "Guillotine grants both Enhanced Gibbet and Enhanced Gallows buffs, allowing you to use either enhanced version afterward.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson4Quiz = new()
+    {
+        QuizId = "rpr.lesson_4.quiz",
+        LessonId = "rpr.lesson_4",
+        Title = "Quiz: Enshroud Burst Window",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_4.q1",
+                ConceptId = RprConcepts.LemureShroud,
+                Scenario = "You just entered Enshroud.",
+                Question = "How many Lemure Shroud stacks do you start with?",
+                Options = new[] { "3 stacks", "4 stacks", "5 stacks", "It varies" },
+                CorrectIndex = 2,
+                Explanation = "Enshroud grants exactly 5 Lemure Shroud stacks, which you consume with Void/Cross Reaping.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_4.q2",
+                ConceptId = RprConcepts.VoidShroud,
+                Scenario = "You used Void Reaping during Enshroud.",
+                Question = "What do you gain besides damage?",
+                Options = new[] { "Soul Gauge", "Shroud Gauge", "1 Void Shroud stack", "Nothing else" },
+                CorrectIndex = 2,
+                Explanation = "Each Void Reaping and Cross Reaping grants 1 Void Shroud stack, which is used for Lemure's Slice oGCDs.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_4.q3",
+                ConceptId = RprConcepts.VoidReaping,
+                Scenario = "You just used Void Reaping during Enshroud.",
+                Question = "What should you use next for maximum damage?",
+                Options = new[] { "Another Void Reaping", "Cross Reaping", "Communio", "Lemure's Slice" },
+                CorrectIndex = 1,
+                Explanation = "Void Reaping grants Enhanced Cross Reaping. Alternate between them for the Enhanced damage bonus.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_4.q4",
+                ConceptId = RprConcepts.GrimReaping,
+                Scenario = "You're in Enshroud with 5 enemies grouped together.",
+                Question = "Which GCD should you use?",
+                Options = new[] { "Void Reaping", "Cross Reaping", "Grim Reaping", "Exit Enshroud" },
+                CorrectIndex = 2,
+                Explanation = "Grim Reaping is the AoE version of Void/Cross Reaping. Use it at 3+ targets during Enshroud.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_4.q5",
+                ConceptId = RprConcepts.LemureShroud,
+                Scenario = "You're in Enshroud with 2 Lemure Shroud remaining.",
+                Question = "How many more GCDs can you use before Communio?",
+                Options = new[] { "0 - use Communio now", "1 more Void/Cross Reaping", "2 more Void/Cross Reaping", "As many as you want" },
+                CorrectIndex = 1,
+                Explanation = "Communio should be used when you have 1 Lemure Shroud remaining. At 2 stacks, use one more Void/Cross Reaping first.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson5Quiz = new()
+    {
+        QuizId = "rpr.lesson_5.quiz",
+        LessonId = "rpr.lesson_5",
+        Title = "Quiz: Enshroud Finishers",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_5.q1",
+                ConceptId = RprConcepts.Communio,
+                Scenario = "You have 1 Lemure Shroud stack remaining during Enshroud.",
+                Question = "What should you do?",
+                Options = new[] { "Use Void Reaping", "Use Cross Reaping", "Use Communio", "Exit Enshroud" },
+                CorrectIndex = 2,
+                Explanation = "Communio should be used when you have 1 Lemure Shroud remaining. It's your high-potency finisher.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_5.q2",
+                ConceptId = RprConcepts.Perfectio,
+                Scenario = "You just used Communio.",
+                Question = "What proc did you receive?",
+                Options = new[] { "Soul Reaver", "Enhanced Gibbet", "Perfectio Ready", "Nothing" },
+                CorrectIndex = 2,
+                Explanation = "Communio grants Perfectio Ready, allowing you to use the powerful Perfectio follow-up attack.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_5.q3",
+                ConceptId = RprConcepts.LemuresSlice,
+                Scenario = "You have 4 Void Shroud stacks during Enshroud.",
+                Question = "How many Lemure's Slice can you use?",
+                Options = new[] { "1", "2", "4", "Unlimited" },
+                CorrectIndex = 1,
+                Explanation = "Lemure's Slice costs 2 Void Shroud each. With 4 stacks, you can use it twice (2 + 2 = 4).",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_5.q4",
+                ConceptId = RprConcepts.Sacrificium,
+                Scenario = "You're level 92 and have used all your Void Shroud on Lemure's Slice.",
+                Question = "What additional finisher ability is available?",
+                Options = new[] { "Second Communio", "Sacrificium", "Plentiful Harvest", "Nothing" },
+                CorrectIndex = 1,
+                Explanation = "Sacrificium (Lv.92) is an additional oGCD finisher that becomes available after spending Void Shroud during Enshroud.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_5.q5",
+                ConceptId = RprConcepts.Communio,
+                Scenario = "You have 3 Lemure Shroud remaining but Enshroud is about to expire.",
+                Question = "What should you do?",
+                Options = new[] { "Try to use all 3 stacks", "Use Communio immediately", "Let Enshroud expire", "Exit with Harvest Moon" },
+                CorrectIndex = 1,
+                Explanation = "If Enshroud is expiring, use Communio to get the finisher damage rather than losing it entirely. Some damage is better than none.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson6Quiz = new()
+    {
+        QuizId = "rpr.lesson_6.quiz",
+        LessonId = "rpr.lesson_6",
+        Title = "Quiz: Party Buff Coordination",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_6.q1",
+                ConceptId = RprConcepts.ArcaneCircle,
+                Scenario = "A fight just started. Your party has multiple raid buff jobs.",
+                Question = "When should you use Arcane Circle?",
+                Options = new[] { "Immediately at pull", "Wait 30 seconds", "Only during Enshroud", "Save for emergencies" },
+                CorrectIndex = 0,
+                Explanation = "Use Arcane Circle at the start of the fight to align with other party raid buffs. It's a 2-minute cooldown.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_6.q2",
+                ConceptId = RprConcepts.ImmortalSacrifice,
+                Scenario = "Arcane Circle is active. All 8 party members are dealing damage.",
+                Question = "How many Immortal Sacrifice stacks can you gain?",
+                Options = new[] { "4 stacks", "8 stacks", "Unlimited", "Depends on damage" },
+                CorrectIndex = 1,
+                Explanation = "Each party member under Circle of Sacrifice can grant you 1 Immortal Sacrifice stack, for a maximum of 8 stacks.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_6.q3",
+                ConceptId = RprConcepts.PlentifulHarvest,
+                Scenario = "You have 8 Immortal Sacrifice stacks.",
+                Question = "How much Shroud Gauge does Plentiful Harvest grant?",
+                Options = new[] { "0 Shroud", "25 Shroud", "50 Shroud", "100 Shroud" },
+                CorrectIndex = 2,
+                Explanation = "Plentiful Harvest consumes Immortal Sacrifice stacks and grants 50 Shroud Gauge, enabling quick Enshroud entry.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_6.q4",
+                ConceptId = RprConcepts.ArcaneCircle,
+                Scenario = "It's been 2 minutes since the fight started. Arcane Circle is ready.",
+                Question = "What should you consider before using Arcane Circle?",
+                Options = new[] { "Nothing - use immediately", "Check if party buffs are ready", "Wait for Enshroud", "Save for next phase" },
+                CorrectIndex = 1,
+                Explanation = "Arcane Circle should align with party 2-minute buffs. Check if other raid buffs are being used for maximum benefit.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_6.q5",
+                ConceptId = RprConcepts.PlentifulHarvest,
+                Scenario = "Arcane Circle just ended. You have Immortal Sacrifice stacks.",
+                Question = "When should you use Plentiful Harvest?",
+                Options = new[] { "Immediately", "Wait for next Arcane Circle", "During Enshroud only", "Never - save stacks" },
+                CorrectIndex = 0,
+                Explanation = "Use Plentiful Harvest before the Immortal Sacrifice buff expires. The Shroud gained helps enter Enshroud during buff windows.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson7Quiz = new()
+    {
+        QuizId = "rpr.lesson_7.quiz",
+        LessonId = "rpr.lesson_7",
+        Title = "Quiz: AoE & Movement",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_7.q1",
+                ConceptId = RprConcepts.AoeRotation,
+                Scenario = "You're facing 4 enemies in a dungeon.",
+                Question = "Which combo should you use?",
+                Options = new[] { "Slice → Waxing Slice → Infernal Slice", "Spinning Scythe → Nightmare Scythe", "Shadow of Death spam", "Single-target for focus damage" },
+                CorrectIndex = 1,
+                Explanation = "At 3+ targets, use the AoE combo (Spinning Scythe → Nightmare Scythe) for more total damage.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_7.q2",
+                ConceptId = RprConcepts.HarvestMoon,
+                Scenario = "The boss jumped away and you can't reach it. You have Harvest Moon ready.",
+                Question = "What should you do?",
+                Options = new[] { "Wait for boss to return", "Use Harvest Moon", "Use Shadow of Death", "Do nothing" },
+                CorrectIndex = 1,
+                Explanation = "Harvest Moon is a ranged GCD perfect for moments when you can't reach the boss. Use it during disengagement.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_7.q3",
+                ConceptId = RprConcepts.HarvestMoon,
+                Scenario = "You're waiting for a dungeon pull. Harvest Moon is not ready.",
+                Question = "What should you do?",
+                Options = new[] { "Just wait", "Use Soulsow to prepare Harvest Moon", "Start with Slice", "Use Enshroud" },
+                CorrectIndex = 1,
+                Explanation = "Soulsow prepares Harvest Moon (5s cast, usable out of combat). Always enter fights with Harvest Moon ready.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_7.q4",
+                ConceptId = RprConcepts.AoeRotation,
+                Scenario = "You're fighting 5 enemies. Death's Design isn't on any of them.",
+                Question = "What should you do first?",
+                Options = new[] { "Start AoE combo immediately", "Apply Whorl of Death", "Apply Shadow of Death to each", "Focus one target down" },
+                CorrectIndex = 1,
+                Explanation = "Whorl of Death applies Death's Design to all enemies in range. Apply it first for the +10% damage on all subsequent attacks.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "rpr.lesson_7.q5",
+                ConceptId = RprConcepts.AoeRotation,
+                Scenario = "You have 2 enemies. One is nearly dead.",
+                Question = "Which rotation should you use?",
+                Options = new[] { "AoE - always at 2+ targets", "Single-target on the low HP enemy", "Single-target - AoE is 3+", "Doesn't matter" },
+                CorrectIndex = 2,
+                Explanation = "Reaper's AoE threshold is 3+ targets. At 2 enemies, single-target rotation is more efficient.",
             },
         },
     };

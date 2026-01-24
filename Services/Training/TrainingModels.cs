@@ -764,6 +764,65 @@ public static class MnkConcepts
 }
 
 /// <summary>
+/// RPR (Thanatos) Training Mode concepts covering Reaper mechanics.
+/// 25 concepts across 6 categories.
+/// </summary>
+public static class RprConcepts
+{
+    // Core Mechanics (6)
+    public const string ComboBasics = "rpr.combo_basics";
+    public const string SoulGauge = "rpr.soul_gauge";
+    public const string SoulSlice = "rpr.soul_slice";
+    public const string DeathsDesign = "rpr.deaths_design";
+    public const string SoulReaver = "rpr.soul_reaver";
+    public const string Positionals = "rpr.positionals";
+
+    // Soul Reaver System (4)
+    public const string Gibbet = "rpr.gibbet";
+    public const string Gallows = "rpr.gallows";
+    public const string Guillotine = "rpr.guillotine";
+    public const string EnhancedProcs = "rpr.enhanced_procs";
+
+    // Shroud & Enshroud (6)
+    public const string ShroudGauge = "rpr.shroud_gauge";
+    public const string Enshroud = "rpr.enshroud";
+    public const string LemureShroud = "rpr.lemure_shroud";
+    public const string VoidShroud = "rpr.void_shroud";
+    public const string VoidReaping = "rpr.void_reaping";
+    public const string GrimReaping = "rpr.grim_reaping";
+
+    // Enshroud Finishers (4)
+    public const string Communio = "rpr.communio";
+    public const string Perfectio = "rpr.perfectio";
+    public const string LemuresSlice = "rpr.lemures_slice";
+    public const string Sacrificium = "rpr.sacrificium";
+
+    // Party & Utility (5)
+    public const string ArcaneCircle = "rpr.arcane_circle";
+    public const string ImmortalSacrifice = "rpr.immortal_sacrifice";
+    public const string PlentifulHarvest = "rpr.plentiful_harvest";
+    public const string HarvestMoon = "rpr.harvest_moon";
+    public const string AoeRotation = "rpr.aoe_rotation";
+
+    /// <summary>
+    /// All RPR concepts for counting.
+    /// </summary>
+    public static readonly string[] AllConcepts = new[]
+    {
+        // Core Mechanics
+        ComboBasics, SoulGauge, SoulSlice, DeathsDesign, SoulReaver, Positionals,
+        // Soul Reaver System
+        Gibbet, Gallows, Guillotine, EnhancedProcs,
+        // Shroud & Enshroud
+        ShroudGauge, Enshroud, LemureShroud, VoidShroud, VoidReaping, GrimReaping,
+        // Enshroud Finishers
+        Communio, Perfectio, LemuresSlice, Sacrificium,
+        // Party & Utility
+        ArcaneCircle, ImmortalSacrifice, PlentifulHarvest, HarvestMoon, AoeRotation,
+    };
+}
+
+/// <summary>
 /// DRG (Zeus) Training Mode concepts covering Dragoon mechanics.
 /// 25 concepts across 6 categories.
 /// </summary>

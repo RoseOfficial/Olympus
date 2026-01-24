@@ -152,13 +152,14 @@ public sealed class TrainingService : ITrainingService
             .Concat(NinConcepts.AllConcepts)
             .Concat(SamConcepts.AllConcepts)
             .Concat(MnkConcepts.AllConcepts)
+            .Concat(RprConcepts.AllConcepts)
             .ToArray();
     }
 
     /// <summary>
     /// Gets concepts for a specific job based on concept ID prefix.
     /// </summary>
-    /// <param name="jobPrefix">The job prefix (e.g., "whm", "sch", "ast", "sge", "pld", "war", "drk", "gnb", "drg", "nin").</param>
+    /// <param name="jobPrefix">The job prefix (e.g., "whm", "sch", "ast", "sge", "pld", "war", "drk", "gnb", "drg", "nin", "rpr").</param>
     public static string[] GetConceptsForJob(string jobPrefix)
     {
         return jobPrefix.ToLowerInvariant() switch
@@ -178,6 +179,7 @@ public sealed class TrainingService : ITrainingService
             "nin" => NinConcepts.AllConcepts,
             "sam" => SamConcepts.AllConcepts,
             "mnk" => MnkConcepts.AllConcepts,
+            "rpr" => RprConcepts.AllConcepts,
             _ => Array.Empty<string>(),
         };
     }
@@ -453,6 +455,7 @@ public sealed class TrainingService : ITrainingService
             JobRegistry.Ninja or JobRegistry.Rogue => "nin",
             JobRegistry.Samurai => "sam",
             JobRegistry.Monk or JobRegistry.Pugilist => "mnk",
+            JobRegistry.Reaper => "rpr",
             _ => null
         };
     }

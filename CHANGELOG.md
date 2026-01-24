@@ -3,6 +3,30 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.18.0 - RPR Training Mode
+
+**RPR (Thanatos) Training Mode**
+- Training Mode now supports Reaper - fifth melee DPS job added
+- 25 new RPR concepts covering Soul/Shroud gauges, Soul Reaver, Enshroud burst, and party coordination
+- 7 progressive lessons from fundamentals to advanced optimization
+- 35 quiz questions testing real Reaper decisions
+
+**Lesson Content**
+- Lesson 1: Reaper Fundamentals - basic combos, Soul gauge building, Death's Design maintenance
+- Lesson 2: Soul Reaver & Positionals - Blood Stalk/Gluttony, Gibbet (flank), Gallows (rear), Enhanced procs
+- Lesson 3: Shroud Gauge Management - Shroud building, Guillotine AoE, entering Enshroud
+- Lesson 4: Enshroud Burst Window - Lemure Shroud stacks, Void Shroud generation, Void/Cross Reaping
+- Lesson 5: Enshroud Finishers - Communio timing, Perfectio proc, Lemure's Slice, Sacrificium
+- Lesson 6: Party Buff Coordination - Arcane Circle, Immortal Sacrifice stacks, Plentiful Harvest
+- Lesson 7: AoE & Movement - AoE rotation, Harvest Moon ranged GCD, Soulsow preparation
+
+**Quiz Features**
+- 7 quizzes (one per lesson) with 5 scenario-based questions each
+- Pass 4 out of 5 to complete a quiz
+- Detailed explanations for every answer
+- Progress tracking and best score persistence
+<!-- LATEST-END -->
+
 ## v3.17.0 - MNK Training Mode
 
 **MNK (Kratos) Training Mode**
@@ -25,7 +49,6 @@ All notable changes to Olympus will be documented in this file.
 - Pass 4 out of 5 to complete a quiz
 - Detailed explanations for every answer
 - Progress tracking and best score persistence
-<!-- LATEST-END -->
 
 ## v3.16.0 - SAM Training Mode
 

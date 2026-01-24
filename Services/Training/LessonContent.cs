@@ -2710,6 +2710,227 @@ public static class NinLessons
 }
 
 /// <summary>
+/// RPR (Thanatos) lesson content - 7 lessons covering 25 concepts.
+/// </summary>
+public static class RprLessons
+{
+    public static readonly LessonDefinition Lesson1 = new()
+    {
+        LessonId = "rpr.lesson_1",
+        JobPrefix = "rpr",
+        Title = "Reaper Fundamentals",
+        LessonNumber = 1,
+        Description = "Learn the core principles of Reaper: basic combos, Soul gauge building, and Death's Design maintenance.",
+        Prerequisites = Array.Empty<string>(),
+        ConceptsCovered = new[]
+        {
+            RprConcepts.ComboBasics,
+            RprConcepts.SoulGauge,
+            RprConcepts.SoulSlice,
+            RprConcepts.DeathsDesign,
+        },
+        KeyPoints = new[]
+        {
+            "Basic combo: Slice → Waxing Slice → Infernal Slice grants 10 Soul Gauge",
+            "Soul Slice is an oGCD that grants 50 Soul Gauge (30s recharge, 2 charges)",
+            "Death's Design (+10% damage) must be maintained at all times via Shadow of Death",
+            "Shadow of Death extends Death's Design by 30s (max 60s) - refresh before it falls off",
+        },
+        RelatedAbilities = new[] { "Slice", "Waxing Slice", "Infernal Slice", "Soul Slice", "Shadow of Death" },
+        Tips = new[]
+        {
+            "Use Soul Slice on cooldown to prevent overcapping charges",
+            "Refresh Death's Design when it has ~10-15 seconds remaining for smooth uptime",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson2 = new()
+    {
+        LessonId = "rpr.lesson_2",
+        JobPrefix = "rpr",
+        Title = "Soul Reaver & Positionals",
+        LessonNumber = 2,
+        Description = "Master Soul Reaver state: entering with Blood Stalk/Gluttony, Gibbet/Gallows positionals, and Enhanced procs.",
+        Prerequisites = new[] { "rpr.lesson_1" },
+        ConceptsCovered = new[]
+        {
+            RprConcepts.SoulReaver,
+            RprConcepts.Gibbet,
+            RprConcepts.Gallows,
+            RprConcepts.Positionals,
+            RprConcepts.EnhancedProcs,
+        },
+        KeyPoints = new[]
+        {
+            "Blood Stalk (50 Soul) grants 1 Soul Reaver stack; Gluttony (50 Soul) grants 2 stacks",
+            "Gibbet (flank positional): Use from the side, grants Enhanced Gallows buff",
+            "Gallows (rear positional): Use from behind, grants Enhanced Gibbet buff",
+            "Enhanced procs last 60s - alternate Gibbet/Gallows to always use the Enhanced version",
+            "Each Soul Reaver ability grants 10 Shroud Gauge",
+        },
+        RelatedAbilities = new[] { "Blood Stalk", "Gluttony", "Gibbet", "Gallows", "True North" },
+        Tips = new[]
+        {
+            "Gluttony is preferred over Blood Stalk (2 stacks vs 1) when available",
+            "Use True North when positionals are impossible during mechanics",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson3 = new()
+    {
+        LessonId = "rpr.lesson_3",
+        JobPrefix = "rpr",
+        Title = "Shroud Gauge Management",
+        LessonNumber = 3,
+        Description = "Understand Shroud gauge building, AoE Soul Reaver with Guillotine, and entering Enshroud.",
+        Prerequisites = new[] { "rpr.lesson_2" },
+        ConceptsCovered = new[]
+        {
+            RprConcepts.ShroudGauge,
+            RprConcepts.Guillotine,
+            RprConcepts.Enshroud,
+        },
+        KeyPoints = new[]
+        {
+            "Shroud Gauge builds from Soul Reaver abilities (Gibbet/Gallows/Guillotine = +10 each)",
+            "Enshroud requires 50 Shroud Gauge to enter (powerful burst state)",
+            "Guillotine is AoE Soul Reaver (no positional) - use at 3+ targets",
+            "Don't overcap Shroud at 100 - enter Enshroud before capping",
+        },
+        RelatedAbilities = new[] { "Gibbet", "Gallows", "Guillotine", "Enshroud" },
+        Tips = new[]
+        {
+            "Plan your Soul Reaver usage to enter Enshroud during raid buff windows",
+            "Guillotine still grants Enhanced procs for AoE, but no positional bonus",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson4 = new()
+    {
+        LessonId = "rpr.lesson_4",
+        JobPrefix = "rpr",
+        Title = "Enshroud Burst Window",
+        LessonNumber = 4,
+        Description = "Execute the Enshroud burst phase: Lemure Shroud stacks, Void Shroud generation, and Void/Cross Reaping.",
+        Prerequisites = new[] { "rpr.lesson_3" },
+        ConceptsCovered = new[]
+        {
+            RprConcepts.LemureShroud,
+            RprConcepts.VoidShroud,
+            RprConcepts.VoidReaping,
+            RprConcepts.GrimReaping,
+        },
+        KeyPoints = new[]
+        {
+            "Enshroud grants 5 Lemure Shroud stacks (consume with Void/Cross Reaping)",
+            "Void Reaping and Cross Reaping are your main GCDs during Enshroud",
+            "Each Void/Cross Reaping grants 1 Void Shroud stack (for oGCDs)",
+            "Grim Reaping is the AoE version of Void/Cross Reaping (no positional)",
+            "Enshroud lasts 30s - you have time to use all 5 stacks plus finisher",
+        },
+        RelatedAbilities = new[] { "Enshroud", "Void Reaping", "Cross Reaping", "Grim Reaping" },
+        Tips = new[]
+        {
+            "Alternate Void Reaping and Cross Reaping for the Enhanced damage bonus",
+            "Save Enshroud for raid buff windows whenever possible",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson5 = new()
+    {
+        LessonId = "rpr.lesson_5",
+        JobPrefix = "rpr",
+        Title = "Enshroud Finishers",
+        LessonNumber = 5,
+        Description = "Master Enshroud finishers: Communio timing, Perfectio proc, Lemure's Slice oGCDs, and Sacrificium.",
+        Prerequisites = new[] { "rpr.lesson_4" },
+        ConceptsCovered = new[]
+        {
+            RprConcepts.Communio,
+            RprConcepts.Perfectio,
+            RprConcepts.LemuresSlice,
+            RprConcepts.Sacrificium,
+        },
+        KeyPoints = new[]
+        {
+            "Communio: Use when you have 1 Lemure Shroud remaining (high potency finisher)",
+            "Communio grants Perfectio Ready buff - use Perfectio immediately after",
+            "Lemure's Slice/Scythe cost 2 Void Shroud each - weave them during Enshroud",
+            "Sacrificium (Lv.92): Additional finisher oGCD after Void Shroud spending",
+        },
+        RelatedAbilities = new[] { "Communio", "Perfectio", "Lemure's Slice", "Lemure's Scythe", "Sacrificium" },
+        Tips = new[]
+        {
+            "Standard Enshroud: 4x Void/Cross Reaping → Communio → Perfectio",
+            "Weave Lemure's Slice between GCDs when you have 2+ Void Shroud",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson6 = new()
+    {
+        LessonId = "rpr.lesson_6",
+        JobPrefix = "rpr",
+        Title = "Party Buff Coordination",
+        LessonNumber = 6,
+        Description = "Maximize party damage with Arcane Circle, Immortal Sacrifice stacks, and Plentiful Harvest.",
+        Prerequisites = new[] { "rpr.lesson_5" },
+        ConceptsCovered = new[]
+        {
+            RprConcepts.ArcaneCircle,
+            RprConcepts.ImmortalSacrifice,
+            RprConcepts.PlentifulHarvest,
+        },
+        KeyPoints = new[]
+        {
+            "Arcane Circle: 3% party-wide damage buff for 20s (120s cooldown)",
+            "Circle of Sacrifice: Party members under Arcane Circle grant Immortal Sacrifice stacks (max 8)",
+            "Plentiful Harvest consumes Immortal Sacrifice stacks for damage + 50 Shroud Gauge",
+            "Align Arcane Circle with party 2-minute burst windows for maximum value",
+        },
+        RelatedAbilities = new[] { "Arcane Circle", "Plentiful Harvest" },
+        Tips = new[]
+        {
+            "Use Arcane Circle at the start of fight and every 2 minutes with party buffs",
+            "Plentiful Harvest enables quick Shroud building after Arcane Circle",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson7 = new()
+    {
+        LessonId = "rpr.lesson_7",
+        JobPrefix = "rpr",
+        Title = "AoE & Movement",
+        LessonNumber = 7,
+        Description = "Learn the AoE rotation and use Harvest Moon for movement and ranged situations.",
+        Prerequisites = new[] { "rpr.lesson_6" },
+        ConceptsCovered = new[]
+        {
+            RprConcepts.AoeRotation,
+            RprConcepts.HarvestMoon,
+        },
+        KeyPoints = new[]
+        {
+            "AoE threshold: Use AoE rotation at 3+ targets",
+            "AoE combo: Spinning Scythe → Nightmare Scythe (grants 10 Soul Gauge)",
+            "Whorl of Death applies Death's Design to all targets (AoE version of Shadow of Death)",
+            "Harvest Moon: Ranged GCD for movement or disengagement situations",
+            "Use Soulsow before combat to have Harvest Moon ready",
+        },
+        RelatedAbilities = new[] { "Spinning Scythe", "Nightmare Scythe", "Whorl of Death", "Soulsow", "Harvest Moon" },
+        Tips = new[]
+        {
+            "In dungeons, apply Whorl of Death to all enemies before combo",
+            "Harvest Moon is perfect for boss disengagement phases",
+        },
+    };
+
+    public static readonly LessonDefinition[] AllLessons = new[]
+    {
+        Lesson1, Lesson2, Lesson3, Lesson4, Lesson5, Lesson6, Lesson7,
+    };
+}
+
+/// <summary>
 /// Helper class for accessing all lessons.
 /// </summary>
 public static class LessonRegistry
@@ -2736,6 +2957,7 @@ public static class LessonRegistry
             "nin" => NinLessons.AllLessons,
             "sam" => SamLessons.AllLessons,
             "mnk" => MnkLessons.AllLessons,
+            "rpr" => RprLessons.AllLessons,
             _ => Array.Empty<LessonDefinition>(),
         };
     }
@@ -2773,6 +2995,7 @@ public static class LessonRegistry
             .Concat(NinLessons.AllLessons)
             .Concat(SamLessons.AllLessons)
             .Concat(MnkLessons.AllLessons)
+            .Concat(RprLessons.AllLessons)
             .ToArray();
     }
 }
