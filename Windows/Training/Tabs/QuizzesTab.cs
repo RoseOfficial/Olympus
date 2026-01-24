@@ -57,6 +57,30 @@ public static class QuizzesTab
                 ImGui.EndTabItem();
             }
 
+            if (ImGui.BeginTabItem("PLD"))
+            {
+                selectedJob = "pld";
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("WAR"))
+            {
+                selectedJob = "war";
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("DRK"))
+            {
+                selectedJob = "drk";
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("GNB"))
+            {
+                selectedJob = "gnb";
+                ImGui.EndTabItem();
+            }
+
             ImGui.EndTabBar();
         }
 

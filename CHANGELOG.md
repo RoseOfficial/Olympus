@@ -3,6 +3,26 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.13.0 - Tank Skill Quizzes
+
+**New Tank Quizzes**
+- 28 skill quizzes (7 per tank) to validate lesson understanding
+- 140 scenario-based questions testing real tank decisions
+- Pass 4 out of 5 to complete a quiz
+
+**Quiz Content Coverage**
+- PLD: Oath Gauge management, Sheltron timing, Hallowed Ground usage, Fight or Flight optimization, Requiescat phase, Divine Veil coordination
+- WAR: Beast Gauge pooling, Surging Tempest uptime, Holmgang coordination, Inner Release windows, Nascent Flash usage, Shake It Off timing
+- DRK: Blood Gauge management, Darkside maintenance, Living Dead coordination, The Blackest Night optimization, Delirium windows, Dark Missionary timing
+- GNB: Cartridge management, Heart of Corundum timing, Superbolide coordination, No Mercy windows, Gnashing Fang combos, Heart of Light usage
+
+**Quiz Features**
+- Scenario-based questions simulate real tanking situations
+- Multiple choice answers with detailed explanations
+- Review mode shows correct answers and why after submission
+- Best score tracking per quiz
+<!-- LATEST-END -->
+
 ## v3.12.0 - Tank Training Mode
 
 **Training Mode for Tanks**
@@ -22,7 +42,6 @@ All notable changes to Olympus will be documented in this file.
 - Mitigation stacking and cooldown rotation
 - Tank swap coordination
 - Party protection abilities
-<!-- LATEST-END -->
 
 ## v3.11.0 - Training Mode: Skill Quizzes
 
