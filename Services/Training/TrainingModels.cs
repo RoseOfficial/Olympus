@@ -571,6 +571,69 @@ public static class GnbConcepts
 }
 
 /// <summary>
+/// DRG (Zeus) Training Mode concepts covering Dragoon mechanics.
+/// 25 concepts across 6 categories.
+/// </summary>
+public static class DrgConcepts
+{
+    // Core Mechanics (5)
+    public const string EyeGauge = "drg.eye_gauge";
+    public const string LifeOfDragon = "drg.life_of_dragon";
+    public const string FirstmindsFocus = "drg.firstminds_focus";
+    public const string PowerSurge = "drg.power_surge";
+    public const string ComboBasics = "drg.combo_basics";
+
+    // Burst Window (5)
+    public const string LanceCharge = "drg.lance_charge";
+    public const string BattleLitany = "drg.battle_litany";
+    public const string LifeSurge = "drg.life_surge";
+    public const string BurstWindow = "drg.burst_window";
+    public const string BuffAlignment = "drg.buff_alignment";
+
+    // Jump Management (5)
+    public const string HighJump = "drg.high_jump";
+    public const string MirageDive = "drg.mirage_dive";
+    public const string SpineshatterDive = "drg.spineshatter_dive";
+    public const string DragonfireDive = "drg.dragonfire_dive";
+    public const string AnimationLock = "drg.animation_lock";
+
+    // Life of the Dragon Phase (4)
+    public const string Geirskogul = "drg.geirskogul";
+    public const string Nastrond = "drg.nastrond";
+    public const string Stardiver = "drg.stardiver";
+    public const string LifeOptimization = "drg.life_optimization";
+
+    // Positionals (3)
+    public const string Positionals = "drg.positionals";
+    public const string TrueNorthUsage = "drg.true_north_usage";
+    public const string PositionalRecovery = "drg.positional_recovery";
+
+    // Advanced (3)
+    public const string WyrmwindThrust = "drg.wyrmwind_thrust";
+    public const string DotMaintenance = "drg.dot_maintenance";
+    public const string AoeRotation = "drg.aoe_rotation";
+
+    /// <summary>
+    /// All DRG concepts for counting.
+    /// </summary>
+    public static readonly string[] AllConcepts = new[]
+    {
+        // Core Mechanics
+        EyeGauge, LifeOfDragon, FirstmindsFocus, PowerSurge, ComboBasics,
+        // Burst Window
+        LanceCharge, BattleLitany, LifeSurge, BurstWindow, BuffAlignment,
+        // Jump Management
+        HighJump, MirageDive, SpineshatterDive, DragonfireDive, AnimationLock,
+        // Life of the Dragon
+        Geirskogul, Nastrond, Stardiver, LifeOptimization,
+        // Positionals
+        Positionals, TrueNorthUsage, PositionalRecovery,
+        // Advanced
+        WyrmwindThrust, DotMaintenance, AoeRotation,
+    };
+}
+
+/// <summary>
 /// Represents a lesson recommendation based on detected performance issues.
 /// </summary>
 public sealed class LessonRecommendation

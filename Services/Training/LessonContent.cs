@@ -1832,6 +1832,224 @@ public static class GnbLessons
 }
 
 /// <summary>
+/// DRG (Zeus) lesson content - 7 progressive lessons covering Dragoon mechanics.
+/// </summary>
+public static class DrgLessons
+{
+    public static readonly LessonDefinition Lesson1 = new()
+    {
+        LessonId = "drg.lesson_1",
+        JobPrefix = "drg",
+        Title = "Dragoon Fundamentals",
+        LessonNumber = 1,
+        Description = "Master Dragoon basics: the combo flow, Power Surge buff, and positional requirements.",
+        Prerequisites = Array.Empty<string>(),
+        ConceptsCovered = new[]
+        {
+            DrgConcepts.ComboBasics,
+            DrgConcepts.PowerSurge,
+            DrgConcepts.Positionals,
+        },
+        KeyPoints = new[]
+        {
+            "Two combo paths: True Thrust → Vorpal Thrust → Full Thrust (damage) or True Thrust → Disembowel → Chaos Thrust (DoT + buff)",
+            "Disembowel grants Power Surge: +10% damage for 30s - keep this buff up at all times",
+            "Chaos Thrust must be used from rear, Full Thrust from flank for maximum damage",
+            "Alternate between combos: Chaos Thrust combo → Full Thrust combo → repeat",
+        },
+        RelatedAbilities = new[] { "True Thrust", "Vorpal Thrust", "Full Thrust", "Disembowel", "Chaos Thrust" },
+        Tips = new[]
+        {
+            "Always refresh Power Surge before it falls off",
+            "Missing positionals is a 100 potency loss - use True North when needed",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson2 = new()
+    {
+        LessonId = "drg.lesson_2",
+        JobPrefix = "drg",
+        Title = "Jump Management",
+        LessonNumber = 2,
+        Description = "Learn to use Dragoon's signature jump abilities safely and effectively.",
+        Prerequisites = new[] { "drg.lesson_1" },
+        ConceptsCovered = new[]
+        {
+            DrgConcepts.HighJump,
+            DrgConcepts.MirageDive,
+            DrgConcepts.AnimationLock,
+        },
+        KeyPoints = new[]
+        {
+            "High Jump: Your main jump oGCD (30s CD) - deals damage and grants Dive Ready",
+            "Dive Ready enables Mirage Dive - use it to build Eye gauge (explained in Lesson 3)",
+            "Jumps have ~0.8s animation lock - never use during mechanics or AoE indicators",
+            "Always weave jumps AFTER your GCD completes to avoid clipping",
+        },
+        RelatedAbilities = new[] { "High Jump", "Mirage Dive" },
+        Tips = new[]
+        {
+            "Jumps return you to your original position - you won't fly away",
+            "Practice jump timing in low-stakes content first",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson3 = new()
+    {
+        LessonId = "drg.lesson_3",
+        JobPrefix = "drg",
+        Title = "Eye Gauge & Geirskogul",
+        LessonNumber = 3,
+        Description = "Understand the Eye gauge system and how to activate Life of the Dragon.",
+        Prerequisites = new[] { "drg.lesson_2" },
+        ConceptsCovered = new[]
+        {
+            DrgConcepts.EyeGauge,
+            DrgConcepts.Geirskogul,
+            DrgConcepts.LifeOfDragon,
+        },
+        KeyPoints = new[]
+        {
+            "Mirage Dive builds Eye gauge (1 eye per use, max 2)",
+            "Geirskogul (60s CD): Line AoE that consumes 1 eye when at 2 eyes to enter Life of the Dragon",
+            "At 2 eyes, Geirskogul transforms you into Life of the Dragon state for 20s",
+            "Life of the Dragon unlocks Nastrond and Stardiver (covered in Lesson 4)",
+        },
+        RelatedAbilities = new[] { "Mirage Dive", "Geirskogul" },
+        Tips = new[]
+        {
+            "Build 2 eyes before using Geirskogul to maximize Life of the Dragon uptime",
+            "Track your eye count - don't waste Mirage Dive at 2 eyes",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson4 = new()
+    {
+        LessonId = "drg.lesson_4",
+        JobPrefix = "drg",
+        Title = "Life of the Dragon",
+        LessonNumber = 4,
+        Description = "Maximize your damage during the powerful Life of the Dragon phase.",
+        Prerequisites = new[] { "drg.lesson_3" },
+        ConceptsCovered = new[]
+        {
+            DrgConcepts.Nastrond,
+            DrgConcepts.Stardiver,
+            DrgConcepts.LifeOptimization,
+        },
+        KeyPoints = new[]
+        {
+            "During Life of the Dragon: Geirskogul becomes Nastrond (same CD, no eye cost)",
+            "Nastrond: Powerful line AoE - use it 3-4 times during the 20s window",
+            "Stardiver: Big dive attack (30s CD) - use once per Life phase for massive damage",
+            "Starcross follows Stardiver automatically - free extra damage",
+        },
+        RelatedAbilities = new[] { "Nastrond", "Stardiver", "Starcross" },
+        Tips = new[]
+        {
+            "Enter Life of the Dragon during buff windows for maximum burst",
+            "Don't let Life expire without using Nastrond and Stardiver",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson5 = new()
+    {
+        LessonId = "drg.lesson_5",
+        JobPrefix = "drg",
+        Title = "Burst Window Setup",
+        LessonNumber = 5,
+        Description = "Align your buffs and burst abilities for maximum damage output.",
+        Prerequisites = new[] { "drg.lesson_4" },
+        ConceptsCovered = new[]
+        {
+            DrgConcepts.LanceCharge,
+            DrgConcepts.BattleLitany,
+            DrgConcepts.BurstWindow,
+        },
+        KeyPoints = new[]
+        {
+            "Lance Charge (60s CD): Personal +10% damage for 20s - your main damage buff",
+            "Battle Litany (120s CD): Party-wide +10% crit rate - coordinate with raid buffs",
+            "Use Lance Charge on cooldown, align Battle Litany with 2-minute burst windows",
+            "Enter Life of the Dragon during Lance Charge for buffed Nastronds and Stardiver",
+        },
+        RelatedAbilities = new[] { "Lance Charge", "Battle Litany" },
+        Tips = new[]
+        {
+            "Battle Litany benefits the whole party - use it with other raid buffs",
+            "Don't hold Lance Charge waiting for Battle Litany - it's on a 60s cycle",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson6 = new()
+    {
+        LessonId = "drg.lesson_6",
+        JobPrefix = "drg",
+        Title = "Life Surge & Critical Hits",
+        LessonNumber = 6,
+        Description = "Optimize Life Surge usage and positional recovery with True North.",
+        Prerequisites = new[] { "drg.lesson_5" },
+        ConceptsCovered = new[]
+        {
+            DrgConcepts.LifeSurge,
+            DrgConcepts.TrueNorthUsage,
+            DrgConcepts.PositionalRecovery,
+            DrgConcepts.BuffAlignment,
+        },
+        KeyPoints = new[]
+        {
+            "Life Surge (40s CD, 2 charges): Guarantees next weaponskill crits + heals you",
+            "Always use Life Surge on Heavens' Thrust (your highest potency GCD)",
+            "True North (45s CD, 2 charges): Ignore positional requirements for 10s",
+            "Save True North for when you can't reach rear/flank due to mechanics",
+        },
+        RelatedAbilities = new[] { "Life Surge", "True North", "Heavens' Thrust" },
+        Tips = new[]
+        {
+            "Life Surge has 2 charges - don't let them cap",
+            "True North also has 2 charges - use one for Chaos Thrust, one for Full Thrust if needed",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson7 = new()
+    {
+        LessonId = "drg.lesson_7",
+        JobPrefix = "drg",
+        Title = "Advanced Optimization",
+        LessonNumber = 7,
+        Description = "Master Wyrmwind Thrust, DoT uptime, AoE rotation, and other advanced techniques.",
+        Prerequisites = new[] { "drg.lesson_6" },
+        ConceptsCovered = new[]
+        {
+            DrgConcepts.WyrmwindThrust,
+            DrgConcepts.DotMaintenance,
+            DrgConcepts.AoeRotation,
+            DrgConcepts.FirstmindsFocus,
+            DrgConcepts.SpineshatterDive,
+            DrgConcepts.DragonfireDive,
+        },
+        KeyPoints = new[]
+        {
+            "Wyrmwind Thrust: Unlocked at 2 Firstminds Focus (built from Raiden/Heavens' Thrust)",
+            "Chaotic Spring (upgraded Chaos Thrust): Keep the DoT up at all times (~30s)",
+            "AoE: Doom Spike → Sonic Thrust → Coerthan Torment at 3+ targets",
+            "Spineshatter Dive / Dragonfire Dive: Gap closers with damage - use in burst",
+        },
+        RelatedAbilities = new[] { "Wyrmwind Thrust", "Chaotic Spring", "Doom Spike", "Sonic Thrust", "Coerthan Torment", "Spineshatter Dive", "Dragonfire Dive" },
+        Tips = new[]
+        {
+            "Wyrmwind Thrust is a ranged attack - useful during forced disengages",
+            "Dragonfire Dive is AoE - save for multiple targets when possible",
+        },
+    };
+
+    public static readonly LessonDefinition[] AllLessons = new[]
+    {
+        Lesson1, Lesson2, Lesson3, Lesson4, Lesson5, Lesson6, Lesson7,
+    };
+}
+
+/// <summary>
 /// Helper class for accessing all lessons.
 /// </summary>
 public static class LessonRegistry
@@ -1853,6 +2071,8 @@ public static class LessonRegistry
             "war" => WarLessons.AllLessons,
             "drk" => DrkLessons.AllLessons,
             "gnb" => GnbLessons.AllLessons,
+            // Melee DPS
+            "drg" => DrgLessons.AllLessons,
             _ => Array.Empty<LessonDefinition>(),
         };
     }
@@ -1886,6 +2106,7 @@ public static class LessonRegistry
             .Concat(WarLessons.AllLessons)
             .Concat(DrkLessons.AllLessons)
             .Concat(GnbLessons.AllLessons)
+            .Concat(DrgLessons.AllLessons)
             .ToArray();
     }
 }

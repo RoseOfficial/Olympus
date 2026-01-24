@@ -63,6 +63,13 @@ public static class QuizRegistry
             QuizzesByLessonId[quiz.LessonId] = quiz;
             QuizzesById[quiz.QuizId] = quiz;
         }
+
+        // Register all melee DPS quizzes
+        foreach (var quiz in DrgQuizzes.AllQuizzes)
+        {
+            QuizzesByLessonId[quiz.LessonId] = quiz;
+            QuizzesById[quiz.QuizId] = quiz;
+        }
     }
 
     /// <summary>
@@ -98,6 +105,8 @@ public static class QuizRegistry
             "war" => WarQuizzes.AllQuizzes,
             "drk" => DrkQuizzes.AllQuizzes,
             "gnb" => GnbQuizzes.AllQuizzes,
+            // Melee DPS
+            "drg" => DrgQuizzes.AllQuizzes,
             _ => Array.Empty<QuizDefinition>(),
         };
     }
@@ -3597,6 +3606,444 @@ public static class GnbQuizzes
                 Options = new[] { "Swap then burst", "Burst then swap", "Swap during burst", "Let co-tank keep aggro" },
                 CorrectIndex = 0,
                 Explanation = "Provoke first to get the boss, then use No Mercy. You want to be actively attacking during your burst.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition[] AllQuizzes = new[]
+    {
+        Lesson1Quiz, Lesson2Quiz, Lesson3Quiz, Lesson4Quiz, Lesson5Quiz, Lesson6Quiz, Lesson7Quiz,
+    };
+}
+
+/// <summary>
+/// DRG (Zeus) quiz content - 7 quizzes with 5 questions each.
+/// </summary>
+public static class DrgQuizzes
+{
+    public static readonly QuizDefinition Lesson1Quiz = new()
+    {
+        QuizId = "drg.lesson_1.quiz",
+        LessonId = "drg.lesson_1",
+        Title = "Quiz: Dragoon Fundamentals",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_1.q1",
+                ConceptId = DrgConcepts.ComboBasics,
+                Scenario = "You just started a fight. Your first GCD should be True Thrust.",
+                Question = "Which combo path grants Power Surge?",
+                Options = new[] { "True Thrust → Vorpal Thrust", "True Thrust → Disembowel", "Any combo path", "Full Thrust combo" },
+                CorrectIndex = 1,
+                Explanation = "Disembowel grants Power Surge (+10% damage). Always start with this combo to get the buff up first.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_1.q2",
+                ConceptId = DrgConcepts.PowerSurge,
+                Scenario = "Power Surge has 8 seconds remaining. You just finished Full Thrust combo.",
+                Question = "What should your next combo be?",
+                Options = new[] { "Full Thrust combo again", "Chaos Thrust combo", "Doesn't matter", "Use oGCDs only" },
+                CorrectIndex = 1,
+                Explanation = "With 8 seconds left, use Chaos Thrust combo to refresh Power Surge before it falls off. Never let this buff drop.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_1.q3",
+                ConceptId = DrgConcepts.Positionals,
+                Scenario = "You need to use Chaos Thrust. Where should you stand?",
+                Question = "What's the correct position for Chaos Thrust?",
+                Options = new[] { "Flank (side)", "Rear (behind)", "Front", "Any position" },
+                CorrectIndex = 1,
+                Explanation = "Chaos Thrust requires rear positional for bonus damage. Full Thrust requires flank. Missing = 100 potency loss.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_1.q4",
+                ConceptId = DrgConcepts.ComboBasics,
+                Scenario = "Your standard rotation alternates combos.",
+                Question = "What's the basic single-target pattern?",
+                Options = new[] { "Spam Full Thrust combo", "Alternate Chaos/Full combos", "Random order", "Only Chaos Thrust" },
+                CorrectIndex = 1,
+                Explanation = "Alternate: Chaos Thrust combo → Full Thrust combo → Chaos Thrust combo. This maintains both the DoT and Power Surge.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_1.q5",
+                ConceptId = DrgConcepts.PowerSurge,
+                Scenario = "Power Surge fell off mid-fight. Party is in burst phase.",
+                Question = "What's your priority?",
+                Options = new[] { "Continue Full Thrust combo", "Get Power Surge back immediately", "Use jumps for damage", "Wait for buff window" },
+                CorrectIndex = 1,
+                Explanation = "Power Surge is +10% to ALL damage. Even during burst, losing this buff is worse than delaying other actions. Get it back ASAP.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson2Quiz = new()
+    {
+        QuizId = "drg.lesson_2.quiz",
+        LessonId = "drg.lesson_2",
+        Title = "Quiz: Jump Management",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_2.q1",
+                ConceptId = DrgConcepts.HighJump,
+                Scenario = "High Jump is off cooldown. You just used a GCD.",
+                Question = "When should you use High Jump?",
+                Options = new[] { "Before next GCD", "After next GCD", "During GCD window (weave)", "Save for burst" },
+                CorrectIndex = 2,
+                Explanation = "Weave High Jump during the GCD window (after your GCD, before the next is ready). This prevents clipping.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_2.q2",
+                ConceptId = DrgConcepts.MirageDive,
+                Scenario = "You just used High Jump. You have Dive Ready buff.",
+                Question = "What should you do with Dive Ready?",
+                Options = new[] { "Save it for later", "Use Mirage Dive soon", "It expires on its own", "Wait for Low Jump" },
+                CorrectIndex = 1,
+                Explanation = "Dive Ready enables Mirage Dive, which builds Eye gauge. Use it before your next High Jump or it's wasted.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_2.q3",
+                ConceptId = DrgConcepts.AnimationLock,
+                Scenario = "Boss has an AoE indicator under you. High Jump is ready.",
+                Question = "Should you use High Jump now?",
+                Options = new[] { "Yes - jumps have iframes", "Yes - you return to position", "No - animation lock is dangerous", "Depends on the AoE" },
+                CorrectIndex = 2,
+                Explanation = "Jumps have ~0.8s animation lock where you can't move or act. Using during AoE means you'll get hit. Move first.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_2.q4",
+                ConceptId = DrgConcepts.HighJump,
+                Scenario = "You used High Jump. Where will you end up?",
+                Question = "What happens to your position?",
+                Options = new[] { "Stay at boss", "Return to original spot", "Random location", "Behind boss" },
+                CorrectIndex = 1,
+                Explanation = "High Jump returns you to your original position. You don't fly away - this makes it safe for positional maintenance.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_2.q5",
+                ConceptId = DrgConcepts.AnimationLock,
+                Scenario = "You need to weave two oGCDs. High Jump + another ability.",
+                Question = "Why is double-weaving with High Jump risky?",
+                Options = new[] { "It's not risky", "High Jump is slow", "Animation lock causes clipping", "Loses DPS" },
+                CorrectIndex = 2,
+                Explanation = "High Jump's animation lock is longer than most oGCDs. Double-weaving with it often causes GCD clip. Single-weave is safer.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson3Quiz = new()
+    {
+        QuizId = "drg.lesson_3.quiz",
+        LessonId = "drg.lesson_3",
+        Title = "Quiz: Eye Gauge & Geirskogul",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_3.q1",
+                ConceptId = DrgConcepts.EyeGauge,
+                Scenario = "You have 1 Eye. Mirage Dive is available.",
+                Question = "What happens when you use Mirage Dive?",
+                Options = new[] { "Lose the Eye", "Gain second Eye", "Enter Life of Dragon", "Nothing special" },
+                CorrectIndex = 1,
+                Explanation = "Mirage Dive grants 1 Eye (max 2). You need 2 Eyes before using Geirskogul to enter Life of the Dragon.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_3.q2",
+                ConceptId = DrgConcepts.Geirskogul,
+                Scenario = "You have 2 Eyes. Geirskogul is ready.",
+                Question = "What happens when you use Geirskogul at 2 Eyes?",
+                Options = new[] { "Just deals damage", "Enters Life of Dragon", "Consumes both Eyes", "Grants more Eyes" },
+                CorrectIndex = 1,
+                Explanation = "At 2 Eyes, Geirskogul consumes 1 Eye and transforms you into Life of the Dragon for 20 seconds.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_3.q3",
+                ConceptId = DrgConcepts.LifeOfDragon,
+                Scenario = "You have 1 Eye. Geirskogul is ready.",
+                Question = "Should you use Geirskogul now?",
+                Options = new[] { "Yes - on cooldown", "No - wait for 2 Eyes", "Only in burst", "Doesn't matter" },
+                CorrectIndex = 1,
+                Explanation = "Using Geirskogul at 1 Eye just deals damage without entering Life of the Dragon. Build to 2 Eyes first.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_3.q4",
+                ConceptId = DrgConcepts.EyeGauge,
+                Scenario = "You have 2 Eyes. Mirage Dive is available but Geirskogul is on CD.",
+                Question = "Should you use Mirage Dive?",
+                Options = new[] { "Yes - use it anyway", "No - Eyes would be wasted", "Save for later", "Use then Geirskogul" },
+                CorrectIndex = 1,
+                Explanation = "At 2 Eyes, you're capped. Using Mirage Dive wastes an Eye. Wait for Geirskogul to consume an Eye first.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_3.q5",
+                ConceptId = DrgConcepts.Geirskogul,
+                Scenario = "You're about to enter a burst window. You have 0 Eyes.",
+                Question = "What's your Eye-building priority?",
+                Options = new[] { "Skip Eyes, burst now", "Build 2 Eyes for Life phase", "Build 1 Eye only", "Eyes don't matter" },
+                CorrectIndex = 1,
+                Explanation = "Life of the Dragon (from 2 Eyes) unlocks Nastrond and Stardiver. Plan Eye building so you enter Life during burst.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson4Quiz = new()
+    {
+        QuizId = "drg.lesson_4.quiz",
+        LessonId = "drg.lesson_4",
+        Title = "Quiz: Life of the Dragon",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_4.q1",
+                ConceptId = DrgConcepts.Nastrond,
+                Scenario = "You're in Life of the Dragon. 18 seconds remaining.",
+                Question = "What does Geirskogul become during Life?",
+                Options = new[] { "Stays Geirskogul", "Becomes Nastrond", "Becomes Stardiver", "Disappears" },
+                CorrectIndex = 1,
+                Explanation = "During Life of the Dragon, Geirskogul transforms into Nastrond - same button, no Eye cost, powerful line AoE.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_4.q2",
+                ConceptId = DrgConcepts.Stardiver,
+                Scenario = "Life of the Dragon active. Stardiver ready. 5 seconds on Life timer.",
+                Question = "Should you use Stardiver?",
+                Options = new[] { "No - save for next Life", "Yes - use before Life ends", "No - Nastrond is better", "Wait for buff window" },
+                CorrectIndex = 1,
+                Explanation = "Stardiver can only be used during Life of the Dragon. With 5s left, use it now or lose the opportunity.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_4.q3",
+                ConceptId = DrgConcepts.Nastrond,
+                Scenario = "Life of the Dragon lasts 20 seconds. Nastrond shares Geirskogul's cooldown.",
+                Question = "How many Nastronds can you fit in one Life window?",
+                Options = new[] { "1-2", "3-4", "5-6", "Unlimited" },
+                CorrectIndex = 1,
+                Explanation = "With 20s Life duration and Nastrond's ~10s CD, you can fit 3-4 Nastronds per Life phase.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_4.q4",
+                ConceptId = DrgConcepts.LifeOptimization,
+                Scenario = "Lance Charge is active. You have 2 Eyes and Geirskogul ready.",
+                Question = "Is this a good time to enter Life?",
+                Options = new[] { "No - save Life for later", "Yes - buffs affect Life abilities", "Doesn't matter", "Only during Battle Litany" },
+                CorrectIndex = 1,
+                Explanation = "Entering Life during Lance Charge means your Nastronds and Stardiver get the +10% damage buff. Optimal timing.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_4.q5",
+                ConceptId = DrgConcepts.Stardiver,
+                Scenario = "You used Stardiver. A new button appeared.",
+                Question = "What is Starcross?",
+                Options = new[] { "Separate cooldown", "Follow-up to Stardiver", "AoE version", "Defensive ability" },
+                CorrectIndex = 1,
+                Explanation = "Starcross is a free follow-up that appears after Stardiver. Use it immediately for extra damage.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson5Quiz = new()
+    {
+        QuizId = "drg.lesson_5.quiz",
+        LessonId = "drg.lesson_5",
+        Title = "Quiz: Burst Window Setup",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_5.q1",
+                ConceptId = DrgConcepts.LanceCharge,
+                Scenario = "Fight just started. Lance Charge is ready.",
+                Question = "When should you use Lance Charge?",
+                Options = new[] { "Before first GCD", "After opener starts", "Wait for 2 minutes", "Save for emergencies" },
+                CorrectIndex = 1,
+                Explanation = "Use Lance Charge early in your opener to buff as many GCDs and oGCDs as possible. It's on 60s CD - don't hold it.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_5.q2",
+                ConceptId = DrgConcepts.BattleLitany,
+                Scenario = "Battle Litany is ready. Other DPS are using their 2-minute buffs.",
+                Question = "What does Battle Litany provide?",
+                Options = new[] { "+10% damage to you", "+10% crit to party", "+10% speed", "Damage reduction" },
+                CorrectIndex = 1,
+                Explanation = "Battle Litany grants +10% crit rate to the entire party. Coordinate it with other 2-minute raid buffs for maximum impact.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_5.q3",
+                ConceptId = DrgConcepts.BurstWindow,
+                Scenario = "Lance Charge is active. Battle Litany is also active. You have 2 Eyes.",
+                Question = "What should you prioritize?",
+                Options = new[] { "Save Eyes for later", "Enter Life of Dragon", "Only use GCDs", "Wait for cooldowns" },
+                CorrectIndex = 1,
+                Explanation = "Double buff window is the perfect time for Life of the Dragon. Your Nastronds and Stardiver will hit much harder.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_5.q4",
+                ConceptId = DrgConcepts.BuffAlignment,
+                Scenario = "Lance Charge (60s CD) and Battle Litany (120s CD) are both ready.",
+                Question = "How should you handle the different cooldowns?",
+                Options = new[] { "Always use together", "Lance Charge on CD, Litany at 2m", "Hold Lance for Litany", "Alternate them" },
+                CorrectIndex = 1,
+                Explanation = "Use Lance Charge on cooldown (60s cycle). Battle Litany aligns with 2-minute raid buffs. They sync every other Lance Charge.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_5.q5",
+                ConceptId = DrgConcepts.LanceCharge,
+                Scenario = "Lance Charge has 5 seconds remaining. Boss is about to jump away.",
+                Question = "What should you prioritize?",
+                Options = new[] { "Save abilities for after", "Use all damage during buff", "Just auto-attack", "Stop attacking" },
+                CorrectIndex = 1,
+                Explanation = "Squeeze out every buffed action before Lance Charge expires or the boss leaves. Jumps, Nastrond, whatever's available.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson6Quiz = new()
+    {
+        QuizId = "drg.lesson_6.quiz",
+        LessonId = "drg.lesson_6",
+        Title = "Quiz: Life Surge & Critical Hits",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_6.q1",
+                ConceptId = DrgConcepts.LifeSurge,
+                Scenario = "Life Surge has 2 charges. You're about to use Heavens' Thrust.",
+                Question = "Should you use Life Surge?",
+                Options = new[] { "No - save charges", "Yes - Heavens' Thrust is ideal", "Only during buffs", "Use on any GCD" },
+                CorrectIndex = 1,
+                Explanation = "Life Surge guarantees a critical hit. Use it on Heavens' Thrust (highest potency GCD) for maximum value.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_6.q2",
+                ConceptId = DrgConcepts.LifeSurge,
+                Scenario = "Life Surge is at 2 charges. No combo finisher coming soon.",
+                Question = "What should you do?",
+                Options = new[] { "Wait for finisher", "Use on any GCD to avoid cap", "Save both charges", "Use on DoT only" },
+                CorrectIndex = 1,
+                Explanation = "At 2 charges, you're capped and losing potential charges. Better to use on a weaker GCD than waste the cooldown.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_6.q3",
+                ConceptId = DrgConcepts.TrueNorthUsage,
+                Scenario = "Boss is against the wall. You can't reach the rear for Chaos Thrust.",
+                Question = "What should you use?",
+                Options = new[] { "Skip Chaos Thrust", "Use True North", "Just miss the positional", "Move the boss" },
+                CorrectIndex = 1,
+                Explanation = "True North removes positional requirements for 10s. Use it when you physically can't reach the correct position.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_6.q4",
+                ConceptId = DrgConcepts.PositionalRecovery,
+                Scenario = "True North has 2 charges. You're at flank but need rear.",
+                Question = "Should you use True North?",
+                Options = new[] { "Yes - positionals matter", "No - save for mechanics", "Only if both charges", "Walk to rear instead" },
+                CorrectIndex = 3,
+                Explanation = "If you can reach rear in time, walk there and save True North. Only use it when repositioning isn't possible.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_6.q5",
+                ConceptId = DrgConcepts.BuffAlignment,
+                Scenario = "Life Surge ready. Battle Litany is active (+10% crit).",
+                Question = "Is Life Surge's guaranteed crit wasted during Litany?",
+                Options = new[] { "Yes - crit is capped", "No - crit damage still applies", "Partially wasted", "Never use together" },
+                CorrectIndex = 1,
+                Explanation = "Life Surge guarantees crit, and Battle Litany increases crit rate. Together they still maximize damage - crit damage isn't diminished.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson7Quiz = new()
+    {
+        QuizId = "drg.lesson_7.quiz",
+        LessonId = "drg.lesson_7",
+        Title = "Quiz: Advanced Optimization",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_7.q1",
+                ConceptId = DrgConcepts.WyrmwindThrust,
+                Scenario = "You have 2 Firstminds Focus. Boss is far away.",
+                Question = "What can you use at range?",
+                Options = new[] { "Nothing - melee only", "Wyrmwind Thrust", "Piercing Talon only", "Wait for boss" },
+                CorrectIndex = 1,
+                Explanation = "Wyrmwind Thrust is ranged and uses Firstminds Focus. It's your disengage tool - use it when you can't reach the boss.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_7.q2",
+                ConceptId = DrgConcepts.FirstmindsFocus,
+                Scenario = "You just used Heavens' Thrust. Firstminds Focus increased.",
+                Question = "How do you build Firstminds Focus?",
+                Options = new[] { "Any combo finisher", "Heavens'/Raiden Thrust only", "All GCDs", "oGCDs only" },
+                CorrectIndex = 1,
+                Explanation = "Firstminds Focus builds from Raiden Thrust and Heavens' Thrust (the upgraded combo finishers). 2 Focus = Wyrmwind Thrust.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_7.q3",
+                ConceptId = DrgConcepts.DotMaintenance,
+                Scenario = "Chaotic Spring DoT has 5 seconds remaining. You're in the middle of Full Thrust combo.",
+                Question = "What should you do?",
+                Options = new[] { "Finish current combo", "Interrupt for Chaos combo", "Refresh immediately", "Let DoT drop" },
+                CorrectIndex = 0,
+                Explanation = "5 seconds is enough time to finish your current combo, then start Chaos Thrust combo. Breaking combo loses more than a few DoT ticks.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_7.q4",
+                ConceptId = DrgConcepts.AoeRotation,
+                Scenario = "3 enemies. Single-target combo is in progress.",
+                Question = "What's the AoE rotation?",
+                Options = new[] { "Continue single-target", "Doom Spike → Sonic Thrust → Coerthan", "Just use Dragonfire Dive", "AoE is DPS loss" },
+                CorrectIndex = 1,
+                Explanation = "At 3+ targets, use the AoE combo: Doom Spike → Sonic Thrust → Coerthan Torment. It's higher total damage.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "drg.lesson_7.q5",
+                ConceptId = DrgConcepts.DragonfireDive,
+                Scenario = "Multiple enemies grouped. Dragonfire Dive and Stardiver both available.",
+                Question = "What makes Dragonfire Dive good for AoE?",
+                Options = new[] { "Higher single-target", "It's AoE damage", "Grants buffs", "No animation lock" },
+                CorrectIndex = 1,
+                Explanation = "Dragonfire Dive deals AoE damage on landing. In multi-target situations, it's more valuable than in single-target.",
             },
         },
     };

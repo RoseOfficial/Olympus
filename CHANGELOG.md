@@ -3,6 +3,30 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.14.0 - Melee DPS Training Mode (Phase 1)
+
+**DRG (Zeus) Training Mode**
+- Training Mode now supports Dragoon - first melee DPS job added
+- 25 new DRG concepts covering Eye gauge, Life of Dragon, jumps, burst windows, and positionals
+- 7 progressive lessons from combo fundamentals to advanced optimization
+- 35 quiz questions testing real Dragoon decisions
+
+**Lesson Content**
+- Lesson 1: Dragoon Fundamentals - combo flow, Power Surge buff, positional requirements
+- Lesson 2: Jump Management - High Jump, Mirage Dive, animation lock safety
+- Lesson 3: Eye Gauge & Geirskogul - building Eyes, entering Life of Dragon
+- Lesson 4: Life of the Dragon - Nastrond spam, Stardiver timing, optimization
+- Lesson 5: Burst Window Setup - Lance Charge, Battle Litany, buff alignment
+- Lesson 6: Life Surge & Crits - guaranteed crits, True North usage
+- Lesson 7: Advanced Optimization - Wyrmwind Thrust, DoT uptime, AoE rotation
+
+**Quiz Features**
+- 7 quizzes (one per lesson) with 5 scenario-based questions each
+- Pass 4 out of 5 to complete a quiz
+- Detailed explanations for every answer
+- Progress tracking and best score persistence
+<!-- LATEST-END -->
+
 ## v3.13.0 - Tank Skill Quizzes
 
 **New Tank Quizzes**
@@ -21,7 +45,6 @@ All notable changes to Olympus will be documented in this file.
 - Multiple choice answers with detailed explanations
 - Review mode shows correct answers and why after submission
 - Best score tracking per quiz
-<!-- LATEST-END -->
 
 ## v3.12.0 - Tank Training Mode
 

@@ -136,7 +136,7 @@ public sealed class TrainingService : ITrainingService
     }
 
     /// <summary>
-    /// Gets all concepts across healers and tanks.
+    /// Gets all concepts across healers, tanks, and DPS.
     /// </summary>
     private static string[] GetAllConcepts()
     {
@@ -148,13 +148,14 @@ public sealed class TrainingService : ITrainingService
             .Concat(WarConcepts.AllConcepts)
             .Concat(DrkConcepts.AllConcepts)
             .Concat(GnbConcepts.AllConcepts)
+            .Concat(DrgConcepts.AllConcepts)
             .ToArray();
     }
 
     /// <summary>
     /// Gets concepts for a specific job based on concept ID prefix.
     /// </summary>
-    /// <param name="jobPrefix">The job prefix (e.g., "whm", "sch", "ast", "sge", "pld", "war", "drk", "gnb").</param>
+    /// <param name="jobPrefix">The job prefix (e.g., "whm", "sch", "ast", "sge", "pld", "war", "drk", "gnb", "drg").</param>
     public static string[] GetConceptsForJob(string jobPrefix)
     {
         return jobPrefix.ToLowerInvariant() switch
@@ -169,6 +170,8 @@ public sealed class TrainingService : ITrainingService
             "war" => WarConcepts.AllConcepts,
             "drk" => DrkConcepts.AllConcepts,
             "gnb" => GnbConcepts.AllConcepts,
+            // Melee DPS
+            "drg" => DrgConcepts.AllConcepts,
             _ => Array.Empty<string>(),
         };
     }
@@ -439,7 +442,9 @@ public sealed class TrainingService : ITrainingService
             JobRegistry.Warrior or JobRegistry.Marauder => "war",
             JobRegistry.DarkKnight => "drk",
             JobRegistry.Gunbreaker => "gnb",
-            _ => null // Only healers and tanks have training mode lessons currently
+            // Melee DPS
+            JobRegistry.Dragoon or JobRegistry.Lancer => "drg",
+            _ => null
         };
     }
 
