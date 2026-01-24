@@ -1276,6 +1276,69 @@ public static class BlmConcepts
 }
 
 /// <summary>
+/// RDM (Circe) Training Mode concepts covering Red Mage mechanics.
+/// 25 concepts across 6 categories.
+/// </summary>
+public static class RdmConcepts
+{
+    // Mana System (5)
+    public const string BlackMana = "rdm.black_mana";
+    public const string WhiteMana = "rdm.white_mana";
+    public const string ManaBalance = "rdm.mana_balance";
+    public const string ManaImbalance = "rdm.mana_imbalance";
+    public const string ManaOvercap = "rdm.mana_overcap";
+
+    // Dualcast System (4)
+    public const string DualcastMechanic = "rdm.dualcast_mechanic";
+    public const string DualcastConsumption = "rdm.dualcast_consumption";
+    public const string Acceleration = "rdm.acceleration";
+    public const string SwiftcastUsage = "rdm.swiftcast_usage";
+
+    // Proc Management (4)
+    public const string VerfireProc = "rdm.verfire_proc";
+    public const string VerstoneProc = "rdm.verstone_proc";
+    public const string ProcPriority = "rdm.proc_priority";
+    public const string ProcFishing = "rdm.proc_fishing";
+
+    // Melee Combo (4)
+    public const string MeleeEntry = "rdm.melee_entry";
+    public const string ComboProgression = "rdm.combo_progression";
+    public const string ComboTimer = "rdm.combo_timer";
+    public const string MeleePositioning = "rdm.melee_positioning";
+
+    // Finisher System (4)
+    public const string FinisherSelection = "rdm.finisher_selection";
+    public const string ScorchResolution = "rdm.scorch_resolution";
+    public const string GrandImpact = "rdm.grand_impact";
+    public const string FinisherProcs = "rdm.finisher_procs";
+
+    // Burst & Utility (4)
+    public const string Embolden = "rdm.embolden";
+    public const string Manafication = "rdm.manafication";
+    public const string OgcdWeaving = "rdm.ogcd_weaving";
+    public const string AoeRotation = "rdm.aoe_rotation";
+
+    /// <summary>
+    /// All RDM concepts for counting.
+    /// </summary>
+    public static readonly string[] AllConcepts = new[]
+    {
+        // Mana System
+        BlackMana, WhiteMana, ManaBalance, ManaImbalance, ManaOvercap,
+        // Dualcast System
+        DualcastMechanic, DualcastConsumption, Acceleration, SwiftcastUsage,
+        // Proc Management
+        VerfireProc, VerstoneProc, ProcPriority, ProcFishing,
+        // Melee Combo
+        MeleeEntry, ComboProgression, ComboTimer, MeleePositioning,
+        // Finisher System
+        FinisherSelection, ScorchResolution, GrandImpact, FinisherProcs,
+        // Burst & Utility
+        Embolden, Manafication, OgcdWeaving, AoeRotation,
+    };
+}
+
+/// <summary>
 /// Represents a lesson recommendation based on detected performance issues.
 /// </summary>
 public sealed class LessonRecommendation

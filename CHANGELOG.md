@@ -3,6 +3,34 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.25.0 - RDM Training Mode
+
+**RDM (Circe) Training Mode**
+- Training Mode now supports Red Mage - third caster DPS job added
+- 25 new RDM concepts covering Dualcast system, mana balance, melee combo, finishers, and burst windows
+- 7 progressive lessons from fundamentals to advanced optimization
+- 35 quiz questions testing real Red Mage decisions
+
+**Lesson Content**
+- Lesson 1: Mana Foundation - Black/White mana generation, balance importance, imbalance penalties
+- Lesson 2: Dualcast Mastery - Hardcast triggers, instant consumption, Swiftcast emergency usage
+- Lesson 3: Proc Management - Verfire/Verstone procs, expiration priority, Acceleration guarantees
+- Lesson 4: Melee Combo Fundamentals - 50|50 entry, Riposte → Zwerchhau → Redoublement, overcap prevention
+- Lesson 5: Finisher System - Verflare/Verholy selection, Scorch → Resolution → Grand Impact chain
+- Lesson 6: Burst Windows - Embolden party buff, Manafication doubling, Fleche/Contre Sixte weaving
+- Lesson 7: Advanced Optimization - Corps-a-corps positioning, AoE rotation, movement tools
+
+**Quiz Features**
+- 7 quizzes (one per lesson) with 5 scenario-based questions each
+- Pass 4 out of 5 to complete a quiz
+- Detailed explanations for every answer
+- Progress tracking and best score persistence
+
+**Caster DPS Training Progress**
+- Third caster DPS job added to Training Mode (BLM, SMN, RDM complete)
+- PCT caster job coming next to complete caster training
+<!-- LATEST-END -->
+
 ## v3.24.0 - SMN Training Mode
 
 **SMN (Persephone) Training Mode**
@@ -29,7 +57,6 @@ All notable changes to Olympus will be documented in this file.
 **Caster DPS Training Progress**
 - Second caster DPS job added to Training Mode (BLM, SMN complete)
 - RDM, PCT caster jobs coming next
-<!-- LATEST-END -->
 
 ## v3.23.0 - BLM Training Mode
 
