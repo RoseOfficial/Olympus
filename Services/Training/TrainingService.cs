@@ -105,7 +105,7 @@ public sealed class TrainingService : ITrainingService
 
     public LearningProgress GetProgress()
     {
-        var allConcepts = GetAllHealerConcepts();
+        var allConcepts = GetAllConcepts();
         var learned = this.config.LearnedConcepts.Count(c => allConcepts.Contains(c));
 
         // Find concepts with high exposure but not learned (>10 exposures)
@@ -136,29 +136,39 @@ public sealed class TrainingService : ITrainingService
     }
 
     /// <summary>
-    /// Gets all healer concepts across WHM, SCH, AST, and SGE.
+    /// Gets all concepts across healers and tanks.
     /// </summary>
-    private static string[] GetAllHealerConcepts()
+    private static string[] GetAllConcepts()
     {
         return WhmConcepts.AllConcepts
             .Concat(SchConcepts.AllConcepts)
             .Concat(AstConcepts.AllConcepts)
             .Concat(SgeConcepts.AllConcepts)
+            .Concat(PldConcepts.AllConcepts)
+            .Concat(WarConcepts.AllConcepts)
+            .Concat(DrkConcepts.AllConcepts)
+            .Concat(GnbConcepts.AllConcepts)
             .ToArray();
     }
 
     /// <summary>
     /// Gets concepts for a specific job based on concept ID prefix.
     /// </summary>
-    /// <param name="jobPrefix">The job prefix (e.g., "whm", "sch", "ast", "sge").</param>
+    /// <param name="jobPrefix">The job prefix (e.g., "whm", "sch", "ast", "sge", "pld", "war", "drk", "gnb").</param>
     public static string[] GetConceptsForJob(string jobPrefix)
     {
         return jobPrefix.ToLowerInvariant() switch
         {
+            // Healers
             "whm" => WhmConcepts.AllConcepts,
             "sch" => SchConcepts.AllConcepts,
             "ast" => AstConcepts.AllConcepts,
             "sge" => SgeConcepts.AllConcepts,
+            // Tanks
+            "pld" => PldConcepts.AllConcepts,
+            "war" => WarConcepts.AllConcepts,
+            "drk" => DrkConcepts.AllConcepts,
+            "gnb" => GnbConcepts.AllConcepts,
             _ => Array.Empty<string>(),
         };
     }
@@ -419,11 +429,17 @@ public sealed class TrainingService : ITrainingService
     {
         return jobId switch
         {
+            // Healers
             JobRegistry.WhiteMage or JobRegistry.Conjurer => "whm",
             JobRegistry.Scholar or JobRegistry.Arcanist => "sch",
             JobRegistry.Astrologian => "ast",
             JobRegistry.Sage => "sge",
-            _ => null // Only healers have training mode lessons currently
+            // Tanks
+            JobRegistry.Paladin or JobRegistry.Gladiator => "pld",
+            JobRegistry.Warrior or JobRegistry.Marauder => "war",
+            JobRegistry.DarkKnight => "drk",
+            JobRegistry.Gunbreaker => "gnb",
+            _ => null // Only healers and tanks have training mode lessons currently
         };
     }
 

@@ -961,6 +961,877 @@ public static class SgeLessons
 }
 
 /// <summary>
+/// PLD (Themis) lesson content - 7 lessons covering 25 concepts.
+/// </summary>
+public static class PldLessons
+{
+    public static readonly LessonDefinition Lesson1 = new()
+    {
+        LessonId = "pld.lesson_1",
+        JobPrefix = "pld",
+        Title = "Oath Gauge & Stance",
+        LessonNumber = 1,
+        Description = "Learn Paladin's core mechanics: the Oath Gauge system, maintaining tank stance, and using Sheltron for self-mitigation.",
+        Prerequisites = Array.Empty<string>(),
+        ConceptsCovered = new[]
+        {
+            PldConcepts.OathGauge,
+            PldConcepts.Sheltron,
+        },
+        KeyPoints = new[]
+        {
+            "Oath Gauge builds from auto-attacks while Iron Will (tank stance) is active",
+            "Sheltron costs 50 Oath and provides a strong shield + mitigation",
+            "Never let Oath cap at 100 - spend it on Sheltron regularly",
+            "Iron Will must be on to generate enmity and Oath",
+        },
+        RelatedAbilities = new[] { "Iron Will", "Sheltron", "Holy Sheltron", "Intervention" },
+        Tips = new[]
+        {
+            "Use Sheltron proactively before tankbusters, not reactively after",
+            "Intervention lets you give your Sheltron to another party member",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson2 = new()
+    {
+        LessonId = "pld.lesson_2",
+        JobPrefix = "pld",
+        Title = "Defensive Fundamentals",
+        LessonNumber = 2,
+        Description = "Master PLD's defensive toolkit: Rampart, Sentinel, Bulwark, and Reprisal for consistent damage reduction.",
+        Prerequisites = new[] { "pld.lesson_1" },
+        ConceptsCovered = new[]
+        {
+            PldConcepts.Sentinel,
+            PldConcepts.Bulwark,
+            PldConcepts.MitigationStacking,
+        },
+        KeyPoints = new[]
+        {
+            "Rampart: 20% mitigation for 20s (90s CD) - your bread and butter",
+            "Sentinel: 30% mitigation for 15s (120s CD) - use for heavy damage",
+            "Bulwark: Increases block rate for 10s (90s CD) - synergizes with Sheltron",
+            "Stack mitigations by combining different abilities, not by overlapping the same one",
+        },
+        RelatedAbilities = new[] { "Rampart", "Sentinel", "Bulwark", "Reprisal", "Arm's Length" },
+        Tips = new[]
+        {
+            "Alternate Rampart and Sentinel to always have mitigation available",
+            "Bulwark + Sheltron = high block rate for sustained damage",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson3 = new()
+    {
+        LessonId = "pld.lesson_3",
+        JobPrefix = "pld",
+        Title = "Hallowed Ground",
+        LessonNumber = 3,
+        Description = "Master Paladin's invulnerability: when to use Hallowed Ground, timing considerations, and emergency situations.",
+        Prerequisites = new[] { "pld.lesson_2" },
+        ConceptsCovered = new[]
+        {
+            PldConcepts.HallowedGround,
+            PldConcepts.InvulnTiming,
+        },
+        KeyPoints = new[]
+        {
+            "Hallowed Ground: Complete invulnerability for 10s (420s CD)",
+            "The longest cooldown of all tank invulns - use it wisely",
+            "Best invuln in the game - you take 0 damage, no healer attention needed",
+            "Can be used proactively for big pulls or reactively in emergencies",
+        },
+        RelatedAbilities = new[] { "Hallowed Ground" },
+        Tips = new[]
+        {
+            "Don't save Hallowed 'just in case' - it's too long a CD to waste",
+            "Communicate with healers when you plan to use it for planned damage",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson4 = new()
+    {
+        LessonId = "pld.lesson_4",
+        JobPrefix = "pld",
+        Title = "Fight or Flight",
+        LessonNumber = 4,
+        Description = "Optimize your damage: Fight or Flight burst windows, Atonement chains, and Goring Blade DoT management.",
+        Prerequisites = new[] { "pld.lesson_3" },
+        ConceptsCovered = new[]
+        {
+            PldConcepts.FightOrFlight,
+            PldConcepts.BurstWindow,
+            PldConcepts.GoringBlade,
+            PldConcepts.AtonementChain,
+        },
+        KeyPoints = new[]
+        {
+            "Fight or Flight: 25% damage boost for 20s (60s CD)",
+            "Goring Blade combo finisher applies a strong DoT - maintain it",
+            "Atonement chain follows Royal Authority - 3 free Atonements",
+            "Align your biggest attacks inside Fight or Flight windows",
+        },
+        RelatedAbilities = new[] { "Fight or Flight", "Goring Blade", "Atonement", "Supplication", "Sepulchre" },
+        Tips = new[]
+        {
+            "Start Fight or Flight after your first GCD to maximize uptime",
+            "Atonement > Supplication > Sepulchre is the correct order",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson5 = new()
+    {
+        LessonId = "pld.lesson_5",
+        JobPrefix = "pld",
+        Title = "Magic Phase",
+        LessonNumber = 5,
+        Description = "Master PLD's unique magic rotation: Requiescat, Holy Spirit, and the Confiteor blade combo.",
+        Prerequisites = new[] { "pld.lesson_4" },
+        ConceptsCovered = new[]
+        {
+            PldConcepts.Requiescat,
+            PldConcepts.HolySpirit,
+            PldConcepts.Confiteor,
+            PldConcepts.BladeCombo,
+            PldConcepts.MagicPhase,
+        },
+        KeyPoints = new[]
+        {
+            "Requiescat: Enables instant-cast Holy Spirit and Confiteor combo (60s CD)",
+            "Holy Spirit: Ranged magic attack - instant during Requiescat",
+            "Confiteor + Blade combo: 4-hit finisher that consumes Requiescat stacks",
+            "Magic phase provides movement flexibility and high burst damage",
+        },
+        RelatedAbilities = new[] { "Requiescat", "Holy Spirit", "Holy Circle", "Confiteor", "Blade of Faith", "Blade of Truth", "Blade of Valor" },
+        Tips = new[]
+        {
+            "Use magic phase when you need to move or during downtime",
+            "Requiescat stacks are consumed by Confiteor combo - don't waste them",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson6 = new()
+    {
+        LessonId = "pld.lesson_6",
+        JobPrefix = "pld",
+        Title = "Party Protection",
+        LessonNumber = 6,
+        Description = "Master PLD's party utility: Divine Veil for party shields, Cover for protecting allies, and Passage of Arms.",
+        Prerequisites = new[] { "pld.lesson_5" },
+        ConceptsCovered = new[]
+        {
+            PldConcepts.DivineVeil,
+            PldConcepts.Cover,
+            PldConcepts.PassageOfArms,
+            PldConcepts.PartyProtection,
+            PldConcepts.Clemency,
+        },
+        KeyPoints = new[]
+        {
+            "Divine Veil: Party shield when you receive healing (90s CD)",
+            "Cover: Take damage for a party member (120s CD) - use carefully",
+            "Passage of Arms: Channeled 15% party mitigation behind you",
+            "Clemency: Emergency heal for yourself or others (costs GCD + MP)",
+        },
+        RelatedAbilities = new[] { "Divine Veil", "Cover", "Passage of Arms", "Clemency" },
+        Tips = new[]
+        {
+            "Divine Veil requires healing to activate - coordinate with healers",
+            "Passage of Arms can be instantly canceled after the buff is applied",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson7 = new()
+    {
+        LessonId = "pld.lesson_7",
+        JobPrefix = "pld",
+        Title = "Advanced Optimization",
+        LessonNumber = 7,
+        Description = "Final lesson: tank swaps, mitigation planning, oGCD weaving, and optimizing your full rotation.",
+        Prerequisites = new[] { "pld.lesson_6" },
+        ConceptsCovered = new[]
+        {
+            PldConcepts.TankSwap,
+            PldConcepts.Expiacion,
+            PldConcepts.CircleOfScorn,
+            PldConcepts.Intervene,
+        },
+        KeyPoints = new[]
+        {
+            "Provoke + Shirk for smooth tank swaps during mechanics",
+            "Expiacion: Strong oGCD damage (30s CD) - weave it",
+            "Circle of Scorn: DoT + damage oGCD (30s CD) - use on cooldown",
+            "Intervene: Gap closer with 2 charges - save for movement or burst",
+        },
+        RelatedAbilities = new[] { "Provoke", "Shirk", "Expiacion", "Circle of Scorn", "Intervene" },
+        Tips = new[]
+        {
+            "Plan your mitigation around boss timelines for maximum efficiency",
+            "Communicate tank swaps with your co-tank before pull",
+        },
+    };
+
+    public static readonly LessonDefinition[] AllLessons = new[]
+    {
+        Lesson1, Lesson2, Lesson3, Lesson4, Lesson5, Lesson6, Lesson7,
+    };
+}
+
+/// <summary>
+/// WAR (Ares) lesson content - 7 lessons covering 25 concepts.
+/// </summary>
+public static class WarLessons
+{
+    public static readonly LessonDefinition Lesson1 = new()
+    {
+        LessonId = "war.lesson_1",
+        JobPrefix = "war",
+        Title = "Beast Gauge & Tempest",
+        LessonNumber = 1,
+        Description = "Learn Warrior's core mechanics: Beast Gauge generation, maintaining Surging Tempest buff, and basic combo flow.",
+        Prerequisites = Array.Empty<string>(),
+        ConceptsCovered = new[]
+        {
+            WarConcepts.BeastGauge,
+            WarConcepts.SurgingTempest,
+        },
+        KeyPoints = new[]
+        {
+            "Beast Gauge builds from your weapon skill combo (10 per combo action)",
+            "Surging Tempest: 10% damage buff from Storm's Eye combo finisher",
+            "Keep Surging Tempest active at all times - it's your main damage buff",
+            "Don't overcap Beast Gauge at 100 - spend it on Fell Cleave",
+        },
+        RelatedAbilities = new[] { "Defiance", "Heavy Swing", "Maim", "Storm's Path", "Storm's Eye" },
+        Tips = new[]
+        {
+            "Alternate between Storm's Path (gauge) and Storm's Eye (buff refresh)",
+            "Surging Tempest can be extended up to 60s - don't over-refresh",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson2 = new()
+    {
+        LessonId = "war.lesson_2",
+        JobPrefix = "war",
+        Title = "Defensive Fundamentals",
+        LessonNumber = 2,
+        Description = "Master WAR's defensive toolkit: Rampart, Vengeance, and the powerful Bloodwhetting self-heal.",
+        Prerequisites = new[] { "war.lesson_1" },
+        ConceptsCovered = new[]
+        {
+            WarConcepts.Vengeance,
+            WarConcepts.Bloodwhetting,
+            WarConcepts.RawIntuition,
+            WarConcepts.MitigationStacking,
+        },
+        KeyPoints = new[]
+        {
+            "Rampart: 20% mitigation for 20s (90s CD) - standard tank cooldown",
+            "Vengeance: 30% mitigation + damage reflect for 15s (120s CD)",
+            "Bloodwhetting: 10% mitigation + massive healing on attacks (25s CD)",
+            "Bloodwhetting makes WAR nearly immortal during large pulls",
+        },
+        RelatedAbilities = new[] { "Rampart", "Vengeance", "Bloodwhetting", "Raw Intuition", "Reprisal" },
+        Tips = new[]
+        {
+            "Bloodwhetting is your best dungeon cooldown - heals scale with targets hit",
+            "Combine Vengeance with AoE attacks for reflect damage in dungeons",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson3 = new()
+    {
+        LessonId = "war.lesson_3",
+        JobPrefix = "war",
+        Title = "Holmgang",
+        LessonNumber = 3,
+        Description = "Master Warrior's invulnerability: Holmgang timing, target requirements, and coordinating with healers.",
+        Prerequisites = new[] { "war.lesson_2" },
+        ConceptsCovered = new[]
+        {
+            WarConcepts.Holmgang,
+            WarConcepts.InvulnTiming,
+        },
+        KeyPoints = new[]
+        {
+            "Holmgang: Cannot drop below 1 HP for 10s (240s CD)",
+            "Shortest cooldown of all tank invulns - can be used frequently",
+            "You WILL drop to 1 HP - healers must heal you after",
+            "Binds you to target for duration - can limit movement",
+        },
+        RelatedAbilities = new[] { "Holmgang" },
+        Tips = new[]
+        {
+            "Use Holmgang aggressively due to its short cooldown",
+            "Bloodwhetting after Holmgang can self-heal you back up",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson4 = new()
+    {
+        LessonId = "war.lesson_4",
+        JobPrefix = "war",
+        Title = "Inner Release",
+        LessonNumber = 4,
+        Description = "Master WAR's burst window: Inner Release setup, Fell Cleave spam, and maximizing damage during the window.",
+        Prerequisites = new[] { "war.lesson_3" },
+        ConceptsCovered = new[]
+        {
+            WarConcepts.InnerRelease,
+            WarConcepts.IRWindow,
+            WarConcepts.FellCleave,
+            WarConcepts.Infuriate,
+        },
+        KeyPoints = new[]
+        {
+            "Inner Release: Free Fell Cleaves and guaranteed crits for 15s (60s CD)",
+            "Spam Fell Cleave during Inner Release - no Beast Gauge cost",
+            "Infuriate: Grants 50 Beast Gauge (60s CD) + Nascent Chaos buff",
+            "Fit 5 Fell Cleaves minimum in each Inner Release window",
+        },
+        RelatedAbilities = new[] { "Inner Release", "Fell Cleave", "Infuriate", "Primal Rend" },
+        Tips = new[]
+        {
+            "Pool Beast Gauge before Inner Release for even more damage",
+            "Inner Release + Primal Rend is your biggest burst combo",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson5 = new()
+    {
+        LessonId = "war.lesson_5",
+        JobPrefix = "war",
+        Title = "Self-Sustain",
+        LessonNumber = 5,
+        Description = "Master WAR's incredible self-healing: Thrill of Battle, Equilibrium, and Bloodwhetting synergies.",
+        Prerequisites = new[] { "war.lesson_4" },
+        ConceptsCovered = new[]
+        {
+            WarConcepts.ThrillOfBattle,
+            WarConcepts.Equilibrium,
+            WarConcepts.NascentChaos,
+        },
+        KeyPoints = new[]
+        {
+            "Thrill of Battle: +20% max HP + healing for 10s (90s CD)",
+            "Equilibrium: Strong self-heal + HoT (60s CD)",
+            "Nascent Chaos: Inner Chaos instead of Fell Cleave (from Infuriate)",
+            "WAR can self-sustain through most content with proper cooldown use",
+        },
+        RelatedAbilities = new[] { "Thrill of Battle", "Equilibrium", "Inner Chaos" },
+        Tips = new[]
+        {
+            "Thrill before big damage maximizes healing received",
+            "Inner Chaos is your strongest single hit - use in burst windows",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson6 = new()
+    {
+        LessonId = "war.lesson_6",
+        JobPrefix = "war",
+        Title = "Party Protection",
+        LessonNumber = 6,
+        Description = "Master WAR's party utility: Shake It Off for party shields and Nascent Flash for ally protection.",
+        Prerequisites = new[] { "war.lesson_5" },
+        ConceptsCovered = new[]
+        {
+            WarConcepts.ShakeItOff,
+            WarConcepts.NascentFlash,
+            WarConcepts.PartyProtection,
+        },
+        KeyPoints = new[]
+        {
+            "Shake It Off: Party shield that scales with active buffs (90s CD)",
+            "Nascent Flash: Share your Bloodwhetting healing with a party member",
+            "Shake It Off removes Rampart/Vengeance/etc. but makes bigger shield",
+            "Coordinate party mitigation with healers and co-tank",
+        },
+        RelatedAbilities = new[] { "Shake It Off", "Nascent Flash" },
+        Tips = new[]
+        {
+            "Use Shake It Off before letting buffs expire naturally",
+            "Nascent Flash on a DPS during Bloodwhetting keeps them alive",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson7 = new()
+    {
+        LessonId = "war.lesson_7",
+        JobPrefix = "war",
+        Title = "Advanced Optimization",
+        LessonNumber = 7,
+        Description = "Final lesson: gauge pooling, tank swaps, oGCD weaving, and maximizing damage while maintaining survivability.",
+        Prerequisites = new[] { "war.lesson_6" },
+        ConceptsCovered = new[]
+        {
+            WarConcepts.GaugePooling,
+            WarConcepts.TankSwap,
+            WarConcepts.PrimalRend,
+            WarConcepts.Upheaval,
+            WarConcepts.Onslaught,
+            WarConcepts.Orogeny,
+        },
+        KeyPoints = new[]
+        {
+            "Pool gauge to 50-80 before Inner Release for maximum burst",
+            "Primal Rend: Granted by Inner Release, huge damage, can be delayed",
+            "Upheaval: Strong oGCD (30s CD) - weave on cooldown",
+            "Onslaught: Gap closer with 3 charges - use for movement or damage",
+        },
+        RelatedAbilities = new[] { "Provoke", "Shirk", "Primal Rend", "Upheaval", "Onslaught", "Orogeny" },
+        Tips = new[]
+        {
+            "Primal Rend can be held up to 30s for raid buff alignment",
+            "Use all 3 Onslaught charges during burst windows if possible",
+        },
+    };
+
+    public static readonly LessonDefinition[] AllLessons = new[]
+    {
+        Lesson1, Lesson2, Lesson3, Lesson4, Lesson5, Lesson6, Lesson7,
+    };
+}
+
+/// <summary>
+/// DRK (Nyx) lesson content - 7 lessons covering 25 concepts.
+/// </summary>
+public static class DrkLessons
+{
+    public static readonly LessonDefinition Lesson1 = new()
+    {
+        LessonId = "drk.lesson_1",
+        JobPrefix = "drk",
+        Title = "Blood Gauge & Darkside",
+        LessonNumber = 1,
+        Description = "Learn Dark Knight's core mechanics: Blood Gauge, maintaining Darkside buff, and basic MP management.",
+        Prerequisites = Array.Empty<string>(),
+        ConceptsCovered = new[]
+        {
+            DrkConcepts.BloodGauge,
+            DrkConcepts.Darkside,
+            DrkConcepts.DarksideMaintenance,
+        },
+        KeyPoints = new[]
+        {
+            "Blood Gauge builds from combo actions (20 per combo finisher)",
+            "Darkside: 10% damage buff - maintained by using Edge/Flood of Shadow",
+            "Edge of Shadow costs 3000 MP and refreshes Darkside timer",
+            "Never let Darkside fall off - it's your primary damage buff",
+        },
+        RelatedAbilities = new[] { "Grit", "Hard Slash", "Syphon Strike", "Souleater", "Edge of Shadow" },
+        Tips = new[]
+        {
+            "Use Edge of Shadow when MP is high to prevent overcapping",
+            "Darkside timer extends up to 60s - don't over-refresh",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson2 = new()
+    {
+        LessonId = "drk.lesson_2",
+        JobPrefix = "drk",
+        Title = "Defensive Fundamentals",
+        LessonNumber = 2,
+        Description = "Master DRK's defensive toolkit: Rampart, Shadow Wall, Dark Mind, and Oblation.",
+        Prerequisites = new[] { "drk.lesson_1" },
+        ConceptsCovered = new[]
+        {
+            DrkConcepts.ShadowWall,
+            DrkConcepts.DarkMind,
+            DrkConcepts.Oblation,
+            DrkConcepts.MitigationStacking,
+        },
+        KeyPoints = new[]
+        {
+            "Rampart: 20% mitigation for 20s (90s CD) - standard tank cooldown",
+            "Shadow Wall: 30% mitigation for 15s (120s CD) - big defensive CD",
+            "Dark Mind: 20% magic mitigation (60s CD) - use for magic damage",
+            "Oblation: 10% mitigation with 2 charges (60s CD) - use liberally",
+        },
+        RelatedAbilities = new[] { "Rampart", "Shadow Wall", "Dark Mind", "Oblation", "Reprisal" },
+        Tips = new[]
+        {
+            "Dark Mind only works on magic damage - learn which attacks are magic",
+            "Oblation can be used on yourself or party members",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson3 = new()
+    {
+        LessonId = "drk.lesson_3",
+        JobPrefix = "drk",
+        Title = "Living Dead",
+        LessonNumber = 3,
+        Description = "Master Dark Knight's unique invulnerability: Living Dead mechanics, Walking Dead state, and healer coordination.",
+        Prerequisites = new[] { "drk.lesson_2" },
+        ConceptsCovered = new[]
+        {
+            DrkConcepts.LivingDead,
+            DrkConcepts.WalkingDead,
+            DrkConcepts.InvulnTiming,
+        },
+        KeyPoints = new[]
+        {
+            "Living Dead: 10s buff, if you would die, become Walking Dead instead",
+            "Walking Dead: Cannot die for 10s, but must be healed to full or die",
+            "Your attacks heal you during Walking Dead - hit things!",
+            "Most complex tank invuln - requires healer coordination",
+        },
+        RelatedAbilities = new[] { "Living Dead" },
+        Tips = new[]
+        {
+            "Walking Dead heals you for damage dealt - AoE attacks help",
+            "Communicate with healers before using Living Dead in prog",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson4 = new()
+    {
+        LessonId = "drk.lesson_4",
+        JobPrefix = "drk",
+        Title = "The Blackest Night",
+        LessonNumber = 4,
+        Description = "Master DRK's signature ability: The Blackest Night shield timing, Dark Arts proc, and optimal usage.",
+        Prerequisites = new[] { "drk.lesson_3" },
+        ConceptsCovered = new[]
+        {
+            DrkConcepts.TheBlackestNight,
+            DrkConcepts.TBNManagement,
+            DrkConcepts.DarkArts,
+        },
+        KeyPoints = new[]
+        {
+            "TBN: 25% max HP shield on self or ally, costs 3000 MP (15s CD)",
+            "If shield breaks, you get Dark Arts (free Edge/Flood of Shadow)",
+            "TBN is DRK's most powerful defensive and offensive tool",
+            "Shield must break fully to get Dark Arts - don't waste on chip damage",
+        },
+        RelatedAbilities = new[] { "The Blackest Night", "Edge of Shadow", "Flood of Shadow" },
+        Tips = new[]
+        {
+            "TBN before tankbusters guarantees the shield breaks",
+            "Don't TBN during low damage - wasted MP if shield doesn't break",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson5 = new()
+    {
+        LessonId = "drk.lesson_5",
+        JobPrefix = "drk",
+        Title = "Blood Weapon & Delirium",
+        LessonNumber = 5,
+        Description = "Master DRK's burst windows: Blood Weapon for MP and gauge, Delirium for Bloodspiller spam.",
+        Prerequisites = new[] { "drk.lesson_4" },
+        ConceptsCovered = new[]
+        {
+            DrkConcepts.BloodWeapon,
+            DrkConcepts.Delirium,
+            DrkConcepts.Bloodspiller,
+            DrkConcepts.EdgeOfShadow,
+        },
+        KeyPoints = new[]
+        {
+            "Blood Weapon: Your attacks restore MP and Blood Gauge for 15s (60s CD)",
+            "Delirium: Free Bloodspillers and guaranteed crits for 15s (60s CD)",
+            "Bloodspiller: Spends 50 Blood Gauge for high damage",
+            "Stack Blood Weapon and Delirium together for massive burst",
+        },
+        RelatedAbilities = new[] { "Blood Weapon", "Delirium", "Bloodspiller", "Quietus" },
+        Tips = new[]
+        {
+            "Use 5 GCDs during Blood Weapon to maximize MP and gauge gain",
+            "Delirium Bloodspillers are free - spam them during the window",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson6 = new()
+    {
+        LessonId = "drk.lesson_6",
+        JobPrefix = "drk",
+        Title = "Party Protection",
+        LessonNumber = 6,
+        Description = "Master DRK's party utility: Dark Missionary for party mitigation and Living Shadow for damage.",
+        Prerequisites = new[] { "drk.lesson_5" },
+        ConceptsCovered = new[]
+        {
+            DrkConcepts.DarkMissionary,
+            DrkConcepts.LivingShadow,
+            DrkConcepts.PartyProtection,
+        },
+        KeyPoints = new[]
+        {
+            "Dark Missionary: 10% magic mitigation for party for 15s (90s CD)",
+            "Living Shadow: Summons shadow clone that attacks for 24s (120s CD)",
+            "Living Shadow is a huge DPS gain - never let it sit unused",
+            "Coordinate party mitigation with healers and co-tank",
+        },
+        RelatedAbilities = new[] { "Dark Missionary", "Living Shadow" },
+        Tips = new[]
+        {
+            "Dark Missionary only mitigates magic - learn boss damage types",
+            "Living Shadow takes a moment to start attacking after summon",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson7 = new()
+    {
+        LessonId = "drk.lesson_7",
+        JobPrefix = "drk",
+        Title = "Advanced Optimization",
+        LessonNumber = 7,
+        Description = "Final lesson: MP management, tank swaps, oGCD weaving, and maximizing damage output.",
+        Prerequisites = new[] { "drk.lesson_6" },
+        ConceptsCovered = new[]
+        {
+            DrkConcepts.TankSwap,
+            DrkConcepts.CarveAndSpit,
+            DrkConcepts.SaltedEarth,
+            DrkConcepts.Shadowbringer,
+            DrkConcepts.Disesteem,
+        },
+        KeyPoints = new[]
+        {
+            "Manage MP carefully - you need 3000 for TBN and Edge of Shadow",
+            "Carve and Spit: Strong oGCD + MP restore (60s CD)",
+            "Salted Earth: Ground DoT zone (90s CD) - place under boss",
+            "Shadowbringer: Big damage oGCD, 2 charges (60s CD)",
+        },
+        RelatedAbilities = new[] { "Provoke", "Shirk", "Carve and Spit", "Salted Earth", "Shadowbringer", "Disesteem" },
+        Tips = new[]
+        {
+            "Never overcap MP - dump into Edge of Shadow before Blood Weapon",
+            "Salted Earth + Salt and Darkness combo for burst damage",
+        },
+    };
+
+    public static readonly LessonDefinition[] AllLessons = new[]
+    {
+        Lesson1, Lesson2, Lesson3, Lesson4, Lesson5, Lesson6, Lesson7,
+    };
+}
+
+/// <summary>
+/// GNB (Hephaestus) lesson content - 7 lessons covering 25 concepts.
+/// </summary>
+public static class GnbLessons
+{
+    public static readonly LessonDefinition Lesson1 = new()
+    {
+        LessonId = "gnb.lesson_1",
+        JobPrefix = "gnb",
+        Title = "Cartridge Gauge",
+        LessonNumber = 1,
+        Description = "Learn Gunbreaker's core mechanics: Cartridge Gauge generation, Burst Strike usage, and basic combo flow.",
+        Prerequisites = Array.Empty<string>(),
+        ConceptsCovered = new[]
+        {
+            GnbConcepts.CartridgeGauge,
+            GnbConcepts.BurstStrike,
+        },
+        KeyPoints = new[]
+        {
+            "Cartridge Gauge builds from Solid Barrel combo finisher (1 cartridge)",
+            "Burst Strike: Spends 1 cartridge for high damage",
+            "Maximum 3 cartridges - don't overcap",
+            "Royal Guard (tank stance) must be active for enmity",
+        },
+        RelatedAbilities = new[] { "Royal Guard", "Keen Edge", "Brutal Shell", "Solid Barrel", "Burst Strike" },
+        Tips = new[]
+        {
+            "Brutal Shell combo gives a small shield and heal - nice sustain",
+            "Save cartridges for No Mercy windows when possible",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson2 = new()
+    {
+        LessonId = "gnb.lesson_2",
+        JobPrefix = "gnb",
+        Title = "Defensive Fundamentals",
+        LessonNumber = 2,
+        Description = "Master GNB's defensive toolkit: Rampart, Nebula, Camouflage, and the powerful Heart of Corundum.",
+        Prerequisites = new[] { "gnb.lesson_1" },
+        ConceptsCovered = new[]
+        {
+            GnbConcepts.Nebula,
+            GnbConcepts.Camouflage,
+            GnbConcepts.HeartOfCorundum,
+            GnbConcepts.Aurora,
+            GnbConcepts.MitigationStacking,
+        },
+        KeyPoints = new[]
+        {
+            "Rampart: 20% mitigation for 20s (90s CD) - standard tank cooldown",
+            "Nebula: 30% mitigation for 15s (120s CD) - big defensive CD",
+            "Camouflage: 10% mitigation + parry rate for 20s (90s CD)",
+            "Heart of Corundum: 15% mitigation + heal + shield (25s CD)",
+        },
+        RelatedAbilities = new[] { "Rampart", "Nebula", "Camouflage", "Heart of Corundum", "Aurora" },
+        Tips = new[]
+        {
+            "Heart of Corundum is extremely strong - use it frequently",
+            "Aurora is a HoT that can be used on yourself or allies",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson3 = new()
+    {
+        LessonId = "gnb.lesson_3",
+        JobPrefix = "gnb",
+        Title = "Superbolide",
+        LessonNumber = 3,
+        Description = "Master Gunbreaker's invulnerability: Superbolide mechanics, HP drop, and healer coordination.",
+        Prerequisites = new[] { "gnb.lesson_2" },
+        ConceptsCovered = new[]
+        {
+            GnbConcepts.Superbolide,
+            GnbConcepts.InvulnTiming,
+        },
+        KeyPoints = new[]
+        {
+            "Superbolide: Drops HP to 1, then invulnerable for 10s (360s CD)",
+            "You WILL drop to 1 HP - healers must heal you after",
+            "Can be used reactively when about to die or proactively for big hits",
+            "Second shortest tank invuln CD after Holmgang",
+        },
+        RelatedAbilities = new[] { "Superbolide" },
+        Tips = new[]
+        {
+            "Don't panic healers - communicate before using Superbolide",
+            "Heart of Corundum after Superbolide helps with recovery",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson4 = new()
+    {
+        LessonId = "gnb.lesson_4",
+        JobPrefix = "gnb",
+        Title = "No Mercy Window",
+        LessonNumber = 4,
+        Description = "Master GNB's burst window: No Mercy setup, Double Down, and maximizing damage during the window.",
+        Prerequisites = new[] { "gnb.lesson_3" },
+        ConceptsCovered = new[]
+        {
+            GnbConcepts.NoMercy,
+            GnbConcepts.NoMercyWindow,
+            GnbConcepts.DoubleDown,
+            GnbConcepts.Bloodfest,
+        },
+        KeyPoints = new[]
+        {
+            "No Mercy: 20% damage boost for 20s (60s CD)",
+            "Double Down: Huge AoE damage, costs 2 cartridges (60s CD)",
+            "Bloodfest: Instantly grants 3 cartridges (120s CD)",
+            "Pack your biggest hits into No Mercy windows",
+        },
+        RelatedAbilities = new[] { "No Mercy", "Double Down", "Bloodfest" },
+        Tips = new[]
+        {
+            "Enter No Mercy with 2+ cartridges for Double Down",
+            "Bloodfest every other No Mercy to refill cartridges",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson5 = new()
+    {
+        LessonId = "gnb.lesson_5",
+        JobPrefix = "gnb",
+        Title = "Gnashing Fang Combo",
+        LessonNumber = 5,
+        Description = "Master GNB's signature combo: Gnashing Fang, Continuation weaving, and the full combo chain.",
+        Prerequisites = new[] { "gnb.lesson_4" },
+        ConceptsCovered = new[]
+        {
+            GnbConcepts.GnashingFang,
+            GnbConcepts.Continuation,
+            GnbConcepts.ContinuationChain,
+        },
+        KeyPoints = new[]
+        {
+            "Gnashing Fang: Starts the 3-hit combo, costs 1 cartridge (30s CD)",
+            "Each hit enables a Continuation oGCD - weave them!",
+            "Gnashing Fang > Jugular Rip > Savage Claw > Abdomen Tear > Wicked Talon > Eye Gouge",
+            "This is GNB's most complex and rewarding combo",
+        },
+        RelatedAbilities = new[] { "Gnashing Fang", "Savage Claw", "Wicked Talon", "Jugular Rip", "Abdomen Tear", "Eye Gouge" },
+        Tips = new[]
+        {
+            "Never skip Continuation - it's free oGCD damage",
+            "Practice the rhythm: GCD > oGCD > GCD > oGCD > GCD > oGCD",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson6 = new()
+    {
+        LessonId = "gnb.lesson_6",
+        JobPrefix = "gnb",
+        Title = "Party Protection",
+        LessonNumber = 6,
+        Description = "Master GNB's party utility: Heart of Light for party mitigation and Heart of Corundum for ally protection.",
+        Prerequisites = new[] { "gnb.lesson_5" },
+        ConceptsCovered = new[]
+        {
+            GnbConcepts.HeartOfLight,
+            GnbConcepts.GreatNebula,
+            GnbConcepts.PartyProtection,
+        },
+        KeyPoints = new[]
+        {
+            "Heart of Light: 10% magic mitigation for party for 15s (90s CD)",
+            "Heart of Corundum can be used on allies, not just yourself",
+            "Aurora can also be used on party members for healing",
+            "Coordinate party mitigation with healers and co-tank",
+        },
+        RelatedAbilities = new[] { "Heart of Light", "Heart of Corundum", "Aurora" },
+        Tips = new[]
+        {
+            "Heart of Light only mitigates magic - learn boss damage types",
+            "Heart of Corundum on healers during heavy damage can save lives",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson7 = new()
+    {
+        LessonId = "gnb.lesson_7",
+        JobPrefix = "gnb",
+        Title = "Advanced Optimization",
+        LessonNumber = 7,
+        Description = "Final lesson: tank swaps, oGCD weaving, Reign of Beasts combo, and optimizing your full rotation.",
+        Prerequisites = new[] { "gnb.lesson_6" },
+        ConceptsCovered = new[]
+        {
+            GnbConcepts.TankSwap,
+            GnbConcepts.SonicBreak,
+            GnbConcepts.BowShock,
+            GnbConcepts.ReignOfBeasts,
+            GnbConcepts.BlastingZone,
+            GnbConcepts.Trajectory,
+        },
+        KeyPoints = new[]
+        {
+            "Sonic Break: DoT attack (60s CD) - use in No Mercy",
+            "Bow Shock: AoE DoT (60s CD) - use in No Mercy",
+            "Reign of Beasts: New combo from No Mercy, 3-hit chain",
+            "Blasting Zone: Strong oGCD (30s CD) - weave on cooldown",
+        },
+        RelatedAbilities = new[] { "Provoke", "Shirk", "Sonic Break", "Bow Shock", "Reign of Beasts", "Blasting Zone", "Trajectory" },
+        Tips = new[]
+        {
+            "Trajectory has 2 charges - save for movement or gap closing",
+            "GNB has the busiest rotation - practice oGCD weaving",
+        },
+    };
+
+    public static readonly LessonDefinition[] AllLessons = new[]
+    {
+        Lesson1, Lesson2, Lesson3, Lesson4, Lesson5, Lesson6, Lesson7,
+    };
+}
+
+/// <summary>
 /// Helper class for accessing all lessons.
 /// </summary>
 public static class LessonRegistry
@@ -972,10 +1843,16 @@ public static class LessonRegistry
     {
         return jobPrefix.ToLowerInvariant() switch
         {
+            // Healers
             "whm" => WhmLessons.AllLessons,
             "sch" => SchLessons.AllLessons,
             "ast" => AstLessons.AllLessons,
             "sge" => SgeLessons.AllLessons,
+            // Tanks
+            "pld" => PldLessons.AllLessons,
+            "war" => WarLessons.AllLessons,
+            "drk" => DrkLessons.AllLessons,
+            "gnb" => GnbLessons.AllLessons,
             _ => Array.Empty<LessonDefinition>(),
         };
     }
@@ -1005,6 +1882,10 @@ public static class LessonRegistry
             .Concat(SchLessons.AllLessons)
             .Concat(AstLessons.AllLessons)
             .Concat(SgeLessons.AllLessons)
+            .Concat(PldLessons.AllLessons)
+            .Concat(WarLessons.AllLessons)
+            .Concat(DrkLessons.AllLessons)
+            .Concat(GnbLessons.AllLessons)
             .ToArray();
     }
 }

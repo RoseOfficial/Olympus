@@ -3,6 +3,27 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.12.0 - Tank Training Mode
+
+**Training Mode for Tanks**
+- Added Training Mode support for all 4 tanks: Paladin, Warrior, Dark Knight, Gunbreaker
+- 100 new tank concepts covering defensive cooldowns, burst windows, and party utility
+- 28 progressive lessons (7 per tank) from basics to advanced optimization
+
+**Lesson Content**
+- PLD: Oath Gauge, Fight or Flight, magic phase, Hallowed Ground timing, Divine Veil
+- WAR: Beast Gauge, Inner Release windows, Bloodwhetting sustain, Holmgang, Shake It Off
+- DRK: Blood Gauge, Darkside maintenance, The Blackest Night optimization, Living Dead
+- GNB: Cartridge Gauge, No Mercy windows, Gnashing Fang combos, Superbolide, Heart of Corundum
+
+**Topics Covered**
+- Gauge management and resource optimization
+- Invulnerability timing and healer coordination
+- Mitigation stacking and cooldown rotation
+- Tank swap coordination
+- Party protection abilities
+<!-- LATEST-END -->
+
 ## v3.11.0 - Training Mode: Skill Quizzes
 
 **New Quizzes Tab**
@@ -26,7 +47,6 @@ All notable changes to Olympus will be documented in this file.
 - Quiz completion status shown in quiz list
 - Pass/fail indicators with score display
 - Overall progress bar per job
-<!-- LATEST-END -->
 
 ## v3.10.0 - Performance-Based Lesson Recommendations
 

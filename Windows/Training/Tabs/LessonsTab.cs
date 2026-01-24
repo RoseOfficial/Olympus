@@ -27,9 +27,10 @@ public static class LessonsTab
 
     public static void Draw(ITrainingService trainingService, TrainingConfig config)
     {
-        // Job tabs
+        // Job tabs - organized by role
         if (ImGui.BeginTabBar("LessonJobTabs"))
         {
+            // Healer tabs
             if (ImGui.BeginTabItem("WHM"))
             {
                 selectedJob = "whm";
@@ -51,6 +52,36 @@ public static class LessonsTab
             if (ImGui.BeginTabItem("SGE"))
             {
                 selectedJob = "sge";
+                ImGui.EndTabItem();
+            }
+
+            // Visual separator
+            ImGui.SameLine();
+            ImGui.TextColored(NeutralColor, "|");
+            ImGui.SameLine();
+
+            // Tank tabs
+            if (ImGui.BeginTabItem("PLD"))
+            {
+                selectedJob = "pld";
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("WAR"))
+            {
+                selectedJob = "war";
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("DRK"))
+            {
+                selectedJob = "drk";
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("GNB"))
+            {
+                selectedJob = "gnb";
                 ImGui.EndTabItem();
             }
 

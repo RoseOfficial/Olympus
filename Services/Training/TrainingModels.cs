@@ -371,6 +371,206 @@ public static class SgeConcepts
 }
 
 /// <summary>
+/// Well-known concept IDs for PLD tanking.
+/// </summary>
+public static class PldConcepts
+{
+    // Core Mechanics (5)
+    public const string OathGauge = "pld.oath_gauge";
+    public const string FightOrFlight = "pld.fight_or_flight";
+    public const string Requiescat = "pld.requiescat";
+    public const string GoringBlade = "pld.goring_blade";
+    public const string AtonementChain = "pld.atonement_chain";
+
+    // Defensive (8)
+    public const string HallowedGround = "pld.hallowed_ground";
+    public const string Sentinel = "pld.sentinel";
+    public const string Sheltron = "pld.sheltron";
+    public const string Bulwark = "pld.bulwark";
+    public const string DivineVeil = "pld.divine_veil";
+    public const string Cover = "pld.cover";
+    public const string PassageOfArms = "pld.passage_of_arms";
+    public const string Clemency = "pld.clemency";
+
+    // Damage (6)
+    public const string HolySpirit = "pld.holy_spirit";
+    public const string Confiteor = "pld.confiteor";
+    public const string BladeCombo = "pld.blade_combo";
+    public const string Expiacion = "pld.expiacion";
+    public const string CircleOfScorn = "pld.circle_of_scorn";
+    public const string Intervene = "pld.intervene";
+
+    // Advanced (6)
+    public const string MagicPhase = "pld.magic_phase";
+    public const string BurstWindow = "pld.burst_window";
+    public const string MitigationStacking = "pld.mitigation_stacking";
+    public const string PartyProtection = "pld.party_protection";
+    public const string TankSwap = "pld.tank_swap";
+    public const string InvulnTiming = "pld.invuln_timing";
+
+    /// <summary>
+    /// All PLD concepts for counting.
+    /// </summary>
+    public static readonly string[] AllConcepts = new[]
+    {
+        OathGauge, FightOrFlight, Requiescat, GoringBlade, AtonementChain,
+        HallowedGround, Sentinel, Sheltron, Bulwark, DivineVeil, Cover, PassageOfArms, Clemency,
+        HolySpirit, Confiteor, BladeCombo, Expiacion, CircleOfScorn, Intervene,
+        MagicPhase, BurstWindow, MitigationStacking, PartyProtection, TankSwap, InvulnTiming,
+    };
+}
+
+/// <summary>
+/// Well-known concept IDs for WAR tanking.
+/// </summary>
+public static class WarConcepts
+{
+    // Core Mechanics (5)
+    public const string BeastGauge = "war.beast_gauge";
+    public const string SurgingTempest = "war.surging_tempest";
+    public const string InnerRelease = "war.inner_release";
+    public const string NascentChaos = "war.nascent_chaos";
+    public const string Infuriate = "war.infuriate";
+
+    // Defensive (8)
+    public const string Holmgang = "war.holmgang";
+    public const string Vengeance = "war.vengeance";
+    public const string Bloodwhetting = "war.bloodwhetting";
+    public const string ThrillOfBattle = "war.thrill_of_battle";
+    public const string Equilibrium = "war.equilibrium";
+    public const string ShakeItOff = "war.shake_it_off";
+    public const string NascentFlash = "war.nascent_flash";
+    public const string RawIntuition = "war.raw_intuition";
+
+    // Damage (6)
+    public const string FellCleave = "war.fell_cleave";
+    public const string InnerChaos = "war.inner_chaos";
+    public const string PrimalRend = "war.primal_rend";
+    public const string Upheaval = "war.upheaval";
+    public const string Onslaught = "war.onslaught";
+    public const string Orogeny = "war.orogeny";
+
+    // Advanced (6)
+    public const string IRWindow = "war.ir_window";
+    public const string GaugePooling = "war.gauge_pooling";
+    public const string MitigationStacking = "war.mitigation_stacking";
+    public const string PartyProtection = "war.party_protection";
+    public const string TankSwap = "war.tank_swap";
+    public const string InvulnTiming = "war.invuln_timing";
+
+    /// <summary>
+    /// All WAR concepts for counting.
+    /// </summary>
+    public static readonly string[] AllConcepts = new[]
+    {
+        BeastGauge, SurgingTempest, InnerRelease, NascentChaos, Infuriate,
+        Holmgang, Vengeance, Bloodwhetting, ThrillOfBattle, Equilibrium, ShakeItOff, NascentFlash, RawIntuition,
+        FellCleave, InnerChaos, PrimalRend, Upheaval, Onslaught, Orogeny,
+        IRWindow, GaugePooling, MitigationStacking, PartyProtection, TankSwap, InvulnTiming,
+    };
+}
+
+/// <summary>
+/// Well-known concept IDs for DRK tanking.
+/// </summary>
+public static class DrkConcepts
+{
+    // Core Mechanics (5)
+    public const string BloodGauge = "drk.blood_gauge";
+    public const string Darkside = "drk.darkside";
+    public const string DarkArts = "drk.dark_arts";
+    public const string BloodWeapon = "drk.blood_weapon";
+    public const string Delirium = "drk.delirium";
+
+    // Defensive (8)
+    public const string LivingDead = "drk.living_dead";
+    public const string TheBlackestNight = "drk.the_blackest_night";
+    public const string ShadowWall = "drk.shadow_wall";
+    public const string DarkMind = "drk.dark_mind";
+    public const string Oblation = "drk.oblation";
+    public const string DarkMissionary = "drk.dark_missionary";
+    public const string LivingShadow = "drk.living_shadow";
+    public const string WalkingDead = "drk.walking_dead";
+
+    // Damage (6)
+    public const string EdgeOfShadow = "drk.edge_of_shadow";
+    public const string Bloodspiller = "drk.bloodspiller";
+    public const string CarveAndSpit = "drk.carve_and_spit";
+    public const string SaltedEarth = "drk.salted_earth";
+    public const string Shadowbringer = "drk.shadowbringer";
+    public const string Disesteem = "drk.disesteem";
+
+    // Advanced (6)
+    public const string TBNManagement = "drk.tbn_management";
+    public const string DarksideMaintenance = "drk.darkside_maintenance";
+    public const string MitigationStacking = "drk.mitigation_stacking";
+    public const string PartyProtection = "drk.party_protection";
+    public const string TankSwap = "drk.tank_swap";
+    public const string InvulnTiming = "drk.invuln_timing";
+
+    /// <summary>
+    /// All DRK concepts for counting.
+    /// </summary>
+    public static readonly string[] AllConcepts = new[]
+    {
+        BloodGauge, Darkside, DarkArts, BloodWeapon, Delirium,
+        LivingDead, TheBlackestNight, ShadowWall, DarkMind, Oblation, DarkMissionary, LivingShadow, WalkingDead,
+        EdgeOfShadow, Bloodspiller, CarveAndSpit, SaltedEarth, Shadowbringer, Disesteem,
+        TBNManagement, DarksideMaintenance, MitigationStacking, PartyProtection, TankSwap, InvulnTiming,
+    };
+}
+
+/// <summary>
+/// Well-known concept IDs for GNB tanking.
+/// </summary>
+public static class GnbConcepts
+{
+    // Core Mechanics (5)
+    public const string CartridgeGauge = "gnb.cartridge_gauge";
+    public const string NoMercy = "gnb.no_mercy";
+    public const string GnashingFang = "gnb.gnashing_fang";
+    public const string Continuation = "gnb.continuation";
+    public const string Bloodfest = "gnb.bloodfest";
+
+    // Defensive (8)
+    public const string Superbolide = "gnb.superbolide";
+    public const string HeartOfCorundum = "gnb.heart_of_corundum";
+    public const string Nebula = "gnb.nebula";
+    public const string Camouflage = "gnb.camouflage";
+    public const string Aurora = "gnb.aurora";
+    public const string HeartOfLight = "gnb.heart_of_light";
+    public const string GreatNebula = "gnb.great_nebula";
+    public const string Trajectory = "gnb.trajectory";
+
+    // Damage (6)
+    public const string BurstStrike = "gnb.burst_strike";
+    public const string DoubleDown = "gnb.double_down";
+    public const string SonicBreak = "gnb.sonic_break";
+    public const string BowShock = "gnb.bow_shock";
+    public const string ReignOfBeasts = "gnb.reign_of_beasts";
+    public const string BlastingZone = "gnb.blasting_zone";
+
+    // Advanced (6)
+    public const string NoMercyWindow = "gnb.no_mercy_window";
+    public const string ContinuationChain = "gnb.continuation_chain";
+    public const string MitigationStacking = "gnb.mitigation_stacking";
+    public const string PartyProtection = "gnb.party_protection";
+    public const string TankSwap = "gnb.tank_swap";
+    public const string InvulnTiming = "gnb.invuln_timing";
+
+    /// <summary>
+    /// All GNB concepts for counting.
+    /// </summary>
+    public static readonly string[] AllConcepts = new[]
+    {
+        CartridgeGauge, NoMercy, GnashingFang, Continuation, Bloodfest,
+        Superbolide, HeartOfCorundum, Nebula, Camouflage, Aurora, HeartOfLight, GreatNebula, Trajectory,
+        BurstStrike, DoubleDown, SonicBreak, BowShock, ReignOfBeasts, BlastingZone,
+        NoMercyWindow, ContinuationChain, MitigationStacking, PartyProtection, TankSwap, InvulnTiming,
+    };
+}
+
+/// <summary>
 /// Represents a lesson recommendation based on detected performance issues.
 /// </summary>
 public sealed class LessonRecommendation
