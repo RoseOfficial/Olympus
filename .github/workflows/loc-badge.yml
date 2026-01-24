@@ -17,7 +17,8 @@ jobs:
         id: tokei
         run: |
           LINES=$(tokei --output json | jq '.Total.code')
-          echo "lines=$LINES" >> $GITHUB_OUTPUT
+          FORMATTED=$(printf "%'d" $LINES)
+          echo "lines=$FORMATTED" >> $GITHUB_OUTPUT
 
       - name: Update Gist
         uses: schneegans/dynamic-badges-action@v1.7.0
