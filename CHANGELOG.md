@@ -3,6 +3,33 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.21.0 - BRD Training Mode
+
+**BRD (Calliope) Training Mode**
+- Training Mode now supports Bard - second ranged physical DPS job added
+- 25 new BRD concepts covering song system, Repertoire/Pitch Perfect, Soul Voice/Apex, procs, DoTs, burst windows, and party coordination
+- 7 progressive lessons from fundamentals to advanced optimization
+- 35 quiz questions testing real Bard decisions
+
+**Lesson Content**
+- Lesson 1: Bard Fundamentals - 3-song cycle (WM → MB → AP), party buffs from each song, switching timing
+- Lesson 2: Repertoire Mastery - Wanderer's Minuet Repertoire generation, Pitch Perfect 3-stack optimization, Empyreal Arrow guaranteed proc
+- Lesson 3: Soul Voice & Apex Arrow - Soul Voice gauge management, 80+ Apex threshold, Blast Arrow follow-up, overcap prevention
+- Lesson 4: Proc Management - Straight Shot Ready (Hawk's Eye) procs, Refulgent Arrow priority, Barrage + Resonant Arrow combo
+- Lesson 5: DoT Optimization - Caustic Bite/Stormbite uptime, Iron Jaws refresh window, buff snapshotting during Raging Strikes
+- Lesson 6: Burst Window Execution - Raging Strikes → Battle Voice → Radiant Finale sequence, Coda scaling, Radiant Encore follow-up
+- Lesson 7: Advanced Coordination - Empyreal Arrow cooldown management, Bloodletter spam during MB, Troubadour/Nature's Minne utility, IPC interrupt coordination
+
+**Quiz Features**
+- 7 quizzes (one per lesson) with 5 scenario-based questions each
+- Pass 4 out of 5 to complete a quiz
+- Detailed explanations for every answer
+- Progress tracking and best score persistence
+
+**Bug Fix**
+- Fixed MCH and VPR concepts not being included in TrainingService.GetAllConcepts() and GetJobPrefix() - these jobs now properly track progress
+<!-- LATEST-END -->
+
 ## v3.20.0 - MCH Training Mode
 
 **MCH (Prometheus) Training Mode**
@@ -28,7 +55,6 @@ All notable changes to Olympus will be documented in this file.
 
 **Ranged Physical DPS Training Started**
 - MCH is the first ranged physical DPS with Training Mode (BRD, DNC to follow)
-<!-- LATEST-END -->
 
 ## v3.19.0 - VPR Training Mode
 

@@ -107,6 +107,12 @@ public static class QuizRegistry
             QuizzesByLessonId[quiz.LessonId] = quiz;
             QuizzesById[quiz.QuizId] = quiz;
         }
+
+        foreach (var quiz in BrdQuizzes.AllQuizzes)
+        {
+            QuizzesByLessonId[quiz.LessonId] = quiz;
+            QuizzesById[quiz.QuizId] = quiz;
+        }
     }
 
     /// <summary>
@@ -151,6 +157,7 @@ public static class QuizRegistry
             "vpr" => VprQuizzes.AllQuizzes,
             // Ranged Physical DPS
             "mch" => MchQuizzes.AllQuizzes,
+            "brd" => BrdQuizzes.AllQuizzes,
             _ => Array.Empty<QuizDefinition>(),
         };
     }
@@ -6716,6 +6723,444 @@ public static class MchQuizzes
                 Options = new[] { "Yes - use Head Graze immediately", "No - DPS loss", "Only if no one else can", "Check IPC for interrupt coordination first" },
                 CorrectIndex = 3,
                 Explanation = "Olympus coordinates interrupts via IPC. Check if another player already interrupted to avoid wasted Head Grazes.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition[] AllQuizzes = new[]
+    {
+        Lesson1Quiz, Lesson2Quiz, Lesson3Quiz, Lesson4Quiz, Lesson5Quiz, Lesson6Quiz, Lesson7Quiz,
+    };
+}
+
+/// <summary>
+/// BRD (Calliope) quiz content - 7 quizzes with 5 questions each.
+/// </summary>
+public static class BrdQuizzes
+{
+    public static readonly QuizDefinition Lesson1Quiz = new()
+    {
+        QuizId = "brd.lesson_1.quiz",
+        LessonId = "brd.lesson_1",
+        Title = "Quiz: Bard Fundamentals",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_1.q1",
+                ConceptId = BrdConcepts.SongRotation,
+                Scenario = "You're starting a boss fight as Bard.",
+                Question = "What is the standard song rotation order?",
+                Options = new[] { "Mage's Ballad → Army's Paeon → Wanderer's Minuet", "Army's Paeon → Wanderer's Minuet → Mage's Ballad", "Wanderer's Minuet → Mage's Ballad → Army's Paeon", "Any order - songs are interchangeable" },
+                CorrectIndex = 2,
+                Explanation = "The standard rotation is WM → MB → AP. Start with Wanderer's Minuet for the crit buff during opener burst.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_1.q2",
+                ConceptId = BrdConcepts.MagesBallad,
+                Scenario = "You notice Bloodletter keeps resetting during one of your songs.",
+                Question = "Which song causes Bloodletter resets?",
+                Options = new[] { "Wanderer's Minuet", "Mage's Ballad", "Army's Paeon", "All songs reset Bloodletter" },
+                CorrectIndex = 1,
+                Explanation = "Mage's Ballad has a chance to reset Bloodletter when your DoTs deal damage. This is its unique Repertoire effect.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_1.q3",
+                ConceptId = BrdConcepts.WanderersMinuet,
+                Scenario = "Your party is about to use their 2-minute burst cooldowns.",
+                Question = "What party buff does Wanderer's Minuet provide?",
+                Options = new[] { "+10% damage dealt", "+20% direct hit rate", "+2% critical hit rate", "+15% healing received" },
+                CorrectIndex = 2,
+                Explanation = "Wanderer's Minuet provides +2% critical hit rate to the party, making it ideal for burst windows.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_1.q4",
+                ConceptId = BrdConcepts.SongRotation,
+                Scenario = "Your current song has 2 seconds remaining.",
+                Question = "What should you do?",
+                Options = new[] { "Wait for it to expire naturally", "Switch to the next song immediately", "Use all remaining oGCDs first", "Cancel the song early for DPS" },
+                CorrectIndex = 1,
+                Explanation = "Switch songs when <3s remaining to avoid dead time. Waiting for natural expiry wastes GCDs.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_1.q5",
+                ConceptId = BrdConcepts.ArmysPaeon,
+                Scenario = "You're in Army's Paeon phase.",
+                Question = "What is the party buff from Army's Paeon?",
+                Options = new[] { "+2% critical hit rate", "+4% direct hit rate", "+10% damage dealt", "Reduces GCD recast time" },
+                CorrectIndex = 1,
+                Explanation = "Army's Paeon provides +4% direct hit rate to the party. It's the 'filler' song between WM and MB.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson2Quiz = new()
+    {
+        QuizId = "brd.lesson_2.quiz",
+        LessonId = "brd.lesson_2",
+        Title = "Quiz: Repertoire Mastery",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_2.q1",
+                ConceptId = BrdConcepts.RepertoireStacks,
+                Scenario = "You're in Wanderer's Minuet phase.",
+                Question = "When do Repertoire stacks generate?",
+                Options = new[] { "From any weapon skill", "From DoT critical hits only", "From all damage dealt", "Automatically over time" },
+                CorrectIndex = 1,
+                Explanation = "During WM, Repertoire stacks generate when your DoTs deal critical damage. More crit = more stacks.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_2.q2",
+                ConceptId = BrdConcepts.PitchPerfect,
+                Scenario = "You have 2 Repertoire stacks and Wanderer's Minuet is about to expire.",
+                Question = "What's the optimal Pitch Perfect stack count?",
+                Options = new[] { "Use at 1 stack minimum", "Use at 2 stacks", "Use at 3 stacks for maximum potency", "Stacks don't affect potency" },
+                CorrectIndex = 2,
+                Explanation = "Pitch Perfect at 3 stacks deals 540 potency. Lower stacks deal less. Wait for 3 when possible.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_2.q3",
+                ConceptId = BrdConcepts.SongSwitching,
+                Scenario = "Wanderer's Minuet has 2 seconds left. You have 2 Repertoire stacks.",
+                Question = "What should you do?",
+                Options = new[] { "Wait for a 3rd stack", "Use Pitch Perfect now, then switch songs", "Switch songs immediately", "Let the song expire naturally" },
+                CorrectIndex = 1,
+                Explanation = "With <3s remaining, use PP at 2 stacks to avoid losing them. Losing 2 stacks is worse than suboptimal potency.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_2.q4",
+                ConceptId = BrdConcepts.RepertoireStacks,
+                Scenario = "Empyreal Arrow is available during Wanderer's Minuet.",
+                Question = "What does Empyreal Arrow guarantee during WM?",
+                Options = new[] { "Nothing special", "One Repertoire stack", "Three Repertoire stacks", "A Bloodletter reset" },
+                CorrectIndex = 1,
+                Explanation = "Empyreal Arrow guarantees one Repertoire proc during Wanderer's Minuet, regardless of crit.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_2.q5",
+                ConceptId = BrdConcepts.PitchPerfect,
+                Scenario = "You have 3 stacks but Wanderer's Minuet just ended.",
+                Question = "What happens to your Repertoire stacks?",
+                Options = new[] { "They carry over to the next song", "They convert to Soul Voice", "They're lost", "They become Bloodletter resets" },
+                CorrectIndex = 2,
+                Explanation = "Repertoire stacks are lost when WM ends. Always use Pitch Perfect before switching songs.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson3Quiz = new()
+    {
+        QuizId = "brd.lesson_3.quiz",
+        LessonId = "brd.lesson_3",
+        Title = "Quiz: Soul Voice & Apex",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_3.q1",
+                ConceptId = BrdConcepts.SoulVoiceGauge,
+                Scenario = "You notice your Soul Voice gauge increasing during combat.",
+                Question = "How does Soul Voice build?",
+                Options = new[] { "From weapon skills", "From Repertoire procs across all songs", "From critical hits only", "From oGCD abilities" },
+                CorrectIndex = 1,
+                Explanation = "Soul Voice builds from Repertoire procs during any active song - not just Wanderer's Minuet.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_3.q2",
+                ConceptId = BrdConcepts.ApexArrow,
+                Scenario = "Your Soul Voice gauge is at 75.",
+                Question = "What's the minimum gauge to use Apex Arrow effectively?",
+                Options = new[] { "Any amount", "50 minimum", "80 minimum", "100 only" },
+                CorrectIndex = 2,
+                Explanation = "Apex Arrow at 80+ gauge unlocks Blast Arrow. Below 80, you miss the follow-up entirely.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_3.q3",
+                ConceptId = BrdConcepts.BlastArrow,
+                Scenario = "You just used Apex Arrow at 100 Soul Voice.",
+                Question = "What ability becomes available?",
+                Options = new[] { "Pitch Perfect", "Refulgent Arrow", "Blast Arrow", "Radiant Encore" },
+                CorrectIndex = 2,
+                Explanation = "Apex Arrow at 80+ grants Blast Arrow Ready, a powerful follow-up attack. Don't forget to use it!",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_3.q4",
+                ConceptId = BrdConcepts.SoulVoiceOvercapping,
+                Scenario = "Your Soul Voice is at 100 and continuing to fight.",
+                Question = "What's the problem with this situation?",
+                Options = new[] { "Nothing - save it for burst", "You're losing potential Soul Voice generation", "Apex Arrow damage decreases", "It will automatically fire" },
+                CorrectIndex = 1,
+                Explanation = "At 100 gauge, any Soul Voice you would generate is wasted. Use Apex before capping.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_3.q5",
+                ConceptId = BrdConcepts.ApexArrow,
+                Scenario = "Raid buffs are active. Your Soul Voice is at 85.",
+                Question = "Should you use Apex Arrow?",
+                Options = new[] { "No - wait for 100", "Yes - 80+ is enough during buffs", "No - save for next burst", "Yes - but skip Blast Arrow" },
+                CorrectIndex = 1,
+                Explanation = "During burst windows, using Apex at 80+ is optimal. Waiting for 100 may miss buff windows.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson4Quiz = new()
+    {
+        QuizId = "brd.lesson_4.quiz",
+        LessonId = "brd.lesson_4",
+        Title = "Quiz: Proc Management",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_4.q1",
+                ConceptId = BrdConcepts.StraightShotReady,
+                Scenario = "You're using Burst Shot as your filler GCD.",
+                Question = "What proc can Burst Shot grant?",
+                Options = new[] { "Bloodletter Ready", "Pitch Perfect Ready", "Straight Shot Ready (Hawk's Eye)", "Resonant Arrow Ready" },
+                CorrectIndex = 2,
+                Explanation = "Burst Shot has a ~35% chance to grant Straight Shot Ready, which upgrades to Refulgent Arrow.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_4.q2",
+                ConceptId = BrdConcepts.Barrage,
+                Scenario = "Barrage is available. You have a Refulgent Arrow proc.",
+                Question = "What's the optimal Barrage target?",
+                Options = new[] { "Burst Shot for consistency", "Refulgent Arrow for triple damage", "Apex Arrow for maximum potency", "Iron Jaws to refresh DoTs" },
+                CorrectIndex = 1,
+                Explanation = "Barrage + Refulgent Arrow = triple damage (840 potency). Always pair Barrage with Refulgent.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_4.q3",
+                ConceptId = BrdConcepts.RefulgentArrow,
+                Scenario = "You have Straight Shot Ready with 8 seconds remaining.",
+                Question = "What's the priority?",
+                Options = new[] { "Use it immediately - highest priority proc", "Wait for Barrage", "Let it expire - DPS loss anyway", "Use Burst Shot instead" },
+                CorrectIndex = 0,
+                Explanation = "Refulgent Arrow is your highest priority proc. Never let it fall off - it's a significant DPS gain.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_4.q4",
+                ConceptId = BrdConcepts.ResonantArrow,
+                Scenario = "You just used Barrage + Refulgent Arrow.",
+                Question = "What follow-up ability is now available?",
+                Options = new[] { "Blast Arrow", "Pitch Perfect", "Resonant Arrow", "Radiant Encore" },
+                CorrectIndex = 2,
+                Explanation = "After using Barrage, you gain Resonant Arrow Ready - a free follow-up attack. Don't miss it!",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_4.q5",
+                ConceptId = BrdConcepts.StraightShotReady,
+                Scenario = "You have 25 seconds on your Straight Shot Ready proc. Barrage cooldown is 15 seconds.",
+                Question = "Should you wait for Barrage?",
+                Options = new[] { "Yes - always pair with Barrage", "No - use the proc now, get another before Barrage", "Yes - but only if burst is coming", "No - but hold Barrage for next proc" },
+                CorrectIndex = 1,
+                Explanation = "With 25s on the proc and 15s on Barrage, use the proc now. You'll likely get another before Barrage returns.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson5Quiz = new()
+    {
+        QuizId = "brd.lesson_5.quiz",
+        LessonId = "brd.lesson_5",
+        Title = "Quiz: DoT Optimization",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_5.q1",
+                ConceptId = BrdConcepts.IronJaws,
+                Scenario = "Both DoTs have 5 seconds remaining.",
+                Question = "What's the optimal refresh window for DoTs?",
+                Options = new[] { "Refresh at 10+ seconds", "Refresh at 3-7 seconds remaining", "Refresh only at 0 seconds", "Refresh whenever Iron Jaws is available" },
+                CorrectIndex = 1,
+                Explanation = "Refresh DoTs at 3-7 seconds remaining. This maximizes uptime without clipping.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_5.q2",
+                ConceptId = BrdConcepts.IronJaws,
+                Scenario = "You need to refresh your DoTs.",
+                Question = "What does Iron Jaws do?",
+                Options = new[] { "Applies one DoT", "Refreshes only Caustic Bite", "Refreshes both DoTs simultaneously", "Applies new DoTs with current buffs" },
+                CorrectIndex = 2,
+                Explanation = "Iron Jaws refreshes both Caustic Bite and Stormbite simultaneously - never apply them separately.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_5.q3",
+                ConceptId = BrdConcepts.CausticBite,
+                Scenario = "You're applying DoTs to a fresh target.",
+                Question = "What's the preferred application order?",
+                Options = new[] { "Caustic Bite first (lower potency)", "Stormbite first (higher potency)", "Iron Jaws (applies both)", "Either order - they're the same" },
+                CorrectIndex = 1,
+                Explanation = "Apply Stormbite first - it has higher initial potency. Then Caustic Bite, then maintain with Iron Jaws.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_5.q4",
+                ConceptId = BrdConcepts.Stormbite,
+                Scenario = "Raging Strikes is active. Your DoTs have 8 seconds remaining.",
+                Question = "What should you do?",
+                Options = new[] { "Wait until 3-7 seconds", "Refresh now with Iron Jaws", "Reapply both DoTs manually", "Focus on other abilities" },
+                CorrectIndex = 1,
+                Explanation = "During Raging Strikes, refresh DoTs early with Iron Jaws. They snapshot the buff for the full 45s duration.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_5.q5",
+                ConceptId = BrdConcepts.CausticBite,
+                Scenario = "Your DoTs fell off during a phase transition.",
+                Question = "What do you do when the boss returns?",
+                Options = new[] { "Use Iron Jaws immediately", "Apply Stormbite → Caustic Bite → then Iron Jaws later", "Apply Caustic Bite → Stormbite → then Iron Jaws later", "Just use Iron Jaws for everything" },
+                CorrectIndex = 1,
+                Explanation = "Iron Jaws only refreshes existing DoTs. On a fresh target, manually apply Stormbite → Caustic Bite first.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson6Quiz = new()
+    {
+        QuizId = "brd.lesson_6.quiz",
+        LessonId = "brd.lesson_6",
+        Title = "Quiz: Burst Window",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_6.q1",
+                ConceptId = BrdConcepts.RagingStrikes,
+                Scenario = "You're entering your 2-minute burst window.",
+                Question = "What's the correct burst sequence?",
+                Options = new[] { "Battle Voice → Radiant Finale → Raging Strikes", "Radiant Finale → Raging Strikes → Battle Voice", "Raging Strikes → Battle Voice → Radiant Finale", "Any order - they're all buffs" },
+                CorrectIndex = 2,
+                Explanation = "The sequence is Raging Strikes → Battle Voice → Radiant Finale. This ensures all buffs are active together.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_6.q2",
+                ConceptId = BrdConcepts.RadiantFinale,
+                Scenario = "You've used all three songs during the fight.",
+                Question = "How does Radiant Finale potency scale?",
+                Options = new[] { "Fixed potency regardless of Coda", "Scales with current song active", "Scales with number of Coda (1-3 songs used)", "Scales with Soul Voice gauge" },
+                CorrectIndex = 2,
+                Explanation = "Radiant Finale's party buff scales with the number of Coda you've collected (1 per unique song used).",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_6.q3",
+                ConceptId = BrdConcepts.BattleVoice,
+                Scenario = "Battle Voice is ready. Other DPS are about to use their burst.",
+                Question = "What buff does Battle Voice provide?",
+                Options = new[] { "+10% damage dealt", "+20% direct hit rate", "+15% critical hit rate", "+25% action speed" },
+                CorrectIndex = 1,
+                Explanation = "Battle Voice grants +20% direct hit rate to the party. Coordinate with other DPS burst windows.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_6.q4",
+                ConceptId = BrdConcepts.RadiantFinale,
+                Scenario = "You've only used one song so far this fight.",
+                Question = "How many Coda do you have for Radiant Finale?",
+                Options = new[] { "0 - Coda come from damage", "1 - one per unique song used", "3 - all songs grant 3", "Depends on Repertoire procs" },
+                CorrectIndex = 1,
+                Explanation = "You get 1 Coda per unique song used. With only one song used, you have 1 Coda for RF.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_6.q5",
+                ConceptId = BrdConcepts.RadiantEncore,
+                Scenario = "You just used Radiant Finale.",
+                Question = "What follow-up ability becomes available?",
+                Options = new[] { "Blast Arrow", "Resonant Arrow", "Radiant Encore", "Pitch Perfect" },
+                CorrectIndex = 2,
+                Explanation = "Radiant Finale grants Radiant Encore Ready - a free follow-up proc. Use it before it expires!",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson7Quiz = new()
+    {
+        QuizId = "brd.lesson_7.quiz",
+        LessonId = "brd.lesson_7",
+        Title = "Quiz: Advanced Coordination",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_7.q1",
+                ConceptId = BrdConcepts.EmpyrealArrow,
+                Scenario = "Empyreal Arrow is available.",
+                Question = "What's the cooldown of Empyreal Arrow?",
+                Options = new[] { "30 seconds", "15 seconds", "60 seconds", "45 seconds" },
+                CorrectIndex = 1,
+                Explanation = "Empyreal Arrow has a 15s cooldown. Use it consistently for guaranteed Repertoire during WM.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_7.q2",
+                ConceptId = BrdConcepts.BloodletterManagement,
+                Scenario = "You're in Mage's Ballad phase.",
+                Question = "How should you handle Bloodletter?",
+                Options = new[] { "Save charges for burst", "Spam freely - it resets constantly", "Use once per GCD maximum", "Only use during procs" },
+                CorrectIndex = 1,
+                Explanation = "During Mage's Ballad, Bloodletter resets constantly from DoT damage. Spam it freely!",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_7.q3",
+                ConceptId = BrdConcepts.PartyUtility,
+                Scenario = "A raidwide is incoming. Troubadour is available.",
+                Question = "When should you use Troubadour?",
+                Options = new[] { "After the raidwide hits", "Before the raidwide hits", "Only when healers ask", "Save it for emergencies" },
+                CorrectIndex = 1,
+                Explanation = "Troubadour is a damage reduction buff. Use it BEFORE the raidwide hits to reduce incoming damage.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_7.q4",
+                ConceptId = BrdConcepts.PartyUtility,
+                Scenario = "An enemy cast bar is interruptible. Head Graze is available.",
+                Question = "What should you check first?",
+                Options = new[] { "Interrupt immediately", "Check if it's worth interrupting", "Let tanks handle it", "Check IPC for interrupt coordination" },
+                CorrectIndex = 3,
+                Explanation = "Olympus coordinates interrupts via IPC. Check if another player already interrupted to avoid wasting Head Graze.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "brd.lesson_7.q5",
+                ConceptId = BrdConcepts.EmpyrealArrow,
+                Scenario = "You have Empyreal Arrow, Bloodletter (2 charges), and Sidewinder all available.",
+                Question = "What's the oGCD weaving priority?",
+                Options = new[] { "Bloodletter → Sidewinder → Empyreal", "Empyreal → Sidewinder → Bloodletter", "Sidewinder → Empyreal → Bloodletter", "Use them in any order" },
+                CorrectIndex = 1,
+                Explanation = "Empyreal Arrow first (guarantees Repertoire), then Sidewinder (higher potency), then Bloodletter.",
             },
         },
     };

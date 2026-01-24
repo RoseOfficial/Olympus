@@ -1016,6 +1016,73 @@ public static class MchConcepts
 }
 
 /// <summary>
+/// BRD (Calliope) Training Mode concepts covering Bard mechanics.
+/// 25 concepts across 7 categories.
+/// </summary>
+public static class BrdConcepts
+{
+    // Song System (4)
+    public const string SongRotation = "brd.song_rotation";
+    public const string WanderersMinuet = "brd.wanderers_minuet";
+    public const string MagesBallad = "brd.mages_ballad";
+    public const string ArmysPaeon = "brd.armys_paeon";
+
+    // Repertoire & Pitch Perfect (3)
+    public const string RepertoireStacks = "brd.repertoire_stacks";
+    public const string PitchPerfect = "brd.pitch_perfect";
+    public const string SongSwitching = "brd.song_switching";
+
+    // Soul Voice & Apex (4)
+    public const string SoulVoiceGauge = "brd.soul_voice_gauge";
+    public const string ApexArrow = "brd.apex_arrow";
+    public const string BlastArrow = "brd.blast_arrow";
+    public const string SoulVoiceOvercapping = "brd.soul_voice_overcapping";
+
+    // Proc System (4)
+    public const string StraightShotReady = "brd.straight_shot_ready";
+    public const string RefulgentArrow = "brd.refulgent_arrow";
+    public const string Barrage = "brd.barrage";
+    public const string ResonantArrow = "brd.resonant_arrow";
+
+    // DoT Management (3)
+    public const string CausticBite = "brd.caustic_bite";
+    public const string Stormbite = "brd.stormbite";
+    public const string IronJaws = "brd.iron_jaws";
+
+    // Burst Window (4)
+    public const string RagingStrikes = "brd.raging_strikes";
+    public const string BattleVoice = "brd.battle_voice";
+    public const string RadiantFinale = "brd.radiant_finale";
+    public const string RadiantEncore = "brd.radiant_encore";
+
+    // oGCD & Utility (3)
+    public const string EmpyrealArrow = "brd.empyreal_arrow";
+    public const string BloodletterManagement = "brd.bloodletter_management";
+    public const string PartyUtility = "brd.party_utility";
+
+    /// <summary>
+    /// All BRD concepts for counting.
+    /// </summary>
+    public static readonly string[] AllConcepts = new[]
+    {
+        // Song System
+        SongRotation, WanderersMinuet, MagesBallad, ArmysPaeon,
+        // Repertoire & Pitch Perfect
+        RepertoireStacks, PitchPerfect, SongSwitching,
+        // Soul Voice & Apex
+        SoulVoiceGauge, ApexArrow, BlastArrow, SoulVoiceOvercapping,
+        // Proc System
+        StraightShotReady, RefulgentArrow, Barrage, ResonantArrow,
+        // DoT Management
+        CausticBite, Stormbite, IronJaws,
+        // Burst Window
+        RagingStrikes, BattleVoice, RadiantFinale, RadiantEncore,
+        // oGCD & Utility
+        EmpyrealArrow, BloodletterManagement, PartyUtility,
+    };
+}
+
+/// <summary>
 /// Represents a lesson recommendation based on detected performance issues.
 /// </summary>
 public sealed class LessonRecommendation

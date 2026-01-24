@@ -153,13 +153,16 @@ public sealed class TrainingService : ITrainingService
             .Concat(SamConcepts.AllConcepts)
             .Concat(MnkConcepts.AllConcepts)
             .Concat(RprConcepts.AllConcepts)
+            .Concat(VprConcepts.AllConcepts)
+            .Concat(MchConcepts.AllConcepts)
+            .Concat(BrdConcepts.AllConcepts)
             .ToArray();
     }
 
     /// <summary>
     /// Gets concepts for a specific job based on concept ID prefix.
     /// </summary>
-    /// <param name="jobPrefix">The job prefix (e.g., "whm", "sch", "ast", "sge", "pld", "war", "drk", "gnb", "drg", "nin", "rpr").</param>
+    /// <param name="jobPrefix">The job prefix (e.g., "whm", "sch", "ast", "sge", "pld", "war", "drk", "gnb", "drg", "nin", "rpr", "vpr", "mch", "brd").</param>
     public static string[] GetConceptsForJob(string jobPrefix)
     {
         return jobPrefix.ToLowerInvariant() switch
@@ -180,6 +183,10 @@ public sealed class TrainingService : ITrainingService
             "sam" => SamConcepts.AllConcepts,
             "mnk" => MnkConcepts.AllConcepts,
             "rpr" => RprConcepts.AllConcepts,
+            "vpr" => VprConcepts.AllConcepts,
+            // Ranged Physical DPS
+            "mch" => MchConcepts.AllConcepts,
+            "brd" => BrdConcepts.AllConcepts,
             _ => Array.Empty<string>(),
         };
     }
@@ -456,6 +463,10 @@ public sealed class TrainingService : ITrainingService
             JobRegistry.Samurai => "sam",
             JobRegistry.Monk or JobRegistry.Pugilist => "mnk",
             JobRegistry.Reaper => "rpr",
+            JobRegistry.Viper => "vpr",
+            // Ranged Physical DPS
+            JobRegistry.Machinist => "mch",
+            JobRegistry.Bard or JobRegistry.Archer => "brd",
             _ => null
         };
     }

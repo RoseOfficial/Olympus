@@ -3367,6 +3367,224 @@ public static class MchLessons
 }
 
 /// <summary>
+/// BRD (Calliope) lesson content - 7 lessons covering 25 concepts.
+/// </summary>
+public static class BrdLessons
+{
+    public static readonly LessonDefinition Lesson1 = new()
+    {
+        LessonId = "brd.lesson_1",
+        JobPrefix = "brd",
+        Title = "Bard Fundamentals",
+        LessonNumber = 1,
+        Description = "Learn the core principles of Bard: the 3-song cycle, party buffs from each song, and the rhythm of switching between them.",
+        Prerequisites = Array.Empty<string>(),
+        ConceptsCovered = new[]
+        {
+            BrdConcepts.SongRotation,
+            BrdConcepts.WanderersMinuet,
+            BrdConcepts.MagesBallad,
+            BrdConcepts.ArmysPaeon,
+        },
+        KeyPoints = new[]
+        {
+            "Songs provide party-wide buffs: Wanderer's (crit), Mage's (damage), Army's (direct hit)",
+            "Standard rotation: Wanderer's Minuet → Mage's Ballad → Army's Paeon → repeat",
+            "Each song has a unique secondary effect during its 45s duration",
+            "Switch songs when <3s remaining to avoid dead time",
+        },
+        RelatedAbilities = new[] { "Wanderer's Minuet", "Mage's Ballad", "Army's Paeon" },
+        Tips = new[]
+        {
+            "Watch the song timer - switching early loses damage, switching late creates gaps",
+            "Start fights with Wanderer's Minuet for the crit buff during opener",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson2 = new()
+    {
+        LessonId = "brd.lesson_2",
+        JobPrefix = "brd",
+        Title = "Repertoire Mastery",
+        LessonNumber = 2,
+        Description = "Master Wanderer's Minuet phase: generating Repertoire stacks from DoT crits and spending them optimally with Pitch Perfect.",
+        Prerequisites = new[] { "brd.lesson_1" },
+        ConceptsCovered = new[]
+        {
+            BrdConcepts.RepertoireStacks,
+            BrdConcepts.PitchPerfect,
+            BrdConcepts.SongSwitching,
+        },
+        KeyPoints = new[]
+        {
+            "Repertoire stacks only generate during Wanderer's Minuet (from DoT crits)",
+            "Pitch Perfect at 3 stacks = maximum potency (540) - don't use at 1-2 stacks",
+            "Use Pitch Perfect before song ends to avoid wasting stacks",
+            "Empyreal Arrow guarantees one Repertoire proc during WM",
+        },
+        RelatedAbilities = new[] { "Pitch Perfect", "Empyreal Arrow" },
+        Tips = new[]
+        {
+            "At 2 stacks with <3s on WM, use PP anyway - losing 2 stacks is worse than optimal potency",
+            "More crit = more Repertoire procs - this is why WM aligns with raid buffs",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson3 = new()
+    {
+        LessonId = "brd.lesson_3",
+        JobPrefix = "brd",
+        Title = "Soul Voice & Apex Arrow",
+        LessonNumber = 3,
+        Description = "Understand Soul Voice gauge management and the powerful Apex Arrow → Blast Arrow combo.",
+        Prerequisites = new[] { "brd.lesson_2" },
+        ConceptsCovered = new[]
+        {
+            BrdConcepts.SoulVoiceGauge,
+            BrdConcepts.ApexArrow,
+            BrdConcepts.BlastArrow,
+            BrdConcepts.SoulVoiceOvercapping,
+        },
+        KeyPoints = new[]
+        {
+            "Soul Voice builds passively during combat from Repertoire procs",
+            "Apex Arrow at 80+ gauge unlocks Blast Arrow (the follow-up)",
+            "Use at 100 gauge to prevent overcapping - never sit at full gauge",
+            "Prioritize Apex during burst windows for buff stacking",
+        },
+        RelatedAbilities = new[] { "Apex Arrow", "Blast Arrow" },
+        Tips = new[]
+        {
+            "Apex Arrow is a line AoE - position to hit multiple targets when possible",
+            "In burst, Apex at 80+ is fine - waiting for 100 may miss buffs",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson4 = new()
+    {
+        LessonId = "brd.lesson_4",
+        JobPrefix = "brd",
+        Title = "Proc Management",
+        LessonNumber = 4,
+        Description = "Master Hawk's Eye procs, Refulgent Arrow priority, and the devastating Barrage + Resonant Arrow combination.",
+        Prerequisites = new[] { "brd.lesson_3" },
+        ConceptsCovered = new[]
+        {
+            BrdConcepts.StraightShotReady,
+            BrdConcepts.RefulgentArrow,
+            BrdConcepts.Barrage,
+            BrdConcepts.ResonantArrow,
+        },
+        KeyPoints = new[]
+        {
+            "Straight Shot Ready has ~35% proc rate from Burst Shot",
+            "Refulgent Arrow is your highest priority proc consumer - never let it fall off",
+            "Barrage + Refulgent = triple damage (840 potency total)",
+            "Resonant Arrow is a free follow-up after Barrage - don't forget it",
+        },
+        RelatedAbilities = new[] { "Burst Shot", "Refulgent Arrow", "Barrage", "Resonant Arrow" },
+        Tips = new[]
+        {
+            "Hold Barrage for Refulgent Arrow proc when possible",
+            "Barrage has a 120s cooldown - align with your 2-minute burst",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson5 = new()
+    {
+        LessonId = "brd.lesson_5",
+        JobPrefix = "brd",
+        Title = "DoT Optimization",
+        LessonNumber = 5,
+        Description = "Learn optimal DoT uptime, Iron Jaws refresh windows, and buff snapshotting for maximum damage.",
+        Prerequisites = new[] { "brd.lesson_4" },
+        ConceptsCovered = new[]
+        {
+            BrdConcepts.CausticBite,
+            BrdConcepts.Stormbite,
+            BrdConcepts.IronJaws,
+        },
+        KeyPoints = new[]
+        {
+            "Both DoTs last 45s - refresh at 3-7s remaining for optimal uptime",
+            "Iron Jaws refreshes both DoTs simultaneously - never apply them separately",
+            "DoTs snapshot buffs at application time - refresh during Raging Strikes",
+            "Stormbite first (higher potency) if applying fresh DoTs",
+        },
+        RelatedAbilities = new[] { "Caustic Bite", "Stormbite", "Iron Jaws" },
+        Tips = new[]
+        {
+            "Iron Jaws during burst snapshots the buffed damage for the full 45s duration",
+            "DoT crits fuel Repertoire and Soul Voice - 100% uptime is critical",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson6 = new()
+    {
+        LessonId = "brd.lesson_6",
+        JobPrefix = "brd",
+        Title = "Burst Window Execution",
+        LessonNumber = 6,
+        Description = "Master the 2-minute burst window: Raging Strikes, Battle Voice, Radiant Finale timing, and party coordination.",
+        Prerequisites = new[] { "brd.lesson_5" },
+        ConceptsCovered = new[]
+        {
+            BrdConcepts.RagingStrikes,
+            BrdConcepts.BattleVoice,
+            BrdConcepts.RadiantFinale,
+            BrdConcepts.RadiantEncore,
+        },
+        KeyPoints = new[]
+        {
+            "Burst sequence: Raging Strikes → Battle Voice → Radiant Finale",
+            "Align burst with Wanderer's Minuet for maximum Repertoire",
+            "Radiant Finale potency scales with Coda (1-3 songs used)",
+            "Radiant Encore is a free follow-up proc from Radiant Finale",
+        },
+        RelatedAbilities = new[] { "Raging Strikes", "Battle Voice", "Radiant Finale", "Radiant Encore" },
+        Tips = new[]
+        {
+            "Battle Voice is a party buff - coordinate with other DPS burst windows",
+            "Iron Jaws during Raging Strikes snapshots buffed DoTs for 45s",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson7 = new()
+    {
+        LessonId = "brd.lesson_7",
+        JobPrefix = "brd",
+        Title = "Advanced Coordination",
+        LessonNumber = 7,
+        Description = "Learn oGCD weaving, Bloodletter charge management during Mage's Ballad, and party support utility.",
+        Prerequisites = new[] { "brd.lesson_6" },
+        ConceptsCovered = new[]
+        {
+            BrdConcepts.EmpyrealArrow,
+            BrdConcepts.BloodletterManagement,
+            BrdConcepts.PartyUtility,
+        },
+        KeyPoints = new[]
+        {
+            "Empyreal Arrow every 15s - guarantees Repertoire during WM",
+            "Bloodletter resets during Mage's Ballad - spam it freely",
+            "Troubadour for raidwides, Nature's Minne for healing buffs",
+            "Head Graze coordinates via IPC for interrupt priority",
+        },
+        RelatedAbilities = new[] { "Empyreal Arrow", "Bloodletter", "Troubadour", "Nature's Minne", "Head Graze" },
+        Tips = new[]
+        {
+            "During MB, Bloodletter resets constantly - don't hold charges",
+            "Sidewinder on cooldown for oGCD damage, especially during burst",
+        },
+    };
+
+    public static readonly LessonDefinition[] AllLessons = new[]
+    {
+        Lesson1, Lesson2, Lesson3, Lesson4, Lesson5, Lesson6, Lesson7,
+    };
+}
+
+/// <summary>
 /// Helper class for accessing all lessons.
 /// </summary>
 public static class LessonRegistry
@@ -3397,6 +3615,7 @@ public static class LessonRegistry
             "vpr" => VprLessons.AllLessons,
             // Ranged Physical DPS
             "mch" => MchLessons.AllLessons,
+            "brd" => BrdLessons.AllLessons,
             _ => Array.Empty<LessonDefinition>(),
         };
     }
@@ -3437,6 +3656,7 @@ public static class LessonRegistry
             .Concat(RprLessons.AllLessons)
             .Concat(VprLessons.AllLessons)
             .Concat(MchLessons.AllLessons)
+            .Concat(BrdLessons.AllLessons)
             .ToArray();
     }
 }
