@@ -149,13 +149,14 @@ public sealed class TrainingService : ITrainingService
             .Concat(DrkConcepts.AllConcepts)
             .Concat(GnbConcepts.AllConcepts)
             .Concat(DrgConcepts.AllConcepts)
+            .Concat(NinConcepts.AllConcepts)
             .ToArray();
     }
 
     /// <summary>
     /// Gets concepts for a specific job based on concept ID prefix.
     /// </summary>
-    /// <param name="jobPrefix">The job prefix (e.g., "whm", "sch", "ast", "sge", "pld", "war", "drk", "gnb", "drg").</param>
+    /// <param name="jobPrefix">The job prefix (e.g., "whm", "sch", "ast", "sge", "pld", "war", "drk", "gnb", "drg", "nin").</param>
     public static string[] GetConceptsForJob(string jobPrefix)
     {
         return jobPrefix.ToLowerInvariant() switch
@@ -172,6 +173,7 @@ public sealed class TrainingService : ITrainingService
             "gnb" => GnbConcepts.AllConcepts,
             // Melee DPS
             "drg" => DrgConcepts.AllConcepts,
+            "nin" => NinConcepts.AllConcepts,
             _ => Array.Empty<string>(),
         };
     }
@@ -444,6 +446,7 @@ public sealed class TrainingService : ITrainingService
             JobRegistry.Gunbreaker => "gnb",
             // Melee DPS
             JobRegistry.Dragoon or JobRegistry.Lancer => "drg",
+            JobRegistry.Ninja or JobRegistry.Rogue => "nin",
             _ => null
         };
     }

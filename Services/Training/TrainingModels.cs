@@ -571,6 +571,73 @@ public static class GnbConcepts
 }
 
 /// <summary>
+/// NIN (Hermes) Training Mode concepts covering Ninja mechanics.
+/// 25 concepts across 7 categories.
+/// </summary>
+public static class NinConcepts
+{
+    // Core Mechanics (6)
+    public const string NinkiGauge = "nin.ninki_gauge";
+    public const string Kazematoi = "nin.kazematoi";
+    public const string MudraSystem = "nin.mudra_system";
+    public const string Huton = "nin.huton";
+    public const string Suiton = "nin.suiton";
+    public const string NinjutsuWeaving = "nin.ninjutsu_weaving";
+
+    // Burst Window (5)
+    public const string KunaisBane = "nin.kunais_bane";
+    public const string TenChiJin = "nin.ten_chi_jin";
+    public const string Kassatsu = "nin.kassatsu";
+    public const string MugDokumori = "nin.mug_dokumori";
+    public const string Bunshin = "nin.bunshin";
+
+    // Combo & Positionals (4)
+    public const string ComboBasics = "nin.combo_basics";
+    public const string Positionals = "nin.positionals";
+    public const string TrueNorthUsage = "nin.true_north_usage";
+    public const string KazematoiManagement = "nin.kazematoi_management";
+
+    // Procs & Raiju (3)
+    public const string RaijuProcs = "nin.raiju_procs";
+    public const string PhantomKamaitachi = "nin.phantom_kamaitachi";
+    public const string TenriJindo = "nin.tenri_jindo";
+
+    // Ninki Spenders (3)
+    public const string Bhavacakra = "nin.bhavacakra";
+    public const string Meisui = "nin.meisui";
+    public const string NinkiPooling = "nin.ninki_pooling";
+
+    // AoE Rotation (2)
+    public const string AoeCombo = "nin.aoe_combo";
+    public const string AoeNinjutsu = "nin.aoe_ninjutsu";
+
+    // Advanced (2)
+    public const string BurstAlignment = "nin.burst_alignment";
+    public const string TcjOptimization = "nin.tcj_optimization";
+
+    /// <summary>
+    /// All NIN concepts for counting.
+    /// </summary>
+    public static readonly string[] AllConcepts = new[]
+    {
+        // Core Mechanics
+        NinkiGauge, Kazematoi, MudraSystem, Huton, Suiton, NinjutsuWeaving,
+        // Burst Window
+        KunaisBane, TenChiJin, Kassatsu, MugDokumori, Bunshin,
+        // Combo & Positionals
+        ComboBasics, Positionals, TrueNorthUsage, KazematoiManagement,
+        // Procs & Raiju
+        RaijuProcs, PhantomKamaitachi, TenriJindo,
+        // Ninki Spenders
+        Bhavacakra, Meisui, NinkiPooling,
+        // AoE Rotation
+        AoeCombo, AoeNinjutsu,
+        // Advanced
+        BurstAlignment, TcjOptimization,
+    };
+}
+
+/// <summary>
 /// DRG (Zeus) Training Mode concepts covering Dragoon mechanics.
 /// 25 concepts across 6 categories.
 /// </summary>

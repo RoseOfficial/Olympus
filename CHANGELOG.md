@@ -3,6 +3,30 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.15.0 - NIN Training Mode
+
+**NIN (Hermes) Training Mode**
+- Training Mode now supports Ninja - second melee DPS job added
+- 25 new NIN concepts covering mudra system, Ninki gauge, burst windows, and positionals
+- 7 progressive lessons from ninja fundamentals to advanced optimization
+- 35 quiz questions testing real Ninja decisions
+
+**Lesson Content**
+- Lesson 1: Ninja Fundamentals - combo flow, positional requirements, Kazematoi stacks
+- Lesson 2: Mudra Mastery - Ten/Chi/Jin sequences, Ninjutsu weaving, Huton buff
+- Lesson 3: Ninki & Spenders - Ninki gauge management, Bhavacakra usage, pooling for burst
+- Lesson 4: Burst Window Basics - Suiton setup, Kunai's Bane execution, Mug/Dokumori timing
+- Lesson 5: Advanced Burst - Kassatsu combos, Ten Chi Jin sequences, TCJ optimization
+- Lesson 6: Procs & Movement - Raiju procs, Bunshin timing, Phantom Kamaitachi, Tenri Jindo
+- Lesson 7: Optimization - Kazematoi management, True North usage, burst alignment, AoE rotation
+
+**Quiz Features**
+- 7 quizzes (one per lesson) with 5 scenario-based questions each
+- Pass 4 out of 5 to complete a quiz
+- Detailed explanations for every answer
+- Progress tracking and best score persistence
+<!-- LATEST-END -->
+
 ## v3.14.0 - Melee DPS Training Mode (Phase 1)
 
 **DRG (Zeus) Training Mode**
@@ -25,7 +49,6 @@ All notable changes to Olympus will be documented in this file.
 - Pass 4 out of 5 to complete a quiz
 - Detailed explanations for every answer
 - Progress tracking and best score persistence
-<!-- LATEST-END -->
 
 ## v3.13.0 - Tank Skill Quizzes
 

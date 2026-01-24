@@ -2050,6 +2050,231 @@ public static class DrgLessons
 }
 
 /// <summary>
+/// NIN (Hermes) lesson content - 7 progressive lessons covering Ninja mechanics.
+/// </summary>
+public static class NinLessons
+{
+    public static readonly LessonDefinition Lesson1 = new()
+    {
+        LessonId = "nin.lesson_1",
+        JobPrefix = "nin",
+        Title = "Ninja Fundamentals",
+        LessonNumber = 1,
+        Description = "Master Ninja basics: the combo flow, positional requirements, and Kazematoi management.",
+        Prerequisites = Array.Empty<string>(),
+        ConceptsCovered = new[]
+        {
+            NinConcepts.ComboBasics,
+            NinConcepts.Positionals,
+            NinConcepts.Kazematoi,
+        },
+        KeyPoints = new[]
+        {
+            "Basic combo: Spinning Edge → Gust Slash → Aeolian Edge (rear) or Armor Crush (flank)",
+            "Aeolian Edge (rear positional) is your highest potency finisher",
+            "Armor Crush (flank positional) grants Kazematoi stacks",
+            "Kazematoi stacks enhance Aeolian Edge - build them with Armor Crush, spend with Aeolian Edge",
+        },
+        RelatedAbilities = new[] { "Spinning Edge", "Gust Slash", "Aeolian Edge", "Armor Crush" },
+        Tips = new[]
+        {
+            "Alternate finishers: Armor Crush to build Kazematoi, Aeolian Edge to spend them",
+            "Missing positionals loses significant potency - use True North when needed",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson2 = new()
+    {
+        LessonId = "nin.lesson_2",
+        JobPrefix = "nin",
+        Title = "Mudra Mastery",
+        LessonNumber = 2,
+        Description = "Learn the mudra system and execute Ninjutsu combinations effectively.",
+        Prerequisites = new[] { "nin.lesson_1" },
+        ConceptsCovered = new[]
+        {
+            NinConcepts.MudraSystem,
+            NinConcepts.NinjutsuWeaving,
+            NinConcepts.Huton,
+        },
+        KeyPoints = new[]
+        {
+            "Mudras (Ten, Chi, Jin) combine to create Ninjutsu - memorize the sequences",
+            "Raiton (Ten → Chi or Chi → Ten): Single-target damage - your bread and butter",
+            "Huton (Jin → Chi → Ten): Grants Huton buff (+15% attack speed) at lower levels",
+            "Suiton (Ten → Chi → Jin): Enables Kunai's Bane from range - crucial for burst",
+            "Mudras are oGCDs but Ninjutsu is a GCD - weave mudras between GCDs",
+        },
+        RelatedAbilities = new[] { "Ten", "Chi", "Jin", "Ninjutsu", "Raiton", "Huton", "Suiton" },
+        Tips = new[]
+        {
+            "Practice mudra sequences until they're muscle memory",
+            "Bunny (Rabbit Medium) appears if you mess up - no damage, just try again",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson3 = new()
+    {
+        LessonId = "nin.lesson_3",
+        JobPrefix = "nin",
+        Title = "Ninki & Spenders",
+        LessonNumber = 3,
+        Description = "Understand Ninki gauge management and when to spend it.",
+        Prerequisites = new[] { "nin.lesson_2" },
+        ConceptsCovered = new[]
+        {
+            NinConcepts.NinkiGauge,
+            NinConcepts.Bhavacakra,
+            NinConcepts.NinkiPooling,
+        },
+        KeyPoints = new[]
+        {
+            "Ninki builds from weaponskills and Mug/Dokumori (0-100 gauge)",
+            "Bhavacakra (50 Ninki): High-potency single-target oGCD damage",
+            "Hellfrog Medium (50 Ninki): AoE alternative for 3+ targets",
+            "Pool Ninki before burst windows - spend during Kunai's Bane for buffed damage",
+        },
+        RelatedAbilities = new[] { "Bhavacakra", "Hellfrog Medium" },
+        Tips = new[]
+        {
+            "Don't cap at 100 Ninki - spend before overcapping",
+            "During burst, weave Bhavacakra between GCDs for maximum damage",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson4 = new()
+    {
+        LessonId = "nin.lesson_4",
+        JobPrefix = "nin",
+        Title = "Burst Window Basics",
+        LessonNumber = 4,
+        Description = "Set up and execute your burst window with Suiton and Kunai's Bane.",
+        Prerequisites = new[] { "nin.lesson_3" },
+        ConceptsCovered = new[]
+        {
+            NinConcepts.Suiton,
+            NinConcepts.KunaisBane,
+            NinConcepts.MugDokumori,
+        },
+        KeyPoints = new[]
+        {
+            "Suiton (Ten → Chi → Jin) grants a buff that enables Kunai's Bane",
+            "Kunai's Bane (60s CD): Your primary burst - +10% damage debuff on target",
+            "Mug (120s CD): Damage + 40 Ninki generation - use in burst window",
+            "Dokumori (120s CD): Replaces Mug at higher levels, grants party buff",
+            "Burst order: Suiton → Mug/Dokumori → Kunai's Bane → dump Ninki and oGCDs",
+        },
+        RelatedAbilities = new[] { "Suiton", "Kunai's Bane", "Mug", "Dokumori" },
+        Tips = new[]
+        {
+            "Always have Suiton up before Kunai's Bane - it's required",
+            "Kunai's Bane aligns with 60s party buffs - coordinate with team",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson5 = new()
+    {
+        LessonId = "nin.lesson_5",
+        JobPrefix = "nin",
+        Title = "Advanced Burst: TCJ & Kassatsu",
+        LessonNumber = 5,
+        Description = "Master Ten Chi Jin and Kassatsu for maximum burst damage.",
+        Prerequisites = new[] { "nin.lesson_4" },
+        ConceptsCovered = new[]
+        {
+            NinConcepts.Kassatsu,
+            NinConcepts.TenChiJin,
+            NinConcepts.TcjOptimization,
+        },
+        KeyPoints = new[]
+        {
+            "Kassatsu (60s CD): Makes next Ninjutsu stronger and instant - use for Hyosho Ranryu",
+            "Hyosho Ranryu: Kassatsu-only ice Ninjutsu with massive potency",
+            "Ten Chi Jin (120s CD): Execute 3 Ninjutsu in sequence without GCDs between",
+            "TCJ sequence: Fuma Shuriken → Raiton → Suiton (standard) for 2-minute burst",
+            "During TCJ you cannot move - position safely before activating",
+        },
+        RelatedAbilities = new[] { "Kassatsu", "Ten Chi Jin", "Hyosho Ranryu" },
+        Tips = new[]
+        {
+            "TCJ ends if you move or take damage - use in safe windows",
+            "Align Kassatsu with every Kunai's Bane window for Hyosho Ranryu",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson6 = new()
+    {
+        LessonId = "nin.lesson_6",
+        JobPrefix = "nin",
+        Title = "Procs & Movement",
+        LessonNumber = 6,
+        Description = "Handle Raiju procs, Bunshin, and movement abilities effectively.",
+        Prerequisites = new[] { "nin.lesson_5" },
+        ConceptsCovered = new[]
+        {
+            NinConcepts.RaijuProcs,
+            NinConcepts.Bunshin,
+            NinConcepts.PhantomKamaitachi,
+            NinConcepts.TenriJindo,
+        },
+        KeyPoints = new[]
+        {
+            "Raiton grants Raiju Ready: Choose Forked Raiju (gap closer) or Fleeting Raiju (stationary)",
+            "Forked Raiju: Use when you need to close distance to the boss",
+            "Fleeting Raiju: Use when already in melee range - same damage, no movement",
+            "Bunshin (90s CD, 50 Ninki): Shadow clone that attacks with you - use in burst",
+            "Phantom Kamaitachi: Bunshin grants this AoE GCD proc - don't waste it",
+            "Tenri Jindo (Lv.100): Proc after Kunai's Bane - big damage finisher",
+        },
+        RelatedAbilities = new[] { "Forked Raiju", "Fleeting Raiju", "Bunshin", "Phantom Kamaitachi", "Tenri Jindo" },
+        Tips = new[]
+        {
+            "Don't sit on Raiju procs - they expire and you lose damage",
+            "Bunshin before burst means more shadow attacks during buffs",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson7 = new()
+    {
+        LessonId = "nin.lesson_7",
+        JobPrefix = "nin",
+        Title = "Optimization & AoE",
+        LessonNumber = 7,
+        Description = "Advanced optimization including Kazematoi management, Meisui, True North, and AoE rotation.",
+        Prerequisites = new[] { "nin.lesson_6" },
+        ConceptsCovered = new[]
+        {
+            NinConcepts.KazematoiManagement,
+            NinConcepts.TrueNorthUsage,
+            NinConcepts.BurstAlignment,
+            NinConcepts.Meisui,
+            NinConcepts.AoeCombo,
+            NinConcepts.AoeNinjutsu,
+        },
+        KeyPoints = new[]
+        {
+            "Kazematoi: Build with Armor Crush before burst, spend enhanced Aeolian Edges during burst",
+            "True North (45s CD, 2 charges): Use when positionals impossible due to mechanics",
+            "Meisui: Converts Suiton buff into 50 Ninki - use if you won't need Kunai's Bane",
+            "Burst alignment: Coordinate Kunai's Bane with party 60s/120s windows",
+            "AoE combo: Death Blossom → Hakke Mujinsatsu at 3+ targets",
+            "AoE Ninjutsu: Katon (2+ targets), Doton (3+ stationary), Goka Mekkyaku (Kassatsu AoE)",
+        },
+        RelatedAbilities = new[] { "True North", "Meisui", "Death Blossom", "Hakke Mujinsatsu", "Katon", "Doton", "Goka Mekkyaku" },
+        Tips = new[]
+        {
+            "Don't waste True North - only use when you truly can't reach the position",
+            "Doton is a DoT ground effect - only use if enemies will stand in it",
+        },
+    };
+
+    public static readonly LessonDefinition[] AllLessons = new[]
+    {
+        Lesson1, Lesson2, Lesson3, Lesson4, Lesson5, Lesson6, Lesson7,
+    };
+}
+
+/// <summary>
 /// Helper class for accessing all lessons.
 /// </summary>
 public static class LessonRegistry
@@ -2073,6 +2298,7 @@ public static class LessonRegistry
             "gnb" => GnbLessons.AllLessons,
             // Melee DPS
             "drg" => DrgLessons.AllLessons,
+            "nin" => NinLessons.AllLessons,
             _ => Array.Empty<LessonDefinition>(),
         };
     }
@@ -2107,6 +2333,7 @@ public static class LessonRegistry
             .Concat(DrkLessons.AllLessons)
             .Concat(GnbLessons.AllLessons)
             .Concat(DrgLessons.AllLessons)
+            .Concat(NinLessons.AllLessons)
             .ToArray();
     }
 }
