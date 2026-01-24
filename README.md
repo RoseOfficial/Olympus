@@ -1,7 +1,7 @@
 # Olympus
 
 ![Version](https://img.shields.io/github/v/release/RoseOfficial/Olympus?label=version)
-![Lines of Code](https://aschey.tech/tokei/github/RoseOfficial/Olympus?category=code)
+![Lines of Code](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/RoseOfficial/08b9bb4fa4194c23fd7d8e00fa2b5f0d/raw/loc.json)
 ![Code Size](https://img.shields.io/github/languages/code-size/RoseOfficial/Olympus)
 ![Last Commit](https://img.shields.io/github/last-commit/RoseOfficial/Olympus)
 ![C#](https://img.shields.io/github/languages/top/RoseOfficial/Olympus)
