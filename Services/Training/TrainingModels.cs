@@ -1,7 +1,9 @@
 namespace Olympus.Services.Training;
 
 using System;
+using System.Collections.Generic;
 using Olympus.Config;
+using Olympus.Services.Analytics;
 
 /// <summary>
 /// Represents a single action decision with its explanation.
@@ -366,4 +368,89 @@ public static class SgeConcepts
         DpsOptimization, DotMaintenance, PhlegmaUsage, ToxikonUsage, PsycheUsage,
         RaiseDecision, CoHealerAwareness, EsunaUsage,
     };
+}
+
+/// <summary>
+/// Represents a lesson recommendation based on detected performance issues.
+/// </summary>
+public sealed class LessonRecommendation
+{
+    /// <summary>
+    /// The lesson being recommended.
+    /// </summary>
+    public LessonDefinition Lesson { get; init; } = null!;
+
+    /// <summary>
+    /// Human-readable reason for the recommendation.
+    /// </summary>
+    public string Reason { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Priority score (0-100). Higher = more urgent to address.
+    /// </summary>
+    public int Priority { get; init; }
+
+    /// <summary>
+    /// The performance issues that triggered this recommendation.
+    /// </summary>
+    public IssueType[] TriggeringIssues { get; init; } = Array.Empty<IssueType>();
+
+    /// <summary>
+    /// Priority level for display purposes.
+    /// </summary>
+    public string PriorityLevel => Priority switch
+    {
+        >= 80 => "HIGH",
+        >= 60 => "MEDIUM",
+        _ => "LOW"
+    };
+}
+
+/// <summary>
+/// Maps performance issues to relevant concept patterns for lesson recommendations.
+/// </summary>
+public static class IssueConceptMapping
+{
+    /// <summary>
+    /// Maps IssueType to concept patterns that address that issue.
+    /// Patterns use suffix matching (e.g., "emergency_healing" matches "whm.emergency_healing", "sch.emergency_healing").
+    /// </summary>
+    public static readonly IReadOnlyDictionary<IssueType, (string[] ConceptPatterns, int BasePriority, string ReasonTemplate)> Mappings =
+        new Dictionary<IssueType, (string[], int, string)>
+        {
+            [IssueType.PartyDeath] = (
+                new[] { "emergency_healing", "benediction", "lustrate", "essential_dignity", "haima" },
+                90,
+                "Party members died during the fight"),
+
+            [IssueType.AbilityUnused] = (
+                new[] { "ogcd_weaving", "lily_management", "aetherflow", "addersgall", "card_management" },
+                80,
+                "Key abilities went unused"),
+
+            [IssueType.NearDeath] = (
+                new[] { "proactive_healing", "tank_priority", "healing_priority", "shield_timing" },
+                75,
+                "Party members dropped to critical HP"),
+
+            [IssueType.GcdDowntime] = (
+                new[] { "dps_optimization", "glare_priority", "dot_maintenance", "kardia" },
+                70,
+                "GCD uptime was below optimal"),
+
+            [IssueType.CooldownDrift] = (
+                new[] { "ogcd_weaving", "assize", "divine_benison", "aetherflow_refresh", "earthly_star" },
+                65,
+                "Cooldowns drifted from optimal timing"),
+
+            [IssueType.HighOverheal] = (
+                new[] { "ogcd_weaving", "proactive_healing", "lily_management", "shield_timing" },
+                60,
+                "Overheal percentage was high"),
+
+            [IssueType.ResourceCapped] = (
+                new[] { "lily_management", "blood_lily", "aetherflow_management", "addersgall_management", "card_management" },
+                55,
+                "Resources were capped (lilies, aetherflow, etc.)"),
+        };
 }

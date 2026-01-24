@@ -31,7 +31,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "3.9.0";
+    public const string PluginVersion = "3.10.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -216,6 +216,12 @@ public sealed class Plugin : IDalamudPlugin
 
         // Training mode
         this.trainingService = new TrainingService(configuration.Training, objectTable, log);
+
+        // Connect analytics to training recommendations (v3.10.0)
+        this.performanceTracker.OnSessionCompleted += session =>
+        {
+            this.trainingService.UpdateRecommendations(session);
+        };
 
         // Create and register rotation modules via factory
         this.rotationManager = new RotationManager();

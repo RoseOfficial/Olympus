@@ -1,6 +1,7 @@
 namespace Olympus.Services.Training;
 
 using System.Collections.Generic;
+using Olympus.Services.Analytics;
 
 /// <summary>
 /// Service for Training Mode - captures and explains rotation decisions in real-time.
@@ -32,6 +33,32 @@ public interface ITrainingService
     /// </summary>
     /// <param name="lessonId">The lesson ID to check prerequisites for.</param>
     bool AreLessonPrerequisitesMet(string lessonId);
+
+    #endregion
+
+    #region Lesson Recommendations
+
+    /// <summary>
+    /// Gets the current lesson recommendations based on recent fight performance.
+    /// </summary>
+    IReadOnlyList<LessonRecommendation> GetRecommendations();
+
+    /// <summary>
+    /// Updates recommendations based on a completed fight session.
+    /// </summary>
+    /// <param name="session">The completed fight session to analyze.</param>
+    void UpdateRecommendations(FightSession session);
+
+    /// <summary>
+    /// Dismisses a recommendation so it won't appear again.
+    /// </summary>
+    /// <param name="lessonId">The lesson ID to dismiss.</param>
+    void DismissRecommendation(string lessonId);
+
+    /// <summary>
+    /// Clears all dismissed recommendations, allowing them to appear again.
+    /// </summary>
+    void ClearDismissedRecommendations();
 
     #endregion
     /// <summary>

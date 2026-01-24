@@ -6,6 +6,8 @@ using System.Linq;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Plugin.Services;
 using Olympus.Config;
+using Olympus.Data;
+using Olympus.Services.Analytics;
 
 /// <summary>
 /// Core implementation of Training Mode - captures rotation decisions and provides explanations.
@@ -18,6 +20,9 @@ public sealed class TrainingService : ITrainingService
 
     private readonly List<ActionExplanation> explanations = new();
     private readonly object explanationsLock = new();
+
+    private readonly List<LessonRecommendation> currentRecommendations = new();
+    private readonly object recommendationsLock = new();
 
     private bool wasInCombat;
 
@@ -211,6 +216,171 @@ public sealed class TrainingService : ITrainingService
             return true;
 
         return lesson.Prerequisites.All(prereq => this.config.CompletedLessons.Contains(prereq));
+    }
+
+    #endregion
+
+    #region Lesson Recommendations
+
+    public IReadOnlyList<LessonRecommendation> GetRecommendations()
+    {
+        lock (this.recommendationsLock)
+        {
+            return this.currentRecommendations.ToList();
+        }
+    }
+
+    public void UpdateRecommendations(FightSession session)
+    {
+        if (!this.config.EnableRecommendations)
+            return;
+
+        if (session.Issues == null || session.Issues.Count == 0)
+            return;
+
+        // Get job prefix from job ID
+        var jobPrefix = GetJobPrefix(session.JobId);
+        if (string.IsNullOrEmpty(jobPrefix))
+        {
+            this.log?.Debug("Training: No job prefix for job ID {JobId}, skipping recommendations", session.JobId);
+            return;
+        }
+
+        var lessons = LessonRegistry.GetLessonsForJob(jobPrefix);
+        if (lessons.Count == 0)
+            return;
+
+        var candidates = new List<(LessonDefinition Lesson, int Priority, string Reason, IssueType[] Issues)>();
+
+        // Build candidate lessons from issues
+        foreach (var issue in session.Issues)
+        {
+            if (!IssueConceptMapping.Mappings.TryGetValue(issue.Type, out var mapping))
+                continue;
+
+            var (conceptPatterns, basePriority, reasonTemplate) = mapping;
+
+            // Adjust priority based on issue severity
+            var adjustedPriority = basePriority + issue.Severity switch
+            {
+                IssueSeverity.Error => 10,
+                IssueSeverity.Warning => 5,
+                _ => 0
+            };
+
+            // Find lessons covering matching concepts
+            foreach (var lesson in lessons)
+            {
+                // Skip completed lessons
+                if (this.config.CompletedLessons.Contains(lesson.LessonId))
+                    continue;
+
+                // Skip dismissed lessons
+                if (this.config.DismissedRecommendations.Contains(lesson.LessonId))
+                    continue;
+
+                // Check if lesson covers any matching concepts
+                var matchingConcepts = lesson.ConceptsCovered
+                    .Where(concept => conceptPatterns.Any(pattern => ConceptMatchesPattern(concept, pattern)))
+                    .ToArray();
+
+                if (matchingConcepts.Length == 0)
+                    continue;
+
+                // Found a match
+                var reason = $"{reasonTemplate} - this lesson covers {string.Join(", ", matchingConcepts.Take(2).Select(FormatConceptName))}";
+                candidates.Add((lesson, adjustedPriority, reason, new[] { issue.Type }));
+            }
+        }
+
+        // Deduplicate by lesson (keep highest priority)
+        var deduped = candidates
+            .GroupBy(c => c.Lesson.LessonId)
+            .Select(g =>
+            {
+                var best = g.OrderByDescending(c => c.Priority).First();
+                var allIssues = g.SelectMany(c => c.Issues).Distinct().ToArray();
+                return (best.Lesson, best.Priority, best.Reason, allIssues);
+            })
+            .OrderByDescending(c => c.Priority)
+            .Take(this.config.MaxRecommendations)
+            .ToList();
+
+        // Build recommendations
+        var recommendations = deduped.Select(c => new LessonRecommendation
+        {
+            Lesson = c.Lesson,
+            Priority = c.Priority,
+            Reason = c.Reason,
+            TriggeringIssues = c.allIssues,
+        }).ToList();
+
+        lock (this.recommendationsLock)
+        {
+            this.currentRecommendations.Clear();
+            this.currentRecommendations.AddRange(recommendations);
+        }
+
+        this.log?.Information("Training: Generated {Count} recommendations for {Job}", recommendations.Count, jobPrefix);
+    }
+
+    public void DismissRecommendation(string lessonId)
+    {
+        this.config.DismissedRecommendations.Add(lessonId);
+
+        lock (this.recommendationsLock)
+        {
+            this.currentRecommendations.RemoveAll(r => r.Lesson.LessonId == lessonId);
+        }
+
+        this.log?.Debug("Training: Dismissed recommendation for {Lesson}", lessonId);
+    }
+
+    public void ClearDismissedRecommendations()
+    {
+        this.config.DismissedRecommendations.Clear();
+        this.log?.Debug("Training: Cleared all dismissed recommendations");
+    }
+
+    /// <summary>
+    /// Checks if a concept ID matches a pattern using suffix/contains matching.
+    /// </summary>
+    private static bool ConceptMatchesPattern(string conceptId, string pattern)
+    {
+        // Pattern should match suffix or be contained in concept
+        // e.g., "emergency_healing" matches "whm.emergency_healing", "sch.emergency_healing"
+        return conceptId.EndsWith(pattern, StringComparison.OrdinalIgnoreCase) ||
+               conceptId.Contains(pattern, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Gets the job prefix for a given job ID.
+    /// </summary>
+    private static string? GetJobPrefix(uint jobId)
+    {
+        return jobId switch
+        {
+            JobRegistry.WhiteMage or JobRegistry.Conjurer => "whm",
+            JobRegistry.Scholar or JobRegistry.Arcanist => "sch",
+            JobRegistry.Astrologian => "ast",
+            JobRegistry.Sage => "sge",
+            _ => null // Only healers have training mode lessons currently
+        };
+    }
+
+    /// <summary>
+    /// Formats a concept ID for display.
+    /// </summary>
+    private static string FormatConceptName(string conceptId)
+    {
+        var parts = conceptId.Split('.');
+        if (parts.Length > 1)
+        {
+            var name = parts[^1].Replace("_", " ");
+            return System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(name);
+        }
+
+        return conceptId;
     }
 
     #endregion

@@ -75,6 +75,30 @@ public sealed class TrainingConfig
         { "Tips", true },
         { "RecentHistory", true },
     };
+
+    #region Lesson Recommendations (v3.10.0)
+
+    /// <summary>
+    /// Whether to generate lesson recommendations based on fight performance.
+    /// </summary>
+    public bool EnableRecommendations { get; set; } = true;
+
+    /// <summary>
+    /// Maximum number of recommendations to show at once.
+    /// </summary>
+    private int _maxRecommendations = 3;
+    public int MaxRecommendations
+    {
+        get => _maxRecommendations;
+        set => _maxRecommendations = Math.Clamp(value, 1, 5);
+    }
+
+    /// <summary>
+    /// Lesson IDs that the user has dismissed (won't show as recommendations).
+    /// </summary>
+    public HashSet<string> DismissedRecommendations { get; set; } = new();
+
+    #endregion
 }
 
 /// <summary>

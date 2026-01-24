@@ -3,6 +3,35 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.10.0 - Performance-Based Lesson Recommendations
+
+**Personalized Learning**
+- New "Recommended" tab in Training Mode suggests lessons based on your fight performance
+- After each combat, Analytics issues are analyzed to recommend specific lessons
+- Limited to 2-3 recommendations to avoid overwhelming - focus on highest priority
+
+**Smart Issue-to-Lesson Mapping**
+- Party deaths → Emergency healing lessons (Benediction, Lustrate, Essential Dignity)
+- Unused abilities → oGCD weaving and resource management lessons
+- Near-deaths → Proactive healing and tank priority lessons
+- GCD downtime → DPS optimization and DoT maintenance lessons
+- Cooldown drift → oGCD timing and key ability usage lessons
+- High overheal → Efficient healing and shield timing lessons
+- Capped resources → Lily, Aetherflow, Addersgall management lessons
+
+**User Controls**
+- Enable/disable recommendations toggle
+- Configurable max recommendations (1-5)
+- Dismiss individual recommendations
+- Clear all dismissed recommendations
+
+**Integration**
+- Automatic analysis when fights end (via OnSessionCompleted event)
+- Recommendations persist across sessions until dismissed or completed
+- Completing a recommended lesson removes it from suggestions
+- Works with all 4 healers (WHM, SCH, AST, SGE)
+<!-- LATEST-END -->
+
 ## v3.9.0 - Training Mode: Lessons Tab
 
 **Structured Learning Content**
@@ -30,7 +59,6 @@ All notable changes to Olympus will be documented in this file.
 - Each lesson explains key points, related abilities, and practice tips
 - Completing lessons automatically marks all related concepts as learned
 - Locked lessons show prerequisite requirements
-<!-- LATEST-END -->
 
 ## v3.8.0 - Training Mode: Full Explanation Coverage
 
