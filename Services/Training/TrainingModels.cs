@@ -701,6 +701,69 @@ public static class SamConcepts
 }
 
 /// <summary>
+/// MNK (Kratos) Training Mode concepts covering Monk mechanics.
+/// 25 concepts across 6 categories.
+/// </summary>
+public static class MnkConcepts
+{
+    // Core Mechanics (6)
+    public const string ComboBasics = "mnk.combo_basics";
+    public const string FormSystem = "mnk.form_system";
+    public const string Positionals = "mnk.positionals";
+    public const string DisciplinedFist = "mnk.disciplined_fist";
+    public const string DemolishDot = "mnk.demolish_dot";
+    public const string Meditation = "mnk.meditation";
+
+    // Chakra System (4)
+    public const string ChakraGauge = "mnk.chakra_gauge";
+    public const string TheForbiddenChakra = "mnk.the_forbidden_chakra";
+    public const string Enlightenment = "mnk.enlightenment";
+    public const string SteelPeak = "mnk.steel_peak";
+
+    // Beast Chakra & Blitz (5)
+    public const string BeastChakra = "mnk.beast_chakra";
+    public const string MasterfulBlitz = "mnk.masterful_blitz";
+    public const string ElixirField = "mnk.elixir_field";
+    public const string RisingPhoenix = "mnk.rising_phoenix";
+    public const string PhantomRush = "mnk.phantom_rush";
+
+    // Burst Window (4)
+    public const string PerfectBalance = "mnk.perfect_balance";
+    public const string RiddleOfFire = "mnk.riddle_of_fire";
+    public const string Brotherhood = "mnk.brotherhood";
+    public const string BurstAlignment = "mnk.burst_alignment";
+
+    // Movement & Utility (3)
+    public const string Thunderclap = "mnk.thunderclap";
+    public const string TrueNorthUsage = "mnk.true_north_usage";
+    public const string RiddleOfWind = "mnk.riddle_of_wind";
+
+    // AoE Rotation (3)
+    public const string AoeCombo = "mnk.aoe_combo";
+    public const string HowlingFist = "mnk.howling_fist";
+    public const string AoeThreshold = "mnk.aoe_threshold";
+
+    /// <summary>
+    /// All MNK concepts for counting.
+    /// </summary>
+    public static readonly string[] AllConcepts = new[]
+    {
+        // Core Mechanics
+        ComboBasics, FormSystem, Positionals, DisciplinedFist, DemolishDot, Meditation,
+        // Chakra System
+        ChakraGauge, TheForbiddenChakra, Enlightenment, SteelPeak,
+        // Beast Chakra & Blitz
+        BeastChakra, MasterfulBlitz, ElixirField, RisingPhoenix, PhantomRush,
+        // Burst Window
+        PerfectBalance, RiddleOfFire, Brotherhood, BurstAlignment,
+        // Movement & Utility
+        Thunderclap, TrueNorthUsage, RiddleOfWind,
+        // AoE Rotation
+        AoeCombo, HowlingFist, AoeThreshold,
+    };
+}
+
+/// <summary>
 /// DRG (Zeus) Training Mode concepts covering Dragoon mechanics.
 /// 25 concepts across 6 categories.
 /// </summary>

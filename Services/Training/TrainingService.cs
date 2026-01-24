@@ -151,6 +151,7 @@ public sealed class TrainingService : ITrainingService
             .Concat(DrgConcepts.AllConcepts)
             .Concat(NinConcepts.AllConcepts)
             .Concat(SamConcepts.AllConcepts)
+            .Concat(MnkConcepts.AllConcepts)
             .ToArray();
     }
 
@@ -176,6 +177,7 @@ public sealed class TrainingService : ITrainingService
             "drg" => DrgConcepts.AllConcepts,
             "nin" => NinConcepts.AllConcepts,
             "sam" => SamConcepts.AllConcepts,
+            "mnk" => MnkConcepts.AllConcepts,
             _ => Array.Empty<string>(),
         };
     }
@@ -450,6 +452,7 @@ public sealed class TrainingService : ITrainingService
             JobRegistry.Dragoon or JobRegistry.Lancer => "drg",
             JobRegistry.Ninja or JobRegistry.Rogue => "nin",
             JobRegistry.Samurai => "sam",
+            JobRegistry.Monk or JobRegistry.Pugilist => "mnk",
             _ => null
         };
     }

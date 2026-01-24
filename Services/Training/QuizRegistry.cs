@@ -82,6 +82,12 @@ public static class QuizRegistry
             QuizzesByLessonId[quiz.LessonId] = quiz;
             QuizzesById[quiz.QuizId] = quiz;
         }
+
+        foreach (var quiz in MnkQuizzes.AllQuizzes)
+        {
+            QuizzesByLessonId[quiz.LessonId] = quiz;
+            QuizzesById[quiz.QuizId] = quiz;
+        }
     }
 
     /// <summary>
@@ -121,6 +127,7 @@ public static class QuizRegistry
             "drg" => DrgQuizzes.AllQuizzes,
             "nin" => NinQuizzes.AllQuizzes,
             "sam" => SamQuizzes.AllQuizzes,
+            "mnk" => MnkQuizzes.AllQuizzes,
             _ => Array.Empty<QuizDefinition>(),
         };
     }
@@ -4496,6 +4503,444 @@ public static class NinQuizzes
                 Options = new[] { "Katon", "Doton", "Raiton on each", "Hyosho Ranryu" },
                 CorrectIndex = 1,
                 Explanation = "Doton creates a ground DoT. If enemies will stand in it for the full duration, it deals more total damage than Katon.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition[] AllQuizzes = new[]
+    {
+        Lesson1Quiz, Lesson2Quiz, Lesson3Quiz, Lesson4Quiz, Lesson5Quiz, Lesson6Quiz, Lesson7Quiz,
+    };
+}
+
+/// <summary>
+/// MNK (Kratos) quiz content - 7 quizzes with 5 questions each.
+/// </summary>
+public static class MnkQuizzes
+{
+    public static readonly QuizDefinition Lesson1Quiz = new()
+    {
+        QuizId = "mnk.lesson_1.quiz",
+        LessonId = "mnk.lesson_1",
+        Title = "Quiz: Monk Fundamentals",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_1.q1",
+                ConceptId = MnkConcepts.FormSystem,
+                Scenario = "You just used Bootshine. What form are you now in?",
+                Question = "What form follows Opo-opo form?",
+                Options = new[] { "Opo-opo", "Raptor", "Coeurl", "No form" },
+                CorrectIndex = 1,
+                Explanation = "After using an Opo-opo form ability (Bootshine/Dragon Kick), you transition to Raptor form.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_1.q2",
+                ConceptId = MnkConcepts.Positionals,
+                Scenario = "You're about to use Bootshine on a boss.",
+                Question = "Where should you stand for the positional bonus?",
+                Options = new[] { "Front", "Flank (side)", "Rear (behind)", "Any position" },
+                CorrectIndex = 2,
+                Explanation = "Bootshine has a rear positional. Standing behind the boss grants bonus potency.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_1.q3",
+                ConceptId = MnkConcepts.ComboBasics,
+                Scenario = "You're in Raptor form.",
+                Question = "Which abilities can you use in Raptor form?",
+                Options = new[] { "Bootshine/Dragon Kick", "True Strike/Twin Snakes", "Snap Punch/Demolish", "Any ability" },
+                CorrectIndex = 1,
+                Explanation = "True Strike and Twin Snakes are Raptor form abilities. Using them transitions you to Coeurl form.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_1.q4",
+                ConceptId = MnkConcepts.Positionals,
+                Scenario = "You need to use Snap Punch.",
+                Question = "Where should you stand for the positional bonus?",
+                Options = new[] { "Front", "Flank (side)", "Rear (behind)", "Any position" },
+                CorrectIndex = 1,
+                Explanation = "Snap Punch has a flank positional. Stand at the boss's side for bonus potency.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_1.q5",
+                ConceptId = MnkConcepts.FormSystem,
+                Scenario = "You're in Coeurl form and use Snap Punch.",
+                Question = "What form do you transition to?",
+                Options = new[] { "Stay in Coeurl", "Raptor", "Opo-opo", "Formless" },
+                CorrectIndex = 2,
+                Explanation = "After Coeurl form abilities, you cycle back to Opo-opo form, completing the form rotation.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson2Quiz = new()
+    {
+        QuizId = "mnk.lesson_2.quiz",
+        LessonId = "mnk.lesson_2",
+        Title = "Quiz: Maintaining Your Buffs",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_2.q1",
+                ConceptId = MnkConcepts.DisciplinedFist,
+                Scenario = "Disciplined Fist has 5 seconds remaining.",
+                Question = "What should you prioritize?",
+                Options = new[] { "Use Bootshine for damage", "Refresh Disciplined Fist", "Use The Forbidden Chakra", "Use Perfect Balance" },
+                CorrectIndex = 1,
+                Explanation = "Disciplined Fist (+15% damage) is crucial. Refresh it with Twin Snakes or Demolish before it drops.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_2.q2",
+                ConceptId = MnkConcepts.DemolishDot,
+                Scenario = "Demolish has 5 seconds remaining on the boss.",
+                Question = "Should you refresh it now?",
+                Options = new[] { "Yes - keep 100% uptime", "No - wait until 3s or less", "No - let it fall off", "Only during burst" },
+                CorrectIndex = 1,
+                Explanation = "Refresh DoTs at 3 seconds or less to avoid clipping. Refreshing at 5s wastes potential damage ticks.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_2.q3",
+                ConceptId = MnkConcepts.DisciplinedFist,
+                Scenario = "Which abilities grant Disciplined Fist?",
+                Question = "Select the correct answer.",
+                Options = new[] { "Bootshine and Dragon Kick", "True Strike and Snap Punch", "Twin Snakes and Demolish", "All weaponskills" },
+                CorrectIndex = 2,
+                Explanation = "Twin Snakes (Raptor) and Demolish (Coeurl) both grant Disciplined Fist buff.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_2.q4",
+                ConceptId = MnkConcepts.Meditation,
+                Scenario = "You're waiting for a pull. Chakra gauge is at 0.",
+                Question = "What should you do?",
+                Options = new[] { "Wait patiently", "Use Meditation to build Chakra", "Use Perfect Balance", "Nothing - Chakra builds in combat" },
+                CorrectIndex = 1,
+                Explanation = "Meditation builds Chakra out of combat. Start fights with 5 Chakra ready for burst.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_2.q5",
+                ConceptId = MnkConcepts.DemolishDot,
+                Scenario = "Demolish is a DoT with 18 second duration.",
+                Question = "How does Demolish interact with Disciplined Fist?",
+                Options = new[] { "No interaction", "Demolish grants Disciplined Fist", "Disciplined Fist extends Demolish", "They're the same buff" },
+                CorrectIndex = 1,
+                Explanation = "Demolish both applies a DoT to the enemy AND grants you the Disciplined Fist damage buff.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson3Quiz = new()
+    {
+        QuizId = "mnk.lesson_3.quiz",
+        LessonId = "mnk.lesson_3",
+        Title = "Quiz: The Chakra System",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_3.q1",
+                ConceptId = MnkConcepts.ChakraGauge,
+                Scenario = "Your Chakra gauge is at 5 stacks.",
+                Question = "What should you do?",
+                Options = new[] { "Build more Chakra", "Use The Forbidden Chakra", "Save for burst window", "Chakra doesn't cap" },
+                CorrectIndex = 1,
+                Explanation = "Chakra caps at 5 stacks. Spend it to avoid wasting potential Chakra generation.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_3.q2",
+                ConceptId = MnkConcepts.TheForbiddenChakra,
+                Scenario = "Single target fight. You have 5 Chakra.",
+                Question = "Which Chakra spender should you use?",
+                Options = new[] { "The Forbidden Chakra", "Enlightenment", "Steel Peak", "Howling Fist" },
+                CorrectIndex = 0,
+                Explanation = "The Forbidden Chakra is the single-target Chakra spender. Enlightenment is for AoE (3+ targets).",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_3.q3",
+                ConceptId = MnkConcepts.Enlightenment,
+                Scenario = "4 enemies are grouped. You have 5 Chakra.",
+                Question = "Which ability should you use?",
+                Options = new[] { "The Forbidden Chakra", "Enlightenment", "Save Chakra", "Howling Fist only" },
+                CorrectIndex = 1,
+                Explanation = "Enlightenment is the AoE Chakra spender. At 4 targets, it deals more total damage than single-target.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_3.q4",
+                ConceptId = MnkConcepts.ChakraGauge,
+                Scenario = "You're about to use Brotherhood.",
+                Question = "How does Brotherhood affect Chakra generation?",
+                Options = new[] { "No effect", "Grants 5 Chakra instantly", "Increases Chakra generation from crits", "Doubles Chakra gains" },
+                CorrectIndex = 2,
+                Explanation = "Brotherhood increases the party's critical hit rate, which means more Chakra generation from critical weaponskills.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_3.q5",
+                ConceptId = MnkConcepts.ChakraGauge,
+                Scenario = "How does Chakra build during combat?",
+                Question = "What generates Chakra?",
+                Options = new[] { "Time only", "Weaponskills and critical hits", "oGCDs only", "Taking damage" },
+                CorrectIndex = 1,
+                Explanation = "Chakra builds from using weaponskills and has additional chance to generate on critical hits.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson4Quiz = new()
+    {
+        QuizId = "mnk.lesson_4.quiz",
+        LessonId = "mnk.lesson_4",
+        Title = "Quiz: Beast Chakra & Masterful Blitz",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_4.q1",
+                ConceptId = MnkConcepts.BeastChakra,
+                Scenario = "You use Dragon Kick (Opo-opo form ability).",
+                Question = "Which Beast Chakra type do you gain?",
+                Options = new[] { "Lunar", "Solar", "Celestial", "None" },
+                CorrectIndex = 0,
+                Explanation = "Opo-opo form abilities (Bootshine, Dragon Kick) grant Lunar Beast Chakra.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_4.q2",
+                ConceptId = MnkConcepts.MasterfulBlitz,
+                Scenario = "You have 3 Beast Chakra: Lunar, Solar, Celestial.",
+                Question = "Which Blitz will Masterful Blitz become?",
+                Options = new[] { "Elixir Field", "Rising Phoenix", "Phantom Rush", "Random" },
+                CorrectIndex = 2,
+                Explanation = "All 3 different Beast Chakra types = Phantom Rush, your highest single-target damage Blitz.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_4.q3",
+                ConceptId = MnkConcepts.ElixirField,
+                Scenario = "You have 3 Lunar Beast Chakra (all matching).",
+                Question = "Which Blitz will Masterful Blitz become?",
+                Options = new[] { "Elixir Field", "Rising Phoenix", "Phantom Rush", "Flint Strike" },
+                CorrectIndex = 0,
+                Explanation = "3 matching Beast Chakra = Elixir Field, a large AoE attack.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_4.q4",
+                ConceptId = MnkConcepts.RisingPhoenix,
+                Scenario = "You have 2 Solar and 1 Lunar Beast Chakra.",
+                Question = "Which Blitz will Masterful Blitz become?",
+                Options = new[] { "Elixir Field", "Rising Phoenix", "Phantom Rush", "Elixir Burst" },
+                CorrectIndex = 1,
+                Explanation = "2 of one type + 1 different = Rising Phoenix (requires Solar chakra present), a cone AoE.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_4.q5",
+                ConceptId = MnkConcepts.PhantomRush,
+                Scenario = "Single target boss fight. You're about to build Beast Chakra.",
+                Question = "Which combination should you aim for?",
+                Options = new[] { "3 matching for Elixir Field", "All 3 different for Phantom Rush", "2+1 for Rising Phoenix", "Doesn't matter" },
+                CorrectIndex = 1,
+                Explanation = "In single-target, Phantom Rush (all 3 different) deals the highest damage.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson5Quiz = new()
+    {
+        QuizId = "mnk.lesson_5.quiz",
+        LessonId = "mnk.lesson_5",
+        Title = "Quiz: Burst Windows",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_5.q1",
+                ConceptId = MnkConcepts.PerfectBalance,
+                Scenario = "You activate Perfect Balance.",
+                Question = "What does Perfect Balance allow?",
+                Options = new[] { "Double damage for 15s", "Use any weaponskill regardless of form", "Reset all cooldowns", "Ignore positionals" },
+                CorrectIndex = 1,
+                Explanation = "Perfect Balance lets you use any weaponskill regardless of your current form for 3 uses.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_5.q2",
+                ConceptId = MnkConcepts.RiddleOfFire,
+                Scenario = "Riddle of Fire is your 60-second damage buff.",
+                Question = "How much damage increase does it provide?",
+                Options = new[] { "+5%", "+10%", "+15%", "+20%" },
+                CorrectIndex = 2,
+                Explanation = "Riddle of Fire grants +15% damage for 20 seconds. It's your core burst window ability.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_5.q3",
+                ConceptId = MnkConcepts.Brotherhood,
+                Scenario = "Brotherhood has a 120-second cooldown.",
+                Question = "What does Brotherhood provide?",
+                Options = new[] { "Personal damage buff only", "Party damage buff + Chakra boost", "Heal over time", "Movement speed" },
+                CorrectIndex = 1,
+                Explanation = "Brotherhood gives the party 5% damage increase and boosts Chakra generation through increased crit rate.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_5.q4",
+                ConceptId = MnkConcepts.BurstAlignment,
+                Scenario = "Party raid buffs are coming in 10 seconds.",
+                Question = "How should you time your burst abilities?",
+                Options = new[] { "Use immediately", "Wait for raid buffs", "Save for emergencies", "Use randomly" },
+                CorrectIndex = 1,
+                Explanation = "Align your burst (Riddle of Fire, Brotherhood) with party raid buffs for maximum damage amplification.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_5.q5",
+                ConceptId = MnkConcepts.PerfectBalance,
+                Scenario = "Perfect Balance has 2 charges with 40-second recharge.",
+                Question = "How should you use Perfect Balance during burst?",
+                Options = new[] { "Save both charges", "Use to quickly build Beast Chakra", "Use for positional freedom", "Only use in emergencies" },
+                CorrectIndex = 1,
+                Explanation = "Use Perfect Balance during Riddle of Fire to quickly build Beast Chakra for Masterful Blitz.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson6Quiz = new()
+    {
+        QuizId = "mnk.lesson_6.quiz",
+        LessonId = "mnk.lesson_6",
+        Title = "Quiz: Movement & Utility",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_6.q1",
+                ConceptId = MnkConcepts.Thunderclap,
+                Scenario = "Boss dashes across the arena. Thunderclap has 3 charges.",
+                Question = "How should you use Thunderclap?",
+                Options = new[] { "Use all charges to catch up", "Use 1 charge, save others", "Save all charges", "Walk normally" },
+                CorrectIndex = 1,
+                Explanation = "Use Thunderclap to close gaps, but keep charges in reserve for future movement needs.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_6.q2",
+                ConceptId = MnkConcepts.TrueNorthUsage,
+                Scenario = "Boss is against a wall. You can't reach the rear for Bootshine.",
+                Question = "What should you do?",
+                Options = new[] { "Miss the positional", "Use True North", "Use Dragon Kick instead", "Wait for boss to move" },
+                CorrectIndex = 1,
+                Explanation = "True North removes positional requirements for 10 seconds. Use it when positioning is impossible.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_6.q3",
+                ConceptId = MnkConcepts.RiddleOfWind,
+                Scenario = "Riddle of Wind increases auto-attack speed.",
+                Question = "When should you use Riddle of Wind?",
+                Options = new[] { "Only in AoE", "During burst windows", "Only for movement", "Never - it's useless" },
+                CorrectIndex = 1,
+                Explanation = "Riddle of Wind provides free damage through faster auto-attacks. Use it during burst for maximum value.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_6.q4",
+                ConceptId = MnkConcepts.TrueNorthUsage,
+                Scenario = "True North has 2 charges with 45-second recharge.",
+                Question = "How should you manage True North?",
+                Options = new[] { "Use on cooldown", "Save both for emergencies", "Use one, keep one reserve", "Never use it" },
+                CorrectIndex = 2,
+                Explanation = "Keep at least one charge for unexpected situations. Don't cap at 2, but don't waste them either.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_6.q5",
+                ConceptId = MnkConcepts.Thunderclap,
+                Scenario = "You need to dodge an AoE but have a GCD coming up.",
+                Question = "What's the best approach?",
+                Options = new[] { "Cancel GCD and run", "Use Thunderclap to dodge and continue", "Take the hit", "Wait for GCD" },
+                CorrectIndex = 1,
+                Explanation = "Thunderclap can be used for quick repositioning while maintaining GCD uptime.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson7Quiz = new()
+    {
+        QuizId = "mnk.lesson_7.quiz",
+        LessonId = "mnk.lesson_7",
+        Title = "Quiz: AoE & Optimization",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_7.q1",
+                ConceptId = MnkConcepts.AoeCombo,
+                Scenario = "5 enemies are grouped together.",
+                Question = "What's the AoE combo sequence?",
+                Options = new[] { "Bootshine spam", "Arm of the Destroyer → Four-point Fury → Rockbreaker", "Dragon Kick spam", "Single-target rotation" },
+                CorrectIndex = 1,
+                Explanation = "Arm of the Destroyer → Four-point Fury → Rockbreaker is the AoE combo, hitting all nearby enemies.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_7.q2",
+                ConceptId = MnkConcepts.AoeThreshold,
+                Scenario = "2 enemies are present.",
+                Question = "Should you use AoE or single-target rotation?",
+                Options = new[] { "AoE rotation", "Single-target rotation", "Mix of both", "Doesn't matter" },
+                CorrectIndex = 1,
+                Explanation = "Switch to AoE at 3+ targets. At 2 targets, single-target rotation is more efficient.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_7.q3",
+                ConceptId = MnkConcepts.HowlingFist,
+                Scenario = "Large trash pull in a dungeon. Chakra is at 5.",
+                Question = "Which Chakra spender should you use?",
+                Options = new[] { "The Forbidden Chakra", "Enlightenment", "Save for boss", "Meditation" },
+                CorrectIndex = 1,
+                Explanation = "Enlightenment is the AoE Chakra spender. In dungeon pulls with 3+ enemies, it deals more total damage.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_7.q4",
+                ConceptId = MnkConcepts.AoeCombo,
+                Scenario = "You're doing the AoE rotation.",
+                Question = "Does the AoE combo maintain Disciplined Fist?",
+                Options = new[] { "No - need single-target", "Yes - automatically maintained", "Only Demolish works", "AoE removes buffs" },
+                CorrectIndex = 1,
+                Explanation = "The AoE combo abilities also grant and maintain Disciplined Fist, so you don't need to switch to single-target.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mnk.lesson_7.q5",
+                ConceptId = MnkConcepts.AoeThreshold,
+                Scenario = "Dungeon pull: 6 enemies, one is almost dead.",
+                Question = "Should you switch to single-target for the low enemy?",
+                Options = new[] { "Yes - finish it quickly", "No - continue AoE", "Use oGCDs on low target", "Focus healer" },
+                CorrectIndex = 1,
+                Explanation = "With 6 targets, AoE damage is still better. The low enemy will die from AoE damage anyway.",
             },
         },
     };

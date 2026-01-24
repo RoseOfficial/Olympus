@@ -3,6 +3,30 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.17.0 - MNK Training Mode
+
+**MNK (Kratos) Training Mode**
+- Training Mode now supports Monk - fourth melee DPS job added
+- 25 new MNK concepts covering form system, Chakra gauge, Beast Chakra, burst windows, and positionals
+- 7 progressive lessons from fundamentals to advanced optimization
+- 35 quiz questions testing real Monk decisions
+
+**Lesson Content**
+- Lesson 1: Monk Fundamentals - form cycle (Opo-opo/Raptor/Coeurl), basic combos, positional requirements
+- Lesson 2: Maintaining Your Buffs - Disciplined Fist uptime, Demolish DoT, Meditation stacks
+- Lesson 3: The Chakra System - Chakra gauge management, The Forbidden Chakra, Enlightenment
+- Lesson 4: Beast Chakra & Masterful Blitz - Lunar/Solar/Celestial chakra, Elixir Field, Rising Phoenix, Phantom Rush
+- Lesson 5: Burst Windows - Perfect Balance usage, Riddle of Fire, Brotherhood, burst alignment
+- Lesson 6: Movement & Utility - Thunderclap gap closer, True North, Riddle of Wind
+- Lesson 7: AoE & Optimization - Arm of the Destroyer combo, Howling Fist, AoE thresholds
+
+**Quiz Features**
+- 7 quizzes (one per lesson) with 5 scenario-based questions each
+- Pass 4 out of 5 to complete a quiz
+- Detailed explanations for every answer
+- Progress tracking and best score persistence
+<!-- LATEST-END -->
+
 ## v3.16.0 - SAM Training Mode
 
 **SAM (Nike) Training Mode**
@@ -25,7 +49,6 @@ All notable changes to Olympus will be documented in this file.
 - Pass 4 out of 5 to complete a quiz
 - Detailed explanations for every answer
 - Progress tracking and best score persistence
-<!-- LATEST-END -->
 
 ## v3.15.0 - NIN Training Mode
 

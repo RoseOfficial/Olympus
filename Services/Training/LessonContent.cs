@@ -2050,8 +2050,224 @@ public static class DrgLessons
 }
 
 /// <summary>
-/// NIN (Hermes) lesson content - 7 progressive lessons covering Ninja mechanics.
+/// MNK (Kratos) lesson content - 7 lessons covering 25 concepts.
 /// </summary>
+public static class MnkLessons
+{
+    public static readonly LessonDefinition Lesson1 = new()
+    {
+        LessonId = "mnk.lesson_1",
+        JobPrefix = "mnk",
+        Title = "Monk Fundamentals",
+        LessonNumber = 1,
+        Description = "Learn the core principles of Monk: the form system, basic combos, and positional requirements.",
+        Prerequisites = Array.Empty<string>(),
+        ConceptsCovered = new[]
+        {
+            MnkConcepts.ComboBasics,
+            MnkConcepts.FormSystem,
+            MnkConcepts.Positionals,
+        },
+        KeyPoints = new[]
+        {
+            "Forms cycle: Opo-opo → Raptor → Coeurl → Opo-opo",
+            "Each form has specific weaponskills: Bootshine/Dragon Kick (Opo-opo), True Strike/Twin Snakes (Raptor), Snap Punch/Demolish (Coeurl)",
+            "Positionals: Bootshine/Demolish require rear, True Strike/Snap Punch require flank",
+            "Hitting positionals correctly grants bonus potency - essential for optimal damage",
+        },
+        RelatedAbilities = new[] { "Bootshine", "Dragon Kick", "True Strike", "Twin Snakes", "Snap Punch", "Demolish" },
+        Tips = new[]
+        {
+            "The form cycle is automatic - just use the correct GCD for your current form",
+            "Learn boss patterns to position yourself for positionals before your GCD lands",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson2 = new()
+    {
+        LessonId = "mnk.lesson_2",
+        JobPrefix = "mnk",
+        Title = "Maintaining Your Buffs",
+        LessonNumber = 2,
+        Description = "Master buff maintenance with Disciplined Fist, Demolish DoT, and out-of-combat Meditation.",
+        Prerequisites = new[] { "mnk.lesson_1" },
+        ConceptsCovered = new[]
+        {
+            MnkConcepts.DisciplinedFist,
+            MnkConcepts.DemolishDot,
+            MnkConcepts.Meditation,
+        },
+        KeyPoints = new[]
+        {
+            "Disciplined Fist (+15% damage) from Twin Snakes/Demolish - never let this drop",
+            "Demolish is a powerful DoT (18s duration) - maintain near 100% uptime",
+            "Refresh Demolish when it has ~3 seconds remaining",
+            "Meditation: Build Chakra out of combat to start fights with resources ready",
+        },
+        RelatedAbilities = new[] { "Twin Snakes", "Demolish", "Meditation" },
+        Tips = new[]
+        {
+            "Twin Snakes (Raptor form) and Demolish (Coeurl form) both grant Disciplined Fist",
+            "Use Meditation during downtime or before pulls to build Chakra for burst",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson3 = new()
+    {
+        LessonId = "mnk.lesson_3",
+        JobPrefix = "mnk",
+        Title = "The Chakra System",
+        LessonNumber = 3,
+        Description = "Understand Chakra generation and spending for optimal damage output.",
+        Prerequisites = new[] { "mnk.lesson_2" },
+        ConceptsCovered = new[]
+        {
+            MnkConcepts.ChakraGauge,
+            MnkConcepts.TheForbiddenChakra,
+            MnkConcepts.Enlightenment,
+            MnkConcepts.SteelPeak,
+        },
+        KeyPoints = new[]
+        {
+            "Chakra gauge: 0-5 stacks, builds from weaponskills and critical hits",
+            "The Forbidden Chakra (5 Chakra): High-potency single-target oGCD",
+            "Enlightenment (5 Chakra): AoE alternative for 3+ targets",
+            "Never overcap Chakra - spend at 5 stacks before generating more",
+        },
+        RelatedAbilities = new[] { "The Forbidden Chakra", "Enlightenment", "Steel Peak", "Howling Fist" },
+        Tips = new[]
+        {
+            "Chakra generates faster during Brotherhood buff - more critical hits",
+            "Weave Chakra spenders between GCDs to maximize damage",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson4 = new()
+    {
+        LessonId = "mnk.lesson_4",
+        JobPrefix = "mnk",
+        Title = "Beast Chakra & Masterful Blitz",
+        LessonNumber = 4,
+        Description = "Master the Beast Chakra system and learn which Blitz to execute based on your combination.",
+        Prerequisites = new[] { "mnk.lesson_3" },
+        ConceptsCovered = new[]
+        {
+            MnkConcepts.BeastChakra,
+            MnkConcepts.MasterfulBlitz,
+            MnkConcepts.ElixirField,
+            MnkConcepts.RisingPhoenix,
+            MnkConcepts.PhantomRush,
+        },
+        KeyPoints = new[]
+        {
+            "Beast Chakra types: Opo-opo (Lunar), Raptor (Solar), Coeurl (Celestial)",
+            "3 matching Beast Chakra = Elixir Field (large AoE)",
+            "2 Solar + 1 different = Rising Phoenix (cone AoE)",
+            "All 3 different types = Phantom Rush (highest single-target, requires Fury buff)",
+            "Masterful Blitz becomes available when you have 3 Beast Chakra",
+        },
+        RelatedAbilities = new[] { "Masterful Blitz", "Elixir Field", "Rising Phoenix", "Phantom Rush", "Elixir Burst", "Flint Strike" },
+        Tips = new[]
+        {
+            "In single-target, aim for Phantom Rush (all 3 different) for max damage",
+            "In AoE, Elixir Field (3 matching) hits all nearby enemies",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson5 = new()
+    {
+        LessonId = "mnk.lesson_5",
+        JobPrefix = "mnk",
+        Title = "Burst Windows",
+        LessonNumber = 5,
+        Description = "Execute powerful burst windows with Perfect Balance, Riddle of Fire, and Brotherhood.",
+        Prerequisites = new[] { "mnk.lesson_4" },
+        ConceptsCovered = new[]
+        {
+            MnkConcepts.PerfectBalance,
+            MnkConcepts.RiddleOfFire,
+            MnkConcepts.Brotherhood,
+            MnkConcepts.BurstAlignment,
+        },
+        KeyPoints = new[]
+        {
+            "Perfect Balance (2 charges, 40s recharge): Use any weaponskill regardless of form",
+            "Riddle of Fire (60s CD, 20s duration): +15% damage buff - core burst window",
+            "Brotherhood (120s CD): Party-wide 5% damage buff + Chakra generation boost",
+            "Align Riddle of Fire and Brotherhood with party raid buffs for maximum impact",
+        },
+        RelatedAbilities = new[] { "Perfect Balance", "Riddle of Fire", "Brotherhood" },
+        Tips = new[]
+        {
+            "Use Perfect Balance to quickly build Beast Chakra during Riddle of Fire",
+            "Brotherhood aligns with 2-minute party buffs - coordinate with your group",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson6 = new()
+    {
+        LessonId = "mnk.lesson_6",
+        JobPrefix = "mnk",
+        Title = "Movement & Utility",
+        LessonNumber = 6,
+        Description = "Master gap closers, True North usage, and auto-attack optimization.",
+        Prerequisites = new[] { "mnk.lesson_5" },
+        ConceptsCovered = new[]
+        {
+            MnkConcepts.Thunderclap,
+            MnkConcepts.TrueNorthUsage,
+            MnkConcepts.RiddleOfWind,
+        },
+        KeyPoints = new[]
+        {
+            "Thunderclap (3 charges): Dash to target - use for gap closing and dodging",
+            "True North (2 charges, 45s recharge): Ignore positional requirements for 10s",
+            "Riddle of Wind: Increases auto-attack speed - free damage during burst",
+            "Save True North for when mechanics prevent proper positioning",
+        },
+        RelatedAbilities = new[] { "Thunderclap", "True North", "Riddle of Wind" },
+        Tips = new[]
+        {
+            "Don't waste Thunderclap charges - keep at least one for emergency movement",
+            "Plan True North usage around fight mechanics you know will disrupt positioning",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson7 = new()
+    {
+        LessonId = "mnk.lesson_7",
+        JobPrefix = "mnk",
+        Title = "AoE & Optimization",
+        LessonNumber = 7,
+        Description = "Learn the AoE rotation and advanced optimization techniques.",
+        Prerequisites = new[] { "mnk.lesson_6" },
+        ConceptsCovered = new[]
+        {
+            MnkConcepts.AoeCombo,
+            MnkConcepts.HowlingFist,
+            MnkConcepts.AoeThreshold,
+        },
+        KeyPoints = new[]
+        {
+            "AoE combo: Arm of the Destroyer → Four-point Fury → Rockbreaker",
+            "Switch to AoE rotation at 3+ targets for efficiency",
+            "Howling Fist: AoE oGCD - use with Enlightenment in multi-target",
+            "Perfect Balance works in AoE too - quickly build Beast Chakra for Elixir Field",
+        },
+        RelatedAbilities = new[] { "Arm of the Destroyer", "Four-point Fury", "Rockbreaker", "Howling Fist" },
+        Tips = new[]
+        {
+            "In dungeons, use AoE combo on trash packs, single-target on bosses",
+            "Even in AoE, maintain Disciplined Fist buff for the damage bonus",
+        },
+    };
+
+    public static readonly LessonDefinition[] AllLessons = new[]
+    {
+        Lesson1, Lesson2, Lesson3, Lesson4, Lesson5, Lesson6, Lesson7,
+    };
+}
+
 /// <summary>
 /// SAM (Nike) lesson content - 7 lessons covering 25 concepts.
 /// </summary>
@@ -2519,6 +2735,7 @@ public static class LessonRegistry
             "drg" => DrgLessons.AllLessons,
             "nin" => NinLessons.AllLessons,
             "sam" => SamLessons.AllLessons,
+            "mnk" => MnkLessons.AllLessons,
             _ => Array.Empty<LessonDefinition>(),
         };
     }
@@ -2555,6 +2772,7 @@ public static class LessonRegistry
             .Concat(DrgLessons.AllLessons)
             .Concat(NinLessons.AllLessons)
             .Concat(SamLessons.AllLessons)
+            .Concat(MnkLessons.AllLessons)
             .ToArray();
     }
 }
