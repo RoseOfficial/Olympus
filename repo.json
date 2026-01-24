@@ -8,14 +8,14 @@
     "ApplicableVersion": "any",
     "CategoryTags": ["jobs"],
     "RepoUrl": "https://github.com/RoseOfficial/Olympus",
-    "AssemblyVersion": "3.8.0",
+    "AssemblyVersion": "3.9.0",
     "DalamudApiLevel": 14,
     "IconUrl": "",
     "ImageUrls": [],
     "IsHide": false,
     "IsTestingExclusive": false,
-    "DownloadLinkInstall": "https://github.com/RoseOfficial/Olympus/releases/download/v3.8.0/Olympus.zip",
-    "DownloadLinkTesting": "https://github.com/RoseOfficial/Olympus/releases/download/v3.8.0/Olympus.zip",
-    "DownloadLinkUpdate": "https://github.com/RoseOfficial/Olympus/releases/download/v3.8.0/Olympus.zip"
+    "DownloadLinkInstall": "https://github.com/RoseOfficial/Olympus/releases/download/v3.9.0/Olympus.zip",
+    "DownloadLinkTesting": "https://github.com/RoseOfficial/Olympus/releases/download/v3.9.0/Olympus.zip",
+    "DownloadLinkUpdate": "https://github.com/RoseOfficial/Olympus/releases/download/v3.9.0/Olympus.zip"
   }
 ]
