@@ -2931,6 +2931,224 @@ public static class RprLessons
 }
 
 /// <summary>
+/// VPR (Echidna) lesson content - 7 progressive lessons covering Viper mechanics.
+/// </summary>
+public static class VprLessons
+{
+    public static readonly LessonDefinition Lesson1 = new()
+    {
+        LessonId = "vpr.lesson_1",
+        JobPrefix = "vpr",
+        Title = "Viper Fundamentals",
+        LessonNumber = 1,
+        Description = "Learn the core principles of Viper: two-path combo system, buff maintenance with Hunter's Instinct and Swiftscaled, and Honed buff usage.",
+        Prerequisites = Array.Empty<string>(),
+        ConceptsCovered = new[]
+        {
+            VprConcepts.ComboBasics,
+            VprConcepts.BuffCycling,
+            VprConcepts.HonedBuffs,
+        },
+        KeyPoints = new[]
+        {
+            "Two combo paths: Steel Fangs path (grants Hunter's Instinct +10% damage) and Reaving Fangs path (grants Swiftscaled +15% auto-attack)",
+            "Alternate between paths to maintain both buffs at all times (both last 40s)",
+            "Honed Steel/Honed Reavers procs upgrade your combo starters for more damage",
+            "Each path: Starter → Flanksting/Hindsting finisher → alternate path next",
+        },
+        RelatedAbilities = new[] { "Steel Fangs", "Reaving Fangs", "Hunter's Sting", "Swiftskin's Sting", "Flanksting Strike", "Hindsting Strike", "Flanksbane Fang", "Hindsbane Fang" },
+        Tips = new[]
+        {
+            "Never let Hunter's Instinct or Swiftscaled fall off - both are crucial for damage",
+            "Use Honed procs immediately - they only last 60s and upgrade your next combo starter",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson2 = new()
+    {
+        LessonId = "vpr.lesson_2",
+        JobPrefix = "vpr",
+        Title = "Resource Management",
+        LessonNumber = 2,
+        Description = "Master Serpent Offering gauge building, Rattling Coil stacks, and Uncoiled Fury for movement.",
+        Prerequisites = new[] { "vpr.lesson_1" },
+        ConceptsCovered = new[]
+        {
+            VprConcepts.SerpentOffering,
+            VprConcepts.RattlingCoil,
+            VprConcepts.OfferingGeneration,
+        },
+        KeyPoints = new[]
+        {
+            "Serpent Offering (0-100): Built by combo finishers (10 each), consumed by Reawaken (50)",
+            "Rattling Coil (0-3 stacks): Built by Twinblade combos and Serpent's Ire, consumed by Uncoiled Fury",
+            "Uncoiled Fury: Ranged GCD that spends 1 Rattling Coil - use for movement or to avoid overcapping",
+            "Don't overcap Serpent Offering at 100 - enter Reawaken before capping",
+        },
+        RelatedAbilities = new[] { "Uncoiled Fury", "Writhing Snap", "Serpent's Ire" },
+        Tips = new[]
+        {
+            "Use Uncoiled Fury during forced movement phases to maintain DPS",
+            "Track Serpent Offering carefully - wasting gauge is a significant DPS loss",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson3 = new()
+    {
+        LessonId = "vpr.lesson_3",
+        JobPrefix = "vpr",
+        Title = "Venom & Positionals",
+        LessonNumber = 3,
+        Description = "Understand the venom buff system and how it determines which positional finisher to use.",
+        Prerequisites = new[] { "vpr.lesson_2" },
+        ConceptsCovered = new[]
+        {
+            VprConcepts.VenomSystem,
+            VprConcepts.PositionalFinishers,
+            VprConcepts.Positionals,
+            VprConcepts.TrueNorthUsage,
+        },
+        KeyPoints = new[]
+        {
+            "Venom buffs (Flankstung, Hindstung, Flanksbane, Hindsbane) indicate your NEXT positional",
+            "Flankstung/Flanksbane → Use flank (side) positional finisher for bonus potency",
+            "Hindstung/Hindsbane → Use rear (behind) positional finisher for bonus potency",
+            "True North allows you to ignore positional requirements for 10s (2 charges, 45s recharge)",
+        },
+        RelatedAbilities = new[] { "Flanksting Strike", "Hindsting Strike", "Flanksbane Fang", "Hindsbane Fang", "True North" },
+        Tips = new[]
+        {
+            "The venom name tells you where to stand: Flank = side, Hind = rear",
+            "Save True North charges for mechanics that force bad positioning",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson4 = new()
+    {
+        LessonId = "vpr.lesson_4",
+        JobPrefix = "vpr",
+        Title = "Twinblade Combos",
+        LessonNumber = 4,
+        Description = "Master the Twinblade system: Vicewinder initiation, Coil follow-ups, and Noxious Gnash maintenance.",
+        Prerequisites = new[] { "vpr.lesson_3" },
+        ConceptsCovered = new[]
+        {
+            VprConcepts.DreadCombo,
+            VprConcepts.Vicewinder,
+            VprConcepts.TwinfangTwinblood,
+            VprConcepts.NoxiousGnash,
+        },
+        KeyPoints = new[]
+        {
+            "Vicewinder: Starts Twinblade combo, applies Noxious Gnash debuff (+10% damage, 20s)",
+            "After Vicewinder, use Hunter's Coil (flank) OR Swiftskin's Coil (rear) based on position",
+            "Each Coil grants a Twinfang or Twinblood proc - weave them as oGCDs immediately",
+            "Twinblade GCDs are 3.0s recast (faster than normal) - grants 1 Rattling Coil stack",
+        },
+        RelatedAbilities = new[] { "Vicewinder", "Hunter's Coil", "Swiftskin's Coil", "Twinfang", "Twinblood", "Uncoiled Fury" },
+        Tips = new[]
+        {
+            "Noxious Gnash must be active to enter Reawaken - refresh it with Vicewinder/Vicepit",
+            "Use Twinfang/Twinblood immediately after Coils - they're free oGCD damage",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson5 = new()
+    {
+        LessonId = "vpr.lesson_5",
+        JobPrefix = "vpr",
+        Title = "Reawaken Burst",
+        LessonNumber = 5,
+        Description = "Execute the Reawaken burst phase: entry requirements, Generation GCD sequence, and Legacy oGCD weaving.",
+        Prerequisites = new[] { "vpr.lesson_4" },
+        ConceptsCovered = new[]
+        {
+            VprConcepts.ReawakenEntry,
+            VprConcepts.GenerationSequence,
+            VprConcepts.LegacyWeaving,
+            VprConcepts.AnguineTribute,
+        },
+        KeyPoints = new[]
+        {
+            "Reawaken entry requires: 50+ Serpent Offering AND Noxious Gnash on target AND 10s+ on buffs",
+            "Reawaken grants 5 Anguine Tribute stacks - use Generation GCDs to consume them",
+            "Generation sequence: First → Second → Third → Fourth Generation → Ouroboros finisher",
+            "Each Generation GCD grants a Legacy oGCD - weave First/Second/Third/Fourth Legacy between GCDs",
+        },
+        RelatedAbilities = new[] { "Reawaken", "First Generation", "Second Generation", "Third Generation", "Fourth Generation", "First Legacy", "Second Legacy", "Third Legacy", "Fourth Legacy", "Ouroboros" },
+        Tips = new[]
+        {
+            "Never enter Reawaken if buffs will fall off mid-burst - refresh them first",
+            "Generation GCDs are 2.1s recast - weave one Legacy oGCD between each",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson6 = new()
+    {
+        LessonId = "vpr.lesson_6",
+        JobPrefix = "vpr",
+        Title = "Burst Optimization",
+        LessonNumber = 6,
+        Description = "Maximize burst damage with Serpent's Ire timing, Ready to Reawaken proc, and raid buff alignment.",
+        Prerequisites = new[] { "vpr.lesson_5" },
+        ConceptsCovered = new[]
+        {
+            VprConcepts.BurstWindow,
+            VprConcepts.ReadyToReawaken,
+            VprConcepts.SerpentsIre,
+            VprConcepts.TimelineAwareness,
+        },
+        KeyPoints = new[]
+        {
+            "Serpent's Ire: 2-minute cooldown that grants 1 Rattling Coil and Ready to Reawaken",
+            "Ready to Reawaken: Allows free Reawaken without spending Serpent Offering (use immediately!)",
+            "Align Reawaken with party raid buff windows (2-minute intervals) for maximum damage",
+            "Hold Reawaken briefly if raid buffs are imminent (within 5-10 seconds)",
+        },
+        RelatedAbilities = new[] { "Serpent's Ire", "Reawaken" },
+        Tips = new[]
+        {
+            "Serpent's Ire is your burst enabler - always use it with party buffs",
+            "Don't hold Reawaken too long - losing casts over the fight is worse than missing some buffs",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson7 = new()
+    {
+        LessonId = "vpr.lesson_7",
+        JobPrefix = "vpr",
+        Title = "Complete Rotation",
+        LessonNumber = 7,
+        Description = "Synthesize all Viper mechanics: full rotation flow, AoE decisions, and movement optimization.",
+        Prerequisites = new[] { "vpr.lesson_6" },
+        ConceptsCovered = new[]
+        {
+            VprConcepts.UncoiledFury,
+            VprConcepts.AoeRotation,
+            VprConcepts.DualWieldAoe,
+        },
+        KeyPoints = new[]
+        {
+            "AoE threshold: Use AoE rotation at 3+ targets (Steel Maw → Reaving Maw path)",
+            "Vicepit is the AoE version of Vicewinder - applies Noxious Gnash to all targets",
+            "AoE Twinblades: Pit combos + Blood/Fang follow-ups for AoE Rattling Coils",
+            "Use Uncoiled Fury for movement phases when you can't reach the boss",
+        },
+        RelatedAbilities = new[] { "Steel Maw", "Reaving Maw", "Vicepit", "Hunter's Den", "Swiftskin's Den", "Uncoiled Twinfang", "Uncoiled Twinblood" },
+        Tips = new[]
+        {
+            "In dungeons, keep Noxious Gnash up with Vicepit for the +10% damage on AoE",
+            "Plan Rattling Coil usage around movement - Uncoiled Fury is your mobility tool",
+        },
+    };
+
+    public static readonly LessonDefinition[] AllLessons = new[]
+    {
+        Lesson1, Lesson2, Lesson3, Lesson4, Lesson5, Lesson6, Lesson7,
+    };
+}
+
+/// <summary>
 /// Helper class for accessing all lessons.
 /// </summary>
 public static class LessonRegistry
@@ -2958,6 +3176,7 @@ public static class LessonRegistry
             "sam" => SamLessons.AllLessons,
             "mnk" => MnkLessons.AllLessons,
             "rpr" => RprLessons.AllLessons,
+            "vpr" => VprLessons.AllLessons,
             _ => Array.Empty<LessonDefinition>(),
         };
     }
@@ -2996,6 +3215,7 @@ public static class LessonRegistry
             .Concat(SamLessons.AllLessons)
             .Concat(MnkLessons.AllLessons)
             .Concat(RprLessons.AllLessons)
+            .Concat(VprLessons.AllLessons)
             .ToArray();
     }
 }

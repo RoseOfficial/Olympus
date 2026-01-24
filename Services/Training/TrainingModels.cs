@@ -823,6 +823,69 @@ public static class RprConcepts
 }
 
 /// <summary>
+/// VPR (Echidna) Training Mode concepts covering Viper mechanics.
+/// 25 concepts across 6 categories.
+/// </summary>
+public static class VprConcepts
+{
+    // Core Resources (3)
+    public const string SerpentOffering = "vpr.serpent_offering";
+    public const string AnguineTribute = "vpr.anguine_tribute";
+    public const string RattlingCoil = "vpr.rattling_coil";
+
+    // Dual Wield System (5)
+    public const string ComboBasics = "vpr.combo_basics";
+    public const string BuffCycling = "vpr.buff_cycling";
+    public const string HonedBuffs = "vpr.honed_buffs";
+    public const string OfferingGeneration = "vpr.offering_generation";
+    public const string DualWieldAoe = "vpr.dual_wield_aoe";
+
+    // Venom & Positionals (4)
+    public const string VenomSystem = "vpr.venom_system";
+    public const string PositionalFinishers = "vpr.positional_finishers";
+    public const string Positionals = "vpr.positionals";
+    public const string TrueNorthUsage = "vpr.true_north_usage";
+
+    // Twinblade System (4)
+    public const string DreadCombo = "vpr.dread_combo";
+    public const string Vicewinder = "vpr.vicewinder";
+    public const string TwinfangTwinblood = "vpr.twinfang_twinblood";
+    public const string NoxiousGnash = "vpr.noxious_gnash";
+
+    // Reawaken Burst (5)
+    public const string ReawakenEntry = "vpr.reawaken_entry";
+    public const string GenerationSequence = "vpr.generation_sequence";
+    public const string LegacyWeaving = "vpr.legacy_weaving";
+    public const string BurstWindow = "vpr.burst_window";
+    public const string ReadyToReawaken = "vpr.ready_to_reawaken";
+
+    // Utility & Coordination (4)
+    public const string SerpentsIre = "vpr.serpents_ire";
+    public const string UncoiledFury = "vpr.uncoiled_fury";
+    public const string TimelineAwareness = "vpr.timeline_awareness";
+    public const string AoeRotation = "vpr.aoe_rotation";
+
+    /// <summary>
+    /// All VPR concepts for counting.
+    /// </summary>
+    public static readonly string[] AllConcepts = new[]
+    {
+        // Core Resources
+        SerpentOffering, AnguineTribute, RattlingCoil,
+        // Dual Wield System
+        ComboBasics, BuffCycling, HonedBuffs, OfferingGeneration, DualWieldAoe,
+        // Venom & Positionals
+        VenomSystem, PositionalFinishers, Positionals, TrueNorthUsage,
+        // Twinblade System
+        DreadCombo, Vicewinder, TwinfangTwinblood, NoxiousGnash,
+        // Reawaken Burst
+        ReawakenEntry, GenerationSequence, LegacyWeaving, BurstWindow, ReadyToReawaken,
+        // Utility & Coordination
+        SerpentsIre, UncoiledFury, TimelineAwareness, AoeRotation,
+    };
+}
+
+/// <summary>
 /// DRG (Zeus) Training Mode concepts covering Dragoon mechanics.
 /// 25 concepts across 6 categories.
 /// </summary>

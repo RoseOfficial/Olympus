@@ -3,6 +3,33 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.19.0 - VPR Training Mode
+
+**VPR (Echidna) Training Mode**
+- Training Mode now supports Viper - sixth and final melee DPS job added
+- 25 new VPR concepts covering dual wield combos, venom system, twinblades, Reawaken burst, and party coordination
+- 7 progressive lessons from fundamentals to advanced optimization
+- 35 quiz questions testing real Viper decisions
+
+**Lesson Content**
+- Lesson 1: Viper Fundamentals - two-path combo system, Hunter's Instinct/Swiftscaled buff cycling, Honed procs
+- Lesson 2: Resource Management - Serpent Offering gauge, Rattling Coil stacks, Uncoiled Fury movement tool
+- Lesson 3: Venom & Positionals - venom buff system, Flankstung/Hindstung interpretation, True North usage
+- Lesson 4: Twinblade Combos - Vicewinder initiation, Coil follow-ups, Twinfang/Twinblood oGCDs, Noxious Gnash
+- Lesson 5: Reawaken Burst - entry requirements, Generation GCD sequence, Legacy oGCD weaving, Ouroboros finisher
+- Lesson 6: Burst Optimization - Serpent's Ire timing, Ready to Reawaken proc, raid buff alignment
+- Lesson 7: Complete Rotation - full rotation synthesis, AoE decisions, movement optimization
+
+**Quiz Features**
+- 7 quizzes (one per lesson) with 5 scenario-based questions each
+- Pass 4 out of 5 to complete a quiz
+- Detailed explanations for every answer
+- Progress tracking and best score persistence
+
+**Melee DPS Training Complete**
+- All 6 melee DPS jobs now have full Training Mode support (DRG, NIN, SAM, MNK, RPR, VPR)
+<!-- LATEST-END -->
+
 ## v3.18.0 - RPR Training Mode
 
 **RPR (Thanatos) Training Mode**
@@ -25,7 +52,6 @@ All notable changes to Olympus will be documented in this file.
 - Pass 4 out of 5 to complete a quiz
 - Detailed explanations for every answer
 - Progress tracking and best score persistence
-<!-- LATEST-END -->
 
 ## v3.17.0 - MNK Training Mode
 

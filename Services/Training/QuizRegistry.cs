@@ -135,6 +135,7 @@ public static class QuizRegistry
             "sam" => SamQuizzes.AllQuizzes,
             "mnk" => MnkQuizzes.AllQuizzes,
             "rpr" => RprQuizzes.AllQuizzes,
+            "vpr" => VprQuizzes.AllQuizzes,
             _ => Array.Empty<QuizDefinition>(),
         };
     }
@@ -5824,6 +5825,444 @@ public static class RprQuizzes
                 Options = new[] { "AoE - always at 2+ targets", "Single-target on the low HP enemy", "Single-target - AoE is 3+", "Doesn't matter" },
                 CorrectIndex = 2,
                 Explanation = "Reaper's AoE threshold is 3+ targets. At 2 enemies, single-target rotation is more efficient.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition[] AllQuizzes = new[]
+    {
+        Lesson1Quiz, Lesson2Quiz, Lesson3Quiz, Lesson4Quiz, Lesson5Quiz, Lesson6Quiz, Lesson7Quiz,
+    };
+}
+
+/// <summary>
+/// VPR (Echidna) quiz content - 7 quizzes with 5 questions each.
+/// </summary>
+public static class VprQuizzes
+{
+    public static readonly QuizDefinition Lesson1Quiz = new()
+    {
+        QuizId = "vpr.lesson_1.quiz",
+        LessonId = "vpr.lesson_1",
+        Title = "Quiz: Viper Fundamentals",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_1.q1",
+                ConceptId = VprConcepts.ComboBasics,
+                Scenario = "You just used Steel Fangs and completed the combo path.",
+                Question = "What buff did you receive?",
+                Options = new[] { "Swiftscaled (+15% auto-attack)", "Hunter's Instinct (+10% damage)", "Both buffs", "No buff until finisher" },
+                CorrectIndex = 1,
+                Explanation = "The Steel Fangs path grants Hunter's Instinct (+10% damage buff). The Reaving Fangs path grants Swiftscaled.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_1.q2",
+                ConceptId = VprConcepts.BuffCycling,
+                Scenario = "Hunter's Instinct has 10 seconds remaining. Swiftscaled has 35 seconds.",
+                Question = "Which combo path should you start?",
+                Options = new[] { "Reaving Fangs path", "Steel Fangs path", "Either one - doesn't matter", "Skip combo, use Vicewinder" },
+                CorrectIndex = 1,
+                Explanation = "Hunter's Instinct is about to fall off (10s). Start Steel Fangs path to refresh it before it expires.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_1.q3",
+                ConceptId = VprConcepts.HonedBuffs,
+                Scenario = "You have the Honed Steel buff. What does this do?",
+                Question = "What effect does Honed Steel provide?",
+                Options = new[] { "Increases damage of next attack", "Upgrades Steel Fangs to Honed Steel Fangs", "Grants extra Serpent Offering", "Extends Hunter's Instinct" },
+                CorrectIndex = 1,
+                Explanation = "Honed Steel upgrades your next Steel Fangs into Honed Steel Fangs, which deals more damage.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_1.q4",
+                ConceptId = VprConcepts.ComboBasics,
+                Scenario = "You want to maintain both Hunter's Instinct and Swiftscaled.",
+                Question = "What is the correct approach?",
+                Options = new[] { "Only use Steel Fangs path", "Only use Reaving Fangs path", "Alternate between both paths", "Use whichever is available" },
+                CorrectIndex = 2,
+                Explanation = "Alternate between Steel Fangs and Reaving Fangs paths to maintain both Hunter's Instinct and Swiftscaled buffs.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_1.q5",
+                ConceptId = VprConcepts.BuffCycling,
+                Scenario = "Both Hunter's Instinct and Swiftscaled have 40 seconds remaining.",
+                Question = "What should you do?",
+                Options = new[] { "Refresh Hunter's Instinct immediately", "Refresh Swiftscaled immediately", "Continue normal rotation", "Wait until one is low" },
+                CorrectIndex = 2,
+                Explanation = "Both buffs are healthy at 40s. Continue your normal rotation - you'll naturally refresh them before they expire.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson2Quiz = new()
+    {
+        QuizId = "vpr.lesson_2.quiz",
+        LessonId = "vpr.lesson_2",
+        Title = "Quiz: Resource Management",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_2.q1",
+                ConceptId = VprConcepts.SerpentOffering,
+                Scenario = "You have 45 Serpent Offering and just completed a combo finisher.",
+                Question = "How much Serpent Offering do you now have?",
+                Options = new[] { "45 (finishers don't grant gauge)", "50 Serpent Offering", "55 Serpent Offering", "100 Serpent Offering" },
+                CorrectIndex = 2,
+                Explanation = "Combo finishers grant 10 Serpent Offering each. 45 + 10 = 55 Serpent Offering.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_2.q2",
+                ConceptId = VprConcepts.RattlingCoil,
+                Scenario = "You have 3 Rattling Coil stacks. A Twinblade combo is available.",
+                Question = "What should you do?",
+                Options = new[] { "Start Twinblade combo immediately", "Use Uncoiled Fury first to avoid overcapping", "Save Rattling Coils for later", "Wait for Serpent's Ire" },
+                CorrectIndex = 1,
+                Explanation = "At max Rattling Coils (3), use Uncoiled Fury before gaining more from Twinblade combos to avoid overcapping.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_2.q3",
+                ConceptId = VprConcepts.OfferingGeneration,
+                Scenario = "You have 95 Serpent Offering. You need to do another combo finisher.",
+                Question = "What should you do?",
+                Options = new[] { "Complete the combo anyway", "Enter Reawaken first", "Skip the finisher", "Use Uncoiled Fury" },
+                CorrectIndex = 1,
+                Explanation = "At 95 Serpent Offering, completing a finisher would overcap. Enter Reawaken (costs 50) to spend gauge first.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_2.q4",
+                ConceptId = VprConcepts.RattlingCoil,
+                Scenario = "The boss just jumped away. You have 2 Rattling Coil stacks.",
+                Question = "What should you do?",
+                Options = new[] { "Wait for boss to return", "Use Uncoiled Fury", "Use Writhing Snap", "Do nothing" },
+                CorrectIndex = 1,
+                Explanation = "Uncoiled Fury is a ranged GCD that spends Rattling Coils. Use it during forced disengagement to maintain DPS.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_2.q5",
+                ConceptId = VprConcepts.SerpentOffering,
+                Scenario = "You have 50 Serpent Offering. Reawaken is ready.",
+                Question = "Can you use Reawaken?",
+                Options = new[] { "No - need 100 Serpent Offering", "Yes - 50 is the minimum requirement", "Only with Serpent's Ire buff", "Only if Noxious Gnash is active" },
+                CorrectIndex = 3,
+                Explanation = "Reawaken requires 50+ Serpent Offering AND Noxious Gnash active on the target. Both conditions must be met.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson3Quiz = new()
+    {
+        QuizId = "vpr.lesson_3.quiz",
+        LessonId = "vpr.lesson_3",
+        Title = "Quiz: Venom & Positionals",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_3.q1",
+                ConceptId = VprConcepts.VenomSystem,
+                Scenario = "You have the Flankstung Venom buff active.",
+                Question = "Where should you position yourself for the next finisher?",
+                Options = new[] { "Behind the boss (rear)", "Beside the boss (flank)", "In front of the boss", "Anywhere - venom ignores positionals" },
+                CorrectIndex = 1,
+                Explanation = "Flankstung indicates FLANK positional. Position beside the boss for the positional bonus.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_3.q2",
+                ConceptId = VprConcepts.PositionalFinishers,
+                Scenario = "You have Hindsbane Venom. You're standing behind the boss.",
+                Question = "Which finisher should you use?",
+                Options = new[] { "Flanksbane Fang", "Hindsbane Fang", "Either one - both work", "Wait for different venom" },
+                CorrectIndex = 1,
+                Explanation = "Hindsbane indicates REAR (hind) positional. Use Hindsbane Fang from behind for the positional bonus.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_3.q3",
+                ConceptId = VprConcepts.TrueNorthUsage,
+                Scenario = "A mechanic forces you to stand in front of the boss. You have Flankstung Venom and True North available.",
+                Question = "What should you do?",
+                Options = new[] { "Skip the finisher", "Use True North and do the finisher", "Wait for mechanic to end", "Use a different attack" },
+                CorrectIndex = 1,
+                Explanation = "True North removes positional requirements for 10s. Use it to hit your finisher without losing damage.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_3.q4",
+                ConceptId = VprConcepts.VenomSystem,
+                Scenario = "You used Flanksting Strike. What venom buff do you now have?",
+                Question = "Which venom buff is active?",
+                Options = new[] { "Flankstung Venom", "Hindstung Venom", "Flanksbane Venom", "Hindsbane Venom" },
+                CorrectIndex = 1,
+                Explanation = "Flanksting Strike grants Hindstung Venom, directing you to use a rear positional next.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_3.q5",
+                ConceptId = VprConcepts.Positionals,
+                Scenario = "The boss is targeting you (cannot get behind). You have Hindstung Venom and no True North.",
+                Question = "What should you do?",
+                Options = new[] { "Wait for boss to turn away", "Use the finisher anyway (lose positional)", "Skip your rotation", "Only use Vicewinder" },
+                CorrectIndex = 1,
+                Explanation = "Using the finisher without positional is better than not using it at all. You lose some potency but maintain rotation flow.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson4Quiz = new()
+    {
+        QuizId = "vpr.lesson_4.quiz",
+        LessonId = "vpr.lesson_4",
+        Title = "Quiz: Twinblade Combos",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_4.q1",
+                ConceptId = VprConcepts.Vicewinder,
+                Scenario = "You use Vicewinder on a boss.",
+                Question = "What debuff does Vicewinder apply?",
+                Options = new[] { "Death's Design", "Noxious Gnash (+10% damage)", "Venomous Bite", "No debuff" },
+                CorrectIndex = 1,
+                Explanation = "Vicewinder applies Noxious Gnash, a debuff that increases damage dealt to the target by 10%.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_4.q2",
+                ConceptId = VprConcepts.TwinfangTwinblood,
+                Scenario = "You just used Hunter's Coil during a Twinblade combo.",
+                Question = "What should you do next?",
+                Options = new[] { "Use Swiftskin's Coil", "Use Twinfang oGCD", "Use Vicewinder again", "Wait for GCD" },
+                CorrectIndex = 1,
+                Explanation = "Hunter's Coil grants a Twinfang proc. Weave Twinfang immediately as a free oGCD before your next GCD.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_4.q3",
+                ConceptId = VprConcepts.NoxiousGnash,
+                Scenario = "Noxious Gnash has 5 seconds remaining on the boss. You have 55 Serpent Offering.",
+                Question = "Can you enter Reawaken?",
+                Options = new[] { "Yes - you have enough Offering", "No - Noxious Gnash is too low", "Yes - Reawaken refreshes it", "Only with True North" },
+                CorrectIndex = 1,
+                Explanation = "Reawaken requires Noxious Gnash to be active. At 5s, it may fall off during Reawaken. Refresh it first with Vicewinder.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_4.q4",
+                ConceptId = VprConcepts.DreadCombo,
+                Scenario = "You're behind the boss during a Twinblade combo. Which Coil should you use?",
+                Question = "Which ability is correct for rear positioning?",
+                Options = new[] { "Hunter's Coil (flank)", "Swiftskin's Coil (rear)", "Either one", "Depends on venom" },
+                CorrectIndex = 1,
+                Explanation = "Swiftskin's Coil has a rear positional. Use it when behind the boss for bonus potency.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_4.q5",
+                ConceptId = VprConcepts.Vicewinder,
+                Scenario = "You completed a Twinblade combo (Vicewinder → Coil → Coil).",
+                Question = "How many Rattling Coil stacks did you gain?",
+                Options = new[] { "0 stacks", "1 stack", "2 stacks", "3 stacks" },
+                CorrectIndex = 1,
+                Explanation = "Each complete Twinblade combo grants 1 Rattling Coil stack for use with Uncoiled Fury.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson5Quiz = new()
+    {
+        QuizId = "vpr.lesson_5.quiz",
+        LessonId = "vpr.lesson_5",
+        Title = "Quiz: Reawaken Burst",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_5.q1",
+                ConceptId = VprConcepts.ReawakenEntry,
+                Scenario = "You have 50 Serpent Offering, Noxious Gnash on target, but Hunter's Instinct has 8 seconds left.",
+                Question = "Should you enter Reawaken?",
+                Options = new[] { "Yes - all requirements met", "No - buff duration too low", "Yes - Reawaken extends buffs", "Only if Serpent's Ire is ready" },
+                CorrectIndex = 1,
+                Explanation = "Reawaken requires 10+ seconds on buffs. At 8s, Hunter's Instinct may fall off mid-burst. Refresh buffs first.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_5.q2",
+                ConceptId = VprConcepts.GenerationSequence,
+                Scenario = "You just entered Reawaken.",
+                Question = "What is the correct GCD sequence?",
+                Options = new[] { "Fourth → Third → Second → First → Ouroboros", "First → Second → Third → Fourth → Ouroboros", "Any order works", "Ouroboros → First → Second → Third → Fourth" },
+                CorrectIndex = 1,
+                Explanation = "The Generation sequence must go in order: First → Second → Third → Fourth → Ouroboros (finisher).",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_5.q3",
+                ConceptId = VprConcepts.LegacyWeaving,
+                Scenario = "You just used First Generation during Reawaken.",
+                Question = "What should you weave before Second Generation?",
+                Options = new[] { "Nothing - just use Second Generation", "First Legacy oGCD", "Twinfang", "Serpent's Ire" },
+                CorrectIndex = 1,
+                Explanation = "Each Generation GCD grants a corresponding Legacy oGCD. Weave First Legacy after First Generation.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_5.q4",
+                ConceptId = VprConcepts.AnguineTribute,
+                Scenario = "You entered Reawaken. How many Anguine Tribute stacks do you have?",
+                Question = "What is your starting Anguine Tribute count?",
+                Options = new[] { "3 stacks", "4 stacks", "5 stacks", "Depends on Serpent Offering" },
+                CorrectIndex = 2,
+                Explanation = "Reawaken always grants exactly 5 Anguine Tribute stacks, regardless of how much Serpent Offering you spent.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_5.q5",
+                ConceptId = VprConcepts.GenerationSequence,
+                Scenario = "You have 1 Anguine Tribute remaining during Reawaken.",
+                Question = "What should you use?",
+                Options = new[] { "First Generation again", "Any Generation GCD", "Ouroboros", "Exit Reawaken" },
+                CorrectIndex = 2,
+                Explanation = "At 1 Anguine Tribute, use Ouroboros as your finisher to complete the Reawaken phase.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson6Quiz = new()
+    {
+        QuizId = "vpr.lesson_6.quiz",
+        LessonId = "vpr.lesson_6",
+        Title = "Quiz: Burst Optimization",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_6.q1",
+                ConceptId = VprConcepts.SerpentsIre,
+                Scenario = "Serpent's Ire is ready. Party raid buffs are going out.",
+                Question = "What does Serpent's Ire grant?",
+                Options = new[] { "50 Serpent Offering", "Ready to Reawaken + 1 Rattling Coil", "Extends Noxious Gnash", "Resets all cooldowns" },
+                CorrectIndex = 1,
+                Explanation = "Serpent's Ire grants Ready to Reawaken (free Reawaken) and 1 Rattling Coil stack.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_6.q2",
+                ConceptId = VprConcepts.ReadyToReawaken,
+                Scenario = "You have Ready to Reawaken buff. You also have 80 Serpent Offering.",
+                Question = "What happens when you use Reawaken?",
+                Options = new[] { "Spends 50 Offering + uses buff", "Only uses Ready to Reawaken (keeps Offering)", "Spends all 80 Offering", "Cannot use - must spend Offering first" },
+                CorrectIndex = 1,
+                Explanation = "Ready to Reawaken allows a FREE Reawaken without spending Serpent Offering. Your 80 Offering is preserved.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_6.q3",
+                ConceptId = VprConcepts.BurstWindow,
+                Scenario = "It's been 1:55 into the fight. Serpent's Ire is ready. No party buffs are visible yet.",
+                Question = "What should you do?",
+                Options = new[] { "Use Serpent's Ire immediately", "Wait a few seconds for 2-minute party buffs", "Save it for next window", "Use Reawaken without Serpent's Ire" },
+                CorrectIndex = 1,
+                Explanation = "Party 2-minute buffs align around 2:00. Wait a few seconds to use Serpent's Ire with party buff windows.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_6.q4",
+                ConceptId = VprConcepts.TimelineAwareness,
+                Scenario = "The boss will become untargetable in 15 seconds. You have 50 Serpent Offering.",
+                Question = "Should you enter Reawaken now?",
+                Options = new[] { "Yes - complete burst before phase transition", "No - save for after transition", "Only if Serpent's Ire is ready", "Use Uncoiled Fury instead" },
+                CorrectIndex = 0,
+                Explanation = "Reawaken burst takes ~12-13 seconds. Enter now to complete it before the boss becomes untargetable.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_6.q5",
+                ConceptId = VprConcepts.SerpentsIre,
+                Scenario = "Serpent's Ire has 10 seconds on cooldown. Raid buffs just went out.",
+                Question = "Should you Reawaken now or wait for Serpent's Ire?",
+                Options = new[] { "Wait for Serpent's Ire", "Reawaken now - catch the raid buffs", "Use Twinblades instead", "It doesn't matter" },
+                CorrectIndex = 1,
+                Explanation = "Raid buffs are more important than Ready to Reawaken. Use your regular Reawaken now to catch party buffs.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson7Quiz = new()
+    {
+        QuizId = "vpr.lesson_7.quiz",
+        LessonId = "vpr.lesson_7",
+        Title = "Quiz: Complete Rotation",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_7.q1",
+                ConceptId = VprConcepts.AoeRotation,
+                Scenario = "You're facing 4 enemies in a dungeon.",
+                Question = "Which combo should you use?",
+                Options = new[] { "Steel Fangs → finisher", "Steel Maw → Reaving Maw", "Single-target for focus", "Only Vicewinder" },
+                CorrectIndex = 1,
+                Explanation = "At 3+ targets, use the AoE combo (Steel Maw → Reaving Maw path) for more total damage.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_7.q2",
+                ConceptId = VprConcepts.DualWieldAoe,
+                Scenario = "You want to apply Noxious Gnash to multiple enemies.",
+                Question = "Which ability should you use?",
+                Options = new[] { "Vicewinder on each enemy", "Vicepit (AoE Vicewinder)", "Shadow of Death", "Whorl of Death" },
+                CorrectIndex = 1,
+                Explanation = "Vicepit is the AoE version of Vicewinder - it applies Noxious Gnash to all enemies hit.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_7.q3",
+                ConceptId = VprConcepts.UncoiledFury,
+                Scenario = "You have 2 Rattling Coils. The boss is in melee range.",
+                Question = "Should you use Uncoiled Fury?",
+                Options = new[] { "Yes - always use on cooldown", "No - save for movement", "Yes - prevents overcapping", "Only during Reawaken" },
+                CorrectIndex = 1,
+                Explanation = "In melee range, save Rattling Coils for movement phases. Uncoiled Fury is a DPS loss if you could use melee GCDs.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_7.q4",
+                ConceptId = VprConcepts.AoeRotation,
+                Scenario = "You have 2 enemies. One is at 80% HP, one is at 20% HP.",
+                Question = "Which rotation should you use?",
+                Options = new[] { "AoE rotation on both", "Single-target on low HP enemy", "Single-target - AoE is 3+ targets", "Focus the high HP enemy" },
+                CorrectIndex = 2,
+                Explanation = "Viper's AoE threshold is 3+ targets. At 2 enemies, single-target rotation is more efficient.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "vpr.lesson_7.q5",
+                ConceptId = VprConcepts.UncoiledFury,
+                Scenario = "The boss dashed away. You have 0 Rattling Coils and Writhing Snap available.",
+                Question = "What should you do?",
+                Options = new[] { "Wait for boss to return", "Use Writhing Snap", "Use Sprint to close gap", "Do nothing" },
+                CorrectIndex = 1,
+                Explanation = "Writhing Snap is your ranged filler when you have no Rattling Coils. Use it during forced disengagement.",
             },
         },
     };
