@@ -3,6 +3,33 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.22.0 - DNC Training Mode
+
+**DNC (Terpsichore) Training Mode**
+- Training Mode now supports Dancer - third and final ranged physical DPS job added
+- 25 new DNC concepts covering dance system, proc management, Esprit/Feather gauges, burst windows, high-level abilities, and partner coordination
+- 7 progressive lessons from fundamentals to advanced optimization
+- 35 quiz questions testing real Dancer decisions
+
+**Lesson Content**
+- Lesson 1: Dance Fundamentals - Standard Step (30s) and Technical Step (120s) execution, dance timers, step sequence mechanics
+- Lesson 2: Proc Management - Silken Symmetry/Flow procs, Threefold/Fourfold Fan from Flourish, Feather generation
+- Lesson 3: Esprit Gauge Mastery - Esprit building from you and partner, Saber Dance at 50+ cost, 80+ dump threshold
+- Lesson 4: Feather Optimization - Max 4 Feathers, Fan Dance usage, hold 3 for burst windows, AoE with Fan Dance II
+- Lesson 5: Burst Window Execution - Technical Finish → Devilment → Flourish sequence, party sync via IPC
+- Lesson 6: High-Level Abilities - Starfall Dance (Devilment proc), Finishing Move (Standard proc), Last Dance chain, Tillana (Technical proc)
+- Lesson 7: Partner & Party Coordination - Dance Partner selection (high-CPM DPS), Shield Samba mitigation, Curing Waltz utility
+
+**Quiz Features**
+- 7 quizzes (one per lesson) with 5 scenario-based questions each
+- Pass 4 out of 5 to complete a quiz
+- Detailed explanations for every answer
+- Progress tracking and best score persistence
+
+**Ranged Physical DPS Training Complete**
+- All 3 ranged physical DPS jobs now have Training Mode support (MCH, BRD, DNC)
+<!-- LATEST-END -->
+
 ## v3.21.0 - BRD Training Mode
 
 **BRD (Calliope) Training Mode**
@@ -28,7 +55,6 @@ All notable changes to Olympus will be documented in this file.
 
 **Bug Fix**
 - Fixed MCH and VPR concepts not being included in TrainingService.GetAllConcepts() and GetJobPrefix() - these jobs now properly track progress
-<!-- LATEST-END -->
 
 ## v3.20.0 - MCH Training Mode
 

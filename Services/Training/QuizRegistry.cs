@@ -113,6 +113,12 @@ public static class QuizRegistry
             QuizzesByLessonId[quiz.LessonId] = quiz;
             QuizzesById[quiz.QuizId] = quiz;
         }
+
+        foreach (var quiz in DncQuizzes.AllQuizzes)
+        {
+            QuizzesByLessonId[quiz.LessonId] = quiz;
+            QuizzesById[quiz.QuizId] = quiz;
+        }
     }
 
     /// <summary>
@@ -158,6 +164,7 @@ public static class QuizRegistry
             // Ranged Physical DPS
             "mch" => MchQuizzes.AllQuizzes,
             "brd" => BrdQuizzes.AllQuizzes,
+            "dnc" => DncQuizzes.AllQuizzes,
             _ => Array.Empty<QuizDefinition>(),
         };
     }
@@ -7161,6 +7168,444 @@ public static class BrdQuizzes
                 Options = new[] { "Bloodletter → Sidewinder → Empyreal", "Empyreal → Sidewinder → Bloodletter", "Sidewinder → Empyreal → Bloodletter", "Use them in any order" },
                 CorrectIndex = 1,
                 Explanation = "Empyreal Arrow first (guarantees Repertoire), then Sidewinder (higher potency), then Bloodletter.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition[] AllQuizzes = new[]
+    {
+        Lesson1Quiz, Lesson2Quiz, Lesson3Quiz, Lesson4Quiz, Lesson5Quiz, Lesson6Quiz, Lesson7Quiz,
+    };
+}
+
+/// <summary>
+/// DNC (Terpsichore) quiz content - 7 quizzes with 5 questions each.
+/// </summary>
+public static class DncQuizzes
+{
+    public static readonly QuizDefinition Lesson1Quiz = new()
+    {
+        QuizId = "dnc.lesson_1.quiz",
+        LessonId = "dnc.lesson_1",
+        Title = "Quiz: Dance Fundamentals",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_1.q1",
+                ConceptId = DncConcepts.StandardStep,
+                Scenario = "You're starting a boss fight as Dancer.",
+                Question = "What is Standard Step's recast timer?",
+                Options = new[] { "15 seconds", "30 seconds", "60 seconds", "120 seconds" },
+                CorrectIndex = 1,
+                Explanation = "Standard Step has a 30s recast. Use it on cooldown for maximum party buff uptime.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_1.q2",
+                ConceptId = DncConcepts.TechnicalStep,
+                Scenario = "The party is preparing for a 2-minute burst window.",
+                Question = "How many steps does Technical Step require?",
+                Options = new[] { "2 steps", "3 steps", "4 steps", "5 steps" },
+                CorrectIndex = 2,
+                Explanation = "Technical Step requires 4 steps (Emboite, Entrechat, Jete, Pirouette in random order).",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_1.q3",
+                ConceptId = DncConcepts.DanceExecution,
+                Scenario = "You're in the middle of a dance sequence.",
+                Question = "How do you know which step to press next?",
+                Options = new[] { "They're always in the same order", "The button glows when it's next", "Count the steps yourself", "Random - any step works" },
+                CorrectIndex = 1,
+                Explanation = "Watch your hotbar - the next step in the sequence will glow/highlight when it's time to press it.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_1.q4",
+                ConceptId = DncConcepts.DanceTimers,
+                Scenario = "You started a dance but need to move for a mechanic.",
+                Question = "What happens if the dance timer expires?",
+                Options = new[] { "Dance auto-completes", "Dance is lost - start over", "Partial potency finish", "Timer pauses during movement" },
+                CorrectIndex = 1,
+                Explanation = "If the dance timer expires before you finish, you lose the dance entirely and must start over.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_1.q5",
+                ConceptId = DncConcepts.TechnicalStep,
+                Scenario = "Technical Step and Standard Step are both available.",
+                Question = "When should you use Technical Step?",
+                Options = new[] { "On cooldown like Standard Step", "Only during 2-minute raid buff windows", "When Standard Step is on cooldown", "During AoE situations only" },
+                CorrectIndex = 1,
+                Explanation = "Technical Step has a 120s cooldown and grants a 5% party damage buff. Align it with 2-minute burst windows.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson2Quiz = new()
+    {
+        QuizId = "dnc.lesson_2.quiz",
+        LessonId = "dnc.lesson_2",
+        Title = "Quiz: Proc Management",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_2.q1",
+                ConceptId = DncConcepts.SilkenSymmetry,
+                Scenario = "You just used Cascade and noticed a proc.",
+                Question = "What ability does Silken Symmetry unlock?",
+                Options = new[] { "Fountainfall", "Reverse Cascade", "Fan Dance III", "Saber Dance" },
+                CorrectIndex = 1,
+                Explanation = "Silken Symmetry (from Cascade) unlocks Reverse Cascade. Silken Flow (from Fountain) unlocks Fountainfall.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_2.q2",
+                ConceptId = DncConcepts.SilkenFlow,
+                Scenario = "You used Fountain and gained Silken Flow.",
+                Question = "What happens when you consume a Silken proc?",
+                Options = new[] { "Nothing extra", "Gain a Feather", "Gain Esprit", "Gain both Feather and Esprit" },
+                CorrectIndex = 1,
+                Explanation = "Consuming Silken Symmetry or Silken Flow grants a Feather for Fan Dance usage.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_2.q3",
+                ConceptId = DncConcepts.ThreefoldFan,
+                Scenario = "You have both Silken procs and Flourish is available.",
+                Question = "What does Flourish do?",
+                Options = new[] { "Grants Feathers directly", "Grants all four procs at once", "Refreshes dance timers", "Grants Esprit" },
+                CorrectIndex = 1,
+                Explanation = "Flourish grants Silken Symmetry, Silken Flow, Threefold Fan Dance, and Fourfold Fan Dance all at once.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_2.q4",
+                ConceptId = DncConcepts.FourfoldFan,
+                Scenario = "You just used Flourish during your burst window.",
+                Question = "What is the cooldown of Flourish?",
+                Options = new[] { "30 seconds", "45 seconds", "60 seconds", "120 seconds" },
+                CorrectIndex = 2,
+                Explanation = "Flourish has a 60s cooldown. Use it every burst window (0s, 60s, 120s, etc.).",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_2.q5",
+                ConceptId = DncConcepts.SilkenSymmetry,
+                Scenario = "You have Silken Symmetry with 5 seconds remaining.",
+                Question = "What should you prioritize?",
+                Options = new[] { "Save it for burst", "Use Cascade first", "Use Reverse Cascade immediately", "Let it expire for damage" },
+                CorrectIndex = 2,
+                Explanation = "Never let procs expire - use Reverse Cascade immediately. You'll get more procs from your rotation.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson3Quiz = new()
+    {
+        QuizId = "dnc.lesson_3.quiz",
+        LessonId = "dnc.lesson_3",
+        Title = "Quiz: Esprit Gauge Mastery",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_3.q1",
+                ConceptId = DncConcepts.EspritGauge,
+                Scenario = "Your Esprit gauge is filling during combat.",
+                Question = "How does Esprit generate?",
+                Options = new[] { "From your GCDs only", "From you and your partner's weapon skills", "From crits only", "From dance finishes only" },
+                CorrectIndex = 1,
+                Explanation = "Esprit generates from both your own weapon skills and your Dance Partner's weapon skills.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_3.q2",
+                ConceptId = DncConcepts.SaberDance,
+                Scenario = "Your Esprit gauge is at 60.",
+                Question = "What is the Esprit cost of Saber Dance?",
+                Options = new[] { "25 Esprit", "50 Esprit", "75 Esprit", "100 Esprit" },
+                CorrectIndex = 1,
+                Explanation = "Saber Dance costs 50 Esprit. It's your highest potency GCD at 520 potency.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_3.q3",
+                ConceptId = DncConcepts.EspritOvercapping,
+                Scenario = "Your Esprit is at 95 and you're mid-combat.",
+                Question = "What should you do?",
+                Options = new[] { "Wait for 100", "Use Saber Dance now", "Save for burst window", "Use a proc first" },
+                CorrectIndex = 1,
+                Explanation = "At 80+ Esprit, use Saber Dance to prevent overcapping. Any Esprit generated at 100 is wasted.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_3.q4",
+                ConceptId = DncConcepts.EspritGauge,
+                Scenario = "You're choosing a Dance Partner.",
+                Question = "What type of job generates Esprit fastest?",
+                Options = new[] { "High-potency jobs like SAM", "High-CPM jobs like NIN/MNK", "Ranged jobs", "Healers with high damage" },
+                CorrectIndex = 1,
+                Explanation = "Partner a high-CPM (casts per minute) job like NIN or MNK. More weapon skills = faster Esprit generation.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_3.q5",
+                ConceptId = DncConcepts.SaberDance,
+                Scenario = "Raid buffs are active. You have 55 Esprit.",
+                Question = "Should you use Saber Dance now?",
+                Options = new[] { "No - wait for 80+", "Yes - get damage under buffs", "No - save for next burst", "Only if no procs available" },
+                CorrectIndex = 1,
+                Explanation = "During burst windows, use Saber Dance even at 50+ to fit more under raid buffs.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson4Quiz = new()
+    {
+        QuizId = "dnc.lesson_4.quiz",
+        LessonId = "dnc.lesson_4",
+        Title = "Quiz: Feather Optimization",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_4.q1",
+                ConceptId = DncConcepts.FeatherGauge,
+                Scenario = "You're building resources for burst.",
+                Question = "What is the maximum number of Feathers you can hold?",
+                Options = new[] { "2 Feathers", "3 Feathers", "4 Feathers", "5 Feathers" },
+                CorrectIndex = 2,
+                Explanation = "You can hold a maximum of 4 Feathers. Never cap - use one before consuming another proc.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_4.q2",
+                ConceptId = DncConcepts.FanDanceUsage,
+                Scenario = "You have 4 Feathers and Silken Symmetry is active.",
+                Question = "What should you do?",
+                Options = new[] { "Use the proc first", "Use Fan Dance first", "Save everything for burst", "They can be used in any order" },
+                CorrectIndex = 1,
+                Explanation = "At 4 Feathers, use Fan Dance first. Consuming the Silken proc would generate a 5th Feather, which is wasted.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_4.q3",
+                ConceptId = DncConcepts.FeatherOvercapping,
+                Scenario = "A 2-minute burst window is coming in 15 seconds.",
+                Question = "How many Feathers should you have going into burst?",
+                Options = new[] { "0 - dump them all", "1-2 Feathers", "3 Feathers", "4 Feathers" },
+                CorrectIndex = 2,
+                Explanation = "Enter burst with 3 Feathers. This lets you dump them during Devilment while still having room for new ones.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_4.q4",
+                ConceptId = DncConcepts.FanDanceUsage,
+                Scenario = "You used Fan Dance I and got a proc.",
+                Question = "What ability becomes available?",
+                Options = new[] { "Fan Dance II", "Fan Dance III", "Fan Dance IV", "Saber Dance" },
+                CorrectIndex = 1,
+                Explanation = "Fan Dance I has a chance to proc Fan Dance III (Threefold Fan Dance). Use it immediately.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_4.q5",
+                ConceptId = DncConcepts.FeatherGauge,
+                Scenario = "You're in a multi-target situation.",
+                Question = "Which Fan Dance should you use for AoE?",
+                Options = new[] { "Fan Dance I (single target)", "Fan Dance II (AoE)", "Either works the same", "Don't use Feathers in AoE" },
+                CorrectIndex = 1,
+                Explanation = "Fan Dance II is the AoE Feather spender. Use it when there are multiple targets.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson5Quiz = new()
+    {
+        QuizId = "dnc.lesson_5.quiz",
+        LessonId = "dnc.lesson_5",
+        Title = "Quiz: Burst Window Execution",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_5.q1",
+                ConceptId = DncConcepts.BurstAlignment,
+                Scenario = "You're preparing for a 2-minute burst window.",
+                Question = "What is the correct burst sequence?",
+                Options = new[] { "Devilment → Technical → Flourish", "Technical → Flourish → Devilment", "Technical Finish → Devilment → Flourish", "Flourish → Technical → Devilment" },
+                CorrectIndex = 2,
+                Explanation = "The sequence is: Technical Finish → Devilment → Flourish. This ensures all buffs are active for Flourish procs.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_5.q2",
+                ConceptId = DncConcepts.Devilment,
+                Scenario = "Devilment is now active.",
+                Question = "What buff does Devilment provide?",
+                Options = new[] { "15% damage up", "15% crit and direct hit rate", "10% haste", "20% skill speed" },
+                CorrectIndex = 1,
+                Explanation = "Devilment grants +15% critical hit rate and +15% direct hit rate to you and your Dance Partner.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_5.q3",
+                ConceptId = DncConcepts.PartyBurstSync,
+                Scenario = "Another Olympus user's DPS is about to burst.",
+                Question = "How should Technical Finish coordinate with party?",
+                Options = new[] { "Use whenever ready", "Use after other buffs", "Announce via IPC and sync", "Technical doesn't affect party" },
+                CorrectIndex = 2,
+                Explanation = "Technical Finish grants 5% damage to the whole party. Coordinate via IPC to sync with other raid buffs.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_5.q4",
+                ConceptId = DncConcepts.Flourish,
+                Scenario = "You used Flourish after Devilment.",
+                Question = "How many procs does Flourish grant?",
+                Options = new[] { "2 procs", "3 procs", "4 procs", "All available procs" },
+                CorrectIndex = 2,
+                Explanation = "Flourish grants 4 procs: Silken Symmetry, Silken Flow, Threefold Fan Dance, and Fourfold Fan Dance.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_5.q5",
+                ConceptId = DncConcepts.BurstAlignment,
+                Scenario = "Burst is starting. You have 30 Esprit and 1 Feather.",
+                Question = "What did you do wrong in preparation?",
+                Options = new[] { "Nothing - this is fine", "Should have 50+ Esprit and 3 Feathers", "Should have 100 Esprit", "Should have 4 Feathers" },
+                CorrectIndex = 1,
+                Explanation = "Enter burst with 50+ Esprit and 3 Feathers. This maximizes damage during the buff window.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson6Quiz = new()
+    {
+        QuizId = "dnc.lesson_6.quiz",
+        LessonId = "dnc.lesson_6",
+        Title = "Quiz: High-Level Abilities",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_6.q1",
+                ConceptId = DncConcepts.StarfallDance,
+                Scenario = "You just activated Devilment.",
+                Question = "What ability becomes available from Devilment?",
+                Options = new[] { "Finishing Move", "Starfall Dance", "Tillana", "Last Dance" },
+                CorrectIndex = 1,
+                Explanation = "Devilment grants Starfall Dance Ready - a 600 potency ability. High priority during your burst!",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_6.q2",
+                ConceptId = DncConcepts.FinishingMove,
+                Scenario = "You just used Standard Finish.",
+                Question = "What proc does Standard Finish grant?",
+                Options = new[] { "Starfall Dance", "Finishing Move", "Tillana", "Fan Dance IV" },
+                CorrectIndex = 1,
+                Explanation = "Standard Finish grants Finishing Move Ready - an 850 potency ability (your highest potency proc!).",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_6.q3",
+                ConceptId = DncConcepts.LastDance,
+                Scenario = "You used Finishing Move.",
+                Question = "What ability chains from Finishing Move?",
+                Options = new[] { "Starfall Dance", "Tillana", "Last Dance", "Saber Dance" },
+                CorrectIndex = 2,
+                Explanation = "Finishing Move grants Last Dance Ready - a 520 potency follow-up. Don't forget to use it!",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_6.q4",
+                ConceptId = DncConcepts.Tillana,
+                Scenario = "You just used Technical Finish.",
+                Question = "What proc does Technical Finish grant?",
+                Options = new[] { "Starfall Dance", "Finishing Move", "Tillana", "Last Dance" },
+                CorrectIndex = 2,
+                Explanation = "Technical Finish grants Tillana Ready - a 600 potency ability exclusive to Technical windows.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_6.q5",
+                ConceptId = DncConcepts.StarfallDance,
+                Scenario = "You have Starfall Dance, Finishing Move, and Tillana all ready.",
+                Question = "What's the priority order?",
+                Options = new[] { "Tillana → Starfall → Finishing", "Finishing → Last → Starfall → Tillana", "Starfall → Tillana → Finishing → Last", "Any order - same potency" },
+                CorrectIndex = 1,
+                Explanation = "Finishing Move (850) → Last Dance (520) → Starfall (600) → Tillana (600). Highest potency and chains first.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson7Quiz = new()
+    {
+        QuizId = "dnc.lesson_7.quiz",
+        LessonId = "dnc.lesson_7",
+        Title = "Quiz: Partner & Party Coordination",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_7.q1",
+                ConceptId = DncConcepts.ClosedPosition,
+                Scenario = "You're selecting a Dance Partner at the start of a fight.",
+                Question = "What type of player makes the best partner?",
+                Options = new[] { "The tank (for survivability)", "Highest DPS player (SAM/NIN/MNK)", "A healer (for utility)", "Another Dancer (double buff)" },
+                CorrectIndex = 1,
+                Explanation = "Partner the highest DPS player. They generate Esprit for you AND receive your Devilment buff.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_7.q2",
+                ConceptId = DncConcepts.ClosedPosition,
+                Scenario = "Your Dance Partner just died.",
+                Question = "What should you do?",
+                Options = new[] { "Continue without a partner", "Switch partner to another DPS", "Wait for them to be raised", "Partners can't be changed mid-fight" },
+                CorrectIndex = 1,
+                Explanation = "Use Closed Position on another DPS immediately. You lose Esprit generation and can't share Devilment without a partner.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_7.q3",
+                ConceptId = DncConcepts.ShieldSamba,
+                Scenario = "A raidwide is incoming. Shield Samba is available.",
+                Question = "What does Shield Samba provide?",
+                Options = new[] { "10% damage reduction", "15% damage reduction", "20% damage reduction", "Barrier shield" },
+                CorrectIndex = 1,
+                Explanation = "Shield Samba provides 15% damage reduction to all party members within range for 15 seconds.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_7.q4",
+                ConceptId = DncConcepts.PartyUtility,
+                Scenario = "Multiple party members are low HP but not in immediate danger.",
+                Question = "What utility should you use?",
+                Options = new[] { "Improvisation", "Curing Waltz", "Shield Samba", "En Avant" },
+                CorrectIndex = 1,
+                Explanation = "Curing Waltz heals you and nearby party members. Use it for emergency supplemental healing.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "dnc.lesson_7.q5",
+                ConceptId = DncConcepts.ShieldSamba,
+                Scenario = "Another Olympus healer just used their party mitigation.",
+                Question = "What should you do with Shield Samba?",
+                Options = new[] { "Use it anyway for stacking", "Hold it - IPC shows recent mitigation", "Use it - more mitigation is better", "Cancel theirs and use yours" },
+                CorrectIndex = 1,
+                Explanation = "Shield Samba coordinates via IPC to avoid stacking mitigations. Check if one was used recently before using yours.",
             },
         },
     };

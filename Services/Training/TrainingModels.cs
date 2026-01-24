@@ -1083,6 +1083,73 @@ public static class BrdConcepts
 }
 
 /// <summary>
+/// DNC (Terpsichore) Training Mode concepts covering Dancer mechanics.
+/// 25 concepts across 7 categories.
+/// </summary>
+public static class DncConcepts
+{
+    // Dance System (4)
+    public const string StandardStep = "dnc.standard_step";
+    public const string TechnicalStep = "dnc.technical_step";
+    public const string DanceExecution = "dnc.dance_execution";
+    public const string DanceTimers = "dnc.dance_timers";
+
+    // Proc System (4)
+    public const string SilkenSymmetry = "dnc.silken_symmetry";
+    public const string SilkenFlow = "dnc.silken_flow";
+    public const string ThreefoldFan = "dnc.threefold_fan";
+    public const string FourfoldFan = "dnc.fourfold_fan";
+
+    // Esprit Gauge (3)
+    public const string EspritGauge = "dnc.esprit_gauge";
+    public const string SaberDance = "dnc.saber_dance";
+    public const string EspritOvercapping = "dnc.esprit_overcapping";
+
+    // Feather Gauge (3)
+    public const string FeatherGauge = "dnc.feather_gauge";
+    public const string FanDanceUsage = "dnc.fan_dance_usage";
+    public const string FeatherOvercapping = "dnc.feather_overcapping";
+
+    // Burst Window (4)
+    public const string Devilment = "dnc.devilment";
+    public const string Flourish = "dnc.flourish";
+    public const string BurstAlignment = "dnc.burst_alignment";
+    public const string PartyBurstSync = "dnc.party_burst_sync";
+
+    // High-Level Abilities (4)
+    public const string StarfallDance = "dnc.starfall_dance";
+    public const string FinishingMove = "dnc.finishing_move";
+    public const string LastDance = "dnc.last_dance";
+    public const string Tillana = "dnc.tillana";
+
+    // Partner & Utility (3)
+    public const string ClosedPosition = "dnc.closed_position";
+    public const string ShieldSamba = "dnc.shield_samba";
+    public const string PartyUtility = "dnc.party_utility";
+
+    /// <summary>
+    /// All DNC concepts for counting.
+    /// </summary>
+    public static readonly string[] AllConcepts = new[]
+    {
+        // Dance System
+        StandardStep, TechnicalStep, DanceExecution, DanceTimers,
+        // Proc System
+        SilkenSymmetry, SilkenFlow, ThreefoldFan, FourfoldFan,
+        // Esprit Gauge
+        EspritGauge, SaberDance, EspritOvercapping,
+        // Feather Gauge
+        FeatherGauge, FanDanceUsage, FeatherOvercapping,
+        // Burst Window
+        Devilment, Flourish, BurstAlignment, PartyBurstSync,
+        // High-Level Abilities
+        StarfallDance, FinishingMove, LastDance, Tillana,
+        // Partner & Utility
+        ClosedPosition, ShieldSamba, PartyUtility,
+    };
+}
+
+/// <summary>
 /// Represents a lesson recommendation based on detected performance issues.
 /// </summary>
 public sealed class LessonRecommendation

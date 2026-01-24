@@ -3585,6 +3585,225 @@ public static class BrdLessons
 }
 
 /// <summary>
+/// DNC (Terpsichore) lesson content covering Dancer mechanics.
+/// 7 progressive lessons from fundamentals to advanced party coordination.
+/// </summary>
+public static class DncLessons
+{
+    public static readonly LessonDefinition Lesson1 = new()
+    {
+        LessonId = "dnc.lesson_1",
+        JobPrefix = "dnc",
+        Title = "Dance Fundamentals",
+        LessonNumber = 1,
+        Description = "Learn the core dance system: Standard Step for party buffs, Technical Step for raid burst, and the rhythm of executing dance sequences.",
+        Prerequisites = Array.Empty<string>(),
+        ConceptsCovered = new[]
+        {
+            DncConcepts.StandardStep,
+            DncConcepts.TechnicalStep,
+            DncConcepts.DanceExecution,
+            DncConcepts.DanceTimers,
+        },
+        KeyPoints = new[]
+        {
+            "Standard Step: 2-step dance, 30s recast, grants party damage buff",
+            "Technical Step: 4-step dance, 120s recast, aligns with raid burst",
+            "Execute steps by pressing the highlighted buttons in sequence",
+            "Both dances have timers - finish before they expire or lose the step",
+        },
+        RelatedAbilities = new[] { "Standard Step", "Standard Finish", "Technical Step", "Technical Finish" },
+        Tips = new[]
+        {
+            "Watch the step buttons - they glow when it's their turn in the sequence",
+            "Standard Step should be used on cooldown for maximum uptime",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson2 = new()
+    {
+        LessonId = "dnc.lesson_2",
+        JobPrefix = "dnc",
+        Title = "Proc Management",
+        LessonNumber = 2,
+        Description = "Master the Silken Symmetry and Silken Flow proc system, and understand Threefold Fan and Fourfold Fan from Flourish.",
+        Prerequisites = new[] { "dnc.lesson_1" },
+        ConceptsCovered = new[]
+        {
+            DncConcepts.SilkenSymmetry,
+            DncConcepts.SilkenFlow,
+            DncConcepts.ThreefoldFan,
+            DncConcepts.FourfoldFan,
+        },
+        KeyPoints = new[]
+        {
+            "Silken Symmetry: Procs from Cascade, enables Reverse Cascade",
+            "Silken Flow: Procs from Fountain, enables Fountainfall",
+            "Both procs grant Feathers when consumed",
+            "Flourish grants all procs at once - use during burst windows",
+        },
+        RelatedAbilities = new[] { "Cascade", "Fountain", "Reverse Cascade", "Fountainfall", "Flourish", "Fan Dance III", "Fan Dance IV" },
+        Tips = new[]
+        {
+            "Never let procs fall off - they're your main damage source",
+            "Flourish has a 60s cooldown - use every burst window",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson3 = new()
+    {
+        LessonId = "dnc.lesson_3",
+        JobPrefix = "dnc",
+        Title = "Esprit Gauge Mastery",
+        LessonNumber = 3,
+        Description = "Understand the Esprit gauge, Saber Dance spending, and preventing overcapping for maximum DPS.",
+        Prerequisites = new[] { "dnc.lesson_2" },
+        ConceptsCovered = new[]
+        {
+            DncConcepts.EspritGauge,
+            DncConcepts.SaberDance,
+            DncConcepts.EspritOvercapping,
+        },
+        KeyPoints = new[]
+        {
+            "Esprit builds from your and your partner's weapon skills",
+            "Saber Dance costs 50 Esprit - your highest potency GCD",
+            "Use Saber Dance at 80+ to prevent overcapping",
+            "Prioritize Saber Dance during buff windows",
+        },
+        RelatedAbilities = new[] { "Saber Dance" },
+        Tips = new[]
+        {
+            "In burst windows, use Saber Dance even at 50+ Esprit to fit more under buffs",
+            "Partner a high-CPM job (NIN, MNK) for faster Esprit generation",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson4 = new()
+    {
+        LessonId = "dnc.lesson_4",
+        JobPrefix = "dnc",
+        Title = "Feather Optimization",
+        LessonNumber = 4,
+        Description = "Master Feather accumulation and Fan Dance usage to maximize oGCD damage without overcapping.",
+        Prerequisites = new[] { "dnc.lesson_3" },
+        ConceptsCovered = new[]
+        {
+            DncConcepts.FeatherGauge,
+            DncConcepts.FanDanceUsage,
+            DncConcepts.FeatherOvercapping,
+        },
+        KeyPoints = new[]
+        {
+            "Feathers come from consuming Silken procs (max 4)",
+            "Fan Dance I/II consume 1 Feather each",
+            "Never hold 4 Feathers - use one before consuming another proc",
+            "Hold 3 Feathers going into burst to dump during Devilment",
+        },
+        RelatedAbilities = new[] { "Fan Dance", "Fan Dance II" },
+        Tips = new[]
+        {
+            "Fan Dance III procs from Fan Dance I - weave it immediately",
+            "Fan Dance IV procs from Flourish - high priority during burst",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson5 = new()
+    {
+        LessonId = "dnc.lesson_5",
+        JobPrefix = "dnc",
+        Title = "Burst Window Execution",
+        LessonNumber = 5,
+        Description = "Master the 2-minute burst: Technical Step → Devilment → Flourish timing and party coordination via IPC.",
+        Prerequisites = new[] { "dnc.lesson_4" },
+        ConceptsCovered = new[]
+        {
+            DncConcepts.Devilment,
+            DncConcepts.Flourish,
+            DncConcepts.BurstAlignment,
+            DncConcepts.PartyBurstSync,
+        },
+        KeyPoints = new[]
+        {
+            "Burst sequence: Technical Finish → Devilment → Flourish",
+            "Devilment grants 15% crit/DH to you and your partner",
+            "Technical Finish grants 5% damage to all party members",
+            "Coordinate with party burst via IPC - announce your Technical",
+        },
+        RelatedAbilities = new[] { "Technical Finish", "Devilment", "Flourish" },
+        Tips = new[]
+        {
+            "Enter burst with 3 Feathers and 50+ Esprit for maximum output",
+            "Technical Finish is your party's 2-minute buff window - don't drift it",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson6 = new()
+    {
+        LessonId = "dnc.lesson_6",
+        JobPrefix = "dnc",
+        Title = "High-Level Abilities",
+        LessonNumber = 6,
+        Description = "Learn the powerful follow-up abilities: Starfall Dance, Finishing Move, Last Dance, and Tillana.",
+        Prerequisites = new[] { "dnc.lesson_5" },
+        ConceptsCovered = new[]
+        {
+            DncConcepts.StarfallDance,
+            DncConcepts.FinishingMove,
+            DncConcepts.LastDance,
+            DncConcepts.Tillana,
+        },
+        KeyPoints = new[]
+        {
+            "Starfall Dance: 600 potency proc from Devilment - high priority",
+            "Finishing Move: 850 potency proc from Standard Finish",
+            "Last Dance: 520 potency chained from Finishing Move",
+            "Tillana: 600 potency proc from Technical Finish",
+        },
+        RelatedAbilities = new[] { "Starfall Dance", "Finishing Move", "Last Dance", "Tillana" },
+        Tips = new[]
+        {
+            "These procs have limited duration - use them before they expire",
+            "Starfall Dance is your highest priority proc during Devilment",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson7 = new()
+    {
+        LessonId = "dnc.lesson_7",
+        JobPrefix = "dnc",
+        Title = "Partner & Party Coordination",
+        LessonNumber = 7,
+        Description = "Master Dance Partner selection, Shield Samba defensive utility, and coordinating with other Olympus users.",
+        Prerequisites = new[] { "dnc.lesson_6" },
+        ConceptsCovered = new[]
+        {
+            DncConcepts.ClosedPosition,
+            DncConcepts.ShieldSamba,
+            DncConcepts.PartyUtility,
+        },
+        KeyPoints = new[]
+        {
+            "Closed Position: Partner the highest DPS player (usually SAM/NIN/MNK)",
+            "Partner shares Esprit generation and receives Devilment buff",
+            "Shield Samba: 15% party mitigation for raidwides",
+            "Curing Waltz for emergency healing, Improvisation for shields",
+        },
+        RelatedAbilities = new[] { "Closed Position", "Shield Samba", "Curing Waltz", "Improvisation", "En Avant" },
+        Tips = new[]
+        {
+            "Partner selection matters - they generate Esprit and get your Devilment",
+            "Shield Samba coordinates via IPC to avoid stacking with other mitigations",
+        },
+    };
+
+    public static readonly LessonDefinition[] AllLessons = new[]
+    {
+        Lesson1, Lesson2, Lesson3, Lesson4, Lesson5, Lesson6, Lesson7,
+    };
+}
+
+/// <summary>
 /// Helper class for accessing all lessons.
 /// </summary>
 public static class LessonRegistry
@@ -3616,6 +3835,7 @@ public static class LessonRegistry
             // Ranged Physical DPS
             "mch" => MchLessons.AllLessons,
             "brd" => BrdLessons.AllLessons,
+            "dnc" => DncLessons.AllLessons,
             _ => Array.Empty<LessonDefinition>(),
         };
     }
@@ -3657,6 +3877,7 @@ public static class LessonRegistry
             .Concat(VprLessons.AllLessons)
             .Concat(MchLessons.AllLessons)
             .Concat(BrdLessons.AllLessons)
+            .Concat(DncLessons.AllLessons)
             .ToArray();
     }
 }
