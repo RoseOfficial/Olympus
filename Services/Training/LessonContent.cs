@@ -2052,6 +2052,225 @@ public static class DrgLessons
 /// <summary>
 /// NIN (Hermes) lesson content - 7 progressive lessons covering Ninja mechanics.
 /// </summary>
+/// <summary>
+/// SAM (Nike) lesson content - 7 lessons covering 25 concepts.
+/// </summary>
+public static class SamLessons
+{
+    public static readonly LessonDefinition Lesson1 = new()
+    {
+        LessonId = "sam.lesson_1",
+        JobPrefix = "sam",
+        Title = "Samurai Fundamentals",
+        LessonNumber = 1,
+        Description = "Learn the core principles of Samurai: combo routes, Sen collection, and maintaining your damage and haste buffs.",
+        Prerequisites = Array.Empty<string>(),
+        ConceptsCovered = new[]
+        {
+            SamConcepts.ComboBasics,
+            SamConcepts.SenSystem,
+            SamConcepts.FugetsuBuff,
+            SamConcepts.FukaBuff,
+        },
+        KeyPoints = new[]
+        {
+            "Three combo routes: Jinpu path (Getsu Sen), Shifu path (Ka Sen), Yukikaze path (Setsu Sen)",
+            "Fugetsu buff (+13% damage) comes from Jinpu path - never let this drop",
+            "Fuka buff (+13% haste) comes from Shifu path - maintain for faster GCDs",
+            "Each combo finisher (Gekko, Kasha, Yukikaze) grants one Sen",
+        },
+        RelatedAbilities = new[] { "Hakaze", "Gyofu", "Jinpu", "Shifu", "Gekko", "Kasha", "Yukikaze" },
+        Tips = new[]
+        {
+            "Refresh Fugetsu and Fuka when they have ~5 seconds left",
+            "If both buffs are about to fall off, prioritize Fugetsu (damage) first",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson2 = new()
+    {
+        LessonId = "sam.lesson_2",
+        JobPrefix = "sam",
+        Title = "Kenki & Meditation",
+        LessonNumber = 2,
+        Description = "Master Kenki gauge management and Meditation stacks to maximize your damage output.",
+        Prerequisites = new[] { "sam.lesson_1" },
+        ConceptsCovered = new[]
+        {
+            SamConcepts.KenkiGauge,
+            SamConcepts.KenkiSpending,
+            SamConcepts.Meditation,
+        },
+        KeyPoints = new[]
+        {
+            "Kenki builds from combo actions, caps at 100 - never let it overcap",
+            "Shinten (25 Kenki): Single-target oGCD - your primary Kenki spender",
+            "Kyuten (25 Kenki): AoE alternative for 3+ targets",
+            "Meditation stacks (max 3) from Iaijutsu - spend on Shoha for big damage",
+        },
+        RelatedAbilities = new[] { "Shinten", "Kyuten", "Shoha", "Shoha II" },
+        Tips = new[]
+        {
+            "Spend Kenki freely to avoid overcapping - it's free damage",
+            "Save some Kenki for movement if you know mechanics are coming",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson3 = new()
+    {
+        LessonId = "sam.lesson_3",
+        JobPrefix = "sam",
+        Title = "Iaijutsu System",
+        LessonNumber = 3,
+        Description = "Learn when to use each Iaijutsu based on your Sen count and combat situation.",
+        Prerequisites = new[] { "sam.lesson_2" },
+        ConceptsCovered = new[]
+        {
+            SamConcepts.IaijutsuSelection,
+            SamConcepts.HiganbanaDoT,
+            SamConcepts.MidareSetsugekka,
+            SamConcepts.TenkaGoken,
+        },
+        KeyPoints = new[]
+        {
+            "1 Sen = Higanbana: 60s DoT - apply once, then maintain with refreshes",
+            "2 Sen = Tenka Goken: AoE damage - only use in multi-target situations",
+            "3 Sen = Midare Setsugekka: Your hardest-hitting single GCD - primary burst tool",
+            "In single target, always build to 3 Sen for Midare (don't use 1-2 Sen on Higanbana/Tenka)",
+        },
+        RelatedAbilities = new[] { "Iaijutsu", "Higanbana", "Midare Setsugekka", "Tenka Goken" },
+        Tips = new[]
+        {
+            "Refresh Higanbana when it has 3 seconds or less remaining",
+            "In opener, apply Higanbana with your first Sen, then focus on Midare",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson4 = new()
+    {
+        LessonId = "sam.lesson_4",
+        JobPrefix = "sam",
+        Title = "Tsubame-gaeshi & Meikyo",
+        LessonNumber = 4,
+        Description = "Master Tsubame-gaeshi follow-ups and Meikyo Shisui's combo-skipping power.",
+        Prerequisites = new[] { "sam.lesson_3" },
+        ConceptsCovered = new[]
+        {
+            SamConcepts.TsubameGaeshi,
+            SamConcepts.MeikyoShisui,
+            SamConcepts.MeikyoFinisherPriority,
+        },
+        KeyPoints = new[]
+        {
+            "After any Iaijutsu, Tsubame-gaeshi grants a Kaeshi follow-up (same Sen requirement)",
+            "Kaeshi: Setsugekka after Midare is massive damage - never skip it",
+            "Meikyo Shisui (3 stacks): Use combo finishers without the combo (skip Hakaze/Jinpu/Shifu)",
+            "During Meikyo, prioritize missing Sen types, then Gekko for highest potency",
+        },
+        RelatedAbilities = new[] { "Tsubame-gaeshi", "Kaeshi: Setsugekka", "Kaeshi: Goken", "Kaeshi: Higanbana", "Meikyo Shisui" },
+        Tips = new[]
+        {
+            "Don't use Meikyo just to skip combos - use it to quickly build Sen or refresh buffs",
+            "Meikyo + 3 finishers = instant 3 Sen for Midare",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson5 = new()
+    {
+        LessonId = "sam.lesson_5",
+        JobPrefix = "sam",
+        Title = "Ikishoten Burst Window",
+        LessonNumber = 5,
+        Description = "Execute the powerful Ikishoten burst sequence with Ogi Namikiri and Zanshin.",
+        Prerequisites = new[] { "sam.lesson_4" },
+        ConceptsCovered = new[]
+        {
+            SamConcepts.IkishotenBurst,
+            SamConcepts.OgiNamikiri,
+            SamConcepts.Zanshin,
+            SamConcepts.SeneiTiming,
+        },
+        KeyPoints = new[]
+        {
+            "Ikishoten (120s CD): Grants 50 Kenki + Ogi Namikiri Ready",
+            "Ogi Namikiri: Your highest potency GCD - use immediately after Ikishoten",
+            "Kaeshi: Namikiri follows Ogi Namikiri - another massive hit",
+            "Zanshin: Enhanced Kenki spender available after Ogi Namikiri sequence",
+            "Senei (120s CD): High-potency oGCD - align with burst window",
+        },
+        RelatedAbilities = new[] { "Ikishoten", "Ogi Namikiri", "Kaeshi: Namikiri", "Zanshin", "Senei" },
+        Tips = new[]
+        {
+            "Don't use Ikishoten above 50 Kenki - you'll overcap and waste gauge",
+            "Full burst: Ikishoten → Ogi Namikiri → Kaeshi: Namikiri → Zanshin → Senei",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson6 = new()
+    {
+        LessonId = "sam.lesson_6",
+        JobPrefix = "sam",
+        Title = "Positionals & True North",
+        LessonNumber = 6,
+        Description = "Maximize damage by hitting positionals correctly and using True North when needed.",
+        Prerequisites = new[] { "sam.lesson_5" },
+        ConceptsCovered = new[]
+        {
+            SamConcepts.Positionals,
+            SamConcepts.TrueNorthUsage,
+            SamConcepts.PositionalRecovery,
+        },
+        KeyPoints = new[]
+        {
+            "Gekko: Rear positional - stand behind the boss",
+            "Kasha: Flank positional - stand at the boss's side",
+            "Missing a positional loses significant potency - the attack still works but hits weaker",
+            "True North (45s CD, 2 charges): Ignores positional requirements for 10s",
+        },
+        RelatedAbilities = new[] { "Gekko", "Kasha", "True North" },
+        Tips = new[]
+        {
+            "Plan Meikyo Shisui finishers around your position - don't waste True North",
+            "Save True North for when you physically can't reach the correct position",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson7 = new()
+    {
+        LessonId = "sam.lesson_7",
+        JobPrefix = "sam",
+        Title = "Advanced Optimization",
+        LessonNumber = 7,
+        Description = "Advanced techniques including burst alignment, Meikyo buff management, AoE rotation, and Hagakure usage.",
+        Prerequisites = new[] { "sam.lesson_6" },
+        ConceptsCovered = new[]
+        {
+            SamConcepts.BurstAlignment,
+            SamConcepts.MeikyoBuffRefresh,
+            SamConcepts.AoeRotation,
+            SamConcepts.HagakureUsage,
+        },
+        KeyPoints = new[]
+        {
+            "Ikishoten aligns with 2-minute party buffs - coordinate burst windows",
+            "Use Meikyo proactively to quickly refresh expiring buffs (Fugetsu/Fuka)",
+            "AoE rotation: Fuko → Mangetsu (Getsu) or Oka (Ka) - only builds 2 Sen types",
+            "Hagakure: Converts all Sen to Kenki (10 per Sen) - use before phase transitions",
+        },
+        RelatedAbilities = new[] { "Fuko", "Mangetsu", "Oka", "Hagakure" },
+        Tips = new[]
+        {
+            "In AoE, you can't build Setsu Sen - adapt your rotation accordingly",
+            "Hagakure is great for downtime when you'd waste Sen anyway",
+        },
+    };
+
+    public static readonly LessonDefinition[] AllLessons = new[]
+    {
+        Lesson1, Lesson2, Lesson3, Lesson4, Lesson5, Lesson6, Lesson7,
+    };
+}
+
 public static class NinLessons
 {
     public static readonly LessonDefinition Lesson1 = new()
@@ -2299,6 +2518,7 @@ public static class LessonRegistry
             // Melee DPS
             "drg" => DrgLessons.AllLessons,
             "nin" => NinLessons.AllLessons,
+            "sam" => SamLessons.AllLessons,
             _ => Array.Empty<LessonDefinition>(),
         };
     }
@@ -2334,6 +2554,7 @@ public static class LessonRegistry
             .Concat(GnbLessons.AllLessons)
             .Concat(DrgLessons.AllLessons)
             .Concat(NinLessons.AllLessons)
+            .Concat(SamLessons.AllLessons)
             .ToArray();
     }
 }

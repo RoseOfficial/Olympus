@@ -76,6 +76,12 @@ public static class QuizRegistry
             QuizzesByLessonId[quiz.LessonId] = quiz;
             QuizzesById[quiz.QuizId] = quiz;
         }
+
+        foreach (var quiz in SamQuizzes.AllQuizzes)
+        {
+            QuizzesByLessonId[quiz.LessonId] = quiz;
+            QuizzesById[quiz.QuizId] = quiz;
+        }
     }
 
     /// <summary>
@@ -114,6 +120,7 @@ public static class QuizRegistry
             // Melee DPS
             "drg" => DrgQuizzes.AllQuizzes,
             "nin" => NinQuizzes.AllQuizzes,
+            "sam" => SamQuizzes.AllQuizzes,
             _ => Array.Empty<QuizDefinition>(),
         };
     }
@@ -4489,6 +4496,444 @@ public static class NinQuizzes
                 Options = new[] { "Katon", "Doton", "Raiton on each", "Hyosho Ranryu" },
                 CorrectIndex = 1,
                 Explanation = "Doton creates a ground DoT. If enemies will stand in it for the full duration, it deals more total damage than Katon.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition[] AllQuizzes = new[]
+    {
+        Lesson1Quiz, Lesson2Quiz, Lesson3Quiz, Lesson4Quiz, Lesson5Quiz, Lesson6Quiz, Lesson7Quiz,
+    };
+}
+
+/// <summary>
+/// SAM (Nike) quiz content - 7 quizzes with 5 questions each.
+/// </summary>
+public static class SamQuizzes
+{
+    public static readonly QuizDefinition Lesson1Quiz = new()
+    {
+        QuizId = "sam.lesson_1.quiz",
+        LessonId = "sam.lesson_1",
+        Title = "Quiz: Samurai Fundamentals",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_1.q1",
+                ConceptId = SamConcepts.ComboBasics,
+                Scenario = "You want to obtain the Getsu Sen.",
+                Question = "Which combo route grants Getsu Sen?",
+                Options = new[] { "Hakaze → Shifu → Kasha", "Hakaze → Jinpu → Gekko", "Hakaze → Yukikaze", "Any finisher" },
+                CorrectIndex = 1,
+                Explanation = "Hakaze → Jinpu → Gekko is the Jinpu path, which grants Getsu Sen from Gekko. The Shifu path grants Ka Sen.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_1.q2",
+                ConceptId = SamConcepts.FugetsuBuff,
+                Scenario = "Your Fugetsu buff is about to expire. Fuka has 20 seconds remaining.",
+                Question = "Which buff should you prioritize refreshing?",
+                Options = new[] { "Fuka - it's the haste buff", "Fugetsu - it's the damage buff", "Doesn't matter", "Neither - do Iaijutsu" },
+                CorrectIndex = 1,
+                Explanation = "Fugetsu (+13% damage) should be prioritized over Fuka (+13% haste). Damage affects all your abilities.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_1.q3",
+                ConceptId = SamConcepts.SenSystem,
+                Scenario = "You have Getsu and Ka Sen. You need Setsu Sen.",
+                Question = "Which ability grants Setsu Sen?",
+                Options = new[] { "Gekko", "Kasha", "Yukikaze", "Jinpu" },
+                CorrectIndex = 2,
+                Explanation = "Yukikaze is the only finisher that grants Setsu Sen. It's a 2-hit combo (Hakaze → Yukikaze) without a positional.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_1.q4",
+                ConceptId = SamConcepts.FukaBuff,
+                Scenario = "You're starting a fight. What should you establish first?",
+                Question = "What's the optimal buff priority in the opener?",
+                Options = new[] { "Fuka first for speed", "Fugetsu first for damage", "Get both ASAP", "Neither - go straight to Iaijutsu" },
+                CorrectIndex = 2,
+                Explanation = "In the opener, you want both buffs up quickly. The standard opener establishes both Fugetsu and Fuka before your first Midare.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_1.q5",
+                ConceptId = SamConcepts.ComboBasics,
+                Scenario = "At level 92+, your combo starter changes.",
+                Question = "What replaces Hakaze at level 92?",
+                Options = new[] { "Jinpu", "Shifu", "Gyofu", "Nothing changes" },
+                CorrectIndex = 2,
+                Explanation = "Gyofu replaces Hakaze at level 92, dealing higher potency. It's still used the same way as your combo starter.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson2Quiz = new()
+    {
+        QuizId = "sam.lesson_2.quiz",
+        LessonId = "sam.lesson_2",
+        Title = "Quiz: Kenki & Meditation",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_2.q1",
+                ConceptId = SamConcepts.KenkiGauge,
+                Scenario = "Your Kenki gauge is at 85. You're about to use a combo that generates 10 Kenki.",
+                Question = "What should you do?",
+                Options = new[] { "Complete the combo first", "Use Shinten to avoid overcap", "Wait for 100 Kenki", "Save for burst" },
+                CorrectIndex = 1,
+                Explanation = "At 85 Kenki with 10 more coming, you'll overcap (95 after, missing 5). Use Shinten (25 cost) to make room.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_2.q2",
+                ConceptId = SamConcepts.KenkiSpending,
+                Scenario = "Single target fight. You have 50 Kenki.",
+                Question = "Which Kenki spender should you use?",
+                Options = new[] { "Kyuten", "Shinten", "Save for Senei", "Hagakure" },
+                CorrectIndex = 1,
+                Explanation = "Shinten is the single-target Kenki spender. Kyuten is for AoE (3+ targets). Senei costs 25 Kenki and has a cooldown.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_2.q3",
+                ConceptId = SamConcepts.Meditation,
+                Scenario = "You have 3 Meditation stacks. When should you use Shoha?",
+                Question = "What's the optimal Shoha timing?",
+                Options = new[] { "Immediately - don't hold stacks", "During burst window", "Before Iaijutsu", "Save for emergencies" },
+                CorrectIndex = 1,
+                Explanation = "Use Shoha during burst windows when possible. At 3 stacks you can't build more, so spend it to avoid waste.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_2.q4",
+                ConceptId = SamConcepts.KenkiGauge,
+                Scenario = "You're about to use Ikishoten. Your Kenki is at 60.",
+                Question = "What's wrong with this situation?",
+                Options = new[] { "Nothing is wrong", "Ikishoten will overcap Kenki", "Should use Meikyo first", "Need more Sen" },
+                CorrectIndex = 1,
+                Explanation = "Ikishoten grants 50 Kenki. At 60 Kenki, using it would put you at 110, wasting 10 gauge. Spend to 50 or below first.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_2.q5",
+                ConceptId = SamConcepts.Meditation,
+                Scenario = "You gain Meditation stacks from using Iaijutsu.",
+                Question = "How many Meditation stacks does one Iaijutsu grant?",
+                Options = new[] { "1 stack", "2 stacks", "3 stacks", "Depends on Sen count" },
+                CorrectIndex = 0,
+                Explanation = "Each Iaijutsu grants 1 Meditation stack. You need 3 Iaijutsu casts to get Shoha ready.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson3Quiz = new()
+    {
+        QuizId = "sam.lesson_3.quiz",
+        LessonId = "sam.lesson_3",
+        Title = "Quiz: Iaijutsu System",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_3.q1",
+                ConceptId = SamConcepts.HiganbanaDoT,
+                Scenario = "You're in a single-target fight. Higanbana is not on the boss. You have 1 Sen.",
+                Question = "Should you use Higanbana now?",
+                Options = new[] { "Yes - apply the DoT immediately", "No - build to 3 Sen for Midare", "Only in opener", "Depends on fight length" },
+                CorrectIndex = 3,
+                Explanation = "Higanbana is worth applying only if the boss will live long enough for the DoT to tick (60s duration). In short fights, Midare is better.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_3.q2",
+                ConceptId = SamConcepts.MidareSetsugekka,
+                Scenario = "You have 2 Sen (Getsu and Ka). The boss is at 5% HP.",
+                Question = "What should you do?",
+                Options = new[] { "Use Tenka Goken (2 Sen)", "Build to 3 Sen for Midare", "Use Higanbana", "Depends on adds" },
+                CorrectIndex = 1,
+                Explanation = "Even at low boss HP, building to 3 Sen for Midare Setsugekka is worth it. Tenka Goken is only for multi-target.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_3.q3",
+                ConceptId = SamConcepts.TenkaGoken,
+                Scenario = "3 enemies are grouped together. You have 2 Sen.",
+                Question = "Which Iaijutsu should you use?",
+                Options = new[] { "Midare Setsugekka", "Tenka Goken", "Higanbana on each", "Build to 3 Sen" },
+                CorrectIndex = 1,
+                Explanation = "Tenka Goken hits all nearby enemies. At 3 targets, using 2 Sen for AoE damage is more efficient than building for single-target Midare.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_3.q4",
+                ConceptId = SamConcepts.HiganbanaDoT,
+                Scenario = "Higanbana has 5 seconds remaining on the boss.",
+                Question = "Should you refresh it now?",
+                Options = new[] { "Yes - keep 100% uptime", "No - wait until 3s or less", "No - let it fall off", "Only during burst" },
+                CorrectIndex = 1,
+                Explanation = "Refresh DoTs at 3 seconds or less to avoid clipping (losing ticks). Refreshing at 5s wastes potential damage.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_3.q5",
+                ConceptId = SamConcepts.IaijutsuSelection,
+                Scenario = "You have 1 Sen in single-target. Higanbana is already on the boss with 40s remaining.",
+                Question = "What should you do with this Sen?",
+                Options = new[] { "Use Higanbana anyway", "Build to 3 Sen for Midare", "Use Hagakure", "Wait for Higanbana to expire" },
+                CorrectIndex = 1,
+                Explanation = "Don't overwrite Higanbana early. Build to 3 Sen for Midare Setsugekka instead - it's your primary damage tool.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson4Quiz = new()
+    {
+        QuizId = "sam.lesson_4.quiz",
+        LessonId = "sam.lesson_4",
+        Title = "Quiz: Tsubame-gaeshi & Meikyo",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_4.q1",
+                ConceptId = SamConcepts.TsubameGaeshi,
+                Scenario = "You just used Midare Setsugekka. Tsubame-gaeshi is available.",
+                Question = "What should you do next?",
+                Options = new[] { "Start a new combo", "Use Tsubame-gaeshi immediately", "Use Shinten first", "Wait for next GCD" },
+                CorrectIndex = 1,
+                Explanation = "Tsubame-gaeshi should be used immediately after Iaijutsu. Kaeshi: Setsugekka is massive damage - never skip it.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_4.q2",
+                ConceptId = SamConcepts.MeikyoShisui,
+                Scenario = "Meikyo Shisui is ready. You have 0 Sen and need to burst soon.",
+                Question = "What's the optimal Meikyo usage?",
+                Options = new[] { "Use 3 Yukikaze for fast Sen", "Use Gekko → Kasha → Yukikaze", "Use 3 Gekko for damage", "Save for emergencies" },
+                CorrectIndex = 1,
+                Explanation = "Use each finisher once to get all 3 Sen types (Getsu, Ka, Setsu) for immediate Midare Setsugekka.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_4.q3",
+                ConceptId = SamConcepts.MeikyoFinisherPriority,
+                Scenario = "During Meikyo, you already have Getsu and Ka Sen. You have 1 Meikyo stack left.",
+                Question = "Which finisher should you use?",
+                Options = new[] { "Gekko - highest potency", "Kasha - flank is easier", "Yukikaze - get Setsu", "Doesn't matter" },
+                CorrectIndex = 2,
+                Explanation = "You're missing Setsu Sen. Use Yukikaze to complete your Sen collection for Midare Setsugekka.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_4.q4",
+                ConceptId = SamConcepts.TsubameGaeshi,
+                Scenario = "You used Tenka Goken in AoE. What Kaeshi ability appears?",
+                Question = "What follows Tenka Goken?",
+                Options = new[] { "Kaeshi: Setsugekka", "Kaeshi: Goken", "Kaeshi: Higanbana", "Nothing - only Midare has follow-up" },
+                CorrectIndex = 1,
+                Explanation = "Tsubame-gaeshi creates Kaeshi versions matching your Iaijutsu. Tenka Goken → Kaeshi: Goken for AoE.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_4.q5",
+                ConceptId = SamConcepts.MeikyoShisui,
+                Scenario = "Meikyo Shisui has a 55 second cooldown.",
+                Question = "How does this affect your rotation?",
+                Options = new[] { "Use on cooldown always", "Align with 60s buffs", "Save for emergencies", "Use only in opener" },
+                CorrectIndex = 1,
+                Explanation = "At 55s cooldown, Meikyo roughly aligns with 60s burst windows. Plan usage around party buffs.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson5Quiz = new()
+    {
+        QuizId = "sam.lesson_5.quiz",
+        LessonId = "sam.lesson_5",
+        Title = "Quiz: Ikishoten Burst Window",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_5.q1",
+                ConceptId = SamConcepts.IkishotenBurst,
+                Scenario = "Ikishoten is ready. Your Kenki is at 30.",
+                Question = "Is it safe to use Ikishoten?",
+                Options = new[] { "Yes - won't overcap", "No - too much Kenki", "Only during burst", "Need 0 Kenki" },
+                CorrectIndex = 0,
+                Explanation = "At 30 Kenki, Ikishoten (+50) puts you at 80. That's safe. Never use Ikishoten above 50 Kenki.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_5.q2",
+                ConceptId = SamConcepts.OgiNamikiri,
+                Scenario = "You used Ikishoten. What GCD should come next?",
+                Question = "What's the correct sequence?",
+                Options = new[] { "Normal combo", "Ogi Namikiri", "Midare Setsugekka", "Meikyo Shisui" },
+                CorrectIndex = 1,
+                Explanation = "Ikishoten grants Ogi Namikiri Ready. Use Ogi Namikiri immediately for your highest potency GCD.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_5.q3",
+                ConceptId = SamConcepts.Zanshin,
+                Scenario = "You just used Kaeshi: Namikiri. Zanshin is now available.",
+                Question = "What is Zanshin?",
+                Options = new[] { "A GCD follow-up", "An enhanced Kenki spender", "A defensive cooldown", "A movement ability" },
+                CorrectIndex = 1,
+                Explanation = "Zanshin is an enhanced oGCD Kenki spender available after the Ogi Namikiri sequence. Big damage!",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_5.q4",
+                ConceptId = SamConcepts.SeneiTiming,
+                Scenario = "Senei (high-potency oGCD) is ready. You're in burst window.",
+                Question = "When should you use Senei?",
+                Options = new[] { "Before Ikishoten", "During burst window", "After burst ends", "On cooldown regardless" },
+                CorrectIndex = 1,
+                Explanation = "Senei deals high damage. Use it during burst windows when party buffs are active for maximum effect.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_5.q5",
+                ConceptId = SamConcepts.IkishotenBurst,
+                Scenario = "Ikishoten has a 120 second cooldown.",
+                Question = "How does this align with party bursts?",
+                Options = new[] { "Every minute", "Every 2 minutes", "Every 90 seconds", "Doesn't align" },
+                CorrectIndex = 1,
+                Explanation = "120s = 2 minutes. Ikishoten aligns perfectly with standard 2-minute raid buff windows.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson6Quiz = new()
+    {
+        QuizId = "sam.lesson_6.quiz",
+        LessonId = "sam.lesson_6",
+        Title = "Quiz: Positionals & True North",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_6.q1",
+                ConceptId = SamConcepts.Positionals,
+                Scenario = "You need to use Gekko for Getsu Sen.",
+                Question = "Where should you stand?",
+                Options = new[] { "Front", "Flank (side)", "Rear (behind)", "Any position" },
+                CorrectIndex = 2,
+                Explanation = "Gekko has a rear positional. Stand behind the boss for bonus potency.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_6.q2",
+                ConceptId = SamConcepts.Positionals,
+                Scenario = "You need to use Kasha for Ka Sen.",
+                Question = "Where should you stand?",
+                Options = new[] { "Front", "Flank (side)", "Rear (behind)", "Any position" },
+                CorrectIndex = 1,
+                Explanation = "Kasha has a flank positional. Stand at the boss's side for bonus potency.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_6.q3",
+                ConceptId = SamConcepts.TrueNorthUsage,
+                Scenario = "Boss is against the wall. You can't reach rear for Gekko.",
+                Question = "What should you do?",
+                Options = new[] { "Miss the positional", "Use True North", "Use Kasha instead", "Wait for boss to move" },
+                CorrectIndex = 1,
+                Explanation = "True North removes positional requirements for 10 seconds. Use it when you physically can't reach the correct position.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_6.q4",
+                ConceptId = SamConcepts.PositionalRecovery,
+                Scenario = "You missed Gekko's positional. The attack still went off.",
+                Question = "What happened?",
+                Options = new[] { "Attack failed", "Full damage dealt", "Reduced potency", "Combo broke" },
+                CorrectIndex = 2,
+                Explanation = "Missing a positional means the attack still works but deals reduced potency. You lose the bonus damage.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_6.q5",
+                ConceptId = SamConcepts.TrueNorthUsage,
+                Scenario = "True North has 2 charges with 45s recharge each.",
+                Question = "How should you manage True North usage?",
+                Options = new[] { "Use freely - always available", "Save both for emergencies", "Use one, keep one in reserve", "Never needed" },
+                CorrectIndex = 2,
+                Explanation = "Keep at least one charge available for unexpected situations. Don't cap at 2 charges, but don't waste them either.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson7Quiz = new()
+    {
+        QuizId = "sam.lesson_7.quiz",
+        LessonId = "sam.lesson_7",
+        Title = "Quiz: Advanced Optimization",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_7.q1",
+                ConceptId = SamConcepts.BurstAlignment,
+                Scenario = "Party raid buffs are coming in 5 seconds. Ikishoten is ready.",
+                Question = "When should you use Ikishoten?",
+                Options = new[] { "Now - on cooldown", "When buffs go up", "After buffs expire", "Doesn't matter" },
+                CorrectIndex = 1,
+                Explanation = "Align Ikishoten with party raid buffs for maximum damage during Ogi Namikiri and the entire burst sequence.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_7.q2",
+                ConceptId = SamConcepts.HagakureUsage,
+                Scenario = "Boss is about to become untargetable for 20 seconds. You have 3 Sen.",
+                Question = "What should you do with your Sen?",
+                Options = new[] { "Use Midare before downtime", "Use Hagakure for Kenki", "Hold Sen for after", "Doesn't matter" },
+                CorrectIndex = 0,
+                Explanation = "Use Midare before downtime if possible. Only use Hagakure if you can't get Midare off in time - Midare damage > Kenki value.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_7.q3",
+                ConceptId = SamConcepts.AoeRotation,
+                Scenario = "4 enemies are grouped. You're doing the AoE rotation.",
+                Question = "What Sen types can you build with AoE combos?",
+                Options = new[] { "All three (Getsu, Ka, Setsu)", "Only Getsu and Ka", "Only Setsu", "None - AoE doesn't grant Sen" },
+                CorrectIndex = 1,
+                Explanation = "Fuko → Mangetsu grants Getsu. Fuko → Oka grants Ka. You cannot build Setsu Sen in AoE - it requires Yukikaze.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_7.q4",
+                ConceptId = SamConcepts.MeikyoBuffRefresh,
+                Scenario = "Fugetsu has 3 seconds left. Meikyo Shisui is available.",
+                Question = "Should you use Meikyo to refresh Fugetsu?",
+                Options = new[] { "No - save Meikyo for Sen", "Yes - quick buff refresh", "Only if Fuka is also low", "Use normal combo instead" },
+                CorrectIndex = 1,
+                Explanation = "Meikyo can quickly refresh buffs in emergencies. Gekko refreshes Fugetsu without needing the full combo.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "sam.lesson_7.q5",
+                ConceptId = SamConcepts.HagakureUsage,
+                Scenario = "You have 3 Sen. Phase transition is in 2 GCDs.",
+                Question = "You can't use Midare in time. What's your best option?",
+                Options = new[] { "Waste the Sen", "Hagakure for 30 Kenki", "Use Tenka Goken", "Hold for after transition" },
+                CorrectIndex = 1,
+                Explanation = "Hagakure converts Sen to Kenki (10 per Sen). 30 Kenki is better than losing Sen entirely to phase transition.",
             },
         },
     };

@@ -3,6 +3,30 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.16.0 - SAM Training Mode
+
+**SAM (Nike) Training Mode**
+- Training Mode now supports Samurai - third melee DPS job added
+- 25 new SAM concepts covering Sen system, Kenki gauge, Iaijutsu, burst windows, and positionals
+- 7 progressive lessons from fundamentals to advanced optimization
+- 35 quiz questions testing real Samurai decisions
+
+**Lesson Content**
+- Lesson 1: Samurai Fundamentals - combo routes, Sen collection, Fugetsu/Fuka buff maintenance
+- Lesson 2: Kenki & Meditation - gauge management, Shinten/Kyuten spending, Shoha timing
+- Lesson 3: Iaijutsu System - Higanbana DoT, Midare Setsugekka, Tenka Goken decisions
+- Lesson 4: Tsubame-gaeshi & Meikyo - Kaeshi follow-ups, Meikyo Shisui finisher priority
+- Lesson 5: Ikishoten Burst Window - Ogi Namikiri sequence, Zanshin, Senei timing
+- Lesson 6: Positionals & True North - Gekko rear, Kasha flank, positional recovery
+- Lesson 7: Advanced Optimization - burst alignment, Meikyo buff refresh, AoE rotation, Hagakure
+
+**Quiz Features**
+- 7 quizzes (one per lesson) with 5 scenario-based questions each
+- Pass 4 out of 5 to complete a quiz
+- Detailed explanations for every answer
+- Progress tracking and best score persistence
+<!-- LATEST-END -->
+
 ## v3.15.0 - NIN Training Mode
 
 **NIN (Hermes) Training Mode**
@@ -25,7 +49,6 @@ All notable changes to Olympus will be documented in this file.
 - Pass 4 out of 5 to complete a quiz
 - Detailed explanations for every answer
 - Progress tracking and best score persistence
-<!-- LATEST-END -->
 
 ## v3.14.0 - Melee DPS Training Mode (Phase 1)
 

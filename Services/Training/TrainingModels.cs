@@ -638,6 +638,69 @@ public static class NinConcepts
 }
 
 /// <summary>
+/// SAM (Nike) Training Mode concepts covering Samurai mechanics.
+/// 25 concepts across 6 categories.
+/// </summary>
+public static class SamConcepts
+{
+    // Core Mechanics (6)
+    public const string ComboBasics = "sam.combo_basics";
+    public const string SenSystem = "sam.sen_system";
+    public const string KenkiGauge = "sam.kenki_gauge";
+    public const string Meditation = "sam.meditation";
+    public const string FugetsuBuff = "sam.fugetsu_buff";
+    public const string FukaBuff = "sam.fuka_buff";
+
+    // Iaijutsu System (5)
+    public const string IaijutsuSelection = "sam.iaijutsu_selection";
+    public const string HiganbanaDoT = "sam.higanbana_dot";
+    public const string MidareSetsugekka = "sam.midare_setsugekka";
+    public const string TenkaGoken = "sam.tenka_goken";
+    public const string TsubameGaeshi = "sam.tsubame_gaeshi";
+
+    // Burst Window (5)
+    public const string IkishotenBurst = "sam.ikishoten_burst";
+    public const string OgiNamikiri = "sam.ogi_namikiri";
+    public const string Zanshin = "sam.zanshin";
+    public const string BurstAlignment = "sam.burst_alignment";
+    public const string SeneiTiming = "sam.senei_timing";
+
+    // Meikyo Shisui (3)
+    public const string MeikyoShisui = "sam.meikyo_shisui";
+    public const string MeikyoFinisherPriority = "sam.meikyo_finisher_priority";
+    public const string MeikyoBuffRefresh = "sam.meikyo_buff_refresh";
+
+    // Positionals (3)
+    public const string Positionals = "sam.positionals";
+    public const string TrueNorthUsage = "sam.true_north_usage";
+    public const string PositionalRecovery = "sam.positional_recovery";
+
+    // AoE & Advanced (3)
+    public const string AoeRotation = "sam.aoe_rotation";
+    public const string KenkiSpending = "sam.kenki_spending";
+    public const string HagakureUsage = "sam.hagakure_usage";
+
+    /// <summary>
+    /// All SAM concepts for counting.
+    /// </summary>
+    public static readonly string[] AllConcepts = new[]
+    {
+        // Core Mechanics
+        ComboBasics, SenSystem, KenkiGauge, Meditation, FugetsuBuff, FukaBuff,
+        // Iaijutsu System
+        IaijutsuSelection, HiganbanaDoT, MidareSetsugekka, TenkaGoken, TsubameGaeshi,
+        // Burst Window
+        IkishotenBurst, OgiNamikiri, Zanshin, BurstAlignment, SeneiTiming,
+        // Meikyo Shisui
+        MeikyoShisui, MeikyoFinisherPriority, MeikyoBuffRefresh,
+        // Positionals
+        Positionals, TrueNorthUsage, PositionalRecovery,
+        // AoE & Advanced
+        AoeRotation, KenkiSpending, HagakureUsage,
+    };
+}
+
+/// <summary>
 /// DRG (Zeus) Training Mode concepts covering Dragoon mechanics.
 /// 25 concepts across 6 categories.
 /// </summary>

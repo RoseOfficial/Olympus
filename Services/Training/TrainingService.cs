@@ -150,6 +150,7 @@ public sealed class TrainingService : ITrainingService
             .Concat(GnbConcepts.AllConcepts)
             .Concat(DrgConcepts.AllConcepts)
             .Concat(NinConcepts.AllConcepts)
+            .Concat(SamConcepts.AllConcepts)
             .ToArray();
     }
 
@@ -174,6 +175,7 @@ public sealed class TrainingService : ITrainingService
             // Melee DPS
             "drg" => DrgConcepts.AllConcepts,
             "nin" => NinConcepts.AllConcepts,
+            "sam" => SamConcepts.AllConcepts,
             _ => Array.Empty<string>(),
         };
     }
@@ -447,6 +449,7 @@ public sealed class TrainingService : ITrainingService
             // Melee DPS
             JobRegistry.Dragoon or JobRegistry.Lancer => "drg",
             JobRegistry.Ninja or JobRegistry.Rogue => "nin",
+            JobRegistry.Samurai => "sam",
             _ => null
         };
     }
