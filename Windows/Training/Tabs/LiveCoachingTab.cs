@@ -21,11 +21,32 @@ public static class LiveCoachingTab
     private static readonly Vector4 DefensiveColor = new(0.4f, 0.6f, 0.9f, 1.0f);
     private static readonly Vector4 UtilityColor = new(0.9f, 0.7f, 0.3f, 1.0f);
     private static readonly Vector4 TipColor = new(0.6f, 0.4f, 0.9f, 1.0f);
+    private static readonly Vector4 AdaptiveColor = new(0.5f, 0.8f, 0.9f, 1.0f);
+
+    // Skill level colors
+    private static readonly Vector4 BeginnerColor = new(0.4f, 0.7f, 1.0f, 1.0f);
+    private static readonly Vector4 IntermediateColor = new(0.9f, 0.7f, 0.3f, 1.0f);
+    private static readonly Vector4 AdvancedColor = new(0.3f, 0.9f, 0.3f, 1.0f);
+
+    // Current job prefix for skill level lookup (updated from player job)
+    private static string currentJobPrefix = "whm";
+
+    /// <summary>
+    /// Sets the current job prefix for skill level lookup.
+    /// Called from the rotation modules when the job changes.
+    /// </summary>
+    public static void SetCurrentJob(string jobPrefix)
+    {
+        if (!string.IsNullOrEmpty(jobPrefix))
+        {
+            currentJobPrefix = jobPrefix.ToLowerInvariant();
+        }
+    }
 
     public static void Draw(ITrainingService trainingService, TrainingConfig config)
     {
-        // Combat status
-        DrawCombatStatus(trainingService);
+        // Combat status with skill level indicator
+        DrawCombatStatus(trainingService, config);
         ImGui.Spacing();
         ImGui.Separator();
         ImGui.Spacing();
@@ -34,7 +55,7 @@ public static class LiveCoachingTab
         var current = trainingService.CurrentExplanation;
         if (current != null && IsSectionVisible(config, "CurrentAction"))
         {
-            DrawCurrentAction(current, config);
+            DrawCurrentAction(current, config, trainingService);
             ImGui.Spacing();
         }
 
@@ -45,7 +66,7 @@ public static class LiveCoachingTab
         }
     }
 
-    private static void DrawCombatStatus(ITrainingService trainingService)
+    private static void DrawCombatStatus(ITrainingService trainingService, TrainingConfig config)
     {
         if (ImGui.BeginTable("TrainingStatusTable", 2, ImGuiTableFlags.SizingStretchProp))
         {
@@ -71,13 +92,51 @@ public static class LiveCoachingTab
             ImGui.TableNextColumn();
             ImGui.Text($"{trainingService.RecentExplanations.Count} captured");
 
+            // Show skill level if adaptive explanations are enabled
+            if (config.EnableAdaptiveExplanations)
+            {
+                ImGui.TableNextRow();
+                ImGui.TableNextColumn();
+                ImGui.Text("Skill Level:");
+                ImGui.TableNextColumn();
+                var skillLevel = trainingService.GetSkillLevel(currentJobPrefix);
+                var levelColor = skillLevel.Level switch
+                {
+                    SkillLevel.Beginner => BeginnerColor,
+                    SkillLevel.Intermediate => IntermediateColor,
+                    SkillLevel.Advanced => AdvancedColor,
+                    _ => NeutralColor,
+                };
+                ImGui.TextColored(levelColor, $"{skillLevel.Level} ({currentJobPrefix.ToUpperInvariant()})");
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.SetTooltip($"Score: {skillLevel.CompositeScore:F0}/100\nExplanation verbosity adapts to your skill level.");
+                }
+            }
+
             ImGui.EndTable();
         }
     }
 
-    private static void DrawCurrentAction(ActionExplanation explanation, TrainingConfig config)
+    private static void DrawCurrentAction(ActionExplanation explanation, TrainingConfig config, ITrainingService trainingService)
     {
         ImGui.Text("Current Decision");
+
+        // Show adaptive indicator if verbosity was adjusted
+        if (config.EnableAdaptiveExplanations)
+        {
+            var effectiveVerbosity = trainingService.GetEffectiveVerbosity(explanation, currentJobPrefix);
+            if (effectiveVerbosity != config.Verbosity)
+            {
+                ImGui.SameLine();
+                ImGui.TextColored(AdaptiveColor, "[Adaptive]");
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.SetTooltip($"Verbosity adjusted from {config.Verbosity} to {effectiveVerbosity} based on your skill level.");
+                }
+            }
+        }
+
         ImGui.Separator();
 
         // Action name with category color
@@ -93,14 +152,19 @@ public static class LiveCoachingTab
 
         ImGui.Spacing();
 
+        // Get effective verbosity (adaptive or configured)
+        var verbosity = config.EnableAdaptiveExplanations
+            ? trainingService.GetEffectiveVerbosity(explanation, currentJobPrefix)
+            : config.Verbosity;
+
         // Short reason
         ImGui.TextWrapped(explanation.ShortReason);
         ImGui.Spacing();
 
-        // Decision factors (if detailed verbosity)
+        // Decision factors (if normal+ verbosity)
         if (IsSectionVisible(config, "DecisionFactors") && explanation.Factors.Length > 0)
         {
-            if (config.Verbosity >= ExplanationVerbosity.Normal)
+            if (verbosity >= ExplanationVerbosity.Normal)
             {
                 ImGui.TextColored(NeutralColor, "Decision Factors:");
                 foreach (var factor in explanation.Factors)
@@ -112,7 +176,7 @@ public static class LiveCoachingTab
         }
 
         // Detailed reason (if detailed verbosity)
-        if (config.Verbosity >= ExplanationVerbosity.Detailed && !string.IsNullOrEmpty(explanation.DetailedReason))
+        if (verbosity >= ExplanationVerbosity.Detailed && !string.IsNullOrEmpty(explanation.DetailedReason))
         {
             ImGui.TextColored(NeutralColor, "Details:");
             ImGui.TextWrapped(explanation.DetailedReason);

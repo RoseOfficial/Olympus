@@ -96,6 +96,21 @@ public sealed class TrainingConfig
 
     #endregion
 
+    #region Adaptive Explanations (v3.27.0)
+
+    /// <summary>
+    /// Whether to automatically adjust explanation verbosity based on skill level.
+    /// When enabled, beginners see detailed explanations while advanced players see minimal.
+    /// </summary>
+    public bool EnableAdaptiveExplanations { get; set; } = true;
+
+    /// <summary>
+    /// Optional override for skill level detection. When set, uses this level instead of calculating.
+    /// </summary>
+    public SkillLevelOverride? SkillLevelOverride { get; set; }
+
+    #endregion
+
     #region Lesson Recommendations (v3.10.0)
 
     /// <summary>
@@ -192,4 +207,25 @@ public enum ExplanationPriority
     /// Critical decisions (emergency response, life-saving actions).
     /// </summary>
     Critical = 3,
+}
+
+/// <summary>
+/// Manual override for skill level (if user wants to force a level).
+/// </summary>
+public enum SkillLevelOverride
+{
+    /// <summary>
+    /// Force beginner level explanations.
+    /// </summary>
+    Beginner,
+
+    /// <summary>
+    /// Force intermediate level explanations.
+    /// </summary>
+    Intermediate,
+
+    /// <summary>
+    /// Force advanced level explanations.
+    /// </summary>
+    Advanced,
 }

@@ -3,6 +3,33 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.27.0 - Adaptive Training Mode
+
+**Skill Level Detection**
+- Training Mode now detects your skill level (Beginner/Intermediate/Advanced) per job
+- Composite score calculated from quiz pass rate, quiz quality, lessons completed, and concepts learned
+- New "Skill Level" tab shows your progress breakdown for each job
+
+**Adaptive Explanations**
+- Explanation verbosity now automatically adjusts based on your detected skill level
+- Beginners see detailed explanations for every decision
+- Intermediate players see normal detail, with extra detail for unfamiliar concepts
+- Advanced players see minimal detail, except for critical or new decisions
+
+**Concept Familiarity**
+- The system tracks how often you've seen each concept
+- New concepts (seen 0-2 times) get boosted verbosity
+- Mastered concepts (10+ exposures) get reduced verbosity for advanced players
+
+**Settings**
+- Enable/disable adaptive explanations in the Skill Level tab
+- Override auto-detection with a manual skill level if preferred
+- Toggle "[Adaptive]" indicator shows when verbosity was adjusted
+
+**Foundation for v4.0**
+- This release lays the groundwork for the personalized coaching milestone
+<!-- LATEST-END -->
+
 ## v3.26.0 - PCT Training Mode
 
 **PCT (Iris) Training Mode**
@@ -29,7 +56,6 @@ All notable changes to Olympus will be documented in this file.
 **Training Mode Complete**
 - All 21 combat jobs now have full Training Mode support
 - Preparing for v4.0 Training Mode Complete milestone
-<!-- LATEST-END -->
 
 ## v3.25.0 - RDM Training Mode
 

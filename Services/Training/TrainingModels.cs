@@ -6,6 +6,99 @@ using Olympus.Config;
 using Olympus.Services.Analytics;
 
 /// <summary>
+/// Player skill level for adaptive explanations.
+/// </summary>
+public enum SkillLevel
+{
+    /// <summary>
+    /// New to the job - detailed explanations for everything.
+    /// </summary>
+    Beginner,
+
+    /// <summary>
+    /// Familiar with basics - normal explanations, detailed for unfamiliar concepts.
+    /// </summary>
+    Intermediate,
+
+    /// <summary>
+    /// Proficient - minimal explanations, more detail only for new concepts.
+    /// </summary>
+    Advanced,
+}
+
+/// <summary>
+/// Result of skill level detection with score breakdown.
+/// </summary>
+public sealed class SkillLevelResult
+{
+    /// <summary>
+    /// The detected skill level.
+    /// </summary>
+    public SkillLevel Level { get; init; }
+
+    /// <summary>
+    /// Composite score (0-100) used to determine skill level.
+    /// </summary>
+    public float CompositeScore { get; init; }
+
+    /// <summary>
+    /// Quiz pass rate component (0-100). Weight: 40%.
+    /// </summary>
+    public float QuizPassRate { get; init; }
+
+    /// <summary>
+    /// Quiz quality component (average score on passed quizzes, 0-100). Weight: 25%.
+    /// </summary>
+    public float QuizQuality { get; init; }
+
+    /// <summary>
+    /// Lessons completed component (0-100). Weight: 25%.
+    /// </summary>
+    public float LessonsCompleted { get; init; }
+
+    /// <summary>
+    /// Concepts learned component (0-100). Weight: 10%.
+    /// </summary>
+    public float ConceptsLearned { get; init; }
+
+    /// <summary>
+    /// Whether an engagement penalty was applied (lessons without quizzes).
+    /// </summary>
+    public bool EngagementPenaltyApplied { get; init; }
+
+    /// <summary>
+    /// Total quizzes available for this job.
+    /// </summary>
+    public int TotalQuizzes { get; init; }
+
+    /// <summary>
+    /// Quizzes passed for this job.
+    /// </summary>
+    public int PassedQuizzes { get; init; }
+
+    /// <summary>
+    /// Total lessons available for this job.
+    /// </summary>
+    public int TotalLessons { get; init; }
+
+    /// <summary>
+    /// Lessons completed for this job.
+    /// </summary>
+    public int CompletedLessonsCount { get; init; }
+
+    /// <summary>
+    /// Description of the skill level for display.
+    /// </summary>
+    public string LevelDescription => Level switch
+    {
+        SkillLevel.Beginner => "Beginner - Learning the basics",
+        SkillLevel.Intermediate => "Intermediate - Building proficiency",
+        SkillLevel.Advanced => "Advanced - Mastering the job",
+        _ => "Unknown",
+    };
+}
+
+/// <summary>
 /// Represents a single action decision with its explanation.
 /// </summary>
 public sealed class ActionExplanation

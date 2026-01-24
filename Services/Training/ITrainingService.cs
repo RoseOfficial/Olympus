@@ -1,6 +1,7 @@
 namespace Olympus.Services.Training;
 
 using System.Collections.Generic;
+using Olympus.Config;
 using Olympus.Services.Analytics;
 
 /// <summary>
@@ -8,6 +9,29 @@ using Olympus.Services.Analytics;
 /// </summary>
 public interface ITrainingService
 {
+    #region Skill Level Detection (v3.27.0)
+
+    /// <summary>
+    /// Gets the detected skill level for a specific job.
+    /// </summary>
+    /// <param name="jobPrefix">The job prefix (e.g., "whm", "sch", "drg").</param>
+    SkillLevelResult GetSkillLevel(string jobPrefix);
+
+    /// <summary>
+    /// Gets the effective verbosity for an explanation based on skill level and concept familiarity.
+    /// </summary>
+    /// <param name="explanation">The explanation to evaluate.</param>
+    /// <param name="jobPrefix">The job prefix for skill level lookup.</param>
+    ExplanationVerbosity GetEffectiveVerbosity(ActionExplanation explanation, string jobPrefix);
+
+    /// <summary>
+    /// Gets the number of times a concept has been seen by the user.
+    /// </summary>
+    /// <param name="conceptId">The concept ID to check.</param>
+    int GetConceptExposureCount(string conceptId);
+
+    #endregion
+
     #region Lesson Management
 
     /// <summary>

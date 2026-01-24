@@ -159,6 +159,8 @@ public sealed class TrainingService : ITrainingService
             .Concat(DncConcepts.AllConcepts)
             .Concat(BlmConcepts.AllConcepts)
             .Concat(SmnConcepts.AllConcepts)
+            .Concat(RdmConcepts.AllConcepts)
+            .Concat(PctConcepts.AllConcepts)
             .ToArray();
     }
 
@@ -190,6 +192,12 @@ public sealed class TrainingService : ITrainingService
             // Ranged Physical DPS
             "mch" => MchConcepts.AllConcepts,
             "brd" => BrdConcepts.AllConcepts,
+            "dnc" => DncConcepts.AllConcepts,
+            // Casters
+            "blm" => BlmConcepts.AllConcepts,
+            "smn" => SmnConcepts.AllConcepts,
+            "rdm" => RdmConcepts.AllConcepts,
+            "pct" => PctConcepts.AllConcepts,
             _ => Array.Empty<string>(),
         };
     }
@@ -470,6 +478,12 @@ public sealed class TrainingService : ITrainingService
             // Ranged Physical DPS
             JobRegistry.Machinist => "mch",
             JobRegistry.Bard or JobRegistry.Archer => "brd",
+            JobRegistry.Dancer => "dnc",
+            // Casters
+            JobRegistry.BlackMage or JobRegistry.Thaumaturge => "blm",
+            JobRegistry.Summoner => "smn",
+            JobRegistry.RedMage => "rdm",
+            JobRegistry.Pictomancer => "pct",
             _ => null
         };
     }
@@ -487,6 +501,209 @@ public sealed class TrainingService : ITrainingService
         }
 
         return conceptId;
+    }
+
+    #endregion
+
+    #region Skill Level Detection (v3.27.0)
+
+    // Constants for skill level calculation
+    private const float QuizPassRateWeight = 0.40f;
+    private const float QuizQualityWeight = 0.25f;
+    private const float LessonsCompletedWeight = 0.25f;
+    private const float ConceptsLearnedWeight = 0.10f;
+    private const float EngagementPenalty = 0.25f;
+
+    // Thresholds for skill levels
+    private const float IntermediateThreshold = 40f;
+    private const float AdvancedThreshold = 75f;
+
+    // Concept familiarity thresholds
+    private const int NewConceptThreshold = 2;
+    private const int MasteredConceptThreshold = 10;
+
+    public SkillLevelResult GetSkillLevel(string jobPrefix)
+    {
+        // Check for manual override first
+        if (this.config.SkillLevelOverride.HasValue)
+        {
+            var overrideLevel = this.config.SkillLevelOverride.Value switch
+            {
+                SkillLevelOverride.Beginner => SkillLevel.Beginner,
+                SkillLevelOverride.Intermediate => SkillLevel.Intermediate,
+                SkillLevelOverride.Advanced => SkillLevel.Advanced,
+                _ => SkillLevel.Beginner,
+            };
+
+            return new SkillLevelResult
+            {
+                Level = overrideLevel,
+                CompositeScore = overrideLevel switch
+                {
+                    SkillLevel.Beginner => 20f,
+                    SkillLevel.Intermediate => 60f,
+                    SkillLevel.Advanced => 90f,
+                    _ => 0f,
+                },
+                QuizPassRate = 0f,
+                QuizQuality = 0f,
+                LessonsCompleted = 0f,
+                ConceptsLearned = 0f,
+                EngagementPenaltyApplied = false,
+                TotalQuizzes = 0,
+                PassedQuizzes = 0,
+                TotalLessons = 0,
+                CompletedLessonsCount = 0,
+            };
+        }
+
+        var lessons = LessonRegistry.GetLessonsForJob(jobPrefix);
+        var concepts = GetConceptsForJob(jobPrefix);
+
+        if (lessons.Count == 0)
+        {
+            return new SkillLevelResult
+            {
+                Level = SkillLevel.Beginner,
+                CompositeScore = 0f,
+            };
+        }
+
+        // Count quizzes and passes for this job
+        var quizIds = lessons.Select(l => $"quiz.{l.LessonId}").ToArray();
+        var totalQuizzes = quizIds.Length;
+        var passedQuizzes = quizIds.Count(qid => this.config.CompletedQuizzes.Contains(qid));
+        var quizPassRate = totalQuizzes > 0 ? (float)passedQuizzes / totalQuizzes * 100f : 0f;
+
+        // Calculate average quiz quality (score on passed quizzes)
+        var quizScores = quizIds
+            .Where(qid => this.config.BestQuizAttempts.TryGetValue(qid, out var attempt) && attempt.Passed)
+            .Select(qid =>
+            {
+                var attempt = this.config.BestQuizAttempts[qid];
+                return attempt.TotalQuestions > 0 ? (float)attempt.Score / attempt.TotalQuestions * 100f : 0f;
+            })
+            .ToArray();
+        var quizQuality = quizScores.Length > 0 ? quizScores.Average() : 0f;
+
+        // Count completed lessons for this job
+        var completedLessons = lessons.Count(l => this.config.CompletedLessons.Contains(l.LessonId));
+        var lessonsCompletedRate = lessons.Count > 0 ? (float)completedLessons / lessons.Count * 100f : 0f;
+
+        // Count learned concepts for this job
+        var learnedConcepts = concepts.Count(c => this.config.LearnedConcepts.Contains(c));
+        var conceptsLearnedRate = concepts.Length > 0 ? (float)learnedConcepts / concepts.Length * 100f : 0f;
+
+        // Calculate composite score
+        var compositeScore =
+            (quizPassRate * QuizPassRateWeight) +
+            (quizQuality * QuizQualityWeight) +
+            (lessonsCompletedRate * LessonsCompletedWeight) +
+            (conceptsLearnedRate * ConceptsLearnedWeight);
+
+        // Apply engagement penalty if lessons completed without taking quizzes
+        var engagementPenaltyApplied = false;
+        if (completedLessons > 0 && passedQuizzes == 0)
+        {
+            compositeScore *= (1f - EngagementPenalty);
+            engagementPenaltyApplied = true;
+        }
+
+        // Determine skill level from composite score
+        var level = compositeScore switch
+        {
+            >= AdvancedThreshold => SkillLevel.Advanced,
+            >= IntermediateThreshold => SkillLevel.Intermediate,
+            _ => SkillLevel.Beginner,
+        };
+
+        return new SkillLevelResult
+        {
+            Level = level,
+            CompositeScore = compositeScore,
+            QuizPassRate = quizPassRate,
+            QuizQuality = (float)quizQuality,
+            LessonsCompleted = lessonsCompletedRate,
+            ConceptsLearned = conceptsLearnedRate,
+            EngagementPenaltyApplied = engagementPenaltyApplied,
+            TotalQuizzes = totalQuizzes,
+            PassedQuizzes = passedQuizzes,
+            TotalLessons = lessons.Count,
+            CompletedLessonsCount = completedLessons,
+        };
+    }
+
+    public ExplanationVerbosity GetEffectiveVerbosity(ActionExplanation explanation, string jobPrefix)
+    {
+        // If adaptive explanations are disabled, use the configured verbosity
+        if (!this.config.EnableAdaptiveExplanations)
+        {
+            return this.config.Verbosity;
+        }
+
+        // Critical priority always gets detailed explanations (emergency override)
+        if (explanation.Priority == ExplanationPriority.Critical)
+        {
+            return ExplanationVerbosity.Detailed;
+        }
+
+        var skillLevel = GetSkillLevel(jobPrefix);
+        var baseVerbosity = skillLevel.Level switch
+        {
+            SkillLevel.Beginner => ExplanationVerbosity.Detailed,
+            SkillLevel.Intermediate => ExplanationVerbosity.Normal,
+            SkillLevel.Advanced => ExplanationVerbosity.Minimal,
+            _ => this.config.Verbosity,
+        };
+
+        // Apply concept familiarity adjustment
+        if (!string.IsNullOrEmpty(explanation.ConceptId))
+        {
+            var exposureCount = GetConceptExposureCount(explanation.ConceptId);
+
+            // New concept (0-2 exposures): boost verbosity +1 level
+            if (exposureCount <= NewConceptThreshold)
+            {
+                baseVerbosity = BoostVerbosity(baseVerbosity);
+            }
+            // Mastered concept (10+ exposures) for Advanced players: reduce verbosity -1 level
+            else if (exposureCount >= MasteredConceptThreshold && skillLevel.Level == SkillLevel.Advanced)
+            {
+                baseVerbosity = ReduceVerbosity(baseVerbosity);
+            }
+        }
+
+        return baseVerbosity;
+    }
+
+    public int GetConceptExposureCount(string conceptId)
+    {
+        if (string.IsNullOrEmpty(conceptId))
+            return 0;
+
+        return this.config.ConceptExposureCount.TryGetValue(conceptId, out var count) ? count : 0;
+    }
+
+    private static ExplanationVerbosity BoostVerbosity(ExplanationVerbosity verbosity)
+    {
+        return verbosity switch
+        {
+            ExplanationVerbosity.Minimal => ExplanationVerbosity.Normal,
+            ExplanationVerbosity.Normal => ExplanationVerbosity.Detailed,
+            ExplanationVerbosity.Detailed => ExplanationVerbosity.Detailed, // Can't go higher
+            _ => verbosity,
+        };
+    }
+
+    private static ExplanationVerbosity ReduceVerbosity(ExplanationVerbosity verbosity)
+    {
+        return verbosity switch
+        {
+            ExplanationVerbosity.Detailed => ExplanationVerbosity.Normal,
+            ExplanationVerbosity.Normal => ExplanationVerbosity.Minimal,
+            ExplanationVerbosity.Minimal => ExplanationVerbosity.Minimal, // Can't go lower
+            _ => verbosity,
+        };
     }
 
     #endregion
