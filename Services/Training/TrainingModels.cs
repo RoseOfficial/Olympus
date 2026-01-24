@@ -96,6 +96,53 @@ public sealed class SkillLevelResult
         SkillLevel.Advanced => "Advanced - Mastering the job",
         _ => "Unknown",
     };
+
+    /// <summary>
+    /// Concept mastery score component (0-100). Weight: 25%.
+    /// Added in v3.28.0.
+    /// </summary>
+    public float ConceptMastery { get; init; }
+}
+
+/// <summary>
+/// Analysis of concept mastery for a job, categorizing concepts by proficiency.
+/// </summary>
+public sealed class ConceptMasteryResult
+{
+    /// <summary>
+    /// Concepts with 10+ opportunities and >85% success rate.
+    /// </summary>
+    public string[] MasteredConcepts { get; init; } = Array.Empty<string>();
+
+    /// <summary>
+    /// Concepts with 10+ opportunities and less than 60% success rate.
+    /// </summary>
+    public string[] StrugglingConcepts { get; init; } = Array.Empty<string>();
+
+    /// <summary>
+    /// Concepts with less than 10 opportunities (not enough data).
+    /// </summary>
+    public string[] DevelopingConcepts { get; init; } = Array.Empty<string>();
+
+    /// <summary>
+    /// Overall mastery score (0-100) based on success rates across all concepts.
+    /// </summary>
+    public float MasteryScore { get; init; }
+
+    /// <summary>
+    /// Total concepts tracked for this job.
+    /// </summary>
+    public int TotalConcepts { get; init; }
+
+    /// <summary>
+    /// Summary description for UI display.
+    /// </summary>
+    public string Summary => MasteredConcepts.Length switch
+    {
+        0 when TotalConcepts == 0 => "No concepts tracked yet",
+        0 => $"Working on {DevelopingConcepts.Length} concepts",
+        _ => $"{MasteredConcepts.Length} mastered, {StrugglingConcepts.Length} need practice",
+    };
 }
 
 /// <summary>

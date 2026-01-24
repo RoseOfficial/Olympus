@@ -505,14 +505,21 @@ public sealed class TrainingService : ITrainingService
 
     #endregion
 
-    #region Skill Level Detection (v3.27.0)
+    #region Skill Level Detection (v3.27.0) + Concept Mastery (v3.28.0)
 
-    // Constants for skill level calculation
-    private const float QuizPassRateWeight = 0.40f;
-    private const float QuizQualityWeight = 0.25f;
-    private const float LessonsCompletedWeight = 0.25f;
-    private const float ConceptsLearnedWeight = 0.10f;
+    // Constants for skill level calculation (updated in v3.28.0 to include mastery)
+    // Total weights: 30% + 20% + 20% + 5% + 25% = 100%
+    private const float QuizPassRateWeight = 0.30f;      // Was 40%, reduced to make room for mastery
+    private const float QuizQualityWeight = 0.20f;       // Was 25%, reduced to make room for mastery
+    private const float LessonsCompletedWeight = 0.20f;  // Was 25%, reduced to make room for mastery
+    private const float ConceptsLearnedWeight = 0.05f;   // Was 10%, reduced to make room for mastery
+    private const float ConceptMasteryWeight = 0.25f;    // NEW in v3.28.0
     private const float EngagementPenalty = 0.25f;
+
+    // Mastery thresholds
+    private const int MasteryMinOpportunities = 10;     // Minimum opportunities to evaluate mastery
+    private const float MasteredSuccessRate = 0.85f;    // >85% success rate = mastered
+    private const float StrugglingSuccessRate = 0.60f;  // <60% success rate = struggling
 
     // Thresholds for skill levels
     private const float IntermediateThreshold = 40f;
@@ -549,6 +556,7 @@ public sealed class TrainingService : ITrainingService
                 QuizQuality = 0f,
                 LessonsCompleted = 0f,
                 ConceptsLearned = 0f,
+                ConceptMastery = 0f,
                 EngagementPenaltyApplied = false,
                 TotalQuizzes = 0,
                 PassedQuizzes = 0,
@@ -566,6 +574,7 @@ public sealed class TrainingService : ITrainingService
             {
                 Level = SkillLevel.Beginner,
                 CompositeScore = 0f,
+                ConceptMastery = 0f,
             };
         }
 
@@ -594,12 +603,17 @@ public sealed class TrainingService : ITrainingService
         var learnedConcepts = concepts.Count(c => this.config.LearnedConcepts.Contains(c));
         var conceptsLearnedRate = concepts.Length > 0 ? (float)learnedConcepts / concepts.Length * 100f : 0f;
 
-        // Calculate composite score
+        // Calculate concept mastery score (v3.28.0)
+        var masteryResult = GetConceptMastery(jobPrefix);
+        var conceptMasteryRate = masteryResult.MasteryScore;
+
+        // Calculate composite score (updated weights in v3.28.0)
         var compositeScore =
             (quizPassRate * QuizPassRateWeight) +
             (quizQuality * QuizQualityWeight) +
             (lessonsCompletedRate * LessonsCompletedWeight) +
-            (conceptsLearnedRate * ConceptsLearnedWeight);
+            (conceptsLearnedRate * ConceptsLearnedWeight) +
+            (conceptMasteryRate * ConceptMasteryWeight);
 
         // Apply engagement penalty if lessons completed without taking quizzes
         var engagementPenaltyApplied = false;
@@ -625,6 +639,7 @@ public sealed class TrainingService : ITrainingService
             QuizQuality = (float)quizQuality,
             LessonsCompleted = lessonsCompletedRate,
             ConceptsLearned = conceptsLearnedRate,
+            ConceptMastery = conceptMasteryRate,
             EngagementPenaltyApplied = engagementPenaltyApplied,
             TotalQuizzes = totalQuizzes,
             PassedQuizzes = passedQuizzes,
@@ -704,6 +719,115 @@ public sealed class TrainingService : ITrainingService
             ExplanationVerbosity.Minimal => ExplanationVerbosity.Minimal, // Can't go lower
             _ => verbosity,
         };
+    }
+
+    #endregion
+
+    #region Concept Mastery (v3.28.0)
+
+    public void RecordConceptApplication(string conceptId, bool wasSuccessful, string? reason = null)
+    {
+        if (string.IsNullOrEmpty(conceptId))
+            return;
+
+        if (!this.config.ConceptMastery.TryGetValue(conceptId, out var data))
+        {
+            data = new Config.ConceptMasteryData();
+            this.config.ConceptMastery[conceptId] = data;
+        }
+
+        data.Opportunities++;
+        if (wasSuccessful)
+        {
+            data.Successes++;
+        }
+
+        data.LastApplied = DateTime.Now;
+
+        var outcomeStr = wasSuccessful ? "success" : "failure";
+        var reasonStr = string.IsNullOrEmpty(reason) ? "" : $" - {reason}";
+        this.log?.Debug("Training: Concept {ConceptId} application: {Outcome}{Reason} ({Successes}/{Opportunities})",
+            conceptId, outcomeStr, reasonStr, data.Successes, data.Opportunities);
+    }
+
+    public ConceptMasteryResult GetConceptMastery(string jobPrefix)
+    {
+        var concepts = GetConceptsForJob(jobPrefix);
+        if (concepts.Length == 0)
+        {
+            return new ConceptMasteryResult
+            {
+                MasteryScore = 0f,
+                TotalConcepts = 0,
+            };
+        }
+
+        var mastered = new List<string>();
+        var struggling = new List<string>();
+        var developing = new List<string>();
+        var totalSuccessRate = 0f;
+        var conceptsWithData = 0;
+
+        foreach (var conceptId in concepts)
+        {
+            if (!this.config.ConceptMastery.TryGetValue(conceptId, out var data) || data.Opportunities == 0)
+            {
+                developing.Add(conceptId);
+                continue;
+            }
+
+            if (data.Opportunities < MasteryMinOpportunities)
+            {
+                developing.Add(conceptId);
+                continue;
+            }
+
+            // Has enough opportunities to evaluate
+            conceptsWithData++;
+            totalSuccessRate += data.SuccessRate;
+
+            if (data.SuccessRate >= MasteredSuccessRate)
+            {
+                mastered.Add(conceptId);
+            }
+            else if (data.SuccessRate < StrugglingSuccessRate)
+            {
+                struggling.Add(conceptId);
+            }
+            // Concepts between struggling and mastered are neither category
+        }
+
+        // Calculate mastery score:
+        // - Base: Average success rate of concepts with enough data (0-100 scale)
+        // - Bonus: +10 for each mastered concept (capped at 30)
+        // - Penalty: -5 for each struggling concept (capped at -15)
+        var masteryScore = 0f;
+        if (conceptsWithData > 0)
+        {
+            masteryScore = totalSuccessRate / conceptsWithData * 100f;
+            masteryScore += Math.Min(mastered.Count * 10f, 30f);
+            masteryScore -= Math.Min(struggling.Count * 5f, 15f);
+            masteryScore = Math.Clamp(masteryScore, 0f, 100f);
+        }
+
+        return new ConceptMasteryResult
+        {
+            MasteredConcepts = mastered.ToArray(),
+            StrugglingConcepts = struggling.ToArray(),
+            DevelopingConcepts = developing.ToArray(),
+            MasteryScore = masteryScore,
+            TotalConcepts = concepts.Length,
+        };
+    }
+
+    public string[] GetStrugglingConcepts(string jobPrefix)
+    {
+        return GetConceptMastery(jobPrefix).StrugglingConcepts;
+    }
+
+    public string[] GetMasteredConcepts(string jobPrefix)
+    {
+        return GetConceptMastery(jobPrefix).MasteredConcepts;
     }
 
     #endregion

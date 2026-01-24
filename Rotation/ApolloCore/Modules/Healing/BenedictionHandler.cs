@@ -133,6 +133,14 @@ public sealed class BenedictionHandler : IHealingHandler
                     ConceptId = isEmergency ? WhmConcepts.EmergencyHealing : WhmConcepts.BenedictionUsage,
                     Priority = isEmergency ? ExplanationPriority.Critical : ExplanationPriority.High,
                 });
+
+                // Record concept mastery: successful application of emergency healing
+                // v3.28.0: Track mastery through opportunities and successes
+                var masteryConceptId = isEmergency ? WhmConcepts.EmergencyHealing : WhmConcepts.BenedictionUsage;
+                var masteryReason = isEmergency
+                    ? $"Used emergency heal on critical target ({hpPercent:P0} HP)"
+                    : $"Used proactive heal on high-damage target ({targetDamageRate:F0} DPS)";
+                context.TrainingService.RecordConceptApplication(masteryConceptId, wasSuccessful: true, masteryReason);
             }
 
             return true;

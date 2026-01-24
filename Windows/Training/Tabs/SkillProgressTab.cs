@@ -131,10 +131,14 @@ public static class SkillProgressTab
             return;
         }
 
-        // Find jobs with any progress
+        // Find jobs with any progress (including mastery data)
         var jobsWithProgress = AllJobPrefixes
-            .Select((prefix, index) => (Prefix: prefix, Name: JobDisplayNames[index], Result: trainingService.GetSkillLevel(prefix)))
-            .Where(j => j.Result.PassedQuizzes > 0 || j.Result.CompletedLessonsCount > 0)
+            .Select((prefix, index) => (
+                Prefix: prefix,
+                Name: JobDisplayNames[index],
+                Result: trainingService.GetSkillLevel(prefix),
+                Mastery: trainingService.GetConceptMastery(prefix)))
+            .Where(j => j.Result.PassedQuizzes > 0 || j.Result.CompletedLessonsCount > 0 || j.Mastery.TotalConcepts > 0)
             .ToArray();
 
         if (jobsWithProgress.Length == 0)
@@ -148,7 +152,7 @@ public static class SkillProgressTab
         // Display each job with progress
         foreach (var job in jobsWithProgress)
         {
-            DrawJobSkillLevel(job.Prefix, job.Name, job.Result);
+            DrawJobSkillLevel(job.Prefix, job.Name, job.Result, job.Mastery);
             ImGui.Spacing();
         }
 
@@ -161,7 +165,7 @@ public static class SkillProgressTab
         }
     }
 
-    private static void DrawJobSkillLevel(string jobPrefix, string jobName, SkillLevelResult result)
+    private static void DrawJobSkillLevel(string jobPrefix, string jobName, SkillLevelResult result, ConceptMasteryResult mastery)
     {
         // Job header with level badge
         var levelColor = result.Level switch
@@ -183,21 +187,25 @@ public static class SkillProgressTab
             ImGui.Spacing();
             ImGui.Text("Score Breakdown:");
 
-            // Quiz pass rate (40%)
-            DrawScoreComponent("Quiz Pass Rate", result.QuizPassRate, 40,
+            // Quiz pass rate (30%)
+            DrawScoreComponent("Quiz Pass Rate", result.QuizPassRate, 30,
                 $"{result.PassedQuizzes}/{result.TotalQuizzes} quizzes passed");
 
-            // Quiz quality (25%)
-            DrawScoreComponent("Quiz Quality", result.QuizQuality, 25,
+            // Quiz quality (20%)
+            DrawScoreComponent("Quiz Quality", result.QuizQuality, 20,
                 "Average score on passed quizzes");
 
-            // Lessons completed (25%)
-            DrawScoreComponent("Lessons Completed", result.LessonsCompleted, 25,
+            // Lessons completed (20%)
+            DrawScoreComponent("Lessons Completed", result.LessonsCompleted, 20,
                 $"{result.CompletedLessonsCount}/{result.TotalLessons} lessons done");
 
-            // Concepts learned (10%)
-            DrawScoreComponent("Concepts Learned", result.ConceptsLearned, 10,
+            // Concepts learned (5%)
+            DrawScoreComponent("Concepts Learned", result.ConceptsLearned, 5,
                 "Marked as learned");
+
+            // Concept Mastery (25%) - NEW in v3.28.0
+            DrawScoreComponent("Concept Mastery", result.ConceptMastery, 25,
+                "Success rate when applying concepts in combat");
 
             // Engagement penalty warning
             if (result.EngagementPenaltyApplied)
@@ -210,6 +218,9 @@ public static class SkillProgressTab
                 }
             }
 
+            // Concept Mastery Details (v3.28.0)
+            DrawMasteryDetails(mastery);
+
             ImGui.TreePop();
         }
         else
@@ -220,6 +231,71 @@ public static class SkillProgressTab
             ImGui.SameLine();
             ImGui.TextColored(NeutralColor, $"Score: {result.CompositeScore:F0}");
         }
+    }
+
+    private static void DrawMasteryDetails(ConceptMasteryResult mastery)
+    {
+        if (mastery.TotalConcepts == 0)
+            return;
+
+        ImGui.Spacing();
+        ImGui.Separator();
+        ImGui.Text("Concept Mastery Details:");
+
+        // Mastered concepts
+        if (mastery.MasteredConcepts.Length > 0)
+        {
+            ImGui.TextColored(GoodColor, $"  Mastered ({mastery.MasteredConcepts.Length}):");
+            foreach (var concept in mastery.MasteredConcepts.Take(5))
+            {
+                ImGui.TextColored(GoodColor, $"    \u2713 {FormatConceptName(concept)}");
+            }
+
+            if (mastery.MasteredConcepts.Length > 5)
+            {
+                ImGui.TextColored(NeutralColor, $"    ... and {mastery.MasteredConcepts.Length - 5} more");
+            }
+        }
+
+        // Struggling concepts
+        if (mastery.StrugglingConcepts.Length > 0)
+        {
+            ImGui.TextColored(WarningColor, $"  Needs Practice ({mastery.StrugglingConcepts.Length}):");
+            foreach (var concept in mastery.StrugglingConcepts.Take(5))
+            {
+                ImGui.TextColored(WarningColor, $"    \u26A0 {FormatConceptName(concept)}");
+            }
+
+            if (mastery.StrugglingConcepts.Length > 5)
+            {
+                ImGui.TextColored(NeutralColor, $"    ... and {mastery.StrugglingConcepts.Length - 5} more");
+            }
+        }
+
+        // Developing concepts (only show count)
+        if (mastery.DevelopingConcepts.Length > 0)
+        {
+            ImGui.TextColored(InfoColor, $"  Developing: {mastery.DevelopingConcepts.Length} concepts (need more practice)");
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.SetTooltip("These concepts need at least 10 opportunities before mastery can be evaluated.");
+            }
+        }
+
+        // Summary
+        if (mastery.MasteredConcepts.Length == 0 && mastery.StrugglingConcepts.Length == 0)
+        {
+            ImGui.TextColored(NeutralColor, "  Play more to build mastery data!");
+        }
+    }
+
+    private static string FormatConceptName(string conceptId)
+    {
+        // Convert "whm.emergency_healing" to "Emergency Healing"
+        var parts = conceptId.Split('.');
+        var name = parts.Length > 1 ? parts[^1] : conceptId;
+        name = name.Replace("_", " ");
+        return System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(name);
     }
 
     private static void DrawScoreComponent(string label, float value, int weight, string tooltip)

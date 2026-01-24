@@ -111,6 +111,16 @@ public sealed class TrainingConfig
 
     #endregion
 
+    #region Concept Mastery (v3.28.0)
+
+    /// <summary>
+    /// Tracks mastery data for each concept (opportunities, successes).
+    /// Key is the concept ID (e.g., "whm.emergency_healing").
+    /// </summary>
+    public Dictionary<string, ConceptMasteryData> ConceptMastery { get; set; } = new();
+
+    #endregion
+
     #region Lesson Recommendations (v3.10.0)
 
     /// <summary>
@@ -228,4 +238,32 @@ public enum SkillLevelOverride
     /// Force advanced level explanations.
     /// </summary>
     Advanced,
+}
+
+/// <summary>
+/// Tracks mastery through opportunities and successes for a concept.
+/// Mastery is demonstrated by successful application in combat, not just exposure.
+/// </summary>
+public sealed class ConceptMasteryData
+{
+    /// <summary>
+    /// Number of times an opportunity to apply this concept occurred.
+    /// </summary>
+    public int Opportunities { get; set; }
+
+    /// <summary>
+    /// Number of times the concept was successfully applied.
+    /// </summary>
+    public int Successes { get; set; }
+
+    /// <summary>
+    /// When the concept was last applied (success or failure).
+    /// </summary>
+    public DateTime LastApplied { get; set; }
+
+    /// <summary>
+    /// Success rate as a percentage (0.0 to 1.0).
+    /// Returns 0 if no opportunities have occurred.
+    /// </summary>
+    public float SuccessRate => Opportunities > 0 ? (float)Successes / Opportunities : 0f;
 }

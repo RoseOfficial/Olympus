@@ -3,6 +3,35 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.28.0 - Concept Mastery Tracking
+
+**Mastery System**
+- Training Mode now tracks concept "mastery" instead of just "exposure"
+- Mastery is measured by successful application in combat, not just seeing explanations
+- Concepts are categorized: Mastered (>85% success), Struggling (<60% success), or Developing
+
+**Skill Level Score Update**
+- New weight distribution: Quiz Pass (30%), Quiz Quality (20%), Lessons (20%), Concepts (5%), **Mastery (25%)**
+- Concept mastery now contributes 25% to your overall skill level score
+- Creates a feedback loop to identify which concepts need more practice
+
+**UI Improvements**
+- Skill Progress tab now shows detailed mastery breakdown per job
+- Mastered concepts display with checkmark
+- Struggling concepts highlighted as "Needs Practice"
+- Developing concepts show count (need 10+ opportunities to evaluate)
+
+**WHM Proof of Concept**
+- Benediction handler now records mastery data (success when saving critical targets)
+- More handlers will be instrumented in future updates
+
+**How It Works**
+- Play your job normally with Training Mode enabled
+- Olympus tracks opportunities to apply concepts and whether they succeeded
+- After 10+ opportunities, concepts are evaluated for mastery
+- Your skill level adjusts based on actual combat performance
+<!-- LATEST-END -->
+
 ## v3.27.0 - Adaptive Training Mode
 
 **Skill Level Detection**
@@ -28,7 +57,6 @@ All notable changes to Olympus will be documented in this file.
 
 **Foundation for v4.0**
 - This release lays the groundwork for the personalized coaching milestone
-<!-- LATEST-END -->
 
 ## v3.26.0 - PCT Training Mode
 

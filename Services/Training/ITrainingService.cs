@@ -32,6 +32,37 @@ public interface ITrainingService
 
     #endregion
 
+    #region Concept Mastery (v3.28.0)
+
+    /// <summary>
+    /// Records a concept application outcome (success or failure).
+    /// Called from handlers when a concept opportunity occurs.
+    /// </summary>
+    /// <param name="conceptId">The concept ID being applied.</param>
+    /// <param name="wasSuccessful">Whether the application was successful.</param>
+    /// <param name="reason">Optional reason for the outcome (for logging).</param>
+    void RecordConceptApplication(string conceptId, bool wasSuccessful, string? reason = null);
+
+    /// <summary>
+    /// Gets the mastery analysis for a specific job.
+    /// </summary>
+    /// <param name="jobPrefix">The job prefix (e.g., "whm", "sch", "drg").</param>
+    ConceptMasteryResult GetConceptMastery(string jobPrefix);
+
+    /// <summary>
+    /// Gets concepts the user is struggling with for a specific job.
+    /// </summary>
+    /// <param name="jobPrefix">The job prefix (e.g., "whm", "sch", "drg").</param>
+    string[] GetStrugglingConcepts(string jobPrefix);
+
+    /// <summary>
+    /// Gets concepts the user has mastered for a specific job.
+    /// </summary>
+    /// <param name="jobPrefix">The job prefix (e.g., "whm", "sch", "drg").</param>
+    string[] GetMasteredConcepts(string jobPrefix);
+
+    #endregion
+
     #region Lesson Management
 
     /// <summary>
