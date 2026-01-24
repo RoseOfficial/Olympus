@@ -3,6 +3,33 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.20.0 - MCH Training Mode
+
+**MCH (Prometheus) Training Mode**
+- Training Mode now supports Machinist - first ranged physical DPS job added
+- 25 new MCH concepts covering Heat/Battery gauges, Hypercharge, Wildfire burst, tool priority, and Queen management
+- 7 progressive lessons from fundamentals to advanced optimization
+- 35 quiz questions testing real Machinist decisions
+
+**Lesson Content**
+- Lesson 1: Machinist Fundamentals - Heat and Battery dual-gauge system, gauge interactions, overcap prevention
+- Lesson 2: Tool Mastery - Drill priority, Air Anchor Battery generation, Chain Saw Excavator proc
+- Lesson 3: Reassemble Optimization - highest potency tool targeting, charge management, raid buff alignment
+- Lesson 4: Hypercharge Windows - 50 Heat activation, Overheated state, Heat Blast rotation, single-weave oGCDs
+- Lesson 5: Wildfire Burst - pre-Hypercharge placement, 6-hit optimal window, 2-minute raid buff alignment
+- Lesson 6: Queen Management - Battery scaling, 90-100 Battery summoning, raid buff timing
+- Lesson 7: Advanced Tactics - party burst coordination, phase awareness, AoE rotation, interrupt utility
+
+**Quiz Features**
+- 7 quizzes (one per lesson) with 5 scenario-based questions each
+- Pass 4 out of 5 to complete a quiz
+- Detailed explanations for every answer
+- Progress tracking and best score persistence
+
+**Ranged Physical DPS Training Started**
+- MCH is the first ranged physical DPS with Training Mode (BRD, DNC to follow)
+<!-- LATEST-END -->
+
 ## v3.19.0 - VPR Training Mode
 
 **VPR (Echidna) Training Mode**
@@ -28,7 +55,6 @@ All notable changes to Olympus will be documented in this file.
 
 **Melee DPS Training Complete**
 - All 6 melee DPS jobs now have full Training Mode support (DRG, NIN, SAM, MNK, RPR, VPR)
-<!-- LATEST-END -->
 
 ## v3.18.0 - RPR Training Mode
 

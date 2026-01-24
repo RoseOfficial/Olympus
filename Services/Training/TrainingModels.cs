@@ -949,6 +949,73 @@ public static class DrgConcepts
 }
 
 /// <summary>
+/// MCH (Prometheus) Training Mode concepts covering Machinist mechanics.
+/// 25 concepts across 7 categories.
+/// </summary>
+public static class MchConcepts
+{
+    // Gauge Fundamentals (4)
+    public const string HeatGauge = "mch.heat_gauge";
+    public const string BatteryGauge = "mch.battery_gauge";
+    public const string GaugeOvercapping = "mch.gauge_overcapping";
+    public const string GaugeInteractions = "mch.gauge_interactions";
+
+    // Hypercharge System (5)
+    public const string HyperchargeActivation = "mch.hypercharge_activation";
+    public const string OverheatedState = "mch.overheated_state";
+    public const string HeatBlastRotation = "mch.heat_blast_rotation";
+    public const string OgcdWeaving = "mch.ogcd_weaving";
+    public const string HyperchargeTiming = "mch.hypercharge_timing";
+
+    // Wildfire Burst (4)
+    public const string WildfirePlacement = "mch.wildfire_placement";
+    public const string WildfireAlignment = "mch.wildfire_alignment";
+    public const string BurstPartySync = "mch.burst_party_sync";
+    public const string PhaseAwareness = "mch.phase_awareness";
+
+    // Tool Priority (4)
+    public const string DrillPriority = "mch.drill_priority";
+    public const string AirAnchorUsage = "mch.air_anchor_usage";
+    public const string ChainSawUsage = "mch.chain_saw_usage";
+    public const string ProcTracking = "mch.proc_tracking";
+
+    // Pet Management (3)
+    public const string QueenSummoning = "mch.queen_summoning";
+    public const string BatteryAccumulation = "mch.battery_accumulation";
+    public const string QueenDamageScaling = "mch.queen_damage_scaling";
+
+    // Reassemble & Utility (3)
+    public const string ReassemblePriority = "mch.reassemble_priority";
+    public const string ReassembleCharges = "mch.reassemble_charges";
+    public const string InterruptUsage = "mch.interrupt_usage";
+
+    // AoE Rotation (2)
+    public const string AoeRotation = "mch.aoe_rotation";
+    public const string TargetCountThreshold = "mch.target_count_threshold";
+
+    /// <summary>
+    /// All MCH concepts for counting.
+    /// </summary>
+    public static readonly string[] AllConcepts = new[]
+    {
+        // Gauge Fundamentals
+        HeatGauge, BatteryGauge, GaugeOvercapping, GaugeInteractions,
+        // Hypercharge System
+        HyperchargeActivation, OverheatedState, HeatBlastRotation, OgcdWeaving, HyperchargeTiming,
+        // Wildfire Burst
+        WildfirePlacement, WildfireAlignment, BurstPartySync, PhaseAwareness,
+        // Tool Priority
+        DrillPriority, AirAnchorUsage, ChainSawUsage, ProcTracking,
+        // Pet Management
+        QueenSummoning, BatteryAccumulation, QueenDamageScaling,
+        // Reassemble & Utility
+        ReassemblePriority, ReassembleCharges, InterruptUsage,
+        // AoE Rotation
+        AoeRotation, TargetCountThreshold,
+    };
+}
+
+/// <summary>
 /// Represents a lesson recommendation based on detected performance issues.
 /// </summary>
 public sealed class LessonRecommendation

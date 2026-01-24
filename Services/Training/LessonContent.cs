@@ -3149,6 +3149,224 @@ public static class VprLessons
 }
 
 /// <summary>
+/// MCH (Prometheus) lesson content - 7 lessons covering 25 concepts.
+/// </summary>
+public static class MchLessons
+{
+    public static readonly LessonDefinition Lesson1 = new()
+    {
+        LessonId = "mch.lesson_1",
+        JobPrefix = "mch",
+        Title = "Machinist Fundamentals",
+        LessonNumber = 1,
+        Description = "Learn the core principles of Machinist: the dual-gauge system of Heat and Battery, how they generate, and how they interact.",
+        Prerequisites = Array.Empty<string>(),
+        ConceptsCovered = new[]
+        {
+            MchConcepts.HeatGauge,
+            MchConcepts.BatteryGauge,
+            MchConcepts.GaugeInteractions,
+        },
+        KeyPoints = new[]
+        {
+            "Heat Gauge (0-100): Builds from weapon skill combos, spent on Hypercharge",
+            "Battery Gauge (0-100): Builds from tool abilities and combo finishers, spent on Automaton Queen",
+            "Heat and Battery are independent - manage both simultaneously",
+            "Never overcap either gauge - use resources before hitting 100",
+        },
+        RelatedAbilities = new[] { "Heated Split Shot", "Heated Slug Shot", "Heated Clean Shot", "Hypercharge", "Automaton Queen" },
+        Tips = new[]
+        {
+            "Watch both gauges constantly - they're your primary resource management",
+            "Heat builds faster from combos, Battery builds from finishers and tools",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson2 = new()
+    {
+        LessonId = "mch.lesson_2",
+        JobPrefix = "mch",
+        Title = "Tool Mastery",
+        LessonNumber = 2,
+        Description = "Master Machinist's high-priority tool abilities: Drill, Air Anchor, and Chain Saw - your highest potency GCDs.",
+        Prerequisites = new[] { "mch.lesson_1" },
+        ConceptsCovered = new[]
+        {
+            MchConcepts.DrillPriority,
+            MchConcepts.AirAnchorUsage,
+            MchConcepts.ChainSawUsage,
+            MchConcepts.ProcTracking,
+        },
+        KeyPoints = new[]
+        {
+            "Drill: 20s cooldown, 2 charges at level 98 - your highest potency single-target GCD",
+            "Air Anchor: 40s cooldown - grants +20 Battery on hit",
+            "Chain Saw: 60s cooldown - grants Excavator Ready proc",
+            "Excavator Ready: Use Excavator immediately after Chain Saw (free high-potency GCD)",
+        },
+        RelatedAbilities = new[] { "Drill", "Air Anchor", "Chain Saw", "Excavator", "Full Metal Field" },
+        Tips = new[]
+        {
+            "Tools have priority over combo GCDs - never let them overcap charges",
+            "Excavator Ready and Full Metal Machinist procs have 30s duration - don't drop them",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson3 = new()
+    {
+        LessonId = "mch.lesson_3",
+        JobPrefix = "mch",
+        Title = "Reassemble Optimization",
+        LessonNumber = 3,
+        Description = "Maximize damage with Reassemble: which tools to buff, charge management, and avoiding overcap.",
+        Prerequisites = new[] { "mch.lesson_2" },
+        ConceptsCovered = new[]
+        {
+            MchConcepts.ReassemblePriority,
+            MchConcepts.ReassembleCharges,
+            MchConcepts.GaugeOvercapping,
+        },
+        KeyPoints = new[]
+        {
+            "Reassemble: Guarantees critical direct hit on next weapon skill (55s cooldown, 2 charges)",
+            "Priority for Reassemble: Drill > Chain Saw > Air Anchor",
+            "Drill has 2 charges at level 98 - align Reassemble with Drill uses",
+            "Never hold Reassemble so long that you overcap charges",
+        },
+        RelatedAbilities = new[] { "Reassemble", "Drill", "Chain Saw", "Air Anchor" },
+        Tips = new[]
+        {
+            "Reassemble turns a ~600 potency tool into ~900+ effective potency",
+            "In burst windows, try to fit 2 Reassembled Drills with raid buffs",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson4 = new()
+    {
+        LessonId = "mch.lesson_4",
+        JobPrefix = "mch",
+        Title = "Hypercharge Windows",
+        LessonNumber = 4,
+        Description = "Execute the Hypercharge rotation perfectly: 50 Heat entry, Overheated state, Heat Blast spam, and oGCD weaving.",
+        Prerequisites = new[] { "mch.lesson_3" },
+        ConceptsCovered = new[]
+        {
+            MchConcepts.HyperchargeActivation,
+            MchConcepts.OverheatedState,
+            MchConcepts.HeatBlastRotation,
+            MchConcepts.OgcdWeaving,
+        },
+        KeyPoints = new[]
+        {
+            "Hypercharge costs 50 Heat, grants 10s Overheated status",
+            "During Overheated: Heat Blast has 1.5s recast (fires 5 Heat Blasts total)",
+            "Heat Blast generates 15 Gauge (total +75 Heat from full Hypercharge window)",
+            "Weave Gauss Round and Ricochet between Heat Blasts (single weave only)",
+        },
+        RelatedAbilities = new[] { "Hypercharge", "Heat Blast", "Gauss Round", "Ricochet" },
+        Tips = new[]
+        {
+            "Heat Blast's 1.5s recast only allows single weaving - never double weave",
+            "Pool Gauss Round and Ricochet charges before Hypercharge for maximum weaving",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson5 = new()
+    {
+        LessonId = "mch.lesson_5",
+        JobPrefix = "mch",
+        Title = "Wildfire Burst",
+        LessonNumber = 5,
+        Description = "Master the 120s Wildfire burst: proper placement before Hypercharge, alignment, and maximizing damage.",
+        Prerequisites = new[] { "mch.lesson_4" },
+        ConceptsCovered = new[]
+        {
+            MchConcepts.WildfirePlacement,
+            MchConcepts.WildfireAlignment,
+            MchConcepts.HyperchargeTiming,
+        },
+        KeyPoints = new[]
+        {
+            "Wildfire: 120s cooldown, 10s duration, explodes for damage based on weapon skills landed",
+            "Apply Wildfire BEFORE Hypercharge - it needs to be active during Heat Blasts",
+            "Optimal: Wildfire → Hypercharge → 5 Heat Blasts → Wildfire explodes for 6 hits",
+            "Wildfire counts weapon skills only (not oGCDs) - maximize GCDs during its window",
+        },
+        RelatedAbilities = new[] { "Wildfire", "Hypercharge", "Heat Blast", "Detonator" },
+        Tips = new[]
+        {
+            "Wildfire + Hypercharge is your primary burst - never desync them",
+            "If Wildfire is ready but Heat < 50, build heat quickly to not delay too long",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson6 = new()
+    {
+        LessonId = "mch.lesson_6",
+        JobPrefix = "mch",
+        Title = "Queen Management",
+        LessonNumber = 6,
+        Description = "Optimize Automaton Queen deployment: Battery accumulation, damage scaling, and burst alignment.",
+        Prerequisites = new[] { "mch.lesson_5" },
+        ConceptsCovered = new[]
+        {
+            MchConcepts.QueenSummoning,
+            MchConcepts.BatteryAccumulation,
+            MchConcepts.QueenDamageScaling,
+        },
+        KeyPoints = new[]
+        {
+            "Automaton Queen requires minimum 50 Battery to summon (but aim for 90-100)",
+            "Queen damage SCALES with Battery spent - 100 Battery = maximum damage",
+            "Queen attacks automatically, finishing with Pile Bunker and Crowned Collider",
+            "Summon Queen during raid buff windows for maximum value",
+        },
+        RelatedAbilities = new[] { "Automaton Queen", "Queen Overdrive", "Pile Bunker", "Crowned Collider" },
+        Tips = new[]
+        {
+            "At 100 Battery, summon Queen immediately to avoid overcapping",
+            "Queen has ~12s active time - summon early in buff windows",
+        },
+    };
+
+    public static readonly LessonDefinition Lesson7 = new()
+    {
+        LessonId = "mch.lesson_7",
+        JobPrefix = "mch",
+        Title = "Advanced Tactics",
+        LessonNumber = 7,
+        Description = "Synthesize all Machinist mechanics: party burst coordination, phase awareness, AoE decisions, and interrupt utility.",
+        Prerequisites = new[] { "mch.lesson_6" },
+        ConceptsCovered = new[]
+        {
+            MchConcepts.BurstPartySync,
+            MchConcepts.PhaseAwareness,
+            MchConcepts.AoeRotation,
+            MchConcepts.TargetCountThreshold,
+            MchConcepts.InterruptUsage,
+        },
+        KeyPoints = new[]
+        {
+            "Align Wildfire + Queen with party 2-minute raid buff windows",
+            "AoE threshold: Use AoE rotation at 3+ targets (Scattergun, Auto Crossbow, Bioblaster)",
+            "Auto Crossbow replaces Heat Blast during AoE Hypercharge",
+            "Head Graze is your interrupt - coordinate with party via IPC",
+        },
+        RelatedAbilities = new[] { "Scattergun", "Auto Crossbow", "Bioblaster", "Head Graze", "Flamethrower" },
+        Tips = new[]
+        {
+            "In dungeons, use Bioblaster on cooldown - it's free damage over time on groups",
+            "Flamethrower is a channeled AoE - use during large pulls when you can stand still",
+        },
+    };
+
+    public static readonly LessonDefinition[] AllLessons = new[]
+    {
+        Lesson1, Lesson2, Lesson3, Lesson4, Lesson5, Lesson6, Lesson7,
+    };
+}
+
+/// <summary>
 /// Helper class for accessing all lessons.
 /// </summary>
 public static class LessonRegistry
@@ -3177,6 +3395,8 @@ public static class LessonRegistry
             "mnk" => MnkLessons.AllLessons,
             "rpr" => RprLessons.AllLessons,
             "vpr" => VprLessons.AllLessons,
+            // Ranged Physical DPS
+            "mch" => MchLessons.AllLessons,
             _ => Array.Empty<LessonDefinition>(),
         };
     }
@@ -3216,6 +3436,7 @@ public static class LessonRegistry
             .Concat(MnkLessons.AllLessons)
             .Concat(RprLessons.AllLessons)
             .Concat(VprLessons.AllLessons)
+            .Concat(MchLessons.AllLessons)
             .ToArray();
     }
 }

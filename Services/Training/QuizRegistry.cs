@@ -94,6 +94,19 @@ public static class QuizRegistry
             QuizzesByLessonId[quiz.LessonId] = quiz;
             QuizzesById[quiz.QuizId] = quiz;
         }
+
+        foreach (var quiz in VprQuizzes.AllQuizzes)
+        {
+            QuizzesByLessonId[quiz.LessonId] = quiz;
+            QuizzesById[quiz.QuizId] = quiz;
+        }
+
+        // Register ranged physical DPS quizzes
+        foreach (var quiz in MchQuizzes.AllQuizzes)
+        {
+            QuizzesByLessonId[quiz.LessonId] = quiz;
+            QuizzesById[quiz.QuizId] = quiz;
+        }
     }
 
     /// <summary>
@@ -136,6 +149,8 @@ public static class QuizRegistry
             "mnk" => MnkQuizzes.AllQuizzes,
             "rpr" => RprQuizzes.AllQuizzes,
             "vpr" => VprQuizzes.AllQuizzes,
+            // Ranged Physical DPS
+            "mch" => MchQuizzes.AllQuizzes,
             _ => Array.Empty<QuizDefinition>(),
         };
     }
@@ -6263,6 +6278,444 @@ public static class VprQuizzes
                 Options = new[] { "Wait for boss to return", "Use Writhing Snap", "Use Sprint to close gap", "Do nothing" },
                 CorrectIndex = 1,
                 Explanation = "Writhing Snap is your ranged filler when you have no Rattling Coils. Use it during forced disengagement.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition[] AllQuizzes = new[]
+    {
+        Lesson1Quiz, Lesson2Quiz, Lesson3Quiz, Lesson4Quiz, Lesson5Quiz, Lesson6Quiz, Lesson7Quiz,
+    };
+}
+
+/// <summary>
+/// MCH (Prometheus) quiz content - 7 quizzes with 5 questions each.
+/// </summary>
+public static class MchQuizzes
+{
+    public static readonly QuizDefinition Lesson1Quiz = new()
+    {
+        QuizId = "mch.lesson_1.quiz",
+        LessonId = "mch.lesson_1",
+        Title = "Quiz: Machinist Fundamentals",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_1.q1",
+                ConceptId = MchConcepts.HeatGauge,
+                Scenario = "You complete a Heated Clean Shot combo finisher.",
+                Question = "What resource does this primarily build?",
+                Options = new[] { "Only Heat", "Only Battery", "Both Heat and Battery", "Neither - finishers don't build gauge" },
+                CorrectIndex = 2,
+                Explanation = "Combo finishers build both Heat (from the weapon skill) and Battery (+10 from Heated Clean Shot specifically).",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_1.q2",
+                ConceptId = MchConcepts.BatteryGauge,
+                Scenario = "Your Battery Gauge is at 95. You're about to use Air Anchor.",
+                Question = "What should you do first?",
+                Options = new[] { "Use Air Anchor immediately", "Summon Automaton Queen first", "Skip Air Anchor", "Wait for Battery to hit 100" },
+                CorrectIndex = 1,
+                Explanation = "Air Anchor grants +20 Battery. At 95, using it would overcap. Summon Queen first to spend the Battery.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_1.q3",
+                ConceptId = MchConcepts.GaugeInteractions,
+                Scenario = "You want to use both Hypercharge and Automaton Queen.",
+                Question = "Which gauges do these abilities consume?",
+                Options = new[] { "Both use Heat", "Both use Battery", "Hypercharge uses Heat, Queen uses Battery", "Hypercharge uses Battery, Queen uses Heat" },
+                CorrectIndex = 2,
+                Explanation = "Hypercharge costs 50 Heat. Automaton Queen costs 50-100 Battery. They use separate gauges.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_1.q4",
+                ConceptId = MchConcepts.HeatGauge,
+                Scenario = "Your Heat Gauge is at 100.",
+                Question = "What is the problem with this situation?",
+                Options = new[] { "Nothing - full gauge is good", "You're losing potential Heat generation", "Queen will automatically trigger", "Hypercharge will fail" },
+                CorrectIndex = 1,
+                Explanation = "At 100 Heat, any Heat you would generate from combos is wasted. Use Hypercharge to spend Heat before capping.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_1.q5",
+                ConceptId = MchConcepts.GaugeOvercapping,
+                Scenario = "Heat is at 85, Battery is at 90. Drill and Air Anchor are both available.",
+                Question = "What's the optimal order?",
+                Options = new[] { "Drill → Air Anchor", "Air Anchor → Drill", "Hypercharge first → then tools", "Summon Queen → Air Anchor → Drill" },
+                CorrectIndex = 3,
+                Explanation = "At 90 Battery, Air Anchor (+20) would overcap. Summon Queen first, then Air Anchor safely, then Drill.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson2Quiz = new()
+    {
+        QuizId = "mch.lesson_2.quiz",
+        LessonId = "mch.lesson_2",
+        Title = "Quiz: Tool Mastery",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_2.q1",
+                ConceptId = MchConcepts.DrillPriority,
+                Scenario = "Drill, Air Anchor, and Chain Saw are all available. Single target boss.",
+                Question = "Which has the highest potency priority?",
+                Options = new[] { "Air Anchor (best Battery)", "Chain Saw (longest cooldown)", "Drill (highest potency)", "All equal - use any" },
+                CorrectIndex = 2,
+                Explanation = "Drill has the highest base potency among tools. At level 98+, it has 2 charges making it extra valuable.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_2.q2",
+                ConceptId = MchConcepts.ChainSawUsage,
+                Scenario = "You just used Chain Saw.",
+                Question = "What proc do you have?",
+                Options = new[] { "Full Metal Machinist", "Excavator Ready", "Overheated", "Reassembled" },
+                CorrectIndex = 1,
+                Explanation = "Chain Saw grants Excavator Ready, allowing you to use Excavator as a follow-up high-potency GCD.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_2.q3",
+                ConceptId = MchConcepts.AirAnchorUsage,
+                Scenario = "Air Anchor is ready. Your Battery is at 40.",
+                Question = "What additional resource does Air Anchor provide?",
+                Options = new[] { "+10 Battery", "+20 Battery", "+50 Heat", "No additional resource" },
+                CorrectIndex = 1,
+                Explanation = "Air Anchor grants +20 Battery on hit, making it valuable for Automaton Queen generation.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_2.q4",
+                ConceptId = MchConcepts.ProcTracking,
+                Scenario = "You have Excavator Ready buff with 5 seconds remaining.",
+                Question = "What should you do?",
+                Options = new[] { "Wait for better timing", "Use Excavator immediately", "Use Drill instead", "Save it for burst" },
+                CorrectIndex = 1,
+                Explanation = "Excavator Ready only lasts 30s. With 5s remaining, use it immediately or lose the free high-potency GCD.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_2.q5",
+                ConceptId = MchConcepts.DrillPriority,
+                Scenario = "Drill has 2 charges at level 98. One charge is available, the other has 15s cooldown.",
+                Question = "Should you use the available Drill charge?",
+                Options = new[] { "No - save for burst window", "Yes - avoid overcapping charges", "Only with Reassemble", "Wait until both charges are full" },
+                CorrectIndex = 1,
+                Explanation = "With Drill having 2 charges, letting one sit while the other recharges means lost potential uses over the fight.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson3Quiz = new()
+    {
+        QuizId = "mch.lesson_3.quiz",
+        LessonId = "mch.lesson_3",
+        Title = "Quiz: Reassemble Optimization",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_3.q1",
+                ConceptId = MchConcepts.ReassemblePriority,
+                Scenario = "Reassemble is ready. Drill, Air Anchor, and Chain Saw are all available.",
+                Question = "Which ability should you Reassemble?",
+                Options = new[] { "Chain Saw (longest CD)", "Air Anchor (Battery bonus)", "Drill (highest potency)", "Any of them - all equal" },
+                CorrectIndex = 2,
+                Explanation = "Reassemble should be used on your highest potency tool. Drill has the highest base potency.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_3.q2",
+                ConceptId = MchConcepts.ReassembleCharges,
+                Scenario = "Reassemble has 2 charges with 55s recharge each. You have both charges available.",
+                Question = "What's the risk of holding both charges?",
+                Options = new[] { "Charges will expire", "You'll overcap charges as time passes", "Drill damage decreases", "No risk - hold for burst" },
+                CorrectIndex = 1,
+                Explanation = "With 2 charges max, holding both means the recharge timer is paused. Use charges to keep the recharge active.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_3.q3",
+                ConceptId = MchConcepts.GaugeOvercapping,
+                Scenario = "Heat is at 95. Drill is ready with Reassemble.",
+                Question = "Should you Reassemble + Drill?",
+                Options = new[] { "Yes - Drill priority is highest", "No - Hypercharge first to spend Heat", "Only during raid buffs", "Drill doesn't affect Heat" },
+                CorrectIndex = 0,
+                Explanation = "Drill doesn't generate Heat directly. At 95 Heat, you can safely Reassemble + Drill, then Hypercharge after.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_3.q4",
+                ConceptId = MchConcepts.ReassemblePriority,
+                Scenario = "Raid buffs are active. You have Reassemble and Chain Saw available. Drill has 8 seconds on cooldown.",
+                Question = "Should you Reassemble Chain Saw now?",
+                Options = new[] { "Yes - catch the raid buffs", "No - wait for Drill", "Yes - Chain Saw is higher priority", "Use Reassemble on Auto Crossbow" },
+                CorrectIndex = 0,
+                Explanation = "With raid buffs active, Reassemble + Chain Saw now is better than waiting and potentially missing buffs.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_3.q5",
+                ConceptId = MchConcepts.ReassembleCharges,
+                Scenario = "Burst window in 60 seconds. You have 2 Reassemble charges and Drill available.",
+                Question = "What should you do?",
+                Options = new[] { "Hold both for burst", "Use one now, save one for burst", "Use both now", "Reassemble doesn't matter for burst" },
+                CorrectIndex = 1,
+                Explanation = "Use one Reassemble now to start the recharge timer. By burst window, you'll have 1 recharged + 1 saved = 2 available.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson4Quiz = new()
+    {
+        QuizId = "mch.lesson_4.quiz",
+        LessonId = "mch.lesson_4",
+        Title = "Quiz: Hypercharge Windows",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_4.q1",
+                ConceptId = MchConcepts.HyperchargeActivation,
+                Scenario = "Your Heat is at 50. Hypercharge is available.",
+                Question = "How much Heat does Hypercharge cost?",
+                Options = new[] { "25 Heat", "50 Heat", "75 Heat", "100 Heat" },
+                CorrectIndex = 1,
+                Explanation = "Hypercharge costs exactly 50 Heat to activate, granting the 10s Overheated status.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_4.q2",
+                ConceptId = MchConcepts.HeatBlastRotation,
+                Scenario = "You just activated Hypercharge and are Overheated.",
+                Question = "How many Heat Blasts can you fit in the 10s window?",
+                Options = new[] { "3 Heat Blasts", "4 Heat Blasts", "5 Heat Blasts", "6 Heat Blasts" },
+                CorrectIndex = 2,
+                Explanation = "Heat Blast has a 1.5s recast during Overheated. In 10 seconds, you can fit exactly 5 Heat Blasts.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_4.q3",
+                ConceptId = MchConcepts.OgcdWeaving,
+                Scenario = "You just used Heat Blast. Gauss Round and Ricochet are both available.",
+                Question = "How should you weave oGCDs during Hypercharge?",
+                Options = new[] { "Double weave both", "Single weave one at a time", "Save them for after Hypercharge", "Don't weave - just Heat Blast" },
+                CorrectIndex = 1,
+                Explanation = "Heat Blast's 1.5s recast only allows single weaving. Alternate Gauss Round and Ricochet between Heat Blasts.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_4.q4",
+                ConceptId = MchConcepts.OverheatedState,
+                Scenario = "You're in the middle of Hypercharge. Drill just came off cooldown.",
+                Question = "Should you use Drill during Hypercharge?",
+                Options = new[] { "Yes - Drill is higher priority", "No - continue Heat Blast spam", "Only with Reassemble", "Use it between Heat Blasts" },
+                CorrectIndex = 1,
+                Explanation = "During Hypercharge, Heat Blast is your GCD of choice. Using Drill would waste Heat Blast opportunities.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_4.q5",
+                ConceptId = MchConcepts.HyperchargeTiming,
+                Scenario = "Heat is at 50. Drill comes off cooldown in 3 seconds. Hypercharge is ready.",
+                Question = "What should you do?",
+                Options = new[] { "Hypercharge immediately", "Wait for Drill, use it, then Hypercharge", "Use Drill during Hypercharge", "Skip Hypercharge this cycle" },
+                CorrectIndex = 1,
+                Explanation = "Wait for Drill (high potency tool), use it, then Hypercharge. This avoids Drill competing with Heat Blast time.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson5Quiz = new()
+    {
+        QuizId = "mch.lesson_5.quiz",
+        LessonId = "mch.lesson_5",
+        Title = "Quiz: Wildfire Burst",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_5.q1",
+                ConceptId = MchConcepts.WildfirePlacement,
+                Scenario = "Wildfire is ready. Heat is at 50. You're about to burst.",
+                Question = "When should you apply Wildfire relative to Hypercharge?",
+                Options = new[] { "After Hypercharge ends", "During Hypercharge", "Before Hypercharge", "It doesn't matter" },
+                CorrectIndex = 2,
+                Explanation = "Apply Wildfire BEFORE Hypercharge so its 10s duration covers all 5 Heat Blasts for maximum damage.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_5.q2",
+                ConceptId = MchConcepts.WildfireAlignment,
+                Scenario = "Wildfire counts weapon skills landed during its 10s duration.",
+                Question = "How many hits can an optimal Wildfire capture?",
+                Options = new[] { "4 hits", "5 hits (Heat Blasts only)", "6 hits (5 Heat Blasts + 1 GCD)", "10 hits" },
+                CorrectIndex = 2,
+                Explanation = "Optimal Wildfire: 1 GCD before Hypercharge + 5 Heat Blasts = 6 weapon skill hits for maximum explosion damage.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_5.q3",
+                ConceptId = MchConcepts.HyperchargeTiming,
+                Scenario = "Wildfire has 120s cooldown. Party raid buffs align at 2 minutes.",
+                Question = "How do these abilities naturally align?",
+                Options = new[] { "They don't - Wildfire is off by 60s", "Wildfire aligns with every other buff window", "Perfect alignment - both 2 minutes", "Wildfire is faster, use twice per window" },
+                CorrectIndex = 2,
+                Explanation = "Wildfire (120s) naturally aligns with 2-minute party raid buffs. Always pair them for maximum damage.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_5.q4",
+                ConceptId = MchConcepts.WildfirePlacement,
+                Scenario = "Wildfire is ready but your Heat is only at 30. Raid buffs just went out.",
+                Question = "What should you do?",
+                Options = new[] { "Skip this Wildfire window", "Wildfire without Hypercharge", "Build Heat quickly, then Wildfire + Hypercharge", "Wait for next buff window" },
+                CorrectIndex = 2,
+                Explanation = "Build Heat quickly with your combo. A slightly delayed Wildfire + Hypercharge in buffs is better than skipping entirely.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_5.q5",
+                ConceptId = MchConcepts.WildfireAlignment,
+                Scenario = "The boss will jump away in 8 seconds. Wildfire and Hypercharge are ready.",
+                Question = "Should you burst now?",
+                Options = new[] { "No - not enough time for full window", "Yes - you have just enough time", "Only Wildfire, skip Hypercharge", "Save for after the jump" },
+                CorrectIndex = 1,
+                Explanation = "Hypercharge window is ~8s (5 Heat Blasts at 1.5s each). You have just enough time to complete the burst.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson6Quiz = new()
+    {
+        QuizId = "mch.lesson_6.quiz",
+        LessonId = "mch.lesson_6",
+        Title = "Quiz: Queen Management",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_6.q1",
+                ConceptId = MchConcepts.QueenSummoning,
+                Scenario = "Your Battery is at 60. Raid buffs are going out.",
+                Question = "Should you summon Queen now or wait for 100 Battery?",
+                Options = new[] { "Summon now - catch raid buffs", "Wait for 100 - maximize Queen damage", "Never summon below 90", "Battery doesn't affect Queen damage" },
+                CorrectIndex = 0,
+                Explanation = "Queen damage scales with Battery, but catching raid buffs at 60 Battery often beats a 100 Battery Queen outside buffs.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_6.q2",
+                ConceptId = MchConcepts.QueenDamageScaling,
+                Scenario = "You summon Automaton Queen at 50 Battery vs 100 Battery.",
+                Question = "How does the damage compare?",
+                Options = new[] { "Same damage regardless", "50 Battery Queen deals half damage", "50 Battery Queen deals ~60% damage", "50 Battery Queen deals no damage" },
+                CorrectIndex = 1,
+                Explanation = "Queen damage scales linearly with Battery spent. 50 Battery = 50% of maximum Queen damage.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_6.q3",
+                ConceptId = MchConcepts.BatteryAccumulation,
+                Scenario = "You have 100 Battery. No raid buffs are coming for 30 seconds.",
+                Question = "What should you do?",
+                Options = new[] { "Wait for raid buffs", "Summon Queen immediately", "Only use Queen during burst", "Let Battery overcap - it's fine" },
+                CorrectIndex = 1,
+                Explanation = "At 100 Battery, any further Battery generation is wasted. Summon Queen to resume generating Battery.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_6.q4",
+                ConceptId = MchConcepts.QueenSummoning,
+                Scenario = "Queen Overdrive is available. Queen is mid-attack sequence.",
+                Question = "When should you use Queen Overdrive?",
+                Options = new[] { "Immediately for extra damage", "Let Queen finish naturally", "Only during raid buffs", "Queen Overdrive cancels Queen" },
+                CorrectIndex = 1,
+                Explanation = "Queen naturally finishes with Pile Bunker and Crowned Collider. Overdrive forces an early end - let her finish.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_6.q5",
+                ConceptId = MchConcepts.BatteryAccumulation,
+                Scenario = "Battery is at 90. Air Anchor is ready. Raid buffs start in 5 seconds.",
+                Question = "What's the optimal play?",
+                Options = new[] { "Air Anchor → Queen during buffs", "Queen now → Air Anchor", "Skip Air Anchor", "Queen now → skip Air Anchor until after buffs" },
+                CorrectIndex = 0,
+                Explanation = "Air Anchor (+20 Battery) caps you at 100. Then summon 100 Battery Queen when raid buffs go out for maximum damage.",
+            },
+        },
+    };
+
+    public static readonly QuizDefinition Lesson7Quiz = new()
+    {
+        QuizId = "mch.lesson_7.quiz",
+        LessonId = "mch.lesson_7",
+        Title = "Quiz: Advanced Tactics",
+        PassingScore = 4,
+        Questions = new[]
+        {
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_7.q1",
+                ConceptId = MchConcepts.BurstPartySync,
+                Scenario = "It's 1:55 into the fight. Wildfire and full resources are ready.",
+                Question = "What should you do?",
+                Options = new[] { "Burst immediately", "Wait ~5s for 2-minute party buffs", "Save for the next window", "Only use Queen now" },
+                CorrectIndex = 1,
+                Explanation = "2-minute party buffs align around 2:00. Wait a few seconds to align Wildfire + Queen with party buffs.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_7.q2",
+                ConceptId = MchConcepts.AoeRotation,
+                Scenario = "You're facing 4 enemies in a dungeon pull.",
+                Question = "Which GCD rotation should you use?",
+                Options = new[] { "Single-target combo for focus fire", "Scattergun combo + Bioblaster", "Only Heat Blast spam", "Auto Crossbow without Hypercharge" },
+                CorrectIndex = 1,
+                Explanation = "At 3+ targets, use the AoE rotation: Scattergun combo for gauge building, Bioblaster for DoT damage.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_7.q3",
+                ConceptId = MchConcepts.TargetCountThreshold,
+                Scenario = "2 enemies are present. One at 80% HP, one at 30% HP.",
+                Question = "Which rotation should you use?",
+                Options = new[] { "AoE rotation on both", "Single-target on low HP enemy", "Single-target on high HP enemy", "Alternate between them" },
+                CorrectIndex = 1,
+                Explanation = "MCH AoE threshold is 3+ targets. At 2, single-target the low HP enemy to eliminate it faster.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_7.q4",
+                ConceptId = MchConcepts.PhaseAwareness,
+                Scenario = "Boss becomes untargetable in 20 seconds. You have 80 Heat and 100 Battery.",
+                Question = "What should you prioritize?",
+                Options = new[] { "Save resources for after", "Wildfire + Hypercharge + Queen now", "Only spend Battery", "Only spend Heat" },
+                CorrectIndex = 1,
+                Explanation = "Dump all resources before the phase transition. Wildfire + Hypercharge uses Heat, Queen uses Battery.",
+            },
+            new QuizQuestion
+            {
+                QuestionId = "mch.lesson_7.q5",
+                ConceptId = MchConcepts.InterruptUsage,
+                Scenario = "An enemy is casting a dangerous ability. Head Graze is available. The cast bar is interruptible.",
+                Question = "Should you interrupt?",
+                Options = new[] { "Yes - use Head Graze immediately", "No - DPS loss", "Only if no one else can", "Check IPC for interrupt coordination first" },
+                CorrectIndex = 3,
+                Explanation = "Olympus coordinates interrupts via IPC. Check if another player already interrupted to avoid wasted Head Grazes.",
             },
         },
     };
