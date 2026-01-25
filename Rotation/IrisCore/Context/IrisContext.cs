@@ -14,6 +14,7 @@ using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 using static Olympus.Data.PCTActions;
 
@@ -47,6 +48,7 @@ public sealed class IrisContext : IIrisContext
     public ITargetingService TargetingService { get; }
     public ITimelineService? TimelineService { get; }
     public IPartyCoordinationService? PartyCoordinationService { get; }
+    public ITrainingService? TrainingService { get; }
 
     public IObjectTable ObjectTable { get; }
     public IPartyList PartyList { get; }
@@ -184,7 +186,8 @@ public sealed class IrisContext : IIrisContext
         float comboTimer,
         ITimelineService? timelineService = null,
         IPluginLog? log = null,
-        IPartyCoordinationService? partyCoordinationService = null)
+        IPartyCoordinationService? partyCoordinationService = null,
+        ITrainingService? trainingService = null)
     {
         Player = player;
         InCombat = inCombat;
@@ -205,6 +208,7 @@ public sealed class IrisContext : IIrisContext
         TargetingService = targetingService;
         TimelineService = timelineService;
         PartyCoordinationService = partyCoordinationService;
+        TrainingService = trainingService;
         ObjectTable = objectTable;
         PartyList = partyList;
         Log = log;

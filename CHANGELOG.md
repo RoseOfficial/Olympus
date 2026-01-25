@@ -3,6 +3,36 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.48.0 - Iris (PCT) Training Mode
+
+**Full Pictomancer Training Mode Integration**
+- Iris (PCT) rotation now records all training decisions with detailed explanations
+- Live coaching shows why each ability was used with factors considered and alternatives rejected
+- Fourth and final caster DPS with complete Training Mode integration
+- **All 21 combat jobs now have Training Mode integration**
+
+**BuffModule Decisions**
+- Portraits (Mog/Madeen): High burst damage from creature summons
+- Starry Muse: 2-minute raid buff timing and party coordination
+- Living Muse: Creature summon charges building toward portraits
+- Striking Muse: Hammer Time enabler for instant combo
+- Subtractive Palette: Enhanced combo activation at 50+ gauge
+- Lucid Dreaming: MP recovery at 70% threshold
+
+**DamageModule Decisions**
+- Star Prism: Highest potency finisher during Starstruck buff
+- Rainbow Drip: Instant with proc vs hardcast during burst
+- Hammer Combo: 3-step instant burst (Stamp → Brush → Polish)
+- Comet in Black: Black Paint spender for high damage
+- Holy in White: White Paint for movement and overcap prevention
+- Subtractive Combo: Enhanced damage combo (Cyan → Yellow → Magenta)
+- Base Combo: Standard filler rotation (Red → Green → Blue)
+- Prepaint Motifs: Canvas preparation priority (Landscape > Creature > Weapon)
+
+**Concept Mastery**
+- All 25 PCT concepts tracked including Palette Gauge, paint management, canvas system, muse abilities, and burst windows
+<!-- LATEST-END -->
+
 ## v3.47.0 - Circe (RDM) Training Mode
 
 **Full Red Mage Training Mode Integration**
@@ -44,7 +74,6 @@ All notable changes to Olympus will be documented in this file.
 
 **Concept Mastery**
 - All 25 RDM concepts tracked including mana balance, Dualcast, procs, melee combo, finishers, and burst windows
-<!-- LATEST-END -->
 
 ## v3.46.0 - Persephone (SMN) Training Mode
 

@@ -1,6 +1,8 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.IrisCore.Context;
+using Olympus.Services.Training;
 using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.IrisCore.Modules;
@@ -110,6 +112,24 @@ public sealed class BuffModule : IIrisModule
             {
                 context.Debug.PlannedAction = PCTActions.RetributionOfTheMadeen.Name;
                 context.Debug.BuffState = "Madeen";
+
+                // Training Mode integration
+                CasterTrainingHelper.RecordBurstDecision(
+                    context.TrainingService,
+                    PCTActions.RetributionOfTheMadeen.ActionId,
+                    PCTActions.RetributionOfTheMadeen.Name,
+                    target.Name?.TextValue,
+                    "Madeen - high damage portrait",
+                    "Retribution of the Madeen is your most powerful portrait ability, available after " +
+                    "summoning 4 Living Muses. Use it immediately when ready for massive burst damage.",
+                    new[] { $"Palette Gauge: {context.PaletteGauge}", context.IsInBurstWindow ? "In burst window" : "Outside burst",
+                            $"Muse Charges: {context.LivingMuseCharges}" },
+                    new[] { "Hold for burst window", "Wait for Mog" },
+                    "Use Madeen immediately when it becomes available - it's your highest damage oGCD.",
+                    PctConcepts.CreatureMotifs);
+
+                context.TrainingService?.RecordConceptApplication(PctConcepts.CreatureMotifs, true, "Madeen portrait used");
+
                 return true;
             }
         }
@@ -121,6 +141,24 @@ public sealed class BuffModule : IIrisModule
             {
                 context.Debug.PlannedAction = PCTActions.MogOfTheAges.Name;
                 context.Debug.BuffState = "Mog";
+
+                // Training Mode integration
+                CasterTrainingHelper.RecordBurstDecision(
+                    context.TrainingService,
+                    PCTActions.MogOfTheAges.ActionId,
+                    PCTActions.MogOfTheAges.Name,
+                    target.Name?.TextValue,
+                    "Mog - portrait ability",
+                    "Mog of the Ages becomes available after summoning 2 Living Muses. Use it immediately " +
+                    "when ready as it's high burst damage. Building toward Madeen requires 2 more Muses.",
+                    new[] { $"Palette Gauge: {context.PaletteGauge}", context.IsInBurstWindow ? "In burst window" : "Outside burst",
+                            $"Muse Charges: {context.LivingMuseCharges}" },
+                    new[] { "Hold for burst window", "Wait for more enemies" },
+                    "Use Mog immediately when ready. It builds toward Madeen for even more damage.",
+                    PctConcepts.CreatureMotifs);
+
+                context.TrainingService?.RecordConceptApplication(PctConcepts.CreatureMotifs, true, "Mog portrait used");
+
                 return true;
             }
         }
@@ -191,6 +229,22 @@ public sealed class BuffModule : IIrisModule
             // Notify coordination service that we used the raid buff
             partyCoord?.OnRaidBuffUsed(PCTActions.StarryMuse.ActionId, 120_000);
 
+            // Training Mode integration
+            CasterTrainingHelper.RecordRaidBuffDecision(
+                context.TrainingService,
+                PCTActions.StarryMuse.ActionId,
+                PCTActions.StarryMuse.Name,
+                "Starry Muse - party damage buff",
+                "Starry Muse is your 2-minute raid buff that increases damage for you and your party. " +
+                "It requires a painted Landscape (Starry Sky) canvas and grants Hyperphantasia stacks.",
+                new[] { $"Landscape Canvas: Ready", $"Palette Gauge: {context.PaletteGauge}",
+                        partyCoord != null ? "Party coordination active" : "Solo mode" },
+                new[] { "Hold for phase transition", "Wait for party buffs" },
+                "Align Starry Muse with other raid buffs when possible. Always paint Landscape before burst.",
+                PctConcepts.StarryMuseBurst);
+
+            context.TrainingService?.RecordConceptApplication(PctConcepts.StarryMuseBurst, true, "Raid buff activated");
+
             return true;
         }
 
@@ -225,6 +279,24 @@ public sealed class BuffModule : IIrisModule
         {
             context.Debug.PlannedAction = museAction.Name;
             context.Debug.BuffState = $"Living Muse ({context.LivingMuseCharges - 1} charges)";
+
+            // Training Mode integration
+            CasterTrainingHelper.RecordDamageDecision(
+                context.TrainingService,
+                museAction.ActionId,
+                museAction.Name,
+                target.Name?.TextValue,
+                "Living Muse - creature summon",
+                $"Living Muse summons your painted creature ({context.CreatureMotifType}) to deal damage. " +
+                "It has 2 charges and builds toward portrait abilities (Mog after 2, Madeen after 4).",
+                new[] { $"Creature Type: {context.CreatureMotifType}", $"Charges: {context.LivingMuseCharges}",
+                        context.IsInBurstWindow ? "In burst window" : "Outside burst" },
+                new[] { "Hold charges for burst", "Wait for portrait ready" },
+                "Don't cap on Living Muse charges. Each summon builds toward portraits.",
+                PctConcepts.LivingMuse);
+
+            context.TrainingService?.RecordConceptApplication(PctConcepts.LivingMuse, true, "Living Muse summoned");
+
             return true;
         }
 
@@ -257,6 +329,24 @@ public sealed class BuffModule : IIrisModule
         {
             context.Debug.PlannedAction = PCTActions.StrikingMuse.Name;
             context.Debug.BuffState = "Striking Muse";
+
+            // Training Mode integration
+            CasterTrainingHelper.RecordDamageDecision(
+                context.TrainingService,
+                PCTActions.StrikingMuse.ActionId,
+                PCTActions.StrikingMuse.Name,
+                null,
+                "Striking Muse - hammer combo enabler",
+                "Striking Muse consumes your painted Weapon (Hammer) canvas and grants Hammer Time, " +
+                "enabling the powerful hammer combo (Stamp → Brush → Polish). All hammer hits are instant.",
+                new[] { "Weapon Canvas: Ready", $"Palette Gauge: {context.PaletteGauge}",
+                        context.IsInBurstWindow ? "In burst window" : "Outside burst" },
+                new[] { "Hold for burst window", "Wait for better timing" },
+                "Use Striking Muse when Hammer canvas is ready. The hammer combo is high damage and instant.",
+                PctConcepts.StrikingMuse);
+
+            context.TrainingService?.RecordConceptApplication(PctConcepts.StrikingMuse, true, "Hammer Time activated");
+
             return true;
         }
 
@@ -297,6 +387,25 @@ public sealed class BuffModule : IIrisModule
         {
             context.Debug.PlannedAction = PCTActions.SubtractivePalette.Name;
             context.Debug.BuffState = "Subtractive Palette";
+
+            // Training Mode integration
+            CasterTrainingHelper.RecordResourceDecision(
+                context.TrainingService,
+                PCTActions.SubtractivePalette.ActionId,
+                PCTActions.SubtractivePalette.Name,
+                "Palette Gauge",
+                context.PaletteGauge,
+                "Subtractive Palette - enhanced combo",
+                "Subtractive Palette consumes 50 Palette Gauge to enable the subtractive combo " +
+                "(Cyan → Yellow → Magenta). This is higher damage than the base combo. Don't overcap gauge.",
+                new[] { $"Palette Gauge: {context.PaletteGauge}", context.IsInBurstWindow ? "In burst (use now)" : "Outside burst",
+                        context.PaletteGauge >= 75 ? "Overcap risk" : "Gauge healthy" },
+                new[] { "Hold for burst window", "Use base combo instead" },
+                "Use Subtractive Palette at 50+ gauge during burst. At 75+ gauge, use immediately to prevent waste.",
+                PctConcepts.SubtractivePalette);
+
+            context.TrainingService?.RecordConceptApplication(PctConcepts.SubtractivePalette, true, "Subtractive combo enabled");
+
             return true;
         }
 
@@ -322,6 +431,23 @@ public sealed class BuffModule : IIrisModule
         {
             context.Debug.PlannedAction = PCTActions.LucidDreaming.Name;
             context.Debug.BuffState = "Lucid Dreaming (MP)";
+
+            // Training Mode integration
+            CasterTrainingHelper.RecordResourceDecision(
+                context.TrainingService,
+                PCTActions.LucidDreaming.ActionId,
+                PCTActions.LucidDreaming.Name,
+                "MP",
+                context.CurrentMp,
+                "Lucid Dreaming - MP recovery",
+                "Lucid Dreaming restores MP over time. Use when below 70% MP to avoid running out " +
+                "during long fights. Pictomancer uses moderate MP but needs management.",
+                new[] { $"Current MP: {context.CurrentMp}", $"MP%: {context.MpPercent:P0}",
+                        $"Palette Gauge: {context.PaletteGauge}" },
+                new[] { "Wait for lower MP", "Ignore if fight ending" },
+                "Use Lucid Dreaming proactively around 70% MP - don't wait until you're empty.",
+                PctConcepts.PaletteGauge);
+
             return true;
         }
 

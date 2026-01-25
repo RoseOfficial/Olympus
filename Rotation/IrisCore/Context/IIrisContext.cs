@@ -1,6 +1,7 @@
 using Olympus.Rotation.Common;
 using Olympus.Rotation.IrisCore.Helpers;
 using Olympus.Services.Party;
+using Olympus.Services.Training;
 using static Olympus.Data.PCTActions;
 
 namespace Olympus.Rotation.IrisCore.Context;
@@ -305,6 +306,15 @@ public interface IIrisContext : ICasterDpsRotationContext
     /// Null if party coordination is disabled or unavailable.
     /// </summary>
     IPartyCoordinationService? PartyCoordinationService { get; }
+
+    #endregion
+
+    #region Training
+
+    /// <summary>
+    /// Training service for decision explanations.
+    /// </summary>
+    ITrainingService? TrainingService { get; }
 
     #endregion
 }
