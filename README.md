@@ -6,9 +6,18 @@
 ![Last Commit](https://img.shields.io/github/last-commit/RoseOfficial/Olympus)
 ![C#](https://img.shields.io/github/languages/top/RoseOfficial/Olympus)
 
-An intelligent rotation assistant for FFXIV that handles healing, damage, mitigation, and resource management with full level-sync awareness.
+An intelligent rotation assistant for FFXIV that goes beyond automation. Olympus provides **intelligent decision-making** through fight prediction, party coordination, performance analytics, and an integrated training system to help you master your job.
 
-## Supported Jobs
+## What Makes Olympus Different
+
+| Feature | Description |
+|---------|-------------|
+| **Fight Awareness** | Timeline integration predicts raidwides and tankbusters before they happen |
+| **Party Coordination** | Multiple Olympus users coordinate heals, mitigations, and burst windows via IPC |
+| **Training Mode** | Learn *why* abilities are chosen with real-time explanations and skill tracking |
+| **Performance Analytics** | Track GCD uptime, cooldown efficiency, and compare against FFLogs |
+
+## Supported Jobs (21/21)
 
 | Role | Jobs | Status |
 |------|------|--------|
@@ -18,123 +27,119 @@ An intelligent rotation assistant for FFXIV that handles healing, damage, mitiga
 | **Ranged Physical** | Bard, Machinist, Dancer | ✅ Complete |
 | **Casters** | Black Mage, Summoner, Red Mage, Pictomancer | ✅ Complete |
 
-## Features
+## Core Features
 
-### Healers
-- HP prediction to prevent overhealing
-- AoE damage detection with configurable thresholds
-- Lily/Aetherflow/Seal/Addersgall resource management
-- Priority-based debuff cleansing (Esuna)
-- Automatic resurrection with Swiftcast
+### Intelligent Rotation
+- **Level-sync awareness** - Abilities adjust to your current level
+- **Resource management** - Lily, Aetherflow, Kenki, Heat, and all job gauges
+- **oGCD weaving** - Optimal ability timing without clipping
+- **Positional optimization** - Rear/flank awareness for melee DPS
+- **Proc tracking** - Never waste a proc or let buffs fall off
 
-### Tanks
-- Intelligent mitigation rotation
-- Cooldown stacking prevention
-- Invulnerability timing (Hallowed Ground, Holmgang, Living Dead, Superbolide)
-- Self-healing optimization (Equilibrium, Abyssal Drain, Aurora)
-- Threat generation and AoE management
+### Fight Timeline Integration
+- **Raidwide prediction** - Pre-shield and pre-heal before damage hits
+- **Tankbuster awareness** - Mitigations timed for incoming hits
+- **Phase tracking** - Adapts to fight phases and mechanics
+- **Arcadion Savage support** - Full timeline data for current tier
 
-### Melee DPS
-- Positional optimization (rear/flank awareness)
-- Burst window management
-- Combo tracking and resource management
-- oGCD weaving optimization
+### Party Coordination (IPC)
+When multiple party members use Olympus, they coordinate automatically:
 
-### Ranged Physical DPS
-- Song/Dance rotation management
-- Proc tracking and optimization
-- Party buff coordination
-- DoT maintenance and refresh timing
-
-### Casters
-- Cast optimization and movement planning
-- Mana management and resource pooling
-- Enochian/Astral/Umbral state tracking
-- Proc usage and priority management
+| Coordination Type | What It Does |
+|-------------------|--------------|
+| **Heal Coordination** | Prevents double-healing the same target |
+| **AOE Heal Sync** | Staggers party heals to avoid overlap |
+| **Mitigation Stacking** | Prevents wasting Divine Veil + Temperance together |
+| **Raise Coordination** | Only one healer raises each dead player |
+| **Burst Windows** | DPS align raid buffs for maximum damage |
+| **Tank Swaps** | Coordinated Provoke/Shirk sequences |
+| **Interrupt Priority** | One player per interruptible cast |
 
 ### Performance Analytics
-- Real-time GCD uptime tracking
-- Post-fight performance scoring with letter grades
-- Downtime analysis breakdown (movement, death, mechanics, unexplained)
-- Cooldown efficiency and drift tracking
-- Session history with trend analysis
-- Actionable improvement suggestions
+- **Real-time metrics** - GCD uptime, deaths, near-deaths during combat
+- **Post-fight scoring** - Letter grades (S/A/B/C/D) with breakdown
+- **Downtime analysis** - Categorizes lost GCDs (movement, death, mechanics)
+- **Cooldown tracking** - Drift detection and missed opportunity alerts
+- **Session history** - Track improvement over multiple fights
+- **FFLogs integration** - Compare your performance to community parses
+
+### Training Mode
+Transform from passenger to pilot with intelligent coaching:
+
+| Feature | Description |
+|---------|-------------|
+| **Live Explanations** | See *why* each ability is chosen in real-time |
+| **525+ Concepts** | Job-specific knowledge across all 21 jobs |
+| **147 Lessons** | Progressive learning from basics to optimization |
+| **147 Quizzes** | Validate understanding with scenario questions |
+| **Skill Detection** | Auto-detects Beginner/Intermediate/Advanced level |
+| **Concept Mastery** | Tracks successful application in combat |
+| **Adaptive Detail** | Explanations adjust to your skill level |
 
 ## Installation
 
-### Requirements
-- FFXIV with Dalamud installed
-- XIVLauncher with addon hooks
-
 ### Custom Repository (Recommended)
-1. Open the Dalamud Plugin Installer in-game
+1. Open Dalamud Plugin Installer in-game
 2. Go to **Settings** (gear icon) → **Experimental**
 3. Under "Custom Plugin Repositories", add:
    ```
    https://raw.githubusercontent.com/RoseOfficial/Olympus/main/repo.json
    ```
 4. Click **Save and Close**
-5. Search for "Olympus" in the plugin installer and install
+5. Search for "Olympus" and install
 
-Updates will be delivered automatically through the plugin installer.
+Updates are delivered automatically.
 
 ### Manual Installation
-1. Download `Olympus.zip` from the [Releases](https://github.com/RoseOfficial/Olympus/releases) page
+1. Download `Olympus.zip` from [Releases](https://github.com/RoseOfficial/Olympus/releases)
 2. Extract to `%APPDATA%\XIVLauncher\installedPlugins\Olympus\`
-3. Reload plugins in Dalamud settings or restart the game
+3. Reload plugins or restart the game
 
 ## Quick Start
 
-1. Open the main window with `/olympus`
-2. Click **Enable** to activate the rotation
+1. `/olympus` - Open the main window
+2. Click **Enable** to activate
 3. Enter combat on any supported job
-4. Click **Settings** to customize behavior
+4. Open **Training** to learn as you play
+5. Open **Analytics** to track performance
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `/olympus` | Open the main status window |
-| `/olympus toggle` | Enable/disable the rotation |
-| `/olympus debug` | Open the debug window |
+| `/olympus` | Open main window |
+| `/olympus toggle` | Enable/disable rotation |
+| `/olympus debug` | Open debug window |
 
 ## Job Modules
 
-Each rotation is named after a Greek deity matching the job's theme:
+Each rotation is named after a Greek deity:
 
-| Role | Job | Module |
-|------|-----|--------|
-| Healer | White Mage | Apollo |
-| Healer | Scholar | Athena |
-| Healer | Astrologian | Astraea |
-| Healer | Sage | Asclepius |
-| Tank | Paladin | Themis |
-| Tank | Warrior | Ares |
-| Tank | Dark Knight | Nyx |
-| Tank | Gunbreaker | Hephaestus |
-| Melee | Monk | Kratos |
-| Melee | Dragoon | Zeus |
-| Melee | Ninja | Hermes |
-| Melee | Samurai | Nike |
-| Melee | Reaper | Thanatos |
-| Melee | Viper | Echidna |
-| Ranged | Bard | Calliope |
-| Ranged | Machinist | Prometheus |
-| Ranged | Dancer | Terpsichore |
-| Caster | Black Mage | Hecate |
-| Caster | Summoner | Persephone |
-| Caster | Red Mage | Circe |
-| Caster | Pictomancer | Iris |
+| Role | Job | Module | Role | Job | Module |
+|------|-----|--------|------|-----|--------|
+| Healer | White Mage | Apollo | Melee | Reaper | Thanatos |
+| Healer | Scholar | Athena | Melee | Viper | Echidna |
+| Healer | Astrologian | Astraea | Ranged | Bard | Calliope |
+| Healer | Sage | Asclepius | Ranged | Machinist | Prometheus |
+| Tank | Paladin | Themis | Ranged | Dancer | Terpsichore |
+| Tank | Warrior | Ares | Caster | Black Mage | Hecate |
+| Tank | Dark Knight | Nyx | Caster | Summoner | Persephone |
+| Tank | Gunbreaker | Hephaestus | Caster | Red Mage | Circe |
+| Melee | Monk | Kratos | Caster | Pictomancer | Iris |
+| Melee | Dragoon | Zeus | | | |
+| Melee | Ninja | Hermes | | | |
+| Melee | Samurai | Nike | | | |
 
-## Roadmap
+## Development Phases
 
-- ✅ All Healers (4/4)
-- ✅ All Tanks (4/4)
-- ✅ All Melee DPS (6/6)
-- ✅ All Ranged Physical (3/3)
-- ✅ All Casters (4/4)
-
-**All 21 combat jobs complete!**
+| Phase | Status | Milestone |
+|-------|--------|-----------|
+| Phase 1 | ✅ Complete | All 21 combat jobs |
+| Phase 2 | ✅ Complete | Fight timeline integration |
+| Phase 3 | ✅ Complete | Full party coordination via IPC |
+| Phase 4 | ✅ Complete | Performance analytics + FFLogs |
+| Phase 5 | 🔄 In Progress | Training mode + personalized coaching |
+| Phase 6 | 📋 Planned | ML integration + simulation engine |
 
 ## Contributing
 
