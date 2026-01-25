@@ -1,5 +1,6 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.HermesCore.Context;
 using Olympus.Rotation.HermesCore.Helpers;
 
@@ -168,10 +169,113 @@ public sealed class NinjutsuModule : IHermesModule
             context.Debug.PlannedAction = ninjutsuAction.Name;
             context.Debug.NinjutsuState = $"Executed {ninjutsuAction.Name}";
             mudraHelper.CompleteSequence();
+
+            // Training: Record Ninjutsu execution
+            var ninjutsuType = GetNinjutsuDescription(targetNinjutsu, context.HasKassatsu);
+            var conceptId = GetNinjutsuConceptId(targetNinjutsu);
+            MeleeDpsTrainingHelper.RecordDamageDecision(
+                context.TrainingService,
+                ninjutsuAction.ActionId,
+                ninjutsuAction.Name,
+                target?.Name?.TextValue ?? "Self",
+                $"Executing {ninjutsuAction.Name} ({ninjutsuType})",
+                GetNinjutsuExplanation(targetNinjutsu, context.HasKassatsu),
+                GetNinjutsuFactors(targetNinjutsu, context),
+                GetNinjutsuAlternatives(targetNinjutsu),
+                GetNinjutsuTip(targetNinjutsu),
+                conceptId);
+            context.TrainingService?.RecordConceptApplication(conceptId, true, ninjutsuType);
+
             return true;
         }
 
         return false;
+    }
+
+    private static string GetNinjutsuDescription(NINActions.NinjutsuType ninjutsu, bool hasKassatsu)
+    {
+        if (hasKassatsu)
+        {
+            return ninjutsu switch
+            {
+                NINActions.NinjutsuType.Katon or NINActions.NinjutsuType.GokaMekkyaku => "Enhanced AoE fire damage",
+                NINActions.NinjutsuType.Hyoton or NINActions.NinjutsuType.HyoshoRanryu => "Enhanced ice burst",
+                _ => "Kassatsu-enhanced"
+            };
+        }
+        return ninjutsu switch
+        {
+            NINActions.NinjutsuType.FumaShuriken => "Ranged damage",
+            NINActions.NinjutsuType.Raiton => "Single-target lightning",
+            NINActions.NinjutsuType.Katon => "AoE fire damage",
+            NINActions.NinjutsuType.Hyoton => "Ice damage + bind",
+            NINActions.NinjutsuType.Huton => "Speed buff (obsolete)",
+            NINActions.NinjutsuType.Doton => "Ground AoE DoT",
+            NINActions.NinjutsuType.Suiton => "Setup for Kunai's Bane",
+            _ => "Ninjutsu"
+        };
+    }
+
+    private static string GetNinjutsuConceptId(NINActions.NinjutsuType ninjutsu)
+    {
+        return ninjutsu switch
+        {
+            NINActions.NinjutsuType.Suiton => "nin_suiton",
+            NINActions.NinjutsuType.Raiton => "nin_raiton",
+            NINActions.NinjutsuType.Katon or NINActions.NinjutsuType.GokaMekkyaku => "nin_katon",
+            NINActions.NinjutsuType.HyoshoRanryu => "nin_hyosho_ranryu",
+            NINActions.NinjutsuType.Doton => "nin_doton",
+            _ => "nin_mudra_system"
+        };
+    }
+
+    private static string GetNinjutsuExplanation(NINActions.NinjutsuType ninjutsu, bool hasKassatsu)
+    {
+        if (hasKassatsu)
+        {
+            return "Kassatsu enhances your next Ninjutsu. Hyosho Ranryu (from Hyoton combo) is highest ST damage. " +
+                   "Goka Mekkyaku (from Katon combo) is best for AoE. Always use Kassatsu before these for maximum damage.";
+        }
+        return ninjutsu switch
+        {
+            NINActions.NinjutsuType.Suiton => "Suiton enables Kunai's Bane, your main burst window. The buff lasts 20s, so time it well.",
+            NINActions.NinjutsuType.Raiton => "Raiton is your primary ST Ninjutsu. It also grants Raiju Ready for a free GCD follow-up.",
+            NINActions.NinjutsuType.Katon => "Katon is your AoE Ninjutsu. Use on 3+ enemies. Enhanced to Goka Mekkyaku with Kassatsu.",
+            NINActions.NinjutsuType.Doton => "Doton creates a ground AoE that deals damage over time. Best for trash packs that will stay in the zone.",
+            _ => "Ninjutsu are executed by inputting mudra combinations (Ten, Chi, Jin) in specific sequences."
+        };
+    }
+
+    private static string[] GetNinjutsuFactors(NINActions.NinjutsuType ninjutsu, IHermesContext context)
+    {
+        return ninjutsu switch
+        {
+            NINActions.NinjutsuType.Suiton => new[] { "Kunai's Bane ready", "Burst window preparation", "20s buff duration" },
+            NINActions.NinjutsuType.Raiton => new[] { "ST damage priority", "Grants Raiju Ready", context.HasKassatsu ? "Kassatsu active" : "Standard Raiton" },
+            NINActions.NinjutsuType.Katon => new[] { "3+ enemies detected", "AoE damage optimal", context.HasKassatsu ? "Kassatsu → Goka Mekkyaku" : "Standard Katon" },
+            _ => new[] { "Mudra sequence complete", "Ninjutsu ready", "GCD available" }
+        };
+    }
+
+    private static string[] GetNinjutsuAlternatives(NINActions.NinjutsuType ninjutsu)
+    {
+        return ninjutsu switch
+        {
+            NINActions.NinjutsuType.Suiton => new[] { "Use Raiton (loses burst window)", "Wait for later (if Kunai's Bane not ready)" },
+            NINActions.NinjutsuType.Raiton => new[] { "Use Suiton (if burst coming)", "Use Katon (only if AoE)" },
+            _ => new[] { "Different Ninjutsu (situational)", "Abort sequence (wastes mudra CD)" }
+        };
+    }
+
+    private static string GetNinjutsuTip(NINActions.NinjutsuType ninjutsu)
+    {
+        return ninjutsu switch
+        {
+            NINActions.NinjutsuType.Suiton => "Time Suiton so Kunai's Bane is ready when the buff is applied.",
+            NINActions.NinjutsuType.Raiton => "Raiton → Raiju is free damage. Use Raiju before it expires!",
+            NINActions.NinjutsuType.Katon => "With Kassatsu, this becomes Goka Mekkyaku for massive AoE burst.",
+            _ => "Master your mudra sequences - muscle memory makes NIN much smoother."
+        };
     }
 
     private static Models.Action.ActionDefinition? GetNinjutsuAction(

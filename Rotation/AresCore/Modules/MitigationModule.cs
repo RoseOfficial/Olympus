@@ -1,5 +1,6 @@
 using Olympus.Data;
 using Olympus.Rotation.AresCore.Context;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Services.Party;
 using Olympus.Timeline;
 
@@ -317,6 +318,22 @@ public sealed class MitigationModule : IAresModule
             context.Debug.PlannedAction = WARActions.Holmgang.Name;
             context.Debug.MitigationState = $"Emergency invuln ({hpPercent:P0} HP)";
             partyCoord?.OnCooldownUsed(WARActions.Holmgang.ActionId, 240_000);
+
+            // Training: Record emergency invuln
+            TankTrainingHelper.RecordInvulnDecision(
+                context.TrainingService,
+                WARActions.Holmgang.ActionId,
+                WARActions.Holmgang.Name,
+                hpPercent,
+                "Emergency Holmgang - HP critically low. Holmgang prevents death for 10 seconds.",
+                "Holmgang binds you and the target, preventing your HP from dropping below 1. 240s cooldown - use only in emergencies.",
+                new[] { $"HP critically low ({hpPercent:P0})", "No other mitigation available", $"Target: {target.Name?.TextValue}" },
+                new[] { "Trust healers (risky at this HP)", "Use other cooldowns first (may be too slow)" },
+                "Holmgang is your emergency button. At 15% HP or below, use it immediately. Healers can then safely heal you during the 10-second window.",
+                "war_holmgang");
+
+            context.TrainingService?.RecordConceptApplication("war_holmgang", true, "Emergency invuln activation");
+
             return true;
         }
 
@@ -368,6 +385,23 @@ public sealed class MitigationModule : IAresModule
             context.Debug.PlannedAction = vengeanceAction.Name;
             context.Debug.MitigationState = $"Major CD ({hpPercent:P0} HP)";
             partyCoord?.OnCooldownUsed(vengeanceAction.ActionId, 120_000);
+
+            // Training: Record major cooldown
+            TankTrainingHelper.RecordMitigationDecision(
+                context.TrainingService,
+                vengeanceAction.ActionId,
+                vengeanceAction.Name,
+                null, // targetName
+                hpPercent,
+                $"{vengeanceAction.Name} activated for heavy damage mitigation. 30% damage reduction + counter-attack damage.",
+                "Vengeance/Damnation is your strongest defensive cooldown. 30% mitigation for 15 seconds with 120s recast. Also deals damage when hit.",
+                new[] { $"HP at {hpPercent:P0}", $"Taking heavy damage (rate: {damageRate:F1}/s)", "No major mitigation active" },
+                new[] { "Use Rampart first (shorter cooldown)", "Wait for tankbuster (may die first)" },
+                "Use Vengeance for sustained heavy damage or big tankbusters. The counter-attack damage adds value in dungeon pulls.",
+                "war_vengeance");
+
+            context.TrainingService?.RecordConceptApplication("war_vengeance", true, "Major cooldown usage");
+
             return true;
         }
 
@@ -468,6 +502,23 @@ public sealed class MitigationModule : IAresModule
             context.Debug.PlannedAction = bloodwhettingAction.Name;
             context.Debug.MitigationState = $"Bloodwhetting ({hpPercent:P0} HP)";
             partyCoord?.OnCooldownUsed(bloodwhettingAction.ActionId, 25_000);
+
+            // Training: Record Bloodwhetting
+            TankTrainingHelper.RecordMitigationDecision(
+                context.TrainingService,
+                bloodwhettingAction.ActionId,
+                bloodwhettingAction.Name,
+                null, // targetName
+                hpPercent,
+                "Bloodwhetting activated for damage reduction and self-healing. Warriors sustain through their attacks.",
+                "Bloodwhetting provides 10% mitigation, a barrier, AND heals you for 400 potency per weaponskill. 25s recast makes it your bread-and-butter defensive.",
+                new[] { $"HP at {hpPercent:P0}", "Short cooldown available", "Mitigation + healing combo" },
+                new[] { "Save for bigger hit (25s CD means frequent use)", "Rely on healers (unnecessary strain)" },
+                "Use Bloodwhetting frequently - it's your signature sustain tool. The healing scales with damage dealt, so use it during AoE for massive recovery.",
+                "war_bloodwhetting");
+
+            context.TrainingService?.RecordConceptApplication("war_bloodwhetting", true, "Short cooldown with healing");
+
             return true;
         }
 
@@ -625,6 +676,21 @@ public sealed class MitigationModule : IAresModule
             context.Debug.PlannedAction = WARActions.ShakeItOff.Name;
             context.Debug.MitigationState = $"Shake It Off ({injuredCount} injured)";
             partyCoord?.OnCooldownUsed(WARActions.ShakeItOff.ActionId, 90_000);
+
+            // Training: Record party mitigation
+            TankTrainingHelper.RecordPartyMitigationDecision(
+                context.TrainingService,
+                WARActions.ShakeItOff.ActionId,
+                WARActions.ShakeItOff.Name,
+                $"Shake It Off provides party-wide shield and cleanses your own debuffs. {injuredCount} party members injured.",
+                "Shake It Off gives the whole party a 15% max HP barrier (more if you have personal buffs to consume). Also cleanses debuffs from you.",
+                new[] { $"{injuredCount} party members injured", $"Party average HP: {avgHp:P0}", "Party needs protection" },
+                new[] { "Save for raidwide (may lose party members)", "Let healers handle it (adds healer stress)" },
+                "Use Shake It Off before raidwides for maximum value. The barrier lasts 30 seconds, so you can pre-shield.",
+                "war_shake_it_off");
+
+            context.TrainingService?.RecordConceptApplication("war_shake_it_off", true, "Party shield deployment");
+
             return true;
         }
 

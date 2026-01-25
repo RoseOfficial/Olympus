@@ -15,6 +15,7 @@ using Olympus.Services.Party;
 using Olympus.Services.Tank;
 using Olympus.Services.Targeting;
 using Olympus.Rotation.NyxCore.Helpers;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation.NyxCore.Context;
@@ -109,6 +110,9 @@ public sealed class NyxContext : INyxContext
     public NyxPartyHelper PartyHelper { get; }
     public NyxDebugState Debug { get; }
 
+    // Training
+    public ITrainingService? TrainingService { get; }
+
     #endregion
 
     public IBattleChara? CurrentTarget { get; private set; }
@@ -146,6 +150,7 @@ public sealed class NyxContext : INyxContext
         float comboTimeRemaining,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
+        ITrainingService? trainingService = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -173,6 +178,7 @@ public sealed class NyxContext : INyxContext
         EnmityService = enmityService;
         TankCooldownService = tankCooldownService;
         PartyCoordinationService = partyCoordinationService;
+        TrainingService = trainingService;
         StatusHelper = statusHelper;
         PartyHelper = partyHelper;
         Debug = debugState;

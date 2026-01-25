@@ -17,6 +17,7 @@ using Olympus.Services.Stats;
 using Olympus.Services.Party;
 using Olympus.Services.Tank;
 using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation;
@@ -56,6 +57,9 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
     private readonly ThemisStatusHelper _statusHelper;
     private readonly ThemisPartyHelper _partyHelper;
 
+    // Training
+    private readonly ITrainingService? _trainingService;
+
     // Modules (sorted by priority - lower = higher priority)
     private readonly List<IThemisModule> _modules;
 
@@ -77,6 +81,7 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
         ITankCooldownService tankCooldownService,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
+        ITrainingService? trainingService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -98,6 +103,9 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
             partyCoordinationService,
             errorMetrics)
     {
+        // Initialize training service
+        _trainingService = trainingService;
+
         // Initialize helpers
         _statusHelper = new ThemisStatusHelper();
         _partyHelper = new ThemisPartyHelper(objectTable, partyList);
@@ -190,6 +198,7 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
             comboTimeRemaining: ComboTimeRemaining,
             timelineService: TimelineService,
             partyCoordinationService: PartyCoordinationService,
+            trainingService: _trainingService,
             log: Log);
     }
 

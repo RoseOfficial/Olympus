@@ -15,6 +15,7 @@ using Olympus.Services.Party;
 using Olympus.Services.Tank;
 using Olympus.Services.Targeting;
 using Olympus.Rotation.HephaestusCore.Helpers;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation.HephaestusCore.Context;
@@ -111,6 +112,9 @@ public sealed class HephaestusContext : IHephaestusContext
     public HephaestusPartyHelper PartyHelper { get; }
     public HephaestusDebugState Debug { get; }
 
+    // Training
+    public ITrainingService? TrainingService { get; }
+
     #endregion
 
     public IBattleChara? CurrentTarget { get; private set; }
@@ -147,6 +151,7 @@ public sealed class HephaestusContext : IHephaestusContext
         float comboTimeRemaining,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
+        ITrainingService? trainingService = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -174,6 +179,7 @@ public sealed class HephaestusContext : IHephaestusContext
         EnmityService = enmityService;
         TankCooldownService = tankCooldownService;
         PartyCoordinationService = partyCoordinationService;
+        TrainingService = trainingService;
         StatusHelper = statusHelper;
         PartyHelper = partyHelper;
         Debug = debugState;

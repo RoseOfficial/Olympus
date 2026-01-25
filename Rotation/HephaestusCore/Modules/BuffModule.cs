@@ -1,4 +1,5 @@
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.HephaestusCore.Context;
 
 namespace Olympus.Rotation.HephaestusCore.Modules;
@@ -131,6 +132,27 @@ public sealed class BuffModule : IHephaestusModule
         {
             context.Debug.PlannedAction = GNBActions.NoMercy.Name;
             context.Debug.BuffState = "No Mercy activated";
+
+            // Training: Record No Mercy decision
+            TankTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                GNBActions.NoMercy.ActionId,
+                GNBActions.NoMercy.Name,
+                "Self",
+                $"Activating No Mercy with {context.Cartridges} cartridge(s)",
+                "No Mercy is GNB's main damage buff (+20% for 20 seconds, 60s cooldown). " +
+                "The goal is to fit as many high-potency abilities into this window as possible: " +
+                "Double Down, Gnashing Fang combo, Sonic Break, Blasting Zone, and Bow Shock.",
+                new[] {
+                    $"Have {context.Cartridges} cartridge(s) to spend",
+                    "60s cooldown ready",
+                    "Will enable +20% damage for 20 seconds"
+                },
+                new[] { "Wait for more cartridges (risk holding too long)", "Wait for Gnashing Fang CD (minor optimization)" },
+                "No Mercy is your burst window - plan to have Double Down (2 carts) and Gnashing Fang ready when you press it.",
+                "gnb_no_mercy");
+            context.TrainingService?.RecordConceptApplication("gnb_no_mercy", true, "Burst window activation");
+
             return true;
         }
 
@@ -177,6 +199,31 @@ public sealed class BuffModule : IHephaestusModule
         {
             context.Debug.PlannedAction = GNBActions.Bloodfest.Name;
             context.Debug.BuffState = $"Bloodfest (+{GNBActions.BloodfestCartridges} cartridges)";
+
+            // Training: Record Bloodfest decision
+            var duringNoMercy = context.HasNoMercy;
+            TankTrainingHelper.RecordResourceDecision(
+                context.TrainingService,
+                GNBActions.Bloodfest.ActionId,
+                GNBActions.Bloodfest.Name,
+                context.Cartridges,
+                duringNoMercy
+                    ? $"Bloodfest during No Mercy ({context.Cartridges} → 3 cartridges)"
+                    : $"Bloodfest to refill cartridges ({context.Cartridges} → 3)",
+                "Bloodfest instantly grants 3 cartridges (120s cooldown). " +
+                "At Lv.100+, also grants Ready to Reign for the Reign of Beasts combo. " +
+                "Best used when cartridges are low (0-1) during No Mercy to maximize burst damage.",
+                new[] {
+                    $"Currently at {context.Cartridges} cartridges",
+                    $"Will gain {GNBActions.BloodfestCartridges - context.Cartridges} net cartridges",
+                    duringNoMercy ? "No Mercy active - can spend immediately" : "Refilling for next burst window",
+                    player.Level >= 100 ? "Grants Ready to Reign at Lv.100" : "Below Lv.100 - no Reign combo"
+                },
+                new[] { "Wait for No Mercy (might delay too long)", "Use basic combo to generate cartridges slowly" },
+                "Bloodfest aligns with No Mercy every other burst window. Plan your cartridge spending so you're at 0-1 when Bloodfest is ready.",
+                "gnb_bloodfest");
+            context.TrainingService?.RecordConceptApplication("gnb_cartridge_gauge", true, "Cartridge refill");
+
             return true;
         }
 

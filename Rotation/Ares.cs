@@ -17,6 +17,7 @@ using Olympus.Services.Stats;
 using Olympus.Services.Party;
 using Olympus.Services.Tank;
 using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation;
@@ -56,6 +57,9 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
     private readonly AresStatusHelper _statusHelper;
     private readonly AresPartyHelper _partyHelper;
 
+    // Training
+    private readonly ITrainingService? _trainingService;
+
     // Modules (sorted by priority - lower = higher priority)
     private readonly List<IAresModule> _modules;
 
@@ -77,6 +81,7 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
         ITankCooldownService tankCooldownService,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
+        ITrainingService? trainingService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -98,6 +103,9 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
             partyCoordinationService,
             errorMetrics)
     {
+        // Initialize training service
+        _trainingService = trainingService;
+
         // Initialize helpers
         _statusHelper = new AresStatusHelper();
         _partyHelper = new AresPartyHelper(objectTable, partyList);
@@ -190,6 +198,7 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
             comboTimeRemaining: ComboTimeRemaining,
             timelineService: TimelineService,
             partyCoordinationService: PartyCoordinationService,
+            trainingService: _trainingService,
             log: Log);
     }
 

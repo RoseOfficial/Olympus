@@ -17,6 +17,7 @@ using Olympus.Services.Stats;
 using Olympus.Services.Party;
 using Olympus.Services.Tank;
 using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation;
@@ -59,6 +60,9 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
     // Modules (sorted by priority - lower = higher priority)
     private readonly List<IHephaestusModule> _modules;
 
+    // Training
+    private readonly ITrainingService? _trainingService;
+
     // Gnashing Fang combo step tracking
     private int _gnashingFangStep;
 
@@ -80,6 +84,7 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
         ITankCooldownService tankCooldownService,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
+        ITrainingService? trainingService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -101,6 +106,9 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
             partyCoordinationService,
             errorMetrics)
     {
+        // Initialize training service
+        _trainingService = trainingService;
+
         // Initialize helpers
         _statusHelper = new HephaestusStatusHelper();
         _partyHelper = new HephaestusPartyHelper(objectTable, partyList);
@@ -198,6 +206,7 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
             comboTimeRemaining: ComboTimeRemaining,
             timelineService: TimelineService,
             partyCoordinationService: PartyCoordinationService,
+            trainingService: _trainingService,
             log: Log);
     }
 

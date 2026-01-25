@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Models.Action;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.KratosCore.Context;
 
 namespace Olympus.Rotation.KratosCore.Modules;
@@ -125,6 +126,22 @@ public sealed class DamageModule : IKratosModule
                 {
                     context.Debug.PlannedAction = aoeAction.Name;
                     context.Debug.DamageState = $"{aoeAction.Name} ({enemyCount} enemies)";
+
+                    // Training: Record AoE Chakra spender decision
+                    MeleeDpsTrainingHelper.RecordAoeDecision(
+                        context.TrainingService,
+                        aoeAction.ActionId,
+                        aoeAction.Name,
+                        enemyCount,
+                        $"Spending 5 Chakra on {aoeAction.Name} ({enemyCount} enemies)",
+                        "Enlightenment/Howling Fist is the AoE Chakra spender. " +
+                        "Use at 5 Chakra stacks to avoid overcapping. High oGCD priority.",
+                        new[] { "5 Chakra stacks", $"{enemyCount} enemies", "Avoiding overcap" },
+                        new[] { "Use Forbidden Chakra (fewer enemies)", "Hold for burst (risky)" },
+                        "Always spend Chakra at 5 stacks. AoE at 3+ enemies.",
+                        "mnk_chakra_gauge");
+                    context.TrainingService?.RecordConceptApplication("mnk_chakra_gauge", true, "AoE Chakra spending");
+
                     return true;
                 }
             }
@@ -139,6 +156,23 @@ public sealed class DamageModule : IKratosModule
                 {
                     context.Debug.PlannedAction = stAction.Name;
                     context.Debug.DamageState = stAction.Name;
+
+                    // Training: Record ST Chakra spender decision
+                    MeleeDpsTrainingHelper.RecordResourceDecision(
+                        context.TrainingService,
+                        stAction.ActionId,
+                        stAction.Name,
+                        "Chakra",
+                        context.Chakra,
+                        $"Spending 5 Chakra on {stAction.Name}",
+                        "Forbidden Chakra is MNK's ST Chakra spender. " +
+                        "Use at 5 stacks to avoid overcapping. Weave during burst windows.",
+                        new[] { "5 Chakra stacks", "ST damage filler", "Avoiding overcap" },
+                        new[] { "Use Enlightenment (3+ enemies)", "Hold for burst (risky)" },
+                        "Chakra generates passively and from crits. Spend at 5 stacks.",
+                        "mnk_chakra_gauge");
+                    context.TrainingService?.RecordConceptApplication("mnk_chakra_gauge", true, "ST Chakra spending");
+
                     return true;
                 }
             }
@@ -216,10 +250,49 @@ public sealed class DamageModule : IKratosModule
         {
             context.Debug.PlannedAction = blitzAction.Name;
             context.Debug.DamageState = $"{blitzAction.Name} (Blitz)";
+
+            // Training: Record Blitz decision
+            var blitzType = GetBlitzType(blitzAction);
+            MeleeDpsTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                blitzAction.ActionId,
+                blitzAction.Name,
+                target.Name?.TextValue ?? "Target",
+                $"Executing {blitzAction.Name} (3 Beast Chakra accumulated)",
+                $"{blitzType.explanation}",
+                new[] { "3 Beast Chakra ready", blitzType.nadiState, "Blitz available" },
+                new[] { "Can't - must use Blitz when available" },
+                blitzType.tip,
+                "mnk_beast_chakra");
+            context.TrainingService?.RecordConceptApplication("mnk_beast_chakra", true, $"Blitz: {blitzAction.Name}");
+
             return true;
         }
 
         return false;
+    }
+
+    private static (string explanation, string nadiState, string tip) GetBlitzType(ActionDefinition blitz)
+    {
+        return blitz.ActionId switch
+        {
+            25765 => ( // Phantom Rush
+                "Phantom Rush is MNK's ultimate Blitz. Requires both Nadi. Highest potency attack.",
+                "Both Nadi active",
+                "Phantom Rush is your goal. Build Lunar → Solar → Phantom Rush."),
+            25766 => ( // Rising Phoenix
+                "Rising Phoenix grants Solar Nadi. Use after you have Lunar Nadi.",
+                "Lunar Nadi active",
+                "Rising Phoenix needs 2 same + 1 different Beast Chakra."),
+            25764 => ( // Elixir Field
+                "Elixir Field grants Lunar Nadi. Use when you need Lunar.",
+                "No Lunar Nadi",
+                "Elixir Field needs 3 different Beast Chakra types."),
+            _ => (
+                "Blitz attack - high damage from 3 Beast Chakra.",
+                "Building Nadi",
+                "Use Perfect Balance to build Beast Chakra quickly.")
+        };
     }
 
     #endregion
@@ -245,6 +318,22 @@ public sealed class DamageModule : IKratosModule
         {
             context.Debug.PlannedAction = MNKActions.FiresReply.Name;
             context.Debug.DamageState = "Fire's Reply";
+
+            // Training: Record Fire's Reply decision
+            MeleeDpsTrainingHelper.RecordDamageDecision(
+                context.TrainingService,
+                MNKActions.FiresReply.ActionId,
+                MNKActions.FiresReply.Name,
+                target.Name?.TextValue ?? "Target",
+                "Using Fire's Reply proc (from Riddle of Fire)",
+                "Fire's Reply is a high-potency proc that appears after Riddle of Fire. " +
+                "Has a 30s window to use. Use before it expires for free damage.",
+                new[] { "Fire's Rumination proc active", "High potency GCD", "Free damage" },
+                new[] { "Let it expire (wastes damage)" },
+                "Fire's Reply is free damage. Use it before the 30s window expires.",
+                "mnk_riddle_of_fire");
+            context.TrainingService?.RecordConceptApplication("mnk_riddle_of_fire", true, "Fire's Reply proc");
+
             return true;
         }
 
@@ -270,6 +359,22 @@ public sealed class DamageModule : IKratosModule
         {
             context.Debug.PlannedAction = MNKActions.WindsReply.Name;
             context.Debug.DamageState = "Wind's Reply";
+
+            // Training: Record Wind's Reply decision
+            MeleeDpsTrainingHelper.RecordDamageDecision(
+                context.TrainingService,
+                MNKActions.WindsReply.ActionId,
+                MNKActions.WindsReply.Name,
+                target.Name?.TextValue ?? "Target",
+                "Using Wind's Reply proc (from Riddle of Wind)",
+                "Wind's Reply is a high-potency proc that appears after Riddle of Wind. " +
+                "Has a 30s window to use. Use before it expires for free damage.",
+                new[] { "Wind's Rumination proc active", "High potency GCD", "Free damage" },
+                new[] { "Let it expire (wastes damage)" },
+                "Wind's Reply is free damage. Use it before the 30s window expires.",
+                "mnk_riddle_of_wind");
+            context.TrainingService?.RecordConceptApplication("mnk_riddle_of_wind", true, "Wind's Reply proc");
+
             return true;
         }
 
@@ -310,10 +415,38 @@ public sealed class DamageModule : IKratosModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.DamageState = $"{action.Name} (PB: {context.PerfectBalanceStacks} stacks)";
+
+            // Training: Record Perfect Balance GCD decision
+            var pbInfo = GetPerfectBalanceExplanation(context);
+            MeleeDpsTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                action.ActionId,
+                action.Name,
+                target.Name?.TextValue ?? "Target",
+                $"Perfect Balance GCD: {action.Name} (building {pbInfo.target})",
+                pbInfo.explanation,
+                new[] { $"Perfect Balance ({context.PerfectBalanceStacks} stacks)", pbInfo.beastChakraState, $"Building {pbInfo.target}" },
+                new[] { "Wrong GCD (misbuilds Blitz)" },
+                pbInfo.tip,
+                "mnk_perfect_balance");
+            context.TrainingService?.RecordConceptApplication("mnk_perfect_balance", true, $"PB GCD: {action.Name}");
+
             return true;
         }
 
         return false;
+    }
+
+    private static (string target, string explanation, string beastChakraState, string tip) GetPerfectBalanceExplanation(IKratosContext context)
+    {
+        var chakraStr = $"Beast: {(context.BeastChakra1 != 0 ? "Opo" : "")} {(context.BeastChakra2 != 0 ? "Raptor" : "")} {(context.BeastChakra3 != 0 ? "Coeurl" : "")}".Trim();
+        if (string.IsNullOrWhiteSpace(chakraStr)) chakraStr = "None";
+
+        if (context.HasBothNadi)
+            return ("Phantom Rush", "Both Nadi active - using same Beast Chakra type 3 times for Phantom Rush.", chakraStr, "Spam Opo-opo GCDs for highest potency Phantom Rush.");
+        if (context.HasLunarNadi)
+            return ("Solar Nadi", "Have Lunar, need Solar. Building 2 same + 1 different for Rising Phoenix.", chakraStr, "Use Opo-opo twice, then a different form.");
+        return ("Lunar Nadi", "Need Lunar first. Building 3 different Beast Chakra for Elixir Field.", chakraStr, "Use Opo → Raptor → Coeurl for Elixir Field.");
     }
 
     private ActionDefinition? GetPerfectBalanceAction(IKratosContext context, int enemyCount)
@@ -447,9 +580,10 @@ public sealed class DamageModule : IKratosModule
 
         if (context.ActionService.IsActionReady(action.ActionId))
         {
-            string positional = action == MNKActions.Bootshine || action == MNKActions.LeapingOpo
-                ? "(rear)" : "(flank)";
-            bool correctPositional = action == MNKActions.Bootshine || action == MNKActions.LeapingOpo
+            bool isRearPositional = action == MNKActions.Bootshine || action == MNKActions.LeapingOpo;
+            string positional = isRearPositional ? "(rear)" : "(flank)";
+            string positionalName = isRearPositional ? "rear" : "flank";
+            bool correctPositional = isRearPositional
                 ? (context.IsAtRear || context.HasTrueNorth || context.TargetHasPositionalImmunity)
                 : (context.IsAtFlank || context.HasTrueNorth || context.TargetHasPositionalImmunity);
 
@@ -457,6 +591,26 @@ public sealed class DamageModule : IKratosModule
             {
                 context.Debug.PlannedAction = action.Name;
                 context.Debug.DamageState = $"{action.Name} {positional}";
+
+                // Training: Record Opo-opo positional decision
+                var procStatus = context.HasLeadenFist ? "Leaden Fist active" : (context.HasOpooposFury ? "Opo-opo's Fury active" : "No proc");
+                MeleeDpsTrainingHelper.RecordPositionalDecision(
+                    context.TrainingService,
+                    action.ActionId,
+                    action.Name,
+                    target.Name?.TextValue ?? "Target",
+                    correctPositional,
+                    positionalName,
+                    $"Opo-opo form: {action.Name} {(correctPositional ? positional : "(WRONG)")}",
+                    action == MNKActions.DragonKick
+                        ? "Dragon Kick (flank) grants Leaden Fist buff for your next Bootshine."
+                        : "Bootshine/Leaping Opo (rear) consumes Leaden Fist for bonus damage.",
+                    new[] { "Opo-opo form", procStatus, correctPositional ? $"At {positionalName}" : $"Not at {positionalName}" },
+                    new[] { "Wrong positional (less damage)", "Wrong GCD (miss proc)" },
+                    "Opo-opo: Dragon Kick (flank) → Bootshine (rear) alternation for Leaden Fist.",
+                    "mnk_positionals");
+                context.TrainingService?.RecordConceptApplication("mnk_positionals", correctPositional, $"Opo-opo {positionalName}");
+
                 return true;
             }
         }
@@ -491,13 +645,37 @@ public sealed class DamageModule : IKratosModule
 
         if (context.ActionService.IsActionReady(action.ActionId))
         {
-            string positional = action == MNKActions.TrueStrike || action == MNKActions.RisingRaptor
-                ? "(rear)" : "(flank)";
+            bool isRearPositional = action == MNKActions.TrueStrike || action == MNKActions.RisingRaptor;
+            string positional = isRearPositional ? "(rear)" : "(flank)";
+            string positionalName = isRearPositional ? "rear" : "flank";
+            bool correctPositional = isRearPositional
+                ? (context.IsAtRear || context.HasTrueNorth || context.TargetHasPositionalImmunity)
+                : (context.IsAtFlank || context.HasTrueNorth || context.TargetHasPositionalImmunity);
 
             if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
             {
                 context.Debug.PlannedAction = action.Name;
                 context.Debug.DamageState = $"{action.Name} {positional}";
+
+                // Training: Record Raptor positional decision
+                var buffStatus = $"Disciplined Fist: {(context.HasDisciplinedFist ? $"{context.DisciplinedFistRemaining:F1}s" : "missing")}";
+                MeleeDpsTrainingHelper.RecordPositionalDecision(
+                    context.TrainingService,
+                    action.ActionId,
+                    action.Name,
+                    target.Name?.TextValue ?? "Target",
+                    correctPositional,
+                    positionalName,
+                    $"Raptor form: {action.Name} {(correctPositional ? positional : "(WRONG)")}",
+                    action == MNKActions.TwinSnakes
+                        ? "Twin Snakes (flank) refreshes Disciplined Fist (+15% damage buff)."
+                        : "True Strike/Rising Raptor (rear) is pure damage when buff is healthy.",
+                    new[] { "Raptor form", buffStatus, correctPositional ? $"At {positionalName}" : $"Not at {positionalName}" },
+                    new[] { "Let Disciplined Fist drop (lose 15% damage)", "Wrong positional (less damage)" },
+                    "Raptor: Twin Snakes (flank) to refresh buff, True Strike (rear) for damage.",
+                    "mnk_positionals");
+                context.TrainingService?.RecordConceptApplication("mnk_positionals", correctPositional, $"Raptor {positionalName}");
+
                 return true;
             }
         }
@@ -532,13 +710,37 @@ public sealed class DamageModule : IKratosModule
 
         if (context.ActionService.IsActionReady(action.ActionId))
         {
-            string positional = action == MNKActions.Demolish || action == MNKActions.PouncingCoeurl
-                ? "(rear)" : "(flank)";
+            bool isRearPositional = action == MNKActions.Demolish || action == MNKActions.PouncingCoeurl;
+            string positional = isRearPositional ? "(rear)" : "(flank)";
+            string positionalName = isRearPositional ? "rear" : "flank";
+            bool correctPositional = isRearPositional
+                ? (context.IsAtRear || context.HasTrueNorth || context.TargetHasPositionalImmunity)
+                : (context.IsAtFlank || context.HasTrueNorth || context.TargetHasPositionalImmunity);
 
             if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
             {
                 context.Debug.PlannedAction = action.Name;
                 context.Debug.DamageState = $"{action.Name} {positional}";
+
+                // Training: Record Coeurl positional decision
+                var dotStatus = $"Demolish: {(context.HasDemolishOnTarget ? $"{context.DemolishRemaining:F1}s" : "missing")}";
+                MeleeDpsTrainingHelper.RecordPositionalDecision(
+                    context.TrainingService,
+                    action.ActionId,
+                    action.Name,
+                    target.Name?.TextValue ?? "Target",
+                    correctPositional,
+                    positionalName,
+                    $"Coeurl form: {action.Name} {(correctPositional ? positional : "(WRONG)")}",
+                    action == MNKActions.Demolish
+                        ? "Demolish (rear) applies/refreshes DoT. Refresh when <3s remains."
+                        : "Snap Punch/Pouncing Coeurl (flank) is pure damage when DoT is healthy.",
+                    new[] { "Coeurl form", dotStatus, correctPositional ? $"At {positionalName}" : $"Not at {positionalName}" },
+                    new[] { "Let Demolish drop (lose DoT damage)", "Wrong positional (less damage)" },
+                    "Coeurl: Demolish (rear) to apply DoT, Snap Punch (flank) for damage.",
+                    "mnk_positionals");
+                context.TrainingService?.RecordConceptApplication("mnk_positionals", correctPositional, $"Coeurl {positionalName}");
+
                 return true;
             }
         }

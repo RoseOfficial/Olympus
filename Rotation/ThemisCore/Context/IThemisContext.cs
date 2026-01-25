@@ -1,5 +1,6 @@
 using Olympus.Rotation.Common;
 using Olympus.Rotation.ThemisCore.Helpers;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ThemisCore.Context;
 
@@ -115,6 +116,16 @@ public interface IThemisContext : ITankRotationContext
     /// Party helper for party member queries.
     /// </summary>
     ThemisPartyHelper PartyHelper { get; }
+
+    #endregion
+
+    #region Training
+
+    /// <summary>
+    /// Service for Training Mode - captures and explains rotation decisions.
+    /// Null if training mode is not available.
+    /// </summary>
+    ITrainingService? TrainingService { get; }
 
     #endregion
 

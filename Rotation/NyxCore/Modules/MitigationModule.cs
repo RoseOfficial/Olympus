@@ -1,4 +1,5 @@
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.NyxCore.Context;
 using Olympus.Services.Party;
 using Olympus.Timeline;
@@ -309,6 +310,22 @@ public sealed class MitigationModule : INyxModule
             context.Debug.PlannedAction = DRKActions.LivingDead.Name;
             context.Debug.MitigationState = $"Emergency invuln ({hpPercent:P0} HP)";
             partyCoord?.OnCooldownUsed(DRKActions.LivingDead.ActionId, 300_000);
+
+            // Training: Record invulnerability usage
+            TankTrainingHelper.RecordInvulnDecision(
+                context.TrainingService,
+                DRKActions.LivingDead.ActionId,
+                DRKActions.LivingDead.Name,
+                hpPercent,
+                $"Emergency Living Dead at {hpPercent:P0} HP - prevents death for 10 seconds. CRITICAL: Healers must heal you to full during Walking Dead or you die.",
+                "Living Dead is DRK's invulnerability. Unlike other invulns, it transitions to Walking Dead where you MUST be healed to full HP or die when it expires. Coordinate with healers!",
+                new[] { $"HP critical ({hpPercent:P0})", "Death imminent", "No other defensive available" },
+                new[] { "Use Shadow Wall (only 30% DR)", "Use TBN (only 25% HP shield)", "Die and cause a wipe" },
+                "Living Dead requires healer attention. Call it out in voice chat or use a macro. Healers have ~10 seconds to heal you to full HP.",
+                "drk_living_dead");
+
+            context.TrainingService?.RecordConceptApplication("drk_living_dead", true, "Emergency invulnerability");
+
             return true;
         }
 
@@ -394,6 +411,25 @@ public sealed class MitigationModule : INyxModule
         {
             context.Debug.PlannedAction = DRKActions.TheBlackestNight.Name;
             context.Debug.MitigationState = reason;
+
+            var hpPercent = (float)context.Player.CurrentHp / context.Player.MaxHp;
+
+            // Training: Record TBN usage
+            TankTrainingHelper.RecordMitigationDecision(
+                context.TrainingService,
+                DRKActions.TheBlackestNight.ActionId,
+                DRKActions.TheBlackestNight.Name,
+                null,
+                hpPercent,
+                $"The Blackest Night ({reason}) - 25% HP shield that grants Dark Arts if broken.",
+                "TBN costs 3000 MP and creates a shield equal to 25% of target's max HP. If the shield breaks, you get Dark Arts (free Edge/Flood of Shadow). This makes TBN damage-neutral when it breaks!",
+                new[] { $"MP available ({context.CurrentMp})", reason, "No Dark Arts active" },
+                new[] { "Save MP for Edge of Shadow (no shield)", "Use other mitigation (no Dark Arts proc)" },
+                "TBN is DRK's signature ability. Use it when you know the shield will break to get free damage. Avoid using when Dark Arts is already active.",
+                "drk_tbn");
+
+            context.TrainingService?.RecordConceptApplication("drk_tbn", true, reason);
+
             return true;
         }
         return false;
@@ -444,6 +480,23 @@ public sealed class MitigationModule : INyxModule
             context.Debug.PlannedAction = shadowWallAction.Name;
             context.Debug.MitigationState = $"Major CD ({hpPercent:P0} HP)";
             partyCoord?.OnCooldownUsed(shadowWallAction.ActionId, 120_000);
+
+            // Training: Record major cooldown usage
+            TankTrainingHelper.RecordMitigationDecision(
+                context.TrainingService,
+                shadowWallAction.ActionId,
+                shadowWallAction.Name,
+                null,
+                hpPercent,
+                $"Shadow Wall at {hpPercent:P0} HP - major defensive for tankbusters and sustained damage.",
+                "Shadow Wall provides 30% damage reduction for 15 seconds. Your strongest non-invuln defensive. Use for tankbusters and heavy damage phases.",
+                new[] { $"HP at {hpPercent:P0}", $"Taking sustained damage", "Major cooldown available" },
+                new[] { "Use Rampart (shorter duration)", "Use TBN (only shield)", "Take full damage (risky)" },
+                "Shadow Wall is your go-to for tankbusters. Combine with TBN for massive mitigation. At Lv.82, it upgrades to Shadowed Vigil with a heal.",
+                "drk_shadow_wall");
+
+            context.TrainingService?.RecordConceptApplication("drk_shadow_wall", true, "Major cooldown");
+
             return true;
         }
 
@@ -644,6 +697,21 @@ public sealed class MitigationModule : INyxModule
             context.Debug.PlannedAction = DRKActions.DarkMissionary.Name;
             context.Debug.MitigationState = $"Dark Missionary ({injuredCount} injured)";
             partyCoord?.OnCooldownUsed(DRKActions.DarkMissionary.ActionId, 90_000);
+
+            // Training: Record party mitigation
+            TankTrainingHelper.RecordPartyMitigationDecision(
+                context.TrainingService,
+                DRKActions.DarkMissionary.ActionId,
+                DRKActions.DarkMissionary.Name,
+                $"Dark Missionary for party protection - {injuredCount} injured, {avgHp:P0} avg HP.",
+                "Dark Missionary provides 10% magic damage reduction to all party members for 15 seconds. Excellent for raidwides that deal magic damage.",
+                new[] { $"{injuredCount} party members injured", $"Average HP {avgHp:P0}", "Raidwide incoming" },
+                new[] { "Reprisal (physical reduction on enemy)", "Save for later raidwide", "Let healers handle it" },
+                "Dark Missionary is your party mitigation for magic damage. Coordinate with healers and co-tank to avoid overlapping party mitigations.",
+                "drk_dark_missionary");
+
+            context.TrainingService?.RecordConceptApplication("drk_dark_missionary", true, "Party mitigation");
+
             return true;
         }
 

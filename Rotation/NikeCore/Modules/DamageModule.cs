@@ -1,5 +1,6 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.NikeCore.Context;
 
 namespace Olympus.Rotation.NikeCore.Modules;
@@ -138,6 +139,22 @@ public sealed class DamageModule : INikeModule
                 {
                     context.Debug.PlannedAction = SAMActions.Kyuten.Name;
                     context.Debug.DamageState = $"Kyuten ({enemyCount} enemies)";
+
+                    // Training: Record Kyuten decision
+                    MeleeDpsTrainingHelper.RecordAoeDecision(
+                        context.TrainingService,
+                        SAMActions.Kyuten.ActionId,
+                        SAMActions.Kyuten.Name,
+                        enemyCount,
+                        $"Spending 25 Kenki on Kyuten ({enemyCount} enemies)",
+                        "Kyuten is the AoE Kenki spender. Use to prevent Kenki overcap. " +
+                        "Prioritize Senei/Guren on cooldown, then use Kyuten/Shinten for excess.",
+                        new[] { $"Kenki: {context.Kenki}", $"{enemyCount} enemies", "Avoiding overcap" },
+                        new[] { "Use Shinten (less total damage)", "Hold for Senei/Guren (if soon)" },
+                        "Don't sit at max Kenki. Spend regularly on Shinten/Kyuten.",
+                        "sam_kenki_gauge");
+                    context.TrainingService?.RecordConceptApplication("sam_kenki_gauge", true, "AoE Kenki spending");
+
                     return true;
                 }
             }
@@ -150,6 +167,23 @@ public sealed class DamageModule : INikeModule
                 {
                     context.Debug.PlannedAction = SAMActions.Shinten.Name;
                     context.Debug.DamageState = "Shinten";
+
+                    // Training: Record Shinten decision
+                    MeleeDpsTrainingHelper.RecordResourceDecision(
+                        context.TrainingService,
+                        SAMActions.Shinten.ActionId,
+                        SAMActions.Shinten.Name,
+                        "Kenki",
+                        context.Kenki,
+                        $"Spending 25 Kenki on Shinten",
+                        "Shinten is your primary single-target Kenki spender. " +
+                        "Use to avoid overcapping Kenki (100 max). Keep some reserve for Zanshin (50).",
+                        new[] { $"Kenki: {context.Kenki}", "Avoiding overcap", "ST damage filler" },
+                        new[] { "Wait for Senei (if soon)", "Overcap Kenki (wastes gauge)" },
+                        "Shinten is filler damage. Spend Kenki before it caps.",
+                        "sam_kenki_gauge");
+                    context.TrainingService?.RecordConceptApplication("sam_kenki_gauge", true, "ST Kenki spending");
+
                     return true;
                 }
             }
@@ -181,6 +215,22 @@ public sealed class DamageModule : INikeModule
         {
             context.Debug.PlannedAction = SAMActions.KaeshiNamikiri.Name;
             context.Debug.DamageState = "Kaeshi: Namikiri";
+
+            // Training: Record Kaeshi: Namikiri decision
+            MeleeDpsTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                SAMActions.KaeshiNamikiri.ActionId,
+                SAMActions.KaeshiNamikiri.Name,
+                target.Name?.TextValue ?? "Target",
+                "Following up Ogi Namikiri with Kaeshi: Namikiri",
+                "Kaeshi: Namikiri is a guaranteed follow-up after Ogi Namikiri. " +
+                "It has a short window so use it immediately. High potency burst damage.",
+                new[] { "Kaeshi: Namikiri Ready buff active", "Ogi Namikiri just used", "Burst window active" },
+                new[] { "Miss the window (buff expires)" },
+                "Always use Kaeshi: Namikiri immediately after Ogi Namikiri.",
+                "sam_iaijutsu");
+            context.TrainingService?.RecordConceptApplication("sam_iaijutsu", true, "Kaeshi: Namikiri follow-up");
+
             return true;
         }
 
@@ -213,6 +263,23 @@ public sealed class DamageModule : INikeModule
         {
             context.Debug.PlannedAction = kaeshiAction.Name;
             context.Debug.DamageState = kaeshiAction.Name;
+
+            // Training: Record Tsubame-gaeshi decision
+            MeleeDpsTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                kaeshiAction.ActionId,
+                kaeshiAction.Name,
+                target.Name?.TextValue ?? "Target",
+                $"Following up Iaijutsu with {kaeshiAction.Name}",
+                "Tsubame-gaeshi repeats your last Iaijutsu. " +
+                "Use immediately after Iaijutsu - the window is short. " +
+                "Kaeshi: Setsugekka is highest potency, Kaeshi: Goken for AoE.",
+                new[] { "Tsubame-gaeshi Ready buff active", $"Last Iaijutsu: {context.LastIaijutsu}", "Burst window active" },
+                new[] { "Miss the window (buff expires)", "Wrong Iaijutsu order" },
+                "Iaijutsu → Tsubame-gaeshi is your core burst combo. Never skip it.",
+                "sam_iaijutsu");
+            context.TrainingService?.RecordConceptApplication("sam_iaijutsu", true, "Tsubame-gaeshi follow-up");
+
             return true;
         }
 
@@ -242,6 +309,22 @@ public sealed class DamageModule : INikeModule
         {
             context.Debug.PlannedAction = SAMActions.OgiNamikiri.Name;
             context.Debug.DamageState = "Ogi Namikiri";
+
+            // Training: Record Ogi Namikiri decision
+            MeleeDpsTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                SAMActions.OgiNamikiri.ActionId,
+                SAMActions.OgiNamikiri.Name,
+                target.Name?.TextValue ?? "Target",
+                "Using Ogi Namikiri (granted by Ikishoten)",
+                "Ogi Namikiri is SAM's highest potency GCD. Granted by Ikishoten. " +
+                "Always follow with Kaeshi: Namikiri. Use during burst windows for maximum effect.",
+                new[] { "Ogi Namikiri Ready buff active", "From Ikishoten", "Burst window active" },
+                new[] { "Hold for raid buffs (if close)", "Use outside burst (wastes damage)" },
+                "Ogi Namikiri → Kaeshi: Namikiri → Zanshin is your biggest burst sequence.",
+                "sam_burst_window");
+            context.TrainingService?.RecordConceptApplication("sam_burst_window", true, "Ogi Namikiri burst");
+
             return true;
         }
 
@@ -313,10 +396,65 @@ public sealed class DamageModule : INikeModule
             context.Debug.PlannedAction = action.Name;
             context.Debug.DamageState = $"{action.Name} ({context.SenCount} Sen)";
             context.Debug.LastIaijutsu = type;
+
+            // Training: Record Iaijutsu decision based on type
+            var (description, explanation, tip, conceptId) = GetIaijutsuTrainingInfo(type, context);
+            MeleeDpsTrainingHelper.RecordDamageDecision(
+                context.TrainingService,
+                action.ActionId,
+                action.Name,
+                target.Name?.TextValue ?? "Target",
+                description,
+                explanation,
+                new[] { $"Sen count: {context.SenCount}", GetSenState(context), "Iaijutsu ready" },
+                new[] { "Continue building Sen", "Use wrong Sen count" },
+                tip,
+                conceptId);
+            context.TrainingService?.RecordConceptApplication("sam_sen_system", true, $"Iaijutsu: {action.Name}");
+
             return true;
         }
 
         return false;
+    }
+
+    private static (string description, string explanation, string tip, string conceptId) GetIaijutsuTrainingInfo(SAMActions.IaijutsuType type, INikeContext context)
+    {
+        return type switch
+        {
+            SAMActions.IaijutsuType.Higanbana => (
+                $"Applying Higanbana DoT ({(context.HasHiganbanaOnTarget ? $"{context.HiganbanaRemaining:F1}s remaining" : "not on target")})",
+                "Higanbana is SAM's 60s DoT. Apply once and refresh when <5s remains. " +
+                "Don't use in AoE situations. The full duration deals more damage than Midare.",
+                "Keep Higanbana up 100% of the time on single-target fights.",
+                "sam_sen_system"),
+            SAMActions.IaijutsuType.TenkaGoken => (
+                "Using Tenka Goken (2 Sen AoE Iaijutsu)",
+                "Tenka Goken is the 2-Sen AoE Iaijutsu. Use instead of Midare when hitting 3+ targets. " +
+                "Still triggers Tsubame-gaeshi for Kaeshi: Goken follow-up.",
+                "In AoE, use Tenka Goken at 2 Sen rather than building to 3.",
+                "sam_aoe_rotation"),
+            SAMActions.IaijutsuType.MidareSetsugekka => (
+                "Using Midare Setsugekka (3 Sen burst)",
+                "Midare Setsugekka is SAM's primary burst GCD. Requires all 3 Sen. " +
+                "Always follow with Tsubame-gaeshi for Kaeshi: Setsugekka.",
+                "Midare → Kaeshi: Setsugekka is your bread-and-butter burst combo.",
+                "sam_iaijutsu"),
+            _ => (
+                "Using Iaijutsu",
+                "Iaijutsu abilities consume Sen to deal high damage.",
+                "Build Sen through combos, spend with Iaijutsu.",
+                "sam_iaijutsu")
+        };
+    }
+
+    private static string GetSenState(INikeContext context)
+    {
+        var sen = new System.Collections.Generic.List<string>();
+        if (context.HasSetsu) sen.Add("Setsu");
+        if (context.HasGetsu) sen.Add("Getsu");
+        if (context.HasKa) sen.Add("Ka");
+        return sen.Count > 0 ? string.Join("+", sen) : "No Sen";
     }
 
     #endregion
@@ -366,6 +504,24 @@ public sealed class DamageModule : INikeModule
                 {
                     context.Debug.PlannedAction = SAMActions.Gekko.Name;
                     context.Debug.DamageState = $"Meikyo Gekko {positionalHint}";
+
+                    // Training: Record Gekko positional decision
+                    MeleeDpsTrainingHelper.RecordPositionalDecision(
+                        context.TrainingService,
+                        SAMActions.Gekko.ActionId,
+                        SAMActions.Gekko.Name,
+                        target.Name?.TextValue ?? "Target",
+                        correctPositional,
+                        "rear",
+                        $"Meikyo Gekko for Getsu Sen {positionalHint}",
+                        "Gekko grants Getsu (Moon) Sen and has a rear positional for bonus damage. " +
+                        "During Meikyo Shisui, you can use finishers directly without combos.",
+                        new[] { "Meikyo Shisui active", "Need Getsu Sen", correctPositional ? "At rear" : "Not at rear" },
+                        new[] { "Use Kasha instead (need Ka)", "Use Yukikaze (need Setsu)" },
+                        "Gekko = rear, Kasha = flank. Use True North when you can't position.",
+                        "sam_positionals");
+                    context.TrainingService?.RecordConceptApplication("sam_positionals", correctPositional, "Gekko rear positional");
+
                     return true;
                 }
             }
@@ -383,6 +539,24 @@ public sealed class DamageModule : INikeModule
                 {
                     context.Debug.PlannedAction = SAMActions.Kasha.Name;
                     context.Debug.DamageState = $"Meikyo Kasha {positionalHint}";
+
+                    // Training: Record Kasha positional decision
+                    MeleeDpsTrainingHelper.RecordPositionalDecision(
+                        context.TrainingService,
+                        SAMActions.Kasha.ActionId,
+                        SAMActions.Kasha.Name,
+                        target.Name?.TextValue ?? "Target",
+                        correctPositional,
+                        "flank",
+                        $"Meikyo Kasha for Ka Sen {positionalHint}",
+                        "Kasha grants Ka (Flower) Sen and has a flank positional for bonus damage. " +
+                        "During Meikyo Shisui, you can use finishers directly without combos.",
+                        new[] { "Meikyo Shisui active", "Need Ka Sen", correctPositional ? "At flank" : "Not at flank" },
+                        new[] { "Use Gekko instead (need Getsu)", "Use Yukikaze (need Setsu)" },
+                        "Kasha = flank, Gekko = rear. Use True North when you can't position.",
+                        "sam_positionals");
+                    context.TrainingService?.RecordConceptApplication("sam_positionals", correctPositional, "Kasha flank positional");
+
                     return true;
                 }
             }
@@ -518,6 +692,24 @@ public sealed class DamageModule : INikeModule
                     {
                         context.Debug.PlannedAction = SAMActions.Gekko.Name;
                         context.Debug.DamageState = $"Gekko {positionalHint}";
+
+                        // Training: Record Gekko combo finisher
+                        MeleeDpsTrainingHelper.RecordPositionalDecision(
+                            context.TrainingService,
+                            SAMActions.Gekko.ActionId,
+                            SAMActions.Gekko.Name,
+                            target.Name?.TextValue ?? "Target",
+                            correctPositional,
+                            "rear",
+                            $"Combo finisher Gekko for Getsu Sen {positionalHint}",
+                            "Gekko is the finisher after Jinpu. Grants Getsu (Moon) Sen and refreshes Fugetsu buff. " +
+                            "Has a rear positional for bonus damage and extra Kenki.",
+                            new[] { "Combo step 2 (after Jinpu)", correctPositional ? "At rear" : "Not at rear", "Grants Getsu Sen" },
+                            new[] { "Break combo (miss finisher)", "Wrong positional (less damage)" },
+                            "Gekko = rear. Position before finisher or use True North.",
+                            "sam_positionals");
+                        context.TrainingService?.RecordConceptApplication("sam_positionals", correctPositional, "Gekko combo rear");
+
                         return true;
                     }
                 }
@@ -535,6 +727,24 @@ public sealed class DamageModule : INikeModule
                     {
                         context.Debug.PlannedAction = SAMActions.Kasha.Name;
                         context.Debug.DamageState = $"Kasha {positionalHint}";
+
+                        // Training: Record Kasha combo finisher
+                        MeleeDpsTrainingHelper.RecordPositionalDecision(
+                            context.TrainingService,
+                            SAMActions.Kasha.ActionId,
+                            SAMActions.Kasha.Name,
+                            target.Name?.TextValue ?? "Target",
+                            correctPositional,
+                            "flank",
+                            $"Combo finisher Kasha for Ka Sen {positionalHint}",
+                            "Kasha is the finisher after Shifu. Grants Ka (Flower) Sen and refreshes Fuka buff. " +
+                            "Has a flank positional for bonus damage and extra Kenki.",
+                            new[] { "Combo step 2 (after Shifu)", correctPositional ? "At flank" : "Not at flank", "Grants Ka Sen" },
+                            new[] { "Break combo (miss finisher)", "Wrong positional (less damage)" },
+                            "Kasha = flank. Position before finisher or use True North.",
+                            "sam_positionals");
+                        context.TrainingService?.RecordConceptApplication("sam_positionals", correctPositional, "Kasha combo flank");
+
                         return true;
                     }
                 }

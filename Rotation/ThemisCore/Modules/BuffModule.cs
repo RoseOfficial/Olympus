@@ -1,4 +1,5 @@
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.ThemisCore.Context;
 
 namespace Olympus.Rotation.ThemisCore.Modules;
@@ -105,6 +106,22 @@ public sealed class BuffModule : IThemisModule
             {
                 context.Debug.PlannedAction = PLDActions.FightOrFlight.Name;
                 context.Debug.BuffState = "Fight or Flight activated";
+
+                // Training: Record burst window activation
+                TankTrainingHelper.RecordBurstDecision(
+                    context.TrainingService,
+                    PLDActions.FightOrFlight.ActionId,
+                    PLDActions.FightOrFlight.Name,
+                    target.Name?.TextValue,
+                    "Fight or Flight is your primary damage buff. Use it at the start of burst windows to maximize GCDs under its effect.",
+                    "Fight or Flight provides +25% physical damage for 20 seconds. Optimally, use it at combo start to get maximum physical GCDs under the buff.",
+                    new[] { context.HasSwordOath ? "Sword Oath stacks available for Atonement chain" : "Combo at optimal position", "No conflicting buffs (Requiescat not active)", $"Target available: {target.Name?.TextValue}" },
+                    new[] { "Wait for better combo position (may delay burst)", "Save for adds/phase transition (likely lose damage)" },
+                    "Use Fight or Flight on cooldown at combo start. Don't hold it for 'better' times - the DPS loss from delaying usually outweighs any benefit.",
+                    "pld_fight_or_flight");
+
+                context.TrainingService?.RecordConceptApplication("pld_fight_or_flight", true, "Activated at optimal timing");
+
                 return true;
             }
         }
@@ -164,6 +181,22 @@ public sealed class BuffModule : IThemisModule
             {
                 context.Debug.PlannedAction = PLDActions.Requiescat.Name;
                 context.Debug.BuffState = "Requiescat activated";
+
+                // Training: Record magic phase activation
+                TankTrainingHelper.RecordBurstDecision(
+                    context.TrainingService,
+                    PLDActions.Requiescat.ActionId,
+                    PLDActions.Requiescat.Name,
+                    target.Name?.TextValue,
+                    "Requiescat enables your magic phase. Use it after Fight or Flight ends to alternate between physical and magic burst windows.",
+                    "Requiescat grants 4 stacks that power Holy Spirit/Circle and enable the Confiteor combo. This is your secondary burst window.",
+                    new[] { fofOnCooldown ? "Fight or Flight on cooldown" : $"Fight or Flight ending ({context.FightOrFlightRemaining:F1}s)", "Combo at good position for transition", $"Target available: {target.Name?.TextValue}" },
+                    new[] { "Wait for Fight or Flight window (delays magic phase)", "Use immediately off cooldown (may conflict with physical burst)" },
+                    "Alternate Fight or Flight and Requiescat windows. After FoF ends, use Requiescat to maintain constant burst phases.",
+                    "pld_requiescat");
+
+                context.TrainingService?.RecordConceptApplication("pld_requiescat", true, "Activated after physical burst");
+
                 return true;
             }
         }

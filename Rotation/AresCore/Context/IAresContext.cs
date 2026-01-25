@@ -1,5 +1,6 @@
 using Olympus.Rotation.Common;
 using Olympus.Rotation.AresCore.Helpers;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AresCore.Context;
 
@@ -100,6 +101,16 @@ public interface IAresContext : ITankRotationContext
     /// Party helper for party member queries.
     /// </summary>
     AresPartyHelper PartyHelper { get; }
+
+    #endregion
+
+    #region Training
+
+    /// <summary>
+    /// Service for Training Mode - captures and explains rotation decisions.
+    /// Null if training mode is not available.
+    /// </summary>
+    ITrainingService? TrainingService { get; }
 
     #endregion
 

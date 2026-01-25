@@ -1,5 +1,6 @@
 using Olympus.Data;
 using Olympus.Models.Action;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.ThemisCore.Context;
 
 namespace Olympus.Rotation.ThemisCore.Modules;
@@ -247,6 +248,25 @@ public sealed class DamageModule : IThemisModule
             {
                 context.Debug.PlannedAction = atonementAction.Name;
                 context.Debug.DamageState = $"Atonement chain ({context.AtonementStep}/3)";
+
+                // Training: Record burst window execution
+                if (context.HasFightOrFlight)
+                {
+                    TankTrainingHelper.RecordBurstDecision(
+                        context.TrainingService,
+                        atonementAction.ActionId,
+                        atonementAction.Name,
+                        target.Name?.TextValue,
+                        $"Atonement chain during Fight or Flight ({context.FightOrFlightRemaining:F1}s remaining)",
+                        "Atonement → Supplication → Sepulchre is a high-potency chain unlocked by Royal Authority. Use during Fight or Flight for maximum damage.",
+                        new[] { $"Fight or Flight active ({context.FightOrFlightRemaining:F1}s)", $"Sword Oath stacks: {context.SwordOathStacks}", $"Chain position: {context.AtonementStep}/3" },
+                        new[] { "Save stacks for later burst (risk losing them)", "Use main combo instead (lower potency)" },
+                        "Always complete the full Atonement chain during Fight or Flight. The stacks only last 30 seconds, so don't hold them too long.",
+                        "pld_atonement_chain");
+
+                    context.TrainingService?.RecordConceptApplication("pld_atonement_chain", true, "Executed during burst");
+                }
+
                 return true;
             }
         }

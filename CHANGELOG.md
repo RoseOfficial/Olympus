@@ -3,6 +3,243 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.39.0 - Kratos (MNK) Training Mode
+
+**Full Monk Training Mode Integration**
+- Kratos (MNK) rotation now records all training decisions with detailed explanations
+- Live coaching shows why each ability was used with factors considered and alternatives rejected
+- Fourth melee DPS with complete Training Mode integration
+
+**Burst Window Decisions**
+- Riddle of Fire: Personal burst activation (+15% damage) with Disciplined Fist alignment
+- Brotherhood: Party-wide damage buff with raid buff coordination
+- Perfect Balance: Beast Chakra building for Blitz attacks with Nadi strategy
+- Riddle of Wind: Auto-attack speed buff for passive damage
+
+**Blitz System & Beast Chakra**
+- Masterful Blitz: Automatic tracking of Elixir Field, Rising Phoenix, Phantom Rush
+- Perfect Balance GCDs: Strategic form selection for target Blitz (Lunar vs Solar Nadi)
+- Blitz execution with Nadi state awareness and proper rotation towards Phantom Rush
+
+**Resource Management**
+- Chakra Gauge: Spending decisions for Forbidden Chakra (ST) and Enlightenment (AoE)
+- Fire's Reply / Wind's Reply: Rumination proc usage within 30s window
+
+**Form Rotation & Positionals**
+- Opo-opo Form: Dragon Kick (flank) / Bootshine (rear) with Leaden Fist management
+- Raptor Form: Twin Snakes (flank) / True Strike (rear) with Disciplined Fist maintenance
+- Coeurl Form: Demolish (rear) / Snap Punch (flank) with DoT refresh awareness
+- All positional tracking with True North awareness
+
+**Concept Mastery**
+- All major MNK concepts tracked: `mnk_riddle_of_fire`, `mnk_brotherhood`, `mnk_perfect_balance`, `mnk_riddle_of_wind`, `mnk_chakra_gauge`, `mnk_beast_chakra`, `mnk_positionals`
+<!-- LATEST-END -->
+
+## v3.38.0 - Nike (SAM) Training Mode
+
+**Full Samurai Training Mode Integration**
+- Nike (SAM) rotation now records all training decisions with detailed explanations
+- Live coaching shows why each ability was used with factors considered and alternatives rejected
+- Third melee DPS with complete Training Mode integration
+
+**Sen System & Iaijutsu**
+- Full Iaijutsu tracking with Sen state explanations (Setsu, Getsu, Ka)
+- Higanbana: DoT application and refresh timing with remaining duration awareness
+- Tenka Goken: 2-Sen AoE burst with enemy count thresholds
+- Midare Setsugekka: 3-Sen ST burst as bread-and-butter damage
+
+**Burst Window Decisions**
+- Ikishoten: Main burst window activation with Ogi Namikiri preparation
+- Ogi Namikiri: Highest potency GCD with Kaeshi follow-up sequence
+- Kaeshi: Namikiri: Immediate follow-up after Ogi Namikiri
+- Tsubame-gaeshi: Iaijutsu repeat with Kaeshi: Setsugekka / Goken
+
+**Resource Management**
+- Kenki Gauge: Spending decisions for Shinten, Kyuten, Senei, Guren
+- Shoha: Meditation stack spending at 3 stacks
+- Zanshin: Ogi Namikiri follow-up Kenki spender
+
+**Buff Management & Positionals**
+- Meikyo Shisui: Combo skip for direct Sen acquisition
+- Gekko / Kasha: Rear and flank positional tracking with True North awareness
+- Fugetsu / Fuka: Buff maintenance through combo finishers
+
+**Concept Mastery**
+- All major SAM concepts tracked: `sam_sen_system`, `sam_kenki_gauge`, `sam_iaijutsu`, `sam_burst_window`, `sam_positionals`, `sam_aoe_rotation`
+
+## v3.37.0 - Hermes (NIN) Training Mode
+
+**Full Ninja Training Mode Integration**
+- Hermes (NIN) rotation now records all training decisions with detailed explanations
+- Live coaching shows why each ability was used with factors considered and alternatives rejected
+- Second melee DPS with complete Training Mode integration
+
+**Mudra System & Ninjutsu**
+- Full Ninjutsu execution tracking with mudra combination explanations
+- Suiton: Burst preparation with Kunai's Bane timing awareness
+- Raiton: ST damage with Raiju proc generation
+- Kassatsu: Enhanced Ninjutsu setup for Hyosho Ranryu / Goka Mekkyaku
+
+**Burst Window Decisions**
+- Kunai's Bane: Main burst window with +5% damage debuff and party coordination
+- Tenri Jindo: Follow-up burst ability after Kunai's Bane
+- Ten Chi Jin: Triple Ninjutsu burst with movement warning
+
+**Resource Management**
+- Ninki Gauge: Spending decisions for Bhavacakra, Hellfrog Medium, Bunshin
+- Bunshin: Shadow clone activation with Phantom Kamaitachi follow-up
+- Meisui: Suiton conversion when burst is on cooldown
+
+**Proc Usage & Positionals**
+- Raiju: Forked (gap closer) vs Fleeting (melee) decision tracking
+- Phantom Kamaitachi: Bunshin follow-up usage
+- Armor Crush / Aeolian Edge: Kazematoi management with flank/rear positionals
+
+**Concept Mastery**
+- All major NIN concepts tracked: `nin_kunais_bane`, `nin_tenri_jindo`, `nin_kassatsu`, `nin_ten_chi_jin`, `nin_mug_dokumori`, `nin_bunshin`, `nin_meisui`, `nin_ninki_gauge`, `nin_raiju`, `nin_phantom_kamaitachi`, `nin_positionals`, `nin_mudra_system`, `nin_suiton`, `nin_raiton`, `nin_katon`, `nin_hyosho_ranryu`, `nin_doton`
+
+## v3.36.0 - Zeus (DRG) Training Mode
+
+**Full Dragoon Training Mode Integration**
+- Zeus (DRG) rotation now records all training decisions with detailed explanations
+- Live coaching shows why each ability was used with factors considered and alternatives rejected
+- First melee DPS with complete Training Mode integration
+
+**Burst Window Decisions**
+- Life Surge: Guaranteed crit optimization before high-potency GCDs
+- Lance Charge: Personal burst activation with Power Surge alignment
+- Battle Litany: Party-wide crit buff with raid buff coordination
+
+**Life of the Dragon Phase**
+- Geirskogul: Dragon Eye management and Life of Dragon entry
+- Stardiver: Highest potency attack during Life phase with timing awareness
+- High Jump: Jump ability usage for Dive Ready and Eye gauge building
+
+**Concept Mastery**
+- All major DRG concepts now tracked: `drg_life_surge`, `drg_lance_charge`, `drg_battle_litany`, `drg_life_of_dragon`, `drg_eye_gauge`, `drg_high_jump`, `drg_stardiver`
+
+## v3.35.0 - Hephaestus (GNB) Training Mode
+
+**Full Gunbreaker Training Mode Integration**
+- Hephaestus (GNB) rotation now records all training decisions with detailed explanations
+- Live coaching shows why each ability was used with factors considered and alternatives rejected
+- All 4 tanks now have complete Training Mode integration
+
+**Mitigation Decisions**
+- Superbolide: Emergency invulnerability with HP drop awareness and healer coordination tips
+- Nebula/Great Nebula: Major cooldown timing with damage rate considerations
+- Heart of Corundum: Intelligent short cooldown usage with party targeting support
+- Heart of Light: Party magic mitigation with coordination awareness
+
+**Burst Window Decisions**
+- No Mercy: Optimal activation timing with cartridge planning
+- Double Down: High potency burst during No Mercy (2 cartridge cost awareness)
+- Gnashing Fang: Signature combo initiation with burst window alignment
+
+**Resource Management**
+- Cartridge gauge spending to avoid overcapping
+- Burst Strike: Single cartridge spending with Hypervelocity awareness
+- Bloodfest: Cartridge refill timing with Ready to Reign at Lv.100
+
+**Enmity Decisions**
+- Provoke: Emergency aggro recovery and coordinated tank swaps
+- Shirk: Off-tank enmity management and swap coordination
+
+**Concept Mastery**
+- All major GNB concepts now tracked: `gnb_superbolide`, `gnb_nebula`, `gnb_heart_of_corundum`, `gnb_heart_of_light`, `gnb_no_mercy`, `gnb_double_down`, `gnb_gnashing_fang`, `gnb_burst_strike`, `gnb_bloodfest`, `gnb_cartridge_gauge`, `gnb_provoke`, `gnb_shirk`
+
+## v3.34.0 - Nyx (DRK) Training Mode
+
+**Full Dark Knight Training Mode Integration**
+- Nyx (DRK) rotation now records all training decisions with detailed explanations
+- Live coaching shows why each ability was used with factors considered and alternatives rejected
+
+**Mitigation Decisions**
+- Living Dead: Emergency invulnerability explanations with healer coordination notes
+- Shadow Wall: Major cooldown timing with incoming damage context
+- The Blackest Night: Intelligent TBN usage with Dark Arts proc awareness
+- Dark Missionary: Party mitigation decisions with coordination awareness
+
+**Burst Window Decisions**
+- Delirium: Optimal activation timing with Darkside and gauge considerations
+- Bloodspiller: Burst execution during Delirium windows (free + guaranteed crit/DH)
+
+**Resource Management**
+- Blood Gauge spending decisions to avoid overcapping
+- Bloodspiller usage outside burst for gauge management
+
+**Enmity Decisions**
+- Provoke: Emergency aggro recovery and coordinated tank swaps
+- Shirk: Off-tank enmity management and swap coordination
+
+**Concept Mastery**
+- All major DRK concepts now tracked: `drk_living_dead`, `drk_shadow_wall`, `drk_tbn`, `drk_dark_missionary`, `drk_delirium`, `drk_blood_gauge`, `drk_provoke`, `drk_shirk`
+
+## v3.33.0 - Ares (WAR) Training Mode
+
+**Full Warrior Training Mode Integration**
+- Ares (WAR) rotation now records all training decisions with detailed explanations
+- Live coaching shows why each ability was used with factors considered and alternatives rejected
+
+**Mitigation Decisions**
+- Holmgang: Emergency invulnerability explanations with threat assessment and timing
+- Vengeance: Major cooldown timing with incoming damage context
+- Bloodwhetting: Short cooldown decisions with self-healing awareness
+- Shake It Off: Party mitigation decisions with coordination awareness
+
+**Burst Window Decisions**
+- Inner Release: Optimal activation timing with Surging Tempest and gauge considerations
+- Fell Cleave: Burst execution during Inner Release windows
+- Infuriate: Gauge generation and Nascent Chaos timing
+
+**Resource Management**
+- Beast Gauge spending decisions with burst window awareness
+- Infuriate charge management to avoid overcapping
+
+**Enmity Decisions**
+- Provoke: Emergency aggro recovery and coordinated tank swaps
+- Shirk: Off-tank enmity management and swap coordination
+
+**Concept Mastery**
+- All major WAR concepts now tracked: `war_holmgang`, `war_vengeance`, `war_bloodwhetting`, `war_shake_it_off`, `war_inner_release`, `war_fell_cleave`, `war_infuriate_gauge`, `war_provoke`, `war_shirk`
+
+## v3.32.0 - Themis (PLD) Training Mode
+
+**Full Paladin Training Mode Integration**
+- Themis (PLD) rotation now records all training decisions with detailed explanations
+- Live coaching shows why each ability was used with factors considered and alternatives rejected
+
+**Mitigation Decisions**
+- Hallowed Ground: Emergency invulnerability explanations with threat assessment
+- Sentinel: Major cooldown timing with damage context
+- Sheltron: Oath Gauge spending decisions with tank stance considerations
+- Divine Veil: Party mitigation decisions with coordination awareness
+
+**Burst Window Decisions**
+- Fight or Flight: Optimal timing explanations at combo start
+- Requiescat: Magic phase activation after physical burst
+- Atonement chain: Burst execution during Fight or Flight windows
+
+**Enmity Decisions**
+- Provoke: Emergency aggro recovery and coordinated tank swaps
+- Shirk: Off-tank enmity management and swap coordination
+
+**Concept Mastery**
+- All major PLD concepts now tracked: `pld_hallowed_ground`, `pld_sentinel`, `pld_sheltron`, `pld_divine_veil`, `pld_fight_or_flight`, `pld_requiescat`, `pld_atonement_chain`, `pld_provoke`, `pld_shirk`
+
+## v3.31.0 - Training Mode Infrastructure
+
+**Shared Training Helpers**
+- New `TankTrainingHelper` for tank rotations - mitigation, invuln, burst, resource, party mitigation, enmity, and interrupt decisions
+- New `MeleeDpsTrainingHelper` for melee DPS rotations - damage, burst, positional, combo, resource, raid buff, utility, and AoE decisions
+- New `RangedDpsTrainingHelper` for ranged physical DPS rotations - damage, burst, proc, resource, raid buff, song/dance, DoT, utility, and AoE decisions
+- New `CasterTrainingHelper` for caster DPS rotations - damage, burst, proc, resource, raid buff, phase transition, DoT, movement, summon, and AoE decisions
+
+**Foundation for Training Mode Integration**
+- These helpers provide typed methods for recording training decisions from tank and DPS rotation modules
+- Enables consistent explanation categories and concept tracking across all jobs
+- Infrastructure for v3.32.0-v3.48.0 which will integrate Training Mode into each job rotation
+
 ## v3.30.0 - Adaptive Learning Paths
 
 **Learning Path Guidance**
@@ -29,7 +266,6 @@ All notable changes to Olympus will be documented in this file.
 3. Click "Start This Lesson" to jump directly to it
 4. Struggling concepts from v3.28.0 mastery tracking influence recommendations
 5. Your skill level (from v3.27.0) determines progression style
-<!-- LATEST-END -->
 
 ## v3.29.0 - Mastery-Driven Recommendations
 

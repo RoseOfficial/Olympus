@@ -1,4 +1,5 @@
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.HermesCore.Context;
 using Olympus.Services.Party;
 using Olympus.Timeline.Models;
@@ -161,6 +162,22 @@ public sealed class BuffModule : IHermesModule
             // Notify coordination service that we used the burst
             partyCoord?.OnRaidBuffUsed(NINActions.KunaisBane.ActionId, 120_000);
 
+            // Training: Record Kunai's Bane decision
+            MeleeDpsTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                action.ActionId,
+                action.Name,
+                target.Name?.TextValue ?? "Target",
+                $"Activating {action.Name} (+5% damage taken debuff)",
+                "Kunai's Bane is NIN's main burst window. It applies a debuff that increases damage taken by 5% for 15 seconds. " +
+                "Use it with Suiton up, then dump all your high-potency abilities during this window. " +
+                "Coordinate with other raid buffs (Trick Attack timing) for maximum party damage.",
+                new[] { "Suiton buff active", "120s cooldown ready", "Starting burst window" },
+                new[] { "Wait for other raid buffs (risk delaying too long)", "Use Meisui instead (loses burst window)" },
+                "Kunai's Bane is your most important ability. Plan your Ninjutsu and Ninki around its cooldown.",
+                "nin_kunais_bane");
+            context.TrainingService?.RecordConceptApplication("nin_kunais_bane", true, "Burst window activation");
+
             return true;
         }
 
@@ -199,6 +216,22 @@ public sealed class BuffModule : IHermesModule
         {
             context.Debug.PlannedAction = NINActions.TenriJindo.Name;
             context.Debug.BuffState = "Tenri Jindo";
+
+            // Training: Record Tenri Jindo decision
+            MeleeDpsTrainingHelper.RecordDamageDecision(
+                context.TrainingService,
+                NINActions.TenriJindo.ActionId,
+                NINActions.TenriJindo.Name,
+                target.Name?.TextValue ?? "Target",
+                "Using Tenri Jindo (proc from Kunai's Bane)",
+                "Tenri Jindo is a powerful follow-up attack that becomes available after using Kunai's Bane. " +
+                "It has high potency and should be used immediately during your burst window.",
+                new[] { "Tenri Jindo Ready proc active", "Within burst window" },
+                new[] { "Delay for weaving (loses proc if too slow)" },
+                "Always use Tenri Jindo immediately after Kunai's Bane to maximize burst damage.",
+                "nin_tenri_jindo");
+            context.TrainingService?.RecordConceptApplication("nin_tenri_jindo", true, "Burst follow-up");
+
             return true;
         }
 
@@ -244,6 +277,24 @@ public sealed class BuffModule : IHermesModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.BuffState = $"Activating {action.Name}";
+
+            // Training: Record Mug/Dokumori decision
+            var isDokumori = level >= NINActions.Dokumori.MinLevel;
+            MeleeDpsTrainingHelper.RecordDamageDecision(
+                context.TrainingService,
+                action.ActionId,
+                action.Name,
+                target.Name?.TextValue ?? "Target",
+                isDokumori ? "Applying Dokumori debuff (+5% damage)" : "Using Mug for Ninki generation",
+                isDokumori
+                    ? "Dokumori applies a debuff increasing damage taken by 5% and generates 40 Ninki. Use on cooldown for consistent damage and gauge generation."
+                    : "Mug deals damage and generates 40 Ninki. Use on cooldown to maintain Ninki flow.",
+                new[] { "120s cooldown ready", isDokumori ? "Debuff not active" : "Ninki generation", "Damage + utility" },
+                new[] { "Hold for burst (not recommended)", "Delay if dying soon" },
+                "Use Mug/Dokumori on cooldown for consistent Ninki generation and damage debuff.",
+                "nin_mug_dokumori");
+            context.TrainingService?.RecordConceptApplication("nin_mug_dokumori", true, "Cooldown management");
+
             return true;
         }
 
@@ -280,6 +331,22 @@ public sealed class BuffModule : IHermesModule
         {
             context.Debug.PlannedAction = NINActions.Kassatsu.Name;
             context.Debug.BuffState = "Activating Kassatsu";
+
+            // Training: Record Kassatsu decision
+            MeleeDpsTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                NINActions.Kassatsu.ActionId,
+                NINActions.Kassatsu.Name,
+                "Self",
+                "Activating Kassatsu for enhanced Ninjutsu",
+                "Kassatsu enhances your next Ninjutsu, upgrading Katon to Goka Mekkyaku (AoE) or Hyoton to Hyosho Ranryu (ST). " +
+                "It also restores a mudra charge. Use during burst windows for maximum damage, ideally with Kunai's Bane active.",
+                new[] { "60s cooldown ready", "Burst window active or imminent", "No current Kassatsu buff" },
+                new[] { "Wait for Kunai's Bane (minor optimization)", "Use outside burst (acceptable if would overcap)" },
+                "Kassatsu → Hyosho Ranryu (ST) or Goka Mekkyaku (AoE) is your highest potency Ninjutsu combo.",
+                "nin_kassatsu");
+            context.TrainingService?.RecordConceptApplication("nin_kassatsu", true, "Enhanced Ninjutsu setup");
+
             return true;
         }
 
@@ -323,6 +390,23 @@ public sealed class BuffModule : IHermesModule
         {
             context.Debug.PlannedAction = NINActions.TenChiJin.Name;
             context.Debug.BuffState = "Activating TCJ";
+
+            // Training: Record Ten Chi Jin decision
+            MeleeDpsTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                NINActions.TenChiJin.ActionId,
+                NINActions.TenChiJin.Name,
+                "Self",
+                "Activating Ten Chi Jin for triple Ninjutsu burst",
+                "Ten Chi Jin allows you to execute three Ninjutsu in rapid succession: Fuma Shuriken → Raiton → Suiton (or Katon for AoE). " +
+                "This is massive burst damage. IMPORTANT: You cannot move during TCJ or it will cancel! " +
+                "Use during Kunai's Bane window when you're safe to stand still.",
+                new[] { "120s cooldown ready", "Not moving", "Burst window active", "Safe to stand still" },
+                new[] { "Wait for safety (movement cancels TCJ)", "Use outside burst (loses significant damage)" },
+                "TCJ is cancelled by ANY movement. Plan ahead and use it when you know you can stand still.",
+                "nin_ten_chi_jin");
+            context.TrainingService?.RecordConceptApplication("nin_ten_chi_jin", true, "Triple Ninjutsu burst");
+
             return true;
         }
 
@@ -364,6 +448,24 @@ public sealed class BuffModule : IHermesModule
         {
             context.Debug.PlannedAction = NINActions.Bunshin.Name;
             context.Debug.BuffState = "Activating Bunshin";
+
+            // Training: Record Bunshin decision
+            MeleeDpsTrainingHelper.RecordResourceDecision(
+                context.TrainingService,
+                NINActions.Bunshin.ActionId,
+                NINActions.Bunshin.Name,
+                "Ninki",
+                context.Ninki,
+                $"Spending {NinkiThreshold} Ninki for Bunshin shadow clone",
+                "Bunshin creates a shadow clone that attacks alongside you for 5 weaponskills. " +
+                "It generates Phantom Kamaitachi Ready for a powerful follow-up attack. " +
+                "Costs 50 Ninki, so manage your gauge to have Ninki available when off cooldown.",
+                new[] { $"Ninki >= {NinkiThreshold}", "90s cooldown ready", "Will enable Phantom Kamaitachi" },
+                new[] { "Use Bhavacakra instead (if capping Ninki)", "Save for burst (if close to Kunai's Bane)" },
+                "Bunshin → Phantom Kamaitachi is a potent combo. Prioritize having Ninki for Bunshin cooldowns.",
+                "nin_bunshin");
+            context.TrainingService?.RecordConceptApplication("nin_bunshin", true, "Shadow clone activation");
+
             return true;
         }
 
@@ -407,6 +509,24 @@ public sealed class BuffModule : IHermesModule
         {
             context.Debug.PlannedAction = NINActions.Meisui.Name;
             context.Debug.BuffState = "Activating Meisui";
+
+            // Training: Record Meisui decision
+            MeleeDpsTrainingHelper.RecordResourceDecision(
+                context.TrainingService,
+                NINActions.Meisui.ActionId,
+                NINActions.Meisui.Name,
+                "Suiton",
+                1,
+                "Converting Suiton buff to Ninki (Meisui)",
+                "Meisui consumes Suiton buff to grant 50 Ninki and enhances your next Bhavacakra/Zesho Meppu. " +
+                "ONLY use when Kunai's Bane is on cooldown - otherwise you need Suiton for burst! " +
+                "This converts a 'wasted' Suiton into gauge when the buff would otherwise expire.",
+                new[] { "Suiton buff active", "Kunai's Bane on cooldown", "Ninki generation needed" },
+                new[] { "Save Suiton for Kunai's Bane (if ready soon)", "Let Suiton expire (wastes potential Ninki)" },
+                "Meisui turns leftover Suiton into value. Never use it when Kunai's Bane is ready!",
+                "nin_meisui");
+            context.TrainingService?.RecordConceptApplication("nin_meisui", true, "Suiton conversion");
+
             return true;
         }
 

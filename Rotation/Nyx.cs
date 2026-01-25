@@ -17,6 +17,7 @@ using Olympus.Services.Stats;
 using Olympus.Services.Party;
 using Olympus.Services.Tank;
 using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation;
@@ -59,6 +60,9 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
     // Modules (sorted by priority - lower = higher priority)
     private readonly List<INyxModule> _modules;
 
+    // Training
+    private readonly ITrainingService? _trainingService;
+
     // Darkside timer (read from game gauge)
     private float _darksideTimer;
 
@@ -80,6 +84,7 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
         ITankCooldownService tankCooldownService,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
+        ITrainingService? trainingService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -101,6 +106,9 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
             partyCoordinationService,
             errorMetrics)
     {
+        // Initialize training service
+        _trainingService = trainingService;
+
         // Initialize helpers
         _statusHelper = new NyxStatusHelper();
         _partyHelper = new NyxPartyHelper(objectTable, partyList);
@@ -200,6 +208,7 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
             comboTimeRemaining: ComboTimeRemaining,
             timelineService: TimelineService,
             partyCoordinationService: PartyCoordinationService,
+            trainingService: _trainingService,
             log: Log);
     }
 

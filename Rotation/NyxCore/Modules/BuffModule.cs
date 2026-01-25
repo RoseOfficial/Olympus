@@ -1,4 +1,5 @@
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.NyxCore.Context;
 
 namespace Olympus.Rotation.NyxCore.Modules;
@@ -164,6 +165,24 @@ public sealed class BuffModule : INyxModule
         {
             context.Debug.PlannedAction = DRKActions.Delirium.Name;
             context.Debug.BuffState = "Delirium activated";
+
+            // Training: Record burst window activation
+            TankTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                DRKActions.Delirium.ActionId,
+                DRKActions.Delirium.Name,
+                null,
+                "Delirium activated - your burst window begins now. Spam Bloodspiller for massive damage.",
+                level >= 96
+                    ? "Delirium at Lv.96+ enables the Scarlet Delirium combo: Scarlet Delirium -> Comeuppance -> Torcleaver. Higher potency than free Bloodspillers."
+                    : "Delirium grants 3 stacks that make Bloodspiller free and guarantee crit + direct hit. 60s cooldown - align with raid buffs.",
+                new[] { $"Darkside active ({context.DarksideRemaining:F1}s)", $"Blood Gauge at {context.BloodGauge}", "Ready to burst" },
+                new[] { "Wait for more gauge (may overcap)", "Hold for raid buffs (may lose a use)" },
+                "Use Delirium on cooldown when Darkside is active. At Lv.96+, you get the Scarlet Delirium combo instead of free Bloodspillers.",
+                "drk_delirium");
+
+            context.TrainingService?.RecordConceptApplication("drk_delirium", true, "Burst window activated");
+
             return true;
         }
 

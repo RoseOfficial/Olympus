@@ -184,4 +184,14 @@ public interface IHephaestusContext : ITankRotationContext
     Dalamud.Game.ClientState.Objects.Types.IBattleChara? CurrentTarget { get; }
 
     #endregion
+
+    #region Training
+
+    /// <summary>
+    /// Service for Training Mode - captures and explains rotation decisions.
+    /// Null if training mode is not available.
+    /// </summary>
+    Olympus.Services.Training.ITrainingService? TrainingService { get; }
+
+    #endregion
 }

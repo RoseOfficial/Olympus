@@ -13,6 +13,7 @@ using Olympus.Services.Stats;
 using Olympus.Services.Party;
 using Olympus.Services.Tank;
 using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Rotation.ThemisCore.Helpers;
 using Olympus.Timeline;
 
@@ -87,6 +88,7 @@ public sealed class ThemisContext : IThemisContext
     public ThemisStatusHelper StatusHelper { get; }
     public ThemisPartyHelper PartyHelper { get; }
     public ThemisDebugState Debug { get; }
+    public ITrainingService? TrainingService { get; }
 
     public IBattleChara? CurrentTarget { get; private set; }
 
@@ -123,6 +125,7 @@ public sealed class ThemisContext : IThemisContext
         float comboTimeRemaining,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
+        ITrainingService? trainingService = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -150,6 +153,7 @@ public sealed class ThemisContext : IThemisContext
         EnmityService = enmityService;
         TankCooldownService = tankCooldownService;
         PartyCoordinationService = partyCoordinationService;
+        TrainingService = trainingService;
         StatusHelper = statusHelper;
         PartyHelper = partyHelper;
         Debug = debugState;

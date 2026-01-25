@@ -1,4 +1,5 @@
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.KratosCore.Context;
 using Olympus.Timeline.Models;
 
@@ -114,6 +115,22 @@ public sealed class BuffModule : IKratosModule
         {
             context.Debug.PlannedAction = MNKActions.RiddleOfFire.Name;
             context.Debug.BuffState = "Activating Riddle of Fire";
+
+            // Training: Record Riddle of Fire decision
+            MeleeDpsTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                MNKActions.RiddleOfFire.ActionId,
+                MNKActions.RiddleOfFire.Name,
+                player.Name?.TextValue ?? "Self",
+                "Activating Riddle of Fire (+15% damage for 20s)",
+                "Riddle of Fire is MNK's primary burst window. Use during Brotherhood and before Perfect Balance. " +
+                "Grants Fire's Rumination proc at high levels for extra damage.",
+                new[] { "Disciplined Fist active", "60s cooldown ready", "Starting burst window" },
+                new[] { "Hold for Brotherhood alignment", "Hold for phase timing" },
+                "Riddle of Fire is your most important personal buff. Use on cooldown in most cases.",
+                "mnk_riddle_of_fire");
+            context.TrainingService?.RecordConceptApplication("mnk_riddle_of_fire", true, "Personal burst activation");
+
             return true;
         }
 
@@ -198,6 +215,21 @@ public sealed class BuffModule : IKratosModule
             // Notify coordination service that we used the raid buff
             partyCoord?.OnRaidBuffUsed(MNKActions.Brotherhood.ActionId, 120_000);
 
+            // Training: Record Brotherhood decision
+            MeleeDpsTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                MNKActions.Brotherhood.ActionId,
+                MNKActions.Brotherhood.Name,
+                player.Name?.TextValue ?? "Self",
+                "Activating Brotherhood (+5% party damage for 20s)",
+                "Brotherhood is MNK's party-wide damage buff. Coordinate with other raid buffs. " +
+                "Also increases Chakra generation while active. Best used with Riddle of Fire.",
+                new[] { "120s cooldown ready", context.HasRiddleOfFire ? "Riddle of Fire active" : "Aligning with party", "Party buff timing" },
+                new[] { "Hold for phase timing", "Wait for other raid buffs" },
+                "Brotherhood is a party buff. Coordinate with DRG, BRD, DNC for maximum party damage.",
+                "mnk_brotherhood");
+            context.TrainingService?.RecordConceptApplication("mnk_brotherhood", true, "Party burst activation");
+
             return true;
         }
 
@@ -256,10 +288,38 @@ public sealed class BuffModule : IKratosModule
         {
             context.Debug.PlannedAction = MNKActions.PerfectBalance.Name;
             context.Debug.BuffState = "Activating Perfect Balance";
+
+            // Training: Record Perfect Balance decision
+            var targetBlitz = DetermineTargetBlitz(context);
+            MeleeDpsTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                MNKActions.PerfectBalance.ActionId,
+                MNKActions.PerfectBalance.Name,
+                player.Name?.TextValue ?? "Self",
+                $"Activating Perfect Balance (building {targetBlitz})",
+                "Perfect Balance lets you use any form GCD regardless of current form. " +
+                "Use to build 3 Beast Chakra for a Blitz. 2 charges at level 82+.",
+                new[] { context.HasRiddleOfFire ? "Riddle of Fire active" : "Burst window", $"Building {targetBlitz}", $"Nadi: {(context.HasLunarNadi ? "Lunar" : "")} {(context.HasSolarNadi ? "Solar" : "")}" },
+                new[] { "Wait for Riddle of Fire", "Hold charge for emergency" },
+                "Use PB during RoF for maximum burst. Build Lunar → Solar → Phantom Rush.",
+                "mnk_perfect_balance");
+            context.TrainingService?.RecordConceptApplication("mnk_perfect_balance", true, "Blitz setup");
+
             return true;
         }
 
         return false;
+    }
+
+    private static string DetermineTargetBlitz(IKratosContext context)
+    {
+        if (context.HasBothNadi)
+            return "Phantom Rush";
+        if (!context.HasLunarNadi)
+            return "Elixir Field (Lunar)";
+        if (!context.HasSolarNadi)
+            return "Rising Phoenix (Solar)";
+        return "Phantom Rush";
     }
 
     #endregion
@@ -294,6 +354,22 @@ public sealed class BuffModule : IKratosModule
         {
             context.Debug.PlannedAction = MNKActions.RiddleOfWind.Name;
             context.Debug.BuffState = "Activating Riddle of Wind";
+
+            // Training: Record Riddle of Wind decision
+            MeleeDpsTrainingHelper.RecordDamageDecision(
+                context.TrainingService,
+                MNKActions.RiddleOfWind.ActionId,
+                MNKActions.RiddleOfWind.Name,
+                player.Name?.TextValue ?? "Self",
+                "Activating Riddle of Wind (+50% auto-attack speed)",
+                "Riddle of Wind increases auto-attack speed for 15s. " +
+                "Use on cooldown for passive damage. Grants Wind's Rumination proc.",
+                new[] { "90s cooldown ready", "Passive damage increase", "Grants Wind's Rumination" },
+                new[] { "No reason to hold", "Low priority buff" },
+                "Riddle of Wind is free damage. Use on cooldown, weave between GCDs.",
+                "mnk_riddle_of_wind");
+            context.TrainingService?.RecordConceptApplication("mnk_riddle_of_wind", true, "Auto-attack buff");
+
             return true;
         }
 

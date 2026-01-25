@@ -16,6 +16,7 @@ using Olympus.Services.Positional;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation;
@@ -64,6 +65,9 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
     // Party coordination service for raid buff synchronization (optional)
     private readonly IPartyCoordinationService? _partyCoordinationService;
 
+    // Training service for decision explanations (optional)
+    private readonly ITrainingService? _trainingService;
+
     // Gauge values (read each frame)
     private int _firstmindsFocus;
     private int _eyeCount;
@@ -87,6 +91,7 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
         IPositionalService positionalService,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
+        ITrainingService? trainingService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -107,6 +112,7 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
     {
         _timelineService = timelineService;
         _partyCoordinationService = partyCoordinationService;
+        _trainingService = trainingService;
 
         // Initialize helpers
         _statusHelper = new ZeusStatusHelper();
@@ -211,6 +217,7 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
             targetHasPositionalImmunity: TargetHasPositionalImmunity,
             timelineService: _timelineService,
             partyCoordinationService: _partyCoordinationService,
+            trainingService: _trainingService,
             log: Log);
     }
 
