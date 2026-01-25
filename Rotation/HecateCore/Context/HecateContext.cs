@@ -12,6 +12,7 @@ using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation.HecateCore.Context;
@@ -114,6 +115,9 @@ public sealed class HecateContext : IHecateContext
     public HecatePartyHelper PartyHelper { get; }
     public HecateDebugState Debug { get; }
 
+    // Training
+    public ITrainingService? TrainingService { get; }
+
     #endregion
 
     private readonly IBattleChara? _currentTarget;
@@ -148,6 +152,7 @@ public sealed class HecateContext : IHecateContext
         int astralSoulStacks,
         bool hasParadox,
         ITimelineService? timelineService = null,
+        ITrainingService? trainingService = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -168,6 +173,7 @@ public sealed class HecateContext : IHecateContext
         PlayerStatsService = playerStatsService;
         TargetingService = targetingService;
         TimelineService = timelineService;
+        TrainingService = trainingService;
         ObjectTable = objectTable;
         PartyList = partyList;
         Log = log;

@@ -1,5 +1,6 @@
 using Olympus.Rotation.Common;
 using Olympus.Rotation.HecateCore.Helpers;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.HecateCore.Context;
 
@@ -190,6 +191,16 @@ public interface IHecateContext : ICasterDpsRotationContext
     /// Debug state for this rotation.
     /// </summary>
     HecateDebugState Debug { get; }
+
+    #endregion
+
+    #region Training
+
+    /// <summary>
+    /// Service for recording training decisions and explanations.
+    /// Null if Training Mode is disabled.
+    /// </summary>
+    ITrainingService? TrainingService { get; }
 
     #endregion
 }

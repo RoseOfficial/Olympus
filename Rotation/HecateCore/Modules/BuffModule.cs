@@ -1,5 +1,8 @@
+using Olympus.Config;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.HecateCore.Context;
+using Olympus.Services.Training;
 using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.HecateCore.Modules;
@@ -103,6 +106,23 @@ public sealed class BuffModule : IHecateModule
         if (context.PolyglotStacks >= maxPolyglot)
         {
             context.Debug.BuffState = "Polyglot full, hold Amplifier";
+
+            // Training: Record held decision
+            CasterTrainingHelper.RecordResourceDecision(
+                context.TrainingService,
+                BLMActions.Amplifier.ActionId,
+                BLMActions.Amplifier.Name,
+                "Polyglot",
+                context.PolyglotStacks,
+                "Holding Amplifier - Polyglot at max",
+                "Amplifier generates 1 Polyglot stack instantly. Using it at max stacks would waste the resource. " +
+                "Spend Polyglot with Xenoglossy (single target) or Foul (AoE) before using Amplifier.",
+                new[] { $"Polyglot: {context.PolyglotStacks}/{maxPolyglot}", "Would overcap" },
+                new[] { "Use Xenoglossy/Foul first" },
+                "Always spend Polyglot before using Amplifier to avoid overcapping.",
+                BlmConcepts.GaugeOvercapping);
+            context.TrainingService?.RecordConceptApplication(BlmConcepts.GaugeOvercapping, true, "Avoided Polyglot overcap");
+
             return false;
         }
 
@@ -110,6 +130,22 @@ public sealed class BuffModule : IHecateModule
         if (!context.IsEnochianActive)
         {
             context.Debug.BuffState = "No Enochian, skip Amplifier";
+
+            // Training: Record skipped decision
+            CasterTrainingHelper.RecordResourceDecision(
+                context.TrainingService,
+                BLMActions.Amplifier.ActionId,
+                BLMActions.Amplifier.Name,
+                "Polyglot",
+                context.PolyglotStacks,
+                "Skipping Amplifier - no Enochian",
+                "Amplifier requires an active element state (Astral Fire or Umbral Ice) to function. " +
+                "Without Enochian active, Polyglot stacks cannot be generated or maintained.",
+                new[] { "No Enochian active", "Element timer expired" },
+                new[] { "Cast Fire III/Blizzard III first" },
+                "Maintain your element rotation to keep Enochian active for Polyglot generation.",
+                BlmConcepts.Enochian);
+
             return false;
         }
 
@@ -117,6 +153,24 @@ public sealed class BuffModule : IHecateModule
         {
             context.Debug.PlannedAction = BLMActions.Amplifier.Name;
             context.Debug.BuffState = "Amplifier (+1 Polyglot)";
+
+            // Training: Record usage
+            CasterTrainingHelper.RecordResourceDecision(
+                context.TrainingService,
+                BLMActions.Amplifier.ActionId,
+                BLMActions.Amplifier.Name,
+                "Polyglot",
+                context.PolyglotStacks,
+                "Amplifier - instant Polyglot stack",
+                "Amplifier grants 1 Polyglot stack instantly on a 120s cooldown. Use it on cooldown when " +
+                "you have room to gain stacks. Polyglot is spent on Xenoglossy (high single-target damage) " +
+                "or Foul (AoE damage).",
+                new[] { $"Polyglot: {context.PolyglotStacks} → {context.PolyglotStacks + 1}", "Enochian active" },
+                new[] { "Hold for emergency movement" },
+                "Use Amplifier on cooldown but only when you have room for more Polyglot stacks.",
+                BlmConcepts.PolyglotStacks);
+            context.TrainingService?.RecordConceptApplication(BlmConcepts.PolyglotStacks, true, "Generated Polyglot via Amplifier");
+
             return true;
         }
 
@@ -149,12 +203,42 @@ public sealed class BuffModule : IHecateModule
         if (ShouldHoldBurstForPhase(context))
         {
             context.Debug.BuffState = "Holding Ley Lines (phase soon)";
+
+            // Training: Record held decision
+            CasterTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                BLMActions.LeyLines.ActionId,
+                BLMActions.LeyLines.Name,
+                player.Name?.TextValue ?? "Self",
+                "Holding Ley Lines - phase transition soon",
+                "Ley Lines provides 15% spell speed for 30 seconds but requires you to stay in the circle. " +
+                "Placing it before a phase transition or forced movement wastes the buff duration.",
+                new[] { "Phase transition imminent", "Would waste uptime" },
+                new[] { "Use after phase resolves" },
+                "Save Ley Lines for windows where you can stay stationary.",
+                BlmConcepts.LeyLines);
+
             return false;
         }
 
         if (IsMovementImminent(context))
         {
             context.Debug.BuffState = "Holding Ley Lines (movement soon)";
+
+            // Training: Record held decision
+            CasterTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                BLMActions.LeyLines.ActionId,
+                BLMActions.LeyLines.Name,
+                player.Name?.TextValue ?? "Self",
+                "Holding Ley Lines - movement mechanic soon",
+                "Ley Lines provides 15% spell speed but only while standing in the circle. " +
+                "Movement mechanics force you to leave, wasting the buff. Wait until after movement resolves.",
+                new[] { "Movement mechanic soon", "Would lose uptime" },
+                new[] { "Wait for stationary window" },
+                "Plan Ley Lines around known movement mechanics in the fight.",
+                BlmConcepts.LeyLines);
+
             return false;
         }
 
@@ -170,6 +254,23 @@ public sealed class BuffModule : IHecateModule
         {
             context.Debug.PlannedAction = BLMActions.LeyLines.Name;
             context.Debug.BuffState = "Ley Lines placed";
+
+            // Training: Record usage
+            CasterTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                BLMActions.LeyLines.ActionId,
+                BLMActions.LeyLines.Name,
+                player.Name?.TextValue ?? "Self",
+                "Ley Lines - 15% spell speed buff",
+                "Ley Lines provides 15% spell speed for 30 seconds. Use during Astral Fire phase " +
+                "to maximize Fire IV casts. Avoid placing before phase transitions or forced movement mechanics.",
+                new[] { "In Astral Fire", "Stationary window", "No phase transition soon" },
+                new[] { "Hold for burst alignment" },
+                "Place Ley Lines early in Fire phase for maximum uptime on your highest damage spells.",
+                BlmConcepts.LeyLines,
+                ExplanationPriority.High);
+            context.TrainingService?.RecordConceptApplication(BlmConcepts.LeyLines, true, "Burst buff placed");
+
             return true;
         }
 
@@ -199,6 +300,22 @@ public sealed class BuffModule : IHecateModule
             {
                 context.Debug.PlannedAction = BLMActions.Triplecast.Name;
                 context.Debug.BuffState = "Triplecast (movement)";
+
+                // Training: Record movement usage
+                CasterTrainingHelper.RecordMovementDecision(
+                    context.TrainingService,
+                    BLMActions.Triplecast.ActionId,
+                    BLMActions.Triplecast.Name,
+                    null,
+                    "Triplecast for movement",
+                    "Triplecast makes your next 3 spells instant. This is essential for maintaining DPS while " +
+                    "handling movement mechanics. Using it reactively when forced to move.",
+                    new[] { "Currently moving", "No instant cast available", $"Charges: {context.TriplecastCharges}" },
+                    new[] { "Use Xenoglossy instead", "Slidecast" },
+                    "Save at least one Triplecast charge for unexpected movement.",
+                    BlmConcepts.Triplecast);
+                context.TrainingService?.RecordConceptApplication(BlmConcepts.Triplecast, true, "Movement Triplecast");
+
                 return true;
             }
         }
@@ -210,6 +327,22 @@ public sealed class BuffModule : IHecateModule
             {
                 context.Debug.PlannedAction = BLMActions.Triplecast.Name;
                 context.Debug.BuffState = "Triplecast (prepping for movement)";
+
+                // Training: Record proactive usage
+                CasterTrainingHelper.RecordMovementDecision(
+                    context.TrainingService,
+                    BLMActions.Triplecast.ActionId,
+                    BLMActions.Triplecast.Name,
+                    null,
+                    "Triplecast - preparing for movement",
+                    "Using Triplecast proactively before an expected movement mechanic. This allows you to " +
+                    "continue casting Fire IV while moving instead of losing GCDs to movement.",
+                    new[] { "Movement mechanic soon", "No instant cast ready", "Preparing in advance" },
+                    new[] { "Wait for actual movement" },
+                    "Learning fight timelines helps you use Triplecast proactively for better uptime.",
+                    BlmConcepts.Triplecast);
+                context.TrainingService?.RecordConceptApplication(BlmConcepts.MovementOptimization, true, "Proactive Triplecast");
+
                 return true;
             }
         }
@@ -221,6 +354,23 @@ public sealed class BuffModule : IHecateModule
             {
                 context.Debug.PlannedAction = BLMActions.Triplecast.Name;
                 context.Debug.BuffState = "Triplecast (burst)";
+
+                // Training: Record burst usage
+                CasterTrainingHelper.RecordBurstDecision(
+                    context.TrainingService,
+                    BLMActions.Triplecast.ActionId,
+                    BLMActions.Triplecast.Name,
+                    null,
+                    "Triplecast for burst DPS",
+                    "Using Triplecast during Astral Fire phase to cast more Fire IVs faster. With 2 charges, " +
+                    "we can afford to use one for DPS while keeping one for movement. Instant Fire IVs mean " +
+                    "higher spell speed during burst windows.",
+                    new[] { "In Astral Fire", "2 charges available", "Burst window" },
+                    new[] { "Save for movement" },
+                    "Balance Triplecast between movement utility and burst damage optimization.",
+                    BlmConcepts.Triplecast);
+                context.TrainingService?.RecordConceptApplication(BlmConcepts.Triplecast, true, "Burst Triplecast");
+
                 return true;
             }
         }
@@ -258,6 +408,25 @@ public sealed class BuffModule : IHecateModule
         {
             context.Debug.PlannedAction = BLMActions.Manafont.Name;
             context.Debug.BuffState = "Manafont (MP restore)";
+
+            // Training: Record usage
+            CasterTrainingHelper.RecordResourceDecision(
+                context.TrainingService,
+                BLMActions.Manafont.ActionId,
+                BLMActions.Manafont.Name,
+                "MP",
+                context.CurrentMp,
+                "Manafont - extending Fire phase",
+                "Manafont restores 10,000 MP and resets element timer. Use during Astral Fire when MP is low " +
+                "(after Fire IV spam) to cast additional Fire IV/Despair. This extends your Fire phase for " +
+                "more damage before transitioning to Umbral Ice.",
+                new[] { "In Astral Fire", $"MP: {context.CurrentMp}", "Low MP threshold" },
+                new[] { "Transition to Ice instead" },
+                "Use Manafont after depleting MP with Fire IVs to squeeze more damage before Ice phase.",
+                BlmConcepts.Manafont);
+            context.TrainingService?.RecordConceptApplication(BlmConcepts.Manafont, true, "MP restored in Fire phase");
+            context.TrainingService?.RecordConceptApplication(BlmConcepts.MpManagement, true, "Extended Fire phase");
+
             return true;
         }
 

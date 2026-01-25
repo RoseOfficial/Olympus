@@ -3,6 +3,59 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.45.0 - Hecate (BLM) Training Mode
+
+**Full Black Mage Training Mode Integration**
+- Hecate (BLM) rotation now records all training decisions with detailed explanations
+- Live coaching shows why each ability was used with factors considered and alternatives rejected
+- First caster DPS with complete Training Mode integration
+
+**Element System Decisions**
+- Astral Fire: Fire phase entry and damage maximization
+- Umbral Ice: Ice phase for MP recovery and Umbral Hearts
+- Element Transitions: Fire III/Blizzard III for phase swaps
+- Element Timer: Paradox usage to refresh timer during Fire phase
+- Enochian: Maintaining element state for Polyglot generation
+
+**Resource Management**
+- Umbral Hearts: Blizzard IV for 3 hearts to reduce Fire IV MP cost
+- Polyglot Stacks: Xenoglossy/Foul for damage and movement
+- Astral Soul: Fire IV builds stacks for Flare Star at 6
+- Gauge Overcapping: Spend Polyglot before Amplifier to avoid waste
+- MP Management: Manafont to extend Fire phase
+
+**Proc System**
+- Firestarter: Instant Fire III for movement or transitions
+- Thunderhead: Instant Thunder for movement or DoT refresh
+- Proc Priority: Using expiring procs before they fall off
+
+**Core Rotation Decisions**
+- Fire IV Spam: Main damage in Astral Fire phase
+- Despair Timing: Fire phase finisher before Ice transition
+- Thunder DoT: Maintenance during Ice phase
+- Paradox: Timer refresh in Fire, instant in Ice
+
+**Cooldown Management**
+- Ley Lines: 15% spell speed buff during stationary windows
+- Triplecast: 3 instant casts for movement or burst
+- Manafont: MP restore to extend Fire phase
+- Amplifier: Instant Polyglot generation
+
+**Movement Optimization**
+- Xenoglossy: Primary movement tool (instant, high damage)
+- Triplecast: Pre-emptive instant casts for mechanics
+- Procs: Firestarter/Thunderhead as movement options
+- Scathe: Last resort when all instants exhausted
+
+**AoE Rotation**
+- Fire II/High Fire II: AoE filler in Fire phase
+- Flare: AoE finisher consuming all MP
+- Foul: AoE Polyglot spender
+
+**Concept Mastery**
+- All 25 BLM concepts tracked including element system, proc management, gauges, burst windows, and movement optimization
+<!-- LATEST-END -->
+
 ## v3.44.0 - Terpsichore (DNC) Training Mode
 
 **Full Dancer Training Mode Integration**
@@ -50,7 +103,6 @@ All notable changes to Olympus will be documented in this file.
 
 **Concept Mastery**
 - All 25 DNC concepts tracked including dance system, proc management, gauges, burst windows, and party utility
-<!-- LATEST-END -->
 
 ## v3.43.0 - Calliope (BRD) Training Mode
 

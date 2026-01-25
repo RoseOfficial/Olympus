@@ -14,6 +14,7 @@ using Olympus.Services.Debuff;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation;
@@ -59,6 +60,9 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
     // Timeline service for fight-aware rotation (optional)
     private readonly ITimelineService? _timelineService;
 
+    // Training service for explaining rotation decisions (optional)
+    private readonly ITrainingService? _trainingService;
+
     // Gauge values (read each frame)
     private int _elementStacks;
     private float _elementTimer;
@@ -82,6 +86,7 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
         IPlayerStatsService playerStatsService,
         IDebuffDetectionService debuffDetectionService,
         ITimelineService? timelineService = null,
+        ITrainingService? trainingService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -100,6 +105,7 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
             errorMetrics)
     {
         _timelineService = timelineService;
+        _trainingService = trainingService;
 
         // Initialize helpers
         _statusHelper = new HecateStatusHelper();
@@ -174,6 +180,7 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
             astralSoulStacks: _astralSoulStacks,
             hasParadox: _hasParadox,
             timelineService: _timelineService,
+            trainingService: _trainingService,
             log: Log);
     }
 
