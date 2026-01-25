@@ -3,6 +3,35 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.29.0 - Mastery-Driven Recommendations
+
+**Smart Lesson Recommendations**
+- Recommendations tab now uses concept mastery data to suggest lessons
+- Struggling concepts (<60% success rate) drive targeted lesson suggestions
+- Priority scales with struggle severity: 0% success = highest priority, 60% = medium priority
+
+**Mixed Recommendations**
+- Fight performance issues and mastery data now combine intelligently
+- Same lesson can match both issue-based and mastery-based criteria
+- Combined reasons show when both sources identify the same improvement opportunity
+
+**UI Enhancements**
+- New [MASTERY] badge appears on mastery-driven recommendations
+- "Struggling:" line displays the specific concepts you need to practice
+- Header text adapts: "Based on fight performance", "Based on mastery data", or "Based on both"
+
+**Generate from Mastery Data**
+- New "Generate from Mastery Data" button in empty state
+- Select any job and generate recommendations without needing to complete a fight
+- Useful for reviewing skill gaps across all your practiced jobs
+
+**How It Works**
+- Play normally to build mastery data (v3.28.0)
+- Recommendations now automatically include lessons for struggling concepts
+- Lower success rate = higher recommendation priority
+- Complete suggested lessons to improve your weak areas
+<!-- LATEST-END -->
+
 ## v3.28.0 - Concept Mastery Tracking
 
 **Mastery System**
@@ -30,7 +59,6 @@ All notable changes to Olympus will be documented in this file.
 - Olympus tracks opportunities to apply concepts and whether they succeeded
 - After 10+ opportunities, concepts are evaluated for mastery
 - Your skill level adjusts based on actual combat performance
-<!-- LATEST-END -->
 
 ## v3.27.0 - Adaptive Training Mode
 

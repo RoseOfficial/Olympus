@@ -25,6 +25,19 @@ public static class LessonsTab
     private static string selectedJob = "whm";
     private static string? selectedLessonId;
 
+    /// <summary>
+    /// Navigates to a specific lesson by ID. Called from Recommendations tab.
+    /// </summary>
+    public static void NavigateToLesson(string lessonId)
+    {
+        var lesson = LessonRegistry.GetLesson(lessonId);
+        if (lesson == null)
+            return;
+
+        selectedJob = lesson.JobPrefix;
+        selectedLessonId = lessonId;
+    }
+
     public static void Draw(ITrainingService trainingService, TrainingConfig config)
     {
         // Job tabs - organized by role

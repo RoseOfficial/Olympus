@@ -333,9 +333,6 @@ public sealed class TrainingService : ITrainingService
         if (!this.config.EnableRecommendations)
             return;
 
-        if (session.Issues == null || session.Issues.Count == 0)
-            return;
-
         // Get job prefix from job ID
         var jobPrefix = GetJobPrefix(session.JobId);
         if (string.IsNullOrEmpty(jobPrefix))
@@ -348,47 +345,122 @@ public sealed class TrainingService : ITrainingService
         if (lessons.Count == 0)
             return;
 
-        var candidates = new List<(LessonDefinition Lesson, int Priority, string Reason, IssueType[] Issues)>();
+        var candidates = new List<(LessonDefinition Lesson, int Priority, string Reason, IssueType[] Issues, string[] StrugglingConcepts, bool IsMasteryDriven)>();
 
-        // Build candidate lessons from issues
-        foreach (var issue in session.Issues)
+        // Build candidate lessons from issues (if any)
+        if (session.Issues != null && session.Issues.Count > 0)
         {
-            if (!IssueConceptMapping.Mappings.TryGetValue(issue.Type, out var mapping))
-                continue;
-
-            var (conceptPatterns, basePriority, reasonTemplate) = mapping;
-
-            // Adjust priority based on issue severity
-            var adjustedPriority = basePriority + issue.Severity switch
+            foreach (var issue in session.Issues)
             {
-                IssueSeverity.Error => 10,
-                IssueSeverity.Warning => 5,
-                _ => 0
-            };
-
-            // Find lessons covering matching concepts
-            foreach (var lesson in lessons)
-            {
-                // Skip completed lessons
-                if (this.config.CompletedLessons.Contains(lesson.LessonId))
+                if (!IssueConceptMapping.Mappings.TryGetValue(issue.Type, out var mapping))
                     continue;
 
-                // Skip dismissed lessons
-                if (this.config.DismissedRecommendations.Contains(lesson.LessonId))
-                    continue;
+                var (conceptPatterns, basePriority, reasonTemplate) = mapping;
 
-                // Check if lesson covers any matching concepts
-                var matchingConcepts = lesson.ConceptsCovered
-                    .Where(concept => conceptPatterns.Any(pattern => ConceptMatchesPattern(concept, pattern)))
-                    .ToArray();
+                // Adjust priority based on issue severity
+                var adjustedPriority = basePriority + issue.Severity switch
+                {
+                    IssueSeverity.Error => 10,
+                    IssueSeverity.Warning => 5,
+                    _ => 0
+                };
 
-                if (matchingConcepts.Length == 0)
-                    continue;
+                // Find lessons covering matching concepts
+                foreach (var lesson in lessons)
+                {
+                    // Skip completed lessons
+                    if (this.config.CompletedLessons.Contains(lesson.LessonId))
+                        continue;
 
-                // Found a match
-                var reason = $"{reasonTemplate} - this lesson covers {string.Join(", ", matchingConcepts.Take(2).Select(FormatConceptName))}";
-                candidates.Add((lesson, adjustedPriority, reason, new[] { issue.Type }));
+                    // Skip dismissed lessons
+                    if (this.config.DismissedRecommendations.Contains(lesson.LessonId))
+                        continue;
+
+                    // Check if lesson covers any matching concepts
+                    var matchingConcepts = lesson.ConceptsCovered
+                        .Where(concept => conceptPatterns.Any(pattern => ConceptMatchesPattern(concept, pattern)))
+                        .ToArray();
+
+                    if (matchingConcepts.Length == 0)
+                        continue;
+
+                    // Found a match
+                    var reason = $"{reasonTemplate} - this lesson covers {string.Join(", ", matchingConcepts.Take(2).Select(FormatConceptName))}";
+                    candidates.Add((lesson, adjustedPriority, reason, new[] { issue.Type }, Array.Empty<string>(), false));
+                }
             }
+        }
+
+        // Add mastery-driven recommendations
+        AddMasteryDrivenCandidates(jobPrefix, lessons, candidates);
+
+        // Deduplicate by lesson (keep highest priority, merge data)
+        var deduped = candidates
+            .GroupBy(c => c.Lesson.LessonId)
+            .Select(g =>
+            {
+                var best = g.OrderByDescending(c => c.Priority).First();
+                var allIssues = g.SelectMany(c => c.Issues).Distinct().ToArray();
+                var allStrugglingConcepts = g.SelectMany(c => c.StrugglingConcepts).Distinct().ToArray();
+                var hasMastery = g.Any(c => c.IsMasteryDriven);
+
+                // If both issue and mastery driven, combine reasons
+                var reason = best.Reason;
+                if (hasMastery && allIssues.Length > 0 && !best.IsMasteryDriven)
+                {
+                    var masteryEntry = g.FirstOrDefault(c => c.IsMasteryDriven);
+                    if (!string.IsNullOrEmpty(masteryEntry.Reason))
+                        reason = $"{best.Reason} (also: {masteryEntry.Reason})";
+                }
+
+                return (best.Lesson, best.Priority, reason, allIssues, allStrugglingConcepts, hasMastery);
+            })
+            .OrderByDescending(c => c.Priority)
+            .Take(this.config.MaxRecommendations)
+            .ToList();
+
+        // Build recommendations
+        var recommendations = deduped.Select(c => new LessonRecommendation
+        {
+            Lesson = c.Lesson,
+            Priority = c.Priority,
+            Reason = c.reason,
+            TriggeringIssues = c.allIssues,
+            StrugglingConcepts = c.allStrugglingConcepts,
+            IsMasteryDriven = c.hasMastery,
+        }).ToList();
+
+        lock (this.recommendationsLock)
+        {
+            this.currentRecommendations.Clear();
+            this.currentRecommendations.AddRange(recommendations);
+        }
+
+        this.log?.Information("Training: Generated {Count} recommendations for {Job} (mastery-driven: {MasteryCount})",
+            recommendations.Count, jobPrefix, recommendations.Count(r => r.IsMasteryDriven));
+    }
+
+    public void UpdateRecommendationsFromMastery(string jobPrefix)
+    {
+        if (!this.config.EnableRecommendations)
+            return;
+
+        if (string.IsNullOrEmpty(jobPrefix))
+            return;
+
+        var lessons = LessonRegistry.GetLessonsForJob(jobPrefix);
+        if (lessons.Count == 0)
+            return;
+
+        var candidates = new List<(LessonDefinition Lesson, int Priority, string Reason, IssueType[] Issues, string[] StrugglingConcepts, bool IsMasteryDriven)>();
+
+        // Only add mastery-driven candidates
+        AddMasteryDrivenCandidates(jobPrefix, lessons, candidates);
+
+        if (candidates.Count == 0)
+        {
+            this.log?.Debug("Training: No mastery-driven recommendations for {Job}", jobPrefix);
+            return;
         }
 
         // Deduplicate by lesson (keep highest priority)
@@ -397,8 +469,8 @@ public sealed class TrainingService : ITrainingService
             .Select(g =>
             {
                 var best = g.OrderByDescending(c => c.Priority).First();
-                var allIssues = g.SelectMany(c => c.Issues).Distinct().ToArray();
-                return (best.Lesson, best.Priority, best.Reason, allIssues);
+                var allStrugglingConcepts = g.SelectMany(c => c.StrugglingConcepts).Distinct().ToArray();
+                return (best.Lesson, best.Priority, best.Reason, Array.Empty<IssueType>(), allStrugglingConcepts, true);
             })
             .OrderByDescending(c => c.Priority)
             .Take(this.config.MaxRecommendations)
@@ -410,7 +482,9 @@ public sealed class TrainingService : ITrainingService
             Lesson = c.Lesson,
             Priority = c.Priority,
             Reason = c.Reason,
-            TriggeringIssues = c.allIssues,
+            TriggeringIssues = Array.Empty<IssueType>(),
+            StrugglingConcepts = c.allStrugglingConcepts,
+            IsMasteryDriven = true,
         }).ToList();
 
         lock (this.recommendationsLock)
@@ -419,7 +493,50 @@ public sealed class TrainingService : ITrainingService
             this.currentRecommendations.AddRange(recommendations);
         }
 
-        this.log?.Information("Training: Generated {Count} recommendations for {Job}", recommendations.Count, jobPrefix);
+        this.log?.Information("Training: Generated {Count} mastery-driven recommendations for {Job}", recommendations.Count, jobPrefix);
+    }
+
+    /// <summary>
+    /// Adds mastery-driven recommendation candidates based on struggling concepts.
+    /// </summary>
+    private void AddMasteryDrivenCandidates(
+        string jobPrefix,
+        IReadOnlyList<LessonDefinition> lessons,
+        List<(LessonDefinition Lesson, int Priority, string Reason, IssueType[] Issues, string[] StrugglingConcepts, bool IsMasteryDriven)> candidates)
+    {
+        var strugglingConcepts = GetStrugglingConcepts(jobPrefix);
+        if (strugglingConcepts.Length == 0)
+            return;
+
+        foreach (var conceptId in strugglingConcepts)
+        {
+            // Get mastery data for this concept
+            var successRate = this.config.ConceptMastery.TryGetValue(conceptId, out var data)
+                ? data.SuccessRate
+                : 0f;
+
+            foreach (var lesson in lessons)
+            {
+                // Skip completed lessons
+                if (this.config.CompletedLessons.Contains(lesson.LessonId))
+                    continue;
+
+                // Skip dismissed lessons
+                if (this.config.DismissedRecommendations.Contains(lesson.LessonId))
+                    continue;
+
+                // Check if lesson covers this struggling concept
+                if (!lesson.ConceptsCovered.Contains(conceptId))
+                    continue;
+
+                // Priority: Lower success = higher priority
+                // Success 0% -> priority 100, Success 60% -> priority 70
+                var priority = 70 + (int)((1f - successRate) * 30f);
+
+                var reason = $"Struggling with {FormatConceptName(conceptId)} ({successRate:P0} success rate)";
+                candidates.Add((lesson, priority, reason, Array.Empty<IssueType>(), new[] { conceptId }, true));
+            }
+        }
     }
 
     public void DismissRecommendation(string lessonId)

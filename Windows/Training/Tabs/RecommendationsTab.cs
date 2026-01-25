@@ -18,6 +18,10 @@ public static class RecommendationsTab
     private static readonly Vector4 NeutralColor = new(0.7f, 0.7f, 0.7f, 1.0f);
     private static readonly Vector4 InfoColor = new(0.4f, 0.7f, 1.0f, 1.0f);
     private static readonly Vector4 TipColor = new(0.6f, 0.4f, 0.9f, 1.0f);
+    private static readonly Vector4 MasteryBadgeColor = new(0.4f, 0.8f, 0.6f, 1.0f);
+
+    // Track selected job for mastery-based generation
+    private static string selectedJobPrefix = "whm";
 
     public static void Draw(ITrainingService trainingService, TrainingConfig config)
     {
@@ -32,12 +36,21 @@ public static class RecommendationsTab
 
         if (recommendations.Count == 0)
         {
-            DrawEmptyState(config);
+            DrawEmptyState(config, trainingService);
             return;
         }
 
-        // Display recommendations
-        ImGui.TextColored(InfoColor, "Based on your recent fight performance:");
+        // Display header based on recommendation sources
+        var hasMasteryRecs = recommendations.Any(r => r.IsMasteryDriven);
+        var hasIssueRecs = recommendations.Any(r => r.TriggeringIssues.Length > 0);
+
+        if (hasMasteryRecs && hasIssueRecs)
+            ImGui.TextColored(InfoColor, "Based on fight performance and mastery data:");
+        else if (hasMasteryRecs)
+            ImGui.TextColored(InfoColor, "Based on concept mastery data:");
+        else
+            ImGui.TextColored(InfoColor, "Based on your recent fight performance:");
+
         ImGui.Spacing();
 
         foreach (var rec in recommendations)
@@ -96,7 +109,7 @@ public static class RecommendationsTab
         }
     }
 
-    private static void DrawEmptyState(TrainingConfig config)
+    private static void DrawEmptyState(TrainingConfig config, ITrainingService trainingService)
     {
         ImGui.Spacing();
         ImGui.Spacing();
@@ -110,9 +123,44 @@ public static class RecommendationsTab
         {
             ImGui.TextColored(NeutralColor, "No recommendations yet.");
             ImGui.Spacing();
-            ImGui.TextWrapped("Complete a fight as a healer (WHM, SCH, AST, or SGE) to receive personalized lesson suggestions based on your performance.");
+            ImGui.TextWrapped("Complete a fight to receive lesson suggestions based on your performance, or generate suggestions from your mastery data below.");
             ImGui.Spacing();
-            ImGui.TextColored(TipColor, "Tip: Recommendations are generated after each fight ends based on detected issues like deaths, unused abilities, or low GCD uptime.");
+            ImGui.TextColored(TipColor, "Tip: Recommendations are generated after fights based on detected issues, or from concepts you're struggling with.");
+
+            // Generate from Mastery Data section
+            ImGui.Spacing();
+            ImGui.Separator();
+            ImGui.Spacing();
+
+            ImGui.TextColored(InfoColor, "Generate from Mastery Data");
+            ImGui.Spacing();
+
+            // Job selector
+            ImGui.SetNextItemWidth(100);
+            if (ImGui.BeginCombo("Job##MasteryJob", selectedJobPrefix.ToUpperInvariant()))
+            {
+                foreach (var job in new[] { "whm", "sch", "ast", "sge", "pld", "war", "drk", "gnb", "drg", "nin", "sam", "mnk", "rpr", "vpr", "mch", "brd", "dnc", "blm", "smn", "rdm", "pct" })
+                {
+                    if (ImGui.Selectable(job.ToUpperInvariant(), selectedJobPrefix == job))
+                    {
+                        selectedJobPrefix = job;
+                    }
+                }
+
+                ImGui.EndCombo();
+            }
+
+            ImGui.SameLine();
+
+            if (ImGui.Button("Generate##FromMastery"))
+            {
+                trainingService.UpdateRecommendationsFromMastery(selectedJobPrefix);
+            }
+
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.SetTooltip("Generate lesson recommendations based on concepts you're struggling with for this job.");
+            }
         }
     }
 
@@ -129,6 +177,13 @@ public static class RecommendationsTab
         ImGui.TextColored(priorityColor, $"[{rec.PriorityLevel}]");
         ImGui.SameLine();
 
+        // Mastery badge (if mastery-driven)
+        if (rec.IsMasteryDriven)
+        {
+            ImGui.TextColored(MasteryBadgeColor, "[MASTERY]");
+            ImGui.SameLine();
+        }
+
         // Lesson title (as selectable)
         ImGui.TextColored(InfoColor, rec.Lesson.Title);
 
@@ -140,11 +195,18 @@ public static class RecommendationsTab
         ImGui.Indent();
         ImGui.TextWrapped(rec.Reason);
 
-        // Triggering issues
+        // Triggering issues (if any)
         if (rec.TriggeringIssues.Length > 0)
         {
             var issueNames = string.Join(", ", rec.TriggeringIssues.Select(FormatIssueType));
             ImGui.TextColored(NeutralColor, $"Issues: {issueNames}");
+        }
+
+        // Struggling concepts (if mastery-driven)
+        if (rec.StrugglingConcepts.Length > 0)
+        {
+            var conceptNames = string.Join(", ", rec.StrugglingConcepts.Select(FormatConceptName));
+            ImGui.TextColored(MasteryBadgeColor, $"Struggling: {conceptNames}");
         }
 
         // Action buttons
@@ -208,5 +270,17 @@ public static class RecommendationsTab
             Olympus.Services.Analytics.IssueType.ResourceCapped => "Capped Resources",
             _ => issueType.ToString()
         };
+    }
+
+    private static string FormatConceptName(string conceptId)
+    {
+        var parts = conceptId.Split('.');
+        if (parts.Length > 1)
+        {
+            var name = parts[^1].Replace("_", " ");
+            return System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(name);
+        }
+
+        return conceptId;
     }
 }

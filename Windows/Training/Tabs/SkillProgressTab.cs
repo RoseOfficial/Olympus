@@ -1,6 +1,7 @@
 namespace Olympus.Windows.Training.Tabs;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
@@ -17,11 +18,15 @@ public static class SkillProgressTab
     private static readonly Vector4 WarningColor = new(0.9f, 0.9f, 0.3f, 1.0f);
     private static readonly Vector4 NeutralColor = new(0.7f, 0.7f, 0.7f, 1.0f);
     private static readonly Vector4 InfoColor = new(0.4f, 0.7f, 1.0f, 1.0f);
+    private static readonly Vector4 UrgentColor = new(0.9f, 0.4f, 0.3f, 1.0f);
 
     // Skill level colors
     private static readonly Vector4 BeginnerColor = new(0.4f, 0.7f, 1.0f, 1.0f);
     private static readonly Vector4 IntermediateColor = new(0.9f, 0.7f, 0.3f, 1.0f);
     private static readonly Vector4 AdvancedColor = new(0.3f, 0.9f, 0.3f, 1.0f);
+
+    // State for lesson navigation
+    private static string? pendingLessonNavigation;
 
     // All supported job prefixes
     private static readonly string[] AllJobPrefixes =
@@ -52,6 +57,17 @@ public static class SkillProgressTab
         "Black Mage", "Summoner", "Red Mage", "Pictomancer",
     };
 
+    /// <summary>
+    /// Gets the pending lesson navigation request (set by "Study This" button).
+    /// Called by TrainingWindow to switch tabs.
+    /// </summary>
+    public static string? GetPendingLessonNavigation()
+    {
+        var lesson = pendingLessonNavigation;
+        pendingLessonNavigation = null;
+        return lesson;
+    }
+
     public static void Draw(ITrainingService trainingService, TrainingConfig config)
     {
         // Adaptive explanations toggle
@@ -61,8 +77,117 @@ public static class SkillProgressTab
         ImGui.Separator();
         ImGui.Spacing();
 
+        // Focus Areas summary (v3.29.0) - show struggling/mastered concepts prominently
+        if (config.EnableAdaptiveExplanations)
+        {
+            DrawFocusAreas(trainingService, config);
+            ImGui.Spacing();
+            ImGui.Separator();
+            ImGui.Spacing();
+        }
+
         // Per-job skill level display
         DrawJobSkillLevels(trainingService, config);
+    }
+
+    private static void DrawFocusAreas(ITrainingService trainingService, TrainingConfig config)
+    {
+        // Gather struggling and mastered concepts across all jobs with progress
+        var strugglingByJob = new List<(string JobPrefix, string JobName, string ConceptId, float SuccessRate)>();
+        var masteredByJob = new List<(string JobPrefix, string JobName, string ConceptId, float SuccessRate)>();
+
+        for (var i = 0; i < AllJobPrefixes.Length; i++)
+        {
+            var prefix = AllJobPrefixes[i];
+            var name = JobDisplayNames[i];
+            var mastery = trainingService.GetConceptMastery(prefix);
+
+            // Get mastery data with success rates
+            foreach (var conceptId in mastery.StrugglingConcepts)
+            {
+                var rate = GetConceptSuccessRate(config, conceptId);
+                strugglingByJob.Add((prefix, name, conceptId, rate));
+            }
+
+            foreach (var conceptId in mastery.MasteredConcepts)
+            {
+                var rate = GetConceptSuccessRate(config, conceptId);
+                masteredByJob.Add((prefix, name, conceptId, rate));
+            }
+        }
+
+        // Sort struggling by worst success rate first
+        strugglingByJob = strugglingByJob.OrderBy(x => x.SuccessRate).ToList();
+
+        // Sort mastered by most recent (highest rate first as proxy)
+        masteredByJob = masteredByJob.OrderByDescending(x => x.SuccessRate).ToList();
+
+        // Draw Focus Areas section
+        if (strugglingByJob.Count > 0)
+        {
+            ImGui.TextColored(UrgentColor, $"\u26A0 Focus Areas ({strugglingByJob.Count} concepts need practice)");
+
+            // Show top 5 struggling concepts
+            foreach (var (jobPrefix, jobName, conceptId, rate) in strugglingByJob.Take(5))
+            {
+                ImGui.TextColored(WarningColor, $"  \u251C\u2500 {jobPrefix.ToUpperInvariant()}: {FormatConceptName(conceptId)} ({rate:P0} success)");
+                ImGui.SameLine();
+                if (ImGui.SmallButton($"Study##{conceptId}"))
+                {
+                    // Find a lesson that covers this concept
+                    var lessons = LessonRegistry.GetLessonsForJob(jobPrefix);
+                    var lesson = lessons.FirstOrDefault(l => l.ConceptsCovered.Contains(conceptId));
+                    if (lesson != null)
+                    {
+                        pendingLessonNavigation = lesson.LessonId;
+                    }
+                }
+
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.SetTooltip("Open the lesson covering this concept");
+                }
+            }
+
+            if (strugglingByJob.Count > 5)
+            {
+                ImGui.TextColored(NeutralColor, $"  \u2514\u2500 ... and {strugglingByJob.Count - 5} more");
+            }
+
+            ImGui.Spacing();
+        }
+
+        // Draw Recently Mastered section
+        if (masteredByJob.Count > 0)
+        {
+            ImGui.TextColored(GoodColor, $"\u2713 Recently Mastered ({masteredByJob.Count} concepts)");
+
+            // Show top 3 mastered concepts
+            foreach (var (jobPrefix, jobName, conceptId, rate) in masteredByJob.Take(3))
+            {
+                ImGui.TextColored(GoodColor, $"  \u251C\u2500 {jobPrefix.ToUpperInvariant()}: {FormatConceptName(conceptId)} ({rate:P0} success)");
+            }
+
+            if (masteredByJob.Count > 3)
+            {
+                ImGui.TextColored(NeutralColor, $"  \u2514\u2500 ... and {masteredByJob.Count - 3} more");
+            }
+        }
+
+        if (strugglingByJob.Count == 0 && masteredByJob.Count == 0)
+        {
+            ImGui.TextColored(NeutralColor, "Play with Training Mode enabled to build mastery data.");
+        }
+    }
+
+    private static float GetConceptSuccessRate(TrainingConfig config, string conceptId)
+    {
+        if (config.ConceptMastery.TryGetValue(conceptId, out var data) && data.Opportunities > 0)
+        {
+            return data.SuccessRate;
+        }
+
+        return 0f;
     }
 
     private static void DrawAdaptiveSettings(TrainingConfig config)
@@ -152,7 +277,7 @@ public static class SkillProgressTab
         // Display each job with progress
         foreach (var job in jobsWithProgress)
         {
-            DrawJobSkillLevel(job.Prefix, job.Name, job.Result, job.Mastery);
+            DrawJobSkillLevel(job.Prefix, job.Name, job.Result, job.Mastery, config);
             ImGui.Spacing();
         }
 
@@ -165,7 +290,7 @@ public static class SkillProgressTab
         }
     }
 
-    private static void DrawJobSkillLevel(string jobPrefix, string jobName, SkillLevelResult result, ConceptMasteryResult mastery)
+    private static void DrawJobSkillLevel(string jobPrefix, string jobName, SkillLevelResult result, ConceptMasteryResult mastery, TrainingConfig config)
     {
         // Job header with level badge
         var levelColor = result.Level switch
@@ -218,22 +343,34 @@ public static class SkillProgressTab
                 }
             }
 
-            // Concept Mastery Details (v3.28.0)
-            DrawMasteryDetails(mastery);
+            // Concept Mastery Details (v3.28.0, enhanced in v3.29.0)
+            DrawMasteryDetails(mastery, jobPrefix, config);
 
             ImGui.TreePop();
         }
         else
         {
-            // Compact display when collapsed
+            // Compact display when collapsed - now includes struggling indicator (v3.29.0)
             ImGui.SameLine();
             ImGui.TextColored(levelColor, $"[{result.Level}]");
             ImGui.SameLine();
             ImGui.TextColored(NeutralColor, $"Score: {result.CompositeScore:F0}");
+
+            // Show struggling count if any (v3.29.0)
+            if (mastery.StrugglingConcepts.Length > 0)
+            {
+                ImGui.SameLine();
+                ImGui.TextColored(WarningColor, $"\u26A0{mastery.StrugglingConcepts.Length} struggling");
+            }
+            else if (mastery.MasteredConcepts.Length > 0)
+            {
+                ImGui.SameLine();
+                ImGui.TextColored(GoodColor, $"\u2713{mastery.MasteredConcepts.Length} mastered");
+            }
         }
     }
 
-    private static void DrawMasteryDetails(ConceptMasteryResult mastery)
+    private static void DrawMasteryDetails(ConceptMasteryResult mastery, string jobPrefix, TrainingConfig config)
     {
         if (mastery.TotalConcepts == 0)
             return;
@@ -248,7 +385,8 @@ public static class SkillProgressTab
             ImGui.TextColored(GoodColor, $"  Mastered ({mastery.MasteredConcepts.Length}):");
             foreach (var concept in mastery.MasteredConcepts.Take(5))
             {
-                ImGui.TextColored(GoodColor, $"    \u2713 {FormatConceptName(concept)}");
+                var rate = GetConceptSuccessRate(config, concept);
+                ImGui.TextColored(GoodColor, $"    \u2713 {FormatConceptName(concept)} ({rate:P0})");
             }
 
             if (mastery.MasteredConcepts.Length > 5)
@@ -257,13 +395,30 @@ public static class SkillProgressTab
             }
         }
 
-        // Struggling concepts
+        // Struggling concepts with "Study This" button (v3.29.0)
         if (mastery.StrugglingConcepts.Length > 0)
         {
             ImGui.TextColored(WarningColor, $"  Needs Practice ({mastery.StrugglingConcepts.Length}):");
             foreach (var concept in mastery.StrugglingConcepts.Take(5))
             {
-                ImGui.TextColored(WarningColor, $"    \u26A0 {FormatConceptName(concept)}");
+                var rate = GetConceptSuccessRate(config, concept);
+                ImGui.TextColored(WarningColor, $"    \u26A0 {FormatConceptName(concept)} ({rate:P0})");
+                ImGui.SameLine();
+                if (ImGui.SmallButton($"Study This##{concept}"))
+                {
+                    // Find a lesson that covers this concept
+                    var lessons = LessonRegistry.GetLessonsForJob(jobPrefix);
+                    var lesson = lessons.FirstOrDefault(l => l.ConceptsCovered.Contains(concept));
+                    if (lesson != null)
+                    {
+                        pendingLessonNavigation = lesson.LessonId;
+                    }
+                }
+
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.SetTooltip("Open the lesson covering this concept");
+                }
             }
 
             if (mastery.StrugglingConcepts.Length > 5)

@@ -15,6 +15,10 @@ public sealed class TrainingWindow : Window
     private readonly ITrainingService trainingService;
     private readonly Configuration configuration;
 
+    // State for programmatic tab navigation (v3.29.0)
+    private bool navigateToLessonsTab;
+    private string? pendingLessonId;
+
     public TrainingWindow(ITrainingService trainingService, Configuration configuration)
         : base("Olympus Training", ImGuiWindowFlags.NoSavedSettings)
     {
@@ -37,6 +41,14 @@ public sealed class TrainingWindow : Window
 
     public override void Draw()
     {
+        // Check for pending lesson navigation from SkillProgressTab (v3.29.0)
+        var pendingNav = SkillProgressTab.GetPendingLessonNavigation();
+        if (pendingNav != null)
+        {
+            this.navigateToLessonsTab = true;
+            this.pendingLessonId = pendingNav;
+        }
+
         // Header with controls
         DrawHeader();
 
@@ -59,8 +71,19 @@ public sealed class TrainingWindow : Window
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Lessons"))
+            // Lessons tab with programmatic navigation support (v3.29.0)
+            var lessonsFlags = this.navigateToLessonsTab ? ImGuiTabItemFlags.SetSelected : ImGuiTabItemFlags.None;
+            if (ImGui.BeginTabItem("Lessons", lessonsFlags))
             {
+                // Pass pending lesson ID to LessonsTab for selection
+                if (this.pendingLessonId != null)
+                {
+                    LessonsTab.NavigateToLesson(this.pendingLessonId);
+                    this.pendingLessonId = null;
+                }
+
+                this.navigateToLessonsTab = false;
+
                 ImGui.Spacing();
                 LessonsTab.Draw(this.trainingService, this.configuration.Training);
                 ImGui.EndTabItem();

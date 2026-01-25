@@ -1542,7 +1542,7 @@ public static class PctConcepts
 }
 
 /// <summary>
-/// Represents a lesson recommendation based on detected performance issues.
+/// Represents a lesson recommendation based on detected performance issues or concept mastery.
 /// </summary>
 public sealed class LessonRecommendation
 {
@@ -1565,6 +1565,16 @@ public sealed class LessonRecommendation
     /// The performance issues that triggered this recommendation.
     /// </summary>
     public IssueType[] TriggeringIssues { get; init; } = Array.Empty<IssueType>();
+
+    /// <summary>
+    /// Struggling concepts this lesson addresses (empty if issue-based only).
+    /// </summary>
+    public string[] StrugglingConcepts { get; init; } = Array.Empty<string>();
+
+    /// <summary>
+    /// Whether this recommendation is driven by mastery data.
+    /// </summary>
+    public bool IsMasteryDriven { get; init; }
 
     /// <summary>
     /// Priority level for display purposes.

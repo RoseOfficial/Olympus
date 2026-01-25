@@ -105,6 +105,13 @@ public interface ITrainingService
     void UpdateRecommendations(FightSession session);
 
     /// <summary>
+    /// Updates recommendations based on concept mastery data only (no fight session needed).
+    /// Useful for generating suggestions when the player hasn't recently fought.
+    /// </summary>
+    /// <param name="jobPrefix">The job prefix to generate recommendations for.</param>
+    void UpdateRecommendationsFromMastery(string jobPrefix);
+
+    /// <summary>
     /// Dismisses a recommendation so it won't appear again.
     /// </summary>
     /// <param name="lessonId">The lesson ID to dismiss.</param>
