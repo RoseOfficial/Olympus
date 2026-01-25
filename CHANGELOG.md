@@ -3,6 +3,55 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.44.0 - Terpsichore (DNC) Training Mode
+
+**Full Dancer Training Mode Integration**
+- Terpsichore (DNC) rotation now records all training decisions with detailed explanations
+- Live coaching shows why each ability was used with factors considered and alternatives rejected
+- Third and final ranged physical DPS with complete Training Mode integration - all ranged physical DPS now complete
+
+**Dance System Decisions**
+- Technical Step: 4-step dance for 2-minute raid buff with party coordination
+- Standard Step: 2-step dance for personal buff maintenance
+- Dance Steps: Execute correct step sequence (Emboite/Entrechat/Jete/Pirouette)
+- Technical Finish: Party-wide damage buff with burst alignment
+- Standard Finish: Personal damage buff kept active
+
+**Burst Window Decisions**
+- Devilment: +20% Crit/DH personal buff, pairs with Technical Finish
+- Flourish: Grants all 4 procs during burst windows
+- Starfall Dance: Highest priority GCD during Devilment
+- Tillana: Technical Finish follow-up granting Last Dance Ready
+
+**High-Level Abilities (Lv.90+)**
+- Starfall Dance: Flourishing Starfall proc from Devilment
+- Finishing Move: Standard Finish follow-up at Lv.96+
+- Last Dance: Technical/Tillana follow-up at Lv.92+
+- Dance of the Dawn: Enhanced Saber Dance at Lv.100
+
+**Proc System**
+- Silken Symmetry: Reverse Cascade proc from Cascade/Flourish
+- Silken Flow: Fountainfall proc from Fountain/Flourish
+- Threefold Fan Dance: Fan Dance III proc from Fan Dance I/II
+- Fourfold Fan Dance: Fan Dance IV proc from Flourish
+
+**Esprit Gauge Management**
+- Saber Dance: Primary Esprit spender at 80+ or 50+ during burst
+- Dance of the Dawn: Enhanced spender during Technical Finish
+- Esprit overcap prevention with smart spending thresholds
+
+**Feather Gauge Management**
+- Fan Dance I: Single-target feather spender
+- Fan Dance II: AoE feather spender at 3+ targets
+- Feather overcap prevention at 4 feathers
+
+**Utility**
+- Head Graze: Interrupt coordination with party
+
+**Concept Mastery**
+- All 25 DNC concepts tracked including dance system, proc management, gauges, burst windows, and party utility
+<!-- LATEST-END -->
+
 ## v3.43.0 - Calliope (BRD) Training Mode
 
 **Full Bard Training Mode Integration**
@@ -50,7 +99,6 @@ All notable changes to Olympus will be documented in this file.
 
 **Concept Mastery**
 - All major BRD concepts tracked: `brd.song_rotation`, `brd.wanderers_minuet`, `brd.mages_ballad`, `brd.armys_paeon`, `brd.repertoire_stacks`, `brd.pitch_perfect`, `brd.song_switching`, `brd.soul_voice_gauge`, `brd.apex_arrow`, `brd.blast_arrow`, `brd.soul_voice_overcapping`, `brd.straight_shot_ready`, `brd.refulgent_arrow`, `brd.barrage`, `brd.resonant_arrow`, `brd.caustic_bite`, `brd.stormbite`, `brd.iron_jaws`, `brd.raging_strikes`, `brd.battle_voice`, `brd.radiant_finale`, `brd.radiant_encore`, `brd.empyreal_arrow`, `brd.bloodletter_management`, `brd.party_utility`
-<!-- LATEST-END -->
 
 ## v3.42.0 - Prometheus (MCH) Training Mode
 

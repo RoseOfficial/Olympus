@@ -13,6 +13,7 @@ using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation.TerpsichoreCore.Context;
@@ -103,6 +104,9 @@ public sealed class TerpsichoreContext : ITerpsichoreContext
     // Party Coordination
     public IPartyCoordinationService? PartyCoordinationService { get; }
 
+    // Training
+    public ITrainingService? TrainingService { get; }
+
     #endregion
 
     private readonly IBattleChara? _currentTarget;
@@ -141,6 +145,7 @@ public sealed class TerpsichoreContext : ITerpsichoreContext
         float comboTimeRemaining,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
+        ITrainingService? trainingService = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -162,6 +167,7 @@ public sealed class TerpsichoreContext : ITerpsichoreContext
         TargetingService = targetingService;
         TimelineService = timelineService;
         PartyCoordinationService = partyCoordinationService;
+        TrainingService = trainingService;
         ObjectTable = objectTable;
         PartyList = partyList;
         Log = log;

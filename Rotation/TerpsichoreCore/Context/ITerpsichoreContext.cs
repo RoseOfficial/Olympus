@@ -1,6 +1,7 @@
 using Olympus.Rotation.Common;
 using Olympus.Rotation.TerpsichoreCore.Helpers;
 using Olympus.Services.Party;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.TerpsichoreCore.Context;
 
@@ -173,6 +174,16 @@ public interface ITerpsichoreContext : IRangedDpsRotationContext
     /// Party coordination service for raid buff synchronization.
     /// </summary>
     IPartyCoordinationService? PartyCoordinationService { get; }
+
+    #endregion
+
+    #region Training
+
+    /// <summary>
+    /// Service for recording training decisions and explanations.
+    /// Null if Training Mode is disabled.
+    /// </summary>
+    ITrainingService? TrainingService { get; }
 
     #endregion
 }

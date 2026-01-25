@@ -1,6 +1,8 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.TerpsichoreCore.Context;
+using Olympus.Services.Training;
 using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.TerpsichoreCore.Modules;
@@ -132,6 +134,23 @@ public sealed class BuffModule : ITerpsichoreModule
         {
             context.Debug.PlannedAction = stepAction.Name;
             context.Debug.BuffState = $"Dance step: {stepAction.Name}";
+
+            // Training: Record dance step execution
+            RangedDpsTrainingHelper.RecordDamageDecision(
+                context.TrainingService,
+                stepAction.ActionId,
+                stepAction.Name,
+                null,
+                $"Dance step {context.StepIndex + 1}",
+                "Dance steps must be executed in the correct order shown on the Step Gauge. Each step " +
+                "corresponds to a specific button (Emboite=Red, Entrechat=Blue, Jete=Green, Pirouette=Yellow). " +
+                "Complete all steps quickly to finish the dance.",
+                new[] { $"Step {context.StepIndex + 1}/{(context.StepIndex >= 2 ? 4 : 2)}", "Dance in progress" },
+                new[] { "Wait for dance to end" },
+                "Execute dance steps as quickly as possible - each step is a 1s GCD.",
+                DncConcepts.DanceExecution);
+            context.TrainingService?.RecordConceptApplication(DncConcepts.DanceExecution, true, "Step execution");
+
             return true;
         }
 
@@ -161,6 +180,22 @@ public sealed class BuffModule : ITerpsichoreModule
                     // Notify coordination service that we used the raid buff
                     context.PartyCoordinationService?.OnRaidBuffUsed(DNCActions.TechnicalFinish.ActionId, 120_000);
 
+                    // Training: Record Technical Finish
+                    RangedDpsTrainingHelper.RecordRaidBuffDecision(
+                        context.TrainingService,
+                        DNCActions.TechnicalFinish.ActionId,
+                        DNCActions.TechnicalFinish.Name,
+                        "4-step dance complete - Technical Finish!",
+                        "Technical Finish is DNC's main raid buff providing 5% damage bonus to the party for 20s. " +
+                        "It's on a 2-minute cooldown and should align with other party raid buffs. " +
+                        "Follow immediately with Devilment and Flourish for maximum burst.",
+                        new[] { "4 dance steps completed", "2-minute raid buff", "Party damage +5%" },
+                        new[] { "Dance not complete" },
+                        "Technical Finish is your most important raid buff - always complete the 4-step dance.",
+                        DncConcepts.TechnicalStep);
+                    context.TrainingService?.RecordConceptApplication(DncConcepts.TechnicalStep, true, "Raid buff applied");
+                    context.TrainingService?.RecordConceptApplication(DncConcepts.BurstAlignment, true, "Burst window opened");
+
                     return true;
                 }
             }
@@ -175,6 +210,24 @@ public sealed class BuffModule : ITerpsichoreModule
                 {
                     context.Debug.PlannedAction = DNCActions.StandardFinish.Name;
                     context.Debug.BuffState = "Standard Finish";
+
+                    // Training: Record Standard Finish
+                    RangedDpsTrainingHelper.RecordSongDecision(
+                        context.TrainingService,
+                        DNCActions.StandardFinish.ActionId,
+                        DNCActions.StandardFinish.Name,
+                        "Standard Step",
+                        30f,
+                        "2-step dance complete - Standard Finish!",
+                        "Standard Finish provides a personal 5% damage buff for 60s and deals high damage. " +
+                        "It's on a 30s cooldown and should be used on cooldown outside of Technical Step windows. " +
+                        "The buff also applies to your dance partner.",
+                        new[] { "2 dance steps completed", "30s cooldown", "Personal +5% damage" },
+                        new[] { "Dance not complete" },
+                        "Keep Standard Finish buff active at all times - use on cooldown.",
+                        DncConcepts.StandardStep);
+                    context.TrainingService?.RecordConceptApplication(DncConcepts.StandardStep, true, "Personal buff applied");
+
                     return true;
                 }
             }
@@ -239,6 +292,22 @@ public sealed class BuffModule : ITerpsichoreModule
         {
             context.Debug.PlannedAction = DNCActions.TechnicalStep.Name;
             context.Debug.BuffState = "Technical Step";
+
+            // Training: Record Technical Step initiation
+            RangedDpsTrainingHelper.RecordRaidBuffDecision(
+                context.TrainingService,
+                DNCActions.TechnicalStep.ActionId,
+                DNCActions.TechnicalStep.Name,
+                "Starting 4-step Technical dance",
+                "Technical Step begins a 4-step dance sequence that ends with Technical Finish, DNC's 2-minute " +
+                "raid buff. Time this to align with other party raid buffs. After finishing, immediately use " +
+                "Devilment and Flourish for maximum burst damage.",
+                new[] { "Off cooldown", "Not already dancing", "2-minute burst window" },
+                new[] { "Already dancing", "Phase transition soon", "Raid buffs not aligned" },
+                "Plan your Technical Step to align with party buffs every 2 minutes.",
+                DncConcepts.TechnicalStep);
+            context.TrainingService?.RecordConceptApplication(DncConcepts.BurstAlignment, true, "Burst preparation");
+
             return true;
         }
 
@@ -276,6 +345,24 @@ public sealed class BuffModule : ITerpsichoreModule
         {
             context.Debug.PlannedAction = DNCActions.StandardStep.Name;
             context.Debug.BuffState = "Standard Step";
+
+            // Training: Record Standard Step initiation
+            RangedDpsTrainingHelper.RecordSongDecision(
+                context.TrainingService,
+                DNCActions.StandardStep.ActionId,
+                DNCActions.StandardStep.Name,
+                "None",
+                0f,
+                "Starting 2-step Standard dance",
+                "Standard Step begins a 2-step dance sequence that ends with Standard Finish. Use on cooldown " +
+                "to maintain the 5% damage buff. Hold if Technical Step will be ready within 5 seconds to " +
+                "avoid delaying your burst window.",
+                new[] { "Off cooldown", "Not already dancing", "Technical Step not imminent" },
+                new[] { "Technical Step coming soon", "Already dancing" },
+                "Keep Standard Finish buff active - it's your most important personal buff.",
+                DncConcepts.StandardStep);
+            context.TrainingService?.RecordConceptApplication(DncConcepts.DanceTimers, true, "Dance initiated");
+
             return true;
         }
 
@@ -324,6 +411,24 @@ public sealed class BuffModule : ITerpsichoreModule
         {
             context.Debug.PlannedAction = DNCActions.Devilment.Name;
             context.Debug.BuffState = "Devilment";
+
+            // Training: Record Devilment decision
+            RangedDpsTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                DNCActions.Devilment.ActionId,
+                DNCActions.Devilment.Name,
+                null,
+                "Devilment for burst window",
+                "Devilment provides +20% Critical Hit and Direct Hit rate for 20s. Always use immediately " +
+                "after Technical Finish to maximize burst damage. Also grants Flourishing Starfall at Lv.90+ " +
+                "for Starfall Dance.",
+                new[] { "Technical Finish active", "+20% Crit/DH", "Grants Starfall Dance proc (Lv.90+)" },
+                new[] { "Wait for Technical Finish", "Already active" },
+                "Devilment is your personal burst buff - pair it with Technical Finish.",
+                DncConcepts.Devilment);
+            context.TrainingService?.RecordConceptApplication(DncConcepts.Devilment, true, "Burst buff activated");
+            context.TrainingService?.RecordConceptApplication(DncConcepts.BurstAlignment, true, "Burst window");
+
             return true;
         }
 
@@ -369,6 +474,26 @@ public sealed class BuffModule : ITerpsichoreModule
         {
             context.Debug.PlannedAction = DNCActions.Flourish.Name;
             context.Debug.BuffState = "Flourish";
+
+            // Training: Record Flourish decision
+            var burstReason = context.HasDevilment || context.HasTechnicalFinish
+                ? "Used during burst window"
+                : "Used to prevent overcapping";
+            RangedDpsTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                DNCActions.Flourish.ActionId,
+                DNCActions.Flourish.Name,
+                null,
+                burstReason,
+                "Flourish grants all four procs (Silken Symmetry, Silken Flow, Threefold Fan, Fourfold Fan). " +
+                "Best used during burst windows to maximize proc damage. Don't use if you already have " +
+                "Symmetry/Flow procs to avoid overcapping.",
+                new[] { "No existing procs", context.HasDevilment ? "Devilment active" : "Burst window", "Grants all 4 procs" },
+                new[] { "Already have Symmetry/Flow procs", "Would overcap procs" },
+                "Consume Symmetry/Flow procs before using Flourish to avoid wasting procs.",
+                DncConcepts.Flourish);
+            context.TrainingService?.RecordConceptApplication(DncConcepts.Flourish, true, "All procs granted");
+
             return true;
         }
 
@@ -397,6 +522,23 @@ public sealed class BuffModule : ITerpsichoreModule
         {
             context.Debug.PlannedAction = DNCActions.FanDanceIV.Name;
             context.Debug.BuffState = "Fan Dance IV";
+
+            // Training: Record Fan Dance IV decision
+            RangedDpsTrainingHelper.RecordProcDecision(
+                context.TrainingService,
+                DNCActions.FanDanceIV.ActionId,
+                DNCActions.FanDanceIV.Name,
+                "Fourfold Fan Dance",
+                target.Name?.TextValue ?? "Target",
+                "Fourfold Fan proc - highest priority oGCD",
+                "Fan Dance IV is granted by Flourish (Fourfold Fan Dance buff). It's a high-potency cone AoE " +
+                "that should be used before other Fan Dances. Use during burst windows for maximum damage.",
+                new[] { "Fourfold Fan Dance proc active", "High potency oGCD", "Cone AoE" },
+                new[] { "No Fourfold proc" },
+                "Fan Dance IV has the highest priority among Fan Dances - use it first.",
+                DncConcepts.FourfoldFan);
+            context.TrainingService?.RecordConceptApplication(DncConcepts.FourfoldFan, true, "Proc consumed");
+
             return true;
         }
 
@@ -421,6 +563,23 @@ public sealed class BuffModule : ITerpsichoreModule
         {
             context.Debug.PlannedAction = DNCActions.FanDanceIII.Name;
             context.Debug.BuffState = "Fan Dance III";
+
+            // Training: Record Fan Dance III decision
+            RangedDpsTrainingHelper.RecordProcDecision(
+                context.TrainingService,
+                DNCActions.FanDanceIII.ActionId,
+                DNCActions.FanDanceIII.Name,
+                "Threefold Fan Dance",
+                target.Name?.TextValue ?? "Target",
+                "Threefold Fan proc - use before Fan Dance I/II",
+                "Fan Dance III is granted by Fan Dance I/II (Threefold Fan Dance buff). It's a high-potency " +
+                "cone AoE oGCD. Use it before spending more feathers to avoid losing the proc.",
+                new[] { "Threefold Fan Dance proc active", "Cone AoE oGCD", "Triggers from Fan Dance I/II" },
+                new[] { "No Threefold proc" },
+                "Fan Dance III has higher priority than Fan Dance I/II - consume it first.",
+                DncConcepts.ThreefoldFan);
+            context.TrainingService?.RecordConceptApplication(DncConcepts.ThreefoldFan, true, "Proc consumed");
+
             return true;
         }
 
@@ -463,6 +622,25 @@ public sealed class BuffModule : ITerpsichoreModule
                 {
                     context.Debug.PlannedAction = DNCActions.FanDanceII.Name;
                     context.Debug.BuffState = $"Fan Dance II ({context.Feathers} feathers)";
+
+                    // Training: Record Fan Dance II decision
+                    var reason = context.Feathers >= 4 ? "Preventing feather overcap" :
+                        context.HasDevilment || context.HasTechnicalFinish ? "Burst window active" : "AoE damage";
+                    RangedDpsTrainingHelper.RecordResourceDecision(
+                        context.TrainingService,
+                        DNCActions.FanDanceII.ActionId,
+                        DNCActions.FanDanceII.Name,
+                        "Feathers",
+                        context.Feathers,
+                        $"Fan Dance II ({reason})",
+                        "Fan Dance II is the AoE feather spender for 3+ targets. Each use consumes 1 feather " +
+                        "and can proc Threefold Fan Dance. Dump feathers at 4 to prevent overcap, or during burst.",
+                        new[] { $"Feathers: {context.Feathers}/4", $"{enemyCount} enemies", "AoE feather spender" },
+                        new[] { "No feathers", "Single target (use Fan Dance I)" },
+                        "Use Fan Dance II at 3+ targets to spend feathers efficiently.",
+                        DncConcepts.FanDanceUsage);
+                    context.TrainingService?.RecordConceptApplication(DncConcepts.FeatherGauge, true, "Feather spent");
+
                     return true;
                 }
             }
@@ -476,6 +654,27 @@ public sealed class BuffModule : ITerpsichoreModule
         {
             context.Debug.PlannedAction = DNCActions.FanDance.Name;
             context.Debug.BuffState = $"Fan Dance ({context.Feathers} feathers)";
+
+            // Training: Record Fan Dance I decision
+            var reason = context.Feathers >= 4 ? "Preventing feather overcap" :
+                context.HasDevilment || context.HasTechnicalFinish ? "Burst window active" : "Feather dump";
+            RangedDpsTrainingHelper.RecordResourceDecision(
+                context.TrainingService,
+                DNCActions.FanDance.ActionId,
+                DNCActions.FanDance.Name,
+                "Feathers",
+                context.Feathers,
+                $"Fan Dance I ({reason})",
+                "Fan Dance I is the single-target feather spender. Each use consumes 1 feather and can proc " +
+                "Threefold Fan Dance. Dump feathers at 4 to prevent overcap, or spend freely during burst windows.",
+                new[] { $"Feathers: {context.Feathers}/4", "Single target", "Can proc Threefold Fan" },
+                new[] { "No feathers", "3+ enemies (use Fan Dance II)" },
+                "Dump feathers at 4 to prevent overcap, or spend during burst windows.",
+                DncConcepts.FanDanceUsage);
+            context.TrainingService?.RecordConceptApplication(DncConcepts.FeatherGauge, true, "Feather spent");
+            if (context.Feathers >= 4)
+                context.TrainingService?.RecordConceptApplication(DncConcepts.FeatherOvercapping, true, "Prevented overcap");
+
             return true;
         }
 
