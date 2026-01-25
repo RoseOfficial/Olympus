@@ -257,6 +257,175 @@ public sealed class TrainingService : ITrainingService
         return lesson.Prerequisites.All(prereq => this.config.CompletedLessons.Contains(prereq));
     }
 
+    public LearningPathRecommendation GetNextRecommendedLesson(string jobPrefix)
+    {
+        var lessons = LessonRegistry.GetLessonsForJob(jobPrefix);
+        var skillLevelResult = GetSkillLevel(jobPrefix);
+        var mastery = GetConceptMastery(jobPrefix);
+
+        // Count completed lessons
+        var completedLessons = lessons.Where(l => this.config.CompletedLessons.Contains(l.LessonId)).ToList();
+        var incompleteLessons = lessons.Where(l => !this.config.CompletedLessons.Contains(l.LessonId)).ToList();
+
+        var baseResult = new LearningPathRecommendation
+        {
+            CompletedLessons = completedLessons.Count,
+            TotalLessons = lessons.Count,
+            SkillLevel = skillLevelResult.Level,
+            StrugglingConcepts = mastery.StrugglingConcepts,
+        };
+
+        // All complete?
+        if (incompleteLessons.Count == 0)
+        {
+            return baseResult with
+            {
+                RecommendedLessonId = null,
+                Reason = skillLevelResult.Level == SkillLevel.Advanced
+                    ? "Consider retaking quizzes for mastery"
+                    : "Review previous lessons or take quizzes",
+                ReasonType = LearningPathReason.AllComplete,
+            };
+        }
+
+        // Priority 1: Address struggling concepts (if any with 10+ opportunities)
+        if (mastery.StrugglingConcepts.Length > 0)
+        {
+            foreach (var lesson in incompleteLessons)
+            {
+                // Check if this lesson covers any struggling concept
+                var coveredStruggling = lesson.ConceptsCovered
+                    .Intersect(mastery.StrugglingConcepts)
+                    .ToArray();
+
+                if (coveredStruggling.Length > 0)
+                {
+                    // Get success rate for most struggling concept
+                    var worstConcept = coveredStruggling
+                        .Select(c => (Concept: c, Rate: GetConceptSuccessRate(c)))
+                        .OrderBy(x => x.Rate)
+                        .First();
+
+                    return baseResult with
+                    {
+                        RecommendedLessonId = lesson.LessonId,
+                        Reason = $"Covers: {FormatConceptName(worstConcept.Concept)} ({worstConcept.Rate:P0} success)",
+                        ReasonType = LearningPathReason.AddressStrugglingConcept,
+                    };
+                }
+            }
+        }
+
+        // Priority 2: Skill-appropriate progression
+        var nextLesson = GetSkillAppropriateLesson(skillLevelResult.Level, lessons.ToList(), incompleteLessons);
+
+        if (nextLesson == null)
+        {
+            // Fallback to first incomplete
+            nextLesson = incompleteLessons.First();
+        }
+
+        var reason = (skillLevelResult.Level, completedLessons.Count) switch
+        {
+            (_, 0) => "Start here to build your foundation",
+            (SkillLevel.Advanced, _) => "Review optimization techniques",
+            _ => "Continue where you left off",
+        };
+
+        var reasonType = completedLessons.Count == 0
+            ? LearningPathReason.StartFromBeginning
+            : skillLevelResult.Level == SkillLevel.Advanced
+                ? LearningPathReason.ReviewForMastery
+                : LearningPathReason.ContinueProgress;
+
+        return baseResult with
+        {
+            RecommendedLessonId = nextLesson.LessonId,
+            Reason = reason,
+            ReasonType = reasonType,
+        };
+    }
+
+    /// <summary>
+    /// Gets the appropriate lesson based on skill level.
+    /// </summary>
+    private LessonDefinition? GetSkillAppropriateLesson(
+        SkillLevel skillLevel,
+        List<LessonDefinition> allLessons,
+        List<LessonDefinition> incompleteLessons)
+    {
+        return skillLevel switch
+        {
+            // Beginners: Always start from the beginning, first incomplete lesson
+            SkillLevel.Beginner => incompleteLessons.FirstOrDefault(),
+
+            // Intermediate: If lessons 1-2 are done, skip to lesson 3-4, else continue from current
+            SkillLevel.Intermediate => GetIntermediateLesson(allLessons, incompleteLessons),
+
+            // Advanced: Focus on lessons 5-7 (advanced topics), or first incomplete
+            SkillLevel.Advanced => GetAdvancedLesson(allLessons, incompleteLessons),
+
+            _ => incompleteLessons.FirstOrDefault(),
+        };
+    }
+
+    private static LessonDefinition? GetIntermediateLesson(
+        List<LessonDefinition> allLessons,
+        List<LessonDefinition> incompleteLessons)
+    {
+        // If basic lessons (1-2) are done, prioritize intermediate lessons (3-4)
+        var basicLessons = allLessons.Where(l => l.LessonNumber <= 2).ToList();
+        var basicComplete = basicLessons.All(l => !incompleteLessons.Contains(l));
+
+        if (basicComplete)
+        {
+            // Try to find an intermediate lesson (3-4) that's incomplete
+            var intermediateLesson = incompleteLessons
+                .FirstOrDefault(l => l.LessonNumber >= 3 && l.LessonNumber <= 4);
+
+            if (intermediateLesson != null)
+                return intermediateLesson;
+        }
+
+        // Otherwise continue linearly
+        return incompleteLessons.FirstOrDefault();
+    }
+
+    private static LessonDefinition? GetAdvancedLesson(
+        List<LessonDefinition> allLessons,
+        List<LessonDefinition> incompleteLessons)
+    {
+        // If intermediate lessons (1-4) are done, prioritize advanced lessons (5-7)
+        var intermediateLessons = allLessons.Where(l => l.LessonNumber <= 4).ToList();
+        var intermediateComplete = intermediateLessons.All(l => !incompleteLessons.Contains(l));
+
+        if (intermediateComplete)
+        {
+            // Try to find an advanced lesson (5-7) that's incomplete
+            var advancedLesson = incompleteLessons
+                .FirstOrDefault(l => l.LessonNumber >= 5);
+
+            if (advancedLesson != null)
+                return advancedLesson;
+        }
+
+        // Otherwise continue linearly
+        return incompleteLessons.FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Gets the success rate for a specific concept.
+    /// </summary>
+    private float GetConceptSuccessRate(string conceptId)
+    {
+        if (this.config.ConceptMastery.TryGetValue(conceptId, out var data))
+        {
+            return data.SuccessRate;
+        }
+
+        return 0f;
+    }
+
     #endregion
 
     #region Skill Quizzes

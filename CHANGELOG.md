@@ -3,6 +3,34 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.30.0 - Adaptive Learning Paths
+
+**Learning Path Guidance**
+- New "Learning Path" panel at the top of the Lessons tab
+- Recommends your next lesson based on skill level, progress, and concept mastery
+- Progress bar shows overall completion for the selected job
+- Skill level badge (Beginner/Intermediate/Advanced) displays prominently
+
+**Personalized Recommendations**
+- Struggling concepts (<60% success rate) take priority - lessons covering them are recommended first
+- Skill-appropriate progression: Beginners start at lesson 1, Intermediate can skip basics, Advanced focus on optimization
+- "Start This Lesson" button navigates directly to the recommended lesson
+
+**Recommendation Types**
+- "Start here to build your foundation" - No lessons completed yet
+- "Continue where you left off" - Normal progression
+- "Covers: [Concept] (X% success)" - Lesson addresses a struggling concept
+- "Review optimization techniques" - Advanced users working on mastery
+- "All lessons completed!" - Congratulations message with quiz suggestion
+
+**How It Works**
+1. Open Training Mode → Lessons tab
+2. The Learning Path panel shows your recommended next lesson
+3. Click "Start This Lesson" to jump directly to it
+4. Struggling concepts from v3.28.0 mastery tracking influence recommendations
+5. Your skill level (from v3.27.0) determines progression style
+<!-- LATEST-END -->
+
 ## v3.29.0 - Mastery-Driven Recommendations
 
 **Smart Lesson Recommendations**
@@ -30,7 +58,6 @@ All notable changes to Olympus will be documented in this file.
 - Recommendations now automatically include lessons for struggling concepts
 - Lower success rate = higher recommendation priority
 - Complete suggested lessons to improve your weak areas
-<!-- LATEST-END -->
 
 ## v3.28.0 - Concept Mastery Tracking
 

@@ -1588,6 +1588,78 @@ public sealed class LessonRecommendation
 }
 
 /// <summary>
+/// Personalized learning path recommendation for the next lesson to study.
+/// </summary>
+public sealed record LearningPathRecommendation
+{
+    /// <summary>
+    /// The recommended lesson ID, or null if all lessons are complete.
+    /// </summary>
+    public string? RecommendedLessonId { get; init; }
+
+    /// <summary>
+    /// Human-readable reason for this recommendation.
+    /// </summary>
+    public string Reason { get; init; } = string.Empty;
+
+    /// <summary>
+    /// The type of recommendation being made.
+    /// </summary>
+    public LearningPathReason ReasonType { get; init; }
+
+    /// <summary>
+    /// Number of lessons completed for this job.
+    /// </summary>
+    public int CompletedLessons { get; init; }
+
+    /// <summary>
+    /// Total number of lessons available for this job.
+    /// </summary>
+    public int TotalLessons { get; init; }
+
+    /// <summary>
+    /// The user's current skill level for this job.
+    /// </summary>
+    public SkillLevel SkillLevel { get; init; }
+
+    /// <summary>
+    /// Struggling concepts that influenced this recommendation (if any).
+    /// </summary>
+    public string[] StrugglingConcepts { get; init; } = Array.Empty<string>();
+}
+
+/// <summary>
+/// Reason type for learning path recommendations.
+/// </summary>
+public enum LearningPathReason
+{
+    /// <summary>
+    /// No lessons completed - start from the beginning.
+    /// </summary>
+    StartFromBeginning,
+
+    /// <summary>
+    /// Continue from where you left off.
+    /// </summary>
+    ContinueProgress,
+
+    /// <summary>
+    /// This lesson addresses a concept you're struggling with.
+    /// </summary>
+    AddressStrugglingConcept,
+
+    /// <summary>
+    /// Advanced user should review optimization topics.
+    /// </summary>
+    ReviewForMastery,
+
+    /// <summary>
+    /// All lessons have been completed.
+    /// </summary>
+    AllComplete,
+}
+
+/// <summary>
 /// Maps performance issues to relevant concept patterns for lesson recommendations.
 /// </summary>
 public static class IssueConceptMapping

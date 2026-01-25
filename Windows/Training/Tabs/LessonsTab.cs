@@ -117,6 +117,11 @@ public static class LessonsTab
             selectedLessonId = lessons[0].LessonId;
         }
 
+        // Learning Path guidance panel
+        DrawLearningPathGuidance(trainingService, config, selectedJob);
+
+        ImGui.Spacing();
+
         // Two-column layout: lesson list (left) and detail (right)
         var availableWidth = ImGui.GetContentRegionAvail().X;
         var listWidth = Math.Min(200f, availableWidth * 0.4f);
@@ -397,6 +402,87 @@ public static class LessonsTab
                 }
             }
         }
+    }
+
+    private static void DrawLearningPathGuidance(ITrainingService trainingService, TrainingConfig config, string jobPrefix)
+    {
+        var recommendation = trainingService.GetNextRecommendedLesson(jobPrefix);
+
+        // Header panel
+        ImGui.PushStyleColor(ImGuiCol.ChildBg, new Vector4(0.15f, 0.15f, 0.2f, 1.0f));
+        if (ImGui.BeginChild("LearningPathPanel", new Vector2(-1, 95), true))
+        {
+            // Header row with title and skill badge
+            ImGui.TextColored(InfoColor, "Learning Path");
+            ImGui.SameLine(ImGui.GetContentRegionAvail().X - 90);
+            DrawSkillBadge(recommendation.SkillLevel);
+
+            ImGui.Spacing();
+
+            // Progress bar
+            var progressFraction = recommendation.TotalLessons > 0
+                ? (float)recommendation.CompletedLessons / recommendation.TotalLessons
+                : 0f;
+            ImGui.ProgressBar(progressFraction, new Vector2(-1, 0), $"{recommendation.CompletedLessons}/{recommendation.TotalLessons} completed");
+
+            ImGui.Spacing();
+
+            // Recommendation
+            if (recommendation.RecommendedLessonId != null)
+            {
+                var lesson = LessonRegistry.GetLesson(recommendation.RecommendedLessonId);
+                if (lesson != null)
+                {
+                    // Reason type indicator
+                    var reasonColor = recommendation.ReasonType switch
+                    {
+                        LearningPathReason.AddressStrugglingConcept => WarningColor,
+                        LearningPathReason.StartFromBeginning => GoodColor,
+                        _ => NeutralColor,
+                    };
+
+                    ImGui.TextColored(GoodColor, "Recommended Next:");
+                    ImGui.SameLine();
+                    ImGui.Text($"{lesson.LessonNumber}. {lesson.Title}");
+
+                    ImGui.TextColored(reasonColor, $"  {recommendation.Reason}");
+
+                    ImGui.SameLine(ImGui.GetContentRegionAvail().X - 100);
+                    if (ImGui.SmallButton("Start This Lesson"))
+                    {
+                        selectedLessonId = recommendation.RecommendedLessonId;
+                    }
+                }
+            }
+            else if (recommendation.ReasonType == LearningPathReason.AllComplete)
+            {
+                ImGui.TextColored(GoodColor, "All lessons completed!");
+                ImGui.TextColored(NeutralColor, recommendation.Reason);
+            }
+        }
+
+        ImGui.EndChild();
+        ImGui.PopStyleColor();
+    }
+
+    private static void DrawSkillBadge(SkillLevel skillLevel)
+    {
+        var (label, color) = skillLevel switch
+        {
+            SkillLevel.Beginner => ("Beginner", new Vector4(0.6f, 0.6f, 0.6f, 1.0f)),
+            SkillLevel.Intermediate => ("Intermediate", InfoColor),
+            SkillLevel.Advanced => ("Advanced", GoodColor),
+            _ => ("Unknown", NeutralColor),
+        };
+
+        ImGui.PushStyleColor(ImGuiCol.Button, color with { W = 0.3f });
+        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, color with { W = 0.4f });
+        ImGui.PushStyleColor(ImGuiCol.ButtonActive, color with { W = 0.5f });
+        ImGui.PushStyleColor(ImGuiCol.Text, color);
+
+        ImGui.SmallButton(label);
+
+        ImGui.PopStyleColor(4);
     }
 
     private static bool AreLessonPrerequisitesMet(LessonDefinition lesson, TrainingConfig config)

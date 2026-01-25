@@ -72,6 +72,13 @@ public interface ITrainingService
     IReadOnlyList<LessonDefinition> GetLessonsForJob(string jobPrefix);
 
     /// <summary>
+    /// Gets the recommended next lesson for a job based on skill level and mastery.
+    /// Provides personalized learning path guidance.
+    /// </summary>
+    /// <param name="jobPrefix">The job prefix (e.g., "whm", "sch", "drg").</param>
+    LearningPathRecommendation GetNextRecommendedLesson(string jobPrefix);
+
+    /// <summary>
     /// Checks if a lesson has been completed.
     /// </summary>
     /// <param name="lessonId">The lesson ID to check.</param>
