@@ -8,6 +8,7 @@ using Dalamud.Plugin.Services;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Services.Analytics;
+using Olympus.Training;
 
 /// <summary>
 /// Core implementation of Training Mode - captures rotation decisions and provides explanations.
@@ -17,6 +18,7 @@ public sealed class TrainingService : ITrainingService
     private readonly TrainingConfig config;
     private readonly IObjectTable objectTable;
     private readonly IPluginLog? log;
+    private readonly TrainingDataRegistry trainingData;
 
     private readonly List<ActionExplanation> explanations = new();
     private readonly object explanationsLock = new();
@@ -32,10 +34,12 @@ public sealed class TrainingService : ITrainingService
     public TrainingService(
         TrainingConfig config,
         IObjectTable objectTable,
+        TrainingDataRegistry trainingData,
         IPluginLog? log = null)
     {
         this.config = config;
         this.objectTable = objectTable;
+        this.trainingData = trainingData;
         this.log = log;
     }
 
@@ -230,7 +234,12 @@ public sealed class TrainingService : ITrainingService
 
     public IReadOnlyList<LessonDefinition> GetLessonsForJob(string jobPrefix)
     {
-        return LessonRegistry.GetLessonsForJob(jobPrefix);
+        return this.trainingData.GetLessonsForJob(jobPrefix);
+    }
+
+    public LessonDefinition? GetLesson(string lessonId)
+    {
+        return this.trainingData.GetLesson(lessonId);
     }
 
     public bool IsLessonComplete(string lessonId)
@@ -244,7 +253,7 @@ public sealed class TrainingService : ITrainingService
         this.log?.Information("Training: Marked lesson as complete: {Lesson}", lessonId);
 
         // Also mark all concepts covered by this lesson as learned
-        var lesson = LessonRegistry.GetLesson(lessonId);
+        var lesson = this.trainingData.GetLesson(lessonId);
         if (lesson != null)
         {
             foreach (var concept in lesson.ConceptsCovered)
@@ -259,7 +268,7 @@ public sealed class TrainingService : ITrainingService
 
     public bool AreLessonPrerequisitesMet(string lessonId)
     {
-        var lesson = LessonRegistry.GetLesson(lessonId);
+        var lesson = this.trainingData.GetLesson(lessonId);
         if (lesson == null)
             return false;
 
@@ -271,7 +280,7 @@ public sealed class TrainingService : ITrainingService
 
     public LearningPathRecommendation GetNextRecommendedLesson(string jobPrefix)
     {
-        var lessons = LessonRegistry.GetLessonsForJob(jobPrefix);
+        var lessons = this.trainingData.GetLessonsForJob(jobPrefix);
         var skillLevelResult = GetSkillLevel(jobPrefix);
         var mastery = GetConceptMastery(jobPrefix);
 
@@ -442,9 +451,19 @@ public sealed class TrainingService : ITrainingService
 
     #region Skill Quizzes
 
+    public QuizDefinition? GetQuiz(string quizId)
+    {
+        return this.trainingData.GetQuiz(quizId);
+    }
+
+    public IReadOnlyList<QuizDefinition> GetQuizzesForJob(string jobPrefix)
+    {
+        return this.trainingData.GetQuizzesForJob(jobPrefix);
+    }
+
     public QuizDefinition? GetQuizForLesson(string lessonId)
     {
-        return QuizRegistry.GetQuizForLesson(lessonId);
+        return this.trainingData.GetQuizForLesson(lessonId);
     }
 
     public bool IsQuizPassed(string quizId)
@@ -471,7 +490,7 @@ public sealed class TrainingService : ITrainingService
 
     public void RecordQuizAttempt(QuizAttempt attempt)
     {
-        var quiz = QuizRegistry.GetQuiz(attempt.QuizId);
+        var quiz = this.trainingData.GetQuiz(attempt.QuizId);
         if (quiz == null)
             return;
 
@@ -522,7 +541,7 @@ public sealed class TrainingService : ITrainingService
             return;
         }
 
-        var lessons = LessonRegistry.GetLessonsForJob(jobPrefix);
+        var lessons = this.trainingData.GetLessonsForJob(jobPrefix);
         if (lessons.Count == 0)
             return;
 
@@ -629,7 +648,7 @@ public sealed class TrainingService : ITrainingService
         if (string.IsNullOrEmpty(jobPrefix))
             return;
 
-        var lessons = LessonRegistry.GetLessonsForJob(jobPrefix);
+        var lessons = this.trainingData.GetLessonsForJob(jobPrefix);
         if (lessons.Count == 0)
             return;
 
@@ -863,7 +882,7 @@ public sealed class TrainingService : ITrainingService
             };
         }
 
-        var lessons = LessonRegistry.GetLessonsForJob(jobPrefix);
+        var lessons = this.trainingData.GetLessonsForJob(jobPrefix);
         var concepts = GetConceptsForJob(jobPrefix);
 
         if (lessons.Count == 0)

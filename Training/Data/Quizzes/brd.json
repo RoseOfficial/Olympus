@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "brd",
+  "jobName": "Bard",
+  "quizzes": [
+    {
+      "quizId": "brd.lesson_1.quiz",
+      "lessonId": "brd.lesson_1",
+      "title": "Quiz: Bard Fundamentals",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "brd.lesson_1.q1",
+          "conceptId": "brd.song_rotation",
+          "scenario": "You're starting a boss fight as Bard.",
+          "question": "What is the standard song rotation order?",
+          "options": ["Mage's Ballad → Army's Paeon → Wanderer's Minuet", "Army's Paeon → Wanderer's Minuet → Mage's Ballad", "Wanderer's Minuet → Mage's Ballad → Army's Paeon", "Any order - songs are interchangeable"],
+          "correctIndex": 2,
+          "explanation": "The standard rotation is WM → MB → AP. Start with Wanderer's Minuet for the crit buff during opener burst."
+        },
+        {
+          "questionId": "brd.lesson_1.q2",
+          "conceptId": "brd.mages_ballad",
+          "scenario": "You notice Bloodletter keeps resetting during one of your songs.",
+          "question": "Which song causes Bloodletter resets?",
+          "options": ["Wanderer's Minuet", "Mage's Ballad", "Army's Paeon", "All songs reset Bloodletter"],
+          "correctIndex": 1,
+          "explanation": "Mage's Ballad has a chance to reset Bloodletter when your DoTs deal damage. This is its unique Repertoire effect."
+        },
+        {
+          "questionId": "brd.lesson_1.q3",
+          "conceptId": "brd.wanderers_minuet",
+          "scenario": "Your party is about to use their 2-minute burst cooldowns.",
+          "question": "What party buff does Wanderer's Minuet provide?",
+          "options": ["+10% damage dealt", "+20% direct hit rate", "+2% critical hit rate", "+15% healing received"],
+          "correctIndex": 2,
+          "explanation": "Wanderer's Minuet provides +2% critical hit rate to the party, making it ideal for burst windows."
+        },
+        {
+          "questionId": "brd.lesson_1.q4",
+          "conceptId": "brd.song_rotation",
+          "scenario": "Your current song has 2 seconds remaining.",
+          "question": "What should you do?",
+          "options": ["Wait for it to expire naturally", "Switch to the next song immediately", "Use all remaining oGCDs first", "Cancel the song early for DPS"],
+          "correctIndex": 1,
+          "explanation": "Switch songs when <3s remaining to avoid dead time. Waiting for natural expiry wastes GCDs."
+        },
+        {
+          "questionId": "brd.lesson_1.q5",
+          "conceptId": "brd.armys_paeon",
+          "scenario": "You're in Army's Paeon phase.",
+          "question": "What is the party buff from Army's Paeon?",
+          "options": ["+2% critical hit rate", "+4% direct hit rate", "+10% damage dealt", "Reduces GCD recast time"],
+          "correctIndex": 1,
+          "explanation": "Army's Paeon provides +4% direct hit rate to the party. It's the 'filler' song between WM and MB."
+        }
+      ]
+    },
+    {
+      "quizId": "brd.lesson_2.quiz",
+      "lessonId": "brd.lesson_2",
+      "title": "Quiz: Repertoire Mastery",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "brd.lesson_2.q1",
+          "conceptId": "brd.repertoire_stacks",
+          "scenario": "You're in Wanderer's Minuet phase.",
+          "question": "When do Repertoire stacks generate?",
+          "options": ["From any weapon skill", "From DoT critical hits only", "From all damage dealt", "Automatically over time"],
+          "correctIndex": 1,
+          "explanation": "During WM, Repertoire stacks generate when your DoTs deal critical damage. More crit = more stacks."
+        },
+        {
+          "questionId": "brd.lesson_2.q2",
+          "conceptId": "brd.pitch_perfect",
+          "scenario": "You have 2 Repertoire stacks and Wanderer's Minuet is about to expire.",
+          "question": "What's the optimal Pitch Perfect stack count?",
+          "options": ["Use at 1 stack minimum", "Use at 2 stacks", "Use at 3 stacks for maximum potency", "Stacks don't affect potency"],
+          "correctIndex": 2,
+          "explanation": "Pitch Perfect at 3 stacks deals 540 potency. Lower stacks deal less. Wait for 3 when possible."
+        },
+        {
+          "questionId": "brd.lesson_2.q3",
+          "conceptId": "brd.song_switching",
+          "scenario": "Wanderer's Minuet has 2 seconds left. You have 2 Repertoire stacks.",
+          "question": "What should you do?",
+          "options": ["Wait for a 3rd stack", "Use Pitch Perfect now, then switch songs", "Switch songs immediately", "Let the song expire naturally"],
+          "correctIndex": 1,
+          "explanation": "With <3s remaining, use PP at 2 stacks to avoid losing them. Losing 2 stacks is worse than suboptimal potency."
+        },
+        {
+          "questionId": "brd.lesson_2.q4",
+          "conceptId": "brd.repertoire_stacks",
+          "scenario": "Empyreal Arrow is available during Wanderer's Minuet.",
+          "question": "What does Empyreal Arrow guarantee during WM?",
+          "options": ["Nothing special", "One Repertoire stack", "Three Repertoire stacks", "A Bloodletter reset"],
+          "correctIndex": 1,
+          "explanation": "Empyreal Arrow guarantees one Repertoire proc during Wanderer's Minuet, regardless of crit."
+        },
+        {
+          "questionId": "brd.lesson_2.q5",
+          "conceptId": "brd.pitch_perfect",
+          "scenario": "You have 3 stacks but Wanderer's Minuet just ended.",
+          "question": "What happens to your Repertoire stacks?",
+          "options": ["They carry over to the next song", "They convert to Soul Voice", "They're lost", "They become Bloodletter resets"],
+          "correctIndex": 2,
+          "explanation": "Repertoire stacks are lost when WM ends. Always use Pitch Perfect before switching songs."
+        }
+      ]
+    },
+    {
+      "quizId": "brd.lesson_3.quiz",
+      "lessonId": "brd.lesson_3",
+      "title": "Quiz: Soul Voice & Apex",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "brd.lesson_3.q1",
+          "conceptId": "brd.soul_voice_gauge",
+          "scenario": "You notice your Soul Voice gauge increasing during combat.",
+          "question": "How does Soul Voice build?",
+          "options": ["From weapon skills", "From Repertoire procs across all songs", "From critical hits only", "From oGCD abilities"],
+          "correctIndex": 1,
+          "explanation": "Soul Voice builds from Repertoire procs during any active song - not just Wanderer's Minuet."
+        },
+        {
+          "questionId": "brd.lesson_3.q2",
+          "conceptId": "brd.apex_arrow",
+          "scenario": "Your Soul Voice gauge is at 75.",
+          "question": "What's the minimum gauge to use Apex Arrow effectively?",
+          "options": ["Any amount", "50 minimum", "80 minimum", "100 only"],
+          "correctIndex": 2,
+          "explanation": "Apex Arrow at 80+ gauge unlocks Blast Arrow. Below 80, you miss the follow-up entirely."
+        },
+        {
+          "questionId": "brd.lesson_3.q3",
+          "conceptId": "brd.blast_arrow",
+          "scenario": "You just used Apex Arrow at 100 Soul Voice.",
+          "question": "What ability becomes available?",
+          "options": ["Pitch Perfect", "Refulgent Arrow", "Blast Arrow", "Radiant Encore"],
+          "correctIndex": 2,
+          "explanation": "Apex Arrow at 80+ grants Blast Arrow Ready, a powerful follow-up attack. Don't forget to use it!"
+        },
+        {
+          "questionId": "brd.lesson_3.q4",
+          "conceptId": "brd.soul_voice_overcapping",
+          "scenario": "Your Soul Voice is at 100 and continuing to fight.",
+          "question": "What's the problem with this situation?",
+          "options": ["Nothing - save it for burst", "You're losing potential Soul Voice generation", "Apex Arrow damage decreases", "It will automatically fire"],
+          "correctIndex": 1,
+          "explanation": "At 100 gauge, any Soul Voice you would generate is wasted. Use Apex before capping."
+        },
+        {
+          "questionId": "brd.lesson_3.q5",
+          "conceptId": "brd.apex_arrow",
+          "scenario": "Raid buffs are active. Your Soul Voice is at 85.",
+          "question": "Should you use Apex Arrow?",
+          "options": ["No - wait for 100", "Yes - 80+ is enough during buffs", "No - save for next burst", "Yes - but skip Blast Arrow"],
+          "correctIndex": 1,
+          "explanation": "During burst windows, using Apex at 80+ is optimal. Waiting for 100 may miss buff windows."
+        }
+      ]
+    },
+    {
+      "quizId": "brd.lesson_4.quiz",
+      "lessonId": "brd.lesson_4",
+      "title": "Quiz: Proc Management",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "brd.lesson_4.q1",
+          "conceptId": "brd.straight_shot_ready",
+          "scenario": "You're using Burst Shot as your filler GCD.",
+          "question": "What proc can Burst Shot grant?",
+          "options": ["Bloodletter Ready", "Pitch Perfect Ready", "Straight Shot Ready (Hawk's Eye)", "Resonant Arrow Ready"],
+          "correctIndex": 2,
+          "explanation": "Burst Shot has a ~35% chance to grant Straight Shot Ready, which upgrades to Refulgent Arrow."
+        },
+        {
+          "questionId": "brd.lesson_4.q2",
+          "conceptId": "brd.barrage",
+          "scenario": "Barrage is available. You have a Refulgent Arrow proc.",
+          "question": "What's the optimal Barrage target?",
+          "options": ["Burst Shot for consistency", "Refulgent Arrow for triple damage", "Apex Arrow for maximum potency", "Iron Jaws to refresh DoTs"],
+          "correctIndex": 1,
+          "explanation": "Barrage + Refulgent Arrow = triple damage (840 potency). Always pair Barrage with Refulgent."
+        },
+        {
+          "questionId": "brd.lesson_4.q3",
+          "conceptId": "brd.refulgent_arrow",
+          "scenario": "You have Straight Shot Ready with 8 seconds remaining.",
+          "question": "What's the priority?",
+          "options": ["Use it immediately - highest priority proc", "Wait for Barrage", "Let it expire - DPS loss anyway", "Use Burst Shot instead"],
+          "correctIndex": 0,
+          "explanation": "Refulgent Arrow is your highest priority proc. Never let it fall off - it's a significant DPS gain."
+        },
+        {
+          "questionId": "brd.lesson_4.q4",
+          "conceptId": "brd.resonant_arrow",
+          "scenario": "You just used Barrage + Refulgent Arrow.",
+          "question": "What follow-up ability is now available?",
+          "options": ["Blast Arrow", "Pitch Perfect", "Resonant Arrow", "Radiant Encore"],
+          "correctIndex": 2,
+          "explanation": "After using Barrage, you gain Resonant Arrow Ready - a free follow-up attack. Don't miss it!"
+        },
+        {
+          "questionId": "brd.lesson_4.q5",
+          "conceptId": "brd.straight_shot_ready",
+          "scenario": "You have 25 seconds on your Straight Shot Ready proc. Barrage cooldown is 15 seconds.",
+          "question": "Should you wait for Barrage?",
+          "options": ["Yes - always pair with Barrage", "No - use the proc now, get another before Barrage", "Yes - but only if burst is coming", "No - but hold Barrage for next proc"],
+          "correctIndex": 1,
+          "explanation": "With 25s on the proc and 15s on Barrage, use the proc now. You'll likely get another before Barrage returns."
+        }
+      ]
+    },
+    {
+      "quizId": "brd.lesson_5.quiz",
+      "lessonId": "brd.lesson_5",
+      "title": "Quiz: DoT Optimization",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "brd.lesson_5.q1",
+          "conceptId": "brd.iron_jaws",
+          "scenario": "Both DoTs have 5 seconds remaining.",
+          "question": "What's the optimal refresh window for DoTs?",
+          "options": ["Refresh at 10+ seconds", "Refresh at 3-7 seconds remaining", "Refresh only at 0 seconds", "Refresh whenever Iron Jaws is available"],
+          "correctIndex": 1,
+          "explanation": "Refresh DoTs at 3-7 seconds remaining. This maximizes uptime without clipping."
+        },
+        {
+          "questionId": "brd.lesson_5.q2",
+          "conceptId": "brd.iron_jaws",
+          "scenario": "You need to refresh your DoTs.",
+          "question": "What does Iron Jaws do?",
+          "options": ["Applies one DoT", "Refreshes only Caustic Bite", "Refreshes both DoTs simultaneously", "Applies new DoTs with current buffs"],
+          "correctIndex": 2,
+          "explanation": "Iron Jaws refreshes both Caustic Bite and Stormbite simultaneously - never apply them separately."
+        },
+        {
+          "questionId": "brd.lesson_5.q3",
+          "conceptId": "brd.caustic_bite",
+          "scenario": "You're applying DoTs to a fresh target.",
+          "question": "What's the preferred application order?",
+          "options": ["Caustic Bite first (lower potency)", "Stormbite first (higher potency)", "Iron Jaws (applies both)", "Either order - they're the same"],
+          "correctIndex": 1,
+          "explanation": "Apply Stormbite first - it has higher initial potency. Then Caustic Bite, then maintain with Iron Jaws."
+        },
+        {
+          "questionId": "brd.lesson_5.q4",
+          "conceptId": "brd.stormbite",
+          "scenario": "Raging Strikes is active. Your DoTs have 8 seconds remaining.",
+          "question": "What should you do?",
+          "options": ["Wait until 3-7 seconds", "Refresh now with Iron Jaws", "Reapply both DoTs manually", "Focus on other abilities"],
+          "correctIndex": 1,
+          "explanation": "During Raging Strikes, refresh DoTs early with Iron Jaws. They snapshot the buff for the full 45s duration."
+        },
+        {
+          "questionId": "brd.lesson_5.q5",
+          "conceptId": "brd.caustic_bite",
+          "scenario": "Your DoTs fell off during a phase transition.",
+          "question": "What do you do when the boss returns?",
+          "options": ["Use Iron Jaws immediately", "Apply Stormbite → Caustic Bite → then Iron Jaws later", "Apply Caustic Bite → Stormbite → then Iron Jaws later", "Just use Iron Jaws for everything"],
+          "correctIndex": 1,
+          "explanation": "Iron Jaws only refreshes existing DoTs. On a fresh target, manually apply Stormbite → Caustic Bite first."
+        }
+      ]
+    },
+    {
+      "quizId": "brd.lesson_6.quiz",
+      "lessonId": "brd.lesson_6",
+      "title": "Quiz: Burst Window",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "brd.lesson_6.q1",
+          "conceptId": "brd.raging_strikes",
+          "scenario": "You're entering your 2-minute burst window.",
+          "question": "What's the correct burst sequence?",
+          "options": ["Battle Voice → Radiant Finale → Raging Strikes", "Radiant Finale → Raging Strikes → Battle Voice", "Raging Strikes → Battle Voice → Radiant Finale", "Any order - they're all buffs"],
+          "correctIndex": 2,
+          "explanation": "The sequence is Raging Strikes → Battle Voice → Radiant Finale. This ensures all buffs are active together."
+        },
+        {
+          "questionId": "brd.lesson_6.q2",
+          "conceptId": "brd.radiant_finale",
+          "scenario": "You've used all three songs during the fight.",
+          "question": "How does Radiant Finale potency scale?",
+          "options": ["Fixed potency regardless of Coda", "Scales with current song active", "Scales with number of Coda (1-3 songs used)", "Scales with Soul Voice gauge"],
+          "correctIndex": 2,
+          "explanation": "Radiant Finale's party buff scales with the number of Coda you've collected (1 per unique song used)."
+        },
+        {
+          "questionId": "brd.lesson_6.q3",
+          "conceptId": "brd.battle_voice",
+          "scenario": "Battle Voice is ready. Other DPS are about to use their burst.",
+          "question": "What buff does Battle Voice provide?",
+          "options": ["+10% damage dealt", "+20% direct hit rate", "+15% critical hit rate", "+25% action speed"],
+          "correctIndex": 1,
+          "explanation": "Battle Voice grants +20% direct hit rate to the party. Coordinate with other DPS burst windows."
+        },
+        {
+          "questionId": "brd.lesson_6.q4",
+          "conceptId": "brd.radiant_finale",
+          "scenario": "You've only used one song so far this fight.",
+          "question": "How many Coda do you have for Radiant Finale?",
+          "options": ["0 - Coda come from damage", "1 - one per unique song used", "3 - all songs grant 3", "Depends on Repertoire procs"],
+          "correctIndex": 1,
+          "explanation": "You get 1 Coda per unique song used. With only one song used, you have 1 Coda for RF."
+        },
+        {
+          "questionId": "brd.lesson_6.q5",
+          "conceptId": "brd.radiant_encore",
+          "scenario": "You just used Radiant Finale.",
+          "question": "What follow-up ability becomes available?",
+          "options": ["Blast Arrow", "Resonant Arrow", "Radiant Encore", "Pitch Perfect"],
+          "correctIndex": 2,
+          "explanation": "Radiant Finale grants Radiant Encore Ready - a free follow-up proc. Use it before it expires!"
+        }
+      ]
+    },
+    {
+      "quizId": "brd.lesson_7.quiz",
+      "lessonId": "brd.lesson_7",
+      "title": "Quiz: Advanced Coordination",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "brd.lesson_7.q1",
+          "conceptId": "brd.empyreal_arrow",
+          "scenario": "Empyreal Arrow is available.",
+          "question": "What's the cooldown of Empyreal Arrow?",
+          "options": ["30 seconds", "15 seconds", "60 seconds", "45 seconds"],
+          "correctIndex": 1,
+          "explanation": "Empyreal Arrow has a 15s cooldown. Use it consistently for guaranteed Repertoire during WM."
+        },
+        {
+          "questionId": "brd.lesson_7.q2",
+          "conceptId": "brd.bloodletter_management",
+          "scenario": "You're in Mage's Ballad phase.",
+          "question": "How should you handle Bloodletter?",
+          "options": ["Save charges for burst", "Spam freely - it resets constantly", "Use once per GCD maximum", "Only use during procs"],
+          "correctIndex": 1,
+          "explanation": "During Mage's Ballad, Bloodletter resets constantly from DoT damage. Spam it freely!"
+        },
+        {
+          "questionId": "brd.lesson_7.q3",
+          "conceptId": "brd.party_utility",
+          "scenario": "A raidwide is incoming. Troubadour is available.",
+          "question": "When should you use Troubadour?",
+          "options": ["After the raidwide hits", "Before the raidwide hits", "Only when healers ask", "Save it for emergencies"],
+          "correctIndex": 1,
+          "explanation": "Troubadour is a damage reduction buff. Use it BEFORE the raidwide hits to reduce incoming damage."
+        },
+        {
+          "questionId": "brd.lesson_7.q4",
+          "conceptId": "brd.party_utility",
+          "scenario": "An enemy cast bar is interruptible. Head Graze is available.",
+          "question": "What should you check first?",
+          "options": ["Interrupt immediately", "Check if it's worth interrupting", "Let tanks handle it", "Check IPC for interrupt coordination"],
+          "correctIndex": 3,
+          "explanation": "Olympus coordinates interrupts via IPC. Check if another player already interrupted to avoid wasting Head Graze."
+        },
+        {
+          "questionId": "brd.lesson_7.q5",
+          "conceptId": "brd.empyreal_arrow",
+          "scenario": "You have Empyreal Arrow, Bloodletter (2 charges), and Sidewinder all available.",
+          "question": "What's the oGCD weaving priority?",
+          "options": ["Bloodletter → Sidewinder → Empyreal", "Empyreal → Sidewinder → Bloodletter", "Sidewinder → Empyreal → Bloodletter", "Use them in any order"],
+          "correctIndex": 1,
+          "explanation": "Empyreal Arrow first (guarantees Repertoire), then Sidewinder (higher potency), then Bloodletter."
+        }
+      ]
+    }
+  ]
+}

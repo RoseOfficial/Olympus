@@ -24,13 +24,14 @@ public static class LessonsTab
     // State
     private static string selectedJob = "whm";
     private static string? selectedLessonId;
+    private static ITrainingService? cachedTrainingService;
 
     /// <summary>
     /// Navigates to a specific lesson by ID. Called from Recommendations tab.
     /// </summary>
     public static void NavigateToLesson(string lessonId)
     {
-        var lesson = LessonRegistry.GetLesson(lessonId);
+        var lesson = cachedTrainingService?.GetLesson(lessonId);
         if (lesson == null)
             return;
 
@@ -40,6 +41,8 @@ public static class LessonsTab
 
     public static void Draw(ITrainingService trainingService, TrainingConfig config)
     {
+        cachedTrainingService = trainingService;
+
         // Job tabs - organized by role
         if (ImGui.BeginTabBar("LessonJobTabs"))
         {
@@ -104,7 +107,7 @@ public static class LessonsTab
         ImGui.Spacing();
 
         // Get lessons for selected job
-        var lessons = LessonRegistry.GetLessonsForJob(selectedJob);
+        var lessons = trainingService.GetLessonsForJob(selectedJob);
         if (lessons.Count == 0)
         {
             ImGui.TextColored(NeutralColor, "No lessons available for this job.");
@@ -129,7 +132,7 @@ public static class LessonsTab
         // Left panel: Lesson list
         if (ImGui.BeginChild("LessonList", new Vector2(listWidth, -1), true))
         {
-            DrawLessonList(lessons, config);
+            DrawLessonList(lessons, trainingService, config);
         }
 
         ImGui.EndChild();
@@ -145,7 +148,7 @@ public static class LessonsTab
         ImGui.EndChild();
     }
 
-    private static void DrawLessonList(System.Collections.Generic.IReadOnlyList<LessonDefinition> lessons, TrainingConfig config)
+    private static void DrawLessonList(System.Collections.Generic.IReadOnlyList<LessonDefinition> lessons, ITrainingService trainingService, TrainingConfig config)
     {
         ImGui.Text("Lessons");
         ImGui.Separator();
@@ -208,7 +211,7 @@ public static class LessonsTab
                 ImGui.Text("Prerequisites not met:");
                 foreach (var prereq in lesson.Prerequisites)
                 {
-                    var prereqLesson = LessonRegistry.GetLesson(prereq);
+                    var prereqLesson = trainingService.GetLesson(prereq);
                     if (prereqLesson != null && !config.CompletedLessons.Contains(prereq))
                     {
                         ImGui.BulletText($"Complete \"{prereqLesson.Title}\" first");
@@ -222,7 +225,7 @@ public static class LessonsTab
 
     private static void DrawLessonDetail(ITrainingService trainingService, TrainingConfig config)
     {
-        var lesson = LessonRegistry.GetLesson(selectedLessonId ?? string.Empty);
+        var lesson = trainingService.GetLesson(selectedLessonId ?? string.Empty);
         if (lesson == null)
         {
             ImGui.TextColored(NeutralColor, "Select a lesson to view details.");
@@ -262,7 +265,7 @@ public static class LessonsTab
             ImGui.Text("Prerequisites:");
             foreach (var prereq in lesson.Prerequisites)
             {
-                var prereqLesson = LessonRegistry.GetLesson(prereq);
+                var prereqLesson = trainingService.GetLesson(prereq);
                 if (prereqLesson != null)
                 {
                     var prereqComplete = config.CompletedLessons.Contains(prereq);
@@ -430,7 +433,7 @@ public static class LessonsTab
             // Recommendation
             if (recommendation.RecommendedLessonId != null)
             {
-                var lesson = LessonRegistry.GetLesson(recommendation.RecommendedLessonId);
+                var lesson = trainingService.GetLesson(recommendation.RecommendedLessonId);
                 if (lesson != null)
                 {
                     // Reason type indicator

@@ -3,6 +3,16 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.0.2 - Training Content Extraction
+
+**Internal Code Quality Improvement**
+- Extracted all quiz and lesson data from C# static classes to JSON files
+- Reduced Training system from ~14,200 lines of C# to 42 JSON data files
+- Created TrainingDataRegistry for dynamic loading of embedded JSON resources
+- 21 lesson files + 21 quiz files (735 questions across all jobs)
+- No user-facing changes - internal refactoring only
+<!-- LATEST-END -->
+
 ## v4.0.1 - Training Helper Abstraction
 
 **Internal Code Quality Improvement**
@@ -11,7 +21,6 @@ All notable changes to Olympus will be documented in this file.
 - Added `DecisionContext` record for role-specific decision tracking data
 - Added `DecisionCategory` constants for consistent category naming
 - No user-facing changes - internal refactoring only
-<!-- LATEST-END -->
 
 ## v4.0.0 - Training Mode Complete
 

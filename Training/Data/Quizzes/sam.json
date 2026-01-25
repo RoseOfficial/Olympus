@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "sam",
+  "jobName": "Samurai",
+  "quizzes": [
+    {
+      "quizId": "sam.lesson_1.quiz",
+      "lessonId": "sam.lesson_1",
+      "title": "Quiz: Samurai Fundamentals",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sam.lesson_1.q1",
+          "conceptId": "sam.combo_basics",
+          "scenario": "You want to obtain the Getsu Sen.",
+          "question": "Which combo route grants Getsu Sen?",
+          "options": ["Hakaze → Shifu → Kasha", "Hakaze → Jinpu → Gekko", "Hakaze → Yukikaze", "Any finisher"],
+          "correctIndex": 1,
+          "explanation": "Hakaze → Jinpu → Gekko is the Jinpu path, which grants Getsu Sen from Gekko. The Shifu path grants Ka Sen."
+        },
+        {
+          "questionId": "sam.lesson_1.q2",
+          "conceptId": "sam.fugetsu_buff",
+          "scenario": "Your Fugetsu buff is about to expire. Fuka has 20 seconds remaining.",
+          "question": "Which buff should you prioritize refreshing?",
+          "options": ["Fuka - it's the haste buff", "Fugetsu - it's the damage buff", "Doesn't matter", "Neither - do Iaijutsu"],
+          "correctIndex": 1,
+          "explanation": "Fugetsu (+13% damage) should be prioritized over Fuka (+13% haste). Damage affects all your abilities."
+        },
+        {
+          "questionId": "sam.lesson_1.q3",
+          "conceptId": "sam.sen_system",
+          "scenario": "You have Getsu and Ka Sen. You need Setsu Sen.",
+          "question": "Which ability grants Setsu Sen?",
+          "options": ["Gekko", "Kasha", "Yukikaze", "Jinpu"],
+          "correctIndex": 2,
+          "explanation": "Yukikaze is the only finisher that grants Setsu Sen. It's a 2-hit combo (Hakaze → Yukikaze) without a positional."
+        },
+        {
+          "questionId": "sam.lesson_1.q4",
+          "conceptId": "sam.fuka_buff",
+          "scenario": "You're starting a fight. What should you establish first?",
+          "question": "What's the optimal buff priority in the opener?",
+          "options": ["Fuka first for speed", "Fugetsu first for damage", "Get both ASAP", "Neither - go straight to Iaijutsu"],
+          "correctIndex": 2,
+          "explanation": "In the opener, you want both buffs up quickly. The standard opener establishes both Fugetsu and Fuka before your first Midare."
+        },
+        {
+          "questionId": "sam.lesson_1.q5",
+          "conceptId": "sam.combo_basics",
+          "scenario": "At level 92+, your combo starter changes.",
+          "question": "What replaces Hakaze at level 92?",
+          "options": ["Jinpu", "Shifu", "Gyofu", "Nothing changes"],
+          "correctIndex": 2,
+          "explanation": "Gyofu replaces Hakaze at level 92, dealing higher potency. It's still used the same way as your combo starter."
+        }
+      ]
+    },
+    {
+      "quizId": "sam.lesson_2.quiz",
+      "lessonId": "sam.lesson_2",
+      "title": "Quiz: Kenki & Meditation",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sam.lesson_2.q1",
+          "conceptId": "sam.kenki_gauge",
+          "scenario": "Your Kenki gauge is at 85. You're about to use a combo that generates 10 Kenki.",
+          "question": "What should you do?",
+          "options": ["Complete the combo first", "Use Shinten to avoid overcap", "Wait for 100 Kenki", "Save for burst"],
+          "correctIndex": 1,
+          "explanation": "At 85 Kenki with 10 more coming, you'll overcap (95 after, missing 5). Use Shinten (25 cost) to make room."
+        },
+        {
+          "questionId": "sam.lesson_2.q2",
+          "conceptId": "sam.kenki_spending",
+          "scenario": "Single target fight. You have 50 Kenki.",
+          "question": "Which Kenki spender should you use?",
+          "options": ["Kyuten", "Shinten", "Save for Senei", "Hagakure"],
+          "correctIndex": 1,
+          "explanation": "Shinten is the single-target Kenki spender. Kyuten is for AoE (3+ targets). Senei costs 25 Kenki and has a cooldown."
+        },
+        {
+          "questionId": "sam.lesson_2.q3",
+          "conceptId": "sam.meditation",
+          "scenario": "You have 3 Meditation stacks. When should you use Shoha?",
+          "question": "What's the optimal Shoha timing?",
+          "options": ["Immediately - don't hold stacks", "During burst window", "Before Iaijutsu", "Save for emergencies"],
+          "correctIndex": 1,
+          "explanation": "Use Shoha during burst windows when possible. At 3 stacks you can't build more, so spend it to avoid waste."
+        },
+        {
+          "questionId": "sam.lesson_2.q4",
+          "conceptId": "sam.kenki_gauge",
+          "scenario": "You're about to use Ikishoten. Your Kenki is at 60.",
+          "question": "What's wrong with this situation?",
+          "options": ["Nothing is wrong", "Ikishoten will overcap Kenki", "Should use Meikyo first", "Need more Sen"],
+          "correctIndex": 1,
+          "explanation": "Ikishoten grants 50 Kenki. At 60 Kenki, using it would put you at 110, wasting 10 gauge. Spend to 50 or below first."
+        },
+        {
+          "questionId": "sam.lesson_2.q5",
+          "conceptId": "sam.meditation",
+          "scenario": "You gain Meditation stacks from using Iaijutsu.",
+          "question": "How many Meditation stacks does one Iaijutsu grant?",
+          "options": ["1 stack", "2 stacks", "3 stacks", "Depends on Sen count"],
+          "correctIndex": 0,
+          "explanation": "Each Iaijutsu grants 1 Meditation stack. You need 3 Iaijutsu casts to get Shoha ready."
+        }
+      ]
+    },
+    {
+      "quizId": "sam.lesson_3.quiz",
+      "lessonId": "sam.lesson_3",
+      "title": "Quiz: Iaijutsu System",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sam.lesson_3.q1",
+          "conceptId": "sam.higanbana_dot",
+          "scenario": "You're in a single-target fight. Higanbana is not on the boss. You have 1 Sen.",
+          "question": "Should you use Higanbana now?",
+          "options": ["Yes - apply the DoT immediately", "No - build to 3 Sen for Midare", "Only in opener", "Depends on fight length"],
+          "correctIndex": 3,
+          "explanation": "Higanbana is worth applying only if the boss will live long enough for the DoT to tick (60s duration). In short fights, Midare is better."
+        },
+        {
+          "questionId": "sam.lesson_3.q2",
+          "conceptId": "sam.midare_setsugekka",
+          "scenario": "You have 2 Sen (Getsu and Ka). The boss is at 5% HP.",
+          "question": "What should you do?",
+          "options": ["Use Tenka Goken (2 Sen)", "Build to 3 Sen for Midare", "Use Higanbana", "Depends on adds"],
+          "correctIndex": 1,
+          "explanation": "Even at low boss HP, building to 3 Sen for Midare Setsugekka is worth it. Tenka Goken is only for multi-target."
+        },
+        {
+          "questionId": "sam.lesson_3.q3",
+          "conceptId": "sam.tenka_goken",
+          "scenario": "3 enemies are grouped together. You have 2 Sen.",
+          "question": "Which Iaijutsu should you use?",
+          "options": ["Midare Setsugekka", "Tenka Goken", "Higanbana on each", "Build to 3 Sen"],
+          "correctIndex": 1,
+          "explanation": "Tenka Goken hits all nearby enemies. At 3 targets, using 2 Sen for AoE damage is more efficient than building for single-target Midare."
+        },
+        {
+          "questionId": "sam.lesson_3.q4",
+          "conceptId": "sam.higanbana_dot",
+          "scenario": "Higanbana has 5 seconds remaining on the boss.",
+          "question": "Should you refresh it now?",
+          "options": ["Yes - keep 100% uptime", "No - wait until 3s or less", "No - let it fall off", "Only during burst"],
+          "correctIndex": 1,
+          "explanation": "Refresh DoTs at 3 seconds or less to avoid clipping (losing ticks). Refreshing at 5s wastes potential damage."
+        },
+        {
+          "questionId": "sam.lesson_3.q5",
+          "conceptId": "sam.iaijutsu_selection",
+          "scenario": "You have 1 Sen in single-target. Higanbana is already on the boss with 40s remaining.",
+          "question": "What should you do with this Sen?",
+          "options": ["Use Higanbana anyway", "Build to 3 Sen for Midare", "Use Hagakure", "Wait for Higanbana to expire"],
+          "correctIndex": 1,
+          "explanation": "Don't overwrite Higanbana early. Build to 3 Sen for Midare Setsugekka instead - it's your primary damage tool."
+        }
+      ]
+    },
+    {
+      "quizId": "sam.lesson_4.quiz",
+      "lessonId": "sam.lesson_4",
+      "title": "Quiz: Tsubame-gaeshi & Meikyo",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sam.lesson_4.q1",
+          "conceptId": "sam.tsubame_gaeshi",
+          "scenario": "You just used Midare Setsugekka. Tsubame-gaeshi is available.",
+          "question": "What should you do next?",
+          "options": ["Start a new combo", "Use Tsubame-gaeshi immediately", "Use Shinten first", "Wait for next GCD"],
+          "correctIndex": 1,
+          "explanation": "Tsubame-gaeshi should be used immediately after Iaijutsu. Kaeshi: Setsugekka is massive damage - never skip it."
+        },
+        {
+          "questionId": "sam.lesson_4.q2",
+          "conceptId": "sam.meikyo_shisui",
+          "scenario": "Meikyo Shisui is ready. You have 0 Sen and need to burst soon.",
+          "question": "What's the optimal Meikyo usage?",
+          "options": ["Use 3 Yukikaze for fast Sen", "Use Gekko → Kasha → Yukikaze", "Use 3 Gekko for damage", "Save for emergencies"],
+          "correctIndex": 1,
+          "explanation": "Use each finisher once to get all 3 Sen types (Getsu, Ka, Setsu) for immediate Midare Setsugekka."
+        },
+        {
+          "questionId": "sam.lesson_4.q3",
+          "conceptId": "sam.meikyo_finisher_priority",
+          "scenario": "During Meikyo, you already have Getsu and Ka Sen. You have 1 Meikyo stack left.",
+          "question": "Which finisher should you use?",
+          "options": ["Gekko - highest potency", "Kasha - flank is easier", "Yukikaze - get Setsu", "Doesn't matter"],
+          "correctIndex": 2,
+          "explanation": "You're missing Setsu Sen. Use Yukikaze to complete your Sen collection for Midare Setsugekka."
+        },
+        {
+          "questionId": "sam.lesson_4.q4",
+          "conceptId": "sam.tsubame_gaeshi",
+          "scenario": "You used Tenka Goken in AoE. What Kaeshi ability appears?",
+          "question": "What follows Tenka Goken?",
+          "options": ["Kaeshi: Setsugekka", "Kaeshi: Goken", "Kaeshi: Higanbana", "Nothing - only Midare has follow-up"],
+          "correctIndex": 1,
+          "explanation": "Tsubame-gaeshi creates Kaeshi versions matching your Iaijutsu. Tenka Goken → Kaeshi: Goken for AoE."
+        },
+        {
+          "questionId": "sam.lesson_4.q5",
+          "conceptId": "sam.meikyo_shisui",
+          "scenario": "Meikyo Shisui has a 55 second cooldown.",
+          "question": "How does this affect your rotation?",
+          "options": ["Use on cooldown always", "Align with 60s buffs", "Save for emergencies", "Use only in opener"],
+          "correctIndex": 1,
+          "explanation": "At 55s cooldown, Meikyo roughly aligns with 60s burst windows. Plan usage around party buffs."
+        }
+      ]
+    },
+    {
+      "quizId": "sam.lesson_5.quiz",
+      "lessonId": "sam.lesson_5",
+      "title": "Quiz: Ikishoten Burst Window",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sam.lesson_5.q1",
+          "conceptId": "sam.ikishoten_burst",
+          "scenario": "Ikishoten is ready. Your Kenki is at 30.",
+          "question": "Is it safe to use Ikishoten?",
+          "options": ["Yes - won't overcap", "No - too much Kenki", "Only during burst", "Need 0 Kenki"],
+          "correctIndex": 0,
+          "explanation": "At 30 Kenki, Ikishoten (+50) puts you at 80. That's safe. Never use Ikishoten above 50 Kenki."
+        },
+        {
+          "questionId": "sam.lesson_5.q2",
+          "conceptId": "sam.ogi_namikiri",
+          "scenario": "You used Ikishoten. What GCD should come next?",
+          "question": "What's the correct sequence?",
+          "options": ["Normal combo", "Ogi Namikiri", "Midare Setsugekka", "Meikyo Shisui"],
+          "correctIndex": 1,
+          "explanation": "Ikishoten grants Ogi Namikiri Ready. Use Ogi Namikiri immediately for your highest potency GCD."
+        },
+        {
+          "questionId": "sam.lesson_5.q3",
+          "conceptId": "sam.zanshin",
+          "scenario": "You just used Kaeshi: Namikiri. Zanshin is now available.",
+          "question": "What is Zanshin?",
+          "options": ["A GCD follow-up", "An enhanced Kenki spender", "A defensive cooldown", "A movement ability"],
+          "correctIndex": 1,
+          "explanation": "Zanshin is an enhanced oGCD Kenki spender available after the Ogi Namikiri sequence. Big damage!"
+        },
+        {
+          "questionId": "sam.lesson_5.q4",
+          "conceptId": "sam.senei_timing",
+          "scenario": "Senei (high-potency oGCD) is ready. You're in burst window.",
+          "question": "When should you use Senei?",
+          "options": ["Before Ikishoten", "During burst window", "After burst ends", "On cooldown regardless"],
+          "correctIndex": 1,
+          "explanation": "Senei deals high damage. Use it during burst windows when party buffs are active for maximum effect."
+        },
+        {
+          "questionId": "sam.lesson_5.q5",
+          "conceptId": "sam.ikishoten_burst",
+          "scenario": "Ikishoten has a 120 second cooldown.",
+          "question": "How does this align with party bursts?",
+          "options": ["Every minute", "Every 2 minutes", "Every 90 seconds", "Doesn't align"],
+          "correctIndex": 1,
+          "explanation": "120s = 2 minutes. Ikishoten aligns perfectly with standard 2-minute raid buff windows."
+        }
+      ]
+    },
+    {
+      "quizId": "sam.lesson_6.quiz",
+      "lessonId": "sam.lesson_6",
+      "title": "Quiz: Positionals & True North",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sam.lesson_6.q1",
+          "conceptId": "sam.positionals",
+          "scenario": "You need to use Gekko for Getsu Sen.",
+          "question": "Where should you stand?",
+          "options": ["Front", "Flank (side)", "Rear (behind)", "Any position"],
+          "correctIndex": 2,
+          "explanation": "Gekko has a rear positional. Stand behind the boss for bonus potency."
+        },
+        {
+          "questionId": "sam.lesson_6.q2",
+          "conceptId": "sam.positionals",
+          "scenario": "You need to use Kasha for Ka Sen.",
+          "question": "Where should you stand?",
+          "options": ["Front", "Flank (side)", "Rear (behind)", "Any position"],
+          "correctIndex": 1,
+          "explanation": "Kasha has a flank positional. Stand at the boss's side for bonus potency."
+        },
+        {
+          "questionId": "sam.lesson_6.q3",
+          "conceptId": "sam.true_north_usage",
+          "scenario": "Boss is against the wall. You can't reach rear for Gekko.",
+          "question": "What should you do?",
+          "options": ["Miss the positional", "Use True North", "Use Kasha instead", "Wait for boss to move"],
+          "correctIndex": 1,
+          "explanation": "True North removes positional requirements for 10 seconds. Use it when you physically can't reach the correct position."
+        },
+        {
+          "questionId": "sam.lesson_6.q4",
+          "conceptId": "sam.positional_recovery",
+          "scenario": "You missed Gekko's positional. The attack still went off.",
+          "question": "What happened?",
+          "options": ["Attack failed", "Full damage dealt", "Reduced potency", "Combo broke"],
+          "correctIndex": 2,
+          "explanation": "Missing a positional means the attack still works but deals reduced potency. You lose the bonus damage."
+        },
+        {
+          "questionId": "sam.lesson_6.q5",
+          "conceptId": "sam.true_north_usage",
+          "scenario": "True North has 2 charges with 45s recharge each.",
+          "question": "How should you manage True North usage?",
+          "options": ["Use freely - always available", "Save both for emergencies", "Use one, keep one in reserve", "Never needed"],
+          "correctIndex": 2,
+          "explanation": "Keep at least one charge available for unexpected situations. Don't cap at 2 charges, but don't waste them either."
+        }
+      ]
+    },
+    {
+      "quizId": "sam.lesson_7.quiz",
+      "lessonId": "sam.lesson_7",
+      "title": "Quiz: Advanced Optimization",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sam.lesson_7.q1",
+          "conceptId": "sam.burst_alignment",
+          "scenario": "Party raid buffs are coming in 5 seconds. Ikishoten is ready.",
+          "question": "When should you use Ikishoten?",
+          "options": ["Now - on cooldown", "When buffs go up", "After buffs expire", "Doesn't matter"],
+          "correctIndex": 1,
+          "explanation": "Align Ikishoten with party raid buffs for maximum damage during Ogi Namikiri and the entire burst sequence."
+        },
+        {
+          "questionId": "sam.lesson_7.q2",
+          "conceptId": "sam.hagakure_usage",
+          "scenario": "Boss is about to become untargetable for 20 seconds. You have 3 Sen.",
+          "question": "What should you do with your Sen?",
+          "options": ["Use Midare before downtime", "Use Hagakure for Kenki", "Hold Sen for after", "Doesn't matter"],
+          "correctIndex": 0,
+          "explanation": "Use Midare before downtime if possible. Only use Hagakure if you can't get Midare off in time - Midare damage > Kenki value."
+        },
+        {
+          "questionId": "sam.lesson_7.q3",
+          "conceptId": "sam.aoe_rotation",
+          "scenario": "4 enemies are grouped. You're doing the AoE rotation.",
+          "question": "What Sen types can you build with AoE combos?",
+          "options": ["All three (Getsu, Ka, Setsu)", "Only Getsu and Ka", "Only Setsu", "None - AoE doesn't grant Sen"],
+          "correctIndex": 1,
+          "explanation": "Fuko → Mangetsu grants Getsu. Fuko → Oka grants Ka. You cannot build Setsu Sen in AoE - it requires Yukikaze."
+        },
+        {
+          "questionId": "sam.lesson_7.q4",
+          "conceptId": "sam.meikyo_buff_refresh",
+          "scenario": "Fugetsu has 3 seconds left. Meikyo Shisui is available.",
+          "question": "Should you use Meikyo to refresh Fugetsu?",
+          "options": ["No - save Meikyo for Sen", "Yes - quick buff refresh", "Only if Fuka is also low", "Use normal combo instead"],
+          "correctIndex": 1,
+          "explanation": "Meikyo can quickly refresh buffs in emergencies. Gekko refreshes Fugetsu without needing the full combo."
+        },
+        {
+          "questionId": "sam.lesson_7.q5",
+          "conceptId": "sam.hagakure_usage",
+          "scenario": "You have 3 Sen. Phase transition is in 2 GCDs.",
+          "question": "You can't use Midare in time. What's your best option?",
+          "options": ["Waste the Sen", "Hagakure for 30 Kenki", "Use Tenka Goken", "Hold for after transition"],
+          "correctIndex": 1,
+          "explanation": "Hagakure converts Sen to Kenki (10 per Sen). 30 Kenki is better than losing Sen entirely to phase transition."
+        }
+      ]
+    }
+  ]
+}

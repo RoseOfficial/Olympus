@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "rdm",
+  "jobName": "Red Mage",
+  "quizzes": [
+    {
+      "quizId": "rdm.lesson_1.quiz",
+      "lessonId": "rdm.lesson_1",
+      "title": "Quiz: Mana Foundation",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "rdm.lesson_1.q1",
+          "conceptId": "rdm.black_mana",
+          "scenario": "Your mana is 40 Black | 70 White.",
+          "question": "Which element should you prioritize casting?",
+          "options": ["White spells to build White mana", "Black spells to balance", "Either - it doesn't matter", "Only use Jolt"],
+          "correctIndex": 1,
+          "explanation": "Black mana is lower (40 vs 70). Cast Verthunder III and Verfire to build Black and balance your mana. Imbalanced mana reduces finisher damage."
+        },
+        {
+          "questionId": "rdm.lesson_1.q2",
+          "conceptId": "rdm.mana_balance",
+          "scenario": "Your mana is 45 Black | 80 White.",
+          "question": "What's the danger of this imbalance?",
+          "options": ["No danger - higher is better", "Finisher potency is reduced", "Mana will reset", "Spells cost more"],
+          "correctIndex": 1,
+          "explanation": "When one mana is 30+ higher than the other, your finisher combo potency is significantly reduced. Keep mana within 30 of each other."
+        },
+        {
+          "questionId": "rdm.lesson_1.q3",
+          "conceptId": "rdm.white_mana",
+          "scenario": "You just cast Veraero III.",
+          "question": "How much White Mana does this generate?",
+          "options": ["3", "5", "6", "10"],
+          "correctIndex": 2,
+          "explanation": "Verthunder III and Veraero III each generate 6 mana of their respective type. Verfire and Verstone generate 5 each."
+        },
+        {
+          "questionId": "rdm.lesson_1.q4",
+          "conceptId": "rdm.mana_imbalance",
+          "scenario": "Your mana is 85 Black | 50 White.",
+          "question": "What's the difference between your mana values?",
+          "options": ["25 - within safe range", "35 - imbalanced!", "50 - severely imbalanced", "It doesn't matter"],
+          "correctIndex": 1,
+          "explanation": "85 - 50 = 35 difference. This exceeds the 30 threshold, making your mana imbalanced. Prioritize White mana spells immediately."
+        },
+        {
+          "questionId": "rdm.lesson_1.q5",
+          "conceptId": "rdm.mana_balance",
+          "scenario": "Your mana is 55 Black | 55 White.",
+          "question": "Is this a good mana state?",
+          "options": ["No - too low", "Yes - perfectly balanced", "No - should be higher", "Doesn't matter - just cast"],
+          "correctIndex": 1,
+          "explanation": "55|55 is perfectly balanced. At 50+ of both, you can enter your melee combo. Equal values mean maximum finisher potency."
+        }
+      ]
+    },
+    {
+      "quizId": "rdm.lesson_2.quiz",
+      "lessonId": "rdm.lesson_2",
+      "title": "Quiz: Dualcast Mastery",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "rdm.lesson_2.q1",
+          "conceptId": "rdm.dualcast_mechanic",
+          "scenario": "You just hardcast Jolt III.",
+          "question": "What buff do you now have?",
+          "options": ["Verfire Ready", "Verstone Ready", "Dualcast", "No buff"],
+          "correctIndex": 2,
+          "explanation": "Any hardcast spell (2.5s+) grants Dualcast, making your next spell instant. This is RDM's core mechanic."
+        },
+        {
+          "questionId": "rdm.lesson_2.q2",
+          "conceptId": "rdm.dualcast_consumption",
+          "scenario": "You have Dualcast active. What should you cast next?",
+          "question": "What's the optimal Dualcast target?",
+          "options": ["Jolt III", "Verthunder III or Veraero III", "Verfire", "Any spell works equally"],
+          "correctIndex": 1,
+          "explanation": "Use Dualcast on long cast time spells (Verthunder III, Veraero III). They become instant, saving 5 seconds. Using it on short casts wastes value."
+        },
+        {
+          "questionId": "rdm.lesson_2.q3",
+          "conceptId": "rdm.swiftcast_usage",
+          "scenario": "Dualcast just expired. Swiftcast is available. You need to keep casting.",
+          "question": "When should you use Swiftcast?",
+          "options": ["Immediately for Verthunder", "Save for emergencies only", "Use for Jolt", "Never - rely on Dualcast"],
+          "correctIndex": 1,
+          "explanation": "Swiftcast is a backup for when Dualcast isn't available. Use it for emergencies, movement, or to squeeze in extra casts. Don't waste it routinely."
+        },
+        {
+          "questionId": "rdm.lesson_2.q4",
+          "conceptId": "rdm.dualcast_mechanic",
+          "scenario": "The standard RDM rotation pattern is:",
+          "question": "What comes after a hardcast?",
+          "options": ["Another hardcast", "An instant via Dualcast", "Always a proc", "oGCD abilities"],
+          "correctIndex": 1,
+          "explanation": "RDM's pattern: Hardcast (Jolt/Verfire/Verstone) → Dualcast instant (Verthunder/Veraero) → Repeat. This alternating pattern is your bread and butter."
+        },
+        {
+          "questionId": "rdm.lesson_2.q5",
+          "conceptId": "rdm.dualcast_consumption",
+          "scenario": "Dualcast has 14 seconds remaining. You're about to hardcast.",
+          "question": "What happens to Dualcast if you hardcast?",
+          "options": ["It refreshes", "It's consumed by the hardcast", "It stays for the next spell", "It expires immediately"],
+          "correctIndex": 1,
+          "explanation": "Hardcasting while Dualcast is active consumes Dualcast! Don't do this - you'd waste the buff. Use Dualcast on a long cast, then hardcast to get a new one."
+        }
+      ]
+    },
+    {
+      "quizId": "rdm.lesson_3.quiz",
+      "lessonId": "rdm.lesson_3",
+      "title": "Quiz: Proc Management",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "rdm.lesson_3.q1",
+          "conceptId": "rdm.verfire_proc",
+          "scenario": "You cast Verthunder III and get Verfire Ready.",
+          "question": "What's special about Verfire?",
+          "options": ["It's instant without Dualcast", "It has longer cast time", "It generates more mana", "It grants another proc"],
+          "correctIndex": 0,
+          "explanation": "Verfire Ready makes Verfire instant - perfect for starting a Dualcast chain without hardcasting Jolt. Procs are 'free' hardcast replacements."
+        },
+        {
+          "questionId": "rdm.lesson_3.q2",
+          "conceptId": "rdm.verstone_proc",
+          "scenario": "You have Verstone Ready with 5 seconds left. Verfire Ready just procced.",
+          "question": "Which should you use first?",
+          "options": ["Verfire - it's newer", "Verstone - it's expiring", "Either - procs don't expire", "Save both for burst"],
+          "correctIndex": 1,
+          "explanation": "Procs expire after 30 seconds. Use the one expiring first (Verstone at 5s) before using the fresh proc. Never let procs fall off."
+        },
+        {
+          "questionId": "rdm.lesson_3.q3",
+          "conceptId": "rdm.proc_priority",
+          "scenario": "Mana is 60 Black | 40 White. You have both Verfire and Verstone Ready (neither expiring soon).",
+          "question": "Which proc should you use?",
+          "options": ["Verfire (builds Black)", "Verstone (builds White to balance)", "Either - procs are equal", "Don't use procs yet"],
+          "correctIndex": 1,
+          "explanation": "White mana (40) is lower than Black (60). Use Verstone to build White and balance your mana. Use procs strategically to maintain balance."
+        },
+        {
+          "questionId": "rdm.lesson_3.q4",
+          "conceptId": "rdm.acceleration",
+          "scenario": "You have no procs. Acceleration has 2 charges available.",
+          "question": "What does Acceleration do?",
+          "options": ["Speeds up casting", "Guarantees proc from next Verthunder/Veraero", "Doubles mana gain", "Instant melee combo"],
+          "correctIndex": 1,
+          "explanation": "Acceleration guarantees that your next Verthunder III or Veraero III will grant its respective proc. Use it when you need a proc guaranteed."
+        },
+        {
+          "questionId": "rdm.lesson_3.q5",
+          "conceptId": "rdm.proc_fishing",
+          "scenario": "You're about to enter burst phase and have no procs. Acceleration has 2 charges.",
+          "question": "Should you use Acceleration now?",
+          "options": ["No - save for emergencies", "Yes - guaranteed procs help burst DPS", "Only if mana is low", "Never use during burst"],
+          "correctIndex": 1,
+          "explanation": "Using Acceleration during burst windows ensures you have procs for the higher potency spells. Guaranteed procs = more DPS during raid buffs."
+        }
+      ]
+    },
+    {
+      "quizId": "rdm.lesson_4.quiz",
+      "lessonId": "rdm.lesson_4",
+      "title": "Quiz: Melee Combo Fundamentals",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "rdm.lesson_4.q1",
+          "conceptId": "rdm.melee_entry",
+          "scenario": "Your mana is 45 Black | 48 White.",
+          "question": "Can you start the melee combo?",
+          "options": ["Yes - both are above 40", "No - need 50|50 minimum", "Yes - total mana is high enough", "No - need 100|100"],
+          "correctIndex": 1,
+          "explanation": "You need at least 50 of both Black AND White mana to start the enchanted melee combo. 45|48 is not enough."
+        },
+        {
+          "questionId": "rdm.lesson_4.q2",
+          "conceptId": "rdm.combo_progression",
+          "scenario": "You just used Enchanted Riposte.",
+          "question": "What comes next in the combo?",
+          "options": ["Enchanted Redoublement", "Verflare", "Enchanted Zwerchhau", "Any melee GCD"],
+          "correctIndex": 2,
+          "explanation": "The combo order is fixed: Enchanted Riposte → Enchanted Zwerchhau → Enchanted Redoublement. You cannot skip steps."
+        },
+        {
+          "questionId": "rdm.lesson_4.q3",
+          "conceptId": "rdm.combo_timer",
+          "scenario": "You used Enchanted Riposte but the boss becomes untargetable for 20 seconds.",
+          "question": "What happens to your combo?",
+          "options": ["Combo resets immediately", "You have 30s total - plenty of time", "Combo freezes during downtime", "Mana is refunded"],
+          "correctIndex": 1,
+          "explanation": "The melee combo has a 30 second timer. With 20s downtime, you still have time to complete it when the boss returns."
+        },
+        {
+          "questionId": "rdm.lesson_4.q4",
+          "conceptId": "rdm.mana_overcap",
+          "scenario": "Your mana is 92 Black | 88 White.",
+          "question": "What should you do?",
+          "options": ["Keep building mana for bigger burst", "Enter melee combo now to avoid overcapping", "Wait for exactly 100|100", "Use only Jolt to slow mana gain"],
+          "correctIndex": 1,
+          "explanation": "At 92|88, you're close to overcapping (100 max). Enter your melee combo now to spend mana before it's wasted."
+        },
+        {
+          "questionId": "rdm.lesson_4.q5",
+          "conceptId": "rdm.combo_progression",
+          "scenario": "You're in melee combo. How much mana does the full combo consume?",
+          "question": "What's the total mana cost?",
+          "options": ["30 Black | 30 White", "50 Black | 50 White", "60 Black | 60 White", "20 Black | 20 White"],
+          "correctIndex": 1,
+          "explanation": "Riposte (20|20) + Zwerchhau (15|15) + Redoublement (15|15) = 50|50 total mana consumed by the combo."
+        }
+      ]
+    },
+    {
+      "quizId": "rdm.lesson_5.quiz",
+      "lessonId": "rdm.lesson_5",
+      "title": "Quiz: Finisher System",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "rdm.lesson_5.q1",
+          "conceptId": "rdm.finisher_selection",
+          "scenario": "After Enchanted Redoublement, your mana is 4 Black | 8 White.",
+          "question": "Which finisher should you use?",
+          "options": ["Verflare (Black ≤ White, so boost Black)", "Verholy (boost the higher one)", "Either - they're equal potency", "Neither - save for later"],
+          "correctIndex": 0,
+          "explanation": "Use Verflare when Black ≤ White. Black (4) ≤ White (8), so Verflare is correct. This also guarantees a Verfire Ready proc."
+        },
+        {
+          "questionId": "rdm.lesson_5.q2",
+          "conceptId": "rdm.finisher_procs",
+          "scenario": "You just used Verflare as your finisher.",
+          "question": "What proc do you receive?",
+          "options": ["Verstone Ready (always)", "Verfire Ready (guaranteed)", "50% chance of Verfire", "No proc from finishers"],
+          "correctIndex": 1,
+          "explanation": "Finishers guarantee the opposite color proc. Verflare guarantees Verfire Ready. Verholy guarantees Verstone Ready."
+        },
+        {
+          "questionId": "rdm.lesson_5.q3",
+          "conceptId": "rdm.scorch_resolution",
+          "scenario": "You just used Verholy. What comes next?",
+          "question": "What's the correct follow-up sequence?",
+          "options": ["Return to Jolt immediately", "Scorch → Resolution → Grand Impact", "Another melee combo", "Verfire (from proc)"],
+          "correctIndex": 1,
+          "explanation": "After Verflare/Verholy, you must use Scorch, then Resolution (Lv.90+), then Grand Impact (Lv.96+) before returning to regular rotation."
+        },
+        {
+          "questionId": "rdm.lesson_5.q4",
+          "conceptId": "rdm.grand_impact",
+          "scenario": "You're at level 96 and just used Resolution.",
+          "question": "What ability becomes available?",
+          "options": ["Return to Jolt", "Grand Impact (instant finisher)", "Another Scorch", "Melee combo restart"],
+          "correctIndex": 1,
+          "explanation": "Grand Impact (Lv.96) is the final finisher after Resolution. It's an instant high-potency spell that completes the finisher chain."
+        },
+        {
+          "questionId": "rdm.lesson_5.q5",
+          "conceptId": "rdm.finisher_selection",
+          "scenario": "After melee combo, your mana is 6 Black | 3 White.",
+          "question": "Which finisher should you use?",
+          "options": ["Verflare", "Verholy", "Either is fine", "Skip finishers"],
+          "correctIndex": 1,
+          "explanation": "Use Verholy when White < Black. White (3) < Black (6), so Verholy is correct. This boosts the lower mana and grants Verstone Ready."
+        }
+      ]
+    },
+    {
+      "quizId": "rdm.lesson_6.quiz",
+      "lessonId": "rdm.lesson_6",
+      "title": "Quiz: Burst Windows",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "rdm.lesson_6.q1",
+          "conceptId": "rdm.embolden",
+          "scenario": "You're about to use Embolden.",
+          "question": "What does Embolden do for the party?",
+          "options": ["5% physical damage increase", "5% magic damage increase for 20s", "10% all damage for 10s", "Healing increase only"],
+          "correctIndex": 1,
+          "explanation": "Embolden gives the party 5% magic damage increase for 20 seconds. Align it with other party buffs for maximum value."
+        },
+        {
+          "questionId": "rdm.lesson_6.q2",
+          "conceptId": "rdm.manafication",
+          "scenario": "Your mana is 30 Black | 25 White. Manafication is available.",
+          "question": "What happens when you use Manafication?",
+          "options": ["Mana resets to 0", "Mana doubles (60|50)", "Mana goes to 100|100", "Mana is consumed for damage"],
+          "correctIndex": 1,
+          "explanation": "Manafication doubles your current mana (capped at 50|50). From 30|25, you'd get 50|50 (capped). This enables immediate melee combo."
+        },
+        {
+          "questionId": "rdm.lesson_6.q3",
+          "conceptId": "rdm.ogcd_weaving",
+          "scenario": "You just cast Verthunder III with Dualcast. The GCD is rolling.",
+          "question": "What oGCDs should you use during this window?",
+          "options": ["None - wait for GCD", "Fleche and Contre Sixte if available", "Only Embolden", "Save all oGCDs for burst"],
+          "correctIndex": 1,
+          "explanation": "Weave oGCDs like Fleche (25s CD) and Contre Sixte (35s CD) during GCD windows. These are your main damage oGCDs - use them on cooldown."
+        },
+        {
+          "questionId": "rdm.lesson_6.q4",
+          "conceptId": "rdm.embolden",
+          "scenario": "Party buffs are coming in 8 seconds. Embolden is available.",
+          "question": "Should you use Embolden now?",
+          "options": ["Yes - use immediately on cooldown", "No - wait to align with party buffs", "Only if mana is full", "Never hold Embolden"],
+          "correctIndex": 1,
+          "explanation": "Hold Embolden briefly to align with party buffs. 8 seconds is short - stacking buffs multiplies their value."
+        },
+        {
+          "questionId": "rdm.lesson_6.q5",
+          "conceptId": "rdm.manafication",
+          "scenario": "Your mana is 48 Black | 46 White. Manafication is available and burst is starting.",
+          "question": "What's the optimal action?",
+          "options": ["Build to 50|50 naturally first", "Use Manafication now for instant melee", "Wait for higher mana", "Save Manafication for later"],
+          "correctIndex": 1,
+          "explanation": "At 48|46, Manafication doubles to 50|50 (capped). Use it now during burst to get your melee combo in under raid buffs."
+        }
+      ]
+    },
+    {
+      "quizId": "rdm.lesson_7.quiz",
+      "lessonId": "rdm.lesson_7",
+      "title": "Quiz: Advanced Optimization",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "rdm.lesson_7.q1",
+          "conceptId": "rdm.melee_positioning",
+          "scenario": "You need to enter melee range for your combo but are far from the boss.",
+          "question": "What ability helps with positioning?",
+          "options": ["Swiftcast", "Corps-a-corps (gap closer)", "Acceleration", "Manafication"],
+          "correctIndex": 1,
+          "explanation": "Corps-a-corps is RDM's gap closer. Use it to quickly get into melee range for your combo. It has 2 charges."
+        },
+        {
+          "questionId": "rdm.lesson_7.q2",
+          "conceptId": "rdm.aoe_rotation",
+          "scenario": "There are 5 enemies grouped together.",
+          "question": "What's the correct AoE approach?",
+          "options": ["Single target rotation on each", "Verthunder II/Veraero II → Impact → Enchanted Moulinet", "Only use Scatter", "AoE isn't worth it"],
+          "correctIndex": 1,
+          "explanation": "At 3+ targets, use AoE rotation: Short cast (Verthunder II/Veraero II) → Dualcast Impact → Spend mana with Enchanted Moulinet."
+        },
+        {
+          "questionId": "rdm.lesson_7.q3",
+          "conceptId": "rdm.melee_positioning",
+          "scenario": "You're mid-melee combo and the boss starts casting an AoE under itself.",
+          "question": "What should you do?",
+          "options": ["Finish combo - melee hits are instant", "Stop combo and run immediately", "Use Displacement to escape", "Wait for combo to drop"],
+          "correctIndex": 0,
+          "explanation": "RDM melee combo GCDs are instant. You can use them while moving out of danger - they don't lock you in place like casts would."
+        },
+        {
+          "questionId": "rdm.lesson_7.q4",
+          "conceptId": "rdm.aoe_rotation",
+          "scenario": "At what enemy count should you switch to AoE rotation?",
+          "question": "What's the AoE threshold?",
+          "options": ["2 targets", "3 targets", "4 targets", "5 targets"],
+          "correctIndex": 1,
+          "explanation": "Switch to AoE rotation at 3+ targets. This includes using Verthunder II/Veraero II, Impact, and Enchanted Moulinet instead of single-target abilities."
+        },
+        {
+          "questionId": "rdm.lesson_7.q5",
+          "conceptId": "rdm.melee_positioning",
+          "scenario": "You need to move for a mechanic but have no Dualcast, no procs, and Swiftcast is on cooldown.",
+          "question": "What's your best option for movement?",
+          "options": ["Just stop casting", "Use melee combo if mana allows", "Slidecasting only", "Wait for Swiftcast"],
+          "correctIndex": 1,
+          "explanation": "If you have 50|50 mana, enter melee combo - all three hits are instant and can be used while moving. RDM has great movement tools."
+        }
+      ]
+    }
+  ]
+}

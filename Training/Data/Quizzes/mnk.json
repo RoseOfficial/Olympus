@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "mnk",
+  "jobName": "Monk",
+  "quizzes": [
+    {
+      "quizId": "mnk.lesson_1.quiz",
+      "lessonId": "mnk.lesson_1",
+      "title": "Quiz: Monk Fundamentals",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "mnk.lesson_1.q1",
+          "conceptId": "mnk.form_system",
+          "scenario": "You just used Bootshine. What form are you now in?",
+          "question": "What form follows Opo-opo form?",
+          "options": ["Opo-opo", "Raptor", "Coeurl", "No form"],
+          "correctIndex": 1,
+          "explanation": "After using an Opo-opo form ability (Bootshine/Dragon Kick), you transition to Raptor form."
+        },
+        {
+          "questionId": "mnk.lesson_1.q2",
+          "conceptId": "mnk.positionals",
+          "scenario": "You're about to use Bootshine on a boss.",
+          "question": "Where should you stand for the positional bonus?",
+          "options": ["Front", "Flank (side)", "Rear (behind)", "Any position"],
+          "correctIndex": 2,
+          "explanation": "Bootshine has a rear positional. Standing behind the boss grants bonus potency."
+        },
+        {
+          "questionId": "mnk.lesson_1.q3",
+          "conceptId": "mnk.combo_basics",
+          "scenario": "You're in Raptor form.",
+          "question": "Which abilities can you use in Raptor form?",
+          "options": ["Bootshine/Dragon Kick", "True Strike/Twin Snakes", "Snap Punch/Demolish", "Any ability"],
+          "correctIndex": 1,
+          "explanation": "True Strike and Twin Snakes are Raptor form abilities. Using them transitions you to Coeurl form."
+        },
+        {
+          "questionId": "mnk.lesson_1.q4",
+          "conceptId": "mnk.positionals",
+          "scenario": "You need to use Snap Punch.",
+          "question": "Where should you stand for the positional bonus?",
+          "options": ["Front", "Flank (side)", "Rear (behind)", "Any position"],
+          "correctIndex": 1,
+          "explanation": "Snap Punch has a flank positional. Stand at the boss's side for bonus potency."
+        },
+        {
+          "questionId": "mnk.lesson_1.q5",
+          "conceptId": "mnk.form_system",
+          "scenario": "You're in Coeurl form and use Snap Punch.",
+          "question": "What form do you transition to?",
+          "options": ["Stay in Coeurl", "Raptor", "Opo-opo", "Formless"],
+          "correctIndex": 2,
+          "explanation": "After Coeurl form abilities, you cycle back to Opo-opo form, completing the form rotation."
+        }
+      ]
+    },
+    {
+      "quizId": "mnk.lesson_2.quiz",
+      "lessonId": "mnk.lesson_2",
+      "title": "Quiz: Maintaining Your Buffs",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "mnk.lesson_2.q1",
+          "conceptId": "mnk.disciplined_fist",
+          "scenario": "Disciplined Fist has 5 seconds remaining.",
+          "question": "What should you prioritize?",
+          "options": ["Use Bootshine for damage", "Refresh Disciplined Fist", "Use The Forbidden Chakra", "Use Perfect Balance"],
+          "correctIndex": 1,
+          "explanation": "Disciplined Fist (+15% damage) is crucial. Refresh it with Twin Snakes or Demolish before it drops."
+        },
+        {
+          "questionId": "mnk.lesson_2.q2",
+          "conceptId": "mnk.demolish_dot",
+          "scenario": "Demolish has 5 seconds remaining on the boss.",
+          "question": "Should you refresh it now?",
+          "options": ["Yes - keep 100% uptime", "No - wait until 3s or less", "No - let it fall off", "Only during burst"],
+          "correctIndex": 1,
+          "explanation": "Refresh DoTs at 3 seconds or less to avoid clipping. Refreshing at 5s wastes potential damage ticks."
+        },
+        {
+          "questionId": "mnk.lesson_2.q3",
+          "conceptId": "mnk.disciplined_fist",
+          "scenario": "Which abilities grant Disciplined Fist?",
+          "question": "Select the correct answer.",
+          "options": ["Bootshine and Dragon Kick", "True Strike and Snap Punch", "Twin Snakes and Demolish", "All weaponskills"],
+          "correctIndex": 2,
+          "explanation": "Twin Snakes (Raptor) and Demolish (Coeurl) both grant Disciplined Fist buff."
+        },
+        {
+          "questionId": "mnk.lesson_2.q4",
+          "conceptId": "mnk.meditation",
+          "scenario": "You're waiting for a pull. Chakra gauge is at 0.",
+          "question": "What should you do?",
+          "options": ["Wait patiently", "Use Meditation to build Chakra", "Use Perfect Balance", "Nothing - Chakra builds in combat"],
+          "correctIndex": 1,
+          "explanation": "Meditation builds Chakra out of combat. Start fights with 5 Chakra ready for burst."
+        },
+        {
+          "questionId": "mnk.lesson_2.q5",
+          "conceptId": "mnk.demolish_dot",
+          "scenario": "Demolish is a DoT with 18 second duration.",
+          "question": "How does Demolish interact with Disciplined Fist?",
+          "options": ["No interaction", "Demolish grants Disciplined Fist", "Disciplined Fist extends Demolish", "They're the same buff"],
+          "correctIndex": 1,
+          "explanation": "Demolish both applies a DoT to the enemy AND grants you the Disciplined Fist damage buff."
+        }
+      ]
+    },
+    {
+      "quizId": "mnk.lesson_3.quiz",
+      "lessonId": "mnk.lesson_3",
+      "title": "Quiz: The Chakra System",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "mnk.lesson_3.q1",
+          "conceptId": "mnk.chakra_gauge",
+          "scenario": "Your Chakra gauge is at 5 stacks.",
+          "question": "What should you do?",
+          "options": ["Build more Chakra", "Use The Forbidden Chakra", "Save for burst window", "Chakra doesn't cap"],
+          "correctIndex": 1,
+          "explanation": "Chakra caps at 5 stacks. Spend it to avoid wasting potential Chakra generation."
+        },
+        {
+          "questionId": "mnk.lesson_3.q2",
+          "conceptId": "mnk.the_forbidden_chakra",
+          "scenario": "Single target fight. You have 5 Chakra.",
+          "question": "Which Chakra spender should you use?",
+          "options": ["The Forbidden Chakra", "Enlightenment", "Steel Peak", "Howling Fist"],
+          "correctIndex": 0,
+          "explanation": "The Forbidden Chakra is the single-target Chakra spender. Enlightenment is for AoE (3+ targets)."
+        },
+        {
+          "questionId": "mnk.lesson_3.q3",
+          "conceptId": "mnk.enlightenment",
+          "scenario": "4 enemies are grouped. You have 5 Chakra.",
+          "question": "Which ability should you use?",
+          "options": ["The Forbidden Chakra", "Enlightenment", "Save Chakra", "Howling Fist only"],
+          "correctIndex": 1,
+          "explanation": "Enlightenment is the AoE Chakra spender. At 4 targets, it deals more total damage than single-target."
+        },
+        {
+          "questionId": "mnk.lesson_3.q4",
+          "conceptId": "mnk.chakra_gauge",
+          "scenario": "You're about to use Brotherhood.",
+          "question": "How does Brotherhood affect Chakra generation?",
+          "options": ["No effect", "Grants 5 Chakra instantly", "Increases Chakra generation from crits", "Doubles Chakra gains"],
+          "correctIndex": 2,
+          "explanation": "Brotherhood increases the party's critical hit rate, which means more Chakra generation from critical weaponskills."
+        },
+        {
+          "questionId": "mnk.lesson_3.q5",
+          "conceptId": "mnk.chakra_gauge",
+          "scenario": "How does Chakra build during combat?",
+          "question": "What generates Chakra?",
+          "options": ["Time only", "Weaponskills and critical hits", "oGCDs only", "Taking damage"],
+          "correctIndex": 1,
+          "explanation": "Chakra builds from using weaponskills and has additional chance to generate on critical hits."
+        }
+      ]
+    },
+    {
+      "quizId": "mnk.lesson_4.quiz",
+      "lessonId": "mnk.lesson_4",
+      "title": "Quiz: Beast Chakra & Masterful Blitz",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "mnk.lesson_4.q1",
+          "conceptId": "mnk.beast_chakra",
+          "scenario": "You use Dragon Kick (Opo-opo form ability).",
+          "question": "Which Beast Chakra type do you gain?",
+          "options": ["Lunar", "Solar", "Celestial", "None"],
+          "correctIndex": 0,
+          "explanation": "Opo-opo form abilities (Bootshine, Dragon Kick) grant Lunar Beast Chakra."
+        },
+        {
+          "questionId": "mnk.lesson_4.q2",
+          "conceptId": "mnk.masterful_blitz",
+          "scenario": "You have 3 Beast Chakra: Lunar, Solar, Celestial.",
+          "question": "Which Blitz will Masterful Blitz become?",
+          "options": ["Elixir Field", "Rising Phoenix", "Phantom Rush", "Random"],
+          "correctIndex": 2,
+          "explanation": "All 3 different Beast Chakra types = Phantom Rush, your highest single-target damage Blitz."
+        },
+        {
+          "questionId": "mnk.lesson_4.q3",
+          "conceptId": "mnk.elixir_field",
+          "scenario": "You have 3 Lunar Beast Chakra (all matching).",
+          "question": "Which Blitz will Masterful Blitz become?",
+          "options": ["Elixir Field", "Rising Phoenix", "Phantom Rush", "Flint Strike"],
+          "correctIndex": 0,
+          "explanation": "3 matching Beast Chakra = Elixir Field, a large AoE attack."
+        },
+        {
+          "questionId": "mnk.lesson_4.q4",
+          "conceptId": "mnk.rising_phoenix",
+          "scenario": "You have 2 Solar and 1 Lunar Beast Chakra.",
+          "question": "Which Blitz will Masterful Blitz become?",
+          "options": ["Elixir Field", "Rising Phoenix", "Phantom Rush", "Elixir Burst"],
+          "correctIndex": 1,
+          "explanation": "2 of one type + 1 different = Rising Phoenix (requires Solar chakra present), a cone AoE."
+        },
+        {
+          "questionId": "mnk.lesson_4.q5",
+          "conceptId": "mnk.phantom_rush",
+          "scenario": "Single target boss fight. You're about to build Beast Chakra.",
+          "question": "Which combination should you aim for?",
+          "options": ["3 matching for Elixir Field", "All 3 different for Phantom Rush", "2+1 for Rising Phoenix", "Doesn't matter"],
+          "correctIndex": 1,
+          "explanation": "In single-target, Phantom Rush (all 3 different) deals the highest damage."
+        }
+      ]
+    },
+    {
+      "quizId": "mnk.lesson_5.quiz",
+      "lessonId": "mnk.lesson_5",
+      "title": "Quiz: Burst Windows",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "mnk.lesson_5.q1",
+          "conceptId": "mnk.perfect_balance",
+          "scenario": "You activate Perfect Balance.",
+          "question": "What does Perfect Balance allow?",
+          "options": ["Double damage for 15s", "Use any weaponskill regardless of form", "Reset all cooldowns", "Ignore positionals"],
+          "correctIndex": 1,
+          "explanation": "Perfect Balance lets you use any weaponskill regardless of your current form for 3 uses."
+        },
+        {
+          "questionId": "mnk.lesson_5.q2",
+          "conceptId": "mnk.riddle_of_fire",
+          "scenario": "Riddle of Fire is your 60-second damage buff.",
+          "question": "How much damage increase does it provide?",
+          "options": ["+5%", "+10%", "+15%", "+20%"],
+          "correctIndex": 2,
+          "explanation": "Riddle of Fire grants +15% damage for 20 seconds. It's your core burst window ability."
+        },
+        {
+          "questionId": "mnk.lesson_5.q3",
+          "conceptId": "mnk.brotherhood",
+          "scenario": "Brotherhood has a 120-second cooldown.",
+          "question": "What does Brotherhood provide?",
+          "options": ["Personal damage buff only", "Party damage buff + Chakra boost", "Heal over time", "Movement speed"],
+          "correctIndex": 1,
+          "explanation": "Brotherhood gives the party 5% damage increase and boosts Chakra generation through increased crit rate."
+        },
+        {
+          "questionId": "mnk.lesson_5.q4",
+          "conceptId": "mnk.burst_alignment",
+          "scenario": "Party raid buffs are coming in 10 seconds.",
+          "question": "How should you time your burst abilities?",
+          "options": ["Use immediately", "Wait for raid buffs", "Save for emergencies", "Use randomly"],
+          "correctIndex": 1,
+          "explanation": "Align your burst (Riddle of Fire, Brotherhood) with party raid buffs for maximum damage amplification."
+        },
+        {
+          "questionId": "mnk.lesson_5.q5",
+          "conceptId": "mnk.perfect_balance",
+          "scenario": "Perfect Balance has 2 charges with 40-second recharge.",
+          "question": "How should you use Perfect Balance during burst?",
+          "options": ["Save both charges", "Use to quickly build Beast Chakra", "Use for positional freedom", "Only use in emergencies"],
+          "correctIndex": 1,
+          "explanation": "Use Perfect Balance during Riddle of Fire to quickly build Beast Chakra for Masterful Blitz."
+        }
+      ]
+    },
+    {
+      "quizId": "mnk.lesson_6.quiz",
+      "lessonId": "mnk.lesson_6",
+      "title": "Quiz: Movement & Utility",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "mnk.lesson_6.q1",
+          "conceptId": "mnk.thunderclap",
+          "scenario": "Boss dashes across the arena. Thunderclap has 3 charges.",
+          "question": "How should you use Thunderclap?",
+          "options": ["Use all charges to catch up", "Use 1 charge, save others", "Save all charges", "Walk normally"],
+          "correctIndex": 1,
+          "explanation": "Use Thunderclap to close gaps, but keep charges in reserve for future movement needs."
+        },
+        {
+          "questionId": "mnk.lesson_6.q2",
+          "conceptId": "mnk.true_north_usage",
+          "scenario": "Boss is against a wall. You can't reach the rear for Bootshine.",
+          "question": "What should you do?",
+          "options": ["Miss the positional", "Use True North", "Use Dragon Kick instead", "Wait for boss to move"],
+          "correctIndex": 1,
+          "explanation": "True North removes positional requirements for 10 seconds. Use it when positioning is impossible."
+        },
+        {
+          "questionId": "mnk.lesson_6.q3",
+          "conceptId": "mnk.riddle_of_wind",
+          "scenario": "Riddle of Wind increases auto-attack speed.",
+          "question": "When should you use Riddle of Wind?",
+          "options": ["Only in AoE", "During burst windows", "Only for movement", "Never - it's useless"],
+          "correctIndex": 1,
+          "explanation": "Riddle of Wind provides free damage through faster auto-attacks. Use it during burst for maximum value."
+        },
+        {
+          "questionId": "mnk.lesson_6.q4",
+          "conceptId": "mnk.true_north_usage",
+          "scenario": "True North has 2 charges with 45-second recharge.",
+          "question": "How should you manage True North?",
+          "options": ["Use on cooldown", "Save both for emergencies", "Use one, keep one reserve", "Never use it"],
+          "correctIndex": 2,
+          "explanation": "Keep at least one charge for unexpected situations. Don't cap at 2, but don't waste them either."
+        },
+        {
+          "questionId": "mnk.lesson_6.q5",
+          "conceptId": "mnk.thunderclap",
+          "scenario": "You need to dodge an AoE but have a GCD coming up.",
+          "question": "What's the best approach?",
+          "options": ["Cancel GCD and run", "Use Thunderclap to dodge and continue", "Take the hit", "Wait for GCD"],
+          "correctIndex": 1,
+          "explanation": "Thunderclap can be used for quick repositioning while maintaining GCD uptime."
+        }
+      ]
+    },
+    {
+      "quizId": "mnk.lesson_7.quiz",
+      "lessonId": "mnk.lesson_7",
+      "title": "Quiz: AoE & Optimization",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "mnk.lesson_7.q1",
+          "conceptId": "mnk.aoe_combo",
+          "scenario": "5 enemies are grouped together.",
+          "question": "What's the AoE combo sequence?",
+          "options": ["Bootshine spam", "Arm of the Destroyer → Four-point Fury → Rockbreaker", "Dragon Kick spam", "Single-target rotation"],
+          "correctIndex": 1,
+          "explanation": "Arm of the Destroyer → Four-point Fury → Rockbreaker is the AoE combo, hitting all nearby enemies."
+        },
+        {
+          "questionId": "mnk.lesson_7.q2",
+          "conceptId": "mnk.aoe_threshold",
+          "scenario": "2 enemies are present.",
+          "question": "Should you use AoE or single-target rotation?",
+          "options": ["AoE rotation", "Single-target rotation", "Mix of both", "Doesn't matter"],
+          "correctIndex": 1,
+          "explanation": "Switch to AoE at 3+ targets. At 2 targets, single-target rotation is more efficient."
+        },
+        {
+          "questionId": "mnk.lesson_7.q3",
+          "conceptId": "mnk.howling_fist",
+          "scenario": "Large trash pull in a dungeon. Chakra is at 5.",
+          "question": "Which Chakra spender should you use?",
+          "options": ["The Forbidden Chakra", "Enlightenment", "Save for boss", "Meditation"],
+          "correctIndex": 1,
+          "explanation": "Enlightenment is the AoE Chakra spender. In dungeon pulls with 3+ enemies, it deals more total damage."
+        },
+        {
+          "questionId": "mnk.lesson_7.q4",
+          "conceptId": "mnk.aoe_combo",
+          "scenario": "You're doing the AoE rotation.",
+          "question": "Does the AoE combo maintain Disciplined Fist?",
+          "options": ["No - need single-target", "Yes - automatically maintained", "Only Demolish works", "AoE removes buffs"],
+          "correctIndex": 1,
+          "explanation": "The AoE combo abilities also grant and maintain Disciplined Fist, so you don't need to switch to single-target."
+        },
+        {
+          "questionId": "mnk.lesson_7.q5",
+          "conceptId": "mnk.aoe_threshold",
+          "scenario": "Dungeon pull: 6 enemies, one is almost dead.",
+          "question": "Should you switch to single-target for the low enemy?",
+          "options": ["Yes - finish it quickly", "No - continue AoE", "Use oGCDs on low target", "Focus healer"],
+          "correctIndex": 1,
+          "explanation": "With 6 targets, AoE damage is still better. The low enemy will die from AoE damage anyway."
+        }
+      ]
+    }
+  ]
+}

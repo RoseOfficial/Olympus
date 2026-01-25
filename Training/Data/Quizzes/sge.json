@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "sge",
+  "jobName": "Sage",
+  "quizzes": [
+    {
+      "quizId": "sge.lesson_1.quiz",
+      "lessonId": "sge.lesson_1",
+      "title": "Quiz: Sage Fundamentals",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sge.lesson_1.q1",
+          "conceptId": "sge.kardia_management",
+          "scenario": "Combat starting. You haven't applied Kardia yet.",
+          "question": "Who should receive Kardia?",
+          "options": ["Yourself", "The main tank", "Best DPS", "Co-healer"],
+          "correctIndex": 1,
+          "explanation": "Kardia heals the target when you deal damage. Apply it to the tank - they take consistent damage and benefit most."
+        },
+        {
+          "questionId": "sge.lesson_1.q2",
+          "conceptId": "sge.emergency_healing",
+          "scenario": "Tank at 20% HP. You have Druochole and Taurochole available.",
+          "question": "Which is better for emergency healing?",
+          "options": ["Druochole - just heal", "Taurochole - heal + mit", "Both", "Neither - use GCD"],
+          "correctIndex": 1,
+          "explanation": "Taurochole heals AND provides 10% mitigation. For emergency healing on tank, the extra mitigation helps prevent further drops."
+        },
+        {
+          "questionId": "sge.lesson_1.q3",
+          "conceptId": "sge.kardia_target_selection",
+          "scenario": "Tank swap happening. New tank will take aggro.",
+          "question": "Should you swap Kardia?",
+          "options": ["No - it's fine", "Yes - to new tank", "Wait and see", "Put on both tanks"],
+          "correctIndex": 1,
+          "explanation": "Kardia should be on whoever is actively tanking. Swap it to the new main tank so your damage heals them."
+        },
+        {
+          "questionId": "sge.lesson_1.q4",
+          "conceptId": "sge.kardia_management",
+          "scenario": "You're spamming Dosis. Tank has Kardia.",
+          "question": "What's happening to the tank?",
+          "options": ["Nothing", "Passive healing from Kardia", "Damage from Kardia", "Shield from Kardia"],
+          "correctIndex": 1,
+          "explanation": "Kardia heals the target every time you deal damage with a GCD. Your Dosis spam = constant tank healing. DPS = healing on SGE."
+        },
+        {
+          "questionId": "sge.lesson_1.q5",
+          "conceptId": "sge.emergency_healing",
+          "scenario": "DPS at 25% HP. Tank is fine. No Addersgall available.",
+          "question": "What's your best option?",
+          "options": ["Diagnosis", "Druochole", "Kardia swap + Dosis", "Nothing - they're fine"],
+          "correctIndex": 0,
+          "explanation": "With no Addersgall, Diagnosis (GCD heal) is your option. Kardia on DPS temporarily could work but is clunky. Diagnosis gets them to safe HP."
+        }
+      ]
+    },
+    {
+      "quizId": "sge.lesson_2.quiz",
+      "lessonId": "sge.lesson_2",
+      "title": "Quiz: Addersgall Economy",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sge.lesson_2.q1",
+          "conceptId": "sge.addersgall_management",
+          "scenario": "You have 3 Addersgall. A stack regenerates in 2 seconds.",
+          "question": "What should you do?",
+          "options": ["Hold all stacks", "Spend one immediately", "Wait for regen", "Spend two"],
+          "correctIndex": 1,
+          "explanation": "At 3 stacks with regen incoming, you'll overcap and waste a stack. Spend at least one before the regen."
+        },
+        {
+          "questionId": "sge.lesson_2.q2",
+          "conceptId": "sge.kerachole_usage",
+          "scenario": "Raidwide coming. Party at full HP. Kerachole available.",
+          "question": "Should you use Kerachole?",
+          "options": ["No - party is full", "Yes - mitigation + HoT", "Save for after damage", "Use Ixochole instead"],
+          "correctIndex": 1,
+          "explanation": "Kerachole provides 10% mitigation AND a HoT. Use it BEFORE the raidwide for mitigation value, then HoT heals the damage."
+        },
+        {
+          "questionId": "sge.lesson_2.q3",
+          "conceptId": "sge.taurochole_usage",
+          "scenario": "Tankbuster incoming. Tank at 80% HP.",
+          "question": "What should you apply?",
+          "options": ["Druochole after buster", "Taurochole before buster", "Nothing - tank is fine", "Kerachole"],
+          "correctIndex": 1,
+          "explanation": "Taurochole provides heal + 10% mitigation. Use BEFORE the buster so mitigation reduces the hit, then heal tops them off."
+        },
+        {
+          "questionId": "sge.lesson_2.q4",
+          "conceptId": "sge.ixochole_usage",
+          "scenario": "Party at 50% HP after raidwide. Kerachole on CD.",
+          "question": "What should you use?",
+          "options": ["E.Prognosis", "Ixochole", "Physis", "All three"],
+          "correctIndex": 1,
+          "explanation": "Ixochole is instant party healing for 1 Addersgall. At 50% HP, it brings party to safety quickly. GCD heals are slower."
+        },
+        {
+          "questionId": "sge.lesson_2.q5",
+          "conceptId": "sge.druochole_usage",
+          "scenario": "Tank at 60% HP. You have 1 Addersgall. No major damage coming.",
+          "question": "Should you use Druochole?",
+          "options": ["Yes - heal the tank", "No - they're fine", "Wait for lower HP", "Use Taurochole"],
+          "correctIndex": 1,
+          "explanation": "60% HP with no incoming damage is safe. Your Kardia heals + natural regen handle this. Save the Addersgall for when it's needed."
+        }
+      ]
+    },
+    {
+      "quizId": "sge.lesson_3.quiz",
+      "lessonId": "sge.lesson_3",
+      "title": "Quiz: Kardia Optimization",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sge.lesson_3.q1",
+          "conceptId": "sge.soteria_usage",
+          "scenario": "Tank taking heavy damage. Soteria available.",
+          "question": "What does Soteria do?",
+          "options": ["Heal the tank", "50% Kardia boost", "Shield the tank", "AoE mitigation"],
+          "correctIndex": 1,
+          "explanation": "Soteria boosts Kardia healing by 50% for 15 seconds. Use it during high tank damage phases to increase your passive healing."
+        },
+        {
+          "questionId": "sge.lesson_3.q2",
+          "conceptId": "sge.philosophia_usage",
+          "scenario": "Heavy party-wide damage phase. Philosophia available.",
+          "question": "What's special about Philosophia?",
+          "options": ["Party mitigation", "Party-wide Kardia", "Instant party heal", "MP restoration"],
+          "correctIndex": 1,
+          "explanation": "Philosophia makes your damage heal the ENTIRE party (like Kardia for everyone) for 20 seconds. Amazing for sustained AoE damage."
+        },
+        {
+          "questionId": "sge.lesson_3.q3",
+          "conceptId": "sge.soteria_usage",
+          "scenario": "Soteria available. Tank at 90% HP taking light damage.",
+          "question": "Should you use Soteria?",
+          "options": ["Yes - boost healing", "No - save for heavy damage", "Yes - use on cooldown", "No - tank is fine"],
+          "correctIndex": 1,
+          "explanation": "Soteria is best during heavy tank damage. At 90% with light damage, your base Kardia is enough. Save Soteria for when you need the boost."
+        },
+        {
+          "questionId": "sge.lesson_3.q4",
+          "conceptId": "sge.philosophia_usage",
+          "scenario": "Boss dies in 10 seconds. Philosophia still available.",
+          "question": "Should you use it?",
+          "options": ["No - boss dying", "Yes - helps with final damage", "Save for next pull", "Doesn't matter"],
+          "correctIndex": 1,
+          "explanation": "If there's any party damage in the final 10 seconds, Philosophia provides value. Don't hold cooldowns when the fight is ending."
+        },
+        {
+          "questionId": "sge.lesson_3.q5",
+          "conceptId": "sge.soteria_usage",
+          "scenario": "Soteria is active. You need to stop DPSing to heal with GCDs.",
+          "question": "How does this affect Kardia?",
+          "options": ["Kardia still heals", "Kardia stops healing", "Reduced Kardia healing", "Soteria extends"],
+          "correctIndex": 1,
+          "explanation": "Kardia only heals when you deal damage. If you stop DPSing to use GCD heals, Kardia (and Soteria's boost) stops working."
+        }
+      ]
+    },
+    {
+      "quizId": "sge.lesson_4.quiz",
+      "lessonId": "sge.lesson_4",
+      "title": "Quiz: Eukrasia System",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sge.lesson_4.q1",
+          "conceptId": "sge.eukrasia_decisions",
+          "scenario": "You want to apply a shield to the tank.",
+          "question": "What's the correct sequence?",
+          "options": ["Diagnosis", "Eukrasia + Diagnosis", "E.Diagnosis directly", "Shield + Diagnosis"],
+          "correctIndex": 1,
+          "explanation": "Eukrasia modifies your next Diagnosis into E.Diagnosis (shield). Press Eukrasia first, then Diagnosis."
+        },
+        {
+          "questionId": "sge.lesson_4.q2",
+          "conceptId": "sge.eukrasian_dosis_usage",
+          "scenario": "E.Dosis (DoT) has 5 seconds remaining on boss.",
+          "question": "Should you refresh?",
+          "options": ["Yes - keep DoT up", "No - wait until 3s", "Yes - always refresh early", "Let it fall off"],
+          "correctIndex": 1,
+          "explanation": "Refresh DoTs at 3 seconds or less. At 5 seconds, refreshing wastes ticks. Wait a bit longer."
+        },
+        {
+          "questionId": "sge.lesson_4.q3",
+          "conceptId": "sge.eukrasian_prognosis_usage",
+          "scenario": "Raidwide in 3 seconds. Party at full HP.",
+          "question": "What should you do?",
+          "options": ["Nothing - they're full", "E.Prognosis for party shield", "Kerachole only", "Both E.Prog and Kerachole"],
+          "correctIndex": 1,
+          "explanation": "E.Prognosis gives party-wide shields. Before raidwide, shields reduce incoming damage. Apply proactively."
+        },
+        {
+          "questionId": "sge.lesson_4.q4",
+          "conceptId": "sge.eukrasian_diagnosis_usage",
+          "scenario": "Tankbuster coming. Tank already has a shield from E.Diagnosis.",
+          "question": "Can you apply another E.Diagnosis shield?",
+          "options": ["Yes - shields stack", "No - only refreshes if larger", "Yes - always refreshes", "No - shield blocks it"],
+          "correctIndex": 1,
+          "explanation": "Shields from the same source don't stack. A new E.Diagnosis only refreshes if the new shield would be larger."
+        },
+        {
+          "questionId": "sge.lesson_4.q5",
+          "conceptId": "sge.eukrasia_decisions",
+          "scenario": "You need to move and can only fit one instant GCD.",
+          "question": "What's the best choice?",
+          "options": ["Dosis (damage)", "Toxikon (instant)", "E.Dosis (DoT)", "Phlegma (instant)"],
+          "correctIndex": 3,
+          "explanation": "Phlegma is instant and strong damage. During movement when you can only fit one GCD, it's ideal. Save it for these moments."
+        }
+      ]
+    },
+    {
+      "quizId": "sge.lesson_5.quiz",
+      "lessonId": "sge.lesson_5",
+      "title": "Quiz: oGCD Healing Toolkit",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sge.lesson_5.q1",
+          "conceptId": "sge.physis_usage",
+          "scenario": "Raidwide just hit. Party at 60%. Physis available.",
+          "question": "Should you use Physis?",
+          "options": ["No - save for worse", "Yes - HoT + healing boost", "No - 60% is fine", "Use Ixochole instead"],
+          "correctIndex": 1,
+          "explanation": "Physis provides party HoT AND boosts healing received. At 60%, it recovers the party efficiently. Use it."
+        },
+        {
+          "questionId": "sge.lesson_5.q2",
+          "conceptId": "sge.holos_usage",
+          "scenario": "Heavy raidwide coming. Party at full HP.",
+          "question": "How should you use Holos?",
+          "options": ["After the raidwide", "Before - shield + heal", "Save for emergency", "Not useful here"],
+          "correctIndex": 1,
+          "explanation": "Holos provides party shield (mitigation) AND heal. Use BEFORE raidwide for the shield value, then the heal tops off remaining damage."
+        },
+        {
+          "questionId": "sge.lesson_5.q3",
+          "conceptId": "sge.pneuma_usage",
+          "scenario": "Party needs healing. Boss is targetable. Pneuma available.",
+          "question": "What's special about Pneuma?",
+          "options": ["Pure healing", "Damage + party heal", "Shield only", "Single target"],
+          "correctIndex": 1,
+          "explanation": "Pneuma deals line AoE damage AND heals the party. It's both DPS and healing - use it when the boss is targetable and party needs HP."
+        },
+        {
+          "questionId": "sge.lesson_5.q4",
+          "conceptId": "sge.krasis_usage",
+          "scenario": "Tank about to take heavy damage. Krasis available.",
+          "question": "What does Krasis do?",
+          "options": ["Direct heal", "20% healing boost on target", "Shield", "Mitigation"],
+          "correctIndex": 1,
+          "explanation": "Krasis increases healing received by 20% for the target. Apply it before healing the tank for boosted effectiveness."
+        },
+        {
+          "questionId": "sge.lesson_5.q5",
+          "conceptId": "sge.physis_usage",
+          "scenario": "Physis is ready. Light damage, party at 85% HP.",
+          "question": "Should you use Physis?",
+          "options": ["Yes - use on cooldown", "No - save for heavier damage", "Yes - 60s CD", "Depends on next mechanic"],
+          "correctIndex": 3,
+          "explanation": "If heavy damage is coming soon, save Physis for that. If nothing major is coming, using it now for the HoT is fine since it's 60s CD."
+        }
+      ]
+    },
+    {
+      "quizId": "sge.lesson_6.quiz",
+      "lessonId": "sge.lesson_6",
+      "title": "Quiz: Defensive Cooldowns",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sge.lesson_6.q1",
+          "conceptId": "sge.haima_usage",
+          "scenario": "Tankbuster with multi-hit (3 hits rapidly). Haima available.",
+          "question": "Is Haima good here?",
+          "options": ["No - single hit only", "Yes - shields refresh", "Save for party", "Use Panhaima instead"],
+          "correctIndex": 1,
+          "explanation": "Haima's shields refresh when broken (up to 5 times). Multi-hit busters are PERFECT for Haima - each hit triggers a new shield."
+        },
+        {
+          "questionId": "sge.lesson_6.q2",
+          "conceptId": "sge.panhaima_usage",
+          "scenario": "Multiple raidwides over 15 seconds. Panhaima available.",
+          "question": "When to use Panhaima?",
+          "options": ["After first hit", "Before the sequence", "Save for tank", "Between hits"],
+          "correctIndex": 1,
+          "explanation": "Panhaima puts stacking shields on the party (refresh on break). Use BEFORE a multi-hit sequence to maximize shield value."
+        },
+        {
+          "questionId": "sge.lesson_6.q3",
+          "conceptId": "sge.pepsis_usage",
+          "scenario": "Party has E.Prognosis shields. Unexpected damage requires healing.",
+          "question": "What does Pepsis do?",
+          "options": ["Adds more shields", "Converts shields to heal", "Removes shields", "Nothing useful"],
+          "correctIndex": 1,
+          "explanation": "Pepsis instantly converts your existing shields into healing. If shields would expire unused, Pepsis gets value from them."
+        },
+        {
+          "questionId": "sge.lesson_6.q4",
+          "conceptId": "sge.zoe_usage",
+          "scenario": "Tank critically low. You need a big heal. Zoe available.",
+          "question": "How do you use Zoe?",
+          "options": ["Use alone", "Zoe then Diagnosis", "Zoe then Druochole", "Zoe then E.Diagnosis"],
+          "correctIndex": 1,
+          "explanation": "Zoe boosts your next GCD heal by 50%. Use Zoe then Diagnosis for a massive single-target heal. Druochole is oGCD (not boosted)."
+        },
+        {
+          "questionId": "sge.lesson_6.q5",
+          "conceptId": "sge.rhizomata_usage",
+          "scenario": "You have 0 Addersgall. Rhizomata available.",
+          "question": "What does Rhizomata provide?",
+          "options": ["Instant heal", "1 Addersgall stack", "Party shield", "MP restoration"],
+          "correctIndex": 1,
+          "explanation": "Rhizomata grants 1 Addersgall stack on a 90s cooldown. Use it when you need Addersgall abilities but are out of stacks."
+        }
+      ]
+    },
+    {
+      "quizId": "sge.lesson_7.quiz",
+      "lessonId": "sge.lesson_7",
+      "title": "Quiz: DPS & Coordination",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sge.lesson_7.q1",
+          "conceptId": "sge.dps_optimization",
+          "scenario": "Party healthy. E.Dosis up. Kardia on tank.",
+          "question": "What should you be doing?",
+          "options": ["Pre-shield party", "Dosis spam", "Prepare heals", "Apply more HoTs"],
+          "correctIndex": 1,
+          "explanation": "Dosis spam = damage + Kardia healing. When party is healthy and DoT is up, maximize Dosis uptime. SGE heals through DPS."
+        },
+        {
+          "questionId": "sge.lesson_7.q2",
+          "conceptId": "sge.phlegma_usage",
+          "scenario": "Burst window starting. You have 2 Phlegma charges.",
+          "question": "How should you use Phlegma?",
+          "options": ["Save for movement", "Use both in burst", "Space them out", "One now, one later"],
+          "correctIndex": 1,
+          "explanation": "Phlegma is strong instant damage. Use charges during burst windows (under raid buffs) for maximum value. Save for movement only if burst is far off."
+        },
+        {
+          "questionId": "sge.lesson_7.q3",
+          "conceptId": "sge.co_healer_awareness",
+          "scenario": "Paired with WHM. They use Temperance before raidwide.",
+          "question": "What should you do?",
+          "options": ["Add Kerachole", "Trust them, DPS", "Use Panhaima", "Stack mitigations"],
+          "correctIndex": 1,
+          "explanation": "WHM's Temperance provides party mitigation. Stacking more mitigation has diminishing returns. Trust co-healer, focus on DPS."
+        },
+        {
+          "questionId": "sge.lesson_7.q4",
+          "conceptId": "sge.toxikon_usage",
+          "scenario": "You have 2 Addersting (from broken E.Diagnosis shields). Need to move.",
+          "question": "What should you use?",
+          "options": ["Dosis", "Toxikon", "Phlegma", "Nothing"],
+          "correctIndex": 1,
+          "explanation": "Toxikon is instant damage using Addersting. Perfect for movement. You earned those stacks from shields - use them."
+        },
+        {
+          "questionId": "sge.lesson_7.q5",
+          "conceptId": "sge.raise_decision",
+          "scenario": "DPS died. Swiftcast ready. AST co-healer casting Malefic.",
+          "question": "Who should raise?",
+          "options": ["Wait for AST", "You - Swiftcast ready", "Hardcast Egeiro", "Wait for SMN"],
+          "correctIndex": 1,
+          "explanation": "Your Swiftcast is ready and AST is DPSing. Take the raise - get the DPS back immediately."
+        }
+      ]
+    }
+  ]
+}

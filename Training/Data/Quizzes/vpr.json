@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "vpr",
+  "jobName": "Viper",
+  "quizzes": [
+    {
+      "quizId": "vpr.lesson_1.quiz",
+      "lessonId": "vpr.lesson_1",
+      "title": "Quiz: Viper Fundamentals",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "vpr.lesson_1.q1",
+          "conceptId": "vpr.combo_basics",
+          "scenario": "You just used Steel Fangs and completed the combo path.",
+          "question": "What buff did you receive?",
+          "options": ["Swiftscaled (+15% auto-attack)", "Hunter's Instinct (+10% damage)", "Both buffs", "No buff until finisher"],
+          "correctIndex": 1,
+          "explanation": "The Steel Fangs path grants Hunter's Instinct (+10% damage buff). The Reaving Fangs path grants Swiftscaled."
+        },
+        {
+          "questionId": "vpr.lesson_1.q2",
+          "conceptId": "vpr.buff_cycling",
+          "scenario": "Hunter's Instinct has 10 seconds remaining. Swiftscaled has 35 seconds.",
+          "question": "Which combo path should you start?",
+          "options": ["Reaving Fangs path", "Steel Fangs path", "Either one - doesn't matter", "Skip combo, use Vicewinder"],
+          "correctIndex": 1,
+          "explanation": "Hunter's Instinct is about to fall off (10s). Start Steel Fangs path to refresh it before it expires."
+        },
+        {
+          "questionId": "vpr.lesson_1.q3",
+          "conceptId": "vpr.honed_buffs",
+          "scenario": "You have the Honed Steel buff. What does this do?",
+          "question": "What effect does Honed Steel provide?",
+          "options": ["Increases damage of next attack", "Upgrades Steel Fangs to Honed Steel Fangs", "Grants extra Serpent Offering", "Extends Hunter's Instinct"],
+          "correctIndex": 1,
+          "explanation": "Honed Steel upgrades your next Steel Fangs into Honed Steel Fangs, which deals more damage."
+        },
+        {
+          "questionId": "vpr.lesson_1.q4",
+          "conceptId": "vpr.combo_basics",
+          "scenario": "You want to maintain both Hunter's Instinct and Swiftscaled.",
+          "question": "What is the correct approach?",
+          "options": ["Only use Steel Fangs path", "Only use Reaving Fangs path", "Alternate between both paths", "Use whichever is available"],
+          "correctIndex": 2,
+          "explanation": "Alternate between Steel Fangs and Reaving Fangs paths to maintain both Hunter's Instinct and Swiftscaled buffs."
+        },
+        {
+          "questionId": "vpr.lesson_1.q5",
+          "conceptId": "vpr.buff_cycling",
+          "scenario": "Both Hunter's Instinct and Swiftscaled have 40 seconds remaining.",
+          "question": "What should you do?",
+          "options": ["Refresh Hunter's Instinct immediately", "Refresh Swiftscaled immediately", "Continue normal rotation", "Wait until one is low"],
+          "correctIndex": 2,
+          "explanation": "Both buffs are healthy at 40s. Continue your normal rotation - you'll naturally refresh them before they expire."
+        }
+      ]
+    },
+    {
+      "quizId": "vpr.lesson_2.quiz",
+      "lessonId": "vpr.lesson_2",
+      "title": "Quiz: Resource Management",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "vpr.lesson_2.q1",
+          "conceptId": "vpr.serpent_offering",
+          "scenario": "You have 45 Serpent Offering and just completed a combo finisher.",
+          "question": "How much Serpent Offering do you now have?",
+          "options": ["45 (finishers don't grant gauge)", "50 Serpent Offering", "55 Serpent Offering", "100 Serpent Offering"],
+          "correctIndex": 2,
+          "explanation": "Combo finishers grant 10 Serpent Offering each. 45 + 10 = 55 Serpent Offering."
+        },
+        {
+          "questionId": "vpr.lesson_2.q2",
+          "conceptId": "vpr.rattling_coil",
+          "scenario": "You have 3 Rattling Coil stacks. A Twinblade combo is available.",
+          "question": "What should you do?",
+          "options": ["Start Twinblade combo immediately", "Use Uncoiled Fury first to avoid overcapping", "Save Rattling Coils for later", "Wait for Serpent's Ire"],
+          "correctIndex": 1,
+          "explanation": "At max Rattling Coils (3), use Uncoiled Fury before gaining more from Twinblade combos to avoid overcapping."
+        },
+        {
+          "questionId": "vpr.lesson_2.q3",
+          "conceptId": "vpr.offering_generation",
+          "scenario": "You have 95 Serpent Offering. You need to do another combo finisher.",
+          "question": "What should you do?",
+          "options": ["Complete the combo anyway", "Enter Reawaken first", "Skip the finisher", "Use Uncoiled Fury"],
+          "correctIndex": 1,
+          "explanation": "At 95 Serpent Offering, completing a finisher would overcap. Enter Reawaken (costs 50) to spend gauge first."
+        },
+        {
+          "questionId": "vpr.lesson_2.q4",
+          "conceptId": "vpr.rattling_coil",
+          "scenario": "The boss just jumped away. You have 2 Rattling Coil stacks.",
+          "question": "What should you do?",
+          "options": ["Wait for boss to return", "Use Uncoiled Fury", "Use Writhing Snap", "Do nothing"],
+          "correctIndex": 1,
+          "explanation": "Uncoiled Fury is a ranged GCD that spends Rattling Coils. Use it during forced disengagement to maintain DPS."
+        },
+        {
+          "questionId": "vpr.lesson_2.q5",
+          "conceptId": "vpr.serpent_offering",
+          "scenario": "You have 50 Serpent Offering. Reawaken is ready.",
+          "question": "Can you use Reawaken?",
+          "options": ["No - need 100 Serpent Offering", "Yes - 50 is the minimum requirement", "Only with Serpent's Ire buff", "Only if Noxious Gnash is active"],
+          "correctIndex": 3,
+          "explanation": "Reawaken requires 50+ Serpent Offering AND Noxious Gnash active on the target. Both conditions must be met."
+        }
+      ]
+    },
+    {
+      "quizId": "vpr.lesson_3.quiz",
+      "lessonId": "vpr.lesson_3",
+      "title": "Quiz: Venom & Positionals",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "vpr.lesson_3.q1",
+          "conceptId": "vpr.venom_system",
+          "scenario": "You have the Flankstung Venom buff active.",
+          "question": "Where should you position yourself for the next finisher?",
+          "options": ["Behind the boss (rear)", "Beside the boss (flank)", "In front of the boss", "Anywhere - venom ignores positionals"],
+          "correctIndex": 1,
+          "explanation": "Flankstung indicates FLANK positional. Position beside the boss for the positional bonus."
+        },
+        {
+          "questionId": "vpr.lesson_3.q2",
+          "conceptId": "vpr.positional_finishers",
+          "scenario": "You have Hindsbane Venom. You're standing behind the boss.",
+          "question": "Which finisher should you use?",
+          "options": ["Flanksbane Fang", "Hindsbane Fang", "Either one - both work", "Wait for different venom"],
+          "correctIndex": 1,
+          "explanation": "Hindsbane indicates REAR (hind) positional. Use Hindsbane Fang from behind for the positional bonus."
+        },
+        {
+          "questionId": "vpr.lesson_3.q3",
+          "conceptId": "vpr.true_north_usage",
+          "scenario": "A mechanic forces you to stand in front of the boss. You have Flankstung Venom and True North available.",
+          "question": "What should you do?",
+          "options": ["Skip the finisher", "Use True North and do the finisher", "Wait for mechanic to end", "Use a different attack"],
+          "correctIndex": 1,
+          "explanation": "True North removes positional requirements for 10s. Use it to hit your finisher without losing damage."
+        },
+        {
+          "questionId": "vpr.lesson_3.q4",
+          "conceptId": "vpr.venom_system",
+          "scenario": "You used Flanksting Strike. What venom buff do you now have?",
+          "question": "Which venom buff is active?",
+          "options": ["Flankstung Venom", "Hindstung Venom", "Flanksbane Venom", "Hindsbane Venom"],
+          "correctIndex": 1,
+          "explanation": "Flanksting Strike grants Hindstung Venom, directing you to use a rear positional next."
+        },
+        {
+          "questionId": "vpr.lesson_3.q5",
+          "conceptId": "vpr.positionals",
+          "scenario": "The boss is targeting you (cannot get behind). You have Hindstung Venom and no True North.",
+          "question": "What should you do?",
+          "options": ["Wait for boss to turn away", "Use the finisher anyway (lose positional)", "Skip your rotation", "Only use Vicewinder"],
+          "correctIndex": 1,
+          "explanation": "Using the finisher without positional is better than not using it at all. You lose some potency but maintain rotation flow."
+        }
+      ]
+    },
+    {
+      "quizId": "vpr.lesson_4.quiz",
+      "lessonId": "vpr.lesson_4",
+      "title": "Quiz: Twinblade Combos",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "vpr.lesson_4.q1",
+          "conceptId": "vpr.vicewinder",
+          "scenario": "You use Vicewinder on a boss.",
+          "question": "What debuff does Vicewinder apply?",
+          "options": ["Death's Design", "Noxious Gnash (+10% damage)", "Venomous Bite", "No debuff"],
+          "correctIndex": 1,
+          "explanation": "Vicewinder applies Noxious Gnash, a debuff that increases damage dealt to the target by 10%."
+        },
+        {
+          "questionId": "vpr.lesson_4.q2",
+          "conceptId": "vpr.twinfang_twinblood",
+          "scenario": "You just used Hunter's Coil during a Twinblade combo.",
+          "question": "What should you do next?",
+          "options": ["Use Swiftskin's Coil", "Use Twinfang oGCD", "Use Vicewinder again", "Wait for GCD"],
+          "correctIndex": 1,
+          "explanation": "Hunter's Coil grants a Twinfang proc. Weave Twinfang immediately as a free oGCD before your next GCD."
+        },
+        {
+          "questionId": "vpr.lesson_4.q3",
+          "conceptId": "vpr.noxious_gnash",
+          "scenario": "Noxious Gnash has 5 seconds remaining on the boss. You have 55 Serpent Offering.",
+          "question": "Can you enter Reawaken?",
+          "options": ["Yes - you have enough Offering", "No - Noxious Gnash is too low", "Yes - Reawaken refreshes it", "Only with True North"],
+          "correctIndex": 1,
+          "explanation": "Reawaken requires Noxious Gnash to be active. At 5s, it may fall off during Reawaken. Refresh it first with Vicewinder."
+        },
+        {
+          "questionId": "vpr.lesson_4.q4",
+          "conceptId": "vpr.dread_combo",
+          "scenario": "You're behind the boss during a Twinblade combo. Which Coil should you use?",
+          "question": "Which ability is correct for rear positioning?",
+          "options": ["Hunter's Coil (flank)", "Swiftskin's Coil (rear)", "Either one", "Depends on venom"],
+          "correctIndex": 1,
+          "explanation": "Swiftskin's Coil has a rear positional. Use it when behind the boss for bonus potency."
+        },
+        {
+          "questionId": "vpr.lesson_4.q5",
+          "conceptId": "vpr.vicewinder",
+          "scenario": "You completed a Twinblade combo (Vicewinder → Coil → Coil).",
+          "question": "How many Rattling Coil stacks did you gain?",
+          "options": ["0 stacks", "1 stack", "2 stacks", "3 stacks"],
+          "correctIndex": 1,
+          "explanation": "Each complete Twinblade combo grants 1 Rattling Coil stack for use with Uncoiled Fury."
+        }
+      ]
+    },
+    {
+      "quizId": "vpr.lesson_5.quiz",
+      "lessonId": "vpr.lesson_5",
+      "title": "Quiz: Reawaken Burst",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "vpr.lesson_5.q1",
+          "conceptId": "vpr.reawaken_entry",
+          "scenario": "You have 50 Serpent Offering, Noxious Gnash on target, but Hunter's Instinct has 8 seconds left.",
+          "question": "Should you enter Reawaken?",
+          "options": ["Yes - all requirements met", "No - buff duration too low", "Yes - Reawaken extends buffs", "Only if Serpent's Ire is ready"],
+          "correctIndex": 1,
+          "explanation": "Reawaken requires 10+ seconds on buffs. At 8s, Hunter's Instinct may fall off mid-burst. Refresh buffs first."
+        },
+        {
+          "questionId": "vpr.lesson_5.q2",
+          "conceptId": "vpr.generation_sequence",
+          "scenario": "You just entered Reawaken.",
+          "question": "What is the correct GCD sequence?",
+          "options": ["Fourth → Third → Second → First → Ouroboros", "First → Second → Third → Fourth → Ouroboros", "Any order works", "Ouroboros → First → Second → Third → Fourth"],
+          "correctIndex": 1,
+          "explanation": "The Generation sequence must go in order: First → Second → Third → Fourth → Ouroboros (finisher)."
+        },
+        {
+          "questionId": "vpr.lesson_5.q3",
+          "conceptId": "vpr.legacy_weaving",
+          "scenario": "You just used First Generation during Reawaken.",
+          "question": "What should you weave before Second Generation?",
+          "options": ["Nothing - just use Second Generation", "First Legacy oGCD", "Twinfang", "Serpent's Ire"],
+          "correctIndex": 1,
+          "explanation": "Each Generation GCD grants a corresponding Legacy oGCD. Weave First Legacy after First Generation."
+        },
+        {
+          "questionId": "vpr.lesson_5.q4",
+          "conceptId": "vpr.anguine_tribute",
+          "scenario": "You entered Reawaken. How many Anguine Tribute stacks do you have?",
+          "question": "What is your starting Anguine Tribute count?",
+          "options": ["3 stacks", "4 stacks", "5 stacks", "Depends on Serpent Offering"],
+          "correctIndex": 2,
+          "explanation": "Reawaken always grants exactly 5 Anguine Tribute stacks, regardless of how much Serpent Offering you spent."
+        },
+        {
+          "questionId": "vpr.lesson_5.q5",
+          "conceptId": "vpr.generation_sequence",
+          "scenario": "You have 1 Anguine Tribute remaining during Reawaken.",
+          "question": "What should you use?",
+          "options": ["First Generation again", "Any Generation GCD", "Ouroboros", "Exit Reawaken"],
+          "correctIndex": 2,
+          "explanation": "At 1 Anguine Tribute, use Ouroboros as your finisher to complete the Reawaken phase."
+        }
+      ]
+    },
+    {
+      "quizId": "vpr.lesson_6.quiz",
+      "lessonId": "vpr.lesson_6",
+      "title": "Quiz: Burst Optimization",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "vpr.lesson_6.q1",
+          "conceptId": "vpr.serpents_ire",
+          "scenario": "Serpent's Ire is ready. Party raid buffs are going out.",
+          "question": "What does Serpent's Ire grant?",
+          "options": ["50 Serpent Offering", "Ready to Reawaken + 1 Rattling Coil", "Extends Noxious Gnash", "Resets all cooldowns"],
+          "correctIndex": 1,
+          "explanation": "Serpent's Ire grants Ready to Reawaken (free Reawaken) and 1 Rattling Coil stack."
+        },
+        {
+          "questionId": "vpr.lesson_6.q2",
+          "conceptId": "vpr.ready_to_reawaken",
+          "scenario": "You have Ready to Reawaken buff. You also have 80 Serpent Offering.",
+          "question": "What happens when you use Reawaken?",
+          "options": ["Spends 50 Offering + uses buff", "Only uses Ready to Reawaken (keeps Offering)", "Spends all 80 Offering", "Cannot use - must spend Offering first"],
+          "correctIndex": 1,
+          "explanation": "Ready to Reawaken allows a FREE Reawaken without spending Serpent Offering. Your 80 Offering is preserved."
+        },
+        {
+          "questionId": "vpr.lesson_6.q3",
+          "conceptId": "vpr.burst_window",
+          "scenario": "It's been 1:55 into the fight. Serpent's Ire is ready. No party buffs are visible yet.",
+          "question": "What should you do?",
+          "options": ["Use Serpent's Ire immediately", "Wait a few seconds for 2-minute party buffs", "Save it for next window", "Use Reawaken without Serpent's Ire"],
+          "correctIndex": 1,
+          "explanation": "Party 2-minute buffs align around 2:00. Wait a few seconds to use Serpent's Ire with party buff windows."
+        },
+        {
+          "questionId": "vpr.lesson_6.q4",
+          "conceptId": "vpr.timeline_awareness",
+          "scenario": "The boss will become untargetable in 15 seconds. You have 50 Serpent Offering.",
+          "question": "Should you enter Reawaken now?",
+          "options": ["Yes - complete burst before phase transition", "No - save for after transition", "Only if Serpent's Ire is ready", "Use Uncoiled Fury instead"],
+          "correctIndex": 0,
+          "explanation": "Reawaken burst takes ~12-13 seconds. Enter now to complete it before the boss becomes untargetable."
+        },
+        {
+          "questionId": "vpr.lesson_6.q5",
+          "conceptId": "vpr.serpents_ire",
+          "scenario": "Serpent's Ire has 10 seconds on cooldown. Raid buffs just went out.",
+          "question": "Should you Reawaken now or wait for Serpent's Ire?",
+          "options": ["Wait for Serpent's Ire", "Reawaken now - catch the raid buffs", "Use Twinblades instead", "It doesn't matter"],
+          "correctIndex": 1,
+          "explanation": "Raid buffs are more important than Ready to Reawaken. Use your regular Reawaken now to catch party buffs."
+        }
+      ]
+    },
+    {
+      "quizId": "vpr.lesson_7.quiz",
+      "lessonId": "vpr.lesson_7",
+      "title": "Quiz: Complete Rotation",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "vpr.lesson_7.q1",
+          "conceptId": "vpr.aoe_rotation",
+          "scenario": "You're facing 4 enemies in a dungeon.",
+          "question": "Which combo should you use?",
+          "options": ["Steel Fangs → finisher", "Steel Maw → Reaving Maw", "Single-target for focus", "Only Vicewinder"],
+          "correctIndex": 1,
+          "explanation": "At 3+ targets, use the AoE combo (Steel Maw → Reaving Maw path) for more total damage."
+        },
+        {
+          "questionId": "vpr.lesson_7.q2",
+          "conceptId": "vpr.dual_wield_aoe",
+          "scenario": "You want to apply Noxious Gnash to multiple enemies.",
+          "question": "Which ability should you use?",
+          "options": ["Vicewinder on each enemy", "Vicepit (AoE Vicewinder)", "Shadow of Death", "Whorl of Death"],
+          "correctIndex": 1,
+          "explanation": "Vicepit is the AoE version of Vicewinder - it applies Noxious Gnash to all enemies hit."
+        },
+        {
+          "questionId": "vpr.lesson_7.q3",
+          "conceptId": "vpr.uncoiled_fury",
+          "scenario": "You have 2 Rattling Coils. The boss is in melee range.",
+          "question": "Should you use Uncoiled Fury?",
+          "options": ["Yes - always use on cooldown", "No - save for movement", "Yes - prevents overcapping", "Only during Reawaken"],
+          "correctIndex": 1,
+          "explanation": "In melee range, save Rattling Coils for movement phases. Uncoiled Fury is a DPS loss if you could use melee GCDs."
+        },
+        {
+          "questionId": "vpr.lesson_7.q4",
+          "conceptId": "vpr.aoe_rotation",
+          "scenario": "You have 2 enemies. One is at 80% HP, one is at 20% HP.",
+          "question": "Which rotation should you use?",
+          "options": ["AoE rotation on both", "Single-target on low HP enemy", "Single-target - AoE is 3+ targets", "Focus the high HP enemy"],
+          "correctIndex": 2,
+          "explanation": "Viper's AoE threshold is 3+ targets. At 2 enemies, single-target rotation is more efficient."
+        },
+        {
+          "questionId": "vpr.lesson_7.q5",
+          "conceptId": "vpr.uncoiled_fury",
+          "scenario": "The boss dashed away. You have 0 Rattling Coils and Writhing Snap available.",
+          "question": "What should you do?",
+          "options": ["Wait for boss to return", "Use Writhing Snap", "Use Sprint to close gap", "Do nothing"],
+          "correctIndex": 1,
+          "explanation": "Writhing Snap is your ranged filler when you have no Rattling Coils. Use it during forced disengagement."
+        }
+      ]
+    }
+  ]
+}

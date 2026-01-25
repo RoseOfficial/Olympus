@@ -1,7 +1,7 @@
 <Project Sdk="Dalamud.NET.Sdk/14.0.1">
 
   <PropertyGroup>
-    <Version>4.0.1</Version>
+    <Version>4.0.2</Version>
     <DalamudLibPath>$(AppData)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
   </PropertyGroup>
 
@@ -14,6 +14,12 @@
   <!-- Embedded timeline resources -->
   <ItemGroup>
     <EmbeddedResource Include="Timeline\Data\*.txt" />
+  </ItemGroup>
+
+  <!-- Embedded training data (lessons and quizzes) -->
+  <ItemGroup>
+    <EmbeddedResource Include="Training\Data\Lessons\*.json" />
+    <EmbeddedResource Include="Training\Data\Quizzes\*.json" />
   </ItemGroup>
 
 </Project>

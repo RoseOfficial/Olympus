@@ -1,0 +1,146 @@
+{
+  "jobPrefix": "nin",
+  "jobName": "Ninja",
+  "lessons": [
+    {
+      "lessonId": "nin.lesson_1",
+      "lessonNumber": 1,
+      "title": "Ninja Fundamentals",
+      "description": "Master Ninja basics: the combo flow, positional requirements, and Kazematoi management.",
+      "prerequisites": [],
+      "conceptsCovered": ["nin.combo_basics", "nin.positionals", "nin.kazematoi"],
+      "keyPoints": [
+        "Basic combo: Spinning Edge -> Gust Slash -> Aeolian Edge (rear) or Armor Crush (flank)",
+        "Aeolian Edge (rear positional) is your highest potency finisher",
+        "Armor Crush (flank positional) grants Kazematoi stacks",
+        "Kazematoi stacks enhance Aeolian Edge - build them with Armor Crush, spend with Aeolian Edge"
+      ],
+      "relatedAbilities": ["Spinning Edge", "Gust Slash", "Aeolian Edge", "Armor Crush"],
+      "tips": [
+        "Alternate finishers: Armor Crush to build Kazematoi, Aeolian Edge to spend them",
+        "Missing positionals loses significant potency - use True North when needed"
+      ]
+    },
+    {
+      "lessonId": "nin.lesson_2",
+      "lessonNumber": 2,
+      "title": "Mudra Mastery",
+      "description": "Learn the mudra system and execute Ninjutsu combinations effectively.",
+      "prerequisites": ["nin.lesson_1"],
+      "conceptsCovered": ["nin.mudra_system", "nin.ninjutsu_weaving", "nin.huton"],
+      "keyPoints": [
+        "Mudras (Ten, Chi, Jin) combine to create Ninjutsu - memorize the sequences",
+        "Raiton (Ten -> Chi or Chi -> Ten): Single-target damage - your bread and butter",
+        "Huton (Jin -> Chi -> Ten): Grants Huton buff (+15% attack speed) at lower levels",
+        "Suiton (Ten -> Chi -> Jin): Enables Kunai's Bane from range - crucial for burst",
+        "Mudras are oGCDs but Ninjutsu is a GCD - weave mudras between GCDs"
+      ],
+      "relatedAbilities": ["Ten", "Chi", "Jin", "Ninjutsu", "Raiton", "Huton", "Suiton"],
+      "tips": [
+        "Practice mudra sequences until they're muscle memory",
+        "Bunny (Rabbit Medium) appears if you mess up - no damage, just try again"
+      ]
+    },
+    {
+      "lessonId": "nin.lesson_3",
+      "lessonNumber": 3,
+      "title": "Ninki & Spenders",
+      "description": "Understand Ninki gauge management and when to spend it.",
+      "prerequisites": ["nin.lesson_2"],
+      "conceptsCovered": ["nin.ninki_gauge", "nin.bhavacakra", "nin.ninki_pooling"],
+      "keyPoints": [
+        "Ninki builds from weaponskills and Mug/Dokumori (0-100 gauge)",
+        "Bhavacakra (50 Ninki): High-potency single-target oGCD damage",
+        "Hellfrog Medium (50 Ninki): AoE alternative for 3+ targets",
+        "Pool Ninki before burst windows - spend during Kunai's Bane for buffed damage"
+      ],
+      "relatedAbilities": ["Bhavacakra", "Hellfrog Medium"],
+      "tips": [
+        "Don't cap at 100 Ninki - spend before overcapping",
+        "During burst, weave Bhavacakra between GCDs for maximum damage"
+      ]
+    },
+    {
+      "lessonId": "nin.lesson_4",
+      "lessonNumber": 4,
+      "title": "Burst Window Basics",
+      "description": "Set up and execute your burst window with Suiton and Kunai's Bane.",
+      "prerequisites": ["nin.lesson_3"],
+      "conceptsCovered": ["nin.suiton", "nin.kunais_bane", "nin.mug_dokumori"],
+      "keyPoints": [
+        "Suiton (Ten -> Chi -> Jin) grants a buff that enables Kunai's Bane",
+        "Kunai's Bane (60s CD): Your primary burst - +10% damage debuff on target",
+        "Mug (120s CD): Damage + 40 Ninki generation - use in burst window",
+        "Dokumori (120s CD): Replaces Mug at higher levels, grants party buff",
+        "Burst order: Suiton -> Mug/Dokumori -> Kunai's Bane -> dump Ninki and oGCDs"
+      ],
+      "relatedAbilities": ["Suiton", "Kunai's Bane", "Mug", "Dokumori"],
+      "tips": [
+        "Always have Suiton up before Kunai's Bane - it's required",
+        "Kunai's Bane aligns with 60s party buffs - coordinate with team"
+      ]
+    },
+    {
+      "lessonId": "nin.lesson_5",
+      "lessonNumber": 5,
+      "title": "Advanced Burst: TCJ & Kassatsu",
+      "description": "Master Ten Chi Jin and Kassatsu for maximum burst damage.",
+      "prerequisites": ["nin.lesson_4"],
+      "conceptsCovered": ["nin.kassatsu", "nin.ten_chi_jin", "nin.tcj_optimization"],
+      "keyPoints": [
+        "Kassatsu (60s CD): Makes next Ninjutsu stronger and instant - use for Hyosho Ranryu",
+        "Hyosho Ranryu: Kassatsu-only ice Ninjutsu with massive potency",
+        "Ten Chi Jin (120s CD): Execute 3 Ninjutsu in sequence without GCDs between",
+        "TCJ sequence: Fuma Shuriken -> Raiton -> Suiton (standard) for 2-minute burst",
+        "During TCJ you cannot move - position safely before activating"
+      ],
+      "relatedAbilities": ["Kassatsu", "Ten Chi Jin", "Hyosho Ranryu"],
+      "tips": [
+        "TCJ ends if you move or take damage - use in safe windows",
+        "Align Kassatsu with every Kunai's Bane window for Hyosho Ranryu"
+      ]
+    },
+    {
+      "lessonId": "nin.lesson_6",
+      "lessonNumber": 6,
+      "title": "Procs & Movement",
+      "description": "Handle Raiju procs, Bunshin, and movement abilities effectively.",
+      "prerequisites": ["nin.lesson_5"],
+      "conceptsCovered": ["nin.raiju_procs", "nin.bunshin", "nin.phantom_kamaitachi", "nin.tenri_jindo"],
+      "keyPoints": [
+        "Raiton grants Raiju Ready: Choose Forked Raiju (gap closer) or Fleeting Raiju (stationary)",
+        "Forked Raiju: Use when you need to close distance to the boss",
+        "Fleeting Raiju: Use when already in melee range - same damage, no movement",
+        "Bunshin (90s CD, 50 Ninki): Shadow clone that attacks with you - use in burst",
+        "Phantom Kamaitachi: Bunshin grants this AoE GCD proc - don't waste it",
+        "Tenri Jindo (Lv.100): Proc after Kunai's Bane - big damage finisher"
+      ],
+      "relatedAbilities": ["Forked Raiju", "Fleeting Raiju", "Bunshin", "Phantom Kamaitachi", "Tenri Jindo"],
+      "tips": [
+        "Don't sit on Raiju procs - they expire and you lose damage",
+        "Bunshin before burst means more shadow attacks during buffs"
+      ]
+    },
+    {
+      "lessonId": "nin.lesson_7",
+      "lessonNumber": 7,
+      "title": "Optimization & AoE",
+      "description": "Advanced optimization including Kazematoi management, Meisui, True North, and AoE rotation.",
+      "prerequisites": ["nin.lesson_6"],
+      "conceptsCovered": ["nin.kazematoi_management", "nin.true_north_usage", "nin.burst_alignment", "nin.meisui", "nin.aoe_combo", "nin.aoe_ninjutsu"],
+      "keyPoints": [
+        "Kazematoi: Build with Armor Crush before burst, spend enhanced Aeolian Edges during burst",
+        "True North (45s CD, 2 charges): Use when positionals impossible due to mechanics",
+        "Meisui: Converts Suiton buff into 50 Ninki - use if you won't need Kunai's Bane",
+        "Burst alignment: Coordinate Kunai's Bane with party 60s/120s windows",
+        "AoE combo: Death Blossom -> Hakke Mujinsatsu at 3+ targets",
+        "AoE Ninjutsu: Katon (2+ targets), Doton (3+ stationary), Goka Mekkyaku (Kassatsu AoE)"
+      ],
+      "relatedAbilities": ["True North", "Meisui", "Death Blossom", "Hakke Mujinsatsu", "Katon", "Doton", "Goka Mekkyaku"],
+      "tips": [
+        "Don't waste True North - only use when you truly can't reach the position",
+        "Doton is a DoT ground effect - only use if enemies will stand in it"
+      ]
+    }
+  ]
+}

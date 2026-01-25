@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "sch",
+  "jobName": "Scholar",
+  "quizzes": [
+    {
+      "quizId": "sch.lesson_1.quiz",
+      "lessonId": "sch.lesson_1",
+      "title": "Quiz: Scholar Fundamentals",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sch.lesson_1.q1",
+          "conceptId": "sch.emergency_healing",
+          "scenario": "The tank drops to 20% HP after a tankbuster. You have 2 Aetherflow stacks and Lustrate available.",
+          "question": "What's your emergency response?",
+          "options": ["Adloquium for shield + heal", "Lustrate immediately", "Physick for MP efficiency", "Wait for fairy healing"],
+          "correctIndex": 1,
+          "explanation": "Lustrate is instant oGCD healing - perfect for emergencies. Adloquium is a GCD cast (too slow), Physick is weak, and fairy healing is too slow for 20% HP."
+        },
+        {
+          "questionId": "sch.lesson_1.q2",
+          "conceptId": "sch.shield_timing",
+          "scenario": "A tankbuster will hit in 4 seconds. The tank is at full HP with no shields.",
+          "question": "What should you do?",
+          "options": ["Nothing - tank is full", "Cast Adloquium now", "Wait for buster, then heal", "Use Lustrate preemptively"],
+          "correctIndex": 1,
+          "explanation": "SCH is a shield healer - apply Adloquium BEFORE the buster hits. The shield absorbs damage, reducing the hit. Shields applied after damage are wasted."
+        },
+        {
+          "questionId": "sch.lesson_1.q3",
+          "conceptId": "sch.lustrate_usage",
+          "scenario": "Tank is at 45% HP. You have 1 Aetherflow stack. Aetherflow comes off CD in 5 seconds.",
+          "question": "Should you use Lustrate?",
+          "options": ["No - save for emergency", "Yes - heal the tank", "No - wait for Aetherflow refresh", "Use Physick instead"],
+          "correctIndex": 1,
+          "explanation": "At 45% with Aetherflow refreshing soon, use Lustrate. You'll have 3 fresh stacks in 5 seconds. Holding stacks when Aetherflow is about to refresh wastes resources."
+        },
+        {
+          "questionId": "sch.lesson_1.q4",
+          "conceptId": "sch.shield_timing",
+          "scenario": "You cast Adloquium. The tank now has a Galvanize shield. Another Adloquium would fully overheal.",
+          "question": "What happens if you cast Adloquium again?",
+          "options": ["Shields stack for more protection", "New shield replaces old if larger", "The heal applies, shield is wasted", "Nothing - can't reapply"],
+          "correctIndex": 2,
+          "explanation": "Adloquium always applies the heal. The shield only refreshes if the new shield would be larger. If overhealing, the heal is wasted but shield might refresh."
+        },
+        {
+          "questionId": "sch.lesson_1.q5",
+          "conceptId": "sch.emergency_healing",
+          "scenario": "Two party members are low (30% HP). You have 2 Aetherflow stacks.",
+          "question": "How do you handle this?",
+          "options": ["Indomitability for both", "Lustrate each one", "Succor for party heal", "One Lustrate, one Indom"],
+          "correctIndex": 0,
+          "explanation": "Indomitability (1 stack) heals the whole party instantly. Using 2 Lustrates costs 2 stacks for the same result. Indom is more efficient for multiple low targets."
+        }
+      ]
+    },
+    {
+      "quizId": "sch.lesson_2.quiz",
+      "lessonId": "sch.lesson_2",
+      "title": "Quiz: Aetherflow Mastery",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sch.lesson_2.q1",
+          "conceptId": "sch.aetherflow_management",
+          "scenario": "You have 2 Aetherflow stacks. Aetherflow ability comes off cooldown in 3 seconds. No healing needed.",
+          "question": "What should you do?",
+          "options": ["Hold stacks for emergencies", "Energy Drain twice to dump stacks", "Use one Energy Drain", "Wait for CD, then refresh"],
+          "correctIndex": 1,
+          "explanation": "Never let Aetherflow refresh while holding stacks - you'd waste 2 stacks. Dump them into Energy Drain for damage before refreshing to get your full 3 new stacks."
+        },
+        {
+          "questionId": "sch.lesson_2.q2",
+          "conceptId": "sch.aetherflow_refresh",
+          "scenario": "Aetherflow just came off cooldown. You have 0 stacks.",
+          "question": "When should you use Aetherflow?",
+          "options": ["Immediately", "Wait for damage first", "Save it for emergency", "After next GCD"],
+          "correctIndex": 0,
+          "explanation": "Use Aetherflow immediately when it's ready and you have 0 stacks. It's oGCD, gives you resources AND MP. Delaying means your next refresh is delayed too."
+        },
+        {
+          "questionId": "sch.lesson_2.q3",
+          "conceptId": "sch.energy_drain_usage",
+          "scenario": "You have 3 Aetherflow stacks. Party is healthy. Aetherflow has 45 seconds remaining.",
+          "question": "How should you use your stacks?",
+          "options": ["Hold all for healing", "Energy Drain all three", "Use 1-2 Energy Drains, keep 1 for safety", "Sacred Soil for mitigation"],
+          "correctIndex": 2,
+          "explanation": "With 45 seconds until refresh, you have time to use stacks. Energy Drain for DPS, but keep 1 stack for unexpected damage. You'll generate more stacks before refresh."
+        },
+        {
+          "questionId": "sch.lesson_2.q4",
+          "conceptId": "sch.aetherflow_management",
+          "scenario": "Heavy damage phase starting. You have 1 Aetherflow stack. Aetherflow CD has 30 seconds remaining.",
+          "question": "What's your plan?",
+          "options": ["Save the stack for emergency", "Use it on Sacred Soil preemptively", "Energy Drain for DPS", "Lustrate the tank now"],
+          "correctIndex": 1,
+          "explanation": "During damage phases, healing stacks > DPS stacks. Sacred Soil provides mitigation AND HoT for the whole party. Use your stack proactively for the incoming damage."
+        },
+        {
+          "questionId": "sch.lesson_2.q5",
+          "conceptId": "sch.energy_drain_usage",
+          "scenario": "The boss is about to die (5% HP). You have 2 Aetherflow stacks.",
+          "question": "What do you do with your stacks?",
+          "options": ["Save them", "Energy Drain both", "Indomitability for safety", "It doesn't matter"],
+          "correctIndex": 1,
+          "explanation": "Boss about to die = no healing needed. Convert those stacks to damage with Energy Drain. Every bit of DPS helps finish the fight faster. Don't waste resources."
+        }
+      ]
+    },
+    {
+      "quizId": "sch.lesson_3.quiz",
+      "lessonId": "sch.lesson_3",
+      "title": "Quiz: Fairy Management",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sch.lesson_3.q1",
+          "conceptId": "sch.whispering_dawn_usage",
+          "scenario": "A raidwide just hit. Party is at 60% HP. Whispering Dawn is available.",
+          "question": "Should you use Whispering Dawn?",
+          "options": ["No - party isn't critical", "Yes - free party HoT", "No - save for bigger damage", "Yes - but also Succor"],
+          "correctIndex": 1,
+          "explanation": "Whispering Dawn is a free oGCD party HoT. At 60%, the HoT will heal everyone to full over time. Use it - you don't need to save it when it accomplishes the healing goal."
+        },
+        {
+          "questionId": "sch.lesson_3.q2",
+          "conceptId": "sch.fey_blessing_usage",
+          "scenario": "Party needs immediate healing. Whispering Dawn was just used. Fey Blessing available.",
+          "question": "What should you do?",
+          "options": ["Wait for Whispering Dawn", "Use Fey Blessing", "Cast Succor", "Indomitability"],
+          "correctIndex": 1,
+          "explanation": "Fey Blessing is instant party healing - different from Whispering Dawn's HoT. Use it for immediate healing needs. It's oGCD and doesn't cost Aetherflow."
+        },
+        {
+          "questionId": "sch.lesson_3.q3",
+          "conceptId": "sch.fey_union_usage",
+          "scenario": "Tank is taking heavy sustained damage. Fairy Gauge is at 80. Other fairy abilities on CD.",
+          "question": "What's the best use of Fey Union?",
+          "options": ["Save gauge for Seraph", "Activate Fey Union on tank", "Don't use - too expensive", "Wait until gauge is full"],
+          "correctIndex": 1,
+          "explanation": "Fey Union tethers your fairy to the tank for continuous healing. At 80 gauge with heavy tank damage, this is exactly when to use it. It drains gauge over time."
+        },
+        {
+          "questionId": "sch.lesson_3.q4",
+          "conceptId": "sch.fey_illumination_usage",
+          "scenario": "Heavy party damage phase starting in 5 seconds. Fey Illumination available.",
+          "question": "When should you use Fey Illumination?",
+          "options": ["After damage hits", "Right before damage", "During the damage", "Save for emergency"],
+          "correctIndex": 1,
+          "explanation": "Fey Illumination provides magic mitigation AND healing boost. Use it BEFORE damage so the mitigation applies. The healing boost helps your follow-up heals too."
+        },
+        {
+          "questionId": "sch.lesson_3.q5",
+          "conceptId": "sch.fairy_management",
+          "scenario": "Your fairy is far from the party. A raidwide is about to hit.",
+          "question": "Will fairy abilities still work?",
+          "options": ["No - fairy must be close", "Yes - abilities have range", "Only Embrace works", "Need to resummon fairy"],
+          "correctIndex": 1,
+          "explanation": "Fairy abilities like Whispering Dawn and Fey Blessing have their own range centered on the fairy. However, they work from significant distance. Only Embrace is truly proximity-based."
+        }
+      ]
+    },
+    {
+      "quizId": "sch.lesson_4.quiz",
+      "lessonId": "sch.lesson_4",
+      "title": "Quiz: Advanced Fairy & Seraph",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sch.lesson_4.q1",
+          "conceptId": "sch.seraph_usage",
+          "scenario": "Heavy damage phase with multiple raidwides coming. Seraph available.",
+          "question": "When should you summon Seraph?",
+          "options": ["After first raidwide", "Before the phase starts", "Save for emergency", "During downtime"],
+          "correctIndex": 1,
+          "explanation": "Seraph lasts 22 seconds and provides Consolation shields. Summon before a heavy phase to get full value from her abilities during the damage."
+        },
+        {
+          "questionId": "sch.lesson_4.q2",
+          "conceptId": "sch.dissipation_usage",
+          "scenario": "You need more Aetherflow stacks immediately. Dissipation and Aetherflow are both available.",
+          "question": "Which should you use?",
+          "options": ["Dissipation - more stacks", "Aetherflow - keeps fairy", "Both for 6 stacks", "Depends on situation"],
+          "correctIndex": 3,
+          "explanation": "Dissipation sacrifices fairy for 3 stacks + 20% healing boost. Aetherflow just gives 3 stacks. Use Aetherflow normally; Dissipation when you need burst healing AND extra stacks."
+        },
+        {
+          "questionId": "sch.lesson_4.q3",
+          "conceptId": "sch.excogitation_usage",
+          "scenario": "A tankbuster will hit in 10 seconds. Tank is at full HP. You have Excogitation available.",
+          "question": "Should you use Excogitation now?",
+          "options": ["No - tank is full", "Yes - it triggers when they drop", "No - waste of Aetherflow", "Wait until after buster"],
+          "correctIndex": 1,
+          "explanation": "Excogitation triggers automatically when the target drops below 50% HP. Apply it BEFORE the tankbuster - when the buster hits and drops them, Excog heals instantly."
+        },
+        {
+          "questionId": "sch.lesson_4.q4",
+          "conceptId": "sch.seraph_usage",
+          "scenario": "Seraph is active. You have 2 Consolation charges. A raidwide hits in 3 seconds.",
+          "question": "How should you use Consolation?",
+          "options": ["Use both charges now", "One before, one after", "Save both for after", "Use one before damage"],
+          "correctIndex": 3,
+          "explanation": "Consolation provides a shield. Use one charge BEFORE the raidwide for mitigation. Save the second charge for follow-up damage or healing. Don't double-shield the same hit."
+        },
+        {
+          "questionId": "sch.lesson_4.q5",
+          "conceptId": "sch.dissipation_usage",
+          "scenario": "Dissipation is active (fairy gone). Tank needs emergency healing.",
+          "question": "What resources do you have?",
+          "options": ["Fairy abilities still work", "Only Aetherflow abilities", "Just GCD heals", "Lustrate and GCD heals"],
+          "correctIndex": 3,
+          "explanation": "Dissipation sacrifices your fairy, so no fairy abilities. But you have Aetherflow abilities (Lustrate, etc.) AND the 20% healing boost on your GCD heals. Use Lustrate for emergency."
+        }
+      ]
+    },
+    {
+      "quizId": "sch.lesson_5.quiz",
+      "lessonId": "sch.lesson_5",
+      "title": "Quiz: Shield Economy",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sch.lesson_5.q1",
+          "conceptId": "sch.deployment_tactics",
+          "scenario": "Raidwide in 5 seconds. You just crit an Adloquium (Catalyze) on the tank.",
+          "question": "What should you do with Deployment Tactics?",
+          "options": ["Use it to spread the shield", "Save it for emergencies", "Let tank keep the shield", "Apply new Adlo first"],
+          "correctIndex": 0,
+          "explanation": "Deployment Tactics spreads your target's shield to the party. A crit Adlo (Catalyze) is especially powerful. Spread it to give everyone a massive shield before the raidwide."
+        },
+        {
+          "questionId": "sch.lesson_5.q2",
+          "conceptId": "sch.emergency_tactics_usage",
+          "scenario": "Party is at 30% HP and already has shields from Succor. Another hit is coming.",
+          "question": "You need to heal but shields would be wasted. What do you use?",
+          "options": ["Succor anyway", "Emergency Tactics + Succor", "Indomitability", "Wait for shields to break"],
+          "correctIndex": 1,
+          "explanation": "Emergency Tactics converts your next Adlo/Succor shield into pure healing. Party has shields but needs HP - E.Tactics Succor heals without wasting the shield portion."
+        },
+        {
+          "questionId": "sch.lesson_5.q3",
+          "conceptId": "sch.recitation_usage",
+          "scenario": "You want to maximize a shield before a big tankbuster. Recitation available.",
+          "question": "What combination maximizes the shield?",
+          "options": ["Recitation + Succor", "Recitation + Adloquium", "Recitation + Excogitation", "Recitation + Indomitability"],
+          "correctIndex": 1,
+          "explanation": "Recitation guarantees a critical hit. Adloquium when crit produces Catalyze (extra shield). Recitation + Adlo = guaranteed massive shield for tankbusters."
+        },
+        {
+          "questionId": "sch.lesson_5.q4",
+          "conceptId": "sch.succor_usage",
+          "scenario": "Raidwide coming. Party is at full HP. You have Succor and Adlo available.",
+          "question": "Which should you use for party shielding?",
+          "options": ["Adlo on tank", "Succor for party shield", "Adlo + Deploy", "Neither - heal after"],
+          "correctIndex": 1,
+          "explanation": "Succor shields the whole party in one GCD. Adlo + Deploy requires 2 actions. For simple pre-raidwide shielding, Succor is more efficient unless you crit the Adlo."
+        },
+        {
+          "questionId": "sch.lesson_5.q5",
+          "conceptId": "sch.adloquium_usage",
+          "scenario": "Tank has a shield. You cast another Adloquium that would create a smaller shield.",
+          "question": "What happens?",
+          "options": ["Shields stack", "Old shield replaced", "New shield ignored, heal applies", "Nothing happens"],
+          "correctIndex": 2,
+          "explanation": "The heal portion of Adloquium always applies. The shield only replaces if the new shield is larger. If smaller, the existing shield stays and the new shield is wasted."
+        }
+      ]
+    },
+    {
+      "quizId": "sch.lesson_6.quiz",
+      "lessonId": "sch.lesson_6",
+      "title": "Quiz: oGCD Healing & Mitigation",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sch.lesson_6.q1",
+          "conceptId": "sch.sacred_soil_usage",
+          "scenario": "Heavy party damage incoming over the next 15 seconds. Sacred Soil available.",
+          "question": "Where and when should you place Sacred Soil?",
+          "options": ["After damage starts", "Before damage, under the party", "Save it for emergency", "Under the boss"],
+          "correctIndex": 1,
+          "explanation": "Sacred Soil provides 10% mitigation and a powerful HoT. Place it BEFORE damage in a spot where the party will stand. The mitigation and HoT handle sustained damage excellently."
+        },
+        {
+          "questionId": "sch.lesson_6.q2",
+          "conceptId": "sch.indomitability_usage",
+          "scenario": "Party at 50% HP. You have 1 Aetherflow and Indom available. Sacred Soil is on CD.",
+          "question": "Should you use Indomitability?",
+          "options": ["Yes - instant party heal", "No - save for emergency", "No - 50% is fine", "Use Succor instead"],
+          "correctIndex": 0,
+          "explanation": "Indomitability is instant party healing for 1 Aetherflow. At 50% HP, it's a good use - brings party to safe levels immediately. Don't hold it if healing is needed."
+        },
+        {
+          "questionId": "sch.lesson_6.q3",
+          "conceptId": "sch.expedient_usage",
+          "scenario": "The party needs to move across the arena quickly for a mechanic. Expedient available.",
+          "question": "Should you use Expedient?",
+          "options": ["No - it's for healing", "Yes - party sprint + mitigation", "No - save for damage", "Only if people are low"],
+          "correctIndex": 1,
+          "explanation": "Expedient gives the whole party a speed boost AND 10% mitigation. It's perfect for movement mechanics. The mitigation is a bonus, but the speed is often the main value."
+        },
+        {
+          "questionId": "sch.lesson_6.q4",
+          "conceptId": "sch.sacred_soil_usage",
+          "scenario": "Tank is taking heavy damage in one spot. You have 1 Aetherflow. Sacred Soil and Lustrate both available.",
+          "question": "Which is better for sustained tank healing?",
+          "options": ["Lustrate - direct heal", "Sacred Soil - mitigation + HoT", "Both", "Neither - use GCD"],
+          "correctIndex": 1,
+          "explanation": "Sacred Soil's HoT is extremely powerful (100 potency per tick) plus 10% mitigation. For sustained damage in one spot, it outvalues a single Lustrate over its duration."
+        },
+        {
+          "questionId": "sch.lesson_6.q5",
+          "conceptId": "sch.indomitability_usage",
+          "scenario": "Sacred Soil is down. Party needs healing. Indomitability has 10 seconds on CD.",
+          "question": "What should you do?",
+          "options": ["Wait for Indom", "Succor", "Fey Blessing + Whispering Dawn", "Emergency Tactics + Succor"],
+          "correctIndex": 2,
+          "explanation": "Fairy abilities are free oGCDs. Fey Blessing for instant heal, Whispering Dawn for HoT - together they handle party healing without spending Aetherflow or GCDs."
+        }
+      ]
+    },
+    {
+      "quizId": "sch.lesson_7.quiz",
+      "lessonId": "sch.lesson_7",
+      "title": "Quiz: DPS & Coordination",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sch.lesson_7.q1",
+          "conceptId": "sch.chain_stratagem_timing",
+          "scenario": "Fight just started. DPS are using their openers. Chain Stratagem available.",
+          "question": "When should you use Chain Stratagem?",
+          "options": ["Save for later burst", "Use in opener window", "Wait for boss HP threshold", "After healers stabilize"],
+          "correctIndex": 1,
+          "explanation": "Chain Stratagem (10% crit rate on boss) should align with party burst. Openers are the biggest burst - use Chain early to maximize raid DPS during everyone's buffs."
+        },
+        {
+          "questionId": "sch.lesson_7.q2",
+          "conceptId": "sch.dot_maintenance",
+          "scenario": "Biolysis has 5 seconds remaining. You're about to cast Broil.",
+          "question": "Should you refresh Biolysis?",
+          "options": ["Yes - keep DoT up", "No - wait until 3s or less", "No - wait until it falls", "Yes - always refresh early"],
+          "correctIndex": 1,
+          "explanation": "Refresh DoTs at 3 seconds or less to avoid clipping. At 5 seconds, casting Biolysis wastes 5 seconds of the previous application. Wait a GCD or two."
+        },
+        {
+          "questionId": "sch.lesson_7.q3",
+          "conceptId": "sch.co_healer_awareness",
+          "scenario": "You're paired with a WHM. A raidwide just hit. WHM used Afflatus Rapture.",
+          "question": "What should you focus on?",
+          "options": ["Succor to top off", "Indomitability to stack healing", "Keep DPSing - WHM handled it", "Apply shields for next hit"],
+          "correctIndex": 2,
+          "explanation": "Your co-healer handled the healing. Adding more healing is overhealing and DPS loss. Trust your co-healer and continue your DPS rotation. Shield if another hit is coming."
+        },
+        {
+          "questionId": "sch.lesson_7.q4",
+          "conceptId": "sch.raise_decision",
+          "scenario": "A DPS died. You have Swiftcast. Your co-healer (AST) is casting Gravity.",
+          "question": "Who should raise?",
+          "options": ["Wait for AST", "You - Swiftcast ready", "Hardcast Resurrection", "Red Mage if available"],
+          "correctIndex": 1,
+          "explanation": "Your Swiftcast is ready and the AST is busy with AoE damage. Take the raise - Swiftcast + Resurrection gets the DPS back immediately. Don't wait."
+        },
+        {
+          "questionId": "sch.lesson_7.q5",
+          "conceptId": "sch.dps_optimization",
+          "scenario": "Party is healthy, Biolysis is up, Chain Stratagem on CD. What should you be doing?",
+          "question": "What's your filler action?",
+          "options": ["Physick to stay busy", "Broil IV spam", "Energy Drain spam", "Ruin II for mobility"],
+          "correctIndex": 1,
+          "explanation": "Broil IV is your filler DPS GCD. Spam it when healing isn't needed and DoT is up. Energy Drain uses Aetherflow you might need. Ruin II is for movement only (less damage)."
+        }
+      ]
+    }
+  ]
+}

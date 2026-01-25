@@ -1,0 +1,139 @@
+{
+  "jobPrefix": "dnc",
+  "jobName": "Dancer",
+  "lessons": [
+    {
+      "lessonId": "dnc.lesson_1",
+      "lessonNumber": 1,
+      "title": "Dance Fundamentals",
+      "description": "Learn the core dance system: Standard Step for party buffs, Technical Step for raid burst, and the rhythm of executing dance sequences.",
+      "prerequisites": [],
+      "conceptsCovered": ["dnc.standard_step", "dnc.technical_step", "dnc.dance_execution", "dnc.dance_timers"],
+      "keyPoints": [
+        "Standard Step: 2-step dance, 30s recast, grants party damage buff",
+        "Technical Step: 4-step dance, 120s recast, aligns with raid burst",
+        "Execute steps by pressing the highlighted buttons in sequence",
+        "Both dances have timers - finish before they expire or lose the step"
+      ],
+      "relatedAbilities": ["Standard Step", "Standard Finish", "Technical Step", "Technical Finish"],
+      "tips": [
+        "Watch the step buttons - they glow when it's their turn in the sequence",
+        "Standard Step should be used on cooldown for maximum uptime"
+      ]
+    },
+    {
+      "lessonId": "dnc.lesson_2",
+      "lessonNumber": 2,
+      "title": "Proc Management",
+      "description": "Master the Silken Symmetry and Silken Flow proc system, and understand Threefold Fan and Fourfold Fan from Flourish.",
+      "prerequisites": ["dnc.lesson_1"],
+      "conceptsCovered": ["dnc.silken_symmetry", "dnc.silken_flow", "dnc.threefold_fan", "dnc.fourfold_fan"],
+      "keyPoints": [
+        "Silken Symmetry: Procs from Cascade, enables Reverse Cascade",
+        "Silken Flow: Procs from Fountain, enables Fountainfall",
+        "Both procs grant Feathers when consumed",
+        "Flourish grants all procs at once - use during burst windows"
+      ],
+      "relatedAbilities": ["Cascade", "Fountain", "Reverse Cascade", "Fountainfall", "Flourish", "Fan Dance III", "Fan Dance IV"],
+      "tips": [
+        "Never let procs fall off - they're your main damage source",
+        "Flourish has a 60s cooldown - use every burst window"
+      ]
+    },
+    {
+      "lessonId": "dnc.lesson_3",
+      "lessonNumber": 3,
+      "title": "Esprit Gauge Mastery",
+      "description": "Understand the Esprit gauge, Saber Dance spending, and preventing overcapping for maximum DPS.",
+      "prerequisites": ["dnc.lesson_2"],
+      "conceptsCovered": ["dnc.esprit_gauge", "dnc.saber_dance", "dnc.esprit_overcapping"],
+      "keyPoints": [
+        "Esprit builds from your and your partner's weapon skills",
+        "Saber Dance costs 50 Esprit - your highest potency GCD",
+        "Use Saber Dance at 80+ to prevent overcapping",
+        "Prioritize Saber Dance during buff windows"
+      ],
+      "relatedAbilities": ["Saber Dance"],
+      "tips": [
+        "In burst windows, use Saber Dance even at 50+ Esprit to fit more under buffs",
+        "Partner a high-CPM job (NIN, MNK) for faster Esprit generation"
+      ]
+    },
+    {
+      "lessonId": "dnc.lesson_4",
+      "lessonNumber": 4,
+      "title": "Feather Optimization",
+      "description": "Master Feather accumulation and Fan Dance usage to maximize oGCD damage without overcapping.",
+      "prerequisites": ["dnc.lesson_3"],
+      "conceptsCovered": ["dnc.feather_gauge", "dnc.fan_dance_usage", "dnc.feather_overcapping"],
+      "keyPoints": [
+        "Feathers come from consuming Silken procs (max 4)",
+        "Fan Dance I/II consume 1 Feather each",
+        "Never hold 4 Feathers - use one before consuming another proc",
+        "Hold 3 Feathers going into burst to dump during Devilment"
+      ],
+      "relatedAbilities": ["Fan Dance", "Fan Dance II"],
+      "tips": [
+        "Fan Dance III procs from Fan Dance I - weave it immediately",
+        "Fan Dance IV procs from Flourish - high priority during burst"
+      ]
+    },
+    {
+      "lessonId": "dnc.lesson_5",
+      "lessonNumber": 5,
+      "title": "Burst Window Execution",
+      "description": "Master the 2-minute burst: Technical Step -> Devilment -> Flourish timing and party coordination via IPC.",
+      "prerequisites": ["dnc.lesson_4"],
+      "conceptsCovered": ["dnc.devilment", "dnc.flourish", "dnc.burst_alignment", "dnc.party_burst_sync"],
+      "keyPoints": [
+        "Burst sequence: Technical Finish -> Devilment -> Flourish",
+        "Devilment grants 15% crit/DH to you and your partner",
+        "Technical Finish grants 5% damage to all party members",
+        "Coordinate with party burst via IPC - announce your Technical"
+      ],
+      "relatedAbilities": ["Technical Finish", "Devilment", "Flourish"],
+      "tips": [
+        "Enter burst with 3 Feathers and 50+ Esprit for maximum output",
+        "Technical Finish is your party's 2-minute buff window - don't drift it"
+      ]
+    },
+    {
+      "lessonId": "dnc.lesson_6",
+      "lessonNumber": 6,
+      "title": "High-Level Abilities",
+      "description": "Learn the powerful follow-up abilities: Starfall Dance, Finishing Move, Last Dance, and Tillana.",
+      "prerequisites": ["dnc.lesson_5"],
+      "conceptsCovered": ["dnc.starfall_dance", "dnc.finishing_move", "dnc.last_dance", "dnc.tillana"],
+      "keyPoints": [
+        "Starfall Dance: 600 potency proc from Devilment - high priority",
+        "Finishing Move: 850 potency proc from Standard Finish",
+        "Last Dance: 520 potency chained from Finishing Move",
+        "Tillana: 600 potency proc from Technical Finish"
+      ],
+      "relatedAbilities": ["Starfall Dance", "Finishing Move", "Last Dance", "Tillana"],
+      "tips": [
+        "These procs have limited duration - use them before they expire",
+        "Starfall Dance is your highest priority proc during Devilment"
+      ]
+    },
+    {
+      "lessonId": "dnc.lesson_7",
+      "lessonNumber": 7,
+      "title": "Partner & Party Coordination",
+      "description": "Master Dance Partner selection, Shield Samba defensive utility, and coordinating with other Olympus users.",
+      "prerequisites": ["dnc.lesson_6"],
+      "conceptsCovered": ["dnc.closed_position", "dnc.shield_samba", "dnc.party_utility"],
+      "keyPoints": [
+        "Closed Position: Partner the highest DPS player (usually SAM/NIN/MNK)",
+        "Partner shares Esprit generation and receives Devilment buff",
+        "Shield Samba: 15% party mitigation for raidwides",
+        "Curing Waltz for emergency healing, Improvisation for shields"
+      ],
+      "relatedAbilities": ["Closed Position", "Shield Samba", "Curing Waltz", "Improvisation", "En Avant"],
+      "tips": [
+        "Partner selection matters - they generate Esprit and get your Devilment",
+        "Shield Samba coordinates via IPC to avoid stacking with other mitigations"
+      ]
+    }
+  ]
+}

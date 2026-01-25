@@ -1,0 +1,144 @@
+{
+  "jobPrefix": "whm",
+  "jobName": "White Mage",
+  "lessons": [
+    {
+      "lessonId": "whm.lesson_1",
+      "lessonNumber": 1,
+      "title": "Healer Fundamentals",
+      "description": "Learn the core principles of healing in FFXIV: prioritizing targets, understanding party-wide damage, and weaving oGCDs effectively.",
+      "prerequisites": [],
+      "conceptsCovered": ["whm.healing_priority", "whm.tank_priority", "whm.party_wide_damage", "whm.ogcd_weaving"],
+      "keyPoints": [
+        "Tank takes priority in most scenarios - they take the most consistent damage",
+        "Party-wide damage events require different healing than tank damage",
+        "oGCD heals should be weaved between GCDs to maintain DPS uptime",
+        "Never let oGCDs sit unused when healing is needed"
+      ],
+      "relatedAbilities": ["Cure", "Cure II", "Medica", "Medica II", "Regen"],
+      "tips": [
+        "Watch the party list - anticipate damage before it happens",
+        "Practice weaving one oGCD between each GCD in a striking dummy"
+      ]
+    },
+    {
+      "lessonId": "whm.lesson_2",
+      "lessonNumber": 2,
+      "title": "Emergency Response",
+      "description": "Master WHM's emergency healing toolkit: when to use Benediction, Tetragrammaton, and how to react to critical situations.",
+      "prerequisites": ["whm.lesson_1"],
+      "conceptsCovered": ["whm.emergency_healing", "whm.benediction_usage", "whm.tetragrammaton_usage"],
+      "keyPoints": [
+        "Benediction is your panic button - full HP heal on 180s cooldown",
+        "Tetragrammaton is a strong oGCD heal (60s) - use it liberally",
+        "Emergency healing means someone will die without immediate intervention",
+        "Don't hold Benediction 'for emergencies' that never come"
+      ],
+      "relatedAbilities": ["Benediction", "Tetragrammaton"],
+      "tips": [
+        "If the tank is below 30% and taking heavy damage, that's an emergency",
+        "Tetragrammaton can handle most 'urgent' situations - save Benediction for true emergencies"
+      ]
+    },
+    {
+      "lessonId": "whm.lesson_3",
+      "lessonNumber": 3,
+      "title": "The Lily System",
+      "description": "Understand WHM's unique Lily gauge: generating lilies, spending them efficiently, and maximizing Blood Lily damage.",
+      "prerequisites": ["whm.lesson_2"],
+      "conceptsCovered": ["whm.lily_management", "whm.afflatus_solace_usage", "whm.afflatus_rapture_usage", "whm.blood_lily_building", "whm.afflatus_misery_timing"],
+      "keyPoints": [
+        "Lilies generate every 20s in combat (30s at lower levels)",
+        "Afflatus Solace: single-target lily heal - use for tank healing",
+        "Afflatus Rapture: AoE lily heal - use for party-wide damage",
+        "Each lily spent builds toward Blood Lily (Afflatus Misery)",
+        "Afflatus Misery is your strongest single attack - don't waste it"
+      ],
+      "relatedAbilities": ["Afflatus Solace", "Afflatus Rapture", "Afflatus Misery"],
+      "tips": [
+        "Lilies are 'free' heals - they don't cost MP and refund GCD time via Misery",
+        "Always try to use 3 lilies before downtime to get Misery ready",
+        "Don't overcap lilies (max 3) - use them or lose them"
+      ]
+    },
+    {
+      "lessonId": "whm.lesson_4",
+      "lessonNumber": 4,
+      "title": "Proactive Healing",
+      "description": "Learn to heal before damage happens: maintaining Regen, timing shields, and using Assize and Divine Benison effectively.",
+      "prerequisites": ["whm.lesson_3"],
+      "conceptsCovered": ["whm.proactive_healing", "whm.regen_maintenance", "whm.shield_timing", "whm.divine_benison_usage", "whm.assize_usage"],
+      "keyPoints": [
+        "Proactive healing prevents emergencies before they happen",
+        "Keep Regen on the tank at all times during combat",
+        "Divine Benison provides a shield - apply before damage, not after",
+        "Assize heals AND damages - use it on cooldown for DPS when healing is adequate",
+        "Shields applied after damage are wasted shields"
+      ],
+      "relatedAbilities": ["Regen", "Divine Benison", "Assize"],
+      "tips": [
+        "Put Regen on the tank before the pull, not during",
+        "Assize has a short cooldown (40s) - don't hold it for 'big heals'"
+      ]
+    },
+    {
+      "lessonId": "whm.lesson_5",
+      "lessonNumber": 5,
+      "title": "Defensive Cooldowns",
+      "description": "Master WHM's defensive toolkit: Temperance for party mitigation, Aquaveil for tank protection, and Liturgy of the Bell for heavy damage.",
+      "prerequisites": ["whm.lesson_4"],
+      "conceptsCovered": ["whm.temperance_usage", "whm.aquaveil_usage", "whm.liturgy_usage"],
+      "keyPoints": [
+        "Temperance: 10% party mitigation + healing boost for 20s (2min CD)",
+        "Aquaveil: 15% mitigation on one target for 8s (1min CD) - great for tankbusters",
+        "Liturgy of the Bell: place it, party takes damage, bell heals them",
+        "Use Temperance proactively before heavy party damage phases"
+      ],
+      "relatedAbilities": ["Temperance", "Aquaveil", "Liturgy of the Bell"],
+      "tips": [
+        "Liturgy requires 5 'rings' of damage to maximize healing - plan around mechanics",
+        "Aquaveil on the tank before a tankbuster is often better than healing after"
+      ]
+    },
+    {
+      "lessonId": "whm.lesson_6",
+      "lessonNumber": 6,
+      "title": "DPS Optimization",
+      "description": "Maximize your damage contribution: prioritizing Glare, maintaining Dia (DoT), and balancing DPS with healing.",
+      "prerequisites": ["whm.lesson_5"],
+      "conceptsCovered": ["whm.dps_optimization", "whm.glare_priority", "whm.dot_maintenance"],
+      "keyPoints": [
+        "Glare is your filler - cast it whenever you're not healing",
+        "Dia (DoT) should be maintained on the boss at all times",
+        "DoT refresh at 3s or less remaining to avoid clipping",
+        "Good healers do damage while keeping the party alive",
+        "Dead DPS do 0 damage - healing enables party DPS"
+      ],
+      "relatedAbilities": ["Glare III", "Dia", "Holy"],
+      "tips": [
+        "In dungeons, Holy's stun is a mitigation tool - use it early in pulls",
+        "Aim for 80%+ GCD uptime on Glare in boss fights"
+      ]
+    },
+    {
+      "lessonId": "whm.lesson_7",
+      "lessonNumber": 7,
+      "title": "Utility & Coordination",
+      "description": "Final lesson: Esuna usage, raise prioritization, and coordinating with your co-healer for optimal party performance.",
+      "prerequisites": ["whm.lesson_6"],
+      "conceptsCovered": ["whm.esuna_usage", "whm.raise_decision", "whm.cohealer_awareness", "whm.party_coordination"],
+      "keyPoints": [
+        "Esuna removes debuffs with a white bar above them",
+        "Raise has a long cast time - Swiftcast + Raise is standard",
+        "Communicate with your co-healer to avoid duplicate raises",
+        "Don't both healers use party mitigation at the same time",
+        "Coordinate who handles tank healing vs party healing"
+      ],
+      "relatedAbilities": ["Esuna", "Raise", "Swiftcast"],
+      "tips": [
+        "In progression, calling raises in voice chat prevents wasted MP",
+        "Some debuffs are not cleansable even with a white bar - learn which ones"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "jobPrefix": "drg",
+  "jobName": "Dragoon",
+  "lessons": [
+    {
+      "lessonId": "drg.lesson_1",
+      "lessonNumber": 1,
+      "title": "Dragoon Fundamentals",
+      "description": "Master Dragoon basics: the combo flow, Power Surge buff, and positional requirements.",
+      "prerequisites": [],
+      "conceptsCovered": ["drg.combo_basics", "drg.power_surge", "drg.positionals"],
+      "keyPoints": [
+        "Two combo paths: True Thrust → Vorpal Thrust → Full Thrust (damage) or True Thrust → Disembowel → Chaos Thrust (DoT + buff)",
+        "Disembowel grants Power Surge: +10% damage for 30s - keep this buff up at all times",
+        "Chaos Thrust must be used from rear, Full Thrust from flank for maximum damage",
+        "Alternate between combos: Chaos Thrust combo → Full Thrust combo → repeat"
+      ],
+      "relatedAbilities": ["True Thrust", "Vorpal Thrust", "Full Thrust", "Disembowel", "Chaos Thrust"],
+      "tips": [
+        "Always refresh Power Surge before it falls off",
+        "Missing positionals is a 100 potency loss - use True North when needed"
+      ]
+    },
+    {
+      "lessonId": "drg.lesson_2",
+      "lessonNumber": 2,
+      "title": "Jump Management",
+      "description": "Learn to use Dragoon's signature jump abilities safely and effectively.",
+      "prerequisites": ["drg.lesson_1"],
+      "conceptsCovered": ["drg.high_jump", "drg.mirage_dive", "drg.animation_lock"],
+      "keyPoints": [
+        "High Jump: Your main jump oGCD (30s CD) - deals damage and grants Dive Ready",
+        "Dive Ready enables Mirage Dive - use it to build Eye gauge (explained in Lesson 3)",
+        "Jumps have ~0.8s animation lock - never use during mechanics or AoE indicators",
+        "Always weave jumps AFTER your GCD completes to avoid clipping"
+      ],
+      "relatedAbilities": ["High Jump", "Mirage Dive"],
+      "tips": [
+        "Jumps return you to your original position - you won't fly away",
+        "Practice jump timing in low-stakes content first"
+      ]
+    },
+    {
+      "lessonId": "drg.lesson_3",
+      "lessonNumber": 3,
+      "title": "Eye Gauge & Geirskogul",
+      "description": "Understand the Eye gauge system and how to activate Life of the Dragon.",
+      "prerequisites": ["drg.lesson_2"],
+      "conceptsCovered": ["drg.eye_gauge", "drg.geirskogul", "drg.life_of_dragon"],
+      "keyPoints": [
+        "Mirage Dive builds Eye gauge (1 eye per use, max 2)",
+        "Geirskogul (60s CD): Line AoE that consumes 1 eye when at 2 eyes to enter Life of the Dragon",
+        "At 2 eyes, Geirskogul transforms you into Life of the Dragon state for 20s",
+        "Life of the Dragon unlocks Nastrond and Stardiver (covered in Lesson 4)"
+      ],
+      "relatedAbilities": ["Mirage Dive", "Geirskogul"],
+      "tips": [
+        "Build 2 eyes before using Geirskogul to maximize Life of the Dragon uptime",
+        "Track your eye count - don't waste Mirage Dive at 2 eyes"
+      ]
+    },
+    {
+      "lessonId": "drg.lesson_4",
+      "lessonNumber": 4,
+      "title": "Life of the Dragon",
+      "description": "Maximize your damage during the powerful Life of the Dragon phase.",
+      "prerequisites": ["drg.lesson_3"],
+      "conceptsCovered": ["drg.nastrond", "drg.stardiver", "drg.life_optimization"],
+      "keyPoints": [
+        "During Life of the Dragon: Geirskogul becomes Nastrond (same CD, no eye cost)",
+        "Nastrond: Powerful line AoE - use it 3-4 times during the 20s window",
+        "Stardiver: Big dive attack (30s CD) - use once per Life phase for massive damage",
+        "Starcross follows Stardiver automatically - free extra damage"
+      ],
+      "relatedAbilities": ["Nastrond", "Stardiver", "Starcross"],
+      "tips": [
+        "Enter Life of the Dragon during buff windows for maximum burst",
+        "Don't let Life expire without using Nastrond and Stardiver"
+      ]
+    },
+    {
+      "lessonId": "drg.lesson_5",
+      "lessonNumber": 5,
+      "title": "Burst Window Setup",
+      "description": "Align your buffs and burst abilities for maximum damage output.",
+      "prerequisites": ["drg.lesson_4"],
+      "conceptsCovered": ["drg.lance_charge", "drg.battle_litany", "drg.burst_window"],
+      "keyPoints": [
+        "Lance Charge (60s CD): Personal +10% damage for 20s - your main damage buff",
+        "Battle Litany (120s CD): Party-wide +10% crit rate - coordinate with raid buffs",
+        "Use Lance Charge on cooldown, align Battle Litany with 2-minute burst windows",
+        "Enter Life of the Dragon during Lance Charge for buffed Nastronds and Stardiver"
+      ],
+      "relatedAbilities": ["Lance Charge", "Battle Litany"],
+      "tips": [
+        "Battle Litany benefits the whole party - use it with other raid buffs",
+        "Don't hold Lance Charge waiting for Battle Litany - it's on a 60s cycle"
+      ]
+    },
+    {
+      "lessonId": "drg.lesson_6",
+      "lessonNumber": 6,
+      "title": "Life Surge & Critical Hits",
+      "description": "Optimize Life Surge usage and positional recovery with True North.",
+      "prerequisites": ["drg.lesson_5"],
+      "conceptsCovered": ["drg.life_surge", "drg.true_north_usage", "drg.positional_recovery", "drg.buff_alignment"],
+      "keyPoints": [
+        "Life Surge (40s CD, 2 charges): Guarantees next weaponskill crits + heals you",
+        "Always use Life Surge on Heavens' Thrust (your highest potency GCD)",
+        "True North (45s CD, 2 charges): Ignore positional requirements for 10s",
+        "Save True North for when you can't reach rear/flank due to mechanics"
+      ],
+      "relatedAbilities": ["Life Surge", "True North", "Heavens' Thrust"],
+      "tips": [
+        "Life Surge has 2 charges - don't let them cap",
+        "True North also has 2 charges - use one for Chaos Thrust, one for Full Thrust if needed"
+      ]
+    },
+    {
+      "lessonId": "drg.lesson_7",
+      "lessonNumber": 7,
+      "title": "Advanced Optimization",
+      "description": "Master Wyrmwind Thrust, DoT uptime, AoE rotation, and other advanced techniques.",
+      "prerequisites": ["drg.lesson_6"],
+      "conceptsCovered": ["drg.wyrmwind_thrust", "drg.dot_maintenance", "drg.aoe_rotation", "drg.firstminds_focus", "drg.spineshatter_dive", "drg.dragonfire_dive"],
+      "keyPoints": [
+        "Wyrmwind Thrust: Unlocked at 2 Firstminds Focus (built from Raiden/Heavens' Thrust)",
+        "Chaotic Spring (upgraded Chaos Thrust): Keep the DoT up at all times (~30s)",
+        "AoE: Doom Spike → Sonic Thrust → Coerthan Torment at 3+ targets",
+        "Spineshatter Dive / Dragonfire Dive: Gap closers with damage - use in burst"
+      ],
+      "relatedAbilities": ["Wyrmwind Thrust", "Chaotic Spring", "Doom Spike", "Sonic Thrust", "Coerthan Torment", "Spineshatter Dive", "Dragonfire Dive"],
+      "tips": [
+        "Wyrmwind Thrust is a ranged attack - useful during forced disengages",
+        "Dragonfire Dive is AoE - save for multiple targets when possible"
+      ]
+    }
+  ]
+}

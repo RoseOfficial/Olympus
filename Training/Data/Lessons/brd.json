@@ -1,0 +1,139 @@
+{
+  "jobPrefix": "brd",
+  "jobName": "Bard",
+  "lessons": [
+    {
+      "lessonId": "brd.lesson_1",
+      "lessonNumber": 1,
+      "title": "Bard Fundamentals",
+      "description": "Learn the core principles of Bard: the 3-song cycle, party buffs from each song, and the rhythm of switching between them.",
+      "prerequisites": [],
+      "conceptsCovered": ["brd.song_rotation", "brd.wanderers_minuet", "brd.mages_ballad", "brd.armys_paeon"],
+      "keyPoints": [
+        "Songs provide party-wide buffs: Wanderer's (crit), Mage's (damage), Army's (direct hit)",
+        "Standard rotation: Wanderer's Minuet -> Mage's Ballad -> Army's Paeon -> repeat",
+        "Each song has a unique secondary effect during its 45s duration",
+        "Switch songs when <3s remaining to avoid dead time"
+      ],
+      "relatedAbilities": ["Wanderer's Minuet", "Mage's Ballad", "Army's Paeon"],
+      "tips": [
+        "Watch the song timer - switching early loses damage, switching late creates gaps",
+        "Start fights with Wanderer's Minuet for the crit buff during opener"
+      ]
+    },
+    {
+      "lessonId": "brd.lesson_2",
+      "lessonNumber": 2,
+      "title": "Repertoire Mastery",
+      "description": "Master Wanderer's Minuet phase: generating Repertoire stacks from DoT crits and spending them optimally with Pitch Perfect.",
+      "prerequisites": ["brd.lesson_1"],
+      "conceptsCovered": ["brd.repertoire_stacks", "brd.pitch_perfect", "brd.song_switching"],
+      "keyPoints": [
+        "Repertoire stacks only generate during Wanderer's Minuet (from DoT crits)",
+        "Pitch Perfect at 3 stacks = maximum potency (540) - don't use at 1-2 stacks",
+        "Use Pitch Perfect before song ends to avoid wasting stacks",
+        "Empyreal Arrow guarantees one Repertoire proc during WM"
+      ],
+      "relatedAbilities": ["Pitch Perfect", "Empyreal Arrow"],
+      "tips": [
+        "At 2 stacks with <3s on WM, use PP anyway - losing 2 stacks is worse than optimal potency",
+        "More crit = more Repertoire procs - this is why WM aligns with raid buffs"
+      ]
+    },
+    {
+      "lessonId": "brd.lesson_3",
+      "lessonNumber": 3,
+      "title": "Soul Voice & Apex Arrow",
+      "description": "Understand Soul Voice gauge management and the powerful Apex Arrow -> Blast Arrow combo.",
+      "prerequisites": ["brd.lesson_2"],
+      "conceptsCovered": ["brd.soul_voice_gauge", "brd.apex_arrow", "brd.blast_arrow", "brd.soul_voice_overcapping"],
+      "keyPoints": [
+        "Soul Voice builds passively during combat from Repertoire procs",
+        "Apex Arrow at 80+ gauge unlocks Blast Arrow (the follow-up)",
+        "Use at 100 gauge to prevent overcapping - never sit at full gauge",
+        "Prioritize Apex during burst windows for buff stacking"
+      ],
+      "relatedAbilities": ["Apex Arrow", "Blast Arrow"],
+      "tips": [
+        "Apex Arrow is a line AoE - position to hit multiple targets when possible",
+        "In burst, Apex at 80+ is fine - waiting for 100 may miss buffs"
+      ]
+    },
+    {
+      "lessonId": "brd.lesson_4",
+      "lessonNumber": 4,
+      "title": "Proc Management",
+      "description": "Master Hawk's Eye procs, Refulgent Arrow priority, and the devastating Barrage + Resonant Arrow combination.",
+      "prerequisites": ["brd.lesson_3"],
+      "conceptsCovered": ["brd.straight_shot_ready", "brd.refulgent_arrow", "brd.barrage", "brd.resonant_arrow"],
+      "keyPoints": [
+        "Straight Shot Ready has ~35% proc rate from Burst Shot",
+        "Refulgent Arrow is your highest priority proc consumer - never let it fall off",
+        "Barrage + Refulgent = triple damage (840 potency total)",
+        "Resonant Arrow is a free follow-up after Barrage - don't forget it"
+      ],
+      "relatedAbilities": ["Burst Shot", "Refulgent Arrow", "Barrage", "Resonant Arrow"],
+      "tips": [
+        "Hold Barrage for Refulgent Arrow proc when possible",
+        "Barrage has a 120s cooldown - align with your 2-minute burst"
+      ]
+    },
+    {
+      "lessonId": "brd.lesson_5",
+      "lessonNumber": 5,
+      "title": "DoT Optimization",
+      "description": "Learn optimal DoT uptime, Iron Jaws refresh windows, and buff snapshotting for maximum damage.",
+      "prerequisites": ["brd.lesson_4"],
+      "conceptsCovered": ["brd.caustic_bite", "brd.stormbite", "brd.iron_jaws"],
+      "keyPoints": [
+        "Both DoTs last 45s - refresh at 3-7s remaining for optimal uptime",
+        "Iron Jaws refreshes both DoTs simultaneously - never apply them separately",
+        "DoTs snapshot buffs at application time - refresh during Raging Strikes",
+        "Stormbite first (higher potency) if applying fresh DoTs"
+      ],
+      "relatedAbilities": ["Caustic Bite", "Stormbite", "Iron Jaws"],
+      "tips": [
+        "Iron Jaws during burst snapshots the buffed damage for the full 45s duration",
+        "DoT crits fuel Repertoire and Soul Voice - 100% uptime is critical"
+      ]
+    },
+    {
+      "lessonId": "brd.lesson_6",
+      "lessonNumber": 6,
+      "title": "Burst Window Execution",
+      "description": "Master the 2-minute burst window: Raging Strikes, Battle Voice, Radiant Finale timing, and party coordination.",
+      "prerequisites": ["brd.lesson_5"],
+      "conceptsCovered": ["brd.raging_strikes", "brd.battle_voice", "brd.radiant_finale", "brd.radiant_encore"],
+      "keyPoints": [
+        "Burst sequence: Raging Strikes -> Battle Voice -> Radiant Finale",
+        "Align burst with Wanderer's Minuet for maximum Repertoire",
+        "Radiant Finale potency scales with Coda (1-3 songs used)",
+        "Radiant Encore is a free follow-up proc from Radiant Finale"
+      ],
+      "relatedAbilities": ["Raging Strikes", "Battle Voice", "Radiant Finale", "Radiant Encore"],
+      "tips": [
+        "Battle Voice is a party buff - coordinate with other DPS burst windows",
+        "Iron Jaws during Raging Strikes snapshots buffed DoTs for 45s"
+      ]
+    },
+    {
+      "lessonId": "brd.lesson_7",
+      "lessonNumber": 7,
+      "title": "Advanced Coordination",
+      "description": "Learn oGCD weaving, Bloodletter charge management during Mage's Ballad, and party support utility.",
+      "prerequisites": ["brd.lesson_6"],
+      "conceptsCovered": ["brd.empyreal_arrow", "brd.bloodletter_management", "brd.party_utility"],
+      "keyPoints": [
+        "Empyreal Arrow every 15s - guarantees Repertoire during WM",
+        "Bloodletter resets during Mage's Ballad - spam it freely",
+        "Troubadour for raidwides, Nature's Minne for healing buffs",
+        "Head Graze coordinates via IPC for interrupt priority"
+      ],
+      "relatedAbilities": ["Empyreal Arrow", "Bloodletter", "Troubadour", "Nature's Minne", "Head Graze"],
+      "tips": [
+        "During MB, Bloodletter resets constantly - don't hold charges",
+        "Sidewinder on cooldown for oGCD damage, especially during burst"
+      ]
+    }
+  ]
+}

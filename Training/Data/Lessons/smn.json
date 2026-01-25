@@ -1,0 +1,141 @@
+{
+  "jobPrefix": "smn",
+  "jobName": "Summoner",
+  "lessons": [
+    {
+      "lessonId": "smn.lesson_1",
+      "lessonNumber": 1,
+      "title": "Aetherflow Fundamentals",
+      "description": "Learn Summoner's Aetherflow system: generating stacks with Energy Drain, spending with Fester/Necrotize, and timing around the 60-second cooldown.",
+      "prerequisites": [],
+      "conceptsCovered": ["smn.aetherflow_stacks", "smn.energy_drain_usage", "smn.aetherflow_timing", "smn.fester_necrotize"],
+      "keyPoints": [
+        "Energy Drain: Grants 2 Aetherflow stacks and Further Ruin buff (60s CD)",
+        "Fester/Necrotize: Spend stacks for damage - use on cooldown",
+        "Never let Energy Drain sit off cooldown - use it or lose DPS",
+        "Further Ruin enables Ruin IV - a powerful instant-cast proc"
+      ],
+      "relatedAbilities": ["Energy Drain", "Fester", "Necrotize", "Ruin IV"],
+      "tips": [
+        "Spend both Aetherflow stacks before Energy Drain comes off cooldown",
+        "Energy Siphon is the AoE version - grants same resources"
+      ]
+    },
+    {
+      "lessonId": "smn.lesson_2",
+      "lessonNumber": 2,
+      "title": "Primal Attunement System",
+      "description": "Understand the three primal phases: Ifrit (Ruby), Titan (Topaz), and Garuda (Emerald), each with unique attunement stacks and abilities.",
+      "prerequisites": ["smn.lesson_1"],
+      "conceptsCovered": ["smn.attunement_system", "smn.ifrit_phase", "smn.titan_phase", "smn.garuda_phase"],
+      "keyPoints": [
+        "Summon a primal to gain attunement stacks (2 for Ifrit, 4 for Titan/Garuda)",
+        "Ifrit: Highest damage but has cast times (Ruby Rite)",
+        "Titan: Instant casts with oGCD Mountain Buster procs",
+        "Garuda: Fast instant casts (Emerald Rite) with low damage each",
+        "Each primal must be summoned and fully spent before Demi-Summon"
+      ],
+      "relatedAbilities": ["Summon Ifrit", "Summon Titan", "Summon Garuda", "Ruby Rite", "Topaz Rite", "Emerald Rite"],
+      "tips": [
+        "Titan is best for movement-heavy phases - all instants",
+        "Save Ifrit for when you can stand still to cast"
+      ]
+    },
+    {
+      "lessonId": "smn.lesson_3",
+      "lessonNumber": 3,
+      "title": "Primal Favor Abilities",
+      "description": "Master the unique Primal Favor abilities: Crimson Cyclone/Strike (Ifrit), Mountain Buster (Titan), and Slipstream (Garuda).",
+      "prerequisites": ["smn.lesson_2"],
+      "conceptsCovered": ["smn.crimson_cyclone", "smn.mountain_buster", "smn.slipstream", "smn.favor_timing"],
+      "keyPoints": [
+        "Crimson Cyclone: Gap closer GCD, followed by Crimson Strike (melee)",
+        "Mountain Buster: oGCD after each Topaz Rite - weave immediately",
+        "Slipstream: 3s channeled AoE - use when you can stand still",
+        "Favor abilities are gained after summoning the upgraded primal"
+      ],
+      "relatedAbilities": ["Crimson Cyclone", "Crimson Strike", "Mountain Buster", "Slipstream"],
+      "tips": [
+        "Crimson Strike requires melee range - position yourself before Cyclone",
+        "Slipstream is best used during downtime or safe phases"
+      ]
+    },
+    {
+      "lessonId": "smn.lesson_4",
+      "lessonNumber": 4,
+      "title": "Demi-Summon Phases",
+      "description": "Understand the Demi-Summon cycle: Bahamut, Phoenix, and Solar Bahamut, each with unique GCDs and abilities.",
+      "prerequisites": ["smn.lesson_3"],
+      "conceptsCovered": ["smn.demi_phases", "smn.bahamut_phase", "smn.phoenix_phase", "smn.solar_bahamut_phase"],
+      "keyPoints": [
+        "Demi-Summons: 15-second phases after spending all 3 primals",
+        "Bahamut: Astral Impulse GCDs, Deathflare finisher",
+        "Phoenix: Fountain of Fire GCDs, party healing via Rekindle",
+        "Solar Bahamut: Umbral Impulse GCDs, Sunflare finisher (Lv.100)",
+        "Cycle: Bahamut -> 3 Primals -> Phoenix -> 3 Primals -> Solar Bahamut"
+      ],
+      "relatedAbilities": ["Summon Bahamut", "Summon Phoenix", "Summon Solar Bahamut", "Astral Impulse", "Fountain of Fire"],
+      "tips": [
+        "Demi GCDs are all instant - free movement during these phases",
+        "Phoenix phase provides party healing - time it for raidwides if possible"
+      ]
+    },
+    {
+      "lessonId": "smn.lesson_5",
+      "lessonNumber": 5,
+      "title": "Burst: Enkindle & Astral Flow",
+      "description": "Maximize Demi-Summon damage with Enkindle (Akh Morn/Revelation) and Astral Flow (Deathflare/Rekindle/Sunflare).",
+      "prerequisites": ["smn.lesson_4"],
+      "conceptsCovered": ["smn.enkindle", "smn.astral_flow", "smn.searing_flash"],
+      "keyPoints": [
+        "Enkindle: One-time massive damage oGCD during each Demi phase",
+        "Astral Flow: Changes based on Demi - Deathflare/Rekindle/Sunflare",
+        "Use both Enkindle and Astral Flow once per Demi phase - don't forget!",
+        "Searing Flash: oGCD during Searing Light window for extra damage"
+      ],
+      "relatedAbilities": ["Enkindle Bahamut", "Enkindle Phoenix", "Deathflare", "Rekindle", "Sunflare", "Searing Flash"],
+      "tips": [
+        "Enkindle early in the Demi phase to avoid losing it to phase transitions",
+        "Rekindle heals a party member - use on tank or low HP target"
+      ]
+    },
+    {
+      "lessonId": "smn.lesson_6",
+      "lessonNumber": 6,
+      "title": "Searing Light Coordination",
+      "description": "Master Searing Light timing: aligning with party burst windows and coordinating via IPC for optimal raid DPS.",
+      "prerequisites": ["smn.lesson_5"],
+      "conceptsCovered": ["smn.searing_light", "smn.party_coordination"],
+      "keyPoints": [
+        "Searing Light: 5% party damage buff for 20s (2min CD)",
+        "Align with other party raid buffs at 0:00, 2:00, 4:00, etc.",
+        "Use during Demi phases for maximum personal DPS contribution",
+        "IPC coordination prevents overlapping with other raid buffs"
+      ],
+      "relatedAbilities": ["Searing Light", "Searing Flash"],
+      "tips": [
+        "Announce burst intent via IPC so party can align cooldowns",
+        "If out of sync, consider delaying to realign with party"
+      ]
+    },
+    {
+      "lessonId": "smn.lesson_7",
+      "lessonNumber": 7,
+      "title": "Advanced Rotation",
+      "description": "Final lesson: optimizing primal order, handling Ruin IV procs, and AoE rotation.",
+      "prerequisites": ["smn.lesson_6"],
+      "conceptsCovered": ["smn.primal_order", "smn.ruin_spells", "smn.ruin_iv_procs", "smn.aoe_rotation"],
+      "keyPoints": [
+        "Optimal order: Titan -> Garuda -> Ifrit (move-friendly first, Ifrit last)",
+        "Ruin III is your filler between primal/demi phases",
+        "Ruin IV procs: Use before they expire or overcap",
+        "AoE: Tri-disaster filler, primal Catastrophe variants, same Demi rotation"
+      ],
+      "relatedAbilities": ["Ruin III", "Ruin IV", "Tri-disaster", "Ruby Catastrophe", "Topaz Catastrophe", "Emerald Catastrophe"],
+      "tips": [
+        "Titan first gives most flexibility for movement later",
+        "Don't hold Ruin IV too long - Energy Drain refreshes the proc"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "jobPrefix": "sch",
+  "jobName": "Scholar",
+  "lessons": [
+    {
+      "lessonId": "sch.lesson_1",
+      "lessonNumber": 1,
+      "title": "Scholar Fundamentals",
+      "description": "Learn SCH's core healing identity: emergency healing with Lustrate, shield timing, and the importance of preventing damage.",
+      "prerequisites": [],
+      "conceptsCovered": ["sch.emergency_healing", "sch.lustrate_usage", "sch.shield_timing"],
+      "keyPoints": [
+        "SCH is a shield healer - prevent damage rather than heal after",
+        "Lustrate is your emergency single-target heal (costs 1 Aetherflow)",
+        "Shields must be applied BEFORE damage hits to be effective",
+        "Emergency healing means someone will die without immediate intervention"
+      ],
+      "relatedAbilities": ["Lustrate", "Adloquium", "Succor", "Physick"],
+      "tips": [
+        "Lustrate heals instantly - use it when the tank is in danger",
+        "Watch cast bars and apply shields before boss attacks land"
+      ]
+    },
+    {
+      "lessonId": "sch.lesson_2",
+      "lessonNumber": 2,
+      "title": "Aetherflow Mastery",
+      "description": "Master Aetherflow resource management: refresh timing, balancing healing vs Energy Drain damage, and avoiding waste.",
+      "prerequisites": ["sch.lesson_1"],
+      "conceptsCovered": ["sch.aetherflow_management", "sch.aetherflow_refresh", "sch.energy_drain_usage"],
+      "keyPoints": [
+        "Aetherflow grants 3 stacks every 60s - never let it sit off cooldown",
+        "Spend all Aetherflow before refreshing to avoid waste",
+        "Energy Drain is DPS - use excess Aetherflow stacks on it",
+        "Healing Aetherflow abilities take priority over Energy Drain"
+      ],
+      "relatedAbilities": ["Aetherflow", "Energy Drain", "Lustrate", "Indomitability", "Sacred Soil", "Excogitation"],
+      "tips": [
+        "Plan your Aetherflow usage around the 60s cooldown",
+        "In low-damage phases, dump stacks into Energy Drain before refresh"
+      ]
+    },
+    {
+      "lessonId": "sch.lesson_3",
+      "lessonNumber": 3,
+      "title": "Fairy Management",
+      "description": "Understand your fairy companion: passive healing, Whispering Dawn, Fey Illumination, Fey Blessing, and Fey Union.",
+      "prerequisites": ["sch.lesson_2"],
+      "conceptsCovered": ["sch.fairy_management", "sch.whispering_dawn_usage", "sch.fey_illumination_usage", "sch.fey_blessing_usage", "sch.fey_union_usage"],
+      "keyPoints": [
+        "Your fairy heals automatically - Embrace is free passive healing",
+        "Whispering Dawn: party HoT (60s CD) - use for sustained party damage",
+        "Fey Illumination: healing boost + magic mitigation (2min CD)",
+        "Fey Blessing: instant party heal (60s CD) - use for burst party damage",
+        "Fey Union: tethers fairy to tank for continuous single-target healing"
+      ],
+      "relatedAbilities": ["Summon Eos", "Whispering Dawn", "Fey Illumination", "Fey Blessing", "Fey Union"],
+      "tips": [
+        "Fairy abilities are oGCDs - weave them freely",
+        "Fey Union drains Fairy Gauge - monitor your gauge"
+      ]
+    },
+    {
+      "lessonId": "sch.lesson_4",
+      "lessonNumber": 4,
+      "title": "Advanced Fairy & Seraph",
+      "description": "Master Seraph transformation, Dissipation sacrifice, and Excogitation's delayed healing.",
+      "prerequisites": ["sch.lesson_3"],
+      "conceptsCovered": ["sch.seraph_usage", "sch.dissipation_usage", "sch.excogitation_usage"],
+      "keyPoints": [
+        "Seraph replaces your fairy with stronger abilities for 22s",
+        "Seraph's Consolation provides shields - use before damage",
+        "Dissipation sacrifices fairy for 3 Aetherflow + 20% healing boost",
+        "Excogitation: delayed heal that triggers when target drops below 50%"
+      ],
+      "relatedAbilities": ["Summon Seraph", "Consolation", "Dissipation", "Excogitation"],
+      "tips": [
+        "Excog on the tank before tankbusters is excellent proactive healing",
+        "Dissipation is best used when you need burst healing or before downtime"
+      ]
+    },
+    {
+      "lessonId": "sch.lesson_5",
+      "lessonNumber": 5,
+      "title": "Shield Economy",
+      "description": "Optimize your shields: Adloquium vs Succor decisions, Deployment Tactics spreading, Emergency Tactics converting, and Recitation crits.",
+      "prerequisites": ["sch.lesson_4"],
+      "conceptsCovered": ["sch.adloquium_usage", "sch.succor_usage", "sch.deployment_tactics", "sch.emergency_tactics_usage", "sch.recitation_usage"],
+      "keyPoints": [
+        "Adloquium: single-target shield + heal - use on tank",
+        "Succor: party-wide shield + heal - use before party damage",
+        "Deployment Tactics: spreads your Adlo shield to the whole party",
+        "Emergency Tactics: converts next shield into pure healing",
+        "Recitation: guarantees crit on next Adlo/Succor/Indom/Excog"
+      ],
+      "relatedAbilities": ["Adloquium", "Succor", "Deployment Tactics", "Emergency Tactics", "Recitation"],
+      "tips": [
+        "Recitation + Adlo + Deploy = massive party-wide shields",
+        "Emergency Tactics is useful when shields would be wasted (already shielded)"
+      ]
+    },
+    {
+      "lessonId": "sch.lesson_6",
+      "lessonNumber": 6,
+      "title": "oGCD Healing & Mitigation",
+      "description": "Master Indomitability for burst party healing, Sacred Soil for mitigation zones, and Expedient for movement and defense.",
+      "prerequisites": ["sch.lesson_5"],
+      "conceptsCovered": ["sch.indomitability_usage", "sch.sacred_soil_usage", "sch.expedient_usage"],
+      "keyPoints": [
+        "Indomitability: instant party heal (costs 1 Aetherflow, 30s CD)",
+        "Sacred Soil: ground AoE with 10% mitigation + HoT (costs 1 Aetherflow)",
+        "Expedient: party sprint + 10% mitigation for 20s (2min CD)",
+        "Sacred Soil's HoT is extremely powerful - place it before damage"
+      ],
+      "relatedAbilities": ["Indomitability", "Sacred Soil", "Expedient"],
+      "tips": [
+        "Sacred Soil is often better than Indom due to the mitigation",
+        "Expedient is great for mechanics requiring movement"
+      ]
+    },
+    {
+      "lessonId": "sch.lesson_7",
+      "lessonNumber": 7,
+      "title": "DPS & Coordination",
+      "description": "Final lesson: Chain Stratagem raid buff, DoT maintenance, raise coordination, and working with your co-healer.",
+      "prerequisites": ["sch.lesson_6"],
+      "conceptsCovered": ["sch.dps_optimization", "sch.chain_stratagem_timing", "sch.dot_maintenance", "sch.raise_decision", "sch.cohealer_awareness", "sch.esuna_usage"],
+      "keyPoints": [
+        "Chain Stratagem: 10% crit rate buff on target for 20s (2min CD)",
+        "Align Chain Stratagem with party burst windows",
+        "Maintain Biolysis (DoT) on the boss at all times",
+        "Coordinate raises with co-healer to avoid double-raising",
+        "SCH often handles shields while regen healer handles HoTs"
+      ],
+      "relatedAbilities": ["Chain Stratagem", "Broil IV", "Biolysis", "Resurrection", "Esuna"],
+      "tips": [
+        "Chain Stratagem at the start of the fight and on cooldown (with burst)",
+        "Communicate shield plans with your co-healer in prog"
+      ]
+    }
+  ]
+}

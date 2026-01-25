@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "blm",
+  "jobName": "Black Mage",
+  "quizzes": [
+    {
+      "quizId": "blm.lesson_1.quiz",
+      "lessonId": "blm.lesson_1",
+      "title": "Quiz: Fire and Ice Fundamentals",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "blm.lesson_1.q1",
+          "conceptId": "blm.astral_fire",
+          "scenario": "You're in Astral Fire III. Your MP is not regenerating.",
+          "question": "Is this normal behavior?",
+          "options": ["No - something is wrong", "Yes - Astral Fire stops MP regen", "Only at AF3", "MP should regen slowly"],
+          "correctIndex": 1,
+          "explanation": "Astral Fire stops MP regeneration. This is normal - you spend MP in Fire phase and recover it in Ice phase. The trade-off is boosted Fire damage."
+        },
+        {
+          "questionId": "blm.lesson_1.q2",
+          "conceptId": "blm.umbral_ice",
+          "scenario": "You switch to Umbral Ice III.",
+          "question": "What happens to your MP?",
+          "options": ["It drains faster", "It regenerates rapidly", "It stays the same", "It resets to full instantly"],
+          "correctIndex": 1,
+          "explanation": "Umbral Ice III provides rapid MP regeneration. This is your recovery phase - rebuild MP to full before switching back to Fire."
+        },
+        {
+          "questionId": "blm.lesson_1.q3",
+          "conceptId": "blm.element_timer",
+          "scenario": "Your element timer shows 10 seconds remaining.",
+          "question": "What happens if it reaches 0?",
+          "options": ["Nothing - it's just visual", "You lose Enochian and reset", "Fire spells become weaker", "Ice phase starts automatically"],
+          "correctIndex": 1,
+          "explanation": "Losing your element timer drops Enochian, resetting your rotation. Always refresh before 0 - this is a significant DPS loss."
+        },
+        {
+          "questionId": "blm.lesson_1.q4",
+          "conceptId": "blm.element_transitions",
+          "scenario": "You're in Astral Fire III with low MP.",
+          "question": "How do you switch to Umbral Ice efficiently?",
+          "options": ["Cast Blizzard I", "Cast Blizzard III for instant transition", "Wait for MP to regen", "Use Transpose"],
+          "correctIndex": 1,
+          "explanation": "Blizzard III from Astral Fire instantly grants Umbral Ice III. It's your efficient transition spell - no need to build up ice stacks."
+        },
+        {
+          "questionId": "blm.lesson_1.q5",
+          "conceptId": "blm.enochian",
+          "scenario": "You have Enochian active with Astral Fire.",
+          "question": "What must you do to maintain Enochian?",
+          "options": ["Press Enochian again", "Keep your element timer above 0", "Only cast Fire IV", "Use Umbral Soul"],
+          "correctIndex": 1,
+          "explanation": "Enochian stays active as long as you have an element (Astral Fire or Umbral Ice). Keep your element timer refreshed to maintain Enochian."
+        }
+      ]
+    },
+    {
+      "quizId": "blm.lesson_2.quiz",
+      "lessonId": "blm.lesson_2",
+      "title": "Quiz: Resource Mastery",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "blm.lesson_2.q1",
+          "conceptId": "blm.umbral_hearts",
+          "scenario": "You have 3 Umbral Hearts from Blizzard IV.",
+          "question": "What do Umbral Hearts do?",
+          "options": ["Boost Ice damage", "Reduce Fire spell MP cost", "Speed up casting", "Generate Polyglot"],
+          "correctIndex": 1,
+          "explanation": "Umbral Hearts reduce the MP cost of Fire spells. Each Fire IV consumes one heart. This lets you cast more Fire IVs before running out of MP."
+        },
+        {
+          "questionId": "blm.lesson_2.q2",
+          "conceptId": "blm.polyglot_stacks",
+          "scenario": "You have 2 Polyglot stacks. A third is about to generate.",
+          "question": "What should you do?",
+          "options": ["Let it generate", "Spend one on Xenoglossy now", "Convert to Umbral Hearts", "Save all for burst"],
+          "correctIndex": 1,
+          "explanation": "Polyglot caps at 2-3 stacks depending on level. If you're about to cap, spend one with Xenoglossy to avoid wasting the incoming stack."
+        },
+        {
+          "questionId": "blm.lesson_2.q3",
+          "conceptId": "blm.mp_management",
+          "scenario": "You're about to enter Fire phase. Your MP is at 7,000.",
+          "question": "Is this enough MP?",
+          "options": ["Yes - any MP works", "No - need full 10,000", "Maybe - depends on hearts", "Need at least 5,000"],
+          "correctIndex": 1,
+          "explanation": "Enter Fire phase with full 10,000 MP for maximum Fire IV casts. Starting with less MP means fewer Fire IVs and less damage."
+        },
+        {
+          "questionId": "blm.lesson_2.q4",
+          "conceptId": "blm.gauge_overcapping",
+          "scenario": "Amplifier grants a Polyglot stack instantly.",
+          "question": "When should you use Amplifier?",
+          "options": ["Only at 0 stacks", "When about to cap or during burst", "Save for emergencies", "Never - it's a DPS loss"],
+          "correctIndex": 1,
+          "explanation": "Amplifier gives a free Polyglot. Use it during burst windows for extra Xenoglossy, or when you'd otherwise overcap on Polyglot stacks."
+        },
+        {
+          "questionId": "blm.lesson_2.q5",
+          "conceptId": "blm.umbral_hearts",
+          "scenario": "You're in Umbral Ice. What spell generates Umbral Hearts?",
+          "question": "Which ability gives you Umbral Hearts?",
+          "options": ["Blizzard III", "Blizzard IV", "Freeze", "Any Ice spell"],
+          "correctIndex": 1,
+          "explanation": "Blizzard IV generates 3 Umbral Hearts. Cast it once per Ice phase to set up for your Fire phase."
+        }
+      ]
+    },
+    {
+      "quizId": "blm.lesson_3.quiz",
+      "lessonId": "blm.lesson_3",
+      "title": "Quiz: Fire Phase Execution",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "blm.lesson_3.q1",
+          "conceptId": "blm.fire_iv_spam",
+          "scenario": "You're in Astral Fire III with 3 Umbral Hearts and full MP.",
+          "question": "What's your main damage spell?",
+          "options": ["Fire III", "Fire IV", "Despair", "Flare"],
+          "correctIndex": 1,
+          "explanation": "Fire IV is your main damage spell in Astral Fire. Spam it while you have MP and Umbral Hearts to reduce costs."
+        },
+        {
+          "questionId": "blm.lesson_3.q2",
+          "conceptId": "blm.fire_phase",
+          "scenario": "Fire IV doesn't refresh your element timer.",
+          "question": "How do you refresh the timer during Fire phase?",
+          "options": ["Cast Fire III", "Cast Fire or Paradox", "Just cast more Fire IV", "Timer auto-refreshes"],
+          "correctIndex": 1,
+          "explanation": "Fire IV doesn't refresh your timer! Use Fire or Paradox to refresh before the timer expires. Weave these between Fire IVs."
+        },
+        {
+          "questionId": "blm.lesson_3.q3",
+          "conceptId": "blm.despair_timing",
+          "scenario": "Your MP is at 2,400 - not enough for Fire IV.",
+          "question": "What should you cast?",
+          "options": ["Switch to Ice now", "Cast Despair (MP dump)", "Cast Fire to refresh", "Wait for MP"],
+          "correctIndex": 1,
+          "explanation": "Despair dumps all remaining MP for high damage. Use it when you can't cast another Fire IV - it's your Fire phase finisher."
+        },
+        {
+          "questionId": "blm.lesson_3.q4",
+          "conceptId": "blm.astral_soul",
+          "scenario": "You've cast 6 Fire IVs and have 6 Astral Soul stacks.",
+          "question": "What ability becomes available?",
+          "options": ["Paradox", "Xenoglossy", "Flare Star", "Amplifier"],
+          "correctIndex": 2,
+          "explanation": "6 Astral Soul stacks (from Fire IV casts) unlock Flare Star. It's a massive damage ability - use it before switching to Ice."
+        },
+        {
+          "questionId": "blm.lesson_3.q5",
+          "conceptId": "blm.fire_phase",
+          "scenario": "Standard Fire phase order:",
+          "question": "What's the typical rotation?",
+          "options": ["Fire III → Fire IV x6 → Switch", "Fire IV x6 → Despair → Flare Star", "Despair → Fire IV → Flare Star", "Any order works"],
+          "correctIndex": 1,
+          "explanation": "Typical Fire phase: Fire IV spam (6 casts for Astral Soul) → Despair (MP dump) → Flare Star (6-stack finisher). Maximize damage before Ice phase."
+        }
+      ]
+    },
+    {
+      "quizId": "blm.lesson_4.quiz",
+      "lessonId": "blm.lesson_4",
+      "title": "Quiz: Ice Phase & Thunder",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "blm.lesson_4.q1",
+          "conceptId": "blm.ice_phase",
+          "scenario": "You just entered Umbral Ice III from Fire phase.",
+          "question": "What's your first priority?",
+          "options": ["Blizzard IV for Umbral Hearts", "Thunder to refresh DoT", "Paradox for damage", "Wait for MP"],
+          "correctIndex": 0,
+          "explanation": "Cast Blizzard IV first to generate 3 Umbral Hearts. These are essential for your next Fire phase's efficiency."
+        },
+        {
+          "questionId": "blm.lesson_4.q2",
+          "conceptId": "blm.thunder_dot",
+          "scenario": "Thunder III has 5 seconds remaining on the boss.",
+          "question": "Should you refresh Thunder in Ice phase?",
+          "options": ["Yes - always refresh in Ice", "No - still has time left", "Only with Thunderhead proc", "Never refresh Thunder"],
+          "correctIndex": 2,
+          "explanation": "Use Thunder III/IV when you have the Thunderhead proc for an instant cast. Don't hardcast Thunder - use procs for efficiency."
+        },
+        {
+          "questionId": "blm.lesson_4.q3",
+          "conceptId": "blm.paradox_mechanic",
+          "scenario": "You're in Umbral Ice III. Paradox is available.",
+          "question": "What's special about Paradox in Ice phase?",
+          "options": ["It's a hardcast", "It's instant and refreshes timer", "It generates hearts", "It's weaker in Ice"],
+          "correctIndex": 1,
+          "explanation": "Paradox in Umbral Ice III is instant cast! Use it to refresh your element timer while moving or to extend your Ice phase."
+        },
+        {
+          "questionId": "blm.lesson_4.q4",
+          "conceptId": "blm.ice_phase",
+          "scenario": "Your MP is full. Umbral Hearts are at 3. Thunder DoT is active.",
+          "question": "What should you do?",
+          "options": ["Stay in Ice for safety", "Switch to Fire with Fire III", "Cast more Blizzard IV", "Use Foul"],
+          "correctIndex": 1,
+          "explanation": "Ice phase should be short - get hearts, refresh Thunder if needed, then return to Fire for damage. You're ready to switch."
+        },
+        {
+          "questionId": "blm.lesson_4.q5",
+          "conceptId": "blm.thunder_dot",
+          "scenario": "Thunder should have what uptime on the boss?",
+          "question": "What's the ideal Thunder DoT uptime?",
+          "options": ["50% is fine", "75% is acceptable", "Nearly 100%", "Only during Ice phase"],
+          "correctIndex": 2,
+          "explanation": "Thunder is a high-value DoT. Maintain nearly 100% uptime - it ticks for significant damage throughout the fight."
+        }
+      ]
+    },
+    {
+      "quizId": "blm.lesson_5.quiz",
+      "lessonId": "blm.lesson_5",
+      "title": "Quiz: Proc Management",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "blm.lesson_5.q1",
+          "conceptId": "blm.firestarter_proc",
+          "scenario": "You get Firestarter proc from Fire IV.",
+          "question": "What does Firestarter grant?",
+          "options": ["Free Fire IV", "Instant Fire III", "Bonus Astral Soul", "Extra MP"],
+          "correctIndex": 1,
+          "explanation": "Firestarter grants an instant-cast Fire III. Use it for movement or to extend your Fire phase without hardcasting."
+        },
+        {
+          "questionId": "blm.lesson_5.q2",
+          "conceptId": "blm.thunderhead_proc",
+          "scenario": "You have Thunderhead proc active.",
+          "question": "What should you use it on?",
+          "options": ["Blizzard III", "Fire III", "Thunder III or IV (instant)", "Save it"],
+          "correctIndex": 2,
+          "explanation": "Thunderhead makes Thunder III/IV instant cast. This is your primary way to apply/refresh Thunder without losing GCDs to hardcasting."
+        },
+        {
+          "questionId": "blm.lesson_5.q3",
+          "conceptId": "blm.proc_priority",
+          "scenario": "You have Firestarter with 8 seconds remaining. You need to move.",
+          "question": "Should you use Firestarter now?",
+          "options": ["No - save for later", "Yes - it's instant and about to expire", "Only if in Fire phase", "Cast it after moving"],
+          "correctIndex": 1,
+          "explanation": "Firestarter is instant - perfect for movement. At 8 seconds remaining, use it now rather than risk losing the proc."
+        },
+        {
+          "questionId": "blm.lesson_5.q4",
+          "conceptId": "blm.firestarter_proc",
+          "scenario": "Firestarter has a 40% chance to proc from Fire IV.",
+          "question": "How long does the Firestarter buff last?",
+          "options": ["10 seconds", "15 seconds", "30 seconds", "Until used"],
+          "correctIndex": 2,
+          "explanation": "Firestarter lasts 30 seconds. You have time to use it strategically, but don't forget about it or let it expire unused."
+        },
+        {
+          "questionId": "blm.lesson_5.q5",
+          "conceptId": "blm.proc_priority",
+          "scenario": "A mechanic requires movement in 5 seconds. You have Firestarter.",
+          "question": "What's the optimal proc usage?",
+          "options": ["Use now", "Save for the movement", "Use during movement", "Ignore the proc"],
+          "correctIndex": 1,
+          "explanation": "Save Firestarter for the upcoming movement. Using instant casts during forced movement maintains your DPS uptime."
+        }
+      ]
+    },
+    {
+      "quizId": "blm.lesson_6.quiz",
+      "lessonId": "blm.lesson_6",
+      "title": "Quiz: Cooldown Optimization",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "blm.lesson_6.q1",
+          "conceptId": "blm.ley_lines",
+          "scenario": "Ley Lines gives 15% faster casting.",
+          "question": "Where should you place Ley Lines?",
+          "options": ["Anywhere - effect is personal", "Where you can stay for 30 seconds", "On the boss", "Near the edge of arena"],
+          "correctIndex": 1,
+          "explanation": "Ley Lines is a ground effect. Place it where you can stand for its full duration without being forced to leave by mechanics."
+        },
+        {
+          "questionId": "blm.lesson_6.q2",
+          "conceptId": "blm.triplecast",
+          "scenario": "Triplecast makes your next 3 spells instant.",
+          "question": "When should you use Triplecast?",
+          "options": ["On cooldown always", "For movement-heavy mechanics", "Only in Ice phase", "During burst only"],
+          "correctIndex": 1,
+          "explanation": "Triplecast's 3 instant casts are best saved for movement. Use them when you need to move but still want to deal damage."
+        },
+        {
+          "questionId": "blm.lesson_6.q3",
+          "conceptId": "blm.manafont",
+          "scenario": "You're in Fire phase but running low on MP. Manafont is available.",
+          "question": "What does Manafont do?",
+          "options": ["Refills MP slowly", "Instantly restores MP + grants Astral Fire", "Doubles next spell", "Extends element timer"],
+          "correctIndex": 1,
+          "explanation": "Manafont instantly restores MP and grants Astral Fire. Use it to extend your Fire phase with additional Fire IV casts."
+        },
+        {
+          "questionId": "blm.lesson_6.q4",
+          "conceptId": "blm.ley_lines",
+          "scenario": "You placed Ley Lines but a mechanic forces you out.",
+          "question": "What should you do?",
+          "options": ["Accept the loss", "Use Between the Lines to return", "Cancel Ley Lines", "Wait outside"],
+          "correctIndex": 1,
+          "explanation": "Between the Lines teleports you back to your Ley Lines. After dodging a mechanic, use it to return and maintain the buff."
+        },
+        {
+          "questionId": "blm.lesson_6.q5",
+          "conceptId": "blm.triplecast",
+          "scenario": "Triplecast has 2 charges.",
+          "question": "Should you use both charges at once?",
+          "options": ["Yes - maximize casting", "No - save one for emergencies", "Only during burst", "Depends on mechanics"],
+          "correctIndex": 3,
+          "explanation": "Don't blow both charges unless needed. Keep one for emergency movement. However, don't overcap charges either - use situationally."
+        }
+      ]
+    },
+    {
+      "quizId": "blm.lesson_7.quiz",
+      "lessonId": "blm.lesson_7",
+      "title": "Quiz: Advanced Tactics",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "blm.lesson_7.q1",
+          "conceptId": "blm.movement_optimization",
+          "scenario": "You need to move but have no instant casts available.",
+          "question": "What's the priority for movement tools?",
+          "options": ["Triplecast > Xenoglossy > Procs > Swiftcast", "Swiftcast > Procs > Triplecast", "Any order works", "Just stop casting"],
+          "correctIndex": 0,
+          "explanation": "Movement priority: Triplecast (3 instants) > Xenoglossy (powerful instant) > Procs (Firestarter/Thunderhead) > Swiftcast (last resort)."
+        },
+        {
+          "questionId": "blm.lesson_7.q2",
+          "conceptId": "blm.xenoglossy_usage",
+          "scenario": "You have 2 Polyglot stacks. Burst window in 10 seconds.",
+          "question": "What should you do with Xenoglossy?",
+          "options": ["Use one now for damage", "Save both for burst", "Use for movement only", "Convert to Polyglot"],
+          "correctIndex": 1,
+          "explanation": "Save Xenoglossy for burst windows when possible. It's 880 potency - better under raid buffs. But don't overcap Polyglot."
+        },
+        {
+          "questionId": "blm.lesson_7.q3",
+          "conceptId": "blm.aoe_rotation",
+          "scenario": "There are 4 enemies grouped together.",
+          "question": "What rotation should you use?",
+          "options": ["Single target on priority", "High Fire II spam → Flare", "Fire IV on each target", "Freeze only"],
+          "correctIndex": 1,
+          "explanation": "At 3+ targets, use AoE rotation: High Fire II spam in Astral Fire, Flare to finish, then Foul in Umbral Ice. Much more efficient than single target."
+        },
+        {
+          "questionId": "blm.lesson_7.q4",
+          "conceptId": "blm.aoe_rotation",
+          "scenario": "At what target count should you switch to AoE?",
+          "question": "What's the AoE threshold?",
+          "options": ["2 targets", "3 targets", "4 targets", "5 targets"],
+          "correctIndex": 1,
+          "explanation": "Switch to AoE rotation at 3+ targets. At this point, AoE spells like High Fire II and Flare deal more total damage than single target."
+        },
+        {
+          "questionId": "blm.lesson_7.q5",
+          "conceptId": "blm.movement_optimization",
+          "scenario": "Pre-planning movement is important for BLM.",
+          "question": "Why is pre-planning movement crucial?",
+          "options": ["BLM has no instant casts", "BLM's damage requires standing still", "Movement cancels spells", "It doesn't matter"],
+          "correctIndex": 1,
+          "explanation": "BLM's damage comes from hardcast spells in Ley Lines. Pre-plan when you'll need instants so you have them ready for forced movement."
+        }
+      ]
+    }
+  ]
+}

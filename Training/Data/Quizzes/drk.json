@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "drk",
+  "jobName": "Dark Knight",
+  "quizzes": [
+    {
+      "quizId": "drk.lesson_1.quiz",
+      "lessonId": "drk.lesson_1",
+      "title": "Quiz: Blood Gauge & Darkside",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "drk.lesson_1.q1",
+          "conceptId": "drk.darkside",
+          "scenario": "Darkside has 5 seconds remaining. You have 6000 MP.",
+          "question": "What should you do?",
+          "options": ["Let Darkside fall", "Edge of Shadow to refresh", "Wait for damage", "Use Blood Gauge"],
+          "correctIndex": 1,
+          "explanation": "Edge of Shadow costs 3000 MP and refreshes Darkside. At 5 seconds, refresh it before the 10% damage buff falls off."
+        },
+        {
+          "questionId": "drk.lesson_1.q2",
+          "conceptId": "drk.blood_gauge",
+          "scenario": "Blood Gauge at 80. Souleater combo ready.",
+          "question": "What happens with Souleater?",
+          "options": ["Gain 20 Blood", "Overcap to 100", "No Blood gain", "Gain 10 Blood"],
+          "correctIndex": 0,
+          "explanation": "Souleater gives 20 Blood Gauge. At 80, you'd go to 100 - which is fine, but watch for overcapping."
+        },
+        {
+          "questionId": "drk.lesson_1.q3",
+          "conceptId": "drk.darkside_maintenance",
+          "scenario": "Darkside timer at 40 seconds. MP at 9000.",
+          "question": "Should you Edge of Shadow?",
+          "options": ["Yes - prevent MP overcap", "No - Darkside is fine", "Save for TBN", "Use Flood instead"],
+          "correctIndex": 0,
+          "explanation": "At 9000 MP, you risk overcapping (max 10000). Use Edge of Shadow to dump MP and extend Darkside."
+        },
+        {
+          "questionId": "drk.lesson_1.q4",
+          "conceptId": "drk.blood_gauge",
+          "scenario": "You're at 50 Blood. Bloodspiller or save for Delirium?",
+          "question": "Delirium comes off CD in 20 seconds.",
+          "options": ["Bloodspiller now", "Save all Blood", "Spend down to 30", "Wait for 100"],
+          "correctIndex": 0,
+          "explanation": "With 20 seconds until Delirium, you have time to spend and regenerate. Use Bloodspiller to avoid overcapping."
+        },
+        {
+          "questionId": "drk.lesson_1.q5",
+          "conceptId": "drk.darkside",
+          "scenario": "Combat just started. Darkside isn't active.",
+          "question": "How do you activate Darkside?",
+          "options": ["Toggle on manually", "Use Edge of Shadow", "Just attack", "Use Grit"],
+          "correctIndex": 1,
+          "explanation": "Darkside activates when you use Edge of Shadow or Flood of Shadow. Use it early to get your damage buff."
+        }
+      ]
+    },
+    {
+      "quizId": "drk.lesson_2.quiz",
+      "lessonId": "drk.lesson_2",
+      "title": "Quiz: Defensive Fundamentals",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "drk.lesson_2.q1",
+          "conceptId": "drk.dark_mind",
+          "scenario": "Magic tankbuster incoming. Dark Mind available.",
+          "question": "Is Dark Mind effective here?",
+          "options": ["No - use Shadow Wall", "Yes - 20% magic mit", "Partially effective", "Only for AoE"],
+          "correctIndex": 1,
+          "explanation": "Dark Mind provides 20% magic damage mitigation. Perfect for magic tankbusters."
+        },
+        {
+          "questionId": "drk.lesson_2.q2",
+          "conceptId": "drk.oblation",
+          "scenario": "Oblation has 2 charges. Light damage incoming.",
+          "question": "Should you use Oblation?",
+          "options": ["No - save for big hits", "Yes - it's 10% mit", "Use both charges", "Only on others"],
+          "correctIndex": 1,
+          "explanation": "Oblation is only 10% but has 2 charges and short CD. Use it freely for consistent mitigation."
+        },
+        {
+          "questionId": "drk.lesson_2.q3",
+          "conceptId": "drk.shadow_wall",
+          "scenario": "Huge tankbuster. Shadow Wall and Rampart both available.",
+          "question": "Which should you use?",
+          "options": ["Both together", "Shadow Wall only", "Rampart only", "Shadow Wall + Oblation"],
+          "correctIndex": 3,
+          "explanation": "Shadow Wall (30%) + Oblation (10%) handles big hits. Save Rampart for the next attack."
+        },
+        {
+          "questionId": "drk.lesson_2.q4",
+          "conceptId": "drk.dark_mind",
+          "scenario": "Physical tankbuster incoming. Only Dark Mind available.",
+          "question": "Should you use Dark Mind?",
+          "options": ["Yes - some mitigation", "No - it won't help", "Use anyway", "With Oblation"],
+          "correctIndex": 1,
+          "explanation": "Dark Mind ONLY mitigates magic damage. It does nothing against physical attacks."
+        },
+        {
+          "questionId": "drk.lesson_2.q5",
+          "conceptId": "drk.mitigation_stacking",
+          "scenario": "You have Shadow Wall, Oblation, and TBN available.",
+          "question": "What's the optimal stacking order?",
+          "options": ["All at once", "Shadow Wall + TBN", "Shadow Wall + Oblation", "TBN only"],
+          "correctIndex": 1,
+          "explanation": "Shadow Wall (30%) + TBN (25% HP shield) is usually enough. Save Oblation for the next hit."
+        }
+      ]
+    },
+    {
+      "quizId": "drk.lesson_3.quiz",
+      "lessonId": "drk.lesson_3",
+      "title": "Quiz: Living Dead",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "drk.lesson_3.q1",
+          "conceptId": "drk.living_dead",
+          "scenario": "You activated Living Dead. You're at 80% HP.",
+          "question": "What happens if you take fatal damage?",
+          "options": ["You die", "Walking Dead activates", "You heal to full", "Living Dead extends"],
+          "correctIndex": 1,
+          "explanation": "If you would die during Living Dead, you become Walking Dead instead - unable to die for 10 seconds."
+        },
+        {
+          "questionId": "drk.lesson_3.q2",
+          "conceptId": "drk.walking_dead",
+          "scenario": "You're in Walking Dead state. Timer running.",
+          "question": "What must happen before it ends?",
+          "options": ["Nothing - you survive", "Be healed to 100%", "Kill something", "Use a cooldown"],
+          "correctIndex": 1,
+          "explanation": "Walking Dead requires healing to 100% HP before it ends, or you die when the buff expires."
+        },
+        {
+          "questionId": "drk.lesson_3.q3",
+          "conceptId": "drk.walking_dead",
+          "scenario": "Walking Dead active. You have access to AoE attacks.",
+          "question": "What helps you survive?",
+          "options": ["Stop attacking", "AoE attacks heal you", "Healers only", "Defensive CDs"],
+          "correctIndex": 1,
+          "explanation": "During Walking Dead, your attacks heal you. AoE attacks on multiple enemies heal more."
+        },
+        {
+          "questionId": "drk.lesson_3.q4",
+          "conceptId": "drk.invuln_timing",
+          "scenario": "Living Dead is a 300 second cooldown.",
+          "question": "How should this affect usage?",
+          "options": ["Use once only", "Save for emergencies", "Use proactively on big damage", "Never use"],
+          "correctIndex": 2,
+          "explanation": "300s (5 min) means you can use it on planned damage events. Coordinate with healers for optimal use."
+        },
+        {
+          "questionId": "drk.lesson_3.q5",
+          "conceptId": "drk.living_dead",
+          "scenario": "You use Living Dead. Timer expires without taking lethal damage.",
+          "question": "What happens?",
+          "options": ["You die anyway", "Nothing - buff ends", "Walking Dead triggers", "CD doesn't reset"],
+          "correctIndex": 1,
+          "explanation": "If you don't take lethal damage during Living Dead, it just expires. No Walking Dead, no penalty."
+        }
+      ]
+    },
+    {
+      "quizId": "drk.lesson_4.quiz",
+      "lessonId": "drk.lesson_4",
+      "title": "Quiz: The Blackest Night",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "drk.lesson_4.q1",
+          "conceptId": "drk.the_blackest_night",
+          "scenario": "Tankbuster coming. TBN available. You have 5000 MP.",
+          "question": "Should you use TBN?",
+          "options": ["No - save MP", "Yes - shield will break", "Only if low HP", "Use Oblation instead"],
+          "correctIndex": 1,
+          "explanation": "Tankbusters will break TBN's shield, giving you Dark Arts (free Edge of Shadow). It's both defensive AND offensive."
+        },
+        {
+          "questionId": "drk.lesson_4.q2",
+          "conceptId": "drk.dark_arts",
+          "scenario": "TBN's shield broke completely.",
+          "question": "What do you get from Dark Arts?",
+          "options": ["MP refund", "Free Edge/Flood of Shadow", "Damage buff", "Heal"],
+          "correctIndex": 1,
+          "explanation": "Dark Arts grants a free Edge of Shadow (or Flood). The 3000 MP you spent on TBN is effectively refunded as damage."
+        },
+        {
+          "questionId": "drk.lesson_4.q3",
+          "conceptId": "drk.tbn_management",
+          "scenario": "Light auto-attacks only. TBN available.",
+          "question": "Should you use TBN?",
+          "options": ["Yes - free shield", "No - won't break", "Only at low HP", "Use on cooldown"],
+          "correctIndex": 1,
+          "explanation": "If TBN's shield doesn't fully break, you lose the MP and don't get Dark Arts. Save it for bigger damage."
+        },
+        {
+          "questionId": "drk.lesson_4.q4",
+          "conceptId": "drk.the_blackest_night",
+          "scenario": "Party member about to take big damage. Your TBN available.",
+          "question": "Can you TBN them?",
+          "options": ["No - self only", "Yes - works on anyone", "Only tanks", "Only in combat"],
+          "correctIndex": 1,
+          "explanation": "TBN can be placed on any party member. If THEIR shield breaks, YOU get Dark Arts."
+        },
+        {
+          "questionId": "drk.lesson_4.q5",
+          "conceptId": "drk.dark_arts",
+          "scenario": "You have Dark Arts. Edge of Shadow normally costs 3000 MP.",
+          "question": "How much MP does Dark Arts Edge cost?",
+          "options": ["3000 MP", "1500 MP", "0 MP", "Costs Blood"],
+          "correctIndex": 2,
+          "explanation": "Dark Arts makes your next Edge of Shadow or Flood of Shadow completely free. Pure value."
+        }
+      ]
+    },
+    {
+      "quizId": "drk.lesson_5.quiz",
+      "lessonId": "drk.lesson_5",
+      "title": "Quiz: Blood Weapon & Delirium",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "drk.lesson_5.q1",
+          "conceptId": "drk.blood_weapon",
+          "scenario": "Blood Weapon ready. You're about to start your combo.",
+          "question": "What does Blood Weapon provide?",
+          "options": ["Damage buff", "MP + Blood on attacks", "Free Bloodspillers", "Crit boost"],
+          "correctIndex": 1,
+          "explanation": "Blood Weapon makes your attacks restore MP and Blood Gauge for 15 seconds. Start it before your burst."
+        },
+        {
+          "questionId": "drk.lesson_5.q2",
+          "conceptId": "drk.delirium",
+          "scenario": "Delirium activated. You have 3 free Bloodspiller charges.",
+          "question": "What's special about Delirium Bloodspillers?",
+          "options": ["Higher potency", "Free + guaranteed crit", "AoE damage", "Heals you"],
+          "correctIndex": 1,
+          "explanation": "Delirium's Bloodspillers cost no Blood Gauge and are guaranteed critical hits. Maximum burst."
+        },
+        {
+          "questionId": "drk.lesson_5.q3",
+          "conceptId": "drk.bloodspiller",
+          "scenario": "You have 50 Blood. Delirium not available.",
+          "question": "Should you use Bloodspiller?",
+          "options": ["No - save for Delirium", "Yes - spend Blood", "Wait for 100", "Use Quietus"],
+          "correctIndex": 1,
+          "explanation": "Don't overcap Blood. Use Bloodspiller to spend gauge when Delirium is on CD."
+        },
+        {
+          "questionId": "drk.lesson_5.q4",
+          "conceptId": "drk.blood_weapon",
+          "scenario": "Blood Weapon has 3 seconds left. Mid-combo.",
+          "question": "How many GCDs should you fit?",
+          "options": ["1-2", "3", "5", "As many as possible"],
+          "correctIndex": 2,
+          "explanation": "Blood Weapon lasts 15 seconds. Fit 5 GCDs to maximize MP and Blood generation."
+        },
+        {
+          "questionId": "drk.lesson_5.q5",
+          "conceptId": "drk.edge_of_shadow",
+          "scenario": "Blood Weapon active. MP at 9000.",
+          "question": "Should you Edge of Shadow?",
+          "options": ["No - Blood Weapon gives MP", "Yes - prevent overcap", "Wait until 10000", "Use Flood instead"],
+          "correctIndex": 1,
+          "explanation": "Blood Weapon generates MP. At 9000, you'll overcap. Dump MP with Edge of Shadow."
+        }
+      ]
+    },
+    {
+      "quizId": "drk.lesson_6.quiz",
+      "lessonId": "drk.lesson_6",
+      "title": "Quiz: Party Protection",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "drk.lesson_6.q1",
+          "conceptId": "drk.dark_missionary",
+          "scenario": "Magic raidwide incoming. Dark Missionary available.",
+          "question": "What does Dark Missionary provide?",
+          "options": ["Full mitigation", "10% magic mitigation to party", "Shield", "Heal"],
+          "correctIndex": 1,
+          "explanation": "Dark Missionary gives 10% magic damage mitigation to the entire party for 15 seconds."
+        },
+        {
+          "questionId": "drk.lesson_6.q2",
+          "conceptId": "drk.living_shadow",
+          "scenario": "Living Shadow ready. Burst window starting.",
+          "question": "When should you summon Living Shadow?",
+          "options": ["Save for later", "During burst window", "After burst", "Only for AoE"],
+          "correctIndex": 1,
+          "explanation": "Living Shadow attacks for 24 seconds and does massive damage. Summon during burst to maximize raid buff value."
+        },
+        {
+          "questionId": "drk.lesson_6.q3",
+          "conceptId": "drk.dark_missionary",
+          "scenario": "Physical raidwide coming. Dark Missionary available.",
+          "question": "Should you use Dark Missionary?",
+          "options": ["Yes - any mitigation helps", "No - magic only", "Partial effect", "Use Reprisal instead"],
+          "correctIndex": 1,
+          "explanation": "Dark Missionary only mitigates magic damage. For physical raidwides, use Reprisal instead."
+        },
+        {
+          "questionId": "drk.lesson_6.q4",
+          "conceptId": "drk.living_shadow",
+          "scenario": "You summoned Living Shadow. Boss becomes untargetable.",
+          "question": "What happens to Living Shadow?",
+          "options": ["Disappears", "Waits and continues", "Wastes time", "Attacks anyway"],
+          "correctIndex": 1,
+          "explanation": "Living Shadow persists through untargetable phases and continues attacking when the boss returns."
+        },
+        {
+          "questionId": "drk.lesson_6.q5",
+          "conceptId": "drk.party_protection",
+          "scenario": "TBN on party member. Dark Missionary ready. Big hit coming.",
+          "question": "Can you stack these protections?",
+          "options": ["No - one at a time", "Yes - they stack", "Only on yourself", "TBN replaces Mit"],
+          "correctIndex": 1,
+          "explanation": "TBN (shield) and Dark Missionary (mitigation) stack. TBN absorbs damage reduced by the mitigation."
+        }
+      ]
+    },
+    {
+      "quizId": "drk.lesson_7.quiz",
+      "lessonId": "drk.lesson_7",
+      "title": "Quiz: Advanced Optimization",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "drk.lesson_7.q1",
+          "conceptId": "drk.carve_and_spit",
+          "scenario": "Carve and Spit off cooldown. MP at 6000.",
+          "question": "What does Carve and Spit provide besides damage?",
+          "options": ["Blood Gauge", "MP restoration", "Shield", "Heal"],
+          "correctIndex": 1,
+          "explanation": "Carve and Spit restores MP in addition to dealing damage. Use it to help maintain MP levels."
+        },
+        {
+          "questionId": "drk.lesson_7.q2",
+          "conceptId": "drk.salted_earth",
+          "scenario": "Salted Earth ready. Boss standing still.",
+          "question": "Where should you place Salted Earth?",
+          "options": ["Under yourself", "Under the boss", "Doesn't matter", "Behind boss"],
+          "correctIndex": 1,
+          "explanation": "Salted Earth is a ground DoT zone. Place it under the boss so it deals damage the entire duration."
+        },
+        {
+          "questionId": "drk.lesson_7.q3",
+          "conceptId": "drk.shadowbringer",
+          "scenario": "Shadowbringer has 2 charges. Burst window active.",
+          "question": "How should you use the charges?",
+          "options": ["Space them out", "Both during burst", "Save one", "Use with Blood Weapon"],
+          "correctIndex": 1,
+          "explanation": "Shadowbringer charges should be used during burst windows to maximize damage under raid buffs."
+        },
+        {
+          "questionId": "drk.lesson_7.q4",
+          "conceptId": "drk.tank_swap",
+          "scenario": "Tank swap required. You need to take aggro.",
+          "question": "What should you do after Provoking?",
+          "options": ["Nothing", "Wait for Shirk", "TBN yourself", "Use Living Shadow"],
+          "correctIndex": 2,
+          "explanation": "After Provoking, you're now main tank. TBN yourself for the incoming damage you'll take."
+        },
+        {
+          "questionId": "drk.lesson_7.q5",
+          "conceptId": "drk.disesteem",
+          "scenario": "Salted Earth is active. Salt and Darkness available.",
+          "question": "What combo can you do?",
+          "options": ["Nothing special", "Salt and Darkness for burst", "Salted Earth again", "Only during Delirium"],
+          "correctIndex": 1,
+          "explanation": "While Salted Earth is active, Salt and Darkness becomes available for additional burst damage."
+        }
+      ]
+    }
+  ]
+}

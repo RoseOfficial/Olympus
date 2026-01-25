@@ -1,0 +1,140 @@
+{
+  "jobPrefix": "mnk",
+  "jobName": "Monk",
+  "lessons": [
+    {
+      "lessonId": "mnk.lesson_1",
+      "lessonNumber": 1,
+      "title": "Monk Fundamentals",
+      "description": "Learn the core principles of Monk: the form system, basic combos, and positional requirements.",
+      "prerequisites": [],
+      "conceptsCovered": ["mnk.combo_basics", "mnk.form_system", "mnk.positionals"],
+      "keyPoints": [
+        "Forms cycle: Opo-opo → Raptor → Coeurl → Opo-opo",
+        "Each form has specific weaponskills: Bootshine/Dragon Kick (Opo-opo), True Strike/Twin Snakes (Raptor), Snap Punch/Demolish (Coeurl)",
+        "Positionals: Bootshine/Demolish require rear, True Strike/Snap Punch require flank",
+        "Hitting positionals correctly grants bonus potency - essential for optimal damage"
+      ],
+      "relatedAbilities": ["Bootshine", "Dragon Kick", "True Strike", "Twin Snakes", "Snap Punch", "Demolish"],
+      "tips": [
+        "The form cycle is automatic - just use the correct GCD for your current form",
+        "Learn boss patterns to position yourself for positionals before your GCD lands"
+      ]
+    },
+    {
+      "lessonId": "mnk.lesson_2",
+      "lessonNumber": 2,
+      "title": "Maintaining Your Buffs",
+      "description": "Master buff maintenance with Disciplined Fist, Demolish DoT, and out-of-combat Meditation.",
+      "prerequisites": ["mnk.lesson_1"],
+      "conceptsCovered": ["mnk.disciplined_fist", "mnk.demolish_dot", "mnk.meditation"],
+      "keyPoints": [
+        "Disciplined Fist (+15% damage) from Twin Snakes/Demolish - never let this drop",
+        "Demolish is a powerful DoT (18s duration) - maintain near 100% uptime",
+        "Refresh Demolish when it has ~3 seconds remaining",
+        "Meditation: Build Chakra out of combat to start fights with resources ready"
+      ],
+      "relatedAbilities": ["Twin Snakes", "Demolish", "Meditation"],
+      "tips": [
+        "Twin Snakes (Raptor form) and Demolish (Coeurl form) both grant Disciplined Fist",
+        "Use Meditation during downtime or before pulls to build Chakra for burst"
+      ]
+    },
+    {
+      "lessonId": "mnk.lesson_3",
+      "lessonNumber": 3,
+      "title": "The Chakra System",
+      "description": "Understand Chakra generation and spending for optimal damage output.",
+      "prerequisites": ["mnk.lesson_2"],
+      "conceptsCovered": ["mnk.chakra_gauge", "mnk.the_forbidden_chakra", "mnk.enlightenment", "mnk.steel_peak"],
+      "keyPoints": [
+        "Chakra gauge: 0-5 stacks, builds from weaponskills and critical hits",
+        "The Forbidden Chakra (5 Chakra): High-potency single-target oGCD",
+        "Enlightenment (5 Chakra): AoE alternative for 3+ targets",
+        "Never overcap Chakra - spend at 5 stacks before generating more"
+      ],
+      "relatedAbilities": ["The Forbidden Chakra", "Enlightenment", "Steel Peak", "Howling Fist"],
+      "tips": [
+        "Chakra generates faster during Brotherhood buff - more critical hits",
+        "Weave Chakra spenders between GCDs to maximize damage"
+      ]
+    },
+    {
+      "lessonId": "mnk.lesson_4",
+      "lessonNumber": 4,
+      "title": "Beast Chakra & Masterful Blitz",
+      "description": "Master the Beast Chakra system and learn which Blitz to execute based on your combination.",
+      "prerequisites": ["mnk.lesson_3"],
+      "conceptsCovered": ["mnk.beast_chakra", "mnk.masterful_blitz", "mnk.elixir_field", "mnk.rising_phoenix", "mnk.phantom_rush"],
+      "keyPoints": [
+        "Beast Chakra types: Opo-opo (Lunar), Raptor (Solar), Coeurl (Celestial)",
+        "3 matching Beast Chakra = Elixir Field (large AoE)",
+        "2 Solar + 1 different = Rising Phoenix (cone AoE)",
+        "All 3 different types = Phantom Rush (highest single-target, requires Fury buff)",
+        "Masterful Blitz becomes available when you have 3 Beast Chakra"
+      ],
+      "relatedAbilities": ["Masterful Blitz", "Elixir Field", "Rising Phoenix", "Phantom Rush", "Elixir Burst", "Flint Strike"],
+      "tips": [
+        "In single-target, aim for Phantom Rush (all 3 different) for max damage",
+        "In AoE, Elixir Field (3 matching) hits all nearby enemies"
+      ]
+    },
+    {
+      "lessonId": "mnk.lesson_5",
+      "lessonNumber": 5,
+      "title": "Burst Windows",
+      "description": "Execute powerful burst windows with Perfect Balance, Riddle of Fire, and Brotherhood.",
+      "prerequisites": ["mnk.lesson_4"],
+      "conceptsCovered": ["mnk.perfect_balance", "mnk.riddle_of_fire", "mnk.brotherhood", "mnk.burst_alignment"],
+      "keyPoints": [
+        "Perfect Balance (2 charges, 40s recharge): Use any weaponskill regardless of form",
+        "Riddle of Fire (60s CD, 20s duration): +15% damage buff - core burst window",
+        "Brotherhood (120s CD): Party-wide 5% damage buff + Chakra generation boost",
+        "Align Riddle of Fire and Brotherhood with party raid buffs for maximum impact"
+      ],
+      "relatedAbilities": ["Perfect Balance", "Riddle of Fire", "Brotherhood"],
+      "tips": [
+        "Use Perfect Balance to quickly build Beast Chakra during Riddle of Fire",
+        "Brotherhood aligns with 2-minute party buffs - coordinate with your group"
+      ]
+    },
+    {
+      "lessonId": "mnk.lesson_6",
+      "lessonNumber": 6,
+      "title": "Movement & Utility",
+      "description": "Master gap closers, True North usage, and auto-attack optimization.",
+      "prerequisites": ["mnk.lesson_5"],
+      "conceptsCovered": ["mnk.thunderclap", "mnk.true_north_usage", "mnk.riddle_of_wind"],
+      "keyPoints": [
+        "Thunderclap (3 charges): Dash to target - use for gap closing and dodging",
+        "True North (2 charges, 45s recharge): Ignore positional requirements for 10s",
+        "Riddle of Wind: Increases auto-attack speed - free damage during burst",
+        "Save True North for when mechanics prevent proper positioning"
+      ],
+      "relatedAbilities": ["Thunderclap", "True North", "Riddle of Wind"],
+      "tips": [
+        "Don't waste Thunderclap charges - keep at least one for emergency movement",
+        "Plan True North usage around fight mechanics you know will disrupt positioning"
+      ]
+    },
+    {
+      "lessonId": "mnk.lesson_7",
+      "lessonNumber": 7,
+      "title": "AoE & Optimization",
+      "description": "Learn the AoE rotation and advanced optimization techniques.",
+      "prerequisites": ["mnk.lesson_6"],
+      "conceptsCovered": ["mnk.aoe_combo", "mnk.howling_fist", "mnk.aoe_threshold"],
+      "keyPoints": [
+        "AoE combo: Arm of the Destroyer → Four-point Fury → Rockbreaker",
+        "Switch to AoE rotation at 3+ targets for efficiency",
+        "Howling Fist: AoE oGCD - use with Enlightenment in multi-target",
+        "Perfect Balance works in AoE too - quickly build Beast Chakra for Elixir Field"
+      ],
+      "relatedAbilities": ["Arm of the Destroyer", "Four-point Fury", "Rockbreaker", "Howling Fist"],
+      "tips": [
+        "In dungeons, use AoE combo on trash packs, single-target on bosses",
+        "Even in AoE, maintain Disciplined Fist buff for the damage bonus"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "smn",
+  "jobName": "Summoner",
+  "quizzes": [
+    {
+      "quizId": "smn.lesson_1.quiz",
+      "lessonId": "smn.lesson_1",
+      "title": "Quiz: Aetherflow Fundamentals",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "smn.lesson_1.q1",
+          "conceptId": "smn.aetherflow_stacks",
+          "scenario": "You have 0 Aetherflow stacks. Energy Drain is available.",
+          "question": "What should you do?",
+          "options": ["Wait for stacks to regenerate", "Use Energy Drain for 2 stacks", "Use Fester anyway", "Save Energy Drain"],
+          "correctIndex": 1,
+          "explanation": "Energy Drain grants 2 Aetherflow stacks and the Further Ruin buff. Use it when you have 0 stacks to get resources."
+        },
+        {
+          "questionId": "smn.lesson_1.q2",
+          "conceptId": "smn.energy_drain_usage",
+          "scenario": "You have 2 Aetherflow stacks. Energy Drain is coming off cooldown in 5 seconds.",
+          "question": "What should you do with your stacks?",
+          "options": ["Save them for later", "Spend both with Fester/Necrotize", "Wait for Energy Drain", "Use one, save one"],
+          "correctIndex": 1,
+          "explanation": "Don't let Energy Drain come off cooldown while holding stacks - you'd waste the new stacks. Spend your current stacks before refreshing."
+        },
+        {
+          "questionId": "smn.lesson_1.q3",
+          "conceptId": "smn.fester_necrotize",
+          "scenario": "You have 1 Aetherflow stack. The boss is about to die.",
+          "question": "Should you use Fester/Necrotize?",
+          "options": ["No - save for next fight", "Yes - convert to damage", "Only if more stacks available", "Wait for burst"],
+          "correctIndex": 1,
+          "explanation": "If the boss is dying, convert your stacks to damage with Fester/Necrotize. Unused stacks at fight end are wasted resources."
+        },
+        {
+          "questionId": "smn.lesson_1.q4",
+          "conceptId": "smn.aetherflow_timing",
+          "scenario": "Energy Drain has a 60 second cooldown.",
+          "question": "How should you plan Aetherflow usage?",
+          "options": ["Spend stacks randomly", "Plan to empty stacks before each refresh", "Hold stacks for emergencies", "Only use during burst"],
+          "correctIndex": 1,
+          "explanation": "Plan your Aetherflow spending around the 60s cooldown. Aim to spend both stacks before Energy Drain comes back up to avoid waste."
+        },
+        {
+          "questionId": "smn.lesson_1.q5",
+          "conceptId": "smn.fester_necrotize",
+          "scenario": "Energy Drain also grants Further Ruin buff.",
+          "question": "What does Further Ruin enable?",
+          "options": ["Stronger Fester", "Ruin IV (powerful instant)", "Extra Aetherflow", "Faster casting"],
+          "correctIndex": 1,
+          "explanation": "Further Ruin enables Ruin IV, a powerful instant-cast spell. Use it before the buff expires - it's free damage from Energy Drain."
+        }
+      ]
+    },
+    {
+      "quizId": "smn.lesson_2.quiz",
+      "lessonId": "smn.lesson_2",
+      "title": "Quiz: Primal Attunement System",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "smn.lesson_2.q1",
+          "conceptId": "smn.attunement_system",
+          "scenario": "You summon Ifrit and receive 2 attunement stacks.",
+          "question": "What do attunement stacks represent?",
+          "options": ["Damage boost", "Number of primal abilities to use", "Duration of summon", "MP cost reduction"],
+          "correctIndex": 1,
+          "explanation": "Attunement stacks represent how many primal abilities you can use. Ifrit gives 2 (Ruby Rite), Titan/Garuda give 4 each."
+        },
+        {
+          "questionId": "smn.lesson_2.q2",
+          "conceptId": "smn.ifrit_phase",
+          "scenario": "You're in Ifrit phase. Ruby Rite has a cast time.",
+          "question": "When is Ifrit phase best?",
+          "options": ["During movement", "When you can stand still", "At start of fight", "Never - skip Ifrit"],
+          "correctIndex": 1,
+          "explanation": "Ifrit has the highest damage but requires casting. Save Ifrit for periods when you can stand still to get full value from Ruby Rite."
+        },
+        {
+          "questionId": "smn.lesson_2.q3",
+          "conceptId": "smn.titan_phase",
+          "scenario": "You're expecting heavy movement in 10 seconds.",
+          "question": "Which primal should you summon?",
+          "options": ["Ifrit for damage", "Titan for instant casts", "Garuda for speed", "Doesn't matter"],
+          "correctIndex": 1,
+          "explanation": "Titan's Topaz Rite is instant cast. Summon Titan before movement phases so you can deal damage while moving."
+        },
+        {
+          "questionId": "smn.lesson_2.q4",
+          "conceptId": "smn.garuda_phase",
+          "scenario": "You summon Garuda and get 4 Emerald attunement stacks.",
+          "question": "What's special about Garuda?",
+          "options": ["Highest damage", "Fast instant casts but lower per-hit damage", "Movement speed boost", "Party buff"],
+          "correctIndex": 1,
+          "explanation": "Garuda's Emerald Rite is fast and instant but lower damage per cast. Good for moderate movement and quick attunement spending."
+        },
+        {
+          "questionId": "smn.lesson_2.q5",
+          "conceptId": "smn.attunement_system",
+          "scenario": "You must spend all primal attunement before:",
+          "question": "What's the requirement for Demi-Summons?",
+          "options": ["Any time works", "All 3 primals must be summoned and spent", "Only after burst", "After Bahamut only"],
+          "correctIndex": 1,
+          "explanation": "You must summon and spend all 3 primals (Ifrit, Titan, Garuda) before your next Demi-Summon becomes available."
+        }
+      ]
+    },
+    {
+      "quizId": "smn.lesson_3.quiz",
+      "lessonId": "smn.lesson_3",
+      "title": "Quiz: Primal Favor Abilities",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "smn.lesson_3.q1",
+          "conceptId": "smn.crimson_cyclone",
+          "scenario": "You're in Ifrit phase with Crimson Cyclone available.",
+          "question": "What does Crimson Cyclone do?",
+          "options": ["Ranged attack", "Gap closer GCD to the target", "Party buff", "DoT application"],
+          "correctIndex": 1,
+          "explanation": "Crimson Cyclone is a gap closer that moves you to the target. Follow it with Crimson Strike for a melee combo. Position yourself first."
+        },
+        {
+          "questionId": "smn.lesson_3.q2",
+          "conceptId": "smn.mountain_buster",
+          "scenario": "You just cast Topaz Rite (Titan phase).",
+          "question": "What oGCD becomes available?",
+          "options": ["Crimson Strike", "Mountain Buster", "Slipstream", "Nothing"],
+          "correctIndex": 1,
+          "explanation": "Mountain Buster procs after each Topaz Rite. Weave it immediately - it's an oGCD that adds significant damage during Titan phase."
+        },
+        {
+          "questionId": "smn.lesson_3.q3",
+          "conceptId": "smn.slipstream",
+          "scenario": "You're in Garuda phase. Slipstream is available.",
+          "question": "What's special about Slipstream?",
+          "options": ["It's instant", "It's a 3s channeled AoE", "It's a DoT", "It heals you"],
+          "correctIndex": 1,
+          "explanation": "Slipstream is a channeled AoE that takes about 3 seconds. Use it when you can stand still - it's wasted if you move during the channel."
+        },
+        {
+          "questionId": "smn.lesson_3.q4",
+          "conceptId": "smn.crimson_cyclone",
+          "scenario": "You use Crimson Cyclone and are now in melee range.",
+          "question": "What should you follow with?",
+          "options": ["Return to range", "Crimson Strike (melee follow-up)", "Ruby Rite", "Mountain Buster"],
+          "correctIndex": 1,
+          "explanation": "Crimson Strike follows Crimson Cyclone and requires melee range. It's a powerful follow-up - don't skip it by moving away too soon."
+        },
+        {
+          "questionId": "smn.lesson_3.q5",
+          "conceptId": "smn.favor_timing",
+          "scenario": "Favor abilities are gained after summoning the upgraded primal.",
+          "question": "When do you get Crimson Cyclone?",
+          "options": ["At level 90", "After summoning Ifrit II/III", "From Energy Drain", "During Bahamut"],
+          "correctIndex": 1,
+          "explanation": "Favor abilities like Crimson Cyclone unlock when you summon the upgraded version of a primal (Ifrit II/III, not the base egi)."
+        }
+      ]
+    },
+    {
+      "quizId": "smn.lesson_4.quiz",
+      "lessonId": "smn.lesson_4",
+      "title": "Quiz: Demi-Summon Phases",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "smn.lesson_4.q1",
+          "conceptId": "smn.demi_phases",
+          "scenario": "Demi-Summons last 15 seconds.",
+          "question": "What do you spam during Demi phases?",
+          "options": ["Ruin III", "Primal abilities", "Demi-specific GCDs (Astral Impulse, etc.)", "Energy Drain"],
+          "correctIndex": 2,
+          "explanation": "During Demi phases, your GCD changes to the Demi-specific spell (Astral Impulse for Bahamut, Fountain of Fire for Phoenix, etc.)."
+        },
+        {
+          "questionId": "smn.lesson_4.q2",
+          "conceptId": "smn.bahamut_phase",
+          "scenario": "You summon Bahamut.",
+          "question": "What's Bahamut's main GCD?",
+          "options": ["Ruby Rite", "Astral Impulse", "Fountain of Fire", "Ruin IV"],
+          "correctIndex": 1,
+          "explanation": "During Bahamut phase, spam Astral Impulse. It's your GCD during this Demi-Summon, and Bahamut attacks alongside you."
+        },
+        {
+          "questionId": "smn.lesson_4.q3",
+          "conceptId": "smn.phoenix_phase",
+          "scenario": "You summon Phoenix.",
+          "question": "What extra benefit does Phoenix provide?",
+          "options": ["More damage than Bahamut", "Party healing via Rekindle", "Faster GCD", "Extra Aetherflow"],
+          "correctIndex": 1,
+          "explanation": "Phoenix phase includes Rekindle, which heals a party member. Phoenix provides support alongside damage - useful during healing-intensive phases."
+        },
+        {
+          "questionId": "smn.lesson_4.q4",
+          "conceptId": "smn.solar_bahamut_phase",
+          "scenario": "You summon Solar Bahamut at level 100.",
+          "question": "What's the Demi-Summon rotation cycle?",
+          "options": ["Only Bahamut repeats", "Bahamut → Phoenix → Solar Bahamut", "Any order works", "Solar Bahamut → Phoenix → Bahamut"],
+          "correctIndex": 1,
+          "explanation": "The cycle is: Bahamut → 3 Primals → Phoenix → 3 Primals → Solar Bahamut → repeat. Each Demi follows spending all primals."
+        },
+        {
+          "questionId": "smn.lesson_4.q5",
+          "conceptId": "smn.demi_phases",
+          "scenario": "All Demi-Summon GCDs are instant cast.",
+          "question": "Why is this significant?",
+          "options": ["It's not significant", "Free movement during Demi phases", "Faster DPS", "More procs"],
+          "correctIndex": 1,
+          "explanation": "Demi GCDs being instant means you have complete freedom of movement during Demi phases. Use these windows for mechanics."
+        }
+      ]
+    },
+    {
+      "quizId": "smn.lesson_5.quiz",
+      "lessonId": "smn.lesson_5",
+      "title": "Quiz: Burst: Enkindle & Astral Flow",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "smn.lesson_5.q1",
+          "conceptId": "smn.enkindle",
+          "scenario": "You're in Bahamut phase. Enkindle Bahamut is available.",
+          "question": "How many times can you use Enkindle per Demi phase?",
+          "options": ["Unlimited", "Once per Demi phase", "Twice", "Three times"],
+          "correctIndex": 1,
+          "explanation": "Enkindle can only be used once per Demi-Summon phase. It's a massive damage oGCD - don't forget to use it!"
+        },
+        {
+          "questionId": "smn.lesson_5.q2",
+          "conceptId": "smn.astral_flow",
+          "scenario": "Astral Flow changes based on your current Demi.",
+          "question": "What is Astral Flow during Bahamut?",
+          "options": ["Rekindle", "Sunflare", "Deathflare", "Mountain Buster"],
+          "correctIndex": 2,
+          "explanation": "During Bahamut, Astral Flow becomes Deathflare - a powerful finisher. During Phoenix it's Rekindle (heal), during Solar Bahamut it's Sunflare."
+        },
+        {
+          "questionId": "smn.lesson_5.q3",
+          "conceptId": "smn.searing_flash",
+          "scenario": "Searing Light is active (your party buff).",
+          "question": "What ability becomes available during Searing Light?",
+          "options": ["Extra Enkindle", "Searing Flash (bonus oGCD)", "More Aetherflow", "Instant Demi"],
+          "correctIndex": 1,
+          "explanation": "During Searing Light window, you gain access to Searing Flash - an additional oGCD for extra burst damage."
+        },
+        {
+          "questionId": "smn.lesson_5.q4",
+          "conceptId": "smn.enkindle",
+          "scenario": "You're in Demi phase. When should you use Enkindle?",
+          "question": "What's the optimal Enkindle timing?",
+          "options": ["At the very end", "Early in the phase", "Mid-phase only", "Doesn't matter"],
+          "correctIndex": 1,
+          "explanation": "Use Enkindle early in the Demi phase. If the boss becomes untargetable or the phase ends, you'd lose it. Don't risk missing your window."
+        },
+        {
+          "questionId": "smn.lesson_5.q5",
+          "conceptId": "smn.astral_flow",
+          "scenario": "Phoenix phase is ending. You haven't used Rekindle.",
+          "question": "Should you use Rekindle before Phoenix leaves?",
+          "options": ["No - save it", "Yes - it's lost when Phoenix leaves", "Only if someone is low", "Rekindle persists"],
+          "correctIndex": 1,
+          "explanation": "Rekindle is only available during Phoenix phase. If you don't use it, you lose it. Cast it on the tank or anyone who might need healing."
+        }
+      ]
+    },
+    {
+      "quizId": "smn.lesson_6.quiz",
+      "lessonId": "smn.lesson_6",
+      "title": "Quiz: Searing Light Coordination",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "smn.lesson_6.q1",
+          "conceptId": "smn.searing_light",
+          "scenario": "Searing Light is a 2-minute party buff.",
+          "question": "What does Searing Light provide?",
+          "options": ["10% damage for 10s", "5% damage for 20s", "Critical hit boost", "Haste buff"],
+          "correctIndex": 1,
+          "explanation": "Searing Light gives the party 5% damage increase for 20 seconds. It's your raid buff - align it with other party cooldowns."
+        },
+        {
+          "questionId": "smn.lesson_6.q2",
+          "conceptId": "smn.party_coordination",
+          "scenario": "Other raid buffs are being used at 0:00, 2:00, 4:00.",
+          "question": "When should you use Searing Light?",
+          "options": ["On cooldown regardless", "Aligned with party buffs at 2-min marks", "Save for emergencies", "Only during Demi phases"],
+          "correctIndex": 1,
+          "explanation": "Align Searing Light with other party raid buffs for stacked multiplicative damage. 0:00, 2:00, 4:00 etc. are standard burst windows."
+        },
+        {
+          "questionId": "smn.lesson_6.q3",
+          "conceptId": "smn.searing_light",
+          "scenario": "You're 5 seconds away from a Demi-Summon.",
+          "question": "Should you wait to use Searing Light with your Demi?",
+          "options": ["No - use immediately", "Yes - Demi phases have high damage", "Only for Bahamut", "It doesn't matter"],
+          "correctIndex": 1,
+          "explanation": "Align Searing Light with your Demi-Summon phases when possible. Demi phases are your highest damage - put them under your own buff."
+        },
+        {
+          "questionId": "smn.lesson_6.q4",
+          "conceptId": "smn.party_coordination",
+          "scenario": "A Dragoon announces Battle Litany is coming.",
+          "question": "What should you do?",
+          "options": ["Ignore it", "Coordinate your Searing Light to stack", "Use Searing Light first", "Save for later"],
+          "correctIndex": 1,
+          "explanation": "Coordinate with other raid buffs. If Battle Litany is coming in a few seconds, hold Searing Light to stack buffs for maximum party damage."
+        },
+        {
+          "questionId": "smn.lesson_6.q5",
+          "conceptId": "smn.searing_light",
+          "scenario": "Your Searing Light drifted and is now 15 seconds off from party buffs.",
+          "question": "What should you consider?",
+          "options": ["Keep using on cooldown", "Delay to realign with party", "Never hold cooldowns", "Only matters in optimization"],
+          "correctIndex": 1,
+          "explanation": "If significantly out of sync, consider delaying your next Searing Light to realign with party burst windows. Stacked buffs > individual uptime."
+        }
+      ]
+    },
+    {
+      "quizId": "smn.lesson_7.quiz",
+      "lessonId": "smn.lesson_7",
+      "title": "Quiz: Advanced Rotation",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "smn.lesson_7.q1",
+          "conceptId": "smn.primal_order",
+          "scenario": "You need to optimize primal order for an upcoming fight.",
+          "question": "What's the recommended primal order?",
+          "options": ["Ifrit → Titan → Garuda", "Titan → Garuda → Ifrit", "Garuda → Ifrit → Titan", "Any order works"],
+          "correctIndex": 1,
+          "explanation": "Titan → Garuda → Ifrit is optimal. Titan gives movement flexibility early, save Ifrit (casted) for when you can stand still."
+        },
+        {
+          "questionId": "smn.lesson_7.q2",
+          "conceptId": "smn.ruin_spells",
+          "scenario": "You're between primal/demi phases with nothing else to do.",
+          "question": "What's your filler GCD?",
+          "options": ["Wait for next phase", "Ruin III", "Auto-attacks only", "Energy Drain"],
+          "correctIndex": 1,
+          "explanation": "Ruin III is your filler spell between primal and Demi phases. Always be casting - never stand idle waiting."
+        },
+        {
+          "questionId": "smn.lesson_7.q3",
+          "conceptId": "smn.ruin_iv_procs",
+          "scenario": "You have the Further Ruin buff (Ruin IV ready).",
+          "question": "When should you use Ruin IV?",
+          "options": ["Immediately", "Save for burst", "Before it expires or Energy Drain refreshes", "Never - it's weak"],
+          "correctIndex": 2,
+          "explanation": "Use Ruin IV before the buff expires. Also spend it before Energy Drain comes back up, or the new Further Ruin buff would be wasted."
+        },
+        {
+          "questionId": "smn.lesson_7.q4",
+          "conceptId": "smn.aoe_rotation",
+          "scenario": "There are 4 enemies grouped together.",
+          "question": "What changes in AoE?",
+          "options": ["Everything is single target", "Use Tri-disaster filler, primal Catastrophe variants", "Only use Demi phases", "AoE isn't worth it"],
+          "correctIndex": 1,
+          "explanation": "In AoE, use Tri-disaster instead of Ruin III, and primal Catastrophe variants (Ruby/Topaz/Emerald Catastrophe) instead of Rite spells."
+        },
+        {
+          "questionId": "smn.lesson_7.q5",
+          "conceptId": "smn.primal_order",
+          "scenario": "Why is Titan first generally recommended?",
+          "question": "What's the advantage of Titan first?",
+          "options": ["Highest damage", "Most flexibility for movement later", "Required by rotation", "It's not recommended"],
+          "correctIndex": 1,
+          "explanation": "Starting with Titan (instant casts) gives you movement flexibility early. Save Ifrit for when mechanics allow standing still to cast."
+        }
+      ]
+    }
+  ]
+}

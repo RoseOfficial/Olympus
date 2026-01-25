@@ -87,7 +87,7 @@ public static class QuizzesTab
         ImGui.Spacing();
 
         // Get quizzes for selected job
-        var quizzes = QuizRegistry.GetQuizzesForJob(selectedJob);
+        var quizzes = trainingService.GetQuizzesForJob(selectedJob);
         if (quizzes.Count == 0)
         {
             ImGui.TextColored(NeutralColor, "No quizzes available for this job.");
@@ -113,7 +113,7 @@ public static class QuizzesTab
         {
             if (activeQuizId != null)
             {
-                var quiz = QuizRegistry.GetQuiz(activeQuizId);
+                var quiz = trainingService.GetQuiz(activeQuizId);
                 if (quiz != null)
                 {
                     if (showResults)

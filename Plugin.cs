@@ -25,6 +25,7 @@ using Olympus.Services.Analytics;
 using Olympus.Services.FFLogs;
 using Olympus.Services.Training;
 using Olympus.Timeline;
+using Olympus.Training;
 using Olympus.Windows;
 using Olympus.Windows.Training;
 
@@ -32,7 +33,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "4.0.1";
+    public const string PluginVersion = "4.0.2";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -107,6 +108,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly FFlogsService? fflogsService;
 
     // Training mode
+    private readonly TrainingDataRegistry trainingDataRegistry;
     private readonly TrainingService trainingService;
     private readonly RealTimeCoachingService realTimeCoachingService;
     private readonly DecisionValidationService decisionValidationService;
@@ -220,7 +222,8 @@ public sealed class Plugin : IDalamudPlugin
         this.fflogsService = new FFlogsService(configuration.FFLogs, log);
 
         // Training mode
-        this.trainingService = new TrainingService(configuration.Training, objectTable, log);
+        this.trainingDataRegistry = new TrainingDataRegistry(log);
+        this.trainingService = new TrainingService(configuration.Training, objectTable, trainingDataRegistry, log);
 
         // Real-time coaching hints (v3.49.0)
         this.realTimeCoachingService = new RealTimeCoachingService(

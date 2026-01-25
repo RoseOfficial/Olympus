@@ -1,0 +1,142 @@
+{
+  "jobPrefix": "sge",
+  "jobName": "Sage",
+  "lessons": [
+    {
+      "lessonId": "sge.lesson_1",
+      "lessonNumber": 1,
+      "title": "Sage Fundamentals",
+      "description": "Learn SGE's unique identity: Kardia passive healing, emergency response, and target selection for optimal Kardia use.",
+      "prerequisites": [],
+      "conceptsCovered": ["sge.emergency_healing", "sge.kardia_management", "sge.kardia_target_selection"],
+      "keyPoints": [
+        "Kardia: passive heal on target when you deal damage - keep it on tank",
+        "SGE heals by dealing damage (Kardia) - DPS = healing",
+        "Emergency healing uses Addersgall abilities (Druochole, Taurochole)",
+        "Kardia target should rarely change once set on the main tank"
+      ],
+      "relatedAbilities": ["Kardia", "Diagnosis", "Prognosis", "Druochole"],
+      "tips": [
+        "Apply Kardia before combat starts - it's your primary tank healing",
+        "Your GCD attacks heal the Kardia target automatically"
+      ]
+    },
+    {
+      "lessonId": "sge.lesson_2",
+      "lessonNumber": 2,
+      "title": "Addersgall Economy",
+      "description": "Master Addersgall resource: generation timing, spending on heals vs damage, and the four Addersgall abilities.",
+      "prerequisites": ["sge.lesson_1"],
+      "conceptsCovered": ["sge.addersgall_management", "sge.druochole_usage", "sge.taurochole_usage", "sge.kerachole_usage", "sge.ixochole_usage"],
+      "keyPoints": [
+        "Addersgall: regenerates 1 stack every 20s (max 3)",
+        "Druochole: single-target heal (1 stack) - basic tank heal",
+        "Taurochole: single-target heal + 10% mitigation (1 stack)",
+        "Kerachole: party mitigation + HoT (1 stack) - 30s CD",
+        "Ixochole: party heal (1 stack) - 30s CD"
+      ],
+      "relatedAbilities": ["Druochole", "Taurochole", "Kerachole", "Ixochole"],
+      "tips": [
+        "Don't overcap Addersgall - spend stacks before hitting 3",
+        "Kerachole is extremely efficient - use it on cooldown for mitigation"
+      ]
+    },
+    {
+      "lessonId": "sge.lesson_3",
+      "lessonNumber": 3,
+      "title": "Kardia Optimization",
+      "description": "Enhance Kardia healing with Soteria's boost and Philosophia's party-wide Kardia effect.",
+      "prerequisites": ["sge.lesson_2"],
+      "conceptsCovered": ["sge.soteria_usage", "sge.philosophia_usage"],
+      "keyPoints": [
+        "Soteria: 50% Kardia healing boost for 15s (60s CD)",
+        "Use Soteria during high tank damage phases",
+        "Philosophia: party-wide Kardia effect for 20s (3min CD)",
+        "Philosophia lets your damage heal the entire party"
+      ],
+      "relatedAbilities": ["Soteria", "Philosophia"],
+      "tips": [
+        "Soteria is free extra healing - use it liberally",
+        "Philosophia during AoE damage phases is extremely powerful"
+      ]
+    },
+    {
+      "lessonId": "sge.lesson_4",
+      "lessonNumber": 4,
+      "title": "Eukrasia System",
+      "description": "Understand Eukrasia: converting Diagnosis to shields, Prognosis to party shields, and Dosis to DoT.",
+      "prerequisites": ["sge.lesson_3"],
+      "conceptsCovered": ["sge.eukrasia_decisions", "sge.eukrasian_diagnosis_usage", "sge.eukrasian_prognosis_usage", "sge.eukrasian_dosis_usage"],
+      "keyPoints": [
+        "Eukrasia modifies your next Diagnosis, Prognosis, or Dosis",
+        "E.Diagnosis: single-target shield - apply before tankbusters",
+        "E.Prognosis: party shield - apply before raidwides",
+        "E.Dosis: your DoT - maintain 100% uptime on boss"
+      ],
+      "relatedAbilities": ["Eukrasia", "Eukrasian Diagnosis", "Eukrasian Prognosis", "Eukrasian Dosis"],
+      "tips": [
+        "Eukrasia is instant - weave it before your shield spell",
+        "E.Dosis refresh at 3s or less to avoid clipping"
+      ]
+    },
+    {
+      "lessonId": "sge.lesson_5",
+      "lessonNumber": 5,
+      "title": "oGCD Healing Toolkit",
+      "description": "Master SGE's powerful oGCD heals: Physis, Holos, Pneuma, and Krasis for enhanced healing.",
+      "prerequisites": ["sge.lesson_4"],
+      "conceptsCovered": ["sge.physis_usage", "sge.holos_usage", "sge.pneuma_usage", "sge.krasis_usage"],
+      "keyPoints": [
+        "Physis II: party HoT + healing received boost (60s CD)",
+        "Holos: party shield + heal (2min CD) - strong raidwide mitigation",
+        "Pneuma: line AoE damage + party heal (2min CD)",
+        "Krasis: 20% healing boost on target for 10s (60s CD)"
+      ],
+      "relatedAbilities": ["Physis II", "Holos", "Pneuma", "Krasis"],
+      "tips": [
+        "Physis is free - use it on cooldown for the healing boost",
+        "Pneuma deals damage AND heals - never let it sit unused"
+      ]
+    },
+    {
+      "lessonId": "sge.lesson_6",
+      "lessonNumber": 6,
+      "title": "Defensive Cooldowns",
+      "description": "Master SGE's defensive abilities: Haima, Panhaima, Pepsis shield conversion, Zoe healing boost, and Rhizomata resource generation.",
+      "prerequisites": ["sge.lesson_5"],
+      "conceptsCovered": ["sge.haima_usage", "sge.panhaima_usage", "sge.pepsis_usage", "sge.zoe_usage", "sge.rhizomata_usage"],
+      "keyPoints": [
+        "Haima: stacking shields on single target (2min CD) - great for tankbusters",
+        "Panhaima: stacking shields on party (2min CD) - great for multi-hit raidwides",
+        "Pepsis: converts your shields into healing instantly",
+        "Zoe: 50% boost to next GCD heal (90s CD)",
+        "Rhizomata: grants 1 Addersgall stack (90s CD) - free resources"
+      ],
+      "relatedAbilities": ["Haima", "Panhaima", "Pepsis", "Zoe", "Rhizomata"],
+      "tips": [
+        "Haima's shields refresh when broken - put it on tank before autos",
+        "Pepsis is useful when shields would be wasted"
+      ]
+    },
+    {
+      "lessonId": "sge.lesson_7",
+      "lessonNumber": 7,
+      "title": "DPS & Coordination",
+      "description": "Final lesson: DPS optimization, DoT maintenance, offensive abilities (Phlegma, Toxikon, Psyche), raise coordination, and co-healer synergy.",
+      "prerequisites": ["sge.lesson_6"],
+      "conceptsCovered": ["sge.dps_optimization", "sge.dot_maintenance", "sge.phlegma_usage", "sge.toxikon_usage", "sge.psyche_usage", "sge.raise_decision", "sge.cohealer_awareness", "sge.esuna_usage"],
+      "keyPoints": [
+        "Dosis is your filler - cast it when not healing (Kardia heals tank)",
+        "Phlegma: 2 charges, strong instant damage - use in burst windows",
+        "Toxikon: instant damage, costs Addersting (from broken E.Diagnosis shields)",
+        "Psyche: strong oGCD damage (1min CD) - use on cooldown",
+        "Coordinate raises with co-healer, shields with regen healer"
+      ],
+      "relatedAbilities": ["Dosis III", "Phlegma III", "Toxikon II", "Psyche", "Egeiro", "Esuna"],
+      "tips": [
+        "SGE's high DPS comes from Kardia - casting Dosis heals AND damages",
+        "Save Phlegma charges for burst windows when possible"
+      ]
+    }
+  ]
+}

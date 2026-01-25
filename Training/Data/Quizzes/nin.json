@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "nin",
+  "jobName": "Ninja",
+  "quizzes": [
+    {
+      "quizId": "nin.lesson_1.quiz",
+      "lessonId": "nin.lesson_1",
+      "title": "Quiz: Ninja Fundamentals",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "nin.lesson_1.q1",
+          "conceptId": "nin.combo_basics",
+          "scenario": "You just started a fight. Your first GCD should be Spinning Edge.",
+          "question": "What is the basic Ninja combo sequence?",
+          "options": ["Spinning Edge → Aeolian Edge", "Spinning Edge → Gust Slash → finisher", "Any order works", "Armor Crush → Aeolian Edge"],
+          "correctIndex": 1,
+          "explanation": "The basic combo is Spinning Edge → Gust Slash → finisher (Aeolian Edge or Armor Crush). Always complete full combos for maximum potency."
+        },
+        {
+          "questionId": "nin.lesson_1.q2",
+          "conceptId": "nin.positionals",
+          "scenario": "You need to use Aeolian Edge. Where should you stand?",
+          "question": "What's the correct position for Aeolian Edge?",
+          "options": ["Flank (side)", "Rear (behind)", "Front", "Any position"],
+          "correctIndex": 1,
+          "explanation": "Aeolian Edge requires rear positional for bonus damage. Armor Crush requires flank. Missing positionals loses significant potency."
+        },
+        {
+          "questionId": "nin.lesson_1.q3",
+          "conceptId": "nin.kazematoi",
+          "scenario": "You have 0 Kazematoi stacks and need burst damage soon.",
+          "question": "How do you build Kazematoi stacks?",
+          "options": ["Use Aeolian Edge", "Use Armor Crush", "Use Ninjutsu", "Use Ninki spenders"],
+          "correctIndex": 1,
+          "explanation": "Armor Crush (flank positional finisher) grants Kazematoi stacks. Aeolian Edge consumes them for enhanced damage."
+        },
+        {
+          "questionId": "nin.lesson_1.q4",
+          "conceptId": "nin.positionals",
+          "scenario": "You're at flank and need to use Aeolian Edge.",
+          "question": "What happens if you use Aeolian Edge from flank instead of rear?",
+          "options": ["Same damage", "Lose potency bonus", "Combo breaks", "It won't execute"],
+          "correctIndex": 1,
+          "explanation": "Missing positionals loses the bonus potency. The attack still works, but you deal less damage."
+        },
+        {
+          "questionId": "nin.lesson_1.q5",
+          "conceptId": "nin.combo_basics",
+          "scenario": "You used Spinning Edge, then got distracted. 15 seconds passed.",
+          "question": "What happens to your combo?",
+          "options": ["Nothing - continue", "Combo breaks after time", "Damage increases", "Must use oGCD"],
+          "correctIndex": 1,
+          "explanation": "Combos time out after ~15 seconds of not continuing. You'll need to restart from Spinning Edge."
+        }
+      ]
+    },
+    {
+      "quizId": "nin.lesson_2.quiz",
+      "lessonId": "nin.lesson_2",
+      "title": "Quiz: Mudra Mastery",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "nin.lesson_2.q1",
+          "conceptId": "nin.mudra_system",
+          "scenario": "You want to use Raiton for single-target damage.",
+          "question": "What mudra sequence creates Raiton?",
+          "options": ["Ten → Chi → Jin", "Ten → Chi (or Chi → Ten)", "Jin → Chi → Ten", "Any two mudras"],
+          "correctIndex": 1,
+          "explanation": "Raiton is created by Ten → Chi or Chi → Ten. It's your bread-and-butter damage Ninjutsu."
+        },
+        {
+          "questionId": "nin.lesson_2.q2",
+          "conceptId": "nin.mudra_system",
+          "scenario": "You need Suiton to enable Kunai's Bane.",
+          "question": "What mudra sequence creates Suiton?",
+          "options": ["Ten → Chi", "Chi → Jin", "Ten → Chi → Jin", "Jin → Ten"],
+          "correctIndex": 2,
+          "explanation": "Suiton requires three mudras: Ten → Chi → Jin. It grants a buff that enables Kunai's Bane."
+        },
+        {
+          "questionId": "nin.lesson_2.q3",
+          "conceptId": "nin.ninjutsu_weaving",
+          "scenario": "You just pressed a GCD. Mudras are ready.",
+          "question": "When should you input mudras?",
+          "options": ["Before GCD", "During GCD window", "After next GCD", "Anytime"],
+          "correctIndex": 1,
+          "explanation": "Mudras are oGCDs - weave them during the GCD window. The resulting Ninjutsu is a GCD itself."
+        },
+        {
+          "questionId": "nin.lesson_2.q4",
+          "conceptId": "nin.mudra_system",
+          "scenario": "You input the wrong mudra sequence.",
+          "question": "What happens when you mess up mudras?",
+          "options": ["Nothing happens", "Rabbit Medium appears", "Game crashes", "Damage enemy"],
+          "correctIndex": 1,
+          "explanation": "Invalid mudra sequences create Rabbit Medium (a bunny) - no damage, just embarrassment. Try again next time!"
+        },
+        {
+          "questionId": "nin.lesson_2.q5",
+          "conceptId": "nin.huton",
+          "scenario": "At lower levels, Huton grants a speed buff.",
+          "question": "What mudra sequence creates Huton?",
+          "options": ["Ten → Chi", "Chi → Ten", "Jin → Chi → Ten", "Ten → Jin"],
+          "correctIndex": 2,
+          "explanation": "Huton is Jin → Chi → Ten. At higher levels this buff is passive, but understanding mudras helps overall mastery."
+        }
+      ]
+    },
+    {
+      "quizId": "nin.lesson_3.quiz",
+      "lessonId": "nin.lesson_3",
+      "title": "Quiz: Ninki & Spenders",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "nin.lesson_3.q1",
+          "conceptId": "nin.ninki_gauge",
+          "scenario": "Your Ninki gauge is at 90. Bhavacakra costs 50.",
+          "question": "What should you do?",
+          "options": ["Wait for 100", "Use Bhavacakra now", "Save for later", "Use weaponskills only"],
+          "correctIndex": 1,
+          "explanation": "At 90 Ninki, you're close to capping. Use Bhavacakra to avoid overcapping and wasting gauge generation."
+        },
+        {
+          "questionId": "nin.lesson_3.q2",
+          "conceptId": "nin.bhavacakra",
+          "scenario": "Single target fight. You have 50 Ninki.",
+          "question": "Which Ninki spender should you use?",
+          "options": ["Hellfrog Medium", "Bhavacakra", "Save it", "Either works"],
+          "correctIndex": 1,
+          "explanation": "Bhavacakra is the single-target spender. Hellfrog Medium is for AoE (3+ targets)."
+        },
+        {
+          "questionId": "nin.lesson_3.q3",
+          "conceptId": "nin.ninki_pooling",
+          "scenario": "Kunai's Bane is coming up in 10 seconds. You have 40 Ninki.",
+          "question": "What's the optimal approach?",
+          "options": ["Spend Ninki now", "Pool Ninki for burst", "It doesn't matter", "Stop attacking"],
+          "correctIndex": 1,
+          "explanation": "Pool Ninki before burst windows. Spending Bhavacakra during Kunai's Bane buff deals more damage."
+        },
+        {
+          "questionId": "nin.lesson_3.q4",
+          "conceptId": "nin.ninki_gauge",
+          "scenario": "You used Mug/Dokumori on the boss.",
+          "question": "How much Ninki does Mug/Dokumori generate?",
+          "options": ["20", "40", "50", "0"],
+          "correctIndex": 1,
+          "explanation": "Mug/Dokumori generates 40 Ninki in addition to dealing damage. It's a significant gauge boost for your burst."
+        },
+        {
+          "questionId": "nin.lesson_3.q5",
+          "conceptId": "nin.bhavacakra",
+          "scenario": "You have 100 Ninki during Kunai's Bane window.",
+          "question": "How many Bhavacakras can you use?",
+          "options": ["1", "2", "3", "Unlimited"],
+          "correctIndex": 1,
+          "explanation": "At 100 Ninki, you can use 2 Bhavacakras (50 each). Weave them between GCDs during the buff window."
+        }
+      ]
+    },
+    {
+      "quizId": "nin.lesson_4.quiz",
+      "lessonId": "nin.lesson_4",
+      "title": "Quiz: Burst Window Basics",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "nin.lesson_4.q1",
+          "conceptId": "nin.suiton",
+          "scenario": "You want to use Kunai's Bane but don't have Suiton buff.",
+          "question": "Can you use Kunai's Bane without Suiton?",
+          "options": ["Yes - anytime", "No - Suiton is required", "Only in AoE", "Only on cooldown"],
+          "correctIndex": 1,
+          "explanation": "Kunai's Bane requires the Suiton buff to be active. Always set up Suiton before your burst window."
+        },
+        {
+          "questionId": "nin.lesson_4.q2",
+          "conceptId": "nin.kunais_bane",
+          "scenario": "You successfully applied Kunai's Bane to the boss.",
+          "question": "What does Kunai's Bane do?",
+          "options": ["Direct damage only", "+10% damage debuff on target", "Speed buff", "MP restore"],
+          "correctIndex": 1,
+          "explanation": "Kunai's Bane applies a +10% damage taken debuff to the target. All your attacks deal more damage during this window."
+        },
+        {
+          "questionId": "nin.lesson_4.q3",
+          "conceptId": "nin.mug_dokumori",
+          "scenario": "Mug/Dokumori is off cooldown. Kunai's Bane window is starting.",
+          "question": "When should you use Mug/Dokumori?",
+          "options": ["After Kunai's Bane", "Before Kunai's Bane", "Doesn't matter", "Save for next burst"],
+          "correctIndex": 1,
+          "explanation": "Use Mug/Dokumori just before Kunai's Bane to maximize damage and generate Ninki for your burst window."
+        },
+        {
+          "questionId": "nin.lesson_4.q4",
+          "conceptId": "nin.kunais_bane",
+          "scenario": "Kunai's Bane has a 60 second cooldown.",
+          "question": "How does this align with party buffs?",
+          "options": ["Doesn't align", "Every other raid buff", "Every raid buff window", "Random timing"],
+          "correctIndex": 2,
+          "explanation": "60s cooldown means Kunai's Bane aligns with standard raid buff windows (60s/120s). Coordinate with your party."
+        },
+        {
+          "questionId": "nin.lesson_4.q5",
+          "conceptId": "nin.suiton",
+          "scenario": "You used Suiton but the boss became untargetable before Kunai's Bane.",
+          "question": "What happens to your Suiton buff?",
+          "options": ["Stays forever", "Expires after time", "Transfers to next target", "Immediately lost"],
+          "correctIndex": 1,
+          "explanation": "Suiton buff has a duration. If you can't use Kunai's Bane in time, the buff expires and you'll need to reapply."
+        }
+      ]
+    },
+    {
+      "quizId": "nin.lesson_5.quiz",
+      "lessonId": "nin.lesson_5",
+      "title": "Quiz: Advanced Burst: TCJ & Kassatsu",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "nin.lesson_5.q1",
+          "conceptId": "nin.kassatsu",
+          "scenario": "Kassatsu is ready. You're about to use Ninjutsu.",
+          "question": "What Ninjutsu should you use after Kassatsu?",
+          "options": ["Raiton", "Suiton", "Hyosho Ranryu", "Huton"],
+          "correctIndex": 2,
+          "explanation": "Kassatsu enables Hyosho Ranryu, an ice Ninjutsu with massive potency. This is your highest damage Ninjutsu."
+        },
+        {
+          "questionId": "nin.lesson_5.q2",
+          "conceptId": "nin.ten_chi_jin",
+          "scenario": "You activated Ten Chi Jin. Boss starts an AoE.",
+          "question": "What happens if you move during TCJ?",
+          "options": ["Nothing", "TCJ continues", "TCJ cancels", "Extra damage"],
+          "correctIndex": 2,
+          "explanation": "Ten Chi Jin cancels if you move or take damage. Position safely before activating it."
+        },
+        {
+          "questionId": "nin.lesson_5.q3",
+          "conceptId": "nin.tcj_optimization",
+          "scenario": "You're using TCJ for 2-minute burst. What's the standard sequence?",
+          "question": "What Ninjutsu sequence during TCJ?",
+          "options": ["Raiton only", "Fuma → Raiton → Suiton", "Suiton → Raiton → Fuma", "Three Raitons"],
+          "correctIndex": 1,
+          "explanation": "Standard TCJ sequence is Fuma Shuriken → Raiton → Suiton. Suiton last sets up Kunai's Bane."
+        },
+        {
+          "questionId": "nin.lesson_5.q4",
+          "conceptId": "nin.kassatsu",
+          "scenario": "Kassatsu and Kunai's Bane are both ready.",
+          "question": "How should you time Kassatsu?",
+          "options": ["Before Kunai's Bane", "After Kunai's Bane", "During Kunai's Bane", "Separate from burst"],
+          "correctIndex": 2,
+          "explanation": "Use Kassatsu during Kunai's Bane so Hyosho Ranryu benefits from the +10% damage debuff."
+        },
+        {
+          "questionId": "nin.lesson_5.q5",
+          "conceptId": "nin.ten_chi_jin",
+          "scenario": "TCJ has a 120 second cooldown.",
+          "question": "How does TCJ align with raid buffs?",
+          "options": ["Every 60s burst", "Every 120s burst", "Doesn't align", "Use whenever"],
+          "correctIndex": 1,
+          "explanation": "TCJ's 120s cooldown aligns with 2-minute raid buff windows. Save it for coordinated party burst."
+        }
+      ]
+    },
+    {
+      "quizId": "nin.lesson_6.quiz",
+      "lessonId": "nin.lesson_6",
+      "title": "Quiz: Procs & Movement",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "nin.lesson_6.q1",
+          "conceptId": "nin.raiju_procs",
+          "scenario": "You used Raiton. Raiju Ready buff appeared.",
+          "question": "What's the difference between Forked and Fleeting Raiju?",
+          "options": ["Damage difference", "Forked is gap closer, Fleeting is stationary", "Same ability", "One is AoE"],
+          "correctIndex": 1,
+          "explanation": "Forked Raiju closes distance to target. Fleeting Raiju is used from current position. Choose based on whether you need to move."
+        },
+        {
+          "questionId": "nin.lesson_6.q2",
+          "conceptId": "nin.raiju_procs",
+          "scenario": "You have Raiju Ready. Boss is far away.",
+          "question": "Which Raiju should you use?",
+          "options": ["Fleeting Raiju", "Forked Raiju", "Either works", "Wait for boss"],
+          "correctIndex": 1,
+          "explanation": "Use Forked Raiju to close the gap to the boss while dealing damage. It's a gap closer with damage."
+        },
+        {
+          "questionId": "nin.lesson_6.q3",
+          "conceptId": "nin.bunshin",
+          "scenario": "Bunshin is ready. Burst window is starting.",
+          "question": "When should you use Bunshin?",
+          "options": ["After burst", "Before burst starts", "During downtime", "Save for AoE"],
+          "correctIndex": 1,
+          "explanation": "Use Bunshin before burst so your shadow clone attacks during buffed abilities, maximizing damage."
+        },
+        {
+          "questionId": "nin.lesson_6.q4",
+          "conceptId": "nin.phantom_kamaitachi",
+          "scenario": "You used Bunshin. A new ability appeared.",
+          "question": "What is Phantom Kamaitachi?",
+          "options": ["oGCD follow-up", "GCD proc from Bunshin", "Passive buff", "AoE Ninki spender"],
+          "correctIndex": 1,
+          "explanation": "Phantom Kamaitachi is a GCD proc granted by Bunshin. It's AoE damage - use it before it expires."
+        },
+        {
+          "questionId": "nin.lesson_6.q5",
+          "conceptId": "nin.tenri_jindo",
+          "scenario": "You just used Kunai's Bane. A new ability appeared.",
+          "question": "What is Tenri Jindo?",
+          "options": ["Passive buff", "Follow-up proc after Kunai's Bane", "Replacement for Raiton", "Defensive ability"],
+          "correctIndex": 1,
+          "explanation": "Tenri Jindo is a powerful follow-up that appears after Kunai's Bane (Lv.100). Use it immediately for big damage."
+        }
+      ]
+    },
+    {
+      "quizId": "nin.lesson_7.quiz",
+      "lessonId": "nin.lesson_7",
+      "title": "Quiz: Optimization & AoE",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "nin.lesson_7.q1",
+          "conceptId": "nin.kazematoi_management",
+          "scenario": "Burst window is coming. You have 0 Kazematoi stacks.",
+          "question": "What should you do before burst?",
+          "options": ["Doesn't matter", "Build Kazematoi with Armor Crush", "Use Aeolian Edge", "Skip positionals"],
+          "correctIndex": 1,
+          "explanation": "Build Kazematoi stacks with Armor Crush before burst, then spend enhanced Aeolian Edges during the buff window."
+        },
+        {
+          "questionId": "nin.lesson_7.q2",
+          "conceptId": "nin.true_north_usage",
+          "scenario": "Boss is against the wall. You can't reach rear for Aeolian Edge.",
+          "question": "What should you use?",
+          "options": ["Skip the attack", "Use True North", "Just miss positional", "Switch to Armor Crush"],
+          "correctIndex": 1,
+          "explanation": "True North removes positional requirements for 10s. Use it when you physically can't reach the correct position."
+        },
+        {
+          "questionId": "nin.lesson_7.q3",
+          "conceptId": "nin.meisui",
+          "scenario": "You have Suiton buff but don't need Kunai's Bane (it's on cooldown).",
+          "question": "What can you do with the Suiton buff?",
+          "options": ["It's wasted", "Use Meisui for 50 Ninki", "Wait for Kunai's Bane", "Suiton has no other use"],
+          "correctIndex": 1,
+          "explanation": "Meisui converts Suiton buff into 50 Ninki. Use it when Kunai's Bane isn't available to avoid wasting the buff."
+        },
+        {
+          "questionId": "nin.lesson_7.q4",
+          "conceptId": "nin.aoe_combo",
+          "scenario": "3 enemies are grouped together.",
+          "question": "What's the Ninja AoE combo?",
+          "options": ["Spinning Edge → Aeolian Edge", "Death Blossom → Hakke Mujinsatsu", "Just use Katon", "Single-target is better"],
+          "correctIndex": 1,
+          "explanation": "At 3+ targets, use Death Blossom → Hakke Mujinsatsu for higher total damage than single-target combos."
+        },
+        {
+          "questionId": "nin.lesson_7.q5",
+          "conceptId": "nin.aoe_ninjutsu",
+          "scenario": "3 enemies will stand still for 20 seconds.",
+          "question": "Which AoE Ninjutsu is best?",
+          "options": ["Katon", "Doton", "Raiton on each", "Hyosho Ranryu"],
+          "correctIndex": 1,
+          "explanation": "Doton creates a ground DoT. If enemies will stand in it for the full duration, it deals more total damage than Katon."
+        }
+      ]
+    }
+  ]
+}

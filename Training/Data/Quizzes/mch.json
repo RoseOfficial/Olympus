@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "mch",
+  "jobName": "Machinist",
+  "quizzes": [
+    {
+      "quizId": "mch.lesson_1.quiz",
+      "lessonId": "mch.lesson_1",
+      "title": "Quiz: Machinist Fundamentals",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "mch.lesson_1.q1",
+          "conceptId": "mch.heat_gauge",
+          "scenario": "You complete a Heated Clean Shot combo finisher.",
+          "question": "What resource does this primarily build?",
+          "options": ["Only Heat", "Only Battery", "Both Heat and Battery", "Neither - finishers don't build gauge"],
+          "correctIndex": 2,
+          "explanation": "Combo finishers build both Heat (from the weapon skill) and Battery (+10 from Heated Clean Shot specifically)."
+        },
+        {
+          "questionId": "mch.lesson_1.q2",
+          "conceptId": "mch.battery_gauge",
+          "scenario": "Your Battery Gauge is at 95. You're about to use Air Anchor.",
+          "question": "What should you do first?",
+          "options": ["Use Air Anchor immediately", "Summon Automaton Queen first", "Skip Air Anchor", "Wait for Battery to hit 100"],
+          "correctIndex": 1,
+          "explanation": "Air Anchor grants +20 Battery. At 95, using it would overcap. Summon Queen first to spend the Battery."
+        },
+        {
+          "questionId": "mch.lesson_1.q3",
+          "conceptId": "mch.gauge_interactions",
+          "scenario": "You want to use both Hypercharge and Automaton Queen.",
+          "question": "Which gauges do these abilities consume?",
+          "options": ["Both use Heat", "Both use Battery", "Hypercharge uses Heat, Queen uses Battery", "Hypercharge uses Battery, Queen uses Heat"],
+          "correctIndex": 2,
+          "explanation": "Hypercharge costs 50 Heat. Automaton Queen costs 50-100 Battery. They use separate gauges."
+        },
+        {
+          "questionId": "mch.lesson_1.q4",
+          "conceptId": "mch.heat_gauge",
+          "scenario": "Your Heat Gauge is at 100.",
+          "question": "What is the problem with this situation?",
+          "options": ["Nothing - full gauge is good", "You're losing potential Heat generation", "Queen will automatically trigger", "Hypercharge will fail"],
+          "correctIndex": 1,
+          "explanation": "At 100 Heat, any Heat you would generate from combos is wasted. Use Hypercharge to spend Heat before capping."
+        },
+        {
+          "questionId": "mch.lesson_1.q5",
+          "conceptId": "mch.gauge_overcapping",
+          "scenario": "Heat is at 85, Battery is at 90. Drill and Air Anchor are both available.",
+          "question": "What's the optimal order?",
+          "options": ["Drill → Air Anchor", "Air Anchor → Drill", "Hypercharge first → then tools", "Summon Queen → Air Anchor → Drill"],
+          "correctIndex": 3,
+          "explanation": "At 90 Battery, Air Anchor (+20) would overcap. Summon Queen first, then Air Anchor safely, then Drill."
+        }
+      ]
+    },
+    {
+      "quizId": "mch.lesson_2.quiz",
+      "lessonId": "mch.lesson_2",
+      "title": "Quiz: Tool Mastery",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "mch.lesson_2.q1",
+          "conceptId": "mch.drill_priority",
+          "scenario": "Drill, Air Anchor, and Chain Saw are all available. Single target boss.",
+          "question": "Which has the highest potency priority?",
+          "options": ["Air Anchor (best Battery)", "Chain Saw (longest cooldown)", "Drill (highest potency)", "All equal - use any"],
+          "correctIndex": 2,
+          "explanation": "Drill has the highest base potency among tools. At level 98+, it has 2 charges making it extra valuable."
+        },
+        {
+          "questionId": "mch.lesson_2.q2",
+          "conceptId": "mch.chain_saw_usage",
+          "scenario": "You just used Chain Saw.",
+          "question": "What proc do you have?",
+          "options": ["Full Metal Machinist", "Excavator Ready", "Overheated", "Reassembled"],
+          "correctIndex": 1,
+          "explanation": "Chain Saw grants Excavator Ready, allowing you to use Excavator as a follow-up high-potency GCD."
+        },
+        {
+          "questionId": "mch.lesson_2.q3",
+          "conceptId": "mch.air_anchor_usage",
+          "scenario": "Air Anchor is ready. Your Battery is at 40.",
+          "question": "What additional resource does Air Anchor provide?",
+          "options": ["+10 Battery", "+20 Battery", "+50 Heat", "No additional resource"],
+          "correctIndex": 1,
+          "explanation": "Air Anchor grants +20 Battery on hit, making it valuable for Automaton Queen generation."
+        },
+        {
+          "questionId": "mch.lesson_2.q4",
+          "conceptId": "mch.proc_tracking",
+          "scenario": "You have Excavator Ready buff with 5 seconds remaining.",
+          "question": "What should you do?",
+          "options": ["Wait for better timing", "Use Excavator immediately", "Use Drill instead", "Save it for burst"],
+          "correctIndex": 1,
+          "explanation": "Excavator Ready only lasts 30s. With 5s remaining, use it immediately or lose the free high-potency GCD."
+        },
+        {
+          "questionId": "mch.lesson_2.q5",
+          "conceptId": "mch.drill_priority",
+          "scenario": "Drill has 2 charges at level 98. One charge is available, the other has 15s cooldown.",
+          "question": "Should you use the available Drill charge?",
+          "options": ["No - save for burst window", "Yes - avoid overcapping charges", "Only with Reassemble", "Wait until both charges are full"],
+          "correctIndex": 1,
+          "explanation": "With Drill having 2 charges, letting one sit while the other recharges means lost potential uses over the fight."
+        }
+      ]
+    },
+    {
+      "quizId": "mch.lesson_3.quiz",
+      "lessonId": "mch.lesson_3",
+      "title": "Quiz: Reassemble Optimization",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "mch.lesson_3.q1",
+          "conceptId": "mch.reassemble_priority",
+          "scenario": "Reassemble is ready. Drill, Air Anchor, and Chain Saw are all available.",
+          "question": "Which ability should you Reassemble?",
+          "options": ["Chain Saw (longest CD)", "Air Anchor (Battery bonus)", "Drill (highest potency)", "Any of them - all equal"],
+          "correctIndex": 2,
+          "explanation": "Reassemble should be used on your highest potency tool. Drill has the highest base potency."
+        },
+        {
+          "questionId": "mch.lesson_3.q2",
+          "conceptId": "mch.reassemble_charges",
+          "scenario": "Reassemble has 2 charges with 55s recharge each. You have both charges available.",
+          "question": "What's the risk of holding both charges?",
+          "options": ["Charges will expire", "You'll overcap charges as time passes", "Drill damage decreases", "No risk - hold for burst"],
+          "correctIndex": 1,
+          "explanation": "With 2 charges max, holding both means the recharge timer is paused. Use charges to keep the recharge active."
+        },
+        {
+          "questionId": "mch.lesson_3.q3",
+          "conceptId": "mch.gauge_overcapping",
+          "scenario": "Heat is at 95. Drill is ready with Reassemble.",
+          "question": "Should you Reassemble + Drill?",
+          "options": ["Yes - Drill priority is highest", "No - Hypercharge first to spend Heat", "Only during raid buffs", "Drill doesn't affect Heat"],
+          "correctIndex": 0,
+          "explanation": "Drill doesn't generate Heat directly. At 95 Heat, you can safely Reassemble + Drill, then Hypercharge after."
+        },
+        {
+          "questionId": "mch.lesson_3.q4",
+          "conceptId": "mch.reassemble_priority",
+          "scenario": "Raid buffs are active. You have Reassemble and Chain Saw available. Drill has 8 seconds on cooldown.",
+          "question": "Should you Reassemble Chain Saw now?",
+          "options": ["Yes - catch the raid buffs", "No - wait for Drill", "Yes - Chain Saw is higher priority", "Use Reassemble on Auto Crossbow"],
+          "correctIndex": 0,
+          "explanation": "With raid buffs active, Reassemble + Chain Saw now is better than waiting and potentially missing buffs."
+        },
+        {
+          "questionId": "mch.lesson_3.q5",
+          "conceptId": "mch.reassemble_charges",
+          "scenario": "Burst window in 60 seconds. You have 2 Reassemble charges and Drill available.",
+          "question": "What should you do?",
+          "options": ["Hold both for burst", "Use one now, save one for burst", "Use both now", "Reassemble doesn't matter for burst"],
+          "correctIndex": 1,
+          "explanation": "Use one Reassemble now to start the recharge timer. By burst window, you'll have 1 recharged + 1 saved = 2 available."
+        }
+      ]
+    },
+    {
+      "quizId": "mch.lesson_4.quiz",
+      "lessonId": "mch.lesson_4",
+      "title": "Quiz: Hypercharge Windows",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "mch.lesson_4.q1",
+          "conceptId": "mch.hypercharge_activation",
+          "scenario": "Your Heat is at 50. Hypercharge is available.",
+          "question": "How much Heat does Hypercharge cost?",
+          "options": ["25 Heat", "50 Heat", "75 Heat", "100 Heat"],
+          "correctIndex": 1,
+          "explanation": "Hypercharge costs exactly 50 Heat to activate, granting the 10s Overheated status."
+        },
+        {
+          "questionId": "mch.lesson_4.q2",
+          "conceptId": "mch.heat_blast_rotation",
+          "scenario": "You just activated Hypercharge and are Overheated.",
+          "question": "How many Heat Blasts can you fit in the 10s window?",
+          "options": ["3 Heat Blasts", "4 Heat Blasts", "5 Heat Blasts", "6 Heat Blasts"],
+          "correctIndex": 2,
+          "explanation": "Heat Blast has a 1.5s recast during Overheated. In 10 seconds, you can fit exactly 5 Heat Blasts."
+        },
+        {
+          "questionId": "mch.lesson_4.q3",
+          "conceptId": "mch.ogcd_weaving",
+          "scenario": "You just used Heat Blast. Gauss Round and Ricochet are both available.",
+          "question": "How should you weave oGCDs during Hypercharge?",
+          "options": ["Double weave both", "Single weave one at a time", "Save them for after Hypercharge", "Don't weave - just Heat Blast"],
+          "correctIndex": 1,
+          "explanation": "Heat Blast's 1.5s recast only allows single weaving. Alternate Gauss Round and Ricochet between Heat Blasts."
+        },
+        {
+          "questionId": "mch.lesson_4.q4",
+          "conceptId": "mch.overheated_state",
+          "scenario": "You're in the middle of Hypercharge. Drill just came off cooldown.",
+          "question": "Should you use Drill during Hypercharge?",
+          "options": ["Yes - Drill is higher priority", "No - continue Heat Blast spam", "Only with Reassemble", "Use it between Heat Blasts"],
+          "correctIndex": 1,
+          "explanation": "During Hypercharge, Heat Blast is your GCD of choice. Using Drill would waste Heat Blast opportunities."
+        },
+        {
+          "questionId": "mch.lesson_4.q5",
+          "conceptId": "mch.hypercharge_timing",
+          "scenario": "Heat is at 50. Drill comes off cooldown in 3 seconds. Hypercharge is ready.",
+          "question": "What should you do?",
+          "options": ["Hypercharge immediately", "Wait for Drill, use it, then Hypercharge", "Use Drill during Hypercharge", "Skip Hypercharge this cycle"],
+          "correctIndex": 1,
+          "explanation": "Wait for Drill (high potency tool), use it, then Hypercharge. This avoids Drill competing with Heat Blast time."
+        }
+      ]
+    },
+    {
+      "quizId": "mch.lesson_5.quiz",
+      "lessonId": "mch.lesson_5",
+      "title": "Quiz: Wildfire Burst",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "mch.lesson_5.q1",
+          "conceptId": "mch.wildfire_placement",
+          "scenario": "Wildfire is ready. Heat is at 50. You're about to burst.",
+          "question": "When should you apply Wildfire relative to Hypercharge?",
+          "options": ["After Hypercharge ends", "During Hypercharge", "Before Hypercharge", "It doesn't matter"],
+          "correctIndex": 2,
+          "explanation": "Apply Wildfire BEFORE Hypercharge so its 10s duration covers all 5 Heat Blasts for maximum damage."
+        },
+        {
+          "questionId": "mch.lesson_5.q2",
+          "conceptId": "mch.wildfire_alignment",
+          "scenario": "Wildfire counts weapon skills landed during its 10s duration.",
+          "question": "How many hits can an optimal Wildfire capture?",
+          "options": ["4 hits", "5 hits (Heat Blasts only)", "6 hits (5 Heat Blasts + 1 GCD)", "10 hits"],
+          "correctIndex": 2,
+          "explanation": "Optimal Wildfire: 1 GCD before Hypercharge + 5 Heat Blasts = 6 weapon skill hits for maximum explosion damage."
+        },
+        {
+          "questionId": "mch.lesson_5.q3",
+          "conceptId": "mch.hypercharge_timing",
+          "scenario": "Wildfire has 120s cooldown. Party raid buffs align at 2 minutes.",
+          "question": "How do these abilities naturally align?",
+          "options": ["They don't - Wildfire is off by 60s", "Wildfire aligns with every other buff window", "Perfect alignment - both 2 minutes", "Wildfire is faster, use twice per window"],
+          "correctIndex": 2,
+          "explanation": "Wildfire (120s) naturally aligns with 2-minute party raid buffs. Always pair them for maximum damage."
+        },
+        {
+          "questionId": "mch.lesson_5.q4",
+          "conceptId": "mch.wildfire_placement",
+          "scenario": "Wildfire is ready but your Heat is only at 30. Raid buffs just went out.",
+          "question": "What should you do?",
+          "options": ["Skip this Wildfire window", "Wildfire without Hypercharge", "Build Heat quickly, then Wildfire + Hypercharge", "Wait for next buff window"],
+          "correctIndex": 2,
+          "explanation": "Build Heat quickly with your combo. A slightly delayed Wildfire + Hypercharge in buffs is better than skipping entirely."
+        },
+        {
+          "questionId": "mch.lesson_5.q5",
+          "conceptId": "mch.wildfire_alignment",
+          "scenario": "The boss will jump away in 8 seconds. Wildfire and Hypercharge are ready.",
+          "question": "Should you burst now?",
+          "options": ["No - not enough time for full window", "Yes - you have just enough time", "Only Wildfire, skip Hypercharge", "Save for after the jump"],
+          "correctIndex": 1,
+          "explanation": "Hypercharge window is ~8s (5 Heat Blasts at 1.5s each). You have just enough time to complete the burst."
+        }
+      ]
+    },
+    {
+      "quizId": "mch.lesson_6.quiz",
+      "lessonId": "mch.lesson_6",
+      "title": "Quiz: Queen Management",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "mch.lesson_6.q1",
+          "conceptId": "mch.queen_summoning",
+          "scenario": "Your Battery is at 60. Raid buffs are going out.",
+          "question": "Should you summon Queen now or wait for 100 Battery?",
+          "options": ["Summon now - catch raid buffs", "Wait for 100 - maximize Queen damage", "Never summon below 90", "Battery doesn't affect Queen damage"],
+          "correctIndex": 0,
+          "explanation": "Queen damage scales with Battery, but catching raid buffs at 60 Battery often beats a 100 Battery Queen outside buffs."
+        },
+        {
+          "questionId": "mch.lesson_6.q2",
+          "conceptId": "mch.queen_damage_scaling",
+          "scenario": "You summon Automaton Queen at 50 Battery vs 100 Battery.",
+          "question": "How does the damage compare?",
+          "options": ["Same damage regardless", "50 Battery Queen deals half damage", "50 Battery Queen deals ~60% damage", "50 Battery Queen deals no damage"],
+          "correctIndex": 1,
+          "explanation": "Queen damage scales linearly with Battery spent. 50 Battery = 50% of maximum Queen damage."
+        },
+        {
+          "questionId": "mch.lesson_6.q3",
+          "conceptId": "mch.battery_accumulation",
+          "scenario": "You have 100 Battery. No raid buffs are coming for 30 seconds.",
+          "question": "What should you do?",
+          "options": ["Wait for raid buffs", "Summon Queen immediately", "Only use Queen during burst", "Let Battery overcap - it's fine"],
+          "correctIndex": 1,
+          "explanation": "At 100 Battery, any further Battery generation is wasted. Summon Queen to resume generating Battery."
+        },
+        {
+          "questionId": "mch.lesson_6.q4",
+          "conceptId": "mch.queen_summoning",
+          "scenario": "Queen Overdrive is available. Queen is mid-attack sequence.",
+          "question": "When should you use Queen Overdrive?",
+          "options": ["Immediately for extra damage", "Let Queen finish naturally", "Only during raid buffs", "Queen Overdrive cancels Queen"],
+          "correctIndex": 1,
+          "explanation": "Queen naturally finishes with Pile Bunker and Crowned Collider. Overdrive forces an early end - let her finish."
+        },
+        {
+          "questionId": "mch.lesson_6.q5",
+          "conceptId": "mch.battery_accumulation",
+          "scenario": "Battery is at 90. Air Anchor is ready. Raid buffs start in 5 seconds.",
+          "question": "What's the optimal play?",
+          "options": ["Air Anchor → Queen during buffs", "Queen now → Air Anchor", "Skip Air Anchor", "Queen now → skip Air Anchor until after buffs"],
+          "correctIndex": 0,
+          "explanation": "Air Anchor (+20 Battery) caps you at 100. Then summon 100 Battery Queen when raid buffs go out for maximum damage."
+        }
+      ]
+    },
+    {
+      "quizId": "mch.lesson_7.quiz",
+      "lessonId": "mch.lesson_7",
+      "title": "Quiz: Advanced Tactics",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "mch.lesson_7.q1",
+          "conceptId": "mch.burst_party_sync",
+          "scenario": "It's 1:55 into the fight. Wildfire and full resources are ready.",
+          "question": "What should you do?",
+          "options": ["Burst immediately", "Wait ~5s for 2-minute party buffs", "Save for the next window", "Only use Queen now"],
+          "correctIndex": 1,
+          "explanation": "2-minute party buffs align around 2:00. Wait a few seconds to align Wildfire + Queen with party buffs."
+        },
+        {
+          "questionId": "mch.lesson_7.q2",
+          "conceptId": "mch.aoe_rotation",
+          "scenario": "You're facing 4 enemies in a dungeon pull.",
+          "question": "Which GCD rotation should you use?",
+          "options": ["Single-target combo for focus fire", "Scattergun combo + Bioblaster", "Only Heat Blast spam", "Auto Crossbow without Hypercharge"],
+          "correctIndex": 1,
+          "explanation": "At 3+ targets, use the AoE rotation: Scattergun combo for gauge building, Bioblaster for DoT damage."
+        },
+        {
+          "questionId": "mch.lesson_7.q3",
+          "conceptId": "mch.target_count_threshold",
+          "scenario": "2 enemies are present. One at 80% HP, one at 30% HP.",
+          "question": "Which rotation should you use?",
+          "options": ["AoE rotation on both", "Single-target on low HP enemy", "Single-target on high HP enemy", "Alternate between them"],
+          "correctIndex": 1,
+          "explanation": "MCH AoE threshold is 3+ targets. At 2, single-target the low HP enemy to eliminate it faster."
+        },
+        {
+          "questionId": "mch.lesson_7.q4",
+          "conceptId": "mch.phase_awareness",
+          "scenario": "Boss becomes untargetable in 20 seconds. You have 80 Heat and 100 Battery.",
+          "question": "What should you prioritize?",
+          "options": ["Save resources for after", "Wildfire + Hypercharge + Queen now", "Only spend Battery", "Only spend Heat"],
+          "correctIndex": 1,
+          "explanation": "Dump all resources before the phase transition. Wildfire + Hypercharge uses Heat, Queen uses Battery."
+        },
+        {
+          "questionId": "mch.lesson_7.q5",
+          "conceptId": "mch.interrupt_usage",
+          "scenario": "An enemy is casting a dangerous ability. Head Graze is available. The cast bar is interruptible.",
+          "question": "Should you interrupt?",
+          "options": ["Yes - use Head Graze immediately", "No - DPS loss", "Only if no one else can", "Check IPC for interrupt coordination first"],
+          "correctIndex": 3,
+          "explanation": "Olympus coordinates interrupts via IPC. Check if another player already interrupted to avoid wasted Head Grazes."
+        }
+      ]
+    }
+  ]
+}

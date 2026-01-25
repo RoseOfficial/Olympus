@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "whm",
+  "jobName": "White Mage",
+  "quizzes": [
+    {
+      "quizId": "whm.lesson_1.quiz",
+      "lessonId": "whm.lesson_1",
+      "title": "Quiz: Healer Fundamentals",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "whm.lesson_1.q1",
+          "conceptId": "whm.healing_priority",
+          "scenario": "You're in a dungeon. The tank is at 60% HP with Regen active. A DPS just took avoidable damage and is at 45% HP. No immediate boss mechanics are coming.",
+          "question": "Who should you prioritize healing?",
+          "options": ["The tank - they always come first", "The DPS - they're lower HP", "Neither - Regen will handle the tank and the DPS can wait", "The DPS first, then refresh Regen on tank"],
+          "correctIndex": 2,
+          "explanation": "With Regen active and no incoming damage, the tank is fine at 60%. The DPS at 45% isn't in danger. Unnecessary healing is a DPS loss - cast Glare instead and let Regen do its job."
+        },
+        {
+          "questionId": "whm.lesson_1.q2",
+          "conceptId": "whm.tank_priority",
+          "scenario": "A boss is auto-attacking the tank for consistent damage. The tank is at 50% HP. You have Tetragrammaton available.",
+          "question": "What's the best approach?",
+          "options": ["Cast Cure II immediately", "Use Tetragrammaton between GCDs", "Wait until tank is lower", "Use Benediction to be safe"],
+          "correctIndex": 1,
+          "explanation": "Tetragrammaton is an oGCD heal - weave it between Glare casts. This maintains your DPS while healing. Cure II costs a GCD, and Benediction is overkill at 50% HP."
+        },
+        {
+          "questionId": "whm.lesson_1.q3",
+          "conceptId": "whm.party_wide_damage",
+          "scenario": "The boss casts a raidwide that hits everyone for 40% of their HP. Everyone is now at 60% HP. You have Afflatus Rapture and Medica II available.",
+          "question": "What's the optimal response?",
+          "options": ["Medica II for the HoT", "Afflatus Rapture for instant healing", "Afflatus Rapture, then continue DPS - the party is fine", "Medica II followed by Medica"],
+          "correctIndex": 2,
+          "explanation": "At 60% HP with no follow-up damage, the party isn't in danger. Afflatus Rapture is a 'free' heal (builds Blood Lily) and instant. One heal is enough - overcasting wastes GCDs."
+        },
+        {
+          "questionId": "whm.lesson_1.q4",
+          "conceptId": "whm.ogcd_weaving",
+          "scenario": "You just cast Glare. The tank needs healing and you have Tetragrammaton available. Your GCD is still rolling.",
+          "question": "When should you use Tetragrammaton?",
+          "options": ["Wait for GCD to finish, then use it", "Use it immediately during the GCD window", "Save it for a bigger emergency", "Use Cure II instead since GCD is rolling"],
+          "correctIndex": 1,
+          "explanation": "oGCDs like Tetragrammaton should be 'weaved' during the GCD window (after casting but before next GCD is ready). This lets you heal without losing DPS uptime."
+        },
+        {
+          "questionId": "whm.lesson_1.q5",
+          "conceptId": "whm.healing_priority",
+          "scenario": "In a trial, both tanks are at 70% HP. Tank A has your Regen. Tank B is the off-tank with no HoTs.",
+          "question": "The boss is about to use a tankbuster on Tank A. What do you do?",
+          "options": ["Heal Tank B since they have no HoT", "Pre-shield Tank A with Divine Benison", "Heal Tank A after the buster hits", "Use Medica II to heal both"],
+          "correctIndex": 1,
+          "explanation": "Tank A is taking the buster - they need attention. Divine Benison (shield) applied BEFORE damage reduces the buster's impact. Healing after is reactive; shielding before is proactive."
+        }
+      ]
+    },
+    {
+      "quizId": "whm.lesson_2.quiz",
+      "lessonId": "whm.lesson_2",
+      "title": "Quiz: Emergency Response",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "whm.lesson_2.q1",
+          "conceptId": "whm.benediction_usage",
+          "scenario": "The tank is at 15% HP after a tankbuster. The boss is casting another attack in 3 seconds. You have both Benediction and Tetragrammaton available.",
+          "question": "What should you use?",
+          "options": ["Benediction - they're critically low", "Tetragrammaton - save Benediction", "Cure II for reliable healing", "Both Tetragrammaton and Benediction"],
+          "correctIndex": 0,
+          "explanation": "At 15% with another attack coming in 3 seconds, this IS an emergency. Benediction guarantees survival instantly. Tetragrammaton might not heal enough, and Cure II takes too long."
+        },
+        {
+          "questionId": "whm.lesson_2.q2",
+          "conceptId": "whm.tetragrammaton_usage",
+          "scenario": "The tank is at 40% HP during normal combat. Benediction is on cooldown. Tetragrammaton is available.",
+          "question": "What's the best action?",
+          "options": ["Cure II since Bene is down", "Tetragrammaton immediately", "Wait until they're lower", "Afflatus Solace to build Blood Lily"],
+          "correctIndex": 1,
+          "explanation": "Tetragrammaton at 40% is perfect - it's free, instant, and the tank isn't in immediate danger but needs healing. Don't wait for them to get dangerously low."
+        },
+        {
+          "questionId": "whm.lesson_2.q3",
+          "conceptId": "whm.emergency_healing",
+          "scenario": "A DPS stands in an AoE and drops to 20% HP. The boss is targeting them with a follow-up attack. Benediction and Tetragrammaton are both available.",
+          "question": "What should you do?",
+          "options": ["Benediction - save them at all costs", "Tetragrammaton - save Bene for tank", "Let them die - it's their fault", "Cure II since they're not the tank"],
+          "correctIndex": 1,
+          "explanation": "Tetragrammaton should heal a DPS from 20% adequately. Reserve Benediction for tank emergencies. DPS have less HP than tanks, so Tetra's healing is proportionally larger on them."
+        },
+        {
+          "questionId": "whm.lesson_2.q4",
+          "conceptId": "whm.benediction_usage",
+          "scenario": "You're 4 minutes into a fight. Benediction hasn't been used yet. The tank is at 55% HP with no immediate danger.",
+          "question": "What should you do with Benediction?",
+          "options": ["Save it for a real emergency", "Use it now - it's been too long", "Use Tetragrammaton instead", "The tank is fine, cast Glare"],
+          "correctIndex": 3,
+          "explanation": "55% HP with no danger means no healing needed. However, holding Benediction for 4+ minutes is wasteful - you've likely missed uses. The answer here is to DPS, but be ready to use Bene proactively."
+        },
+        {
+          "questionId": "whm.lesson_2.q5",
+          "conceptId": "whm.emergency_healing",
+          "scenario": "Two party members are at 25% HP. The boss's next attack will hit one of them. You can only save one with instant healing.",
+          "question": "Who do you prioritize?",
+          "options": ["The tank - always", "The DPS - they're squishier", "Whoever the boss is targeting", "The one with lower current HP"],
+          "correctIndex": 2,
+          "explanation": "In an emergency where you can only save one, save the person who will actually die. The boss targeting determines who needs the heal - the other person can wait one GCD."
+        }
+      ]
+    },
+    {
+      "quizId": "whm.lesson_3.quiz",
+      "lessonId": "whm.lesson_3",
+      "title": "Quiz: The Lily System",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "whm.lesson_3.q1",
+          "conceptId": "whm.lily_management",
+          "scenario": "You have 3 lilies and 0 Blood Lily stacks. The party is at full HP with no damage coming for 20 seconds.",
+          "question": "What should you do?",
+          "options": ["Hold the lilies for when damage comes", "Use Afflatus Rapture to avoid overcapping", "Use Afflatus Solace on the tank", "Convert lilies to Blood Lily for Misery"],
+          "correctIndex": 1,
+          "explanation": "At 3 lilies, you're capped and wasting generation. Even with no damage, spend a lily (Rapture for AoE overheal is fine) to avoid losing the next lily that generates in 20s."
+        },
+        {
+          "questionId": "whm.lesson_3.q2",
+          "conceptId": "whm.afflatus_misery_timing",
+          "scenario": "You have Afflatus Misery ready (Blood Lily full). The boss is about to jump away for 10 seconds of downtime.",
+          "question": "When should you use Afflatus Misery?",
+          "options": ["Before the boss jumps", "During downtime on adds", "Save it for after boss returns", "Use it on the boss immediately"],
+          "correctIndex": 0,
+          "explanation": "Use Misery before downtime! It's your strongest attack. During downtime you can't hit the boss, so using it after wastes potential damage. If adds spawn, use it on them."
+        },
+        {
+          "questionId": "whm.lesson_3.q3",
+          "conceptId": "whm.afflatus_solace_usage",
+          "scenario": "The tank needs healing. You have 2 lilies and Tetragrammaton available.",
+          "question": "What's the most efficient choice?",
+          "options": ["Afflatus Solace - build Blood Lily", "Tetragrammaton - it's free", "Both for maximum healing", "Cure II - save resources"],
+          "correctIndex": 1,
+          "explanation": "Tetragrammaton is a true 'free' heal - oGCD with no GCD cost. Afflatus Solace costs a GCD. Use Tetra first; use Solace when you need to spend lilies or Tetra is on CD."
+        },
+        {
+          "questionId": "whm.lesson_3.q4",
+          "conceptId": "whm.blood_lily_building",
+          "scenario": "You have 2 Blood Lily stacks. The boss will die in approximately 30 seconds. You have 1 lily.",
+          "question": "What's your priority?",
+          "options": ["Save the lily for emergencies", "Spend it to complete Blood Lily for Misery", "Use Cure II instead to save the lily", "It doesn't matter at this point"],
+          "correctIndex": 1,
+          "explanation": "With 30 seconds left, spending 1 lily + Misery cast = ~5 seconds. You have time to complete Blood Lily and cast Misery before the boss dies. A completed Misery > holding a lily."
+        },
+        {
+          "questionId": "whm.lesson_3.q5",
+          "conceptId": "whm.afflatus_rapture_usage",
+          "scenario": "A raidwide just hit. Party is at 65% HP. You have 3 lilies and Assize available.",
+          "question": "What's the optimal healing response?",
+          "options": ["Assize + Afflatus Rapture", "Just Afflatus Rapture", "Just Assize", "Medica II for the HoT"],
+          "correctIndex": 2,
+          "explanation": "At 65% HP, Assize alone (400 potency party heal + damage) is sufficient. Save your lilies - you're capped but one Assize handles this. Rapture would be overhealing."
+        }
+      ]
+    },
+    {
+      "quizId": "whm.lesson_4.quiz",
+      "lessonId": "whm.lesson_4",
+      "title": "Quiz: Proactive Healing",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "whm.lesson_4.q1",
+          "conceptId": "whm.regen_maintenance",
+          "scenario": "You're about to pull a dungeon boss. The tank is at full HP.",
+          "question": "What should you do before the pull?",
+          "options": ["Wait for damage before healing", "Apply Regen to the tank", "Apply Divine Benison", "Cast Glare to start DPS early"],
+          "correctIndex": 1,
+          "explanation": "Pre-pull Regen lets you start with Glare spam while the HoT handles early damage. Divine Benison is also good but Regen provides sustained value. Both is ideal."
+        },
+        {
+          "questionId": "whm.lesson_4.q2",
+          "conceptId": "whm.divine_benison_usage",
+          "scenario": "The boss is casting a tankbuster. It will hit in 4 seconds. The tank is at 80% HP.",
+          "question": "What should you do?",
+          "options": ["Nothing - tank is healthy", "Apply Divine Benison now", "Wait for the hit, then heal", "Use Aquaveil instead"],
+          "correctIndex": 1,
+          "explanation": "Divine Benison (shield) before the buster reduces incoming damage. Shields applied BEFORE damage are proactive and more efficient than healing after. Both Benison and Aquaveil work here."
+        },
+        {
+          "questionId": "whm.lesson_4.q3",
+          "conceptId": "whm.assize_usage",
+          "scenario": "Assize just came off cooldown. The party is at 95% HP. The boss is targetable.",
+          "question": "Should you use Assize?",
+          "options": ["No - save it for when healing is needed", "Yes - it deals damage too", "No - it would be overhealing", "Wait for party to take damage first"],
+          "correctIndex": 1,
+          "explanation": "Assize deals damage AND heals. Even at 95% HP, use it on cooldown for the damage. The healing is a bonus. Holding Assize for 'better healing' loses significant DPS."
+        },
+        {
+          "questionId": "whm.lesson_4.q4",
+          "conceptId": "whm.proactive_healing",
+          "scenario": "You know a raidwide is coming in 8 seconds. Party is at full HP. You have Medica II and Divine Benison available.",
+          "question": "What's the best preparation?",
+          "options": ["Nothing - heal after the damage", "Medica II now for the HoT", "Divine Benison on tank only", "Both Medica II and Divine Benison"],
+          "correctIndex": 1,
+          "explanation": "Medica II's HoT will tick during and after the raidwide, providing sustained recovery. Pre-casting it means the party heals automatically while you DPS. Divine Benison is single-target only."
+        },
+        {
+          "questionId": "whm.lesson_4.q5",
+          "conceptId": "whm.shield_timing",
+          "scenario": "You just applied Divine Benison to the tank. The shield hasn't been consumed. Another tankbuster is coming in 5 seconds.",
+          "question": "What should you do?",
+          "options": ["Apply another Divine Benison", "The existing shield will handle it", "Use Aquaveil for more mitigation", "Cast Cure II to build HP buffer"],
+          "correctIndex": 2,
+          "explanation": "Shields don't stack from the same source - you can't double Benison. Since the shield is already up, add Aquaveil (15% mitigation) for additional protection. They complement each other."
+        }
+      ]
+    },
+    {
+      "quizId": "whm.lesson_5.quiz",
+      "lessonId": "whm.lesson_5",
+      "title": "Quiz: Defensive Cooldowns",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "whm.lesson_5.q1",
+          "conceptId": "whm.temperance_usage",
+          "scenario": "A heavy raidwide is coming in 5 seconds. The party is at full HP. Temperance is available.",
+          "question": "When should you use Temperance?",
+          "options": ["After the raidwide hits", "Right now, before damage", "Save it for healing phase", "During the raidwide cast"],
+          "correctIndex": 1,
+          "explanation": "Temperance provides 10% party mitigation. Use it BEFORE damage hits so the mitigation applies. Using it after means the damage was unmitigated."
+        },
+        {
+          "questionId": "whm.lesson_5.q2",
+          "conceptId": "whm.aquaveil_usage",
+          "scenario": "The boss is casting a tankbuster. Divine Benison is on cooldown. Aquaveil is available.",
+          "question": "What should you do?",
+          "options": ["Nothing - Benison is down", "Use Aquaveil on the tank", "Heal through it reactively", "Use Temperance instead"],
+          "correctIndex": 1,
+          "explanation": "Aquaveil provides 15% mitigation on one target for 8 seconds - perfect for tankbusters. It's your backup when Benison is down, or use both together for big busters."
+        },
+        {
+          "questionId": "whm.lesson_5.q3",
+          "conceptId": "whm.liturgy_of_the_bell_usage",
+          "scenario": "You know the boss will deal 5 instances of party damage over the next 15 seconds. Liturgy of the Bell is available.",
+          "question": "When should you place Liturgy?",
+          "options": ["After the first hit", "Before the damage sequence starts", "Save it for emergencies", "During the last hit for healing"],
+          "correctIndex": 1,
+          "explanation": "Liturgy of the Bell heals when damage is taken (up to 5 times). Place it BEFORE the damage sequence so all 5 hits trigger healing. Placing it late wastes stacks."
+        },
+        {
+          "questionId": "whm.lesson_5.q4",
+          "conceptId": "whm.temperance_usage",
+          "scenario": "Temperance is active (15 seconds remaining). A second raidwide is coming in 20 seconds.",
+          "question": "Will Temperance help with the second raidwide?",
+          "options": ["Yes - it lasts long enough", "No - it will expire first", "Partially - reduced effect", "Yes - if you refresh it"],
+          "correctIndex": 1,
+          "explanation": "Temperance lasts 20 seconds but has 15 seconds remaining. The raidwide in 20 seconds will hit after Temperance expires. Plan cooldown timing around mechanic timings."
+        },
+        {
+          "questionId": "whm.lesson_5.q5",
+          "conceptId": "whm.aquaveil_usage",
+          "scenario": "The tank is about to take a double tankbuster (two hits rapidly). You have both Divine Benison and Aquaveil.",
+          "question": "What's the optimal defensive setup?",
+          "options": ["Just Divine Benison", "Just Aquaveil", "Both Divine Benison and Aquaveil", "Save one for after"],
+          "correctIndex": 2,
+          "explanation": "Double tankbusters are dangerous. Benison's shield absorbs some of hit 1, while Aquaveil's 15% mitigation reduces BOTH hits. Stack them for heavy tank damage."
+        }
+      ]
+    },
+    {
+      "quizId": "whm.lesson_6.quiz",
+      "lessonId": "whm.lesson_6",
+      "title": "Quiz: DPS Optimization",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "whm.lesson_6.q1",
+          "conceptId": "whm.dot_maintenance",
+          "scenario": "Dia has 4 seconds remaining on the boss. You're about to cast your next GCD.",
+          "question": "Should you refresh Dia?",
+          "options": ["Yes - refresh now", "No - wait until it falls off", "No - wait until 3 seconds or less", "Yes - always keep it above 5 seconds"],
+          "correctIndex": 2,
+          "explanation": "Refresh DoTs at 3 seconds or less to avoid 'clipping' (losing ticks). Refreshing at 4 seconds wastes 1 second of the previous Dia. Wait for the optimal refresh window."
+        },
+        {
+          "questionId": "whm.lesson_6.q2",
+          "conceptId": "whm.glare_priority",
+          "scenario": "The party is at full HP. The tank has Regen. No mechanics are coming for 10 seconds.",
+          "question": "What should you be doing?",
+          "options": ["Refresh Regen early", "Cast Glare repeatedly", "Prepare heals for later", "Use Presence of Mind"],
+          "correctIndex": 1,
+          "explanation": "When healing isn't needed, DPS. Glare is your filler GCD - spam it. Refreshing Regen early wastes ticks. Presence of Mind is for burst phases, not idle time."
+        },
+        {
+          "questionId": "whm.lesson_6.q3",
+          "conceptId": "whm.dps_optimization",
+          "scenario": "You need to move for a mechanic. You have Dia ready and 1 lily. Boss has 10 seconds on Dia.",
+          "question": "What should you use while moving?",
+          "options": ["Dia refresh", "Afflatus Solace/Rapture", "Nothing - just move", "Swiftcast Glare"],
+          "correctIndex": 1,
+          "explanation": "Lily heals are instant - perfect for movement. Dia isn't worth refreshing at 10 seconds remaining. Use a lily to keep your GCD rolling while moving."
+        },
+        {
+          "questionId": "whm.lesson_6.q4",
+          "conceptId": "whm.glare_priority",
+          "scenario": "The boss will become untargetable in 2.5 seconds (one GCD). You have a lily and Dia has 25 seconds remaining.",
+          "question": "What's your final GCD?",
+          "options": ["Glare for damage", "Afflatus Solace on tank", "Dia for DoT extension", "Afflatus Misery if ready"],
+          "correctIndex": 3,
+          "explanation": "Before downtime, use your strongest ability. If Misery is ready, use it (1240 potency). If not, Glare (310 potency). Don't waste the GCD on unnecessary healing or DoT refresh."
+        },
+        {
+          "questionId": "whm.lesson_6.q5",
+          "conceptId": "whm.dps_optimization",
+          "scenario": "In a dungeon pull, 5 enemies are stacked. You have Holy and Glare available.",
+          "question": "What should you spam?",
+          "options": ["Glare - single target is always better", "Holy - it hits all enemies", "Alternate between them", "Depends on tank HP"],
+          "correctIndex": 1,
+          "explanation": "Holy hits all enemies in range. At 5 targets, Holy deals 5x the effective damage of Glare. Plus Holy stuns enemies, reducing damage to the tank. Spam Holy in AoE."
+        }
+      ]
+    },
+    {
+      "quizId": "whm.lesson_7.quiz",
+      "lessonId": "whm.lesson_7",
+      "title": "Quiz: Utility & Coordination",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "whm.lesson_7.q1",
+          "conceptId": "whm.esuna_usage",
+          "scenario": "A party member has a debuff with a white bar above the icon. They're at 80% HP.",
+          "question": "What should you do?",
+          "options": ["Heal them first", "Esuna immediately", "Wait to see if it's dangerous", "Ignore it - they're healthy"],
+          "correctIndex": 1,
+          "explanation": "White bar = cleansable with Esuna. Remove it immediately - many debuffs deal damage over time or have nasty effects. Don't wait for it to become problematic."
+        },
+        {
+          "questionId": "whm.lesson_7.q2",
+          "conceptId": "whm.raise_decision",
+          "scenario": "A DPS died. You have Swiftcast available. Your co-healer (SCH) is casting Broil.",
+          "question": "What should you do?",
+          "options": ["Swiftcast + Raise immediately", "Wait for SCH to raise", "Hardcast Raise to save Swiftcast", "Wait until combat ends"],
+          "correctIndex": 0,
+          "explanation": "Your Swiftcast is available and the SCH is DPSing. Take the raise - Swiftcast + Raise is the standard combo. Don't wait and cause unnecessary downtime for the dead player."
+        },
+        {
+          "questionId": "whm.lesson_7.q3",
+          "conceptId": "whm.co_healer_awareness",
+          "scenario": "A raidwide just hit. Your co-healer (AST) used Celestial Opposition. Party is at 50% HP.",
+          "question": "What should you do?",
+          "options": ["Afflatus Rapture for immediate healing", "Wait - C.Opposition has a HoT", "Medica II to stack HoTs", "Cure III for burst healing"],
+          "correctIndex": 1,
+          "explanation": "Celestial Opposition applies a HoT. At 50% with a HoT ticking, the party will recover. Adding more healing is overhealing. Trust your co-healer's abilities and DPS instead."
+        },
+        {
+          "questionId": "whm.lesson_7.q4",
+          "conceptId": "whm.party_coordination",
+          "scenario": "You're progressing a savage fight. A big raidwide is coming. Your co-healer says they'll use their party mitigation.",
+          "question": "What should you do with Temperance?",
+          "options": ["Use it too for safety", "Save it for the next raidwide", "Use it anyway - more mitigation is better", "Ask them to not use theirs"],
+          "correctIndex": 1,
+          "explanation": "Stacking party mitigations on one raidwide is wasteful - mitigation has diminishing returns. Coordinate: one healer mitigates this raidwide, the other saves for the next one."
+        },
+        {
+          "questionId": "whm.lesson_7.q5",
+          "conceptId": "whm.raise_decision",
+          "scenario": "Two DPS died at the same time. You have Swiftcast. Your co-healer also has Swiftcast.",
+          "question": "How should the raises be handled?",
+          "options": ["You raise both (hardcast second)", "Each healer raises one", "Wait and see who acts first", "Raise the higher DPS first"],
+          "correctIndex": 1,
+          "explanation": "With two dead and two Swiftcasts available, each healer should raise one. This gets both DPS up faster than one healer doing both raises. Coordinate quickly."
+        }
+      ]
+    }
+  ]
+}

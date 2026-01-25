@@ -90,7 +90,7 @@ public static class SkillProgressTab
         // Spaced repetition / retention section (v3.52.0)
         if (spacedRepetition?.IsEnabled == true)
         {
-            DrawRetentionSection(spacedRepetition, config);
+            DrawRetentionSection(spacedRepetition, trainingService, config);
             ImGui.Spacing();
             ImGui.Separator();
             ImGui.Spacing();
@@ -154,7 +154,7 @@ public static class SkillProgressTab
                 if (ImGui.SmallButton($"Study##{conceptId}"))
                 {
                     // Find a lesson that covers this concept
-                    var lessons = LessonRegistry.GetLessonsForJob(jobPrefix);
+                    var lessons = trainingService.GetLessonsForJob(jobPrefix);
                     var lesson = lessons.FirstOrDefault(l => l.ConceptsCovered.Contains(conceptId));
                     if (lesson != null)
                     {
@@ -296,7 +296,7 @@ public static class SkillProgressTab
         // Display each job with progress
         foreach (var job in jobsWithProgress)
         {
-            DrawJobSkillLevel(job.Prefix, job.Name, job.Result, job.Mastery, config);
+            DrawJobSkillLevel(job.Prefix, job.Name, job.Result, job.Mastery, trainingService, config);
             ImGui.Spacing();
         }
 
@@ -309,7 +309,7 @@ public static class SkillProgressTab
         }
     }
 
-    private static void DrawJobSkillLevel(string jobPrefix, string jobName, SkillLevelResult result, ConceptMasteryResult mastery, TrainingConfig config)
+    private static void DrawJobSkillLevel(string jobPrefix, string jobName, SkillLevelResult result, ConceptMasteryResult mastery, ITrainingService trainingService, TrainingConfig config)
     {
         // Job header with level badge
         var levelColor = result.Level switch
@@ -363,7 +363,7 @@ public static class SkillProgressTab
             }
 
             // Concept Mastery Details (v3.28.0, enhanced in v3.29.0)
-            DrawMasteryDetails(mastery, jobPrefix, config);
+            DrawMasteryDetails(mastery, jobPrefix, trainingService, config);
 
             ImGui.TreePop();
         }
@@ -389,7 +389,7 @@ public static class SkillProgressTab
         }
     }
 
-    private static void DrawMasteryDetails(ConceptMasteryResult mastery, string jobPrefix, TrainingConfig config)
+    private static void DrawMasteryDetails(ConceptMasteryResult mastery, string jobPrefix, ITrainingService trainingService, TrainingConfig config)
     {
         if (mastery.TotalConcepts == 0)
             return;
@@ -426,7 +426,7 @@ public static class SkillProgressTab
                 if (ImGui.SmallButton($"Study This##{concept}"))
                 {
                     // Find a lesson that covers this concept
-                    var lessons = LessonRegistry.GetLessonsForJob(jobPrefix);
+                    var lessons = trainingService.GetLessonsForJob(jobPrefix);
                     var lesson = lessons.FirstOrDefault(l => l.ConceptsCovered.Contains(concept));
                     if (lesson != null)
                     {
@@ -474,7 +474,7 @@ public static class SkillProgressTab
 
     #region Spaced Repetition / Retention (v3.52.0)
 
-    private static void DrawRetentionSection(SpacedRepetitionService spacedRepetition, TrainingConfig config)
+    private static void DrawRetentionSection(SpacedRepetitionService spacedRepetition, ITrainingService trainingService, TrainingConfig config)
     {
         ImGui.Text("Knowledge Retention");
         ImGui.Separator();
@@ -522,7 +522,7 @@ public static class SkillProgressTab
                 var jobPrefix = data.ConceptId.Split('.').FirstOrDefault() ?? string.Empty;
                 if (!string.IsNullOrEmpty(jobPrefix) && ImGui.SmallButton($"Review##{data.ConceptId}"))
                 {
-                    var lessons = LessonRegistry.GetLessonsForJob(jobPrefix);
+                    var lessons = trainingService.GetLessonsForJob(jobPrefix);
                     var lesson = lessons.FirstOrDefault(l => l.ConceptsCovered.Contains(data.ConceptId));
                     if (lesson != null)
                     {
@@ -560,7 +560,7 @@ public static class SkillProgressTab
                     var jobPrefix = data.ConceptId.Split('.').FirstOrDefault() ?? string.Empty;
                     if (!string.IsNullOrEmpty(jobPrefix) && ImGui.SmallButton($"Review##{data.ConceptId}"))
                     {
-                        var lessons = LessonRegistry.GetLessonsForJob(jobPrefix);
+                        var lessons = trainingService.GetLessonsForJob(jobPrefix);
                         var lesson = lessons.FirstOrDefault(l => l.ConceptsCovered.Contains(data.ConceptId));
                         if (lesson != null)
                         {

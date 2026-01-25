@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "dnc",
+  "jobName": "Dancer",
+  "quizzes": [
+    {
+      "quizId": "dnc.lesson_1.quiz",
+      "lessonId": "dnc.lesson_1",
+      "title": "Quiz: Dance Fundamentals",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "dnc.lesson_1.q1",
+          "conceptId": "dnc.standard_step",
+          "scenario": "Standard Step has a 30 second recast.",
+          "question": "How should you use Standard Step?",
+          "options": ["Save for burst only", "Use on cooldown for uptime", "Only with Technical", "Once per fight"],
+          "correctIndex": 1,
+          "explanation": "Standard Step should be used on cooldown. It grants a party damage buff - maximum uptime means maximum party DPS."
+        },
+        {
+          "questionId": "dnc.lesson_1.q2",
+          "conceptId": "dnc.technical_step",
+          "scenario": "Technical Step has a 120 second cooldown.",
+          "question": "What makes Technical Step special?",
+          "options": ["Personal buff only", "2-minute party burst window", "Healing ability", "Movement speed"],
+          "correctIndex": 1,
+          "explanation": "Technical Step is your 2-minute party buff. Align it with other raid buffs for maximum burst damage across the party."
+        },
+        {
+          "questionId": "dnc.lesson_1.q3",
+          "conceptId": "dnc.dance_execution",
+          "scenario": "You're executing a dance. Buttons are glowing in sequence.",
+          "question": "How do you complete the dance?",
+          "options": ["Press any buttons quickly", "Press glowing buttons in order shown", "Skip to Finish", "Mash all step buttons"],
+          "correctIndex": 1,
+          "explanation": "Press the glowing step buttons in the order they appear. Standard has 2 steps, Technical has 4 steps. Then press Finish."
+        },
+        {
+          "questionId": "dnc.lesson_1.q4",
+          "conceptId": "dnc.dance_timers",
+          "scenario": "You started a dance but got distracted by mechanics.",
+          "question": "What happens if the dance timer expires?",
+          "options": ["Dance completes automatically", "You lose the step and must restart", "Nothing - timers are visual", "Damage penalty"],
+          "correctIndex": 1,
+          "explanation": "Dances have timers. If you don't complete the steps in time, you lose progress and must start over. Finish dances promptly."
+        },
+        {
+          "questionId": "dnc.lesson_1.q5",
+          "conceptId": "dnc.standard_step",
+          "scenario": "Standard Finish grants a party damage buff.",
+          "question": "What's the buff duration?",
+          "options": ["10 seconds", "15 seconds", "30 seconds", "60 seconds"],
+          "correctIndex": 2,
+          "explanation": "Standard Finish's buff lasts 30 seconds - exactly matching its cooldown. Using it on cooldown maintains permanent uptime."
+        }
+      ]
+    },
+    {
+      "quizId": "dnc.lesson_2.quiz",
+      "lessonId": "dnc.lesson_2",
+      "title": "Quiz: Proc Management",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "dnc.lesson_2.q1",
+          "conceptId": "dnc.silken_symmetry",
+          "scenario": "You just used Cascade.",
+          "question": "What proc might you get?",
+          "options": ["Silken Flow", "Silken Symmetry (Reverse Cascade)", "Threefold Fan", "No proc from Cascade"],
+          "correctIndex": 1,
+          "explanation": "Cascade can proc Silken Symmetry, which enables Reverse Cascade. Consuming procs grants Feathers."
+        },
+        {
+          "questionId": "dnc.lesson_2.q2",
+          "conceptId": "dnc.silken_flow",
+          "scenario": "You used Fountain and got Silken Flow.",
+          "question": "What ability does Silken Flow enable?",
+          "options": ["Reverse Cascade", "Fountainfall", "Saber Dance", "Technical Step"],
+          "correctIndex": 1,
+          "explanation": "Silken Flow enables Fountainfall. Like Silken Symmetry/Reverse Cascade, consuming this proc grants a Feather."
+        },
+        {
+          "questionId": "dnc.lesson_2.q3",
+          "conceptId": "dnc.threefold_fan",
+          "scenario": "Flourish just came off cooldown.",
+          "question": "What does Flourish do?",
+          "options": ["Grants one random proc", "Grants all procs at once", "Resets dance cooldowns", "Party buff"],
+          "correctIndex": 1,
+          "explanation": "Flourish grants all your procs at once - Silken Symmetry, Silken Flow, Threefold Fan, and Fourfold Fan. Use during burst windows."
+        },
+        {
+          "questionId": "dnc.lesson_2.q4",
+          "conceptId": "dnc.fourfold_fan",
+          "scenario": "You have Threefold Fan Dance and Fourfold Fan Dance procs.",
+          "question": "What do these enable?",
+          "options": ["Fan Dance I/II", "Fan Dance III/IV", "Saber Dance", "Standard Step"],
+          "correctIndex": 1,
+          "explanation": "Threefold and Fourfold procs enable Fan Dance III and IV respectively. These are high-potency attacks from Flourish."
+        },
+        {
+          "questionId": "dnc.lesson_2.q5",
+          "conceptId": "dnc.silken_symmetry",
+          "scenario": "You have Silken Symmetry with 5 seconds remaining.",
+          "question": "What should you prioritize?",
+          "options": ["Let it fall off", "Use Reverse Cascade before it expires", "Save for burst", "Use Cascade again"],
+          "correctIndex": 1,
+          "explanation": "Never let procs fall off - they're your main damage. Use Reverse Cascade before the proc expires to get the damage and Feather."
+        }
+      ]
+    },
+    {
+      "quizId": "dnc.lesson_3.quiz",
+      "lessonId": "dnc.lesson_3",
+      "title": "Quiz: Esprit Gauge Mastery",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "dnc.lesson_3.q1",
+          "conceptId": "dnc.esprit_gauge",
+          "scenario": "Your Esprit gauge is building during combat.",
+          "question": "What generates Esprit?",
+          "options": ["Only your attacks", "Your and your partner's weapon skills", "Dances only", "Feathers"],
+          "correctIndex": 1,
+          "explanation": "Esprit generates from both your weapon skills and your Dance Partner's. A high-CPM partner generates Esprit faster."
+        },
+        {
+          "questionId": "dnc.lesson_3.q2",
+          "conceptId": "dnc.saber_dance",
+          "scenario": "Saber Dance costs 50 Esprit.",
+          "question": "Why is Saber Dance important?",
+          "options": ["It's your weakest GCD", "It's your highest potency GCD", "It generates Feathers", "It buffs the party"],
+          "correctIndex": 1,
+          "explanation": "Saber Dance is your highest potency GCD. Spend Esprit on it regularly - don't let the gauge cap at 100."
+        },
+        {
+          "questionId": "dnc.lesson_3.q3",
+          "conceptId": "dnc.esprit_overcapping",
+          "scenario": "Your Esprit is at 85 and still building.",
+          "question": "What should you do?",
+          "options": ["Wait for 100", "Use Saber Dance to prevent capping", "Save for burst", "Esprit doesn't cap"],
+          "correctIndex": 1,
+          "explanation": "Use Saber Dance at 80+ Esprit to prevent overcapping. Any Esprit generated at 100 is wasted."
+        },
+        {
+          "questionId": "dnc.lesson_3.q4",
+          "conceptId": "dnc.saber_dance",
+          "scenario": "Burst window is active. You have 60 Esprit.",
+          "question": "Should you use Saber Dance now?",
+          "options": ["No - save for higher Esprit", "Yes - fit more under buffs", "Only at 100", "Wait for procs"],
+          "correctIndex": 1,
+          "explanation": "During burst windows, use Saber Dance even at 50+ Esprit. Getting more high-potency hits under raid buffs is worth it."
+        },
+        {
+          "questionId": "dnc.lesson_3.q5",
+          "conceptId": "dnc.esprit_gauge",
+          "scenario": "You're choosing a Dance Partner.",
+          "question": "What type of job generates Esprit fastest?",
+          "options": ["Tanks", "Healers", "High-CPM DPS like NIN/MNK", "Other Dancers"],
+          "correctIndex": 2,
+          "explanation": "Partner a high-CPM (casts per minute) job like Ninja or Monk. More weapon skills = more Esprit generation for both of you."
+        }
+      ]
+    },
+    {
+      "quizId": "dnc.lesson_4.quiz",
+      "lessonId": "dnc.lesson_4",
+      "title": "Quiz: Feather Optimization",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "dnc.lesson_4.q1",
+          "conceptId": "dnc.feather_gauge",
+          "scenario": "You have 4 Feathers and Silken Symmetry proc.",
+          "question": "What should you do first?",
+          "options": ["Use Reverse Cascade immediately", "Fan Dance I first, then Reverse Cascade", "Save Reverse Cascade", "Use all Fan Dances first"],
+          "correctIndex": 1,
+          "explanation": "At 4 Feathers, you're capped. Use Fan Dance I first to make room, then Reverse Cascade won't waste a Feather."
+        },
+        {
+          "questionId": "dnc.lesson_4.q2",
+          "conceptId": "dnc.fan_dance_usage",
+          "scenario": "Fan Dance I consumes 1 Feather.",
+          "question": "What might Fan Dance I proc?",
+          "options": ["Another Feather", "Fan Dance III", "Silken Symmetry", "Esprit"],
+          "correctIndex": 1,
+          "explanation": "Fan Dance I has a chance to proc Fan Dance III. Weave Fan Dance III immediately when it procs."
+        },
+        {
+          "questionId": "dnc.lesson_4.q3",
+          "conceptId": "dnc.feather_overcapping",
+          "scenario": "You have 3 Feathers. Burst window starts in 10 seconds.",
+          "question": "Is 3 Feathers a good amount to enter burst with?",
+          "options": ["No - should be at 0", "Yes - dump them during Devilment", "Need exactly 4", "Feathers don't matter for burst"],
+          "correctIndex": 1,
+          "explanation": "Hold 3 Feathers going into burst to dump during Devilment. This maximizes oGCD damage under your personal buff."
+        },
+        {
+          "questionId": "dnc.lesson_4.q4",
+          "conceptId": "dnc.feather_gauge",
+          "scenario": "Feathers are capped at 4.",
+          "question": "How do you get Feathers?",
+          "options": ["From Fan Dances", "From consuming Silken procs", "From dances", "From Esprit spending"],
+          "correctIndex": 1,
+          "explanation": "Feathers come from using Reverse Cascade and Fountainfall (consuming Silken Symmetry and Silken Flow procs)."
+        },
+        {
+          "questionId": "dnc.lesson_4.q5",
+          "conceptId": "dnc.fan_dance_usage",
+          "scenario": "Flourish grants Fourfold Fan Dance.",
+          "question": "What is Fan Dance IV?",
+          "options": ["Weaker than Fan Dance I", "High-priority proc from Flourish", "AoE only", "Healing ability"],
+          "correctIndex": 1,
+          "explanation": "Fan Dance IV from Flourish is high potency and should be used during burst. It's a priority oGCD during your burst window."
+        }
+      ]
+    },
+    {
+      "quizId": "dnc.lesson_5.quiz",
+      "lessonId": "dnc.lesson_5",
+      "title": "Quiz: Burst Window Execution",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "dnc.lesson_5.q1",
+          "conceptId": "dnc.burst_alignment",
+          "scenario": "Technical Finish is your 2-minute party buff.",
+          "question": "What's the correct burst opener sequence?",
+          "options": ["Devilment → Technical → Flourish", "Technical Finish → Devilment → Flourish", "Flourish → Technical → Devilment", "Any order works"],
+          "correctIndex": 1,
+          "explanation": "Technical Finish first (party buff), then Devilment (personal buff), then Flourish (procs). This stacks buffs for maximum damage."
+        },
+        {
+          "questionId": "dnc.lesson_5.q2",
+          "conceptId": "dnc.devilment",
+          "scenario": "Devilment grants 15% crit/DH.",
+          "question": "Who benefits from Devilment?",
+          "options": ["Just you", "You and your Dance Partner", "Whole party", "Only partner"],
+          "correctIndex": 1,
+          "explanation": "Devilment's crit/direct hit buff applies to both you AND your Dance Partner. Partner wisely for double value."
+        },
+        {
+          "questionId": "dnc.lesson_5.q3",
+          "conceptId": "dnc.party_burst_sync",
+          "scenario": "Other DPS are announcing their 2-minute buffs.",
+          "question": "How should you handle Technical Step timing?",
+          "options": ["Use immediately regardless", "Coordinate with party buffs", "Wait for them to finish", "Technical is personal only"],
+          "correctIndex": 1,
+          "explanation": "Technical Finish is a party buff. Coordinate with other 2-minute raid buffs (Battle Litany, Chain Stratagem, etc.) for stacked value."
+        },
+        {
+          "questionId": "dnc.lesson_5.q4",
+          "conceptId": "dnc.flourish",
+          "scenario": "Flourish has a 60 second cooldown.",
+          "question": "When should you use Flourish?",
+          "options": ["On cooldown always", "During every burst window", "Save for emergencies", "Only with Technical"],
+          "correctIndex": 1,
+          "explanation": "Flourish every burst window (60s aligns with every other minute). It grants all your procs for maximum burst damage."
+        },
+        {
+          "questionId": "dnc.lesson_5.q5",
+          "conceptId": "dnc.burst_alignment",
+          "scenario": "Entering burst window.",
+          "question": "What resources should you have ready?",
+          "options": ["Empty gauge", "3 Feathers and 50+ Esprit", "Just Feathers", "Just Esprit"],
+          "correctIndex": 1,
+          "explanation": "Enter burst with 3 Feathers and 50+ Esprit. This lets you dump Saber Dance and Fan Dances under Technical/Devilment."
+        }
+      ]
+    },
+    {
+      "quizId": "dnc.lesson_6.quiz",
+      "lessonId": "dnc.lesson_6",
+      "title": "Quiz: High-Level Abilities",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "dnc.lesson_6.q1",
+          "conceptId": "dnc.starfall_dance",
+          "scenario": "Devilment grants Starfall Dance proc.",
+          "question": "What's the priority of Starfall Dance?",
+          "options": ["Low - use whenever", "High - 600 potency instant", "Medium - after other procs", "Only for AoE"],
+          "correctIndex": 1,
+          "explanation": "Starfall Dance is 600 potency and your highest priority proc during Devilment. Use it before the buff expires."
+        },
+        {
+          "questionId": "dnc.lesson_6.q2",
+          "conceptId": "dnc.finishing_move",
+          "scenario": "Standard Finish grants Finishing Move.",
+          "question": "How much potency is Finishing Move?",
+          "options": ["400", "600", "850", "1000"],
+          "correctIndex": 2,
+          "explanation": "Finishing Move is 850 potency - extremely powerful. Use it during your burst window for maximum value under buffs."
+        },
+        {
+          "questionId": "dnc.lesson_6.q3",
+          "conceptId": "dnc.last_dance",
+          "scenario": "You used Finishing Move.",
+          "question": "What chains from Finishing Move?",
+          "options": ["Nothing", "Last Dance (520 potency)", "Another Finishing Move", "Starfall Dance"],
+          "correctIndex": 1,
+          "explanation": "Last Dance follows Finishing Move as a 520 potency instant. It's a chain combo - don't miss the follow-up."
+        },
+        {
+          "questionId": "dnc.lesson_6.q4",
+          "conceptId": "dnc.tillana",
+          "scenario": "Technical Finish was just used.",
+          "question": "What proc does Technical Finish grant?",
+          "options": ["Starfall Dance", "Finishing Move", "Tillana (600 potency)", "Last Dance"],
+          "correctIndex": 2,
+          "explanation": "Technical Finish grants Tillana, a 600 potency instant. Use it during your burst window - it's unique to Technical."
+        },
+        {
+          "questionId": "dnc.lesson_6.q5",
+          "conceptId": "dnc.starfall_dance",
+          "scenario": "Devilment is ending in 3 seconds. Starfall Dance unused.",
+          "question": "What should you prioritize?",
+          "options": ["Finish current combo", "Starfall Dance immediately", "Save for next Devilment", "Use Saber Dance instead"],
+          "correctIndex": 1,
+          "explanation": "Starfall Dance is only available during Devilment. If it's about to end, use Starfall immediately or lose it entirely."
+        }
+      ]
+    },
+    {
+      "quizId": "dnc.lesson_7.quiz",
+      "lessonId": "dnc.lesson_7",
+      "title": "Quiz: Partner & Party Coordination",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "dnc.lesson_7.q1",
+          "conceptId": "dnc.closed_position",
+          "scenario": "You're selecting a Dance Partner.",
+          "question": "Who makes the best partner?",
+          "options": ["Any DPS", "Highest personal DPS (SAM/NIN/MNK)", "Tanks for survivability", "Other Dancers"],
+          "correctIndex": 1,
+          "explanation": "Partner the highest DPS player - typically SAM, NIN, or MNK. They benefit most from Devilment and generate Esprit fastest."
+        },
+        {
+          "questionId": "dnc.lesson_7.q2",
+          "conceptId": "dnc.closed_position",
+          "scenario": "Your Dance Partner died.",
+          "question": "What should you do?",
+          "options": ["Wait for raise", "Partner someone else immediately", "Continue without partner", "Stop using partner abilities"],
+          "correctIndex": 1,
+          "explanation": "Switch your partner to another DPS immediately. An alive partner generating Esprit and receiving Devilment > waiting for a raise."
+        },
+        {
+          "questionId": "dnc.lesson_7.q3",
+          "conceptId": "dnc.shield_samba",
+          "scenario": "A raidwide is coming in 5 seconds.",
+          "question": "What should you use?",
+          "options": ["Technical Step", "Shield Samba (15% party mitigation)", "Improvisation", "Nothing - DNC doesn't mitigate"],
+          "correctIndex": 1,
+          "explanation": "Shield Samba gives 15% party damage reduction for 15 seconds. Use it before raidwides to reduce incoming damage."
+        },
+        {
+          "questionId": "dnc.lesson_7.q4",
+          "conceptId": "dnc.party_utility",
+          "scenario": "Improvisation is available.",
+          "question": "What does Improvisation provide?",
+          "options": ["Damage buff", "Healing over time and barrier", "Movement speed", "MP regeneration"],
+          "correctIndex": 1,
+          "explanation": "Improvisation provides party healing over time and builds a barrier. Use it during downtime or before heavy damage."
+        },
+        {
+          "questionId": "dnc.lesson_7.q5",
+          "conceptId": "dnc.shield_samba",
+          "scenario": "Another DNC in the party also has Shield Samba.",
+          "question": "How should you coordinate?",
+          "options": ["Both use on same raidwide", "Alternate to cover more raidwides", "Only one DNC needs to use it", "It doesn't matter"],
+          "correctIndex": 1,
+          "explanation": "Coordinate Shield Samba via IPC or communication. Alternate usage to cover more raidwides rather than stacking on one."
+        }
+      ]
+    }
+  ]
+}

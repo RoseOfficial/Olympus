@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "gnb",
+  "jobName": "Gunbreaker",
+  "quizzes": [
+    {
+      "quizId": "gnb.lesson_1.quiz",
+      "lessonId": "gnb.lesson_1",
+      "title": "Quiz: Cartridge Gauge",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "gnb.lesson_1.q1",
+          "conceptId": "gnb.cartridge_gauge",
+          "scenario": "You're at 2 cartridges. Solid Barrel combo ready.",
+          "question": "What happens after Solid Barrel?",
+          "options": ["Gain 1 cartridge", "Overcap warning", "Go to 3 cartridges", "No change"],
+          "correctIndex": 2,
+          "explanation": "Solid Barrel generates 1 cartridge. At 2, you'll go to 3 (max). Don't Solid Barrel at 3 cartridges."
+        },
+        {
+          "questionId": "gnb.lesson_1.q2",
+          "conceptId": "gnb.burst_strike",
+          "scenario": "You have 1 cartridge. No Mercy isn't available.",
+          "question": "Should you use Burst Strike?",
+          "options": ["Yes - spend cartridge", "No - save for No Mercy", "Only if overcapping", "Use Gnashing Fang"],
+          "correctIndex": 2,
+          "explanation": "Generally save cartridges for No Mercy windows. Use Burst Strike only to prevent overcapping."
+        },
+        {
+          "questionId": "gnb.lesson_1.q3",
+          "conceptId": "gnb.cartridge_gauge",
+          "scenario": "Combat starting. Cartridge gauge empty.",
+          "question": "How do you build cartridges?",
+          "options": ["Auto-attacks", "Any GCD", "Solid Barrel combo finisher", "oGCDs"],
+          "correctIndex": 2,
+          "explanation": "Cartridges come from Solid Barrel (1) and Bloodfest (3). Only combo finisher generates gauge."
+        },
+        {
+          "questionId": "gnb.lesson_1.q4",
+          "conceptId": "gnb.burst_strike",
+          "scenario": "Burst Strike used. Hypervelocity is now available.",
+          "question": "What is Hypervelocity?",
+          "options": ["Next combo action", "Free oGCD damage", "Defensive ability", "Movement skill"],
+          "correctIndex": 1,
+          "explanation": "Burst Strike grants Hypervelocity (Ready to Blast), a free oGCD follow-up attack."
+        },
+        {
+          "questionId": "gnb.lesson_1.q5",
+          "conceptId": "gnb.cartridge_gauge",
+          "scenario": "3 cartridges. Gnashing Fang costs 1, Double Down costs 2.",
+          "question": "Which should you use first in burst?",
+          "options": ["Gnashing Fang", "Double Down", "Burst Strike", "Save them"],
+          "correctIndex": 1,
+          "explanation": "Double Down is your highest damage cartridge spender. Use it early in No Mercy for maximum value."
+        }
+      ]
+    },
+    {
+      "quizId": "gnb.lesson_2.quiz",
+      "lessonId": "gnb.lesson_2",
+      "title": "Quiz: Defensive Fundamentals",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "gnb.lesson_2.q1",
+          "conceptId": "gnb.heart_of_corundum",
+          "scenario": "Tankbuster incoming. Heart of Corundum available.",
+          "question": "What does Heart of Corundum provide?",
+          "options": ["Shield only", "Mitigation + heal + shield", "Just mitigation", "Heal over time"],
+          "correctIndex": 1,
+          "explanation": "Heart of Corundum provides 15% mitigation, a heal when damaged, and a shield. Extremely powerful."
+        },
+        {
+          "questionId": "gnb.lesson_2.q2",
+          "conceptId": "gnb.aurora",
+          "scenario": "Tank autos hurting. Aurora has 2 charges.",
+          "question": "What does Aurora provide?",
+          "options": ["Mitigation", "Heal over time", "Shield", "Damage buff"],
+          "correctIndex": 1,
+          "explanation": "Aurora is a HoT (heal over time). Use it freely with 2 charges to smooth out damage."
+        },
+        {
+          "questionId": "gnb.lesson_2.q3",
+          "conceptId": "gnb.nebula",
+          "scenario": "Big tankbuster. Nebula and Heart of Corundum available.",
+          "question": "What's the best combination?",
+          "options": ["Nebula only", "Heart of Corundum only", "Both together", "Camouflage instead"],
+          "correctIndex": 2,
+          "explanation": "For big tankbusters, stack Nebula (30%) with Heart of Corundum (15% + heal + shield)."
+        },
+        {
+          "questionId": "gnb.lesson_2.q4",
+          "conceptId": "gnb.camouflage",
+          "scenario": "Sustained auto-attacks. Camouflage available.",
+          "question": "What makes Camouflage good for autos?",
+          "options": ["Highest mitigation", "Increased parry rate", "Longest duration", "Heals on hit"],
+          "correctIndex": 1,
+          "explanation": "Camouflage boosts parry rate, which is particularly effective against frequent auto-attacks."
+        },
+        {
+          "questionId": "gnb.lesson_2.q5",
+          "conceptId": "gnb.mitigation_stacking",
+          "scenario": "You used Rampart. Another hit coming soon.",
+          "question": "What pairs well with active Rampart?",
+          "options": ["Nebula", "Heart of Corundum", "More Rampart", "Nothing needed"],
+          "correctIndex": 1,
+          "explanation": "Heart of Corundum (25s CD) pairs well with Rampart (90s CD). Save Nebula for when Rampart is down."
+        }
+      ]
+    },
+    {
+      "quizId": "gnb.lesson_3.quiz",
+      "lessonId": "gnb.lesson_3",
+      "title": "Quiz: Superbolide",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "gnb.lesson_3.q1",
+          "conceptId": "gnb.superbolide",
+          "scenario": "You're at 80% HP. Superbolide available.",
+          "question": "What happens when you use Superbolide?",
+          "options": ["Stay at 80%", "Drop to 1 HP, then invuln", "Take 50% HP", "Invuln without HP drop"],
+          "correctIndex": 1,
+          "explanation": "Superbolide drops you to 1 HP immediately, then makes you invulnerable for 10 seconds."
+        },
+        {
+          "questionId": "gnb.lesson_3.q2",
+          "conceptId": "gnb.invuln_timing",
+          "scenario": "Superbolide has 360 second cooldown (6 minutes).",
+          "question": "How does this compare to other tank invulns?",
+          "options": ["Longest CD", "Second shortest", "Average", "Shortest"],
+          "correctIndex": 1,
+          "explanation": "Superbolide (360s) is second shortest after Holmgang (240s). Can be used fairly often."
+        },
+        {
+          "questionId": "gnb.lesson_3.q3",
+          "conceptId": "gnb.superbolide",
+          "scenario": "You're at 20% HP. Lethal hit coming.",
+          "question": "Is Superbolide worth using here?",
+          "options": ["No - already low", "Yes - survive the hit", "Use defensives instead", "Only if healers can't help"],
+          "correctIndex": 1,
+          "explanation": "At 20% with a lethal hit coming, Superbolide saves you. You drop to 1 HP but don't die."
+        },
+        {
+          "questionId": "gnb.lesson_3.q4",
+          "conceptId": "gnb.invuln_timing",
+          "scenario": "Superbolide used. You're at 1 HP with 10s invuln.",
+          "question": "What should healers do?",
+          "options": ["Panic heal immediately", "Wait then heal", "Nothing - you're invuln", "Heal to stabilize"],
+          "correctIndex": 3,
+          "explanation": "You're invuln for 10s but at 1 HP. Healers should heal you during the invuln window so you're stable when it ends."
+        },
+        {
+          "questionId": "gnb.lesson_3.q5",
+          "conceptId": "gnb.superbolide",
+          "scenario": "Big pull in dungeon. About to die.",
+          "question": "Is Superbolide good here?",
+          "options": ["No - boss only", "Yes - 10s of safety", "Use other CDs first", "Only in raids"],
+          "correctIndex": 1,
+          "explanation": "Superbolide works great in dungeons for big pulls. 10 seconds of invulnerability lets you and healer stabilize."
+        }
+      ]
+    },
+    {
+      "quizId": "gnb.lesson_4.quiz",
+      "lessonId": "gnb.lesson_4",
+      "title": "Quiz: No Mercy Window",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "gnb.lesson_4.q1",
+          "conceptId": "gnb.no_mercy",
+          "scenario": "No Mercy coming off CD. You have 1 cartridge.",
+          "question": "What should you do before No Mercy?",
+          "options": ["Use No Mercy now", "Build to 2+ cartridges", "Use the 1 cartridge", "Wait for Bloodfest"],
+          "correctIndex": 1,
+          "explanation": "Enter No Mercy with 2+ cartridges so you can use Double Down (costs 2). Build gauge first."
+        },
+        {
+          "questionId": "gnb.lesson_4.q2",
+          "conceptId": "gnb.double_down",
+          "scenario": "No Mercy active. 3 cartridges available.",
+          "question": "What should you use first?",
+          "options": ["Gnashing Fang", "Double Down", "Burst Strike x3", "Sonic Break"],
+          "correctIndex": 1,
+          "explanation": "Double Down is your highest potency attack. Use it early in No Mercy to guarantee it lands in the window."
+        },
+        {
+          "questionId": "gnb.lesson_4.q3",
+          "conceptId": "gnb.bloodfest",
+          "scenario": "Bloodfest is ready. You have 0 cartridges.",
+          "question": "What does Bloodfest provide?",
+          "options": ["1 cartridge", "2 cartridges", "3 cartridges", "Max cartridges"],
+          "correctIndex": 2,
+          "explanation": "Bloodfest instantly grants 3 cartridges. Use it during No Mercy when you've spent your cartridges."
+        },
+        {
+          "questionId": "gnb.lesson_4.q4",
+          "conceptId": "gnb.no_mercy_window",
+          "scenario": "No Mercy has 5 seconds left. Gnashing Fang available.",
+          "question": "Should you start Gnashing Fang?",
+          "options": ["No - not enough time", "Yes - fits in window", "Save for next NM", "Only the first hit"],
+          "correctIndex": 1,
+          "explanation": "Gnashing Fang combo is fast. 5 seconds is enough time to complete it within No Mercy."
+        },
+        {
+          "questionId": "gnb.lesson_4.q5",
+          "conceptId": "gnb.no_mercy",
+          "scenario": "No Mercy provides 20% damage boost for 20 seconds.",
+          "question": "What should you pack into this window?",
+          "options": ["Only cartridge moves", "Everything possible", "Save some for later", "Defensive abilities"],
+          "correctIndex": 1,
+          "explanation": "Pack all your big damage into No Mercy: Double Down, Gnashing Fang combo, Sonic Break, oGCDs."
+        }
+      ]
+    },
+    {
+      "quizId": "gnb.lesson_5.quiz",
+      "lessonId": "gnb.lesson_5",
+      "title": "Quiz: Gnashing Fang Combo",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "gnb.lesson_5.q1",
+          "conceptId": "gnb.gnashing_fang",
+          "scenario": "Gnashing Fang ready. You have 1 cartridge.",
+          "question": "What does Gnashing Fang start?",
+          "options": ["A single attack", "A 3-hit combo chain", "An AoE attack", "A defensive move"],
+          "correctIndex": 1,
+          "explanation": "Gnashing Fang starts a 3-hit combo: Gnashing Fang > Savage Claw > Wicked Talon, each with a Continuation follow-up."
+        },
+        {
+          "questionId": "gnb.lesson_5.q2",
+          "conceptId": "gnb.continuation",
+          "scenario": "You just used Gnashing Fang. Jugular Rip is available.",
+          "question": "What is Jugular Rip?",
+          "options": ["Next combo GCD", "Free oGCD follow-up", "Alternative finisher", "Defensive ability"],
+          "correctIndex": 1,
+          "explanation": "Jugular Rip is the Continuation oGCD after Gnashing Fang. Weave it before your next GCD."
+        },
+        {
+          "questionId": "gnb.lesson_5.q3",
+          "conceptId": "gnb.continuation_chain",
+          "scenario": "Full Gnashing Fang combo with Continuations.",
+          "question": "What's the complete sequence?",
+          "options": ["GF > SC > WT", "GF > JR > SC > AT > WT > EG", "GF > JR > JR > JR", "Any order works"],
+          "correctIndex": 1,
+          "explanation": "Gnashing Fang > Jugular Rip > Savage Claw > Abdomen Tear > Wicked Talon > Eye Gouge. GCD > oGCD pattern."
+        },
+        {
+          "questionId": "gnb.lesson_5.q4",
+          "conceptId": "gnb.continuation",
+          "scenario": "You used Savage Claw but forgot Abdomen Tear.",
+          "question": "Can you still use Abdomen Tear?",
+          "options": ["Yes - anytime", "No - window passed", "Only after Wicked Talon", "Reset the combo"],
+          "correctIndex": 1,
+          "explanation": "Each Continuation must be used before the next GCD. Miss it and it's gone. Practice the rhythm."
+        },
+        {
+          "questionId": "gnb.lesson_5.q5",
+          "conceptId": "gnb.gnashing_fang",
+          "scenario": "Gnashing Fang is on 30 second cooldown.",
+          "question": "How often can you do this combo?",
+          "options": ["Once per minute", "Twice per minute", "Every No Mercy", "Once per fight"],
+          "correctIndex": 1,
+          "explanation": "30 second cooldown means you can do Gnashing Fang combo twice per minute, aligning with No Mercy windows."
+        }
+      ]
+    },
+    {
+      "quizId": "gnb.lesson_6.quiz",
+      "lessonId": "gnb.lesson_6",
+      "title": "Quiz: Party Protection",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "gnb.lesson_6.q1",
+          "conceptId": "gnb.heart_of_light",
+          "scenario": "Magic raidwide incoming. Heart of Light available.",
+          "question": "What does Heart of Light provide?",
+          "options": ["Physical mitigation", "10% magic mitigation to party", "Shield", "Heal"],
+          "correctIndex": 1,
+          "explanation": "Heart of Light provides 10% magic damage mitigation to the entire party for 15 seconds."
+        },
+        {
+          "questionId": "gnb.lesson_6.q2",
+          "conceptId": "gnb.heart_of_corundum",
+          "scenario": "Party member about to take big damage.",
+          "question": "Can you use Heart of Corundum on them?",
+          "options": ["No - self only", "Yes - works on anyone", "Only tanks", "Only in dungeons"],
+          "correctIndex": 1,
+          "explanation": "Heart of Corundum can target any party member, giving them the mitigation, heal, and shield."
+        },
+        {
+          "questionId": "gnb.lesson_6.q3",
+          "conceptId": "gnb.heart_of_light",
+          "scenario": "Physical raidwide coming. Heart of Light available.",
+          "question": "Should you use Heart of Light?",
+          "options": ["Yes - any mitigation helps", "No - magic only", "Partial effect", "Use Aurora instead"],
+          "correctIndex": 1,
+          "explanation": "Heart of Light only mitigates magic damage. For physical raidwides, use Reprisal instead."
+        },
+        {
+          "questionId": "gnb.lesson_6.q4",
+          "conceptId": "gnb.aurora",
+          "scenario": "Healer taking damage. Aurora available.",
+          "question": "Can you Aurora the healer?",
+          "options": ["No - self only", "Yes - it's a targeted HoT", "Only in combat", "Only if they're low"],
+          "correctIndex": 1,
+          "explanation": "Aurora can be placed on any party member. Use it on struggling healers or DPS taking damage."
+        },
+        {
+          "questionId": "gnb.lesson_6.q5",
+          "conceptId": "gnb.party_protection",
+          "scenario": "Co-tank about to take a tankbuster. Your Heart of Corundum ready.",
+          "question": "Should you use it on them?",
+          "options": ["No - they have their own", "Yes - help them survive", "Only if they ask", "Save for yourself"],
+          "correctIndex": 1,
+          "explanation": "Heart of Corundum on the co-tank stacks with their own mitigation, ensuring survival on big hits."
+        }
+      ]
+    },
+    {
+      "quizId": "gnb.lesson_7.quiz",
+      "lessonId": "gnb.lesson_7",
+      "title": "Quiz: Advanced Optimization",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "gnb.lesson_7.q1",
+          "conceptId": "gnb.sonic_break",
+          "scenario": "Sonic Break ready. No Mercy active.",
+          "question": "Why use Sonic Break in No Mercy?",
+          "options": ["It's instant", "DoT benefits from buff", "Highest potency", "Grants cartridge"],
+          "correctIndex": 1,
+          "explanation": "Sonic Break applies a DoT. Using it during No Mercy means the DoT ticks also get the 20% damage buff."
+        },
+        {
+          "questionId": "gnb.lesson_7.q2",
+          "conceptId": "gnb.bow_shock",
+          "scenario": "Multiple enemies. Bow Shock available.",
+          "question": "What makes Bow Shock good for AoE?",
+          "options": ["Higher base damage", "DoT on all targets", "Generates cartridges", "No cooldown"],
+          "correctIndex": 1,
+          "explanation": "Bow Shock applies a DoT to all targets hit. In AoE, this is significant damage over time."
+        },
+        {
+          "questionId": "gnb.lesson_7.q3",
+          "conceptId": "gnb.blasting_zone",
+          "scenario": "Blasting Zone off cooldown. No burst window.",
+          "question": "Should you use Blasting Zone?",
+          "options": ["Save for No Mercy", "Use on cooldown", "Only in AoE", "Only at low HP"],
+          "correctIndex": 1,
+          "explanation": "Blasting Zone is a 30 second CD oGCD. Use it on cooldown - don't lose uses waiting for burst."
+        },
+        {
+          "questionId": "gnb.lesson_7.q4",
+          "conceptId": "gnb.reign_of_beasts",
+          "scenario": "No Mercy grants access to Reign of Beasts.",
+          "question": "What is Reign of Beasts?",
+          "options": ["A defensive cooldown", "A 3-hit combo chain", "AoE attack", "Gap closer"],
+          "correctIndex": 1,
+          "explanation": "Reign of Beasts is a new 3-hit combo granted during No Mercy. Another burst combo to fit in the window."
+        },
+        {
+          "questionId": "gnb.lesson_7.q5",
+          "conceptId": "gnb.tank_swap",
+          "scenario": "Tank swap needed. You have No Mercy coming up.",
+          "question": "What's the optimal order?",
+          "options": ["Swap then burst", "Burst then swap", "Swap during burst", "Let co-tank keep aggro"],
+          "correctIndex": 0,
+          "explanation": "Provoke first to get the boss, then use No Mercy. You want to be actively attacking during your burst."
+        }
+      ]
+    }
+  ]
+}

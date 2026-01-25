@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "pld",
+  "jobName": "Paladin",
+  "quizzes": [
+    {
+      "quizId": "pld.lesson_1.quiz",
+      "lessonId": "pld.lesson_1",
+      "title": "Quiz: Oath Gauge & Stance",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "pld.lesson_1.q1",
+          "conceptId": "pld.oath_gauge",
+          "scenario": "You're at 90 Oath Gauge. A tankbuster is coming in 5 seconds.",
+          "question": "What should you do with your Oath?",
+          "options": ["Wait until 100", "Use Sheltron now", "Save for emergency", "Use Intervention on co-tank"],
+          "correctIndex": 1,
+          "explanation": "At 90 Oath with a tankbuster coming, use Sheltron now. It provides mitigation for the buster and prevents overcapping at 100."
+        },
+        {
+          "questionId": "pld.lesson_1.q2",
+          "conceptId": "pld.sheltron",
+          "scenario": "You need to mitigate damage for a party member who's about to take a targeted hit.",
+          "question": "Which ability should you use?",
+          "options": ["Sheltron", "Cover", "Intervention", "Divine Veil"],
+          "correctIndex": 2,
+          "explanation": "Intervention spends Oath to give Sheltron's mitigation to another party member. Cover takes damage for them, which is riskier."
+        },
+        {
+          "questionId": "pld.lesson_1.q3",
+          "conceptId": "pld.oath_gauge",
+          "scenario": "You're off-tanking and haven't been hit in a while. Your Oath is at 20.",
+          "question": "Why isn't your Oath building?",
+          "options": ["Iron Will is off", "Not using combos", "Haven't auto-attacked", "Oath builds slowly"],
+          "correctIndex": 2,
+          "explanation": "Oath Gauge builds from auto-attacks, not combos. If you're not in melee range auto-attacking, you won't generate Oath."
+        },
+        {
+          "questionId": "pld.lesson_1.q4",
+          "conceptId": "pld.sheltron",
+          "scenario": "Holy Sheltron just expired. Tank autos are hitting hard.",
+          "question": "What does Holy Sheltron provide besides the block?",
+          "options": ["Damage boost", "HoT and mitigation", "MP restore", "Enmity boost"],
+          "correctIndex": 1,
+          "explanation": "Holy Sheltron provides a heal-over-time (Knight's Resolve) and mitigation, making it excellent for sustained damage."
+        },
+        {
+          "questionId": "pld.lesson_1.q5",
+          "conceptId": "pld.oath_gauge",
+          "scenario": "Combat just started. Your Oath is at 0.",
+          "question": "What's the fastest way to build Oath?",
+          "options": ["Use Riot Blade", "Auto-attack the boss", "Use Holy Spirit", "Wait for regen"],
+          "correctIndex": 1,
+          "explanation": "Oath only builds from auto-attacks in combat. Stay in melee range and let auto-attacks generate gauge."
+        }
+      ]
+    },
+    {
+      "quizId": "pld.lesson_2.quiz",
+      "lessonId": "pld.lesson_2",
+      "title": "Quiz: Defensive Fundamentals",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "pld.lesson_2.q1",
+          "conceptId": "pld.sentinel",
+          "scenario": "Big tankbuster coming. Rampart is on CD. Sentinel is available.",
+          "question": "Should you use Sentinel?",
+          "options": ["No - save for emergency", "Yes - it's 30% mitigation", "No - use Sheltron only", "Wait for Rampart"],
+          "correctIndex": 1,
+          "explanation": "Sentinel provides 30% mitigation - use it for big tankbusters. Don't save it for emergencies that might not come."
+        },
+        {
+          "questionId": "pld.lesson_2.q2",
+          "conceptId": "pld.mitigation_stacking",
+          "scenario": "You have Rampart, Sentinel, and Sheltron available. Huge tankbuster incoming.",
+          "question": "What's the best mitigation approach?",
+          "options": ["Use all three together", "Rampart + Sheltron", "Sentinel + Sheltron", "Sentinel only"],
+          "correctIndex": 2,
+          "explanation": "Sentinel (30%) + Sheltron is usually enough. Save Rampart for the next buster. Stacking all three is overkill and wastes CDs."
+        },
+        {
+          "questionId": "pld.lesson_2.q3",
+          "conceptId": "pld.bulwark",
+          "scenario": "Large trash pull in a dungeon. Many enemies auto-attacking you.",
+          "question": "Which cooldown synergizes best with Sheltron here?",
+          "options": ["Sentinel", "Bulwark", "Reprisal", "Rampart"],
+          "correctIndex": 1,
+          "explanation": "Bulwark increases block rate, which synergizes with Sheltron's guaranteed blocks for sustained auto-attack mitigation."
+        },
+        {
+          "questionId": "pld.lesson_2.q4",
+          "conceptId": "pld.sentinel",
+          "scenario": "You used Sentinel at the start of the fight. It's now coming off cooldown.",
+          "question": "When should you use it again?",
+          "options": ["Immediately on CD", "Save for tankbuster", "Wait until low HP", "Alternate with Rampart"],
+          "correctIndex": 1,
+          "explanation": "Plan your Sentinel usage around major damage events like tankbusters. Using it proactively is better than reactively."
+        },
+        {
+          "questionId": "pld.lesson_2.q5",
+          "conceptId": "pld.mitigation_stacking",
+          "scenario": "Rampart has 5 seconds remaining. Another small hit incoming.",
+          "question": "Should you add another cooldown?",
+          "options": ["Yes - stack mitigations", "No - Rampart is enough", "Use Reprisal", "Depends on damage"],
+          "correctIndex": 1,
+          "explanation": "For small hits, one mitigation is enough. Don't stack cooldowns on minor damage - save them for bigger hits."
+        }
+      ]
+    },
+    {
+      "quizId": "pld.lesson_3.quiz",
+      "lessonId": "pld.lesson_3",
+      "title": "Quiz: Hallowed Ground",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "pld.lesson_3.q1",
+          "conceptId": "pld.hallowed_ground",
+          "scenario": "Boss is casting a massive tankbuster. You're at 30% HP.",
+          "question": "Should you use Hallowed Ground?",
+          "options": ["No - save it", "Yes - survive the hit", "No - use Sentinel", "Wait until lower"],
+          "correctIndex": 1,
+          "explanation": "At 30% with a massive hit coming, Hallowed Ground guarantees survival. It's the best tank invuln - take 0 damage."
+        },
+        {
+          "questionId": "pld.lesson_3.q2",
+          "conceptId": "pld.invuln_timing",
+          "scenario": "Hallowed Ground is on a 420 second (7 minute) cooldown.",
+          "question": "How should this affect your usage?",
+          "options": ["Use only once per fight", "Use whenever needed", "Save for enrage", "Use early to get 2 uses"],
+          "correctIndex": 3,
+          "explanation": "In longer fights, using Hallowed early means you might get a second use. Plan around the fight timeline."
+        },
+        {
+          "questionId": "pld.lesson_3.q3",
+          "conceptId": "pld.hallowed_ground",
+          "scenario": "Huge wall-to-wall pull in a dungeon. Healer is struggling.",
+          "question": "Is Hallowed Ground useful here?",
+          "options": ["No - boss only", "Yes - take 0 damage", "No - too long CD", "Use Sentinel instead"],
+          "correctIndex": 1,
+          "explanation": "Hallowed Ground is excellent for big dungeon pulls - 10 seconds of immunity gives healer time to stabilize."
+        },
+        {
+          "questionId": "pld.lesson_3.q4",
+          "conceptId": "pld.invuln_timing",
+          "scenario": "Comparing PLD's invuln to other tanks.",
+          "question": "What makes Hallowed Ground special?",
+          "options": ["Shortest CD", "No healer attention needed", "Longest duration", "Highest potency"],
+          "correctIndex": 1,
+          "explanation": "Hallowed Ground makes you fully invulnerable - no HP drop like Superbolide, no healing requirement like Living Dead."
+        },
+        {
+          "questionId": "pld.lesson_3.q5",
+          "conceptId": "pld.hallowed_ground",
+          "scenario": "You used Hallowed Ground. 10 seconds of invulnerability.",
+          "question": "What should you focus on during this window?",
+          "options": ["Stay defensive", "Maximum DPS", "Help healers", "Move away"],
+          "correctIndex": 1,
+          "explanation": "During Hallowed, you can't take damage. Use this window for maximum offense - no need for defensive actions."
+        }
+      ]
+    },
+    {
+      "quizId": "pld.lesson_4.quiz",
+      "lessonId": "pld.lesson_4",
+      "title": "Quiz: Fight or Flight",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "pld.lesson_4.q1",
+          "conceptId": "pld.fight_or_flight",
+          "scenario": "Fight just started. When should you use Fight or Flight?",
+          "question": "What's the optimal timing?",
+          "options": ["Before first GCD", "After first GCD", "After combo finisher", "Wait for burst"],
+          "correctIndex": 1,
+          "explanation": "Use Fight or Flight after your first GCD to maximize the 20s window. Using before the GCD wastes time."
+        },
+        {
+          "questionId": "pld.lesson_4.q2",
+          "conceptId": "pld.goring_blade",
+          "scenario": "Goring Blade combo finisher available. Fight or Flight is active.",
+          "question": "What does Goring Blade apply?",
+          "options": ["Shield", "DoT damage", "Buff", "Heal"],
+          "correctIndex": 1,
+          "explanation": "Goring Blade applies a powerful DoT. Using it during Fight or Flight means the DoT does 25% more damage."
+        },
+        {
+          "questionId": "pld.lesson_4.q3",
+          "conceptId": "pld.atonement_chain",
+          "scenario": "You just used Royal Authority. 3 Atonement stacks available.",
+          "question": "What's the correct Atonement chain order?",
+          "options": ["Atonement x3", "Atonement-Supplication-Sepulchre", "Any order", "Sepulchre first"],
+          "correctIndex": 1,
+          "explanation": "The chain is Atonement > Supplication > Sepulchre. Each hit in the chain does increasing damage."
+        },
+        {
+          "questionId": "pld.lesson_4.q4",
+          "conceptId": "pld.burst_window",
+          "scenario": "Fight or Flight is up. You have Expiacion and Circle of Scorn available.",
+          "question": "How should you use these oGCDs?",
+          "options": ["Save for after FoF", "Use during FoF window", "Alternate usage", "Doesn't matter"],
+          "correctIndex": 1,
+          "explanation": "Use oGCDs during Fight or Flight to benefit from the 25% damage boost. Pack your burst into the window."
+        },
+        {
+          "questionId": "pld.lesson_4.q5",
+          "conceptId": "pld.fight_or_flight",
+          "scenario": "Fight or Flight has 3 seconds remaining. You need to move.",
+          "question": "What should you prioritize?",
+          "options": ["Keep hitting boss", "Use Holy Spirit", "Move and Shield Lob", "Just move"],
+          "correctIndex": 1,
+          "explanation": "Holy Spirit is instant during Requiescat, but even without, it maintains DPS while moving during the FoF window."
+        }
+      ]
+    },
+    {
+      "quizId": "pld.lesson_5.quiz",
+      "lessonId": "pld.lesson_5",
+      "title": "Quiz: Magic Phase",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "pld.lesson_5.q1",
+          "conceptId": "pld.requiescat",
+          "scenario": "Requiescat just came off cooldown. You're mid-physical combo.",
+          "question": "When should you use Requiescat?",
+          "options": ["Immediately", "After combo finishes", "During movement", "With Fight or Flight"],
+          "correctIndex": 1,
+          "explanation": "Finish your physical combo first, then use Requiescat to transition to magic phase. Don't interrupt combos."
+        },
+        {
+          "questionId": "pld.lesson_5.q2",
+          "conceptId": "pld.holy_spirit",
+          "scenario": "Requiescat is active. You need to cast Holy Spirit.",
+          "question": "What's the cast time during Requiescat?",
+          "options": ["2.5 seconds", "1.5 seconds", "Instant", "No change"],
+          "correctIndex": 2,
+          "explanation": "Requiescat makes Holy Spirit and Holy Circle instant cast. This is why magic phase is great for movement."
+        },
+        {
+          "questionId": "pld.lesson_5.q3",
+          "conceptId": "pld.confiteor",
+          "scenario": "You have 4 Requiescat stacks. What combo should you start?",
+          "question": "What's the correct sequence?",
+          "options": ["4x Holy Spirit", "Confiteor combo", "Mix of both", "3x Holy Spirit + Confiteor"],
+          "correctIndex": 1,
+          "explanation": "The Confiteor combo (Confiteor > Faith > Truth > Valor) is your strongest magic burst. Use it to consume stacks."
+        },
+        {
+          "questionId": "pld.lesson_5.q4",
+          "conceptId": "pld.blade_combo",
+          "scenario": "You're in the middle of Blade of Faith. Boss becomes untargetable.",
+          "question": "What happens to your combo?",
+          "options": ["Combo breaks", "Combo continues", "Stacks are lost", "Must restart"],
+          "correctIndex": 1,
+          "explanation": "The Blade combo is a true combo chain - it continues even through brief untargetable phases. Don't panic."
+        },
+        {
+          "questionId": "pld.lesson_5.q5",
+          "conceptId": "pld.magic_phase",
+          "scenario": "Lots of movement required for upcoming mechanic.",
+          "question": "Which phase handles movement better?",
+          "options": ["Physical phase", "Magic phase (Requiescat)", "Both equally", "Neither - stand still"],
+          "correctIndex": 1,
+          "explanation": "Magic phase with Requiescat gives instant casts. Save magic phase for high-movement mechanics when possible."
+        }
+      ]
+    },
+    {
+      "quizId": "pld.lesson_6.quiz",
+      "lessonId": "pld.lesson_6",
+      "title": "Quiz: Party Protection",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "pld.lesson_6.q1",
+          "conceptId": "pld.divine_veil",
+          "scenario": "Divine Veil is active on you. Party-wide damage incoming.",
+          "question": "What triggers Divine Veil's party shield?",
+          "options": ["Taking damage", "Receiving a heal", "Time expiring", "Using a GCD"],
+          "correctIndex": 1,
+          "explanation": "Divine Veil activates when you receive healing. Coordinate with healers to ensure the shield deploys before damage."
+        },
+        {
+          "questionId": "pld.lesson_6.q2",
+          "conceptId": "pld.cover",
+          "scenario": "A party member is about to take a lethal hit. Cover is available.",
+          "question": "What does Cover do?",
+          "options": ["Reduces their damage", "You take their damage", "Shields them", "Heals them"],
+          "correctIndex": 1,
+          "explanation": "Cover makes you take all physical damage for the target. Useful but dangerous - you need to survive the hit."
+        },
+        {
+          "questionId": "pld.lesson_6.q3",
+          "conceptId": "pld.passage_of_arms",
+          "scenario": "Party stacking behind you for a raidwide. Passage of Arms available.",
+          "question": "How does Passage of Arms work?",
+          "options": ["Instant mitigation", "Channeled, blocks attacks", "Shield on allies", "Damage reduction zone"],
+          "correctIndex": 3,
+          "explanation": "Passage of Arms creates a cone behind you that reduces damage. It's channeled but the buff persists briefly after canceling."
+        },
+        {
+          "questionId": "pld.lesson_6.q4",
+          "conceptId": "pld.clemency",
+          "scenario": "Healer is dead. Tank is at 30% HP.",
+          "question": "When is Clemency appropriate?",
+          "options": ["Never use it", "Emergency only like this", "Use freely", "Only in dungeons"],
+          "correctIndex": 1,
+          "explanation": "Clemency is a DPS loss (GCD cost + MP). Use it only in emergencies when healers can't help."
+        },
+        {
+          "questionId": "pld.lesson_6.q5",
+          "conceptId": "pld.party_protection",
+          "scenario": "You used Divine Veil but it expired without activating.",
+          "question": "What went wrong?",
+          "options": ["Used too early", "Didn't receive healing", "Party moved away", "Wrong ability"],
+          "correctIndex": 1,
+          "explanation": "Divine Veil requires you to receive healing to activate. If no heal comes, the ability is wasted."
+        }
+      ]
+    },
+    {
+      "quizId": "pld.lesson_7.quiz",
+      "lessonId": "pld.lesson_7",
+      "title": "Quiz: Advanced Optimization",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "pld.lesson_7.q1",
+          "conceptId": "pld.tank_swap",
+          "scenario": "Tank swap mechanic. You're currently off-tank.",
+          "question": "What's the correct swap sequence?",
+          "options": ["Just Provoke", "Provoke after buster", "Provoke, then co-tank Shirks", "Wait for healer"],
+          "correctIndex": 2,
+          "explanation": "Proper tank swap: you Provoke, then co-tank Shirks to you. This ensures clean aggro transfer without enmity ping-pong."
+        },
+        {
+          "questionId": "pld.lesson_7.q2",
+          "conceptId": "pld.expiacion",
+          "scenario": "Expiacion is off cooldown. Fight or Flight is coming in 10 seconds.",
+          "question": "Should you use Expiacion now?",
+          "options": ["Yes - don't hold it", "No - wait for FoF", "Depends on fight length", "Use Circle of Scorn instead"],
+          "correctIndex": 2,
+          "explanation": "If FoF is close and you won't lose a use, wait. If holding would cost a use over the fight, use it now."
+        },
+        {
+          "questionId": "pld.lesson_7.q3",
+          "conceptId": "pld.circle_of_scorn",
+          "scenario": "Multiple enemies. Circle of Scorn available.",
+          "question": "What makes Circle of Scorn valuable in AoE?",
+          "options": ["Higher potency", "DoT on all targets", "Instant cast", "No cooldown"],
+          "correctIndex": 1,
+          "explanation": "Circle of Scorn applies a DoT to all enemies hit. In AoE situations, this is significant damage over time."
+        },
+        {
+          "questionId": "pld.lesson_7.q4",
+          "conceptId": "pld.intervene",
+          "scenario": "Need to close gap to boss. You have 2 Intervene charges.",
+          "question": "How should you manage Intervene charges?",
+          "options": ["Use both immediately", "Save both for burst", "Use one, save one", "Only for movement"],
+          "correctIndex": 2,
+          "explanation": "Keep at least one charge for mobility. Use excess charges during burst windows for damage."
+        },
+        {
+          "questionId": "pld.lesson_7.q5",
+          "conceptId": "pld.tank_swap",
+          "scenario": "You're main tank. Debuff requires a swap. Co-tank Provokes.",
+          "question": "What should you do after?",
+          "options": ["Keep attacking", "Shirk to co-tank", "Use defensive CD", "Stop attacking"],
+          "correctIndex": 1,
+          "explanation": "After being Provoked off, Shirk to the new main tank. This gives them a comfortable aggro lead."
+        }
+      ]
+    }
+  ]
+}

@@ -72,6 +72,12 @@ public interface ITrainingService
     IReadOnlyList<LessonDefinition> GetLessonsForJob(string jobPrefix);
 
     /// <summary>
+    /// Gets a lesson by its ID.
+    /// </summary>
+    /// <param name="lessonId">The lesson ID.</param>
+    LessonDefinition? GetLesson(string lessonId);
+
+    /// <summary>
     /// Gets the recommended next lesson for a job based on skill level and mastery.
     /// Provides personalized learning path guidance.
     /// </summary>
@@ -132,6 +138,18 @@ public interface ITrainingService
     #endregion
 
     #region Skill Quizzes
+
+    /// <summary>
+    /// Gets a quiz by its ID.
+    /// </summary>
+    /// <param name="quizId">The quiz ID.</param>
+    QuizDefinition? GetQuiz(string quizId);
+
+    /// <summary>
+    /// Gets all quizzes for a specific job.
+    /// </summary>
+    /// <param name="jobPrefix">The job prefix (e.g., "whm", "sch", "drg").</param>
+    IReadOnlyList<QuizDefinition> GetQuizzesForJob(string jobPrefix);
 
     /// <summary>
     /// Gets the quiz definition for a lesson.

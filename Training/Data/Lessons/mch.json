@@ -1,0 +1,139 @@
+{
+  "jobPrefix": "mch",
+  "jobName": "Machinist",
+  "lessons": [
+    {
+      "lessonId": "mch.lesson_1",
+      "lessonNumber": 1,
+      "title": "Machinist Fundamentals",
+      "description": "Learn the core principles of Machinist: the dual-gauge system of Heat and Battery, how they generate, and how they interact.",
+      "prerequisites": [],
+      "conceptsCovered": ["mch.heat_gauge", "mch.battery_gauge", "mch.gauge_interactions"],
+      "keyPoints": [
+        "Heat Gauge (0-100): Builds from weapon skill combos, spent on Hypercharge",
+        "Battery Gauge (0-100): Builds from tool abilities and combo finishers, spent on Automaton Queen",
+        "Heat and Battery are independent - manage both simultaneously",
+        "Never overcap either gauge - use resources before hitting 100"
+      ],
+      "relatedAbilities": ["Heated Split Shot", "Heated Slug Shot", "Heated Clean Shot", "Hypercharge", "Automaton Queen"],
+      "tips": [
+        "Watch both gauges constantly - they're your primary resource management",
+        "Heat builds faster from combos, Battery builds from finishers and tools"
+      ]
+    },
+    {
+      "lessonId": "mch.lesson_2",
+      "lessonNumber": 2,
+      "title": "Tool Mastery",
+      "description": "Master Machinist's high-priority tool abilities: Drill, Air Anchor, and Chain Saw - your highest potency GCDs.",
+      "prerequisites": ["mch.lesson_1"],
+      "conceptsCovered": ["mch.drill_priority", "mch.air_anchor_usage", "mch.chain_saw_usage", "mch.proc_tracking"],
+      "keyPoints": [
+        "Drill: 20s cooldown, 2 charges at level 98 - your highest potency single-target GCD",
+        "Air Anchor: 40s cooldown - grants +20 Battery on hit",
+        "Chain Saw: 60s cooldown - grants Excavator Ready proc",
+        "Excavator Ready: Use Excavator immediately after Chain Saw (free high-potency GCD)"
+      ],
+      "relatedAbilities": ["Drill", "Air Anchor", "Chain Saw", "Excavator", "Full Metal Field"],
+      "tips": [
+        "Tools have priority over combo GCDs - never let them overcap charges",
+        "Excavator Ready and Full Metal Machinist procs have 30s duration - don't drop them"
+      ]
+    },
+    {
+      "lessonId": "mch.lesson_3",
+      "lessonNumber": 3,
+      "title": "Reassemble Optimization",
+      "description": "Maximize damage with Reassemble: which tools to buff, charge management, and avoiding overcap.",
+      "prerequisites": ["mch.lesson_2"],
+      "conceptsCovered": ["mch.reassemble_priority", "mch.reassemble_charges", "mch.gauge_overcapping"],
+      "keyPoints": [
+        "Reassemble: Guarantees critical direct hit on next weapon skill (55s cooldown, 2 charges)",
+        "Priority for Reassemble: Drill > Chain Saw > Air Anchor",
+        "Drill has 2 charges at level 98 - align Reassemble with Drill uses",
+        "Never hold Reassemble so long that you overcap charges"
+      ],
+      "relatedAbilities": ["Reassemble", "Drill", "Chain Saw", "Air Anchor"],
+      "tips": [
+        "Reassemble turns a ~600 potency tool into ~900+ effective potency",
+        "In burst windows, try to fit 2 Reassembled Drills with raid buffs"
+      ]
+    },
+    {
+      "lessonId": "mch.lesson_4",
+      "lessonNumber": 4,
+      "title": "Hypercharge Windows",
+      "description": "Execute the Hypercharge rotation perfectly: 50 Heat entry, Overheated state, Heat Blast spam, and oGCD weaving.",
+      "prerequisites": ["mch.lesson_3"],
+      "conceptsCovered": ["mch.hypercharge_activation", "mch.overheated_state", "mch.heat_blast_rotation", "mch.ogcd_weaving"],
+      "keyPoints": [
+        "Hypercharge costs 50 Heat, grants 10s Overheated status",
+        "During Overheated: Heat Blast has 1.5s recast (fires 5 Heat Blasts total)",
+        "Heat Blast generates 15 Gauge (total +75 Heat from full Hypercharge window)",
+        "Weave Gauss Round and Ricochet between Heat Blasts (single weave only)"
+      ],
+      "relatedAbilities": ["Hypercharge", "Heat Blast", "Gauss Round", "Ricochet"],
+      "tips": [
+        "Heat Blast's 1.5s recast only allows single weaving - never double weave",
+        "Pool Gauss Round and Ricochet charges before Hypercharge for maximum weaving"
+      ]
+    },
+    {
+      "lessonId": "mch.lesson_5",
+      "lessonNumber": 5,
+      "title": "Wildfire Burst",
+      "description": "Master the 120s Wildfire burst: proper placement before Hypercharge, alignment, and maximizing damage.",
+      "prerequisites": ["mch.lesson_4"],
+      "conceptsCovered": ["mch.wildfire_placement", "mch.wildfire_alignment", "mch.hypercharge_timing"],
+      "keyPoints": [
+        "Wildfire: 120s cooldown, 10s duration, explodes for damage based on weapon skills landed",
+        "Apply Wildfire BEFORE Hypercharge - it needs to be active during Heat Blasts",
+        "Optimal: Wildfire -> Hypercharge -> 5 Heat Blasts -> Wildfire explodes for 6 hits",
+        "Wildfire counts weapon skills only (not oGCDs) - maximize GCDs during its window"
+      ],
+      "relatedAbilities": ["Wildfire", "Hypercharge", "Heat Blast", "Detonator"],
+      "tips": [
+        "Wildfire + Hypercharge is your primary burst - never desync them",
+        "If Wildfire is ready but Heat < 50, build heat quickly to not delay too long"
+      ]
+    },
+    {
+      "lessonId": "mch.lesson_6",
+      "lessonNumber": 6,
+      "title": "Queen Management",
+      "description": "Optimize Automaton Queen deployment: Battery accumulation, damage scaling, and burst alignment.",
+      "prerequisites": ["mch.lesson_5"],
+      "conceptsCovered": ["mch.queen_summoning", "mch.battery_accumulation", "mch.queen_damage_scaling"],
+      "keyPoints": [
+        "Automaton Queen requires minimum 50 Battery to summon (but aim for 90-100)",
+        "Queen damage SCALES with Battery spent - 100 Battery = maximum damage",
+        "Queen attacks automatically, finishing with Pile Bunker and Crowned Collider",
+        "Summon Queen during raid buff windows for maximum value"
+      ],
+      "relatedAbilities": ["Automaton Queen", "Queen Overdrive", "Pile Bunker", "Crowned Collider"],
+      "tips": [
+        "At 100 Battery, summon Queen immediately to avoid overcapping",
+        "Queen has ~12s active time - summon early in buff windows"
+      ]
+    },
+    {
+      "lessonId": "mch.lesson_7",
+      "lessonNumber": 7,
+      "title": "Advanced Tactics",
+      "description": "Synthesize all Machinist mechanics: party burst coordination, phase awareness, AoE decisions, and interrupt utility.",
+      "prerequisites": ["mch.lesson_6"],
+      "conceptsCovered": ["mch.burst_party_sync", "mch.phase_awareness", "mch.aoe_rotation", "mch.target_count_threshold", "mch.interrupt_usage"],
+      "keyPoints": [
+        "Align Wildfire + Queen with party 2-minute raid buff windows",
+        "AoE threshold: Use AoE rotation at 3+ targets (Scattergun, Auto Crossbow, Bioblaster)",
+        "Auto Crossbow replaces Heat Blast during AoE Hypercharge",
+        "Head Graze is your interrupt - coordinate with party via IPC"
+      ],
+      "relatedAbilities": ["Scattergun", "Auto Crossbow", "Bioblaster", "Head Graze", "Flamethrower"],
+      "tips": [
+        "In dungeons, use Bioblaster on cooldown - it's free damage over time on groups",
+        "Flamethrower is a channeled AoE - use during large pulls when you can stand still"
+      ]
+    }
+  ]
+}

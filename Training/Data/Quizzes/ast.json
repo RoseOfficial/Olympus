@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "ast",
+  "jobName": "Astrologian",
+  "quizzes": [
+    {
+      "quizId": "ast.lesson_1.quiz",
+      "lessonId": "ast.lesson_1",
+      "title": "Quiz: Astrologian Fundamentals",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "ast.lesson_1.q1",
+          "conceptId": "ast.essential_dignity_usage",
+          "scenario": "Tank is at 25% HP. Essential Dignity has 2 charges available.",
+          "question": "How effective will Essential Dignity be?",
+          "options": ["Normal potency", "Increased potency due to low HP", "Reduced potency", "Same as at full HP"],
+          "correctIndex": 1,
+          "explanation": "Essential Dignity heals MORE when the target is at low HP. At 25%, it's at maximum potency. This makes it ideal for emergency situations."
+        },
+        {
+          "questionId": "ast.lesson_1.q2",
+          "conceptId": "ast.hot_management",
+          "scenario": "Combat is starting. Tank is at full HP.",
+          "question": "What should you apply first?",
+          "options": ["Benefic II", "Aspected Benefic", "Nothing", "Essential Dignity"],
+          "correctIndex": 1,
+          "explanation": "AST is a regen healer - start with Aspected Benefic (HoT) on the tank. The HoT heals incoming damage over time, letting you DPS."
+        },
+        {
+          "questionId": "ast.lesson_1.q3",
+          "conceptId": "ast.emergency_healing",
+          "scenario": "Tank at 15% HP. Essential Dignity on CD.",
+          "question": "What's your emergency option?",
+          "options": ["Benefic II", "Benefic", "Celestial Intersection", "Aspected Benefic"],
+          "correctIndex": 2,
+          "explanation": "Celestial Intersection is an oGCD that provides shield and HoT instantly. When Essential Dignity is down, it's your best emergency oGCD."
+        },
+        {
+          "questionId": "ast.lesson_1.q4",
+          "conceptId": "ast.essential_dignity_usage",
+          "scenario": "Tank at 70% HP. You have 2 Essential Dignity charges.",
+          "question": "Should you use Essential Dignity?",
+          "options": ["Yes - use freely", "No - tank is too healthy", "Yes - avoid capping", "No - save for emergency"],
+          "correctIndex": 1,
+          "explanation": "At 70% HP, Essential Dignity's potency is lower. Wait until tank is lower to maximize its healing value."
+        },
+        {
+          "questionId": "ast.lesson_1.q5",
+          "conceptId": "ast.hot_management",
+          "scenario": "Aspected Benefic has 10s remaining. Tank at 85% HP.",
+          "question": "Should you refresh it?",
+          "options": ["Yes", "No - wait until lower", "No - would overheal", "Yes - always maintain"],
+          "correctIndex": 2,
+          "explanation": "At 85% with 10s of HoT remaining, refreshing would overheal. Let it tick down - refresh when it's needed AND about to fall off."
+        }
+      ]
+    },
+    {
+      "quizId": "ast.lesson_2.quiz",
+      "lessonId": "ast.lesson_2",
+      "title": "Quiz: Card System Basics",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "ast.lesson_2.q1",
+          "conceptId": "ast.draw_timing",
+          "scenario": "Draw just came off CD. You have no card.",
+          "question": "When should you Draw?",
+          "options": ["Wait for burst", "Draw immediately", "Save for emergency", "Wait for tank damage"],
+          "correctIndex": 1,
+          "explanation": "Draw on cooldown. Cards have limited duration, and the sooner you Draw, the sooner you can Draw again."
+        },
+        {
+          "questionId": "ast.lesson_2.q2",
+          "conceptId": "ast.card_management",
+          "scenario": "You have a card. Party has 2 melee and 2 ranged DPS.",
+          "question": "Who should receive the card?",
+          "options": ["The tank", "Any DPS", "The healer", "Best performing DPS"],
+          "correctIndex": 3,
+          "explanation": "Cards give damage buffs. Play them on the DPS who will get the most value - usually whoever is performing best."
+        },
+        {
+          "questionId": "ast.lesson_2.q3",
+          "conceptId": "ast.minor_arcana_usage",
+          "scenario": "You have a card but all DPS are dead.",
+          "question": "What should you do?",
+          "options": ["Hold for resurrect", "Play on tank", "Minor Arcana", "Let expire"],
+          "correctIndex": 2,
+          "explanation": "Minor Arcana converts your card to Lord/Lady of Crowns. If you can't use the card optimally, convert it rather than waste it."
+        },
+        {
+          "questionId": "ast.lesson_2.q4",
+          "conceptId": "ast.draw_timing",
+          "scenario": "Draw is ready during heavy healing phase.",
+          "question": "Should you Draw?",
+          "options": ["No - focus on healing", "Yes - Draw is oGCD", "Wait for stability", "Cards aren't important"],
+          "correctIndex": 1,
+          "explanation": "Draw is an oGCD - weave it between heals. Even during intense healing, keep the card cycle rolling."
+        },
+        {
+          "questionId": "ast.lesson_2.q5",
+          "conceptId": "ast.card_management",
+          "scenario": "A DPS will burst in 5 seconds. You have a card.",
+          "question": "When should you play the card?",
+          "options": ["Immediately", "Right before burst", "During burst", "After burst"],
+          "correctIndex": 1,
+          "explanation": "Play just before burst so the buff is active during their highest damage. Playing during or after wastes buff duration."
+        }
+      ]
+    },
+    {
+      "quizId": "ast.lesson_3.quiz",
+      "lessonId": "ast.lesson_3",
+      "title": "Quiz: Card System Advanced",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "ast.lesson_3.q1",
+          "conceptId": "ast.divination_timing",
+          "scenario": "Fight started. DPS using openers. Divination available.",
+          "question": "When should you use Divination?",
+          "options": ["Save for later", "Use in opener", "Wait for 2min", "After first mechanic"],
+          "correctIndex": 1,
+          "explanation": "Divination (6% party buff) should align with party burst. Openers are the biggest burst - use it early."
+        },
+        {
+          "questionId": "ast.lesson_3.q2",
+          "conceptId": "ast.oracle_usage",
+          "scenario": "You just used Divination. Oracle is available.",
+          "question": "What should you do with Oracle?",
+          "options": ["Save it", "Use immediately", "Wait for more targets", "Not worth using"],
+          "correctIndex": 1,
+          "explanation": "Oracle is granted after Divination and is strong damage. Use it during the burst window you created."
+        },
+        {
+          "questionId": "ast.lesson_3.q3",
+          "conceptId": "ast.astrodyne_building",
+          "scenario": "You've played 2 cards. Need 3 for Astrodyne.",
+          "question": "What should you prioritize?",
+          "options": ["Wait for perfect card", "Play any card", "Save third card", "Astrodyne isn't important"],
+          "correctIndex": 1,
+          "explanation": "Getting Astrodyne active is valuable. Play your third card even if target isn't perfect."
+        },
+        {
+          "questionId": "ast.lesson_3.q4",
+          "conceptId": "ast.divination_timing",
+          "scenario": "Divination ready. Major burst in 45s. Small burst now.",
+          "question": "When to use Divination?",
+          "options": ["Now", "Save for 45s", "Now - will realign", "Depends on fight"],
+          "correctIndex": 3,
+          "explanation": "Depends on fight length. If Divination will be ready for major burst, use now. If not, save it. Learn fight timings."
+        },
+        {
+          "questionId": "ast.lesson_3.q5",
+          "conceptId": "ast.astrodyne_building",
+          "scenario": "Played 3 cards with same seal. Astrodyne activates.",
+          "question": "What buffs do you receive?",
+          "options": ["All three", "One only", "Two", "None"],
+          "correctIndex": 1,
+          "explanation": "Astrodyne buffs depend on seal variety. Three same = 1 buff. You want different seals for more buffs."
+        }
+      ]
+    },
+    {
+      "quizId": "ast.lesson_4.quiz",
+      "lessonId": "ast.lesson_4",
+      "title": "Quiz: HoT Economy",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "ast.lesson_4.q1",
+          "conceptId": "ast.aspected_benefic_usage",
+          "scenario": "Tank has no HoT. 75% HP, steady damage.",
+          "question": "What should you apply?",
+          "options": ["Benefic II", "Aspected Benefic", "Essential Dignity", "Nothing"],
+          "correctIndex": 1,
+          "explanation": "The HoT from Aspected Benefic handles steady damage over time, letting you DPS. Save oGCDs for bigger drops."
+        },
+        {
+          "questionId": "ast.lesson_4.q2",
+          "conceptId": "ast.celestial_opposition_usage",
+          "scenario": "Raidwide hit. Party at 60%. Celestial Opposition available.",
+          "question": "Should you use it?",
+          "options": ["No - save it", "Yes - free oGCD", "No - party is fine", "Use Helios instead"],
+          "correctIndex": 1,
+          "explanation": "Celestial Opposition is a free oGCD party heal + HoT. At 60%, it handles recovery without using a GCD."
+        },
+        {
+          "questionId": "ast.lesson_4.q3",
+          "conceptId": "ast.synastry_usage",
+          "scenario": "Heavy tank damage phase. Synastry available.",
+          "question": "How to use Synastry?",
+          "options": ["Apply to DPS", "Apply to yourself", "Apply to tank", "Save for emergency"],
+          "correctIndex": 2,
+          "explanation": "Synastry duplicates 40% of your heals to the linked target. Apply to tank during heavy damage."
+        },
+        {
+          "questionId": "ast.lesson_4.q4",
+          "conceptId": "ast.aspected_helios_usage",
+          "scenario": "Multiple raidwides in 20s. Party at full HP.",
+          "question": "Pre-apply Aspected Helios?",
+          "options": ["No - wait", "Yes - HoT helps", "No - would overheal", "Only after damage"],
+          "correctIndex": 1,
+          "explanation": "Pre-applied HoT means party recovers automatically between hits. Proactive HoTs are AST's strength."
+        },
+        {
+          "questionId": "ast.lesson_4.q5",
+          "conceptId": "ast.celestial_opposition_usage",
+          "scenario": "C.Opposition ready. Raidwide in 30s. Need healing now.",
+          "question": "Should you use it?",
+          "options": ["Save for raidwide", "Use now - 60s CD", "Use Helios instead", "Depends on HP"],
+          "correctIndex": 1,
+          "explanation": "60s cooldown means it'll be ready again for the raidwide. Don't hold oGCDs unnecessarily."
+        }
+      ]
+    },
+    {
+      "quizId": "ast.lesson_5.quiz",
+      "lessonId": "ast.lesson_5",
+      "title": "Quiz: Earthly Star Mastery",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "ast.lesson_5.q1",
+          "conceptId": "ast.earthly_star_placement",
+          "scenario": "Raidwide in 12 seconds. Star available.",
+          "question": "When to place Earthly Star?",
+          "options": ["Right before hit", "Now - needs 10s to mature", "After raidwide", "5 seconds before"],
+          "correctIndex": 1,
+          "explanation": "Star takes 10s to mature. Place NOW so it's at full power when the raidwide hits in 12 seconds."
+        },
+        {
+          "questionId": "ast.lesson_5.q2",
+          "conceptId": "ast.earthly_star_maturation",
+          "scenario": "Star placed 5s ago. Need healing now.",
+          "question": "Should you detonate early?",
+          "options": ["No - wait", "Yes - some healing helps", "Use other heals", "Star is useless"],
+          "correctIndex": 2,
+          "explanation": "At 5s, Star is half power. Use other heals if possible. Only detonate early if absolutely necessary."
+        },
+        {
+          "questionId": "ast.lesson_5.q3",
+          "conceptId": "ast.earthly_star_placement",
+          "scenario": "Party will stack in 15 seconds for a mechanic.",
+          "question": "Where to place Star?",
+          "options": ["Current location", "Stack point", "Under boss", "Arena center"],
+          "correctIndex": 1,
+          "explanation": "Place where party WILL BE when you detonate. Stack point means mature Star hits everyone."
+        },
+        {
+          "questionId": "ast.lesson_5.q4",
+          "conceptId": "ast.earthly_star_maturation",
+          "scenario": "Star out for 18s. Auto-detonates at 20s.",
+          "question": "What should you do?",
+          "options": ["Let auto-detonate", "Detonate manually", "Doesn't matter", "Place new one"],
+          "correctIndex": 0,
+          "explanation": "At 18s, Star is mature. Let it auto-detonate unless you need healing immediately or party is moving."
+        },
+        {
+          "questionId": "ast.lesson_5.q5",
+          "conceptId": "ast.earthly_star_placement",
+          "scenario": "Fight started. No raidwide for 30s.",
+          "question": "Should you place Star?",
+          "options": ["No - save for raidwide", "Yes - use on CD", "Wait 20 seconds", "Place for tank"],
+          "correctIndex": 1,
+          "explanation": "Star deals damage too. Use for DPS value. 60s CD means it's ready for the 30s raidwide anyway."
+        }
+      ]
+    },
+    {
+      "quizId": "ast.lesson_6.quiz",
+      "lessonId": "ast.lesson_6",
+      "title": "Quiz: Defensive Cooldowns",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "ast.lesson_6.q1",
+          "conceptId": "ast.neutral_sect_usage",
+          "scenario": "Heavy raidwide coming. Party full HP.",
+          "question": "What should you do?",
+          "options": ["Save Neutral Sect", "Neutral Sect + Asp. Helios", "Just Asp. Helios", "Wait for damage"],
+          "correctIndex": 1,
+          "explanation": "Neutral Sect adds shields to Aspected spells. Pre-raidwide, use both for HoT + shield combo."
+        },
+        {
+          "questionId": "ast.lesson_6.q2",
+          "conceptId": "ast.macrocosmos_usage",
+          "scenario": "Heavy damage in next 5 seconds. Macrocosmos available.",
+          "question": "When to use Macrocosmos?",
+          "options": ["After damage", "Before damage", "During damage", "Save it"],
+          "correctIndex": 1,
+          "explanation": "Macrocosmos stores damage taken. Apply BEFORE damage so it captures it, then detonate to heal back."
+        },
+        {
+          "questionId": "ast.lesson_6.q3",
+          "conceptId": "ast.exaltation_usage",
+          "scenario": "Tankbuster in 5 seconds. Exaltation available.",
+          "question": "Should you use Exaltation?",
+          "options": ["No - doesn't shield", "Yes - mitigation + delayed heal", "Wait for buster", "Use C.Intersection"],
+          "correctIndex": 1,
+          "explanation": "Exaltation provides 10% mitigation AND heals when it expires. Apply before for mitigation value."
+        },
+        {
+          "questionId": "ast.lesson_6.q4",
+          "conceptId": "ast.collective_unconscious_usage",
+          "scenario": "Heavy sustained party damage. C.Unconscious available.",
+          "question": "How does it work?",
+          "options": ["Instant heal", "Channeled mit + HoT", "Shield only", "Mitigation only"],
+          "correctIndex": 1,
+          "explanation": "Collective Unconscious is channeled - provides mitigation while channeling and applies a HoT."
+        },
+        {
+          "questionId": "ast.lesson_6.q5",
+          "conceptId": "ast.lightspeed_usage",
+          "scenario": "Need to move but also keep casting.",
+          "question": "What ability helps?",
+          "options": ["Swiftcast", "Lightspeed", "Presence of Mind", "Nothing"],
+          "correctIndex": 1,
+          "explanation": "Lightspeed makes GCDs instant for 15s. Full mobility while maintaining your rotation."
+        }
+      ]
+    },
+    {
+      "quizId": "ast.lesson_7.quiz",
+      "lessonId": "ast.lesson_7",
+      "title": "Quiz: DPS & Coordination",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "ast.lesson_7.q1",
+          "conceptId": "ast.dot_maintenance",
+          "scenario": "Combust has 4s remaining.",
+          "question": "Should you refresh?",
+          "options": ["Yes - keep DoT up", "No - wait until 3s", "Yes - always refresh", "Let it fall off"],
+          "correctIndex": 1,
+          "explanation": "Refresh at 3s or less to avoid clipping. At 4s, wait one more GCD."
+        },
+        {
+          "questionId": "ast.lesson_7.q2",
+          "conceptId": "ast.dps_optimization",
+          "scenario": "Party healthy. Combust up. Cards played. No mechanics.",
+          "question": "What should you do?",
+          "options": ["Pre-heal", "Malefic spam", "Draw cards", "Apply HoTs"],
+          "correctIndex": 1,
+          "explanation": "Fall Malefic is your filler. When healing isn't needed and DoT is up, spam Malefic for damage."
+        },
+        {
+          "questionId": "ast.lesson_7.q3",
+          "conceptId": "ast.co_healer_awareness",
+          "scenario": "SGE co-healer uses Kerachole before raidwide.",
+          "question": "What should you do?",
+          "options": ["Add Asp. Helios", "Trust them, DPS", "Use Neutral Sect", "Prepare heals"],
+          "correctIndex": 1,
+          "explanation": "Kerachole provides mitigation and HoT. Trust your co-healer and focus on DPS."
+        },
+        {
+          "questionId": "ast.lesson_7.q4",
+          "conceptId": "ast.raise_decision",
+          "scenario": "DPS died. Swiftcast ready. WHM co-healer is casting Glare.",
+          "question": "Who should raise?",
+          "options": ["Wait for WHM", "You - Swiftcast ready", "Hardcast Ascend", "Wait for SMN/RDM"],
+          "correctIndex": 1,
+          "explanation": "Your Swiftcast is ready and WHM is DPSing. Take the raise immediately."
+        },
+        {
+          "questionId": "ast.lesson_7.q5",
+          "conceptId": "ast.esuna_usage",
+          "scenario": "Party member has Doom (white bar).",
+          "question": "What should you do?",
+          "options": ["Heal through it", "Esuna immediately", "Let it timeout", "Can't cleanse"],
+          "correctIndex": 1,
+          "explanation": "Doom with white bar is cleansable. If not cleansed, player dies. Esuna is top priority."
+        }
+      ]
+    }
+  ]
+}

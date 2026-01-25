@@ -1,0 +1,139 @@
+{
+  "jobPrefix": "gnb",
+  "jobName": "Gunbreaker",
+  "lessons": [
+    {
+      "lessonId": "gnb.lesson_1",
+      "lessonNumber": 1,
+      "title": "Cartridge Gauge",
+      "description": "Learn Gunbreaker's core mechanics: Cartridge Gauge generation, Burst Strike usage, and basic combo flow.",
+      "prerequisites": [],
+      "conceptsCovered": ["gnb.cartridge_gauge", "gnb.burst_strike"],
+      "keyPoints": [
+        "Cartridge Gauge builds from Solid Barrel combo finisher (1 cartridge)",
+        "Burst Strike: Spends 1 cartridge for high damage",
+        "Maximum 3 cartridges - don't overcap",
+        "Royal Guard (tank stance) must be active for enmity"
+      ],
+      "relatedAbilities": ["Royal Guard", "Keen Edge", "Brutal Shell", "Solid Barrel", "Burst Strike"],
+      "tips": [
+        "Brutal Shell combo gives a small shield and heal - nice sustain",
+        "Save cartridges for No Mercy windows when possible"
+      ]
+    },
+    {
+      "lessonId": "gnb.lesson_2",
+      "lessonNumber": 2,
+      "title": "Defensive Fundamentals",
+      "description": "Master GNB's defensive toolkit: Rampart, Nebula, Camouflage, and the powerful Heart of Corundum.",
+      "prerequisites": ["gnb.lesson_1"],
+      "conceptsCovered": ["gnb.nebula", "gnb.camouflage", "gnb.heart_of_corundum", "gnb.aurora", "gnb.mitigation_stacking"],
+      "keyPoints": [
+        "Rampart: 20% mitigation for 20s (90s CD) - standard tank cooldown",
+        "Nebula: 30% mitigation for 15s (120s CD) - big defensive CD",
+        "Camouflage: 10% mitigation + parry rate for 20s (90s CD)",
+        "Heart of Corundum: 15% mitigation + heal + shield (25s CD)"
+      ],
+      "relatedAbilities": ["Rampart", "Nebula", "Camouflage", "Heart of Corundum", "Aurora"],
+      "tips": [
+        "Heart of Corundum is extremely strong - use it frequently",
+        "Aurora is a HoT that can be used on yourself or allies"
+      ]
+    },
+    {
+      "lessonId": "gnb.lesson_3",
+      "lessonNumber": 3,
+      "title": "Superbolide",
+      "description": "Master Gunbreaker's invulnerability: Superbolide mechanics, HP drop, and healer coordination.",
+      "prerequisites": ["gnb.lesson_2"],
+      "conceptsCovered": ["gnb.superbolide", "gnb.invuln_timing"],
+      "keyPoints": [
+        "Superbolide: Drops HP to 1, then invulnerable for 10s (360s CD)",
+        "You WILL drop to 1 HP - healers must heal you after",
+        "Can be used reactively when about to die or proactively for big hits",
+        "Second shortest tank invuln CD after Holmgang"
+      ],
+      "relatedAbilities": ["Superbolide"],
+      "tips": [
+        "Don't panic healers - communicate before using Superbolide",
+        "Heart of Corundum after Superbolide helps with recovery"
+      ]
+    },
+    {
+      "lessonId": "gnb.lesson_4",
+      "lessonNumber": 4,
+      "title": "No Mercy Window",
+      "description": "Master GNB's burst window: No Mercy setup, Double Down, and maximizing damage during the window.",
+      "prerequisites": ["gnb.lesson_3"],
+      "conceptsCovered": ["gnb.no_mercy", "gnb.no_mercy_window", "gnb.double_down", "gnb.bloodfest"],
+      "keyPoints": [
+        "No Mercy: 20% damage boost for 20s (60s CD)",
+        "Double Down: Huge AoE damage, costs 2 cartridges (60s CD)",
+        "Bloodfest: Instantly grants 3 cartridges (120s CD)",
+        "Pack your biggest hits into No Mercy windows"
+      ],
+      "relatedAbilities": ["No Mercy", "Double Down", "Bloodfest"],
+      "tips": [
+        "Enter No Mercy with 2+ cartridges for Double Down",
+        "Bloodfest every other No Mercy to refill cartridges"
+      ]
+    },
+    {
+      "lessonId": "gnb.lesson_5",
+      "lessonNumber": 5,
+      "title": "Gnashing Fang Combo",
+      "description": "Master GNB's signature combo: Gnashing Fang, Continuation weaving, and the full combo chain.",
+      "prerequisites": ["gnb.lesson_4"],
+      "conceptsCovered": ["gnb.gnashing_fang", "gnb.continuation", "gnb.continuation_chain"],
+      "keyPoints": [
+        "Gnashing Fang: Starts the 3-hit combo, costs 1 cartridge (30s CD)",
+        "Each hit enables a Continuation oGCD - weave them!",
+        "Gnashing Fang > Jugular Rip > Savage Claw > Abdomen Tear > Wicked Talon > Eye Gouge",
+        "This is GNB's most complex and rewarding combo"
+      ],
+      "relatedAbilities": ["Gnashing Fang", "Savage Claw", "Wicked Talon", "Jugular Rip", "Abdomen Tear", "Eye Gouge"],
+      "tips": [
+        "Never skip Continuation - it's free oGCD damage",
+        "Practice the rhythm: GCD > oGCD > GCD > oGCD > GCD > oGCD"
+      ]
+    },
+    {
+      "lessonId": "gnb.lesson_6",
+      "lessonNumber": 6,
+      "title": "Party Protection",
+      "description": "Master GNB's party utility: Heart of Light for party mitigation and Heart of Corundum for ally protection.",
+      "prerequisites": ["gnb.lesson_5"],
+      "conceptsCovered": ["gnb.heart_of_light", "gnb.great_nebula", "gnb.party_protection"],
+      "keyPoints": [
+        "Heart of Light: 10% magic mitigation for party for 15s (90s CD)",
+        "Heart of Corundum can be used on allies, not just yourself",
+        "Aurora can also be used on party members for healing",
+        "Coordinate party mitigation with healers and co-tank"
+      ],
+      "relatedAbilities": ["Heart of Light", "Heart of Corundum", "Aurora"],
+      "tips": [
+        "Heart of Light only mitigates magic - learn boss damage types",
+        "Heart of Corundum on healers during heavy damage can save lives"
+      ]
+    },
+    {
+      "lessonId": "gnb.lesson_7",
+      "lessonNumber": 7,
+      "title": "Advanced Optimization",
+      "description": "Final lesson: tank swaps, oGCD weaving, Reign of Beasts combo, and optimizing your full rotation.",
+      "prerequisites": ["gnb.lesson_6"],
+      "conceptsCovered": ["gnb.tank_swap", "gnb.sonic_break", "gnb.bow_shock", "gnb.reign_of_beasts", "gnb.blasting_zone", "gnb.trajectory"],
+      "keyPoints": [
+        "Sonic Break: DoT attack (60s CD) - use in No Mercy",
+        "Bow Shock: AoE DoT (60s CD) - use in No Mercy",
+        "Reign of Beasts: New combo from No Mercy, 3-hit chain",
+        "Blasting Zone: Strong oGCD (30s CD) - weave on cooldown"
+      ],
+      "relatedAbilities": ["Provoke", "Shirk", "Sonic Break", "Bow Shock", "Reign of Beasts", "Blasting Zone", "Trajectory"],
+      "tips": [
+        "Trajectory has 2 charges - save for movement or gap closing",
+        "GNB has the busiest rotation - practice oGCD weaving"
+      ]
+    }
+  ]
+}

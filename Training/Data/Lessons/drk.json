@@ -1,0 +1,139 @@
+{
+  "jobPrefix": "drk",
+  "jobName": "Dark Knight",
+  "lessons": [
+    {
+      "lessonId": "drk.lesson_1",
+      "lessonNumber": 1,
+      "title": "Blood Gauge & Darkside",
+      "description": "Learn Dark Knight's core mechanics: Blood Gauge, maintaining Darkside buff, and basic MP management.",
+      "prerequisites": [],
+      "conceptsCovered": ["drk.blood_gauge", "drk.darkside", "drk.darkside_maintenance"],
+      "keyPoints": [
+        "Blood Gauge builds from combo actions (20 per combo finisher)",
+        "Darkside: 10% damage buff - maintained by using Edge/Flood of Shadow",
+        "Edge of Shadow costs 3000 MP and refreshes Darkside timer",
+        "Never let Darkside fall off - it's your primary damage buff"
+      ],
+      "relatedAbilities": ["Grit", "Hard Slash", "Syphon Strike", "Souleater", "Edge of Shadow"],
+      "tips": [
+        "Use Edge of Shadow when MP is high to prevent overcapping",
+        "Darkside timer extends up to 60s - don't over-refresh"
+      ]
+    },
+    {
+      "lessonId": "drk.lesson_2",
+      "lessonNumber": 2,
+      "title": "Defensive Fundamentals",
+      "description": "Master DRK's defensive toolkit: Rampart, Shadow Wall, Dark Mind, and Oblation.",
+      "prerequisites": ["drk.lesson_1"],
+      "conceptsCovered": ["drk.shadow_wall", "drk.dark_mind", "drk.oblation", "drk.mitigation_stacking"],
+      "keyPoints": [
+        "Rampart: 20% mitigation for 20s (90s CD) - standard tank cooldown",
+        "Shadow Wall: 30% mitigation for 15s (120s CD) - big defensive CD",
+        "Dark Mind: 20% magic mitigation (60s CD) - use for magic damage",
+        "Oblation: 10% mitigation with 2 charges (60s CD) - use liberally"
+      ],
+      "relatedAbilities": ["Rampart", "Shadow Wall", "Dark Mind", "Oblation", "Reprisal"],
+      "tips": [
+        "Dark Mind only works on magic damage - learn which attacks are magic",
+        "Oblation can be used on yourself or party members"
+      ]
+    },
+    {
+      "lessonId": "drk.lesson_3",
+      "lessonNumber": 3,
+      "title": "Living Dead",
+      "description": "Master Dark Knight's unique invulnerability: Living Dead mechanics, Walking Dead state, and healer coordination.",
+      "prerequisites": ["drk.lesson_2"],
+      "conceptsCovered": ["drk.living_dead", "drk.walking_dead", "drk.invuln_timing"],
+      "keyPoints": [
+        "Living Dead: 10s buff, if you would die, become Walking Dead instead",
+        "Walking Dead: Cannot die for 10s, but must be healed to full or die",
+        "Your attacks heal you during Walking Dead - hit things!",
+        "Most complex tank invuln - requires healer coordination"
+      ],
+      "relatedAbilities": ["Living Dead"],
+      "tips": [
+        "Walking Dead heals you for damage dealt - AoE attacks help",
+        "Communicate with healers before using Living Dead in prog"
+      ]
+    },
+    {
+      "lessonId": "drk.lesson_4",
+      "lessonNumber": 4,
+      "title": "The Blackest Night",
+      "description": "Master DRK's signature ability: The Blackest Night shield timing, Dark Arts proc, and optimal usage.",
+      "prerequisites": ["drk.lesson_3"],
+      "conceptsCovered": ["drk.the_blackest_night", "drk.tbn_management", "drk.dark_arts"],
+      "keyPoints": [
+        "TBN: 25% max HP shield on self or ally, costs 3000 MP (15s CD)",
+        "If shield breaks, you get Dark Arts (free Edge/Flood of Shadow)",
+        "TBN is DRK's most powerful defensive and offensive tool",
+        "Shield must break fully to get Dark Arts - don't waste on chip damage"
+      ],
+      "relatedAbilities": ["The Blackest Night", "Edge of Shadow", "Flood of Shadow"],
+      "tips": [
+        "TBN before tankbusters guarantees the shield breaks",
+        "Don't TBN during low damage - wasted MP if shield doesn't break"
+      ]
+    },
+    {
+      "lessonId": "drk.lesson_5",
+      "lessonNumber": 5,
+      "title": "Blood Weapon & Delirium",
+      "description": "Master DRK's burst windows: Blood Weapon for MP and gauge, Delirium for Bloodspiller spam.",
+      "prerequisites": ["drk.lesson_4"],
+      "conceptsCovered": ["drk.blood_weapon", "drk.delirium", "drk.bloodspiller", "drk.edge_of_shadow"],
+      "keyPoints": [
+        "Blood Weapon: Your attacks restore MP and Blood Gauge for 15s (60s CD)",
+        "Delirium: Free Bloodspillers and guaranteed crits for 15s (60s CD)",
+        "Bloodspiller: Spends 50 Blood Gauge for high damage",
+        "Stack Blood Weapon and Delirium together for massive burst"
+      ],
+      "relatedAbilities": ["Blood Weapon", "Delirium", "Bloodspiller", "Quietus"],
+      "tips": [
+        "Use 5 GCDs during Blood Weapon to maximize MP and gauge gain",
+        "Delirium Bloodspillers are free - spam them during the window"
+      ]
+    },
+    {
+      "lessonId": "drk.lesson_6",
+      "lessonNumber": 6,
+      "title": "Party Protection",
+      "description": "Master DRK's party utility: Dark Missionary for party mitigation and Living Shadow for damage.",
+      "prerequisites": ["drk.lesson_5"],
+      "conceptsCovered": ["drk.dark_missionary", "drk.living_shadow", "drk.party_protection"],
+      "keyPoints": [
+        "Dark Missionary: 10% magic mitigation for party for 15s (90s CD)",
+        "Living Shadow: Summons shadow clone that attacks for 24s (120s CD)",
+        "Living Shadow is a huge DPS gain - never let it sit unused",
+        "Coordinate party mitigation with healers and co-tank"
+      ],
+      "relatedAbilities": ["Dark Missionary", "Living Shadow"],
+      "tips": [
+        "Dark Missionary only mitigates magic - learn boss damage types",
+        "Living Shadow takes a moment to start attacking after summon"
+      ]
+    },
+    {
+      "lessonId": "drk.lesson_7",
+      "lessonNumber": 7,
+      "title": "Advanced Optimization",
+      "description": "Final lesson: MP management, tank swaps, oGCD weaving, and maximizing damage output.",
+      "prerequisites": ["drk.lesson_6"],
+      "conceptsCovered": ["drk.tank_swap", "drk.carve_and_spit", "drk.salted_earth", "drk.shadowbringer", "drk.disesteem"],
+      "keyPoints": [
+        "Manage MP carefully - you need 3000 for TBN and Edge of Shadow",
+        "Carve and Spit: Strong oGCD + MP restore (60s CD)",
+        "Salted Earth: Ground DoT zone (90s CD) - place under boss",
+        "Shadowbringer: Big damage oGCD, 2 charges (60s CD)"
+      ],
+      "relatedAbilities": ["Provoke", "Shirk", "Carve and Spit", "Salted Earth", "Shadowbringer", "Disesteem"],
+      "tips": [
+        "Never overcap MP - dump into Edge of Shadow before Blood Weapon",
+        "Salted Earth + Salt and Darkness combo for burst damage"
+      ]
+    }
+  ]
+}

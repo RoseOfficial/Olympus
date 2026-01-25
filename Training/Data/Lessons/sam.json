@@ -1,0 +1,140 @@
+{
+  "jobPrefix": "sam",
+  "jobName": "Samurai",
+  "lessons": [
+    {
+      "lessonId": "sam.lesson_1",
+      "lessonNumber": 1,
+      "title": "Samurai Fundamentals",
+      "description": "Learn the core principles of Samurai: combo routes, Sen collection, and maintaining your damage and haste buffs.",
+      "prerequisites": [],
+      "conceptsCovered": ["sam.combo_basics", "sam.sen_system", "sam.fugetsu_buff", "sam.fuka_buff"],
+      "keyPoints": [
+        "Three combo routes: Jinpu path (Getsu Sen), Shifu path (Ka Sen), Yukikaze path (Setsu Sen)",
+        "Fugetsu buff (+13% damage) comes from Jinpu path - never let this drop",
+        "Fuka buff (+13% haste) comes from Shifu path - maintain for faster GCDs",
+        "Each combo finisher (Gekko, Kasha, Yukikaze) grants one Sen"
+      ],
+      "relatedAbilities": ["Hakaze", "Gyofu", "Jinpu", "Shifu", "Gekko", "Kasha", "Yukikaze"],
+      "tips": [
+        "Refresh Fugetsu and Fuka when they have ~5 seconds left",
+        "If both buffs are about to fall off, prioritize Fugetsu (damage) first"
+      ]
+    },
+    {
+      "lessonId": "sam.lesson_2",
+      "lessonNumber": 2,
+      "title": "Kenki & Meditation",
+      "description": "Master Kenki gauge management and Meditation stacks to maximize your damage output.",
+      "prerequisites": ["sam.lesson_1"],
+      "conceptsCovered": ["sam.kenki_gauge", "sam.kenki_spending", "sam.meditation"],
+      "keyPoints": [
+        "Kenki builds from combo actions, caps at 100 - never let it overcap",
+        "Shinten (25 Kenki): Single-target oGCD - your primary Kenki spender",
+        "Kyuten (25 Kenki): AoE alternative for 3+ targets",
+        "Meditation stacks (max 3) from Iaijutsu - spend on Shoha for big damage"
+      ],
+      "relatedAbilities": ["Shinten", "Kyuten", "Shoha", "Shoha II"],
+      "tips": [
+        "Spend Kenki freely to avoid overcapping - it's free damage",
+        "Save some Kenki for movement if you know mechanics are coming"
+      ]
+    },
+    {
+      "lessonId": "sam.lesson_3",
+      "lessonNumber": 3,
+      "title": "Iaijutsu System",
+      "description": "Learn when to use each Iaijutsu based on your Sen count and combat situation.",
+      "prerequisites": ["sam.lesson_2"],
+      "conceptsCovered": ["sam.iaijutsu_selection", "sam.higanbana_dot", "sam.midare_setsugekka", "sam.tenka_goken"],
+      "keyPoints": [
+        "1 Sen = Higanbana: 60s DoT - apply once, then maintain with refreshes",
+        "2 Sen = Tenka Goken: AoE damage - only use in multi-target situations",
+        "3 Sen = Midare Setsugekka: Your hardest-hitting single GCD - primary burst tool",
+        "In single target, always build to 3 Sen for Midare (don't use 1-2 Sen on Higanbana/Tenka)"
+      ],
+      "relatedAbilities": ["Iaijutsu", "Higanbana", "Midare Setsugekka", "Tenka Goken"],
+      "tips": [
+        "Refresh Higanbana when it has 3 seconds or less remaining",
+        "In opener, apply Higanbana with your first Sen, then focus on Midare"
+      ]
+    },
+    {
+      "lessonId": "sam.lesson_4",
+      "lessonNumber": 4,
+      "title": "Tsubame-gaeshi & Meikyo",
+      "description": "Master Tsubame-gaeshi follow-ups and Meikyo Shisui's combo-skipping power.",
+      "prerequisites": ["sam.lesson_3"],
+      "conceptsCovered": ["sam.tsubame_gaeshi", "sam.meikyo_shisui", "sam.meikyo_finisher_priority"],
+      "keyPoints": [
+        "After any Iaijutsu, Tsubame-gaeshi grants a Kaeshi follow-up (same Sen requirement)",
+        "Kaeshi: Setsugekka after Midare is massive damage - never skip it",
+        "Meikyo Shisui (3 stacks): Use combo finishers without the combo (skip Hakaze/Jinpu/Shifu)",
+        "During Meikyo, prioritize missing Sen types, then Gekko for highest potency"
+      ],
+      "relatedAbilities": ["Tsubame-gaeshi", "Kaeshi: Setsugekka", "Kaeshi: Goken", "Kaeshi: Higanbana", "Meikyo Shisui"],
+      "tips": [
+        "Don't use Meikyo just to skip combos - use it to quickly build Sen or refresh buffs",
+        "Meikyo + 3 finishers = instant 3 Sen for Midare"
+      ]
+    },
+    {
+      "lessonId": "sam.lesson_5",
+      "lessonNumber": 5,
+      "title": "Ikishoten Burst Window",
+      "description": "Execute the powerful Ikishoten burst sequence with Ogi Namikiri and Zanshin.",
+      "prerequisites": ["sam.lesson_4"],
+      "conceptsCovered": ["sam.ikishoten_burst", "sam.ogi_namikiri", "sam.zanshin", "sam.senei_timing"],
+      "keyPoints": [
+        "Ikishoten (120s CD): Grants 50 Kenki + Ogi Namikiri Ready",
+        "Ogi Namikiri: Your highest potency GCD - use immediately after Ikishoten",
+        "Kaeshi: Namikiri follows Ogi Namikiri - another massive hit",
+        "Zanshin: Enhanced Kenki spender available after Ogi Namikiri sequence",
+        "Senei (120s CD): High-potency oGCD - align with burst window"
+      ],
+      "relatedAbilities": ["Ikishoten", "Ogi Namikiri", "Kaeshi: Namikiri", "Zanshin", "Senei"],
+      "tips": [
+        "Don't use Ikishoten above 50 Kenki - you'll overcap and waste gauge",
+        "Full burst: Ikishoten -> Ogi Namikiri -> Kaeshi: Namikiri -> Zanshin -> Senei"
+      ]
+    },
+    {
+      "lessonId": "sam.lesson_6",
+      "lessonNumber": 6,
+      "title": "Positionals & True North",
+      "description": "Maximize damage by hitting positionals correctly and using True North when needed.",
+      "prerequisites": ["sam.lesson_5"],
+      "conceptsCovered": ["sam.positionals", "sam.true_north_usage", "sam.positional_recovery"],
+      "keyPoints": [
+        "Gekko: Rear positional - stand behind the boss",
+        "Kasha: Flank positional - stand at the boss's side",
+        "Missing a positional loses significant potency - the attack still works but hits weaker",
+        "True North (45s CD, 2 charges): Ignores positional requirements for 10s"
+      ],
+      "relatedAbilities": ["Gekko", "Kasha", "True North"],
+      "tips": [
+        "Plan Meikyo Shisui finishers around your position - don't waste True North",
+        "Save True North for when you physically can't reach the correct position"
+      ]
+    },
+    {
+      "lessonId": "sam.lesson_7",
+      "lessonNumber": 7,
+      "title": "Advanced Optimization",
+      "description": "Advanced techniques including burst alignment, Meikyo buff management, AoE rotation, and Hagakure usage.",
+      "prerequisites": ["sam.lesson_6"],
+      "conceptsCovered": ["sam.burst_alignment", "sam.meikyo_buff_refresh", "sam.aoe_rotation", "sam.hagakure_usage"],
+      "keyPoints": [
+        "Ikishoten aligns with 2-minute party buffs - coordinate burst windows",
+        "Use Meikyo proactively to quickly refresh expiring buffs (Fugetsu/Fuka)",
+        "AoE rotation: Fuko -> Mangetsu (Getsu) or Oka (Ka) - only builds 2 Sen types",
+        "Hagakure: Converts all Sen to Kenki (10 per Sen) - use before phase transitions"
+      ],
+      "relatedAbilities": ["Fuko", "Mangetsu", "Oka", "Hagakure"],
+      "tips": [
+        "In AoE, you can't build Setsu Sen - adapt your rotation accordingly",
+        "Hagakure is great for downtime when you'd waste Sen anyway"
+      ]
+    }
+  ]
+}

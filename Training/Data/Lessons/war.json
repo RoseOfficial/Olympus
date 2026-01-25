@@ -1,0 +1,139 @@
+{
+  "jobPrefix": "war",
+  "jobName": "Warrior",
+  "lessons": [
+    {
+      "lessonId": "war.lesson_1",
+      "lessonNumber": 1,
+      "title": "Beast Gauge & Tempest",
+      "description": "Learn Warrior's core mechanics: Beast Gauge generation, maintaining Surging Tempest buff, and basic combo flow.",
+      "prerequisites": [],
+      "conceptsCovered": ["war.beast_gauge", "war.surging_tempest"],
+      "keyPoints": [
+        "Beast Gauge builds from your weapon skill combo (10 per combo action)",
+        "Surging Tempest: 10% damage buff from Storm's Eye combo finisher",
+        "Keep Surging Tempest active at all times - it's your main damage buff",
+        "Don't overcap Beast Gauge at 100 - spend it on Fell Cleave"
+      ],
+      "relatedAbilities": ["Defiance", "Heavy Swing", "Maim", "Storm's Path", "Storm's Eye"],
+      "tips": [
+        "Alternate between Storm's Path (gauge) and Storm's Eye (buff refresh)",
+        "Surging Tempest can be extended up to 60s - don't over-refresh"
+      ]
+    },
+    {
+      "lessonId": "war.lesson_2",
+      "lessonNumber": 2,
+      "title": "Defensive Fundamentals",
+      "description": "Master WAR's defensive toolkit: Rampart, Vengeance, and the powerful Bloodwhetting self-heal.",
+      "prerequisites": ["war.lesson_1"],
+      "conceptsCovered": ["war.vengeance", "war.bloodwhetting", "war.raw_intuition", "war.mitigation_stacking"],
+      "keyPoints": [
+        "Rampart: 20% mitigation for 20s (90s CD) - standard tank cooldown",
+        "Vengeance: 30% mitigation + damage reflect for 15s (120s CD)",
+        "Bloodwhetting: 10% mitigation + massive healing on attacks (25s CD)",
+        "Bloodwhetting makes WAR nearly immortal during large pulls"
+      ],
+      "relatedAbilities": ["Rampart", "Vengeance", "Bloodwhetting", "Raw Intuition", "Reprisal"],
+      "tips": [
+        "Bloodwhetting is your best dungeon cooldown - heals scale with targets hit",
+        "Combine Vengeance with AoE attacks for reflect damage in dungeons"
+      ]
+    },
+    {
+      "lessonId": "war.lesson_3",
+      "lessonNumber": 3,
+      "title": "Holmgang",
+      "description": "Master Warrior's invulnerability: Holmgang timing, target requirements, and coordinating with healers.",
+      "prerequisites": ["war.lesson_2"],
+      "conceptsCovered": ["war.holmgang", "war.invuln_timing"],
+      "keyPoints": [
+        "Holmgang: Cannot drop below 1 HP for 10s (240s CD)",
+        "Shortest cooldown of all tank invulns - can be used frequently",
+        "You WILL drop to 1 HP - healers must heal you after",
+        "Binds you to target for duration - can limit movement"
+      ],
+      "relatedAbilities": ["Holmgang"],
+      "tips": [
+        "Use Holmgang aggressively due to its short cooldown",
+        "Bloodwhetting after Holmgang can self-heal you back up"
+      ]
+    },
+    {
+      "lessonId": "war.lesson_4",
+      "lessonNumber": 4,
+      "title": "Inner Release",
+      "description": "Master WAR's burst window: Inner Release setup, Fell Cleave spam, and maximizing damage during the window.",
+      "prerequisites": ["war.lesson_3"],
+      "conceptsCovered": ["war.inner_release", "war.ir_window", "war.fell_cleave", "war.infuriate"],
+      "keyPoints": [
+        "Inner Release: Free Fell Cleaves and guaranteed crits for 15s (60s CD)",
+        "Spam Fell Cleave during Inner Release - no Beast Gauge cost",
+        "Infuriate: Grants 50 Beast Gauge (60s CD) + Nascent Chaos buff",
+        "Fit 5 Fell Cleaves minimum in each Inner Release window"
+      ],
+      "relatedAbilities": ["Inner Release", "Fell Cleave", "Infuriate", "Primal Rend"],
+      "tips": [
+        "Pool Beast Gauge before Inner Release for even more damage",
+        "Inner Release + Primal Rend is your biggest burst combo"
+      ]
+    },
+    {
+      "lessonId": "war.lesson_5",
+      "lessonNumber": 5,
+      "title": "Self-Sustain",
+      "description": "Master WAR's incredible self-healing: Thrill of Battle, Equilibrium, and Bloodwhetting synergies.",
+      "prerequisites": ["war.lesson_4"],
+      "conceptsCovered": ["war.thrill_of_battle", "war.equilibrium", "war.nascent_chaos"],
+      "keyPoints": [
+        "Thrill of Battle: +20% max HP + healing for 10s (90s CD)",
+        "Equilibrium: Strong self-heal + HoT (60s CD)",
+        "Nascent Chaos: Inner Chaos instead of Fell Cleave (from Infuriate)",
+        "WAR can self-sustain through most content with proper cooldown use"
+      ],
+      "relatedAbilities": ["Thrill of Battle", "Equilibrium", "Inner Chaos"],
+      "tips": [
+        "Thrill before big damage maximizes healing received",
+        "Inner Chaos is your strongest single hit - use in burst windows"
+      ]
+    },
+    {
+      "lessonId": "war.lesson_6",
+      "lessonNumber": 6,
+      "title": "Party Protection",
+      "description": "Master WAR's party utility: Shake It Off for party shields and Nascent Flash for ally protection.",
+      "prerequisites": ["war.lesson_5"],
+      "conceptsCovered": ["war.shake_it_off", "war.nascent_flash", "war.party_protection"],
+      "keyPoints": [
+        "Shake It Off: Party shield that scales with active buffs (90s CD)",
+        "Nascent Flash: Share your Bloodwhetting healing with a party member",
+        "Shake It Off removes Rampart/Vengeance/etc. but makes bigger shield",
+        "Coordinate party mitigation with healers and co-tank"
+      ],
+      "relatedAbilities": ["Shake It Off", "Nascent Flash"],
+      "tips": [
+        "Use Shake It Off before letting buffs expire naturally",
+        "Nascent Flash on a DPS during Bloodwhetting keeps them alive"
+      ]
+    },
+    {
+      "lessonId": "war.lesson_7",
+      "lessonNumber": 7,
+      "title": "Advanced Optimization",
+      "description": "Final lesson: gauge pooling, tank swaps, oGCD weaving, and maximizing damage while maintaining survivability.",
+      "prerequisites": ["war.lesson_6"],
+      "conceptsCovered": ["war.gauge_pooling", "war.tank_swap", "war.primal_rend", "war.upheaval", "war.onslaught", "war.orogeny"],
+      "keyPoints": [
+        "Pool gauge to 50-80 before Inner Release for maximum burst",
+        "Primal Rend: Granted by Inner Release, huge damage, can be delayed",
+        "Upheaval: Strong oGCD (30s CD) - weave on cooldown",
+        "Onslaught: Gap closer with 3 charges - use for movement or damage"
+      ],
+      "relatedAbilities": ["Provoke", "Shirk", "Primal Rend", "Upheaval", "Onslaught", "Orogeny"],
+      "tips": [
+        "Primal Rend can be held up to 30s for raid buff alignment",
+        "Use all 3 Onslaught charges during burst windows if possible"
+      ]
+    }
+  ]
+}

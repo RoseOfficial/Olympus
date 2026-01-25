@@ -1,0 +1,143 @@
+{
+  "jobPrefix": "ast",
+  "jobName": "Astrologian",
+  "lessons": [
+    {
+      "lessonId": "ast.lesson_1",
+      "lessonNumber": 1,
+      "title": "Astrologian Fundamentals",
+      "description": "Learn AST's core healing: Essential Dignity for emergencies, HoT-focused healing, and the regen healer identity.",
+      "prerequisites": [],
+      "conceptsCovered": ["ast.emergency_healing", "ast.essential_dignity_usage", "ast.hot_management"],
+      "keyPoints": [
+        "AST is a regen healer - focus on HoTs for sustained healing",
+        "Essential Dignity: emergency heal that's stronger on low HP targets",
+        "Essential Dignity has 2 charges (40s recharge) - use them freely",
+        "HoTs heal over time - apply them before damage, not after"
+      ],
+      "relatedAbilities": ["Essential Dignity", "Benefic", "Benefic II", "Aspected Benefic"],
+      "tips": [
+        "Essential Dignity heals MORE when the target is low - don't panic early",
+        "Always have at least one Essential Dignity charge ready for emergencies"
+      ]
+    },
+    {
+      "lessonId": "ast.lesson_2",
+      "lessonNumber": 2,
+      "title": "Card System Basics",
+      "description": "Understand AST's card system: drawing cards, playing them on party members, and Minor Arcana for self-use.",
+      "prerequisites": ["ast.lesson_1"],
+      "conceptsCovered": ["ast.card_management", "ast.draw_timing", "ast.minor_arcana_usage"],
+      "keyPoints": [
+        "Draw gives you a card every 30s - never let it sit unused",
+        "Cards give damage buffs - play them on DPS for maximum value",
+        "Minor Arcana converts your card into Lord/Lady of Crowns",
+        "Lord of Crowns: damage, Lady of Crowns: party heal"
+      ],
+      "relatedAbilities": ["Draw", "Play", "Minor Arcana", "Lord of Crowns", "Lady of Crowns"],
+      "tips": [
+        "Play cards during burst windows for maximum DPS gain",
+        "Don't hold cards - they have limited duration once drawn"
+      ]
+    },
+    {
+      "lessonId": "ast.lesson_3",
+      "lessonNumber": 3,
+      "title": "Card System Advanced",
+      "description": "Master Astrodyne gauge building, Divination raid buff timing, and Oracle mechanics.",
+      "prerequisites": ["ast.lesson_2"],
+      "conceptsCovered": ["ast.astrodyne_building", "ast.divination_timing", "ast.oracle_usage"],
+      "keyPoints": [
+        "Astrodyne: powered by playing 3 cards, grants buffs based on variety",
+        "Divination: 6% party damage buff for 20s (2min CD)",
+        "Align Divination with other party raid buffs",
+        "Oracle: granted after Divination, strong attack - don't waste it"
+      ],
+      "relatedAbilities": ["Astrodyne", "Divination", "Oracle"],
+      "tips": [
+        "Track your Astrodyne seals - variety gives better buffs",
+        "Divination at opener and then on cooldown with burst"
+      ]
+    },
+    {
+      "lessonId": "ast.lesson_4",
+      "lessonNumber": 4,
+      "title": "HoT Economy",
+      "description": "Optimize your HoTs: Aspected Benefic for tank, Aspected Helios for party, Celestial Opposition, and Synastry.",
+      "prerequisites": ["ast.lesson_3"],
+      "conceptsCovered": ["ast.aspected_benefic_usage", "ast.aspected_helios_usage", "ast.celestial_opposition_usage", "ast.synastry_usage"],
+      "keyPoints": [
+        "Aspected Benefic: single-target HoT - keep on tank",
+        "Aspected Helios: party HoT - use for sustained party damage",
+        "Celestial Opposition: instant party heal + HoT (60s CD)",
+        "Synastry: links you to a target, duplicating heals (2min CD)"
+      ],
+      "relatedAbilities": ["Aspected Benefic", "Aspected Helios", "Celestial Opposition", "Synastry"],
+      "tips": [
+        "Celestial Opposition is free oGCD healing - use it on cooldown",
+        "Synastry on the tank doubles your healing efficiency"
+      ]
+    },
+    {
+      "lessonId": "ast.lesson_5",
+      "lessonNumber": 5,
+      "title": "Earthly Star Mastery",
+      "description": "Master Earthly Star: placement timing, maturation mechanics, and maximizing its healing potential.",
+      "prerequisites": ["ast.lesson_4"],
+      "conceptsCovered": ["ast.earthly_star_placement", "ast.earthly_star_maturation"],
+      "keyPoints": [
+        "Earthly Star: ground AoE that matures over 10s for stronger effect",
+        "Place it 10s before you need the heal for maximum potency",
+        "Stellar Detonation triggers it manually, or it auto-detonates at 20s",
+        "Mature (Giant Dominance): 720 potency heal vs immature 360 potency"
+      ],
+      "relatedAbilities": ["Earthly Star", "Stellar Detonation"],
+      "tips": [
+        "Learn boss timelines to place Star 10s before raidwides",
+        "A mature Star is one of the strongest heals in the game"
+      ]
+    },
+    {
+      "lessonId": "ast.lesson_6",
+      "lessonNumber": 6,
+      "title": "Defensive Cooldowns",
+      "description": "Master AST's defensive toolkit: Celestial Intersection, Exaltation, Horoscope, Neutral Sect, Collective Unconscious, Macrocosmos, and Lightspeed.",
+      "prerequisites": ["ast.lesson_5"],
+      "conceptsCovered": ["ast.celestial_intersection_usage", "ast.exaltation_usage", "ast.horoscope_usage", "ast.neutral_sect_usage", "ast.collective_unconscious_usage", "ast.macrocosmos_usage", "ast.lightspeed_usage"],
+      "keyPoints": [
+        "Celestial Intersection: oGCD shield + HoT (30s CD)",
+        "Exaltation: single-target mitigation + delayed heal (60s CD)",
+        "Horoscope: stores healing, detonates for party heal",
+        "Neutral Sect: adds shields to your HoTs for 20s (2min CD)",
+        "Collective Unconscious: channeled party mitigation + HoT",
+        "Macrocosmos: stores damage taken, heals it back (2min CD)",
+        "Lightspeed: instant casts for 15s - great for movement"
+      ],
+      "relatedAbilities": ["Celestial Intersection", "Exaltation", "Horoscope", "Neutral Sect", "Collective Unconscious", "Macrocosmos", "Lightspeed"],
+      "tips": [
+        "Neutral Sect before a raidwide gives everyone shields",
+        "Macrocosmos must be activated while damage is being taken"
+      ]
+    },
+    {
+      "lessonId": "ast.lesson_7",
+      "lessonNumber": 7,
+      "title": "DPS & Coordination",
+      "description": "Final lesson: DPS optimization, DoT maintenance, raise decisions, and co-healer coordination.",
+      "prerequisites": ["ast.lesson_6"],
+      "conceptsCovered": ["ast.dps_optimization", "ast.dot_maintenance", "ast.raise_decision", "ast.cohealer_awareness", "ast.esuna_usage"],
+      "keyPoints": [
+        "Maintain Combust (DoT) on the boss at all times",
+        "Fall Malefic is your filler - cast it when not healing",
+        "Coordinate raises with your co-healer",
+        "AST handles regens while shield healers handle shields",
+        "Esuna removes debuffs with white bars"
+      ],
+      "relatedAbilities": ["Fall Malefic", "Combust III", "Ascend", "Esuna"],
+      "tips": [
+        "Gravity II for AoE situations (3+ targets)",
+        "Call raises in voice chat during progression"
+      ]
+    }
+  ]
+}

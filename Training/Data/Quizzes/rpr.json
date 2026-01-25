@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "rpr",
+  "jobName": "Reaper",
+  "quizzes": [
+    {
+      "quizId": "rpr.lesson_1.quiz",
+      "lessonId": "rpr.lesson_1",
+      "title": "Quiz: Reaper Fundamentals",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "rpr.lesson_1.q1",
+          "conceptId": "rpr.combo_basics",
+          "scenario": "You just finished a Slice → Waxing Slice → Infernal Slice combo.",
+          "question": "How much Soul Gauge did you gain from this combo?",
+          "options": ["30 Soul Gauge", "20 Soul Gauge", "10 Soul Gauge", "50 Soul Gauge"],
+          "correctIndex": 2,
+          "explanation": "The basic combo (Slice → Waxing Slice → Infernal Slice) grants 10 Soul Gauge upon completion of Infernal Slice."
+        },
+        {
+          "questionId": "rpr.lesson_1.q2",
+          "conceptId": "rpr.soul_slice",
+          "scenario": "Soul Slice has 2 charges. You have 40 Soul Gauge.",
+          "question": "Should you use Soul Slice?",
+          "options": ["No - save charges for emergencies", "Yes - use on cooldown to avoid overcapping", "No - wait until Soul Gauge is at 0", "Only use one charge"],
+          "correctIndex": 1,
+          "explanation": "Soul Slice grants 50 Soul Gauge per use. At 40 Soul, using it won't overcap (90 max). Use charges on cooldown to maximize gauge generation."
+        },
+        {
+          "questionId": "rpr.lesson_1.q3",
+          "conceptId": "rpr.deaths_design",
+          "scenario": "Death's Design has 5 seconds remaining on the boss.",
+          "question": "What should you do?",
+          "options": ["Let it fall off", "Refresh with Shadow of Death", "Wait until it expires", "Use Whorl of Death"],
+          "correctIndex": 1,
+          "explanation": "Death's Design (+10% damage) should never fall off. Refresh it with Shadow of Death when it's getting low to maintain the damage buff."
+        },
+        {
+          "questionId": "rpr.lesson_1.q4",
+          "conceptId": "rpr.deaths_design",
+          "scenario": "Death's Design is at 55 seconds duration on the boss.",
+          "question": "Should you use Shadow of Death?",
+          "options": ["Yes - keep refreshing", "No - it's near max (60s)", "Yes - always use on cooldown", "No - Death's Design doesn't stack"],
+          "correctIndex": 1,
+          "explanation": "Death's Design caps at 60 seconds. At 55s, using Shadow of Death would only add 5s, wasting most of the extension. Wait until it's lower."
+        },
+        {
+          "questionId": "rpr.lesson_1.q5",
+          "conceptId": "rpr.soul_gauge",
+          "scenario": "You have 95 Soul Gauge and both Soul Slice charges are available.",
+          "question": "What should you do?",
+          "options": ["Use Soul Slice immediately", "Spend Soul first with Blood Stalk", "Use both Soul Slice charges", "Wait for Soul to decay"],
+          "correctIndex": 1,
+          "explanation": "At 95 Soul, using Soul Slice (50 gauge) would overcap. Spend Soul first with Blood Stalk (50 cost) to make room for Soul Slice generation."
+        }
+      ]
+    },
+    {
+      "quizId": "rpr.lesson_2.quiz",
+      "lessonId": "rpr.lesson_2",
+      "title": "Quiz: Soul Reaver & Positionals",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "rpr.lesson_2.q1",
+          "conceptId": "rpr.gibbet",
+          "scenario": "You have Soul Reaver active and are at the boss's side (flank).",
+          "question": "Which ability should you use for the positional bonus?",
+          "options": ["Gallows", "Gibbet", "Either one", "Guillotine"],
+          "correctIndex": 1,
+          "explanation": "Gibbet has a flank positional. Use it from the boss's side for bonus potency."
+        },
+        {
+          "questionId": "rpr.lesson_2.q2",
+          "conceptId": "rpr.gallows",
+          "scenario": "You're standing behind the boss (rear) with Soul Reaver active.",
+          "question": "Which ability should you use?",
+          "options": ["Gibbet", "Gallows", "Either one", "Save Soul Reaver"],
+          "correctIndex": 1,
+          "explanation": "Gallows has a rear positional. Use it from behind the boss for bonus potency."
+        },
+        {
+          "questionId": "rpr.lesson_2.q3",
+          "conceptId": "rpr.enhanced_procs",
+          "scenario": "You just used Gibbet. What buff did you receive?",
+          "question": "Which Enhanced buff do you now have?",
+          "options": ["Enhanced Gibbet", "Enhanced Gallows", "Enhanced Guillotine", "No buff"],
+          "correctIndex": 1,
+          "explanation": "Gibbet grants Enhanced Gallows. The next Gallows you use will deal bonus damage."
+        },
+        {
+          "questionId": "rpr.lesson_2.q4",
+          "conceptId": "rpr.soul_reaver",
+          "scenario": "You have 50 Soul Gauge. Gluttony is available.",
+          "question": "How many Soul Reaver stacks does Gluttony grant?",
+          "options": ["1 stack", "2 stacks", "3 stacks", "No stacks"],
+          "correctIndex": 1,
+          "explanation": "Gluttony grants 2 Soul Reaver stacks, making it more efficient than Blood Stalk (1 stack) for the same Soul cost."
+        },
+        {
+          "questionId": "rpr.lesson_2.q5",
+          "conceptId": "rpr.positionals",
+          "scenario": "A mechanic forces you to stand in front of the boss. You have Soul Reaver and True North available.",
+          "question": "What should you do?",
+          "options": ["Skip Soul Reaver abilities", "Use True North and do positional", "Just use Gibbet/Gallows anyway", "Wait for mechanic to end"],
+          "correctIndex": 1,
+          "explanation": "True North allows you to ignore positional requirements. Use it when mechanics prevent proper positioning."
+        }
+      ]
+    },
+    {
+      "quizId": "rpr.lesson_3.quiz",
+      "lessonId": "rpr.lesson_3",
+      "title": "Quiz: Shroud Gauge Management",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "rpr.lesson_3.q1",
+          "conceptId": "rpr.shroud_gauge",
+          "scenario": "You use Gibbet to finish a Soul Reaver stack.",
+          "question": "How much Shroud Gauge do you gain?",
+          "options": ["5 Shroud", "10 Shroud", "20 Shroud", "50 Shroud"],
+          "correctIndex": 1,
+          "explanation": "Each Soul Reaver ability (Gibbet, Gallows, or Guillotine) grants 10 Shroud Gauge."
+        },
+        {
+          "questionId": "rpr.lesson_3.q2",
+          "conceptId": "rpr.enshroud",
+          "scenario": "You have 50 Shroud Gauge.",
+          "question": "What can you do with this Shroud?",
+          "options": ["Nothing yet", "Enter Enshroud", "Use Lemure's Slice", "Convert to Soul Gauge"],
+          "correctIndex": 1,
+          "explanation": "Enshroud requires 50 Shroud Gauge to activate. At 50 Shroud, you can enter your burst state."
+        },
+        {
+          "questionId": "rpr.lesson_3.q3",
+          "conceptId": "rpr.guillotine",
+          "scenario": "You have 2 Soul Reaver stacks and 4 enemies nearby.",
+          "question": "Which Soul Reaver ability should you use?",
+          "options": ["Gibbet", "Gallows", "Guillotine", "Alternate Gibbet/Gallows"],
+          "correctIndex": 2,
+          "explanation": "Guillotine is the AoE Soul Reaver ability. At 3+ targets, it deals more total damage than single-target options."
+        },
+        {
+          "questionId": "rpr.lesson_3.q4",
+          "conceptId": "rpr.shroud_gauge",
+          "scenario": "You have 90 Shroud Gauge. Blood Stalk is available.",
+          "question": "What should you prioritize?",
+          "options": ["Use Blood Stalk for Soul Reaver", "Enter Enshroud first", "Build more Shroud", "Wait for raid buffs"],
+          "correctIndex": 1,
+          "explanation": "At 90 Shroud, you're close to capping (100 max). Enter Enshroud to spend Shroud before gaining more from Soul Reaver."
+        },
+        {
+          "questionId": "rpr.lesson_3.q5",
+          "conceptId": "rpr.guillotine",
+          "scenario": "You use Guillotine on a pack of enemies.",
+          "question": "What buff do you receive?",
+          "options": ["Enhanced Gibbet", "Enhanced Gallows", "Both Enhanced buffs", "No Enhanced buff"],
+          "correctIndex": 2,
+          "explanation": "Guillotine grants both Enhanced Gibbet and Enhanced Gallows buffs, allowing you to use either enhanced version afterward."
+        }
+      ]
+    },
+    {
+      "quizId": "rpr.lesson_4.quiz",
+      "lessonId": "rpr.lesson_4",
+      "title": "Quiz: Enshroud Burst Window",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "rpr.lesson_4.q1",
+          "conceptId": "rpr.lemure_shroud",
+          "scenario": "You just entered Enshroud.",
+          "question": "How many Lemure Shroud stacks do you start with?",
+          "options": ["3 stacks", "4 stacks", "5 stacks", "It varies"],
+          "correctIndex": 2,
+          "explanation": "Enshroud grants exactly 5 Lemure Shroud stacks, which you consume with Void/Cross Reaping."
+        },
+        {
+          "questionId": "rpr.lesson_4.q2",
+          "conceptId": "rpr.void_shroud",
+          "scenario": "You used Void Reaping during Enshroud.",
+          "question": "What do you gain besides damage?",
+          "options": ["Soul Gauge", "Shroud Gauge", "1 Void Shroud stack", "Nothing else"],
+          "correctIndex": 2,
+          "explanation": "Each Void Reaping and Cross Reaping grants 1 Void Shroud stack, which is used for Lemure's Slice oGCDs."
+        },
+        {
+          "questionId": "rpr.lesson_4.q3",
+          "conceptId": "rpr.void_reaping",
+          "scenario": "You just used Void Reaping during Enshroud.",
+          "question": "What should you use next for maximum damage?",
+          "options": ["Another Void Reaping", "Cross Reaping", "Communio", "Lemure's Slice"],
+          "correctIndex": 1,
+          "explanation": "Void Reaping grants Enhanced Cross Reaping. Alternate between them for the Enhanced damage bonus."
+        },
+        {
+          "questionId": "rpr.lesson_4.q4",
+          "conceptId": "rpr.grim_reaping",
+          "scenario": "You're in Enshroud with 5 enemies grouped together.",
+          "question": "Which GCD should you use?",
+          "options": ["Void Reaping", "Cross Reaping", "Grim Reaping", "Exit Enshroud"],
+          "correctIndex": 2,
+          "explanation": "Grim Reaping is the AoE version of Void/Cross Reaping. Use it at 3+ targets during Enshroud."
+        },
+        {
+          "questionId": "rpr.lesson_4.q5",
+          "conceptId": "rpr.lemure_shroud",
+          "scenario": "You're in Enshroud with 2 Lemure Shroud remaining.",
+          "question": "How many more GCDs can you use before Communio?",
+          "options": ["0 - use Communio now", "1 more Void/Cross Reaping", "2 more Void/Cross Reaping", "As many as you want"],
+          "correctIndex": 1,
+          "explanation": "Communio should be used when you have 1 Lemure Shroud remaining. At 2 stacks, use one more Void/Cross Reaping first."
+        }
+      ]
+    },
+    {
+      "quizId": "rpr.lesson_5.quiz",
+      "lessonId": "rpr.lesson_5",
+      "title": "Quiz: Enshroud Finishers",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "rpr.lesson_5.q1",
+          "conceptId": "rpr.communio",
+          "scenario": "You have 1 Lemure Shroud stack remaining during Enshroud.",
+          "question": "What should you do?",
+          "options": ["Use Void Reaping", "Use Cross Reaping", "Use Communio", "Exit Enshroud"],
+          "correctIndex": 2,
+          "explanation": "Communio should be used when you have 1 Lemure Shroud remaining. It's your high-potency finisher."
+        },
+        {
+          "questionId": "rpr.lesson_5.q2",
+          "conceptId": "rpr.perfectio",
+          "scenario": "You just used Communio.",
+          "question": "What proc did you receive?",
+          "options": ["Soul Reaver", "Enhanced Gibbet", "Perfectio Ready", "Nothing"],
+          "correctIndex": 2,
+          "explanation": "Communio grants Perfectio Ready, allowing you to use the powerful Perfectio follow-up attack."
+        },
+        {
+          "questionId": "rpr.lesson_5.q3",
+          "conceptId": "rpr.lemures_slice",
+          "scenario": "You have 4 Void Shroud stacks during Enshroud.",
+          "question": "How many Lemure's Slice can you use?",
+          "options": ["1", "2", "4", "Unlimited"],
+          "correctIndex": 1,
+          "explanation": "Lemure's Slice costs 2 Void Shroud each. With 4 stacks, you can use it twice (2 + 2 = 4)."
+        },
+        {
+          "questionId": "rpr.lesson_5.q4",
+          "conceptId": "rpr.sacrificium",
+          "scenario": "You're level 92 and have used all your Void Shroud on Lemure's Slice.",
+          "question": "What additional finisher ability is available?",
+          "options": ["Second Communio", "Sacrificium", "Plentiful Harvest", "Nothing"],
+          "correctIndex": 1,
+          "explanation": "Sacrificium (Lv.92) is an additional oGCD finisher that becomes available after spending Void Shroud during Enshroud."
+        },
+        {
+          "questionId": "rpr.lesson_5.q5",
+          "conceptId": "rpr.communio",
+          "scenario": "You have 3 Lemure Shroud remaining but Enshroud is about to expire.",
+          "question": "What should you do?",
+          "options": ["Try to use all 3 stacks", "Use Communio immediately", "Let Enshroud expire", "Exit with Harvest Moon"],
+          "correctIndex": 1,
+          "explanation": "If Enshroud is expiring, use Communio to get the finisher damage rather than losing it entirely. Some damage is better than none."
+        }
+      ]
+    },
+    {
+      "quizId": "rpr.lesson_6.quiz",
+      "lessonId": "rpr.lesson_6",
+      "title": "Quiz: Party Buff Coordination",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "rpr.lesson_6.q1",
+          "conceptId": "rpr.arcane_circle",
+          "scenario": "A fight just started. Your party has multiple raid buff jobs.",
+          "question": "When should you use Arcane Circle?",
+          "options": ["Immediately at pull", "Wait 30 seconds", "Only during Enshroud", "Save for emergencies"],
+          "correctIndex": 0,
+          "explanation": "Use Arcane Circle at the start of the fight to align with other party raid buffs. It's a 2-minute cooldown."
+        },
+        {
+          "questionId": "rpr.lesson_6.q2",
+          "conceptId": "rpr.immortal_sacrifice",
+          "scenario": "Arcane Circle is active. All 8 party members are dealing damage.",
+          "question": "How many Immortal Sacrifice stacks can you gain?",
+          "options": ["4 stacks", "8 stacks", "Unlimited", "Depends on damage"],
+          "correctIndex": 1,
+          "explanation": "Each party member under Circle of Sacrifice can grant you 1 Immortal Sacrifice stack, for a maximum of 8 stacks."
+        },
+        {
+          "questionId": "rpr.lesson_6.q3",
+          "conceptId": "rpr.plentiful_harvest",
+          "scenario": "You have 8 Immortal Sacrifice stacks.",
+          "question": "How much Shroud Gauge does Plentiful Harvest grant?",
+          "options": ["0 Shroud", "25 Shroud", "50 Shroud", "100 Shroud"],
+          "correctIndex": 2,
+          "explanation": "Plentiful Harvest consumes Immortal Sacrifice stacks and grants 50 Shroud Gauge, enabling quick Enshroud entry."
+        },
+        {
+          "questionId": "rpr.lesson_6.q4",
+          "conceptId": "rpr.arcane_circle",
+          "scenario": "It's been 2 minutes since the fight started. Arcane Circle is ready.",
+          "question": "What should you consider before using Arcane Circle?",
+          "options": ["Nothing - use immediately", "Check if party buffs are ready", "Wait for Enshroud", "Save for next phase"],
+          "correctIndex": 1,
+          "explanation": "Arcane Circle should align with party 2-minute buffs. Check if other raid buffs are being used for maximum benefit."
+        },
+        {
+          "questionId": "rpr.lesson_6.q5",
+          "conceptId": "rpr.plentiful_harvest",
+          "scenario": "Arcane Circle just ended. You have Immortal Sacrifice stacks.",
+          "question": "When should you use Plentiful Harvest?",
+          "options": ["Immediately", "Wait for next Arcane Circle", "During Enshroud only", "Never - save stacks"],
+          "correctIndex": 0,
+          "explanation": "Use Plentiful Harvest before the Immortal Sacrifice buff expires. The Shroud gained helps enter Enshroud during buff windows."
+        }
+      ]
+    },
+    {
+      "quizId": "rpr.lesson_7.quiz",
+      "lessonId": "rpr.lesson_7",
+      "title": "Quiz: AoE & Movement",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "rpr.lesson_7.q1",
+          "conceptId": "rpr.aoe_rotation",
+          "scenario": "You're facing 4 enemies in a dungeon.",
+          "question": "Which combo should you use?",
+          "options": ["Slice → Waxing Slice → Infernal Slice", "Spinning Scythe → Nightmare Scythe", "Shadow of Death spam", "Single-target for focus damage"],
+          "correctIndex": 1,
+          "explanation": "At 3+ targets, use the AoE combo (Spinning Scythe → Nightmare Scythe) for more total damage."
+        },
+        {
+          "questionId": "rpr.lesson_7.q2",
+          "conceptId": "rpr.harvest_moon",
+          "scenario": "The boss jumped away and you can't reach it. You have Harvest Moon ready.",
+          "question": "What should you do?",
+          "options": ["Wait for boss to return", "Use Harvest Moon", "Use Shadow of Death", "Do nothing"],
+          "correctIndex": 1,
+          "explanation": "Harvest Moon is a ranged GCD perfect for moments when you can't reach the boss. Use it during disengagement."
+        },
+        {
+          "questionId": "rpr.lesson_7.q3",
+          "conceptId": "rpr.harvest_moon",
+          "scenario": "You're waiting for a dungeon pull. Harvest Moon is not ready.",
+          "question": "What should you do?",
+          "options": ["Just wait", "Use Soulsow to prepare Harvest Moon", "Start with Slice", "Use Enshroud"],
+          "correctIndex": 1,
+          "explanation": "Soulsow prepares Harvest Moon (5s cast, usable out of combat). Always enter fights with Harvest Moon ready."
+        },
+        {
+          "questionId": "rpr.lesson_7.q4",
+          "conceptId": "rpr.aoe_rotation",
+          "scenario": "You're fighting 5 enemies. Death's Design isn't on any of them.",
+          "question": "What should you do first?",
+          "options": ["Start AoE combo immediately", "Apply Whorl of Death", "Apply Shadow of Death to each", "Focus one target down"],
+          "correctIndex": 1,
+          "explanation": "Whorl of Death applies Death's Design to all enemies in range. Apply it first for the +10% damage on all subsequent attacks."
+        },
+        {
+          "questionId": "rpr.lesson_7.q5",
+          "conceptId": "rpr.aoe_rotation",
+          "scenario": "You have 2 enemies. One is nearly dead.",
+          "question": "Which rotation should you use?",
+          "options": ["AoE - always at 2+ targets", "Single-target on the low HP enemy", "Single-target - AoE is 3+", "Doesn't matter"],
+          "correctIndex": 2,
+          "explanation": "Reaper's AoE threshold is 3+ targets. At 2 enemies, single-target rotation is more efficient."
+        }
+      ]
+    }
+  ]
+}

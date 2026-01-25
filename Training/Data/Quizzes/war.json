@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "war",
+  "jobName": "Warrior",
+  "quizzes": [
+    {
+      "quizId": "war.lesson_1.quiz",
+      "lessonId": "war.lesson_1",
+      "title": "Quiz: Beast Gauge & Tempest",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "war.lesson_1.q1",
+          "conceptId": "war.beast_gauge",
+          "scenario": "You're at 90 Beast Gauge. Storm's Path would give 10 more.",
+          "question": "What should you do?",
+          "options": ["Continue combo normally", "Use Fell Cleave first", "Let gauge cap", "Skip combo finisher"],
+          "correctIndex": 1,
+          "explanation": "At 90 gauge, using Storm's Path would overcap. Spend gauge with Fell Cleave first, then continue combo."
+        },
+        {
+          "questionId": "war.lesson_1.q2",
+          "conceptId": "war.surging_tempest",
+          "scenario": "Surging Tempest has 10 seconds remaining.",
+          "question": "Should you use Storm's Eye to refresh?",
+          "options": ["Yes - keep buff up", "No - wait until lower", "Depends on combo", "Use Storm's Path instead"],
+          "correctIndex": 1,
+          "explanation": "Surging Tempest can be extended up to 60s. At 10s remaining, you still have time. Wait until 10s or less to refresh."
+        },
+        {
+          "questionId": "war.lesson_1.q3",
+          "conceptId": "war.beast_gauge",
+          "scenario": "Combat starting. Your Beast Gauge is empty.",
+          "question": "How do you build gauge?",
+          "options": ["Auto-attacks", "Combo finishers", "Any GCD", "oGCDs"],
+          "correctIndex": 1,
+          "explanation": "Beast Gauge builds from combo finishers (Storm's Path gives 10, Storm's Eye gives 10). Auto-attacks don't generate gauge."
+        },
+        {
+          "questionId": "war.lesson_1.q4",
+          "conceptId": "war.surging_tempest",
+          "scenario": "Surging Tempest fell off during downtime.",
+          "question": "What's the priority when boss returns?",
+          "options": ["Use Fell Cleave", "Refresh Surging Tempest", "Use Inner Release", "Normal rotation"],
+          "correctIndex": 1,
+          "explanation": "Surging Tempest is a 10% damage buff. Getting it back up takes priority over burst."
+        },
+        {
+          "questionId": "war.lesson_1.q5",
+          "conceptId": "war.beast_gauge",
+          "scenario": "You have 50 gauge. Inner Release is in 5 seconds.",
+          "question": "Should you spend gauge now?",
+          "options": ["Yes - avoid overcap", "No - save for IR", "Spend only 20", "Doesn't matter"],
+          "correctIndex": 1,
+          "explanation": "Save gauge for Inner Release. During IR, Fell Cleave is free, but entering with gauge means more damage outside IR."
+        }
+      ]
+    },
+    {
+      "quizId": "war.lesson_2.quiz",
+      "lessonId": "war.lesson_2",
+      "title": "Quiz: Defensive Fundamentals",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "war.lesson_2.q1",
+          "conceptId": "war.bloodwhetting",
+          "scenario": "Large dungeon pull. 8 enemies hitting you.",
+          "question": "What makes Bloodwhetting so strong here?",
+          "options": ["Flat damage reduction", "Healing per enemy hit", "Shield on use", "Longer duration"],
+          "correctIndex": 1,
+          "explanation": "Bloodwhetting heals you for each enemy hit by your attacks. With 8 enemies, your AoEs heal massively."
+        },
+        {
+          "questionId": "war.lesson_2.q2",
+          "conceptId": "war.vengeance",
+          "scenario": "Vengeance is up. Tank autos hurt.",
+          "question": "What does Vengeance provide besides mitigation?",
+          "options": ["Healing", "Damage reflect", "Enmity boost", "Gauge generation"],
+          "correctIndex": 1,
+          "explanation": "Vengeance reflects damage back to attackers when they hit you. Great for trash pulls."
+        },
+        {
+          "questionId": "war.lesson_2.q3",
+          "conceptId": "war.mitigation_stacking",
+          "scenario": "You used Rampart. Tankbuster incoming.",
+          "question": "What pairs well with Rampart?",
+          "options": ["Another Rampart", "Bloodwhetting", "Nothing - enough", "Vengeance"],
+          "correctIndex": 1,
+          "explanation": "Bloodwhetting adds more mitigation and heals through the hit. Good pairing without wasting bigger CDs."
+        },
+        {
+          "questionId": "war.lesson_2.q4",
+          "conceptId": "war.raw_intuition",
+          "scenario": "Bloodwhetting isn't available yet. Raw Intuition is.",
+          "question": "What's the difference between them?",
+          "options": ["Same ability", "Raw heals less", "Bloodwhetting is AoE", "Different cooldowns"],
+          "correctIndex": 1,
+          "explanation": "Raw Intuition is the earlier version with the same mitigation but less healing. Bloodwhetting upgrades it."
+        },
+        {
+          "questionId": "war.lesson_2.q5",
+          "conceptId": "war.bloodwhetting",
+          "scenario": "Single target boss. Bloodwhetting available.",
+          "question": "Is Bloodwhetting less valuable in single target?",
+          "options": ["Yes - much weaker", "Still strong", "Don't use it", "Only for multi-target"],
+          "correctIndex": 1,
+          "explanation": "Bloodwhetting still provides mitigation and healing in single target. Less healing than AoE, but still excellent."
+        }
+      ]
+    },
+    {
+      "quizId": "war.lesson_3.quiz",
+      "lessonId": "war.lesson_3",
+      "title": "Quiz: Holmgang",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "war.lesson_3.q1",
+          "conceptId": "war.holmgang",
+          "scenario": "You're at 50% HP. Huge tankbuster coming.",
+          "question": "What happens when you use Holmgang?",
+          "options": ["Full immunity", "Can't drop below 1 HP", "50% damage reduction", "Heal to full"],
+          "correctIndex": 1,
+          "explanation": "Holmgang prevents you from dropping below 1 HP. You'll take the damage but survive."
+        },
+        {
+          "questionId": "war.lesson_3.q2",
+          "conceptId": "war.invuln_timing",
+          "scenario": "Holmgang has a 240 second cooldown.",
+          "question": "How does this compare to other tank invulns?",
+          "options": ["Longest CD", "Shortest CD", "Average CD", "Same as PLD"],
+          "correctIndex": 1,
+          "explanation": "Holmgang has the shortest invuln cooldown (4 minutes), meaning you can use it more often in fights."
+        },
+        {
+          "questionId": "war.lesson_3.q3",
+          "conceptId": "war.holmgang",
+          "scenario": "Holmgang activated. You're at 1 HP.",
+          "question": "What's the best recovery option?",
+          "options": ["Wait for healer", "Bloodwhetting + attacks", "Use Equilibrium", "All of the above"],
+          "correctIndex": 3,
+          "explanation": "WAR has excellent self-sustain. Bloodwhetting heals through attacks, Equilibrium is a strong self-heal. Use everything."
+        },
+        {
+          "questionId": "war.lesson_3.q4",
+          "conceptId": "war.invuln_timing",
+          "scenario": "Boss has back-to-back tankbusters 3 minutes apart.",
+          "question": "Can you Holmgang both?",
+          "options": ["No - too short CD", "Yes - 240s CD fits", "Only with help", "Depends on timing"],
+          "correctIndex": 1,
+          "explanation": "Holmgang is 240 seconds (4 minutes). For busters 3 minutes apart, you could use it on both with good timing."
+        },
+        {
+          "questionId": "war.lesson_3.q5",
+          "conceptId": "war.holmgang",
+          "scenario": "Holmgang binds you to the target.",
+          "question": "What does this binding do?",
+          "options": ["Extra damage", "Can't move far away", "Target can't move", "Nothing important"],
+          "correctIndex": 1,
+          "explanation": "Holmgang's bind keeps you and the target within range of each other. Usually not an issue, but can affect movement."
+        }
+      ]
+    },
+    {
+      "quizId": "war.lesson_4.quiz",
+      "lessonId": "war.lesson_4",
+      "title": "Quiz: Inner Release",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "war.lesson_4.q1",
+          "conceptId": "war.inner_release",
+          "scenario": "Inner Release is ready. You have 30 Beast Gauge.",
+          "question": "Should you spend gauge before IR?",
+          "options": ["Yes - avoid waste", "No - save it", "Spend to 0", "Doesn't matter"],
+          "correctIndex": 1,
+          "explanation": "During Inner Release, Fell Cleave costs 0 gauge. Save your gauge for use after IR ends."
+        },
+        {
+          "questionId": "war.lesson_4.q2",
+          "conceptId": "war.fell_cleave",
+          "scenario": "Inner Release active. 3 free Fell Cleaves available.",
+          "question": "How many Fell Cleaves can you fit in the window?",
+          "options": ["Only 3", "5 with good timing", "Unlimited", "4 maximum"],
+          "correctIndex": 1,
+          "explanation": "Inner Release lasts 15 seconds with 3 free stacks, but you can fit 5 Fell Cleaves with proper GCD timing."
+        },
+        {
+          "questionId": "war.lesson_4.q3",
+          "conceptId": "war.infuriate",
+          "scenario": "Infuriate is ready. You have 0 gauge. IR is on CD.",
+          "question": "What does Infuriate provide?",
+          "options": ["50 gauge only", "50 gauge + Nascent Chaos", "Free Fell Cleave", "Damage buff"],
+          "correctIndex": 1,
+          "explanation": "Infuriate grants 50 Beast Gauge AND the Nascent Chaos buff, which enables Inner Chaos instead of Fell Cleave."
+        },
+        {
+          "questionId": "war.lesson_4.q4",
+          "conceptId": "war.ir_window",
+          "scenario": "Inner Release window. Primal Rend available.",
+          "question": "When should you use Primal Rend?",
+          "options": ["Immediately", "After Fell Cleaves", "Save for later", "Before IR"],
+          "correctIndex": 1,
+          "explanation": "Use Fell Cleaves first during IR (they're free), then use Primal Rend before the buff expires."
+        },
+        {
+          "questionId": "war.lesson_4.q5",
+          "conceptId": "war.inner_release",
+          "scenario": "Inner Release just ended. You have 80 gauge.",
+          "question": "What should you do with that gauge?",
+          "options": ["Save for next IR", "Spend on Fell Cleave", "Use Inner Chaos", "Wait"],
+          "correctIndex": 2,
+          "explanation": "If you have Nascent Chaos from Infuriate, use Inner Chaos (stronger than Fell Cleave). Otherwise, spend gauge normally."
+        }
+      ]
+    },
+    {
+      "quizId": "war.lesson_5.quiz",
+      "lessonId": "war.lesson_5",
+      "title": "Quiz: Self-Sustain",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "war.lesson_5.q1",
+          "conceptId": "war.thrill_of_battle",
+          "scenario": "Big damage phase starting. Thrill of Battle ready.",
+          "question": "What's the best time to use Thrill?",
+          "options": ["After damage hits", "Before damage hits", "When low HP", "With Equilibrium"],
+          "correctIndex": 1,
+          "explanation": "Thrill of Battle increases max HP by 20%. Using it before damage means you have more HP to absorb the hit."
+        },
+        {
+          "questionId": "war.lesson_5.q2",
+          "conceptId": "war.equilibrium",
+          "scenario": "You're at 40% HP. Equilibrium available.",
+          "question": "What does Equilibrium provide?",
+          "options": ["Instant heal only", "Instant heal + HoT", "Shield", "Damage buff"],
+          "correctIndex": 1,
+          "explanation": "Equilibrium provides a strong instant heal plus a heal-over-time effect. Great for recovery."
+        },
+        {
+          "questionId": "war.lesson_5.q3",
+          "conceptId": "war.nascent_chaos",
+          "scenario": "Infuriate ready. You want maximum damage.",
+          "question": "What should you use Nascent Chaos for?",
+          "options": ["Fell Cleave", "Inner Chaos", "Save it", "Chaotic Cyclone"],
+          "correctIndex": 1,
+          "explanation": "Nascent Chaos enables Inner Chaos (single target) or Chaotic Cyclone (AoE). Inner Chaos is your strongest single hit."
+        },
+        {
+          "questionId": "war.lesson_5.q4",
+          "conceptId": "war.thrill_of_battle",
+          "scenario": "Thrill of Battle and Equilibrium both available.",
+          "question": "Which order maximizes healing?",
+          "options": ["Equilibrium first", "Thrill first", "Doesn't matter", "Use together"],
+          "correctIndex": 1,
+          "explanation": "Use Thrill first to increase max HP. Equilibrium heals more when your HP pool is larger."
+        },
+        {
+          "questionId": "war.lesson_5.q5",
+          "conceptId": "war.equilibrium",
+          "scenario": "You're main tanking. HP is stable at 80%.",
+          "question": "Should you use Equilibrium?",
+          "options": ["Yes - prevent drops", "No - save for emergency", "Yes - use on CD", "Depends on incoming damage"],
+          "correctIndex": 3,
+          "explanation": "At 80% with no immediate danger, you can save Equilibrium. But if damage is coming, using it proactively is fine."
+        }
+      ]
+    },
+    {
+      "quizId": "war.lesson_6.quiz",
+      "lessonId": "war.lesson_6",
+      "title": "Quiz: Party Protection",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "war.lesson_6.q1",
+          "conceptId": "war.shake_it_off",
+          "scenario": "You have Rampart active. Party raidwide coming.",
+          "question": "What happens if you use Shake It Off now?",
+          "options": ["Bigger shield", "Normal shield", "Wastes Rampart", "Can't use during Rampart"],
+          "correctIndex": 0,
+          "explanation": "Shake It Off consumes personal buffs (Rampart, Vengeance, etc.) to increase the party shield strength."
+        },
+        {
+          "questionId": "war.lesson_6.q2",
+          "conceptId": "war.nascent_flash",
+          "scenario": "Bloodwhetting active. DPS is taking damage.",
+          "question": "What does Nascent Flash do?",
+          "options": ["Heals the DPS", "Shares Bloodwhetting healing", "Shields the DPS", "Transfers aggro"],
+          "correctIndex": 1,
+          "explanation": "Nascent Flash shares your Bloodwhetting healing with a party member. Your attacks heal both of you."
+        },
+        {
+          "questionId": "war.lesson_6.q3",
+          "conceptId": "war.party_protection",
+          "scenario": "Shake It Off is ready. No personal buffs active.",
+          "question": "Is Shake It Off still useful?",
+          "options": ["No - needs buffs", "Yes - base shield works", "Reduced effect", "Save for buffs"],
+          "correctIndex": 1,
+          "explanation": "Shake It Off still provides a party shield without buffs. The buff consumption just makes it stronger."
+        },
+        {
+          "questionId": "war.lesson_6.q4",
+          "conceptId": "war.shake_it_off",
+          "scenario": "Big raidwide in 5 seconds. Vengeance has 3 seconds left.",
+          "question": "Should you Shake It Off now?",
+          "options": ["Yes - maximize shield", "No - Vengeance still useful", "Wait for more buffs", "Shake without Vengeance"],
+          "correctIndex": 0,
+          "explanation": "With Vengeance about to expire anyway, use Shake It Off to convert it into party protection for the raidwide."
+        },
+        {
+          "questionId": "war.lesson_6.q5",
+          "conceptId": "war.nascent_flash",
+          "scenario": "Large pull. Healer is struggling. You have Nascent Flash.",
+          "question": "Who should receive Nascent Flash?",
+          "options": ["The healer", "Yourself", "No one - self heal", "The tank"],
+          "correctIndex": 0,
+          "explanation": "Nascent Flash on the healer shares your Bloodwhetting healing, keeping them alive while they struggle to catch up."
+        }
+      ]
+    },
+    {
+      "quizId": "war.lesson_7.quiz",
+      "lessonId": "war.lesson_7",
+      "title": "Quiz: Advanced Optimization",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "war.lesson_7.q1",
+          "conceptId": "war.gauge_pooling",
+          "scenario": "Inner Release in 15 seconds. You have 40 gauge.",
+          "question": "What's the optimal gauge management?",
+          "options": ["Spend to 0", "Build to 80-90", "Stay at 40", "Use Infuriate now"],
+          "correctIndex": 1,
+          "explanation": "Pool gauge to 50-80 before IR. This gives you gauge to spend after IR ends, maximizing damage."
+        },
+        {
+          "questionId": "war.lesson_7.q2",
+          "conceptId": "war.primal_rend",
+          "scenario": "Primal Rend available from Inner Release. Boss jumps away.",
+          "question": "How long can you hold Primal Rend?",
+          "options": ["Must use immediately", "30 seconds", "Until next IR", "Forever"],
+          "correctIndex": 1,
+          "explanation": "Primal Rend can be held for 30 seconds. This allows flexibility for mechanics or raid buff alignment."
+        },
+        {
+          "questionId": "war.lesson_7.q3",
+          "conceptId": "war.upheaval",
+          "scenario": "Upheaval is off cooldown. You're mid-GCD.",
+          "question": "When should you use Upheaval?",
+          "options": ["Wait for GCD", "Weave it now", "Save for IR", "After combo"],
+          "correctIndex": 1,
+          "explanation": "Upheaval is an oGCD. Weave it between GCDs. Don't let it sit off cooldown."
+        },
+        {
+          "questionId": "war.lesson_7.q4",
+          "conceptId": "war.onslaught",
+          "scenario": "3 Onslaught charges available. Inner Release active.",
+          "question": "How should you use Onslaught charges?",
+          "options": ["Save for movement", "Use all in IR", "Use 1-2, save rest", "Space throughout fight"],
+          "correctIndex": 2,
+          "explanation": "Use some Onslaught charges during IR for damage, but keep at least one for emergency gap closing."
+        },
+        {
+          "questionId": "war.lesson_7.q5",
+          "conceptId": "war.tank_swap",
+          "scenario": "Tank swap needed. You're off-tank with IR ready.",
+          "question": "Should you swap then use IR?",
+          "options": ["Yes - more damage", "No - use IR first", "Swap during IR", "Let co-tank keep boss"],
+          "correctIndex": 0,
+          "explanation": "Provoke first to grab the boss, then use Inner Release. You want to be hitting the boss during your burst."
+        }
+      ]
+    }
+  ]
+}

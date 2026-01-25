@@ -1,0 +1,139 @@
+{
+  "jobPrefix": "vpr",
+  "jobName": "Viper",
+  "lessons": [
+    {
+      "lessonId": "vpr.lesson_1",
+      "lessonNumber": 1,
+      "title": "Viper Fundamentals",
+      "description": "Learn the core principles of Viper: two-path combo system, buff maintenance with Hunter's Instinct and Swiftscaled, and Honed buff usage.",
+      "prerequisites": [],
+      "conceptsCovered": ["vpr.combo_basics", "vpr.buff_cycling", "vpr.honed_buffs"],
+      "keyPoints": [
+        "Two combo paths: Steel Fangs path (grants Hunter's Instinct +10% damage) and Reaving Fangs path (grants Swiftscaled +15% auto-attack)",
+        "Alternate between paths to maintain both buffs at all times (both last 40s)",
+        "Honed Steel/Honed Reavers procs upgrade your combo starters for more damage",
+        "Each path: Starter -> Flanksting/Hindsting finisher -> alternate path next"
+      ],
+      "relatedAbilities": ["Steel Fangs", "Reaving Fangs", "Hunter's Sting", "Swiftskin's Sting", "Flanksting Strike", "Hindsting Strike", "Flanksbane Fang", "Hindsbane Fang"],
+      "tips": [
+        "Never let Hunter's Instinct or Swiftscaled fall off - both are crucial for damage",
+        "Use Honed procs immediately - they only last 60s and upgrade your next combo starter"
+      ]
+    },
+    {
+      "lessonId": "vpr.lesson_2",
+      "lessonNumber": 2,
+      "title": "Resource Management",
+      "description": "Master Serpent Offering gauge building, Rattling Coil stacks, and Uncoiled Fury for movement.",
+      "prerequisites": ["vpr.lesson_1"],
+      "conceptsCovered": ["vpr.serpent_offering", "vpr.rattling_coil", "vpr.offering_generation"],
+      "keyPoints": [
+        "Serpent Offering (0-100): Built by combo finishers (10 each), consumed by Reawaken (50)",
+        "Rattling Coil (0-3 stacks): Built by Twinblade combos and Serpent's Ire, consumed by Uncoiled Fury",
+        "Uncoiled Fury: Ranged GCD that spends 1 Rattling Coil - use for movement or to avoid overcapping",
+        "Don't overcap Serpent Offering at 100 - enter Reawaken before capping"
+      ],
+      "relatedAbilities": ["Uncoiled Fury", "Writhing Snap", "Serpent's Ire"],
+      "tips": [
+        "Use Uncoiled Fury during forced movement phases to maintain DPS",
+        "Track Serpent Offering carefully - wasting gauge is a significant DPS loss"
+      ]
+    },
+    {
+      "lessonId": "vpr.lesson_3",
+      "lessonNumber": 3,
+      "title": "Venom & Positionals",
+      "description": "Understand the venom buff system and how it determines which positional finisher to use.",
+      "prerequisites": ["vpr.lesson_2"],
+      "conceptsCovered": ["vpr.venom_system", "vpr.positional_finishers", "vpr.positionals", "vpr.true_north_usage"],
+      "keyPoints": [
+        "Venom buffs (Flankstung, Hindstung, Flanksbane, Hindsbane) indicate your NEXT positional",
+        "Flankstung/Flanksbane -> Use flank (side) positional finisher for bonus potency",
+        "Hindstung/Hindsbane -> Use rear (behind) positional finisher for bonus potency",
+        "True North allows you to ignore positional requirements for 10s (2 charges, 45s recharge)"
+      ],
+      "relatedAbilities": ["Flanksting Strike", "Hindsting Strike", "Flanksbane Fang", "Hindsbane Fang", "True North"],
+      "tips": [
+        "The venom name tells you where to stand: Flank = side, Hind = rear",
+        "Save True North charges for mechanics that force bad positioning"
+      ]
+    },
+    {
+      "lessonId": "vpr.lesson_4",
+      "lessonNumber": 4,
+      "title": "Twinblade Combos",
+      "description": "Master the Twinblade system: Vicewinder initiation, Coil follow-ups, and Noxious Gnash maintenance.",
+      "prerequisites": ["vpr.lesson_3"],
+      "conceptsCovered": ["vpr.dread_combo", "vpr.vicewinder", "vpr.twinfang_twinblood", "vpr.noxious_gnash"],
+      "keyPoints": [
+        "Vicewinder: Starts Twinblade combo, applies Noxious Gnash debuff (+10% damage, 20s)",
+        "After Vicewinder, use Hunter's Coil (flank) OR Swiftskin's Coil (rear) based on position",
+        "Each Coil grants a Twinfang or Twinblood proc - weave them as oGCDs immediately",
+        "Twinblade GCDs are 3.0s recast (faster than normal) - grants 1 Rattling Coil stack"
+      ],
+      "relatedAbilities": ["Vicewinder", "Hunter's Coil", "Swiftskin's Coil", "Twinfang", "Twinblood", "Uncoiled Fury"],
+      "tips": [
+        "Noxious Gnash must be active to enter Reawaken - refresh it with Vicewinder/Vicepit",
+        "Use Twinfang/Twinblood immediately after Coils - they're free oGCD damage"
+      ]
+    },
+    {
+      "lessonId": "vpr.lesson_5",
+      "lessonNumber": 5,
+      "title": "Reawaken Burst",
+      "description": "Execute the Reawaken burst phase: entry requirements, Generation GCD sequence, and Legacy oGCD weaving.",
+      "prerequisites": ["vpr.lesson_4"],
+      "conceptsCovered": ["vpr.reawaken_entry", "vpr.generation_sequence", "vpr.legacy_weaving", "vpr.anguine_tribute"],
+      "keyPoints": [
+        "Reawaken entry requires: 50+ Serpent Offering AND Noxious Gnash on target AND 10s+ on buffs",
+        "Reawaken grants 5 Anguine Tribute stacks - use Generation GCDs to consume them",
+        "Generation sequence: First -> Second -> Third -> Fourth Generation -> Ouroboros finisher",
+        "Each Generation GCD grants a Legacy oGCD - weave First/Second/Third/Fourth Legacy between GCDs"
+      ],
+      "relatedAbilities": ["Reawaken", "First Generation", "Second Generation", "Third Generation", "Fourth Generation", "First Legacy", "Second Legacy", "Third Legacy", "Fourth Legacy", "Ouroboros"],
+      "tips": [
+        "Never enter Reawaken if buffs will fall off mid-burst - refresh them first",
+        "Generation GCDs are 2.1s recast - weave one Legacy oGCD between each"
+      ]
+    },
+    {
+      "lessonId": "vpr.lesson_6",
+      "lessonNumber": 6,
+      "title": "Burst Optimization",
+      "description": "Maximize burst damage with Serpent's Ire timing, Ready to Reawaken proc, and raid buff alignment.",
+      "prerequisites": ["vpr.lesson_5"],
+      "conceptsCovered": ["vpr.burst_window", "vpr.ready_to_reawaken", "vpr.serpents_ire", "vpr.timeline_awareness"],
+      "keyPoints": [
+        "Serpent's Ire: 2-minute cooldown that grants 1 Rattling Coil and Ready to Reawaken",
+        "Ready to Reawaken: Allows free Reawaken without spending Serpent Offering (use immediately!)",
+        "Align Reawaken with party raid buff windows (2-minute intervals) for maximum damage",
+        "Hold Reawaken briefly if raid buffs are imminent (within 5-10 seconds)"
+      ],
+      "relatedAbilities": ["Serpent's Ire", "Reawaken"],
+      "tips": [
+        "Serpent's Ire is your burst enabler - always use it with party buffs",
+        "Don't hold Reawaken too long - losing casts over the fight is worse than missing some buffs"
+      ]
+    },
+    {
+      "lessonId": "vpr.lesson_7",
+      "lessonNumber": 7,
+      "title": "Complete Rotation",
+      "description": "Synthesize all Viper mechanics: full rotation flow, AoE decisions, and movement optimization.",
+      "prerequisites": ["vpr.lesson_6"],
+      "conceptsCovered": ["vpr.uncoiled_fury", "vpr.aoe_rotation", "vpr.dual_wield_aoe"],
+      "keyPoints": [
+        "AoE threshold: Use AoE rotation at 3+ targets (Steel Maw -> Reaving Maw path)",
+        "Vicepit is the AoE version of Vicewinder - applies Noxious Gnash to all targets",
+        "AoE Twinblades: Pit combos + Blood/Fang follow-ups for AoE Rattling Coils",
+        "Use Uncoiled Fury for movement phases when you can't reach the boss"
+      ],
+      "relatedAbilities": ["Steel Maw", "Reaving Maw", "Vicepit", "Hunter's Den", "Swiftskin's Den", "Uncoiled Twinfang", "Uncoiled Twinblood"],
+      "tips": [
+        "In dungeons, keep Noxious Gnash up with Vicepit for the +10% damage on AoE",
+        "Plan Rattling Coil usage around movement - Uncoiled Fury is your mobility tool"
+      ]
+    }
+  ]
+}

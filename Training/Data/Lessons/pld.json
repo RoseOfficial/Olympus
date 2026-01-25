@@ -1,0 +1,139 @@
+{
+  "jobPrefix": "pld",
+  "jobName": "Paladin",
+  "lessons": [
+    {
+      "lessonId": "pld.lesson_1",
+      "lessonNumber": 1,
+      "title": "Oath Gauge & Stance",
+      "description": "Learn Paladin's core mechanics: the Oath Gauge system, maintaining tank stance, and using Sheltron for self-mitigation.",
+      "prerequisites": [],
+      "conceptsCovered": ["pld.oath_gauge", "pld.sheltron"],
+      "keyPoints": [
+        "Oath Gauge builds from auto-attacks while Iron Will (tank stance) is active",
+        "Sheltron costs 50 Oath and provides a strong shield + mitigation",
+        "Never let Oath cap at 100 - spend it on Sheltron regularly",
+        "Iron Will must be on to generate enmity and Oath"
+      ],
+      "relatedAbilities": ["Iron Will", "Sheltron", "Holy Sheltron", "Intervention"],
+      "tips": [
+        "Use Sheltron proactively before tankbusters, not reactively after",
+        "Intervention lets you give your Sheltron to another party member"
+      ]
+    },
+    {
+      "lessonId": "pld.lesson_2",
+      "lessonNumber": 2,
+      "title": "Defensive Fundamentals",
+      "description": "Master PLD's defensive toolkit: Rampart, Sentinel, Bulwark, and Reprisal for consistent damage reduction.",
+      "prerequisites": ["pld.lesson_1"],
+      "conceptsCovered": ["pld.sentinel", "pld.bulwark", "pld.mitigation_stacking"],
+      "keyPoints": [
+        "Rampart: 20% mitigation for 20s (90s CD) - your bread and butter",
+        "Sentinel: 30% mitigation for 15s (120s CD) - use for heavy damage",
+        "Bulwark: Increases block rate for 10s (90s CD) - synergizes with Sheltron",
+        "Stack mitigations by combining different abilities, not by overlapping the same one"
+      ],
+      "relatedAbilities": ["Rampart", "Sentinel", "Bulwark", "Reprisal", "Arm's Length"],
+      "tips": [
+        "Alternate Rampart and Sentinel to always have mitigation available",
+        "Bulwark + Sheltron = high block rate for sustained damage"
+      ]
+    },
+    {
+      "lessonId": "pld.lesson_3",
+      "lessonNumber": 3,
+      "title": "Hallowed Ground",
+      "description": "Master Paladin's invulnerability: when to use Hallowed Ground, timing considerations, and emergency situations.",
+      "prerequisites": ["pld.lesson_2"],
+      "conceptsCovered": ["pld.hallowed_ground", "pld.invuln_timing"],
+      "keyPoints": [
+        "Hallowed Ground: Complete invulnerability for 10s (420s CD)",
+        "The longest cooldown of all tank invulns - use it wisely",
+        "Best invuln in the game - you take 0 damage, no healer attention needed",
+        "Can be used proactively for big pulls or reactively in emergencies"
+      ],
+      "relatedAbilities": ["Hallowed Ground"],
+      "tips": [
+        "Don't save Hallowed 'just in case' - it's too long a CD to waste",
+        "Communicate with healers when you plan to use it for planned damage"
+      ]
+    },
+    {
+      "lessonId": "pld.lesson_4",
+      "lessonNumber": 4,
+      "title": "Fight or Flight",
+      "description": "Optimize your damage: Fight or Flight burst windows, Atonement chains, and Goring Blade DoT management.",
+      "prerequisites": ["pld.lesson_3"],
+      "conceptsCovered": ["pld.fight_or_flight", "pld.burst_window", "pld.goring_blade", "pld.atonement_chain"],
+      "keyPoints": [
+        "Fight or Flight: 25% damage boost for 20s (60s CD)",
+        "Goring Blade combo finisher applies a strong DoT - maintain it",
+        "Atonement chain follows Royal Authority - 3 free Atonements",
+        "Align your biggest attacks inside Fight or Flight windows"
+      ],
+      "relatedAbilities": ["Fight or Flight", "Goring Blade", "Atonement", "Supplication", "Sepulchre"],
+      "tips": [
+        "Start Fight or Flight after your first GCD to maximize uptime",
+        "Atonement > Supplication > Sepulchre is the correct order"
+      ]
+    },
+    {
+      "lessonId": "pld.lesson_5",
+      "lessonNumber": 5,
+      "title": "Magic Phase",
+      "description": "Master PLD's unique magic rotation: Requiescat, Holy Spirit, and the Confiteor blade combo.",
+      "prerequisites": ["pld.lesson_4"],
+      "conceptsCovered": ["pld.requiescat", "pld.holy_spirit", "pld.confiteor", "pld.blade_combo", "pld.magic_phase"],
+      "keyPoints": [
+        "Requiescat: Enables instant-cast Holy Spirit and Confiteor combo (60s CD)",
+        "Holy Spirit: Ranged magic attack - instant during Requiescat",
+        "Confiteor + Blade combo: 4-hit finisher that consumes Requiescat stacks",
+        "Magic phase provides movement flexibility and high burst damage"
+      ],
+      "relatedAbilities": ["Requiescat", "Holy Spirit", "Holy Circle", "Confiteor", "Blade of Faith", "Blade of Truth", "Blade of Valor"],
+      "tips": [
+        "Use magic phase when you need to move or during downtime",
+        "Requiescat stacks are consumed by Confiteor combo - don't waste them"
+      ]
+    },
+    {
+      "lessonId": "pld.lesson_6",
+      "lessonNumber": 6,
+      "title": "Party Protection",
+      "description": "Master PLD's party utility: Divine Veil for party shields, Cover for protecting allies, and Passage of Arms.",
+      "prerequisites": ["pld.lesson_5"],
+      "conceptsCovered": ["pld.divine_veil", "pld.cover", "pld.passage_of_arms", "pld.party_protection", "pld.clemency"],
+      "keyPoints": [
+        "Divine Veil: Party shield when you receive healing (90s CD)",
+        "Cover: Take damage for a party member (120s CD) - use carefully",
+        "Passage of Arms: Channeled 15% party mitigation behind you",
+        "Clemency: Emergency heal for yourself or others (costs GCD + MP)"
+      ],
+      "relatedAbilities": ["Divine Veil", "Cover", "Passage of Arms", "Clemency"],
+      "tips": [
+        "Divine Veil requires healing to activate - coordinate with healers",
+        "Passage of Arms can be instantly canceled after the buff is applied"
+      ]
+    },
+    {
+      "lessonId": "pld.lesson_7",
+      "lessonNumber": 7,
+      "title": "Advanced Optimization",
+      "description": "Final lesson: tank swaps, mitigation planning, oGCD weaving, and optimizing your full rotation.",
+      "prerequisites": ["pld.lesson_6"],
+      "conceptsCovered": ["pld.tank_swap", "pld.expiacion", "pld.circle_of_scorn", "pld.intervene"],
+      "keyPoints": [
+        "Provoke + Shirk for smooth tank swaps during mechanics",
+        "Expiacion: Strong oGCD damage (30s CD) - weave it",
+        "Circle of Scorn: DoT + damage oGCD (30s CD) - use on cooldown",
+        "Intervene: Gap closer with 2 charges - save for movement or burst"
+      ],
+      "relatedAbilities": ["Provoke", "Shirk", "Expiacion", "Circle of Scorn", "Intervene"],
+      "tips": [
+        "Plan your mitigation around boss timelines for maximum efficiency",
+        "Communicate tank swaps with your co-tank before pull"
+      ]
+    }
+  ]
+}

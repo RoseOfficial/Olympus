@@ -1,0 +1,142 @@
+{
+  "jobPrefix": "rpr",
+  "jobName": "Reaper",
+  "lessons": [
+    {
+      "lessonId": "rpr.lesson_1",
+      "lessonNumber": 1,
+      "title": "Reaper Fundamentals",
+      "description": "Learn the core principles of Reaper: basic combos, Soul gauge building, and Death's Design maintenance.",
+      "prerequisites": [],
+      "conceptsCovered": ["rpr.combo_basics", "rpr.soul_gauge", "rpr.soul_slice", "rpr.deaths_design"],
+      "keyPoints": [
+        "Basic combo: Slice -> Waxing Slice -> Infernal Slice grants 10 Soul Gauge",
+        "Soul Slice is an oGCD that grants 50 Soul Gauge (30s recharge, 2 charges)",
+        "Death's Design (+10% damage) must be maintained at all times via Shadow of Death",
+        "Shadow of Death extends Death's Design by 30s (max 60s) - refresh before it falls off"
+      ],
+      "relatedAbilities": ["Slice", "Waxing Slice", "Infernal Slice", "Soul Slice", "Shadow of Death"],
+      "tips": [
+        "Use Soul Slice on cooldown to prevent overcapping charges",
+        "Refresh Death's Design when it has ~10-15 seconds remaining for smooth uptime"
+      ]
+    },
+    {
+      "lessonId": "rpr.lesson_2",
+      "lessonNumber": 2,
+      "title": "Soul Reaver & Positionals",
+      "description": "Master Soul Reaver state: entering with Blood Stalk/Gluttony, Gibbet/Gallows positionals, and Enhanced procs.",
+      "prerequisites": ["rpr.lesson_1"],
+      "conceptsCovered": ["rpr.soul_reaver", "rpr.gibbet", "rpr.gallows", "rpr.positionals", "rpr.enhanced_procs"],
+      "keyPoints": [
+        "Blood Stalk (50 Soul) grants 1 Soul Reaver stack; Gluttony (50 Soul) grants 2 stacks",
+        "Gibbet (flank positional): Use from the side, grants Enhanced Gallows buff",
+        "Gallows (rear positional): Use from behind, grants Enhanced Gibbet buff",
+        "Enhanced procs last 60s - alternate Gibbet/Gallows to always use the Enhanced version",
+        "Each Soul Reaver ability grants 10 Shroud Gauge"
+      ],
+      "relatedAbilities": ["Blood Stalk", "Gluttony", "Gibbet", "Gallows", "True North"],
+      "tips": [
+        "Gluttony is preferred over Blood Stalk (2 stacks vs 1) when available",
+        "Use True North when positionals are impossible during mechanics"
+      ]
+    },
+    {
+      "lessonId": "rpr.lesson_3",
+      "lessonNumber": 3,
+      "title": "Shroud Gauge Management",
+      "description": "Understand Shroud gauge building, AoE Soul Reaver with Guillotine, and entering Enshroud.",
+      "prerequisites": ["rpr.lesson_2"],
+      "conceptsCovered": ["rpr.shroud_gauge", "rpr.guillotine", "rpr.enshroud"],
+      "keyPoints": [
+        "Shroud Gauge builds from Soul Reaver abilities (Gibbet/Gallows/Guillotine = +10 each)",
+        "Enshroud requires 50 Shroud Gauge to enter (powerful burst state)",
+        "Guillotine is AoE Soul Reaver (no positional) - use at 3+ targets",
+        "Don't overcap Shroud at 100 - enter Enshroud before capping"
+      ],
+      "relatedAbilities": ["Gibbet", "Gallows", "Guillotine", "Enshroud"],
+      "tips": [
+        "Plan your Soul Reaver usage to enter Enshroud during raid buff windows",
+        "Guillotine still grants Enhanced procs for AoE, but no positional bonus"
+      ]
+    },
+    {
+      "lessonId": "rpr.lesson_4",
+      "lessonNumber": 4,
+      "title": "Enshroud Burst Window",
+      "description": "Execute the Enshroud burst phase: Lemure Shroud stacks, Void Shroud generation, and Void/Cross Reaping.",
+      "prerequisites": ["rpr.lesson_3"],
+      "conceptsCovered": ["rpr.lemure_shroud", "rpr.void_shroud", "rpr.void_reaping", "rpr.grim_reaping"],
+      "keyPoints": [
+        "Enshroud grants 5 Lemure Shroud stacks (consume with Void/Cross Reaping)",
+        "Void Reaping and Cross Reaping are your main GCDs during Enshroud",
+        "Each Void/Cross Reaping grants 1 Void Shroud stack (for oGCDs)",
+        "Grim Reaping is the AoE version of Void/Cross Reaping (no positional)",
+        "Enshroud lasts 30s - you have time to use all 5 stacks plus finisher"
+      ],
+      "relatedAbilities": ["Enshroud", "Void Reaping", "Cross Reaping", "Grim Reaping"],
+      "tips": [
+        "Alternate Void Reaping and Cross Reaping for the Enhanced damage bonus",
+        "Save Enshroud for raid buff windows whenever possible"
+      ]
+    },
+    {
+      "lessonId": "rpr.lesson_5",
+      "lessonNumber": 5,
+      "title": "Enshroud Finishers",
+      "description": "Master Enshroud finishers: Communio timing, Perfectio proc, Lemure's Slice oGCDs, and Sacrificium.",
+      "prerequisites": ["rpr.lesson_4"],
+      "conceptsCovered": ["rpr.communio", "rpr.perfectio", "rpr.lemures_slice", "rpr.sacrificium"],
+      "keyPoints": [
+        "Communio: Use when you have 1 Lemure Shroud remaining (high potency finisher)",
+        "Communio grants Perfectio Ready buff - use Perfectio immediately after",
+        "Lemure's Slice/Scythe cost 2 Void Shroud each - weave them during Enshroud",
+        "Sacrificium (Lv.92): Additional finisher oGCD after Void Shroud spending"
+      ],
+      "relatedAbilities": ["Communio", "Perfectio", "Lemure's Slice", "Lemure's Scythe", "Sacrificium"],
+      "tips": [
+        "Standard Enshroud: 4x Void/Cross Reaping -> Communio -> Perfectio",
+        "Weave Lemure's Slice between GCDs when you have 2+ Void Shroud"
+      ]
+    },
+    {
+      "lessonId": "rpr.lesson_6",
+      "lessonNumber": 6,
+      "title": "Party Buff Coordination",
+      "description": "Maximize party damage with Arcane Circle, Immortal Sacrifice stacks, and Plentiful Harvest.",
+      "prerequisites": ["rpr.lesson_5"],
+      "conceptsCovered": ["rpr.arcane_circle", "rpr.immortal_sacrifice", "rpr.plentiful_harvest"],
+      "keyPoints": [
+        "Arcane Circle: 3% party-wide damage buff for 20s (120s cooldown)",
+        "Circle of Sacrifice: Party members under Arcane Circle grant Immortal Sacrifice stacks (max 8)",
+        "Plentiful Harvest consumes Immortal Sacrifice stacks for damage + 50 Shroud Gauge",
+        "Align Arcane Circle with party 2-minute burst windows for maximum value"
+      ],
+      "relatedAbilities": ["Arcane Circle", "Plentiful Harvest"],
+      "tips": [
+        "Use Arcane Circle at the start of fight and every 2 minutes with party buffs",
+        "Plentiful Harvest enables quick Shroud building after Arcane Circle"
+      ]
+    },
+    {
+      "lessonId": "rpr.lesson_7",
+      "lessonNumber": 7,
+      "title": "AoE & Movement",
+      "description": "Learn the AoE rotation and use Harvest Moon for movement and ranged situations.",
+      "prerequisites": ["rpr.lesson_6"],
+      "conceptsCovered": ["rpr.aoe_rotation", "rpr.harvest_moon"],
+      "keyPoints": [
+        "AoE threshold: Use AoE rotation at 3+ targets",
+        "AoE combo: Spinning Scythe -> Nightmare Scythe (grants 10 Soul Gauge)",
+        "Whorl of Death applies Death's Design to all targets (AoE version of Shadow of Death)",
+        "Harvest Moon: Ranged GCD for movement or disengagement situations",
+        "Use Soulsow before combat to have Harvest Moon ready"
+      ],
+      "relatedAbilities": ["Spinning Scythe", "Nightmare Scythe", "Whorl of Death", "Soulsow", "Harvest Moon"],
+      "tips": [
+        "In dungeons, apply Whorl of Death to all enemies before combo",
+        "Harvest Moon is perfect for boss disengagement phases"
+      ]
+    }
+  ]
+}
