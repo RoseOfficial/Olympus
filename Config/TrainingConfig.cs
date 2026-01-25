@@ -2,6 +2,7 @@ namespace Olympus.Config;
 
 using System;
 using System.Collections.Generic;
+using Olympus.Services.Training;
 
 /// <summary>
 /// Configuration for Training Mode - intelligent coaching and decision explanations.
@@ -142,6 +143,88 @@ public sealed class TrainingConfig
     /// Lesson IDs that the user has dismissed (won't show as recommendations).
     /// </summary>
     public HashSet<string> DismissedRecommendations { get; set; } = new();
+
+    #endregion
+
+    #region Real-Time Coaching Hints (v3.49.0)
+
+    /// <summary>
+    /// Whether to show real-time coaching hints during combat.
+    /// Hints appear for struggling concepts to provide contextual tips.
+    /// </summary>
+    public bool EnableCoachingHints { get; set; } = true;
+
+    /// <summary>
+    /// Whether the hint overlay is currently visible.
+    /// </summary>
+    public bool HintOverlayVisible { get; set; } = true;
+
+    /// <summary>
+    /// Minimum seconds between hints (throttling).
+    /// </summary>
+    private float _hintCooldownSeconds = 10f;
+    public float HintCooldownSeconds
+    {
+        get => _hintCooldownSeconds;
+        set => _hintCooldownSeconds = Math.Clamp(value, 5f, 60f);
+    }
+
+    /// <summary>
+    /// How long hints are displayed before auto-dismissing (seconds).
+    /// </summary>
+    private float _hintDisplayDurationSeconds = 8f;
+    public float HintDisplayDurationSeconds
+    {
+        get => _hintDisplayDurationSeconds;
+        set => _hintDisplayDurationSeconds = Math.Clamp(value, 3f, 30f);
+    }
+
+    /// <summary>
+    /// X position offset for the hint overlay (from left edge).
+    /// </summary>
+    public float HintOverlayX { get; set; } = 10f;
+
+    /// <summary>
+    /// Y position offset for the hint overlay (from top edge).
+    /// </summary>
+    public float HintOverlayY { get; set; } = 300f;
+
+    #endregion
+
+    #region Coaching Personality (v3.51.0)
+
+    /// <summary>
+    /// The coaching personality that controls the tone of feedback.
+    /// Encouraging (default), Analytical, Strict, or Silent.
+    /// </summary>
+    public CoachingPersonality CoachingPersonality { get; set; } = CoachingPersonality.Encouraging;
+
+    #endregion
+
+    #region Spaced Repetition (v3.52.0)
+
+    /// <summary>
+    /// Whether to track knowledge retention and suggest reviews.
+    /// Applies a forgetting curve to identify concepts that need periodic reinforcement.
+    /// </summary>
+    public bool EnableSpacedRepetition { get; set; } = true;
+
+    /// <summary>
+    /// Retention threshold below which review is recommended (0.0 to 1.0).
+    /// Default is 0.40 (40%), meaning concepts below 40% retention trigger review suggestions.
+    /// </summary>
+    private float _spacedRepetitionReviewThreshold = 0.40f;
+    public float SpacedRepetitionReviewThreshold
+    {
+        get => _spacedRepetitionReviewThreshold;
+        set => _spacedRepetitionReviewThreshold = Math.Clamp(value, 0.1f, 0.8f);
+    }
+
+    /// <summary>
+    /// Tracks retention data for each concept (last practiced, decay rate).
+    /// Key is the concept ID (e.g., "whm.emergency_healing").
+    /// </summary>
+    public Dictionary<string, ConceptRetentionData> ConceptRetention { get; set; } = new();
 
     #endregion
 }

@@ -3,6 +3,131 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.0.0 - Training Mode Complete
+
+**Major Milestone: Intelligent Coaching System Complete**
+
+This release marks the completion of Phase 5 (Training Mode), transforming Olympus from a passive learning system into an active coaching platform. Training Mode now provides personalized, real-time coaching that adapts to your play style across all 21 combat jobs.
+
+**Complete Feature Set**
+- **Real-Time Coaching Hints** (v3.49): In-combat tips for struggling concepts
+- **Decision Validation** (v3.50): Feedback on whether actions were optimal
+- **Coaching Personality** (v3.51): 4 feedback styles (Encouraging, Analytical, Strict, Silent)
+- **Spaced Repetition** (v3.52): Knowledge retention tracking with forgetting curves
+- **147 Lessons**: Structured educational content across all jobs
+- **735 Quiz Questions**: Skill validation for all concepts
+
+**v4.0.0 Polish & Integration**
+- Consolidated settings UI with all coaching options in one dropdown
+- Coaching hints, personality, and retention settings easily accessible
+- Spaced repetition now automatically updates when concepts are practiced
+- Seamless integration between mastery tracking and retention decay
+
+**What's Next (Phase 6)**
+- Machine learning for personalized recommendations
+- Simulation engine for practice scenarios
+- Voice command support
+<!-- LATEST-END -->
+
+## v3.52.0 - Spaced Repetition
+
+**Knowledge Retention Tracking**
+- Track how well you remember concepts over time using a forgetting curve
+- Concepts decay without practice: Day 1 (100%) → Day 3 (80%) → Day 7 (60%) → Day 14 (40%) → Day 30+ (20%)
+- Each successful demonstration reinforces retention and slows decay
+- Review suggestions when retention drops below 40%
+
+**Skill Level Tab Enhancements**
+- New "Knowledge Retention" section shows overall retention status
+- Concepts needing re-learning highlighted with urgency indicators
+- Concepts due for review shown with decay percentage
+- Fresh concepts displayed with time until review needed
+- Suggested review quizzes based on decaying concepts
+
+**New Settings**
+- Enable/disable retention tracking toggle
+- Configurable review threshold (default 40%)
+
+**Technical**
+- New RetentionData.cs with forgetting curve calculations
+- New SpacedRepetitionService.cs for retention management
+- Integrated with TrainingConfig for persistence across sessions
+- SkillProgressTab updated with retention visualization
+
+## v3.51.0 - Coaching Personality
+
+**Configurable Coaching Voice**
+- Choose from 4 distinct coaching personalities that adapt all feedback messages
+- **Encouraging** (default): Positive reinforcement, gentle corrections, supportive tone
+- **Analytical**: Data-focused, minimal emotion, just facts and numbers
+- **Strict**: Direct corrections, high standards, no sugarcoating
+- **Silent**: Minimal feedback, only critical errors shown
+
+**Personality-Aware Feedback**
+- All hint messages adapt to your chosen personality
+- Decision validation messages change tone based on personality
+- Silent personality suppresses non-critical feedback for minimal distraction
+- Strict personality only shows Normal+ priority hints
+
+**New Settings**
+- Coaching Personality selector in Training Mode settings
+- Personality applies to hints, validation messages, and coaching feedback
+
+**Technical**
+- New CoachPersonality.cs with CoachingPersonality enum
+- PersonalityTextGenerator generates all personality-appropriate messages
+- RealTimeCoachingService and DecisionValidationService integrated with personality
+
+## v3.50.0 - Decision Validation
+
+**New Decision Validation System**
+- Decisions now show whether they were optimal, acceptable, or suboptimal
+- Validation symbols displayed next to each action: ✓ (optimal), ≈ (acceptable), ✗ (suboptimal)
+- Suboptimal decisions show "what would be better" feedback
+- Hover over symbols for detailed explanation
+
+**Live Coaching Tab Enhancements**
+- Validation summary in status section shows counts of optimal/acceptable/suboptimal decisions
+- Recent decisions table includes validation column with symbols
+- Current decision shows validation result with improvement suggestions
+- Overall optimal decision rate displayed in tooltip
+
+**Per-Concept Statistics**
+- Track optimal decision rate per concept over time
+- Identify weakest concepts based on decision accuracy
+- View strongest concepts with highest optimal rates
+
+**Technical**
+- New DecisionResult.cs model for validation outcomes
+- New DecisionValidationService.cs for tracking and analysis
+- Integrated with TrainingWindow and LiveCoachingTab
+
+## v3.49.0 - Real-Time Coaching Hints
+
+**New In-Combat Coaching System**
+- Real-time coaching hints now appear during combat for struggling concepts
+- Hints appear for concepts with <60% mastery to provide contextual tips
+- Floating overlay window positioned near the party list for easy visibility
+- Auto-dismiss after configurable duration (default 8 seconds)
+- Dismiss individual hints or press ESC to clear all
+
+**Hint Features**
+- Priority-based display: Critical (red), High (orange), Normal (blue), Low (gray)
+- Shows concept name, success rate, actionable tip, and recommended action
+- Progress bar indicates time remaining before auto-dismiss
+- Intelligent throttling prevents hint spam (10s between hints, 60s per concept)
+
+**New Settings**
+- Enable/disable coaching hints toggle
+- Configurable hint cooldown (5-60 seconds, default 10s)
+- Configurable display duration (3-30 seconds, default 8s)
+- Adjustable overlay position
+
+**Technical**
+- New RealTimeCoachingService for hint generation and throttling
+- New HintOverlay window with ImGui rendering
+- Integrates with existing concept mastery tracking from v3.28.0
+
 ## v3.48.0 - Iris (PCT) Training Mode
 
 **Full Pictomancer Training Mode Integration**
@@ -31,7 +156,6 @@ All notable changes to Olympus will be documented in this file.
 
 **Concept Mastery**
 - All 25 PCT concepts tracked including Palette Gauge, paint management, canvas system, muse abilities, and burst windows
-<!-- LATEST-END -->
 
 ## v3.47.0 - Circe (RDM) Training Mode
 

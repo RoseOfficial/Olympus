@@ -26,12 +26,13 @@ using Olympus.Services.FFLogs;
 using Olympus.Services.Training;
 using Olympus.Timeline;
 using Olympus.Windows;
+using Olympus.Windows.Training;
 
 namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "3.48.0";
+    public const string PluginVersion = "4.0.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -107,6 +108,9 @@ public sealed class Plugin : IDalamudPlugin
 
     // Training mode
     private readonly TrainingService trainingService;
+    private readonly RealTimeCoachingService realTimeCoachingService;
+    private readonly DecisionValidationService decisionValidationService;
+    private readonly SpacedRepetitionService spacedRepetitionService;
 
     private readonly WindowSystem windowSystem = new("Olympus");
     private readonly ConfigWindow configWindow;
@@ -115,6 +119,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly WelcomeWindow welcomeWindow;
     private readonly AnalyticsWindow analyticsWindow;
     private readonly TrainingWindow trainingWindow;
+    private readonly HintOverlay hintOverlay;
     private readonly TelemetryService telemetryService;
 
     private readonly OlympusIpc olympusIpc;
@@ -217,6 +222,26 @@ public sealed class Plugin : IDalamudPlugin
         // Training mode
         this.trainingService = new TrainingService(configuration.Training, objectTable, log);
 
+        // Real-time coaching hints (v3.49.0)
+        this.realTimeCoachingService = new RealTimeCoachingService(
+            configuration.Training,
+            trainingService,
+            log);
+
+        // Decision validation (v3.50.0)
+        this.decisionValidationService = new DecisionValidationService(
+            configuration.Training,
+            log);
+
+        // Spaced repetition (v3.52.0)
+        this.spacedRepetitionService = new SpacedRepetitionService(
+            configuration.Training,
+            trainingService,
+            log);
+
+        // Connect spaced repetition to training service for retention tracking (v4.0.0)
+        this.trainingService.SetSpacedRepetitionService(this.spacedRepetitionService);
+
         // Connect analytics to training recommendations (v3.10.0)
         this.performanceTracker.OnSessionCompleted += session =>
         {
@@ -269,7 +294,8 @@ public sealed class Plugin : IDalamudPlugin
         this.debugWindow = new DebugWindow(debugService, configuration, timelineService);
         this.welcomeWindow = new WelcomeWindow(configuration, SaveConfiguration);
         this.analyticsWindow = new AnalyticsWindow(performanceTracker, configuration, fflogsService);
-        this.trainingWindow = new TrainingWindow(trainingService, configuration);
+        this.trainingWindow = new TrainingWindow(trainingService, configuration, decisionValidationService, spacedRepetitionService);
+        this.hintOverlay = new HintOverlay(realTimeCoachingService, configuration.Training);
 
         // Telemetry service for anonymous usage tracking
         this.telemetryService = new TelemetryService(configuration, log);
@@ -289,6 +315,7 @@ public sealed class Plugin : IDalamudPlugin
         windowSystem.AddWindow(welcomeWindow);
         windowSystem.AddWindow(analyticsWindow);
         windowSystem.AddWindow(trainingWindow);
+        windowSystem.AddWindow(hintOverlay);
 
         mainWindow.IsOpen = configuration.MainWindowVisible;
         // Debug window always starts closed - user must explicitly open it
@@ -396,6 +423,10 @@ public sealed class Plugin : IDalamudPlugin
 
         // Update training mode
         trainingService.Update();
+
+        // Update coaching hints (v3.49.0)
+        realTimeCoachingService.Update();
+        hintOverlay.HandleInput();
 
         if (!configuration.Enabled)
             return;

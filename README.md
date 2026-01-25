@@ -69,9 +69,13 @@ Transform from passenger to pilot with intelligent coaching:
 | Feature | Description |
 |---------|-------------|
 | **Live Explanations** | See *why* each ability is chosen in real-time |
+| **Real-Time Hints** | In-combat coaching tips for struggling concepts |
+| **Decision Validation** | Instant feedback: optimal (✓), acceptable (≈), or suboptimal (✗) |
+| **Coaching Personality** | 4 feedback styles: Encouraging, Analytical, Strict, Silent |
+| **Spaced Repetition** | Knowledge retention tracking with forgetting curves |
 | **525+ Concepts** | Job-specific knowledge across all 21 jobs |
 | **147 Lessons** | Progressive learning from basics to optimization |
-| **147 Quizzes** | Validate understanding with scenario questions |
+| **735 Quiz Questions** | Validate understanding with scenario questions |
 | **Skill Detection** | Auto-detects Beginner/Intermediate/Advanced level |
 | **Concept Mastery** | Tracks successful application in combat |
 | **Adaptive Detail** | Explanations adjust to your skill level |
@@ -138,7 +142,7 @@ Each rotation is named after a Greek deity:
 | Phase 2 | ✅ Complete | Fight timeline integration |
 | Phase 3 | ✅ Complete | Full party coordination via IPC |
 | Phase 4 | ✅ Complete | Performance analytics + FFLogs |
-| Phase 5 | 🔄 In Progress | Training mode + personalized coaching |
+| Phase 5 | ✅ Complete | Training mode + personalized coaching (v4.0) |
 | Phase 6 | 📋 Planned | ML integration + simulation engine |
 
 ## Contributing

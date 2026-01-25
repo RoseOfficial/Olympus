@@ -25,6 +25,11 @@ public static class SkillProgressTab
     private static readonly Vector4 IntermediateColor = new(0.9f, 0.7f, 0.3f, 1.0f);
     private static readonly Vector4 AdvancedColor = new(0.3f, 0.9f, 0.3f, 1.0f);
 
+    // Retention status colors (v3.52.0)
+    private static readonly Vector4 FreshColor = new(0.3f, 0.9f, 0.3f, 1.0f);
+    private static readonly Vector4 DecayingColor = new(0.9f, 0.6f, 0.2f, 1.0f);
+    private static readonly Vector4 NeedsReviewColor = new(0.9f, 0.3f, 0.3f, 1.0f);
+
     // State for lesson navigation
     private static string? pendingLessonNavigation;
 
@@ -70,12 +75,26 @@ public static class SkillProgressTab
 
     public static void Draw(ITrainingService trainingService, TrainingConfig config)
     {
+        Draw(trainingService, config, null);
+    }
+
+    public static void Draw(ITrainingService trainingService, TrainingConfig config, SpacedRepetitionService? spacedRepetition)
+    {
         // Adaptive explanations toggle
         DrawAdaptiveSettings(config);
 
         ImGui.Spacing();
         ImGui.Separator();
         ImGui.Spacing();
+
+        // Spaced repetition / retention section (v3.52.0)
+        if (spacedRepetition?.IsEnabled == true)
+        {
+            DrawRetentionSection(spacedRepetition, config);
+            ImGui.Spacing();
+            ImGui.Separator();
+            ImGui.Spacing();
+        }
 
         // Focus Areas summary (v3.29.0) - show struggling/mastered concepts prominently
         if (config.EnableAdaptiveExplanations)
@@ -452,6 +471,159 @@ public static class SkillProgressTab
         name = name.Replace("_", " ");
         return System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(name);
     }
+
+    #region Spaced Repetition / Retention (v3.52.0)
+
+    private static void DrawRetentionSection(SpacedRepetitionService spacedRepetition, TrainingConfig config)
+    {
+        ImGui.Text("Knowledge Retention");
+        ImGui.Separator();
+
+        // Retention toggle
+        var enableRetention = config.EnableSpacedRepetition;
+        if (ImGui.Checkbox("Track Knowledge Retention", ref enableRetention))
+        {
+            config.EnableSpacedRepetition = enableRetention;
+        }
+
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.SetTooltip(
+                "Track how well you remember concepts over time.\n" +
+                "Concepts decay without practice - review suggested when retention drops below 40%.");
+        }
+
+        if (!config.EnableSpacedRepetition)
+            return;
+
+        ImGui.Spacing();
+
+        // Overall status message
+        var statusMessage = spacedRepetition.GetReviewStatusMessage();
+        var hasUrgent = spacedRepetition.HasUrgentReviews();
+        var statusColor = hasUrgent ? NeedsReviewColor : (statusMessage.Contains("due") ? DecayingColor : FreshColor);
+        ImGui.TextColored(statusColor, statusMessage);
+
+        // Show concepts needing review
+        var needsReview = spacedRepetition.GetConceptsNeedingReview().ToList();
+        var needsRelearning = spacedRepetition.GetConceptsNeedingRelearning().ToList();
+
+        if (needsRelearning.Count > 0)
+        {
+            ImGui.Spacing();
+            ImGui.TextColored(NeedsReviewColor, $"\u26A0 Needs Re-learning ({needsRelearning.Count}):");
+
+            foreach (var data in needsRelearning.Take(3))
+            {
+                ImGui.TextColored(NeedsReviewColor, $"  \u2718 {FormatConceptName(data.ConceptId)} ({data.RetentionScore:P0} retention)");
+                ImGui.SameLine();
+
+                // Find and suggest quiz
+                var jobPrefix = data.ConceptId.Split('.').FirstOrDefault() ?? string.Empty;
+                if (!string.IsNullOrEmpty(jobPrefix) && ImGui.SmallButton($"Review##{data.ConceptId}"))
+                {
+                    var lessons = LessonRegistry.GetLessonsForJob(jobPrefix);
+                    var lesson = lessons.FirstOrDefault(l => l.ConceptsCovered.Contains(data.ConceptId));
+                    if (lesson != null)
+                    {
+                        pendingLessonNavigation = lesson.LessonId;
+                    }
+                }
+
+                if (ImGui.IsItemHovered())
+                {
+                    var daysSince = data.DaysSinceLastPractice;
+                    ImGui.SetTooltip($"Last practiced: {daysSince:F0} days ago\nOpen the lesson to refresh your knowledge.");
+                }
+            }
+
+            if (needsRelearning.Count > 3)
+            {
+                ImGui.TextColored(NeutralColor, $"  ... and {needsRelearning.Count - 3} more");
+            }
+        }
+
+        if (needsReview.Count > 0 && needsReview.Count != needsRelearning.Count)
+        {
+            // Filter out the ones already shown in relearning
+            var reviewOnly = needsReview.Where(r => !needsRelearning.Any(rl => rl.ConceptId == r.ConceptId)).ToList();
+            if (reviewOnly.Count > 0)
+            {
+                ImGui.Spacing();
+                ImGui.TextColored(DecayingColor, $"\u23F0 Due for Review ({reviewOnly.Count}):");
+
+                foreach (var data in reviewOnly.Take(3))
+                {
+                    ImGui.TextColored(DecayingColor, $"  \u25CB {FormatConceptName(data.ConceptId)} ({data.RetentionScore:P0} retention)");
+                    ImGui.SameLine();
+
+                    var jobPrefix = data.ConceptId.Split('.').FirstOrDefault() ?? string.Empty;
+                    if (!string.IsNullOrEmpty(jobPrefix) && ImGui.SmallButton($"Review##{data.ConceptId}"))
+                    {
+                        var lessons = LessonRegistry.GetLessonsForJob(jobPrefix);
+                        var lesson = lessons.FirstOrDefault(l => l.ConceptsCovered.Contains(data.ConceptId));
+                        if (lesson != null)
+                        {
+                            pendingLessonNavigation = lesson.LessonId;
+                        }
+                    }
+
+                    if (ImGui.IsItemHovered())
+                    {
+                        var daysUntil = data.DaysUntilReviewNeeded;
+                        ImGui.SetTooltip($"Retention declining.\nReview recommended to maintain knowledge.");
+                    }
+                }
+
+                if (reviewOnly.Count > 3)
+                {
+                    ImGui.TextColored(NeutralColor, $"  ... and {reviewOnly.Count - 3} more");
+                }
+            }
+        }
+
+        // Show strongest concepts (fresh)
+        var strongestConcepts = spacedRepetition.GetStrongestConcepts(count: 3).ToList();
+        if (strongestConcepts.Count > 0)
+        {
+            ImGui.Spacing();
+            ImGui.TextColored(FreshColor, $"\u2713 Fresh in Memory:");
+
+            foreach (var data in strongestConcepts)
+            {
+                var daysUntilReview = data.DaysUntilReviewNeeded;
+                var daysText = daysUntilReview > 1 ? $"{daysUntilReview:F0}d until review" : "review soon";
+                ImGui.TextColored(FreshColor, $"  \u2713 {FormatConceptName(data.ConceptId)} ({data.RetentionScore:P0}, {daysText})");
+            }
+        }
+
+        // Suggested quizzes
+        var suggestedQuizzes = spacedRepetition.SuggestReviewQuizzes(maxQuizzes: 2).ToList();
+        if (suggestedQuizzes.Count > 0)
+        {
+            ImGui.Spacing();
+            ImGui.TextColored(InfoColor, "Suggested Review Quizzes:");
+
+            foreach (var quizId in suggestedQuizzes)
+            {
+                var parts = quizId.Split('.');
+                var jobPrefix = parts.Length > 0 ? parts[0] : string.Empty;
+                var quizNum = parts.Length > 2 ? parts[2] : "?";
+                var jobIndex = Array.IndexOf(AllJobPrefixes, jobPrefix);
+                var jobName = jobIndex >= 0 ? JobDisplayNames[jobIndex] : jobPrefix.ToUpperInvariant();
+
+                ImGui.Text($"  \u2022 {jobName} Quiz {quizNum}");
+                ImGui.SameLine();
+                if (ImGui.SmallButton($"Take Quiz##{quizId}"))
+                {
+                    // Navigate to quiz - set pending navigation
+                    pendingLessonNavigation = quizId;
+                }
+            }
+        }
+    }
+
+    #endregion
 
     private static void DrawScoreComponent(string label, float value, int weight, string tooltip)
     {

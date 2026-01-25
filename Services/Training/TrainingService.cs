@@ -26,6 +26,9 @@ public sealed class TrainingService : ITrainingService
 
     private bool wasInCombat;
 
+    // Spaced repetition integration (v4.0.0)
+    private SpacedRepetitionService? spacedRepetitionService;
+
     public TrainingService(
         TrainingConfig config,
         IObjectTable objectTable,
@@ -34,6 +37,15 @@ public sealed class TrainingService : ITrainingService
         this.config = config;
         this.objectTable = objectTable;
         this.log = log;
+    }
+
+    /// <summary>
+    /// Sets the spaced repetition service for retention tracking.
+    /// Called after construction to avoid circular dependencies.
+    /// </summary>
+    public void SetSpacedRepetitionService(SpacedRepetitionService? service)
+    {
+        this.spacedRepetitionService = service;
     }
 
     public bool IsTrainingEnabled
@@ -1026,6 +1038,9 @@ public sealed class TrainingService : ITrainingService
         if (wasSuccessful)
         {
             data.Successes++;
+
+            // Update spaced repetition retention (v4.0.0)
+            this.spacedRepetitionService?.RecordSuccess(conceptId);
         }
 
         data.LastApplied = DateTime.Now;

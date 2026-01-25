@@ -14,16 +14,24 @@ public sealed class TrainingWindow : Window
 {
     private readonly ITrainingService trainingService;
     private readonly Configuration configuration;
+    private readonly DecisionValidationService? decisionValidationService;
+    private readonly SpacedRepetitionService? spacedRepetitionService;
 
     // State for programmatic tab navigation (v3.29.0)
     private bool navigateToLessonsTab;
     private string? pendingLessonId;
 
-    public TrainingWindow(ITrainingService trainingService, Configuration configuration)
+    public TrainingWindow(
+        ITrainingService trainingService,
+        Configuration configuration,
+        DecisionValidationService? decisionValidationService = null,
+        SpacedRepetitionService? spacedRepetitionService = null)
         : base("Olympus Training", ImGuiWindowFlags.NoSavedSettings)
     {
         this.trainingService = trainingService;
         this.configuration = configuration;
+        this.decisionValidationService = decisionValidationService;
+        this.spacedRepetitionService = spacedRepetitionService;
 
         Size = new Vector2(450, 500);
         SizeCondition = ImGuiCond.FirstUseEver;
@@ -60,7 +68,7 @@ public sealed class TrainingWindow : Window
             if (ImGui.BeginTabItem("Live Coaching"))
             {
                 ImGui.Spacing();
-                LiveCoachingTab.Draw(this.trainingService, this.configuration.Training);
+                LiveCoachingTab.Draw(this.trainingService, this.configuration.Training, this.decisionValidationService);
                 ImGui.EndTabItem();
             }
 
@@ -106,7 +114,7 @@ public sealed class TrainingWindow : Window
             if (ImGui.BeginTabItem("Skill Level"))
             {
                 ImGui.Spacing();
-                SkillProgressTab.Draw(this.trainingService, this.configuration.Training);
+                SkillProgressTab.Draw(this.trainingService, this.configuration.Training, this.spacedRepetitionService);
                 ImGui.EndTabItem();
             }
 
@@ -219,6 +227,59 @@ public sealed class TrainingWindow : Window
             DrawSectionToggle("Alternatives", "Alternatives");
             DrawSectionToggle("Tips", "Tips");
             DrawSectionToggle("RecentHistory", "Recent History");
+
+            ImGui.Spacing();
+            ImGui.Text("Coaching Hints (v3.49)");
+            ImGui.Separator();
+
+            var enableHints = this.configuration.Training.EnableCoachingHints;
+            if (ImGui.Checkbox("Show Coaching Hints", ref enableHints))
+            {
+                this.configuration.Training.EnableCoachingHints = enableHints;
+            }
+
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.SetTooltip("Show real-time hints during combat for struggling concepts.");
+            }
+
+            if (enableHints)
+            {
+                var hintCooldown = this.configuration.Training.HintCooldownSeconds;
+                ImGui.SetNextItemWidth(80);
+                if (ImGui.SliderFloat("Hint Cooldown", ref hintCooldown, 5f, 60f, "%.0fs"))
+                {
+                    this.configuration.Training.HintCooldownSeconds = hintCooldown;
+                }
+
+                var hintDuration = this.configuration.Training.HintDisplayDurationSeconds;
+                ImGui.SetNextItemWidth(80);
+                if (ImGui.SliderFloat("Hint Duration", ref hintDuration, 3f, 30f, "%.0fs"))
+                {
+                    this.configuration.Training.HintDisplayDurationSeconds = hintDuration;
+                }
+            }
+
+            ImGui.Spacing();
+            ImGui.Text("Coaching Personality (v3.51)");
+            ImGui.Separator();
+
+            var personalityOptions = new[] { "Encouraging", "Analytical", "Strict", "Silent" };
+            var currentPersonality = (int)this.configuration.Training.CoachingPersonality;
+            ImGui.SetNextItemWidth(120);
+            if (ImGui.Combo("Personality", ref currentPersonality, personalityOptions, personalityOptions.Length))
+            {
+                this.configuration.Training.CoachingPersonality = (CoachingPersonality)currentPersonality;
+            }
+
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.SetTooltip(
+                    "Encouraging: Positive, supportive feedback\n" +
+                    "Analytical: Data-focused, objective feedback\n" +
+                    "Strict: Direct, high-standards feedback\n" +
+                    "Silent: Minimal feedback, critical only");
+            }
 
             ImGui.EndCombo();
         }
