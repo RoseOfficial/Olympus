@@ -1,6 +1,7 @@
 using Olympus.Rotation.Common;
 using Olympus.Rotation.CirceCore.Helpers;
 using Olympus.Services.Party;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.CirceCore.Context;
 
@@ -269,6 +270,15 @@ public interface ICirceContext : ICasterDpsRotationContext
     /// Party coordination service for raid buff synchronization.
     /// </summary>
     IPartyCoordinationService? PartyCoordinationService { get; }
+
+    #endregion
+
+    #region Training
+
+    /// <summary>
+    /// Training service for decision explanations.
+    /// </summary>
+    ITrainingService? TrainingService { get; }
 
     #endregion
 }

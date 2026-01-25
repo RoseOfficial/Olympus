@@ -3,6 +3,49 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.47.0 - Circe (RDM) Training Mode
+
+**Full Red Mage Training Mode Integration**
+- Circe (RDM) rotation now records all training decisions with detailed explanations
+- Live coaching shows why each ability was used with factors considered and alternatives rejected
+- Third caster DPS with complete Training Mode integration
+
+**Dualcast System Decisions**
+- Jolt III: Default hardcast filler, explains Dualcast mechanic
+- Verthunder/Veraero: Long spell selection based on mana balance
+- Dualcast consumption: Tracks instant cast usage for optimal flow
+
+**Proc Management Decisions**
+- Verfire/Verstone: Prioritizes procs as fillers, warns on expiring procs
+- Acceleration: Guarantees procs when none available, tracks charges
+- Swiftcast Usage: Movement optimization when no procs available
+
+**Melee Combo Decisions**
+- Enchanted Riposte: Melee entry at 50|50 mana, burst window alignment
+- Enchanted Zwerchhau: Combo step 2 progression tracking
+- Enchanted Redoublement: Combo step 3 leading to finisher
+
+**Finisher System Decisions**
+- Verflare/Verholy: Finisher selection based on lower mana type
+- Scorch: Post-finisher burst ability tracking
+- Resolution: Final finisher completion
+- Grand Impact: Special proc from Acceleration III
+
+**Burst Window Decisions**
+- Embolden: Party damage buff timing aligned with melee combo
+- Manafication: Mana boost at optimal thresholds (40-50 mana)
+- Corps-a-corps/Engagement: Gap closer usage during burst phases
+- Vice of Thorns/Prefulgence: Finisher proc oGCDs
+
+**oGCD Weaving Decisions**
+- Fleche: High damage single-target oGCD on cooldown
+- Contre Sixte: AoE oGCD on cooldown
+- Lucid Dreaming: MP recovery at 70% threshold
+
+**Concept Mastery**
+- All 25 RDM concepts tracked including mana balance, Dualcast, procs, melee combo, finishers, and burst windows
+<!-- LATEST-END -->
+
 ## v3.46.0 - Persephone (SMN) Training Mode
 
 **Full Summoner Training Mode Integration**
@@ -47,7 +90,6 @@ All notable changes to Olympus will be documented in this file.
 
 **Concept Mastery**
 - All 25 SMN concepts tracked including demi-summons, primal attunement, Aetherflow, burst windows, and party coordination
-<!-- LATEST-END -->
 
 ## v3.45.0 - Hecate (BLM) Training Mode
 

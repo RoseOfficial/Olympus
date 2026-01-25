@@ -1,5 +1,7 @@
 using Olympus.Data;
 using Olympus.Rotation.CirceCore.Context;
+using Olympus.Rotation.Common.Helpers;
+using Olympus.Services.Training;
 using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.CirceCore.Modules;
@@ -123,6 +125,23 @@ public sealed class BuffModule : ICirceModule
         {
             context.Debug.PlannedAction = RDMActions.Fleche.Name;
             context.Debug.BuffState = "Fleche";
+
+            // Training Mode integration
+            CasterTrainingHelper.RecordDamageDecision(
+                context.TrainingService,
+                RDMActions.Fleche.ActionId,
+                RDMActions.Fleche.Name,
+                target.Name?.TextValue,
+                "Fleche - high damage oGCD",
+                "Fleche is your primary single-target oGCD with a 25s cooldown. Use it on cooldown " +
+                "to maximize damage, weaving between GCDs. It doesn't interact with procs or mana.",
+                new[] { $"Black Mana: {context.BlackMana}", $"White Mana: {context.WhiteMana}", "25s cooldown" },
+                new[] { "Hold for burst window", "Wait for better target" },
+                "Always use Fleche on cooldown - it's free damage with no resource cost.",
+                RdmConcepts.OgcdWeaving);
+
+            context.TrainingService?.RecordConceptApplication(RdmConcepts.OgcdWeaving, true, "Fleche used on cooldown");
+
             return true;
         }
 
@@ -148,6 +167,23 @@ public sealed class BuffModule : ICirceModule
         {
             context.Debug.PlannedAction = RDMActions.ContreSixte.Name;
             context.Debug.BuffState = "Contre Sixte";
+
+            // Training Mode integration
+            CasterTrainingHelper.RecordDamageDecision(
+                context.TrainingService,
+                RDMActions.ContreSixte.ActionId,
+                RDMActions.ContreSixte.Name,
+                target.Name?.TextValue,
+                "Contre Sixte - AoE oGCD",
+                "Contre Sixte is your AoE oGCD with a 35s cooldown. It does good damage on single target " +
+                "and hits all enemies in range. Use it on cooldown alongside Fleche.",
+                new[] { $"Black Mana: {context.BlackMana}", $"White Mana: {context.WhiteMana}", "35s cooldown" },
+                new[] { "Hold for burst window", "Wait for more enemies" },
+                "Use Contre Sixte on cooldown even on single target - the damage is worth it.",
+                RdmConcepts.OgcdWeaving);
+
+            context.TrainingService?.RecordConceptApplication(RdmConcepts.OgcdWeaving, true, "Contre Sixte used on cooldown");
+
             return true;
         }
 
@@ -173,6 +209,23 @@ public sealed class BuffModule : ICirceModule
         {
             context.Debug.PlannedAction = RDMActions.ViceOfThorns.Name;
             context.Debug.BuffState = "Vice of Thorns";
+
+            // Training Mode integration
+            CasterTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                RDMActions.ViceOfThorns.ActionId,
+                RDMActions.ViceOfThorns.Name,
+                target.Name?.TextValue,
+                "Vice of Thorns - finisher proc",
+                "Vice of Thorns becomes available after using Verflare or Verholy, granting the " +
+                "Thorned Flourish buff. Use it immediately as part of your finisher sequence.",
+                new[] { $"Black Mana: {context.BlackMana}", $"White Mana: {context.WhiteMana}", "Thorned Flourish active" },
+                new[] { "Continue finisher sequence", "Hold for movement" },
+                "Always use Vice of Thorns when available - it's free damage from your finisher combo.",
+                RdmConcepts.FinisherProcs);
+
+            context.TrainingService?.RecordConceptApplication(RdmConcepts.FinisherProcs, true, "Vice of Thorns proc consumed");
+
             return true;
         }
 
@@ -198,6 +251,23 @@ public sealed class BuffModule : ICirceModule
         {
             context.Debug.PlannedAction = RDMActions.Prefulgence.Name;
             context.Debug.BuffState = "Prefulgence";
+
+            // Training Mode integration
+            CasterTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                RDMActions.Prefulgence.ActionId,
+                RDMActions.Prefulgence.Name,
+                target.Name?.TextValue,
+                "Prefulgence - finisher proc",
+                "Prefulgence becomes available after using Manafication with 6 stacks consumed. " +
+                "It's a high-damage oGCD that should be used immediately when ready.",
+                new[] { $"Black Mana: {context.BlackMana}", $"White Mana: {context.WhiteMana}", "Prefulgence Ready active" },
+                new[] { "Continue burst phase", "Hold for movement" },
+                "Use Prefulgence immediately when it procs - it's your Manafication payoff ability.",
+                RdmConcepts.FinisherProcs);
+
+            context.TrainingService?.RecordConceptApplication(RdmConcepts.FinisherProcs, true, "Prefulgence proc consumed");
+
             return true;
         }
 
@@ -273,6 +343,22 @@ public sealed class BuffModule : ICirceModule
             // Notify coordination service that we used the raid buff
             partyCoord?.OnRaidBuffUsed(RDMActions.Embolden.ActionId, 120_000);
 
+            // Training Mode integration
+            CasterTrainingHelper.RecordRaidBuffDecision(
+                context.TrainingService,
+                RDMActions.Embolden.ActionId,
+                RDMActions.Embolden.Name,
+                "Embolden - party damage buff",
+                "Embolden increases damage dealt by you and nearby party members by 5% for 20 seconds. " +
+                "Use it right before entering melee combo for maximum burst damage.",
+                new[] { $"Black Mana: {context.BlackMana}", $"White Mana: {context.WhiteMana}",
+                        context.CanStartMeleeCombo ? "Melee combo ready" : "Building mana" },
+                new[] { "Wait for melee combo entry", "Hold for phase transition" },
+                "Align Embolden with your melee combo for maximum damage. Coordinate with other raid buffs when possible.",
+                RdmConcepts.Embolden);
+
+            context.TrainingService?.RecordConceptApplication(RdmConcepts.Embolden, true, "Party buff activated");
+
             return true;
         }
 
@@ -333,6 +419,25 @@ public sealed class BuffModule : ICirceModule
         {
             context.Debug.PlannedAction = RDMActions.Manafication.Name;
             context.Debug.BuffState = $"Manafication (mana: {context.BlackMana}|{context.WhiteMana})";
+
+            // Training Mode integration
+            CasterTrainingHelper.RecordResourceDecision(
+                context.TrainingService,
+                RDMActions.Manafication.ActionId,
+                RDMActions.Manafication.Name,
+                "Mana",
+                context.LowerMana,
+                "Manafication - mana boost + damage buff",
+                "Manafication adds 50 to both Black and White Mana and grants 6 Manafication stacks " +
+                "that empower your melee combo. Use it at 40-50 mana to enable an immediate melee combo.",
+                new[] { $"Black Mana: {context.BlackMana}", $"White Mana: {context.WhiteMana}",
+                        $"Lower Mana: {context.LowerMana}", "Will add 50|50" },
+                new[] { "Wait for more mana", "Align with Embolden" },
+                "Use Manafication at 40-50 mana for optimal value. Pair with Embolden for burst windows.",
+                RdmConcepts.Manafication);
+
+            context.TrainingService?.RecordConceptApplication(RdmConcepts.Manafication, true, "Mana boosted for melee combo");
+
             return true;
         }
 
@@ -368,6 +473,24 @@ public sealed class BuffModule : ICirceModule
         {
             context.Debug.PlannedAction = RDMActions.CorpsACorps.Name;
             context.Debug.BuffState = $"Corps-a-corps ({context.CorpsACorpsCharges - 1} charges)";
+
+            // Training Mode integration
+            CasterTrainingHelper.RecordMovementDecision(
+                context.TrainingService,
+                RDMActions.CorpsACorps.ActionId,
+                RDMActions.CorpsACorps.Name,
+                target.Name?.TextValue,
+                "Corps-a-corps - gap closer oGCD",
+                "Corps-a-corps is a gap closer with 2 charges. Use during burst windows (melee combo, " +
+                "Embolden, Manafication) or when capped on charges to avoid waste.",
+                new[] { $"Charges: {context.CorpsACorpsCharges}", inBurst ? "In burst window" : "Capped charges",
+                        $"Black Mana: {context.BlackMana}", $"White Mana: {context.WhiteMana}" },
+                new[] { "Hold for burst window", "Save for gap closing" },
+                "Dump charges during burst windows. Don't cap on charges - the damage adds up.",
+                RdmConcepts.MeleePositioning);
+
+            context.TrainingService?.RecordConceptApplication(RdmConcepts.MeleePositioning, true, "Gap closer used in burst");
+
             return true;
         }
 
@@ -405,6 +528,24 @@ public sealed class BuffModule : ICirceModule
         {
             context.Debug.PlannedAction = RDMActions.Engagement.Name;
             context.Debug.BuffState = $"Engagement ({context.EngagementCharges - 1} charges)";
+
+            // Training Mode integration
+            CasterTrainingHelper.RecordMovementDecision(
+                context.TrainingService,
+                RDMActions.Engagement.ActionId,
+                RDMActions.Engagement.Name,
+                target.Name?.TextValue,
+                "Engagement - melee range oGCD",
+                "Engagement is a melee-range oGCD with 2 charges. Use during burst windows or when " +
+                "capped. Safer than Displacement which backsteps (can knock you into AoEs).",
+                new[] { $"Charges: {context.EngagementCharges}", inBurst ? "In burst window" : "Capped charges",
+                        $"Black Mana: {context.BlackMana}", $"White Mana: {context.WhiteMana}" },
+                new[] { "Hold for burst window", "Use Displacement for backflip" },
+                "Engagement is safer than Displacement. Dump charges during melee combo bursts.",
+                RdmConcepts.MeleePositioning);
+
+            context.TrainingService?.RecordConceptApplication(RdmConcepts.MeleePositioning, true, "Engagement used safely");
+
             return true;
         }
 
@@ -452,6 +593,26 @@ public sealed class BuffModule : ICirceModule
         {
             context.Debug.PlannedAction = RDMActions.Acceleration.Name;
             context.Debug.BuffState = $"Acceleration ({context.AccelerationCharges - 1} charges)";
+
+            // Training Mode integration
+            CasterTrainingHelper.RecordProcDecision(
+                context.TrainingService,
+                RDMActions.Acceleration.ActionId,
+                RDMActions.Acceleration.Name,
+                "Acceleration",
+                null,
+                "Acceleration - guaranteed proc + instant cast",
+                "Acceleration makes your next Verthunder/Veraero instant and guarantees Verfire/Verstone " +
+                "procs. Use when you have no procs or when capped on charges.",
+                new[] { $"Charges: {context.AccelerationCharges}", noProcs ? "No procs active" : "Capped charges",
+                        context.HasVerfire ? "Has Verfire" : "No Verfire",
+                        context.HasVerstone ? "Has Verstone" : "No Verstone" },
+                new[] { "Wait for proc usage", "Save for movement" },
+                "Use Acceleration when you have no procs to guarantee one. Don't cap charges.",
+                RdmConcepts.Acceleration);
+
+            context.TrainingService?.RecordConceptApplication(RdmConcepts.Acceleration, true, "Guaranteed proc generation");
+
             return true;
         }
 
@@ -477,6 +638,23 @@ public sealed class BuffModule : ICirceModule
         {
             context.Debug.PlannedAction = RDMActions.LucidDreaming.Name;
             context.Debug.BuffState = "Lucid Dreaming (MP)";
+
+            // Training Mode integration
+            CasterTrainingHelper.RecordResourceDecision(
+                context.TrainingService,
+                RDMActions.LucidDreaming.ActionId,
+                RDMActions.LucidDreaming.Name,
+                "MP",
+                context.CurrentMp,
+                "Lucid Dreaming - MP recovery",
+                "Lucid Dreaming restores MP over time. Use when below 70% MP to avoid running out " +
+                "during long fights. RDM uses less MP than other casters but still needs management.",
+                new[] { $"Current MP: {context.CurrentMp}", $"MP%: {context.MpPercent:P0}",
+                        $"Black Mana: {context.BlackMana}", $"White Mana: {context.WhiteMana}" },
+                new[] { "Wait for lower MP", "Ignore if fight ending" },
+                "Use Lucid Dreaming proactively around 70% MP - don't wait until you're empty.",
+                RdmConcepts.OgcdWeaving);
+
             return true;
         }
 
