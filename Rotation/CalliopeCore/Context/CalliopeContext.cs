@@ -13,6 +13,7 @@ using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation.CalliopeCore.Context;
@@ -105,6 +106,9 @@ public sealed class CalliopeContext : ICalliopeContext
     // Party Coordination
     public IPartyCoordinationService? PartyCoordinationService { get; }
 
+    // Training
+    public ITrainingService? TrainingService { get; }
+
     #endregion
 
     private readonly IBattleChara? _currentTarget;
@@ -142,6 +146,7 @@ public sealed class CalliopeContext : ICalliopeContext
         float comboTimeRemaining,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
+        ITrainingService? trainingService = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -163,6 +168,7 @@ public sealed class CalliopeContext : ICalliopeContext
         TargetingService = targetingService;
         TimelineService = timelineService;
         PartyCoordinationService = partyCoordinationService;
+        TrainingService = trainingService;
         ObjectTable = objectTable;
         PartyList = partyList;
         Log = log;

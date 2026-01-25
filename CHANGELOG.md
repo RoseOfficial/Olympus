@@ -3,6 +3,55 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.43.0 - Calliope (BRD) Training Mode
+
+**Full Bard Training Mode Integration**
+- Calliope (BRD) rotation now records all training decisions with detailed explanations
+- Live coaching shows why each ability was used with factors considered and alternatives rejected
+- Second ranged physical DPS with complete Training Mode integration
+
+**Song System Decisions**
+- Wanderer's Minuet: Highest priority song for burst alignment and Pitch Perfect
+- Mage's Ballad: Bloodletter reset procs and party damage buff
+- Army's Paeon: Filler song with early cutoff for WM realignment
+- Pitch Perfect: Stack-based damage (1/2/3 stacks) with song timer awareness
+
+**Burst Window Decisions**
+- Raging Strikes: 2-minute personal buff with WM alignment
+- Battle Voice: Party-wide raid buff coordination
+- Radiant Finale: Coda-based party buff (1/2/3 Coda)
+- Barrage: Triple Refulgent Arrow with Resonant Arrow follow-up
+
+**Proc System**
+- Refulgent Arrow: Hawk's Eye proc consumption
+- Shadowbite: AoE proc usage at 3+ targets
+- Resonant Arrow: Barrage sequence follow-up
+- Radiant Encore: Radiant Finale sequence follow-up
+- Blast Arrow: Apex Arrow (80+ SV) follow-up
+
+**Soul Voice Management**
+- Apex Arrow: Gauge spending at 80+ or 100 to prevent overcap
+- Soul Voice building from Repertoire procs
+- Blast Arrow follow-up for maximum damage
+
+**DoT Management**
+- Stormbite: Higher potency DoT, apply first
+- Caustic Bite: Secondary DoT application
+- Iron Jaws: Refresh and buff snapshotting during Raging Strikes
+
+**oGCD Management**
+- Empyreal Arrow: Guaranteed Repertoire proc
+- Sidewinder: Burst window damage oGCD
+- Bloodletter: Charge management with MB reset awareness
+- Rain of Death: AoE variant at 3+ targets
+
+**Utility**
+- Head Graze: Interrupt coordination with party
+
+**Concept Mastery**
+- All major BRD concepts tracked: `brd.song_rotation`, `brd.wanderers_minuet`, `brd.mages_ballad`, `brd.armys_paeon`, `brd.repertoire_stacks`, `brd.pitch_perfect`, `brd.song_switching`, `brd.soul_voice_gauge`, `brd.apex_arrow`, `brd.blast_arrow`, `brd.soul_voice_overcapping`, `brd.straight_shot_ready`, `brd.refulgent_arrow`, `brd.barrage`, `brd.resonant_arrow`, `brd.caustic_bite`, `brd.stormbite`, `brd.iron_jaws`, `brd.raging_strikes`, `brd.battle_voice`, `brd.radiant_finale`, `brd.radiant_encore`, `brd.empyreal_arrow`, `brd.bloodletter_management`, `brd.party_utility`
+<!-- LATEST-END -->
+
 ## v3.42.0 - Prometheus (MCH) Training Mode
 
 **Full Machinist Training Mode Integration**
@@ -40,7 +89,6 @@ All notable changes to Olympus will be documented in this file.
 
 **Concept Mastery**
 - All major MCH concepts tracked: `mch.wildfire_placement`, `mch.burst_party_sync`, `mch.hypercharge_activation`, `mch.hypercharge_timing`, `mch.heat_gauge`, `mch.battery_gauge`, `mch.gauge_overcapping`, `mch.drill_priority`, `mch.air_anchor_usage`, `mch.chain_saw_usage`, `mch.proc_tracking`, `mch.queen_summoning`, `mch.queen_damage_scaling`, `mch.battery_accumulation`, `mch.reassemble_priority`, `mch.reassemble_charges`, `mch.heat_blast_rotation`, `mch.overheated_state`, `mch.ogcd_weaving`, `mch.aoe_rotation`, `mch.interrupt_usage`
-<!-- LATEST-END -->
 
 ## v3.41.0 - Echidna (VPR) Training Mode
 

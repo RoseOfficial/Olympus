@@ -1,6 +1,8 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Rotation.CalliopeCore.Context;
+using Olympus.Rotation.Common.Helpers;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.CalliopeCore.Modules;
 
@@ -131,6 +133,24 @@ public sealed class DamageModule : ICalliopeModule
         {
             context.Debug.PlannedAction = BRDActions.ResonantArrow.Name;
             context.Debug.DamageState = "Resonant Arrow (Barrage follow-up)";
+
+            // Training: Record Resonant Arrow decision
+            RangedDpsTrainingHelper.RecordProcDecision(
+                context.TrainingService,
+                BRDActions.ResonantArrow.ActionId,
+                BRDActions.ResonantArrow.Name,
+                "Resonant Arrow Ready",
+                target.Name?.TextValue ?? "Target",
+                "Resonant Arrow (Barrage follow-up)",
+                "Resonant Arrow is granted after using Barraged Refulgent Arrow. High potency proc that must be used " +
+                "before it expires. Always part of the Barrage burst sequence.",
+                new[] { "Resonant Arrow Ready active", "Barrage sequence" },
+                new[] { "No alternatives - must use before expiring" },
+                "After Barrage → Refulgent Arrow, always follow with Resonant Arrow immediately.",
+                BrdConcepts.ResonantArrow);
+            context.TrainingService?.RecordConceptApplication(BrdConcepts.ResonantArrow, true, "Proc consumption");
+            context.TrainingService?.RecordConceptApplication(BrdConcepts.Barrage, true, "Barrage sequence completion");
+
             return true;
         }
 
@@ -155,6 +175,23 @@ public sealed class DamageModule : ICalliopeModule
         {
             context.Debug.PlannedAction = BRDActions.RadiantEncore.Name;
             context.Debug.DamageState = "Radiant Encore (RF follow-up)";
+
+            // Training: Record Radiant Encore decision
+            RangedDpsTrainingHelper.RecordProcDecision(
+                context.TrainingService,
+                BRDActions.RadiantEncore.ActionId,
+                BRDActions.RadiantEncore.Name,
+                "Radiant Encore Ready",
+                target.Name?.TextValue ?? "Target",
+                "Radiant Encore (Radiant Finale follow-up)",
+                "Radiant Encore is granted after using Radiant Finale. Potency scales with Coda used (same as RF). " +
+                "Must use before it expires. Part of the 2-minute burst sequence.",
+                new[] { "Radiant Encore Ready active", "Radiant Finale sequence" },
+                new[] { "No alternatives - must use before expiring" },
+                "After Radiant Finale, use Radiant Encore during the burst window for extra damage.",
+                BrdConcepts.RadiantEncore);
+            context.TrainingService?.RecordConceptApplication(BrdConcepts.RadiantEncore, true, "Proc consumption");
+
             return true;
         }
 
@@ -179,6 +216,24 @@ public sealed class DamageModule : ICalliopeModule
         {
             context.Debug.PlannedAction = BRDActions.BlastArrow.Name;
             context.Debug.DamageState = "Blast Arrow (Apex follow-up)";
+
+            // Training: Record Blast Arrow decision
+            RangedDpsTrainingHelper.RecordProcDecision(
+                context.TrainingService,
+                BRDActions.BlastArrow.ActionId,
+                BRDActions.BlastArrow.Name,
+                "Blast Arrow Ready",
+                target.Name?.TextValue ?? "Target",
+                "Blast Arrow (Apex Arrow follow-up)",
+                "Blast Arrow is granted after using Apex Arrow at 80+ Soul Voice. Very high potency follow-up. " +
+                "Always use immediately after Apex Arrow. Part of the Soul Voice spending sequence.",
+                new[] { "Blast Arrow Ready active", "Apex Arrow sequence" },
+                new[] { "No alternatives - must use before expiring" },
+                "After Apex Arrow (80+ SV), always follow with Blast Arrow for massive damage.",
+                BrdConcepts.BlastArrow);
+            context.TrainingService?.RecordConceptApplication(BrdConcepts.BlastArrow, true, "Proc consumption");
+            context.TrainingService?.RecordConceptApplication(BrdConcepts.SoulVoiceGauge, true, "Soul Voice spending");
+
             return true;
         }
 
@@ -208,6 +263,25 @@ public sealed class DamageModule : ICalliopeModule
         {
             context.Debug.PlannedAction = $"Barrage + {action.Name}";
             context.Debug.DamageState = "Barraged Refulgent Arrow";
+
+            // Training: Record Barraged Refulgent decision
+            RangedDpsTrainingHelper.RecordProcDecision(
+                context.TrainingService,
+                action.ActionId,
+                $"Barrage + {action.Name}",
+                "Barrage + Hawk's Eye",
+                target.Name?.TextValue ?? "Target",
+                "Barraged Refulgent Arrow (triple damage!)",
+                "Barraged Refulgent Arrow hits 3 times for massive burst damage. This is BRD's biggest single hit. " +
+                "Always wait for Hawk's Eye proc after Barrage. Grants Resonant Arrow Ready.",
+                new[] { "Barrage active", "Hawk's Eye (Straight Shot Ready) active", context.HasRagingStrikes ? "RS active" : "" },
+                new[] { "No alternatives - this is the optimal Barrage usage" },
+                "Barrage + Refulgent Arrow is your biggest burst. Always use during Raging Strikes.",
+                BrdConcepts.Barrage);
+            context.TrainingService?.RecordConceptApplication(BrdConcepts.Barrage, true, "Barrage consumption");
+            context.TrainingService?.RecordConceptApplication(BrdConcepts.RefulgentArrow, true, "Proc usage with Barrage");
+            context.TrainingService?.RecordConceptApplication(BrdConcepts.StraightShotReady, true, "Hawk's Eye consumption");
+
             return true;
         }
 
@@ -231,6 +305,22 @@ public sealed class DamageModule : ICalliopeModule
                 {
                     context.Debug.PlannedAction = BRDActions.Shadowbite.Name;
                     context.Debug.DamageState = "Shadowbite (AoE proc)";
+
+                    // Training: Record Shadowbite decision
+                    RangedDpsTrainingHelper.RecordAoeDecision(
+                        context.TrainingService,
+                        BRDActions.Shadowbite.ActionId,
+                        BRDActions.Shadowbite.Name,
+                        enemyCount,
+                        $"Shadowbite (AoE proc, {enemyCount} targets)",
+                        "Shadowbite is the AoE version of Refulgent Arrow, consuming Hawk's Eye. " +
+                        "Use at 3+ targets instead of Refulgent Arrow for better total damage.",
+                        new[] { "Hawk's Eye active", $"Enemies: {enemyCount}" },
+                        new[] { "Use Refulgent for single target" },
+                        "At 3+ enemies, consume Hawk's Eye procs with Shadowbite instead of Refulgent Arrow.",
+                        BrdConcepts.StraightShotReady);
+                    context.TrainingService?.RecordConceptApplication(BrdConcepts.StraightShotReady, true, "AoE proc usage");
+
                     return true;
                 }
             }
@@ -246,6 +336,24 @@ public sealed class DamageModule : ICalliopeModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.DamageState = "Refulgent Arrow (proc)";
+
+            // Training: Record Refulgent Arrow decision
+            RangedDpsTrainingHelper.RecordProcDecision(
+                context.TrainingService,
+                action.ActionId,
+                action.Name,
+                "Hawk's Eye",
+                target.Name?.TextValue ?? "Target",
+                "Refulgent Arrow (Hawk's Eye proc)",
+                "Refulgent Arrow is BRD's proc GCD, replacing Burst Shot when Hawk's Eye (Straight Shot Ready) is active. " +
+                "Higher potency than Burst Shot. Procs randomly from Burst Shot or guaranteed from song mechanics.",
+                new[] { "Hawk's Eye active", "Single target" },
+                new[] { "Continue using Burst Shot if no proc" },
+                "Always use Refulgent Arrow when Hawk's Eye procs. It's free extra damage.",
+                BrdConcepts.RefulgentArrow);
+            context.TrainingService?.RecordConceptApplication(BrdConcepts.RefulgentArrow, true, "Proc consumption");
+            context.TrainingService?.RecordConceptApplication(BrdConcepts.StraightShotReady, true, "Hawk's Eye consumption");
+
             return true;
         }
 
@@ -292,6 +400,27 @@ public sealed class DamageModule : ICalliopeModule
         {
             context.Debug.PlannedAction = BRDActions.ApexArrow.Name;
             context.Debug.DamageState = $"Apex Arrow ({context.SoulVoice} SV)";
+
+            // Training: Record Apex Arrow decision
+            var reason = context.SoulVoice >= 100 ? "Preventing overcap" :
+                         context.HasRagingStrikes ? "Burst window" : "80+ Soul Voice";
+            RangedDpsTrainingHelper.RecordResourceDecision(
+                context.TrainingService,
+                BRDActions.ApexArrow.ActionId,
+                BRDActions.ApexArrow.Name,
+                "Soul Voice",
+                context.SoulVoice,
+                $"Apex Arrow ({context.SoulVoice} SV, {reason})",
+                "Apex Arrow spends Soul Voice gauge. Use at 80+ during burst for Blast Arrow follow-up (highest potency). " +
+                "Use at 100 to prevent overcapping. Soul Voice builds from song Repertoire procs.",
+                new[] { $"Soul Voice: {context.SoulVoice}/100", context.HasRagingStrikes ? "RS active" : "No burst buffs", "Grants Blast Arrow Ready at 80+" },
+                new[] { "Wait for burst window", "Wait for 100 SV to avoid overcap" },
+                "Use Apex Arrow at 80+ during burst windows, or at 100 to prevent overcapping. Always follow with Blast Arrow.",
+                BrdConcepts.ApexArrow);
+            context.TrainingService?.RecordConceptApplication(BrdConcepts.ApexArrow, true, "Soul Voice spending");
+            context.TrainingService?.RecordConceptApplication(BrdConcepts.SoulVoiceGauge, true, "Gauge management");
+            context.TrainingService?.RecordConceptApplication(BrdConcepts.SoulVoiceOvercapping, context.SoulVoice >= 100, "Overcap prevention");
+
             return true;
         }
 
@@ -340,6 +469,29 @@ public sealed class DamageModule : ICalliopeModule
             context.Debug.PlannedAction = BRDActions.IronJaws.Name;
             var reason = snapshotBuffs ? "snapshot buffs" : "refresh";
             context.Debug.DamageState = $"Iron Jaws ({reason})";
+
+            // Training: Record Iron Jaws decision
+            var minDotRemaining = System.Math.Min(context.CausticBiteRemaining, context.StormbiteRemaining);
+            RangedDpsTrainingHelper.RecordDotDecision(
+                context.TrainingService,
+                BRDActions.IronJaws.ActionId,
+                BRDActions.IronJaws.Name,
+                target.Name?.TextValue ?? "Target",
+                minDotRemaining,
+                $"Iron Jaws ({reason}, DoTs: {minDotRemaining:F1}s)",
+                snapshotBuffs
+                    ? "Iron Jaws refreshes both DoTs and snapshots current buffs. Use during Raging Strikes to extend buffed DoTs. " +
+                      "This is a DPS gain even if DoTs have significant time remaining."
+                    : "Iron Jaws refreshes both Caustic Bite and Stormbite with a single GCD. " +
+                      "Refresh between 3-7s remaining to avoid letting DoTs fall off or clipping too early.",
+                new[] { $"Caustic Bite: {context.CausticBiteRemaining:F1}s", $"Stormbite: {context.StormbiteRemaining:F1}s", snapshotBuffs ? "RS active - snapshotting" : "Normal refresh" },
+                new[] { "Wait for DoTs to drop lower", "Apply DoTs manually if missing" },
+                snapshotBuffs
+                    ? "Snapshot Raging Strikes with Iron Jaws for 20s of buffed DoT damage."
+                    : "Refresh DoTs with Iron Jaws between 3-7s remaining.",
+                BrdConcepts.IronJaws);
+            context.TrainingService?.RecordConceptApplication(BrdConcepts.IronJaws, true, snapshotBuffs ? "Buff snapshot" : "DoT refresh");
+
             return true;
         }
 
@@ -361,6 +513,23 @@ public sealed class DamageModule : ICalliopeModule
                 {
                     context.Debug.PlannedAction = stormAction.Name;
                     context.Debug.DamageState = $"{stormAction.Name} applied";
+
+                    // Training: Record Stormbite decision
+                    RangedDpsTrainingHelper.RecordDotDecision(
+                        context.TrainingService,
+                        stormAction.ActionId,
+                        stormAction.Name,
+                        target.Name?.TextValue ?? "Target",
+                        0f,
+                        $"{stormAction.Name} applied (higher potency DoT)",
+                        "Stormbite (Windbite upgrade) is BRD's higher potency DoT. Apply first when DoTs are missing. " +
+                        "Both DoTs snapshot buffs when applied. Maintain 100% uptime on both DoTs.",
+                        new[] { "DoT not on target", "Applied before Caustic Bite" },
+                        new[] { "Use Iron Jaws if both DoTs present" },
+                        "Apply Stormbite first, then Caustic Bite. Maintain both DoTs at all times.",
+                        BrdConcepts.Stormbite);
+                    context.TrainingService?.RecordConceptApplication(BrdConcepts.Stormbite, true, "DoT application");
+
                     return true;
                 }
             }
@@ -376,6 +545,23 @@ public sealed class DamageModule : ICalliopeModule
                 {
                     context.Debug.PlannedAction = causticAction.Name;
                     context.Debug.DamageState = $"{causticAction.Name} applied";
+
+                    // Training: Record Caustic Bite decision
+                    RangedDpsTrainingHelper.RecordDotDecision(
+                        context.TrainingService,
+                        causticAction.ActionId,
+                        causticAction.Name,
+                        target.Name?.TextValue ?? "Target",
+                        0f,
+                        $"{causticAction.Name} applied (poison DoT)",
+                        "Caustic Bite (Venomous Bite upgrade) is BRD's poison DoT. Apply second after Stormbite. " +
+                        "Both DoTs snapshot buffs when applied. Maintain 100% uptime on both DoTs.",
+                        new[] { "DoT not on target", "Applied after Stormbite" },
+                        new[] { "Use Iron Jaws if both DoTs present" },
+                        "Apply Caustic Bite after Stormbite. Keep both DoTs up at all times.",
+                        BrdConcepts.CausticBite);
+                    context.TrainingService?.RecordConceptApplication(BrdConcepts.CausticBite, true, "DoT application");
+
                     return true;
                 }
             }
@@ -403,6 +589,22 @@ public sealed class DamageModule : ICalliopeModule
                 {
                     context.Debug.PlannedAction = aoeAction.Name;
                     context.Debug.DamageState = $"{aoeAction.Name} (AoE filler)";
+
+                    // Training: Record AoE filler decision
+                    RangedDpsTrainingHelper.RecordAoeDecision(
+                        context.TrainingService,
+                        aoeAction.ActionId,
+                        aoeAction.Name,
+                        enemyCount,
+                        $"{aoeAction.Name} (AoE filler, {enemyCount} targets)",
+                        "Ladonsbite (Quick Nock upgrade) is BRD's AoE filler GCD. Use at 3+ enemies. " +
+                        "Can proc Hawk's Eye for Shadowbite. Use Rain of Death for oGCDs in AoE.",
+                        new[] { $"Enemies: {enemyCount}", "No higher priority actions" },
+                        new[] { "Use Burst Shot for single target" },
+                        "At 3+ enemies, spam Ladonsbite as your filler GCD instead of Burst Shot.",
+                        BrdConcepts.StraightShotReady);
+                    context.TrainingService?.RecordConceptApplication(BrdConcepts.StraightShotReady, false, "AoE filler usage");
+
                     return true;
                 }
             }
@@ -418,6 +620,22 @@ public sealed class DamageModule : ICalliopeModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.DamageState = $"{action.Name} (filler)";
+
+            // Training: Record filler decision
+            RangedDpsTrainingHelper.RecordDamageDecision(
+                context.TrainingService,
+                action.ActionId,
+                action.Name,
+                target.Name?.TextValue ?? "Target",
+                $"{action.Name} (single target filler)",
+                "Burst Shot (Heavy Shot upgrade) is BRD's single target filler GCD. Use when no procs are active " +
+                "and no higher priority actions are available. Can proc Hawk's Eye for Refulgent Arrow.",
+                new[] { "No procs active", "DoTs maintained", "No higher priority actions" },
+                new[] { "Use Refulgent Arrow if Hawk's Eye procs" },
+                "Burst Shot is your filler. It can proc Hawk's Eye, enabling Refulgent Arrow.",
+                BrdConcepts.StraightShotReady);
+            context.TrainingService?.RecordConceptApplication(BrdConcepts.StraightShotReady, false, "Filler usage");
+
             return true;
         }
 
@@ -482,6 +700,22 @@ public sealed class DamageModule : ICalliopeModule
             {
                 context.Debug.PlannedAction = BRDActions.HeadGraze.Name;
                 context.Debug.DamageState = "Interrupted cast";
+
+                // Training: Record Head Graze decision
+                RangedDpsTrainingHelper.RecordUtilityDecision(
+                    context.TrainingService,
+                    BRDActions.HeadGraze.ActionId,
+                    BRDActions.HeadGraze.Name,
+                    target.Name?.TextValue ?? "Target",
+                    "Head Graze (interrupt)",
+                    "Head Graze interrupts enemy casts. Use on interruptible abilities (indicated by flashing cast bar). " +
+                    "Coordinate with party to avoid wasting multiple interrupts on the same cast.",
+                    new[] { "Target casting interruptible ability", "30s cooldown ready" },
+                    new[] { "Let party member interrupt" },
+                    "Watch for interruptible casts. Some mechanics require interrupts to avoid party damage.",
+                    BrdConcepts.PartyUtility);
+                context.TrainingService?.RecordConceptApplication(BrdConcepts.PartyUtility, true, "Interrupt execution");
+
                 return true;
             }
 
