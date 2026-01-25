@@ -3,6 +3,52 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.46.0 - Persephone (SMN) Training Mode
+
+**Full Summoner Training Mode Integration**
+- Persephone (SMN) rotation now records all training decisions with detailed explanations
+- Live coaching shows why each ability was used with factors considered and alternatives rejected
+- Second caster DPS with complete Training Mode integration
+
+**Demi-Summon Phase Decisions**
+- Demi GCDs: Astral Impulse, Fountain of Fire, Umbral Impulse during demi phases
+- Bahamut Phase: Deathflare AoE oGCD, Enkindle Bahamut burst
+- Phoenix Phase: Rekindle healing on party members, Enkindle Phoenix damage
+- Solar Bahamut: Sunflare AoE oGCD at level 100, Enkindle Solar Bahamut
+
+**Primal Attunement Decisions**
+- Titan Phase: 4 instant Topaz Rite + Mountain Buster oGCDs
+- Garuda Phase: 4 casted Emerald Rite + Slipstream ground DoT
+- Ifrit Phase: 2 high-potency Ruby Rite + Crimson Cyclone gap closer
+- Primal Order: Titan for movement, Garuda for stationary, Ifrit for burst
+
+**Primal Favor Abilities**
+- Crimson Cyclone: Ifrit gap closer with instant follow-up
+- Mountain Buster: Titan oGCD after each Topaz Rite
+- Slipstream: Garuda ground DoT zone (uses Swiftcast when moving)
+
+**Burst Window Decisions**
+- Searing Light: 5% party damage buff aligned with demi-summon phases
+- Searing Flash: Free AoE oGCD during Searing Light window
+- Enkindle: High-potency oGCD unique to each demi-summon
+- Astral Flow: Deathflare/Sunflare damage or Rekindle healing
+
+**Aetherflow Management**
+- Energy Drain/Siphon: Generate 2 Aetherflow stacks when empty
+- Fester/Necrotize: Single target Aetherflow spenders for burst
+- Painflare: AoE Aetherflow spender at 3+ enemies
+- Timing: Spend during burst, never overcap before Energy Drain
+
+**Proc and Filler Rotation**
+- Ruin IV (Further Ruin): Instant proc for movement or filler
+- Ruin III: Standard filler between primal/demi phases
+- Ruin II: Movement option when no procs available
+- AoE Rotation: Switch to AoE Ruin at 3+ enemies
+
+**Concept Mastery**
+- All 25 SMN concepts tracked including demi-summons, primal attunement, Aetherflow, burst windows, and party coordination
+<!-- LATEST-END -->
+
 ## v3.45.0 - Hecate (BLM) Training Mode
 
 **Full Black Mage Training Mode Integration**
@@ -54,7 +100,6 @@ All notable changes to Olympus will be documented in this file.
 
 **Concept Mastery**
 - All 25 BLM concepts tracked including element system, proc management, gauges, burst windows, and movement optimization
-<!-- LATEST-END -->
 
 ## v3.44.0 - Terpsichore (DNC) Training Mode
 

@@ -1,6 +1,9 @@
+using Olympus.Config;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.PersephoneCore.Context;
 using Olympus.Services.Party;
+using Olympus.Services.Training;
 using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.PersephoneCore.Modules;
@@ -126,6 +129,31 @@ public sealed class BuffModule : IPersephoneModule
         {
             context.Debug.PlannedAction = enkindleAction.Name;
             context.Debug.BuffState = $"{enkindleAction.Name} (Enkindle)";
+
+            // Training Mode recording
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var demiType = context.IsBahamutActive ? "Bahamut" :
+                               context.IsPhoenixActive ? "Phoenix" : "Solar Bahamut";
+
+                CasterTrainingHelper.RecordBurstDecision(
+                    context.TrainingService,
+                    enkindleAction.ActionId,
+                    enkindleAction.Name,
+                    target.Name?.TextValue,
+                    $"Enkindle during {demiType} phase",
+                    $"Enkindle is your highest-potency oGCD during demi-summon phases. " +
+                    $"It can only be used once per demi-summon, so use it as soon as possible " +
+                    $"to maximize damage during the 15-second window.",
+                    new[] { $"{demiType} active", $"Timer: {context.DemiSummonTimer:F1}s", $"GCDs left: {context.DemiSummonGcdsRemaining}" },
+                    new[] { "Wait for raid buffs (risky)" },
+                    "Use Enkindle early in demi phase - don't risk losing it to phase transitions.",
+                    SmnConcepts.Enkindle);
+
+                context.TrainingService.RecordConceptApplication(
+                    SmnConcepts.Enkindle, true, $"Used {enkindleAction.Name} during {demiType}");
+            }
+
             return true;
         }
 
@@ -163,6 +191,29 @@ public sealed class BuffModule : IPersephoneModule
                 {
                     context.Debug.PlannedAction = SMNActions.Rekindle.Name;
                     context.Debug.BuffState = "Rekindle (healing)";
+
+                    // Training Mode recording
+                    if (context.TrainingService?.IsTrainingEnabled == true)
+                    {
+                        CasterTrainingHelper.RecordSummonDecision(
+                            context.TrainingService,
+                            SMNActions.Rekindle.ActionId,
+                            SMNActions.Rekindle.Name,
+                            "Phoenix",
+                            "Rekindle on injured party member",
+                            "Rekindle is Phoenix's unique Astral Flow ability that provides instant healing plus a heal-over-time. " +
+                            "Prioritize injured party members to maximize healing value during Phoenix phase.",
+                            new[] { "Phoenix phase active", $"Target HP: {rekindleTarget.Name?.TextValue}" },
+                            new[] { "Use on tank for preventive healing" },
+                            "Rekindle's HoT continues even after Phoenix phase ends - use it on whoever needs healing most.",
+                            SmnConcepts.AstralFlow);
+
+                        context.TrainingService.RecordConceptApplication(
+                            SmnConcepts.AstralFlow, true, "Rekindle used on injured ally");
+                        context.TrainingService.RecordConceptApplication(
+                            SmnConcepts.PhoenixPhase, true, "Phoenix healing ability used");
+                    }
+
                     return true;
                 }
             }
@@ -172,6 +223,27 @@ public sealed class BuffModule : IPersephoneModule
             {
                 context.Debug.PlannedAction = SMNActions.Rekindle.Name;
                 context.Debug.BuffState = "Rekindle (preventive)";
+
+                // Training Mode recording
+                if (context.TrainingService?.IsTrainingEnabled == true)
+                {
+                    CasterTrainingHelper.RecordSummonDecision(
+                        context.TrainingService,
+                        SMNActions.Rekindle.ActionId,
+                        SMNActions.Rekindle.Name,
+                        "Phoenix",
+                        "Rekindle for preventive healing",
+                        "No party member is currently injured, so using Rekindle preventively on the lowest HP target. " +
+                        "The HoT effect will provide value when damage comes in.",
+                        new[] { "Phoenix phase active", "No urgent healing needed", $"Target: {lowestMember.Name?.TextValue}" },
+                        new[] { "Hold for upcoming damage (risky)" },
+                        "Always use Rekindle during Phoenix phase - don't let it go to waste.",
+                        SmnConcepts.AstralFlow);
+
+                    context.TrainingService.RecordConceptApplication(
+                        SmnConcepts.AstralFlow, true, "Rekindle used preventively");
+                }
+
                 return true;
             }
             return false;
@@ -185,6 +257,32 @@ public sealed class BuffModule : IPersephoneModule
         {
             context.Debug.PlannedAction = astralFlowAction.Name;
             context.Debug.BuffState = $"{astralFlowAction.Name} (Astral Flow)";
+
+            // Training Mode recording
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var demiType = context.IsBahamutActive ? "Bahamut" : "Solar Bahamut";
+                var phaseConcept = context.IsBahamutActive ? SmnConcepts.BahamutPhase : SmnConcepts.SolarBahamutPhase;
+
+                CasterTrainingHelper.RecordBurstDecision(
+                    context.TrainingService,
+                    astralFlowAction.ActionId,
+                    astralFlowAction.Name,
+                    target.Name?.TextValue,
+                    $"{astralFlowAction.Name} during {demiType} phase",
+                    $"{astralFlowAction.Name} is a high-potency AoE oGCD that can only be used once per {demiType} phase. " +
+                    "Use it as soon as possible to ensure you don't lose it to phase transitions or boss jumps.",
+                    new[] { $"{demiType} active", $"Timer: {context.DemiSummonTimer:F1}s" },
+                    new[] { "Wait for more enemies to spawn (risky)" },
+                    $"Use {astralFlowAction.Name} early in demi phase - the AoE damage is a bonus, not a requirement.",
+                    SmnConcepts.AstralFlow);
+
+                context.TrainingService.RecordConceptApplication(
+                    SmnConcepts.AstralFlow, true, $"Used {astralFlowAction.Name}");
+                context.TrainingService.RecordConceptApplication(
+                    phaseConcept, true, $"{demiType} Astral Flow used");
+            }
+
             return true;
         }
 
@@ -211,6 +309,30 @@ public sealed class BuffModule : IPersephoneModule
         {
             context.Debug.PlannedAction = SMNActions.MountainBuster.Name;
             context.Debug.BuffState = "Mountain Buster";
+
+            // Training Mode recording
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                CasterTrainingHelper.RecordResourceDecision(
+                    context.TrainingService,
+                    SMNActions.MountainBuster.ActionId,
+                    SMNActions.MountainBuster.Name,
+                    "Titan's Favor",
+                    1,
+                    "Mountain Buster from Titan's Favor",
+                    "Mountain Buster is an instant oGCD granted by Titan's Favor buff after each Topaz Rite/Catastrophe. " +
+                    "Use it immediately - it's free damage that doesn't interfere with your GCD rotation.",
+                    new[] { "Titan's Favor active", "Titan attunement phase" },
+                    new[] { "None - always use immediately" },
+                    "Weave Mountain Buster after each Topaz Rite for maximum Titan phase DPS.",
+                    SmnConcepts.MountainBuster);
+
+                context.TrainingService.RecordConceptApplication(
+                    SmnConcepts.MountainBuster, true, "Mountain Buster used");
+                context.TrainingService.RecordConceptApplication(
+                    SmnConcepts.TitanPhase, true, "Titan Favor ability used");
+            }
+
             return true;
         }
 
@@ -281,6 +403,31 @@ public sealed class BuffModule : IPersephoneModule
             // Notify coordination service that we used the raid buff
             partyCoord?.OnRaidBuffUsed(SMNActions.SearingLight.ActionId, 120_000);
 
+            // Training Mode recording
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var demiType = context.IsBahamutActive ? "Bahamut" :
+                               context.IsPhoenixActive ? "Phoenix" :
+                               context.IsSolarBahamutActive ? "Solar Bahamut" : "demi-summon";
+
+                CasterTrainingHelper.RecordRaidBuffDecision(
+                    context.TrainingService,
+                    SMNActions.SearingLight.ActionId,
+                    SMNActions.SearingLight.Name,
+                    "Searing Light during demi-summon burst",
+                    "Searing Light is a party-wide 5% damage buff on a 120s cooldown. Align it with demi-summon phases " +
+                    "to maximize both your burst damage (Enkindle, Astral Flow) and party buff uptime.",
+                    new[] { $"{demiType} active", "2-minute cooldown alignment", "Party buff window" },
+                    new[] { "Wait for party alignment (only if heavily desynced)" },
+                    "Use Searing Light at the start of demi-summon phases for maximum party value.",
+                    SmnConcepts.SearingLight);
+
+                context.TrainingService.RecordConceptApplication(
+                    SmnConcepts.SearingLight, true, "Raid buff used during burst");
+                context.TrainingService.RecordConceptApplication(
+                    SmnConcepts.PartyCoordination, true, "Burst window coordination");
+            }
+
             return true;
         }
 
@@ -310,6 +457,27 @@ public sealed class BuffModule : IPersephoneModule
         {
             context.Debug.PlannedAction = SMNActions.SearingFlash.Name;
             context.Debug.BuffState = "Searing Flash";
+
+            // Training Mode recording
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                CasterTrainingHelper.RecordBurstDecision(
+                    context.TrainingService,
+                    SMNActions.SearingFlash.ActionId,
+                    SMNActions.SearingFlash.Name,
+                    target.Name?.TextValue,
+                    "Searing Flash during Searing Light",
+                    "Searing Flash is a free AoE oGCD that becomes available once per Searing Light window. " +
+                    "It's instant damage that doesn't consume resources - always use it when available.",
+                    new[] { "Searing Light active", $"Time remaining: {context.SearingLightRemaining:F1}s" },
+                    new[] { "None - always use during Searing Light" },
+                    "Searing Flash is free damage - never let a Searing Light window end without using it.",
+                    SmnConcepts.SearingFlash);
+
+                context.TrainingService.RecordConceptApplication(
+                    SmnConcepts.SearingFlash, true, "Searing Flash used");
+            }
+
             return true;
         }
 
@@ -346,6 +514,30 @@ public sealed class BuffModule : IPersephoneModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.BuffState = $"{action.Name} (+2 Aetherflow)";
+
+            // Training Mode recording
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                CasterTrainingHelper.RecordResourceDecision(
+                    context.TrainingService,
+                    action.ActionId,
+                    action.Name,
+                    "Aetherflow",
+                    0,
+                    $"{action.Name} to generate Aetherflow",
+                    $"{action.Name} generates 2 Aetherflow stacks on a 60s cooldown. Use it when empty to enable " +
+                    "Fester/Necrotize (single target) or Painflare (AoE) for additional burst damage.",
+                    new[] { "Aetherflow stacks: 0", "Cooldown ready", useAoe ? "3+ enemies nearby" : "Single target" },
+                    new[] { "None - use when empty and ready" },
+                    "Use Energy Drain/Siphon on cooldown when Aetherflow is empty for consistent damage.",
+                    SmnConcepts.EnergyDrainUsage);
+
+                context.TrainingService.RecordConceptApplication(
+                    SmnConcepts.EnergyDrainUsage, true, "Generated Aetherflow stacks");
+                context.TrainingService.RecordConceptApplication(
+                    SmnConcepts.AetherflowStacks, true, "Aetherflow refilled");
+            }
+
             return true;
         }
 
@@ -393,6 +585,32 @@ public sealed class BuffModule : IPersephoneModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.BuffState = $"{action.Name} (Aetherflow: {context.AetherflowStacks - 1})";
+
+            // Training Mode recording
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var reason = inBurst ? "burst window" : "Energy Drain coming off cooldown";
+                CasterTrainingHelper.RecordResourceDecision(
+                    context.TrainingService,
+                    action.ActionId,
+                    action.Name,
+                    "Aetherflow",
+                    context.AetherflowStacks,
+                    $"{action.Name} spent during {reason}",
+                    $"Aetherflow spenders ({action.Name}) deal significant oGCD damage. Prefer using them during " +
+                    "burst windows (demi-summon + Searing Light) for maximum value. Always spend before Energy Drain " +
+                    "comes off cooldown to avoid wasting stacks.",
+                    new[] { $"Aetherflow: {context.AetherflowStacks}", inBurst ? "Burst window active" : "Energy Drain soon", useAoe ? "AoE mode" : "Single target" },
+                    new[] { inBurst ? "None during burst" : "Wait for burst (if ED not imminent)" },
+                    "Spend Aetherflow during burst windows for maximum damage, but never overcap.",
+                    SmnConcepts.FesterNecrotize);
+
+                context.TrainingService.RecordConceptApplication(
+                    SmnConcepts.FesterNecrotize, true, "Aetherflow spent efficiently");
+                context.TrainingService.RecordConceptApplication(
+                    SmnConcepts.AetherflowTiming, true, inBurst ? "Burst window spending" : "Prevented overcap");
+            }
+
             return true;
         }
 
@@ -418,6 +636,28 @@ public sealed class BuffModule : IPersephoneModule
         {
             context.Debug.PlannedAction = SMNActions.LucidDreaming.Name;
             context.Debug.BuffState = "Lucid Dreaming (MP)";
+
+            // Training Mode recording (no specific SMN concept for MP management)
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                CasterTrainingHelper.RecordResourceDecision(
+                    context.TrainingService,
+                    SMNActions.LucidDreaming.ActionId,
+                    SMNActions.LucidDreaming.Name,
+                    "MP",
+                    context.CurrentMp,
+                    "Lucid Dreaming for MP recovery",
+                    "Lucid Dreaming restores MP over time. Use it around 70% MP to ensure you never run dry. " +
+                    "Summoner is less MP-intensive than other casters, but still benefits from consistent MP management.",
+                    new[] { $"MP: {context.MpPercent * 100:F0}%", "Below 70% threshold" },
+                    new[] { "Wait until lower (risky)" },
+                    "Use Lucid Dreaming proactively around 70% MP to maintain consistent casting.",
+                    SmnConcepts.RuinSpells); // Using RuinSpells as closest concept for filler/resource management
+
+                context.TrainingService.RecordConceptApplication(
+                    SmnConcepts.RuinSpells, true, "MP management for filler casts");
+            }
+
             return true;
         }
 
