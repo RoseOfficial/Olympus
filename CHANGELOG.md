@@ -3,6 +3,43 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.41.0 - Echidna (VPR) Training Mode
+
+**Full Viper Training Mode Integration**
+- Echidna (VPR) rotation now records all training decisions with detailed explanations
+- Live coaching shows why each ability was used with factors considered and alternatives rejected
+- Sixth and final melee DPS with complete Training Mode integration - all melee Training Mode now complete
+
+**Burst Window Decisions**
+- Serpent's Ire: Party buff (+Rattling Coil, Ready to Reawaken) with party burst coordination
+- Reawaken: Burst state entry during optimal timing (Serpent's Ire, buffs active, Noxious Gnash)
+
+**Reawaken Sequence**
+- First/Second/Third/Fourth Generation: Anguine Tribute consumption with buff tracking
+- Ouroboros: Reawaken finisher for maximum burst damage
+- Legacy oGCDs: Twinfang/Twinblood weaving during Generations
+
+**Twinblade Combos**
+- Vicewinder/Vicepit: Twinblade initiation with Noxious Gnash application
+- Hunter's Coil/Swiftskin's Coil: ST twinblade follow-ups
+- Hunter's Den/Swiftskin's Den: AoE twinblade follow-ups
+- Twinfang/Twinblood (Poised): oGCD procs from twinblade combos
+
+**Dual Wield Rotation**
+- Steel/Reaving Fangs: Combo starters with Honed buff awareness
+- Hunter's/Swiftskin's Sting: Mid-combo GCDs for buff cycling
+- Positional finishers: Flanksting/Hindsting/Flanksbane/Hindsbane with venom tracking
+- AoE: Steel/Reaving Maw, Hunter's/Swiftskin's Bite with Grimhunter/Grimskin venoms
+
+**Resource Management**
+- Rattling Coils: Uncoiled Fury for movement or overcap prevention
+- Uncoiled Twinfang/Twinblood: Follow-up oGCDs after Uncoiled Fury
+- Serpent Offering: Building toward Reawaken threshold
+
+**Concept Mastery**
+- All major VPR concepts tracked: `vpr.serpents_ire`, `vpr.reawaken_entry`, `vpr.generation_sequence`, `vpr.vicewinder`, `vpr.noxious_gnash`, `vpr.dread_combo`, `vpr.positional_finishers`, `vpr.combo_basics`, `vpr.buff_cycling`, `vpr.positionals`, `vpr.rattling_coil`, `vpr.twinfang_twinblood`, `vpr.uncoiled_fury`
+<!-- LATEST-END -->
+
 ## v3.40.0 - Thanatos (RPR) Training Mode
 
 **Full Reaper Training Mode Integration**
@@ -39,7 +76,6 @@ All notable changes to Olympus will be documented in this file.
 
 **Concept Mastery**
 - All major RPR concepts tracked: `rpr_arcane_circle`, `rpr_enshroud`, `rpr_reaping`, `rpr_communio`, `rpr_perfectio`, `rpr_gibbet`, `rpr_gallows`, `rpr_gluttony`, `rpr_soul_slice`, `rpr_deaths_design`
-<!-- LATEST-END -->
 
 ## v3.39.0 - Kratos (MNK) Training Mode
 

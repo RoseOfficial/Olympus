@@ -1,4 +1,5 @@
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.EchidnaCore.Context;
 using Olympus.Timeline.Models;
 
@@ -122,6 +123,21 @@ public sealed class BuffModule : IEchidnaModule
 
             // Notify coordination service that we used the burst
             partyCoord?.OnRaidBuffUsed(VPRActions.SerpentsIre.ActionId, 120_000);
+
+            // Training: Record Serpent's Ire decision
+            MeleeDpsTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                VPRActions.SerpentsIre.ActionId,
+                VPRActions.SerpentsIre.Name,
+                player.Name?.TextValue ?? "Self",
+                "Activating Serpent's Ire (party burst + Ready to Reawaken)",
+                "Serpent's Ire is VPR's 2-minute party buff. Grants Ready to Reawaken for a free Reawaken entry " +
+                "and +1 Rattling Coil stack. Use during raid buff windows for maximum party coordination.",
+                new[] { "120s cooldown ready", "Noxious Gnash active", "Hunter's Instinct + Swiftscaled active" },
+                new[] { "Hold for raid buff alignment", "Hold for phase timing" },
+                "Serpent's Ire grants Ready to Reawaken. Enter Reawaken immediately after for maximum burst damage.",
+                "vpr.serpents_ire");
+            context.TrainingService?.RecordConceptApplication("vpr.serpents_ire", true, "Party burst activation");
 
             return true;
         }

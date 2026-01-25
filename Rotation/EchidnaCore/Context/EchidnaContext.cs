@@ -14,6 +14,7 @@ using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation.EchidnaCore.Context;
@@ -109,6 +110,9 @@ public sealed class EchidnaContext : IEchidnaContext
     // Party Coordination
     public IPartyCoordinationService? PartyCoordinationService { get; }
 
+    // Training
+    public ITrainingService? TrainingService { get; }
+
     #endregion
 
     private readonly IBattleChara? _currentTarget;
@@ -149,6 +153,7 @@ public sealed class EchidnaContext : IEchidnaContext
         bool targetHasPositionalImmunity,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
+        ITrainingService? trainingService = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -170,6 +175,7 @@ public sealed class EchidnaContext : IEchidnaContext
         TargetingService = targetingService;
         TimelineService = timelineService;
         PartyCoordinationService = partyCoordinationService;
+        TrainingService = trainingService;
         ObjectTable = objectTable;
         PartyList = partyList;
         Log = log;
