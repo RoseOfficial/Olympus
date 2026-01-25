@@ -15,6 +15,7 @@ using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation;
@@ -63,6 +64,9 @@ public sealed class Prometheus : BaseRangedDpsRotation<IPrometheusContext, IProm
     // Party coordination service for burst alignment (optional)
     private readonly IPartyCoordinationService? _partyCoordinationService;
 
+    // Training service for explaining rotation decisions (optional)
+    private readonly ITrainingService? _trainingService;
+
     // Gauge values (read each frame)
     private int _heat;
     private int _battery;
@@ -86,6 +90,7 @@ public sealed class Prometheus : BaseRangedDpsRotation<IPrometheusContext, IProm
         IDebuffDetectionService debuffDetectionService,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
+        ITrainingService? trainingService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -105,6 +110,7 @@ public sealed class Prometheus : BaseRangedDpsRotation<IPrometheusContext, IProm
     {
         _timelineService = timelineService;
         _partyCoordinationService = partyCoordinationService;
+        _trainingService = trainingService;
 
         // Initialize helpers
         _statusHelper = new PrometheusStatusHelper();
@@ -203,7 +209,8 @@ public sealed class Prometheus : BaseRangedDpsRotation<IPrometheusContext, IProm
             comboTimeRemaining: ComboTimeRemaining,
             timelineService: _timelineService,
             log: Log,
-            partyCoordinationService: _partyCoordinationService);
+            partyCoordinationService: _partyCoordinationService,
+            trainingService: _trainingService);
     }
 
     /// <inheritdoc />

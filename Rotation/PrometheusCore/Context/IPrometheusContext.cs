@@ -1,6 +1,7 @@
 using Olympus.Rotation.Common;
 using Olympus.Rotation.PrometheusCore.Helpers;
 using Olympus.Services.Party;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.PrometheusCore.Context;
 
@@ -158,6 +159,16 @@ public interface IPrometheusContext : IRangedDpsRotationContext
     /// Null if party coordination is disabled or unavailable.
     /// </summary>
     IPartyCoordinationService? PartyCoordinationService { get; }
+
+    #endregion
+
+    #region Training
+
+    /// <summary>
+    /// Service for recording training decisions and explanations.
+    /// Null if Training Mode is disabled.
+    /// </summary>
+    ITrainingService? TrainingService { get; }
 
     #endregion
 }

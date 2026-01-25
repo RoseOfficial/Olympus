@@ -3,6 +3,45 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.42.0 - Prometheus (MCH) Training Mode
+
+**Full Machinist Training Mode Integration**
+- Prometheus (MCH) rotation now records all training decisions with detailed explanations
+- Live coaching shows why each ability was used with factors considered and alternatives rejected
+- First ranged physical DPS with complete Training Mode integration
+
+**Burst Window Decisions**
+- Wildfire: 2-minute burst with Hypercharge alignment and party coordination
+- Hypercharge: Heat spending with tool cooldown awareness
+- Reassemble: Guaranteed crit/DH with high-potency action priority (Drill > Air Anchor > Chain Saw)
+
+**Tool Actions**
+- Drill: Highest priority tool with charge tracking (2 charges at Lv.98+)
+- Air Anchor: Battery building (+20) with overcap prevention
+- Chain Saw: Battery building (+20) and Excavator Ready proc
+- Excavator: Proc consumption with additional Battery gain
+- Full Metal Field: Lv.100 proc from Barrel Stabilizer
+
+**Heat Gauge Management**
+- Barrel Stabilizer: +50 Heat generation with overcap awareness
+- Heat Blast: Overheated GCD spam with oGCD cooldown reduction
+- Auto Crossbow: AoE variant during Overheated state
+
+**Battery and Queen**
+- Automaton Queen: Pet deployment at optimal Battery (90-100)
+- Battery accumulation from Air Anchor, Chain Saw, Excavator, and combo finisher
+
+**oGCD Weaving**
+- Gauss Round/Ricochet: Charge management with Overheated priority
+- Heat Blast cooldown reduction synergy
+
+**Utility**
+- Head Graze: Interrupt coordination with party
+
+**Concept Mastery**
+- All major MCH concepts tracked: `mch.wildfire_placement`, `mch.burst_party_sync`, `mch.hypercharge_activation`, `mch.hypercharge_timing`, `mch.heat_gauge`, `mch.battery_gauge`, `mch.gauge_overcapping`, `mch.drill_priority`, `mch.air_anchor_usage`, `mch.chain_saw_usage`, `mch.proc_tracking`, `mch.queen_summoning`, `mch.queen_damage_scaling`, `mch.battery_accumulation`, `mch.reassemble_priority`, `mch.reassemble_charges`, `mch.heat_blast_rotation`, `mch.overheated_state`, `mch.ogcd_weaving`, `mch.aoe_rotation`, `mch.interrupt_usage`
+<!-- LATEST-END -->
+
 ## v3.41.0 - Echidna (VPR) Training Mode
 
 **Full Viper Training Mode Integration**
@@ -38,7 +77,6 @@ All notable changes to Olympus will be documented in this file.
 
 **Concept Mastery**
 - All major VPR concepts tracked: `vpr.serpents_ire`, `vpr.reawaken_entry`, `vpr.generation_sequence`, `vpr.vicewinder`, `vpr.noxious_gnash`, `vpr.dread_combo`, `vpr.positional_finishers`, `vpr.combo_basics`, `vpr.buff_cycling`, `vpr.positionals`, `vpr.rattling_coil`, `vpr.twinfang_twinblood`, `vpr.uncoiled_fury`
-<!-- LATEST-END -->
 
 ## v3.40.0 - Thanatos (RPR) Training Mode
 
