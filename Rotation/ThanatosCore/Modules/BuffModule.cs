@@ -1,4 +1,5 @@
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.ThanatosCore.Context;
 using Olympus.Timeline.Models;
 
@@ -136,6 +137,21 @@ public sealed class BuffModule : IThanatosModule
             // Notify coordination service that we used the raid buff
             partyCoord?.OnRaidBuffUsed(RPRActions.ArcaneCircle.ActionId, 120_000);
 
+            // Training: Record Arcane Circle decision
+            MeleeDpsTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                RPRActions.ArcaneCircle.ActionId,
+                RPRActions.ArcaneCircle.Name,
+                player.Name?.TextValue ?? "Self",
+                "Activating Arcane Circle (+3% party damage for 20s)",
+                "Arcane Circle is RPR's party buff. Grants Bloodsown Circle for personal damage and " +
+                "builds Immortal Sacrifice stacks from party GCDs for Plentiful Harvest.",
+                new[] { "Death's Design active", "120s cooldown ready", "Party burst timing" },
+                new[] { "Hold for phase timing", "Wait for other raid buffs" },
+                "Arcane Circle grants stacks from party GCDs. Use when the party will be actively attacking.",
+                "rpr_arcane_circle");
+            context.TrainingService?.RecordConceptApplication("rpr_arcane_circle", true, "Party burst activation");
+
             return true;
         }
 
@@ -206,6 +222,26 @@ public sealed class BuffModule : IThanatosModule
         {
             context.Debug.PlannedAction = RPRActions.Enshroud.Name;
             context.Debug.BuffState = "Entering Enshroud";
+
+            // Training: Record Enshroud decision
+            var reason = context.HasArcaneCircle ? "Arcane Circle active" :
+                         context.Shroud >= 90 ? "Shroud gauge nearly full" :
+                         "Death's Design has good duration";
+            MeleeDpsTrainingHelper.RecordBurstDecision(
+                context.TrainingService,
+                RPRActions.Enshroud.ActionId,
+                RPRActions.Enshroud.Name,
+                player.Name?.TextValue ?? "Self",
+                $"Entering Enshroud ({reason})",
+                "Enshroud transforms your rotation into high-damage Void/Cross Reaping GCDs. " +
+                "Grants 5 Lemure Shroud stacks. Build Void Shroud with Reaping GCDs for Lemure's Slice. " +
+                "Finish with Communio → Perfectio for maximum burst.",
+                new[] { $"Shroud: {context.Shroud}/50", reason, $"Death's Design: {context.DeathsDesignRemaining:F1}s" },
+                new[] { "Wait for Arcane Circle", "Save for burst window" },
+                "Enshroud is your primary burst phase. Prioritize during Arcane Circle window.",
+                "rpr_enshroud");
+            context.TrainingService?.RecordConceptApplication("rpr_enshroud", true, "Burst phase entry");
+
             return true;
         }
 

@@ -16,6 +16,7 @@ using Olympus.Services.Positional;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation;
@@ -64,6 +65,9 @@ public sealed class Thanatos : BaseMeleeDpsRotation<IThanatosContext, IThanatosM
     // Party coordination service for raid buff synchronization (optional)
     private readonly IPartyCoordinationService? _partyCoordinationService;
 
+    // Training service for explaining rotation decisions (optional)
+    private readonly ITrainingService? _trainingService;
+
     // Gauge values (read each frame)
     private int _soul;
     private int _shroud;
@@ -88,6 +92,7 @@ public sealed class Thanatos : BaseMeleeDpsRotation<IThanatosContext, IThanatosM
         IPositionalService positionalService,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
+        ITrainingService? trainingService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -108,6 +113,7 @@ public sealed class Thanatos : BaseMeleeDpsRotation<IThanatosContext, IThanatosM
     {
         _timelineService = timelineService;
         _partyCoordinationService = partyCoordinationService;
+        _trainingService = trainingService;
 
         // Initialize helpers
         _statusHelper = new ThanatosStatusHelper();
@@ -210,6 +216,7 @@ public sealed class Thanatos : BaseMeleeDpsRotation<IThanatosContext, IThanatosM
             targetHasPositionalImmunity: TargetHasPositionalImmunity,
             timelineService: _timelineService,
             partyCoordinationService: _partyCoordinationService,
+            trainingService: _trainingService,
             log: Log);
     }
 

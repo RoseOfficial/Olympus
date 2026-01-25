@@ -3,6 +3,44 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v3.40.0 - Thanatos (RPR) Training Mode
+
+**Full Reaper Training Mode Integration**
+- Thanatos (RPR) rotation now records all training decisions with detailed explanations
+- Live coaching shows why each ability was used with factors considered and alternatives rejected
+- Fifth melee DPS with complete Training Mode integration
+
+**Burst Window Decisions**
+- Arcane Circle: Party-wide damage buff (+3%) with Bloodsown Circle and Immortal Sacrifice tracking
+- Enshroud: Burst state entry during optimal timing (Arcane Circle, high Shroud, Death's Design)
+
+**Enshroud Rotation**
+- Void/Cross Reaping: Lemure Shroud consumption with Enhanced buff tracking
+- Lemure's Slice/Scythe: Void Shroud spending for bonus oGCD damage
+- Communio: Enshroud finisher for Perfectio Parata proc
+- Perfectio: Highest potency GCD after Communio
+- Sacrificium: Oblatio proc usage during Enshroud
+
+**Soul Reaver & Positionals**
+- Gibbet (flank): Soul Reaver finisher with positional tracking
+- Gallows (rear): Soul Reaver finisher with positional tracking
+- Guillotine: AoE Soul Reaver spender (no positional)
+- Enhanced buff awareness for optimal finisher selection
+
+**Resource Management**
+- Soul Gauge: Gluttony (premium, 2 stacks) vs Blood Stalk (basic, 1 stack) vs Unveiled variants
+- Shroud Gauge: Building toward Enshroud threshold
+- Plentiful Harvest: Immortal Sacrifice stack consumption for Shroud gain
+
+**Support Abilities**
+- Death's Design: Damage debuff maintenance with refresh timing
+- Soul Slice/Scythe: Soul gauge building on charge system
+- Harvest Moon: Ranged GCD for movement/disengage phases
+
+**Concept Mastery**
+- All major RPR concepts tracked: `rpr_arcane_circle`, `rpr_enshroud`, `rpr_reaping`, `rpr_communio`, `rpr_perfectio`, `rpr_gibbet`, `rpr_gallows`, `rpr_gluttony`, `rpr_soul_slice`, `rpr_deaths_design`
+<!-- LATEST-END -->
+
 ## v3.39.0 - Kratos (MNK) Training Mode
 
 **Full Monk Training Mode Integration**
@@ -33,7 +71,6 @@ All notable changes to Olympus will be documented in this file.
 
 **Concept Mastery**
 - All major MNK concepts tracked: `mnk_riddle_of_fire`, `mnk_brotherhood`, `mnk_perfect_balance`, `mnk_riddle_of_wind`, `mnk_chakra_gauge`, `mnk_beast_chakra`, `mnk_positionals`
-<!-- LATEST-END -->
 
 ## v3.38.0 - Nike (SAM) Training Mode
 

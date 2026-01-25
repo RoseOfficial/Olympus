@@ -180,4 +180,14 @@ public interface IThanatosContext : IMeleeDpsRotationContext
     IPartyCoordinationService? PartyCoordinationService { get; }
 
     #endregion
+
+    #region Training
+
+    /// <summary>
+    /// Service for Training Mode - captures and explains rotation decisions.
+    /// Null if training mode is not available.
+    /// </summary>
+    Olympus.Services.Training.ITrainingService? TrainingService { get; }
+
+    #endregion
 }
