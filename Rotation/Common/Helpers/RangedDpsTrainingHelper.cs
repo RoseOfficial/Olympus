@@ -1,12 +1,12 @@
-using System;
 using Olympus.Config;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.Common.Helpers;
 
 /// <summary>
 /// Helper methods for recording training decisions in ranged physical DPS rotations.
-/// Provides typed methods for damage, burst windows, procs, and resource management.
+/// Thin wrappers over TrainingHelper.RecordDecision for ranged-specific categories.
 /// </summary>
 public static class RangedDpsTrainingHelper
 {
@@ -26,24 +26,9 @@ public static class RangedDpsTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Low)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Damage",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.Damage, targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority);
     }
 
     /// <summary>
@@ -62,24 +47,9 @@ public static class RangedDpsTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.High)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Burst Window",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.BurstWindow, targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority);
     }
 
     /// <summary>
@@ -99,24 +69,10 @@ public static class RangedDpsTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Normal)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = $"Proc ({procName})",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.Proc(procName), targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority,
+            new DecisionContext { ProcName = procName });
     }
 
     /// <summary>
@@ -136,24 +92,10 @@ public static class RangedDpsTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Normal)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Resource Management",
-            TargetName = null,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.ResourceManagement, null,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority,
+            new DecisionContext { ResourceName = resourceName, ResourceValue = resourceValue });
     }
 
     /// <summary>
@@ -171,24 +113,9 @@ public static class RangedDpsTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.High)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Raid Buff",
-            TargetName = null,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.RaidBuff, null,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority);
     }
 
     /// <summary>
@@ -208,24 +135,10 @@ public static class RangedDpsTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Normal)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = $"Song ({currentSong})",
-            TargetName = null,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.Song(currentSong), null,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority,
+            new DecisionContext { CurrentSong = currentSong, SongRemaining = songRemaining });
     }
 
     /// <summary>
@@ -245,24 +158,10 @@ public static class RangedDpsTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Normal)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "DoT Management",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.DotManagement, targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority,
+            new DecisionContext { DotRemaining = dotRemaining });
     }
 
     /// <summary>
@@ -281,24 +180,9 @@ public static class RangedDpsTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Normal)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Utility",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.Utility, targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority);
     }
 
     /// <summary>
@@ -317,23 +201,9 @@ public static class RangedDpsTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Low)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = $"AoE ({enemyCount} targets)",
-            TargetName = null,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.AoE(enemyCount), null,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority,
+            new DecisionContext { EnemyCount = enemyCount });
     }
 }

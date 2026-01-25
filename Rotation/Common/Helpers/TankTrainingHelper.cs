@@ -1,12 +1,12 @@
-using System;
 using Olympus.Config;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.Common.Helpers;
 
 /// <summary>
 /// Helper methods for recording training decisions in tank rotations.
-/// Provides typed methods for mitigation, damage, and resource management.
+/// Thin wrappers over TrainingHelper.RecordDecision for tank-specific categories.
 /// </summary>
 public static class TankTrainingHelper
 {
@@ -27,24 +27,10 @@ public static class TankTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.High)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Mitigation",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.Mitigation, targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority,
+            new DecisionContext { SelfHpPercent = selfHpPercent });
     }
 
     /// <summary>
@@ -63,24 +49,10 @@ public static class TankTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Critical)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Invulnerability",
-            TargetName = null,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.Invulnerability, null,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority,
+            new DecisionContext { SelfHpPercent = selfHpPercent });
     }
 
     /// <summary>
@@ -99,24 +71,9 @@ public static class TankTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Low)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Damage",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.Damage, targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority);
     }
 
     /// <summary>
@@ -135,24 +92,9 @@ public static class TankTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Normal)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Burst Window",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.BurstWindow, targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority);
     }
 
     /// <summary>
@@ -171,24 +113,10 @@ public static class TankTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Normal)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Resource Management",
-            TargetName = null,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.ResourceManagement, null,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority,
+            new DecisionContext { GaugeValue = gaugeValue });
     }
 
     /// <summary>
@@ -206,24 +134,9 @@ public static class TankTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.High)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Party Mitigation",
-            TargetName = null,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.PartyMitigation, null,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority);
     }
 
     /// <summary>
@@ -242,24 +155,9 @@ public static class TankTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.High)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Enmity",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.Enmity, targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority);
     }
 
     /// <summary>
@@ -278,23 +176,8 @@ public static class TankTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.High)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Interrupt",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.Interrupt, targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority);
     }
 }

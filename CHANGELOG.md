@@ -3,6 +3,16 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.0.1 - Training Helper Abstraction
+
+**Internal Code Quality Improvement**
+- Consolidated duplicate `Record*Decision` methods across 5 training helper files into a unified abstraction
+- Reduced ~1,800 lines of duplicate code to ~400 lines (78% reduction)
+- Added `DecisionContext` record for role-specific decision tracking data
+- Added `DecisionCategory` constants for consistent category naming
+- No user-facing changes - internal refactoring only
+<!-- LATEST-END -->
+
 ## v4.0.0 - Training Mode Complete
 
 **Major Milestone: Intelligent Coaching System Complete**
@@ -27,7 +37,6 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Machine learning for personalized recommendations
 - Simulation engine for practice scenarios
 - Voice command support
-<!-- LATEST-END -->
 
 ## v3.52.0 - Spaced Repetition
 

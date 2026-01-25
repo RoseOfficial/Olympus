@@ -215,6 +215,11 @@ public sealed class ActionExplanation
     /// How important this explanation is to show.
     /// </summary>
     public ExplanationPriority Priority { get; init; } = ExplanationPriority.Normal;
+
+    /// <summary>
+    /// Optional role-specific context data for analytics and display.
+    /// </summary>
+    public DecisionContext? Context { get; init; }
 }
 
 /// <summary>

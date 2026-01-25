@@ -6,10 +6,50 @@ namespace Olympus.Rotation.ApolloCore.Helpers;
 
 /// <summary>
 /// Helper methods to reduce boilerplate when recording training decisions.
-/// Provides typed methods for different decision categories.
+/// Provides a unified API plus typed convenience methods for different decision categories.
 /// </summary>
 public static class TrainingHelper
 {
+    /// <summary>
+    /// Core unified method for recording any training decision.
+    /// All role-specific helpers delegate to this method.
+    /// </summary>
+    public static void RecordDecision(
+        ITrainingService? service,
+        uint actionId,
+        string actionName,
+        string category,
+        string? targetName,
+        string shortReason,
+        string detailedReason,
+        string[] factors,
+        string[] alternatives,
+        string tip,
+        string conceptId,
+        ExplanationPriority priority = ExplanationPriority.Normal,
+        DecisionContext? context = null)
+    {
+        if (service?.IsTrainingEnabled != true)
+            return;
+
+        service.RecordDecision(new ActionExplanation
+        {
+            Timestamp = DateTime.Now,
+            ActionId = actionId,
+            ActionName = actionName,
+            Category = category,
+            TargetName = targetName,
+            ShortReason = shortReason,
+            DetailedReason = detailedReason,
+            Factors = factors,
+            Alternatives = alternatives,
+            Tip = tip,
+            ConceptId = conceptId,
+            Priority = priority,
+            Context = context,
+        });
+    }
+
     /// <summary>
     /// Records a healing decision explanation to the training service.
     /// </summary>
@@ -28,24 +68,10 @@ public static class TrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Normal)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Healing",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        RecordDecision(
+            service, actionId, actionName, DecisionCategory.Healing, targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority,
+            new DecisionContext { TargetHpPercent = targetHpPercent, HealAmount = healAmount });
     }
 
     /// <summary>
@@ -64,24 +90,9 @@ public static class TrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.High)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Defensive",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        RecordDecision(
+            service, actionId, actionName, DecisionCategory.Defensive, targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority);
     }
 
     /// <summary>
@@ -100,24 +111,9 @@ public static class TrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Low)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Damage",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        RecordDecision(
+            service, actionId, actionName, DecisionCategory.Damage, targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority);
     }
 
     /// <summary>
@@ -136,24 +132,9 @@ public static class TrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Normal)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Utility",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        RecordDecision(
+            service, actionId, actionName, DecisionCategory.Utility, targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority);
     }
 
     /// <summary>
@@ -172,24 +153,9 @@ public static class TrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Normal)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Buff",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        RecordDecision(
+            service, actionId, actionName, DecisionCategory.Buff, targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority);
     }
 
     /// <summary>
@@ -208,23 +174,8 @@ public static class TrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Normal)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Resource Management",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        RecordDecision(
+            service, actionId, actionName, DecisionCategory.ResourceManagement, targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority);
     }
 }

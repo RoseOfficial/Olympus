@@ -1,12 +1,12 @@
-using System;
 using Olympus.Config;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.Common.Helpers;
 
 /// <summary>
 /// Helper methods for recording training decisions in caster DPS rotations.
-/// Provides typed methods for damage, burst windows, procs, and resource management.
+/// Thin wrappers over TrainingHelper.RecordDecision for caster-specific categories.
 /// </summary>
 public static class CasterTrainingHelper
 {
@@ -26,24 +26,9 @@ public static class CasterTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Low)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Damage",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.Damage, targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority);
     }
 
     /// <summary>
@@ -62,24 +47,9 @@ public static class CasterTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.High)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Burst Window",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.BurstWindow, targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority);
     }
 
     /// <summary>
@@ -99,24 +69,10 @@ public static class CasterTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Normal)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = $"Proc ({procName})",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.Proc(procName), targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority,
+            new DecisionContext { ProcName = procName });
     }
 
     /// <summary>
@@ -136,24 +92,10 @@ public static class CasterTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Normal)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Resource Management",
-            TargetName = null,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.ResourceManagement, null,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority,
+            new DecisionContext { ResourceName = resourceName, ResourceValue = resourceValue });
     }
 
     /// <summary>
@@ -171,24 +113,9 @@ public static class CasterTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.High)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Raid Buff",
-            TargetName = null,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.RaidBuff, null,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority);
     }
 
     /// <summary>
@@ -208,24 +135,10 @@ public static class CasterTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Normal)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = $"Phase ({currentPhase} → {nextPhase})",
-            TargetName = null,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.Phase(currentPhase, nextPhase), null,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority,
+            new DecisionContext { CurrentPhase = currentPhase, NextPhase = nextPhase });
     }
 
     /// <summary>
@@ -245,24 +158,10 @@ public static class CasterTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Normal)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "DoT Management",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.DotManagement, targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority,
+            new DecisionContext { DotRemaining = dotRemaining });
     }
 
     /// <summary>
@@ -281,24 +180,9 @@ public static class CasterTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Normal)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = "Movement Optimization",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.MovementOptimization, targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority);
     }
 
     /// <summary>
@@ -317,24 +201,10 @@ public static class CasterTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Normal)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = $"Summon ({summonName})",
-            TargetName = null,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.Summon(summonName), null,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority,
+            new DecisionContext { SummonName = summonName });
     }
 
     /// <summary>
@@ -353,24 +223,10 @@ public static class CasterTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Low)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = $"AoE ({enemyCount} targets)",
-            TargetName = null,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.AoE(enemyCount), null,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority,
+            new DecisionContext { EnemyCount = enemyCount });
     }
 
     /// <summary>
@@ -390,23 +246,9 @@ public static class CasterTrainingHelper
         string conceptId,
         ExplanationPriority priority = ExplanationPriority.Normal)
     {
-        if (service?.IsTrainingEnabled != true)
-            return;
-
-        service.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.Now,
-            ActionId = actionId,
-            ActionName = actionName,
-            Category = $"Melee Combo Step {comboStep}",
-            TargetName = targetName,
-            ShortReason = shortReason,
-            DetailedReason = detailedReason,
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = tip,
-            ConceptId = conceptId,
-            Priority = priority,
-        });
+        TrainingHelper.RecordDecision(
+            service, actionId, actionName, DecisionCategory.MeleeCombo(comboStep), targetName,
+            shortReason, detailedReason, factors, alternatives, tip, conceptId, priority,
+            new DecisionContext { ComboStep = comboStep });
     }
 }
