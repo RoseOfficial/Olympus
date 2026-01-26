@@ -1,8 +1,9 @@
 using Olympus.Data;
 using Olympus.Models.Action;
-using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.ThemisCore.Context;
 using Olympus.Services.Party;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation.ThemisCore.Modules;
@@ -309,17 +310,17 @@ public sealed class MitigationModule : IThemisModule
             partyCoord?.OnCooldownUsed(PLDActions.HallowedGround.ActionId, 420_000);
 
             // Training: Record emergency invuln decision
-            TankTrainingHelper.RecordInvulnDecision(
-                context.TrainingService,
-                PLDActions.HallowedGround.ActionId,
-                PLDActions.HallowedGround.Name,
-                hpPercent,
-                $"Emergency at {hpPercent:P0} HP",
-                "Hallowed Ground provides 10 seconds of complete invulnerability. Used at critical HP to survive otherwise lethal damage.",
-                new[] { $"HP at {hpPercent:P0} (below 15% threshold)", "No other tank invuln used recently", "Would die without invuln" },
-                new[] { "Sentinel (40% reduction, but may not be enough)", "Wait for healer (risky at this HP)" },
-                "Use Hallowed Ground when HP drops critically low. Unlike other tank invulns, it has no drawback - just prevents all damage for 10 seconds.",
-                "pld_hallowed_ground");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(PLDActions.HallowedGround.ActionId, PLDActions.HallowedGround.Name)
+                .AsInvuln(hpPercent)
+                .Reason(
+                    $"Emergency at {hpPercent:P0} HP",
+                    "Hallowed Ground provides 10 seconds of complete invulnerability. Used at critical HP to survive otherwise lethal damage.")
+                .Factors($"HP at {hpPercent:P0} (below 15% threshold)", "No other tank invuln used recently", "Would die without invuln")
+                .Alternatives("Sentinel (40% reduction, but may not be enough)", "Wait for healer (risky at this HP)")
+                .Tip("Use Hallowed Ground when HP drops critically low. Unlike other tank invulns, it has no drawback - just prevents all damage for 10 seconds.")
+                .Concept("pld_hallowed_ground")
+                .Record();
 
             // Mastery: Record successful emergency response
             context.TrainingService?.RecordConceptApplication("pld_hallowed_ground", true, "Used at critical HP");
@@ -377,18 +378,18 @@ public sealed class MitigationModule : IThemisModule
             partyCoord?.OnCooldownUsed(sentinelAction.ActionId, 120_000);
 
             // Training: Record major cooldown decision
-            TankTrainingHelper.RecordMitigationDecision(
-                context.TrainingService,
-                sentinelAction.ActionId,
-                sentinelAction.Name,
-                null,
-                hpPercent,
-                $"Major cooldown at {hpPercent:P0} HP",
-                $"{sentinelAction.Name} reduces damage taken by 30% for 15 seconds. Your strongest regular mitigation - use for tankbusters and heavy damage phases.",
-                new[] { $"HP at {hpPercent:P0}", $"Damage rate: {damageRate:F0} DPS", "No Hallowed Ground active", "No existing Sentinel buff" },
-                new[] { "Rampart (20% reduction, shorter cooldown)", "Sheltron (gauge-based, shorter duration)", "Wait for healer" },
-                "Sentinel is your go-to for predictable big hits. Its 120s cooldown means you can use it almost every tankbuster in most fights.",
-                "pld_sentinel");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(sentinelAction.ActionId, sentinelAction.Name)
+                .AsMitigation(hpPercent)
+                .Target("Self")
+                .Reason(
+                    $"Major cooldown at {hpPercent:P0} HP",
+                    $"{sentinelAction.Name} reduces damage taken by 30% for 15 seconds. Your strongest regular mitigation - use for tankbusters and heavy damage phases.")
+                .Factors($"HP at {hpPercent:P0}", $"Damage rate: {damageRate:F0} DPS", "No Hallowed Ground active", "No existing Sentinel buff")
+                .Alternatives("Rampart (20% reduction, shorter cooldown)", "Sheltron (gauge-based, shorter duration)", "Wait for healer")
+                .Tip("Sentinel is your go-to for predictable big hits. Its 120s cooldown means you can use it almost every tankbuster in most fights.")
+                .Concept("pld_sentinel")
+                .Record();
 
             // Mastery: Record successful mitigation timing
             context.TrainingService?.RecordConceptApplication("pld_sentinel", true, $"Used at {hpPercent:P0} HP");
@@ -486,17 +487,17 @@ public sealed class MitigationModule : IThemisModule
             context.Debug.MitigationState = $"Sheltron ({context.OathGauge} gauge)";
 
             // Training: Record gauge-based mitigation
-            TankTrainingHelper.RecordResourceDecision(
-                context.TrainingService,
-                sheltronAction.ActionId,
-                sheltronAction.Name,
-                context.OathGauge,
-                $"Spent {50} Oath Gauge at {hpPercent:P0} HP",
-                $"{sheltronAction.Name} costs 50 Oath Gauge and provides a short but powerful defensive buff. Use liberally since gauge regenerates passively.",
-                new[] { $"Oath Gauge: {context.OathGauge}", $"HP at {hpPercent:P0}", "No Sheltron already active", "Not under Hallowed Ground" },
-                new[] { "Save gauge (risk taking more damage)", "Wait for bigger hit (may overcap gauge)" },
-                "Oath Gauge regenerates from auto-attacks. Don't sit at 100 gauge - spend Sheltron frequently to avoid waste.",
-                "pld_sheltron");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(sheltronAction.ActionId, sheltronAction.Name)
+                .AsTankResource(context.OathGauge)
+                .Reason(
+                    $"Spent {50} Oath Gauge at {hpPercent:P0} HP",
+                    $"{sheltronAction.Name} costs 50 Oath Gauge and provides a short but powerful defensive buff. Use liberally since gauge regenerates passively.")
+                .Factors($"Oath Gauge: {context.OathGauge}", $"HP at {hpPercent:P0}", "No Sheltron already active", "Not under Hallowed Ground")
+                .Alternatives("Save gauge (risk taking more damage)", "Wait for bigger hit (may overcap gauge)")
+                .Tip("Oath Gauge regenerates from auto-attacks. Don't sit at 100 gauge - spend Sheltron frequently to avoid waste.")
+                .Concept("pld_sheltron")
+                .Record();
 
             // Mastery: Record successful gauge usage
             context.TrainingService?.RecordConceptApplication("pld_sheltron", true, "Used Oath Gauge effectively");
@@ -636,16 +637,17 @@ public sealed class MitigationModule : IThemisModule
             partyCoord?.OnCooldownUsed(PLDActions.DivineVeil.ActionId, 90_000);
 
             // Training: Record party mitigation decision
-            TankTrainingHelper.RecordPartyMitigationDecision(
-                context.TrainingService,
-                PLDActions.DivineVeil.ActionId,
-                PLDActions.DivineVeil.Name,
-                $"Protecting {injuredCount} injured party members",
-                "Divine Veil applies a barrier to all nearby party members when you receive a heal. Excellent for raidwide damage.",
-                new[] { $"{injuredCount} party members injured", $"Average party HP: {avgHp:P0}", "No other party mitigation active", "Ready to be triggered by healer" },
-                new[] { "Reprisal (reduces enemy damage instead)", "Wait for healer cooldowns" },
-                "Divine Veil needs to be triggered by receiving a heal. Communicate with healers or use Clemency to self-trigger if needed.",
-                "pld_divine_veil");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(PLDActions.DivineVeil.ActionId, PLDActions.DivineVeil.Name)
+                .AsPartyMit()
+                .Reason(
+                    $"Protecting {injuredCount} injured party members",
+                    "Divine Veil applies a barrier to all nearby party members when you receive a heal. Excellent for raidwide damage.")
+                .Factors($"{injuredCount} party members injured", $"Average party HP: {avgHp:P0}", "No other party mitigation active", "Ready to be triggered by healer")
+                .Alternatives("Reprisal (reduces enemy damage instead)", "Wait for healer cooldowns")
+                .Tip("Divine Veil needs to be triggered by receiving a heal. Communicate with healers or use Clemency to self-trigger if needed.")
+                .Concept("pld_divine_veil")
+                .Record();
 
             // Mastery: Record successful party protection
             context.TrainingService?.RecordConceptApplication("pld_divine_veil", true, "Deployed party shield");

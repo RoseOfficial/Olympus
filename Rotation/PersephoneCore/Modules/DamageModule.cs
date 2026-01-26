@@ -1,7 +1,7 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Config;
 using Olympus.Data;
-using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.PersephoneCore.Context;
 using Olympus.Services.Training;
 
@@ -140,18 +140,18 @@ public sealed class DamageModule : IPersephoneModule
                                    context.IsPhoenixActive ? SmnConcepts.PhoenixPhase :
                                    SmnConcepts.SolarBahamutPhase;
 
-                CasterTrainingHelper.RecordSummonDecision(
-                    context.TrainingService,
-                    action.ActionId,
-                    action.Name,
-                    demiType,
-                    $"{action.Name} during {demiType} phase",
-                    $"During {demiType} phase, your normal GCDs are replaced with powerful summon-specific attacks. " +
-                    $"{action.Name} deals high potency while your demi-summon also attacks alongside you.",
-                    new[] { $"{demiType} active", $"Timer: {context.DemiSummonTimer:F1}s", $"GCDs left: {context.DemiSummonGcdsRemaining}" },
-                    new[] { "None - always use demi GCDs during demi phase" },
-                    $"Maximize GCDs during demi phase - each GCD triggers your {demiType}'s attack.",
-                    SmnConcepts.DemiPhases);
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(action.ActionId, action.Name)
+                    .AsSummon(demiType)
+                    .Target(target.Name?.TextValue)
+                    .Reason($"{action.Name} during {demiType} phase",
+                        $"During {demiType} phase, your normal GCDs are replaced with powerful summon-specific attacks. " +
+                        $"{action.Name} deals high potency while your demi-summon also attacks alongside you.")
+                    .Factors($"{demiType} active", $"Timer: {context.DemiSummonTimer:F1}s", $"GCDs left: {context.DemiSummonGcdsRemaining}")
+                    .Alternatives("None - always use demi GCDs during demi phase")
+                    .Tip($"Maximize GCDs during demi phase - each GCD triggers your {demiType}'s attack.")
+                    .Concept(SmnConcepts.DemiPhases)
+                    .Record();
 
                 context.TrainingService.RecordConceptApplication(
                     SmnConcepts.DemiPhases, true, "Demi-summon GCD used");
@@ -211,18 +211,18 @@ public sealed class DamageModule : IPersephoneModule
                                    SmnConcepts.GarudaPhase;
                 var stacksRemaining = context.AttunementStacks - 1;
 
-                CasterTrainingHelper.RecordDamageDecision(
-                    context.TrainingService,
-                    action.ActionId,
-                    action.Name,
-                    target.Name?.TextValue,
-                    $"{action.Name} - {primalType} attunement",
-                    $"Gemshine attacks ({action.Name}) consume attunement stacks. Each primal has a unique attack pattern: " +
-                    "Ifrit has 2 hard-hitting casts, Titan has 4 instant attacks, Garuda has 4 casted attacks with DoT.",
-                    new[] { $"{primalType} attuned", $"Stacks: {context.AttunementStacks} → {stacksRemaining}", $"Timer: {context.AttunementTimer:F1}s" },
-                    new[] { "None - spend all attunement stacks" },
-                    $"Use all {primalType} attunement stacks before summoning the next primal.",
-                    SmnConcepts.AttunementSystem);
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(action.ActionId, action.Name)
+                    .AsCasterDamage()
+                    .Target(target.Name?.TextValue)
+                    .Reason($"{action.Name} - {primalType} attunement",
+                        $"Gemshine attacks ({action.Name}) consume attunement stacks. Each primal has a unique attack pattern: " +
+                        "Ifrit has 2 hard-hitting casts, Titan has 4 instant attacks, Garuda has 4 casted attacks with DoT.")
+                    .Factors($"{primalType} attuned", $"Stacks: {context.AttunementStacks} → {stacksRemaining}", $"Timer: {context.AttunementTimer:F1}s")
+                    .Alternatives("None - spend all attunement stacks")
+                    .Tip($"Use all {primalType} attunement stacks before summoning the next primal.")
+                    .Concept(SmnConcepts.AttunementSystem)
+                    .Record();
 
                 context.TrainingService.RecordConceptApplication(
                     SmnConcepts.AttunementSystem, true, "Attunement stack spent");
@@ -257,18 +257,18 @@ public sealed class DamageModule : IPersephoneModule
                 // Training Mode recording
                 if (context.TrainingService?.IsTrainingEnabled == true)
                 {
-                    CasterTrainingHelper.RecordDamageDecision(
-                        context.TrainingService,
-                        SMNActions.CrimsonCyclone.ActionId,
-                        SMNActions.CrimsonCyclone.Name,
-                        target.Name?.TextValue,
-                        "Crimson Cyclone - Ifrit's Favor gap closer",
-                        "Crimson Cyclone is a gap closer that dashes to the target and grants Crimson Strike as a follow-up. " +
-                        "It's instant cast, making it excellent for movement. Always follow up with Crimson Strike.",
-                        new[] { "Ifrit's Favor active", "Gap closer + instant" },
-                        new[] { "None - always use when available" },
-                        "Use Crimson Cyclone for movement - it's a gap closer that doesn't interrupt your rotation.",
-                        SmnConcepts.CrimsonCyclone);
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(SMNActions.CrimsonCyclone.ActionId, SMNActions.CrimsonCyclone.Name)
+                        .AsCasterDamage()
+                        .Target(target.Name?.TextValue)
+                        .Reason("Crimson Cyclone - Ifrit's Favor gap closer",
+                            "Crimson Cyclone is a gap closer that dashes to the target and grants Crimson Strike as a follow-up. " +
+                            "It's instant cast, making it excellent for movement. Always follow up with Crimson Strike.")
+                        .Factors("Ifrit's Favor active", "Gap closer + instant")
+                        .Alternatives("None - always use when available")
+                        .Tip("Use Crimson Cyclone for movement - it's a gap closer that doesn't interrupt your rotation.")
+                        .Concept(SmnConcepts.CrimsonCyclone)
+                        .Record();
 
                     context.TrainingService.RecordConceptApplication(
                         SmnConcepts.CrimsonCyclone, true, "Ifrit gap closer used");
@@ -299,18 +299,18 @@ public sealed class DamageModule : IPersephoneModule
                         // Training Mode recording
                         if (context.TrainingService?.IsTrainingEnabled == true)
                         {
-                            CasterTrainingHelper.RecordMovementDecision(
-                                context.TrainingService,
-                                SMNActions.Swiftcast.ActionId,
-                                SMNActions.Swiftcast.Name,
-                                target.Name?.TextValue,
-                                "Swiftcast for Slipstream while moving",
-                                "Slipstream has a long cast time. Using Swiftcast allows you to use it while moving, " +
-                                "ensuring you don't lose Garuda's Favor buff to movement requirements.",
-                                new[] { "Garuda's Favor active", "Currently moving", "No instant cast ready" },
-                                new[] { "Wait to stop moving (may lose buff)" },
-                                "Swiftcast is valuable for Slipstream during movement-heavy phases.",
-                                SmnConcepts.Slipstream);
+                            TrainingHelper.Decision(context.TrainingService)
+                                .Action(SMNActions.Swiftcast.ActionId, SMNActions.Swiftcast.Name)
+                                .AsMovement()
+                                .Target(target.Name?.TextValue)
+                                .Reason("Swiftcast for Slipstream while moving",
+                                    "Slipstream has a long cast time. Using Swiftcast allows you to use it while moving, " +
+                                    "ensuring you don't lose Garuda's Favor buff to movement requirements.")
+                                .Factors("Garuda's Favor active", "Currently moving", "No instant cast ready")
+                                .Alternatives("Wait to stop moving (may lose buff)")
+                                .Tip("Swiftcast is valuable for Slipstream during movement-heavy phases.")
+                                .Concept(SmnConcepts.Slipstream)
+                                .Record();
 
                             context.TrainingService.RecordConceptApplication(
                                 SmnConcepts.Slipstream, true, "Swiftcast for movement");
@@ -331,18 +331,18 @@ public sealed class DamageModule : IPersephoneModule
                 // Training Mode recording
                 if (context.TrainingService?.IsTrainingEnabled == true)
                 {
-                    CasterTrainingHelper.RecordDamageDecision(
-                        context.TrainingService,
-                        SMNActions.Slipstream.ActionId,
-                        SMNActions.Slipstream.Name,
-                        target.Name?.TextValue,
-                        "Slipstream - Garuda's Favor DoT zone",
-                        "Slipstream places a ground DoT that deals damage over time to enemies in the area. " +
-                        "It's Garuda's signature ability and provides sustained damage after the initial hit.",
-                        new[] { "Garuda's Favor active", context.HasSwiftcast ? "Instant via Swiftcast" : "Stationary to cast" },
-                        new[] { "None - always use Slipstream" },
-                        "Position Slipstream where enemies will stay - the DoT provides significant damage.",
-                        SmnConcepts.Slipstream);
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(SMNActions.Slipstream.ActionId, SMNActions.Slipstream.Name)
+                        .AsCasterDamage()
+                        .Target(target.Name?.TextValue)
+                        .Reason("Slipstream - Garuda's Favor DoT zone",
+                            "Slipstream places a ground DoT that deals damage over time to enemies in the area. " +
+                            "It's Garuda's signature ability and provides sustained damage after the initial hit.")
+                        .Factors("Garuda's Favor active", context.HasSwiftcast ? "Instant via Swiftcast" : "Stationary to cast")
+                        .Alternatives("None - always use Slipstream")
+                        .Tip("Position Slipstream where enemies will stay - the DoT provides significant damage.")
+                        .Concept(SmnConcepts.Slipstream)
+                        .Record();
 
                     context.TrainingService.RecordConceptApplication(
                         SmnConcepts.Slipstream, true, "Garuda DoT zone placed");
@@ -436,17 +436,15 @@ public sealed class DamageModule : IPersephoneModule
 
     private void RecordPrimalSummon(IPersephoneContext context, string primalName, string phaseConcept, string description)
     {
-        CasterTrainingHelper.RecordSummonDecision(
-            context.TrainingService,
-            0, // Action ID varies by primal
-            $"Summon {primalName}",
-            primalName,
-            $"Summoning {primalName} primal",
-            description,
-            new[] { $"{primalName} available", $"Primals remaining: {context.PrimalsAvailable}" },
-            new[] { "Summon different primal based on fight needs" },
-            "Summon order matters: Titan for movement, Garuda for stationary, Ifrit for burst.",
-            SmnConcepts.PrimalOrder);
+        TrainingHelper.Decision(context.TrainingService)
+            .Action(0, $"Summon {primalName}") // Action ID varies by primal
+            .AsSummon(primalName)
+            .Reason($"Summoning {primalName} primal", description)
+            .Factors($"{primalName} available", $"Primals remaining: {context.PrimalsAvailable}")
+            .Alternatives("Summon different primal based on fight needs")
+            .Tip("Summon order matters: Titan for movement, Garuda for stationary, Ifrit for burst.")
+            .Concept(SmnConcepts.PrimalOrder)
+            .Record();
 
         context.TrainingService?.RecordConceptApplication(
             SmnConcepts.PrimalOrder, true, $"Summoned {primalName}");
@@ -543,18 +541,16 @@ public sealed class DamageModule : IPersephoneModule
 
     private void RecordDemiSummon(IPersephoneContext context, string demiName, string phaseConcept, string description)
     {
-        CasterTrainingHelper.RecordSummonDecision(
-            context.TrainingService,
-            0, // Action ID varies by demi
-            $"Summon {demiName}",
-            demiName,
-            $"Summoning {demiName} for burst phase",
-            description,
-            new[] { "All primals used", "Demi-summon ready", "15-second burst window" },
-            new[] { "Hold for better timing (risky in most cases)" },
-            $"Summon {demiName} immediately when ready - the 15-second window is your biggest burst.",
-            SmnConcepts.DemiPhases,
-            ExplanationPriority.High);
+        TrainingHelper.Decision(context.TrainingService)
+            .Action(0, $"Summon {demiName}") // Action ID varies by demi
+            .AsSummon(demiName)
+            .Priority(ExplanationPriority.High)
+            .Reason($"Summoning {demiName} for burst phase", description)
+            .Factors("All primals used", "Demi-summon ready", "15-second burst window")
+            .Alternatives("Hold for better timing (risky in most cases)")
+            .Tip($"Summon {demiName} immediately when ready - the 15-second window is your biggest burst.")
+            .Concept(SmnConcepts.DemiPhases)
+            .Record();
 
         context.TrainingService?.RecordConceptApplication(
             SmnConcepts.DemiPhases, true, $"Summoned {demiName}");
@@ -592,19 +588,18 @@ public sealed class DamageModule : IPersephoneModule
                 // Training Mode recording
                 if (context.TrainingService?.IsTrainingEnabled == true)
                 {
-                    CasterTrainingHelper.RecordProcDecision(
-                        context.TrainingService,
-                        SMNActions.Ruin4.ActionId,
-                        SMNActions.Ruin4.Name,
-                        "Further Ruin",
-                        target.Name?.TextValue,
-                        "Ruin IV - proc expiring soon",
-                        "Further Ruin procs are granted by Energy Drain/Siphon and expire after 60 seconds. " +
-                        "Using Ruin IV before it expires ensures you don't waste the proc. It's also instant cast.",
-                        new[] { $"Proc expiring: {context.FurtherRuinRemaining:F1}s", "Instant cast" },
-                        new[] { "None - always use before expiring" },
-                        "Track Further Ruin duration - use before it expires to avoid wasting procs.",
-                        SmnConcepts.RuinIvProcs);
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(SMNActions.Ruin4.ActionId, SMNActions.Ruin4.Name)
+                        .AsCasterProc("Further Ruin")
+                        .Target(target.Name?.TextValue)
+                        .Reason("Ruin IV - proc expiring soon",
+                            "Further Ruin procs are granted by Energy Drain/Siphon and expire after 60 seconds. " +
+                            "Using Ruin IV before it expires ensures you don't waste the proc. It's also instant cast.")
+                        .Factors($"Proc expiring: {context.FurtherRuinRemaining:F1}s", "Instant cast")
+                        .Alternatives("None - always use before expiring")
+                        .Tip("Track Further Ruin duration - use before it expires to avoid wasting procs.")
+                        .Concept(SmnConcepts.RuinIvProcs)
+                        .Record();
 
                     context.TrainingService.RecordConceptApplication(
                         SmnConcepts.RuinIvProcs, true, "Used expiring proc");
@@ -625,19 +620,18 @@ public sealed class DamageModule : IPersephoneModule
                 // Training Mode recording
                 if (context.TrainingService?.IsTrainingEnabled == true)
                 {
-                    CasterTrainingHelper.RecordProcDecision(
-                        context.TrainingService,
-                        SMNActions.Ruin4.ActionId,
-                        SMNActions.Ruin4.Name,
-                        "Further Ruin",
-                        target.Name?.TextValue,
-                        "Ruin IV as filler between phases",
-                        "Between primal and demi-summon phases, use Ruin IV procs as filler. " +
-                        "It's higher potency than Ruin III and instant cast, making it ideal filler.",
-                        new[] { "No primals available", "No demi active", "Waiting for summons" },
-                        new[] { "Use Ruin III if no procs" },
-                        "Save Ruin IV for filler windows - it's your best non-burst GCD.",
-                        SmnConcepts.RuinIvProcs);
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(SMNActions.Ruin4.ActionId, SMNActions.Ruin4.Name)
+                        .AsCasterProc("Further Ruin")
+                        .Target(target.Name?.TextValue)
+                        .Reason("Ruin IV as filler between phases",
+                            "Between primal and demi-summon phases, use Ruin IV procs as filler. " +
+                            "It's higher potency than Ruin III and instant cast, making it ideal filler.")
+                        .Factors("No primals available", "No demi active", "Waiting for summons")
+                        .Alternatives("Use Ruin III if no procs")
+                        .Tip("Save Ruin IV for filler windows - it's your best non-burst GCD.")
+                        .Concept(SmnConcepts.RuinIvProcs)
+                        .Record();
 
                     context.TrainingService.RecordConceptApplication(
                         SmnConcepts.RuinIvProcs, true, "Filler Ruin IV used");
@@ -673,18 +667,18 @@ public sealed class DamageModule : IPersephoneModule
                     // Training Mode recording
                     if (context.TrainingService?.IsTrainingEnabled == true)
                     {
-                        CasterTrainingHelper.RecordMovementDecision(
-                            context.TrainingService,
-                            SMNActions.Ruin4.ActionId,
-                            SMNActions.Ruin4.Name,
-                            target.Name?.TextValue,
-                            "Ruin IV for movement",
-                            "Using Ruin IV proc during movement. It's instant cast and higher potency than Ruin II, " +
-                            "making it your best movement option when available.",
-                            new[] { "Moving", "Further Ruin proc active", "Instant cast" },
-                            new[] { "Ruin II if no proc" },
-                            "Prioritize Ruin IV procs for movement - save them when you know movement is coming.",
-                            SmnConcepts.RuinIvProcs);
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(SMNActions.Ruin4.ActionId, SMNActions.Ruin4.Name)
+                            .AsMovement()
+                            .Target(target.Name?.TextValue)
+                            .Reason("Ruin IV for movement",
+                                "Using Ruin IV proc during movement. It's instant cast and higher potency than Ruin II, " +
+                                "making it your best movement option when available.")
+                            .Factors("Moving", "Further Ruin proc active", "Instant cast")
+                            .Alternatives("Ruin II if no proc")
+                            .Tip("Prioritize Ruin IV procs for movement - save them when you know movement is coming.")
+                            .Concept(SmnConcepts.RuinIvProcs)
+                            .Record();
 
                         context.TrainingService.RecordConceptApplication(
                             SmnConcepts.RuinIvProcs, true, "Movement Ruin IV");
@@ -705,18 +699,18 @@ public sealed class DamageModule : IPersephoneModule
                     // Training Mode recording
                     if (context.TrainingService?.IsTrainingEnabled == true)
                     {
-                        CasterTrainingHelper.RecordMovementDecision(
-                            context.TrainingService,
-                            SMNActions.Ruin2.ActionId,
-                            SMNActions.Ruin2.Name,
-                            target.Name?.TextValue,
-                            "Ruin II for movement (no procs)",
-                            "Using Ruin II during movement because no Ruin IV procs are available. " +
-                            "Ruin II is lower potency but instant, maintaining GCD uptime.",
-                            new[] { "Moving", "No instant procs available" },
-                            new[] { "None - last resort movement option" },
-                            "Try to have Ruin IV procs or primal movement options for heavy movement phases.",
-                            SmnConcepts.RuinSpells);
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(SMNActions.Ruin2.ActionId, SMNActions.Ruin2.Name)
+                            .AsMovement()
+                            .Target(target.Name?.TextValue)
+                            .Reason("Ruin II for movement (no procs)",
+                                "Using Ruin II during movement because no Ruin IV procs are available. " +
+                                "Ruin II is lower potency but instant, maintaining GCD uptime.")
+                            .Factors("Moving", "No instant procs available")
+                            .Alternatives("None - last resort movement option")
+                            .Tip("Try to have Ruin IV procs or primal movement options for heavy movement phases.")
+                            .Concept(SmnConcepts.RuinSpells)
+                            .Record();
 
                         context.TrainingService.RecordConceptApplication(
                             SmnConcepts.RuinSpells, false, "Had to use Ruin II for movement");
@@ -739,22 +733,22 @@ public sealed class DamageModule : IPersephoneModule
             if (context.TrainingService?.IsTrainingEnabled == true)
             {
                 var concept = useAoe ? SmnConcepts.AoeRotation : SmnConcepts.RuinSpells;
-                CasterTrainingHelper.RecordDamageDecision(
-                    context.TrainingService,
-                    action.ActionId,
-                    action.Name,
-                    target.Name?.TextValue,
-                    useAoe ? "AoE filler spell" : "Single target filler",
-                    useAoe
-                        ? "Using AoE Ruin spell as filler between primal/demi phases. At 3+ enemies, AoE is more efficient."
-                        : "Using Ruin III as filler between primal and demi-summon phases. This is your lowest priority GCD.",
-                    new[] { useAoe ? $"{context.TargetingService.CountEnemiesInRange(5f, context.Player)} enemies" : "Single target", "No summons active" },
-                    new[] { "Use Ruin IV if proc available" },
-                    useAoe
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(action.ActionId, action.Name)
+                    .AsCasterDamage()
+                    .Priority(ExplanationPriority.Low)
+                    .Target(target.Name?.TextValue)
+                    .Reason(useAoe ? "AoE filler spell" : "Single target filler",
+                        useAoe
+                            ? "Using AoE Ruin spell as filler between primal/demi phases. At 3+ enemies, AoE is more efficient."
+                            : "Using Ruin III as filler between primal and demi-summon phases. This is your lowest priority GCD.")
+                    .Factors(useAoe ? $"{context.TargetingService.CountEnemiesInRange(5f, context.Player)} enemies" : "Single target", "No summons active")
+                    .Alternatives("Use Ruin IV if proc available")
+                    .Tip(useAoe
                         ? "Switch to AoE Ruin at 3+ enemies for better efficiency."
-                        : "Minimize Ruin III usage by optimizing summon uptime.",
-                    concept,
-                    ExplanationPriority.Low);
+                        : "Minimize Ruin III usage by optimizing summon uptime.")
+                    .Concept(concept)
+                    .Record();
 
                 context.TrainingService.RecordConceptApplication(
                     concept, true, "Filler GCD used");

@@ -1,7 +1,8 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
-using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.PrometheusCore.Context;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.PrometheusCore.Modules;
 
@@ -125,18 +126,19 @@ public sealed class DamageModule : IPrometheusModule
             context.Debug.DamageState = $"{action.Name} (Overheat: {context.OverheatRemaining:F1}s)";
 
             // Training: Record Heat Blast/Auto Crossbow decision
-            RangedDpsTrainingHelper.RecordBurstDecision(
-                context.TrainingService,
-                action.ActionId,
-                action.Name,
-                target.Name?.TextValue ?? "Target",
-                $"{action.Name} (Overheat remaining: {context.OverheatRemaining:F1}s)",
-                $"{action.Name} is MCH's Overheated GCD with a 1.5s recast. Spam during Hypercharge and weave " +
-                "Gauss Round/Ricochet between each. Reduces Gauss/Ricochet cooldown by 15s per use.",
-                new[] { $"Overheated: {context.OverheatRemaining:F1}s remaining", useAoe ? $"AoE mode ({enemyCount} enemies)" : "Single target" },
-                new[] { "No alternatives during Overheated" },
-                "During Overheated, spam Heat Blast (or Auto Crossbow for AoE) and weave oGCDs between each.",
-                "mch.heat_blast_rotation");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(action.ActionId, action.Name)
+                .AsRangedBurst()
+                .Target(target.Name?.TextValue ?? "Target")
+                .Reason(
+                    $"{action.Name} (Overheat remaining: {context.OverheatRemaining:F1}s)",
+                    $"{action.Name} is MCH's Overheated GCD with a 1.5s recast. Spam during Hypercharge and weave " +
+                    "Gauss Round/Ricochet between each. Reduces Gauss/Ricochet cooldown by 15s per use.")
+                .Factors($"Overheated: {context.OverheatRemaining:F1}s remaining", useAoe ? $"AoE mode ({enemyCount} enemies)" : "Single target")
+                .Alternatives("No alternatives during Overheated")
+                .Tip("During Overheated, spam Heat Blast (or Auto Crossbow for AoE) and weave oGCDs between each.")
+                .Concept("mch.heat_blast_rotation")
+                .Record();
             context.TrainingService?.RecordConceptApplication("mch.heat_blast_rotation", true, "Overheated rotation");
             context.TrainingService?.RecordConceptApplication("mch.overheated_state", true, "Burst phase execution");
 
@@ -170,19 +172,19 @@ public sealed class DamageModule : IPrometheusModule
             context.Debug.DamageState = "Full Metal Field (proc)";
 
             // Training: Record Full Metal Field decision
-            RangedDpsTrainingHelper.RecordProcDecision(
-                context.TrainingService,
-                MCHActions.FullMetalField.ActionId,
-                MCHActions.FullMetalField.Name,
-                "Full Metal Machinist",
-                target.Name?.TextValue ?? "Target",
-                "Full Metal Field (proc from Barrel Stabilizer)",
-                "Full Metal Field is granted by Barrel Stabilizer at Lv.100. High potency AoE attack. " +
-                "Use before entering Hypercharge to avoid losing the proc during Overheated GCDs.",
-                new[] { "Full Metal Machinist buff active", "Lv.100 ability" },
-                new[] { "Use Reassemble first if available" },
-                "Use Full Metal Field after Barrel Stabilizer, before Hypercharge. Benefits from Reassemble.",
-                "mch.proc_tracking");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(MCHActions.FullMetalField.ActionId, MCHActions.FullMetalField.Name)
+                .AsProc("Full Metal Machinist")
+                .Target(target.Name?.TextValue ?? "Target")
+                .Reason(
+                    "Full Metal Field (proc from Barrel Stabilizer)",
+                    "Full Metal Field is granted by Barrel Stabilizer at Lv.100. High potency AoE attack. " +
+                    "Use before entering Hypercharge to avoid losing the proc during Overheated GCDs.")
+                .Factors("Full Metal Machinist buff active", "Lv.100 ability")
+                .Alternatives("Use Reassemble first if available")
+                .Tip("Use Full Metal Field after Barrel Stabilizer, before Hypercharge. Benefits from Reassemble.")
+                .Concept("mch.proc_tracking")
+                .Record();
             context.TrainingService?.RecordConceptApplication("mch.proc_tracking", true, "Proc consumption");
 
             return true;
@@ -211,19 +213,19 @@ public sealed class DamageModule : IPrometheusModule
             context.Debug.DamageState = "Excavator (+20 Battery)";
 
             // Training: Record Excavator decision
-            RangedDpsTrainingHelper.RecordProcDecision(
-                context.TrainingService,
-                MCHActions.Excavator.ActionId,
-                MCHActions.Excavator.Name,
-                "Excavator Ready",
-                target.Name?.TextValue ?? "Target",
-                "Excavator (proc from Chain Saw, +20 Battery)",
-                "Excavator is granted by Chain Saw at Lv.96. High potency attack that also grants +20 Battery. " +
-                "Use before the buff expires. Benefits from Reassemble.",
-                new[] { "Excavator Ready buff active", $"Battery: {context.Battery}/100", "Lv.96 ability" },
-                new[] { "Use Reassemble first if available" },
-                "Use Excavator after Chain Saw. Don't let the proc expire. Battery gain helps Queen summoning.",
-                "mch.proc_tracking");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(MCHActions.Excavator.ActionId, MCHActions.Excavator.Name)
+                .AsProc("Excavator Ready")
+                .Target(target.Name?.TextValue ?? "Target")
+                .Reason(
+                    "Excavator (proc from Chain Saw, +20 Battery)",
+                    "Excavator is granted by Chain Saw at Lv.96. High potency attack that also grants +20 Battery. " +
+                    "Use before the buff expires. Benefits from Reassemble.")
+                .Factors("Excavator Ready buff active", $"Battery: {context.Battery}/100", "Lv.96 ability")
+                .Alternatives("Use Reassemble first if available")
+                .Tip("Use Excavator after Chain Saw. Don't let the proc expire. Battery gain helps Queen summoning.")
+                .Concept("mch.proc_tracking")
+                .Record();
             context.TrainingService?.RecordConceptApplication("mch.proc_tracking", true, "Proc consumption");
             context.TrainingService?.RecordConceptApplication("mch.battery_accumulation", true, "Battery building");
 
@@ -253,18 +255,18 @@ public sealed class DamageModule : IPrometheusModule
                         context.Debug.DamageState = "Bioblaster (DoT AoE)";
 
                         // Training: Record Bioblaster decision
-                        RangedDpsTrainingHelper.RecordAoeDecision(
-                            context.TrainingService,
-                            MCHActions.Bioblaster.ActionId,
-                            MCHActions.Bioblaster.Name,
-                            enemyCount,
-                            $"Bioblaster (AoE DoT, {enemyCount} targets)",
-                            "Bioblaster applies a DoT to enemies in a cone. Use instead of Drill in AoE situations. " +
-                            "Shares recast with Drill. Refresh when DoT is about to expire (<3s).",
-                            new[] { $"Enemies: {enemyCount}", context.HasBioblaster ? $"DoT: {context.BioblasterRemaining:F1}s" : "DoT not applied" },
-                            new[] { "Use Drill for single target" },
-                            "In AoE (3+ targets), use Bioblaster instead of Drill. Keep the DoT active.",
-                            "mch.aoe_rotation");
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(MCHActions.Bioblaster.ActionId, MCHActions.Bioblaster.Name)
+                            .AsAoE(enemyCount)
+                            .Reason(
+                                $"Bioblaster (AoE DoT, {enemyCount} targets)",
+                                "Bioblaster applies a DoT to enemies in a cone. Use instead of Drill in AoE situations. " +
+                                "Shares recast with Drill. Refresh when DoT is about to expire (<3s).")
+                            .Factors($"Enemies: {enemyCount}", context.HasBioblaster ? $"DoT: {context.BioblasterRemaining:F1}s" : "DoT not applied")
+                            .Alternatives("Use Drill for single target")
+                            .Tip("In AoE (3+ targets), use Bioblaster instead of Drill. Keep the DoT active.")
+                            .Concept("mch.aoe_rotation")
+                            .Record();
                         context.TrainingService?.RecordConceptApplication("mch.aoe_rotation", true, "AoE tool usage");
                         context.TrainingService?.RecordConceptApplication("mch.target_count_threshold", enemyCount >= 3, "AoE threshold");
 
@@ -290,18 +292,19 @@ public sealed class DamageModule : IPrometheusModule
             context.Debug.DamageState = $"Drill (charges: {context.DrillCharges})";
 
             // Training: Record Drill decision
-            RangedDpsTrainingHelper.RecordDamageDecision(
-                context.TrainingService,
-                MCHActions.Drill.ActionId,
-                MCHActions.Drill.Name,
-                target.Name?.TextValue ?? "Target",
-                $"Drill (charges: {context.DrillCharges})",
-                "Drill is MCH's highest priority tool action. Has 2 charges at Lv.98+. Always use with Reassemble " +
-                "for guaranteed crit/DH. Don't let charges overcap.",
-                new[] { $"Charges: {context.DrillCharges}", context.HasReassemble ? "Reassemble active" : "No Reassemble" },
-                new[] { "Wait for Reassemble", "Use Air Anchor/Chain Saw first" },
-                "Drill is the best Reassemble target. Prioritize Drill over Air Anchor and Chain Saw.",
-                "mch.drill_priority");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(MCHActions.Drill.ActionId, MCHActions.Drill.Name)
+                .AsRangedDamage()
+                .Target(target.Name?.TextValue ?? "Target")
+                .Reason(
+                    $"Drill (charges: {context.DrillCharges})",
+                    "Drill is MCH's highest priority tool action. Has 2 charges at Lv.98+. Always use with Reassemble " +
+                    "for guaranteed crit/DH. Don't let charges overcap.")
+                .Factors($"Charges: {context.DrillCharges}", context.HasReassemble ? "Reassemble active" : "No Reassemble")
+                .Alternatives("Wait for Reassemble", "Use Air Anchor/Chain Saw first")
+                .Tip("Drill is the best Reassemble target. Prioritize Drill over Air Anchor and Chain Saw.")
+                .Concept("mch.drill_priority")
+                .Record();
             context.TrainingService?.RecordConceptApplication("mch.drill_priority", true, "Tool priority");
 
             return true;
@@ -336,19 +339,19 @@ public sealed class DamageModule : IPrometheusModule
             context.Debug.DamageState = $"{action.Name} (+20 Battery)";
 
             // Training: Record Air Anchor decision
-            RangedDpsTrainingHelper.RecordResourceDecision(
-                context.TrainingService,
-                action.ActionId,
-                action.Name,
-                "Battery",
-                context.Battery,
-                $"{action.Name} (Battery: {context.Battery} → {context.Battery + 20})",
-                "Air Anchor is a high-potency tool that grants +20 Battery. Use on cooldown, but check Battery " +
-                "to avoid overcapping. Benefits from Reassemble (after Drill).",
-                new[] { $"Battery: {context.Battery}/100", "Won't overcap Battery", context.HasReassemble ? "Reassemble active" : "No Reassemble" },
-                new[] { "Wait if Battery > 80", "Prioritize Drill" },
-                "Air Anchor builds Battery for Queen. Don't use if Battery > 80 to avoid overcapping.",
-                "mch.air_anchor_usage");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(action.ActionId, action.Name)
+                .AsRangedResource("Battery", context.Battery)
+                .Target(target.Name?.TextValue ?? "Target")
+                .Reason(
+                    $"{action.Name} (Battery: {context.Battery} → {context.Battery + 20})",
+                    "Air Anchor is a high-potency tool that grants +20 Battery. Use on cooldown, but check Battery " +
+                    "to avoid overcapping. Benefits from Reassemble (after Drill).")
+                .Factors($"Battery: {context.Battery}/100", "Won't overcap Battery", context.HasReassemble ? "Reassemble active" : "No Reassemble")
+                .Alternatives("Wait if Battery > 80", "Prioritize Drill")
+                .Tip("Air Anchor builds Battery for Queen. Don't use if Battery > 80 to avoid overcapping.")
+                .Concept("mch.air_anchor_usage")
+                .Record();
             context.TrainingService?.RecordConceptApplication("mch.air_anchor_usage", true, "Tool usage");
             context.TrainingService?.RecordConceptApplication("mch.battery_accumulation", true, "Battery building");
             context.TrainingService?.RecordConceptApplication("mch.gauge_overcapping", context.Battery <= 80, "Overcap prevention");
@@ -383,19 +386,19 @@ public sealed class DamageModule : IPrometheusModule
             context.Debug.DamageState = "Chain Saw (+20 Battery)";
 
             // Training: Record Chain Saw decision
-            RangedDpsTrainingHelper.RecordResourceDecision(
-                context.TrainingService,
-                MCHActions.ChainSaw.ActionId,
-                MCHActions.ChainSaw.Name,
-                "Battery",
-                context.Battery,
-                $"Chain Saw (Battery: {context.Battery} → {context.Battery + 20})",
-                "Chain Saw is a high-potency tool that grants +20 Battery and Excavator Ready (Lv.96+). " +
-                "Use on cooldown, but check Battery to avoid overcapping. Benefits from Reassemble.",
-                new[] { $"Battery: {context.Battery}/100", "Won't overcap Battery", "Grants Excavator Ready" },
-                new[] { "Wait if Battery > 80", "Prioritize Drill" },
-                "Chain Saw grants Excavator Ready. Use Excavator before the buff expires for extra damage + Battery.",
-                "mch.chain_saw_usage");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(MCHActions.ChainSaw.ActionId, MCHActions.ChainSaw.Name)
+                .AsRangedResource("Battery", context.Battery)
+                .Target(target.Name?.TextValue ?? "Target")
+                .Reason(
+                    $"Chain Saw (Battery: {context.Battery} → {context.Battery + 20})",
+                    "Chain Saw is a high-potency tool that grants +20 Battery and Excavator Ready (Lv.96+). " +
+                    "Use on cooldown, but check Battery to avoid overcapping. Benefits from Reassemble.")
+                .Factors($"Battery: {context.Battery}/100", "Won't overcap Battery", "Grants Excavator Ready")
+                .Alternatives("Wait if Battery > 80", "Prioritize Drill")
+                .Tip("Chain Saw grants Excavator Ready. Use Excavator before the buff expires for extra damage + Battery.")
+                .Concept("mch.chain_saw_usage")
+                .Record();
             context.TrainingService?.RecordConceptApplication("mch.chain_saw_usage", true, "Tool usage");
             context.TrainingService?.RecordConceptApplication("mch.battery_accumulation", true, "Battery building");
             context.TrainingService?.RecordConceptApplication("mch.gauge_overcapping", context.Battery <= 80, "Overcap prevention");
@@ -474,21 +477,22 @@ public sealed class DamageModule : IPrometheusModule
             // Training: Record combo decision
             var isFinisher = context.ComboStep == 2;
             var conceptId = isFinisher ? "mch.gauge_interactions" : "mch.heat_gauge";
-            RangedDpsTrainingHelper.RecordDamageDecision(
-                context.TrainingService,
-                action.ActionId,
-                action.Name,
-                target.Name?.TextValue ?? "Target",
-                $"{action.Name} (combo step {context.ComboStep + 1})",
-                isFinisher
-                    ? "Clean Shot is the combo finisher. Grants +5 Heat and +10 Battery. Complete the combo to maximize gauge generation."
-                    : "MCH's 1-2-3 combo builds Heat (+5 per hit) for Hypercharge. Keep the combo rolling between tool actions.",
-                new[] { $"Combo step: {context.ComboStep + 1}", $"Heat: {context.Heat}/100", isFinisher ? $"Battery: {context.Battery}/100" : "" },
-                new[] { "Use tool actions when ready" },
-                isFinisher
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(action.ActionId, action.Name)
+                .AsRangedDamage()
+                .Target(target.Name?.TextValue ?? "Target")
+                .Reason(
+                    $"{action.Name} (combo step {context.ComboStep + 1})",
+                    isFinisher
+                        ? "Clean Shot is the combo finisher. Grants +5 Heat and +10 Battery. Complete the combo to maximize gauge generation."
+                        : "MCH's 1-2-3 combo builds Heat (+5 per hit) for Hypercharge. Keep the combo rolling between tool actions.")
+                .Factors($"Combo step: {context.ComboStep + 1}", $"Heat: {context.Heat}/100", isFinisher ? $"Battery: {context.Battery}/100" : "")
+                .Alternatives("Use tool actions when ready")
+                .Tip(isFinisher
                     ? "Clean Shot grants +10 Battery on top of +5 Heat. Don't drop the combo."
-                    : "Keep the combo going between tool actions. Each hit grants +5 Heat toward Hypercharge.",
-                conceptId);
+                    : "Keep the combo going between tool actions. Each hit grants +5 Heat toward Hypercharge.")
+                .Concept(conceptId)
+                .Record();
             context.TrainingService?.RecordConceptApplication(conceptId, true, "Combo execution");
 
             return true;
@@ -526,18 +530,19 @@ public sealed class DamageModule : IPrometheusModule
             context.Debug.DamageState = $"{action.Name} (AoE)";
 
             // Training: Record AoE combo decision
-            RangedDpsTrainingHelper.RecordAoeDecision(
-                context.TrainingService,
-                action.ActionId,
-                action.Name,
-                context.TargetingService.CountEnemiesInRange(12f, player),
-                $"{action.Name} (AoE filler)",
-                "Scattergun (Lv.82+) or Spread Shot is MCH's AoE filler. Grants +10 Heat per use. " +
-                "Use at 3+ enemies instead of the single-target combo.",
-                new[] { $"Enemies: {context.TargetingService.CountEnemiesInRange(12f, player)}", $"Heat: {context.Heat}/100" },
-                new[] { "Use single-target combo for 1-2 targets" },
-                "At 3+ enemies, spam Scattergun instead of the combo. Builds Heat faster for Hypercharge.",
-                "mch.aoe_rotation");
+            var aoeEnemyCount = context.TargetingService.CountEnemiesInRange(12f, player);
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(action.ActionId, action.Name)
+                .AsAoE(aoeEnemyCount)
+                .Reason(
+                    $"{action.Name} (AoE filler)",
+                    "Scattergun (Lv.82+) or Spread Shot is MCH's AoE filler. Grants +10 Heat per use. " +
+                    "Use at 3+ enemies instead of the single-target combo.")
+                .Factors($"Enemies: {aoeEnemyCount}", $"Heat: {context.Heat}/100")
+                .Alternatives("Use single-target combo for 1-2 targets")
+                .Tip("At 3+ enemies, spam Scattergun instead of the combo. Builds Heat faster for Hypercharge.")
+                .Concept("mch.aoe_rotation")
+                .Record();
             context.TrainingService?.RecordConceptApplication("mch.aoe_rotation", true, "AoE rotation");
             context.TrainingService?.RecordConceptApplication("mch.target_count_threshold", true, "AoE threshold");
 
@@ -607,18 +612,19 @@ public sealed class DamageModule : IPrometheusModule
                 context.Debug.DamageState = "Interrupted cast";
 
                 // Training: Record Head Graze decision
-                RangedDpsTrainingHelper.RecordUtilityDecision(
-                    context.TrainingService,
-                    MCHActions.HeadGraze.ActionId,
-                    MCHActions.HeadGraze.Name,
-                    target.Name?.TextValue ?? "Target",
-                    "Head Graze (interrupt)",
-                    "Head Graze interrupts enemy casts. Use on interruptible abilities (indicated by flashing cast bar). " +
-                    "Coordinate with party to avoid wasting multiple interrupts on the same cast.",
-                    new[] { "Target casting interruptible ability", "30s cooldown ready" },
-                    new[] { "Let party member interrupt" },
-                    "Watch for interruptible casts. Some mechanics require interrupts to avoid party damage.",
-                    "mch.interrupt_usage");
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(MCHActions.HeadGraze.ActionId, MCHActions.HeadGraze.Name)
+                    .AsInterrupt()
+                    .Target(target.Name?.TextValue ?? "Target")
+                    .Reason(
+                        "Head Graze (interrupt)",
+                        "Head Graze interrupts enemy casts. Use on interruptible abilities (indicated by flashing cast bar). " +
+                        "Coordinate with party to avoid wasting multiple interrupts on the same cast.")
+                    .Factors("Target casting interruptible ability", "30s cooldown ready")
+                    .Alternatives("Let party member interrupt")
+                    .Tip("Watch for interruptible casts. Some mechanics require interrupts to avoid party damage.")
+                    .Concept("mch.interrupt_usage")
+                    .Record();
                 context.TrainingService?.RecordConceptApplication("mch.interrupt_usage", true, "Interrupt execution");
 
                 return true;

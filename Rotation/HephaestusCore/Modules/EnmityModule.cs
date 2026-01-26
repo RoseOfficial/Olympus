@@ -1,8 +1,9 @@
 using System;
 using Olympus.Data;
-using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.HephaestusCore.Context;
 using Olympus.Services.Party;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.HephaestusCore.Modules;
 
@@ -100,19 +101,20 @@ public sealed class EnmityModule : IHephaestusModule
                 context.Debug.EnmityState = "Provoking (coordinated swap)";
 
                 // Training: Record coordinated Provoke
-                TankTrainingHelper.RecordEnmityDecision(
-                    context.TrainingService,
-                    GNBActions.Provoke.ActionId,
-                    GNBActions.Provoke.Name,
-                    target.Name?.TextValue ?? "Enemy",
-                    "Coordinated tank swap - taking aggro from co-tank",
-                    "Provoke instantly gives you top enmity on the target. " +
-                    "This coordinated swap was initiated by your co-tank signaling they want to give up aggro. " +
-                    "Tank swaps are essential for mechanics like tank buster debuffs.",
-                    new[] { "Co-tank requested swap", "Provoke ready", "Confirming coordinated action" },
-                    new[] { "Ignore request (may cause wipe)", "Wait longer (might be too late)" },
-                    "After Provoking, maintain aggro with damage and Royal Guard. Your co-tank should Shirk to you for clean swap.",
-                    "gnb_provoke");
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(GNBActions.Provoke.ActionId, GNBActions.Provoke.Name)
+                    .AsEnmity()
+                    .Target(target.Name?.TextValue ?? "Enemy")
+                    .Reason(
+                        "Coordinated tank swap - taking aggro from co-tank",
+                        "Provoke instantly gives you top enmity on the target. " +
+                        "This coordinated swap was initiated by your co-tank signaling they want to give up aggro. " +
+                        "Tank swaps are essential for mechanics like tank buster debuffs.")
+                    .Factors("Co-tank requested swap", "Provoke ready", "Confirming coordinated action")
+                    .Alternatives("Ignore request (may cause wipe)", "Wait longer (might be too late)")
+                    .Tip("After Provoking, maintain aggro with damage and Royal Guard. Your co-tank should Shirk to you for clean swap.")
+                    .Concept("gnb_provoke")
+                    .Record();
                 context.TrainingService?.RecordConceptApplication("gnb_provoke", true, "Coordinated tank swap");
 
                 return true;
@@ -168,19 +170,20 @@ public sealed class EnmityModule : IHephaestusModule
             context.Debug.EnmityState = "Provoking (losing aggro)";
 
             // Training: Record emergency Provoke
-            TankTrainingHelper.RecordEnmityDecision(
-                context.TrainingService,
-                GNBActions.Provoke.ActionId,
-                GNBActions.Provoke.Name,
-                target.Name?.TextValue ?? "Enemy",
-                "Emergency Provoke - losing aggro",
-                "Provoke was used because you were losing aggro on the target. " +
-                "This can happen if DPS are bursting hard or if the co-tank is generating more enmity. " +
-                "Keep Royal Guard active and maintain your combo to hold aggro.",
-                new[] { "Losing aggro on target", "Provoke ready", "Need to maintain tank position" },
-                new[] { "Let someone else tank (risky for party)", "Use more damage abilities (might be too slow)" },
-                "If you keep losing aggro, check that Royal Guard is active. Use Provoke sparingly - it has a 30s cooldown.",
-                "gnb_provoke");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(GNBActions.Provoke.ActionId, GNBActions.Provoke.Name)
+                .AsEnmity()
+                .Target(target.Name?.TextValue ?? "Enemy")
+                .Reason(
+                    "Emergency Provoke - losing aggro",
+                    "Provoke was used because you were losing aggro on the target. " +
+                    "This can happen if DPS are bursting hard or if the co-tank is generating more enmity. " +
+                    "Keep Royal Guard active and maintain your combo to hold aggro.")
+                .Factors("Losing aggro on target", "Provoke ready", "Need to maintain tank position")
+                .Alternatives("Let someone else tank (risky for party)", "Use more damage abilities (might be too slow)")
+                .Tip("If you keep losing aggro, check that Royal Guard is active. Use Provoke sparingly - it has a 30s cooldown.")
+                .Concept("gnb_provoke")
+                .Record();
             context.TrainingService?.RecordConceptApplication("gnb_provoke", true, "Aggro recovery");
 
             return true;
@@ -246,19 +249,20 @@ public sealed class EnmityModule : IHephaestusModule
                 context.Debug.EnmityState = "Shirking (coordinated swap)";
 
                 // Training: Record coordinated Shirk
-                TankTrainingHelper.RecordEnmityDecision(
-                    context.TrainingService,
-                    GNBActions.Shirk.ActionId,
-                    GNBActions.Shirk.Name,
-                    coTankForSwap.Name?.TextValue ?? "Co-tank",
-                    "Coordinated tank swap - giving aggro to co-tank",
-                    "Shirk transfers 25% of your enmity to the target party member. " +
-                    "This coordinated swap was initiated by your co-tank signaling they want to take aggro. " +
-                    "Use Shirk after they Provoke for a clean swap.",
-                    new[] { "Co-tank requested swap", "Shirk ready", "Confirming coordinated action" },
-                    new[] { "Ignore request (may cause failed mechanic)", "Wait longer (might mess up timing)" },
-                    "For clean swaps, the new MT Provokes first, then the old MT Shirks. This gives the new MT a large enmity lead.",
-                    "gnb_shirk");
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(GNBActions.Shirk.ActionId, GNBActions.Shirk.Name)
+                    .AsEnmity()
+                    .Target(coTankForSwap.Name?.TextValue ?? "Co-tank")
+                    .Reason(
+                        "Coordinated tank swap - giving aggro to co-tank",
+                        "Shirk transfers 25% of your enmity to the target party member. " +
+                        "This coordinated swap was initiated by your co-tank signaling they want to take aggro. " +
+                        "Use Shirk after they Provoke for a clean swap.")
+                    .Factors("Co-tank requested swap", "Shirk ready", "Confirming coordinated action")
+                    .Alternatives("Ignore request (may cause failed mechanic)", "Wait longer (might mess up timing)")
+                    .Tip("For clean swaps, the new MT Provokes first, then the old MT Shirks. This gives the new MT a large enmity lead.")
+                    .Concept("gnb_shirk")
+                    .Record();
                 context.TrainingService?.RecordConceptApplication("gnb_shirk", true, "Coordinated tank swap");
 
                 return true;
@@ -314,19 +318,20 @@ public sealed class EnmityModule : IHephaestusModule
             context.Debug.EnmityState = "Shirking to co-tank";
 
             // Training: Record proactive Shirk
-            TankTrainingHelper.RecordEnmityDecision(
-                context.TrainingService,
-                GNBActions.Shirk.ActionId,
-                GNBActions.Shirk.Name,
-                coTank.Name?.TextValue ?? "Co-tank",
-                "Proactive Shirk - supporting main tank",
-                "Shirk is being used proactively to transfer enmity to the main tank. " +
-                "As off-tank, using Shirk helps the MT maintain a comfortable aggro lead " +
-                "and reduces the chance of accidentally pulling aggro during burst phases.",
-                new[] { "Currently off-tank (position #2)", "Co-tank has aggro", "Shirk helps maintain enmity gap" },
-                new[] { "Don't Shirk (might pull aggro during burst)", "Wait for swap mechanic" },
-                "Shirk on cooldown as off-tank to keep the MT's aggro lead comfortable, especially after your burst windows.",
-                "gnb_shirk");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(GNBActions.Shirk.ActionId, GNBActions.Shirk.Name)
+                .AsEnmity()
+                .Target(coTank.Name?.TextValue ?? "Co-tank")
+                .Reason(
+                    "Proactive Shirk - supporting main tank",
+                    "Shirk is being used proactively to transfer enmity to the main tank. " +
+                    "As off-tank, using Shirk helps the MT maintain a comfortable aggro lead " +
+                    "and reduces the chance of accidentally pulling aggro during burst phases.")
+                .Factors("Currently off-tank (position #2)", "Co-tank has aggro", "Shirk helps maintain enmity gap")
+                .Alternatives("Don't Shirk (might pull aggro during burst)", "Wait for swap mechanic")
+                .Tip("Shirk on cooldown as off-tank to keep the MT's aggro lead comfortable, especially after your burst windows.")
+                .Concept("gnb_shirk")
+                .Record();
             context.TrainingService?.RecordConceptApplication("gnb_shirk", true, "Off-tank enmity support");
 
             return true;

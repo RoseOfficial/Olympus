@@ -3,6 +3,16 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.0.3 - Fluent Training Builder
+
+**Internal Code Quality Improvement**
+- Migrated all training decision calls to fluent builder pattern
+- Replaced 4 role-specific training helpers with unified DecisionBuilder
+- ~600 line reduction through elimination of duplicate method shells
+- Cleaner, more maintainable training decision recording
+- No user-facing changes - internal refactoring only
+<!-- LATEST-END -->
+
 ## v4.0.2 - Training Content Extraction
 
 **Internal Code Quality Improvement**
@@ -11,7 +21,6 @@ All notable changes to Olympus will be documented in this file.
 - Created TrainingDataRegistry for dynamic loading of embedded JSON resources
 - 21 lesson files + 21 quiz files (735 questions across all jobs)
 - No user-facing changes - internal refactoring only
-<!-- LATEST-END -->
 
 ## v4.0.1 - Training Helper Abstraction
 

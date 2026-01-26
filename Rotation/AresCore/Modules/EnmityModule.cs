@@ -1,8 +1,9 @@
 using System;
 using Olympus.Data;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.AresCore.Context;
-using Olympus.Rotation.Common.Helpers;
 using Olympus.Services.Party;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AresCore.Modules;
 
@@ -100,17 +101,18 @@ public sealed class EnmityModule : IAresModule
                 context.Debug.EnmityState = "Provoking (coordinated swap)";
 
                 // Training: Record coordinated Provoke
-                TankTrainingHelper.RecordEnmityDecision(
-                    context.TrainingService,
-                    WARActions.Provoke.ActionId,
-                    WARActions.Provoke.Name,
-                    target.Name?.TextValue,
-                    "Coordinated tank swap - co-tank requested aggro transfer. Provoke used to take boss aggro.",
-                    "Provoke instantly puts you at top of enmity list. Use it for planned tank swaps (tankbusters, debuff drops).",
-                    new[] { "Co-tank requested swap via IPC", "Provoke available", $"Target: {target.Name?.TextValue}" },
-                    new[] { "Ignore swap request (may cause wipe)", "Wait longer (mechanics may not allow)" },
-                    "Always respond to coordinated tank swap requests promptly. The co-tank likely needs to drop a debuff or handle a mechanic.",
-                    "war_provoke");
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(WARActions.Provoke.ActionId, WARActions.Provoke.Name)
+                    .AsEnmity()
+                    .Target(target.Name?.TextValue)
+                    .Reason(
+                        "Coordinated tank swap - co-tank requested aggro transfer. Provoke used to take boss aggro.",
+                        "Provoke instantly puts you at top of enmity list. Use it for planned tank swaps (tankbusters, debuff drops).")
+                    .Factors("Co-tank requested swap via IPC", "Provoke available", $"Target: {target.Name?.TextValue}")
+                    .Alternatives("Ignore swap request (may cause wipe)", "Wait longer (mechanics may not allow)")
+                    .Tip("Always respond to coordinated tank swap requests promptly. The co-tank likely needs to drop a debuff or handle a mechanic.")
+                    .Concept("war_provoke")
+                    .Record();
 
                 context.TrainingService?.RecordConceptApplication("war_provoke", true, "Coordinated tank swap");
 
@@ -167,17 +169,18 @@ public sealed class EnmityModule : IAresModule
             context.Debug.EnmityState = "Provoking (losing aggro)";
 
             // Training: Record emergency Provoke
-            TankTrainingHelper.RecordEnmityDecision(
-                context.TrainingService,
-                WARActions.Provoke.ActionId,
-                WARActions.Provoke.Name,
-                target.Name?.TextValue,
-                "Emergency Provoke - you were losing aggro to another player. Boss must stay on a tank.",
-                "Provoke instantly puts you at top of enmity list. Use it when losing aggro to reclaim the boss before it attacks squishies.",
-                new[] { "Lost aggro to non-tank", "Boss about to attack party", $"Target: {target.Name?.TextValue}" },
-                new[] { "Let co-tank take it (risky if unprepared)", "Use enmity combo (too slow in emergencies)" },
-                "If you're losing aggro as main tank, Provoke immediately. DPS dying to auto-attacks is always worse than using a cooldown.",
-                "war_provoke");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(WARActions.Provoke.ActionId, WARActions.Provoke.Name)
+                .AsEnmity()
+                .Target(target.Name?.TextValue)
+                .Reason(
+                    "Emergency Provoke - you were losing aggro to another player. Boss must stay on a tank.",
+                    "Provoke instantly puts you at top of enmity list. Use it when losing aggro to reclaim the boss before it attacks squishies.")
+                .Factors("Lost aggro to non-tank", "Boss about to attack party", $"Target: {target.Name?.TextValue}")
+                .Alternatives("Let co-tank take it (risky if unprepared)", "Use enmity combo (too slow in emergencies)")
+                .Tip("If you're losing aggro as main tank, Provoke immediately. DPS dying to auto-attacks is always worse than using a cooldown.")
+                .Concept("war_provoke")
+                .Record();
 
             context.TrainingService?.RecordConceptApplication("war_provoke", true, "Emergency aggro recovery");
 
@@ -244,17 +247,18 @@ public sealed class EnmityModule : IAresModule
                 context.Debug.EnmityState = "Shirking (coordinated swap)";
 
                 // Training: Record coordinated Shirk
-                TankTrainingHelper.RecordEnmityDecision(
-                    context.TrainingService,
-                    WARActions.Shirk.ActionId,
-                    WARActions.Shirk.Name,
-                    coTankForSwap.Name?.TextValue,
-                    "Coordinated tank swap - co-tank requested to take aggro. Shirk used to transfer enmity.",
-                    "Shirk transfers 25% of your enmity to the target. Use it when your co-tank Provokes to ensure a clean swap.",
-                    new[] { "Co-tank requested swap via IPC", "Shirk available", $"Co-tank: {coTankForSwap.Name?.TextValue}" },
-                    new[] { "Ignore swap (co-tank struggles to hold aggro)", "Keep aggro (may cause mechanic failures)" },
-                    "After co-tank Provokes, use Shirk immediately. The 25% enmity transfer ensures they maintain aggro without risk of you pulling back.",
-                    "war_shirk");
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(WARActions.Shirk.ActionId, WARActions.Shirk.Name)
+                    .AsEnmity()
+                    .Target(coTankForSwap.Name?.TextValue)
+                    .Reason(
+                        "Coordinated tank swap - co-tank requested to take aggro. Shirk used to transfer enmity.",
+                        "Shirk transfers 25% of your enmity to the target. Use it when your co-tank Provokes to ensure a clean swap.")
+                    .Factors("Co-tank requested swap via IPC", "Shirk available", $"Co-tank: {coTankForSwap.Name?.TextValue}")
+                    .Alternatives("Ignore swap (co-tank struggles to hold aggro)", "Keep aggro (may cause mechanic failures)")
+                    .Tip("After co-tank Provokes, use Shirk immediately. The 25% enmity transfer ensures they maintain aggro without risk of you pulling back.")
+                    .Concept("war_shirk")
+                    .Record();
 
                 context.TrainingService?.RecordConceptApplication("war_shirk", true, "Coordinated tank swap");
 
@@ -311,17 +315,18 @@ public sealed class EnmityModule : IAresModule
             context.Debug.EnmityState = "Shirking to co-tank";
 
             // Training: Record proactive Shirk
-            TankTrainingHelper.RecordEnmityDecision(
-                context.TrainingService,
-                WARActions.Shirk.ActionId,
-                WARActions.Shirk.Name,
-                coTank.Name?.TextValue,
-                "Proactive Shirk - you're in off-tank position but building enmity. Shirk helps main tank maintain aggro lead.",
-                "Shirk transfers 25% of your enmity to the target. As off-tank, use it to prevent accidentally pulling aggro.",
-                new[] { "You're in off-tank position (#2)", "Building enmity from DPS rotation", $"Co-tank: {coTank.Name?.TextValue}" },
-                new[] { "Stop DPSing (massive damage loss)", "Let main tank use Provoke (wastes their cooldown)" },
-                "As off-tank, Shirk periodically to stay comfortable below the main tank. This lets you maintain full DPS without risk of pulling.",
-                "war_shirk");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(WARActions.Shirk.ActionId, WARActions.Shirk.Name)
+                .AsEnmity()
+                .Target(coTank.Name?.TextValue)
+                .Reason(
+                    "Proactive Shirk - you're in off-tank position but building enmity. Shirk helps main tank maintain aggro lead.",
+                    "Shirk transfers 25% of your enmity to the target. As off-tank, use it to prevent accidentally pulling aggro.")
+                .Factors("You're in off-tank position (#2)", "Building enmity from DPS rotation", $"Co-tank: {coTank.Name?.TextValue}")
+                .Alternatives("Stop DPSing (massive damage loss)", "Let main tank use Provoke (wastes their cooldown)")
+                .Tip("As off-tank, Shirk periodically to stay comfortable below the main tank. This lets you maintain full DPS without risk of pulling.")
+                .Concept("war_shirk")
+                .Record();
 
             context.TrainingService?.RecordConceptApplication("war_shirk", true, "Off-tank enmity management");
 

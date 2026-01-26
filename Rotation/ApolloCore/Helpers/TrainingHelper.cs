@@ -11,6 +11,23 @@ namespace Olympus.Rotation.ApolloCore.Helpers;
 public static class TrainingHelper
 {
     /// <summary>
+    /// Creates a new fluent decision builder for recording training decisions.
+    /// Use this as the entry point for the fluent API.
+    /// </summary>
+    /// <example>
+    /// TrainingHelper.Decision(service)
+    ///     .Action(actionId, actionName)
+    ///     .AsMitigation(selfHpPercent)
+    ///     .Reason("Using Vengeance", "Tankbuster mitigation")
+    ///     .Factors("Tankbuster incoming", "HP below 70%")
+    ///     .Tip("Use Vengeance early for full duration")
+    ///     .Concept(WarConcepts.Vengeance)
+    ///     .Record();
+    /// </example>
+    public static DecisionBuilder Decision(ITrainingService? service)
+        => new DecisionBuilder(service);
+
+    /// <summary>
     /// Core unified method for recording any training decision.
     /// All role-specific helpers delegate to this method.
     /// </summary>

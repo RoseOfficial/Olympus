@@ -1,8 +1,9 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
-using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.HermesCore.Context;
 using Olympus.Rotation.HermesCore.Helpers;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.HermesCore.Modules;
 
@@ -173,17 +174,17 @@ public sealed class NinjutsuModule : IHermesModule
             // Training: Record Ninjutsu execution
             var ninjutsuType = GetNinjutsuDescription(targetNinjutsu, context.HasKassatsu);
             var conceptId = GetNinjutsuConceptId(targetNinjutsu);
-            MeleeDpsTrainingHelper.RecordDamageDecision(
-                context.TrainingService,
-                ninjutsuAction.ActionId,
-                ninjutsuAction.Name,
-                target?.Name?.TextValue ?? "Self",
-                $"Executing {ninjutsuAction.Name} ({ninjutsuType})",
-                GetNinjutsuExplanation(targetNinjutsu, context.HasKassatsu),
-                GetNinjutsuFactors(targetNinjutsu, context),
-                GetNinjutsuAlternatives(targetNinjutsu),
-                GetNinjutsuTip(targetNinjutsu),
-                conceptId);
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(ninjutsuAction.ActionId, ninjutsuAction.Name)
+                .AsMeleeDamage()
+                .Target(target?.Name?.TextValue ?? "Self")
+                .Reason($"Executing {ninjutsuAction.Name} ({ninjutsuType})",
+                    GetNinjutsuExplanation(targetNinjutsu, context.HasKassatsu))
+                .Factors(GetNinjutsuFactors(targetNinjutsu, context))
+                .Alternatives(GetNinjutsuAlternatives(targetNinjutsu))
+                .Tip(GetNinjutsuTip(targetNinjutsu))
+                .Concept(conceptId)
+                .Record();
             context.TrainingService?.RecordConceptApplication(conceptId, true, ninjutsuType);
 
             return true;

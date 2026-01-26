@@ -1,6 +1,7 @@
 using Olympus.Data;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.AresCore.Context;
-using Olympus.Rotation.Common.Helpers;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AresCore.Modules;
 
@@ -381,17 +382,18 @@ public sealed class DamageModule : IAresModule
                 context.Debug.DamageState = $"{fellCleaveAction.Name} (IR: {context.InnerReleaseStacks} stacks)";
 
                 // Training: Record Inner Release burst
-                TankTrainingHelper.RecordBurstDecision(
-                    context.TrainingService,
-                    fellCleaveAction.ActionId,
-                    fellCleaveAction.Name,
-                    target.Name?.TextValue,
-                    $"Fell Cleave during Inner Release - guaranteed critical direct hit with no gauge cost. {context.InnerReleaseStacks} stacks remaining.",
-                    "During Inner Release, Fell Cleave costs 0 gauge and is guaranteed to crit + direct hit. Spam it to use all 3 stacks.",
-                    new[] { $"Inner Release active ({context.InnerReleaseStacks} stacks)", "Fell Cleave free (0 gauge cost)", "Guaranteed crit + direct hit" },
-                    new[] { "Use other GCDs (wastes IR stacks)", "Save gauge for later (IR makes it free anyway)" },
-                    "During Inner Release, spam Fell Cleave to burn all 3 stacks. Don't use other GCDs - you're wasting massive damage.",
-                    "war_inner_release");
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(fellCleaveAction.ActionId, fellCleaveAction.Name)
+                    .AsTankBurst()
+                    .Target(target.Name?.TextValue)
+                    .Reason(
+                        $"Fell Cleave during Inner Release - guaranteed critical direct hit with no gauge cost. {context.InnerReleaseStacks} stacks remaining.",
+                        "During Inner Release, Fell Cleave costs 0 gauge and is guaranteed to crit + direct hit. Spam it to use all 3 stacks.")
+                    .Factors($"Inner Release active ({context.InnerReleaseStacks} stacks)", "Fell Cleave free (0 gauge cost)", "Guaranteed crit + direct hit")
+                    .Alternatives("Use other GCDs (wastes IR stacks)", "Save gauge for later (IR makes it free anyway)")
+                    .Tip("During Inner Release, spam Fell Cleave to burn all 3 stacks. Don't use other GCDs - you're wasting massive damage.")
+                    .Concept("war_inner_release")
+                    .Record();
 
                 context.TrainingService?.RecordConceptApplication("war_inner_release", true, "Burst window execution");
             }
@@ -400,17 +402,17 @@ public sealed class DamageModule : IAresModule
                 context.Debug.DamageState = $"{fellCleaveAction.Name} ({context.BeastGauge} gauge)";
 
                 // Training: Record gauge spending
-                TankTrainingHelper.RecordResourceDecision(
-                    context.TrainingService,
-                    fellCleaveAction.ActionId,
-                    fellCleaveAction.Name,
-                    context.BeastGauge,
-                    $"Fell Cleave to spend Beast Gauge. {context.BeastGauge} gauge available.",
-                    "Fell Cleave is your main gauge spender. Use it when at 50+ gauge to prevent overcapping during combos.",
-                    new[] { $"Beast Gauge at {context.BeastGauge}", "50 gauge cost", "High potency single-target" },
-                    new[] { "Hold for Inner Release (may overcap)", "Use combo instead (lower damage)" },
-                    "Don't overcap Beast Gauge - use Fell Cleave when at 50+ gauge. Save gauge only if Inner Release is coming very soon.",
-                    "war_infuriate_gauge");
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(fellCleaveAction.ActionId, fellCleaveAction.Name)
+                    .AsTankResource(context.BeastGauge)
+                    .Reason(
+                        $"Fell Cleave to spend Beast Gauge. {context.BeastGauge} gauge available.",
+                        "Fell Cleave is your main gauge spender. Use it when at 50+ gauge to prevent overcapping during combos.")
+                    .Factors($"Beast Gauge at {context.BeastGauge}", "50 gauge cost", "High potency single-target")
+                    .Alternatives("Hold for Inner Release (may overcap)", "Use combo instead (lower damage)")
+                    .Tip("Don't overcap Beast Gauge - use Fell Cleave when at 50+ gauge. Save gauge only if Inner Release is coming very soon.")
+                    .Concept("war_infuriate_gauge")
+                    .Record();
 
                 context.TrainingService?.RecordConceptApplication("war_infuriate_gauge", true, "Gauge spending");
             }

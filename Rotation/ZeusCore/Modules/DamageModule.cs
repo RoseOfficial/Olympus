@@ -1,8 +1,9 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Models.Action;
-using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.ZeusCore.Context;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ZeusCore.Modules;
 
@@ -275,23 +276,23 @@ public sealed class DamageModule : IZeusModule
             context.Debug.DamageState = $"Stardiver (Life: {context.LifeOfDragonRemaining:F1}s)";
 
             // Training: Record Stardiver decision
-            MeleeDpsTrainingHelper.RecordBurstDecision(
-                context.TrainingService,
-                DRGActions.Stardiver.ActionId,
-                DRGActions.Stardiver.Name,
-                target.Name?.TextValue,
-                $"Stardiver during Life of Dragon ({context.LifeOfDragonRemaining:F1}s remaining)",
-                "Stardiver is DRG's highest potency single attack, available only during Life of the Dragon. " +
-                "This massive dive attack deals enormous AoE damage. At Lv.100, it also grants Starcross Ready " +
-                "for a follow-up attack. Time it within your Life window after using some Nastronds.",
-                new[] {
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(DRGActions.Stardiver.ActionId, DRGActions.Stardiver.Name)
+                .AsMeleeBurst()
+                .Target(target.Name?.TextValue)
+                .Reason($"Stardiver during Life of Dragon ({context.LifeOfDragonRemaining:F1}s remaining)",
+                    "Stardiver is DRG's highest potency single attack, available only during Life of the Dragon. " +
+                    "This massive dive attack deals enormous AoE damage. At Lv.100, it also grants Starcross Ready " +
+                    "for a follow-up attack. Time it within your Life window after using some Nastronds.")
+                .Factors(new[] {
                     $"Life of Dragon active ({context.LifeOfDragonRemaining:F1}s)",
                     "Highest potency attack",
                     "Grants Starcross Ready at Lv.100"
-                },
-                new[] { "Wait for more Nastronds (risk Life expiring)", "Use earlier (might miss buff alignment)" },
-                "Stardiver is a long animation - don't use it if Life of Dragon is about to expire!",
-                "drg_stardiver");
+                })
+                .Alternatives(new[] { "Wait for more Nastronds (risk Life expiring)", "Use earlier (might miss buff alignment)" })
+                .Tip("Stardiver is a long animation - don't use it if Life of Dragon is about to expire!")
+                .Concept("drg_stardiver")
+                .Record();
             context.TrainingService?.RecordConceptApplication("drg_stardiver", true, "Life of Dragon burst");
 
             return true;
@@ -323,27 +324,25 @@ public sealed class DamageModule : IZeusModule
 
             // Training: Record Geirskogul decision
             var enteringLife = context.EyeCount >= 2;
-            MeleeDpsTrainingHelper.RecordResourceDecision(
-                context.TrainingService,
-                DRGActions.Geirskogul.ActionId,
-                DRGActions.Geirskogul.Name,
-                "Dragon Eye",
-                context.EyeCount,
-                enteringLife
-                    ? "Geirskogul at 2 eyes - entering Life of the Dragon!"
-                    : $"Geirskogul for damage ({context.EyeCount} eyes)",
-                enteringLife
-                    ? "Geirskogul at 2 Dragon Eyes enters Life of the Dragon, a 30-second window " +
-                      "where you can use Nastrond (line AoE damage) and Stardiver (massive dive attack). " +
-                      "This is your strongest burst phase - try to align it with raid buffs!"
-                    : "Geirskogul deals line AoE damage and adds 1 Dragon Eye. " +
-                      "At 2 eyes, the next Geirskogul will enter Life of the Dragon.",
-                enteringLife
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(DRGActions.Geirskogul.ActionId, DRGActions.Geirskogul.Name)
+                .AsMeleeResource("Dragon Eye", context.EyeCount)
+                .Reason(enteringLife
+                        ? "Geirskogul at 2 eyes - entering Life of the Dragon!"
+                        : $"Geirskogul for damage ({context.EyeCount} eyes)",
+                    enteringLife
+                        ? "Geirskogul at 2 Dragon Eyes enters Life of the Dragon, a 30-second window " +
+                          "where you can use Nastrond (line AoE damage) and Stardiver (massive dive attack). " +
+                          "This is your strongest burst phase - try to align it with raid buffs!"
+                        : "Geirskogul deals line AoE damage and adds 1 Dragon Eye. " +
+                          "At 2 eyes, the next Geirskogul will enter Life of the Dragon.")
+                .Factors(enteringLife
                     ? new[] { "2 Dragon Eyes ready", "Lance Charge and buffs aligned", "Entering Life of Dragon for Nastrond/Stardiver" }
-                    : new[] { $"{context.EyeCount} Dragon Eye(s)", "Building toward Life of Dragon", "30s cooldown allows frequent use" },
-                new[] { "Hold for buff alignment (minor optimization)", "Use anyway for consistent damage" },
-                "Life of the Dragon is your biggest damage window. Try to enter it during Lance Charge + Battle Litany.",
-                enteringLife ? "drg_life_of_dragon" : "drg_eye_gauge");
+                    : new[] { $"{context.EyeCount} Dragon Eye(s)", "Building toward Life of Dragon", "30s cooldown allows frequent use" })
+                .Alternatives(new[] { "Hold for buff alignment (minor optimization)", "Use anyway for consistent damage" })
+                .Tip("Life of the Dragon is your biggest damage window. Try to enter it during Lance Charge + Battle Litany.")
+                .Concept(enteringLife ? "drg_life_of_dragon" : "drg_eye_gauge")
+                .Record();
             if (enteringLife)
                 context.TrainingService?.RecordConceptApplication("drg_life_of_dragon", true, "Entering Life of Dragon");
             else
@@ -373,19 +372,19 @@ public sealed class DamageModule : IZeusModule
             context.Debug.DamageState = jumpAction.Name;
 
             // Training: Record High Jump decision
-            MeleeDpsTrainingHelper.RecordDamageDecision(
-                context.TrainingService,
-                jumpAction.ActionId,
-                jumpAction.Name,
-                target.Name?.TextValue,
-                $"{jumpAction.Name} for damage and Dive Ready proc",
-                $"{jumpAction.Name} is DRG's signature ability that deals high damage and grants Dive Ready, " +
-                "allowing you to use Mirage Dive. At level 74+, High Jump replaces Jump with higher potency. " +
-                "Each Jump also grants 1 Dragon Eye toward Life of the Dragon.",
-                new[] { "30s cooldown ready", "Grants Dive Ready for Mirage Dive", "Builds Dragon Eye gauge" },
-                new[] { "Hold for better positioning (rarely worth it)", "Use other oGCDs first (might delay eye build)" },
-                "Jump abilities are a key part of DRG's rotation. Use on cooldown to maximize Dragon Eye generation.",
-                "drg_high_jump");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(jumpAction.ActionId, jumpAction.Name)
+                .AsMeleeDamage()
+                .Target(target.Name?.TextValue)
+                .Reason($"{jumpAction.Name} for damage and Dive Ready proc",
+                    $"{jumpAction.Name} is DRG's signature ability that deals high damage and grants Dive Ready, " +
+                    "allowing you to use Mirage Dive. At level 74+, High Jump replaces Jump with higher potency. " +
+                    "Each Jump also grants 1 Dragon Eye toward Life of the Dragon.")
+                .Factors(new[] { "30s cooldown ready", "Grants Dive Ready for Mirage Dive", "Builds Dragon Eye gauge" })
+                .Alternatives(new[] { "Hold for better positioning (rarely worth it)", "Use other oGCDs first (might delay eye build)" })
+                .Tip("Jump abilities are a key part of DRG's rotation. Use on cooldown to maximize Dragon Eye generation.")
+                .Concept("drg_high_jump")
+                .Record();
             context.TrainingService?.RecordConceptApplication("drg_high_jump", true, "Jump ability usage");
 
             return true;

@@ -1,6 +1,7 @@
 using Olympus.Data;
-using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.NyxCore.Context;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.NyxCore.Modules;
 
@@ -447,34 +448,34 @@ public sealed class DamageModule : INyxModule
                     if (isDuringDelirium)
                     {
                         // Training: Record burst window spending
-                        TankTrainingHelper.RecordBurstDecision(
-                            context.TrainingService,
-                            DRKActions.Bloodspiller.ActionId,
-                            DRKActions.Bloodspiller.Name,
-                            null,
-                            "Free Bloodspiller during Delirium - guaranteed crit/direct hit with no Blood cost.",
-                            "Delirium (pre-Lv.96) grants 3 free Bloodspillers. Each one is a guaranteed crit + direct hit. Spam Bloodspiller during Delirium for massive burst damage.",
-                            new[] { "Delirium active", "Bloodspiller free", "Guaranteed crit + direct hit" },
-                            new[] { "Use combo (massive damage loss)", "Wait (Delirium will expire)" },
-                            "During Delirium, Bloodspiller is your highest priority GCD. Don't let stacks expire - use all 3 before Delirium ends.",
-                            "drk_delirium");
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(DRKActions.Bloodspiller.ActionId, DRKActions.Bloodspiller.Name)
+                            .AsTankBurst()
+                            .Reason(
+                                "Free Bloodspiller during Delirium - guaranteed crit/direct hit with no Blood cost.",
+                                "Delirium (pre-Lv.96) grants 3 free Bloodspillers. Each one is a guaranteed crit + direct hit. Spam Bloodspiller during Delirium for massive burst damage.")
+                            .Factors("Delirium active", "Bloodspiller free", "Guaranteed crit + direct hit")
+                            .Alternatives("Use combo (massive damage loss)", "Wait (Delirium will expire)")
+                            .Tip("During Delirium, Bloodspiller is your highest priority GCD. Don't let stacks expire - use all 3 before Delirium ends.")
+                            .Concept("drk_delirium")
+                            .Record();
 
                         context.TrainingService?.RecordConceptApplication("drk_delirium", true, "Delirium burst");
                     }
                     else
                     {
                         // Training: Record gauge spending
-                        TankTrainingHelper.RecordResourceDecision(
-                            context.TrainingService,
-                            DRKActions.Bloodspiller.ActionId,
-                            DRKActions.Bloodspiller.Name,
-                            context.BloodGauge,
-                            $"Bloodspiller to spend Blood Gauge at {context.BloodGauge}.",
-                            "Bloodspiller costs 50 Blood Gauge and deals high potency damage. Avoid overcapping Blood - use Bloodspiller when at or near 100 gauge.",
-                            new[] { $"Blood Gauge at {context.BloodGauge}", "Near overcap", "High potency spender" },
-                            new[] { "Continue combo (may overcap)", "Save for Delirium (loses damage if overcap)" },
-                            "Spend Blood when above 70-80 gauge to prevent overcapping from combo finishers. Each Souleater grants 20 Blood.",
-                            "drk_blood_gauge");
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(DRKActions.Bloodspiller.ActionId, DRKActions.Bloodspiller.Name)
+                            .AsTankResource(context.BloodGauge)
+                            .Reason(
+                                $"Bloodspiller to spend Blood Gauge at {context.BloodGauge}.",
+                                "Bloodspiller costs 50 Blood Gauge and deals high potency damage. Avoid overcapping Blood - use Bloodspiller when at or near 100 gauge.")
+                            .Factors($"Blood Gauge at {context.BloodGauge}", "Near overcap", "High potency spender")
+                            .Alternatives("Continue combo (may overcap)", "Save for Delirium (loses damage if overcap)")
+                            .Tip("Spend Blood when above 70-80 gauge to prevent overcapping from combo finishers. Each Souleater grants 20 Blood.")
+                            .Concept("drk_blood_gauge")
+                            .Record();
 
                         context.TrainingService?.RecordConceptApplication("drk_blood_gauge", true, "Gauge spending");
                     }

@@ -1,8 +1,7 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.CalliopeCore.Context;
-using Olympus.Rotation.Common.Helpers;
-using Olympus.Services.Party;
 using Olympus.Services.Training;
 using Olympus.Timeline.Models;
 
@@ -136,19 +135,20 @@ public sealed class BuffModule : ICalliopeModule
 
             // Training: Record Pitch Perfect decision
             var reason = context.Repertoire >= 3 ? "Maximum stacks" : "Song ending soon";
-            RangedDpsTrainingHelper.RecordBurstDecision(
-                context.TrainingService,
-                BRDActions.PitchPerfect.ActionId,
-                BRDActions.PitchPerfect.Name,
-                target.Name?.TextValue ?? "Target",
-                $"Pitch Perfect ({context.Repertoire} stacks, {reason})",
-                "Pitch Perfect is only usable during Wanderer's Minuet. Damage scales with Repertoire stacks: " +
-                "1 stack = 100 potency, 2 stacks = 220 potency, 3 stacks = 360 potency. Always aim for 3 stacks, " +
-                "but use remaining stacks before WM ends.",
-                new[] { $"Repertoire: {context.Repertoire}/3", $"Song timer: {context.SongTimer:F1}s", "Wanderer's Minuet active" },
-                new[] { "Wait for 3 stacks", "Song not ending soon" },
-                "Use Pitch Perfect at 3 stacks for maximum damage. Don't waste stacks when WM is about to end.",
-                BrdConcepts.PitchPerfect);
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(BRDActions.PitchPerfect.ActionId, BRDActions.PitchPerfect.Name)
+                .AsRangedBurst()
+                .Target(target.Name?.TextValue ?? "Target")
+                .Reason(
+                    $"Pitch Perfect ({context.Repertoire} stacks, {reason})",
+                    "Pitch Perfect is only usable during Wanderer's Minuet. Damage scales with Repertoire stacks: " +
+                    "1 stack = 100 potency, 2 stacks = 220 potency, 3 stacks = 360 potency. Always aim for 3 stacks, " +
+                    "but use remaining stacks before WM ends.")
+                .Factors($"Repertoire: {context.Repertoire}/3", $"Song timer: {context.SongTimer:F1}s", "Wanderer's Minuet active")
+                .Alternatives("Wait for 3 stacks", "Song not ending soon")
+                .Tip("Use Pitch Perfect at 3 stacks for maximum damage. Don't waste stacks when WM is about to end.")
+                .Concept(BrdConcepts.PitchPerfect)
+                .Record();
             context.TrainingService?.RecordConceptApplication(BrdConcepts.PitchPerfect, context.Repertoire >= 3, "Stack consumption");
             context.TrainingService?.RecordConceptApplication(BrdConcepts.RepertoireStacks, true, "Repertoire management");
 
@@ -195,22 +195,21 @@ public sealed class BuffModule : ICalliopeModule
                     context.Debug.BuffState = "Wanderer's Minuet";
 
                     // Training: Record Wanderer's Minuet decision
-                    var previousSong = context.NoSongActive ? "None" :
+                    var previousSongWm = context.NoSongActive ? "None" :
                         context.IsMagesBalladActive ? "Mage's Ballad" :
                         context.IsArmysPaeonActive ? "Army's Paeon" : "Unknown";
-                    RangedDpsTrainingHelper.RecordSongDecision(
-                        context.TrainingService,
-                        BRDActions.WanderersMinuet.ActionId,
-                        BRDActions.WanderersMinuet.Name,
-                        previousSong,
-                        context.SongTimer,
-                        $"Wanderer's Minuet (switching from {previousSong})",
-                        "Wanderer's Minuet is the highest priority song for burst. Grants Repertoire stacks for Pitch Perfect. " +
-                        "Standard rotation: WM → MB → AP → WM. Start burst with WM for Raging Strikes alignment.",
-                        new[] { context.NoSongActive ? "No song active" : $"Previous song: {previousSong}", "Highest priority song", "Enables Pitch Perfect" },
-                        new[] { "Current song still has time", "WM on cooldown" },
-                        "Always start your song rotation with Wanderer's Minuet. It aligns best with 2-minute burst windows.",
-                        BrdConcepts.WanderersMinuet);
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(BRDActions.WanderersMinuet.ActionId, BRDActions.WanderersMinuet.Name)
+                        .AsSong(previousSongWm, context.SongTimer)
+                        .Reason(
+                            $"Wanderer's Minuet (switching from {previousSongWm})",
+                            "Wanderer's Minuet is the highest priority song for burst. Grants Repertoire stacks for Pitch Perfect. " +
+                            "Standard rotation: WM → MB → AP → WM. Start burst with WM for Raging Strikes alignment.")
+                        .Factors(context.NoSongActive ? "No song active" : $"Previous song: {previousSongWm}", "Highest priority song", "Enables Pitch Perfect")
+                        .Alternatives("Current song still has time", "WM on cooldown")
+                        .Tip("Always start your song rotation with Wanderer's Minuet. It aligns best with 2-minute burst windows.")
+                        .Concept(BrdConcepts.WanderersMinuet)
+                        .Record();
                     context.TrainingService?.RecordConceptApplication(BrdConcepts.WanderersMinuet, true, "Song activation");
                     context.TrainingService?.RecordConceptApplication(BrdConcepts.SongRotation, true, "Song rotation");
                     context.TrainingService?.RecordConceptApplication(BrdConcepts.SongSwitching, !context.NoSongActive, "Song transition");
@@ -229,22 +228,21 @@ public sealed class BuffModule : ICalliopeModule
                 context.Debug.BuffState = "Mage's Ballad";
 
                 // Training: Record Mage's Ballad decision
-                var previousSong = context.NoSongActive ? "None" :
+                var previousSongMb = context.NoSongActive ? "None" :
                     context.IsWanderersMinuetActive ? "Wanderer's Minuet" :
                     context.IsArmysPaeonActive ? "Army's Paeon" : "Unknown";
-                RangedDpsTrainingHelper.RecordSongDecision(
-                    context.TrainingService,
-                    BRDActions.MagesBallad.ActionId,
-                    BRDActions.MagesBallad.Name,
-                    previousSong,
-                    context.SongTimer,
-                    $"Mage's Ballad (switching from {previousSong})",
-                    "Mage's Ballad resets Bloodletter/Rain of Death cooldown on Repertoire procs. Second in the song rotation. " +
-                    "Great for oGCD damage uptime. Provides 1% damage buff to party.",
-                    new[] { context.NoSongActive ? "No song active" : $"Previous song: {previousSong}", "Resets Bloodletter on procs", "WM on cooldown" },
-                    new[] { "Wanderer's Minuet available", "Current song still has time" },
-                    "Use Mage's Ballad after WM ends. Spam Bloodletter when it resets from Repertoire procs.",
-                    BrdConcepts.MagesBallad);
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(BRDActions.MagesBallad.ActionId, BRDActions.MagesBallad.Name)
+                    .AsSong(previousSongMb, context.SongTimer)
+                    .Reason(
+                        $"Mage's Ballad (switching from {previousSongMb})",
+                        "Mage's Ballad resets Bloodletter/Rain of Death cooldown on Repertoire procs. Second in the song rotation. " +
+                        "Great for oGCD damage uptime. Provides 1% damage buff to party.")
+                    .Factors(context.NoSongActive ? "No song active" : $"Previous song: {previousSongMb}", "Resets Bloodletter on procs", "WM on cooldown")
+                    .Alternatives("Wanderer's Minuet available", "Current song still has time")
+                    .Tip("Use Mage's Ballad after WM ends. Spam Bloodletter when it resets from Repertoire procs.")
+                    .Concept(BrdConcepts.MagesBallad)
+                    .Record();
                 context.TrainingService?.RecordConceptApplication(BrdConcepts.MagesBallad, true, "Song activation");
                 context.TrainingService?.RecordConceptApplication(BrdConcepts.SongRotation, true, "Song rotation");
                 context.TrainingService?.RecordConceptApplication(BrdConcepts.SongSwitching, !context.NoSongActive, "Song transition");
@@ -264,22 +262,21 @@ public sealed class BuffModule : ICalliopeModule
                     context.Debug.BuffState = "Army's Paeon";
 
                     // Training: Record Army's Paeon decision
-                    var previousSong = context.NoSongActive ? "None" :
+                    var previousSongAp = context.NoSongActive ? "None" :
                         context.IsWanderersMinuetActive ? "Wanderer's Minuet" :
                         context.IsMagesBalladActive ? "Mage's Ballad" : "Unknown";
-                    RangedDpsTrainingHelper.RecordSongDecision(
-                        context.TrainingService,
-                        BRDActions.ArmysPaeon.ActionId,
-                        BRDActions.ArmysPaeon.Name,
-                        previousSong,
-                        context.SongTimer,
-                        $"Army's Paeon (switching from {previousSong})",
-                        "Army's Paeon grants attack speed stacks via Repertoire. Lowest priority song, used as filler. " +
-                        "Cut early (around 12s remaining) to realign with WM for burst windows.",
-                        new[] { context.NoSongActive ? "No song active" : $"Previous song: {previousSong}", "Filler song", "WM and MB on cooldown" },
-                        new[] { "WM or MB available", "Current song still has time" },
-                        "Army's Paeon is the filler song. Cut it early to get back to WM faster for burst alignment.",
-                        BrdConcepts.ArmysPaeon);
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(BRDActions.ArmysPaeon.ActionId, BRDActions.ArmysPaeon.Name)
+                        .AsSong(previousSongAp, context.SongTimer)
+                        .Reason(
+                            $"Army's Paeon (switching from {previousSongAp})",
+                            "Army's Paeon grants attack speed stacks via Repertoire. Lowest priority song, used as filler. " +
+                            "Cut early (around 12s remaining) to realign with WM for burst windows.")
+                        .Factors(context.NoSongActive ? "No song active" : $"Previous song: {previousSongAp}", "Filler song", "WM and MB on cooldown")
+                        .Alternatives("WM or MB available", "Current song still has time")
+                        .Tip("Army's Paeon is the filler song. Cut it early to get back to WM faster for burst alignment.")
+                        .Concept(BrdConcepts.ArmysPaeon)
+                        .Record();
                     context.TrainingService?.RecordConceptApplication(BrdConcepts.ArmysPaeon, true, "Song activation");
                     context.TrainingService?.RecordConceptApplication(BrdConcepts.SongRotation, true, "Song rotation");
                     context.TrainingService?.RecordConceptApplication(BrdConcepts.SongSwitching, !context.NoSongActive, "Song transition");
@@ -355,18 +352,19 @@ public sealed class BuffModule : ICalliopeModule
             context.Debug.BuffState = "Raging Strikes";
 
             // Training: Record Raging Strikes decision
-            RangedDpsTrainingHelper.RecordBurstDecision(
-                context.TrainingService,
-                BRDActions.RagingStrikes.ActionId,
-                BRDActions.RagingStrikes.Name,
-                player.Name?.TextValue ?? "Self",
-                "Raging Strikes (2-minute burst window)",
-                "Raging Strikes is BRD's personal 2-minute buff (+15% damage). Always align with Wanderer's Minuet " +
-                "for maximum Pitch Perfect damage. Follow with Battle Voice and Radiant Finale.",
-                new[] { context.IsWanderersMinuetActive ? "WM active" : "WM not needed at this level", "120s cooldown ready" },
-                new[] { "Wait for WM alignment", "Phase transition soon" },
-                "Use Raging Strikes during Wanderer's Minuet. Follow immediately with Battle Voice and Radiant Finale.",
-                BrdConcepts.RagingStrikes);
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(BRDActions.RagingStrikes.ActionId, BRDActions.RagingStrikes.Name)
+                .AsRangedBurst()
+                .Target(player.Name?.TextValue ?? "Self")
+                .Reason(
+                    "Raging Strikes (2-minute burst window)",
+                    "Raging Strikes is BRD's personal 2-minute buff (+15% damage). Always align with Wanderer's Minuet " +
+                    "for maximum Pitch Perfect damage. Follow with Battle Voice and Radiant Finale.")
+                .Factors(context.IsWanderersMinuetActive ? "WM active" : "WM not needed at this level", "120s cooldown ready")
+                .Alternatives("Wait for WM alignment", "Phase transition soon")
+                .Tip("Use Raging Strikes during Wanderer's Minuet. Follow immediately with Battle Voice and Radiant Finale.")
+                .Concept(BrdConcepts.RagingStrikes)
+                .Record();
             context.TrainingService?.RecordConceptApplication(BrdConcepts.RagingStrikes, true, "Burst activation");
 
             return true;
@@ -439,17 +437,18 @@ public sealed class BuffModule : ICalliopeModule
             partyCoord?.OnRaidBuffUsed(BRDActions.BattleVoice.ActionId, 120_000);
 
             // Training: Record Battle Voice decision
-            RangedDpsTrainingHelper.RecordRaidBuffDecision(
-                context.TrainingService,
-                BRDActions.BattleVoice.ActionId,
-                BRDActions.BattleVoice.Name,
-                "Battle Voice (party-wide raid buff)",
-                "Battle Voice grants +20% direct hit rate to the entire party for 20s. Always use with Raging Strikes " +
-                "during burst windows. Coordinate with other DPS raid buffs for maximum party damage.",
-                new[] { context.HasRagingStrikes ? "Raging Strikes active" : "RS on cooldown", "120s cooldown ready", "Party burst alignment" },
-                new[] { "Wait for Raging Strikes", "Phase transition soon" },
-                "Use Battle Voice immediately after Raging Strikes. This is your party contribution to 2-minute burst.",
-                BrdConcepts.BattleVoice);
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(BRDActions.BattleVoice.ActionId, BRDActions.BattleVoice.Name)
+                .AsRaidBuff()
+                .Reason(
+                    "Battle Voice (party-wide raid buff)",
+                    "Battle Voice grants +20% direct hit rate to the entire party for 20s. Always use with Raging Strikes " +
+                    "during burst windows. Coordinate with other DPS raid buffs for maximum party damage.")
+                .Factors(context.HasRagingStrikes ? "Raging Strikes active" : "RS on cooldown", "120s cooldown ready", "Party burst alignment")
+                .Alternatives("Wait for Raging Strikes", "Phase transition soon")
+                .Tip("Use Battle Voice immediately after Raging Strikes. This is your party contribution to 2-minute burst.")
+                .Concept(BrdConcepts.BattleVoice)
+                .Record();
             context.TrainingService?.RecordConceptApplication(BrdConcepts.BattleVoice, true, "Raid buff activation");
 
             return true;
@@ -524,17 +523,18 @@ public sealed class BuffModule : ICalliopeModule
                 3 => "6%",
                 _ => "0%"
             };
-            RangedDpsTrainingHelper.RecordRaidBuffDecision(
-                context.TrainingService,
-                BRDActions.RadiantFinale.ActionId,
-                BRDActions.RadiantFinale.Name,
-                $"Radiant Finale ({context.CodaCount} Coda = {codaBonus} party damage)",
-                $"Radiant Finale grants party damage bonus based on Coda: 1 Coda = 2%, 2 Coda = 4%, 3 Coda = 6%. " +
-                "Each song played grants a Coda. Use during burst window with RS and BV. Grants Radiant Encore Ready.",
-                new[] { $"Coda: {context.CodaCount}/3", context.HasRagingStrikes ? "RS active" : "RS not active", context.HasBattleVoice ? "BV active" : "BV not active" },
-                new[] { "Wait for more Coda", "Wait for RS/BV" },
-                "Aim for 3 Coda before Radiant Finale for maximum 6% party damage. Follow up with Radiant Encore.",
-                BrdConcepts.RadiantFinale);
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(BRDActions.RadiantFinale.ActionId, BRDActions.RadiantFinale.Name)
+                .AsRaidBuff()
+                .Reason(
+                    $"Radiant Finale ({context.CodaCount} Coda = {codaBonus} party damage)",
+                    $"Radiant Finale grants party damage bonus based on Coda: 1 Coda = 2%, 2 Coda = 4%, 3 Coda = 6%. " +
+                    "Each song played grants a Coda. Use during burst window with RS and BV. Grants Radiant Encore Ready.")
+                .Factors($"Coda: {context.CodaCount}/3", context.HasRagingStrikes ? "RS active" : "RS not active", context.HasBattleVoice ? "BV active" : "BV not active")
+                .Alternatives("Wait for more Coda", "Wait for RS/BV")
+                .Tip("Aim for 3 Coda before Radiant Finale for maximum 6% party damage. Follow up with Radiant Encore.")
+                .Concept(BrdConcepts.RadiantFinale)
+                .Record();
             context.TrainingService?.RecordConceptApplication(BrdConcepts.RadiantFinale, context.CodaCount >= 3, "Coda optimization");
 
             return true;
@@ -575,18 +575,19 @@ public sealed class BuffModule : ICalliopeModule
             context.Debug.BuffState = "Barrage";
 
             // Training: Record Barrage decision
-            RangedDpsTrainingHelper.RecordBurstDecision(
-                context.TrainingService,
-                BRDActions.Barrage.ActionId,
-                BRDActions.Barrage.Name,
-                player.Name?.TextValue ?? "Self",
-                "Barrage (triple Refulgent Arrow)",
-                "Barrage makes your next Refulgent Arrow hit 3 times. Huge burst damage. " +
-                "Always use during Raging Strikes. Wait for Hawk's Eye proc, then use Refulgent. Grants Resonant Arrow Ready.",
-                new[] { context.HasRagingStrikes ? "RS active" : "RS on cooldown", "120s cooldown ready" },
-                new[] { "Wait for Raging Strikes" },
-                "Use Barrage during RS, then immediately Refulgent Arrow (wait for proc if needed). Follow with Resonant Arrow.",
-                BrdConcepts.Barrage);
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(BRDActions.Barrage.ActionId, BRDActions.Barrage.Name)
+                .AsRangedBurst()
+                .Target(player.Name?.TextValue ?? "Self")
+                .Reason(
+                    "Barrage (triple Refulgent Arrow)",
+                    "Barrage makes your next Refulgent Arrow hit 3 times. Huge burst damage. " +
+                    "Always use during Raging Strikes. Wait for Hawk's Eye proc, then use Refulgent. Grants Resonant Arrow Ready.")
+                .Factors(context.HasRagingStrikes ? "RS active" : "RS on cooldown", "120s cooldown ready")
+                .Alternatives("Wait for Raging Strikes")
+                .Tip("Use Barrage during RS, then immediately Refulgent Arrow (wait for proc if needed). Follow with Resonant Arrow.")
+                .Concept(BrdConcepts.Barrage)
+                .Record();
             context.TrainingService?.RecordConceptApplication(BrdConcepts.Barrage, context.HasRagingStrikes, "Burst window usage");
 
             return true;
@@ -616,18 +617,19 @@ public sealed class BuffModule : ICalliopeModule
             context.Debug.BuffState = "Empyreal Arrow";
 
             // Training: Record Empyreal Arrow decision
-            RangedDpsTrainingHelper.RecordDamageDecision(
-                context.TrainingService,
-                BRDActions.EmpyrealArrow.ActionId,
-                BRDActions.EmpyrealArrow.Name,
-                target.Name?.TextValue ?? "Target",
-                "Empyreal Arrow (guaranteed Repertoire)",
-                "Empyreal Arrow is a high-potency oGCD that guarantees a Repertoire proc regardless of which song is active. " +
-                "Use on cooldown. During WM, this means guaranteed Pitch Perfect stack.",
-                new[] { "15s cooldown ready", context.IsWanderersMinuetActive ? "WM active (Pitch Perfect stack)" : "Song active" },
-                new[] { "On cooldown" },
-                "Use Empyreal Arrow on cooldown. It's free damage and a guaranteed Repertoire proc.",
-                BrdConcepts.EmpyrealArrow);
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(BRDActions.EmpyrealArrow.ActionId, BRDActions.EmpyrealArrow.Name)
+                .AsRangedDamage()
+                .Target(target.Name?.TextValue ?? "Target")
+                .Reason(
+                    "Empyreal Arrow (guaranteed Repertoire)",
+                    "Empyreal Arrow is a high-potency oGCD that guarantees a Repertoire proc regardless of which song is active. " +
+                    "Use on cooldown. During WM, this means guaranteed Pitch Perfect stack.")
+                .Factors("15s cooldown ready", context.IsWanderersMinuetActive ? "WM active (Pitch Perfect stack)" : "Song active")
+                .Alternatives("On cooldown")
+                .Tip("Use Empyreal Arrow on cooldown. It's free damage and a guaranteed Repertoire proc.")
+                .Concept(BrdConcepts.EmpyrealArrow)
+                .Record();
             context.TrainingService?.RecordConceptApplication(BrdConcepts.EmpyrealArrow, true, "oGCD usage");
             context.TrainingService?.RecordConceptApplication(BrdConcepts.RepertoireStacks, true, "Repertoire generation");
 
@@ -661,18 +663,19 @@ public sealed class BuffModule : ICalliopeModule
             context.Debug.BuffState = "Sidewinder";
 
             // Training: Record Sidewinder decision
-            RangedDpsTrainingHelper.RecordBurstDecision(
-                context.TrainingService,
-                BRDActions.Sidewinder.ActionId,
-                BRDActions.Sidewinder.Name,
-                target.Name?.TextValue ?? "Target",
-                "Sidewinder (burst damage oGCD)",
-                "Sidewinder is a high-potency oGCD on a 60s cooldown. Use during burst windows with Raging Strikes " +
-                "for maximum benefit from the damage buff.",
-                new[] { context.HasRagingStrikes ? "RS active" : "RS on cooldown", "60s cooldown ready" },
-                new[] { "Wait for Raging Strikes" },
-                "Use Sidewinder during Raging Strikes windows. It's one of your highest damage oGCDs.",
-                BrdConcepts.EmpyrealArrow); // Grouped with other oGCDs
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(BRDActions.Sidewinder.ActionId, BRDActions.Sidewinder.Name)
+                .AsRangedBurst()
+                .Target(target.Name?.TextValue ?? "Target")
+                .Reason(
+                    "Sidewinder (burst damage oGCD)",
+                    "Sidewinder is a high-potency oGCD on a 60s cooldown. Use during burst windows with Raging Strikes " +
+                    "for maximum benefit from the damage buff.")
+                .Factors(context.HasRagingStrikes ? "RS active" : "RS on cooldown", "60s cooldown ready")
+                .Alternatives("Wait for Raging Strikes")
+                .Tip("Use Sidewinder during Raging Strikes windows. It's one of your highest damage oGCDs.")
+                .Concept(BrdConcepts.EmpyrealArrow) // Grouped with other oGCDs
+                .Record();
             context.TrainingService?.RecordConceptApplication(BrdConcepts.EmpyrealArrow, context.HasRagingStrikes, "Burst oGCD usage");
 
             return true;
@@ -707,18 +710,19 @@ public sealed class BuffModule : ICalliopeModule
                     context.Debug.BuffState = $"Rain of Death ({context.BloodletterCharges} charges)";
 
                     // Training: Record Rain of Death decision
-                    RangedDpsTrainingHelper.RecordAoeDecision(
-                        context.TrainingService,
-                        BRDActions.RainOfDeath.ActionId,
-                        BRDActions.RainOfDeath.Name,
-                        enemyCount,
-                        $"Rain of Death (AoE, {context.BloodletterCharges} charges)",
-                        "Rain of Death is the AoE version of Bloodletter. Use at 3+ targets. " +
-                        "Shares charges with Bloodletter. During Mage's Ballad, Repertoire resets the cooldown.",
-                        new[] { $"Enemies: {enemyCount}", $"Charges: {context.BloodletterCharges}/3", context.IsMagesBalladActive ? "MB resets on procs" : "" },
-                        new[] { "Use Bloodletter for single target" },
-                        "Switch to Rain of Death at 3+ enemies. Spam during Mage's Ballad when charges reset.",
-                        BrdConcepts.BloodletterManagement);
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(BRDActions.RainOfDeath.ActionId, BRDActions.RainOfDeath.Name)
+                        .AsAoE(enemyCount)
+                        .Target(target.Name?.TextValue ?? "Target")
+                        .Reason(
+                            $"Rain of Death (AoE, {context.BloodletterCharges} charges)",
+                            "Rain of Death is the AoE version of Bloodletter. Use at 3+ targets. " +
+                            "Shares charges with Bloodletter. During Mage's Ballad, Repertoire resets the cooldown.")
+                        .Factors($"Enemies: {enemyCount}", $"Charges: {context.BloodletterCharges}/3", context.IsMagesBalladActive ? "MB resets on procs" : "")
+                        .Alternatives("Use Bloodletter for single target")
+                        .Tip("Switch to Rain of Death at 3+ enemies. Spam during Mage's Ballad when charges reset.")
+                        .Concept(BrdConcepts.BloodletterManagement)
+                        .Record();
                     context.TrainingService?.RecordConceptApplication(BrdConcepts.BloodletterManagement, true, "AoE charge usage");
 
                     return true;
@@ -744,21 +748,22 @@ public sealed class BuffModule : ICalliopeModule
             context.Debug.BuffState = $"{action.Name} ({context.BloodletterCharges} charges)";
 
             // Training: Record Bloodletter decision
-            var reason = context.IsMagesBalladActive ? "MB resets on procs" :
+            var bloodletterReason = context.IsMagesBalladActive ? "MB resets on procs" :
                          context.BloodletterCharges >= 3 ? "Preventing overcap" :
                          context.HasRagingStrikes ? "Burst window" : "Using charges";
-            RangedDpsTrainingHelper.RecordDamageDecision(
-                context.TrainingService,
-                action.ActionId,
-                action.Name,
-                target.Name?.TextValue ?? "Target",
-                $"{action.Name} ({reason})",
-                "Bloodletter has 3 charges (15s recharge). During Mage's Ballad, Repertoire procs reset the cooldown, " +
-                "so spam it aggressively. Don't let charges overcap. Use during burst for extra damage.",
-                new[] { $"Charges: {context.BloodletterCharges}/3", context.IsMagesBalladActive ? "MB active (resets on procs)" : "", context.HasRagingStrikes ? "RS active" : "" },
-                new[] { "Save for MB phase", "Wait for burst window" },
-                "During Mage's Ballad, spam Bloodletter as charges reset. Otherwise, don't overcap.",
-                BrdConcepts.BloodletterManagement);
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(action.ActionId, action.Name)
+                .AsRangedDamage()
+                .Target(target.Name?.TextValue ?? "Target")
+                .Reason(
+                    $"{action.Name} ({bloodletterReason})",
+                    "Bloodletter has 3 charges (15s recharge). During Mage's Ballad, Repertoire procs reset the cooldown, " +
+                    "so spam it aggressively. Don't let charges overcap. Use during burst for extra damage.")
+                .Factors($"Charges: {context.BloodletterCharges}/3", context.IsMagesBalladActive ? "MB active (resets on procs)" : "", context.HasRagingStrikes ? "RS active" : "")
+                .Alternatives("Save for MB phase", "Wait for burst window")
+                .Tip("During Mage's Ballad, spam Bloodletter as charges reset. Otherwise, don't overcap.")
+                .Concept(BrdConcepts.BloodletterManagement)
+                .Record();
             context.TrainingService?.RecordConceptApplication(BrdConcepts.BloodletterManagement, true, "Charge usage");
 
             return true;

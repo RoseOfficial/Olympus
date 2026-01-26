@@ -1,6 +1,7 @@
 using Olympus.Data;
-using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.HephaestusCore.Context;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.HephaestusCore.Modules;
 
@@ -331,24 +332,23 @@ public sealed class DamageModule : IHephaestusModule
 
             // Training: Record Gnashing Fang decision
             var duringNoMercy = context.HasNoMercy;
-            TankTrainingHelper.RecordResourceDecision(
-                context.TrainingService,
-                GNBActions.GnashingFang.ActionId,
-                GNBActions.GnashingFang.Name,
-                context.Cartridges,
-                duringNoMercy
-                    ? "Starting Gnashing Fang combo during No Mercy"
-                    : "Starting Gnashing Fang combo (cartridges capped)",
-                "Gnashing Fang is GNB's signature 3-hit combo (GF → Savage Claw → Wicked Talon), each hit enabling a Continuation oGCD. " +
-                "Costs 1 cartridge but delivers high potency. Ideally used during No Mercy window for maximum damage.",
-                new[] {
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(GNBActions.GnashingFang.ActionId, GNBActions.GnashingFang.Name)
+                .AsTankResource(context.Cartridges)
+                .Reason(
+                    duringNoMercy
+                        ? "Starting Gnashing Fang combo during No Mercy"
+                        : "Starting Gnashing Fang combo (cartridges capped)",
+                    "Gnashing Fang is GNB's signature 3-hit combo (GF → Savage Claw → Wicked Talon), each hit enabling a Continuation oGCD. " +
+                    "Costs 1 cartridge but delivers high potency. Ideally used during No Mercy window for maximum damage.")
+                .Factors(
                     duringNoMercy ? "No Mercy active for +20% damage" : "Cartridges capped, must spend",
                     $"Have {context.Cartridges} cartridge(s)",
-                    "Combo unlocks 3 Continuation oGCDs"
-                },
-                new[] { "Use Burst Strike instead (lower potency)", "Wait for No Mercy (risk overcapping)" },
-                "Gnashing Fang is your highest priority cartridge spender - always use it during No Mercy if available.",
-                "gnb_gnashing_fang");
+                    "Combo unlocks 3 Continuation oGCDs")
+                .Alternatives("Use Burst Strike instead (lower potency)", "Wait for No Mercy (risk overcapping)")
+                .Tip("Gnashing Fang is your highest priority cartridge spender - always use it during No Mercy if available.")
+                .Concept("gnb_gnashing_fang")
+                .Record();
             context.TrainingService?.RecordConceptApplication("gnb_gnashing_fang", true, duringNoMercy ? "Burst window combo" : "Cartridge management");
 
             return true;
@@ -426,23 +426,23 @@ public sealed class DamageModule : IHephaestusModule
             context.Debug.DamageState = enemyCount > 1 ? $"Double Down ({enemyCount} enemies)" : "Double Down";
 
             // Training: Record Double Down decision
-            TankTrainingHelper.RecordBurstDecision(
-                context.TrainingService,
-                GNBActions.DoubleDown.ActionId,
-                GNBActions.DoubleDown.Name,
-                "Enemy",
-                $"Double Down during No Mercy ({context.Cartridges} cartridges)",
-                "Double Down is GNB's highest potency GCD, costing 2 cartridges. " +
-                "It's a massive AoE attack that should ONLY be used during No Mercy window. " +
-                "At 1200 potency (base), it's more efficient than 2 Burst Strikes.",
-                new[] {
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(GNBActions.DoubleDown.ActionId, GNBActions.DoubleDown.Name)
+                .AsTankBurst()
+                .Target("Enemy")
+                .Reason(
+                    $"Double Down during No Mercy ({context.Cartridges} cartridges)",
+                    "Double Down is GNB's highest potency GCD, costing 2 cartridges. " +
+                    "It's a massive AoE attack that should ONLY be used during No Mercy window. " +
+                    "At 1200 potency (base), it's more efficient than 2 Burst Strikes.")
+                .Factors(
                     "No Mercy active for +20% damage",
                     $"Have {context.Cartridges} cartridges (cost: 2)",
-                    enemyCount > 1 ? $"{enemyCount} enemies for AoE value" : "Single target but highest potency"
-                },
-                new[] { "Use 2 Burst Strikes instead (lower total potency)", "Wait for more targets (might lose No Mercy window)" },
-                "Double Down is your biggest hit - never use it outside No Mercy. Plan cartridge usage to have 2+ when No Mercy comes up.",
-                "gnb_double_down");
+                    enemyCount > 1 ? $"{enemyCount} enemies for AoE value" : "Single target but highest potency")
+                .Alternatives("Use 2 Burst Strikes instead (lower total potency)", "Wait for more targets (might lose No Mercy window)")
+                .Tip("Double Down is your biggest hit - never use it outside No Mercy. Plan cartridge usage to have 2+ when No Mercy comes up.")
+                .Concept("gnb_double_down")
+                .Record();
             context.TrainingService?.RecordConceptApplication("gnb_double_down", true, "Burst window priority");
 
             return true;
@@ -532,25 +532,24 @@ public sealed class DamageModule : IHephaestusModule
                     // Training: Record Burst Strike decision
                     var duringNoMercy = context.HasNoMercy;
                     var capped = context.HasMaxCartridges;
-                    TankTrainingHelper.RecordResourceDecision(
-                        context.TrainingService,
-                        GNBActions.BurstStrike.ActionId,
-                        GNBActions.BurstStrike.Name,
-                        context.Cartridges,
-                        duringNoMercy
-                            ? "Burst Strike during No Mercy"
-                            : capped ? "Burst Strike (avoiding overcap)" : "Burst Strike (combo finisher coming)",
-                        "Burst Strike is GNB's single-target cartridge spender (1 cartridge). " +
-                        "At Lv.86+, it grants Ready to Blast for Hypervelocity follow-up. " +
-                        "Use during No Mercy or when capped to avoid wasting cartridges from combo finisher.",
-                        new[] {
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(GNBActions.BurstStrike.ActionId, GNBActions.BurstStrike.Name)
+                        .AsTankResource(context.Cartridges)
+                        .Reason(
+                            duringNoMercy
+                                ? "Burst Strike during No Mercy"
+                                : capped ? "Burst Strike (avoiding overcap)" : "Burst Strike (combo finisher coming)",
+                            "Burst Strike is GNB's single-target cartridge spender (1 cartridge). " +
+                            "At Lv.86+, it grants Ready to Blast for Hypervelocity follow-up. " +
+                            "Use during No Mercy or when capped to avoid wasting cartridges from combo finisher.")
+                        .Factors(
                             duringNoMercy ? "No Mercy active" : (capped ? "Cartridges capped at 3" : "Combo finisher would overcap"),
                             $"Have {context.Cartridges} cartridge(s)",
-                            player.Level >= 86 ? "Grants Hypervelocity oGCD" : "Below Lv.86 - no Hypervelocity"
-                        },
-                        new[] { "Use Gnashing Fang instead (if available)", "Save for Double Down (if 2+ cartridges and No Mercy soon)" },
-                        "Gnashing Fang is higher priority than Burst Strike when available. Use Burst Strike to prevent overcapping.",
-                        "gnb_burst_strike");
+                            player.Level >= 86 ? "Grants Hypervelocity oGCD" : "Below Lv.86 - no Hypervelocity")
+                        .Alternatives("Use Gnashing Fang instead (if available)", "Save for Double Down (if 2+ cartridges and No Mercy soon)")
+                        .Tip("Gnashing Fang is higher priority than Burst Strike when available. Use Burst Strike to prevent overcapping.")
+                        .Concept("gnb_burst_strike")
+                        .Record();
                     context.TrainingService?.RecordConceptApplication("gnb_cartridge_gauge", true, "Cartridge management");
 
                     return true;

@@ -1,6 +1,7 @@
 using Olympus.Data;
-using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.ZeusCore.Context;
+using Olympus.Services.Training;
 using Olympus.Services.Party;
 using Olympus.Timeline.Models;
 
@@ -117,19 +118,19 @@ public sealed class BuffModule : IZeusModule
                              context.HasWheelInMotion ? "Wheeling Thrust ready" :
                              context.LastComboAction == DRGActions.VorpalThrust.ActionId ? "Heavens' Thrust coming" :
                              "Coerthan Torment coming";
-            MeleeDpsTrainingHelper.RecordBurstDecision(
-                context.TrainingService,
-                DRGActions.LifeSurge.ActionId,
-                DRGActions.LifeSurge.Name,
-                "Self",
-                $"Life Surge before high-potency GCD ({procReason})",
-                "Life Surge guarantees your next GCD will critical hit. " +
-                "Always use it before your highest potency abilities: Heavens' Thrust/Full Thrust, " +
-                "Drakesbane/Fang and Claw/Wheeling Thrust, or Coerthan Torment in AoE.",
-                new[] { procReason, "Guaranteed critical hit", "40s cooldown (2 charges at Lv.88+)" },
-                new[] { "Use on lower potency GCD (wastes potential)", "Hold for later (might overcap charges)" },
-                "Life Surge should never sit at max charges. Use it before every Heavens' Thrust or finisher proc.",
-                "drg_life_surge");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(DRGActions.LifeSurge.ActionId, DRGActions.LifeSurge.Name)
+                .AsMeleeBurst()
+                .Target("Self")
+                .Reason($"Life Surge before high-potency GCD ({procReason})",
+                    "Life Surge guarantees your next GCD will critical hit. " +
+                    "Always use it before your highest potency abilities: Heavens' Thrust/Full Thrust, " +
+                    "Drakesbane/Fang and Claw/Wheeling Thrust, or Coerthan Torment in AoE.")
+                .Factors(new[] { procReason, "Guaranteed critical hit", "40s cooldown (2 charges at Lv.88+)" })
+                .Alternatives(new[] { "Use on lower potency GCD (wastes potential)", "Hold for later (might overcap charges)" })
+                .Tip("Life Surge should never sit at max charges. Use it before every Heavens' Thrust or finisher proc.")
+                .Concept("drg_life_surge")
+                .Record();
             context.TrainingService?.RecordConceptApplication("drg_life_surge", true, "Guaranteed crit optimization");
 
             return true;
@@ -203,19 +204,19 @@ public sealed class BuffModule : IZeusModule
             context.Debug.BuffState = "Activating Lance Charge";
 
             // Training: Record Lance Charge decision
-            MeleeDpsTrainingHelper.RecordBurstDecision(
-                context.TrainingService,
-                DRGActions.LanceCharge.ActionId,
-                DRGActions.LanceCharge.Name,
-                "Self",
-                "Activating Lance Charge (+10% damage for 20s)",
-                "Lance Charge is DRG's main personal damage buff (+10% for 20 seconds). " +
-                "Use it on cooldown when Power Surge is active, ideally aligned with Battle Litany " +
-                "for maximum burst damage during your Life of the Dragon phase.",
-                new[] { "Power Surge active", "60s cooldown ready", "Starting burst window" },
-                new[] { "Wait for Battle Litany (minor optimization)", "Wait for Life of Dragon (don't hold too long)" },
-                "Lance Charge and Battle Litany should align every 2 minutes. Press them together for maximum party benefit.",
-                "drg_lance_charge");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(DRGActions.LanceCharge.ActionId, DRGActions.LanceCharge.Name)
+                .AsMeleeBurst()
+                .Target("Self")
+                .Reason("Activating Lance Charge (+10% damage for 20s)",
+                    "Lance Charge is DRG's main personal damage buff (+10% for 20 seconds). " +
+                    "Use it on cooldown when Power Surge is active, ideally aligned with Battle Litany " +
+                    "for maximum burst damage during your Life of the Dragon phase.")
+                .Factors(new[] { "Power Surge active", "60s cooldown ready", "Starting burst window" })
+                .Alternatives(new[] { "Wait for Battle Litany (minor optimization)", "Wait for Life of Dragon (don't hold too long)" })
+                .Tip("Lance Charge and Battle Litany should align every 2 minutes. Press them together for maximum party benefit.")
+                .Concept("drg_lance_charge")
+                .Record();
             context.TrainingService?.RecordConceptApplication("drg_lance_charge", true, "Personal burst activation");
 
             return true;
@@ -305,22 +306,22 @@ public sealed class BuffModule : IZeusModule
             partyCoord?.OnRaidBuffUsed(DRGActions.BattleLitany.ActionId, 120_000);
 
             // Training: Record Battle Litany decision
-            MeleeDpsTrainingHelper.RecordRaidBuffDecision(
-                context.TrainingService,
-                DRGActions.BattleLitany.ActionId,
-                DRGActions.BattleLitany.Name,
-                "Party-wide critical hit rate buff",
-                "Battle Litany is DRG's raid buff, giving +10% critical hit rate to all party members for 20 seconds. " +
-                "This is one of the strongest party buffs in the game. Coordinate with other raid buffs (Divination, " +
-                "Chain Stratagem, Brotherhood) for maximum party damage during burst windows.",
-                new[] {
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(DRGActions.BattleLitany.ActionId, DRGActions.BattleLitany.Name)
+                .AsRaidBuff()
+                .Target("Party-wide critical hit rate buff")
+                .Reason("Battle Litany is DRG's raid buff, giving +10% critical hit rate to all party members for 20 seconds.",
+                    "This is one of the strongest party buffs in the game. Coordinate with other raid buffs (Divination, " +
+                    "Chain Stratagem, Brotherhood) for maximum party damage during burst windows.")
+                .Factors(new[] {
                     "120s cooldown ready",
                     context.HasLanceCharge ? "Aligned with Lance Charge" : "Lance Charge ready to use together",
                     "Party burst window timing"
-                },
-                new[] { "Wait for other raid buffs (risk delaying too long)", "Use off-cooldown (minor optimization loss)" },
-                "Battle Litany benefits the whole party - coordinate with other raid buffs for the biggest burst windows.",
-                "drg_battle_litany");
+                })
+                .Alternatives(new[] { "Wait for other raid buffs (risk delaying too long)", "Use off-cooldown (minor optimization loss)" })
+                .Tip("Battle Litany benefits the whole party - coordinate with other raid buffs for the biggest burst windows.")
+                .Concept("drg_battle_litany")
+                .Record();
             context.TrainingService?.RecordConceptApplication("drg_battle_litany", true, "Party raid buff");
 
             return true;

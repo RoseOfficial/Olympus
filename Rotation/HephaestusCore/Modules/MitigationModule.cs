@@ -1,7 +1,8 @@
 using Olympus.Data;
-using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.HephaestusCore.Context;
 using Olympus.Services.Party;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation.HephaestusCore.Modules;
@@ -314,19 +315,19 @@ public sealed class MitigationModule : IHephaestusModule
             partyCoord?.OnCooldownUsed(GNBActions.Superbolide.ActionId, 360_000);
 
             // Training: Record Superbolide decision
-            TankTrainingHelper.RecordInvulnDecision(
-                context.TrainingService,
-                GNBActions.Superbolide.ActionId,
-                GNBActions.Superbolide.Name,
-                hpPercent,
-                $"Emergency Superbolide at {hpPercent:P0} HP",
-                "Superbolide is GNB's invulnerability that grants immunity for 10 seconds but drops HP to 1. " +
-                "Used in emergencies when death is imminent and healers need time to stabilize. " +
-                "Unlike other tank invulns, Superbolide doesn't require specific healer actions to survive - you simply need healing back up before the effect ends.",
-                new[] { $"HP critical ({hpPercent:P0})", "Death imminent without invuln", "6-minute cooldown is worth using to prevent wipe" },
-                new[] { "Use Nebula (only 30% DR, not enough)", "Use Heart of Corundum (only 15% DR)", "Die and cause potential wipe" },
-                "Superbolide sets HP to 1 - coordinate with healers so they're ready to heal you back up. Don't panic if you see your HP drop!",
-                "gnb_superbolide");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(GNBActions.Superbolide.ActionId, GNBActions.Superbolide.Name)
+                .AsInvuln(hpPercent)
+                .Reason(
+                    $"Emergency Superbolide at {hpPercent:P0} HP",
+                    "Superbolide is GNB's invulnerability that grants immunity for 10 seconds but drops HP to 1. " +
+                    "Used in emergencies when death is imminent and healers need time to stabilize. " +
+                    "Unlike other tank invulns, Superbolide doesn't require specific healer actions to survive - you simply need healing back up before the effect ends.")
+                .Factors($"HP critical ({hpPercent:P0})", "Death imminent without invuln", "6-minute cooldown is worth using to prevent wipe")
+                .Alternatives("Use Nebula (only 30% DR, not enough)", "Use Heart of Corundum (only 15% DR)", "Die and cause potential wipe")
+                .Tip("Superbolide sets HP to 1 - coordinate with healers so they're ready to heal you back up. Don't panic if you see your HP drop!")
+                .Concept("gnb_superbolide")
+                .Record();
             context.TrainingService?.RecordConceptApplication("gnb_superbolide", true, "Emergency invulnerability");
 
             return true;
@@ -421,20 +422,20 @@ public sealed class MitigationModule : IHephaestusModule
             // Training: Record Heart of Corundum/Stone decision
             var hpPercent = (float)context.Player.CurrentHp / context.Player.MaxHp;
             var isSelf = targetId == context.Player.GameObjectId;
-            TankTrainingHelper.RecordMitigationDecision(
-                context.TrainingService,
-                action.ActionId,
-                action.Name,
-                isSelf ? "Self" : "Ally",
-                hpPercent,
-                reason,
-                $"{action.Name} is GNB's signature short defensive (25s cooldown). " +
-                "Provides 15% damage reduction for 4s, plus Catharsis (heal when HP falls below 50%) and Clarity of Corundum (extended duration). " +
-                "Unlike TBN, there's no DPS cost - use liberally for yourself and allies.",
-                new[] { reason, "25s cooldown allows frequent use", "Can target party members for support" },
-                new[] { "Save for bigger hit (but short CD means it will be back)", "Use on different target" },
-                "Heart of Corundum is very forgiving - the short cooldown means you should use it frequently rather than saving it.",
-                "gnb_heart_of_corundum");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(action.ActionId, action.Name)
+                .AsMitigation(hpPercent)
+                .Target(isSelf ? "Self" : "Ally")
+                .Reason(
+                    reason,
+                    $"{action.Name} is GNB's signature short defensive (25s cooldown). " +
+                    "Provides 15% damage reduction for 4s, plus Catharsis (heal when HP falls below 50%) and Clarity of Corundum (extended duration). " +
+                    "Unlike TBN, there's no DPS cost - use liberally for yourself and allies.")
+                .Factors(reason, "25s cooldown allows frequent use", "Can target party members for support")
+                .Alternatives("Save for bigger hit (but short CD means it will be back)", "Use on different target")
+                .Tip("Heart of Corundum is very forgiving - the short cooldown means you should use it frequently rather than saving it.")
+                .Concept("gnb_heart_of_corundum")
+                .Record();
             context.TrainingService?.RecordConceptApplication("gnb_heart_of_corundum", true, reason);
 
             return true;
@@ -489,20 +490,20 @@ public sealed class MitigationModule : IHephaestusModule
             partyCoord?.OnCooldownUsed(nebulaAction.ActionId, 120_000);
 
             // Training: Record Nebula decision
-            TankTrainingHelper.RecordMitigationDecision(
-                context.TrainingService,
-                nebulaAction.ActionId,
-                nebulaAction.Name,
-                "Self",
-                hpPercent,
-                $"Nebula at {hpPercent:P0} HP",
-                $"{nebulaAction.Name} is GNB's major defensive cooldown providing 30% damage reduction for 15 seconds. " +
-                "Great Nebula (Lv.92+) also adds a heal-over-time effect. " +
-                "Best used for tankbusters or sustained heavy damage periods.",
-                new[] { $"HP at {hpPercent:P0}", $"Taking significant damage (rate: {damageRate:F3})", "2-minute cooldown available" },
-                new[] { "Use Rampart instead (only 20% DR)", "Stack with Heart of Corundum for more mitigation" },
-                "Nebula is your strongest personal defensive - don't hold it too long. Plan its usage around known tankbusters.",
-                "gnb_nebula");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(nebulaAction.ActionId, nebulaAction.Name)
+                .AsMitigation(hpPercent)
+                .Target("Self")
+                .Reason(
+                    $"Nebula at {hpPercent:P0} HP",
+                    $"{nebulaAction.Name} is GNB's major defensive cooldown providing 30% damage reduction for 15 seconds. " +
+                    "Great Nebula (Lv.92+) also adds a heal-over-time effect. " +
+                    "Best used for tankbusters or sustained heavy damage periods.")
+                .Factors($"HP at {hpPercent:P0}", $"Taking significant damage (rate: {damageRate:F3})", "2-minute cooldown available")
+                .Alternatives("Use Rampart instead (only 20% DR)", "Stack with Heart of Corundum for more mitigation")
+                .Tip("Nebula is your strongest personal defensive - don't hold it too long. Plan its usage around known tankbusters.")
+                .Concept("gnb_nebula")
+                .Record();
             context.TrainingService?.RecordConceptApplication("gnb_nebula", true, "Major defensive cooldown");
 
             return true;
@@ -707,18 +708,19 @@ public sealed class MitigationModule : IHephaestusModule
             partyCoord?.OnCooldownUsed(GNBActions.HeartOfLight.ActionId, 90_000);
 
             // Training: Record Heart of Light decision
-            TankTrainingHelper.RecordPartyMitigationDecision(
-                context.TrainingService,
-                GNBActions.HeartOfLight.ActionId,
-                GNBActions.HeartOfLight.Name,
-                $"Party mitigation with {injuredCount} injured members",
-                "Heart of Light is GNB's party-wide magic damage reduction (10% for 15s). " +
-                "Best used before predictable raidwide magic damage to reduce healing burden. " +
-                "Coordinate with other tank's party mitigation to avoid overlap.",
-                new[] { $"{injuredCount} party members injured", $"Average party HP: {avgHp:P0}", "Expecting more damage or recovering from raidwide" },
-                new[] { "Save for next raidwide", "Let healers handle with their tools", "Use Reprisal instead (requires enemy target)" },
-                "Heart of Light only affects magic damage - check if incoming damage is physical or magical when planning mitigation.",
-                "gnb_heart_of_light");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(GNBActions.HeartOfLight.ActionId, GNBActions.HeartOfLight.Name)
+                .AsPartyMit()
+                .Reason(
+                    $"Party mitigation with {injuredCount} injured members",
+                    "Heart of Light is GNB's party-wide magic damage reduction (10% for 15s). " +
+                    "Best used before predictable raidwide magic damage to reduce healing burden. " +
+                    "Coordinate with other tank's party mitigation to avoid overlap.")
+                .Factors($"{injuredCount} party members injured", $"Average party HP: {avgHp:P0}", "Expecting more damage or recovering from raidwide")
+                .Alternatives("Save for next raidwide", "Let healers handle with their tools", "Use Reprisal instead (requires enemy target)")
+                .Tip("Heart of Light only affects magic damage - check if incoming damage is physical or magical when planning mitigation.")
+                .Concept("gnb_heart_of_light")
+                .Record();
             context.TrainingService?.RecordConceptApplication("gnb_heart_of_light", true, "Party magic mitigation");
 
             return true;

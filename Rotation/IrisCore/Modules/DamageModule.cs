@@ -1,6 +1,6 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
-using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.IrisCore.Context;
 using Olympus.Services.Training;
 
@@ -113,18 +113,18 @@ public sealed class DamageModule : IIrisModule
                 context.Debug.DamageState = "Painting Starry Sky";
 
                 // Training Mode integration
-                CasterTrainingHelper.RecordDamageDecision(
-                    context.TrainingService,
-                    PCTActions.StarrySkyMotif.ActionId,
-                    PCTActions.StarrySkyMotif.Name,
-                    null,
-                    "Starry Sky Motif - landscape prepaint",
-                    "Painting Starry Sky before combat prepares Landscape canvas for Starry Muse. " +
-                    "This is highest priority prepaint as it enables your raid buff.",
-                    new[] { "Pre-combat", "Landscape needed", "Enables Starry Muse" },
-                    new[] { "Paint Creature first", "Paint Weapon first" },
-                    "Always paint Landscape (Starry Sky) first - it enables your 2-minute burst.",
-                    PctConcepts.CanvasPrepull);
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(PCTActions.StarrySkyMotif.ActionId, PCTActions.StarrySkyMotif.Name)
+                    .AsCasterDamage()
+                    .Target(null)
+                    .Reason("Starry Sky Motif - landscape prepaint",
+                        "Painting Starry Sky before combat prepares Landscape canvas for Starry Muse. " +
+                        "This is highest priority prepaint as it enables your raid buff.")
+                    .Factors("Pre-combat", "Landscape needed", "Enables Starry Muse")
+                    .Alternatives("Paint Creature first", "Paint Weapon first")
+                    .Tip("Always paint Landscape (Starry Sky) first - it enables your 2-minute burst.")
+                    .Concept(PctConcepts.CanvasPrepull)
+                    .Record();
 
                 context.TrainingService?.RecordConceptApplication(PctConcepts.CanvasPrepull, true, "Landscape canvas prepared");
 
@@ -141,18 +141,18 @@ public sealed class DamageModule : IIrisModule
                 context.Debug.DamageState = $"Painting {motif.Name}";
 
                 // Training Mode integration
-                CasterTrainingHelper.RecordDamageDecision(
-                    context.TrainingService,
-                    motif.ActionId,
-                    motif.Name,
-                    null,
-                    "Creature Motif - prepaint",
-                    $"Painting {motif.Name} prepares Creature canvas for Living Muse. Creatures scale " +
-                    "with level (Pom → Wing → Claw → Maw). This enables portrait abilities.",
-                    new[] { "Pre-combat", "Creature needed", "Enables Living Muse" },
-                    new[] { "Paint Landscape first", "Paint Weapon first" },
-                    "Paint Creature second priority after Landscape for maximum burst damage.",
-                    PctConcepts.CanvasPrepull);
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(motif.ActionId, motif.Name)
+                    .AsCasterDamage()
+                    .Target(null)
+                    .Reason("Creature Motif - prepaint",
+                        $"Painting {motif.Name} prepares Creature canvas for Living Muse. Creatures scale " +
+                        "with level (Pom → Wing → Claw → Maw). This enables portrait abilities.")
+                    .Factors("Pre-combat", "Creature needed", "Enables Living Muse")
+                    .Alternatives("Paint Landscape first", "Paint Weapon first")
+                    .Tip("Paint Creature second priority after Landscape for maximum burst damage.")
+                    .Concept(PctConcepts.CanvasPrepull)
+                    .Record();
 
                 context.TrainingService?.RecordConceptApplication(PctConcepts.CanvasPrepull, true, "Creature canvas prepared");
 
@@ -168,18 +168,18 @@ public sealed class DamageModule : IIrisModule
                 context.Debug.DamageState = "Painting Hammer";
 
                 // Training Mode integration
-                CasterTrainingHelper.RecordDamageDecision(
-                    context.TrainingService,
-                    PCTActions.HammerMotif.ActionId,
-                    PCTActions.HammerMotif.Name,
-                    null,
-                    "Hammer Motif - weapon prepaint",
-                    "Painting Hammer prepares Weapon canvas for Striking Muse. This enables the " +
-                    "powerful instant hammer combo (Stamp → Brush → Polish).",
-                    new[] { "Pre-combat", "Weapon needed", "Enables Hammer Time" },
-                    new[] { "Paint Landscape first", "Paint Creature first" },
-                    "Paint Weapon last in prepull. Hammer combo is great but Landscape/Creature are higher priority.",
-                    PctConcepts.CanvasPrepull);
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(PCTActions.HammerMotif.ActionId, PCTActions.HammerMotif.Name)
+                    .AsCasterDamage()
+                    .Target(null)
+                    .Reason("Hammer Motif - weapon prepaint",
+                        "Painting Hammer prepares Weapon canvas for Striking Muse. This enables the " +
+                        "powerful instant hammer combo (Stamp → Brush → Polish).")
+                    .Factors("Pre-combat", "Weapon needed", "Enables Hammer Time")
+                    .Alternatives("Paint Landscape first", "Paint Creature first")
+                    .Tip("Paint Weapon last in prepull. Hammer combo is great but Landscape/Creature are higher priority.")
+                    .Concept(PctConcepts.CanvasPrepull)
+                    .Record();
 
                 context.TrainingService?.RecordConceptApplication(PctConcepts.CanvasPrepull, true, "Weapon canvas prepared");
 
@@ -208,18 +208,18 @@ public sealed class DamageModule : IIrisModule
             context.Debug.DamageState = "Star Prism";
 
             // Training Mode integration
-            CasterTrainingHelper.RecordBurstDecision(
-                context.TrainingService,
-                PCTActions.StarPrism.ActionId,
-                PCTActions.StarPrism.Name,
-                target.Name?.TextValue,
-                "Star Prism - burst finisher",
-                "Star Prism is your highest potency single-target GCD, available during Starstruck buff " +
-                "from Starry Muse. It's instant cast and deals massive damage. Always use before it expires.",
-                new[] { "Starstruck active", $"Palette Gauge: {context.PaletteGauge}", "In burst window" },
-                new[] { "None - must use before buff expires" },
-                "Star Prism is your biggest hit. Never let Starstruck expire without using it.",
-                PctConcepts.FinisherPriority);
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(PCTActions.StarPrism.ActionId, PCTActions.StarPrism.Name)
+                .AsCasterBurst()
+                .Target(target.Name?.TextValue)
+                .Reason("Star Prism - burst finisher",
+                    "Star Prism is your highest potency single-target GCD, available during Starstruck buff " +
+                    "from Starry Muse. It's instant cast and deals massive damage. Always use before it expires.")
+                .Factors("Starstruck active", $"Palette Gauge: {context.PaletteGauge}", "In burst window")
+                .Alternatives("None - must use before buff expires")
+                .Tip("Star Prism is your biggest hit. Never let Starstruck expire without using it.")
+                .Concept(PctConcepts.FinisherPriority)
+                .Record();
 
             context.TrainingService?.RecordConceptApplication(PctConcepts.FinisherPriority, true, "Star Prism finisher used");
 
@@ -258,36 +258,36 @@ public sealed class DamageModule : IIrisModule
             // Training Mode integration
             if (context.HasRainbowBright)
             {
-                CasterTrainingHelper.RecordBurstDecision(
-                    context.TrainingService,
-                    PCTActions.RainbowDrip.ActionId,
-                    PCTActions.RainbowDrip.Name,
-                    target.Name?.TextValue,
-                    "Rainbow Drip - instant with Rainbow Bright",
-                    "Rainbow Drip with Rainbow Bright buff is instant cast and high damage. Use it when " +
-                    "the proc is active for a powerful instant GCD during movement or burst windows.",
-                    new[] { "Rainbow Bright active", $"Palette Gauge: {context.PaletteGauge}",
-                            context.IsInBurstWindow ? "In burst window" : "Outside burst" },
-                    new[] { "None - use proc before it expires" },
-                    "Rainbow Bright makes Rainbow Drip instant. Don't waste the proc.",
-                    PctConcepts.RainbowDrip);
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(PCTActions.RainbowDrip.ActionId, PCTActions.RainbowDrip.Name)
+                    .AsCasterBurst()
+                    .Target(target.Name?.TextValue)
+                    .Reason("Rainbow Drip - instant with Rainbow Bright",
+                        "Rainbow Drip with Rainbow Bright buff is instant cast and high damage. Use it when " +
+                        "the proc is active for a powerful instant GCD during movement or burst windows.")
+                    .Factors("Rainbow Bright active", $"Palette Gauge: {context.PaletteGauge}",
+                        context.IsInBurstWindow ? "In burst window" : "Outside burst")
+                    .Alternatives("None - use proc before it expires")
+                    .Tip("Rainbow Bright makes Rainbow Drip instant. Don't waste the proc.")
+                    .Concept(PctConcepts.RainbowDrip)
+                    .Record();
 
                 context.TrainingService?.RecordConceptApplication(PctConcepts.RainbowDrip, true, "Rainbow Bright proc consumed");
             }
             else
             {
-                CasterTrainingHelper.RecordDamageDecision(
-                    context.TrainingService,
-                    PCTActions.RainbowDrip.ActionId,
-                    PCTActions.RainbowDrip.Name,
-                    target.Name?.TextValue,
-                    "Rainbow Drip - hardcast filler",
-                    "Rainbow Drip without Rainbow Bright has a long cast time. Only hardcast during burst " +
-                    "windows when you have no movement. In normal rotation, wait for the proc.",
-                    new[] { "No Rainbow Bright", "Hardcasting", context.IsInBurstWindow ? "In burst window" : "Outside burst" },
-                    new[] { "Wait for Rainbow Bright proc", "Use combo instead" },
-                    "Hardcast Rainbow Drip only during burst windows. Normally wait for the instant proc.",
-                    PctConcepts.RainbowDrip);
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(PCTActions.RainbowDrip.ActionId, PCTActions.RainbowDrip.Name)
+                    .AsCasterDamage()
+                    .Target(target.Name?.TextValue)
+                    .Reason("Rainbow Drip - hardcast filler",
+                        "Rainbow Drip without Rainbow Bright has a long cast time. Only hardcast during burst " +
+                        "windows when you have no movement. In normal rotation, wait for the proc.")
+                    .Factors("No Rainbow Bright", "Hardcasting", context.IsInBurstWindow ? "In burst window" : "Outside burst")
+                    .Alternatives("Wait for Rainbow Bright proc", "Use combo instead")
+                    .Tip("Hardcast Rainbow Drip only during burst windows. Normally wait for the instant proc.")
+                    .Concept(PctConcepts.RainbowDrip)
+                    .Record();
             }
 
             return true;
@@ -327,19 +327,19 @@ public sealed class DamageModule : IIrisModule
                 _ => "Unknown"
             };
 
-            CasterTrainingHelper.RecordBurstDecision(
-                context.TrainingService,
-                hammerAction.ActionId,
-                hammerAction.Name,
-                target.Name?.TextValue,
-                $"Hammer combo - {stepName}",
-                $"Hammer combo {stepName} is instant cast and high damage. Complete all 3 hits " +
-                "(Stamp → Brush → Polish) before Hammer Time expires. All hits are instant.",
-                new[] { $"Hammer Step: {context.HammerComboStep}", $"Hammer Time Stacks: {context.HammerTimeStacks}",
-                        context.IsInBurstWindow ? "In burst window" : "Outside burst" },
-                new[] { "Don't drop combo" },
-                "Complete the hammer combo before Hammer Time expires. All 3 hits are instant and high damage.",
-                PctConcepts.HammerCombo);
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(hammerAction.ActionId, hammerAction.Name)
+                .AsCasterBurst()
+                .Target(target.Name?.TextValue)
+                .Reason($"Hammer combo - {stepName}",
+                    $"Hammer combo {stepName} is instant cast and high damage. Complete all 3 hits " +
+                    "(Stamp → Brush → Polish) before Hammer Time expires. All hits are instant.")
+                .Factors($"Hammer Step: {context.HammerComboStep}", $"Hammer Time Stacks: {context.HammerTimeStacks}",
+                    context.IsInBurstWindow ? "In burst window" : "Outside burst")
+                .Alternatives("Don't drop combo")
+                .Tip("Complete the hammer combo before Hammer Time expires. All 3 hits are instant and high damage.")
+                .Concept(PctConcepts.HammerCombo)
+                .Record();
 
             context.TrainingService?.RecordConceptApplication(PctConcepts.HammerCombo, true, $"Hammer {stepName} executed");
 
@@ -368,19 +368,19 @@ public sealed class DamageModule : IIrisModule
             context.Debug.DamageState = "Comet in Black";
 
             // Training Mode integration
-            CasterTrainingHelper.RecordBurstDecision(
-                context.TrainingService,
-                PCTActions.CometInBlack.ActionId,
-                PCTActions.CometInBlack.Name,
-                target.Name?.TextValue,
-                "Comet in Black - black paint spender",
-                "Comet in Black consumes Black Paint for high instant damage. Black Paint is generated " +
-                "via Subtractive Palette during Monochrome Tones. It's your highest potency paint spender.",
-                new[] { "Black Paint available", $"White Paint: {context.WhitePaint}",
-                        context.IsInBurstWindow ? "In burst window" : "Outside burst" },
-                new[] { "None - use Black Paint when available" },
-                "Always use Comet in Black when you have Black Paint. It's higher damage than Holy in White.",
-                PctConcepts.CometInBlack);
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(PCTActions.CometInBlack.ActionId, PCTActions.CometInBlack.Name)
+                .AsCasterBurst()
+                .Target(target.Name?.TextValue)
+                .Reason("Comet in Black - black paint spender",
+                    "Comet in Black consumes Black Paint for high instant damage. Black Paint is generated " +
+                    "via Subtractive Palette during Monochrome Tones. It's your highest potency paint spender.")
+                .Factors("Black Paint available", $"White Paint: {context.WhitePaint}",
+                    context.IsInBurstWindow ? "In burst window" : "Outside burst")
+                .Alternatives("None - use Black Paint when available")
+                .Tip("Always use Comet in Black when you have Black Paint. It's higher damage than Holy in White.")
+                .Concept(PctConcepts.CometInBlack)
+                .Record();
 
             context.TrainingService?.RecordConceptApplication(PctConcepts.CometInBlack, true, "Black Paint consumed");
 
@@ -419,36 +419,36 @@ public sealed class DamageModule : IIrisModule
             // Training Mode integration
             if (isMoving)
             {
-                CasterTrainingHelper.RecordMovementDecision(
-                    context.TrainingService,
-                    PCTActions.HolyInWhite.ActionId,
-                    PCTActions.HolyInWhite.Name,
-                    target.Name?.TextValue,
-                    "Holy in White - movement instant",
-                    "Holy in White is instant cast, perfect for movement. Using White Paint to maintain " +
-                    "uptime while moving. This prevents DPS loss during mechanics.",
-                    new[] { "Moving", $"White Paint: {context.WhitePaint}", $"Paint after: {context.WhitePaint - 1}" },
-                    new[] { "Slidecast combo instead", "Wait for movement to end" },
-                    "Use Holy in White for movement. Save some paint for burst windows when possible.",
-                    PctConcepts.MovementOptimization);
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(PCTActions.HolyInWhite.ActionId, PCTActions.HolyInWhite.Name)
+                    .AsMovement()
+                    .Target(target.Name?.TextValue)
+                    .Reason("Holy in White - movement instant",
+                        "Holy in White is instant cast, perfect for movement. Using White Paint to maintain " +
+                        "uptime while moving. This prevents DPS loss during mechanics.")
+                    .Factors("Moving", $"White Paint: {context.WhitePaint}", $"Paint after: {context.WhitePaint - 1}")
+                    .Alternatives("Slidecast combo instead", "Wait for movement to end")
+                    .Tip("Use Holy in White for movement. Save some paint for burst windows when possible.")
+                    .Concept(PctConcepts.MovementOptimization)
+                    .Record();
 
                 context.TrainingService?.RecordConceptApplication(PctConcepts.MovementOptimization, true, "Paint used for movement");
             }
             else
             {
-                CasterTrainingHelper.RecordDamageDecision(
-                    context.TrainingService,
-                    PCTActions.HolyInWhite.ActionId,
-                    PCTActions.HolyInWhite.Name,
-                    target.Name?.TextValue,
-                    "Holy in White - paint spender",
-                    "Holy in White consumes White Paint for instant damage. Using at 4+ stacks to prevent " +
-                    "overcapping or during burst windows for extra damage. White Paint builds from combos.",
-                    new[] { $"White Paint: {context.WhitePaint}", context.WhitePaint >= 4 ? "Overcap risk" : "Burst damage",
-                            context.IsInBurstWindow ? "In burst window" : "Outside burst" },
-                    new[] { "Save for movement", "Use during burst instead" },
-                    "Don't cap at 5 White Paint. Use Holy in White during burst or at 4+ stacks.",
-                    PctConcepts.HolyInWhite);
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(PCTActions.HolyInWhite.ActionId, PCTActions.HolyInWhite.Name)
+                    .AsCasterDamage()
+                    .Target(target.Name?.TextValue)
+                    .Reason("Holy in White - paint spender",
+                        "Holy in White consumes White Paint for instant damage. Using at 4+ stacks to prevent " +
+                        "overcapping or during burst windows for extra damage. White Paint builds from combos.")
+                    .Factors($"White Paint: {context.WhitePaint}", context.WhitePaint >= 4 ? "Overcap risk" : "Burst damage",
+                        context.IsInBurstWindow ? "In burst window" : "Outside burst")
+                    .Alternatives("Save for movement", "Use during burst instead")
+                    .Tip("Don't cap at 5 White Paint. Use Holy in White during burst or at 4+ stacks.")
+                    .Concept(PctConcepts.HolyInWhite)
+                    .Record();
 
                 context.TrainingService?.RecordConceptApplication(PctConcepts.HolyInWhite, true, "White Paint consumed");
             }
@@ -490,36 +490,35 @@ public sealed class DamageModule : IIrisModule
 
             if (context.ShouldUseAoe)
             {
-                CasterTrainingHelper.RecordAoeDecision(
-                    context.TrainingService,
-                    comboAction.ActionId,
-                    comboAction.Name,
-                    context.NearbyEnemyCount,
-                    $"Subtractive AoE combo - {stepName}",
-                    $"Subtractive AoE combo deals higher damage than base combo. Complete all 3 hits " +
-                    "(Cyan → Yellow → Magenta) to build Palette Gauge and White Paint.",
-                    new[] { $"Combo Step: {context.BaseComboStep}", $"Enemies: {context.NearbyEnemyCount}",
-                            $"Subtractive Palette remaining: {context.SubtractivePaletteRemaining:F1}s" },
-                    new[] { "Switch to single target" },
-                    "Complete subtractive combo before the buff expires. AoE at 3+ targets.",
-                    PctConcepts.SubtractiveCombo);
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(comboAction.ActionId, comboAction.Name)
+                    .AsAoE(context.NearbyEnemyCount)
+                    .Reason($"Subtractive AoE combo - {stepName}",
+                        $"Subtractive AoE combo deals higher damage than base combo. Complete all 3 hits " +
+                        "(Cyan → Yellow → Magenta) to build Palette Gauge and White Paint.")
+                    .Factors($"Combo Step: {context.BaseComboStep}", $"Enemies: {context.NearbyEnemyCount}",
+                        $"Subtractive Palette remaining: {context.SubtractivePaletteRemaining:F1}s")
+                    .Alternatives("Switch to single target")
+                    .Tip("Complete subtractive combo before the buff expires. AoE at 3+ targets.")
+                    .Concept(PctConcepts.SubtractiveCombo)
+                    .Record();
             }
             else
             {
-                CasterTrainingHelper.RecordDamageDecision(
-                    context.TrainingService,
-                    comboAction.ActionId,
-                    comboAction.Name,
-                    target.Name?.TextValue,
-                    $"Subtractive combo - {stepName}",
-                    $"Subtractive combo {stepName} is enhanced by Subtractive Palette buff. Complete " +
-                    "all 3 hits (Cyan → Yellow → Magenta) before the buff expires. Higher damage than base.",
-                    new[] { $"Combo Step: {context.BaseComboStep}",
-                            $"Subtractive Palette remaining: {context.SubtractivePaletteRemaining:F1}s",
-                            $"Palette Gauge: {context.PaletteGauge}" },
-                    new[] { "Don't drop combo" },
-                    "Complete subtractive combo before Subtractive Palette buff expires.",
-                    PctConcepts.SubtractiveCombo);
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(comboAction.ActionId, comboAction.Name)
+                    .AsCasterDamage()
+                    .Target(target.Name?.TextValue)
+                    .Reason($"Subtractive combo - {stepName}",
+                        $"Subtractive combo {stepName} is enhanced by Subtractive Palette buff. Complete " +
+                        "all 3 hits (Cyan → Yellow → Magenta) before the buff expires. Higher damage than base.")
+                    .Factors($"Combo Step: {context.BaseComboStep}",
+                        $"Subtractive Palette remaining: {context.SubtractivePaletteRemaining:F1}s",
+                        $"Palette Gauge: {context.PaletteGauge}")
+                    .Alternatives("Don't drop combo")
+                    .Tip("Complete subtractive combo before Subtractive Palette buff expires.")
+                    .Concept(PctConcepts.SubtractiveCombo)
+                    .Record();
             }
 
             context.TrainingService?.RecordConceptApplication(PctConcepts.SubtractiveCombo, true, $"Subtractive {stepName} executed");
@@ -554,35 +553,34 @@ public sealed class DamageModule : IIrisModule
 
             if (context.ShouldUseAoe)
             {
-                CasterTrainingHelper.RecordAoeDecision(
-                    context.TrainingService,
-                    comboAction.ActionId,
-                    comboAction.Name,
-                    context.NearbyEnemyCount,
-                    $"Base AoE combo - {stepName}",
-                    $"Base AoE combo for multiple targets. Complete all 3 hits (Red → Green → Blue) " +
-                    "to build Palette Gauge and White Paint. Use Subtractive Palette at 50+ gauge.",
-                    new[] { $"Combo Step: {context.BaseComboStep}", $"Enemies: {context.NearbyEnemyCount}",
-                            $"Palette Gauge: {context.PaletteGauge}", $"White Paint: {context.WhitePaint}" },
-                    new[] { "Switch to single target" },
-                    "Complete base combo to build resources. AoE at 3+ targets.",
-                    PctConcepts.AoeRotation);
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(comboAction.ActionId, comboAction.Name)
+                    .AsAoE(context.NearbyEnemyCount)
+                    .Reason($"Base AoE combo - {stepName}",
+                        $"Base AoE combo for multiple targets. Complete all 3 hits (Red → Green → Blue) " +
+                        "to build Palette Gauge and White Paint. Use Subtractive Palette at 50+ gauge.")
+                    .Factors($"Combo Step: {context.BaseComboStep}", $"Enemies: {context.NearbyEnemyCount}",
+                        $"Palette Gauge: {context.PaletteGauge}", $"White Paint: {context.WhitePaint}")
+                    .Alternatives("Switch to single target")
+                    .Tip("Complete base combo to build resources. AoE at 3+ targets.")
+                    .Concept(PctConcepts.AoeRotation)
+                    .Record();
             }
             else
             {
-                CasterTrainingHelper.RecordDamageDecision(
-                    context.TrainingService,
-                    comboAction.ActionId,
-                    comboAction.Name,
-                    target.Name?.TextValue,
-                    $"Base combo - {stepName}",
-                    $"Base combo {stepName} is your standard filler rotation. Complete all 3 hits " +
-                    "(Red → Green → Blue) to build 25 Palette Gauge and 1 White Paint per combo.",
-                    new[] { $"Combo Step: {context.BaseComboStep}", $"Palette Gauge: {context.PaletteGauge}",
-                            $"White Paint: {context.WhitePaint}" },
-                    new[] { "Use Subtractive at 50+ gauge" },
-                    "Complete base combo to build resources. Use Subtractive Palette at 50+ gauge.",
-                    PctConcepts.ComboBasics);
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(comboAction.ActionId, comboAction.Name)
+                    .AsCasterDamage()
+                    .Target(target.Name?.TextValue)
+                    .Reason($"Base combo - {stepName}",
+                        $"Base combo {stepName} is your standard filler rotation. Complete all 3 hits " +
+                        "(Red → Green → Blue) to build 25 Palette Gauge and 1 White Paint per combo.")
+                    .Factors($"Combo Step: {context.BaseComboStep}", $"Palette Gauge: {context.PaletteGauge}",
+                        $"White Paint: {context.WhitePaint}")
+                    .Alternatives("Use Subtractive at 50+ gauge")
+                    .Tip("Complete base combo to build resources. Use Subtractive Palette at 50+ gauge.")
+                    .Concept(PctConcepts.ComboBasics)
+                    .Record();
             }
 
             context.TrainingService?.RecordConceptApplication(PctConcepts.ComboBasics, true, $"Base {stepName} executed");

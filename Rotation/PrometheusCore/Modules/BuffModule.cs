@@ -1,7 +1,8 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
-using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.PrometheusCore.Context;
+using Olympus.Services.Training;
 using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.PrometheusCore.Modules;
@@ -155,18 +156,19 @@ public sealed class BuffModule : IPrometheusModule
             partyCoord?.OnRaidBuffUsed(MCHActions.Wildfire.ActionId, 120_000);
 
             // Training: Record Wildfire decision
-            RangedDpsTrainingHelper.RecordBurstDecision(
-                context.TrainingService,
-                MCHActions.Wildfire.ActionId,
-                MCHActions.Wildfire.Name,
-                target.Name?.TextValue ?? "Target",
-                "Wildfire applied (Hypercharge burst window)",
-                "Wildfire is MCH's 2-minute burst. It accumulates damage based on weapon skills landed during its duration. " +
-                "Always pair with Hypercharge to maximize Heat Blast hits. 10s duration, aim for 6 GCDs inside.",
-                new[] { context.IsOverheated ? "Overheated active" : "Heat >= 50", "Hypercharge ready/active", "120s cooldown ready" },
-                new[] { "Hold for party raid buffs", "Hold for phase timing" },
-                "Wildfire counts GCDs landed. Use with Hypercharge for 5-6 Heat Blasts inside the window.",
-                "mch.wildfire_placement");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(MCHActions.Wildfire.ActionId, MCHActions.Wildfire.Name)
+                .AsRangedBurst()
+                .Target(target.Name?.TextValue ?? "Target")
+                .Reason(
+                    "Wildfire applied (Hypercharge burst window)",
+                    "Wildfire is MCH's 2-minute burst. It accumulates damage based on weapon skills landed during its duration. " +
+                    "Always pair with Hypercharge to maximize Heat Blast hits. 10s duration, aim for 6 GCDs inside.")
+                .Factors(context.IsOverheated ? "Overheated active" : "Heat >= 50", "Hypercharge ready/active", "120s cooldown ready")
+                .Alternatives("Hold for party raid buffs", "Hold for phase timing")
+                .Tip("Wildfire counts GCDs landed. Use with Hypercharge for 5-6 Heat Blasts inside the window.")
+                .Concept("mch.wildfire_placement")
+                .Record();
             context.TrainingService?.RecordConceptApplication("mch.wildfire_placement", true, "Burst window activation");
             context.TrainingService?.RecordConceptApplication("mch.burst_party_sync", true, "Party coordination");
 
@@ -207,19 +209,18 @@ public sealed class BuffModule : IPrometheusModule
             context.Debug.BuffState = "Barrel Stabilizer used (+50 Heat)";
 
             // Training: Record Barrel Stabilizer decision
-            RangedDpsTrainingHelper.RecordResourceDecision(
-                context.TrainingService,
-                MCHActions.BarrelStabilizer.ActionId,
-                MCHActions.BarrelStabilizer.Name,
-                "Heat",
-                context.Heat,
-                $"Barrel Stabilizer used (Heat: {context.Heat} → {context.Heat + 50})",
-                "Barrel Stabilizer grants +50 Heat instantly, enabling Hypercharge. At Lv.100, also grants Full Metal Machinist " +
-                "for Full Metal Field. Use on cooldown, but avoid overcapping Heat above 50.",
-                new[] { $"Heat: {context.Heat}/100", "120s cooldown ready", "Won't overcap Heat" },
-                new[] { "Wait if Heat > 50", "Hold for phase timing" },
-                "Use Barrel Stabilizer on cooldown. At Lv.100, follow with Full Metal Field before Hypercharge.",
-                "mch.heat_gauge");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(MCHActions.BarrelStabilizer.ActionId, MCHActions.BarrelStabilizer.Name)
+                .AsRangedResource("Heat", context.Heat)
+                .Reason(
+                    $"Barrel Stabilizer used (Heat: {context.Heat} → {context.Heat + 50})",
+                    "Barrel Stabilizer grants +50 Heat instantly, enabling Hypercharge. At Lv.100, also grants Full Metal Machinist " +
+                    "for Full Metal Field. Use on cooldown, but avoid overcapping Heat above 50.")
+                .Factors($"Heat: {context.Heat}/100", "120s cooldown ready", "Won't overcap Heat")
+                .Alternatives("Wait if Heat > 50", "Hold for phase timing")
+                .Tip("Use Barrel Stabilizer on cooldown. At Lv.100, follow with Full Metal Field before Hypercharge.")
+                .Concept("mch.heat_gauge")
+                .Record();
             context.TrainingService?.RecordConceptApplication("mch.heat_gauge", true, "Heat generation");
             context.TrainingService?.RecordConceptApplication("mch.gauge_overcapping", context.Heat <= 50, "Overcap prevention");
 
@@ -281,18 +282,19 @@ public sealed class BuffModule : IPrometheusModule
 
             // Training: Record Reassemble decision
             var reason = hasHighPotencyReady ? "High-potency action ready" : "Preventing charge overcap";
-            RangedDpsTrainingHelper.RecordBurstDecision(
-                context.TrainingService,
-                MCHActions.Reassemble.ActionId,
-                MCHActions.Reassemble.Name,
-                player.Name?.TextValue ?? "Self",
-                $"Reassemble activated ({reason})",
-                "Reassemble guarantees critical direct hit on next weaponskill. Prioritize Drill, Air Anchor, Chain Saw, " +
-                "Excavator, or Full Metal Field. Has 2 charges at Lv.84+, avoid overcapping.",
-                new[] { $"Charges: {context.ReassembleCharges}", reason },
-                new[] { "Save for higher potency action", "Wait for Drill/Air Anchor/Chain Saw" },
-                "Use Reassemble before Drill (highest priority), then Air Anchor, Chain Saw, or Excavator.",
-                "mch.reassemble_priority");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(MCHActions.Reassemble.ActionId, MCHActions.Reassemble.Name)
+                .AsRangedBurst()
+                .Target(player.Name?.TextValue ?? "Self")
+                .Reason(
+                    $"Reassemble activated ({reason})",
+                    "Reassemble guarantees critical direct hit on next weaponskill. Prioritize Drill, Air Anchor, Chain Saw, " +
+                    "Excavator, or Full Metal Field. Has 2 charges at Lv.84+, avoid overcapping.")
+                .Factors($"Charges: {context.ReassembleCharges}", reason)
+                .Alternatives("Save for higher potency action", "Wait for Drill/Air Anchor/Chain Saw")
+                .Tip("Use Reassemble before Drill (highest priority), then Air Anchor, Chain Saw, or Excavator.")
+                .Concept("mch.reassemble_priority")
+                .Record();
             context.TrainingService?.RecordConceptApplication("mch.reassemble_priority", hasHighPotencyReady, "Optimal Reassemble target");
             context.TrainingService?.RecordConceptApplication("mch.reassemble_charges", context.ReassembleCharges < 2, "Charge management");
 
@@ -353,18 +355,19 @@ public sealed class BuffModule : IPrometheusModule
             context.Debug.BuffState = "Hypercharge activated";
 
             // Training: Record Hypercharge decision
-            RangedDpsTrainingHelper.RecordBurstDecision(
-                context.TrainingService,
-                MCHActions.Hypercharge.ActionId,
-                MCHActions.Hypercharge.Name,
-                player.Name?.TextValue ?? "Self",
-                $"Hypercharge activated (Heat: {context.Heat} → {context.Heat - 50})",
-                "Hypercharge spends 50 Heat to enter Overheated state for ~10s. During Overheated, use Heat Blast (1.5s GCD) " +
-                "and weave Gauss Round/Ricochet. Always pair with Wildfire for maximum burst.",
-                new[] { $"Heat: {context.Heat}/100", "No tool actions imminent", "Wildfire window optimal" },
-                new[] { "Wait for Drill/Air Anchor/Chain Saw", "Hold for Wildfire alignment" },
-                "Enter Hypercharge when tools are on cooldown. Spam Heat Blast and weave oGCDs during Overheated.",
-                "mch.hypercharge_activation");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(MCHActions.Hypercharge.ActionId, MCHActions.Hypercharge.Name)
+                .AsRangedBurst()
+                .Target(player.Name?.TextValue ?? "Self")
+                .Reason(
+                    $"Hypercharge activated (Heat: {context.Heat} → {context.Heat - 50})",
+                    "Hypercharge spends 50 Heat to enter Overheated state for ~10s. During Overheated, use Heat Blast (1.5s GCD) " +
+                    "and weave Gauss Round/Ricochet. Always pair with Wildfire for maximum burst.")
+                .Factors($"Heat: {context.Heat}/100", "No tool actions imminent", "Wildfire window optimal")
+                .Alternatives("Wait for Drill/Air Anchor/Chain Saw", "Hold for Wildfire alignment")
+                .Tip("Enter Hypercharge when tools are on cooldown. Spam Heat Blast and weave oGCDs during Overheated.")
+                .Concept("mch.hypercharge_activation")
+                .Record();
             context.TrainingService?.RecordConceptApplication("mch.hypercharge_activation", true, "Burst phase entry");
             context.TrainingService?.RecordConceptApplication("mch.hypercharge_timing", true, "Tool cooldown check");
 
@@ -422,19 +425,18 @@ public sealed class BuffModule : IPrometheusModule
             var batteryReason = context.Battery >= 100 ? "Maximum Battery" :
                                 context.Battery >= 90 ? "Near-maximum Battery" :
                                 "Preventing overcap";
-            RangedDpsTrainingHelper.RecordResourceDecision(
-                context.TrainingService,
-                petAction.ActionId,
-                petAction.Name,
-                "Battery",
-                context.Battery,
-                $"{petAction.Name} summoned ({batteryReason})",
-                "Automaton Queen scales with Battery spent (50-100). Higher Battery = stronger Queen. " +
-                "Summon at 90-100 Battery for maximum damage, but don't let Battery overcap from tool actions.",
-                new[] { $"Battery: {context.Battery}/100", batteryReason },
-                new[] { "Wait for 100 Battery", "Use earlier if about to overcap" },
-                "Summon Queen at 90-100 Battery for maximum damage. Air Anchor and Chain Saw grant +20 Battery each.",
-                "mch.queen_summoning");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(petAction.ActionId, petAction.Name)
+                .AsRangedResource("Battery", context.Battery)
+                .Reason(
+                    $"{petAction.Name} summoned ({batteryReason})",
+                    "Automaton Queen scales with Battery spent (50-100). Higher Battery = stronger Queen. " +
+                    "Summon at 90-100 Battery for maximum damage, but don't let Battery overcap from tool actions.")
+                .Factors($"Battery: {context.Battery}/100", batteryReason)
+                .Alternatives("Wait for 100 Battery", "Use earlier if about to overcap")
+                .Tip("Summon Queen at 90-100 Battery for maximum damage. Air Anchor and Chain Saw grant +20 Battery each.")
+                .Concept("mch.queen_summoning")
+                .Record();
             context.TrainingService?.RecordConceptApplication("mch.queen_summoning", true, "Pet deployment");
             context.TrainingService?.RecordConceptApplication("mch.battery_gauge", context.Battery >= 90, "Optimal Battery usage");
             context.TrainingService?.RecordConceptApplication("mch.queen_damage_scaling", context.Battery >= 90, "Battery maximization");
@@ -470,19 +472,20 @@ public sealed class BuffModule : IPrometheusModule
                     context.Debug.BuffState = $"{gaussAction.Name} (charges: {context.GaussRoundCharges})";
 
                     // Training: Record Gauss Round decision
-                    var reason = context.IsOverheated ? "Weaving during Overheated" : "Preventing charge overcap";
-                    RangedDpsTrainingHelper.RecordDamageDecision(
-                        context.TrainingService,
-                        gaussAction.ActionId,
-                        gaussAction.Name,
-                        target.Name?.TextValue ?? "Target",
-                        $"{gaussAction.Name} ({reason})",
-                        "Gauss Round is a charge-based oGCD (3 charges max). Weave between Heat Blasts during Overheated. " +
-                        "Heat Blast reduces its cooldown, so dump charges aggressively during Hypercharge.",
-                        new[] { $"Charges: {context.GaussRoundCharges}/3", reason },
-                        new[] { "Save for Overheated phase", "Alternate with Ricochet" },
-                        "During Overheated, alternate Gauss Round and Ricochet between Heat Blasts for optimal weaving.",
-                        "mch.ogcd_weaving");
+                    var gaussReason = context.IsOverheated ? "Weaving during Overheated" : "Preventing charge overcap";
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(gaussAction.ActionId, gaussAction.Name)
+                        .AsRangedDamage()
+                        .Target(target.Name?.TextValue ?? "Target")
+                        .Reason(
+                            $"{gaussAction.Name} ({gaussReason})",
+                            "Gauss Round is a charge-based oGCD (3 charges max). Weave between Heat Blasts during Overheated. " +
+                            "Heat Blast reduces its cooldown, so dump charges aggressively during Hypercharge.")
+                        .Factors($"Charges: {context.GaussRoundCharges}/3", gaussReason)
+                        .Alternatives("Save for Overheated phase", "Alternate with Ricochet")
+                        .Tip("During Overheated, alternate Gauss Round and Ricochet between Heat Blasts for optimal weaving.")
+                        .Concept("mch.ogcd_weaving")
+                        .Record();
                     context.TrainingService?.RecordConceptApplication("mch.ogcd_weaving", context.IsOverheated, "Overheated weaving");
 
                     return true;
@@ -503,19 +506,20 @@ public sealed class BuffModule : IPrometheusModule
                     context.Debug.BuffState = $"{ricochetAction.Name} (charges: {context.RicochetCharges})";
 
                     // Training: Record Ricochet decision
-                    var reason = context.IsOverheated ? "Weaving during Overheated" : "Preventing charge overcap";
-                    RangedDpsTrainingHelper.RecordDamageDecision(
-                        context.TrainingService,
-                        ricochetAction.ActionId,
-                        ricochetAction.Name,
-                        target.Name?.TextValue ?? "Target",
-                        $"{ricochetAction.Name} ({reason})",
-                        "Ricochet is a charge-based AoE oGCD (3 charges max). Weave between Heat Blasts during Overheated. " +
-                        "Heat Blast reduces its cooldown, so dump charges aggressively during Hypercharge.",
-                        new[] { $"Charges: {context.RicochetCharges}/3", reason },
-                        new[] { "Save for Overheated phase", "Alternate with Gauss Round" },
-                        "During Overheated, alternate Ricochet and Gauss Round between Heat Blasts for optimal weaving.",
-                        "mch.ogcd_weaving");
+                    var ricochetReason = context.IsOverheated ? "Weaving during Overheated" : "Preventing charge overcap";
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(ricochetAction.ActionId, ricochetAction.Name)
+                        .AsRangedDamage()
+                        .Target(target.Name?.TextValue ?? "Target")
+                        .Reason(
+                            $"{ricochetAction.Name} ({ricochetReason})",
+                            "Ricochet is a charge-based AoE oGCD (3 charges max). Weave between Heat Blasts during Overheated. " +
+                            "Heat Blast reduces its cooldown, so dump charges aggressively during Hypercharge.")
+                        .Factors($"Charges: {context.RicochetCharges}/3", ricochetReason)
+                        .Alternatives("Save for Overheated phase", "Alternate with Gauss Round")
+                        .Tip("During Overheated, alternate Ricochet and Gauss Round between Heat Blasts for optimal weaving.")
+                        .Concept("mch.ogcd_weaving")
+                        .Record();
                     context.TrainingService?.RecordConceptApplication("mch.ogcd_weaving", context.IsOverheated, "Overheated weaving");
 
                     return true;

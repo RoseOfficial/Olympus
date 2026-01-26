@@ -1,6 +1,7 @@
 using Olympus.Data;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.AresCore.Context;
-using Olympus.Rotation.Common.Helpers;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AresCore.Modules;
 
@@ -132,17 +133,17 @@ public sealed class BuffModule : IAresModule
             context.Debug.BuffState = "Activating Inner Release";
 
             // Training: Record burst window activation
-            TankTrainingHelper.RecordBurstDecision(
-                context.TrainingService,
-                WARActions.InnerRelease.ActionId,
-                WARActions.InnerRelease.Name,
-                null,
-                "Inner Release activated - your burst window begins now. Spam Fell Cleave for massive damage.",
-                "Inner Release grants 3 stacks that make Fell Cleave/Decimate free and guaranteed crit + direct hit. 60s cooldown - align with raid buffs.",
-                new[] { $"Surging Tempest active ({context.SurgingTempestRemaining:F1}s)", $"Beast Gauge at {context.BeastGauge}", "Ready to burst" },
-                new[] { "Wait for more gauge (minor optimization)", "Hold for raid buffs (may lose a use)" },
-                "Use Inner Release on cooldown when Surging Tempest is up. Delaying loses damage - the 60s cooldown means frequent windows.",
-                "war_inner_release");
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(WARActions.InnerRelease.ActionId, WARActions.InnerRelease.Name)
+                .AsTankBurst()
+                .Reason(
+                    "Inner Release activated - your burst window begins now. Spam Fell Cleave for massive damage.",
+                    "Inner Release grants 3 stacks that make Fell Cleave/Decimate free and guaranteed crit + direct hit. 60s cooldown - align with raid buffs.")
+                .Factors($"Surging Tempest active ({context.SurgingTempestRemaining:F1}s)", $"Beast Gauge at {context.BeastGauge}", "Ready to burst")
+                .Alternatives("Wait for more gauge (minor optimization)", "Hold for raid buffs (may lose a use)")
+                .Tip("Use Inner Release on cooldown when Surging Tempest is up. Delaying loses damage - the 60s cooldown means frequent windows.")
+                .Concept("war_inner_release")
+                .Record();
 
             context.TrainingService?.RecordConceptApplication("war_inner_release", true, "Burst window activated");
 
@@ -215,21 +216,21 @@ public sealed class BuffModule : IAresModule
 
             // Training: Record gauge generation
             var duringIR = context.HasInnerRelease;
-            TankTrainingHelper.RecordResourceDecision(
-                context.TrainingService,
-                WARActions.Infuriate.ActionId,
-                WARActions.Infuriate.Name,
-                context.BeastGauge,
-                duringIR
-                    ? "Infuriate during Inner Release grants Nascent Chaos, enabling Inner Chaos (highest single-hit potency)."
-                    : $"Infuriate to generate 50 Beast Gauge. Current gauge: {context.BeastGauge}.",
-                "Infuriate grants 50 gauge and, during Inner Release, also grants Nascent Chaos for Inner Chaos. 2 charges - don't overcap.",
-                duringIR
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(WARActions.Infuriate.ActionId, WARActions.Infuriate.Name)
+                .AsTankResource(context.BeastGauge)
+                .Reason(
+                    duringIR
+                        ? "Infuriate during Inner Release grants Nascent Chaos, enabling Inner Chaos (highest single-hit potency)."
+                        : $"Infuriate to generate 50 Beast Gauge. Current gauge: {context.BeastGauge}.",
+                    "Infuriate grants 50 gauge and, during Inner Release, also grants Nascent Chaos for Inner Chaos. 2 charges - don't overcap.")
+                .Factors(duringIR
                     ? new[] { "Inner Release active", "Nascent Chaos not active", "Enables Inner Chaos" }
-                    : new[] { $"Gauge at {context.BeastGauge} (room for 50)", "Building resources", "Charge available" },
-                new[] { "Save for Inner Release (may overcap charges)", "Wait for lower gauge (may overcap)" },
-                "Use Infuriate when gauge ≤50 to avoid overcapping. During Inner Release, use one to get Nascent Chaos for Inner Chaos.",
-                "war_infuriate_gauge");
+                    : new[] { $"Gauge at {context.BeastGauge} (room for 50)", "Building resources", "Charge available" })
+                .Alternatives("Save for Inner Release (may overcap charges)", "Wait for lower gauge (may overcap)")
+                .Tip("Use Infuriate when gauge ≤50 to avoid overcapping. During Inner Release, use one to get Nascent Chaos for Inner Chaos.")
+                .Concept("war_infuriate_gauge")
+                .Record();
 
             context.TrainingService?.RecordConceptApplication("war_infuriate_gauge", true, duringIR ? "Nascent Chaos generation" : "Gauge building");
 
