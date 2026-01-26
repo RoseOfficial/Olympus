@@ -97,6 +97,87 @@ public sealed class DebugWindow : Window
                 ImGui.EndTabItem();
             }
 
+            // Melee DPS Tabs
+            if (ImGui.BeginTabItem("Dragoon"))
+            {
+                ZeusTab.Draw(_debugService.GetZeusDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("Ninja"))
+            {
+                HermesTab.Draw(_debugService.GetHermesDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("Samurai"))
+            {
+                NikeTab.Draw(_debugService.GetNikeDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("Monk"))
+            {
+                KratosTab.Draw(_debugService.GetKratosDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("Reaper"))
+            {
+                ThanatosTab.Draw(_debugService.GetThanatosDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("Viper"))
+            {
+                EchidnaTab.Draw(_debugService.GetEchidnaDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
+            // Ranged Physical DPS Tabs
+            if (ImGui.BeginTabItem("Machinist"))
+            {
+                PrometheusTab.Draw(_debugService.GetPrometheusDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("Bard"))
+            {
+                CalliopeTab.Draw(_debugService.GetCalliopeDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("Dancer"))
+            {
+                TerpsichoreTab.Draw(_debugService.GetTerpsichoreDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
+            // Caster DPS Tabs
+            if (ImGui.BeginTabItem("Black Mage"))
+            {
+                HecateTab.Draw(_debugService.GetHecateDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("Summoner"))
+            {
+                PersephoneTab.Draw(_debugService.GetPersephoneDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("Red Mage"))
+            {
+                CirceTab.Draw(_debugService.GetCirceDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("Pictomancer"))
+            {
+                IrisTab.Draw(_debugService.GetIrisDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
             if (ImGui.BeginTabItem("Timeline"))
             {
                 TimelineTab.Draw(_timelineService, _configuration);

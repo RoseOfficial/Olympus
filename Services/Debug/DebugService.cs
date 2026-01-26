@@ -9,6 +9,19 @@ using Olympus.Rotation;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.AstraeaCore.Context;
 using Olympus.Rotation.AthenaCore.Context;
+using Olympus.Rotation.CalliopeCore.Context;
+using Olympus.Rotation.CirceCore.Context;
+using Olympus.Rotation.EchidnaCore.Context;
+using Olympus.Rotation.HecateCore.Context;
+using Olympus.Rotation.HermesCore.Context;
+using Olympus.Rotation.IrisCore.Context;
+using Olympus.Rotation.KratosCore.Context;
+using Olympus.Rotation.NikeCore.Context;
+using Olympus.Rotation.PersephoneCore.Context;
+using Olympus.Rotation.PrometheusCore.Context;
+using Olympus.Rotation.TerpsichoreCore.Context;
+using Olympus.Rotation.ThanatosCore.Context;
+using Olympus.Rotation.ZeusCore.Context;
 using Olympus.Services.Action;
 using Olympus.Services.Healing;
 using Olympus.Services.Prediction;
@@ -442,5 +455,115 @@ public sealed class DebugService
     public AstraeaDebugState? GetAstraeaDebugState()
     {
         return (_rotationManager.ActiveRotation as Astraea)?.AstraeaDebug;
+    }
+
+    // ========== Melee DPS Debug States ==========
+
+    /// <summary>
+    /// Gets the Zeus (Dragoon) debug state, if the active rotation is Dragoon.
+    /// </summary>
+    public ZeusDebugState? GetZeusDebugState()
+    {
+        return (_rotationManager.ActiveRotation as Zeus)?.ZeusDebug;
+    }
+
+    /// <summary>
+    /// Gets the Hermes (Ninja) debug state, if the active rotation is Ninja.
+    /// </summary>
+    public HermesDebugState? GetHermesDebugState()
+    {
+        return (_rotationManager.ActiveRotation as Hermes)?.HermesDebug;
+    }
+
+    /// <summary>
+    /// Gets the Nike (Samurai) debug state, if the active rotation is Samurai.
+    /// </summary>
+    public NikeDebugState? GetNikeDebugState()
+    {
+        return (_rotationManager.ActiveRotation as Nike)?.NikeDebug;
+    }
+
+    /// <summary>
+    /// Gets the Kratos (Monk) debug state, if the active rotation is Monk.
+    /// </summary>
+    public KratosDebugState? GetKratosDebugState()
+    {
+        return (_rotationManager.ActiveRotation as Kratos)?.KratosDebug;
+    }
+
+    /// <summary>
+    /// Gets the Thanatos (Reaper) debug state, if the active rotation is Reaper.
+    /// </summary>
+    public ThanatosDebugState? GetThanatosDebugState()
+    {
+        return (_rotationManager.ActiveRotation as Thanatos)?.ThanatosDebug;
+    }
+
+    /// <summary>
+    /// Gets the Echidna (Viper) debug state, if the active rotation is Viper.
+    /// </summary>
+    public EchidnaDebugState? GetEchidnaDebugState()
+    {
+        return (_rotationManager.ActiveRotation as Echidna)?.EchidnaDebug;
+    }
+
+    // ========== Ranged Physical DPS Debug States ==========
+
+    /// <summary>
+    /// Gets the Prometheus (Machinist) debug state, if the active rotation is Machinist.
+    /// </summary>
+    public PrometheusDebugState? GetPrometheusDebugState()
+    {
+        return (_rotationManager.ActiveRotation as Prometheus)?.PrometheusDebug;
+    }
+
+    /// <summary>
+    /// Gets the Calliope (Bard) debug state, if the active rotation is Bard.
+    /// </summary>
+    public CalliopeDebugState? GetCalliopeDebugState()
+    {
+        return (_rotationManager.ActiveRotation as Calliope)?.CalliopeDebug;
+    }
+
+    /// <summary>
+    /// Gets the Terpsichore (Dancer) debug state, if the active rotation is Dancer.
+    /// </summary>
+    public TerpsichoreDebugState? GetTerpsichoreDebugState()
+    {
+        return (_rotationManager.ActiveRotation as Terpsichore)?.TerpsichoreDebug;
+    }
+
+    // ========== Caster DPS Debug States ==========
+
+    /// <summary>
+    /// Gets the Hecate (Black Mage) debug state, if the active rotation is Black Mage.
+    /// </summary>
+    public HecateDebugState? GetHecateDebugState()
+    {
+        return (_rotationManager.ActiveRotation as Hecate)?.HecateDebug;
+    }
+
+    /// <summary>
+    /// Gets the Persephone (Summoner) debug state, if the active rotation is Summoner.
+    /// </summary>
+    public PersephoneDebugState? GetPersephoneDebugState()
+    {
+        return (_rotationManager.ActiveRotation as Persephone)?.PersephoneDebug;
+    }
+
+    /// <summary>
+    /// Gets the Circe (Red Mage) debug state, if the active rotation is Red Mage.
+    /// </summary>
+    public CirceDebugState? GetCirceDebugState()
+    {
+        return (_rotationManager.ActiveRotation as Circe)?.CirceDebug;
+    }
+
+    /// <summary>
+    /// Gets the Iris (Pictomancer) debug state, if the active rotation is Pictomancer.
+    /// </summary>
+    public IrisDebugState? GetIrisDebugState()
+    {
+        return (_rotationManager.ActiveRotation as Iris)?.IrisDebug;
     }
 }
