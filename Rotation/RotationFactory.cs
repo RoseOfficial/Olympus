@@ -81,6 +81,54 @@ public sealed class RotationFactory
     }
 
     /// <summary>
+    /// Discovers all rotation classes and registers factories (preserves lazy loading).
+    /// </summary>
+    /// <param name="manager">The rotation manager to register factories with.</param>
+    /// <returns>Number of rotation factories registered.</returns>
+    public int DiscoverAndRegisterFactories(RotationManager manager)
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        var rotationTypes = assembly.GetTypes()
+            .Where(t => t.GetCustomAttribute<RotationAttribute>() != null)
+            .Where(t => typeof(IRotation).IsAssignableFrom(t))
+            .Where(t => !t.IsAbstract && !t.IsInterface);
+
+        int count = 0;
+        foreach (var type in rotationTypes)
+        {
+            try
+            {
+                var attr = type.GetCustomAttribute<RotationAttribute>()!;
+                var capturedType = type;
+
+                foreach (var jobId in attr.JobIds)
+                {
+                    manager.RegisterFactory(jobId, () => CreateRotationAndTrack(capturedType));
+                }
+
+                count++;
+                _log.Debug("Registered factory for rotation {Name} (jobs: {Jobs})",
+                    attr.Name, string.Join(", ", attr.JobIds));
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex, "Failed to register factory for {Type}", type.Name);
+            }
+        }
+
+        _log.Information("Discovered and registered {Count} rotation factories", count);
+        return count;
+    }
+
+    private IRotation CreateRotationAndTrack(Type rotationType)
+    {
+        var rotation = CreateRotation(rotationType)
+            ?? throw new InvalidOperationException($"Failed to create rotation {rotationType.Name}");
+        _createdRotations.Add(rotation);
+        return rotation;
+    }
+
+    /// <summary>
     /// Creates a rotation instance using constructor injection from the service container.
     /// </summary>
     /// <param name="rotationType">The rotation type to instantiate.</param>

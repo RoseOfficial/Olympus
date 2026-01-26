@@ -33,7 +33,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "4.1.1";
+    public const string PluginVersion = "4.1.2";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -65,6 +65,8 @@ public sealed class Plugin : IDalamudPlugin
     private readonly DebugService debugService;
     private readonly DebuffDetectionService debuffDetectionService;
     private readonly RotationManager rotationManager;
+    private readonly ServiceContainer serviceContainer;
+    private readonly RotationFactory rotationFactory;
 
     // Tank services
     private readonly EnmityService enmityService;
@@ -231,9 +233,14 @@ public sealed class Plugin : IDalamudPlugin
             this.trainingService.UpdateRecommendations(session);
         };
 
-        // Create rotation manager and register factories (lazy loading)
+        // Create service container for rotation dependency injection
+        this.serviceContainer = CreateServiceContainer();
+
+        // Create rotation manager and factory, then auto-discover rotations
         this.rotationManager = new RotationManager();
-        RegisterRotationFactories();
+        this.rotationFactory = new RotationFactory(serviceContainer, log);
+        var rotationCount = rotationFactory.DiscoverAndRegisterFactories(rotationManager);
+        log.Information("Registered {Count} rotation modules via auto-discovery", rotationCount);
 
         // Debug service aggregates all debug data
         this.debugService = new DebugService(
@@ -307,6 +314,52 @@ public sealed class Plugin : IDalamudPlugin
     private void OnTerritoryChanged(ushort zoneId)
     {
         timelineService.LoadForZone(zoneId);
+    }
+
+    /// <summary>
+    /// Creates and populates the service container for rotation dependency injection.
+    /// </summary>
+    private ServiceContainer CreateServiceContainer()
+    {
+        var container = new ServiceContainer();
+
+        // Dalamud services
+        container.Register<IPluginLog>(log);
+        container.Register<IObjectTable>(objectTable);
+        container.Register<IPartyList>(partyList);
+        container.Register<IJobGauges>(jobGauges);
+
+        // Core services (register both interface and concrete where interface exists)
+        container.Register(configuration);
+        container.Register(actionTracker);
+        container.Register(actionService);
+        container.Register<ICombatEventService, CombatEventService>(combatEventService);
+        container.Register<IDamageIntakeService, DamageIntakeService>(damageIntakeService);
+        container.Register<IDamageTrendService, DamageTrendService>(damageTrendService);
+        container.Register<ITargetingService, TargetingService>(targetingService);
+        container.Register<IHpPredictionService, HpPredictionService>(hpPredictionService);
+        container.Register<IPlayerStatsService, PlayerStatsService>(playerStatsService);
+        container.Register<IDebuffDetectionService, DebuffDetectionService>(debuffDetectionService);
+
+        // Healer services
+        container.Register(healingSpellSelector);
+        container.Register<ICooldownPlanner, CooldownPlanner>(cooldownPlanner);
+        container.Register<IShieldTrackingService, ShieldTrackingService>(shieldTrackingService);
+
+        // Tank services
+        container.Register<IEnmityService, EnmityService>(enmityService);
+        container.Register<ITankCooldownService, TankCooldownService>(tankCooldownService);
+
+        // Melee DPS services
+        container.Register<IPositionalService, PositionalService>(positionalService);
+
+        // Optional services (rotations have default null parameters)
+        container.Register<ITimelineService, TimelineService>(timelineService);
+        if (partyCoordinationService != null)
+            container.Register<IPartyCoordinationService, PartyCoordinationService>(partyCoordinationService);
+        container.Register<ITrainingService, TrainingService>(trainingService);
+
+        return container;
     }
 
     private void SaveConfiguration()
@@ -411,568 +464,6 @@ public sealed class Plugin : IDalamudPlugin
         rotationManager.Execute(localPlayer);
     }
 
-    #region Rotation Factory
-
-    /// <summary>
-    /// Registers factory functions for all rotation modules.
-    /// Rotations are created lazily when the player switches to that job.
-    /// </summary>
-    private void RegisterRotationFactories()
-    {
-        // Healers
-        rotationManager.RegisterFactory(JobRegistry.WhiteMage, CreateApolloRotation);
-        rotationManager.RegisterFactory(JobRegistry.Conjurer, CreateApolloRotation);
-        rotationManager.RegisterFactory(JobRegistry.Scholar, CreateAthenaRotation);
-        rotationManager.RegisterFactory(JobRegistry.Arcanist, CreateAthenaRotation);
-        rotationManager.RegisterFactory(JobRegistry.Astrologian, CreateAstraeaRotation);
-        rotationManager.RegisterFactory(JobRegistry.Sage, CreateAsclepiusRotation);
-
-        // Tanks
-        rotationManager.RegisterFactory(JobRegistry.Paladin, CreateThemisRotation);
-        rotationManager.RegisterFactory(JobRegistry.Gladiator, CreateThemisRotation);
-        rotationManager.RegisterFactory(JobRegistry.Warrior, CreateAresRotation);
-        rotationManager.RegisterFactory(JobRegistry.Marauder, CreateAresRotation);
-        rotationManager.RegisterFactory(JobRegistry.DarkKnight, CreateNyxRotation);
-        rotationManager.RegisterFactory(JobRegistry.Gunbreaker, CreateHephaestusRotation);
-
-        // Melee DPS
-        rotationManager.RegisterFactory(JobRegistry.Monk, CreateKratosRotation);
-        rotationManager.RegisterFactory(JobRegistry.Pugilist, CreateKratosRotation);
-        rotationManager.RegisterFactory(JobRegistry.Dragoon, CreateZeusRotation);
-        rotationManager.RegisterFactory(JobRegistry.Lancer, CreateZeusRotation);
-        rotationManager.RegisterFactory(JobRegistry.Ninja, CreateHermesRotation);
-        rotationManager.RegisterFactory(JobRegistry.Rogue, CreateHermesRotation);
-        rotationManager.RegisterFactory(JobRegistry.Samurai, CreateNikeRotation);
-        rotationManager.RegisterFactory(JobRegistry.Reaper, CreateThanatosRotation);
-        rotationManager.RegisterFactory(JobRegistry.Viper, CreateEchidnaRotation);
-
-        // Ranged Physical DPS
-        rotationManager.RegisterFactory(JobRegistry.Machinist, CreatePrometheusRotation);
-        rotationManager.RegisterFactory(JobRegistry.Bard, CreateCalliopeRotation);
-        rotationManager.RegisterFactory(JobRegistry.Archer, CreateCalliopeRotation);
-        rotationManager.RegisterFactory(JobRegistry.Dancer, CreateTerpsichoreRotation);
-
-        // Casters
-        rotationManager.RegisterFactory(JobRegistry.BlackMage, CreateHecateRotation);
-        rotationManager.RegisterFactory(JobRegistry.Thaumaturge, CreateHecateRotation);
-        rotationManager.RegisterFactory(JobRegistry.Summoner, CreatePersephoneRotation);
-        rotationManager.RegisterFactory(JobRegistry.RedMage, CreateCirceRotation);
-        rotationManager.RegisterFactory(JobRegistry.Pictomancer, CreateIrisRotation);
-    }
-
-    /// <summary>
-    /// Creates the Apollo (White Mage) rotation module.
-    /// </summary>
-    private Apollo CreateApolloRotation()
-    {
-        return new Apollo(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            healingSpellSelector,
-            debuffDetectionService,
-            cooldownPlanner,
-            shieldTrackingService,
-            timelineService,
-            partyCoordinationService,
-            trainingService);
-    }
-
-    /// <summary>
-    /// Creates the Athena (Scholar) rotation module.
-    /// </summary>
-    private Athena CreateAthenaRotation()
-    {
-        return new Athena(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            cooldownPlanner,
-            healingSpellSelector,
-            shieldTrackingService,
-            timelineService,
-            partyCoordinationService,
-            trainingService);
-    }
-
-    /// <summary>
-    /// Creates the Astraea (Astrologian) rotation module.
-    /// </summary>
-    private Astraea CreateAstraeaRotation()
-    {
-        return new Astraea(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            cooldownPlanner,
-            healingSpellSelector,
-            shieldTrackingService,
-            jobGauges,
-            timelineService,
-            partyCoordinationService,
-            trainingService);
-    }
-
-    /// <summary>
-    /// Creates the Asclepius (Sage) rotation module.
-    /// </summary>
-    private Asclepius CreateAsclepiusRotation()
-    {
-        return new Asclepius(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            cooldownPlanner,
-            healingSpellSelector,
-            shieldTrackingService,
-            timelineService,
-            partyCoordinationService,
-            trainingService);
-    }
-
-    /// <summary>
-    /// Creates the Themis (Paladin) rotation module.
-    /// </summary>
-    private Themis CreateThemisRotation()
-    {
-        return new Themis(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            enmityService,
-            tankCooldownService,
-            timelineService);
-    }
-
-    /// <summary>
-    /// Creates the Ares (Warrior) rotation module.
-    /// </summary>
-    private Ares CreateAresRotation()
-    {
-        return new Ares(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            enmityService,
-            tankCooldownService,
-            timelineService);
-    }
-
-    /// <summary>
-    /// Creates the Nyx (Dark Knight) rotation module.
-    /// </summary>
-    private Nyx CreateNyxRotation()
-    {
-        return new Nyx(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            enmityService,
-            tankCooldownService,
-            timelineService);
-    }
-
-    /// <summary>
-    /// Creates the Hephaestus (Gunbreaker) rotation module.
-    /// </summary>
-    private Hephaestus CreateHephaestusRotation()
-    {
-        return new Hephaestus(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            enmityService,
-            tankCooldownService,
-            timelineService);
-    }
-
-    /// <summary>
-    /// Creates the Kratos (Monk) rotation module.
-    /// </summary>
-    private Kratos CreateKratosRotation()
-    {
-        return new Kratos(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            positionalService,
-            timelineService,
-            partyCoordinationService);
-    }
-
-    /// <summary>
-    /// Creates the Zeus (Dragoon) rotation module.
-    /// </summary>
-    private Zeus CreateZeusRotation()
-    {
-        return new Zeus(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            positionalService,
-            timelineService,
-            partyCoordinationService);
-    }
-
-    /// <summary>
-    /// Creates the Hermes (Ninja) rotation module.
-    /// </summary>
-    private Hermes CreateHermesRotation()
-    {
-        return new Hermes(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            positionalService,
-            timelineService,
-            partyCoordinationService);
-    }
-
-    /// <summary>
-    /// Creates the Nike (Samurai) rotation module.
-    /// </summary>
-    private Nike CreateNikeRotation()
-    {
-        return new Nike(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            positionalService,
-            timelineService,
-            partyCoordinationService);
-    }
-
-    /// <summary>
-    /// Creates the Thanatos (Reaper) rotation module.
-    /// </summary>
-    private Thanatos CreateThanatosRotation()
-    {
-        return new Thanatos(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            positionalService,
-            timelineService,
-            partyCoordinationService);
-    }
-
-    /// <summary>
-    /// Creates the Echidna (Viper) rotation module.
-    /// </summary>
-    private Echidna CreateEchidnaRotation()
-    {
-        return new Echidna(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            positionalService,
-            timelineService,
-            partyCoordinationService);
-    }
-
-    /// <summary>
-    /// Creates the Prometheus (Machinist) rotation module.
-    /// </summary>
-    private Prometheus CreatePrometheusRotation()
-    {
-        return new Prometheus(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            timelineService,
-            partyCoordinationService);
-    }
-
-    /// <summary>
-    /// Creates the Calliope (Bard) rotation module.
-    /// </summary>
-    private Calliope CreateCalliopeRotation()
-    {
-        return new Calliope(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            timelineService,
-            partyCoordinationService);
-    }
-
-    /// <summary>
-    /// Creates the Terpsichore (Dancer) rotation module.
-    /// </summary>
-    private Terpsichore CreateTerpsichoreRotation()
-    {
-        return new Terpsichore(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            timelineService,
-            partyCoordinationService);
-    }
-
-    /// <summary>
-    /// Creates the Hecate (Black Mage) rotation module.
-    /// </summary>
-    private Hecate CreateHecateRotation()
-    {
-        return new Hecate(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            timelineService);
-    }
-
-    /// <summary>
-    /// Creates the Persephone (Summoner) rotation module.
-    /// </summary>
-    private Persephone CreatePersephoneRotation()
-    {
-        return new Persephone(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            timelineService,
-            partyCoordinationService);
-    }
-
-    /// <summary>
-    /// Creates the Circe (Red Mage) rotation module.
-    /// </summary>
-    private Circe CreateCirceRotation()
-    {
-        return new Circe(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            timelineService,
-            partyCoordinationService,
-            trainingService);
-    }
-
-    /// <summary>
-    /// Creates the Iris (Pictomancer) rotation module.
-    /// </summary>
-    private Iris CreateIrisRotation()
-    {
-        return new Iris(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            timelineService,
-            partyCoordinationService: partyCoordinationService,
-            trainingService: trainingService);
-    }
-
-    #endregion
-
     public void Dispose()
     {
         // Save calibration data before shutdown
@@ -992,6 +483,9 @@ public sealed class Plugin : IDalamudPlugin
         partyCoordinationIpc?.Dispose();
         fflogsService?.Dispose();
         telemetryService.Dispose();
+
+        // Dispose rotations created by the factory
+        rotationFactory?.DisposeRotations();
 
         // Dispose rotation manager (handles all instantiated rotations)
         rotationManager.Dispose();
