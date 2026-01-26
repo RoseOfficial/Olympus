@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Plugin.Services;
 using Olympus.Config;
+using Olympus.Services.Party;
 
 namespace Olympus.Services.Analytics;
 
@@ -19,6 +20,7 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
     private readonly IPartyList partyList;
     private readonly IPluginLog log;
     private readonly IDataManager dataManager;
+    private readonly IPartyCoordinationService? partyCoordinationService;
 
     // Session history (most recent first)
     private readonly LinkedList<FightSession> sessionHistory = new();
@@ -55,7 +57,8 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         IObjectTable objectTable,
         IPartyList partyList,
         IPluginLog log,
-        IDataManager dataManager)
+        IDataManager dataManager,
+        IPartyCoordinationService? partyCoordinationService = null)
     {
         this.config = config;
         this.actionTracker = actionTracker;
@@ -64,6 +67,7 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         this.partyList = partyList;
         this.log = log;
         this.dataManager = dataManager;
+        this.partyCoordinationService = partyCoordinationService;
 
         // Subscribe to combat events
         combatEventService.OnLocalPlayerDamageDealt += OnLocalPlayerDamageDealt;
@@ -580,13 +584,18 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         if (fightTimeSeconds <= 15f)
             return CooldownPhase.Opener;
 
+        // Use actual party coordination if available
+        var burstState = partyCoordinationService?.GetBurstWindowState();
+        if (burstState?.IsActive == true)
+            return CooldownPhase.Burst;
+
+        // Fall back to heuristic when coordination unavailable
         // Burst windows: roughly every 2 minutes (120s), lasting ~20s
         // Common raid buff windows: 0s (opener), 120s, 240s, 360s, etc.
         var cycleTime = fightTimeSeconds % 120f;
         if (cycleTime <= 20f)
             return CooldownPhase.Burst;
 
-        // TODO: Could integrate with PartyCoordinationService to detect actual burst windows
         return CooldownPhase.Sustained;
     }
 

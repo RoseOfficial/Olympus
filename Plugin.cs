@@ -33,7 +33,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "4.1.0";
+    public const string PluginVersion = "4.1.1";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -195,7 +195,8 @@ public sealed class Plugin : IDalamudPlugin
             objectTable,
             partyList,
             log,
-            dataManager);
+            dataManager,
+            partyCoordinationService);
 
         // FFLogs integration
         this.fflogsService = new FFlogsService(configuration.FFLogs, log);

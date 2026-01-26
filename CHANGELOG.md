@@ -3,6 +3,19 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.1.1 - Bug Fixes
+
+**Summoner**
+- Fixed pet detection - now correctly checks ObjectTable instead of always assuming pet is summoned
+
+**Paladin**
+- Fixed Blade of Honor detection - now properly detects when the ability is available after Blade of Valor
+- Fixed Confiteor chain tracking - now correctly tracks position in the Confiteor → Blade of Faith → Blade of Truth → Blade of Valor chain
+
+**Analytics**
+- Improved burst window detection - now uses actual party coordination data when available instead of just 120s heuristics
+<!-- LATEST-END -->
+
 ## v4.1.0 - Lazy Rotation Loading
 
 **Performance Improvement**
@@ -11,7 +24,6 @@ All notable changes to Olympus will be documented in this file.
 - Reduced memory usage by 60-80% (only active job rotation loaded)
 - Simplified Plugin.cs architecture (removed 21 rotation instance fields)
 - No user-facing changes - same functionality, better performance
-<!-- LATEST-END -->
 
 ## v4.0.3 - Fluent Training Builder
 

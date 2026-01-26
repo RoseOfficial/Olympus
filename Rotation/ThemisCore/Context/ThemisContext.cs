@@ -2,6 +2,7 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
+using Olympus.Data;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Cache;
@@ -189,15 +190,30 @@ public sealed class ThemisContext : IThemisContext
         // DoT tracking
         GoringBladeRemaining = statusHelper.GetGoringBladeRemaining(CurrentTarget, player.EntityId);
 
-        // TODO: Track Blade of Honor buff
-        HasBladeOfHonor = false;
+        // Blade of Honor is only usable when the buff is active after completing Blade of Valor (Lv.100)
+        var level = player.Level;
+        HasBladeOfHonor = level >= PLDActions.BladeOfHonor.MinLevel &&
+                         actionService.IsActionReady(PLDActions.BladeOfHonor.ActionId);
 
         // Determine Atonement chain position based on Sword Oath stacks
         // Sword Oath starts at 3, each Atonement reduces it
         AtonementStep = HasSwordOath ? (4 - SwordOathStacks) : 0;
 
-        // TODO: Track Confiteor chain position
-        ConfiteorStep = 0;
+        // Determine Confiteor chain position by checking which action is ready
+        // The game enables each action in sequence: Confiteor → Faith → Truth → Valor
+        if (level >= PLDActions.BladeOfValor.MinLevel &&
+            actionService.IsActionReady(PLDActions.BladeOfValor.ActionId))
+            ConfiteorStep = 3;  // Blade of Valor ready
+        else if (level >= PLDActions.BladeOfTruth.MinLevel &&
+                 actionService.IsActionReady(PLDActions.BladeOfTruth.ActionId))
+            ConfiteorStep = 2;  // Blade of Truth ready
+        else if (level >= PLDActions.BladeOfFaith.MinLevel &&
+                 actionService.IsActionReady(PLDActions.BladeOfFaith.ActionId))
+            ConfiteorStep = 1;  // Blade of Faith ready
+        else if (HasRequiescat && level >= PLDActions.Confiteor.MinLevel)
+            ConfiteorStep = 0;  // Confiteor ready (at start of chain)
+        else
+            ConfiteorStep = -1; // Not in chain
 
         // Update debug state
         UpdateDebugState();

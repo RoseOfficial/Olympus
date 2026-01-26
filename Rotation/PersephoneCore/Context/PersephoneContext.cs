@@ -1,3 +1,4 @@
+using System.Linq;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
@@ -309,10 +310,11 @@ public sealed class PersephoneContext : IPersephoneContext
         HasUsedEnkindleThisPhase = hasUsedEnkindleThisPhase;
         HasUsedAstralFlowThisPhase = hasUsedAstralFlowThisPhase;
 
-        // Pet state - check if carbuncle/summon exists
-        // For simplicity, we assume pet is always summoned once combat starts
-        // A more robust check would look at the actual pet entity
-        HasPetSummoned = true; // TODO: Implement proper pet detection
+        // Pet state - check ObjectTable for pets owned by this player
+        // SubKind 2 = Pet/Companion in FFXIV
+        HasPetSummoned = objectTable
+            .OfType<IBattleNpc>()
+            .Any(npc => npc.OwnerId == player.EntityId && npc.SubKind == 2);
 
         // Update debug state
         UpdateDebugState();
