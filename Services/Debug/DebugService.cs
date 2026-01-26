@@ -20,7 +20,7 @@ namespace Olympus.Services.Debug;
 
 /// <summary>
 /// Central debug data aggregation service.
-/// Collects data from Apollo, Athena, ActionTracker, ActionService, CombatEventService, and HpPredictionService
+/// Collects data from active rotation, ActionTracker, ActionService, CombatEventService, and HpPredictionService
 /// into a single snapshot for the debug window.
 /// </summary>
 public sealed class DebugService
@@ -33,9 +33,6 @@ public sealed class DebugService
     private readonly HealingSpellSelector _healingSpellSelector;
     private readonly SpellStatusService _spellStatusService;
     private readonly RotationManager _rotationManager;
-    private readonly Apollo _apollo;
-    private readonly Athena? _athena;
-    private readonly Astraea? _astraea;
     private readonly IObjectTable _objectTable;
     private readonly IDataManager _dataManager;
 
@@ -53,11 +50,8 @@ public sealed class DebugService
         HealingSpellSelector healingSpellSelector,
         SpellStatusService spellStatusService,
         RotationManager rotationManager,
-        Apollo apollo,
         IObjectTable objectTable,
-        IDataManager dataManager,
-        Athena? athena = null,
-        Astraea? astraea = null)
+        IDataManager dataManager)
     {
         _actionTracker = actionTracker;
         _actionService = actionService;
@@ -67,9 +61,6 @@ public sealed class DebugService
         _healingSpellSelector = healingSpellSelector;
         _spellStatusService = spellStatusService;
         _rotationManager = rotationManager;
-        _apollo = apollo;
-        _athena = athena;
-        _astraea = astraea;
         _objectTable = objectTable;
         _dataManager = dataManager;
     }
@@ -149,9 +140,20 @@ public sealed class DebugService
 
     private DebugRotationState BuildRotationState()
     {
-        // Use active rotation's debug state (supports all jobs, not just healers)
+        // Use active rotation's debug state (supports all jobs)
         var activeRotation = _rotationManager.ActiveRotation;
-        var debug = activeRotation?.DebugState ?? _apollo.DebugState;
+        var debug = activeRotation?.DebugState;
+
+        // Return empty state if no rotation is active
+        if (debug == null)
+        {
+            return new DebugRotationState
+            {
+                PlanningState = "No rotation active",
+                PlannedAction = "N/A"
+            };
+        }
+
         return new DebugRotationState
         {
             // Core state
@@ -194,22 +196,25 @@ public sealed class DebugService
         var pendingHeals = BuildPendingHeals();
         var recentHeals = BuildRecentHeals();
         var shadowHpEntries = BuildShadowHpEntries();
-        var debug = _apollo.DebugState;
+
+        // Get debug state from active rotation (if it's a healer)
+        var activeRotation = _rotationManager.ActiveRotation;
+        var debug = activeRotation?.DebugState;
 
         return new DebugHealingState
         {
-            AoEStatus = debug.AoEStatus,
-            AoEInjuredCount = debug.AoEInjuredCount,
-            AoESelectedSpell = debug.AoESelectedSpell,
-            PlayerHpPercent = debug.PlayerHpPercent,
-            PartyListCount = debug.PartyListCount,
-            PartyValidCount = debug.PartyValidCount,
-            BattleNpcCount = debug.BattleNpcCount,
-            NpcInfo = debug.NpcInfo,
+            AoEStatus = debug?.AoEStatus ?? "N/A",
+            AoEInjuredCount = debug?.AoEInjuredCount ?? 0,
+            AoESelectedSpell = debug?.AoESelectedSpell ?? 0,
+            PlayerHpPercent = debug?.PlayerHpPercent ?? 0,
+            PartyListCount = debug?.PartyListCount ?? 0,
+            PartyValidCount = debug?.PartyValidCount ?? 0,
+            BattleNpcCount = debug?.BattleNpcCount ?? 0,
+            NpcInfo = debug?.NpcInfo ?? "N/A",
             PendingHeals = pendingHeals,
             TotalPendingHealAmount = pendingHeals.Sum(h => h.Amount),
-            LastHealAmount = debug.LastHealAmount,
-            LastHealStats = debug.LastHealStats,
+            LastHealAmount = debug?.LastHealAmount ?? 0,
+            LastHealStats = debug?.LastHealStats ?? "N/A",
             RecentHeals = recentHeals,
             TotalRecentHealAmount = recentHeals.Sum(h => h.Amount),
             ShadowHpEntries = shadowHpEntries
@@ -424,18 +429,18 @@ public sealed class DebugService
     }
 
     /// <summary>
-    /// Gets the Athena (Scholar) debug state, if available.
+    /// Gets the Athena (Scholar) debug state, if the active rotation is Scholar.
     /// </summary>
     public AthenaDebugState? GetAthenaDebugState()
     {
-        return _athena?.AthenaDebug;
+        return (_rotationManager.ActiveRotation as Athena)?.AthenaDebug;
     }
 
     /// <summary>
-    /// Gets the Astraea (Astrologian) debug state, if available.
+    /// Gets the Astraea (Astrologian) debug state, if the active rotation is Astrologian.
     /// </summary>
     public AstraeaDebugState? GetAstraeaDebugState()
     {
-        return _astraea?.AstraeaDebug;
+        return (_rotationManager.ActiveRotation as Astraea)?.AstraeaDebug;
     }
 }

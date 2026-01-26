@@ -33,7 +33,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "4.0.3";
+    public const string PluginVersion = "4.1.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -65,27 +65,6 @@ public sealed class Plugin : IDalamudPlugin
     private readonly DebugService debugService;
     private readonly DebuffDetectionService debuffDetectionService;
     private readonly RotationManager rotationManager;
-    private readonly Apollo apollo;
-    private readonly Athena athena;
-    private readonly Astraea astraea;
-    private readonly Asclepius asclepius;
-    private readonly Themis themis;
-    private readonly Ares ares;
-    private readonly Nyx nyx;
-    private readonly Hephaestus hephaestus;
-    private readonly Kratos kratos;
-    private readonly Zeus zeus;
-    private readonly Hermes hermes;
-    private readonly Nike nike;
-    private readonly Thanatos thanatos;
-    private readonly Echidna echidna;
-    private readonly Prometheus prometheus;
-    private readonly Calliope calliope;
-    private readonly Terpsichore terpsichore;
-    private readonly Hecate hecate;
-    private readonly Persephone persephone;
-    private readonly Circe circe;
-    private readonly Iris iris;
 
     // Tank services
     private readonly EnmityService enmityService;
@@ -251,30 +230,9 @@ public sealed class Plugin : IDalamudPlugin
             this.trainingService.UpdateRecommendations(session);
         };
 
-        // Create and register rotation modules via factory
+        // Create rotation manager and register factories (lazy loading)
         this.rotationManager = new RotationManager();
-        this.apollo = CreateApolloRotation();
-        this.athena = CreateAthenaRotation();
-        this.astraea = CreateAstraeaRotation();
-        this.asclepius = CreateAsclepiusRotation();
-        this.themis = CreateThemisRotation();
-        this.ares = CreateAresRotation();
-        this.nyx = CreateNyxRotation();
-        this.hephaestus = CreateHephaestusRotation();
-        this.kratos = CreateKratosRotation();
-        this.zeus = CreateZeusRotation();
-        this.hermes = CreateHermesRotation();
-        this.nike = CreateNikeRotation();
-        this.thanatos = CreateThanatosRotation();
-        this.echidna = CreateEchidnaRotation();
-        this.prometheus = CreatePrometheusRotation();
-        this.calliope = CreateCalliopeRotation();
-        this.terpsichore = CreateTerpsichoreRotation();
-        this.hecate = CreateHecateRotation();
-        this.persephone = CreatePersephoneRotation();
-        this.circe = CreateCirceRotation();
-        this.iris = CreateIrisRotation();
-        RegisterAvailableRotations();
+        RegisterRotationFactories();
 
         // Debug service aggregates all debug data
         this.debugService = new DebugService(
@@ -286,11 +244,8 @@ public sealed class Plugin : IDalamudPlugin
             healingSpellSelector,
             spellStatusService,
             rotationManager,
-            apollo,
             objectTable,
-            dataManager,
-            athena,
-            astraea);
+            dataManager);
 
         this.configWindow = new ConfigWindow(configuration, SaveConfiguration);
         this.mainWindow = new MainWindow(configuration, SaveConfiguration, OpenConfigUI, OpenDebugUI, OpenAnalyticsUI, OpenTrainingUI, PluginVersion, rotationManager);
@@ -302,7 +257,7 @@ public sealed class Plugin : IDalamudPlugin
 
         // Telemetry service for anonymous usage tracking
         this.telemetryService = new TelemetryService(configuration, log);
-        
+
         // IPC interface for external plugin integration
         this.olympusIpc = new OlympusIpc(
             pluginInterface,
@@ -458,74 +413,51 @@ public sealed class Plugin : IDalamudPlugin
     #region Rotation Factory
 
     /// <summary>
-    /// Registers all available rotation modules with the rotation manager.
-    /// Add new rotation registrations here as they are implemented.
+    /// Registers factory functions for all rotation modules.
+    /// Rotations are created lazily when the player switches to that job.
     /// </summary>
-    private void RegisterAvailableRotations()
+    private void RegisterRotationFactories()
     {
         // Healers
-        rotationManager.Register(apollo);
-        rotationManager.Register(athena);
-        rotationManager.Register(astraea);
-        rotationManager.Register(asclepius);
+        rotationManager.RegisterFactory(JobRegistry.WhiteMage, CreateApolloRotation);
+        rotationManager.RegisterFactory(JobRegistry.Conjurer, CreateApolloRotation);
+        rotationManager.RegisterFactory(JobRegistry.Scholar, CreateAthenaRotation);
+        rotationManager.RegisterFactory(JobRegistry.Arcanist, CreateAthenaRotation);
+        rotationManager.RegisterFactory(JobRegistry.Astrologian, CreateAstraeaRotation);
+        rotationManager.RegisterFactory(JobRegistry.Sage, CreateAsclepiusRotation);
 
         // Tanks
-        rotationManager.Register(themis);
-        rotationManager.Register(ares);
-        rotationManager.Register(nyx);
-        rotationManager.Register(hephaestus);
+        rotationManager.RegisterFactory(JobRegistry.Paladin, CreateThemisRotation);
+        rotationManager.RegisterFactory(JobRegistry.Gladiator, CreateThemisRotation);
+        rotationManager.RegisterFactory(JobRegistry.Warrior, CreateAresRotation);
+        rotationManager.RegisterFactory(JobRegistry.Marauder, CreateAresRotation);
+        rotationManager.RegisterFactory(JobRegistry.DarkKnight, CreateNyxRotation);
+        rotationManager.RegisterFactory(JobRegistry.Gunbreaker, CreateHephaestusRotation);
 
         // Melee DPS
-        rotationManager.Register(kratos);
-        rotationManager.Register(zeus);
-        rotationManager.Register(hermes);
-        rotationManager.Register(nike);
-        rotationManager.Register(thanatos);
-        rotationManager.Register(echidna);
+        rotationManager.RegisterFactory(JobRegistry.Monk, CreateKratosRotation);
+        rotationManager.RegisterFactory(JobRegistry.Pugilist, CreateKratosRotation);
+        rotationManager.RegisterFactory(JobRegistry.Dragoon, CreateZeusRotation);
+        rotationManager.RegisterFactory(JobRegistry.Lancer, CreateZeusRotation);
+        rotationManager.RegisterFactory(JobRegistry.Ninja, CreateHermesRotation);
+        rotationManager.RegisterFactory(JobRegistry.Rogue, CreateHermesRotation);
+        rotationManager.RegisterFactory(JobRegistry.Samurai, CreateNikeRotation);
+        rotationManager.RegisterFactory(JobRegistry.Reaper, CreateThanatosRotation);
+        rotationManager.RegisterFactory(JobRegistry.Viper, CreateEchidnaRotation);
 
         // Ranged Physical DPS
-        rotationManager.Register(prometheus);
-        rotationManager.Register(calliope);
-        rotationManager.Register(terpsichore);
+        rotationManager.RegisterFactory(JobRegistry.Machinist, CreatePrometheusRotation);
+        rotationManager.RegisterFactory(JobRegistry.Bard, CreateCalliopeRotation);
+        rotationManager.RegisterFactory(JobRegistry.Archer, CreateCalliopeRotation);
+        rotationManager.RegisterFactory(JobRegistry.Dancer, CreateTerpsichoreRotation);
 
         // Casters
-        rotationManager.Register(hecate);
-        rotationManager.Register(persephone);
-        rotationManager.Register(circe);
-        rotationManager.Register(iris);
+        rotationManager.RegisterFactory(JobRegistry.BlackMage, CreateHecateRotation);
+        rotationManager.RegisterFactory(JobRegistry.Thaumaturge, CreateHecateRotation);
+        rotationManager.RegisterFactory(JobRegistry.Summoner, CreatePersephoneRotation);
+        rotationManager.RegisterFactory(JobRegistry.RedMage, CreateCirceRotation);
+        rotationManager.RegisterFactory(JobRegistry.Pictomancer, CreateIrisRotation);
     }
-
-    /// <summary>
-    /// Factory method for creating rotation modules by job ID.
-    /// Returns null if no rotation is available for the specified job.
-    /// </summary>
-    /// <param name="jobId">The job ID to create a rotation for.</param>
-    /// <returns>The rotation instance, or null if not supported.</returns>
-    private IRotation? CreateRotationModule(uint jobId) => jobId switch
-    {
-        JobRegistry.WhiteMage or JobRegistry.Conjurer => CreateApolloRotation(),
-        JobRegistry.Scholar or JobRegistry.Arcanist => CreateAthenaRotation(),
-        JobRegistry.Astrologian => CreateAstraeaRotation(),
-        JobRegistry.Sage => CreateAsclepiusRotation(),
-        JobRegistry.Paladin or JobRegistry.Gladiator => CreateThemisRotation(),
-        JobRegistry.Warrior or JobRegistry.Marauder => CreateAresRotation(),
-        JobRegistry.DarkKnight => CreateNyxRotation(),
-        JobRegistry.Gunbreaker => CreateHephaestusRotation(),
-        JobRegistry.Monk or JobRegistry.Pugilist => CreateKratosRotation(),
-        JobRegistry.Dragoon or JobRegistry.Lancer => CreateZeusRotation(),
-        JobRegistry.Ninja or JobRegistry.Rogue => CreateHermesRotation(),
-        JobRegistry.Samurai => CreateNikeRotation(),
-        JobRegistry.Reaper => CreateThanatosRotation(),
-        JobRegistry.Viper => CreateEchidnaRotation(),
-        JobRegistry.Machinist => CreatePrometheusRotation(),
-        JobRegistry.Bard or JobRegistry.Archer => CreateCalliopeRotation(),
-        JobRegistry.Dancer => CreateTerpsichoreRotation(),
-        JobRegistry.BlackMage or JobRegistry.Thaumaturge => CreateHecateRotation(),
-        JobRegistry.Summoner or JobRegistry.Arcanist => CreatePersephoneRotation(),
-        JobRegistry.RedMage => CreateCirceRotation(),
-        JobRegistry.Pictomancer => CreateIrisRotation(),
-        _ => null
-    };
 
     /// <summary>
     /// Creates the Apollo (White Mage) rotation module.
@@ -1060,14 +992,8 @@ public sealed class Plugin : IDalamudPlugin
         fflogsService?.Dispose();
         telemetryService.Dispose();
 
-        // Dispose healer rotations (they have event subscriptions)
-        apollo.Dispose();
-        athena.Dispose();
-        astraea.Dispose();
-        asclepius.Dispose();
-
-        // Dispose melee DPS rotations that have event subscriptions
-        nike.Dispose();
+        // Dispose rotation manager (handles all instantiated rotations)
+        rotationManager.Dispose();
 
         damageIntakeService.Dispose();
         healingIntakeService.Dispose();
