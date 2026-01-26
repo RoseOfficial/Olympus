@@ -526,7 +526,7 @@ public sealed class MitigationModule : IThemisModule
             return false;
 
         // Check if Bulwark is active
-        if (context.StatusHelper.HasStatus(player, PLDActions.StatusIds.Bulwark))
+        if (context.StatusHelper.HasBulwark(player))
             return false;
 
         if (!context.ActionService.IsActionReady(PLDActions.Bulwark.ActionId))

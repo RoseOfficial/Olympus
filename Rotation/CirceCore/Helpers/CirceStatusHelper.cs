@@ -1,12 +1,13 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 
 namespace Olympus.Rotation.CirceCore.Helpers;
 
 /// <summary>
 /// Helper for checking Red Mage-specific buffs and debuffs.
 /// </summary>
-public sealed class CirceStatusHelper
+public sealed class CirceStatusHelper : BaseStatusHelper
 {
     #region Core Buffs
 
@@ -152,49 +153,4 @@ public sealed class CirceStatusHelper
 
     #endregion
 
-    #region Helper Methods
-
-    private static bool HasStatus(IBattleChara target, uint statusId)
-    {
-        if (target.StatusList == null)
-            return false;
-
-        foreach (var status in target.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return true;
-        }
-
-        return false;
-    }
-
-    private static float GetStatusRemaining(IBattleChara target, uint statusId)
-    {
-        if (target.StatusList == null)
-            return 0f;
-
-        foreach (var status in target.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return status.RemainingTime;
-        }
-
-        return 0f;
-    }
-
-    private static int GetStatusStacks(IBattleChara target, uint statusId)
-    {
-        if (target.StatusList == null)
-            return 0;
-
-        foreach (var status in target.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return status.Param;
-        }
-
-        return 0;
-    }
-
-    #endregion
 }

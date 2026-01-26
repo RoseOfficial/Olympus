@@ -1,12 +1,13 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 
 namespace Olympus.Rotation.HecateCore.Helpers;
 
 /// <summary>
 /// Helper for checking Black Mage-specific buffs and debuffs.
 /// </summary>
-public sealed class HecateStatusHelper
+public sealed class HecateStatusHelper : BaseStatusHelper
 {
     #region Proc Buffs
 
@@ -90,12 +91,12 @@ public sealed class HecateStatusHelper
     public bool HasThunderDoT(IBattleChara target, uint sourceId)
     {
         // Check all Thunder variants
-        return HasDebuff(target, BLMActions.StatusIds.Thunder, sourceId) ||
-               HasDebuff(target, BLMActions.StatusIds.Thunder3, sourceId) ||
-               HasDebuff(target, BLMActions.StatusIds.HighThunder, sourceId) ||
-               HasDebuff(target, BLMActions.StatusIds.Thunder2, sourceId) ||
-               HasDebuff(target, BLMActions.StatusIds.Thunder4, sourceId) ||
-               HasDebuff(target, BLMActions.StatusIds.HighThunder2, sourceId);
+        return HasStatusFromSource(target, BLMActions.StatusIds.Thunder, sourceId) ||
+               HasStatusFromSource(target, BLMActions.StatusIds.Thunder3, sourceId) ||
+               HasStatusFromSource(target, BLMActions.StatusIds.HighThunder, sourceId) ||
+               HasStatusFromSource(target, BLMActions.StatusIds.Thunder2, sourceId) ||
+               HasStatusFromSource(target, BLMActions.StatusIds.Thunder4, sourceId) ||
+               HasStatusFromSource(target, BLMActions.StatusIds.HighThunder2, sourceId);
     }
 
     /// <summary>
@@ -106,89 +107,16 @@ public sealed class HecateStatusHelper
         // Return the highest remaining duration of any Thunder variant
         var remaining = 0f;
 
-        remaining = System.Math.Max(remaining, GetDebuffRemaining(target, BLMActions.StatusIds.Thunder, sourceId));
-        remaining = System.Math.Max(remaining, GetDebuffRemaining(target, BLMActions.StatusIds.Thunder3, sourceId));
-        remaining = System.Math.Max(remaining, GetDebuffRemaining(target, BLMActions.StatusIds.HighThunder, sourceId));
-        remaining = System.Math.Max(remaining, GetDebuffRemaining(target, BLMActions.StatusIds.Thunder2, sourceId));
-        remaining = System.Math.Max(remaining, GetDebuffRemaining(target, BLMActions.StatusIds.Thunder4, sourceId));
-        remaining = System.Math.Max(remaining, GetDebuffRemaining(target, BLMActions.StatusIds.HighThunder2, sourceId));
+        remaining = System.Math.Max(remaining, GetStatusRemainingFromSource(target, BLMActions.StatusIds.Thunder, sourceId));
+        remaining = System.Math.Max(remaining, GetStatusRemainingFromSource(target, BLMActions.StatusIds.Thunder3, sourceId));
+        remaining = System.Math.Max(remaining, GetStatusRemainingFromSource(target, BLMActions.StatusIds.HighThunder, sourceId));
+        remaining = System.Math.Max(remaining, GetStatusRemainingFromSource(target, BLMActions.StatusIds.Thunder2, sourceId));
+        remaining = System.Math.Max(remaining, GetStatusRemainingFromSource(target, BLMActions.StatusIds.Thunder4, sourceId));
+        remaining = System.Math.Max(remaining, GetStatusRemainingFromSource(target, BLMActions.StatusIds.HighThunder2, sourceId));
 
         return remaining;
     }
 
     #endregion
 
-    #region Helper Methods
-
-    private static bool HasStatus(IBattleChara target, uint statusId)
-    {
-        if (target.StatusList == null)
-            return false;
-
-        foreach (var status in target.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return true;
-        }
-
-        return false;
-    }
-
-    private static float GetStatusRemaining(IBattleChara target, uint statusId)
-    {
-        if (target.StatusList == null)
-            return 0f;
-
-        foreach (var status in target.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return status.RemainingTime;
-        }
-
-        return 0f;
-    }
-
-    private static int GetStatusStacks(IBattleChara target, uint statusId)
-    {
-        if (target.StatusList == null)
-            return 0;
-
-        foreach (var status in target.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return status.Param;
-        }
-
-        return 0;
-    }
-
-    private static bool HasDebuff(IBattleChara target, uint statusId, uint sourceId)
-    {
-        if (target.StatusList == null)
-            return false;
-
-        foreach (var status in target.StatusList)
-        {
-            if (status.StatusId == statusId && status.SourceId == sourceId)
-                return true;
-        }
-
-        return false;
-    }
-
-    private static float GetDebuffRemaining(IBattleChara target, uint statusId, uint sourceId)
-    {
-        if (target.StatusList == null)
-            return 0f;
-
-        foreach (var status in target.StatusList)
-        {
-            if (status.StatusId == statusId && status.SourceId == sourceId)
-                return status.RemainingTime;
-        }
-
-        return 0f;
-    }
-
-    #endregion
 }

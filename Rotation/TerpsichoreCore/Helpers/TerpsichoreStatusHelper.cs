@@ -1,12 +1,13 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 
 namespace Olympus.Rotation.TerpsichoreCore.Helpers;
 
 /// <summary>
 /// Helper for checking Dancer-specific buffs and debuffs.
 /// </summary>
-public sealed class TerpsichoreStatusHelper
+public sealed class TerpsichoreStatusHelper : BaseStatusHelper
 {
     #region Proc Buffs
 
@@ -148,49 +149,4 @@ public sealed class TerpsichoreStatusHelper
 
     #endregion
 
-    #region Helper Methods
-
-    private static bool HasStatus(IBattleChara target, uint statusId)
-    {
-        if (target.StatusList == null)
-            return false;
-
-        foreach (var status in target.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return true;
-        }
-
-        return false;
-    }
-
-    private static bool HasStatusFromSource(IBattleChara target, uint statusId, uint sourceId)
-    {
-        if (target.StatusList == null)
-            return false;
-
-        foreach (var status in target.StatusList)
-        {
-            if (status.StatusId == statusId && status.SourceId == sourceId)
-                return true;
-        }
-
-        return false;
-    }
-
-    private static float GetStatusRemaining(IBattleChara target, uint statusId)
-    {
-        if (target.StatusList == null)
-            return 0f;
-
-        foreach (var status in target.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return status.RemainingTime;
-        }
-
-        return 0f;
-    }
-
-    #endregion
 }

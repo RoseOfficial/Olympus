@@ -1,13 +1,14 @@
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Services;
 
 namespace Olympus.Rotation.ApolloCore.Helpers;
 
 /// <summary>
-/// Helper class for checking status effects on characters.
+/// Helper class for checking White Mage status effects.
 /// </summary>
-public sealed class StatusHelper
+public sealed class StatusHelper : BaseStatusHelper
 {
     // Status IDs
     public static class StatusIds
@@ -43,61 +44,7 @@ public sealed class StatusHelper
         public const uint Regen = 158;
     }
 
-    /// <summary>
-    /// Checks if a character has a specific status effect.
-    /// </summary>
-    public static bool HasStatus(IBattleChara chara, uint statusId)
-    {
-        // Null check for testing and defensive coding
-        if (chara.StatusList == null)
-            return false;
-
-        foreach (var status in chara.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return true;
-        }
-        return false;
-    }
-
-    /// <summary>
-    /// Checks if a character has a specific status effect and returns remaining time.
-    /// </summary>
-    public static bool HasStatus(IBattleChara chara, uint statusId, out float remainingTime)
-    {
-        remainingTime = 0f;
-
-        // Null check for testing and defensive coding
-        if (chara.StatusList == null)
-            return false;
-
-        foreach (var status in chara.StatusList)
-        {
-            if (status.StatusId == statusId)
-            {
-                remainingTime = status.RemainingTime;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /// <summary>
-    /// Gets the stack count for a specific status effect.
-    /// </summary>
-    public static int GetStatusStacks(IBattleChara chara, uint statusId)
-    {
-        // Null check for testing and defensive coding
-        if (chara.StatusList == null)
-            return 0;
-
-        foreach (var status in chara.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return status.Param;
-        }
-        return 0;
-    }
+    // Core status methods (HasStatus, GetStatusStacks) inherited from BaseStatusHelper
 
     /// <summary>
     /// Checks if a character has Regen active and returns remaining duration.

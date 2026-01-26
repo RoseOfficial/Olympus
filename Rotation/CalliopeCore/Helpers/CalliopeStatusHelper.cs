@@ -1,12 +1,13 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 
 namespace Olympus.Rotation.CalliopeCore.Helpers;
 
 /// <summary>
 /// Helper for checking Bard-specific buffs and debuffs.
 /// </summary>
-public sealed class CalliopeStatusHelper
+public sealed class CalliopeStatusHelper : BaseStatusHelper
 {
     #region Self Buffs
 
@@ -94,34 +95,34 @@ public sealed class CalliopeStatusHelper
     /// Checks if Caustic Bite DoT is on the target.
     /// </summary>
     public bool HasCausticBite(IBattleChara target, uint sourceId)
-        => HasDebuff(target, BRDActions.StatusIds.CausticBite, sourceId) ||
-           HasDebuff(target, BRDActions.StatusIds.VenomousBite, sourceId);
+        => HasStatusFromSource(target, BRDActions.StatusIds.CausticBite, sourceId) ||
+           HasStatusFromSource(target, BRDActions.StatusIds.VenomousBite, sourceId);
 
     /// <summary>
     /// Gets remaining duration of Caustic Bite on target.
     /// </summary>
     public float GetCausticBiteRemaining(IBattleChara target, uint sourceId)
     {
-        var caustic = GetDebuffRemaining(target, BRDActions.StatusIds.CausticBite, sourceId);
+        var caustic = GetStatusRemainingFromSource(target, BRDActions.StatusIds.CausticBite, sourceId);
         if (caustic > 0) return caustic;
-        return GetDebuffRemaining(target, BRDActions.StatusIds.VenomousBite, sourceId);
+        return GetStatusRemainingFromSource(target, BRDActions.StatusIds.VenomousBite, sourceId);
     }
 
     /// <summary>
     /// Checks if Stormbite DoT is on the target.
     /// </summary>
     public bool HasStormbite(IBattleChara target, uint sourceId)
-        => HasDebuff(target, BRDActions.StatusIds.Stormbite, sourceId) ||
-           HasDebuff(target, BRDActions.StatusIds.Windbite, sourceId);
+        => HasStatusFromSource(target, BRDActions.StatusIds.Stormbite, sourceId) ||
+           HasStatusFromSource(target, BRDActions.StatusIds.Windbite, sourceId);
 
     /// <summary>
     /// Gets remaining duration of Stormbite on target.
     /// </summary>
     public float GetStormbiteRemaining(IBattleChara target, uint sourceId)
     {
-        var storm = GetDebuffRemaining(target, BRDActions.StatusIds.Stormbite, sourceId);
+        var storm = GetStatusRemainingFromSource(target, BRDActions.StatusIds.Stormbite, sourceId);
         if (storm > 0) return storm;
-        return GetDebuffRemaining(target, BRDActions.StatusIds.Windbite, sourceId);
+        return GetStatusRemainingFromSource(target, BRDActions.StatusIds.Windbite, sourceId);
     }
 
     #endregion
@@ -154,63 +155,4 @@ public sealed class CalliopeStatusHelper
 
     #endregion
 
-    #region Helper Methods
-
-    private static bool HasStatus(IBattleChara target, uint statusId)
-    {
-        if (target.StatusList == null)
-            return false;
-
-        foreach (var status in target.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return true;
-        }
-
-        return false;
-    }
-
-    private static float GetStatusRemaining(IBattleChara target, uint statusId)
-    {
-        if (target.StatusList == null)
-            return 0f;
-
-        foreach (var status in target.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return status.RemainingTime;
-        }
-
-        return 0f;
-    }
-
-    private static bool HasDebuff(IBattleChara target, uint statusId, uint sourceId)
-    {
-        if (target.StatusList == null)
-            return false;
-
-        foreach (var status in target.StatusList)
-        {
-            if (status.StatusId == statusId && status.SourceId == sourceId)
-                return true;
-        }
-
-        return false;
-    }
-
-    private static float GetDebuffRemaining(IBattleChara target, uint statusId, uint sourceId)
-    {
-        if (target.StatusList == null)
-            return 0f;
-
-        foreach (var status in target.StatusList)
-        {
-            if (status.StatusId == statusId && status.SourceId == sourceId)
-                return status.RemainingTime;
-        }
-
-        return 0f;
-    }
-
-    #endregion
 }

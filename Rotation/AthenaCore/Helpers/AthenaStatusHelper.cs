@@ -1,13 +1,14 @@
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 
 namespace Olympus.Rotation.AthenaCore.Helpers;
 
 /// <summary>
 /// Helper class for checking Scholar-specific status effects.
 /// </summary>
-public sealed class AthenaStatusHelper
+public sealed class AthenaStatusHelper : BaseStatusHelper
 {
     #region Buff Status IDs
 
@@ -149,7 +150,7 @@ public sealed class AthenaStatusHelper
         if (target is not IBattleChara battleChara)
             return 0f;
 
-        return GetStatusDuration(battleChara, SCHActions.GalvanizeStatusId);
+        return GetStatusRemaining(battleChara, SCHActions.GalvanizeStatusId);
     }
 
     /// <summary>
@@ -160,7 +161,7 @@ public sealed class AthenaStatusHelper
         if (target is not IBattleChara battleChara)
             return 0f;
 
-        return GetStatusDuration(battleChara, SCHActions.ExcogitationStatusId);
+        return GetStatusRemaining(battleChara, SCHActions.ExcogitationStatusId);
     }
 
     #endregion
@@ -221,33 +222,6 @@ public sealed class AthenaStatusHelper
 
     #endregion
 
-    #region Utility Methods
-
-    /// <summary>
-    /// Generic status check for IBattleChara.
-    /// </summary>
-    private static bool HasStatus(IBattleChara chara, ushort statusId)
-    {
-        foreach (var status in chara.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return true;
-        }
-        return false;
-    }
-
-    /// <summary>
-    /// Gets the remaining duration of a status effect.
-    /// </summary>
-    private static float GetStatusDuration(IBattleChara chara, ushort statusId)
-    {
-        foreach (var status in chara.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return status.RemainingTime;
-        }
-        return 0f;
-    }
-
-    #endregion
+    // Core status methods (HasStatus, GetStatusRemaining) inherited from BaseStatusHelper
+    // Note: GetStatusDuration calls are replaced with GetStatusRemaining
 }

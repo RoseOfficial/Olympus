@@ -1,13 +1,14 @@
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 
 namespace Olympus.Rotation.AsclepiusCore.Helpers;
 
 /// <summary>
 /// Helper class for checking Sage-specific status effects on characters.
 /// </summary>
-public sealed class AsclepiusStatusHelper
+public sealed class AsclepiusStatusHelper : BaseStatusHelper
 {
     // Role action status IDs (shared with all healers)
     public static class RoleStatusIds
@@ -18,74 +19,7 @@ public sealed class AsclepiusStatusHelper
         public const uint Raise = 148;
     }
 
-    /// <summary>
-    /// Checks if a character has a specific status effect.
-    /// </summary>
-    public static bool HasStatus(IBattleChara chara, uint statusId)
-    {
-        if (chara?.StatusList == null)
-            return false;
-
-        foreach (var status in chara.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return true;
-        }
-        return false;
-    }
-
-    /// <summary>
-    /// Checks if a character has a specific status effect and returns remaining time.
-    /// </summary>
-    public static bool HasStatus(IBattleChara chara, uint statusId, out float remainingTime)
-    {
-        remainingTime = 0f;
-
-        if (chara?.StatusList == null)
-            return false;
-
-        foreach (var status in chara.StatusList)
-        {
-            if (status.StatusId == statusId)
-            {
-                remainingTime = status.RemainingTime;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /// <summary>
-    /// Checks if a character has a status effect from a specific source.
-    /// </summary>
-    public static bool HasStatusFromSource(IBattleChara target, uint statusId, uint sourceId)
-    {
-        if (target?.StatusList == null)
-            return false;
-
-        foreach (var status in target.StatusList)
-        {
-            if (status.StatusId == statusId && status.SourceId == sourceId)
-                return true;
-        }
-        return false;
-    }
-
-    /// <summary>
-    /// Gets the stack count for a specific status effect.
-    /// </summary>
-    public static int GetStatusStacks(IBattleChara chara, uint statusId)
-    {
-        if (chara?.StatusList == null)
-            return 0;
-
-        foreach (var status in chara.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return status.Param;
-        }
-        return 0;
-    }
+    // Core status methods (HasStatus, GetStatusStacks, HasStatusFromSource) inherited from BaseStatusHelper
 
     #region Role Actions
 

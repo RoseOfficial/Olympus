@@ -1,13 +1,14 @@
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 
 namespace Olympus.Rotation.AstraeaCore.Helpers;
 
 /// <summary>
 /// Helper class for checking Astrologian-specific status effects.
 /// </summary>
-public sealed class AstraeaStatusHelper
+public sealed class AstraeaStatusHelper : BaseStatusHelper
 {
     #region Buff Status IDs
 
@@ -119,7 +120,7 @@ public sealed class AstraeaStatusHelper
         if (target is not IBattleChara battleChara)
             return 0f;
 
-        return GetStatusDuration(battleChara, ASTActions.AspectedBeneficStatusId);
+        return GetStatusRemaining(battleChara, ASTActions.AspectedBeneficStatusId);
     }
 
     /// <summary>
@@ -262,33 +263,5 @@ public sealed class AstraeaStatusHelper
 
     #endregion
 
-    #region Utility Methods
-
-    /// <summary>
-    /// Generic status check for IBattleChara.
-    /// </summary>
-    private static bool HasStatus(IBattleChara chara, ushort statusId)
-    {
-        foreach (var status in chara.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return true;
-        }
-        return false;
-    }
-
-    /// <summary>
-    /// Gets the remaining duration of a status effect.
-    /// </summary>
-    private static float GetStatusDuration(IBattleChara chara, ushort statusId)
-    {
-        foreach (var status in chara.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return status.RemainingTime;
-        }
-        return 0f;
-    }
-
-    #endregion
+    // Core status methods (HasStatus, GetStatusRemaining) inherited from BaseStatusHelper
 }

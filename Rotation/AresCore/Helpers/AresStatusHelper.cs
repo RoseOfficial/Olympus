@@ -1,12 +1,13 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 
 namespace Olympus.Rotation.AresCore.Helpers;
 
 /// <summary>
 /// Helper class for checking Warrior status effects.
 /// </summary>
-public sealed class AresStatusHelper
+public sealed class AresStatusHelper : BaseStatusHelper
 {
     #region Tank Stance
 
@@ -164,44 +165,5 @@ public sealed class AresStatusHelper
 
     #endregion
 
-    #region Public Helpers
-
-    /// <summary>
-    /// Checks if the character has a specific status effect.
-    /// </summary>
-    public bool HasStatus(IBattleChara character, uint statusId)
-    {
-        foreach (var status in character.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return true;
-        }
-        return false;
-    }
-
-    #endregion
-
-    #region Private Helpers
-
-    private static float GetStatusRemaining(IBattleChara character, uint statusId)
-    {
-        foreach (var status in character.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return status.RemainingTime;
-        }
-        return 0f;
-    }
-
-    private static int GetStatusStacks(IBattleChara character, uint statusId)
-    {
-        foreach (var status in character.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return status.Param;
-        }
-        return 0;
-    }
-
-    #endregion
+    // Core status methods (HasStatus, GetStatusRemaining, GetStatusStacks) inherited from BaseStatusHelper
 }

@@ -1,12 +1,13 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 
 namespace Olympus.Rotation.ThanatosCore.Helpers;
 
 /// <summary>
 /// Helper class for checking Reaper status effects.
 /// </summary>
-public sealed class ThanatosStatusHelper
+public sealed class ThanatosStatusHelper : BaseStatusHelper
 {
     #region Soul Reaver Detection
 
@@ -222,44 +223,5 @@ public sealed class ThanatosStatusHelper
 
     #endregion
 
-    #region Public Helpers
-
-    /// <summary>
-    /// Checks if the character has a specific status effect.
-    /// </summary>
-    public bool HasStatus(IBattleChara character, uint statusId)
-    {
-        foreach (var status in character.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return true;
-        }
-        return false;
-    }
-
-    #endregion
-
-    #region Private Helpers
-
-    private static float GetStatusRemaining(IBattleChara character, uint statusId)
-    {
-        foreach (var status in character.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return status.RemainingTime;
-        }
-        return 0f;
-    }
-
-    private static int GetStatusStacks(IBattleChara character, uint statusId)
-    {
-        foreach (var status in character.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return status.Param;
-        }
-        return 0;
-    }
-
-    #endregion
+    // Core status methods (HasStatus, GetStatusRemaining, GetStatusStacks) inherited from BaseStatusHelper
 }

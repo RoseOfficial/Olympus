@@ -1,12 +1,13 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 
 namespace Olympus.Rotation.ThemisCore.Helpers;
 
 /// <summary>
 /// Helper class for checking Paladin status effects.
 /// </summary>
-public sealed class ThemisStatusHelper
+public sealed class ThemisStatusHelper : BaseStatusHelper
 {
     /// <summary>
     /// Checks if the player has Iron Will (tank stance) active.
@@ -99,6 +100,22 @@ public sealed class ThemisStatusHelper
     }
 
     /// <summary>
+    /// Checks if the player has Bulwark active.
+    /// </summary>
+    public bool HasBulwark(IBattleChara player)
+    {
+        return HasStatus(player, PLDActions.StatusIds.Bulwark);
+    }
+
+    /// <summary>
+    /// Checks if the player has Arm's Length active.
+    /// </summary>
+    public bool HasArmsLength(IBattleChara player)
+    {
+        return HasStatus(player, PLDActions.StatusIds.ArmsLength);
+    }
+
+    /// <summary>
     /// Checks if any defensive cooldown is active.
     /// </summary>
     public bool HasActiveMitigation(IBattleChara player)
@@ -107,8 +124,8 @@ public sealed class ThemisStatusHelper
                HasRampart(player) ||
                HasSentinel(player) ||
                HasHallowedGround(player) ||
-               HasStatus(player, PLDActions.StatusIds.Bulwark) ||
-               HasStatus(player, PLDActions.StatusIds.ArmsLength);
+               HasBulwark(player) ||
+               HasArmsLength(player);
     }
 
     /// <summary>
@@ -122,8 +139,8 @@ public sealed class ThemisStatusHelper
         if (HasSentinel(player)) active.Add("Sentinel");
         if (HasRampart(player)) active.Add("Rampart");
         if (HasSheltron(player)) active.Add("Sheltron");
-        if (HasStatus(player, PLDActions.StatusIds.Bulwark)) active.Add("Bulwark");
-        if (HasStatus(player, PLDActions.StatusIds.ArmsLength)) active.Add("Arm's Length");
+        if (HasBulwark(player)) active.Add("Bulwark");
+        if (HasArmsLength(player)) active.Add("Arm's Length");
 
         return active.Count > 0 ? string.Join(", ", active) : "None";
     }
@@ -134,57 +151,8 @@ public sealed class ThemisStatusHelper
     public float GetGoringBladeRemaining(IBattleChara? target, uint playerId)
     {
         if (target == null) return 0f;
-        return GetStatusRemainingOnTarget(target, PLDActions.StatusIds.GoringBladeDot, playerId);
+        return GetStatusRemainingFromSource(target, PLDActions.StatusIds.GoringBladeDot, playerId);
     }
 
-    #region Public Helpers
-
-    /// <summary>
-    /// Checks if the character has a specific status effect.
-    /// </summary>
-    public bool HasStatus(IBattleChara character, uint statusId)
-    {
-        foreach (var status in character.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return true;
-        }
-        return false;
-    }
-
-    #endregion
-
-    #region Private Helpers
-
-    private static float GetStatusRemaining(IBattleChara character, uint statusId)
-    {
-        foreach (var status in character.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return status.RemainingTime;
-        }
-        return 0f;
-    }
-
-    private static int GetStatusStacks(IBattleChara character, uint statusId)
-    {
-        foreach (var status in character.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return status.Param;
-        }
-        return 0;
-    }
-
-    private static float GetStatusRemainingOnTarget(IBattleChara target, uint statusId, uint sourceId)
-    {
-        foreach (var status in target.StatusList)
-        {
-            if (status.StatusId == statusId && status.SourceId == sourceId)
-                return status.RemainingTime;
-        }
-        return 0f;
-    }
-
-    #endregion
+    // Core status methods (HasStatus, GetStatusRemaining, GetStatusStacks, GetStatusRemainingFromSource) inherited from BaseStatusHelper
 }

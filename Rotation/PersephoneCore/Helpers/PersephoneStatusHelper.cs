@@ -1,12 +1,13 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 
 namespace Olympus.Rotation.PersephoneCore.Helpers;
 
 /// <summary>
 /// Helper for checking Summoner-specific buffs and debuffs.
 /// </summary>
-public sealed class PersephoneStatusHelper
+public sealed class PersephoneStatusHelper : BaseStatusHelper
 {
     #region Self Buffs
 
@@ -96,49 +97,4 @@ public sealed class PersephoneStatusHelper
 
     #endregion
 
-    #region Helper Methods
-
-    private static bool HasStatus(IBattleChara target, uint statusId)
-    {
-        if (target.StatusList == null)
-            return false;
-
-        foreach (var status in target.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return true;
-        }
-
-        return false;
-    }
-
-    private static float GetStatusRemaining(IBattleChara target, uint statusId)
-    {
-        if (target.StatusList == null)
-            return 0f;
-
-        foreach (var status in target.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return status.RemainingTime;
-        }
-
-        return 0f;
-    }
-
-    private static int GetStatusStacks(IBattleChara target, uint statusId)
-    {
-        if (target.StatusList == null)
-            return 0;
-
-        foreach (var status in target.StatusList)
-        {
-            if (status.StatusId == statusId)
-                return status.Param;
-        }
-
-        return 0;
-    }
-
-    #endregion
 }
