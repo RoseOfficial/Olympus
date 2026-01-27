@@ -1,5 +1,6 @@
 using Olympus.Data;
 using Olympus.Rotation.Common;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.HermesCore.Helpers;
 using Olympus.Services.Party;
 
@@ -154,7 +155,7 @@ public interface IHermesContext : IMeleeDpsRotationContext
     /// <summary>
     /// Party helper for party member queries.
     /// </summary>
-    HermesPartyHelper PartyHelper { get; }
+    MeleeDpsPartyHelper PartyHelper { get; }
 
     /// <summary>
     /// Mudra helper for sequence tracking and execution.

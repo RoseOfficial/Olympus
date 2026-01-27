@@ -3,6 +3,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.ZeusCore.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
@@ -106,7 +107,7 @@ public sealed class ZeusContext : IZeusContext
 
     // Helpers
     public ZeusStatusHelper StatusHelper { get; }
-    public ZeusPartyHelper PartyHelper { get; }
+    public MeleeDpsPartyHelper PartyHelper { get; }
     public ZeusDebugState Debug { get; }
 
     // Party Coordination
@@ -141,7 +142,7 @@ public sealed class ZeusContext : IZeusContext
         IPartyList partyList,
         IPositionalService positionalService,
         ZeusStatusHelper statusHelper,
-        ZeusPartyHelper partyHelper,
+        MeleeDpsPartyHelper partyHelper,
         ZeusDebugState debugState,
         int firstmindsFocus,
         int eyeCount,

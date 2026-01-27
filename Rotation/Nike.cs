@@ -6,6 +6,7 @@ using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.Base;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.NikeCore.Context;
 using Olympus.Rotation.NikeCore.Helpers;
 using Olympus.Rotation.NikeCore.Modules;
@@ -55,7 +56,7 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>, IDis
 
     // Helpers (shared across modules)
     private readonly NikeStatusHelper _statusHelper;
-    private readonly NikePartyHelper _partyHelper;
+    private readonly MeleeDpsPartyHelper _partyHelper;
 
     // Modules (sorted by priority - lower = higher priority)
     private readonly List<INikeModule> _modules;
@@ -119,7 +120,7 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>, IDis
 
         // Initialize helpers
         _statusHelper = new NikeStatusHelper();
-        _partyHelper = new NikePartyHelper(objectTable, partyList);
+        _partyHelper = new MeleeDpsPartyHelper(objectTable, partyList);
 
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<INikeModule>

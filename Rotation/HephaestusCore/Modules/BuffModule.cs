@@ -1,5 +1,7 @@
 using Olympus.Data;
+using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.HephaestusCore.Context;
 using Olympus.Services.Training;
 
@@ -9,82 +11,32 @@ namespace Olympus.Rotation.HephaestusCore.Modules;
 /// Handles the Gunbreaker buff management.
 /// Manages tank stance, No Mercy, and Bloodfest.
 /// </summary>
-public sealed class BuffModule : IHephaestusModule
+public sealed class BuffModule : BaseTankBuffModule<IHephaestusContext>, IHephaestusModule
 {
-    public int Priority => 20; // Medium priority for buffs
-    public string Name => "Buff";
+    #region Abstract Method Implementations
 
-    public bool TryExecute(IHephaestusContext context, bool isMoving)
+    protected override ActionDefinition GetTankStanceAction() => GNBActions.RoyalGuard;
+
+    protected override bool HasJobTankStance(IHephaestusContext context) => context.HasRoyalGuard;
+
+    protected override void SetBuffState(IHephaestusContext context, string state)
+        => context.Debug.BuffState = state;
+
+    protected override void SetPlannedAction(IHephaestusContext context, string action)
+        => context.Debug.PlannedAction = action;
+
+    #endregion
+
+    #region Job-Specific Overrides
+
+    protected override bool TryJobSpecificBuffs(IHephaestusContext context)
     {
-        if (!context.InCombat)
-        {
-            context.Debug.BuffState = "Not in combat";
-            return false;
-        }
-
-        // Only use buff actions during oGCD windows
-        if (!context.CanExecuteOgcd)
-            return false;
-
-        var player = context.Player;
-        var level = player.Level;
-
-        // Priority 1: Tank stance (Royal Guard) if missing
-        if (TryRoyalGuard(context))
-            return true;
-
-        // Priority 2: No Mercy (damage buff)
-        if (TryNoMercy(context))
-            return true;
-
-        // Priority 3: Bloodfest (cartridge generator)
-        if (TryBloodfest(context))
-            return true;
-
-        return false;
+        return TryNoMercy(context);
     }
 
-    public void UpdateDebugState(IHephaestusContext context)
+    protected override bool TryJobSpecificResourceGeneration(IHephaestusContext context)
     {
-        // Debug state updated during TryExecute
-    }
-
-    #region Tank Stance
-
-    private bool TryRoyalGuard(IHephaestusContext context)
-    {
-        var player = context.Player;
-        var level = player.Level;
-
-        if (level < GNBActions.RoyalGuard.MinLevel)
-            return false;
-
-        // Check configuration
-        if (!context.Configuration.Tank.AutoTankStance)
-        {
-            context.Debug.BuffState = "AutoTankStance disabled";
-            return false;
-        }
-
-        // Already have Royal Guard
-        if (context.HasRoyalGuard)
-        {
-            context.Debug.BuffState = "Royal Guard active";
-            return false;
-        }
-
-        // Only auto-enable if we're in combat and don't have tank stance
-        if (!context.ActionService.IsActionReady(GNBActions.RoyalGuard.ActionId))
-            return false;
-
-        if (context.ActionService.ExecuteOgcd(GNBActions.RoyalGuard, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = GNBActions.RoyalGuard.Name;
-            context.Debug.BuffState = "Enabling Royal Guard";
-            return true;
-        }
-
-        return false;
+        return TryBloodfest(context);
     }
 
     #endregion

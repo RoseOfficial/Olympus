@@ -1,4 +1,5 @@
 using Olympus.Rotation.Common;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.ZeusCore.Helpers;
 using Olympus.Services.Party;
 
@@ -162,7 +163,7 @@ public interface IZeusContext : IMeleeDpsRotationContext
     /// <summary>
     /// Party helper for party member queries.
     /// </summary>
-    ZeusPartyHelper PartyHelper { get; }
+    MeleeDpsPartyHelper PartyHelper { get; }
 
     #endregion
 

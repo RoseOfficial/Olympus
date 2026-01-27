@@ -1,4 +1,5 @@
 using Olympus.Rotation.Common;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.HecateCore.Helpers;
 using Olympus.Services.Training;
 
@@ -181,7 +182,7 @@ public interface IHecateContext : ICasterDpsRotationContext
     /// <summary>
     /// Party helper for party member queries.
     /// </summary>
-    HecatePartyHelper PartyHelper { get; }
+    CasterPartyHelper PartyHelper { get; }
 
     #endregion
 

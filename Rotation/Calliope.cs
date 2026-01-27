@@ -5,6 +5,7 @@ using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.Base;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.CalliopeCore.Context;
 using Olympus.Rotation.CalliopeCore.Helpers;
 using Olympus.Rotation.CalliopeCore.Modules;
@@ -53,7 +54,7 @@ public sealed class Calliope : BaseRangedDpsRotation<ICalliopeContext, ICalliope
 
     // Helpers (shared across modules)
     private readonly CalliopeStatusHelper _statusHelper;
-    private readonly CalliopePartyHelper _partyHelper;
+    private readonly RangedDpsPartyHelper _partyHelper;
 
     // Modules (sorted by priority - lower = higher priority)
     private readonly List<ICalliopeModule> _modules;
@@ -114,7 +115,7 @@ public sealed class Calliope : BaseRangedDpsRotation<ICalliopeContext, ICalliope
 
         // Initialize helpers
         _statusHelper = new CalliopeStatusHelper();
-        _partyHelper = new CalliopePartyHelper(objectTable, partyList);
+        _partyHelper = new RangedDpsPartyHelper(objectTable, partyList);
 
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<ICalliopeModule>

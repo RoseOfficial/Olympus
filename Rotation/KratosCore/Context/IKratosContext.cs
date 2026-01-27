@@ -1,4 +1,5 @@
 using Olympus.Rotation.Common;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.KratosCore.Helpers;
 using Olympus.Services.Party;
 
@@ -171,7 +172,7 @@ public interface IKratosContext : IMeleeDpsRotationContext
     /// <summary>
     /// Party helper for party member queries.
     /// </summary>
-    KratosPartyHelper PartyHelper { get; }
+    MeleeDpsPartyHelper PartyHelper { get; }
 
     #endregion
 

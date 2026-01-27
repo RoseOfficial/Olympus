@@ -5,6 +5,7 @@ using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.Base;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.IrisCore.Context;
 using Olympus.Rotation.IrisCore.Helpers;
 using Olympus.Rotation.IrisCore.Modules;
@@ -53,7 +54,7 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
 
     // Helpers (shared across modules)
     private readonly IrisStatusHelper _statusHelper;
-    private readonly IrisPartyHelper _partyHelper;
+    private readonly CasterPartyHelper _partyHelper;
 
     // Modules (sorted by priority - lower = higher priority)
     private readonly List<IIrisModule> _modules;
@@ -121,7 +122,7 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
 
         // Initialize helpers
         _statusHelper = new IrisStatusHelper();
-        _partyHelper = new IrisPartyHelper(objectTable, partyList);
+        _partyHelper = new CasterPartyHelper(objectTable, partyList);
 
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<IIrisModule>

@@ -5,6 +5,7 @@ using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.Base;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.KratosCore.Context;
 using Olympus.Rotation.KratosCore.Helpers;
 using Olympus.Rotation.KratosCore.Modules;
@@ -54,7 +55,7 @@ public sealed class Kratos : BaseMeleeDpsRotation<IKratosContext, IKratosModule>
 
     // Helpers (shared across modules)
     private readonly KratosStatusHelper _statusHelper;
-    private readonly KratosPartyHelper _partyHelper;
+    private readonly MeleeDpsPartyHelper _partyHelper;
 
     // Modules (sorted by priority - lower = higher priority)
     private readonly List<IKratosModule> _modules;
@@ -116,7 +117,7 @@ public sealed class Kratos : BaseMeleeDpsRotation<IKratosContext, IKratosModule>
 
         // Initialize helpers
         _statusHelper = new KratosStatusHelper();
-        _partyHelper = new KratosPartyHelper(objectTable, partyList);
+        _partyHelper = new MeleeDpsPartyHelper(objectTable, partyList);
 
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<IKratosModule>

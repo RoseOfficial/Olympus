@@ -5,6 +5,7 @@ using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.Base;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.HermesCore.Context;
 using Olympus.Rotation.HermesCore.Helpers;
 using Olympus.Rotation.HermesCore.Modules;
@@ -54,7 +55,7 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
 
     // Helpers (shared across modules)
     private readonly HermesStatusHelper _statusHelper;
-    private readonly HermesPartyHelper _partyHelper;
+    private readonly MeleeDpsPartyHelper _partyHelper;
     private readonly MudraHelper _mudraHelper;
 
     // Modules (sorted by priority - lower = higher priority)
@@ -115,7 +116,7 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
 
         // Initialize helpers
         _statusHelper = new HermesStatusHelper();
-        _partyHelper = new HermesPartyHelper(objectTable, partyList);
+        _partyHelper = new MeleeDpsPartyHelper(objectTable, partyList);
         _mudraHelper = new MudraHelper();
 
         // Initialize modules (ordered by priority - lower = executed first)

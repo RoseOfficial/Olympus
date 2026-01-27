@@ -1,4 +1,5 @@
 using Olympus.Rotation.Common;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.IrisCore.Helpers;
 using Olympus.Services.Party;
 using Olympus.Services.Training;
@@ -251,7 +252,7 @@ public interface IIrisContext : ICasterDpsRotationContext
     /// <summary>
     /// Party helper for party member operations.
     /// </summary>
-    IrisPartyHelper PartyHelper { get; }
+    CasterPartyHelper PartyHelper { get; }
 
     /// <summary>
     /// Debug state for UI display.

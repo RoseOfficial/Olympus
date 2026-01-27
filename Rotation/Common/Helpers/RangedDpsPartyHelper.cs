@@ -2,17 +2,16 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
-using Olympus.Rotation.Common.Helpers;
 
-namespace Olympus.Rotation.HermesCore.Helpers;
+namespace Olympus.Rotation.Common.Helpers;
 
 /// <summary>
-/// Ninja party helper with NIN-specific targeting logic.
-/// Extends BasePartyHelper with party buff considerations.
+/// Base class for ranged physical DPS party helpers.
+/// Extends BasePartyHelper with range checks and party health queries.
 /// </summary>
-public sealed class HermesPartyHelper : BasePartyHelper
+public class RangedDpsPartyHelper : BasePartyHelper
 {
-    public HermesPartyHelper(IObjectTable objectTable, IPartyList partyList)
+    public RangedDpsPartyHelper(IObjectTable objectTable, IPartyList partyList)
         : base(objectTable, partyList)
     {
     }
@@ -26,34 +25,33 @@ public sealed class HermesPartyHelper : BasePartyHelper
     }
 
     /// <summary>
-    /// Counts party members in range for party buffs.
+    /// Gets the number of party members in range of a given radius.
     /// </summary>
-    /// <param name="player">The player character.</param>
-    /// <param name="range">Range to check.</param>
-    public int CountMembersInRange(IPlayerCharacter player, float range = 30f)
+    public int CountMembersInRange(IPlayerCharacter player, float radius)
     {
         var count = 0;
-        var rangeSquared = range * range;
+        var radiusSq = radius * radius;
 
         foreach (var member in GetAllPartyMembers(player))
         {
+            if (member.EntityId == player.EntityId)
+                continue;
+
             var dx = player.Position.X - member.Position.X;
             var dz = player.Position.Z - member.Position.Z;
             var distSq = dx * dx + dz * dz;
 
-            if (distSq <= rangeSquared)
+            if (distSq <= radiusSq)
                 count++;
         }
 
-        return count;
+        return count + 1; // Include self
     }
 
     /// <summary>
-    /// Counts how many party members are injured (below threshold).
+    /// Counts party members below a certain HP threshold.
     /// </summary>
-    /// <param name="player">The player character.</param>
-    /// <param name="threshold">HP threshold to consider injured.</param>
-    public int CountInjuredMembers(IPlayerCharacter player, float threshold = 0.80f)
+    public int CountMembersBelow(IPlayerCharacter player, float threshold)
     {
         var count = 0;
         foreach (var member in GetAllPartyMembers(player))

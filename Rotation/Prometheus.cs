@@ -5,6 +5,7 @@ using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.Base;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.PrometheusCore.Context;
 using Olympus.Rotation.PrometheusCore.Helpers;
 using Olympus.Rotation.PrometheusCore.Modules;
@@ -53,7 +54,7 @@ public sealed class Prometheus : BaseRangedDpsRotation<IPrometheusContext, IProm
 
     // Helpers (shared across modules)
     private readonly PrometheusStatusHelper _statusHelper;
-    private readonly PrometheusPartyHelper _partyHelper;
+    private readonly RangedDpsPartyHelper _partyHelper;
 
     // Modules (sorted by priority - lower = higher priority)
     private readonly List<IPrometheusModule> _modules;
@@ -114,7 +115,7 @@ public sealed class Prometheus : BaseRangedDpsRotation<IPrometheusContext, IProm
 
         // Initialize helpers
         _statusHelper = new PrometheusStatusHelper();
-        _partyHelper = new PrometheusPartyHelper(objectTable, partyList);
+        _partyHelper = new RangedDpsPartyHelper(objectTable, partyList);
 
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<IPrometheusModule>

@@ -5,6 +5,7 @@ using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.Base;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.HecateCore.Context;
 using Olympus.Rotation.HecateCore.Helpers;
 using Olympus.Rotation.HecateCore.Modules;
@@ -52,7 +53,7 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
 
     // Helpers (shared across modules)
     private readonly HecateStatusHelper _statusHelper;
-    private readonly HecatePartyHelper _partyHelper;
+    private readonly CasterPartyHelper _partyHelper;
 
     // Modules (sorted by priority - lower = higher priority)
     private readonly List<IHecateModule> _modules;
@@ -109,7 +110,7 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
 
         // Initialize helpers
         _statusHelper = new HecateStatusHelper();
-        _partyHelper = new HecatePartyHelper(objectTable, partyList);
+        _partyHelper = new CasterPartyHelper(objectTable, partyList);
 
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<IHecateModule>

@@ -1,5 +1,7 @@
 using Olympus.Data;
+using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.NyxCore.Context;
 using Olympus.Services.Training;
 
@@ -9,91 +11,38 @@ namespace Olympus.Rotation.NyxCore.Modules;
 /// Handles the Dark Knight buff management.
 /// Manages tank stance, Blood Weapon, Delirium, and Living Shadow.
 /// </summary>
-public sealed class BuffModule : INyxModule
+public sealed class BuffModule : BaseTankBuffModule<INyxContext>, INyxModule
 {
-    public int Priority => 20; // Medium priority for buffs
-    public string Name => "Buff";
+    #region Abstract Method Implementations
 
-    public bool TryExecute(INyxContext context, bool isMoving)
+    protected override ActionDefinition GetTankStanceAction() => DRKActions.Grit;
+
+    protected override bool HasJobTankStance(INyxContext context) => context.HasGrit;
+
+    protected override void SetBuffState(INyxContext context, string state) => context.Debug.BuffState = state;
+
+    protected override void SetPlannedAction(INyxContext context, string action) => context.Debug.PlannedAction = action;
+
+    #endregion
+
+    #region Job-Specific Buffs
+
+    protected override bool TryJobSpecificBuffs(INyxContext context)
     {
-        if (!context.InCombat)
-        {
-            context.Debug.BuffState = "Not in combat";
-            return false;
-        }
-
-        // Only use buff actions during oGCD windows
-        if (!context.CanExecuteOgcd)
-            return false;
-
-        var player = context.Player;
-        var level = player.Level;
-
-        // Priority 1: Tank stance (Grit) if missing
-        if (TryGrit(context))
-            return true;
-
-        // Priority 2: Blood Weapon (MP/Blood regen)
+        // Priority 1: Blood Weapon (MP/Blood regen)
         if (TryBloodWeapon(context))
             return true;
 
-        // Priority 3: Delirium (burst window)
+        // Priority 2: Delirium (burst window)
         if (TryDelirium(context))
             return true;
 
-        // Priority 4: Living Shadow (during 2-minute windows)
+        // Priority 3: Living Shadow (during 2-minute windows)
         if (TryLivingShadow(context))
             return true;
 
         return false;
     }
-
-    public void UpdateDebugState(INyxContext context)
-    {
-        // Debug state updated during TryExecute
-    }
-
-    #region Tank Stance
-
-    private bool TryGrit(INyxContext context)
-    {
-        var player = context.Player;
-        var level = player.Level;
-
-        if (level < DRKActions.Grit.MinLevel)
-            return false;
-
-        // Check configuration
-        if (!context.Configuration.Tank.AutoTankStance)
-        {
-            context.Debug.BuffState = "AutoTankStance disabled";
-            return false;
-        }
-
-        // Already have Grit
-        if (context.HasGrit)
-        {
-            context.Debug.BuffState = "Grit active";
-            return false;
-        }
-
-        // Only auto-enable if we're in combat and don't have tank stance
-        if (!context.ActionService.IsActionReady(DRKActions.Grit.ActionId))
-            return false;
-
-        if (context.ActionService.ExecuteOgcd(DRKActions.Grit, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = DRKActions.Grit.Name;
-            context.Debug.BuffState = "Enabling Grit";
-            return true;
-        }
-
-        return false;
-    }
-
-    #endregion
-
-    #region Damage Buffs
 
     private bool TryBloodWeapon(INyxContext context)
     {

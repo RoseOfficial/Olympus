@@ -3,6 +3,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.KratosCore.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
@@ -108,7 +109,7 @@ public sealed class KratosContext : IKratosContext
 
     // Helpers
     public KratosStatusHelper StatusHelper { get; }
-    public KratosPartyHelper PartyHelper { get; }
+    public MeleeDpsPartyHelper PartyHelper { get; }
     public KratosDebugState Debug { get; }
 
     // Party Coordination
@@ -143,7 +144,7 @@ public sealed class KratosContext : IKratosContext
         IPartyList partyList,
         IPositionalService positionalService,
         KratosStatusHelper statusHelper,
-        KratosPartyHelper partyHelper,
+        MeleeDpsPartyHelper partyHelper,
         KratosDebugState debugState,
         int chakra,
         byte[] beastChakra,

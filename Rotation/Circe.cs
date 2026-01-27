@@ -6,6 +6,7 @@ using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.Base;
 using Olympus.Rotation.CirceCore.Context;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.CirceCore.Helpers;
 using Olympus.Rotation.CirceCore.Modules;
 using Olympus.Services;
@@ -53,7 +54,7 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
 
     // Helpers (shared across modules)
     private readonly CirceStatusHelper _statusHelper;
-    private readonly CircePartyHelper _partyHelper;
+    private readonly CasterPartyHelper _partyHelper;
 
     // Modules (sorted by priority - lower = higher priority)
     private readonly List<ICirceModule> _modules;
@@ -116,7 +117,7 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
 
         // Initialize helpers
         _statusHelper = new CirceStatusHelper();
-        _partyHelper = new CircePartyHelper(objectTable, partyList);
+        _partyHelper = new CasterPartyHelper(objectTable, partyList);
 
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<ICirceModule>

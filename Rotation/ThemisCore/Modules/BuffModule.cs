@@ -1,5 +1,7 @@
 using Olympus.Data;
+using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.ThemisCore.Context;
 using Olympus.Services.Training;
 
@@ -9,29 +11,38 @@ namespace Olympus.Rotation.ThemisCore.Modules;
 /// Handles the Paladin buff rotation.
 /// Manages Fight or Flight and Requiescat timing for optimal damage windows.
 /// </summary>
-public sealed class BuffModule : IThemisModule
+public sealed class BuffModule : BaseTankBuffModule<IThemisContext>, IThemisModule
 {
-    public int Priority => 20; // After mitigation, before damage
-    public string Name => "Buff";
+    #region Abstract Method Implementations
 
-    public bool TryExecute(IThemisContext context, bool isMoving)
+    protected override ActionDefinition GetTankStanceAction() => PLDActions.IronWill;
+
+    protected override bool HasJobTankStance(IThemisContext context) => context.HasTankStance;
+
+    protected override void SetBuffState(IThemisContext context, string state)
+        => context.Debug.BuffState = state;
+
+    protected override void SetPlannedAction(IThemisContext context, string action)
+        => context.Debug.PlannedAction = action;
+
+    #endregion
+
+    #region Overrides
+
+    public override bool TryExecute(IThemisContext context, bool isMoving)
     {
+        // Check if damage is enabled before any buff logic
         if (!context.Configuration.Tank.EnableDamage)
         {
             context.Debug.BuffState = "Disabled";
             return false;
         }
 
-        if (!context.InCombat)
-        {
-            context.Debug.BuffState = "Not in combat";
-            return false;
-        }
+        return base.TryExecute(context, isMoving);
+    }
 
-        // Only use buffs during oGCD windows
-        if (!context.CanExecuteOgcd)
-            return false;
-
+    protected override bool TryJobSpecificBuffs(IThemisContext context)
+    {
         // Priority 1: Fight or Flight (damage buff)
         if (TryFightOrFlight(context))
             return true;
@@ -40,17 +51,10 @@ public sealed class BuffModule : IThemisModule
         if (TryRequiescat(context))
             return true;
 
-        // Priority 3: Tank stance management (Iron Will)
-        if (TryIronWill(context))
-            return true;
-
         return false;
     }
 
-    public void UpdateDebugState(IThemisContext context)
-    {
-        // Debug state updated during TryExecute
-    }
+    #endregion
 
     #region Fight or Flight
 
@@ -203,42 +207,6 @@ public sealed class BuffModule : IThemisModule
                 return true;
             }
         }
-
-        return false;
-    }
-
-    #endregion
-
-    #region Tank Stance
-
-    private bool TryIronWill(IThemisContext context)
-    {
-        var player = context.Player;
-        var level = player.Level;
-
-        if (level < PLDActions.IronWill.MinLevel)
-            return false;
-
-        // Only manage tank stance if we're the main tank or need to be
-        // This requires enmity tracking
-
-        // If we're supposed to be main tank but don't have stance
-        if (context.IsMainTank && !context.HasTankStance)
-        {
-            if (!context.ActionService.IsActionReady(PLDActions.IronWill.ActionId))
-                return false;
-
-            if (context.ActionService.ExecuteOgcd(PLDActions.IronWill, player.GameObjectId))
-            {
-                context.Debug.PlannedAction = PLDActions.IronWill.Name;
-                context.Debug.BuffState = "Iron Will activated";
-                return true;
-            }
-        }
-
-        // If we're not main tank but have stance, consider dropping it
-        // This is situational and depends on party composition
-        // For now, we won't automatically drop stance
 
         return false;
     }

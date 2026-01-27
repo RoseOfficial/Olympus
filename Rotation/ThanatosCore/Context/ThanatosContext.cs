@@ -3,6 +3,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.ThanatosCore.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
@@ -105,7 +106,7 @@ public sealed class ThanatosContext : IThanatosContext
 
     // Helpers
     public ThanatosStatusHelper StatusHelper { get; }
-    public ThanatosPartyHelper PartyHelper { get; }
+    public MeleeDpsPartyHelper PartyHelper { get; }
     public ThanatosDebugState Debug { get; }
 
     // Party Coordination
@@ -140,7 +141,7 @@ public sealed class ThanatosContext : IThanatosContext
         IPartyList partyList,
         IPositionalService positionalService,
         ThanatosStatusHelper statusHelper,
-        ThanatosPartyHelper partyHelper,
+        MeleeDpsPartyHelper partyHelper,
         ThanatosDebugState debugState,
         int soul,
         int shroud,

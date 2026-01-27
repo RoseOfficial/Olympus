@@ -5,6 +5,7 @@ using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.Base;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.ThanatosCore.Context;
 using Olympus.Rotation.ThanatosCore.Helpers;
 using Olympus.Rotation.ThanatosCore.Modules;
@@ -54,7 +55,7 @@ public sealed class Thanatos : BaseMeleeDpsRotation<IThanatosContext, IThanatosM
 
     // Helpers (shared across modules)
     private readonly ThanatosStatusHelper _statusHelper;
-    private readonly ThanatosPartyHelper _partyHelper;
+    private readonly MeleeDpsPartyHelper _partyHelper;
 
     // Modules (sorted by priority - lower = higher priority)
     private readonly List<IThanatosModule> _modules;
@@ -117,7 +118,7 @@ public sealed class Thanatos : BaseMeleeDpsRotation<IThanatosContext, IThanatosM
 
         // Initialize helpers
         _statusHelper = new ThanatosStatusHelper();
-        _partyHelper = new ThanatosPartyHelper(objectTable, partyList);
+        _partyHelper = new MeleeDpsPartyHelper(objectTable, partyList);
 
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<IThanatosModule>

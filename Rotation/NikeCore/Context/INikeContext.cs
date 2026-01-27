@@ -1,5 +1,6 @@
 using Olympus.Data;
 using Olympus.Rotation.Common;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.NikeCore.Helpers;
 using Olympus.Services.Party;
 
@@ -147,7 +148,7 @@ public interface INikeContext : IMeleeDpsRotationContext
     /// <summary>
     /// Party helper for party member queries.
     /// </summary>
-    NikePartyHelper PartyHelper { get; }
+    MeleeDpsPartyHelper PartyHelper { get; }
 
     #endregion
 

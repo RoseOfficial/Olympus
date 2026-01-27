@@ -3,6 +3,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.HermesCore.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
@@ -103,7 +104,7 @@ public sealed class HermesContext : IHermesContext
 
     // Helpers
     public HermesStatusHelper StatusHelper { get; }
-    public HermesPartyHelper PartyHelper { get; }
+    public MeleeDpsPartyHelper PartyHelper { get; }
     public MudraHelper MudraHelper { get; }
     public HermesDebugState Debug { get; }
 
@@ -139,7 +140,7 @@ public sealed class HermesContext : IHermesContext
         IPartyList partyList,
         IPositionalService positionalService,
         HermesStatusHelper statusHelper,
-        HermesPartyHelper partyHelper,
+        MeleeDpsPartyHelper partyHelper,
         MudraHelper mudraHelper,
         HermesDebugState debugState,
         int ninki,

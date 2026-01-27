@@ -1,4 +1,5 @@
 using Olympus.Rotation.Common;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.PrometheusCore.Helpers;
 using Olympus.Services.Party;
 using Olympus.Services.Training;
@@ -139,7 +140,7 @@ public interface IPrometheusContext : IRangedDpsRotationContext
     /// <summary>
     /// Party helper for party member queries.
     /// </summary>
-    PrometheusPartyHelper PartyHelper { get; }
+    RangedDpsPartyHelper PartyHelper { get; }
 
     #endregion
 

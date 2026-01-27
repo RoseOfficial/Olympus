@@ -3,6 +3,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.CalliopeCore.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
@@ -100,7 +101,7 @@ public sealed class CalliopeContext : ICalliopeContext
 
     // Helpers
     public CalliopeStatusHelper StatusHelper { get; }
-    public CalliopePartyHelper PartyHelper { get; }
+    public RangedDpsPartyHelper PartyHelper { get; }
     public CalliopeDebugState Debug { get; }
 
     // Party Coordination
@@ -134,7 +135,7 @@ public sealed class CalliopeContext : ICalliopeContext
         IObjectTable objectTable,
         IPartyList partyList,
         CalliopeStatusHelper statusHelper,
-        CalliopePartyHelper partyHelper,
+        RangedDpsPartyHelper partyHelper,
         CalliopeDebugState debugState,
         int soulVoice,
         float songTimer,

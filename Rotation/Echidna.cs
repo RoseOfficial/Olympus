@@ -5,6 +5,7 @@ using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.Base;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.EchidnaCore.Context;
 using Olympus.Rotation.EchidnaCore.Helpers;
 using Olympus.Rotation.EchidnaCore.Modules;
@@ -54,7 +55,7 @@ public sealed class Echidna : BaseMeleeDpsRotation<IEchidnaContext, IEchidnaModu
 
     // Helpers (shared across modules)
     private readonly EchidnaStatusHelper _statusHelper;
-    private readonly EchidnaPartyHelper _partyHelper;
+    private readonly MeleeDpsPartyHelper _partyHelper;
 
     // Modules (sorted by priority - lower = higher priority)
     private readonly List<IEchidnaModule> _modules;
@@ -116,7 +117,7 @@ public sealed class Echidna : BaseMeleeDpsRotation<IEchidnaContext, IEchidnaModu
 
         // Initialize helpers
         _statusHelper = new EchidnaStatusHelper();
-        _partyHelper = new EchidnaPartyHelper(objectTable, partyList);
+        _partyHelper = new MeleeDpsPartyHelper(objectTable, partyList);
 
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<IEchidnaModule>

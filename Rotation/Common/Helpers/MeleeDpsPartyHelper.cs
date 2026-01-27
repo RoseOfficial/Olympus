@@ -2,17 +2,16 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
-using Olympus.Rotation.Common.Helpers;
 
-namespace Olympus.Rotation.ZeusCore.Helpers;
+namespace Olympus.Rotation.Common.Helpers;
 
 /// <summary>
-/// Dragoon party helper with DRG-specific targeting logic.
-/// Extends BasePartyHelper with Battle Litany and Dragon Sight considerations.
+/// Base class for melee DPS party helpers.
+/// Extends BasePartyHelper with raid buff targeting and party range checks.
 /// </summary>
-public sealed class ZeusPartyHelper : BasePartyHelper
+public class MeleeDpsPartyHelper : BasePartyHelper
 {
-    public ZeusPartyHelper(IObjectTable objectTable, IPartyList partyList)
+    public MeleeDpsPartyHelper(IObjectTable objectTable, IPartyList partyList)
         : base(objectTable, partyList)
     {
     }
@@ -26,11 +25,11 @@ public sealed class ZeusPartyHelper : BasePartyHelper
     }
 
     /// <summary>
-    /// Counts party members in range for Battle Litany.
+    /// Counts party members in range for raid buffs.
     /// </summary>
     /// <param name="player">The player character.</param>
-    /// <param name="range">Range to check (default 30y for Battle Litany).</param>
-    public int CountMembersInRange(IPlayerCharacter player, float range = 30f)
+    /// <param name="range">Range to check.</param>
+    public int CountMembersInRange(IPlayerCharacter player, float range)
     {
         var count = 0;
         var rangeSquared = range * range;
@@ -49,12 +48,29 @@ public sealed class ZeusPartyHelper : BasePartyHelper
     }
 
     /// <summary>
-    /// Finds the best target for Dragon Sight tether.
-    /// Prefers DPS players in range, prioritizing melee DPS.
+    /// Counts how many party members are injured (below threshold).
     /// </summary>
     /// <param name="player">The player character.</param>
-    /// <param name="range">Range to check (default 12y for Dragon Sight).</param>
-    public IBattleChara? FindDragonSightTarget(IPlayerCharacter player, float range = 12f)
+    /// <param name="threshold">HP threshold to consider injured.</param>
+    public int CountInjuredMembers(IPlayerCharacter player, float threshold = 0.80f)
+    {
+        var count = 0;
+        foreach (var member in GetAllPartyMembers(player))
+        {
+            if (GetHpPercent(member) < threshold)
+                count++;
+        }
+        return count;
+    }
+
+    /// <summary>
+    /// Finds the best target for a buff ability (e.g., Dragon Sight).
+    /// Prioritizes based on provided job priority array.
+    /// </summary>
+    /// <param name="player">The player character.</param>
+    /// <param name="priorityJobs">Array of job IDs in priority order (highest priority first).</param>
+    /// <param name="range">Range to check.</param>
+    public IBattleChara? FindBuffTarget(IPlayerCharacter player, uint[] priorityJobs, float range = 12f)
     {
         var rangeSquared = range * range;
         IBattleChara? bestTarget = null;
@@ -62,7 +78,6 @@ public sealed class ZeusPartyHelper : BasePartyHelper
 
         foreach (var member in GetAllPartyMembers(player))
         {
-            // Skip self
             if (member.EntityId == player.EntityId)
                 continue;
 
@@ -73,8 +88,7 @@ public sealed class ZeusPartyHelper : BasePartyHelper
             if (distSq > rangeSquared)
                 continue;
 
-            // Priority based on role (melee DPS > ranged DPS > caster > healer > tank)
-            var priority = GetDragonSightPriority(member);
+            var priority = GetJobPriority(member, priorityJobs);
             if (priority > bestPriority)
             {
                 bestPriority = priority;
@@ -86,36 +100,21 @@ public sealed class ZeusPartyHelper : BasePartyHelper
     }
 
     /// <summary>
-    /// Gets the priority for Dragon Sight targeting based on job.
+    /// Gets the priority for targeting based on job.
     /// Higher values = higher priority.
     /// </summary>
-    private static int GetDragonSightPriority(IBattleChara member)
+    private static int GetJobPriority(IBattleChara member, uint[] priorityJobs)
     {
         if (member is not IPlayerCharacter pc)
             return 0;
 
         var jobId = pc.ClassJob.RowId;
+        for (var i = 0; i < priorityJobs.Length; i++)
+        {
+            if (jobId == priorityJobs[i])
+                return priorityJobs.Length - i;
+        }
 
-        // Melee DPS (highest priority)
-        if (jobId is 20 or 2 or 22 or 4 or 30 or 34 or 39 or 41)
-            return 5;
-
-        // Ranged Physical DPS
-        if (jobId is 23 or 5 or 31 or 38)
-            return 4;
-
-        // Caster DPS
-        if (jobId is 25 or 7 or 27 or 35 or 42)
-            return 3;
-
-        // Healers
-        if (jobId is 24 or 6 or 28 or 33 or 40)
-            return 1;
-
-        // Tanks (lowest priority)
-        if (jobId is 19 or 1 or 21 or 3 or 32 or 37)
-            return 0;
-
-        return 2; // Unknown
+        return 0;
     }
 }

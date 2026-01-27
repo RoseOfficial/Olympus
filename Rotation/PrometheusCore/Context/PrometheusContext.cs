@@ -3,6 +3,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.PrometheusCore.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
@@ -95,7 +96,7 @@ public sealed class PrometheusContext : IPrometheusContext
 
     // Helpers
     public PrometheusStatusHelper StatusHelper { get; }
-    public PrometheusPartyHelper PartyHelper { get; }
+    public RangedDpsPartyHelper PartyHelper { get; }
     public PrometheusDebugState Debug { get; }
 
     // Party Coordination
@@ -129,7 +130,7 @@ public sealed class PrometheusContext : IPrometheusContext
         IObjectTable objectTable,
         IPartyList partyList,
         PrometheusStatusHelper statusHelper,
-        PrometheusPartyHelper partyHelper,
+        RangedDpsPartyHelper partyHelper,
         PrometheusDebugState debugState,
         int heat,
         int battery,

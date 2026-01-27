@@ -4,6 +4,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.IrisCore.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
@@ -135,7 +136,7 @@ public sealed class IrisContext : IIrisContext
 
     // Helpers
     public IrisStatusHelper StatusHelper { get; }
-    public IrisPartyHelper PartyHelper { get; }
+    public CasterPartyHelper PartyHelper { get; }
     public IrisDebugState Debug { get; }
 
     // Utility
@@ -172,7 +173,7 @@ public sealed class IrisContext : IIrisContext
         IObjectTable objectTable,
         IPartyList partyList,
         IrisStatusHelper statusHelper,
-        IrisPartyHelper partyHelper,
+        CasterPartyHelper partyHelper,
         IrisDebugState debugState,
         int paletteGauge,
         int whitePaint,

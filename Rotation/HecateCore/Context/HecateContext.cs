@@ -3,6 +3,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.HecateCore.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
@@ -112,7 +113,7 @@ public sealed class HecateContext : IHecateContext
 
     // Helpers
     public HecateStatusHelper StatusHelper { get; }
-    public HecatePartyHelper PartyHelper { get; }
+    public CasterPartyHelper PartyHelper { get; }
     public HecateDebugState Debug { get; }
 
     // Training
@@ -143,7 +144,7 @@ public sealed class HecateContext : IHecateContext
         IObjectTable objectTable,
         IPartyList partyList,
         HecateStatusHelper statusHelper,
-        HecatePartyHelper partyHelper,
+        CasterPartyHelper partyHelper,
         HecateDebugState debugState,
         int elementStacks,
         float elementTimer,

@@ -5,6 +5,7 @@ using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.Base;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.ZeusCore.Context;
 using Olympus.Rotation.ZeusCore.Helpers;
 using Olympus.Rotation.ZeusCore.Modules;
@@ -54,7 +55,7 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
 
     // Helpers (shared across modules)
     private readonly ZeusStatusHelper _statusHelper;
-    private readonly ZeusPartyHelper _partyHelper;
+    private readonly MeleeDpsPartyHelper _partyHelper;
 
     // Modules (sorted by priority - lower = higher priority)
     private readonly List<IZeusModule> _modules;
@@ -116,7 +117,7 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
 
         // Initialize helpers
         _statusHelper = new ZeusStatusHelper();
-        _partyHelper = new ZeusPartyHelper(objectTable, partyList);
+        _partyHelper = new MeleeDpsPartyHelper(objectTable, partyList);
 
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<IZeusModule>

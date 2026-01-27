@@ -4,6 +4,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.CirceCore.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
@@ -129,7 +130,7 @@ public sealed class CirceContext : ICirceContext
 
     // Helpers
     public CirceStatusHelper StatusHelper { get; }
-    public CircePartyHelper PartyHelper { get; }
+    public CasterPartyHelper PartyHelper { get; }
     public CirceDebugState Debug { get; }
 
     // Party Coordination
@@ -163,7 +164,7 @@ public sealed class CirceContext : ICirceContext
         IObjectTable objectTable,
         IPartyList partyList,
         CirceStatusHelper statusHelper,
-        CircePartyHelper partyHelper,
+        CasterPartyHelper partyHelper,
         CirceDebugState debugState,
         int blackMana,
         int whiteMana,

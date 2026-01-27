@@ -1,6 +1,8 @@
 using Olympus.Data;
+using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.AresCore.Context;
+using Olympus.Rotation.Common.Modules;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AresCore.Modules;
@@ -9,79 +11,30 @@ namespace Olympus.Rotation.AresCore.Modules;
 /// Handles the Warrior buff management.
 /// Manages Defiance (tank stance), Inner Release (burst window), and Infuriate (gauge generation).
 /// </summary>
-public sealed class BuffModule : IAresModule
+public sealed class BuffModule : BaseTankBuffModule<IAresContext>, IAresModule
 {
-    public int Priority => 20; // After enmity and mitigation
-    public string Name => "Buff";
+    #region Abstract Implementation
 
-    public bool TryExecute(IAresContext context, bool isMoving)
+    protected override ActionDefinition GetTankStanceAction() => WARActions.Defiance;
+
+    protected override bool HasJobTankStance(IAresContext context) => context.HasDefiance;
+
+    protected override void SetBuffState(IAresContext context, string state) => context.Debug.BuffState = state;
+
+    protected override void SetPlannedAction(IAresContext context, string action) => context.Debug.PlannedAction = action;
+
+    #endregion
+
+    #region Job-Specific Overrides
+
+    protected override bool TryJobSpecificBuffs(IAresContext context)
     {
-        if (!context.InCombat)
-        {
-            context.Debug.BuffState = "Not in combat";
-            return false;
-        }
-
-        // Only use buff actions during oGCD windows
-        if (!context.CanExecuteOgcd)
-            return false;
-
-        var player = context.Player;
-        var level = player.Level;
-
-        // Priority 1: Maintain tank stance (Defiance)
-        if (TryDefiance(context))
-            return true;
-
-        // Priority 2: Inner Release for burst window
-        if (TryInnerRelease(context))
-            return true;
-
-        // Priority 3: Infuriate for gauge generation
-        if (TryInfuriate(context))
-            return true;
-
-        return false;
+        return TryInnerRelease(context);
     }
 
-    public void UpdateDebugState(IAresContext context)
+    protected override bool TryJobSpecificResourceGeneration(IAresContext context)
     {
-        // Debug state updated during TryExecute
-    }
-
-    #region Tank Stance
-
-    private bool TryDefiance(IAresContext context)
-    {
-        var player = context.Player;
-        var level = player.Level;
-
-        if (level < WARActions.Defiance.MinLevel)
-            return false;
-
-        // Check configuration
-        if (!context.Configuration.Tank.AutoTankStance)
-        {
-            context.Debug.BuffState = "AutoTankStance disabled";
-            return false;
-        }
-
-        // Already have tank stance
-        if (context.HasDefiance)
-            return false;
-
-        // Check if Defiance is ready
-        if (!context.ActionService.IsActionReady(WARActions.Defiance.ActionId))
-            return false;
-
-        if (context.ActionService.ExecuteOgcd(WARActions.Defiance, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = WARActions.Defiance.Name;
-            context.Debug.BuffState = "Enabling Defiance";
-            return true;
-        }
-
-        return false;
+        return TryInfuriate(context);
     }
 
     #endregion

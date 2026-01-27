@@ -1,5 +1,6 @@
 using Olympus.Data;
 using Olympus.Rotation.Common;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.EchidnaCore.Helpers;
 using Olympus.Services.Party;
 using Olympus.Services.Training;
@@ -156,7 +157,7 @@ public interface IEchidnaContext : IMeleeDpsRotationContext
     /// <summary>
     /// Party helper for party member queries.
     /// </summary>
-    EchidnaPartyHelper PartyHelper { get; }
+    MeleeDpsPartyHelper PartyHelper { get; }
 
     #endregion
 

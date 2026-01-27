@@ -1,4 +1,5 @@
 using Olympus.Rotation.Common;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.CirceCore.Helpers;
 using Olympus.Services.Party;
 using Olympus.Services.Training;
@@ -251,7 +252,7 @@ public interface ICirceContext : ICasterDpsRotationContext
     /// <summary>
     /// Party helper for party member queries.
     /// </summary>
-    CircePartyHelper PartyHelper { get; }
+    CasterPartyHelper PartyHelper { get; }
 
     #endregion
 

@@ -3,6 +3,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.EchidnaCore.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
@@ -104,7 +105,7 @@ public sealed class EchidnaContext : IEchidnaContext
 
     // Helpers
     public EchidnaStatusHelper StatusHelper { get; }
-    public EchidnaPartyHelper PartyHelper { get; }
+    public MeleeDpsPartyHelper PartyHelper { get; }
     public EchidnaDebugState Debug { get; }
 
     // Party Coordination
@@ -139,7 +140,7 @@ public sealed class EchidnaContext : IEchidnaContext
         IPartyList partyList,
         IPositionalService positionalService,
         EchidnaStatusHelper statusHelper,
-        EchidnaPartyHelper partyHelper,
+        MeleeDpsPartyHelper partyHelper,
         EchidnaDebugState debugState,
         int serpentOffering,
         int anguineTribute,
