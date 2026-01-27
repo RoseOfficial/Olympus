@@ -1,121 +1,187 @@
+using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.AsclepiusCore.Context;
-using Olympus.Rotation.AsclepiusCore.Helpers;
+using Olympus.Rotation.Common.Modules;
 
 namespace Olympus.Rotation.AsclepiusCore.Modules;
 
 /// <summary>
 /// SGE-specific damage module.
 /// Handles Dosis, Eukrasian Dosis (DoT), Phlegma, Toxikon, Dyskrasia, and Psyche.
-///
-/// Priority order:
-/// 1. Psyche (oGCD damage)
-/// 2. Phlegma (high potency instant GCD with charges)
-/// 3. Toxikon (instant when moving, consumes Addersting)
-/// 4. Eukrasian Dosis (DoT maintenance)
-/// 5. Dyskrasia (AoE damage)
-/// 6. Dosis (single-target filler)
+/// Extends base damage logic with SGE-unique mechanics: Eukrasia-based DoT, charge-based Phlegma,
+/// Addersting-based Toxikon for movement.
 /// </summary>
-public sealed class DamageModule : IAsclepiusModule
+public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepiusModule
 {
-    public int Priority => 50; // Low priority - DPS after healing
-    public string Name => "Damage";
+    #region Base Class Overrides - Configuration Properties
 
-    public bool TryExecute(IAsclepiusContext context, bool isMoving)
+    protected override bool IsDamageEnabled(IAsclepiusContext context) =>
+        context.Configuration.EnableDamage;
+
+    protected override bool IsDoTEnabled(IAsclepiusContext context) =>
+        context.Configuration.EnableDoT;
+
+    protected override bool IsAoEDamageEnabled(IAsclepiusContext context) =>
+        context.Configuration.Sage.EnableAoEDamage;
+
+    protected override int AoEMinTargets(IAsclepiusContext context) =>
+        context.Configuration.Sage.AoEDamageMinTargets;
+
+    protected override float DoTRefreshThreshold(IAsclepiusContext context) =>
+        FFXIVConstants.DotRefreshThreshold;
+
+    #endregion
+
+    #region Base Class Overrides - Action Methods
+
+    protected override uint GetDoTStatusId(IAsclepiusContext context) =>
+        SGEActions.GetDotStatusId(context.Player.Level);
+
+    protected override ActionDefinition? GetDoTAction(IAsclepiusContext context) =>
+        SGEActions.GetDotForLevel(context.Player.Level);
+
+    protected override ActionDefinition? GetAoEDamageAction(IAsclepiusContext context) =>
+        SGEActions.GetAoEDamageGcdForLevel(context.Player.Level);
+
+    protected override ActionDefinition GetSingleTargetAction(IAsclepiusContext context, bool isMoving) =>
+        SGEActions.GetDamageGcdForLevel(context.Player.Level);
+
+    #endregion
+
+    #region Base Class Overrides - Debug State
+
+    protected override void SetDpsState(IAsclepiusContext context, string state) =>
+        context.Debug.DpsState = state;
+
+    protected override void SetAoEDpsState(IAsclepiusContext context, string state) =>
+        context.Debug.AoEDpsState = state;
+
+    protected override void SetAoEDpsEnemyCount(IAsclepiusContext context, int count) =>
+        context.Debug.AoEDpsEnemyCount = count;
+
+    protected override void SetPlannedAction(IAsclepiusContext context, string action) =>
+        context.Debug.PlannedAction = action;
+
+    #endregion
+
+    #region Base Class Overrides - Behavioral
+
+    /// <summary>
+    /// SGE DPS doesn't block other modules (healers continue to check other priorities).
+    /// </summary>
+    protected override bool BlocksOnExecution => false;
+
+    /// <summary>
+    /// SGE oGCD damage: Psyche (AoE damage ability).
+    /// </summary>
+    protected override bool TryOgcdDamage(IAsclepiusContext context)
     {
-        if (!context.InCombat)
+        return TryPsyche(context);
+    }
+
+    /// <summary>
+    /// SGE special GCD damage: Phlegma (charge-based) and Toxikon when moving.
+    /// </summary>
+    protected override bool TrySpecialDamage(IAsclepiusContext context, bool isMoving)
+    {
+        // Priority 1: Phlegma (high potency, instant, charges)
+        if (TryPhlegma(context))
+            return true;
+
+        // Priority 2: Toxikon while moving (consumes Addersting)
+        if (isMoving && TryToxikon(context))
+            return true;
+
+        return false;
+    }
+
+    /// <summary>
+    /// SGE DoT requires activating Eukrasia first (oGCD), then applying Eukrasian Dosis (GCD).
+    /// Override to handle this unique two-step process.
+    /// </summary>
+    protected override bool TryDoT(IAsclepiusContext context)
+    {
+        if (!IsDoTEnabled(context))
+            return false;
+
+        var player = context.Player;
+        if (player.Level < SGEActions.EukrasianDosis.MinLevel)
+            return false;
+
+        var dotAction = GetDoTAction(context);
+        if (dotAction == null)
+            return false;
+
+        var dotStatusId = GetDoTStatusId(context);
+
+        // If we have Eukrasia, apply the DoT
+        if (context.HasEukrasia)
         {
-            context.Debug.DpsState = "Not in combat";
+            var enemy = context.TargetingService.FindEnemy(
+                context.Configuration.Targeting.EnemyStrategy,
+                dotAction.Range,
+                player);
+
+            if (enemy == null)
+                return false;
+
+            if (context.ActionService.ExecuteGcd(dotAction, enemy.GameObjectId))
+            {
+                SetPlannedAction(context, dotAction.Name);
+                SetDpsState(context, "DoT Applied");
+                return true;
+            }
+
             return false;
         }
 
-        var config = context.Configuration;
+        // Check if we need to apply/refresh DoT
+        var target = context.TargetingService.FindEnemyNeedingDot(
+            dotStatusId,
+            DoTRefreshThreshold(context),
+            dotAction.Range,
+            player);
 
-        if (!config.EnableDamage)
+        if (target == null)
         {
-            context.Debug.DpsState = "Disabled";
+            context.Debug.DoTState = "Active";
             return false;
         }
 
-        // oGCD damage
+        // Activate Eukrasia for DoT (this is an oGCD)
         if (context.CanExecuteOgcd)
         {
-            // Psyche - oGCD AoE damage
-            if (TryPsyche(context))
-                return false; // Don't block, just weave
-        }
-
-        // GCD damage
-        if (context.CanExecuteGcd)
-        {
-            // Priority 1: Phlegma (high potency, instant, charges)
-            if (TryPhlegma(context))
-                return false; // SGE DPS doesn't block
-
-            // Priority 2: Toxikon while moving (consumes Addersting)
-            if (isMoving && TryToxikon(context))
-                return false;
-
-            // Priority 3: DoT maintenance (Eukrasian Dosis)
-            if (TryDoT(context, isMoving))
-                return false;
-
-            // Priority 4: AoE damage (Dyskrasia)
-            if (TryAoEDamage(context))
-                return false;
-
-            // Priority 5: Single-target damage (Dosis)
-            if (!isMoving && TrySingleTargetDamage(context))
-                return false;
-
-            // Priority 6: Toxikon as filler when moving
-            if (isMoving && TryToxikon(context))
-                return false;
+            var eukrasiaAction = SGEActions.Eukrasia;
+            if (context.ActionService.ExecuteOgcd(eukrasiaAction, player.GameObjectId))
+            {
+                SetPlannedAction(context, eukrasiaAction.Name);
+                SetDpsState(context, "Eukrasia for DoT");
+                context.Debug.EukrasiaState = "Activating";
+                return true;
+            }
         }
 
         return false;
     }
 
-    public void UpdateDebugState(IAsclepiusContext context)
+    /// <summary>
+    /// SGE cannot cast Dosis while moving (has cast time).
+    /// Use Toxikon instead for movement damage.
+    /// </summary>
+    protected override bool CanSingleTarget(IAsclepiusContext context, bool isMoving) => !isMoving;
+
+    /// <summary>
+    /// SGE movement damage: Toxikon (instant cast, uses Addersting).
+    /// </summary>
+    protected override bool TryMovementDamage(IAsclepiusContext context)
     {
-        var player = context.Player;
-
-        // Update DoT state
-        var dotAction = SGEActions.GetDotForLevel(player.Level);
-        var dotStatusId = SGEActions.GetDotStatusId(player.Level);
-
-        var enemy = context.TargetingService.FindEnemy(
-            context.Configuration.Targeting.EnemyStrategy,
-            dotAction.Range,
-            player);
-
-        if (enemy != null)
-        {
-            var dotRemaining = GetStatusRemainingTime(enemy, dotStatusId, player.GameObjectId);
-            context.Debug.DoTRemaining = dotRemaining;
-            context.Debug.DoTState = dotRemaining > 0 ? $"{dotRemaining:F1}s" : "Not applied";
-        }
-        else
-        {
-            context.Debug.DoTState = "No target";
-        }
-
-        // Phlegma charges
-        var phlegmaAction = SGEActions.GetPhlegmaForLevel(player.Level);
-        if (phlegmaAction != null)
-        {
-            var charges = (int)context.ActionService.GetCurrentCharges(phlegmaAction.ActionId);
-            context.Debug.PhlegmaCharges = charges;
-            context.Debug.PhlegmaState = charges > 0 ? $"{charges} charges" : "No charges";
-        }
-
-        // Addersting for Toxikon
-        context.Debug.AdderstingStacks = context.AdderstingStacks;
-        context.Debug.ToxikonState = context.AdderstingStacks > 0 ? $"{context.AdderstingStacks} stacks" : "No Addersting";
+        return TryToxikon(context);
     }
 
-    #region oGCD Damage
+    #endregion
+
+    #region SGE-Specific Methods
 
     private bool TryPsyche(IAsclepiusContext context)
     {
@@ -145,21 +211,16 @@ public sealed class DamageModule : IAsclepiusModule
             return false;
         }
 
-        var action = SGEActions.Psyche;
-        if (context.ActionService.ExecuteOgcd(action, enemy.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(SGEActions.Psyche, enemy.GameObjectId))
         {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DpsState = "Psyche";
+            SetPlannedAction(context, SGEActions.Psyche.Name);
+            SetDpsState(context, "Psyche");
             context.Debug.PsycheState = "Executing";
             return true;
         }
 
         return false;
     }
-
-    #endregion
-
-    #region GCD Damage
 
     private bool TryPhlegma(IAsclepiusContext context)
     {
@@ -209,8 +270,8 @@ public sealed class DamageModule : IAsclepiusModule
 
         if (context.ActionService.ExecuteGcd(phlegmaAction, enemy.GameObjectId))
         {
-            context.Debug.PlannedAction = phlegmaAction.Name;
-            context.Debug.DpsState = phlegmaAction.Name;
+            SetPlannedAction(context, phlegmaAction.Name);
+            SetDpsState(context, phlegmaAction.Name);
             context.Debug.PhlegmaState = "Executing";
             return true;
         }
@@ -253,134 +314,9 @@ public sealed class DamageModule : IAsclepiusModule
 
         if (context.ActionService.ExecuteGcd(toxikonAction, enemy.GameObjectId))
         {
-            context.Debug.PlannedAction = toxikonAction.Name;
-            context.Debug.DpsState = toxikonAction.Name;
+            SetPlannedAction(context, toxikonAction.Name);
+            SetDpsState(context, toxikonAction.Name);
             context.Debug.ToxikonState = "Executing";
-            return true;
-        }
-
-        return false;
-    }
-
-    private bool TryDoT(IAsclepiusContext context, bool isMoving)
-    {
-        var config = context.Configuration;
-        var player = context.Player;
-
-        if (!config.EnableDoT)
-            return false;
-
-        if (player.Level < SGEActions.EukrasianDosis.MinLevel)
-            return false;
-
-        var dotAction = SGEActions.GetDotForLevel(player.Level);
-        var dotStatusId = SGEActions.GetDotStatusId(player.Level);
-
-        // If we have Eukrasia, apply the DoT
-        if (context.HasEukrasia)
-        {
-            var enemy = context.TargetingService.FindEnemy(
-                config.Targeting.EnemyStrategy,
-                dotAction.Range,
-                player);
-
-            if (enemy == null)
-                return false;
-
-            if (context.ActionService.ExecuteGcd(dotAction, enemy.GameObjectId))
-            {
-                context.Debug.PlannedAction = dotAction.Name;
-                context.Debug.DpsState = "DoT Applied";
-                return true;
-            }
-
-            return false;
-        }
-
-        // Check if we need to apply/refresh DoT
-        var target = context.TargetingService.FindEnemyNeedingDot(
-            dotStatusId,
-            FFXIVConstants.DotRefreshThreshold,
-            dotAction.Range,
-            player);
-
-        if (target == null)
-        {
-            context.Debug.DoTState = "Active";
-            return false;
-        }
-
-        // Activate Eukrasia for DoT (this is an oGCD)
-        if (context.CanExecuteOgcd)
-        {
-            var eukrasiaAction = SGEActions.Eukrasia;
-            if (context.ActionService.ExecuteOgcd(eukrasiaAction, player.GameObjectId))
-            {
-                context.Debug.PlannedAction = eukrasiaAction.Name;
-                context.Debug.DpsState = "Eukrasia for DoT";
-                context.Debug.EukrasiaState = "Activating";
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private bool TryAoEDamage(IAsclepiusContext context)
-    {
-        var config = context.Configuration.Sage;
-        var player = context.Player;
-
-        var aoeAction = SGEActions.GetAoEDamageGcdForLevel(player.Level);
-        if (aoeAction == null)
-        {
-            context.Debug.AoEDpsState = "Level too low";
-            return false;
-        }
-
-        // Count enemies in range
-        var enemyCount = context.TargetingService.CountEnemiesInRange(aoeAction.Radius, player);
-        context.Debug.AoEDpsEnemyCount = enemyCount;
-
-        if (enemyCount < config.AoEDamageMinTargets)
-        {
-            context.Debug.AoEDpsState = $"{enemyCount} < {config.AoEDamageMinTargets}";
-            return false;
-        }
-
-        // Dyskrasia is self-centered
-        if (context.ActionService.ExecuteGcd(aoeAction, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = aoeAction.Name;
-            context.Debug.DpsState = $"AoE ({enemyCount})";
-            context.Debug.AoEDpsState = $"{enemyCount} enemies";
-            return true;
-        }
-
-        return false;
-    }
-
-    private bool TrySingleTargetDamage(IAsclepiusContext context)
-    {
-        var player = context.Player;
-
-        var action = SGEActions.GetDamageGcdForLevel(player.Level);
-
-        var enemy = context.TargetingService.FindEnemy(
-            context.Configuration.Targeting.EnemyStrategy,
-            action.Range,
-            player);
-
-        if (enemy == null)
-        {
-            context.Debug.DpsState = "No target";
-            return false;
-        }
-
-        if (context.ActionService.ExecuteGcd(action, enemy.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DpsState = action.Name;
             return true;
         }
 
@@ -389,9 +325,47 @@ public sealed class DamageModule : IAsclepiusModule
 
     #endregion
 
+    public override void UpdateDebugState(IAsclepiusContext context)
+    {
+        var player = context.Player;
+
+        // Update DoT state
+        var dotAction = SGEActions.GetDotForLevel(player.Level);
+        var dotStatusId = SGEActions.GetDotStatusId(player.Level);
+
+        var enemy = context.TargetingService.FindEnemy(
+            context.Configuration.Targeting.EnemyStrategy,
+            dotAction.Range,
+            player);
+
+        if (enemy != null)
+        {
+            var dotRemaining = GetStatusRemainingTime(enemy, dotStatusId, player.GameObjectId);
+            context.Debug.DoTRemaining = dotRemaining;
+            context.Debug.DoTState = dotRemaining > 0 ? $"{dotRemaining:F1}s" : "Not applied";
+        }
+        else
+        {
+            context.Debug.DoTState = "No target";
+        }
+
+        // Phlegma charges
+        var phlegmaAction = SGEActions.GetPhlegmaForLevel(player.Level);
+        if (phlegmaAction != null)
+        {
+            var charges = (int)context.ActionService.GetCurrentCharges(phlegmaAction.ActionId);
+            context.Debug.PhlegmaCharges = charges;
+            context.Debug.PhlegmaState = charges > 0 ? $"{charges} charges" : "No charges";
+        }
+
+        // Addersting for Toxikon
+        context.Debug.AdderstingStacks = context.AdderstingStacks;
+        context.Debug.ToxikonState = context.AdderstingStacks > 0 ? $"{context.AdderstingStacks} stacks" : "No Addersting";
+    }
+
     #region Helpers
 
-    private float GetStatusRemainingTime(Dalamud.Game.ClientState.Objects.Types.IBattleChara target, uint statusId, ulong sourceId)
+    private float GetStatusRemainingTime(IBattleChara target, uint statusId, ulong sourceId)
     {
         foreach (var status in target.StatusList)
         {

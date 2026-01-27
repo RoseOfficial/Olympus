@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.HermesCore.Context;
 using Olympus.Services.Training;
 
@@ -9,86 +10,50 @@ namespace Olympus.Rotation.HermesCore.Modules;
 /// <summary>
 /// Handles the Ninja damage rotation.
 /// Manages combo GCDs, Ninki spenders, Raiju, and Phantom Kamaitachi.
+/// Extends BaseDpsDamageModule for shared damage module patterns.
 /// </summary>
-public sealed class DamageModule : IHermesModule
+public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesModule
 {
-    public int Priority => 30; // After Ninjutsu and Buffs
-    public string Name => "Damage";
-
-    // Threshold for AoE rotation
-    private const int AoeThreshold = 3;
-
     // Ninki threshold for spending
     private const int NinkiSpendThreshold = 50;
 
     // Kazematoi threshold for maintaining stacks
     private const int KazematoiLowThreshold = 1;
 
-    public bool TryExecute(IHermesContext context, bool isMoving)
-    {
-        if (!context.InCombat)
-        {
-            context.Debug.DamageState = "Not in combat";
-            return false;
-        }
+    #region Abstract Method Implementations
 
-        var player = context.Player;
-        var level = player.Level;
+    /// <summary>
+    /// Melee targeting range (3y).
+    /// </summary>
+    protected override float GetTargetingRange() => FFXIVConstants.MeleeTargetingRange;
 
-        // Find target
-        var target = context.TargetingService.FindEnemy(
-            context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.MeleeTargetingRange,
-            player);
+    /// <summary>
+    /// AoE count range for NIN (5y for melee AoE abilities).
+    /// </summary>
+    protected override float GetAoECountRange() => 5f;
 
-        if (target == null)
-        {
-            context.Debug.DamageState = "No target";
-            return false;
-        }
+    /// <summary>
+    /// Sets the damage state in the debug display.
+    /// </summary>
+    protected override void SetDamageState(IHermesContext context, string state) =>
+        context.Debug.DamageState = state;
 
-        // Count nearby enemies for AoE decisions
-        var enemyCount = context.TargetingService.CountEnemiesInRange(5f, player);
-        context.Debug.NearbyEnemies = enemyCount;
+    /// <summary>
+    /// Sets the nearby enemy count in the debug display.
+    /// </summary>
+    protected override void SetNearbyEnemies(IHermesContext context, int count) =>
+        context.Debug.NearbyEnemies = count;
 
-        // oGCD Phase - weave damage oGCDs during GCD
-        if (context.CanExecuteOgcd)
-        {
-            if (TryOgcdDamage(context, target, enemyCount))
-                return true;
-        }
+    /// <summary>
+    /// Sets the planned action name in the debug display.
+    /// </summary>
+    protected override void SetPlannedAction(IHermesContext context, string action) =>
+        context.Debug.PlannedAction = action;
 
-        // GCD Phase
-        if (!context.CanExecuteGcd)
-        {
-            context.Debug.DamageState = "GCD not ready";
-            return false;
-        }
-
-        // Priority 1: Raiju procs (from Raiton)
-        if (TryRaiju(context, target))
-            return true;
-
-        // Priority 2: Phantom Kamaitachi (from Bunshin)
-        if (TryPhantomKamaitachi(context, target))
-            return true;
-
-        // Priority 3: Combo rotation
-        if (TryComboRotation(context, target, enemyCount))
-            return true;
-
-        context.Debug.DamageState = "No action available";
-        return false;
-    }
-
-    public void UpdateDebugState(IHermesContext context)
-    {
-        // Debug state updated during TryExecute
-    }
-
-    #region oGCD Damage
-
-    private bool TryOgcdDamage(IHermesContext context, IBattleChara target, int enemyCount)
+    /// <summary>
+    /// oGCD damage for Ninja - Ninki spenders (Bhavacakra, Hellfrog).
+    /// </summary>
+    protected override bool TryOgcdDamage(IHermesContext context, IBattleChara target, int enemyCount)
     {
         var player = context.Player;
         var level = player.Level;
@@ -172,6 +137,27 @@ public sealed class DamageModule : IHermesModule
                 }
             }
         }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Main GCD damage rotation for Ninja.
+    /// Handles Raiju procs, Phantom Kamaitachi, and combo rotation.
+    /// </summary>
+    protected override bool TryGcdDamage(IHermesContext context, IBattleChara target, int enemyCount, bool isMoving)
+    {
+        // Priority 1: Raiju procs (from Raiton)
+        if (TryRaiju(context, target))
+            return true;
+
+        // Priority 2: Phantom Kamaitachi (from Bunshin)
+        if (TryPhantomKamaitachi(context, target))
+            return true;
+
+        // Priority 3: Combo rotation
+        if (TryComboRotation(context, target, enemyCount))
+            return true;
 
         return false;
     }

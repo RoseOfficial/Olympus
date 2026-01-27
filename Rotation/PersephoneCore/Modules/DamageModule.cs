@@ -2,6 +2,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.PersephoneCore.Context;
 using Olympus.Services.Training;
 
@@ -11,48 +12,34 @@ namespace Olympus.Rotation.PersephoneCore.Modules;
 /// Handles the Summoner damage rotation.
 /// Manages demi-summon phases, primal attunements, and filler spells.
 /// </summary>
-public sealed class DamageModule : IPersephoneModule
+public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPersephoneModule
 {
-    public int Priority => 30; // Lower priority than buffs (higher number = lower priority)
-    public string Name => "Damage";
+    #region Abstract Method Implementations
 
-    // Threshold for AoE rotation
-    private const int AoeThreshold = 3;
+    protected override float GetTargetingRange() => FFXIVConstants.CasterTargetingRange;
 
-    public bool TryExecute(IPersephoneContext context, bool isMoving)
+    protected override float GetAoECountRange() => 5f;
+
+    protected override void SetDamageState(IPersephoneContext context, string state) =>
+        context.Debug.DamageState = state;
+
+    protected override void SetNearbyEnemies(IPersephoneContext context, int count) =>
+        context.Debug.NearbyEnemies = count;
+
+    protected override void SetPlannedAction(IPersephoneContext context, string action) =>
+        context.Debug.PlannedAction = action;
+
+    /// <summary>
+    /// SMN has no damage oGCDs - all abilities are in the GCD phase or BuffModule.
+    /// </summary>
+    protected override bool TryOgcdDamage(IPersephoneContext context, IBattleChara target, int enemyCount)
     {
-        if (!context.InCombat)
-        {
-            context.Debug.DamageState = "Not in combat";
-            return false;
-        }
+        return false;
+    }
 
-        var player = context.Player;
-        var level = player.Level;
-
-        // Find target
-        var target = context.TargetingService.FindEnemy(
-            context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.CasterTargetingRange,
-            player);
-
-        if (target == null)
-        {
-            context.Debug.DamageState = "No target";
-            return false;
-        }
-
-        // Count nearby enemies for AoE decisions
-        var enemyCount = context.TargetingService.CountEnemiesInRange(5f, player);
-        context.Debug.NearbyEnemies = enemyCount;
-
-        if (!context.CanExecuteGcd)
-        {
-            context.Debug.DamageState = "GCD not ready";
-            return false;
-        }
-
-        var useAoe = enemyCount >= AoeThreshold;
+    protected override bool TryGcdDamage(IPersephoneContext context, IBattleChara target, int enemyCount, bool isMoving)
+    {
+        var useAoe = ShouldUseAoE(enemyCount);
 
         // === PRIORITY 1: DEMI-SUMMON PHASE GCDs ===
         if (context.IsDemiSummonActive)
@@ -98,14 +85,10 @@ public sealed class DamageModule : IPersephoneModule
         if (TryFillerGcd(context, target, useAoe, isMoving))
             return true;
 
-        context.Debug.DamageState = "No action available";
         return false;
     }
 
-    public void UpdateDebugState(IPersephoneContext context)
-    {
-        // Debug state updated during TryExecute
-    }
+    #endregion
 
     #region Demi-Summon Phase
 

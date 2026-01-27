@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.HecateCore.Context;
 using Olympus.Services.Training;
 
@@ -9,15 +10,10 @@ namespace Olympus.Rotation.HecateCore.Modules;
 /// <summary>
 /// Handles the Black Mage damage rotation.
 /// Manages Fire/Ice phase transitions, Polyglot spending, and proc usage.
+/// Extends BaseDpsDamageModule for shared damage module patterns.
 /// </summary>
-public sealed class DamageModule : IHecateModule
+public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateModule
 {
-    public int Priority => 30; // Lower priority than buffs (higher number = lower priority)
-    public string Name => "Damage";
-
-    // Threshold for AoE rotation
-    private const int AoeThreshold = 3;
-
     // MP thresholds
     private const int Fire4MpCost = 800;
     private const int DespairMpCost = 800;
@@ -26,40 +22,48 @@ public sealed class DamageModule : IHecateModule
     private const float ElementRefreshThreshold = 6f;
     private const float ThunderRefreshThreshold = 3f;
 
-    public bool TryExecute(IHecateContext context, bool isMoving)
+    #region Abstract Method Implementations
+
+    /// <summary>
+    /// Caster targeting range (25y).
+    /// </summary>
+    protected override float GetTargetingRange() => FFXIVConstants.CasterTargetingRange;
+
+    /// <summary>
+    /// AoE count range for BLM (8y for most AoE spells).
+    /// </summary>
+    protected override float GetAoECountRange() => 8f;
+
+    /// <summary>
+    /// Sets the damage state in the debug display.
+    /// </summary>
+    protected override void SetDamageState(IHecateContext context, string state) =>
+        context.Debug.DamageState = state;
+
+    /// <summary>
+    /// Sets the nearby enemy count in the debug display.
+    /// </summary>
+    protected override void SetNearbyEnemies(IHecateContext context, int count) =>
+        context.Debug.NearbyEnemies = count;
+
+    /// <summary>
+    /// Sets the planned action name in the debug display.
+    /// </summary>
+    protected override void SetPlannedAction(IHecateContext context, string action) =>
+        context.Debug.PlannedAction = action;
+
+    /// <summary>
+    /// BLM has no damage oGCDs - all oGCDs (Triplecast, Ley Lines, etc.) are in BuffModule.
+    /// </summary>
+    protected override bool TryOgcdDamage(IHecateContext context, IBattleChara target, int enemyCount) => false;
+
+    /// <summary>
+    /// Main GCD damage rotation for Black Mage.
+    /// Handles movement, procs, Polyglot, and Fire/Ice phase transitions.
+    /// </summary>
+    protected override bool TryGcdDamage(IHecateContext context, IBattleChara target, int enemyCount, bool isMoving)
     {
-        if (!context.InCombat)
-        {
-            context.Debug.DamageState = "Not in combat";
-            return false;
-        }
-
-        var player = context.Player;
-        var level = player.Level;
-
-        // Find target
-        var target = context.TargetingService.FindEnemy(
-            context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.CasterTargetingRange,
-            player);
-
-        if (target == null)
-        {
-            context.Debug.DamageState = "No target";
-            return false;
-        }
-
-        // Count nearby enemies for AoE decisions
-        var enemyCount = context.TargetingService.CountEnemiesInRange(8f, player);
-        context.Debug.NearbyEnemies = enemyCount;
-
-        if (!context.CanExecuteGcd)
-        {
-            context.Debug.DamageState = "GCD not ready";
-            return false;
-        }
-
-        var useAoe = enemyCount >= AoeThreshold;
+        var useAoe = ShouldUseAoE(enemyCount);
 
         // === MOVEMENT HANDLING ===
         if (isMoving && !context.HasInstantCast && !context.CanSlidecast)
@@ -100,14 +104,10 @@ public sealed class DamageModule : IHecateModule
                 return true;
         }
 
-        context.Debug.DamageState = "No action available";
         return false;
     }
 
-    public void UpdateDebugState(IHecateContext context)
-    {
-        // Debug state updated during TryExecute
-    }
+    #endregion
 
     #region Movement Handling
 

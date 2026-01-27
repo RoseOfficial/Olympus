@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.PrometheusCore.Context;
 using Olympus.Services.Training;
 
@@ -9,53 +10,58 @@ namespace Olympus.Rotation.PrometheusCore.Modules;
 /// <summary>
 /// Handles the Machinist damage rotation.
 /// Manages tool actions, Heat Blast spam during Overheated, and 1-2-3 combo.
+/// Extends BaseDpsDamageModule for shared damage module patterns.
 /// </summary>
-public sealed class DamageModule : IPrometheusModule
+public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPrometheusModule
 {
-    public int Priority => 30; // Lowest priority - damage after buffs
-    public string Name => "Damage";
+    #region Abstract Method Implementations
 
-    // Threshold for AoE rotation
-    private const int AoeThreshold = 3;
+    /// <summary>
+    /// Ranged physical targeting range (25y).
+    /// </summary>
+    protected override float GetTargetingRange() => FFXIVConstants.RangedTargetingRange;
 
-    public bool TryExecute(IPrometheusContext context, bool isMoving)
+    /// <summary>
+    /// AoE count range for MCH (12y for most AoE abilities like Spread Shot).
+    /// </summary>
+    protected override float GetAoECountRange() => 12f;
+
+    /// <summary>
+    /// Sets the damage state in the debug display.
+    /// </summary>
+    protected override void SetDamageState(IPrometheusContext context, string state) =>
+        context.Debug.DamageState = state;
+
+    /// <summary>
+    /// Sets the nearby enemy count in the debug display.
+    /// </summary>
+    protected override void SetNearbyEnemies(IPrometheusContext context, int count) =>
+        context.Debug.NearbyEnemies = count;
+
+    /// <summary>
+    /// Sets the planned action name in the debug display.
+    /// </summary>
+    protected override void SetPlannedAction(IPrometheusContext context, string action) =>
+        context.Debug.PlannedAction = action;
+
+    /// <summary>
+    /// oGCD damage for Machinist - primarily interrupt handling.
+    /// </summary>
+    protected override bool TryOgcdDamage(IPrometheusContext context, IBattleChara target, int enemyCount)
     {
-        if (!context.InCombat)
-        {
-            context.Debug.DamageState = "Not in combat";
-            return false;
-        }
-
-        var player = context.Player;
-        var level = player.Level;
-
-        // Find target
-        var target = context.TargetingService.FindEnemy(
-            context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.RangedTargetingRange,
-            player);
-
-        if (target == null)
-        {
-            context.Debug.DamageState = "No target";
-            return false;
-        }
-
-        // oGCD: Interrupt enemy casts (highest priority)
-        if (context.CanExecuteOgcd && TryInterrupt(context, target))
+        // Interrupt enemy casts (highest priority)
+        if (TryInterrupt(context, target))
             return true;
 
-        // Count nearby enemies for AoE decisions
-        var enemyCount = context.TargetingService.CountEnemiesInRange(12f, player);
-        context.Debug.NearbyEnemies = enemyCount;
+        return false;
+    }
 
-        // GCD Phase
-        if (!context.CanExecuteGcd)
-        {
-            context.Debug.DamageState = "GCD not ready";
-            return false;
-        }
-
+    /// <summary>
+    /// Main GCD damage rotation for Machinist.
+    /// Handles Overheated state, tool actions, and combo rotation.
+    /// </summary>
+    protected override bool TryGcdDamage(IPrometheusContext context, IBattleChara target, int enemyCount, bool isMoving)
+    {
         // === OVERHEATED STATE ===
         if (context.IsOverheated)
         {
@@ -89,14 +95,10 @@ public sealed class DamageModule : IPrometheusModule
         if (TryCombo(context, target, enemyCount))
             return true;
 
-        context.Debug.DamageState = "No action available";
         return false;
     }
 
-    public void UpdateDebugState(IPrometheusContext context)
-    {
-        // Debug state updated during TryExecute
-    }
+    #endregion
 
     #region Overheated State
 

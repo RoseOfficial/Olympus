@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.TerpsichoreCore.Context;
 using Olympus.Services.Training;
 
@@ -9,60 +10,76 @@ namespace Olympus.Rotation.TerpsichoreCore.Modules;
 /// <summary>
 /// Handles the Dancer GCD damage rotation.
 /// Manages procs, Esprit spenders, Tillana, and filler GCDs.
+/// Extends BaseDpsDamageModule for shared damage module patterns.
 /// </summary>
-public sealed class DamageModule : ITerpsichoreModule
+public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITerpsichoreModule
 {
-    public int Priority => 30; // Lower priority than buffs
-    public string Name => "Damage";
+    #region Abstract Method Implementations
 
-    // Threshold for AoE rotation
-    private const int AoeThreshold = 3;
+    /// <summary>
+    /// Ranged physical targeting range (25y).
+    /// </summary>
+    protected override float GetTargetingRange() => FFXIVConstants.RangedTargetingRange;
 
-    public bool TryExecute(ITerpsichoreContext context, bool isMoving)
+    /// <summary>
+    /// AoE count range for DNC (5y for Fan Dance abilities).
+    /// </summary>
+    protected override float GetAoECountRange() => 5f;
+
+    /// <summary>
+    /// Sets the damage state in the debug display.
+    /// </summary>
+    protected override void SetDamageState(ITerpsichoreContext context, string state) =>
+        context.Debug.DamageState = state;
+
+    /// <summary>
+    /// Sets the nearby enemy count in the debug display.
+    /// </summary>
+    protected override void SetNearbyEnemies(ITerpsichoreContext context, int count) =>
+        context.Debug.NearbyEnemies = count;
+
+    /// <summary>
+    /// Sets the planned action name in the debug display.
+    /// </summary>
+    protected override void SetPlannedAction(ITerpsichoreContext context, string action) =>
+        context.Debug.PlannedAction = action;
+
+    /// <summary>
+    /// Pre-execute checks for Dancer - also checks if dancing (handled by BuffModule).
+    /// </summary>
+    protected override bool PreExecuteChecks(ITerpsichoreContext context)
     {
-        if (!context.InCombat)
-        {
-            context.Debug.DamageState = "Not in combat";
+        if (!base.PreExecuteChecks(context))
             return false;
-        }
 
         // Don't interrupt dances with GCDs (handled by BuffModule)
         if (context.IsDancing)
         {
-            context.Debug.DamageState = "Dancing...";
+            SetDamageState(context, "Dancing...");
             return false;
         }
 
-        var player = context.Player;
-        var level = player.Level;
+        return true;
+    }
 
-        // Find target
-        var target = context.TargetingService.FindEnemy(
-            context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.RangedTargetingRange,
-            player);
-
-        if (target == null)
-        {
-            context.Debug.DamageState = "No target";
-            return false;
-        }
-
-        // oGCD: Interrupt enemy casts (highest priority)
-        if (context.CanExecuteOgcd && TryInterrupt(context, target))
+    /// <summary>
+    /// oGCD damage for Dancer - primarily interrupt handling.
+    /// </summary>
+    protected override bool TryOgcdDamage(ITerpsichoreContext context, IBattleChara target, int enemyCount)
+    {
+        // Interrupt enemy casts (highest priority)
+        if (TryInterrupt(context, target))
             return true;
 
-        // Count nearby enemies for AoE decisions
-        var enemyCount = context.TargetingService.CountEnemiesInRange(5f, player);
-        context.Debug.NearbyEnemies = enemyCount;
+        return false;
+    }
 
-        // GCD Phase
-        if (!context.CanExecuteGcd)
-        {
-            context.Debug.DamageState = "GCD not ready";
-            return false;
-        }
-
+    /// <summary>
+    /// Main GCD damage rotation for Dancer.
+    /// Handles procs, Esprit spenders, and filler GCDs.
+    /// </summary>
+    protected override bool TryGcdDamage(ITerpsichoreContext context, IBattleChara target, int enemyCount, bool isMoving)
+    {
         // === HIGHEST PRIORITY PROCS ===
 
         // Priority 1: Starfall Dance (expires with Devilment)
@@ -111,14 +128,10 @@ public sealed class DamageModule : ITerpsichoreModule
         if (TryCascade(context, target, enemyCount))
             return true;
 
-        context.Debug.DamageState = "No action available";
         return false;
     }
 
-    public void UpdateDebugState(ITerpsichoreContext context)
-    {
-        // Debug state updated during TryExecute
-    }
+    #endregion
 
     #region High Priority Procs
 

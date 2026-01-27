@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.CalliopeCore.Context;
 using Olympus.Services.Training;
 
@@ -9,57 +10,62 @@ namespace Olympus.Rotation.CalliopeCore.Modules;
 /// <summary>
 /// Handles the Bard damage rotation.
 /// Manages procs, DoTs, Apex Arrow, and filler GCDs.
+/// Extends BaseDpsDamageModule for shared damage module patterns.
 /// </summary>
-public sealed class DamageModule : ICalliopeModule
+public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalliopeModule
 {
-    public int Priority => 30; // Lowest priority - damage after buffs
-    public string Name => "Damage";
-
-    // Threshold for AoE rotation
-    private const int AoeThreshold = 3;
-
     // DoT refresh window (refresh between 3-7s remaining)
     private const float DotRefreshMin = 3f;
     private const float DotRefreshMax = 7f;
 
-    public bool TryExecute(ICalliopeContext context, bool isMoving)
+    #region Abstract Method Implementations
+
+    /// <summary>
+    /// Ranged physical targeting range (25y).
+    /// </summary>
+    protected override float GetTargetingRange() => FFXIVConstants.RangedTargetingRange;
+
+    /// <summary>
+    /// AoE count range for BRD (12y for AoE abilities).
+    /// </summary>
+    protected override float GetAoECountRange() => 12f;
+
+    /// <summary>
+    /// Sets the damage state in the debug display.
+    /// </summary>
+    protected override void SetDamageState(ICalliopeContext context, string state) =>
+        context.Debug.DamageState = state;
+
+    /// <summary>
+    /// Sets the nearby enemy count in the debug display.
+    /// </summary>
+    protected override void SetNearbyEnemies(ICalliopeContext context, int count) =>
+        context.Debug.NearbyEnemies = count;
+
+    /// <summary>
+    /// Sets the planned action name in the debug display.
+    /// </summary>
+    protected override void SetPlannedAction(ICalliopeContext context, string action) =>
+        context.Debug.PlannedAction = action;
+
+    /// <summary>
+    /// oGCD damage for Bard - primarily interrupt handling.
+    /// </summary>
+    protected override bool TryOgcdDamage(ICalliopeContext context, IBattleChara target, int enemyCount)
     {
-        if (!context.InCombat)
-        {
-            context.Debug.DamageState = "Not in combat";
-            return false;
-        }
-
-        var player = context.Player;
-        var level = player.Level;
-
-        // Find target
-        var target = context.TargetingService.FindEnemy(
-            context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.RangedTargetingRange,
-            player);
-
-        if (target == null)
-        {
-            context.Debug.DamageState = "No target";
-            return false;
-        }
-
-        // oGCD: Interrupt enemy casts (highest priority)
-        if (context.CanExecuteOgcd && TryInterrupt(context, target))
+        // Interrupt enemy casts (highest priority)
+        if (TryInterrupt(context, target))
             return true;
 
-        // Count nearby enemies for AoE decisions
-        var enemyCount = context.TargetingService.CountEnemiesInRange(12f, player);
-        context.Debug.NearbyEnemies = enemyCount;
+        return false;
+    }
 
-        // GCD Phase
-        if (!context.CanExecuteGcd)
-        {
-            context.Debug.DamageState = "GCD not ready";
-            return false;
-        }
-
+    /// <summary>
+    /// Main GCD damage rotation for Bard.
+    /// Handles procs, resource spenders, DoT management, and filler GCDs.
+    /// </summary>
+    protected override bool TryGcdDamage(ICalliopeContext context, IBattleChara target, int enemyCount, bool isMoving)
+    {
         // === PROC PRIORITY (highest damage GCDs) ===
 
         // Priority 1: Resonant Arrow (after Barrage)
@@ -104,14 +110,10 @@ public sealed class DamageModule : ICalliopeModule
         if (TryFiller(context, target, enemyCount))
             return true;
 
-        context.Debug.DamageState = "No action available";
         return false;
     }
 
-    public void UpdateDebugState(ICalliopeContext context)
-    {
-        // Debug state updated during TryExecute
-    }
+    #endregion
 
     #region Procs
 

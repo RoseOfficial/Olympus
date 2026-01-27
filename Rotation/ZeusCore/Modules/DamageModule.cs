@@ -2,6 +2,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.ZeusCore.Context;
 using Olympus.Services.Training;
 
@@ -10,84 +11,44 @@ namespace Olympus.Rotation.ZeusCore.Modules;
 /// <summary>
 /// Handles the Dragoon damage rotation.
 /// Manages combo execution, jump weaving, Life of the Dragon, and burst windows.
+/// Extends BaseDpsDamageModule for shared damage module patterns.
 /// </summary>
-public sealed class DamageModule : IZeusModule
+public sealed class DamageModule : BaseDpsDamageModule<IZeusContext>, IZeusModule
 {
-    public int Priority => 30; // Lowest priority - damage after utility
-    public string Name => "Damage";
+    #region Abstract Method Implementations
 
-    // Threshold for AoE rotation
-    private const int AoeThreshold = 3;
+    /// <summary>
+    /// Melee targeting range (3y).
+    /// </summary>
+    protected override float GetTargetingRange() => FFXIVConstants.MeleeTargetingRange;
 
-    public bool TryExecute(IZeusContext context, bool isMoving)
-    {
-        if (!context.InCombat)
-        {
-            context.Debug.DamageState = "Not in combat";
-            return false;
-        }
+    /// <summary>
+    /// AoE count range for DRG (5y for melee AoE abilities).
+    /// </summary>
+    protected override float GetAoECountRange() => 5f;
 
-        var player = context.Player;
-        var level = player.Level;
+    /// <summary>
+    /// Sets the damage state in the debug display.
+    /// </summary>
+    protected override void SetDamageState(IZeusContext context, string state) =>
+        context.Debug.DamageState = state;
 
-        // Find target
-        var target = context.TargetingService.FindEnemy(
-            context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.MeleeTargetingRange,
-            player);
+    /// <summary>
+    /// Sets the nearby enemy count in the debug display.
+    /// </summary>
+    protected override void SetNearbyEnemies(IZeusContext context, int count) =>
+        context.Debug.NearbyEnemies = count;
 
-        if (target == null)
-        {
-            context.Debug.DamageState = "No target";
-            return false;
-        }
+    /// <summary>
+    /// Sets the planned action name in the debug display.
+    /// </summary>
+    protected override void SetPlannedAction(IZeusContext context, string action) =>
+        context.Debug.PlannedAction = action;
 
-        // Count nearby enemies for AoE decisions
-        var enemyCount = context.TargetingService.CountEnemiesInRange(5f, player);
-        context.Debug.NearbyEnemies = enemyCount;
-
-        // oGCD Phase - weave damage oGCDs during GCD
-        if (context.CanExecuteOgcd)
-        {
-            if (TryOgcdDamage(context, target, enemyCount))
-                return true;
-        }
-
-        // GCD Phase
-        if (!context.CanExecuteGcd)
-        {
-            context.Debug.DamageState = "GCD not ready";
-            return false;
-        }
-
-        // Priority 1: Positional procs (Fang and Claw, Wheeling Thrust, Drakesbane)
-        if (TryPositionalProc(context, target))
-            return true;
-
-        // Priority 2: Continue combo based on enemy count
-        if (enemyCount >= AoeThreshold)
-        {
-            if (TryAoeCombo(context, target))
-                return true;
-        }
-        else
-        {
-            if (TrySingleTargetCombo(context, target))
-                return true;
-        }
-
-        context.Debug.DamageState = "No action available";
-        return false;
-    }
-
-    public void UpdateDebugState(IZeusContext context)
-    {
-        // Debug state updated during TryExecute
-    }
-
-    #region oGCD Damage
-
-    private bool TryOgcdDamage(IZeusContext context, IBattleChara target, int enemyCount)
+    /// <summary>
+    /// oGCD damage for Dragoon - Life of the Dragon abilities, jumps, etc.
+    /// </summary>
+    protected override bool TryOgcdDamage(IZeusContext context, IBattleChara target, int enemyCount)
     {
         var player = context.Player;
         var level = player.Level;
@@ -429,6 +390,31 @@ public sealed class DamageModule : IZeusModule
             context.Debug.PlannedAction = DRGActions.DragonfireDive.Name;
             context.Debug.DamageState = "Dragonfire Dive";
             return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Main GCD damage rotation for Dragoon.
+    /// Handles positional procs and combo rotation (ST/AoE).
+    /// </summary>
+    protected override bool TryGcdDamage(IZeusContext context, IBattleChara target, int enemyCount, bool isMoving)
+    {
+        // Priority 1: Positional procs (Fang and Claw, Wheeling Thrust, Drakesbane)
+        if (TryPositionalProc(context, target))
+            return true;
+
+        // Priority 2: Continue combo based on enemy count
+        if (ShouldUseAoE(enemyCount))
+        {
+            if (TryAoeCombo(context, target))
+                return true;
+        }
+        else
+        {
+            if (TrySingleTargetCombo(context, target))
+                return true;
         }
 
         return false;

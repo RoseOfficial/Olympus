@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.NikeCore.Context;
 using Olympus.Services.Training;
 
@@ -9,98 +10,50 @@ namespace Olympus.Rotation.NikeCore.Modules;
 /// <summary>
 /// Handles the Samurai damage rotation.
 /// Manages combos, Iaijutsu, Kaeshi, Ogi Namikiri, and Kenki spenders.
+/// Extends BaseDpsDamageModule for shared damage module patterns.
 /// </summary>
-public sealed class DamageModule : INikeModule
+public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModule
 {
-    public int Priority => 30; // After Buffs
-    public string Name => "Damage";
-
-    // Threshold for AoE rotation
-    private const int AoeThreshold = 3;
-
     // Kenki threshold for spending (Shinten/Kyuten cost 25)
     private const int KenkiSpendThreshold = 25;
 
     // Higanbana refresh threshold (DoT is 60s)
     private const float HiganbanaRefreshThreshold = 5f;
 
-    public bool TryExecute(INikeContext context, bool isMoving)
-    {
-        if (!context.InCombat)
-        {
-            context.Debug.DamageState = "Not in combat";
-            return false;
-        }
+    #region Abstract Method Implementations
 
-        var player = context.Player;
-        var level = player.Level;
+    /// <summary>
+    /// Melee targeting range (3y).
+    /// </summary>
+    protected override float GetTargetingRange() => FFXIVConstants.MeleeTargetingRange;
 
-        // Find target
-        var target = context.TargetingService.FindEnemy(
-            context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.MeleeTargetingRange,
-            player);
+    /// <summary>
+    /// AoE count range for SAM (5y for melee AoE abilities).
+    /// </summary>
+    protected override float GetAoECountRange() => 5f;
 
-        if (target == null)
-        {
-            context.Debug.DamageState = "No target";
-            return false;
-        }
+    /// <summary>
+    /// Sets the damage state in the debug display.
+    /// </summary>
+    protected override void SetDamageState(INikeContext context, string state) =>
+        context.Debug.DamageState = state;
 
-        // Count nearby enemies for AoE decisions
-        var enemyCount = context.TargetingService.CountEnemiesInRange(5f, player);
-        context.Debug.NearbyEnemies = enemyCount;
+    /// <summary>
+    /// Sets the nearby enemy count in the debug display.
+    /// </summary>
+    protected override void SetNearbyEnemies(INikeContext context, int count) =>
+        context.Debug.NearbyEnemies = count;
 
-        // oGCD Phase - weave Kenki spenders during GCD
-        if (context.CanExecuteOgcd)
-        {
-            if (TryOgcdDamage(context, target, enemyCount))
-                return true;
-        }
+    /// <summary>
+    /// Sets the planned action name in the debug display.
+    /// </summary>
+    protected override void SetPlannedAction(INikeContext context, string action) =>
+        context.Debug.PlannedAction = action;
 
-        // GCD Phase
-        if (!context.CanExecuteGcd)
-        {
-            context.Debug.DamageState = "GCD not ready";
-            return false;
-        }
-
-        // Priority 1: Kaeshi: Namikiri (after Ogi Namikiri)
-        if (TryKaeshiNamikiri(context, target))
-            return true;
-
-        // Priority 2: Tsubame-gaeshi (after Iaijutsu)
-        if (TryTsubameGaeshi(context, target))
-            return true;
-
-        // Priority 3: Ogi Namikiri (when ready)
-        if (TryOgiNamikiri(context, target))
-            return true;
-
-        // Priority 4: Iaijutsu (when we have Sen)
-        if (TryIaijutsu(context, target, enemyCount))
-            return true;
-
-        // Priority 5: Meikyo finishers (direct finisher usage)
-        if (TryMeikyoFinisher(context, target, enemyCount))
-            return true;
-
-        // Priority 6: Combo rotation
-        if (TryComboRotation(context, target, enemyCount))
-            return true;
-
-        context.Debug.DamageState = "No action available";
-        return false;
-    }
-
-    public void UpdateDebugState(INikeContext context)
-    {
-        // Debug state updated during TryExecute
-    }
-
-    #region oGCD Damage
-
-    private bool TryOgcdDamage(INikeContext context, IBattleChara target, int enemyCount)
+    /// <summary>
+    /// oGCD damage for Samurai - Kenki spenders (Shinten, Kyuten).
+    /// </summary>
+    protected override bool TryOgcdDamage(INikeContext context, IBattleChara target, int enemyCount)
     {
         var player = context.Player;
         var level = player.Level;
@@ -188,6 +141,39 @@ public sealed class DamageModule : INikeModule
                 }
             }
         }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Main GCD damage rotation for Samurai.
+    /// Handles Kaeshi, Ogi Namikiri, Iaijutsu, Meikyo finishers, and combo rotation.
+    /// </summary>
+    protected override bool TryGcdDamage(INikeContext context, IBattleChara target, int enemyCount, bool isMoving)
+    {
+        // Priority 1: Kaeshi: Namikiri (after Ogi Namikiri)
+        if (TryKaeshiNamikiri(context, target))
+            return true;
+
+        // Priority 2: Tsubame-gaeshi (after Iaijutsu)
+        if (TryTsubameGaeshi(context, target))
+            return true;
+
+        // Priority 3: Ogi Namikiri (when ready)
+        if (TryOgiNamikiri(context, target))
+            return true;
+
+        // Priority 4: Iaijutsu (when we have Sen)
+        if (TryIaijutsu(context, target, enemyCount))
+            return true;
+
+        // Priority 5: Meikyo finishers (direct finisher usage)
+        if (TryMeikyoFinisher(context, target, enemyCount))
+            return true;
+
+        // Priority 6: Combo rotation
+        if (TryComboRotation(context, target, enemyCount))
+            return true;
 
         return false;
     }

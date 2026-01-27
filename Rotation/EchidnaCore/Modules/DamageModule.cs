@@ -3,6 +3,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.EchidnaCore.Context;
 using Olympus.Services.Training;
 
@@ -11,56 +12,40 @@ namespace Olympus.Rotation.EchidnaCore.Modules;
 /// <summary>
 /// Handles the Viper damage rotation.
 /// Manages Reawaken sequences, twinblade combos, dual wield combos, and resource building.
+/// Extends BaseDpsDamageModule for common DPS patterns.
 /// </summary>
-public sealed class DamageModule : IEchidnaModule
+public sealed class DamageModule : BaseDpsDamageModule<IEchidnaContext>, IEchidnaModule
 {
-    public int Priority => 30; // Lowest priority - damage after utility
-    public string Name => "Damage";
+    #region Base Class Implementation
 
-    // Threshold for AoE rotation
-    private const int AoeThreshold = 3;
+    protected override float GetTargetingRange() => FFXIVConstants.MeleeTargetingRange;
 
-    public bool TryExecute(IEchidnaContext context, bool isMoving)
+    protected override float GetAoECountRange() => 5f;
+
+    protected override void SetDamageState(IEchidnaContext context, string state) =>
+        context.Debug.DamageState = state;
+
+    protected override void SetNearbyEnemies(IEchidnaContext context, int count) =>
+        context.Debug.NearbyEnemies = count;
+
+    protected override void SetPlannedAction(IEchidnaContext context, string action) =>
+        context.Debug.PlannedAction = action;
+
+    protected override bool TryOgcdDamage(IEchidnaContext context, IBattleChara target, int enemyCount)
     {
-        if (!context.InCombat)
-        {
-            context.Debug.DamageState = "Not in combat";
-            return false;
-        }
+        // Priority 1: Poised oGCDs (from twinblade combos)
+        if (TryPoisedOgcd(context, target, enemyCount))
+            return true;
 
-        var player = context.Player;
-        var level = player.Level;
+        // Priority 2: Uncoiled follow-ups
+        if (TryUncoiledOgcd(context, target))
+            return true;
 
-        // Find target
-        var target = context.TargetingService.FindEnemy(
-            context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.MeleeTargetingRange,
-            player);
+        return false;
+    }
 
-        if (target == null)
-        {
-            context.Debug.DamageState = "No target";
-            return false;
-        }
-
-        // Count nearby enemies for AoE decisions
-        var enemyCount = context.TargetingService.CountEnemiesInRange(5f, player);
-        context.Debug.NearbyEnemies = enemyCount;
-
-        // oGCD Phase - weave damage oGCDs during GCD
-        if (context.CanExecuteOgcd)
-        {
-            if (TryOgcdDamage(context, target, enemyCount))
-                return true;
-        }
-
-        // GCD Phase
-        if (!context.CanExecuteGcd)
-        {
-            context.Debug.DamageState = "GCD not ready";
-            return false;
-        }
-
+    protected override bool TryGcdDamage(IEchidnaContext context, IBattleChara target, int enemyCount, bool isMoving)
+    {
         // === REAWAKEN STATE ===
         if (context.IsReawakened)
         {
@@ -80,7 +65,7 @@ public sealed class DamageModule : IEchidnaModule
             return true;
 
         // Priority 3: Uncoiled Fury (use Rattling Coils)
-        if (TryUncoiledFury(context, target))
+        if (TryUncoiledFury(context, target, isMoving))
             return true;
 
         // Priority 4: Vicewinder/Vicepit (start twinblade combo)
@@ -100,38 +85,18 @@ public sealed class DamageModule : IEchidnaModule
         if (TryDualWieldCombo(context, target, enemyCount))
             return true;
 
-        context.Debug.DamageState = "No action available";
         return false;
     }
 
-    public void UpdateDebugState(IEchidnaContext context)
-    {
-        // Debug state updated during TryExecute
-    }
+    #endregion
 
     #region oGCD Damage
-
-    private bool TryOgcdDamage(IEchidnaContext context, IBattleChara target, int enemyCount)
-    {
-        var player = context.Player;
-        var level = player.Level;
-
-        // Priority 1: Poised oGCDs (from twinblade combos)
-        if (TryPoisedOgcd(context, target, enemyCount))
-            return true;
-
-        // Priority 2: Uncoiled follow-ups
-        if (TryUncoiledOgcd(context, target))
-            return true;
-
-        return false;
-    }
 
     private bool TryPoisedOgcd(IEchidnaContext context, IBattleChara target, int enemyCount)
     {
         var player = context.Player;
         var level = player.Level;
-        var useAoe = enemyCount >= AoeThreshold;
+        var useAoe = ShouldUseAoE(enemyCount);
 
         // Twinfang (from Hunter's Coil or Hunter's Den)
         if (context.HasPoisedForTwinfang)
@@ -139,11 +104,8 @@ public sealed class DamageModule : IEchidnaModule
             var action = useAoe ? VPRActions.TwinfangBite : VPRActions.Twinfang;
             if (level >= action.MinLevel && context.ActionService.IsActionReady(action.ActionId))
             {
-                if (context.ActionService.ExecuteOgcd(action, target.GameObjectId))
+                if (ExecuteOgcdWithDebug(context, action, target.GameObjectId))
                 {
-                    context.Debug.PlannedAction = action.Name;
-                    context.Debug.DamageState = action.Name;
-
                     // Training: Record Twinfang decision
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(action.ActionId, action.Name)
@@ -170,11 +132,8 @@ public sealed class DamageModule : IEchidnaModule
             var action = useAoe ? VPRActions.TwinbloodBite : VPRActions.Twinblood;
             if (level >= action.MinLevel && context.ActionService.IsActionReady(action.ActionId))
             {
-                if (context.ActionService.ExecuteOgcd(action, target.GameObjectId))
+                if (ExecuteOgcdWithDebug(context, action, target.GameObjectId))
                 {
-                    context.Debug.PlannedAction = action.Name;
-                    context.Debug.DamageState = action.Name;
-
                     // Training: Record Twinblood decision
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(action.ActionId, action.Name)
@@ -211,11 +170,8 @@ public sealed class DamageModule : IEchidnaModule
         {
             if (context.ActionService.IsActionReady(VPRActions.UncoiledTwinfang.ActionId))
             {
-                if (context.ActionService.ExecuteOgcd(VPRActions.UncoiledTwinfang, target.GameObjectId))
+                if (ExecuteOgcdWithDebug(context, VPRActions.UncoiledTwinfang, target.GameObjectId, "Uncoiled Twinfang"))
                 {
-                    context.Debug.PlannedAction = VPRActions.UncoiledTwinfang.Name;
-                    context.Debug.DamageState = "Uncoiled Twinfang";
-
                     // Training: Record Uncoiled Twinfang decision
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(VPRActions.UncoiledTwinfang.ActionId, VPRActions.UncoiledTwinfang.Name)
@@ -241,11 +197,8 @@ public sealed class DamageModule : IEchidnaModule
         {
             if (context.ActionService.IsActionReady(VPRActions.UncoiledTwinblood.ActionId))
             {
-                if (context.ActionService.ExecuteOgcd(VPRActions.UncoiledTwinblood, target.GameObjectId))
+                if (ExecuteOgcdWithDebug(context, VPRActions.UncoiledTwinblood, target.GameObjectId, "Uncoiled Twinblood"))
                 {
-                    context.Debug.PlannedAction = VPRActions.UncoiledTwinblood.Name;
-                    context.Debug.DamageState = "Uncoiled Twinblood";
-
                     // Training: Record Uncoiled Twinblood decision
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(VPRActions.UncoiledTwinblood.ActionId, VPRActions.UncoiledTwinblood.Name)
@@ -288,38 +241,35 @@ public sealed class DamageModule : IEchidnaModule
         // Need 50 Serpent Offerings OR Ready to Reawaken buff
         if (context.SerpentOffering < 50 && !context.HasReadyToReawaken)
         {
-            context.Debug.DamageState = $"Need 50 Offerings ({context.SerpentOffering}/50)";
+            SetDamageState(context, $"Need 50 Offerings ({context.SerpentOffering}/50)");
             return false;
         }
 
         // Optimal timing: Have both buffs active with good duration
         if (!context.HasHuntersInstinct || context.HuntersInstinctRemaining < 10f)
         {
-            context.Debug.DamageState = "Waiting for Hunter's Instinct";
+            SetDamageState(context, "Waiting for Hunter's Instinct");
             return false;
         }
 
         if (!context.HasSwiftscaled || context.SwiftscaledRemaining < 10f)
         {
-            context.Debug.DamageState = "Waiting for Swiftscaled";
+            SetDamageState(context, "Waiting for Swiftscaled");
             return false;
         }
 
         // Make sure Noxious Gnash is on target
         if (!context.HasNoxiousGnash || context.NoxiousGnashRemaining < 10f)
         {
-            context.Debug.DamageState = "Need Noxious Gnash refresh";
+            SetDamageState(context, "Need Noxious Gnash refresh");
             return false;
         }
 
         if (!context.ActionService.IsActionReady(VPRActions.Reawaken.ActionId))
             return false;
 
-        if (context.ActionService.ExecuteGcd(VPRActions.Reawaken, target.GameObjectId))
+        if (ExecuteGcdWithDebug(context, VPRActions.Reawaken, target.GameObjectId, "Entering Reawaken"))
         {
-            context.Debug.PlannedAction = VPRActions.Reawaken.Name;
-            context.Debug.DamageState = "Entering Reawaken";
-
             // Training: Record Reawaken entry decision
             var entryReason = context.HasReadyToReawaken ? "Ready to Reawaken proc (free entry)" :
                               $"Serpent Offering: {context.SerpentOffering}/50";
@@ -363,11 +313,8 @@ public sealed class DamageModule : IEchidnaModule
         if (!context.ActionService.IsActionReady(action.ActionId))
             return false;
 
-        if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
+        if (ExecuteGcdWithDebug(context, action, target.GameObjectId, $"{action.Name} (Tribute: {context.AnguineTribute})"))
         {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DamageState = $"{action.Name} (Tribute: {context.AnguineTribute})";
-
             // Training: Record Generation/Ouroboros decision
             var isOuroboros = action == VPRActions.Ouroboros;
             if (isOuroboros)
@@ -417,7 +364,6 @@ public sealed class DamageModule : IEchidnaModule
     {
         var player = context.Player;
         var level = player.Level;
-        var useAoe = enemyCount >= AoeThreshold;
 
         // Check DreadCombo state for twinblade continuation
         switch (context.DreadCombo)
@@ -429,11 +375,8 @@ public sealed class DamageModule : IEchidnaModule
                 {
                     if (context.ActionService.IsActionReady(VPRActions.HuntersCoil.ActionId))
                     {
-                        if (context.ActionService.ExecuteGcd(VPRActions.HuntersCoil, target.GameObjectId))
+                        if (ExecuteGcdWithDebug(context, VPRActions.HuntersCoil, target.GameObjectId, "Hunter's Coil (Twinblade)"))
                         {
-                            context.Debug.PlannedAction = VPRActions.HuntersCoil.Name;
-                            context.Debug.DamageState = "Hunter's Coil (Twinblade)";
-
                             // Training: Record Hunter's Coil decision
                             TrainingHelper.Decision(context.TrainingService)
                                 .Action(VPRActions.HuntersCoil.ActionId, VPRActions.HuntersCoil.Name)
@@ -458,11 +401,8 @@ public sealed class DamageModule : IEchidnaModule
                 {
                     if (context.ActionService.IsActionReady(VPRActions.SwiftskinsCoil.ActionId))
                     {
-                        if (context.ActionService.ExecuteGcd(VPRActions.SwiftskinsCoil, target.GameObjectId))
+                        if (ExecuteGcdWithDebug(context, VPRActions.SwiftskinsCoil, target.GameObjectId, "Swiftskin's Coil (Twinblade)"))
                         {
-                            context.Debug.PlannedAction = VPRActions.SwiftskinsCoil.Name;
-                            context.Debug.DamageState = "Swiftskin's Coil (Twinblade)";
-
                             // Training: Record Swiftskin's Coil decision
                             TrainingHelper.Decision(context.TrainingService)
                                 .Action(VPRActions.SwiftskinsCoil.ActionId, VPRActions.SwiftskinsCoil.Name)
@@ -490,11 +430,8 @@ public sealed class DamageModule : IEchidnaModule
                 {
                     if (context.ActionService.IsActionReady(VPRActions.SwiftskinsCoil.ActionId))
                     {
-                        if (context.ActionService.ExecuteGcd(VPRActions.SwiftskinsCoil, target.GameObjectId))
+                        if (ExecuteGcdWithDebug(context, VPRActions.SwiftskinsCoil, target.GameObjectId, "Swiftskin's Coil (Twinblade)"))
                         {
-                            context.Debug.PlannedAction = VPRActions.SwiftskinsCoil.Name;
-                            context.Debug.DamageState = "Swiftskin's Coil (Twinblade)";
-
                             // Training: Record Swiftskin's Coil decision
                             TrainingHelper.Decision(context.TrainingService)
                                 .Action(VPRActions.SwiftskinsCoil.ActionId, VPRActions.SwiftskinsCoil.Name)
@@ -523,11 +460,8 @@ public sealed class DamageModule : IEchidnaModule
                 {
                     if (context.ActionService.IsActionReady(VPRActions.HuntersDen.ActionId))
                     {
-                        if (context.ActionService.ExecuteGcd(VPRActions.HuntersDen, player.GameObjectId))
+                        if (ExecuteGcdWithDebug(context, VPRActions.HuntersDen, player.GameObjectId, "Hunter's Den (AoE Twinblade)"))
                         {
-                            context.Debug.PlannedAction = VPRActions.HuntersDen.Name;
-                            context.Debug.DamageState = "Hunter's Den (AoE Twinblade)";
-
                             // Training: Record Hunter's Den decision
                             TrainingHelper.Decision(context.TrainingService)
                                 .Action(VPRActions.HuntersDen.ActionId, VPRActions.HuntersDen.Name)
@@ -554,11 +488,8 @@ public sealed class DamageModule : IEchidnaModule
                 {
                     if (context.ActionService.IsActionReady(VPRActions.SwiftskinsDen.ActionId))
                     {
-                        if (context.ActionService.ExecuteGcd(VPRActions.SwiftskinsDen, player.GameObjectId))
+                        if (ExecuteGcdWithDebug(context, VPRActions.SwiftskinsDen, player.GameObjectId, "Swiftskin's Den (AoE Twinblade)"))
                         {
-                            context.Debug.PlannedAction = VPRActions.SwiftskinsDen.Name;
-                            context.Debug.DamageState = "Swiftskin's Den (AoE Twinblade)";
-
                             // Training: Record Swiftskin's Den decision
                             TrainingHelper.Decision(context.TrainingService)
                                 .Action(VPRActions.SwiftskinsDen.ActionId, VPRActions.SwiftskinsDen.Name)
@@ -587,7 +518,7 @@ public sealed class DamageModule : IEchidnaModule
     {
         var player = context.Player;
         var level = player.Level;
-        var useAoe = enemyCount >= AoeThreshold;
+        var useAoe = ShouldUseAoE(enemyCount);
 
         // Don't start new twinblade if DreadCombo is in progress
         if (context.DreadCombo != VPRActions.DreadCombo.None && !forceUse)
@@ -597,11 +528,8 @@ public sealed class DamageModule : IEchidnaModule
         {
             if (context.ActionService.IsActionReady(VPRActions.Vicepit.ActionId))
             {
-                if (context.ActionService.ExecuteGcd(VPRActions.Vicepit, player.GameObjectId))
+                if (ExecuteGcdWithDebug(context, VPRActions.Vicepit, player.GameObjectId, "Vicepit (AoE Twinblade start)"))
                 {
-                    context.Debug.PlannedAction = VPRActions.Vicepit.Name;
-                    context.Debug.DamageState = "Vicepit (AoE Twinblade start)";
-
                     // Training: Record Vicepit decision
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(VPRActions.Vicepit.ActionId, VPRActions.Vicepit.Name)
@@ -626,11 +554,8 @@ public sealed class DamageModule : IEchidnaModule
         {
             if (context.ActionService.IsActionReady(VPRActions.Vicewinder.ActionId))
             {
-                if (context.ActionService.ExecuteGcd(VPRActions.Vicewinder, target.GameObjectId))
+                if (ExecuteGcdWithDebug(context, VPRActions.Vicewinder, target.GameObjectId, "Vicewinder (Twinblade start)"))
                 {
-                    context.Debug.PlannedAction = VPRActions.Vicewinder.Name;
-                    context.Debug.DamageState = "Vicewinder (Twinblade start)";
-
                     // Training: Record Vicewinder decision
                     var reason = forceUse ? "Refreshing Noxious Gnash" : "Starting twinblade combo";
                     TrainingHelper.Decision(context.TrainingService)
@@ -660,7 +585,7 @@ public sealed class DamageModule : IEchidnaModule
 
     #region Uncoiled Fury
 
-    private bool TryUncoiledFury(IEchidnaContext context, IBattleChara target)
+    private bool TryUncoiledFury(IEchidnaContext context, IBattleChara target, bool isMoving)
     {
         var player = context.Player;
         var level = player.Level;
@@ -689,7 +614,7 @@ public sealed class DamageModule : IEchidnaModule
         // Use at range or if capped on coils
         bool shouldUse = distance > FFXIVConstants.MeleeTargetingRange ||
                          context.RattlingCoils >= 3 ||
-                         context.IsMoving;
+                         isMoving;
 
         if (!shouldUse)
             return false;
@@ -697,14 +622,11 @@ public sealed class DamageModule : IEchidnaModule
         if (!context.ActionService.IsActionReady(VPRActions.UncoiledFury.ActionId))
             return false;
 
-        if (context.ActionService.ExecuteGcd(VPRActions.UncoiledFury, target.GameObjectId))
+        if (ExecuteGcdWithDebug(context, VPRActions.UncoiledFury, target.GameObjectId, $"Uncoiled Fury (Coils: {context.RattlingCoils})"))
         {
-            context.Debug.PlannedAction = VPRActions.UncoiledFury.Name;
-            context.Debug.DamageState = $"Uncoiled Fury (Coils: {context.RattlingCoils})";
-
             // Training: Record Uncoiled Fury decision
             var reason = context.RattlingCoils >= 3 ? "Coils capped (prevent overcap)" :
-                         context.IsMoving ? "Movement GCD" :
+                         isMoving ? "Movement GCD" :
                          "Ranged GCD option";
             TrainingHelper.Decision(context.TrainingService)
                 .Action(VPRActions.UncoiledFury.ActionId, VPRActions.UncoiledFury.Name)
@@ -733,7 +655,7 @@ public sealed class DamageModule : IEchidnaModule
     {
         var player = context.Player;
         var level = player.Level;
-        var useAoe = enemyCount >= AoeThreshold;
+        var useAoe = ShouldUseAoE(enemyCount);
 
         if (useAoe && level >= VPRActions.SteelMaw.MinLevel)
         {
@@ -840,11 +762,8 @@ public sealed class DamageModule : IEchidnaModule
         if (!context.ActionService.IsActionReady(action.ActionId))
             return false;
 
-        if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
+        if (ExecuteGcdWithDebug(context, action, target.GameObjectId, $"{comboInfo} (combo {context.ComboStep + 1})"))
         {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DamageState = $"{comboInfo} (combo {context.ComboStep + 1})";
-
             // Training: Record dual wield combo decision
             var isFinisher = context.ComboStep == 2;
             var isPositional = action == VPRActions.HindstingStrike || action == VPRActions.FlankstingStrike ||
@@ -986,11 +905,8 @@ public sealed class DamageModule : IEchidnaModule
         if (!context.ActionService.IsActionReady(action.ActionId))
             return false;
 
-        if (context.ActionService.ExecuteGcd(action, player.GameObjectId))
+        if (ExecuteGcdWithDebug(context, action, player.GameObjectId, $"{comboInfo} (AoE combo {context.ComboStep + 1})"))
         {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DamageState = $"{comboInfo} (AoE combo {context.ComboStep + 1})";
-
             // Training: Record AoE dual wield combo decision
             TrainingHelper.Decision(context.TrainingService)
                 .Action(action.ActionId, action.Name)

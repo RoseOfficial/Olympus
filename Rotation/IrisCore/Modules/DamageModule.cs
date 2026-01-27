@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.IrisCore.Context;
 using Olympus.Services.Training;
 
@@ -10,12 +11,36 @@ namespace Olympus.Rotation.IrisCore.Modules;
 /// Handles Pictomancer GCD rotation.
 /// Manages base combo, subtractive combo, hammer combo, paint spenders, and finishers.
 /// </summary>
-public sealed class DamageModule : IIrisModule
+public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModule
 {
-    public int Priority => 30; // Lower priority than buffs
-    public string Name => "Damage";
+    #region Abstract Method Implementations
 
-    public bool TryExecute(IIrisContext context, bool isMoving)
+    protected override float GetTargetingRange() => FFXIVConstants.CasterTargetingRange;
+
+    protected override float GetAoECountRange() => 5f;
+
+    protected override void SetDamageState(IIrisContext context, string state) =>
+        context.Debug.DamageState = state;
+
+    protected override void SetNearbyEnemies(IIrisContext context, int count) =>
+        context.Debug.NearbyEnemies = count;
+
+    protected override void SetPlannedAction(IIrisContext context, string action) =>
+        context.Debug.PlannedAction = action;
+
+    /// <summary>
+    /// PCT has no damage oGCDs - all abilities are GCDs or utility oGCDs in BuffModule.
+    /// </summary>
+    protected override bool TryOgcdDamage(IIrisContext context, IBattleChara target, int enemyCount)
+    {
+        return false;
+    }
+
+    /// <summary>
+    /// Override TryExecute to handle PCT's unique prepaint mechanic out of combat.
+    /// This allows painting motifs before combat starts.
+    /// </summary>
+    public override bool TryExecute(IIrisContext context, bool isMoving)
     {
         // Allow painting motifs out of combat
         if (!context.InCombat)
@@ -24,38 +49,46 @@ public sealed class DamageModule : IIrisModule
             if (TryPrepaintMotif(context))
                 return true;
 
-            context.Debug.DamageState = "Not in combat";
+            SetDamageState(context, "Not in combat");
             return false;
         }
 
+        // PCT-specific checks
         if (!context.CanExecuteGcd)
         {
-            context.Debug.DamageState = "GCD not ready";
+            SetDamageState(context, "GCD not ready");
             return false;
         }
 
         // Don't interrupt casts unless we can slidecast
         if (context.IsCasting && !context.CanSlidecast)
         {
-            context.Debug.DamageState = "Casting";
+            SetDamageState(context, "Casting");
             return false;
         }
-
-        var player = context.Player;
-        var level = player.Level;
 
         // Find target for damage GCDs
-        var target = context.TargetingService.FindEnemy(
-            context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.CasterTargetingRange,
-            player);
-
+        var target = AcquireTarget(context);
         if (target == null)
         {
-            context.Debug.DamageState = "No target";
+            SetDamageState(context, "No target");
             return false;
         }
 
+        // Enemy count for AoE decisions
+        var enemyCount = context.TargetingService.CountEnemiesInRange(GetAoECountRange(), context.Player);
+        SetNearbyEnemies(context, enemyCount);
+
+        // GCD damage phase
+        if (TryGcdDamage(context, target, enemyCount, isMoving))
+            return true;
+
+        OnNoActionAvailable(context);
+        return false;
+    }
+
+    protected override bool TryGcdDamage(IIrisContext context, IBattleChara target, int enemyCount, bool isMoving)
+    {
         // Priority 1: Star Prism during Starstruck (instant, high potency)
         if (TryStarPrism(context, target))
             return true;
@@ -84,14 +117,10 @@ public sealed class DamageModule : IIrisModule
         if (TryBaseCombo(context, target))
             return true;
 
-        context.Debug.DamageState = "No action available";
         return false;
     }
 
-    public void UpdateDebugState(IIrisContext context)
-    {
-        // Debug state updated during TryExecute
-    }
+    #endregion
 
     #region GCD Actions
 

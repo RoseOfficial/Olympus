@@ -2,6 +2,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.KratosCore.Context;
 using Olympus.Services.Training;
 
@@ -10,88 +11,44 @@ namespace Olympus.Rotation.KratosCore.Modules;
 /// <summary>
 /// Handles the Monk damage rotation.
 /// Manages form cycling, positional optimization, Chakra spending, and burst windows.
+/// Extends BaseDpsDamageModule for shared damage module patterns.
 /// </summary>
-public sealed class DamageModule : IKratosModule
+public sealed class DamageModule : BaseDpsDamageModule<IKratosContext>, IKratosModule
 {
-    public int Priority => 30; // Lowest priority - damage after utility
-    public string Name => "Damage";
+    #region Abstract Method Implementations
 
-    // Threshold for AoE rotation
-    private const int AoeThreshold = 3;
+    /// <summary>
+    /// Melee targeting range (3y).
+    /// </summary>
+    protected override float GetTargetingRange() => FFXIVConstants.MeleeTargetingRange;
 
-    public bool TryExecute(IKratosContext context, bool isMoving)
-    {
-        if (!context.InCombat)
-        {
-            context.Debug.DamageState = "Not in combat";
-            return false;
-        }
+    /// <summary>
+    /// AoE count range for MNK (5y for melee AoE abilities).
+    /// </summary>
+    protected override float GetAoECountRange() => 5f;
 
-        var player = context.Player;
-        var level = player.Level;
+    /// <summary>
+    /// Sets the damage state in the debug display.
+    /// </summary>
+    protected override void SetDamageState(IKratosContext context, string state) =>
+        context.Debug.DamageState = state;
 
-        // Find target
-        var target = context.TargetingService.FindEnemy(
-            context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.MeleeTargetingRange,
-            player);
+    /// <summary>
+    /// Sets the nearby enemy count in the debug display.
+    /// </summary>
+    protected override void SetNearbyEnemies(IKratosContext context, int count) =>
+        context.Debug.NearbyEnemies = count;
 
-        if (target == null)
-        {
-            context.Debug.DamageState = "No target";
-            return false;
-        }
+    /// <summary>
+    /// Sets the planned action name in the debug display.
+    /// </summary>
+    protected override void SetPlannedAction(IKratosContext context, string action) =>
+        context.Debug.PlannedAction = action;
 
-        // Count nearby enemies for AoE decisions
-        var enemyCount = context.TargetingService.CountEnemiesInRange(5f, player);
-        context.Debug.NearbyEnemies = enemyCount;
-
-        // oGCD Phase - weave damage oGCDs during GCD
-        if (context.CanExecuteOgcd)
-        {
-            if (TryOgcdDamage(context, target, enemyCount))
-                return true;
-        }
-
-        // GCD Phase
-        if (!context.CanExecuteGcd)
-        {
-            context.Debug.DamageState = "GCD not ready";
-            return false;
-        }
-
-        // Priority 1: Masterful Blitz variants (3 Beast Chakra accumulated)
-        if (TryMasterfulBlitz(context, target, enemyCount))
-            return true;
-
-        // Priority 2: Fire's Rumination proc (after Riddle of Fire ends)
-        if (TryFiresRumination(context, target))
-            return true;
-
-        // Priority 3: Wind's Rumination proc (after Riddle of Wind ends)
-        if (TryWindsRumination(context, target))
-            return true;
-
-        // Priority 4: Perfect Balance form selection
-        if (TryPerfectBalanceAction(context, target, enemyCount))
-            return true;
-
-        // Priority 5: Form-based rotation
-        if (TryFormRotation(context, target, enemyCount))
-            return true;
-
-        context.Debug.DamageState = "No action available";
-        return false;
-    }
-
-    public void UpdateDebugState(IKratosContext context)
-    {
-        // Debug state updated during TryExecute
-    }
-
-    #region oGCD Damage
-
-    private bool TryOgcdDamage(IKratosContext context, IBattleChara target, int enemyCount)
+    /// <summary>
+    /// oGCD damage for Monk - Chakra spenders and Thunderclap.
+    /// </summary>
+    protected override bool TryOgcdDamage(IKratosContext context, IBattleChara target, int enemyCount)
     {
         var player = context.Player;
         var level = player.Level;
@@ -210,6 +167,35 @@ public sealed class DamageModule : IKratosModule
             context.Debug.DamageState = "Thunderclap (gap close)";
             return true;
         }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Main GCD damage rotation for Monk.
+    /// Handles Masterful Blitz, Rumination procs, Perfect Balance actions, and form rotation.
+    /// </summary>
+    protected override bool TryGcdDamage(IKratosContext context, IBattleChara target, int enemyCount, bool isMoving)
+    {
+        // Priority 1: Masterful Blitz variants (3 Beast Chakra accumulated)
+        if (TryMasterfulBlitz(context, target, enemyCount))
+            return true;
+
+        // Priority 2: Fire's Rumination proc (after Riddle of Fire ends)
+        if (TryFiresRumination(context, target))
+            return true;
+
+        // Priority 3: Wind's Rumination proc (after Riddle of Wind ends)
+        if (TryWindsRumination(context, target))
+            return true;
+
+        // Priority 4: Perfect Balance form selection
+        if (TryPerfectBalanceAction(context, target, enemyCount))
+            return true;
+
+        // Priority 5: Form-based rotation
+        if (TryFormRotation(context, target, enemyCount))
+            return true;
 
         return false;
     }
