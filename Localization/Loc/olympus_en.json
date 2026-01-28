@@ -1838,5 +1838,10 @@
   "debug.pictomancer.starstruck": "Starstruck:",
   "debug.pictomancer.hammer_time": "Hammer Time:",
   "debug.pictomancer.starry_muse_cd": "Starry Muse CD:",
-  "debug.pictomancer.living_muse": "Living Muse:"
+  "debug.pictomancer.living_muse": "Living Muse:",
+
+  "config.language.section": "Language",
+  "config.language.select": "Language",
+  "config.language.select_desc": "Select your preferred language. Auto uses the game client language.",
+  "config.language.auto": "Auto (Game Client)"
 }

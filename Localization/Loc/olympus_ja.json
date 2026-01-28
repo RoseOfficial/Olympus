@@ -1187,5 +1187,10 @@
   "debug.common.charges_format": "{0}/{1}",
   "debug.common.on_cd": "リキャスト中",
   "debug.common.job_inactive": "ジョブ未有効",
-  "debug.common.nearby_enemies": "近くの敵"
+  "debug.common.nearby_enemies": "近くの敵",
+
+  "config.language.section": "言語",
+  "config.language.select": "言語",
+  "config.language.select_desc": "使用する言語を選択してください。自動はゲームクライアントの言語に従います。",
+  "config.language.auto": "自動 (ゲームクライアント)"
 }

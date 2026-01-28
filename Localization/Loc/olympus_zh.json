@@ -1187,5 +1187,10 @@
   "debug.common.charges_format": "{0}/{1}",
   "debug.common.on_cd": "冷却中",
   "debug.common.job_inactive": "职业未激活",
-  "debug.common.nearby_enemies": "附近敌人"
+  "debug.common.nearby_enemies": "附近敌人",
+
+  "config.language.section": "语言",
+  "config.language.select": "语言",
+  "config.language.select_desc": "选择您偏好的语言。自动将使用游戏客户端语言。",
+  "config.language.auto": "自动 (游戏客户端)"
 }

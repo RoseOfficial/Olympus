@@ -58,6 +58,7 @@ public sealed class GeneralSection
     public void DrawGeneral()
     {
         DrawResurrectionSection();
+        DrawLanguageSection();
         DrawPrivacySection();
     }
 
@@ -165,6 +166,57 @@ public sealed class GeneralSection
                 this.save);
 
             ConfigUIHelpers.EndDisabledGroup();
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawLanguageSection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Language.Section, "Language")))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            // Available languages with display names
+            // Show native name + English name for clarity
+            var displayNames = new[]
+            {
+                Loc.T(LocalizedStrings.Language.Auto, "Auto (Game Client)"),
+                "English",
+                "日本語 (Japanese)",
+                "简体中文 (Chinese)",
+            };
+            var languageCodes = new[] { "", "en", "ja", "zh" };
+
+            // Find current selection index
+            var currentOverride = this.config.LanguageOverride ?? "";
+            var selectedIndex = currentOverride switch
+            {
+                "" => 0,
+                "en" => 1,
+                "ja" => 2,
+                "zh" => 3,
+                _ => 0,
+            };
+
+            ImGui.SetNextItemWidth(200);
+            if (ImGui.Combo(
+                Loc.T(LocalizedStrings.Language.Select, "Language"),
+                ref selectedIndex,
+                displayNames,
+                displayNames.Length))
+            {
+                this.config.LanguageOverride = languageCodes[selectedIndex];
+                this.save();
+
+                // Apply language change immediately
+                // ReloadLanguage reads from config and applies the effective language
+                OlympusLocalization.Instance?.ReloadLanguage();
+            }
+
+            ImGui.TextDisabled(Loc.T(
+                LocalizedStrings.Language.SelectDesc,
+                "Select your preferred language. Auto uses the game client language."));
+
             ConfigUIHelpers.EndIndent();
         }
     }

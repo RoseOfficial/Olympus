@@ -108,6 +108,18 @@ public sealed class OlympusLocalization : IDisposable
     }
 
     /// <summary>
+    /// Reloads the language based on current configuration (respects LanguageOverride).
+    /// Call this after changing config.LanguageOverride to apply the change.
+    /// </summary>
+    public void ReloadLanguage()
+    {
+        var effectiveLanguage = GetEffectiveLanguage();
+        // Force reload by clearing current strings
+        this.currentStrings = new Dictionary<string, string>();
+        SetLanguage(effectiveLanguage);
+    }
+
+    /// <summary>
     /// Sets the current language and reloads strings.
     /// </summary>
     public void SetLanguage(string languageCode)

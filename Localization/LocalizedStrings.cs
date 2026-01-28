@@ -171,6 +171,15 @@ public static class LocalizedStrings
         public const string TelemetryDesc = "config.privacy.telemetry_desc";
     }
 
+    /// <summary>Keys for language settings.</summary>
+    public static class Language
+    {
+        public const string Section = "config.language.section";
+        public const string Select = "config.language.select";
+        public const string SelectDesc = "config.language.select_desc";
+        public const string Auto = "config.language.auto";
+    }
+
     #endregion
 
     #region Healing Settings (config.healing.*)

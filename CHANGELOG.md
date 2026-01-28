@@ -3,6 +3,17 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.6.0 - Language Selector UI
+
+**Settings**
+- Added language selection dropdown to General settings section
+- Choose between Auto (follows game client), English, Japanese, or Chinese (Simplified)
+- Language changes apply immediately without restart
+
+**Localization**
+- Added language setting translations for all 3 languages (EN, JA, ZH)
+<!-- LATEST-END -->
+
 ## v4.5.0 - Japanese Translation
 
 **Localization**
@@ -22,7 +33,6 @@ All notable changes to Olympus will be documented in this file.
 - Job names use official FFXIV Japanese terms (白魔道士, 学者, 占星術師, 賢者, etc.)
 - Ability names use official in-game Japanese names
 - UI follows FFXIV Japanese client conventions
-<!-- LATEST-END -->
 
 ## v4.4.0 - Chinese Simplified Translation
 
