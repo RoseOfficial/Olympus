@@ -1,5 +1,6 @@
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Olympus.Localization;
 using Olympus.Rotation.TerpsichoreCore.Context;
 
 namespace Olympus.Windows.Debug.Tabs;
@@ -13,8 +14,8 @@ public static class TerpsichoreTab
     {
         if (state == null)
         {
-            ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Dancer rotation not active.");
-            ImGui.TextDisabled("Switch to Dancer to see debug info.");
+            ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.DancerNotActive, "Dancer rotation not active."));
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.SwitchToDancer, "Switch to Dancer to see debug info."));
             return;
         }
 
@@ -40,7 +41,7 @@ public static class TerpsichoreTab
 
     private static void DrawDanceSection(TerpsichoreDebugState state)
     {
-        ImGui.Text("Dance");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Dance, "Dance"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("DncDanceTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -51,7 +52,7 @@ public static class TerpsichoreTab
             // Dancing State
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Dancing:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Dancing, "Dancing:"));
             ImGui.TableNextColumn();
             if (state.IsDancing)
             {
@@ -59,7 +60,7 @@ public static class TerpsichoreTab
             }
             else
             {
-                ImGui.TextDisabled("No");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.No, "No"));
             }
 
             // Current Step
@@ -67,7 +68,7 @@ public static class TerpsichoreTab
             {
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGui.Text("Next Step:");
+                ImGui.Text(Loc.T(LocalizedStrings.Debug.NextStep, "Next Step:"));
                 ImGui.TableNextColumn();
                 ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), state.CurrentStep);
             }
@@ -75,14 +76,14 @@ public static class TerpsichoreTab
             // Standard Finish
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Standard Finish:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.StandardFinish, "Standard Finish:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasStandardFinish);
 
             // Technical Finish
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Technical Finish:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.TechnicalFinish, "Technical Finish:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasTechnicalFinish);
 
@@ -92,7 +93,7 @@ public static class TerpsichoreTab
 
     private static void DrawGaugeSection(TerpsichoreDebugState state)
     {
-        ImGui.Text("Gauge");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Gauge, "Gauge"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("DncGaugeTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -103,7 +104,7 @@ public static class TerpsichoreTab
             // Esprit
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Esprit:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Esprit, "Esprit:"));
             ImGui.TableNextColumn();
             var espritPercent = state.Esprit / 100f;
             ImGui.ProgressBar(espritPercent, new Vector2(-1, 0), $"{state.Esprit}/100");
@@ -111,7 +112,7 @@ public static class TerpsichoreTab
             // Feathers
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Feathers:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Feathers, "Feathers:"));
             ImGui.TableNextColumn();
             var featherColor = state.Feathers >= 4 ? new Vector4(0.5f, 1f, 0.5f, 1f) : state.Feathers >= 3 ? new Vector4(1f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(featherColor, $"{state.Feathers}/4");
@@ -122,7 +123,7 @@ public static class TerpsichoreTab
 
     private static void DrawProcSection(TerpsichoreDebugState state)
     {
-        ImGui.Text("Procs");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Procs, "Procs"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("DncProcTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -133,63 +134,63 @@ public static class TerpsichoreTab
             // Silken Symmetry
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Silken Symmetry:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.SilkenSymmetry, "Silken Symmetry:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasSilkenSymmetry);
 
             // Silken Flow
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Silken Flow:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.SilkenFlow, "Silken Flow:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasSilkenFlow);
 
             // Threefold Fan Dance
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Threefold Fan:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.ThreefoldFan, "Threefold Fan:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasThreefoldFanDance);
 
             // Fourfold Fan Dance
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Fourfold Fan:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.FourfoldFan, "Fourfold Fan:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasFourfoldFanDance);
 
             // Flourishing Finish
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Flourishing Finish:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.FlourishingFinish, "Flourishing Finish:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasFlourishingFinish);
 
             // Flourishing Starfall
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Flourishing Starfall:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.FlourishingStarfall, "Flourishing Starfall:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasFlourishingStarfall);
 
             // Last Dance Ready
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Last Dance:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.LastDance, "Last Dance:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasLastDanceReady);
 
             // Finishing Move Ready
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Finishing Move:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.FinishingMove, "Finishing Move:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasFinishingMoveReady);
 
             // Dance of the Dawn Ready
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Dance of Dawn:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.DanceOfDawn, "Dance of Dawn:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasDanceOfTheDawnReady);
 
@@ -199,7 +200,7 @@ public static class TerpsichoreTab
 
     private static void DrawBuffSection(TerpsichoreDebugState state)
     {
-        ImGui.Text("Buffs");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("DncBuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -210,7 +211,7 @@ public static class TerpsichoreTab
             // Devilment
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Devilment:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Devilment, "Devilment:"));
             ImGui.TableNextColumn();
             if (state.HasDevilment)
             {
@@ -218,7 +219,7 @@ public static class TerpsichoreTab
             }
             else
             {
-                ImGui.TextDisabled("Inactive");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             ImGui.EndTable();
@@ -227,7 +228,7 @@ public static class TerpsichoreTab
 
     private static void DrawTargetSection(TerpsichoreDebugState state)
     {
-        ImGui.Text("Target & Partner");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.TargetPartner, "Target & Partner"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("DncTargetTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -238,7 +239,7 @@ public static class TerpsichoreTab
             // Dance Partner
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Dance Partner:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.DancePartner, "Dance Partner:"));
             ImGui.TableNextColumn();
             if (state.HasDancePartner)
             {
@@ -246,20 +247,20 @@ public static class TerpsichoreTab
             }
             else
             {
-                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "None");
+                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.NoneLabel, "None"));
             }
 
             // Current Target
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Target:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.TargetLabel, "Target:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.CurrentTarget);
 
             // Nearby Enemies
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Nearby Enemies:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.NearbyEnemies, "Nearby Enemies:"));
             ImGui.TableNextColumn();
             var aoeColor = state.NearbyEnemies >= 3 ? new Vector4(1f, 0.6f, 0.2f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(aoeColor, $"{state.NearbyEnemies}");
@@ -272,11 +273,11 @@ public static class TerpsichoreTab
     {
         if (hasProc)
         {
-            ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), "Ready");
+            ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.Ready, "Ready"));
         }
         else
         {
-            ImGui.TextDisabled("No");
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.No, "No"));
         }
     }
 }

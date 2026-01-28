@@ -1,5 +1,6 @@
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Olympus.Localization;
 using Olympus.Rotation.CalliopeCore.Context;
 
 namespace Olympus.Windows.Debug.Tabs;
@@ -13,8 +14,8 @@ public static class CalliopeTab
     {
         if (state == null)
         {
-            ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Bard rotation not active.");
-            ImGui.TextDisabled("Switch to Bard to see debug info.");
+            ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.BardNotActive, "Bard rotation not active."));
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.SwitchToBard, "Switch to Bard to see debug info."));
             return;
         }
 
@@ -40,7 +41,7 @@ public static class CalliopeTab
 
     private static void DrawSongSection(CalliopeDebugState state)
     {
-        ImGui.Text("Song");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Song, "Song"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("BrdSongTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -51,7 +52,7 @@ public static class CalliopeTab
             // Current Song
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Current Song:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.CurrentSong, "Current Song:"));
             ImGui.TableNextColumn();
             var songColor = state.CurrentSong switch
             {
@@ -67,7 +68,7 @@ public static class CalliopeTab
             {
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGui.Text("Song Timer:");
+                ImGui.Text(Loc.T(LocalizedStrings.Debug.SongTimer, "Song Timer:"));
                 ImGui.TableNextColumn();
                 var timerColor = state.SongTimer < 5f ? new Vector4(1f, 0.5f, 0.5f, 1f) : new Vector4(0.5f, 1f, 0.5f, 1f);
                 ImGui.TextColored(timerColor, $"{state.SongTimer:F1}s");
@@ -76,7 +77,7 @@ public static class CalliopeTab
             // Repertoire
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Repertoire:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Repertoire, "Repertoire:"));
             ImGui.TableNextColumn();
             var repColor = state.Repertoire >= 3 ? new Vector4(0.5f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(repColor, $"{state.Repertoire}/3");
@@ -84,7 +85,7 @@ public static class CalliopeTab
             // Coda
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Coda:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Coda, "Coda:"));
             ImGui.TableNextColumn();
             var codaColor = state.CodaCount >= 3 ? new Vector4(0.5f, 1f, 0.5f, 1f) : state.CodaCount >= 2 ? new Vector4(1f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(codaColor, $"{state.CodaCount}/3");
@@ -95,7 +96,7 @@ public static class CalliopeTab
 
     private static void DrawGaugeSection(CalliopeDebugState state)
     {
-        ImGui.Text("Gauge");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Gauge, "Gauge"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("BrdGaugeTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -106,7 +107,7 @@ public static class CalliopeTab
             // Soul Voice
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Soul Voice:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.SoulVoice, "Soul Voice:"));
             ImGui.TableNextColumn();
             var soulVoicePercent = state.SoulVoice / 100f;
             ImGui.ProgressBar(soulVoicePercent, new Vector2(-1, 0), $"{state.SoulVoice}/100");
@@ -114,7 +115,7 @@ public static class CalliopeTab
             // Bloodletter Charges
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Bloodletter:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Bloodletter, "Bloodletter:"));
             ImGui.TableNextColumn();
             var blColor = state.BloodletterCharges >= 3 ? new Vector4(0.5f, 1f, 0.5f, 1f) : state.BloodletterCharges >= 2 ? new Vector4(1f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(blColor, $"{state.BloodletterCharges}/3");
@@ -125,7 +126,7 @@ public static class CalliopeTab
 
     private static void DrawBuffSection(CalliopeDebugState state)
     {
-        ImGui.Text("Buffs");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("BrdBuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -136,14 +137,14 @@ public static class CalliopeTab
             // Hawk's Eye (Straight Shot Ready)
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Hawk's Eye:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.HawksEye, "Hawk's Eye:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasHawksEye);
 
             // Raging Strikes
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Raging Strikes:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.RagingStrikes, "Raging Strikes:"));
             ImGui.TableNextColumn();
             if (state.HasRagingStrikes)
             {
@@ -151,48 +152,48 @@ public static class CalliopeTab
             }
             else
             {
-                ImGui.TextDisabled("Inactive");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             // Battle Voice
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Battle Voice:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.BattleVoice, "Battle Voice:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasBattleVoice);
 
             // Barrage
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Barrage:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Barrage, "Barrage:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasBarrage);
 
             // Radiant Finale
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Radiant Finale:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.RadiantFinale, "Radiant Finale:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasRadiantFinale);
 
             // Blast Arrow Ready
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Blast Arrow:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.BlastArrow, "Blast Arrow:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasBlastArrowReady);
 
             // Resonant Arrow Ready
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Resonant Arrow:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.ResonantArrow, "Resonant Arrow:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasResonantArrowReady);
 
             // Radiant Encore Ready
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Radiant Encore:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.RadiantEncore, "Radiant Encore:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasRadiantEncoreReady);
 
@@ -202,7 +203,7 @@ public static class CalliopeTab
 
     private static void DrawDotSection(CalliopeDebugState state)
     {
-        ImGui.Text("DoTs");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.DoTs, "DoTs"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("BrdDotTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -213,7 +214,7 @@ public static class CalliopeTab
             // Caustic Bite
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Caustic Bite:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.CausticBite, "Caustic Bite:"));
             ImGui.TableNextColumn();
             if (state.HasCausticBite)
             {
@@ -222,13 +223,13 @@ public static class CalliopeTab
             }
             else
             {
-                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Not applied");
+                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.NotApplied, "Not applied"));
             }
 
             // Stormbite
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Stormbite:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Stormbite, "Stormbite:"));
             ImGui.TableNextColumn();
             if (state.HasStormbite)
             {
@@ -237,7 +238,7 @@ public static class CalliopeTab
             }
             else
             {
-                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Not applied");
+                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.NotApplied, "Not applied"));
             }
 
             ImGui.EndTable();
@@ -246,7 +247,7 @@ public static class CalliopeTab
 
     private static void DrawTargetSection(CalliopeDebugState state)
     {
-        ImGui.Text("Target");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.TargetLabel, "Target"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("BrdTargetTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -257,14 +258,14 @@ public static class CalliopeTab
             // Current Target
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Target:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.TargetLabel, "Target:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.CurrentTarget);
 
             // Nearby Enemies
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Nearby Enemies:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.NearbyEnemies, "Nearby Enemies:"));
             ImGui.TableNextColumn();
             var aoeColor = state.NearbyEnemies >= 3 ? new Vector4(1f, 0.6f, 0.2f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(aoeColor, $"{state.NearbyEnemies}");
@@ -277,11 +278,11 @@ public static class CalliopeTab
     {
         if (hasProc)
         {
-            ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), "Active");
+            ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.JobActiveLabel, "Active"));
         }
         else
         {
-            ImGui.TextDisabled("No");
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.No, "No"));
         }
     }
 }

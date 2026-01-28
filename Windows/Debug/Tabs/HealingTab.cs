@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Olympus.Localization;
 using Olympus.Services.Debug;
 using Olympus.Services.Healing;
 
@@ -62,15 +63,15 @@ public static class HealingTab
         var playerLevel = debugService.GetPlayerLevel();
         if (playerLevel == 0)
         {
-            ImGui.TextColored(DebugColors.Dim, "Not logged in");
+            ImGui.TextColored(DebugColors.Dim, Loc.T(LocalizedStrings.Debug.NotLoggedIn, "Not logged in"));
             return;
         }
 
         var snapshot = debugService.GetSpellStatus(playerLevel);
 
-        ImGui.Text("Spell Status");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.SpellStatus, "Spell Status"));
         ImGui.SameLine();
-        ImGui.TextColored(DebugColors.Dim, $"(Lv{snapshot.PlayerLevel})");
+        ImGui.TextColored(DebugColors.Dim, Loc.TFormat(LocalizedStrings.Debug.LevelFormat, "(Lv{0})", snapshot.PlayerLevel));
         ImGui.Separator();
 
         // Group spells by category
@@ -155,15 +156,15 @@ public static class HealingTab
 
     private static string GetCategoryDisplayName(SpellCategory category) => category switch
     {
-        SpellCategory.GcdHealSingle => "GCD Heals (Single)",
-        SpellCategory.GcdHealAoE => "GCD Heals (AoE)",
-        SpellCategory.GcdHealHoT => "GCD Heals (HoT)",
-        SpellCategory.OgcdHealSingle => "oGCD Heals (Single)",
-        SpellCategory.OgcdHealAoE => "oGCD Heals (AoE)",
-        SpellCategory.GcdDamageSingle => "GCD Damage (Single)",
-        SpellCategory.GcdDamageAoE => "GCD Damage (AoE)",
-        SpellCategory.GcdDoT => "GCD DoT",
-        SpellCategory.Utility => "Utility",
+        SpellCategory.GcdHealSingle => Loc.T(LocalizedStrings.Debug.GcdHealsSingle, "GCD Heals (Single)"),
+        SpellCategory.GcdHealAoE => Loc.T(LocalizedStrings.Debug.GcdHealsAoE, "GCD Heals (AoE)"),
+        SpellCategory.GcdHealHoT => Loc.T(LocalizedStrings.Debug.GcdHealsHoT, "GCD Heals (HoT)"),
+        SpellCategory.OgcdHealSingle => Loc.T(LocalizedStrings.Debug.OgcdHealsSingle, "oGCD Heals (Single)"),
+        SpellCategory.OgcdHealAoE => Loc.T(LocalizedStrings.Debug.OgcdHealsAoE, "oGCD Heals (AoE)"),
+        SpellCategory.GcdDamageSingle => Loc.T(LocalizedStrings.Debug.GcdDamageSingle, "GCD Damage (Single)"),
+        SpellCategory.GcdDamageAoE => Loc.T(LocalizedStrings.Debug.GcdDamageAoE, "GCD Damage (AoE)"),
+        SpellCategory.GcdDoT => Loc.T(LocalizedStrings.Debug.GcdDoT, "GCD DoT"),
+        SpellCategory.Utility => Loc.T(LocalizedStrings.Debug.Utility, "Utility"),
         _ => category.ToString()
     };
 
@@ -171,12 +172,12 @@ public static class HealingTab
     {
         var selection = debugService.GetLastSpellSelection();
 
-        ImGui.Text("Spell Selection");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.SpellSelection, "Spell Selection"));
         ImGui.Separator();
 
         if (selection == null)
         {
-            ImGui.TextColored(DebugColors.Dim, "No selection yet");
+            ImGui.TextColored(DebugColors.Dim, Loc.T(LocalizedStrings.Debug.NoSelectionYet, "No selection yet"));
             return;
         }
 
@@ -190,17 +191,18 @@ public static class HealingTab
             ImGui.TableNextRow();
 
             ImGui.TableNextColumn();
-            ImGui.Text($"Target: {selection.TargetName}");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.TargetLabel, "Target: {0}", selection.TargetName));
 
             ImGui.TableNextColumn();
-            ImGui.Text($"Missing: {selection.MissingHp:N0} HP");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.Missing, "Missing: {0:N0} HP", selection.MissingHp));
 
             ImGui.TableNextColumn();
             var weaveColor = selection.IsWeaveWindow ? DebugColors.Success : DebugColors.Dim;
-            ImGui.TextColored(weaveColor, $"Weave: {(selection.IsWeaveWindow ? "Yes" : "No")}");
+            var weaveText = selection.IsWeaveWindow ? Loc.T(LocalizedStrings.Debug.Yes, "Yes") : Loc.T(LocalizedStrings.Debug.No, "No");
+            ImGui.TextColored(weaveColor, Loc.TFormat(LocalizedStrings.Debug.WeaveLabel, "Weave: {0}", weaveText));
 
             ImGui.TableNextColumn();
-            ImGui.Text($"Lilies: {selection.LilyCount}/3");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.Lilies, "Lilies: {0}/3", selection.LilyCount));
 
             ImGui.EndTable();
         }
@@ -208,25 +210,25 @@ public static class HealingTab
         // Selected spell
         if (selection.SelectedSpell != null)
         {
-            ImGui.TextColored(DebugColors.Success, $"✓ Selected: {selection.SelectedSpell}");
-            ImGui.TextColored(DebugColors.Dim, $"  Reason: {selection.SelectionReason}");
+            ImGui.TextColored(DebugColors.Success, Loc.TFormat(LocalizedStrings.Debug.Selected, "✓ Selected: {0}", selection.SelectedSpell));
+            ImGui.TextColored(DebugColors.Dim, Loc.TFormat(LocalizedStrings.Debug.Reason, "  Reason: {0}", selection.SelectionReason ?? "-"));
         }
         else
         {
-            ImGui.TextColored(DebugColors.Warning, $"✗ No spell selected");
-            ImGui.TextColored(DebugColors.Dim, $"  Reason: {selection.SelectionReason}");
+            ImGui.TextColored(DebugColors.Warning, Loc.T(LocalizedStrings.Debug.NoSpellSelected, "✗ No spell selected"));
+            ImGui.TextColored(DebugColors.Dim, Loc.TFormat(LocalizedStrings.Debug.Reason, "  Reason: {0}", selection.SelectionReason ?? "-"));
         }
 
         // Candidates table (collapsible)
-        if (selection.Candidates.Count > 0 && ImGui.CollapsingHeader($"Candidates ({selection.Candidates.Count})##SpellCandidates"))
+        if (selection.Candidates.Count > 0 && ImGui.CollapsingHeader(Loc.TFormat(LocalizedStrings.Debug.Candidates, "Candidates ({0})", selection.Candidates.Count) + "##SpellCandidates"))
         {
             if (ImGui.BeginTable("CandidatesTable", 5, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchProp))
             {
-                ImGui.TableSetupColumn("Spell", ImGuiTableColumnFlags.WidthFixed, 120);
-                ImGui.TableSetupColumn("Heal", ImGuiTableColumnFlags.WidthFixed, 60);
-                ImGui.TableSetupColumn("Eff", ImGuiTableColumnFlags.WidthFixed, 45);
-                ImGui.TableSetupColumn("Score", ImGuiTableColumnFlags.WidthFixed, 50);
-                ImGui.TableSetupColumn("Status", ImGuiTableColumnFlags.WidthStretch);
+                ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.Spell, "Spell"), ImGuiTableColumnFlags.WidthFixed, 120);
+                ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.Heal, "Heal"), ImGuiTableColumnFlags.WidthFixed, 60);
+                ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.Eff, "Eff"), ImGuiTableColumnFlags.WidthFixed, 45);
+                ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.Score, "Score"), ImGuiTableColumnFlags.WidthFixed, 50);
+                ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.Status, "Status"), ImGuiTableColumnFlags.WidthStretch);
                 ImGui.TableHeadersRow();
 
                 foreach (var candidate in selection.Candidates)
@@ -287,12 +289,12 @@ public static class HealingTab
 
     private static void DrawHpPrediction(DebugSnapshot snapshot, DebugService debugService)
     {
-        ImGui.Text("HP Prediction");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.HpPrediction, "HP Prediction"));
         ImGui.Separator();
 
         // Player stats for heal calculation
         var statsInfo = debugService.GetPlayerStatsDebugInfo();
-        ImGui.TextColored(DebugColors.Dim, $"Stats: {statsInfo}");
+        ImGui.TextColored(DebugColors.Dim, Loc.TFormat(LocalizedStrings.Debug.Stats, "Stats: {0}", statsInfo));
 
         var gcd = snapshot.GcdState;
         var healing = snapshot.Healing;
@@ -309,29 +311,31 @@ public static class HealingTab
 
             ImGui.TableNextColumn();
             var gcdColor = DebugColors.GetGcdStateColor(gcd.State);
-            ImGui.TextColored(gcdColor, $"GCD: {gcd.State}");
+            ImGui.TextColored(gcdColor, Loc.TFormat(LocalizedStrings.Debug.GcdFormat, "GCD: {0}", gcd.State));
 
             ImGui.TableNextColumn();
-            ImGui.Text($"Rem: {gcd.GcdRemaining:F2}s");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.Rem, "Rem: {0:F2}s", gcd.GcdRemaining));
 
             ImGui.TableNextColumn();
-            ImGui.Text($"Anim: {gcd.AnimationLockRemaining:F2}s");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.Anim, "Anim: {0:F2}s", gcd.AnimationLockRemaining));
 
             ImGui.TableNextColumn();
-            ImGui.Text($"Casting: {(gcd.IsCasting ? "Yes" : "No")}");
+            var castingText = gcd.IsCasting ? Loc.T(LocalizedStrings.Debug.Yes, "Yes") : Loc.T(LocalizedStrings.Debug.No, "No");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.Casting, "Casting: {0}", castingText));
 
             // Row 2: Weave, slots, last action
             ImGui.TableNextRow();
 
             ImGui.TableNextColumn();
             var weaveColor = gcd.CanExecuteOgcd ? DebugColors.Heal : DebugColors.Dim;
-            ImGui.TextColored(weaveColor, $"Weave: {(gcd.CanExecuteOgcd ? "Yes" : "No")}");
+            var weaveText = gcd.CanExecuteOgcd ? Loc.T(LocalizedStrings.Debug.Yes, "Yes") : Loc.T(LocalizedStrings.Debug.No, "No");
+            ImGui.TextColored(weaveColor, Loc.TFormat(LocalizedStrings.Debug.WeaveLabel, "Weave: {0}", weaveText));
 
             ImGui.TableNextColumn();
-            ImGui.Text($"Slots: {gcd.WeaveSlots}");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.SlotsFormat, "Slots: {0}", gcd.WeaveSlots));
 
             ImGui.TableNextColumn();
-            ImGui.TextColored(DebugColors.Dim, $"Last: {gcd.LastActionName}");
+            ImGui.TextColored(DebugColors.Dim, Loc.TFormat(LocalizedStrings.Debug.LastFormat, "Last: {0}", gcd.LastActionName));
 
             ImGui.TableNextColumn();
             // Empty
@@ -342,13 +346,13 @@ public static class HealingTab
         // Last heal calculation (debug)
         if (!string.IsNullOrEmpty(healing.LastHealStats))
         {
-            ImGui.TextColored(DebugColors.Warning, $"Last Calc: {healing.LastHealAmount:N0} HP");
+            ImGui.TextColored(DebugColors.Warning, Loc.TFormat(LocalizedStrings.Debug.LastCalc, "Last Calc: {0:N0} HP", healing.LastHealAmount));
             ImGui.TextColored(DebugColors.Dim, $"  ({healing.LastHealStats})");
         }
 
         // Pending heals
         var pendingColor = healing.PendingHeals.Count > 0 ? DebugColors.Warning : DebugColors.Dim;
-        ImGui.TextColored(pendingColor, $"Pending Heals: {healing.PendingHeals.Count} ({healing.TotalPendingHealAmount:N0} HP total)");
+        ImGui.TextColored(pendingColor, Loc.TFormat(LocalizedStrings.Debug.PendingHeals, "Pending Heals: {0} ({1:N0} HP total)", healing.PendingHeals.Count, healing.TotalPendingHealAmount));
 
         if (healing.PendingHeals.Count > 0)
         {
@@ -365,7 +369,7 @@ public static class HealingTab
     {
         var healing = snapshot.Healing;
 
-        ImGui.Text("AoE Healing");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.AoEHealing, "AoE Healing"));
         ImGui.SameLine();
         ImGui.TextColored(DebugColors.GetAoEStatusColor(healing.AoEStatus), $"[{healing.AoEStatus}]");
         ImGui.Separator();
@@ -380,28 +384,28 @@ public static class HealingTab
             ImGui.TableNextRow();
 
             ImGui.TableNextColumn();
-            ImGui.Text($"Injured: {healing.AoEInjuredCount}");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.Injured, "Injured: {0}", healing.AoEInjuredCount));
 
             ImGui.TableNextColumn();
             var spellName = healing.AoESelectedSpell > 0
                 ? debugService.GetActionName(healing.AoESelectedSpell)
-                : "None";
-            ImGui.Text($"Spell: {spellName}");
+                : Loc.T(LocalizedStrings.Debug.NoneLabel, "None");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.SpellLabel, "Spell: {0}", spellName));
 
             ImGui.TableNextColumn();
-            ImGui.Text($"Player HP: {healing.PlayerHpPercent:F1}%");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.PlayerHp, "Player HP: {0:F1}%", healing.PlayerHpPercent));
 
             // Row 2: Party info
             ImGui.TableNextRow();
 
             ImGui.TableNextColumn();
-            ImGui.Text($"Party: {healing.PartyListCount}");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.Party, "Party: {0}", healing.PartyListCount));
 
             ImGui.TableNextColumn();
-            ImGui.Text($"Valid: {healing.PartyValidCount}");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.Valid, "Valid: {0}", healing.PartyValidCount));
 
             ImGui.TableNextColumn();
-            ImGui.Text($"NPCs: {healing.BattleNpcCount}");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.Npcs, "NPCs: {0}", healing.BattleNpcCount));
 
             ImGui.EndTable();
         }
@@ -417,14 +421,14 @@ public static class HealingTab
     {
         var healing = snapshot.Healing;
 
-        ImGui.Text("Recent Heals");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.RecentHeals, "Recent Heals"));
         ImGui.SameLine();
-        ImGui.TextColored(DebugColors.Heal, $"(Total: {healing.TotalRecentHealAmount:N0} HP)");
+        ImGui.TextColored(DebugColors.Heal, Loc.TFormat(LocalizedStrings.Debug.Total, "(Total: {0:N0} HP)", healing.TotalRecentHealAmount));
         ImGui.Separator();
 
         if (healing.RecentHeals.Count == 0)
         {
-            ImGui.TextColored(DebugColors.Dim, "No heals yet");
+            ImGui.TextColored(DebugColors.Dim, Loc.T(LocalizedStrings.Debug.NoHealsYet, "No heals yet"));
             return;
         }
 
@@ -444,23 +448,23 @@ public static class HealingTab
 
     private static void DrawShadowHpTracking(DebugSnapshot snapshot)
     {
-        if (!ImGui.CollapsingHeader("Shadow HP Tracking"))
+        if (!ImGui.CollapsingHeader(Loc.T(LocalizedStrings.Debug.ShadowHpTracking, "Shadow HP Tracking")))
             return;
 
         var healing = snapshot.Healing;
 
         if (healing.ShadowHpEntries.Count == 0)
         {
-            ImGui.TextColored(DebugColors.Dim, "No entities tracked yet");
+            ImGui.TextColored(DebugColors.Dim, Loc.T(LocalizedStrings.Debug.NoEntitiesTrackedYet, "No entities tracked yet"));
             return;
         }
 
         if (ImGui.BeginTable("ShadowHpTable", 4, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchProp))
         {
-            ImGui.TableSetupColumn("Entity", ImGuiTableColumnFlags.WidthFixed, 150);
-            ImGui.TableSetupColumn("Game HP", ImGuiTableColumnFlags.WidthFixed, 80);
-            ImGui.TableSetupColumn("Shadow HP", ImGuiTableColumnFlags.WidthFixed, 80);
-            ImGui.TableSetupColumn("Delta", ImGuiTableColumnFlags.WidthFixed, 80);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.Entity, "Entity"), ImGuiTableColumnFlags.WidthFixed, 150);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.GameHp, "Game HP"), ImGuiTableColumnFlags.WidthFixed, 80);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.ShadowHpLabel, "Shadow HP"), ImGuiTableColumnFlags.WidthFixed, 80);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.Delta, "Delta"), ImGuiTableColumnFlags.WidthFixed, 80);
             ImGui.TableHeadersRow();
 
             foreach (var entry in healing.ShadowHpEntries)

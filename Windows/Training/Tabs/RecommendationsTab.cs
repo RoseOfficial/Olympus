@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config;
+using Olympus.Localization;
 using Olympus.Services.Training;
 
 /// <summary>
@@ -45,11 +46,11 @@ public static class RecommendationsTab
         var hasIssueRecs = recommendations.Any(r => r.TriggeringIssues.Length > 0);
 
         if (hasMasteryRecs && hasIssueRecs)
-            ImGui.TextColored(InfoColor, "Based on fight performance and mastery data:");
+            ImGui.TextColored(InfoColor, Loc.T(LocalizedStrings.Training.BasedOnBoth, "Based on fight performance and mastery data:"));
         else if (hasMasteryRecs)
-            ImGui.TextColored(InfoColor, "Based on concept mastery data:");
+            ImGui.TextColored(InfoColor, Loc.T(LocalizedStrings.Training.BasedOnMastery, "Based on concept mastery data:"));
         else
-            ImGui.TextColored(InfoColor, "Based on your recent fight performance:");
+            ImGui.TextColored(InfoColor, Loc.T(LocalizedStrings.Training.BasedOnPerformance, "Based on your recent fight performance:"));
 
         ImGui.Spacing();
 
@@ -67,16 +68,16 @@ public static class RecommendationsTab
         // Clear dismissed button
         if (config.DismissedRecommendations.Count > 0)
         {
-            ImGui.TextColored(NeutralColor, $"{config.DismissedRecommendations.Count} dismissed recommendation(s)");
+            ImGui.TextColored(NeutralColor, Loc.TFormat(LocalizedStrings.Training.DismissedCountFormat, "{0} dismissed recommendation(s)", config.DismissedRecommendations.Count.ToString()));
             ImGui.SameLine();
-            if (ImGui.SmallButton("Clear Dismissed"))
+            if (ImGui.SmallButton(Loc.T(LocalizedStrings.Training.ClearDismissed, "Clear Dismissed")))
             {
                 trainingService.ClearDismissedRecommendations();
             }
 
             if (ImGui.IsItemHovered())
             {
-                ImGui.SetTooltip("Allow dismissed recommendations to appear again.");
+                ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.ClearDismissedTooltip, "Allow dismissed recommendations to appear again."));
             }
         }
     }
@@ -84,28 +85,28 @@ public static class RecommendationsTab
     private static void DrawSettings(TrainingConfig config)
     {
         var enabled = config.EnableRecommendations;
-        if (ImGui.Checkbox("Enable Recommendations", ref enabled))
+        if (ImGui.Checkbox(Loc.T(LocalizedStrings.Training.EnableRecommendations, "Enable Recommendations"), ref enabled))
         {
             config.EnableRecommendations = enabled;
         }
 
         if (ImGui.IsItemHovered())
         {
-            ImGui.SetTooltip("When enabled, suggests lessons based on fight performance issues.");
+            ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.EnableRecommendationsTooltip, "When enabled, suggests lessons based on fight performance issues."));
         }
 
         ImGui.SameLine();
 
         ImGui.SetNextItemWidth(80);
         var max = config.MaxRecommendations;
-        if (ImGui.SliderInt("Max##MaxRec", ref max, 1, 5))
+        if (ImGui.SliderInt(Loc.T(LocalizedStrings.Training.MaxRecommendations, "Max") + "##MaxRec", ref max, 1, 5))
         {
             config.MaxRecommendations = max;
         }
 
         if (ImGui.IsItemHovered())
         {
-            ImGui.SetTooltip("Maximum number of recommendations to show.");
+            ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.MaxRecommendationsTooltip, "Maximum number of recommendations to show."));
         }
     }
 
@@ -116,28 +117,28 @@ public static class RecommendationsTab
 
         if (!config.EnableRecommendations)
         {
-            ImGui.TextColored(NeutralColor, "Recommendations are disabled.");
-            ImGui.TextColored(NeutralColor, "Enable them above to get personalized lesson suggestions.");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Training.RecommendationsDisabled, "Recommendations are disabled."));
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Training.EnableAbove, "Enable them above to get personalized lesson suggestions."));
         }
         else
         {
-            ImGui.TextColored(NeutralColor, "No recommendations yet.");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Training.NoRecommendationsYet, "No recommendations yet."));
             ImGui.Spacing();
-            ImGui.TextWrapped("Complete a fight to receive lesson suggestions based on your performance, or generate suggestions from your mastery data below.");
+            ImGui.TextWrapped(Loc.T(LocalizedStrings.Training.CompleteForRecs, "Complete a fight to receive lesson suggestions based on your performance, or generate suggestions from your mastery data below."));
             ImGui.Spacing();
-            ImGui.TextColored(TipColor, "Tip: Recommendations are generated after fights based on detected issues, or from concepts you're struggling with.");
+            ImGui.TextColored(TipColor, Loc.T(LocalizedStrings.Training.RecsTip, "Tip: Recommendations are generated after fights based on detected issues, or from concepts you're struggling with."));
 
             // Generate from Mastery Data section
             ImGui.Spacing();
             ImGui.Separator();
             ImGui.Spacing();
 
-            ImGui.TextColored(InfoColor, "Generate from Mastery Data");
+            ImGui.TextColored(InfoColor, Loc.T(LocalizedStrings.Training.GenerateFromMastery, "Generate from Mastery Data"));
             ImGui.Spacing();
 
             // Job selector
             ImGui.SetNextItemWidth(100);
-            if (ImGui.BeginCombo("Job##MasteryJob", selectedJobPrefix.ToUpperInvariant()))
+            if (ImGui.BeginCombo(Loc.T(LocalizedStrings.Training.Job, "Job") + "##MasteryJob", selectedJobPrefix.ToUpperInvariant()))
             {
                 foreach (var job in new[] { "whm", "sch", "ast", "sge", "pld", "war", "drk", "gnb", "drg", "nin", "sam", "mnk", "rpr", "vpr", "mch", "brd", "dnc", "blm", "smn", "rdm", "pct" })
                 {
@@ -152,14 +153,14 @@ public static class RecommendationsTab
 
             ImGui.SameLine();
 
-            if (ImGui.Button("Generate##FromMastery"))
+            if (ImGui.Button(Loc.T(LocalizedStrings.Training.Generate, "Generate") + "##FromMastery"))
             {
                 trainingService.UpdateRecommendationsFromMastery(selectedJobPrefix);
             }
 
             if (ImGui.IsItemHovered())
             {
-                ImGui.SetTooltip("Generate lesson recommendations based on concepts you're struggling with for this job.");
+                ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.GenerateTooltip, "Generate lesson recommendations based on concepts you're struggling with for this job."));
             }
         }
     }
@@ -174,13 +175,20 @@ public static class RecommendationsTab
             _ => LowPriorityColor
         };
 
-        ImGui.TextColored(priorityColor, $"[{rec.PriorityLevel}]");
+        var priorityLabel = rec.PriorityLevel switch
+        {
+            "HIGH" => Loc.T(LocalizedStrings.Training.PriorityHigh, "HIGH"),
+            "MEDIUM" => Loc.T(LocalizedStrings.Training.PriorityMedium, "MEDIUM"),
+            _ => Loc.T(LocalizedStrings.Training.PriorityLow, "LOW")
+        };
+
+        ImGui.TextColored(priorityColor, $"[{priorityLabel}]");
         ImGui.SameLine();
 
         // Mastery badge (if mastery-driven)
         if (rec.IsMasteryDriven)
         {
-            ImGui.TextColored(MasteryBadgeColor, "[MASTERY]");
+            ImGui.TextColored(MasteryBadgeColor, $"[{Loc.T(LocalizedStrings.Training.MasteryBadge, "MASTERY")}]");
             ImGui.SameLine();
         }
 
@@ -199,21 +207,21 @@ public static class RecommendationsTab
         if (rec.TriggeringIssues.Length > 0)
         {
             var issueNames = string.Join(", ", rec.TriggeringIssues.Select(FormatIssueType));
-            ImGui.TextColored(NeutralColor, $"Issues: {issueNames}");
+            ImGui.TextColored(NeutralColor, Loc.TFormat(LocalizedStrings.Training.IssuesPrefix, "Issues: {0}", issueNames));
         }
 
         // Struggling concepts (if mastery-driven)
         if (rec.StrugglingConcepts.Length > 0)
         {
             var conceptNames = string.Join(", ", rec.StrugglingConcepts.Select(FormatConceptName));
-            ImGui.TextColored(MasteryBadgeColor, $"Struggling: {conceptNames}");
+            ImGui.TextColored(MasteryBadgeColor, Loc.TFormat(LocalizedStrings.Training.StrugglingPrefix, "Struggling: {0}", conceptNames));
         }
 
         // Action buttons
         ImGui.Spacing();
 
         // View in Lessons button
-        if (ImGui.SmallButton($"View Lesson##{rec.Lesson.LessonId}"))
+        if (ImGui.SmallButton(Loc.T(LocalizedStrings.Training.ViewLesson, "View Lesson") + $"##{rec.Lesson.LessonId}"))
         {
             // Note: This could be enhanced to switch to Lessons tab and select this lesson
             // For now, just mark the lesson as accessed
@@ -221,33 +229,33 @@ public static class RecommendationsTab
 
         if (ImGui.IsItemHovered())
         {
-            ImGui.SetTooltip($"Lesson {rec.Lesson.LessonNumber}: {rec.Lesson.Title}\n\n{rec.Lesson.Description}");
+            ImGui.SetTooltip(Loc.TFormat(LocalizedStrings.Training.LessonTooltipFormat, "Lesson {0}: {1}\n\n{2}", rec.Lesson.LessonNumber.ToString(), rec.Lesson.Title, rec.Lesson.Description));
         }
 
         ImGui.SameLine();
 
         // Mark Complete button
-        if (ImGui.SmallButton($"Complete##{rec.Lesson.LessonId}"))
+        if (ImGui.SmallButton(Loc.T(LocalizedStrings.Training.Complete, "Complete") + $"##{rec.Lesson.LessonId}"))
         {
             trainingService.MarkLessonComplete(rec.Lesson.LessonId);
         }
 
         if (ImGui.IsItemHovered())
         {
-            ImGui.SetTooltip("Mark this lesson as completed and remove from recommendations.");
+            ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.CompleteTooltip, "Mark this lesson as completed and remove from recommendations."));
         }
 
         ImGui.SameLine();
 
         // Dismiss button
-        if (ImGui.SmallButton($"Dismiss##{rec.Lesson.LessonId}"))
+        if (ImGui.SmallButton(Loc.T(LocalizedStrings.Training.Dismiss, "Dismiss") + $"##{rec.Lesson.LessonId}"))
         {
             trainingService.DismissRecommendation(rec.Lesson.LessonId);
         }
 
         if (ImGui.IsItemHovered())
         {
-            ImGui.SetTooltip("Hide this recommendation. Use 'Clear Dismissed' to show it again.");
+            ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.DismissTooltip, "Hide this recommendation. Use 'Clear Dismissed' to show it again."));
         }
 
         ImGui.Unindent();
@@ -261,13 +269,13 @@ public static class RecommendationsTab
     {
         return issueType switch
         {
-            Olympus.Services.Analytics.IssueType.PartyDeath => "Deaths",
-            Olympus.Services.Analytics.IssueType.NearDeath => "Near Deaths",
-            Olympus.Services.Analytics.IssueType.AbilityUnused => "Unused Abilities",
-            Olympus.Services.Analytics.IssueType.GcdDowntime => "GCD Downtime",
-            Olympus.Services.Analytics.IssueType.CooldownDrift => "Cooldown Drift",
-            Olympus.Services.Analytics.IssueType.HighOverheal => "High Overheal",
-            Olympus.Services.Analytics.IssueType.ResourceCapped => "Capped Resources",
+            Olympus.Services.Analytics.IssueType.PartyDeath => Loc.T(LocalizedStrings.Training.IssueDeaths, "Deaths"),
+            Olympus.Services.Analytics.IssueType.NearDeath => Loc.T(LocalizedStrings.Training.IssueNearDeaths, "Near Deaths"),
+            Olympus.Services.Analytics.IssueType.AbilityUnused => Loc.T(LocalizedStrings.Training.IssueUnusedAbilities, "Unused Abilities"),
+            Olympus.Services.Analytics.IssueType.GcdDowntime => Loc.T(LocalizedStrings.Training.IssueGcdDowntime, "GCD Downtime"),
+            Olympus.Services.Analytics.IssueType.CooldownDrift => Loc.T(LocalizedStrings.Training.IssueCooldownDrift, "Cooldown Drift"),
+            Olympus.Services.Analytics.IssueType.HighOverheal => Loc.T(LocalizedStrings.Training.IssueHighOverheal, "High Overheal"),
+            Olympus.Services.Analytics.IssueType.ResourceCapped => Loc.T(LocalizedStrings.Training.IssueCappedResources, "Capped Resources"),
             _ => issueType.ToString()
         };
     }

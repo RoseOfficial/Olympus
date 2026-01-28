@@ -6,6 +6,7 @@ using System.Linq;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config;
+using Olympus.Localization;
 using Olympus.Services.Training;
 
 /// <summary>
@@ -144,14 +145,14 @@ public static class SkillProgressTab
         // Draw Focus Areas section
         if (strugglingByJob.Count > 0)
         {
-            ImGui.TextColored(UrgentColor, $"\u26A0 Focus Areas ({strugglingByJob.Count} concepts need practice)");
+            ImGui.TextColored(UrgentColor, Loc.TFormat(LocalizedStrings.Training.FocusAreasFormat, "\u26A0 Focus Areas ({0} concepts need practice)", strugglingByJob.Count.ToString()));
 
             // Show top 5 struggling concepts
             foreach (var (jobPrefix, jobName, conceptId, rate) in strugglingByJob.Take(5))
             {
-                ImGui.TextColored(WarningColor, $"  \u251C\u2500 {jobPrefix.ToUpperInvariant()}: {FormatConceptName(conceptId)} ({rate:P0} success)");
+                ImGui.TextColored(WarningColor, Loc.TFormat(LocalizedStrings.Training.ConceptSuccessFormat, "  \u251C\u2500 {0}: {1} ({2} success)", jobPrefix.ToUpperInvariant(), FormatConceptName(conceptId), rate.ToString("P0")));
                 ImGui.SameLine();
-                if (ImGui.SmallButton($"Study##{conceptId}"))
+                if (ImGui.SmallButton(Loc.T(LocalizedStrings.Training.Study, "Study") + $"##{conceptId}"))
                 {
                     // Find a lesson that covers this concept
                     var lessons = trainingService.GetLessonsForJob(jobPrefix);
@@ -164,13 +165,13 @@ public static class SkillProgressTab
 
                 if (ImGui.IsItemHovered())
                 {
-                    ImGui.SetTooltip("Open the lesson covering this concept");
+                    ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.OpenLessonTooltip, "Open the lesson covering this concept"));
                 }
             }
 
             if (strugglingByJob.Count > 5)
             {
-                ImGui.TextColored(NeutralColor, $"  \u2514\u2500 ... and {strugglingByJob.Count - 5} more");
+                ImGui.TextColored(NeutralColor, Loc.TFormat(LocalizedStrings.Training.AndMoreFormat, "  \u2514\u2500 ... and {0} more", (strugglingByJob.Count - 5).ToString()));
             }
 
             ImGui.Spacing();
@@ -179,23 +180,23 @@ public static class SkillProgressTab
         // Draw Recently Mastered section
         if (masteredByJob.Count > 0)
         {
-            ImGui.TextColored(GoodColor, $"\u2713 Recently Mastered ({masteredByJob.Count} concepts)");
+            ImGui.TextColored(GoodColor, Loc.TFormat(LocalizedStrings.Training.RecentlyMasteredFormat, "\u2713 Recently Mastered ({0} concepts)", masteredByJob.Count.ToString()));
 
             // Show top 3 mastered concepts
             foreach (var (jobPrefix, jobName, conceptId, rate) in masteredByJob.Take(3))
             {
-                ImGui.TextColored(GoodColor, $"  \u251C\u2500 {jobPrefix.ToUpperInvariant()}: {FormatConceptName(conceptId)} ({rate:P0} success)");
+                ImGui.TextColored(GoodColor, Loc.TFormat(LocalizedStrings.Training.ConceptSuccessFormat, "  \u251C\u2500 {0}: {1} ({2} success)", jobPrefix.ToUpperInvariant(), FormatConceptName(conceptId), rate.ToString("P0")));
             }
 
             if (masteredByJob.Count > 3)
             {
-                ImGui.TextColored(NeutralColor, $"  \u2514\u2500 ... and {masteredByJob.Count - 3} more");
+                ImGui.TextColored(NeutralColor, Loc.TFormat(LocalizedStrings.Training.AndMoreFormat, "  \u2514\u2500 ... and {0} more", (masteredByJob.Count - 3).ToString()));
             }
         }
 
         if (strugglingByJob.Count == 0 && masteredByJob.Count == 0)
         {
-            ImGui.TextColored(NeutralColor, "Play with Training Mode enabled to build mastery data.");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Training.PlayToBuildMastery, "Play with Training Mode enabled to build mastery data."));
         }
     }
 
@@ -211,22 +212,22 @@ public static class SkillProgressTab
 
     private static void DrawAdaptiveSettings(TrainingConfig config)
     {
-        ImGui.Text("Adaptive Explanations");
+        ImGui.Text(Loc.T(LocalizedStrings.Training.AdaptiveExplanations, "Adaptive Explanations"));
         ImGui.Separator();
 
         var enableAdaptive = config.EnableAdaptiveExplanations;
-        if (ImGui.Checkbox("Enable Adaptive Verbosity", ref enableAdaptive))
+        if (ImGui.Checkbox(Loc.T(LocalizedStrings.Training.EnableAdaptiveVerbosity, "Enable Adaptive Verbosity"), ref enableAdaptive))
         {
             config.EnableAdaptiveExplanations = enableAdaptive;
         }
 
         if (ImGui.IsItemHovered())
         {
-            ImGui.SetTooltip(
+            ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.AdaptiveVerbosityTooltip,
                 "When enabled, explanation verbosity automatically adjusts based on your skill level:\n" +
                 "- Beginners see detailed explanations for all decisions\n" +
                 "- Intermediate players see normal detail, with extra detail for unfamiliar concepts\n" +
-                "- Advanced players see minimal detail, except for new or critical decisions");
+                "- Advanced players see minimal detail, except for new or critical decisions"));
         }
 
         if (config.EnableAdaptiveExplanations)
@@ -234,10 +235,16 @@ public static class SkillProgressTab
             ImGui.Spacing();
 
             // Override dropdown
-            ImGui.Text("Skill Level Override:");
+            ImGui.Text(Loc.T(LocalizedStrings.Training.SkillLevelOverride, "Skill Level Override:"));
             ImGui.SameLine();
 
-            var overrideOptions = new[] { "Auto-detect", "Beginner", "Intermediate", "Advanced" };
+            var overrideOptions = new[]
+            {
+                Loc.T(LocalizedStrings.Training.AutoDetect, "Auto-detect"),
+                Loc.T(LocalizedStrings.Training.Beginner, "Beginner"),
+                Loc.T(LocalizedStrings.Training.Intermediate, "Intermediate"),
+                Loc.T(LocalizedStrings.Training.Advanced, "Advanced"),
+            };
             var currentOverride = config.SkillLevelOverride.HasValue
                 ? (int)config.SkillLevelOverride.Value + 1
                 : 0;
@@ -256,22 +263,22 @@ public static class SkillProgressTab
 
             if (ImGui.IsItemHovered())
             {
-                ImGui.SetTooltip(
+                ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.SkillOverrideTooltip,
                     "Override the detected skill level:\n" +
                     "- Auto-detect: Uses quiz and lesson progress to determine level\n" +
-                    "- Beginner/Intermediate/Advanced: Force a specific level");
+                    "- Beginner/Intermediate/Advanced: Force a specific level"));
             }
         }
     }
 
     private static void DrawJobSkillLevels(ITrainingService trainingService, TrainingConfig config)
     {
-        ImGui.Text("Skill Levels by Job");
+        ImGui.Text(Loc.T(LocalizedStrings.Training.SkillLevelsByJob, "Skill Levels by Job"));
         ImGui.Separator();
 
         if (!config.EnableAdaptiveExplanations)
         {
-            ImGui.TextColored(NeutralColor, "Enable adaptive explanations above to see skill levels.");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Training.EnableAdaptiveToSeeSkills, "Enable adaptive explanations above to see skill levels."));
             return;
         }
 
@@ -287,9 +294,9 @@ public static class SkillProgressTab
 
         if (jobsWithProgress.Length == 0)
         {
-            ImGui.TextColored(NeutralColor, "No progress yet. Complete lessons and quizzes to see your skill levels.");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Training.NoProgressYet, "No progress yet. Complete lessons and quizzes to see your skill levels."));
             ImGui.Spacing();
-            ImGui.TextColored(NeutralColor, "Go to the Lessons tab to get started!");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Training.GoToLessonsTab, "Go to the Lessons tab to get started!"));
             return;
         }
 
@@ -305,7 +312,7 @@ public static class SkillProgressTab
         if (jobsWithoutProgress > 0)
         {
             ImGui.Spacing();
-            ImGui.TextColored(NeutralColor, $"{jobsWithoutProgress} other jobs with no progress yet.");
+            ImGui.TextColored(NeutralColor, Loc.TFormat(LocalizedStrings.Training.OtherJobsNoProgress, "{0} other jobs with no progress yet.", jobsWithoutProgress.ToString()));
         }
     }
 
@@ -323,42 +330,42 @@ public static class SkillProgressTab
         if (ImGui.TreeNode($"{jobName} ({jobPrefix.ToUpperInvariant()})##{jobPrefix}"))
         {
             // Skill level and score
-            ImGui.TextColored(levelColor, $"Level: {result.Level}");
+            ImGui.TextColored(levelColor, Loc.TFormat(LocalizedStrings.Training.LevelFormat, "Level: {0}", result.Level.ToString()));
             ImGui.SameLine();
-            ImGui.TextColored(NeutralColor, $"(Score: {result.CompositeScore:F0}/100)");
+            ImGui.TextColored(NeutralColor, Loc.TFormat(LocalizedStrings.Training.ScoreValueFormat, "(Score: {0}/100)", result.CompositeScore.ToString("F0")));
 
             // Score breakdown
             ImGui.Spacing();
-            ImGui.Text("Score Breakdown:");
+            ImGui.Text(Loc.T(LocalizedStrings.Training.ScoreBreakdown, "Score Breakdown:"));
 
             // Quiz pass rate (30%)
-            DrawScoreComponent("Quiz Pass Rate", result.QuizPassRate, 30,
-                $"{result.PassedQuizzes}/{result.TotalQuizzes} quizzes passed");
+            DrawScoreComponent(Loc.T(LocalizedStrings.Training.QuizPassRate, "Quiz Pass Rate"), result.QuizPassRate, 30,
+                Loc.TFormat(LocalizedStrings.Training.QuizPassRateTooltip, "{0}/{1} quizzes passed", result.PassedQuizzes.ToString(), result.TotalQuizzes.ToString()));
 
             // Quiz quality (20%)
-            DrawScoreComponent("Quiz Quality", result.QuizQuality, 20,
-                "Average score on passed quizzes");
+            DrawScoreComponent(Loc.T(LocalizedStrings.Training.QuizQuality, "Quiz Quality"), result.QuizQuality, 20,
+                Loc.T(LocalizedStrings.Training.QuizQualityTooltip, "Average score on passed quizzes"));
 
             // Lessons completed (20%)
-            DrawScoreComponent("Lessons Completed", result.LessonsCompleted, 20,
-                $"{result.CompletedLessonsCount}/{result.TotalLessons} lessons done");
+            DrawScoreComponent(Loc.T(LocalizedStrings.Training.LessonsCompletedScore, "Lessons Completed"), result.LessonsCompleted, 20,
+                Loc.TFormat(LocalizedStrings.Training.LessonsCompletedTooltip, "{0}/{1} lessons done", result.CompletedLessonsCount.ToString(), result.TotalLessons.ToString()));
 
             // Concepts learned (5%)
-            DrawScoreComponent("Concepts Learned", result.ConceptsLearned, 5,
-                "Marked as learned");
+            DrawScoreComponent(Loc.T(LocalizedStrings.Training.ConceptsLearnedScore, "Concepts Learned"), result.ConceptsLearned, 5,
+                Loc.T(LocalizedStrings.Training.ConceptsLearnedTooltip, "Marked as learned"));
 
             // Concept Mastery (25%) - NEW in v3.28.0
-            DrawScoreComponent("Concept Mastery", result.ConceptMastery, 25,
-                "Success rate when applying concepts in combat");
+            DrawScoreComponent(Loc.T(LocalizedStrings.Training.ConceptMasteryScore, "Concept Mastery"), result.ConceptMastery, 25,
+                Loc.T(LocalizedStrings.Training.ConceptMasteryTooltip, "Success rate when applying concepts in combat"));
 
             // Engagement penalty warning
             if (result.EngagementPenaltyApplied)
             {
                 ImGui.Spacing();
-                ImGui.TextColored(WarningColor, "Note: -25% penalty applied (lessons completed without quizzes)");
+                ImGui.TextColored(WarningColor, Loc.T(LocalizedStrings.Training.EngagementPenalty, "Note: -25% penalty applied (lessons completed without quizzes)"));
                 if (ImGui.IsItemHovered())
                 {
-                    ImGui.SetTooltip("Take quizzes to validate your understanding and remove this penalty.");
+                    ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.EngagementPenaltyTooltip, "Take quizzes to validate your understanding and remove this penalty."));
                 }
             }
 
@@ -379,12 +386,12 @@ public static class SkillProgressTab
             if (mastery.StrugglingConcepts.Length > 0)
             {
                 ImGui.SameLine();
-                ImGui.TextColored(WarningColor, $"\u26A0{mastery.StrugglingConcepts.Length} struggling");
+                ImGui.TextColored(WarningColor, Loc.TFormat(LocalizedStrings.Training.StrugglingFormat, "\u26A0{0} struggling", mastery.StrugglingConcepts.Length.ToString()));
             }
             else if (mastery.MasteredConcepts.Length > 0)
             {
                 ImGui.SameLine();
-                ImGui.TextColored(GoodColor, $"\u2713{mastery.MasteredConcepts.Length} mastered");
+                ImGui.TextColored(GoodColor, Loc.TFormat(LocalizedStrings.Training.MasteredFormat, "\u2713{0} mastered", mastery.MasteredConcepts.Length.ToString()));
             }
         }
     }
@@ -396,12 +403,12 @@ public static class SkillProgressTab
 
         ImGui.Spacing();
         ImGui.Separator();
-        ImGui.Text("Concept Mastery Details:");
+        ImGui.Text(Loc.T(LocalizedStrings.Training.ConceptMasteryDetails, "Concept Mastery Details:"));
 
         // Mastered concepts
         if (mastery.MasteredConcepts.Length > 0)
         {
-            ImGui.TextColored(GoodColor, $"  Mastered ({mastery.MasteredConcepts.Length}):");
+            ImGui.TextColored(GoodColor, Loc.TFormat(LocalizedStrings.Training.MasteredCountFormat, "  Mastered ({0}):", mastery.MasteredConcepts.Length.ToString()));
             foreach (var concept in mastery.MasteredConcepts.Take(5))
             {
                 var rate = GetConceptSuccessRate(config, concept);
@@ -417,13 +424,13 @@ public static class SkillProgressTab
         // Struggling concepts with "Study This" button (v3.29.0)
         if (mastery.StrugglingConcepts.Length > 0)
         {
-            ImGui.TextColored(WarningColor, $"  Needs Practice ({mastery.StrugglingConcepts.Length}):");
+            ImGui.TextColored(WarningColor, Loc.TFormat(LocalizedStrings.Training.NeedsPracticeCountFormat, "  Needs Practice ({0}):", mastery.StrugglingConcepts.Length.ToString()));
             foreach (var concept in mastery.StrugglingConcepts.Take(5))
             {
                 var rate = GetConceptSuccessRate(config, concept);
                 ImGui.TextColored(WarningColor, $"    \u26A0 {FormatConceptName(concept)} ({rate:P0})");
                 ImGui.SameLine();
-                if (ImGui.SmallButton($"Study This##{concept}"))
+                if (ImGui.SmallButton(Loc.T(LocalizedStrings.Training.StudyThis, "Study This") + $"##{concept}"))
                 {
                     // Find a lesson that covers this concept
                     var lessons = trainingService.GetLessonsForJob(jobPrefix);
@@ -436,7 +443,7 @@ public static class SkillProgressTab
 
                 if (ImGui.IsItemHovered())
                 {
-                    ImGui.SetTooltip("Open the lesson covering this concept");
+                    ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.OpenLessonTooltip, "Open the lesson covering this concept"));
                 }
             }
 
@@ -449,17 +456,17 @@ public static class SkillProgressTab
         // Developing concepts (only show count)
         if (mastery.DevelopingConcepts.Length > 0)
         {
-            ImGui.TextColored(InfoColor, $"  Developing: {mastery.DevelopingConcepts.Length} concepts (need more practice)");
+            ImGui.TextColored(InfoColor, Loc.TFormat(LocalizedStrings.Training.DevelopingFormat, "  Developing: {0} concepts (need more practice)", mastery.DevelopingConcepts.Length.ToString()));
             if (ImGui.IsItemHovered())
             {
-                ImGui.SetTooltip("These concepts need at least 10 opportunities before mastery can be evaluated.");
+                ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.DevelopingTooltip, "These concepts need at least 10 opportunities before mastery can be evaluated."));
             }
         }
 
         // Summary
         if (mastery.MasteredConcepts.Length == 0 && mastery.StrugglingConcepts.Length == 0)
         {
-            ImGui.TextColored(NeutralColor, "  Play more to build mastery data!");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Training.PlayMoreToBuildMastery, "  Play more to build mastery data!"));
         }
     }
 
@@ -476,21 +483,21 @@ public static class SkillProgressTab
 
     private static void DrawRetentionSection(SpacedRepetitionService spacedRepetition, ITrainingService trainingService, TrainingConfig config)
     {
-        ImGui.Text("Knowledge Retention");
+        ImGui.Text(Loc.T(LocalizedStrings.Training.KnowledgeRetention, "Knowledge Retention"));
         ImGui.Separator();
 
         // Retention toggle
         var enableRetention = config.EnableSpacedRepetition;
-        if (ImGui.Checkbox("Track Knowledge Retention", ref enableRetention))
+        if (ImGui.Checkbox(Loc.T(LocalizedStrings.Training.TrackKnowledgeRetention, "Track Knowledge Retention"), ref enableRetention))
         {
             config.EnableSpacedRepetition = enableRetention;
         }
 
         if (ImGui.IsItemHovered())
         {
-            ImGui.SetTooltip(
+            ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.RetentionTooltip,
                 "Track how well you remember concepts over time.\n" +
-                "Concepts decay without practice - review suggested when retention drops below 40%.");
+                "Concepts decay without practice - review suggested when retention drops below 40%."));
         }
 
         if (!config.EnableSpacedRepetition)
@@ -511,16 +518,16 @@ public static class SkillProgressTab
         if (needsRelearning.Count > 0)
         {
             ImGui.Spacing();
-            ImGui.TextColored(NeedsReviewColor, $"\u26A0 Needs Re-learning ({needsRelearning.Count}):");
+            ImGui.TextColored(NeedsReviewColor, Loc.TFormat(LocalizedStrings.Training.NeedsRelearningFormat, "\u26A0 Needs Re-learning ({0}):", needsRelearning.Count.ToString()));
 
             foreach (var data in needsRelearning.Take(3))
             {
-                ImGui.TextColored(NeedsReviewColor, $"  \u2718 {FormatConceptName(data.ConceptId)} ({data.RetentionScore:P0} retention)");
+                ImGui.TextColored(NeedsReviewColor, Loc.TFormat(LocalizedStrings.Training.RetentionFormat, "  \u2718 {0} ({1} retention)", FormatConceptName(data.ConceptId), data.RetentionScore.ToString("P0")));
                 ImGui.SameLine();
 
                 // Find and suggest quiz
                 var jobPrefix = data.ConceptId.Split('.').FirstOrDefault() ?? string.Empty;
-                if (!string.IsNullOrEmpty(jobPrefix) && ImGui.SmallButton($"Review##{data.ConceptId}"))
+                if (!string.IsNullOrEmpty(jobPrefix) && ImGui.SmallButton(Loc.T(LocalizedStrings.Training.Review, "Review") + $"##{data.ConceptId}"))
                 {
                     var lessons = trainingService.GetLessonsForJob(jobPrefix);
                     var lesson = lessons.FirstOrDefault(l => l.ConceptsCovered.Contains(data.ConceptId));
@@ -533,7 +540,7 @@ public static class SkillProgressTab
                 if (ImGui.IsItemHovered())
                 {
                     var daysSince = data.DaysSinceLastPractice;
-                    ImGui.SetTooltip($"Last practiced: {daysSince:F0} days ago\nOpen the lesson to refresh your knowledge.");
+                    ImGui.SetTooltip(Loc.TFormat(LocalizedStrings.Training.LastPracticedTooltip, "Last practiced: {0} days ago\nOpen the lesson to refresh your knowledge.", daysSince.ToString("F0")));
                 }
             }
 
@@ -550,15 +557,15 @@ public static class SkillProgressTab
             if (reviewOnly.Count > 0)
             {
                 ImGui.Spacing();
-                ImGui.TextColored(DecayingColor, $"\u23F0 Due for Review ({reviewOnly.Count}):");
+                ImGui.TextColored(DecayingColor, Loc.TFormat(LocalizedStrings.Training.DueForReviewFormat, "\u23F0 Due for Review ({0}):", reviewOnly.Count.ToString()));
 
                 foreach (var data in reviewOnly.Take(3))
                 {
-                    ImGui.TextColored(DecayingColor, $"  \u25CB {FormatConceptName(data.ConceptId)} ({data.RetentionScore:P0} retention)");
+                    ImGui.TextColored(DecayingColor, Loc.TFormat(LocalizedStrings.Training.RetentionFormat, "  \u25CB {0} ({1} retention)", FormatConceptName(data.ConceptId), data.RetentionScore.ToString("P0")));
                     ImGui.SameLine();
 
                     var jobPrefix = data.ConceptId.Split('.').FirstOrDefault() ?? string.Empty;
-                    if (!string.IsNullOrEmpty(jobPrefix) && ImGui.SmallButton($"Review##{data.ConceptId}"))
+                    if (!string.IsNullOrEmpty(jobPrefix) && ImGui.SmallButton(Loc.T(LocalizedStrings.Training.Review, "Review") + $"##{data.ConceptId}"))
                     {
                         var lessons = trainingService.GetLessonsForJob(jobPrefix);
                         var lesson = lessons.FirstOrDefault(l => l.ConceptsCovered.Contains(data.ConceptId));
@@ -570,8 +577,7 @@ public static class SkillProgressTab
 
                     if (ImGui.IsItemHovered())
                     {
-                        var daysUntil = data.DaysUntilReviewNeeded;
-                        ImGui.SetTooltip($"Retention declining.\nReview recommended to maintain knowledge.");
+                        ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.RetentionDecliningTooltip, "Retention declining.\nReview recommended to maintain knowledge."));
                     }
                 }
 
@@ -587,13 +593,15 @@ public static class SkillProgressTab
         if (strongestConcepts.Count > 0)
         {
             ImGui.Spacing();
-            ImGui.TextColored(FreshColor, $"\u2713 Fresh in Memory:");
+            ImGui.TextColored(FreshColor, Loc.T(LocalizedStrings.Training.FreshInMemory, "\u2713 Fresh in Memory:"));
 
             foreach (var data in strongestConcepts)
             {
                 var daysUntilReview = data.DaysUntilReviewNeeded;
-                var daysText = daysUntilReview > 1 ? $"{daysUntilReview:F0}d until review" : "review soon";
-                ImGui.TextColored(FreshColor, $"  \u2713 {FormatConceptName(data.ConceptId)} ({data.RetentionScore:P0}, {daysText})");
+                var daysText = daysUntilReview > 1
+                    ? Loc.TFormat(LocalizedStrings.Training.DaysUntilReview, "{0}d until review", daysUntilReview.ToString("F0"))
+                    : Loc.T(LocalizedStrings.Training.ReviewSoon, "review soon");
+                ImGui.TextColored(FreshColor, Loc.TFormat(LocalizedStrings.Training.FreshConceptFormat, "  \u2713 {0} ({1}, {2})", FormatConceptName(data.ConceptId), data.RetentionScore.ToString("P0"), daysText));
             }
         }
 
@@ -602,7 +610,7 @@ public static class SkillProgressTab
         if (suggestedQuizzes.Count > 0)
         {
             ImGui.Spacing();
-            ImGui.TextColored(InfoColor, "Suggested Review Quizzes:");
+            ImGui.TextColored(InfoColor, Loc.T(LocalizedStrings.Training.SuggestedReviewQuizzes, "Suggested Review Quizzes:"));
 
             foreach (var quizId in suggestedQuizzes)
             {
@@ -612,9 +620,9 @@ public static class SkillProgressTab
                 var jobIndex = Array.IndexOf(AllJobPrefixes, jobPrefix);
                 var jobName = jobIndex >= 0 ? JobDisplayNames[jobIndex] : jobPrefix.ToUpperInvariant();
 
-                ImGui.Text($"  \u2022 {jobName} Quiz {quizNum}");
+                ImGui.Text(Loc.TFormat(LocalizedStrings.Training.JobQuizFormat, "  \u2022 {0} Quiz {1}", jobName, quizNum));
                 ImGui.SameLine();
-                if (ImGui.SmallButton($"Take Quiz##{quizId}"))
+                if (ImGui.SmallButton(Loc.T(LocalizedStrings.Training.TakeQuiz, "Take Quiz") + $"##{quizId}"))
                 {
                     // Navigate to quiz - set pending navigation
                     pendingLessonNavigation = quizId;
@@ -643,7 +651,7 @@ public static class SkillProgressTab
         ImGui.PopStyleColor();
 
         ImGui.SameLine();
-        ImGui.TextColored(NeutralColor, $"({weight}% weight)");
+        ImGui.TextColored(NeutralColor, Loc.TFormat(LocalizedStrings.Training.WeightFormat, "({0}% weight)", weight.ToString()));
 
         if (ImGui.IsItemHovered())
         {

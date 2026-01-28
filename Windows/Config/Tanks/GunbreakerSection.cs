@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config;
+using Olympus.Localization;
 
 namespace Olympus.Windows.Config.Tanks;
 
@@ -29,29 +30,29 @@ public sealed class GunbreakerSection
 
     private void DrawMitigationSection()
     {
-        if (ConfigUIHelpers.SectionHeader("Mitigation", "GNB"))
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Gunbreaker.MitigationSection, "Mitigation"), "GNB"))
         {
             ConfigUIHelpers.BeginIndent();
 
-            ImGui.TextDisabled("Gunbreaker-specific mitigation settings:");
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Gunbreaker.MitigationDesc, "Gunbreaker-specific mitigation settings:"));
 
             ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.SectionLabel("Heart of Corundum:");
-            ImGui.TextDisabled("Powerful short cooldown mitigation.");
-            ImGui.TextDisabled("Grants healing and damage reduction.");
-            ImGui.TextDisabled("Uses shared tank gauge setting.");
-            ImGui.TextDisabled("Current minimum: " + config.Tank.SheltronMinGauge);
+            ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Gunbreaker.HeartOfCorundumLabel, "Heart of Corundum:"));
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Gunbreaker.HeartOfCorundumDesc1, "Powerful short cooldown mitigation."));
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Gunbreaker.HeartOfCorundumDesc2, "Grants healing and damage reduction."));
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Tank.UsesSharedGaugeSetting, "Uses shared tank gauge setting."));
+            ImGui.TextDisabled(Loc.TFormat(LocalizedStrings.Tank.CurrentMinGauge, "Current minimum: {0}", config.Tank.SheltronMinGauge));
 
             ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.SectionLabel("Available Abilities:");
-            ImGui.BulletText("Heart of Stone / Heart of Corundum");
-            ImGui.BulletText("Aurora (regen)");
-            ImGui.BulletText("Camouflage");
-            ImGui.BulletText("Heart of Light");
-            ImGui.BulletText("Superbolide");
+            ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Gunbreaker.AvailableAbilities, "Available Abilities:"));
+            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.HeartOfStoneCorundum, "Heart of Stone / Heart of Corundum"));
+            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.Aurora, "Aurora (regen)"));
+            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.Camouflage, "Camouflage"));
+            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.HeartOfLight, "Heart of Light"));
+            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.Superbolide, "Superbolide"));
 
             ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.WarningText("Detailed GNB settings coming in future update.");
+            ConfigUIHelpers.WarningText(Loc.T(LocalizedStrings.Gunbreaker.DetailedSettingsWarning, "Detailed GNB settings coming in future update."));
 
             ConfigUIHelpers.EndIndent();
         }
@@ -59,24 +60,24 @@ public sealed class GunbreakerSection
 
     private void DrawCartridgeSection()
     {
-        if (ConfigUIHelpers.SectionHeader("Cartridges", "GNB", false))
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Gunbreaker.CartridgeSection, "Cartridges"), "GNB", false))
         {
             ConfigUIHelpers.BeginIndent();
 
-            ConfigUIHelpers.SectionLabel("Powder Gauge:");
-            ImGui.TextDisabled("Holds up to 3 cartridges.");
-            ImGui.TextDisabled("Built from Solid Barrel combo.");
-            ImGui.TextDisabled("Bloodfest grants 3 cartridges.");
+            ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Gunbreaker.PowderGaugeLabel, "Powder Gauge:"));
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Gunbreaker.PowderGaugeDesc1, "Holds up to 3 cartridges."));
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Gunbreaker.PowderGaugeDesc2, "Built from Solid Barrel combo."));
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Gunbreaker.PowderGaugeDesc3, "Bloodfest grants 3 cartridges."));
 
             ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.SectionLabel("Cartridge Usage:");
-            ImGui.BulletText("Gnashing Fang combo (1 cartridge)");
-            ImGui.BulletText("Burst Strike (1 cartridge)");
-            ImGui.BulletText("Double Down (2 cartridges)");
-            ImGui.BulletText("Fated Circle AoE (1 cartridge)");
+            ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Gunbreaker.CartridgeUsage, "Cartridge Usage:"));
+            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.GnashingFangCombo, "Gnashing Fang combo (1 cartridge)"));
+            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.BurstStrike, "Burst Strike (1 cartridge)"));
+            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.DoubleDown, "Double Down (2 cartridges)"));
+            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.FatedCircleAoE, "Fated Circle AoE (1 cartridge)"));
 
             ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.WarningText("Cartridge settings coming in future update.");
+            ConfigUIHelpers.WarningText(Loc.T(LocalizedStrings.Gunbreaker.CartridgeWarning, "Cartridge settings coming in future update."));
 
             ConfigUIHelpers.EndIndent();
         }
@@ -84,29 +85,29 @@ public sealed class GunbreakerSection
 
     private void DrawDamageSection()
     {
-        if (ConfigUIHelpers.SectionHeader("Damage", "GNB"))
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Gunbreaker.DamageSection, "Damage"), "GNB"))
         {
             ConfigUIHelpers.BeginIndent();
 
-            ConfigUIHelpers.SectionLabel("Rotation Features:");
-            ImGui.BulletText("Keen Edge combo");
-            ImGui.BulletText("No Mercy window");
-            ImGui.BulletText("Gnashing Fang + Continuation");
-            ImGui.BulletText("Double Down");
-            ImGui.BulletText("Burst Strike + Hypervelocity");
-            ImGui.BulletText("Sonic Break / Bow Shock");
-            ImGui.BulletText("Reign of Beasts combo");
+            ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Gunbreaker.RotationFeatures, "Rotation Features:"));
+            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.KeenEdgeCombo, "Keen Edge combo"));
+            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.NoMercyWindow, "No Mercy window"));
+            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.GnashingFangContinuation, "Gnashing Fang + Continuation"));
+            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.DoubleDownDamage, "Double Down"));
+            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.BurstStrikeHypervelocity, "Burst Strike + Hypervelocity"));
+            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.SonicBreakBowShock, "Sonic Break / Bow Shock"));
+            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.ReignOfBeastsCombo, "Reign of Beasts combo"));
 
             ConfigUIHelpers.Spacing();
 
-            ConfigUIHelpers.SectionLabel("AoE Rotation:");
-            ImGui.BulletText("Demon Slice combo");
-            ImGui.BulletText("Fated Circle");
-            ImGui.BulletText("Bow Shock");
+            ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Gunbreaker.AoERotation, "AoE Rotation:"));
+            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.DemonSliceCombo, "Demon Slice combo"));
+            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.FatedCircle, "Fated Circle"));
+            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.BowShock, "Bow Shock"));
 
             ConfigUIHelpers.Spacing();
-            ImGui.TextDisabled("Uses shared tank AoE settings.");
-            ImGui.TextDisabled("Current min targets: " + config.Tank.AoEMinTargets);
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Tank.UsesSharedAoESettings, "Uses shared tank AoE settings."));
+            ImGui.TextDisabled(Loc.TFormat(LocalizedStrings.Tank.CurrentMinTargets, "Current min targets: {0}", config.Tank.AoEMinTargets));
 
             ConfigUIHelpers.EndIndent();
         }

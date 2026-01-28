@@ -2,6 +2,7 @@ using System;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config;
+using Olympus.Localization;
 using Olympus.Services.Analytics;
 
 namespace Olympus.Windows.Analytics.Tabs;
@@ -31,7 +32,7 @@ public static class RealtimeTab
 
         if (snapshot == null)
         {
-            ImGui.TextColored(NeutralColor, "Not in combat. Metrics will appear when combat starts.");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Analytics.NotInCombat, "Not in combat. Metrics will appear when combat starts."));
             return;
         }
 
@@ -61,20 +62,20 @@ public static class RealtimeTab
 
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Status:");
+            ImGui.Text(Loc.T(LocalizedStrings.Analytics.Status, "Status:"));
             ImGui.TableNextColumn();
             if (isTracking)
             {
-                ImGui.TextColored(GoodColor, "TRACKING");
+                ImGui.TextColored(GoodColor, Loc.T(LocalizedStrings.Analytics.Tracking, "TRACKING"));
             }
             else
             {
-                ImGui.TextColored(NeutralColor, "IDLE");
+                ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Analytics.Idle, "IDLE"));
             }
 
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Combat:");
+            ImGui.Text(Loc.T(LocalizedStrings.Analytics.Combat, "Combat:"));
             ImGui.TableNextColumn();
             if (duration > 0)
             {
@@ -91,7 +92,7 @@ public static class RealtimeTab
             {
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGui.Text("GCD Uptime:");
+                ImGui.Text(Loc.T(LocalizedStrings.Analytics.GcdUptime, "GCD Uptime:"));
                 ImGui.TableNextColumn();
                 var uptimeColor = GetUptimeColor(snapshot.GcdUptime);
                 ImGui.TextColored(uptimeColor, $"{snapshot.GcdUptime:F1}%");
@@ -103,7 +104,7 @@ public static class RealtimeTab
 
     private static void DrawMetrics(CombatMetricsSnapshot snapshot)
     {
-        ImGui.Text("Metrics");
+        ImGui.Text(Loc.T(LocalizedStrings.Analytics.Metrics, "Metrics"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("MetricsTable", 2, ImGuiTableFlags.BordersInnerH | ImGuiTableFlags.SizingStretchProp))
@@ -114,7 +115,7 @@ public static class RealtimeTab
             // DPS row (placeholder until damage tracking is implemented)
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("DPS:");
+            ImGui.Text(Loc.T(LocalizedStrings.Analytics.Dps, "DPS:"));
             ImGui.TableNextColumn();
             if (snapshot.PersonalDps > 0)
             {
@@ -122,7 +123,7 @@ public static class RealtimeTab
             }
             else
             {
-                ImGui.TextColored(NeutralColor, "N/A");
+                ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Analytics.NA, "N/A"));
             }
 
             // Healing row
@@ -130,18 +131,18 @@ public static class RealtimeTab
             {
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGui.Text("Healing:");
+                ImGui.Text(Loc.T(LocalizedStrings.Analytics.Healing, "Healing:"));
                 ImGui.TableNextColumn();
                 var overhealColor = GetOverhealColor(snapshot.OverhealPercent);
                 ImGui.TextColored(InfoColor, $"{snapshot.TotalHealing:N0}");
                 ImGui.SameLine();
-                ImGui.TextColored(overhealColor, $"({snapshot.OverhealPercent:F0}% overheal)");
+                ImGui.TextColored(overhealColor, Loc.TFormat(LocalizedStrings.Analytics.OverhealFormat, "({0}% overheal)", $"{snapshot.OverhealPercent:F0}"));
             }
 
             // Deaths row
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Deaths:");
+            ImGui.Text(Loc.T(LocalizedStrings.Analytics.Deaths, "Deaths:"));
             ImGui.TableNextColumn();
             var deathColor = snapshot.Deaths > 0 ? BadColor : GoodColor;
             ImGui.TextColored(deathColor, snapshot.Deaths.ToString());
@@ -149,7 +150,7 @@ public static class RealtimeTab
             // Near-deaths row
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Near-Deaths:");
+            ImGui.Text(Loc.T(LocalizedStrings.Analytics.NearDeaths, "Near-Deaths:"));
             ImGui.TableNextColumn();
             var nearDeathColor = snapshot.NearDeaths > 2 ? WarningColor : (snapshot.NearDeaths > 0 ? NeutralColor : GoodColor);
             ImGui.TextColored(nearDeathColor, snapshot.NearDeaths.ToString());
@@ -160,12 +161,12 @@ public static class RealtimeTab
 
     private static void DrawCooldowns(CombatMetricsSnapshot snapshot)
     {
-        ImGui.Text("Cooldowns");
+        ImGui.Text(Loc.T(LocalizedStrings.Analytics.Cooldowns, "Cooldowns"));
         ImGui.Separator();
 
         if (snapshot.Cooldowns.Count == 0)
         {
-            ImGui.TextColored(NeutralColor, "No cooldowns tracked for this job.");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Analytics.NoCooldowns, "No cooldowns tracked for this job."));
             return;
         }
 

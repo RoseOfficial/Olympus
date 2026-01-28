@@ -1,5 +1,6 @@
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Olympus.Localization;
 using Olympus.Timeline;
 using Olympus.Timeline.Models;
 
@@ -14,7 +15,7 @@ public static class TimelineTab
     {
         if (timelineService == null)
         {
-            ImGui.TextColored(new Vector4(1, 0.5f, 0, 1), "Timeline service not available");
+            ImGui.TextColored(new Vector4(1, 0.5f, 0, 1), Loc.T(LocalizedStrings.Debug.TimelineNotAvailable, "Timeline service not available"));
             return;
         }
 
@@ -36,15 +37,15 @@ public static class TimelineTab
 
     private static void DrawSimulationControls(ITimelineService timelineService)
     {
-        ImGui.Text("Simulation Controls");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.SimulationControls, "Simulation Controls"));
         ImGui.Separator();
 
         if (timelineService.IsSimulating)
         {
-            ImGui.TextColored(new Vector4(0, 1, 0, 1), "● SIMULATION ACTIVE");
+            ImGui.TextColored(new Vector4(0, 1, 0, 1), Loc.T(LocalizedStrings.Debug.SimulationActive, "● SIMULATION ACTIVE"));
             ImGui.SameLine();
 
-            if (ImGui.Button("Stop Simulation"))
+            if (ImGui.Button(Loc.T(LocalizedStrings.Debug.StopSimulation, "Stop Simulation")))
             {
                 timelineService.StopSimulation();
             }
@@ -52,7 +53,7 @@ public static class TimelineTab
             ImGui.Spacing();
 
             // Time controls
-            ImGui.Text("Time Controls:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.TimeControls, "Time Controls:"));
             ImGui.SameLine();
 
             if (ImGui.Button("+5s"))
@@ -67,7 +68,7 @@ public static class TimelineTab
                 timelineService.AdvanceSimulationTime(30f);
             ImGui.SameLine();
 
-            if (ImGui.Button("Reset"))
+            if (ImGui.Button(Loc.T(LocalizedStrings.Debug.ResetButton, "Reset")))
             {
                 timelineService.StopSimulation();
                 timelineService.StartSimulation();
@@ -75,23 +76,22 @@ public static class TimelineTab
         }
         else
         {
-            ImGui.TextColored(new Vector4(0.5f, 0.5f, 0.5f, 1), "○ Simulation Inactive");
+            ImGui.TextColored(new Vector4(0.5f, 0.5f, 0.5f, 1), Loc.T(LocalizedStrings.Debug.SimulationInactive, "○ Simulation Inactive"));
             ImGui.SameLine();
 
-            if (ImGui.Button("Start Simulation"))
+            if (ImGui.Button(Loc.T(LocalizedStrings.Debug.StartSimulation, "Start Simulation")))
             {
                 timelineService.StartSimulation();
             }
 
             ImGui.Spacing();
-            ImGui.TextWrapped("Start a simulation to test the timeline system without entering actual content. " +
-                "The simulation runs a fake 2-minute fight with raidwides, tankbusters, and phase transitions.");
+            ImGui.TextWrapped(Loc.T(LocalizedStrings.Debug.SimulationDescription, "Start a simulation to test the timeline system without entering actual content. The simulation runs a fake 2-minute fight with raidwides, tankbusters, and phase transitions."));
         }
     }
 
     private static void DrawTimelineState(ITimelineService timelineService)
     {
-        ImGui.Text("Timeline State");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.TimelineState, "Timeline State"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("TimelineStateTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -102,41 +102,43 @@ public static class TimelineTab
             // Active status
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Status:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.StatusLabel, "Status:"));
             ImGui.TableNextColumn();
             var statusColor = timelineService.IsActive
                 ? new Vector4(0, 1, 0, 1)
                 : new Vector4(0.5f, 0.5f, 0.5f, 1);
             var statusText = timelineService.IsActive
-                ? (timelineService.IsSimulating ? "Active (Simulating)" : "Active")
-                : "Inactive";
+                ? (timelineService.IsSimulating
+                    ? Loc.T(LocalizedStrings.Debug.ActiveSimulating, "Active (Simulating)")
+                    : Loc.T(LocalizedStrings.Debug.Active, "Active"))
+                : Loc.T(LocalizedStrings.Debug.Inactive, "Inactive");
             ImGui.TextColored(statusColor, statusText);
 
             // Fight name
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Fight:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Fight, "Fight:"));
             ImGui.TableNextColumn();
-            ImGui.Text(string.IsNullOrEmpty(timelineService.FightName) ? "None" : timelineService.FightName);
+            ImGui.Text(string.IsNullOrEmpty(timelineService.FightName) ? Loc.T(LocalizedStrings.Debug.NoneLabel, "None") : timelineService.FightName);
 
             // Current time
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Time:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.TimeLabel, "Time:"));
             ImGui.TableNextColumn();
             ImGui.Text($"{timelineService.CurrentTime:F1}s");
 
             // Current phase
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Phase:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Phase, "Phase:"));
             ImGui.TableNextColumn();
-            ImGui.Text(string.IsNullOrEmpty(timelineService.CurrentPhase) ? "None" : timelineService.CurrentPhase);
+            ImGui.Text(string.IsNullOrEmpty(timelineService.CurrentPhase) ? Loc.T(LocalizedStrings.Debug.NoneLabel, "None") : timelineService.CurrentPhase);
 
             // Confidence
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Confidence:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Confidence, "Confidence:"));
             ImGui.TableNextColumn();
             var confidence = timelineService.Confidence;
             var confColor = confidence >= 0.8f ? new Vector4(0, 1, 0, 1)
@@ -150,28 +152,28 @@ public static class TimelineTab
 
     private static void DrawPredictions(ITimelineService timelineService)
     {
-        ImGui.Text("Current Predictions");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.CurrentPredictions, "Current Predictions"));
         ImGui.Separator();
 
         if (!timelineService.IsActive)
         {
-            ImGui.TextColored(new Vector4(0.5f, 0.5f, 0.5f, 1), "No active timeline");
+            ImGui.TextColored(new Vector4(0.5f, 0.5f, 0.5f, 1), Loc.T(LocalizedStrings.Debug.NoActiveTimeline, "No active timeline"));
             return;
         }
 
         if (ImGui.BeginTable("PredictionsTable", 4, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
         {
-            ImGui.TableSetupColumn("Type", ImGuiTableColumnFlags.WidthFixed, 100);
-            ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
-            ImGui.TableSetupColumn("In", ImGuiTableColumnFlags.WidthFixed, 60);
-            ImGui.TableSetupColumn("Status", ImGuiTableColumnFlags.WidthFixed, 80);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.Type, "Type"), ImGuiTableColumnFlags.WidthFixed, 100);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.Name, "Name"), ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.In, "In"), ImGuiTableColumnFlags.WidthFixed, 60);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.StatusHeader, "Status"), ImGuiTableColumnFlags.WidthFixed, 80);
             ImGui.TableHeadersRow();
 
             // Next Raidwide
             var raidwide = timelineService.NextRaidwide;
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.TextColored(new Vector4(1, 0.3f, 0.3f, 1), "Raidwide");
+            ImGui.TextColored(new Vector4(1, 0.3f, 0.3f, 1), Loc.T(LocalizedStrings.Debug.Raidwide, "Raidwide"));
             ImGui.TableNextColumn();
             ImGui.Text(raidwide?.Name ?? "-");
             ImGui.TableNextColumn();
@@ -191,7 +193,7 @@ public static class TimelineTab
             var tankbuster = timelineService.NextTankBuster;
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.TextColored(new Vector4(1, 0.6f, 0, 1), "TankBuster");
+            ImGui.TextColored(new Vector4(1, 0.6f, 0, 1), Loc.T(LocalizedStrings.Debug.TankBuster, "TankBuster"));
             ImGui.TableNextColumn();
             ImGui.Text(tankbuster?.Name ?? "-");
             ImGui.TableNextColumn();
@@ -213,12 +215,12 @@ public static class TimelineTab
 
     private static void DrawUpcomingMechanics(ITimelineService timelineService)
     {
-        ImGui.Text("Upcoming Mechanics (30s)");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.UpcomingMechanics, "Upcoming Mechanics (30s)"));
         ImGui.Separator();
 
         if (!timelineService.IsActive)
         {
-            ImGui.TextColored(new Vector4(0.5f, 0.5f, 0.5f, 1), "No active timeline");
+            ImGui.TextColored(new Vector4(0.5f, 0.5f, 0.5f, 1), Loc.T(LocalizedStrings.Debug.NoActiveTimeline, "No active timeline"));
             return;
         }
 
@@ -226,7 +228,7 @@ public static class TimelineTab
 
         if (upcoming.Length == 0)
         {
-            ImGui.TextColored(new Vector4(0.5f, 0.5f, 0.5f, 1), "No mechanics in the next 30 seconds");
+            ImGui.TextColored(new Vector4(0.5f, 0.5f, 0.5f, 1), Loc.T(LocalizedStrings.Debug.NoMechanicsInNext30s, "No mechanics in the next 30 seconds"));
             return;
         }
 
@@ -272,19 +274,19 @@ public static class TimelineTab
 
         if (seconds <= 3f)
         {
-            ImGui.TextColored(new Vector4(1, 0, 0, 1), "IMMINENT!");
+            ImGui.TextColored(new Vector4(1, 0, 0, 1), Loc.T(LocalizedStrings.Debug.Imminent, "IMMINENT!"));
         }
         else if (seconds <= 8f)
         {
-            ImGui.TextColored(new Vector4(1, 1, 0, 1), "Pre-shield");
+            ImGui.TextColored(new Vector4(1, 1, 0, 1), Loc.T(LocalizedStrings.Debug.PreShield, "Pre-shield"));
         }
         else if (seconds <= 15f)
         {
-            ImGui.TextColored(new Vector4(0, 1, 0, 1), "Prepare");
+            ImGui.TextColored(new Vector4(0, 1, 0, 1), Loc.T(LocalizedStrings.Debug.Prepare, "Prepare"));
         }
         else
         {
-            ImGui.TextColored(new Vector4(0.5f, 0.5f, 0.5f, 1), "Upcoming");
+            ImGui.TextColored(new Vector4(0.5f, 0.5f, 0.5f, 1), Loc.T(LocalizedStrings.Debug.Upcoming, "Upcoming"));
         }
     }
 

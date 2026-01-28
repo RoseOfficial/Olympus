@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config;
+using Olympus.Localization;
 using Olympus.Services.Training;
 
 /// <summary>
@@ -86,22 +87,22 @@ public static class LiveCoachingTab
 
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Status:");
+            ImGui.Text(Loc.T(LocalizedStrings.Analytics.Status, "Status:"));
             ImGui.TableNextColumn();
             if (trainingService.IsInCombat)
             {
-                ImGui.TextColored(GoodColor, "IN COMBAT - COACHING ACTIVE");
+                ImGui.TextColored(GoodColor, Loc.T(LocalizedStrings.Training.InCombatActive, "IN COMBAT - COACHING ACTIVE"));
             }
             else
             {
-                ImGui.TextColored(NeutralColor, "Waiting for combat...");
+                ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Training.WaitingForCombat, "Waiting for combat..."));
             }
 
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Decisions:");
+            ImGui.Text(Loc.T(LocalizedStrings.Training.DecisionsLabel, "Decisions:"));
             ImGui.TableNextColumn();
-            ImGui.Text($"{trainingService.RecentExplanations.Count} captured");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Training.DecisionsCapturedFormat, "{0} captured", trainingService.RecentExplanations.Count.ToString()));
 
             // Show decision validation summary if available
             if (validationService != null)
@@ -111,7 +112,7 @@ public static class LiveCoachingTab
                 {
                     ImGui.TableNextRow();
                     ImGui.TableNextColumn();
-                    ImGui.Text("Validation:");
+                    ImGui.Text(Loc.T(LocalizedStrings.Training.ValidationLabel, "Validation:"));
                     ImGui.TableNextColumn();
                     ImGui.TextColored(OptimalColor, $"{summary.Optimal}");
                     ImGui.SameLine(0, 2);
@@ -127,7 +128,8 @@ public static class LiveCoachingTab
                     if (ImGui.IsItemHovered())
                     {
                         var optimalRate = validationService.GetOverallOptimalRate();
-                        ImGui.SetTooltip($"Optimal decision rate: {optimalRate:P0}\n✓ Optimal | ≈ Acceptable | ✗ Suboptimal");
+                        ImGui.SetTooltip(Loc.TFormat(LocalizedStrings.Training.ValidationTooltipFormat,
+                            "Optimal decision rate: {0}\n✓ Optimal | ≈ Acceptable | ✗ Suboptimal", $"{optimalRate:P0}"));
                     }
                 }
             }
@@ -137,7 +139,7 @@ public static class LiveCoachingTab
             {
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGui.Text("Skill Level:");
+                ImGui.Text(Loc.T(LocalizedStrings.Training.SkillLevelLabel, "Skill Level:"));
                 ImGui.TableNextColumn();
                 var skillLevel = trainingService.GetSkillLevel(currentJobPrefix);
                 var levelColor = skillLevel.Level switch
@@ -150,7 +152,8 @@ public static class LiveCoachingTab
                 ImGui.TextColored(levelColor, $"{skillLevel.Level} ({currentJobPrefix.ToUpperInvariant()})");
                 if (ImGui.IsItemHovered())
                 {
-                    ImGui.SetTooltip($"Score: {skillLevel.CompositeScore:F0}/100\nExplanation verbosity adapts to your skill level.");
+                    ImGui.SetTooltip(Loc.TFormat(LocalizedStrings.Training.SkillLevelTooltip,
+                        "Score: {0}/100\nExplanation verbosity adapts to your skill level.", $"{skillLevel.CompositeScore:F0}"));
                 }
             }
 
@@ -160,7 +163,7 @@ public static class LiveCoachingTab
 
     private static void DrawCurrentAction(ActionExplanation explanation, TrainingConfig config, ITrainingService trainingService, DecisionValidationService? validationService)
     {
-        ImGui.Text("Current Decision");
+        ImGui.Text(Loc.T(LocalizedStrings.Training.CurrentDecision, "Current Decision"));
 
         // Show validation result if available
         var currentValidation = validationService?.CurrentValidation;
@@ -173,9 +176,9 @@ public static class LiveCoachingTab
             {
                 var tooltip = currentValidation.Outcome switch
                 {
-                    ValidationOutcome.Optimal => "Optimal decision!",
-                    ValidationOutcome.Acceptable => $"Acceptable. {currentValidation.WhatWouldBeBetter}",
-                    ValidationOutcome.Suboptimal => $"Suboptimal. {currentValidation.WhatWouldBeBetter}",
+                    ValidationOutcome.Optimal => Loc.T(LocalizedStrings.Training.OptimalDecision, "Optimal decision!"),
+                    ValidationOutcome.Acceptable => Loc.TFormat(LocalizedStrings.Training.AcceptableFormat, "Acceptable. {0}", currentValidation.WhatWouldBeBetter ?? ""),
+                    ValidationOutcome.Suboptimal => Loc.TFormat(LocalizedStrings.Training.SuboptimalFormat, "Suboptimal. {0}", currentValidation.WhatWouldBeBetter ?? ""),
                     _ => currentValidation.ShortExplanation,
                 };
                 ImGui.SetTooltip(tooltip);
@@ -189,10 +192,12 @@ public static class LiveCoachingTab
             if (effectiveVerbosity != config.Verbosity)
             {
                 ImGui.SameLine();
-                ImGui.TextColored(AdaptiveColor, "[Adaptive]");
+                ImGui.TextColored(AdaptiveColor, Loc.T(LocalizedStrings.Training.Adaptive, "[Adaptive]"));
                 if (ImGui.IsItemHovered())
                 {
-                    ImGui.SetTooltip($"Verbosity adjusted from {config.Verbosity} to {effectiveVerbosity} based on your skill level.");
+                    ImGui.SetTooltip(Loc.TFormat(LocalizedStrings.Training.AdaptiveTooltipFormat,
+                        "Verbosity adjusted from {0} to {1} based on your skill level.",
+                        config.Verbosity.ToString(), effectiveVerbosity.ToString()));
                 }
             }
         }
@@ -225,7 +230,7 @@ public static class LiveCoachingTab
         if (currentValidation != null && currentValidation.Outcome != ValidationOutcome.Optimal && !string.IsNullOrEmpty(currentValidation.WhatWouldBeBetter))
         {
             var betterColor = currentValidation.Outcome == ValidationOutcome.Acceptable ? AcceptableColor : SuboptimalColor;
-            ImGui.TextColored(betterColor, $"Better: {currentValidation.WhatWouldBeBetter}");
+            ImGui.TextColored(betterColor, Loc.TFormat(LocalizedStrings.Training.BetterFormat, "Better: {0}", currentValidation.WhatWouldBeBetter));
             ImGui.Spacing();
         }
 
@@ -234,7 +239,7 @@ public static class LiveCoachingTab
         {
             if (verbosity >= ExplanationVerbosity.Normal)
             {
-                ImGui.TextColored(NeutralColor, "Decision Factors:");
+                ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Training.DecisionFactorsLabel, "Decision Factors:"));
                 foreach (var factor in explanation.Factors)
                 {
                     ImGui.TextColored(NeutralColor, $"  - {factor}");
@@ -246,7 +251,7 @@ public static class LiveCoachingTab
         // Detailed reason (if detailed verbosity)
         if (verbosity >= ExplanationVerbosity.Detailed && !string.IsNullOrEmpty(explanation.DetailedReason))
         {
-            ImGui.TextColored(NeutralColor, "Details:");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Training.DetailsLabel, "Details:"));
             ImGui.TextWrapped(explanation.DetailedReason);
             ImGui.Spacing();
         }
@@ -254,7 +259,7 @@ public static class LiveCoachingTab
         // Alternatives
         if (config.ShowAlternatives && IsSectionVisible(config, "Alternatives") && explanation.Alternatives.Length > 0)
         {
-            ImGui.TextColored(WarningColor, "Alternatives Considered:");
+            ImGui.TextColored(WarningColor, Loc.T(LocalizedStrings.Training.AlternativesConsidered, "Alternatives Considered:"));
             foreach (var alt in explanation.Alternatives)
             {
                 ImGui.TextColored(WarningColor, $"  - {alt}");
@@ -265,19 +270,19 @@ public static class LiveCoachingTab
         // Learning tip
         if (config.ShowTips && IsSectionVisible(config, "Tips") && !string.IsNullOrEmpty(explanation.Tip))
         {
-            ImGui.TextColored(TipColor, $"Tip: {explanation.Tip}");
+            ImGui.TextColored(TipColor, $"{Loc.T(LocalizedStrings.Training.TipPrefix, "Tip:")} {explanation.Tip}");
         }
     }
 
     private static void DrawRecentHistory(ITrainingService trainingService, TrainingConfig config, DecisionValidationService? validationService)
     {
-        ImGui.Text("Recent Decisions");
+        ImGui.Text(Loc.T(LocalizedStrings.Training.RecentDecisions, "Recent Decisions"));
         ImGui.Separator();
 
         var explanations = trainingService.RecentExplanations;
         if (explanations.Count == 0)
         {
-            ImGui.TextColored(NeutralColor, "No decisions yet. Enter combat to see explanations.");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Training.NoDecisionsYet, "No decisions yet. Enter combat to see explanations."));
             return;
         }
 
@@ -285,7 +290,7 @@ public static class LiveCoachingTab
         var startIndex = IsSectionVisible(config, "CurrentAction") ? 1 : 0;
         if (startIndex >= explanations.Count)
         {
-            ImGui.TextColored(NeutralColor, "Waiting for more decisions...");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Training.WaitingForMoreDecisions, "Waiting for more decisions..."));
             return;
         }
 
@@ -295,14 +300,14 @@ public static class LiveCoachingTab
         var columnCount = validationService != null ? 5 : 4;
         if (ImGui.BeginTable("RecentDecisionsTable", columnCount, ImGuiTableFlags.BordersInnerH | ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.ScrollY, new Vector2(0, 200)))
         {
-            ImGui.TableSetupColumn("Time", ImGuiTableColumnFlags.WidthFixed, 60);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Training.TimeColumn, "Time"), ImGuiTableColumnFlags.WidthFixed, 60);
             if (validationService != null)
             {
                 ImGui.TableSetupColumn("", ImGuiTableColumnFlags.WidthFixed, 20); // Validation symbol
             }
-            ImGui.TableSetupColumn("Category", ImGuiTableColumnFlags.WidthFixed, 70);
-            ImGui.TableSetupColumn("Action", ImGuiTableColumnFlags.WidthFixed, 100);
-            ImGui.TableSetupColumn("Reason", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Training.CategoryColumn, "Category"), ImGuiTableColumnFlags.WidthFixed, 70);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Training.ActionColumn, "Action"), ImGuiTableColumnFlags.WidthFixed, 100);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Training.ReasonColumn, "Reason"), ImGuiTableColumnFlags.WidthStretch);
             ImGui.TableSetupScrollFreeze(0, 1);
             ImGui.TableHeadersRow();
 
@@ -314,7 +319,9 @@ public static class LiveCoachingTab
                 // Time
                 ImGui.TableNextColumn();
                 var elapsed = System.DateTime.Now - exp.Timestamp;
-                var timeStr = elapsed.TotalSeconds < 60 ? $"{(int)elapsed.TotalSeconds}s ago" : $"{(int)elapsed.TotalMinutes}m ago";
+                var timeStr = elapsed.TotalSeconds < 60
+                    ? Loc.TFormat(LocalizedStrings.Training.SecondsAgo, "{0}s ago", ((int)elapsed.TotalSeconds).ToString())
+                    : Loc.TFormat(LocalizedStrings.Training.MinutesAgo, "{0}m ago", ((int)elapsed.TotalMinutes).ToString());
                 ImGui.TextColored(NeutralColor, timeStr);
 
                 // Validation symbol (if validation service is available)

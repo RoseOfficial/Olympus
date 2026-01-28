@@ -1,5 +1,6 @@
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Olympus.Localization;
 
 namespace Olympus.Windows.Config;
 
@@ -49,29 +50,29 @@ public sealed class ConfigSidebar
         ImGui.BeginChild("##ConfigSidebar", new Vector2(SidebarWidth, 0), true);
 
         // GENERAL section
-        DrawCategoryHeader("GENERAL");
-        sectionChanged |= DrawNavItem("General", ConfigSection.General);
-        sectionChanged |= DrawNavItem("Targeting", ConfigSection.Targeting);
-        sectionChanged |= DrawNavItem("Role Actions", ConfigSection.RoleActions);
+        DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.General, "GENERAL"));
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.GeneralItem, "General"), ConfigSection.General);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Targeting, "Targeting"), ConfigSection.Targeting);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.RoleActions, "Role Actions"), ConfigSection.RoleActions);
 
         ImGui.Spacing();
 
         // HEALERS section
-        DrawCategoryHeader("HEALERS");
-        sectionChanged |= DrawNavItem("White Mage", ConfigSection.WhiteMage, ConfigUIHelpers.WhiteMageColor);
-        sectionChanged |= DrawNavItem("Scholar", ConfigSection.Scholar, ConfigUIHelpers.ScholarColor);
-        sectionChanged |= DrawNavItem("Astrologian", ConfigSection.Astrologian, ConfigUIHelpers.AstrologianColor);
-        sectionChanged |= DrawNavItem("Sage", ConfigSection.Sage, ConfigUIHelpers.SageColor);
+        DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.Healers, "HEALERS"));
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.WhiteMage, "White Mage"), ConfigSection.WhiteMage, ConfigUIHelpers.WhiteMageColor);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Scholar, "Scholar"), ConfigSection.Scholar, ConfigUIHelpers.ScholarColor);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Astrologian, "Astrologian"), ConfigSection.Astrologian, ConfigUIHelpers.AstrologianColor);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Sage, "Sage"), ConfigSection.Sage, ConfigUIHelpers.SageColor);
 
         ImGui.Spacing();
 
         // TANKS section
-        DrawCategoryHeader("TANKS");
-        sectionChanged |= DrawNavItem("Shared", ConfigSection.TankShared);
-        sectionChanged |= DrawNavItem("Paladin", ConfigSection.Paladin, ConfigUIHelpers.PaladinColor);
-        sectionChanged |= DrawNavItem("Warrior", ConfigSection.Warrior, ConfigUIHelpers.WarriorColor);
-        sectionChanged |= DrawNavItem("Dark Knight", ConfigSection.DarkKnight, ConfigUIHelpers.DarkKnightColor);
-        sectionChanged |= DrawNavItem("Gunbreaker", ConfigSection.Gunbreaker, ConfigUIHelpers.GunbreakerColor);
+        DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.Tanks, "TANKS"));
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Shared, "Shared"), ConfigSection.TankShared);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Paladin, "Paladin"), ConfigSection.Paladin, ConfigUIHelpers.PaladinColor);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Warrior, "Warrior"), ConfigSection.Warrior, ConfigUIHelpers.WarriorColor);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.DarkKnight, "Dark Knight"), ConfigSection.DarkKnight, ConfigUIHelpers.DarkKnightColor);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Gunbreaker, "Gunbreaker"), ConfigSection.Gunbreaker, ConfigUIHelpers.GunbreakerColor);
 
         ImGui.EndChild();
 

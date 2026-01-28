@@ -4,6 +4,7 @@ using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
 using Olympus.Config;
+using Olympus.Localization;
 using Olympus.Windows.Config;
 using Olympus.Windows.Config.Healers;
 using Olympus.Windows.Config.Shared;
@@ -36,7 +37,7 @@ public sealed class ConfigWindow : Window
     private readonly GunbreakerSection gunbreakerSection;
 
     public ConfigWindow(Configuration configuration, Action saveConfiguration)
-        : base("Olympus Settings", ImGuiWindowFlags.NoCollapse)
+        : base(Loc.T(LocalizedStrings.Config.WindowTitle, "Olympus Settings"), ImGuiWindowFlags.NoCollapse)
     {
         this.configuration = configuration;
         this.saveConfiguration = saveConfiguration;
@@ -80,7 +81,7 @@ public sealed class ConfigWindow : Window
         ImGui.PushStyleColor(ImGuiCol.Button, discordColor);
         ImGui.PushStyleColor(ImGuiCol.ButtonHovered, discordColor * 1.1f);
         ImGui.PushStyleColor(ImGuiCol.ButtonActive, discordColor * 0.9f);
-        if (ImGui.Button("Join Discord", new Vector2(100, 0)))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Config.JoinDiscord, "Join Discord"), new Vector2(100, 0)))
         {
             Util.OpenLink("https://discord.gg/3gXYyqbdaU");
         }
@@ -89,13 +90,13 @@ public sealed class ConfigWindow : Window
         ImGui.SameLine();
 
         var enabled = configuration.Enabled;
-        if (ImGui.Checkbox("Enable Rotation", ref enabled))
+        if (ImGui.Checkbox(Loc.T(LocalizedStrings.Config.EnableRotation, "Enable Rotation"), ref enabled))
         {
             configuration.Enabled = enabled;
             saveConfiguration();
         }
 
-        ImGui.TextDisabled("When enabled, the rotation will automatically cast spells.");
+        ImGui.TextDisabled(Loc.T(LocalizedStrings.Config.EnableRotationDesc, "When enabled, the rotation will automatically cast spells."));
 
         ImGui.Spacing();
 
@@ -130,13 +131,13 @@ public sealed class ConfigWindow : Window
                 break;
 
             case ConfigSection.Targeting:
-                ImGui.TextColored(new Vector4(0.8f, 0.8f, 0.8f, 1f), "Targeting Settings");
+                ImGui.TextColored(new Vector4(0.8f, 0.8f, 0.8f, 1f), Loc.T(LocalizedStrings.Targeting.Header, "Targeting Settings"));
                 ImGui.Spacing();
                 generalSection.DrawTargeting();
                 break;
 
             case ConfigSection.RoleActions:
-                ImGui.TextColored(new Vector4(0.8f, 0.8f, 0.8f, 1f), "Role Actions");
+                ImGui.TextColored(new Vector4(0.8f, 0.8f, 0.8f, 1f), Loc.T(LocalizedStrings.RoleActions.Header, "Role Actions"));
                 ImGui.Spacing();
                 generalSection.DrawRoleActions();
                 break;
@@ -181,20 +182,20 @@ public sealed class ConfigWindow : Window
 
     private void DrawFooter()
     {
-        if (ImGui.Button("Reset to Defaults"))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Config.ResetToDefaults, "Reset to Defaults")))
         {
-            ImGui.OpenPopup("Reset Confirmation");
+            ImGui.OpenPopup(Loc.T(LocalizedStrings.Config.ResetConfirmation, "Reset Confirmation"));
         }
 
         // Local variable for popup close button state - must be true to show close button
         var popupOpen = true;
-        if (ImGui.BeginPopupModal("Reset Confirmation", ref popupOpen, ImGuiWindowFlags.AlwaysAutoResize))
+        if (ImGui.BeginPopupModal(Loc.T(LocalizedStrings.Config.ResetConfirmation, "Reset Confirmation"), ref popupOpen, ImGuiWindowFlags.AlwaysAutoResize))
         {
-            ImGui.Text("Reset all settings to default values?");
-            ImGui.Text("This cannot be undone.");
+            ImGui.Text(Loc.T(LocalizedStrings.Config.ResetQuestion, "Reset all settings to default values?"));
+            ImGui.Text(Loc.T(LocalizedStrings.Config.ResetWarning, "This cannot be undone."));
             ImGui.Spacing();
 
-            if (ImGui.Button("Yes, Reset", new Vector2(120, 0)))
+            if (ImGui.Button(Loc.T(LocalizedStrings.Config.YesReset, "Yes, Reset"), new Vector2(120, 0)))
             {
                 configuration.ResetToDefaults();
                 saveConfiguration();
@@ -203,7 +204,7 @@ public sealed class ConfigWindow : Window
 
             ImGui.SameLine();
 
-            if (ImGui.Button("Cancel", new Vector2(120, 0)))
+            if (ImGui.Button(Loc.T(LocalizedStrings.Config.Cancel, "Cancel"), new Vector2(120, 0)))
             {
                 ImGui.CloseCurrentPopup();
             }
@@ -218,16 +219,16 @@ public sealed class ConfigWindow : Window
 
     private void DrawPresetSelector()
     {
-        ImGui.Text("Configuration Preset");
+        ImGui.Text(Loc.T(LocalizedStrings.Config.ConfigPreset, "Configuration Preset"));
         ImGui.SameLine();
         ImGui.TextDisabled("(?)");
         if (ImGui.IsItemHovered())
         {
             ImGui.BeginTooltip();
-            ImGui.Text("Presets quickly configure settings for different content types.");
-            ImGui.Text("Raid: Co-healer aware, balanced DPS");
-            ImGui.Text("Dungeon: Solo healer, aggressive DPS");
-            ImGui.Text("Casual: Safe mode, healing priority");
+            ImGui.Text(Loc.T(LocalizedStrings.Config.PresetTooltip, "Presets quickly configure settings for different content types."));
+            ImGui.Text(Loc.T(LocalizedStrings.Config.PresetRaid, "Raid: Co-healer aware, balanced DPS"));
+            ImGui.Text(Loc.T(LocalizedStrings.Config.PresetDungeon, "Dungeon: Solo healer, aggressive DPS"));
+            ImGui.Text(Loc.T(LocalizedStrings.Config.PresetCasual, "Casual: Safe mode, healing priority"));
             ImGui.EndTooltip();
         }
 
@@ -238,7 +239,7 @@ public sealed class ConfigWindow : Window
             selectedPreset = (ConfigurationPreset)currentPreset;
             if (selectedPreset != ConfigurationPreset.Custom)
             {
-                ImGui.OpenPopup("Apply Preset Confirmation");
+                ImGui.OpenPopup(Loc.T(LocalizedStrings.Config.ApplyPresetConfirmation, "Apply Preset Confirmation"));
             }
         }
 
@@ -251,17 +252,17 @@ public sealed class ConfigWindow : Window
     private void DrawPresetConfirmationPopup()
     {
         var popupOpen = true;
-        if (ImGui.BeginPopupModal("Apply Preset Confirmation", ref popupOpen, ImGuiWindowFlags.AlwaysAutoResize))
+        if (ImGui.BeginPopupModal(Loc.T(LocalizedStrings.Config.ApplyPresetConfirmation, "Apply Preset Confirmation"), ref popupOpen, ImGuiWindowFlags.AlwaysAutoResize))
         {
-            ImGui.Text($"Apply {selectedPreset} preset?");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Config.ApplyPreset, "Apply {0} preset?", selectedPreset));
             ImGui.Spacing();
             ImGui.TextWrapped(ConfigurationPresets.GetDescription(selectedPreset));
             ImGui.Spacing();
-            ImGui.TextColored(new Vector4(1f, 0.8f, 0.2f, 1f), "This will overwrite behavior settings.");
-            ImGui.TextDisabled("Spell toggles and targeting preferences are preserved.");
+            ImGui.TextColored(new Vector4(1f, 0.8f, 0.2f, 1f), Loc.T(LocalizedStrings.Config.OverwriteWarning, "This will overwrite behavior settings."));
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Config.PreservedSettings, "Spell toggles and targeting preferences are preserved."));
             ImGui.Spacing();
 
-            if (ImGui.Button("Apply", new Vector2(100, 0)))
+            if (ImGui.Button(Loc.T(LocalizedStrings.Config.Apply, "Apply"), new Vector2(100, 0)))
             {
                 ConfigurationPresets.ApplyPreset(configuration, selectedPreset);
                 saveConfiguration();
@@ -270,7 +271,7 @@ public sealed class ConfigWindow : Window
 
             ImGui.SameLine();
 
-            if (ImGui.Button("Cancel", new Vector2(100, 0)))
+            if (ImGui.Button(Loc.T(LocalizedStrings.Config.Cancel, "Cancel"), new Vector2(100, 0)))
             {
                 ImGui.CloseCurrentPopup();
             }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config;
+using Olympus.Localization;
 using Olympus.Services.Training;
 
 /// <summary>
@@ -110,7 +111,7 @@ public static class LessonsTab
         var lessons = trainingService.GetLessonsForJob(selectedJob);
         if (lessons.Count == 0)
         {
-            ImGui.TextColored(NeutralColor, "No lessons available for this job.");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Training.NoLessonsAvailable, "No lessons available for this job."));
             return;
         }
 
@@ -150,7 +151,7 @@ public static class LessonsTab
 
     private static void DrawLessonList(System.Collections.Generic.IReadOnlyList<LessonDefinition> lessons, ITrainingService trainingService, TrainingConfig config)
     {
-        ImGui.Text("Lessons");
+        ImGui.Text(Loc.T(LocalizedStrings.Training.LessonsHeader, "Lessons"));
         ImGui.Separator();
         ImGui.Spacing();
 
@@ -208,13 +209,13 @@ public static class LessonsTab
             if (isLocked && ImGui.IsItemHovered())
             {
                 ImGui.BeginTooltip();
-                ImGui.Text("Prerequisites not met:");
+                ImGui.Text(Loc.T(LocalizedStrings.Training.PrerequisitesNotMet, "Prerequisites not met:"));
                 foreach (var prereq in lesson.Prerequisites)
                 {
                     var prereqLesson = trainingService.GetLesson(prereq);
                     if (prereqLesson != null && !config.CompletedLessons.Contains(prereq))
                     {
-                        ImGui.BulletText($"Complete \"{prereqLesson.Title}\" first");
+                        ImGui.BulletText(Loc.TFormat(LocalizedStrings.Training.CompleteFirstFormat, "Complete \"{0}\" first", prereqLesson.Title));
                     }
                 }
 
@@ -228,7 +229,7 @@ public static class LessonsTab
         var lesson = trainingService.GetLesson(selectedLessonId ?? string.Empty);
         if (lesson == null)
         {
-            ImGui.TextColored(NeutralColor, "Select a lesson to view details.");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Training.SelectLessonToView, "Select a lesson to view details."));
             return;
         }
 
@@ -236,15 +237,15 @@ public static class LessonsTab
         var isLocked = !AreLessonPrerequisitesMet(lesson, config);
 
         // Title with completion status
-        ImGui.TextColored(InfoColor, $"Lesson {lesson.LessonNumber}: {lesson.Title}");
+        ImGui.TextColored(InfoColor, Loc.TFormat(LocalizedStrings.Training.LessonTitleFormat, "Lesson {0}: {1}", lesson.LessonNumber.ToString(), lesson.Title));
         ImGui.SameLine();
         if (isComplete)
         {
-            ImGui.TextColored(GoodColor, "(Completed)");
+            ImGui.TextColored(GoodColor, Loc.T(LocalizedStrings.Training.Completed, "(Completed)"));
         }
         else if (isLocked)
         {
-            ImGui.TextColored(LockedColor, "(Locked)");
+            ImGui.TextColored(LockedColor, Loc.T(LocalizedStrings.Training.Locked, "(Locked)"));
         }
 
         ImGui.Separator();
@@ -253,16 +254,16 @@ public static class LessonsTab
         // Concept progress
         var learnedConcepts = lesson.ConceptsCovered.Count(c => config.LearnedConcepts.Contains(c));
         var totalConcepts = lesson.ConceptsCovered.Length;
-        ImGui.Text($"Concept Progress: {learnedConcepts}/{totalConcepts}");
+        ImGui.Text(Loc.TFormat(LocalizedStrings.Training.ConceptProgressFormat, "Concept Progress: {0}/{1}", learnedConcepts.ToString(), totalConcepts.ToString()));
         ImGui.ProgressBar(totalConcepts > 0 ? (float)learnedConcepts / totalConcepts : 0f, new Vector2(-1, 0));
         ImGui.Spacing();
 
         // Locked message
         if (isLocked)
         {
-            ImGui.TextColored(WarningColor, "Complete the prerequisite lessons to unlock this content.");
+            ImGui.TextColored(WarningColor, Loc.T(LocalizedStrings.Training.CompletePrerequisites, "Complete the prerequisite lessons to unlock this content."));
             ImGui.Spacing();
-            ImGui.Text("Prerequisites:");
+            ImGui.Text(Loc.T(LocalizedStrings.Training.Prerequisites, "Prerequisites:"));
             foreach (var prereq in lesson.Prerequisites)
             {
                 var prereqLesson = trainingService.GetLesson(prereq);
@@ -290,7 +291,7 @@ public static class LessonsTab
             // Key Points
             if (lesson.KeyPoints.Length > 0)
             {
-                ImGui.TextColored(InfoColor, "KEY POINTS:");
+                ImGui.TextColored(InfoColor, Loc.T(LocalizedStrings.Training.KeyPoints, "KEY POINTS:"));
                 ImGui.Spacing();
                 foreach (var point in lesson.KeyPoints)
                 {
@@ -303,7 +304,7 @@ public static class LessonsTab
             // Related Abilities
             if (lesson.RelatedAbilities.Length > 0)
             {
-                ImGui.TextColored(AbilityColor, "ABILITIES:");
+                ImGui.TextColored(AbilityColor, Loc.T(LocalizedStrings.Training.Abilities, "ABILITIES:"));
                 ImGui.SameLine();
                 ImGui.TextWrapped(string.Join(", ", lesson.RelatedAbilities));
                 ImGui.Spacing();
@@ -313,7 +314,7 @@ public static class LessonsTab
             if (lesson.Tips.Length > 0)
             {
                 ImGui.Spacing();
-                ImGui.TextColored(TipColor, "TIPS:");
+                ImGui.TextColored(TipColor, Loc.T(LocalizedStrings.Training.Tips, "TIPS:"));
                 ImGui.Spacing();
                 foreach (var tip in lesson.Tips)
                 {
@@ -327,7 +328,7 @@ public static class LessonsTab
             if (lesson.ConceptsCovered.Length > 0)
             {
                 ImGui.Spacing();
-                if (ImGui.CollapsingHeader("Concepts Covered"))
+                if (ImGui.CollapsingHeader(Loc.T(LocalizedStrings.Training.ConceptsCovered, "Concepts Covered")))
                 {
                     foreach (var concept in lesson.ConceptsCovered)
                     {
@@ -341,7 +342,7 @@ public static class LessonsTab
                         if (!conceptLearned)
                         {
                             ImGui.SameLine();
-                            if (ImGui.SmallButton($"Learn##{concept}"))
+                            if (ImGui.SmallButton(Loc.T(LocalizedStrings.Training.Learn, "Learn") + $"##{concept}"))
                             {
                                 trainingService.MarkConceptLearned(concept);
                             }
@@ -359,19 +360,19 @@ public static class LessonsTab
 
         if (isComplete)
         {
-            if (ImGui.Button("Mark Incomplete"))
+            if (ImGui.Button(Loc.T(LocalizedStrings.Training.MarkIncomplete, "Mark Incomplete")))
             {
                 config.CompletedLessons.Remove(lesson.LessonId);
             }
 
             if (ImGui.IsItemHovered())
             {
-                ImGui.SetTooltip("Remove completion status from this lesson.");
+                ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.MarkIncompleteTooltip, "Remove completion status from this lesson."));
             }
         }
         else
         {
-            if (ImGui.Button("Mark Complete"))
+            if (ImGui.Button(Loc.T(LocalizedStrings.Training.MarkComplete, "Mark Complete")))
             {
                 config.CompletedLessons.Add(lesson.LessonId);
 
@@ -387,7 +388,7 @@ public static class LessonsTab
 
             if (ImGui.IsItemHovered())
             {
-                ImGui.SetTooltip("Mark this lesson as completed. This will also mark all concepts as learned.");
+                ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.MarkCompleteTooltip, "Mark this lesson as completed. This will also mark all concepts as learned."));
             }
         }
 
@@ -397,7 +398,7 @@ public static class LessonsTab
         var unlearnedConcepts = lesson.ConceptsCovered.Where(c => !config.LearnedConcepts.Contains(c)).ToArray();
         if (unlearnedConcepts.Length > 0)
         {
-            if (ImGui.Button($"Learn All Concepts ({unlearnedConcepts.Length})"))
+            if (ImGui.Button(Loc.TFormat(LocalizedStrings.Training.LearnAllConceptsFormat, "Learn All Concepts ({0})", unlearnedConcepts.Length.ToString())))
             {
                 foreach (var concept in unlearnedConcepts)
                 {
@@ -416,7 +417,7 @@ public static class LessonsTab
         if (ImGui.BeginChild("LearningPathPanel", new Vector2(-1, 95), true))
         {
             // Header row with title and skill badge
-            ImGui.TextColored(InfoColor, "Learning Path");
+            ImGui.TextColored(InfoColor, Loc.T(LocalizedStrings.Training.LearningPath, "Learning Path"));
             ImGui.SameLine(ImGui.GetContentRegionAvail().X - 90);
             DrawSkillBadge(recommendation.SkillLevel);
 
@@ -426,7 +427,7 @@ public static class LessonsTab
             var progressFraction = recommendation.TotalLessons > 0
                 ? (float)recommendation.CompletedLessons / recommendation.TotalLessons
                 : 0f;
-            ImGui.ProgressBar(progressFraction, new Vector2(-1, 0), $"{recommendation.CompletedLessons}/{recommendation.TotalLessons} completed");
+            ImGui.ProgressBar(progressFraction, new Vector2(-1, 0), Loc.TFormat(LocalizedStrings.Training.CompletedProgressFormat, "{0}/{1} completed", recommendation.CompletedLessons.ToString(), recommendation.TotalLessons.ToString()));
 
             ImGui.Spacing();
 
@@ -444,14 +445,14 @@ public static class LessonsTab
                         _ => NeutralColor,
                     };
 
-                    ImGui.TextColored(GoodColor, "Recommended Next:");
+                    ImGui.TextColored(GoodColor, Loc.T(LocalizedStrings.Training.RecommendedNext, "Recommended Next:"));
                     ImGui.SameLine();
                     ImGui.Text($"{lesson.LessonNumber}. {lesson.Title}");
 
                     ImGui.TextColored(reasonColor, $"  {recommendation.Reason}");
 
                     ImGui.SameLine(ImGui.GetContentRegionAvail().X - 100);
-                    if (ImGui.SmallButton("Start This Lesson"))
+                    if (ImGui.SmallButton(Loc.T(LocalizedStrings.Training.StartThisLesson, "Start This Lesson")))
                     {
                         selectedLessonId = recommendation.RecommendedLessonId;
                     }
@@ -459,7 +460,7 @@ public static class LessonsTab
             }
             else if (recommendation.ReasonType == LearningPathReason.AllComplete)
             {
-                ImGui.TextColored(GoodColor, "All lessons completed!");
+                ImGui.TextColored(GoodColor, Loc.T(LocalizedStrings.Training.AllLessonsComplete, "All lessons completed!"));
                 ImGui.TextColored(NeutralColor, recommendation.Reason);
             }
         }
@@ -472,10 +473,10 @@ public static class LessonsTab
     {
         var (label, color) = skillLevel switch
         {
-            SkillLevel.Beginner => ("Beginner", new Vector4(0.6f, 0.6f, 0.6f, 1.0f)),
-            SkillLevel.Intermediate => ("Intermediate", InfoColor),
-            SkillLevel.Advanced => ("Advanced", GoodColor),
-            _ => ("Unknown", NeutralColor),
+            SkillLevel.Beginner => (Loc.T(LocalizedStrings.Training.SkillBeginner, "Beginner"), new Vector4(0.6f, 0.6f, 0.6f, 1.0f)),
+            SkillLevel.Intermediate => (Loc.T(LocalizedStrings.Training.SkillIntermediate, "Intermediate"), InfoColor),
+            SkillLevel.Advanced => (Loc.T(LocalizedStrings.Training.SkillAdvanced, "Advanced"), GoodColor),
+            _ => (Loc.T(LocalizedStrings.Training.SkillUnknown, "Unknown"), NeutralColor),
         };
 
         ImGui.PushStyleColor(ImGuiCol.Button, color with { W = 0.3f });

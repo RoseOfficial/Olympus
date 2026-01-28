@@ -1,6 +1,7 @@
 using System;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Olympus.Localization;
 using Olympus.Services.Debug;
 
 namespace Olympus.Windows.Debug.Tabs;
@@ -51,7 +52,7 @@ public static class OverhealTab
 
     private static void DrawSummary(DebugOverhealStats stats)
     {
-        ImGui.Text("Summary");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Summary, "Summary"));
         ImGui.Separator();
 
         var effectiveHealing = stats.EffectiveHealing;
@@ -65,35 +66,35 @@ public static class OverhealTab
             // Session Duration
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Session Duration:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.SessionDuration, "Session Duration:"));
             ImGui.TableNextColumn();
             ImGui.Text(FormatDuration(stats.SessionDuration));
 
             // Total Healing
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Total Healing:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.TotalHealing, "Total Healing:"));
             ImGui.TableNextColumn();
             ImGui.TextColored(DebugColors.Heal, $"{stats.TotalHealing:N0}");
 
             // Effective Healing
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Effective Healing:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.EffectiveHealing, "Effective Healing:"));
             ImGui.TableNextColumn();
             ImGui.TextColored(DebugColors.Success, $"{effectiveHealing:N0}");
 
             // Total Overheal
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Total Overheal:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.TotalOverheal, "Total Overheal:"));
             ImGui.TableNextColumn();
             ImGui.TextColored(GetOverhealColor(overhealpct), $"{stats.TotalOverheal:N0}");
 
             // Overheal %
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Overheal %:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.OverhealPercent, "Overheal %:"));
             ImGui.TableNextColumn();
             ImGui.TextColored(GetOverhealColor(overhealpct), $"{overhealpct:F1}%");
 
@@ -157,23 +158,23 @@ public static class OverhealTab
 
     private static void DrawBySpell(DebugOverhealStats stats)
     {
-        ImGui.Text("By Spell");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.BySpell, "By Spell"));
         ImGui.Separator();
 
         if (stats.BySpell.Count == 0)
         {
-            ImGui.TextColored(DebugColors.Dim, "No healing data yet");
+            ImGui.TextColored(DebugColors.Dim, Loc.T(LocalizedStrings.Debug.NoHealingDataYet, "No healing data yet"));
             return;
         }
 
         if (ImGui.BeginTable("OverhealBySpellTable", 5,
             ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchProp | ImGuiTableFlags.Sortable))
         {
-            ImGui.TableSetupColumn("Spell", ImGuiTableColumnFlags.WidthFixed, 120);
-            ImGui.TableSetupColumn("Casts", ImGuiTableColumnFlags.WidthFixed, 50);
-            ImGui.TableSetupColumn("Total Heal", ImGuiTableColumnFlags.WidthFixed, 80);
-            ImGui.TableSetupColumn("Overheal", ImGuiTableColumnFlags.WidthFixed, 80);
-            ImGui.TableSetupColumn("Overheal %", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.Spell, "Spell"), ImGuiTableColumnFlags.WidthFixed, 120);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.Casts, "Casts"), ImGuiTableColumnFlags.WidthFixed, 50);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.TotalHeal, "Total Heal"), ImGuiTableColumnFlags.WidthFixed, 80);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.Overheal, "Overheal"), ImGuiTableColumnFlags.WidthFixed, 80);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.OverhealPercent, "Overheal %"), ImGuiTableColumnFlags.WidthStretch);
             ImGui.TableHeadersRow();
 
             foreach (var spell in stats.BySpell)
@@ -208,23 +209,23 @@ public static class OverhealTab
 
     private static void DrawByTarget(DebugOverhealStats stats)
     {
-        ImGui.Text("By Target");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.ByTarget, "By Target"));
         ImGui.Separator();
 
         if (stats.ByTarget.Count == 0)
         {
-            ImGui.TextColored(DebugColors.Dim, "No healing data yet");
+            ImGui.TextColored(DebugColors.Dim, Loc.T(LocalizedStrings.Debug.NoHealingDataYet, "No healing data yet"));
             return;
         }
 
         if (ImGui.BeginTable("OverhealByTargetTable", 5,
             ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchProp))
         {
-            ImGui.TableSetupColumn("Target", ImGuiTableColumnFlags.WidthFixed, 120);
-            ImGui.TableSetupColumn("Heals", ImGuiTableColumnFlags.WidthFixed, 50);
-            ImGui.TableSetupColumn("Total Heal", ImGuiTableColumnFlags.WidthFixed, 80);
-            ImGui.TableSetupColumn("Overheal", ImGuiTableColumnFlags.WidthFixed, 80);
-            ImGui.TableSetupColumn("Overheal %", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.Target, "Target"), ImGuiTableColumnFlags.WidthFixed, 120);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.Heals, "Heals"), ImGuiTableColumnFlags.WidthFixed, 50);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.TotalHeal, "Total Heal"), ImGuiTableColumnFlags.WidthFixed, 80);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.Overheal, "Overheal"), ImGuiTableColumnFlags.WidthFixed, 80);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.OverhealPercent, "Overheal %"), ImGuiTableColumnFlags.WidthStretch);
             ImGui.TableHeadersRow();
 
             foreach (var target in stats.ByTarget)
@@ -259,24 +260,24 @@ public static class OverhealTab
 
     private static void DrawTimeline(DebugOverhealStats stats)
     {
-        var headerText = $"Recent Overheals ({stats.RecentOverheals.Count})";
+        var headerText = Loc.TFormat(LocalizedStrings.Debug.RecentOverheals, "Recent Overheals ({0})", stats.RecentOverheals.Count);
         if (!ImGui.CollapsingHeader(headerText))
             return;
 
         if (stats.RecentOverheals.Count == 0)
         {
-            ImGui.TextColored(DebugColors.Dim, "No overheals recorded yet");
+            ImGui.TextColored(DebugColors.Dim, Loc.T(LocalizedStrings.Debug.NoOverhealsRecordedYet, "No overheals recorded yet"));
             return;
         }
 
         if (ImGui.BeginTable("OverhealTimelineTable", 5,
             ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchProp))
         {
-            ImGui.TableSetupColumn("Time", ImGuiTableColumnFlags.WidthFixed, 60);
-            ImGui.TableSetupColumn("Spell", ImGuiTableColumnFlags.WidthFixed, 100);
-            ImGui.TableSetupColumn("Target", ImGuiTableColumnFlags.WidthFixed, 100);
-            ImGui.TableSetupColumn("Heal", ImGuiTableColumnFlags.WidthFixed, 70);
-            ImGui.TableSetupColumn("Overheal", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.Time, "Time"), ImGuiTableColumnFlags.WidthFixed, 60);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.Spell, "Spell"), ImGuiTableColumnFlags.WidthFixed, 100);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.Target, "Target"), ImGuiTableColumnFlags.WidthFixed, 100);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.Heal, "Heal"), ImGuiTableColumnFlags.WidthFixed, 70);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.Overheal, "Overheal"), ImGuiTableColumnFlags.WidthStretch);
             ImGui.TableHeadersRow();
 
             foreach (var evt in stats.RecentOverheals)
@@ -314,13 +315,13 @@ public static class OverhealTab
     {
         ImGui.Separator();
 
-        if (ImGui.Button("Reset Statistics"))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Debug.ResetStatistics, "Reset Statistics")))
         {
             debugService.ResetOverhealStatistics();
         }
 
         ImGui.SameLine();
-        ImGui.TextColored(DebugColors.Dim, "Clears all overheal data and starts a new session");
+        ImGui.TextColored(DebugColors.Dim, Loc.T(LocalizedStrings.Debug.ResetStatisticsDesc, "Clears all overheal data and starts a new session"));
     }
 
     /// <summary>

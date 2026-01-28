@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config;
+using Olympus.Localization;
 using Olympus.Services.Training;
 
 /// <summary>
@@ -90,7 +91,7 @@ public static class QuizzesTab
         var quizzes = trainingService.GetQuizzesForJob(selectedJob);
         if (quizzes.Count == 0)
         {
-            ImGui.TextColored(NeutralColor, "No quizzes available for this job.");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Training.NoQuizzesAvailable, "No quizzes available for this job."));
             return;
         }
 
@@ -144,7 +145,7 @@ public static class QuizzesTab
         ITrainingService trainingService,
         TrainingConfig config)
     {
-        ImGui.Text("Quizzes");
+        ImGui.Text(Loc.T(LocalizedStrings.Training.QuizzesHeader, "Quizzes"));
         ImGui.Separator();
         ImGui.Spacing();
 
@@ -182,7 +183,7 @@ public static class QuizzesTab
 
             // Extract lesson number from quiz ID (e.g., "whm.lesson_1.quiz" -> "1")
             var lessonNum = quiz.LessonId.Split('_').LastOrDefault()?.Split('.').FirstOrDefault() ?? "?";
-            var displayText = $"{statusIcon} Lesson {lessonNum}";
+            var displayText = $"{statusIcon} " + Loc.TFormat(LocalizedStrings.Training.LessonFormat, "Lesson {0}", lessonNum);
 
             if (isSelected)
             {
@@ -204,8 +205,8 @@ public static class QuizzesTab
             if (bestAttempt != null && ImGui.IsItemHovered())
             {
                 ImGui.BeginTooltip();
-                ImGui.Text($"Best: {bestAttempt.Score}/{quiz.Questions.Length}");
-                ImGui.Text(isPassed ? "Passed" : "Not Passed");
+                ImGui.Text(Loc.TFormat(LocalizedStrings.Training.BestScoreFormat, "Best: {0}/{1}", bestAttempt.Score.ToString(), quiz.Questions.Length.ToString()));
+                ImGui.Text(isPassed ? Loc.T(LocalizedStrings.Training.Passed, "Passed") : Loc.T(LocalizedStrings.Training.NotPassed, "Not Passed"));
                 ImGui.EndTooltip();
             }
         }
@@ -216,27 +217,27 @@ public static class QuizzesTab
         ITrainingService trainingService,
         TrainingConfig config)
     {
-        ImGui.TextColored(InfoColor, "Select a Quiz");
+        ImGui.TextColored(InfoColor, Loc.T(LocalizedStrings.Training.SelectAQuiz, "Select a Quiz"));
         ImGui.Separator();
         ImGui.Spacing();
 
-        ImGui.TextWrapped("Complete quizzes to test your understanding of each lesson. Answer 4 out of 5 questions correctly to pass.");
+        ImGui.TextWrapped(Loc.T(LocalizedStrings.Training.QuizInstructions, "Complete quizzes to test your understanding of each lesson. Answer 4 out of 5 questions correctly to pass."));
         ImGui.Spacing();
 
         // Show first unpassed quiz as recommendation
         var firstUnpassed = quizzes.FirstOrDefault(q => !trainingService.IsQuizPassed(q.QuizId));
         if (firstUnpassed != null)
         {
-            ImGui.TextColored(WarningColor, "Recommended:");
+            ImGui.TextColored(WarningColor, Loc.T(LocalizedStrings.Training.Recommended, "Recommended:"));
             ImGui.SameLine();
-            if (ImGui.Button($"Start {firstUnpassed.Title}"))
+            if (ImGui.Button(Loc.TFormat(LocalizedStrings.Training.StartFormat, "Start {0}", firstUnpassed.Title)))
             {
                 SelectQuiz(firstUnpassed);
             }
         }
         else
         {
-            ImGui.TextColored(GoodColor, "All quizzes passed!");
+            ImGui.TextColored(GoodColor, Loc.T(LocalizedStrings.Training.AllQuizzesPassed, "All quizzes passed!"));
         }
     }
 
@@ -246,17 +247,17 @@ public static class QuizzesTab
 
         // Header
         ImGui.TextColored(InfoColor, quiz.Title);
-        ImGui.Text($"Question {currentQuestionIndex + 1} of {quiz.Questions.Length}");
+        ImGui.Text(Loc.TFormat(LocalizedStrings.Training.QuestionOfFormat, "Question {0} of {1}", (currentQuestionIndex + 1).ToString(), quiz.Questions.Length.ToString()));
         ImGui.Separator();
         ImGui.Spacing();
 
         // Scenario
-        ImGui.TextColored(WarningColor, "SCENARIO:");
+        ImGui.TextColored(WarningColor, Loc.T(LocalizedStrings.Training.Scenario, "SCENARIO:"));
         ImGui.TextWrapped(question.Scenario);
         ImGui.Spacing();
 
         // Question
-        ImGui.TextColored(InfoColor, "QUESTION:");
+        ImGui.TextColored(InfoColor, Loc.T(LocalizedStrings.Training.Question, "QUESTION:"));
         ImGui.TextWrapped(question.Question);
         ImGui.Spacing();
         ImGui.Separator();
@@ -280,7 +281,7 @@ public static class QuizzesTab
         // Navigation
         if (currentQuestionIndex > 0)
         {
-            if (ImGui.Button("Previous"))
+            if (ImGui.Button(Loc.T(LocalizedStrings.Training.Previous, "Previous")))
             {
                 currentQuestionIndex--;
             }
@@ -290,7 +291,7 @@ public static class QuizzesTab
 
         if (currentQuestionIndex < quiz.Questions.Length - 1)
         {
-            if (ImGui.Button("Next"))
+            if (ImGui.Button(Loc.T(LocalizedStrings.Training.Next, "Next")))
             {
                 currentQuestionIndex++;
             }
@@ -305,7 +306,7 @@ public static class QuizzesTab
                 ImGui.BeginDisabled();
             }
 
-            if (ImGui.Button("Submit Quiz"))
+            if (ImGui.Button(Loc.T(LocalizedStrings.Training.SubmitQuiz, "Submit Quiz")))
             {
                 SubmitQuiz(quiz);
             }
@@ -315,13 +316,13 @@ public static class QuizzesTab
                 ImGui.EndDisabled();
                 if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
                 {
-                    ImGui.SetTooltip("Answer all questions before submitting.");
+                    ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.AnswerAllFirst, "Answer all questions before submitting."));
                 }
             }
         }
 
         ImGui.SameLine();
-        if (ImGui.Button("Cancel"))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Training.Cancel, "Cancel")))
         {
             activeQuizId = null;
         }
@@ -329,7 +330,7 @@ public static class QuizzesTab
         // Progress indicator
         ImGui.Spacing();
         var answeredCount = selectedAnswers.Count(a => a >= 0);
-        ImGui.TextColored(NeutralColor, $"Answered: {answeredCount}/{quiz.Questions.Length}");
+        ImGui.TextColored(NeutralColor, Loc.TFormat(LocalizedStrings.Training.AnsweredFormat, "Answered: {0}/{1}", answeredCount.ToString(), quiz.Questions.Length.ToString()));
     }
 
     private static void DrawQuizResults(QuizDefinition quiz, ITrainingService trainingService, TrainingConfig config)
@@ -347,13 +348,13 @@ public static class QuizzesTab
         var passed = score >= quiz.PassingScore;
 
         // Header
-        ImGui.TextColored(passed ? GoodColor : ErrorColor, passed ? "QUIZ PASSED!" : "QUIZ NOT PASSED");
+        ImGui.TextColored(passed ? GoodColor : ErrorColor, passed ? Loc.T(LocalizedStrings.Training.QuizPassed, "QUIZ PASSED!") : Loc.T(LocalizedStrings.Training.QuizNotPassed, "QUIZ NOT PASSED"));
         ImGui.Separator();
         ImGui.Spacing();
 
         // Score
-        ImGui.Text($"Score: {score}/{quiz.Questions.Length}");
-        ImGui.Text($"Required: {quiz.PassingScore}/{quiz.Questions.Length}");
+        ImGui.Text(Loc.TFormat(LocalizedStrings.Training.ScoreFormat, "Score: {0}/{1}", score.ToString(), quiz.Questions.Length.ToString()));
+        ImGui.Text(Loc.TFormat(LocalizedStrings.Training.RequiredFormat, "Required: {0}/{1}", quiz.PassingScore.ToString(), quiz.Questions.Length.ToString()));
         ImGui.Spacing();
 
         // Progress bar
@@ -362,7 +363,7 @@ public static class QuizzesTab
         ImGui.Spacing();
 
         // Question breakdown
-        ImGui.TextColored(InfoColor, "Results:");
+        ImGui.TextColored(InfoColor, Loc.T(LocalizedStrings.Training.Results, "Results:"));
         ImGui.Separator();
         for (var i = 0; i < quiz.Questions.Length; i++)
         {
@@ -377,7 +378,7 @@ public static class QuizzesTab
         ImGui.Spacing();
 
         // Actions
-        if (ImGui.Button("Review Answers"))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Training.ReviewAnswers, "Review Answers")))
         {
             showResults = false;
             reviewMode = true;
@@ -388,7 +389,7 @@ public static class QuizzesTab
 
         if (!passed)
         {
-            if (ImGui.Button("Retry Quiz"))
+            if (ImGui.Button(Loc.T(LocalizedStrings.Training.RetryQuiz, "Retry Quiz")))
             {
                 StartQuiz(quiz);
             }
@@ -396,7 +397,7 @@ public static class QuizzesTab
             ImGui.SameLine();
         }
 
-        if (ImGui.Button("Back to List"))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Training.BackToList, "Back to List")))
         {
             activeQuizId = null;
             showResults = false;
@@ -422,20 +423,20 @@ public static class QuizzesTab
         var isCorrect = userAnswer == question.CorrectIndex;
 
         // Header
-        ImGui.TextColored(InfoColor, "Review: " + quiz.Title);
-        ImGui.Text($"Question {currentQuestionIndex + 1} of {quiz.Questions.Length}");
+        ImGui.TextColored(InfoColor, Loc.TFormat(LocalizedStrings.Training.ReviewFormat, "Review: {0}", quiz.Title));
+        ImGui.Text(Loc.TFormat(LocalizedStrings.Training.QuestionOfFormat, "Question {0} of {1}", (currentQuestionIndex + 1).ToString(), quiz.Questions.Length.ToString()));
         ImGui.SameLine();
-        ImGui.TextColored(isCorrect ? GoodColor : ErrorColor, isCorrect ? "(Correct)" : "(Incorrect)");
+        ImGui.TextColored(isCorrect ? GoodColor : ErrorColor, isCorrect ? Loc.T(LocalizedStrings.Training.Correct, "(Correct)") : Loc.T(LocalizedStrings.Training.Incorrect, "(Incorrect)"));
         ImGui.Separator();
         ImGui.Spacing();
 
         // Scenario
-        ImGui.TextColored(WarningColor, "SCENARIO:");
+        ImGui.TextColored(WarningColor, Loc.T(LocalizedStrings.Training.Scenario, "SCENARIO:"));
         ImGui.TextWrapped(question.Scenario);
         ImGui.Spacing();
 
         // Question
-        ImGui.TextColored(InfoColor, "QUESTION:");
+        ImGui.TextColored(InfoColor, Loc.T(LocalizedStrings.Training.Question, "QUESTION:"));
         ImGui.TextWrapped(question.Question);
         ImGui.Spacing();
         ImGui.Separator();
@@ -471,7 +472,7 @@ public static class QuizzesTab
         ImGui.Spacing();
 
         // Explanation
-        ImGui.TextColored(InfoColor, "EXPLANATION:");
+        ImGui.TextColored(InfoColor, Loc.T(LocalizedStrings.Training.Explanation, "EXPLANATION:"));
         ImGui.TextWrapped(question.Explanation);
 
         ImGui.Spacing();
@@ -481,7 +482,7 @@ public static class QuizzesTab
         // Navigation
         if (currentQuestionIndex > 0)
         {
-            if (ImGui.Button("Previous"))
+            if (ImGui.Button(Loc.T(LocalizedStrings.Training.Previous, "Previous")))
             {
                 currentQuestionIndex--;
             }
@@ -491,7 +492,7 @@ public static class QuizzesTab
 
         if (currentQuestionIndex < quiz.Questions.Length - 1)
         {
-            if (ImGui.Button("Next"))
+            if (ImGui.Button(Loc.T(LocalizedStrings.Training.Next, "Next")))
             {
                 currentQuestionIndex++;
             }
@@ -499,7 +500,7 @@ public static class QuizzesTab
             ImGui.SameLine();
         }
 
-        if (ImGui.Button("Back to Results"))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Training.BackToResults, "Back to Results")))
         {
             reviewMode = false;
             showResults = true;
@@ -507,7 +508,7 @@ public static class QuizzesTab
 
         ImGui.SameLine();
 
-        if (ImGui.Button("Exit Quiz"))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Training.ExitQuiz, "Exit Quiz")))
         {
             activeQuizId = null;
             showResults = false;

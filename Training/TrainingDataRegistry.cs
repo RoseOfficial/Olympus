@@ -6,14 +6,17 @@ using System.IO;
 using System.Reflection;
 using System.Text.Json;
 using Dalamud.Plugin.Services;
+using Olympus.Localization;
 using Olympus.Services.Training;
 
 /// <summary>
 /// Registry for training content loaded from embedded JSON resources.
-/// Replaces the static QuizRegistry and LessonContent classes.
+/// Supports multi-language content with fallback to English.
 /// </summary>
 public sealed class TrainingDataRegistry
 {
+    private const string DefaultLanguage = "en";
+
     private static readonly string[] JobPrefixes = new[]
     {
         "whm", "sch", "ast", "sge",  // Healers
@@ -30,6 +33,7 @@ public sealed class TrainingDataRegistry
     private readonly Dictionary<string, QuizDefinition> quizzesByLessonId = new();
 
     private readonly IPluginLog log;
+    private string currentLanguage = DefaultLanguage;
 
     /// <summary>
     /// Creates a new TrainingDataRegistry and loads all content from embedded resources.
@@ -37,6 +41,38 @@ public sealed class TrainingDataRegistry
     public TrainingDataRegistry(IPluginLog log)
     {
         this.log = log;
+        LoadAllData();
+    }
+
+    /// <summary>
+    /// Gets or sets the current language for training content.
+    /// Setting this will reload all content from the new language (with fallback to English).
+    /// </summary>
+    public string CurrentLanguage
+    {
+        get => this.currentLanguage;
+        set
+        {
+            if (this.currentLanguage != value)
+            {
+                this.currentLanguage = value;
+                ReloadAllData();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Reloads all training data for the current language.
+    /// </summary>
+    public void ReloadAllData()
+    {
+        // Clear existing data
+        this.lessonsByJob.Clear();
+        this.quizzesByJob.Clear();
+        this.lessonsById.Clear();
+        this.quizzesById.Clear();
+        this.quizzesByLessonId.Clear();
+
         LoadAllData();
     }
 
@@ -51,20 +87,48 @@ public sealed class TrainingDataRegistry
         }
 
         this.log.Information(
-            "TrainingDataRegistry loaded: {LessonCount} lessons, {QuizCount} quizzes across {JobCount} jobs",
+            "TrainingDataRegistry loaded: {LessonCount} lessons, {QuizCount} quizzes across {JobCount} jobs (language: {Language})",
             this.lessonsById.Count,
             this.quizzesById.Count,
-            JobPrefixes.Length);
+            JobPrefixes.Length,
+            this.currentLanguage);
+    }
+
+    /// <summary>
+    /// Gets the resource stream for a training file, trying the current language first and falling back to English.
+    /// </summary>
+    private Stream? GetLocalizedResourceStream(Assembly assembly, string category, string jobPrefix)
+    {
+        // Try current language first
+        var localizedResourceName = $"Olympus.Training.Data.{category}.{this.currentLanguage}.{jobPrefix}.json";
+        var stream = assembly.GetManifestResourceStream(localizedResourceName);
+
+        if (stream != null)
+        {
+            return stream;
+        }
+
+        // Fall back to English
+        if (this.currentLanguage != DefaultLanguage)
+        {
+            var englishResourceName = $"Olympus.Training.Data.{category}.{DefaultLanguage}.{jobPrefix}.json";
+            stream = assembly.GetManifestResourceStream(englishResourceName);
+
+            if (stream != null)
+            {
+                this.log.Debug("Using English fallback for {Category}/{Job} (no {Language} translation)", category, jobPrefix, this.currentLanguage);
+            }
+        }
+
+        return stream;
     }
 
     private void LoadLessonsForJob(Assembly assembly, string jobPrefix)
     {
-        var resourceName = $"Olympus.Training.Data.Lessons.{jobPrefix}.json";
-
-        using var stream = assembly.GetManifestResourceStream(resourceName);
+        using var stream = GetLocalizedResourceStream(assembly, "Lessons", jobPrefix);
         if (stream == null)
         {
-            this.log.Warning("Lesson resource not found: {ResourceName}", resourceName);
+            this.log.Warning("Lesson resource not found for {Job} (tried {Language} and {Fallback})", jobPrefix, this.currentLanguage, DefaultLanguage);
             this.lessonsByJob[jobPrefix] = Array.Empty<LessonDefinition>();
             return;
         }
@@ -114,12 +178,10 @@ public sealed class TrainingDataRegistry
 
     private void LoadQuizzesForJob(Assembly assembly, string jobPrefix)
     {
-        var resourceName = $"Olympus.Training.Data.Quizzes.{jobPrefix}.json";
-
-        using var stream = assembly.GetManifestResourceStream(resourceName);
+        using var stream = GetLocalizedResourceStream(assembly, "Quizzes", jobPrefix);
         if (stream == null)
         {
-            this.log.Warning("Quiz resource not found: {ResourceName}", resourceName);
+            this.log.Warning("Quiz resource not found for {Job} (tried {Language} and {Fallback})", jobPrefix, this.currentLanguage, DefaultLanguage);
             this.quizzesByJob[jobPrefix] = Array.Empty<QuizDefinition>();
             return;
         }

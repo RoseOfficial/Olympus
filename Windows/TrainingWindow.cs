@@ -4,6 +4,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
 using Olympus.Config;
+using Olympus.Localization;
 using Olympus.Services.Training;
 using Olympus.Windows.Training.Tabs;
 
@@ -65,14 +66,14 @@ public sealed class TrainingWindow : Window
         // Tab bar
         if (ImGui.BeginTabBar("TrainingTabs"))
         {
-            if (ImGui.BeginTabItem("Live Coaching"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Training.LiveCoachingTab, "Live Coaching")))
             {
                 ImGui.Spacing();
                 LiveCoachingTab.Draw(this.trainingService, this.configuration.Training, this.decisionValidationService);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Recommended"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Training.RecommendedTab, "Recommended")))
             {
                 ImGui.Spacing();
                 RecommendationsTab.Draw(this.trainingService, this.configuration.Training);
@@ -81,7 +82,7 @@ public sealed class TrainingWindow : Window
 
             // Lessons tab with programmatic navigation support (v3.29.0)
             var lessonsFlags = this.navigateToLessonsTab ? ImGuiTabItemFlags.SetSelected : ImGuiTabItemFlags.None;
-            if (ImGui.BeginTabItem("Lessons", lessonsFlags))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Training.LessonsTab, "Lessons"), lessonsFlags))
             {
                 // Pass pending lesson ID to LessonsTab for selection
                 if (this.pendingLessonId != null)
@@ -97,21 +98,21 @@ public sealed class TrainingWindow : Window
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Quizzes"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Training.QuizzesTab, "Quizzes")))
             {
                 ImGui.Spacing();
                 QuizzesTab.Draw(this.trainingService, this.configuration.Training);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Progress"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Training.ProgressTab, "Progress")))
             {
                 ImGui.Spacing();
                 DrawProgressTab();
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Skill Level"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Training.SkillLevelTab, "Skill Level")))
             {
                 ImGui.Spacing();
                 SkillProgressTab.Draw(this.trainingService, this.configuration.Training, this.spacedRepetitionService);
@@ -126,14 +127,14 @@ public sealed class TrainingWindow : Window
     {
         // Training toggle
         var enabled = this.trainingService.IsTrainingEnabled;
-        if (ImGui.Checkbox("Enable Training Mode", ref enabled))
+        if (ImGui.Checkbox(Loc.T(LocalizedStrings.Training.EnableTrainingMode, "Enable Training Mode"), ref enabled))
         {
             this.trainingService.IsTrainingEnabled = enabled;
         }
 
         if (ImGui.IsItemHovered())
         {
-            ImGui.SetTooltip("When enabled, captures and explains rotation decisions in real-time.");
+            ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.EnableTrainingModeTooltip, "When enabled, captures and explains rotation decisions in real-time."));
         }
 
         ImGui.SameLine();
@@ -144,141 +145,147 @@ public sealed class TrainingWindow : Window
         ImGui.SameLine();
 
         // Clear button
-        if (ImGui.Button("Clear"))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Training.Clear, "Clear")))
         {
             this.trainingService.ClearExplanations();
         }
 
         if (ImGui.IsItemHovered())
         {
-            ImGui.SetTooltip("Clear all captured explanations.");
+            ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.ClearTooltip, "Clear all captured explanations."));
         }
     }
 
     private void DrawSettingsDropdown()
     {
-        if (ImGui.BeginCombo("##TrainingSettings", "Settings", ImGuiComboFlags.NoArrowButton))
+        if (ImGui.BeginCombo("##TrainingSettings", Loc.T(LocalizedStrings.Training.Settings, "Settings"), ImGuiComboFlags.NoArrowButton))
         {
-            ImGui.Text("Display Options");
+            ImGui.Text(Loc.T(LocalizedStrings.Training.DisplayOptions, "Display Options"));
             ImGui.Separator();
 
             var showAlts = this.configuration.Training.ShowAlternatives;
-            if (ImGui.Checkbox("Show Alternatives", ref showAlts))
+            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Training.ShowAlternatives, "Show Alternatives"), ref showAlts))
             {
                 this.configuration.Training.ShowAlternatives = showAlts;
             }
 
             var showTips = this.configuration.Training.ShowTips;
-            if (ImGui.Checkbox("Show Tips", ref showTips))
+            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Training.ShowTips, "Show Tips"), ref showTips))
             {
                 this.configuration.Training.ShowTips = showTips;
             }
 
             ImGui.Spacing();
-            ImGui.Text("Verbosity");
+            ImGui.Text(Loc.T(LocalizedStrings.Training.Verbosity, "Verbosity"));
             ImGui.Separator();
 
             var verbosity = (int)this.configuration.Training.Verbosity;
-            if (ImGui.RadioButton("Minimal", ref verbosity, (int)ExplanationVerbosity.Minimal))
+            if (ImGui.RadioButton(Loc.T(LocalizedStrings.Training.VerbosityMinimal, "Minimal"), ref verbosity, (int)ExplanationVerbosity.Minimal))
             {
                 this.configuration.Training.Verbosity = ExplanationVerbosity.Minimal;
             }
 
-            if (ImGui.RadioButton("Normal", ref verbosity, (int)ExplanationVerbosity.Normal))
+            if (ImGui.RadioButton(Loc.T(LocalizedStrings.Training.VerbosityNormal, "Normal"), ref verbosity, (int)ExplanationVerbosity.Normal))
             {
                 this.configuration.Training.Verbosity = ExplanationVerbosity.Normal;
             }
 
-            if (ImGui.RadioButton("Detailed", ref verbosity, (int)ExplanationVerbosity.Detailed))
+            if (ImGui.RadioButton(Loc.T(LocalizedStrings.Training.VerbosityDetailed, "Detailed"), ref verbosity, (int)ExplanationVerbosity.Detailed))
             {
                 this.configuration.Training.Verbosity = ExplanationVerbosity.Detailed;
             }
 
             ImGui.Spacing();
-            ImGui.Text("Priority Filter");
+            ImGui.Text(Loc.T(LocalizedStrings.Training.PriorityFilter, "Priority Filter"));
             ImGui.Separator();
 
             var minPriority = (int)this.configuration.Training.MinimumPriorityToShow;
-            if (ImGui.RadioButton("All", ref minPriority, (int)ExplanationPriority.Low))
+            if (ImGui.RadioButton(Loc.T(LocalizedStrings.Training.PriorityAll, "All"), ref minPriority, (int)ExplanationPriority.Low))
             {
                 this.configuration.Training.MinimumPriorityToShow = ExplanationPriority.Low;
             }
 
-            if (ImGui.RadioButton("Normal+", ref minPriority, (int)ExplanationPriority.Normal))
+            if (ImGui.RadioButton(Loc.T(LocalizedStrings.Training.PriorityNormalPlus, "Normal+"), ref minPriority, (int)ExplanationPriority.Normal))
             {
                 this.configuration.Training.MinimumPriorityToShow = ExplanationPriority.Normal;
             }
 
-            if (ImGui.RadioButton("High+", ref minPriority, (int)ExplanationPriority.High))
+            if (ImGui.RadioButton(Loc.T(LocalizedStrings.Training.PriorityHighPlus, "High+"), ref minPriority, (int)ExplanationPriority.High))
             {
                 this.configuration.Training.MinimumPriorityToShow = ExplanationPriority.High;
             }
 
-            if (ImGui.RadioButton("Critical Only", ref minPriority, (int)ExplanationPriority.Critical))
+            if (ImGui.RadioButton(Loc.T(LocalizedStrings.Training.PriorityCriticalOnly, "Critical Only"), ref minPriority, (int)ExplanationPriority.Critical))
             {
                 this.configuration.Training.MinimumPriorityToShow = ExplanationPriority.Critical;
             }
 
             ImGui.Spacing();
-            ImGui.Text("Sections");
+            ImGui.Text(Loc.T(LocalizedStrings.Training.Sections, "Sections"));
             ImGui.Separator();
-            DrawSectionToggle("CurrentAction", "Current Action");
-            DrawSectionToggle("DecisionFactors", "Decision Factors");
-            DrawSectionToggle("Alternatives", "Alternatives");
-            DrawSectionToggle("Tips", "Tips");
-            DrawSectionToggle("RecentHistory", "Recent History");
+            DrawSectionToggle("CurrentAction", Loc.T(LocalizedStrings.Training.SectionCurrentAction, "Current Action"));
+            DrawSectionToggle("DecisionFactors", Loc.T(LocalizedStrings.Training.SectionDecisionFactors, "Decision Factors"));
+            DrawSectionToggle("Alternatives", Loc.T(LocalizedStrings.Training.SectionAlternatives, "Alternatives"));
+            DrawSectionToggle("Tips", Loc.T(LocalizedStrings.Training.SectionTips, "Tips"));
+            DrawSectionToggle("RecentHistory", Loc.T(LocalizedStrings.Training.SectionRecentHistory, "Recent History"));
 
             ImGui.Spacing();
-            ImGui.Text("Coaching Hints (v3.49)");
+            ImGui.Text(Loc.T(LocalizedStrings.Training.CoachingHintsHeader, "Coaching Hints (v3.49)"));
             ImGui.Separator();
 
             var enableHints = this.configuration.Training.EnableCoachingHints;
-            if (ImGui.Checkbox("Show Coaching Hints", ref enableHints))
+            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Training.ShowCoachingHints, "Show Coaching Hints"), ref enableHints))
             {
                 this.configuration.Training.EnableCoachingHints = enableHints;
             }
 
             if (ImGui.IsItemHovered())
             {
-                ImGui.SetTooltip("Show real-time hints during combat for struggling concepts.");
+                ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.ShowCoachingHintsTooltip, "Show real-time hints during combat for struggling concepts."));
             }
 
             if (enableHints)
             {
                 var hintCooldown = this.configuration.Training.HintCooldownSeconds;
                 ImGui.SetNextItemWidth(80);
-                if (ImGui.SliderFloat("Hint Cooldown", ref hintCooldown, 5f, 60f, "%.0fs"))
+                if (ImGui.SliderFloat(Loc.T(LocalizedStrings.Training.HintCooldown, "Hint Cooldown"), ref hintCooldown, 5f, 60f, "%.0fs"))
                 {
                     this.configuration.Training.HintCooldownSeconds = hintCooldown;
                 }
 
                 var hintDuration = this.configuration.Training.HintDisplayDurationSeconds;
                 ImGui.SetNextItemWidth(80);
-                if (ImGui.SliderFloat("Hint Duration", ref hintDuration, 3f, 30f, "%.0fs"))
+                if (ImGui.SliderFloat(Loc.T(LocalizedStrings.Training.HintDuration, "Hint Duration"), ref hintDuration, 3f, 30f, "%.0fs"))
                 {
                     this.configuration.Training.HintDisplayDurationSeconds = hintDuration;
                 }
             }
 
             ImGui.Spacing();
-            ImGui.Text("Coaching Personality (v3.51)");
+            ImGui.Text(Loc.T(LocalizedStrings.Training.CoachingPersonalityHeader, "Coaching Personality (v3.51)"));
             ImGui.Separator();
 
-            var personalityOptions = new[] { "Encouraging", "Analytical", "Strict", "Silent" };
+            var personalityOptions = new[]
+            {
+                Loc.T(LocalizedStrings.Training.Encouraging, "Encouraging"),
+                Loc.T(LocalizedStrings.Training.Analytical, "Analytical"),
+                Loc.T(LocalizedStrings.Training.Strict, "Strict"),
+                Loc.T(LocalizedStrings.Training.Silent, "Silent"),
+            };
             var currentPersonality = (int)this.configuration.Training.CoachingPersonality;
             ImGui.SetNextItemWidth(120);
-            if (ImGui.Combo("Personality", ref currentPersonality, personalityOptions, personalityOptions.Length))
+            if (ImGui.Combo(Loc.T(LocalizedStrings.Training.Personality, "Personality"), ref currentPersonality, personalityOptions, personalityOptions.Length))
             {
                 this.configuration.Training.CoachingPersonality = (CoachingPersonality)currentPersonality;
             }
 
             if (ImGui.IsItemHovered())
             {
-                ImGui.SetTooltip(
+                ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.PersonalityTooltip,
                     "Encouraging: Positive, supportive feedback\n" +
                     "Analytical: Data-focused, objective feedback\n" +
                     "Strict: Direct, high-standards feedback\n" +
-                    "Silent: Minimal feedback, critical only");
+                    "Silent: Minimal feedback, critical only"));
             }
 
             ImGui.EndCombo();
@@ -301,14 +308,14 @@ public sealed class TrainingWindow : Window
         var progress = this.trainingService.GetProgress();
 
         // Overall progress
-        ImGui.Text("Learning Progress");
+        ImGui.Text(Loc.T(LocalizedStrings.Training.LearningProgress, "Learning Progress"));
         ImGui.Separator();
 
         var progressFraction = progress.TotalConcepts > 0 ? (float)progress.LearnedConcepts / progress.TotalConcepts : 0f;
-        ImGui.ProgressBar(progressFraction, new Vector2(-1, 0), $"{progress.LearnedConcepts}/{progress.TotalConcepts} concepts");
+        ImGui.ProgressBar(progressFraction, new Vector2(-1, 0), Loc.TFormat(LocalizedStrings.Training.ConceptsFormat, "{0}/{1} concepts", progress.LearnedConcepts.ToString(), progress.TotalConcepts.ToString()));
 
         ImGui.Spacing();
-        ImGui.TextColored(new Vector4(0.7f, 0.7f, 0.7f, 1.0f), $"Progress: {progress.ProgressPercent:F0}%");
+        ImGui.TextColored(new Vector4(0.7f, 0.7f, 0.7f, 1.0f), Loc.TFormat(LocalizedStrings.Training.ProgressFormat, "Progress: {0}%", $"{progress.ProgressPercent:F0}"));
 
         ImGui.Spacing();
         ImGui.Separator();
@@ -317,7 +324,7 @@ public sealed class TrainingWindow : Window
         // Recently demonstrated concepts
         if (progress.RecentlyDemonstratedConcepts.Length > 0)
         {
-            ImGui.Text("Recently Seen:");
+            ImGui.Text(Loc.T(LocalizedStrings.Training.RecentlySeen, "Recently Seen:"));
             foreach (var concept in progress.RecentlyDemonstratedConcepts)
             {
                 var isLearned = this.configuration.Training.LearnedConcepts.Contains(concept);
@@ -325,13 +332,13 @@ public sealed class TrainingWindow : Window
 
                 if (isLearned)
                 {
-                    ImGui.TextColored(new Vector4(0.3f, 0.9f, 0.3f, 1.0f), $"  [Learned] {displayName}");
+                    ImGui.TextColored(new Vector4(0.3f, 0.9f, 0.3f, 1.0f), $"  {Loc.T(LocalizedStrings.Training.Learned, "[Learned]")} {displayName}");
                 }
                 else
                 {
                     ImGui.Text($"  {displayName}");
                     ImGui.SameLine();
-                    if (ImGui.SmallButton($"Mark Learned##{concept}"))
+                    if (ImGui.SmallButton($"{Loc.T(LocalizedStrings.Training.MarkLearned, "Mark Learned")}##{concept}"))
                     {
                         this.trainingService.MarkConceptLearned(concept);
                     }
@@ -343,13 +350,13 @@ public sealed class TrainingWindow : Window
         // Concepts needing attention
         if (progress.ConceptsNeedingAttention.Length > 0)
         {
-            ImGui.TextColored(new Vector4(0.9f, 0.9f, 0.3f, 1.0f), "Needs Review (seen 10+ times):");
+            ImGui.TextColored(new Vector4(0.9f, 0.9f, 0.3f, 1.0f), Loc.T(LocalizedStrings.Training.NeedsReview, "Needs Review (seen 10+ times):"));
             foreach (var concept in progress.ConceptsNeedingAttention)
             {
                 var displayName = FormatConceptName(concept);
                 ImGui.Text($"  {displayName}");
                 ImGui.SameLine();
-                if (ImGui.SmallButton($"Mark Learned##{concept}"))
+                if (ImGui.SmallButton($"{Loc.T(LocalizedStrings.Training.MarkLearned, "Mark Learned")}##{concept}"))
                 {
                     this.trainingService.MarkConceptLearned(concept);
                 }

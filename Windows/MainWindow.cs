@@ -3,6 +3,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
 using Olympus.Data;
+using Olympus.Localization;
 using Olympus.Rotation;
 
 namespace Olympus.Windows;
@@ -45,16 +46,18 @@ public sealed class MainWindow : Window
         var statusColor = configuration.Enabled
             ? new Vector4(0.0f, 1.0f, 0.0f, 1.0f)
             : new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
-        var statusText = configuration.Enabled ? "ACTIVE" : "INACTIVE";
+        var statusText = configuration.Enabled
+            ? Loc.T(LocalizedStrings.Main.Active, "ACTIVE")
+            : Loc.T(LocalizedStrings.Main.Inactive, "INACTIVE");
 
-        ImGui.Text("Status:");
+        ImGui.Text(Loc.T(LocalizedStrings.Main.Status, "Status:"));
         ImGui.SameLine();
         ImGui.TextColored(statusColor, statusText);
 
         ImGui.Separator();
 
         // Show active rotation
-        ImGui.Text("Active Rotation:");
+        ImGui.Text(Loc.T(LocalizedStrings.Main.ActiveRotation, "Active Rotation:"));
         var activeRotation = rotationManager.ActiveRotation;
         if (activeRotation != null)
         {
@@ -64,13 +67,13 @@ public sealed class MainWindow : Window
         }
         else
         {
-            ImGui.TextDisabled("None (switch to supported job)");
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Main.SwitchToSupported, "None (switch to supported job)"));
         }
 
         ImGui.Separator();
 
         // List available rotations
-        ImGui.Text("Available:");
+        ImGui.Text(Loc.T(LocalizedStrings.Main.Available, "Available:"));
         foreach (var rotation in rotationManager.RegisteredRotations)
         {
             bool isActive = rotation == activeRotation;
@@ -83,28 +86,32 @@ public sealed class MainWindow : Window
 
         ImGui.Separator();
 
-        if (ImGui.Button(configuration.Enabled ? "Disable" : "Enable", new Vector2(-1, 0)))
+        var enableDisableText = configuration.Enabled
+            ? Loc.T(LocalizedStrings.Main.Disable, "Disable")
+            : Loc.T(LocalizedStrings.Main.Enable, "Enable");
+
+        if (ImGui.Button(enableDisableText, new Vector2(-1, 0)))
         {
             configuration.Enabled = !configuration.Enabled;
             saveConfiguration();
         }
 
-        if (ImGui.Button("Settings", new Vector2(-1, 0)))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Main.Settings, "Settings"), new Vector2(-1, 0)))
         {
             openSettings();
         }
 
-        if (ImGui.Button("Analytics", new Vector2(-1, 0)))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Main.Analytics, "Analytics"), new Vector2(-1, 0)))
         {
             openAnalytics();
         }
 
-        if (ImGui.Button("Training", new Vector2(-1, 0)))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Main.Training, "Training"), new Vector2(-1, 0)))
         {
             openTraining();
         }
 
-        if (ImGui.Button("Debug", new Vector2(-1, 0)))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Main.Debug, "Debug"), new Vector2(-1, 0)))
         {
             openDebug();
         }

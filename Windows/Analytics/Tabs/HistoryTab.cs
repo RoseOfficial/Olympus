@@ -2,6 +2,7 @@ using System;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config;
+using Olympus.Localization;
 using Olympus.Services.Analytics;
 
 namespace Olympus.Windows.Analytics.Tabs;
@@ -42,31 +43,32 @@ public static class HistoryTab
 
     private static void DrawTrends(PerformanceTrend? trend, int sessionCount)
     {
-        ImGui.Text("Performance Trends");
+        ImGui.Text(Loc.T(LocalizedStrings.Analytics.PerformanceTrends, "Performance Trends"));
         ImGui.Separator();
 
         if (trend == null)
         {
-            ImGui.TextColored(NeutralColor, $"Need at least 3 sessions for trends ({sessionCount} recorded).");
+            ImGui.TextColored(NeutralColor, Loc.TFormat(LocalizedStrings.Analytics.NeedSessionsForTrends,
+                "Need at least 3 sessions for trends ({0} recorded).", sessionCount.ToString()));
             return;
         }
 
         if (ImGui.BeginTable("TrendsTable", 2, ImGuiTableFlags.BordersInnerH | ImGuiTableFlags.SizingStretchProp))
         {
-            ImGui.TableSetupColumn("Metric", ImGuiTableColumnFlags.WidthFixed, 150);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Analytics.Metric, "Metric"), ImGuiTableColumnFlags.WidthFixed, 150);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Analytics.Value, "Value"), ImGuiTableColumnFlags.WidthStretch);
 
             // Sessions analyzed
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Sessions:");
+            ImGui.Text(Loc.T(LocalizedStrings.Analytics.SessionsCount, "Sessions:"));
             ImGui.TableNextColumn();
             ImGui.Text(trend.SessionCount.ToString());
 
             // Average score
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Avg Score:");
+            ImGui.Text(Loc.T(LocalizedStrings.Analytics.AvgScore, "Avg Score:"));
             ImGui.TableNextColumn();
             var avgColor = GetGradeColor(PerformanceScore.GetGrade(trend.AverageScore));
             ImGui.TextColored(avgColor, $"{trend.AverageScore:F0}/100");
@@ -74,14 +76,14 @@ public static class HistoryTab
             // Average GCD uptime
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Avg GCD Uptime:");
+            ImGui.Text(Loc.T(LocalizedStrings.Analytics.AvgGcdUptime, "Avg GCD Uptime:"));
             ImGui.TableNextColumn();
             ImGui.Text($"{trend.AverageGcdUptime:F1}%");
 
             // Trend direction
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Trend:");
+            ImGui.Text(Loc.T(LocalizedStrings.Analytics.Trend, "Trend:"));
             ImGui.TableNextColumn();
             var trendColor = trend.ScoreTrend switch
             {
@@ -103,18 +105,18 @@ public static class HistoryTab
 
     private static void DrawSessions(System.Collections.Generic.IReadOnlyList<FightSession> sessions, IPerformanceTracker tracker)
     {
-        ImGui.Text($"Session History ({sessions.Count})");
+        ImGui.Text(Loc.TFormat(LocalizedStrings.Analytics.SessionHistoryFormat, "Session History ({0})", sessions.Count.ToString()));
         ImGui.Separator();
 
         if (sessions.Count == 0)
         {
-            ImGui.TextColored(NeutralColor, "No sessions recorded yet.");
-            ImGui.TextColored(NeutralColor, "Complete combat encounters to build history.");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Analytics.NoSessionsRecorded, "No sessions recorded yet."));
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Analytics.BuildHistory, "Complete combat encounters to build history."));
             return;
         }
 
         // Clear history button
-        if (ImGui.Button("Clear History"))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Analytics.ClearHistory, "Clear History")))
         {
             tracker.ClearHistory();
         }
@@ -127,11 +129,11 @@ public static class HistoryTab
             ImGuiTableFlags.RowBg | ImGuiTableFlags.ScrollY,
             new Vector2(0, 200)))
         {
-            ImGui.TableSetupColumn("Time", ImGuiTableColumnFlags.WidthFixed, 60);
-            ImGui.TableSetupColumn("Duration", ImGuiTableColumnFlags.WidthFixed, 60);
-            ImGui.TableSetupColumn("Score", ImGuiTableColumnFlags.WidthFixed, 50);
-            ImGui.TableSetupColumn("Grade", ImGuiTableColumnFlags.WidthFixed, 40);
-            ImGui.TableSetupColumn("GCD%", ImGuiTableColumnFlags.WidthFixed, 50);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Analytics.Time, "Time"), ImGuiTableColumnFlags.WidthFixed, 60);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Analytics.Duration, "Duration"), ImGuiTableColumnFlags.WidthFixed, 60);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Analytics.Score, "Score"), ImGuiTableColumnFlags.WidthFixed, 50);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Analytics.Grade, "Grade"), ImGuiTableColumnFlags.WidthFixed, 40);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Analytics.GcdPercent, "GCD%"), ImGuiTableColumnFlags.WidthFixed, 50);
 
             ImGui.TableHeadersRow();
 

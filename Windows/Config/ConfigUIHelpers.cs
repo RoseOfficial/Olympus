@@ -1,6 +1,7 @@
 using System;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Olympus.Localization;
 
 namespace Olympus.Windows.Config;
 
@@ -32,7 +33,8 @@ public static class ConfigUIHelpers
     /// </summary>
     public static void JobHeader(string jobName, string deityName, Vector4 color)
     {
-        ImGui.TextColored(color, $"{deityName} ({jobName}) Settings");
+        var headerText = Loc.TFormat(LocalizedStrings.Helpers.JobHeaderFormat, "{0} ({1}) Settings", deityName, jobName);
+        ImGui.TextColored(color, headerText);
         ImGui.Spacing();
     }
 

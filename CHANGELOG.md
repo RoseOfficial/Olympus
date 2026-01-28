@@ -3,6 +3,44 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.3.1 - Debug Window Localization Complete
+
+**Localization**
+- Completed localization of all 22 Debug Window tabs (755 localized strings)
+- Completed localization of Analytics Window and all 4 tabs (110 localized strings)
+- Fixed duplicate localization key issues for Summoner-specific strings (Phase, Mp, Aetherflow, EnergyDrain)
+
+**Affected Jobs**
+- All 4 Healers: WHM, SCH, AST, SGE debug tabs
+- All 4 Tanks: PLD, WAR, DRK, GNB debug tabs
+- All 6 Melee DPS: DRG, NIN, SAM, MNK, RPR, VPR debug tabs
+- All 3 Ranged Physical DPS: MCH, BRD, DNC debug tabs
+- All 4 Casters: BLM, SMN, RDM, PCT debug tabs
+- General debug tabs: Overview, Timeline, Actions, Healing, Overheal, Performance, WhyStuck
+<!-- LATEST-END -->
+
+## v4.3.0 - Localization Infrastructure
+
+**Multi-Language Support Foundation**
+- Added localization infrastructure for future multi-language support
+- Plugin now detects game client language (English, Japanese, German, French)
+- Optional language override setting for community translations
+- Localized Main Window UI as proof of concept
+
+**New Files**
+- `Localization/OlympusLocalization.cs` - Core localization service with fallback system
+- `Localization/LocalizedStrings.cs` - String key constants for all UI text
+- `Localization/GameDataLocalizer.cs` - FFXIV ability names from game data
+- `Localization/Loc/olympus_en.json` - English source strings
+
+**Settings**
+- New `LanguageOverride` setting for manual language selection (default: use game language)
+
+**Developer Notes**
+- Use `Loc.T(key, fallback)` pattern for all new UI strings
+- English text provided as fallback ensures functionality without translation files
+- Ability names automatically localized from game data via `GameLoc.Action(id)`
+
 ## v4.1.1 - Bug Fixes
 
 **Summoner**
@@ -14,7 +52,6 @@ All notable changes to Olympus will be documented in this file.
 
 **Analytics**
 - Improved burst window detection - now uses actual party coordination data when available instead of just 120s heuristics
-<!-- LATEST-END -->
 
 ## v4.1.0 - Lazy Rotation Loading
 

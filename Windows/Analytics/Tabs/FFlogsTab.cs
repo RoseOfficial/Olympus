@@ -3,6 +3,7 @@ using System.Numerics;
 using System.Threading.Tasks;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config;
+using Olympus.Localization;
 using Olympus.Services.FFLogs;
 
 namespace Olympus.Windows.Analytics.Tabs;
@@ -38,7 +39,7 @@ public static class FFlogsTab
     {
         if (fflogsService == null)
         {
-            ImGui.TextColored(WarningColor, "FFLogs service not initialized.");
+            ImGui.TextColored(WarningColor, Loc.T(LocalizedStrings.Analytics.FFlogsServiceNotInit, "FFLogs service not initialized."));
             return;
         }
 
@@ -73,37 +74,37 @@ public static class FFlogsTab
 
     private static void DrawSetupWizard(IFFlogsService fflogsService, FFlogsConfig config)
     {
-        ImGui.TextColored(HeaderColor, "FFLogs Setup");
+        ImGui.TextColored(HeaderColor, Loc.T(LocalizedStrings.Analytics.FFlogsSetup, "FFLogs Setup"));
         ImGui.Separator();
         ImGui.Spacing();
 
-        ImGui.TextWrapped("To use FFLogs integration, you need to create an API client on FFLogs.");
+        ImGui.TextWrapped(Loc.T(LocalizedStrings.Analytics.FFlogsIntro, "To use FFLogs integration, you need to create an API client on FFLogs."));
         ImGui.Spacing();
 
-        ImGui.TextColored(InfoColor, "Step 1: Create FFLogs API Client");
-        ImGui.BulletText("Go to: https://www.fflogs.com/api/clients/");
-        ImGui.BulletText("Click 'Create Client'");
-        ImGui.BulletText("Set any name (e.g., 'Olympus Plugin')");
-        ImGui.BulletText("Set redirect URL to: http://localhost");
-        ImGui.BulletText("Check 'Public Client' if available");
+        ImGui.TextColored(InfoColor, Loc.T(LocalizedStrings.Analytics.FFlogsStep1, "Step 1: Create FFLogs API Client"));
+        ImGui.BulletText(Loc.T(LocalizedStrings.Analytics.FFlogsStep1Url, "Go to: https://www.fflogs.com/api/clients/"));
+        ImGui.BulletText(Loc.T(LocalizedStrings.Analytics.FFlogsStep1Create, "Click 'Create Client'"));
+        ImGui.BulletText(Loc.T(LocalizedStrings.Analytics.FFlogsStep1Name, "Set any name (e.g., 'Olympus Plugin')"));
+        ImGui.BulletText(Loc.T(LocalizedStrings.Analytics.FFlogsStep1Redirect, "Set redirect URL to: http://localhost"));
+        ImGui.BulletText(Loc.T(LocalizedStrings.Analytics.FFlogsStep1Public, "Check 'Public Client' if available"));
         ImGui.Spacing();
 
-        ImGui.TextColored(InfoColor, "Step 2: Enter Credentials");
+        ImGui.TextColored(InfoColor, Loc.T(LocalizedStrings.Analytics.FFlogsStep2, "Step 2: Enter Credentials"));
         ImGui.Spacing();
 
         ImGui.SetNextItemWidth(300);
-        ImGui.InputText("Client ID", ref clientIdInput, 256);
+        ImGui.InputText(Loc.T(LocalizedStrings.Analytics.ClientId, "Client ID"), ref clientIdInput, 256);
 
         ImGui.SetNextItemWidth(300);
-        ImGui.InputText("Client Secret", ref clientSecretInput, 256, ImGuiInputTextFlags.Password);
+        ImGui.InputText(Loc.T(LocalizedStrings.Analytics.ClientSecret, "Client Secret"), ref clientSecretInput, 256, ImGuiInputTextFlags.Password);
 
         ImGui.Spacing();
 
-        if (ImGui.Button("Save Credentials"))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Analytics.SaveCredentials, "Save Credentials")))
         {
             config.ClientId = clientIdInput.Trim();
             config.ClientSecret = clientSecretInput.Trim();
-            statusMessage = "Credentials saved. Testing connection...";
+            statusMessage = Loc.T(LocalizedStrings.Analytics.CredentialsSaved, "Credentials saved. Testing connection...");
             _ = TestConnectionAsync(fflogsService);
         }
 
@@ -117,27 +118,27 @@ public static class FFlogsTab
         if (!string.IsNullOrEmpty(fflogsService.LastError))
         {
             ImGui.Spacing();
-            ImGui.TextColored(BadColor, $"Error: {fflogsService.LastError}");
+            ImGui.TextColored(BadColor, Loc.TFormat(LocalizedStrings.Analytics.ErrorPrefix, "Error: {0}", fflogsService.LastError));
         }
     }
 
     private static void DrawCharacterBinding(IFFlogsService fflogsService, FFlogsConfig config)
     {
-        ImGui.TextColored(HeaderColor, "Character Binding");
+        ImGui.TextColored(HeaderColor, Loc.T(LocalizedStrings.Analytics.CharacterBinding, "Character Binding"));
         ImGui.Separator();
         ImGui.Spacing();
 
-        ImGui.TextWrapped("Enter your character information to view FFLogs rankings.");
+        ImGui.TextWrapped(Loc.T(LocalizedStrings.Analytics.CharacterBindingIntro, "Enter your character information to view FFLogs rankings."));
         ImGui.Spacing();
 
         ImGui.SetNextItemWidth(200);
-        ImGui.InputText("Character Name", ref characterNameInput, 64);
+        ImGui.InputText(Loc.T(LocalizedStrings.Analytics.CharacterName, "Character Name"), ref characterNameInput, 64);
 
         ImGui.SetNextItemWidth(200);
-        ImGui.InputText("Server (e.g., gilgamesh)", ref serverSlugInput, 64);
+        ImGui.InputText(Loc.T(LocalizedStrings.Analytics.Server, "Server (e.g., gilgamesh)"), ref serverSlugInput, 64);
 
         ImGui.SetNextItemWidth(100);
-        ImGui.Combo("Region", ref regionIndex, Regions, Regions.Length);
+        ImGui.Combo(Loc.T(LocalizedStrings.Analytics.Region, "Region"), ref regionIndex, Regions, Regions.Length);
 
         ImGui.Spacing();
 
@@ -145,12 +146,12 @@ public static class FFlogsTab
         if (!canBind)
             ImGui.BeginDisabled();
 
-        if (ImGui.Button("Bind Character"))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Analytics.BindCharacter, "Bind Character")))
         {
             config.CharacterName = characterNameInput.Trim();
             config.ServerSlug = serverSlugInput.Trim().ToLowerInvariant();
             config.Region = Regions[regionIndex];
-            statusMessage = "Looking up character...";
+            statusMessage = Loc.T(LocalizedStrings.Analytics.LookingUpCharacter, "Looking up character...");
             _ = LookupCharacterAsync(fflogsService, config);
         }
 
@@ -159,7 +160,7 @@ public static class FFlogsTab
 
         ImGui.SameLine();
 
-        if (ImGui.Button("Change Credentials"))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Analytics.ChangeCredentials, "Change Credentials")))
         {
             config.ClientId = "";
             config.ClientSecret = "";
@@ -170,7 +171,7 @@ public static class FFlogsTab
         if (isLoading)
         {
             ImGui.Spacing();
-            ImGui.TextColored(NeutralColor, "Loading...");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Analytics.Loading, "Loading..."));
         }
 
         if (!string.IsNullOrEmpty(statusMessage))
@@ -183,7 +184,7 @@ public static class FFlogsTab
         if (!string.IsNullOrEmpty(fflogsService.LastError))
         {
             ImGui.Spacing();
-            ImGui.TextColored(BadColor, $"Error: {fflogsService.LastError}");
+            ImGui.TextColored(BadColor, Loc.TFormat(LocalizedStrings.Analytics.ErrorPrefix, "Error: {0}", fflogsService.LastError));
         }
     }
 
@@ -202,7 +203,7 @@ public static class FFlogsTab
 
         if (isLoading)
         {
-            ImGui.TextColored(NeutralColor, "Loading rankings...");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Analytics.LoadingRankings, "Loading rankings..."));
             return;
         }
 
@@ -210,11 +211,11 @@ public static class FFlogsTab
         {
             if (!string.IsNullOrEmpty(fflogsService.LastError))
             {
-                ImGui.TextColored(BadColor, $"Error: {fflogsService.LastError}");
+                ImGui.TextColored(BadColor, Loc.TFormat(LocalizedStrings.Analytics.ErrorPrefix, "Error: {0}", fflogsService.LastError));
             }
             else
             {
-                ImGui.TextColored(NeutralColor, "No rankings data available. Click Refresh to load.");
+                ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Analytics.NoRankingsData, "No rankings data available. Click Refresh to load."));
             }
             return;
         }
@@ -230,32 +231,37 @@ public static class FFlogsTab
     private static void DrawHeader(IFFlogsService fflogsService, FFlogsConfig config)
     {
         // Character info
-        ImGui.TextColored(HeaderColor, "FFLogs Integration");
-        ImGui.Text($"Character: {config.CharacterName} @ {config.ServerSlug.ToUpperInvariant()} ({config.Region})");
+        ImGui.TextColored(HeaderColor, Loc.T(LocalizedStrings.Analytics.FFlogsIntegration, "FFLogs Integration"));
+        ImGui.Text(Loc.TFormat(LocalizedStrings.Analytics.CharacterFormat, "Character: {0} @ {1} ({2})",
+            config.CharacterName, config.ServerSlug.ToUpperInvariant(), config.Region));
 
         // Status and rate limit
         var rateLimit = fflogsService.RateLimitInfo;
         if (rateLimit != null)
         {
             var statusColor = rateLimit.IsLowOnPoints ? WarningColor : GoodColor;
-            ImGui.TextColored(statusColor, $"Status: Connected ({rateLimit.PointsRemaining:N0}/{rateLimit.PointsLimit:N0} points remaining)");
+            ImGui.TextColored(statusColor, Loc.TFormat(LocalizedStrings.Analytics.StatusConnectedPoints,
+                "Status: Connected ({0}/{1} points remaining)",
+                $"{rateLimit.PointsRemaining:N0}", $"{rateLimit.PointsLimit:N0}"));
         }
         else
         {
             var statusColor = fflogsService.IsAuthenticated ? GoodColor : NeutralColor;
-            var statusText = fflogsService.IsAuthenticated ? "Connected" : "Not connected";
-            ImGui.TextColored(statusColor, $"Status: {statusText}");
+            var statusText = fflogsService.IsAuthenticated
+                ? Loc.T(LocalizedStrings.Analytics.StatusConnected, "Status: Connected")
+                : Loc.T(LocalizedStrings.Analytics.StatusNotConnected, "Status: Not connected");
+            ImGui.TextColored(statusColor, statusText);
         }
 
         // Action buttons
-        if (ImGui.Button("Refresh"))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Analytics.Refresh, "Refresh")))
         {
             _ = RefreshRankingsAsync(fflogsService, config);
         }
 
         ImGui.SameLine();
 
-        if (ImGui.Button("Change Character"))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Analytics.ChangeCharacter, "Change Character")))
         {
             config.CharacterName = "";
             config.ServerSlug = "";
@@ -268,36 +274,38 @@ public static class FFlogsTab
 
     private static void DrawAllStarsSummary(FFlogsZoneRanking rankings)
     {
-        ImGui.TextColored(InfoColor, $"Current Zone: {rankings.ZoneName}");
+        ImGui.TextColored(InfoColor, Loc.TFormat(LocalizedStrings.Analytics.CurrentZone, "Current Zone: {0}", rankings.ZoneName));
 
         if (rankings.AllStarsPoints > 0)
         {
             var rankColor = GetPercentileColor(100 - rankings.AllStarsRankPercent);
-            ImGui.Text($"All Stars: {rankings.AllStarsPoints:N0} pts (Rank #{rankings.AllStarsRank:N0} | Top {rankings.AllStarsRankPercent}%)");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Analytics.AllStarsFormat,
+                "All Stars: {0} pts (Rank #{1} | Top {2}%)",
+                $"{rankings.AllStarsPoints:N0}", $"{rankings.AllStarsRank:N0}", rankings.AllStarsRankPercent.ToString()));
         }
         else
         {
-            ImGui.TextColored(NeutralColor, "No All Stars ranking available.");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Analytics.NoAllStars, "No All Stars ranking available."));
         }
     }
 
     private static void DrawEncounterRankings(FFlogsZoneRanking rankings)
     {
-        ImGui.Text("Encounter Rankings");
+        ImGui.Text(Loc.T(LocalizedStrings.Analytics.EncounterRankings, "Encounter Rankings"));
 
         if (rankings.Encounters.Count == 0)
         {
-            ImGui.TextColored(NeutralColor, "No encounter data available.");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Analytics.NoEncounterData, "No encounter data available."));
             return;
         }
 
         if (ImGui.BeginTable("FFLogsEncounters", 5, ImGuiTableFlags.BordersInnerH | ImGuiTableFlags.SizingStretchProp))
         {
-            ImGui.TableSetupColumn("Boss", ImGuiTableColumnFlags.WidthStretch);
-            ImGui.TableSetupColumn("Best", ImGuiTableColumnFlags.WidthFixed, 60);
-            ImGui.TableSetupColumn("Median", ImGuiTableColumnFlags.WidthFixed, 60);
-            ImGui.TableSetupColumn("Kills", ImGuiTableColumnFlags.WidthFixed, 50);
-            ImGui.TableSetupColumn("Trend", ImGuiTableColumnFlags.WidthFixed, 60);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Analytics.Boss, "Boss"), ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Analytics.Best, "Best"), ImGuiTableColumnFlags.WidthFixed, 60);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Analytics.Median, "Median"), ImGuiTableColumnFlags.WidthFixed, 60);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Analytics.Kills, "Kills"), ImGuiTableColumnFlags.WidthFixed, 50);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Analytics.Trend, "Trend"), ImGuiTableColumnFlags.WidthFixed, 60);
 
             ImGui.TableHeadersRow();
 
@@ -350,11 +358,13 @@ public static class FFlogsTab
         try
         {
             var success = await fflogsService.TestConnectionAsync();
-            statusMessage = success ? "Connection successful!" : "Connection failed. Check your credentials.";
+            statusMessage = success
+                ? Loc.T(LocalizedStrings.Analytics.ConnectionSuccessful, "Connection successful!")
+                : Loc.T(LocalizedStrings.Analytics.ConnectionFailed, "Connection failed. Check your credentials.");
         }
         catch (Exception ex)
         {
-            statusMessage = $"Error: {ex.Message}";
+            statusMessage = Loc.TFormat(LocalizedStrings.Analytics.ErrorPrefix, "Error: {0}", ex.Message);
         }
         finally
         {
@@ -365,7 +375,7 @@ public static class FFlogsTab
     private static async Task LookupCharacterAsync(IFFlogsService fflogsService, FFlogsConfig config)
     {
         isLoading = true;
-        statusMessage = "Looking up character...";
+        statusMessage = Loc.T(LocalizedStrings.Analytics.LookingUpCharacter, "Looking up character...");
 
         try
         {
@@ -373,19 +383,19 @@ public static class FFlogsTab
             if (result.Success && result.Data != null)
             {
                 config.CachedCharacterId = result.Data.Id;
-                statusMessage = $"Character found! FFLogs ID: {result.Data.Id}";
+                statusMessage = Loc.TFormat(LocalizedStrings.Analytics.CharacterFound, "Character found! FFLogs ID: {0}", result.Data.Id.ToString());
 
                 // Load initial rankings
                 await RefreshRankingsAsync(fflogsService, config);
             }
             else
             {
-                statusMessage = result.Error ?? "Character not found.";
+                statusMessage = result.Error ?? Loc.T(LocalizedStrings.Analytics.CharacterNotFound, "Character not found.");
             }
         }
         catch (Exception ex)
         {
-            statusMessage = $"Error: {ex.Message}";
+            statusMessage = Loc.TFormat(LocalizedStrings.Analytics.ErrorPrefix, "Error: {0}", ex.Message);
         }
         finally
         {

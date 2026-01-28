@@ -3,6 +3,7 @@ using System.Linq;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config;
+using Olympus.Localization;
 using Olympus.Services.Targeting;
 
 namespace Olympus.Windows.Config.Shared;
@@ -15,28 +16,38 @@ public sealed class GeneralSection
     private readonly Configuration config;
     private readonly Action save;
 
-    private static readonly string[] StrategyNames =
+    private string[] GetStrategyNames() =>
     [
-        "Lowest HP",
-        "Highest HP",
-        "Nearest",
-        "Tank Assist",
-        "Current Target",
-        "Focus Target"
+        Loc.T(LocalizedStrings.Targeting.StrategyLowestHp, "Lowest HP"),
+        Loc.T(LocalizedStrings.Targeting.StrategyHighestHp, "Highest HP"),
+        Loc.T(LocalizedStrings.Targeting.StrategyNearest, "Nearest"),
+        Loc.T(LocalizedStrings.Targeting.StrategyTankAssist, "Tank Assist"),
+        Loc.T(LocalizedStrings.Targeting.StrategyCurrentTarget, "Current Target"),
+        Loc.T(LocalizedStrings.Targeting.StrategyFocusTarget, "Focus Target")
     ];
 
-    private static readonly string[] StrategyDescriptions =
+    private string[] GetStrategyDescriptions() =>
     [
-        "Target enemy with lowest HP (finish off weak enemies)",
-        "Target enemy with highest HP (for cleave/AoE)",
-        "Target closest enemy",
-        "Attack what the party tank is targeting",
-        "Use your current hard target if valid",
-        "Use your focus target if valid"
+        Loc.T(LocalizedStrings.Targeting.StrategyDescLowestHp, "Target enemy with lowest HP (finish off weak enemies)"),
+        Loc.T(LocalizedStrings.Targeting.StrategyDescHighestHp, "Target enemy with highest HP (for cleave/AoE)"),
+        Loc.T(LocalizedStrings.Targeting.StrategyDescNearest, "Target closest enemy"),
+        Loc.T(LocalizedStrings.Targeting.StrategyDescTankAssist, "Attack what the party tank is targeting"),
+        Loc.T(LocalizedStrings.Targeting.StrategyDescCurrentTarget, "Use your current hard target if valid"),
+        Loc.T(LocalizedStrings.Targeting.StrategyDescFocusTarget, "Use your focus target if valid")
     ];
 
-    private static readonly string[] RaiseModeNames = ["Raise First", "Balanced", "Heal First"];
-    private static readonly string[] SurecastModes = ["Manual Only", "Use on Cooldown"];
+    private string[] GetRaiseModeNames() =>
+    [
+        Loc.T(LocalizedStrings.Resurrection.RaiseModeFirst, "Raise First"),
+        Loc.T(LocalizedStrings.Resurrection.RaiseModeBalanced, "Balanced"),
+        Loc.T(LocalizedStrings.Resurrection.RaiseModeHealFirst, "Heal First")
+    ];
+
+    private string[] GetSurecastModes() =>
+    [
+        Loc.T(LocalizedStrings.RoleActions.SurecastModeManual, "Manual Only"),
+        Loc.T(LocalizedStrings.RoleActions.SurecastModeAuto, "Use on Cooldown")
+    ];
 
     public GeneralSection(Configuration config, Action save)
     {
@@ -64,88 +75,94 @@ public sealed class GeneralSection
     {
         ConfigUIHelpers.BeginIndent();
 
-        var currentStrategy = (int)config.Targeting.EnemyStrategy;
+        var strategyNames = this.GetStrategyNames();
+        var strategyDescriptions = this.GetStrategyDescriptions();
+        var currentStrategy = (int)this.config.Targeting.EnemyStrategy;
         ImGui.SetNextItemWidth(200);
-        if (ImGui.Combo("Enemy Strategy", ref currentStrategy, StrategyNames, StrategyNames.Length))
+        if (ImGui.Combo(Loc.T(LocalizedStrings.Targeting.EnemyStrategy, "Enemy Strategy"), ref currentStrategy, strategyNames, strategyNames.Length))
         {
-            config.Targeting.EnemyStrategy = (EnemyTargetingStrategy)currentStrategy;
-            save();
+            this.config.Targeting.EnemyStrategy = (EnemyTargetingStrategy)currentStrategy;
+            this.save();
         }
-        ImGui.TextDisabled(StrategyDescriptions[currentStrategy]);
+        ImGui.TextDisabled(strategyDescriptions[currentStrategy]);
 
         ConfigUIHelpers.Spacing();
 
         // Only show tank assist fallback when tank assist is selected
-        if (config.Targeting.EnemyStrategy == EnemyTargetingStrategy.TankAssist)
+        if (this.config.Targeting.EnemyStrategy == EnemyTargetingStrategy.TankAssist)
         {
-            var useFallback = config.Targeting.UseTankAssistFallback;
-            if (ImGui.Checkbox("Fallback to Lowest HP", ref useFallback))
+            var useFallback = this.config.Targeting.UseTankAssistFallback;
+            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Targeting.FallbackToLowestHp, "Fallback to Lowest HP"), ref useFallback))
             {
-                config.Targeting.UseTankAssistFallback = useFallback;
-                save();
+                this.config.Targeting.UseTankAssistFallback = useFallback;
+                this.save();
             }
-            ImGui.TextDisabled("If no tank target found, use Lowest HP instead.");
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Targeting.FallbackToLowestHpDesc, "If no tank target found, use Lowest HP instead."));
         }
 
         ConfigUIHelpers.Spacing();
 
         // Movement tolerance
-        var moveTolerance = config.MovementTolerance * 1000f; // Convert to ms
+        var moveTolerance = this.config.MovementTolerance * 1000f; // Convert to ms
         ImGui.SetNextItemWidth(200);
-        if (ImGui.SliderFloat("Movement Tolerance", ref moveTolerance, 0f, 500f, "%.0f ms"))
+        if (ImGui.SliderFloat(Loc.T(LocalizedStrings.Targeting.MovementTolerance, "Movement Tolerance"), ref moveTolerance, 0f, 500f, "%.0f ms"))
         {
-            config.MovementTolerance = moveTolerance / 1000f;
-            save();
+            this.config.MovementTolerance = moveTolerance / 1000f;
+            this.save();
         }
-        ImGui.TextDisabled("Delay after stopping before casting. Lower = faster, higher = safer.");
+        ImGui.TextDisabled(Loc.T(LocalizedStrings.Targeting.MovementToleranceDesc, "Delay after stopping before casting. Lower = faster, higher = safer."));
 
         ConfigUIHelpers.EndIndent();
     }
 
     private void DrawResurrectionSection()
     {
-        if (ConfigUIHelpers.SectionHeader("Resurrection"))
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Resurrection.Section, "Resurrection")))
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableRaise = config.Resurrection.EnableRaise;
-            if (ImGui.Checkbox("Enable Raise", ref enableRaise))
+            var enableRaise = this.config.Resurrection.EnableRaise;
+            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Resurrection.EnableRaise, "Enable Raise"), ref enableRaise))
             {
-                config.Resurrection.EnableRaise = enableRaise;
-                save();
+                this.config.Resurrection.EnableRaise = enableRaise;
+                this.save();
             }
-            ImGui.TextDisabled("Automatically resurrect dead party members.");
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Resurrection.EnableRaiseDesc, "Automatically resurrect dead party members."));
 
-            ConfigUIHelpers.BeginDisabledGroup(!config.Resurrection.EnableRaise);
+            ConfigUIHelpers.BeginDisabledGroup(!this.config.Resurrection.EnableRaise);
 
             // Raise Execution Mode
-            var currentMode = (int)config.Resurrection.RaiseMode;
+            var raiseModeNames = this.GetRaiseModeNames();
+            var currentMode = (int)this.config.Resurrection.RaiseMode;
             ImGui.SetNextItemWidth(150);
-            if (ImGui.Combo("Raise Priority", ref currentMode, RaiseModeNames, RaiseModeNames.Length))
+            if (ImGui.Combo(Loc.T(LocalizedStrings.Resurrection.RaisePriority, "Raise Priority"), ref currentMode, raiseModeNames, raiseModeNames.Length))
             {
-                config.Resurrection.RaiseMode = (RaiseExecutionMode)currentMode;
-                save();
+                this.config.Resurrection.RaiseMode = (RaiseExecutionMode)currentMode;
+                this.save();
             }
-            var modeDesc = config.Resurrection.RaiseMode switch
+            var modeDesc = this.config.Resurrection.RaiseMode switch
             {
-                RaiseExecutionMode.RaiseFirst => "Prioritize raising over other actions",
-                RaiseExecutionMode.Balanced => "Raise in weave windows, don't interrupt healing",
-                RaiseExecutionMode.HealFirst => "Only raise when party HP is stable",
+                RaiseExecutionMode.RaiseFirst => Loc.T(LocalizedStrings.Resurrection.RaiseModeDescFirst, "Prioritize raising over other actions"),
+                RaiseExecutionMode.Balanced => Loc.T(LocalizedStrings.Resurrection.RaiseModeDescBalanced, "Raise in weave windows, don't interrupt healing"),
+                RaiseExecutionMode.HealFirst => Loc.T(LocalizedStrings.Resurrection.RaiseModeDescHealFirst, "Only raise when party HP is stable"),
                 _ => ""
             };
             ImGui.TextDisabled(modeDesc);
 
             ConfigUIHelpers.Spacing();
-            var allowHardcast = config.Resurrection.AllowHardcastRaise;
-            if (ImGui.Checkbox("Allow Hardcast Raise", ref allowHardcast))
+            var allowHardcast = this.config.Resurrection.AllowHardcastRaise;
+            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Resurrection.AllowHardcast, "Allow Hardcast Raise"), ref allowHardcast))
             {
-                config.Resurrection.AllowHardcastRaise = allowHardcast;
-                save();
+                this.config.Resurrection.AllowHardcastRaise = allowHardcast;
+                this.save();
             }
-            ImGui.TextDisabled("Cast Raise without Swiftcast (8s cast). Use with caution.");
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Resurrection.AllowHardcastDesc, "Cast Raise without Swiftcast (8s cast). Use with caution."));
 
-            config.Resurrection.RaiseMpThreshold = ConfigUIHelpers.ThresholdSlider("Min MP for Raise",
-                config.Resurrection.RaiseMpThreshold, 10f, 50f, "Minimum MP percentage before attempting to raise.", save);
+            this.config.Resurrection.RaiseMpThreshold = ConfigUIHelpers.ThresholdSlider(
+                Loc.T(LocalizedStrings.Resurrection.MinMpForRaise, "Min MP for Raise"),
+                this.config.Resurrection.RaiseMpThreshold, 10f, 50f,
+                Loc.T("config.resurrection.min_mp_for_raise_desc", "Minimum MP percentage before attempting to raise."),
+                this.save);
 
             ConfigUIHelpers.EndDisabledGroup();
             ConfigUIHelpers.EndIndent();
@@ -154,17 +171,17 @@ public sealed class GeneralSection
 
     private void DrawPrivacySection()
     {
-        if (ConfigUIHelpers.SectionHeader("Privacy", false))
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Privacy.Section, "Privacy"), false))
         {
             ConfigUIHelpers.BeginIndent();
 
-            var telemetryEnabled = config.TelemetryEnabled;
-            if (ImGui.Checkbox("Send anonymous usage statistics", ref telemetryEnabled))
+            var telemetryEnabled = this.config.TelemetryEnabled;
+            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Privacy.Telemetry, "Send anonymous usage statistics"), ref telemetryEnabled))
             {
-                config.TelemetryEnabled = telemetryEnabled;
-                save();
+                this.config.TelemetryEnabled = telemetryEnabled;
+                this.save();
             }
-            ImGui.TextDisabled("Only sends plugin version. No personal data.");
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Privacy.TelemetryDesc, "Only sends plugin version. No personal data."));
 
             ConfigUIHelpers.EndIndent();
         }
@@ -175,32 +192,32 @@ public sealed class GeneralSection
         ConfigUIHelpers.BeginIndent();
 
         // Esuna
-        ConfigUIHelpers.SectionLabel("Esuna (Cleanse):");
+        ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.RoleActions.EsunaSection, "Esuna (Cleanse):"));
 
-        var enableEsuna = config.RoleActions.EnableEsuna;
-        if (ImGui.Checkbox("Enable Esuna", ref enableEsuna))
+        var enableEsuna = this.config.RoleActions.EnableEsuna;
+        if (ImGui.Checkbox(Loc.T(LocalizedStrings.RoleActions.EnableEsuna, "Enable Esuna"), ref enableEsuna))
         {
-            config.RoleActions.EnableEsuna = enableEsuna;
-            save();
+            this.config.RoleActions.EnableEsuna = enableEsuna;
+            this.save();
         }
-        ImGui.TextDisabled("Automatically cleanse dispellable debuffs from party.");
+        ImGui.TextDisabled(Loc.T(LocalizedStrings.RoleActions.EnableEsunaDesc, "Automatically cleanse dispellable debuffs from party."));
 
-        ConfigUIHelpers.BeginDisabledGroup(!config.RoleActions.EnableEsuna);
+        ConfigUIHelpers.BeginDisabledGroup(!this.config.RoleActions.EnableEsuna);
 
-        var priorityThreshold = config.RoleActions.EsunaPriorityThreshold;
+        var priorityThreshold = this.config.RoleActions.EsunaPriorityThreshold;
         ImGui.SetNextItemWidth(200);
-        if (ImGui.SliderInt("Priority Threshold", ref priorityThreshold, 0, 3))
+        if (ImGui.SliderInt(Loc.T(LocalizedStrings.RoleActions.EsunaPriorityThreshold, "Priority Threshold"), ref priorityThreshold, 0, 3))
         {
-            config.RoleActions.EsunaPriorityThreshold = priorityThreshold;
-            save();
+            this.config.RoleActions.EsunaPriorityThreshold = priorityThreshold;
+            this.save();
         }
 
         var priorityDesc = priorityThreshold switch
         {
-            0 => "Lethal only (Doom, Throttle)",
-            1 => "High+ (also Vulnerability Up)",
-            2 => "Medium+ (also Paralysis, Silence)",
-            3 => "All dispellable debuffs",
+            0 => Loc.T(LocalizedStrings.RoleActions.EsunaPriorityLethal, "Lethal only (Doom, Throttle)"),
+            1 => Loc.T(LocalizedStrings.RoleActions.EsunaPriorityHigh, "High+ (also Vulnerability Up)"),
+            2 => Loc.T(LocalizedStrings.RoleActions.EsunaPriorityMedium, "Medium+ (also Paralysis, Silence)"),
+            3 => Loc.T(LocalizedStrings.RoleActions.EsunaPriorityAll, "All dispellable debuffs"),
             _ => "Unknown"
         };
         ImGui.TextDisabled(priorityDesc);
@@ -210,46 +227,47 @@ public sealed class GeneralSection
         ConfigUIHelpers.Spacing();
 
         // Surecast
-        ConfigUIHelpers.SectionLabel("Surecast (Knockback Immunity):");
+        ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.RoleActions.SurecastSection, "Surecast (Knockback Immunity):"));
 
-        var enableSurecast = config.RoleActions.EnableSurecast;
-        if (ImGui.Checkbox("Enable Surecast", ref enableSurecast))
+        var enableSurecast = this.config.RoleActions.EnableSurecast;
+        if (ImGui.Checkbox(Loc.T(LocalizedStrings.RoleActions.EnableSurecast, "Enable Surecast"), ref enableSurecast))
         {
-            config.RoleActions.EnableSurecast = enableSurecast;
-            save();
+            this.config.RoleActions.EnableSurecast = enableSurecast;
+            this.save();
         }
-        ImGui.TextDisabled("6s immunity to knockback/draw-in. 120s cooldown.");
+        ImGui.TextDisabled(Loc.T(LocalizedStrings.RoleActions.EnableSurecastDesc, "6s immunity to knockback/draw-in. 120s cooldown."));
 
-        ConfigUIHelpers.BeginDisabledGroup(!config.RoleActions.EnableSurecast);
+        ConfigUIHelpers.BeginDisabledGroup(!this.config.RoleActions.EnableSurecast);
 
-        var surecastMode = config.RoleActions.SurecastMode;
+        var surecastModes = this.GetSurecastModes();
+        var surecastMode = this.config.RoleActions.SurecastMode;
         ImGui.SetNextItemWidth(200);
-        if (ImGui.Combo("Surecast Mode", ref surecastMode, SurecastModes, SurecastModes.Length))
+        if (ImGui.Combo(Loc.T(LocalizedStrings.RoleActions.SurecastMode, "Surecast Mode"), ref surecastMode, surecastModes, surecastModes.Length))
         {
-            config.RoleActions.SurecastMode = surecastMode;
-            save();
+            this.config.RoleActions.SurecastMode = surecastMode;
+            this.save();
         }
-        ImGui.TextDisabled("Knockbacks are content-specific. Manual recommended.");
+        ImGui.TextDisabled(Loc.T(LocalizedStrings.RoleActions.SurecastModeDesc, "Knockbacks are content-specific. Manual recommended."));
 
         ConfigUIHelpers.EndDisabledGroup();
 
         ConfigUIHelpers.Spacing();
 
         // Rescue
-        ConfigUIHelpers.SectionLabel("Rescue (Pull Party Member):");
+        ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.RoleActions.RescueSection, "Rescue (Pull Party Member):"));
 
-        var enableRescue = config.RoleActions.EnableRescue;
-        if (ImGui.Checkbox("Enable Rescue", ref enableRescue))
+        var enableRescue = this.config.RoleActions.EnableRescue;
+        if (ImGui.Checkbox(Loc.T(LocalizedStrings.RoleActions.EnableRescue, "Enable Rescue"), ref enableRescue))
         {
-            config.RoleActions.EnableRescue = enableRescue;
-            save();
+            this.config.RoleActions.EnableRescue = enableRescue;
+            this.save();
         }
 
-        if (config.RoleActions.EnableRescue)
+        if (this.config.RoleActions.EnableRescue)
         {
-            ConfigUIHelpers.DangerText("WARNING: Rescue can kill party members if misused!");
+            ConfigUIHelpers.DangerText(Loc.T(LocalizedStrings.RoleActions.RescueWarning, "WARNING: Rescue can kill party members if misused!"));
         }
-        ImGui.TextDisabled("Pulls party member to your position. Manual use only.");
+        ImGui.TextDisabled(Loc.T(LocalizedStrings.RoleActions.EnableRescueDesc, "Pulls party member to your position. Manual use only."));
 
         ConfigUIHelpers.EndIndent();
     }

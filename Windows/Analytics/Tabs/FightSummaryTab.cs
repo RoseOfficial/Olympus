@@ -2,6 +2,7 @@ using System;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config;
+using Olympus.Localization;
 using Olympus.Services.Analytics;
 
 namespace Olympus.Windows.Analytics.Tabs;
@@ -28,8 +29,8 @@ public static class FightSummaryTab
 
         if (lastSession == null)
         {
-            ImGui.TextColored(NeutralColor, "No fight data available.");
-            ImGui.TextColored(NeutralColor, "Complete a combat encounter to see analysis.");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Analytics.NoFightData, "No fight data available."));
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Analytics.CompleteCombat, "Complete a combat encounter to see analysis."));
             return;
         }
 
@@ -78,7 +79,7 @@ public static class FightSummaryTab
         var minutes = (int)(duration / 60);
         var seconds = (int)(duration % 60);
 
-        ImGui.Text($"Last Fight: {minutes}:{seconds:D2}");
+        ImGui.Text($"{Loc.T(LocalizedStrings.Analytics.LastFight, "Last Fight:")} {minutes}:{seconds:D2}");
         ImGui.SameLine();
         ImGui.TextColored(NeutralColor, $"| {session.StartTime:HH:mm}");
 
@@ -87,7 +88,7 @@ public static class FightSummaryTab
             ImGui.SameLine();
             ImGui.Text("|");
             ImGui.SameLine();
-            ImGui.Text("Score:");
+            ImGui.Text(Loc.T(LocalizedStrings.Analytics.Score, "Score:"));
             ImGui.SameLine();
             var scoreColor = GetGradeColor(session.Score.OverallGrade);
             ImGui.TextColored(scoreColor, $"{session.Score.Overall:F0}/100 ({session.Score.OverallGrade})");
@@ -96,26 +97,26 @@ public static class FightSummaryTab
 
     private static void DrawScores(PerformanceScore score)
     {
-        ImGui.Text("Performance Scores");
+        ImGui.Text(Loc.T(LocalizedStrings.Analytics.PerformanceScores, "Performance Scores"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("ScoresTable", 3, ImGuiTableFlags.BordersInnerH | ImGuiTableFlags.SizingStretchProp))
         {
-            ImGui.TableSetupColumn("Category", ImGuiTableColumnFlags.WidthStretch);
-            ImGui.TableSetupColumn("Score", ImGuiTableColumnFlags.WidthFixed, 60);
-            ImGui.TableSetupColumn("Grade", ImGuiTableColumnFlags.WidthFixed, 40);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Analytics.Category, "Category"), ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Analytics.Score, "Score"), ImGuiTableColumnFlags.WidthFixed, 60);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Analytics.Grade, "Grade"), ImGuiTableColumnFlags.WidthFixed, 40);
 
             // GCD Uptime
-            DrawScoreRow("GCD Uptime", score.GcdUptime);
+            DrawScoreRow(Loc.T(LocalizedStrings.Analytics.GcdUptimeScore, "GCD Uptime"), score.GcdUptime);
 
             // Cooldown Efficiency
-            DrawScoreRow("Cooldown Eff.", score.CooldownEfficiency);
+            DrawScoreRow(Loc.T(LocalizedStrings.Analytics.CooldownEff, "Cooldown Eff."), score.CooldownEfficiency);
 
             // Healing Efficiency
-            DrawScoreRow("Healing Eff.", score.HealingEfficiency);
+            DrawScoreRow(Loc.T(LocalizedStrings.Analytics.HealingEff, "Healing Eff."), score.HealingEfficiency);
 
             // Survival
-            DrawScoreRow("Survival", score.Survival);
+            DrawScoreRow(Loc.T(LocalizedStrings.Analytics.Survival, "Survival"), score.Survival);
 
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -128,7 +129,7 @@ public static class FightSummaryTab
             // Overall
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("OVERALL");
+            ImGui.Text(Loc.T(LocalizedStrings.Analytics.Overall, "OVERALL"));
             ImGui.TableNextColumn();
             var overallColor = GetGradeColor(score.OverallGrade);
             ImGui.TextColored(overallColor, $"{score.Overall:F0}%");
@@ -155,18 +156,18 @@ public static class FightSummaryTab
 
     private static void DrawBreakdown(CombatMetricsSnapshot metrics)
     {
-        ImGui.Text("Detailed Breakdown");
+        ImGui.Text(Loc.T(LocalizedStrings.Analytics.DetailedBreakdown, "Detailed Breakdown"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("BreakdownTable", 2, ImGuiTableFlags.BordersInnerH | ImGuiTableFlags.SizingStretchProp))
         {
-            ImGui.TableSetupColumn("Metric", ImGuiTableColumnFlags.WidthFixed, 150);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Analytics.Metric, "Metric"), ImGuiTableColumnFlags.WidthFixed, 150);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Analytics.Value, "Value"), ImGuiTableColumnFlags.WidthStretch);
 
             // Duration
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Duration:");
+            ImGui.Text(Loc.T(LocalizedStrings.Analytics.Duration, "Duration:"));
             ImGui.TableNextColumn();
             var minutes = (int)(metrics.CombatDuration / 60);
             var seconds = (int)(metrics.CombatDuration % 60);
@@ -175,7 +176,7 @@ public static class FightSummaryTab
             // GCD Uptime
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("GCD Uptime:");
+            ImGui.Text(Loc.T(LocalizedStrings.Analytics.GcdUptime, "GCD Uptime:"));
             ImGui.TableNextColumn();
             ImGui.Text($"{metrics.GcdUptime:F1}%");
 
@@ -184,13 +185,13 @@ public static class FightSummaryTab
             {
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGui.Text("Total Healing:");
+                ImGui.Text(Loc.T(LocalizedStrings.Analytics.TotalHealing, "Total Healing:"));
                 ImGui.TableNextColumn();
                 ImGui.Text($"{metrics.TotalHealing:N0}");
 
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGui.Text("Overheal:");
+                ImGui.Text(Loc.T(LocalizedStrings.Analytics.Overheal, "Overheal:"));
                 ImGui.TableNextColumn();
                 ImGui.Text($"{metrics.OverhealPercent:F1}%");
             }
@@ -198,7 +199,7 @@ public static class FightSummaryTab
             // Deaths
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Deaths:");
+            ImGui.Text(Loc.T(LocalizedStrings.Analytics.Deaths, "Deaths:"));
             ImGui.TableNextColumn();
             var deathColor = metrics.Deaths > 0 ? ErrorColor : NeutralColor;
             ImGui.TextColored(deathColor, metrics.Deaths.ToString());
@@ -206,7 +207,7 @@ public static class FightSummaryTab
             // Near-deaths
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Near-Deaths:");
+            ImGui.Text(Loc.T(LocalizedStrings.Analytics.NearDeaths, "Near-Deaths:"));
             ImGui.TableNextColumn();
             var nearDeathColor = metrics.NearDeaths > 2 ? WarningColor : NeutralColor;
             ImGui.TextColored(nearDeathColor, metrics.NearDeaths.ToString());
@@ -217,39 +218,51 @@ public static class FightSummaryTab
 
     private static void DrawDowntimeAnalysis(DowntimeBreakdown breakdown)
     {
-        ImGui.Text("Downtime Analysis");
+        ImGui.Text(Loc.T(LocalizedStrings.Analytics.DowntimeAnalysis, "Downtime Analysis"));
         ImGui.Separator();
 
         var total = breakdown.TotalDowntimeSeconds;
 
         if (total < 0.1f)
         {
-            ImGui.TextColored(GradeA, "No significant downtime detected!");
+            ImGui.TextColored(GradeA, Loc.T(LocalizedStrings.Analytics.NoDowntime, "No significant downtime detected!"));
             return;
         }
 
-        ImGui.Text($"Total Downtime: {total:F1}s");
+        ImGui.Text(Loc.TFormat(LocalizedStrings.Analytics.TotalDowntime, "Total Downtime: {0}s", $"{total:F1}"));
         ImGui.Spacing();
 
         // Draw individual category bars
         if (breakdown.MovementSeconds > 0)
         {
-            DrawDowntimeBar("Movement", breakdown.MovementSeconds, total, NeutralColor, "Moving while GCD was ready");
+            DrawDowntimeBar(
+                Loc.T(LocalizedStrings.Analytics.Movement, "Movement:"),
+                breakdown.MovementSeconds, total, NeutralColor,
+                Loc.T(LocalizedStrings.Analytics.MovementTooltip, "Moving while GCD was ready"));
         }
 
         if (breakdown.MechanicSeconds > 0)
         {
-            DrawDowntimeBar("Mechanics", breakdown.MechanicSeconds, total, GradeC, "Boss mechanic required attention");
+            DrawDowntimeBar(
+                Loc.T(LocalizedStrings.Analytics.Mechanics, "Mechanics:"),
+                breakdown.MechanicSeconds, total, GradeC,
+                Loc.T(LocalizedStrings.Analytics.MechanicsTooltip, "Boss mechanic required attention"));
         }
 
         if (breakdown.DeathSeconds > 0)
         {
-            DrawDowntimeBar("Death", breakdown.DeathSeconds, total, ErrorColor, "Player was dead/incapacitated");
+            DrawDowntimeBar(
+                Loc.T(LocalizedStrings.Analytics.Death, "Death:"),
+                breakdown.DeathSeconds, total, ErrorColor,
+                Loc.T(LocalizedStrings.Analytics.DeathTooltip, "Player was dead/incapacitated"));
         }
 
         if (breakdown.UnforcedSeconds > 0)
         {
-            DrawDowntimeBar("Unexplained", breakdown.UnforcedSeconds, total, ErrorColor, "GCD ready with no apparent reason for delay");
+            DrawDowntimeBar(
+                Loc.T(LocalizedStrings.Analytics.Unexplained, "Unexplained:"),
+                breakdown.UnforcedSeconds, total, ErrorColor,
+                Loc.T(LocalizedStrings.Analytics.UnexplainedTooltip, "GCD ready with no apparent reason for delay"));
         }
 
         ImGui.Spacing();
@@ -258,12 +271,14 @@ public static class FightSummaryTab
         if (breakdown.UnforcedSeconds > 5f)
         {
             ImGui.TextColored(WarningColor,
-                $"Tip: {breakdown.UnforcedSeconds:F1}s of unexplained downtime. Try to always be casting or weaving oGCDs.");
+                Loc.TFormat(LocalizedStrings.Analytics.TipUnexplained,
+                    "Tip: {0}s of unexplained downtime. Try to always be casting or weaving oGCDs.",
+                    $"{breakdown.UnforcedSeconds:F1}"));
         }
         else if (breakdown.MovementSeconds > total * 0.5f)
         {
             ImGui.TextColored(InfoColor,
-                "Tip: Movement caused most downtime. Use instant casts or slidecast during movement.");
+                Loc.T(LocalizedStrings.Analytics.TipMovement, "Tip: Movement caused most downtime. Use instant casts or slidecast during movement."));
         }
     }
 
@@ -289,13 +304,13 @@ public static class FightSummaryTab
 
     private static void DrawCooldownAnalysis(IPerformanceTracker tracker)
     {
-        ImGui.Text("Cooldown Analysis");
+        ImGui.Text(Loc.T(LocalizedStrings.Analytics.CooldownAnalysis, "Cooldown Analysis"));
         ImGui.Separator();
 
         var cooldowns = tracker.GetCooldownAnalysis();
         if (cooldowns.Count == 0)
         {
-            ImGui.TextColored(NeutralColor, "No cooldown data available.");
+            ImGui.TextColored(NeutralColor, Loc.T(LocalizedStrings.Analytics.NoCooldownData, "No cooldown data available."));
             return;
         }
 
@@ -315,7 +330,9 @@ public static class FightSummaryTab
 
         // Uses line with efficiency bar
         var efficiencyColor = GetEfficiencyColor(cd.Efficiency);
-        ImGui.Text($"Uses: {cd.TimesUsed}/{cd.OptimalUses} ({cd.Efficiency:F0}%)");
+        ImGui.Text(Loc.TFormat(LocalizedStrings.Analytics.UsesFormat,
+            "Uses: {0}/{1} ({2}%)",
+            cd.TimesUsed.ToString(), cd.OptimalUses.ToString(), $"{cd.Efficiency:F0}"));
         ImGui.SameLine(200);
         DrawEfficiencyBar(cd.Efficiency, efficiencyColor);
         ImGui.SameLine();
@@ -325,7 +342,7 @@ public static class FightSummaryTab
         if (cd.AverageDrift > 0.5f)
         {
             var driftColor = cd.AverageDrift > 5f ? WarningColor : NeutralColor;
-            ImGui.TextColored(driftColor, $"Avg Drift: {cd.AverageDrift:F1}s");
+            ImGui.TextColored(driftColor, Loc.TFormat(LocalizedStrings.Analytics.AvgDrift, "Avg Drift: {0}s", $"{cd.AverageDrift:F1}"));
         }
 
         // Missed opportunities
@@ -336,16 +353,18 @@ public static class FightSummaryTab
                 totalMissedTime += missed.AvailableForSeconds;
 
             ImGui.TextColored(WarningColor,
-                $"Missed: {cd.MissedUsesCount} opportunity(s) ({totalMissedTime:F0}s total)");
+                Loc.TFormat(LocalizedStrings.Analytics.MissedFormat,
+                    "Missed: {0} opportunity(s) ({1}s total)",
+                    cd.MissedUsesCount.ToString(), $"{totalMissedTime:F0}"));
         }
 
         // Phase breakdown (if we have detailed data)
         if (cd.Uses.Count > 0)
         {
             var phaseText = new System.Text.StringBuilder();
-            if (cd.OpenerUses > 0) phaseText.Append($"Opener: {cd.OpenerUses}  ");
-            if (cd.BurstUses > 0) phaseText.Append($"Burst: {cd.BurstUses}  ");
-            if (cd.SustainedUses > 0) phaseText.Append($"Sustained: {cd.SustainedUses}");
+            if (cd.OpenerUses > 0) phaseText.Append(Loc.TFormat(LocalizedStrings.Analytics.Opener, "Opener: {0}", cd.OpenerUses.ToString()) + "  ");
+            if (cd.BurstUses > 0) phaseText.Append(Loc.TFormat(LocalizedStrings.Analytics.Burst, "Burst: {0}", cd.BurstUses.ToString()) + "  ");
+            if (cd.SustainedUses > 0) phaseText.Append(Loc.TFormat(LocalizedStrings.Analytics.Sustained, "Sustained: {0}", cd.SustainedUses.ToString()));
 
             if (phaseText.Length > 0)
             {
@@ -356,11 +375,11 @@ public static class FightSummaryTab
         // Tip based on primary issue
         if (!string.IsNullOrEmpty(cd.Tip))
         {
-            ImGui.TextColored(InfoColor, $"Tip: {cd.Tip}");
+            ImGui.TextColored(InfoColor, $"{Loc.T(LocalizedStrings.Analytics.Tip, "Tip:")} {cd.Tip}");
         }
         else if (cd.Rating == "Excellent")
         {
-            ImGui.TextColored(GradeA, "Perfect usage!");
+            ImGui.TextColored(GradeA, Loc.T(LocalizedStrings.Analytics.PerfectUsage, "Perfect usage!"));
         }
 
         ImGui.Unindent(16);
@@ -389,12 +408,12 @@ public static class FightSummaryTab
     {
         var issueCount = session.Issues.Count;
 
-        ImGui.Text($"Issues ({issueCount})");
+        ImGui.Text(Loc.TFormat(LocalizedStrings.Analytics.IssuesFormat, "Issues ({0})", issueCount.ToString()));
         ImGui.Separator();
 
         if (issueCount == 0)
         {
-            ImGui.TextColored(GradeA, "No significant issues detected.");
+            ImGui.TextColored(GradeA, Loc.T(LocalizedStrings.Analytics.NoIssues, "No significant issues detected."));
             return;
         }
 
@@ -414,7 +433,7 @@ public static class FightSummaryTab
             if (!string.IsNullOrEmpty(issue.Suggestion))
             {
                 ImGui.Indent(20);
-                ImGui.TextColored(NeutralColor, $"Tip: {issue.Suggestion}");
+                ImGui.TextColored(NeutralColor, $"{Loc.T(LocalizedStrings.Analytics.Tip, "Tip:")} {issue.Suggestion}");
                 ImGui.Unindent(20);
             }
         }

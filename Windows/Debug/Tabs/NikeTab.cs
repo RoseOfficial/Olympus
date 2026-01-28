@@ -1,5 +1,6 @@
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Olympus.Localization;
 using Olympus.Rotation.NikeCore.Context;
 
 namespace Olympus.Windows.Debug.Tabs;
@@ -13,8 +14,8 @@ public static class NikeTab
     {
         if (state == null)
         {
-            ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Samurai rotation not active.");
-            ImGui.TextDisabled("Switch to Samurai to see debug info.");
+            ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.SamuraiNotActive, "Samurai rotation not active."));
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.SwitchToSamurai, "Switch to Samurai to see debug info."));
             return;
         }
 
@@ -40,7 +41,7 @@ public static class NikeTab
 
     private static void DrawGaugeSection(NikeDebugState state)
     {
-        ImGui.Text("Gauge");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Gauge, "Gauge"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("SamGaugeTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -51,7 +52,7 @@ public static class NikeTab
             // Sen
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Sen:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Sen, "Sen:"));
             ImGui.TableNextColumn();
             var senColor = state.SenCount switch
             {
@@ -67,7 +68,7 @@ public static class NikeTab
             // Kenki
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Kenki:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Kenki, "Kenki:"));
             ImGui.TableNextColumn();
             var kenkiPercent = state.Kenki / 100f;
             ImGui.ProgressBar(kenkiPercent, new Vector2(-1, 0), $"{state.Kenki}/100");
@@ -75,7 +76,7 @@ public static class NikeTab
             // Meditation
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Meditation:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Meditation, "Meditation:"));
             ImGui.TableNextColumn();
             var medColor = state.Meditation >= 3 ? new Vector4(0.5f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(medColor, $"{state.Meditation}/3");
@@ -83,10 +84,10 @@ public static class NikeTab
             // Combo
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Combo:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Combo, "Combo:"));
             ImGui.TableNextColumn();
             var comboColor = state.ComboStep > 0 ? new Vector4(0.5f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
-            ImGui.TextColored(comboColor, state.ComboStep > 0 ? $"Step {state.ComboStep} ({state.ComboTimeRemaining:F1}s)" : "None");
+            ImGui.TextColored(comboColor, state.ComboStep > 0 ? $"Step {state.ComboStep} ({state.ComboTimeRemaining:F1}s)" : Loc.T(LocalizedStrings.Debug.NoneLabel, "None"));
 
             ImGui.EndTable();
         }
@@ -94,7 +95,7 @@ public static class NikeTab
 
     private static void DrawBuffSection(NikeDebugState state)
     {
-        ImGui.Text("Buffs");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("SamBuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -105,7 +106,7 @@ public static class NikeTab
             // Fugetsu (damage up)
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Fugetsu:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Fugetsu, "Fugetsu:"));
             ImGui.TableNextColumn();
             if (state.HasFugetsu)
             {
@@ -114,13 +115,13 @@ public static class NikeTab
             }
             else
             {
-                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Inactive");
+                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             // Fuka (speed up)
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Fuka:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Fuka, "Fuka:"));
             ImGui.TableNextColumn();
             if (state.HasFuka)
             {
@@ -129,21 +130,21 @@ public static class NikeTab
             }
             else
             {
-                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Inactive");
+                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             // Meikyo Shisui
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Meikyo Shisui:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.MeikyoShisui, "Meikyo Shisui:"));
             ImGui.TableNextColumn();
             if (state.HasMeikyoShisui)
             {
-                ImGui.TextColored(new Vector4(1f, 0.6f, 0.2f, 1f), $"{state.MeikyoStacks} stacks");
+                ImGui.TextColored(new Vector4(1f, 0.6f, 0.2f, 1f), Loc.TFormat(LocalizedStrings.Debug.StacksFormat, "{0} stacks", state.MeikyoStacks));
             }
             else
             {
-                ImGui.TextDisabled("Inactive");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             ImGui.EndTable();
@@ -152,7 +153,7 @@ public static class NikeTab
 
     private static void DrawProcSection(NikeDebugState state)
     {
-        ImGui.Text("Procs");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Procs, "Procs"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("SamProcTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -163,35 +164,35 @@ public static class NikeTab
             // Last Iaijutsu
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Last Iaijutsu:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.LastIaijutsu, "Last Iaijutsu:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.LastIaijutsu.ToString());
 
             // Tsubame-gaeshi Ready
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Tsubame Ready:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.TsubameReady, "Tsubame Ready:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasTsubameGaeshiReady);
 
             // Ogi Namikiri Ready
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Ogi Namikiri Ready:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.OgiNamikiriReady, "Ogi Namikiri Ready:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasOgiNamikiriReady);
 
             // Kaeshi Namikiri Ready
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Kaeshi Ready:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.KaeshiReady, "Kaeshi Ready:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasKaeshiNamikiriReady);
 
             // Zanshin Ready
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Zanshin Ready:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.ZanshinReady, "Zanshin Ready:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasZanshinReady);
 
@@ -201,7 +202,7 @@ public static class NikeTab
 
     private static void DrawDotSection(NikeDebugState state)
     {
-        ImGui.Text("DoT");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.DoT, "DoT"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("SamDotTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -212,16 +213,16 @@ public static class NikeTab
             // Higanbana
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Higanbana:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Higanbana, "Higanbana:"));
             ImGui.TableNextColumn();
             if (state.HasHiganbanaOnTarget)
             {
                 var color = state.HiganbanaRemaining < 6f ? new Vector4(1f, 0.5f, 0.5f, 1f) : new Vector4(0.5f, 1f, 0.5f, 1f);
-                ImGui.TextColored(color, $"{state.HiganbanaRemaining:F1}s remaining");
+                ImGui.TextColored(color, Loc.TFormat(LocalizedStrings.Debug.RemainingFormat, "{0:F1}s remaining", state.HiganbanaRemaining));
             }
             else
             {
-                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Not applied");
+                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.NotApplied, "Not applied"));
             }
 
             ImGui.EndTable();
@@ -230,7 +231,7 @@ public static class NikeTab
 
     private static void DrawPositionalSection(NikeDebugState state)
     {
-        ImGui.Text("Positional");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Positional, "Positional"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("SamPositionalTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -241,43 +242,43 @@ public static class NikeTab
             // Current Position
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Position:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Position, "Position:"));
             ImGui.TableNextColumn();
             if (state.TargetHasPositionalImmunity)
             {
-                ImGui.TextColored(new Vector4(0.5f, 0.8f, 1f, 1f), "Immune (omni)");
+                ImGui.TextColored(new Vector4(0.5f, 0.8f, 1f, 1f), Loc.T(LocalizedStrings.Debug.ImmuneOmni, "Immune (omni)"));
             }
             else if (state.IsAtRear)
             {
-                ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), "Rear");
+                ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.Rear, "Rear"));
             }
             else if (state.IsAtFlank)
             {
-                ImGui.TextColored(new Vector4(1f, 1f, 0.5f, 1f), "Flank");
+                ImGui.TextColored(new Vector4(1f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.Flank, "Flank"));
             }
             else
             {
-                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Front");
+                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.Front, "Front"));
             }
 
             // True North
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("True North:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.TrueNorth, "True North:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasTrueNorth);
 
             // Target
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Target:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.TargetLabel, "Target:"));
             ImGui.TableNextColumn();
-            ImGui.Text(string.IsNullOrEmpty(state.CurrentTarget) ? "None" : state.CurrentTarget);
+            ImGui.Text(string.IsNullOrEmpty(state.CurrentTarget) ? Loc.T(LocalizedStrings.Debug.NoneLabel, "None") : state.CurrentTarget);
 
             // Nearby Enemies
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Nearby Enemies:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.NearbyEnemies, "Nearby Enemies:"));
             ImGui.TableNextColumn();
             var aoeColor = state.NearbyEnemies >= 3 ? new Vector4(1f, 0.6f, 0.2f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(aoeColor, $"{state.NearbyEnemies}");
@@ -290,11 +291,11 @@ public static class NikeTab
     {
         if (hasProc)
         {
-            ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), "Ready");
+            ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.Ready, "Ready"));
         }
         else
         {
-            ImGui.TextDisabled("No");
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.No, "No"));
         }
     }
 }

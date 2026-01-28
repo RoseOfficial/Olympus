@@ -1,5 +1,6 @@
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Olympus.Localization;
 using Olympus.Models;
 using Olympus.Services.Debug;
 
@@ -42,34 +43,36 @@ public static class ActionsTab
 
     private static void DrawGcdStateDetails(DebugSnapshot snapshot)
     {
-        ImGui.Text("GCD State Details");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.GcdStateDetails, "GCD State Details"));
         ImGui.Separator();
 
         var gcd = snapshot.GcdState;
+        var yes = Loc.T(LocalizedStrings.Debug.Yes, "Yes");
+        var no = Loc.T(LocalizedStrings.Debug.No, "No");
 
         if (ImGui.BeginTable("GcdDetailsTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
         {
-            ImGui.TableSetupColumn("Property", ImGuiTableColumnFlags.WidthFixed, 150);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.PropertyHeader, "Property"), ImGuiTableColumnFlags.WidthFixed, 150);
+            ImGui.TableSetupColumn(Loc.T(LocalizedStrings.Debug.ValueHeader, "Value"), ImGuiTableColumnFlags.WidthStretch);
 
-            DrawTableRow("Current State:", gcd.State.ToString(), DebugColors.GetGcdStateColor(gcd.State));
-            DrawTableRow("GCD Remaining:", $"{gcd.GcdRemaining:F3}s");
-            DrawTableRow("Animation Lock:", $"{gcd.AnimationLockRemaining:F3}s");
-            DrawTableRow("Is Casting:", gcd.IsCasting ? "Yes" : "No");
-            DrawTableRow("Can Execute GCD:", gcd.CanExecuteGcd ? "Yes" : "No", gcd.CanExecuteGcd ? DebugColors.Success : DebugColors.Dim);
-            DrawTableRow("Can Execute oGCD:", gcd.CanExecuteOgcd ? "Yes" : "No", gcd.CanExecuteOgcd ? DebugColors.Heal : DebugColors.Dim);
-            DrawTableRow("Weave Slots:", gcd.WeaveSlots.ToString());
-            DrawTableRow("Last Action:", gcd.LastActionName);
+            DrawTableRow(Loc.T(LocalizedStrings.Debug.CurrentStateLabel, "Current State:"), gcd.State.ToString(), DebugColors.GetGcdStateColor(gcd.State));
+            DrawTableRow(Loc.T(LocalizedStrings.Debug.GcdRemaining, "GCD Remaining:"), $"{gcd.GcdRemaining:F3}s");
+            DrawTableRow(Loc.T(LocalizedStrings.Debug.AnimationLock, "Animation Lock:"), $"{gcd.AnimationLockRemaining:F3}s");
+            DrawTableRow(Loc.T(LocalizedStrings.Debug.IsCasting, "Is Casting:"), gcd.IsCasting ? yes : no);
+            DrawTableRow(Loc.T(LocalizedStrings.Debug.CanExecuteGcd, "Can Execute GCD:"), gcd.CanExecuteGcd ? yes : no, gcd.CanExecuteGcd ? DebugColors.Success : DebugColors.Dim);
+            DrawTableRow(Loc.T(LocalizedStrings.Debug.CanExecuteOgcd, "Can Execute oGCD:"), gcd.CanExecuteOgcd ? yes : no, gcd.CanExecuteOgcd ? DebugColors.Heal : DebugColors.Dim);
+            DrawTableRow(Loc.T(LocalizedStrings.Debug.WeaveSlots, "Weave Slots:"), gcd.WeaveSlots.ToString());
+            DrawTableRow(Loc.T(LocalizedStrings.Debug.LastAction, "Last Action:"), gcd.LastActionName);
 
             // Debug flags from ActionTracker
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.TextColored(DebugColors.Dim, "--- Debug Flags ---");
+            ImGui.TextColored(DebugColors.Dim, Loc.T(LocalizedStrings.Debug.DebugFlags, "--- Debug Flags ---"));
             ImGui.TableNextColumn();
 
             var readyColor = gcd.DebugGcdReady ? DebugColors.Failure : DebugColors.Success;
-            DrawTableRow("GCD Ready (downtime):", gcd.DebugGcdReady ? "YES" : "No", readyColor);
-            DrawTableRow("Is Active:", gcd.DebugIsActive ? "Yes" : "No");
+            DrawTableRow(Loc.T(LocalizedStrings.Debug.GcdReadyDowntime, "GCD Ready (downtime):"), gcd.DebugGcdReady ? Loc.T(LocalizedStrings.Debug.YesUpper, "YES") : no, readyColor);
+            DrawTableRow(Loc.T(LocalizedStrings.Debug.IsActive, "Is Active:"), gcd.DebugIsActive ? yes : no);
 
             ImGui.EndTable();
         }
@@ -89,14 +92,14 @@ public static class ActionsTab
 
     private static void DrawSpellUsage(DebugSnapshot snapshot)
     {
-        ImGui.Text("Spell Usage");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.SpellUsage, "Spell Usage"));
         ImGui.Separator();
 
         var actions = snapshot.Actions;
 
         if (actions.SpellUsage.Count == 0)
         {
-            ImGui.TextColored(DebugColors.Dim, "No spells cast yet");
+            ImGui.TextColored(DebugColors.Dim, Loc.T(LocalizedStrings.Debug.NoSpellsCastYet, "No spells cast yet"));
             return;
         }
 
@@ -121,16 +124,16 @@ public static class ActionsTab
 
     private static void DrawFilters(DebugService debugService)
     {
-        ImGui.Text("Filters:");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Filters, "Filters:"));
         ImGui.SameLine();
-        ImGui.Checkbox("Success", ref _showSuccess);
+        ImGui.Checkbox(Loc.T(LocalizedStrings.Debug.SuccessFilter, "Success"), ref _showSuccess);
         ImGui.SameLine();
-        ImGui.Checkbox("Failures", ref _showFailures);
+        ImGui.Checkbox(Loc.T(LocalizedStrings.Debug.Failures, "Failures"), ref _showFailures);
         ImGui.SameLine();
-        ImGui.Checkbox("Skips", ref _showSkips);
+        ImGui.Checkbox(Loc.T(LocalizedStrings.Debug.Skips, "Skips"), ref _showSkips);
 
         ImGui.SameLine(ImGui.GetContentRegionAvail().X - 100);
-        if (ImGui.Button("Clear"))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Debug.Clear, "Clear")))
         {
             debugService.ClearHistory();
         }
@@ -138,7 +141,7 @@ public static class ActionsTab
 
     private static void DrawActionHistory(DebugSnapshot snapshot)
     {
-        ImGui.Text("Action History");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.ActionHistory, "Action History"));
 
         var childSize = new Vector2(0, -1);
         if (!ImGui.BeginChild("ActionLog", childSize, true, ImGuiWindowFlags.HorizontalScrollbar))

@@ -1,5 +1,6 @@
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Olympus.Localization;
 using Olympus.Services.Debug;
 
 namespace Olympus.Windows.Debug.Tabs;
@@ -27,7 +28,7 @@ public static class OverviewTab
 
     private static void DrawGcdPlanning(DebugSnapshot snapshot)
     {
-        ImGui.Text("GCD Planning");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.GcdPlanning, "GCD Planning"));
         ImGui.Separator();
 
         var rotation = snapshot.Rotation;
@@ -40,14 +41,14 @@ public static class OverviewTab
             // Planning state
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("State:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.State, "State:"));
             ImGui.TableNextColumn();
             ImGui.TextColored(DebugColors.GetPlanningStateColor(rotation.PlanningState), rotation.PlanningState);
 
             // Planned action
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Planned Action:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.PlannedAction, "Planned Action:"));
             ImGui.TableNextColumn();
             var actionColor = rotation.PlannedAction != "None" && rotation.PlannedAction != "No target"
                 ? DebugColors.Success : DebugColors.Failure;
@@ -56,7 +57,7 @@ public static class OverviewTab
             // DPS state
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("DPS:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Dps, "DPS:"));
             ImGui.TableNextColumn();
             var dpsColor = GetDpsStateColor(rotation.DpsState);
             ImGui.TextColored(dpsColor, rotation.DpsState);
@@ -64,7 +65,7 @@ public static class OverviewTab
             // Target info
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Target:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Target, "Target:"));
             ImGui.TableNextColumn();
             ImGui.Text(rotation.TargetInfo);
 
@@ -74,7 +75,7 @@ public static class OverviewTab
 
     private static void DrawQuickStats(DebugSnapshot snapshot)
     {
-        ImGui.Text("Quick Stats");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.QuickStats, "Quick Stats"));
         ImGui.Separator();
 
         var stats = snapshot.Statistics;
@@ -91,35 +92,38 @@ public static class OverviewTab
             ImGui.TableNextRow();
 
             ImGui.TableNextColumn();
-            ImGui.Text($"Attempts: {stats.TotalAttempts}");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.AttemptsFormat, "Attempts: {0}", stats.TotalAttempts));
 
             ImGui.TableNextColumn();
-            ImGui.Text($"Success: {stats.SuccessCount}");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.SuccessFormat, "Success: {0}", stats.SuccessCount));
 
             ImGui.TableNextColumn();
             var rateColor = DebugColors.GetFFLogsColor(stats.SuccessRate);
-            ImGui.TextColored(rateColor, $"Rate: {stats.SuccessRate:F1}%");
+            ImGui.TextColored(rateColor, Loc.TFormat(LocalizedStrings.Debug.RateFormat, "Rate: {0:F1}%", stats.SuccessRate));
 
             ImGui.TableNextColumn();
             var gcdColor = DebugColors.GetGcdStateColor(gcd.State);
-            ImGui.TextColored(gcdColor, $"GCD: {gcd.State}");
+            ImGui.TextColored(gcdColor, Loc.TFormat(LocalizedStrings.Debug.GcdFormat, "GCD: {0}", gcd.State));
 
             // Row 2: GCD Uptime, Avg Gap, Weave, Last Action
             ImGui.TableNextRow();
 
             ImGui.TableNextColumn();
             var uptimeColor = DebugColors.GetFFLogsColor(stats.GcdUptime);
-            ImGui.TextColored(uptimeColor, $"Uptime: {stats.GcdUptime:F1}%");
+            ImGui.TextColored(uptimeColor, Loc.TFormat(LocalizedStrings.Debug.UptimeFormat, "Uptime: {0:F1}%", stats.GcdUptime));
 
             ImGui.TableNextColumn();
-            ImGui.Text($"Gap: {stats.AverageCastGap:F2}s");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.GapFormat, "Gap: {0:F2}s", stats.AverageCastGap));
 
             ImGui.TableNextColumn();
             var weaveColor = gcd.CanExecuteOgcd ? DebugColors.Heal : DebugColors.Dim;
-            ImGui.TextColored(weaveColor, $"Weave: {(gcd.CanExecuteOgcd ? "Yes" : "No")} ({gcd.WeaveSlots})");
+            var weaveText = gcd.CanExecuteOgcd
+                ? Loc.T(LocalizedStrings.Debug.Yes, "Yes")
+                : Loc.T(LocalizedStrings.Debug.No, "No");
+            ImGui.TextColored(weaveColor, Loc.TFormat(LocalizedStrings.Debug.WeaveFormat, "Weave: {0} ({1})", weaveText, gcd.WeaveSlots));
 
             ImGui.TableNextColumn();
-            ImGui.Text($"Last: {gcd.LastActionName}");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.LastFormat, "Last: {0}", gcd.LastActionName));
 
             ImGui.EndTable();
         }

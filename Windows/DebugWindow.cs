@@ -1,6 +1,7 @@
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
+using Olympus.Localization;
 using Olympus.Services.Debug;
 using Olympus.Timeline;
 using Olympus.Windows.Debug.Tabs;
@@ -17,7 +18,7 @@ public sealed class DebugWindow : Window
     private readonly ITimelineService? _timelineService;
 
     public DebugWindow(DebugService debugService, Configuration configuration, ITimelineService? timelineService = null)
-        : base("Olympus Debug", ImGuiWindowFlags.NoSavedSettings)
+        : base(Loc.T(LocalizedStrings.Debug.WindowTitle, "Olympus Debug"), ImGuiWindowFlags.NoSavedSettings)
     {
         _debugService = debugService;
         _configuration = configuration;
@@ -49,136 +50,136 @@ public sealed class DebugWindow : Window
         // Tab bar
         if (ImGui.BeginTabBar("DebugTabs"))
         {
-            if (ImGui.BeginTabItem("Overview"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabOverview, "Overview")))
             {
                 OverviewTab.Draw(snapshot, _configuration);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Why Stuck?"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabWhyStuck, "Why Stuck?")))
             {
                 WhyStuckTab.Draw(snapshot, _configuration);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Healing"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabHealing, "Healing")))
             {
                 HealingTab.Draw(snapshot, _configuration, _debugService);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Overheal"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabOverheal, "Overheal")))
             {
                 OverhealTab.Draw(snapshot, _configuration, _debugService);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Actions"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabActions, "Actions")))
             {
                 ActionsTab.Draw(snapshot, _configuration, _debugService);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Performance"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabPerformance, "Performance")))
             {
                 PerformanceTab.Draw(snapshot, _configuration);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Scholar"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabScholar, "Scholar")))
             {
                 ScholarTab.Draw(_debugService.GetAthenaDebugState(), _configuration);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Astrologian"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabAstrologian, "Astrologian")))
             {
                 AstrologianTab.Draw(_debugService.GetAstraeaDebugState(), _configuration);
                 ImGui.EndTabItem();
             }
 
             // Melee DPS Tabs
-            if (ImGui.BeginTabItem("Dragoon"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabDragoon, "Dragoon")))
             {
                 ZeusTab.Draw(_debugService.GetZeusDebugState(), _configuration);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Ninja"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabNinja, "Ninja")))
             {
                 HermesTab.Draw(_debugService.GetHermesDebugState(), _configuration);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Samurai"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabSamurai, "Samurai")))
             {
                 NikeTab.Draw(_debugService.GetNikeDebugState(), _configuration);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Monk"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabMonk, "Monk")))
             {
                 KratosTab.Draw(_debugService.GetKratosDebugState(), _configuration);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Reaper"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabReaper, "Reaper")))
             {
                 ThanatosTab.Draw(_debugService.GetThanatosDebugState(), _configuration);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Viper"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabViper, "Viper")))
             {
                 EchidnaTab.Draw(_debugService.GetEchidnaDebugState(), _configuration);
                 ImGui.EndTabItem();
             }
 
             // Ranged Physical DPS Tabs
-            if (ImGui.BeginTabItem("Machinist"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabMachinist, "Machinist")))
             {
                 PrometheusTab.Draw(_debugService.GetPrometheusDebugState(), _configuration);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Bard"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabBard, "Bard")))
             {
                 CalliopeTab.Draw(_debugService.GetCalliopeDebugState(), _configuration);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Dancer"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabDancer, "Dancer")))
             {
                 TerpsichoreTab.Draw(_debugService.GetTerpsichoreDebugState(), _configuration);
                 ImGui.EndTabItem();
             }
 
             // Caster DPS Tabs
-            if (ImGui.BeginTabItem("Black Mage"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabBlackMage, "Black Mage")))
             {
                 HecateTab.Draw(_debugService.GetHecateDebugState(), _configuration);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Summoner"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabSummoner, "Summoner")))
             {
                 PersephoneTab.Draw(_debugService.GetPersephoneDebugState(), _configuration);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Red Mage"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabRedMage, "Red Mage")))
             {
                 CirceTab.Draw(_debugService.GetCirceDebugState(), _configuration);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Pictomancer"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabPictomancer, "Pictomancer")))
             {
                 IrisTab.Draw(_debugService.GetIrisDebugState(), _configuration);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Timeline"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabTimeline, "Timeline")))
             {
                 TimelineTab.Draw(_timelineService, _configuration);
                 ImGui.EndTabItem();
@@ -191,52 +192,52 @@ public sealed class DebugWindow : Window
     private void DrawSettingsButton()
     {
         // Settings dropdown for section visibility
-        if (ImGui.BeginCombo("##SectionSettings", "Section Visibility", ImGuiComboFlags.NoArrowButton))
+        if (ImGui.BeginCombo("##SectionSettings", Loc.T(LocalizedStrings.Debug.SectionVisibility, "Section Visibility"), ImGuiComboFlags.NoArrowButton))
         {
-            ImGui.Text("Overview Tab");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.OverviewTabLabel, "Overview Tab"));
             ImGui.Separator();
-            DrawSectionToggle("GcdPlanning", "GCD Planning");
-            DrawSectionToggle("QuickStats", "Quick Stats");
+            DrawSectionToggle("GcdPlanning", Loc.T(LocalizedStrings.Debug.GcdPlanning, "GCD Planning"));
+            DrawSectionToggle("QuickStats", Loc.T(LocalizedStrings.Debug.QuickStats, "Quick Stats"));
 
             ImGui.Spacing();
-            ImGui.Text("Why Stuck? Tab");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.WhyStuckTabLabel, "Why Stuck? Tab"));
             ImGui.Separator();
-            DrawSectionToggle("GcdPriority", "GCD Priority Chain");
-            DrawSectionToggle("OgcdState", "oGCD State");
-            DrawSectionToggle("DpsDetails", "DPS Details");
-            DrawSectionToggle("Resources", "Resources");
+            DrawSectionToggle("GcdPriority", Loc.T(LocalizedStrings.Debug.GcdPriorityChain, "GCD Priority Chain"));
+            DrawSectionToggle("OgcdState", Loc.T(LocalizedStrings.Debug.OgcdState, "oGCD State"));
+            DrawSectionToggle("DpsDetails", Loc.T(LocalizedStrings.Debug.DpsDetails, "DPS Details"));
+            DrawSectionToggle("Resources", Loc.T(LocalizedStrings.Debug.ResourcesSection, "Resources"));
 
             ImGui.Spacing();
-            ImGui.Text("Healing Tab");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.HealingTabLabel, "Healing Tab"));
             ImGui.Separator();
-            DrawSectionToggle("SpellStatus", "Spell Status");
-            DrawSectionToggle("SpellSelection", "Spell Selection");
-            DrawSectionToggle("HpPrediction", "HP Prediction");
-            DrawSectionToggle("AoEHealing", "AoE Healing");
-            DrawSectionToggle("RecentHeals", "Recent Heals");
-            DrawSectionToggle("ShadowHp", "Shadow HP");
+            DrawSectionToggle("SpellStatus", Loc.T(LocalizedStrings.Debug.SpellStatus, "Spell Status"));
+            DrawSectionToggle("SpellSelection", Loc.T(LocalizedStrings.Debug.SpellSelection, "Spell Selection"));
+            DrawSectionToggle("HpPrediction", Loc.T(LocalizedStrings.Debug.HpPrediction, "HP Prediction"));
+            DrawSectionToggle("AoEHealing", Loc.T(LocalizedStrings.Debug.AoEHealing, "AoE Healing"));
+            DrawSectionToggle("RecentHeals", Loc.T(LocalizedStrings.Debug.RecentHeals, "Recent Heals"));
+            DrawSectionToggle("ShadowHp", Loc.T(LocalizedStrings.Debug.ShadowHp, "Shadow HP"));
 
             ImGui.Spacing();
-            ImGui.Text("Overheal Tab");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.OverhealTabLabel, "Overheal Tab"));
             ImGui.Separator();
-            DrawSectionToggle("OverhealSummary", "Summary");
-            DrawSectionToggle("OverhealBySpell", "By Spell");
-            DrawSectionToggle("OverhealByTarget", "By Target");
-            DrawSectionToggle("OverhealTimeline", "Timeline");
-            DrawSectionToggle("OverhealControls", "Controls");
+            DrawSectionToggle("OverhealSummary", Loc.T(LocalizedStrings.Debug.OverhealSummary, "Summary"));
+            DrawSectionToggle("OverhealBySpell", Loc.T(LocalizedStrings.Debug.OverhealBySpell, "By Spell"));
+            DrawSectionToggle("OverhealByTarget", Loc.T(LocalizedStrings.Debug.OverhealByTarget, "By Target"));
+            DrawSectionToggle("OverhealTimeline", Loc.T(LocalizedStrings.Debug.OverhealTimeline, "Timeline"));
+            DrawSectionToggle("OverhealControls", Loc.T(LocalizedStrings.Debug.OverhealControls, "Controls"));
 
             ImGui.Spacing();
-            ImGui.Text("Actions Tab");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.ActionsTabLabel, "Actions Tab"));
             ImGui.Separator();
-            DrawSectionToggle("GcdDetails", "GCD Details");
-            DrawSectionToggle("SpellUsage", "Spell Usage");
-            DrawSectionToggle("ActionHistory", "Action History");
+            DrawSectionToggle("GcdDetails", Loc.T(LocalizedStrings.Debug.GcdDetails, "GCD Details"));
+            DrawSectionToggle("SpellUsage", Loc.T(LocalizedStrings.Debug.SpellUsage, "Spell Usage"));
+            DrawSectionToggle("ActionHistory", Loc.T(LocalizedStrings.Debug.ActionHistory, "Action History"));
 
             ImGui.Spacing();
-            ImGui.Text("Performance Tab");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.PerformanceTabLabel, "Performance Tab"));
             ImGui.Separator();
-            DrawSectionToggle("Statistics", "Statistics");
-            DrawSectionToggle("Downtime", "Downtime");
+            DrawSectionToggle("Statistics", Loc.T(LocalizedStrings.Debug.Statistics, "Statistics"));
+            DrawSectionToggle("Downtime", Loc.T(LocalizedStrings.Debug.Downtime, "Downtime"));
 
             ImGui.EndCombo();
         }

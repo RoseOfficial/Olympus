@@ -1,7 +1,7 @@
 <Project Sdk="Dalamud.NET.Sdk/14.0.1">
 
   <PropertyGroup>
-    <Version>4.2.3</Version>
+    <Version>4.3.1</Version>
     <DalamudLibPath>$(AppData)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
   </PropertyGroup>
 
@@ -16,10 +16,15 @@
     <EmbeddedResource Include="Timeline\Data\*.txt" />
   </ItemGroup>
 
-  <!-- Embedded training data (lessons and quizzes) -->
+  <!-- Embedded training data (lessons and quizzes) - supports language subfolders -->
   <ItemGroup>
-    <EmbeddedResource Include="Training\Data\Lessons\*.json" />
-    <EmbeddedResource Include="Training\Data\Quizzes\*.json" />
+    <EmbeddedResource Include="Training\Data\Lessons\**\*.json" />
+    <EmbeddedResource Include="Training\Data\Quizzes\**\*.json" />
+  </ItemGroup>
+
+  <!-- Embedded localization files -->
+  <ItemGroup>
+    <EmbeddedResource Include="Localization\Loc\*.json" />
   </ItemGroup>
 
 </Project>

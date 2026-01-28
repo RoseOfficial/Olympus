@@ -1,5 +1,6 @@
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Olympus.Localization;
 using Olympus.Rotation.AstraeaCore.Context;
 
 namespace Olympus.Windows.Debug.Tabs;
@@ -13,8 +14,8 @@ public static class AstrologianTab
     {
         if (astraeaState == null)
         {
-            ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Astrologian rotation not active.");
-            ImGui.TextDisabled("Switch to Astrologian to see debug info.");
+            ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.AstrologianNotActive, "Astrologian rotation not active."));
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.SwitchToAstrologian, "Switch to Astrologian to see debug info."));
             return;
         }
 
@@ -36,7 +37,7 @@ public static class AstrologianTab
 
     private static void DrawCardsSection(AstraeaDebugState state)
     {
-        ImGui.Text("Cards");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Cards, "Cards"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("AstCardsTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -47,7 +48,7 @@ public static class AstrologianTab
             // Card State (shows cards in hand)
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Cards in Hand:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.CardsInHand, "Cards in Hand:"));
             ImGui.TableNextColumn();
             var cardColor = state.CardState.Contains("cards") ? new Vector4(0.5f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(cardColor, state.CardState);
@@ -55,14 +56,14 @@ public static class AstrologianTab
             // Draw State
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Draw State:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.DrawState, "Draw State:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.DrawState);
 
             // Play State (what's happening with card plays)
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Play State:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.PlayState, "Play State:"));
             ImGui.TableNextColumn();
             var playColor = state.PlayState.Contains("FAILED") ? new Vector4(1f, 0.5f, 0.5f, 1f)
                 : state.PlayState.Contains("→") ? new Vector4(0.5f, 1f, 0.5f, 1f)
@@ -72,28 +73,28 @@ public static class AstrologianTab
             // Current Card Type
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Current Card:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.CurrentCard, "Current Card:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.CurrentCardType);
 
             // Minor Arcana
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Minor Arcana:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.MinorArcana, "Minor Arcana:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.MinorArcanaType);
 
             // Divination State
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Divination:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Divination, "Divination:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.DivinationState);
 
             // Oracle State
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Oracle:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Oracle, "Oracle:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.OracleState);
 
@@ -103,7 +104,7 @@ public static class AstrologianTab
 
     private static void DrawEarthlyStarSection(AstraeaDebugState state)
     {
-        ImGui.Text("Earthly Star");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.EarthlyStar, "Earthly Star"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("AstStarTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -114,7 +115,7 @@ public static class AstrologianTab
             // Star State
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Star State:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.StarState, "Star State:"));
             ImGui.TableNextColumn();
             var starColor = state.IsStarMature ? new Vector4(0.5f, 1f, 0.5f, 1f)
                 : state.EarthlyStarState != "Not Placed" ? new Vector4(1f, 1f, 0.5f, 1f)
@@ -126,7 +127,7 @@ public static class AstrologianTab
             {
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGui.Text("Time Left:");
+                ImGui.Text(Loc.T(LocalizedStrings.Debug.TimeLeft, "Time Left:"));
                 ImGui.TableNextColumn();
                 ImGui.Text($"{state.StarTimeRemaining:F1}s");
             }
@@ -134,7 +135,7 @@ public static class AstrologianTab
             // Targets in Range
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Targets in Range:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.TargetsInRange, "Targets in Range:"));
             ImGui.TableNextColumn();
             ImGui.Text($"{state.StarTargetsInRange}");
 
@@ -144,7 +145,7 @@ public static class AstrologianTab
 
     private static void DrawHealingSection(AstraeaDebugState state)
     {
-        ImGui.Text("Healing");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Healing, "Healing"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("AstHealingTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -155,70 +156,70 @@ public static class AstrologianTab
             // Single Target Healing
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Single Heal:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.SingleHealLabel, "Single Heal:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.SingleHealState);
 
             // AoE Healing
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("AoE Heal:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.AoEHealLabel, "AoE Heal:"));
             ImGui.TableNextColumn();
-            ImGui.Text($"{state.AoEHealState} ({state.AoEInjuredCount} injured)");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.InjuredFormat, "{0} ({1} injured)", state.AoEHealState, state.AoEInjuredCount));
 
             // Essential Dignity
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Essential Dignity:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.EssentialDignity, "Essential Dignity:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.EssentialDignityState);
 
             // Celestial Intersection
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Celestial Inter.:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.CelestialIntersection, "Celestial Inter.:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.CelestialIntersectionState);
 
             // Celestial Opposition
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Celestial Opp.:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.CelestialOpposition, "Celestial Opp.:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.CelestialOppositionState);
 
             // Exaltation
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Exaltation:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Exaltation, "Exaltation:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.ExaltationState);
 
             // Horoscope
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Horoscope:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Horoscope, "Horoscope:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.HoroscopeState);
 
             // Macrocosmos
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Macrocosmos:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Macrocosmos, "Macrocosmos:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.MacrocosmosState);
 
             // Neutral Sect
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Neutral Sect:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.NeutralSect, "Neutral Sect:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.NeutralSectState);
 
             // Synastry
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Synastry:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Synastry, "Synastry:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.SynastryState);
             if (!string.IsNullOrEmpty(state.SynastryTarget) && state.SynastryTarget != "None")
@@ -232,9 +233,9 @@ public static class AstrologianTab
             {
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGui.Text("Last Heal:");
+                ImGui.Text(Loc.T(LocalizedStrings.Debug.LastHeal, "Last Heal:"));
                 ImGui.TableNextColumn();
-                ImGui.Text($"{state.LastHealAmount:N0} HP");
+                ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.HpFormat, "{0:N0} HP", state.LastHealAmount));
                 if (!string.IsNullOrEmpty(state.LastHealStats))
                 {
                     ImGui.TextDisabled(state.LastHealStats);
@@ -247,7 +248,7 @@ public static class AstrologianTab
 
     private static void DrawDpsSection(AstraeaDebugState state)
     {
-        ImGui.Text("DPS");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.DpsSection, "DPS"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("AstDpsTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -258,7 +259,7 @@ public static class AstrologianTab
             // Planned Action
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Planned Action:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.PlannedActionLabel, "Planned Action:"));
             ImGui.TableNextColumn();
             var actionColor = state.PlannedAction != "None" ? new Vector4(0.5f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(actionColor, state.PlannedAction);
@@ -266,14 +267,14 @@ public static class AstrologianTab
             // DPS State
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("DPS State:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.DpsStateLabel, "DPS State:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.DpsState);
 
             // Lightspeed
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Lightspeed:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Lightspeed, "Lightspeed:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.LightspeedState);
 

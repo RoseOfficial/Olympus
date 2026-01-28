@@ -1,5 +1,6 @@
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Olympus.Localization;
 using Olympus.Rotation.KratosCore.Context;
 
 namespace Olympus.Windows.Debug.Tabs;
@@ -13,8 +14,8 @@ public static class KratosTab
     {
         if (state == null)
         {
-            ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Monk rotation not active.");
-            ImGui.TextDisabled("Switch to Monk to see debug info.");
+            ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.MonkNotActive, "Monk rotation not active."));
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.SwitchToMonk, "Switch to Monk to see debug info."));
             return;
         }
 
@@ -40,7 +41,7 @@ public static class KratosTab
 
     private static void DrawFormSection(KratosDebugState state)
     {
-        ImGui.Text("Form");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Form, "Form"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("MnkFormTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -51,7 +52,7 @@ public static class KratosTab
             // Current Form
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Current Form:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.CurrentForm, "Current Form:"));
             ImGui.TableNextColumn();
             var formColor = state.CurrentForm switch
             {
@@ -65,29 +66,29 @@ public static class KratosTab
             // Perfect Balance
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Perfect Balance:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.PerfectBalance, "Perfect Balance:"));
             ImGui.TableNextColumn();
             if (state.HasPerfectBalance)
             {
-                ImGui.TextColored(new Vector4(1f, 0.6f, 0.2f, 1f), $"{state.PerfectBalanceStacks} stacks");
+                ImGui.TextColored(new Vector4(1f, 0.6f, 0.2f, 1f), Loc.TFormat(LocalizedStrings.Debug.StacksFormat, "{0} stacks", state.PerfectBalanceStacks));
             }
             else
             {
-                ImGui.TextDisabled("Inactive");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             // Formless Fist
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Formless Fist:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.FormlessFist, "Formless Fist:"));
             ImGui.TableNextColumn();
             if (state.HasFormlessFist)
             {
-                ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), "Active");
+                ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.JobActiveLabel, "Active"));
             }
             else
             {
-                ImGui.TextDisabled("Inactive");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             ImGui.EndTable();
@@ -96,7 +97,7 @@ public static class KratosTab
 
     private static void DrawChakraSection(KratosDebugState state)
     {
-        ImGui.Text("Chakra");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.ChakraLabel, "Chakra"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("MnkChakraTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -107,7 +108,7 @@ public static class KratosTab
             // Chakra
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Chakra:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.ChakraLabel, "Chakra:"));
             ImGui.TableNextColumn();
             var chakraColor = state.Chakra >= 5 ? new Vector4(0.5f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(chakraColor, $"{state.Chakra}/5");
@@ -115,7 +116,7 @@ public static class KratosTab
             // Beast Chakra
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Beast Chakra:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.BeastChakra, "Beast Chakra:"));
             ImGui.TableNextColumn();
             var beastColor = state.BeastChakraCount >= 3 ? new Vector4(0.5f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(beastColor, state.BeastChakraState);
@@ -125,29 +126,29 @@ public static class KratosTab
             // Lunar Nadi
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Lunar Nadi:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.LunarNadi, "Lunar Nadi:"));
             ImGui.TableNextColumn();
             if (state.HasLunarNadi)
             {
-                ImGui.TextColored(new Vector4(0.6f, 0.6f, 1f, 1f), "Active");
+                ImGui.TextColored(new Vector4(0.6f, 0.6f, 1f, 1f), Loc.T(LocalizedStrings.Debug.JobActiveLabel, "Active"));
             }
             else
             {
-                ImGui.TextDisabled("Inactive");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             // Solar Nadi
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Solar Nadi:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.SolarNadi, "Solar Nadi:"));
             ImGui.TableNextColumn();
             if (state.HasSolarNadi)
             {
-                ImGui.TextColored(new Vector4(1f, 0.8f, 0.2f, 1f), "Active");
+                ImGui.TextColored(new Vector4(1f, 0.8f, 0.2f, 1f), Loc.T(LocalizedStrings.Debug.JobActiveLabel, "Active"));
             }
             else
             {
-                ImGui.TextDisabled("Inactive");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             ImGui.EndTable();
@@ -156,7 +157,7 @@ public static class KratosTab
 
     private static void DrawBuffSection(KratosDebugState state)
     {
-        ImGui.Text("Buffs");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("MnkBuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -167,7 +168,7 @@ public static class KratosTab
             // Disciplined Fist
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Disciplined Fist:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.DisciplinedFist, "Disciplined Fist:"));
             ImGui.TableNextColumn();
             if (state.HasDisciplinedFist)
             {
@@ -176,20 +177,20 @@ public static class KratosTab
             }
             else
             {
-                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Inactive");
+                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             // Leaden Fist
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Leaden Fist:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.LeadenFist, "Leaden Fist:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasLeadenFist);
 
             // Riddle of Fire
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Riddle of Fire:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.RiddleOfFire, "Riddle of Fire:"));
             ImGui.TableNextColumn();
             if (state.HasRiddleOfFire)
             {
@@ -197,35 +198,35 @@ public static class KratosTab
             }
             else
             {
-                ImGui.TextDisabled("Inactive");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             // Brotherhood
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Brotherhood:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Brotherhood, "Brotherhood:"));
             ImGui.TableNextColumn();
             if (state.HasBrotherhood)
             {
-                ImGui.TextColored(new Vector4(0.5f, 0.8f, 1f, 1f), "Active");
+                ImGui.TextColored(new Vector4(0.5f, 0.8f, 1f, 1f), Loc.T(LocalizedStrings.Debug.JobActiveLabel, "Active"));
             }
             else
             {
-                ImGui.TextDisabled("Inactive");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             // Riddle of Wind
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Riddle of Wind:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.RiddleOfWind, "Riddle of Wind:"));
             ImGui.TableNextColumn();
             if (state.HasRiddleOfWind)
             {
-                ImGui.TextColored(new Vector4(0.5f, 1f, 0.8f, 1f), "Active");
+                ImGui.TextColored(new Vector4(0.5f, 1f, 0.8f, 1f), Loc.T(LocalizedStrings.Debug.JobActiveLabel, "Active"));
             }
             else
             {
-                ImGui.TextDisabled("Inactive");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             ImGui.EndTable();
@@ -234,7 +235,7 @@ public static class KratosTab
 
     private static void DrawProcSection(KratosDebugState state)
     {
-        ImGui.Text("Procs");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Procs, "Procs"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("MnkProcTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -245,42 +246,42 @@ public static class KratosTab
             // Raptor's Fury
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Raptor's Fury:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.RaptorsFury, "Raptor's Fury:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasRaptorsFury);
 
             // Coeurl's Fury
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Coeurl's Fury:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.CoeurlsFury, "Coeurl's Fury:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasCoeurlsFury);
 
             // Opo-opo's Fury
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Opo-opo's Fury:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.OpooposFury, "Opo-opo's Fury:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasOpooposFury);
 
             // Fire's Rumination
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Fire's Rumination:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.FiresRumination, "Fire's Rumination:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasFiresRumination);
 
             // Wind's Rumination
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Wind's Rumination:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.WindsRumination, "Wind's Rumination:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasWindsRumination);
 
             // DoT
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Demolish:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Demolish, "Demolish:"));
             ImGui.TableNextColumn();
             if (state.HasDemolishOnTarget)
             {
@@ -289,7 +290,7 @@ public static class KratosTab
             }
             else
             {
-                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Not applied");
+                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.NotApplied, "Not applied"));
             }
 
             ImGui.EndTable();
@@ -298,7 +299,7 @@ public static class KratosTab
 
     private static void DrawPositionalSection(KratosDebugState state)
     {
-        ImGui.Text("Positional");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Positional, "Positional"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("MnkPositionalTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -309,43 +310,43 @@ public static class KratosTab
             // Current Position
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Position:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Position, "Position:"));
             ImGui.TableNextColumn();
             if (state.TargetHasPositionalImmunity)
             {
-                ImGui.TextColored(new Vector4(0.5f, 0.8f, 1f, 1f), "Immune (omni)");
+                ImGui.TextColored(new Vector4(0.5f, 0.8f, 1f, 1f), Loc.T(LocalizedStrings.Debug.ImmuneOmni, "Immune (omni)"));
             }
             else if (state.IsAtRear)
             {
-                ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), "Rear");
+                ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.Rear, "Rear"));
             }
             else if (state.IsAtFlank)
             {
-                ImGui.TextColored(new Vector4(1f, 1f, 0.5f, 1f), "Flank");
+                ImGui.TextColored(new Vector4(1f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.Flank, "Flank"));
             }
             else
             {
-                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Front");
+                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.Front, "Front"));
             }
 
             // True North
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("True North:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.TrueNorth, "True North:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasTrueNorth);
 
             // Target
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Target:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.TargetLabel, "Target:"));
             ImGui.TableNextColumn();
-            ImGui.Text(string.IsNullOrEmpty(state.CurrentTarget) ? "None" : state.CurrentTarget);
+            ImGui.Text(string.IsNullOrEmpty(state.CurrentTarget) ? Loc.T(LocalizedStrings.Debug.NoneLabel, "None") : state.CurrentTarget);
 
             // Nearby Enemies
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Nearby Enemies:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.NearbyEnemies, "Nearby Enemies:"));
             ImGui.TableNextColumn();
             var aoeColor = state.NearbyEnemies >= 3 ? new Vector4(1f, 0.6f, 0.2f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(aoeColor, $"{state.NearbyEnemies}");
@@ -358,11 +359,11 @@ public static class KratosTab
     {
         if (hasProc)
         {
-            ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), "Ready");
+            ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.Ready, "Ready"));
         }
         else
         {
-            ImGui.TextDisabled("No");
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.No, "No"));
         }
     }
 }

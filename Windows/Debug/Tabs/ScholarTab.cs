@@ -1,5 +1,6 @@
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Olympus.Localization;
 using Olympus.Rotation.AthenaCore.Context;
 using Olympus.Services.Debug;
 
@@ -14,8 +15,8 @@ public static class ScholarTab
     {
         if (athenaState == null)
         {
-            ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Scholar rotation not active.");
-            ImGui.TextDisabled("Switch to Scholar to see debug info.");
+            ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.ScholarNotActive, "Scholar rotation not active."));
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.SwitchToScholar, "Switch to Scholar to see debug info."));
             return;
         }
 
@@ -37,7 +38,7 @@ public static class ScholarTab
 
     private static void DrawResourcesSection(AthenaDebugState state)
     {
-        ImGui.Text("Resources");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Resources, "Resources"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("SchResourcesTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -48,7 +49,7 @@ public static class ScholarTab
             // Aetherflow Stacks
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Aetherflow:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Aetherflow, "Aetherflow:"));
             ImGui.TableNextColumn();
             var stackColor = state.AetherflowStacks switch
             {
@@ -65,7 +66,7 @@ public static class ScholarTab
             // Fairy Gauge
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Fairy Gauge:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.FairyGauge, "Fairy Gauge:"));
             ImGui.TableNextColumn();
             var gaugePercent = state.FairyGauge / 100f;
             ImGui.ProgressBar(gaugePercent, new Vector2(-1, 0), $"{state.FairyGauge}/100");
@@ -73,7 +74,7 @@ public static class ScholarTab
             // Player HP
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Player HP:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.PlayerHpLabel, "Player HP:"));
             ImGui.TableNextColumn();
             var hpColor = state.PlayerHpPercent < 0.5f ? new Vector4(1f, 0.5f, 0.5f, 1f)
                 : state.PlayerHpPercent < 0.8f ? new Vector4(1f, 1f, 0.5f, 1f)
@@ -83,9 +84,9 @@ public static class ScholarTab
             // Party Info
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Party:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.PartyLabel, "Party:"));
             ImGui.TableNextColumn();
-            ImGui.Text($"{state.PartyValidCount}/{state.PartyListCount} valid");
+            ImGui.Text($"{state.PartyValidCount}/{state.PartyListCount} {Loc.T(LocalizedStrings.Debug.ValidLabel, "valid")}");
 
             ImGui.EndTable();
         }
@@ -93,7 +94,7 @@ public static class ScholarTab
 
     private static void DrawFairySection(AthenaDebugState state)
     {
-        ImGui.Text("Fairy");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Fairy, "Fairy"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("SchFairyTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -104,7 +105,7 @@ public static class ScholarTab
             // Fairy State
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Fairy State:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.FairyState, "Fairy State:"));
             ImGui.TableNextColumn();
             var fairyColor = state.FairyState switch
             {
@@ -119,21 +120,21 @@ public static class ScholarTab
             // Fey Union State
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Fey Union:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.FeyUnion, "Fey Union:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.FeyUnionState);
 
             // Seraph State
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Seraph:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Seraph, "Seraph:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.SeraphState);
 
             // Dissipation State
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Dissipation:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Dissipation, "Dissipation:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.DissipationState);
 
@@ -143,7 +144,7 @@ public static class ScholarTab
 
     private static void DrawHealingSection(AthenaDebugState state)
     {
-        ImGui.Text("Healing");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Healing, "Healing"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("SchHealingTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -154,70 +155,70 @@ public static class ScholarTab
             // Single Target Healing
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Single Heal:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.SingleHealLabel, "Single Heal:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.SingleHealState);
 
             // AoE Healing
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("AoE Heal:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.AoEHealLabel, "AoE Heal:"));
             ImGui.TableNextColumn();
-            ImGui.Text($"{state.AoEHealState} ({state.AoEInjuredCount} injured)");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.InjuredFormat, "{0} ({1} injured)", state.AoEHealState, state.AoEInjuredCount));
 
             // Lustrate
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Lustrate:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Lustrate, "Lustrate:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.LustrateState);
 
             // Indomitability
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Indomitability:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Indomitability, "Indomitability:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.IndomitabilityState);
 
             // Excogitation
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Excogitation:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Excogitation, "Excogitation:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.ExcogitationState);
 
             // Sacred Soil
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Sacred Soil:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.SacredSoil, "Sacred Soil:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.SacredSoilState);
 
             // Shields
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Shields:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Shields, "Shields:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.ShieldState);
 
             // Emergency Tactics
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Emergency Tactics:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.EmergencyTactics, "Emergency Tactics:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.EmergencyTacticsState);
 
             // Deployment
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Deployment:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Deployment, "Deployment:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.DeploymentState);
 
             // Recitation
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Recitation:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Recitation, "Recitation:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.RecitationState);
 
@@ -226,9 +227,9 @@ public static class ScholarTab
             {
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGui.Text("Last Heal:");
+                ImGui.Text(Loc.T(LocalizedStrings.Debug.LastHeal, "Last Heal:"));
                 ImGui.TableNextColumn();
-                ImGui.Text($"{state.LastHealAmount:N0} HP");
+                ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.HpFormat, "{0:N0} HP", state.LastHealAmount));
                 if (!string.IsNullOrEmpty(state.LastHealStats))
                 {
                     ImGui.TextDisabled(state.LastHealStats);
@@ -241,7 +242,7 @@ public static class ScholarTab
 
     private static void DrawDpsSection(AthenaDebugState state)
     {
-        ImGui.Text("DPS");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.DpsSection, "DPS"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("SchDpsTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -252,7 +253,7 @@ public static class ScholarTab
             // Planned Action
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Planned Action:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.PlannedActionLabel, "Planned Action:"));
             ImGui.TableNextColumn();
             var actionColor = state.PlannedAction != "None" ? new Vector4(0.5f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(actionColor, state.PlannedAction);
@@ -260,42 +261,42 @@ public static class ScholarTab
             // DPS State
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("DPS State:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.DpsStateLabel, "DPS State:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.DpsState);
 
             // DoT State
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("DoT:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.DoT, "DoT:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.DotState);
 
             // AoE DPS
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("AoE DPS:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.AoEDpsLabel, "AoE DPS:"));
             ImGui.TableNextColumn();
-            ImGui.Text($"{state.AoEDpsState} ({state.AoEDpsEnemyCount} enemies)");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.EnemiesFormat, "{0} ({1} enemies)", state.AoEDpsState, state.AoEDpsEnemyCount));
 
             // Chain Stratagem
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Chain Stratagem:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.ChainStratagem, "Chain Stratagem:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.ChainStratagemState);
 
             // Energy Drain
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Energy Drain:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.EnergyDrain, "Energy Drain:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.EnergyDrainState);
 
             // Lucid Dreaming
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Lucid Dreaming:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.LucidDreaming, "Lucid Dreaming:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.LucidState);
 
@@ -306,7 +307,7 @@ public static class ScholarTab
         ImGui.Spacing();
         if (state.RaiseState != "Idle" || state.RaiseTarget != "None")
         {
-            ImGui.TextColored(new Vector4(1f, 0.8f, 0.5f, 1f), $"Raise: {state.RaiseState}");
+            ImGui.TextColored(new Vector4(1f, 0.8f, 0.5f, 1f), $"{Loc.T(LocalizedStrings.Debug.RaiseLabel, "Raise:")} {state.RaiseState}");
             if (!string.IsNullOrEmpty(state.RaiseTarget) && state.RaiseTarget != "None")
             {
                 ImGui.SameLine();
@@ -316,7 +317,7 @@ public static class ScholarTab
 
         if (state.EsunaState != "Idle" || state.EsunaTarget != "None")
         {
-            ImGui.TextColored(new Vector4(0.5f, 1f, 1f, 1f), $"Esuna: {state.EsunaState}");
+            ImGui.TextColored(new Vector4(0.5f, 1f, 1f, 1f), $"{Loc.T(LocalizedStrings.Debug.EsunaLabel, "Esuna:")} {state.EsunaState}");
             if (!string.IsNullOrEmpty(state.EsunaTarget) && state.EsunaTarget != "None")
             {
                 ImGui.SameLine();

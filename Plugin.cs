@@ -26,6 +26,7 @@ using Olympus.Services.FFLogs;
 using Olympus.Services.Training;
 using Olympus.Timeline;
 using Olympus.Training;
+using Olympus.Localization;
 using Olympus.Windows;
 using Olympus.Windows.Training;
 
@@ -33,7 +34,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "4.2.3";
+    public const string PluginVersion = "4.3.1";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -95,6 +96,10 @@ public sealed class Plugin : IDalamudPlugin
     private readonly DecisionValidationService decisionValidationService;
     private readonly SpacedRepetitionService spacedRepetitionService;
 
+    // Localization
+    private readonly OlympusLocalization localization;
+    private readonly GameDataLocalizer gameDataLocalizer;
+
     private readonly WindowSystem windowSystem = new("Olympus");
     private readonly ConfigWindow configWindow;
     private readonly MainWindow mainWindow;
@@ -134,6 +139,10 @@ public sealed class Plugin : IDalamudPlugin
         this.jobGauges = jobGauges;
 
         this.configuration = pluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+
+        // Initialize localization (must be early, before UI construction)
+        this.localization = new OlympusLocalization(clientState, configuration, log);
+        this.gameDataLocalizer = new GameDataLocalizer(dataManager);
 
         // Load persisted calibration data for healing calculations
         HealingCalculator.LoadCalibration(configuration.Calibration);
@@ -496,5 +505,6 @@ public sealed class Plugin : IDalamudPlugin
         performanceTracker.Dispose();
         timelineService.Dispose();
         combatEventService.Dispose();
+        localization.Dispose();
     }
 }

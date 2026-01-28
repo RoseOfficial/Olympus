@@ -2,6 +2,7 @@ using System;
 using System.Numerics;
 using System.Text;
 using Dalamud.Bindings.ImGui;
+using Olympus.Localization;
 using Olympus.Services.Debug;
 
 namespace Olympus.Windows.Debug.Tabs;
@@ -33,7 +34,7 @@ public static class PerformanceTab
 
     private static void DrawStatistics(DebugSnapshot snapshot)
     {
-        ImGui.Text("Statistics");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Statistics, "Statistics"));
         ImGui.Separator();
 
         var stats = snapshot.Statistics;
@@ -49,29 +50,29 @@ public static class PerformanceTab
             ImGui.TableNextRow();
 
             ImGui.TableNextColumn();
-            ImGui.Text($"Attempts: {stats.TotalAttempts}");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.AttemptsFormat, "Attempts: {0}", stats.TotalAttempts));
 
             ImGui.TableNextColumn();
-            ImGui.Text($"Success: {stats.SuccessCount}");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.SuccessFormat, "Success: {0}", stats.SuccessCount));
 
             ImGui.TableNextColumn();
             var rateColor = DebugColors.GetFFLogsColor(stats.SuccessRate);
-            ImGui.TextColored(rateColor, $"Rate: {stats.SuccessRate:F1}%");
+            ImGui.TextColored(rateColor, Loc.TFormat(LocalizedStrings.Debug.RateFormat, "Rate: {0:F1}%", stats.SuccessRate));
 
             // Row 2: GCD Uptime, Avg Gap, Top Failure
             ImGui.TableNextRow();
 
             ImGui.TableNextColumn();
             var uptimeColor = DebugColors.GetFFLogsColor(stats.GcdUptime);
-            ImGui.TextColored(uptimeColor, $"GCD Uptime: {stats.GcdUptime:F1}%");
+            ImGui.TextColored(uptimeColor, Loc.TFormat(LocalizedStrings.Debug.UptimeFormat, "GCD Uptime: {0:F1}%", stats.GcdUptime));
 
             ImGui.TableNextColumn();
-            ImGui.Text($"Avg Gap: {stats.AverageCastGap:F2}s");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.AvgCastGap, "Avg Gap: {0:F2}s", stats.AverageCastGap));
 
             ImGui.TableNextColumn();
             if (!string.IsNullOrEmpty(stats.TopFailureReason))
             {
-                ImGui.TextColored(DebugColors.Dim, $"Top fail: {stats.TopFailureReason} ({stats.TopFailureCount})");
+                ImGui.TextColored(DebugColors.Dim, Loc.TFormat(LocalizedStrings.Debug.TopFail, "Top fail: {0} ({1})", stats.TopFailureReason, stats.TopFailureCount));
             }
 
             ImGui.EndTable();
@@ -79,21 +80,27 @@ public static class PerformanceTab
 
         // GCD Status Row
         var gcdColor = gcd.DebugGcdReady ? DebugColors.Failure : DebugColors.Success;
-        ImGui.TextColored(gcdColor, gcd.DebugGcdReady ? "GCD: READY (downtime)" : "GCD: ACTIVE");
+        ImGui.TextColored(gcdColor, gcd.DebugGcdReady
+            ? Loc.T(LocalizedStrings.Debug.GcdReadyDowntimeLabel, "GCD: READY (downtime)")
+            : Loc.T(LocalizedStrings.Debug.GcdActive, "GCD: ACTIVE"));
         ImGui.SameLine();
-        ImGui.Text($"Rem:{gcd.GcdRemaining:F2}s Cast:{(gcd.IsCasting ? "Y" : "N")} Anim:{(gcd.AnimationLockRemaining > 0 ? "Y" : "N")} Act:{(gcd.DebugIsActive ? "Y" : "N")}");
+        ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.GcdStatusRow, "Rem:{0:F2}s Cast:{1} Anim:{2} Act:{3}",
+            gcd.GcdRemaining,
+            gcd.IsCasting ? "Y" : "N",
+            gcd.AnimationLockRemaining > 0 ? "Y" : "N",
+            gcd.DebugIsActive ? "Y" : "N"));
     }
 
     private static void DrawDowntimeTracking(DebugSnapshot snapshot)
     {
-        ImGui.Text("Downtime Tracking");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.DowntimeTracking, "Downtime Tracking"));
         ImGui.Separator();
 
         var stats = snapshot.Statistics;
 
         if (stats.DowntimeEventCount == 0)
         {
-            ImGui.TextColored(DebugColors.Success, "No downtime events recorded");
+            ImGui.TextColored(DebugColors.Success, Loc.T(LocalizedStrings.Debug.NoDowntimeEventsRecorded, "No downtime events recorded"));
             return;
         }
 
@@ -105,22 +112,22 @@ public static class PerformanceTab
             // Event count
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Downtime Events:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.DowntimeEvents, "Downtime Events:"));
             ImGui.TableNextColumn();
             ImGui.TextColored(DebugColors.Warning, stats.DowntimeEventCount.ToString());
 
             // Last occurrence
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Last Occurrence:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.LastOccurrence, "Last Occurrence:"));
             ImGui.TableNextColumn();
             var ago = (DateTime.Now - stats.LastDowntimeTime).TotalSeconds;
-            ImGui.Text($"{ago:F1}s ago");
+            ImGui.Text(Loc.TFormat(LocalizedStrings.Debug.SecondsAgoFormat, "{0:F1}s ago", ago));
 
             // Last reason
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Last Reason:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.LastReason, "Last Reason:"));
             ImGui.TableNextColumn();
             ImGui.TextColored(DebugColors.Dim, stats.LastDowntimeReason);
 
@@ -130,7 +137,7 @@ public static class PerformanceTab
 
     private static void DrawCopyButton(DebugSnapshot snapshot)
     {
-        if (ImGui.Button("Copy Debug Info"))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Debug.CopyDebugInfo, "Copy Debug Info")))
         {
             CopyDebugInfoToClipboard(snapshot);
         }

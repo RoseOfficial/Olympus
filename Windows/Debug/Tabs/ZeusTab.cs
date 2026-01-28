@@ -1,5 +1,6 @@
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Olympus.Localization;
 using Olympus.Rotation.ZeusCore.Context;
 
 namespace Olympus.Windows.Debug.Tabs;
@@ -13,8 +14,8 @@ public static class ZeusTab
     {
         if (state == null)
         {
-            ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Dragoon rotation not active.");
-            ImGui.TextDisabled("Switch to Dragoon to see debug info.");
+            ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.DragoonNotActive, "Dragoon rotation not active."));
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.SwitchToDragoon, "Switch to Dragoon to see debug info."));
             return;
         }
 
@@ -40,7 +41,7 @@ public static class ZeusTab
 
     private static void DrawGaugeSection(ZeusDebugState state)
     {
-        ImGui.Text("Gauge");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Gauge, "Gauge"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("DrgGaugeTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -51,7 +52,7 @@ public static class ZeusTab
             // Life of the Dragon
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Dragon State:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.DragonState, "Dragon State:"));
             ImGui.TableNextColumn();
             var lotdColor = state.IsLifeOfDragonActive ? new Vector4(1f, 0.6f, 0.2f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(lotdColor, state.FormatLifeState());
@@ -59,7 +60,7 @@ public static class ZeusTab
             // Eye Count
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Dragon Eyes:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.DragonEyes, "Dragon Eyes:"));
             ImGui.TableNextColumn();
             var eyeColor = state.EyeCount switch
             {
@@ -72,7 +73,7 @@ public static class ZeusTab
             // Firstmind's Focus
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Firstmind's Focus:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.FirstmindsFocus, "Firstmind's Focus:"));
             ImGui.TableNextColumn();
             var focusColor = state.FirstmindsFocus >= 2 ? new Vector4(0.5f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(focusColor, $"{state.FirstmindsFocus}/2");
@@ -83,7 +84,7 @@ public static class ZeusTab
 
     private static void DrawComboSection(ZeusDebugState state)
     {
-        ImGui.Text("Combo");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Combo, "Combo"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("DrgComboTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -94,7 +95,7 @@ public static class ZeusTab
             // Combo Step
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Combo State:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.ComboState, "Combo State:"));
             ImGui.TableNextColumn();
             var comboText = ZeusDebugState.FormatComboState(state.LastComboAction, state.ComboStep);
             var comboColor = state.ComboStep > 0 ? new Vector4(0.5f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
@@ -105,7 +106,7 @@ public static class ZeusTab
             {
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGui.Text("Combo Timer:");
+                ImGui.Text(Loc.T(LocalizedStrings.Debug.ComboTimer, "Combo Timer:"));
                 ImGui.TableNextColumn();
                 var timerColor = state.ComboTimeRemaining < 5f ? new Vector4(1f, 0.5f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
                 ImGui.TextColored(timerColor, $"{state.ComboTimeRemaining:F1}s");
@@ -114,7 +115,7 @@ public static class ZeusTab
             // DoT
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("DoT:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.DoT, "DoT:"));
             ImGui.TableNextColumn();
             if (state.HasDotOnTarget)
             {
@@ -123,7 +124,7 @@ public static class ZeusTab
             }
             else
             {
-                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Not applied");
+                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.NotApplied, "Not applied"));
             }
 
             ImGui.EndTable();
@@ -132,7 +133,7 @@ public static class ZeusTab
 
     private static void DrawBuffSection(ZeusDebugState state)
     {
-        ImGui.Text("Buffs");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("DrgBuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -143,7 +144,7 @@ public static class ZeusTab
             // Power Surge
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Power Surge:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.PowerSurge, "Power Surge:"));
             ImGui.TableNextColumn();
             if (state.HasPowerSurge)
             {
@@ -152,13 +153,13 @@ public static class ZeusTab
             }
             else
             {
-                ImGui.TextDisabled("Inactive");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             // Lance Charge
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Lance Charge:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.LanceCharge, "Lance Charge:"));
             ImGui.TableNextColumn();
             if (state.HasLanceCharge)
             {
@@ -166,27 +167,27 @@ public static class ZeusTab
             }
             else
             {
-                ImGui.TextDisabled("Inactive");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             // Life Surge
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Life Surge:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.LifeSurge, "Life Surge:"));
             ImGui.TableNextColumn();
             if (state.HasLifeSurge)
             {
-                ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), "Active");
+                ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.JobActiveLabel, "Active"));
             }
             else
             {
-                ImGui.TextDisabled("Inactive");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             // Battle Litany
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Battle Litany:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.BattleLitany, "Battle Litany:"));
             ImGui.TableNextColumn();
             if (state.HasBattleLitany)
             {
@@ -194,21 +195,21 @@ public static class ZeusTab
             }
             else
             {
-                ImGui.TextDisabled("Inactive");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             // Right Eye
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Right Eye:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.RightEye, "Right Eye:"));
             ImGui.TableNextColumn();
             if (state.HasRightEye)
             {
-                ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), "Active");
+                ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.JobActiveLabel, "Active"));
             }
             else
             {
-                ImGui.TextDisabled("Inactive");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             ImGui.EndTable();
@@ -217,7 +218,7 @@ public static class ZeusTab
 
     private static void DrawProcSection(ZeusDebugState state)
     {
-        ImGui.Text("Procs");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Procs, "Procs"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("DrgProcTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -228,49 +229,49 @@ public static class ZeusTab
             // Dive Ready
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Dive Ready:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.DiveReady, "Dive Ready:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasDiveReady);
 
             // Nastrond Ready
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Nastrond Ready:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.NastrondReady, "Nastrond Ready:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasNastrondReady);
 
             // Stardiver Ready
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Stardiver Ready:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.StardiverReady, "Stardiver Ready:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasStardiverReady);
 
             // Starcross Ready
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Starcross Ready:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.StarcrossReady, "Starcross Ready:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasStarcrossReady);
 
             // Fang and Claw
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Fang and Claw:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.FangAndClaw, "Fang and Claw:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasFangAndClawBared);
 
             // Wheeling Thrust
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Wheel in Motion:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.WheelInMotion, "Wheel in Motion:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasWheelInMotion);
 
             // Draconian Fire
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Draconian Fire:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.DraconianFire, "Draconian Fire:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasDraconianFire);
 
@@ -280,7 +281,7 @@ public static class ZeusTab
 
     private static void DrawPositionalSection(ZeusDebugState state)
     {
-        ImGui.Text("Positional");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Positional, "Positional"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("DrgPositionalTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -291,50 +292,50 @@ public static class ZeusTab
             // Current Position
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Position:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Position, "Position:"));
             ImGui.TableNextColumn();
             if (state.TargetHasPositionalImmunity)
             {
-                ImGui.TextColored(new Vector4(0.5f, 0.8f, 1f, 1f), "Immune (omni)");
+                ImGui.TextColored(new Vector4(0.5f, 0.8f, 1f, 1f), Loc.T(LocalizedStrings.Debug.ImmuneOmni, "Immune (omni)"));
             }
             else if (state.IsAtRear)
             {
-                ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), "Rear");
+                ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.Rear, "Rear"));
             }
             else if (state.IsAtFlank)
             {
-                ImGui.TextColored(new Vector4(1f, 1f, 0.5f, 1f), "Flank");
+                ImGui.TextColored(new Vector4(1f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.Flank, "Flank"));
             }
             else
             {
-                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Front");
+                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.Front, "Front"));
             }
 
             // True North
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("True North:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.TrueNorth, "True North:"));
             ImGui.TableNextColumn();
             if (state.HasTrueNorth)
             {
-                ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), "Active");
+                ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.JobActiveLabel, "Active"));
             }
             else
             {
-                ImGui.TextDisabled("Inactive");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             // Target
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Target:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.TargetLabel, "Target:"));
             ImGui.TableNextColumn();
-            ImGui.Text(string.IsNullOrEmpty(state.CurrentTarget) ? "None" : state.CurrentTarget);
+            ImGui.Text(string.IsNullOrEmpty(state.CurrentTarget) ? Loc.T(LocalizedStrings.Debug.NoneLabel, "None") : state.CurrentTarget);
 
             // Nearby Enemies
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Nearby Enemies:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.NearbyEnemies, "Nearby Enemies:"));
             ImGui.TableNextColumn();
             var aoeColor = state.NearbyEnemies >= 3 ? new Vector4(1f, 0.6f, 0.2f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(aoeColor, $"{state.NearbyEnemies}");
@@ -347,11 +348,11 @@ public static class ZeusTab
     {
         if (hasProc)
         {
-            ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), "Ready");
+            ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.Ready, "Ready"));
         }
         else
         {
-            ImGui.TextDisabled("No");
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.No, "No"));
         }
     }
 }

@@ -2,6 +2,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
 using Olympus.Config;
+using Olympus.Localization;
 using Olympus.Services.Analytics;
 using Olympus.Services.FFLogs;
 using Olympus.Windows.Analytics.Tabs;
@@ -48,25 +49,25 @@ public sealed class AnalyticsWindow : Window
         // Tab bar
         if (ImGui.BeginTabBar("AnalyticsTabs"))
         {
-            if (ImGui.BeginTabItem("Realtime"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Analytics.RealtimeTab, "Realtime")))
             {
                 RealtimeTab.Draw(performanceTracker, configuration.Analytics);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Fight Summary"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Analytics.FightSummaryTab, "Fight Summary")))
             {
                 FightSummaryTab.Draw(performanceTracker, configuration.Analytics);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("History"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Analytics.HistoryTab, "History")))
             {
                 HistoryTab.Draw(performanceTracker, configuration.Analytics);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("FFLogs"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Analytics.FFlogsTab, "FFLogs")))
             {
                 FFlogsTab.Draw(fflogsService, configuration.FFLogs);
                 ImGui.EndTabItem();
@@ -78,27 +79,27 @@ public sealed class AnalyticsWindow : Window
 
     private void DrawSettingsDropdown()
     {
-        if (ImGui.BeginCombo("##AnalyticsSettings", "Section Visibility", ImGuiComboFlags.NoArrowButton))
+        if (ImGui.BeginCombo("##AnalyticsSettings", Loc.T(LocalizedStrings.Analytics.SectionVisibility, "Section Visibility"), ImGuiComboFlags.NoArrowButton))
         {
-            ImGui.Text("Realtime Tab");
+            ImGui.Text(Loc.T(LocalizedStrings.Analytics.RealtimeTabLabel, "Realtime Tab"));
             ImGui.Separator();
-            DrawSectionToggle("RealtimeCombatStatus", "Combat Status");
-            DrawSectionToggle("RealtimeMetrics", "Metrics");
-            DrawSectionToggle("RealtimeCooldowns", "Cooldowns");
+            DrawSectionToggle("RealtimeCombatStatus", Loc.T(LocalizedStrings.Analytics.CombatStatus, "Combat Status"));
+            DrawSectionToggle("RealtimeMetrics", Loc.T(LocalizedStrings.Analytics.Metrics, "Metrics"));
+            DrawSectionToggle("RealtimeCooldowns", Loc.T(LocalizedStrings.Analytics.Cooldowns, "Cooldowns"));
 
             ImGui.Spacing();
-            ImGui.Text("Fight Summary Tab");
+            ImGui.Text(Loc.T(LocalizedStrings.Analytics.FightSummaryTabLabel, "Fight Summary Tab"));
             ImGui.Separator();
-            DrawSectionToggle("SummaryScores", "Scores");
-            DrawSectionToggle("SummaryBreakdown", "Breakdown");
-            DrawSectionToggle("SummaryDowntime", "Downtime Analysis");
-            DrawSectionToggle("SummaryIssues", "Issues");
+            DrawSectionToggle("SummaryScores", Loc.T(LocalizedStrings.Analytics.Scores, "Scores"));
+            DrawSectionToggle("SummaryBreakdown", Loc.T(LocalizedStrings.Analytics.Breakdown, "Breakdown"));
+            DrawSectionToggle("SummaryDowntime", Loc.T(LocalizedStrings.Analytics.DowntimeAnalysis, "Downtime Analysis"));
+            DrawSectionToggle("SummaryIssues", Loc.T(LocalizedStrings.Analytics.Issues, "Issues"));
 
             ImGui.Spacing();
-            ImGui.Text("History Tab");
+            ImGui.Text(Loc.T(LocalizedStrings.Analytics.HistoryTabLabel, "History Tab"));
             ImGui.Separator();
-            DrawSectionToggle("HistorySessions", "Sessions");
-            DrawSectionToggle("HistoryTrends", "Trends");
+            DrawSectionToggle("HistorySessions", Loc.T(LocalizedStrings.Analytics.Sessions, "Sessions"));
+            DrawSectionToggle("HistoryTrends", Loc.T(LocalizedStrings.Analytics.Trends, "Trends"));
 
             ImGui.EndCombo();
         }
@@ -107,7 +108,7 @@ public sealed class AnalyticsWindow : Window
 
         // Tracking toggle
         var enableTracking = configuration.Analytics.EnableTracking;
-        if (ImGui.Checkbox("Enable Tracking", ref enableTracking))
+        if (ImGui.Checkbox(Loc.T(LocalizedStrings.Analytics.EnableTracking, "Enable Tracking"), ref enableTracking))
         {
             configuration.Analytics.EnableTracking = enableTracking;
         }

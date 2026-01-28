@@ -1,5 +1,6 @@
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Olympus.Localization;
 using Olympus.Rotation.EchidnaCore.Context;
 
 namespace Olympus.Windows.Debug.Tabs;
@@ -13,8 +14,8 @@ public static class EchidnaTab
     {
         if (state == null)
         {
-            ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Viper rotation not active.");
-            ImGui.TextDisabled("Switch to Viper to see debug info.");
+            ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.ViperNotActive, "Viper rotation not active."));
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.SwitchToViper, "Switch to Viper to see debug info."));
             return;
         }
 
@@ -40,7 +41,7 @@ public static class EchidnaTab
 
     private static void DrawGaugeSection(EchidnaDebugState state)
     {
-        ImGui.Text("Gauge");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Gauge, "Gauge"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("VprGaugeTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -51,7 +52,7 @@ public static class EchidnaTab
             // Serpent Offering
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Serpent Offering:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.SerpentOffering, "Serpent Offering:"));
             ImGui.TableNextColumn();
             var offeringPercent = state.SerpentOffering / 100f;
             ImGui.ProgressBar(offeringPercent, new Vector2(-1, 0), $"{state.SerpentOffering}/100");
@@ -59,7 +60,7 @@ public static class EchidnaTab
             // Rattling Coils
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Rattling Coils:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.RattlingCoils, "Rattling Coils:"));
             ImGui.TableNextColumn();
             var coilColor = state.RattlingCoils >= 3 ? new Vector4(0.5f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(coilColor, $"{state.RattlingCoils}/3");
@@ -67,15 +68,15 @@ public static class EchidnaTab
             // Combo
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Combo:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Combo, "Combo:"));
             ImGui.TableNextColumn();
             var comboColor = state.ComboStep > 0 ? new Vector4(0.5f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
-            ImGui.TextColored(comboColor, state.ComboStep > 0 ? $"Step {state.ComboStep}" : "None");
+            ImGui.TextColored(comboColor, state.ComboStep > 0 ? $"Step {state.ComboStep}" : Loc.T(LocalizedStrings.Debug.NoneLabel, "None"));
 
             // Dread Combo
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Dread Combo:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.DreadCombo, "Dread Combo:"));
             ImGui.TableNextColumn();
             var dreadColor = state.DreadCombo != 0 ? new Vector4(0.8f, 0.5f, 1f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(dreadColor, state.DreadCombo.ToString());
@@ -86,7 +87,7 @@ public static class EchidnaTab
 
     private static void DrawReawakenSection(EchidnaDebugState state)
     {
-        ImGui.Text("Reawaken");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Reawaken, "Reawaken"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("VprReawakenTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -97,7 +98,7 @@ public static class EchidnaTab
             // Reawaken State
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Reawaken:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Reawaken, "Reawaken:"));
             ImGui.TableNextColumn();
             var reawakenColor = state.IsReawakened ? new Vector4(0.5f, 1f, 0.8f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(reawakenColor, state.GetReawakenState());
@@ -107,7 +108,7 @@ public static class EchidnaTab
             {
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGui.Text("Anguine Tribute:");
+                ImGui.Text(Loc.T(LocalizedStrings.Debug.AnguineTribute, "Anguine Tribute:"));
                 ImGui.TableNextColumn();
                 var tributeColor = state.AnguineTribute > 0 ? new Vector4(0.5f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
                 ImGui.TextColored(tributeColor, $"{state.AnguineTribute}");
@@ -116,7 +117,7 @@ public static class EchidnaTab
             // Ready to Reawaken
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Ready to Reawaken:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.ReadyToReawaken, "Ready to Reawaken:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasReadyToReawaken);
 
@@ -126,7 +127,7 @@ public static class EchidnaTab
 
     private static void DrawBuffSection(EchidnaDebugState state)
     {
-        ImGui.Text("Buffs");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("VprBuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -137,7 +138,7 @@ public static class EchidnaTab
             // Hunter's Instinct
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Hunter's Instinct:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.HuntersInstinct, "Hunter's Instinct:"));
             ImGui.TableNextColumn();
             if (state.HasHuntersInstinct)
             {
@@ -146,13 +147,13 @@ public static class EchidnaTab
             }
             else
             {
-                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Inactive");
+                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             // Swiftscaled
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Swiftscaled:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Swiftscaled, "Swiftscaled:"));
             ImGui.TableNextColumn();
             if (state.HasSwiftscaled)
             {
@@ -161,13 +162,13 @@ public static class EchidnaTab
             }
             else
             {
-                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Inactive");
+                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             // Noxious Gnash
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Noxious Gnash:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.NoxiousGnash, "Noxious Gnash:"));
             ImGui.TableNextColumn();
             if (state.HasNoxiousGnash)
             {
@@ -176,19 +177,19 @@ public static class EchidnaTab
             }
             else
             {
-                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Not applied");
+                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.NotApplied, "Not applied"));
             }
 
             // Honed Steel/Reavers
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Honed Steel:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.HonedSteel, "Honed Steel:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasHonedSteel);
 
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Honed Reavers:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.HonedReavers, "Honed Reavers:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasHonedReavers);
 
@@ -198,7 +199,7 @@ public static class EchidnaTab
 
     private static void DrawVenomSection(EchidnaDebugState state)
     {
-        ImGui.Text("Venom");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Venom, "Venom"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("VprVenomTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -209,20 +210,20 @@ public static class EchidnaTab
             // Current Venom
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Active Venom:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.ActiveVenom, "Active Venom:"));
             ImGui.TableNextColumn();
             ImGui.TextColored(new Vector4(0.5f, 1f, 0.8f, 1f), state.GetVenomState());
 
             // Twinfang/Twinblood Ready
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Twinfang Ready:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.TwinfangReady, "Twinfang Ready:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasPoisedForTwinfang);
 
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Twinblood Ready:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.TwinbloodReady, "Twinblood Ready:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasPoisedForTwinblood);
 
@@ -232,7 +233,7 @@ public static class EchidnaTab
 
     private static void DrawPositionalSection(EchidnaDebugState state)
     {
-        ImGui.Text("Positional");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Positional, "Positional"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("VprPositionalTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -243,43 +244,43 @@ public static class EchidnaTab
             // Current Position
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Position:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Position, "Position:"));
             ImGui.TableNextColumn();
             if (state.TargetHasPositionalImmunity)
             {
-                ImGui.TextColored(new Vector4(0.5f, 0.8f, 1f, 1f), "Immune (omni)");
+                ImGui.TextColored(new Vector4(0.5f, 0.8f, 1f, 1f), Loc.T(LocalizedStrings.Debug.ImmuneOmni, "Immune (omni)"));
             }
             else if (state.IsAtRear)
             {
-                ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), "Rear");
+                ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.Rear, "Rear"));
             }
             else if (state.IsAtFlank)
             {
-                ImGui.TextColored(new Vector4(1f, 1f, 0.5f, 1f), "Flank");
+                ImGui.TextColored(new Vector4(1f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.Flank, "Flank"));
             }
             else
             {
-                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Front");
+                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.Front, "Front"));
             }
 
             // True North
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("True North:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.TrueNorth, "True North:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasTrueNorth);
 
             // Target
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Target:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.TargetLabel, "Target:"));
             ImGui.TableNextColumn();
-            ImGui.Text(string.IsNullOrEmpty(state.CurrentTarget) ? "None" : state.CurrentTarget);
+            ImGui.Text(string.IsNullOrEmpty(state.CurrentTarget) ? Loc.T(LocalizedStrings.Debug.NoneLabel, "None") : state.CurrentTarget);
 
             // Nearby Enemies
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Nearby Enemies:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.NearbyEnemies, "Nearby Enemies:"));
             ImGui.TableNextColumn();
             var aoeColor = state.NearbyEnemies >= 3 ? new Vector4(1f, 0.6f, 0.2f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(aoeColor, $"{state.NearbyEnemies}");
@@ -292,11 +293,11 @@ public static class EchidnaTab
     {
         if (hasProc)
         {
-            ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), "Ready");
+            ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.Ready, "Ready"));
         }
         else
         {
-            ImGui.TextDisabled("No");
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.No, "No"));
         }
     }
 }

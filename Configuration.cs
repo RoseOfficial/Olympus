@@ -20,6 +20,13 @@ public sealed class Configuration : IPluginConfiguration
     public string TelemetryEndpoint { get; set; } = "https://olympus-telemetry.christopherscottkeller.workers.dev/";
 
     /// <summary>
+    /// Optional language override. When set, uses this language instead of the game client language.
+    /// Valid values: "en", "ja", "de", "fr", "zh", "tw", "ko", "es", "pt", "ru"
+    /// Empty string or null means use game client language.
+    /// </summary>
+    public string LanguageOverride { get; set; } = string.Empty;
+
+    /// <summary>
     /// The currently active configuration preset.
     /// Set to Custom when user modifies individual settings after applying a preset.
     /// </summary>
@@ -91,6 +98,7 @@ public sealed class Configuration : IPluginConfiguration
         var analyticsVisible = Analytics.AnalyticsWindowVisible;
         var trainingVisible = Training.TrainingWindowVisible;
         var seenWelcome = HasSeenWelcome;
+        var languageOverride = LanguageOverride;
 
         // Reset general behavior
         MovementTolerance = 0.1f;
@@ -131,5 +139,6 @@ public sealed class Configuration : IPluginConfiguration
         Analytics.AnalyticsWindowVisible = analyticsVisible;
         Training.TrainingWindowVisible = trainingVisible;
         HasSeenWelcome = seenWelcome;
+        LanguageOverride = languageOverride;
     }
 }

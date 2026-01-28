@@ -1,5 +1,6 @@
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Olympus.Localization;
 using Olympus.Rotation.HecateCore.Context;
 
 namespace Olympus.Windows.Debug.Tabs;
@@ -13,8 +14,8 @@ public static class HecateTab
     {
         if (state == null)
         {
-            ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Black Mage rotation not active.");
-            ImGui.TextDisabled("Switch to Black Mage to see debug info.");
+            ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.BlackMageNotActive, "Black Mage rotation not active."));
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.SwitchToBlackMage, "Switch to Black Mage to see debug info."));
             return;
         }
 
@@ -40,7 +41,7 @@ public static class HecateTab
 
     private static void DrawElementSection(HecateDebugState state)
     {
-        ImGui.Text("Element State");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.ElementState, "Element State"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("BlmElementTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -51,26 +52,26 @@ public static class HecateTab
             // Phase
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Phase:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.PhaseLabel, "Phase:"));
             ImGui.TableNextColumn();
             ImGui.TextColored(new Vector4(0.8f, 0.8f, 1f, 1f), state.Phase);
 
             // Element
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Element:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Element, "Element:"));
             ImGui.TableNextColumn();
             if (state.InAstralFire)
             {
-                ImGui.TextColored(new Vector4(1f, 0.5f, 0.2f, 1f), $"Astral Fire x{state.ElementStacks}");
+                ImGui.TextColored(new Vector4(1f, 0.5f, 0.2f, 1f), $"{Loc.T(LocalizedStrings.Debug.AstralFire, "Astral Fire")} x{state.ElementStacks}");
             }
             else if (state.InUmbralIce)
             {
-                ImGui.TextColored(new Vector4(0.5f, 0.8f, 1f, 1f), $"Umbral Ice x{state.ElementStacks}");
+                ImGui.TextColored(new Vector4(0.5f, 0.8f, 1f, 1f), $"{Loc.T(LocalizedStrings.Debug.UmbralIce, "Umbral Ice")} x{state.ElementStacks}");
             }
             else
             {
-                ImGui.TextDisabled("None");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.NoneLabel, "None"));
             }
 
             // Element Timer
@@ -78,7 +79,7 @@ public static class HecateTab
             {
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGui.Text("Element Timer:");
+                ImGui.Text(Loc.T(LocalizedStrings.Debug.ElementTimer, "Element Timer:"));
                 ImGui.TableNextColumn();
                 var timerColor = state.ElementTimer < 5f ? new Vector4(1f, 0.5f, 0.5f, 1f) : new Vector4(0.5f, 1f, 0.5f, 1f);
                 ImGui.TextColored(timerColor, $"{state.ElementTimer:F1}s");
@@ -87,15 +88,15 @@ public static class HecateTab
             // Enochian
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Enochian:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Enochian, "Enochian:"));
             ImGui.TableNextColumn();
             if (state.IsEnochianActive)
             {
-                ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), "Active");
+                ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.JobActiveLabel, "Active"));
             }
             else
             {
-                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Inactive");
+                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             ImGui.EndTable();
@@ -104,7 +105,7 @@ public static class HecateTab
 
     private static void DrawResourceSection(HecateDebugState state)
     {
-        ImGui.Text("Resources");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Resources, "Resources"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("BlmResourceTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -115,7 +116,7 @@ public static class HecateTab
             // MP
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("MP:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Mp, "MP:"));
             ImGui.TableNextColumn();
             var mpPercent = state.MaxMp > 0 ? (float)state.CurrentMp / state.MaxMp : 0;
             ImGui.ProgressBar(mpPercent, new Vector2(-1, 0), $"{state.CurrentMp:N0}/{state.MaxMp:N0}");
@@ -123,7 +124,7 @@ public static class HecateTab
             // Umbral Hearts
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Umbral Hearts:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.UmbralHearts, "Umbral Hearts:"));
             ImGui.TableNextColumn();
             var heartColor = state.UmbralHearts >= 3 ? new Vector4(0.5f, 0.8f, 1f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(heartColor, $"{state.UmbralHearts}/3");
@@ -131,7 +132,7 @@ public static class HecateTab
             // Polyglot
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Polyglot:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Polyglot, "Polyglot:"));
             ImGui.TableNextColumn();
             var polyColor = state.PolyglotStacks >= 3 ? new Vector4(0.5f, 1f, 0.5f, 1f) : state.PolyglotStacks >= 2 ? new Vector4(1f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(polyColor, $"{state.PolyglotStacks}/3");
@@ -139,7 +140,7 @@ public static class HecateTab
             // Astral Soul
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Astral Soul:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.AstralSoul, "Astral Soul:"));
             ImGui.TableNextColumn();
             var astralColor = state.AstralSoulStacks >= 6 ? new Vector4(0.5f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(astralColor, $"{state.AstralSoulStacks}/6");
@@ -147,7 +148,7 @@ public static class HecateTab
             // Paradox
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Paradox:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Paradox, "Paradox:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasParadox);
 
@@ -157,7 +158,7 @@ public static class HecateTab
 
     private static void DrawBuffSection(HecateDebugState state)
     {
-        ImGui.Text("Buffs");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("BlmBuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -168,7 +169,7 @@ public static class HecateTab
             // Firestarter
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Firestarter:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Firestarter, "Firestarter:"));
             ImGui.TableNextColumn();
             if (state.HasFirestarter)
             {
@@ -176,13 +177,13 @@ public static class HecateTab
             }
             else
             {
-                ImGui.TextDisabled("No");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.No, "No"));
             }
 
             // Thunderhead
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Thunderhead:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Thunderhead, "Thunderhead:"));
             ImGui.TableNextColumn();
             if (state.HasThunderhead)
             {
@@ -190,13 +191,13 @@ public static class HecateTab
             }
             else
             {
-                ImGui.TextDisabled("No");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.No, "No"));
             }
 
             // Ley Lines
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Ley Lines:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.LeyLines, "Ley Lines:"));
             ImGui.TableNextColumn();
             if (state.HasLeyLines)
             {
@@ -204,27 +205,27 @@ public static class HecateTab
             }
             else
             {
-                ImGui.TextDisabled("Inactive");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
 
             // Triplecast
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Triplecast:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Triplecast, "Triplecast:"));
             ImGui.TableNextColumn();
             if (state.TriplecastStacks > 0)
             {
-                ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), $"{state.TriplecastStacks} stacks");
+                ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), Loc.TFormat(LocalizedStrings.Debug.StacksFormat, "{0} stacks", state.TriplecastStacks));
             }
             else
             {
-                ImGui.TextDisabled("No");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.No, "No"));
             }
 
             // Swiftcast
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Swiftcast:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Swiftcast, "Swiftcast:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasSwiftcast);
 
@@ -234,7 +235,7 @@ public static class HecateTab
 
     private static void DrawCooldownSection(HecateDebugState state)
     {
-        ImGui.Text("Cooldowns");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.Cooldowns, "Cooldowns"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("BlmCooldownTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -245,7 +246,7 @@ public static class HecateTab
             // Triplecast Charges
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Triplecast Charges:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.TriplecastCharges, "Triplecast Charges:"));
             ImGui.TableNextColumn();
             var tripleColor = state.TriplecastCharges >= 2 ? new Vector4(0.5f, 1f, 0.5f, 1f) : state.TriplecastCharges >= 1 ? new Vector4(1f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(tripleColor, $"{state.TriplecastCharges}/2");
@@ -253,21 +254,21 @@ public static class HecateTab
             // Manafont
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Manafont:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Manafont, "Manafont:"));
             ImGui.TableNextColumn();
             DrawReadyStatus(state.ManafontReady);
 
             // Amplifier
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Amplifier:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.Amplifier, "Amplifier:"));
             ImGui.TableNextColumn();
             DrawReadyStatus(state.AmplifierReady);
 
             // Ley Lines
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Ley Lines CD:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.LeyLinesCd, "Ley Lines CD:"));
             ImGui.TableNextColumn();
             DrawReadyStatus(state.LeyLinesReady);
 
@@ -277,7 +278,7 @@ public static class HecateTab
 
     private static void DrawTargetSection(HecateDebugState state)
     {
-        ImGui.Text("Target");
+        ImGui.Text(Loc.T(LocalizedStrings.Debug.TargetSection, "Target"));
         ImGui.Separator();
 
         if (ImGui.BeginTable("BlmTargetTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
@@ -288,7 +289,7 @@ public static class HecateTab
             // Thunder DoT
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Thunder DoT:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.ThunderDoT, "Thunder DoT:"));
             ImGui.TableNextColumn();
             if (state.HasThunderDoT)
             {
@@ -297,20 +298,20 @@ public static class HecateTab
             }
             else
             {
-                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), "Not applied");
+                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.NotApplied, "Not applied"));
             }
 
             // Current Target
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Target:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.TargetLabel, "Target:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.CurrentTarget);
 
             // Nearby Enemies
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Text("Nearby Enemies:");
+            ImGui.Text(Loc.T(LocalizedStrings.Debug.NearbyEnemies, "Nearby Enemies:"));
             ImGui.TableNextColumn();
             var aoeColor = state.NearbyEnemies >= 3 ? new Vector4(1f, 0.6f, 0.2f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(aoeColor, $"{state.NearbyEnemies}");
@@ -323,11 +324,11 @@ public static class HecateTab
     {
         if (hasProc)
         {
-            ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), "Ready");
+            ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.Ready, "Ready"));
         }
         else
         {
-            ImGui.TextDisabled("No");
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.No, "No"));
         }
     }
 
@@ -335,11 +336,11 @@ public static class HecateTab
     {
         if (isReady)
         {
-            ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), "Ready");
+            ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.Ready, "Ready"));
         }
         else
         {
-            ImGui.TextDisabled("On CD");
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.OnCd, "On CD"));
         }
     }
 }
