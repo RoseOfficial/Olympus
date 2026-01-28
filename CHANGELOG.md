@@ -3,6 +3,26 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.4.0 - Chinese Simplified Translation
+
+**Phase 5 - AI Translation Generation**
+- Added Chinese Simplified (zh) translation with ~1,143 translated strings
+- Covers main UI, configuration, analytics, training, and debug windows
+- Uses official FFXIV Chinese terminology where applicable
+
+**Translation Coverage**
+- Main Window: Fully translated
+- Configuration Window: Core settings translated
+- Analytics Window: All tabs translated
+- Training Window: Live coaching and progress tracking translated
+- Debug Window: All 22 job tabs translated
+
+**Next Steps**
+- Complete remaining ~625 configuration detail strings
+- Add Training content translations (lessons and quizzes)
+- Additional languages: Japanese, German, French, Korean, etc.
+<!-- LATEST-END -->
+
 ## v4.3.1 - Debug Window Localization Complete
 
 **Localization**
@@ -17,7 +37,6 @@ All notable changes to Olympus will be documented in this file.
 - All 3 Ranged Physical DPS: MCH, BRD, DNC debug tabs
 - All 4 Casters: BLM, SMN, RDM, PCT debug tabs
 - General debug tabs: Overview, Timeline, Actions, Healing, Overheal, Performance, WhyStuck
-<!-- LATEST-END -->
 
 ## v4.3.0 - Localization Infrastructure
 
