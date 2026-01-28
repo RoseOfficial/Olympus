@@ -3,6 +3,27 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.5.0 - Japanese Translation
+
+**Localization**
+- Added Japanese (ja) translation with ~1,191 translated strings
+- Uses official FFXIV Japanese terminology (ability names, job names, UI terms)
+- Covers all windows: Main, Configuration, Analytics, Training, and Debug
+
+**Translation Coverage**
+- Main Window: Fully translated
+- Configuration Window: All settings translated (General, Healing, Damage, Role Actions, Party Coordination, Timeline, Training, Analytics)
+- Job-Specific Settings: All 4 healers, all 4 tanks translated
+- Analytics Window: All tabs translated (Overview, Cooldowns, FFLogs)
+- Training Window: Live coaching and progress tracking translated
+- Debug Window: All 21 job tabs translated
+
+**Japanese Terminology**
+- Job names use official FFXIV Japanese terms (白魔道士, 学者, 占星術師, 賢者, etc.)
+- Ability names use official in-game Japanese names
+- UI follows FFXIV Japanese client conventions
+<!-- LATEST-END -->
+
 ## v4.4.0 - Chinese Simplified Translation
 
 **Phase 5 - AI Translation Generation**
@@ -16,12 +37,6 @@ All notable changes to Olympus will be documented in this file.
 - Analytics Window: All tabs translated
 - Training Window: Live coaching and progress tracking translated
 - Debug Window: All 22 job tabs translated
-
-**Next Steps**
-- Complete remaining ~625 configuration detail strings
-- Add Training content translations (lessons and quizzes)
-- Additional languages: Japanese, German, French, Korean, etc.
-<!-- LATEST-END -->
 
 ## v4.3.1 - Debug Window Localization Complete
 
