@@ -1,0 +1,53 @@
+# Abyssos: The Fifth Circle (Savage) - Proto-Carbuncle Timeline
+# Based on Cactbot format
+# Zone ID: 1083
+
+hideall "--sync--"
+hideall "--Reset--"
+
+# Phase 1: Opening
+0.0 "--sync--" sync /00:0839::Proto-Carbuncle will be sealed off/ window 1,0
+10.0 "Sonic Howl" sync /^.{14} Proto-Carbuncle 7910/ window 5,5 # Raidwide
+22.0 "Ruby Glow" sync /^.{14} Proto-Carbuncle 7912/ window 5,5
+34.0 "Venomous Mass" sync /^.{14} Proto-Carbuncle 7914/ window 5,5 # Tankbuster
+
+# Phase 1: Topaz Stones
+48.0 "Topaz Stones" sync /^.{14} Proto-Carbuncle 7916/ window 10,10
+60.0 "Topaz Cluster" sync /^.{14} Proto-Carbuncle 7918/ window 5,5
+72.0 "Sonic Howl" sync /^.{14} Proto-Carbuncle 7910/ window 5,5 # Raidwide
+
+# Phase 1: Venom mechanics
+86.0 "Toxic Crunch" sync /^.{14} Proto-Carbuncle 791A/ window 5,5 # Tankbuster
+98.0 "Searing Ray" sync /^.{14} Proto-Carbuncle 791C/ window 5,5
+110.0 "Double Rush" sync /^.{14} Proto-Carbuncle 791E/ window 5,5
+
+# Phase 1: Ruby Glow combo
+124.0 "Ruby Glow" sync /^.{14} Proto-Carbuncle 7912/ window 5,5
+136.0 "Acidic Slaver" sync /^.{14} Proto-Carbuncle 7920/ window 5,5
+148.0 "Venomous Mass" sync /^.{14} Proto-Carbuncle 7914/ window 5,5 # Tankbuster
+160.0 "Sonic Howl" sync /^.{14} Proto-Carbuncle 7910/ window 5,5 # Raidwide
+
+# Phase 2: Devour
+174.0 "Devour" sync /^.{14} Proto-Carbuncle 7922/ window 10,10
+186.0 "Venom Pool" sync /^.{14} Proto-Carbuncle 7924/ window 5,5
+198.0 "Venom Drops" sync /^.{14} Proto-Carbuncle 7926/ window 5,5
+210.0 "Venom Squall" sync /^.{14} Proto-Carbuncle 7928/ window 5,5 # Raidwide
+
+# Phase 2: Topaz combo
+224.0 "Topaz Stones" sync /^.{14} Proto-Carbuncle 7916/ window 10,10
+236.0 "Sonic Shatter" sync /^.{14} Proto-Carbuncle 792A/ window 5,5
+248.0 "Toxic Crunch" sync /^.{14} Proto-Carbuncle 791A/ window 5,5 # Tankbuster
+
+# Phase 2: Raging mechanics
+262.0 "Raging Claw" sync /^.{14} Proto-Carbuncle 792C/ window 5,5
+274.0 "Raging Tail" sync /^.{14} Proto-Carbuncle 792E/ window 5,5
+286.0 "Sonic Howl" sync /^.{14} Proto-Carbuncle 7910/ window 5,5 # Raidwide
+
+# Phase 2: Final stretch
+300.0 "Ruby Glow" sync /^.{14} Proto-Carbuncle 7912/ window 5,5
+312.0 "Topaz Cluster" sync /^.{14} Proto-Carbuncle 7918/ window 5,5
+324.0 "Venomous Mass" sync /^.{14} Proto-Carbuncle 7914/ window 5,5 # Tankbuster
+336.0 "Sonic Howl" sync /^.{14} Proto-Carbuncle 7910/ window 5,5 # Raidwide
+
+# Enrage
+600.0 "Sonic Howl" sync /^.{14} Proto-Carbuncle 7930/ window 100,0 # Enrage

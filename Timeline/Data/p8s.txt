@@ -1,0 +1,82 @@
+# Abyssos: The Eighth Circle (Savage) - Hephaistos Timeline
+# Based on Cactbot format
+# Zone ID: 1089
+# Note: This fight has two distinct phases with a checkpoint
+
+hideall "--sync--"
+hideall "--Reset--"
+
+# ==================== PHASE 1: Hephaistos (Snake Form) ====================
+
+# Opening
+0.0 "--sync--" sync /00:0839::Hephaistos will be sealed off/ window 1,0
+10.0 "Genesis of Flame" sync /^.{14} Hephaistos 79D0/ window 5,5 # Raidwide
+22.0 "Volcanic Torches" sync /^.{14} Hephaistos 79D2/ window 5,5
+34.0 "Sunforge" sync /^.{14} Hephaistos 79D4/ window 5,5 # Tankbuster
+
+# Phase 1: Reforged Reflection
+48.0 "Reforged Reflection" sync /^.{14} Hephaistos 79D6/ window 10,10
+60.0 "Scorching Fang" sync /^.{14} Hephaistos 79D8/ window 5,5
+72.0 "Scorched Pinion" sync /^.{14} Hephaistos 79DA/ window 5,5
+84.0 "Genesis of Flame" sync /^.{14} Hephaistos 79D0/ window 5,5 # Raidwide
+
+# Phase 1: Fourfold Fires
+98.0 "Fourfold Fires" sync /^.{14} Hephaistos 79DC/ window 10,10
+110.0 "Cthonic Vent" sync /^.{14} Hephaistos 79DE/ window 5,5 # Raidwide
+122.0 "Sunforge" sync /^.{14} Hephaistos 79D4/ window 5,5 # Tankbuster
+
+# Phase 1: Snake mechanics
+136.0 "Gorgomanteia" sync /^.{14} Hephaistos 79E0/ window 10,10
+148.0 "Into the Shadows" sync /^.{14} Hephaistos 79E2/ window 5,5
+160.0 "Petrifaction" sync /^.{14} Hephaistos 79E4/ window 5,5
+172.0 "Genesis of Flame" sync /^.{14} Hephaistos 79D0/ window 5,5 # Raidwide
+
+# Phase 1: Illusory Creation
+186.0 "Illusory Creation" sync /^.{14} Hephaistos 79E6/ window 10,10
+198.0 "Snaking Kick" sync /^.{14} Hephaistos 79E8/ window 5,5
+210.0 "Footprint" sync /^.{14} Hephaistos 79EA/ window 5,5
+222.0 "Sunforge" sync /^.{14} Hephaistos 79D4/ window 5,5 # Tankbuster
+
+# Phase 1 Transition
+236.0 "Ektothermos" sync /^.{14} Hephaistos 79EC/ window 10,10 # Phase transition Raidwide
+
+# ==================== PHASE 2: Hephaistos (Centaur Form) ====================
+
+250.0 label "phase2"
+250.0 "--sync--" sync /00:0839::Phase 2 will begin/ window 5,5
+260.0 "Aioniopyr" sync /^.{14} Hephaistos 7A00/ window 5,5 # Raidwide
+272.0 "Tyrant's Unholy Darkness" sync /^.{14} Hephaistos 7A02/ window 5,5 # Tankbuster
+
+# Phase 2: Natural Alignment
+286.0 "Natural Alignment" sync /^.{14} Hephaistos 7A04/ window 10,10
+298.0 "Forcible Fire" sync /^.{14} Hephaistos 7A06/ window 5,5
+310.0 "Forcible Difreeze" sync /^.{14} Hephaistos 7A08/ window 5,5
+322.0 "Aioniopyr" sync /^.{14} Hephaistos 7A00/ window 5,5 # Raidwide
+
+# Phase 2: High Concept 1
+336.0 "High Concept" sync /^.{14} Hephaistos 7A0A/ window 10,10
+348.0 "Arcane Control" sync /^.{14} Hephaistos 7A0C/ window 5,5
+360.0 "Limitless Desolation" sync /^.{14} Hephaistos 7A0E/ window 5,5 # Raidwide
+372.0 "Tyrant's Unholy Darkness" sync /^.{14} Hephaistos 7A02/ window 5,5 # Tankbuster
+
+# Phase 2: Dominion
+386.0 "Dominion" sync /^.{14} Hephaistos 7A10/ window 10,10
+398.0 "Orogenic Deformation" sync /^.{14} Hephaistos 7A12/ window 5,5
+410.0 "Orogenic Shift" sync /^.{14} Hephaistos 7A14/ window 5,5
+422.0 "Aioniopyr" sync /^.{14} Hephaistos 7A00/ window 5,5 # Raidwide
+
+# Phase 2: High Concept 2
+436.0 "High Concept" sync /^.{14} Hephaistos 7A0A/ window 10,10
+448.0 "Arcane Channel" sync /^.{14} Hephaistos 7A16/ window 5,5
+460.0 "Ego Death" sync /^.{14} Hephaistos 7A18/ window 5,5
+472.0 "Limitless Desolation" sync /^.{14} Hephaistos 7A0E/ window 5,5 # Raidwide
+
+# Phase 2: Final stretch
+486.0 "Tyrant's Unholy Darkness" sync /^.{14} Hephaistos 7A02/ window 5,5 # Tankbuster
+498.0 "Natural Alignment" sync /^.{14} Hephaistos 7A04/ window 10,10
+510.0 "Aioniopyr" sync /^.{14} Hephaistos 7A00/ window 5,5 # Raidwide
+522.0 "Dominion" sync /^.{14} Hephaistos 7A10/ window 10,10
+534.0 "Tyrant's Unholy Darkness" sync /^.{14} Hephaistos 7A02/ window 5,5 # Tankbuster
+
+# Enrage
+600.0 "End of Days" sync /^.{14} Hephaistos 7A1C/ window 100,0 # Enrage

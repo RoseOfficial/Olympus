@@ -1,0 +1,80 @@
+# Asphodelos: The Fourth Circle (Savage) - Hesperos Timeline
+# Based on Cactbot format
+# Zone ID: 1009
+# Note: This fight has two distinct phases with a checkpoint
+
+hideall "--sync--"
+hideall "--Reset--"
+
+# ==================== PHASE 1: Hesperos ====================
+
+# Opening
+0.0 "--sync--" sync /00:0839::Hesperos will be sealed off/ window 1,0
+10.0 "Decollation" sync /^.{14} Hesperos 69D3/ window 5,5 # Raidwide
+22.0 "Bloodrake" sync /^.{14} Hesperos 69D5/ window 5,5
+34.0 "Elegant Evisceration" sync /^.{14} Hesperos 69D7/ window 5,5 # Tankbuster
+
+# Phase 1: Pinax
+48.0 "Setting the Scene" sync /^.{14} Hesperos 69DA/ window 10,10
+60.0 "Pinax" sync /^.{14} Hesperos 69DC/ window 5,5 # Raidwide
+72.0 "Decollation" sync /^.{14} Hesperos 69D3/ window 5,5 # Raidwide
+
+# Phase 1: Director's Belone
+86.0 "Director's Belone" sync /^.{14} Hesperos 69E0/ window 10,10
+98.0 "Inversive Chlamys" sync /^.{14} Hesperos 69E2/ window 5,5
+110.0 "Bloodrake" sync /^.{14} Hesperos 69D5/ window 5,5
+122.0 "Elegant Evisceration" sync /^.{14} Hesperos 69D7/ window 5,5 # Tankbuster
+
+# Phase 1: Vengeful Belone
+136.0 "Vengeful Belone" sync /^.{14} Hesperos 69E5/ window 10,10
+148.0 "Elemental Belone" sync /^.{14} Hesperos 69E7/ window 5,5
+160.0 "Setting the Scene" sync /^.{14} Hesperos 69DA/ window 10,10
+172.0 "Pinax" sync /^.{14} Hesperos 69DC/ window 5,5 # Raidwide
+
+# Phase 1: Pre-transition
+186.0 "Decollation" sync /^.{14} Hesperos 69D3/ window 5,5 # Raidwide
+198.0 "Bloodrake" sync /^.{14} Hesperos 69D5/ window 5,5
+210.0 "Elegant Evisceration" sync /^.{14} Hesperos 69D7/ window 5,5 # Tankbuster
+
+# Phase 1 Enrage / Transition
+225.0 "Periaktoi" sync /^.{14} Hesperos 69EA/ window 10,10 # Phase transition
+
+# ==================== PHASE 2: Hesperos (Act 2) ====================
+
+240.0 label "phase2"
+240.0 "--sync--" sync /00:0839::Act 2 will begin/ window 5,5
+250.0 "Searing Stream" sync /^.{14} Hesperos 6A00/ window 5,5 # Raidwide
+262.0 "Akanthai: Act 1" sync /^.{14} Hesperos 6A02/ window 10,10
+274.0 "Wreath of Thorns" sync /^.{14} Hesperos 6A04/ window 5,5
+286.0 "Ultimate Impulse" sync /^.{14} Hesperos 6A06/ window 5,5 # Raidwide
+
+# Phase 2: Heart Stake
+300.0 "Heart Stake" sync /^.{14} Hesperos 6A08/ window 5,5 # Tankbuster
+312.0 "Searing Stream" sync /^.{14} Hesperos 6A00/ window 5,5 # Raidwide
+
+# Phase 2: Akanthai Act 2
+326.0 "Akanthai: Act 2" sync /^.{14} Hesperos 6A0A/ window 10,10
+338.0 "Wreath of Thorns" sync /^.{14} Hesperos 6A04/ window 5,5
+350.0 "Fleeting Impulse" sync /^.{14} Hesperos 6A0C/ window 5,5
+362.0 "Ultimate Impulse" sync /^.{14} Hesperos 6A06/ window 5,5 # Raidwide
+
+# Phase 2: Akanthai Act 3
+376.0 "Akanthai: Act 3" sync /^.{14} Hesperos 6A0E/ window 10,10
+388.0 "Kothornos Kick" sync /^.{14} Hesperos 6A10/ window 5,5
+400.0 "Heart Stake" sync /^.{14} Hesperos 6A08/ window 5,5 # Tankbuster
+
+# Phase 2: Akanthai Act 4
+414.0 "Akanthai: Act 4" sync /^.{14} Hesperos 6A12/ window 10,10
+426.0 "Wreath of Thorns" sync /^.{14} Hesperos 6A04/ window 5,5
+438.0 "Nearsight/Farsight" sync /^.{14} Hesperos 6A14/ window 5,5 # Tankbuster variant
+450.0 "Searing Stream" sync /^.{14} Hesperos 6A00/ window 5,5 # Raidwide
+
+# Phase 2: Finale
+464.0 "Akanthai: Finale" sync /^.{14} Hesperos 6A18/ window 10,10
+476.0 "Fleeting Impulse" sync /^.{14} Hesperos 6A0C/ window 5,5
+488.0 "Ultimate Impulse" sync /^.{14} Hesperos 6A06/ window 5,5 # Raidwide
+500.0 "Heart Stake" sync /^.{14} Hesperos 6A08/ window 5,5 # Tankbuster
+512.0 "Searing Stream" sync /^.{14} Hesperos 6A00/ window 5,5 # Raidwide
+
+# Enrage
+600.0 "Curtain Call" sync /^.{14} Hesperos 6A1C/ window 100,0 # Enrage

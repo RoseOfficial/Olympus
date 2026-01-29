@@ -1,0 +1,52 @@
+# Asphodelos: The First Circle (Savage) - Erichthonios Timeline
+# Based on Cactbot format
+# Zone ID: 1003
+
+hideall "--sync--"
+hideall "--Reset--"
+
+# Phase 1: Opening
+0.0 "--sync--" sync /00:0839::Erichthonios will be sealed off/ window 1,0
+10.0 "Gaoler's Flail" sync /^.{14} Erichthonios 6DA1/ window 5,5
+22.0 "Warder's Wrath" sync /^.{14} Erichthonios 6D9F/ window 5,5 # Raidwide
+34.0 "Heavy Hand" sync /^.{14} Erichthonios 6DA5/ window 5,5 # Tankbuster
+46.0 "Pitiless Flail" sync /^.{14} Erichthonios 6DA3/ window 5,5
+
+# Phase 1: Intemperance 1
+58.0 "Intemperance" sync /^.{14} Erichthonios 6DA8/ window 10,10
+70.0 "Intemperate Torment" sync /^.{14} Erichthonios 6DAA/ window 5,5 # Raidwide
+82.0 "Warder's Wrath" sync /^.{14} Erichthonios 6D9F/ window 5,5 # Raidwide
+
+# Phase 1: Shining Cells
+92.0 "Shining Cells" sync /^.{14} Erichthonios 6DAD/ window 10,10 # Raidwide
+104.0 "Aetherflail" sync /^.{14} Erichthonios 6DB0/ window 5,5
+116.0 "Slam Shut" sync /^.{14} Erichthonios 6DB3/ window 5,5 # Raidwide
+
+# Phase 1: Chain mechanics
+128.0 "Shackles of Time" sync /^.{14} Erichthonios 6DB5/ window 5,5
+140.0 "Heavy Hand" sync /^.{14} Erichthonios 6DA5/ window 5,5 # Tankbuster
+152.0 "Warder's Wrath" sync /^.{14} Erichthonios 6D9F/ window 5,5 # Raidwide
+
+# Phase 1: Intemperance 2
+165.0 "Intemperance" sync /^.{14} Erichthonios 6DA8/ window 10,10
+177.0 "Intemperate Torment" sync /^.{14} Erichthonios 6DAA/ window 5,5 # Raidwide
+189.0 "Aetherchain" sync /^.{14} Erichthonios 6DB8/ window 5,5
+201.0 "Warder's Wrath" sync /^.{14} Erichthonios 6D9F/ window 5,5 # Raidwide
+
+# Phase 2: Post-intermission
+215.0 "Lethe" sync /^.{14} Erichthonios 6DBA/ window 10,10 # Raidwide transition
+230.0 "Gaoler's Flail" sync /^.{14} Erichthonios 6DA1/ window 5,5
+242.0 "Pitiless Flail" sync /^.{14} Erichthonios 6DA3/ window 5,5
+254.0 "Heavy Hand" sync /^.{14} Erichthonios 6DA5/ window 5,5 # Tankbuster
+
+# Phase 2: Final stretch
+268.0 "Shining Cells" sync /^.{14} Erichthonios 6DAD/ window 10,10 # Raidwide
+280.0 "Aetherflail" sync /^.{14} Erichthonios 6DB0/ window 5,5
+292.0 "Warder's Wrath" sync /^.{14} Erichthonios 6D9F/ window 5,5 # Raidwide
+304.0 "Intemperance" sync /^.{14} Erichthonios 6DA8/ window 10,10
+316.0 "Intemperate Torment" sync /^.{14} Erichthonios 6DAA/ window 5,5 # Raidwide
+328.0 "Heavy Hand" sync /^.{14} Erichthonios 6DA5/ window 5,5 # Tankbuster
+340.0 "Warder's Wrath" sync /^.{14} Erichthonios 6D9F/ window 5,5 # Raidwide
+
+# Enrage
+600.0 "Lethe" sync /^.{14} Erichthonios 6DBC/ window 100,0 # Enrage

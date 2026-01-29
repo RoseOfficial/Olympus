@@ -25,7 +25,29 @@ public enum ConfigSection
     Paladin,
     Warrior,
     DarkKnight,
-    Gunbreaker
+    Gunbreaker,
+
+    // Melee DPS
+    MeleeDpsShared,
+    Dragoon,
+    Ninja,
+    Samurai,
+    Monk,
+    Reaper,
+    Viper,
+
+    // Ranged Physical DPS
+    RangedDpsShared,
+    Machinist,
+    Bard,
+    Dancer,
+
+    // Casters
+    CasterShared,
+    BlackMage,
+    Summoner,
+    RedMage,
+    Pictomancer
 }
 
 /// <summary>
@@ -73,6 +95,37 @@ public sealed class ConfigSidebar
         sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Warrior, "Warrior"), ConfigSection.Warrior, ConfigUIHelpers.WarriorColor);
         sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.DarkKnight, "Dark Knight"), ConfigSection.DarkKnight, ConfigUIHelpers.DarkKnightColor);
         sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Gunbreaker, "Gunbreaker"), ConfigSection.Gunbreaker, ConfigUIHelpers.GunbreakerColor);
+
+        ImGui.Spacing();
+
+        // MELEE DPS section
+        DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.MeleeDps, "MELEE DPS"));
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Shared, "Shared"), ConfigSection.MeleeDpsShared);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Dragoon, "Dragoon"), ConfigSection.Dragoon, ConfigUIHelpers.DragoonColor);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Ninja, "Ninja"), ConfigSection.Ninja, ConfigUIHelpers.NinjaColor);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Samurai, "Samurai"), ConfigSection.Samurai, ConfigUIHelpers.SamuraiColor);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Monk, "Monk"), ConfigSection.Monk, ConfigUIHelpers.MonkColor);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Reaper, "Reaper"), ConfigSection.Reaper, ConfigUIHelpers.ReaperColor);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Viper, "Viper"), ConfigSection.Viper, ConfigUIHelpers.ViperColor);
+
+        ImGui.Spacing();
+
+        // RANGED DPS section
+        DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.RangedDps, "RANGED DPS"));
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Shared, "Shared"), ConfigSection.RangedDpsShared);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Machinist, "Machinist"), ConfigSection.Machinist, ConfigUIHelpers.MachinistColor);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Bard, "Bard"), ConfigSection.Bard, ConfigUIHelpers.BardColor);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Dancer, "Dancer"), ConfigSection.Dancer, ConfigUIHelpers.DancerColor);
+
+        ImGui.Spacing();
+
+        // CASTERS section
+        DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.Casters, "CASTERS"));
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Shared, "Shared"), ConfigSection.CasterShared);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.BlackMage, "Black Mage"), ConfigSection.BlackMage, ConfigUIHelpers.BlackMageColor);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Summoner, "Summoner"), ConfigSection.Summoner, ConfigUIHelpers.SummonerColor);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.RedMage, "Red Mage"), ConfigSection.RedMage, ConfigUIHelpers.RedMageColor);
+        sectionChanged |= DrawNavItem(Loc.T(LocalizedStrings.Sidebar.Pictomancer, "Pictomancer"), ConfigSection.Pictomancer, ConfigUIHelpers.PictomancerColor);
 
         ImGui.EndChild();
 

@@ -15,14 +15,36 @@ public static class ConfigUIHelpers
 
     #region Job Header Colors
 
+    // Healers
     public static readonly Vector4 WhiteMageColor = new(1.0f, 1.0f, 0.8f, 1.0f);
     public static readonly Vector4 ScholarColor = new(0.8f, 0.9f, 1.0f, 1.0f);
     public static readonly Vector4 AstrologianColor = new(1.0f, 0.9f, 0.6f, 1.0f);
     public static readonly Vector4 SageColor = new(0.6f, 1.0f, 0.8f, 1.0f);
+
+    // Tanks
     public static readonly Vector4 PaladinColor = new(0.9f, 0.9f, 1.0f, 1.0f);
     public static readonly Vector4 WarriorColor = new(1.0f, 0.6f, 0.5f, 1.0f);
     public static readonly Vector4 DarkKnightColor = new(0.7f, 0.5f, 0.8f, 1.0f);
     public static readonly Vector4 GunbreakerColor = new(0.6f, 0.7f, 0.9f, 1.0f);
+
+    // Melee DPS
+    public static readonly Vector4 DragoonColor = new(0.4f, 0.5f, 0.9f, 1.0f);
+    public static readonly Vector4 NinjaColor = new(0.7f, 0.3f, 0.5f, 1.0f);
+    public static readonly Vector4 SamuraiColor = new(0.9f, 0.5f, 0.3f, 1.0f);
+    public static readonly Vector4 MonkColor = new(0.8f, 0.7f, 0.3f, 1.0f);
+    public static readonly Vector4 ReaperColor = new(0.6f, 0.3f, 0.4f, 1.0f);
+    public static readonly Vector4 ViperColor = new(0.4f, 0.7f, 0.4f, 1.0f);
+
+    // Ranged Physical DPS
+    public static readonly Vector4 BardColor = new(0.6f, 0.8f, 0.5f, 1.0f);
+    public static readonly Vector4 MachinistColor = new(0.5f, 0.8f, 0.9f, 1.0f);
+    public static readonly Vector4 DancerColor = new(0.9f, 0.7f, 0.8f, 1.0f);
+
+    // Casters
+    public static readonly Vector4 BlackMageColor = new(0.6f, 0.4f, 0.8f, 1.0f);
+    public static readonly Vector4 SummonerColor = new(0.3f, 0.7f, 0.5f, 1.0f);
+    public static readonly Vector4 RedMageColor = new(0.9f, 0.4f, 0.5f, 1.0f);
+    public static readonly Vector4 PictomancerColor = new(0.8f, 0.6f, 0.9f, 1.0f);
 
     #endregion
 

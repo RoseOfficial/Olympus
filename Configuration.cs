@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Configuration;
 using Olympus.Config;
+using Olympus.Config.DPS;
 using Olympus.Services.Targeting;
 
 namespace Olympus;
@@ -76,6 +77,25 @@ public sealed class Configuration : IPluginConfiguration
     // Role-specific configuration - Tanks
     public TankConfig Tank { get; set; } = new();
 
+    // Job-specific configuration - Melee DPS
+    public DragoonConfig Dragoon { get; set; } = new();
+    public NinjaConfig Ninja { get; set; } = new();
+    public SamuraiConfig Samurai { get; set; } = new();
+    public MonkConfig Monk { get; set; } = new();
+    public ReaperConfig Reaper { get; set; } = new();
+    public ViperConfig Viper { get; set; } = new();
+
+    // Job-specific configuration - Ranged Physical DPS
+    public MachinistConfig Machinist { get; set; } = new();
+    public BardConfig Bard { get; set; } = new();
+    public DancerConfig Dancer { get; set; } = new();
+
+    // Job-specific configuration - Casters
+    public BlackMageConfig BlackMage { get; set; } = new();
+    public SummonerConfig Summoner { get; set; } = new();
+    public RedMageConfig RedMage { get; set; } = new();
+    public PictomancerConfig Pictomancer { get; set; } = new();
+
     // Role action settings (used across healers)
     public bool EnableLucidDreaming { get; set; } = true;
     private float _lucidDreamingThreshold = 0.70f;
@@ -127,6 +147,21 @@ public sealed class Configuration : IPluginConfiguration
         Sage = new SageConfig();
         Tank = new TankConfig();
         PartyCoordination = new PartyCoordinationConfig();
+
+        // Reset DPS configs
+        Dragoon = new DragoonConfig();
+        Ninja = new NinjaConfig();
+        Samurai = new SamuraiConfig();
+        Monk = new MonkConfig();
+        Reaper = new ReaperConfig();
+        Viper = new ViperConfig();
+        Machinist = new MachinistConfig();
+        Bard = new BardConfig();
+        Dancer = new DancerConfig();
+        BlackMage = new BlackMageConfig();
+        Summoner = new SummonerConfig();
+        RedMage = new RedMageConfig();
+        Pictomancer = new PictomancerConfig();
 
         // Reset telemetry to defaults
         TelemetryEnabled = true;

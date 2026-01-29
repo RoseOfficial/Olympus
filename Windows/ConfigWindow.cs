@@ -6,6 +6,7 @@ using Dalamud.Utility;
 using Olympus.Config;
 using Olympus.Localization;
 using Olympus.Windows.Config;
+using Olympus.Windows.Config.DPS;
 using Olympus.Windows.Config.Healers;
 using Olympus.Windows.Config.Shared;
 using Olympus.Windows.Config.Tanks;
@@ -36,6 +37,24 @@ public sealed class ConfigWindow : Window
     private readonly DarkKnightSection darkKnightSection;
     private readonly GunbreakerSection gunbreakerSection;
 
+    // DPS Section renderers
+    private readonly MeleeDpsSharedSection meleeDpsSharedSection;
+    private readonly DragoonSection dragoonSection;
+    private readonly NinjaSection ninjaSection;
+    private readonly SamuraiSection samuraiSection;
+    private readonly MonkSection monkSection;
+    private readonly ReaperSection reaperSection;
+    private readonly ViperSection viperSection;
+    private readonly RangedDpsSharedSection rangedDpsSharedSection;
+    private readonly MachinistSection machinistSection;
+    private readonly BardSection bardSection;
+    private readonly DancerSection dancerSection;
+    private readonly CasterSharedSection casterSharedSection;
+    private readonly BlackMageSection blackMageSection;
+    private readonly SummonerSection summonerSection;
+    private readonly RedMageSection redMageSection;
+    private readonly PictomancerSection pictomancerSection;
+
     public ConfigWindow(Configuration configuration, Action saveConfiguration)
         : base(Loc.T(LocalizedStrings.Config.WindowTitle, "Olympus Settings"), ImGuiWindowFlags.NoCollapse)
     {
@@ -53,6 +72,24 @@ public sealed class ConfigWindow : Window
         warriorSection = new WarriorSection(configuration, saveConfiguration);
         darkKnightSection = new DarkKnightSection(configuration, saveConfiguration);
         gunbreakerSection = new GunbreakerSection(configuration, saveConfiguration);
+
+        // Initialize DPS section renderers
+        meleeDpsSharedSection = new MeleeDpsSharedSection(configuration, saveConfiguration);
+        dragoonSection = new DragoonSection(configuration, saveConfiguration);
+        ninjaSection = new NinjaSection(configuration, saveConfiguration);
+        samuraiSection = new SamuraiSection(configuration, saveConfiguration);
+        monkSection = new MonkSection(configuration, saveConfiguration);
+        reaperSection = new ReaperSection(configuration, saveConfiguration);
+        viperSection = new ViperSection(configuration, saveConfiguration);
+        rangedDpsSharedSection = new RangedDpsSharedSection(configuration, saveConfiguration);
+        machinistSection = new MachinistSection(configuration, saveConfiguration);
+        bardSection = new BardSection(configuration, saveConfiguration);
+        dancerSection = new DancerSection(configuration, saveConfiguration);
+        casterSharedSection = new CasterSharedSection(configuration, saveConfiguration);
+        blackMageSection = new BlackMageSection(configuration, saveConfiguration);
+        summonerSection = new SummonerSection(configuration, saveConfiguration);
+        redMageSection = new RedMageSection(configuration, saveConfiguration);
+        pictomancerSection = new PictomancerSection(configuration, saveConfiguration);
 
         Size = new Vector2(650, 700);
         SizeCondition = ImGuiCond.FirstUseEver;
@@ -176,6 +213,73 @@ public sealed class ConfigWindow : Window
 
             case ConfigSection.Gunbreaker:
                 gunbreakerSection.Draw();
+                break;
+
+            // Melee DPS
+            case ConfigSection.MeleeDpsShared:
+                meleeDpsSharedSection.Draw();
+                break;
+
+            case ConfigSection.Dragoon:
+                dragoonSection.Draw();
+                break;
+
+            case ConfigSection.Ninja:
+                ninjaSection.Draw();
+                break;
+
+            case ConfigSection.Samurai:
+                samuraiSection.Draw();
+                break;
+
+            case ConfigSection.Monk:
+                monkSection.Draw();
+                break;
+
+            case ConfigSection.Reaper:
+                reaperSection.Draw();
+                break;
+
+            case ConfigSection.Viper:
+                viperSection.Draw();
+                break;
+
+            // Ranged Physical DPS
+            case ConfigSection.RangedDpsShared:
+                rangedDpsSharedSection.Draw();
+                break;
+
+            case ConfigSection.Machinist:
+                machinistSection.Draw();
+                break;
+
+            case ConfigSection.Bard:
+                bardSection.Draw();
+                break;
+
+            case ConfigSection.Dancer:
+                dancerSection.Draw();
+                break;
+
+            // Casters
+            case ConfigSection.CasterShared:
+                casterSharedSection.Draw();
+                break;
+
+            case ConfigSection.BlackMage:
+                blackMageSection.Draw();
+                break;
+
+            case ConfigSection.Summoner:
+                summonerSection.Draw();
+                break;
+
+            case ConfigSection.RedMage:
+                redMageSection.Draw();
+                break;
+
+            case ConfigSection.Pictomancer:
+                pictomancerSection.Draw();
                 break;
         }
     }

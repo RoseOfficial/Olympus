@@ -73,6 +73,28 @@ public static class LocalizedStrings
         public const string Warrior = "config.sidebar.warrior";
         public const string DarkKnight = "config.sidebar.dark_knight";
         public const string Gunbreaker = "config.sidebar.gunbreaker";
+
+        // Melee DPS
+        public const string MeleeDps = "config.sidebar.melee_dps";
+        public const string Dragoon = "config.sidebar.dragoon";
+        public const string Ninja = "config.sidebar.ninja";
+        public const string Samurai = "config.sidebar.samurai";
+        public const string Monk = "config.sidebar.monk";
+        public const string Reaper = "config.sidebar.reaper";
+        public const string Viper = "config.sidebar.viper";
+
+        // Ranged Physical DPS
+        public const string RangedDps = "config.sidebar.ranged_dps";
+        public const string Machinist = "config.sidebar.machinist";
+        public const string Bard = "config.sidebar.bard";
+        public const string Dancer = "config.sidebar.dancer";
+
+        // Casters
+        public const string Casters = "config.sidebar.casters";
+        public const string BlackMage = "config.sidebar.black_mage";
+        public const string Summoner = "config.sidebar.summoner";
+        public const string RedMage = "config.sidebar.red_mage";
+        public const string Pictomancer = "config.sidebar.pictomancer";
     }
 
     /// <summary>Keys for general settings section.</summary>
@@ -929,6 +951,555 @@ public static class LocalizedStrings
         public const string DemonSliceCombo = "config.job.gnb.demon_slice_combo";
         public const string FatedCircle = "config.job.gnb.fated_circle";
         public const string BowShock = "config.job.gnb.bow_shock";
+    }
+
+    // ===== MELEE DPS =====
+
+    /// <summary>Keys for shared melee DPS settings.</summary>
+    public static class MeleeDps
+    {
+        public const string Header = "config.melee_dps.header";
+        public const string PositionalSection = "config.melee_dps.positional_section";
+        public const string PositionalDesc = "config.melee_dps.positional_desc";
+        public const string PositionalFlank = "config.melee_dps.positional_flank";
+        public const string PositionalRear = "config.melee_dps.positional_rear";
+        public const string PositionalNote = "config.melee_dps.positional_note";
+        public const string AoESection = "config.melee_dps.aoe_section";
+        public const string AoEDesc = "config.melee_dps.aoe_desc";
+        public const string AoEDefault = "config.melee_dps.aoe_default";
+        public const string AoENote = "config.melee_dps.aoe_note";
+        public const string BurstSection = "config.melee_dps.burst_section";
+        public const string BurstDesc = "config.melee_dps.burst_desc";
+        public const string BurstNote = "config.melee_dps.burst_note";
+        public const string PartyBuffs = "config.melee_dps.party_buffs";
+        public const string BattleLitany = "config.melee_dps.battle_litany";
+        public const string Brotherhood = "config.melee_dps.brotherhood";
+        public const string ArcaneCircle = "config.melee_dps.arcane_circle";
+    }
+
+    /// <summary>Keys for Dragoon specific settings.</summary>
+    public static class Dragoon
+    {
+        public const string DamageSection = "config.job.drg.damage_section";
+        public const string EnableGeirskogul = "config.job.drg.enable_geirskogul";
+        public const string EnableGeirskogulDesc = "config.job.drg.enable_geirskogul_desc";
+        public const string EnableStardiver = "config.job.drg.enable_stardiver";
+        public const string EnableStardiverDesc = "config.job.drg.enable_stardiver_desc";
+        public const string EnableJumps = "config.job.drg.enable_jumps";
+        public const string EnableJumpsDesc = "config.job.drg.enable_jumps_desc";
+        public const string EnableLifeSurge = "config.job.drg.enable_life_surge";
+        public const string EnableLifeSurgeDesc = "config.job.drg.enable_life_surge_desc";
+        public const string AoEMinTargets = "config.job.drg.aoe_min_targets";
+        public const string AoEMinTargetsDesc = "config.job.drg.aoe_min_targets_desc";
+        public const string GeirskogulMinEyes = "config.job.drg.geirskogul_min_eyes";
+        public const string GeirskogulMinEyesDesc = "config.job.drg.geirskogul_min_eyes_desc";
+        public const string HoldJumpsForBurst = "config.job.drg.hold_jumps_for_burst";
+        public const string HoldJumpsForBurstDesc = "config.job.drg.hold_jumps_for_burst_desc";
+        public const string BuffSection = "config.job.drg.buff_section";
+        public const string EnableLanceCharge = "config.job.drg.enable_lance_charge";
+        public const string EnableLanceChargeDesc = "config.job.drg.enable_lance_charge_desc";
+        public const string EnableBattleLitany = "config.job.drg.enable_battle_litany";
+        public const string EnableBattleLitanyDesc = "config.job.drg.enable_battle_litany_desc";
+        public const string BurstSection = "config.job.drg.burst_section";
+        public const string AlignWithParty = "config.job.drg.align_with_party";
+        public const string AlignWithPartyDesc = "config.job.drg.align_with_party_desc";
+        public const string BattleLitanyHoldTime = "config.job.drg.battle_litany_hold_time";
+        public const string BattleLitanyHoldTimeDesc = "config.job.drg.battle_litany_hold_time_desc";
+        public const string PositionalSection = "config.job.drg.positional_section";
+        public const string EnforcePositionals = "config.job.drg.enforce_positionals";
+        public const string EnforcePositionalsDesc = "config.job.drg.enforce_positionals_desc";
+        public const string AllowPositionalLoss = "config.job.drg.allow_positional_loss";
+        public const string AllowPositionalLossDesc = "config.job.drg.allow_positional_loss_desc";
+    }
+
+    /// <summary>Keys for Ninja specific settings.</summary>
+    public static class Ninja
+    {
+        public const string DamageSection = "config.job.nin.damage_section";
+        public const string EnableNinjutsu = "config.job.nin.enable_ninjutsu";
+        public const string EnableNinjutsuDesc = "config.job.nin.enable_ninjutsu_desc";
+        public const string EnableRaiju = "config.job.nin.enable_raiju";
+        public const string EnableRaijuDesc = "config.job.nin.enable_raiju_desc";
+        public const string EnablePhantomKamaitachi = "config.job.nin.enable_phantom_kamaitachi";
+        public const string EnablePhantomKamaitachiDesc = "config.job.nin.enable_phantom_kamaitachi_desc";
+        public const string AoEMinTargets = "config.job.nin.aoe_min_targets";
+        public const string AoEMinTargetsDesc = "config.job.nin.aoe_min_targets_desc";
+        public const string NinkiSection = "config.job.nin.ninki_section";
+        public const string EnableBhavacakra = "config.job.nin.enable_bhavacakra";
+        public const string EnableBhavacakraDesc = "config.job.nin.enable_bhavacakra_desc";
+        public const string NinkiMinGauge = "config.job.nin.ninki_min_gauge";
+        public const string NinkiMinGaugeDesc = "config.job.nin.ninki_min_gauge_desc";
+        public const string NinkiOvercapThreshold = "config.job.nin.ninki_overcap_threshold";
+        public const string NinkiOvercapThresholdDesc = "config.job.nin.ninki_overcap_threshold_desc";
+        public const string MudraSection = "config.job.nin.mudra_section";
+        public const string NinjutsuPriority = "config.job.nin.ninjutsu_priority";
+        public const string NinjutsuPriorityDesc = "config.job.nin.ninjutsu_priority_desc";
+        public const string UseDotonForAoE = "config.job.nin.use_doton_for_aoe";
+        public const string UseDotonForAoEDesc = "config.job.nin.use_doton_for_aoe_desc";
+        public const string DotonMinTargets = "config.job.nin.doton_min_targets";
+        public const string DotonMinTargetsDesc = "config.job.nin.doton_min_targets_desc";
+        public const string BurstSection = "config.job.nin.burst_section";
+        public const string EnableKunaisBane = "config.job.nin.enable_kunais_bane";
+        public const string EnableKunaisBaneDesc = "config.job.nin.enable_kunais_bane_desc";
+        public const string AlignWithParty = "config.job.nin.align_with_party";
+        public const string AlignWithPartyDesc = "config.job.nin.align_with_party_desc";
+        public const string KunaisBaneHoldTime = "config.job.nin.kunais_bane_hold_time";
+        public const string KunaisBaneHoldTimeDesc = "config.job.nin.kunais_bane_hold_time_desc";
+    }
+
+    /// <summary>Keys for Samurai specific settings.</summary>
+    public static class Samurai
+    {
+        public const string DamageSection = "config.job.sam.damage_section";
+        public const string EnableIaijutsu = "config.job.sam.enable_iaijutsu";
+        public const string EnableIaijutsuDesc = "config.job.sam.enable_iaijutsu_desc";
+        public const string EnableTsubamegaeshi = "config.job.sam.enable_tsubamegaeshi";
+        public const string EnableTsubamegaeshiDesc = "config.job.sam.enable_tsubamegaeshi_desc";
+        public const string EnableOgiNamikiri = "config.job.sam.enable_ogi_namikiri";
+        public const string EnableOgiNamikiriDesc = "config.job.sam.enable_ogi_namikiri_desc";
+        public const string AoEMinTargets = "config.job.sam.aoe_min_targets";
+        public const string AoEMinTargetsDesc = "config.job.sam.aoe_min_targets_desc";
+        public const string KenkiSection = "config.job.sam.kenki_section";
+        public const string EnableShinten = "config.job.sam.enable_shinten";
+        public const string EnableShintenDesc = "config.job.sam.enable_shinten_desc";
+        public const string EnableSenei = "config.job.sam.enable_senei";
+        public const string EnableSeneiDesc = "config.job.sam.enable_senei_desc";
+        public const string KenkiMinGauge = "config.job.sam.kenki_min_gauge";
+        public const string KenkiMinGaugeDesc = "config.job.sam.kenki_min_gauge_desc";
+        public const string KenkiOvercapThreshold = "config.job.sam.kenki_overcap_threshold";
+        public const string KenkiOvercapThresholdDesc = "config.job.sam.kenki_overcap_threshold_desc";
+        public const string SenSection = "config.job.sam.sen_section";
+        public const string MaintainHiganbana = "config.job.sam.maintain_higanbana";
+        public const string MaintainHiganbanaDesc = "config.job.sam.maintain_higanbana_desc";
+        public const string HiganbanaRefreshThreshold = "config.job.sam.higanbana_refresh_threshold";
+        public const string HiganbanaRefreshThresholdDesc = "config.job.sam.higanbana_refresh_threshold_desc";
+        public const string HiganbanaMinTargetHp = "config.job.sam.higanbana_min_target_hp";
+        public const string HiganbanaMinTargetHpDesc = "config.job.sam.higanbana_min_target_hp_desc";
+        public const string BurstSection = "config.job.sam.burst_section";
+        public const string EnableIkishoten = "config.job.sam.enable_ikishoten";
+        public const string EnableIkishotenDesc = "config.job.sam.enable_ikishoten_desc";
+        public const string AlignWithParty = "config.job.sam.align_with_party";
+        public const string AlignWithPartyDesc = "config.job.sam.align_with_party_desc";
+        public const string IkishotenHoldTime = "config.job.sam.ikishoten_hold_time";
+        public const string IkishotenHoldTimeDesc = "config.job.sam.ikishoten_hold_time_desc";
+    }
+
+    /// <summary>Keys for Monk specific settings.</summary>
+    public static class Monk
+    {
+        public const string DamageSection = "config.job.mnk.damage_section";
+        public const string EnableMasterfulBlitz = "config.job.mnk.enable_masterful_blitz";
+        public const string EnableMasterfulBlitzDesc = "config.job.mnk.enable_masterful_blitz_desc";
+        public const string EnableSixSidedStar = "config.job.mnk.enable_six_sided_star";
+        public const string EnableSixSidedStarDesc = "config.job.mnk.enable_six_sided_star_desc";
+        public const string AoEMinTargets = "config.job.mnk.aoe_min_targets";
+        public const string AoEMinTargetsDesc = "config.job.mnk.aoe_min_targets_desc";
+        public const string ChakraSection = "config.job.mnk.chakra_section";
+        public const string EnableChakraSpenders = "config.job.mnk.enable_chakra_spenders";
+        public const string EnableChakraSpendersDesc = "config.job.mnk.enable_chakra_spenders_desc";
+        public const string ChakraMinGauge = "config.job.mnk.chakra_min_gauge";
+        public const string ChakraMinGaugeDesc = "config.job.mnk.chakra_min_gauge_desc";
+        public const string PositionalSection = "config.job.mnk.positional_section";
+        public const string PositionalStrictness = "config.job.mnk.positional_strictness";
+        public const string PositionalStrictnessDesc = "config.job.mnk.positional_strictness_desc";
+        public const string AllowPositionalLoss = "config.job.mnk.allow_positional_loss";
+        public const string AllowPositionalLossDesc = "config.job.mnk.allow_positional_loss_desc";
+        public const string BuffSection = "config.job.mnk.buff_section";
+        public const string EnableRiddleOfFire = "config.job.mnk.enable_riddle_of_fire";
+        public const string EnableRiddleOfFireDesc = "config.job.mnk.enable_riddle_of_fire_desc";
+        public const string EnableBrotherhood = "config.job.mnk.enable_brotherhood";
+        public const string EnableBrotherhoodDesc = "config.job.mnk.enable_brotherhood_desc";
+        public const string AlignWithParty = "config.job.mnk.align_with_party";
+        public const string AlignWithPartyDesc = "config.job.mnk.align_with_party_desc";
+        public const string BrotherhoodHoldTime = "config.job.mnk.brotherhood_hold_time";
+        public const string BrotherhoodHoldTimeDesc = "config.job.mnk.brotherhood_hold_time_desc";
+    }
+
+    /// <summary>Keys for Reaper specific settings.</summary>
+    public static class Reaper
+    {
+        public const string DamageSection = "config.job.rpr.damage_section";
+        public const string EnableSoulReaver = "config.job.rpr.enable_soul_reaver";
+        public const string EnableSoulReaverDesc = "config.job.rpr.enable_soul_reaver_desc";
+        public const string EnableCommunio = "config.job.rpr.enable_communio";
+        public const string EnableCommunioDesc = "config.job.rpr.enable_communio_desc";
+        public const string EnablePerfectio = "config.job.rpr.enable_perfectio";
+        public const string EnablePerfectioDesc = "config.job.rpr.enable_perfectio_desc";
+        public const string AoEMinTargets = "config.job.rpr.aoe_min_targets";
+        public const string AoEMinTargetsDesc = "config.job.rpr.aoe_min_targets_desc";
+        public const string GaugeSection = "config.job.rpr.gauge_section";
+        public const string SoulMinGauge = "config.job.rpr.soul_min_gauge";
+        public const string SoulMinGaugeDesc = "config.job.rpr.soul_min_gauge_desc";
+        public const string SoulOvercapThreshold = "config.job.rpr.soul_overcap_threshold";
+        public const string SoulOvercapThresholdDesc = "config.job.rpr.soul_overcap_threshold_desc";
+        public const string ShroudMinGauge = "config.job.rpr.shroud_min_gauge";
+        public const string ShroudMinGaugeDesc = "config.job.rpr.shroud_min_gauge_desc";
+        public const string EnshroudSection = "config.job.rpr.enshroud_section";
+        public const string EnableEnshroud = "config.job.rpr.enable_enshroud";
+        public const string EnableEnshroudDesc = "config.job.rpr.enable_enshroud_desc";
+        public const string EnableLemureAbilities = "config.job.rpr.enable_lemure_abilities";
+        public const string EnableLemureAbilitiesDesc = "config.job.rpr.enable_lemure_abilities_desc";
+        public const string SaveShroudForBurst = "config.job.rpr.save_shroud_for_burst";
+        public const string SaveShroudForBurstDesc = "config.job.rpr.save_shroud_for_burst_desc";
+        public const string BurstSection = "config.job.rpr.burst_section";
+        public const string EnableArcaneCircle = "config.job.rpr.enable_arcane_circle";
+        public const string EnableArcaneCircleDesc = "config.job.rpr.enable_arcane_circle_desc";
+        public const string AlignWithParty = "config.job.rpr.align_with_party";
+        public const string AlignWithPartyDesc = "config.job.rpr.align_with_party_desc";
+        public const string ArcaneCircleHoldTime = "config.job.rpr.arcane_circle_hold_time";
+        public const string ArcaneCircleHoldTimeDesc = "config.job.rpr.arcane_circle_hold_time_desc";
+    }
+
+    /// <summary>Keys for Viper specific settings.</summary>
+    public static class Viper
+    {
+        public const string DamageSection = "config.job.vpr.damage_section";
+        public const string EnableTwinbladeCombo = "config.job.vpr.enable_twinblade_combo";
+        public const string EnableTwinbladeComboDesc = "config.job.vpr.enable_twinblade_combo_desc";
+        public const string EnableUncoiledFury = "config.job.vpr.enable_uncoiled_fury";
+        public const string EnableUncoiledFuryDesc = "config.job.vpr.enable_uncoiled_fury_desc";
+        public const string AoEMinTargets = "config.job.vpr.aoe_min_targets";
+        public const string AoEMinTargetsDesc = "config.job.vpr.aoe_min_targets_desc";
+        public const string ReawakenSection = "config.job.vpr.reawaken_section";
+        public const string EnableReawaken = "config.job.vpr.enable_reawaken";
+        public const string EnableReawakenDesc = "config.job.vpr.enable_reawaken_desc";
+        public const string EnableOuroboros = "config.job.vpr.enable_ouroboros";
+        public const string EnableOuroborosDesc = "config.job.vpr.enable_ouroboros_desc";
+        public const string AnguineMinStacks = "config.job.vpr.anguine_min_stacks";
+        public const string AnguineMinStacksDesc = "config.job.vpr.anguine_min_stacks_desc";
+        public const string SaveAnguineForBurst = "config.job.vpr.save_anguine_for_burst";
+        public const string SaveAnguineForBurstDesc = "config.job.vpr.save_anguine_for_burst_desc";
+        public const string BurstSection = "config.job.vpr.burst_section";
+        public const string EnableSerpentsIre = "config.job.vpr.enable_serpents_ire";
+        public const string EnableSerpentsIreDesc = "config.job.vpr.enable_serpents_ire_desc";
+        public const string AlignWithParty = "config.job.vpr.align_with_party";
+        public const string AlignWithPartyDesc = "config.job.vpr.align_with_party_desc";
+        public const string SerpentsIreHoldTime = "config.job.vpr.serpents_ire_hold_time";
+        public const string SerpentsIreHoldTimeDesc = "config.job.vpr.serpents_ire_hold_time_desc";
+        public const string PositionalSection = "config.job.vpr.positional_section";
+        public const string EnforcePositionals = "config.job.vpr.enforce_positionals";
+        public const string EnforcePositionalsDesc = "config.job.vpr.enforce_positionals_desc";
+        public const string OptimizeVenomPositionals = "config.job.vpr.optimize_venom_positionals";
+        public const string OptimizeVenomPositionalsDesc = "config.job.vpr.optimize_venom_positionals_desc";
+    }
+
+    // ===== RANGED PHYSICAL DPS =====
+
+    /// <summary>Keys for shared ranged physical DPS settings.</summary>
+    public static class RangedDps
+    {
+        public const string Header = "config.ranged_dps.header";
+        public const string UtilitySection = "config.ranged_dps.utility_section";
+        public const string UtilityDesc = "config.ranged_dps.utility_desc";
+        public const string UtilityNote = "config.ranged_dps.utility_note";
+        public const string InterruptLabel = "config.ranged_dps.interrupt_label";
+        public const string HeadGraze = "config.ranged_dps.head_graze";
+        public const string PartyMitLabel = "config.ranged_dps.party_mit_label";
+        public const string Tactician = "config.ranged_dps.tactician";
+        public const string ShieldSamba = "config.ranged_dps.shield_samba";
+        public const string Troubadour = "config.ranged_dps.troubadour";
+        public const string AoESection = "config.ranged_dps.aoe_section";
+        public const string AoEDesc = "config.ranged_dps.aoe_desc";
+        public const string AoEDefault = "config.ranged_dps.aoe_default";
+        public const string AoENote = "config.ranged_dps.aoe_note";
+        public const string BurstSection = "config.ranged_dps.burst_section";
+        public const string BurstDesc = "config.ranged_dps.burst_desc";
+        public const string BurstNote = "config.ranged_dps.burst_note";
+        public const string PartyBuffs = "config.ranged_dps.party_buffs";
+        public const string BattleVoice = "config.ranged_dps.battle_voice";
+        public const string TechnicalFinish = "config.ranged_dps.technical_finish";
+    }
+
+    /// <summary>Keys for Machinist specific settings.</summary>
+    public static class Machinist
+    {
+        public const string DamageSection = "config.job.mch.damage_section";
+        public const string EnableDrill = "config.job.mch.enable_drill";
+        public const string EnableDrillDesc = "config.job.mch.enable_drill_desc";
+        public const string EnableChainSaw = "config.job.mch.enable_chain_saw";
+        public const string EnableChainSawDesc = "config.job.mch.enable_chain_saw_desc";
+        public const string EnableAirAnchor = "config.job.mch.enable_air_anchor";
+        public const string EnableAirAnchorDesc = "config.job.mch.enable_air_anchor_desc";
+        public const string AoEMinTargets = "config.job.mch.aoe_min_targets";
+        public const string AoEMinTargetsDesc = "config.job.mch.aoe_min_targets_desc";
+        public const string GaugeSection = "config.job.mch.gauge_section";
+        public const string HeatLabel = "config.job.mch.heat_label";
+        public const string HeatMinGauge = "config.job.mch.heat_min_gauge";
+        public const string HeatMinGaugeDesc = "config.job.mch.heat_min_gauge_desc";
+        public const string HeatOvercapThreshold = "config.job.mch.heat_overcap_threshold";
+        public const string HeatOvercapThresholdDesc = "config.job.mch.heat_overcap_threshold_desc";
+        public const string BatteryLabel = "config.job.mch.battery_label";
+        public const string BatteryMinGauge = "config.job.mch.battery_min_gauge";
+        public const string BatteryMinGaugeDesc = "config.job.mch.battery_min_gauge_desc";
+        public const string BatteryOvercapThreshold = "config.job.mch.battery_overcap_threshold";
+        public const string BatteryOvercapThresholdDesc = "config.job.mch.battery_overcap_threshold_desc";
+        public const string QueenSection = "config.job.mch.queen_section";
+        public const string EnableAutomatonQueen = "config.job.mch.enable_automaton_queen";
+        public const string EnableAutomatonQueenDesc = "config.job.mch.enable_automaton_queen_desc";
+        public const string EnableQueenOverdrive = "config.job.mch.enable_queen_overdrive";
+        public const string EnableQueenOverdriveDesc = "config.job.mch.enable_queen_overdrive_desc";
+        public const string SaveBatteryForBurst = "config.job.mch.save_battery_for_burst";
+        public const string SaveBatteryForBurstDesc = "config.job.mch.save_battery_for_burst_desc";
+        public const string BurstSection = "config.job.mch.burst_section";
+        public const string EnableWildfire = "config.job.mch.enable_wildfire";
+        public const string EnableWildfireDesc = "config.job.mch.enable_wildfire_desc";
+        public const string AlignWithParty = "config.job.mch.align_with_party";
+        public const string AlignWithPartyDesc = "config.job.mch.align_with_party_desc";
+        public const string WildfireHoldTime = "config.job.mch.wildfire_hold_time";
+        public const string WildfireHoldTimeDesc = "config.job.mch.wildfire_hold_time_desc";
+    }
+
+    /// <summary>Keys for Bard specific settings.</summary>
+    public static class Bard
+    {
+        public const string DamageSection = "config.job.brd.damage_section";
+        public const string EnableApexArrow = "config.job.brd.enable_apex_arrow";
+        public const string EnableApexArrowDesc = "config.job.brd.enable_apex_arrow_desc";
+        public const string ApexArrowMinGauge = "config.job.brd.apex_arrow_min_gauge";
+        public const string ApexArrowMinGaugeDesc = "config.job.brd.apex_arrow_min_gauge_desc";
+        public const string EnableBlastArrow = "config.job.brd.enable_blast_arrow";
+        public const string EnableBlastArrowDesc = "config.job.brd.enable_blast_arrow_desc";
+        public const string AoEMinTargets = "config.job.brd.aoe_min_targets";
+        public const string AoEMinTargetsDesc = "config.job.brd.aoe_min_targets_desc";
+        public const string SongSection = "config.job.brd.song_section";
+        public const string SongRotation = "config.job.brd.song_rotation";
+        public const string SongRotationDesc = "config.job.brd.song_rotation_desc";
+        public const string EnablePitchPerfect = "config.job.brd.enable_pitch_perfect";
+        public const string EnablePitchPerfectDesc = "config.job.brd.enable_pitch_perfect_desc";
+        public const string PitchPerfectMinStacks = "config.job.brd.pitch_perfect_min_stacks";
+        public const string PitchPerfectMinStacksDesc = "config.job.brd.pitch_perfect_min_stacks_desc";
+        public const string UsePitchPerfectEarly = "config.job.brd.use_pitch_perfect_early";
+        public const string UsePitchPerfectEarlyDesc = "config.job.brd.use_pitch_perfect_early_desc";
+        public const string DotSection = "config.job.brd.dot_section";
+        public const string EnableCausticBite = "config.job.brd.enable_caustic_bite";
+        public const string EnableCausticBiteDesc = "config.job.brd.enable_caustic_bite_desc";
+        public const string EnableStormbite = "config.job.brd.enable_stormbite";
+        public const string EnableStormBiteDesc = "config.job.brd.enable_stormbite_desc";
+        public const string SpreadDots = "config.job.brd.spread_dots";
+        public const string SpreadDotsDesc = "config.job.brd.spread_dots_desc";
+        public const string DotRefreshThreshold = "config.job.brd.dot_refresh_threshold";
+        public const string DotRefreshThresholdDesc = "config.job.brd.dot_refresh_threshold_desc";
+        public const string BurstSection = "config.job.brd.burst_section";
+        public const string EnableBattleVoice = "config.job.brd.enable_battle_voice";
+        public const string EnableBattleVoiceDesc = "config.job.brd.enable_battle_voice_desc";
+        public const string EnableRadiantFinale = "config.job.brd.enable_radiant_finale";
+        public const string EnableRadiantFinaleDesc = "config.job.brd.enable_radiant_finale_desc";
+        public const string AlignWithParty = "config.job.brd.align_with_party";
+        public const string AlignWithPartyDesc = "config.job.brd.align_with_party_desc";
+        public const string BuffHoldTime = "config.job.brd.buff_hold_time";
+        public const string BuffHoldTimeDesc = "config.job.brd.buff_hold_time_desc";
+    }
+
+    /// <summary>Keys for Dancer specific settings.</summary>
+    public static class Dancer
+    {
+        public const string DamageSection = "config.job.dnc.damage_section";
+        public const string EnableProcs = "config.job.dnc.enable_procs";
+        public const string EnableProcsDesc = "config.job.dnc.enable_procs_desc";
+        public const string EnableStarfallDance = "config.job.dnc.enable_starfall_dance";
+        public const string EnableStarfallDanceDesc = "config.job.dnc.enable_starfall_dance_desc";
+        public const string EnableTillana = "config.job.dnc.enable_tillana";
+        public const string EnableTillanaDesc = "config.job.dnc.enable_tillana_desc";
+        public const string AoEMinTargets = "config.job.dnc.aoe_min_targets";
+        public const string AoEMinTargetsDesc = "config.job.dnc.aoe_min_targets_desc";
+        public const string DanceSection = "config.job.dnc.dance_section";
+        public const string EnableStandardStep = "config.job.dnc.enable_standard_step";
+        public const string EnableStandardStepDesc = "config.job.dnc.enable_standard_step_desc";
+        public const string EnableTechnicalStep = "config.job.dnc.enable_technical_step";
+        public const string EnableTechnicalStepDesc = "config.job.dnc.enable_technical_step_desc";
+        public const string DelayStandardForTechnical = "config.job.dnc.delay_standard_for_technical";
+        public const string DelayStandardForTechnicalDesc = "config.job.dnc.delay_standard_for_technical_desc";
+        public const string GaugeSection = "config.job.dnc.gauge_section";
+        public const string EnableSaberDance = "config.job.dnc.enable_saber_dance";
+        public const string EnableSaberDanceDesc = "config.job.dnc.enable_saber_dance_desc";
+        public const string SaberDanceMinGauge = "config.job.dnc.saber_dance_min_gauge";
+        public const string SaberDanceMinGaugeDesc = "config.job.dnc.saber_dance_min_gauge_desc";
+        public const string EnableFanDance = "config.job.dnc.enable_fan_dance";
+        public const string EnableFanDanceDesc = "config.job.dnc.enable_fan_dance_desc";
+        public const string FanDanceMinFeathers = "config.job.dnc.fan_dance_min_feathers";
+        public const string FanDanceMinFeathersDesc = "config.job.dnc.fan_dance_min_feathers_desc";
+        public const string BurstSection = "config.job.dnc.burst_section";
+        public const string EnableDevilment = "config.job.dnc.enable_devilment";
+        public const string EnableDevilmentDesc = "config.job.dnc.enable_devilment_desc";
+        public const string AlignWithParty = "config.job.dnc.align_with_party";
+        public const string AlignWithPartyDesc = "config.job.dnc.align_with_party_desc";
+        public const string TechnicalHoldTime = "config.job.dnc.technical_hold_time";
+        public const string TechnicalHoldTimeDesc = "config.job.dnc.technical_hold_time_desc";
+    }
+
+    // ===== CASTERS =====
+
+    /// <summary>Keys for shared caster settings.</summary>
+    public static class Caster
+    {
+        public const string Header = "config.caster.header";
+        public const string MpSection = "config.caster.mp_section";
+        public const string MpDesc = "config.caster.mp_desc";
+        public const string LucidNote = "config.caster.lucid_note";
+        public const string LucidDefault = "config.caster.lucid_default";
+        public const string UtilitySection = "config.caster.utility_section";
+        public const string UtilityDesc = "config.caster.utility_desc";
+        public const string RaiseLabel = "config.caster.raise_label";
+        public const string SummonerRaise = "config.caster.summoner_raise";
+        public const string RedMageRaise = "config.caster.red_mage_raise";
+        public const string PartyMitLabel = "config.caster.party_mit_label";
+        public const string Addle = "config.caster.addle";
+        public const string MagickBarrier = "config.caster.magick_barrier";
+        public const string TemperaGrassa = "config.caster.tempera_grassa";
+        public const string UtilityNote = "config.caster.utility_note";
+        public const string BurstSection = "config.caster.burst_section";
+        public const string BurstDesc = "config.caster.burst_desc";
+        public const string PartyBuffs = "config.caster.party_buffs";
+        public const string SearingLight = "config.caster.searing_light";
+        public const string Embolden = "config.caster.embolden";
+        public const string StarryMuse = "config.caster.starry_muse";
+        public const string BurstNote = "config.caster.burst_note";
+    }
+
+    /// <summary>Keys for Black Mage specific settings.</summary>
+    public static class BlackMage
+    {
+        public const string DamageSection = "config.job.blm.damage_section";
+        public const string EnableXenoglossy = "config.job.blm.enable_xenoglossy";
+        public const string EnableXenoglossyDesc = "config.job.blm.enable_xenoglossy_desc";
+        public const string EnableDespair = "config.job.blm.enable_despair";
+        public const string EnableDespairDesc = "config.job.blm.enable_despair_desc";
+        public const string EnableFlareStar = "config.job.blm.enable_flare_star";
+        public const string EnableFlareStarDesc = "config.job.blm.enable_flare_star_desc";
+        public const string AoEMinTargets = "config.job.blm.aoe_min_targets";
+        public const string AoEMinTargetsDesc = "config.job.blm.aoe_min_targets_desc";
+        public const string PhaseSection = "config.job.blm.phase_section";
+        public const string FireIVsBeforeDespair = "config.job.blm.fire_ivs_before_despair";
+        public const string FireIVsBeforeDespairDesc = "config.job.blm.fire_ivs_before_despair_desc";
+        public const string FireIVMinMp = "config.job.blm.fire_iv_min_mp";
+        public const string FireIVMinMpDesc = "config.job.blm.fire_iv_min_mp_desc";
+        public const string MovementSection = "config.job.blm.movement_section";
+        public const string MovementPriority = "config.job.blm.movement_priority";
+        public const string MovementPriorityDesc = "config.job.blm.movement_priority_desc";
+        public const string SavePolyglotForMovement = "config.job.blm.save_polyglot_for_movement";
+        public const string SavePolyglotForMovementDesc = "config.job.blm.save_polyglot_for_movement_desc";
+        public const string PolyglotMovementReserve = "config.job.blm.polyglot_movement_reserve";
+        public const string PolyglotMovementReserveDesc = "config.job.blm.polyglot_movement_reserve_desc";
+        public const string EnableLeyLines = "config.job.blm.enable_ley_lines";
+        public const string EnableLeyLinesDesc = "config.job.blm.enable_ley_lines_desc";
+        public const string ThunderSection = "config.job.blm.thunder_section";
+        public const string MaintainThunder = "config.job.blm.maintain_thunder";
+        public const string MaintainThunderDesc = "config.job.blm.maintain_thunder_desc";
+        public const string ThunderRefreshThreshold = "config.job.blm.thunder_refresh_threshold";
+        public const string ThunderRefreshThresholdDesc = "config.job.blm.thunder_refresh_threshold_desc";
+        public const string UseThunderheadImmediately = "config.job.blm.use_thunderhead_immediately";
+        public const string UseThunderheadImmediatelyDesc = "config.job.blm.use_thunderhead_immediately_desc";
+    }
+
+    /// <summary>Keys for Summoner specific settings.</summary>
+    public static class Summoner
+    {
+        public const string DamageSection = "config.job.smn.damage_section";
+        public const string EnableRuinIV = "config.job.smn.enable_ruin_iv";
+        public const string EnableRuinIVDesc = "config.job.smn.enable_ruin_iv_desc";
+        public const string EnablePrimalAbilities = "config.job.smn.enable_primal_abilities";
+        public const string EnablePrimalAbilitiesDesc = "config.job.smn.enable_primal_abilities_desc";
+        public const string AoEMinTargets = "config.job.smn.aoe_min_targets";
+        public const string AoEMinTargetsDesc = "config.job.smn.aoe_min_targets_desc";
+        public const string PrimalSection = "config.job.smn.primal_section";
+        public const string PrimalOrder = "config.job.smn.primal_order";
+        public const string PrimalOrderDesc = "config.job.smn.primal_order_desc";
+        public const string AdaptOrderForMovement = "config.job.smn.adapt_order_for_movement";
+        public const string AdaptOrderForMovementDesc = "config.job.smn.adapt_order_for_movement_desc";
+        public const string PrimalToggles = "config.job.smn.primal_toggles";
+        public const string EnableIfrit = "config.job.smn.enable_ifrit";
+        public const string EnableTitan = "config.job.smn.enable_titan";
+        public const string EnableGaruda = "config.job.smn.enable_garuda";
+        public const string DemiSection = "config.job.smn.demi_section";
+        public const string EnableBahamut = "config.job.smn.enable_bahamut";
+        public const string EnableBahamutDesc = "config.job.smn.enable_bahamut_desc";
+        public const string EnablePhoenix = "config.job.smn.enable_phoenix";
+        public const string EnablePhoenixDesc = "config.job.smn.enable_phoenix_desc";
+        public const string EnableSolarBahamut = "config.job.smn.enable_solar_bahamut";
+        public const string EnableSolarBahamutDesc = "config.job.smn.enable_solar_bahamut_desc";
+        public const string EnableEnkindle = "config.job.smn.enable_enkindle";
+        public const string EnableEnkindleDesc = "config.job.smn.enable_enkindle_desc";
+        public const string BurstSection = "config.job.smn.burst_section";
+        public const string EnableSearingLight = "config.job.smn.enable_searing_light";
+        public const string EnableSearingLightDesc = "config.job.smn.enable_searing_light_desc";
+        public const string AlignWithParty = "config.job.smn.align_with_party";
+        public const string AlignWithPartyDesc = "config.job.smn.align_with_party_desc";
+        public const string SearingLightHoldTime = "config.job.smn.searing_light_hold_time";
+        public const string SearingLightHoldTimeDesc = "config.job.smn.searing_light_hold_time_desc";
+    }
+
+    /// <summary>Keys for Red Mage specific settings.</summary>
+    public static class RedMage
+    {
+        public const string DamageSection = "config.job.rdm.damage_section";
+        public const string EnableProcs = "config.job.rdm.enable_procs";
+        public const string EnableProcsDesc = "config.job.rdm.enable_procs_desc";
+        public const string EnableGrandImpact = "config.job.rdm.enable_grand_impact";
+        public const string EnableGrandImpactDesc = "config.job.rdm.enable_grand_impact_desc";
+        public const string AoEMinTargets = "config.job.rdm.aoe_min_targets";
+        public const string AoEMinTargetsDesc = "config.job.rdm.aoe_min_targets_desc";
+        public const string ManaSection = "config.job.rdm.mana_section";
+        public const string StrictManaBalance = "config.job.rdm.strict_mana_balance";
+        public const string StrictManaBalanceDesc = "config.job.rdm.strict_mana_balance_desc";
+        public const string ManaImbalanceThreshold = "config.job.rdm.mana_imbalance_threshold";
+        public const string ManaImbalanceThresholdDesc = "config.job.rdm.mana_imbalance_threshold_desc";
+        public const string MeleeSection = "config.job.rdm.melee_section";
+        public const string EnableMeleeCombo = "config.job.rdm.enable_melee_combo";
+        public const string EnableMeleeComboDesc = "config.job.rdm.enable_melee_combo_desc";
+        public const string EnableFinisherCombo = "config.job.rdm.enable_finisher_combo";
+        public const string EnableFinisherComboDesc = "config.job.rdm.enable_finisher_combo_desc";
+        public const string MeleeComboMinMana = "config.job.rdm.melee_combo_min_mana";
+        public const string MeleeComboMinManaDesc = "config.job.rdm.melee_combo_min_mana_desc";
+        public const string FinisherPreference = "config.job.rdm.finisher_preference";
+        public const string FinisherPreferenceDesc = "config.job.rdm.finisher_preference_desc";
+        public const string BurstSection = "config.job.rdm.burst_section";
+        public const string EnableEmbolden = "config.job.rdm.enable_embolden";
+        public const string EnableEmboldenDesc = "config.job.rdm.enable_embolden_desc";
+        public const string EnableManafication = "config.job.rdm.enable_manafication";
+        public const string EnableManaficationDesc = "config.job.rdm.enable_manafication_desc";
+        public const string AlignWithParty = "config.job.rdm.align_with_party";
+        public const string AlignWithPartyDesc = "config.job.rdm.align_with_party_desc";
+        public const string EmboldenHoldTime = "config.job.rdm.embolden_hold_time";
+        public const string EmboldenHoldTimeDesc = "config.job.rdm.embolden_hold_time_desc";
+    }
+
+    /// <summary>Keys for Pictomancer specific settings.</summary>
+    public static class Pictomancer
+    {
+        public const string DamageSection = "config.job.pct.damage_section";
+        public const string EnableHolyInWhite = "config.job.pct.enable_holy_in_white";
+        public const string EnableHolyInWhiteDesc = "config.job.pct.enable_holy_in_white_desc";
+        public const string EnableCometInBlack = "config.job.pct.enable_comet_in_black";
+        public const string EnableCometInBlackDesc = "config.job.pct.enable_comet_in_black_desc";
+        public const string EnableStarPrism = "config.job.pct.enable_star_prism";
+        public const string EnableStarPrismDesc = "config.job.pct.enable_star_prism_desc";
+        public const string AoEMinTargets = "config.job.pct.aoe_min_targets";
+        public const string AoEMinTargetsDesc = "config.job.pct.aoe_min_targets_desc";
+        public const string CanvasSection = "config.job.pct.canvas_section";
+        public const string EnableCreatureMotif = "config.job.pct.enable_creature_motif";
+        public const string EnableCreatureMotifDesc = "config.job.pct.enable_creature_motif_desc";
+        public const string EnableWeaponMotif = "config.job.pct.enable_weapon_motif";
+        public const string EnableWeaponMotifDesc = "config.job.pct.enable_weapon_motif_desc";
+        public const string EnableLandscapeMotif = "config.job.pct.enable_landscape_motif";
+        public const string EnableLandscapeMotifDesc = "config.job.pct.enable_landscape_motif_desc";
+        public const string PrepaintMotifs = "config.job.pct.prepaint_motifs";
+        public const string PrepaintMotifsDesc = "config.job.pct.prepaint_motifs_desc";
+        public const string PrepaintOption = "config.job.pct.prepaint_option";
+        public const string PrepaintOptionDesc = "config.job.pct.prepaint_option_desc";
+        public const string MuseSection = "config.job.pct.muse_section";
+        public const string EnableLivingMuse = "config.job.pct.enable_living_muse";
+        public const string EnableLivingMuseDesc = "config.job.pct.enable_living_muse_desc";
+        public const string EnableSteelMuse = "config.job.pct.enable_steel_muse";
+        public const string EnableSteelMuseDesc = "config.job.pct.enable_steel_muse_desc";
+        public const string EnableScenicMuse = "config.job.pct.enable_scenic_muse";
+        public const string EnableScenicMuseDesc = "config.job.pct.enable_scenic_muse_desc";
+        public const string BurstSection = "config.job.pct.burst_section";
+        public const string EnableStarryMuse = "config.job.pct.enable_starry_muse";
+        public const string EnableStarryMuseDesc = "config.job.pct.enable_starry_muse_desc";
+        public const string AlignWithParty = "config.job.pct.align_with_party";
+        public const string AlignWithPartyDesc = "config.job.pct.align_with_party_desc";
+        public const string StarryMuseHoldTime = "config.job.pct.starry_muse_hold_time";
+        public const string StarryMuseHoldTimeDesc = "config.job.pct.starry_muse_hold_time_desc";
     }
 
     #endregion

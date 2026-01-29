@@ -1,0 +1,55 @@
+# Abyssos: The Seventh Circle (Savage) - Agdistis Timeline
+# Based on Cactbot format
+# Zone ID: 1087
+
+hideall "--sync--"
+hideall "--Reset--"
+
+# Phase 1: Opening
+0.0 "--sync--" sync /00:0839::Agdistis will be sealed off/ window 1,0
+10.0 "Spark of Life" sync /^.{14} Agdistis 7810/ window 5,5 # Raidwide
+22.0 "Dispersed Aero II" sync /^.{14} Agdistis 7812/ window 5,5
+34.0 "Condensed Aero II" sync /^.{14} Agdistis 7814/ window 5,5 # Tankbuster
+
+# Phase 1: Immortal's Obol
+48.0 "Immortal's Obol" sync /^.{14} Agdistis 7816/ window 10,10
+60.0 "Forbidden Fruit" sync /^.{14} Agdistis 7818/ window 5,5
+72.0 "Spark of Life" sync /^.{14} Agdistis 7810/ window 5,5 # Raidwide
+
+# Phase 1: Hemitheos combo
+86.0 "Hemitheos's Holy III" sync /^.{14} Agdistis 781A/ window 5,5 # Raidwide
+98.0 "Hemitheos's Glare III" sync /^.{14} Agdistis 781C/ window 5,5
+110.0 "Condensed Aero II" sync /^.{14} Agdistis 7814/ window 5,5 # Tankbuster
+
+# Phase 1: Roots mechanics
+124.0 "Roots of Attis" sync /^.{14} Agdistis 781E/ window 10,10
+136.0 "Bough of Attis" sync /^.{14} Agdistis 7820/ window 5,5
+148.0 "Inviolate Bonds" sync /^.{14} Agdistis 7822/ window 5,5
+160.0 "Spark of Life" sync /^.{14} Agdistis 7810/ window 5,5 # Raidwide
+
+# Phase 2: Harvest
+174.0 "Famine's Harvest" sync /^.{14} Agdistis 7824/ window 10,10
+186.0 "Death's Harvest" sync /^.{14} Agdistis 7826/ window 10,10
+198.0 "War's Harvest" sync /^.{14} Agdistis 7828/ window 10,10
+210.0 "Condensed Aero II" sync /^.{14} Agdistis 7814/ window 5,5 # Tankbuster
+
+# Phase 2: Holy combo
+224.0 "Hemitheos's Holy III" sync /^.{14} Agdistis 781A/ window 5,5 # Raidwide
+236.0 "Multicast" sync /^.{14} Agdistis 782A/ window 5,5
+248.0 "Forbidden Fruit" sync /^.{14} Agdistis 7818/ window 5,5
+260.0 "Spark of Life" sync /^.{14} Agdistis 7810/ window 5,5 # Raidwide
+
+# Phase 2: Bonds combo
+274.0 "Inviolate Bonds" sync /^.{14} Agdistis 7822/ window 10,10
+286.0 "Immortal's Obol" sync /^.{14} Agdistis 7816/ window 10,10
+298.0 "Roots of Attis" sync /^.{14} Agdistis 781E/ window 10,10
+310.0 "Condensed Aero II" sync /^.{14} Agdistis 7814/ window 5,5 # Tankbuster
+
+# Phase 2: Final stretch
+324.0 "Hemitheos's Holy III" sync /^.{14} Agdistis 781A/ window 5,5 # Raidwide
+336.0 "Bough of Attis" sync /^.{14} Agdistis 7820/ window 5,5
+348.0 "Forbidden Fruit" sync /^.{14} Agdistis 7818/ window 5,5
+360.0 "Spark of Life" sync /^.{14} Agdistis 7810/ window 5,5 # Raidwide
+
+# Enrage
+600.0 "Spark of Life" sync /^.{14} Agdistis 782E/ window 100,0 # Enrage

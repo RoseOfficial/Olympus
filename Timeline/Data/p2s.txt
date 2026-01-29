@@ -1,0 +1,50 @@
+# Asphodelos: The Second Circle (Savage) - Hippokampos Timeline
+# Based on Cactbot format
+# Zone ID: 1005
+
+hideall "--sync--"
+hideall "--Reset--"
+
+# Phase 1: Opening
+0.0 "--sync--" sync /00:0839::Hippokampos will be sealed off/ window 1,0
+10.0 "Murky Depths" sync /^.{14} Hippokampos 6819/ window 5,5 # Raidwide
+22.0 "Doubled Impact" sync /^.{14} Hippokampos 681B/ window 5,5 # Tankbuster (shared)
+34.0 "Sewage Deluge" sync /^.{14} Hippokampos 681D/ window 5,5 # Raidwide
+
+# Phase 1: Coherence mechanics
+48.0 "Coherence" sync /^.{14} Hippokampos 6823/ window 10,10
+60.0 "Murky Depths" sync /^.{14} Hippokampos 6819/ window 5,5 # Raidwide
+72.0 "Spoken Cataract" sync /^.{14} Hippokampos 6820/ window 5,5
+84.0 "Winged Cataract" sync /^.{14} Hippokampos 6821/ window 5,5
+
+# Phase 1: Kampeos Harma
+98.0 "Kampeos Harma" sync /^.{14} Hippokampos 682A/ window 10,10
+110.0 "Doubled Impact" sync /^.{14} Hippokampos 681B/ window 5,5 # Tankbuster
+122.0 "Murky Depths" sync /^.{14} Hippokampos 6819/ window 5,5 # Raidwide
+
+# Phase 1: Channeling Overflow
+136.0 "Channeling Overflow" sync /^.{14} Hippokampos 682D/ window 10,10 # Raidwide
+148.0 "Tainted Flood" sync /^.{14} Hippokampos 682F/ window 5,5
+160.0 "Sewage Deluge" sync /^.{14} Hippokampos 681D/ window 5,5 # Raidwide
+172.0 "Coherence" sync /^.{14} Hippokampos 6823/ window 10,10
+
+# Phase 2: Post flood
+186.0 "Shockwave" sync /^.{14} Hippokampos 6831/ window 5,5 # Raidwide
+198.0 "Predatory Avarice" sync /^.{14} Hippokampos 6833/ window 5,5
+210.0 "Spoken Cataract" sync /^.{14} Hippokampos 6820/ window 5,5
+222.0 "Doubled Impact" sync /^.{14} Hippokampos 681B/ window 5,5 # Tankbuster
+
+# Phase 2: Dissociation
+236.0 "Dissociation" sync /^.{14} Hippokampos 6835/ window 10,10
+248.0 "Murky Depths" sync /^.{14} Hippokampos 6819/ window 5,5 # Raidwide
+260.0 "Channeling Overflow" sync /^.{14} Hippokampos 682D/ window 10,10 # Raidwide
+272.0 "Kampeos Harma" sync /^.{14} Hippokampos 682A/ window 10,10
+
+# Phase 2: Final stretch
+286.0 "Coherence" sync /^.{14} Hippokampos 6823/ window 10,10
+298.0 "Sewage Deluge" sync /^.{14} Hippokampos 681D/ window 5,5 # Raidwide
+310.0 "Doubled Impact" sync /^.{14} Hippokampos 681B/ window 5,5 # Tankbuster
+322.0 "Murky Depths" sync /^.{14} Hippokampos 6819/ window 5,5 # Raidwide
+
+# Enrage
+600.0 "Sewage Deluge" sync /^.{14} Hippokampos 6838/ window 100,0 # Enrage

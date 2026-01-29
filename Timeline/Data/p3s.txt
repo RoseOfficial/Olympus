@@ -1,0 +1,57 @@
+# Asphodelos: The Third Circle (Savage) - Phoinix Timeline
+# Based on Cactbot format
+# Zone ID: 1007
+
+hideall "--sync--"
+hideall "--Reset--"
+
+# Phase 1: Opening
+0.0 "--sync--" sync /00:0839::The Phoinix will be sealed off/ window 1,0
+10.0 "Scorched Exaltation" sync /^.{14} Phoinix 6685/ window 5,5 # Raidwide
+22.0 "Heat of Condemnation" sync /^.{14} Phoinix 6687/ window 5,5 # Tankbuster (shared)
+34.0 "Experimental Fireplume" sync /^.{14} Phoinix 668A/ window 5,5
+
+# Phase 1: Darkened Fire
+48.0 "Darkened Fire" sync /^.{14} Phoinix 668F/ window 10,10
+60.0 "Brightened Fire" sync /^.{14} Phoinix 6691/ window 5,5
+72.0 "Scorched Exaltation" sync /^.{14} Phoinix 6685/ window 5,5 # Raidwide
+
+# Phase 1: Trail of Condemnation
+86.0 "Trail of Condemnation" sync /^.{14} Phoinix 6693/ window 5,5
+98.0 "Fireglide Sweep" sync /^.{14} Phoinix 6695/ window 5,5
+110.0 "Heat of Condemnation" sync /^.{14} Phoinix 6687/ window 5,5 # Tankbuster
+
+# Add phase
+124.0 "Flames of Undeath" sync /^.{14} Phoinix 6697/ window 10,10 # Phase transition
+138.0 "Sunbird adds" sync /^.{14} Sunbird 669A/ window 10,10
+155.0 "Dead Rebirth" sync /^.{14} Phoinix 669D/ window 10,10 # Raidwide
+
+# Phase 2: Post-adds
+170.0 "Scorched Exaltation" sync /^.{14} Phoinix 6685/ window 5,5 # Raidwide
+182.0 "Firestorms of Asphodelos" sync /^.{14} Phoinix 66A0/ window 10,10 # Raidwide
+194.0 "Flames of Asphodelos" sync /^.{14} Phoinix 66A2/ window 5,5
+206.0 "Experimental Ashplume" sync /^.{14} Phoinix 66A5/ window 5,5
+
+# Phase 2: Fountain of Fire
+220.0 "Fountain of Fire" sync /^.{14} Phoinix 66A7/ window 10,10
+232.0 "Sun's Pinion" sync /^.{14} Phoinix 66AA/ window 5,5
+244.0 "Heat of Condemnation" sync /^.{14} Phoinix 6687/ window 5,5 # Tankbuster
+
+# Phase 2: Darkblaze Twister
+258.0 "Darkblaze Twister" sync /^.{14} Phoinix 66AD/ window 10,10
+270.0 "Searing Breeze" sync /^.{14} Phoinix 66AF/ window 5,5
+282.0 "Scorched Exaltation" sync /^.{14} Phoinix 6685/ window 5,5 # Raidwide
+
+# Phase 2: Death's Toll
+296.0 "Death's Toll" sync /^.{14} Phoinix 66B1/ window 10,10
+308.0 "Fledgling Flight" sync /^.{14} Phoinix 66B3/ window 5,5
+320.0 "Life's Agonies" sync /^.{14} Phoinix 66B5/ window 5,5 # Raidwide
+332.0 "Heat of Condemnation" sync /^.{14} Phoinix 6687/ window 5,5 # Tankbuster
+
+# Final stretch
+346.0 "Firestorms of Asphodelos" sync /^.{14} Phoinix 66A0/ window 10,10 # Raidwide
+358.0 "Experimental Fireplume" sync /^.{14} Phoinix 668A/ window 5,5
+370.0 "Scorched Exaltation" sync /^.{14} Phoinix 6685/ window 5,5 # Raidwide
+
+# Enrage
+600.0 "Final Exaltation" sync /^.{14} Phoinix 66B8/ window 100,0 # Enrage

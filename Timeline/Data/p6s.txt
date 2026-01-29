@@ -1,0 +1,54 @@
+# Abyssos: The Sixth Circle (Savage) - Hegemone Timeline
+# Based on Cactbot format
+# Zone ID: 1085
+
+hideall "--sync--"
+hideall "--Reset--"
+
+# Phase 1: Opening
+0.0 "--sync--" sync /00:0839::Hegemone will be sealed off/ window 1,0
+10.0 "Aetheric Polyominoid" sync /^.{14} Hegemone 7860/ window 5,5 # Raidwide
+22.0 "Chelic Synergy" sync /^.{14} Hegemone 7862/ window 5,5 # Tankbuster
+34.0 "Synergy" sync /^.{14} Hegemone 7864/ window 5,5
+
+# Phase 1: Pathogenic Cells
+48.0 "Pathogenic Cells" sync /^.{14} Hegemone 7866/ window 10,10
+60.0 "Aetheric Polyominoid" sync /^.{14} Hegemone 7860/ window 5,5 # Raidwide
+72.0 "Exchange of Agonies" sync /^.{14} Hegemone 7868/ window 5,5
+
+# Phase 1: Dark Dome
+86.0 "Dark Dome" sync /^.{14} Hegemone 786A/ window 10,10
+98.0 "Unholy Darkness" sync /^.{14} Hegemone 786C/ window 5,5 # Raidwide
+110.0 "Chelic Synergy" sync /^.{14} Hegemone 7862/ window 5,5 # Tankbuster
+
+# Phase 1: Cachexia
+124.0 "Cachexia" sync /^.{14} Hegemone 786E/ window 10,10
+136.0 "Dual Predation" sync /^.{14} Hegemone 7870/ window 5,5
+148.0 "Aetheric Polyominoid" sync /^.{14} Hegemone 7860/ window 5,5 # Raidwide
+
+# Phase 2: Transmission
+162.0 "Transmission" sync /^.{14} Hegemone 7872/ window 10,10 # Raidwide
+174.0 "Aetherial Exchange" sync /^.{14} Hegemone 7874/ window 5,5
+186.0 "Ptera Ixou" sync /^.{14} Hegemone 7876/ window 5,5
+198.0 "Chelic Synergy" sync /^.{14} Hegemone 7862/ window 5,5 # Tankbuster
+
+# Phase 2: Dark Ashes
+212.0 "Dark Ashes" sync /^.{14} Hegemone 7878/ window 10,10
+224.0 "Hemitheos's Dark IV" sync /^.{14} Hegemone 787A/ window 5,5 # Raidwide
+236.0 "Choros Ixou" sync /^.{14} Hegemone 787C/ window 5,5
+
+# Phase 2: Polyominoid combo
+250.0 "Polyominoid Sigma" sync /^.{14} Hegemone 787E/ window 10,10
+262.0 "Exchange of Agonies" sync /^.{14} Hegemone 7868/ window 5,5
+274.0 "Unholy Darkness" sync /^.{14} Hegemone 786C/ window 5,5 # Raidwide
+286.0 "Chelic Synergy" sync /^.{14} Hegemone 7862/ window 5,5 # Tankbuster
+
+# Phase 2: Final stretch
+300.0 "Cachexia" sync /^.{14} Hegemone 786E/ window 10,10
+312.0 "Pathogenic Cells" sync /^.{14} Hegemone 7866/ window 10,10
+324.0 "Aetheric Polyominoid" sync /^.{14} Hegemone 7860/ window 5,5 # Raidwide
+336.0 "Dual Predation" sync /^.{14} Hegemone 7870/ window 5,5
+348.0 "Chelic Synergy" sync /^.{14} Hegemone 7862/ window 5,5 # Tankbuster
+
+# Enrage
+600.0 "Unholy Darkness" sync /^.{14} Hegemone 7882/ window 100,0 # Enrage
