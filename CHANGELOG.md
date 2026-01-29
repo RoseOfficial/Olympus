@@ -3,7 +3,7 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
-## v4.6.0 - Expanded Language Support
+## v4.7.0 - Expanded Language Support
 
 **Settings**
 - Expanded language selection dropdown to include 7 options:
