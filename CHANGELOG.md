@@ -3,15 +3,34 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
-## v4.6.0 - Language Selector UI
+## v4.6.0 - Expanded Language Support
 
 **Settings**
-- Added language selection dropdown to General settings section
-- Choose between Auto (follows game client), English, Japanese, or Chinese (Simplified)
+- Expanded language selection dropdown to include 7 options:
+  - Auto (follows game client)
+  - English
+  - 日本語 (Japanese) - 98.8% coverage
+  - 简体中文 (Chinese Simplified) - 58.9% coverage
+  - 한국어 (Korean) - English baseline
+  - Deutsch (German) - English baseline
+  - Français (French) - English baseline
 - Language changes apply immediately without restart
 
-**Localization**
-- Added language setting translations for all 3 languages (EN, JA, ZH)
+**Japanese Translation**
+- Completed Japanese translation to 98.8% coverage (1,747 of 1,768 strings)
+- Remaining 21 keys are universal terms (DoT, DPS, GCD, etc.) that stay as-is
+- All healers, tanks, and DPS job configurations translated
+- Full Training Mode content translated
+
+**Chinese Translation**
+- Improved Chinese Simplified translation to 58.9% coverage
+- Added healer and tank job configuration translations
+- Added Training Mode and Analytics translations
+
+**New Languages (Baseline)**
+- Created Korean, German, and French translation files
+- All new files use English text as baseline
+- Community contributions welcome for translations
 <!-- LATEST-END -->
 
 ## v4.5.0 - Japanese Translation
