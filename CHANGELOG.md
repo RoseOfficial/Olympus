@@ -3,7 +3,7 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
-## v4.8.0 - Configuration System Enhancement
+## v4.8.1 - Configuration System Enhancement
 
 **Role-Aware Configuration Presets**
 - Added 4 new playstyle presets: Conservative, Balanced, Aggressive, Proactive
@@ -20,7 +20,7 @@ All notable changes to Olympus will be documented in this file.
 - AutoFix now repairs invalid tank and party coordination settings
 
 **Bug Fixes**
-- Fixed repo.json version sync (now correctly shows v4.8.0)
+- Fixed repo.json version sync (now correctly shows v4.8.1)
 
 **DPS Job Configuration** (from previous build)
 - Configuration UI for all 13 DPS jobs in Settings window
