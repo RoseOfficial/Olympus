@@ -3,37 +3,32 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
-## v4.8.0 - DPS Configuration & Pandaemonium Timelines
+## v4.8.0 - Configuration System Enhancement
 
-**DPS Job Configuration**
-- Added configuration UI for all 13 DPS jobs in Settings window
-- New sidebar sections: Melee DPS, Ranged Physical DPS, and Casters
-- Shared settings sections for each DPS category (positionals, burst windows, utility)
-- Individual job settings with gauge thresholds, ability toggles, and burst alignment options
+**Role-Aware Configuration Presets**
+- Added 4 new playstyle presets: Conservative, Balanced, Aggressive, Proactive
+- Presets are now role-aware - apply appropriate settings for your current job role
+- Conservative: Safety first with higher thresholds, defensive priority, resource reserves
+- Balanced: Middle-ground settings suitable for most content
+- Aggressive: DPS maximization with lower thresholds, offensive priority, no reserves
+- Proactive: Timeline-aware with pre-emptive abilities and burst window coordination
 
-**Melee DPS Settings**
-- Dragoon: Jump timing, Eye gauge, Lance Charge/Battle Litany alignment
-- Ninja: Mudra priority, Ninki thresholds, Kunai's Bane burst windows
-- Samurai: Sen management, Kenki spending, Higanbana refresh, Ikishoten alignment
-- Monk: Chakra spending, Masterful Blitz, Brotherhood coordination
-- Reaper: Soul/Shroud gauges, Enshroud timing, Arcane Circle alignment
-- Viper: Twinblade combos, Reawaken timing, Serpent's Ire alignment
+**Tank & Party Coordination Validation**
+- Extended configuration validator to cover tank settings
+- Validates mitigation thresholds, invuln stagger windows, and provoke delays
+- Validates party coordination settings including timeout, overlap windows, and buff alignment
+- AutoFix now repairs invalid tank and party coordination settings
 
-**Ranged Physical DPS Settings**
-- Machinist: Heat/Battery gauges, Queen timing, Wildfire alignment
-- Bard: Song rotation, Pitch Perfect stacks, DoT management, Battle Voice/Radiant Finale
-- Dancer: Dance timing, Esprit/Feather gauges, Technical Finish alignment
+**Bug Fixes**
+- Fixed repo.json version sync (now correctly shows v4.8.0)
 
-**Caster DPS Settings**
-- Black Mage: Fire/Ice phase preferences, Polyglot management, Thunder DoT, Ley Lines
-- Summoner: Primal order, Demi-summon toggles, Searing Light alignment
-- Red Mage: Mana balance, melee combo timing, Embolden/Manafication
-- Pictomancer: Canvas motifs, Muse abilities, Starry Muse alignment
+**DPS Job Configuration** (from previous build)
+- Configuration UI for all 13 DPS jobs in Settings window
+- Melee, Ranged Physical, and Caster sidebar sections with individual job settings
 
-**Pandaemonium Timeline Data**
-- Added Asphodelos Savage timelines (P1S-P4S)
-- Added Abyssos Savage timelines (P5S-P8S)
-- All timelines include raidwide and tankbuster markers for predictive healing/mitigation
+**Pandaemonium Timeline Data** (from previous build)
+- Asphodelos Savage timelines (P1S-P4S)
+- Abyssos Savage timelines (P5S-P8S)
 <!-- LATEST-END -->
 
 ## v4.7.0 - Expanded Language Support

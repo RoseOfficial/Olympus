@@ -35,10 +35,15 @@ public static class ConfigValidator
     {
         var issues = new List<ValidationIssue>();
 
+        // Existing healer validation
         ValidateHealingThresholds(config.Healing, issues);
         ValidateTriageWeights(config.Healing, issues);
         ValidateRoleActionSettings(config, issues);
         ValidateDefensiveSettings(config.Defensive, issues);
+
+        // New validations
+        ValidateTankSettings(config.Tank, issues);
+        ValidatePartyCoordinationSettings(config.PartyCoordination, issues);
 
         return issues;
     }
@@ -250,6 +255,126 @@ public static class ConfigValidator
     }
 
     /// <summary>
+    /// Validates tank configuration settings.
+    /// </summary>
+    private static void ValidateTankSettings(TankConfig tank, List<ValidationIssue> issues)
+    {
+        // Mitigation threshold sanity - very low values may leave tank vulnerable
+        if (tank.MitigationThreshold < 0.50f)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Warning,
+                Category = "Tank",
+                Message = $"Mitigation threshold ({tank.MitigationThreshold:P0}) is very low. Mitigations may not trigger until emergency.",
+                SuggestedFix = "Set to 0.65-0.80 for proactive mitigation"
+            });
+        }
+
+        // Invuln stagger should be >= defensive stagger (invulns are longer cooldowns)
+        if (tank.InvulnerabilityStaggerWindowSeconds < tank.DefensiveStaggerWindowSeconds)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Info,
+                Category = "Tank",
+                Message = $"Invuln stagger window ({tank.InvulnerabilityStaggerWindowSeconds}s) is shorter than defensive stagger ({tank.DefensiveStaggerWindowSeconds}s). Consider longer invuln stagger.",
+                SuggestedFix = "Set invuln window to at least 5 seconds"
+            });
+        }
+
+        // Provoke delay sanity - very long delays may cause aggro loss
+        if (tank.ProvokeDelay > 3.0f)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Warning,
+                Category = "Tank",
+                Message = $"Provoke delay ({tank.ProvokeDelay}s) is very long. May lose aggro before recovery.",
+                SuggestedFix = "Set to 1-2 seconds for responsive aggro recovery"
+            });
+        }
+
+        // Sheltron gauge threshold sanity
+        if (tank.SheltronMinGauge > 75)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Info,
+                Category = "Tank",
+                Message = $"Sheltron minimum gauge ({tank.SheltronMinGauge}) is very high. May waste gauge if capping.",
+                SuggestedFix = "Set to 50 for balanced gauge usage"
+            });
+        }
+    }
+
+    /// <summary>
+    /// Validates party coordination configuration settings.
+    /// </summary>
+    private static void ValidatePartyCoordinationSettings(PartyCoordinationConfig coord, List<ValidationIssue> issues)
+    {
+        // Instance timeout should be at least 2x heartbeat for reliability
+        if (coord.InstanceTimeoutMs < coord.HeartbeatIntervalMs * 2)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Warning,
+                Category = "Party Coordination",
+                Message = $"Instance timeout ({coord.InstanceTimeoutMs}ms) should be at least 2x heartbeat interval ({coord.HeartbeatIntervalMs}ms) for reliability.",
+                SuggestedFix = "Set timeout to at least 2000ms"
+            });
+        }
+
+        // Cooldown overlap window sanity - very short may cause stacking
+        if (coord.CooldownOverlapWindowSeconds < 1.5f)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Warning,
+                Category = "Party Coordination",
+                Message = $"Cooldown overlap window ({coord.CooldownOverlapWindowSeconds}s) is very short. May not prevent cooldown stacking.",
+                SuggestedFix = "Set to 2-4 seconds to prevent overlap"
+            });
+        }
+
+        // Raid buff alignment vs max desync - alignment should be less than max desync
+        if (coord.RaidBuffAlignmentWindowSeconds > coord.MaxBuffDesyncSeconds)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Warning,
+                Category = "Party Coordination",
+                Message = $"Raid buff alignment window ({coord.RaidBuffAlignmentWindowSeconds}s) exceeds max desync ({coord.MaxBuffDesyncSeconds}s). Alignment may never trigger.",
+                SuggestedFix = "Set alignment window lower than max desync"
+            });
+        }
+
+        // Secondary heal assist threshold sanity
+        if (coord.SecondaryHealAssistThreshold < 0.40f)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Info,
+                Category = "Party Coordination",
+                Message = $"Secondary heal assist threshold ({coord.SecondaryHealAssistThreshold:P0}) is low. Secondary healer may intervene too early.",
+                SuggestedFix = "Set to 0.50-0.60 for responsive backup healing"
+            });
+        }
+
+        // Ground effect overlap threshold sanity
+        if (coord.GroundEffectOverlapThreshold < 0.4f)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Info,
+                Category = "Party Coordination",
+                Message = $"Ground effect overlap threshold ({coord.GroundEffectOverlapThreshold:P1}) is very conservative. May skip useful ground effects.",
+                SuggestedFix = "Set to 0.5 for balanced ground effect usage"
+            });
+        }
+    }
+
+    /// <summary>
     /// Auto-fixes critical configuration issues.
     /// </summary>
     /// <param name="config">The configuration to fix.</param>
@@ -258,7 +383,7 @@ public static class ConfigValidator
     {
         int fixes = 0;
 
-        // Fix inverted thresholds
+        // Fix inverted healing thresholds
         if (config.Healing.BenedictionEmergencyThreshold >= config.Healing.OgcdEmergencyThreshold)
         {
             config.Healing.BenedictionEmergencyThreshold = 0.30f;
@@ -277,6 +402,27 @@ public static class ConfigValidator
         {
             config.Healing.ModerateLilyDamageRate = 200f;
             config.Healing.AggressiveLilyDamageRate = 400f;
+            fixes++;
+        }
+
+        // Fix tank invuln stagger window
+        if (config.Tank.InvulnerabilityStaggerWindowSeconds < config.Tank.DefensiveStaggerWindowSeconds)
+        {
+            config.Tank.InvulnerabilityStaggerWindowSeconds = config.Tank.DefensiveStaggerWindowSeconds + 2f;
+            fixes++;
+        }
+
+        // Fix party coordination instance timeout
+        if (config.PartyCoordination.InstanceTimeoutMs < config.PartyCoordination.HeartbeatIntervalMs * 2)
+        {
+            config.PartyCoordination.InstanceTimeoutMs = config.PartyCoordination.HeartbeatIntervalMs * 2;
+            fixes++;
+        }
+
+        // Fix raid buff alignment exceeding max desync
+        if (config.PartyCoordination.RaidBuffAlignmentWindowSeconds > config.PartyCoordination.MaxBuffDesyncSeconds)
+        {
+            config.PartyCoordination.RaidBuffAlignmentWindowSeconds = config.PartyCoordination.MaxBuffDesyncSeconds * 0.5f;
             fixes++;
         }
 
