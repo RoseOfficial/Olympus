@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
@@ -21,6 +22,11 @@ public sealed class ConfigWindow : Window
     private readonly Configuration configuration;
     private readonly Action saveConfiguration;
     private ConfigurationPreset selectedPreset;
+
+    // Search state
+    private string searchQuery = string.Empty;
+    private HashSet<ConfigSection>? matchingSections;
+    private readonly SettingRegistry settingRegistry = new();
 
     // Sidebar navigation
     private readonly ConfigSidebar sidebar = new();
@@ -97,6 +103,7 @@ public sealed class ConfigWindow : Window
 
     public override void Draw()
     {
+        DrawSearchBox();
         DrawHeader();
 
         ImGui.Separator();
@@ -109,6 +116,81 @@ public sealed class ConfigWindow : Window
         ImGui.Separator();
 
         DrawFooter();
+    }
+
+    private void DrawSearchBox()
+    {
+        // Search box with icon hint
+        ImGui.PushItemWidth(ImGui.GetContentRegionAvail().X - 30);
+        var previousQuery = this.searchQuery;
+        if (ImGui.InputTextWithHint("##ConfigSearch",
+            Loc.T(LocalizedStrings.Config.SearchPlaceholder, "Search settings..."),
+            ref this.searchQuery, 256))
+        {
+            UpdateSearchResults();
+        }
+        ImGui.PopItemWidth();
+
+        // Clear button
+        ImGui.SameLine();
+        if (!string.IsNullOrEmpty(this.searchQuery))
+        {
+            if (ImGui.Button("X##ClearSearch"))
+            {
+                this.searchQuery = string.Empty;
+                this.matchingSections = null;
+                ConfigUIHelpers.CurrentSearchQuery = null;
+            }
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.SetTooltip(Loc.T(LocalizedStrings.Config.SearchClearTooltip, "Clear search"));
+            }
+        }
+        else
+        {
+            // Placeholder for alignment
+            ImGui.Dummy(new Vector2(20, 0));
+        }
+
+        // Show result count when searching
+        if (!string.IsNullOrEmpty(this.searchQuery))
+        {
+            var count = this.matchingSections?.Count ?? 0;
+            if (count == 0)
+            {
+                ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f),
+                    Loc.T(LocalizedStrings.Config.SearchNoResults, "No settings found"));
+            }
+            else
+            {
+                ImGui.TextDisabled($"{count} section(s) found");
+            }
+        }
+
+        ImGui.Spacing();
+    }
+
+    private void UpdateSearchResults()
+    {
+        if (string.IsNullOrWhiteSpace(this.searchQuery))
+        {
+            this.matchingSections = null;
+            ConfigUIHelpers.CurrentSearchQuery = null;
+            return;
+        }
+
+        this.matchingSections = this.settingRegistry.Search(this.searchQuery);
+        ConfigUIHelpers.CurrentSearchQuery = this.searchQuery;
+
+        // Auto-navigate to first matching section if current section is not in results
+        if (this.matchingSections.Count > 0 && !this.matchingSections.Contains(this.sidebar.CurrentSection))
+        {
+            foreach (var section in this.matchingSections)
+            {
+                this.sidebar.SetSection(section);
+                break;
+            }
+        }
     }
 
     private void DrawHeader()
@@ -148,7 +230,7 @@ public sealed class ConfigWindow : Window
 
         // Sidebar
         ImGui.BeginChild("##SidebarContainer", new Vector2(160, availableHeight), false);
-        sidebar.Draw();
+        this.sidebar.Draw(this.searchQuery, this.matchingSections);
         ImGui.EndChild();
 
         ImGui.SameLine();

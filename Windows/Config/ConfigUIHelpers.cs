@@ -13,6 +13,16 @@ public static class ConfigUIHelpers
     private const float SliderWidth = 200f;
     private const float SmallSliderWidth = 150f;
 
+    /// <summary>
+    /// Highlight color for search matches (yellow-gold).
+    /// </summary>
+    public static readonly Vector4 SearchHighlightColor = new(1.0f, 0.9f, 0.4f, 1.0f);
+
+    /// <summary>
+    /// Current search query for highlighting. Set by ConfigWindow.
+    /// </summary>
+    public static string? CurrentSearchQuery { get; set; }
+
     #region Job Header Colors
 
     // Healers
@@ -370,6 +380,166 @@ public static class ConfigUIHelpers
     public static void EndTreeNode()
     {
         ImGui.TreePop();
+    }
+
+    #endregion
+
+    #region Search Highlighting
+
+    /// <summary>
+    /// Checks if the given text matches the current search query.
+    /// </summary>
+    public static bool IsSearchMatch(string? text)
+    {
+        if (string.IsNullOrEmpty(CurrentSearchQuery) || string.IsNullOrEmpty(text))
+            return false;
+
+        return text.Contains(CurrentSearchQuery, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Checks if either the label or description matches the current search query.
+    /// </summary>
+    public static bool IsSearchMatch(string? label, string? description)
+    {
+        return IsSearchMatch(label) || IsSearchMatch(description);
+    }
+
+    /// <summary>
+    /// Begins search highlight styling if the text matches.
+    /// Returns true if highlighting was applied (caller must call EndSearchHighlight).
+    /// </summary>
+    public static bool BeginSearchHighlight(string? text)
+    {
+        if (!IsSearchMatch(text))
+            return false;
+
+        ImGui.PushStyleColor(ImGuiCol.Text, SearchHighlightColor);
+        return true;
+    }
+
+    /// <summary>
+    /// Begins search highlight styling if either label or description matches.
+    /// Returns true if highlighting was applied (caller must call EndSearchHighlight).
+    /// </summary>
+    public static bool BeginSearchHighlight(string? label, string? description)
+    {
+        if (!IsSearchMatch(label, description))
+            return false;
+
+        ImGui.PushStyleColor(ImGuiCol.Text, SearchHighlightColor);
+        return true;
+    }
+
+    /// <summary>
+    /// Ends search highlight styling.
+    /// </summary>
+    public static void EndSearchHighlight()
+    {
+        ImGui.PopStyleColor();
+    }
+
+    /// <summary>
+    /// Renders text with search highlighting if it matches.
+    /// </summary>
+    public static void HighlightedText(string text)
+    {
+        var highlighted = BeginSearchHighlight(text);
+        ImGui.Text(text);
+        if (highlighted)
+            EndSearchHighlight();
+    }
+
+    /// <summary>
+    /// Renders disabled text with search highlighting if it matches.
+    /// </summary>
+    public static void HighlightedTextDisabled(string text)
+    {
+        if (IsSearchMatch(text))
+        {
+            // Use highlight color instead of disabled
+            ImGui.TextColored(SearchHighlightColor, text);
+        }
+        else
+        {
+            ImGui.TextDisabled(text);
+        }
+    }
+
+    /// <summary>
+    /// Renders a checkbox with search highlighting support.
+    /// </summary>
+    public static bool HighlightedCheckbox(string label, ref bool value, string? description, Action save)
+    {
+        var highlighted = BeginSearchHighlight(label, description);
+
+        var changed = ImGui.Checkbox(label, ref value);
+        if (changed)
+            save();
+
+        if (highlighted)
+            EndSearchHighlight();
+
+        if (!string.IsNullOrEmpty(description))
+            HighlightedTextDisabled(description);
+
+        return changed;
+    }
+
+    /// <summary>
+    /// Renders a slider with search highlighting support.
+    /// </summary>
+    public static float HighlightedThresholdSlider(string label, float value, float min, float max, string? description, Action save)
+    {
+        var highlighted = BeginSearchHighlight(label, description);
+
+        var displayValue = value * 100f;
+        ImGui.SetNextItemWidth(SliderWidth);
+        if (ImGui.SliderFloat(label, ref displayValue, min, max, "%.0f%%"))
+        {
+            save();
+            if (highlighted)
+                EndSearchHighlight();
+            if (!string.IsNullOrEmpty(description))
+                HighlightedTextDisabled(description);
+            return displayValue / 100f;
+        }
+
+        if (highlighted)
+            EndSearchHighlight();
+
+        if (!string.IsNullOrEmpty(description))
+            HighlightedTextDisabled(description);
+
+        return value;
+    }
+
+    /// <summary>
+    /// Renders an int slider with search highlighting support.
+    /// </summary>
+    public static int HighlightedIntSlider(string label, int value, int min, int max, string? description, Action save)
+    {
+        var highlighted = BeginSearchHighlight(label, description);
+
+        var localValue = value;
+        ImGui.SetNextItemWidth(SliderWidth);
+        if (ImGui.SliderInt(label, ref localValue, min, max))
+        {
+            save();
+            if (highlighted)
+                EndSearchHighlight();
+            if (!string.IsNullOrEmpty(description))
+                HighlightedTextDisabled(description);
+            return localValue;
+        }
+
+        if (highlighted)
+            EndSearchHighlight();
+
+        if (!string.IsNullOrEmpty(description))
+            HighlightedTextDisabled(description);
+
+        return value;
     }
 
     #endregion

@@ -3,6 +3,22 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.9.0 - Settings Search
+
+**Settings Search**
+- Added search box to Settings window for finding options quickly
+- Type to filter sidebar - only sections with matching settings are shown
+- Matching section names are highlighted in yellow
+- Auto-navigates to first matching section when you start typing
+- Shows "X section(s) found" count or "No settings found" message
+- Clear button (X) to reset search
+
+**Search Coverage**
+- All 28 settings sections are searchable
+- Search matches against setting labels and descriptions
+- Examples: "jump" finds Dragoon settings, "threshold" finds healing/tank settings
+<!-- LATEST-END -->
+
 ## v4.8.1 - Configuration System Enhancement
 
 **Role-Aware Configuration Presets**
@@ -29,7 +45,6 @@ All notable changes to Olympus will be documented in this file.
 **Pandaemonium Timeline Data** (from previous build)
 - Asphodelos Savage timelines (P1S-P4S)
 - Abyssos Savage timelines (P5S-P8S)
-<!-- LATEST-END -->
 
 ## v4.7.0 - Expanded Language Support
 

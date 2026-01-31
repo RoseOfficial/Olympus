@@ -53,6 +53,11 @@ public static class LocalizedStrings
         public const string ApplyPresetConfirmation = "config.apply_preset_confirmation";
         public const string OverwriteWarning = "config.overwrite_warning";
         public const string PreservedSettings = "config.preserved_settings";
+
+        // Search
+        public const string SearchPlaceholder = "config.search.placeholder";
+        public const string SearchNoResults = "config.search.no_results";
+        public const string SearchClearTooltip = "config.search.clear_tooltip";
     }
 
     /// <summary>Keys for config sidebar navigation.</summary>
