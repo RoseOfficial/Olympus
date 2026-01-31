@@ -54,6 +54,16 @@ public static class TimelineZoneMapping
 
         // AAC Light-heavyweight M4 (Savage) - Wicked Thunder
         [1232] = new ZoneInfo("r4s", "AAC Light-heavyweight M4 (Savage)", "Olympus.Timeline.Data.r4s.txt"),
+
+        // Ultimate Raids
+        // The Unending Coil of Bahamut (Ultimate) - UCoB
+        [280] = new ZoneInfo("ucob", "The Unending Coil of Bahamut (Ultimate)", "Olympus.Timeline.Data.ucob.txt"),
+
+        // The Weapon's Refrain (Ultimate) - UWU
+        [539] = new ZoneInfo("uwu", "The Weapon's Refrain (Ultimate)", "Olympus.Timeline.Data.uwu.txt"),
+
+        // The Epic of Alexander (Ultimate) - TEA
+        [694] = new ZoneInfo("tea", "The Epic of Alexander (Ultimate)", "Olympus.Timeline.Data.tea.txt"),
     };
 
     /// <summary>

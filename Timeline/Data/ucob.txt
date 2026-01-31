@@ -1,0 +1,220 @@
+# The Unending Coil of Bahamut (Ultimate) - UCoB Timeline
+# Based on Cactbot format, adapted for Olympus
+# Zone ID: 280
+
+hideall "--sync--"
+hideall "--Reset--"
+
+##### PHASE 1: TWINTANIA #####
+# Twintania P1: 100% -> 75%
+0.0 "--sync--" sync /00:0839::.*is no longer sealed/ window 100000,0
+6.5 "Plummet" sync /^.{14} Twintania 26A8/ window 5,5 # Tankbuster
+12.6 "Twister" sync /^.{14} Twintania 26AA/ window 5,5
+15.8 "Fireball" sync /^.{14} Twintania 26AC/ window 5,5 # Stack
+23.9 "Death Sentence" sync /^.{14} Twintania 26A9/ window 5,5 # Tankbuster + debuff
+27.0 "Plummet" sync /^.{14} Twintania 26A8/ window 5,5 # Tankbuster
+
+# Twintania P2: 75% -> 45% (Neurolink spawns)
+100.0 label "p1-second-loop"
+108.5 "Liquid Hell x5" sync /^.{14} Twintania 26AD/ window 5,5
+117.3 "Generate" sync /^.{14} Twintania 26AE/ window 5,5
+120.6 "Liquid Hell x5" sync /^.{14} Twintania 26AD/ window 5,5
+132.3 "Death Sentence" sync /^.{14} Twintania 26A9/ window 5,5 # Tankbuster + debuff
+139.3 "Generate" sync /^.{14} Twintania 26AE/ window 5,5
+142.3 "Twister" sync /^.{14} Twintania 26AA/ window 5,5
+148.3 "Plummet" sync /^.{14} Twintania 26A8/ window 5,5 # Tankbuster
+
+# Twintania P3: 45% -> 0% (Second Neurolink)
+200.0 label "p1-third-loop"
+208.4 "Liquid Hell x5" sync /^.{14} Twintania 26AD/ window 5,5
+217.2 "Generate x2" sync /^.{14} Twintania 26AE/ window 5,5
+220.4 "Targeted Fire x5" sync /^.{14} Twintania 26AD/ window 5,5
+227.4 "Fireball" sync /^.{14} Twintania 26AC/ window 5,5 # Stack
+236.4 "Death Sentence" sync /^.{14} Twintania 26A9/ window 5,5 # Tankbuster + debuff
+239.4 "Plummet" sync /^.{14} Twintania 26A8/ window 5,5 # Tankbuster
+246.4 "Generate x2" sync /^.{14} Twintania 26AE/ window 5,5
+249.4 "Twister" sync /^.{14} Twintania 26AA/ window 5,5
+254.4 "Plummet" sync /^.{14} Twintania 26A8/ window 5,5 # Tankbuster
+256.6 "Liquid Hell x5" sync /^.{14} Twintania 26AD/ window 5,5
+
+##### PHASE 2: NAEL #####
+400.0 "--phase--" sync /00:0839::Heavensfall/ window 400,0
+407.5 "Heavensfall" sync /^.{14} Ragnarok 26B8/ window 5,5 # Raidwide + knockback
+413.0 "Meteor Stream" sync /^.{14} Nael Geminus 26C0/ window 5,5 # Spread
+414.5 "Thermionic Burst" sync /^.{14} Ragnarok 26B9/ window 5,5
+418.6 "Thermionic Burst" sync /^.{14} Ragnarok 26B9/ window 5,5
+419.1 "Dalamud Dive" sync /^.{14} Nael deus Darnus 26C1/ window 5,5 # Tankbuster
+421.2 "Bahamut's Claw x5" sync /^.{14} Nael deus Darnus 26B5/ window 5,5 # Tankbuster
+430.2 "Bahamut's Favor" sync /^.{14} Nael deus Darnus 26C2/ window 5,5
+
+# Quote 1 mechanics
+443.2 "Chain Lightning" sync /^.{14} Thunderwing 26C8/ window 5,5
+443.2 "Lunar Dynamo" sync /^.{14} Nael deus Darnus 26BC/ window 5,5 # Raidwide donut
+446.2 "Iron Chariot/Thermionic Beam" sync /^.{14} Nael deus Darnus 26B/ window 5,5
+446.9 "Doom" sync /^.{14} Tail Of Darkness 26C9/ window 5,5 # Cleanse with Wings of Salvation
+448.9 "Fireball" sync /^.{14} Firehorn 26C5/ window 5,5 # Stack
+449.9 "Wings Of Salvation x2" sync /^.{14} Fang Of Light 26CA/ window 5,5
+457.3 "Bahamut's Claw x5" sync /^.{14} Nael deus Darnus 26B5/ window 5,5 # Tankbuster
+464.0 "Fireball" sync /^.{14} Firehorn 26C5/ window 5,5 # Stack
+
+# Quote 2 mechanics
+468.0 "Chain Lightning" sync /^.{14} Thunderwing 26C8/ window 5,5
+471.3 "Thermionic Beam" sync /^.{14} Nael deus Darnus 26BD/ window 5,5 # Stack
+474.3 "Lunar Dynamo/Iron Chariot" sync /^.{14} Nael deus Darnus 26B/ window 5,5
+475.7 "Doom" sync /^.{14} Tail Of Darkness 26C9/ window 5,5
+477.7 "Wings Of Salvation x3" sync /^.{14} Fang Of Light 26CA/ window 5,5
+486.8 "Chain Lightning" sync /^.{14} Thunderwing 26C8/ window 5,5
+489.8 "Fireball" sync /^.{14} Firehorn 26C5/ window 5,5 # Stack
+493.2 "Bahamut's Claw x5" sync /^.{14} Nael deus Darnus 26B5/ window 5,5 # Tankbuster
+
+# Quote 3 mechanics
+504.5 "Raven Dive" sync /^.{14} Nael deus Darnus 26BE/ window 5,5
+507.5 "Lunar Dynamo/Iron Chariot" sync /^.{14} Nael deus Darnus 26B/ window 5,5 # Raidwide
+510.8 "Fireball" sync /^.{14} Firehorn 26C5/ window 5,5 # Stack
+511.5 "Doom" sync /^.{14} Tail Of Darkness 26C9/ window 5,5
+513.8 "Chain Lightning" sync /^.{14} Thunderwing 26C8/ window 5,5
+513.9 "Wings Of Salvation x3" sync /^.{14} Fang Of Light 26CA/ window 5,5
+532.4 "Ravensbeak" sync /^.{14} Nael deus Darnus 26B6/ window 5,5 # Tankbuster
+
+# Divebombs
+600.0 label "p2-divebombs"
+605.2 "Hypernova x4" sync /^.{14} Nael deus Darnus 26BF/ window 5,5 # Bleed puddles
+611.3 "Cauterize" window 5,5 # Dive damage
+617.7 "Dalamud Dive" sync /^.{14} Nael deus Darnus 26C1/ window 5,5 # Tankbuster
+621.9 "Bahamut's Claw x5" sync /^.{14} Nael deus Darnus 26B5/ window 5,5 # Tankbuster
+
+# Post-divebombs quotes
+720.0 label "p2-post-divebombs"
+725.0 "Lunar Dynamo" sync /^.{14} Nael deus Darnus 26BC/ window 5,5 # Raidwide donut
+728.0 "Iron Chariot" sync /^.{14} Nael deus Darnus 26BB/ window 5,5 # Point-blank AOE
+
+# End of Nael phase
+948.3 "Ravensbeak" sync /^.{14} Nael deus Darnus 26B6/ window 5,5 # Tankbuster
+955.3 "Bahamut's Claw x5" sync /^.{14} Nael deus Darnus 26B5/ window 5,5 # Tankbuster
+967.8 "Megaflare Enrage" sync /^.{14} Nael deus Darnus 26BA/ window 5,5 # Raidwide enrage
+
+##### PHASE 3: BAHAMUT PRIME #####
+1000.0 "--phase--" sync /00:0839::Bahamut/ window 1000,0
+1005.3 "Seventh Umbral Era" sync /^.{14} Bahamut Prime 26D1/ window 5,5 # Phase transition Raidwide
+1008.3 "Calamitous Flame x3" sync /^.{14} Bahamut Prime 26D2/ window 5,5
+1013.3 "Calamitous Blaze" sync /^.{14} Bahamut Prime 26D3/ window 5,5 # Raidwide
+1022.3 "Flare Breath" sync /^.{14} Bahamut Prime 26D4/ window 5,5 # Tankbuster
+1030.3 "Flatten" sync /^.{14} Bahamut Prime 26D5/ window 5,5 # Tankbuster
+
+### QUICKMARCH TRIO
+1037.3 "Quickmarch Trio" sync /^.{14} Bahamut Prime 26E2/ window 10,10 # Raidwide
+1045.6 "Twisting Dive" sync /^.{14} Twintania 26B2/ window 5,5
+1049.6 "Spread" sync /^.{14} Bahamut Prime 26DC/ window 5,5 # Megaflare spreads
+1051.6 "Pepperoni" sync /^.{14} Bahamut Prime 26DD/ window 5,5
+1053.6 "Stack" sync /^.{14} Bahamut Prime 26DE/ window 5,5 # Megaflare stack
+1055.9 "Earth Shaker" sync /^.{14} Bahamut Prime 26D9/ window 5,5
+1057.9 "Tempest Wing" sync /^.{14} Bahamut Prime 26D7/ window 5,5 # Tankbuster tether
+1062.0 "Flare Breath" sync /^.{14} Bahamut Prime 26D4/ window 5,5 # Tankbuster
+1070.0 "Flatten" sync /^.{14} Bahamut Prime 26D5/ window 5,5 # Tankbuster
+
+### BLACKFIRE TRIO
+1078.1 "Blackfire Trio" sync /^.{14} Bahamut Prime 26E3/ window 10,10 # Raidwide
+1085.5 "Thermionic Beam" sync /^.{14} Nael deus Darnus 26BD/ window 5,5 # Stack
+1086.5 "Megaflare Dive" sync /^.{14} Bahamut Prime 26E1/ window 5,5
+1092.6 "Hypernova x4" sync /^.{14} Nael deus Darnus 26BF/ window 5,5 # Bleed puddles
+1094.5 "Stack" sync /^.{14} Bahamut Prime 26DE/ window 5,5 # Megaflare stack
+1096.5 "Towers" sync /^.{14} Bahamut Prime 26DF/ window 5,5
+1102.8 "Gigaflare" sync /^.{14} Bahamut Prime 26D6/ window 5,5 # Raidwide
+
+### FELLRUIN TRIO
+1129.3 "Fellruin Trio" sync /^.{14} Bahamut Prime 26E4/ window 10,10 # Raidwide
+1138.7 "Lunar Dynamo/Raven Dive" sync /^.{14} Nael deus Darnus 26B/ window 5,5
+1141.7 "Raven Dive/Lunar Dynamo" sync /^.{14} Nael deus Darnus 26B/ window 5,5
+1144.7 "Tempest Wing" sync /^.{14} Bahamut Prime 26D7/ window 5,5 # Tankbuster tether
+1145.7 "Aetheric Profusion" sync /^.{14} Twintania 26B1/ window 5,5 # Raidwide (soak in neurolink)
+1149.0 "Meteor Stream" sync /^.{14} Nael Geminus 26C0/ window 5,5 # Spread
+1153.8 "Gigaflare" sync /^.{14} Bahamut Prime 26D6/ window 5,5 # Raidwide
+1159.1 "Flare Breath" sync /^.{14} Bahamut Prime 26D4/ window 5,5 # Tankbuster
+1168.1 "Flatten" sync /^.{14} Bahamut Prime 26D5/ window 5,5 # Tankbuster
+1173.1 "Flare Breath" sync /^.{14} Bahamut Prime 26D4/ window 5,5 # Tankbuster
+
+### HEAVENSFALL TRIO
+1181.1 "Heavensfall Trio" sync /^.{14} Bahamut Prime 26E5/ window 10,10 # Raidwide
+1189.5 "Twisting Dive" sync /^.{14} Twintania 26B2/ window 5,5
+1195.0 "Heavensfall" sync /^.{14} Nael deus Darnus 26B7/ window 5,5
+1197.0 "Heavensfall" sync /^.{14} Ragnarok 26B8/ window 5,5 # Raidwide + knockback
+1195.5 "Pepperoni" sync /^.{14} Bahamut Prime 26DD/ window 5,5
+1199.5 "Towers" sync /^.{14} Bahamut Prime 26DF/ window 5,5
+1202.6 "Hypernova x3" sync /^.{14} Nael deus Darnus 26BF/ window 5,5 # Bleed puddles
+1204.1 "Thermionic Burst x8" window 5,5
+1211.8 "Fireball" sync /^.{14} Twintania 26AC/ window 5,5 # Stack
+1216.8 "Gigaflare" sync /^.{14} Bahamut Prime 26D6/ window 5,5 # Raidwide
+
+### TENSTRIKE TRIO
+1242.3 "Tenstrike Trio" sync /^.{14} Bahamut Prime 26E6/ window 10,10 # Raidwide
+1249.6 "Generate x3" sync /^.{14} Twintania 26AE/ window 5,5
+1250.6 "Meteor Stream (DPS)" sync /^.{14} Nael Geminus 26C0/ window 5,5
+1253.6 "Generate x3" sync /^.{14} Twintania 26AE/ window 5,5
+1254.6 "Meteor Stream (T/H)" sync /^.{14} Nael Geminus 26C0/ window 5,5
+1263.5 "Earth Shaker" sync /^.{14} Bahamut Prime 26D9/ window 5,5
+1268.5 "Earth Shaker" sync /^.{14} Bahamut Prime 26D9/ window 5,5
+1276.5 "Gigaflare" sync /^.{14} Bahamut Prime 26D6/ window 5,5 # Raidwide
+1287.5 "Flatten" sync /^.{14} Bahamut Prime 26D5/ window 5,5 # Tankbuster
+1290.5 "Flare Breath" sync /^.{14} Bahamut Prime 26D4/ window 5,5 # Tankbuster
+
+### GRAND OCTET
+1298.5 "Grand Octet" sync /^.{14} Bahamut Prime 26E7/ window 10,10 # Raidwide
+1310.9 "Lunar Dive" sync /^.{14} Nael deus Darnus 26C3/ window 5,5
+1328.1 "Megaflare Dive" sync /^.{14} Bahamut Prime 26E1/ window 5,5
+1335.9 "Stack" sync /^.{14} Bahamut Prime 26DE/ window 5,5 # Megaflare stack
+1337.0 "Twisting Dive" sync /^.{14} Twintania 26B2/ window 5,5
+1337.8 "Towers" sync /^.{14} Bahamut Prime 26DF/ window 5,5
+
+##### PHASE 4: ADDS PHASE (NAEL + TWIN) #####
+1500.0 "--phase--" sync /00:0839::Bahamut's Favor/ window 1500,0
+1503.6 "Bahamut's Favor" sync /^.{14} Bahamut Prime 26E8/ window 5,5
+1513.1 "Bahamut's Claw x5" sync /^.{14} Nael deus Darnus 26B5/ window 5,5 # Tankbuster
+1513.1 "Plummet" sync /^.{14} Twintania 26A8/ window 5,5 # Tankbuster
+1516.2 "Liquid Hell x5" sync /^.{14} Twintania 26AD/ window 5,5
+1525.2 "Generate x3" sync /^.{14} Twintania 26AE/ window 5,5
+1529.3 "Twister" sync /^.{14} Twintania 26AA/ window 5,5
+
+# Triple Quote mechanics (Nael)
+1605.1 "Iron Chariot" sync /^.{14} Nael deus Darnus 26BB/ window 5,5 # Point-blank AOE
+1608.1 "Thermionic Beam" sync /^.{14} Nael deus Darnus 26BD/ window 5,5 # Stack
+1611.3 "Raven Dive" sync /^.{14} Nael deus Darnus 26BE/ window 5,5
+
+1803.1 "Twister" sync /^.{14} Twintania 26AA/ window 5,5
+1814.1 "Megaflare" sync /^.{14} Nael deus Darnus 26BA/ window 5,5 # Raidwide
+1822.2 "Death Sentence" sync /^.{14} Twintania 26A9/ window 5,5 # Tankbuster
+1822.2 "Ravensbeak" sync /^.{14} Nael deus Darnus 26B6/ window 5,5 # Tankbuster
+1826.2 "Plummet" sync /^.{14} Twintania 26A8/ window 5,5 # Tankbuster
+1826.2 "Bahamut's Claw x5" sync /^.{14} Nael deus Darnus 26B5/ window 5,5 # Tankbuster
+
+# Second rotation
+1903.1 "Twister" sync /^.{14} Twintania 26AA/ window 5,5
+1914.1 "Megaflare" sync /^.{14} Nael deus Darnus 26BA/ window 5,5 # Raidwide
+1922.2 "Death Sentence" sync /^.{14} Twintania 26A9/ window 5,5 # Tankbuster
+1922.2 "Ravensbeak" sync /^.{14} Nael deus Darnus 26B6/ window 5,5 # Tankbuster
+1926.2 "Plummet" sync /^.{14} Twintania 26A8/ window 5,5 # Tankbuster
+1926.2 "Bahamut's Claw x5" sync /^.{14} Nael deus Darnus 26B5/ window 5,5 # Tankbuster
+
+# Adds phase end
+2203.0 "Twister" sync /^.{14} Twintania 26AA/ window 5,5
+2215.2 "Death Sentence" sync /^.{14} Twintania 26A9/ window 5,5 # Tankbuster
+2215.8 "Ravensbeak" sync /^.{14} Nael deus Darnus 26B6/ window 5,5 # Tankbuster
+2228.1 "Megaflare" sync /^.{14} Nael deus Darnus 26BA/ window 5,5 # Raidwide
+
+##### PHASE 5: GOLDEN BAHAMUT #####
+2300.0 "--phase--" sync /00:0839::Golden Bahamut/ window 2300,0
+2316.2 "Teraflare" sync /^.{14} Bahamut Prime 26E9/ window 5,5 # Raidwide (party wipe mitigated by Phoenix)
+2341.3 "Flames Of Rebirth" sync /^.{14} Phoenix 26F2/ window 5,5 # Full heal + damage buff
+2367.2 "Morn Afah #1" sync /^.{14} Bahamut Prime 26EC/ window 5,5 # Stack Raidwide
+2373.3 "Akh Morn #1" sync /^.{14} Bahamut Prime 26EA/ window 5,5 # Tankbuster (multi-hit)
+2385.8 "Exaflare #1" sync /^.{14} Bahamut Prime 26EF/ window 10,10 # Raidwide movement
+2405.0 "Akh Morn #2" sync /^.{14} Bahamut Prime 26EA/ window 5,5 # Tankbuster (multi-hit)
+2422.5 "Morn Afah #2" sync /^.{14} Bahamut Prime 26EC/ window 5,5 # Stack Raidwide
+2434.6 "Exaflare #2" sync /^.{14} Bahamut Prime 26EF/ window 10,10 # Raidwide movement
+2455.8 "Morn Afah #3" sync /^.{14} Bahamut Prime 26EC/ window 5,5 # Stack Raidwide
+2467.9 "Akh Morn #3" sync /^.{14} Bahamut Prime 26EA/ window 5,5 # Tankbuster (multi-hit)
+2484.3 "Exaflare #3" sync /^.{14} Bahamut Prime 26EF/ window 10,10 # Raidwide movement
+2505.5 "Morn Afah #4" sync /^.{14} Bahamut Prime 26EC/ window 5,5 # Stack Raidwide
+2517.6 "Akh Morn #4" sync /^.{14} Bahamut Prime 26EA/ window 5,5 # Tankbuster (multi-hit)
+2535.1 "Exaflare #4" sync /^.{14} Bahamut Prime 26EF/ window 10,10 # Raidwide movement
+2556.2 "Morn Afah #5" sync /^.{14} Bahamut Prime 26EC/ window 5,5 # Stack Raidwide
+2568.3 "Morn Afah Enrage" sync /^.{14} Bahamut Prime 26ED/ window 5,5 # Enrage

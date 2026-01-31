@@ -1,0 +1,197 @@
+# The Epic of Alexander (Ultimate) - TEA Timeline
+# Based on Cactbot format, adapted for Olympus
+# Zone ID: 694
+
+hideall "--sync--"
+hideall "--Reset--"
+
+##### PHASE 1: LIVING LIQUID #####
+0.0 "--sync--" sync /00:0839::.*is no longer sealed/ window 100000,0
+11.4 "Fluid Swing" sync /^.{14} Living Liquid 49B0/ window 5,5 # Tankbuster
+19.5 "Cascade" sync /^.{14} Living Liquid 4826/ window 5,5 # Raidwide
+35.8 "Hand of Prayer/Parting" sync /^.{14} Liquid Hand 482/ window 5,5 # Mechanic
+36.7 "Rage Wave" sync /^.{14} Liquid Rage 49B5/ window 5,5
+37.7 "Fluid Swing" sync /^.{14} Living Liquid 49B0/ window 5,5 # Tankbuster
+37.7 "Fluid Strike" sync /^.{14} Liquid Hand 49B7/ window 5,5 # Tankbuster (hand)
+38.7 "Rage Wave" sync /^.{14} Liquid Rage 49B6/ window 5,5
+39.7 "Exhaust" sync /^.{14} Jagd Doll 481E/ window 5,5 # Doll tethers
+41.6 "Embolus" sync /^.{14} Liquid Rage 4829/ window 5,5 # Orbs
+42.8 "Hand of Pain" sync /^.{14} Liquid Hand 482D/ window 5,5 # HP sync check
+50.3 "Exhaust" sync /^.{14} Jagd Doll 481E/ window 5,5 # Doll tethers
+56.7 "Fluid Swing" sync /^.{14} Living Liquid 49B0/ window 5,5 # Tankbuster
+69.8 "Protean Wave" sync /^.{14} Living Liquid 4822/ window 5,5 # Spread
+70.0 "Hand of Pain" sync /^.{14} Liquid Hand 482D/ window 5,5 # HP sync check
+71.9 "Protean Wave" sync /^.{14} Living Liquid 4823/ window 5,5 # Second wave
+74.9 "Sluice" sync /^.{14} Living Liquid 49B1/ window 5,5 # Targeted AOEs
+75.0 "Protean Wave" sync /^.{14} Living Liquid 4823/ window 5,5 # Third wave
+81.1 "Splash x6" window 5,5 # Raidwide (multi-hit)
+86.6 "Drainage" sync /^.{14} Liquid Rage 4827/ window 5,5 # Tether tankbusters
+89.1 "Hand of Pain" sync /^.{14} Liquid Hand 482D/ window 5,5 # HP sync check
+91.7 "Cascade" sync /^.{14} Living Liquid 4826/ window 5,5 # Raidwide
+95.9 "Throttles" sync /^.{14} Liquid Rage 4828/ window 5,5 # Debuffs
+107.0 "Protean Wave" sync /^.{14} Living Liquid 4822/ window 5,5 # Spread
+109.0 "Hand of Pain" sync /^.{14} Liquid Hand 482D/ window 5,5 # HP sync check
+109.1 "Protean Wave" sync /^.{14} Living Liquid 4823/ window 5,5 # Second wave
+112.0 "Sluice" sync /^.{14} Living Liquid 49B1/ window 5,5 # Targeted AOEs
+112.1 "Protean Wave" sync /^.{14} Living Liquid 4823/ window 5,5 # Third wave
+113.0 "Rage Wave" sync /^.{14} Liquid Rage 49B5/ window 5,5
+115.1 "Rage Wave" sync /^.{14} Liquid Rage 49B6/ window 5,5
+119.1 "Embolus" sync /^.{14} Liquid Rage 4829/ window 5,5 # Orbs
+124.2 "Hand of Prayer/Parting" sync /^.{14} Liquid Hand 482/ window 5,5 # Mechanic
+127.4 "Splash x6" window 5,5 # Raidwide (multi-hit)
+129.3 "Hand of Pain" sync /^.{14} Liquid Hand 482D/ window 5,5 # HP sync check
+134.1 "Fluid Swing" sync /^.{14} Living Liquid 49B0/ window 5,5 # Tankbuster
+142.1 "Cascade Enrage" sync /^.{14} Living Liquid 49B3/ window 5,5 # Enrage
+
+##### TRANSITION 1: CRUISE CHASER ADDS #####
+200.0 "Hawk Blaster" sync /^.{14} Cruise Chaser 4830/ window 200,0 # Spread
+207.4 "Alpha Sword" sync /^.{14} Cruise Chaser 4834/ window 5,5
+208.9 "Super Blassty Charge" sync /^.{14} Cruise Chaser 4B4F/ window 5,5 # Dash
+212.1 "Alpha Sword" sync /^.{14} Cruise Chaser 4834/ window 5,5
+213.6 "Super Blassty Charge" sync /^.{14} Cruise Chaser 4B4F/ window 5,5 # Dash
+216.8 "Alpha Sword" sync /^.{14} Cruise Chaser 4834/ window 5,5
+218.3 "Super Blassty Charge" sync /^.{14} Cruise Chaser 4B4F/ window 5,5 # Dash
+221.4 "Alpha Sword" sync /^.{14} Cruise Chaser 4834/ window 5,5
+222.9 "Super Blassty Charge" sync /^.{14} Cruise Chaser 4B4F/ window 5,5 # Dash
+
+##### PHASE 2: BRUTE JUSTICE + CRUISE CHASER #####
+226.1 "J Kick" sync /^.{14} Brute Justice 4854/ window 250,5 # Raidwide
+238.3 "Whirlwind" sync /^.{14} Cruise Chaser 49C2/ window 5,5 # Raidwide
+241.3 "Judgment Nisi" sync /^.{14} Brute Justice 483E/ window 5,5 # Nisi debuffs
+247.4 "Link-Up" sync /^.{14} Brute Justice 483F/ window 5,5 # Tethers
+255.4 "Optical Sight" sync /^.{14} Cruise Chaser 482F/ window 5,5 # Spread/Stack
+256.2 "Chakrams" sync /^.{14} Steam Chakram 4855/ window 5,5
+260.6 "Hawk Blaster" sync /^.{14} Cruise Chaser 4831/ window 5,5 # Spread
+262.5 "Photon" sync /^.{14} Cruise Chaser 4836/ window 5,5 # Set HP to 1
+272.7 "Spin Crusher" sync /^.{14} Cruise Chaser 4A72/ window 5,5 # Frontal cleave
+277.3 "Water and Thunder" sync /^.{14} Brute Justice 4841/ window 5,5 # Debuffs
+288.6 "Earth Missile" sync /^.{14} Brute Justice 484E/ window 5,5 # Puddles
+290.6 "Hidden Minefield" sync /^.{14} Brute Justice 4851/ window 5,5 # Mines
+292.7 "Enumeration" sync /^.{14} Brute Justice 4850/ window 5,5 # Stack mechanic
+306.7 "Water and Thunder" sync /^.{14} Brute Justice 4841/ window 5,5 # Debuffs
+313.5 "Limit Cut" sync /^.{14} Cruise Chaser 4833/ window 5,5 # Number markers
+315.5 "Flarethrower" sync /^.{14} Brute Justice 4845/ window 5,5 # Frontal cone
+327.6 "Whirlwind" sync /^.{14} Cruise Chaser 49C2/ window 5,5 # Raidwide
+336.2 "Water and Thunder" sync /^.{14} Brute Justice 4841/ window 5,5 # Debuffs
+354.5 "Propeller Wind" sync /^.{14} Cruise Chaser 4832/ window 5,5 # Lookaway
+356.5 "Gavel" sync /^.{14} Brute Justice 483C/ window 5,5 # Nisi resolve
+366.8 "Photon" sync /^.{14} Cruise Chaser 4836/ window 5,5 # Set HP to 1
+374.8 "Double Rocket Punch" sync /^.{14} Brute Justice 4847/ window 5,5 # Shared tankbuster
+382.1 "Super Jump" sync /^.{14} Brute Justice 484A/ window 5,5 # Jump + AOE
+384.4 "Apocalyptic Ray x5" window 5,5 # Rotating beam
+395.0 "Whirlwind" sync /^.{14} Cruise Chaser 49C2/ window 5,5 # Raidwide
+403.1 "Whirlwind" sync /^.{14} Cruise Chaser 49C2/ window 5,5 # Raidwide
+413.7 "Final Sentence" sync /^.{14} Brute Justice 4856/ window 5,5 # Nisi tankbuster
+423.7 "Eternal Darkness Enrage" sync /^.{14} Cruise Chaser 483A/ window 5,5 # Enrage
+
+##### TRANSITION 2: ALEXANDER PRIME #####
+500.0 "Temporal Stasis" sync /^.{14} Alexander Prime 485A/ window 500,0 # Time stop
+503.1 "Surety and Severity" sync /^.{14} Alexander Prime 4861/ window 5,5 # Shared busters
+505.1 "Alpha Sword" sync /^.{14} Cruise Chaser 486B/ window 5,5
+505.2 "Flarethrower" sync /^.{14} Brute Justice 486C/ window 5,5 # Frontal cone
+521.5 "Chastening Heat" sync /^.{14} Alexander Prime 4A80/ window 5,5 # Tankbuster
+524.6 "Divine Spear" sync /^.{14} Alexander Prime 4A82/ window 5,5 # Line AOEs
+
+##### PHASE 3 PART 1: INCEPTION FORMATION #####
+537.9 "Inception Formation" sync /^.{14} Alexander Prime 486F/ window 5,5 # Raidwide
+552.4 "Judgment Crystal" sync /^.{14} Alexander Prime 485B/ window 5,5 # Crystals spawn
+558.2 "Judgment Crystal + True Heart" sync /^.{14} Alexander Prime 485C/ window 5,5
+569.5 "Flarethrower" sync /^.{14} Brute Justice 486C/ window 5,5 # Frontal cone
+581.0 "Inception" sync /^.{14} Alexander Prime 485E/ window 5,5 # Resolution
+589.1 "Surety, Solidarity and Severity" sync /^.{14} Alexander Prime 4861/ window 5,5 # Triple busters
+589.4 "Sacrament" sync /^.{14} Alexander Prime 485F/ window 5,5 # Line AOEs
+595.3 "Alpha Sword" sync /^.{14} Cruise Chaser 486B/ window 5,5
+598.3 "Super Jump" sync /^.{14} Brute Justice 484A/ window 5,5 # Jump + AOE
+610.9 "Chastening Heat" sync /^.{14} Alexander Prime 4A80/ window 5,5 # Tankbuster
+616.0 "Divine Spear" sync /^.{14} Alexander Prime 4A82/ window 5,5 # Line AOEs
+
+##### PHASE 3 PART 2: WORMHOLE FORMATION #####
+629.3 "Wormhole Formation" sync /^.{14} Alexander Prime 486E/ window 5,5 # Raidwide
+637.7 "Limit Cut" sync /^.{14} Cruise Chaser 4B0F/ window 5,5 # Number markers
+640.7 "Link-Up" sync /^.{14} Brute Justice 483F/ window 5,5 # Tethers
+643.7 "Void Of Repentance" sync /^.{14} Alexander Prime 4866/ window 5,5 # Puddles
+649.5 "Chakrams" sync /^.{14} Steam Chakram 4855/ window 5,5
+650.9 "Super Jump" sync /^.{14} Brute Justice 484A/ window 5,5 # Jump + AOE
+650.9 "Alpha Sword" sync /^.{14} Cruise Chaser 4834/ window 5,5
+652.4 "Super Blassty Charge" sync /^.{14} Cruise Chaser 49C3/ window 5,5 # Dash
+653.3 "Apocalyptic Ray x5" window 5,5 # Rotating beam
+655.6 "Repentance" sync /^.{14} Alexander Prime 4869/ window 5,5 # Puddle resolve
+657.9 "Sacrament" sync /^.{14} Alexander Prime 4857/ window 5,5 # Line AOEs
+659.7 "Repentance" sync /^.{14} Alexander Prime 4868/ window 5,5 # Puddle resolve
+664.0 "Repentance" sync /^.{14} Alexander Prime 4867/ window 5,5 # Puddle resolve
+666.4 "Missile Command" sync /^.{14} Brute Justice 484D/ window 5,5 # Enumeration
+670.0 "Incinerating Heat" sync /^.{14} Alexander Prime 4A51/ window 5,5 # Stack
+674.6 "Enumeration" sync /^.{14} Brute Justice 4850/ window 5,5 # Stack mechanic
+682.9 "Mega Holy" sync /^.{14} Alexander Prime 4A83/ window 5,5 # Raidwide
+690.0 "Mega Holy" sync /^.{14} Alexander Prime 4A83/ window 5,5 # Raidwide
+
+##### TRANSITION 3: DPS CHECK #####
+699.4 "Summon Alexander" sync /^.{14} Alexander Prime 4A55/ window 5,5 # Summon big Alex
+705.7 "J Storm + Waves" sync /^.{14} Brute Justice 4876/ window 5,5 # Raidwide (continuous)
+731.7 "Eternal Darkness Enrage" sync /^.{14} Cruise Chaser 4875/ window 5,5 # CC Enrage
+771.9 "Divine Judgment Enrage" sync /^.{14} Alexander Prime 4879/ window 5,5 # Alex Enrage
+787.3 "Divine Judgment" sync /^.{14} Alexander 487A/ window 5,5 # Phase transition
+
+##### PHASE 4 PART 1: PERFECT ALEXANDER - FATE α #####
+845.4 "--targetable--" window 5,5
+900.0 "--sync--" sync /^.{14} Perfect Alexander 4A8B/ window 900,0
+909.1 "The Final Word" sync /^.{14} Perfect Alexander 487D/ window 5,5 # Debuffs
+916.1 "Ordained Motion/Stillness" sync /^.{14} Perfect Alexander 487/ window 5,5 # Move/stop check
+926.3 "Ordained Motion/Stillness" sync /^.{14} Perfect Alexander 487/ window 5,5 # Move/stop check
+936.5 "Optical Sight" sync /^.{14} Perfect Alexander 488/ window 5,5 # Spread/Stack
+938.6 "Individual/Collective Reprobation" sync /^.{14} Perfect Alexander 488/ window 5,5 # Spread/Stack
+942.7 "Optical Sight" sync /^.{14} Perfect Alexander 488/ window 5,5 # Spread/Stack
+944.7 "Individual/Collective Reprobation" sync /^.{14} Perfect Alexander 488/ window 5,5 # Spread/Stack
+957.6 "Fate Projection α" sync /^.{14} Perfect Alexander 487B/ window 5,5 # Fate preview
+966.8 "Fate: Ordained Motion/Stillness" sync /^.{14} Perfect Alexander 4B0/ window 5,5
+972.7 "Fate: Obloquy, Solidarity and Severity" sync /^.{14} Perfect Alexander 48A4/ window 5,5 # Triple busters
+974.9 "Fate: Ordained Motion/Stillness" sync /^.{14} Perfect Alexander 489/ window 5,5
+975.9 "Fate: Sacrament x3" window 5,5 # Line AOEs
+982.6 "Fate Calibration α" sync /^.{14} Perfect Alexander 487C/ window 5,5 # Fate resolve
+989.8 "Ordained Motion/Stillness" sync /^.{14} Perfect Alexander 49A/ window 5,5 # Move/stop check
+992.8 "Obloquy, Solidarity and Severity" sync /^.{14} Perfect Alexander 4861/ window 5,5 # Triple busters
+993.8 "Ordained Motion/Stillness" sync /^.{14} Perfect Alexander 49A/ window 5,5 # Move/stop check
+993.8 "Sacrament x3" window 5,5 # Line AOEs
+
+##### PHASE 4 PART 2: PERFECT ALEXANDER - FATE β #####
+1008.0 "Ordained Capital Punishment" sync /^.{14} Perfect Alexander 4892/ window 5,5 # Tankbuster
+1011.1 "Ordained Capital Punishment" sync /^.{14} Perfect Alexander 4893/ window 5,5 # Tankbuster hits
+1012.2 "Ordained Capital Punishment" sync /^.{14} Perfect Alexander 4893/ window 5,5 # Tankbuster hits
+1013.3 "Ordained Capital Punishment" sync /^.{14} Perfect Alexander 4893/ window 5,5 # Tankbuster hits
+1017.2 "Ordained Punishment" sync /^.{14} Perfect Alexander 4891/ window 5,5 # Shared tankbuster
+1032.3 "Fate Projection β" sync /^.{14} Perfect Alexander 4B13/ window 5,5 # Fate preview
+1047.7 "Fate: Surety and Solidarity" sync /^.{14} Perfect Alexander 489C/ window 5,5 # Shared busters
+1050.5 "Fate: J Jump" sync /^.{14} Perfect Alexander 489D/ window 5,5 # Jump + AOE
+1056.0 "Fate: Optical Sight" sync /^.{14} Perfect Alexander 48A/ window 5,5 # Spread/Stack
+1058.1 "Fate: Individual/Collective Reprobation" sync /^.{14} Perfect Alexander 48A/ window 5,5
+1061.5 "Fate: Radiant Sacrament" sync /^.{14} Perfect Alexander 489E/ window 5,5 # Raidwide
+1070.3 "Fate Calibration β" sync /^.{14} Perfect Alexander 4B14/ window 5,5 # Fate resolve
+1081.5 "Surety and Solidarity" sync /^.{14} Perfect Alexander 4863/ window 5,5 # Shared busters
+1082.5 "J Jump" sync /^.{14} Perfect Alexander 4885/ window 5,5 # Jump + AOE
+1086.5 "Optical Sight" sync /^.{14} Perfect Alexander 49A/ window 5,5 # Spread/Stack
+1088.6 "Individual/Collective Reprobation" sync /^.{14} Perfect Alexander 488/ window 5,5
+1093.5 "Radiant Sacrament" sync /^.{14} Perfect Alexander 4886/ window 5,5 # Raidwide
+1106.8 "Ordained Capital Punishment" sync /^.{14} Perfect Alexander 4892/ window 5,5 # Tankbuster
+1109.9 "Ordained Capital Punishment" sync /^.{14} Perfect Alexander 4893/ window 5,5 # Tankbuster hits
+1111.0 "Ordained Capital Punishment" sync /^.{14} Perfect Alexander 4893/ window 5,5 # Tankbuster hits
+1112.1 "Ordained Capital Punishment" sync /^.{14} Perfect Alexander 4893/ window 5,5 # Tankbuster hits
+1116.0 "Ordained Punishment" sync /^.{14} Perfect Alexander 4891/ window 5,5 # Shared tankbuster
+
+##### PHASE 4 PART 3: PERFECT ALEXANDER - ALMIGHTY JUDGMENT + BURN #####
+1126.2 "Almighty Judgment" sync /^.{14} Perfect Alexander 488E/ window 5,5 # Enrage mechanic
+1137.4 "Almighty Judgment" sync /^.{14} Perfect Alexander 4890/ window 5,5 # AOE hits
+1139.4 "Almighty Judgment" sync /^.{14} Perfect Alexander 4890/ window 5,5 # AOE hits
+1141.4 "Almighty Judgment" sync /^.{14} Perfect Alexander 4890/ window 5,5 # AOE hits
+1142.5 "Irresistible Grace" sync /^.{14} Perfect Alexander 4894/ window 5,5 # Stack
+1152.6 "Ordained Capital Punishment" sync /^.{14} Perfect Alexander 4892/ window 5,5 # Tankbuster
+1155.7 "Ordained Capital Punishment" sync /^.{14} Perfect Alexander 4893/ window 5,5 # Tankbuster hits
+1156.8 "Ordained Capital Punishment" sync /^.{14} Perfect Alexander 4893/ window 5,5 # Tankbuster hits
+1157.9 "Ordained Capital Punishment" sync /^.{14} Perfect Alexander 4893/ window 5,5 # Tankbuster hits
+1161.8 "Ordained Punishment" sync /^.{14} Perfect Alexander 4891/ window 5,5 # Shared tankbuster
+1171.7 "Almighty Judgment" sync /^.{14} Perfect Alexander 488E/ window 5,5 # Enrage mechanic
+1182.9 "Almighty Judgment" sync /^.{14} Perfect Alexander 4890/ window 5,5 # AOE hits
+1184.9 "Almighty Judgment" sync /^.{14} Perfect Alexander 4890/ window 5,5 # AOE hits
+1186.9 "Almighty Judgment" sync /^.{14} Perfect Alexander 4890/ window 5,5 # AOE hits
+1187.9 "Irresistible Grace" sync /^.{14} Perfect Alexander 4894/ window 5,5 # Stack
+1202.8 "Temporal Interference" sync /^.{14} Perfect Alexander 4896/ window 5,5 # Enrage start
+1247.6 "Temporal Prison Enrage" sync /^.{14} Perfect Alexander 4897/ window 5,5 # Enrage

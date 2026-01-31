@@ -1,0 +1,201 @@
+# The Weapon's Refrain (Ultimate) - UWU Timeline
+# Based on Cactbot format, adapted for Olympus
+# Zone ID: 539
+
+hideall "--sync--"
+hideall "--Reset--"
+
+##### PHASE 1: GARUDA #####
+0.0 "--sync--" sync /00:0839::.*is no longer sealed/ window 100000,0
+8.8 "Slipstream" sync /^.{14} Garuda 2B53/ window 5,5 # Frontal cleave
+11.4 "Mistral Song" sync /^.{14} Garuda 2B42/ window 5,5 # Line AOE
+17.5 "Great Whirlwind" sync /^.{14} Garuda 2B41/ window 5,5
+23.6 "Great Whirlwind" sync /^.{14} Garuda 2B41/ window 5,5
+24.2 "Slipstream" sync /^.{14} Garuda 2B53/ window 5,5 # Frontal cleave
+27.6 "Downburst" sync /^.{14} Garuda 2B50/ window 5,5 # Tankbuster
+29.7 "Great Whirlwind" sync /^.{14} Garuda 2B41/ window 5,5
+37.5 "Feather Rain" sync /^.{14} Garuda 2B4D/ window 5,5 # Targeted AOEs
+42.2 "Mistral Shriek" sync /^.{14} Garuda 2B54/ window 5,5 # Raidwide
+51.5 "Friction" sync /^.{14} Garuda 2B48/ window 5,5
+57.6 "Friction" sync /^.{14} Garuda 2B48/ window 5,5
+72.1 "Feather Rain" sync /^.{14} Garuda 2B4D/ window 5,5 # Targeted AOEs
+76.8 "Aerial Blast" sync /^.{14} Garuda 2B55/ window 5,5 # Raidwide
+92.9 "Feather Rain" sync /^.{14} Garuda 2B4D/ window 5,5 # Targeted AOEs
+99.8 "Mistral Song x2" sync /^.{14} Chirada 2B4B/ window 5,5
+100.1 "Eye of the Storm" sync /^.{14} Garuda 2B52/ window 5,5 # Donut AOE
+100.2 "Wicked Wheel" sync /^.{14} Garuda 2B4E/ window 5,5 # Point-blank AOE
+104.2 "Feather Rain" sync /^.{14} Garuda 2B4D/ window 5,5 # Targeted AOEs
+105.8 "Great Whirlwind" sync /^.{14} Suparna 2B41/ window 5,5
+121.8 "Slipstream" sync /^.{14} Garuda 2B53/ window 5,5 # Frontal cleave
+123.0 "Eye of the Storm" sync /^.{14} Garuda 2B52/ window 5,5 # Donut AOE
+125.0 "Mesohigh x2" sync /^.{14} Chirada 2B49/ window 5,5 # Tethers
+125.1 "Downburst" sync /^.{14} Garuda 2B50/ window 5,5 # Tankbuster
+129.6 "Feather Rain" sync /^.{14} Garuda 2B4D/ window 5,5 # Targeted AOEs
+142.2 "Slipstream" sync /^.{14} Garuda 2B53/ window 5,5 # Frontal cleave
+150.6 "Wicked Wheel" sync /^.{14} Garuda 2B4E/ window 5,5 # Point-blank AOE
+152.6 "Wicked Tornado" sync /^.{14} Garuda 2B4F/ window 5,5 # Donut after Wheel
+155.4 "Downburst" sync /^.{14} Garuda 2B50/ window 5,5 # Tankbuster
+163.4 "Slipstream" sync /^.{14} Garuda 2B53/ window 5,5 # Frontal cleave
+181.5 "Aerial Blast" sync /^.{14} Garuda 2B55/ window 5,5 # Raidwide (phase push)
+
+##### PHASE 2: IFRIT #####
+300.0 "--phase--" sync /00:0839::Ifrit/ window 300,0
+303.0 "Crimson Cyclone" sync /^.{14} Ifrit 2B5F/ window 5,5 # Dash
+304.0 "Radiant Plume" sync /^.{14} Ifrit 2B61/ window 5,5 # Floor AOEs
+310.1 "Hellfire" sync /^.{14} Ifrit 2B5E/ window 5,5 # Raidwide
+318.3 "Vulcan Burst" sync /^.{14} Ifrit 2B57/ window 5,5 # Knockback
+321.2 "Incinerate" sync /^.{14} Ifrit 2B56/ window 5,5 # Tankbuster
+324.3 "Incinerate" sync /^.{14} Ifrit 2B56/ window 5,5 # Tankbuster
+328.4 "Incinerate" sync /^.{14} Ifrit 2B56/ window 5,5 # Tankbuster
+331.5 "--nail adds--" window 5,5
+340.6 "Infernal Fetters" sync /^.{14} Ifrit 2C19/ window 5,5 # Tethers
+342.7 "Inferno Howl" sync /^.{14} Ifrit 2B5B/ window 5,5 # Searing Wind debuff
+348.8 "Eruption" sync /^.{14} Ifrit 2B5A/ window 5,5 # Targeted ground AOEs
+372.9 "Hellfire" sync /^.{14} Ifrit 2B5E/ window 5,5 # Raidwide (after nails)
+381.2 "Inferno Howl" sync /^.{14} Ifrit 2B5B/ window 5,5 # Searing Wind debuff
+387.3 "Eruption" sync /^.{14} Ifrit 2B5A/ window 5,5 # Targeted ground AOEs
+394.3 "Crimson Cyclone" sync /^.{14} Ifrit 2B5F/ window 5,5 # Dash
+399.2 "Inferno Howl" sync /^.{14} Ifrit 2B5B/ window 5,5 # Searing Wind debuff
+409.6 "Flaming Crush" sync /^.{14} Ifrit 2B5D/ window 5,5 # Stack
+421.1 "Crimson Cyclone" sync /^.{14} Ifrit 2B5F/ window 5,5 # Dash pattern
+433.6 "Incinerate" sync /^.{14} Ifrit 2B56/ window 5,5 # Tankbuster
+436.7 "Incinerate" sync /^.{14} Ifrit 2B56/ window 5,5 # Tankbuster
+440.8 "Incinerate" sync /^.{14} Ifrit 2B56/ window 5,5 # Tankbuster
+447.0 "Eruption" sync /^.{14} Ifrit 2B5A/ window 5,5 # Targeted ground AOEs
+456.0 "Flaming Crush" sync /^.{14} Ifrit 2B5D/ window 5,5 # Stack
+
+##### PHASE 3: TITAN #####
+600.0 "--phase--" sync /00:0839::Titan/ window 600,0
+603.0 "Geocrush" sync /^.{14} Titan 2CFD/ window 5,5 # Jump + knockback
+608.3 "Earthen Fury" sync /^.{14} Titan 2B90/ window 5,5 # Raidwide
+616.4 "Rock Buster" sync /^.{14} Titan 2B62/ window 5,5 # Tankbuster
+619.5 "Mountain Buster" sync /^.{14} Titan 2B63/ window 5,5 # Tankbuster cleave
+624.5 "Weight of the Land" sync /^.{14} Titan 2B65/ window 5,5 # Targeted ground AOEs
+627.5 "Weight of the Land" sync /^.{14} Titan 2B65/ window 5,5 # Targeted ground AOEs
+632.8 "Geocrush" sync /^.{14} Titan 2B66/ window 5,5 # Jump + knockback
+638.1 "Bury" sync /^.{14} Bomb Boulder 2B69/ window 5,5 # Boulder explosions
+641.1 "Upheaval" sync /^.{14} Titan 2B67/ window 5,5 # Knockback
+643.2 "Rock Throw" sync /^.{14} Titan 2B6B/ window 5,5 # Gaol markers
+646.1 "Bury" sync /^.{14} Bomb Boulder 2B69/ window 5,5 # Boulder explosions
+647.7 "Landslide" sync /^.{14} Titan 2B70/ window 5,5 # Line AOEs
+652.1 "Landslide" sync /^.{14} Titan 2B70/ window 5,5 # Line AOEs
+654.2 "Tumult x8" sync /^.{14} Titan 2C18/ window 5,5 # Raidwide (multi-hit)
+670.0 "Weight of the Land" sync /^.{14} Titan 2B65/ window 5,5 # Targeted ground AOEs
+673.0 "Weight of the Land" sync /^.{14} Titan 2B65/ window 5,5 # Targeted ground AOEs
+675.0 "Landslide" sync /^.{14} Titan 2B70/ window 5,5 # Line AOEs
+677.0 "Landslide" sync /^.{14} Titan 2C22/ window 5,5 # Line AOEs
+686.3 "Geocrush" sync /^.{14} Titan 2B66/ window 5,5 # Jump + knockback
+688.6 "Rock Throw" sync /^.{14} Titan 2B6B/ window 5,5 # Gaol markers
+702.9 "Landslide" sync /^.{14} Titan 2B70/ window 5,5 # Line AOEs
+708.0 "Tumult x6" sync /^.{14} Titan 2C18/ window 5,5 # Raidwide (multi-hit)
+715.6 "Rock Buster" sync /^.{14} Titan 2B62/ window 5,5 # Tankbuster
+719.6 "Mountain Buster" sync /^.{14} Titan 2B63/ window 5,5 # Tankbuster cleave
+726.6 "Weight of the Land" sync /^.{14} Titan 2B65/ window 5,5 # Targeted ground AOEs
+731.9 "Landslide" sync /^.{14} Titan 2B70/ window 5,5 # Line AOEs
+740.0 "Rock Buster" sync /^.{14} Titan 2B62/ window 5,5 # Tankbuster
+744.0 "Mountain Buster" sync /^.{14} Titan 2B63/ window 5,5 # Tankbuster cleave
+749.1 "Weight of the Land" sync /^.{14} Titan 2B65/ window 5,5 # Targeted ground AOEs
+756.8 "Tumult x8" sync /^.{14} Titan 2C18/ window 5,5 # Raidwide (multi-hit)
+779.8 "Earthen Fury Enrage" sync /^.{14} Titan 2B90/ window 5,5 # Enrage
+
+##### PHASE 4: LAHABREA / MAGITEK BITS #####
+800.0 "--phase--" sync /00:0839::Freefire/ window 800,0
+815.0 "Self-detonate" sync /^.{14} Magitek Bit 2B72/ window 5,5
+815.2 "Blight" sync /^.{14} Lahabrea 2B73/ window 5,5 # Raidwide
+841.2 "Dark IV" sync /^.{14} Lahabrea 2B74/ window 5,5 # Raidwide
+850.4 "Ultima" sync /^.{14} The Ultima Weapon 2B8B/ window 5,5 # Raidwide transition
+
+##### PHASE 5: ULTIMA WEAPON #####
+960.3 "Ultima" sync /^.{14} The Ultima Weapon 2B8B/ window 5,5 # Raidwide
+1004.0 "Tank Purge" sync /^.{14} The Ultima Weapon 2B87/ window 5,5 # Raidwide
+1006.3 "--apply viscous--" window 5,5
+1012.4 "Homing Lasers" sync /^.{14} The Ultima Weapon 2B7B/ window 5,5 # Targeted damage
+1017.4 "Viscous Aetheroplasm" sync /^.{14} The Ultima Weapon 2B7A/ window 5,5 # Debuff explodes
+
+### ULTIMATE PREDATION
+1023.5 "Ultimate Predation" sync /^.{14} The Ultima Weapon 2B76/ window 5,5 # Raidwide
+1038.2 "Landslide" sync /^.{14} Titan 2B70/ window 5,5
+1038.2 "Crimson Cyclone" sync /^.{14} Ifrit 2B5F/ window 5,5
+1038.2 "Wicked Wheel" sync /^.{14} Garuda 2B4E/ window 5,5
+1040.2 "Ceruleum Vent" sync /^.{14} The Ultima Weapon 2B7C/ window 5,5 # Raidwide
+1040.2 "Wicked Tornado" sync /^.{14} Garuda 2B4F/ window 5,5
+1045.4 "Feather Rain" sync /^.{14} Garuda 2B4D/ window 5,5
+
+### INTERLUDE
+1059.8 "Eruption" sync /^.{14} Ifrit 2B5A/ window 5,5
+1064.8 "Infernal Fetters" sync /^.{14} Ifrit 2C19/ window 5,5 # Tethers
+1069.9 "Radiant Plume" sync /^.{14} The Ultima Weapon 2B7D/ window 5,5 # Floor AOEs
+1074.9 "Landslide" sync /^.{14} The Ultima Weapon 2B7E/ window 5,5
+1079.3 "Tumult x7" sync /^.{14} Titan 2C18/ window 5,5 # Raidwide (multi-hit)
+1082.3 "--apply viscous--" window 5,5
+1087.3 "Wicked Wheel" sync /^.{14} Chirada 2B4C/ window 5,5
+1089.3 "Mistral Shriek" sync /^.{14} Garuda 2B54/ window 5,5 # Raidwide
+1092.6 "Feather Rain" sync /^.{14} Garuda 2B4D/ window 5,5
+1093.4 "Viscous Aetheroplasm" sync /^.{14} The Ultima Weapon 2B7A/ window 5,5
+1094.5 "Homing Lasers" sync /^.{14} The Ultima Weapon 2B7B/ window 5,5
+
+### ULTIMATE ANNIHILATION
+1101.8 "Ultimate Annihilation" sync /^.{14} The Ultima Weapon 2D4C/ window 5,5 # Raidwide
+1113.4 "Weight of the Land" sync /^.{14} Titan 2B65/ window 5,5
+1115.4 "Flaming Crush" sync /^.{14} Ifrit 2B5D/ window 5,5 # Stack
+1116.5 "Eye of the Storm" sync /^.{14} Garuda 2B52/ window 5,5 # Donut AOE
+1118.6 "Mesohigh" sync /^.{14} Garuda 2B49/ window 5,5 # Tethers
+1119.5 "Inferno Howl" sync /^.{14} Ifrit 2B5B/ window 5,5 # Searing Wind debuff
+1123.2 "Feather Rain" sync /^.{14} Garuda 2B4D/ window 5,5
+1127.7 "Crimson Cyclone" sync /^.{14} Ifrit 2B5F/ window 5,5
+1128.6 "Landslide" sync /^.{14} Titan 2B70/ window 5,5
+1133.7 "Eye of the Storm" sync /^.{14} Garuda 2B52/ window 5,5 # Donut AOE
+1136.0 "Mesohigh" sync /^.{14} Garuda 2B49/ window 5,5 # Tethers
+1138.8 "Tank Purge" sync /^.{14} The Ultima Weapon 2B87/ window 5,5 # Raidwide
+1140.7 "Feather Rain" sync /^.{14} Garuda 2B4D/ window 5,5
+1150.5 "Eye of the Storm" sync /^.{14} Garuda 2B52/ window 5,5 # Donut AOE
+1154.2 "Homing Lasers" sync /^.{14} The Ultima Weapon 2B7B/ window 5,5
+1162.3 "Eye of the Storm" sync /^.{14} Garuda 2B52/ window 5,5 # Donut AOE
+1164.4 "Radiant Plume" sync /^.{14} The Ultima Weapon 2B7D/ window 5,5 # Floor AOEs
+1167.5 "Diffractive Laser" sync /^.{14} The Ultima Weapon 2B78/ window 5,5 # Tankbuster
+1171.6 "Vulcan Burst" sync /^.{14} The Ultima Weapon 2CF4/ window 5,5 # Knockback
+1173.6 "Eye of the Storm" sync /^.{14} Garuda 2B52/ window 5,5 # Donut AOE
+1179.2 "Homing Lasers" sync /^.{14} The Ultima Weapon 2B7B/ window 5,5
+1183.3 "Vulcan Burst" sync /^.{14} The Ultima Weapon 2CF4/ window 5,5 # Knockback
+1185.5 "Eye of the Storm" sync /^.{14} Garuda 2B52/ window 5,5 # Donut AOE
+
+### ULTIMATE SUPPRESSION (50%)
+1195.0 "Ultimate Suppression" sync /^.{14} The Ultima Weapon 2D4D/ window 5,5 # Raidwide
+1205.7 "Rock Throw" sync /^.{14} Titan 2B6B/ window 5,5 # Gaol markers
+1206.7 "Eruption" sync /^.{14} Ifrit 2B5A/ window 5,5
+1209.8 "Mistral Song" sync /^.{14} Suparna 2B4B/ window 5,5
+1211.7 "Light Pillar x6" sync /^.{14} The Ultima Weapon 2B82/ window 5,5
+1212.0 "Mistral Song" sync /^.{14} Garuda 2B8E/ window 5,5
+1216.0 "Great Whirlwind" sync /^.{14} Suparna 2B41/ window 5,5
+1216.8 "Aetherochemical Laser" sync /^.{14} The Ultima Weapon 2B8/ window 5,5 # Line lasers
+1224.3 "Landslide" sync /^.{14} Titan 2B70/ window 5,5
+1228.0 "Flaming Crush" sync /^.{14} Ifrit 2B5D/ window 5,5 # Stack
+1232.8 "Feather Rain" sync /^.{14} Garuda 2B4D/ window 5,5
+1233.2 "Tank Purge" sync /^.{14} The Ultima Weapon 2B87/ window 5,5 # Raidwide
+1244.5 "Ultima" sync /^.{14} The Ultima Weapon 2B8B/ window 5,5 # Raidwide
+1254.7 "Aetheric Boom" sync /^.{14} The Ultima Weapon 2B88/ window 5,5 # Knockback + damage
+1275.9 "Viscous Aetheroplasm" sync /^.{14} The Ultima Weapon 2B8F/ window 5,5
+
+### PRIMAL ROULETTE (Random order: Garuda, Ifrit, Titan)
+1300.0 "--sync--" sync /^.{14} The Ultima Weapon 2CD3/ window 50,300 # Summon Garuda
+1307.2 "Wicked Wheel" sync /^.{14} Garuda 2B4E/ window 5,5
+1308.4 "Viscous Aetheroplasm" sync /^.{14} The Ultima Weapon 2B7A/ window 5,5
+1309.3 "Wicked Tornado" sync /^.{14} Ifrit 2B4F/ window 5,5
+1314.1 "Aerial Blast" sync /^.{14} Garuda 2B55/ window 5,5 # Raidwide
+1321.8 "Feather Rain" sync /^.{14} Garuda 2B4D/ window 5,5
+
+1400.0 "--sync--" sync /^.{14} The Ultima Weapon 2CD4/ window 150,300 # Summon Ifrit
+1407.2 "Crimson Cyclone" sync /^.{14} Ifrit 2B5F/ window 5,5
+1407.2 "Eruption" sync /^.{14} Ifrit 2B5A/ window 5,5
+1408.5 "Viscous Aetheroplasm" sync /^.{14} Ifrit 2B7A/ window 5,5
+1415.2 "Hellfire" sync /^.{14} Ifrit 2B5E/ window 5,5 # Raidwide
+
+1500.0 "--sync--" sync /^.{14} The Ultima Weapon 2CD5/ window 250,300 # Summon Titan
+1505.1 "Weight of the Land" sync /^.{14} Titan 2B65/ window 5,5
+1508.8 "Viscous Aetheroplasm" sync /^.{14} Titan 2B7A/ window 5,5
+1514.2 "Earthen Fury" sync /^.{14} Titan 2B90/ window 5,5 # Raidwide
+
+### ENRAGE
+1600.0 "Enrage" sync /^.{14} The Ultima Weapon 2B8C/ window 400,0 # Enrage cast
+1625.0 "Citadel Siege" sync /^.{14} The Ultima Weapon 2B92/ window 5,5 # Repeated hits
+1651.0 "Sabik Enrage" sync /^.{14} The Ultima Weapon 2B93/ window 5,5 # Final enrage
