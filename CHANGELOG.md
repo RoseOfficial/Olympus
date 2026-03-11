@@ -3,6 +3,13 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.9.2 - SMN Rotation Fix
+
+**Summoner**
+- Fixed summon actions (Bahamut, Phoenix, Solar Bahamut, Ifrit, Titan, Garuda and their upgrades) being incorrectly categorized as oGCDs, causing the rotation to spam Ruin III instead of using primals and demi-summons
+
+<!-- LATEST-END -->
+
 ## v4.9.1 - Ultimate Raid Timelines
 
 **Timeline System**
