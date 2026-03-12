@@ -12,6 +12,8 @@ All notable changes to Olympus will be documented in this file.
 **Debug**
 - Fixed Action History panel showing no entries for all jobs except White Mage
 
+<!-- LATEST-END -->
+
 ## v4.9.4 - Tank Rotation Fixes
 
 **Dark Knight**
@@ -36,8 +38,6 @@ All notable changes to Olympus will be documented in this file.
 - Fixed language selector not applying the selected language immediately
 - Added option to prevent closing the Olympus window with the Escape key
 - Added option to keep Olympus windows visible during cutscenes
-
-<!-- LATEST-END -->
 
 ## v4.9.1 - Ultimate Raid Timelines
 
