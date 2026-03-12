@@ -312,6 +312,29 @@ public static class WARActions
 
     #endregion
 
+    #region Ranged Attack
+
+    /// <summary>
+    /// Tomahawk - Ranged attack (Lv.15)
+    /// 20y range, 150 potency. Used to pull targets or deal ranged damage when out of melee range.
+    /// </summary>
+    public static readonly ActionDefinition Tomahawk = new()
+    {
+        ActionId = 46,
+        Name = "Tomahawk",
+        MinLevel = 15,
+        Category = ActionCategory.GCD,
+        TargetType = ActionTargetType.SingleEnemy,
+        EffectTypes = ActionEffectType.Damage,
+        CastTime = 0f,
+        RecastTime = 2.5f,
+        Range = 20f,
+        MpCost = 0,
+        DamagePotency = 150
+    };
+
+    #endregion
+
     #region oGCD Damage
 
     /// <summary>

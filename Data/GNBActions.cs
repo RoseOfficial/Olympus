@@ -409,6 +409,29 @@ public static class GNBActions
 
     #endregion
 
+    #region Ranged Attack
+
+    /// <summary>
+    /// Lightning Shot - Ranged pull/attack (Lv.15)
+    /// 15y range, 150 potency. Used to pull from range or attack when out of melee range.
+    /// </summary>
+    public static readonly ActionDefinition LightningShot = new()
+    {
+        ActionId = 16143,
+        Name = "Lightning Shot",
+        MinLevel = 15,
+        Category = ActionCategory.GCD,
+        TargetType = ActionTargetType.SingleEnemy,
+        EffectTypes = ActionEffectType.Damage,
+        CastTime = 0f,
+        RecastTime = 2.5f,
+        Range = 15f,
+        MpCost = 0,
+        DamagePotency = 150
+    };
+
+    #endregion
+
     #region oGCD Damage
 
     /// <summary>
@@ -428,6 +451,26 @@ public static class GNBActions
         Range = 20f,
         MpCost = 0,
         DamagePotency = 150
+    };
+
+    /// <summary>
+    /// Trajectory - Gap closer, replaces Rough Divide in Dawntrail (Lv.56)
+    /// 2 charges, 20y range. Action ID 36934.
+    /// </summary>
+    public static readonly ActionDefinition Trajectory = new()
+    {
+        ActionId = 36934,
+        Name = "Trajectory",
+        MinLevel = 56,
+        Category = ActionCategory.oGCD,
+        TargetType = ActionTargetType.SingleEnemy,
+        EffectTypes = ActionEffectType.Damage | ActionEffectType.Movement,
+        CastTime = 0f,
+        RecastTime = 30f, // Per charge
+        Range = 20f,
+        MpCost = 0,
+        DamagePotency = 150
+        // 2 charges. Replaces Rough Divide (16154) from Dawntrail onwards.
     };
 
     /// <summary>

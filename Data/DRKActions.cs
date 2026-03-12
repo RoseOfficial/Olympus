@@ -460,6 +460,26 @@ public static class DRKActions
         DamagePotency = 150
     };
 
+    /// <summary>
+    /// Shadowstride - Gap closer, replaces Plunge in Dawntrail (Lv.54)
+    /// 2 charges, 20y range. Action ID 36926.
+    /// </summary>
+    public static readonly ActionDefinition Shadowstride = new()
+    {
+        ActionId = 36926,
+        Name = "Shadowstride",
+        MinLevel = 54,
+        Category = ActionCategory.oGCD,
+        TargetType = ActionTargetType.SingleEnemy,
+        EffectTypes = ActionEffectType.Damage | ActionEffectType.Movement,
+        CastTime = 0f,
+        RecastTime = 30f, // Per charge
+        Range = 20f,
+        MpCost = 0,
+        DamagePotency = 150
+        // 2 charges. Replaces Plunge (3640) from Dawntrail onwards.
+    };
+
     #endregion
 
     #region Buff Actions (oGCD)
