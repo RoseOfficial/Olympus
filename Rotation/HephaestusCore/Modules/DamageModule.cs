@@ -25,15 +25,36 @@ public sealed class DamageModule : IHephaestusModule
         var player = context.Player;
         var level = player.Level;
 
-        // Find target
+        // Find target — melee range first, fall back to gap-closer range for engagement
         var target = context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy,
             FFXIVConstants.MeleeTargetingRange,
             player);
 
-        if (target == null)
+        var engageTarget = target ?? context.TargetingService.FindEnemy(
+            context.Configuration.Targeting.EnemyStrategy,
+            20f,
+            player);
+
+        if (engageTarget == null)
         {
             context.Debug.DamageState = "No target";
+            return false;
+        }
+
+        // Out of melee range: try gap closer (Trajectory) then ranged attack (Lightning Shot)
+        if (target == null && engageTarget != null)
+        {
+            if (context.CanExecuteOgcd && TryTrajectory(context, engageTarget.GameObjectId))
+                return true;
+            if (context.CanExecuteGcd && TryLightningShot(context, engageTarget.GameObjectId))
+                return true;
+        }
+
+        // Only run full rotation when a melee-range target is available
+        if (target == null)
+        {
+            context.Debug.DamageState = "Target out of melee range";
             return false;
         }
 
@@ -54,8 +75,8 @@ public sealed class DamageModule : IHephaestusModule
             if (TryBowShock(context))
                 return true;
 
-            // Priority 4: Rough Divide (gap closer / damage filler)
-            if (TryRoughDivide(context, target.GameObjectId))
+            // Priority 4: Trajectory (gap closer / damage filler)
+            if (TryTrajectory(context, target.GameObjectId))
                 return true;
         }
 
@@ -218,23 +239,43 @@ public sealed class DamageModule : IHephaestusModule
         return false;
     }
 
-    private bool TryRoughDivide(IHephaestusContext context, ulong targetId)
+    private bool TryTrajectory(IHephaestusContext context, ulong targetId)
     {
         var player = context.Player;
         var level = player.Level;
 
-        if (level < GNBActions.RoughDivide.MinLevel)
+        if (level < GNBActions.Trajectory.MinLevel)
             return false;
 
-        // Rough Divide is a gap closer with 2 charges
-        // Use as damage filler, but keep 1 charge for mobility
-        if (!context.ActionService.IsActionReady(GNBActions.RoughDivide.ActionId))
+        // Trajectory: gap closer with 2 charges, keep 1 for mobility
+        if (!context.ActionService.IsActionReady(GNBActions.Trajectory.ActionId))
             return false;
 
-        if (context.ActionService.ExecuteOgcd(GNBActions.RoughDivide, targetId))
+        if (context.ActionService.ExecuteOgcd(GNBActions.Trajectory, targetId))
         {
-            context.Debug.PlannedAction = GNBActions.RoughDivide.Name;
-            context.Debug.DamageState = "Rough Divide";
+            context.Debug.PlannedAction = GNBActions.Trajectory.Name;
+            context.Debug.DamageState = "Trajectory";
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TryLightningShot(IHephaestusContext context, ulong targetId)
+    {
+        var player = context.Player;
+        var level = player.Level;
+
+        if (level < GNBActions.LightningShot.MinLevel)
+            return false;
+
+        if (!context.ActionService.IsActionReady(GNBActions.LightningShot.ActionId))
+            return false;
+
+        if (context.ActionService.ExecuteGcd(GNBActions.LightningShot, targetId))
+        {
+            context.Debug.PlannedAction = GNBActions.LightningShot.Name;
+            context.Debug.DamageState = "Lightning Shot (ranged)";
             return true;
         }
 
