@@ -25,15 +25,34 @@ public sealed class DamageModule : INyxModule
         var player = context.Player;
         var level = player.Level;
 
-        // Find target
+        // Find target — melee range first, fall back to gap-closer range for engagement
         var target = context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy,
             FFXIVConstants.MeleeTargetingRange,
             player);
 
-        if (target == null)
+        var engageTarget = target ?? context.TargetingService.FindEnemy(
+            context.Configuration.Targeting.EnemyStrategy,
+            20f,
+            player);
+
+        if (engageTarget == null)
         {
             context.Debug.DamageState = "No target";
+            return false;
+        }
+
+        // Out of melee range — attempt Shadowstride gap close immediately
+        if (target == null && engageTarget != null && context.CanExecuteOgcd)
+        {
+            if (TryShadowstride(context, engageTarget.GameObjectId))
+                return true;
+        }
+
+        // Only run full rotation when a melee-range target is available
+        if (target == null)
+        {
+            context.Debug.DamageState = "Target out of melee range";
             return false;
         }
 
@@ -70,8 +89,8 @@ public sealed class DamageModule : INyxModule
             if (TryAbyssalDrain(context, enemyCount, target.GameObjectId))
                 return true;
 
-            // Priority 8: Plunge (gap closer / damage filler)
-            if (TryPlunge(context, target.GameObjectId))
+            // Priority 8: Shadowstride (gap closer / damage filler)
+            if (TryShadowstride(context, target.GameObjectId))
                 return true;
         }
 
@@ -311,23 +330,21 @@ public sealed class DamageModule : INyxModule
         return false;
     }
 
-    private bool TryPlunge(INyxContext context, ulong targetId)
+    private bool TryShadowstride(INyxContext context, ulong targetId)
     {
         var player = context.Player;
         var level = player.Level;
 
-        if (level < DRKActions.Plunge.MinLevel)
+        if (level < DRKActions.Shadowstride.MinLevel)
             return false;
 
-        // Plunge is a gap closer with 2 charges
-        // Use as a damage filler when in melee range
-        if (!context.ActionService.IsActionReady(DRKActions.Plunge.ActionId))
+        if (!context.ActionService.IsActionReady(DRKActions.Shadowstride.ActionId))
             return false;
 
-        if (context.ActionService.ExecuteOgcd(DRKActions.Plunge, targetId))
+        if (context.ActionService.ExecuteOgcd(DRKActions.Shadowstride, targetId))
         {
-            context.Debug.PlannedAction = DRKActions.Plunge.Name;
-            context.Debug.DamageState = "Plunge";
+            context.Debug.PlannedAction = DRKActions.Shadowstride.Name;
+            context.Debug.DamageState = "Shadowstride";
             return true;
         }
 
