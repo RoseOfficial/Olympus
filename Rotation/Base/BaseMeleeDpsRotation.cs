@@ -19,7 +19,7 @@ namespace Olympus.Rotation.Base;
 /// </summary>
 /// <typeparam name="TContext">The melee DPS job-specific context type.</typeparam>
 /// <typeparam name="TModule">The melee DPS job-specific module interface type.</typeparam>
-public abstract class BaseMeleeDpsRotation<TContext, TModule> : BaseRotation<TContext, TModule>
+public abstract class BaseMeleeDpsRotation<TContext, TModule> : BaseRotation<TContext, TModule>, IHasPositionals
     where TContext : IMeleeDpsRotationContext
     where TModule : IRotationModule<TContext>
 {
@@ -64,6 +64,12 @@ public abstract class BaseMeleeDpsRotation<TContext, TModule> : BaseRotation<TCo
     /// Whether the target has positional immunity.
     /// </summary>
     protected bool TargetHasPositionalImmunity { get; set; }
+
+    /// <summary>
+    /// Current positional snapshot — updated every frame by UpdatePositionalState.
+    /// Exposed publicly via IHasPositionals for MainWindow display.
+    /// </summary>
+    public PositionalSnapshot Positionals { get; private set; }
 
     #endregion
 
@@ -167,6 +173,7 @@ public abstract class BaseMeleeDpsRotation<TContext, TModule> : BaseRotation<TCo
             IsAtRear = false;
             IsAtFlank = false;
             TargetHasPositionalImmunity = false;
+            Positionals = new PositionalSnapshot { HasTarget = false };
             return;
         }
 
@@ -175,6 +182,13 @@ public abstract class BaseMeleeDpsRotation<TContext, TModule> : BaseRotation<TCo
         IsAtRear = positional == PositionalType.Rear;
         IsAtFlank = positional == PositionalType.Flank;
         TargetHasPositionalImmunity = PositionalService.HasPositionalImmunity(target);
+        Positionals = new PositionalSnapshot
+        {
+            IsAtRear = IsAtRear,
+            IsAtFlank = IsAtFlank,
+            TargetHasImmunity = TargetHasPositionalImmunity,
+            HasTarget = true
+        };
     }
 
     #endregion

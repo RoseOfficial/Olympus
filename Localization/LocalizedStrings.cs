@@ -24,6 +24,11 @@ public static class LocalizedStrings
         public const string Analytics = "ui.main.analytics";
         public const string Training = "ui.main.training";
         public const string Debug = "ui.main.debug";
+        public const string Positional = "ui.main.positional";
+        public const string PositionalRear = "ui.main.positional_rear";
+        public const string PositionalFlank = "ui.main.positional_flank";
+        public const string PositionalFront = "ui.main.positional_front";
+        public const string PositionalImmune = "ui.main.positional_immune";
     }
 
     #endregion

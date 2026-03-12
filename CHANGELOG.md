@@ -3,6 +3,15 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.9.8 - Positional Indicator
+
+**Main Window**
+- Added live positional indicator for all 6 melee DPS jobs (Dragoon, Ninja, Samurai, Monk, Reaper, Viper)
+- Shows current position relative to target: Rear (blue), Flank (purple), Front (gray), or Immune
+- Only visible when a melee DPS job is active and a target is in range; hidden otherwise
+
+<!-- LATEST-END -->
+
 ## v4.9.7 - Healer Debug Tabs
 
 **Debug**
