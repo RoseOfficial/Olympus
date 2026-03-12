@@ -3,10 +3,30 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
-## v4.9.2 - SMN Rotation Fix
+## v4.9.4 - Tank Rotation Fixes
 
-**Summoner**
-- Fixed summon actions (Bahamut, Phoenix, Solar Bahamut, Ifrit, Titan, Garuda and their upgrades) being incorrectly categorized as oGCDs, causing the rotation to spam Ruin III instead of using primals and demi-summons
+**Dark Knight**
+- Fixed gap closer: replaced deprecated Plunge with Shadowstride (Dawntrail action ID update)
+- Fixed targeting: Shadowstride now correctly fires when target is outside melee range
+- Fixed DarkMind action ID collision with EdgeOfDarkness
+
+**Gunbreaker**
+- Fixed gap closer: replaced deprecated Rough Divide with Trajectory (Dawntrail action ID update)
+- Fixed targeting: Trajectory now correctly fires when target is outside melee range
+- Added Lightning Shot ranged attack when target is out of melee range
+
+**Warrior**
+- Fixed Onslaught not firing at levels 62–87 due to incorrect level guard
+- Fixed targeting: Onslaught now correctly fires as gap closer when target is outside melee range
+- Added Tomahawk ranged attack when target is out of melee range
+
+**Paladin**
+- Fixed targeting: Intervene now correctly fires as gap closer when target is outside melee range
+
+**UI / Config**
+- Fixed language selector not applying the selected language immediately
+- Added option to prevent closing the Olympus window with the Escape key
+- Added option to keep Olympus windows visible during cutscenes
 
 <!-- LATEST-END -->
 
