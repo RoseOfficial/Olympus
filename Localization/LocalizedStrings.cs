@@ -2040,6 +2040,10 @@ public static class LocalizedStrings
         public const string TabRedMage = "debug.tab.red_mage";
         public const string TabPictomancer = "debug.tab.pictomancer";
         public const string TabTimeline = "debug.tab.timeline";
+        public const string TabWarrior = "debug.tab.warrior";
+        public const string TabDarkKnight = "debug.tab.dark_knight";
+        public const string TabPaladin = "debug.tab.paladin";
+        public const string TabGunbreaker = "debug.tab.gunbreaker";
 
         // Section visibility labels
         public const string OverviewTabLabel = "debug.visibility.overview_tab";
@@ -2705,6 +2709,94 @@ public static class LocalizedStrings
         public const string SubtractivePalette = "debug.pictomancer.subtractive_palette";
         public const string TemperaCoat = "debug.pictomancer.tempera_coat";
         public const string Smudge = "debug.pictomancer.smudge";
+
+        // Tank common
+        public const string TankStatus = "debug.tank.status";
+        public const string IsMainTankLabel = "debug.tank.is_main_tank";
+        public const string MainTankValue = "debug.tank.main_tank";
+        public const string OffTankValue = "debug.tank.off_tank";
+        public const string TankStance = "debug.tank.stance";
+        public const string ActiveMitigationsLabel = "debug.tank.active_mitigations";
+        public const string MitigationHeader = "debug.tank.mitigation";
+        public const string ModuleStatesHeader = "debug.tank.module_states";
+        public const string DamageStateLabel = "debug.tank.damage_state";
+        public const string MitigationStateLabel = "debug.tank.mitigation_state";
+        public const string BuffStateLabel = "debug.tank.buff_state";
+        public const string EnmityStateLabel = "debug.tank.enmity_state";
+        public const string ExecutionFlowHeader = "debug.tank.execution_flow";
+
+        // Warrior tab
+        public const string WarriorNotActive = "debug.warrior.not_active";
+        public const string SwitchToWarrior = "debug.warrior.switch_to";
+        public const string BeastGaugeLabel = "debug.warrior.beast_gauge";
+        public const string Defiance = "debug.warrior.defiance";
+        public const string SurgingTempest = "debug.warrior.surging_tempest";
+        public const string InnerRelease = "debug.warrior.inner_release";
+        public const string InnerReleaseStacksLabel = "debug.warrior.inner_release_stacks";
+        public const string NascentChaos = "debug.warrior.nascent_chaos";
+        public const string PrimalRendReady = "debug.warrior.primal_rend_ready";
+        public const string PrimalRuinationReady = "debug.warrior.primal_ruination_ready";
+
+        // Dark Knight tab
+        public const string DarkKnightNotActive = "debug.dark_knight.not_active";
+        public const string SwitchToDarkKnight = "debug.dark_knight.switch_to";
+        public const string BloodGaugeLabel = "debug.dark_knight.blood_gauge";
+        public const string MpLabel = "debug.dark_knight.mp";
+        public const string Grit = "debug.dark_knight.grit";
+        public const string Darkside = "debug.dark_knight.darkside";
+        public const string DarksideTimer = "debug.dark_knight.darkside_timer";
+        public const string BloodWeapon = "debug.dark_knight.blood_weapon";
+        public const string Delirium = "debug.dark_knight.delirium";
+        public const string DeliriumStacksLabel = "debug.dark_knight.delirium_stacks";
+        public const string ScornfulEdge = "debug.dark_knight.scornful_edge";
+        public const string LivingShadow = "debug.dark_knight.living_shadow";
+        public const string DarkArts = "debug.dark_knight.dark_arts";
+        public const string LivingDead = "debug.dark_knight.living_dead";
+        public const string WalkingDead = "debug.dark_knight.walking_dead";
+        public const string TheBlackestNight = "debug.dark_knight.the_blackest_night";
+        public const string ShadowWall = "debug.dark_knight.shadow_wall";
+        public const string DarkMindBuff = "debug.dark_knight.dark_mind";
+        public const string DrkOblation = "debug.dark_knight.oblation";
+        public const string SaltedEarth = "debug.dark_knight.salted_earth";
+
+        // Paladin tab
+        public const string PaladinNotActive = "debug.paladin.not_active";
+        public const string SwitchToPaladin = "debug.paladin.switch_to";
+        public const string OathGaugeLabel = "debug.paladin.oath_gauge";
+        public const string AtonementStepLabel = "debug.paladin.atonement_step";
+        public const string ConfiteorStepLabel = "debug.paladin.confiteor_step";
+        public const string FightOrFlight = "debug.paladin.fight_or_flight";
+        public const string Requiescat = "debug.paladin.requiescat";
+        public const string RequiescatStacksLabel = "debug.paladin.requiescat_stacks";
+        public const string SwordOathStacksLabel = "debug.paladin.sword_oath_stacks";
+        public const string GoringBlade = "debug.paladin.goring_blade";
+        public const string InCombatLabel = "debug.paladin.in_combat";
+        public const string CanExecuteGcdLabel = "debug.paladin.can_execute_gcd";
+        public const string CanExecuteOgcdLabel = "debug.paladin.can_execute_ogcd";
+        public const string GcdStateLabel = "debug.paladin.gcd_state";
+        public const string GcdRemainingLabel = "debug.paladin.gcd_remaining";
+        public const string ExecutionFlowLabel = "debug.paladin.execution_flow";
+
+        // Gunbreaker tab
+        public const string GunbreakerNotActive = "debug.gunbreaker.not_active";
+        public const string SwitchToGunbreaker = "debug.gunbreaker.switch_to";
+        public const string CartridgesLabel = "debug.gunbreaker.cartridges";
+        public const string RoyalGuard = "debug.gunbreaker.royal_guard";
+        public const string GnashingFangStepLabel = "debug.gunbreaker.gnashing_fang_step";
+        public const string InGnashingFangCombo = "debug.gunbreaker.in_gnashing_fang_combo";
+        public const string ReadyToRip = "debug.gunbreaker.ready_to_rip";
+        public const string ReadyToTear = "debug.gunbreaker.ready_to_tear";
+        public const string ReadyToGouge = "debug.gunbreaker.ready_to_gouge";
+        public const string ReadyToBlast = "debug.gunbreaker.ready_to_blast";
+        public const string ReadyToReign = "debug.gunbreaker.ready_to_reign";
+        public const string NoMercy = "debug.gunbreaker.no_mercy";
+        public const string Superbolide = "debug.gunbreaker.superbolide";
+        public const string Nebula = "debug.gunbreaker.nebula";
+        public const string HeartOfCorundum = "debug.gunbreaker.heart_of_corundum";
+        public const string Camouflage = "debug.gunbreaker.camouflage";
+        public const string Aurora = "debug.gunbreaker.aurora";
+        public const string SonicBreak = "debug.gunbreaker.sonic_break";
+        public const string BowShock = "debug.gunbreaker.bow_shock";
     }
 
     #endregion

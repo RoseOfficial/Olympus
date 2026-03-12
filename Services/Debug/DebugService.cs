@@ -7,8 +7,12 @@ using Dalamud.Plugin.Services;
 using Olympus.Models;
 using Olympus.Rotation;
 using Olympus.Rotation.ApolloCore.Context;
+using Olympus.Rotation.AresCore.Context;
 using Olympus.Rotation.AstraeaCore.Context;
 using Olympus.Rotation.AthenaCore.Context;
+using Olympus.Rotation.HephaestusCore.Context;
+using Olympus.Rotation.NyxCore.Context;
+using Olympus.Rotation.ThemisCore.Context;
 using Olympus.Rotation.CalliopeCore.Context;
 using Olympus.Rotation.CirceCore.Context;
 using Olympus.Rotation.EchidnaCore.Context;
@@ -439,6 +443,40 @@ public sealed class DebugService
     public SpellStatusSnapshot GetSpellStatus(byte playerLevel)
     {
         return _spellStatusService.GetSnapshot(playerLevel);
+    }
+
+    // ========== Tank Debug States ==========
+
+    /// <summary>
+    /// Gets the Ares (Warrior) debug state, if the active rotation is Warrior.
+    /// </summary>
+    public AresDebugState? GetAresDebugState()
+    {
+        return (_rotationManager.ActiveRotation as Ares)?.AresDebug;
+    }
+
+    /// <summary>
+    /// Gets the Nyx (Dark Knight) debug state, if the active rotation is Dark Knight.
+    /// </summary>
+    public NyxDebugState? GetNyxDebugState()
+    {
+        return (_rotationManager.ActiveRotation as Nyx)?.NyxDebug;
+    }
+
+    /// <summary>
+    /// Gets the Themis (Paladin) debug state, if the active rotation is Paladin.
+    /// </summary>
+    public ThemisDebugState? GetThemisDebugState()
+    {
+        return (_rotationManager.ActiveRotation as Themis)?.ThemisDebug;
+    }
+
+    /// <summary>
+    /// Gets the Hephaestus (Gunbreaker) debug state, if the active rotation is Gunbreaker.
+    /// </summary>
+    public HephaestusDebugState? GetHephaestusDebugState()
+    {
+        return (_rotationManager.ActiveRotation as Hephaestus)?.HephaestusDebug;
     }
 
     /// <summary>
