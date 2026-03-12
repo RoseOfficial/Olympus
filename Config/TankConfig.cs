@@ -23,6 +23,14 @@ public sealed class TankConfig
     public bool AutoTankStance { get; set; } = true;
 
     /// <summary>
+    /// Overrides automatic MT/OT detection.
+    /// Null = auto-detect based on who the enemy is targeting.
+    /// True = always behave as Main Tank (suppress Provoke, use MT-specific mitigation).
+    /// False = always behave as Off Tank (use Provoke when appropriate, use OT mitigation).
+    /// </summary>
+    public bool? IsMainTankOverride { get; set; } = null;
+
+    /// <summary>
     /// Enable automatic Provoke when losing aggro.
     /// </summary>
     public bool AutoProvoke { get; set; } = true;

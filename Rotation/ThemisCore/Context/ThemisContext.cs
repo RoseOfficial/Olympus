@@ -174,7 +174,8 @@ public sealed class ThemisContext : IThemisContext
             player);
 
         // Check main tank status
-        IsMainTank = CurrentTarget != null && enmityService.IsMainTankOn(CurrentTarget, player.EntityId);
+        IsMainTank = configuration.Tank.IsMainTankOverride
+            ?? (CurrentTarget != null && enmityService.IsMainTankOn(CurrentTarget, player.EntityId));
 
         // Status checks
         HasTankStance = statusHelper.HasIronWill(player);

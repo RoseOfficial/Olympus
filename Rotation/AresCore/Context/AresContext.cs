@@ -173,7 +173,8 @@ public sealed class AresContext : IAresContext
             player);
 
         // Check main tank status
-        IsMainTank = CurrentTarget != null && enmityService.IsMainTankOn(CurrentTarget, player.EntityId);
+        IsMainTank = configuration.Tank.IsMainTankOverride
+            ?? (CurrentTarget != null && enmityService.IsMainTankOn(CurrentTarget, player.EntityId));
 
         // Tank stance
         HasDefiance = statusHelper.HasDefiance(player);

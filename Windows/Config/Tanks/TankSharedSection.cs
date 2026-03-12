@@ -80,6 +80,35 @@ public sealed class TankSharedSection
             }
             ImGui.TextDisabled(Loc.T(LocalizedStrings.Tank.AutoTankStanceDesc, "Enable tank stance when entering combat."));
 
+            ConfigUIHelpers.Spacing();
+
+            ConfigUIHelpers.SectionLabel(Loc.T("config.job.tank.mt_ot_role", "Role:"));
+
+            var roleNames = new[]
+            {
+                Loc.T("config.job.tank.role_auto", "Auto (detect from enmity)"),
+                Loc.T("config.job.tank.role_mt", "Main Tank"),
+                Loc.T("config.job.tank.role_ot", "Off Tank"),
+            };
+            var currentRole = this.config.Tank.IsMainTankOverride switch
+            {
+                true => 1,
+                false => 2,
+                null => 0
+            };
+            ImGui.SetNextItemWidth(200);
+            if (ImGui.Combo(Loc.T("config.job.tank.mt_ot_combo_label", "##mt_ot_role"), ref currentRole, roleNames, roleNames.Length))
+            {
+                this.config.Tank.IsMainTankOverride = currentRole switch
+                {
+                    1 => true,
+                    2 => false,
+                    _ => null
+                };
+                this.save();
+            }
+            ImGui.TextDisabled(Loc.T("config.job.tank.mt_ot_role_desc", "Auto detects based on who the enemy is targeting. Override if detection is unreliable."));
+
             var autoProvoke = config.Tank.AutoProvoke;
             if (ImGui.Checkbox(Loc.T(LocalizedStrings.Tank.AutoProvoke, "Auto Provoke"), ref autoProvoke))
             {
