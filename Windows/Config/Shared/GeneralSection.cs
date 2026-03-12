@@ -211,12 +211,17 @@ public sealed class GeneralSection
                 displayNames,
                 displayNames.Length))
             {
-                this.config.LanguageOverride = languageCodes[selectedIndex];
+                var chosen = languageCodes[selectedIndex];
+                this.config.LanguageOverride = chosen;
                 this.save();
 
-                // Apply language change immediately
-                // ReloadLanguage reads from config and applies the effective language
-                OlympusLocalization.Instance?.ReloadLanguage();
+                // Apply language change immediately using the chosen code directly.
+                // When Auto ("") is selected, fall back to ReloadLanguage so it can
+                // determine the effective language from the game client.
+                if (!string.IsNullOrEmpty(chosen))
+                    OlympusLocalization.Instance?.SetLanguage(chosen);
+                else
+                    OlympusLocalization.Instance?.ReloadLanguage();
             }
 
             ImGui.TextDisabled(Loc.T(
