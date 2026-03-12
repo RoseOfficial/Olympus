@@ -29,6 +29,34 @@ public sealed class DamageModule : IThemisModule
             return false;
         }
 
+        // Check for out-of-range target — try Intervene gap close when player is beyond melee range
+        if (context.CanExecuteOgcd && context.Player.Level >= PLDActions.Intervene.MinLevel)
+        {
+            var wideTarget = context.TargetingService.FindEnemy(
+                context.Configuration.Targeting.EnemyStrategy,
+                20f,
+                context.Player);
+
+            if (wideTarget != null)
+            {
+                var dx = context.Player.Position.X - wideTarget.Position.X;
+                var dy = context.Player.Position.Y - wideTarget.Position.Y;
+                var dz = context.Player.Position.Z - wideTarget.Position.Z;
+                var distance = (float)System.Math.Sqrt(dx * dx + dy * dy + dz * dz);
+
+                if (distance > FFXIVConstants.MeleeTargetingRange
+                    && context.ActionService.IsActionReady(PLDActions.Intervene.ActionId))
+                {
+                    if (context.ActionService.ExecuteOgcd(PLDActions.Intervene, wideTarget.GameObjectId))
+                    {
+                        context.Debug.PlannedAction = PLDActions.Intervene.Name;
+                        context.Debug.DamageState = "Intervene (gap close)";
+                        return true;
+                    }
+                }
+            }
+        }
+
         // oGCD damage first (during weave windows)
         if (context.CanExecuteOgcd)
         {
