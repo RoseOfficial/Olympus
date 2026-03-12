@@ -2,6 +2,7 @@ using System;
 using System.Numerics;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using Olympus.Data;
+using Olympus.Models;
 using Olympus.Models.Action;
 
 namespace Olympus.Services.Action;
@@ -165,6 +166,7 @@ public sealed unsafe class ActionService : IActionService
             // Track for statistics
             var gcdDuration = actionManager->GetRecastTime(ActionType.Action, action.ActionId);
             _actionTracker.LogGcdCast(gcdDuration);
+            _actionTracker.LogAttempt(action.ActionId, null, null, ActionResult.Success, 0);
         }
 
         return result;
@@ -196,6 +198,7 @@ public sealed unsafe class ActionService : IActionService
             _lastExecutedAction = action;
             _lastExecuteTime = DateTime.UtcNow;
             _ogcdsUsedThisCycle++; // Increment oGCD count for double-weave tracking
+            _actionTracker.LogAttempt(action.ActionId, null, null, ActionResult.Success, 0);
         }
 
         return result;
@@ -227,6 +230,7 @@ public sealed unsafe class ActionService : IActionService
             _lastExecutedAction = action;
             _lastExecuteTime = DateTime.UtcNow;
             _ogcdsUsedThisCycle++; // Increment oGCD count for double-weave tracking
+            _actionTracker.LogAttempt(action.ActionId, null, null, ActionResult.Success, 0);
         }
 
         return result;
