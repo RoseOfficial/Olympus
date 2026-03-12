@@ -92,8 +92,12 @@ jobs:
           git fetch origin main
           git checkout main
           git add repo.json
-          git commit -m "Update repo.json for ${{ github.ref_name }}"
-          git push origin main
+          if git diff --cached --quiet; then
+            echo "repo.json unchanged, skipping commit"
+          else
+            git commit -m "Update repo.json for ${{ github.ref_name }}"
+            git push origin main
+          fi
 
       - name: Discord Notification
         if: success()
