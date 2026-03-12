@@ -3,6 +3,17 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.9.6 - Tank Debug Tabs
+
+**Debug**
+- Added dedicated debug tabs for all 4 tank rotations (Warrior, Dark Knight, Paladin, Gunbreaker)
+- Warrior tab: Beast Gauge, Surging Tempest/Inner Release/Primal buff states, mitigation
+- Dark Knight tab: Blood Gauge, MP, Darkside timer, Blood Weapon/Delirium, TBN and defensive CD states
+- Paladin tab: Oath Gauge, Atonement/Confiteor/Sword Oath steps, Fight or Flight, Goring Blade DoT, execution flow
+- Gunbreaker tab: Cartridges, Gnashing Fang combo step, all 5 Continuation ready states, No Mercy, DoTs, defensive CDs
+
+<!-- LATEST-END -->
+
 ## v4.9.5 - Tank Role Override & Debug Fixes
 
 **Tanks**
@@ -11,8 +22,6 @@ All notable changes to Olympus will be documented in this file.
 
 **Debug**
 - Fixed Action History panel showing no entries for all jobs except White Mage
-
-<!-- LATEST-END -->
 
 ## v4.9.4 - Tank Rotation Fixes
 
