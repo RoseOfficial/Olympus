@@ -121,8 +121,6 @@ public sealed class BloodLilyBuildingHandler : IHealingHandler
             context.Debug.PlannedAction = $"Afflatus Solace (Blood Lily building)";
             context.Debug.PlanningState = "Blood Lily Building";
             context.Debug.MiseryState = $"Building ({context.BloodLilyCount}/3 Blood Lilies)";
-            context.ActionTracker.LogAttempt(action.ActionId, targetName,
-                target.CurrentHp, ActionResult.Success, context.Player.Level);
 
             context.LogHealDecision(
                 targetName,
@@ -209,8 +207,6 @@ public sealed class BloodLilyBuildingHandler : IHealingHandler
             context.Debug.PlannedAction = $"Afflatus Rapture (Blood Lily building)";
             context.Debug.PlanningState = "Blood Lily Building (AoE)";
             context.Debug.MiseryState = $"Building ({context.BloodLilyCount}/3 Blood Lilies)";
-            context.ActionTracker.LogAttempt(action.ActionId, "Party",
-                0, ActionResult.Success, context.Player.Level);
 
             context.LogHealDecision(
                 "Party",

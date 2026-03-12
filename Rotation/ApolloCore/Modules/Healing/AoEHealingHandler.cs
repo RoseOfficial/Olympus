@@ -151,7 +151,6 @@ public sealed class AoEHealingHandler : IHealingHandler
             context.Debug.PlannedAction = action.Name + thinAirNote;
             context.Debug.PlanningState = "AoE Heal";
             var targetName = selectedCureIIITarget?.Name?.TextValue ?? player.Name?.TextValue ?? "Unknown";
-            context.ActionTracker.LogAttempt(action.ActionId, targetName, player.CurrentHp, ActionResult.Success, player.Level);
 
             // Log AoE healing decision
             var avgHpPct = context.PartyHealthMetrics.avgHpPercent;

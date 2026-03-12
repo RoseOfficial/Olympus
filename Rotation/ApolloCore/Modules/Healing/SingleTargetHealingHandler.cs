@@ -108,7 +108,6 @@ public sealed class SingleTargetHealingHandler : IHealingHandler
             var thinAirNote = context.HasThinAir ? " + Thin Air" : "";
             context.Debug.PlannedAction = action.Name + thinAirNote;
             context.Debug.PlanningState = "Single Heal";
-            context.ActionTracker.LogAttempt(action.ActionId, targetName, target.CurrentHp, ActionResult.Success, player.Level);
 
             // Log healing decision
             var hpPercent = context.PartyHelper.GetHpPercent(target);

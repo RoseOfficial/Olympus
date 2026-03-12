@@ -322,8 +322,6 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
                     var sourceNote = isTimelineRaidwide ? $" via {raidwideSource}" : "";
                     context.Debug.PlannedAction = $"{action.Name} (preemptive{sourceNote}){thinAirNote}";
                     context.Debug.PlanningState = "Preemptive Heal";
-                    context.ActionTracker.LogAttempt(action.ActionId, gcdTargetName,
-                        target.CurrentHp, ActionResult.Success, player.Level);
 
                     context.LogHealDecision(
                         gcdTargetName,

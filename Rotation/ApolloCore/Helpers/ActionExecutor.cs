@@ -45,13 +45,6 @@ public static class ActionExecutor
             {
                 context.Debug.PlanningState = planningState;
             }
-
-            context.ActionTracker.LogAttempt(
-                action.ActionId,
-                targetName,
-                targetHp,
-                ActionResult.Success,
-                context.Player.Level);
         }
 
         return success;
@@ -79,12 +72,6 @@ public static class ActionExecutor
         if (success)
         {
             context.Debug.PlannedAction = plannedActionName ?? action.Name;
-            context.ActionTracker.LogAttempt(
-                action.ActionId,
-                targetName,
-                targetHp,
-                ActionResult.Success,
-                context.Player.Level);
         }
 
         return success;
@@ -112,12 +99,6 @@ public static class ActionExecutor
         if (success)
         {
             context.Debug.PlannedAction = plannedActionName ?? action.Name;
-            context.ActionTracker.LogAttempt(
-                action.ActionId,
-                targetName,
-                targetHp,
-                ActionResult.Success,
-                context.Player.Level);
         }
 
         return success;
@@ -159,12 +140,6 @@ public static class ActionExecutor
 
             context.Debug.PlannedAction = actionName;
             context.Debug.PlanningState = planningState;
-            context.ActionTracker.LogAttempt(
-                action.ActionId,
-                targetName,
-                targetHp,
-                ActionResult.Success,
-                context.Player.Level);
         }
         else
         {
@@ -202,12 +177,6 @@ public static class ActionExecutor
         {
             context.Debug.PlannedAction = plannedActionName ?? action.Name;
             context.HpPredictionService.RegisterPendingHeal(targetEntityId, healAmount);
-            context.ActionTracker.LogAttempt(
-                action.ActionId,
-                targetName,
-                targetHp,
-                ActionResult.Success,
-                context.Player.Level);
         }
 
         return success;

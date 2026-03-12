@@ -87,8 +87,6 @@ public sealed class LilyCapPreventionHandler : IHealingHandler
 
             context.Debug.PlannedAction = $"Afflatus Solace (Lily cap prevention)";
             context.Debug.PlanningState = "Lily Cap Prevention";
-            context.ActionTracker.LogAttempt(action.ActionId, targetName,
-                target.CurrentHp, ActionResult.Success, context.Player.Level);
 
             var hpPercent = context.PartyHelper.GetHpPercent(target);
             context.LogHealDecision(
@@ -166,8 +164,6 @@ public sealed class LilyCapPreventionHandler : IHealingHandler
         {
             context.Debug.PlannedAction = $"Afflatus Rapture (Lily cap prevention)";
             context.Debug.PlanningState = "Lily Cap Prevention (AoE)";
-            context.ActionTracker.LogAttempt(action.ActionId, "Party",
-                0, ActionResult.Success, context.Player.Level);
 
             context.LogHealDecision(
                 "Party",

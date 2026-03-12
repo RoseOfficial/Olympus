@@ -218,7 +218,6 @@ public abstract class BaseResurrectionModule<TContext> : IHealerRotationModule<T
             {
                 var note = GetRaiseSuccessNote(context, hasSwiftcast: true);
                 SetPlannedAction(context, $"{RaiseAction.Name}{note}");
-                context.ActionTracker.LogAttempt(RaiseAction.ActionId, targetName, 0, Models.ActionResult.Success, player.Level);
                 RecordRaiseTraining(context, targetName, hasSwiftcast: true, isHardcast: false);
             }
             else
@@ -256,7 +255,6 @@ public abstract class BaseResurrectionModule<TContext> : IHealerRotationModule<T
                 {
                     var note = GetRaiseSuccessNote(context, hasSwiftcast: false);
                     SetPlannedAction(context, $"{RaiseAction.Name} (Hardcast){note}");
-                    context.ActionTracker.LogAttempt(RaiseAction.ActionId, targetName, 0, Models.ActionResult.Success, player.Level);
                     RecordRaiseTraining(context, targetName, hasSwiftcast: false, isHardcast: true);
                 }
                 else
