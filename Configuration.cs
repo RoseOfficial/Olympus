@@ -130,6 +130,8 @@ public sealed class Configuration : IPluginConfiguration
         var trainingVisible = Training.TrainingWindowVisible;
         var seenWelcome = HasSeenWelcome;
         var languageOverride = LanguageOverride;
+        var preventEscapeClose = PreventEscapeClose;
+        var showDuringCutscenes = ShowDuringCutscenes;
 
         // Reset general behavior
         MovementTolerance = 0.1f;
@@ -186,5 +188,7 @@ public sealed class Configuration : IPluginConfiguration
         Training.TrainingWindowVisible = trainingVisible;
         HasSeenWelcome = seenWelcome;
         LanguageOverride = languageOverride;
+        PreventEscapeClose = preventEscapeClose;
+        ShowDuringCutscenes = showDuringCutscenes;
     }
 }
