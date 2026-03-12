@@ -28,15 +28,36 @@ public sealed class DamageModule : IAresModule
         var player = context.Player;
         var level = player.Level;
 
-        // Find target
+        // Find target — melee range first, fall back to gap-closer range for engagement
         var target = context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy,
             FFXIVConstants.MeleeTargetingRange,
             player);
 
-        if (target == null)
+        var engageTarget = target ?? context.TargetingService.FindEnemy(
+            context.Configuration.Targeting.EnemyStrategy,
+            20f,
+            player);
+
+        if (engageTarget == null)
         {
             context.Debug.DamageState = "No target";
+            return false;
+        }
+
+        // Out of melee range: try Onslaught (gap close) then Tomahawk (ranged attack)
+        if (target == null && engageTarget != null)
+        {
+            if (context.CanExecuteOgcd && TryOnslaught(context, engageTarget))
+                return true;
+            if (context.CanExecuteGcd && TryTomahawk(context, engageTarget))
+                return true;
+        }
+
+        // Only run full rotation when a melee-range target is available
+        if (target == null)
+        {
+            context.Debug.DamageState = "Target out of melee range";
             return false;
         }
 
@@ -182,11 +203,19 @@ public sealed class DamageModule : IAresModule
         var dz = player.Position.Z - target.Position.Z;
         var distance = (float)System.Math.Sqrt(dx * dx + dy * dy + dz * dz);
 
-        // Don't use if already in melee range and we want to save charges
-        // Use freely if we have multiple charges (level 88+) or need to close gap
-        if (distance <= FFXIVConstants.MeleeTargetingRange && level >= 88)
+        if (distance > FFXIVConstants.MeleeTargetingRange && distance <= 20f)
         {
-            // In melee range with 3 charges - use as extra damage
+            // Gap close to target
+            if (context.ActionService.ExecuteOgcd(WARActions.Onslaught, target.GameObjectId))
+            {
+                context.Debug.PlannedAction = WARActions.Onslaught.Name;
+                context.Debug.DamageState = "Onslaught (gap close)";
+                return true;
+            }
+        }
+        else if (distance <= FFXIVConstants.MeleeTargetingRange)
+        {
+            // In melee range — use as damage weave at all levels (level >= 88 guard removed)
             if (context.ActionService.ExecuteOgcd(WARActions.Onslaught, target.GameObjectId))
             {
                 context.Debug.PlannedAction = WARActions.Onslaught.Name;
@@ -194,15 +223,35 @@ public sealed class DamageModule : IAresModule
                 return true;
             }
         }
-        else if (distance > FFXIVConstants.MeleeTargetingRange && distance <= 20f)
+
+        return false;
+    }
+
+    private bool TryTomahawk(IAresContext context, Dalamud.Game.ClientState.Objects.Types.IBattleChara target)
+    {
+        var player = context.Player;
+        var level = player.Level;
+
+        if (level < WARActions.Tomahawk.MinLevel)
+            return false;
+
+        if (!context.ActionService.IsActionReady(WARActions.Tomahawk.ActionId))
+            return false;
+
+        var dx = player.Position.X - target.Position.X;
+        var dy = player.Position.Y - target.Position.Y;
+        var dz = player.Position.Z - target.Position.Z;
+        var distance = (float)System.Math.Sqrt(dx * dx + dy * dy + dz * dz);
+
+        // Tomahawk is a ranged attack — only use when out of melee range
+        if (distance <= FFXIVConstants.MeleeTargetingRange)
+            return false;
+
+        if (context.ActionService.ExecuteGcd(WARActions.Tomahawk, target.GameObjectId))
         {
-            // Gap close usage
-            if (context.ActionService.ExecuteOgcd(WARActions.Onslaught, target.GameObjectId))
-            {
-                context.Debug.PlannedAction = WARActions.Onslaught.Name;
-                context.Debug.DamageState = "Onslaught (gap close)";
-                return true;
-            }
+            context.Debug.PlannedAction = WARActions.Tomahawk.Name;
+            context.Debug.DamageState = "Tomahawk (ranged)";
+            return true;
         }
 
         return false;
