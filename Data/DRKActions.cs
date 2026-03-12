@@ -651,7 +651,7 @@ public static class DRKActions
     /// </summary>
     public static readonly ActionDefinition DarkMind = new()
     {
-        ActionId = 3634,
+        ActionId = 3635,
         Name = "Dark Mind",
         MinLevel = 45,
         Category = ActionCategory.oGCD,
