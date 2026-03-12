@@ -3,6 +3,15 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.9.5 - Tank Role Override & Debug Fixes
+
+**Tanks**
+- Added MT/OT role override setting: choose Auto (enmity-based), Main Tank, or Off Tank per session
+- Auto mode preserves existing detection behavior; override takes effect immediately without restart
+
+**Debug**
+- Fixed Action History panel showing no entries for all jobs except White Mage
+
 ## v4.9.4 - Tank Rotation Fixes
 
 **Dark Knight**
