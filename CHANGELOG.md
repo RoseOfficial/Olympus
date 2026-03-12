@@ -3,6 +3,14 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.9.7 - Healer Debug Tabs
+
+**Debug**
+- Added dedicated debug tab for White Mage: Lily/Blood Lily gauge, Temperance/Assizes/Asylum/PoM/Thin Air buff states, misery tracking
+- Added dedicated debug tab for Sage: Addersgall/Adersting resources, Kardia/Soteria/Philosophia state, Eukrasia, all healing spells, all shield spells, DoT/Phlegma/Toxikon/Psyche DPS tracking
+
+<!-- LATEST-END -->
+
 ## v4.9.6 - Tank Debug Tabs
 
 **Debug**

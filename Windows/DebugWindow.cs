@@ -111,6 +111,18 @@ public sealed class DebugWindow : Window
                 ImGui.EndTabItem();
             }
 
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabWhiteMage, "White Mage")))
+            {
+                ApolloTab.Draw(_debugService.GetApolloDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabSage, "Sage")))
+            {
+                AsclepiusTab.Draw(_debugService.GetAsclepiusDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
             if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabScholar, "Scholar")))
             {
                 ScholarTab.Draw(_debugService.GetAthenaDebugState(), _configuration);

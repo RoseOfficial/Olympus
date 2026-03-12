@@ -8,6 +8,7 @@ using Olympus.Models;
 using Olympus.Rotation;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.AresCore.Context;
+using Olympus.Rotation.AsclepiusCore.Context;
 using Olympus.Rotation.AstraeaCore.Context;
 using Olympus.Rotation.AthenaCore.Context;
 using Olympus.Rotation.HephaestusCore.Context;
@@ -477,6 +478,22 @@ public sealed class DebugService
     public HephaestusDebugState? GetHephaestusDebugState()
     {
         return (_rotationManager.ActiveRotation as Hephaestus)?.HephaestusDebug;
+    }
+
+    /// <summary>
+    /// Gets the Apollo (White Mage) debug state, if the active rotation is White Mage.
+    /// </summary>
+    public DebugState? GetApolloDebugState()
+    {
+        return (_rotationManager.ActiveRotation as Apollo)?.DebugState;
+    }
+
+    /// <summary>
+    /// Gets the Asclepius (Sage) debug state, if the active rotation is Sage.
+    /// </summary>
+    public AsclepiusDebugState? GetAsclepiusDebugState()
+    {
+        return (_rotationManager.ActiveRotation as Asclepius)?.AsclepiusDebug;
     }
 
     /// <summary>

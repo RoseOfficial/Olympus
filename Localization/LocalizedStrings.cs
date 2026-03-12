@@ -2044,6 +2044,8 @@ public static class LocalizedStrings
         public const string TabDarkKnight = "debug.tab.dark_knight";
         public const string TabPaladin = "debug.tab.paladin";
         public const string TabGunbreaker = "debug.tab.gunbreaker";
+        public const string TabWhiteMage = "debug.tab.white_mage";
+        public const string TabSage = "debug.tab.sage";
 
         // Section visibility labels
         public const string OverviewTabLabel = "debug.visibility.overview_tab";
@@ -2709,6 +2711,56 @@ public static class LocalizedStrings
         public const string SubtractivePalette = "debug.pictomancer.subtractive_palette";
         public const string TemperaCoat = "debug.pictomancer.tempera_coat";
         public const string Smudge = "debug.pictomancer.smudge";
+
+        // White Mage tab
+        public const string WhiteMageNotActive = "debug.white_mage.not_active";
+        public const string SwitchToWhiteMage = "debug.white_mage.switch_to";
+        public const string WhmPlanningState = "debug.white_mage.planning_state";
+        public const string WhmLilies = "debug.white_mage.lilies";
+        public const string WhmBloodLily = "debug.white_mage.blood_lily";
+        public const string WhmLilyStrategy = "debug.white_mage.lily_strategy";
+        public const string WhmSacredSight = "debug.white_mage.sacred_sight";
+        public const string WhmTemperance = "debug.white_mage.temperance";
+        public const string WhmAssizes = "debug.white_mage.assizes";
+        public const string WhmAsylum = "debug.white_mage.asylum";
+        public const string WhmPoM = "debug.white_mage.pom";
+        public const string WhmThinAir = "debug.white_mage.thin_air";
+        public const string WhmSurecast = "debug.white_mage.surecast";
+        public const string WhmDefensive = "debug.white_mage.defensive";
+        public const string WhmMisery = "debug.white_mage.misery";
+
+        // Sage tab
+        public const string SageNotActive = "debug.sage.not_active";
+        public const string SwitchToSage = "debug.sage.switch_to";
+        public const string SgeAddersgall = "debug.sage.addersgall";
+        public const string SgeAddersting = "debug.sage.addersting";
+        public const string SgeStrategy = "debug.sage.strategy";
+        public const string SgeKardia = "debug.sage.kardia";
+        public const string SgeKardiaState = "debug.sage.kardia_state";
+        public const string SgeSoteria = "debug.sage.soteria";
+        public const string SgePhilosophia = "debug.sage.philosophia";
+        public const string SgeEukrasia = "debug.sage.eukrasia";
+        public const string SgeEukrasiaActive = "debug.sage.eukrasia_active";
+        public const string SgeZoe = "debug.sage.zoe";
+        public const string SgeEukrasiaState = "debug.sage.eukrasia_state";
+        public const string SgeDruochole = "debug.sage.druochole";
+        public const string SgeTaurochole = "debug.sage.taurochole";
+        public const string SgeIxochole = "debug.sage.ixochole";
+        public const string SgeKerachole = "debug.sage.kerachole";
+        public const string SgePneuma = "debug.sage.pneuma";
+        public const string SgeShields = "debug.sage.shields";
+        public const string SgeHaima = "debug.sage.haima";
+        public const string SgePanhaima = "debug.sage.panhaima";
+        public const string SgeEukrasianDiagnosis = "debug.sage.eukrasian_diagnosis";
+        public const string SgeEukrasianPrognosis = "debug.sage.eukrasian_prognosis";
+        public const string SgePhysisII = "debug.sage.physis_ii";
+        public const string SgeHolos = "debug.sage.holos";
+        public const string SgeKrasis = "debug.sage.krasis";
+        public const string SgePepsis = "debug.sage.pepsis";
+        public const string SgeRhizomata = "debug.sage.rhizomata";
+        public const string SgePhlegma = "debug.sage.phlegma";
+        public const string SgeToxikon = "debug.sage.toxikon";
+        public const string SgePsyche = "debug.sage.psyche";
 
         // Tank common
         public const string TankStatus = "debug.tank.status";
