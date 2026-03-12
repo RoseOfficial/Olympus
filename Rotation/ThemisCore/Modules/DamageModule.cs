@@ -29,32 +29,43 @@ public sealed class DamageModule : IThemisModule
             return false;
         }
 
-        // Check for out-of-range target — try Intervene gap close when player is beyond melee range
-        if (context.CanExecuteOgcd && context.Player.Level >= PLDActions.Intervene.MinLevel)
+        var player = context.Player;
+
+        // Two-pass target search: melee range first, wide range as fallback for gap closers
+        var target = context.TargetingService.FindEnemy(
+            context.Configuration.Targeting.EnemyStrategy,
+            FFXIVConstants.MeleeTargetingRange,
+            player);
+
+        var engageTarget = target ?? context.TargetingService.FindEnemy(
+            context.Configuration.Targeting.EnemyStrategy,
+            20f,
+            player);
+
+        if (engageTarget == null)
         {
-            var wideTarget = context.TargetingService.FindEnemy(
-                context.Configuration.Targeting.EnemyStrategy,
-                20f,
-                context.Player);
+            context.Debug.DamageState = "No target";
+            return false;
+        }
 
-            if (wideTarget != null)
+        // Gap close with Intervene when out of melee range
+        if (target == null && context.CanExecuteOgcd && player.Level >= PLDActions.Intervene.MinLevel)
+        {
+            if (context.ActionService.IsActionReady(PLDActions.Intervene.ActionId))
             {
-                var dx = context.Player.Position.X - wideTarget.Position.X;
-                var dy = context.Player.Position.Y - wideTarget.Position.Y;
-                var dz = context.Player.Position.Z - wideTarget.Position.Z;
-                var distance = (float)System.Math.Sqrt(dx * dx + dy * dy + dz * dz);
-
-                if (distance > FFXIVConstants.MeleeTargetingRange
-                    && context.ActionService.IsActionReady(PLDActions.Intervene.ActionId))
+                if (context.ActionService.ExecuteOgcd(PLDActions.Intervene, engageTarget.GameObjectId))
                 {
-                    if (context.ActionService.ExecuteOgcd(PLDActions.Intervene, wideTarget.GameObjectId))
-                    {
-                        context.Debug.PlannedAction = PLDActions.Intervene.Name;
-                        context.Debug.DamageState = "Intervene (gap close)";
-                        return true;
-                    }
+                    context.Debug.PlannedAction = PLDActions.Intervene.Name;
+                    context.Debug.DamageState = "Intervene (gap close)";
+                    return true;
                 }
             }
+        }
+
+        if (target == null)
+        {
+            context.Debug.DamageState = "Target out of melee range";
+            return false;
         }
 
         // oGCD damage first (during weave windows)
@@ -91,7 +102,6 @@ public sealed class DamageModule : IThemisModule
         if (TryAoERotation(context))
             return true;
 
-        // If we get here, no action was taken
         context.Debug.DamageState = "No action available";
         return false;
     }
@@ -142,24 +152,6 @@ public sealed class DamageModule : IThemisModule
                 context.Debug.PlannedAction = spiritsAction.Name;
                 context.Debug.DamageState = spiritsAction.Name;
                 return true;
-            }
-        }
-
-        // Intervene (gap closer, 2 charges) - only if not in melee range
-        if (level >= PLDActions.Intervene.MinLevel)
-        {
-            var distance = GetDistanceToTarget(context.Player, target);
-            if (distance > FFXIVConstants.MeleeTargetingRange && distance <= 20f)
-            {
-                if (context.ActionService.IsActionReady(PLDActions.Intervene.ActionId))
-                {
-                    if (context.ActionService.ExecuteOgcd(PLDActions.Intervene, target.GameObjectId))
-                    {
-                        context.Debug.PlannedAction = PLDActions.Intervene.Name;
-                        context.Debug.DamageState = "Gap close";
-                        return true;
-                    }
-                }
             }
         }
 
@@ -493,15 +485,4 @@ public sealed class DamageModule : IThemisModule
 
     #endregion
 
-    #region Helpers
-
-    private static float GetDistanceToTarget(Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter player, Dalamud.Game.ClientState.Objects.Types.IBattleChara target)
-    {
-        var dx = player.Position.X - target.Position.X;
-        var dy = player.Position.Y - target.Position.Y;
-        var dz = player.Position.Z - target.Position.Z;
-        return (float)System.Math.Sqrt(dx * dx + dy * dy + dz * dz);
-    }
-
-    #endregion
 }
