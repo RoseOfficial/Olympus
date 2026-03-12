@@ -57,6 +57,7 @@ public sealed class GeneralSection
 
     public void DrawGeneral()
     {
+        DrawWindowBehaviorSection();
         DrawResurrectionSection();
         DrawLanguageSection();
         DrawPrivacySection();
@@ -114,6 +115,34 @@ public sealed class GeneralSection
         ImGui.TextDisabled(Loc.T(LocalizedStrings.Targeting.MovementToleranceDesc, "Delay after stopping before casting. Lower = faster, higher = safer."));
 
         ConfigUIHelpers.EndIndent();
+    }
+
+    private void DrawWindowBehaviorSection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T("config.window.section", "Window Behavior")))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            var preventEscape = this.config.PreventEscapeClose;
+            if (ImGui.Checkbox(Loc.T("config.window.prevent_escape_close", "Prevent closing with Escape key"), ref preventEscape))
+            {
+                this.config.PreventEscapeClose = preventEscape;
+                this.save();
+            }
+            ImGui.TextDisabled(Loc.T("config.window.prevent_escape_close_desc", "When enabled, pressing Escape will not close the Olympus window."));
+
+            ConfigUIHelpers.Spacing();
+
+            var showCutscenes = this.config.ShowDuringCutscenes;
+            if (ImGui.Checkbox(Loc.T("config.window.show_during_cutscenes", "Show window during cutscenes"), ref showCutscenes))
+            {
+                this.config.ShowDuringCutscenes = showCutscenes;
+                this.save();
+            }
+            ImGui.TextDisabled(Loc.T("config.window.show_during_cutscenes_desc", "When enabled, Olympus windows stay visible during in-game cutscenes."));
+
+            ConfigUIHelpers.EndIndent();
+        }
     }
 
     private void DrawResurrectionSection()

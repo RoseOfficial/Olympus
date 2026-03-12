@@ -15,6 +15,17 @@ public sealed class Configuration : IPluginConfiguration
     public bool MainWindowVisible { get; set; } = true;
     public bool IsDebugWindowOpen { get; set; } = false;
 
+    /// <summary>
+    /// When true, pressing Escape will not close the Olympus main window.
+    /// </summary>
+    public bool PreventEscapeClose { get; set; } = false;
+
+    /// <summary>
+    /// When true, Olympus windows remain visible during in-game cutscenes.
+    /// Default false (windows hide during cutscenes).
+    /// </summary>
+    public bool ShowDuringCutscenes { get; set; } = false;
+
     // Community & telemetry
     public bool HasSeenWelcome { get; set; } = false;
     public bool TelemetryEnabled { get; set; } = true;

@@ -293,12 +293,14 @@ public sealed class Plugin : IDalamudPlugin
         windowSystem.AddWindow(hintOverlay);
 
         mainWindow.IsOpen = configuration.MainWindowVisible;
+        mainWindow.RespectCloseHotkey = !configuration.PreventEscapeClose;
         // Debug window always starts closed - user must explicitly open it
         debugWindow.IsOpen = false;
 
         pluginInterface.UiBuilder.Draw += DrawUI;
         pluginInterface.UiBuilder.OpenConfigUi += OpenConfigUI;
         pluginInterface.UiBuilder.OpenMainUi += OpenMainUI;
+        pluginInterface.UiBuilder.DisableCutsceneUiHide = configuration.ShowDuringCutscenes;
 
         this.commandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
         {
@@ -374,6 +376,8 @@ public sealed class Plugin : IDalamudPlugin
     private void SaveConfiguration()
     {
         configuration.MainWindowVisible = mainWindow.IsOpen;
+        mainWindow.RespectCloseHotkey = !configuration.PreventEscapeClose;
+        pluginInterface.UiBuilder.DisableCutsceneUiHide = configuration.ShowDuringCutscenes;
         configuration.Debug.DebugWindowVisible = debugWindow.IsOpen;
         configuration.Analytics.AnalyticsWindowVisible = analyticsWindow.IsOpen;
         configuration.Training.TrainingWindowVisible = trainingWindow.IsOpen;
