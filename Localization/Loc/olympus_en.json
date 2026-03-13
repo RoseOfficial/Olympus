@@ -1187,6 +1187,7 @@
   "debug.tab.healing": "Healing",
   "debug.tab.overheal": "Overheal",
   "debug.tab.actions": "Actions",
+  "debug.tab.checklist": "Checklist",
   "debug.tab.performance": "Performance",
   "debug.tab.job_details": "Job Details",
   "debug.tab.timeline": "Timeline",

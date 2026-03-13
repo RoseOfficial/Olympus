@@ -1135,6 +1135,7 @@
   "debug.tab.why_stuck": "停止理由",
   "debug.tab.healing": "ヒーリング",
   "debug.tab.overheal": "過剰回復",
+  "debug.tab.checklist": "Checklist",
   "debug.tab.actions": "アクション",
   "debug.tab.performance": "パフォーマンス",
   "debug.tab.job_details": "Job Details",

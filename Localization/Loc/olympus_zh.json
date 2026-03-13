@@ -1135,6 +1135,7 @@
   "debug.tab.why_stuck": "卡住原因",
   "debug.tab.healing": "治疗",
   "debug.tab.overheal": "过量治疗",
+  "debug.tab.checklist": "Checklist",
   "debug.tab.actions": "技能",
   "debug.tab.performance": "性能",
   "debug.tab.job_details": "Job Details",
