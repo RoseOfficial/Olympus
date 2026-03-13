@@ -38,16 +38,19 @@ public sealed class OverlayWindow : Window
         ImGui.TextDisabled("Olympus");
         ImGui.Separator();
 
-        DrawToggle("Rotation", ref configuration.Enabled);
-        DrawToggle("Healing", ref configuration.EnableHealing);
-        DrawToggle("Damage", ref configuration.EnableDamage);
+        DrawToggle("Rotation", configuration.Enabled, v => configuration.Enabled = v);
+        DrawToggle("Healing", configuration.EnableHealing, v => configuration.EnableHealing = v);
+        DrawToggle("Damage", configuration.EnableDamage, v => configuration.EnableDamage = v);
     }
 
-    private void DrawToggle(string label, ref bool value)
+    private void DrawToggle(string label, bool value, Action<bool> set)
     {
         ImGui.PushStyleColor(ImGuiCol.Text, value ? EnabledColor : DisabledColor);
         if (ImGui.Checkbox(label, ref value))
+        {
+            set(value);
             saveConfiguration();
+        }
         ImGui.PopStyleColor();
     }
 }
