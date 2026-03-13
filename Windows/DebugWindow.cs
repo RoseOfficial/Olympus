@@ -81,6 +81,12 @@ public sealed class DebugWindow : Window
                 ImGui.EndTabItem();
             }
 
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabChecklist, "Checklist")))
+            {
+                ChecklistTab.Draw(snapshot, _debugService);
+                ImGui.EndTabItem();
+            }
+
             if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabPerformance, "Performance")))
             {
                 PerformanceTab.Draw(snapshot, _configuration);
