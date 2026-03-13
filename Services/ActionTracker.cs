@@ -453,6 +453,13 @@ public sealed class ActionTracker
     }
 
     /// <summary>
+    /// Resets only the spell usage counts dictionary.
+    /// Does not affect GCD uptime, action history, downtime tracking, or any other state.
+    /// </summary>
+    public void ClearSpellUsageCounts()
+        => spellUsageCounts.Clear();
+
+    /// <summary>
     /// Get spell usage counts with resolved names, sorted by count descending
     /// </summary>
     public List<(string name, uint actionId, int count)> GetSpellUsageCounts()
