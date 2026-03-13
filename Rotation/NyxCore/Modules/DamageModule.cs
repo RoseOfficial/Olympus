@@ -42,10 +42,12 @@ public sealed class DamageModule : INyxModule
             return false;
         }
 
-        // Out of melee range — attempt Shadowstride gap close immediately
-        if (target == null && engageTarget != null && context.CanExecuteOgcd)
+        // Out of melee range: try Shadowstride (oGCD gap close) or Unmend (ranged GCD to open weave window)
+        if (target == null && engageTarget != null)
         {
-            if (TryShadowstride(context, engageTarget.GameObjectId))
+            if (context.CanExecuteOgcd && TryShadowstride(context, engageTarget.GameObjectId))
+                return true;
+            if (context.CanExecuteGcd && TryUnmend(context, engageTarget.GameObjectId))
                 return true;
         }
 
@@ -345,6 +347,26 @@ public sealed class DamageModule : INyxModule
         {
             context.Debug.PlannedAction = DRKActions.Shadowstride.Name;
             context.Debug.DamageState = "Shadowstride";
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TryUnmend(INyxContext context, ulong targetId)
+    {
+        var level = context.Player.Level;
+
+        if (level < DRKActions.Unmend.MinLevel)
+            return false;
+
+        if (!context.ActionService.IsActionReady(DRKActions.Unmend.ActionId))
+            return false;
+
+        if (context.ActionService.ExecuteGcd(DRKActions.Unmend, targetId))
+        {
+            context.Debug.PlannedAction = DRKActions.Unmend.Name;
+            context.Debug.DamageState = "Unmend (ranged)";
             return true;
         }
 
