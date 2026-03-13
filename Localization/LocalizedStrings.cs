@@ -2052,6 +2052,10 @@ public static class LocalizedStrings
         public const string TabGunbreaker = "debug.tab.gunbreaker";
         public const string TabWhiteMage = "debug.tab.white_mage";
         public const string TabSage = "debug.tab.sage";
+        public const string TabChecklist = "debug.tab.checklist";
+
+        // Checklist tab
+        public const string ResetCounts = "debug.reset_counts";
 
         // Section visibility labels
         public const string OverviewTabLabel = "debug.visibility.overview_tab";
