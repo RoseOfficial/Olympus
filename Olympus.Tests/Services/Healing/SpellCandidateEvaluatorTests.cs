@@ -56,6 +56,23 @@ public class SpellCandidateEvaluatorTests
         public bool CanExecuteAction(ActionDefinition action) => true;
         public uint GetCurrentCharges(uint actionId) => readyActions.Contains(actionId) ? 1u : 0u;
         public ushort GetMaxCharges(uint actionId, uint level) => 1;
+        public bool IsSafeToWeave(float oGcdAnimationLock = 0.6f) => true;
+        public bool WouldClipGcd(float oGcdAnimationLock = 0.6f) => false;
+        public IWeaveOptimizer WeaveOptimizer { get; } = new MockWeaveOptimizer();
+    }
+
+    private class MockWeaveOptimizer : IWeaveOptimizer
+    {
+        public WeaveMode RecommendedWeaveMode => WeaveMode.Double;
+        public bool CanDoubleWeave => true;
+        public float OptimalWeaveTime => 0f;
+        public int RemainingWeaveSlots => 2;
+        public void RegisterPendingOgcd(uint actionId, OgcdPriority priority, float animationLock = 0.6f) { }
+        public uint GetNextOgcd() => 0;
+        public void RemoveOgcd(uint actionId) { }
+        public void ClearPendingOgcds() { }
+        public void Update(float gcdRemaining, float gcdTotal, float animationLockRemaining, int ogcdsUsedThisCycle) { }
+        public bool CanWeaveNow(float animationLock = 0.6f) => true;
     }
 
     /// <summary>
