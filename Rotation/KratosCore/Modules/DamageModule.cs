@@ -152,7 +152,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IKratosContext>, IKratosM
         var distance = (float)System.Math.Sqrt(dx * dx + dz * dz);
 
         // Only use to close gap if out of melee range
-        if (distance <= FFXIVConstants.MeleeTargetingRange)
+        if (distance <= FFXIVConstants.MeleeTargetingRange + target.HitboxRadius)
             return false;
 
         if (distance > 20f)

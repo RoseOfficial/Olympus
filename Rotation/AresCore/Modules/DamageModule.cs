@@ -203,7 +203,7 @@ public sealed class DamageModule : IAresModule
         var dz = player.Position.Z - target.Position.Z;
         var distance = (float)System.Math.Sqrt(dx * dx + dy * dy + dz * dz);
 
-        if (distance > FFXIVConstants.MeleeTargetingRange && distance <= 20f)
+        if (distance > FFXIVConstants.MeleeTargetingRange + target.HitboxRadius && distance <= 20f)
         {
             // Gap close to target
             if (context.ActionService.ExecuteOgcd(WARActions.Onslaught, target.GameObjectId))
@@ -213,7 +213,7 @@ public sealed class DamageModule : IAresModule
                 return true;
             }
         }
-        else if (distance <= FFXIVConstants.MeleeTargetingRange)
+        else if (distance <= FFXIVConstants.MeleeTargetingRange + target.HitboxRadius)
         {
             // In melee range — use as damage weave at all levels (level >= 88 guard removed)
             if (context.ActionService.ExecuteOgcd(WARActions.Onslaught, target.GameObjectId))
@@ -244,7 +244,7 @@ public sealed class DamageModule : IAresModule
         var distance = (float)System.Math.Sqrt(dx * dx + dy * dy + dz * dz);
 
         // Tomahawk is a ranged attack — only use when out of melee range
-        if (distance <= FFXIVConstants.MeleeTargetingRange)
+        if (distance <= FFXIVConstants.MeleeTargetingRange + target.HitboxRadius)
             return false;
 
         if (context.ActionService.ExecuteGcd(WARActions.Tomahawk, target.GameObjectId))

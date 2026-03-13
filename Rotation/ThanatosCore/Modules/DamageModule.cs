@@ -674,7 +674,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IThanatosContext>, IThana
         var distance = (float)System.Math.Sqrt(dx * dx + dz * dz);
 
         // Only use at range or during movement
-        if (distance <= FFXIVConstants.MeleeTargetingRange && !context.IsMoving)
+        if (distance <= FFXIVConstants.MeleeTargetingRange + target.HitboxRadius && !context.IsMoving)
             return false;
 
         if (!context.ActionService.IsActionReady(RPRActions.HarvestMoon.ActionId))

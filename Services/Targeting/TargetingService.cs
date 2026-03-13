@@ -319,7 +319,6 @@ public sealed class TargetingService : ITargetingService
         _lastCacheRange = maxRange;
         _cacheTimer.Restart();
 
-        var maxRangeSquared = maxRange * maxRange;
         var playerPos = player.Position;
         var maxRangeYalms = (byte)Math.Ceiling(maxRange);
 
@@ -335,8 +334,8 @@ public sealed class TargetingService : ITargetingService
             if (obj.IsDead)
                 continue;
 
-            // Quick yalm-based range pre-filter (pre-calculated by game)
-            if (obj.YalmDistanceX > maxRangeYalms)
+            // Quick yalm-based range pre-filter (generous buffer for large hitboxes)
+            if (obj.YalmDistanceX > maxRangeYalms + (int)Math.Ceiling(obj.HitboxRadius))
                 continue;
 
             // Type cast
@@ -347,8 +346,9 @@ public sealed class TargetingService : ITargetingService
             if (npc.BattleNpcKind != BattleNpcSubKind.Enemy && npc.SubKind != 0)
                 continue;
 
-            // Precise distance check (most expensive)
-            if (Vector3.DistanceSquared(playerPos, npc.Position) > maxRangeSquared)
+            // Precise distance check — effective range includes enemy hitbox radius
+            var effectiveRange = maxRange + npc.HitboxRadius;
+            if (Vector3.DistanceSquared(playerPos, npc.Position) > effectiveRange * effectiveRange)
                 continue;
 
             _cachedEnemies.Add(npc);
@@ -364,7 +364,7 @@ public sealed class TargetingService : ITargetingService
         if (enemy.BattleNpcKind != BattleNpcSubKind.Enemy && enemy.SubKind != 0)
             return false;
 
-        return DistanceHelper.IsInRange(player, enemy, maxRange);
+        return DistanceHelper.IsInRange(player.Position, enemy.Position, maxRange + enemy.HitboxRadius);
     }
 
     private static bool IsStillValid(IBattleNpc enemy)

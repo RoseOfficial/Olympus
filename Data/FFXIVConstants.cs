@@ -61,11 +61,10 @@ public static class FFXIVConstants
 
     // Targeting Ranges
     /// <summary>
-    /// Melee targeting range for center-to-center distance calculations.
-    /// FFXIV measures 3y action range from hitbox edges, but our targeting uses center-to-center.
-    /// 5y accounts for player hitbox (~0.5y) + target hitbox (up to 2y for large enemies).
+    /// Base melee targeting range: action range (3y) + player hitbox (~0.5y).
+    /// Enemy hitbox radius is added dynamically at call sites so large bosses are handled correctly.
     /// </summary>
-    public const float MeleeTargetingRange = 5f;
+    public const float MeleeTargetingRange = 3.5f;
 
     /// <summary>
     /// Ranged physical DPS targeting range for center-to-center distance calculations.

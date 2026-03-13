@@ -187,7 +187,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
 
         // Forked Raiju is a gap closer with 20y range
         // Fleeting Raiju is melee range
-        if (distance > FFXIVConstants.MeleeTargetingRange)
+        if (distance > FFXIVConstants.MeleeTargetingRange + target.HitboxRadius)
         {
             action = NINActions.ForkedRaiju;
         }

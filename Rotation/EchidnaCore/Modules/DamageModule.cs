@@ -612,7 +612,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IEchidnaContext>, IEchidn
         var distance = (float)System.Math.Sqrt(dx * dx + dz * dz);
 
         // Use at range or if capped on coils
-        bool shouldUse = distance > FFXIVConstants.MeleeTargetingRange ||
+        bool shouldUse = distance > FFXIVConstants.MeleeTargetingRange + target.HitboxRadius ||
                          context.RattlingCoils >= 3 ||
                          isMoving;
 
