@@ -10,6 +10,9 @@ All notable changes to Olympus will be documented in this file.
 - Overlay is draggable and remembers its visibility between sessions
 - Open/close via the new Overlay button in the main window
 
+**White Mage / Conjurer**
+- Fixed Conjurer rotation silently doing nothing: CNJ now correctly uses Stone/Stone II for damage and Aero/Aero II for DoT instead of WHM-exclusive spells (Glare III, Dia) that the class stone doesn't grant
+- Fixed DoT casting being blocked while moving for all levels — Aero and Aero II are instant cast and were incorrectly restricted
 <!-- LATEST-END -->
 
 ## v4.9.8 - Positional Indicator

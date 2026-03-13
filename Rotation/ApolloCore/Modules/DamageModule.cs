@@ -63,17 +63,33 @@ public sealed class DamageModule : BaseDamageModule<ApolloContext>, IApolloModul
 
     #region Base Class Overrides - Action Methods
 
-    protected override uint GetDoTStatusId(ApolloContext context) =>
-        StatusHelper.GetDotStatusId(context.Player.Level);
+    protected override uint GetDoTStatusId(ApolloContext context)
+    {
+        // CNJ doesn't have Dia (WHM-only at 72+); cap at AeroII/Aero
+        if (context.Player.ClassJob.RowId == JobRegistry.Conjurer)
+            return context.Player.Level >= 46 ? StatusHelper.StatusIds.AeroII : StatusHelper.StatusIds.Aero;
+        return StatusHelper.GetDotStatusId(context.Player.Level);
+    }
 
-    protected override ActionDefinition? GetDoTAction(ApolloContext context) =>
-        WHMActions.GetDotForLevel(context.Player.Level);
+    protected override ActionDefinition? GetDoTAction(ApolloContext context)
+    {
+        // CNJ doesn't have Dia (WHM-only at 72+); cap at AeroII/Aero
+        if (context.Player.ClassJob.RowId == JobRegistry.Conjurer)
+            return context.Player.Level >= WHMActions.AeroII.MinLevel ? WHMActions.AeroII :
+                   context.Player.Level >= WHMActions.Aero.MinLevel ? WHMActions.Aero : null;
+        return WHMActions.GetDotForLevel(context.Player.Level);
+    }
 
     protected override ActionDefinition? GetAoEDamageAction(ApolloContext context) =>
         WHMActions.GetAoEDamageGcdForLevel(context.Player.Level);
 
-    protected override ActionDefinition GetSingleTargetAction(ApolloContext context, bool isMoving) =>
-        WHMActions.GetDamageGcdForLevel(context.Player.Level);
+    protected override ActionDefinition GetSingleTargetAction(ApolloContext context, bool isMoving)
+    {
+        // CNJ doesn't have Stone III+ or Glare+ (WHM-only); cap at StoneII/Stone
+        if (context.Player.ClassJob.RowId == JobRegistry.Conjurer)
+            return context.Player.Level >= WHMActions.StoneII.MinLevel ? WHMActions.StoneII : WHMActions.Stone;
+        return WHMActions.GetDamageGcdForLevel(context.Player.Level);
+    }
 
     #endregion
 
@@ -101,10 +117,9 @@ public sealed class DamageModule : BaseDamageModule<ApolloContext>, IApolloModul
     protected override bool BlocksOnExecution => false;
 
     /// <summary>
-    /// WHM DoT (Dia) is instant at 72+, so can DoT while moving at high levels.
+    /// All WHM/CNJ DoTs (Aero, Aero II, Dia) are instant cast, so DoT is always allowed while moving.
     /// </summary>
-    protected override bool CanDoT(ApolloContext context, bool isMoving) =>
-        !isMoving || context.Player.Level >= 72; // Dia is instant
+    protected override bool CanDoT(ApolloContext context, bool isMoving) => true;
 
     /// <summary>
     /// Check if action is enabled in WHM config.
