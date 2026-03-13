@@ -60,9 +60,10 @@ public static class SpellChecklistRegistry
         new("GCD AoE Damage",   l => WHMActions.AoEDamageGcds.Where(a => a.MinLevel <= l).Take(1).ToArray()),
         new("GCD Single Heals", l => WHMActions.SingleHealGcds.Where(a => a.MinLevel <= l).ToArray()),
         new("GCD AoE Heals",    l => WHMActions.AoEHealGcds.Where(a => a.MinLevel <= l).ToArray()),
-        new("oGCD Heals",       l => WHMActions.SingleHealOgcds.Where(a => a.MinLevel <= l).ToArray()),
+        new("oGCD Heals",       l => new[] { WHMActions.Tetragrammaton, WHMActions.Benediction, WHMActions.DivineBenison }
+                                        .Where(a => a.MinLevel <= l).ToArray()),
         new("oGCD AoE Heals",   l => WHMActions.AoEHealOgcds.Where(a => a.MinLevel <= l).ToArray()),
-        new("Buffs",            l => new[] { WHMActions.PresenceOfMind, WHMActions.ThinAir }
+        new("Buffs",            l => new[] { WHMActions.PresenceOfMind, WHMActions.ThinAir, WHMActions.Temperance, WHMActions.PlenaryIndulgence, WHMActions.Aquaveil }
                                         .Where(a => a.MinLevel <= l).ToArray()),
         new("Role Actions",     l => new[] { WHMActions.Swiftcast, WHMActions.LucidDreaming }
                                         .Where(a => a.MinLevel <= l).ToArray()),
