@@ -825,6 +825,25 @@ public static class PLDActions
         MpCost = 0
     };
 
+    /// <summary>
+    /// Shield Lob - Ranged attack (Lv.15)
+    /// 20y range, 150 potency. Used to pull targets or deal ranged damage when out of melee range.
+    /// </summary>
+    public static readonly ActionDefinition ShieldLob = new()
+    {
+        ActionId = 24,
+        Name = "Shield Lob",
+        MinLevel = 15,
+        Category = ActionCategory.GCD,
+        TargetType = ActionTargetType.SingleEnemy,
+        EffectTypes = ActionEffectType.Damage,
+        CastTime = 0f,
+        RecastTime = 2.5f,
+        Range = 20f,
+        MpCost = 0,
+        DamagePotency = 150
+    };
+
     #endregion
 
     #region Status IDs
