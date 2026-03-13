@@ -208,7 +208,10 @@ public abstract class BaseDamageModule<TContext> : IHealerRotationModule<TContex
             context.Player);
 
         if (target == null)
+        {
+            SetDpsState(context, "DoT: no target");
             return false;
+        }
 
         if (!IsActionEnabled(context, dotAction))
             return false;
@@ -220,6 +223,7 @@ public abstract class BaseDamageModule<TContext> : IHealerRotationModule<TContex
             return true;
         }
 
+        SetDpsState(context, $"DoT rejected: {dotAction.Name}");
         return false;
     }
 
@@ -273,11 +277,17 @@ public abstract class BaseDamageModule<TContext> : IHealerRotationModule<TContex
     protected virtual bool TrySingleTargetDamage(TContext context, bool isMoving)
     {
         if (!IsDamageEnabled(context))
+        {
+            SetDpsState(context, "Damage disabled");
             return false;
+        }
 
         var action = GetSingleTargetAction(context, isMoving);
         if (!IsActionEnabled(context, action))
+        {
+            SetDpsState(context, $"Action disabled: {action.Name}");
             return false;
+        }
 
         var target = context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy,
@@ -297,6 +307,7 @@ public abstract class BaseDamageModule<TContext> : IHealerRotationModule<TContex
             return true;
         }
 
+        SetDpsState(context, $"GCD rejected: {action.Name}");
         return false;
     }
 
