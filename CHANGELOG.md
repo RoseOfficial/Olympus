@@ -3,12 +3,20 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
-## v4.10.0 - Job Icons in Main Window
+## v4.10.1 - Gap Closer & Debug Fixes
+
+**Dark Knight**
+- Fixed Dark Knight not engaging from range: Unmend now fires to close distance when the target is out of melee reach
+
+**Paladin**
+- Fixed Paladin not engaging from range: Shield Lob now fires to close distance when the target is out of melee reach
+
+**Debug Window**
+- Fixed tab ordering: Overview, Why Stuck?, Healing, and other general tabs now appear first before job-specific tabs
+- Added Export button to the Action History tab — copies the current filtered history to the clipboard
 
 **Main Window**
-- Added job icons to the active rotation display and available rotations list
-- Icons are loaded from the game's own UI assets via ITextureProvider
-- Inactive rotations in the list are shown at reduced opacity to distinguish them from the active one
+- Removed the Available Rotations list to keep the window compact; the active job is still shown at the top
 
 <!-- LATEST-END -->
 
