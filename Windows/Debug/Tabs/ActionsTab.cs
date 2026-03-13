@@ -35,7 +35,7 @@ public static class ActionsTab
         // Action History Section
         if (IsSectionVisible(config, "ActionHistory"))
         {
-            DrawFilters(debugService);
+            DrawFilters(debugService, snapshot);
             ImGui.Separator();
             DrawActionHistory(snapshot);
         }
@@ -122,7 +122,7 @@ public static class ActionsTab
         }
     }
 
-    private static void DrawFilters(DebugService debugService)
+    private static void DrawFilters(DebugService debugService, DebugSnapshot snapshot)
     {
         ImGui.Text(Loc.T(LocalizedStrings.Debug.Filters, "Filters:"));
         ImGui.SameLine();
@@ -132,7 +132,26 @@ public static class ActionsTab
         ImGui.SameLine();
         ImGui.Checkbox(Loc.T(LocalizedStrings.Debug.Skips, "Skips"), ref _showSkips);
 
-        ImGui.SameLine(ImGui.GetContentRegionAvail().X - 100);
+        ImGui.SameLine(ImGui.GetContentRegionAvail().X - 160);
+        if (ImGui.Button(Loc.T(LocalizedStrings.Debug.Export, "Export")))
+        {
+            var lines = new System.Text.StringBuilder();
+            foreach (var attempt in snapshot.Actions.History)
+            {
+                if (!ShouldShowAttempt(attempt))
+                    continue;
+
+                var ts = attempt.Timestamp.ToString("HH:mm:ss.fff");
+                var icon = DebugColors.GetResultIcon(attempt.Result);
+                if (attempt.Result == ActionResult.Success)
+                    lines.AppendLine($"{ts} {icon} [{attempt.SpellName}] -> {attempt.TargetName} (HP: {attempt.TargetHp})");
+                else
+                    lines.AppendLine($"{ts} {icon} [{attempt.SpellName}] {attempt.FailureReason ?? attempt.Result.ToString()}");
+            }
+            ImGui.SetClipboardText(lines.ToString());
+        }
+
+        ImGui.SameLine();
         if (ImGui.Button(Loc.T(LocalizedStrings.Debug.Clear, "Clear")))
         {
             debugService.ClearHistory();
