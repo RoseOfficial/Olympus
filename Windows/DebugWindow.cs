@@ -1,6 +1,7 @@
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
+using Olympus.Data;
 using Olympus.Localization;
 using Olympus.Services.Debug;
 using Olympus.Timeline;
@@ -16,6 +17,40 @@ public sealed class DebugWindow : Window
     private readonly DebugService _debugService;
     private readonly Configuration _configuration;
     private readonly ITimelineService? _timelineService;
+
+    private uint _selectedJobId; // 0 = unset; auto-selects active job on next Draw
+
+    // Ordered list for the Job Details combo. Advanced jobs only — no base classes.
+    // Entries with JobId == 0 are non-selectable role group headers.
+    private static readonly (uint JobId, string DisplayName)[] JobList =
+    [
+        (0,                       "── Tanks ──"),
+        (JobRegistry.Warrior,     "Warrior"),
+        (JobRegistry.Paladin,     "Paladin"),
+        (JobRegistry.DarkKnight,  "Dark Knight"),
+        (JobRegistry.Gunbreaker,  "Gunbreaker"),
+        (0,                       "── Healers ──"),
+        (JobRegistry.WhiteMage,   "White Mage"),
+        (JobRegistry.Scholar,     "Scholar"),
+        (JobRegistry.Astrologian, "Astrologian"),
+        (JobRegistry.Sage,        "Sage"),
+        (0,                       "── Melee DPS ──"),
+        (JobRegistry.Monk,        "Monk"),
+        (JobRegistry.Dragoon,     "Dragoon"),
+        (JobRegistry.Ninja,       "Ninja"),
+        (JobRegistry.Samurai,     "Samurai"),
+        (JobRegistry.Reaper,      "Reaper"),
+        (JobRegistry.Viper,       "Viper"),
+        (0,                       "── Physical Ranged ──"),
+        (JobRegistry.Bard,        "Bard"),
+        (JobRegistry.Machinist,   "Machinist"),
+        (JobRegistry.Dancer,      "Dancer"),
+        (0,                       "── Casters ──"),
+        (JobRegistry.BlackMage,   "Black Mage"),
+        (JobRegistry.Summoner,    "Summoner"),
+        (JobRegistry.RedMage,     "Red Mage"),
+        (JobRegistry.Pictomancer, "Pictomancer"),
+    ];
 
     public DebugWindow(DebugService debugService, Configuration configuration, ITimelineService? timelineService = null)
         : base(Loc.T(LocalizedStrings.Debug.WindowTitle, "Olympus Debug"), ImGuiWindowFlags.NoSavedSettings)
@@ -36,6 +71,7 @@ public sealed class DebugWindow : Window
     public override void OnClose()
     {
         _configuration.IsDebugWindowOpen = false;
+        _selectedJobId = 0;
     }
 
     public override void Draw()
@@ -298,4 +334,24 @@ public sealed class DebugWindow : Window
             _configuration.Debug.DebugSectionVisibility[key] = visible;
         }
     }
+
+    /// <summary>
+    /// Maps a raw job ID (which may be a base class) to the canonical advanced job ID
+    /// used in JobList. Returns 0 if the ID cannot be mapped to any supported job.
+    /// </summary>
+    private static uint MapToAdvancedJobId(uint rawJobId) => rawJobId switch
+    {
+        JobRegistry.Conjurer    => JobRegistry.WhiteMage,
+        // Arcanist is the shared base for both Scholar and Summoner; map to Summoner
+        // as it is the direct advancement path. Scholar is a separately-unlocked side-class.
+        JobRegistry.Arcanist    => JobRegistry.Summoner,
+        JobRegistry.Gladiator   => JobRegistry.Paladin,
+        JobRegistry.Marauder    => JobRegistry.Warrior,
+        JobRegistry.Pugilist    => JobRegistry.Monk,
+        JobRegistry.Lancer      => JobRegistry.Dragoon,
+        JobRegistry.Rogue       => JobRegistry.Ninja,
+        JobRegistry.Archer      => JobRegistry.Bard,
+        JobRegistry.Thaumaturge => JobRegistry.BlackMage,
+        _ => rawJobId
+    };
 }
