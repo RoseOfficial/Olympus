@@ -337,7 +337,7 @@ public sealed class DebugWindow : Window
 
     private void DrawJobDetailsTab()
     {
-        // Auto-select current job on first open (or after close reset)
+        // Auto-select current job each frame until a valid job is resolved (resets on close)
         if (_selectedJobId == 0)
         {
             var rawJobId = _debugService.GetJobId();
@@ -345,16 +345,9 @@ public sealed class DebugWindow : Window
         }
 
         // Resolve display name for the combo preview
-        var previewName = "Unknown";
-        foreach (var (jobId, displayName) in JobList)
-        {
-            if (jobId == 0) continue; // skip headers
-            if (jobId == _selectedJobId)
-            {
-                previewName = displayName;
-                break;
-            }
-        }
+        var previewName = _selectedJobId != 0
+            ? JobRegistry.GetJobName(_selectedJobId)
+            : "Unknown";
 
         // Job selector combo
         if (ImGui.BeginCombo("##JobSelector", previewName))
