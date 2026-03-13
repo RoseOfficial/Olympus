@@ -154,6 +154,21 @@ public class ConfigurationTests
     }
 
     [Fact]
+    public void ResetToDefaults_ResetsOverlayConfig()
+    {
+        var config = new Configuration();
+        config.Overlay.IsVisible = false;
+        config.Overlay.X = 999f;
+        config.Overlay.Y = 888f;
+
+        config.ResetToDefaults();
+
+        Assert.True(config.Overlay.IsVisible);
+        Assert.Equal(100f, config.Overlay.X);
+        Assert.Equal(100f, config.Overlay.Y);
+    }
+
+    [Fact]
     public void ResetToDefaults_ResetsDefensiveSpells()
     {
         var config = new Configuration();
@@ -321,6 +336,13 @@ public class ConfigurationTests
 
         Assert.True(config.Resurrection.EnableRaise);
         Assert.False(config.Resurrection.AllowHardcastRaise); // Hardcast disabled by default
+    }
+
+    [Fact]
+    public void DefaultConfiguration_HasOverlayVisible()
+    {
+        var config = new Configuration();
+        Assert.True(config.Overlay.IsVisible);
     }
 
     #endregion

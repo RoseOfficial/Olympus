@@ -76,6 +76,7 @@ public sealed class Configuration : IPluginConfiguration
     public AnalyticsConfig Analytics { get; set; } = new();
     public FFlogsConfig FFLogs { get; set; } = new();
     public TrainingConfig Training { get; set; } = new();
+    public OverlayConfig Overlay { get; set; } = new();
 
     // Job-specific configuration - Healers
     public ScholarConfig Scholar { get; set; } = new();
@@ -155,6 +156,7 @@ public sealed class Configuration : IPluginConfiguration
         Analytics = new AnalyticsConfig();
         FFLogs = new FFlogsConfig();
         Training = new TrainingConfig();
+        Overlay = new OverlayConfig();
         Scholar = new ScholarConfig();
         Astrologian = new AstrologianConfig();
         Sage = new SageConfig();
