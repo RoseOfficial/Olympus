@@ -1,3 +1,4 @@
+using System;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -12,6 +13,7 @@ using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation.Common;
@@ -79,6 +81,30 @@ public abstract class BaseHealerContext : IHealerRotationContext
 
     public IPartyCoordinationService? PartyCoordinationService { get; }
     public HealingCoordinationState HealingCoordination { get; }
+    public ITrainingService? TrainingService { get; }
+
+    #endregion
+
+    #region Role Coordination
+
+    private bool? _isPrimaryHealer;
+
+    /// <summary>
+    /// Whether this healer instance is the primary healer.
+    /// Determined by job priority (WHM > AST > SCH > SGE) or explicit role declaration.
+    /// </summary>
+    public bool IsPrimaryHealer => _isPrimaryHealer ??= PartyCoordinationService?.IsPrimaryHealer ?? true;
+
+    /// <summary>
+    /// Gets a healing threshold adjusted for healer role.
+    /// Secondary healers use a lower threshold to defer healing.
+    /// </summary>
+    public float GetRoleAdjustedThreshold(float primaryThreshold)
+    {
+        if (!IsPrimaryHealer && Configuration.PartyCoordination.EnableHealerRoleCoordination)
+            return Math.Min(primaryThreshold, Configuration.PartyCoordination.SecondaryHealAssistThreshold);
+        return primaryThreshold;
+    }
 
     #endregion
 
@@ -134,6 +160,7 @@ public abstract class BaseHealerContext : IHealerRotationContext
         IPartyAnalyzer? partyAnalyzer = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITimelineService? timelineService = null,
+        ITrainingService? trainingService = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -163,6 +190,7 @@ public abstract class BaseHealerContext : IHealerRotationContext
         PartyAnalyzer = partyAnalyzer;
         PartyCoordinationService = partyCoordinationService;
         TimelineService = timelineService;
+        TrainingService = trainingService;
         Log = log;
         HealingCoordination = new HealingCoordinationState();
     }
