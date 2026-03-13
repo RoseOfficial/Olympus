@@ -3,6 +3,13 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.2 - Large Boss Range Fix
+
+**All Jobs**
+- Fixed melee rotations incorrectly using ranged attacks when standing near large bosses: the plugin now accounts for enemy hitbox size when determining whether you are in melee range
+
+<!-- LATEST-END -->
+
 ## v4.10.1 - Gap Closer & Debug Fixes
 
 **Dark Knight**
@@ -17,8 +24,6 @@ All notable changes to Olympus will be documented in this file.
 
 **Main Window**
 - Removed the Available Rotations list to keep the window compact; the active job is still shown at the top
-
-<!-- LATEST-END -->
 
 ## v4.9.9 - Quick Toggle Overlay
 
