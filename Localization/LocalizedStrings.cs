@@ -2175,6 +2175,7 @@ public static class LocalizedStrings
         public const string Failures = "debug.actions.failures";
         public const string Skips = "debug.actions.skips";
         public const string Clear = "debug.actions.clear";
+        public const string Export = "debug.actions.export";
         public const string PropertyHeader = "debug.actions.property_header";
         public const string ValueHeader = "debug.actions.value_header";
         public const string YesUpper = "debug.common.yes_upper";
