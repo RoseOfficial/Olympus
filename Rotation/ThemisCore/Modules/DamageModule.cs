@@ -48,16 +48,32 @@ public sealed class DamageModule : IThemisModule
             return false;
         }
 
-        // Gap close with Intervene when out of melee range
-        if (target == null && context.CanExecuteOgcd && player.Level >= PLDActions.Intervene.MinLevel)
+        // Out of melee range: try Intervene (oGCD gap close) or Shield Lob (ranged GCD to open weave window)
+        if (target == null && engageTarget != null)
         {
-            if (context.ActionService.IsActionReady(PLDActions.Intervene.ActionId))
+            if (context.CanExecuteOgcd && player.Level >= PLDActions.Intervene.MinLevel)
             {
-                if (context.ActionService.ExecuteOgcd(PLDActions.Intervene, engageTarget.GameObjectId))
+                if (context.ActionService.IsActionReady(PLDActions.Intervene.ActionId))
                 {
-                    context.Debug.PlannedAction = PLDActions.Intervene.Name;
-                    context.Debug.DamageState = "Intervene (gap close)";
-                    return true;
+                    if (context.ActionService.ExecuteOgcd(PLDActions.Intervene, engageTarget.GameObjectId))
+                    {
+                        context.Debug.PlannedAction = PLDActions.Intervene.Name;
+                        context.Debug.DamageState = "Intervene (gap close)";
+                        return true;
+                    }
+                }
+            }
+
+            if (context.CanExecuteGcd && player.Level >= PLDActions.ShieldLob.MinLevel)
+            {
+                if (context.ActionService.IsActionReady(PLDActions.ShieldLob.ActionId))
+                {
+                    if (context.ActionService.ExecuteGcd(PLDActions.ShieldLob, engageTarget.GameObjectId))
+                    {
+                        context.Debug.PlannedAction = PLDActions.ShieldLob.Name;
+                        context.Debug.DamageState = "Shield Lob (ranged)";
+                        return true;
+                    }
                 }
             }
         }
