@@ -707,7 +707,26 @@ public static class DRKActions
 
     #endregion
 
-    #region Role Actions (oGCD)
+    #region Role Actions (GCD + oGCD)
+
+    /// <summary>
+    /// Unmend - Ranged attack (Lv.15)
+    /// 20y range, 150 potency. Used to pull targets or deal ranged damage when out of melee range.
+    /// </summary>
+    public static readonly ActionDefinition Unmend = new()
+    {
+        ActionId = 2580,
+        Name = "Unmend",
+        MinLevel = 15,
+        Category = ActionCategory.GCD,
+        TargetType = ActionTargetType.SingleEnemy,
+        EffectTypes = ActionEffectType.Damage,
+        CastTime = 0f,
+        RecastTime = 2.5f,
+        Range = 20f,
+        MpCost = 0,
+        DamagePotency = 150
+    };
 
     /// <summary>
     /// Rampart - Role action mitigation (Lv.8)
