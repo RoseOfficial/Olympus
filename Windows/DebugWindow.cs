@@ -50,31 +50,7 @@ public sealed class DebugWindow : Window
         // Tab bar
         if (ImGui.BeginTabBar("DebugTabs"))
         {
-            // Tank Tabs
-            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabWarrior, "Warrior")))
-            {
-                AresTab.Draw(_debugService.GetAresDebugState(), _configuration);
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabDarkKnight, "Dark Knight")))
-            {
-                NyxTab.Draw(_debugService.GetNyxDebugState(), _configuration);
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabPaladin, "Paladin")))
-            {
-                ThemisTab.Draw(_debugService.GetThemisDebugState(), _configuration);
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabGunbreaker, "Gunbreaker")))
-            {
-                HephaestusTab.Draw(_debugService.GetHephaestusDebugState(), _configuration);
-                ImGui.EndTabItem();
-            }
-
+            // Generic Tabs
             if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabOverview, "Overview")))
             {
                 OverviewTab.Draw(snapshot, _configuration);
@@ -111,6 +87,32 @@ public sealed class DebugWindow : Window
                 ImGui.EndTabItem();
             }
 
+            // Tank Tabs
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabWarrior, "Warrior")))
+            {
+                AresTab.Draw(_debugService.GetAresDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabDarkKnight, "Dark Knight")))
+            {
+                NyxTab.Draw(_debugService.GetNyxDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabPaladin, "Paladin")))
+            {
+                ThemisTab.Draw(_debugService.GetThemisDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabGunbreaker, "Gunbreaker")))
+            {
+                HephaestusTab.Draw(_debugService.GetHephaestusDebugState(), _configuration);
+                ImGui.EndTabItem();
+            }
+
+            // Healer Tabs
             if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabWhiteMage, "White Mage")))
             {
                 ApolloTab.Draw(_debugService.GetApolloDebugState(), _configuration);
