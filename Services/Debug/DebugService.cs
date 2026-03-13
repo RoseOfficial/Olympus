@@ -430,6 +430,14 @@ public sealed class DebugService
         return _objectTable.LocalPlayer?.Level ?? 0;
     }
 
+    /// <summary>Returns the local player's current job ID, or 0 if unavailable.</summary>
+    public uint GetJobId()
+        => _objectTable.LocalPlayer?.ClassJob.RowId ?? 0;
+
+    /// <summary>Resets spell usage counts without affecting history or GCD uptime data.</summary>
+    public void ClearSpellUsageCounts()
+        => _actionTracker.ClearSpellUsageCounts();
+
     /// <summary>
     /// Gets the last spell selection decision for debugging.
     /// </summary>
