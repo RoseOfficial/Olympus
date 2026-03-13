@@ -21,6 +21,7 @@ public static class LocalizedStrings
         public const string Enable = "ui.main.enable";
         public const string Disable = "ui.main.disable";
         public const string Settings = "ui.main.settings";
+        public const string Overlay = "ui.main.overlay";
         public const string Analytics = "ui.main.analytics";
         public const string Training = "ui.main.training";
         public const string Debug = "ui.main.debug";

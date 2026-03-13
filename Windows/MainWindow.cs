@@ -133,7 +133,7 @@ public sealed class MainWindow : Window
             openSettings();
         }
 
-        if (ImGui.Button("Overlay", new Vector2(-1, 0)))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Main.Overlay, "Overlay"), new Vector2(-1, 0)))
         {
             openOverlay();
         }
