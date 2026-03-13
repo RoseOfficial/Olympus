@@ -18,9 +18,14 @@ public sealed class DamageModule : BaseDpsDamageModule<IZeusContext>, IZeusModul
     #region Abstract Method Implementations
 
     /// <summary>
-    /// Melee targeting range (3y).
+    /// Melee targeting range (3y) — used as fallback only.
     /// </summary>
     protected override float GetTargetingRange() => FFXIVConstants.MeleeTargetingRange;
+
+    /// <summary>
+    /// Use True Thrust to check melee range via game API for maximum accuracy.
+    /// </summary>
+    protected override uint GetRangeCheckActionId() => DRGActions.TrueThrust.ActionId;
 
     /// <summary>
     /// AoE count range for DRG (5y for melee AoE abilities).

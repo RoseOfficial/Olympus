@@ -194,9 +194,9 @@ public sealed class HephaestusContext : IHephaestusContext
         PartyHealthMetrics = CalculatePartyHealth(player);
 
         // Get current target
-        CurrentTarget = targetingService.FindEnemy(
+        CurrentTarget = targetingService.FindEnemyForAction(
             configuration.Targeting.EnemyStrategy,
-            3f,
+            GNBActions.KeenEdge.ActionId,
             player);
 
         // Check main tank status

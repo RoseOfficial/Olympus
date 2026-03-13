@@ -210,9 +210,9 @@ public sealed class EnmityModule : IHephaestusModule
             return false;
         }
 
-        var target = context.TargetingService.FindEnemy(
+        var target = context.TargetingService.FindEnemyForAction(
             context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.MeleeTargetingRange,
+            GNBActions.KeenEdge.ActionId,
             player);
 
         if (target == null)

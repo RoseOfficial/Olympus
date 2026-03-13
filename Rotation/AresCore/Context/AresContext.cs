@@ -2,6 +2,7 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
+using Olympus.Data;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Cache;
@@ -166,10 +167,10 @@ public sealed class AresContext : IAresContext
         // Calculate party health metrics
         PartyHealthMetrics = CalculatePartyHealth(player);
 
-        // Get current target
-        CurrentTarget = targetingService.FindEnemy(
+        // Get current target using game API range check for accuracy
+        CurrentTarget = targetingService.FindEnemyForAction(
             configuration.Targeting.EnemyStrategy,
-            3f,
+            WARActions.HeavySwing.ActionId,
             player);
 
         // Check main tank status

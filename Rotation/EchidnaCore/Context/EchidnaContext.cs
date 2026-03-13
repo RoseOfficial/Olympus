@@ -227,10 +227,10 @@ public sealed class EchidnaContext : IEchidnaContext
         // Calculate party health metrics
         PartyHealthMetrics = CalculatePartyHealth(player);
 
-        // Get current target for debuff tracking
-        _currentTarget = targetingService.FindEnemy(
+        // Get current target for debuff tracking using game API range check for accuracy
+        _currentTarget = targetingService.FindEnemyForAction(
             configuration.Targeting.EnemyStrategy,
-            3f,
+            VPRActions.SteelFangs.ActionId,
             player);
 
         // Target state

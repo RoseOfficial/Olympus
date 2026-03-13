@@ -33,9 +33,9 @@ public sealed class BuffModule : INikeModule
         var level = player.Level;
 
         // Find target for oGCDs
-        var target = context.TargetingService.FindEnemy(
+        var target = context.TargetingService.FindEnemyForAction(
             context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.MeleeTargetingRange,
+            SAMActions.Hakaze.ActionId,
             player);
 
         if (target == null)

@@ -208,9 +208,9 @@ public sealed class EnmityModule : IThemisModule
             return false;
         }
 
-        var target = context.TargetingService.FindEnemy(
+        var target = context.TargetingService.FindEnemyForAction(
             context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.MeleeTargetingRange,
+            PLDActions.FastBlade.ActionId,
             player);
 
         if (target == null)

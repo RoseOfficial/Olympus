@@ -18,9 +18,14 @@ public sealed class DamageModule : BaseDpsDamageModule<IThanatosContext>, IThana
     #region Abstract Method Implementations
 
     /// <summary>
-    /// Melee targeting range (3y).
+    /// Melee targeting range (3y) — used as fallback only.
     /// </summary>
     protected override float GetTargetingRange() => FFXIVConstants.MeleeTargetingRange;
+
+    /// <summary>
+    /// Use Slice to check melee range via game API for maximum accuracy.
+    /// </summary>
+    protected override uint GetRangeCheckActionId() => RPRActions.Slice.ActionId;
 
     /// <summary>
     /// AoE count range for RPR (5y for melee AoE abilities).
@@ -668,13 +673,8 @@ public sealed class DamageModule : BaseDpsDamageModule<IThanatosContext>, IThana
         if (!context.HasSoulsow)
             return false;
 
-        // Check distance - use Harvest Moon as ranged filler
-        var dx = player.Position.X - target.Position.X;
-        var dz = player.Position.Z - target.Position.Z;
-        var distance = (float)System.Math.Sqrt(dx * dx + dz * dz);
-
-        // Only use at range or during movement
-        if (distance <= FFXIVConstants.MeleeTargetingRange + target.HitboxRadius && !context.IsMoving)
+        // Only use at range or during movement — use game API range check for accuracy
+        if (DistanceHelper.IsActionInRange(RPRActions.Slice.ActionId, player, target) && !context.IsMoving)
             return false;
 
         if (!context.ActionService.IsActionReady(RPRActions.HarvestMoon.ActionId))

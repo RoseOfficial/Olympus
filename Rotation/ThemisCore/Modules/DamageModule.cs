@@ -32,9 +32,9 @@ public sealed class DamageModule : IThemisModule
         var player = context.Player;
 
         // Two-pass target search: melee range first, wide range as fallback for gap closers
-        var target = context.TargetingService.FindEnemy(
+        var target = context.TargetingService.FindEnemyForAction(
             context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.MeleeTargetingRange,
+            PLDActions.FastBlade.ActionId,
             player);
 
         var engageTarget = target ?? context.TargetingService.FindEnemy(
@@ -135,9 +135,9 @@ public sealed class DamageModule : IThemisModule
         var level = player.Level;
 
         // Find target
-        var target = context.TargetingService.FindEnemy(
+        var target = context.TargetingService.FindEnemyForAction(
             context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.MeleeTargetingRange,
+            PLDActions.FastBlade.ActionId,
             player);
 
         if (target == null)
@@ -257,9 +257,9 @@ public sealed class DamageModule : IThemisModule
         if (level < PLDActions.Atonement.MinLevel)
             return false;
 
-        var target = context.TargetingService.FindEnemy(
+        var target = context.TargetingService.FindEnemyForAction(
             context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.MeleeTargetingRange,
+            PLDActions.FastBlade.ActionId,
             player);
 
         if (target == null)
@@ -324,9 +324,9 @@ public sealed class DamageModule : IThemisModule
         if (level < PLDActions.GoringBlade.MinLevel)
             return false;
 
-        var target = context.TargetingService.FindEnemy(
+        var target = context.TargetingService.FindEnemyForAction(
             context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.MeleeTargetingRange,
+            PLDActions.FastBlade.ActionId,
             player);
 
         if (target == null)
@@ -370,9 +370,9 @@ public sealed class DamageModule : IThemisModule
         var player = context.Player;
         var level = player.Level;
 
-        var target = context.TargetingService.FindEnemy(
+        var target = context.TargetingService.FindEnemyForAction(
             context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.MeleeTargetingRange,
+            PLDActions.FastBlade.ActionId,
             player);
 
         if (target == null)

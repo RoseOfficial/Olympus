@@ -23,9 +23,14 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
     #region Abstract Method Implementations
 
     /// <summary>
-    /// Melee targeting range (3y).
+    /// Melee targeting range (3y) — used as fallback only.
     /// </summary>
     protected override float GetTargetingRange() => FFXIVConstants.MeleeTargetingRange;
+
+    /// <summary>
+    /// Use Hakaze to check melee range via game API for maximum accuracy.
+    /// </summary>
+    protected override uint GetRangeCheckActionId() => SAMActions.Hakaze.ActionId;
 
     /// <summary>
     /// AoE count range for SAM (5y for melee AoE abilities).

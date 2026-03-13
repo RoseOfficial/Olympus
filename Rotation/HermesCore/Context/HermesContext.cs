@@ -224,10 +224,10 @@ public sealed class HermesContext : IHermesContext
         // Calculate party health metrics
         PartyHealthMetrics = CalculatePartyHealth(player);
 
-        // Get current target for debuff tracking
-        _currentTarget = targetingService.FindEnemy(
+        // Get current target for debuff tracking using game API range check for accuracy
+        _currentTarget = targetingService.FindEnemyForAction(
             configuration.Targeting.EnemyStrategy,
-            3f,
+            NINActions.SpinningEdge.ActionId,
             player);
 
         // Debuff state

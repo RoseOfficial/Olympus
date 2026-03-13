@@ -6,6 +6,7 @@ using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin.Services;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using Olympus.Rotation.ApolloCore.Helpers;
 
 namespace Olympus.Services.Targeting;
@@ -173,6 +174,20 @@ public sealed class TargetingService : ITargetingService
         return (bestTarget, bestHitCount);
     }
 
+    /// <inheritdoc />
+    public IBattleNpc? FindEnemyForAction(EnemyTargetingStrategy strategy, uint actionId, IPlayerCharacter player)
+    {
+        var target = FindEnemyByActionStrategy(strategy, actionId, player);
+
+        if (target == null && strategy == EnemyTargetingStrategy.TankAssist && _configuration.Targeting.UseTankAssistFallback)
+            target = FindEnemyByActionStrategy(EnemyTargetingStrategy.LowestHp, actionId, player);
+
+        if (target == null && strategy is EnemyTargetingStrategy.CurrentTarget or EnemyTargetingStrategy.FocusTarget)
+            target = FindEnemyByActionStrategy(EnemyTargetingStrategy.LowestHp, actionId, player);
+
+        return target;
+    }
+
     /// <summary>
     /// Invalidates the enemy cache. Call when targets may have changed significantly.
     /// </summary>
@@ -180,6 +195,139 @@ public sealed class TargetingService : ITargetingService
     {
         _cachedEnemies.Clear();
         _cacheTimer.Restart();
+    }
+
+    private IBattleNpc? FindEnemyByActionStrategy(EnemyTargetingStrategy strategy, uint actionId, IPlayerCharacter player)
+    {
+        return strategy switch
+        {
+            EnemyTargetingStrategy.LowestHp => FindLowestHpEnemyForAction(actionId, player),
+            EnemyTargetingStrategy.HighestHp => FindHighestHpEnemyForAction(actionId, player),
+            EnemyTargetingStrategy.Nearest => FindNearestEnemyForAction(actionId, player),
+            EnemyTargetingStrategy.TankAssist => FindTankTargetForAction(actionId, player),
+            EnemyTargetingStrategy.CurrentTarget => FindCurrentTargetForAction(actionId, player),
+            EnemyTargetingStrategy.FocusTarget => FindFocusTargetForAction(actionId, player),
+            _ => FindLowestHpEnemyForAction(actionId, player)
+        };
+    }
+
+    private IBattleNpc? FindLowestHpEnemyForAction(uint actionId, IPlayerCharacter player)
+    {
+        IBattleNpc? best = null;
+        uint lowestHp = uint.MaxValue;
+        foreach (var candidate in GetActionCandidates(player))
+        {
+            if (!IsActionInRange(actionId, player, candidate)) continue;
+            if (candidate.CurrentHp < lowestHp)
+            {
+                lowestHp = candidate.CurrentHp;
+                best = candidate;
+            }
+        }
+        return best;
+    }
+
+    private IBattleNpc? FindHighestHpEnemyForAction(uint actionId, IPlayerCharacter player)
+    {
+        IBattleNpc? best = null;
+        uint highestHp = 0;
+        foreach (var candidate in GetActionCandidates(player))
+        {
+            if (!IsActionInRange(actionId, player, candidate)) continue;
+            if (candidate.CurrentHp > highestHp)
+            {
+                highestHp = candidate.CurrentHp;
+                best = candidate;
+            }
+        }
+        return best;
+    }
+
+    private IBattleNpc? FindNearestEnemyForAction(uint actionId, IPlayerCharacter player)
+    {
+        IBattleNpc? best = null;
+        float nearestDist = float.MaxValue;
+        var playerPos = player.Position;
+        foreach (var candidate in GetActionCandidates(player))
+        {
+            if (!IsActionInRange(actionId, player, candidate)) continue;
+            var dist = Vector3.DistanceSquared(playerPos, candidate.Position);
+            if (dist < nearestDist)
+            {
+                nearestDist = dist;
+                best = candidate;
+            }
+        }
+        return best;
+    }
+
+    private IBattleNpc? FindTankTargetForAction(uint actionId, IPlayerCharacter player)
+    {
+        foreach (var member in _partyList)
+        {
+            if (member.GameObject is not IBattleChara chara) continue;
+            if (!TankJobIds.Contains(chara.ClassJob.RowId)) continue;
+            var targetId = chara.TargetObjectId;
+            if (targetId is 0 or 0xE0000000) continue;
+            var target = _objectTable.SearchById(targetId);
+            if (target is IBattleNpc enemy && IsStillValid(enemy) && IsActionInRange(actionId, player, enemy))
+                return enemy;
+        }
+        return null;
+    }
+
+    private IBattleNpc? FindCurrentTargetForAction(uint actionId, IPlayerCharacter player)
+    {
+        var target = _targetManager.Target;
+        if (target is IBattleNpc enemy && IsStillValid(enemy) && IsActionInRange(actionId, player, enemy))
+            return enemy;
+        return null;
+    }
+
+    private IBattleNpc? FindFocusTargetForAction(uint actionId, IPlayerCharacter player)
+    {
+        var target = _targetManager.FocusTarget;
+        if (target is IBattleNpc enemy && IsStillValid(enemy) && IsActionInRange(actionId, player, enemy))
+            return enemy;
+        return null;
+    }
+
+    /// <summary>
+    /// Iterates all nearby battle NPCs as candidates for action-based range checks.
+    /// Uses a generous 15y pre-filter (safe for any 3y melee action including large boss hitboxes).
+    /// </summary>
+    private IEnumerable<IBattleNpc> GetActionCandidates(IPlayerCharacter player)
+    {
+        foreach (var obj in _objectTable)
+        {
+            if (obj.ObjectKind != ObjectKind.BattleNpc) continue;
+            if (!obj.IsTargetable) continue;
+            if (obj.IsDead) continue;
+            if (obj.YalmDistanceX > 15) continue;
+            if (obj is not IBattleNpc npc) continue;
+            if (npc.BattleNpcKind != BattleNpcSubKind.Enemy && npc.SubKind != 0) continue;
+            yield return npc;
+        }
+    }
+
+    /// <summary>
+    /// Uses the game's native GetActionInRangeOrLoS to check if an action can reach a target.
+    /// Returns true for result 0 (in range + LoS) or 565 (in range but facing wrong way).
+    /// </summary>
+    private static unsafe bool IsActionInRange(uint actionId, IGameObject player, IGameObject target)
+    {
+        try
+        {
+            var playerStruct = (FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)player.Address;
+            var targetStruct = (FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)target.Address;
+            if (playerStruct == null || targetStruct == null) return false;
+            var result = ActionManager.GetActionInRangeOrLoS(actionId, playerStruct, targetStruct);
+            return result is 0 or 565; // 0=in range+LoS, 565=in range but facing wrong way
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private IBattleNpc? FindEnemyByStrategy(EnemyTargetingStrategy strategy, float maxRange, IPlayerCharacter player)

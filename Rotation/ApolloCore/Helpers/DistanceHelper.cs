@@ -1,5 +1,6 @@
 using System.Numerics;
 using Dalamud.Game.ClientState.Objects.Types;
+using FFXIVClientStructs.FFXIV.Client.Game;
 
 namespace Olympus.Rotation.ApolloCore.Helpers;
 
@@ -35,4 +36,26 @@ public static class DistanceHelper
     /// </summary>
     public static float DistanceSquared(Vector3 from, Vector3 to)
         => Vector3.DistanceSquared(from, to);
+
+    /// <summary>
+    /// Checks whether an action can reach a target using the game's native range check.
+    /// Uses ActionManager.GetActionInRangeOrLoS which accounts for both player and enemy hitbox radii,
+    /// exactly as the game does — more accurate than manual distance math.
+    /// Returns true when result is 0 (in range + LoS) or 565 (in range, wrong facing).
+    /// </summary>
+    public static unsafe bool IsActionInRange(uint actionId, IGameObject player, IGameObject target)
+    {
+        try
+        {
+            var playerStruct = (FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)player.Address;
+            var targetStruct = (FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)target.Address;
+            if (playerStruct == null || targetStruct == null) return false;
+            var result = ActionManager.GetActionInRangeOrLoS(actionId, playerStruct, targetStruct);
+            return result is 0 or 565;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }

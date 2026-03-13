@@ -25,10 +25,10 @@ public sealed class DamageModule : INyxModule
         var player = context.Player;
         var level = player.Level;
 
-        // Find target — melee range first, fall back to gap-closer range for engagement
-        var target = context.TargetingService.FindEnemy(
+        // Find target — melee range first via game API, fall back to gap-closer range for engagement
+        var target = context.TargetingService.FindEnemyForAction(
             context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.MeleeTargetingRange,
+            DRKActions.HardSlash.ActionId,
             player);
 
         var engageTarget = target ?? context.TargetingService.FindEnemy(

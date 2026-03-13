@@ -235,10 +235,10 @@ public sealed class KratosContext : IKratosContext
         // Calculate party health metrics
         PartyHealthMetrics = CalculatePartyHealth(player);
 
-        // Get current target for DoT tracking
-        _currentTarget = targetingService.FindEnemy(
+        // Get current target for DoT tracking using game API range check for accuracy
+        _currentTarget = targetingService.FindEnemyForAction(
             configuration.Targeting.EnemyStrategy,
-            3f,
+            MNKActions.Bootshine.ActionId,
             player);
 
         // DoT state

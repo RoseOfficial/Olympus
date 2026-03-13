@@ -196,10 +196,10 @@ public sealed class NyxContext : INyxContext
         // Calculate party health metrics
         PartyHealthMetrics = CalculatePartyHealth(player);
 
-        // Get current target
-        CurrentTarget = targetingService.FindEnemy(
+        // Get current target using game API range check for accuracy
+        CurrentTarget = targetingService.FindEnemyForAction(
             configuration.Targeting.EnemyStrategy,
-            3f,
+            DRKActions.HardSlash.ActionId,
             player);
 
         // Check main tank status

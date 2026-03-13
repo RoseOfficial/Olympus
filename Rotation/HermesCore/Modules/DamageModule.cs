@@ -23,9 +23,14 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
     #region Abstract Method Implementations
 
     /// <summary>
-    /// Melee targeting range (3y).
+    /// Melee targeting range (3y) — used as fallback only.
     /// </summary>
     protected override float GetTargetingRange() => FFXIVConstants.MeleeTargetingRange;
+
+    /// <summary>
+    /// Use Spinning Edge to check melee range via game API for maximum accuracy.
+    /// </summary>
+    protected override uint GetRangeCheckActionId() => NINActions.SpinningEdge.ActionId;
 
     /// <summary>
     /// AoE count range for NIN (5y for melee AoE abilities).
@@ -178,16 +183,11 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
         if (!context.HasRaijuReady)
             return false;
 
-        // Choose Forked (ranged gap closer) or Fleeting (melee) based on distance
-        var dx = player.Position.X - target.Position.X;
-        var dz = player.Position.Z - target.Position.Z;
-        var distance = (float)System.Math.Sqrt(dx * dx + dz * dz);
-
+        // Choose Forked (ranged gap closer) or Fleeting (melee) based on game API range check
         Models.Action.ActionDefinition action;
 
-        // Forked Raiju is a gap closer with 20y range
-        // Fleeting Raiju is melee range
-        if (distance > FFXIVConstants.MeleeTargetingRange + target.HitboxRadius)
+        // Forked Raiju is a gap closer with 20y range; Fleeting Raiju is melee
+        if (!DistanceHelper.IsActionInRange(NINActions.SpinningEdge.ActionId, player, target))
         {
             action = NINActions.ForkedRaiju;
         }

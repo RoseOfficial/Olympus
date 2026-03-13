@@ -29,6 +29,13 @@ public interface ITargetingService
     (IBattleNpc? target, int hitCount) FindBestAoETarget(float aoeRadius, float maxRange, IPlayerCharacter player);
 
     /// <summary>
+    /// Finds an enemy target using the game's native action range check (GetActionInRangeOrLoS).
+    /// More accurate than distance-based range checks because it uses the exact same logic the game uses,
+    /// including both player and enemy hitbox radii.
+    /// </summary>
+    IBattleNpc? FindEnemyForAction(EnemyTargetingStrategy strategy, uint actionId, IPlayerCharacter player);
+
+    /// <summary>
     /// Invalidates the enemy cache.
     /// </summary>
     void InvalidateCache();

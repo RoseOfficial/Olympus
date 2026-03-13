@@ -20,6 +20,8 @@ public sealed class DamageModule : BaseDpsDamageModule<IEchidnaContext>, IEchidn
 
     protected override float GetTargetingRange() => FFXIVConstants.MeleeTargetingRange;
 
+    protected override uint GetRangeCheckActionId() => VPRActions.SteelFangs.ActionId;
+
     protected override float GetAoECountRange() => 5f;
 
     protected override void SetDamageState(IEchidnaContext context, string state) =>
@@ -606,13 +608,8 @@ public sealed class DamageModule : BaseDpsDamageModule<IEchidnaContext>, IEchidn
         // 2. Have max coils (would overcap)
         // 3. As filler when other options unavailable
 
-        // Check if at range
-        var dx = player.Position.X - target.Position.X;
-        var dz = player.Position.Z - target.Position.Z;
-        var distance = (float)System.Math.Sqrt(dx * dx + dz * dz);
-
         // Use at range or if capped on coils
-        bool shouldUse = distance > FFXIVConstants.MeleeTargetingRange + target.HitboxRadius ||
+        bool shouldUse = !DistanceHelper.IsActionInRange(VPRActions.SteelFangs.ActionId, player, target) ||
                          context.RattlingCoils >= 3 ||
                          isMoving;
 

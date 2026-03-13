@@ -93,12 +93,26 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
     }
 
     /// <summary>
+    /// Returns the action ID to use for game-native range checking via GetActionInRangeOrLoS.
+    /// Override in melee job modules to use the accurate game API instead of distance math.
+    /// Return 0 to fall back to distance-based range checking.
+    /// </summary>
+    protected virtual uint GetRangeCheckActionId() => 0;
+
+    /// <summary>
     /// Finds the best enemy target for damage.
-    /// Default: uses targeting service with configured strategy.
-    /// Override for job-specific targeting logic.
+    /// Uses action-based range check (GetActionInRangeOrLoS) when GetRangeCheckActionId() returns non-zero,
+    /// otherwise falls back to distance-based range checking.
     /// </summary>
     protected virtual IBattleChara? AcquireTarget(TContext context)
     {
+        var actionId = GetRangeCheckActionId();
+        if (actionId != 0)
+            return context.TargetingService.FindEnemyForAction(
+                context.Configuration.Targeting.EnemyStrategy,
+                actionId,
+                context.Player);
+
         return context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy,
             GetTargetingRange(),

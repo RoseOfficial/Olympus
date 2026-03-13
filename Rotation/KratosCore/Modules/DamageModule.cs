@@ -18,9 +18,14 @@ public sealed class DamageModule : BaseDpsDamageModule<IKratosContext>, IKratosM
     #region Abstract Method Implementations
 
     /// <summary>
-    /// Melee targeting range (3y).
+    /// Melee targeting range (3y) — used as fallback only.
     /// </summary>
     protected override float GetTargetingRange() => FFXIVConstants.MeleeTargetingRange;
+
+    /// <summary>
+    /// Use Bootshine to check melee range via game API for maximum accuracy.
+    /// </summary>
+    protected override uint GetRangeCheckActionId() => MNKActions.Bootshine.ActionId;
 
     /// <summary>
     /// AoE count range for MNK (5y for melee AoE abilities).
@@ -146,15 +151,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IKratosContext>, IKratosM
         if (level < MNKActions.Thunderclap.MinLevel)
             return false;
 
-        // Check distance - Thunderclap is a gap closer with 20y range
+        // Only use to close gap if out of melee range and within 20y
+        if (DistanceHelper.IsActionInRange(MNKActions.Bootshine.ActionId, player, target))
+            return false;
+
         var dx = player.Position.X - target.Position.X;
         var dz = player.Position.Z - target.Position.Z;
         var distance = (float)System.Math.Sqrt(dx * dx + dz * dz);
-
-        // Only use to close gap if out of melee range
-        if (distance <= FFXIVConstants.MeleeTargetingRange + target.HitboxRadius)
-            return false;
-
         if (distance > 20f)
             return false;
 

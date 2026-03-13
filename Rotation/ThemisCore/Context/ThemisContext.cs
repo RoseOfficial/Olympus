@@ -167,10 +167,10 @@ public sealed class ThemisContext : IThemisContext
         // Calculate party health metrics
         PartyHealthMetrics = CalculatePartyHealth(player);
 
-        // Get current target
-        CurrentTarget = targetingService.FindEnemy(
+        // Get current target using game API range check for accuracy
+        CurrentTarget = targetingService.FindEnemyForAction(
             configuration.Targeting.EnemyStrategy,
-            3f,
+            PLDActions.FastBlade.ActionId,
             player);
 
         // Check main tank status

@@ -28,10 +28,10 @@ public sealed class DamageModule : IAresModule
         var player = context.Player;
         var level = player.Level;
 
-        // Find target — melee range first, fall back to gap-closer range for engagement
-        var target = context.TargetingService.FindEnemy(
+        // Find target — melee range first via game API, fall back to gap-closer range for engagement
+        var target = context.TargetingService.FindEnemyForAction(
             context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.MeleeTargetingRange,
+            WARActions.HeavySwing.ActionId,
             player);
 
         var engageTarget = target ?? context.TargetingService.FindEnemy(
@@ -197,13 +197,14 @@ public sealed class DamageModule : IAresModule
         if (!context.ActionService.IsActionReady(WARActions.Onslaught.ActionId))
             return false;
 
-        // Check distance - Onslaught is a gap closer with 20y range
+        // Check range — gap close if out of melee range but within 20y, else weave as damage
+        var inMelee = DistanceHelper.IsActionInRange(WARActions.HeavySwing.ActionId, player, target);
         var dx = player.Position.X - target.Position.X;
         var dy = player.Position.Y - target.Position.Y;
         var dz = player.Position.Z - target.Position.Z;
         var distance = (float)System.Math.Sqrt(dx * dx + dy * dy + dz * dz);
 
-        if (distance > FFXIVConstants.MeleeTargetingRange + target.HitboxRadius && distance <= 20f)
+        if (!inMelee && distance <= 20f)
         {
             // Gap close to target
             if (context.ActionService.ExecuteOgcd(WARActions.Onslaught, target.GameObjectId))
@@ -213,7 +214,7 @@ public sealed class DamageModule : IAresModule
                 return true;
             }
         }
-        else if (distance <= FFXIVConstants.MeleeTargetingRange + target.HitboxRadius)
+        else if (inMelee)
         {
             // In melee range — use as damage weave at all levels (level >= 88 guard removed)
             if (context.ActionService.ExecuteOgcd(WARActions.Onslaught, target.GameObjectId))
@@ -238,13 +239,8 @@ public sealed class DamageModule : IAresModule
         if (!context.ActionService.IsActionReady(WARActions.Tomahawk.ActionId))
             return false;
 
-        var dx = player.Position.X - target.Position.X;
-        var dy = player.Position.Y - target.Position.Y;
-        var dz = player.Position.Z - target.Position.Z;
-        var distance = (float)System.Math.Sqrt(dx * dx + dy * dy + dz * dz);
-
         // Tomahawk is a ranged attack — only use when out of melee range
-        if (distance <= FFXIVConstants.MeleeTargetingRange + target.HitboxRadius)
+        if (DistanceHelper.IsActionInRange(WARActions.HeavySwing.ActionId, player, target))
             return false;
 
         if (context.ActionService.ExecuteGcd(WARActions.Tomahawk, target.GameObjectId))

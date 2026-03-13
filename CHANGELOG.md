@@ -3,13 +3,18 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.4 - Melee Range Precision
+
+**All Melee and Tank Jobs**
+- Melee range detection now uses the game's own built-in range check instead of manual distance math, giving maximum precision — enemies at the very edge of attack range are now reliably detected and engaged
+
+<!-- LATEST-END -->
+
 ## v4.10.3 - Spell Checklist Debug Tab
 
 **Debug Window**
 - Added a new Checklist tab that shows every spell your current job should be casting, filtered to your actual level, with a cast count per spell and a Reset button to start a fresh session count
 - Spells that have been cast show a green dot; spells not yet cast show a red dot, making it easy to spot gaps in the rotation at a glance
-
-<!-- LATEST-END -->
 
 ## v4.10.2 - Large Boss Range Fix
 

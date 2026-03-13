@@ -208,9 +208,9 @@ public sealed class EnmityModule : INyxModule
             return false;
         }
 
-        var target = context.TargetingService.FindEnemy(
+        var target = context.TargetingService.FindEnemyForAction(
             context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.MeleeTargetingRange,
+            DRKActions.HardSlash.ActionId,
             player);
 
         if (target == null)

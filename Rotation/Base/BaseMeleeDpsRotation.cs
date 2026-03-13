@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
+using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.Common;
 using Olympus.Services;
@@ -122,6 +123,13 @@ public abstract class BaseMeleeDpsRotation<TContext, TModule> : BaseRotation<TCo
     #region Abstract Methods
 
     /// <summary>
+    /// Returns the action ID used for positional range checking via game API.
+    /// Override in derived classes to use the job's own basic melee GCD.
+    /// Defaults to Heavy Swing (WAR, ID 31) — valid for any 3y melee action.
+    /// </summary>
+    protected virtual uint GetMeleeRangeActionId() => WARActions.HeavySwing.ActionId;
+
+    /// <summary>
     /// Reads the job-specific gauge value(s).
     /// Must be implemented by each melee DPS job.
     /// </summary>
@@ -162,10 +170,10 @@ public abstract class BaseMeleeDpsRotation<TContext, TModule> : BaseRotation<TCo
     /// </summary>
     protected virtual void UpdatePositionalState(IPlayerCharacter player)
     {
-        // Find current target
-        var target = TargetingService.FindEnemy(
+        // Find current target using game API range check for maximum accuracy
+        var target = TargetingService.FindEnemyForAction(
             Configuration.Targeting.EnemyStrategy,
-            3f, // Melee range
+            GetMeleeRangeActionId(),
             player);
 
         if (target == null)

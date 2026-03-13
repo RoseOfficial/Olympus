@@ -90,9 +90,9 @@ public sealed class BuffModule : BaseTankBuffModule<IThemisContext>, IThemisModu
         }
 
         // Find a target to verify we're in combat
-        var target = context.TargetingService.FindEnemy(
+        var target = context.TargetingService.FindEnemyForAction(
             context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.MeleeTargetingRange,
+            PLDActions.FastBlade.ActionId,
             player);
 
         if (target == null)
@@ -159,9 +159,9 @@ public sealed class BuffModule : BaseTankBuffModule<IThemisContext>, IThemisModu
             return false;
 
         // Find a target
-        var target = context.TargetingService.FindEnemy(
+        var target = context.TargetingService.FindEnemyForAction(
             context.Configuration.Targeting.EnemyStrategy,
-            FFXIVConstants.MeleeTargetingRange,
+            PLDActions.FastBlade.ActionId,
             player);
 
         if (target == null)
