@@ -108,6 +108,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly AnalyticsWindow analyticsWindow;
     private readonly TrainingWindow trainingWindow;
     private readonly HintOverlay hintOverlay;
+    private readonly OverlayWindow overlayWindow;
     private readonly TelemetryService telemetryService;
 
     private readonly OlympusIpc olympusIpc;
@@ -265,12 +266,13 @@ public sealed class Plugin : IDalamudPlugin
             dataManager);
 
         this.configWindow = new ConfigWindow(configuration, SaveConfiguration);
-        this.mainWindow = new MainWindow(configuration, SaveConfiguration, OpenConfigUI, OpenDebugUI, OpenAnalyticsUI, OpenTrainingUI, PluginVersion, rotationManager);
+        this.mainWindow = new MainWindow(configuration, SaveConfiguration, OpenConfigUI, OpenDebugUI, OpenAnalyticsUI, OpenTrainingUI, OpenOverlayUI, PluginVersion, rotationManager);
         this.debugWindow = new DebugWindow(debugService, configuration, timelineService);
         this.welcomeWindow = new WelcomeWindow(configuration, SaveConfiguration);
         this.analyticsWindow = new AnalyticsWindow(performanceTracker, configuration, fflogsService);
         this.trainingWindow = new TrainingWindow(trainingService, configuration, decisionValidationService, spacedRepetitionService);
         this.hintOverlay = new HintOverlay(realTimeCoachingService, configuration.Training);
+        this.overlayWindow = new OverlayWindow(configuration, SaveConfiguration);
 
         // Telemetry service for anonymous usage tracking
         this.telemetryService = new TelemetryService(configuration, log);
@@ -291,6 +293,8 @@ public sealed class Plugin : IDalamudPlugin
         windowSystem.AddWindow(analyticsWindow);
         windowSystem.AddWindow(trainingWindow);
         windowSystem.AddWindow(hintOverlay);
+        windowSystem.AddWindow(overlayWindow);
+        overlayWindow.IsOpen = configuration.Overlay.IsVisible;
 
         mainWindow.IsOpen = configuration.MainWindowVisible;
         mainWindow.RespectCloseHotkey = !configuration.PreventEscapeClose;
@@ -381,6 +385,7 @@ public sealed class Plugin : IDalamudPlugin
         configuration.Debug.DebugWindowVisible = debugWindow.IsOpen;
         configuration.Analytics.AnalyticsWindowVisible = analyticsWindow.IsOpen;
         configuration.Training.TrainingWindowVisible = trainingWindow.IsOpen;
+        configuration.Overlay.IsVisible = overlayWindow.IsOpen;
         pluginInterface.SavePluginConfig(configuration);
     }
 
@@ -405,6 +410,8 @@ public sealed class Plugin : IDalamudPlugin
     private void OpenAnalyticsUI() => analyticsWindow.Toggle();
 
     private void OpenTrainingUI() => trainingWindow.Toggle();
+
+    private void OpenOverlayUI() => overlayWindow.Toggle();
 
     private void OnCommand(string command, string args)
     {
