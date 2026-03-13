@@ -335,6 +335,98 @@ public sealed class DebugWindow : Window
         }
     }
 
+    private void DrawJobDetailsTab()
+    {
+        // Auto-select current job on first open (or after close reset)
+        if (_selectedJobId == 0)
+        {
+            var rawJobId = _debugService.GetJobId();
+            _selectedJobId = MapToAdvancedJobId(rawJobId);
+        }
+
+        // Resolve display name for the combo preview
+        var previewName = "Unknown";
+        foreach (var (jobId, displayName) in JobList)
+        {
+            if (jobId == 0) continue; // skip headers
+            if (jobId == _selectedJobId)
+            {
+                previewName = displayName;
+                break;
+            }
+        }
+
+        // Job selector combo
+        if (ImGui.BeginCombo("##JobSelector", previewName))
+        {
+            foreach (var (jobId, displayName) in JobList)
+            {
+                if (jobId == 0)
+                {
+                    // Non-selectable role header
+                    ImGui.Selectable(displayName, false, ImGuiSelectableFlags.Disabled);
+                }
+                else
+                {
+                    var isSelected = jobId == _selectedJobId;
+                    if (ImGui.Selectable("  " + displayName, isSelected))
+                        _selectedJobId = jobId;
+                    if (isSelected)
+                        ImGui.SetItemDefaultFocus();
+                }
+            }
+            ImGui.EndCombo();
+        }
+
+        ImGui.Separator();
+
+        // Fallback: player not logged in or job unresolved
+        if (_selectedJobId == 0)
+        {
+            ImGui.TextDisabled("Not logged in.");
+            return;
+        }
+
+        // Dispatch to the appropriate job tab
+        switch (_selectedJobId)
+        {
+            // Tanks
+            case JobRegistry.Warrior:     AresTab.Draw(_debugService.GetAresDebugState(), _configuration); break;
+            case JobRegistry.Paladin:     ThemisTab.Draw(_debugService.GetThemisDebugState(), _configuration); break;
+            case JobRegistry.DarkKnight:  NyxTab.Draw(_debugService.GetNyxDebugState(), _configuration); break;
+            case JobRegistry.Gunbreaker:  HephaestusTab.Draw(_debugService.GetHephaestusDebugState(), _configuration); break;
+
+            // Healers
+            case JobRegistry.WhiteMage:   ApolloTab.Draw(_debugService.GetApolloDebugState(), _configuration); break;
+            case JobRegistry.Scholar:     ScholarTab.Draw(_debugService.GetAthenaDebugState(), _configuration); break;
+            case JobRegistry.Astrologian: AstrologianTab.Draw(_debugService.GetAstraeaDebugState(), _configuration); break;
+            case JobRegistry.Sage:        AsclepiusTab.Draw(_debugService.GetAsclepiusDebugState(), _configuration); break;
+
+            // Melee DPS
+            case JobRegistry.Monk:        KratosTab.Draw(_debugService.GetKratosDebugState(), _configuration); break;
+            case JobRegistry.Dragoon:     ZeusTab.Draw(_debugService.GetZeusDebugState(), _configuration); break;
+            case JobRegistry.Ninja:       HermesTab.Draw(_debugService.GetHermesDebugState(), _configuration); break;
+            case JobRegistry.Samurai:     NikeTab.Draw(_debugService.GetNikeDebugState(), _configuration); break;
+            case JobRegistry.Reaper:      ThanatosTab.Draw(_debugService.GetThanatosDebugState(), _configuration); break;
+            case JobRegistry.Viper:       EchidnaTab.Draw(_debugService.GetEchidnaDebugState(), _configuration); break;
+
+            // Physical Ranged
+            case JobRegistry.Bard:        CalliopeTab.Draw(_debugService.GetCalliopeDebugState(), _configuration); break;
+            case JobRegistry.Machinist:   PrometheusTab.Draw(_debugService.GetPrometheusDebugState(), _configuration); break;
+            case JobRegistry.Dancer:      TerpsichoreTab.Draw(_debugService.GetTerpsichoreDebugState(), _configuration); break;
+
+            // Casters
+            case JobRegistry.BlackMage:   HecateTab.Draw(_debugService.GetHecateDebugState(), _configuration); break;
+            case JobRegistry.Summoner:    PersephoneTab.Draw(_debugService.GetPersephoneDebugState(), _configuration); break;
+            case JobRegistry.RedMage:     CirceTab.Draw(_debugService.GetCirceDebugState(), _configuration); break;
+            case JobRegistry.Pictomancer: IrisTab.Draw(_debugService.GetIrisDebugState(), _configuration); break;
+
+            default:
+                ImGui.TextDisabled("No debug info available for this job.");
+                break;
+        }
+    }
+
     /// <summary>
     /// Maps a raw job ID (which may be a base class) to the canonical advanced job ID
     /// used in JobList. Returns 0 if the ID cannot be mapped to any supported job.
