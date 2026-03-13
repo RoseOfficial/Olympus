@@ -3,6 +3,15 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.0 - Job Icons in Main Window
+
+**Main Window**
+- Added job icons to the active rotation display and available rotations list
+- Icons are loaded from the game's own UI assets via ITextureProvider
+- Inactive rotations in the list are shown at reduced opacity to distinguish them from the active one
+
+<!-- LATEST-END -->
+
 ## v4.9.9 - Quick Toggle Overlay
 
 **Main Window**

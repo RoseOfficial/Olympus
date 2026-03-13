@@ -34,7 +34,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "4.9.9";
+    public const string PluginVersion = "4.10.0";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -125,7 +125,8 @@ public sealed class Plugin : IDalamudPlugin
         ICondition condition,
         IGameInteropProvider gameInteropProvider,
         ITargetManager targetManager,
-        IJobGauges jobGauges)
+        IJobGauges jobGauges,
+        ITextureProvider textureProvider)
     {
         this.pluginInterface = pluginInterface;
         this.framework = framework;
@@ -266,7 +267,7 @@ public sealed class Plugin : IDalamudPlugin
             dataManager);
 
         this.configWindow = new ConfigWindow(configuration, SaveConfiguration);
-        this.mainWindow = new MainWindow(configuration, SaveConfiguration, OpenConfigUI, OpenDebugUI, OpenAnalyticsUI, OpenTrainingUI, OpenOverlayUI, PluginVersion, rotationManager);
+        this.mainWindow = new MainWindow(configuration, SaveConfiguration, OpenConfigUI, OpenDebugUI, OpenAnalyticsUI, OpenTrainingUI, OpenOverlayUI, PluginVersion, rotationManager, textureProvider);
         this.debugWindow = new DebugWindow(debugService, configuration, timelineService);
         this.welcomeWindow = new WelcomeWindow(configuration, SaveConfiguration);
         this.analyticsWindow = new AnalyticsWindow(performanceTracker, configuration, fflogsService);

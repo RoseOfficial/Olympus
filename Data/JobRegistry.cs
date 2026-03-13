@@ -124,6 +124,12 @@ public static class JobRegistry
     public static bool IsSage(uint jobId) => jobId == Sage;
 
     /// <summary>
+    /// Gets the FFXIV UI icon ID for a job (icon range 62001–62042).
+    /// Returns 0 if the job ID is not in the recognized range.
+    /// </summary>
+    public static uint GetJobIconId(uint jobId) => jobId is >= 1 and <= 42 ? 62000u + jobId : 0u;
+
+    /// <summary>
     /// Gets the display name for a job ID.
     /// </summary>
     public static string GetJobName(uint jobId) => jobId switch

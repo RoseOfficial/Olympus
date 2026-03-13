@@ -1,7 +1,9 @@
 using System;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Dalamud.Interface.Textures;
 using Dalamud.Interface.Windowing;
+using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Localization;
 using Olympus.Rotation;
@@ -19,6 +21,7 @@ public sealed class MainWindow : Window
     private readonly Action openTraining;
     private readonly Action openOverlay;
     private readonly RotationManager rotationManager;
+    private readonly ITextureProvider textureProvider;
 
     public MainWindow(
         Configuration configuration,
@@ -29,7 +32,8 @@ public sealed class MainWindow : Window
         Action openTraining,
         Action openOverlay,
         string version,
-        RotationManager rotationManager)
+        RotationManager rotationManager,
+        ITextureProvider textureProvider)
         : base($"Olympus v{version}", ImGuiWindowFlags.NoCollapse)
     {
         this.configuration = configuration;
@@ -40,6 +44,7 @@ public sealed class MainWindow : Window
         this.openTraining = openTraining;
         this.openOverlay = openOverlay;
         this.rotationManager = rotationManager;
+        this.textureProvider = textureProvider;
 
         Size = new Vector2(250, 290);
         SizeCondition = ImGuiCond.FirstUseEver;
@@ -65,8 +70,18 @@ public sealed class MainWindow : Window
         var activeRotation = rotationManager.ActiveRotation;
         if (activeRotation != null)
         {
-            var jobName = JobRegistry.GetJobName(activeRotation.SupportedJobIds[0]);
+            var activeJobId = activeRotation.SupportedJobIds[0];
+            var jobName = JobRegistry.GetJobName(activeJobId);
             var activeColor = new Vector4(0.4f, 0.8f, 1.0f, 1.0f);
+
+            var iconId = JobRegistry.GetJobIconId(activeJobId);
+            if (iconId != 0)
+            {
+                var wrap = textureProvider.GetFromGameIcon(new GameIconLookup(iconId)).GetWrapOrEmpty();
+                ImGui.Image(wrap.Handle, new Vector2(20, 20));
+                ImGui.SameLine();
+            }
+
             ImGui.TextColored(activeColor, $"{activeRotation.Name} ({jobName})");
         }
         else
@@ -109,11 +124,22 @@ public sealed class MainWindow : Window
         foreach (var rotation in rotationManager.RegisteredRotations)
         {
             bool isActive = rotation == activeRotation;
-            var jobName = JobRegistry.GetJobName(rotation.SupportedJobIds[0]);
+            var listJobId = rotation.SupportedJobIds[0];
+            var jobName = JobRegistry.GetJobName(listJobId);
+
+            var listIconId = JobRegistry.GetJobIconId(listJobId);
+            if (listIconId != 0)
+            {
+                var wrap = textureProvider.GetFromGameIcon(new GameIconLookup(listIconId)).GetWrapOrEmpty();
+                var tint = isActive ? Vector4.One : new Vector4(1f, 1f, 1f, 0.45f);
+                ImGui.Image(wrap.Handle, new Vector2(16, 16), Vector2.Zero, Vector2.One, tint);
+                ImGui.SameLine();
+            }
+
             if (isActive)
-                ImGui.BulletText($"{rotation.Name} ({jobName})");
+                ImGui.Text($"{rotation.Name} ({jobName})");
             else
-                ImGui.TextDisabled($"  {rotation.Name} ({jobName})");
+                ImGui.TextDisabled($"{rotation.Name} ({jobName})");
         }
 
         ImGui.Separator();
