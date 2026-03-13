@@ -1,5 +1,3 @@
-using Moq;
-using Dalamud.Plugin.Services;
 using Olympus.Models;
 using Olympus.Services;
 using Olympus.Tests.Mocks;
@@ -9,12 +7,7 @@ namespace Olympus.Tests.Services;
 
 public class ActionTrackerTests
 {
-    private static ActionTracker CreateTracker()
-    {
-        var dataManager = new Mock<IDataManager>().Object;
-        var config = MockBuilders.CreateDefaultConfiguration();
-        return new ActionTracker(dataManager, config);
-    }
+    private static ActionTracker CreateTracker() => MockBuilders.CreateMockActionTracker();
 
     [Fact]
     public void ClearSpellUsageCounts_PreservesHistory()
