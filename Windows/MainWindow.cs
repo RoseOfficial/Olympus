@@ -46,7 +46,7 @@ public sealed class MainWindow : Window
         this.rotationManager = rotationManager;
         this.textureProvider = textureProvider;
 
-        Size = new Vector2(250, 290);
+        Size = new Vector2(250, 200);
         SizeCondition = ImGuiCond.FirstUseEver;
     }
 
@@ -115,31 +115,6 @@ public sealed class MainWindow : Window
                     ImGui.TextColored(new Vector4(0.7f, 0.7f, 0.7f, 1f), Loc.T(LocalizedStrings.Main.PositionalFront, "Front"));
                 }
             }
-        }
-
-        ImGui.Separator();
-
-        // List available rotations
-        ImGui.Text(Loc.T(LocalizedStrings.Main.Available, "Available:"));
-        foreach (var rotation in rotationManager.RegisteredRotations)
-        {
-            bool isActive = rotation == activeRotation;
-            var listJobId = rotation.SupportedJobIds[0];
-            var jobName = JobRegistry.GetJobName(listJobId);
-
-            var listIconId = JobRegistry.GetJobIconId(listJobId);
-            if (listIconId != 0)
-            {
-                var wrap = textureProvider.GetFromGameIcon(new GameIconLookup(listIconId)).GetWrapOrEmpty();
-                var tint = isActive ? Vector4.One : new Vector4(1f, 1f, 1f, 0.45f);
-                ImGui.Image(wrap.Handle, new Vector2(16, 16), Vector2.Zero, Vector2.One, tint);
-                ImGui.SameLine();
-            }
-
-            if (isActive)
-                ImGui.Text($"{rotation.Name} ({jobName})");
-            else
-                ImGui.TextDisabled($"{rotation.Name} ({jobName})");
         }
 
         ImGui.Separator();
