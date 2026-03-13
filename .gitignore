@@ -5,6 +5,7 @@ obj/
 .vs/
 *.log
 packages.lock.json
+Docs/superpowers/
 # AI coding assistants
 .claude/
 .cursor/
