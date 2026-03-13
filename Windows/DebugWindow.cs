@@ -129,7 +129,7 @@ public sealed class DebugWindow : Window
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Job Details"))
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabJobDetails, "Job Details")))
             {
                 DrawJobDetailsTab();
                 ImGui.EndTabItem();

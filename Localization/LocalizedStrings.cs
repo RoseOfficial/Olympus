@@ -2030,28 +2030,8 @@ public static class LocalizedStrings
         public const string TabOverheal = "debug.tab.overheal";
         public const string TabActions = "debug.tab.actions";
         public const string TabPerformance = "debug.tab.performance";
-        public const string TabScholar = "debug.tab.scholar";
-        public const string TabAstrologian = "debug.tab.astrologian";
-        public const string TabDragoon = "debug.tab.dragoon";
-        public const string TabNinja = "debug.tab.ninja";
-        public const string TabSamurai = "debug.tab.samurai";
-        public const string TabMonk = "debug.tab.monk";
-        public const string TabReaper = "debug.tab.reaper";
-        public const string TabViper = "debug.tab.viper";
-        public const string TabMachinist = "debug.tab.machinist";
-        public const string TabBard = "debug.tab.bard";
-        public const string TabDancer = "debug.tab.dancer";
-        public const string TabBlackMage = "debug.tab.black_mage";
-        public const string TabSummoner = "debug.tab.summoner";
-        public const string TabRedMage = "debug.tab.red_mage";
-        public const string TabPictomancer = "debug.tab.pictomancer";
+        public const string TabJobDetails = "debug.tab.job_details";
         public const string TabTimeline = "debug.tab.timeline";
-        public const string TabWarrior = "debug.tab.warrior";
-        public const string TabDarkKnight = "debug.tab.dark_knight";
-        public const string TabPaladin = "debug.tab.paladin";
-        public const string TabGunbreaker = "debug.tab.gunbreaker";
-        public const string TabWhiteMage = "debug.tab.white_mage";
-        public const string TabSage = "debug.tab.sage";
         public const string TabChecklist = "debug.tab.checklist";
 
         // Checklist tab
