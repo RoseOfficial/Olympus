@@ -3,6 +3,15 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.9.9 - Quick Toggle Overlay
+
+**Main Window**
+- Added always-visible floating overlay with one-click toggles for Rotation, Healing, and Damage — no need to open the main window mid-combat
+- Overlay is draggable and remembers its visibility between sessions
+- Open/close via the new Overlay button in the main window
+
+<!-- LATEST-END -->
+
 ## v4.9.8 - Positional Indicator
 
 **Main Window**
