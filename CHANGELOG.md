@@ -3,12 +3,18 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.5 - Debug Window Overhaul
+
+**Debug Window**
+- The 21 per-job tabs have been replaced with a single "Job Details" tab containing a dropdown that lets you pick any job, grouped by role — the tab bar no longer overflows and is much easier to navigate
+- The correct job is automatically selected when you open the window, so you land on your current job's info without scrolling
+
+<!-- LATEST-END -->
+
 ## v4.10.4 - Melee Range Precision
 
 **All Melee and Tank Jobs**
 - Melee range detection now uses the game's own built-in range check instead of manual distance math, giving maximum precision — enemies at the very edge of attack range are now reliably detected and engaged
-
-<!-- LATEST-END -->
 
 ## v4.10.3 - Spell Checklist Debug Tab
 
