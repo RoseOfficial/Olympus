@@ -3,12 +3,18 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.3 - Spell Checklist Debug Tab
+
+**Debug Window**
+- Added a new Checklist tab that shows every spell your current job should be casting, filtered to your actual level, with a cast count per spell and a Reset button to start a fresh session count
+- Spells that have been cast show a green dot; spells not yet cast show a red dot, making it easy to spot gaps in the rotation at a glance
+
+<!-- LATEST-END -->
+
 ## v4.10.2 - Large Boss Range Fix
 
 **All Jobs**
 - Fixed melee rotations incorrectly using ranged attacks when standing near large bosses: the plugin now accounts for enemy hitbox size when determining whether you are in melee range
-
-<!-- LATEST-END -->
 
 ## v4.10.1 - Gap Closer & Debug Fixes
 
