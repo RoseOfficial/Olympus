@@ -4,6 +4,7 @@ using Dalamud.Interface.Windowing;
 using Olympus.Data;
 using Olympus.Localization;
 using Olympus.Services.Debug;
+using Olympus.Services.Targeting;
 using Olympus.Timeline;
 using Olympus.Windows.Debug.Tabs;
 
@@ -17,6 +18,7 @@ public sealed class DebugWindow : Window
     private readonly DebugService _debugService;
     private readonly Configuration _configuration;
     private readonly ITimelineService? _timelineService;
+    private readonly SmartAoETab? _smartAoETab;
 
     private uint _selectedJobId; // 0 = unset; auto-selects active job on next Draw
 
@@ -52,12 +54,13 @@ public sealed class DebugWindow : Window
         (JobRegistry.Pictomancer, JobRegistry.GetJobName(JobRegistry.Pictomancer)),
     ];
 
-    public DebugWindow(DebugService debugService, Configuration configuration, ITimelineService? timelineService = null)
+    public DebugWindow(DebugService debugService, Configuration configuration, ITimelineService? timelineService = null, SmartAoETab? smartAoETab = null)
         : base(Loc.T(LocalizedStrings.Debug.WindowTitle, "Olympus Debug"), ImGuiWindowFlags.NoSavedSettings)
     {
         _debugService = debugService;
         _configuration = configuration;
         _timelineService = timelineService;
+        _smartAoETab = smartAoETab;
 
         Size = new Vector2(550, 450);
         SizeCondition = ImGuiCond.FirstUseEver;
@@ -138,6 +141,12 @@ public sealed class DebugWindow : Window
             if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabTimeline, "Timeline")))
             {
                 TimelineTab.Draw(_timelineService, _configuration);
+                ImGui.EndTabItem();
+            }
+
+            if (_smartAoETab != null && ImGui.BeginTabItem("Smart AoE"))
+            {
+                _smartAoETab.Draw(_configuration);
                 ImGui.EndTabItem();
             }
 

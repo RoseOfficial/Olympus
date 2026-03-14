@@ -817,4 +817,20 @@ public sealed class DamageModule : BaseDpsDamageModule<IKratosContext>, IKratosM
     }
 
     #endregion
+
+    #region Smart AoE
+
+    protected override uint GetNextDirectionalAoEActionId(IKratosContext context, IBattleChara target, int enemyCount)
+    {
+        if (enemyCount < AoeThreshold) return 0;
+        var level = context.Player.Level;
+        // Enlightenment / Howling Fist are line AoE Chakra spenders
+        if (level >= MNKActions.Enlightenment.MinLevel)
+            return MNKActions.Enlightenment.ActionId;
+        if (level >= MNKActions.HowlingFist.MinLevel)
+            return MNKActions.HowlingFist.ActionId;
+        return 0;
+    }
+
+    #endregion
 }

@@ -141,6 +141,31 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
         _lifeOfDragonRemaining = SafeGameAccess.GetDrgLifeOfDragonTimer(ErrorMetrics);
     }
 
+    /// <summary>
+    /// DRG positionals: Fang and Claw = flank, Wheeling Thrust = rear,
+    /// Chaos Thrust/Chaotic Spring = rear. After Disembowel → rear.
+    /// </summary>
+    protected override PositionalType? GetNextRequiredPositional()
+    {
+        var player = ObjectTable.LocalPlayer;
+        if (player == null) return null;
+
+        // Check for Fang and Claw Bared (flank proc) or Wheel in Motion (rear proc)
+        foreach (var s in player.StatusList)
+        {
+            if (s.StatusId == DRGActions.StatusIds.FangAndClawBared)
+                return PositionalType.Flank;
+            if (s.StatusId == DRGActions.StatusIds.WheelInMotion)
+                return PositionalType.Rear;
+        }
+
+        // After Disembowel (87) → next is Chaos Thrust (rear)
+        if (LastComboAction == 87)
+            return PositionalType.Rear;
+
+        return null;
+    }
+
     /// <inheritdoc />
     protected override int DetermineComboStep(uint comboAction, float comboTimer)
     {

@@ -188,8 +188,10 @@ public abstract class BaseRotation<TContext, TModule> : IRotation
         // Movement detection
         var (isMoving, _) = UpdateMovement(player);
 
-        // Combat tracking
+        // Combat tracking — also treat auto-attack as combat if enabled
         var inCombat = (player.StatusFlags & StatusFlags.InCombat) != 0;
+        if (!inCombat && Configuration.EnableOnAutoAttack)
+            inCombat = IsAutoAttacking();
         UpdateCombatState(inCombat);
 
         // Job-specific service updates
@@ -341,6 +343,27 @@ public abstract class BaseRotation<TContext, TModule> : IRotation
             Log.Error(ex, "{0}.Execute error (suppressed {1} errors in last {2}s)",
                 Name, _suppressedErrorCount, FFXIVTimings.ErrorThrottleSeconds);
             _suppressedErrorCount = 0;
+        }
+    }
+
+    #endregion
+
+    #region Auto-Attack Detection
+
+    /// <summary>
+    /// Checks if the player has auto-attack active via UIState.WeaponState.AutoAttackState.
+    /// </summary>
+    private static unsafe bool IsAutoAttacking()
+    {
+        try
+        {
+            var uiState = FFXIVClientStructs.FFXIV.Client.Game.UI.UIState.Instance();
+            if (uiState == null) return false;
+            return uiState->WeaponState.AutoAttackState.IsAutoAttacking;
+        }
+        catch
+        {
+            return false;
         }
     }
 

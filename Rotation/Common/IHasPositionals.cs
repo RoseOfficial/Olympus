@@ -1,3 +1,5 @@
+using Olympus.Services.Positional;
+
 namespace Olympus.Rotation.Common;
 
 /// <summary>
@@ -20,6 +22,12 @@ public readonly struct PositionalSnapshot
 
     /// <summary>Player has an active target within melee range.</summary>
     public bool HasTarget { get; init; }
+
+    /// <summary>
+    /// The positional required by the next planned melee action (Rear, Flank, or null if no requirement).
+    /// Set by the rotation when it knows what action comes next.
+    /// </summary>
+    public PositionalType? RequiredPositional { get; init; }
 }
 
 /// <summary>

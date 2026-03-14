@@ -151,6 +151,19 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>, IDis
         _meditation = SafeGameAccess.GetSamMeditation(ErrorMetrics);
     }
 
+    /// <summary>
+    /// SAM positionals: Gekko = rear (after Jinpu), Kasha = flank (after Shifu).
+    /// </summary>
+    protected override PositionalType? GetNextRequiredPositional()
+    {
+        return LastComboAction switch
+        {
+            7478 => PositionalType.Rear,   // After Jinpu → Gekko (rear)
+            7479 => PositionalType.Flank,  // After Shifu → Kasha (flank)
+            _ => null,
+        };
+    }
+
     /// <inheritdoc />
     protected override int DetermineComboStep(uint comboAction, float comboTimer)
     {

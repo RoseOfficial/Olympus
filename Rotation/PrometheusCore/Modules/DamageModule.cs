@@ -640,4 +640,36 @@ public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPro
     }
 
     #endregion
+
+    #region Smart AoE
+
+    protected override uint GetNextDirectionalAoEActionId(IPrometheusContext context, IBattleChara target, int enemyCount)
+    {
+        var level = context.Player.Level;
+
+        // Chain Saw is a line AoE — only when ready (not on cooldown)
+        if (level >= MCHActions.ChainSaw.MinLevel
+            && context.ActionService.IsActionReady(MCHActions.ChainSaw.ActionId))
+            return MCHActions.ChainSaw.ActionId;
+
+        // Bioblaster is a line AoE DoT — when ready and multiple targets
+        if (enemyCount >= 2 && level >= MCHActions.Bioblaster.MinLevel
+            && context.ActionService.IsActionReady(MCHActions.Bioblaster.ActionId))
+            return MCHActions.Bioblaster.ActionId;
+
+        if (enemyCount < AoeThreshold) return 0;
+
+        // AoE cone: Scattergun > Spread Shot (GCDs, always "ready" when GCD is up)
+        if (context.CanExecuteGcd)
+        {
+            if (level >= MCHActions.Scattergun.MinLevel)
+                return MCHActions.Scattergun.ActionId;
+            if (level >= MCHActions.SpreadShot.MinLevel)
+                return MCHActions.SpreadShot.ActionId;
+        }
+
+        return 0;
+    }
+
+    #endregion
 }

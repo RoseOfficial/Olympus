@@ -54,6 +54,7 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
     /// Parameters: (sourceEntityId, actionId)
     /// </summary>
     public event System.Action<uint, uint>? OnAbilityUsed;
+    public event System.Action<uint, int>? OnLocalAbilityResolved;
 
     /// <summary>
     /// Event raised when the local player deals damage to any target.
@@ -454,6 +455,10 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
 
         // Raise ability used event for timeline sync (once per action, not per target)
         OnAbilityUsed?.Invoke(casterEntityId, header->ActionId);
+
+        // Raise local ability resolved with target count for Smart AoE tracking
+        if (isFromLocalPlayer)
+            OnLocalAbilityResolved?.Invoke(header->ActionId, (int)header->NumTargets);
     }
 
     /// <summary>

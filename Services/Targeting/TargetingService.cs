@@ -529,4 +529,129 @@ public sealed class TargetingService : ITargetingService
         }
         return 0f;
     }
+
+    // ── Cone / Line AoE Targeting ──
+
+    /// <inheritdoc />
+    public (IBattleNpc? target, int hitCount, float optimalAngle) FindBestConeAoETarget(
+        float coneHalfAngle, float radius, float maxRange, IPlayerCharacter player)
+    {
+        // Use the ability's effect range for candidate filtering, not the rotation's targeting range
+        var candidateRange = MathF.Max(radius, maxRange);
+        var enemies = new List<IBattleNpc>();
+        foreach (var e in GetValidEnemies(candidateRange, player))
+            enemies.Add(e);
+
+        if (enemies.Count == 0) return (null, 0, 0f);
+        if (enemies.Count == 1)
+        {
+            var dx = enemies[0].Position.X - player.Position.X;
+            var dz = enemies[0].Position.Z - player.Position.Z;
+            return (enemies[0], 1, MathF.Atan2(dx, dz));
+        }
+
+        int bestCount = 0;
+        float bestAngle = 0f;
+        IBattleNpc? bestTarget = null;
+        var playerPos = player.Position;
+
+        // For each enemy as potential target: aim at them and count how many others
+        // the cone/line would clip. We can only face enemies we target (game auto-faces).
+        foreach (var candidate in enemies)
+        {
+            var dx = candidate.Position.X - playerPos.X;
+            var dz = candidate.Position.Z - playerPos.Z;
+            var aimAngle = MathF.Atan2(dx, dz);
+
+            var count = 0;
+            foreach (var e in enemies)
+            {
+                var edx = e.Position.X - playerPos.X;
+                var edz = e.Position.Z - playerPos.Z;
+                var dist = MathF.Sqrt(edx * edx + edz * edz);
+                if (dist - e.HitboxRadius > radius) continue;
+
+                var angleToE = MathF.Atan2(edx, edz);
+                var diff = NormalizeAngle(angleToE - aimAngle);
+                if (MathF.Abs(diff) <= coneHalfAngle)
+                    count++;
+            }
+
+            if (count > bestCount)
+            {
+                bestCount = count;
+                bestAngle = aimAngle;
+                bestTarget = candidate;
+            }
+        }
+
+        return (bestTarget, bestCount, bestAngle);
+    }
+
+    /// <inheritdoc />
+    public (IBattleNpc? target, int hitCount, float optimalAngle) FindBestLineAoETarget(
+        float lineWidth, float length, float maxRange, IPlayerCharacter player)
+    {
+        // Use the ability's effect range for candidate filtering, not the rotation's targeting range
+        var candidateRange = MathF.Max(length, maxRange);
+        var enemies = new List<IBattleNpc>();
+        foreach (var e in GetValidEnemies(candidateRange, player))
+            enemies.Add(e);
+
+        if (enemies.Count == 0) return (null, 0, 0f);
+        if (enemies.Count == 1)
+        {
+            var dx = enemies[0].Position.X - player.Position.X;
+            var dz = enemies[0].Position.Z - player.Position.Z;
+            return (enemies[0], 1, MathF.Atan2(dx, dz));
+        }
+
+        int bestCount = 0;
+        float bestAngle = 0f;
+        IBattleNpc? bestTarget = null;
+        var playerPos = player.Position;
+        var halfWidth = lineWidth * 0.5f;
+
+        // For each enemy as potential target: aim at them and count how many others
+        // the line would clip. We can only face enemies we target.
+        foreach (var candidate in enemies)
+        {
+            var dx = candidate.Position.X - playerPos.X;
+            var dz = candidate.Position.Z - playerPos.Z;
+            var aimAngle = MathF.Atan2(dx, dz);
+            var sinH = MathF.Sin(aimAngle);
+            var cosH = MathF.Cos(aimAngle);
+
+            var count = 0;
+            foreach (var e in enemies)
+            {
+                var edx = e.Position.X - playerPos.X;
+                var edz = e.Position.Z - playerPos.Z;
+
+                var forward = edx * sinH + edz * cosH;
+                var lateral = edx * cosH - edz * sinH;
+
+                if (forward >= -e.HitboxRadius
+                    && forward <= length + e.HitboxRadius
+                    && MathF.Abs(lateral) <= halfWidth + e.HitboxRadius)
+                    count++;
+            }
+
+            if (count > bestCount)
+            {
+                bestCount = count;
+                bestAngle = aimAngle;
+                bestTarget = candidate;
+            }
+        }
+
+        return (bestTarget, bestCount, bestAngle);
+    }
+
+    private static float NormalizeAngle(float angle)
+    {
+        while (angle > MathF.PI) angle -= 2f * MathF.PI;
+        while (angle < -MathF.PI) angle += 2f * MathF.PI;
+        return angle;
+    }
 }

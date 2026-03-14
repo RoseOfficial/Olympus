@@ -57,6 +57,12 @@ public sealed class Configuration : IPluginConfiguration
         set => _movementTolerance = Math.Clamp(value, 0.0f, 2.0f);
     }
 
+    /// <summary>
+    /// When true, Olympus will start executing the rotation when auto-attack is active
+    /// on the target, even before the InCombat flag is set.
+    /// </summary>
+    public bool EnableOnAutoAttack { get; set; } = false;
+
     // Master category toggles
     public bool EnableHealing { get; set; } = true;
     public bool EnableDamage { get; set; } = true;
@@ -77,6 +83,7 @@ public sealed class Configuration : IPluginConfiguration
     public FFlogsConfig FFLogs { get; set; } = new();
     public TrainingConfig Training { get; set; } = new();
     public OverlayConfig Overlay { get; set; } = new();
+    public DrawHelperConfig DrawHelper { get; set; } = new();
 
     // Job-specific configuration - Healers
     public ScholarConfig Scholar { get; set; } = new();
@@ -147,6 +154,7 @@ public sealed class Configuration : IPluginConfiguration
         FFLogs = new FFlogsConfig();
         Training = new TrainingConfig();
         Overlay = new OverlayConfig();
+        DrawHelper = new DrawHelperConfig();
         Scholar = new ScholarConfig();
         Astrologian = new AstrologianConfig();
         Sage = new SageConfig();

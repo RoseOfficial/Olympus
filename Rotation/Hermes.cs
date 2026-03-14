@@ -140,6 +140,21 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
         _kazematoi = SafeGameAccess.GetNinKazematoi(ErrorMetrics);
     }
 
+    /// <summary>
+    /// NIN positionals: Aeolian Edge = rear, Armor Crush = flank.
+    /// After Gust Slash, pick based on Kazematoi stacks.
+    /// </summary>
+    protected override PositionalType? GetNextRequiredPositional()
+    {
+        // Only relevant at combo step 2 (after Gust Slash)
+        if (LastComboAction == 2242) // Gust Slash
+        {
+            // Armor Crush (flank) if Kazematoi < 3, else Aeolian Edge (rear)
+            return _kazematoi < 3 ? PositionalType.Flank : PositionalType.Rear;
+        }
+        return null;
+    }
+
     /// <inheritdoc />
     protected override int DetermineComboStep(uint comboAction, float comboTimer)
     {

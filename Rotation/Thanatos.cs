@@ -143,6 +143,29 @@ public sealed class Thanatos : BaseMeleeDpsRotation<IThanatosContext, IThanatosM
         _enshroudTimer = SafeGameAccess.GetRprEnshroudTimer(ErrorMetrics);
     }
 
+    /// <summary>
+    /// RPR positionals: Gibbet = flank, Gallows = rear.
+    /// Enhanced status determines which one is buffed next.
+    /// </summary>
+    protected override PositionalType? GetNextRequiredPositional()
+    {
+        var player = ObjectTable.LocalPlayer;
+        if (player == null) return null;
+
+        foreach (var s in player.StatusList)
+        {
+            // EnhancedGibbet → next should be Gibbet (flank)
+            if (s.StatusId == RPRActions.StatusIds.EnhancedGibbet)
+                return PositionalType.Flank;
+            // EnhancedGallows → next should be Gallows (rear)
+            if (s.StatusId == RPRActions.StatusIds.EnhancedGallows)
+                return PositionalType.Rear;
+        }
+
+        // Default: Gallows (rear) if no enhanced buff
+        return null;
+    }
+
     /// <inheritdoc />
     protected override int DetermineComboStep(uint comboAction, float comboTimer)
     {

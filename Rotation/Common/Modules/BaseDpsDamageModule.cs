@@ -1,4 +1,5 @@
 using Dalamud.Game.ClientState.Objects.Types;
+using Olympus.Services.Targeting;
 
 namespace Olympus.Rotation.Common.Modules;
 
@@ -156,6 +157,10 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
         var enemyCount = context.TargetingService.CountEnemiesInRange(GetAoECountRange(), context.Player);
         SetNearbyEnemies(context, enemyCount);
 
+        // Phase 3b: Smart AoE — compute optimal facing for the last/next directional ability
+        if (enemyCount > 0)
+            UpdateSmartAoE(context, target);
+
         // Phase 4: oGCD damage (weave window)
         if (context.CanExecuteOgcd)
         {
@@ -200,6 +205,19 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
     /// </summary>
     protected bool ExecuteGcdWithDebug(TContext context, Models.Action.ActionDefinition action, ulong targetId, string? stateOverride = null)
     {
+        // For directional AoEs: target the optimal enemy to control cone/line direction
+        var svc = SmartAoEService.Instance;
+        if (_lastSmartAoETargetId.HasValue && svc != null && svc.IsDirectionalAoE(action.ActionId))
+        {
+            if (context.ActionService.ExecuteDirectionalGcd(action, _lastSmartAoETargetId.Value))
+            {
+                SetPlannedAction(context, action.Name);
+                SetDamageState(context, stateOverride ?? $"{action.Name} (smart target)");
+                _lastSmartAoETargetId = null;
+                return true;
+            }
+        }
+
         if (context.ActionService.ExecuteGcd(action, targetId))
         {
             SetPlannedAction(context, action.Name);
@@ -221,6 +239,47 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
             return true;
         }
         return false;
+    }
+
+    #endregion
+
+    #region Smart AoE Integration
+
+    /// <summary>
+    /// Override to provide the action ID of the next directional AoE the rotation plans to use.
+    /// SmartAoEService will compute the optimal facing angle for it.
+    /// Return 0 if no directional AoE is planned.
+    /// </summary>
+    protected virtual uint GetNextDirectionalAoEActionId(TContext context, IBattleChara target, int enemyCount) => 0;
+
+    private uint _lastSmartAoEActionId;
+    private ulong? _lastSmartAoETargetId;
+
+    private void UpdateSmartAoE(TContext context, IBattleChara target)
+    {
+        var svc = SmartAoEService.Instance;
+        if (svc == null) return;
+
+        var actionId = GetNextDirectionalAoEActionId(context, target,
+            context.TargetingService.CountEnemiesInRange(GetAoECountRange(), context.Player));
+
+        if (actionId == 0)
+        {
+            _lastSmartAoEActionId = 0;
+            _lastSmartAoETargetId = null;
+            return;
+        }
+
+        if (!svc.IsDirectionalAoE(actionId)) return;
+
+        var isNewAction = actionId != _lastSmartAoEActionId;
+        _lastSmartAoEActionId = actionId;
+
+        var result = svc.FindBestAoETarget(actionId, GetTargetingRange(), context.Player, recordPrediction: isNewAction);
+
+        // Store the optimal target — ExecuteGcdWithDebug will target this enemy
+        // so the game auto-faces toward them, controlling cone/line direction
+        _lastSmartAoETargetId = result.Target != null ? result.Target.GameObjectId : null;
     }
 
     #endregion

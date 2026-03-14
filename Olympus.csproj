@@ -27,4 +27,8 @@
     <EmbeddedResource Include="Localization\Loc\*.json" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Pictomancy" Version="0.0.2" />
+  </ItemGroup>
+
 </Project>
