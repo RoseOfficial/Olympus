@@ -553,26 +553,15 @@ public sealed class TargetingService : ITargetingService
         IBattleNpc? bestTarget = null;
         var playerPos = player.Position;
 
-        // Build candidate angles: place each enemy's hitbox edge at cone boundary
-        var candidateAngles = new List<float>();
+        // For each enemy as potential target: aim at them and count how many others
+        // the cone/line would clip. We can only face enemies we target (game auto-faces).
         foreach (var candidate in enemies)
         {
             var dx = candidate.Position.X - playerPos.X;
             var dz = candidate.Position.Z - playerPos.Z;
-            var dist = MathF.Sqrt(dx * dx + dz * dz);
-            var angle = MathF.Atan2(dx, dz);
-            var hitboxAngle = dist > 0.1f ? MathF.Asin(MathF.Min(1f, candidate.HitboxRadius / dist)) : 0f;
-            candidateAngles.Add(angle);
-            candidateAngles.Add(angle - coneHalfAngle - hitboxAngle);
-            candidateAngles.Add(angle + coneHalfAngle + hitboxAngle);
-            candidateAngles.Add(angle - coneHalfAngle);
-            candidateAngles.Add(angle + coneHalfAngle);
-        }
+            var aimAngle = MathF.Atan2(dx, dz);
 
-        foreach (var testAngle in candidateAngles)
-        {
             var count = 0;
-            IBattleNpc? firstHit = null;
             foreach (var e in enemies)
             {
                 var edx = e.Position.X - playerPos.X;
@@ -581,21 +570,16 @@ public sealed class TargetingService : ITargetingService
                 if (dist - e.HitboxRadius > radius) continue;
 
                 var angleToE = MathF.Atan2(edx, edz);
-                var diff = NormalizeAngle(angleToE - testAngle);
-                // Hitbox intersection: circle widens effective cone
-                var hitboxAngle = dist > 0.01f ? MathF.Asin(MathF.Min(1f, e.HitboxRadius / dist)) : MathF.PI;
-                if (MathF.Abs(diff) <= coneHalfAngle + hitboxAngle)
-                {
+                var diff = NormalizeAngle(angleToE - aimAngle);
+                if (MathF.Abs(diff) <= coneHalfAngle)
                     count++;
-                    firstHit ??= e;
-                }
             }
 
             if (count > bestCount)
             {
                 bestCount = count;
-                bestAngle = testAngle;
-                bestTarget = firstHit;
+                bestAngle = aimAngle;
+                bestTarget = candidate;
             }
         }
 
@@ -624,31 +608,17 @@ public sealed class TargetingService : ITargetingService
         var playerPos = player.Position;
         var halfWidth = lineWidth * 0.5f;
 
-        // Build candidate angles with edge placement
-        var candidateAngles = new List<float>();
+        // For each enemy as potential target: aim at them and count how many others
+        // the line would clip. We can only face enemies we target.
         foreach (var candidate in enemies)
         {
             var dx = candidate.Position.X - playerPos.X;
             var dz = candidate.Position.Z - playerPos.Z;
-            var dist = MathF.Sqrt(dx * dx + dz * dz);
-            if (dist < 0.01f) continue;
-            var angle = MathF.Atan2(dx, dz);
-            candidateAngles.Add(angle);
-            if (dist > 0.1f)
-            {
-                var edgeAngle = MathF.Asin(MathF.Min(1f, (halfWidth + candidate.HitboxRadius) / dist));
-                candidateAngles.Add(angle + edgeAngle);
-                candidateAngles.Add(angle - edgeAngle);
-            }
-        }
-
-        foreach (var testAngle in candidateAngles)
-        {
-            var sinH = MathF.Sin(testAngle);
-            var cosH = MathF.Cos(testAngle);
+            var aimAngle = MathF.Atan2(dx, dz);
+            var sinH = MathF.Sin(aimAngle);
+            var cosH = MathF.Cos(aimAngle);
 
             var count = 0;
-            IBattleNpc? firstHit = null;
             foreach (var e in enemies)
             {
                 var edx = e.Position.X - playerPos.X;
@@ -660,17 +630,14 @@ public sealed class TargetingService : ITargetingService
                 if (forward >= -e.HitboxRadius
                     && forward <= length + e.HitboxRadius
                     && MathF.Abs(lateral) <= halfWidth + e.HitboxRadius)
-                {
                     count++;
-                    firstHit ??= e;
-                }
             }
 
             if (count > bestCount)
             {
                 bestCount = count;
-                bestAngle = testAngle;
-                bestTarget = firstHit;
+                bestAngle = aimAngle;
+                bestTarget = candidate;
             }
         }
 

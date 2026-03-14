@@ -57,6 +57,12 @@ public sealed class Configuration : IPluginConfiguration
         set => _movementTolerance = Math.Clamp(value, 0.0f, 2.0f);
     }
 
+    /// <summary>
+    /// When true, Olympus will start executing the rotation when auto-attack is active
+    /// on the target, even before the InCombat flag is set.
+    /// </summary>
+    public bool EnableOnAutoAttack { get; set; } = false;
+
     // Master category toggles
     public bool EnableHealing { get; set; } = true;
     public bool EnableDamage { get; set; } = true;

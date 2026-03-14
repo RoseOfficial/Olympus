@@ -269,6 +269,17 @@ public sealed unsafe class ActionService : IActionService
     }
 
     /// <summary>
+    /// Execute a GCD targeting the optimal enemy for a directional AoE (cone/line).
+    /// The game auto-faces toward the target, so by picking the right target
+    /// we control the cone/line direction to hit the most enemies.
+    /// </summary>
+    public bool ExecuteDirectionalGcd(ActionDefinition action, ulong optimalTargetId)
+    {
+        // Just a regular ExecuteGcd with the smart-selected target
+        return ExecuteGcd(action, optimalTargetId);
+    }
+
+    /// <summary>
     /// Checks if we're in a valid weave window for oGCDs.
     /// Supports double-weaving when timing allows.
     /// </summary>

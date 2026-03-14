@@ -205,6 +205,19 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
     /// </summary>
     protected bool ExecuteGcdWithDebug(TContext context, Models.Action.ActionDefinition action, ulong targetId, string? stateOverride = null)
     {
+        // For directional AoEs: target the optimal enemy to control cone/line direction
+        var svc = SmartAoEService.Instance;
+        if (_lastSmartAoETargetId.HasValue && svc != null && svc.IsDirectionalAoE(action.ActionId))
+        {
+            if (context.ActionService.ExecuteDirectionalGcd(action, _lastSmartAoETargetId.Value))
+            {
+                SetPlannedAction(context, action.Name);
+                SetDamageState(context, stateOverride ?? $"{action.Name} (smart target)");
+                _lastSmartAoETargetId = null;
+                return true;
+            }
+        }
+
         if (context.ActionService.ExecuteGcd(action, targetId))
         {
             SetPlannedAction(context, action.Name);
@@ -240,6 +253,7 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
     protected virtual uint GetNextDirectionalAoEActionId(TContext context, IBattleChara target, int enemyCount) => 0;
 
     private uint _lastSmartAoEActionId;
+    private ulong? _lastSmartAoETargetId;
 
     private void UpdateSmartAoE(TContext context, IBattleChara target)
     {
@@ -252,21 +266,20 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
         if (actionId == 0)
         {
             _lastSmartAoEActionId = 0;
+            _lastSmartAoETargetId = null;
             return;
         }
 
         if (!svc.IsDirectionalAoE(actionId)) return;
 
-        // Always update the tracker state (for debug display),
-        // but only record a new prediction when the action changes
         var isNewAction = actionId != _lastSmartAoEActionId;
         _lastSmartAoEActionId = actionId;
 
         var result = svc.FindBestAoETarget(actionId, GetTargetingRange(), context.Player, recordPrediction: isNewAction);
 
-        // Face the optimal direction for the next directional AoE
-        if (result.HitCount > 0 && context.CanExecuteGcd)
-            context.ActionService.FaceDirection(result.OptimalAngle);
+        // Store the optimal target — ExecuteGcdWithDebug will target this enemy
+        // so the game auto-faces toward them, controlling cone/line direction
+        _lastSmartAoETargetId = result.Target != null ? result.Target.GameObjectId : null;
     }
 
     #endregion

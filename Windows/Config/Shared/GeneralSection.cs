@@ -57,6 +57,7 @@ public sealed class GeneralSection
 
     public void DrawGeneral()
     {
+        DrawCombatBehaviorSection();
         DrawWindowBehaviorSection();
         DrawResurrectionSection();
         DrawLanguageSection();
@@ -115,6 +116,24 @@ public sealed class GeneralSection
         ImGui.TextDisabled(Loc.T(LocalizedStrings.Targeting.MovementToleranceDesc, "Delay after stopping before casting. Lower = faster, higher = safer."));
 
         ConfigUIHelpers.EndIndent();
+    }
+
+    private void DrawCombatBehaviorSection()
+    {
+        if (ConfigUIHelpers.SectionHeader("Combat Behavior"))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            var enableOnAutoAttack = this.config.EnableOnAutoAttack;
+            if (ImGui.Checkbox("Start rotation on auto-attack", ref enableOnAutoAttack))
+            {
+                this.config.EnableOnAutoAttack = enableOnAutoAttack;
+                this.save();
+            }
+            ImGui.TextDisabled("When enabled, Olympus will start executing the rotation as soon as auto-attack is active on a target, before the in-combat flag is set.");
+
+            ConfigUIHelpers.EndIndent();
+        }
     }
 
     private void DrawWindowBehaviorSection()

@@ -652,6 +652,11 @@ public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPro
             && context.ActionService.IsActionReady(MCHActions.ChainSaw.ActionId))
             return MCHActions.ChainSaw.ActionId;
 
+        // Bioblaster is a line AoE DoT — when ready and multiple targets
+        if (enemyCount >= 2 && level >= MCHActions.Bioblaster.MinLevel
+            && context.ActionService.IsActionReady(MCHActions.Bioblaster.ActionId))
+            return MCHActions.Bioblaster.ActionId;
+
         if (enemyCount < AoeThreshold) return 0;
 
         // AoE cone: Scattergun > Spread Shot (GCDs, always "ready" when GCD is up)
