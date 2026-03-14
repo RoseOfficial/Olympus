@@ -160,7 +160,7 @@ public sealed class AresStatusHelper : BaseStatusHelper
         if (HasRampart(player)) active.Add("Rampart");
         if (HasStatus(player, WARActions.StatusIds.ArmsLength)) active.Add("Arm's Length");
 
-        return active.Count > 0 ? string.Join(", ", active) : "None";
+        return FormatActiveList(active);
     }
 
     #endregion

@@ -184,7 +184,7 @@ public sealed class HephaestusStatusHelper : BaseStatusHelper
         if (HasStatus(player, GNBActions.StatusIds.ArmsLength)) active.Add("Arm's Length");
         if (HasAurora(player)) active.Add("Aurora");
 
-        return active.Count > 0 ? string.Join(", ", active) : "None";
+        return FormatActiveList(active);
     }
 
     #endregion

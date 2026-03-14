@@ -129,4 +129,15 @@ public abstract class BaseStatusHelper
     }
 
     #endregion
+
+    #region Debug Formatting Helpers
+
+    /// <summary>
+    /// Formats a list of active buff/mitigation names for debug display.
+    /// Returns a comma-separated string, or "None" if the list is empty.
+    /// </summary>
+    protected static string FormatActiveList(System.Collections.Generic.List<string> items) =>
+        items.Count > 0 ? string.Join(", ", items) : "None";
+
+    #endregion
 }

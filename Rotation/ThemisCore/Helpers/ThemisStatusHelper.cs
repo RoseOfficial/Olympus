@@ -142,7 +142,7 @@ public sealed class ThemisStatusHelper : BaseStatusHelper
         if (HasBulwark(player)) active.Add("Bulwark");
         if (HasArmsLength(player)) active.Add("Arm's Length");
 
-        return active.Count > 0 ? string.Join(", ", active) : "None";
+        return FormatActiveList(active);
     }
 
     /// <summary>
