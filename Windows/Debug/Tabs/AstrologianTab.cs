@@ -2,6 +2,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Localization;
 using Olympus.Rotation.AstraeaCore.Context;
+using Olympus.Windows.Debug;
 
 namespace Olympus.Windows.Debug.Tabs;
 
@@ -37,14 +38,8 @@ public static class AstrologianTab
 
     private static void DrawCardsSection(AstraeaDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Cards, "Cards"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("AstCardsTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Cards, "Cards"), "AstCardsTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Card State (shows cards in hand)
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -97,21 +92,13 @@ public static class AstrologianTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.Oracle, "Oracle:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.OracleState);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawEarthlyStarSection(AstraeaDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.EarthlyStar, "Earthly Star"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("AstStarTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.EarthlyStar, "Earthly Star"), "AstStarTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Star State
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -138,21 +125,13 @@ public static class AstrologianTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.TargetsInRange, "Targets in Range:"));
             ImGui.TableNextColumn();
             ImGui.Text($"{state.StarTargetsInRange}");
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawHealingSection(AstraeaDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Healing, "Healing"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("AstHealingTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Healing, "Healing"), "AstHealingTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Single Target Healing
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -241,21 +220,13 @@ public static class AstrologianTab
                     ImGui.TextDisabled(state.LastHealStats);
                 }
             }
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawDpsSection(AstraeaDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.DpsSection, "DPS"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("AstDpsTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.DpsSection, "DPS"), "AstDpsTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Planned Action
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -277,8 +248,6 @@ public static class AstrologianTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.Lightspeed, "Lightspeed:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.LightspeedState);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 }

@@ -2,6 +2,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Localization;
 using Olympus.Rotation.ThanatosCore.Context;
+using Olympus.Windows.Debug;
 
 namespace Olympus.Windows.Debug.Tabs;
 
@@ -41,14 +42,8 @@ public static class ThanatosTab
 
     private static void DrawGaugeSection(ThanatosDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Gauge, "Gauge"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("RprGaugeTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Gauge, "Gauge"), "RprGaugeTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Soul
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -72,21 +67,13 @@ public static class ThanatosTab
             ImGui.TableNextColumn();
             var comboColor = state.ComboStep > 0 ? new Vector4(0.5f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(comboColor, state.ComboStep > 0 ? $"Step {state.ComboStep}" : Loc.T(LocalizedStrings.Debug.NoneLabel, "None"));
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawEnshroudSection(ThanatosDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Enshroud, "Enshroud"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("RprEnshroudTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Enshroud, "Enshroud"), "RprEnshroudTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Enshroud State
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -127,21 +114,13 @@ public static class ThanatosTab
             {
                 ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawBuffSection(ThanatosDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("RprBuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"), "RprBuffTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Death's Design
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -185,21 +164,13 @@ public static class ThanatosTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.BloodsownCircle, "Bloodsown Circle:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasBloodsownCircle);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawProcSection(ThanatosDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Procs, "Procs"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("RprProcTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Procs, "Procs"), "RprProcTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Enhanced Gibbet
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -248,21 +219,13 @@ public static class ThanatosTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.Soulsow, "Soulsow:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasSoulsow);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawPositionalSection(ThanatosDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Positional, "Positional"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("RprPositionalTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Positional, "Positional"), "RprPositionalTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Current Position
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -306,9 +269,7 @@ public static class ThanatosTab
             ImGui.TableNextColumn();
             var aoeColor = state.NearbyEnemies >= 3 ? new Vector4(1f, 0.6f, 0.2f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(aoeColor, $"{state.NearbyEnemies}");
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawProcStatus(bool hasProc)

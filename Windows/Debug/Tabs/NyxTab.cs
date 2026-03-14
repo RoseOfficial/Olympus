@@ -2,6 +2,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Localization;
 using Olympus.Rotation.NyxCore.Context;
+using Olympus.Windows.Debug;
 
 namespace Olympus.Windows.Debug.Tabs;
 
@@ -42,14 +43,8 @@ public static class NyxTab
 
     private static void DrawStatusSection(NyxDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.TankStatus, "Status"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("NyxStatusTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.TankStatus, "Status"), "NyxStatusTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.IsMainTankLabel, "Role:"));
@@ -75,21 +70,13 @@ public static class NyxTab
             var actionColor = !string.IsNullOrEmpty(state.PlannedAction) && state.PlannedAction != "None"
                 ? new Vector4(0.5f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(actionColor, string.IsNullOrEmpty(state.PlannedAction) ? "—" : state.PlannedAction);
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawResourcesSection(NyxDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Resources, "Resources"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("NyxResourcesTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Resources, "Resources"), "NyxResourcesTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.BloodGaugeLabel, "Blood Gauge:"));
@@ -108,21 +95,13 @@ public static class NyxTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.NearbyEnemies, "Nearby Enemies:"));
             ImGui.TableNextColumn();
             ImGui.Text($"{state.NearbyEnemies}");
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawDarksideSection(NyxDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Darkside, "Darkside"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("NyxDarksideTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Darkside, "Darkside"), "NyxDarksideTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.Darkside, "Darkside:"));
@@ -149,21 +128,13 @@ public static class NyxTab
                 ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.JobActiveLabel, "Active"));
             else
                 ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "—"));
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawComboSection(NyxDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Combo, "Combo"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("NyxComboTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Combo, "Combo"), "NyxComboTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.ComboState, "Combo Step:"));
@@ -178,21 +149,13 @@ public static class NyxTab
                 ? new Vector4(1f, 0.5f, 0.5f, 1f)
                 : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(timerColor, $"{state.ComboTimeRemaining:F1}s");
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawBuffSection(NyxDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("NyxBuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"), "NyxBuffTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.BloodWeapon, "Blood Weapon:"));
@@ -228,21 +191,13 @@ public static class NyxTab
                 ImGui.TextColored(new Vector4(0.6f, 0.3f, 1f, 1f), Loc.T(LocalizedStrings.Debug.JobActiveLabel, "Active"));
             else
                 ImGui.TextDisabled("—");
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawDefensiveSection(NyxDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.MitigationHeader, "Defensive"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("NyxDefTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.MitigationHeader, "Defensive"), "NyxDefTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             void DrawBoolRow(string label, bool active, string activeText = "Active")
             {
                 ImGui.TableNextRow();
@@ -270,21 +225,13 @@ public static class NyxTab
                 ImGui.TextColored(new Vector4(0.5f, 0.8f, 1f, 1f), state.ActiveMitigations);
             else
                 ImGui.TextDisabled("—");
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawModuleStates(NyxDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.ModuleStatesHeader, "Module States"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("NyxModuleTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.ModuleStatesHeader, "Module States"), "NyxModuleTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.DamageStateLabel, "Damage:"));
@@ -308,8 +255,6 @@ public static class NyxTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.EnmityStateLabel, "Enmity:"));
             ImGui.TableNextColumn();
             ImGui.TextDisabled(string.IsNullOrEmpty(state.EnmityState) ? "—" : state.EnmityState);
-
-            ImGui.EndTable();
-        }
+        });
     }
 }

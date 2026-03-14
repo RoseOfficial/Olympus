@@ -2,6 +2,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Localization;
 using Olympus.Rotation.PrometheusCore.Context;
+using Olympus.Windows.Debug;
 
 namespace Olympus.Windows.Debug.Tabs;
 
@@ -41,14 +42,8 @@ public static class PrometheusTab
 
     private static void DrawGaugeSection(PrometheusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Gauge, "Gauge"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("MchGaugeTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Gauge, "Gauge"), "MchGaugeTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Heat
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -72,21 +67,13 @@ public static class PrometheusTab
             ImGui.TableNextColumn();
             var comboColor = state.ComboStep > 0 ? new Vector4(0.5f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(comboColor, state.ComboStep > 0 ? $"Step {state.ComboStep}" : Loc.T(LocalizedStrings.Debug.NoneLabel, "None"));
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawOverheatSection(PrometheusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.OverheatQueen, "Overheat & Queen"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("MchOverheatTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.OverheatQueen, "Overheat & Queen"), "MchOverheatTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Overheat State
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -114,21 +101,13 @@ public static class PrometheusTab
             {
                 ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.No, "No"));
             }
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawBuffSection(PrometheusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("MchBuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"), "MchBuffTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Reassemble
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -156,21 +135,13 @@ public static class PrometheusTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.ExcavatorReady, "Excavator Ready:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasExcavatorReady);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawCooldownSection(PrometheusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Charges, "Charges"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("MchCooldownTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Charges, "Charges"), "MchCooldownTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Drill Charges
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -202,21 +173,13 @@ public static class PrometheusTab
             ImGui.TableNextColumn();
             var ricochetColor = state.RicochetCharges >= 3 ? new Vector4(0.5f, 1f, 0.5f, 1f) : state.RicochetCharges >= 2 ? new Vector4(1f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(ricochetColor, $"{state.RicochetCharges}/3");
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawTargetSection(PrometheusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.TargetLabel, "Target"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("MchTargetTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.TargetLabel, "Target"), "MchTargetTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Wildfire
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -260,9 +223,7 @@ public static class PrometheusTab
             ImGui.TableNextColumn();
             var aoeColor = state.NearbyEnemies >= 3 ? new Vector4(1f, 0.6f, 0.2f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(aoeColor, $"{state.NearbyEnemies}");
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawProcStatus(bool hasProc)

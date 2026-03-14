@@ -2,6 +2,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Localization;
 using Olympus.Rotation.PersephoneCore.Context;
+using Olympus.Windows.Debug;
 
 namespace Olympus.Windows.Debug.Tabs;
 
@@ -41,14 +42,8 @@ public static class PersephoneTab
 
     private static void DrawDemiSummonSection(PersephoneDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.DemiSummon, "Demi-Summon"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("SmnDemiTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.DemiSummon, "Demi-Summon"), "SmnDemiTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Phase
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -103,21 +98,13 @@ public static class PersephoneTab
                 ImGui.TableNextColumn();
                 DrawProcStatus(state.HasUsedAstralFlowThisPhase);
             }
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawPrimalSection(PersephoneDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.PrimalAttunement, "Primal Attunement"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("SmnPrimalTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.PrimalAttunement, "Primal Attunement"), "SmnPrimalTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Current Attunement
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -156,21 +143,13 @@ public static class PersephoneTab
             {
                 ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.NoneLabel, "None"));
             }
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawBuffSection(PersephoneDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("SmnBuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"), "SmnBuffTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Searing Light
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -224,21 +203,13 @@ public static class PersephoneTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.Swiftcast, "Swiftcast:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasSwiftcast);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawCooldownSection(PersephoneDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Cooldowns, "Cooldowns"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("SmnCooldownTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Cooldowns, "Cooldowns"), "SmnCooldownTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // MP
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -290,21 +261,13 @@ public static class PersephoneTab
             ImGui.TableNextColumn();
             var aegisColor = state.RadiantAegisCharges >= 2 ? new Vector4(0.5f, 1f, 0.5f, 1f) : state.RadiantAegisCharges >= 1 ? new Vector4(1f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(aegisColor, $"{state.RadiantAegisCharges}/2");
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawTargetSection(PersephoneDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.TargetLabel, "Target"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("SmnTargetTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.TargetLabel, "Target"), "SmnTargetTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Current Target
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -319,9 +282,7 @@ public static class PersephoneTab
             ImGui.TableNextColumn();
             var aoeColor = state.NearbyEnemies >= 3 ? new Vector4(1f, 0.6f, 0.2f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(aoeColor, $"{state.NearbyEnemies}");
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawProcStatus(bool hasProc)

@@ -3,6 +3,7 @@ using Dalamud.Bindings.ImGui;
 using Olympus.Localization;
 using Olympus.Rotation.AthenaCore.Context;
 using Olympus.Services.Debug;
+using Olympus.Windows.Debug;
 
 namespace Olympus.Windows.Debug.Tabs;
 
@@ -38,14 +39,8 @@ public static class ScholarTab
 
     private static void DrawResourcesSection(AthenaDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Resources, "Resources"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("SchResourcesTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Resources, "Resources"), "SchResourcesTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Aetherflow Stacks
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -87,21 +82,13 @@ public static class ScholarTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.PartyLabel, "Party:"));
             ImGui.TableNextColumn();
             ImGui.Text($"{state.PartyValidCount}/{state.PartyListCount} {Loc.T(LocalizedStrings.Debug.ValidLabel, "valid")}");
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawFairySection(AthenaDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Fairy, "Fairy"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("SchFairyTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Fairy, "Fairy"), "SchFairyTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Fairy State
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -137,21 +124,13 @@ public static class ScholarTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.Dissipation, "Dissipation:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.DissipationState);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawHealingSection(AthenaDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Healing, "Healing"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("SchHealingTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Healing, "Healing"), "SchHealingTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Single Target Healing
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -235,21 +214,13 @@ public static class ScholarTab
                     ImGui.TextDisabled(state.LastHealStats);
                 }
             }
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawDpsSection(AthenaDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.DpsSection, "DPS"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("SchDpsTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.DpsSection, "DPS"), "SchDpsTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Planned Action
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -299,9 +270,7 @@ public static class ScholarTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.LucidDreaming, "Lucid Dreaming:"));
             ImGui.TableNextColumn();
             ImGui.Text(state.LucidState);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
 
         // Raise/Esuna at bottom
         ImGui.Spacing();

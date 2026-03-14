@@ -2,6 +2,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Localization;
 using Olympus.Rotation.ApolloCore.Context;
+using Olympus.Windows.Debug;
 
 namespace Olympus.Windows.Debug.Tabs;
 
@@ -36,14 +37,8 @@ public static class ApolloTab
 
     private static void DrawOverviewSection(DebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.TankStatus, "Status"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("ApolloOverviewTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.TankStatus, "Status"), "ApolloOverviewTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.PlannedActionLabel, "Planned Action:"));
@@ -72,9 +67,7 @@ public static class ApolloTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.WhmPlanningState, "Planning State:"));
             ImGui.TableNextColumn();
             ImGui.TextDisabled(state.PlanningState);
-
-            ImGui.EndTable();
-        }
+        });
 
         if (state.RaiseState != "Idle" || state.RaiseTarget != "None")
         {
@@ -100,14 +93,8 @@ public static class ApolloTab
 
     private static void DrawResourcesSection(DebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Resources, "Resources"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("ApolloResourcesTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Resources, "Resources"), "ApolloResourcesTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.WhmLilies, "Lilies:"));
@@ -146,21 +133,13 @@ public static class ApolloTab
                 ImGui.TableNextColumn();
                 ImGui.TextColored(new Vector4(1f, 0.8f, 0.3f, 1f), $"{state.SacredSightStacks}");
             }
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawHealingSection(DebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Healing, "Healing"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("ApolloHealingTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Healing, "Healing"), "ApolloHealingTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.AoEHealLabel, "AoE Heal:"));
@@ -177,21 +156,13 @@ public static class ApolloTab
                 if (!string.IsNullOrEmpty(state.LastHealStats))
                     ImGui.TextDisabled(state.LastHealStats);
             }
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawBuffSection(DebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs / Cooldowns"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("ApolloBuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs / Cooldowns"), "ApolloBuffTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             void DrawStateRow(string label, string stateVal)
             {
                 ImGui.TableNextRow();
@@ -212,21 +183,13 @@ public static class ApolloTab
             DrawStateRow(Loc.T(LocalizedStrings.Debug.LucidDreaming, "Lucid Dreaming:"), state.LucidState);
             DrawStateRow(Loc.T(LocalizedStrings.Debug.WhmSurecast, "Surecast:"), state.SurecastState);
             DrawStateRow(Loc.T(LocalizedStrings.Debug.WhmDefensive, "Defensive:"), state.DefensiveState);
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawDpsSection(DebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.DpsSection, "DPS"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("ApolloDpsTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.DpsSection, "DPS"), "ApolloDpsTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.DpsStateLabel, "DPS State:"));
@@ -247,8 +210,6 @@ public static class ApolloTab
                 ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), state.MiseryState);
             else
                 ImGui.TextDisabled(state.MiseryState);
-
-            ImGui.EndTable();
-        }
+        });
     }
 }

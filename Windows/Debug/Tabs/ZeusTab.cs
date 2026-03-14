@@ -2,6 +2,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Localization;
 using Olympus.Rotation.ZeusCore.Context;
+using Olympus.Windows.Debug;
 
 namespace Olympus.Windows.Debug.Tabs;
 
@@ -41,14 +42,8 @@ public static class ZeusTab
 
     private static void DrawGaugeSection(ZeusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Gauge, "Gauge"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("DrgGaugeTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Gauge, "Gauge"), "DrgGaugeTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Life of the Dragon
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -77,21 +72,13 @@ public static class ZeusTab
             ImGui.TableNextColumn();
             var focusColor = state.FirstmindsFocus >= 2 ? new Vector4(0.5f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(focusColor, $"{state.FirstmindsFocus}/2");
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawComboSection(ZeusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Combo, "Combo"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("DrgComboTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Combo, "Combo"), "DrgComboTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Combo Step
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -126,21 +113,13 @@ public static class ZeusTab
             {
                 ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.NotApplied, "Not applied"));
             }
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawBuffSection(ZeusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("DrgBuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"), "DrgBuffTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Power Surge
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -211,21 +190,13 @@ public static class ZeusTab
             {
                 ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawProcSection(ZeusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Procs, "Procs"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("DrgProcTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Procs, "Procs"), "DrgProcTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Dive Ready
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -274,21 +245,13 @@ public static class ZeusTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.DraconianFire, "Draconian Fire:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasDraconianFire);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawPositionalSection(ZeusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Positional, "Positional"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("DrgPositionalTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Positional, "Positional"), "DrgPositionalTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Current Position
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -339,9 +302,7 @@ public static class ZeusTab
             ImGui.TableNextColumn();
             var aoeColor = state.NearbyEnemies >= 3 ? new Vector4(1f, 0.6f, 0.2f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(aoeColor, $"{state.NearbyEnemies}");
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawProcStatus(bool hasProc)

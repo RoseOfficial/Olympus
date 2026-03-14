@@ -2,6 +2,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Localization;
 using Olympus.Rotation.HecateCore.Context;
+using Olympus.Windows.Debug;
 
 namespace Olympus.Windows.Debug.Tabs;
 
@@ -41,14 +42,8 @@ public static class HecateTab
 
     private static void DrawElementSection(HecateDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.ElementState, "Element State"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("BlmElementTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.ElementState, "Element State"), "BlmElementTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Phase
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -98,21 +93,13 @@ public static class HecateTab
             {
                 ImGui.TextColored(new Vector4(1f, 0.5f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawResourceSection(HecateDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Resources, "Resources"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("BlmResourceTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Resources, "Resources"), "BlmResourceTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // MP
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -151,21 +138,13 @@ public static class HecateTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.Paradox, "Paradox:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasParadox);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawBuffSection(HecateDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("BlmBuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"), "BlmBuffTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Firestarter
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -228,21 +207,13 @@ public static class HecateTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.Swiftcast, "Swiftcast:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasSwiftcast);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawCooldownSection(HecateDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Cooldowns, "Cooldowns"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("BlmCooldownTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Cooldowns, "Cooldowns"), "BlmCooldownTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Triplecast Charges
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -271,21 +242,13 @@ public static class HecateTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.LeyLinesCd, "Ley Lines CD:"));
             ImGui.TableNextColumn();
             DrawReadyStatus(state.LeyLinesReady);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawTargetSection(HecateDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.TargetSection, "Target"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("BlmTargetTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.TargetSection, "Target"), "BlmTargetTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Thunder DoT
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -315,9 +278,7 @@ public static class HecateTab
             ImGui.TableNextColumn();
             var aoeColor = state.NearbyEnemies >= 3 ? new Vector4(1f, 0.6f, 0.2f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(aoeColor, $"{state.NearbyEnemies}");
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawProcStatus(bool hasProc)

@@ -2,6 +2,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Localization;
 using Olympus.Rotation.EchidnaCore.Context;
+using Olympus.Windows.Debug;
 
 namespace Olympus.Windows.Debug.Tabs;
 
@@ -41,14 +42,8 @@ public static class EchidnaTab
 
     private static void DrawGaugeSection(EchidnaDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Gauge, "Gauge"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("VprGaugeTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Gauge, "Gauge"), "VprGaugeTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Serpent Offering
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -80,21 +75,13 @@ public static class EchidnaTab
             ImGui.TableNextColumn();
             var dreadColor = state.DreadCombo != 0 ? new Vector4(0.8f, 0.5f, 1f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(dreadColor, state.DreadCombo.ToString());
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawReawakenSection(EchidnaDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Reawaken, "Reawaken"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("VprReawakenTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Reawaken, "Reawaken"), "VprReawakenTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Reawaken State
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -120,21 +107,13 @@ public static class EchidnaTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.ReadyToReawaken, "Ready to Reawaken:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasReadyToReawaken);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawBuffSection(EchidnaDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("VprBuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"), "VprBuffTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Hunter's Instinct
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -192,21 +171,13 @@ public static class EchidnaTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.HonedReavers, "Honed Reavers:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasHonedReavers);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawVenomSection(EchidnaDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Venom, "Venom"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("VprVenomTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Venom, "Venom"), "VprVenomTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Current Venom
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -226,21 +197,13 @@ public static class EchidnaTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.TwinbloodReady, "Twinblood Ready:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasPoisedForTwinblood);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawPositionalSection(EchidnaDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Positional, "Positional"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("VprPositionalTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Positional, "Positional"), "VprPositionalTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Current Position
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -284,9 +247,7 @@ public static class EchidnaTab
             ImGui.TableNextColumn();
             var aoeColor = state.NearbyEnemies >= 3 ? new Vector4(1f, 0.6f, 0.2f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(aoeColor, $"{state.NearbyEnemies}");
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawProcStatus(bool hasProc)

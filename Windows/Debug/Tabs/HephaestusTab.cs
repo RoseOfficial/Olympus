@@ -2,6 +2,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Localization;
 using Olympus.Rotation.HephaestusCore.Context;
+using Olympus.Windows.Debug;
 
 namespace Olympus.Windows.Debug.Tabs;
 
@@ -42,14 +43,8 @@ public static class HephaestusTab
 
     private static void DrawStatusSection(HephaestusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.TankStatus, "Status"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("HephStatusTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.TankStatus, "Status"), "HephStatusTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.IsMainTankLabel, "Role:"));
@@ -75,21 +70,13 @@ public static class HephaestusTab
             var actionColor = !string.IsNullOrEmpty(state.PlannedAction) && state.PlannedAction != "None"
                 ? new Vector4(0.5f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(actionColor, string.IsNullOrEmpty(state.PlannedAction) ? "—" : state.PlannedAction);
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawResourcesSection(HephaestusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Resources, "Resources"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("HephResourcesTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Resources, "Resources"), "HephResourcesTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.CartridgesLabel, "Cartridges:"));
@@ -108,21 +95,13 @@ public static class HephaestusTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.NearbyEnemies, "Nearby Enemies:"));
             ImGui.TableNextColumn();
             ImGui.Text($"{state.NearbyEnemies}");
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawComboSection(HephaestusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Combo, "Combo"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("HephComboTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Combo, "Combo"), "HephComboTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.ComboState, "Combo Step:"));
@@ -146,21 +125,13 @@ public static class HephaestusTab
                 ImGui.TextColored(new Vector4(1f, 0.6f, 0.2f, 1f), $"{state.GnashingFangStep}");
             else
                 ImGui.TextDisabled("—");
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawContinuationSection(HephaestusDebugState state)
     {
-        ImGui.Text("Continuation");
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("HephContTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection("Continuation", "HephContTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             void DrawReadyRow(string label, bool ready)
             {
                 ImGui.TableNextRow();
@@ -178,21 +149,13 @@ public static class HephaestusTab
             DrawReadyRow(Loc.T(LocalizedStrings.Debug.ReadyToGouge, "Ready to Gouge:"), state.IsReadyToGouge);
             DrawReadyRow(Loc.T(LocalizedStrings.Debug.ReadyToBlast, "Ready to Blast:"), state.IsReadyToBlast);
             DrawReadyRow(Loc.T(LocalizedStrings.Debug.ReadyToReign, "Ready to Reign:"), state.IsReadyToReign);
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawBuffSection(HephaestusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("HephBuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"), "HephBuffTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.NoMercy, "No Mercy:"));
@@ -219,21 +182,13 @@ public static class HephaestusTab
                 ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), Loc.T(LocalizedStrings.Debug.JobActiveLabel, "Active"));
             else
                 ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.NotApplied, "Not applied"));
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawDefensiveSection(HephaestusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.MitigationHeader, "Defensive"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("HephDefTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.MitigationHeader, "Defensive"), "HephDefTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             void DrawBoolRow(string label, bool active, string activeText = "Active")
             {
                 ImGui.TableNextRow();
@@ -260,21 +215,13 @@ public static class HephaestusTab
                 ImGui.TextColored(new Vector4(0.5f, 0.8f, 1f, 1f), state.ActiveMitigations);
             else
                 ImGui.TextDisabled("—");
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawModuleStates(HephaestusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.ModuleStatesHeader, "Module States"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("HephModuleTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.ModuleStatesHeader, "Module States"), "HephModuleTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.DamageStateLabel, "Damage:"));
@@ -298,8 +245,6 @@ public static class HephaestusTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.EnmityStateLabel, "Enmity:"));
             ImGui.TableNextColumn();
             ImGui.TextDisabled(string.IsNullOrEmpty(state.EnmityState) ? "—" : state.EnmityState);
-
-            ImGui.EndTable();
-        }
+        });
     }
 }

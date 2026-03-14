@@ -2,6 +2,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Localization;
 using Olympus.Rotation.CirceCore.Context;
+using Olympus.Windows.Debug;
 
 namespace Olympus.Windows.Debug.Tabs;
 
@@ -41,14 +42,8 @@ public static class CirceTab
 
     private static void DrawManaSection(CirceDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Mana, "Mana"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("RdmManaTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Mana, "Mana"), "RdmManaTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Phase
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -97,21 +92,13 @@ public static class CirceTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.MeleeReady, "Melee Ready:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.CanStartMeleeCombo);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawMeleeComboSection(CirceDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.MeleeCombo, "Melee Combo"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("RdmComboTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.MeleeCombo, "Melee Combo"), "RdmComboTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // In Melee Combo
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -146,21 +133,13 @@ public static class CirceTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.ResolutionReady, "Resolution Ready:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.IsResolutionReady);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawBuffSection(CirceDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("RdmBuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"), "RdmBuffTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Dualcast
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -263,21 +242,13 @@ public static class CirceTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.ThornedFlourish, "Thorned Flourish:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasThornedFlourish);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawCooldownSection(CirceDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Cooldowns, "Cooldowns"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("RdmCooldownTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Cooldowns, "Cooldowns"), "RdmCooldownTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // MP
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -323,21 +294,13 @@ public static class CirceTab
             ImGui.TableNextColumn();
             var accelColor = state.AccelerationCharges >= 2 ? new Vector4(0.5f, 1f, 0.5f, 1f) : state.AccelerationCharges >= 1 ? new Vector4(1f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(accelColor, $"{state.AccelerationCharges}/2");
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawTargetSection(CirceDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.TargetLabel, "Target"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("RdmTargetTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.TargetLabel, "Target"), "RdmTargetTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Current Target
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -352,9 +315,7 @@ public static class CirceTab
             ImGui.TableNextColumn();
             var aoeColor = state.NearbyEnemies >= 3 ? new Vector4(1f, 0.6f, 0.2f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(aoeColor, $"{state.NearbyEnemies}");
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawProcStatus(bool hasProc)

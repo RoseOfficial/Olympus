@@ -2,6 +2,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Localization;
 using Olympus.Rotation.HermesCore.Context;
+using Olympus.Windows.Debug;
 
 namespace Olympus.Windows.Debug.Tabs;
 
@@ -41,14 +42,8 @@ public static class HermesTab
 
     private static void DrawMudraSection(HermesDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Mudra, "Mudra"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("NinMudraTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Mudra, "Mudra"), "NinMudraTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Mudra Active
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -108,21 +103,13 @@ public static class HermesTab
             {
                 ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawGaugeSection(HermesDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Gauge, "Gauge"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("NinGaugeTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Gauge, "Gauge"), "NinGaugeTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Ninki
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -146,21 +133,13 @@ public static class HermesTab
             ImGui.TableNextColumn();
             var comboColor = state.ComboStep > 0 ? new Vector4(0.5f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(comboColor, state.ComboStep > 0 ? $"Step {state.ComboStep} ({state.ComboTimeRemaining:F1}s)" : Loc.T(LocalizedStrings.Debug.NoneLabel, "None"));
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawBuffSection(HermesDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("NinBuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"), "NinBuffTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Suiton
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -216,21 +195,13 @@ public static class HermesTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.TenriJindoReady, "Tenri Jindo Ready:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasTenriJindoReady);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawDebuffSection(HermesDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.TargetDebuffs, "Target Debuffs"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("NinDebuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.TargetDebuffs, "Target Debuffs"), "NinDebuffTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Kunai's Bane
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -258,21 +229,13 @@ public static class HermesTab
             {
                 ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.NotApplied, "Not applied"));
             }
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawPositionalSection(HermesDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Positional, "Positional"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("NinPositionalTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Positional, "Positional"), "NinPositionalTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Current Position
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -316,9 +279,7 @@ public static class HermesTab
             ImGui.TableNextColumn();
             var aoeColor = state.NearbyEnemies >= 3 ? new Vector4(1f, 0.6f, 0.2f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(aoeColor, $"{state.NearbyEnemies}");
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawProcStatus(bool hasProc)

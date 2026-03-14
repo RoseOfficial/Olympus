@@ -2,6 +2,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Localization;
 using Olympus.Rotation.AsclepiusCore.Context;
+using Olympus.Windows.Debug;
 
 namespace Olympus.Windows.Debug.Tabs;
 
@@ -42,14 +43,8 @@ public static class AsclepiusTab
 
     private static void DrawOverviewSection(AsclepiusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.TankStatus, "Status"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("AsclepiusOverviewTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.TankStatus, "Status"), "AsclepiusOverviewTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.PlannedActionLabel, "Planned Action:"));
@@ -72,9 +67,7 @@ public static class AsclepiusTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.PartyLabel, "Party:"));
             ImGui.TableNextColumn();
             ImGui.Text($"{state.PartyValidCount}/{state.PartyListCount} valid");
-
-            ImGui.EndTable();
-        }
+        });
 
         if (state.RaiseState != "Idle" || state.RaiseTarget != "None")
         {
@@ -100,14 +93,8 @@ public static class AsclepiusTab
 
     private static void DrawResourcesSection(AsclepiusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Resources, "Resources"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("AsclepiusResourcesTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Resources, "Resources"), "AsclepiusResourcesTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.SgeAddersgall, "Addersgall:"));
@@ -139,21 +126,13 @@ public static class AsclepiusTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.SgeStrategy, "Strategy:"));
             ImGui.TableNextColumn();
             ImGui.TextDisabled(state.AddersgallStrategy);
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawKardiaSection(AsclepiusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.SgeKardia, "Kardia"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("AsclepiusKardiaTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.SgeKardia, "Kardia"), "AsclepiusKardiaTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.SgeKardiaState, "Kardia:"));
@@ -186,21 +165,13 @@ public static class AsclepiusTab
                 ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), state.PhilosophiaState);
             else
                 ImGui.TextDisabled(state.PhilosophiaState);
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawEukrasiaSection(AsclepiusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.SgeEukrasia, "Eukrasia"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("AsclepiusEukrasiaTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.SgeEukrasia, "Eukrasia"), "AsclepiusEukrasiaTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.SgeEukrasiaActive, "Eukrasia:"));
@@ -224,21 +195,13 @@ public static class AsclepiusTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.SgeEukrasiaState, "Eukrasia State:"));
             ImGui.TableNextColumn();
             ImGui.TextDisabled(state.EukrasiaState);
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawHealingSection(AsclepiusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Healing, "Healing"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("AsclepiusHealingTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Healing, "Healing"), "AsclepiusHealingTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             void DrawStateRow(string label, string stateVal)
             {
                 ImGui.TableNextRow();
@@ -273,21 +236,13 @@ public static class AsclepiusTab
                 if (!string.IsNullOrEmpty(state.LastHealStats))
                     ImGui.TextDisabled(state.LastHealStats);
             }
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawShieldsSection(AsclepiusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.SgeShields, "Shields"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("AsclepiusShieldsTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.SgeShields, "Shields"), "AsclepiusShieldsTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             void DrawStateRow(string label, string stateVal, string? target = null)
             {
                 ImGui.TableNextRow();
@@ -316,21 +271,13 @@ public static class AsclepiusTab
             DrawStateRow(Loc.T(LocalizedStrings.Debug.SgeKrasis, "Krasis:"), state.KrasisState);
             DrawStateRow(Loc.T(LocalizedStrings.Debug.SgePepsis, "Pepsis:"), state.PepsisState);
             DrawStateRow(Loc.T(LocalizedStrings.Debug.SgeRhizomata, "Rhizomata:"), state.RhizomataState);
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawDpsSection(AsclepiusDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.DpsSection, "DPS"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("AsclepiusDpsTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.DpsSection, "DPS"), "AsclepiusDpsTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.DoT, "DoT:"));
@@ -378,8 +325,6 @@ public static class AsclepiusTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.DpsStateLabel, "DPS State:"));
             ImGui.TableNextColumn();
             ImGui.TextDisabled(state.DpsState);
-
-            ImGui.EndTable();
-        }
+        });
     }
 }

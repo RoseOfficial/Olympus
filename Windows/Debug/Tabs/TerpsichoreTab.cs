@@ -2,6 +2,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Localization;
 using Olympus.Rotation.TerpsichoreCore.Context;
+using Olympus.Windows.Debug;
 
 namespace Olympus.Windows.Debug.Tabs;
 
@@ -41,14 +42,8 @@ public static class TerpsichoreTab
 
     private static void DrawDanceSection(TerpsichoreDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Dance, "Dance"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("DncDanceTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Dance, "Dance"), "DncDanceTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Dancing State
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -86,21 +81,13 @@ public static class TerpsichoreTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.TechnicalFinish, "Technical Finish:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasTechnicalFinish);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawGaugeSection(TerpsichoreDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Gauge, "Gauge"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("DncGaugeTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Gauge, "Gauge"), "DncGaugeTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Esprit
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -116,21 +103,13 @@ public static class TerpsichoreTab
             ImGui.TableNextColumn();
             var featherColor = state.Feathers >= 4 ? new Vector4(0.5f, 1f, 0.5f, 1f) : state.Feathers >= 3 ? new Vector4(1f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(featherColor, $"{state.Feathers}/4");
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawProcSection(TerpsichoreDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Procs, "Procs"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("DncProcTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Procs, "Procs"), "DncProcTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Silken Symmetry
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -193,21 +172,13 @@ public static class TerpsichoreTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.DanceOfDawn, "Dance of Dawn:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasDanceOfTheDawnReady);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawBuffSection(TerpsichoreDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("DncBuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"), "DncBuffTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Devilment
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -221,21 +192,13 @@ public static class TerpsichoreTab
             {
                 ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.JobInactiveLabel, "Inactive"));
             }
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawTargetSection(TerpsichoreDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.TargetPartner, "Target & Partner"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("DncTargetTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.TargetPartner, "Target & Partner"), "DncTargetTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Dance Partner
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -264,9 +227,7 @@ public static class TerpsichoreTab
             ImGui.TableNextColumn();
             var aoeColor = state.NearbyEnemies >= 3 ? new Vector4(1f, 0.6f, 0.2f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(aoeColor, $"{state.NearbyEnemies}");
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawProcStatus(bool hasProc)

@@ -2,6 +2,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Localization;
 using Olympus.Rotation.ThemisCore.Context;
+using Olympus.Windows.Debug;
 
 namespace Olympus.Windows.Debug.Tabs;
 
@@ -42,14 +43,8 @@ public static class ThemisTab
 
     private static void DrawStatusSection(ThemisDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.TankStatus, "Status"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("ThemisStatusTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.TankStatus, "Status"), "ThemisStatusTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.IsMainTankLabel, "Role:"));
@@ -66,41 +61,25 @@ public static class ThemisTab
             var actionColor = !string.IsNullOrEmpty(state.PlannedAction) && state.PlannedAction != "None"
                 ? new Vector4(0.5f, 1f, 0.5f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(actionColor, string.IsNullOrEmpty(state.PlannedAction) ? "—" : state.PlannedAction);
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawGaugeSection(ThemisDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Gauge, "Gauge"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("ThemisGaugeTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Gauge, "Gauge"), "ThemisGaugeTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.OathGaugeLabel, "Oath Gauge:"));
             ImGui.TableNextColumn();
             ImGui.ProgressBar(state.OathGauge / 100f, new Vector2(-1, 0), $"{state.OathGauge}/100");
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawComboSection(ThemisDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Combo, "Combo"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("ThemisComboTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Combo, "Combo"), "ThemisComboTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.ComboState, "Combo Step:"));
@@ -142,21 +121,13 @@ public static class ThemisTab
                 ImGui.TextColored(new Vector4(0.9f, 0.8f, 0.5f, 1f), $"{state.SwordOathStacks}");
             else
                 ImGui.TextDisabled("—");
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawBuffSection(ThemisDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("ThemisBuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"), "ThemisBuffTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.FightOrFlight, "Fight or Flight:"));
@@ -188,21 +159,13 @@ public static class ThemisTab
             }
             else
                 ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.NotApplied, "Not applied"));
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawMitigationSection(ThemisDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.MitigationHeader, "Mitigation"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("ThemisMitigationTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.MitigationHeader, "Mitigation"), "ThemisMitigationTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.ActiveMitigationsLabel, "Active:"));
@@ -211,21 +174,13 @@ public static class ThemisTab
                 ImGui.TextColored(new Vector4(0.5f, 0.8f, 1f, 1f), state.ActiveMitigations);
             else
                 ImGui.TextDisabled("—");
-
-            ImGui.EndTable();
-        }
+        });
     }
 
     private static void DrawExecutionFlowSection(ThemisDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.ExecutionFlowHeader, "Execution Flow"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("ThemisFlowTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.ExecutionFlowHeader, "Execution Flow"), "ThemisFlowTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.InCombatLabel, "In Combat:"));
@@ -264,9 +219,7 @@ public static class ThemisTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.GcdRemainingLabel, "GCD Remaining:"));
             ImGui.TableNextColumn();
             ImGui.Text($"{state.GcdRemaining:F2}s");
-
-            ImGui.EndTable();
-        }
+        });
 
         if (!string.IsNullOrEmpty(state.ExecutionFlow))
         {
@@ -277,14 +230,8 @@ public static class ThemisTab
 
     private static void DrawModuleStates(ThemisDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.ModuleStatesHeader, "Module States"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("ThemisModuleTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.ModuleStatesHeader, "Module States"), "ThemisModuleTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 160);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.Text(Loc.T(LocalizedStrings.Debug.DamageStateLabel, "Damage:"));
@@ -308,8 +255,6 @@ public static class ThemisTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.EnmityStateLabel, "Enmity:"));
             ImGui.TableNextColumn();
             ImGui.TextDisabled(string.IsNullOrEmpty(state.EnmityState) ? "—" : state.EnmityState);
-
-            ImGui.EndTable();
-        }
+        });
     }
 }

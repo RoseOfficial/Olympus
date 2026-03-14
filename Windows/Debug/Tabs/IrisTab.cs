@@ -2,6 +2,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Localization;
 using Olympus.Rotation.IrisCore.Context;
+using Olympus.Windows.Debug;
 
 namespace Olympus.Windows.Debug.Tabs;
 
@@ -41,14 +42,8 @@ public static class IrisTab
 
     private static void DrawCanvasSection(IrisDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Canvas, "Canvas"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("PctCanvasTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Canvas, "Canvas"), "PctCanvasTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Phase
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -97,21 +92,13 @@ public static class IrisTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.MadeenPortrait, "Madeen Portrait:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.MadeenReady);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawPaletteSection(IrisDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.PalettePaint, "Palette & Paint"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("PctPaletteTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.PalettePaint, "Palette & Paint"), "PctPaletteTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Palette Gauge
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -173,21 +160,13 @@ public static class IrisTab
             {
                 ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.NoneLabel, "None"));
             }
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawBuffSection(IrisDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("PctBuffTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Buffs, "Buffs"), "PctBuffTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Starry Muse
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -264,21 +243,13 @@ public static class IrisTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.Swiftcast, "Swiftcast:"));
             ImGui.TableNextColumn();
             DrawProcStatus(state.HasSwiftcast);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawCooldownSection(IrisDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.Cooldowns, "Cooldowns"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("PctCooldownTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.Cooldowns, "Cooldowns"), "PctCooldownTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // MP
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -329,21 +300,13 @@ public static class IrisTab
             ImGui.Text(Loc.T(LocalizedStrings.Debug.Smudge, "Smudge:"));
             ImGui.TableNextColumn();
             DrawReadyStatus(state.SmudgeReady);
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawTargetSection(IrisDebugState state)
     {
-        ImGui.Text(Loc.T(LocalizedStrings.Debug.TargetLabel, "Target"));
-        ImGui.Separator();
-
-        if (ImGui.BeginTable("PctTargetTable", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchProp))
+        DebugTabHelpers.DrawSection(Loc.T(LocalizedStrings.Debug.TargetLabel, "Target"), "PctTargetTable", () =>
         {
-            ImGui.TableSetupColumn("Label", ImGuiTableColumnFlags.WidthFixed, 140);
-            ImGui.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-
             // Current Target
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
@@ -358,9 +321,7 @@ public static class IrisTab
             ImGui.TableNextColumn();
             var aoeColor = state.NearbyEnemies >= 3 ? new Vector4(1f, 0.6f, 0.2f, 1f) : new Vector4(0.7f, 0.7f, 0.7f, 1f);
             ImGui.TextColored(aoeColor, $"{state.NearbyEnemies}");
-
-            ImGui.EndTable();
-        }
+        }, 140f);
     }
 
     private static void DrawProcStatus(bool hasProc)
