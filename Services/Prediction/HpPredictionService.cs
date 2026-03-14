@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Olympus.Data;
@@ -30,7 +29,7 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
 
     // Pending heals: targetId → list of pending heal entries
     // Supports multiple concurrent heals per target (e.g., GCD + oGCD weaving)
-    private readonly ConcurrentDictionary<uint, List<PendingHealEntry>> _pendingHealsByTarget = new();
+    private readonly Dictionary<uint, List<PendingHealEntry>> _pendingHealsByTarget = new();
     private readonly object _healsLock = new();
 
     public HpPredictionService(ICombatEventService combatEventService, Configuration configuration)
@@ -185,7 +184,7 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
     {
         lock (_healsLock)
         {
-            _pendingHealsByTarget.TryRemove(targetId, out _);
+            _pendingHealsByTarget.Remove(targetId);
         }
     }
 
