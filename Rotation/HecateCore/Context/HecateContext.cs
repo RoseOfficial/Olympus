@@ -95,7 +95,6 @@ public sealed class HecateContext : IHecateContext
     public float ThunderheadRemaining { get; }
     public bool HasLeyLines { get; }
     public float LeyLinesRemaining { get; }
-    public int TriplecastStacksRemaining { get; }
 
     // Target state
     public bool HasThunderDoT { get; }
@@ -212,7 +211,6 @@ public sealed class HecateContext : IHecateContext
         HasSwiftcast = statusHelper.HasSwiftcast(player);
         HasTriplecast = statusHelper.HasTriplecast(player);
         TriplecastStacks = statusHelper.GetTriplecastStacks(player);
-        TriplecastStacksRemaining = TriplecastStacks;
         HasInstantCast = HasSwiftcast || HasTriplecast;
 
         HasFirestarter = statusHelper.HasFirestarter(player);
@@ -305,7 +303,7 @@ public sealed class HecateContext : IHecateContext
         Debug.ThunderheadRemaining = ThunderheadRemaining;
         Debug.HasLeyLines = HasLeyLines;
         Debug.LeyLinesRemaining = LeyLinesRemaining;
-        Debug.TriplecastStacks = TriplecastStacksRemaining;
+        Debug.TriplecastStacks = TriplecastStacks;
         Debug.HasSwiftcast = HasSwiftcast;
 
         // Target state

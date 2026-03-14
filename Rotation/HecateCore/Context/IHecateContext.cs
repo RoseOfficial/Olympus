@@ -112,10 +112,6 @@ public interface IHecateContext : ICasterDpsRotationContext
     /// </summary>
     float LeyLinesRemaining { get; }
 
-    /// <summary>
-    /// Number of Triplecast stacks remaining (0-3).
-    /// </summary>
-    int TriplecastStacksRemaining { get; }
 
     #endregion
 

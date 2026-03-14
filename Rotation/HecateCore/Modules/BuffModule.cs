@@ -284,7 +284,7 @@ public sealed class BuffModule : IHecateModule
             return false;
 
         // Don't use if already have stacks
-        if (context.TriplecastStacksRemaining > 0)
+        if (context.TriplecastStacks > 0)
             return false;
 
         // Use for movement
