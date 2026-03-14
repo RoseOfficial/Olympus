@@ -128,6 +128,9 @@ public sealed class HermesStatusHelper : BaseStatusHelper
     /// </summary>
     public bool HasKunaisBane(IBattleChara target, uint playerId)
     {
+        if (target.StatusList == null)
+            return false;
+
         foreach (var status in target.StatusList)
         {
             if (status.StatusId == NINActions.StatusIds.KunaisBane && status.SourceId == playerId)
@@ -141,6 +144,9 @@ public sealed class HermesStatusHelper : BaseStatusHelper
     /// </summary>
     public float GetKunaisBaneRemaining(IBattleChara target, uint playerId)
     {
+        if (target.StatusList == null)
+            return 0f;
+
         foreach (var status in target.StatusList)
         {
             if (status.StatusId == NINActions.StatusIds.KunaisBane && status.SourceId == playerId)
@@ -154,6 +160,9 @@ public sealed class HermesStatusHelper : BaseStatusHelper
     /// </summary>
     public bool HasDokumori(IBattleChara target, uint playerId)
     {
+        if (target.StatusList == null)
+            return false;
+
         foreach (var status in target.StatusList)
         {
             if (status.StatusId == NINActions.StatusIds.Dokumori && status.SourceId == playerId)
@@ -167,6 +176,9 @@ public sealed class HermesStatusHelper : BaseStatusHelper
     /// </summary>
     public float GetDokumoriRemaining(IBattleChara target, uint playerId)
     {
+        if (target.StatusList == null)
+            return 0f;
+
         foreach (var status in target.StatusList)
         {
             if (status.StatusId == NINActions.StatusIds.Dokumori && status.SourceId == playerId)
@@ -180,6 +192,9 @@ public sealed class HermesStatusHelper : BaseStatusHelper
     /// </summary>
     public bool HasVulnerabilityUp(IBattleChara target, uint playerId)
     {
+        if (target.StatusList == null)
+            return false;
+
         foreach (var status in target.StatusList)
         {
             if (status.StatusId == NINActions.StatusIds.VulnerabilityUp && status.SourceId == playerId)

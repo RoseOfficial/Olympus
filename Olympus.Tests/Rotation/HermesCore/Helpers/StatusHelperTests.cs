@@ -231,6 +231,30 @@ public class StatusHelperTests
         Assert.False(_helper.HasKazematoi(mock.Object));
     }
 
+    [Fact]
+    public void HasKunaisBane_TargetNullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockBattleChara();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+        Assert.False(_helper.HasKunaisBane(mock.Object, playerId: 1u));
+    }
+
+    [Fact]
+    public void HasDokumori_TargetNullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockBattleChara();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+        Assert.False(_helper.HasDokumori(mock.Object, playerId: 1u));
+    }
+
+    [Fact]
+    public void HasVulnerabilityUp_TargetNullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockBattleChara();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+        Assert.False(_helper.HasVulnerabilityUp(mock.Object, playerId: 1u));
+    }
+
     #endregion
 
     #region Get* Methods — Null StatusList Guard Tests
@@ -273,6 +297,22 @@ public class StatusHelperTests
         var mock = MockBuilders.CreateMockPlayerCharacter();
         mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
         Assert.Equal(0, _helper.GetKazematoiStacks(mock.Object));
+    }
+
+    [Fact]
+    public void GetKunaisBaneRemaining_TargetNullStatusList_ReturnsZero()
+    {
+        var mock = MockBuilders.CreateMockBattleChara();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+        Assert.Equal(0f, _helper.GetKunaisBaneRemaining(mock.Object, playerId: 1u));
+    }
+
+    [Fact]
+    public void GetDokumoriRemaining_TargetNullStatusList_ReturnsZero()
+    {
+        var mock = MockBuilders.CreateMockBattleChara();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+        Assert.Equal(0f, _helper.GetDokumoriRemaining(mock.Object, playerId: 1u));
     }
 
     #endregion
