@@ -191,7 +191,7 @@ public abstract class BaseRotation<TContext, TModule> : IRotation
         // Combat tracking — also treat auto-attack as combat if enabled
         var inCombat = (player.StatusFlags & StatusFlags.InCombat) != 0;
         if (!inCombat && Configuration.EnableOnAutoAttack)
-            inCombat = IsAutoAttacking();
+            inCombat = IsWeaponDrawn();
         UpdateCombatState(inCombat);
 
         // Job-specific service updates
@@ -351,14 +351,12 @@ public abstract class BaseRotation<TContext, TModule> : IRotation
     #region Auto-Attack Detection
 
     /// <summary>
-    /// Checks if the player currently has auto-attack active.
-    /// Uses StatusFlags.WeaponOut as a proxy — weapon drawn means combat intent.
+    /// Checks if the player has their weapon drawn (combat intent).
     /// </summary>
-    private bool IsAutoAttacking()
+    private bool IsWeaponDrawn()
     {
         var player = ObjectTable.LocalPlayer;
         if (player == null) return false;
-        // WeaponOut flag = weapon is drawn, player intends combat
         return (player.StatusFlags & StatusFlags.WeaponOut) != 0;
     }
 

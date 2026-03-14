@@ -84,8 +84,7 @@ public sealed class DrawHelperSection
         if (ImGui.Checkbox("Show ranged range at target", ref showRanged)) { dh.ShowRangedRange = showRanged; save(); }
         if (dh.ShowRangedRange)
         {
-            var radius = dh.RangedRangeRadius;
-            if (ImGui.SliderFloat("Range (yalms)", ref radius, 5f, 30f, "%.0f")) { dh.RangedRangeRadius = radius; save(); }
+            ImGui.TextDisabled("Auto-detects 25y range for all ranged/caster jobs.");
             ColorPicker("In Range##ranged", dh.RangedRangeColor, v => { dh.RangedRangeColor = v; save(); });
             ColorPicker("Out of Range##ranged", dh.RangedRangeOutOfRangeColor, v => { dh.RangedRangeOutOfRangeColor = v; save(); });
         }
@@ -101,7 +100,6 @@ public sealed class DrawHelperSection
         {
             ColorPicker("Rear", dh.PositionalRearColor, v => { dh.PositionalRearColor = v; save(); });
             ColorPicker("Flank", dh.PositionalFlankColor, v => { dh.PositionalFlankColor = v; save(); });
-            ColorPicker("Front", dh.PositionalFrontColor, v => { dh.PositionalFrontColor = v; save(); });
         }
 
     }

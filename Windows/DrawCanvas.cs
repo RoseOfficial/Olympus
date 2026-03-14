@@ -56,15 +56,12 @@ public sealed class DrawCanvas : Window
     private static readonly HashSet<uint> MeleeJobs = [1, 2, 3, 4, 19, 20, 21, 22, 29, 30, 32, 34, 37, 39, 41];
     // Ranged/caster job IDs
     private static readonly HashSet<uint> RangedJobs = [23, 24, 25, 27, 28, 31, 33, 35, 38, 40, 42];
-    private const float RangedMaxRange = 25f;
 
     // Colors
     private const uint ColorSimPlayer = 0xC0FFFF00u;
     private const uint ColorFakeHitbox = 0xC000A5FFu;
     private const uint ColorShapeFill = 0x8000FF00u;
     private const uint ColorShapeOutline = 0xC000FF00u;
-    private const uint ColorHitCount = 0xC000FF00u;
-    private const uint ColorNoHits = 0xC00000FFu;
 
     public DrawCanvas(
         DrawingService drawing,
@@ -476,18 +473,18 @@ public sealed class DrawCanvas : Window
 
     private void DrawRangedRange(Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter player, IGameObject target)
     {
-        var totalRadius = target.HitboxRadius + player.HitboxRadius + RangedMaxRange;
+        const float rangedRange = 25f; // All ranged/caster jobs use 25y
+        var totalRadius = target.HitboxRadius + player.HitboxRadius + rangedRange;
         var ringCenter = SnapToFloor(target.Position);
 
         var dx = player.Position.X - target.Position.X;
         var dz = player.Position.Z - target.Position.Z;
         var edgeDist = MathF.Sqrt(dx * dx + dz * dz) - player.HitboxRadius - target.HitboxRadius;
-        var inRange = edgeDist <= RangedMaxRange;
+        var inRange = edgeDist <= rangedRange;
 
         if (inRange)
         {
-            // Fade: alpha decreases as you get closer (more buffer = less visible)
-            var buffer = RangedMaxRange - edgeDist;
+            var buffer = rangedRange - edgeDist;
             var alpha = MathF.Max(0f, (1.5f - buffer) / 1.5f) * 0.75f;
             if (alpha <= 0.01f) return;
             var fadeColor = ((uint)(alpha * 255f) << 24) | (Config.RangedRangeColor & 0x00FFFFFFu);

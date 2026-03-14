@@ -125,12 +125,12 @@ public sealed class GeneralSection
             ConfigUIHelpers.BeginIndent();
 
             var enableOnAutoAttack = this.config.EnableOnAutoAttack;
-            if (ImGui.Checkbox("Start rotation on auto-attack", ref enableOnAutoAttack))
+            if (ImGui.Checkbox("Start rotation when weapon is drawn", ref enableOnAutoAttack))
             {
                 this.config.EnableOnAutoAttack = enableOnAutoAttack;
                 this.save();
             }
-            ImGui.TextDisabled("When enabled, Olympus will start executing the rotation as soon as auto-attack is active on a target, before the in-combat flag is set.");
+            ImGui.TextDisabled("When enabled, Olympus starts executing the rotation as soon as you draw your weapon, before the server sets the in-combat flag.");
 
             ConfigUIHelpers.EndIndent();
         }

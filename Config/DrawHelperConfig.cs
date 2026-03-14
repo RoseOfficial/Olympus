@@ -23,9 +23,8 @@ public sealed class DrawHelperConfig
     public uint MeleeRangeColor { get; set; } = 0xC000FF00u; // green
     public uint MeleeRangeOutOfRangeColor { get; set; } = 0xC000FFFFu; // yellow
 
-    // Ranged range indicator
+    // Ranged range indicator (auto-detects 25y for all ranged/caster jobs)
     public bool ShowRangedRange { get; set; } = false;
-    public float RangedRangeRadius { get; set; } = 25f;
     public uint RangedRangeColor { get; set; } = 0xC0FF8000u; // blue-ish
     public uint RangedRangeOutOfRangeColor { get; set; } = 0xC000FFFFu; // yellow
 
@@ -33,9 +32,4 @@ public sealed class DrawHelperConfig
     public bool ShowPositionals { get; set; } = false;
     public uint PositionalRearColor { get; set; } = 0x5000FF00u; // green
     public uint PositionalFlankColor { get; set; } = 0x50CFCF51u; // cyan
-    public uint PositionalFrontColor { get; set; } = 0x503535D6u; // blue
-
-    // AoE prediction overlay
-    public bool ShowAoEPrediction { get; set; } = false;
-    public uint AoEPredictionColor { get; set; } = 0x8000FF00u; // green fill
 }

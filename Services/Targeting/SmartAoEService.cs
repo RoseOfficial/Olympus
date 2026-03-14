@@ -12,12 +12,13 @@ namespace Olympus.Services.Targeting;
 /// Smart AoE service: uses Lumina Action sheet data to determine the optimal facing angle
 /// for cone/line abilities. Falls back to standard circular targeting for other shapes.
 /// </summary>
-public sealed class SmartAoEService
+public sealed class SmartAoEService : IDisposable
 {
     private readonly ITargetingService _targetingService;
     private readonly IDataManager _dataManager;
     private readonly AoETracker _tracker;
     private readonly IPluginLog _log;
+    private ICombatEventService? _subscribedCombatEventService;
 
     /// <summary>
     /// Global instance — set by Plugin.cs, accessed by BaseDpsDamageModule.
@@ -37,7 +38,15 @@ public sealed class SmartAoEService
     /// </summary>
     public void SubscribeToCombatEvents(ICombatEventService combatEventService)
     {
+        _subscribedCombatEventService = combatEventService;
         combatEventService.OnLocalAbilityResolved += OnAbilityResolved;
+    }
+
+    public void Dispose()
+    {
+        if (_subscribedCombatEventService != null)
+            _subscribedCombatEventService.OnLocalAbilityResolved -= OnAbilityResolved;
+        Instance = null;
     }
 
     private void OnAbilityResolved(uint actionId, int targetCount)

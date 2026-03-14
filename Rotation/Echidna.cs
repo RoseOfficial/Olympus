@@ -158,8 +158,8 @@ public sealed class Echidna : BaseMeleeDpsRotation<IEchidnaContext, IEchidnaModu
             // Hindstung/Hindsbane venoms → rear
             if (s.StatusId is VPRActions.StatusIds.HindstungVenom or VPRActions.StatusIds.HindsbaneVenom)
                 return PositionalType.Rear;
-            // Flankstung venom → flank
-            if (s.StatusId == VPRActions.StatusIds.FlankstungVenom)
+            // Flankstung/Flanksbane venoms → flank
+            if (s.StatusId is VPRActions.StatusIds.FlankstungVenom or VPRActions.StatusIds.FlanksbaneVenom)
                 return PositionalType.Flank;
         }
 

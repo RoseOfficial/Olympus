@@ -105,11 +105,6 @@ public interface IActionService
     IWeaveOptimizer WeaveOptimizer { get; }
 
     /// <summary>
-    /// Turns the player to face a specific direction before using a directional AoE.
-    /// </summary>
-    void FaceDirection(float direction);
-
-    /// <summary>
     /// Execute a GCD targeting the optimal enemy for a directional AoE.
     /// The game auto-faces toward the target, controlling the cone/line direction.
     /// </summary>

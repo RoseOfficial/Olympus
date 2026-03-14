@@ -533,6 +533,7 @@ public sealed class Plugin : IDalamudPlugin
         performanceTracker.Dispose();
         timelineService.Dispose();
         combatEventService.Dispose();
+        smartAoEService.Dispose();
         drawingService.Dispose();
         localization.Dispose();
     }
