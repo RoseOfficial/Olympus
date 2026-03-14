@@ -49,7 +49,10 @@ public enum ConfigSection
     BlackMage,
     Summoner,
     RedMage,
-    Pictomancer
+    Pictomancer,
+
+    // Utility
+    DrawHelper
 }
 
 /// <summary>
@@ -84,13 +87,14 @@ public sealed class ConfigSidebar
         ImGui.BeginChild("##ConfigSidebar", new Vector2(SidebarWidth, 0), true);
 
         // GENERAL section
-        var generalSections = new[] { ConfigSection.General, ConfigSection.Targeting, ConfigSection.RoleActions };
+        var generalSections = new[] { ConfigSection.General, ConfigSection.Targeting, ConfigSection.RoleActions, ConfigSection.DrawHelper };
         if (ShouldShowCategory(generalSections, matchingSections, hasSearch))
         {
             DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.General, "GENERAL"));
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.GeneralItem, "General"), ConfigSection.General, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Targeting, "Targeting"), ConfigSection.Targeting, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.RoleActions, "Role Actions"), ConfigSection.RoleActions, null, matchingSections, hasSearch);
+            sectionChanged |= DrawNavItemFiltered("Draw Helper", ConfigSection.DrawHelper, null, matchingSections, hasSearch);
             ImGui.Spacing();
         }
 

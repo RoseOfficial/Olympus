@@ -190,13 +190,30 @@ public abstract class BaseMeleeDpsRotation<TContext, TModule> : BaseRotation<TCo
         IsAtRear = positional == PositionalType.Rear;
         IsAtFlank = positional == PositionalType.Flank;
         TargetHasPositionalImmunity = PositionalService.HasPositionalImmunity(target);
+        // True North (status 1250) suppresses positional requirements
+        var hasTrueNorth = HasStatusEffect(player, 1250);
+
         Positionals = new PositionalSnapshot
         {
             IsAtRear = IsAtRear,
             IsAtFlank = IsAtFlank,
             TargetHasImmunity = TargetHasPositionalImmunity,
-            HasTarget = true
+            HasTarget = true,
+            RequiredPositional = (TargetHasPositionalImmunity || hasTrueNorth) ? null : GetNextRequiredPositional(),
         };
+    }
+
+    /// <summary>
+    /// Override in job rotations to report what positional the next GCD requires.
+    /// Used by DrawCanvas to highlight where the player should stand.
+    /// </summary>
+    protected virtual PositionalType? GetNextRequiredPositional() => null;
+
+    private static bool HasStatusEffect(Dalamud.Game.ClientState.Objects.Types.IBattleChara player, uint statusId)
+    {
+        foreach (var s in player.StatusList)
+            if (s.StatusId == statusId) return true;
+        return false;
     }
 
     #endregion

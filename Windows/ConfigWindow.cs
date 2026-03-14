@@ -60,6 +60,7 @@ public sealed class ConfigWindow : Window
     private readonly SummonerSection summonerSection;
     private readonly RedMageSection redMageSection;
     private readonly PictomancerSection pictomancerSection;
+    private readonly DrawHelperSection drawHelperSection;
 
     public ConfigWindow(Configuration configuration, Action saveConfiguration)
         : base(Loc.T(LocalizedStrings.Config.WindowTitle, "Olympus Settings"), ImGuiWindowFlags.NoCollapse)
@@ -96,6 +97,7 @@ public sealed class ConfigWindow : Window
         summonerSection = new SummonerSection(configuration, saveConfiguration);
         redMageSection = new RedMageSection(configuration, saveConfiguration);
         pictomancerSection = new PictomancerSection(configuration, saveConfiguration);
+        drawHelperSection = new DrawHelperSection(configuration, saveConfiguration);
 
         Size = new Vector2(650, 700);
         SizeCondition = ImGuiCond.FirstUseEver;
@@ -362,6 +364,10 @@ public sealed class ConfigWindow : Window
 
             case ConfigSection.Pictomancer:
                 pictomancerSection.Draw();
+                break;
+
+            case ConfigSection.DrawHelper:
+                drawHelperSection.Draw();
                 break;
         }
     }

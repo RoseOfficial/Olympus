@@ -39,6 +39,12 @@ public interface ICombatEventService
     event System.Action<uint, uint>? OnAbilityUsed;
 
     /// <summary>
+    /// Event raised when a local player ability resolves with target count.
+    /// Parameters: (actionId, targetCount)
+    /// </summary>
+    event System.Action<uint, int>? OnLocalAbilityResolved;
+
+    /// <summary>
     /// Gets the shadow HP for an entity, or the fallback value if not tracked.
     /// </summary>
     uint GetShadowHp(uint entityId, uint fallbackHp);

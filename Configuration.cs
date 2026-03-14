@@ -77,6 +77,7 @@ public sealed class Configuration : IPluginConfiguration
     public FFlogsConfig FFLogs { get; set; } = new();
     public TrainingConfig Training { get; set; } = new();
     public OverlayConfig Overlay { get; set; } = new();
+    public DrawHelperConfig DrawHelper { get; set; } = new();
 
     // Job-specific configuration - Healers
     public ScholarConfig Scholar { get; set; } = new();
@@ -157,6 +158,7 @@ public sealed class Configuration : IPluginConfiguration
         FFLogs = new FFlogsConfig();
         Training = new TrainingConfig();
         Overlay = new OverlayConfig();
+        DrawHelper = new DrawHelperConfig();
         Scholar = new ScholarConfig();
         Astrologian = new AstrologianConfig();
         Sage = new SageConfig();

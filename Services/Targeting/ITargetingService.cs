@@ -36,6 +36,18 @@ public interface ITargetingService
     IBattleNpc? FindEnemyForAction(EnemyTargetingStrategy strategy, uint actionId, IPlayerCharacter player);
 
     /// <summary>
+    /// Finds the optimal facing angle for a cone AoE to hit the most enemies.
+    /// </summary>
+    (IBattleNpc? target, int hitCount, float optimalAngle) FindBestConeAoETarget(
+        float coneHalfAngle, float radius, float maxRange, IPlayerCharacter player);
+
+    /// <summary>
+    /// Finds the optimal facing angle for a line/rect AoE to hit the most enemies.
+    /// </summary>
+    (IBattleNpc? target, int hitCount, float optimalAngle) FindBestLineAoETarget(
+        float lineWidth, float length, float maxRange, IPlayerCharacter player);
+
+    /// <summary>
     /// Invalidates the enemy cache.
     /// </summary>
     void InvalidateCache();

@@ -1,4 +1,5 @@
 using Dalamud.Game.ClientState.Objects.Types;
+using Olympus.Services.Targeting;
 
 namespace Olympus.Rotation.Common.Modules;
 
@@ -156,6 +157,10 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
         var enemyCount = context.TargetingService.CountEnemiesInRange(GetAoECountRange(), context.Player);
         SetNearbyEnemies(context, enemyCount);
 
+        // Phase 3b: Smart AoE — compute optimal facing for the last/next directional ability
+        if (enemyCount > 0)
+            UpdateSmartAoE(context, target);
+
         // Phase 4: oGCD damage (weave window)
         if (context.CanExecuteOgcd)
         {
@@ -221,6 +226,47 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
             return true;
         }
         return false;
+    }
+
+    #endregion
+
+    #region Smart AoE Integration
+
+    /// <summary>
+    /// Override to provide the action ID of the next directional AoE the rotation plans to use.
+    /// SmartAoEService will compute the optimal facing angle for it.
+    /// Return 0 if no directional AoE is planned.
+    /// </summary>
+    protected virtual uint GetNextDirectionalAoEActionId(TContext context, IBattleChara target, int enemyCount) => 0;
+
+    private uint _lastSmartAoEActionId;
+
+    private void UpdateSmartAoE(TContext context, IBattleChara target)
+    {
+        var svc = SmartAoEService.Instance;
+        if (svc == null) return;
+
+        var actionId = GetNextDirectionalAoEActionId(context, target,
+            context.TargetingService.CountEnemiesInRange(GetAoECountRange(), context.Player));
+
+        if (actionId == 0)
+        {
+            _lastSmartAoEActionId = 0;
+            return;
+        }
+
+        if (!svc.IsDirectionalAoE(actionId)) return;
+
+        // Always update the tracker state (for debug display),
+        // but only record a new prediction when the action changes
+        var isNewAction = actionId != _lastSmartAoEActionId;
+        _lastSmartAoEActionId = actionId;
+
+        var result = svc.FindBestAoETarget(actionId, GetTargetingRange(), context.Player, recordPrediction: isNewAction);
+
+        // Face the optimal direction for the next directional AoE
+        if (result.HitCount > 0 && context.CanExecuteGcd)
+            context.ActionService.FaceDirection(result.OptimalAngle);
     }
 
     #endregion

@@ -103,4 +103,10 @@ public interface IActionService
     /// Gets the WeaveOptimizer for intelligent oGCD timing and prioritization.
     /// </summary>
     IWeaveOptimizer WeaveOptimizer { get; }
+
+    /// <summary>
+    /// Turns the player to face a specific direction before using a directional AoE.
+    /// </summary>
+    /// <param name="direction">Direction in radians (FFXIV convention).</param>
+    void FaceDirection(float direction);
 }

@@ -529,4 +529,158 @@ public sealed class TargetingService : ITargetingService
         }
         return 0f;
     }
+
+    // ── Cone / Line AoE Targeting ──
+
+    /// <inheritdoc />
+    public (IBattleNpc? target, int hitCount, float optimalAngle) FindBestConeAoETarget(
+        float coneHalfAngle, float radius, float maxRange, IPlayerCharacter player)
+    {
+        var enemies = new List<IBattleNpc>();
+        foreach (var e in GetValidEnemies(maxRange, player))
+            enemies.Add(e);
+
+        if (enemies.Count == 0) return (null, 0, 0f);
+        if (enemies.Count == 1)
+        {
+            var dx = enemies[0].Position.X - player.Position.X;
+            var dz = enemies[0].Position.Z - player.Position.Z;
+            return (enemies[0], 1, MathF.Atan2(dx, dz));
+        }
+
+        int bestCount = 0;
+        float bestAngle = 0f;
+        IBattleNpc? bestTarget = null;
+        var playerPos = player.Position;
+
+        // Build candidate angles: place each enemy's hitbox edge at cone boundary
+        var candidateAngles = new List<float>();
+        foreach (var candidate in enemies)
+        {
+            var dx = candidate.Position.X - playerPos.X;
+            var dz = candidate.Position.Z - playerPos.Z;
+            var dist = MathF.Sqrt(dx * dx + dz * dz);
+            var angle = MathF.Atan2(dx, dz);
+            var hitboxAngle = dist > 0.1f ? MathF.Asin(MathF.Min(1f, candidate.HitboxRadius / dist)) : 0f;
+            candidateAngles.Add(angle);
+            candidateAngles.Add(angle - coneHalfAngle - hitboxAngle);
+            candidateAngles.Add(angle + coneHalfAngle + hitboxAngle);
+            candidateAngles.Add(angle - coneHalfAngle);
+            candidateAngles.Add(angle + coneHalfAngle);
+        }
+
+        foreach (var testAngle in candidateAngles)
+        {
+            var count = 0;
+            IBattleNpc? firstHit = null;
+            foreach (var e in enemies)
+            {
+                var edx = e.Position.X - playerPos.X;
+                var edz = e.Position.Z - playerPos.Z;
+                var dist = MathF.Sqrt(edx * edx + edz * edz);
+                if (dist - e.HitboxRadius > radius) continue;
+
+                var angleToE = MathF.Atan2(edx, edz);
+                var diff = NormalizeAngle(angleToE - testAngle);
+                // Hitbox intersection: circle widens effective cone
+                var hitboxAngle = dist > 0.01f ? MathF.Asin(MathF.Min(1f, e.HitboxRadius / dist)) : MathF.PI;
+                if (MathF.Abs(diff) <= coneHalfAngle + hitboxAngle)
+                {
+                    count++;
+                    firstHit ??= e;
+                }
+            }
+
+            if (count > bestCount)
+            {
+                bestCount = count;
+                bestAngle = testAngle;
+                bestTarget = firstHit;
+            }
+        }
+
+        return (bestTarget, bestCount, bestAngle);
+    }
+
+    /// <inheritdoc />
+    public (IBattleNpc? target, int hitCount, float optimalAngle) FindBestLineAoETarget(
+        float lineWidth, float length, float maxRange, IPlayerCharacter player)
+    {
+        var enemies = new List<IBattleNpc>();
+        foreach (var e in GetValidEnemies(maxRange, player))
+            enemies.Add(e);
+
+        if (enemies.Count == 0) return (null, 0, 0f);
+        if (enemies.Count == 1)
+        {
+            var dx = enemies[0].Position.X - player.Position.X;
+            var dz = enemies[0].Position.Z - player.Position.Z;
+            return (enemies[0], 1, MathF.Atan2(dx, dz));
+        }
+
+        int bestCount = 0;
+        float bestAngle = 0f;
+        IBattleNpc? bestTarget = null;
+        var playerPos = player.Position;
+        var halfWidth = lineWidth * 0.5f;
+
+        // Build candidate angles with edge placement
+        var candidateAngles = new List<float>();
+        foreach (var candidate in enemies)
+        {
+            var dx = candidate.Position.X - playerPos.X;
+            var dz = candidate.Position.Z - playerPos.Z;
+            var dist = MathF.Sqrt(dx * dx + dz * dz);
+            if (dist < 0.01f) continue;
+            var angle = MathF.Atan2(dx, dz);
+            candidateAngles.Add(angle);
+            if (dist > 0.1f)
+            {
+                var edgeAngle = MathF.Asin(MathF.Min(1f, (halfWidth + candidate.HitboxRadius) / dist));
+                candidateAngles.Add(angle + edgeAngle);
+                candidateAngles.Add(angle - edgeAngle);
+            }
+        }
+
+        foreach (var testAngle in candidateAngles)
+        {
+            var sinH = MathF.Sin(testAngle);
+            var cosH = MathF.Cos(testAngle);
+
+            var count = 0;
+            IBattleNpc? firstHit = null;
+            foreach (var e in enemies)
+            {
+                var edx = e.Position.X - playerPos.X;
+                var edz = e.Position.Z - playerPos.Z;
+
+                var forward = edx * sinH + edz * cosH;
+                var lateral = edx * cosH - edz * sinH;
+
+                if (forward >= -e.HitboxRadius
+                    && forward <= length + e.HitboxRadius
+                    && MathF.Abs(lateral) <= halfWidth + e.HitboxRadius)
+                {
+                    count++;
+                    firstHit ??= e;
+                }
+            }
+
+            if (count > bestCount)
+            {
+                bestCount = count;
+                bestAngle = testAngle;
+                bestTarget = firstHit;
+            }
+        }
+
+        return (bestTarget, bestCount, bestAngle);
+    }
+
+    private static float NormalizeAngle(float angle)
+    {
+        while (angle > MathF.PI) angle -= 2f * MathF.PI;
+        while (angle < -MathF.PI) angle += 2f * MathF.PI;
+        return angle;
+    }
 }

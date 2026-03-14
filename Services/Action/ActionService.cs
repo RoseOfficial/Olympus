@@ -1,6 +1,8 @@
 using System;
 using System.Numerics;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.Game.Character;
+using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using Olympus.Data;
 using Olympus.Models;
 using Olympus.Models.Action;
@@ -234,6 +236,36 @@ public sealed unsafe class ActionService : IActionService
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Turns the player to face a specific direction (radians, FFXIV convention).
+    /// Uses the same technique as BossMod: AutoFaceTargetPosition + DesiredRotation override.
+    /// Call this before ExecuteGcd for directional AoEs.
+    /// </summary>
+    public unsafe void FaceDirection(float direction)
+    {
+        try
+        {
+            var actionManager = ActionManager.Instance();
+            if (actionManager == null) return;
+
+            var player = (Character*)GameObjectManager.Instance()->Objects.IndexSorted[0].Value;
+            if (player == null) return;
+
+            // Compute a position 1y in front of the player in the desired direction
+            var pos = player->Position;
+            var targetPos = new System.Numerics.Vector3(
+                pos.X + MathF.Sin(direction),
+                pos.Y,
+                pos.Z + MathF.Cos(direction));
+
+            actionManager->AutoFaceTargetPosition(&targetPos);
+        }
+        catch
+        {
+            // Silently fail — facing is best-effort
+        }
     }
 
     /// <summary>

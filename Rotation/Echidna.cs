@@ -141,6 +141,32 @@ public sealed class Echidna : BaseMeleeDpsRotation<IEchidnaContext, IEchidnaModu
         _dreadCombo = (VPRActions.DreadCombo)SafeGameAccess.GetVprDreadCombo(ErrorMetrics);
     }
 
+    /// <summary>
+    /// VPR positionals: Hindsting/Hindsbane = rear, Flanksting/Flanksbane = flank.
+    /// Determined by active venom status.
+    /// </summary>
+    protected override PositionalType? GetNextRequiredPositional()
+    {
+        var player = ObjectTable.LocalPlayer;
+        if (player == null) return null;
+
+        // Only relevant at combo step 2 (after Hunter's/Swiftskin's Sting)
+        if (LastComboAction is not (34608 or 34609)) return null;
+
+        foreach (var s in player.StatusList)
+        {
+            // Hindstung/Hindsbane venoms → rear
+            if (s.StatusId is VPRActions.StatusIds.HindstungVenom or VPRActions.StatusIds.HindsbaneVenom)
+                return PositionalType.Rear;
+            // Flankstung venom → flank
+            if (s.StatusId == VPRActions.StatusIds.FlankstungVenom)
+                return PositionalType.Flank;
+        }
+
+        // Default: flank (Flanksting is the default when no venom)
+        return PositionalType.Flank;
+    }
+
     /// <inheritdoc />
     protected override int DetermineComboStep(uint comboAction, float comboTimer)
     {
