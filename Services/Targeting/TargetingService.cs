@@ -536,8 +536,10 @@ public sealed class TargetingService : ITargetingService
     public (IBattleNpc? target, int hitCount, float optimalAngle) FindBestConeAoETarget(
         float coneHalfAngle, float radius, float maxRange, IPlayerCharacter player)
     {
+        // Use the ability's effect range for candidate filtering, not the rotation's targeting range
+        var candidateRange = MathF.Max(radius, maxRange);
         var enemies = new List<IBattleNpc>();
-        foreach (var e in GetValidEnemies(maxRange, player))
+        foreach (var e in GetValidEnemies(candidateRange, player))
             enemies.Add(e);
 
         if (enemies.Count == 0) return (null, 0, 0f);
@@ -590,8 +592,10 @@ public sealed class TargetingService : ITargetingService
     public (IBattleNpc? target, int hitCount, float optimalAngle) FindBestLineAoETarget(
         float lineWidth, float length, float maxRange, IPlayerCharacter player)
     {
+        // Use the ability's effect range for candidate filtering, not the rotation's targeting range
+        var candidateRange = MathF.Max(length, maxRange);
         var enemies = new List<IBattleNpc>();
-        foreach (var e in GetValidEnemies(maxRange, player))
+        foreach (var e in GetValidEnemies(candidateRange, player))
             enemies.Add(e);
 
         if (enemies.Count == 0) return (null, 0, 0f);

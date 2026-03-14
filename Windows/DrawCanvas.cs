@@ -224,7 +224,7 @@ public sealed class DrawCanvas : Window
             var pos = screenPos - textSize * 0.5f;
             // Shadow
             dl.AddText(pos + new Vector2(1, 1), 0xFF000000, text);
-            // Text — green if hitting, red if 0
+            // Text — green if hitting, blue if 0
             dl.AddText(pos, _maxHitCount > 0 ? 0xFF00FF00u : 0xFF0000FFu, text);
         }
     }

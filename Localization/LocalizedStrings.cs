@@ -73,6 +73,7 @@ public static class LocalizedStrings
         public const string GeneralItem = "config.sidebar.general_item";
         public const string Targeting = "config.sidebar.targeting";
         public const string RoleActions = "config.sidebar.role_actions";
+        public const string DrawHelper = "config.sidebar.draw_helper";
         public const string Healers = "config.sidebar.healers";
         public const string WhiteMage = "config.sidebar.white_mage";
         public const string Scholar = "config.sidebar.scholar";

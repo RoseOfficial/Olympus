@@ -94,7 +94,7 @@ public sealed class ConfigSidebar
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.GeneralItem, "General"), ConfigSection.General, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Targeting, "Targeting"), ConfigSection.Targeting, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.RoleActions, "Role Actions"), ConfigSection.RoleActions, null, matchingSections, hasSearch);
-            sectionChanged |= DrawNavItemFiltered("Draw Helper", ConfigSection.DrawHelper, null, matchingSections, hasSearch);
+            sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.DrawHelper, "Draw Helper"), ConfigSection.DrawHelper, null, matchingSections, hasSearch);
             ImGui.Spacing();
         }
 

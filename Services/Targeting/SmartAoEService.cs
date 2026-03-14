@@ -19,6 +19,7 @@ public sealed class SmartAoEService : IDisposable
     private readonly AoETracker _tracker;
     private readonly IPluginLog _log;
     private ICombatEventService? _subscribedCombatEventService;
+    private uint _lastPredictedActionId;
 
     /// <summary>
     /// Global instance — set by Plugin.cs, accessed by BaseDpsDamageModule.
@@ -51,12 +52,13 @@ public sealed class SmartAoEService : IDisposable
 
     private void OnAbilityResolved(uint actionId, int targetCount)
     {
-        // Only record if this was a directional AoE we predicted
-        if (_tracker.History.Count > 0)
+        // Only record if this was the exact directional AoE action we predicted
+        if (_lastPredictedActionId != 0 && actionId == _lastPredictedActionId && _tracker.History.Count > 0)
         {
             var last = _tracker.History[^1];
             if (!last.Resolved)
                 _tracker.RecordActual(targetCount);
+            _lastPredictedActionId = 0;
         }
     }
 
@@ -122,6 +124,7 @@ public sealed class SmartAoEService : IDisposable
 
         if (recordPrediction && result.HitCount > 0)
         {
+            _lastPredictedActionId = actionId;
             _tracker.RecordPrediction(
                 string.IsNullOrEmpty(actionName) ? $"Action#{actionId}" : actionName,
                 result.Shape, result.HitCount, player.Position, result.OptimalAngle);
