@@ -88,13 +88,14 @@ public class DefensiveModuleTests
             canExecuteOgcd: true);
         actionService.Setup(a => a.IsActionReady(SCHActions.Expedient.ActionId)).Returns(true);
 
-        var context = AthenaTestContext.CreateWithRealPartyHelper(
-            realPartyHelper: partyHelper,
+        var context = AthenaTestContext.Create(
             config: config,
+            partyHelper: partyHelper,
             actionService: actionService,
             level: 100,
             canExecuteGcd: false,
-            canExecuteOgcd: true);
+            canExecuteOgcd: true,
+            inCombat: true);
 
         var result = _module.TryExecute(context, isMoving: false);
 
