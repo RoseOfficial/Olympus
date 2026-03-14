@@ -569,13 +569,16 @@ public class BuffModuleTests
         var targeting = CreateTargetingWithEnemy(enemy);
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
-        // KunaisBane ready — should NOT use Meisui (need Suiton for burst)
+        // KunaisBane IS ready — TryMeisui's KunaisBaneReady guard must be what prevents Meisui
         actionService.Setup(x => x.IsActionReady(NINActions.KunaisBane.ActionId)).Returns(true);
         actionService.Setup(x => x.IsActionReady(NINActions.Meisui.ActionId)).Returns(true);
-        // KunaisBane itself blocked (no Suiton for the burst test)
-        // Actually with Suiton up and KunaisBane ready, KunaisBane fires first
-        // To test Meisui skip we need Suiton up but KunaisBane ready AND something blocks KunaisBane
-        // Set up: Suiton up, KunaisBane ready but targeting returns null to block it
+        // Explicitly stub KunaisBane's ExecuteOgcd to return false so TryKunaisBane falls
+        // through (Suiton is up but KunaisBane fails to fire), letting execution reach TryMeisui.
+        // If Meisui's guard were removed, Meisui would fire and the Assert.False below would fail.
+        actionService.Setup(x => x.ExecuteOgcd(
+                It.Is<ActionDefinition>(a => a.ActionId == NINActions.KunaisBane.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(false);
         actionService.Setup(x => x.ExecuteOgcd(
                 It.Is<ActionDefinition>(a => a.ActionId == NINActions.Meisui.ActionId),
                 It.IsAny<ulong>()))
@@ -590,8 +593,11 @@ public class BuffModuleTests
             actionService: actionService,
             targetingService: targeting);
 
-        // With KunaisBane ready, Meisui should not fire
-        _module.TryExecute(context, isMoving: false);
+        // TryMeisui's KunaisBaneReady guard returns false before reaching ExecuteOgcd(Meisui).
+        // If the guard were removed, ExecuteOgcd(Meisui) returns true → TryExecute returns true
+        // → the Assert.False below would fail, catching the regression.
+        var result = _module.TryExecute(context, isMoving: false);
+        Assert.False(result);
 
         actionService.Verify(x => x.ExecuteOgcd(
             It.Is<ActionDefinition>(a => a.ActionId == NINActions.Meisui.ActionId),

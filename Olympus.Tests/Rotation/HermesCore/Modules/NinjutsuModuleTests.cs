@@ -93,6 +93,8 @@ public class NinjutsuModuleTests
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true, canExecuteGcd: true);
         actionService.Setup(x => x.IsActionReady(NINActions.Ten.ActionId)).Returns(true);
+        // KunaisBane not ready — NeedsSuiton returns false, so Raiton is chosen
+        actionService.Setup(x => x.IsActionReady(NINActions.KunaisBane.ActionId)).Returns(false);
         actionService.Setup(x => x.ExecuteOgcd(
                 It.Is<ActionDefinition>(a => a.ActionId == NINActions.Ten.ActionId),
                 It.IsAny<ulong>()))
@@ -104,8 +106,7 @@ public class NinjutsuModuleTests
             canExecuteGcd: true,
             level: 100,
             mudraHelper: mudraHelper,
-            hasSuiton: false,   // Needs Suiton → will choose Suiton (if KunaisBane ready)
-            // Make Ten Chi Jin not active, Kassatsu not active
+            hasSuiton: false,
             hasKassatsu: false,
             hasTenChiJin: false,
             actionService: actionService,
@@ -118,6 +119,9 @@ public class NinjutsuModuleTests
         actionService.Verify(x => x.ExecuteOgcd(
             It.Is<ActionDefinition>(a => a.ActionId == NINActions.Ten.ActionId),
             It.IsAny<ulong>()), Times.AtLeastOnce);
+
+        // Raiton was chosen as the target ninjutsu
+        Assert.Equal(NINActions.NinjutsuType.Raiton, mudraHelper.TargetNinjutsu);
     }
 
     [Fact]
@@ -754,6 +758,9 @@ public class NinjutsuModuleTests
         // Module returns false when no action window is available (correct behavior)
         var result = _module.TryExecute(context, isMoving: false);
         Assert.False(result);
+
+        // Confirm we hit the no-action-window guard, not the "No target" guard
+        Assert.Equal("Waiting for action window", context.Debug.NinjutsuState);
     }
 
     [Fact]
