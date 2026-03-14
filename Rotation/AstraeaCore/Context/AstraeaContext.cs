@@ -1,6 +1,5 @@
 using System;
 using Dalamud.Game.ClientState.Objects.SubKinds;
-using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Rotation.AstraeaCore.Helpers;
@@ -26,32 +25,8 @@ namespace Olympus.Rotation.AstraeaCore.Context;
 /// Shared context for all Astraea (Astrologian) modules.
 /// Contains player state, services, and helper utilities.
 /// </summary>
-public sealed class AstraeaContext : IAstraeaContext
+public sealed class AstraeaContext : BaseHealerContext, IAstraeaContext
 {
-    // Player state
-    public IPlayerCharacter Player { get; }
-    public bool InCombat { get; }
-    public bool IsMoving { get; }
-    public bool CanExecuteGcd { get; }
-    public bool CanExecuteOgcd { get; }
-
-    // Services with interfaces
-    public IActionService ActionService { get; }
-    public ActionTracker ActionTracker { get; }
-    public ICombatEventService CombatEventService { get; }
-    public IDamageIntakeService DamageIntakeService { get; }
-    public IDamageTrendService DamageTrendService { get; }
-    public IFrameScopedCache FrameCache { get; }
-    public Configuration Configuration { get; }
-    public IDebuffDetectionService DebuffDetectionService { get; }
-    public IHpPredictionService HpPredictionService { get; }
-    public IMpForecastService MpForecastService { get; }
-    public IObjectTable ObjectTable { get; }
-    public IPartyList PartyList { get; }
-    public IPlayerStatsService PlayerStatsService { get; }
-    public ITargetingService TargetingService { get; }
-    public ITimelineService? TimelineService { get; }
-
     // Astrologian-specific services
     public ICardTrackingService CardService { get; }
     public IEarthlyStarService EarthlyStarService { get; }
@@ -60,35 +35,10 @@ public sealed class AstraeaContext : IAstraeaContext
     public AstraeaStatusHelper StatusHelper { get; }
     public AstraeaPartyHelper PartyHelper { get; }
 
-    // Cooldown planning
-    public ICooldownPlanner CooldownPlanner { get; }
-
-    // Healer rotation context requirements
-    public IHealingSpellSelector HealingSpellSelector { get; }
-    public IPartyAnalyzer? PartyAnalyzer { get; }
-
-    // Smart healing services
-    public ICoHealerDetectionService? CoHealerDetectionService { get; }
-    public IBossMechanicDetector? BossMechanicDetector { get; }
-    public IShieldTrackingService? ShieldTrackingService { get; }
-
-    // Party coordination
-    public IPartyCoordinationService? PartyCoordinationService { get; }
-
-    // Training mode
-    public ITrainingService? TrainingService { get; }
-
     // Debug state (mutable, updated by modules)
     public AstraeaDebugState Debug { get; }
 
-    // Healing coordination (frame-scoped)
-    public HealingCoordinationState HealingCoordination { get; }
-
-    // Optional logging (null in tests)
-    public IPluginLog? Log { get; }
-
     // Cached status checks (computed once per frame, lazy-initialized)
-    private bool? _hasSwiftcast;
     private bool? _hasLightspeed;
     private bool? _hasNeutralSect;
     private bool? _hasDivining;
@@ -96,8 +46,6 @@ public sealed class AstraeaContext : IAstraeaContext
     private bool? _hasHoroscopeHelios;
     private bool? _hasMacrocosmos;
     private bool? _hasSynastry;
-    private (float avgHpPercent, float lowestHpPercent, int injuredCount)? _partyHealthMetrics;
-    private bool? _isPrimaryHealer;
 
     // Card state (cached from service)
     // In Dawntrail, AST draws 4 cards at once
@@ -112,7 +60,6 @@ public sealed class AstraeaContext : IAstraeaContext
     private int? _spearCount;
     private int? _totalCardsInHand;
 
-    public bool HasSwiftcast => _hasSwiftcast ??= StatusHelper.HasSwiftcast(Player);
     public bool HasLightspeed => _hasLightspeed ??= StatusHelper.HasLightspeed(Player);
     public bool HasNeutralSect => _hasNeutralSect ??= StatusHelper.HasNeutralSect(Player);
     public bool HasDivining => _hasDivining ??= StatusHelper.HasDivining(Player);
@@ -141,33 +88,10 @@ public sealed class AstraeaContext : IAstraeaContext
     public bool IsStarMature => EarthlyStarService.IsStarMature;
     public float StarTimeRemaining => EarthlyStarService.TimeRemaining;
 
-    /// <summary>
-    /// Cached party health metrics (avgHpPercent, lowestHpPercent, injuredCount).
-    /// </summary>
-    public (float avgHpPercent, float lowestHpPercent, int injuredCount) PartyHealthMetrics
-        => _partyHealthMetrics ??= PartyHelper.CalculatePartyHealthMetrics(Player);
-
-    /// <summary>
-    /// Whether this healer instance is the primary healer.
-    /// Determined by job priority (WHM > AST > SCH > SGE) or explicit role declaration.
-    /// </summary>
-    public bool IsPrimaryHealer => _isPrimaryHealer ??= PartyCoordinationService?.IsPrimaryHealer ?? true;
-
-    /// <summary>
-    /// Gets a healing threshold adjusted for healer role.
-    /// Secondary healers use a lower threshold (SecondaryHealAssistThreshold) to defer healing.
-    /// </summary>
-    /// <param name="primaryThreshold">The threshold used by the primary healer.</param>
-    /// <returns>The adjusted threshold based on this healer's role.</returns>
-    public float GetRoleAdjustedThreshold(float primaryThreshold)
-    {
-        if (!IsPrimaryHealer && Configuration.PartyCoordination.EnableHealerRoleCoordination)
-        {
-            // Secondary healer uses lower threshold - only heal when HP is truly low
-            return Math.Min(primaryThreshold, Configuration.PartyCoordination.SecondaryHealAssistThreshold);
-        }
-        return primaryThreshold;
-    }
+    protected override bool CheckHasSwiftcast() => StatusHelper.HasSwiftcast(Player);
+    protected override (float avgHpPercent, float lowestHpPercent, int injuredCount) CalculatePartyHealthMetrics()
+        => PartyHelper.CalculatePartyHealthMetrics(Player);
+    protected override string GetJobName() => "Astraea";
 
     public AstraeaContext(
         IPlayerCharacter player,
@@ -196,62 +120,28 @@ public sealed class AstraeaContext : IAstraeaContext
         ICooldownPlanner cooldownPlanner,
         IHealingSpellSelector healingSpellSelector,
         ICoHealerDetectionService? coHealerDetectionService = null,
-        IPartyAnalyzer? partyAnalyzer = null,
         IBossMechanicDetector? bossMechanicDetector = null,
         IShieldTrackingService? shieldTrackingService = null,
+        IPartyAnalyzer? partyAnalyzer = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITimelineService? timelineService = null,
         ITrainingService? trainingService = null,
         AstraeaDebugState? debugState = null,
         IPluginLog? log = null)
+        : base(player, inCombat, isMoving, canExecuteGcd, canExecuteOgcd,
+               actionService, actionTracker, combatEventService, damageIntakeService, damageTrendService,
+               frameCache, configuration, debuffDetectionService, hpPredictionService, mpForecastService,
+               objectTable, partyList, playerStatsService, targetingService,
+               healingSpellSelector, cooldownPlanner,
+               coHealerDetectionService, bossMechanicDetector, shieldTrackingService,
+               partyAnalyzer,
+               partyCoordinationService, timelineService, trainingService, log)
     {
-        Player = player;
-        InCombat = inCombat;
-        IsMoving = isMoving;
-        CanExecuteGcd = canExecuteGcd;
-        CanExecuteOgcd = canExecuteOgcd;
-        ActionService = actionService;
-        ActionTracker = actionTracker;
-        CombatEventService = combatEventService;
-        DamageIntakeService = damageIntakeService;
-        DamageTrendService = damageTrendService;
-        FrameCache = frameCache;
-        Configuration = configuration;
-        DebuffDetectionService = debuffDetectionService;
-        HpPredictionService = hpPredictionService;
-        MpForecastService = mpForecastService;
-        ObjectTable = objectTable;
-        PartyList = partyList;
-        PlayerStatsService = playerStatsService;
-        TargetingService = targetingService;
         CardService = cardService;
         EarthlyStarService = earthlyStarService;
         StatusHelper = statusHelper;
         PartyHelper = partyHelper;
-        CooldownPlanner = cooldownPlanner;
-        HealingSpellSelector = healingSpellSelector;
-        PartyAnalyzer = partyAnalyzer;
-        CoHealerDetectionService = coHealerDetectionService;
-        BossMechanicDetector = bossMechanicDetector;
-        ShieldTrackingService = shieldTrackingService;
-        PartyCoordinationService = partyCoordinationService;
-        TimelineService = timelineService;
-        TrainingService = trainingService;
         Debug = debugState ?? new AstraeaDebugState();
-        HealingCoordination = new HealingCoordinationState();
-        Log = log;
-    }
-
-    /// <summary>
-    /// Logs a healing decision for debugging.
-    /// </summary>
-    public void LogHealDecision(string targetName, float hpPercent, string spellName, int predictedHeal, string reason)
-    {
-        if (Log is null || !Configuration.Debug.EnableVerboseLogging)
-            return;
-
-        Log.Debug("[Astraea Heal] {0} at {1:P0} → {2} (est. {3} HP) - {4}",
-            targetName, hpPercent, spellName, predictedHeal, reason);
     }
 
     /// <summary>
