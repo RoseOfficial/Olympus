@@ -129,6 +129,9 @@ public class DamageModuleTests
             comboTimeRemaining: 25f,
             hasFangAndClawBared: false,
             hasWheelInMotion: false,
+            hasPowerSurge: true,
+            hasDotOnTarget: true,
+            dotRemaining: 15f,
             actionService: actionService,
             targetingService: targeting);
 
@@ -506,9 +509,9 @@ public class DamageModuleTests
         int firstmindsFocus = 0,
         bool isLifeOfDragonActive = false,
         float lifeOfDragonRemaining = 0f,
-        bool hasPowerSurge = true,
-        bool hasDotOnTarget = true,
-        float dotRemaining = 15f,
+        bool hasPowerSurge = false,
+        bool hasDotOnTarget = false,
+        float dotRemaining = 0f,
         Mock<IActionService>? actionService = null,
         Mock<ITargetingService>? targetingService = null)
     {
