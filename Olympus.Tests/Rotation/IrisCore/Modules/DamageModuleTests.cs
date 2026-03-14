@@ -15,7 +15,7 @@ public class DamageModuleTests
     private readonly DamageModule _module = new();
 
     [Fact]
-    public void TryExecute_NotInCombat_NoPrepaintNeeded_ReturnsFalse()
+    public void TryExecute_NotInCombat_ReturnsFalse()
     {
         // Out of combat with nothing to prepaint — returns false
         var context = IrisTestContext.Create(
