@@ -147,6 +147,11 @@ public class MitigationModuleTests
         var result = _module.TryExecute(context, isMoving: false);
 
         Assert.True(result);
+        actionService.Verify(x => x.ExecuteOgcd(
+            It.Is<ActionDefinition>(a =>
+                a.ActionId == WARActions.Bloodwhetting.ActionId ||
+                a.ActionId == WARActions.RawIntuition.ActionId),
+            It.IsAny<ulong>()), Times.Once);
     }
 
     [Fact]
@@ -191,6 +196,7 @@ public class MitigationModuleTests
         bool canExecuteOgcd,
         uint currentHp = 50000,
         uint maxHp = 50000,
+        byte level = 100,
         Configuration? config = null,
         Mock<IActionService>? actionService = null,
         Mock<ITargetingService>? targetingService = null,
@@ -201,7 +207,7 @@ public class MitigationModuleTests
         actionService ??= MockBuilders.CreateMockActionService(canExecuteOgcd: canExecuteOgcd);
         config ??= AresTestContext.CreateDefaultWarriorConfiguration();
 
-        var player = MockBuilders.CreateMockPlayerCharacter(currentHp: currentHp, maxHp: maxHp);
+        var player = MockBuilders.CreateMockPlayerCharacter(level: level, currentHp: currentHp, maxHp: maxHp);
         player.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
 
         var mock = new Mock<IAresContext>();
