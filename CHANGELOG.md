@@ -3,7 +3,10 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
-## v4.10.7 - Bug Fix & Performance
+## v4.10.7 - Bug Fixes & Performance
+
+**White Mage**
+- Fixed AoE heals (Medica, Medica II, Cure III, Liturgy) never triggering in 8-player raid groups — the check for whether party members needed healing used a threshold that was almost never met at level 100, so AoE heals were silently suppressed. They now fire correctly whenever enough party members are below the HP threshold (default 85%, configurable in settings).
 
 **Sage**
 - Fixed Sage's Lucid Dreaming threshold and toggle having no effect — the setting was reading from the wrong configuration entry, so adjusting it in the config window did nothing. It now correctly reads from the Sage-specific setting.
