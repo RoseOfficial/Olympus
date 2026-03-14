@@ -117,7 +117,6 @@ public sealed class Configuration : IPluginConfiguration
         // Preserve runtime state
         var wasEnabled = Enabled;
         var mainVisible = MainWindowVisible;
-        var debugVisible = Debug.DebugWindowVisible;
         var analyticsVisible = Analytics.AnalyticsWindowVisible;
         var trainingVisible = Training.TrainingWindowVisible;
         var seenWelcome = HasSeenWelcome;
@@ -176,7 +175,6 @@ public sealed class Configuration : IPluginConfiguration
         // Restore preserved values
         Enabled = wasEnabled;
         MainWindowVisible = mainVisible;
-        Debug.DebugWindowVisible = debugVisible;
         Analytics.AnalyticsWindowVisible = analyticsVisible;
         Training.TrainingWindowVisible = trainingVisible;
         HasSeenWelcome = seenWelcome;

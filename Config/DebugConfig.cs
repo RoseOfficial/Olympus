@@ -7,7 +7,6 @@ namespace Olympus.Config;
 /// </summary>
 public sealed class DebugConfig
 {
-    public bool DebugWindowVisible { get; set; } = false;
     public int ActionHistorySize { get; set; } = 100;
 
     /// <summary>

@@ -51,18 +51,6 @@ public class ConfigurationTests
         Assert.False(config.MainWindowVisible);
     }
 
-    [Fact]
-    public void ResetToDefaults_PreservesDebugWindowVisible()
-    {
-        var config = new Configuration();
-        config.Debug.DebugWindowVisible = true;
-        config.Healing.EnableCure = false;
-
-        config.ResetToDefaults();
-
-        Assert.True(config.Debug.DebugWindowVisible);
-    }
-
     #endregion
 
     #region ResetToDefaults - Spell Toggles

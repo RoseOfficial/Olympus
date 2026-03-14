@@ -383,7 +383,6 @@ public sealed class Plugin : IDalamudPlugin
         configuration.MainWindowVisible = mainWindow.IsOpen;
         mainWindow.RespectCloseHotkey = !configuration.PreventEscapeClose;
         pluginInterface.UiBuilder.DisableCutsceneUiHide = configuration.ShowDuringCutscenes;
-        configuration.Debug.DebugWindowVisible = debugWindow.IsOpen;
         configuration.Analytics.AnalyticsWindowVisible = analyticsWindow.IsOpen;
         configuration.Training.TrainingWindowVisible = trainingWindow.IsOpen;
         configuration.Overlay.IsVisible = overlayWindow.IsOpen;
