@@ -38,64 +38,24 @@ public sealed class ScholarSection
 
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.GcdHeals, "GCD Heals:"));
 
-            var enablePhysick = config.Scholar.EnablePhysick;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnablePhysick, "Enable Physick"), ref enablePhysick))
-            {
-                config.Scholar.EnablePhysick = enablePhysick;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnablePhysick, "Enable Physick"), () => config.Scholar.EnablePhysick, v => config.Scholar.EnablePhysick = v, null, save);
 
-            var enableAdlo = config.Scholar.EnableAdloquium;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnableAdloquium, "Enable Adloquium"), ref enableAdlo))
-            {
-                config.Scholar.EnableAdloquium = enableAdlo;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableAdloquium, "Enable Adloquium"), () => config.Scholar.EnableAdloquium, v => config.Scholar.EnableAdloquium = v, null, save);
 
-            var enableSuccor = config.Scholar.EnableSuccor;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnableSuccor, "Enable Succor"), ref enableSuccor))
-            {
-                config.Scholar.EnableSuccor = enableSuccor;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableSuccor, "Enable Succor"), () => config.Scholar.EnableSuccor, v => config.Scholar.EnableSuccor = v, null, save);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.OgcdHeals, "oGCD Heals:"));
 
-            var enableLustrate = config.Scholar.EnableLustrate;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnableLustrate, "Enable Lustrate"), ref enableLustrate))
-            {
-                config.Scholar.EnableLustrate = enableLustrate;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableLustrate, "Enable Lustrate"), () => config.Scholar.EnableLustrate, v => config.Scholar.EnableLustrate = v, null, save);
 
-            var enableExcog = config.Scholar.EnableExcogitation;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnableExcogitation, "Enable Excogitation"), ref enableExcog))
-            {
-                config.Scholar.EnableExcogitation = enableExcog;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableExcogitation, "Enable Excogitation"), () => config.Scholar.EnableExcogitation, v => config.Scholar.EnableExcogitation = v, null, save);
 
-            var enableIndom = config.Scholar.EnableIndomitability;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnableIndomitability, "Enable Indomitability"), ref enableIndom))
-            {
-                config.Scholar.EnableIndomitability = enableIndom;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableIndomitability, "Enable Indomitability"), () => config.Scholar.EnableIndomitability, v => config.Scholar.EnableIndomitability = v, null, save);
 
-            var enableProtraction = config.Scholar.EnableProtraction;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnableProtraction, "Enable Protraction"), ref enableProtraction))
-            {
-                config.Scholar.EnableProtraction = enableProtraction;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableProtraction, "Enable Protraction"), () => config.Scholar.EnableProtraction, v => config.Scholar.EnableProtraction = v, null, save);
 
-            var enableRecitation = config.Scholar.EnableRecitation;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnableRecitation, "Enable Recitation"), ref enableRecitation))
-            {
-                config.Scholar.EnableRecitation = enableRecitation;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableRecitation, "Enable Recitation"), () => config.Scholar.EnableRecitation, v => config.Scholar.EnableRecitation = v, null, save);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.SingleTargetThresholds, "Single-Target Thresholds:"));
@@ -135,12 +95,7 @@ public sealed class ScholarSection
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.SacredSoilLabel, "Sacred Soil:"));
 
-            var enableSoil = config.Scholar.EnableSacredSoil;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnableSacredSoil, "Enable Sacred Soil"), ref enableSoil))
-            {
-                config.Scholar.EnableSacredSoil = enableSoil;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableSacredSoil, "Enable Sacred Soil"), () => config.Scholar.EnableSacredSoil, v => config.Scholar.EnableSacredSoil = v, null, save);
 
             if (config.Scholar.EnableSacredSoil)
             {
@@ -163,21 +118,11 @@ public sealed class ScholarSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var autoSummon = config.Scholar.AutoSummonFairy;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.AutoSummonFairy, "Auto-Summon Fairy"), ref autoSummon))
-            {
-                config.Scholar.AutoSummonFairy = autoSummon;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Scholar.AutoSummonFairyDesc, "Automatically summon Eos if not present."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.AutoSummonFairy, "Auto-Summon Fairy"), () => config.Scholar.AutoSummonFairy, v => config.Scholar.AutoSummonFairy = v,
+                Loc.T(LocalizedStrings.Scholar.AutoSummonFairyDesc, "Automatically summon Eos if not present."), save);
 
-            var enableAbilities = config.Scholar.EnableFairyAbilities;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnableFairyAbilities, "Enable Fairy Abilities"), ref enableAbilities))
-            {
-                config.Scholar.EnableFairyAbilities = enableAbilities;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Scholar.EnableFairyAbilitiesDesc, "Automatically use Whispering Dawn, Fey Blessing, etc."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableFairyAbilities, "Enable Fairy Abilities"), () => config.Scholar.EnableFairyAbilities, v => config.Scholar.EnableFairyAbilities = v,
+                Loc.T(LocalizedStrings.Scholar.EnableFairyAbilitiesDesc, "Automatically use Whispering Dawn, Fey Blessing, etc."), save);
 
             ConfigUIHelpers.BeginDisabledGroup(!config.Scholar.EnableFairyAbilities);
 
@@ -220,13 +165,8 @@ public sealed class ScholarSection
             config.Scholar.SeraphPartyHpThreshold = ConfigUIHelpers.ThresholdSlider("Seraph HP Trigger",
                 config.Scholar.SeraphPartyHpThreshold, 50f, 90f, null, save);
 
-            var enableConsolation = config.Scholar.EnableConsolation;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnableConsolation, "Enable Consolation"), ref enableConsolation))
-            {
-                config.Scholar.EnableConsolation = enableConsolation;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Scholar.ConsolationDesc, "Seraph AoE heal + shield ability."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableConsolation, "Enable Consolation"), () => config.Scholar.EnableConsolation, v => config.Scholar.EnableConsolation = v,
+                Loc.T(LocalizedStrings.Scholar.ConsolationDesc, "Seraph AoE heal + shield ability."), save);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.SeraphismLabel, "Seraphism (Lv100):"));
@@ -251,13 +191,8 @@ public sealed class ScholarSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableET = config.Scholar.EnableEmergencyTactics;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EmergencyTactics, "Emergency Tactics"), ref enableET))
-            {
-                config.Scholar.EnableEmergencyTactics = enableET;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Scholar.EmergencyTacticsDesc, "Convert next shield to direct healing."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EmergencyTactics, "Emergency Tactics"), () => config.Scholar.EnableEmergencyTactics, v => config.Scholar.EnableEmergencyTactics = v,
+                Loc.T(LocalizedStrings.Scholar.EmergencyTacticsDesc, "Convert next shield to direct healing."), save);
 
             if (config.Scholar.EnableEmergencyTactics)
             {
@@ -267,13 +202,8 @@ public sealed class ScholarSection
 
             ConfigUIHelpers.Spacing();
 
-            var enableDT = config.Scholar.EnableDeploymentTactics;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.DeploymentTactics, "Deployment Tactics"), ref enableDT))
-            {
-                config.Scholar.EnableDeploymentTactics = enableDT;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Scholar.DeploymentTacticsDesc, "Spread Galvanize shield to party."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.DeploymentTactics, "Deployment Tactics"), () => config.Scholar.EnableDeploymentTactics, v => config.Scholar.EnableDeploymentTactics = v,
+                Loc.T(LocalizedStrings.Scholar.DeploymentTacticsDesc, "Spread Galvanize shield to party."), save);
 
             if (config.Scholar.EnableDeploymentTactics)
             {
@@ -283,23 +213,13 @@ public sealed class ScholarSection
 
             ConfigUIHelpers.Spacing();
 
-            var avoidSage = config.Scholar.AvoidOverwritingSageShields;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.AvoidSageShields, "Avoid Sage Shield Overwrite"), ref avoidSage))
-            {
-                config.Scholar.AvoidOverwritingSageShields = avoidSage;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Scholar.AvoidSageShieldsDesc, "Don't apply Galvanize if target has Sage shields."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.AvoidSageShields, "Avoid Sage Shield Overwrite"), () => config.Scholar.AvoidOverwritingSageShields, v => config.Scholar.AvoidOverwritingSageShields = v,
+                Loc.T(LocalizedStrings.Scholar.AvoidSageShieldsDesc, "Don't apply Galvanize if target has Sage shields."), save);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.ExpedientLabel, "Expedient:"));
 
-            var enableExp = config.Scholar.EnableExpedient;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnableExpedient, "Enable Expedient"), ref enableExp))
-            {
-                config.Scholar.EnableExpedient = enableExp;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableExpedient, "Enable Expedient"), () => config.Scholar.EnableExpedient, v => config.Scholar.EnableExpedient = v, null, save);
 
             if (config.Scholar.EnableExpedient)
             {
@@ -340,12 +260,7 @@ public sealed class ScholarSection
             config.Scholar.AetherflowReserve = ConfigUIHelpers.IntSlider(Loc.T(LocalizedStrings.Scholar.StackReserve, "Stack Reserve"),
                 config.Scholar.AetherflowReserve, 0, 3, Loc.T(LocalizedStrings.Scholar.StackReserveDesc, "Stacks to keep for emergency healing."), save);
 
-            var enableED = config.Scholar.EnableEnergyDrain;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnableEnergyDrain, "Enable Energy Drain"), ref enableED))
-            {
-                config.Scholar.EnableEnergyDrain = enableED;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableEnergyDrain, "Enable Energy Drain"), () => config.Scholar.EnableEnergyDrain, v => config.Scholar.EnableEnergyDrain = v, null, save);
 
             config.Scholar.AetherflowDumpWindow = ConfigUIHelpers.FloatSlider(Loc.T(LocalizedStrings.Scholar.DumpWindow, "Dump Window (sec)"),
                 config.Scholar.AetherflowDumpWindow, 0f, 15f, "%.1f",
@@ -354,13 +269,8 @@ public sealed class ScholarSection
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.DissipationLabel, "Dissipation:"));
 
-            var enableDissipation = config.Scholar.EnableDissipation;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnableDissipation, "Enable Dissipation"), ref enableDissipation))
-            {
-                config.Scholar.EnableDissipation = enableDissipation;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Scholar.DissipationDesc, "Sacrifice fairy for 3 Aetherflow + 20% heal boost."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableDissipation, "Enable Dissipation"), () => config.Scholar.EnableDissipation, v => config.Scholar.EnableDissipation = v,
+                Loc.T(LocalizedStrings.Scholar.DissipationDesc, "Sacrifice fairy for 3 Aetherflow + 20% heal boost."), save);
 
             if (config.Scholar.EnableDissipation)
             {
@@ -377,12 +287,7 @@ public sealed class ScholarSection
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.MpManagement, "MP Management:"));
 
-            var enableLucid = config.Scholar.EnableLucidDreaming;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnableLucidDreaming, "Enable Lucid Dreaming"), ref enableLucid))
-            {
-                config.Scholar.EnableLucidDreaming = enableLucid;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableLucidDreaming, "Enable Lucid Dreaming"), () => config.Scholar.EnableLucidDreaming, v => config.Scholar.EnableLucidDreaming = v, null, save);
 
             if (config.Scholar.EnableLucidDreaming)
             {
@@ -402,31 +307,16 @@ public sealed class ScholarSection
 
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.SingleTargetDamage, "Single-Target Damage:"));
 
-            var enableSingleTarget = config.Scholar.EnableSingleTargetDamage;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnableBroilRuin, "Enable Broil/Ruin"), ref enableSingleTarget))
-            {
-                config.Scholar.EnableSingleTargetDamage = enableSingleTarget;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Scholar.BroilRuinDesc, "Casted single-target damage spells."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableBroilRuin, "Enable Broil/Ruin"), () => config.Scholar.EnableSingleTargetDamage, v => config.Scholar.EnableSingleTargetDamage = v,
+                Loc.T(LocalizedStrings.Scholar.BroilRuinDesc, "Casted single-target damage spells."), save);
 
-            var enableRuinII = config.Scholar.EnableRuinII;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnableRuinII, "Enable Ruin II"), ref enableRuinII))
-            {
-                config.Scholar.EnableRuinII = enableRuinII;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Scholar.RuinIIDesc, "Instant damage while moving."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableRuinII, "Enable Ruin II"), () => config.Scholar.EnableRuinII, v => config.Scholar.EnableRuinII = v,
+                Loc.T(LocalizedStrings.Scholar.RuinIIDesc, "Instant damage while moving."), save);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.DotLabel, "DoT:"));
 
-            var enableDot = config.Scholar.EnableDot;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnableBioBiolysis, "Enable Bio/Biolysis"), ref enableDot))
-            {
-                config.Scholar.EnableDot = enableDot;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableBioBiolysis, "Enable Bio/Biolysis"), () => config.Scholar.EnableDot, v => config.Scholar.EnableDot = v, null, save);
 
             if (config.Scholar.EnableDot)
             {
@@ -437,12 +327,7 @@ public sealed class ScholarSection
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.AoEDamageLabel, "AoE Damage:"));
 
-            var enableAoEDamage = config.Scholar.EnableAoEDamage;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnableArtOfWar, "Enable Art of War"), ref enableAoEDamage))
-            {
-                config.Scholar.EnableAoEDamage = enableAoEDamage;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableArtOfWar, "Enable Art of War"), () => config.Scholar.EnableAoEDamage, v => config.Scholar.EnableAoEDamage = v, null, save);
 
             if (config.Scholar.EnableAoEDamage)
             {
@@ -453,32 +338,17 @@ public sealed class ScholarSection
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.AetherflowLabel, "Aetherflow:"));
 
-            var enableAetherflow = config.Scholar.EnableAetherflow;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnableAetherflow, "Enable Aetherflow"), ref enableAetherflow))
-            {
-                config.Scholar.EnableAetherflow = enableAetherflow;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Scholar.AetherflowDesc, "Use Aetherflow when stacks are empty."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableAetherflow, "Enable Aetherflow"), () => config.Scholar.EnableAetherflow, v => config.Scholar.EnableAetherflow = v,
+                Loc.T(LocalizedStrings.Scholar.AetherflowDesc, "Use Aetherflow when stacks are empty."), save);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.RaidBuffLabel, "Raid Buff:"));
 
-            var enableChain = config.Scholar.EnableChainStratagem;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnableChainStratagem, "Enable Chain Stratagem"), ref enableChain))
-            {
-                config.Scholar.EnableChainStratagem = enableChain;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Scholar.ChainStratagemDesc, "+10% crit rate on target for party."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableChainStratagem, "Enable Chain Stratagem"), () => config.Scholar.EnableChainStratagem, v => config.Scholar.EnableChainStratagem = v,
+                Loc.T(LocalizedStrings.Scholar.ChainStratagemDesc, "+10% crit rate on target for party."), save);
 
-            var enableBaneful = config.Scholar.EnableBanefulImpaction;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Scholar.EnableBanefulImpaction, "Enable Baneful Impaction"), ref enableBaneful))
-            {
-                config.Scholar.EnableBanefulImpaction = enableBaneful;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Scholar.BanefulImpactionDesc, "AoE follow-up when Impact Imminent is active."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableBanefulImpaction, "Enable Baneful Impaction"), () => config.Scholar.EnableBanefulImpaction, v => config.Scholar.EnableBanefulImpaction = v,
+                Loc.T(LocalizedStrings.Scholar.BanefulImpactionDesc, "AoE follow-up when Impact Imminent is active."), save);
 
             ConfigUIHelpers.EndIndent();
         }

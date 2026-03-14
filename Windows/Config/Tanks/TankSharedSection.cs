@@ -36,26 +36,16 @@ public sealed class TankSharedSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableMit = config.Tank.EnableMitigation;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Tank.EnableMitigation, "Enable Mitigation"), ref enableMit))
-            {
-                config.Tank.EnableMitigation = enableMit;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Tank.EnableMitigationDesc, "Automatically use defensive cooldowns."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Tank.EnableMitigation, "Enable Mitigation"), () => config.Tank.EnableMitigation, v => config.Tank.EnableMitigation = v,
+                Loc.T(LocalizedStrings.Tank.EnableMitigationDesc, "Automatically use defensive cooldowns."), save);
 
             ConfigUIHelpers.BeginDisabledGroup(!config.Tank.EnableMitigation);
 
             config.Tank.MitigationThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Tank.MitigationThreshold, "Mitigation Threshold"),
                 config.Tank.MitigationThreshold, 40f, 90f, Loc.T(LocalizedStrings.Tank.MitigationThresholdDesc, "Use mitigation when HP drops below this %."), save);
 
-            var useRampart = config.Tank.UseRampartOnCooldown;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Tank.UseRampartOnCooldown, "Use Rampart on Cooldown"), ref useRampart))
-            {
-                config.Tank.UseRampartOnCooldown = useRampart;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Tank.UseRampartOnCooldownDesc, "If disabled, saves major cooldowns for tank busters."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Tank.UseRampartOnCooldown, "Use Rampart on Cooldown"), () => config.Tank.UseRampartOnCooldown, v => config.Tank.UseRampartOnCooldown = v,
+                Loc.T(LocalizedStrings.Tank.UseRampartOnCooldownDesc, "If disabled, saves major cooldowns for tank busters."), save);
 
             config.Tank.SheltronMinGauge = ConfigUIHelpers.IntSlider(Loc.T(LocalizedStrings.Tank.SheltronMinGauge, "Min Gauge for Short CDs"),
                 config.Tank.SheltronMinGauge, 0, 100,
@@ -72,13 +62,8 @@ public sealed class TankSharedSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var autoStance = config.Tank.AutoTankStance;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Tank.AutoTankStance, "Auto Tank Stance"), ref autoStance))
-            {
-                config.Tank.AutoTankStance = autoStance;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Tank.AutoTankStanceDesc, "Enable tank stance when entering combat."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Tank.AutoTankStance, "Auto Tank Stance"), () => config.Tank.AutoTankStance, v => config.Tank.AutoTankStance = v,
+                Loc.T(LocalizedStrings.Tank.AutoTankStanceDesc, "Enable tank stance when entering combat."), save);
 
             ConfigUIHelpers.Spacing();
 
@@ -109,13 +94,8 @@ public sealed class TankSharedSection
             }
             ImGui.TextDisabled(Loc.T("config.job.tank.mt_ot_role_desc", "Auto detects based on who the enemy is targeting. Override if detection is unreliable."));
 
-            var autoProvoke = config.Tank.AutoProvoke;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Tank.AutoProvoke, "Auto Provoke"), ref autoProvoke))
-            {
-                config.Tank.AutoProvoke = autoProvoke;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Tank.AutoProvokeDesc, "Automatically Provoke when losing aggro."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Tank.AutoProvoke, "Auto Provoke"), () => config.Tank.AutoProvoke, v => config.Tank.AutoProvoke = v,
+                Loc.T(LocalizedStrings.Tank.AutoProvokeDesc, "Automatically Provoke when losing aggro."), save);
 
             if (config.Tank.AutoProvoke)
             {
@@ -124,13 +104,8 @@ public sealed class TankSharedSection
                     Loc.T(LocalizedStrings.Tank.ProvokeDelayDesc, "Delay before Provoking (prevents accidental provokes during swaps)."), save);
             }
 
-            var autoShirk = config.Tank.AutoShirk;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Tank.AutoShirk, "Auto Shirk"), ref autoShirk))
-            {
-                config.Tank.AutoShirk = autoShirk;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Tank.AutoShirkDesc, "Shirk to co-tank after tank swap."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Tank.AutoShirk, "Auto Shirk"), () => config.Tank.AutoShirk, v => config.Tank.AutoShirk = v,
+                Loc.T(LocalizedStrings.Tank.AutoShirkDesc, "Shirk to co-tank after tank swap."), save);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -142,23 +117,13 @@ public sealed class TankSharedSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableDamage = config.Tank.EnableDamage;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Tank.EnableDamage, "Enable Damage"), ref enableDamage))
-            {
-                config.Tank.EnableDamage = enableDamage;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Tank.EnableDamageDesc, "Execute damage rotation."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Tank.EnableDamage, "Enable Damage"), () => config.Tank.EnableDamage, v => config.Tank.EnableDamage = v,
+                Loc.T(LocalizedStrings.Tank.EnableDamageDesc, "Execute damage rotation."), save);
 
             ConfigUIHelpers.BeginDisabledGroup(!config.Tank.EnableDamage);
 
-            var enableAoE = config.Tank.EnableAoEDamage;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Tank.EnableAoEDamage, "Enable AoE Damage"), ref enableAoE))
-            {
-                config.Tank.EnableAoEDamage = enableAoE;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Tank.EnableAoEDamageDesc, "Use AoE abilities (Total Eclipse, etc.)."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Tank.EnableAoEDamage, "Enable AoE Damage"), () => config.Tank.EnableAoEDamage, v => config.Tank.EnableAoEDamage = v,
+                Loc.T(LocalizedStrings.Tank.EnableAoEDamageDesc, "Use AoE abilities (Total Eclipse, etc.)."), save);
 
             if (config.Tank.EnableAoEDamage)
             {

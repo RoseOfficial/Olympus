@@ -42,82 +42,37 @@ public sealed class AstrologianSection
 
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Astrologian.GcdHeals, "GCD Heals:"));
 
-            var enableBenefic = config.Astrologian.EnableBenefic;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableBenefic, "Enable Benefic"), ref enableBenefic))
-            {
-                config.Astrologian.EnableBenefic = enableBenefic;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableBenefic, "Enable Benefic"), () => config.Astrologian.EnableBenefic, v => config.Astrologian.EnableBenefic = v, null, save);
 
             ImGui.SameLine();
-            var enableBeneficII = config.Astrologian.EnableBeneficII;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableBeneficII, "Enable Benefic II"), ref enableBeneficII))
-            {
-                config.Astrologian.EnableBeneficII = enableBeneficII;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableBeneficII, "Enable Benefic II"), () => config.Astrologian.EnableBeneficII, v => config.Astrologian.EnableBeneficII = v, null, save);
 
-            var enableAspectedBenefic = config.Astrologian.EnableAspectedBenefic;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableAspectedBenefic, "Enable Aspected Benefic"), ref enableAspectedBenefic))
-            {
-                config.Astrologian.EnableAspectedBenefic = enableAspectedBenefic;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Astrologian.AspectedBeneficDesc, "Single-target regen."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableAspectedBenefic, "Enable Aspected Benefic"), () => config.Astrologian.EnableAspectedBenefic, v => config.Astrologian.EnableAspectedBenefic = v,
+                Loc.T(LocalizedStrings.Astrologian.AspectedBeneficDesc, "Single-target regen."), save);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Astrologian.AoEHeals, "AoE Heals:"));
 
-            var enableHelios = config.Astrologian.EnableHelios;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableHelios, "Enable Helios"), ref enableHelios))
-            {
-                config.Astrologian.EnableHelios = enableHelios;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableHelios, "Enable Helios"), () => config.Astrologian.EnableHelios, v => config.Astrologian.EnableHelios = v, null, save);
 
             ImGui.SameLine();
-            var enableAspectedHelios = config.Astrologian.EnableAspectedHelios;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableAspectedHelios, "Enable Aspected Helios"), ref enableAspectedHelios))
-            {
-                config.Astrologian.EnableAspectedHelios = enableAspectedHelios;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Astrologian.AspectedHeliosDesc, "AoE heal + regen. Becomes Helios Conjunction at higher levels."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableAspectedHelios, "Enable Aspected Helios"), () => config.Astrologian.EnableAspectedHelios, v => config.Astrologian.EnableAspectedHelios = v,
+                Loc.T(LocalizedStrings.Astrologian.AspectedHeliosDesc, "AoE heal + regen. Becomes Helios Conjunction at higher levels."), save);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Astrologian.OgcdHeals, "oGCD Heals:"));
 
-            var enableED = config.Astrologian.EnableEssentialDignity;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableEssentialDignity, "Enable Essential Dignity"), ref enableED))
-            {
-                config.Astrologian.EnableEssentialDignity = enableED;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Astrologian.EssentialDignityDesc, "Potency scales with target's missing HP (400-1100)."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableEssentialDignity, "Enable Essential Dignity"), () => config.Astrologian.EnableEssentialDignity, v => config.Astrologian.EnableEssentialDignity = v,
+                Loc.T(LocalizedStrings.Astrologian.EssentialDignityDesc, "Potency scales with target's missing HP (400-1100)."), save);
 
-            var enableCI = config.Astrologian.EnableCelestialIntersection;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableCelestialIntersection, "Enable Celestial Intersection"), ref enableCI))
-            {
-                config.Astrologian.EnableCelestialIntersection = enableCI;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Astrologian.CelestialIntersectionDesc, "oGCD heal + shield."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableCelestialIntersection, "Enable Celestial Intersection"), () => config.Astrologian.EnableCelestialIntersection, v => config.Astrologian.EnableCelestialIntersection = v,
+                Loc.T(LocalizedStrings.Astrologian.CelestialIntersectionDesc, "oGCD heal + shield."), save);
 
-            var enableCO = config.Astrologian.EnableCelestialOpposition;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableCelestialOpposition, "Enable Celestial Opposition"), ref enableCO))
-            {
-                config.Astrologian.EnableCelestialOpposition = enableCO;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Astrologian.CelestialOppositionDesc, "oGCD AoE heal + regen."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableCelestialOpposition, "Enable Celestial Opposition"), () => config.Astrologian.EnableCelestialOpposition, v => config.Astrologian.EnableCelestialOpposition = v,
+                Loc.T(LocalizedStrings.Astrologian.CelestialOppositionDesc, "oGCD AoE heal + regen."), save);
 
-            var enableExaltation = config.Astrologian.EnableExaltation;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableExaltation, "Enable Exaltation"), ref enableExaltation))
-            {
-                config.Astrologian.EnableExaltation = enableExaltation;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Astrologian.ExaltationDesc, "Damage reduction + delayed heal."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableExaltation, "Enable Exaltation"), () => config.Astrologian.EnableExaltation, v => config.Astrologian.EnableExaltation = v,
+                Loc.T(LocalizedStrings.Astrologian.ExaltationDesc, "Damage reduction + delayed heal."), save);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Astrologian.SingleTargetThresholds, "Single-Target Thresholds:"));
@@ -155,13 +110,8 @@ public sealed class AstrologianSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableStar = config.Astrologian.EnableEarthlyStar;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableEarthlyStar, "Enable Earthly Star"), ref enableStar))
-            {
-                config.Astrologian.EnableEarthlyStar = enableStar;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Astrologian.EarthlyStarDesc, "Ground-targeted AoE that matures over 10s."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableEarthlyStar, "Enable Earthly Star"), () => config.Astrologian.EnableEarthlyStar, v => config.Astrologian.EnableEarthlyStar = v,
+                Loc.T(LocalizedStrings.Astrologian.EarthlyStarDesc, "Ground-targeted AoE that matures over 10s."), save);
 
             ConfigUIHelpers.BeginDisabledGroup(!config.Astrologian.EnableEarthlyStar);
 
@@ -191,13 +141,8 @@ public sealed class AstrologianSection
             config.Astrologian.EarthlyStarMinTargets = ConfigUIHelpers.IntSlider(Loc.T(LocalizedStrings.Astrologian.MinTargetsInRange, "Min Targets in Range"),
                 config.Astrologian.EarthlyStarMinTargets, 1, 8, null, save);
 
-            var waitForGiant = config.Astrologian.WaitForGiantDominance;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.WaitForGiantDominance, "Wait for Giant Dominance"), ref waitForGiant))
-            {
-                config.Astrologian.WaitForGiantDominance = waitForGiant;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Astrologian.WaitForGiantDominanceDesc, "Wait 10s for star to mature before detonating."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.WaitForGiantDominance, "Wait for Giant Dominance"), () => config.Astrologian.WaitForGiantDominance, v => config.Astrologian.WaitForGiantDominance = v,
+                Loc.T(LocalizedStrings.Astrologian.WaitForGiantDominanceDesc, "Wait 10s for star to mature before detonating."), save);
 
             if (config.Astrologian.WaitForGiantDominance)
             {
@@ -217,23 +162,13 @@ public sealed class AstrologianSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableHoroscope = config.Astrologian.EnableHoroscope;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableHoroscope, "Enable Horoscope"), ref enableHoroscope))
-            {
-                config.Astrologian.EnableHoroscope = enableHoroscope;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Astrologian.HoroscopeDesc, "Delayed AoE heal that can be detonated manually."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableHoroscope, "Enable Horoscope"), () => config.Astrologian.EnableHoroscope, v => config.Astrologian.EnableHoroscope = v,
+                Loc.T(LocalizedStrings.Astrologian.HoroscopeDesc, "Delayed AoE heal that can be detonated manually."), save);
 
             ConfigUIHelpers.BeginDisabledGroup(!config.Astrologian.EnableHoroscope);
 
-            var autoCast = config.Astrologian.AutoCastHoroscope;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.AutoCastHoroscope, "Auto-Cast Horoscope"), ref autoCast))
-            {
-                config.Astrologian.AutoCastHoroscope = autoCast;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Astrologian.AutoCastHoroscopeDesc, "Automatically prepare Horoscope."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.AutoCastHoroscope, "Auto-Cast Horoscope"), () => config.Astrologian.AutoCastHoroscope, v => config.Astrologian.AutoCastHoroscope = v,
+                Loc.T(LocalizedStrings.Astrologian.AutoCastHoroscopeDesc, "Automatically prepare Horoscope."), save);
 
             config.Astrologian.HoroscopeThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Astrologian.HoroscopeThreshold, "Detonate Threshold"),
                 config.Astrologian.HoroscopeThreshold, 50f, 90f, Loc.T(LocalizedStrings.Astrologian.HoroscopeThresholdDesc, "Party HP threshold to detonate."), save);
@@ -252,22 +187,12 @@ public sealed class AstrologianSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableMacro = config.Astrologian.EnableMacrocosmos;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableMacrocosmos, "Enable Macrocosmos"), ref enableMacro))
-            {
-                config.Astrologian.EnableMacrocosmos = enableMacro;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Astrologian.MacrocosmosDesc, "Absorbs damage taken and heals based on it."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableMacrocosmos, "Enable Macrocosmos"), () => config.Astrologian.EnableMacrocosmos, v => config.Astrologian.EnableMacrocosmos = v,
+                Loc.T(LocalizedStrings.Astrologian.MacrocosmosDesc, "Absorbs damage taken and heals based on it."), save);
 
             ConfigUIHelpers.BeginDisabledGroup(!config.Astrologian.EnableMacrocosmos);
 
-            var autoUse = config.Astrologian.AutoUseMacrocosmos;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.AutoUseMacrocosmos, "Auto-Use Macrocosmos"), ref autoUse))
-            {
-                config.Astrologian.AutoUseMacrocosmos = autoUse;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.AutoUseMacrocosmos, "Auto-Use Macrocosmos"), () => config.Astrologian.AutoUseMacrocosmos, v => config.Astrologian.AutoUseMacrocosmos = v, null, save);
 
             config.Astrologian.MacrocosmosThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Astrologian.MacrocosmosThreshold, "Party HP Threshold"),
                 config.Astrologian.MacrocosmosThreshold, 60f, 95f, Loc.T(LocalizedStrings.Astrologian.MacrocosmosThresholdDesc, "Use when party average HP is below this."), save);
@@ -286,13 +211,8 @@ public sealed class AstrologianSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableNS = config.Astrologian.EnableNeutralSect;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableNeutralSect, "Enable Neutral Sect"), ref enableNS))
-            {
-                config.Astrologian.EnableNeutralSect = enableNS;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Astrologian.NeutralSectDesc, "Boosts healing and adds shield to Aspected spells."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableNeutralSect, "Enable Neutral Sect"), () => config.Astrologian.EnableNeutralSect, v => config.Astrologian.EnableNeutralSect = v,
+                Loc.T(LocalizedStrings.Astrologian.NeutralSectDesc, "Boosts healing and adds shield to Aspected spells."), save);
 
             ConfigUIHelpers.BeginDisabledGroup(!config.Astrologian.EnableNeutralSect);
 
@@ -317,13 +237,8 @@ public sealed class AstrologianSection
             config.Astrologian.NeutralSectThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Astrologian.NeutralSectThreshold, "HP Threshold"),
                 config.Astrologian.NeutralSectThreshold, 40f, 85f, Loc.T(LocalizedStrings.Astrologian.NeutralSectThresholdDesc, "Party average HP to trigger."), save);
 
-            var enableSunSign = config.Astrologian.EnableSunSign;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableSunSign, "Enable Sun Sign"), ref enableSunSign))
-            {
-                config.Astrologian.EnableSunSign = enableSunSign;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Astrologian.SunSignDesc, "Level 100 follow-up ability."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableSunSign, "Enable Sun Sign"), () => config.Astrologian.EnableSunSign, v => config.Astrologian.EnableSunSign = v,
+                Loc.T(LocalizedStrings.Astrologian.SunSignDesc, "Level 100 follow-up ability."), save);
 
             ConfigUIHelpers.EndDisabledGroup();
             ConfigUIHelpers.EndIndent();
@@ -336,13 +251,8 @@ public sealed class AstrologianSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableCards = config.Astrologian.EnableCards;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableCards, "Enable Cards"), ref enableCards))
-            {
-                config.Astrologian.EnableCards = enableCards;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Astrologian.EnableCardsDesc, "Automatically draw and play cards."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableCards, "Enable Cards"), () => config.Astrologian.EnableCards, v => config.Astrologian.EnableCards = v,
+                Loc.T(LocalizedStrings.Astrologian.EnableCardsDesc, "Automatically draw and play cards."), save);
 
             ConfigUIHelpers.BeginDisabledGroup(!config.Astrologian.EnableCards);
 
@@ -367,12 +277,7 @@ public sealed class AstrologianSection
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Astrologian.MinorArcanaLabel, "Minor Arcana:"));
 
-            var enableMinor = config.Astrologian.EnableMinorArcana;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableMinorArcana, "Enable Minor Arcana"), ref enableMinor))
-            {
-                config.Astrologian.EnableMinorArcana = enableMinor;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableMinorArcana, "Enable Minor Arcana"), () => config.Astrologian.EnableMinorArcana, v => config.Astrologian.EnableMinorArcana = v, null, save);
 
             if (config.Astrologian.EnableMinorArcana)
             {
@@ -393,20 +298,10 @@ public sealed class AstrologianSection
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Astrologian.BurstAbilities, "Burst Abilities:"));
 
-            var enableDivination = config.Astrologian.EnableDivination;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableDivination, "Enable Divination"), ref enableDivination))
-            {
-                config.Astrologian.EnableDivination = enableDivination;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Astrologian.DivinationDesc, "Party-wide damage buff."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableDivination, "Enable Divination"), () => config.Astrologian.EnableDivination, v => config.Astrologian.EnableDivination = v,
+                Loc.T(LocalizedStrings.Astrologian.DivinationDesc, "Party-wide damage buff."), save);
 
-            var enableAstrodyne = config.Astrologian.EnableAstrodyne;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableAstrodyne, "Enable Astrodyne"), ref enableAstrodyne))
-            {
-                config.Astrologian.EnableAstrodyne = enableAstrodyne;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableAstrodyne, "Enable Astrodyne"), () => config.Astrologian.EnableAstrodyne, v => config.Astrologian.EnableAstrodyne = v, null, save);
 
             if (config.Astrologian.EnableAstrodyne)
             {
@@ -415,13 +310,8 @@ public sealed class AstrologianSection
                     Loc.T(LocalizedStrings.Astrologian.AstrodyneMinSealsDesc, "Wait for this many unique seals (more seals = better buffs)."), save);
             }
 
-            var enableOracle = config.Astrologian.EnableOracle;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableOracle, "Enable Oracle"), ref enableOracle))
-            {
-                config.Astrologian.EnableOracle = enableOracle;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Astrologian.OracleDesc, "Divination follow-up ability."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableOracle, "Enable Oracle"), () => config.Astrologian.EnableOracle, v => config.Astrologian.EnableOracle = v,
+                Loc.T(LocalizedStrings.Astrologian.OracleDesc, "Divination follow-up ability."), save);
 
             ConfigUIHelpers.EndDisabledGroup();
             ConfigUIHelpers.EndIndent();
@@ -434,13 +324,8 @@ public sealed class AstrologianSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableSynastry = config.Astrologian.EnableSynastry;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableSynastry, "Enable Synastry"), ref enableSynastry))
-            {
-                config.Astrologian.EnableSynastry = enableSynastry;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Astrologian.SynastryDesc, "Mirrors 40% of single-target heals to Synastry target."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableSynastry, "Enable Synastry"), () => config.Astrologian.EnableSynastry, v => config.Astrologian.EnableSynastry = v,
+                Loc.T(LocalizedStrings.Astrologian.SynastryDesc, "Mirrors 40% of single-target heals to Synastry target."), save);
 
             ConfigUIHelpers.BeginDisabledGroup(!config.Astrologian.EnableSynastry);
 
@@ -458,13 +343,8 @@ public sealed class AstrologianSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableLS = config.Astrologian.EnableLightspeed;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableLightspeed, "Enable Lightspeed"), ref enableLS))
-            {
-                config.Astrologian.EnableLightspeed = enableLS;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Astrologian.LightspeedDesc, "Reduces cast times and MP costs."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableLightspeed, "Enable Lightspeed"), () => config.Astrologian.EnableLightspeed, v => config.Astrologian.EnableLightspeed = v,
+                Loc.T(LocalizedStrings.Astrologian.LightspeedDesc, "Reduces cast times and MP costs."), save);
 
             ConfigUIHelpers.BeginDisabledGroup(!config.Astrologian.EnableLightspeed);
 
@@ -499,23 +379,13 @@ public sealed class AstrologianSection
 
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Astrologian.SingleTargetDamage, "Single-Target:"));
 
-            var enableST = config.Astrologian.EnableSingleTargetDamage;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableMalefic, "Enable Malefic"), ref enableST))
-            {
-                config.Astrologian.EnableSingleTargetDamage = enableST;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Astrologian.MaleficDesc, "Casted single-target damage spell."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableMalefic, "Enable Malefic"), () => config.Astrologian.EnableSingleTargetDamage, v => config.Astrologian.EnableSingleTargetDamage = v,
+                Loc.T(LocalizedStrings.Astrologian.MaleficDesc, "Casted single-target damage spell."), save);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Astrologian.DotLabel, "DoT:"));
 
-            var enableDot = config.Astrologian.EnableDot;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableCombust, "Enable Combust"), ref enableDot))
-            {
-                config.Astrologian.EnableDot = enableDot;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableCombust, "Enable Combust"), () => config.Astrologian.EnableDot, v => config.Astrologian.EnableDot = v, null, save);
 
             if (config.Astrologian.EnableDot)
             {
@@ -527,12 +397,7 @@ public sealed class AstrologianSection
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Astrologian.AoEDamage, "AoE:"));
 
-            var enableAoE = config.Astrologian.EnableAoEDamage;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableGravity, "Enable Gravity"), ref enableAoE))
-            {
-                config.Astrologian.EnableAoEDamage = enableAoE;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableGravity, "Enable Gravity"), () => config.Astrologian.EnableAoEDamage, v => config.Astrologian.EnableAoEDamage = v, null, save);
 
             if (config.Astrologian.EnableAoEDamage)
             {
@@ -543,12 +408,7 @@ public sealed class AstrologianSection
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Astrologian.MpManagement, "MP Management:"));
 
-            var enableLucid = config.Astrologian.EnableLucidDreaming;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableLucidDreaming, "Enable Lucid Dreaming"), ref enableLucid))
-            {
-                config.Astrologian.EnableLucidDreaming = enableLucid;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableLucidDreaming, "Enable Lucid Dreaming"), () => config.Astrologian.EnableLucidDreaming, v => config.Astrologian.EnableLucidDreaming = v, null, save);
 
             if (config.Astrologian.EnableLucidDreaming)
             {
@@ -559,12 +419,7 @@ public sealed class AstrologianSection
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Astrologian.CollectiveUnconsciousLabel, "Collective Unconscious:"));
 
-            var enableCU = config.Astrologian.EnableCollectiveUnconscious;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Astrologian.EnableCollectiveUnconscious, "Enable Collective Unconscious"), ref enableCU))
-            {
-                config.Astrologian.EnableCollectiveUnconscious = enableCU;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableCollectiveUnconscious, "Enable Collective Unconscious"), () => config.Astrologian.EnableCollectiveUnconscious, v => config.Astrologian.EnableCollectiveUnconscious = v, null, save);
             ConfigUIHelpers.WarningText(Loc.T(LocalizedStrings.Astrologian.CollectiveUnconsciousWarning, "Channeled ability - may interrupt other actions."));
 
             if (config.Astrologian.EnableCollectiveUnconscious)

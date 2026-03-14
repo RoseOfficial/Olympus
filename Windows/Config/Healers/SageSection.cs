@@ -37,21 +37,11 @@ public sealed class SageSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var autoKardia = config.Sage.AutoKardia;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.AutoApplyKardia, "Auto-Apply Kardia"), ref autoKardia))
-            {
-                config.Sage.AutoKardia = autoKardia;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.AutoApplyKardiaDesc, "Automatically place Kardia on a party member."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.AutoApplyKardia, "Auto-Apply Kardia"), () => config.Sage.AutoKardia, v => config.Sage.AutoKardia = v,
+                Loc.T(LocalizedStrings.Sage.AutoApplyKardiaDesc, "Automatically place Kardia on a party member."), save);
 
-            var kardiaSwap = config.Sage.KardiaSwapEnabled;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnableKardiaSwapping, "Enable Kardia Swapping"), ref kardiaSwap))
-            {
-                config.Sage.KardiaSwapEnabled = kardiaSwap;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.EnableKardiaSwappingDesc, "Allow swapping Kardia target during combat."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnableKardiaSwapping, "Enable Kardia Swapping"), () => config.Sage.KardiaSwapEnabled, v => config.Sage.KardiaSwapEnabled = v,
+                Loc.T(LocalizedStrings.Sage.EnableKardiaSwappingDesc, "Allow swapping Kardia target during combat."), save);
 
             if (config.Sage.KardiaSwapEnabled)
             {
@@ -61,13 +51,8 @@ public sealed class SageSection
 
             ConfigUIHelpers.Spacing();
 
-            var enableSoteria = config.Sage.EnableSoteria;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnableSoteria, "Enable Soteria"), ref enableSoteria))
-            {
-                config.Sage.EnableSoteria = enableSoteria;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.SoteriaDesc, "Boosts Kardia healing by 70%."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnableSoteria, "Enable Soteria"), () => config.Sage.EnableSoteria, v => config.Sage.EnableSoteria = v,
+                Loc.T(LocalizedStrings.Sage.SoteriaDesc, "Boosts Kardia healing by 70%."), save);
 
             if (config.Sage.EnableSoteria)
             {
@@ -89,13 +74,8 @@ public sealed class SageSection
                 config.Sage.AddersgallReserve, 0, 3,
                 Loc.T(LocalizedStrings.Sage.StackReserveDesc, "Stacks to keep for emergency healing."), save);
 
-            var preventCap = config.Sage.PreventAddersgallCap;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.PreventAddersgallCap, "Prevent Addersgall Cap"), ref preventCap))
-            {
-                config.Sage.PreventAddersgallCap = preventCap;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.PreventAddersgallCapDesc, "Spend stacks proactively to avoid capping."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.PreventAddersgallCap, "Prevent Addersgall Cap"), () => config.Sage.PreventAddersgallCap, v => config.Sage.PreventAddersgallCap = v,
+                Loc.T(LocalizedStrings.Sage.PreventAddersgallCapDesc, "Spend stacks proactively to avoid capping."), save);
 
             if (config.Sage.PreventAddersgallCap)
             {
@@ -106,13 +86,8 @@ public sealed class SageSection
 
             ConfigUIHelpers.Spacing();
 
-            var enableRhizo = config.Sage.EnableRhizomata;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnableRhizomata, "Enable Rhizomata"), ref enableRhizo))
-            {
-                config.Sage.EnableRhizomata = enableRhizo;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.RhizomataDesc, "Generate additional Addersgall stacks."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnableRhizomata, "Enable Rhizomata"), () => config.Sage.EnableRhizomata, v => config.Sage.EnableRhizomata = v,
+                Loc.T(LocalizedStrings.Sage.RhizomataDesc, "Generate additional Addersgall stacks."), save);
 
             if (config.Sage.EnableRhizomata)
             {
@@ -133,107 +108,47 @@ public sealed class SageSection
 
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Sage.GcdHeals, "GCD Heals:"));
 
-            var enableDiag = config.Sage.EnableDiagnosis;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnableDiagnosis, "Enable Diagnosis"), ref enableDiag))
-            {
-                config.Sage.EnableDiagnosis = enableDiag;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.DiagnosisDesc, "Basic GCD heal. Generally avoided in favor of oGCDs."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnableDiagnosis, "Enable Diagnosis"), () => config.Sage.EnableDiagnosis, v => config.Sage.EnableDiagnosis = v,
+                Loc.T(LocalizedStrings.Sage.DiagnosisDesc, "Basic GCD heal. Generally avoided in favor of oGCDs."), save);
 
-            var enableEDiag = config.Sage.EnableEukrasianDiagnosis;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnableEukrasianDiagnosis, "Enable Eukrasian Diagnosis"), ref enableEDiag))
-            {
-                config.Sage.EnableEukrasianDiagnosis = enableEDiag;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.EukrasianDiagnosisDesc, "Single-target shield."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnableEukrasianDiagnosis, "Enable Eukrasian Diagnosis"), () => config.Sage.EnableEukrasianDiagnosis, v => config.Sage.EnableEukrasianDiagnosis = v,
+                Loc.T(LocalizedStrings.Sage.EukrasianDiagnosisDesc, "Single-target shield."), save);
 
-            var enableProg = config.Sage.EnablePrognosis;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnablePrognosis, "Enable Prognosis"), ref enableProg))
-            {
-                config.Sage.EnablePrognosis = enableProg;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.PrognosisDesc, "Basic AoE heal."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnablePrognosis, "Enable Prognosis"), () => config.Sage.EnablePrognosis, v => config.Sage.EnablePrognosis = v,
+                Loc.T(LocalizedStrings.Sage.PrognosisDesc, "Basic AoE heal."), save);
 
-            var enableEProg = config.Sage.EnableEukrasianPrognosis;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnableEukrasianPrognosis, "Enable Eukrasian Prognosis"), ref enableEProg))
-            {
-                config.Sage.EnableEukrasianPrognosis = enableEProg;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.EukrasianPrognosisDesc, "AoE shield."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnableEukrasianPrognosis, "Enable Eukrasian Prognosis"), () => config.Sage.EnableEukrasianPrognosis, v => config.Sage.EnableEukrasianPrognosis = v,
+                Loc.T(LocalizedStrings.Sage.EukrasianPrognosisDesc, "AoE shield."), save);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Sage.AddersgallHeals, "Addersgall Heals:"));
 
-            var enableDruo = config.Sage.EnableDruochole;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnableDruochole, "Enable Druochole"), ref enableDruo))
-            {
-                config.Sage.EnableDruochole = enableDruo;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.DruocholeDesc, "oGCD single-target heal."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnableDruochole, "Enable Druochole"), () => config.Sage.EnableDruochole, v => config.Sage.EnableDruochole = v,
+                Loc.T(LocalizedStrings.Sage.DruocholeDesc, "oGCD single-target heal."), save);
 
-            var enableTauro = config.Sage.EnableTaurochole;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnableTaurochole, "Enable Taurochole"), ref enableTauro))
-            {
-                config.Sage.EnableTaurochole = enableTauro;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.TaurocholeDesc, "oGCD heal + 10% mitigation."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnableTaurochole, "Enable Taurochole"), () => config.Sage.EnableTaurochole, v => config.Sage.EnableTaurochole = v,
+                Loc.T(LocalizedStrings.Sage.TaurocholeDesc, "oGCD heal + 10% mitigation."), save);
 
-            var enableIxo = config.Sage.EnableIxochole;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnableIxochole, "Enable Ixochole"), ref enableIxo))
-            {
-                config.Sage.EnableIxochole = enableIxo;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.IxocholeDesc, "oGCD AoE heal."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnableIxochole, "Enable Ixochole"), () => config.Sage.EnableIxochole, v => config.Sage.EnableIxochole = v,
+                Loc.T(LocalizedStrings.Sage.IxocholeDesc, "oGCD AoE heal."), save);
 
-            var enableKera = config.Sage.EnableKerachole;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnableKerachole, "Enable Kerachole"), ref enableKera))
-            {
-                config.Sage.EnableKerachole = enableKera;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.KeracholeDesc, "oGCD AoE HoT + 10% mitigation."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnableKerachole, "Enable Kerachole"), () => config.Sage.EnableKerachole, v => config.Sage.EnableKerachole = v,
+                Loc.T(LocalizedStrings.Sage.KeracholeDesc, "oGCD AoE HoT + 10% mitigation."), save);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Sage.FreeOgcds, "Free oGCDs:"));
 
-            var enablePhysis = config.Sage.EnablePhysisII;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnablePhysisII, "Enable Physis II"), ref enablePhysis))
-            {
-                config.Sage.EnablePhysisII = enablePhysis;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.PhysisIIDesc, "Free AoE HoT + healing received buff."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnablePhysisII, "Enable Physis II"), () => config.Sage.EnablePhysisII, v => config.Sage.EnablePhysisII = v,
+                Loc.T(LocalizedStrings.Sage.PhysisIIDesc, "Free AoE HoT + healing received buff."), save);
 
-            var enableHolos = config.Sage.EnableHolos;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnableHolos, "Enable Holos"), ref enableHolos))
-            {
-                config.Sage.EnableHolos = enableHolos;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.HolosDesc, "Free AoE heal + shield + mitigation."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnableHolos, "Enable Holos"), () => config.Sage.EnableHolos, v => config.Sage.EnableHolos = v,
+                Loc.T(LocalizedStrings.Sage.HolosDesc, "Free AoE heal + shield + mitigation."), save);
 
-            var enablePepsis = config.Sage.EnablePepsis;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnablePepsis, "Enable Pepsis"), ref enablePepsis))
-            {
-                config.Sage.EnablePepsis = enablePepsis;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.PepsisDesc, "Converts shields to direct healing."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnablePepsis, "Enable Pepsis"), () => config.Sage.EnablePepsis, v => config.Sage.EnablePepsis = v,
+                Loc.T(LocalizedStrings.Sage.PepsisDesc, "Converts shields to direct healing."), save);
 
-            var enablePneuma = config.Sage.EnablePneuma;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnablePneuma, "Enable Pneuma"), ref enablePneuma))
-            {
-                config.Sage.EnablePneuma = enablePneuma;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.PneumaDesc, "Line AoE damage + party heal."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnablePneuma, "Enable Pneuma"), () => config.Sage.EnablePneuma, v => config.Sage.EnablePneuma = v,
+                Loc.T(LocalizedStrings.Sage.PneumaDesc, "Line AoE damage + party heal."), save);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Sage.SingleTargetThresholds, "Single-Target Thresholds:"));
@@ -279,13 +194,8 @@ public sealed class SageSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableHaima = config.Sage.EnableHaima;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnableHaima, "Enable Haima"), ref enableHaima))
-            {
-                config.Sage.EnableHaima = enableHaima;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.HaimaDesc, "Multi-hit single-target shield (6 stacks)."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnableHaima, "Enable Haima"), () => config.Sage.EnableHaima, v => config.Sage.EnableHaima = v,
+                Loc.T(LocalizedStrings.Sage.HaimaDesc, "Multi-hit single-target shield (6 stacks)."), save);
 
             if (config.Sage.EnableHaima)
             {
@@ -295,13 +205,8 @@ public sealed class SageSection
 
             ConfigUIHelpers.Spacing();
 
-            var enablePanhaima = config.Sage.EnablePanhaima;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnablePanhaima, "Enable Panhaima"), ref enablePanhaima))
-            {
-                config.Sage.EnablePanhaima = enablePanhaima;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.PanhaimaDesc, "Multi-hit party shield (5 stacks)."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnablePanhaima, "Enable Panhaima"), () => config.Sage.EnablePanhaima, v => config.Sage.EnablePanhaima = v,
+                Loc.T(LocalizedStrings.Sage.PanhaimaDesc, "Multi-hit party shield (5 stacks)."), save);
 
             if (config.Sage.EnablePanhaima)
             {
@@ -311,13 +216,8 @@ public sealed class SageSection
 
             ConfigUIHelpers.Spacing();
 
-            var avoidOverwrite = config.Sage.AvoidOverwritingShields;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.AvoidOverwritingShields, "Avoid Overwriting Shields"), ref avoidOverwrite))
-            {
-                config.Sage.AvoidOverwritingShields = avoidOverwrite;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.AvoidOverwritingShieldsDesc, "Don't apply new shields over existing ones."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.AvoidOverwritingShields, "Avoid Overwriting Shields"), () => config.Sage.AvoidOverwritingShields, v => config.Sage.AvoidOverwritingShields = v,
+                Loc.T(LocalizedStrings.Sage.AvoidOverwritingShieldsDesc, "Don't apply new shields over existing ones."), save);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -329,13 +229,8 @@ public sealed class SageSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableZoe = config.Sage.EnableZoe;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnableZoe, "Enable Zoe"), ref enableZoe))
-            {
-                config.Sage.EnableZoe = enableZoe;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.ZoeDesc, "+50% next GCD heal potency."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnableZoe, "Enable Zoe"), () => config.Sage.EnableZoe, v => config.Sage.EnableZoe = v,
+                Loc.T(LocalizedStrings.Sage.ZoeDesc, "+50% next GCD heal potency."), save);
 
             if (config.Sage.EnableZoe)
             {
@@ -361,13 +256,8 @@ public sealed class SageSection
 
             ConfigUIHelpers.Spacing();
 
-            var enableKrasis = config.Sage.EnableKrasis;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnableKrasis, "Enable Krasis"), ref enableKrasis))
-            {
-                config.Sage.EnableKrasis = enableKrasis;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.KrasisDesc, "+20% healing received on target."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnableKrasis, "Enable Krasis"), () => config.Sage.EnableKrasis, v => config.Sage.EnableKrasis = v,
+                Loc.T(LocalizedStrings.Sage.KrasisDesc, "+20% healing received on target."), save);
 
             if (config.Sage.EnableKrasis)
             {
@@ -377,13 +267,8 @@ public sealed class SageSection
 
             ConfigUIHelpers.Spacing();
 
-            var enablePhilo = config.Sage.EnablePhilosophia;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnablePhilosophia, "Enable Philosophia"), ref enablePhilo))
-            {
-                config.Sage.EnablePhilosophia = enablePhilo;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.PhilosophiaDesc, "Party-wide Kardia effect."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnablePhilosophia, "Enable Philosophia"), () => config.Sage.EnablePhilosophia, v => config.Sage.EnablePhilosophia = v,
+                Loc.T(LocalizedStrings.Sage.PhilosophiaDesc, "Party-wide Kardia effect."), save);
 
             if (config.Sage.EnablePhilosophia)
             {
@@ -403,24 +288,14 @@ public sealed class SageSection
 
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Sage.SingleTargetDamage, "Single-Target:"));
 
-            var enableST = config.Sage.EnableSingleTargetDamage;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnableDosis, "Enable Dosis"), ref enableST))
-            {
-                config.Sage.EnableSingleTargetDamage = enableST;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.DosisDesc, "Casted single-target damage. Triggers Kardia healing."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnableDosis, "Enable Dosis"), () => config.Sage.EnableSingleTargetDamage, v => config.Sage.EnableSingleTargetDamage = v,
+                Loc.T(LocalizedStrings.Sage.DosisDesc, "Casted single-target damage. Triggers Kardia healing."), save);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Sage.DotLabel, "DoT:"));
 
-            var enableDot = config.Sage.EnableDot;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnableEukrasianDosis, "Enable Eukrasian Dosis"), ref enableDot))
-            {
-                config.Sage.EnableDot = enableDot;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.EukrasianDosisDesc, "Instant DoT that triggers Kardia."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnableEukrasianDosis, "Enable Eukrasian Dosis"), () => config.Sage.EnableDot, v => config.Sage.EnableDot = v,
+                Loc.T(LocalizedStrings.Sage.EukrasianDosisDesc, "Instant DoT that triggers Kardia."), save);
 
             if (config.Sage.EnableDot)
             {
@@ -431,13 +306,8 @@ public sealed class SageSection
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Sage.AoEDamage, "AoE:"));
 
-            var enableAoE = config.Sage.EnableAoEDamage;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnableDyskrasia, "Enable Dyskrasia"), ref enableAoE))
-            {
-                config.Sage.EnableAoEDamage = enableAoE;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.DyskrasiaDesc, "Instant AoE damage around self."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnableDyskrasia, "Enable Dyskrasia"), () => config.Sage.EnableAoEDamage, v => config.Sage.EnableAoEDamage = v,
+                Loc.T(LocalizedStrings.Sage.DyskrasiaDesc, "Instant AoE damage around self."), save);
 
             if (config.Sage.EnableAoEDamage)
             {
@@ -448,39 +318,19 @@ public sealed class SageSection
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Sage.SpecialAbilities, "Special Abilities:"));
 
-            var enablePhlegma = config.Sage.EnablePhlegma;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnablePhlegma, "Enable Phlegma"), ref enablePhlegma))
-            {
-                config.Sage.EnablePhlegma = enablePhlegma;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.PhlegmaDesc, "Instant damage with charges."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnablePhlegma, "Enable Phlegma"), () => config.Sage.EnablePhlegma, v => config.Sage.EnablePhlegma = v,
+                Loc.T(LocalizedStrings.Sage.PhlegmaDesc, "Instant damage with charges."), save);
 
-            var enableToxikon = config.Sage.EnableToxikon;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnableToxikon, "Enable Toxikon"), ref enableToxikon))
-            {
-                config.Sage.EnableToxikon = enableToxikon;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.ToxikonDesc, "Consumes Addersting (from broken E.Diag shields)."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnableToxikon, "Enable Toxikon"), () => config.Sage.EnableToxikon, v => config.Sage.EnableToxikon = v,
+                Loc.T(LocalizedStrings.Sage.ToxikonDesc, "Consumes Addersting (from broken E.Diag shields)."), save);
 
-            var enablePsyche = config.Sage.EnablePsyche;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnablePsyche, "Enable Psyche"), ref enablePsyche))
-            {
-                config.Sage.EnablePsyche = enablePsyche;
-                save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Sage.PsycheDesc, "oGCD damage ability."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnablePsyche, "Enable Psyche"), () => config.Sage.EnablePsyche, v => config.Sage.EnablePsyche = v,
+                Loc.T(LocalizedStrings.Sage.PsycheDesc, "oGCD damage ability."), save);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Sage.MpManagement, "MP Management:"));
 
-            var enableLucid = config.Sage.EnableLucidDreaming;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Sage.EnableLucidDreaming, "Enable Lucid Dreaming"), ref enableLucid))
-            {
-                config.Sage.EnableLucidDreaming = enableLucid;
-                save();
-            }
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnableLucidDreaming, "Enable Lucid Dreaming"), () => config.Sage.EnableLucidDreaming, v => config.Sage.EnableLucidDreaming = v, null, save);
 
             if (config.Sage.EnableLucidDreaming)
             {

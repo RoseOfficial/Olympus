@@ -93,13 +93,8 @@ public sealed class GeneralSection
         // Only show tank assist fallback when tank assist is selected
         if (this.config.Targeting.EnemyStrategy == EnemyTargetingStrategy.TankAssist)
         {
-            var useFallback = this.config.Targeting.UseTankAssistFallback;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Targeting.FallbackToLowestHp, "Fallback to Lowest HP"), ref useFallback))
-            {
-                this.config.Targeting.UseTankAssistFallback = useFallback;
-                this.save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Targeting.FallbackToLowestHpDesc, "If no tank target found, use Lowest HP instead."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Targeting.FallbackToLowestHp, "Fallback to Lowest HP"), () => this.config.Targeting.UseTankAssistFallback, v => this.config.Targeting.UseTankAssistFallback = v,
+                Loc.T(LocalizedStrings.Targeting.FallbackToLowestHpDesc, "If no tank target found, use Lowest HP instead."), this.save);
         }
 
         ConfigUIHelpers.Spacing();
@@ -123,23 +118,13 @@ public sealed class GeneralSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var preventEscape = this.config.PreventEscapeClose;
-            if (ImGui.Checkbox(Loc.T("config.window.prevent_escape_close", "Prevent closing with Escape key"), ref preventEscape))
-            {
-                this.config.PreventEscapeClose = preventEscape;
-                this.save();
-            }
-            ImGui.TextDisabled(Loc.T("config.window.prevent_escape_close_desc", "When enabled, pressing Escape will not close the Olympus window."));
+            ConfigUIHelpers.Toggle(Loc.T("config.window.prevent_escape_close", "Prevent closing with Escape key"), () => this.config.PreventEscapeClose, v => this.config.PreventEscapeClose = v,
+                Loc.T("config.window.prevent_escape_close_desc", "When enabled, pressing Escape will not close the Olympus window."), this.save);
 
             ConfigUIHelpers.Spacing();
 
-            var showCutscenes = this.config.ShowDuringCutscenes;
-            if (ImGui.Checkbox(Loc.T("config.window.show_during_cutscenes", "Show window during cutscenes"), ref showCutscenes))
-            {
-                this.config.ShowDuringCutscenes = showCutscenes;
-                this.save();
-            }
-            ImGui.TextDisabled(Loc.T("config.window.show_during_cutscenes_desc", "When enabled, Olympus windows stay visible during in-game cutscenes."));
+            ConfigUIHelpers.Toggle(Loc.T("config.window.show_during_cutscenes", "Show window during cutscenes"), () => this.config.ShowDuringCutscenes, v => this.config.ShowDuringCutscenes = v,
+                Loc.T("config.window.show_during_cutscenes_desc", "When enabled, Olympus windows stay visible during in-game cutscenes."), this.save);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -151,13 +136,8 @@ public sealed class GeneralSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableRaise = this.config.Resurrection.EnableRaise;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Resurrection.EnableRaise, "Enable Raise"), ref enableRaise))
-            {
-                this.config.Resurrection.EnableRaise = enableRaise;
-                this.save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Resurrection.EnableRaiseDesc, "Automatically resurrect dead party members."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Resurrection.EnableRaise, "Enable Raise"), () => this.config.Resurrection.EnableRaise, v => this.config.Resurrection.EnableRaise = v,
+                Loc.T(LocalizedStrings.Resurrection.EnableRaiseDesc, "Automatically resurrect dead party members."), this.save);
 
             ConfigUIHelpers.BeginDisabledGroup(!this.config.Resurrection.EnableRaise);
 
@@ -180,13 +160,8 @@ public sealed class GeneralSection
             ImGui.TextDisabled(modeDesc);
 
             ConfigUIHelpers.Spacing();
-            var allowHardcast = this.config.Resurrection.AllowHardcastRaise;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Resurrection.AllowHardcast, "Allow Hardcast Raise"), ref allowHardcast))
-            {
-                this.config.Resurrection.AllowHardcastRaise = allowHardcast;
-                this.save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Resurrection.AllowHardcastDesc, "Cast Raise without Swiftcast (8s cast). Use with caution."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Resurrection.AllowHardcast, "Allow Hardcast Raise"), () => this.config.Resurrection.AllowHardcastRaise, v => this.config.Resurrection.AllowHardcastRaise = v,
+                Loc.T(LocalizedStrings.Resurrection.AllowHardcastDesc, "Cast Raise without Swiftcast (8s cast). Use with caution."), this.save);
 
             this.config.Resurrection.RaiseMpThreshold = ConfigUIHelpers.ThresholdSlider(
                 Loc.T(LocalizedStrings.Resurrection.MinMpForRaise, "Min MP for Raise"),
@@ -267,13 +242,8 @@ public sealed class GeneralSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var telemetryEnabled = this.config.TelemetryEnabled;
-            if (ImGui.Checkbox(Loc.T(LocalizedStrings.Privacy.Telemetry, "Send anonymous usage statistics"), ref telemetryEnabled))
-            {
-                this.config.TelemetryEnabled = telemetryEnabled;
-                this.save();
-            }
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Privacy.TelemetryDesc, "Only sends plugin version. No personal data."));
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Privacy.Telemetry, "Send anonymous usage statistics"), () => this.config.TelemetryEnabled, v => this.config.TelemetryEnabled = v,
+                Loc.T(LocalizedStrings.Privacy.TelemetryDesc, "Only sends plugin version. No personal data."), this.save);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -286,13 +256,8 @@ public sealed class GeneralSection
         // Esuna
         ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.RoleActions.EsunaSection, "Esuna (Cleanse):"));
 
-        var enableEsuna = this.config.RoleActions.EnableEsuna;
-        if (ImGui.Checkbox(Loc.T(LocalizedStrings.RoleActions.EnableEsuna, "Enable Esuna"), ref enableEsuna))
-        {
-            this.config.RoleActions.EnableEsuna = enableEsuna;
-            this.save();
-        }
-        ImGui.TextDisabled(Loc.T(LocalizedStrings.RoleActions.EnableEsunaDesc, "Automatically cleanse dispellable debuffs from party."));
+        ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.RoleActions.EnableEsuna, "Enable Esuna"), () => this.config.RoleActions.EnableEsuna, v => this.config.RoleActions.EnableEsuna = v,
+            Loc.T(LocalizedStrings.RoleActions.EnableEsunaDesc, "Automatically cleanse dispellable debuffs from party."), this.save);
 
         ConfigUIHelpers.BeginDisabledGroup(!this.config.RoleActions.EnableEsuna);
 
@@ -321,13 +286,8 @@ public sealed class GeneralSection
         // Surecast
         ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.RoleActions.SurecastSection, "Surecast (Knockback Immunity):"));
 
-        var enableSurecast = this.config.RoleActions.EnableSurecast;
-        if (ImGui.Checkbox(Loc.T(LocalizedStrings.RoleActions.EnableSurecast, "Enable Surecast"), ref enableSurecast))
-        {
-            this.config.RoleActions.EnableSurecast = enableSurecast;
-            this.save();
-        }
-        ImGui.TextDisabled(Loc.T(LocalizedStrings.RoleActions.EnableSurecastDesc, "6s immunity to knockback/draw-in. 120s cooldown."));
+        ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.RoleActions.EnableSurecast, "Enable Surecast"), () => this.config.RoleActions.EnableSurecast, v => this.config.RoleActions.EnableSurecast = v,
+            Loc.T(LocalizedStrings.RoleActions.EnableSurecastDesc, "6s immunity to knockback/draw-in. 120s cooldown."), this.save);
 
         ConfigUIHelpers.BeginDisabledGroup(!this.config.RoleActions.EnableSurecast);
 
@@ -348,12 +308,7 @@ public sealed class GeneralSection
         // Rescue
         ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.RoleActions.RescueSection, "Rescue (Pull Party Member):"));
 
-        var enableRescue = this.config.RoleActions.EnableRescue;
-        if (ImGui.Checkbox(Loc.T(LocalizedStrings.RoleActions.EnableRescue, "Enable Rescue"), ref enableRescue))
-        {
-            this.config.RoleActions.EnableRescue = enableRescue;
-            this.save();
-        }
+        ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.RoleActions.EnableRescue, "Enable Rescue"), () => this.config.RoleActions.EnableRescue, v => this.config.RoleActions.EnableRescue = v, null, this.save);
 
         if (this.config.RoleActions.EnableRescue)
         {
