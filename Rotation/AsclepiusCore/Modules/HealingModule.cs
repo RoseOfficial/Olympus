@@ -25,6 +25,77 @@ public sealed class HealingModule : IAsclepiusModule
     public int Priority => 10; // High priority - healing is essential
     public string Name => "Healing";
 
+    // Training explanation arrays
+    private static readonly string[] _druocholeAlternatives =
+    {
+        "Taurochole (if tank, adds 10% mit)",
+        "Diagnosis (GCD, save Addersgall)",
+        "Kardia healing (passive)",
+    };
+
+    private static readonly string[] _taurocholeAlternatives =
+    {
+        "Druochole (no mit, no shared CD)",
+        "Kerachole (AoE version)",
+        "Haima (multi-hit shield)",
+    };
+
+    private static readonly string[] _ixocholeAlternatives =
+    {
+        "Kerachole (AoE regen + mit)",
+        "Physis II (AoE HoT + healing buff)",
+        "Prognosis (GCD AoE heal)",
+    };
+
+    private static readonly string[] _keracholeAlternatives =
+    {
+        "Ixochole (instant AoE heal)",
+        "Taurochole (single-target version)",
+        "Physis II (AoE HoT only)",
+    };
+
+    private static readonly string[] _physisIIAlternatives =
+    {
+        "Kerachole (regen + mit, costs Addersgall)",
+        "Ixochole (instant heal, costs Addersgall)",
+        "Holos (emergency heal + shield + mit)",
+    };
+
+    private static readonly string[] _holosAlternatives =
+    {
+        "Ixochole (AoE heal, 30s CD)",
+        "Kerachole (AoE regen + mit, 45s CD)",
+        "Panhaima (AoE multi-hit shields, 120s CD)",
+    };
+
+    private static readonly string[] _haimaAlternatives =
+    {
+        "Taurochole (heal + 10% mit)",
+        "E.Diagnosis (GCD shield)",
+        "Panhaima (AoE version)",
+    };
+
+    private static readonly string[] _panhaimaAlternatives =
+    {
+        "Holos (heal + shield + mit)",
+        "Kerachole (regen + mit)",
+        "E.Prognosis (GCD party shield)",
+    };
+
+    private static readonly string[] _pepsisAlternatives =
+    {
+        "Let shields absorb damage naturally",
+        "Use other heals instead",
+        "Re-shield for future damage",
+    };
+
+    private static readonly string[] _pneumaAlternatives =
+    {
+        "Save for better timing",
+        "Use for pure DPS (skip if party healthy)",
+        "Ixochole + Dosis (separate heal and damage)",
+    };
+
     public bool TryExecute(IAsclepiusContext context, bool isMoving)
     {
         // Clear frame-scoped coordination state to allow new reservations
@@ -201,12 +272,7 @@ public sealed class HealingModule : IAsclepiusModule
                     "Restores 7% MP (700 MP)",
                 };
 
-                var alternatives = new[]
-                {
-                    "Taurochole (if tank, adds 10% mit)",
-                    "Diagnosis (GCD, save Addersgall)",
-                    "Kardia healing (passive)",
-                };
+                var alternatives = _druocholeAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -314,12 +380,7 @@ public sealed class HealingModule : IAsclepiusModule
                     "Shares 45s CD with Kerachole",
                 };
 
-                var alternatives = new[]
-                {
-                    "Druochole (no mit, no shared CD)",
-                    "Kerachole (AoE version)",
-                    "Haima (multi-hit shield)",
-                };
+                var alternatives = _taurocholeAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -415,12 +476,7 @@ public sealed class HealingModule : IAsclepiusModule
                     "30s cooldown, instant",
                 };
 
-                var alternatives = new[]
-                {
-                    "Kerachole (AoE regen + mit)",
-                    "Physis II (AoE HoT + healing buff)",
-                    "Prognosis (GCD AoE heal)",
-                };
+                var alternatives = _ixocholeAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -558,12 +614,7 @@ public sealed class HealingModule : IAsclepiusModule
                     "100 potency regen + 10% mit (15s)",
                 };
 
-                var alternatives = new[]
-                {
-                    "Ixochole (instant AoE heal)",
-                    "Taurochole (single-target version)",
-                    "Physis II (AoE HoT only)",
-                };
+                var alternatives = _keracholeAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -644,12 +695,7 @@ public sealed class HealingModule : IAsclepiusModule
                     "60s cooldown, free (no cost)",
                 };
 
-                var alternatives = new[]
-                {
-                    "Kerachole (regen + mit, costs Addersgall)",
-                    "Ixochole (instant heal, costs Addersgall)",
-                    "Holos (emergency heal + shield + mit)",
-                };
+                var alternatives = _physisIIAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -752,12 +798,7 @@ public sealed class HealingModule : IAsclepiusModule
                     "120s cooldown - big emergency button",
                 };
 
-                var alternatives = new[]
-                {
-                    "Ixochole (AoE heal, 30s CD)",
-                    "Kerachole (AoE regen + mit, 45s CD)",
-                    "Panhaima (AoE multi-hit shields, 120s CD)",
-                };
+                var alternatives = _holosAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -868,12 +909,7 @@ public sealed class HealingModule : IAsclepiusModule
                     "120s cooldown",
                 };
 
-                var alternatives = new[]
-                {
-                    "Taurochole (heal + 10% mit)",
-                    "E.Diagnosis (GCD shield)",
-                    "Panhaima (AoE version)",
-                };
+                var alternatives = _haimaAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -980,12 +1016,7 @@ public sealed class HealingModule : IAsclepiusModule
                     "120s cooldown",
                 };
 
-                var alternatives = new[]
-                {
-                    "Holos (heal + shield + mit)",
-                    "Kerachole (regen + mit)",
-                    "E.Prognosis (GCD party shield)",
-                };
+                var alternatives = _panhaimaAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -1072,12 +1103,7 @@ public sealed class HealingModule : IAsclepiusModule
                     "Consumes shields instantly",
                 };
 
-                var alternatives = new[]
-                {
-                    "Let shields absorb damage naturally",
-                    "Use other heals instead",
-                    "Re-shield for future damage",
-                };
+                var alternatives = _pepsisAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -1533,12 +1559,7 @@ public sealed class HealingModule : IAsclepiusModule
                     "120s cooldown",
                 };
 
-                var alternatives = new[]
-                {
-                    "Save for better timing",
-                    "Use for pure DPS (skip if party healthy)",
-                    "Ixochole + Dosis (separate heal and damage)",
-                };
+                var alternatives = _pneumaAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {

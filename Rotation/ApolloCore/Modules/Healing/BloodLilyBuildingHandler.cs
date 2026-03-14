@@ -21,6 +21,21 @@ namespace Olympus.Rotation.ApolloCore.Modules.Healing;
 /// </remarks>
 public sealed class BloodLilyBuildingHandler : IHealingHandler
 {
+    // Training explanation arrays
+    private static readonly string[] _solaceBuildAlternatives =
+    {
+        "Cure II (doesn't build Blood Lily)",
+        "Wait for lower HP target (more healing efficiency)",
+        "Save Lilies for emergencies",
+    };
+
+    private static readonly string[] _raptureBuildAlternatives =
+    {
+        "Afflatus Solace (single target)",
+        "Medica II (doesn't build Blood Lily)",
+        "Save Lilies for emergencies",
+    };
+
     // Blood Lily thresholds
     private const int BloodLilyBuildingThreshold = 2; // Activate when at 2 Blood Lilies
     private const int AfflatusSolaceMinLevel = 52;
@@ -144,12 +159,7 @@ public sealed class BloodLilyBuildingHandler : IHealingHandler
                     "Using Lily heal builds toward Afflatus Misery (1240p AoE damage)",
                 };
 
-                var alternatives = new[]
-                {
-                    "Cure II (doesn't build Blood Lily)",
-                    "Wait for lower HP target (more healing efficiency)",
-                    "Save Lilies for emergencies",
-                };
+                var alternatives = _solaceBuildAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -230,12 +240,7 @@ public sealed class BloodLilyBuildingHandler : IHealingHandler
                     "AoE Lily heal builds Blood Lily while healing multiple targets",
                 };
 
-                var alternatives = new[]
-                {
-                    "Afflatus Solace (single target)",
-                    "Medica II (doesn't build Blood Lily)",
-                    "Save Lilies for emergencies",
-                };
+                var alternatives = _raptureBuildAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {

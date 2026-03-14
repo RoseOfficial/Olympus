@@ -17,6 +17,14 @@ public sealed class BuffModule : BaseBuffModule<AstraeaContext>, IAstraeaModule
 {
     public override string Name => "Buff";
 
+    // Training explanation arrays
+    private static readonly string[] _lightspeedAlternatives =
+    {
+        "Save for upcoming movement mechanic",
+        "Save for emergency raise (instant Ascend)",
+        "Use Swiftcast for single instant spell",
+    };
+
     #region Base Class Overrides - Configuration
 
     protected override bool IsLucidDreamingEnabled(AstraeaContext context) =>
@@ -121,12 +129,7 @@ public sealed class BuffModule : BaseBuffModule<AstraeaContext>, IAstraeaModule
                     "Great for movement-heavy phases",
                 };
 
-                var alternatives = new[]
-                {
-                    "Save for upcoming movement mechanic",
-                    "Save for emergency raise (instant Ascend)",
-                    "Use Swiftcast for single instant spell",
-                };
+                var alternatives = _lightspeedAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {

@@ -18,6 +18,44 @@ public sealed class CardModule : IAstraeaModule
     public int Priority => 3; // Very high priority - cards should be played immediately
     public string Name => "Card";
 
+    // Training explanation arrays
+    private static readonly string[] _divinationFactors =
+    {
+        "6% damage buff for party",
+        "15s duration",
+        "120s cooldown",
+        "Used on cooldown in combat",
+        "Aligns with other raid buffs",
+    };
+
+    private static readonly string[] _divinationAlternatives =
+    {
+        "Hold for burst window alignment",
+        "Wait for more party members in range",
+        "Coordinate with other AST if present",
+    };
+
+    private static readonly string[] _playCardAlternatives =
+    {
+        "Play on different target",
+        "Hold for higher DPS player",
+        "Redraw for different card (if available)",
+    };
+
+    private static readonly string[] _drawAlternatives =
+    {
+        "Wait for current cards to be played",
+        "Save draw charges for burst windows",
+        "Let timer expire (not recommended)",
+    };
+
+    private static readonly string[] _minorArcanaAlternatives =
+    {
+        "Save for emergency (Lady)",
+        "Align with burst windows",
+        "Use Lord immediately for damage",
+    };
+
     public bool TryExecute(AstraeaContext context, bool isMoving)
     {
         var config = context.Configuration.Astrologian;
@@ -125,21 +163,8 @@ public sealed class CardModule : IAstraeaModule
             {
                 var shortReason = "Divination - 6% party damage buff!";
 
-                var factors = new[]
-                {
-                    "6% damage buff for party",
-                    "15s duration",
-                    "120s cooldown",
-                    "Used on cooldown in combat",
-                    "Aligns with other raid buffs",
-                };
-
-                var alternatives = new[]
-                {
-                    "Hold for burst window alignment",
-                    "Wait for more party members in range",
-                    "Coordinate with other AST if present",
-                };
+                var factors = _divinationFactors;
+                var alternatives = _divinationAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -325,12 +350,7 @@ public sealed class CardModule : IAstraeaModule
                     "6% damage buff for 15s",
                 };
 
-                var alternatives = new[]
-                {
-                    "Play on different target",
-                    "Hold for higher DPS player",
-                    "Redraw for different card (if available)",
-                };
+                var alternatives = _playCardAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -422,12 +442,7 @@ public sealed class CardModule : IAstraeaModule
             "Draw immediately to maximize card plays",
         };
 
-        var alternatives = new[]
-        {
-            "Wait for current cards to be played",
-            "Save draw charges for burst windows",
-            "Let timer expire (not recommended)",
-        };
+        var alternatives = _drawAlternatives;
 
         context.TrainingService!.RecordDecision(new ActionExplanation
         {
@@ -497,12 +512,7 @@ public sealed class CardModule : IAstraeaModule
                     "Lord: 250 potency damage, Lady: 400 potency AoE heal",
                 };
 
-                var alternatives = new[]
-                {
-                    "Save for emergency (Lady)",
-                    "Align with burst windows",
-                    "Use Lord immediately for damage",
-                };
+                var alternatives = _minorArcanaAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {

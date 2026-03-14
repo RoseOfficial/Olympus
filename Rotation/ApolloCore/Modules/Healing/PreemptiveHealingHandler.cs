@@ -20,6 +20,14 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
     public HealingPriority Priority => HealingPriority.PreemptiveHeal;
     public string Name => "PreemptiveHeal";
 
+    // Training explanation arrays
+    private static readonly string[] _preemptiveTetragrammatonAlternatives =
+    {
+        "Wait for HP to drop (risky)",
+        "Use GCD heal (slower response)",
+        "Save for bigger emergency",
+    };
+
     public bool TryExecute(ApolloContext context, bool isMoving)
     {
         var config = context.Configuration;
@@ -206,12 +214,7 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
                             $"Detection source: {source}",
                         };
 
-                        var alternatives = new[]
-                        {
-                            "Wait for HP to drop (risky)",
-                            "Use GCD heal (slower response)",
-                            "Save for bigger emergency",
-                        };
+                        var alternatives = _preemptiveTetragrammatonAlternatives;
 
                         context.TrainingService.RecordDecision(new ActionExplanation
                         {

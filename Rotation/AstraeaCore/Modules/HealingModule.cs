@@ -19,6 +19,105 @@ public sealed class HealingModule : IAstraeaModule
     public int Priority => 10; // High priority for healing
     public string Name => "Healing";
 
+    // Training explanation arrays
+    private static readonly string[] _essentialDignityAlternatives =
+    {
+        "Celestial Intersection (heal + shield)",
+        "Benefic II (GCD heal)",
+        "Save charge for emergency",
+    };
+
+    private static readonly string[] _celestialIntersectionAlternatives =
+    {
+        "Essential Dignity (emergency heal)",
+        "Aspected Benefic (GCD + regen)",
+        "Save charge for tank damage",
+    };
+
+    private static readonly string[] _celestialOppositionAlternatives =
+    {
+        "Earthly Star (higher potency if mature)",
+        "Helios Conjunction (GCD AoE)",
+        "Save for predictable raidwide",
+    };
+
+    private static readonly string[] _exaltationAlternatives =
+    {
+        "Celestial Intersection (immediate shield)",
+        "Essential Dignity (emergency heal)",
+        "Save for predictable tankbuster",
+    };
+
+    private static readonly string[] _horoscopeDetonationAlternatives =
+    {
+        "Let it expire naturally (wastes it)",
+        "Celestial Opposition (if available)",
+        "Wait for more injured targets",
+    };
+
+    private static readonly string[] _microcosmosDetonationAlternatives =
+    {
+        "Wait for timer to expire (auto-detonates)",
+        "Let more damage accumulate",
+        "Use other heals first",
+    };
+
+    private static readonly string[] _synastryAlternatives =
+    {
+        "Direct heal the target instead",
+        "Save for tankbuster sequences",
+        "Use on different target",
+    };
+
+    private static readonly string[] _earthlyStarPlacementAlternatives =
+    {
+        "Wait for better timing",
+        "Place on self instead of tank",
+        "Save for emergency healing",
+    };
+
+    private static readonly string[] _ladyOfCrownsAlternatives =
+    {
+        "Lord of Crowns (400 potency damage)",
+        "Celestial Opposition (if available)",
+        "Save Lady for bigger emergency",
+    };
+
+    private static readonly string[] _horoscopePreparationAlternatives =
+    {
+        "Wait for damage before preparing",
+        "Save for known raidwide timing",
+        "Use other heals directly",
+    };
+
+    private static readonly string[] _macrocosmosAlternatives =
+    {
+        "Save for predictable big raidwide",
+        "Use other healing first",
+        "Wait for party to stack",
+    };
+
+    private static readonly string[] _aoeHealAlternatives =
+    {
+        "Celestial Opposition (oGCD, free)",
+        "Earthly Star detonation (if placed)",
+        "Horoscope detonation (if active)",
+    };
+
+    private static readonly string[] _aspectedBeneficAlternatives =
+    {
+        "Essential Dignity (oGCD, emergency)",
+        "Celestial Intersection (oGCD)",
+        "Benefic II (higher potency, has cast time)",
+    };
+
+    private static readonly string[] _beneficAlternatives =
+    {
+        "Essential Dignity (oGCD emergency)",
+        "Aspected Benefic (instant, adds regen)",
+        "Celestial Intersection (oGCD)",
+    };
+
     public bool TryExecute(AstraeaContext context, bool isMoving)
     {
         // Clear frame-scoped coordination state to allow new reservations
@@ -166,12 +265,7 @@ public sealed class HealingModule : IAstraeaModule
                     "oGCD - can weave without clipping",
                 };
 
-                var alternatives = new[]
-                {
-                    "Celestial Intersection (heal + shield)",
-                    "Benefic II (GCD heal)",
-                    "Save charge for emergency",
-                };
+                var alternatives = _essentialDignityAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -250,12 +344,7 @@ public sealed class HealingModule : IAstraeaModule
                     "oGCD - weave without GCD clip",
                 };
 
-                var alternatives = new[]
-                {
-                    "Essential Dignity (emergency heal)",
-                    "Aspected Benefic (GCD + regen)",
-                    "Save charge for tank damage",
-                };
+                var alternatives = _celestialIntersectionAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -328,12 +417,7 @@ public sealed class HealingModule : IAstraeaModule
                     "oGCD - free healing",
                 };
 
-                var alternatives = new[]
-                {
-                    "Earthly Star (higher potency if mature)",
-                    "Helios Conjunction (GCD AoE)",
-                    "Save for predictable raidwide",
-                };
+                var alternatives = _celestialOppositionAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -413,12 +497,7 @@ public sealed class HealingModule : IAstraeaModule
                     "60s cooldown",
                 };
 
-                var alternatives = new[]
-                {
-                    "Celestial Intersection (immediate shield)",
-                    "Essential Dignity (emergency heal)",
-                    "Save for predictable tankbuster",
-                };
+                var alternatives = _exaltationAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -489,12 +568,7 @@ public sealed class HealingModule : IAstraeaModule
                     "oGCD - free AoE heal",
                 };
 
-                var alternatives = new[]
-                {
-                    "Let it expire naturally (wastes it)",
-                    "Celestial Opposition (if available)",
-                    "Wait for more injured targets",
-                };
+                var alternatives = _horoscopeDetonationAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -564,12 +638,7 @@ public sealed class HealingModule : IAstraeaModule
                     "oGCD detonation",
                 };
 
-                var alternatives = new[]
-                {
-                    "Wait for timer to expire (auto-detonates)",
-                    "Let more damage accumulate",
-                    "Use other heals first",
-                };
+                var alternatives = _microcosmosDetonationAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -770,12 +839,7 @@ public sealed class HealingModule : IAstraeaModule
                     "20s duration, 120s cooldown",
                 };
 
-                var alternatives = new[]
-                {
-                    "Direct heal the target instead",
-                    "Save for tankbuster sequences",
-                    "Use on different target",
-                };
+                var alternatives = _synastryAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -914,12 +978,7 @@ public sealed class HealingModule : IAstraeaModule
                     "Immature: 360 potency heal + 360 damage",
                 };
 
-                var alternatives = new[]
-                {
-                    "Wait for better timing",
-                    "Place on self instead of tank",
-                    "Save for emergency healing",
-                };
+                var alternatives = _earthlyStarPlacementAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -990,12 +1049,7 @@ public sealed class HealingModule : IAstraeaModule
                     "Uses Minor Arcana card",
                 };
 
-                var alternatives = new[]
-                {
-                    "Lord of Crowns (400 potency damage)",
-                    "Celestial Opposition (if available)",
-                    "Save Lady for bigger emergency",
-                };
+                var alternatives = _ladyOfCrownsAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -1076,12 +1130,7 @@ public sealed class HealingModule : IAstraeaModule
                     "30s buff duration",
                 };
 
-                var alternatives = new[]
-                {
-                    "Wait for damage before preparing",
-                    "Save for known raidwide timing",
-                    "Use other heals directly",
-                };
+                var alternatives = _horoscopePreparationAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -1172,12 +1221,7 @@ public sealed class HealingModule : IAstraeaModule
                     "Detonate with Microcosmos for big heal",
                 };
 
-                var alternatives = new[]
-                {
-                    "Save for predictable big raidwide",
-                    "Use other healing first",
-                    "Wait for party to stack",
-                };
+                var alternatives = _macrocosmosAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -1266,12 +1310,7 @@ public sealed class HealingModule : IAstraeaModule
                     "GCD heal - uses a GCD",
                 };
 
-                var alternatives = new[]
-                {
-                    "Celestial Opposition (oGCD, free)",
-                    "Earthly Star detonation (if placed)",
-                    "Horoscope detonation (if active)",
-                };
+                var alternatives = _aoeHealAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -1352,12 +1391,7 @@ public sealed class HealingModule : IAstraeaModule
                     "Target didn't have regen already",
                 };
 
-                var alternatives = new[]
-                {
-                    "Essential Dignity (oGCD, emergency)",
-                    "Celestial Intersection (oGCD)",
-                    "Benefic II (higher potency, has cast time)",
-                };
+                var alternatives = _aspectedBeneficAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -1445,12 +1479,7 @@ public sealed class HealingModule : IAstraeaModule
                     "Use oGCDs first when possible",
                 };
 
-                var alternatives = new[]
-                {
-                    "Essential Dignity (oGCD emergency)",
-                    "Aspected Benefic (instant, adds regen)",
-                    "Celestial Intersection (oGCD)",
-                };
+                var alternatives = _beneficAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {

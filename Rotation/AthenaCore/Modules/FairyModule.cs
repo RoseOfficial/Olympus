@@ -17,6 +17,42 @@ public sealed class FairyModule : IAthenaModule
     public int Priority => 3; // Very high priority - fairy is essential
     public string Name => "Fairy";
 
+    // Training explanation arrays
+    private static readonly string[] _summonSeraphAlternatives =
+    {
+        "Save for heavy damage phase",
+        "Use Eos abilities instead",
+        "Hold for emergency healing",
+    };
+
+    private static readonly string[] _feyUnionAlternatives =
+    {
+        "Excogitation (proactive heal)",
+        "Lustrate (instant heal)",
+        "Let Embrace handle it",
+    };
+
+    private static readonly string[] _feyIlluminationAlternatives =
+    {
+        "Direct heals (Indom, Lustrate)",
+        "Whispering Dawn (HoT)",
+        "Save for heavy healing phase",
+    };
+
+    private static readonly string[] _feyBlessingAlternatives =
+    {
+        "Whispering Dawn (HoT instead)",
+        "Indomitability (Aetherflow cost)",
+        "Save for emergency burst heal",
+    };
+
+    private static readonly string[] _whisperingDawnAlternatives =
+    {
+        "Fey Blessing (instant AoE heal)",
+        "Indomitability (Aetherflow cost)",
+        "Save for after next raidwide",
+    };
+
     public bool TryExecute(AthenaContext context, bool isMoving)
     {
         var config = context.Configuration.Scholar;
@@ -150,12 +186,7 @@ public sealed class FairyModule : IAthenaModule
                     "Seraph provides stronger healing",
                 };
 
-                var alternatives = new[]
-                {
-                    "Save for heavy damage phase",
-                    "Use Eos abilities instead",
-                    "Hold for emergency healing",
-                };
+                var alternatives = _summonSeraphAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -299,12 +330,7 @@ public sealed class FairyModule : IAthenaModule
                     "Consumes 10 gauge per tick",
                 };
 
-                var alternatives = new[]
-                {
-                    "Excogitation (proactive heal)",
-                    "Lustrate (instant heal)",
-                    "Let Embrace handle it",
-                };
+                var alternatives = _feyUnionAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -404,12 +430,7 @@ public sealed class FairyModule : IAthenaModule
                     "Free fairy ability, no resource cost",
                 };
 
-                var alternatives = new[]
-                {
-                    "Whispering Dawn (HoT instead)",
-                    "Indomitability (Aetherflow cost)",
-                    "Save for emergency burst heal",
-                };
+                var alternatives = _feyBlessingAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -511,12 +532,7 @@ public sealed class FairyModule : IAthenaModule
                     "Free fairy ability, no resource cost",
                 };
 
-                var alternatives = new[]
-                {
-                    "Fey Blessing (instant AoE heal)",
-                    "Indomitability (Aetherflow cost)",
-                    "Save for after next raidwide",
-                };
+                var alternatives = _whisperingDawnAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -583,12 +599,7 @@ public sealed class FairyModule : IAthenaModule
                     "20s duration",
                 };
 
-                var alternatives = new[]
-                {
-                    "Direct heals (Indom, Lustrate)",
-                    "Whispering Dawn (HoT)",
-                    "Save for heavy healing phase",
-                };
+                var alternatives = _feyIlluminationAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {

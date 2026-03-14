@@ -15,6 +15,21 @@ namespace Olympus.Rotation.AthenaCore.Modules;
 /// </summary>
 public sealed class DefensiveModule : BaseDefensiveModule<AthenaContext>, IAthenaModule
 {
+    // Training explanation arrays
+    private static readonly string[] _expedientAlternatives =
+    {
+        "Sacred Soil (uses Aetherflow)",
+        "Fey Illumination (5% magic mit)",
+        "Save for movement-heavy phase",
+    };
+
+    private static readonly string[] _deploymentTacticsAlternatives =
+    {
+        "Succor (direct party shield)",
+        "Wait for better crit shield",
+        "Sacred Soil (mitigation instead)",
+    };
+
     #region Base Class Overrides - Debug State
 
     protected override void SetDefensiveState(AthenaContext context, string state) =>
@@ -124,12 +139,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<AthenaContext>, IAthen
                     "Sprint effect for movement",
                 };
 
-                var alternatives = new[]
-                {
-                    "Sacred Soil (uses Aetherflow)",
-                    "Fey Illumination (5% magic mit)",
-                    "Save for movement-heavy phase",
-                };
+                var alternatives = _expedientAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -210,12 +220,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<AthenaContext>, IAthen
                     "Critical shields spread crit value!",
                 };
 
-                var alternatives = new[]
-                {
-                    "Succor (direct party shield)",
-                    "Wait for better crit shield",
-                    "Sacred Soil (mitigation instead)",
-                };
+                var alternatives = _deploymentTacticsAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {

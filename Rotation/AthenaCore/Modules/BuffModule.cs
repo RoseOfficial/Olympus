@@ -17,6 +17,14 @@ public sealed class BuffModule : BaseBuffModule<AthenaContext>, IAthenaModule
 {
     public override string Name => "Buff"; // SCH uses "Buff" instead of "Buffs"
 
+    // Training explanation arrays
+    private static readonly string[] _dissipationAlternatives =
+    {
+        "Wait for Aetherflow to come off cooldown",
+        "Use Aetherflow first (if available)",
+        "Don't Dissipate if fairy needed soon",
+    };
+
     #region Base Class Overrides - Configuration
 
     protected override bool IsLucidDreamingEnabled(AthenaContext context) =>
@@ -118,12 +126,7 @@ public sealed class BuffModule : BaseBuffModule<AthenaContext>, IAthenaModule
                     "Grants 3 Aetherflow stacks + 20% healing buff",
                 };
 
-                var alternatives = new[]
-                {
-                    "Wait for Aetherflow to come off cooldown",
-                    "Use Aetherflow first (if available)",
-                    "Don't Dissipate if fairy needed soon",
-                };
+                var alternatives = _dissipationAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {

@@ -17,6 +17,29 @@ public sealed class BuffModule : IApolloModule
 {
     private const int RaiseMpCost = 2400;
 
+    // Training explanation arrays
+    private static readonly string[] _thinAirAlternatives =
+    {
+        "Save for Raise (2400 MP saved)",
+        "Save for AoE heal (1000 MP saved)",
+        "Use for single-target heal",
+    };
+
+    private static readonly string[] _presenceOfMindFactors =
+    {
+        "20% spell speed increase for 15 seconds",
+        "Affects both damage spells and heals",
+        "More DPS and faster emergency response",
+        "120 second cooldown",
+    };
+
+    private static readonly string[] _presenceOfMindAlternatives =
+    {
+        "Hold for burst window",
+        "Stack with Assize for more casts",
+        "Save for healing emergency",
+    };
+
     public int Priority => 30; // After healing/defensive, before damage
     public string Name => "Buffs";
 
@@ -217,12 +240,7 @@ public sealed class BuffModule : IApolloModule
                     "Makes next spell cost 0 MP",
                 };
 
-                var alternatives = new[]
-                {
-                    "Save for Raise (2400 MP saved)",
-                    "Save for AoE heal (1000 MP saved)",
-                    "Use for single-target heal",
-                };
+                var alternatives = _thinAirAlternatives;
 
                 var tip = isAtMaxCharges
                     ? "Don't let Thin Air charges cap - use them for any expensive spell!"
@@ -304,20 +322,8 @@ public sealed class BuffModule : IApolloModule
             {
                 var shortReason = "Presence of Mind - 20% spell speed buff";
 
-                var factors = new[]
-                {
-                    "20% spell speed increase for 15 seconds",
-                    "Affects both damage spells and heals",
-                    "More DPS and faster emergency response",
-                    "120 second cooldown",
-                };
-
-                var alternatives = new[]
-                {
-                    "Hold for burst window",
-                    "Stack with Assize for more casts",
-                    "Save for healing emergency",
-                };
+                var factors = _presenceOfMindFactors;
+                var alternatives = _presenceOfMindAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {

@@ -16,6 +16,14 @@ public sealed class AssizeHealingHandler : IHealingHandler
     public HealingPriority Priority => HealingPriority.AssizeHealing;
     public string Name => "AssizeHealing";
 
+    // Training explanation arrays
+    private static readonly string[] _assizeHealingAlternatives =
+    {
+        "Hold for DPS burst window",
+        "Use Medica II for HoT instead",
+        "Use Afflatus Rapture (builds Blood Lily)",
+    };
+
     public bool TryExecute(ApolloContext context, bool isMoving)
     {
         var config = context.Configuration;
@@ -69,12 +77,7 @@ public sealed class AssizeHealingHandler : IHealingHandler
                     "Also deals damage and restores MP",
                 };
 
-                var alternatives = new[]
-                {
-                    "Hold for DPS burst window",
-                    "Use Medica II for HoT instead",
-                    "Use Afflatus Rapture (builds Blood Lily)",
-                };
+                var alternatives = _assizeHealingAlternatives;
 
                 var tip = "Assize heals, damages, and restores MP - try to use it when it provides value in all three areas!";
 

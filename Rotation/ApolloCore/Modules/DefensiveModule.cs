@@ -19,6 +19,14 @@ public sealed class DefensiveModule : IApolloModule
     public int Priority => 20; // Medium-high priority for defensive cooldowns
     public string Name => "Defensive";
 
+    // Training explanation arrays
+    private static readonly string[] _liturgyOfTheBellAlternatives =
+    {
+        "Temperance (mitigation + healing boost)",
+        "AoE heals (direct healing)",
+        "Save for bigger damage phase",
+    };
+
     public bool TryExecute(ApolloContext context, bool isMoving)
     {
         if (!context.CanExecuteOgcd || !context.InCombat)
@@ -659,12 +667,7 @@ public sealed class DefensiveModule : IApolloModule
                     "180 second cooldown",
                 };
 
-                var alternatives = new[]
-                {
-                    "Temperance (mitigation + healing boost)",
-                    "AoE heals (direct healing)",
-                    "Save for bigger damage phase",
-                };
+                var alternatives = _liturgyOfTheBellAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {

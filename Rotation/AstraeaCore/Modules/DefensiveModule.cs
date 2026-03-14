@@ -15,6 +15,28 @@ namespace Olympus.Rotation.AstraeaCore.Modules;
 /// </summary>
 public sealed class DefensiveModule : BaseDefensiveModule<AstraeaContext>, IAstraeaModule
 {
+    // Training explanation arrays
+    private static readonly string[] _neutralSectAlternatives =
+    {
+        "Save for predictable heavy damage",
+        "Coordinate with co-healer",
+        "Use other defensives first",
+    };
+
+    private static readonly string[] _sunSignAlternatives =
+    {
+        "Wait for more party members",
+        "Save for imminent damage",
+        "Let Neutral Sect expire (wastes Sun Sign)",
+    };
+
+    private static readonly string[] _collectiveUnconsciousAlternatives =
+    {
+        "Celestial Opposition (doesn't require channeling)",
+        "Earthly Star (if placed)",
+        "Neutral Sect + Helios (shields)",
+    };
+
     #region Base Class Overrides - Debug State
 
     protected override void SetDefensiveState(AstraeaContext context, string state) =>
@@ -129,12 +151,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<AstraeaContext>, IAstr
                     "Aspected Benefic/Helios gain shields",
                 };
 
-                var alternatives = new[]
-                {
-                    "Save for predictable heavy damage",
-                    "Coordinate with co-healer",
-                    "Use other defensives first",
-                };
+                var alternatives = _neutralSectAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -227,12 +244,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<AstraeaContext>, IAstr
                     "15s duration",
                 };
 
-                var alternatives = new[]
-                {
-                    "Wait for more party members",
-                    "Save for imminent damage",
-                    "Let Neutral Sect expire (wastes Sun Sign)",
-                };
+                var alternatives = _sunSignAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -331,12 +343,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<AstraeaContext>, IAstr
                     "100 potency regen/tick",
                 };
 
-                var alternatives = new[]
-                {
-                    "Celestial Opposition (doesn't require channeling)",
-                    "Earthly Star (if placed)",
-                    "Neutral Sect + Helios (shields)",
-                };
+                var alternatives = _collectiveUnconsciousAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {

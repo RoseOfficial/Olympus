@@ -16,6 +16,14 @@ public sealed class RegenHandler : IHealingHandler
     public HealingPriority Priority => HealingPriority.Regen;
     public string Name => "Regen";
 
+    // Training explanation arrays
+    private static readonly string[] _regenAlternatives =
+    {
+        "Wait for HP to drop further",
+        "Use direct heal instead (if urgent)",
+        "Let co-healer handle it",
+    };
+
     public bool TryExecute(ApolloContext context, bool isMoving)
     {
         var config = context.Configuration;
@@ -74,12 +82,7 @@ public sealed class RegenHandler : IHealingHandler
                     $"Regen potency: 250 per tick (every 3s)",
                 };
 
-                var alternatives = new[]
-                {
-                    "Wait for HP to drop further",
-                    "Use direct heal instead (if urgent)",
-                    "Let co-healer handle it",
-                };
+                var alternatives = _regenAlternatives;
 
                 var tip = isTank
                     ? "Keep Regen rolling on the tank - it's efficient healing that lets you cast damage spells!"

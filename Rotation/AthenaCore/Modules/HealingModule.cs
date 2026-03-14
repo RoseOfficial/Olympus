@@ -19,6 +19,63 @@ public sealed class HealingModule : IAthenaModule
     public int Priority => 10; // High priority for healing
     public string Name => "Healing";
 
+    // Training explanation arrays
+    private static readonly string[] _recitationAlternatives =
+    {
+        "Use Recitation with different follow-up",
+        "Save for emergency (guaranteed crit heal)",
+        "Hold for raidwide (Recitation + Indom)",
+    };
+
+    private static readonly string[] _excogitationAlternatives =
+    {
+        "Lustrate (immediate heal, same cost)",
+        "Save Aetherflow for Indomitability (AoE)",
+        "GCD heal (Adloquium for shield)",
+    };
+
+    private static readonly string[] _lustrateAlternatives =
+    {
+        "Excogitation (proactive, auto-triggers)",
+        "Adloquium (GCD, adds shield)",
+        "Wait for fairy abilities",
+    };
+
+    private static readonly string[] _indomitabilityAlternatives =
+    {
+        "Succor (GCD, adds shields)",
+        "Whispering Dawn (fairy HoT)",
+        "Fey Blessing (fairy burst)",
+    };
+
+    private static readonly string[] _sacredSoilAlternatives =
+    {
+        "Succor (GCD shield, no mitigation)",
+        "Expedient (sprint + mitigation)",
+        "Save Aetherflow for Indomitability",
+    };
+
+    private static readonly string[] _protractionAlternatives =
+    {
+        "Lustrate (direct heal)",
+        "Excogitation (proactive)",
+        "Adloquium (shield + heal)",
+    };
+
+    private static readonly string[] _emergencyTacticsAlternatives =
+    {
+        "Lustrate (uses Aetherflow)",
+        "Wait for shield to break",
+        "Use Physick (no shield component)",
+    };
+
+    private static readonly string[] _succorAlternatives =
+    {
+        "Indomitability (oGCD, no shield)",
+        "Whispering Dawn (fairy HoT)",
+        "Sacred Soil (mitigation + HoT)",
+    };
+
     public bool TryExecute(AthenaContext context, bool isMoving)
     {
         // Clear frame-scoped coordination state to allow new reservations
@@ -143,12 +200,7 @@ public sealed class HealingModule : IAthenaModule
                     $"Aetherflow stacks: {context.AetherflowService.CurrentStacks}/3",
                 };
 
-                var alternatives = new[]
-                {
-                    "Use Recitation with different follow-up",
-                    "Save for emergency (guaranteed crit heal)",
-                    "Hold for raidwide (Recitation + Indom)",
-                };
+                var alternatives = _recitationAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -247,12 +299,7 @@ public sealed class HealingModule : IAthenaModule
                     "Auto-triggers at 50% HP or lower",
                 };
 
-                var alternatives = new[]
-                {
-                    "Lustrate (immediate heal, same cost)",
-                    "Save Aetherflow for Indomitability (AoE)",
-                    "GCD heal (Adloquium for shield)",
-                };
+                var alternatives = _excogitationAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -337,12 +384,7 @@ public sealed class HealingModule : IAthenaModule
                     "oGCD - can weave without clipping",
                 };
 
-                var alternatives = new[]
-                {
-                    "Excogitation (proactive, auto-triggers)",
-                    "Adloquium (GCD, adds shield)",
-                    "Wait for fairy abilities",
-                };
+                var alternatives = _lustrateAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -426,12 +468,7 @@ public sealed class HealingModule : IAthenaModule
                     "oGCD - can weave without clipping",
                 };
 
-                var alternatives = new[]
-                {
-                    "Succor (GCD, adds shields)",
-                    "Whispering Dawn (fairy HoT)",
-                    "Fey Blessing (fairy burst)",
-                };
+                var alternatives = _indomitabilityAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -563,12 +600,7 @@ public sealed class HealingModule : IAthenaModule
                     "10% damage reduction + HoT (at 78+)",
                 };
 
-                var alternatives = new[]
-                {
-                    "Succor (GCD shield, no mitigation)",
-                    "Expedient (sprint + mitigation)",
-                    "Save Aetherflow for Indomitability",
-                };
+                var alternatives = _sacredSoilAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -646,12 +678,7 @@ public sealed class HealingModule : IAthenaModule
                     "10s duration, enhances healing received",
                 };
 
-                var alternatives = new[]
-                {
-                    "Lustrate (direct heal)",
-                    "Excogitation (proactive)",
-                    "Adloquium (shield + heal)",
-                };
+                var alternatives = _protractionAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -727,12 +754,7 @@ public sealed class HealingModule : IAthenaModule
                         "Prevents shield overwrite waste",
                     };
 
-                    var alternatives = new[]
-                    {
-                        "Lustrate (uses Aetherflow)",
-                        "Wait for shield to break",
-                        "Use Physick (no shield component)",
-                    };
+                    var alternatives = _emergencyTacticsAlternatives;
 
                     context.TrainingService.RecordDecision(new ActionExplanation
                     {
@@ -826,12 +848,7 @@ public sealed class HealingModule : IAthenaModule
                     "Provides heal + Galvanize shield",
                 };
 
-                var alternatives = new[]
-                {
-                    "Indomitability (oGCD, no shield)",
-                    "Whispering Dawn (fairy HoT)",
-                    "Sacred Soil (mitigation + HoT)",
-                };
+                var alternatives = _succorAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {

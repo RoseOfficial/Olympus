@@ -20,6 +20,19 @@ public sealed class LilyCapPreventionHandler : IHealingHandler
     private const int AfflatusSolaceMinLevel = 52;
     private const int AfflatusRaptureMinLevel = 76;
 
+    // Training explanation arrays
+    private static readonly string[] _solaceCapAlternatives =
+    {
+        "Afflatus Rapture (if multiple injured)",
+        "Nothing (but wastes Lily regen)",
+    };
+
+    private static readonly string[] _raptureCapAlternatives =
+    {
+        "Afflatus Solace (if only one injured)",
+        "Nothing (but wastes Lily regen)",
+    };
+
     public HealingPriority Priority => HealingPriority.LilyCapPrevention;
     public string Name => "LilyCapPrevention";
 
@@ -110,11 +123,7 @@ public sealed class LilyCapPreventionHandler : IHealingHandler
                     "Capped Lilies = wasted regeneration",
                 };
 
-                var alternatives = new[]
-                {
-                    "Afflatus Rapture (if multiple injured)",
-                    "Nothing (but wastes Lily regen)",
-                };
+                var alternatives = _solaceCapAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
@@ -193,11 +202,7 @@ public sealed class LilyCapPreventionHandler : IHealingHandler
                     "AoE more efficient with multiple injured",
                 };
 
-                var alternatives = new[]
-                {
-                    "Afflatus Solace (if only one injured)",
-                    "Nothing (but wastes Lily regen)",
-                };
+                var alternatives = _raptureCapAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {

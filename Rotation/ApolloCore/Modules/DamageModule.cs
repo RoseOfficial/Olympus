@@ -16,6 +16,22 @@ namespace Olympus.Rotation.ApolloCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDamageModule<ApolloContext>, IApolloModule
 {
+    // Training explanation arrays
+    private static readonly string[] _afflatusMiseryFactors =
+    {
+        "Blood Lilies: 3/3 (Misery ready!)",
+        "1240 potency AoE damage",
+        "Instant cast",
+        "Built from 3 Lily heals",
+        "One of WHM's strongest damage skills",
+    };
+
+    private static readonly string[] _afflatusMiseryAlternatives =
+    {
+        "Nothing - always use Misery when ready",
+        "Save for add spawn (if imminent)",
+    };
+
     // Action enable lookup maps
     private static readonly Dictionary<uint, Func<Configuration, bool>> DamageSpellEnabledMap = new()
     {
@@ -219,20 +235,8 @@ public sealed class DamageModule : BaseDamageModule<ApolloContext>, IApolloModul
                 var targetName = target.Name?.TextValue ?? "Unknown";
                 var shortReason = $"Afflatus Misery on {targetName} - 1240p AoE!";
 
-                var factors = new[]
-                {
-                    "Blood Lilies: 3/3 (Misery ready!)",
-                    "1240 potency AoE damage",
-                    "Instant cast",
-                    "Built from 3 Lily heals",
-                    "One of WHM's strongest damage skills",
-                };
-
-                var alternatives = new[]
-                {
-                    "Nothing - always use Misery when ready",
-                    "Save for add spawn (if imminent)",
-                };
+                var factors = _afflatusMiseryFactors;
+                var alternatives = _afflatusMiseryAlternatives;
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
