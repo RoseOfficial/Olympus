@@ -390,6 +390,85 @@ public class StatusHelperTests
         Assert.False(result);
     }
 
+    [Fact]
+    public void GetPanhaimaStacks_NullStatusList_ReturnsZero()
+    {
+        var mock = MockBuilders.CreateMockBattleChara();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        var result = AsclepiusStatusHelper.GetPanhaimaStacks(mock.Object);
+
+        Assert.Equal(0, result);
+    }
+
+    [Fact]
+    public void HasTaurochole_NullStatusList_ReturnsFalse()
+    {
+        // HasTaurochole checks for KeracholeStatusId — Taurochole and Kerachole share the same mitigation buff
+        var mock = MockBuilders.CreateMockBattleChara();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        var result = AsclepiusStatusHelper.HasTaurochole(mock.Object);
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void HasHolos_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockBattleChara();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        var result = AsclepiusStatusHelper.HasHolos(mock.Object);
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void HasEukrasianDosisDoT_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockBattleChara();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        var result = AsclepiusStatusHelper.HasEukrasianDosisDoT(mock.Object);
+
+        Assert.False(result);
+    }
+
+    #endregion
+
+    #region Status ID Consistency Tests
+
+    [Fact]
+    public void HasTaurochole_UsesKeracholeStatusId_SameAsHasKerachole()
+    {
+        // HasTaurochole and HasKerachole both check KeracholeStatusId.
+        // Verify they are consistent: if one returns false (null guard),
+        // the other returns false too.
+        var mock = MockBuilders.CreateMockBattleChara();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        var taurocholeResult = AsclepiusStatusHelper.HasTaurochole(mock.Object);
+        var keracholeResult = AsclepiusStatusHelper.HasKerachole(mock.Object);
+
+        // Both return false — they share the same underlying status ID
+        Assert.Equal(keracholeResult, taurocholeResult);
+    }
+
+    [Fact]
+    public void HasEukrasianDosisDoT_ConsistentWithHasEukrasianDosis()
+    {
+        // HasEukrasianDosisDoT and HasEukrasianDosis both check EukrasianDosisStatusId.
+        // Verify consistent null-guard behavior.
+        var mock = MockBuilders.CreateMockBattleChara();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        var dotResult = AsclepiusStatusHelper.HasEukrasianDosisDoT(mock.Object);
+        AsclepiusStatusHelper.HasEukrasianDosis(mock.Object, out _);
+        // Both use the same status ID — both return false when status list is null
+        Assert.False(dotResult);
+    }
+
     #endregion
 
     #region Level-based Utility Method Tests

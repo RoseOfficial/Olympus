@@ -158,6 +158,105 @@ public static class AsclepiusTestContext
     }
 
     /// <summary>
+    /// Creates an AsclepiusContext with a real IPartyHelper instance (not a Mock wrapper).
+    /// Use this overload when the test needs to exercise real party counting logic.
+    /// All other dependencies are still mocked.
+    /// </summary>
+    public static IAsclepiusContext CreateWithRealPartyHelper(
+        IPartyHelper realPartyHelper,
+        Configuration? config = null,
+        Mock<IActionService>? actionService = null,
+        Mock<IAddersgallTrackingService>? addersgallService = null,
+        byte level = 100,
+        bool canExecuteGcd = true,
+        bool canExecuteOgcd = false,
+        int addersgallStacks = 0)
+    {
+        config ??= CreateDefaultSageConfiguration();
+
+        var player = MockBuilders.CreateMockPlayerCharacter(
+            level: level,
+            currentHp: 50000,
+            maxHp: 50000,
+            currentMp: 10000);
+
+        actionService ??= MockBuilders.CreateMockActionService(
+            canExecuteGcd: canExecuteGcd,
+            canExecuteOgcd: canExecuteOgcd);
+
+        addersgallService ??= CreateMockAddersgallService(addersgallStacks);
+
+        var debuffDetectionService = MockBuilders.CreateMockDebuffDetectionService();
+        var targetingService = MockBuilders.CreateMockTargetingService();
+        var adderstingService = CreateMockAdderstingService(0);
+        var kardiaManager = CreateMockKardiaManager();
+        var eukrasiaService = CreateMockEukrasiaService();
+
+        var combatEventService = MockBuilders.CreateMockCombatEventService();
+        var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
+        var damageTrendService = MockBuilders.CreateMockDamageTrendService();
+        var frameCache = MockBuilders.CreateMockFrameScopedCache();
+        var hpPredictionService = MockBuilders.CreateMockHpPredictionService();
+        var mpForecastService = MockBuilders.CreateMockMpForecastService();
+        var playerStatsService = MockBuilders.CreateMockPlayerStatsService();
+        var objectTable = MockBuilders.CreateMockObjectTable();
+        var partyList = MockBuilders.CreateMockPartyList();
+        var cooldownPlanner = MockBuilders.CreateMockCooldownPlanner();
+
+        var actionTracker = MockBuilders.CreateMockActionTracker(config);
+        var statusHelper = new AsclepiusStatusHelper();
+
+        var healingSpellSelector = new Mock<IHealingSpellSelector>();
+        healingSpellSelector.Setup(x => x.SelectBestSingleHeal(
+                It.IsAny<IPlayerCharacter>(),
+                It.IsAny<IBattleChara>(),
+                It.IsAny<bool>(),
+                It.IsAny<bool>(),
+                It.IsAny<bool>(),
+                It.IsAny<float>()))
+            .Returns(((Olympus.Models.Action.ActionDefinition?)null, 0));
+        healingSpellSelector.Setup(x => x.SelectBestAoEHeal(
+                It.IsAny<IPlayerCharacter>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<bool>(),
+                It.IsAny<bool>(),
+                It.IsAny<int>(),
+                It.IsAny<IBattleChara?>()))
+            .Returns(((Olympus.Models.Action.ActionDefinition?)null, 0, (IBattleChara?)null));
+
+        return new AsclepiusContext(
+            player.Object,
+            inCombat: false,
+            isMoving: false,
+            canExecuteGcd,
+            canExecuteOgcd,
+            actionService.Object,
+            actionTracker,
+            combatEventService.Object,
+            damageIntakeService.Object,
+            damageTrendService.Object,
+            frameCache.Object,
+            config,
+            debuffDetectionService.Object,
+            hpPredictionService.Object,
+            mpForecastService.Object,
+            objectTable.Object,
+            partyList.Object,
+            playerStatsService.Object,
+            targetingService.Object,
+            healingSpellSelector.Object,
+            cooldownPlanner.Object,
+            addersgallService.Object,
+            adderstingService.Object,
+            kardiaManager.Object,
+            eukrasiaService.Object,
+            statusHelper,
+            realPartyHelper,
+            debugState: new AsclepiusDebugState());
+    }
+
+    /// <summary>
     /// Creates a default Configuration with Sage settings enabled.
     /// </summary>
     public static Configuration CreateDefaultSageConfiguration()

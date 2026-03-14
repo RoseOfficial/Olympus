@@ -466,6 +466,83 @@ public class HealingModuleTests
             Times.Once);
     }
 
+    /// <summary>
+    /// Regression test for v4.10.7 bug class — uses real party counting logic, not mocked.
+    /// An 8-man raid with 3 members below the injured threshold (0.95f) and party avg below
+    /// AoEHealThreshold (0.80f) must cause Prognosis to fire. A mocked CalculatePartyHealthMetrics
+    /// would not catch regressions in the counting logic itself.
+    /// </summary>
+    [Fact]
+    public void TryExecute_AoEHeal_8ManRaid_RealPartyHelper_3MembersInjured_Level100_FiresAoEHeal()
+    {
+        // Regression test for v4.10.7 bug class — uses real party counting logic, not mocked
+
+        // Arrange: 8-man party — 5 healthy members (96% HP = not injured) + 3 low-HP members (50% = injured)
+        // InjuredHpThreshold = 0.95f, so 96% is NOT injured; 50% IS injured.
+        // Average HP = (5 * 0.96 + 3 * 0.50) / 8 = (4.80 + 1.50) / 8 = 0.7875 — below AoEHealThreshold(0.80)
+        var members = new List<IBattleChara>
+        {
+            MockBuilders.CreateMockBattleChara(entityId: 1u, currentHp: 48000, maxHp: 50000).Object, // 96%
+            MockBuilders.CreateMockBattleChara(entityId: 2u, currentHp: 48000, maxHp: 50000).Object, // 96%
+            MockBuilders.CreateMockBattleChara(entityId: 3u, currentHp: 48000, maxHp: 50000).Object, // 96%
+            MockBuilders.CreateMockBattleChara(entityId: 4u, currentHp: 48000, maxHp: 50000).Object, // 96%
+            MockBuilders.CreateMockBattleChara(entityId: 5u, currentHp: 48000, maxHp: 50000).Object, // 96%
+            MockBuilders.CreateMockBattleChara(entityId: 6u, currentHp: 25000, maxHp: 50000).Object, // 50% — injured
+            MockBuilders.CreateMockBattleChara(entityId: 7u, currentHp: 25000, maxHp: 50000).Object, // 50% — injured
+            MockBuilders.CreateMockBattleChara(entityId: 8u, currentHp: 25000, maxHp: 50000).Object, // 50% — injured
+        };
+
+        var realPartyHelper = new TestableApolloPartyHelper(members);
+
+        var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
+        config.Sage.AoEHealMinTargets = 3;
+        config.Sage.AoEHealThreshold = 0.80f;
+        // Disable all higher-priority heals so only Prognosis can fire
+        config.Sage.AddersgallReserve = 0;
+        config.Sage.EnablePhysisII = false;
+        config.Sage.EnableHolos = false;
+        config.Sage.EnableHaima = false;
+        config.Sage.EnablePanhaima = false;
+        config.Sage.EnablePepsis = false;
+        config.Sage.EnableRhizomata = false;
+        config.Sage.EnableKrasis = false;
+        config.Sage.EnableZoe = false;
+        config.Sage.EnableIxochole = false;
+        config.Sage.EnableKerachole = false;
+        config.Sage.EnablePneuma = false;
+        config.Sage.EnableEukrasianPrognosis = false;
+        config.Sage.EnableEukrasianDiagnosis = false;
+        config.Sage.EnableTaurochole = false;
+
+        var actionService = MockBuilders.CreateMockActionService(
+            canExecuteGcd: true,
+            canExecuteOgcd: false);
+        actionService.Setup(x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == SGEActions.Prognosis.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        var context = AsclepiusTestContext.CreateWithRealPartyHelper(
+            realPartyHelper: realPartyHelper,
+            config: config,
+            actionService: actionService,
+            addersgallStacks: 0,
+            level: 100,
+            canExecuteGcd: true,
+            canExecuteOgcd: false);
+
+        // Act
+        var result = _module.TryExecute(context, isMoving: false);
+
+        // Assert: real party counting must identify 3 injured members and trigger AoE heal
+        Assert.True(result);
+        actionService.Verify(
+            x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == SGEActions.Prognosis.ActionId),
+                It.IsAny<ulong>()),
+            Times.Once);
+    }
+
     #endregion
 
     #region Addersgall Resource Spending Tests
