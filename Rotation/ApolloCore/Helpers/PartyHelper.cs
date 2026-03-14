@@ -16,7 +16,7 @@ namespace Olympus.Rotation.ApolloCore.Helpers;
 /// White Mage party helper with WHM-specific targeting logic.
 /// Extends HealerPartyHelper with Cure III, Regen, and triage functionality.
 /// </summary>
-public sealed class PartyHelper : HealerPartyHelper, IPartyHelper
+public class PartyHelper : HealerPartyHelper, IPartyHelper
 {
     // Pre-allocated arrays for endangered member triage (avoids per-frame allocation)
     private readonly IBattleChara?[] _endangeredMembers = new IBattleChara?[MaxPartySize];
