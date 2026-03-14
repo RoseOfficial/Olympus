@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Olympus.Data;
 
@@ -14,6 +13,7 @@ public sealed class RotationManager : IDisposable
 {
     private readonly Dictionary<uint, IRotation> _rotations = new();
     private readonly Dictionary<uint, Func<IRotation>> _factories = new();
+    private readonly HashSet<IRotation> _uniqueRotations = new();
     private IRotation? _activeRotation;
     private uint _lastJobId;
 
@@ -25,7 +25,7 @@ public sealed class RotationManager : IDisposable
     /// <summary>
     /// Gets all instantiated rotations (only those that have been loaded).
     /// </summary>
-    public IEnumerable<IRotation> RegisteredRotations => _rotations.Values.Distinct();
+    public IEnumerable<IRotation> RegisteredRotations => _uniqueRotations;
 
     /// <summary>
     /// Registers a factory function for creating a rotation for the specified job IDs.
@@ -49,6 +49,7 @@ public sealed class RotationManager : IDisposable
         {
             _rotations[jobId] = rotation;
         }
+        _uniqueRotations.Add(rotation);
     }
 
     /// <summary>
@@ -78,6 +79,8 @@ public sealed class RotationManager : IDisposable
             {
                 _rotations[supportedJobId] = _activeRotation;
             }
+
+            _uniqueRotations.Add(_activeRotation);
 
             return true;
         }
@@ -121,6 +124,7 @@ public sealed class RotationManager : IDisposable
             {
                 _rotations[supportedJobId] = rotation;
             }
+            _uniqueRotations.Add(rotation);
             return rotation;
         }
 
@@ -133,13 +137,14 @@ public sealed class RotationManager : IDisposable
     public void Dispose()
     {
         // Dispose each unique rotation instance (some jobs share rotations)
-        foreach (var rotation in _rotations.Values.Distinct())
+        foreach (var rotation in _uniqueRotations)
         {
             if (rotation is IDisposable disposable)
                 disposable.Dispose();
         }
         _rotations.Clear();
         _factories.Clear();
+        _uniqueRotations.Clear();
         _activeRotation = null;
     }
 }
