@@ -13,9 +13,6 @@ public sealed class AsclepiusStatusHelper : BaseStatusHelper
     // Role action status IDs (shared with all healers)
     public static class RoleStatusIds
     {
-        public const uint Swiftcast = 167;
-        public const uint Surecast = 160;
-        public const uint LucidDreaming = 1204;
         public const uint Raise = 148;
     }
 
@@ -24,22 +21,10 @@ public sealed class AsclepiusStatusHelper : BaseStatusHelper
     #region Role Actions
 
     /// <summary>
-    /// Checks if player has Swiftcast buff active.
-    /// </summary>
-    public static bool HasSwiftcast(IPlayerCharacter player) =>
-        HasStatus(player, RoleStatusIds.Swiftcast);
-
-    /// <summary>
-    /// Checks if player has Lucid Dreaming buff active.
-    /// </summary>
-    public static bool HasLucidDreaming(IPlayerCharacter player) =>
-        HasStatus(player, RoleStatusIds.LucidDreaming);
-
-    /// <summary>
     /// Checks if player has Surecast buff active.
     /// </summary>
     public static bool HasSurecast(IPlayerCharacter player) =>
-        HasStatus(player, RoleStatusIds.Surecast);
+        HasStatus(player, SharedStatusIds.Surecast);
 
     #endregion
 

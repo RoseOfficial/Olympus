@@ -12,9 +12,6 @@ public sealed class AstraeaStatusHelper : BaseStatusHelper
 {
     #region Buff Status IDs
 
-    private const ushort SwiftcastStatusId = 167;
-    private const ushort LucidDreamingStatusId = 1204;
-
     // Tank stance status IDs (for detecting Trust NPC tanks)
     private const ushort IronWillStatusId = 79;      // PLD
     private const ushort DefianceStatusId = 91;      // WAR
@@ -24,22 +21,6 @@ public sealed class AstraeaStatusHelper : BaseStatusHelper
     #endregion
 
     #region Buff Checks
-
-    /// <summary>
-    /// Checks if the player has Swiftcast active.
-    /// </summary>
-    public bool HasSwiftcast(IPlayerCharacter player)
-    {
-        return HasStatus(player, SwiftcastStatusId);
-    }
-
-    /// <summary>
-    /// Checks if the player has Lucid Dreaming active.
-    /// </summary>
-    public bool HasLucidDreaming(IPlayerCharacter player)
-    {
-        return HasStatus(player, LucidDreamingStatusId);
-    }
 
     /// <summary>
     /// Checks if the player has Lightspeed active (instant casts).

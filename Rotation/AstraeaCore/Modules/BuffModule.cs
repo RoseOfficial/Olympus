@@ -3,6 +3,7 @@ using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.AstraeaCore.Context;
+using Olympus.Rotation.AstraeaCore.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Services.Training;
 
@@ -25,7 +26,7 @@ public sealed class BuffModule : BaseBuffModule<AstraeaContext>, IAstraeaModule
         ASTActions.LucidDreaming;
 
     protected override bool HasLucidDreaming(AstraeaContext context) =>
-        context.StatusHelper.HasLucidDreaming(context.Player);
+        AstraeaStatusHelper.HasLucidDreaming(context.Player);
 
     protected override float GetLucidDreamingThreshold(AstraeaContext context) =>
         context.Configuration.Astrologian.LucidDreamingThreshold;

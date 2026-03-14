@@ -55,7 +55,7 @@ public sealed class AthenaContext : BaseHealerContext, IAthenaContext
     public bool HasSeraphism => _hasSeraphism ??= StatusHelper.HasSeraphism(Player);
     public bool HasImpactImminent => _hasImpactImminent ??= StatusHelper.HasImpactImminent(Player);
 
-    protected override bool CheckHasSwiftcast() => StatusHelper.HasSwiftcast(Player);
+    protected override bool CheckHasSwiftcast() => AthenaStatusHelper.HasSwiftcast(Player);
     protected override (float avgHpPercent, float lowestHpPercent, int injuredCount) CalculatePartyHealthMetrics()
         => PartyHelper.CalculatePartyHealthMetrics(Player);
     protected override string GetJobName() => "Athena";

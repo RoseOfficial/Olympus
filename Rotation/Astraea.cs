@@ -159,7 +159,7 @@ public sealed class Astraea : BaseHealerRotation<AstraeaContext, IAstraeaModule>
         MpForecastService.Update(
             (int)player.CurrentMp,
             (int)player.MaxMp,
-            _statusHelper.HasLucidDreaming(player));
+            AstraeaStatusHelper.HasLucidDreaming(player));
     }
 
     /// <inheritdoc />

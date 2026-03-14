@@ -160,7 +160,7 @@ public sealed class Athena : BaseHealerRotation<AthenaContext, IAthenaModule>
         MpForecastService.Update(
             (int)player.CurrentMp,
             (int)player.MaxMp,
-            _statusHelper.HasLucidDreaming(player));
+            AthenaStatusHelper.HasLucidDreaming(player));
     }
 
     /// <inheritdoc />

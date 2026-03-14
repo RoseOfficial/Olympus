@@ -88,7 +88,7 @@ public sealed class AstraeaContext : BaseHealerContext, IAstraeaContext
     public bool IsStarMature => EarthlyStarService.IsStarMature;
     public float StarTimeRemaining => EarthlyStarService.TimeRemaining;
 
-    protected override bool CheckHasSwiftcast() => StatusHelper.HasSwiftcast(Player);
+    protected override bool CheckHasSwiftcast() => AstraeaStatusHelper.HasSwiftcast(Player);
     protected override (float avgHpPercent, float lowestHpPercent, int injuredCount) CalculatePartyHealthMetrics()
         => PartyHelper.CalculatePartyHealthMetrics(Player);
     protected override string GetJobName() => "Astraea";

@@ -72,12 +72,6 @@ public sealed class StatusHelper : BaseStatusHelper
     }
 
     /// <summary>
-    /// Checks if player has Swiftcast buff active.
-    /// </summary>
-    public static bool HasSwiftcast(IPlayerCharacter player) =>
-        HasStatus(player, StatusIds.Swiftcast);
-
-    /// <summary>
     /// Checks if player has Thin Air buff active.
     /// </summary>
     public static bool HasThinAir(IPlayerCharacter player) =>
@@ -88,12 +82,6 @@ public sealed class StatusHelper : BaseStatusHelper
     /// </summary>
     public static bool HasFreecure(IPlayerCharacter player) =>
         HasStatus(player, StatusIds.Freecure);
-
-    /// <summary>
-    /// Checks if player has Lucid Dreaming buff active.
-    /// </summary>
-    public static bool HasLucidDreaming(IPlayerCharacter player) =>
-        HasStatus(player, StatusIds.LucidDreaming);
 
     /// <summary>
     /// Checks if player has Divine Grace status (enables Divine Caress).

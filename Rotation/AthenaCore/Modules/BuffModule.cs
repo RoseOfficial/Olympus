@@ -3,6 +3,7 @@ using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.AthenaCore.Context;
+using Olympus.Rotation.AthenaCore.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Services.Training;
 
@@ -25,7 +26,7 @@ public sealed class BuffModule : BaseBuffModule<AthenaContext>, IAthenaModule
         SCHActions.LucidDreaming;
 
     protected override bool HasLucidDreaming(AthenaContext context) =>
-        context.StatusHelper.HasLucidDreaming(context.Player);
+        AthenaStatusHelper.HasLucidDreaming(context.Player);
 
     protected override float GetLucidDreamingThreshold(AthenaContext context) =>
         context.Configuration.Scholar.LucidDreamingThreshold;

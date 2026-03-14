@@ -10,30 +10,7 @@ namespace Olympus.Rotation.AthenaCore.Helpers;
 /// </summary>
 public sealed class AthenaStatusHelper : BaseStatusHelper
 {
-    #region Buff Status IDs
-
-    private const ushort SwiftcastStatusId = 167;
-    private const ushort LucidDreamingStatusId = 1204;
-
-    #endregion
-
     #region Buff Checks
-
-    /// <summary>
-    /// Checks if the player has Swiftcast active.
-    /// </summary>
-    public bool HasSwiftcast(IPlayerCharacter player)
-    {
-        return HasStatus(player, SwiftcastStatusId);
-    }
-
-    /// <summary>
-    /// Checks if the player has Lucid Dreaming active.
-    /// </summary>
-    public bool HasLucidDreaming(IPlayerCharacter player)
-    {
-        return HasStatus(player, LucidDreamingStatusId);
-    }
 
     /// <summary>
     /// Checks if the player has Recitation active (next Aetherflow heal is free + guaranteed crit).

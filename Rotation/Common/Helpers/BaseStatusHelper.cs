@@ -130,6 +130,16 @@ public abstract class BaseStatusHelper
 
     #endregion
 
+    #region Shared Role Action Helpers
+
+    /// <summary>Checks if a character has Swiftcast active.</summary>
+    public static bool HasSwiftcast(IBattleChara chara) => HasStatus(chara, SharedStatusIds.Swiftcast);
+
+    /// <summary>Checks if a character has Lucid Dreaming active.</summary>
+    public static bool HasLucidDreaming(IBattleChara chara) => HasStatus(chara, SharedStatusIds.LucidDreaming);
+
+    #endregion
+
     #region Debug Formatting Helpers
 
     /// <summary>

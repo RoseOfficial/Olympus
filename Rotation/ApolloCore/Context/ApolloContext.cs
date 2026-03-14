@@ -3,6 +3,7 @@ using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Cooldown;
@@ -48,7 +49,7 @@ public sealed class ApolloContext : BaseHealerContext, IApolloContext
 
     #endregion
 
-    protected override bool CheckHasSwiftcast() => StatusHelper.HasSwiftcast(Player);
+    protected override bool CheckHasSwiftcast() => BaseStatusHelper.HasSwiftcast(Player);
     protected override (float avgHpPercent, float lowestHpPercent, int injuredCount) CalculatePartyHealthMetrics()
         => PartyHelper.CalculatePartyHealthMetrics(Player);
     protected override string GetJobName() => "Apollo";
