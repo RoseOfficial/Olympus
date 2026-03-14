@@ -15,6 +15,8 @@ public sealed class FrameScopedCache : IFrameScopedCache
     private readonly Dictionary<string, object> _cache = new(32);
     private DateTime _currentTime;
     private ulong _frameNumber;
+    private string? _playerStatsCacheKey;
+    private int _playerStatsCachedLevel = -1;
 
     // Pre-allocated list for party members to reduce GC pressure
     private readonly List<IBattleChara> _partyMembersCache = new(8);
@@ -110,7 +112,12 @@ public sealed class FrameScopedCache : IFrameScopedCache
         int level,
         Func<int, (int, int, int)> computeStats)
     {
-        var cacheKey = $"PlayerStats_{level}";
+        if (_playerStatsCachedLevel != level)
+        {
+            _playerStatsCacheKey = $"PlayerStats_{level}";
+            _playerStatsCachedLevel = level;
+        }
+        var cacheKey = _playerStatsCacheKey!;
 
         if (_cache.TryGetValue(cacheKey, out var cached) && cached is ValueTuple<int, int, int> stats)
         {
