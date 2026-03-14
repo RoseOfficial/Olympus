@@ -38,7 +38,6 @@ public static class ConfigValidator
         // Existing healer validation
         ValidateHealingThresholds(config.Healing, issues);
         ValidateTriageWeights(config.Healing, issues);
-        ValidateRoleActionSettings(config, issues);
         ValidateDefensiveSettings(config.Defensive, issues);
 
         // New validations
@@ -188,35 +187,6 @@ public static class ConfigValidator
                 Category = "Triage",
                 Message = $"Enhanced triage modifiers sum to {totalEnhanced:F2}. High values may cause erratic priority.",
                 SuggestedFix = "Keep enhanced weights below 0.50 total"
-            });
-        }
-    }
-
-    /// <summary>
-    /// Validates role action settings.
-    /// </summary>
-    private static void ValidateRoleActionSettings(Configuration config, List<ValidationIssue> issues)
-    {
-        // Lucid Dreaming threshold should be reasonable
-        if (config.EnableLucidDreaming && config.LucidDreamingThreshold < 0.50f)
-        {
-            issues.Add(new ValidationIssue
-            {
-                Severity = ValidationSeverity.Info,
-                Category = "Role Actions",
-                Message = $"Lucid Dreaming threshold ({config.LucidDreamingThreshold:P0}) is very low. May run out of MP before triggering.",
-                SuggestedFix = "Set to 0.60-0.80 for better MP management"
-            });
-        }
-
-        if (config.EnableLucidDreaming && config.LucidDreamingThreshold > 0.90f)
-        {
-            issues.Add(new ValidationIssue
-            {
-                Severity = ValidationSeverity.Info,
-                Category = "Role Actions",
-                Message = $"Lucid Dreaming threshold ({config.LucidDreamingThreshold:P0}) is very high. May waste cooldown when not needed.",
-                SuggestedFix = "Set to 0.60-0.80 for efficient MP management"
             });
         }
     }

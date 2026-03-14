@@ -108,15 +108,6 @@ public sealed class Configuration : IPluginConfiguration
     public RedMageConfig RedMage { get; set; } = new();
     public PictomancerConfig Pictomancer { get; set; } = new();
 
-    // Role action settings (used across healers)
-    public bool EnableLucidDreaming { get; set; } = true;
-    private float _lucidDreamingThreshold = 0.70f;
-    public float LucidDreamingThreshold
-    {
-        get => _lucidDreamingThreshold;
-        set => _lucidDreamingThreshold = Math.Clamp(value, 0f, 1f);
-    }
-
     /// <summary>
     /// Resets all configuration values to their defaults.
     /// Preserves Enabled state and window visibility settings.

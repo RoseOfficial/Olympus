@@ -1401,7 +1401,7 @@ public sealed class HealingModule : IAsclepiusModule
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableLucidDreaming)
+        if (!config.Sage.EnableLucidDreaming)
         {
             context.Debug.LucidState = "Disabled";
             return false;
@@ -1417,7 +1417,7 @@ public sealed class HealingModule : IAsclepiusModule
         }
 
         var mpPercent = (float)player.CurrentMp / player.MaxMp;
-        if (mpPercent > config.LucidDreamingThreshold)
+        if (mpPercent > config.Sage.LucidDreamingThreshold)
         {
             context.Debug.LucidState = $"MP {mpPercent:P0}";
             return false;
@@ -1441,11 +1441,11 @@ public sealed class HealingModule : IAsclepiusModule
                     Category = "Resource",
                     TargetName = "Self",
                     ShortReason = $"Lucid Dreaming at {mpPercent:P0} MP",
-                    DetailedReason = $"Lucid Dreaming activated at {mpPercent:P0} MP (threshold: {config.LucidDreamingThreshold:P0}). Restores 3850 MP over 21 seconds. SGE is less MP-dependent than other healers (Addersgall heals restore MP!), but Lucid is still important for GCD heals and raises.",
+                    DetailedReason = $"Lucid Dreaming activated at {mpPercent:P0} MP (threshold: {config.Sage.LucidDreamingThreshold:P0}). Restores 3850 MP over 21 seconds. SGE is less MP-dependent than other healers (Addersgall heals restore MP!), but Lucid is still important for GCD heals and raises.",
                     Factors = new[]
                     {
                         $"Current MP: {mpPercent:P0}",
-                        $"Threshold: {config.LucidDreamingThreshold:P0}",
+                        $"Threshold: {config.Sage.LucidDreamingThreshold:P0}",
                         "3850 MP over 21s",
                         "60s cooldown",
                     },

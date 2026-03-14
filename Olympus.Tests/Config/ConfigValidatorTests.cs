@@ -185,55 +185,6 @@ public class ConfigValidatorTests
 
     #endregion
 
-    #region Role Action Tests
-
-    [Fact]
-    public void Validate_LucidDreamingThresholdTooLow_ReturnsInfo()
-    {
-        var config = CreateValidConfig();
-        config.EnableLucidDreaming = true;
-        config.LucidDreamingThreshold = 0.40f;
-
-        var issues = ConfigValidator.Validate(config);
-
-        Assert.Contains(issues, i =>
-            i.Severity == ConfigValidator.ValidationSeverity.Info &&
-            i.Category == "Role Actions" &&
-            i.Message.Contains("Lucid Dreaming") &&
-            i.Message.Contains("very low"));
-    }
-
-    [Fact]
-    public void Validate_LucidDreamingThresholdTooHigh_ReturnsInfo()
-    {
-        var config = CreateValidConfig();
-        config.EnableLucidDreaming = true;
-        config.LucidDreamingThreshold = 0.95f;
-
-        var issues = ConfigValidator.Validate(config);
-
-        Assert.Contains(issues, i =>
-            i.Severity == ConfigValidator.ValidationSeverity.Info &&
-            i.Category == "Role Actions" &&
-            i.Message.Contains("Lucid Dreaming") &&
-            i.Message.Contains("very high"));
-    }
-
-    [Fact]
-    public void Validate_LucidDreamingDisabled_NoRoleActionIssues()
-    {
-        var config = CreateValidConfig();
-        config.EnableLucidDreaming = false;
-        config.LucidDreamingThreshold = 0.10f; // Would be "too low" if enabled
-
-        var issues = ConfigValidator.Validate(config);
-
-        var roleActionIssues = issues.Where(i => i.Category == "Role Actions");
-        Assert.Empty(roleActionIssues);
-    }
-
-    #endregion
-
     #region Defensive Settings Tests
 
     [Fact]
@@ -366,9 +317,7 @@ public class ConfigValidatorTests
                 ProactiveAquaveilDamageRate = 300f,
                 ProactiveBenisonDamageRate = 400f,
                 DefensiveCooldownThreshold = 0.75f
-            },
-            EnableLucidDreaming = true,
-            LucidDreamingThreshold = 0.70f
+            }
         };
     }
 
