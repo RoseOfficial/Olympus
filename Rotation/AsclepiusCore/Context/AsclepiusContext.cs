@@ -1,12 +1,12 @@
-using System;
 using Dalamud.Game.ClientState.Objects.SubKinds;
-using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.AsclepiusCore.Helpers;
+using Olympus.Rotation.Common;
 using Olympus.Services;
 using Olympus.Services.Action;
+using Olympus.Services.Cache;
 using Olympus.Services.Cooldown;
 using Olympus.Services.Debuff;
 using Olympus.Services.Healing;
@@ -15,7 +15,6 @@ using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
 using Olympus.Services.Sage;
 using Olympus.Services.Stats;
-using Olympus.Services.Cache;
 using Olympus.Services.Targeting;
 using Olympus.Services.Training;
 using Olympus.Timeline;
@@ -27,39 +26,8 @@ namespace Olympus.Rotation.AsclepiusCore.Context;
 /// Contains player state, services, and helper utilities.
 /// Implements IAsclepiusContext for testability.
 /// </summary>
-public sealed class AsclepiusContext : IAsclepiusContext
+public sealed class AsclepiusContext : BaseHealerContext, IAsclepiusContext
 {
-    #region Player State
-
-    public IPlayerCharacter Player { get; }
-    public bool InCombat { get; }
-    public bool IsMoving { get; }
-    public bool CanExecuteGcd { get; }
-    public bool CanExecuteOgcd { get; }
-
-    #endregion
-
-    #region Core Services
-
-    public IActionService ActionService { get; }
-    public ActionTracker ActionTracker { get; }
-    public ICombatEventService CombatEventService { get; }
-    public IDamageIntakeService DamageIntakeService { get; }
-    public IDamageTrendService DamageTrendService { get; }
-    public IFrameScopedCache FrameCache { get; }
-    public Configuration Configuration { get; }
-    public IDebuffDetectionService DebuffDetectionService { get; }
-    public IHealingSpellSelector HealingSpellSelector { get; }
-    public IHpPredictionService HpPredictionService { get; }
-    public IMpForecastService MpForecastService { get; }
-    public IObjectTable ObjectTable { get; }
-    public IPartyList PartyList { get; }
-    public IPlayerStatsService PlayerStatsService { get; }
-    public ITargetingService TargetingService { get; }
-    public ITimelineService? TimelineService { get; }
-
-    #endregion
-
     #region SGE-Specific Services
 
     public IAddersgallTrackingService AddersgallService { get; }
@@ -76,54 +44,14 @@ public sealed class AsclepiusContext : IAsclepiusContext
 
     #endregion
 
-    #region Party Analyzer
-
-    public IPartyAnalyzer? PartyAnalyzer { get; }
-
-    #endregion
-
-    #region Cooldown Planning
-
-    public ICooldownPlanner CooldownPlanner { get; }
-
-    #endregion
-
-    #region Smart Healing Services
-
-    public ICoHealerDetectionService? CoHealerDetectionService { get; }
-    public IBossMechanicDetector? BossMechanicDetector { get; }
-    public IShieldTrackingService? ShieldTrackingService { get; }
-
-    #endregion
-
-    #region Party Coordination
-
-    public IPartyCoordinationService? PartyCoordinationService { get; }
-
-    #endregion
-
-    #region Training Mode
-
-    public ITrainingService? TrainingService { get; }
-
-    #endregion
-
-    #region Debug and Coordination State
+    #region Debug State
 
     public AsclepiusDebugState Debug { get; }
-    public HealingCoordinationState HealingCoordination { get; }
 
     #endregion
 
-    #region Optional Services
+    #region SGE Cached Status Checks
 
-    public IPluginLog? Log { get; }
-
-    #endregion
-
-    #region Cached Status Checks
-
-    private bool? _hasSwiftcast;
     private bool? _hasEukrasia;
     private bool? _hasZoe;
     private bool? _hasSoteria;
@@ -131,10 +59,7 @@ public sealed class AsclepiusContext : IAsclepiusContext
     private int? _addersgallStacks;
     private float? _addersgallTimer;
     private int? _adderstingStacks;
-    private (float avgHpPercent, float lowestHpPercent, int injuredCount)? _partyHealthMetrics;
-    private bool? _isPrimaryHealer;
 
-    public bool HasSwiftcast => _hasSwiftcast ??= AsclepiusStatusHelper.HasSwiftcast(Player);
     public bool HasEukrasia => _hasEukrasia ??= AsclepiusStatusHelper.HasEukrasia(Player);
     public bool HasZoe => _hasZoe ??= AsclepiusStatusHelper.HasZoe(Player);
     public bool HasSoteria => _hasSoteria ??= AsclepiusStatusHelper.HasSoteria(Player);
@@ -148,32 +73,12 @@ public sealed class AsclepiusContext : IAsclepiusContext
     public ulong KardiaTargetId => KardiaManager.CurrentKardiaTarget;
     public bool CanSwapKardia => KardiaManager.CanSwapKardia;
 
-    public (float avgHpPercent, float lowestHpPercent, int injuredCount) PartyHealthMetrics
-        => _partyHealthMetrics ??= PartyHelper.CalculatePartyHealthMetrics(Player);
-
-    /// <summary>
-    /// Whether this healer instance is the primary healer.
-    /// Determined by job priority (WHM > AST > SCH > SGE) or explicit role declaration.
-    /// </summary>
-    public bool IsPrimaryHealer => _isPrimaryHealer ??= PartyCoordinationService?.IsPrimaryHealer ?? true;
-
-    /// <summary>
-    /// Gets a healing threshold adjusted for healer role.
-    /// Secondary healers use a lower threshold (SecondaryHealAssistThreshold) to defer healing.
-    /// </summary>
-    /// <param name="primaryThreshold">The threshold used by the primary healer.</param>
-    /// <returns>The adjusted threshold based on this healer's role.</returns>
-    public float GetRoleAdjustedThreshold(float primaryThreshold)
-    {
-        if (!IsPrimaryHealer && Configuration.PartyCoordination.EnableHealerRoleCoordination)
-        {
-            // Secondary healer uses lower threshold - only heal when HP is truly low
-            return Math.Min(primaryThreshold, Configuration.PartyCoordination.SecondaryHealAssistThreshold);
-        }
-        return primaryThreshold;
-    }
-
     #endregion
+
+    protected override bool CheckHasSwiftcast() => AsclepiusStatusHelper.HasSwiftcast(Player);
+    protected override (float avgHpPercent, float lowestHpPercent, int injuredCount) CalculatePartyHealthMetrics()
+        => PartyHelper.CalculatePartyHealthMetrics(Player);
+    protected override string GetJobName() => "Asclepius";
 
     public AsclepiusContext(
         IPlayerCharacter player,
@@ -189,20 +94,20 @@ public sealed class AsclepiusContext : IAsclepiusContext
         IFrameScopedCache frameCache,
         Configuration configuration,
         IDebuffDetectionService debuffDetectionService,
-        IHealingSpellSelector healingSpellSelector,
         IHpPredictionService hpPredictionService,
         IMpForecastService mpForecastService,
         IObjectTable objectTable,
         IPartyList partyList,
         IPlayerStatsService playerStatsService,
         ITargetingService targetingService,
+        IHealingSpellSelector healingSpellSelector,
+        ICooldownPlanner cooldownPlanner,
         IAddersgallTrackingService addersgallService,
         IAdderstingTrackingService adderstingService,
         IKardiaManager kardiaManager,
         IEukrasiaStateService eukrasiaService,
         AsclepiusStatusHelper statusHelper,
         IPartyHelper partyHelper,
-        ICooldownPlanner cooldownPlanner,
         ICoHealerDetectionService? coHealerDetectionService = null,
         IBossMechanicDetector? bossMechanicDetector = null,
         IShieldTrackingService? shieldTrackingService = null,
@@ -211,82 +116,25 @@ public sealed class AsclepiusContext : IAsclepiusContext
         ITrainingService? trainingService = null,
         AsclepiusDebugState? debugState = null,
         IPluginLog? log = null)
+        : base(player, inCombat, isMoving, canExecuteGcd, canExecuteOgcd,
+               actionService, actionTracker, combatEventService, damageIntakeService, damageTrendService,
+               frameCache, configuration, debuffDetectionService, hpPredictionService, mpForecastService,
+               objectTable, partyList, playerStatsService, targetingService,
+               healingSpellSelector, cooldownPlanner,
+               coHealerDetectionService, bossMechanicDetector, shieldTrackingService,
+               partyAnalyzer: null,
+               partyCoordinationService, timelineService, trainingService, log)
     {
-        Player = player;
-        InCombat = inCombat;
-        IsMoving = isMoving;
-        CanExecuteGcd = canExecuteGcd;
-        CanExecuteOgcd = canExecuteOgcd;
-        ActionService = actionService;
-        ActionTracker = actionTracker;
-        CombatEventService = combatEventService;
-        DamageIntakeService = damageIntakeService;
-        DamageTrendService = damageTrendService;
-        FrameCache = frameCache;
-        Configuration = configuration;
-        DebuffDetectionService = debuffDetectionService;
-        HealingSpellSelector = healingSpellSelector;
-        HpPredictionService = hpPredictionService;
-        MpForecastService = mpForecastService;
-        ObjectTable = objectTable;
-        PartyList = partyList;
-        PlayerStatsService = playerStatsService;
-        TargetingService = targetingService;
         AddersgallService = addersgallService;
         AdderstingService = adderstingService;
         KardiaManager = kardiaManager;
         EukrasiaService = eukrasiaService;
         StatusHelper = statusHelper;
         PartyHelper = partyHelper;
-        CooldownPlanner = cooldownPlanner;
-        CoHealerDetectionService = coHealerDetectionService;
-        BossMechanicDetector = bossMechanicDetector;
-        ShieldTrackingService = shieldTrackingService;
-        PartyCoordinationService = partyCoordinationService;
-        TimelineService = timelineService;
-        TrainingService = trainingService;
         Debug = debugState ?? new AsclepiusDebugState();
-        HealingCoordination = new HealingCoordinationState();
-        Log = log;
     }
 
     #region Logging Helpers
-
-    /// <summary>
-    /// Logs a healing decision for debugging.
-    /// </summary>
-    public void LogHealDecision(string targetName, float hpPercent, string spellName, int predictedHeal, string reason)
-    {
-        if (Log is null || !Configuration.Debug.EnableVerboseLogging)
-            return;
-
-        Log.Debug("[SGE Heal] {0} at {1:P0} → {2} (est. {3} HP) - {4}",
-            targetName, hpPercent, spellName, predictedHeal, reason);
-    }
-
-    /// <summary>
-    /// Logs an oGCD healing decision.
-    /// </summary>
-    public void LogOgcdDecision(string targetName, float hpPercent, string spellName, string reason)
-    {
-        if (Log is null || !Configuration.Debug.EnableVerboseLogging)
-            return;
-
-        Log.Debug("[SGE oGCD] {0} at {1:P0} → {2} - {3}",
-            targetName, hpPercent, spellName, reason);
-    }
-
-    /// <summary>
-    /// Logs a defensive cooldown decision.
-    /// </summary>
-    public void LogDefensiveDecision(string targetName, float hpPercent, string spellName, float damageRate, string reason)
-    {
-        if (Log is null || !Configuration.Debug.EnableVerboseLogging)
-            return;
-
-        Log.Debug("[SGE Defensive] {0} at {1:P0} (dmg rate: {2:F0} DPS) → {3} - {4}",
-            targetName, hpPercent, damageRate, spellName, reason);
-    }
 
     /// <summary>
     /// Logs an Addersgall spending decision.
