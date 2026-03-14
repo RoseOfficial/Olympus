@@ -1,4 +1,8 @@
+using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
+using Moq;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Tests.Mocks;
 
 namespace Olympus.Tests.Rotation.ApolloCore.Helpers;
 
@@ -163,6 +167,82 @@ public class StatusHelperTests
     public void StatusIds_ThinAir_MatchesGameData()
     {
         Assert.Equal(1217u, StatusHelper.StatusIds.ThinAir);
+    }
+
+    #endregion
+
+    #region Has* Methods — Null StatusList Guard Tests
+
+    // StatusList in Dalamud wraps native game memory and cannot be constructed in tests.
+    // These tests verify that each Has* method safely returns false when StatusList is null,
+    // exercising the defensive null-check code path in BaseStatusHelper and StatusHelper.
+
+    [Fact]
+    public void HasRegenActive_NullStatusList_ReturnsFalse()
+    {
+        // IBattleChara.StatusList returns null by default for Moq mocks
+        var mock = MockBuilders.CreateMockBattleChara();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        var result = StatusHelper.HasRegenActive(mock.Object, out _);
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void HasMedicaRegen_NullStatusList_ReturnsFalse()
+    {
+        // HasMedicaRegen has its own explicit null guard in addition to the base check
+        var mock = MockBuilders.CreateMockBattleChara();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        var result = StatusHelper.HasMedicaRegen(mock.Object);
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void HasThinAir_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        var result = StatusHelper.HasThinAir(mock.Object);
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void HasFreecure_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        var result = StatusHelper.HasFreecure(mock.Object);
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void HasDivineGrace_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        var result = StatusHelper.HasDivineGrace(mock.Object);
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void GetSacredSightStacks_NullStatusList_ReturnsZero()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        var result = StatusHelper.GetSacredSightStacks(mock.Object);
+
+        Assert.Equal(0, result);
     }
 
     #endregion
