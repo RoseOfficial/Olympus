@@ -3,6 +3,26 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.8 - Smart AoE Targeting & Visual Overlay
+
+**All Melee Jobs (Monk, Dragoon, Ninja, Samurai, Reaper, Warrior)**
+- Added a positional indicator that shows which position you need to be in for your next melee action — rear, flank, or front — updating in real time as your combo progresses
+- The indicator is suppressed automatically when True North is active or when your target is immune to positional bonuses
+
+**Monk, Dragoon, Machinist**
+- Directional AoE abilities (Howling Fist, Enlightenment, Doom Spike, Chain Saw, Bioblaster) now automatically target the enemy that lets them hit the most targets, rather than always hitting in a fixed direction
+
+**Visual Overlay (Draw Helper)**
+- New optional overlay showing your melee and ranged attack range as rings around your character, fading out when you are comfortably in range
+- Enemy hitboxes are drawn when targeted, making it easier to judge distance at a glance
+- Positional zones (rear, flank, front) are displayed on your target so you can see exactly where to stand
+- Toggle and appearance options are available in Settings → Draw Helper
+
+**General**
+- Added an option to start the rotation as soon as your weapon is drawn and auto-attacks begin, rather than waiting for the first GCD
+
+<!-- LATEST-END -->
+
 ## v4.10.7 - Bug Fixes & Performance
 
 **White Mage**
@@ -14,8 +34,6 @@ All notable changes to Olympus will be documented in this file.
 **All Jobs**
 - Reduced memory allocations during combat, improving frame consistency for healer jobs in particular — the plugin now reuses internal data structures between frames rather than discarding and recreating them.
 - Internal code maintenance with no changes to rotation behavior.
-
-<!-- LATEST-END -->
 
 ## v4.10.6 - Internal Maintenance
 
