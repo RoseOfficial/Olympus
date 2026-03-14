@@ -132,7 +132,9 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>, IDis
         // Sort by priority
         _modules.Sort((a, b) => a.Priority.CompareTo(b.Priority));
 
-        // Subscribe to combat events to track Iaijutsu for Kaeshi
+        // Subscribe to track Iaijutsu usage for Kaeshi selection. This is the reason Nike
+        // implements IDisposable — the subscription must be removed when the rotation is unloaded.
+        // See Dispose() for the corresponding unsubscription and a full explanation.
         combatEventService.OnAbilityUsed += OnAbilityUsed;
     }
 
@@ -270,10 +272,21 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>, IDis
     #region IDisposable
 
     /// <summary>
-    /// Cleanup when the rotation is disposed.
+    /// Unsubscribes from <see cref="ICombatEventService.OnAbilityUsed"/> to prevent memory leaks.
+    ///
+    /// Nike is the only rotation that implements <see cref="IDisposable"/> because it is the only
+    /// rotation that subscribes to a combat event for state tracking. All other rotations derive their
+    /// state from per-frame game API reads; Samurai requires the additional event subscription to
+    /// track <see cref="_lastIaijutsu"/> across frames, because the game does not expose a queryable
+    /// "last Iaijutsu used" field — the information is only available at the moment the action fires.
+    ///
+    /// <see cref="RotationManager.Dispose"/> and <see cref="RotationFactory"/> both call
+    /// <c>IDisposable.Dispose()</c> on any rotation that implements it, so this cleanup runs
+    /// correctly on job-switch and plugin-unload.
     /// </summary>
     public void Dispose()
     {
+        // Unsubscribe the Iaijutsu-tracking handler to avoid a dangling reference to this instance.
         CombatEventService.OnAbilityUsed -= OnAbilityUsed;
     }
 
