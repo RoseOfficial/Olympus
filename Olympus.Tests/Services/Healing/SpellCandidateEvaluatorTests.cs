@@ -51,6 +51,7 @@ public class SpellCandidateEvaluatorTests
         public float GetCooldownRemaining(uint actionId) => cooldowns.GetValueOrDefault(actionId, 0f);
         public int GetAvailableWeaveSlots() => 2;
         public bool ExecuteGcd(ActionDefinition action, ulong targetId) => true;
+        public bool ExecuteDirectionalGcd(ActionDefinition action, ulong optimalTargetId) => true;
         public bool ExecuteOgcd(ActionDefinition action, ulong targetId) => true;
         public bool ExecuteGroundTargetedOgcd(ActionDefinition action, Vector3 targetPosition) => true;
         public bool CanExecuteAction(ActionDefinition action) => true;
