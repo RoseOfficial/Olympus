@@ -106,6 +106,33 @@ public class StatusHelperTests
     }
 
     [Fact]
+    public void StatusIds_AllConstants_AreDistinct()
+    {
+        var ids = new uint[]
+        {
+            StatusHelper.StatusIds.Aero,
+            StatusHelper.StatusIds.AeroII,
+            StatusHelper.StatusIds.Dia,
+            StatusHelper.StatusIds.MedicaII,
+            StatusHelper.StatusIds.MedicaIII,
+            StatusHelper.StatusIds.Raise,
+            StatusHelper.StatusIds.Swiftcast,
+            StatusHelper.StatusIds.ThinAir,
+            StatusHelper.StatusIds.Freecure,
+            StatusHelper.StatusIds.SacredSight,
+            StatusHelper.StatusIds.Surecast,
+            StatusHelper.StatusIds.LucidDreaming,
+            StatusHelper.StatusIds.DivineBenison,
+            StatusHelper.StatusIds.Aquaveil,
+            StatusHelper.StatusIds.Temperance,
+            StatusHelper.StatusIds.DivineGrace,
+            StatusHelper.StatusIds.PlenaryIndulgence,
+            StatusHelper.StatusIds.Regen,
+        };
+        Assert.Equal(ids.Length, ids.Distinct().Count());
+    }
+
+    [Fact]
     public void StatusIds_AllStatusIds_AreNonZero()
     {
         // All status IDs should be non-zero (0 typically means no status)

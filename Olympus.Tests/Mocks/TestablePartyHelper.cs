@@ -34,9 +34,10 @@ public sealed class TestableApolloPartyHelper : PartyHelper
     public override IEnumerable<IBattleChara> GetAllPartyMembers(
         IPlayerCharacter player, bool includeDead = false)
     {
-        return includeDead
-            ? _members
-            : _members.Where(m => !m.IsDead);
+        // Return all members regardless of includeDead — production callers
+        // apply their own dead-member guards (e.g., the IsDead check in
+        // CountPartyMembersNeedingAoEHeal). This ensures tests exercise those guards.
+        return _members;
     }
 
     private static HpPredictionService CreateHpPredictionService()
