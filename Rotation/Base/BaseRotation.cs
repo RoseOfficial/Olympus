@@ -191,7 +191,7 @@ public abstract class BaseRotation<TContext, TModule> : IRotation
         // Combat tracking — also treat auto-attack as combat if enabled
         var inCombat = (player.StatusFlags & StatusFlags.InCombat) != 0;
         if (!inCombat && Configuration.EnableOnAutoAttack)
-            inCombat = IsWeaponDrawn();
+            inCombat = IsAutoAttacking();
         UpdateCombatState(inCombat);
 
         // Job-specific service updates
@@ -351,13 +351,20 @@ public abstract class BaseRotation<TContext, TModule> : IRotation
     #region Auto-Attack Detection
 
     /// <summary>
-    /// Checks if the player has their weapon drawn (combat intent).
+    /// Checks if the player has auto-attack active via UIState.WeaponState.AutoAttackState.
     /// </summary>
-    private bool IsWeaponDrawn()
+    private static unsafe bool IsAutoAttacking()
     {
-        var player = ObjectTable.LocalPlayer;
-        if (player == null) return false;
-        return (player.StatusFlags & StatusFlags.WeaponOut) != 0;
+        try
+        {
+            var uiState = FFXIVClientStructs.FFXIV.Client.Game.UI.UIState.Instance();
+            if (uiState == null) return false;
+            return uiState->WeaponState.AutoAttackState.IsAutoAttacking;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     #endregion
