@@ -45,7 +45,7 @@ public class DamageModuleTests
             canExecuteOgcd: false,
             level: 80, // Before Gyofu (92)
             comboStep: 0,
-            sen: SAMActions.SenType.Setsu | SAMActions.SenType.Getsu | SAMActions.SenType.Ka, // All Sen = skip Iaijutsu path
+            sen: SAMActions.SenType.None, // 0 Sen — bypasses Iaijutsu path entirely
             actionService: actionService,
             targetingService: targeting);
 
@@ -76,7 +76,7 @@ public class DamageModuleTests
             canExecuteOgcd: false,
             level: 100, // Gyofu available
             comboStep: 0,
-            sen: SAMActions.SenType.Setsu | SAMActions.SenType.Getsu | SAMActions.SenType.Ka, // Full Sen — skip Iaijutsu paths at this step
+            sen: SAMActions.SenType.None, // 0 Sen — bypasses Iaijutsu path entirely
             actionService: actionService,
             targetingService: targeting);
 

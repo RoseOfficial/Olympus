@@ -238,6 +238,7 @@ public class BuffModuleTests
             inCombat: true,
             canExecuteOgcd: true,
             kenki: 30, // Below threshold (50), so Ikishoten is okay
+            sen: SAMActions.SenType.Setsu, // 1 Sen — suppresses zero-Sen Meikyo trigger
             hasOgiNamikiriReady: false,
             actionService: actionService,
             targetingService: targeting);
@@ -413,6 +414,7 @@ public class BuffModuleTests
         byte level = 100,
         int kenki = 0,
         int meditation = 0,
+        SAMActions.SenType sen = SAMActions.SenType.None,
         bool hasFugetsu = true,
         float fugetsuRemaining = 30f,
         bool hasFuka = true,
@@ -429,6 +431,7 @@ public class BuffModuleTests
             canExecuteOgcd: canExecuteOgcd,
             kenki: kenki,
             meditation: meditation,
+            sen: sen,
             hasFugetsu: hasFugetsu,
             fugetsuRemaining: fugetsuRemaining,
             hasFuka: hasFuka,
