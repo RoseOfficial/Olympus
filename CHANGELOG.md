@@ -15,6 +15,8 @@ All notable changes to Olympus will be documented in this file.
 - Reduced memory allocations during combat, improving frame consistency for healer jobs in particular — the plugin now reuses internal data structures between frames rather than discarding and recreating them.
 - Internal code maintenance with no changes to rotation behavior.
 
+<!-- LATEST-END -->
+
 ## v4.10.6 - Internal Maintenance
 
 No changes to rotation behavior or the user interface. This release contains internal code improvements only.
@@ -24,8 +26,6 @@ No changes to rotation behavior or the user interface. This release contains int
 **Debug Window**
 - The 21 per-job tabs have been replaced with a single "Job Details" tab containing a dropdown that lets you pick any job, grouped by role — the tab bar no longer overflows and is much easier to navigate
 - The correct job is automatically selected when you open the window, so you land on your current job's info without scrolling
-
-<!-- LATEST-END -->
 
 ## v4.10.4 - Melee Range Precision
 
