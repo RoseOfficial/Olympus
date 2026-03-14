@@ -58,7 +58,6 @@ public static class AsclepiusTestContext
         bool canSwapKardia = true,
         bool hasSoteria = false,
         bool hasPhilosophia = false,
-        bool hasSwiftcast = false,
         AsclepiusDebugState? debugState = null)
     {
         config ??= CreateDefaultSageConfiguration();
@@ -68,12 +67,6 @@ public static class AsclepiusTestContext
             currentHp: currentHp,
             maxHp: maxHp,
             currentMp: currentMp);
-
-        // Set up swiftcast status on player if requested
-        if (hasSwiftcast)
-        {
-            player.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
-        }
 
         actionService ??= MockBuilders.CreateMockActionService(
             canExecuteGcd: canExecuteGcd,

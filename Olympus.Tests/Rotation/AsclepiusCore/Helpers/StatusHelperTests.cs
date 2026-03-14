@@ -170,7 +170,7 @@ public class StatusHelperTests
 
         Assert.NotEqual(dosisLevel, dosisIILevel);
         Assert.NotEqual(dosisIILevel, dosisIIILevel);
-        Assert.NotEqual(dosisLevel, dosisIILevel);
+        Assert.NotEqual(dosisLevel, dosisIIILevel);
     }
 
     #endregion

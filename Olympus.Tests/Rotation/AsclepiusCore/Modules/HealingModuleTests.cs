@@ -45,22 +45,38 @@ public class HealingModuleTests
     #region General Healing State Tests
 
     [Fact]
-    public void TryExecute_HealingDisabled_ReturnsFalse()
+    public void TryExecute_NoHealingNeeded_ReturnsFalse()
     {
-        // Arrange
+        // Arrange: player at full HP, no party members injured, cannot weave.
+        // HealingModule has no EnableHealing master-switch guard — it returns false
+        // when no healing condition is met.
         var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
-        config.EnableHealing = false;
 
-        var context = AsclepiusTestContext.Create(config: config);
+        var partyHelper = MockBuilders.CreateMockPartyHelper();
+        partyHelper.Setup(x => x.FindLowestHpPartyMember(It.IsAny<IPlayerCharacter>(), It.IsAny<int>()))
+            .Returns((IBattleChara?)null);
+        partyHelper.Setup(x => x.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
+            .Returns((1.0f, 1.0f, 0));
+        partyHelper.Setup(x => x.FindTankInParty(It.IsAny<IPlayerCharacter>()))
+            .Returns((IBattleChara?)null);
 
-        // Act — healing disabled entirely
-        // HealingModule doesn't have an explicit EnableHealing master switch check,
-        // but config.EnableHealing affects multiple downstream decisions.
-        // Verify it does not throw and returns gracefully.
+        var actionService = MockBuilders.CreateMockActionService(
+            canExecuteGcd: false,
+            canExecuteOgcd: false);
+
+        var context = AsclepiusTestContext.Create(
+            config: config,
+            partyHelper: partyHelper,
+            actionService: actionService,
+            canExecuteGcd: false,
+            canExecuteOgcd: false,
+            currentHp: 50000,
+            maxHp: 50000);
+
+        // Act
         var result = _module.TryExecute(context, isMoving: false);
 
-        // The module itself does not check EnableHealing at the top-level;
-        // this tests the overall module handles edge cases without exception.
+        // Assert: nothing to heal, module returns false
         Assert.False(result);
     }
 
