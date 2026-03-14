@@ -3,6 +3,15 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.7 - Bug Fix & Performance
+
+**Sage**
+- Fixed Sage's Lucid Dreaming threshold and toggle having no effect — the setting was reading from the wrong configuration entry, so adjusting it in the config window did nothing. It now correctly reads from the Sage-specific setting.
+
+**All Jobs**
+- Reduced memory allocations during combat, improving frame consistency for healer jobs in particular — the plugin now reuses internal data structures between frames rather than discarding and recreating them.
+- Internal code maintenance with no changes to rotation behavior.
+
 ## v4.10.6 - Internal Maintenance
 
 No changes to rotation behavior or the user interface. This release contains internal code improvements only.
