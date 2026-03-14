@@ -15,7 +15,7 @@ namespace Olympus.Rotation.AthenaCore.Helpers;
 /// Scholar party helper with SCH-specific targeting logic.
 /// Extends HealerPartyHelper with Deployment, Excog, and Fey Union targeting.
 /// </summary>
-public sealed class AthenaPartyHelper : HealerPartyHelper
+public class AthenaPartyHelper : HealerPartyHelper
 {
     private readonly AthenaStatusHelper _statusHelper;
 

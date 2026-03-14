@@ -164,6 +164,9 @@ public sealed class AthenaStatusHelper : BaseStatusHelper
         if (target is not IBattleChara battleChara)
             return false;
 
+        if (battleChara.StatusList == null)
+            return false;
+
         // Check for any of the Bio DoT status IDs applied by us
         foreach (var status in battleChara.StatusList)
         {
@@ -183,6 +186,9 @@ public sealed class AthenaStatusHelper : BaseStatusHelper
     public float GetDotDuration(IPlayerCharacter player, IGameObject target)
     {
         if (target is not IBattleChara battleChara)
+            return 0f;
+
+        if (battleChara.StatusList == null)
             return 0f;
 
         foreach (var status in battleChara.StatusList)

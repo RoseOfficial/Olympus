@@ -1079,6 +1079,9 @@ public sealed class HealingModule : IAthenaModule
         // Eukrasian Prognosis status ID
         const ushort EukrasianPrognosisStatusId = 2609;
 
+        if (target.StatusList == null)
+            return false;
+
         foreach (var status in target.StatusList)
         {
             if (status.StatusId == EukrasianDiagnosisStatusId ||
