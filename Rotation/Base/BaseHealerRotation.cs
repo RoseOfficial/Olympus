@@ -101,7 +101,6 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
     /// </summary>
     protected virtual void UpdateHealerServices(IPlayerCharacter player, bool inCombat)
     {
-        ShieldTrackingService.Update();
         CoHealerDetectionService.Update(player.EntityId);
         BossMechanicDetector.Update();
     }
@@ -111,7 +110,7 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
     /// </summary>
     protected virtual void UpdateDamageTrend(IPlayerCharacter player, IEnumerable<uint> partyEntityIds)
     {
-        (DamageTrendService as DamageTrendService)?.Update(1f / 60f, new List<uint>(partyEntityIds));
+        (DamageTrendService as DamageTrendService)?.Update(1f / 60f, partyEntityIds);
     }
 
     /// <summary>
