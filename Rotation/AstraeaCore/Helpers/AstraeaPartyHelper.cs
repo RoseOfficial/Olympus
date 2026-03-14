@@ -15,7 +15,7 @@ namespace Olympus.Rotation.AstraeaCore.Helpers;
 /// Astrologian party helper with AST-specific targeting logic.
 /// Extends HealerPartyHelper with card targeting and AST-specific heals.
 /// </summary>
-public sealed class AstraeaPartyHelper : HealerPartyHelper
+public class AstraeaPartyHelper : HealerPartyHelper
 {
     private readonly AstraeaStatusHelper _statusHelper;
 

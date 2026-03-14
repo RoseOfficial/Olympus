@@ -133,6 +133,9 @@ public abstract class HealerPartyHelper : BasePartyHelper
     /// </summary>
     protected static bool HasRaiseStatus(IBattleChara chara)
     {
+        if (chara.StatusList == null)
+            return false;
+
         foreach (var status in chara.StatusList)
         {
             if (status.StatusId == RaiseStatusId)

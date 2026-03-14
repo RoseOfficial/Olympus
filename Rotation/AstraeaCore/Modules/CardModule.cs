@@ -294,7 +294,7 @@ public sealed class CardModule : IAstraeaModule
             return false;
         }
 
-        context.Debug.PlayState = $"Trying cards → {target.Name.TextValue}";
+        context.Debug.PlayState = $"Trying cards → {target.Name?.TextValue ?? "Unknown"}";
 
         // Try astral cards (melee DPS buff priority): Balance, Bole, Arrow
         if (TryPlaySpecificCard(context, ASTActions.TheBalance, target))
@@ -326,8 +326,9 @@ public sealed class CardModule : IAstraeaModule
         if (context.ActionService.ExecuteOgcd(cardAction, target.GameObjectId))
         {
             context.Debug.PlannedAction = cardAction.Name;
-            context.Debug.PlayState = $"{cardAction.Name} → {target.Name.TextValue}";
-            context.LogCardDecision(cardAction.Name, target.Name.TextValue, "Specific card played");
+            var targetNameForLog = target.Name?.TextValue ?? "Unknown";
+            context.Debug.PlayState = $"{cardAction.Name} → {targetNameForLog}";
+            context.LogCardDecision(cardAction.Name, targetNameForLog, "Specific card played");
 
             // Training mode: capture explanation
             if (context.TrainingService?.IsTrainingEnabled == true)

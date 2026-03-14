@@ -156,6 +156,9 @@ public sealed class AstraeaStatusHelper : BaseStatusHelper
         if (target is not IBattleChara battleChara)
             return false;
 
+        if (battleChara.StatusList == null)
+            return false;
+
         foreach (var status in battleChara.StatusList)
         {
             if (status.StatusId is ASTActions.TheBalanceStatusId or
@@ -175,6 +178,9 @@ public sealed class AstraeaStatusHelper : BaseStatusHelper
     public bool HasTankStance(IGameObject target)
     {
         if (target is not IBattleChara battleChara)
+            return false;
+
+        if (battleChara.StatusList == null)
             return false;
 
         foreach (var status in battleChara.StatusList)
@@ -202,6 +208,9 @@ public sealed class AstraeaStatusHelper : BaseStatusHelper
         if (target is not IBattleChara battleChara)
             return false;
 
+        if (battleChara.StatusList == null)
+            return false;
+
         foreach (var status in battleChara.StatusList)
         {
             if (status.SourceId != player.EntityId)
@@ -224,6 +233,9 @@ public sealed class AstraeaStatusHelper : BaseStatusHelper
     public float GetDotDuration(IPlayerCharacter player, IGameObject target)
     {
         if (target is not IBattleChara battleChara)
+            return 0f;
+
+        if (battleChara.StatusList == null)
             return 0f;
 
         foreach (var status in battleChara.StatusList)

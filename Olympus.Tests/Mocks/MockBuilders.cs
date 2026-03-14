@@ -375,6 +375,7 @@ public static class MockBuilders
         uint currentHp = 50000,
         uint maxHp = 50000,
         uint currentMp = 10000,
+        uint maxMp = 10000,
         Vector3? position = null)
     {
         var mock = new Mock<IPlayerCharacter>();
@@ -383,6 +384,7 @@ public static class MockBuilders
         mock.Setup(x => x.CurrentHp).Returns(currentHp);
         mock.Setup(x => x.MaxHp).Returns(maxHp);
         mock.Setup(x => x.CurrentMp).Returns(currentMp);
+        mock.Setup(x => x.MaxMp).Returns(maxMp);
         mock.Setup(x => x.Position).Returns(position ?? Vector3.Zero);
         mock.Setup(x => x.IsDead).Returns(false);
         mock.Setup(x => x.IsCasting).Returns(false);
