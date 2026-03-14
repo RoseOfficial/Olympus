@@ -324,6 +324,41 @@ public class HealingModuleTests
     }
 
     [Fact]
+    public void AoEHeal_RealPartyHelper_4ManDungeon_3Injured_ThresholdMet_TriesAoEHeal()
+    {
+        // 4-man dungeon: 1 healthy (96% HP), 3 injured (50% HP)
+        // AoEHealMinTargets = 3 → threshold met, module should attempt AoE heal
+        var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
+        config.Astrologian.EnableHelios = true;
+        config.Astrologian.AoEHealMinTargets = 3;
+        config.Astrologian.AoEHealThreshold = 0.80f;
+
+        var partyHelper = AstraeaTestContext.CreatePartyWithInjured(
+            healthyCount: 1, injuredCount: 3, config: config);
+
+        var actionService = MockBuilders.CreateMockActionService(
+            canExecuteGcd: true,
+            canExecuteOgcd: false);
+        actionService.Setup(a => a.IsActionReady(It.IsAny<uint>()))
+            .Returns(true);
+        actionService.Setup(a => a.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()))
+            .Returns(true);
+
+        var context = AstraeaTestContext.Create(
+            config: config,
+            partyHelper: partyHelper,
+            actionService: actionService,
+            level: 100,
+            canExecuteGcd: true,
+            canExecuteOgcd: false);
+
+        var result = _module.TryExecute(context, isMoving: false);
+
+        // Real party counting: 3 injured meets the AoEHealMinTargets = 3 threshold
+        Assert.True(result);
+    }
+
+    [Fact]
     public void AoEHeal_RealPartyHelper_8Members2Injured_BelowThreshold_DoesNotAoEHeal()
     {
         // Only 2 injured members — below AoEHealMinTargets = 3, should not fire AoE heal

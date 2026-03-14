@@ -287,6 +287,57 @@ public class ResurrectionModuleTests
 
     #endregion
 
+    #region Out-of-Combat Resurrection
+
+    [Fact]
+    public void TryExecute_OutOfCombat_DeadPartyMember_SufficientMp_SufficientLevel_AttemptsRaise()
+    {
+        // The base resurrection module has no combat check — it attempts raises regardless
+        // of combat state. Out of combat with a dead member, sufficient MP, and level >= 12,
+        // the module proceeds to hardcast raise (AllowHardcastRaise = true, not moving).
+        var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
+        config.Resurrection.EnableRaise = true;
+        config.Resurrection.AllowHardcastRaise = true;
+        config.Resurrection.RaiseMpThreshold = 0.0f;
+
+        var deadMember = MockBuilders.CreateMockBattleChara(entityId: 10u, currentHp: 0, isDead: true);
+        var partyHelper = new TestableAstraeaPartyHelper(
+            new List<IBattleChara> { deadMember.Object }, config);
+
+        var actionService = MockBuilders.CreateMockActionService(
+            canExecuteGcd: true,
+            canExecuteOgcd: false);
+        actionService.Setup(a => a.IsActionReady(ASTActions.Swiftcast.ActionId))
+            .Returns(false);
+        actionService.Setup(a => a.GetCooldownRemaining(ASTActions.Swiftcast.ActionId))
+            .Returns(60f); // Swiftcast on cooldown — forces hardcast path
+        actionService.Setup(a => a.ExecuteGcd(
+                It.Is<ActionDefinition>(ad => ad.ActionId == ASTActions.Ascend.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        // inCombat = false — out of combat
+        var context = AstraeaTestContext.Create(
+            config: config,
+            partyHelper: partyHelper,
+            actionService: actionService,
+            level: 90,
+            currentMp: 10000,
+            inCombat: false,
+            canExecuteGcd: true,
+            canExecuteOgcd: false);
+
+        var result = _module.TryExecute(context, isMoving: false);
+
+        // Production code has no combat gate — it raises out of combat
+        Assert.True(result);
+        actionService.Verify(a => a.ExecuteGcd(
+            It.Is<ActionDefinition>(ad => ad.ActionId == ASTActions.Ascend.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+    }
+
+    #endregion
+
     #region AST-Specific: Lightspeed as raise enabler
 
     [Fact]
