@@ -172,7 +172,7 @@ public class DamageModuleTests
     }
 
     [Fact]
-    public void TryExecute_Jolt3_AsFiller_WithDualcast_NoProcs_Fires()
+    public void TryExecute_Jolt3_AsFiller_Fires()
     {
         var enemy = CreateMockEnemy();
         var targeting = CreateTargetingWithEnemy(enemy);
@@ -183,7 +183,7 @@ public class DamageModuleTests
                 It.IsAny<ulong>()))
             .Returns(true);
 
-        // Dualcast active, no procs — should cast Jolt3 as dualcast filler
+        // No dualcast, no acceleration, no procs — should hardcast Jolt3 as filler
         var context = CirceTestContext.Create(
             inCombat: true,
             canExecuteGcd: true,
@@ -193,7 +193,8 @@ public class DamageModuleTests
             isFinisherReady: false,
             isInMeleeCombo: false,
             canStartMeleeCombo: false,
-            hasDualcast: true,
+            hasDualcast: false,
+            hasAcceleration: false,
             hasVerfire: false,
             hasVerstone: false,
             hasAnyProc: false,
