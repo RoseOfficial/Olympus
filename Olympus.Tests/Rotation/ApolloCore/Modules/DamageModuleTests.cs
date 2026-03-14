@@ -485,16 +485,16 @@ public class DamageModuleTests
             frameCache.Object,
             config,
             debuffDetectionService.Object,
-            healingSpellSelector.Object,
             hpPredictionService.Object,
             mpForecastService.Object,
             objectTable.Object,
             partyList.Object,
             playerStatsService.Object,
             targetingService.Object,
+            healingSpellSelector.Object,
+            MockBuilders.CreateMockCooldownPlanner().Object,
             statusHelper,
-            partyHelper.Object,
-            MockBuilders.CreateMockCooldownPlanner().Object);
+            partyHelper.Object);
     }
 
     /// <summary>
