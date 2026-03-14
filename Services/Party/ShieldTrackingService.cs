@@ -27,6 +27,12 @@ public sealed class ShieldTrackingService : IShieldTrackingService
     private readonly Dictionary<uint, IReadOnlyList<ShieldInfo>> _shieldsReadOnly = new();
     private readonly Dictionary<uint, IReadOnlyList<MitigationBuff>> _mitigationsReadOnly = new();
 
+    // Reusable set to track current party entity IDs each frame
+    private readonly HashSet<uint> _currentPartyIds = new(8);
+
+    // Reusable list for collecting stale dictionary keys to remove
+    private readonly List<uint> _staleKeys = new(8);
+
     // Known shield status IDs for quick lookup
     private static readonly HashSet<uint> ShieldStatusIdSet = new()
     {
@@ -99,9 +105,45 @@ public sealed class ShieldTrackingService : IShieldTrackingService
     /// </summary>
     public void Update()
     {
-        // Clear previous frame data
-        _shields.Clear();
-        _mitigations.Clear();
+        // Collect the set of current party entity IDs
+        _currentPartyIds.Clear();
+        foreach (var partyMember in _partyList)
+        {
+            if (partyMember?.GameObject is IBattleChara chara)
+                _currentPartyIds.Add(chara.EntityId);
+        }
+
+        // Also include the local player when not in a party
+        var localPlayer = _objectTable.LocalPlayer;
+        if (localPlayer != null && _partyList.Length == 0)
+            _currentPartyIds.Add(localPlayer.EntityId);
+
+        // Remove stale entries for entity IDs no longer in the party
+        _staleKeys.Clear();
+        foreach (var key in _shields.Keys)
+        {
+            if (!_currentPartyIds.Contains(key))
+                _staleKeys.Add(key);
+        }
+        foreach (var key in _staleKeys)
+        {
+            _shields.Remove(key);
+            _mitigations.Remove(key);
+        }
+
+        // Ensure lists exist for all current members and clear them for reuse
+        foreach (var entityId in _currentPartyIds)
+        {
+            if (_shields.TryGetValue(entityId, out var shieldList))
+                shieldList.Clear();
+            else
+                _shields[entityId] = new List<ShieldInfo>();
+
+            if (_mitigations.TryGetValue(entityId, out var mitList))
+                mitList.Clear();
+            else
+                _mitigations[entityId] = new List<MitigationBuff>();
+        }
 
         // Scan party members
         foreach (var partyMember in _partyList)
@@ -110,12 +152,6 @@ public sealed class ShieldTrackingService : IShieldTrackingService
                 continue;
 
             var entityId = chara.EntityId;
-
-            // Initialize lists for this target
-            if (!_shields.ContainsKey(entityId))
-                _shields[entityId] = new List<ShieldInfo>();
-            if (!_mitigations.ContainsKey(entityId))
-                _mitigations[entityId] = new List<MitigationBuff>();
 
             // Scan status effects
             if (chara.StatusList == null)
@@ -162,16 +198,10 @@ public sealed class ShieldTrackingService : IShieldTrackingService
             }
         }
 
-        // Also check the local player if not in party
-        var localPlayer = _objectTable.LocalPlayer;
+        // Also scan the local player if not in party
         if (localPlayer != null && _partyList.Length == 0)
         {
             var entityId = localPlayer.EntityId;
-
-            if (!_shields.ContainsKey(entityId))
-                _shields[entityId] = new List<ShieldInfo>();
-            if (!_mitigations.ContainsKey(entityId))
-                _mitigations[entityId] = new List<MitigationBuff>();
 
             if (localPlayer.StatusList != null)
             {
