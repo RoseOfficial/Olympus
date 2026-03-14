@@ -35,26 +35,23 @@ public sealed class DragoonSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableJumps = config.Dragoon.EnableJumps;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Dragoon.EnableJumps, "Enable Jumps"), ref enableJumps,
-                Loc.T(LocalizedStrings.Dragoon.EnableJumpsDesc, "Use Jump/High Jump on cooldown"), save))
-            {
-                config.Dragoon.EnableJumps = enableJumps;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dragoon.EnableJumps, "Enable Jumps"),
+                () => config.Dragoon.EnableJumps,
+                v => config.Dragoon.EnableJumps = v,
+                Loc.T(LocalizedStrings.Dragoon.EnableJumpsDesc, "Use Jump/High Jump on cooldown"), save);
 
-            var enableStardiver = config.Dragoon.EnableStardiver;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Dragoon.EnableStardiver, "Enable Stardiver"), ref enableStardiver,
-                Loc.T(LocalizedStrings.Dragoon.EnableStardiverDesc, "Use Stardiver during Life of the Dragon"), save))
-            {
-                config.Dragoon.EnableStardiver = enableStardiver;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dragoon.EnableStardiver, "Enable Stardiver"),
+                () => config.Dragoon.EnableStardiver,
+                v => config.Dragoon.EnableStardiver = v,
+                Loc.T(LocalizedStrings.Dragoon.EnableStardiverDesc, "Use Stardiver during Life of the Dragon"), save);
 
-            var enableGeirskogul = config.Dragoon.EnableGeirskogul;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Dragoon.EnableGeirskogul, "Enable Geirskogul"), ref enableGeirskogul,
-                Loc.T(LocalizedStrings.Dragoon.EnableGeirskogulDesc, "Use Geirskogul to enter Life of the Dragon"), save))
-            {
-                config.Dragoon.EnableGeirskogul = enableGeirskogul;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dragoon.EnableGeirskogul, "Enable Geirskogul"),
+                () => config.Dragoon.EnableGeirskogul,
+                v => config.Dragoon.EnableGeirskogul = v,
+                Loc.T(LocalizedStrings.Dragoon.EnableGeirskogulDesc, "Use Geirskogul to enter Life of the Dragon"), save);
 
             ConfigUIHelpers.Spacing();
 
@@ -80,26 +77,23 @@ public sealed class DragoonSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableLanceCharge = config.Dragoon.EnableLanceCharge;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Dragoon.EnableLanceCharge, "Enable Lance Charge"), ref enableLanceCharge,
-                Loc.T(LocalizedStrings.Dragoon.EnableLanceChargeDesc, "Use Lance Charge for damage buff"), save))
-            {
-                config.Dragoon.EnableLanceCharge = enableLanceCharge;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dragoon.EnableLanceCharge, "Enable Lance Charge"),
+                () => config.Dragoon.EnableLanceCharge,
+                v => config.Dragoon.EnableLanceCharge = v,
+                Loc.T(LocalizedStrings.Dragoon.EnableLanceChargeDesc, "Use Lance Charge for damage buff"), save);
 
-            var enableBattleLitany = config.Dragoon.EnableBattleLitany;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Dragoon.EnableBattleLitany, "Enable Battle Litany"), ref enableBattleLitany,
-                Loc.T(LocalizedStrings.Dragoon.EnableBattleLitanyDesc, "Use Battle Litany (party crit buff)"), save))
-            {
-                config.Dragoon.EnableBattleLitany = enableBattleLitany;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dragoon.EnableBattleLitany, "Enable Battle Litany"),
+                () => config.Dragoon.EnableBattleLitany,
+                v => config.Dragoon.EnableBattleLitany = v,
+                Loc.T(LocalizedStrings.Dragoon.EnableBattleLitanyDesc, "Use Battle Litany (party crit buff)"), save);
 
-            var enableLifeSurge = config.Dragoon.EnableLifeSurge;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Dragoon.EnableLifeSurge, "Enable Life Surge"), ref enableLifeSurge,
-                Loc.T(LocalizedStrings.Dragoon.EnableLifeSurgeDesc, "Use Life Surge for guaranteed crits"), save))
-            {
-                config.Dragoon.EnableLifeSurge = enableLifeSurge;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dragoon.EnableLifeSurge, "Enable Life Surge"),
+                () => config.Dragoon.EnableLifeSurge,
+                v => config.Dragoon.EnableLifeSurge = v,
+                Loc.T(LocalizedStrings.Dragoon.EnableLifeSurgeDesc, "Use Life Surge for guaranteed crits"), save);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -111,19 +105,17 @@ public sealed class DragoonSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var holdJumpsForBurst = config.Dragoon.HoldJumpsForBurst;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Dragoon.HoldJumpsForBurst, "Hold Jumps for Burst"), ref holdJumpsForBurst,
-                Loc.T(LocalizedStrings.Dragoon.HoldJumpsForBurstDesc, "Save jumps for Lance Charge windows"), save))
-            {
-                config.Dragoon.HoldJumpsForBurst = holdJumpsForBurst;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dragoon.HoldJumpsForBurst, "Hold Jumps for Burst"),
+                () => config.Dragoon.HoldJumpsForBurst,
+                v => config.Dragoon.HoldJumpsForBurst = v,
+                Loc.T(LocalizedStrings.Dragoon.HoldJumpsForBurstDesc, "Save jumps for Lance Charge windows"), save);
 
-            var alignWithParty = config.Dragoon.AlignBattleLitanyWithParty;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Dragoon.AlignWithParty, "Align Battle Litany with Party"), ref alignWithParty,
-                Loc.T(LocalizedStrings.Dragoon.AlignWithPartyDesc, "Coordinate with party burst windows"), save))
-            {
-                config.Dragoon.AlignBattleLitanyWithParty = alignWithParty;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dragoon.AlignWithParty, "Align Battle Litany with Party"),
+                () => config.Dragoon.AlignBattleLitanyWithParty,
+                v => config.Dragoon.AlignBattleLitanyWithParty = v,
+                Loc.T(LocalizedStrings.Dragoon.AlignWithPartyDesc, "Coordinate with party burst windows"), save);
 
             config.Dragoon.BattleLitanyHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Dragoon.BattleLitanyHoldTime, "Battle Litany Hold Time"),
@@ -140,19 +132,17 @@ public sealed class DragoonSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enforcePositionals = config.Dragoon.EnforcePositionals;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Dragoon.EnforcePositionals, "Enforce Positionals"), ref enforcePositionals,
-                Loc.T(LocalizedStrings.Dragoon.EnforcePositionalsDesc, "Only use positional actions when in correct position"), save))
-            {
-                config.Dragoon.EnforcePositionals = enforcePositionals;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dragoon.EnforcePositionals, "Enforce Positionals"),
+                () => config.Dragoon.EnforcePositionals,
+                v => config.Dragoon.EnforcePositionals = v,
+                Loc.T(LocalizedStrings.Dragoon.EnforcePositionalsDesc, "Only use positional actions when in correct position"), save);
 
-            var allowPositionalLoss = config.Dragoon.AllowPositionalLoss;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Dragoon.AllowPositionalLoss, "Allow Positional Loss"), ref allowPositionalLoss,
-                Loc.T(LocalizedStrings.Dragoon.AllowPositionalLossDesc, "Continue rotation even if positionals will miss"), save))
-            {
-                config.Dragoon.AllowPositionalLoss = allowPositionalLoss;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dragoon.AllowPositionalLoss, "Allow Positional Loss"),
+                () => config.Dragoon.AllowPositionalLoss,
+                v => config.Dragoon.AllowPositionalLoss = v,
+                Loc.T(LocalizedStrings.Dragoon.AllowPositionalLossDesc, "Continue rotation even if positionals will miss"), save);
 
             ConfigUIHelpers.EndIndent();
         }

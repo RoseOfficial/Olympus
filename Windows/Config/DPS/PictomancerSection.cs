@@ -35,26 +35,23 @@ public sealed class PictomancerSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableHolyInWhite = config.Pictomancer.EnableHolyInWhite;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Pictomancer.EnableHolyInWhite, "Enable Holy in White"), ref enableHolyInWhite,
-                Loc.T(LocalizedStrings.Pictomancer.EnableHolyInWhiteDesc, "Use Holy in White"), save))
-            {
-                config.Pictomancer.EnableHolyInWhite = enableHolyInWhite;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.EnableHolyInWhite, "Enable Holy in White"),
+                () => config.Pictomancer.EnableHolyInWhite,
+                v => config.Pictomancer.EnableHolyInWhite = v,
+                Loc.T(LocalizedStrings.Pictomancer.EnableHolyInWhiteDesc, "Use Holy in White"), save);
 
-            var enableCometInBlack = config.Pictomancer.EnableCometInBlack;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Pictomancer.EnableCometInBlack, "Enable Comet in Black"), ref enableCometInBlack,
-                Loc.T(LocalizedStrings.Pictomancer.EnableCometInBlackDesc, "Use Comet in Black"), save))
-            {
-                config.Pictomancer.EnableCometInBlack = enableCometInBlack;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.EnableCometInBlack, "Enable Comet in Black"),
+                () => config.Pictomancer.EnableCometInBlack,
+                v => config.Pictomancer.EnableCometInBlack = v,
+                Loc.T(LocalizedStrings.Pictomancer.EnableCometInBlackDesc, "Use Comet in Black"), save);
 
-            var enableStarPrism = config.Pictomancer.EnableStarPrism;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Pictomancer.EnableStarPrism, "Enable Star Prism"), ref enableStarPrism,
-                Loc.T(LocalizedStrings.Pictomancer.EnableStarPrismDesc, "Use Star Prism"), save))
-            {
-                config.Pictomancer.EnableStarPrism = enableStarPrism;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.EnableStarPrism, "Enable Star Prism"),
+                () => config.Pictomancer.EnableStarPrism,
+                v => config.Pictomancer.EnableStarPrism = v,
+                Loc.T(LocalizedStrings.Pictomancer.EnableStarPrismDesc, "Use Star Prism"), save);
 
             ConfigUIHelpers.Spacing();
 
@@ -73,35 +70,31 @@ public sealed class PictomancerSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableCreatureMotif = config.Pictomancer.EnableCreatureMotif;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Pictomancer.EnableCreatureMotif, "Enable Creature Motif"), ref enableCreatureMotif,
-                Loc.T(LocalizedStrings.Pictomancer.EnableCreatureMotifDesc, "Use Creature Motif abilities"), save))
-            {
-                config.Pictomancer.EnableCreatureMotif = enableCreatureMotif;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.EnableCreatureMotif, "Enable Creature Motif"),
+                () => config.Pictomancer.EnableCreatureMotif,
+                v => config.Pictomancer.EnableCreatureMotif = v,
+                Loc.T(LocalizedStrings.Pictomancer.EnableCreatureMotifDesc, "Use Creature Motif abilities"), save);
 
-            var enableWeaponMotif = config.Pictomancer.EnableWeaponMotif;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Pictomancer.EnableWeaponMotif, "Enable Weapon Motif"), ref enableWeaponMotif,
-                Loc.T(LocalizedStrings.Pictomancer.EnableWeaponMotifDesc, "Use Hammer Motif abilities"), save))
-            {
-                config.Pictomancer.EnableWeaponMotif = enableWeaponMotif;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.EnableWeaponMotif, "Enable Weapon Motif"),
+                () => config.Pictomancer.EnableWeaponMotif,
+                v => config.Pictomancer.EnableWeaponMotif = v,
+                Loc.T(LocalizedStrings.Pictomancer.EnableWeaponMotifDesc, "Use Hammer Motif abilities"), save);
 
-            var enableLandscapeMotif = config.Pictomancer.EnableLandscapeMotif;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Pictomancer.EnableLandscapeMotif, "Enable Landscape Motif"), ref enableLandscapeMotif,
-                Loc.T(LocalizedStrings.Pictomancer.EnableLandscapeMotifDesc, "Use Starry Sky Motif abilities"), save))
-            {
-                config.Pictomancer.EnableLandscapeMotif = enableLandscapeMotif;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.EnableLandscapeMotif, "Enable Landscape Motif"),
+                () => config.Pictomancer.EnableLandscapeMotif,
+                v => config.Pictomancer.EnableLandscapeMotif = v,
+                Loc.T(LocalizedStrings.Pictomancer.EnableLandscapeMotifDesc, "Use Starry Sky Motif abilities"), save);
 
             ConfigUIHelpers.Spacing();
 
-            var prepaintMotifs = config.Pictomancer.PrepaintMotifs;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Pictomancer.PrepaintMotifs, "Pre-paint Motifs"), ref prepaintMotifs,
-                Loc.T(LocalizedStrings.Pictomancer.PrepaintMotifsDesc, "Paint motifs out of combat"), save))
-            {
-                config.Pictomancer.PrepaintMotifs = prepaintMotifs;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.PrepaintMotifs, "Pre-paint Motifs"),
+                () => config.Pictomancer.PrepaintMotifs,
+                v => config.Pictomancer.PrepaintMotifs = v,
+                Loc.T(LocalizedStrings.Pictomancer.PrepaintMotifsDesc, "Paint motifs out of combat"), save);
 
             var prepaintOption = config.Pictomancer.PrepaintOption;
             if (ConfigUIHelpers.EnumCombo(Loc.T(LocalizedStrings.Pictomancer.PrepaintOption, "Pre-paint Option"), ref prepaintOption,
@@ -120,26 +113,23 @@ public sealed class PictomancerSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableLivingMuse = config.Pictomancer.EnableLivingMuse;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Pictomancer.EnableLivingMuse, "Enable Living Muse"), ref enableLivingMuse,
-                Loc.T(LocalizedStrings.Pictomancer.EnableLivingMuseDesc, "Use Living Muse"), save))
-            {
-                config.Pictomancer.EnableLivingMuse = enableLivingMuse;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.EnableLivingMuse, "Enable Living Muse"),
+                () => config.Pictomancer.EnableLivingMuse,
+                v => config.Pictomancer.EnableLivingMuse = v,
+                Loc.T(LocalizedStrings.Pictomancer.EnableLivingMuseDesc, "Use Living Muse"), save);
 
-            var enableSteelMuse = config.Pictomancer.EnableSteelMuse;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Pictomancer.EnableSteelMuse, "Enable Steel Muse"), ref enableSteelMuse,
-                Loc.T(LocalizedStrings.Pictomancer.EnableSteelMuseDesc, "Use Steel Muse"), save))
-            {
-                config.Pictomancer.EnableSteelMuse = enableSteelMuse;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.EnableSteelMuse, "Enable Steel Muse"),
+                () => config.Pictomancer.EnableSteelMuse,
+                v => config.Pictomancer.EnableSteelMuse = v,
+                Loc.T(LocalizedStrings.Pictomancer.EnableSteelMuseDesc, "Use Steel Muse"), save);
 
-            var enableScenicMuse = config.Pictomancer.EnableScenicMuse;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Pictomancer.EnableScenicMuse, "Enable Scenic Muse"), ref enableScenicMuse,
-                Loc.T(LocalizedStrings.Pictomancer.EnableScenicMuseDesc, "Use Scenic Muse"), save))
-            {
-                config.Pictomancer.EnableScenicMuse = enableScenicMuse;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.EnableScenicMuse, "Enable Scenic Muse"),
+                () => config.Pictomancer.EnableScenicMuse,
+                v => config.Pictomancer.EnableScenicMuse = v,
+                Loc.T(LocalizedStrings.Pictomancer.EnableScenicMuseDesc, "Use Scenic Muse"), save);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -151,19 +141,17 @@ public sealed class PictomancerSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableStarryMuse = config.Pictomancer.EnableStarryMuse;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Pictomancer.EnableStarryMuse, "Enable Starry Muse"), ref enableStarryMuse,
-                Loc.T(LocalizedStrings.Pictomancer.EnableStarryMuseDesc, "Use Starry Muse (party buff)"), save))
-            {
-                config.Pictomancer.EnableStarryMuse = enableStarryMuse;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.EnableStarryMuse, "Enable Starry Muse"),
+                () => config.Pictomancer.EnableStarryMuse,
+                v => config.Pictomancer.EnableStarryMuse = v,
+                Loc.T(LocalizedStrings.Pictomancer.EnableStarryMuseDesc, "Use Starry Muse (party buff)"), save);
 
-            var alignWithParty = config.Pictomancer.AlignStarryMuseWithParty;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Pictomancer.AlignWithParty, "Align with Party"), ref alignWithParty,
-                Loc.T(LocalizedStrings.Pictomancer.AlignWithPartyDesc, "Coordinate Starry Muse with party burst"), save))
-            {
-                config.Pictomancer.AlignStarryMuseWithParty = alignWithParty;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.AlignWithParty, "Align with Party"),
+                () => config.Pictomancer.AlignStarryMuseWithParty,
+                v => config.Pictomancer.AlignStarryMuseWithParty = v,
+                Loc.T(LocalizedStrings.Pictomancer.AlignWithPartyDesc, "Coordinate Starry Muse with party burst"), save);
 
             config.Pictomancer.StarryMuseHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Pictomancer.StarryMuseHoldTime, "Starry Muse Hold Time"),

@@ -35,26 +35,23 @@ public sealed class MachinistSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableDrill = config.Machinist.EnableDrill;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Machinist.EnableDrill, "Enable Drill"), ref enableDrill,
-                Loc.T(LocalizedStrings.Machinist.EnableDrillDesc, "Use Drill"), save))
-            {
-                config.Machinist.EnableDrill = enableDrill;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Machinist.EnableDrill, "Enable Drill"),
+                () => config.Machinist.EnableDrill,
+                v => config.Machinist.EnableDrill = v,
+                Loc.T(LocalizedStrings.Machinist.EnableDrillDesc, "Use Drill"), save);
 
-            var enableAirAnchor = config.Machinist.EnableAirAnchor;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Machinist.EnableAirAnchor, "Enable Air Anchor"), ref enableAirAnchor,
-                Loc.T(LocalizedStrings.Machinist.EnableAirAnchorDesc, "Use Air Anchor"), save))
-            {
-                config.Machinist.EnableAirAnchor = enableAirAnchor;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Machinist.EnableAirAnchor, "Enable Air Anchor"),
+                () => config.Machinist.EnableAirAnchor,
+                v => config.Machinist.EnableAirAnchor = v,
+                Loc.T(LocalizedStrings.Machinist.EnableAirAnchorDesc, "Use Air Anchor"), save);
 
-            var enableChainSaw = config.Machinist.EnableChainSaw;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Machinist.EnableChainSaw, "Enable Chain Saw"), ref enableChainSaw,
-                Loc.T(LocalizedStrings.Machinist.EnableChainSawDesc, "Use Chain Saw"), save))
-            {
-                config.Machinist.EnableChainSaw = enableChainSaw;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Machinist.EnableChainSaw, "Enable Chain Saw"),
+                () => config.Machinist.EnableChainSaw,
+                v => config.Machinist.EnableChainSaw = v,
+                Loc.T(LocalizedStrings.Machinist.EnableChainSawDesc, "Use Chain Saw"), save);
 
             ConfigUIHelpers.Spacing();
 
@@ -108,26 +105,23 @@ public sealed class MachinistSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableAutomatonQueen = config.Machinist.EnableAutomatonQueen;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Machinist.EnableAutomatonQueen, "Enable Automaton Queen"), ref enableAutomatonQueen,
-                Loc.T(LocalizedStrings.Machinist.EnableAutomatonQueenDesc, "Summon Automaton Queen"), save))
-            {
-                config.Machinist.EnableAutomatonQueen = enableAutomatonQueen;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Machinist.EnableAutomatonQueen, "Enable Automaton Queen"),
+                () => config.Machinist.EnableAutomatonQueen,
+                v => config.Machinist.EnableAutomatonQueen = v,
+                Loc.T(LocalizedStrings.Machinist.EnableAutomatonQueenDesc, "Summon Automaton Queen"), save);
 
-            var enableQueenOverdrive = config.Machinist.EnableQueenOverdrive;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Machinist.EnableQueenOverdrive, "Enable Queen Overdrive"), ref enableQueenOverdrive,
-                Loc.T(LocalizedStrings.Machinist.EnableQueenOverdriveDesc, "Use Queen Overdrive for burst"), save))
-            {
-                config.Machinist.EnableQueenOverdrive = enableQueenOverdrive;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Machinist.EnableQueenOverdrive, "Enable Queen Overdrive"),
+                () => config.Machinist.EnableQueenOverdrive,
+                v => config.Machinist.EnableQueenOverdrive = v,
+                Loc.T(LocalizedStrings.Machinist.EnableQueenOverdriveDesc, "Use Queen Overdrive for burst"), save);
 
-            var saveBatteryForBurst = config.Machinist.SaveBatteryForBurst;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Machinist.SaveBatteryForBurst, "Save Battery for Burst"), ref saveBatteryForBurst,
-                Loc.T(LocalizedStrings.Machinist.SaveBatteryForBurstDesc, "Hold Battery gauge for burst windows"), save))
-            {
-                config.Machinist.SaveBatteryForBurst = saveBatteryForBurst;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Machinist.SaveBatteryForBurst, "Save Battery for Burst"),
+                () => config.Machinist.SaveBatteryForBurst,
+                v => config.Machinist.SaveBatteryForBurst = v,
+                Loc.T(LocalizedStrings.Machinist.SaveBatteryForBurstDesc, "Hold Battery gauge for burst windows"), save);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -139,19 +133,17 @@ public sealed class MachinistSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableWildfire = config.Machinist.EnableWildfire;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Machinist.EnableWildfire, "Enable Wildfire"), ref enableWildfire,
-                Loc.T(LocalizedStrings.Machinist.EnableWildfireDesc, "Use Wildfire"), save))
-            {
-                config.Machinist.EnableWildfire = enableWildfire;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Machinist.EnableWildfire, "Enable Wildfire"),
+                () => config.Machinist.EnableWildfire,
+                v => config.Machinist.EnableWildfire = v,
+                Loc.T(LocalizedStrings.Machinist.EnableWildfireDesc, "Use Wildfire"), save);
 
-            var alignWithParty = config.Machinist.AlignWildfireWithParty;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Machinist.AlignWithParty, "Align with Party"), ref alignWithParty,
-                Loc.T(LocalizedStrings.Machinist.AlignWithPartyDesc, "Coordinate Wildfire with party burst"), save))
-            {
-                config.Machinist.AlignWildfireWithParty = alignWithParty;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Machinist.AlignWithParty, "Align with Party"),
+                () => config.Machinist.AlignWildfireWithParty,
+                v => config.Machinist.AlignWildfireWithParty = v,
+                Loc.T(LocalizedStrings.Machinist.AlignWithPartyDesc, "Coordinate Wildfire with party burst"), save);
 
             config.Machinist.WildfireHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Machinist.WildfireHoldTime, "Wildfire Hold Time"),

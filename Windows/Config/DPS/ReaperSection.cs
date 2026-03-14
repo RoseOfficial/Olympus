@@ -35,26 +35,23 @@ public sealed class ReaperSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableSoulReaver = config.Reaper.EnableSoulReaver;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Reaper.EnableSoulReaver, "Enable Soul Reaver"), ref enableSoulReaver,
-                Loc.T(LocalizedStrings.Reaper.EnableSoulReaverDesc, "Use Gibbet/Gallows/Guillotine"), save))
-            {
-                config.Reaper.EnableSoulReaver = enableSoulReaver;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Reaper.EnableSoulReaver, "Enable Soul Reaver"),
+                () => config.Reaper.EnableSoulReaver,
+                v => config.Reaper.EnableSoulReaver = v,
+                Loc.T(LocalizedStrings.Reaper.EnableSoulReaverDesc, "Use Gibbet/Gallows/Guillotine"), save);
 
-            var enableCommunio = config.Reaper.EnableCommunio;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Reaper.EnableCommunio, "Enable Communio"), ref enableCommunio,
-                Loc.T(LocalizedStrings.Reaper.EnableCommunioDesc, "Use Communio finisher"), save))
-            {
-                config.Reaper.EnableCommunio = enableCommunio;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Reaper.EnableCommunio, "Enable Communio"),
+                () => config.Reaper.EnableCommunio,
+                v => config.Reaper.EnableCommunio = v,
+                Loc.T(LocalizedStrings.Reaper.EnableCommunioDesc, "Use Communio finisher"), save);
 
-            var enablePerfectio = config.Reaper.EnablePerfectio;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Reaper.EnablePerfectio, "Enable Perfectio"), ref enablePerfectio,
-                Loc.T(LocalizedStrings.Reaper.EnablePerfectioDesc, "Use Perfectio"), save))
-            {
-                config.Reaper.EnablePerfectio = enablePerfectio;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Reaper.EnablePerfectio, "Enable Perfectio"),
+                () => config.Reaper.EnablePerfectio,
+                v => config.Reaper.EnablePerfectio = v,
+                Loc.T(LocalizedStrings.Reaper.EnablePerfectioDesc, "Use Perfectio"), save);
 
             ConfigUIHelpers.Spacing();
 
@@ -100,26 +97,23 @@ public sealed class ReaperSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableEnshroud = config.Reaper.EnableEnshroud;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Reaper.EnableEnshroud, "Enable Enshroud"), ref enableEnshroud,
-                Loc.T(LocalizedStrings.Reaper.EnableEnshroudDesc, "Enter Enshroud burst window"), save))
-            {
-                config.Reaper.EnableEnshroud = enableEnshroud;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Reaper.EnableEnshroud, "Enable Enshroud"),
+                () => config.Reaper.EnableEnshroud,
+                v => config.Reaper.EnableEnshroud = v,
+                Loc.T(LocalizedStrings.Reaper.EnableEnshroudDesc, "Enter Enshroud burst window"), save);
 
-            var enableLemureAbilities = config.Reaper.EnableLemureAbilities;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Reaper.EnableLemureAbilities, "Enable Lemure Abilities"), ref enableLemureAbilities,
-                Loc.T(LocalizedStrings.Reaper.EnableLemureAbilitiesDesc, "Use Lemure abilities during Enshroud"), save))
-            {
-                config.Reaper.EnableLemureAbilities = enableLemureAbilities;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Reaper.EnableLemureAbilities, "Enable Lemure Abilities"),
+                () => config.Reaper.EnableLemureAbilities,
+                v => config.Reaper.EnableLemureAbilities = v,
+                Loc.T(LocalizedStrings.Reaper.EnableLemureAbilitiesDesc, "Use Lemure abilities during Enshroud"), save);
 
-            var saveShroudForBurst = config.Reaper.SaveShroudForBurst;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Reaper.SaveShroudForBurst, "Save Shroud for Burst"), ref saveShroudForBurst,
-                Loc.T(LocalizedStrings.Reaper.SaveShroudForBurstDesc, "Hold Shroud gauge for burst windows"), save))
-            {
-                config.Reaper.SaveShroudForBurst = saveShroudForBurst;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Reaper.SaveShroudForBurst, "Save Shroud for Burst"),
+                () => config.Reaper.SaveShroudForBurst,
+                v => config.Reaper.SaveShroudForBurst = v,
+                Loc.T(LocalizedStrings.Reaper.SaveShroudForBurstDesc, "Hold Shroud gauge for burst windows"), save);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -131,19 +125,17 @@ public sealed class ReaperSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableArcaneCircle = config.Reaper.EnableArcaneCircle;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Reaper.EnableArcaneCircle, "Enable Arcane Circle"), ref enableArcaneCircle,
-                Loc.T(LocalizedStrings.Reaper.EnableArcaneCircleDesc, "Use Arcane Circle (party buff)"), save))
-            {
-                config.Reaper.EnableArcaneCircle = enableArcaneCircle;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Reaper.EnableArcaneCircle, "Enable Arcane Circle"),
+                () => config.Reaper.EnableArcaneCircle,
+                v => config.Reaper.EnableArcaneCircle = v,
+                Loc.T(LocalizedStrings.Reaper.EnableArcaneCircleDesc, "Use Arcane Circle (party buff)"), save);
 
-            var alignWithParty = config.Reaper.AlignArcaneCircleWithParty;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Reaper.AlignWithParty, "Align with Party"), ref alignWithParty,
-                Loc.T(LocalizedStrings.Reaper.AlignWithPartyDesc, "Coordinate Arcane Circle with party burst"), save))
-            {
-                config.Reaper.AlignArcaneCircleWithParty = alignWithParty;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Reaper.AlignWithParty, "Align with Party"),
+                () => config.Reaper.AlignArcaneCircleWithParty,
+                v => config.Reaper.AlignArcaneCircleWithParty = v,
+                Loc.T(LocalizedStrings.Reaper.AlignWithPartyDesc, "Coordinate Arcane Circle with party burst"), save);
 
             config.Reaper.ArcaneCircleHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Reaper.ArcaneCircleHoldTime, "Arcane Circle Hold Time"),

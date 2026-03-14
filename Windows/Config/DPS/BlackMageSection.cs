@@ -35,26 +35,23 @@ public sealed class BlackMageSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableXenoglossy = config.BlackMage.EnableXenoglossy;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.BlackMage.EnableXenoglossy, "Enable Xenoglossy"), ref enableXenoglossy,
-                Loc.T(LocalizedStrings.BlackMage.EnableXenoglossyDesc, "Use Xenoglossy (Polyglot spender)"), save))
-            {
-                config.BlackMage.EnableXenoglossy = enableXenoglossy;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.BlackMage.EnableXenoglossy, "Enable Xenoglossy"),
+                () => config.BlackMage.EnableXenoglossy,
+                v => config.BlackMage.EnableXenoglossy = v,
+                Loc.T(LocalizedStrings.BlackMage.EnableXenoglossyDesc, "Use Xenoglossy (Polyglot spender)"), save);
 
-            var enableDespair = config.BlackMage.EnableDespair;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.BlackMage.EnableDespair, "Enable Despair"), ref enableDespair,
-                Loc.T(LocalizedStrings.BlackMage.EnableDespairDesc, "Use Despair"), save))
-            {
-                config.BlackMage.EnableDespair = enableDespair;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.BlackMage.EnableDespair, "Enable Despair"),
+                () => config.BlackMage.EnableDespair,
+                v => config.BlackMage.EnableDespair = v,
+                Loc.T(LocalizedStrings.BlackMage.EnableDespairDesc, "Use Despair"), save);
 
-            var enableFlareStar = config.BlackMage.EnableFlareStar;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.BlackMage.EnableFlareStar, "Enable Flare Star"), ref enableFlareStar,
-                Loc.T(LocalizedStrings.BlackMage.EnableFlareStarDesc, "Use Flare Star"), save))
-            {
-                config.BlackMage.EnableFlareStar = enableFlareStar;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.BlackMage.EnableFlareStar, "Enable Flare Star"),
+                () => config.BlackMage.EnableFlareStar,
+                v => config.BlackMage.EnableFlareStar = v,
+                Loc.T(LocalizedStrings.BlackMage.EnableFlareStarDesc, "Use Flare Star"), save);
 
             ConfigUIHelpers.Spacing();
 
@@ -100,24 +97,22 @@ public sealed class BlackMageSection
                 config.BlackMage.MovementPriority = movementPriority;
             }
 
-            var savePolyglotForMovement = config.BlackMage.SavePolyglotForMovement;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.BlackMage.SavePolyglotForMovement, "Save Polyglot for Movement"), ref savePolyglotForMovement,
-                Loc.T(LocalizedStrings.BlackMage.SavePolyglotForMovementDesc, "Reserve Polyglot stacks for movement"), save))
-            {
-                config.BlackMage.SavePolyglotForMovement = savePolyglotForMovement;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.BlackMage.SavePolyglotForMovement, "Save Polyglot for Movement"),
+                () => config.BlackMage.SavePolyglotForMovement,
+                v => config.BlackMage.SavePolyglotForMovement = v,
+                Loc.T(LocalizedStrings.BlackMage.SavePolyglotForMovementDesc, "Reserve Polyglot stacks for movement"), save);
 
             config.BlackMage.PolyglotMovementReserve = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.BlackMage.PolyglotMovementReserve, "Polyglot Reserve"),
                 config.BlackMage.PolyglotMovementReserve, 0, 2,
                 Loc.T(LocalizedStrings.BlackMage.PolyglotMovementReserveDesc, "Polyglot stacks to reserve for movement"), save);
 
-            var enableLeyLines = config.BlackMage.EnableLeyLines;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.BlackMage.EnableLeyLines, "Enable Ley Lines"), ref enableLeyLines,
-                Loc.T(LocalizedStrings.BlackMage.EnableLeyLinesDesc, "Use Ley Lines"), save))
-            {
-                config.BlackMage.EnableLeyLines = enableLeyLines;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.BlackMage.EnableLeyLines, "Enable Ley Lines"),
+                () => config.BlackMage.EnableLeyLines,
+                v => config.BlackMage.EnableLeyLines = v,
+                Loc.T(LocalizedStrings.BlackMage.EnableLeyLinesDesc, "Use Ley Lines"), save);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -129,24 +124,22 @@ public sealed class BlackMageSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var maintainThunder = config.BlackMage.MaintainThunder;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.BlackMage.MaintainThunder, "Maintain Thunder"), ref maintainThunder,
-                Loc.T(LocalizedStrings.BlackMage.MaintainThunderDesc, "Keep Thunder DoT active"), save))
-            {
-                config.BlackMage.MaintainThunder = maintainThunder;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.BlackMage.MaintainThunder, "Maintain Thunder"),
+                () => config.BlackMage.MaintainThunder,
+                v => config.BlackMage.MaintainThunder = v,
+                Loc.T(LocalizedStrings.BlackMage.MaintainThunderDesc, "Keep Thunder DoT active"), save);
 
             config.BlackMage.ThunderRefreshThreshold = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.BlackMage.ThunderRefreshThreshold, "Thunder Refresh"),
                 config.BlackMage.ThunderRefreshThreshold, 0f, 15f, "%.0f s",
                 Loc.T(LocalizedStrings.BlackMage.ThunderRefreshThresholdDesc, "Seconds remaining before refreshing"), save);
 
-            var useThunderheadImmediately = config.BlackMage.UseThunderheadImmediately;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.BlackMage.UseThunderheadImmediately, "Use Thunderhead Immediately"), ref useThunderheadImmediately,
-                Loc.T(LocalizedStrings.BlackMage.UseThunderheadImmediatelyDesc, "Use Thunderhead procs immediately"), save))
-            {
-                config.BlackMage.UseThunderheadImmediately = useThunderheadImmediately;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.BlackMage.UseThunderheadImmediately, "Use Thunderhead Immediately"),
+                () => config.BlackMage.UseThunderheadImmediately,
+                v => config.BlackMage.UseThunderheadImmediately = v,
+                Loc.T(LocalizedStrings.BlackMage.UseThunderheadImmediatelyDesc, "Use Thunderhead procs immediately"), save);
 
             ConfigUIHelpers.EndIndent();
         }

@@ -116,6 +116,17 @@ public static class ConfigUIHelpers
     }
 
     /// <summary>
+    /// Binds a boolean config property to a checkbox using getter/setter lambdas.
+    /// Eliminates the local-variable workaround required by ImGui's ref bool parameter.
+    /// </summary>
+    public static void Toggle(string label, Func<bool> get, Action<bool> set, string? tooltip, Action save)
+    {
+        var val = get();
+        if (ToggleCheckbox(label, ref val, tooltip, save))
+            set(val);
+    }
+
+    /// <summary>
     /// Renders a checkbox on the same line as the previous element.
     /// </summary>
     public static bool ToggleCheckboxSameLine(string label, ref bool value, Action save)

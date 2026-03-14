@@ -35,26 +35,23 @@ public sealed class DancerSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableProcs = config.Dancer.EnableProcs;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Dancer.EnableProcs, "Enable Procs"), ref enableProcs,
-                Loc.T(LocalizedStrings.Dancer.EnableProcsDesc, "Use proc weaponskills"), save))
-            {
-                config.Dancer.EnableProcs = enableProcs;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.EnableProcs, "Enable Procs"),
+                () => config.Dancer.EnableProcs,
+                v => config.Dancer.EnableProcs = v,
+                Loc.T(LocalizedStrings.Dancer.EnableProcsDesc, "Use proc weaponskills"), save);
 
-            var enableStarfallDance = config.Dancer.EnableStarfallDance;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Dancer.EnableStarfallDance, "Enable Starfall Dance"), ref enableStarfallDance,
-                Loc.T(LocalizedStrings.Dancer.EnableStarfallDanceDesc, "Use Starfall Dance"), save))
-            {
-                config.Dancer.EnableStarfallDance = enableStarfallDance;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.EnableStarfallDance, "Enable Starfall Dance"),
+                () => config.Dancer.EnableStarfallDance,
+                v => config.Dancer.EnableStarfallDance = v,
+                Loc.T(LocalizedStrings.Dancer.EnableStarfallDanceDesc, "Use Starfall Dance"), save);
 
-            var enableTillana = config.Dancer.EnableTillana;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Dancer.EnableTillana, "Enable Tillana"), ref enableTillana,
-                Loc.T(LocalizedStrings.Dancer.EnableTillanaDesc, "Use Tillana"), save))
-            {
-                config.Dancer.EnableTillana = enableTillana;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.EnableTillana, "Enable Tillana"),
+                () => config.Dancer.EnableTillana,
+                v => config.Dancer.EnableTillana = v,
+                Loc.T(LocalizedStrings.Dancer.EnableTillanaDesc, "Use Tillana"), save);
 
             ConfigUIHelpers.Spacing();
 
@@ -73,26 +70,23 @@ public sealed class DancerSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableStandardStep = config.Dancer.EnableStandardStep;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Dancer.EnableStandardStep, "Enable Standard Step"), ref enableStandardStep,
-                Loc.T(LocalizedStrings.Dancer.EnableStandardStepDesc, "Use Standard Step"), save))
-            {
-                config.Dancer.EnableStandardStep = enableStandardStep;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.EnableStandardStep, "Enable Standard Step"),
+                () => config.Dancer.EnableStandardStep,
+                v => config.Dancer.EnableStandardStep = v,
+                Loc.T(LocalizedStrings.Dancer.EnableStandardStepDesc, "Use Standard Step"), save);
 
-            var enableTechnicalStep = config.Dancer.EnableTechnicalStep;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Dancer.EnableTechnicalStep, "Enable Technical Step"), ref enableTechnicalStep,
-                Loc.T(LocalizedStrings.Dancer.EnableTechnicalStepDesc, "Use Technical Step"), save))
-            {
-                config.Dancer.EnableTechnicalStep = enableTechnicalStep;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.EnableTechnicalStep, "Enable Technical Step"),
+                () => config.Dancer.EnableTechnicalStep,
+                v => config.Dancer.EnableTechnicalStep = v,
+                Loc.T(LocalizedStrings.Dancer.EnableTechnicalStepDesc, "Use Technical Step"), save);
 
-            var delayStandardForTechnical = config.Dancer.DelayStandardForTechnical;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Dancer.DelayStandardForTechnical, "Delay Standard for Technical"), ref delayStandardForTechnical,
-                Loc.T(LocalizedStrings.Dancer.DelayStandardForTechnicalDesc, "Hold Standard Step if Technical is coming soon"), save))
-            {
-                config.Dancer.DelayStandardForTechnical = delayStandardForTechnical;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.DelayStandardForTechnical, "Delay Standard for Technical"),
+                () => config.Dancer.DelayStandardForTechnical,
+                v => config.Dancer.DelayStandardForTechnical = v,
+                Loc.T(LocalizedStrings.Dancer.DelayStandardForTechnicalDesc, "Hold Standard Step if Technical is coming soon"), save);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -104,12 +98,11 @@ public sealed class DancerSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableSaberDance = config.Dancer.EnableSaberDance;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Dancer.EnableSaberDance, "Enable Saber Dance"), ref enableSaberDance,
-                Loc.T(LocalizedStrings.Dancer.EnableSaberDanceDesc, "Use Saber Dance"), save))
-            {
-                config.Dancer.EnableSaberDance = enableSaberDance;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.EnableSaberDance, "Enable Saber Dance"),
+                () => config.Dancer.EnableSaberDance,
+                v => config.Dancer.EnableSaberDance = v,
+                Loc.T(LocalizedStrings.Dancer.EnableSaberDanceDesc, "Use Saber Dance"), save);
 
             config.Dancer.SaberDanceMinGauge = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Dancer.SaberDanceMinGauge, "Saber Dance Min Gauge"),
@@ -118,12 +111,11 @@ public sealed class DancerSection
 
             ConfigUIHelpers.Spacing();
 
-            var enableFanDance = config.Dancer.EnableFanDance;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Dancer.EnableFanDance, "Enable Fan Dance"), ref enableFanDance,
-                Loc.T(LocalizedStrings.Dancer.EnableFanDanceDesc, "Use Fan Dance abilities"), save))
-            {
-                config.Dancer.EnableFanDance = enableFanDance;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.EnableFanDance, "Enable Fan Dance"),
+                () => config.Dancer.EnableFanDance,
+                v => config.Dancer.EnableFanDance = v,
+                Loc.T(LocalizedStrings.Dancer.EnableFanDanceDesc, "Use Fan Dance abilities"), save);
 
             config.Dancer.FanDanceMinFeathers = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Dancer.FanDanceMinFeathers, "Fan Dance Min Feathers"),
@@ -140,19 +132,17 @@ public sealed class DancerSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableDevilment = config.Dancer.EnableDevilment;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Dancer.EnableDevilment, "Enable Devilment"), ref enableDevilment,
-                Loc.T(LocalizedStrings.Dancer.EnableDevilmentDesc, "Use Devilment"), save))
-            {
-                config.Dancer.EnableDevilment = enableDevilment;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.EnableDevilment, "Enable Devilment"),
+                () => config.Dancer.EnableDevilment,
+                v => config.Dancer.EnableDevilment = v,
+                Loc.T(LocalizedStrings.Dancer.EnableDevilmentDesc, "Use Devilment"), save);
 
-            var alignWithParty = config.Dancer.AlignTechnicalWithParty;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Dancer.AlignWithParty, "Align with Party"), ref alignWithParty,
-                Loc.T(LocalizedStrings.Dancer.AlignWithPartyDesc, "Coordinate Technical Finish with party burst"), save))
-            {
-                config.Dancer.AlignTechnicalWithParty = alignWithParty;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.AlignWithParty, "Align with Party"),
+                () => config.Dancer.AlignTechnicalWithParty,
+                v => config.Dancer.AlignTechnicalWithParty = v,
+                Loc.T(LocalizedStrings.Dancer.AlignWithPartyDesc, "Coordinate Technical Finish with party burst"), save);
 
             config.Dancer.TechnicalHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Dancer.TechnicalHoldTime, "Technical Hold Time"),

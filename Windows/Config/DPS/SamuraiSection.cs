@@ -35,26 +35,23 @@ public sealed class SamuraiSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableIaijutsu = config.Samurai.EnableIaijutsu;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Samurai.EnableIaijutsu, "Enable Iaijutsu"), ref enableIaijutsu,
-                Loc.T(LocalizedStrings.Samurai.EnableIaijutsuDesc, "Use Higanbana, Midare Setsugekka, etc."), save))
-            {
-                config.Samurai.EnableIaijutsu = enableIaijutsu;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Samurai.EnableIaijutsu, "Enable Iaijutsu"),
+                () => config.Samurai.EnableIaijutsu,
+                v => config.Samurai.EnableIaijutsu = v,
+                Loc.T(LocalizedStrings.Samurai.EnableIaijutsuDesc, "Use Higanbana, Midare Setsugekka, etc."), save);
 
-            var enableTsubamegaeshi = config.Samurai.EnableTsubamegaeshi;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Samurai.EnableTsubamegaeshi, "Enable Tsubame-gaeshi"), ref enableTsubamegaeshi,
-                Loc.T(LocalizedStrings.Samurai.EnableTsubamegaeshiDesc, "Use Tsubame-gaeshi after Iaijutsu"), save))
-            {
-                config.Samurai.EnableTsubamegaeshi = enableTsubamegaeshi;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Samurai.EnableTsubamegaeshi, "Enable Tsubame-gaeshi"),
+                () => config.Samurai.EnableTsubamegaeshi,
+                v => config.Samurai.EnableTsubamegaeshi = v,
+                Loc.T(LocalizedStrings.Samurai.EnableTsubamegaeshiDesc, "Use Tsubame-gaeshi after Iaijutsu"), save);
 
-            var enableOgiNamikiri = config.Samurai.EnableOgiNamikiri;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Samurai.EnableOgiNamikiri, "Enable Ogi Namikiri"), ref enableOgiNamikiri,
-                Loc.T(LocalizedStrings.Samurai.EnableOgiNamikiriDesc, "Use Ogi Namikiri"), save))
-            {
-                config.Samurai.EnableOgiNamikiri = enableOgiNamikiri;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Samurai.EnableOgiNamikiri, "Enable Ogi Namikiri"),
+                () => config.Samurai.EnableOgiNamikiri,
+                v => config.Samurai.EnableOgiNamikiri = v,
+                Loc.T(LocalizedStrings.Samurai.EnableOgiNamikiriDesc, "Use Ogi Namikiri"), save);
 
             ConfigUIHelpers.Spacing();
 
@@ -73,19 +70,17 @@ public sealed class SamuraiSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableShinten = config.Samurai.EnableShinten;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Samurai.EnableShinten, "Enable Shinten"), ref enableShinten,
-                Loc.T(LocalizedStrings.Samurai.EnableShintenDesc, "Use Shinten (single-target Kenki spender)"), save))
-            {
-                config.Samurai.EnableShinten = enableShinten;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Samurai.EnableShinten, "Enable Shinten"),
+                () => config.Samurai.EnableShinten,
+                v => config.Samurai.EnableShinten = v,
+                Loc.T(LocalizedStrings.Samurai.EnableShintenDesc, "Use Shinten (single-target Kenki spender)"), save);
 
-            var enableSenei = config.Samurai.EnableSenei;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Samurai.EnableSenei, "Enable Senei"), ref enableSenei,
-                Loc.T(LocalizedStrings.Samurai.EnableSeneiDesc, "Use Senei (high-damage Kenki spender)"), save))
-            {
-                config.Samurai.EnableSenei = enableSenei;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Samurai.EnableSenei, "Enable Senei"),
+                () => config.Samurai.EnableSenei,
+                v => config.Samurai.EnableSenei = v,
+                Loc.T(LocalizedStrings.Samurai.EnableSeneiDesc, "Use Senei (high-damage Kenki spender)"), save);
 
             config.Samurai.KenkiMinGauge = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Samurai.KenkiMinGauge, "Kenki Min Gauge"),
@@ -107,12 +102,11 @@ public sealed class SamuraiSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var maintainHiganbana = config.Samurai.MaintainHiganbana;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Samurai.MaintainHiganbana, "Maintain Higanbana"), ref maintainHiganbana,
-                Loc.T(LocalizedStrings.Samurai.MaintainHiganbanaDesc, "Keep Higanbana DoT active on target"), save))
-            {
-                config.Samurai.MaintainHiganbana = maintainHiganbana;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Samurai.MaintainHiganbana, "Maintain Higanbana"),
+                () => config.Samurai.MaintainHiganbana,
+                v => config.Samurai.MaintainHiganbana = v,
+                Loc.T(LocalizedStrings.Samurai.MaintainHiganbanaDesc, "Keep Higanbana DoT active on target"), save);
 
             config.Samurai.HiganbanaRefreshThreshold = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Samurai.HiganbanaRefreshThreshold, "Higanbana Refresh"),
@@ -134,19 +128,17 @@ public sealed class SamuraiSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableIkishoten = config.Samurai.EnableIkishoten;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Samurai.EnableIkishoten, "Enable Ikishoten"), ref enableIkishoten,
-                Loc.T(LocalizedStrings.Samurai.EnableIkishotenDesc, "Use Ikishoten"), save))
-            {
-                config.Samurai.EnableIkishoten = enableIkishoten;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Samurai.EnableIkishoten, "Enable Ikishoten"),
+                () => config.Samurai.EnableIkishoten,
+                v => config.Samurai.EnableIkishoten = v,
+                Loc.T(LocalizedStrings.Samurai.EnableIkishotenDesc, "Use Ikishoten"), save);
 
-            var alignWithParty = config.Samurai.AlignIkishotenWithParty;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Samurai.AlignWithParty, "Align with Party"), ref alignWithParty,
-                Loc.T(LocalizedStrings.Samurai.AlignWithPartyDesc, "Coordinate Ikishoten with party burst"), save))
-            {
-                config.Samurai.AlignIkishotenWithParty = alignWithParty;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Samurai.AlignWithParty, "Align with Party"),
+                () => config.Samurai.AlignIkishotenWithParty,
+                v => config.Samurai.AlignIkishotenWithParty = v,
+                Loc.T(LocalizedStrings.Samurai.AlignWithPartyDesc, "Coordinate Ikishoten with party burst"), save);
 
             config.Samurai.IkishotenHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Samurai.IkishotenHoldTime, "Ikishoten Hold Time"),

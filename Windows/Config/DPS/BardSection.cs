@@ -35,19 +35,17 @@ public sealed class BardSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableApexArrow = config.Bard.EnableApexArrow;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Bard.EnableApexArrow, "Enable Apex Arrow"), ref enableApexArrow,
-                Loc.T(LocalizedStrings.Bard.EnableApexArrowDesc, "Use Apex Arrow"), save))
-            {
-                config.Bard.EnableApexArrow = enableApexArrow;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnableApexArrow, "Enable Apex Arrow"),
+                () => config.Bard.EnableApexArrow,
+                v => config.Bard.EnableApexArrow = v,
+                Loc.T(LocalizedStrings.Bard.EnableApexArrowDesc, "Use Apex Arrow"), save);
 
-            var enableBlastArrow = config.Bard.EnableBlastArrow;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Bard.EnableBlastArrow, "Enable Blast Arrow"), ref enableBlastArrow,
-                Loc.T(LocalizedStrings.Bard.EnableBlastArrowDesc, "Use Blast Arrow"), save))
-            {
-                config.Bard.EnableBlastArrow = enableBlastArrow;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnableBlastArrow, "Enable Blast Arrow"),
+                () => config.Bard.EnableBlastArrow,
+                v => config.Bard.EnableBlastArrow = v,
+                Loc.T(LocalizedStrings.Bard.EnableBlastArrowDesc, "Use Blast Arrow"), save);
 
             config.Bard.ApexArrowMinGauge = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Bard.ApexArrowMinGauge, "Apex Arrow Min Gauge"),
@@ -78,24 +76,22 @@ public sealed class BardSection
                 config.Bard.SongRotation = songRotation;
             }
 
-            var enablePitchPerfect = config.Bard.EnablePitchPerfect;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Bard.EnablePitchPerfect, "Enable Pitch Perfect"), ref enablePitchPerfect,
-                Loc.T(LocalizedStrings.Bard.EnablePitchPerfectDesc, "Use Pitch Perfect during Wanderer's Minuet"), save))
-            {
-                config.Bard.EnablePitchPerfect = enablePitchPerfect;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnablePitchPerfect, "Enable Pitch Perfect"),
+                () => config.Bard.EnablePitchPerfect,
+                v => config.Bard.EnablePitchPerfect = v,
+                Loc.T(LocalizedStrings.Bard.EnablePitchPerfectDesc, "Use Pitch Perfect during Wanderer's Minuet"), save);
 
             config.Bard.PitchPerfectMinStacks = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Bard.PitchPerfectMinStacks, "Pitch Perfect Min Stacks"),
                 config.Bard.PitchPerfectMinStacks, 1, 3,
                 Loc.T(LocalizedStrings.Bard.PitchPerfectMinStacksDesc, "Minimum Repertoire for Pitch Perfect"), save);
 
-            var usePitchPerfectEarly = config.Bard.UsePitchPerfectEarly;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Bard.UsePitchPerfectEarly, "Use Pitch Perfect Early"), ref usePitchPerfectEarly,
-                Loc.T(LocalizedStrings.Bard.UsePitchPerfectEarlyDesc, "Use at 2 stacks if song is ending"), save))
-            {
-                config.Bard.UsePitchPerfectEarly = usePitchPerfectEarly;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.UsePitchPerfectEarly, "Use Pitch Perfect Early"),
+                () => config.Bard.UsePitchPerfectEarly,
+                v => config.Bard.UsePitchPerfectEarly = v,
+                Loc.T(LocalizedStrings.Bard.UsePitchPerfectEarlyDesc, "Use at 2 stacks if song is ending"), save);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -107,31 +103,28 @@ public sealed class BardSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableCausticBite = config.Bard.EnableCausticBite;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Bard.EnableCausticBite, "Enable Caustic Bite"), ref enableCausticBite,
-                Loc.T(LocalizedStrings.Bard.EnableCausticBiteDesc, "Maintain Caustic Bite DoT"), save))
-            {
-                config.Bard.EnableCausticBite = enableCausticBite;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnableCausticBite, "Enable Caustic Bite"),
+                () => config.Bard.EnableCausticBite,
+                v => config.Bard.EnableCausticBite = v,
+                Loc.T(LocalizedStrings.Bard.EnableCausticBiteDesc, "Maintain Caustic Bite DoT"), save);
 
-            var enableStormbite = config.Bard.EnableStormbite;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Bard.EnableStormbite, "Enable Stormbite"), ref enableStormbite,
-                Loc.T(LocalizedStrings.Bard.EnableStormBiteDesc, "Maintain Stormbite DoT"), save))
-            {
-                config.Bard.EnableStormbite = enableStormbite;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnableStormbite, "Enable Stormbite"),
+                () => config.Bard.EnableStormbite,
+                v => config.Bard.EnableStormbite = v,
+                Loc.T(LocalizedStrings.Bard.EnableStormBiteDesc, "Maintain Stormbite DoT"), save);
 
             config.Bard.DotRefreshThreshold = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Bard.DotRefreshThreshold, "DoT Refresh Threshold"),
                 config.Bard.DotRefreshThreshold, 0f, 15f, "%.0f s",
                 Loc.T(LocalizedStrings.Bard.DotRefreshThresholdDesc, "Seconds remaining before refreshing DoTs"), save);
 
-            var spreadDots = config.Bard.SpreadDots;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Bard.SpreadDots, "Spread DoTs"), ref spreadDots,
-                Loc.T(LocalizedStrings.Bard.SpreadDotsDesc, "Apply DoTs to multiple targets"), save))
-            {
-                config.Bard.SpreadDots = spreadDots;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.SpreadDots, "Spread DoTs"),
+                () => config.Bard.SpreadDots,
+                v => config.Bard.SpreadDots = v,
+                Loc.T(LocalizedStrings.Bard.SpreadDotsDesc, "Apply DoTs to multiple targets"), save);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -143,26 +136,23 @@ public sealed class BardSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableBattleVoice = config.Bard.EnableBattleVoice;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Bard.EnableBattleVoice, "Enable Battle Voice"), ref enableBattleVoice,
-                Loc.T(LocalizedStrings.Bard.EnableBattleVoiceDesc, "Use Battle Voice (party buff)"), save))
-            {
-                config.Bard.EnableBattleVoice = enableBattleVoice;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnableBattleVoice, "Enable Battle Voice"),
+                () => config.Bard.EnableBattleVoice,
+                v => config.Bard.EnableBattleVoice = v,
+                Loc.T(LocalizedStrings.Bard.EnableBattleVoiceDesc, "Use Battle Voice (party buff)"), save);
 
-            var enableRadiantFinale = config.Bard.EnableRadiantFinale;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Bard.EnableRadiantFinale, "Enable Radiant Finale"), ref enableRadiantFinale,
-                Loc.T(LocalizedStrings.Bard.EnableRadiantFinaleDesc, "Use Radiant Finale (party buff)"), save))
-            {
-                config.Bard.EnableRadiantFinale = enableRadiantFinale;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnableRadiantFinale, "Enable Radiant Finale"),
+                () => config.Bard.EnableRadiantFinale,
+                v => config.Bard.EnableRadiantFinale = v,
+                Loc.T(LocalizedStrings.Bard.EnableRadiantFinaleDesc, "Use Radiant Finale (party buff)"), save);
 
-            var alignWithParty = config.Bard.AlignBuffsWithParty;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Bard.AlignWithParty, "Align with Party"), ref alignWithParty,
-                Loc.T(LocalizedStrings.Bard.AlignWithPartyDesc, "Coordinate buffs with party burst"), save))
-            {
-                config.Bard.AlignBuffsWithParty = alignWithParty;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.AlignWithParty, "Align with Party"),
+                () => config.Bard.AlignBuffsWithParty,
+                v => config.Bard.AlignBuffsWithParty = v,
+                Loc.T(LocalizedStrings.Bard.AlignWithPartyDesc, "Coordinate buffs with party burst"), save);
 
             config.Bard.BuffHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Bard.BuffHoldTime, "Buff Hold Time"),

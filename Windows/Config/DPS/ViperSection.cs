@@ -35,19 +35,17 @@ public sealed class ViperSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableTwinbladeCombo = config.Viper.EnableTwinbladeCombo;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Viper.EnableTwinbladeCombo, "Enable Twinblade Combo"), ref enableTwinbladeCombo,
-                Loc.T(LocalizedStrings.Viper.EnableTwinbladeComboDesc, "Use Twinblade combo actions"), save))
-            {
-                config.Viper.EnableTwinbladeCombo = enableTwinbladeCombo;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Viper.EnableTwinbladeCombo, "Enable Twinblade Combo"),
+                () => config.Viper.EnableTwinbladeCombo,
+                v => config.Viper.EnableTwinbladeCombo = v,
+                Loc.T(LocalizedStrings.Viper.EnableTwinbladeComboDesc, "Use Twinblade combo actions"), save);
 
-            var enableUncoiledFury = config.Viper.EnableUncoiledFury;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Viper.EnableUncoiledFury, "Enable Uncoiled Fury"), ref enableUncoiledFury,
-                Loc.T(LocalizedStrings.Viper.EnableUncoiledFuryDesc, "Use Uncoiled Fury"), save))
-            {
-                config.Viper.EnableUncoiledFury = enableUncoiledFury;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Viper.EnableUncoiledFury, "Enable Uncoiled Fury"),
+                () => config.Viper.EnableUncoiledFury,
+                v => config.Viper.EnableUncoiledFury = v,
+                Loc.T(LocalizedStrings.Viper.EnableUncoiledFuryDesc, "Use Uncoiled Fury"), save);
 
             ConfigUIHelpers.Spacing();
 
@@ -66,31 +64,28 @@ public sealed class ViperSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableReawaken = config.Viper.EnableReawaken;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Viper.EnableReawaken, "Enable Reawaken"), ref enableReawaken,
-                Loc.T(LocalizedStrings.Viper.EnableReawakenDesc, "Use Reawaken burst sequence"), save))
-            {
-                config.Viper.EnableReawaken = enableReawaken;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Viper.EnableReawaken, "Enable Reawaken"),
+                () => config.Viper.EnableReawaken,
+                v => config.Viper.EnableReawaken = v,
+                Loc.T(LocalizedStrings.Viper.EnableReawakenDesc, "Use Reawaken burst sequence"), save);
 
-            var enableOuroboros = config.Viper.EnableOuroboros;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Viper.EnableOuroboros, "Enable Ouroboros"), ref enableOuroboros,
-                Loc.T(LocalizedStrings.Viper.EnableOuroborosDesc, "Use Ouroboros finisher"), save))
-            {
-                config.Viper.EnableOuroboros = enableOuroboros;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Viper.EnableOuroboros, "Enable Ouroboros"),
+                () => config.Viper.EnableOuroboros,
+                v => config.Viper.EnableOuroboros = v,
+                Loc.T(LocalizedStrings.Viper.EnableOuroborosDesc, "Use Ouroboros finisher"), save);
 
             config.Viper.AnguineMinStacks = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Viper.AnguineMinStacks, "Anguine Min Stacks"),
                 config.Viper.AnguineMinStacks, 1, 5,
                 Loc.T(LocalizedStrings.Viper.AnguineMinStacksDesc, "Minimum Anguine Tribute for Reawaken"), save);
 
-            var saveAnguineForBurst = config.Viper.SaveAnguineForBurst;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Viper.SaveAnguineForBurst, "Save Anguine for Burst"), ref saveAnguineForBurst,
-                Loc.T(LocalizedStrings.Viper.SaveAnguineForBurstDesc, "Hold Anguine Tribute for burst windows"), save))
-            {
-                config.Viper.SaveAnguineForBurst = saveAnguineForBurst;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Viper.SaveAnguineForBurst, "Save Anguine for Burst"),
+                () => config.Viper.SaveAnguineForBurst,
+                v => config.Viper.SaveAnguineForBurst = v,
+                Loc.T(LocalizedStrings.Viper.SaveAnguineForBurstDesc, "Hold Anguine Tribute for burst windows"), save);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -102,19 +97,17 @@ public sealed class ViperSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableSerpentsIre = config.Viper.EnableSerpentsIre;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Viper.EnableSerpentsIre, "Enable Serpent's Ire"), ref enableSerpentsIre,
-                Loc.T(LocalizedStrings.Viper.EnableSerpentsIreDesc, "Use Serpent's Ire"), save))
-            {
-                config.Viper.EnableSerpentsIre = enableSerpentsIre;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Viper.EnableSerpentsIre, "Enable Serpent's Ire"),
+                () => config.Viper.EnableSerpentsIre,
+                v => config.Viper.EnableSerpentsIre = v,
+                Loc.T(LocalizedStrings.Viper.EnableSerpentsIreDesc, "Use Serpent's Ire"), save);
 
-            var alignWithParty = config.Viper.AlignSerpentsIreWithParty;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Viper.AlignWithParty, "Align with Party"), ref alignWithParty,
-                Loc.T(LocalizedStrings.Viper.AlignWithPartyDesc, "Coordinate Serpent's Ire with party burst"), save))
-            {
-                config.Viper.AlignSerpentsIreWithParty = alignWithParty;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Viper.AlignWithParty, "Align with Party"),
+                () => config.Viper.AlignSerpentsIreWithParty,
+                v => config.Viper.AlignSerpentsIreWithParty = v,
+                Loc.T(LocalizedStrings.Viper.AlignWithPartyDesc, "Coordinate Serpent's Ire with party burst"), save);
 
             config.Viper.SerpentsIreHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Viper.SerpentsIreHoldTime, "Serpent's Ire Hold Time"),
@@ -131,19 +124,17 @@ public sealed class ViperSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enforcePositionals = config.Viper.EnforcePositionals;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Viper.EnforcePositionals, "Enforce Positionals"), ref enforcePositionals,
-                Loc.T(LocalizedStrings.Viper.EnforcePositionalsDesc, "Only use positional actions when in correct position"), save))
-            {
-                config.Viper.EnforcePositionals = enforcePositionals;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Viper.EnforcePositionals, "Enforce Positionals"),
+                () => config.Viper.EnforcePositionals,
+                v => config.Viper.EnforcePositionals = v,
+                Loc.T(LocalizedStrings.Viper.EnforcePositionalsDesc, "Only use positional actions when in correct position"), save);
 
-            var optimizeVenomPositionals = config.Viper.OptimizeVenomPositionals;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Viper.OptimizeVenomPositionals, "Optimize Venom Positionals"), ref optimizeVenomPositionals,
-                Loc.T(LocalizedStrings.Viper.OptimizeVenomPositionalsDesc, "Prioritize venom based on position"), save))
-            {
-                config.Viper.OptimizeVenomPositionals = optimizeVenomPositionals;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Viper.OptimizeVenomPositionals, "Optimize Venom Positionals"),
+                () => config.Viper.OptimizeVenomPositionals,
+                v => config.Viper.OptimizeVenomPositionals = v,
+                Loc.T(LocalizedStrings.Viper.OptimizeVenomPositionalsDesc, "Prioritize venom based on position"), save);
 
             ConfigUIHelpers.EndIndent();
         }

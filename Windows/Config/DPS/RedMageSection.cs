@@ -35,19 +35,17 @@ public sealed class RedMageSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableProcs = config.RedMage.EnableProcs;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.RedMage.EnableProcs, "Enable Procs"), ref enableProcs,
-                Loc.T(LocalizedStrings.RedMage.EnableProcsDesc, "Use Verstone/Verfire procs"), save))
-            {
-                config.RedMage.EnableProcs = enableProcs;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.RedMage.EnableProcs, "Enable Procs"),
+                () => config.RedMage.EnableProcs,
+                v => config.RedMage.EnableProcs = v,
+                Loc.T(LocalizedStrings.RedMage.EnableProcsDesc, "Use Verstone/Verfire procs"), save);
 
-            var enableGrandImpact = config.RedMage.EnableGrandImpact;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.RedMage.EnableGrandImpact, "Enable Grand Impact"), ref enableGrandImpact,
-                Loc.T(LocalizedStrings.RedMage.EnableGrandImpactDesc, "Use Grand Impact procs"), save))
-            {
-                config.RedMage.EnableGrandImpact = enableGrandImpact;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.RedMage.EnableGrandImpact, "Enable Grand Impact"),
+                () => config.RedMage.EnableGrandImpact,
+                v => config.RedMage.EnableGrandImpact = v,
+                Loc.T(LocalizedStrings.RedMage.EnableGrandImpactDesc, "Use Grand Impact procs"), save);
 
             ConfigUIHelpers.Spacing();
 
@@ -66,12 +64,11 @@ public sealed class RedMageSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var strictManaBalance = config.RedMage.StrictManaBalance;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.RedMage.StrictManaBalance, "Strict Mana Balance"), ref strictManaBalance,
-                Loc.T(LocalizedStrings.RedMage.StrictManaBalanceDesc, "Strictly balance mana (prioritize lower)"), save))
-            {
-                config.RedMage.StrictManaBalance = strictManaBalance;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.RedMage.StrictManaBalance, "Strict Mana Balance"),
+                () => config.RedMage.StrictManaBalance,
+                v => config.RedMage.StrictManaBalance = v,
+                Loc.T(LocalizedStrings.RedMage.StrictManaBalanceDesc, "Strictly balance mana (prioritize lower)"), save);
 
             config.RedMage.ManaImbalanceThreshold = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.RedMage.ManaImbalanceThreshold, "Mana Imbalance Threshold"),
@@ -88,19 +85,17 @@ public sealed class RedMageSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableMeleeCombo = config.RedMage.EnableMeleeCombo;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.RedMage.EnableMeleeCombo, "Enable Melee Combo"), ref enableMeleeCombo,
-                Loc.T(LocalizedStrings.RedMage.EnableMeleeComboDesc, "Use melee combo (Riposte chain)"), save))
-            {
-                config.RedMage.EnableMeleeCombo = enableMeleeCombo;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.RedMage.EnableMeleeCombo, "Enable Melee Combo"),
+                () => config.RedMage.EnableMeleeCombo,
+                v => config.RedMage.EnableMeleeCombo = v,
+                Loc.T(LocalizedStrings.RedMage.EnableMeleeComboDesc, "Use melee combo (Riposte chain)"), save);
 
-            var enableFinisherCombo = config.RedMage.EnableFinisherCombo;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.RedMage.EnableFinisherCombo, "Enable Finisher Combo"), ref enableFinisherCombo,
-                Loc.T(LocalizedStrings.RedMage.EnableFinisherComboDesc, "Use finisher combo (Verholy/Verflare chain)"), save))
-            {
-                config.RedMage.EnableFinisherCombo = enableFinisherCombo;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.RedMage.EnableFinisherCombo, "Enable Finisher Combo"),
+                () => config.RedMage.EnableFinisherCombo,
+                v => config.RedMage.EnableFinisherCombo = v,
+                Loc.T(LocalizedStrings.RedMage.EnableFinisherComboDesc, "Use finisher combo (Verholy/Verflare chain)"), save);
 
             config.RedMage.MeleeComboMinMana = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.RedMage.MeleeComboMinMana, "Melee Min Mana"),
@@ -124,26 +119,23 @@ public sealed class RedMageSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableEmbolden = config.RedMage.EnableEmbolden;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.RedMage.EnableEmbolden, "Enable Embolden"), ref enableEmbolden,
-                Loc.T(LocalizedStrings.RedMage.EnableEmboldenDesc, "Use Embolden (party buff)"), save))
-            {
-                config.RedMage.EnableEmbolden = enableEmbolden;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.RedMage.EnableEmbolden, "Enable Embolden"),
+                () => config.RedMage.EnableEmbolden,
+                v => config.RedMage.EnableEmbolden = v,
+                Loc.T(LocalizedStrings.RedMage.EnableEmboldenDesc, "Use Embolden (party buff)"), save);
 
-            var enableManafication = config.RedMage.EnableManafication;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.RedMage.EnableManafication, "Enable Manafication"), ref enableManafication,
-                Loc.T(LocalizedStrings.RedMage.EnableManaficationDesc, "Use Manafication"), save))
-            {
-                config.RedMage.EnableManafication = enableManafication;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.RedMage.EnableManafication, "Enable Manafication"),
+                () => config.RedMage.EnableManafication,
+                v => config.RedMage.EnableManafication = v,
+                Loc.T(LocalizedStrings.RedMage.EnableManaficationDesc, "Use Manafication"), save);
 
-            var alignWithParty = config.RedMage.AlignEmboldenWithParty;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.RedMage.AlignWithParty, "Align with Party"), ref alignWithParty,
-                Loc.T(LocalizedStrings.RedMage.AlignWithPartyDesc, "Coordinate Embolden with party burst"), save))
-            {
-                config.RedMage.AlignEmboldenWithParty = alignWithParty;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.RedMage.AlignWithParty, "Align with Party"),
+                () => config.RedMage.AlignEmboldenWithParty,
+                v => config.RedMage.AlignEmboldenWithParty = v,
+                Loc.T(LocalizedStrings.RedMage.AlignWithPartyDesc, "Coordinate Embolden with party burst"), save);
 
             config.RedMage.EmboldenHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.RedMage.EmboldenHoldTime, "Embolden Hold Time"),

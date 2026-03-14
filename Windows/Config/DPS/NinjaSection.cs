@@ -35,26 +35,23 @@ public sealed class NinjaSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableNinjutsu = config.Ninja.EnableNinjutsu;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Ninja.EnableNinjutsu, "Enable Ninjutsu"), ref enableNinjutsu,
-                Loc.T(LocalizedStrings.Ninja.EnableNinjutsuDesc, "Use mudra combinations for Ninjutsu"), save))
-            {
-                config.Ninja.EnableNinjutsu = enableNinjutsu;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Ninja.EnableNinjutsu, "Enable Ninjutsu"),
+                () => config.Ninja.EnableNinjutsu,
+                v => config.Ninja.EnableNinjutsu = v,
+                Loc.T(LocalizedStrings.Ninja.EnableNinjutsuDesc, "Use mudra combinations for Ninjutsu"), save);
 
-            var enableRaiju = config.Ninja.EnableRaiju;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Ninja.EnableRaiju, "Enable Raiju"), ref enableRaiju,
-                Loc.T(LocalizedStrings.Ninja.EnableRaijuDesc, "Use Forked/Fleeting Raiju procs"), save))
-            {
-                config.Ninja.EnableRaiju = enableRaiju;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Ninja.EnableRaiju, "Enable Raiju"),
+                () => config.Ninja.EnableRaiju,
+                v => config.Ninja.EnableRaiju = v,
+                Loc.T(LocalizedStrings.Ninja.EnableRaijuDesc, "Use Forked/Fleeting Raiju procs"), save);
 
-            var enablePhantomKamaitachi = config.Ninja.EnablePhantomKamaitachi;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Ninja.EnablePhantomKamaitachi, "Enable Phantom Kamaitachi"), ref enablePhantomKamaitachi,
-                Loc.T(LocalizedStrings.Ninja.EnablePhantomKamaitachiDesc, "Use Phantom Kamaitachi"), save))
-            {
-                config.Ninja.EnablePhantomKamaitachi = enablePhantomKamaitachi;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Ninja.EnablePhantomKamaitachi, "Enable Phantom Kamaitachi"),
+                () => config.Ninja.EnablePhantomKamaitachi,
+                v => config.Ninja.EnablePhantomKamaitachi = v,
+                Loc.T(LocalizedStrings.Ninja.EnablePhantomKamaitachiDesc, "Use Phantom Kamaitachi"), save);
 
             ConfigUIHelpers.Spacing();
 
@@ -73,12 +70,11 @@ public sealed class NinjaSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableBhavacakra = config.Ninja.EnableBhavacakra;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Ninja.EnableBhavacakra, "Enable Bhavacakra"), ref enableBhavacakra,
-                Loc.T(LocalizedStrings.Ninja.EnableBhavacakraDesc, "Use Bhavacakra (single-target Ninki spender)"), save))
-            {
-                config.Ninja.EnableBhavacakra = enableBhavacakra;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Ninja.EnableBhavacakra, "Enable Bhavacakra"),
+                () => config.Ninja.EnableBhavacakra,
+                v => config.Ninja.EnableBhavacakra = v,
+                Loc.T(LocalizedStrings.Ninja.EnableBhavacakraDesc, "Use Bhavacakra (single-target Ninki spender)"), save);
 
             config.Ninja.NinkiMinGauge = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Ninja.NinkiMinGauge, "Ninki Min Gauge"),
@@ -107,12 +103,11 @@ public sealed class NinjaSection
                 config.Ninja.SingleTargetNinjutsuPriority = priority;
             }
 
-            var useDoton = config.Ninja.UseDotonForAoE;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Ninja.UseDotonForAoE, "Use Doton for AoE"), ref useDoton,
-                Loc.T(LocalizedStrings.Ninja.UseDotonForAoEDesc, "Place Doton for AoE situations"), save))
-            {
-                config.Ninja.UseDotonForAoE = useDoton;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Ninja.UseDotonForAoE, "Use Doton for AoE"),
+                () => config.Ninja.UseDotonForAoE,
+                v => config.Ninja.UseDotonForAoE = v,
+                Loc.T(LocalizedStrings.Ninja.UseDotonForAoEDesc, "Place Doton for AoE situations"), save);
 
             config.Ninja.DotonMinTargets = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Ninja.DotonMinTargets, "Doton Min Targets"),
@@ -129,19 +124,17 @@ public sealed class NinjaSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableKunaisBane = config.Ninja.EnableKunaisBane;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Ninja.EnableKunaisBane, "Enable Kunai's Bane"), ref enableKunaisBane,
-                Loc.T(LocalizedStrings.Ninja.EnableKunaisBaneDesc, "Use Kunai's Bane (formerly Trick Attack)"), save))
-            {
-                config.Ninja.EnableKunaisBane = enableKunaisBane;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Ninja.EnableKunaisBane, "Enable Kunai's Bane"),
+                () => config.Ninja.EnableKunaisBane,
+                v => config.Ninja.EnableKunaisBane = v,
+                Loc.T(LocalizedStrings.Ninja.EnableKunaisBaneDesc, "Use Kunai's Bane (formerly Trick Attack)"), save);
 
-            var alignWithParty = config.Ninja.AlignKunaisBaneWithParty;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Ninja.AlignWithParty, "Align with Party"), ref alignWithParty,
-                Loc.T(LocalizedStrings.Ninja.AlignWithPartyDesc, "Coordinate Kunai's Bane with party burst"), save))
-            {
-                config.Ninja.AlignKunaisBaneWithParty = alignWithParty;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Ninja.AlignWithParty, "Align with Party"),
+                () => config.Ninja.AlignKunaisBaneWithParty,
+                v => config.Ninja.AlignKunaisBaneWithParty = v,
+                Loc.T(LocalizedStrings.Ninja.AlignWithPartyDesc, "Coordinate Kunai's Bane with party burst"), save);
 
             config.Ninja.KunaisBaneHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Ninja.KunaisBaneHoldTime, "Kunai's Bane Hold Time"),

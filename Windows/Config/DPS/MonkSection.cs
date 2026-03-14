@@ -35,19 +35,17 @@ public sealed class MonkSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableMasterfulBlitz = config.Monk.EnableMasterfulBlitz;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Monk.EnableMasterfulBlitz, "Enable Masterful Blitz"), ref enableMasterfulBlitz,
-                Loc.T(LocalizedStrings.Monk.EnableMasterfulBlitzDesc, "Use Beast Chakra combos"), save))
-            {
-                config.Monk.EnableMasterfulBlitz = enableMasterfulBlitz;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Monk.EnableMasterfulBlitz, "Enable Masterful Blitz"),
+                () => config.Monk.EnableMasterfulBlitz,
+                v => config.Monk.EnableMasterfulBlitz = v,
+                Loc.T(LocalizedStrings.Monk.EnableMasterfulBlitzDesc, "Use Beast Chakra combos"), save);
 
-            var enableSixSidedStar = config.Monk.EnableSixSidedStar;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Monk.EnableSixSidedStar, "Enable Six-Sided Star"), ref enableSixSidedStar,
-                Loc.T(LocalizedStrings.Monk.EnableSixSidedStarDesc, "Use Six-Sided Star for downtime"), save))
-            {
-                config.Monk.EnableSixSidedStar = enableSixSidedStar;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Monk.EnableSixSidedStar, "Enable Six-Sided Star"),
+                () => config.Monk.EnableSixSidedStar,
+                v => config.Monk.EnableSixSidedStar = v,
+                Loc.T(LocalizedStrings.Monk.EnableSixSidedStarDesc, "Use Six-Sided Star for downtime"), save);
 
             ConfigUIHelpers.Spacing();
 
@@ -66,12 +64,11 @@ public sealed class MonkSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableChakraSpenders = config.Monk.EnableChakraSpenders;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Monk.EnableChakraSpenders, "Enable Chakra Spenders"), ref enableChakraSpenders,
-                Loc.T(LocalizedStrings.Monk.EnableChakraSpendersDesc, "Use The Forbidden Chakra/Enlightenment"), save))
-            {
-                config.Monk.EnableChakraSpenders = enableChakraSpenders;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Monk.EnableChakraSpenders, "Enable Chakra Spenders"),
+                () => config.Monk.EnableChakraSpenders,
+                v => config.Monk.EnableChakraSpenders = v,
+                Loc.T(LocalizedStrings.Monk.EnableChakraSpendersDesc, "Use The Forbidden Chakra/Enlightenment"), save);
 
             config.Monk.ChakraMinGauge = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Monk.ChakraMinGauge, "Chakra Min Stacks"),
@@ -88,26 +85,23 @@ public sealed class MonkSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var enableRiddleOfFire = config.Monk.EnableRiddleOfFire;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Monk.EnableRiddleOfFire, "Enable Riddle of Fire"), ref enableRiddleOfFire,
-                Loc.T(LocalizedStrings.Monk.EnableRiddleOfFireDesc, "Use Riddle of Fire for damage buff"), save))
-            {
-                config.Monk.EnableRiddleOfFire = enableRiddleOfFire;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Monk.EnableRiddleOfFire, "Enable Riddle of Fire"),
+                () => config.Monk.EnableRiddleOfFire,
+                v => config.Monk.EnableRiddleOfFire = v,
+                Loc.T(LocalizedStrings.Monk.EnableRiddleOfFireDesc, "Use Riddle of Fire for damage buff"), save);
 
-            var enableBrotherhood = config.Monk.EnableBrotherhood;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Monk.EnableBrotherhood, "Enable Brotherhood"), ref enableBrotherhood,
-                Loc.T(LocalizedStrings.Monk.EnableBrotherhoodDesc, "Use Brotherhood (party buff)"), save))
-            {
-                config.Monk.EnableBrotherhood = enableBrotherhood;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Monk.EnableBrotherhood, "Enable Brotherhood"),
+                () => config.Monk.EnableBrotherhood,
+                v => config.Monk.EnableBrotherhood = v,
+                Loc.T(LocalizedStrings.Monk.EnableBrotherhoodDesc, "Use Brotherhood (party buff)"), save);
 
-            var alignWithParty = config.Monk.AlignBrotherhoodWithParty;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Monk.AlignWithParty, "Align Brotherhood with Party"), ref alignWithParty,
-                Loc.T(LocalizedStrings.Monk.AlignWithPartyDesc, "Coordinate with party burst windows"), save))
-            {
-                config.Monk.AlignBrotherhoodWithParty = alignWithParty;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Monk.AlignWithParty, "Align Brotherhood with Party"),
+                () => config.Monk.AlignBrotherhoodWithParty,
+                v => config.Monk.AlignBrotherhoodWithParty = v,
+                Loc.T(LocalizedStrings.Monk.AlignWithPartyDesc, "Coordinate with party burst windows"), save);
 
             config.Monk.BrotherhoodHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Monk.BrotherhoodHoldTime, "Brotherhood Hold Time"),
@@ -131,12 +125,11 @@ public sealed class MonkSection
                 config.Monk.PositionalStrictness = strictness;
             }
 
-            var allowPositionalLoss = config.Monk.AllowPositionalLoss;
-            if (ConfigUIHelpers.ToggleCheckbox(Loc.T(LocalizedStrings.Monk.AllowPositionalLoss, "Allow Positional Loss"), ref allowPositionalLoss,
-                Loc.T(LocalizedStrings.Monk.AllowPositionalLossDesc, "Continue rotation even if positionals will miss"), save))
-            {
-                config.Monk.AllowPositionalLoss = allowPositionalLoss;
-            }
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Monk.AllowPositionalLoss, "Allow Positional Loss"),
+                () => config.Monk.AllowPositionalLoss,
+                v => config.Monk.AllowPositionalLoss = v,
+                Loc.T(LocalizedStrings.Monk.AllowPositionalLossDesc, "Continue rotation even if positionals will miss"), save);
 
             ConfigUIHelpers.EndIndent();
         }
