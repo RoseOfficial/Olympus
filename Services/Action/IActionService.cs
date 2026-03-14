@@ -103,4 +103,10 @@ public interface IActionService
     /// Gets the WeaveOptimizer for intelligent oGCD timing and prioritization.
     /// </summary>
     IWeaveOptimizer WeaveOptimizer { get; }
+
+    /// <summary>
+    /// Execute a GCD targeting the optimal enemy for a directional AoE.
+    /// The game auto-faces toward the target, controlling the cone/line direction.
+    /// </summary>
+    bool ExecuteDirectionalGcd(ActionDefinition action, ulong optimalTargetId);
 }

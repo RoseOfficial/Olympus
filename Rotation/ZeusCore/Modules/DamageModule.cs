@@ -636,4 +636,16 @@ public sealed class DamageModule : BaseDpsDamageModule<IZeusContext>, IZeusModul
     }
 
     #endregion
+
+    #region Smart AoE
+
+    protected override uint GetNextDirectionalAoEActionId(IZeusContext context, IBattleChara target, int enemyCount)
+    {
+        if (enemyCount < AoeThreshold) return 0;
+        if (context.Player.Level >= DRGActions.DoomSpike.MinLevel)
+            return DRGActions.DoomSpike.ActionId; // Line AoE
+        return 0;
+    }
+
+    #endregion
 }

@@ -152,6 +152,32 @@ public sealed class Kratos : BaseMeleeDpsRotation<IKratosContext, IKratosModule>
     }
 
     /// <summary>
+    /// Determines the required positional for the next Monk GCD based on current form.
+    /// Opo-opo form → Rear (Bootshine/LeapingOpo)
+    /// Raptor form → Flank (TrueStrike/TwinSnakes/RisingRaptor)
+    /// Coeurl form → Rear (SnapPunch/Demolish/PouncingCoeurl)
+    /// No form / Formless → Rear (starts with Opo-opo)
+    /// </summary>
+    protected override PositionalType? GetNextRequiredPositional()
+    {
+        var player = ObjectTable.LocalPlayer;
+        if (player == null) return null;
+
+        // Check form status effects directly
+        foreach (var status in player.StatusList)
+        {
+            if (status.StatusId == MNKActions.StatusIds.RaptorForm)
+                return PositionalType.Flank;
+            if (status.StatusId is MNKActions.StatusIds.OpoOpoForm or MNKActions.StatusIds.CoeurlForm
+                or MNKActions.StatusIds.FormlessFist)
+                return PositionalType.Rear;
+        }
+
+        // No form → starting Opo-opo → Rear
+        return PositionalType.Rear;
+    }
+
+    /// <summary>
     /// Updates MP forecast. Monks don't use MP for abilities.
     /// </summary>
     protected override void UpdateMpForecast(IPlayerCharacter player)

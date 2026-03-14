@@ -27,7 +27,9 @@ using Olympus.Services.Training;
 using Olympus.Timeline;
 using Olympus.Training;
 using Olympus.Localization;
+using Olympus.Services.Drawing;
 using Olympus.Windows;
+using Olympus.Windows.Debug.Tabs;
 using Olympus.Windows.Training;
 
 namespace Olympus;
@@ -110,6 +112,10 @@ public sealed class Plugin : IDalamudPlugin
     private readonly HintOverlay hintOverlay;
     private readonly OverlayWindow overlayWindow;
     private readonly TelemetryService telemetryService;
+    private readonly DrawCanvas drawCanvas;
+    private readonly DrawingService drawingService;
+    private readonly AoETracker aoeTracker;
+    private readonly SmartAoEService smartAoEService;
 
     private readonly OlympusIpc olympusIpc;
     public Plugin(
@@ -126,7 +132,8 @@ public sealed class Plugin : IDalamudPlugin
         IGameInteropProvider gameInteropProvider,
         ITargetManager targetManager,
         IJobGauges jobGauges,
-        ITextureProvider textureProvider)
+        ITextureProvider textureProvider,
+        IGameGui gameGui)
     {
         this.pluginInterface = pluginInterface;
         this.framework = framework;
@@ -266,9 +273,16 @@ public sealed class Plugin : IDalamudPlugin
             objectTable,
             dataManager);
 
+        this.aoeTracker = new AoETracker();
+        this.smartAoEService = new SmartAoEService(targetingService, dataManager, aoeTracker, log);
+        this.smartAoEService.SubscribeToCombatEvents(combatEventService);
+        SmartAoEService.Instance = this.smartAoEService;
+        this.drawingService = new DrawingService(pluginInterface, configuration.DrawHelper, log);
+        this.drawCanvas = new DrawCanvas(drawingService, configuration, objectTable, clientState, targetManager, gameGui, positionalService, rotationManager);
         this.configWindow = new ConfigWindow(configuration, SaveConfiguration);
         this.mainWindow = new MainWindow(configuration, SaveConfiguration, OpenConfigUI, OpenDebugUI, OpenAnalyticsUI, OpenTrainingUI, OpenOverlayUI, PluginVersion, rotationManager, textureProvider);
-        this.debugWindow = new DebugWindow(debugService, configuration, timelineService);
+        var smartAoETab = new SmartAoETab(aoeTracker, drawCanvas, objectTable);
+        this.debugWindow = new DebugWindow(debugService, configuration, timelineService, smartAoETab);
         this.welcomeWindow = new WelcomeWindow(configuration, SaveConfiguration);
         this.analyticsWindow = new AnalyticsWindow(performanceTracker, configuration, fflogsService);
         this.trainingWindow = new TrainingWindow(trainingService, configuration, decisionValidationService, spacedRepetitionService);
@@ -296,6 +310,8 @@ public sealed class Plugin : IDalamudPlugin
         windowSystem.AddWindow(hintOverlay);
         windowSystem.AddWindow(overlayWindow);
         overlayWindow.IsOpen = configuration.Overlay.IsVisible;
+
+        windowSystem.AddWindow(drawCanvas);
 
         mainWindow.IsOpen = configuration.MainWindowVisible;
         mainWindow.RespectCloseHotkey = !configuration.PreventEscapeClose;
@@ -516,6 +532,8 @@ public sealed class Plugin : IDalamudPlugin
         performanceTracker.Dispose();
         timelineService.Dispose();
         combatEventService.Dispose();
+        smartAoEService.Dispose();
+        drawingService.Dispose();
         localization.Dispose();
     }
 }
