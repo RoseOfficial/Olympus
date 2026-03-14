@@ -12,27 +12,11 @@ public sealed class IrisStatusHelper : BaseStatusHelper
     #region Role Buffs
 
     /// <summary>
-    /// Checks if the player has Swiftcast active.
-    /// </summary>
-    public bool HasSwiftcast(IBattleChara player)
-    {
-        return HasStatus(player, PCTActions.StatusIds.Swiftcast);
-    }
-
-    /// <summary>
     /// Gets the remaining duration of Swiftcast.
     /// </summary>
     public float GetSwiftcastRemaining(IBattleChara player)
     {
         return GetStatusRemaining(player, PCTActions.StatusIds.Swiftcast);
-    }
-
-    /// <summary>
-    /// Checks if the player has Lucid Dreaming active.
-    /// </summary>
-    public bool HasLucidDreaming(IBattleChara player)
-    {
-        return HasStatus(player, PCTActions.StatusIds.LucidDreaming);
     }
 
     #endregion

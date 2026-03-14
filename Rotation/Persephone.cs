@@ -5,6 +5,7 @@ using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.Base;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.PersephoneCore.Context;
 using Olympus.Rotation.PersephoneCore.Helpers;
 using Olympus.Rotation.PersephoneCore.Modules;
@@ -220,7 +221,7 @@ public sealed class Persephone : BaseCasterDpsRotation<IPersephoneContext, IPers
     /// </summary>
     protected override void UpdateMpForecast(IPlayerCharacter player)
     {
-        var hasLucid = _statusHelper.HasLucidDreaming(player);
+        var hasLucid = BaseStatusHelper.HasLucidDreaming(player);
         MpForecastService.Update(
             (int)player.CurrentMp,
             (int)player.MaxMp,

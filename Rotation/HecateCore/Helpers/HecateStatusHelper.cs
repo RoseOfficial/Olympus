@@ -52,12 +52,6 @@ public sealed class HecateStatusHelper : BaseStatusHelper
         => GetStatusStacks(player, BLMActions.StatusIds.Triplecast);
 
     /// <summary>
-    /// Checks if Swiftcast buff is active.
-    /// </summary>
-    public bool HasSwiftcast(IBattleChara player)
-        => HasStatus(player, BLMActions.StatusIds.Swiftcast);
-
-    /// <summary>
     /// Checks if Ley Lines buff is active.
     /// </summary>
     public bool HasLeyLines(IBattleChara player)

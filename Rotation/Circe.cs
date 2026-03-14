@@ -149,7 +149,7 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
     /// </summary>
     protected override void UpdateMpForecast(IPlayerCharacter player)
     {
-        var hasLucid = _statusHelper.HasLucidDreaming(player);
+        var hasLucid = BaseStatusHelper.HasLucidDreaming(player);
         MpForecastService.Update(
             (int)player.CurrentMp,
             (int)player.MaxMp,

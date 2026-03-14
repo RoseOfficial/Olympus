@@ -4,6 +4,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Data;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.PersephoneCore.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
@@ -224,7 +225,7 @@ public sealed class PersephoneContext : IPersephoneContext
         // Summoners don't have Triplecast
         HasTriplecast = false;
         TriplecastStacks = 0;
-        HasSwiftcast = statusHelper.HasSwiftcast(player);
+        HasSwiftcast = BaseStatusHelper.HasSwiftcast(player);
         HasInstantCast = HasSwiftcast;
 
         // Demi-summon state

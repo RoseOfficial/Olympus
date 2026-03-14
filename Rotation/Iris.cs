@@ -159,7 +159,7 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
     /// </summary>
     protected override void UpdateMpForecast(IPlayerCharacter player)
     {
-        var hasLucid = _statusHelper.HasLucidDreaming(player);
+        var hasLucid = BaseStatusHelper.HasLucidDreaming(player);
         MpForecastService.Update(
             (int)player.CurrentMp,
             (int)player.MaxMp,

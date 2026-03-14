@@ -252,7 +252,7 @@ public sealed class IrisContext : IIrisContext
         MadeenReady = madeenReady;
 
         // Buff state
-        HasSwiftcast = statusHelper.HasSwiftcast(player);
+        HasSwiftcast = BaseStatusHelper.HasSwiftcast(player);
         HasStarryMuse = statusHelper.HasStarryMuse(player);
         StarryMuseRemaining = statusHelper.GetStarryMuseRemaining(player);
         HasHyperphantasia = statusHelper.HasHyperphantasia(player);

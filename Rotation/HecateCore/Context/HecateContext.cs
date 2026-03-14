@@ -208,7 +208,7 @@ public sealed class HecateContext : IHecateContext
         HasParadox = hasParadox;
 
         // Buff state
-        HasSwiftcast = statusHelper.HasSwiftcast(player);
+        HasSwiftcast = BaseStatusHelper.HasSwiftcast(player);
         HasTriplecast = statusHelper.HasTriplecast(player);
         TriplecastStacks = statusHelper.GetTriplecastStacks(player);
         HasInstantCast = HasSwiftcast || HasTriplecast;

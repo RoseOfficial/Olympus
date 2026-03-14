@@ -23,18 +23,6 @@ public sealed class CirceStatusHelper : BaseStatusHelper
     public float GetDualcastRemaining(IBattleChara player)
         => GetStatusRemaining(player, RDMActions.StatusIds.Dualcast);
 
-    /// <summary>
-    /// Checks if Swiftcast buff is active.
-    /// </summary>
-    public bool HasSwiftcast(IBattleChara player)
-        => HasStatus(player, RDMActions.StatusIds.Swiftcast);
-
-    /// <summary>
-    /// Checks if Lucid Dreaming buff is active.
-    /// </summary>
-    public bool HasLucidDreaming(IBattleChara player)
-        => HasStatus(player, RDMActions.StatusIds.LucidDreaming);
-
     #endregion
 
     #region Proc Buffs

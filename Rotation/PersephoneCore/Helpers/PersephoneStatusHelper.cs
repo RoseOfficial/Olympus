@@ -12,18 +12,6 @@ public sealed class PersephoneStatusHelper : BaseStatusHelper
     #region Self Buffs
 
     /// <summary>
-    /// Checks if Swiftcast buff is active.
-    /// </summary>
-    public bool HasSwiftcast(IBattleChara player)
-        => HasStatus(player, SMNActions.StatusIds.Swiftcast);
-
-    /// <summary>
-    /// Checks if Lucid Dreaming buff is active.
-    /// </summary>
-    public bool HasLucidDreaming(IBattleChara player)
-        => HasStatus(player, SMNActions.StatusIds.LucidDreaming);
-
-    /// <summary>
     /// Checks if Further Ruin buff is active (enables Ruin IV).
     /// </summary>
     public bool HasFurtherRuin(IBattleChara player)

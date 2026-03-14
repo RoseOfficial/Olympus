@@ -233,7 +233,7 @@ public sealed class CirceContext : ICirceContext
         DualcastRemaining = statusHelper.GetDualcastRemaining(player);
 
         // Buff state
-        HasSwiftcast = statusHelper.HasSwiftcast(player);
+        HasSwiftcast = BaseStatusHelper.HasSwiftcast(player);
         HasAcceleration = statusHelper.HasAcceleration(player);
         AccelerationRemaining = statusHelper.GetAccelerationRemaining(player);
 
