@@ -267,6 +267,30 @@ public class StatusHelperTests
         Assert.Equal(0, _helper.GetPerfectBalanceStacks(mock.Object));
     }
 
+    [Fact]
+    public void HasFormlessFist_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+        Assert.False(_helper.HasFormlessFist(mock.Object));
+    }
+
+    [Fact]
+    public void GetCurrentForm_NullStatusList_ReturnsNone()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+        Assert.Equal(MonkForm.None, _helper.GetCurrentForm(mock.Object));
+    }
+
+    [Fact]
+    public void HasRiddleOfEarth_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+        Assert.False(_helper.HasRiddleOfEarth(mock.Object));
+    }
+
     #endregion
 
     #region MonkForm Enum — Values Match Context Interface
