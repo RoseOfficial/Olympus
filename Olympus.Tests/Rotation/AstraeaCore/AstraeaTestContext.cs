@@ -39,6 +39,7 @@ public static class AstraeaTestContext
         uint currentHp = 50000,
         uint maxHp = 50000,
         uint currentMp = 10000,
+        uint maxMp = 10000,
         bool inCombat = false,
         bool isMoving = false,
         bool canExecuteGcd = true,
@@ -54,7 +55,8 @@ public static class AstraeaTestContext
             level: level,
             currentHp: currentHp,
             maxHp: maxHp,
-            currentMp: currentMp);
+            currentMp: currentMp,
+            maxMp: maxMp);
         player.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
 
         actionService ??= MockBuilders.CreateMockActionService(

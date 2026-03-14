@@ -537,8 +537,14 @@ public class CardModuleTests
     }
 
     [Fact]
-    public void TryExecute_PlayBalance_HasCardInHand_Fires()
+    public void TryExecute_PlayBalance_HasCardInHand_FallsBackToSelf_Fires()
     {
+        // CreateMockBattleChara returns Mock<IBattleChara>, not IPlayerCharacter.
+        // Role detection in BasePartyHelper (IsMeleeDps, IsTankRole, etc.) checks
+        // "chara is IPlayerCharacter" and returns false for plain IBattleChara mocks.
+        // The party member therefore matches no role bucket and FindBalanceTarget
+        // falls through to the self-fallback (returns player). This test verifies
+        // the play action still fires on self rather than being skipped entirely.
         var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
         config.Astrologian.EnableDivination = false;
         config.Astrologian.EnableAstrodyne = false;
@@ -548,7 +554,7 @@ public class CardModuleTests
             hasCard: true,
             currentCard: ASTActions.CardType.TheBalance);
 
-        // Target for card play
+        // Party member is IBattleChara, so role detection skips it and self-fallback triggers
         var target = MockBuilders.CreateMockBattleChara(entityId: 2u);
         var partyHelper = new TestableAstraeaPartyHelper(
             new List<IBattleChara> { target.Object });

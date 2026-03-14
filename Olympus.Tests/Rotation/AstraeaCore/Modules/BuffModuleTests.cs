@@ -277,6 +277,7 @@ public class BuffModuleTests
             level: 90,
             inCombat: true,
             currentMp: 8000,  // 80% of 10000 — above 70% threshold
+            maxMp: 10000,
             maxHp: 50000,
             canExecuteOgcd: true);
 
@@ -311,6 +312,7 @@ public class BuffModuleTests
             level: 90,
             inCombat: true,
             currentMp: 5000, // 50% of 10000 — below 70% threshold
+            maxMp: 10000,
             maxHp: 50000,
             canExecuteGcd: false,
             canExecuteOgcd: true);
