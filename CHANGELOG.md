@@ -3,6 +3,10 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.6 - Internal Maintenance
+
+No changes to rotation behavior or the user interface. This release contains internal code improvements only.
+
 ## v4.10.5 - Debug Window Overhaul
 
 **Debug Window**
