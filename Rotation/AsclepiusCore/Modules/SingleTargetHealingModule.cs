@@ -262,7 +262,7 @@ public sealed class SingleTargetHealingModule
             return false;
 
         var hpPercent = target.MaxHp > 0 ? (float)target.CurrentHp / target.MaxHp : 1f;
-        if (hpPercent > config.DruocholeThreshold)
+        if (hpPercent > config.DiagnosisThreshold)
             return false;
 
         var action = SGEActions.Diagnosis;

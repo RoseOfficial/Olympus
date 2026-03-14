@@ -53,7 +53,7 @@ public sealed class AoEHealingModule
     }
 
     /// <summary>Tries Pneuma. Does not check CanExecuteGcd or isMoving.</summary>
-    public bool TryGcdPneuma(IAsclepiusContext context, bool isMoving)
+    public bool TryGcdPneuma(IAsclepiusContext context)
     {
         return TryPneuma(context);
     }

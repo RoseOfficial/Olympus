@@ -43,7 +43,7 @@ public sealed class HealingModule : IAsclepiusModule
         // GCD: Healing spells
         if (context.CanExecuteGcd)
         {
-            if (!isMoving && _aoe.TryGcdPneuma(context, isMoving)) return true;
+            if (!isMoving && _aoe.TryGcdPneuma(context)) return true;
             if (_shield.TryGcd(context, isMoving)) return true;
             if (!isMoving && _aoe.TryGcdPrognosis(context)) return true;
             if (!isMoving && _singleTarget.TryGcd(context)) return true;
