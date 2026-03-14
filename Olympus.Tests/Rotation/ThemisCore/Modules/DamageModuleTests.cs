@@ -65,6 +65,54 @@ public class DamageModuleTests
             enemy.Object.GameObjectId), Times.Once);
     }
 
+    // Regression: HolySpirit is a Lv.64 PLD-exclusive spell. At level 60 (pre-Stormblood
+    // progression), even when Requiescat is active the magic phase must not attempt to cast
+    // HolySpirit — doing so would result in a silent fail from the game and waste the GCD slot.
+    [Fact]
+    public void TryExecute_HolySpirit_BelowMinLevel_DoesNotUse()
+    {
+        var enemy = CreateMockEnemy(objectId: 12345UL);
+        var targeting = MockBuilders.CreateMockTargetingService();
+
+        // Target within melee range
+        targeting.Setup(x => x.FindEnemyForAction(
+                It.IsAny<EnemyTargetingStrategy>(),
+                It.IsAny<uint>(),
+                It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+
+        targeting.Setup(x => x.FindEnemy(
+                It.IsAny<EnemyTargetingStrategy>(),
+                It.IsAny<float>(),
+                It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+
+        targeting.Setup(x => x.CountEnemiesInRange(It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(1);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true, canExecuteOgcd: false);
+        // All actions not ready to keep the test focused
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(false);
+
+        // Level 60 — HolySpirit requires Lv.64
+        var context = CreateContext(
+            inCombat: true,
+            canExecuteGcd: true,
+            canExecuteOgcd: false,
+            level: 60,
+            hasRequiescat: true,
+            requiescatStacks: 4,
+            targetingService: targeting,
+            actionService: actionService);
+
+        _module.TryExecute(context, isMoving: false);
+
+        // HolySpirit must never be attempted at level 60
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == PLDActions.HolySpirit.ActionId),
+            It.IsAny<ulong>()), Times.Never);
+    }
+
     [Fact]
     public void TryExecute_InCombat_TargetOutOfMeleeRange_OgcdReady_ExecutesIntervene()
     {
@@ -122,6 +170,8 @@ public class DamageModuleTests
         bool canExecuteGcd,
         bool canExecuteOgcd,
         byte level = 80,
+        bool hasRequiescat = false,
+        int requiescatStacks = 0,
         Mock<ITargetingService>? targetingService = null,
         Mock<IActionService>? actionService = null)
     {
@@ -145,8 +195,8 @@ public class DamageModuleTests
         mock.Setup(x => x.TrainingService).Returns((ITrainingService?)null);
 
         // PLD-specific — safe defaults
-        mock.Setup(x => x.HasRequiescat).Returns(false);
-        mock.Setup(x => x.RequiescatStacks).Returns(0);
+        mock.Setup(x => x.HasRequiescat).Returns(hasRequiescat);
+        mock.Setup(x => x.RequiescatStacks).Returns(requiescatStacks);
         mock.Setup(x => x.HasSwordOath).Returns(false);
         mock.Setup(x => x.SwordOathStacks).Returns(0);
         mock.Setup(x => x.HasFightOrFlight).Returns(false);

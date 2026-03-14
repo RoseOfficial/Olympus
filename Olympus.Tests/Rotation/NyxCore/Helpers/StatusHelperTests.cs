@@ -188,5 +188,86 @@ public class StatusHelperTests
         Assert.Equal(0f, _helper.GetBloodWeaponRemaining(mock.Object));
     }
 
+    [Fact]
+    public void HasScornfulEdge_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasScornfulEdge(mock.Object));
+    }
+
+    [Fact]
+    public void HasLivingShadow_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasLivingShadow(mock.Object));
+    }
+
+    [Fact]
+    public void HasSaltedEarth_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasSaltedEarth(mock.Object));
+    }
+
+    [Fact]
+    public void HasShadowWall_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasShadowWall(mock.Object));
+    }
+
+    [Fact]
+    public void HasDarkMind_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasDarkMind(mock.Object));
+    }
+
+    [Fact]
+    public void HasDarkMissionary_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasDarkMissionary(mock.Object));
+    }
+
+    [Fact]
+    public void HasOblation_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasOblation(mock.Object));
+    }
+
+    [Fact]
+    public void HasRampart_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasRampart(mock.Object));
+    }
+
+    [Fact]
+    public void GetDeliriumStacks_NullStatusList_ReturnsZero()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.Equal(0, _helper.GetDeliriumStacks(mock.Object));
+    }
+
     #endregion
 }

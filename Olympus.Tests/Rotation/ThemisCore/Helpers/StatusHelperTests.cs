@@ -220,5 +220,41 @@ public class StatusHelperTests
         Assert.Equal(0f, result);
     }
 
+    [Fact]
+    public void HasBulwark_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasBulwark(mock.Object));
+    }
+
+    [Fact]
+    public void HasArmsLength_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasArmsLength(mock.Object));
+    }
+
+    [Fact]
+    public void GetRequiescatStacks_NullStatusList_ReturnsZero()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.Equal(0, _helper.GetRequiescatStacks(mock.Object));
+    }
+
+    [Fact]
+    public void GetSwordOathStacks_NullStatusList_ReturnsZero()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.Equal(0, _helper.GetSwordOathStacks(mock.Object));
+    }
+
     #endregion
 }

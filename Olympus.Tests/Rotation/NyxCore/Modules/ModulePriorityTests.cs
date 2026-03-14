@@ -31,6 +31,20 @@ public class ModulePriorityTests
     }
 
     [Fact]
+    public void BuffModule_HasPriority20()
+    {
+        var buff = new BuffModule();
+        Assert.Equal(20, buff.Priority);
+    }
+
+    [Fact]
+    public void DamageModule_HasPriority30()
+    {
+        var damage = new DamageModule();
+        Assert.Equal(30, damage.Priority);
+    }
+
+    [Fact]
     public void DamageModule_HasLowestPriority()
     {
         var enmity = new EnmityModule();

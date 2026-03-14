@@ -303,5 +303,23 @@ public class StatusHelperTests
         Assert.Equal(0, _helper.GetInnerReleaseStacks(mock.Object));
     }
 
+    [Fact]
+    public void HasBerserk_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasBerserk(mock.Object));
+    }
+
+    [Fact]
+    public void HasPrimalRuinationReady_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasPrimalRuinationReady(mock.Object));
+    }
+
     #endregion
 }

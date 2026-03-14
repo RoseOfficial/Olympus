@@ -1,3 +1,5 @@
+using Dalamud.Game.ClientState.Objects.Types;
+using Moq;
 using Olympus.Data;
 using Olympus.Rotation.HephaestusCore.Helpers;
 using Olympus.Tests.Mocks;
@@ -190,6 +192,96 @@ public class StatusHelperTests
         mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
 
         Assert.Equal(0f, _helper.GetNoMercyRemaining(mock.Object));
+    }
+
+    [Fact]
+    public void HasReadyToBlast_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasReadyToBlast(mock.Object));
+    }
+
+    [Fact]
+    public void HasReadyToReign_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasReadyToReign(mock.Object));
+    }
+
+    [Fact]
+    public void HasAnyContinuationReady_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasAnyContinuationReady(mock.Object));
+    }
+
+    [Fact]
+    public void HasCamouflage_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasCamouflage(mock.Object));
+    }
+
+    [Fact]
+    public void HasHeartOfCorundum_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasHeartOfCorundum(mock.Object));
+    }
+
+    [Fact]
+    public void HasAurora_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasAurora(mock.Object));
+    }
+
+    [Fact]
+    public void HasHeartOfLight_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasHeartOfLight(mock.Object));
+    }
+
+    [Fact]
+    public void HasRampart_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasRampart(mock.Object));
+    }
+
+    [Fact]
+    public void HasSonicBreakDebuff_NullStatusList_ReturnsFalse()
+    {
+        var mock = new Mock<IBattleChara>();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasSonicBreakDebuff(mock.Object));
+    }
+
+    [Fact]
+    public void HasBowShockDebuff_NullStatusList_ReturnsFalse()
+    {
+        var mock = new Mock<IBattleChara>();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        Assert.False(_helper.HasBowShockDebuff(mock.Object));
     }
 
     #endregion
