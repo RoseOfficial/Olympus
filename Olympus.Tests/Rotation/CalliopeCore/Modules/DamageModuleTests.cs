@@ -145,6 +145,9 @@ public class DamageModuleTests
         var result = _module.TryExecute(context, isMoving: false);
 
         Assert.True(result);
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == BRDActions.ApexArrow.ActionId),
+            It.IsAny<ulong>()), Times.Once);
     }
 
     [Fact]

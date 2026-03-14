@@ -240,6 +240,38 @@ public class StatusHelperTests
         Assert.Equal(0f, _helper.GetRagingStrikesRemaining(mock.Object));
     }
 
+    [Fact]
+    public void HasCausticBite_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+        Assert.False(_helper.HasCausticBite(mock.Object, 0u));
+    }
+
+    [Fact]
+    public void GetCausticBiteRemaining_NullStatusList_ReturnsZero()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+        Assert.Equal(0f, _helper.GetCausticBiteRemaining(mock.Object, 0u));
+    }
+
+    [Fact]
+    public void HasStormbite_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+        Assert.False(_helper.HasStormbite(mock.Object, 0u));
+    }
+
+    [Fact]
+    public void GetStormbiteRemaining_NullStatusList_ReturnsZero()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+        Assert.Equal(0f, _helper.GetStormbiteRemaining(mock.Object, 0u));
+    }
+
     #endregion
 
     #region BRDActions Lookup Helpers

@@ -155,6 +155,46 @@ public class StatusHelperTests
         Assert.Equal(0f, _helper.GetReassembleRemaining(mock.Object));
     }
 
+    [Fact]
+    public void GetHyperchargedRemaining_NullStatusList_ReturnsZero()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+        Assert.Equal(0f, _helper.GetHyperchargedRemaining(mock.Object));
+    }
+
+    [Fact]
+    public void HasWildfire_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+        Assert.False(_helper.HasWildfire(mock.Object, 0u));
+    }
+
+    [Fact]
+    public void GetWildfireRemaining_NullStatusList_ReturnsZero()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+        Assert.Equal(0f, _helper.GetWildfireRemaining(mock.Object, 0u));
+    }
+
+    [Fact]
+    public void HasBioblaster_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+        Assert.False(_helper.HasBioblaster(mock.Object, 0u));
+    }
+
+    [Fact]
+    public void GetBioblasterRemaining_NullStatusList_ReturnsZero()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+        Assert.Equal(0f, _helper.GetBioblasterRemaining(mock.Object, 0u));
+    }
+
     #endregion
 
     #region MCHActions Lookup Helpers

@@ -253,6 +253,14 @@ public class StatusHelperTests
         Assert.Equal(0f, _helper.GetDevilmentRemaining(mock.Object));
     }
 
+    [Fact]
+    public void HasDancePartnerFrom_NullStatusList_ReturnsFalse()
+    {
+        var mock = MockBuilders.CreateMockPlayerCharacter();
+        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+        Assert.False(_helper.HasDancePartnerFrom(mock.Object, 0u));
+    }
+
     #endregion
 
     #region DNCActions Lookup Helpers

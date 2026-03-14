@@ -343,6 +343,9 @@ public class BuffModuleTests
         var result = _module.TryExecute(context, isMoving: false);
 
         Assert.True(result);
+        actionService.Verify(x => x.ExecuteOgcd(
+            It.Is<ActionDefinition>(a => a.ActionId == MCHActions.AutomatonQueen.ActionId),
+            It.IsAny<ulong>()), Times.Once);
     }
 
     [Fact]
