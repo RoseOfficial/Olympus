@@ -50,7 +50,7 @@ public sealed class BloodLilyBuildingHandler : IHealingHandler
     public HealingPriority Priority => HealingPriority.BloodLilyBuilding;
     public string Name => "BloodLilyBuilding";
 
-    public bool TryExecute(ApolloContext context, bool isMoving)
+    public bool TryExecute(IApolloContext context, bool isMoving)
     {
         var config = context.Configuration;
         var player = context.Player;
@@ -99,7 +99,7 @@ public sealed class BloodLilyBuildingHandler : IHealingHandler
         return TryExecuteAfflatusSolace(context, isMoving, hpThreshold);
     }
 
-    private bool TryExecuteAfflatusSolace(ApolloContext context, bool isMoving, float hpThreshold)
+    private bool TryExecuteAfflatusSolace(IApolloContext context, bool isMoving, float hpThreshold)
     {
         if (!context.Configuration.Healing.EnableAfflatusSolace)
             return false;
@@ -186,7 +186,7 @@ public sealed class BloodLilyBuildingHandler : IHealingHandler
         return success;
     }
 
-    private bool TryExecuteAfflatusRapture(ApolloContext context, bool isMoving, float hpThreshold)
+    private bool TryExecuteAfflatusRapture(IApolloContext context, bool isMoving, float hpThreshold)
     {
         if (!context.Configuration.Healing.EnableAfflatusRapture)
             return false;

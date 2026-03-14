@@ -24,7 +24,7 @@ public sealed class RegenHandler : IHealingHandler
         "Let co-healer handle it",
     };
 
-    public bool TryExecute(ApolloContext context, bool isMoving)
+    public bool TryExecute(IApolloContext context, bool isMoving)
     {
         var config = context.Configuration;
         var player = context.Player;
@@ -115,7 +115,7 @@ public sealed class RegenHandler : IHealingHandler
     /// Calculates the dynamic Regen HP threshold based on damage patterns.
     /// During high-damage phases, Regen is applied at a higher threshold.
     /// </summary>
-    private static float GetDynamicRegenThreshold(ApolloContext context)
+    private static float GetDynamicRegenThreshold(IApolloContext context)
     {
         var config = context.Configuration;
 

@@ -23,7 +23,7 @@ public static class ActionExecutor
     /// <param name="appendThinAirNote">Whether to append "+ Thin Air" to PlannedAction if buff is active.</param>
     /// <returns>True if the action was executed successfully.</returns>
     public static bool ExecuteGcd(
-        ApolloContext context,
+        IApolloContext context,
         ActionDefinition action,
         ulong targetId,
         string targetName,
@@ -61,7 +61,7 @@ public static class ActionExecutor
     /// <param name="plannedActionName">Custom name for PlannedAction (defaults to action.Name).</param>
     /// <returns>True if the action was executed successfully.</returns>
     public static bool ExecuteOgcd(
-        ApolloContext context,
+        IApolloContext context,
         ActionDefinition action,
         ulong targetId,
         string targetName,
@@ -88,7 +88,7 @@ public static class ActionExecutor
     /// <param name="plannedActionName">Custom name for PlannedAction (defaults to action.Name).</param>
     /// <returns>True if the action was executed successfully.</returns>
     public static bool ExecuteGroundTargeted(
-        ApolloContext context,
+        IApolloContext context,
         ActionDefinition action,
         Vector3 position,
         string targetName,
@@ -117,7 +117,7 @@ public static class ActionExecutor
     /// <param name="planningState">The planning state to set on success.</param>
     /// <returns>True if the action was executed successfully.</returns>
     public static bool ExecuteHealingGcd(
-        ApolloContext context,
+        IApolloContext context,
         ActionDefinition action,
         ulong targetId,
         uint targetEntityId,
@@ -163,7 +163,7 @@ public static class ActionExecutor
     /// <param name="plannedActionName">Custom name for PlannedAction (defaults to action.Name).</param>
     /// <returns>True if the action was executed successfully.</returns>
     public static bool ExecuteHealingOgcd(
-        ApolloContext context,
+        IApolloContext context,
         ActionDefinition action,
         ulong targetId,
         uint targetEntityId,

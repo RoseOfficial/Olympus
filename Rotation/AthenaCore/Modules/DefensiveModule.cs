@@ -13,7 +13,7 @@ namespace Olympus.Rotation.AthenaCore.Modules;
 /// Scholar-specific defensive module.
 /// Extends base defensive logic with Expedient and Deployment Tactics for shield spreading.
 /// </summary>
-public sealed class DefensiveModule : BaseDefensiveModule<AthenaContext>, IAthenaModule
+public sealed class DefensiveModule : BaseDefensiveModule<IAthenaContext>, IAthenaModule
 {
     // Training explanation arrays
     private static readonly string[] _expedientAlternatives =
@@ -32,13 +32,13 @@ public sealed class DefensiveModule : BaseDefensiveModule<AthenaContext>, IAthen
 
     #region Base Class Overrides - Debug State
 
-    protected override void SetDefensiveState(AthenaContext context, string state) =>
+    protected override void SetDefensiveState(IAthenaContext context, string state) =>
         context.Debug.PlanningState = state;
 
-    protected override void SetPlannedAction(AthenaContext context, string action) =>
+    protected override void SetPlannedAction(IAthenaContext context, string action) =>
         context.Debug.PlannedAction = action;
 
-    protected override (float avgHpPercent, float lowestHpPercent, int injuredCount) GetPartyHealthMetrics(AthenaContext context) =>
+    protected override (float avgHpPercent, float lowestHpPercent, int injuredCount) GetPartyHealthMetrics(IAthenaContext context) =>
         context.PartyHelper.CalculatePartyHealthMetrics(context.Player);
 
     #endregion
@@ -48,7 +48,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<AthenaContext>, IAthen
     /// <summary>
     /// SCH-specific defensives: Expedient and Deployment Tactics.
     /// </summary>
-    protected override bool TryJobSpecificDefensives(AthenaContext context, bool isMoving)
+    protected override bool TryJobSpecificDefensives(IAthenaContext context, bool isMoving)
     {
         // Priority 1: Expedient (party-wide mitigation + speed)
         if (TryExpedient(context))
@@ -65,7 +65,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<AthenaContext>, IAthen
 
     #region SCH-Specific Methods
 
-    private bool TryExpedient(AthenaContext context)
+    private bool TryExpedient(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -164,7 +164,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<AthenaContext>, IAthen
         return false;
     }
 
-    private bool TryDeploymentTactics(AthenaContext context)
+    private bool TryDeploymentTactics(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;

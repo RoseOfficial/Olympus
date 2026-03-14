@@ -16,7 +16,7 @@ public sealed class HealingModule : IAstraeaModule
     private readonly ShieldHealingModule _shield = new();
     private readonly EmergencyHealingModule _emergency = new();
 
-    public bool TryExecute(AstraeaContext context, bool isMoving)
+    public bool TryExecute(IAstraeaContext context, bool isMoving)
     {
         // Clear frame-scoped coordination state to allow new reservations
         context.HealingCoordination.Clear();
@@ -59,7 +59,7 @@ public sealed class HealingModule : IAstraeaModule
         return false;
     }
 
-    public void UpdateDebugState(AstraeaContext context)
+    public void UpdateDebugState(IAstraeaContext context)
     {
         var (avgHp, lowestHp, injured) = context.PartyHealthMetrics;
         context.Debug.AoEInjuredCount = injured;

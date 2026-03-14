@@ -14,7 +14,7 @@ namespace Olympus.Rotation.ApolloCore.Modules;
 /// WHM-specific damage module.
 /// Extends base damage logic with Sacred Sight, Blood Lily (Afflatus Misery), and Lily gauge handling.
 /// </summary>
-public sealed class DamageModule : BaseDamageModule<ApolloContext>, IApolloModule
+public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModule
 {
     // Training explanation arrays
     private static readonly string[] _afflatusMiseryFactors =
@@ -60,26 +60,26 @@ public sealed class DamageModule : BaseDamageModule<ApolloContext>, IApolloModul
 
     #region Base Class Overrides - Configuration Properties
 
-    protected override bool IsDamageEnabled(ApolloContext context) =>
+    protected override bool IsDamageEnabled(IApolloContext context) =>
         context.Configuration.EnableDamage;
 
-    protected override bool IsDoTEnabled(ApolloContext context) =>
+    protected override bool IsDoTEnabled(IApolloContext context) =>
         context.Configuration.EnableDoT;
 
-    protected override bool IsAoEDamageEnabled(ApolloContext context) =>
+    protected override bool IsAoEDamageEnabled(IApolloContext context) =>
         context.Configuration.EnableDamage;
 
-    protected override int AoEMinTargets(ApolloContext context) =>
+    protected override int AoEMinTargets(IApolloContext context) =>
         context.Configuration.Damage.AoEDamageMinTargets;
 
-    protected override float DoTRefreshThreshold(ApolloContext context) =>
+    protected override float DoTRefreshThreshold(IApolloContext context) =>
         FFXIVConstants.DotRefreshThreshold;
 
     #endregion
 
     #region Base Class Overrides - Action Methods
 
-    protected override uint GetDoTStatusId(ApolloContext context)
+    protected override uint GetDoTStatusId(IApolloContext context)
     {
         // CNJ doesn't have Dia (WHM-only at 72+); cap at AeroII/Aero
         if (context.Player.ClassJob.RowId == JobRegistry.Conjurer)
@@ -87,7 +87,7 @@ public sealed class DamageModule : BaseDamageModule<ApolloContext>, IApolloModul
         return StatusHelper.GetDotStatusId(context.Player.Level);
     }
 
-    protected override ActionDefinition? GetDoTAction(ApolloContext context)
+    protected override ActionDefinition? GetDoTAction(IApolloContext context)
     {
         // CNJ doesn't have Dia (WHM-only at 72+); cap at AeroII/Aero
         if (context.Player.ClassJob.RowId == JobRegistry.Conjurer)
@@ -96,10 +96,10 @@ public sealed class DamageModule : BaseDamageModule<ApolloContext>, IApolloModul
         return WHMActions.GetDotForLevel(context.Player.Level);
     }
 
-    protected override ActionDefinition? GetAoEDamageAction(ApolloContext context) =>
+    protected override ActionDefinition? GetAoEDamageAction(IApolloContext context) =>
         WHMActions.GetAoEDamageGcdForLevel(context.Player.Level);
 
-    protected override ActionDefinition GetSingleTargetAction(ApolloContext context, bool isMoving)
+    protected override ActionDefinition GetSingleTargetAction(IApolloContext context,bool isMoving)
     {
         // CNJ doesn't have Stone III+ or Glare+ (WHM-only); cap at StoneII/Stone
         if (context.Player.ClassJob.RowId == JobRegistry.Conjurer)
@@ -111,16 +111,16 @@ public sealed class DamageModule : BaseDamageModule<ApolloContext>, IApolloModul
 
     #region Base Class Overrides - Debug State
 
-    protected override void SetDpsState(ApolloContext context, string state) =>
+    protected override void SetDpsState(IApolloContext context,string state) =>
         context.Debug.DpsState = state;
 
-    protected override void SetAoEDpsState(ApolloContext context, string state) =>
+    protected override void SetAoEDpsState(IApolloContext context,string state) =>
         context.Debug.AoEDpsState = state;
 
-    protected override void SetAoEDpsEnemyCount(ApolloContext context, int count) =>
+    protected override void SetAoEDpsEnemyCount(IApolloContext context,int count) =>
         context.Debug.AoEDpsEnemyCount = count;
 
-    protected override void SetPlannedAction(ApolloContext context, string action) =>
+    protected override void SetPlannedAction(IApolloContext context,string action) =>
         context.Debug.PlannedAction = action;
 
     #endregion
@@ -135,12 +135,12 @@ public sealed class DamageModule : BaseDamageModule<ApolloContext>, IApolloModul
     /// <summary>
     /// All WHM/CNJ DoTs (Aero, Aero II, Dia) are instant cast, so DoT is always allowed while moving.
     /// </summary>
-    protected override bool CanDoT(ApolloContext context, bool isMoving) => true;
+    protected override bool CanDoT(IApolloContext context,bool isMoving) => true;
 
     /// <summary>
     /// Check if action is enabled in WHM config.
     /// </summary>
-    protected override bool IsActionEnabled(ApolloContext context, ActionDefinition action)
+    protected override bool IsActionEnabled(IApolloContext context,ActionDefinition action)
     {
         var config = context.Configuration;
 
@@ -160,7 +160,7 @@ public sealed class DamageModule : BaseDamageModule<ApolloContext>, IApolloModul
     /// WHM special damage: Afflatus Misery (Blood Lily) and Sacred Sight (Glare IV).
     /// These have priority over regular damage rotation.
     /// </summary>
-    protected override bool TrySpecialDamage(ApolloContext context, bool isMoving)
+    protected override bool TrySpecialDamage(IApolloContext context,bool isMoving)
     {
         // Priority 1: Afflatus Misery (1240p AoE, costs 3 Blood Lily)
         if (TryAfflatusMisery(context))
@@ -176,7 +176,7 @@ public sealed class DamageModule : BaseDamageModule<ApolloContext>, IApolloModul
     /// <summary>
     /// For AoE, skip Holy when Sacred Sight is available (Glare IV is better).
     /// </summary>
-    protected override bool TryAoEDamage(ApolloContext context)
+    protected override bool TryAoEDamage(IApolloContext context)
     {
         // Skip Holy if we have Sacred Sight stacks (Glare IV is better)
         if (context.SacredSightStacks > 0)
@@ -189,7 +189,7 @@ public sealed class DamageModule : BaseDamageModule<ApolloContext>, IApolloModul
 
     #region WHM-Specific Methods
 
-    private bool TryAfflatusMisery(ApolloContext context)
+    private bool TryAfflatusMisery(IApolloContext context)
     {
         var player = context.Player;
         var config = context.Configuration;
@@ -261,7 +261,7 @@ public sealed class DamageModule : BaseDamageModule<ApolloContext>, IApolloModul
         return false;
     }
 
-    private bool TrySacredSightGlare(ApolloContext context)
+    private bool TrySacredSightGlare(IApolloContext context)
     {
         var player = context.Player;
         var config = context.Configuration;
@@ -302,7 +302,7 @@ public sealed class DamageModule : BaseDamageModule<ApolloContext>, IApolloModul
 
     #endregion
 
-    public override void UpdateDebugState(ApolloContext context)
+    public override void UpdateDebugState(IApolloContext context)
     {
         context.Debug.LilyCount = context.LilyCount;
         context.Debug.BloodLilyCount = context.BloodLilyCount;

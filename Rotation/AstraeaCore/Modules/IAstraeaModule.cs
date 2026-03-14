@@ -7,6 +7,6 @@ namespace Olympus.Rotation.AstraeaCore.Modules;
 /// Interface for Astraea (Astrologian) rotation modules.
 /// Inherits from IHealerRotationModule for consistent module patterns across healers.
 /// </summary>
-public interface IAstraeaModule : IHealerRotationModule<AstraeaContext>
+public interface IAstraeaModule : IHealerRotationModule<IAstraeaContext>
 {
 }

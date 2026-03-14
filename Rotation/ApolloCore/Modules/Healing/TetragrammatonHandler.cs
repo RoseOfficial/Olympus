@@ -16,7 +16,7 @@ public sealed class TetragrammatonHandler : IHealingHandler
     public HealingPriority Priority => HealingPriority.Tetragrammaton;
     public string Name => "Tetragrammaton";
 
-    public bool TryExecute(ApolloContext context, bool isMoving)
+    public bool TryExecute(IApolloContext context, bool isMoving)
     {
         var config = context.Configuration;
         var player = context.Player;

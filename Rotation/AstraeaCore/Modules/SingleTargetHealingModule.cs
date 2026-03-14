@@ -43,7 +43,7 @@ public sealed class SingleTargetHealingModule
     };
 
     /// <summary>Tries EssentialDignity then CelestialIntersection. Does not check CanExecuteOgcd.</summary>
-    public bool TryOgcd(AstraeaContext context)
+    public bool TryOgcd(IAstraeaContext context)
     {
         if (TryEssentialDignity(context))
             return true;
@@ -53,7 +53,7 @@ public sealed class SingleTargetHealingModule
     }
 
     /// <summary>Tries AspectedBenefic then SingleTargetHeal. Does not check CanExecuteGcd.</summary>
-    public bool TryGcd(AstraeaContext context, bool isMoving)
+    public bool TryGcd(IAstraeaContext context, bool isMoving)
     {
         if (TryAspectedBenefic(context))
             return true;
@@ -62,7 +62,7 @@ public sealed class SingleTargetHealingModule
         return false;
     }
 
-    private bool TryEssentialDignity(AstraeaContext context)
+    private bool TryEssentialDignity(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
@@ -141,7 +141,7 @@ public sealed class SingleTargetHealingModule
         return false;
     }
 
-    private bool TryCelestialIntersection(AstraeaContext context)
+    private bool TryCelestialIntersection(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
@@ -220,7 +220,7 @@ public sealed class SingleTargetHealingModule
         return false;
     }
 
-    private bool TryAspectedBenefic(AstraeaContext context)
+    private bool TryAspectedBenefic(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
@@ -299,7 +299,7 @@ public sealed class SingleTargetHealingModule
         return false;
     }
 
-    private bool TrySingleTargetHeal(AstraeaContext context)
+    private bool TrySingleTargetHeal(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;

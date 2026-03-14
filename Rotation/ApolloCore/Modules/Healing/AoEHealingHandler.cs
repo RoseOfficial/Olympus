@@ -21,7 +21,7 @@ public sealed class AoEHealingHandler : IHealingHandler
     public HealingPriority Priority => HealingPriority.AoEHeal;
     public string Name => "AoEHeal";
 
-    public bool TryExecute(ApolloContext context, bool isMoving)
+    public bool TryExecute(IApolloContext context, bool isMoving)
     {
         var config = context.Configuration;
         var player = context.Player;

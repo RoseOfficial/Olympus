@@ -36,7 +36,7 @@ public sealed class LilyCapPreventionHandler : IHealingHandler
     public HealingPriority Priority => HealingPriority.LilyCapPrevention;
     public string Name => "LilyCapPrevention";
 
-    public bool TryExecute(ApolloContext context, bool isMoving)
+    public bool TryExecute(IApolloContext context, bool isMoving)
     {
         var config = context.Configuration;
         var player = context.Player;
@@ -68,7 +68,7 @@ public sealed class LilyCapPreventionHandler : IHealingHandler
         return TryExecuteAfflatusSolace(context, isMoving);
     }
 
-    private bool TryExecuteAfflatusSolace(ApolloContext context, bool isMoving)
+    private bool TryExecuteAfflatusSolace(IApolloContext context, bool isMoving)
     {
         if (!context.Configuration.Healing.EnableAfflatusSolace)
             return false;
@@ -150,7 +150,7 @@ public sealed class LilyCapPreventionHandler : IHealingHandler
         return success;
     }
 
-    private bool TryExecuteAfflatusRapture(ApolloContext context, bool isMoving)
+    private bool TryExecuteAfflatusRapture(IApolloContext context, bool isMoving)
     {
         if (!context.Configuration.Healing.EnableAfflatusRapture)
             return false;

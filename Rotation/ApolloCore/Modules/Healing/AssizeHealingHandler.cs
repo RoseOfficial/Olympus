@@ -24,7 +24,7 @@ public sealed class AssizeHealingHandler : IHealingHandler
         "Use Afflatus Rapture (builds Blood Lily)",
     };
 
-    public bool TryExecute(ApolloContext context, bool isMoving)
+    public bool TryExecute(IApolloContext context, bool isMoving)
     {
         var config = context.Configuration;
         var player = context.Player;

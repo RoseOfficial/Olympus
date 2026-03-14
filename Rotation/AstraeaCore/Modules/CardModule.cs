@@ -56,7 +56,7 @@ public sealed class CardModule : IAstraeaModule
         "Use Lord immediately for damage",
     };
 
-    public bool TryExecute(AstraeaContext context, bool isMoving)
+    public bool TryExecute(IAstraeaContext context, bool isMoving)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
@@ -91,7 +91,7 @@ public sealed class CardModule : IAstraeaModule
         return false;
     }
 
-    public void UpdateDebugState(AstraeaContext context)
+    public void UpdateDebugState(IAstraeaContext context)
     {
         // Update card state from service (Dawntrail: 4 cards in hand)
         context.Debug.CurrentCardType = context.CurrentCard.ToString();
@@ -132,7 +132,7 @@ public sealed class CardModule : IAstraeaModule
 
     #region Card Actions
 
-    private bool TryDivination(AstraeaContext context)
+    private bool TryDivination(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
@@ -189,7 +189,7 @@ public sealed class CardModule : IAstraeaModule
         return false;
     }
 
-    private bool TryAstrodyne(AstraeaContext context)
+    private bool TryAstrodyne(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
@@ -272,7 +272,7 @@ public sealed class CardModule : IAstraeaModule
         return false;
     }
 
-    private bool TryPlayCard(AstraeaContext context)
+    private bool TryPlayCard(IAstraeaContext context)
     {
         var player = context.Player;
 
@@ -316,7 +316,7 @@ public sealed class CardModule : IAstraeaModule
         return false;
     }
 
-    private bool TryPlaySpecificCard(AstraeaContext context, ActionDefinition cardAction, Dalamud.Game.ClientState.Objects.Types.IBattleChara target)
+    private bool TryPlaySpecificCard(IAstraeaContext context, ActionDefinition cardAction, Dalamud.Game.ClientState.Objects.Types.IBattleChara target)
     {
         var player = context.Player;
 
@@ -378,7 +378,7 @@ public sealed class CardModule : IAstraeaModule
         return false;
     }
 
-    private bool TryDraw(AstraeaContext context)
+    private bool TryDraw(IAstraeaContext context)
     {
         var player = context.Player;
 
@@ -430,7 +430,7 @@ public sealed class CardModule : IAstraeaModule
         return false;
     }
 
-    private void RecordDrawExplanation(AstraeaContext context, string drawType, bool isAstral)
+    private void RecordDrawExplanation(IAstraeaContext context, string drawType, bool isAstral)
     {
         var shortReason = $"{drawType} - getting new cards";
 
@@ -462,7 +462,7 @@ public sealed class CardModule : IAstraeaModule
         });
     }
 
-    private bool TryMinorArcana(AstraeaContext context)
+    private bool TryMinorArcana(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;

@@ -10,55 +10,55 @@ namespace Olympus.Rotation.AthenaCore.Modules;
 /// Scholar-specific damage module.
 /// Extends base damage logic with Chain Stratagem, Energy Drain, Baneful Impaction, and Aetherflow management.
 /// </summary>
-public sealed class DamageModule : BaseDamageModule<AthenaContext>, IAthenaModule
+public sealed class DamageModule : BaseDamageModule<IAthenaContext>, IAthenaModule
 {
     #region Base Class Overrides - Configuration Properties
 
-    protected override bool IsDamageEnabled(AthenaContext context) =>
+    protected override bool IsDamageEnabled(IAthenaContext context) =>
         context.Configuration.Scholar.EnableSingleTargetDamage;
 
-    protected override bool IsDoTEnabled(AthenaContext context) =>
+    protected override bool IsDoTEnabled(IAthenaContext context) =>
         context.Configuration.Scholar.EnableDot;
 
-    protected override bool IsAoEDamageEnabled(AthenaContext context) =>
+    protected override bool IsAoEDamageEnabled(IAthenaContext context) =>
         context.Configuration.Scholar.EnableAoEDamage;
 
-    protected override int AoEMinTargets(AthenaContext context) =>
+    protected override int AoEMinTargets(IAthenaContext context) =>
         context.Configuration.Scholar.AoEDamageMinTargets;
 
-    protected override float DoTRefreshThreshold(AthenaContext context) =>
+    protected override float DoTRefreshThreshold(IAthenaContext context) =>
         context.Configuration.Scholar.DotRefreshThreshold;
 
     #endregion
 
     #region Base Class Overrides - Action Methods
 
-    protected override uint GetDoTStatusId(AthenaContext context) =>
+    protected override uint GetDoTStatusId(IAthenaContext context) =>
         SCHActions.GetDotStatusId(context.Player.Level);
 
-    protected override ActionDefinition? GetDoTAction(AthenaContext context) =>
+    protected override ActionDefinition? GetDoTAction(IAthenaContext context) =>
         SCHActions.GetDotForLevel(context.Player.Level);
 
-    protected override ActionDefinition? GetAoEDamageAction(AthenaContext context) =>
+    protected override ActionDefinition? GetAoEDamageAction(IAthenaContext context) =>
         SCHActions.GetAoEDamageForLevel(context.Player.Level);
 
-    protected override ActionDefinition GetSingleTargetAction(AthenaContext context, bool isMoving) =>
+    protected override ActionDefinition GetSingleTargetAction(IAthenaContext context, bool isMoving) =>
         SCHActions.GetDamageGcdForLevel(context.Player.Level, isMoving);
 
     #endregion
 
     #region Base Class Overrides - Debug State
 
-    protected override void SetDpsState(AthenaContext context, string state) =>
+    protected override void SetDpsState(IAthenaContext context, string state) =>
         context.Debug.DpsState = state;
 
-    protected override void SetAoEDpsState(AthenaContext context, string state) =>
+    protected override void SetAoEDpsState(IAthenaContext context, string state) =>
         context.Debug.AoEDpsState = state;
 
-    protected override void SetAoEDpsEnemyCount(AthenaContext context, int count) =>
+    protected override void SetAoEDpsEnemyCount(IAthenaContext context, int count) =>
         context.Debug.AoEDpsEnemyCount = count;
 
-    protected override void SetPlannedAction(AthenaContext context, string action) =>
+    protected override void SetPlannedAction(IAthenaContext context, string action) =>
         context.Debug.PlannedAction = action;
 
     #endregion
@@ -68,7 +68,7 @@ public sealed class DamageModule : BaseDamageModule<AthenaContext>, IAthenaModul
     /// <summary>
     /// SCH oGCD damage: Chain Stratagem, Baneful Impaction, Energy Drain, Aetherflow.
     /// </summary>
-    protected override bool TryOgcdDamage(AthenaContext context)
+    protected override bool TryOgcdDamage(IAthenaContext context)
     {
         // Priority 1: Chain Stratagem (raid buff)
         if (TryChainStratagem(context))
@@ -92,7 +92,7 @@ public sealed class DamageModule : BaseDamageModule<AthenaContext>, IAthenaModul
     /// <summary>
     /// SCH movement damage: Ruin II is instant cast.
     /// </summary>
-    protected override bool TryMovementDamage(AthenaContext context)
+    protected override bool TryMovementDamage(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -125,7 +125,7 @@ public sealed class DamageModule : BaseDamageModule<AthenaContext>, IAthenaModul
 
     #region SCH-Specific oGCD Methods
 
-    private bool TryChainStratagem(AthenaContext context)
+    private bool TryChainStratagem(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -157,7 +157,7 @@ public sealed class DamageModule : BaseDamageModule<AthenaContext>, IAthenaModul
         return false;
     }
 
-    private bool TryBanefulImpaction(AthenaContext context)
+    private bool TryBanefulImpaction(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -190,7 +190,7 @@ public sealed class DamageModule : BaseDamageModule<AthenaContext>, IAthenaModul
         return false;
     }
 
-    private bool TryEnergyDrain(AthenaContext context)
+    private bool TryEnergyDrain(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -239,7 +239,7 @@ public sealed class DamageModule : BaseDamageModule<AthenaContext>, IAthenaModul
         return false;
     }
 
-    private bool TryAetherflow(AthenaContext context)
+    private bool TryAetherflow(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -271,7 +271,7 @@ public sealed class DamageModule : BaseDamageModule<AthenaContext>, IAthenaModul
 
     #region Aetherflow Strategy Helpers
 
-    private bool ShouldDrainBalanced(AthenaContext context)
+    private bool ShouldDrainBalanced(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var stacks = context.AetherflowService.CurrentStacks;
@@ -290,7 +290,7 @@ public sealed class DamageModule : BaseDamageModule<AthenaContext>, IAthenaModul
         return avgHp > 0.8f && lowestHp > 0.5f;
     }
 
-    private bool ShouldDrainConservative(AthenaContext context)
+    private bool ShouldDrainConservative(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var stacks = context.AetherflowService.CurrentStacks;
@@ -305,7 +305,7 @@ public sealed class DamageModule : BaseDamageModule<AthenaContext>, IAthenaModul
 
     #endregion
 
-    public override void UpdateDebugState(AthenaContext context)
+    public override void UpdateDebugState(IAthenaContext context)
     {
         context.Debug.AetherflowState = $"{context.AetherflowService.CurrentStacks}/3";
     }

@@ -16,7 +16,7 @@ public sealed class BenedictionHandler : IHealingHandler
     public HealingPriority Priority => HealingPriority.Benediction;
     public string Name => "Benediction";
 
-    public bool TryExecute(ApolloContext context, bool isMoving)
+    public bool TryExecute(IApolloContext context, bool isMoving)
     {
         var config = context.Configuration;
         var player = context.Player;

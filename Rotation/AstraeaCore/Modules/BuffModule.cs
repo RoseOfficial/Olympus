@@ -13,7 +13,7 @@ namespace Olympus.Rotation.AstraeaCore.Modules;
 /// Astrologian-specific buff module.
 /// Extends base buff logic with Lightspeed for movement-heavy phases.
 /// </summary>
-public sealed class BuffModule : BaseBuffModule<AstraeaContext>, IAstraeaModule
+public sealed class BuffModule : BaseBuffModule<IAstraeaContext>, IAstraeaModule
 {
     public override string Name => "Buff";
 
@@ -27,26 +27,26 @@ public sealed class BuffModule : BaseBuffModule<AstraeaContext>, IAstraeaModule
 
     #region Base Class Overrides - Configuration
 
-    protected override bool IsLucidDreamingEnabled(AstraeaContext context) =>
+    protected override bool IsLucidDreamingEnabled(IAstraeaContext context) =>
         context.Configuration.Astrologian.EnableLucidDreaming;
 
     protected override ActionDefinition GetLucidDreamingAction() =>
         ASTActions.LucidDreaming;
 
-    protected override bool HasLucidDreaming(AstraeaContext context) =>
+    protected override bool HasLucidDreaming(IAstraeaContext context) =>
         AstraeaStatusHelper.HasLucidDreaming(context.Player);
 
-    protected override float GetLucidDreamingThreshold(AstraeaContext context) =>
+    protected override float GetLucidDreamingThreshold(IAstraeaContext context) =>
         context.Configuration.Astrologian.LucidDreamingThreshold;
 
     #endregion
 
     #region Base Class Overrides - Debug State
 
-    protected override void SetLucidState(AstraeaContext context, string state) =>
+    protected override void SetLucidState(IAstraeaContext context, string state) =>
         context.Debug.LucidState = state;
 
-    protected override void SetPlannedAction(AstraeaContext context, string action) =>
+    protected override void SetPlannedAction(IAstraeaContext context, string action) =>
         context.Debug.PlannedAction = action;
 
     #endregion
@@ -62,7 +62,7 @@ public sealed class BuffModule : BaseBuffModule<AstraeaContext>, IAstraeaModule
     /// AST-specific buffs: Lightspeed for instant casts.
     /// Called before Lucid Dreaming.
     /// </summary>
-    protected override bool TryJobSpecificBuffs(AstraeaContext context, bool isMoving)
+    protected override bool TryJobSpecificBuffs(IAstraeaContext context, bool isMoving)
     {
         if (TryLightspeed(context, isMoving))
             return true;
@@ -74,7 +74,7 @@ public sealed class BuffModule : BaseBuffModule<AstraeaContext>, IAstraeaModule
 
     #region AST-Specific Methods
 
-    private bool TryLightspeed(AstraeaContext context, bool isMoving)
+    private bool TryLightspeed(IAstraeaContext context, bool isMoving)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
@@ -156,7 +156,7 @@ public sealed class BuffModule : BaseBuffModule<AstraeaContext>, IAstraeaModule
 
     #endregion
 
-    public override void UpdateDebugState(AstraeaContext context)
+    public override void UpdateDebugState(IAstraeaContext context)
     {
         var player = context.Player;
         var mpPercent = player.MaxMp > 0 ? (float)player.CurrentMp / player.MaxMp : 1f;

@@ -14,29 +14,29 @@ namespace Olympus.Rotation.AstraeaCore.Modules;
 /// Astrologian-specific resurrection module.
 /// Uses base resurrection logic without job-specific buff synergies.
 /// </summary>
-public sealed class ResurrectionModule : BaseResurrectionModule<AstraeaContext>, IAstraeaModule
+public sealed class ResurrectionModule : BaseResurrectionModule<IAstraeaContext>, IAstraeaModule
 {
     protected override ActionDefinition RaiseAction => ASTActions.Ascend;
     protected override ActionDefinition SwiftcastAction => ASTActions.Swiftcast;
     protected override int RaiseMpCost => ASTActions.Ascend.MpCost;
 
-    protected override IBattleChara? FindDeadPartyMemberNeedingRaise(AstraeaContext context)
+    protected override IBattleChara? FindDeadPartyMemberNeedingRaise(IAstraeaContext context)
         => context.PartyHelper.FindDeadPartyMemberNeedingRaise(context.Player);
 
-    protected override bool HasSwiftcast(AstraeaContext context) => context.HasSwiftcast;
+    protected override bool HasSwiftcast(IAstraeaContext context) => context.HasSwiftcast;
 
-    protected override void SetRaiseState(AstraeaContext context, string state) => context.Debug.RaiseState = state;
-    protected override void SetRaiseTarget(AstraeaContext context, string target) => context.Debug.RaiseTarget = target;
-    protected override void SetPlanningState(AstraeaContext context, string state) => context.Debug.PlanningState = state;
-    protected override void SetPlannedAction(AstraeaContext context, string action) => context.Debug.PlannedAction = action;
-    protected override IPartyCoordinationService? GetPartyCoordinationService(AstraeaContext context) => context.PartyCoordinationService;
+    protected override void SetRaiseState(IAstraeaContext context, string state) => context.Debug.RaiseState = state;
+    protected override void SetRaiseTarget(IAstraeaContext context, string target) => context.Debug.RaiseTarget = target;
+    protected override void SetPlanningState(IAstraeaContext context, string state) => context.Debug.PlanningState = state;
+    protected override void SetPlannedAction(IAstraeaContext context, string action) => context.Debug.PlannedAction = action;
+    protected override IPartyCoordinationService? GetPartyCoordinationService(IAstraeaContext context) => context.PartyCoordinationService;
 
     // Astrologian doesn't have Thin Air equivalent, so no pre-raise buff waiting
 
     /// <summary>
     /// Records training explanation for raise decisions.
     /// </summary>
-    protected override void RecordRaiseTraining(AstraeaContext context, string targetName, bool hasSwiftcast, bool isHardcast)
+    protected override void RecordRaiseTraining(IAstraeaContext context, string targetName, bool hasSwiftcast, bool isHardcast)
     {
         if (context.TrainingService?.IsTrainingEnabled != true)
             return;

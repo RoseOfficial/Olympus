@@ -69,7 +69,7 @@ public sealed class EmergencyHealingModule
     /// Tries oGCDs in order: HoroscopeDetonation, Microcosmos, EarthlyStarDetonation,
     /// Synastry, EarthlyStarPlacement, LadyOfCrowns. Does not check CanExecuteOgcd.
     /// </summary>
-    public bool TryOgcd(AstraeaContext context)
+    public bool TryOgcd(IAstraeaContext context)
     {
         if (TryHoroscopeDetonation(context))
             return true;
@@ -90,7 +90,7 @@ public sealed class EmergencyHealingModule
     /// Tries HoroscopePreparation (no isMoving guard) then MacrocosmosPreparation (!isMoving guard).
     /// Does not check CanExecuteGcd.
     /// </summary>
-    public bool TryGcd(AstraeaContext context, bool isMoving)
+    public bool TryGcd(IAstraeaContext context, bool isMoving)
     {
         if (TryHoroscopePreparation(context))
             return true;
@@ -99,7 +99,7 @@ public sealed class EmergencyHealingModule
         return false;
     }
 
-    private bool TryHoroscopeDetonation(AstraeaContext context)
+    private bool TryHoroscopeDetonation(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
@@ -172,7 +172,7 @@ public sealed class EmergencyHealingModule
         return false;
     }
 
-    private bool TryMicrocosmos(AstraeaContext context)
+    private bool TryMicrocosmos(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
@@ -240,7 +240,7 @@ public sealed class EmergencyHealingModule
         return false;
     }
 
-    private bool TryEarthlyStarDetonation(AstraeaContext context)
+    private bool TryEarthlyStarDetonation(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
@@ -357,7 +357,7 @@ public sealed class EmergencyHealingModule
         return false;
     }
 
-    private bool TrySynastry(AstraeaContext context)
+    private bool TrySynastry(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
@@ -441,7 +441,7 @@ public sealed class EmergencyHealingModule
         return false;
     }
 
-    private bool TryEarthlyStarPlacement(AstraeaContext context)
+    private bool TryEarthlyStarPlacement(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
@@ -580,7 +580,7 @@ public sealed class EmergencyHealingModule
         return false;
     }
 
-    private bool TryLadyOfCrowns(AstraeaContext context)
+    private bool TryLadyOfCrowns(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
@@ -651,7 +651,7 @@ public sealed class EmergencyHealingModule
         return false;
     }
 
-    private bool TryHoroscopePreparation(AstraeaContext context)
+    private bool TryHoroscopePreparation(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
@@ -728,7 +728,7 @@ public sealed class EmergencyHealingModule
         return false;
     }
 
-    private bool TryMacrocosmosPreparation(AstraeaContext context)
+    private bool TryMacrocosmosPreparation(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;

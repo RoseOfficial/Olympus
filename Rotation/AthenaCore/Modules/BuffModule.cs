@@ -13,7 +13,7 @@ namespace Olympus.Rotation.AthenaCore.Modules;
 /// Scholar-specific buff module.
 /// Extends base buff logic with Dissipation for Aetherflow management.
 /// </summary>
-public sealed class BuffModule : BaseBuffModule<AthenaContext>, IAthenaModule
+public sealed class BuffModule : BaseBuffModule<IAthenaContext>, IAthenaModule
 {
     public override string Name => "Buff"; // SCH uses "Buff" instead of "Buffs"
 
@@ -27,26 +27,26 @@ public sealed class BuffModule : BaseBuffModule<AthenaContext>, IAthenaModule
 
     #region Base Class Overrides - Configuration
 
-    protected override bool IsLucidDreamingEnabled(AthenaContext context) =>
+    protected override bool IsLucidDreamingEnabled(IAthenaContext context) =>
         context.Configuration.Scholar.EnableLucidDreaming;
 
     protected override ActionDefinition GetLucidDreamingAction() =>
         SCHActions.LucidDreaming;
 
-    protected override bool HasLucidDreaming(AthenaContext context) =>
+    protected override bool HasLucidDreaming(IAthenaContext context) =>
         AthenaStatusHelper.HasLucidDreaming(context.Player);
 
-    protected override float GetLucidDreamingThreshold(AthenaContext context) =>
+    protected override float GetLucidDreamingThreshold(IAthenaContext context) =>
         context.Configuration.Scholar.LucidDreamingThreshold;
 
     #endregion
 
     #region Base Class Overrides - Debug State
 
-    protected override void SetLucidState(AthenaContext context, string state) =>
+    protected override void SetLucidState(IAthenaContext context, string state) =>
         context.Debug.LucidState = state;
 
-    protected override void SetPlannedAction(AthenaContext context, string action) =>
+    protected override void SetPlannedAction(IAthenaContext context, string action) =>
         context.Debug.PlannedAction = action;
 
     #endregion
@@ -62,7 +62,7 @@ public sealed class BuffModule : BaseBuffModule<AthenaContext>, IAthenaModule
     /// SCH-specific buffs: Dissipation (sacrifice fairy for Aetherflow).
     /// Called after Lucid Dreaming since it's more situational.
     /// </summary>
-    protected override bool TryJobSpecificUtilities(AthenaContext context, bool isMoving)
+    protected override bool TryJobSpecificUtilities(IAthenaContext context, bool isMoving)
     {
         if (TryDissipation(context))
             return true;
@@ -74,7 +74,7 @@ public sealed class BuffModule : BaseBuffModule<AthenaContext>, IAthenaModule
 
     #region SCH-Specific Methods
 
-    private bool TryDissipation(AthenaContext context)
+    private bool TryDissipation(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -153,7 +153,7 @@ public sealed class BuffModule : BaseBuffModule<AthenaContext>, IAthenaModule
 
     #endregion
 
-    public override void UpdateDebugState(AthenaContext context)
+    public override void UpdateDebugState(IAthenaContext context)
     {
         var player = context.Player;
         var mpPercent = player.MaxMp > 0 ? (float)player.CurrentMp / player.MaxMp : 1f;

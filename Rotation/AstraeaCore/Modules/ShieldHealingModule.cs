@@ -21,12 +21,12 @@ public sealed class ShieldHealingModule
     };
 
     /// <summary>Tries Exaltation. Does not check CanExecuteOgcd.</summary>
-    public bool TryOgcd(AstraeaContext context)
+    public bool TryOgcd(IAstraeaContext context)
     {
         return TryExaltation(context);
     }
 
-    private bool TryExaltation(AstraeaContext context)
+    private bool TryExaltation(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;

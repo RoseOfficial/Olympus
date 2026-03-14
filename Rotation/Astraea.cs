@@ -29,7 +29,7 @@ namespace Olympus.Rotation;
 /// Named after Astraea, the Greek goddess of stars and justice.
 /// </summary>
 [Rotation("Astraea", JobRegistry.Astrologian, Role = RotationRole.Healer)]
-public sealed class Astraea : BaseHealerRotation<AstraeaContext, IAstraeaModule>
+public sealed class Astraea : BaseHealerRotation<IAstraeaContext, IAstraeaModule>
 {
     /// <inheritdoc />
     public override string Name => "Astraea";
@@ -182,7 +182,7 @@ public sealed class Astraea : BaseHealerRotation<AstraeaContext, IAstraeaModule>
     }
 
     /// <inheritdoc />
-    protected override AstraeaContext CreateContext(IPlayerCharacter player, bool inCombat, bool isMoving)
+    protected override IAstraeaContext CreateContext(IPlayerCharacter player, bool inCombat, bool isMoving)
     {
         return new AstraeaContext(
             player: player,

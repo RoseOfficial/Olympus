@@ -28,18 +28,18 @@ public sealed class AoEHealingModule
     };
 
     /// <summary>Tries CelestialOpposition. Does not check CanExecuteOgcd.</summary>
-    public bool TryOgcd(AstraeaContext context)
+    public bool TryOgcd(IAstraeaContext context)
     {
         return TryCelestialOpposition(context);
     }
 
     /// <summary>Tries AoEHeal. Caller guards with !isMoving. Does not check CanExecuteGcd.</summary>
-    public bool TryGcd(AstraeaContext context)
+    public bool TryGcd(IAstraeaContext context)
     {
         return TryAoEHeal(context);
     }
 
-    private bool TryCelestialOpposition(AstraeaContext context)
+    private bool TryCelestialOpposition(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
@@ -112,7 +112,7 @@ public sealed class AoEHealingModule
         return false;
     }
 
-    private bool TryAoEHeal(AstraeaContext context)
+    private bool TryAoEHeal(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
@@ -203,7 +203,7 @@ public sealed class AoEHealingModule
         return false;
     }
 
-    private static bool ShouldUseAoEHeal(AstraeaContext context)
+    private static bool ShouldUseAoEHeal(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;

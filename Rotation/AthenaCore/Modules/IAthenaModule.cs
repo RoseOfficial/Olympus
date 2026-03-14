@@ -7,6 +7,6 @@ namespace Olympus.Rotation.AthenaCore.Modules;
 /// Interface for Athena (Scholar) rotation modules.
 /// Inherits from IHealerRotationModule for consistent module patterns across healers.
 /// </summary>
-public interface IAthenaModule : IHealerRotationModule<AthenaContext>
+public interface IAthenaModule : IHealerRotationModule<IAthenaContext>
 {
 }

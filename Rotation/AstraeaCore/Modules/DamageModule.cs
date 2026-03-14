@@ -9,55 +9,55 @@ namespace Olympus.Rotation.AstraeaCore.Modules;
 /// Astrologian-specific damage module.
 /// Extends base damage logic with Oracle (Divination follow-up) and Lord of Crowns.
 /// </summary>
-public sealed class DamageModule : BaseDamageModule<AstraeaContext>, IAstraeaModule
+public sealed class DamageModule : BaseDamageModule<IAstraeaContext>, IAstraeaModule
 {
     #region Base Class Overrides - Configuration Properties
 
-    protected override bool IsDamageEnabled(AstraeaContext context) =>
+    protected override bool IsDamageEnabled(IAstraeaContext context) =>
         context.Configuration.Astrologian.EnableSingleTargetDamage;
 
-    protected override bool IsDoTEnabled(AstraeaContext context) =>
+    protected override bool IsDoTEnabled(IAstraeaContext context) =>
         context.Configuration.Astrologian.EnableDot;
 
-    protected override bool IsAoEDamageEnabled(AstraeaContext context) =>
+    protected override bool IsAoEDamageEnabled(IAstraeaContext context) =>
         context.Configuration.Astrologian.EnableAoEDamage;
 
-    protected override int AoEMinTargets(AstraeaContext context) =>
+    protected override int AoEMinTargets(IAstraeaContext context) =>
         context.Configuration.Astrologian.AoEDamageMinTargets;
 
-    protected override float DoTRefreshThreshold(AstraeaContext context) =>
+    protected override float DoTRefreshThreshold(IAstraeaContext context) =>
         context.Configuration.Astrologian.DotRefreshThreshold;
 
     #endregion
 
     #region Base Class Overrides - Action Methods
 
-    protected override uint GetDoTStatusId(AstraeaContext context) =>
+    protected override uint GetDoTStatusId(IAstraeaContext context) =>
         ASTActions.GetDotStatusId(context.Player.Level);
 
-    protected override ActionDefinition? GetDoTAction(AstraeaContext context) =>
+    protected override ActionDefinition? GetDoTAction(IAstraeaContext context) =>
         ASTActions.GetDotForLevel(context.Player.Level);
 
-    protected override ActionDefinition? GetAoEDamageAction(AstraeaContext context) =>
+    protected override ActionDefinition? GetAoEDamageAction(IAstraeaContext context) =>
         ASTActions.GetAoEDamageForLevel(context.Player.Level);
 
-    protected override ActionDefinition GetSingleTargetAction(AstraeaContext context, bool isMoving) =>
+    protected override ActionDefinition GetSingleTargetAction(IAstraeaContext context, bool isMoving) =>
         ASTActions.GetDamageGcdForLevel(context.Player.Level);
 
     #endregion
 
     #region Base Class Overrides - Debug State
 
-    protected override void SetDpsState(AstraeaContext context, string state) =>
+    protected override void SetDpsState(IAstraeaContext context, string state) =>
         context.Debug.DpsState = state;
 
-    protected override void SetAoEDpsState(AstraeaContext context, string state) =>
+    protected override void SetAoEDpsState(IAstraeaContext context, string state) =>
         context.Debug.AoEDpsState = state;
 
-    protected override void SetAoEDpsEnemyCount(AstraeaContext context, int count) =>
+    protected override void SetAoEDpsEnemyCount(IAstraeaContext context, int count) =>
         context.Debug.AoEDpsEnemyCount = count;
 
-    protected override void SetPlannedAction(AstraeaContext context, string action) =>
+    protected override void SetPlannedAction(IAstraeaContext context, string action) =>
         context.Debug.PlannedAction = action;
 
     #endregion
@@ -67,13 +67,13 @@ public sealed class DamageModule : BaseDamageModule<AstraeaContext>, IAstraeaMod
     /// <summary>
     /// AST can DoT while moving (Combust is instant).
     /// </summary>
-    protected override bool CanDoT(AstraeaContext context, bool isMoving) => true;
+    protected override bool CanDoT(IAstraeaContext context, bool isMoving) => true;
 
     /// <summary>
     /// AST cannot single-target while moving (Malefic has cast time).
     /// Unless Lightspeed is active.
     /// </summary>
-    protected override bool CanSingleTarget(AstraeaContext context, bool isMoving)
+    protected override bool CanSingleTarget(IAstraeaContext context, bool isMoving)
     {
         if (!isMoving)
             return true;
@@ -85,7 +85,7 @@ public sealed class DamageModule : BaseDamageModule<AstraeaContext>, IAstraeaMod
     /// <summary>
     /// AST oGCD damage: Oracle (Divination follow-up) and Lord of Crowns.
     /// </summary>
-    protected override bool TryOgcdDamage(AstraeaContext context)
+    protected override bool TryOgcdDamage(IAstraeaContext context)
     {
         // Priority 1: Oracle (when Divining proc is active)
         if (TryOracle(context))
@@ -102,7 +102,7 @@ public sealed class DamageModule : BaseDamageModule<AstraeaContext>, IAstraeaMod
 
     #region AST-Specific oGCD Methods
 
-    private bool TryOracle(AstraeaContext context)
+    private bool TryOracle(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
@@ -136,7 +136,7 @@ public sealed class DamageModule : BaseDamageModule<AstraeaContext>, IAstraeaMod
         return false;
     }
 
-    private bool TryLordOfCrowns(AstraeaContext context)
+    private bool TryLordOfCrowns(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
@@ -176,7 +176,7 @@ public sealed class DamageModule : BaseDamageModule<AstraeaContext>, IAstraeaMod
 
     #endregion
 
-    public override void UpdateDebugState(AstraeaContext context)
+    public override void UpdateDebugState(IAstraeaContext context)
     {
         context.Debug.OracleState = context.HasDivining ? "Ready" : "Idle";
     }

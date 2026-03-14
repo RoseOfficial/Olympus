@@ -21,7 +21,7 @@ public sealed class SingleTargetHealingHandler : IHealingHandler
     public HealingPriority Priority => HealingPriority.SingleHeal;
     public string Name => "SingleTargetHeal";
 
-    public bool TryExecute(ApolloContext context, bool isMoving)
+    public bool TryExecute(IApolloContext context, bool isMoving)
     {
         var config = context.Configuration;
         var player = context.Player;

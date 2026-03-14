@@ -53,7 +53,7 @@ public sealed class FairyModule : IAthenaModule
         "Save for after next raidwide",
     };
 
-    public bool TryExecute(AthenaContext context, bool isMoving)
+    public bool TryExecute(IAthenaContext context, bool isMoving)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -93,13 +93,13 @@ public sealed class FairyModule : IAthenaModule
         return false;
     }
 
-    public void UpdateDebugState(AthenaContext context)
+    public void UpdateDebugState(IAthenaContext context)
     {
         context.Debug.FairyState = context.FairyStateManager.CurrentState.ToString();
         context.Debug.FairyGauge = context.FairyGaugeService.CurrentGauge;
     }
 
-    private bool TrySummonFairy(AthenaContext context, bool isMoving)
+    private bool TrySummonFairy(IAthenaContext context, bool isMoving)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -135,7 +135,7 @@ public sealed class FairyModule : IAthenaModule
         return false;
     }
 
-    private bool TrySummonSeraph(AthenaContext context)
+    private bool TrySummonSeraph(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -211,7 +211,7 @@ public sealed class FairyModule : IAthenaModule
         return false;
     }
 
-    private bool TrySeraphism(AthenaContext context)
+    private bool TrySeraphism(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -245,7 +245,7 @@ public sealed class FairyModule : IAthenaModule
         return false;
     }
 
-    private bool TryConsolation(AthenaContext context)
+    private bool TryConsolation(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -279,7 +279,7 @@ public sealed class FairyModule : IAthenaModule
         return false;
     }
 
-    private bool TryFeyUnion(AthenaContext context)
+    private bool TryFeyUnion(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -355,7 +355,7 @@ public sealed class FairyModule : IAthenaModule
         return false;
     }
 
-    private bool TryFeyBlessing(AthenaContext context)
+    private bool TryFeyBlessing(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -455,7 +455,7 @@ public sealed class FairyModule : IAthenaModule
         return false;
     }
 
-    private bool TryWhisperingDawn(AthenaContext context)
+    private bool TryWhisperingDawn(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -557,7 +557,7 @@ public sealed class FairyModule : IAthenaModule
         return false;
     }
 
-    private bool TryFeyIllumination(AthenaContext context)
+    private bool TryFeyIllumination(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;

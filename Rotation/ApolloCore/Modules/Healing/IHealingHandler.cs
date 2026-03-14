@@ -24,5 +24,5 @@ public interface IHealingHandler
     /// <param name="context">The Apollo context.</param>
     /// <param name="isMoving">Whether the player is moving.</param>
     /// <returns>True if an action was executed.</returns>
-    bool TryExecute(ApolloContext context, bool isMoving);
+    bool TryExecute(IApolloContext context, bool isMoving);
 }

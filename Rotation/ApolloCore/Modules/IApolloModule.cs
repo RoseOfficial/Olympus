@@ -7,6 +7,6 @@ namespace Olympus.Rotation.ApolloCore.Modules;
 /// Interface for Apollo (White Mage) rotation modules.
 /// Inherits from IHealerRotationModule for consistent module patterns across healers.
 /// </summary>
-public interface IApolloModule : IHealerRotationModule<ApolloContext>
+public interface IApolloModule : IHealerRotationModule<IApolloContext>
 {
 }

@@ -13,7 +13,7 @@ namespace Olympus.Rotation.AstraeaCore.Modules;
 /// Astrologian-specific defensive module.
 /// Handles Neutral Sect for enhanced healing + shields.
 /// </summary>
-public sealed class DefensiveModule : BaseDefensiveModule<AstraeaContext>, IAstraeaModule
+public sealed class DefensiveModule : BaseDefensiveModule<IAstraeaContext>, IAstraeaModule
 {
     // Training explanation arrays
     private static readonly string[] _neutralSectAlternatives =
@@ -39,13 +39,13 @@ public sealed class DefensiveModule : BaseDefensiveModule<AstraeaContext>, IAstr
 
     #region Base Class Overrides - Debug State
 
-    protected override void SetDefensiveState(AstraeaContext context, string state) =>
+    protected override void SetDefensiveState(IAstraeaContext context, string state) =>
         context.Debug.PlanningState = state;
 
-    protected override void SetPlannedAction(AstraeaContext context, string action) =>
+    protected override void SetPlannedAction(IAstraeaContext context, string action) =>
         context.Debug.PlannedAction = action;
 
-    protected override (float avgHpPercent, float lowestHpPercent, int injuredCount) GetPartyHealthMetrics(AstraeaContext context) =>
+    protected override (float avgHpPercent, float lowestHpPercent, int injuredCount) GetPartyHealthMetrics(IAstraeaContext context) =>
         context.PartyHelper.CalculatePartyHealthMetrics(context.Player);
 
     #endregion
@@ -55,7 +55,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<AstraeaContext>, IAstr
     /// <summary>
     /// AST-specific defensives: Neutral Sect and Collective Unconscious.
     /// </summary>
-    protected override bool TryJobSpecificDefensives(AstraeaContext context, bool isMoving)
+    protected override bool TryJobSpecificDefensives(IAstraeaContext context, bool isMoving)
     {
         // Priority 1: Neutral Sect (party-wide shield enhancement)
         if (TryNeutralSect(context))
@@ -76,7 +76,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<AstraeaContext>, IAstr
 
     #region AST-Specific Methods
 
-    private bool TryNeutralSect(AstraeaContext context)
+    private bool TryNeutralSect(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
@@ -176,7 +176,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<AstraeaContext>, IAstr
         return false;
     }
 
-    private bool ShouldUseForDamage(AstraeaContext context, AstrologianConfig config)
+    private bool ShouldUseForDamage(IAstraeaContext context, AstrologianConfig config)
     {
         var (avgHp, _, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(context.Player);
 
@@ -191,7 +191,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<AstraeaContext>, IAstr
         return false;
     }
 
-    private bool TrySunSign(AstraeaContext context)
+    private bool TrySunSign(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
@@ -269,7 +269,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<AstraeaContext>, IAstr
         return false;
     }
 
-    private bool TryCollectiveUnconscious(AstraeaContext context)
+    private bool TryCollectiveUnconscious(IAstraeaContext context)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
@@ -370,7 +370,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<AstraeaContext>, IAstr
 
     #endregion
 
-    public override void UpdateDebugState(AstraeaContext context)
+    public override void UpdateDebugState(IAstraeaContext context)
     {
         context.Debug.NeutralSectState = context.HasNeutralSect ? "Active" : "Idle";
     }

@@ -76,7 +76,7 @@ public sealed class HealingModule : IAthenaModule
         "Sacred Soil (mitigation + HoT)",
     };
 
-    public bool TryExecute(AthenaContext context, bool isMoving)
+    public bool TryExecute(IAthenaContext context, bool isMoving)
     {
         // Clear frame-scoped coordination state to allow new reservations
         context.HealingCoordination.Clear();
@@ -134,14 +134,14 @@ public sealed class HealingModule : IAthenaModule
         return false;
     }
 
-    public void UpdateDebugState(AthenaContext context)
+    public void UpdateDebugState(IAthenaContext context)
     {
         context.Debug.AetherflowStacks = context.AetherflowService.CurrentStacks;
     }
 
     #region oGCD Healing
 
-    private bool TryRecitationCombo(AthenaContext context)
+    private bool TryRecitationCombo(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -225,7 +225,7 @@ public sealed class HealingModule : IAthenaModule
         return false;
     }
 
-    private bool TryExcogitation(AthenaContext context)
+    private bool TryExcogitation(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -324,7 +324,7 @@ public sealed class HealingModule : IAthenaModule
         return false;
     }
 
-    private bool TryLustrate(AthenaContext context)
+    private bool TryLustrate(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -409,7 +409,7 @@ public sealed class HealingModule : IAthenaModule
         return false;
     }
 
-    private bool TryIndomitability(AthenaContext context)
+    private bool TryIndomitability(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -493,7 +493,7 @@ public sealed class HealingModule : IAthenaModule
         return false;
     }
 
-    private bool TrySacredSoil(AthenaContext context)
+    private bool TrySacredSoil(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -625,7 +625,7 @@ public sealed class HealingModule : IAthenaModule
         return false;
     }
 
-    private bool TryProtraction(AthenaContext context)
+    private bool TryProtraction(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -703,7 +703,7 @@ public sealed class HealingModule : IAthenaModule
         return false;
     }
 
-    private bool TryEmergencyTactics(AthenaContext context)
+    private bool TryEmergencyTactics(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -784,7 +784,7 @@ public sealed class HealingModule : IAthenaModule
 
     #region GCD Healing
 
-    private bool TryAoEHeal(AthenaContext context)
+    private bool TryAoEHeal(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -873,7 +873,7 @@ public sealed class HealingModule : IAthenaModule
         return false;
     }
 
-    private bool TrySingleTargetHeal(AthenaContext context)
+    private bool TrySingleTargetHeal(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -1015,7 +1015,7 @@ public sealed class HealingModule : IAthenaModule
 
     #region Helper Methods
 
-    private bool ShouldUseExcogitation(AthenaContext context)
+    private bool ShouldUseExcogitation(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -1031,7 +1031,7 @@ public sealed class HealingModule : IAthenaModule
         return hpPercent <= config.ExcogitationThreshold;
     }
 
-    private bool ShouldUseIndomitability(AthenaContext context)
+    private bool ShouldUseIndomitability(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -1040,7 +1040,7 @@ public sealed class HealingModule : IAthenaModule
         return avgHp <= config.AoEHealThreshold && injuredCount >= config.AoEHealMinTargets;
     }
 
-    private bool ShouldUseSingleTargetHeal(AthenaContext context)
+    private bool ShouldUseSingleTargetHeal(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -1053,7 +1053,7 @@ public sealed class HealingModule : IAthenaModule
         return hpPercent <= config.AdloquiumThreshold;
     }
 
-    private bool ShouldUseAoEHeal(AthenaContext context)
+    private bool ShouldUseAoEHeal(IAthenaContext context)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
@@ -1072,7 +1072,7 @@ public sealed class HealingModule : IAthenaModule
         return (avgHp <= config.AoEHealThreshold && count >= config.AoEHealMinTargets) || raidwideImminent;
     }
 
-    private static bool HasSageShield(AthenaContext context, IBattleChara target)
+    private static bool HasSageShield(IAthenaContext context, IBattleChara target)
     {
         // Eukrasian Diagnosis status ID
         const ushort EukrasianDiagnosisStatusId = 2607;

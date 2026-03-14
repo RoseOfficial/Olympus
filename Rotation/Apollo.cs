@@ -27,7 +27,7 @@ namespace Olympus.Rotation;
 /// Named after the Greek god of healing, light, and music.
 /// </summary>
 [Rotation("Apollo", JobRegistry.WhiteMage, JobRegistry.Conjurer, Role = RotationRole.Healer)]
-public sealed class Apollo : BaseHealerRotation<ApolloContext, IApolloModule>
+public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
 {
     /// <inheritdoc />
     public override string Name => "Apollo";
@@ -145,7 +145,7 @@ public sealed class Apollo : BaseHealerRotation<ApolloContext, IApolloModule>
     }
 
     /// <inheritdoc />
-    protected override ApolloContext CreateContext(IPlayerCharacter player, bool inCombat, bool isMoving)
+    protected override IApolloContext CreateContext(IPlayerCharacter player, bool inCombat, bool isMoving)
     {
         return new ApolloContext(
             player: player,

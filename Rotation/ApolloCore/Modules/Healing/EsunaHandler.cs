@@ -18,7 +18,7 @@ public sealed class EsunaHandler : IHealingHandler
     public HealingPriority Priority => HealingPriority.Esuna;
     public string Name => "Esuna";
 
-    public bool TryExecute(ApolloContext context, bool isMoving)
+    public bool TryExecute(IApolloContext context, bool isMoving)
     {
         var config = context.Configuration;
         var player = context.Player;
@@ -138,7 +138,7 @@ public sealed class EsunaHandler : IHealingHandler
         return false;
     }
 
-    private static (IBattleChara? target, uint statusId, DebuffPriority priority) FindBestEsunaTarget(ApolloContext context)
+    private static (IBattleChara? target, uint statusId, DebuffPriority priority) FindBestEsunaTarget(IApolloContext context)
     {
         var player = context.Player;
         IBattleChara? bestTarget = null;

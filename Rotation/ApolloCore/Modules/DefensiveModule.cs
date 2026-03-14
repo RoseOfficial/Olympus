@@ -27,7 +27,7 @@ public sealed class DefensiveModule : IApolloModule
         "Save for bigger damage phase",
     };
 
-    public bool TryExecute(ApolloContext context, bool isMoving)
+    public bool TryExecute(IApolloContext context, bool isMoving)
     {
         if (!context.CanExecuteOgcd || !context.InCombat)
             return false;
@@ -62,7 +62,7 @@ public sealed class DefensiveModule : IApolloModule
         return false;
     }
 
-    public void UpdateDebugState(ApolloContext context)
+    public void UpdateDebugState(IApolloContext context)
     {
         if (!context.InCombat)
             return;
@@ -104,7 +104,7 @@ public sealed class DefensiveModule : IApolloModule
         context.Debug.DefensiveState = $"Monitoring (avg HP {avgHpPercent:P0}, {injuredCount} injured{dmgRateStr})";
     }
 
-    private bool TryExecuteDivineCaress(ApolloContext context)
+    private bool TryExecuteDivineCaress(IApolloContext context)
     {
         var config = context.Configuration;
         var player = context.Player;
@@ -131,7 +131,7 @@ public sealed class DefensiveModule : IApolloModule
         return false;
     }
 
-    private unsafe bool TryExecuteTemperance(ApolloContext context, float avgHpPercent, int injuredCount)
+    private unsafe bool TryExecuteTemperance(IApolloContext context, float avgHpPercent, int injuredCount)
     {
         var config = context.Configuration;
         var player = context.Player;
@@ -286,7 +286,7 @@ public sealed class DefensiveModule : IApolloModule
         return false;
     }
 
-    private bool TryExecutePlenaryIndulgence(ApolloContext context, int injuredCount)
+    private bool TryExecutePlenaryIndulgence(IApolloContext context, int injuredCount)
     {
         var config = context.Configuration;
         var player = context.Player;
@@ -310,7 +310,7 @@ public sealed class DefensiveModule : IApolloModule
         return false;
     }
 
-    private bool TryExecuteDivineBenison(ApolloContext context)
+    private bool TryExecuteDivineBenison(IApolloContext context)
     {
         var config = context.Configuration;
         var player = context.Player;
@@ -459,7 +459,7 @@ public sealed class DefensiveModule : IApolloModule
         return false;
     }
 
-    private bool TryExecuteAquaveil(ApolloContext context)
+    private bool TryExecuteAquaveil(IApolloContext context)
     {
         var config = context.Configuration;
         var player = context.Player;
@@ -588,7 +588,7 @@ public sealed class DefensiveModule : IApolloModule
         return false;
     }
 
-    private bool TryExecuteLiturgyOfTheBell(ApolloContext context, int injuredCount)
+    private bool TryExecuteLiturgyOfTheBell(IApolloContext context, int injuredCount)
     {
         var config = context.Configuration;
         var player = context.Player;

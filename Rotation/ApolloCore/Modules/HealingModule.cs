@@ -35,7 +35,7 @@ public sealed class HealingModule : IApolloModule
         _handlers.Sort((a, b) => a.Priority.CompareTo(b.Priority));
     }
 
-    public bool TryExecute(ApolloContext context, bool isMoving)
+    public bool TryExecute(IApolloContext context, bool isMoving)
     {
         // Clear frame-scoped coordination state to allow new reservations
         context.HealingCoordination.Clear();
@@ -53,7 +53,7 @@ public sealed class HealingModule : IApolloModule
         return false;
     }
 
-    public void UpdateDebugState(ApolloContext context)
+    public void UpdateDebugState(IApolloContext context)
     {
         // Debug state is updated during handler execution
     }
@@ -67,7 +67,7 @@ public sealed class HealingModule : IApolloModule
     /// Benediction (10) → Assize (15) → Esuna (20) → Tetragrammaton (25) →
     /// Preemptive (30) → Regen (35) → AoE (40) → Single (50) → BloodLily (60) → LilyCap (80)
     /// </remarks>
-    private static bool CanExecuteHandler(IHealingHandler handler, ApolloContext context)
+    private static bool CanExecuteHandler(IHealingHandler handler, IApolloContext context)
     {
         return handler.Priority switch
         {

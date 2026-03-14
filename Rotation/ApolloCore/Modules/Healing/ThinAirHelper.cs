@@ -13,7 +13,7 @@ internal static class ThinAirHelper
     /// </summary>
     /// <param name="context">The Apollo context.</param>
     /// <returns>True if Thin Air is available and we should wait for it.</returns>
-    public static bool ShouldWaitForThinAir(ApolloContext context)
+    public static bool ShouldWaitForThinAir(IApolloContext context)
     {
         var config = context.Configuration;
         var player = context.Player;

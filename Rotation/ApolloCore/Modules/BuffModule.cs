@@ -43,7 +43,7 @@ public sealed class BuffModule : IApolloModule
     public int Priority => 30; // After healing/defensive, before damage
     public string Name => "Buffs";
 
-    public bool TryExecute(ApolloContext context, bool isMoving)
+    public bool TryExecute(IApolloContext context, bool isMoving)
     {
         if (!context.CanExecuteOgcd)
             return false;
@@ -79,7 +79,7 @@ public sealed class BuffModule : IApolloModule
         return false;
     }
 
-    public void UpdateDebugState(ApolloContext context)
+    public void UpdateDebugState(IApolloContext context)
     {
         // Update Thin Air state
         var config = context.Configuration;
@@ -107,7 +107,7 @@ public sealed class BuffModule : IApolloModule
         }
     }
 
-    private bool TryExecuteThinAir(ApolloContext context)
+    private bool TryExecuteThinAir(IApolloContext context)
     {
         var config = context.Configuration;
         var player = context.Player;
@@ -270,7 +270,7 @@ public sealed class BuffModule : IApolloModule
         return false;
     }
 
-    private bool TryExecutePresenceOfMind(ApolloContext context)
+    private bool TryExecutePresenceOfMind(IApolloContext context)
     {
         var config = context.Configuration;
         var player = context.Player;
@@ -348,7 +348,7 @@ public sealed class BuffModule : IApolloModule
         return false;
     }
 
-    private bool TryExecuteAsylum(ApolloContext context)
+    private bool TryExecuteAsylum(IApolloContext context)
     {
         var config = context.Configuration;
         var player = context.Player;
@@ -522,7 +522,7 @@ public sealed class BuffModule : IApolloModule
         return false;
     }
 
-    private bool TryExecuteAssize(ApolloContext context)
+    private bool TryExecuteAssize(IApolloContext context)
     {
         var config = context.Configuration;
         var player = context.Player;
@@ -535,7 +535,7 @@ public sealed class BuffModule : IApolloModule
             player.Name?.TextValue ?? "Unknown", player.CurrentHp);
     }
 
-    private bool TryExecuteLucidDreaming(ApolloContext context)
+    private bool TryExecuteLucidDreaming(IApolloContext context)
     {
         var config = context.Configuration;
         var player = context.Player;
@@ -605,7 +605,7 @@ public sealed class BuffModule : IApolloModule
     /// Checks if we should enter raise preparation mode.
     /// Active when there's a dead party member and MP is low.
     /// </summary>
-    private bool ShouldEnterRaisePrepMode(ApolloContext context)
+    private bool ShouldEnterRaisePrepMode(IApolloContext context)
     {
         var config = context.Configuration;
         var player = context.Player;
@@ -620,7 +620,7 @@ public sealed class BuffModule : IApolloModule
         return mpPercent < config.Buffs.RaisePrepMpThreshold;
     }
 
-    private bool TryExecuteSurecast(ApolloContext context)
+    private bool TryExecuteSurecast(IApolloContext context)
     {
         var config = context.Configuration;
         var player = context.Player;
@@ -676,7 +676,7 @@ public sealed class BuffModule : IApolloModule
     /// Checks if an expensive spell (800+ MP) is likely to be cast soon.
     /// Used to decide when to use Thin Air for MP conservation.
     /// </summary>
-    private bool WillCastExpensiveSpell(ApolloContext context)
+    private bool WillCastExpensiveSpell(IApolloContext context)
     {
         var config = context.Configuration;
         var player = context.Player;
@@ -715,7 +715,7 @@ public sealed class BuffModule : IApolloModule
         return false;
     }
 
-    private void TryExecuteAetherialShift(ApolloContext context)
+    private void TryExecuteAetherialShift(IApolloContext context)
     {
         var config = context.Configuration;
         var player = context.Player;

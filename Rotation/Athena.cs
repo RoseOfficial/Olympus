@@ -29,7 +29,7 @@ namespace Olympus.Rotation;
 /// Named after Athena, the Greek goddess of wisdom and strategic warfare.
 /// </summary>
 [Rotation("Athena", JobRegistry.Scholar, JobRegistry.Arcanist, Role = RotationRole.Healer)]
-public sealed class Athena : BaseHealerRotation<AthenaContext, IAthenaModule>
+public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
 {
     /// <inheritdoc />
     public override string Name => "Athena";
@@ -177,7 +177,7 @@ public sealed class Athena : BaseHealerRotation<AthenaContext, IAthenaModule>
     }
 
     /// <inheritdoc />
-    protected override AthenaContext CreateContext(IPlayerCharacter player, bool inCombat, bool isMoving)
+    protected override IAthenaContext CreateContext(IPlayerCharacter player, bool inCombat, bool isMoving)
     {
         return new AthenaContext(
             player: player,

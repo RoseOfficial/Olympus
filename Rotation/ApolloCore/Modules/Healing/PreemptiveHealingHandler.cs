@@ -28,7 +28,7 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
         "Save for bigger emergency",
     };
 
-    public bool TryExecute(ApolloContext context, bool isMoving)
+    public bool TryExecute(IApolloContext context, bool isMoving)
     {
         var config = context.Configuration;
         var player = context.Player;
