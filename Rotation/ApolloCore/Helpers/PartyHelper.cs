@@ -274,7 +274,8 @@ public sealed class PartyHelper : HealerPartyHelper, IPartyHelper
         var predictedHp = GetPredictedHp(chara);
         missingHp = (int)(chara.MaxHp - predictedHp);
 
-        return healAmount <= missingHp;
+        var hpPercent = chara.MaxHp > 0 ? (float)predictedHp / chara.MaxHp : 1f;
+        return hpPercent < Configuration.Healing.AoEHealHpThreshold;
     }
 
     #endregion

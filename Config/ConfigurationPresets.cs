@@ -143,6 +143,7 @@ public static class ConfigurationPresets
         config.Healing.OgcdEmergencyThreshold = 0.45f;
         config.Healing.GcdEmergencyThreshold = 0.35f;
         config.Healing.AoEHealMinTargets = 3;
+        config.Healing.AoEHealHpThreshold = 0.85f;
         config.Healing.LilyStrategy = LilyGenerationStrategy.Balanced;
         config.Healing.TriagePreset = TriagePreset.ShieldAware;
 
@@ -190,6 +191,7 @@ public static class ConfigurationPresets
         config.Healing.OgcdEmergencyThreshold = 0.55f;
         config.Healing.GcdEmergencyThreshold = 0.45f;
         config.Healing.AoEHealMinTargets = 2;
+        config.Healing.AoEHealHpThreshold = 0.90f;
         config.Healing.LilyStrategy = LilyGenerationStrategy.Aggressive;
         config.Healing.TriagePreset = TriagePreset.Balanced;
 
@@ -237,6 +239,7 @@ public static class ConfigurationPresets
         config.Healing.OgcdEmergencyThreshold = 0.60f;
         config.Healing.GcdEmergencyThreshold = 0.50f;
         config.Healing.AoEHealMinTargets = 3;
+        config.Healing.AoEHealHpThreshold = 0.90f;
         config.Healing.LilyStrategy = LilyGenerationStrategy.Conservative;
         config.Healing.TriagePreset = TriagePreset.TankFocus;
 

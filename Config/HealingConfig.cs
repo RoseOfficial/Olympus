@@ -347,6 +347,19 @@ public sealed class HealingConfig
     }
 
     /// <summary>
+    /// HP percentage threshold for counting a party member as needing AoE healing.
+    /// A member is counted when their predicted HP is below this value.
+    /// Default 0.85 means members below 85% HP count toward the AoE target minimum.
+    /// Valid range: 0.5 to 1.0.
+    /// </summary>
+    private float _aoEHealHpThreshold = 0.85f;
+    public float AoEHealHpThreshold
+    {
+        get => _aoEHealHpThreshold;
+        set => _aoEHealHpThreshold = Math.Clamp(value, 0.5f, 1.0f);
+    }
+
+    /// <summary>
     /// HP percentage threshold for Benediction (emergency heal).
     /// Only use Benediction when target HP is below this threshold.
     /// Default 0.30 means only use when below 30% HP.
