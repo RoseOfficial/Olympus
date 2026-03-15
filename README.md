@@ -34,8 +34,10 @@ An intelligent rotation assistant for FFXIV that goes beyond automation. Olympus
 - **Level-sync awareness** - Abilities adjust to your current level
 - **Resource management** - Lily, Aetherflow, Kenki, Heat, and all job gauges
 - **oGCD weaving** - Optimal ability timing without clipping
-- **Positional optimization** - Rear/flank awareness for melee DPS
+- **Positional indicator** - Real-time rear/flank/front display for melee DPS, updating as your combo progresses; suppressed automatically when True North is active or target is immune
+- **Smart AoE targeting** - Directional AoE abilities (Howling Fist, Chain Saw, Bioblaster, etc.) automatically target the enemy that hits the most targets
 - **Proc tracking** - Never waste a proc or let buffs fall off
+- **Auto-attack start** - Optional setting to begin the rotation as soon as your weapon is drawn, rather than waiting for the first GCD
 
 ### Fight Timeline Integration
 - **Raidwide prediction** - Pre-shield and pre-heal before damage hits
@@ -55,6 +57,17 @@ When multiple party members use Olympus, they coordinate automatically:
 | **Burst Windows** | DPS align raid buffs for maximum damage |
 | **Tank Swaps** | Coordinated Provoke/Shirk sequences |
 | **Interrupt Priority** | One player per interruptible cast |
+
+### Visual Overlay (Draw Helper)
+An optional in-game overlay to aid positioning and range awareness:
+
+| Feature | Description |
+|---------|-------------|
+| **Attack Range Rings** | Melee and ranged attack ranges displayed as rings around your character, fading when comfortably in range |
+| **Enemy Hitboxes** | Targeted enemy hitbox drawn on screen for precise distance judgement |
+| **Positional Zones** | Rear, flank, and front zones shown on your target so you can see exactly where to stand |
+
+Toggle and appearance options available in **Settings → Draw Helper**.
 
 ### Performance Analytics
 - **Real-time metrics** - GCD uptime, deaths, near-deaths during combat
@@ -107,6 +120,7 @@ Updates are delivered automatically.
 3. Enter combat on any supported job
 4. Open **Training** to learn as you play
 5. Open **Analytics** to track performance
+6. Open **Overlay** to enable the visual draw helper
 
 ## Commands
 
