@@ -9,7 +9,7 @@ using Olympus.Localization;
 using Olympus.Services.Training;
 
 /// <summary>
-/// Lessons tab: structured educational content for healers.
+/// Lessons tab: structured educational content for all jobs.
 /// </summary>
 public static class LessonsTab
 {
@@ -45,63 +45,13 @@ public static class LessonsTab
         cachedTrainingService = trainingService;
 
         // Job tabs - organized by role
-        if (ImGui.BeginTabBar("LessonJobTabs"))
+        if (ImGui.BeginTabBar("LessonRoleTabs"))
         {
-            // Healer tabs
-            if (ImGui.BeginTabItem("WHM"))
-            {
-                selectedJob = "whm";
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("SCH"))
-            {
-                selectedJob = "sch";
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("AST"))
-            {
-                selectedJob = "ast";
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("SGE"))
-            {
-                selectedJob = "sge";
-                ImGui.EndTabItem();
-            }
-
-            // Visual separator
-            ImGui.SameLine();
-            ImGui.TextColored(NeutralColor, "|");
-            ImGui.SameLine();
-
-            // Tank tabs
-            if (ImGui.BeginTabItem("PLD"))
-            {
-                selectedJob = "pld";
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("WAR"))
-            {
-                selectedJob = "war";
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("DRK"))
-            {
-                selectedJob = "drk";
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("GNB"))
-            {
-                selectedJob = "gnb";
-                ImGui.EndTabItem();
-            }
-
+            DrawLessonRoleTab("Healer", [("whm", "WHM"), ("sch", "SCH"), ("ast", "AST"), ("sge", "SGE")]);
+            DrawLessonRoleTab("Tank", [("pld", "PLD"), ("war", "WAR"), ("drk", "DRK"), ("gnb", "GNB")]);
+            DrawLessonRoleTab("Melee", [("drg", "DRG"), ("nin", "NIN"), ("sam", "SAM"), ("mnk", "MNK"), ("rpr", "RPR"), ("vpr", "VPR")]);
+            DrawLessonRoleTab("Ranged", [("mch", "MCH"), ("brd", "BRD"), ("dnc", "DNC")]);
+            DrawLessonRoleTab("Caster", [("blm", "BLM"), ("smn", "SMN"), ("rdm", "RDM"), ("pct", "PCT")]);
             ImGui.EndTabBar();
         }
 
@@ -147,6 +97,28 @@ public static class LessonsTab
         }
 
         ImGui.EndChild();
+    }
+
+    private static void DrawLessonRoleTab(string roleLabel, (string Prefix, string Label)[] jobs)
+    {
+        if (ImGui.BeginTabItem(roleLabel))
+        {
+            if (ImGui.BeginTabBar($"Lesson{roleLabel}Jobs"))
+            {
+                foreach (var (prefix, label) in jobs)
+                {
+                    if (ImGui.BeginTabItem(label))
+                    {
+                        selectedJob = prefix;
+                        ImGui.EndTabItem();
+                    }
+                }
+
+                ImGui.EndTabBar();
+            }
+
+            ImGui.EndTabItem();
+        }
     }
 
     private static void DrawLessonList(System.Collections.Generic.IReadOnlyList<LessonDefinition> lessons, ITrainingService trainingService, TrainingConfig config)

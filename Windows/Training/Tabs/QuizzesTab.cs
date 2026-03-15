@@ -31,57 +31,14 @@ public static class QuizzesTab
 
     public static void Draw(ITrainingService trainingService, TrainingConfig config)
     {
-        // Job tabs
-        if (ImGui.BeginTabBar("QuizJobTabs"))
+        // Job tabs - organized by role
+        if (ImGui.BeginTabBar("QuizRoleTabs"))
         {
-            if (ImGui.BeginTabItem("WHM"))
-            {
-                selectedJob = "whm";
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("SCH"))
-            {
-                selectedJob = "sch";
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("AST"))
-            {
-                selectedJob = "ast";
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("SGE"))
-            {
-                selectedJob = "sge";
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("PLD"))
-            {
-                selectedJob = "pld";
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("WAR"))
-            {
-                selectedJob = "war";
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("DRK"))
-            {
-                selectedJob = "drk";
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("GNB"))
-            {
-                selectedJob = "gnb";
-                ImGui.EndTabItem();
-            }
-
+            DrawQuizRoleTab("Healer", [("whm", "WHM"), ("sch", "SCH"), ("ast", "AST"), ("sge", "SGE")]);
+            DrawQuizRoleTab("Tank", [("pld", "PLD"), ("war", "WAR"), ("drk", "DRK"), ("gnb", "GNB")]);
+            DrawQuizRoleTab("Melee", [("drg", "DRG"), ("nin", "NIN"), ("sam", "SAM"), ("mnk", "MNK"), ("rpr", "RPR"), ("vpr", "VPR")]);
+            DrawQuizRoleTab("Ranged", [("mch", "MCH"), ("brd", "BRD"), ("dnc", "DNC")]);
+            DrawQuizRoleTab("Caster", [("blm", "BLM"), ("smn", "SMN"), ("rdm", "RDM"), ("pct", "PCT")]);
             ImGui.EndTabBar();
         }
 
@@ -138,6 +95,28 @@ public static class QuizzesTab
         }
 
         ImGui.EndChild();
+    }
+
+    private static void DrawQuizRoleTab(string roleLabel, (string Prefix, string Label)[] jobs)
+    {
+        if (ImGui.BeginTabItem(roleLabel))
+        {
+            if (ImGui.BeginTabBar($"Quiz{roleLabel}Jobs"))
+            {
+                foreach (var (prefix, label) in jobs)
+                {
+                    if (ImGui.BeginTabItem(label))
+                    {
+                        selectedJob = prefix;
+                        ImGui.EndTabItem();
+                    }
+                }
+
+                ImGui.EndTabBar();
+            }
+
+            ImGui.EndTabItem();
+        }
     }
 
     private static void DrawQuizList(
