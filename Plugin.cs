@@ -36,7 +36,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "4.10.10";
+    public const string PluginVersion = "4.10.11";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -346,6 +346,10 @@ public sealed class Plugin : IDalamudPlugin
     private void OnTerritoryChanged(ushort zoneId)
     {
         timelineService.LoadForZone(zoneId);
+        combatEventService.Clear();
+        hpPredictionService.ClearPendingHeals();
+        damageIntakeService.Clear();
+        healingIntakeService.Clear();
     }
 
     /// <summary>
@@ -484,6 +488,9 @@ public sealed class Plugin : IDalamudPlugin
 
         var localPlayer = objectTable.LocalPlayer;
         if (localPlayer == null)
+            return;
+
+        if (localPlayer.CurrentHp == 0)
             return;
 
         // Update party coordination service (heartbeat, cleanup)

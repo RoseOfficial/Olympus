@@ -3,6 +3,13 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.11 - Crash Fix on Death and Zone Transition
+
+**All Jobs**
+- Fixed crashes that occurred when the player died or changed zones. Rotation logic now stops immediately when the player is dead, preventing modules from running against an invalid game state. Zone transitions now also reset HP tracking and pending heal state, preventing stale data from a previous zone being misapplied to new entities that happen to share the same ID.
+
+<!-- LATEST-END -->
+
 ## v4.10.10 - White Mage AoE Healing Fix
 
 **White Mage**
