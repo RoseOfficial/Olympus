@@ -41,9 +41,6 @@ public sealed class HintOverlay : Window
         this.coachingService = coachingService;
         this.config = config;
 
-        // Start visible if enabled
-        this.IsOpen = config.HintOverlayVisible;
-
         // Position based on config
         this.Position = new Vector2(config.HintOverlayX, config.HintOverlayY);
         this.PositionCondition = ImGuiCond.FirstUseEver;
@@ -58,25 +55,17 @@ public sealed class HintOverlay : Window
 
     public override void PreDraw()
     {
-        // Update visibility from config
-        if (this.IsOpen != (this.config.HintOverlayVisible && this.config.EnableCoachingHints))
-        {
-            this.IsOpen = this.config.HintOverlayVisible && this.config.EnableCoachingHints;
-        }
+        // Only open when coaching is enabled and there is an active hint to display
+        this.IsOpen = this.config.HintOverlayVisible
+            && this.config.EnableCoachingHints
+            && coachingService.CurrentHint != null;
     }
 
     public override void Draw()
     {
-        // Only draw if coaching is enabled and there's a hint to show
         var hint = coachingService.CurrentHint;
         if (hint == null)
-        {
-            // Show minimal placeholder when no hints
-            ImGui.PushStyleColor(ImGuiCol.Text, DimColor);
-            ImGui.Text("No coaching tips right now");
-            ImGui.PopStyleColor();
             return;
-        }
 
         DrawHint(hint);
     }
@@ -170,13 +159,4 @@ public sealed class HintOverlay : Window
         }
     }
 
-    public override void OnClose()
-    {
-        this.config.HintOverlayVisible = false;
-    }
-
-    public override void OnOpen()
-    {
-        this.config.HintOverlayVisible = true;
-    }
 }

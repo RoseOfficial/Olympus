@@ -17,7 +17,7 @@ public class DamageTrendServiceTests
     {
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
-        mockIntake.Setup(s => s.GetPartyDamageRate(It.IsAny<float>())).Returns(10f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),It.IsAny<float>())).Returns(10f);
         var service = new DamageTrendService(mockIntake.Object);
 
         // Act
@@ -33,8 +33,8 @@ public class DamageTrendServiceTests
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
         // Current rate = 100, previous rate = 100 (stable)
-        mockIntake.Setup(s => s.GetPartyDamageRate(5f)).Returns(100f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(10f)).Returns(100f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),5f)).Returns(100f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),10f)).Returns(100f);
         var service = new DamageTrendService(mockIntake.Object);
 
         // Act
@@ -50,8 +50,8 @@ public class DamageTrendServiceTests
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
         // Current rate = 130 (recent half), previous = 100 (30% increase)
-        mockIntake.Setup(s => s.GetPartyDamageRate(5f)).Returns(130f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(10f)).Returns(115f); // Average of 130 and 100
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),5f)).Returns(130f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),10f)).Returns(115f); // Average of 130 and 100
         var service = new DamageTrendService(mockIntake.Object);
 
         // Act
@@ -67,8 +67,8 @@ public class DamageTrendServiceTests
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
         // Current rate = 200 (recent half), previous = 100 (100% increase = spiking)
-        mockIntake.Setup(s => s.GetPartyDamageRate(5f)).Returns(200f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(10f)).Returns(150f); // Average of 200 and 100
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),5f)).Returns(200f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),10f)).Returns(150f); // Average of 200 and 100
         var service = new DamageTrendService(mockIntake.Object);
 
         // Act
@@ -84,8 +84,8 @@ public class DamageTrendServiceTests
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
         // Current rate = 70 (recent half), previous = 100 (30% decrease)
-        mockIntake.Setup(s => s.GetPartyDamageRate(5f)).Returns(70f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(10f)).Returns(85f); // Average of 70 and 100
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),5f)).Returns(70f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),10f)).Returns(85f); // Average of 70 and 100
         var service = new DamageTrendService(mockIntake.Object);
 
         // Act
@@ -144,7 +144,7 @@ public class DamageTrendServiceTests
     {
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
-        mockIntake.Setup(s => s.GetPartyDamageRate(It.IsAny<float>())).Returns(50f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),It.IsAny<float>())).Returns(50f);
         var service = new DamageTrendService(mockIntake.Object);
 
         // Act
@@ -160,9 +160,9 @@ public class DamageTrendServiceTests
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
         // Create a spiking scenario: current >> previous
-        mockIntake.Setup(s => s.GetPartyDamageRate(2.5f)).Returns(500f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(5f)).Returns(250f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(1.5f)).Returns(500f); // For high damage phase check
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),2.5f)).Returns(500f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),5f)).Returns(250f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),1.5f)).Returns(500f); // For high damage phase check
         var service = new DamageTrendService(mockIntake.Object);
 
         // Act
@@ -178,10 +178,10 @@ public class DamageTrendServiceTests
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
         // Stable but high damage (triggers sustained high-damage detection)
-        mockIntake.Setup(s => s.GetPartyDamageRate(2.5f)).Returns(900f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(5f)).Returns(900f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(1.5f)).Returns(900f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(2f)).Returns(900f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),2.5f)).Returns(900f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),5f)).Returns(900f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),1.5f)).Returns(900f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),2f)).Returns(900f);
         var service = new DamageTrendService(mockIntake.Object);
 
         // Update to trigger high damage phase tracking
@@ -392,7 +392,7 @@ public class DamageTrendServiceTests
     {
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
-        mockIntake.Setup(s => s.GetPartyDamageRate(1.5f)).Returns(500f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),1.5f)).Returns(500f);
         var service = new DamageTrendService(mockIntake.Object);
 
         // Act
@@ -407,8 +407,8 @@ public class DamageTrendServiceTests
     {
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
-        mockIntake.Setup(s => s.GetPartyDamageRate(1.5f)).Returns(1000f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(It.Is<float>(f => f >= 3f))).Returns(1000f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),1.5f)).Returns(1000f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),It.Is<float>(f => f >= 3f))).Returns(1000f);
         var service = new DamageTrendService(mockIntake.Object);
 
         // Only update once (1 second) - not long enough for 3 second requirement
@@ -426,7 +426,7 @@ public class DamageTrendServiceTests
     {
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
-        mockIntake.Setup(s => s.GetPartyDamageRate(It.IsAny<float>())).Returns(1000f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),It.IsAny<float>())).Returns(1000f);
         var service = new DamageTrendService(mockIntake.Object);
 
         // Update multiple times to accumulate time
@@ -447,8 +447,8 @@ public class DamageTrendServiceTests
     {
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
-        mockIntake.Setup(s => s.GetPartyDamageRate(1.5f)).Returns(600f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(3f)).Returns(600f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),1.5f)).Returns(600f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),3f)).Returns(600f);
         var service = new DamageTrendService(mockIntake.Object);
 
         // Act - Using custom threshold below the default
@@ -467,7 +467,7 @@ public class DamageTrendServiceTests
     {
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
-        mockIntake.Setup(s => s.GetPartyDamageRate(It.IsAny<float>())).Returns(500f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),It.IsAny<float>())).Returns(500f);
         var service = new DamageTrendService(mockIntake.Object);
 
         // Act
@@ -482,7 +482,7 @@ public class DamageTrendServiceTests
     {
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
-        mockIntake.Setup(s => s.GetPartyDamageRate(It.IsAny<float>())).Returns(1000f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),It.IsAny<float>())).Returns(1000f);
         var service = new DamageTrendService(mockIntake.Object);
 
         // Update to simulate time passing while in high damage phase
@@ -505,11 +505,11 @@ public class DamageTrendServiceTests
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
         // Setup different rates for different windows
-        mockIntake.Setup(s => s.GetPartyDamageRate(1.5f)).Returns(600f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(1f)).Returns(600f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(2f)).Returns(600f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(3f)).Returns(600f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(5f)).Returns(400f); // Drops below at 5s
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),1.5f)).Returns(600f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),1f)).Returns(600f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),2f)).Returns(600f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),3f)).Returns(600f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),5f)).Returns(400f); // Drops below at 5s
         var service = new DamageTrendService(mockIntake.Object);
 
         // Act - Using custom threshold
@@ -528,7 +528,7 @@ public class DamageTrendServiceTests
     {
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
-        mockIntake.Setup(s => s.GetPartyDamageRate(It.IsAny<float>())).Returns(100f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),It.IsAny<float>())).Returns(100f);
         var service = new DamageTrendService(mockIntake.Object);
 
         // Record a spike for timing reference
@@ -553,7 +553,7 @@ public class DamageTrendServiceTests
         var mockIntake = new Mock<IDamageIntakeService>();
         mockIntake.Setup(s => s.GetDamageRate(1u, 1f)).Returns(1500f); // High spike
         mockIntake.Setup(s => s.GetDamageRate(1u, 3f)).Returns(50f); // Low previous rate
-        mockIntake.Setup(s => s.GetPartyDamageRate(It.IsAny<float>())).Returns(500f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),It.IsAny<float>())).Returns(500f);
         var service = new DamageTrendService(mockIntake.Object);
 
         // Act - Update should auto-detect spike
@@ -586,7 +586,7 @@ public class DamageTrendServiceTests
     {
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
-        mockIntake.Setup(s => s.GetPartyDamageRate(It.IsAny<float>())).Returns(1000f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),It.IsAny<float>())).Returns(1000f);
         var service = new DamageTrendService(mockIntake.Object);
 
         // Act - Multiple updates at high damage
@@ -603,7 +603,7 @@ public class DamageTrendServiceTests
     {
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
-        mockIntake.Setup(s => s.GetPartyDamageRate(It.IsAny<float>())).Returns(1000f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),It.IsAny<float>())).Returns(1000f);
         var service = new DamageTrendService(mockIntake.Object);
 
         // Enter high damage phase
@@ -614,7 +614,7 @@ public class DamageTrendServiceTests
         Assert.True(service.IsInHighDamagePhase(800f, 2f));
 
         // Now drop damage
-        mockIntake.Setup(s => s.GetPartyDamageRate(It.IsAny<float>())).Returns(500f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),It.IsAny<float>())).Returns(500f);
         service.Update(1f, new uint[] { });
 
         // Assert - Should no longer be in high damage phase
@@ -650,7 +650,7 @@ public class DamageTrendServiceTests
     {
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
-        mockIntake.Setup(s => s.GetPartyDamageRate(It.IsAny<float>())).Returns(50f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),It.IsAny<float>())).Returns(50f);
         var service = new DamageTrendService(mockIntake.Object);
 
         // Act
@@ -666,10 +666,10 @@ public class DamageTrendServiceTests
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
         // Setup spiking scenario
-        mockIntake.Setup(s => s.GetPartyDamageRate(2.5f)).Returns(500f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(5f)).Returns(200f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(3f)).Returns(500f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(1.5f)).Returns(500f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),2.5f)).Returns(500f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),5f)).Returns(200f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),3f)).Returns(500f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),1.5f)).Returns(500f);
         var service = new DamageTrendService(mockIntake.Object);
 
         // Act
@@ -684,10 +684,10 @@ public class DamageTrendServiceTests
     {
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
-        mockIntake.Setup(s => s.GetPartyDamageRate(2.5f)).Returns(500f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(5f)).Returns(200f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(3f)).Returns(500f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(1.5f)).Returns(500f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),2.5f)).Returns(500f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),5f)).Returns(200f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),3f)).Returns(500f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),1.5f)).Returns(500f);
         var service = new DamageTrendService(mockIntake.Object);
 
         // Act
@@ -703,10 +703,10 @@ public class DamageTrendServiceTests
     {
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
-        mockIntake.Setup(s => s.GetPartyDamageRate(2.5f)).Returns(5500f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(5f)).Returns(2500f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(3f)).Returns(5500f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(1.5f)).Returns(5500f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),2.5f)).Returns(5500f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),5f)).Returns(2500f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),3f)).Returns(5500f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),1.5f)).Returns(5500f);
         var service = new DamageTrendService(mockIntake.Object);
 
         // Act
@@ -726,8 +726,8 @@ public class DamageTrendServiceTests
         // Arrange
         var mockIntake = new Mock<IDamageIntakeService>();
         // Current rate = 100 DPS, previous = 0 DPS (division by zero protection)
-        mockIntake.Setup(s => s.GetPartyDamageRate(5f)).Returns(100f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(10f)).Returns(50f); // Average
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),5f)).Returns(100f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),10f)).Returns(50f); // Average
         var service = new DamageTrendService(mockIntake.Object);
 
         // Act
@@ -744,7 +744,7 @@ public class DamageTrendServiceTests
         var mockIntake = new Mock<IDamageIntakeService>();
         mockIntake.Setup(s => s.GetDamageRate(1u, 1f)).Returns(1500f);
         mockIntake.Setup(s => s.GetDamageRate(1u, 3f)).Returns(50f);
-        mockIntake.Setup(s => s.GetPartyDamageRate(It.IsAny<float>())).Returns(500f);
+        mockIntake.Setup(s => s.GetPartyMemberDamageRate(It.IsAny<IEnumerable<uint>>(),It.IsAny<float>())).Returns(500f);
         var service = new DamageTrendService(mockIntake.Object);
 
         // Act - Multiple rapid updates (within cooldown)

@@ -55,8 +55,8 @@ public static class SpellChecklistRegistry
 
     private static readonly ChecklistGroup[] _whm =
     {
-        new("GCD Damage",       l => new[] { WHMActions.Stone, WHMActions.StoneII, WHMActions.StoneIII, WHMActions.StoneIV, WHMActions.Glare, WHMActions.GlareIII, WHMActions.GlareIV, WHMActions.AfflatusMisery }
-                                        .Where(a => a.MinLevel <= l).ToArray()),
+        new("GCD Damage",       l => new[] { WHMActions.Stone, WHMActions.StoneII, WHMActions.StoneIII, WHMActions.StoneIV, WHMActions.Glare, WHMActions.GlareIII }
+                                        .Where(a => a.MinLevel <= l).TakeLast(1).ToArray()),
         new("GCD DoT",          l => WHMActions.DotGcds.Where(a => a.MinLevel <= l).ToArray()),
         new("GCD AoE Damage",   l => WHMActions.AoEDamageGcds.Where(a => a.MinLevel <= l).ToArray()),
         new("GCD Single Heals", l => new[] { WHMActions.Cure, WHMActions.CureII, WHMActions.CureIII, WHMActions.Regen, WHMActions.AfflatusSolace }
