@@ -5,16 +5,20 @@ using Olympus.Rotation.AsclepiusCore.Context;
 using Olympus.Rotation.AsclepiusCore.Helpers;
 using Olympus.Services.Training;
 
-namespace Olympus.Rotation.AsclepiusCore.Modules;
+namespace Olympus.Rotation.AsclepiusCore.Modules.Healing;
 
 /// <summary>
 /// Handles Eukrasian shield healing for Sage: E.Diagnosis and E.Prognosis.
+/// Priority 20 in the GCD list.
 /// </summary>
-public sealed class ShieldHealingModule
+public sealed class ShieldHealingHandler : IHealingHandler
 {
-    /// <summary>Tries EukrasianHealing. Does not check CanExecuteGcd.</summary>
-    public bool TryGcd(IAsclepiusContext context, bool isMoving)
+    public int Priority => 20;
+    public string Name => "ShieldHealing";
+
+    public bool TryExecute(IAsclepiusContext context, bool isMoving)
     {
+        if (isMoving) return false; // cast time
         return TryEukrasianHealing(context, isMoving);
     }
 
