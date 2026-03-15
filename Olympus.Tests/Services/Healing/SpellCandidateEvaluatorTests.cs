@@ -365,6 +365,55 @@ public class SpellCandidateEvaluatorTests
         Assert.True(result.IsValid);
     }
 
+    [Fact]
+    public void EvaluateAoE_OverhealCheckEnabled_RejectsWhenHealExceedsThreshold()
+    {
+        // Reproduces the dead zone bug: at level 100, Medica (~34k heal) far exceeds
+        // average missing HP (~18k) for members at 82% HP, triggering rejection.
+        var evaluator = CreateEvaluator(out var actionService, out var enablementService);
+        actionService.SetActionReady(WHMActions.Medica.ActionId);
+        enablementService.SetSpellEnabled(WHMActions.Medica.ActionId, true);
+
+        // averageMissingHp small relative to Medica heal at level 100
+        // Medica at these stats heals ~6500 HP; set missingHp to 1000 to guarantee overheal
+        const int smallMissingHp = 1000;
+        const float tolerance = 0.15f;
+
+        var result = evaluator.EvaluateAoE(
+            WHMActions.Medica,
+            playerLevel: 100,
+            mind: TestMind, det: TestDet, wd: TestWd,
+            averageMissingHp: smallMissingHp,
+            enableOverhealCheck: true,
+            overhealTolerancePercent: tolerance);
+
+        // Heal amount >> missingHp * 1.15, so it must be rejected
+        Assert.False(result.IsValid);
+        Assert.Contains("Would overheal AoE", result.RejectionReason);
+    }
+
+    [Fact]
+    public void EvaluateAoE_OverhealCheckDisabled_AcceptsEvenWhenHealExceedsMissingHp()
+    {
+        // With EnableAoEOverhealCheck = false (the new default), Medica fires even if
+        // heal amount would exceed average missing HP — the threshold is the gate, not this check.
+        var evaluator = CreateEvaluator(out var actionService, out var enablementService);
+        actionService.SetActionReady(WHMActions.Medica.ActionId);
+        enablementService.SetSpellEnabled(WHMActions.Medica.ActionId, true);
+
+        const int smallMissingHp = 1000;
+
+        var result = evaluator.EvaluateAoE(
+            WHMActions.Medica,
+            playerLevel: 100,
+            mind: TestMind, det: TestDet, wd: TestWd,
+            averageMissingHp: smallMissingHp,
+            enableOverhealCheck: false,
+            overhealTolerancePercent: 0.15f);
+
+        Assert.True(result.IsValid);
+    }
+
     #endregion
 
     #region ClearCandidates Tests

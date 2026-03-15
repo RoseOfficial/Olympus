@@ -11,8 +11,8 @@ namespace Olympus.Rotation.ApolloCore.Modules.Healing;
 /// 3. Esuna - Cleanse lethal debuffs before they kill
 /// 4. oGCD single-target (Tetragrammaton) - Free heals before GCDs
 /// 5. Preemptive - Prepare for incoming damage
-/// 6. Regen - HoT maintenance before GCD heals to prevent overhealing
-/// 7. AoE GCD - Multi-target healing
+/// 6. AoE GCD - Multi-target healing takes priority over Regen when multiple members are injured
+/// 7. Regen - HoT maintenance (only fires when AoE count threshold not met)
 /// 8. Single GCD - Single-target GCD heals (most expensive resource)
 /// 9. Lily cap prevention - Use Lilies before they cap (lowest priority)
 /// </remarks>
@@ -37,7 +37,7 @@ public enum HealingPriority
     Regen = 35,
 
     /// <summary>Multi-target healing (Medica, Cure III, etc.).</summary>
-    AoEHeal = 40,
+    AoEHeal = 34,
 
     /// <summary>Single-target GCD heals.</summary>
     SingleHeal = 50,

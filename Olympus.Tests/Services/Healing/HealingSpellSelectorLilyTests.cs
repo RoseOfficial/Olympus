@@ -38,6 +38,17 @@ public class HealingSpellSelectorLilyTests
         Assert.Equal(0.75f, config.ConservativeLilyHpThreshold);
     }
 
+    [Fact]
+    public void HealingConfig_AoEOverhealCheck_DefaultIsFalse()
+    {
+        // Regression: EnableAoEOverhealCheck must default to false.
+        // When true with the 85% HP threshold, Medica (~34k heal) gets rejected for
+        // members at 82% HP (missingHp ~18k) because 34k > 18k * 1.15 = 20.7k.
+        // This creates a dead zone where members below threshold still don't get healed.
+        var config = new HealingConfig();
+        Assert.False(config.EnableAoEOverhealCheck);
+    }
+
     #endregion
 
     #region SpellSelectionDebug Blood Lily Fields Tests

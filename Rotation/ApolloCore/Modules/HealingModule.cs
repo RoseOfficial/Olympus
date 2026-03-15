@@ -65,7 +65,9 @@ public sealed class HealingModule : IApolloModule
     /// <remarks>
     /// Priority order (lower = executes first):
     /// Benediction (10) → Assize (15) → Esuna (20) → Tetragrammaton (25) →
-    /// Preemptive (30) → Regen (35) → AoE (40) → Single (50) → BloodLily (60) → LilyCap (80)
+    /// Preemptive (30) → AoE (34) → Regen (35) → Single (50) → BloodLily (60) → LilyCap (80)
+    /// AoE runs before Regen so multi-target heals fire when multiple members are injured.
+    /// When AoE threshold is not met, AoE returns false and Regen fires next.
     /// </remarks>
     private static bool CanExecuteHandler(IHealingHandler handler, IApolloContext context)
     {

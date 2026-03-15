@@ -658,11 +658,13 @@ public sealed class HealingConfig
     }
 
     /// <summary>
-    /// Enable overheal checking for AoE heals.
-    /// When enabled, AoE heals are evaluated against average missing HP.
-    /// Default true prevents wasteful AoE healing on mostly-healthy parties.
+    /// Preserved for config serialization compatibility; no longer used by the heal selector.
+    /// The tiered strategy stopped using this flag because it created a dead zone: members below
+    /// AoEHealHpThreshold were counted as "needing AoE healing" but rejected by the overheal
+    /// check because level-100 heal amounts far exceed missing HP at 80-84% HP.
+    /// AoEHealHpThreshold alone is sufficient gating.
     /// </summary>
-    public bool EnableAoEOverhealCheck { get; set; } = true;
+    public bool EnableAoEOverhealCheck { get; set; } = false;
 
     /// <summary>
     /// Overheal tolerance percentage for AoE heals.

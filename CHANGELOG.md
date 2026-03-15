@@ -3,13 +3,19 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.10 - White Mage AoE Healing Fix
+
+**White Mage**
+- Fixed AoE heals (Medica, Medica II, Medica III, Cure III, Afflatus Rapture) not firing when enough party members were below the HP threshold. Two bugs combined to block all AoE healing: (1) a redundant overheal check was rejecting every Medica spell at the HP levels where healing actually triggers — at level 100, heal amounts far exceed the average missing HP at 80–85% HP, so this check was removed entirely since the existing HP threshold is sufficient gating; and (2) Regen was executing before AoE heals in priority order, meaning a single party member needing Regen would consume the GCD window and prevent AoE heals from casting even when multiple members were injured. AoE healing now takes priority over Regen — when the AoE target count is not met, Regen runs next as usual.
+- Fixed Afflatus Rapture not being used as a fallback when the lily strategy is set to Disabled but all Medica options are unavailable — lilies are now always spent as a last resort for AoE healing if other options fail.
+
+<!-- LATEST-END -->
+
 ## v4.10.9 - Internal Quality Improvements
 
 **All Jobs**
 - Overhauled internal test coverage across all 21 rotations to catch regressions earlier — healing spells, damage rotations, buff timing, and priority logic are now verified by automated checks
 - Sage and Astrologian healing logic has been restructured internally for easier maintenance; behavior is unchanged
-
-<!-- LATEST-END -->
 
 ## v4.10.8 - Smart AoE Targeting & Visual Overlay
 
@@ -28,8 +34,6 @@ All notable changes to Olympus will be documented in this file.
 
 **General**
 - Added an option to start the rotation as soon as your weapon is drawn and auto-attacks begin, rather than waiting for the first GCD
-
-<!-- LATEST-END -->
 
 ## v4.10.7 - Bug Fixes & Performance
 

@@ -275,6 +275,9 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
 
         // === TIER 1.5: Cure III (targeted AoE, when party is stacked) ===
         // Higher potency (600) than Medica (400), but requires stacked party within 10y
+        // No overheal check: the AoEHealHpThreshold already gates who qualifies; adding an
+        // overheal check on top creates a dead zone where members are "injured enough to count"
+        // but "too healthy to receive healing" at level-100 potencies.
         if (selectedAction is null && hasCureIIITargets && context.CureIIITarget is not null)
         {
             var result = evaluator.EvaluateAoE(
@@ -282,7 +285,7 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
                 context.Player.Level,
                 context.Mind, context.Det, context.Wd,
                 context.AverageMissingHp,
-                context.Config.EnableAoEOverhealCheck,
+                false,
                 context.Config.AoEOverhealTolerance);
 
             if (result.IsValid && result.Action is not null)
@@ -317,7 +320,7 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
                     context.Player.Level,
                     context.Mind, context.Det, context.Wd,
                     context.AverageMissingHp,
-                    context.Config.EnableAoEOverhealCheck,
+                    false,
                     context.Config.AoEOverhealTolerance);
 
                 if (result.IsValid && result.Action is not null)
@@ -343,7 +346,7 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
                     context.Player.Level,
                     context.Mind, context.Det, context.Wd,
                     context.AverageMissingHp,
-                    context.Config.EnableAoEOverhealCheck,
+                    false,
                     context.Config.AoEOverhealTolerance);
 
                 if (result.IsValid && result.Action is not null)
@@ -363,7 +366,7 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
                 context.Player.Level,
                 context.Mind, context.Det, context.Wd,
                 context.AverageMissingHp,
-                context.Config.EnableAoEOverhealCheck,
+                false,
                 context.Config.AoEOverhealTolerance);
 
             if (result.IsValid && result.Action is not null)
@@ -371,6 +374,25 @@ public sealed class TieredHealSelectionStrategy : IHealSelectionStrategy
                 selectedAction = result.Action;
                 selectedHealAmount = result.HealAmount;
                 selectionReason = "Tier 4: Medica (fallback)";
+            }
+        }
+
+        // === TIER 5: Lily AoE fallback ===
+        // If the lily strategy didn't prefer Rapture at Tier 1 but everything else failed
+        // (e.g. EnableAoEOverhealCheck is on and Medicas were blocked), use Rapture anyway.
+        // Rapture has no overheal check and costs no MP — better than casting nothing.
+        if (selectedAction is null && context.LilyCount > 0 && hasSelfCenteredTargets)
+        {
+            var result = evaluator.EvaluateAoE(
+                WHMActions.AfflatusRapture,
+                context.Player.Level,
+                context.Mind, context.Det, context.Wd);
+
+            if (result.IsValid && result.Action is not null)
+            {
+                selectedAction = result.Action;
+                selectedHealAmount = result.HealAmount;
+                selectionReason = $"Tier 5: Lily AoE fallback ({context.LilyCount} lilies, strategy {context.LilyStrategy})";
             }
         }
 
