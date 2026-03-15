@@ -32,7 +32,7 @@ public sealed class HealingModule : IApolloModule
             new EsunaHandler(),               // 20
             new PreemptiveHealingHandler(),   // 30 — hybrid: internally checks CanExecuteOgcd for instant heals, falls back to GCD
             new RegenHandler(),               // 35
-            new AoEHealingHandler(),          // 40
+            new AoEHealingHandler(),          // 34
             new SingleTargetHealingHandler(), // 50
             new BloodLilyBuildingHandler(),   // 60
             new LilyCapPreventionHandler(),   // 80

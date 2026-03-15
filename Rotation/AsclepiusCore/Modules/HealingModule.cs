@@ -49,6 +49,8 @@ public sealed class HealingModule : IAsclepiusModule
     {
         context.HealingCoordination.Clear();
 
+        if (!context.Configuration.EnableHealing) return false;
+
         if (context.CanExecuteOgcd)
             foreach (var h in _ogcdHandlers)
                 if (h.TryExecute(context, isMoving)) return true;
