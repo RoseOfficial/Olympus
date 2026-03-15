@@ -6,6 +6,8 @@ using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.ApolloCore.Modules;
+using Olympus.Rotation.Common;
+using DebugState = Olympus.Rotation.Common.DebugState;
 using Olympus.Rotation.Base;
 using Olympus.Services;
 using Olympus.Services.Action;

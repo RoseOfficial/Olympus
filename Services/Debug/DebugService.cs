@@ -7,6 +7,8 @@ using Dalamud.Plugin.Services;
 using Olympus.Models;
 using Olympus.Rotation;
 using Olympus.Rotation.ApolloCore.Context;
+using Olympus.Rotation.Common;
+using CommonDebugState = Olympus.Rotation.Common.DebugState;
 using Olympus.Rotation.AresCore.Context;
 using Olympus.Rotation.AsclepiusCore.Context;
 using Olympus.Rotation.AstraeaCore.Context;
@@ -491,7 +493,7 @@ public sealed class DebugService
     /// <summary>
     /// Gets the Apollo (White Mage) debug state, if the active rotation is White Mage.
     /// </summary>
-    public DebugState? GetApolloDebugState()
+    public CommonDebugState? GetApolloDebugState()
     {
         return (_rotationManager.ActiveRotation as Apollo)?.DebugState;
     }

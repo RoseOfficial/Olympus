@@ -8,6 +8,7 @@ using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.ApolloCore.Modules;
+using Olympus.Rotation.Common;
 using Olympus.Services.Action;
 using Olympus.Services.Healing;
 using Olympus.Tests.Mocks;
