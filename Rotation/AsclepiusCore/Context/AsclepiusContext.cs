@@ -167,15 +167,8 @@ public sealed class AsclepiusContext : BaseHealerContext, IAsclepiusContext
 /// Mutable debug state updated by Asclepius modules.
 /// Centralized location for all debug information.
 /// </summary>
-public sealed class AsclepiusDebugState
+public sealed class AsclepiusDebugState : DebugState
 {
-    #region General
-
-    public string PlanningState { get; set; } = "Idle";
-    public string PlannedAction { get; set; } = "None";
-
-    #endregion
-
     #region Resources
 
     public int AddersgallStacks { get; set; }
@@ -203,32 +196,10 @@ public sealed class AsclepiusDebugState
 
     #endregion
 
-    #region AoE Healing
-
-    public int AoEInjuredCount { get; set; }
-    public uint AoESelectedSpell { get; set; }
-    public string AoEStatus { get; set; } = "Idle";
-
-    #endregion
-
-    #region Party
-
-    public float PlayerHpPercent { get; set; }
-    public int PartyListCount { get; set; }
-    public int PartyValidCount { get; set; }
-    public int BattleNpcCount { get; set; }
-    public string NpcInfo { get; set; } = "";
-
-    #endregion
-
     #region DPS
 
-    public string DpsState { get; set; } = "Idle";
-    public string TargetInfo { get; set; } = "None";
     public string DoTState { get; set; } = "Idle";
     public float DoTRemaining { get; set; }
-    public string AoEDpsState { get; set; } = "Idle";
-    public int AoEDpsEnemyCount { get; set; }
     public string PhlegmaState { get; set; } = "Idle";
     public int PhlegmaCharges { get; set; }
     public string ToxikonState { get; set; } = "Idle";
@@ -238,8 +209,6 @@ public sealed class AsclepiusDebugState
 
     #region Healing
 
-    public int LastHealAmount { get; set; }
-    public string LastHealStats { get; set; } = "";
     public string DruocholeState { get; set; } = "Idle";
     public string TaurocholeState { get; set; } = "Idle";
     public string IxocholeState { get; set; } = "Idle";
@@ -266,27 +235,6 @@ public sealed class AsclepiusDebugState
     public string ZoeState { get; set; } = "Idle";
     public string RhizomataState { get; set; } = "Idle";
     public string PepsisState { get; set; } = "Idle";
-
-    #endregion
-
-    #region Resurrection
-
-    public string RaiseState { get; set; } = "Idle";
-    public string RaiseTarget { get; set; } = "None";
-
-    #endregion
-
-    #region Role Actions
-
-    public string LucidState { get; set; } = "Idle";
-    public string SurecastState { get; set; } = "Idle";
-
-    #endregion
-
-    #region Esuna
-
-    public string EsunaState { get; set; } = "Idle";
-    public string EsunaTarget { get; set; } = "None";
 
     #endregion
 }
