@@ -38,7 +38,7 @@ public sealed class Astraea : BaseHealerRotation<IAstraeaContext, IAstraeaModule
     public override uint[] SupportedJobIds => [JobRegistry.Astrologian];
 
     /// <inheritdoc />
-    public override DebugState DebugState => ConvertToApolloDebugState();
+    public override DebugState DebugState => _debugState;
 
     /// <inheritdoc />
     protected override List<IAstraeaModule> Modules => _modules;
@@ -179,6 +179,12 @@ public sealed class Astraea : BaseHealerRotation<IAstraeaContext, IAstraeaModule
         _debugState.IsStarMature = _earthlyStarService.IsStarMature;
         _debugState.StarTimeRemaining = _earthlyStarService.TimeRemaining;
         _debugState.PlayerHpPercent = player.MaxHp > 0 ? (float)player.CurrentHp / player.MaxHp : 1f;
+
+        // Populate shared DebugState fields for the debug snapshot
+        _debugState.AoEStatus = _debugState.AoEHealState;
+        _debugState.LilyCount = _debugState.SealCount;
+        _debugState.BloodLilyCount = _debugState.UniqueSealCount;
+        _debugState.LilyStrategy = _debugState.CardState;
     }
 
     /// <inheritdoc />
@@ -237,34 +243,4 @@ public sealed class Astraea : BaseHealerRotation<IAstraeaContext, IAstraeaModule
 
     #endregion
 
-    /// <summary>
-    /// Converts Astraea debug state to Apollo debug state for UI compatibility.
-    /// </summary>
-    private DebugState ConvertToApolloDebugState()
-    {
-        return new DebugState
-        {
-            PlanningState = _debugState.PlanningState,
-            PlannedAction = _debugState.PlannedAction,
-            AoEInjuredCount = _debugState.AoEInjuredCount,
-            AoEStatus = _debugState.AoEHealState,
-            PlayerHpPercent = _debugState.PlayerHpPercent,
-            PartyListCount = _debugState.PartyListCount,
-            PartyValidCount = _debugState.PartyValidCount,
-            DpsState = _debugState.DpsState,
-            AoEDpsState = _debugState.AoEDpsState,
-            AoEDpsEnemyCount = _debugState.AoEDpsEnemyCount,
-            LastHealAmount = _debugState.LastHealAmount,
-            LastHealStats = _debugState.LastHealStats,
-            RaiseState = _debugState.RaiseState,
-            RaiseTarget = _debugState.RaiseTarget,
-            EsunaState = _debugState.EsunaState,
-            EsunaTarget = _debugState.EsunaTarget,
-            LucidState = _debugState.LucidState,
-            // AST-specific mappings for display compatibility
-            LilyCount = _debugState.SealCount, // Map seals to Lily count for display
-            BloodLilyCount = _debugState.UniqueSealCount, // Map unique seals
-            LilyStrategy = _debugState.CardState,
-        };
-    }
 }
