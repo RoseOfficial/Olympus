@@ -1810,6 +1810,7 @@ public static class LocalizedStrings
         public const string Job = "training.job";
         public const string Generate = "training.generate";
         public const string GenerateTooltip = "training.generate_tooltip";
+        public const string GenerateNoData = "training.generate_no_data";
         public const string PriorityHigh = "training.priority_high";
         public const string PriorityMedium = "training.priority_medium";
         public const string PriorityLow = "training.priority_low";

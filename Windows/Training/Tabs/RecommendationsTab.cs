@@ -23,6 +23,8 @@ public static class RecommendationsTab
 
     // Track selected job for mastery-based generation
     private static string selectedJobPrefix = "whm";
+    private static string? generateStatusMessage;
+    private static bool generateStatusIsError;
 
     public static void Draw(ITrainingService trainingService, TrainingConfig config)
     {
@@ -155,12 +157,27 @@ public static class RecommendationsTab
 
             if (ImGui.Button(Loc.T(LocalizedStrings.Training.Generate, "Generate") + "##FromMastery"))
             {
-                trainingService.UpdateRecommendationsFromMastery(selectedJobPrefix);
+                if (trainingService.UpdateRecommendationsFromMastery(selectedJobPrefix))
+                {
+                    generateStatusMessage = null;
+                }
+                else
+                {
+                    generateStatusMessage = Loc.T(LocalizedStrings.Training.GenerateNoData, "No mastery data yet — complete some quizzes first.");
+                    generateStatusIsError = true;
+                }
             }
 
             if (ImGui.IsItemHovered())
             {
                 ImGui.SetTooltip(Loc.T(LocalizedStrings.Training.GenerateTooltip, "Generate lesson recommendations based on concepts you're struggling with for this job."));
+            }
+
+            if (generateStatusMessage != null)
+            {
+                ImGui.Spacing();
+                var color = generateStatusIsError ? new Vector4(0.9f, 0.5f, 0.3f, 1.0f) : InfoColor;
+                ImGui.TextColored(color, generateStatusMessage);
             }
         }
     }

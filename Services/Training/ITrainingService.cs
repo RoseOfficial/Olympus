@@ -122,7 +122,8 @@ public interface ITrainingService
     /// Useful for generating suggestions when the player hasn't recently fought.
     /// </summary>
     /// <param name="jobPrefix">The job prefix to generate recommendations for.</param>
-    void UpdateRecommendationsFromMastery(string jobPrefix);
+    /// <returns>True if recommendations were generated; false if there was no mastery data to generate from.</returns>
+    bool UpdateRecommendationsFromMastery(string jobPrefix);
 
     /// <summary>
     /// Dismisses a recommendation so it won't appear again.

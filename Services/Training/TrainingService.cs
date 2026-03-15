@@ -640,17 +640,17 @@ public sealed class TrainingService : ITrainingService
             recommendations.Count, jobPrefix, recommendations.Count(r => r.IsMasteryDriven));
     }
 
-    public void UpdateRecommendationsFromMastery(string jobPrefix)
+    public bool UpdateRecommendationsFromMastery(string jobPrefix)
     {
         if (!this.config.EnableRecommendations)
-            return;
+            return false;
 
         if (string.IsNullOrEmpty(jobPrefix))
-            return;
+            return false;
 
         var lessons = this.trainingData.GetLessonsForJob(jobPrefix);
         if (lessons.Count == 0)
-            return;
+            return false;
 
         var candidates = new List<(LessonDefinition Lesson, int Priority, string Reason, IssueType[] Issues, string[] StrugglingConcepts, bool IsMasteryDriven)>();
 
@@ -660,7 +660,7 @@ public sealed class TrainingService : ITrainingService
         if (candidates.Count == 0)
         {
             this.log?.Debug("Training: No mastery-driven recommendations for {Job}", jobPrefix);
-            return;
+            return false;
         }
 
         // Deduplicate by lesson (keep highest priority)
@@ -694,6 +694,7 @@ public sealed class TrainingService : ITrainingService
         }
 
         this.log?.Information("Training: Generated {Count} mastery-driven recommendations for {Job}", recommendations.Count, jobPrefix);
+        return true;
     }
 
     /// <summary>
