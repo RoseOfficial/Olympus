@@ -5,6 +5,7 @@ using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Rotation.AstraeaCore.Context;
 using Olympus.Rotation.Common;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.AstraeaCore.Helpers;
 using Olympus.Rotation.AstraeaCore.Modules;
 using Olympus.Rotation.Base;
@@ -42,6 +43,9 @@ public sealed class Astraea : BaseHealerRotation<IAstraeaContext, IAstraeaModule
 
     /// <inheritdoc />
     protected override List<IAstraeaModule> Modules => _modules;
+
+    /// <inheritdoc />
+    protected override HealerPartyHelper HealerParty => _partyHelper;
 
     /// <summary>
     /// Gets the Astraea-specific debug state.
@@ -224,21 +228,6 @@ public sealed class Astraea : BaseHealerRotation<IAstraeaContext, IAstraeaModule
             trainingService: _trainingService,
             debugState: _debugState,
             log: Log);
-    }
-
-    /// <inheritdoc />
-    protected override IEnumerable<uint> GetPartyEntityIds(IPlayerCharacter player)
-    {
-        foreach (var member in _partyHelper.GetAllPartyMembers(player))
-        {
-            yield return member.EntityId;
-        }
-    }
-
-    /// <inheritdoc />
-    protected override (float avgHpPercent, float lowestHpPercent, int injuredCount) GetPartyHealthMetrics(IPlayerCharacter player)
-    {
-        return _partyHelper.CalculatePartyHealthMetrics(player);
     }
 
     #endregion

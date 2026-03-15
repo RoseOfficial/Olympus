@@ -5,6 +5,7 @@ using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.AsclepiusCore.Context;
 using Olympus.Rotation.AsclepiusCore.Helpers;
 using Olympus.Rotation.AsclepiusCore.Modules;
@@ -44,6 +45,9 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
     /// <inheritdoc />
     protected override List<IAsclepiusModule> Modules => _modules;
 
+    /// <inheritdoc />
+    protected override HealerPartyHelper HealerParty => _partyHelper;
+
     /// <summary>
     /// Gets the Asclepius-specific debug state.
     /// </summary>
@@ -60,7 +64,7 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
 
     // Helpers
     private readonly AsclepiusStatusHelper _statusHelper;
-    private readonly IPartyHelper _partyHelper;
+    private readonly PartyHelper _partyHelper;
 
     // Timeline integration
     private readonly ITimelineService? _timelineService;
@@ -228,21 +232,6 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
             trainingService: _trainingService,
             debugState: _debugState,
             log: Log);
-    }
-
-    /// <inheritdoc />
-    protected override IEnumerable<uint> GetPartyEntityIds(IPlayerCharacter player)
-    {
-        foreach (var member in _partyHelper.GetAllPartyMembers(player))
-        {
-            yield return member.EntityId;
-        }
-    }
-
-    /// <inheritdoc />
-    protected override (float avgHpPercent, float lowestHpPercent, int injuredCount) GetPartyHealthMetrics(IPlayerCharacter player)
-    {
-        return _partyHelper.CalculatePartyHealthMetrics(player);
     }
 
     #endregion

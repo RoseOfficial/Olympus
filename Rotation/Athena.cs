@@ -5,6 +5,7 @@ using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Rotation.AthenaCore.Context;
 using Olympus.Rotation.Common;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.AthenaCore.Helpers;
 using Olympus.Rotation.AthenaCore.Modules;
 using Olympus.Rotation.Base;
@@ -42,6 +43,9 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
 
     /// <inheritdoc />
     protected override List<IAthenaModule> Modules => _modules;
+
+    /// <inheritdoc />
+    protected override HealerPartyHelper HealerParty => _partyHelper;
 
     /// <summary>
     /// Gets the Athena-specific debug state.
@@ -220,21 +224,6 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
             trainingService: _trainingService,
             debugState: _debugState,
             log: Log);
-    }
-
-    /// <inheritdoc />
-    protected override IEnumerable<uint> GetPartyEntityIds(IPlayerCharacter player)
-    {
-        foreach (var member in _partyHelper.GetAllPartyMembers(player))
-        {
-            yield return member.EntityId;
-        }
-    }
-
-    /// <inheritdoc />
-    protected override (float avgHpPercent, float lowestHpPercent, int injuredCount) GetPartyHealthMetrics(IPlayerCharacter player)
-    {
-        return _partyHelper.CalculatePartyHealthMetrics(player);
     }
 
     #endregion
