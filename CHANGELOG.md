@@ -3,12 +3,17 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.13 - Debug Checklist Now Shows All Spells
+
+**Debug Menu (All Jobs)**
+- The spell checklist in the debug menu now shows every ability for each job, including full upgrade chains, utility actions, defensive cooldowns, stance toggles, movement abilities, and all role actions. Previously, only a curated subset was displayed.
+
+<!-- LATEST-END -->
+
 ## v4.10.12 - Internal Quality Improvements
 
 **All Healer Jobs (White Mage, Sage, Astrologian, Scholar)**
 - Healing logic for all four healers has been restructured internally — each healing ability is now an independent, individually tested component. Behavior is unchanged.
-
-<!-- LATEST-END -->
 
 ## v4.10.11 - Crash Fix on Death and Zone Transition
 
