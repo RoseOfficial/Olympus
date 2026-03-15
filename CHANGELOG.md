@@ -3,6 +3,14 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.15 - White Mage Thin Air and Glare IV Improvements
+
+**White Mage**
+- Thin Air now spends charges immediately when both charges are full, even when the party is healthy and no expensive spell is incoming. Previously charges could sit capped indefinitely during stable phases, wasting charge regeneration. The extra charge is now spent on the next GCD cast (Glare III or Dia) to keep charge regen flowing.
+- Glare IV's recorded potency corrected to 640 (was 350). This affects Training Mode explanations only — rotation behavior is unchanged.
+
+<!-- LATEST-END -->
+
 ## v4.10.14 - White Mage Cooldown Logic Fixes
 
 **White Mage**

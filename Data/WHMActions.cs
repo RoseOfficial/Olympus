@@ -252,8 +252,8 @@ public static class WHMActions
 
     /// <summary>
     /// Glare IV - Targeted AoE damage spell. Requires Sacred Sight (from Presence of Mind).
-    /// Deals 350 potency to target and all enemies within 5y radius.
-    /// Sacred Sight makes this spell instant cast.
+    /// Deals 640 potency to primary target and 40% (256p) to all enemies within 5y radius.
+    /// Sacred Sight makes this spell instant cast, providing a full double-weave window.
     /// </summary>
     public static readonly ActionDefinition GlareIV = new()
     {
@@ -268,7 +268,7 @@ public static class WHMActions
         Range = 25f,
         Radius = 5f, // AoE radius around target
         MpCost = 400,
-        DamagePotency = 350
+        DamagePotency = 640
     };
 
     public static readonly ActionDefinition Holy = new()

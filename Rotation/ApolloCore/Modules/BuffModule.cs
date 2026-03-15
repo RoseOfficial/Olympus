@@ -145,11 +145,14 @@ public sealed class BuffModule : IApolloModule
         var shouldUseThinAir = false;
         var usageReason = "";
 
-        // Priority 0: At max charges - use for any 800+ MP spell to avoid wasting charge regen
-        if (isAtMaxCharges && WillCastExpensiveSpell(context))
+        // Priority 0: At max charges - always use to avoid wasting charge regen
+        // If an expensive spell is incoming, prefer that; otherwise spend on next GCD (even Glare/Dia)
+        if (isAtMaxCharges)
         {
             shouldUseThinAir = true;
-            usageReason = $"Avoiding cap ({chargeInfo} charges)";
+            usageReason = WillCastExpensiveSpell(context)
+                ? $"Avoiding cap, expensive spell incoming ({chargeInfo} charges)"
+                : $"Avoiding cap, spending on next GCD ({chargeInfo} charges)";
             context.Debug.ThinAirState = usageReason;
         }
 
