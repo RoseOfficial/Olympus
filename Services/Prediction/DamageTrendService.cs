@@ -61,6 +61,9 @@ public sealed class DamageTrendService : IDamageTrendService
     private float _highDamagePhaseStartTime = -1f; // -1 = not in high damage phase
     private const float DefaultHighDamageThreshold = 800f; // DPS threshold for sustained high damage
 
+    // Party entity ID cache — populated each Update() so party-rate methods filter correctly
+    private readonly List<uint> _cachedPartyEntityIds = new();
+
     /// <summary>
     /// Updates the internal timer and automatically detects spikes.
     /// Should be called each frame with delta time.
@@ -71,9 +74,11 @@ public sealed class DamageTrendService : IDamageTrendService
     {
         _currentTime += deltaSeconds;
 
-        // Auto-detect spikes for party members
+        // Cache party IDs and auto-detect spikes in one pass
+        _cachedPartyEntityIds.Clear();
         foreach (var entityId in partyEntityIds)
         {
+            _cachedPartyEntityIds.Add(entityId);
             DetectAndRecordSpike(entityId);
         }
 
@@ -88,7 +93,7 @@ public sealed class DamageTrendService : IDamageTrendService
     /// </summary>
     private void UpdateHighDamagePhaseTracking()
     {
-        var currentPartyDps = _damageIntakeService.GetPartyDamageRate(1.5f);
+        var currentPartyDps = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, 1.5f);
 
         if (currentPartyDps >= DefaultHighDamageThreshold)
         {
@@ -145,7 +150,7 @@ public sealed class DamageTrendService : IDamageTrendService
     public DamageTrend GetPartyDamageTrend(float windowSeconds = 10f)
     {
         // Use party damage rate from underlying service
-        var currentRate = _damageIntakeService.GetPartyDamageRate(windowSeconds / 2);
+        var currentRate = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, windowSeconds / 2);
         var previousRate = GetPreviousPeriodPartyRate(windowSeconds);
 
         return ClassifyTrend(currentRate, previousRate);
@@ -183,8 +188,8 @@ public sealed class DamageTrendService : IDamageTrendService
         if (partyTrend == DamageTrend.Increasing)
         {
             // Check if the increase is significant enough
-            var currentRate = _damageIntakeService.GetPartyDamageRate(2.5f);
-            var previousRate = _damageIntakeService.GetPartyDamageRate(5f);
+            var currentRate = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, 2.5f);
+            var previousRate = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, 5f);
 
             if (previousRate > MinDamageRateForTrend)
             {
@@ -247,7 +252,7 @@ public sealed class DamageTrendService : IDamageTrendService
         var severity = baseSeverity * hpMultiplier;
 
         // Also factor in raw damage rate for additional context
-        var currentRate = _damageIntakeService.GetPartyDamageRate(3f);
+        var currentRate = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, 3f);
         if (currentRate > 5000f)  // Very high damage intake
         {
             severity += 0.2f;
@@ -286,11 +291,11 @@ public sealed class DamageTrendService : IDamageTrendService
     private float GetPreviousPeriodPartyRate(float totalWindowSeconds)
     {
         // Full window rate
-        var fullRate = _damageIntakeService.GetPartyDamageRate(totalWindowSeconds);
+        var fullRate = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, totalWindowSeconds);
 
         // Recent half rate
         var halfWindow = totalWindowSeconds / 2;
-        var recentRate = _damageIntakeService.GetPartyDamageRate(halfWindow);
+        var recentRate = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, halfWindow);
 
         // Previous period = (fullRate * totalWindow - recentRate * halfWindow) / halfWindow
         var fullDamage = fullRate * totalWindowSeconds;
@@ -500,7 +505,7 @@ public sealed class DamageTrendService : IDamageTrendService
     public bool IsInHighDamagePhase(float thresholdDps = 800f, float durationSeconds = 3f)
     {
         // Check if currently above threshold
-        var currentPartyDps = _damageIntakeService.GetPartyDamageRate(1.5f);
+        var currentPartyDps = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, 1.5f);
         if (currentPartyDps < thresholdDps)
             return false;
 
@@ -516,7 +521,7 @@ public sealed class DamageTrendService : IDamageTrendService
         }
 
         // Custom threshold - check damage over the duration window
-        var avgDpsOverDuration = _damageIntakeService.GetPartyDamageRate(durationSeconds);
+        var avgDpsOverDuration = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, durationSeconds);
         return avgDpsOverDuration >= thresholdDps;
     }
 
@@ -524,7 +529,7 @@ public sealed class DamageTrendService : IDamageTrendService
     public float GetHighDamagePhaseDuration(float thresholdDps = 800f)
     {
         // Check if currently above threshold
-        var currentPartyDps = _damageIntakeService.GetPartyDamageRate(1.5f);
+        var currentPartyDps = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, 1.5f);
         if (currentPartyDps < thresholdDps)
             return 0f;
 
@@ -541,7 +546,7 @@ public sealed class DamageTrendService : IDamageTrendService
 
         foreach (var window in windows)
         {
-            var avgDps = _damageIntakeService.GetPartyDamageRate(window);
+            var avgDps = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, window);
             if (avgDps >= thresholdDps)
             {
                 lastValidDuration = window;

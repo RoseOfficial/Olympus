@@ -416,6 +416,18 @@ public sealed class BuffModule : IApolloModule
             }
         }
 
+        // Standard deployment: only if party actually needs healing.
+        // Raidwide and burst proactive paths bypass this check intentionally.
+        if (!shouldDeployForRaidwide && !shouldDeployForBurst)
+        {
+            var (_, _, injuredCount) = context.PartyHealthMetrics;
+            if (injuredCount == 0)
+            {
+                context.Debug.AsylumState = "Holding (party healthy)";
+                return false;
+            }
+        }
+
         var tank = context.PartyHelper.FindTankInParty(player);
         Vector3 targetPosition;
 

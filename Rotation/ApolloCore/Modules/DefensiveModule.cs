@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Numerics;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using Olympus.Config;
@@ -70,7 +71,8 @@ public sealed class DefensiveModule : IApolloModule
         var player = context.Player;
         var config = context.Configuration;
         var (avgHpPercent, _, injuredCount) = context.PartyHealthMetrics;
-        var partyDamageRate = context.DamageIntakeService.GetPartyDamageRate(5f);
+        var partyEntityIds = context.PartyHelper.GetAllPartyMembers(context.Player).Select(m => m.EntityId);
+        var partyDamageRate = context.DamageIntakeService.GetPartyMemberDamageRate(partyEntityIds, 5f);
         var dmgRateStr = partyDamageRate > 0 ? $", DPS {partyDamageRate:F0}" : "";
 
         // Update Temperance state
@@ -155,8 +157,9 @@ public sealed class DefensiveModule : IApolloModule
             return false;
         }
 
-        // Calculate party damage rate for dynamic thresholds
-        var partyDamageRate = context.DamageIntakeService.GetPartyDamageRate(5f);
+        // Calculate party damage rate for dynamic thresholds (filtered to party members only)
+        var partyEntityIds = context.PartyHelper.GetAllPartyMembers(context.Player).Select(m => m.EntityId);
+        var partyDamageRate = context.DamageIntakeService.GetPartyMemberDamageRate(partyEntityIds, 5f);
         var highDamageIntake = config.Defensive.UseDynamicDefensiveThresholds &&
                                partyDamageRate >= config.Defensive.DamageSpikeTriggerRate;
 

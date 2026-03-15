@@ -155,6 +155,31 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
         return totalDamage / windowSeconds;
     }
 
+    /// <inheritdoc />
+    public int GetPartyMemberDamageIntake(IEnumerable<uint> partyEntityIds, float windowSeconds = DefaultWindowSeconds)
+    {
+        var cutoff = DateTime.UtcNow.AddSeconds(-windowSeconds);
+        lock (_damageLock)
+        {
+            var total = 0;
+            foreach (var entityId in partyEntityIds)
+            {
+                if (_damageByEntity.TryGetValue(entityId, out var list))
+                    total += list.Where(d => d.Timestamp >= cutoff).Sum(d => d.Amount);
+            }
+            return total;
+        }
+    }
+
+    /// <inheritdoc />
+    public float GetPartyMemberDamageRate(IEnumerable<uint> partyEntityIds, float windowSeconds = DefaultWindowSeconds)
+    {
+        if (windowSeconds <= 0)
+            return 0f;
+
+        return GetPartyMemberDamageIntake(partyEntityIds, windowSeconds) / windowSeconds;
+    }
+
     /// <summary>
     /// Clears all tracked damage records. Call on zone transitions.
     /// </summary>

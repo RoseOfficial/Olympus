@@ -3,6 +3,14 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.14 - White Mage Cooldown Logic Fixes
+
+**White Mage**
+- Asylum no longer places when the party is at full health. It still deploys proactively before predicted raidwides and burst windows as before — the change only prevents it from firing unconditionally on cooldown when no one needs healing.
+- Fixed Temperance, damage trend analysis, and high-damage phase detection incorrectly triggering due to outgoing damage to enemies being counted as party damage intake. These systems now only consider damage received by actual party members.
+
+<!-- LATEST-END -->
+
 ## v4.10.13 - Debug Checklist Now Shows All Spells
 
 **Debug Menu (All Jobs)**

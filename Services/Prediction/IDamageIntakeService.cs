@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Olympus.Services.Prediction;
 
 /// <summary>
@@ -42,6 +44,18 @@ public interface IDamageIntakeService
     /// <param name="windowSeconds">The time window in seconds (default 5s).</param>
     /// <returns>Party damage per second rate.</returns>
     float GetPartyDamageRate(float windowSeconds = 5f);
+
+    /// <summary>
+    /// Gets the total damage intake for a specific set of party member entity IDs.
+    /// Unlike GetPartyDamageIntake, this only counts damage to the supplied entities,
+    /// preventing outgoing damage to enemies from inflating the result.
+    /// </summary>
+    int GetPartyMemberDamageIntake(IEnumerable<uint> partyEntityIds, float windowSeconds = 5f);
+
+    /// <summary>
+    /// Gets the damage rate for a specific set of party member entity IDs.
+    /// </summary>
+    float GetPartyMemberDamageRate(IEnumerable<uint> partyEntityIds, float windowSeconds = 5f);
 
     /// <summary>
     /// Clears all tracked damage records.
