@@ -15,7 +15,7 @@ namespace Olympus.Tests.Rotation.AstraeaCore.Modules;
 /// <summary>
 /// Tests for the Astrologian HealingModule coordinator.
 /// Covers module properties, general guards, and AoE regression tests.
-/// Sub-module behavior is tested in SingleTargetHealingModuleTests and AoEHealingModuleTests.
+/// Handler-specific logic is tested in the individual handler test files under Healing/.
 /// </summary>
 public class HealingModuleTests
 {
@@ -185,6 +185,32 @@ public class HealingModuleTests
 
         // With real counting, 2 injured is below the minimum of 3
         Assert.False(result);
+    }
+
+    #endregion
+
+    #region Routing Tests
+
+    [Fact]
+    public void TryExecute_WhenCanExecuteOgcdOnly_DoesNotRunGcdHandlers()
+    {
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: false, canExecuteOgcd: true);
+        var context = AstraeaTestContext.Create(actionService: actionService,
+            canExecuteGcd: false, canExecuteOgcd: true);
+        var result = _module.TryExecute(context, isMoving: false);
+        Assert.False(result);
+        actionService.Verify(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()), Times.Never);
+    }
+
+    [Fact]
+    public void TryExecute_WhenCanExecuteGcdOnly_DoesNotRunOgcdHandlers()
+    {
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true, canExecuteOgcd: false);
+        var context = AstraeaTestContext.Create(actionService: actionService,
+            canExecuteGcd: true, canExecuteOgcd: false);
+        var result = _module.TryExecute(context, isMoving: false);
+        Assert.False(result);
+        actionService.Verify(x => x.ExecuteOgcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()), Times.Never);
     }
 
     #endregion

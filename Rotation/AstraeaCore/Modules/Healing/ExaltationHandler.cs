@@ -6,25 +6,22 @@ using Olympus.Models.Action;
 using Olympus.Rotation.AstraeaCore.Context;
 using Olympus.Services.Training;
 
-namespace Olympus.Rotation.AstraeaCore.Modules;
+namespace Olympus.Rotation.AstraeaCore.Modules.Healing;
 
-/// <summary>
-/// Handles shield/mitigation healing for Astrologian: Exaltation.
-/// </summary>
-public sealed class ShieldHealingModule
+public sealed class ExaltationHandler : IHealingHandler
 {
-    private static readonly string[] _exaltationAlternatives =
+    public int Priority => 25;
+    public string Name => "Exaltation";
+
+    private static readonly string[] _alternatives =
     {
         "Celestial Intersection (immediate shield)",
         "Essential Dignity (emergency heal)",
         "Save for predictable tankbuster",
     };
 
-    /// <summary>Tries Exaltation. Does not check CanExecuteOgcd.</summary>
-    public bool TryOgcd(IAstraeaContext context)
-    {
-        return TryExaltation(context);
-    }
+    public bool TryExecute(IAstraeaContext context, bool isMoving)
+        => TryExaltation(context);
 
     private bool TryExaltation(IAstraeaContext context)
     {
@@ -81,8 +78,6 @@ public sealed class ShieldHealingModule
                     "60s cooldown",
                 };
 
-                var alternatives = _exaltationAlternatives;
-
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
                     Timestamp = DateTime.Now,
@@ -93,7 +88,7 @@ public sealed class ShieldHealingModule
                     ShortReason = shortReason,
                     DetailedReason = $"Exaltation on {targetName} at {hpPercent:P0} HP. Provides 10% damage reduction for 8 seconds, then heals for 500 potency. {(isTank ? "Excellent for tankbusters - the mitigation reduces incoming damage, then the delayed heal tops them off!" : "Good defensive utility even on non-tanks during heavy damage phases.")}",
                     Factors = factors,
-                    Alternatives = alternatives,
+                    Alternatives = _alternatives,
                     Tip = "Exaltation is best used proactively on tanks before tankbusters. The 10% mitigation + delayed heal combo is very efficient. Time it so the heal lands when the target actually needs it!",
                     ConceptId = AstConcepts.ExaltationUsage,
                     Priority = isTank ? ExplanationPriority.High : ExplanationPriority.Normal,
