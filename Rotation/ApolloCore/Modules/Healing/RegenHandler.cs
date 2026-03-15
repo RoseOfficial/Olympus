@@ -26,6 +26,8 @@ public sealed class RegenHandler : IHealingHandler
 
     public bool TryExecute(IApolloContext context, bool isMoving)
     {
+        if (!context.InCombat) return false;
+
         var config = context.Configuration;
         var player = context.Player;
 
