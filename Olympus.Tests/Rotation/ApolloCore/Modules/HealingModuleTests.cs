@@ -830,6 +830,59 @@ public class HealingModuleTests
         Assert.Equal("Moving", context.Debug.AoEStatus);
     }
 
+    [Fact]
+    public void TryExecute_AoEHeal_Medica_Fires()
+    {
+        // Arrange
+        var config = MockBuilders.CreateDefaultConfiguration();
+        config.Healing.AoEHealMinTargets = 3;
+        config.Buffs.EnableThinAir = false; // Prevent ThinAirHelper from blocking 1000 MP heals
+
+        var partyHelperMock = MockBuilders.CreateMockPartyHelper();
+        partyHelperMock.Setup(x => x.CountPartyMembersNeedingAoEHeal(
+                It.IsAny<IPlayerCharacter>(),
+                It.IsAny<int>()))
+            .Returns((4, false, new List<(uint, string)> { (1, "A"), (2, "B"), (3, "C"), (4, "D") }, 5000));
+
+        partyHelperMock.Setup(x => x.FindBestCureIIITarget(
+                It.IsAny<IPlayerCharacter>(),
+                It.IsAny<int>()))
+            .Returns(((IBattleChara?)null, 0, new List<uint>()));
+
+        var healingSpellSelectorMock = CreateMockHealingSpellSelector();
+        healingSpellSelectorMock.Setup(x => x.SelectBestAoEHeal(
+                It.IsAny<IPlayerCharacter>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<bool>(),
+                It.IsAny<bool>(),
+                It.IsAny<int>(),
+                It.IsAny<IBattleChara?>()))
+            .Returns((WHMActions.Medica, 4000, null));
+
+        var actionServiceMock = MockBuilders.CreateMockActionService(canExecuteGcd: true, canExecuteOgcd: false);
+        actionServiceMock.Setup(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()))
+            .Returns(true);
+
+        var context = CreateTestContext(
+            config: config,
+            partyHelper: partyHelperMock,
+            healingSpellSelector: healingSpellSelectorMock.Object,
+            actionService: actionServiceMock,
+            level: 90);
+
+        // Act
+        var result = _module.TryExecute(context, isMoving: false);
+
+        // Assert
+        Assert.True(result);
+        actionServiceMock.Verify(
+            x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == WHMActions.Medica.ActionId),
+                It.IsAny<ulong>()),
+            Times.Once);
+    }
+
     #endregion
 
     #region Single Heal Tests
@@ -894,6 +947,52 @@ public class HealingModuleTests
         actionServiceMock.Verify(
             x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()),
             Times.Never);
+    }
+
+    [Fact]
+    public void TryExecute_SingleHeal_CureII_Fires()
+    {
+        // Arrange
+        var config = MockBuilders.CreateDefaultConfiguration();
+        config.Buffs.EnableThinAir = false; // Prevent ThinAirHelper from blocking 1000 MP heals
+        config.Healing.UseDamageIntakeTriage = false; // Use FindLowestHpPartyMember (mocked) not FindMostEndangered
+
+        var target = MockBuilders.CreateMockBattleChara(
+            currentHp: 30000, maxHp: 50000);
+
+        var partyHelperMock = MockBuilders.CreateMockPartyHelper(lowestHpMember: target.Object);
+
+        var healingSpellSelectorMock = CreateMockHealingSpellSelector();
+        healingSpellSelectorMock.Setup(x => x.SelectBestSingleHeal(
+                It.IsAny<IPlayerCharacter>(),
+                It.IsAny<IBattleChara>(),
+                It.IsAny<bool>(),
+                It.IsAny<bool>(),
+                It.IsAny<bool>(),
+                It.IsAny<float>()))
+            .Returns((WHMActions.CureII, 8000));
+
+        var actionServiceMock = MockBuilders.CreateMockActionService(canExecuteGcd: true, canExecuteOgcd: false);
+        actionServiceMock.Setup(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()))
+            .Returns(true);
+
+        var context = CreateTestContext(
+            config: config,
+            partyHelper: partyHelperMock,
+            healingSpellSelector: healingSpellSelectorMock.Object,
+            actionService: actionServiceMock,
+            level: 90);
+
+        // Act
+        var result = _module.TryExecute(context, isMoving: false);
+
+        // Assert
+        Assert.True(result);
+        actionServiceMock.Verify(
+            x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == WHMActions.CureII.ActionId),
+                It.IsAny<ulong>()),
+            Times.Once);
     }
 
     #endregion

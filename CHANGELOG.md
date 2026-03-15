@@ -3,6 +3,14 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.9 - Internal Quality Improvements
+
+**All Jobs**
+- Overhauled internal test coverage across all 21 rotations to catch regressions earlier — healing spells, damage rotations, buff timing, and priority logic are now verified by automated checks
+- Sage and Astrologian healing logic has been restructured internally for easier maintenance; behavior is unchanged
+
+<!-- LATEST-END -->
+
 ## v4.10.8 - Smart AoE Targeting & Visual Overlay
 
 **All Melee Jobs (Monk, Dragoon, Ninja, Samurai, Reaper, Warrior)**
