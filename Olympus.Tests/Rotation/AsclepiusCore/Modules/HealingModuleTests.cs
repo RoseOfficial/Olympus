@@ -16,7 +16,7 @@ namespace Olympus.Tests.Rotation.AsclepiusCore.Modules;
 /// <summary>
 /// Tests for the HealingModule coordinator.
 /// Covers module properties, priority ordering, isMoving guards, and AoE regression.
-/// Sub-module-specific logic is tested in SingleTargetHealingModuleTests and AoEHealingModuleTests.
+/// Handler-specific logic is tested in the individual handler test files under Healing/.
 /// </summary>
 public class HealingModuleTests
 {
@@ -323,6 +323,35 @@ public class HealingModuleTests
                 It.Is<ActionDefinition>(a => a.ActionId == SGEActions.Diagnosis.ActionId),
                 It.IsAny<ulong>()),
             Times.Never);
+    }
+
+    #endregion
+
+    #region Routing Tests
+
+    [Fact]
+    public void TryExecute_WhenCanExecuteOgcdOnly_DoesNotRunGcdHandlers()
+    {
+        // canExecuteOgcd=true, canExecuteGcd=false
+        // All oGCD handlers return false → result is false
+        // GCD handlers must not have been called (no action executed)
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: false, canExecuteOgcd: true);
+        var context = AsclepiusTestContext.Create(actionService: actionService,
+            canExecuteGcd: false, canExecuteOgcd: true);
+        var result = _module.TryExecute(context, isMoving: false);
+        Assert.False(result);
+        actionService.Verify(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()), Times.Never);
+    }
+
+    [Fact]
+    public void TryExecute_WhenCanExecuteGcdOnly_DoesNotRunOgcdHandlers()
+    {
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true, canExecuteOgcd: false);
+        var context = AsclepiusTestContext.Create(actionService: actionService,
+            canExecuteGcd: true, canExecuteOgcd: false);
+        var result = _module.TryExecute(context, isMoving: false);
+        Assert.False(result);
+        actionService.Verify(x => x.ExecuteOgcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()), Times.Never);
     }
 
     #endregion

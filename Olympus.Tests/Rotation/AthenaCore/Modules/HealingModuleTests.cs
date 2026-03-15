@@ -6,16 +6,16 @@ using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.AthenaCore.Modules;
 using Olympus.Services.Action;
-using Olympus.Services.Scholar;
 using Olympus.Tests.Mocks;
 using Olympus.Tests.Rotation.AthenaCore;
 
 namespace Olympus.Tests.Rotation.AthenaCore.Modules;
 
 /// <summary>
-/// Tests for Scholar HealingModule logic.
-/// Covers oGCD heals, GCD heals, Aetherflow resource management, AoE healing,
+/// Tests for Scholar HealingModule coordinator logic.
+/// Covers oGCD/GCD routing, Aetherflow resource management, AoE healing,
 /// movement constraints, and an AoE regression test to prevent v4.10.7-class counting bugs.
+/// Individual handler behavior is tested in AthenaCore/Modules/Healing/ test files.
 /// </summary>
 public class HealingModuleTests
 {
@@ -427,6 +427,32 @@ public class HealingModuleTests
 
         // With real counting, 2 injured is below the minimum of 3
         Assert.False(result);
+    }
+
+    #endregion
+
+    #region Routing Tests — oGCD vs GCD list isolation
+
+    [Fact]
+    public void TryExecute_WhenCanExecuteOgcdOnly_DoesNotRunGcdHandlers()
+    {
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: false, canExecuteOgcd: true);
+        var context = AthenaTestContext.Create(actionService: actionService,
+            canExecuteGcd: false, canExecuteOgcd: true);
+        var result = _module.TryExecute(context, isMoving: false);
+        Assert.False(result);
+        actionService.Verify(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()), Times.Never);
+    }
+
+    [Fact]
+    public void TryExecute_WhenCanExecuteGcdOnly_DoesNotRunOgcdHandlers()
+    {
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true, canExecuteOgcd: false);
+        var context = AthenaTestContext.Create(actionService: actionService,
+            canExecuteGcd: true, canExecuteOgcd: false);
+        var result = _module.TryExecute(context, isMoving: false);
+        Assert.False(result);
+        actionService.Verify(x => x.ExecuteOgcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()), Times.Never);
     }
 
     #endregion

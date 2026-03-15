@@ -6,90 +6,57 @@ namespace Olympus.Rotation.ApolloCore.Modules;
 
 /// <summary>
 /// Orchestrates healing sub-handlers for the WHM rotation.
-/// Delegates to specialized handlers in priority order.
+/// oGCD handlers run first (when CanExecuteOgcd), GCD handlers run second (when CanExecuteGcd).
+/// Priority values are list-local — oGCD and GCD lists are sorted independently.
 /// </summary>
 public sealed class HealingModule : IApolloModule
 {
-    private readonly List<IHealingHandler> _handlers;
+    private readonly List<IHealingHandler> _ogcdHandlers;
+    private readonly List<IHealingHandler> _gcdHandlers;
 
-    public int Priority => 10; // High priority for healing
+    public int Priority => 10;
     public string Name => "Healing";
 
     public HealingModule()
     {
-        _handlers = new List<IHealingHandler>
+        _ogcdHandlers = new List<IHealingHandler>
         {
-            new BenedictionHandler(),
-            new AssizeHealingHandler(),
-            new EsunaHandler(),
-            new PreemptiveHealingHandler(),
-            new AoEHealingHandler(),
-            new SingleTargetHealingHandler(),
-            new RegenHandler(),
-            new TetragrammatonHandler(),
-            new BloodLilyBuildingHandler(),
-            new LilyCapPreventionHandler()
+            new BenedictionHandler(),     // 10
+            new AssizeHealingHandler(),   // 15
+            new TetragrammatonHandler(),  // 25
         };
+        _ogcdHandlers.Sort((a, b) => a.Priority.CompareTo(b.Priority));
 
-        // Sort by priority (already in order, but explicit for clarity)
-        _handlers.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+        _gcdHandlers = new List<IHealingHandler>
+        {
+            new EsunaHandler(),               // 20
+            new PreemptiveHealingHandler(),   // 30 — hybrid: internally checks CanExecuteOgcd for instant heals, falls back to GCD
+            new RegenHandler(),               // 35
+            new AoEHealingHandler(),          // 34
+            new SingleTargetHealingHandler(), // 50
+            new BloodLilyBuildingHandler(),   // 60
+            new LilyCapPreventionHandler(),   // 80
+        };
+        _gcdHandlers.Sort((a, b) => a.Priority.CompareTo(b.Priority));
     }
 
     public bool TryExecute(IApolloContext context, bool isMoving)
     {
-        // Clear frame-scoped coordination state to allow new reservations
         context.HealingCoordination.Clear();
 
-        foreach (var handler in _handlers)
-        {
-            // Apply execution constraints based on handler type
-            if (!CanExecuteHandler(handler, context))
-                continue;
+        if (context.CanExecuteOgcd)
+            foreach (var h in _ogcdHandlers)
+                if (h.TryExecute(context, isMoving)) return true;
 
-            if (handler.TryExecute(context, isMoving))
-                return true;
-        }
+        if (context.CanExecuteGcd)
+            foreach (var h in _gcdHandlers)
+                if (h.TryExecute(context, isMoving)) return true;
 
         return false;
     }
 
     public void UpdateDebugState(IApolloContext context)
     {
-        // Debug state is updated during handler execution
-    }
-
-    /// <summary>
-    /// Determines if a handler can execute based on current context.
-    /// oGCD-only handlers require CanExecuteOgcd, combat-only handlers require InCombat.
-    /// </summary>
-    /// <remarks>
-    /// Priority order (lower = executes first):
-    /// Benediction (10) → Assize (15) → Esuna (20) → Tetragrammaton (25) →
-    /// Preemptive (30) → AoE (34) → Regen (35) → Single (50) → BloodLily (60) → LilyCap (80)
-    /// AoE runs before Regen so multi-target heals fire when multiple members are injured.
-    /// When AoE threshold is not met, AoE returns false and Regen fires next.
-    /// </remarks>
-    private static bool CanExecuteHandler(IHealingHandler handler, IApolloContext context)
-    {
-        return handler.Priority switch
-        {
-            // oGCD-only handlers (free heals - prioritize before GCDs)
-            HealingPriority.Benediction => context.CanExecuteOgcd,
-            HealingPriority.AssizeHealing => context.CanExecuteOgcd && context.InCombat,
-            HealingPriority.Tetragrammaton => context.CanExecuteOgcd,
-
-            // Combat-only handlers
-            HealingPriority.Esuna => context.InCombat,
-            HealingPriority.PreemptiveHeal => context.InCombat,
-            HealingPriority.Regen => context.InCombat,
-            HealingPriority.BloodLilyBuilding => context.InCombat,
-            HealingPriority.LilyCapPrevention => context.InCombat,
-
-            // Always available handlers (GCD heals)
-            HealingPriority.AoEHeal => true,
-            HealingPriority.SingleHeal => true,
-
-            _ => true
-        };
+        // Debug state is updated during handler execution.
     }
 }

@@ -1,60 +1,62 @@
+using System.Collections.Generic;
 using Olympus.Rotation.AstraeaCore.Context;
+using Olympus.Rotation.AstraeaCore.Modules.Healing;
 
 namespace Olympus.Rotation.AstraeaCore.Modules;
 
 /// <summary>
-/// Coordinates all healing logic for the Astrologian rotation.
-/// Delegates to sub-modules: SingleTarget, AoE, Shield, and Emergency.
+/// Coordinates healing for Astrologian using two priority-sorted handler lists.
 /// </summary>
 public sealed class HealingModule : IAstraeaModule
 {
-    public int Priority => 10; // High priority for healing
+    private readonly List<IHealingHandler> _ogcdHandlers;
+    private readonly List<IHealingHandler> _gcdHandlers;
+
+    public int Priority => 10;
     public string Name => "Healing";
 
-    private readonly SingleTargetHealingModule _singleTarget = new();
-    private readonly AoEHealingModule _aoe = new();
-    private readonly ShieldHealingModule _shield = new();
-    private readonly EmergencyHealingModule _emergency = new();
+    public HealingModule()
+    {
+        _ogcdHandlers = new List<IHealingHandler>
+        {
+            new EssentialDignityHandler(),       // 10
+            new CelestialIntersectionHandler(),  // 15
+            new CelestialOppositionHandler(),    // 20
+            new ExaltationHandler(),             // 25
+            new HoroscopeDetonationHandler(),    // 30
+            new MicrocosmosHandler(),            // 35
+            new EarthlyStarDetonationHandler(),  // 40
+            new SynastryHandler(),               // 45
+            new EarthlyStarPlacementHandler(),   // 50
+            new LadyOfCrownsHandler(),           // 60
+            new HoroscopePreparationHandler(),   // 65 — oGCD despite spec's GCD table; calls ExecuteOgcd
+        };
+        _ogcdHandlers.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+
+        _gcdHandlers = new List<IHealingHandler>
+        {
+            new MacrocosmosHandler(),          // 20
+            new AoEHealingHandler(),           // 30
+            new AspectedBeneficHandler(),      // 40
+            new SingleTargetHandler(),         // 50
+        };
+        _gcdHandlers.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+    }
 
     public bool TryExecute(IAstraeaContext context, bool isMoving)
     {
-        // Clear frame-scoped coordination state to allow new reservations
         context.HealingCoordination.Clear();
 
-        var config = context.Configuration;
-
-        if (!config.EnableHealing)
+        if (!context.Configuration.EnableHealing)
             return false;
 
-        // oGCD heals first (free healing, no GCD cost)
         if (context.CanExecuteOgcd)
-        {
-            // Priority 1-2: Essential Dignity, Celestial Intersection
-            if (_singleTarget.TryOgcd(context)) return true;
+            foreach (var h in _ogcdHandlers)
+                if (h.TryExecute(context, isMoving)) return true;
 
-            // Priority 3: Celestial Opposition
-            if (_aoe.TryOgcd(context)) return true;
-
-            // Priority 4: Exaltation
-            if (_shield.TryOgcd(context)) return true;
-
-            // Priority 5-10: Horoscope detonation, Microcosmos, Earthly Star detonation,
-            //                 Synastry, Earthly Star placement, Lady of Crowns
-            if (_emergency.TryOgcd(context)) return true;
-        }
-
-        // GCD heals
         if (context.CanExecuteGcd)
-        {
-            // Priority 11-12: Horoscope preparation, Macrocosmos preparation
-            if (_emergency.TryGcd(context, isMoving)) return true;
-
-            // Priority 13: AoE healing (Helios/Aspected Helios/Helios Conjunction)
-            if (!isMoving && _aoe.TryGcd(context)) return true;
-
-            // Priority 14-15: Aspected Benefic, Single-target healing
-            if (_singleTarget.TryGcd(context, isMoving)) return true;
-        }
+            foreach (var h in _gcdHandlers)
+                if (h.TryExecute(context, isMoving)) return true;
 
         return false;
     }

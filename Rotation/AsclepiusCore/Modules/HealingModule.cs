@@ -1,53 +1,63 @@
+using System.Collections.Generic;
 using Olympus.Rotation.AsclepiusCore.Context;
+using Olympus.Rotation.AsclepiusCore.Modules.Healing;
 
 namespace Olympus.Rotation.AsclepiusCore.Modules;
 
 /// <summary>
-/// Handles healing for Sage.
-/// Coordinates four focused sub-modules in the following priority order:
-///
-/// oGCD window:
-///   1. SingleTargetHealingModule  — Druochole, Taurochole
-///   2. AoEHealingModule           — Ixochole, Kerachole, PhysisII
-///   3. EmergencyHealingModule     — Holos, Haima, Panhaima, Pepsis, Rhizomata, Krasis, Zoe, LucidDreaming
-///
-/// GCD window:
-///   1. AoEHealingModule.TryGcdPneuma    — Pneuma
-///   2. ShieldHealingModule              — EukrasianHealing (E.Diagnosis / E.Prognosis)
-///   3. AoEHealingModule.TryGcdPrognosis — Prognosis
-///   4. SingleTargetHealingModule        — Diagnosis
+/// Coordinates healing for Sage using two priority-sorted handler lists.
+/// oGCDs run first (CanExecuteOgcd), GCDs run second (CanExecuteGcd).
 /// </summary>
 public sealed class HealingModule : IAsclepiusModule
 {
-    private readonly SingleTargetHealingModule _singleTarget = new();
-    private readonly AoEHealingModule _aoe = new();
-    private readonly ShieldHealingModule _shield = new();
-    private readonly EmergencyHealingModule _emergency = new();
+    private readonly List<IHealingHandler> _ogcdHandlers;
+    private readonly List<IHealingHandler> _gcdHandlers;
 
-    public int Priority => 10; // High priority - healing is essential
+    public int Priority => 10;
     public string Name => "Healing";
+
+    public HealingModule()
+    {
+        _ogcdHandlers = new List<IHealingHandler>
+        {
+            new SingleTargetOgcdHandler(), // 10
+            new IxocholeHandler(),         // 15
+            new KeracholeHandler(),        // 20
+            new PhysisIIHandler(),         // 25
+            new HolosHandler(),            // 30
+            new HaimaHandler(),            // 35
+            new PanhaimaHandler(),         // 40
+            new PepsisHandler(),           // 45
+            new RhizomataHandler(),        // 50
+            new KrasisHandler(),           // 55
+            new ZoeHandler(),              // 60
+            new LucidDreamingHandler(),    // 70
+        };
+        _ogcdHandlers.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+
+        _gcdHandlers = new List<IHealingHandler>
+        {
+            new PneumaHandler(),          // 10
+            new ShieldHealingHandler(),   // 20
+            new PrognosisHandler(),       // 30
+            new DiagnosisHandler(),       // 40
+        };
+        _gcdHandlers.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+    }
 
     public bool TryExecute(IAsclepiusContext context, bool isMoving)
     {
-        // Clear frame-scoped coordination state to allow new reservations
         context.HealingCoordination.Clear();
 
-        // oGCD: Emergency Addersgall heals and cooldowns
-        if (context.CanExecuteOgcd)
-        {
-            if (_singleTarget.TryOgcd(context)) return true;
-            if (_aoe.TryOgcd(context)) return true;
-            if (_emergency.TryOgcd(context)) return true;
-        }
+        if (!context.Configuration.EnableHealing) return false;
 
-        // GCD: Healing spells
+        if (context.CanExecuteOgcd)
+            foreach (var h in _ogcdHandlers)
+                if (h.TryExecute(context, isMoving)) return true;
+
         if (context.CanExecuteGcd)
-        {
-            if (!isMoving && _aoe.TryGcdPneuma(context)) return true;
-            if (_shield.TryGcd(context, isMoving)) return true;
-            if (!isMoving && _aoe.TryGcdPrognosis(context)) return true;
-            if (!isMoving && _singleTarget.TryGcd(context)) return true;
-        }
+            foreach (var h in _gcdHandlers)
+                if (h.TryExecute(context, isMoving)) return true;
 
         return false;
     }
@@ -58,7 +68,6 @@ public sealed class HealingModule : IAsclepiusModule
         context.Debug.AddersgallTimer = context.AddersgallTimer;
         context.Debug.AdderstingStacks = context.AdderstingStacks;
 
-        // Update healing state based on party health
         var (avgHp, lowestHp, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(context.Player);
         context.Debug.AoEInjuredCount = injuredCount;
         context.Debug.PlayerHpPercent = context.Player.MaxHp > 0
