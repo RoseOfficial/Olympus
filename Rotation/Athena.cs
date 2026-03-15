@@ -38,7 +38,7 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
     public override uint[] SupportedJobIds => [JobRegistry.Scholar, JobRegistry.Arcanist];
 
     /// <inheritdoc />
-    public override DebugState DebugState => ConvertToApolloDebugState();
+    public override DebugState DebugState => _debugState;
 
     /// <inheritdoc />
     protected override List<IAthenaModule> Modules => _modules;
@@ -174,6 +174,12 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
         _debugState.FairyGauge = _fairyGaugeService.CurrentGauge;
         _debugState.FairyState = _fairyStateManager.CurrentState.ToString();
         _debugState.PlayerHpPercent = player.MaxHp > 0 ? (float)player.CurrentHp / player.MaxHp : 1f;
+
+        // Populate shared DebugState fields for the debug snapshot
+        _debugState.AoEStatus = _debugState.AoEHealState;
+        _debugState.LilyCount = _debugState.AetherflowStacks;
+        _debugState.BloodLilyCount = _debugState.FairyGauge / 33; // integer division
+        _debugState.LilyStrategy = _debugState.AetherflowState;
     }
 
     /// <inheritdoc />
@@ -233,34 +239,4 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
 
     #endregion
 
-    /// <summary>
-    /// Converts Athena debug state to Apollo debug state for UI compatibility.
-    /// </summary>
-    private DebugState ConvertToApolloDebugState()
-    {
-        return new DebugState
-        {
-            PlanningState = _debugState.PlanningState,
-            PlannedAction = _debugState.PlannedAction,
-            AoEInjuredCount = _debugState.AoEInjuredCount,
-            AoEStatus = _debugState.AoEHealState,
-            PlayerHpPercent = _debugState.PlayerHpPercent,
-            PartyListCount = _debugState.PartyListCount,
-            PartyValidCount = _debugState.PartyValidCount,
-            DpsState = _debugState.DpsState,
-            AoEDpsState = _debugState.AoEDpsState,
-            AoEDpsEnemyCount = _debugState.AoEDpsEnemyCount,
-            LastHealAmount = _debugState.LastHealAmount,
-            LastHealStats = _debugState.LastHealStats,
-            RaiseState = _debugState.RaiseState,
-            RaiseTarget = _debugState.RaiseTarget,
-            EsunaState = _debugState.EsunaState,
-            EsunaTarget = _debugState.EsunaTarget,
-            LucidState = _debugState.LucidState,
-            // Scholar-specific mappings
-            LilyCount = _debugState.AetherflowStacks, // Map Aetherflow to Lily for display
-            BloodLilyCount = _debugState.FairyGauge / 33, // Rough conversion for display
-            LilyStrategy = _debugState.AetherflowState,
-        };
-    }
 }
