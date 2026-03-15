@@ -30,7 +30,7 @@ public sealed class ApolloContext : BaseHealerContext, IApolloContext
     public StatusHelper StatusHelper { get; }
     public IPartyHelper PartyHelper { get; }
 
-    // Debug state (WHM-specific fields — see DebugState class below)
+    // Debug state (WHM-specific fields — see Rotation/Common/DebugState.cs)
     public DebugState Debug { get; }
 
     #region WHM Cached Status Checks
