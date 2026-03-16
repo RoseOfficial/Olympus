@@ -3,6 +3,13 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.28
+
+- Tank cooldown abilities now pre-empt tank busters predicted by the fight timeline — major defensives activate up to 8 seconds before a known tank buster rather than only reacting after damage starts
+- Damage forecasts used for healing triage now factor in timeline-predicted raidwides and tank busters, so healers and shields are deployed before mechanics land rather than in response to them
+
+<!-- LATEST-END -->
+
 ## v4.10.27
 
 - Burst resource pooling is now individually tuned for each DPS job — gauge resources and key cooldowns are held more precisely in the final seconds before a burst window rather than spending freely
@@ -16,8 +23,6 @@ All notable changes to Olympus will be documented in this file.
   - Machinist holds Hypercharge for burst when Heat is below 90
   - Black Mage holds Polyglot stacks for burst timing when below 2 stacks
   - Ninja, Samurai, and Monk hold their primary gauge spender when a burst window is imminent but the gauge is not near cap
-
-<!-- LATEST-END -->
 
 ## v4.10.26
 
