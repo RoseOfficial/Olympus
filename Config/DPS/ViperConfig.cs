@@ -170,4 +170,50 @@ public sealed class ViperConfig
     public bool AllowPositionalLoss { get; set; } = true;
 
     #endregion
+
+    #region Role Action Settings
+
+    /// <summary>
+    /// Enable Second Wind for self-healing when HP is low.
+    /// </summary>
+    public bool EnableSecondWind { get; set; } = true;
+
+    /// <summary>
+    /// HP percentage threshold below which Second Wind fires.
+    /// Range: 0.0 to 1.0.
+    /// </summary>
+    private float _secondWindHpThreshold = 0.5f;
+    public float SecondWindHpThreshold
+    {
+        get => _secondWindHpThreshold;
+        set => _secondWindHpThreshold = Math.Clamp(value, 0f, 1f);
+    }
+
+    /// <summary>
+    /// Enable Bloodbath for lifesteal when HP is low.
+    /// </summary>
+    public bool EnableBloodbath { get; set; } = true;
+
+    /// <summary>
+    /// HP percentage threshold below which Bloodbath fires.
+    /// Range: 0.0 to 1.0.
+    /// </summary>
+    private float _bloodbathHpThreshold = 0.7f;
+    public float BloodbathHpThreshold
+    {
+        get => _bloodbathHpThreshold;
+        set => _bloodbathHpThreshold = Math.Clamp(value, 0f, 1f);
+    }
+
+    /// <summary>
+    /// Enable Feint for enemy damage reduction.
+    /// </summary>
+    public bool EnableFeint { get; set; } = true;
+
+    /// <summary>
+    /// Enable True North to remove positional requirements when out of position.
+    /// </summary>
+    public bool EnableTrueNorth { get; set; } = true;
+
+    #endregion
 }
