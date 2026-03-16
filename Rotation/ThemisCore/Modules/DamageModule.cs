@@ -59,6 +59,22 @@ public sealed class DamageModule : IThemisModule
                     {
                         context.Debug.PlannedAction = PLDActions.Intervene.Name;
                         context.Debug.DamageState = "Intervene (gap close)";
+
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(PLDActions.Intervene.ActionId, PLDActions.Intervene.Name)
+                            .AsTankDamage()
+                            .Target(engageTarget.Name?.TextValue)
+                            .Reason(
+                                "Intervene used as gap closer to reach melee range.",
+                                "Intervene is a gap closer that also deals damage. Use it to quickly close distance to a target that has moved out of melee range.")
+                            .Factors("Target out of melee range", "Intervene charge available", $"Target: {engageTarget.Name?.TextValue}")
+                            .Alternatives("Shield Lob (ranged GCD, slower)", "Wait for target to move closer (DPS loss)")
+                            .Tip("Intervene has 2 charges. Don't hold both charges - use freely for gap closing and weave windows.")
+                            .Concept(PldConcepts.Intervene)
+                            .Record();
+
+                        context.TrainingService?.RecordConceptApplication(PldConcepts.Intervene, wasSuccessful: true);
+
                         return true;
                     }
                 }
@@ -72,6 +88,22 @@ public sealed class DamageModule : IThemisModule
                     {
                         context.Debug.PlannedAction = PLDActions.ShieldLob.Name;
                         context.Debug.DamageState = "Shield Lob (ranged)";
+
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(PLDActions.ShieldLob.ActionId, PLDActions.ShieldLob.Name)
+                            .AsTankDamage()
+                            .Target(engageTarget.Name?.TextValue)
+                            .Reason(
+                                "Shield Lob used as ranged attack while out of melee range.",
+                                "Shield Lob is a 20y ranged GCD. Use it to maintain uptime and open a weave window when you can't reach the target in melee.")
+                            .Factors("Target out of melee range", "Intervene not available", $"Target: {engageTarget.Name?.TextValue}")
+                            .Alternatives("Intervene (faster gap close, but on CD)", "Hold GCD and close manually (DPS loss)")
+                            .Tip("Shield Lob is a filler GCD for ranged situations. It keeps your GCD rolling and lets you weave oGCDs while repositioning.")
+                            .Concept(PldConcepts.BurstWindow)
+                            .Record();
+
+                        context.TrainingService?.RecordConceptApplication(PldConcepts.BurstWindow, wasSuccessful: true);
+
                         return true;
                     }
                 }
@@ -151,6 +183,22 @@ public sealed class DamageModule : IThemisModule
             {
                 context.Debug.PlannedAction = PLDActions.CircleOfScorn.Name;
                 context.Debug.DamageState = "Circle of Scorn";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(PLDActions.CircleOfScorn.ActionId, PLDActions.CircleOfScorn.Name)
+                    .AsTankDamage()
+                    .Target(target.Name?.TextValue)
+                    .Reason(
+                        "Circle of Scorn used on cooldown for AoE DoT damage.",
+                        "Circle of Scorn applies a DoT to all enemies in range. Use it on cooldown as it's a significant damage contributor, especially in multi-target scenarios.")
+                    .Factors("Circle of Scorn off cooldown", "Enemies in range", $"Target: {target.Name?.TextValue}")
+                    .Alternatives("Delay for alignment (usually not worth it)", "Skip in single-target (still use it - 25s CD)")
+                    .Tip("Circle of Scorn is a 25s cooldown AoE DoT. Use it on cooldown in both single and multi-target situations.")
+                    .Concept(PldConcepts.CircleOfScorn)
+                    .Record();
+
+                context.TrainingService?.RecordConceptApplication(PldConcepts.CircleOfScorn, wasSuccessful: true);
+
                 return true;
             }
         }
@@ -167,6 +215,22 @@ public sealed class DamageModule : IThemisModule
             {
                 context.Debug.PlannedAction = spiritsAction.Name;
                 context.Debug.DamageState = spiritsAction.Name;
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(spiritsAction.ActionId, spiritsAction.Name)
+                    .AsTankDamage()
+                    .Target(target.Name?.TextValue)
+                    .Reason(
+                        $"{spiritsAction.Name} used on cooldown for single-target oGCD damage.",
+                        $"{spiritsAction.Name} is a high-potency single-target oGCD. Use it on cooldown, ideally inside Fight or Flight windows for maximum damage.")
+                    .Factors($"{spiritsAction.Name} off cooldown", $"Target in melee range: {target.Name?.TextValue}", context.HasFightOrFlight ? "Inside Fight or Flight" : "Outside burst window")
+                    .Alternatives("Delay for burst (minor benefit, usually not worth delaying past 1 GCD)")
+                    .Tip($"Use {spiritsAction.Name} on cooldown. Align with Fight or Flight when possible but don't delay it more than one GCD.")
+                    .Concept(PldConcepts.Expiacion)
+                    .Record();
+
+                context.TrainingService?.RecordConceptApplication(PldConcepts.Expiacion, wasSuccessful: true);
+
                 return true;
             }
         }
@@ -209,6 +273,25 @@ public sealed class DamageModule : IThemisModule
                 {
                     context.Debug.PlannedAction = confiteorAction.Name;
                     context.Debug.DamageState = $"Confiteor chain ({context.ConfiteorStep}/4)";
+
+                    var isConfiteorStart = context.ConfiteorStep == 1;
+                    var conceptId = isConfiteorStart ? PldConcepts.Confiteor : PldConcepts.BladeCombo;
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(confiteorAction.ActionId, confiteorAction.Name)
+                        .AsTankBurst()
+                        .Target(target.Name?.TextValue)
+                        .Reason(
+                            $"Confiteor chain step {context.ConfiteorStep}/4 during Requiescat phase.",
+                            "Confiteor → Blade of Faith → Blade of Truth → Blade of Valor is your highest-potency burst combo during Requiescat. Always complete the full chain.")
+                        .Factors($"Requiescat active", $"Confiteor step: {context.ConfiteorStep}/4", $"Target: {target.Name?.TextValue}")
+                        .Alternatives("Holy Spirit instead (lower potency)", "Delay chain (stacks expire if held)")
+                        .Tip("Always complete the full Confiteor combo during Requiescat. Each step has very high potency and the chain must not be broken.")
+                        .Concept(conceptId)
+                        .Record();
+
+                    context.TrainingService?.RecordConceptApplication(conceptId, wasSuccessful: true);
+
                     return true;
                 }
             }
@@ -227,6 +310,22 @@ public sealed class DamageModule : IThemisModule
             {
                 context.Debug.PlannedAction = PLDActions.HolyCircle.Name;
                 context.Debug.DamageState = $"Holy Circle ({enemyCount} targets)";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(PLDActions.HolyCircle.ActionId, PLDActions.HolyCircle.Name)
+                    .AsTankBurst()
+                    .Target("AoE")
+                    .Reason(
+                        $"Holy Circle used during Requiescat with {enemyCount} targets in range.",
+                        "Holy Circle is free and instant during Requiescat. In AoE situations, it outperforms Holy Spirit and is your primary Requiescat spender.")
+                    .Factors($"Requiescat stacks: {context.RequiescatStacks}", $"Enemy count: {enemyCount} (>= {minAoE} threshold)", "AoE damage enabled")
+                    .Alternatives($"Holy Spirit ({enemyCount} targets, lower total potency)", "Confiteor chain (use after spenders)")
+                    .Tip("During Requiescat in multi-target, use Holy Circle to spend all stacks before the Confiteor chain. It's free and hits everything.")
+                    .Concept(PldConcepts.MagicPhase)
+                    .Record();
+
+                context.TrainingService?.RecordConceptApplication(PldConcepts.MagicPhase, wasSuccessful: true);
+
                 return true;
             }
         }
@@ -238,6 +337,22 @@ public sealed class DamageModule : IThemisModule
             {
                 context.Debug.PlannedAction = PLDActions.HolySpirit.Name;
                 context.Debug.DamageState = $"Holy Spirit ({context.RequiescatStacks} stacks)";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(PLDActions.HolySpirit.ActionId, PLDActions.HolySpirit.Name)
+                    .AsTankBurst()
+                    .Target(target.Name?.TextValue)
+                    .Reason(
+                        $"Holy Spirit used during Requiescat ({context.RequiescatStacks} stacks remaining).",
+                        "Holy Spirit is your primary single-target magic GCD during Requiescat. It's instant and free during the buff window.")
+                    .Factors($"Requiescat stacks: {context.RequiescatStacks}", $"Single target scenario ({enemyCount} enemies)", $"Target: {target.Name?.TextValue}")
+                    .Alternatives("Holy Circle (better with 3+ targets)", "Confiteor chain (use when 0 stacks remain)")
+                    .Tip("Spend all Requiescat stacks with Holy Spirit before the buff expires, then proceed to Confiteor if available.")
+                    .Concept(PldConcepts.HolySpirit)
+                    .Record();
+
+                context.TrainingService?.RecordConceptApplication(PldConcepts.HolySpirit, wasSuccessful: true);
+
                 return true;
             }
         }
@@ -286,7 +401,7 @@ public sealed class DamageModule : IThemisModule
                 context.Debug.PlannedAction = atonementAction.Name;
                 context.Debug.DamageState = $"Atonement chain ({context.AtonementStep}/3)";
 
-                // Training: Record burst window execution
+                // Training: Record atonement chain execution
                 if (context.HasFightOrFlight)
                 {
                     TrainingHelper.Decision(context.TrainingService)
@@ -299,10 +414,27 @@ public sealed class DamageModule : IThemisModule
                         .Factors($"Fight or Flight active ({context.FightOrFlightRemaining:F1}s)", $"Sword Oath stacks: {context.SwordOathStacks}", $"Chain position: {context.AtonementStep}/3")
                         .Alternatives("Save stacks for later burst (risk losing them)", "Use main combo instead (lower potency)")
                         .Tip("Always complete the full Atonement chain during Fight or Flight. The stacks only last 30 seconds, so don't hold them too long.")
-                        .Concept("pld_atonement_chain")
+                        .Concept(PldConcepts.AtonementChain)
                         .Record();
 
-                    context.TrainingService?.RecordConceptApplication("pld_atonement_chain", true, "Executed during burst");
+                    context.TrainingService?.RecordConceptApplication(PldConcepts.AtonementChain, wasSuccessful: true);
+                }
+                else
+                {
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(atonementAction.ActionId, atonementAction.Name)
+                        .AsTankDamage()
+                        .Target(target.Name?.TextValue)
+                        .Reason(
+                            $"Atonement chain step {context.AtonementStep}/3 - spending Sword Oath stacks before expiry.",
+                            "Sword Oath stacks last 30 seconds. Spend them via the Atonement chain before they expire, even outside burst windows.")
+                        .Factors($"Sword Oath stacks: {context.SwordOathStacks}", $"Chain position: {context.AtonementStep}/3", "Fight or Flight not active")
+                        .Alternatives("Hold for Fight or Flight (only if FoF is ready soon)", "Use main combo (resets combo, wastes stacks)")
+                        .Tip("Atonement, Supplication, and Sepulchre each have high potency. Don't let them expire - spend stacks within 30 seconds of gaining them.")
+                        .Concept(PldConcepts.AtonementChain)
+                        .Record();
+
+                    context.TrainingService?.RecordConceptApplication(PldConcepts.AtonementChain, wasSuccessful: true);
                 }
 
                 return true;
@@ -346,6 +478,22 @@ public sealed class DamageModule : IThemisModule
                 {
                     context.Debug.PlannedAction = PLDActions.BladeOfHonor.Name;
                     context.Debug.DamageState = "Blade of Honor";
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(PLDActions.BladeOfHonor.ActionId, PLDActions.BladeOfHonor.Name)
+                        .AsTankBurst()
+                        .Target(target.Name?.TextValue)
+                        .Reason(
+                            "Blade of Honor used as the Lv.100 DoT refresh and AoE finisher.",
+                            "Blade of Honor is the enhanced Goring Blade at level 100. Higher potency and AoE splash - use whenever available for DoT refresh.")
+                        .Factors($"Blade of Honor available", $"DoT remaining: {context.GoringBladeRemaining:F1}s", context.HasFightOrFlight ? "Inside Fight or Flight" : "DoT refresh window")
+                        .Alternatives("Goring Blade (lower level version)", "Skip (DoT falls off, major DPS loss)")
+                        .Tip("Blade of Honor upgrades Goring Blade at level 100. Treat it identically but enjoy the higher potency and AoE component.")
+                        .Concept(PldConcepts.GoringBlade)
+                        .Record();
+
+                    context.TrainingService?.RecordConceptApplication(PldConcepts.GoringBlade, wasSuccessful: true);
+
                     return true;
                 }
             }
@@ -354,6 +502,22 @@ public sealed class DamageModule : IThemisModule
             {
                 context.Debug.PlannedAction = PLDActions.GoringBlade.Name;
                 context.Debug.DamageState = $"Goring Blade (DoT {context.GoringBladeRemaining:F1}s)";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(PLDActions.GoringBlade.ActionId, PLDActions.GoringBlade.Name)
+                    .AsTankDamage()
+                    .Target(target.Name?.TextValue)
+                    .Reason(
+                        $"Goring Blade applied to refresh DoT ({context.GoringBladeRemaining:F1}s remaining).",
+                        "Goring Blade applies a DoT that must be refreshed before it expires. Refresh under Fight or Flight for optimal timing alignment.")
+                    .Factors($"DoT remaining: {context.GoringBladeRemaining:F1}s", context.HasFightOrFlight ? "Inside Fight or Flight (refresh early for alignment)" : "DoT falling off (<5s)", $"Target: {target.Name?.TextValue}")
+                    .Alternatives("Delay until Fight or Flight (risk DoT falling off)", "Skip (significant DPS loss from missing DoT)")
+                    .Tip("Keep Goring Blade up at all times. Refresh it under Fight or Flight when possible for the damage amplification.")
+                    .Concept(PldConcepts.GoringBlade)
+                    .Record();
+
+                context.TrainingService?.RecordConceptApplication(PldConcepts.GoringBlade, wasSuccessful: true);
+
                 return true;
             }
         }
@@ -443,6 +607,25 @@ public sealed class DamageModule : IThemisModule
         {
             context.Debug.PlannedAction = comboAction.Name;
             context.Debug.DamageState = comboNote;
+
+            var isFinisher = context.ComboStep == 3 || comboNote.Contains("3/3");
+            var conceptId = isFinisher ? PldConcepts.AtonementChain : PldConcepts.BurstWindow;
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(comboAction.ActionId, comboAction.Name)
+                .AsTankDamage()
+                .Target(target.Name?.TextValue)
+                .Reason(
+                    $"Main combo: {comboNote}.",
+                    "Fast Blade → Riot Blade → Royal Authority is the foundation of PLD DPS. Royal Authority grants Sword Oath stacks for the Atonement chain.")
+                .Factors($"Combo step: {comboNote}", context.HasFightOrFlight ? "Inside Fight or Flight burst" : "Outside burst window", $"Target: {target.Name?.TextValue}")
+                .Alternatives("Atonement chain (higher priority if stacks available)", "Goring Blade (higher priority if DoT falling off)")
+                .Tip("Complete the 1-2-3 combo consistently. Royal Authority is the finisher that grants Atonement stacks - the core of PLD's rotation.")
+                .Concept(conceptId)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(conceptId, wasSuccessful: true);
+
             return true;
         }
 
@@ -493,6 +676,22 @@ public sealed class DamageModule : IThemisModule
         {
             context.Debug.PlannedAction = aoeAction.Name;
             context.Debug.DamageState = aoeNote;
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(aoeAction.ActionId, aoeAction.Name)
+                .AsTankDamage()
+                .Target("AoE")
+                .Reason(
+                    $"AoE combo: {aoeNote}.",
+                    "Total Eclipse → Prominence is PLD's AoE combo. Use when 3+ enemies are present. Prominence also builds Oath Gauge.")
+                .Factors($"Enemy count: {enemyCount} (>= {minAoE} threshold)", $"AoE combo step: {aoeNote}", "AoE damage enabled")
+                .Alternatives("Single target combo (better for 1-2 targets)", "Holy Circle in Requiescat (better magic AoE)")
+                .Tip("Switch to AoE rotation at 3+ targets. Total Eclipse → Prominence generates Oath Gauge via Prominence's combo bonus.")
+                .Concept(PldConcepts.MagicPhase)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(PldConcepts.MagicPhase, wasSuccessful: true);
+
             return true;
         }
 

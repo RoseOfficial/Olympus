@@ -157,6 +157,22 @@ public sealed class MitigationModule : IThemisModule
             {
                 context.Debug.PlannedAction = PLDActions.Interject.Name;
                 context.Debug.MitigationState = "Interrupted cast";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(PLDActions.Interject.ActionId, PLDActions.Interject.Name)
+                    .AsInterrupt()
+                    .Target(target.Name?.TextValue)
+                    .Reason(
+                        $"Interrupted {target.Name?.TextValue}'s cast.",
+                        "Interject silences an enemy cast. Always interrupt dangerous casts - uninterrupted abilities can cause wipes.")
+                    .Factors("Enemy casting an interruptible ability", "Interject available", $"Target: {target.Name?.TextValue}")
+                    .Alternatives("Low Blow (stun backup if Interject on CD)", "Ignore interrupt (high risk in most content)")
+                    .Tip("Interject is a 30s CD. Prioritize interrupting dangerous casts over damage actions - the DPS loss is always worth preventing a wipe.")
+                    .Concept(PldConcepts.TankSwap)
+                    .Record();
+
+                context.TrainingService?.RecordConceptApplication(PldConcepts.TankSwap, wasSuccessful: true);
+
                 return true;
             }
 
@@ -181,6 +197,22 @@ public sealed class MitigationModule : IThemisModule
             {
                 context.Debug.PlannedAction = PLDActions.LowBlow.Name;
                 context.Debug.MitigationState = "Stunned (interrupt)";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(PLDActions.LowBlow.ActionId, PLDActions.LowBlow.Name)
+                    .AsInterrupt()
+                    .Target(target.Name?.TextValue)
+                    .Reason(
+                        $"Low Blow used to stun {target.Name?.TextValue}'s cast (Interject unavailable).",
+                        "Low Blow stuns enemies. It can interrupt casts as a backup when Interject is on cooldown. Stun is less reliable than silence but still effective.")
+                    .Factors("Enemy casting interruptible ability", "Interject on cooldown", "Low Blow available", $"Target: {target.Name?.TextValue}")
+                    .Alternatives("Wait for Interject (may be too slow)", "Use Interject if it comes off CD in time")
+                    .Tip("Keep both Interject and Low Blow available for back-to-back interrupt windows. Low Blow's 25s CD makes it a reliable backup.")
+                    .Concept(PldConcepts.TankSwap)
+                    .Record();
+
+                context.TrainingService?.RecordConceptApplication(PldConcepts.TankSwap, wasSuccessful: true);
+
                 return true;
             }
 
@@ -231,6 +263,21 @@ public sealed class MitigationModule : IThemisModule
                 {
                     context.Debug.PlannedAction = sheltronAction.Name;
                     context.Debug.MitigationState = $"Proactive Sheltron ({reason})";
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(sheltronAction.ActionId, sheltronAction.Name)
+                        .AsTankResource(context.OathGauge)
+                        .Reason(
+                            $"Proactive {sheltronAction.Name} before predicted tankbuster in {secondsUntil:F1}s.",
+                            $"{sheltronAction.Name} costs 50 Oath Gauge and provides a powerful short defensive. Pre-stacking it 1.5-4s before a tankbuster maximizes its coverage.")
+                        .Factors($"Tankbuster predicted in {secondsUntil:F1}s (high confidence)", $"Oath Gauge: {context.OathGauge}", "No Sheltron already active")
+                        .Alternatives("Rampart (longer cooldown, more reduction)", "Wait until hit (reactive is less safe)")
+                        .Tip("Pre-stack Sheltron just before tankbusters. It's gauge-based so there's no cooldown waste - and it should be active when the hit lands.")
+                        .Concept(PldConcepts.MitigationStacking)
+                        .Record();
+
+                    context.TrainingService?.RecordConceptApplication(PldConcepts.MitigationStacking, wasSuccessful: true);
+
                     return true;
                 }
             }
@@ -247,6 +294,21 @@ public sealed class MitigationModule : IThemisModule
                 {
                     context.Debug.PlannedAction = PLDActions.Rampart.Name;
                     context.Debug.MitigationState = $"Proactive Rampart ({reason})";
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(PLDActions.Rampart.ActionId, PLDActions.Rampart.Name)
+                        .AsMitigation(hpPercent)
+                        .Reason(
+                            $"Proactive Rampart before predicted tankbuster in {secondsUntil:F1}s.",
+                            "Rampart reduces damage taken by 20% for 20 seconds. Pre-stacking it 1.5-4s before a tankbuster ensures the 20% reduction is active for the hit.")
+                        .Factors($"Tankbuster predicted in {secondsUntil:F1}s (high confidence)", "No active mitigation buffs", "Rampart available")
+                        .Alternatives("Sheltron (costs gauge, shorter but useful)", "Sentinel (stronger but save for bigger hits)")
+                        .Tip("Rampart is a cornerstone mitigation tool. Use it proactively when the timeline predicts an incoming tankbuster.")
+                        .Concept(PldConcepts.MitigationStacking)
+                        .Record();
+
+                    context.TrainingService?.RecordConceptApplication(PldConcepts.MitigationStacking, wasSuccessful: true);
+
                     return true;
                 }
             }
@@ -263,6 +325,21 @@ public sealed class MitigationModule : IThemisModule
                 {
                     context.Debug.PlannedAction = sentinelAction.Name;
                     context.Debug.MitigationState = $"Proactive Sentinel ({reason})";
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(sentinelAction.ActionId, sentinelAction.Name)
+                        .AsMitigation(hpPercent)
+                        .Reason(
+                            $"Proactive {sentinelAction.Name} before predicted tankbuster in {secondsUntil:F1}s.",
+                            $"{sentinelAction.Name} is your strongest regular mitigation. Pre-stacking it before a predicted tankbuster ensures maximum damage reduction.")
+                        .Factors($"Tankbuster predicted in {secondsUntil:F1}s (high confidence)", "No existing Sentinel buff", $"{sentinelAction.Name} available")
+                        .Alternatives("Rampart (weaker but shorter CD)", "Hallowed Ground (save for emergencies)")
+                        .Tip($"Use {sentinelAction.Name} proactively for predictable big hits. Reactive use wastes precious reaction time and may cause deaths.")
+                        .Concept(PldConcepts.InvulnTiming)
+                        .Record();
+
+                    context.TrainingService?.RecordConceptApplication(PldConcepts.InvulnTiming, wasSuccessful: true);
+
                     return true;
                 }
             }
@@ -443,6 +520,21 @@ public sealed class MitigationModule : IThemisModule
             context.Debug.PlannedAction = PLDActions.Rampart.Name;
             context.Debug.MitigationState = $"Rampart ({hpPercent:P0} HP)";
             partyCoord?.OnCooldownUsed(PLDActions.Rampart.ActionId, 90_000);
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(PLDActions.Rampart.ActionId, PLDActions.Rampart.Name)
+                .AsMitigation(hpPercent)
+                .Reason(
+                    $"Rampart at {hpPercent:P0} HP to reduce incoming damage.",
+                    "Rampart reduces damage taken by 20% for 20 seconds. Use it on cooldown when taking moderate to heavy damage as it's a reliable mitigation tool.")
+                .Factors($"HP at {hpPercent:P0}", $"Damage rate: {damageRate:F0} DPS", "No active Rampart buff", "No Hallowed Ground active")
+                .Alternatives("Sentinel (stronger, longer CD)", "Sheltron (gauge-based, shorter duration)")
+                .Tip("Rampart is your most frequently available major mitigation (90s CD). Use it consistently to maintain uptime on damage reduction.")
+                .Concept(PldConcepts.Sentinel)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(PldConcepts.Sentinel, wasSuccessful: true);
+
             return true;
         }
 
@@ -537,6 +629,21 @@ public sealed class MitigationModule : IThemisModule
         {
             context.Debug.PlannedAction = PLDActions.Bulwark.Name;
             context.Debug.MitigationState = "Bulwark (sustained damage)";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(PLDActions.Bulwark.ActionId, PLDActions.Bulwark.Name)
+                .AsMitigation(hpPercent)
+                .Reason(
+                    $"Bulwark at {hpPercent:P0} HP under sustained {damageRate:F0} DPS.",
+                    "Bulwark provides 100% block rate for 10 seconds. Best used during sustained auto-attack phases rather than for tankbusters.")
+                .Factors($"HP at {hpPercent:P0}", $"Damage rate: {damageRate:F0} DPS (sustained)", "No existing Bulwark buff", "No Hallowed Ground active")
+                .Alternatives("Sheltron (more reliable as it provides a block chance buff)", "Rampart (flat % reduction, more predictable)")
+                .Tip("Bulwark is unique in providing 100% block rate rather than flat reduction. It excels during trash pulls and sustained auto-attack phases.")
+                .Concept(PldConcepts.Bulwark)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(PldConcepts.Bulwark, wasSuccessful: true);
+
             return true;
         }
 
@@ -596,6 +703,21 @@ public sealed class MitigationModule : IThemisModule
             context.Debug.PlannedAction = PLDActions.Reprisal.Name;
             context.Debug.MitigationState = $"Reprisal ({enemyCount} enemies)";
             partyCoord?.OnCooldownUsed(PLDActions.Reprisal.ActionId, 60_000);
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(PLDActions.Reprisal.ActionId, PLDActions.Reprisal.Name)
+                .AsPartyMit()
+                .Reason(
+                    $"Reprisal applied with {enemyCount} enemies nearby.",
+                    "Reprisal reduces enemies' damage output by 10% for 10 seconds. Excellent for AoE damage phases and before raidwides.")
+                .Factors($"Enemy count: {enemyCount}", "No other party mitigation recently active", "Reprisal available")
+                .Alternatives("Divine Veil (party shield instead of debuff)", "Wait for raidwide (may miss window)")
+                .Tip("Reprisal is a party mitigation tool, not just for yourself. Use it whenever multiple enemies are attacking the party.")
+                .Concept(PldConcepts.PartyProtection)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(PldConcepts.PartyProtection, wasSuccessful: true);
+
             return true;
         }
 
@@ -693,6 +815,22 @@ public sealed class MitigationModule : IThemisModule
             var targetHp = context.PartyHelper.GetHpPercent(coverTarget);
             context.Debug.PlannedAction = PLDActions.Cover.Name;
             context.Debug.MitigationState = $"Cover ({targetHp:P0} HP ally)";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(PLDActions.Cover.ActionId, PLDActions.Cover.Name)
+                .AsPartyMit()
+                .Target(coverTarget.Name?.TextValue)
+                .Reason(
+                    $"Cover used to protect {coverTarget.Name?.TextValue} at {targetHp:P0} HP.",
+                    "Cover makes you take all damage directed at a party member for 12 seconds. Use it to protect a critically low ally that you can't let die.")
+                .Factors($"Target HP: {targetHp:P0} (below 40% threshold)", $"Your HP: {myHpPercent:P0} (above 60% threshold)", $"Target within 10y: {coverTarget.Name?.TextValue}")
+                .Alternatives("Hallowed Ground (protect yourself instead)", "Let healer handle it (may not be fast enough)")
+                .Tip("Cover is a powerful party protection tool but dangerous if you're low HP. Only use it when you're healthy enough to absorb the redirected damage.")
+                .Concept(PldConcepts.Cover)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(PldConcepts.Cover, wasSuccessful: true);
+
             return true;
         }
 
