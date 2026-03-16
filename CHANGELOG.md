@@ -3,11 +3,16 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
-## v4.10.18
+## v4.10.19 - Training Mode Now Fully Wired
 
-- Added update checker: Olympus now notifies you 15 seconds after login if a newer version is available, and a "Check for Updates" button is available in Settings for on-demand checks.
+**Training Mode**
+- Live Coaching now explains decisions for all 21 jobs — every action in every rotation now records what it did and why, feeding the coaching panel in real time.
+- Concept mastery tracking is now active for all jobs, so Struggling Concepts and mastery-driven lesson recommendations work across the full roster.
+- Fixed a bug where skill level could never advance beyond Beginner through the quiz component due to a mismatched quiz ID format.
 
 <!-- LATEST-END -->
+
+## v4.10.18
 
 ## v4.10.17
 
