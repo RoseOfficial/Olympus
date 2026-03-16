@@ -175,9 +175,9 @@ public sealed class BuffModule : IHermesModule
                 .Factors(new[] { "Suiton buff active", "120s cooldown ready", "Starting burst window" })
                 .Alternatives(new[] { "Wait for other raid buffs (risk delaying too long)", "Use Meisui instead (loses burst window)" })
                 .Tip("Kunai's Bane is your most important ability. Plan your Ninjutsu and Ninki around its cooldown.")
-                .Concept("nin_kunais_bane")
+                .Concept(NinConcepts.KunaisBane)
                 .Record();
-            context.TrainingService?.RecordConceptApplication("nin_kunais_bane", true, "Burst window activation");
+            context.TrainingService?.RecordConceptApplication(NinConcepts.KunaisBane, true, "Burst window activation");
 
             return true;
         }
@@ -229,9 +229,9 @@ public sealed class BuffModule : IHermesModule
                 .Factors(new[] { "Tenri Jindo Ready proc active", "Within burst window" })
                 .Alternatives(new[] { "Delay for weaving (loses proc if too slow)" })
                 .Tip("Always use Tenri Jindo immediately after Kunai's Bane to maximize burst damage.")
-                .Concept("nin_tenri_jindo")
+                .Concept(NinConcepts.TenriJindo)
                 .Record();
-            context.TrainingService?.RecordConceptApplication("nin_tenri_jindo", true, "Burst follow-up");
+            context.TrainingService?.RecordConceptApplication(NinConcepts.TenriJindo, true, "Burst follow-up");
 
             return true;
         }
@@ -292,9 +292,9 @@ public sealed class BuffModule : IHermesModule
                 .Factors(new[] { "120s cooldown ready", isDokumori ? "Debuff not active" : "Ninki generation", "Damage + utility" })
                 .Alternatives(new[] { "Hold for burst (not recommended)", "Delay if dying soon" })
                 .Tip("Use Mug/Dokumori on cooldown for consistent Ninki generation and damage debuff.")
-                .Concept("nin_mug_dokumori")
+                .Concept(NinConcepts.MugDokumori)
                 .Record();
-            context.TrainingService?.RecordConceptApplication("nin_mug_dokumori", true, "Cooldown management");
+            context.TrainingService?.RecordConceptApplication(NinConcepts.MugDokumori, true, "Cooldown management");
 
             return true;
         }
@@ -344,9 +344,9 @@ public sealed class BuffModule : IHermesModule
                 .Factors(new[] { "60s cooldown ready", "Burst window active or imminent", "No current Kassatsu buff" })
                 .Alternatives(new[] { "Wait for Kunai's Bane (minor optimization)", "Use outside burst (acceptable if would overcap)" })
                 .Tip("Kassatsu → Hyosho Ranryu (ST) or Goka Mekkyaku (AoE) is your highest potency Ninjutsu combo.")
-                .Concept("nin_kassatsu")
+                .Concept(NinConcepts.Kassatsu)
                 .Record();
-            context.TrainingService?.RecordConceptApplication("nin_kassatsu", true, "Enhanced Ninjutsu setup");
+            context.TrainingService?.RecordConceptApplication(NinConcepts.Kassatsu, true, "Enhanced Ninjutsu setup");
 
             return true;
         }
@@ -404,9 +404,9 @@ public sealed class BuffModule : IHermesModule
                 .Factors(new[] { "120s cooldown ready", "Not moving", "Burst window active", "Safe to stand still" })
                 .Alternatives(new[] { "Wait for safety (movement cancels TCJ)", "Use outside burst (loses significant damage)" })
                 .Tip("TCJ is cancelled by ANY movement. Plan ahead and use it when you know you can stand still.")
-                .Concept("nin_ten_chi_jin")
+                .Concept(NinConcepts.TenChiJin)
                 .Record();
-            context.TrainingService?.RecordConceptApplication("nin_ten_chi_jin", true, "Triple Ninjutsu burst");
+            context.TrainingService?.RecordConceptApplication(NinConcepts.TenChiJin, true, "Triple Ninjutsu burst");
 
             return true;
         }
@@ -462,9 +462,9 @@ public sealed class BuffModule : IHermesModule
                 .Factors(new[] { $"Ninki >= {NinkiThreshold}", "90s cooldown ready", "Will enable Phantom Kamaitachi" })
                 .Alternatives(new[] { "Use Bhavacakra instead (if capping Ninki)", "Save for burst (if close to Kunai's Bane)" })
                 .Tip("Bunshin → Phantom Kamaitachi is a potent combo. Prioritize having Ninki for Bunshin cooldowns.")
-                .Concept("nin_bunshin")
+                .Concept(NinConcepts.Bunshin)
                 .Record();
-            context.TrainingService?.RecordConceptApplication("nin_bunshin", true, "Shadow clone activation");
+            context.TrainingService?.RecordConceptApplication(NinConcepts.Bunshin, true, "Shadow clone activation");
 
             return true;
         }
@@ -522,9 +522,9 @@ public sealed class BuffModule : IHermesModule
                 .Factors(new[] { "Suiton buff active", "Kunai's Bane on cooldown", "Ninki generation needed" })
                 .Alternatives(new[] { "Save Suiton for Kunai's Bane (if ready soon)", "Let Suiton expire (wastes potential Ninki)" })
                 .Tip("Meisui turns leftover Suiton into value. Never use it when Kunai's Bane is ready!")
-                .Concept("nin_meisui")
+                .Concept(NinConcepts.Meisui)
                 .Record();
-            context.TrainingService?.RecordConceptApplication("nin_meisui", true, "Suiton conversion");
+            context.TrainingService?.RecordConceptApplication(NinConcepts.Meisui, true, "Suiton conversion");
 
             return true;
         }

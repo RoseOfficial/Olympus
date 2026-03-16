@@ -221,12 +221,12 @@ public sealed class NinjutsuModule : IHermesModule
     {
         return ninjutsu switch
         {
-            NINActions.NinjutsuType.Suiton => "nin_suiton",
-            NINActions.NinjutsuType.Raiton => "nin_raiton",
-            NINActions.NinjutsuType.Katon or NINActions.NinjutsuType.GokaMekkyaku => "nin_katon",
-            NINActions.NinjutsuType.HyoshoRanryu => "nin_hyosho_ranryu",
-            NINActions.NinjutsuType.Doton => "nin_doton",
-            _ => "nin_mudra_system"
+            NINActions.NinjutsuType.Suiton => NinConcepts.Suiton,
+            NINActions.NinjutsuType.Raiton => NinConcepts.RaijuProcs, // Raiton → Raiju proc
+            NINActions.NinjutsuType.Katon or NINActions.NinjutsuType.GokaMekkyaku => NinConcepts.AoeNinjutsu,
+            NINActions.NinjutsuType.HyoshoRanryu => NinConcepts.Kassatsu,
+            NINActions.NinjutsuType.Doton => NinConcepts.AoeNinjutsu,
+            _ => NinConcepts.MudraSystem
         };
     }
 
@@ -457,6 +457,27 @@ public sealed class NinjutsuModule : IHermesModule
             {
                 context.Debug.PlannedAction = action.Name;
                 context.Debug.NinjutsuState = actionName;
+
+                // Training: Record Ten Chi Jin action
+                var tcjConceptId = stacks == 1
+                    ? (enemyCount >= AoeThreshold ? NinConcepts.AoeNinjutsu : NinConcepts.Suiton)
+                    : NinConcepts.TcjOptimization;
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(action.ActionId, action.Name)
+                    .AsMeleeBurst()
+                    .Target(target?.Name?.TextValue ?? "Target")
+                    .Reason($"TCJ step {4 - stacks}/3: {action.Name}",
+                        "Ten Chi Jin lets you use three Ninjutsu instantly. The standard sequence is: " +
+                        "Fuma Shuriken (Ten) → Raiton/Katon (Chi) → Suiton/Doton (Jin). " +
+                        "Do NOT move during TCJ — any movement cancels the entire effect. " +
+                        "Use this combo inside your Kunai's Bane burst window for maximum damage.")
+                    .Factors(new[] { "TCJ active", $"Step {4 - stacks} of 3", $"{enemyCount} enemies nearby" })
+                    .Alternatives(new[] { "Cannot deviate — TCJ sequences are locked in order" })
+                    .Tip("TCJ is cancelled by movement. Cast it when you're safe to stand still for ~3 GCDs.")
+                    .Concept(tcjConceptId)
+                    .Record();
+                context.TrainingService?.RecordConceptApplication(tcjConceptId, true, $"TCJ step {4 - stacks}");
+
                 return true;
             }
         }

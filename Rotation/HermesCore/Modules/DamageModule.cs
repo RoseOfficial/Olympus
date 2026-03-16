@@ -103,9 +103,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
                         .Factors(new[] { $"Ninki >= {NinkiSpendThreshold}", $"{enemyCount} enemies nearby", "AoE damage optimal" })
                         .Alternatives(new[] { "Use Bhavacakra (less total damage vs 3+)", "Hold for Bunshin (if coming soon)" })
                         .Tip("In AoE, Hellfrog Medium/Deathfrog Medium outperforms Bhavacakra at 3+ targets.")
-                        .Concept("nin_ninki_gauge")
+                        .Concept(NinConcepts.NinkiGauge)
                         .Record();
-                    context.TrainingService?.RecordConceptApplication("nin_ninki_gauge", true, "AoE Ninki spending");
+                    context.TrainingService?.RecordConceptApplication(NinConcepts.NinkiGauge, true, "AoE Ninki spending");
 
                     return true;
                 }
@@ -135,9 +135,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
                         .Factors(new[] { $"Ninki >= {NinkiSpendThreshold}", "Single target damage", context.HasMeisui ? "Meisui buff active" : "Standard potency" })
                         .Alternatives(new[] { "Save for Bunshin (if coming soon)", "Overcap Ninki (wastes gauge)" })
                         .Tip("Spend Ninki before capping. Bunshin > Bhavacakra in priority, but don't sit on full gauge.")
-                        .Concept("nin_ninki_gauge")
+                        .Concept(NinConcepts.Bhavacakra)
                         .Record();
-                    context.TrainingService?.RecordConceptApplication("nin_ninki_gauge", true, "ST Ninki spending");
+                    context.TrainingService?.RecordConceptApplication(NinConcepts.Bhavacakra, true, "ST Ninki spending");
 
                     return true;
                 }
@@ -219,9 +219,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
                 .Factors(new[] { "Raiju Ready proc active", $"{context.RaijuStacks} stack(s) available", isForked ? "Out of melee range" : "In melee range" })
                 .Alternatives(new[] { isForked ? "Walk to target (slower)" : "Use Forked for movement (unnecessary)" })
                 .Tip("Raiju procs are free damage. Use them between your combo GCDs, ideally during burst windows.")
-                .Concept("nin_raiju")
+                .Concept(NinConcepts.RaijuProcs)
                 .Record();
-            context.TrainingService?.RecordConceptApplication("nin_raiju", true, "Raiju proc usage");
+            context.TrainingService?.RecordConceptApplication(NinConcepts.RaijuProcs, true, "Raiju proc usage");
 
             return true;
         }
@@ -265,9 +265,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
                 .Factors(new[] { "Phantom Kamaitachi Ready proc", "From Bunshin usage", "High potency GCD" })
                 .Alternatives(new[] { "Delay for burst (only if Bunshin was early)", "Let proc expire (wastes damage)" })
                 .Tip("Always use Phantom Kamaitachi after Bunshin. It's free, high-potency damage.")
-                .Concept("nin_phantom_kamaitachi")
+                .Concept(NinConcepts.PhantomKamaitachi)
                 .Record();
-            context.TrainingService?.RecordConceptApplication("nin_phantom_kamaitachi", true, "Bunshin follow-up");
+            context.TrainingService?.RecordConceptApplication(NinConcepts.PhantomKamaitachi, true, "Bunshin follow-up");
 
             return true;
         }
@@ -287,7 +287,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
 
         if (useAoe)
         {
-            return TryAoeCombo(context, target);
+            return TryAoeCombo(context, target, enemyCount);
         }
         else
         {
@@ -316,6 +316,22 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
                 {
                     context.Debug.PlannedAction = NINActions.GustSlash.Name;
                     context.Debug.DamageState = "Gust Slash (Combo 2)";
+
+                    // Training: Record Gust Slash (combo step 2)
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(NINActions.GustSlash.ActionId, NINActions.GustSlash.Name)
+                        .AsCombo(2)
+                        .Target(target.Name?.TextValue ?? "Target")
+                        .Reason("Gust Slash — combo step 2",
+                            "Gust Slash is the second hit in NIN's ST combo. Follow Spinning Edge with Gust Slash, " +
+                            "then finish with Aeolian Edge or Armor Crush. Never break the combo chain.")
+                        .Factors(new[] { "Combo step 2 active", "After Spinning Edge", "Building to finisher" })
+                        .Alternatives(new[] { "Restart with Spinning Edge (breaks combo, loses potency)" })
+                        .Tip("Maintain your 3-step combo. Breaking it loses combo bonus potency.")
+                        .Concept(NinConcepts.ComboBasics)
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication(NinConcepts.ComboBasics, true, "Combo step 2");
+
                     return true;
                 }
             }
@@ -328,6 +344,22 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
             {
                 context.Debug.PlannedAction = NINActions.SpinningEdge.Name;
                 context.Debug.DamageState = "Spinning Edge (Combo 1)";
+
+                // Training: Record Spinning Edge (combo starter)
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(NINActions.SpinningEdge.ActionId, NINActions.SpinningEdge.Name)
+                    .AsCombo(1)
+                    .Target(target.Name?.TextValue ?? "Target")
+                    .Reason("Spinning Edge — starting the 3-hit ST combo",
+                        "Spinning Edge starts NIN's single-target combo. Follow with Gust Slash then Aeolian Edge or Armor Crush. " +
+                        "The full combo generates Ninki. Prefer using Raiju procs and Phantom Kamaitachi over filling with basic combo when available.")
+                    .Factors(new[] { "No higher-priority GCD available", "Starting ST combo rotation", "Generates Ninki" })
+                    .Alternatives(new[] { "Use Raiju if proc is active", "Use Phantom Kamaitachi if Bunshin was used" })
+                    .Tip("Always complete the full 3-step combo. Each finisher gives different benefits (Aeolian Edge = damage, Armor Crush = Kazematoi).")
+                    .Concept(NinConcepts.ComboBasics)
+                    .Record();
+                context.TrainingService?.RecordConceptApplication(NinConcepts.ComboBasics, true, "Combo step 1");
+
                 return true;
             }
         }
@@ -386,9 +418,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
                         .Factors(new[] { $"Kazematoi low ({context.Kazematoi} stacks)", "Need to build stacks", posReason })
                         .Alternatives(new[] { "Use Aeolian Edge (would run out of Kazematoi)", "Ignore positional (loses potency)" })
                         .Tip("Armor Crush builds Kazematoi. Aeolian Edge consumes it. Keep 3+ stacks when possible.")
-                        .Concept("nin_positionals")
+                        .Concept(NinConcepts.KazematoiManagement)
                         .Record();
-                    context.TrainingService?.RecordConceptApplication("nin_positionals", correctPositional, "Flank positional");
+                    context.TrainingService?.RecordConceptApplication(NinConcepts.KazematoiManagement, correctPositional, "Flank positional");
 
                     return true;
                 }
@@ -426,9 +458,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
                             .Factors(new[] { $"Kazematoi available ({context.Kazematoi} stacks)", "Primary damage finisher", posReason })
                             .Alternatives(new[] { "Use Armor Crush (if need Kazematoi stacks)", "Ignore positional (loses potency)" })
                             .Tip("Aeolian Edge is your bread-and-butter finisher. Keep Kazematoi up for bonus damage.")
-                            .Concept("nin_positionals")
+                            .Concept(NinConcepts.Positionals)
                             .Record();
-                        context.TrainingService?.RecordConceptApplication("nin_positionals", correctPositional, "Rear positional");
+                        context.TrainingService?.RecordConceptApplication(NinConcepts.Positionals, correctPositional, "Rear positional");
 
                         return true;
                     }
@@ -443,6 +475,23 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
             {
                 context.Debug.PlannedAction = NINActions.GustSlash.Name;
                 context.Debug.DamageState = "Gust Slash (no finisher)";
+
+                // Training: Record Gust Slash fallback (too low level for finishers)
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(NINActions.GustSlash.ActionId, NINActions.GustSlash.Name)
+                    .AsCombo(2)
+                    .Target(target.Name?.TextValue ?? "Target")
+                    .Reason("Gust Slash — no combo finisher available yet",
+                        "At lower levels, Aeolian Edge and Armor Crush are not yet unlocked. " +
+                        "Gust Slash is used as the highest available combo step. " +
+                        "Once you unlock Aeolian Edge (level 26), it becomes your primary finisher.")
+                    .Factors(new[] { "Level too low for finisher", "Gust Slash is highest combo available", "Building combo damage" })
+                    .Alternatives(new[] { "Level up to unlock Aeolian Edge (level 26)" })
+                    .Tip("Aeolian Edge unlocks at level 26 and becomes your standard combo finisher.")
+                    .Concept(NinConcepts.ComboBasics)
+                    .Record();
+                context.TrainingService?.RecordConceptApplication(NinConcepts.ComboBasics, true, "Low-level combo fallback");
+
                 return true;
             }
         }
@@ -450,7 +499,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
         return false;
     }
 
-    private bool TryAoeCombo(IHermesContext context, IBattleChara target)
+    private bool TryAoeCombo(IHermesContext context, IBattleChara target, int enemyCount)
     {
         var player = context.Player;
         var level = player.Level;
@@ -465,6 +514,23 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
                 {
                     context.Debug.PlannedAction = NINActions.HakkeMujinsatsu.Name;
                     context.Debug.DamageState = "Hakke Mujinsatsu (AoE 2)";
+
+                    // Training: Record Hakke Mujinsatsu (AoE combo step 2)
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(NINActions.HakkeMujinsatsu.ActionId, NINActions.HakkeMujinsatsu.Name)
+                        .AsAoE(enemyCount)
+                        .Target($"{enemyCount} enemies")
+                        .Reason($"Hakke Mujinsatsu — AoE combo step 2 ({enemyCount} enemies)",
+                            "Hakke Mujinsatsu follows Death Blossom in NIN's 2-hit AoE combo. " +
+                            "Use when 3+ enemies are present. The AoE combo also generates Ninki. " +
+                            "After this combo you can use Hellfrog Medium or Deathfrog Medium as your Ninki spender.")
+                        .Factors(new[] { $"{enemyCount} enemies nearby", "AoE combo step 2 active", "After Death Blossom" })
+                        .Alternatives(new[] { "Single-target combo (fewer than 3 enemies)", "Stop AoE if enemies die" })
+                        .Tip("Stick to the AoE combo at 3+ targets. It outperforms the ST rotation in group content.")
+                        .Concept(NinConcepts.AoeCombo)
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication(NinConcepts.AoeCombo, true, "AoE combo step 2");
+
                     return true;
                 }
             }
@@ -477,6 +543,23 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
             {
                 context.Debug.PlannedAction = NINActions.DeathBlossom.Name;
                 context.Debug.DamageState = "Death Blossom (AoE 1)";
+
+                // Training: Record Death Blossom (AoE combo starter)
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(NINActions.DeathBlossom.ActionId, NINActions.DeathBlossom.Name)
+                    .AsAoE(enemyCount)
+                    .Target($"{enemyCount} enemies")
+                    .Reason($"Death Blossom — starting AoE combo ({enemyCount} enemies)",
+                        "Death Blossom is NIN's AoE combo starter. Use it when 3+ enemies are present instead of Spinning Edge. " +
+                        "Follow with Hakke Mujinsatsu to complete the 2-hit AoE combo. " +
+                        "The AoE rotation generates Ninki, which fuels Hellfrog Medium for additional AoE damage.")
+                    .Factors(new[] { $"{enemyCount} enemies nearby", "AoE rotation optimal at 3+ targets", "Ninki generation" })
+                    .Alternatives(new[] { "Use Spinning Edge (only better for 1-2 targets)", "Delay for Ninjutsu window" })
+                    .Tip("Switch to AoE combo at 3 or more enemies. Death Blossom → Hakke Mujinsatsu is your standard AoE loop.")
+                    .Concept(NinConcepts.AoeCombo)
+                    .Record();
+                context.TrainingService?.RecordConceptApplication(NinConcepts.AoeCombo, true, "AoE combo step 1");
+
                 return true;
             }
         }
