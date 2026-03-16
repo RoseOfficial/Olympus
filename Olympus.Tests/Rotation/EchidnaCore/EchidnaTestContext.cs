@@ -43,6 +43,7 @@ public static class EchidnaTestContext
         int rattlingCoils = 0,
         bool isReawakened = false,
         VPRActions.DreadCombo dreadCombo = VPRActions.DreadCombo.None,
+        VPRActions.SerpentCombo serpentCombo = VPRActions.SerpentCombo.None,
         // Buff state
         bool hasHuntersInstinct = false,
         float huntersInstinctRemaining = 0f,
@@ -117,6 +118,7 @@ public static class EchidnaTestContext
         mock.Setup(x => x.RattlingCoils).Returns(rattlingCoils);
         mock.Setup(x => x.IsReawakened).Returns(isReawakened);
         mock.Setup(x => x.DreadCombo).Returns(dreadCombo);
+        mock.Setup(x => x.SerpentCombo).Returns(serpentCombo);
 
         // Buff state
         mock.Setup(x => x.HasHuntersInstinct).Returns(hasHuntersInstinct);
