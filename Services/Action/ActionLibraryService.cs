@@ -20,9 +20,11 @@ public sealed class ActionLibraryService : IActionLibrary
     /// </summary>
     public ActionLibraryService()
     {
-        // Register all known job actions
         RegisterWhiteMageActions();
-        // Future: RegisterScholarActions(), RegisterAstrologianActions(), etc.
+        RegisterScholarActions();
+        RegisterAstrologianActions();
+        RegisterSageActions();
+        // Future: tanks, melee, ranged, casters
     }
 
     /// <inheritdoc />
@@ -170,5 +172,244 @@ public sealed class ActionLibraryService : IActionLibrary
             WHMActions.Medica,
             WHMActions.Raise,
             WHMActions.Esuna);
+    }
+
+    /// <summary>
+    /// Registers all Scholar (SCH) and Arcanist (ACN) actions.
+    /// </summary>
+    private void RegisterScholarActions()
+    {
+        const uint schJobId = JobRegistry.Scholar;
+        const uint acnJobId = JobRegistry.Arcanist;
+
+        // GCD Heals
+        RegisterActions(schJobId,
+            SCHActions.Physick,
+            SCHActions.Adloquium,
+            SCHActions.Manifestation,
+            SCHActions.Succor,
+            SCHActions.Concitation,
+            SCHActions.Accession);
+
+        // Damage GCDs
+        RegisterActions(schJobId,
+            SCHActions.Ruin,
+            SCHActions.RuinII,
+            SCHActions.Broil,
+            SCHActions.BroilII,
+            SCHActions.BroilIII,
+            SCHActions.BroilIV,
+            SCHActions.ArtOfWar,
+            SCHActions.ArtOfWarII);
+
+        // DoTs
+        RegisterActions(schJobId,
+            SCHActions.Bio,
+            SCHActions.BioII,
+            SCHActions.Biolysis);
+
+        // oGCD Heals
+        RegisterActions(schJobId,
+            SCHActions.Lustrate,
+            SCHActions.Indomitability,
+            SCHActions.Excogitation,
+            SCHActions.SacredSoil,
+            SCHActions.Protraction);
+
+        // oGCD Utility
+        RegisterActions(schJobId,
+            SCHActions.Aetherflow,
+            SCHActions.EnergyDrain,
+            SCHActions.Recitation,
+            SCHActions.EmergencyTactics,
+            SCHActions.DeploymentTactics,
+            SCHActions.Dissipation,
+            SCHActions.ChainStratagem,
+            SCHActions.Expedient,
+            SCHActions.BanefulImpaction);
+
+        // Fairy
+        RegisterActions(schJobId,
+            SCHActions.SummonEos,
+            SCHActions.WhisperingDawn,
+            SCHActions.FeyIllumination,
+            SCHActions.FeyBlessing,
+            SCHActions.Aetherpact,
+            SCHActions.FeyUnion,
+            SCHActions.DissolveUnion,
+            SCHActions.SummonSeraph,
+            SCHActions.Consolation,
+            SCHActions.Seraphism);
+
+        // Role Actions
+        RegisterActions(schJobId,
+            SCHActions.Swiftcast,
+            SCHActions.LucidDreaming,
+            SCHActions.Surecast,
+            SCHActions.Rescue,
+            SCHActions.Esuna,
+            SCHActions.Resurrection);
+
+        // Arcanist base class — starter subset
+        RegisterActions(acnJobId,
+            SCHActions.Physick,
+            SCHActions.Ruin,
+            SCHActions.Bio,
+            SCHActions.Succor,
+            SCHActions.Resurrection,
+            SCHActions.Esuna);
+    }
+
+    /// <summary>
+    /// Registers all Astrologian (AST) actions.
+    /// </summary>
+    private void RegisterAstrologianActions()
+    {
+        const uint astJobId = JobRegistry.Astrologian;
+
+        // GCD Heals
+        RegisterActions(astJobId,
+            ASTActions.Benefic,
+            ASTActions.BeneficII,
+            ASTActions.AspectedBenefic,
+            ASTActions.Helios,
+            ASTActions.AspectedHelios,
+            ASTActions.HeliosConjunction);
+
+        // Damage GCDs
+        RegisterActions(astJobId,
+            ASTActions.Malefic,
+            ASTActions.MaleficII,
+            ASTActions.MaleficIII,
+            ASTActions.MaleficIV,
+            ASTActions.FallMalefic,
+            ASTActions.Gravity,
+            ASTActions.GravityII);
+
+        // DoTs
+        RegisterActions(astJobId,
+            ASTActions.Combust,
+            ASTActions.CombustII,
+            ASTActions.CombustIII);
+
+        // oGCD Heals
+        RegisterActions(astJobId,
+            ASTActions.EssentialDignity,
+            ASTActions.CelestialIntersection,
+            ASTActions.CelestialOpposition,
+            ASTActions.Exaltation,
+            ASTActions.Horoscope,
+            ASTActions.HoroscopeEnd,
+            ASTActions.Macrocosmos,
+            ASTActions.Microcosmos,
+            ASTActions.EarthlyStar,
+            ASTActions.StellarDetonation);
+
+        // Cards
+        RegisterActions(astJobId,
+            ASTActions.AstralDraw,
+            ASTActions.UmbralDraw,
+            ASTActions.PlayI,
+            ASTActions.PlayII,
+            ASTActions.TheBalance,
+            ASTActions.TheSpear,
+            ASTActions.TheBole,
+            ASTActions.TheArrow,
+            ASTActions.TheEwer,
+            ASTActions.TheSpire,
+            ASTActions.PlayIII,
+            ASTActions.MinorArcana,
+            ASTActions.LadyOfCrowns,
+            ASTActions.LordOfCrowns);
+
+        // Buffs / Utility
+        RegisterActions(astJobId,
+            ASTActions.Astrodyne,
+            ASTActions.Divination,
+            ASTActions.Oracle,
+            ASTActions.Lightspeed,
+            ASTActions.Synastry,
+            ASTActions.NeutralSect,
+            ASTActions.CollectiveUnconscious,
+            ASTActions.SunSign);
+
+        // Role Actions
+        RegisterActions(astJobId,
+            ASTActions.Swiftcast,
+            ASTActions.LucidDreaming,
+            ASTActions.Surecast,
+            ASTActions.Rescue,
+            ASTActions.Esuna,
+            ASTActions.Ascend);
+    }
+
+    /// <summary>
+    /// Registers all Sage (SGE) actions.
+    /// </summary>
+    private void RegisterSageActions()
+    {
+        const uint sgeJobId = JobRegistry.Sage;
+
+        // GCD Heals
+        RegisterActions(sgeJobId,
+            SGEActions.Diagnosis,
+            SGEActions.Prognosis,
+            SGEActions.EukrasianDiagnosis,
+            SGEActions.EukrasianPrognosis,
+            SGEActions.EukrasianPrognosisII,
+            SGEActions.Pneuma);
+
+        // Damage GCDs
+        RegisterActions(sgeJobId,
+            SGEActions.Dosis,
+            SGEActions.DosisII,
+            SGEActions.DosisIII,
+            SGEActions.Dyskrasia,
+            SGEActions.DyskrasiaII,
+            SGEActions.Toxikon,
+            SGEActions.ToxikonII,
+            SGEActions.Phlegma,
+            SGEActions.PhlegmaII,
+            SGEActions.PhlegmaIII);
+
+        // Eukrasian DoTs
+        RegisterActions(sgeJobId,
+            SGEActions.EukrasianDosis,
+            SGEActions.EukrasianDosisII,
+            SGEActions.EukrasianDosisIII,
+            SGEActions.EukrasianDyskrasia);
+
+        // oGCD Heals
+        RegisterActions(sgeJobId,
+            SGEActions.Druochole,
+            SGEActions.Taurochole,
+            SGEActions.Ixochole,
+            SGEActions.Kerachole,
+            SGEActions.PhysisII,
+            SGEActions.Holos,
+            SGEActions.Pepsis,
+            SGEActions.Rhizomata,
+            SGEActions.Haima,
+            SGEActions.Panhaima);
+
+        // Kardia / Defensive
+        RegisterActions(sgeJobId,
+            SGEActions.Kardia,
+            SGEActions.Soteria,
+            SGEActions.Eukrasia,
+            SGEActions.Krasis,
+            SGEActions.Zoe,
+            SGEActions.Philosophia,
+            SGEActions.Psyche,
+            SGEActions.Icarus);
+
+        // Role Actions
+        RegisterActions(sgeJobId,
+            SGEActions.Swiftcast,
+            SGEActions.LucidDreaming,
+            SGEActions.Surecast,
+            SGEActions.Rescue,
+            SGEActions.Esuna,
+            SGEActions.Egeiro);
     }
 }
