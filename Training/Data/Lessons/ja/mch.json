@@ -1,0 +1,139 @@
+{
+  "jobPrefix": "mch",
+  "jobName": "機工士",
+  "lessons": [
+    {
+      "lessonId": "mch.lesson_1",
+      "lessonNumber": 1,
+      "title": "機工士の基本",
+      "description": "機工士のコア原則を学びます。ヒートとバッテリーのデュアルゲージシステム、生成方法、相互作用について解説します。",
+      "prerequisites": [],
+      "conceptsCovered": ["mch.heat_gauge", "mch.battery_gauge", "mch.gauge_interactions"],
+      "keyPoints": [
+        "ヒートゲージ（0〜100）：ウェポンスキルコンボから積まれ、ハイパーチャージで消費",
+        "バッテリーゲージ（0〜100）：ツールアビリティとコンボフィニッシャーから積まれ、オートマトンクイーンで消費",
+        "ヒートとバッテリーは独立している——両方を同時に管理",
+        "どちらのゲージもオーバーキャップさせない——100に達する前にリソースを使う"
+      ],
+      "relatedAbilities": ["Heated Split Shot", "Heated Slug Shot", "Heated Clean Shot", "Hypercharge", "Automaton Queen"],
+      "tips": [
+        "両方のゲージを常に監視——これが主要なリソース管理",
+        "ヒートはコンボから速く積まれ、バッテリーはフィニッシャーとツールから積まれる"
+      ]
+    },
+    {
+      "lessonId": "mch.lesson_2",
+      "lessonNumber": 2,
+      "title": "ツールの習得",
+      "description": "機工士の高優先度ツールアビリティを習得します：ドリル、エアアンカー、チェーンソー——最高威力のGCDたち。",
+      "prerequisites": ["mch.lesson_1"],
+      "conceptsCovered": ["mch.drill_priority", "mch.air_anchor_usage", "mch.chain_saw_usage", "mch.proc_tracking"],
+      "keyPoints": [
+        "ドリル：20秒リキャスト、Lv.98で2チャージ——最高威力の単体GCD",
+        "エアアンカー：40秒リキャスト——ヒット時にバッテリー+20を付与",
+        "チェーンソー：60秒リキャスト——エクスカベーターレディプロックを付与",
+        "エクスカベーターレディ：チェーンソーの直後にエクスカベーターを使用（無料の高威力GCD）"
+      ],
+      "relatedAbilities": ["Drill", "Air Anchor", "Chain Saw", "Excavator", "Full Metal Field"],
+      "tips": [
+        "ツールはコンボGCDより優先——チャージをオーバーキャップさせない",
+        "エクスカベーターレディとフルメタルマシニストプロックは30秒持続——落とさない"
+      ]
+    },
+    {
+      "lessonId": "mch.lesson_3",
+      "lessonNumber": 3,
+      "title": "リアセンブルの最適化",
+      "description": "リアセンブルでダメージを最大化します：バフをかけるツールの選択、チャージ管理、オーバーキャップ防止。",
+      "prerequisites": ["mch.lesson_2"],
+      "conceptsCovered": ["mch.reassemble_priority", "mch.reassemble_charges", "mch.gauge_overcapping"],
+      "keyPoints": [
+        "リアセンブル：次のウェポンスキルのクリティカルダイレクトヒットを保証（55秒リキャスト、2チャージ）",
+        "リアセンブルの優先順位：ドリル > チェーンソー > エアアンカー",
+        "ドリルはLv.98で2チャージ——ドリルの使用にリアセンブルを合わせる",
+        "チャージがオーバーキャップするほどリアセンブルを保持しない"
+      ],
+      "relatedAbilities": ["Reassemble", "Drill", "Chain Saw", "Air Anchor"],
+      "tips": [
+        "リアセンブルは約600威力のツールを900+の実効威力にする",
+        "バーストウィンドウではレイドバフと一緒に2回リアセンブルドリルを使おう"
+      ]
+    },
+    {
+      "lessonId": "mch.lesson_4",
+      "lessonNumber": 4,
+      "title": "ハイパーチャージウィンドウ",
+      "description": "ハイパーチャージ回転を完璧に実行します：ヒート50エントリー、オーバーヒートステート、ヒートブラストスパム、oGCDウィーブ。",
+      "prerequisites": ["mch.lesson_3"],
+      "conceptsCovered": ["mch.hypercharge_activation", "mch.overheated_state", "mch.heat_blast_rotation", "mch.ogcd_weaving"],
+      "keyPoints": [
+        "ハイパーチャージはヒート50を消費し、10秒のオーバーヒートステートを付与",
+        "オーバーヒート中：ヒートブラストのリキャストは1.5秒（合計5回ヒートブラスト）",
+        "ヒートブラストはゲージ15を生成（フルハイパーチャージウィンドウで合計+75ヒート）",
+        "ヒートブラストの間にガウスラウンドとリコシェをウィーブ（シングルウィーブのみ）"
+      ],
+      "relatedAbilities": ["Hypercharge", "Heat Blast", "Gauss Round", "Ricochet"],
+      "tips": [
+        "ヒートブラストの1.5秒リキャストはシングルウィーブのみ許可——ダブルウィーブしない",
+        "最大ウィーブのためにハイパーチャージ前にガウスラウンドとリコシェのチャージを蓄積"
+      ]
+    },
+    {
+      "lessonId": "mch.lesson_5",
+      "lessonNumber": 5,
+      "title": "ワイルドファイアバースト",
+      "description": "120秒ワイルドファイアバーストを習得します：ハイパーチャージ前の正しい配置、整合、ダメージ最大化。",
+      "prerequisites": ["mch.lesson_4"],
+      "conceptsCovered": ["mch.wildfire_placement", "mch.wildfire_alignment", "mch.hypercharge_timing"],
+      "keyPoints": [
+        "ワイルドファイア：120秒リキャスト、10秒持続、着弾したウェポンスキル数に基づいてダメージで爆発",
+        "ハイパーチャージの前にワイルドファイアを適用——ヒートブラスト中に有効である必要がある",
+        "最適：ワイルドファイア → ハイパーチャージ → ヒートブラスト5回 → ワイルドファイアが6ヒットで爆発",
+        "ワイルドファイアはウェポンスキルのみカウント（oGCDは除く）——そのウィンドウ中にGCDを最大化"
+      ],
+      "relatedAbilities": ["Wildfire", "Hypercharge", "Heat Blast", "Detonator"],
+      "tips": [
+        "ワイルドファイア + ハイパーチャージが主要バースト——決して分離させない",
+        "ワイルドファイアが使用可能だがヒートが50未満なら、あまり遅れないように素早くヒートを積む"
+      ]
+    },
+    {
+      "lessonId": "mch.lesson_6",
+      "lessonNumber": 6,
+      "title": "クイーン管理",
+      "description": "オートマトンクイーンの展開を最適化します：バッテリー蓄積、ダメージスケール、バーストの整合。",
+      "prerequisites": ["mch.lesson_5"],
+      "conceptsCovered": ["mch.queen_summoning", "mch.battery_accumulation", "mch.queen_damage_scaling"],
+      "keyPoints": [
+        "オートマトンクイーンの召喚には最低バッテリー50が必要（ただし90〜100を目指す）",
+        "クイーンのダメージは消費したバッテリーにスケール——バッテリー100 = 最大ダメージ",
+        "クイーンは自動攻撃し、パイルバンカーとクラウンドコライダーで終了",
+        "最大価値のためにレイドバフウィンドウ中にクイーンを召喚"
+      ],
+      "relatedAbilities": ["Automaton Queen", "Queen Overdrive", "Pile Bunker", "Crowned Collider"],
+      "tips": [
+        "バッテリー100でオーバーキャップを避けるためにすぐにクイーンを召喚",
+        "クイーンは約12秒の活動時間——バフウィンドウの早い段階で召喚"
+      ]
+    },
+    {
+      "lessonId": "mch.lesson_7",
+      "lessonNumber": 7,
+      "title": "上級戦術",
+      "description": "機工士のすべてのメカニクスを統合します：パーティバースト連携、フェーズ認識、AoEの判断、割り込みユーティリティ。",
+      "prerequisites": ["mch.lesson_6"],
+      "conceptsCovered": ["mch.burst_party_sync", "mch.phase_awareness", "mch.aoe_rotation", "mch.target_count_threshold", "mch.interrupt_usage"],
+      "keyPoints": [
+        "ワイルドファイア + クイーンをパーティ2分レイドバフウィンドウに合わせる",
+        "AoEしきい値：3体以上でAoE回転を使用（スキャッターガン、オートクロスボウ、バイオブラスター）",
+        "オートクロスボウはAoEハイパーチャージ中にヒートブラストを置き換える",
+        "ヘッドグレイズが割り込み——IPCでパーティと連携"
+      ],
+      "relatedAbilities": ["Scattergun", "Auto Crossbow", "Bioblaster", "Head Graze", "Flamethrower"],
+      "tips": [
+        "ダンジョンではバイオブラスターをリキャストで使う——グループへの無料継続ダメージ",
+        "フレイムスロワーはチャネルAoE——大きなプル中に静止できるときに使う"
+      ]
+    }
+  ]
+}
