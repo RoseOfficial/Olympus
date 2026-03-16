@@ -36,7 +36,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "4.10.19";
+    public const string PluginVersion = "4.10.20";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -55,6 +55,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly ActionTracker actionTracker;
     private readonly CombatEventService combatEventService;
     private readonly DamageIntakeService damageIntakeService;
+    private readonly DoTTrackingService dotTrackingService;
     private readonly HealingIntakeService healingIntakeService;
     private readonly DamageTrendService damageTrendService;
     private readonly CooldownPlanner cooldownPlanner;
@@ -161,6 +162,7 @@ public sealed class Plugin : IDalamudPlugin
         this.actionTracker = new ActionTracker(dataManager, configuration);
         this.combatEventService = new CombatEventService(gameInteropProvider, log, objectTable);
         this.damageIntakeService = new DamageIntakeService(combatEventService);
+        this.dotTrackingService = new DoTTrackingService(combatEventService, damageIntakeService);
         this.healingIntakeService = new HealingIntakeService(combatEventService);
         this.damageTrendService = new DamageTrendService(damageIntakeService, healingIntakeService);
         this.cooldownPlanner = new CooldownPlanner(damageIntakeService, damageTrendService, configuration);
@@ -540,6 +542,7 @@ public sealed class Plugin : IDalamudPlugin
         // Dispose rotation manager (handles all instantiated rotations)
         rotationManager.Dispose();
 
+        dotTrackingService.Dispose();
         damageIntakeService.Dispose();
         healingIntakeService.Dispose();
         hpPredictionService.Dispose();

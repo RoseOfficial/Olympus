@@ -3,9 +3,9 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
-## v4.10.19
+## v4.10.20
 
-- Add Spanish, Portuguese, and Russian as selectable languages — strings currently display in English until community translations are contributed
+- DoT damage is now factored into healing urgency calculations — the plugin accounts for pending tick damage when deciding whether to heal
 
 <!-- LATEST-END -->
 
