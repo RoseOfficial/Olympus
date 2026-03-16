@@ -3,6 +3,17 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.28
+
+### Viper
+- The rotation now weaves Legacy oGCDs (First through Fourth Legacy) during Reawaken bursts, significantly improving burst damage output
+- Death Rattle now fires automatically after single-target combo finishers
+- Last Lash now fires automatically after AoE combo finishers
+- Second Wind, Bloodbath, Feint, and True North are now active in the rotation
+- Writhing Snap is now used as a ranged filler when out of melee range with no Rattling Coils available
+
+<!-- LATEST-END -->
+
 ## v4.10.27
 
 - Burst resource pooling is now individually tuned for each DPS job — gauge resources and key cooldowns are held more precisely in the final seconds before a burst window rather than spending freely
@@ -16,8 +27,6 @@ All notable changes to Olympus will be documented in this file.
   - Machinist holds Hypercharge for burst when Heat is below 90
   - Black Mage holds Polyglot stacks for burst timing when below 2 stacks
   - Ninja, Samurai, and Monk hold their primary gauge spender when a burst window is imminent but the gauge is not near cap
-
-<!-- LATEST-END -->
 
 ## v4.10.26
 
