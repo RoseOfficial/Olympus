@@ -637,6 +637,22 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
             {
                 context.Debug.PlannedAction = BLMActions.Fire.Name;
                 context.Debug.DamageState = "Fire (low level)";
+
+                // Training: Record low-level Fire I
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(BLMActions.Fire.ActionId, BLMActions.Fire.Name)
+                    .AsCasterDamage()
+                    .Target(target.Name?.TextValue)
+                    .Reason("Fire - main filler at low level",
+                        "Before unlocking Fire IV, Fire is your primary Astral Fire filler. " +
+                        "Continue casting it while you have MP, then transition to Blizzard for recovery.")
+                    .Factors("Low level", "In Astral Fire", $"MP: {context.CurrentMp}")
+                    .Alternatives("Transition to Ice")
+                    .Tip("Fire IV replaces Fire as your main filler once you reach the required level.")
+                    .Concept(BlmConcepts.FirePhase)
+                    .Record();
+                context.TrainingService?.RecordConceptApplication(BlmConcepts.FirePhase, true, "Low-level Fire cast");
+
                 return true;
             }
         }
