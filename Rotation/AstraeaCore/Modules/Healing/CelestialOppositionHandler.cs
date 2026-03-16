@@ -87,6 +87,8 @@ public sealed class CelestialOppositionHandler : IHealingHandler
                     ConceptId = AstConcepts.CelestialOppositionUsage,
                     Priority = ExplanationPriority.Normal,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.CelestialOppositionUsage, wasSuccessful: true, "AoE heal and regen applied");
             }
 
             return true;

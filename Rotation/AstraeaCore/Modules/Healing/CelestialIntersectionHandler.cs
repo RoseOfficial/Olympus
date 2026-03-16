@@ -91,6 +91,8 @@ public sealed class CelestialIntersectionHandler : IHealingHandler
                     ConceptId = AstConcepts.CelestialIntersectionUsage,
                     Priority = ExplanationPriority.Normal,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.CelestialIntersectionUsage, wasSuccessful: true, isTank ? "Tank shield applied" : "Heal and regen applied");
             }
 
             return true;

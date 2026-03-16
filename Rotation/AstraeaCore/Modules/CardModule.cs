@@ -181,6 +181,8 @@ public sealed class CardModule : IAstraeaModule
                     ConceptId = AstConcepts.DivinationTiming,
                     Priority = ExplanationPriority.High,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.DivinationTiming, wasSuccessful: true, "Divination burst buff deployed");
             }
 
             return true;
@@ -264,6 +266,8 @@ public sealed class CardModule : IAstraeaModule
                     ConceptId = AstConcepts.AstrodyneBuilding,
                     Priority = uniqueCount == 3 ? ExplanationPriority.High : ExplanationPriority.Normal,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.AstrodyneBuilding, wasSuccessful: uniqueCount == 3, $"{uniqueCount} unique seals consumed");
             }
 
             return true;
@@ -370,6 +374,8 @@ public sealed class CardModule : IAstraeaModule
                     ConceptId = AstConcepts.CardManagement,
                     Priority = ExplanationPriority.Normal,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.CardManagement, wasSuccessful: isMelee == isAstral, isMelee == isAstral ? "Card matched target role" : "Card role mismatch");
             }
 
             return true;
@@ -406,6 +412,7 @@ public sealed class CardModule : IAstraeaModule
             if (context.TrainingService?.IsTrainingEnabled == true)
             {
                 RecordDrawExplanation(context, "Astral Draw", true);
+                context.TrainingService?.RecordConceptApplication(AstConcepts.DrawTiming, wasSuccessful: true, "Astral Draw executed");
             }
 
             return true;
@@ -422,6 +429,7 @@ public sealed class CardModule : IAstraeaModule
             if (context.TrainingService?.IsTrainingEnabled == true)
             {
                 RecordDrawExplanation(context, "Umbral Draw", false);
+                context.TrainingService?.RecordConceptApplication(AstConcepts.DrawTiming, wasSuccessful: true, "Umbral Draw executed");
             }
 
             return true;
@@ -530,6 +538,8 @@ public sealed class CardModule : IAstraeaModule
                     ConceptId = AstConcepts.MinorArcanaUsage,
                     Priority = ExplanationPriority.Normal,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.MinorArcanaUsage, wasSuccessful: true, "Minor Arcana drawn");
             }
 
             return true;

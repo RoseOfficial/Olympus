@@ -94,5 +94,7 @@ public sealed class ResurrectionModule : BaseResurrectionModule<IAstraeaContext>
             ConceptId = AstConcepts.RaiseDecision,
             Priority = ExplanationPriority.High,
         });
+
+        context.TrainingService?.RecordConceptApplication(AstConcepts.RaiseDecision, wasSuccessful: true, hasSwiftcast || hasLightspeed ? "Instant raise" : "Hardcast raise");
     }
 }

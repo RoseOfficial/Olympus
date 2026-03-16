@@ -91,6 +91,8 @@ public sealed class HoroscopePreparationHandler : IHealingHandler
                     ConceptId = AstConcepts.HoroscopeUsage,
                     Priority = raidwideImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.HoroscopeUsage, wasSuccessful: true, raidwideImminent ? "Proactive Horoscope for raidwide" : "Horoscope prepared");
             }
 
             return true;

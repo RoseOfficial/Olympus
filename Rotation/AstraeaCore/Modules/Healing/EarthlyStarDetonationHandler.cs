@@ -126,6 +126,8 @@ public sealed class EarthlyStarDetonationHandler : IHealingHandler
                     ConceptId = AstConcepts.EarthlyStarMaturation,
                     Priority = isMature ? ExplanationPriority.High : ExplanationPriority.Normal,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.EarthlyStarMaturation, wasSuccessful: isMature, isMature ? "Giant Dominance detonation" : "Early detonation");
             }
 
             return true;

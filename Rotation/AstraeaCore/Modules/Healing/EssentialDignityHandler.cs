@@ -92,6 +92,8 @@ public sealed class EssentialDignityHandler : IHealingHandler
                     ConceptId = AstConcepts.EssentialDignityUsage,
                     Priority = isEmergency ? ExplanationPriority.Critical : ExplanationPriority.High,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.EssentialDignityUsage, wasSuccessful: true, isEmergency ? "Emergency heal" : "Proactive heal");
             }
 
             return true;

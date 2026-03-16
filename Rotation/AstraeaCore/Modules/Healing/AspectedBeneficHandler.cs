@@ -92,6 +92,8 @@ public sealed class AspectedBeneficHandler : IHealingHandler
                     ConceptId = AstConcepts.AspectedBeneficUsage,
                     Priority = ExplanationPriority.Normal,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.AspectedBeneficUsage, wasSuccessful: true, "Instant heal with regen applied");
             }
 
             return true;

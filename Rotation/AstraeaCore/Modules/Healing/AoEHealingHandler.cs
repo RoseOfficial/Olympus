@@ -108,6 +108,8 @@ public sealed class AoEHealingHandler : IHealingHandler
                     ConceptId = AstConcepts.AspectedHeliosUsage,
                     Priority = ExplanationPriority.Normal,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.AspectedHeliosUsage, wasSuccessful: true, hasRegen ? "AoE heal with regen" : "AoE heal");
             }
 
             return true;

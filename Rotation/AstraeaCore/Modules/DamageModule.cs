@@ -1,7 +1,11 @@
+using System;
+using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.AstraeaCore.Context;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AstraeaCore.Modules;
 
@@ -130,6 +134,22 @@ public sealed class DamageModule : BaseDamageModule<IAstraeaContext>, IAstraeaMo
             SetPlannedAction(context, ASTActions.Oracle.Name);
             context.Debug.OracleState = "Used";
             SetDpsState(context, "Oracle");
+
+            TrainingHelper.RecordDamageDecision(
+                context.TrainingService,
+                ASTActions.Oracle.ActionId,
+                "Oracle",
+                target.Name?.TextValue,
+                "Oracle - Divination follow-up oGCD damage",
+                "Oracle is triggered by the Divining buff from Divination. It delivers a potent oGCD attack that is the payoff for using Divination. Always spend the Divining buff before it expires — Oracle has no cooldown, it's purely proc-based.",
+                new[] { "Divining buff active", "Free oGCD damage", "High potency follow-up", "Always use before Divining expires" },
+                new[] { "Nothing — Oracle must be used while Divining is active" },
+                "Oracle is your Divination payoff. Use it immediately after Divination while weaving other oGCDs. Never let Divining expire unused!",
+                AstConcepts.OracleUsage,
+                ExplanationPriority.High);
+
+            context.TrainingService?.RecordConceptApplication(AstConcepts.OracleUsage, wasSuccessful: true, "Divining buff consumed");
+
             return true;
         }
 
@@ -168,6 +188,22 @@ public sealed class DamageModule : BaseDamageModule<IAstraeaContext>, IAstraeaMo
         {
             SetPlannedAction(context, ASTActions.LordOfCrowns.Name);
             SetDpsState(context, "Lord of Crowns");
+
+            TrainingHelper.RecordDamageDecision(
+                context.TrainingService,
+                ASTActions.LordOfCrowns.ActionId,
+                "Lord of Crowns",
+                target.Name?.TextValue,
+                "Lord of Crowns - Minor Arcana damage card",
+                "Lord of Crowns is the damage outcome from Minor Arcana. It delivers 250 potency AoE oGCD damage. In damage-focused strategies, Lord is spent immediately to contribute DPS. Lady of Crowns is saved in the healing module for emergencies.",
+                new[] { "Minor Arcana gave Lord (damage card)", "250 potency AoE oGCD", "Free damage — no GCD cost", "Lady reserved by healing module" },
+                new[] { "Save Lord for burst window alignment", "Use Lady for emergency party heal (handled in healing module)" },
+                "Lord of Crowns is free damage! Spend it promptly so you can draw Minor Arcana again sooner. Align with burst windows when possible for maximum party buff synergy.",
+                AstConcepts.DpsOptimization,
+                ExplanationPriority.Normal);
+
+            context.TrainingService?.RecordConceptApplication(AstConcepts.DpsOptimization, wasSuccessful: true, "Lord of Crowns damage");
+
             return true;
         }
 

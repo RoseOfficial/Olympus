@@ -146,6 +146,8 @@ public sealed class BuffModule : BaseBuffModule<IAstraeaContext>, IAstraeaModule
                     ConceptId = AstConcepts.LightspeedUsage,
                     Priority = ExplanationPriority.Normal,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.LightspeedUsage, wasSuccessful: true, "Lightspeed activated");
             }
 
             return true;

@@ -168,6 +168,8 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAstraeaContext>, IAst
                     ConceptId = AstConcepts.NeutralSectUsage,
                     Priority = ExplanationPriority.High,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.NeutralSectUsage, wasSuccessful: true, "Neutral Sect defensive buff activated");
             }
 
             return true;
@@ -261,6 +263,8 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAstraeaContext>, IAst
                     ConceptId = AstConcepts.SunSignUsage,
                     Priority = ExplanationPriority.Normal,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.SunSignUsage, wasSuccessful: true, "Sun Sign shield deployed");
             }
 
             return true;
@@ -360,6 +364,8 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAstraeaContext>, IAst
                     ConceptId = AstConcepts.CollectiveUnconsciousUsage,
                     Priority = ExplanationPriority.Normal,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.CollectiveUnconsciousUsage, wasSuccessful: true, "Collective Unconscious channeled mitigation");
             }
 
             return true;

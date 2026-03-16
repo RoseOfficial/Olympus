@@ -85,6 +85,8 @@ public sealed class HoroscopeDetonationHandler : IHealingHandler
                     ConceptId = AstConcepts.HoroscopeUsage,
                     Priority = ExplanationPriority.Normal,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.HoroscopeUsage, wasSuccessful: isEnhanced, isEnhanced ? "Enhanced Horoscope detonated" : "Unenhanced Horoscope detonated");
             }
 
             return true;

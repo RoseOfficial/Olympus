@@ -153,6 +153,8 @@ public sealed class EarthlyStarPlacementHandler : IHealingHandler
                     ConceptId = AstConcepts.EarthlyStarPlacement,
                     Priority = raidwideImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.EarthlyStarPlacement, wasSuccessful: raidwideImminent || burstImminent, raidwideImminent ? "Proactive raidwide placement" : burstImminent ? "Burst window placement" : "Reactive placement");
             }
 
             return true;

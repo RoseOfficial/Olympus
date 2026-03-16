@@ -107,6 +107,8 @@ public sealed class MacrocosmosHandler : IHealingHandler
                     ConceptId = AstConcepts.MacrocosmosUsage,
                     Priority = ExplanationPriority.High,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.MacrocosmosUsage, wasSuccessful: true, "Macrocosmos applied — damage capture started");
             }
 
             return true;

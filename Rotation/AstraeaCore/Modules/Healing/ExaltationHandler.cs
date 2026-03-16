@@ -93,6 +93,8 @@ public sealed class ExaltationHandler : IHealingHandler
                     ConceptId = AstConcepts.ExaltationUsage,
                     Priority = isTank ? ExplanationPriority.High : ExplanationPriority.Normal,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.ExaltationUsage, wasSuccessful: true, isTank ? "Tankbuster mitigation" : "Damage reduction applied");
             }
 
             return true;

@@ -96,6 +96,8 @@ public sealed class SynastryHandler : IHealingHandler
                     ConceptId = AstConcepts.SynastryUsage,
                     Priority = ExplanationPriority.Normal,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.SynastryUsage, wasSuccessful: true, $"Synastry linked to {targetName}");
             }
 
             return true;

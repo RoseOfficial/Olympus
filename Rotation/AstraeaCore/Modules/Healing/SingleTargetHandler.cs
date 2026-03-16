@@ -106,6 +106,8 @@ public sealed class SingleTargetHandler : IHealingHandler
                     ConceptId = AstConcepts.EmergencyHealing,
                     Priority = ExplanationPriority.Normal,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.EmergencyHealing, wasSuccessful: true, isBeneficII ? "Benefic II GCD heal" : "Benefic GCD heal");
             }
 
             return true;

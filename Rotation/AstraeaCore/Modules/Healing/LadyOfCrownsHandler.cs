@@ -83,6 +83,8 @@ public sealed class LadyOfCrownsHandler : IHealingHandler
                     ConceptId = AstConcepts.MinorArcanaUsage,
                     Priority = ExplanationPriority.High,
                 });
+
+                context.TrainingService?.RecordConceptApplication(AstConcepts.MinorArcanaUsage, wasSuccessful: true, "Lady of Crowns emergency AoE heal");
             }
 
             return true;
