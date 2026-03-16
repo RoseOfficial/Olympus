@@ -1,0 +1,139 @@
+{
+  "jobPrefix": "pct",
+  "jobName": "ピクトマンサー",
+  "lessons": [
+    {
+      "lessonId": "pct.lesson_1",
+      "lessonNumber": 1,
+      "title": "絵画の基本",
+      "description": "ピクトマンサーのコアメカニクスを学びます：パレットゲージ、ホワイトペイントスタック、基本コンボ回転。",
+      "prerequisites": [],
+      "conceptsCovered": ["pct.palette_gauge", "pct.white_paint", "pct.combo_basics", "pct.black_paint"],
+      "keyPoints": [
+        "パレットゲージ：基本コンボから100まで積まれ、サブトラクティブパレットを有効化",
+        "ホワイトペイント：最大5スタック、コンボフィニッシャーで生成、ホーリーインホワイトで消費",
+        "基本コンボ：ファイアインレッド → エアロイングリーン → ウォーターインブルー（ゲージとペイントを生成）",
+        "ブラックペイント：クリーチャーミューズ使用からのプロック、強力なコメットインブラックを有効化"
+      ],
+      "relatedAbilities": ["Fire in Red", "Aero in Green", "Water in Blue", "Holy in White", "Comet in Black"],
+      "tips": [
+        "コンボを流れるように続ける——3ステップパターンがゲージとペイントの両方を積む",
+        "ホワイトペイントを5でキャップさせない——スタックを消費するためにホーリーインホワイトを使う"
+      ]
+    },
+    {
+      "lessonId": "pct.lesson_2",
+      "lessonNumber": 2,
+      "title": "キャンバスの習得",
+      "description": "3種のキャンバスを習得します：クリーチャー、ウェポン、ランドスケープのモチーフと最適なプルプレパレーションを学びます。",
+      "prerequisites": ["pct.lesson_1"],
+      "conceptsCovered": ["pct.creature_motifs", "pct.weapon_canvas", "pct.landscape_canvas", "pct.canvas_prepull"],
+      "keyPoints": [
+        "クリーチャーモチーフ：ポム、ウィング、クロー、マウ——ポートレートを描いてリビングミューズを召喚",
+        "ウェポンキャンバス：ハンマースタンプ——描いてストライキングミューズとハンマーコンボを有効化",
+        "ランドスケープキャンバス：スターリースカイ/スター——スターリーミューズ（2分レイドバフ）のために描く",
+        "プルプレパ：即時バーストアクセスのために戦闘前に全3つのキャンバスを描く"
+      ],
+      "relatedAbilities": ["Pom Motif", "Wing Motif", "Claw Motif", "Maw Motif", "Hammer Motif", "Starry Sky Motif"],
+      "tips": [
+        "戦闘中は柔軟性のために少なくとも1つのキャンバスを描いておく",
+        "描くのに時間がかかる——キャンバスを準備するためにダウンタイムフェーズを使う"
+      ]
+    },
+    {
+      "lessonId": "pct.lesson_3",
+      "lessonNumber": 3,
+      "title": "ミューズアビリティ",
+      "description": "3つのミューズアビリティの使い方を学びます：リビングミューズ（クリーチャー）、ストライキングミューズ（ハンマー）、スターリーミューズ（ランドスケープ）。",
+      "prerequisites": ["pct.lesson_2"],
+      "conceptsCovered": ["pct.living_muse", "pct.striking_muse", "pct.starry_muse", "pct.muse_timing"],
+      "keyPoints": [
+        "リビングミューズ：キャンバスからクリーチャーを召喚、コメット用ブラックペイントプロックを付与",
+        "ストライキングミューズ：ハンマーコンボ（3ヒット）を起動、高バーストダメージ",
+        "スターリーミューズ：20秒パーティバフ（ダメージ+5%）、2分バーストウィンドウ",
+        "ミューズタイミング：最大バーストのためにスターリーミューズウィンドウ中にリビング/ストライキングを使う"
+      ],
+      "relatedAbilities": ["Living Muse", "Striking Muse", "Starry Muse", "Mog of the Ages", "Retribution of the Madeen"],
+      "tips": [
+        "スターリーミューズはパーティバフ——他のレイドバフと連携",
+        "ミューズを長く保持しない——個別にリキャストを管理する必要がある"
+      ]
+    },
+    {
+      "lessonId": "pct.lesson_4",
+      "lessonNumber": 4,
+      "title": "サブトラクティブパレット",
+      "description": "サブトラクティブパレットシステムを習得します：ゲージ50以上で起動し、強力なシアン/マゼンタ/イエロースペルを使う。",
+      "prerequisites": ["pct.lesson_3"],
+      "conceptsCovered": ["pct.subtractive_palette", "pct.subtractive_combo", "pct.monochromatic_tones", "pct.palette_spending"],
+      "keyPoints": [
+        "サブトラクティブパレット：パレットゲージ50以上で起動、シアンコンボを解放",
+        "サブトラクティブコンボ：サンダーインシアン → ストーンインイエロー → ブリザードインマゼンタ",
+        "モノクロマティックトーンズ：各シアンヒットがスタープリズムフィニッシャー用ゲージを積む",
+        "50で消費：ゲージをオーバーキャップさせない——使用可能なときにサブトラクティブパレットを使う"
+      ],
+      "relatedAbilities": ["Subtractive Palette", "Thunder in Cyan", "Stone in Yellow", "Blizzard in Magenta", "Star Prism"],
+      "tips": [
+        "常にフルシアンコンボを完成させる——中断するとDPS損失",
+        "スタープリズムはビッグフィニッシャー——可能ならバーストウィンドウのために温存"
+      ]
+    },
+    {
+      "lessonId": "pct.lesson_5",
+      "lessonNumber": 5,
+      "title": "ペイントスペンダー",
+      "description": "ホーリーインホワイト、コメットインブラック、強力なレインボードリッププロックでペイント消費を最適化します。",
+      "prerequisites": ["pct.lesson_4"],
+      "conceptsCovered": ["pct.holy_in_white", "pct.comet_in_black", "pct.rainbow_drip", "pct.finisher_priority"],
+      "keyPoints": [
+        "ホーリーインホワイト：ホワイトペイント1消費、即時キャスト、キャップ防止に使う",
+        "コメットインブラック：ブラックペイントプロックを消費、非常に高威力、最高優先度",
+        "レインボードリップ：特定アビリティからのプロック、即時高威力スペル",
+        "優先度：コメットインブラック > レインボードリップ > ホーリーインホワイト（ペイント管理）"
+      ],
+      "relatedAbilities": ["Holy in White", "Comet in Black", "Rainbow Drip"],
+      "tips": [
+        "コメットインブラックは最高優先度の即時——プロックを切れさせない",
+        "レインボードリップにもタイマーがある——バフバーを見る"
+      ]
+    },
+    {
+      "lessonId": "pct.lesson_6",
+      "lessonNumber": 6,
+      "title": "バーストウィンドウ",
+      "description": "スターリーミューズのタイミング、ハンマーコンボ、パーティ連携で2分バーストを最適化します。",
+      "prerequisites": ["pct.lesson_5"],
+      "conceptsCovered": ["pct.starry_muse_burst", "pct.hammer_combo", "pct.party_coordination"],
+      "keyPoints": [
+        "スターリーミューズバースト：2分ウィンドウ、全ミューズと高ダメージアビリティを整合",
+        "ハンマーコンボ：ハンマースタンプ → ハンマーブラッシュ → ポリッシングハンマー（即時チェーン）",
+        "バーストシーケンス：スターリーミューズ → リビングミューズ → コメット → ハンマーコンボ → スタープリズム",
+        "パーティ連携：スターリーミューズを他のレイドバフ（バトルリタニーなど）と整合"
+      ],
+      "relatedAbilities": ["Starry Muse", "Hammer Stamp", "Hammer Brush", "Polishing Hammer", "Star Prism"],
+      "tips": [
+        "最大ダメージのためにバースト前に全キャンバスを描いておく",
+        "パーティバフが5秒後に来る場合はアビリティを少し保持"
+      ]
+    },
+    {
+      "lessonId": "pct.lesson_7",
+      "lessonNumber": 7,
+      "title": "上級最適化",
+      "description": "最終レッスン：AoE回転、即時キャストによる移動最適化、高レベルプレイのための全体的なまとめ。",
+      "prerequisites": ["pct.lesson_6"],
+      "conceptsCovered": ["pct.aoe_rotation", "pct.movement_optimization"],
+      "keyPoints": [
+        "3体以上のAoE：ファイアIIインレッド → エアロIIイングリーン → ウォーターIIインブルー",
+        "移動：即時キャストを使う（ホーリー、コメット、レインボードリップ、ハンマーコンボ）",
+        "スライドキャスト：ダウンタイム最小化のためにキャストバー終了近くで移動開始",
+        "事前計画：メカニクスが移動を要求するタイミングを知り、それに応じて即時キャストを温存"
+      ],
+      "relatedAbilities": ["Fire II in Red", "Aero II in Green", "Water II in Blue", "Holy in White", "Hammer Stamp"],
+      "tips": [
+        "ハンマーコンボは最高の移動ツール——3回の即時高威力ヒット",
+        "ダンジョンでは即時バーストのためにボス前にスターリースカイを描いておく"
+      ]
+    }
+  ]
+}

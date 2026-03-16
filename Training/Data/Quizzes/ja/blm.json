@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "blm",
+  "jobName": "黒魔道士",
+  "quizzes": [
+    {
+      "quizId": "blm.lesson_1.quiz",
+      "lessonId": "blm.lesson_1",
+      "title": "クイズ: 炎と氷の基本",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "blm.lesson_1.q1",
+          "conceptId": "blm.astral_fire",
+          "scenario": "アストラルファイアIIIです。MPが再生していません。",
+          "question": "これは正常な動作ですか？",
+          "options": ["いいえ——何かがおかしい", "はい——アストラルファイアはMP再生を止める", "AF3のときのみ", "MPはゆっくり再生すべき"],
+          "correctIndex": 1,
+          "explanation": "アストラルファイアはMP再生を止めます。これは正常です——炎フェーズでMPを消費し、氷フェーズで回復します。MP消費の代わりに炎魔法ダメージが強化されます。"
+        },
+        {
+          "questionId": "blm.lesson_1.q2",
+          "conceptId": "blm.umbral_ice",
+          "scenario": "アンブラルアイスIIIに切り替えました。",
+          "question": "MPはどうなりますか？",
+          "options": ["より速く減る", "素早く再生する", "同じまま", "すぐにフルにリセット"],
+          "correctIndex": 1,
+          "explanation": "アンブラルアイスIIIは素早いMP再生を提供します。これが回復フェーズです——炎フェーズに戻る前にMPをフルに回復しましょう。"
+        },
+        {
+          "questionId": "blm.lesson_1.q3",
+          "conceptId": "blm.element_timer",
+          "scenario": "エレメントタイマーが残り10秒を示しています。",
+          "question": "0になるとどうなりますか？",
+          "options": ["何もない——ビジュアルのみ", "エノキアンを失いリセット", "炎魔法が弱くなる", "氷フェーズが自動的に始まる"],
+          "correctIndex": 1,
+          "explanation": "エレメントタイマーが切れるとエノキアンを失い、回転がリセットされます。0になる前に常にリフレッシュしましょう——大きなDPS損失です。"
+        },
+        {
+          "questionId": "blm.lesson_1.q4",
+          "conceptId": "blm.element_transitions",
+          "scenario": "アストラルファイアIIIでMPが少ないです。",
+          "question": "アンブラルアイスに効率よく切り替えるにはどうすればよいですか？",
+          "options": ["ブリザードIをキャスト", "即時移行のためにブリザードIIIをキャスト", "MPが再生するまで待つ", "トランスポーズを使う"],
+          "correctIndex": 1,
+          "explanation": "アストラルファイアからのブリザードIIIは即座にアンブラルアイスIIIを付与します。効率的な移行スペルです——氷スタックを積む必要はありません。"
+        },
+        {
+          "questionId": "blm.lesson_1.q5",
+          "conceptId": "blm.enochian",
+          "scenario": "アストラルファイアでエノキアンがアクティブです。",
+          "question": "エノキアンを維持するために何をしなければなりませんか？",
+          "options": ["再度エノキアンを押す", "エレメントタイマーを0以上に保つ", "ファイアIVのみキャスト", "アンブラルソウルを使う"],
+          "correctIndex": 1,
+          "explanation": "エノキアンはエレメント（アストラルファイアまたはアンブラルアイス）がある限りアクティブです。エノキアンを維持するためにエレメントタイマーをリフレッシュし続けましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "blm.lesson_2.quiz",
+      "lessonId": "blm.lesson_2",
+      "title": "クイズ: リソースの習得",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "blm.lesson_2.q1",
+          "conceptId": "blm.umbral_hearts",
+          "scenario": "ブリザードIVからアンブラルハート3つを持っています。",
+          "question": "アンブラルハートは何をしますか？",
+          "options": ["氷魔法ダメージを強化", "炎魔法のMPコストを軽減", "キャスト速度を上げる", "ポリグロットを生成"],
+          "correctIndex": 1,
+          "explanation": "アンブラルハートは炎魔法のMPコストを軽減します。各ファイアIVがハートを1つ消費します。これによりMPが尽きる前により多くのファイアIVをキャストできます。"
+        },
+        {
+          "questionId": "blm.lesson_2.q2",
+          "conceptId": "blm.polyglot_stacks",
+          "scenario": "ポリグロットスタックが2つあります。3つ目が生成されようとしています。",
+          "question": "どうすべきですか？",
+          "options": ["生成させる", "今すぐゼノグロシーで1つ消費", "アンブラルハートに変換", "バーストのために全て温存"],
+          "correctIndex": 1,
+          "explanation": "ポリグロットはレベルによって2〜3スタックでキャップします。キャップしそうなら、次のスタックを無駄にしないためにゼノグロシーで1つ消費しましょう。"
+        },
+        {
+          "questionId": "blm.lesson_2.q3",
+          "conceptId": "blm.mp_management",
+          "scenario": "炎フェーズに入ろうとしています。MPが7,000です。",
+          "question": "このMPは十分ですか？",
+          "options": ["はい——どのMPでも機能する", "いいえ——フルの10,000が必要", "条件次第——ハートによる", "少なくとも5,000必要"],
+          "correctIndex": 1,
+          "explanation": "最大のファイアIVキャスト数のために炎フェーズはフルMP（10,000）で入りましょう。MPが少ないとファイアIVの数が減りダメージが下がります。"
+        },
+        {
+          "questionId": "blm.lesson_2.q4",
+          "conceptId": "blm.gauge_overcapping",
+          "scenario": "アンプリファイアが即座にポリグロットスタックを付与します。",
+          "question": "アンプリファイアはいつ使うべきですか？",
+          "options": ["0スタックのときのみ", "キャップしそうなとき、またはバースト中", "緊急時のために温存", "使わない——DPS損失"],
+          "correctIndex": 1,
+          "explanation": "アンプリファイアは無料のポリグロットを付与します。余分なゼノグロシーのためにバーストウィンドウ中に使うか、ポリグロットスタックがキャップしそうなときに使いましょう。"
+        },
+        {
+          "questionId": "blm.lesson_2.q5",
+          "conceptId": "blm.umbral_hearts",
+          "scenario": "アンブラルアイス中です。どのスペルがアンブラルハートを生成しますか？",
+          "question": "どのアビリティがアンブラルハートを付与しますか？",
+          "options": ["ブリザードIII", "ブリザードIV", "フリーズ", "全ての氷魔法"],
+          "correctIndex": 1,
+          "explanation": "ブリザードIVはアンブラルハートを3つ生成します。氷フェーズに1回キャストして次の炎フェーズの準備をしましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "blm.lesson_3.quiz",
+      "lessonId": "blm.lesson_3",
+      "title": "クイズ: 炎フェーズの実行",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "blm.lesson_3.q1",
+          "conceptId": "blm.fire_iv_spam",
+          "scenario": "アストラルファイアIIIでアンブラルハート3つとフルMPです。",
+          "question": "主要ダメージスペルは何ですか？",
+          "options": ["ファイアIII", "ファイアIV", "ディスペア", "フレア"],
+          "correctIndex": 1,
+          "explanation": "ファイアIVはアストラルファイア中の主要ダメージスペルです。MPとアンブラルハートがある間スパムしましょう。"
+        },
+        {
+          "questionId": "blm.lesson_3.q2",
+          "conceptId": "blm.fire_phase",
+          "scenario": "ファイアIVはエレメントタイマーをリフレッシュしません。",
+          "question": "炎フェーズ中にタイマーをどのようにリフレッシュしますか？",
+          "options": ["ファイアIIIをキャスト", "ファイアまたはパラドックスをキャスト", "もっとファイアIVをキャスト", "タイマーは自動リフレッシュ"],
+          "correctIndex": 1,
+          "explanation": "ファイアIVはタイマーをリフレッシュしません！タイマーが切れる前にファイアまたはパラドックスを使いましょう。ファイアIVの合間にウィーブします。"
+        },
+        {
+          "questionId": "blm.lesson_3.q3",
+          "conceptId": "blm.despair_timing",
+          "scenario": "MPが2,400——ファイアIVに足りません。",
+          "question": "何をキャストすべきですか？",
+          "options": ["今すぐ氷フェーズに切り替え", "ディスペアをキャスト（MPダンプ）", "リフレッシュのためにファイアをキャスト", "MPを待つ"],
+          "correctIndex": 1,
+          "explanation": "ディスペアは残りMP全てを高ダメージで消費します。ファイアIVをキャストできないときに使いましょう——炎フェーズのフィニッシャーです。"
+        },
+        {
+          "questionId": "blm.lesson_3.q4",
+          "conceptId": "blm.astral_soul",
+          "scenario": "ファイアIVを6回キャストしてアストラルソウルスタックが6つあります。",
+          "question": "どのアビリティが利用可能になりますか？",
+          "options": ["パラドックス", "ゼノグロシー", "フレアスター", "アンプリファイア"],
+          "correctIndex": 2,
+          "explanation": "アストラルソウルスタック6つ（ファイアIVキャストから）でフレアスターがアンロックされます。氷フェーズに切り替える前に使いましょう。"
+        },
+        {
+          "questionId": "blm.lesson_3.q5",
+          "conceptId": "blm.fire_phase",
+          "scenario": "標準的な炎フェーズの順序：",
+          "question": "典型的な回転はどれですか？",
+          "options": ["ファイアIII → ファイアIV×6 → 切り替え", "ファイアIV×6 → ディスペア → フレアスター", "ディスペア → ファイアIV → フレアスター", "どの順序でも同じ"],
+          "correctIndex": 1,
+          "explanation": "典型的な炎フェーズ：ファイアIVスパム（アストラルソウルのために6回）→ ディスペア（MPダンプ）→ フレアスター（6スタックフィニッシャー）。氷フェーズ前にダメージを最大化します。"
+        }
+      ]
+    },
+    {
+      "quizId": "blm.lesson_4.quiz",
+      "lessonId": "blm.lesson_4",
+      "title": "クイズ: 氷フェーズとサンダー",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "blm.lesson_4.q1",
+          "conceptId": "blm.ice_phase",
+          "scenario": "炎フェーズからアンブラルアイスIIIに入りました。",
+          "question": "最初の優先事項は何ですか？",
+          "options": ["アンブラルハートのためにブリザードIV", "DoTリフレッシュのためにサンダー", "ダメージのためにパラドックス", "MPを待つ"],
+          "correctIndex": 0,
+          "explanation": "まずブリザードIVをキャストしてアンブラルハートを3つ生成します。次の炎フェーズの効率に不可欠です。"
+        },
+        {
+          "questionId": "blm.lesson_4.q2",
+          "conceptId": "blm.thunder_dot",
+          "scenario": "ボスのサンダーIIIが残り5秒です。",
+          "question": "氷フェーズでサンダーをリフレッシュすべきですか？",
+          "options": ["はい——氷フェーズでは常にリフレッシュ", "いいえ——まだ時間がある", "サンダーヘッドプロックのみで", "サンダーは絶対にリフレッシュしない"],
+          "correctIndex": 2,
+          "explanation": "即時キャストのためにサンダーヘッドプロックがあるときにサンダーIII/IVを使いましょう。効率のためにハードキャストを避け、プロックを使いましょう。"
+        },
+        {
+          "questionId": "blm.lesson_4.q3",
+          "conceptId": "blm.paradox_mechanic",
+          "scenario": "アンブラルアイスIIIです。パラドックスが利用可能です。",
+          "question": "氷フェーズでのパラドックスの特別な点は何ですか？",
+          "options": ["ハードキャスト", "即時キャストでタイマーをリフレッシュ", "ハートを生成する", "氷フェーズでは弱い"],
+          "correctIndex": 1,
+          "explanation": "アンブラルアイスIIIでのパラドックスは即時キャストです！移動しながらまたは氷フェーズを延長するためにエレメントタイマーをリフレッシュするのに使いましょう。"
+        },
+        {
+          "questionId": "blm.lesson_4.q4",
+          "conceptId": "blm.ice_phase",
+          "scenario": "MPがフルです。アンブラルハートが3つあります。サンダーDoTが有効です。",
+          "question": "何をすべきですか？",
+          "options": ["安全のために氷フェーズに留まる", "ファイアIIIで炎フェーズに切り替え", "もっとブリザードIVをキャスト", "フォウルを使う"],
+          "correctIndex": 1,
+          "explanation": "氷フェーズは短くすべきです——ハートを得てサンダーをリフレッシュし、ダメージのために炎フェーズに戻ります。切り替えの準備ができています。"
+        },
+        {
+          "questionId": "blm.lesson_4.q5",
+          "conceptId": "blm.thunder_dot",
+          "scenario": "サンダーはボスに対してどのくらいの稼働率を維持すべきですか？",
+          "question": "理想的なサンダーDoT稼働率はどのくらいですか？",
+          "options": ["50%で十分", "75%が許容範囲", "ほぼ100%", "氷フェーズ中のみ"],
+          "correctIndex": 2,
+          "explanation": "サンダーは価値の高いDoTです。ほぼ100%の稼働率を維持しましょう——戦闘中に継続的に大きなダメージを与えます。"
+        }
+      ]
+    },
+    {
+      "quizId": "blm.lesson_5.quiz",
+      "lessonId": "blm.lesson_5",
+      "title": "クイズ: プロック管理",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "blm.lesson_5.q1",
+          "conceptId": "blm.firestarter_proc",
+          "scenario": "ファイアIVからファイアスタータープロックを得ました。",
+          "question": "ファイアスターターは何を付与しますか？",
+          "options": ["無料のファイアIV", "即時ファイアIII", "ボーナスアストラルソウル", "追加MP"],
+          "correctIndex": 1,
+          "explanation": "ファイアスターターは即時キャストのファイアIIIを付与します。移動のため、またはハードキャストなしで炎フェーズを延長するために使いましょう。"
+        },
+        {
+          "questionId": "blm.lesson_5.q2",
+          "conceptId": "blm.thunderhead_proc",
+          "scenario": "サンダーヘッドプロックがアクティブです。",
+          "question": "何に使うべきですか？",
+          "options": ["ブリザードIII", "ファイアIII", "サンダーIIIまたはIV（即時）", "温存する"],
+          "correctIndex": 2,
+          "explanation": "サンダーヘッドはサンダーIII/IVを即時キャストにします。GCDを使わずにサンダーを適用/リフレッシュする主な方法です。"
+        },
+        {
+          "questionId": "blm.lesson_5.q3",
+          "conceptId": "blm.proc_priority",
+          "scenario": "ファイアスターターが残り8秒です。移動が必要です。",
+          "question": "今ファイアスターターを使うべきですか？",
+          "options": ["いいえ——後のために温存", "はい——即時キャストで切れそう", "炎フェーズのときのみ", "移動後にキャスト"],
+          "correctIndex": 1,
+          "explanation": "ファイアスターターは即時——移動に最適です。残り8秒なら、プロックを失うリスクより今使う方が良いです。"
+        },
+        {
+          "questionId": "blm.lesson_5.q4",
+          "conceptId": "blm.firestarter_proc",
+          "scenario": "ファイアスターターはファイアIVから40%の確率でプロックします。",
+          "question": "ファイアスターターバフはどのくらい持続しますか？",
+          "options": ["10秒", "15秒", "30秒", "使うまで"],
+          "correctIndex": 2,
+          "explanation": "ファイアスターターは30秒持続します。戦略的に使う時間はありますが、忘れたり切れさせないようにしましょう。"
+        },
+        {
+          "questionId": "blm.lesson_5.q5",
+          "conceptId": "blm.proc_priority",
+          "scenario": "5秒後にメカニクスで移動が必要です。ファイアスターターがあります。",
+          "question": "最適なプロック使用はどれですか？",
+          "options": ["今使う", "移動のために温存", "移動中に使う", "プロックを無視"],
+          "correctIndex": 1,
+          "explanation": "次の移動のためにファイアスターターを温存しましょう。強制移動中に即時キャストを使うことでDPS稼働率を維持できます。"
+        }
+      ]
+    },
+    {
+      "quizId": "blm.lesson_6.quiz",
+      "lessonId": "blm.lesson_6",
+      "title": "クイズ: クールダウン最適化",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "blm.lesson_6.q1",
+          "conceptId": "blm.ley_lines",
+          "scenario": "レイラインズはキャスト速度+15%を付与します。",
+          "question": "レイラインズはどこに設置すべきですか？",
+          "options": ["どこでも——効果は個人", "30秒間留まれる場所", "ボスの上", "アリーナの端"],
+          "correctIndex": 1,
+          "explanation": "レイラインズは地面効果です。メカニクスで強制的に離れることなく全持続時間中立てる場所に設置しましょう。"
+        },
+        {
+          "questionId": "blm.lesson_6.q2",
+          "conceptId": "blm.triplecast",
+          "scenario": "トリプルキャストは次の3つのスペルを即時にします。",
+          "question": "トリプルキャストはいつ使うべきですか？",
+          "options": ["常にリキャストで", "移動が多いメカニクスのために", "氷フェーズのみ", "バーストのみ"],
+          "correctIndex": 1,
+          "explanation": "トリプルキャストの3回即時キャストは移動のために最も効果的です。移動が必要でもダメージを出したいときに使いましょう。"
+        },
+        {
+          "questionId": "blm.lesson_6.q3",
+          "conceptId": "blm.manafont",
+          "scenario": "炎フェーズですがMPが減っています。マナフォントが利用可能です。",
+          "question": "マナフォントは何をしますか？",
+          "options": ["MPをゆっくり回復", "即座にMPを回復 + アストラルファイアを付与", "次のスペルを2倍に", "エレメントタイマーを延長"],
+          "correctIndex": 1,
+          "explanation": "マナフォントは即座にMPを回復しアストラルファイアを付与します。追加のファイアIVキャストで炎フェーズを延長するために使いましょう。"
+        },
+        {
+          "questionId": "blm.lesson_6.q4",
+          "conceptId": "blm.ley_lines",
+          "scenario": "レイラインズを設置しましたがメカニクスで外に出されました。",
+          "question": "どうすべきですか？",
+          "options": ["損失を受け入れる", "ビトウィーンザラインズで戻る", "レイラインズをキャンセル", "外で待つ"],
+          "correctIndex": 1,
+          "explanation": "ビトウィーンザラインズはレイラインズにテレポートします。メカニクスを避けた後に使ってバフを維持しましょう。"
+        },
+        {
+          "questionId": "blm.lesson_6.q5",
+          "conceptId": "blm.triplecast",
+          "scenario": "トリプルキャストが2チャージあります。",
+          "question": "2チャージを一度に使うべきですか？",
+          "options": ["はい——キャストを最大化", "いいえ——緊急時のために1つ温存", "バーストのみ", "メカニクスによる"],
+          "correctIndex": 3,
+          "explanation": "必要でない限り両チャージを使い切らないようにしましょう。緊急移動のために1つ温存します。ただしチャージをオーバーキャップさせないようにしましょう——状況次第で使います。"
+        }
+      ]
+    },
+    {
+      "quizId": "blm.lesson_7.quiz",
+      "lessonId": "blm.lesson_7",
+      "title": "クイズ: 上級戦術",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "blm.lesson_7.q1",
+          "conceptId": "blm.movement_optimization",
+          "scenario": "移動が必要ですが即時キャストがありません。",
+          "question": "移動ツールの優先順位はどれですか？",
+          "options": ["トリプルキャスト > ゼノグロシー > プロック > スウィフトキャスト", "スウィフトキャスト > プロック > トリプルキャスト", "どの順序でも同じ", "キャストをやめる"],
+          "correctIndex": 0,
+          "explanation": "移動優先順位：トリプルキャスト（3回即時）> ゼノグロシー（強力な即時）> プロック（ファイアスターター/サンダーヘッド）> スウィフトキャスト（最後の手段）。"
+        },
+        {
+          "questionId": "blm.lesson_7.q2",
+          "conceptId": "blm.xenoglossy_usage",
+          "scenario": "ポリグロットスタックが2つあります。10秒後にバーストウィンドウがあります。",
+          "question": "ゼノグロシーをどうすべきですか？",
+          "options": ["今1つ使ってダメージを出す", "バーストのために両方温存", "移動のためだけに使う", "ポリグロットに変換"],
+          "correctIndex": 1,
+          "explanation": "可能な限りバーストウィンドウのためにゼノグロシーを温存しましょう。880威力——レイドバフ中の方が良いです。ただしポリグロットをオーバーキャップさせないように。"
+        },
+        {
+          "questionId": "blm.lesson_7.q3",
+          "conceptId": "blm.aoe_rotation",
+          "scenario": "4体の敵がグループになっています。",
+          "question": "どの回転を使うべきですか？",
+          "options": ["各ターゲットに単体攻撃", "ハイファイアIIスパム → フレア", "各ターゲットにファイアIV", "フリーズのみ"],
+          "correctIndex": 1,
+          "explanation": "3体以上の場合AoE回転を使いましょう：アストラルファイアでハイファイアIIスパム、フレアで終了、アンブラルアイスでフォウル。単体より大幅に効率的です。"
+        },
+        {
+          "questionId": "blm.lesson_7.q4",
+          "conceptId": "blm.aoe_rotation",
+          "scenario": "何体でAoE回転に切り替えるべきですか？",
+          "question": "AoEの閾値はどのくらいですか？",
+          "options": ["2体", "3体", "4体", "5体"],
+          "correctIndex": 1,
+          "explanation": "3体以上でAoE回転に切り替えましょう。この時点でハイファイアIIやフレアなどのAoEスペルが単体よりも合計ダメージが高くなります。"
+        },
+        {
+          "questionId": "blm.lesson_7.q5",
+          "conceptId": "blm.movement_optimization",
+          "scenario": "BLMにとって移動を事前計画することが重要です。",
+          "question": "移動を事前計画することはなぜ重要ですか？",
+          "options": ["BLMには即時キャストがない", "BLMのダメージは立ち止まることを必要とする", "移動でスペルがキャンセルされる", "関係ない"],
+          "correctIndex": 1,
+          "explanation": "BLMのダメージはレイラインズ内でのハードキャストから来ます。即時キャストが必要なタイミングを事前計画して、強制移動に備えておきましょう。"
+        }
+      ]
+    }
+  ]
+}

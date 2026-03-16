@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "rdm",
+  "jobName": "赤魔道士",
+  "quizzes": [
+    {
+      "quizId": "rdm.lesson_1.quiz",
+      "lessonId": "rdm.lesson_1",
+      "title": "クイズ: マナの基礎",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "rdm.lesson_1.q1",
+          "conceptId": "rdm.black_mana",
+          "scenario": "マナが40ブラック | 70ホワイトです。",
+          "question": "どのエレメントを優先してキャストすべきですか？",
+          "options": ["ホワイトマナを積むためにホワイトスペル", "バランスを取るためにブラックスペル", "どちらでも——関係ない", "ジョルトのみ使う"],
+          "correctIndex": 1,
+          "explanation": "ブラックマナが低い（40 vs 70）です。ブラックを積んでマナをバランスさせるためにヴァーサンダーIIIとヴァーファイアをキャストしましょう。不均衡なマナはフィニッシャーダメージを下げます。"
+        },
+        {
+          "questionId": "rdm.lesson_1.q2",
+          "conceptId": "rdm.mana_balance",
+          "scenario": "マナが45ブラック | 80ホワイトです。",
+          "question": "この不均衡の危険性は何ですか？",
+          "options": ["危険なし——高い方が良い", "フィニッシャー威力が低下する", "マナがリセットされる", "スペルコストが増える"],
+          "correctIndex": 1,
+          "explanation": "一方のマナが他方より30以上高い場合、フィニッシャーコンボの威力が大幅に低下します。マナを互いの30以内に保ちましょう。"
+        },
+        {
+          "questionId": "rdm.lesson_1.q3",
+          "conceptId": "rdm.white_mana",
+          "scenario": "ヴァーエアロIIIをキャストしました。",
+          "question": "これはどのくらいのホワイトマナを生成しますか？",
+          "options": ["3", "5", "6", "10"],
+          "correctIndex": 2,
+          "explanation": "ヴァーサンダーIIIとヴァーエアロIIIはそれぞれ対応する種類のマナを6生成します。ヴァーファイアとヴァーストーンはそれぞれ5生成します。"
+        },
+        {
+          "questionId": "rdm.lesson_1.q4",
+          "conceptId": "rdm.mana_imbalance",
+          "scenario": "マナが85ブラック | 50ホワイトです。",
+          "question": "マナ値の差はいくつですか？",
+          "options": ["25——安全な範囲内", "35——不均衡！", "50——大きく不均衡", "関係ない"],
+          "correctIndex": 1,
+          "explanation": "85 - 50 = 35の差です。30の閾値を超えているため、マナが不均衡です。すぐにホワイトマナスペルを優先しましょう。"
+        },
+        {
+          "questionId": "rdm.lesson_1.q5",
+          "conceptId": "rdm.mana_balance",
+          "scenario": "マナが55ブラック | 55ホワイトです。",
+          "question": "これは良いマナ状態ですか？",
+          "options": ["いいえ——低すぎる", "はい——完璧にバランスが取れている", "いいえ——もっと高くすべき", "関係ない——キャストするだけ"],
+          "correctIndex": 1,
+          "explanation": "55|55は完璧にバランスが取れています。両方50以上で近接コンボに入れます。等しい値は最大フィニッシャー威力を意味します。"
+        }
+      ]
+    },
+    {
+      "quizId": "rdm.lesson_2.quiz",
+      "lessonId": "rdm.lesson_2",
+      "title": "クイズ: デュアルキャストの習得",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "rdm.lesson_2.q1",
+          "conceptId": "rdm.dualcast_mechanic",
+          "scenario": "ジョルトIIIをハードキャストしました。",
+          "question": "どのバフを持っていますか？",
+          "options": ["ヴァーファイアレディ", "ヴァーストーンレディ", "デュアルキャスト", "バフなし"],
+          "correctIndex": 2,
+          "explanation": "ハードキャストスペル（2.5秒以上）はデュアルキャストを付与し、次のスペルを即時にします。これがRDMのコアメカニクスです。"
+        },
+        {
+          "questionId": "rdm.lesson_2.q2",
+          "conceptId": "rdm.dualcast_consumption",
+          "scenario": "デュアルキャストがアクティブです。次に何をキャストすべきですか？",
+          "question": "最適なデュアルキャストターゲットは何ですか？",
+          "options": ["ジョルトIII", "ヴァーサンダーIIIまたはヴァーエアロIII", "ヴァーファイア", "どのスペルでも同等"],
+          "correctIndex": 1,
+          "explanation": "デュアルキャストはキャスト時間が長いスペル（ヴァーサンダーIII、ヴァーエアロIII）に使いましょう。これらを即時にすることで5秒節約できます。短いキャストに使うと価値が無駄になります。"
+        },
+        {
+          "questionId": "rdm.lesson_2.q3",
+          "conceptId": "rdm.swiftcast_usage",
+          "scenario": "デュアルキャストが切れました。スウィフトキャストが利用可能です。キャストを続ける必要があります。",
+          "question": "スウィフトキャストはいつ使うべきですか？",
+          "options": ["すぐにヴァーサンダーのために", "緊急時のためだけに温存", "ジョルトに使う", "絶対に使わない——デュアルキャストに頼る"],
+          "correctIndex": 1,
+          "explanation": "スウィフトキャストはデュアルキャストが利用できないときのバックアップです。緊急時、移動、または追加キャストのために使いましょう。日常的に無駄にしないように。"
+        },
+        {
+          "questionId": "rdm.lesson_2.q4",
+          "conceptId": "rdm.dualcast_mechanic",
+          "scenario": "標準的なRDMの回転パターン：",
+          "question": "ハードキャストの後に何が来ますか？",
+          "options": ["別のハードキャスト", "デュアルキャストによる即時", "常にプロック", "oGCDアビリティ"],
+          "correctIndex": 1,
+          "explanation": "RDMのパターン：ハードキャスト（ジョルト/ヴァーファイア/ヴァーストーン）→ デュアルキャスト即時（ヴァーサンダー/ヴァーエアロ）→ 繰り返し。この交互パターンが基本です。"
+        },
+        {
+          "questionId": "rdm.lesson_2.q5",
+          "conceptId": "rdm.dualcast_consumption",
+          "scenario": "デュアルキャストが残り14秒です。ハードキャストしようとしています。",
+          "question": "ハードキャストするとデュアルキャストはどうなりますか？",
+          "options": ["リフレッシュされる", "ハードキャストによって消費される", "次のスペルのために残る", "すぐに切れる"],
+          "correctIndex": 1,
+          "explanation": "デュアルキャストがアクティブな状態でハードキャストするとデュアルキャストが消費されます！これをやってはいけません——バフを無駄にします。長いキャストにデュアルキャストを使い、その後ハードキャストして新しいものを得ましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "rdm.lesson_3.quiz",
+      "lessonId": "rdm.lesson_3",
+      "title": "クイズ: プロック管理",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "rdm.lesson_3.q1",
+          "conceptId": "rdm.verfire_proc",
+          "scenario": "ヴァーサンダーIIIをキャストしてヴァーファイアレディを得ました。",
+          "question": "ヴァーファイアの特別な点は何ですか？",
+          "options": ["デュアルキャストなしで即時", "より長いキャスト時間", "より多くのマナ生成", "別のプロックを付与"],
+          "correctIndex": 0,
+          "explanation": "ヴァーファイアレディはヴァーファイアを即時にします——ジョルトをハードキャストせずにデュアルキャストチェーンを始めるのに最適です。プロックは「無料」のハードキャスト代替です。"
+        },
+        {
+          "questionId": "rdm.lesson_3.q2",
+          "conceptId": "rdm.verstone_proc",
+          "scenario": "ヴァーストーンレディが残り5秒です。ヴァーファイアレディがプロックしました。",
+          "question": "どちらを先に使うべきですか？",
+          "options": ["ヴァーファイア——新しいから", "ヴァーストーン——切れそう", "どちらでも——プロックは切れない", "バーストのために両方温存"],
+          "correctIndex": 1,
+          "explanation": "プロックは30秒後に切れます。先に切れる方を使いましょう（ヴァーストーンが5秒）。プロックを絶対に切れさせないようにしましょう。"
+        },
+        {
+          "questionId": "rdm.lesson_3.q3",
+          "conceptId": "rdm.proc_priority",
+          "scenario": "マナが60ブラック | 40ホワイトです。ヴァーファイアとヴァーストーンレディ両方あります（どちらも切れそうでない）。",
+          "question": "どのプロックを使うべきですか？",
+          "options": ["ヴァーファイア（ブラックを積む）", "ヴァーストーン（バランスのためにホワイトを積む）", "どちらでも——プロックは同等", "まだプロックを使わない"],
+          "correctIndex": 1,
+          "explanation": "ホワイトマナ（40）がブラック（60）より低いです。ホワイトを積んでマナをバランスさせるためにヴァーストーンを使いましょう。バランスを維持するために戦略的にプロックを使いましょう。"
+        },
+        {
+          "questionId": "rdm.lesson_3.q4",
+          "conceptId": "rdm.acceleration",
+          "scenario": "プロックがありません。アクセレレーションが2チャージ利用可能です。",
+          "question": "アクセレレーションは何をしますか？",
+          "options": ["キャストを速くする", "次のヴァーサンダー/ヴァーエアロからのプロックを保証", "マナ獲得を2倍に", "即時近接コンボ"],
+          "correctIndex": 1,
+          "explanation": "アクセレレーションは次のヴァーサンダーIIIまたはヴァーエアロIIIが対応するプロックを確実に付与することを保証します。プロックを確実に必要なときに使いましょう。"
+        },
+        {
+          "questionId": "rdm.lesson_3.q5",
+          "conceptId": "rdm.proc_fishing",
+          "scenario": "バーストフェーズに入ろうとしていてプロックがありません。アクセレレーションが2チャージあります。",
+          "question": "今アクセレレーションを使うべきですか？",
+          "options": ["いいえ——緊急時のために温存", "はい——保証されたプロックはバーストDPSに役立つ", "マナが低いときのみ", "バースト中は絶対使わない"],
+          "correctIndex": 1,
+          "explanation": "バーストウィンドウ中にアクセレレーションを使うと高威力スペル用のプロックが確保されます。保証されたプロック = レイドバフ中により多くのDPS。"
+        }
+      ]
+    },
+    {
+      "quizId": "rdm.lesson_4.quiz",
+      "lessonId": "rdm.lesson_4",
+      "title": "クイズ: 近接コンボの基本",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "rdm.lesson_4.q1",
+          "conceptId": "rdm.melee_entry",
+          "scenario": "マナが45ブラック | 48ホワイトです。",
+          "question": "近接コンボを開始できますか？",
+          "options": ["はい——両方40以上", "いいえ——最低50|50が必要", "はい——合計マナが高い", "いいえ——100|100が必要"],
+          "correctIndex": 1,
+          "explanation": "エンチャント近接コンボを開始するにはブラックとホワイトマナ両方が最低50必要です。45|48では不足です。"
+        },
+        {
+          "questionId": "rdm.lesson_4.q2",
+          "conceptId": "rdm.combo_progression",
+          "scenario": "エンチャントリポストを使用しました。",
+          "question": "コンボの次は何ですか？",
+          "options": ["エンチャントリドゥブルマン", "ヴァーフレア", "エンチャントツバクロ", "どの近接GCDでも"],
+          "correctIndex": 2,
+          "explanation": "コンボ順序は固定です：エンチャントリポスト → エンチャントツバクロ → エンチャントリドゥブルマン。ステップをスキップすることはできません。"
+        },
+        {
+          "questionId": "rdm.lesson_4.q3",
+          "conceptId": "rdm.combo_timer",
+          "scenario": "エンチャントリポストを使用しましたがボスが20秒間攻撃不能になりました。",
+          "question": "コンボはどうなりますか？",
+          "options": ["すぐにコンボリセット", "合計30秒あります——十分な時間", "ダウンタイム中コンボが止まる", "マナが返還される"],
+          "correctIndex": 1,
+          "explanation": "近接コンボは30秒のタイマーがあります。20秒のダウンタイムがあっても、ボスが戻ったときにまだ完了する時間があります。"
+        },
+        {
+          "questionId": "rdm.lesson_4.q4",
+          "conceptId": "rdm.mana_overcap",
+          "scenario": "マナが92ブラック | 88ホワイトです。",
+          "question": "どうすべきですか？",
+          "options": ["より大きなバーストのためにマナを積み続ける", "オーバーキャップを避けるために今すぐ近接コンボに入る", "ちょうど100|100になるまで待つ", "マナ増加を遅くするためにジョルトのみ使う"],
+          "correctIndex": 1,
+          "explanation": "92|88では、オーバーキャップ（最大100）近くです。マナが無駄になる前に消費するために今すぐ近接コンボに入りましょう。"
+        },
+        {
+          "questionId": "rdm.lesson_4.q5",
+          "conceptId": "rdm.combo_progression",
+          "scenario": "近接コンボ中です。フルコンボで合計マナはいくつ消費されますか？",
+          "question": "総マナコストはどのくらいですか？",
+          "options": ["30ブラック | 30ホワイト", "50ブラック | 50ホワイト", "60ブラック | 60ホワイト", "20ブラック | 20ホワイト"],
+          "correctIndex": 1,
+          "explanation": "リポスト（20|20）+ ツバクロ（15|15）+ リドゥブルマン（15|15）= コンボで合計50|50のマナを消費します。"
+        }
+      ]
+    },
+    {
+      "quizId": "rdm.lesson_5.quiz",
+      "lessonId": "rdm.lesson_5",
+      "title": "クイズ: フィニッシャーシステム",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "rdm.lesson_5.q1",
+          "conceptId": "rdm.finisher_selection",
+          "scenario": "エンチャントリドゥブルマンの後、マナが4ブラック | 8ホワイトです。",
+          "question": "どのフィニッシャーを使うべきですか？",
+          "options": ["ヴァーフレア（ブラック ≤ ホワイトなのでブラックを強化）", "ヴァーホーリー（高い方を強化）", "どちらでも——同じ威力", "どちらも——後のために温存"],
+          "correctIndex": 0,
+          "explanation": "ブラック ≤ ホワイトのときにヴァーフレアを使います。ブラック（4）≤ ホワイト（8）なのでヴァーフレアが正解です。これによりヴァーファイアレディプロックも保証されます。"
+        },
+        {
+          "questionId": "rdm.lesson_5.q2",
+          "conceptId": "rdm.finisher_procs",
+          "scenario": "フィニッシャーとしてヴァーフレアを使用しました。",
+          "question": "どのプロックを受けますか？",
+          "options": ["ヴァーストーンレディ（常に）", "ヴァーファイアレディ（保証）", "ヴァーファイア50%の確率", "フィニッシャーからはプロックなし"],
+          "correctIndex": 1,
+          "explanation": "フィニッシャーは逆の色のプロックを保証します。ヴァーフレアはヴァーファイアレディを保証します。ヴァーホーリーはヴァーストーンレディを保証します。"
+        },
+        {
+          "questionId": "rdm.lesson_5.q3",
+          "conceptId": "rdm.scorch_resolution",
+          "scenario": "ヴァーホーリーを使用しました。次は何ですか？",
+          "question": "正しいフォローアップシーケンスはどれですか？",
+          "options": ["すぐにジョルトに戻る", "スコーチ → レゾリューション → グランドインパクト", "もう一つの近接コンボ", "ヴァーファイア（プロックから）"],
+          "correctIndex": 1,
+          "explanation": "ヴァーフレア/ヴァーホーリーの後、通常の回転に戻る前にスコーチ、次にレゾリューション（Lv.90+）、そしてグランドインパクト（Lv.96+）を使う必要があります。"
+        },
+        {
+          "questionId": "rdm.lesson_5.q4",
+          "conceptId": "rdm.grand_impact",
+          "scenario": "レベル96でレゾリューションを使用しました。",
+          "question": "どのアビリティが利用可能になりますか？",
+          "options": ["ジョルトに戻る", "グランドインパクト（即時フィニッシャー）", "もう一つのスコーチ", "近接コンボの再開"],
+          "correctIndex": 1,
+          "explanation": "グランドインパクト（Lv.96）はレゾリューションの後の最終フィニッシャーです。フィニッシャーチェーンを完成させる即時高威力スペルです。"
+        },
+        {
+          "questionId": "rdm.lesson_5.q5",
+          "conceptId": "rdm.finisher_selection",
+          "scenario": "近接コンボの後、マナが6ブラック | 3ホワイトです。",
+          "question": "どのフィニッシャーを使うべきですか？",
+          "options": ["ヴァーフレア", "ヴァーホーリー", "どちらでも良い", "フィニッシャーをスキップ"],
+          "correctIndex": 1,
+          "explanation": "ホワイト < ブラックのときにヴァーホーリーを使います。ホワイト（3）< ブラック（6）なのでヴァーホーリーが正解です。低い方のマナを強化しヴァーストーンレディを付与します。"
+        }
+      ]
+    },
+    {
+      "quizId": "rdm.lesson_6.quiz",
+      "lessonId": "rdm.lesson_6",
+      "title": "クイズ: バーストウィンドウ",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "rdm.lesson_6.q1",
+          "conceptId": "rdm.embolden",
+          "scenario": "エンボルデンを使おうとしています。",
+          "question": "エンボルデンはパーティに何をしますか？",
+          "options": ["物理ダメージ+5%", "20秒間魔法ダメージ+5%", "10秒間全ダメージ+10%", "回復強化のみ"],
+          "correctIndex": 1,
+          "explanation": "エンボルデンはパーティに20秒間魔法ダメージ+5%を付与します。最大価値のために他のパーティバフと合わせましょう。"
+        },
+        {
+          "questionId": "rdm.lesson_6.q2",
+          "conceptId": "rdm.manafication",
+          "scenario": "マナが30ブラック | 25ホワイトです。マナフィケーションが利用可能です。",
+          "question": "マナフィケーションを使うとどうなりますか？",
+          "options": ["マナが0にリセット", "マナが2倍（60|50）", "マナが100|100になる", "マナがダメージに消費される"],
+          "correctIndex": 1,
+          "explanation": "マナフィケーションは現在のマナを2倍にします（50|50でキャップ）。30|25から50|50（キャップ）になります。これにより即時近接コンボが可能になります。"
+        },
+        {
+          "questionId": "rdm.lesson_6.q3",
+          "conceptId": "rdm.ogcd_weaving",
+          "scenario": "デュアルキャストでヴァーサンダーIIIをキャストしました。GCDが回っています。",
+          "question": "このウィンドウでどのoGCDを使うべきですか？",
+          "options": ["なし——GCDを待つ", "フルシュとコントルシクスト（利用可能なら）", "エンボルデンのみ", "バーストのために全oGCDを温存"],
+          "correctIndex": 1,
+          "explanation": "GCDウィンドウ中にフルシュ（25秒CD）やコントルシクスト（35秒CD）のようなoGCDをウィーブしましょう。これらが主要ダメージoGCDです——リキャストで使いましょう。"
+        },
+        {
+          "questionId": "rdm.lesson_6.q4",
+          "conceptId": "rdm.embolden",
+          "scenario": "8秒後にパーティバフが来ます。エンボルデンが利用可能です。",
+          "question": "今エンボルデンを使うべきですか？",
+          "options": ["はい——リキャストで使う", "いいえ——パーティバフと合わせるために待つ", "マナがフルのときのみ", "絶対にエンボルデンを保持しない"],
+          "correctIndex": 1,
+          "explanation": "パーティバフと合わせるために少し保持しましょう。8秒は短い時間です——バフを重ねることでその価値が乗算されます。"
+        },
+        {
+          "questionId": "rdm.lesson_6.q5",
+          "conceptId": "rdm.manafication",
+          "scenario": "マナが48ブラック | 46ホワイトです。マナフィケーションが利用可能でバーストが始まっています。",
+          "question": "最適なアクションは何ですか？",
+          "options": ["自然に50|50まで積む", "即時近接のために今すぐマナフィケーション", "もっと高いマナまで待つ", "後のためにマナフィケーション温存"],
+          "correctIndex": 1,
+          "explanation": "48|46ではマナフィケーションで50|50（キャップ）になります。レイドバフ下で近接コンボを使うために今すぐバースト中に使いましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "rdm.lesson_7.quiz",
+      "lessonId": "rdm.lesson_7",
+      "title": "クイズ: 上級最適化",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "rdm.lesson_7.q1",
+          "conceptId": "rdm.melee_positioning",
+          "scenario": "コンボのために近接範囲に入る必要がありますがボスから遠いです。",
+          "question": "位置取りに役立つアビリティはどれですか？",
+          "options": ["スウィフトキャスト", "コルアコール（ギャップクローザー）", "アクセレレーション", "マナフィケーション"],
+          "correctIndex": 1,
+          "explanation": "コルアコールはRDMのギャップクローザーです。コンボのために素早く近接範囲に入るのに使いましょう。2チャージあります。"
+        },
+        {
+          "questionId": "rdm.lesson_7.q2",
+          "conceptId": "rdm.aoe_rotation",
+          "scenario": "5体の敵がグループになっています。",
+          "question": "正しいAoEアプローチはどれですか？",
+          "options": ["各ターゲットに単体回転", "ヴァーサンダーII/ヴァーエアロII → インパクト → エンチャントムリネ", "スキャッターのみ使う", "AoEは意味がない"],
+          "correctIndex": 1,
+          "explanation": "3体以上の場合はAoE回転を使いましょう：短いキャスト（ヴァーサンダーII/ヴァーエアロII）→ デュアルキャストインパクト → エンチャントムリネでマナを消費。"
+        },
+        {
+          "questionId": "rdm.lesson_7.q3",
+          "conceptId": "rdm.melee_positioning",
+          "scenario": "近接コンボ中にボスが自分の下にAoEをキャスト始めました。",
+          "question": "どうすべきですか？",
+          "options": ["コンボを終わらせる——近接ヒットは即時", "すぐにコンボを止めて走る", "ディスプレイスメントで逃げる", "コンボが落ちるまで待つ"],
+          "correctIndex": 0,
+          "explanation": "RDMの近接コンボGCDは即時です。キャストのように場所に固定されずに動きながら使えます。"
+        },
+        {
+          "questionId": "rdm.lesson_7.q4",
+          "conceptId": "rdm.aoe_rotation",
+          "scenario": "何体でAoE回転に切り替えるべきですか？",
+          "question": "AoEの閾値はどのくらいですか？",
+          "options": ["2体", "3体", "4体", "5体"],
+          "correctIndex": 1,
+          "explanation": "3体以上でAoE回転に切り替えましょう。これにはヴァーサンダーII/ヴァーエアロII、インパクト、エンチャントムリネを単体アビリティの代わりに使うことが含まれます。"
+        },
+        {
+          "questionId": "rdm.lesson_7.q5",
+          "conceptId": "rdm.melee_positioning",
+          "scenario": "メカニクスのために移動が必要ですが、デュアルキャストがなく、プロックがなく、スウィフトキャストがCDです。",
+          "question": "移動に最善のオプションは何ですか？",
+          "options": ["キャストをやめる", "マナが許せば近接コンボを使う", "スライドキャストのみ", "スウィフトキャストを待つ"],
+          "correctIndex": 1,
+          "explanation": "50|50マナがあれば近接コンボに入りましょう——3ヒット全て即時で移動しながら使えます。RDMは優れた移動ツールを持っています。"
+        }
+      ]
+    }
+  ]
+}

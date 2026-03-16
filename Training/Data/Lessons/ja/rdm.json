@@ -1,0 +1,139 @@
+{
+  "jobPrefix": "rdm",
+  "jobName": "赤魔道士",
+  "lessons": [
+    {
+      "lessonId": "rdm.lesson_1",
+      "lessonNumber": 1,
+      "title": "マナの基礎",
+      "description": "赤魔道士のデュアルマナシステムの基礎と最適ダメージのためのバランス維持を学びます。",
+      "prerequisites": [],
+      "conceptsCovered": ["rdm.black_mana", "rdm.white_mana", "rdm.mana_balance", "rdm.mana_imbalance"],
+      "keyPoints": [
+        "ブラックマナ：ヴァーサンダーIII（+6）、ヴァーファイア（+5）、闇魔法で生成",
+        "ホワイトマナ：ヴァーエアロIII（+6）、ヴァーストーン（+5）、光魔法で生成",
+        "最適フィニッシャー威力のためにマナを互いの30以内に維持",
+        "不均衡なマナ（差30以上）はフィニッシャーダメージを大きく下げる"
+      ],
+      "relatedAbilities": ["Jolt III", "Verthunder III", "Veraero III", "Verfire", "Verstone"],
+      "tips": [
+        "マナゲージを常に見る——バランスがRDMダメージの鍵",
+        "片方のマナが高い場合は逆のエレメントをキャストを優先"
+      ]
+    },
+    {
+      "lessonId": "rdm.lesson_2",
+      "lessonNumber": 2,
+      "title": "デュアルキャストの習得",
+      "description": "デュアルキャストシステムを習得します——赤魔道士のシグネチャーメカニクスで他のスペルを毎回即時にします。",
+      "prerequisites": ["rdm.lesson_1"],
+      "conceptsCovered": ["rdm.dualcast_mechanic", "rdm.dualcast_consumption", "rdm.swiftcast_usage"],
+      "keyPoints": [
+        "デュアルキャスト：ハードキャスト（2.5秒以上）はデュアルキャストバフを15秒付与",
+        "デュアルキャストは次のスペルを即時にする——ヴァーサンダー/ヴァーエアロのような長いキャストに使う",
+        "標準パターン：ハードキャスト（ジョルト/ヴァーファイア/ヴァーストーン）→ 即時（ヴァーサンダー/ヴァーエアロ）",
+        "スウィフトキャストはデュアルキャストが使用できないときの緊急即時"
+      ],
+      "relatedAbilities": ["Jolt III", "Verthunder III", "Veraero III", "Impact", "Swiftcast"],
+      "tips": [
+        "デュアルキャストを切らさない——常に長いスペルを準備しておく",
+        "ABC：常にキャスト——GCDのダウンタイムを最小化"
+      ]
+    },
+    {
+      "lessonId": "rdm.lesson_3",
+      "lessonNumber": 3,
+      "title": "プロック管理",
+      "description": "最適なマナ生成とDPSのためのヴァーファイアレディとヴァーストーンレディプロックの管理を理解します。",
+      "prerequisites": ["rdm.lesson_2"],
+      "conceptsCovered": ["rdm.verfire_proc", "rdm.verstone_proc", "rdm.proc_priority", "rdm.proc_fishing", "rdm.acceleration"],
+      "keyPoints": [
+        "ヴァーサンダーIII/ヴァーエアロIIIは約50%の確率で逆プロックを付与",
+        "プロックは30秒持続——切れそうなプロック（残り5秒未満）は切れる前に使う",
+        "切れそうでない場合はマナバランスのためにプロックを使う（低い方を優先）",
+        "アクセレレーションは次のヴァーサンダー/ヴァーエアロからのプロックを保証（2チャージ、55秒CD）"
+      ],
+      "relatedAbilities": ["Verfire", "Verstone", "Acceleration"],
+      "tips": [
+        "プロックタイマーを追跡——プロックを失うとDPS損失",
+        "保証されたプロックが必要なときやバーストウィンドウにアクセレレーションを使う"
+      ]
+    },
+    {
+      "lessonId": "rdm.lesson_4",
+      "lessonNumber": 4,
+      "title": "近接コンボの基本",
+      "description": "近接コンボにいつ入るか、コンボやマナを無駄にせずに正しく実行する方法を学びます。",
+      "prerequisites": ["rdm.lesson_3"],
+      "conceptsCovered": ["rdm.melee_entry", "rdm.combo_progression", "rdm.combo_timer", "rdm.mana_overcap"],
+      "keyPoints": [
+        "近接コンボには最低マナ50|50が必要（ブラックとホワイト両方）",
+        "コンボ：エンチャントリポスト（20|20消費）→ ツバクロ（15|15）→ リドゥブルマン（15|15）",
+        "コンボタイマーは30秒——フルシーケンスを完成させないと進行を失う",
+        "マナをオーバーキャップ（90以上）させない——キャップ前に近接コンボで消費"
+      ],
+      "relatedAbilities": ["Enchanted Riposte", "Enchanted Zwerchhau", "Enchanted Redoublement"],
+      "tips": [
+        "メカニクスに合わせてコンボタイミングを計画——ボスから離れることを強いられる場合は始めない",
+        "近接コンボはすべて即時——移動フェーズに最適"
+      ]
+    },
+    {
+      "lessonId": "rdm.lesson_5",
+      "lessonNumber": 5,
+      "title": "フィニッシャーシステム",
+      "description": "近接コンボ後のフィニッシャーシーケンスを習得します——ヴァーフレア/ヴァーホーリー、スコーチ、レゾリューション、グランドインパクト。",
+      "prerequisites": ["rdm.lesson_4"],
+      "conceptsCovered": ["rdm.finisher_selection", "rdm.scorch_resolution", "rdm.grand_impact", "rdm.finisher_procs"],
+      "keyPoints": [
+        "リドゥブルマンの後：ヴァーフレア（ブラック ≤ ホワイトなら）またはヴァーホーリー（ホワイト < ブラックなら）を使う",
+        "選択したフィニッシャーは逆プロックを保証（ヴァーフレア → ヴァーファイアレディ）",
+        "スコーチはヴァーフレア/ヴァーホーリーの後に続く（Lv.80）、レゾリューションはスコーチの後（Lv.90）",
+        "グランドインパクト（Lv.96）はレゾリューションの後——フィニッシャーチェーンを完成"
+      ],
+      "relatedAbilities": ["Verflare", "Verholy", "Scorch", "Resolution", "Grand Impact"],
+      "tips": [
+        "フィニッシャー選択はマナ不均衡を自動修正——低い方を選ぶ",
+        "全フィニッシャーは即時——必要なら移動に使える"
+      ]
+    },
+    {
+      "lessonId": "rdm.lesson_6",
+      "lessonNumber": 6,
+      "title": "バーストウィンドウ",
+      "description": "エンボルデンのタイミング、マナフィケーションの使用、最大ダメージのためのoGCDウィーブでバーストを最適化します。",
+      "prerequisites": ["rdm.lesson_5"],
+      "conceptsCovered": ["rdm.embolden", "rdm.manafication", "rdm.ogcd_weaving"],
+      "keyPoints": [
+        "エンボルデン：20秒間パーティ魔法ダメージ+5%（120秒CD）——パーティバフと整合",
+        "マナフィケーション：マナを2倍（最大50|50）、即時近接コンボを有効化",
+        "最大ダメージ出力のためにバーストウィンドウ中に近接コンボに入る",
+        "フルシュ（25秒）、コントルシクスト（35秒）——リキャストで使用、GCDの間にウィーブ"
+      ],
+      "relatedAbilities": ["Embolden", "Manafication", "Fleche", "Contre Sixte", "Vice of Thorns", "Prefulgence"],
+      "tips": [
+        "パーティバフが約5秒後に来る場合はマナフィケーションを少し保持",
+        "ウィーブ時にGCDをクリップしない——GCDウィンドウ1つにoGCD1つが安全"
+      ]
+    },
+    {
+      "lessonId": "rdm.lesson_7",
+      "lessonNumber": 7,
+      "title": "上級最適化",
+      "description": "最終レッスン：移動最適化、ギャップクローザー、AoE回転、高レベルプレイのための全体的なまとめ。",
+      "prerequisites": ["rdm.lesson_6"],
+      "conceptsCovered": ["rdm.melee_positioning", "rdm.aoe_rotation"],
+      "keyPoints": [
+        "コルアコール：ギャップクローザー（2チャージ）——近接範囲に入るために使う",
+        "エンゲージメント/ディスプレイスメント：近接oGCD——コンボ中にウィーブ",
+        "3体以上のAoE回転：ヴァーエアロII/ヴァーサンダーII、インパクト、エンチャントムリネ",
+        "移動優先順位：デュアルキャスト即時 > プロック > スウィフトキャスト > 近接コンボ"
+      ],
+      "relatedAbilities": ["Corps-a-corps", "Engagement", "Displacement", "Verthunder II", "Veraero II", "Enchanted Moulinet"],
+      "tips": [
+        "戦闘フェーズとダウンタイムのためにマナフィケーションのタイミングを事前計画",
+        "RDMは優れた機動力——移動にデュアルキャストと近接コンボを使う"
+      ]
+    }
+  ]
+}
