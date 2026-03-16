@@ -3,9 +3,13 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
-## v4.10.22
+## v4.10.23
 
 - Add preset quick-switcher to the main window — switch between Raid, Dungeon, Casual, and other presets without opening the full settings window
+- Fight session history is now saved to disk and restored when the plugin reloads — performance trends in the Analytics window are preserved across sessions
+- DoT damage is now included in healing urgency calculations — the plugin accounts for pending tick damage when deciding whether to heal, reducing unnecessary heal spam on targets with active DoTs
+- Add config import/export via clipboard in the settings window footer — share your settings with other players or back up your configuration
+- Add Spanish, Portuguese, and Russian as selectable languages — strings currently display in English until community translations are contributed
 
 <!-- LATEST-END -->
 
@@ -51,8 +55,6 @@ All notable changes to Olympus will be documented in this file.
 **White Mage**
 - Fixed AoE heals (Medica, Medica II, Medica III, Cure III, Afflatus Rapture) not firing when enough party members were below the HP threshold. Two bugs combined to block all AoE healing: (1) a redundant overheal check was rejecting every Medica spell at the HP levels where healing actually triggers — at level 100, heal amounts far exceed the average missing HP at 80–85% HP, so this check was removed entirely since the existing HP threshold is sufficient gating; and (2) Regen was executing before AoE heals in priority order, meaning a single party member needing Regen would consume the GCD window and prevent AoE heals from casting even when multiple members were injured. AoE healing now takes priority over Regen — when the AoE target count is not met, Regen runs next as usual.
 - Fixed Afflatus Rapture not being used as a fallback when the lily strategy is set to Disabled but all Medica options are unavailable — lilies are now always spent as a last resort for AoE healing if other options fail.
-
-<!-- LATEST-END -->
 
 ## v4.10.9 - Internal Quality Improvements
 
@@ -141,7 +143,6 @@ No changes to rotation behavior or the user interface. This release contains int
 **White Mage / Conjurer**
 - Fixed Conjurer rotation silently doing nothing: CNJ now correctly uses Stone/Stone II for damage and Aero/Aero II for DoT instead of WHM-exclusive spells (Glare III, Dia) that the class stone doesn't grant
 - Fixed DoT casting being blocked while moving for all levels — Aero and Aero II are instant cast and were incorrectly restricted
-<!-- LATEST-END -->
 
 ## v4.9.8 - Positional Indicator
 
@@ -150,15 +151,11 @@ No changes to rotation behavior or the user interface. This release contains int
 - Shows current position relative to target: Rear (blue), Flank (purple), Front (gray), or Immune
 - Only visible when a melee DPS job is active and a target is in range; hidden otherwise
 
-<!-- LATEST-END -->
-
 ## v4.9.7 - Healer Debug Tabs
 
 **Debug**
 - Added dedicated debug tab for White Mage: Lily/Blood Lily gauge, Temperance/Assizes/Asylum/PoM/Thin Air buff states, misery tracking
 - Added dedicated debug tab for Sage: Addersgall/Adersting resources, Kardia/Soteria/Philosophia state, Eukrasia, all healing spells, all shield spells, DoT/Phlegma/Toxikon/Psyche DPS tracking
-
-<!-- LATEST-END -->
 
 ## v4.9.6 - Tank Debug Tabs
 
@@ -168,8 +165,6 @@ No changes to rotation behavior or the user interface. This release contains int
 - Dark Knight tab: Blood Gauge, MP, Darkside timer, Blood Weapon/Delirium, TBN and defensive CD states
 - Paladin tab: Oath Gauge, Atonement/Confiteor/Sword Oath steps, Fight or Flight, Goring Blade DoT, execution flow
 - Gunbreaker tab: Cartridges, Gnashing Fang combo step, all 5 Continuation ready states, No Mercy, DoTs, defensive CDs
-
-<!-- LATEST-END -->
 
 ## v4.9.5 - Tank Role Override & Debug Fixes
 
@@ -213,7 +208,6 @@ No changes to rotation behavior or the user interface. This release contains int
 - Added timeline support for The Epic of Alexander (Ultimate) - TEA
 - All healers and tanks now have predictive mechanics for classic Ultimates
 - Timelines include all major raidwides, tankbusters, and phase transitions
-<!-- LATEST-END -->
 
 ## v4.9.0 - Settings Search
 

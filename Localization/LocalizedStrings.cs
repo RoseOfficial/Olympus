@@ -65,6 +65,13 @@ public static class LocalizedStrings
         public const string SearchPlaceholder = "config.search.placeholder";
         public const string SearchNoResults = "config.search.no_results";
         public const string SearchClearTooltip = "config.search.clear_tooltip";
+
+        // Import / Export
+        public const string ExportConfig  = "config.export_config";
+        public const string ImportConfig  = "config.import_config";
+        public const string ExportSuccess = "config.export_success";
+        public const string ImportSuccess = "config.import_success";
+        public const string ImportError   = "config.import_error";
     }
 
     /// <summary>Keys for config sidebar navigation.</summary>
