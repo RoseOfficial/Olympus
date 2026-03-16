@@ -649,6 +649,8 @@ public sealed class BuffModule : ICirceModule
                 .Concept(RdmConcepts.OgcdWeaving)
                 .Record();
 
+            context.TrainingService?.RecordConceptApplication(RdmConcepts.OgcdWeaving, true, "Lucid Dreaming used for MP");
+
             return true;
         }
 
