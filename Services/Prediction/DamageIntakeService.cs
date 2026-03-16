@@ -2,6 +2,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Olympus.Timeline;
+using Olympus.Timeline.Models;
 
 namespace Olympus.Services.Prediction;
 
@@ -35,8 +37,17 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
     // Boss mechanic detector for predictive damage
     private IBossMechanicDetector? _bossMechanicDetector;
 
+    // Timeline service for fight-aware predictive damage
+    private ITimelineService? _timelineService;
+
     // Default window for damage tracking
     private const float DefaultWindowSeconds = 5f;
+
+    // Rough timeline-based damage estimates (used when no historical data is available)
+    // Raidwide: 25% of ~100 000 average HP * 8 party members
+    private const int TimelineRaidwideEstimate = 200_000;
+    // Tank buster: ~60% of ~150 000 tank max HP
+    private const int TimelineTankBusterEstimate = 90_000;
 
     // Maximum entries to keep per entity (prevents unbounded growth)
     private const int MaxEntriesPerEntity = 100;
@@ -242,6 +253,14 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
     }
 
     /// <summary>
+    /// Sets the timeline service for fight-aware damage forecasting.
+    /// </summary>
+    public void SetTimelineService(ITimelineService timelineService)
+    {
+        _timelineService = timelineService;
+    }
+
+    /// <summary>
     /// Registers an active DoT or bleed effect on an entity.
     /// </summary>
     public void RegisterActiveDoT(uint entityId, int damagePerTick, float remainingDuration)
@@ -301,6 +320,27 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
             totalForecast += raidwideDamage;
         }
 
+        // Add predicted raidwide from timeline service if imminent
+        if (_timelineService is { IsActive: true })
+        {
+            var nextRaidwide = _timelineService.NextRaidwide;
+            if (nextRaidwide.HasValue &&
+                nextRaidwide.Value.SecondsUntil > 0f &&
+                nextRaidwide.Value.SecondsUntil <= forecastSeconds)
+            {
+                totalForecast += TimelineRaidwideEstimate;
+            }
+
+            // Tank buster is party-level threat (the party needs a tank healed); add once here.
+            var nextTankBuster = _timelineService.NextTankBuster;
+            if (nextTankBuster.HasValue &&
+                nextTankBuster.Value.SecondsUntil > 0f &&
+                nextTankBuster.Value.SecondsUntil <= forecastSeconds)
+            {
+                totalForecast += TimelineTankBusterEstimate;
+            }
+        }
+
         return totalForecast;
     }
 
@@ -344,6 +384,19 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
             raidwide.SecondsUntil <= forecastSeconds)
         {
             forecastedDamage += (int)(raidwide.EstimatedDamagePercent * maxHp);
+        }
+
+        // Add raidwide from timeline service (applies to all entities)
+        if (_timelineService is { IsActive: true })
+        {
+            var nextRaidwide = _timelineService.NextRaidwide;
+            if (nextRaidwide.HasValue &&
+                nextRaidwide.Value.SecondsUntil > 0f &&
+                nextRaidwide.Value.SecondsUntil <= forecastSeconds)
+            {
+                // Use a fixed fraction of max HP as raidwide estimate per member (~25%)
+                forecastedDamage += (int)(0.25f * maxHp);
+            }
         }
 
         return (float)forecastedDamage / maxHp;

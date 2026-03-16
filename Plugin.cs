@@ -36,7 +36,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "4.10.27";
+    public const string PluginVersion = "4.10.28";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -196,16 +196,19 @@ public sealed class Plugin : IDalamudPlugin
         // Debuff detection service for Esuna
         this.debuffDetectionService = new DebuffDetectionService(dataManager);
 
+        // Timeline service for fight-aware predictions (must precede TankCooldownService)
+        this.timelineService = new TimelineService(log, combatEventService);
+        combatEventService.OnAbilityUsed += (sourceId, actionId) => timelineService.OnAbilityUsed(sourceId, actionId);
+
+        // Wire timeline into damage prediction service
+        this.damageIntakeService.SetTimelineService(this.timelineService);
+
         // Tank services
         this.enmityService = new EnmityService(objectTable, partyList);
-        this.tankCooldownService = new TankCooldownService(configuration.Tank);
+        this.tankCooldownService = new TankCooldownService(configuration.Tank, this.timelineService);
 
         // Melee DPS services
         this.positionalService = new PositionalService();
-
-        // Timeline service for fight-aware predictions
-        this.timelineService = new TimelineService(log, combatEventService);
-        combatEventService.OnAbilityUsed += (sourceId, actionId) => timelineService.OnAbilityUsed(sourceId, actionId);
 
         // Party coordination service (multi-Olympus IPC)
         if (configuration.PartyCoordination.EnablePartyCoordination)
