@@ -407,9 +407,9 @@ public sealed class ActionLibraryServiceTests
     }
 
     [Fact]
-    public void GetActionsAtLevel_Scholar_Level1_ReturnsPhysick()
+    public void GetActionsAtLevel_Scholar_Level4_ReturnsPhysick()
     {
-        var actions = _sut.GetActionsAtLevel(JobRegistry.Scholar, 1).ToList();
+        var actions = _sut.GetActionsAtLevel(JobRegistry.Scholar, 4).ToList();
         Assert.Contains(actions, a => a.ActionId == SCHActions.Physick.ActionId);
     }
 
