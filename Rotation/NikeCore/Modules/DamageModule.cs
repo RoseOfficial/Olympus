@@ -557,6 +557,22 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                 {
                     context.Debug.PlannedAction = SAMActions.Yukikaze.Name;
                     context.Debug.DamageState = "Meikyo Yukikaze";
+
+                    // Training: Record Meikyo Yukikaze decision
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(SAMActions.Yukikaze.ActionId, SAMActions.Yukikaze.Name)
+                        .AsMeleeDamage()
+                        .Target(target.Name?.TextValue ?? "Target")
+                        .Reason("Meikyo Yukikaze for Setsu Sen",
+                            "Yukikaze grants Setsu (Snow) Sen during Meikyo Shisui. " +
+                            "Use it to build the missing Setsu Sen without a combo chain.")
+                        .Factors(new[] { "Meikyo Shisui active", "Need Setsu Sen", "Combo skip" })
+                        .Alternatives(new[] { "Use Gekko (need Getsu)", "Use Kasha (need Ka)" })
+                        .Tip("Meikyo → Gekko → Kasha → Yukikaze builds all 3 Sen instantly.")
+                        .Concept("sam_meikyo_shisui")
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication("sam_meikyo_shisui", true, "Meikyo Yukikaze Setsu");
+
                     return true;
                 }
             }
@@ -572,6 +588,22 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                 {
                     context.Debug.PlannedAction = SAMActions.Gekko.Name;
                     context.Debug.DamageState = "Meikyo Gekko (overflow)";
+
+                    // Training: Record overflow Meikyo Gekko decision
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(SAMActions.Gekko.ActionId, SAMActions.Gekko.Name)
+                        .AsMeleeDamage()
+                        .Target(target.Name?.TextValue ?? "Target")
+                        .Reason("Meikyo Gekko (overflow — all Sen held)",
+                            "All Sen are already held. Gekko consumes a Meikyo stack and still deals combo-level damage. " +
+                            "Prefer using Meikyo stacks to build missing Sen rather than overflowing.")
+                        .Factors(new[] { "Meikyo Shisui active", "All Sen already held", "Using stack to avoid waste" })
+                        .Alternatives(new[] { "Delay Meikyo until Sen are spent (better timing)" })
+                        .Tip("Activate Meikyo Shisui before spending Sen so all stacks build toward Iaijutsu.")
+                        .Concept("sam_meikyo_shisui")
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication("sam_meikyo_shisui", true, "Meikyo overflow Gekko");
+
                     return true;
                 }
             }
@@ -598,6 +630,22 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                 {
                     context.Debug.PlannedAction = SAMActions.Mangetsu.Name;
                     context.Debug.DamageState = "Meikyo Mangetsu";
+
+                    // Training: Record AoE Meikyo Mangetsu decision
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(SAMActions.Mangetsu.ActionId, SAMActions.Mangetsu.Name)
+                        .AsAoE(0)
+                        .Target("Nearby enemies")
+                        .Reason("Meikyo Mangetsu for Getsu Sen (AoE)",
+                            "Mangetsu grants Getsu (Moon) Sen and refreshes Fugetsu buff in AoE. " +
+                            "During Meikyo Shisui, use it directly without a combo chain.")
+                        .Factors(new[] { "Meikyo Shisui active", "Need Getsu Sen", "AoE situation" })
+                        .Alternatives(new[] { "Use Oka (need Ka)", "Use ST finishers (fewer enemies)" })
+                        .Tip("In AoE, use Mangetsu (Getsu) and Oka (Ka) under Meikyo Shisui.")
+                        .Concept("sam_meikyo_shisui")
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication("sam_meikyo_shisui", true, "AoE Meikyo Mangetsu");
+
                     return true;
                 }
             }
@@ -612,6 +660,22 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                 {
                     context.Debug.PlannedAction = SAMActions.Oka.Name;
                     context.Debug.DamageState = "Meikyo Oka";
+
+                    // Training: Record AoE Meikyo Oka decision
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(SAMActions.Oka.ActionId, SAMActions.Oka.Name)
+                        .AsAoE(0)
+                        .Target("Nearby enemies")
+                        .Reason("Meikyo Oka for Ka Sen (AoE)",
+                            "Oka grants Ka (Flower) Sen and refreshes Fuka buff in AoE. " +
+                            "During Meikyo Shisui, use it directly without a combo chain.")
+                        .Factors(new[] { "Meikyo Shisui active", "Need Ka Sen", "AoE situation" })
+                        .Alternatives(new[] { "Use Mangetsu (need Getsu)", "Use ST finishers (fewer enemies)" })
+                        .Tip("In AoE, use Mangetsu (Getsu) and Oka (Ka) under Meikyo Shisui.")
+                        .Concept("sam_meikyo_shisui")
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication("sam_meikyo_shisui", true, "AoE Meikyo Oka");
+
                     return true;
                 }
             }
@@ -626,6 +690,21 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                 {
                     context.Debug.PlannedAction = SAMActions.Mangetsu.Name;
                     context.Debug.DamageState = "Meikyo Mangetsu (overflow)";
+
+                    // Training: Record AoE overflow Mangetsu decision
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(SAMActions.Mangetsu.ActionId, SAMActions.Mangetsu.Name)
+                        .AsAoE(0)
+                        .Target("Nearby enemies")
+                        .Reason("Meikyo Mangetsu (overflow — Getsu and Ka already held)",
+                            "Both Getsu and Ka Sen are held. Mangetsu consumes a Meikyo stack while still dealing AoE damage.")
+                        .Factors(new[] { "Meikyo Shisui active", "Getsu and Ka already held", "Using stack to avoid waste" })
+                        .Alternatives(new[] { "Delay Meikyo until Sen spent (better timing)" })
+                        .Tip("Use Meikyo Shisui after spending Sen so stacks build toward Tenka Goken.")
+                        .Concept("sam_meikyo_shisui")
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication("sam_meikyo_shisui", true, "AoE Meikyo overflow");
+
                     return true;
                 }
             }
@@ -748,6 +827,22 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                     {
                         context.Debug.PlannedAction = SAMActions.Jinpu.Name;
                         context.Debug.DamageState = "Jinpu (Combo 2)";
+
+                        // Training: Record Jinpu for Fugetsu refresh
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(SAMActions.Jinpu.ActionId, SAMActions.Jinpu.Name)
+                            .AsMeleeDamage()
+                            .Target(target.Name?.TextValue ?? "Target")
+                            .Reason($"Jinpu to refresh Fugetsu ({(context.HasFugetsu ? $"{context.FugetsuRemaining:F1}s left" : "missing")})",
+                                "Jinpu refreshes Fugetsu (+13% damage up). Keep this buff active at all times. " +
+                                "Follow with Gekko to grant Getsu Sen and deal positional damage.")
+                            .Factors(new[] { "Combo step 2 (after Hakaze/Gyofu)", context.HasFugetsu ? $"Fugetsu {context.FugetsuRemaining:F1}s" : "Fugetsu missing", "Refreshing buff" })
+                            .Alternatives(new[] { "Use Shifu (Fuka more urgent)", "Use Yukikaze (need Setsu faster)" })
+                            .Tip("Keep both Fugetsu and Fuka up. They expire in 40s — refresh before 10s.")
+                            .Concept("sam_fugetsu_fuka")
+                            .Record();
+                        context.TrainingService?.RecordConceptApplication("sam_fugetsu_fuka", true, "Fugetsu refresh via Jinpu");
+
                         return true;
                     }
                 }
@@ -762,6 +857,22 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                     {
                         context.Debug.PlannedAction = SAMActions.Shifu.Name;
                         context.Debug.DamageState = "Shifu (Combo 2)";
+
+                        // Training: Record Shifu for Fuka refresh
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(SAMActions.Shifu.ActionId, SAMActions.Shifu.Name)
+                            .AsMeleeDamage()
+                            .Target(target.Name?.TextValue ?? "Target")
+                            .Reason($"Shifu to refresh Fuka ({(context.HasFuka ? $"{context.FukaRemaining:F1}s left" : "missing")})",
+                                "Shifu refreshes Fuka (+13% haste). Keep this buff active at all times. " +
+                                "Follow with Kasha to grant Ka Sen and deal positional damage.")
+                            .Factors(new[] { "Combo step 2 (after Hakaze/Gyofu)", context.HasFuka ? $"Fuka {context.FukaRemaining:F1}s" : "Fuka missing", "Refreshing buff" })
+                            .Alternatives(new[] { "Use Jinpu (Fugetsu more urgent)", "Use Yukikaze (need Setsu faster)" })
+                            .Tip("Fuka increases GCD speed. Letting it drop costs DPS.")
+                            .Concept("sam_fugetsu_fuka")
+                            .Record();
+                        context.TrainingService?.RecordConceptApplication("sam_fugetsu_fuka", true, "Fuka refresh via Shifu");
+
                         return true;
                     }
                 }
@@ -776,6 +887,22 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                     {
                         context.Debug.PlannedAction = SAMActions.Yukikaze.Name;
                         context.Debug.DamageState = "Yukikaze (Combo 2)";
+
+                        // Training: Record Yukikaze for Setsu Sen
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(SAMActions.Yukikaze.ActionId, SAMActions.Yukikaze.Name)
+                            .AsMeleeDamage()
+                            .Target(target.Name?.TextValue ?? "Target")
+                            .Reason("Yukikaze for Setsu Sen (missing)",
+                                "Yukikaze grants Setsu (Snow) Sen when used as a combo finisher. " +
+                                "You need all 3 Sen for Midare Setsugekka. No positional required.")
+                            .Factors(new[] { "Combo step 2", "Setsu Sen missing", "No positional needed" })
+                            .Alternatives(new[] { "Jinpu → Gekko (if Fugetsu low)", "Shifu → Kasha (if Fuka low)" })
+                            .Tip("Yukikaze is the easiest Sen to build — no positional requirement.")
+                            .Concept("sam_sen_system")
+                            .Record();
+                        context.TrainingService?.RecordConceptApplication("sam_sen_system", true, "Setsu Sen via Yukikaze");
+
                         return true;
                     }
                 }
@@ -790,6 +917,22 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                     {
                         context.Debug.PlannedAction = SAMActions.Jinpu.Name;
                         context.Debug.DamageState = "Jinpu (for Getsu)";
+
+                        // Training: Record Jinpu for Getsu
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(SAMActions.Jinpu.ActionId, SAMActions.Jinpu.Name)
+                            .AsMeleeDamage()
+                            .Target(target.Name?.TextValue ?? "Target")
+                            .Reason("Jinpu to build Getsu Sen (missing)",
+                                "Jinpu leads to Gekko which grants Getsu (Moon) Sen. " +
+                                "Also refreshes Fugetsu buff. Has a rear positional for bonus Kenki.")
+                            .Factors(new[] { "Combo step 2", "Getsu Sen missing", "Fugetsu maintained" })
+                            .Alternatives(new[] { "Shifu (Ka missing and more urgent)" })
+                            .Tip("Jinpu → Gekko (rear) builds Getsu and refreshes Fugetsu.")
+                            .Concept("sam_sen_system")
+                            .Record();
+                        context.TrainingService?.RecordConceptApplication("sam_sen_system", true, "Getsu path via Jinpu");
+
                         return true;
                     }
                 }
@@ -804,6 +947,22 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                     {
                         context.Debug.PlannedAction = SAMActions.Shifu.Name;
                         context.Debug.DamageState = "Shifu (for Ka)";
+
+                        // Training: Record Shifu for Ka
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(SAMActions.Shifu.ActionId, SAMActions.Shifu.Name)
+                            .AsMeleeDamage()
+                            .Target(target.Name?.TextValue ?? "Target")
+                            .Reason("Shifu to build Ka Sen (missing)",
+                                "Shifu leads to Kasha which grants Ka (Flower) Sen. " +
+                                "Also refreshes Fuka buff. Has a flank positional for bonus Kenki.")
+                            .Factors(new[] { "Combo step 2", "Ka Sen missing", "Fuka maintained" })
+                            .Alternatives(new[] { "Jinpu (Getsu missing and more urgent)" })
+                            .Tip("Shifu → Kasha (flank) builds Ka and refreshes Fuka.")
+                            .Concept("sam_sen_system")
+                            .Record();
+                        context.TrainingService?.RecordConceptApplication("sam_sen_system", true, "Ka path via Shifu");
+
                         return true;
                     }
                 }
@@ -818,6 +977,22 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                     {
                         context.Debug.PlannedAction = SAMActions.Jinpu.Name;
                         context.Debug.DamageState = "Jinpu (default)";
+
+                        // Training: Record default Jinpu
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(SAMActions.Jinpu.ActionId, SAMActions.Jinpu.Name)
+                            .AsMeleeDamage()
+                            .Target(target.Name?.TextValue ?? "Target")
+                            .Reason("Jinpu (combo step 2 — default path)",
+                                "Jinpu leads to Gekko for Getsu Sen and refreshes Fugetsu. " +
+                                "Used as the default mid-combo step when no specific Sen or buff is urgent.")
+                            .Factors(new[] { "Combo step 2", "Buffs maintained", "Default rotation" })
+                            .Alternatives(new[] { "Shifu (if Ka or Fuka more urgent)" })
+                            .Tip("Rotate Jinpu and Shifu paths evenly to maintain both Fugetsu and Fuka.")
+                            .Concept("sam_fugetsu_fuka")
+                            .Record();
+                        context.TrainingService?.RecordConceptApplication("sam_fugetsu_fuka", true, "Default Jinpu path");
+
                         return true;
                     }
                 }
@@ -831,6 +1006,22 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
             {
                 context.Debug.PlannedAction = comboStarter.Name;
                 context.Debug.DamageState = $"{comboStarter.Name} (Combo 1)";
+
+                // Training: Record combo starter
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(comboStarter.ActionId, comboStarter.Name)
+                    .AsMeleeDamage()
+                    .Target(target.Name?.TextValue ?? "Target")
+                    .Reason($"{comboStarter.Name} — starting single-target combo",
+                        $"{comboStarter.Name} is SAM's combo opener. It leads to Jinpu, Shifu, or Yukikaze. " +
+                        "Always follow up — breaking combo wastes potency.")
+                    .Factors(new[] { "Combo step 1", "No active combo", "Starting rotation" })
+                    .Alternatives(new[] { "Use Meikyo to skip combo (if active)" })
+                    .Tip($"After {comboStarter.Name}: Jinpu → Gekko (rear) or Shifu → Kasha (flank) or Yukikaze.")
+                    .Concept("sam_combo_rotation")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("sam_combo_rotation", true, $"Combo starter {comboStarter.Name}");
+
                 return true;
             }
         }
@@ -859,6 +1050,22 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                     {
                         context.Debug.PlannedAction = SAMActions.Mangetsu.Name;
                         context.Debug.DamageState = "Mangetsu (AoE 2)";
+
+                        // Training: Record AoE Mangetsu combo step
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(SAMActions.Mangetsu.ActionId, SAMActions.Mangetsu.Name)
+                            .AsAoE(0)
+                            .Target("Nearby enemies")
+                            .Reason($"Mangetsu for Getsu Sen{(!context.HasFugetsu ? " and Fugetsu" : "")} (AoE combo step 2)",
+                                "Mangetsu grants Getsu (Moon) Sen and refreshes Fugetsu buff in AoE. " +
+                                "Follow Fuko/Fuga with Mangetsu or Oka based on which Sen and buffs are needed.")
+                            .Factors(new[] { "AoE combo step 2", context.HasGetsu ? "Fugetsu missing" : "Getsu Sen missing", "Multiple enemies" })
+                            .Alternatives(new[] { "Oka (if Ka or Fuka more urgent)" })
+                            .Tip("AoE combo: Fuko/Fuga → Mangetsu (Getsu) or Oka (Ka). Alternate for both.")
+                            .Concept("sam_aoe_rotation")
+                            .Record();
+                        context.TrainingService?.RecordConceptApplication("sam_aoe_rotation", true, "AoE Mangetsu combo");
+
                         return true;
                     }
                 }
@@ -873,6 +1080,22 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                     {
                         context.Debug.PlannedAction = SAMActions.Oka.Name;
                         context.Debug.DamageState = "Oka (AoE 2)";
+
+                        // Training: Record AoE Oka combo step
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(SAMActions.Oka.ActionId, SAMActions.Oka.Name)
+                            .AsAoE(0)
+                            .Target("Nearby enemies")
+                            .Reason($"Oka for Ka Sen{(!context.HasFuka ? " and Fuka" : "")} (AoE combo step 2)",
+                                "Oka grants Ka (Flower) Sen and refreshes Fuka buff in AoE. " +
+                                "Alternate with Mangetsu to maintain both Fugetsu and Fuka.")
+                            .Factors(new[] { "AoE combo step 2", context.HasKa ? "Fuka missing" : "Ka Sen missing", "Multiple enemies" })
+                            .Alternatives(new[] { "Mangetsu (if Getsu or Fugetsu more urgent)" })
+                            .Tip("AoE combo: Fuko/Fuga → Mangetsu (Getsu) or Oka (Ka). Alternate for both.")
+                            .Concept("sam_aoe_rotation")
+                            .Record();
+                        context.TrainingService?.RecordConceptApplication("sam_aoe_rotation", true, "AoE Oka combo");
+
                         return true;
                     }
                 }
@@ -887,6 +1110,21 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                     {
                         context.Debug.PlannedAction = SAMActions.Mangetsu.Name;
                         context.Debug.DamageState = "Mangetsu (default)";
+
+                        // Training: Record default AoE Mangetsu
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(SAMActions.Mangetsu.ActionId, SAMActions.Mangetsu.Name)
+                            .AsAoE(0)
+                            .Target("Nearby enemies")
+                            .Reason("Mangetsu (AoE combo step 2 — default)",
+                                "Default AoE combo finisher. Refreshes Fugetsu and grants Getsu Sen.")
+                            .Factors(new[] { "AoE combo step 2", "Default finisher", "Multiple enemies" })
+                            .Alternatives(new[] { "Oka (if Ka or Fuka more urgent)" })
+                            .Tip("Keep alternating Mangetsu and Oka to maintain Fugetsu, Fuka, and both Sen.")
+                            .Concept("sam_aoe_rotation")
+                            .Record();
+                        context.TrainingService?.RecordConceptApplication("sam_aoe_rotation", true, "AoE default Mangetsu");
+
                         return true;
                     }
                 }
@@ -900,6 +1138,22 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
             {
                 context.Debug.PlannedAction = aoeStarter.Name;
                 context.Debug.DamageState = $"{aoeStarter.Name} (AoE 1)";
+
+                // Training: Record AoE combo starter
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(aoeStarter.ActionId, aoeStarter.Name)
+                    .AsAoE(0)
+                    .Target("Nearby enemies")
+                    .Reason($"{aoeStarter.Name} — starting AoE combo",
+                        $"{aoeStarter.Name} is the AoE combo opener. Follow with Mangetsu (Getsu) or Oka (Ka). " +
+                        "Use instead of single-target combo at 3+ enemies.")
+                    .Factors(new[] { "AoE combo step 1", "Multiple enemies", "Starting AoE rotation" })
+                    .Alternatives(new[] { "Use Hakaze/Gyofu (fewer enemies)" })
+                    .Tip($"AoE opener: {aoeStarter.Name} → Mangetsu or Oka → Tenka Goken.")
+                    .Concept("sam_aoe_rotation")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("sam_aoe_rotation", true, $"AoE starter {aoeStarter.Name}");
+
                 return true;
             }
         }

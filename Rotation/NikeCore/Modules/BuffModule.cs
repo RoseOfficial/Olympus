@@ -468,6 +468,25 @@ public sealed class BuffModule : INikeModule
         {
             context.Debug.PlannedAction = SAMActions.TrueNorth.Name;
             context.Debug.BuffState = "True North";
+
+            // Training: Record True North decision
+            var reason = context.HasMeikyoShisui ? "Meikyo Shisui active — positionals incoming" :
+                         context.ComboStep == 2 && context.LastComboAction == SAMActions.Jinpu.ActionId ? "Gekko (rear) incoming" :
+                         "Kasha (flank) incoming";
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(SAMActions.TrueNorth.ActionId, SAMActions.TrueNorth.Name)
+                .AsMeleeDamage()
+                .Target("Self")
+                .Reason($"True North — ignoring positional for next hit ({reason})",
+                    "True North lets you get positional bonus damage regardless of your position. " +
+                    "Use before Gekko (rear) or Kasha (flank) when you can't move into position.")
+                .Factors(new[] { reason, "Not in correct positional position", "Positional finisher imminent" })
+                .Alternatives(new[] { "Reposition (preferred if possible)", "Miss bonus damage (suboptimal)" })
+                .Tip("True North has 2 charges and 45s cooldown. Save for when repositioning is impossible.")
+                .Concept("sam_positionals")
+                .Record();
+            context.TrainingService?.RecordConceptApplication("sam_positionals", true, "True North for positionals");
+
             return true;
         }
 
