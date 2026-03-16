@@ -28,7 +28,13 @@ public sealed class ActionLibraryService : IActionLibrary
         RegisterPaladinActions();
         RegisterDarkKnightActions();
         RegisterGunbreakerActions();
-        // Future: melee, ranged, casters
+        RegisterMonkActions();
+        RegisterDragoonActions();
+        RegisterNinjaActions();
+        RegisterSamuraiActions();
+        RegisterReaperActions();
+        RegisterViperActions();
+        // Future: ranged, casters
     }
 
     /// <inheritdoc />
@@ -697,5 +703,421 @@ public sealed class ActionLibraryService : IActionLibrary
             GNBActions.ArmsLength,
             GNBActions.LowBlow,
             GNBActions.Interject);
+    }
+
+    /// <summary>
+    /// Registers all Monk (MNK) and Pugilist (PGL) actions.
+    /// </summary>
+    private void RegisterMonkActions()
+    {
+        const uint mnkJobId = JobRegistry.Monk;
+        const uint pglJobId = JobRegistry.Pugilist;
+
+        // Form GCDs
+        RegisterActions(mnkJobId,
+            MNKActions.Bootshine,
+            MNKActions.DragonKick,
+            MNKActions.LeapingOpo,
+            MNKActions.TrueStrike,
+            MNKActions.TwinSnakes,
+            MNKActions.RisingRaptor,
+            MNKActions.SnapPunch,
+            MNKActions.Demolish,
+            MNKActions.PouncingCoeurl,
+            MNKActions.ArmOfTheDestroyer,
+            MNKActions.ShadowOfTheDestroyer,
+            MNKActions.FourPointFury,
+            MNKActions.Rockbreaker);
+
+        // Burst / Finishers
+        RegisterActions(mnkJobId,
+            MNKActions.ElixirField,
+            MNKActions.FlintStrike,
+            MNKActions.CelestialRevolution,
+            MNKActions.RisingPhoenix,
+            MNKActions.PhantomRush,
+            MNKActions.ElixirBurst,
+            MNKActions.WindsReply,
+            MNKActions.FiresReply);
+
+        // Chakra / oGCDs
+        RegisterActions(mnkJobId,
+            MNKActions.TheForbiddenChakra,
+            MNKActions.Enlightenment,
+            MNKActions.HowlingFist,
+            MNKActions.SteelPeak,
+            MNKActions.RiddleOfFire,
+            MNKActions.Brotherhood,
+            MNKActions.PerfectBalance,
+            MNKActions.RiddleOfWind,
+            MNKActions.RiddleOfEarth,
+            MNKActions.Thunderclap,
+            MNKActions.Mantra,
+            MNKActions.Meditation,
+            MNKActions.Anatman,
+            MNKActions.SixSidedStar,
+            MNKActions.FormShift);
+
+        // Role Actions
+        RegisterActions(mnkJobId,
+            MNKActions.SecondWind,
+            MNKActions.Bloodbath,
+            MNKActions.Feint,
+            MNKActions.ArmsLength,
+            MNKActions.TrueNorth,
+            MNKActions.LegSweep);
+
+        // Pugilist base class
+        RegisterActions(pglJobId,
+            MNKActions.Bootshine,
+            MNKActions.TrueStrike,
+            MNKActions.SnapPunch,
+            MNKActions.ArmOfTheDestroyer,
+            MNKActions.Mantra,
+            MNKActions.SecondWind,
+            MNKActions.LegSweep);
+    }
+
+    /// <summary>
+    /// Registers all Dragoon (DRG) and Lancer (LNC) actions.
+    /// </summary>
+    private void RegisterDragoonActions()
+    {
+        const uint drgJobId = JobRegistry.Dragoon;
+        const uint lncJobId = JobRegistry.Lancer;
+
+        // Combo GCDs
+        RegisterActions(drgJobId,
+            DRGActions.TrueThrust,
+            DRGActions.VorpalThrust,
+            DRGActions.FullThrust,
+            DRGActions.HeavensThrust,
+            DRGActions.Disembowel,
+            DRGActions.ChaosThrust,
+            DRGActions.ChaoticSpring,
+            DRGActions.FangAndClaw,
+            DRGActions.WheelingThrust,
+            DRGActions.Drakesbane,
+            DRGActions.DoomSpike,
+            DRGActions.SonicThrust,
+            DRGActions.CoerthanTorment);
+
+        // Jumps / oGCDs
+        RegisterActions(drgJobId,
+            DRGActions.Jump,
+            DRGActions.HighJump,
+            DRGActions.MirageDive,
+            DRGActions.SpineshatterDive,
+            DRGActions.DragonfireDive,
+            DRGActions.Geirskogul,
+            DRGActions.Nastrond,
+            DRGActions.Stardiver,
+            DRGActions.WyrmwindThrust,
+            DRGActions.RiseOfTheDragon,
+            DRGActions.Starcross);
+
+        // Buffs / Utility
+        RegisterActions(drgJobId,
+            DRGActions.LanceCharge,
+            DRGActions.BattleLitany,
+            DRGActions.LifeSurge,
+            DRGActions.DragonSight,
+            DRGActions.PiercingTalon,
+            DRGActions.ElusiveJump,
+            DRGActions.WingedGlide);
+
+        // Role Actions
+        RegisterActions(drgJobId,
+            DRGActions.SecondWind,
+            DRGActions.Bloodbath,
+            DRGActions.Feint,
+            DRGActions.ArmsLength,
+            DRGActions.TrueNorth,
+            DRGActions.LegSweep);
+
+        // Lancer base class
+        RegisterActions(lncJobId,
+            DRGActions.TrueThrust,
+            DRGActions.VorpalThrust,
+            DRGActions.DoomSpike,
+            DRGActions.PiercingTalon,
+            DRGActions.SecondWind,
+            DRGActions.LegSweep);
+    }
+
+    /// <summary>
+    /// Registers all Ninja (NIN) and Rogue (ROG) actions.
+    /// </summary>
+    private void RegisterNinjaActions()
+    {
+        const uint ninJobId = JobRegistry.Ninja;
+        const uint rogJobId = JobRegistry.Rogue;
+
+        // Combo GCDs
+        RegisterActions(ninJobId,
+            NINActions.SpinningEdge,
+            NINActions.GustSlash,
+            NINActions.AeolianEdge,
+            NINActions.ArmorCrush,
+            NINActions.DeathBlossom,
+            NINActions.HakkeMujinsatsu);
+
+        // Ninjutsu
+        RegisterActions(ninJobId,
+            NINActions.Ten,
+            NINActions.Chi,
+            NINActions.Jin,
+            NINActions.Ninjutsu,
+            NINActions.FumaShuriken,
+            NINActions.Raiton,
+            NINActions.Katon,
+            NINActions.Hyoton,
+            NINActions.Huton,
+            NINActions.Doton,
+            NINActions.Suiton,
+            NINActions.GokaMekkyaku,
+            NINActions.HyoshoRanryu,
+            NINActions.RabbitMedium);
+
+        // oGCDs
+        RegisterActions(ninJobId,
+            NINActions.Bhavacakra,
+            NINActions.HellfrogMedium,
+            NINActions.ZeshoMeppo,
+            NINActions.DeathfrogMedium,
+            NINActions.Mug,
+            NINActions.Dokumori,
+            NINActions.KunaisBane,
+            NINActions.TrickAttack,
+            NINActions.Kassatsu,
+            NINActions.TenChiJin,
+            NINActions.Bunshin,
+            NINActions.PhantomKamaitachi,
+            NINActions.Meisui,
+            NINActions.ForkedRaiju,
+            NINActions.FleetingRaiju,
+            NINActions.TenriJindo,
+            NINActions.Shukuchi,
+            NINActions.ShadeShift);
+
+        // Role Actions
+        RegisterActions(ninJobId,
+            NINActions.SecondWind,
+            NINActions.Bloodbath,
+            NINActions.Feint,
+            NINActions.ArmsLength,
+            NINActions.TrueNorth,
+            NINActions.LegSweep);
+
+        // Rogue base class
+        RegisterActions(rogJobId,
+            NINActions.SpinningEdge,
+            NINActions.GustSlash,
+            NINActions.AeolianEdge,
+            NINActions.DeathBlossom,
+            NINActions.ShadeShift,
+            NINActions.SecondWind,
+            NINActions.LegSweep);
+    }
+
+    /// <summary>
+    /// Registers all Samurai (SAM) actions.
+    /// </summary>
+    private void RegisterSamuraiActions()
+    {
+        const uint samJobId = JobRegistry.Samurai;
+
+        // Combo GCDs
+        RegisterActions(samJobId,
+            SAMActions.Hakaze,
+            SAMActions.Gyofu,
+            SAMActions.Jinpu,
+            SAMActions.Shifu,
+            SAMActions.Yukikaze,
+            SAMActions.Gekko,
+            SAMActions.Kasha,
+            SAMActions.Fuko,
+            SAMActions.Fuga,
+            SAMActions.Mangetsu,
+            SAMActions.Oka);
+
+        // Iaijutsu / Tsubame
+        RegisterActions(samJobId,
+            SAMActions.Iaijutsu,
+            SAMActions.Higanbana,
+            SAMActions.TenkaGoken,
+            SAMActions.MidareSetsugekka,
+            SAMActions.TsubameGaeshi,
+            SAMActions.KaeshiHiganbana,
+            SAMActions.KaeshiGoken,
+            SAMActions.KaeshiSetsugekka,
+            SAMActions.OgiNamikiri,
+            SAMActions.KaeshiNamikiri);
+
+        // oGCDs
+        RegisterActions(samJobId,
+            SAMActions.Shinten,
+            SAMActions.Kyuten,
+            SAMActions.Senei,
+            SAMActions.Guren,
+            SAMActions.Zanshin,
+            SAMActions.Shoha,
+            SAMActions.MeikyoShisui,
+            SAMActions.Ikishoten,
+            SAMActions.Hagakure,
+            SAMActions.Gyoten,
+            SAMActions.Yaten,
+            SAMActions.Enpi,
+            SAMActions.ThirdEye,
+            SAMActions.Tengentsu);
+
+        // Role Actions
+        RegisterActions(samJobId,
+            SAMActions.SecondWind,
+            SAMActions.Bloodbath,
+            SAMActions.Feint,
+            SAMActions.ArmsLength,
+            SAMActions.TrueNorth,
+            SAMActions.LegSweep);
+    }
+
+    /// <summary>
+    /// Registers all Reaper (RPR) actions.
+    /// </summary>
+    private void RegisterReaperActions()
+    {
+        const uint rprJobId = JobRegistry.Reaper;
+
+        // Combo GCDs
+        RegisterActions(rprJobId,
+            RPRActions.Slice,
+            RPRActions.WaxingSlice,
+            RPRActions.InfernalSlice,
+            RPRActions.SpinningScythe,
+            RPRActions.NightmareScythe);
+
+        // DoT / Shadow
+        RegisterActions(rprJobId,
+            RPRActions.ShadowOfDeath,
+            RPRActions.WhorlOfDeath);
+
+        // Shroud GCDs
+        RegisterActions(rprJobId,
+            RPRActions.Gibbet,
+            RPRActions.Gallows,
+            RPRActions.Guillotine,
+            RPRActions.VoidReaping,
+            RPRActions.CrossReaping,
+            RPRActions.GrimReaping,
+            RPRActions.Communio,
+            RPRActions.Perfectio);
+
+        // oGCDs
+        RegisterActions(rprJobId,
+            RPRActions.BloodStalk,
+            RPRActions.GrimSwathe,
+            RPRActions.Gluttony,
+            RPRActions.UnveiledGibbet,
+            RPRActions.UnveiledGallows,
+            RPRActions.Enshroud,
+            RPRActions.LemuresSlice,
+            RPRActions.LemuresScythe,
+            RPRActions.Sacrificium,
+            RPRActions.ArcaneCircle,
+            RPRActions.PlentifulHarvest,
+            RPRActions.SoulSlice,
+            RPRActions.SoulScythe,
+            RPRActions.HarvestMoon,
+            RPRActions.Soulsow,
+            RPRActions.HellsIngress,
+            RPRActions.HellsEgress,
+            RPRActions.Regress,
+            RPRActions.Harpe,
+            RPRActions.ArcaneCrest);
+
+        // Role Actions
+        RegisterActions(rprJobId,
+            RPRActions.SecondWind,
+            RPRActions.Bloodbath,
+            RPRActions.Feint,
+            RPRActions.ArmsLength,
+            RPRActions.TrueNorth,
+            RPRActions.LegSweep);
+    }
+
+    /// <summary>
+    /// Registers all Viper (VPR) actions.
+    /// </summary>
+    private void RegisterViperActions()
+    {
+        const uint vprJobId = JobRegistry.Viper;
+
+        // Combo GCDs — single target
+        RegisterActions(vprJobId,
+            VPRActions.SteelFangs,
+            VPRActions.ReavingFangs,
+            VPRActions.HuntersSting,
+            VPRActions.SwiftskinsString,
+            VPRActions.FlankstingStrike,
+            VPRActions.FlanksbaneFang,
+            VPRActions.HindstingStrike,
+            VPRActions.HindsbaneFang);
+
+        // Combo GCDs — AoE
+        RegisterActions(vprJobId,
+            VPRActions.SteelMaw,
+            VPRActions.ReavingMaw,
+            VPRActions.HuntersBite,
+            VPRActions.SwiftskinsBite,
+            VPRActions.JaggedMaw,
+            VPRActions.BloodiedMaw);
+
+        // Vicepit / Vicewinder
+        RegisterActions(vprJobId,
+            VPRActions.Vicewinder,
+            VPRActions.HuntersCoil,
+            VPRActions.SwiftskinsCoil,
+            VPRActions.Vicepit,
+            VPRActions.HuntersDen,
+            VPRActions.SwiftskinsDen);
+
+        // Twinblade oGCDs
+        RegisterActions(vprJobId,
+            VPRActions.Twinfang,
+            VPRActions.Twinblood,
+            VPRActions.TwinfangBite,
+            VPRActions.TwinbloodBite,
+            VPRActions.TwinfangThresh,
+            VPRActions.TwinbloodThresh);
+
+        // Reawaken
+        RegisterActions(vprJobId,
+            VPRActions.UncoiledFury,
+            VPRActions.UncoiledTwinfang,
+            VPRActions.UncoiledTwinblood,
+            VPRActions.WrithingSnap,
+            VPRActions.Reawaken,
+            VPRActions.FirstGeneration,
+            VPRActions.SecondGeneration,
+            VPRActions.ThirdGeneration,
+            VPRActions.FourthGeneration,
+            VPRActions.FirstLegacy,
+            VPRActions.SecondLegacy,
+            VPRActions.ThirdLegacy,
+            VPRActions.FourthLegacy,
+            VPRActions.Ouroboros,
+            VPRActions.SerpentsIre,
+            VPRActions.DeathRattle,
+            VPRActions.LastLash,
+            VPRActions.SerpentsTail);
+
+        // Role Actions
+        RegisterActions(vprJobId,
+            VPRActions.SecondWind,
+            VPRActions.Bloodbath,
+            VPRActions.Feint,
+            VPRActions.ArmsLength,
+            VPRActions.TrueNorth,
+            VPRActions.LegSweep);
     }
 }
