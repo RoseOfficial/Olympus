@@ -3,7 +3,7 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
-## v4.10.28
+## v4.10.29
 
 ### Viper
 - The rotation now weaves Legacy oGCDs (First through Fourth Legacy) during Reawaken bursts, significantly improving burst damage output
