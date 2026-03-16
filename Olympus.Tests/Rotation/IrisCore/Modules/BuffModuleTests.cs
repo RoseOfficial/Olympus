@@ -184,6 +184,73 @@ public class BuffModuleTests
         Assert.False(_module.TryExecute(context, isMoving: false));
     }
 
+    // ---- Task 4: SubtractiveSpectrum bypasses burst hold ----
+
+    [Fact]
+    public void TrySubtractivePalette_WithSubtractiveSpectrum_BypassesBurstHold()
+    {
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(x => x.ExecuteOgcd(
+                It.Is<ActionDefinition>(a => a.ActionId == PCTActions.SubtractivePalette.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        var context = IrisTestContext.Create(
+            inCombat: true,
+            canExecuteOgcd: true,
+            madeenReady: false,
+            mogReady: false,
+            starryMuseReady: false,
+            livingMuseReady: false,
+            strikingMuseReady: false,
+            subtractivePaletteReady: true,
+            canUseSubtractivePalette: true,
+            paletteGauge: 50,
+            hasSubtractivePalette: false,
+            hasSubtractiveSpectrum: true,
+            isInBurstWindow: false,
+            lucidDreamingReady: false,
+            actionService: actionService);
+
+        var result = _module.TryExecute(context, isMoving: false);
+
+        Assert.True(result);
+        actionService.Verify(x => x.ExecuteOgcd(
+            It.Is<ActionDefinition>(a => a.ActionId == PCTActions.SubtractivePalette.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+    }
+
+    [Fact]
+    public void TrySubtractivePalette_WithoutSpectrum_HoldsForBurst_WhenGaugeLow()
+    {
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+
+        var context = IrisTestContext.Create(
+            inCombat: true,
+            canExecuteOgcd: true,
+            madeenReady: false,
+            mogReady: false,
+            starryMuseReady: false,
+            livingMuseReady: false,
+            strikingMuseReady: false,
+            subtractivePaletteReady: true,
+            canUseSubtractivePalette: true,
+            paletteGauge: 50,
+            hasSubtractivePalette: false,
+            hasSubtractiveSpectrum: false,
+            isInBurstWindow: false,
+            lucidDreamingReady: false,
+            actionService: actionService);
+
+        var result = _module.TryExecute(context, isMoving: false);
+
+        // Held for burst window — should not fire
+        Assert.False(result);
+        actionService.Verify(x => x.ExecuteOgcd(
+            It.Is<ActionDefinition>(a => a.ActionId == PCTActions.SubtractivePalette.ActionId),
+            It.IsAny<ulong>()), Times.Never);
+    }
+
     #region Helpers
 
     private static Mock<IBattleNpc> CreateMockEnemy(ulong objectId = 99999UL)

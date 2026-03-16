@@ -377,7 +377,8 @@ public sealed class BuffModule : IIrisModule
 
         // Prefer to use during burst window
         // But don't overcap gauge (use at 75+ regardless)
-        if (!context.IsInBurstWindow && context.PaletteGauge < 75)
+        // SubtractiveSpectrum is a free enhanced sequence — bypass burst hold to avoid missing it
+        if (!context.IsInBurstWindow && context.PaletteGauge < 75 && !context.HasSubtractiveSpectrum)
         {
             context.Debug.BuffState = "Hold Subtractive for burst";
             return false;
