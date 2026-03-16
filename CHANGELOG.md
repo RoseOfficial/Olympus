@@ -3,12 +3,15 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
-## v4.10.17
+## v4.10.18
 
-- Improved healer performance and reliability (no behavior change)
 - Added update checker: Olympus now notifies you 15 seconds after login if a newer version is available, and a "Check for Updates" button is available in Settings for on-demand checks.
 
 <!-- LATEST-END -->
+
+## v4.10.17
+
+- Improved healer performance and reliability (no behavior change)
 
 ## v4.10.16 - Training Mode Now Covers All Jobs
 
