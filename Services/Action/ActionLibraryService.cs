@@ -34,7 +34,10 @@ public sealed class ActionLibraryService : IActionLibrary
         RegisterSamuraiActions();
         RegisterReaperActions();
         RegisterViperActions();
-        // Future: ranged, casters
+        RegisterBardActions();
+        RegisterMachinistActions();
+        RegisterDancerActions();
+        // Future: casters
     }
 
     /// <inheritdoc />
@@ -1119,5 +1122,194 @@ public sealed class ActionLibraryService : IActionLibrary
             VPRActions.ArmsLength,
             VPRActions.TrueNorth,
             VPRActions.LegSweep);
+    }
+
+    /// <summary>
+    /// Registers all Bard (BRD) and Archer (ARC) actions.
+    /// </summary>
+    private void RegisterBardActions()
+    {
+        const uint brdJobId = JobRegistry.Bard;
+        const uint arcJobId = JobRegistry.Archer;
+
+        // GCDs
+        RegisterActions(brdJobId,
+            BRDActions.HeavyShot,
+            BRDActions.BurstShot,
+            BRDActions.StraightShot,
+            BRDActions.RefulgentArrow,
+            BRDActions.VenomousBite,
+            BRDActions.CausticBite,
+            BRDActions.Windbite,
+            BRDActions.Stormbite,
+            BRDActions.IronJaws,
+            BRDActions.ApexArrow,
+            BRDActions.BlastArrow,
+            BRDActions.ResonantArrow,
+            BRDActions.RadiantEncore,
+            BRDActions.QuickNock,
+            BRDActions.Ladonsbite,
+            BRDActions.Shadowbite);
+
+        // Songs / oGCDs
+        RegisterActions(brdJobId,
+            BRDActions.MagesBallad,
+            BRDActions.ArmysPaeon,
+            BRDActions.WanderersMinuet,
+            BRDActions.Bloodletter,
+            BRDActions.HeartbreakShot,
+            BRDActions.RainOfDeath,
+            BRDActions.EmpyrealArrow,
+            BRDActions.Sidewinder,
+            BRDActions.PitchPerfect,
+            BRDActions.RagingStrikes,
+            BRDActions.BattleVoice,
+            BRDActions.RadiantFinale,
+            BRDActions.Barrage);
+
+        // Utility
+        RegisterActions(brdJobId,
+            BRDActions.Troubadour,
+            BRDActions.NaturesMinne,
+            BRDActions.WardensPaean,
+            BRDActions.RepellingShot);
+
+        // Role Actions
+        RegisterActions(brdJobId,
+            BRDActions.SecondWind,
+            BRDActions.ArmsLength,
+            BRDActions.HeadGraze,
+            BRDActions.Peloton);
+
+        // Archer base class
+        RegisterActions(arcJobId,
+            BRDActions.HeavyShot,
+            BRDActions.StraightShot,
+            BRDActions.VenomousBite,
+            BRDActions.QuickNock,
+            BRDActions.RepellingShot,
+            BRDActions.SecondWind,
+            BRDActions.HeadGraze);
+    }
+
+    /// <summary>
+    /// Registers all Machinist (MCH) actions.
+    /// </summary>
+    private void RegisterMachinistActions()
+    {
+        const uint mchJobId = JobRegistry.Machinist;
+
+        // Combo GCDs
+        RegisterActions(mchJobId,
+            MCHActions.HeatedSplitShot,
+            MCHActions.SplitShot,
+            MCHActions.HeatedSlugShot,
+            MCHActions.SlugShot,
+            MCHActions.HeatedCleanShot,
+            MCHActions.CleanShot);
+
+        // Special GCDs
+        RegisterActions(mchJobId,
+            MCHActions.Drill,
+            MCHActions.AirAnchor,
+            MCHActions.HotShot,
+            MCHActions.ChainSaw,
+            MCHActions.Excavator,
+            MCHActions.FullMetalField,
+            MCHActions.HeatBlast,
+            MCHActions.BlazingShot,
+            MCHActions.AutoCrossbow,
+            MCHActions.SpreadShot,
+            MCHActions.Scattergun,
+            MCHActions.Bioblaster);
+
+        // oGCDs
+        RegisterActions(mchJobId,
+            MCHActions.GaussRound,
+            MCHActions.Ricochet,
+            MCHActions.DoubleCheck,
+            MCHActions.Checkmate,
+            MCHActions.Reassemble,
+            MCHActions.BarrelStabilizer,
+            MCHActions.Wildfire,
+            MCHActions.Hypercharge,
+            MCHActions.AutomatonQueen,
+            MCHActions.RookAutoturret,
+            MCHActions.QueenOverdrive,
+            MCHActions.RookOverdrive);
+
+        // Role Actions
+        RegisterActions(mchJobId,
+            MCHActions.SecondWind,
+            MCHActions.ArmsLength,
+            MCHActions.HeadGraze,
+            MCHActions.Peloton,
+            MCHActions.Tactician,
+            MCHActions.Dismantle);
+    }
+
+    /// <summary>
+    /// Registers all Dancer (DNC) actions.
+    /// </summary>
+    private void RegisterDancerActions()
+    {
+        const uint dncJobId = JobRegistry.Dancer;
+
+        // GCDs — Procs
+        RegisterActions(dncJobId,
+            DNCActions.Cascade,
+            DNCActions.Fountain,
+            DNCActions.ReverseCascade,
+            DNCActions.Fountainfall,
+            DNCActions.Windmill,
+            DNCActions.Bladeshower,
+            DNCActions.RisingWindmill,
+            DNCActions.Bloodshower);
+
+        // Dance Steps
+        RegisterActions(dncJobId,
+            DNCActions.StandardStep,
+            DNCActions.TechnicalStep,
+            DNCActions.Emboite,
+            DNCActions.Entrechat,
+            DNCActions.Jete,
+            DNCActions.Pirouette,
+            DNCActions.StandardFinish,
+            DNCActions.TechnicalFinish,
+            DNCActions.Tillana);
+
+        // Esprit Spenders
+        RegisterActions(dncJobId,
+            DNCActions.SaberDance,
+            DNCActions.DanceOfTheDawn,
+            DNCActions.StarfallDance,
+            DNCActions.LastDance,
+            DNCActions.FinishingMove);
+
+        // Feather oGCDs
+        RegisterActions(dncJobId,
+            DNCActions.FanDance,
+            DNCActions.FanDanceII,
+            DNCActions.FanDanceIII,
+            DNCActions.FanDanceIV);
+
+        // Buffs / Utility
+        RegisterActions(dncJobId,
+            DNCActions.Devilment,
+            DNCActions.Flourish,
+            DNCActions.ClosedPosition,
+            DNCActions.Ending,
+            DNCActions.ShieldSamba,
+            DNCActions.CuringWaltz,
+            DNCActions.Improvisation,
+            DNCActions.ImprovisedFinish,
+            DNCActions.EnAvant);
+
+        // Role Actions
+        RegisterActions(dncJobId,
+            DNCActions.SecondWind,
+            DNCActions.ArmsLength,
+            DNCActions.HeadGraze,
+            DNCActions.Peloton);
     }
 }
