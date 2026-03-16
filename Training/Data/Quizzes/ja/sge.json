@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "sge",
+  "jobName": "賢者",
+  "quizzes": [
+    {
+      "quizId": "sge.lesson_1.quiz",
+      "lessonId": "sge.lesson_1",
+      "title": "クイズ: 賢者の基本",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sge.lesson_1.q1",
+          "conceptId": "sge.kardia_management",
+          "scenario": "戦闘が始まります。カルディアをまだ付与していません。",
+          "question": "誰にカルディアをかけるべきですか？",
+          "options": ["自分自身", "メインタンク", "最も良いDPS", "コヒーラー"],
+          "correctIndex": 1,
+          "explanation": "カルディアはダメージを与えた時に対象をヒールします。タンクにかけましょう——継続的なダメージを受けており最も恩恵を受けます。"
+        },
+        {
+          "questionId": "sge.lesson_1.q2",
+          "conceptId": "sge.emergency_healing",
+          "scenario": "タンクのHPが20%です。ドルオコールとタウロコールが使用可能です。",
+          "question": "緊急ヒールにはどちらが良いですか？",
+          "options": ["ドルオコール——ただヒール", "タウロコール——ヒール＋軽減", "両方", "どちらでもない——GCDを使用"],
+          "correctIndex": 1,
+          "explanation": "タウロコールはヒールと10%軽減を提供します。タンクへの緊急ヒールでは追加の軽減がさらなる低下を防ぐのに役立ちます。"
+        },
+        {
+          "questionId": "sge.lesson_1.q3",
+          "conceptId": "sge.kardia_target_selection",
+          "scenario": "タンクスワップが発生します。新しいタンクがアグロを取ります。",
+          "question": "カルディアを切り替えるべきですか？",
+          "options": ["いいえ——そのままで良い", "はい——新しいタンクへ", "様子を見る", "両タンクにかける"],
+          "correctIndex": 1,
+          "explanation": "カルディアは実際にタンクしている人にかけるべきです。あなたのダメージがその人をヒールするよう新しいメインタンクに切り替えましょう。"
+        },
+        {
+          "questionId": "sge.lesson_1.q4",
+          "conceptId": "sge.kardia_management",
+          "scenario": "ドシスを連打しています。タンクにカルディアがあります。",
+          "question": "タンクに何が起きていますか？",
+          "options": ["何もない", "カルディアによるパッシブヒール", "カルディアによるダメージ", "カルディアによるバリア"],
+          "correctIndex": 1,
+          "explanation": "カルディアはGCDでダメージを与えるたびに対象をヒールします。ドシスの連打＝タンクへの継続ヒール。賢者ではDPS＝ヒールです。"
+        },
+        {
+          "questionId": "sge.lesson_1.q5",
+          "conceptId": "sge.emergency_healing",
+          "scenario": "DPSのHPが25%です。タンクは問題ありません。アダーズゴールがありません。",
+          "question": "最善の選択肢は何ですか？",
+          "options": ["ディアグノシス", "ドルオコール", "カルディア切り替え＋ドシス", "何もしない——大丈夫"],
+          "correctIndex": 0,
+          "explanation": "アダーズゴールがない場合、ディアグノシス（GCDヒール）が選択肢です。カルディアを一時的にDPSに切り替えることもできますが手間がかかります。ディアグノシスでHPを安全なレベルに戻しましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "sge.lesson_2.quiz",
+      "lessonId": "sge.lesson_2",
+      "title": "クイズ: アダーズゴールエコノミー",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sge.lesson_2.q1",
+          "conceptId": "sge.addersgall_management",
+          "scenario": "アダーズゴールが3スタックあります。2秒後にスタックが回復します。",
+          "question": "どうすべきですか？",
+          "options": ["全スタックを保持", "すぐに1つ消費", "回復を待つ", "2つ消費"],
+          "correctIndex": 1,
+          "explanation": "3スタックで回復が来るとオーバーキャップしてスタックを無駄にします。回復前に少なくとも1つ消費してください。"
+        },
+        {
+          "questionId": "sge.lesson_2.q2",
+          "conceptId": "sge.kerachole_usage",
+          "scenario": "全体攻撃が来ます。パーティは満HPです。ケラコールが使用可能です。",
+          "question": "ケラコールを使うべきですか？",
+          "options": ["いいえ——パーティは満HP", "はい——軽減＋HoT", "ダメージ後に温存", "代わりにイクソコール"],
+          "correctIndex": 1,
+          "explanation": "ケラコールは10%軽減とHoTを提供します。軽減価値のために全体攻撃の前に使い、その後HoTがダメージを回復します。"
+        },
+        {
+          "questionId": "sge.lesson_2.q3",
+          "conceptId": "sge.taurochole_usage",
+          "scenario": "タンク強攻撃が来ます。タンクのHPは80%です。",
+          "question": "何を付与すべきですか？",
+          "options": ["強攻撃後にドルオコール", "強攻撃前にタウロコール", "何もしない——タンクは大丈夫", "ケラコール"],
+          "correctIndex": 1,
+          "explanation": "タウロコールはヒールと10%軽減を提供します。強攻撃の前に使うことで軽減がヒットを軽減し、ヒールでHPを回復します。"
+        },
+        {
+          "questionId": "sge.lesson_2.q4",
+          "conceptId": "sge.ixochole_usage",
+          "scenario": "全体攻撃の後パーティのHPが50%です。ケラコールはクールダウン中です。",
+          "question": "何を使うべきですか？",
+          "options": ["E.プログノシス", "イクソコール", "フィシス", "3つ全部"],
+          "correctIndex": 1,
+          "explanation": "イクソコールはアダーズゴール1スタックで即時パーティヒールです。HP50%ならすぐにパーティを安全なレベルに回復します。GCDヒールより速いです。"
+        },
+        {
+          "questionId": "sge.lesson_2.q5",
+          "conceptId": "sge.druochole_usage",
+          "scenario": "タンクのHPが60%です。アダーズゴールが1スタックあります。大きなダメージは来ていません。",
+          "question": "ドルオコールを使うべきですか？",
+          "options": ["はい——タンクをヒール", "いいえ——大丈夫", "もっと低くなるまで待つ", "タウロコールを使用"],
+          "correctIndex": 1,
+          "explanation": "ダメージのない状況でHP60%は安全です。カルディアヒール＋自然回復で対応できます。必要な時のためにアダーズゴールを温存してください。"
+        }
+      ]
+    },
+    {
+      "quizId": "sge.lesson_3.quiz",
+      "lessonId": "sge.lesson_3",
+      "title": "クイズ: カルディア最適化",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sge.lesson_3.q1",
+          "conceptId": "sge.soteria_usage",
+          "scenario": "タンクが重いダメージを受けています。ソテリアが使用可能です。",
+          "question": "ソテリアは何をしますか？",
+          "options": ["タンクをヒール", "カルディアを50%増加", "タンクにバリア", "範囲軽減"],
+          "correctIndex": 1,
+          "explanation": "ソテリアは15秒間カルディアのヒールを50%増加させます。タンクへの高ダメージフェーズで使いパッシブヒールを強化します。"
+        },
+        {
+          "questionId": "sge.lesson_3.q2",
+          "conceptId": "sge.philosophia_usage",
+          "scenario": "全体に重いダメージが来るフェーズです。フィロソフィアが使用可能です。",
+          "question": "フィロソフィアの特別な点は何ですか？",
+          "options": ["パーティ軽減", "パーティ全体カルディア", "即時パーティヒール", "MP回復"],
+          "correctIndex": 1,
+          "explanation": "フィロソフィアは20秒間あなたのダメージがパーティ全体をヒールするようにします（全員へのカルディアのような効果）。継続的な範囲ダメージに非常に強力です。"
+        },
+        {
+          "questionId": "sge.lesson_3.q3",
+          "conceptId": "sge.soteria_usage",
+          "scenario": "ソテリアが使用可能です。タンクのHPは90%で軽いダメージです。",
+          "question": "ソテリアを使うべきですか？",
+          "options": ["はい——ヒールを強化", "いいえ——重いダメージのために温存", "はい——クールダウンごとに使用", "いいえ——タンクは大丈夫"],
+          "correctIndex": 1,
+          "explanation": "ソテリアは重いタンクダメージで最も効果的です。90%のHPで軽いダメージなら基本カルディアで十分です。ブーストが必要な時のためにソテリアを温存してください。"
+        },
+        {
+          "questionId": "sge.lesson_3.q4",
+          "conceptId": "sge.philosophia_usage",
+          "scenario": "ボスが10秒後に死にます。フィロソフィアがまだ使用可能です。",
+          "question": "使うべきですか？",
+          "options": ["いいえ——ボスが死ぬ", "はい——最後のダメージを助ける", "次のプルのために温存", "関係ない"],
+          "correctIndex": 1,
+          "explanation": "最後の10秒間にパーティへのダメージがあればフィロソフィアは価値を提供します。戦闘が終わるときにクールダウンを温存しないでください。"
+        },
+        {
+          "questionId": "sge.lesson_3.q5",
+          "conceptId": "sge.soteria_usage",
+          "scenario": "ソテリアが有効中です。GCDヒールのためにDPSを止める必要があります。",
+          "question": "カルディアにどう影響しますか？",
+          "options": ["カルディアはまだヒールする", "カルディアがヒールを止める", "カルディアのヒールが減少", "ソテリアが延長される"],
+          "correctIndex": 1,
+          "explanation": "カルディアはダメージを与えた時のみヒールします。GCDヒールのためにDPSを止めると、カルディア（とソテリアのブースト）が機能しなくなります。"
+        }
+      ]
+    },
+    {
+      "quizId": "sge.lesson_4.quiz",
+      "lessonId": "sge.lesson_4",
+      "title": "クイズ: エウクラシアシステム",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sge.lesson_4.q1",
+          "conceptId": "sge.eukrasia_decisions",
+          "scenario": "タンクにバリアを付与したいです。",
+          "question": "正しいシーケンスは何ですか？",
+          "options": ["ディアグノシス", "エウクラシア＋ディアグノシス", "E.ディアグノシスを直接", "バリア＋ディアグノシス"],
+          "correctIndex": 1,
+          "explanation": "エウクラシアは次のディアグノシスをE.ディアグノシス（バリア）に変えます。まずエウクラシアを押し、次にディアグノシスです。"
+        },
+        {
+          "questionId": "sge.lesson_4.q2",
+          "conceptId": "sge.eukrasian_dosis_usage",
+          "scenario": "E.ドシス（DoT）の残り時間がボスに5秒あります。",
+          "question": "リフレッシュすべきですか？",
+          "options": ["はい——DoTを維持", "いいえ——3秒以下まで待つ", "はい——常に早めにリフレッシュ", "切れるまで待つ"],
+          "correctIndex": 1,
+          "explanation": "DoTは残り3秒以下でリフレッシュしてください。5秒でリフレッシュするとティックを無駄にします。もう少し待ちましょう。"
+        },
+        {
+          "questionId": "sge.lesson_4.q3",
+          "conceptId": "sge.eukrasian_prognosis_usage",
+          "scenario": "3秒後に全体攻撃があります。パーティは満HPです。",
+          "question": "どうすべきですか？",
+          "options": ["何もしない——満HP", "パーティバリアのためにE.プログノシス", "ケラコールのみ", "E.プログノシスとケラコール両方"],
+          "correctIndex": 1,
+          "explanation": "E.プログノシスはパーティ全体にバリアを付与します。全体攻撃前のバリアは受けるダメージを軽減します。先行して付与してください。"
+        },
+        {
+          "questionId": "sge.lesson_4.q4",
+          "conceptId": "sge.eukrasian_diagnosis_usage",
+          "scenario": "タンク強攻撃が来ます。タンクにはすでにE.ディアグノシスのバリアがあります。",
+          "question": "E.ディアグノシスのバリアをもう1枚付与できますか？",
+          "options": ["はい——バリアが重なる", "いいえ——大きい場合のみリフレッシュ", "はい——常にリフレッシュ", "いいえ——バリアが阻む"],
+          "correctIndex": 1,
+          "explanation": "同じソースのバリアは重複しません。新しいE.ディアグノシスは新しいバリアの方が大きい場合のみリフレッシュされます。"
+        },
+        {
+          "questionId": "sge.lesson_4.q5",
+          "conceptId": "sge.eukrasia_decisions",
+          "scenario": "移動が必要で1回のインスタントGCDしか使えません。",
+          "question": "最善の選択肢は何ですか？",
+          "options": ["ドシス（ダメージ）", "トクシコン（インスタント）", "E.ドシス（DoT）", "フレグマ（インスタント）"],
+          "correctIndex": 3,
+          "explanation": "フレグマはインスタントで強力なダメージです。1GCDしか使えない移動中に理想的です。こういう瞬間のために温存しましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "sge.lesson_5.quiz",
+      "lessonId": "sge.lesson_5",
+      "title": "クイズ: oGCDヒールツールキット",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sge.lesson_5.q1",
+          "conceptId": "sge.physis_usage",
+          "scenario": "全体攻撃が当たりました。パーティのHPは60%です。フィシスが使用可能です。",
+          "question": "フィシスを使うべきですか？",
+          "options": ["いいえ——より悪いために温存", "はい——HoT＋ヒール強化", "いいえ——60%は大丈夫", "代わりにイクソコールを使用"],
+          "correctIndex": 1,
+          "explanation": "フィシスはパーティHoTとヒール受ける量を増加させます。HP60%なら効率よくパーティを回復させます。使いましょう。"
+        },
+        {
+          "questionId": "sge.lesson_5.q2",
+          "conceptId": "sge.holos_usage",
+          "scenario": "重い全体攻撃が来ます。パーティは満HPです。",
+          "question": "ホロスをどう使うべきですか？",
+          "options": ["全体攻撃の後", "前——バリア＋ヒール", "緊急事態のために温存", "ここでは役立たない"],
+          "correctIndex": 1,
+          "explanation": "ホロスはパーティバリア（軽減）とヒールを提供します。バリア価値のために全体攻撃の前に使い、ヒールが残りダメージを回復します。"
+        },
+        {
+          "questionId": "sge.lesson_5.q3",
+          "conceptId": "sge.pneuma_usage",
+          "scenario": "パーティにヒールが必要です。ボスはターゲット可能です。プネウマが使用可能です。",
+          "question": "プネウマの特別な点は何ですか？",
+          "options": ["純粋なヒール", "ダメージ＋パーティヒール", "バリアのみ", "単体対象"],
+          "correctIndex": 1,
+          "explanation": "プネウマは直線範囲ダメージとパーティヒールを同時に行います。DPSとヒールを兼ねています——ボスがターゲット可能でパーティにHPが必要な時に使いましょう。"
+        },
+        {
+          "questionId": "sge.lesson_5.q4",
+          "conceptId": "sge.krasis_usage",
+          "scenario": "タンクが重いダメージを受けようとしています。クラシスが使用可能です。",
+          "question": "クラシスは何をしますか？",
+          "options": ["直接ヒール", "対象へのヒール受ける量20%増加", "バリア", "軽減"],
+          "correctIndex": 1,
+          "explanation": "クラシスは対象のヒール受ける量を20%増加させます。タンクをヒールする前に付与して効果を高めましょう。"
+        },
+        {
+          "questionId": "sge.lesson_5.q5",
+          "conceptId": "sge.physis_usage",
+          "scenario": "フィシスが使用可能です。軽いダメージでパーティのHPは85%です。",
+          "question": "フィシスを使うべきですか？",
+          "options": ["はい——クールダウンごとに使用", "いいえ——重いダメージのために温存", "はい——60秒CD", "次のギミックによる"],
+          "correctIndex": 3,
+          "explanation": "近くに重いダメージがあるならそのためにフィシスを温存してください。重要なことが来ていなければHoTのために今使うのも大丈夫です（60秒CDなので）。"
+        }
+      ]
+    },
+    {
+      "quizId": "sge.lesson_6.quiz",
+      "lessonId": "sge.lesson_6",
+      "title": "クイズ: 防御クールダウン",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sge.lesson_6.q1",
+          "conceptId": "sge.haima_usage",
+          "scenario": "多段タンク強攻撃（3回続けて）があります。ハイマが使用可能です。",
+          "question": "ハイマは有効ですか？",
+          "options": ["いいえ——単発のみ", "はい——バリアがリフレッシュされる", "パーティのために温存", "代わりにパンハイマを使用"],
+          "correctIndex": 1,
+          "explanation": "ハイマのバリアは壊れるとリフレッシュされます（最大5回）。多段強攻撃はハイマに最適——各ヒットが新しいバリアを発動させます。"
+        },
+        {
+          "questionId": "sge.lesson_6.q2",
+          "conceptId": "sge.panhaima_usage",
+          "scenario": "15秒間に複数の全体攻撃があります。パンハイマが使用可能です。",
+          "question": "いつパンハイマを使いますか？",
+          "options": ["最初のヒットの後", "連続の前", "タンクのために温存", "ヒットの間"],
+          "correctIndex": 1,
+          "explanation": "パンハイマはパーティにスタッキングバリアを付与します（壊れるとリフレッシュ）。バリア価値を最大化するために多段連続の前に使いましょう。"
+        },
+        {
+          "questionId": "sge.lesson_6.q3",
+          "conceptId": "sge.pepsis_usage",
+          "scenario": "パーティにE.プログノシスのバリアがあります。予期しないダメージでヒールが必要です。",
+          "question": "ペプシスは何をしますか？",
+          "options": ["さらにバリアを追加", "バリアをヒールに変換", "バリアを除去", "役に立たない"],
+          "correctIndex": 1,
+          "explanation": "ペプシスは既存のバリアを即時にヒールに変換します。バリアが使われずに切れそうな場合、ペプシスでその価値を活かしましょう。"
+        },
+        {
+          "questionId": "sge.lesson_6.q4",
+          "conceptId": "sge.zoe_usage",
+          "scenario": "タンクが極めて低HPです。大きなヒールが必要です。ゾエが使用可能です。",
+          "question": "ゾエをどう使いますか？",
+          "options": ["単独で使用", "ゾエ→ディアグノシス", "ゾエ→ドルオコール", "ゾエ→E.ディアグノシス"],
+          "correctIndex": 1,
+          "explanation": "ゾエは次のGCDヒールを50%増加させます。ゾエ後にディアグノシスを使って大きな単体ヒールを行いましょう。ドルオコールはoGCD（ブーストされない）です。"
+        },
+        {
+          "questionId": "sge.lesson_6.q5",
+          "conceptId": "sge.rhizomata_usage",
+          "scenario": "アダーズゴールが0です。リゾマタが使用可能です。",
+          "question": "リゾマタは何を提供しますか？",
+          "options": ["即時ヒール", "アダーズゴール1スタック", "パーティバリア", "MP回復"],
+          "correctIndex": 1,
+          "explanation": "リゾマタは90秒CDでアダーズゴール1スタックを付与します。スタックが切れてアダーズゴールスキルが必要な時に使いましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "sge.lesson_7.quiz",
+      "lessonId": "sge.lesson_7",
+      "title": "クイズ: DPSと連携",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sge.lesson_7.q1",
+          "conceptId": "sge.dps_optimization",
+          "scenario": "パーティは健全。E.ドシスが稼働中。タンクにカルディアあり。",
+          "question": "何をすべきですか？",
+          "options": ["パーティを先読みバリア", "ドシスを連打", "ヒールを準備", "HoTを追加"],
+          "correctIndex": 1,
+          "explanation": "ドシスを連打＝ダメージ＋カルディアヒール。パーティが健全でDoTが稼働中なら、ドシスの稼働率を最大化しましょう。賢者はDPSでヒールします。"
+        },
+        {
+          "questionId": "sge.lesson_7.q2",
+          "conceptId": "sge.phlegma_usage",
+          "scenario": "バーストウィンドウが始まります。フレグマのチャージが2つあります。",
+          "question": "フレグマをどう使うべきですか？",
+          "options": ["移動のために温存", "バーストで両方使用", "間隔をあけて使用", "1つ今、1つ後"],
+          "correctIndex": 1,
+          "explanation": "フレグマは強力なインスタントダメージです。レイドバフ下のバーストウィンドウ中にチャージを使いましょう。バーストが遠い場合のみ移動のために温存してください。"
+        },
+        {
+          "questionId": "sge.lesson_7.q3",
+          "conceptId": "sge.co_healer_awareness",
+          "scenario": "白魔道士とペアです。白魔道士が全体攻撃前にテンペランスを使いました。",
+          "question": "どうすべきですか？",
+          "options": ["ケラコールを追加", "コヒーラーを信頼してDPS", "パンハイマを使用", "軽減を重ねる"],
+          "correctIndex": 1,
+          "explanation": "白魔道士のテンペランスはパーティ軽減を提供します。軽減を重ねると効果が薄れます。コヒーラーを信頼してDPSに集中してください。"
+        },
+        {
+          "questionId": "sge.lesson_7.q4",
+          "conceptId": "sge.toxikon_usage",
+          "scenario": "アダーズスティングが2つあります（E.ディアグノシスバリアが壊れて獲得）。移動が必要です。",
+          "question": "何を使うべきですか？",
+          "options": ["ドシス", "トクシコン", "フレグマ", "何もしない"],
+          "correctIndex": 1,
+          "explanation": "トクシコンはアダーズスティングを消費するインスタントダメージです。移動に最適です。バリアから獲得したスタックを活用しましょう。"
+        },
+        {
+          "questionId": "sge.lesson_7.q5",
+          "conceptId": "sge.raise_decision",
+          "scenario": "DPSが死にました。スウィフトキャストが使用可能です。コヒーラーの占星術師がマレフィックをキャスト中です。",
+          "question": "誰が蘇生すべきですか？",
+          "options": ["占星術師を待つ", "あなたが——スウィフトキャスト準備済み", "エゲイロをハードキャスト", "召喚士を待つ"],
+          "correctIndex": 1,
+          "explanation": "スウィフトキャストが使用可能で占星術師はDPS中です。蘇生を担当しましょう——すぐにDPSを復帰させてください。"
+        }
+      ]
+    }
+  ]
+}

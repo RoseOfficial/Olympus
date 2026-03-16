@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "ast",
+  "jobName": "占星術師",
+  "quizzes": [
+    {
+      "quizId": "ast.lesson_1.quiz",
+      "lessonId": "ast.lesson_1",
+      "title": "クイズ: 占星術師の基本",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "ast.lesson_1.q1",
+          "conceptId": "ast.essential_dignity_usage",
+          "scenario": "タンクのHPが25%です。エッセンシャル・ディグニティのチャージが2つあります。",
+          "question": "エッセンシャル・ディグニティの効果はどうなりますか？",
+          "options": ["通常威力", "低HPによる威力増加", "威力減少", "満HPと同じ"],
+          "correctIndex": 1,
+          "explanation": "エッセンシャル・ディグニティはHPが低い対象ほど強力です。25%では最大威力になります。緊急時に最適です。"
+        },
+        {
+          "questionId": "ast.lesson_1.q2",
+          "conceptId": "ast.hot_management",
+          "scenario": "戦闘が始まります。タンクは満HPです。",
+          "question": "最初に何を付与すべきですか？",
+          "options": ["ベネフィックII", "アスペクト・ベネフィック", "何もしない", "エッセンシャル・ディグニティ"],
+          "correctIndex": 1,
+          "explanation": "占星術師はリジェネヒーラー——タンクにアスペクト・ベネフィック（HoT）から始めましょう。HoTが継続的なダメージを時間をかけて回復させ、DPSができます。"
+        },
+        {
+          "questionId": "ast.lesson_1.q3",
+          "conceptId": "ast.emergency_healing",
+          "scenario": "タンクのHPが15%です。エッセンシャル・ディグニティはクールダウン中です。",
+          "question": "緊急オプションは何ですか？",
+          "options": ["ベネフィックII", "ベネフィック", "セレスティアル・インターセクション", "アスペクト・ベネフィック"],
+          "correctIndex": 2,
+          "explanation": "セレスティアル・インターセクションはoGCDでバリアとHoTを即時に提供します。エッセンシャル・ディグニティがクールダウン中の時の最善の緊急oGCDです。"
+        },
+        {
+          "questionId": "ast.lesson_1.q4",
+          "conceptId": "ast.essential_dignity_usage",
+          "scenario": "タンクのHPが70%です。エッセンシャル・ディグニティのチャージが2つあります。",
+          "question": "エッセンシャル・ディグニティを使うべきですか？",
+          "options": ["はい——自由に使う", "いいえ——タンクのHPが高すぎ", "はい——キャップを避ける", "いいえ——緊急事態のために温存"],
+          "correctIndex": 1,
+          "explanation": "70%のHPではエッセンシャル・ディグニティの威力は低くなります。ヒール価値を最大化するためにタンクがもっと低くなるまで待ちましょう。"
+        },
+        {
+          "questionId": "ast.lesson_1.q5",
+          "conceptId": "ast.hot_management",
+          "scenario": "アスペクト・ベネフィックの残り時間が10秒です。タンクのHPは85%です。",
+          "question": "リフレッシュすべきですか？",
+          "options": ["はい", "いいえ——もっと低くなるまで待つ", "いいえ——過剰ヒールになる", "はい——常に維持する"],
+          "correctIndex": 2,
+          "explanation": "HoTの残り10秒でHP85%なら、リフレッシュすると過剰ヒールになります。HoTが切れそうでかつヒールが必要な時にリフレッシュしましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "ast.lesson_2.quiz",
+      "lessonId": "ast.lesson_2",
+      "title": "クイズ: カードシステム基礎",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "ast.lesson_2.q1",
+          "conceptId": "ast.draw_timing",
+          "scenario": "ドローのクールダウンが切れました。カードがありません。",
+          "question": "いつドローすべきですか？",
+          "options": ["バーストまで待つ", "すぐにドロー", "緊急事態のために温存", "タンクダメージを待つ"],
+          "correctIndex": 1,
+          "explanation": "クールダウンごとにドローしてください。カードには有効時間があり、早くドローするほど次のドローも早くできます。"
+        },
+        {
+          "questionId": "ast.lesson_2.q2",
+          "conceptId": "ast.card_management",
+          "scenario": "カードがあります。パーティにメレー2人とレンジ2人のDPSがいます。",
+          "question": "誰にプレイすべきですか？",
+          "options": ["タンク", "誰でもDPS", "ヒーラー", "最も良いパフォーマンスのDPS"],
+          "correctIndex": 3,
+          "explanation": "カードはダメージバフを付与します。最も価値を得られるDPS——通常は最も良いパフォーマンスのDPS——にプレイしてください。"
+        },
+        {
+          "questionId": "ast.lesson_2.q3",
+          "conceptId": "ast.minor_arcana_usage",
+          "scenario": "カードがありますが全DPSが死んでいます。",
+          "question": "どうすべきですか？",
+          "options": ["蘇生のために保持", "タンクにプレイ", "マイナーアルカナ", "有効期限を待つ"],
+          "correctIndex": 2,
+          "explanation": "マイナーアルカナはカードをロード/レディ・オブ・クラウンズに変換します。最適な使い方ができないカードは変換してください。"
+        },
+        {
+          "questionId": "ast.lesson_2.q4",
+          "conceptId": "ast.draw_timing",
+          "scenario": "重ヒールフェーズ中にドローが使用可能です。",
+          "question": "ドローすべきですか？",
+          "options": ["いいえ——ヒールに集中", "はい——ドローはoGCD", "安定するまで待つ", "カードは重要でない"],
+          "correctIndex": 1,
+          "explanation": "ドローはoGCD——ヒール間にウィーブできます。強烈なヒール中でも、カードサイクルを回し続けましょう。"
+        },
+        {
+          "questionId": "ast.lesson_2.q5",
+          "conceptId": "ast.card_management",
+          "scenario": "5秒後にDPSがバーストします。カードがあります。",
+          "question": "カードをいつプレイすべきですか？",
+          "options": ["すぐに", "バースト直前", "バースト中", "バースト後"],
+          "correctIndex": 1,
+          "explanation": "バーストの直前にプレイしてバフが最高のダメージ中に有効になるようにします。バースト中や後のプレイはバフ時間を無駄にします。"
+        }
+      ]
+    },
+    {
+      "quizId": "ast.lesson_3.quiz",
+      "lessonId": "ast.lesson_3",
+      "title": "クイズ: カードシステム上級",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "ast.lesson_3.q1",
+          "conceptId": "ast.divination_timing",
+          "scenario": "戦闘開始。DPSがオープナーを使っています。神占が使用可能です。",
+          "question": "神占をいつ使うべきですか？",
+          "options": ["後のために温存", "オープナーで使用", "2分待つ", "最初のギミック後"],
+          "correctIndex": 1,
+          "explanation": "神占（パーティ6%バフ）はパーティバーストに合わせるべきです。オープナーが最大のバーストです——早めに使ってください。"
+        },
+        {
+          "questionId": "ast.lesson_3.q2",
+          "conceptId": "ast.oracle_usage",
+          "scenario": "神占を使いました。オラクルが使用可能です。",
+          "question": "オラクルをどうすべきですか？",
+          "options": ["温存する", "すぐに使用", "もっとターゲットを待つ", "使う価値なし"],
+          "correctIndex": 1,
+          "explanation": "オラクルは神占後に付与される強力なダメージです。作ったバーストウィンドウ中に使いましょう。"
+        },
+        {
+          "questionId": "ast.lesson_3.q3",
+          "conceptId": "ast.astrodyne_building",
+          "scenario": "カードを2枚プレイしました。アストロダインには3枚必要です。",
+          "question": "何を優先すべきですか？",
+          "options": ["完璧なカードを待つ", "どのカードでもプレイ", "3枚目を温存", "アストロダインは重要でない"],
+          "correctIndex": 1,
+          "explanation": "アストロダインを発動させることは価値があります。ターゲットが完璧でなくても3枚目のカードをプレイしてください。"
+        },
+        {
+          "questionId": "ast.lesson_3.q4",
+          "conceptId": "ast.divination_timing",
+          "scenario": "神占が使用可能です。45秒後に大きなバーストがあります。今は小さなバーストです。",
+          "question": "神占をいつ使うべきですか？",
+          "options": ["今", "45秒のために温存", "今——再度揃う", "戦闘次第"],
+          "correctIndex": 3,
+          "explanation": "戦闘の長さによります。大きなバーストまでに神占が準備できるなら今使ってください。そうでないなら温存しましょう。戦闘のタイムラインを覚えることが大切です。"
+        },
+        {
+          "questionId": "ast.lesson_3.q5",
+          "conceptId": "ast.astrodyne_building",
+          "scenario": "同じシールのカードを3枚プレイしました。アストロダインが発動しました。",
+          "question": "どのバフを受けますか？",
+          "options": ["3つ全部", "1つのみ", "2つ", "なし"],
+          "correctIndex": 1,
+          "explanation": "アストロダインのバフはシールの種類で決まります。3枚同じ＝バフ1つ。より多くのバフのためには異なるシールが必要です。"
+        }
+      ]
+    },
+    {
+      "quizId": "ast.lesson_4.quiz",
+      "lessonId": "ast.lesson_4",
+      "title": "クイズ: HoTエコノミー",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "ast.lesson_4.q1",
+          "conceptId": "ast.aspected_benefic_usage",
+          "scenario": "タンクにHoTがありません。HP75%で継続的なダメージがあります。",
+          "question": "何を付与すべきですか？",
+          "options": ["ベネフィックII", "アスペクト・ベネフィック", "エッセンシャル・ディグニティ", "何もしない"],
+          "correctIndex": 1,
+          "explanation": "アスペクト・ベネフィックのHoTは継続的なダメージを時間をかけて処理し、DPSができます。大きな低下にはoGCDを温存してください。"
+        },
+        {
+          "questionId": "ast.lesson_4.q2",
+          "conceptId": "ast.celestial_opposition_usage",
+          "scenario": "全体攻撃が当たりました。パーティのHPは60%です。セレスティアル・オポジションが使用可能です。",
+          "question": "使うべきですか？",
+          "options": ["いいえ——温存", "はい——無料のoGCD", "いいえ——パーティは大丈夫", "代わりにヘリオスを使用"],
+          "correctIndex": 1,
+          "explanation": "セレスティアル・オポジションは無料のoGCDパーティヒール＋HoTです。HP60%なら、GCDを使わずに回復を処理できます。"
+        },
+        {
+          "questionId": "ast.lesson_4.q3",
+          "conceptId": "ast.synastry_usage",
+          "scenario": "重いタンクダメージフェーズです。シナストリーが使用可能です。",
+          "question": "シナストリーをどう使いますか？",
+          "options": ["DPSにかける", "自分にかける", "タンクにかける", "緊急事態のために温存"],
+          "correctIndex": 2,
+          "explanation": "シナストリーはあなたのヒールの40%を繋いだ対象に複製します。重ダメージ中はタンクにかけましょう。"
+        },
+        {
+          "questionId": "ast.lesson_4.q4",
+          "conceptId": "ast.aspected_helios_usage",
+          "scenario": "20秒間に複数の全体攻撃があります。パーティは満HPです。",
+          "question": "アスペクト・ヘリオスを先行付与しますか？",
+          "options": ["いいえ——待つ", "はい——HoTが助ける", "いいえ——過剰ヒールになる", "ダメージ後のみ"],
+          "correctIndex": 1,
+          "explanation": "先行付与したHoTはヒット間にパーティが自動回復します。先手のHoTは占星術師の強みです。"
+        },
+        {
+          "questionId": "ast.lesson_4.q5",
+          "conceptId": "ast.celestial_opposition_usage",
+          "scenario": "セレスティアル・オポジションが使用可能です。30秒後に全体攻撃があります。今すぐヒールが必要です。",
+          "question": "使うべきですか？",
+          "options": ["全体攻撃のために温存", "今使う——60秒CD", "代わりにヘリオス", "HPによる"],
+          "correctIndex": 1,
+          "explanation": "60秒のクールダウンなら全体攻撃までに再び準備できます。不要にoGCDを温存しないでください。"
+        }
+      ]
+    },
+    {
+      "quizId": "ast.lesson_5.quiz",
+      "lessonId": "ast.lesson_5",
+      "title": "クイズ: アーシーズスターの習得",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "ast.lesson_5.q1",
+          "conceptId": "ast.earthly_star_placement",
+          "scenario": "12秒後に全体攻撃があります。スターが使用可能です。",
+          "question": "いつアーシーズスターを設置しますか？",
+          "options": ["ヒットの直前", "今——成熟に10秒必要", "全体攻撃の後", "5秒前"],
+          "correctIndex": 1,
+          "explanation": "スターは成熟に10秒かかります。12秒後の全体攻撃に満威力で間に合うように今すぐ設置しましょう。"
+        },
+        {
+          "questionId": "ast.lesson_5.q2",
+          "conceptId": "ast.earthly_star_maturation",
+          "scenario": "スターを設置して5秒経ちました。今すぐヒールが必要です。",
+          "question": "早期発動すべきですか？",
+          "options": ["いいえ——待つ", "はい——少しでもヒールになる", "他のヒールを使用", "スターは役に立たない"],
+          "correctIndex": 2,
+          "explanation": "5秒時点ではスターは半分の威力です。可能なら他のヒールを使いましょう。どうしても必要な時のみ早期発動してください。"
+        },
+        {
+          "questionId": "ast.lesson_5.q3",
+          "conceptId": "ast.earthly_star_placement",
+          "scenario": "15秒後にパーティがギミックでスタックします。",
+          "question": "スターをどこに設置しますか？",
+          "options": ["現在地", "スタックポイント", "ボスの下", "アリーナの中央"],
+          "correctIndex": 1,
+          "explanation": "発動時にパーティがいる場所に設置してください。スタックポイントなら成熟したスターが全員に当たります。"
+        },
+        {
+          "questionId": "ast.lesson_5.q4",
+          "conceptId": "ast.earthly_star_maturation",
+          "scenario": "スターを設置して18秒経ちました。20秒で自動発動します。",
+          "question": "どうすべきですか？",
+          "options": ["自動発動させる", "手動で発動", "関係ない", "新しいものを設置"],
+          "correctIndex": 0,
+          "explanation": "18秒時点でスターは成熟しています。すぐにヒールが必要またはパーティが移動している場合を除いて自動発動させましょう。"
+        },
+        {
+          "questionId": "ast.lesson_5.q5",
+          "conceptId": "ast.earthly_star_placement",
+          "scenario": "戦闘開始。30秒間全体攻撃はありません。",
+          "question": "スターを設置すべきですか？",
+          "options": ["いいえ——全体攻撃のために温存", "はい——クールダウンごとに使用", "20秒待つ", "タンクのために設置"],
+          "correctIndex": 1,
+          "explanation": "スターはダメージも与えます。DPS価値のために使いましょう。60秒CDなので30秒の全体攻撃には再び準備できます。"
+        }
+      ]
+    },
+    {
+      "quizId": "ast.lesson_6.quiz",
+      "lessonId": "ast.lesson_6",
+      "title": "クイズ: 防御クールダウン",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "ast.lesson_6.q1",
+          "conceptId": "ast.neutral_sect_usage",
+          "scenario": "重い全体攻撃が来ます。パーティは満HPです。",
+          "question": "どうすべきですか？",
+          "options": ["ニュートラルセクトを温存", "ニュートラルセクト＋アスペクト・ヘリオス", "アスペクト・ヘリオスのみ", "ダメージを待つ"],
+          "correctIndex": 1,
+          "explanation": "ニュートラルセクトはアスペクト系スペルにバリアを付加します。全体攻撃の前に両方使ってHoT＋バリアのコンボを作りましょう。"
+        },
+        {
+          "questionId": "ast.lesson_6.q2",
+          "conceptId": "ast.macrocosmos_usage",
+          "scenario": "5秒後に重いダメージがあります。マクロコスモスが使用可能です。",
+          "question": "マクロコスモスをいつ使いますか？",
+          "options": ["ダメージ後", "ダメージ前", "ダメージ中", "温存する"],
+          "correctIndex": 1,
+          "explanation": "マクロコスモスは受けたダメージを蓄積します。蓄積できるようにダメージの前に使い、その後発動してヒールとして返します。"
+        },
+        {
+          "questionId": "ast.lesson_6.q3",
+          "conceptId": "ast.exaltation_usage",
+          "scenario": "5秒後にタンク強攻撃があります。エグザルテーションが使用可能です。",
+          "question": "使うべきですか？",
+          "options": ["いいえ——バリアを付与しない", "はい——軽減＋遅延ヒール", "強攻撃を待つ", "セレスティアル・インターセクションを使用"],
+          "correctIndex": 1,
+          "explanation": "エグザルテーションは10%軽減と期限切れ時にヒールを提供します。軽減価値のために前に付与してください。"
+        },
+        {
+          "questionId": "ast.lesson_6.q4",
+          "conceptId": "ast.collective_unconscious_usage",
+          "scenario": "重い継続的な全体ダメージがあります。コレクティブ・アンコンシャスが使用可能です。",
+          "question": "どう機能しますか？",
+          "options": ["即時ヒール", "チャネル型軽減＋HoT", "バリアのみ", "軽減のみ"],
+          "correctIndex": 1,
+          "explanation": "コレクティブ・アンコンシャスはチャネル型です——チャネル中に軽減を提供し、HoTを付与します。"
+        },
+        {
+          "questionId": "ast.lesson_6.q5",
+          "conceptId": "ast.lightspeed_usage",
+          "scenario": "移動しながらキャストを維持する必要があります。",
+          "question": "何のスキルが役立ちますか？",
+          "options": ["スウィフトキャスト", "ライトスピード", "プレゼンス・オブ・マインド", "何もない"],
+          "correctIndex": 1,
+          "explanation": "ライトスピードは15秒間GCDをインスタントにします。ローテーションを維持しながら完全に移動できます。"
+        }
+      ]
+    },
+    {
+      "quizId": "ast.lesson_7.quiz",
+      "lessonId": "ast.lesson_7",
+      "title": "クイズ: DPSと連携",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "ast.lesson_7.q1",
+          "conceptId": "ast.dot_maintenance",
+          "scenario": "コンバストの残り時間が4秒です。",
+          "question": "リフレッシュすべきですか？",
+          "options": ["はい——DoTを維持", "いいえ——3秒以下まで待つ", "はい——常にリフレッシュ", "切れるまで待つ"],
+          "correctIndex": 1,
+          "explanation": "クリッピングを避けるため残り3秒以下でリフレッシュしてください。4秒ならもう1GCD待ちましょう。"
+        },
+        {
+          "questionId": "ast.lesson_7.q2",
+          "conceptId": "ast.dps_optimization",
+          "scenario": "パーティは健全。コンバストは稼働中。カードをプレイしました。ギミックなし。",
+          "question": "何をすべきですか？",
+          "options": ["先読みヒール", "マレフィックを連打", "カードを引く", "HoTを付与"],
+          "correctIndex": 1,
+          "explanation": "フォール・マレフィックはフィラーGCDです。ヒールが不要でDoTが稼働中なら、ダメージのためにマレフィックを連打しましょう。"
+        },
+        {
+          "questionId": "ast.lesson_7.q3",
+          "conceptId": "ast.co_healer_awareness",
+          "scenario": "コヒーラーの賢者が全体攻撃前にケラコールを使いました。",
+          "question": "どうすべきですか？",
+          "options": ["アスペクト・ヘリオスを追加", "コヒーラーを信頼してDPS", "ニュートラルセクトを使用", "ヒールを準備"],
+          "correctIndex": 1,
+          "explanation": "ケラコールは軽減とHoTを提供します。コヒーラーを信頼してDPSに集中してください。"
+        },
+        {
+          "questionId": "ast.lesson_7.q4",
+          "conceptId": "ast.raise_decision",
+          "scenario": "DPSが死にました。スウィフトキャストが使用可能です。コヒーラーの白魔道士はグレアをキャスト中です。",
+          "question": "誰が蘇生すべきですか？",
+          "options": ["白魔道士を待つ", "あなたが——スウィフトキャスト準備済み", "アセンドをハードキャスト", "召喚士/赤魔道士を待つ"],
+          "correctIndex": 1,
+          "explanation": "スウィフトキャストが使用可能で白魔道士はDPS中です。すぐに蘇生を行いましょう。"
+        },
+        {
+          "questionId": "ast.lesson_7.q5",
+          "conceptId": "ast.esuna_usage",
+          "scenario": "パーティメンバーにデス（白いバー付き）が付いています。",
+          "question": "どうすべきですか？",
+          "options": ["ヒールで対処", "すぐにエスナ", "自然に消えるまで待つ", "除去できない"],
+          "correctIndex": 1,
+          "explanation": "白いバー付きのデスは除去可能です。除去しないとプレイヤーが死にます。エスナは最優先です。"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,143 @@
+{
+  "jobPrefix": "ast",
+  "jobName": "占星術師",
+  "lessons": [
+    {
+      "lessonId": "ast.lesson_1",
+      "lessonNumber": 1,
+      "title": "占星術師の基本",
+      "description": "占星術師のヒールの本質を学びます。エッセンシャル・ディグニティによる緊急ヒール、HoT中心のヒーリング、リジェネヒーラーとしての役割について解説します。",
+      "prerequisites": [],
+      "conceptsCovered": ["ast.emergency_healing", "ast.essential_dignity_usage", "ast.hot_management"],
+      "keyPoints": [
+        "占星術師はリジェネヒーラー——HoTで継続的なヒールに集中する",
+        "エッセンシャル・ディグニティ：HPが低い対象ほど強力な緊急ヒール",
+        "エッセンシャル・ディグニティには2チャージあります（40秒リチャージ）——積極的に使いましょう",
+        "HoTは時間をかけて回復します——ダメージ後ではなく前に付与してください"
+      ],
+      "relatedAbilities": ["Essential Dignity", "Benefic", "Benefic II", "Aspected Benefic"],
+      "tips": [
+        "エッセンシャル・ディグニティは対象のHPが低いほど強力です——早まって使わないでください",
+        "緊急事態に備えて常に少なくとも1チャージのエッセンシャル・ディグニティを用意しておきましょう"
+      ]
+    },
+    {
+      "lessonId": "ast.lesson_2",
+      "lessonNumber": 2,
+      "title": "カードシステム基礎",
+      "description": "占星術師のカードシステムを理解します。カードの引き方、パーティメンバーへのプレイ方法、セルフ使用のためのマイナーアルカナについて学びます。",
+      "prerequisites": ["ast.lesson_1"],
+      "conceptsCovered": ["ast.card_management", "ast.draw_timing", "ast.minor_arcana_usage"],
+      "keyPoints": [
+        "ドローは30秒ごとにカードを1枚引けます——使わずに放置しないこと",
+        "カードはダメージバフを付与——最大の価値を得るためにDPSにプレイ",
+        "マイナーアルカナはカードをロード・オブ・クラウンズ/レディ・オブ・クラウンズに変換",
+        "ロード・オブ・クラウンズ：ダメージ、レディ・オブ・クラウンズ：パーティヒール"
+      ],
+      "relatedAbilities": ["Draw", "Play", "Minor Arcana", "Lord of Crowns", "Lady of Crowns"],
+      "tips": [
+        "バーストウィンドウ中にカードをプレイしてDPS最大化",
+        "カードを温存しないでください——引いた後に有効時間があります"
+      ]
+    },
+    {
+      "lessonId": "ast.lesson_3",
+      "lessonNumber": 3,
+      "title": "カードシステム上級",
+      "description": "アストロダインゲージの積み方、神占のレイドバフのタイミング、オラクルのメカニクスを習得します。",
+      "prerequisites": ["ast.lesson_2"],
+      "conceptsCovered": ["ast.astrodyne_building", "ast.divination_timing", "ast.oracle_usage"],
+      "keyPoints": [
+        "アストロダイン：カード3枚のプレイで発動、種類に応じたバフを付与",
+        "神占：パーティへの20秒間6%ダメージバフ（2分CD）",
+        "神占を他のパーティレイドバフに合わせる",
+        "オラクル：神占後に付与される強力な攻撃——無駄にしないこと"
+      ],
+      "relatedAbilities": ["Astrodyne", "Divination", "Oracle"],
+      "tips": [
+        "アストロダインのシールを追跡しましょう——種類が多いほどバフが良くなります",
+        "オープナーで神占を使用し、その後バーストに合わせてクールダウンごとに使用"
+      ]
+    },
+    {
+      "lessonId": "ast.lesson_4",
+      "lessonNumber": 4,
+      "title": "HoTエコノミー",
+      "description": "HoTを最適化します。タンク向けアスペクト・ベネフィック、パーティ向けアスペクト・ヘリオス、セレスティアル・オポジション、シナストリーについて学びます。",
+      "prerequisites": ["ast.lesson_3"],
+      "conceptsCovered": ["ast.aspected_benefic_usage", "ast.aspected_helios_usage", "ast.celestial_opposition_usage", "ast.synastry_usage"],
+      "keyPoints": [
+        "アスペクト・ベネフィック：単体HoT——タンクに維持する",
+        "アスペクト・ヘリオス：パーティHoT——継続的な全体ダメージに使用",
+        "セレスティアル・オポジション：即時パーティヒール＋HoT（60秒CD）",
+        "シナストリー：あなたのヒールを対象に複製する（2分CD）"
+      ],
+      "relatedAbilities": ["Aspected Benefic", "Aspected Helios", "Celestial Opposition", "Synastry"],
+      "tips": [
+        "セレスティアル・オポジションは無料のoGCDヒール——クールダウンごとに使用",
+        "タンクへのシナストリーはヒール効率を倍増させます"
+      ]
+    },
+    {
+      "lessonId": "ast.lesson_5",
+      "lessonNumber": 5,
+      "title": "アーシーズスターの習得",
+      "description": "アーシーズスターを習得します。設置タイミング、成熟メカニクス、ヒール効果の最大化について学びます。",
+      "prerequisites": ["ast.lesson_4"],
+      "conceptsCovered": ["ast.earthly_star_placement", "ast.earthly_star_maturation"],
+      "keyPoints": [
+        "アーシーズスター：10秒かけて成熟することでより強力な効果を持つ地面範囲",
+        "最大威力のために必要なタイミングの10秒前に設置する",
+        "ステラー・デトネーションで手動発動、または20秒後に自動発動",
+        "成熟後（ジャイアント・ドミナンス）：威力720ヒール vs 未成熟時の威力360"
+      ],
+      "relatedAbilities": ["Earthly Star", "Stellar Detonation"],
+      "tips": [
+        "ボスのタイムラインを覚えて全体攻撃の10秒前にスターを設置しましょう",
+        "成熟したスターはゲーム内最強のヒールの一つです"
+      ]
+    },
+    {
+      "lessonId": "ast.lesson_6",
+      "lessonNumber": 6,
+      "title": "防御クールダウン",
+      "description": "占星術師の防御ツールを習得します。セレスティアル・インターセクション、エグザルテーション、ホロスコープ、ニュートラルセクト、コレクティブ・アンコンシャス、マクロコスモス、ライトスピードについて学びます。",
+      "prerequisites": ["ast.lesson_5"],
+      "conceptsCovered": ["ast.celestial_intersection_usage", "ast.exaltation_usage", "ast.horoscope_usage", "ast.neutral_sect_usage", "ast.collective_unconscious_usage", "ast.macrocosmos_usage", "ast.lightspeed_usage"],
+      "keyPoints": [
+        "セレスティアル・インターセクション：oGCDバリア＋HoT（30秒CD）",
+        "エグザルテーション：単体軽減＋遅延ヒール（60秒CD）",
+        "ホロスコープ：ヒールを蓄積し、パーティヒールとして発動",
+        "ニュートラルセクト：20秒間HoTにバリアを付加（2分CD）",
+        "コレクティブ・アンコンシャス：チャネル型パーティ軽減＋HoT",
+        "マクロコスモス：受けたダメージを蓄積しヒールとして返す（2分CD）",
+        "ライトスピード：15秒間キャストをインスタントに——移動に最適"
+      ],
+      "relatedAbilities": ["Celestial Intersection", "Exaltation", "Horoscope", "Neutral Sect", "Collective Unconscious", "Macrocosmos", "Lightspeed"],
+      "tips": [
+        "全体攻撃の前にニュートラルセクトで全員にバリアを付与",
+        "マクロコスモスはダメージを受けている間に発動する必要があります"
+      ]
+    },
+    {
+      "lessonId": "ast.lesson_7",
+      "lessonNumber": 7,
+      "title": "DPSと連携",
+      "description": "最終レッスン：DPS最適化、DoT維持、蘇生の判断、コヒーラーとの連携について学びます。",
+      "prerequisites": ["ast.lesson_6"],
+      "conceptsCovered": ["ast.dps_optimization", "ast.dot_maintenance", "ast.raise_decision", "ast.cohealer_awareness", "ast.esuna_usage"],
+      "keyPoints": [
+        "コンバスト（DoT）をボスに常に維持すること",
+        "フォール・マレフィックはフィラー——ヒールが不要な時はこれをキャスト",
+        "コヒーラーと蘇生を調整する",
+        "占星術師はリジェネを担当し、バリアヒーラーはバリアを担当",
+        "エスナは白いバーがあるデバフを除去します"
+      ],
+      "relatedAbilities": ["Fall Malefic", "Combust III", "Ascend", "Esuna"],
+      "tips": [
+        "AoE状況（3体以上）ではグラビティII",
+        "攻略中はボイスチャットで蘇生を宣言しましょう"
+      ]
+    }
+  ]
+}
