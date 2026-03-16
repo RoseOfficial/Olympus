@@ -37,7 +37,10 @@ public sealed class ActionLibraryService : IActionLibrary
         RegisterBardActions();
         RegisterMachinistActions();
         RegisterDancerActions();
-        // Future: casters
+        RegisterBlackMageActions();
+        RegisterSummonerActions();
+        RegisterRedMageActions();
+        RegisterPictomancerActions();
     }
 
     /// <inheritdoc />
@@ -1311,5 +1314,295 @@ public sealed class ActionLibraryService : IActionLibrary
             DNCActions.ArmsLength,
             DNCActions.HeadGraze,
             DNCActions.Peloton);
+    }
+
+    /// <summary>
+    /// Registers all Black Mage (BLM) and Thaumaturge (THM) actions.
+    /// </summary>
+    private void RegisterBlackMageActions()
+    {
+        const uint blmJobId = JobRegistry.BlackMage;
+        const uint thmJobId = JobRegistry.Thaumaturge;
+
+        // Fire spells
+        RegisterActions(blmJobId,
+            BLMActions.Fire,
+            BLMActions.Fire2,
+            BLMActions.Fire3,
+            BLMActions.Fire4,
+            BLMActions.HighFire2,
+            BLMActions.Despair,
+            BLMActions.Flare,
+            BLMActions.FlareStar);
+
+        // Blizzard spells
+        RegisterActions(blmJobId,
+            BLMActions.Blizzard,
+            BLMActions.Blizzard2,
+            BLMActions.Blizzard3,
+            BLMActions.Blizzard4,
+            BLMActions.HighBlizzard2,
+            BLMActions.Freeze,
+            BLMActions.UmbralSoul);
+
+        // Thunder DoTs
+        RegisterActions(blmJobId,
+            BLMActions.Thunder,
+            BLMActions.Thunder2,
+            BLMActions.Thunder3,
+            BLMActions.Thunder4,
+            BLMActions.HighThunder,
+            BLMActions.HighThunder2);
+
+        // Special GCDs
+        RegisterActions(blmJobId,
+            BLMActions.Xenoglossy,
+            BLMActions.Foul,
+            BLMActions.Paradox,
+            BLMActions.Scathe);
+
+        // oGCDs / Utility
+        RegisterActions(blmJobId,
+            BLMActions.Transpose,
+            BLMActions.Triplecast,
+            BLMActions.Manafont,
+            BLMActions.Amplifier,
+            BLMActions.LeyLines,
+            BLMActions.BetweenTheLines,
+            BLMActions.Retrace,
+            BLMActions.Manaward);
+
+        // Role Actions
+        RegisterActions(blmJobId,
+            BLMActions.Swiftcast,
+            BLMActions.Surecast,
+            BLMActions.LucidDreaming,
+            BLMActions.Addle,
+            BLMActions.Sleep);
+
+        // Thaumaturge base class
+        RegisterActions(thmJobId,
+            BLMActions.Fire,
+            BLMActions.Blizzard,
+            BLMActions.Thunder,
+            BLMActions.Fire2,
+            BLMActions.Blizzard2,
+            BLMActions.Transpose,
+            BLMActions.Swiftcast,
+            BLMActions.LucidDreaming,
+            BLMActions.Addle);
+    }
+
+    /// <summary>
+    /// Registers all Summoner (SMN) actions.
+    /// Note: Arcanist (ACN) base class actions are shared with Scholar;
+    /// they are already registered in RegisterScholarActions().
+    /// </summary>
+    private void RegisterSummonerActions()
+    {
+        const uint smnJobId = JobRegistry.Summoner;
+
+        // Ruin progression
+        RegisterActions(smnJobId,
+            SMNActions.Ruin,
+            SMNActions.Ruin2,
+            SMNActions.Ruin3,
+            SMNActions.Ruin4,
+            SMNActions.Outburst,
+            SMNActions.TriDisaster);
+
+        // Primal GCDs
+        RegisterActions(smnJobId,
+            SMNActions.AstralImpulse,
+            SMNActions.AstralFlare,
+            SMNActions.FountainOfFire,
+            SMNActions.BrandOfPurgatory,
+            SMNActions.UmbralImpulse,
+            SMNActions.UmbralFlare,
+            SMNActions.RubyRite,
+            SMNActions.RubyCatastrophe,
+            SMNActions.TopazRite,
+            SMNActions.TopazCatastrophe,
+            SMNActions.EmeraldRite,
+            SMNActions.EmeraldCatastrophe,
+            SMNActions.CrimsonCyclone,
+            SMNActions.CrimsonStrike,
+            SMNActions.Slipstream);
+
+        // Summons
+        RegisterActions(smnJobId,
+            SMNActions.SummonCarbuncle,
+            SMNActions.SummonBahamut,
+            SMNActions.SummonPhoenix,
+            SMNActions.SummonSolarBahamut,
+            SMNActions.SummonIfrit,
+            SMNActions.SummonIfrit2,
+            SMNActions.SummonTitan,
+            SMNActions.SummonTitan2,
+            SMNActions.SummonGaruda,
+            SMNActions.SummonGaruda2);
+
+        // oGCDs
+        RegisterActions(smnJobId,
+            SMNActions.EnergyDrain,
+            SMNActions.EnergySiphon,
+            SMNActions.Necrotize,
+            SMNActions.Fester,
+            SMNActions.Painflare,
+            SMNActions.SearingLight,
+            SMNActions.SearingFlash,
+            SMNActions.RadiantAegis,
+            SMNActions.EnkindleBahamut,
+            SMNActions.EnkindlePhoenix,
+            SMNActions.EnkindleSolarBahamut,
+            SMNActions.Deathflare,
+            SMNActions.Rekindle,
+            SMNActions.Sunflare,
+            SMNActions.LuxSolaris,
+            SMNActions.MountainBuster);
+
+        // Role Actions
+        RegisterActions(smnJobId,
+            SMNActions.Swiftcast,
+            SMNActions.LucidDreaming,
+            SMNActions.Addle,
+            SMNActions.Surecast,
+            SMNActions.Resurrection);
+    }
+
+    /// <summary>
+    /// Registers all Red Mage (RDM) actions.
+    /// </summary>
+    private void RegisterRedMageActions()
+    {
+        const uint rdmJobId = JobRegistry.RedMage;
+
+        // Cast GCDs
+        RegisterActions(rdmJobId,
+            RDMActions.Jolt,
+            RDMActions.Jolt2,
+            RDMActions.Jolt3,
+            RDMActions.Verthunder,
+            RDMActions.Veraero,
+            RDMActions.Verthunder2,
+            RDMActions.Veraero2,
+            RDMActions.Verthunder3,
+            RDMActions.Veraero3,
+            RDMActions.Verfire,
+            RDMActions.Verstone,
+            RDMActions.Impact);
+
+        // Melee combo
+        RegisterActions(rdmJobId,
+            RDMActions.Riposte,
+            RDMActions.EnchantedRiposte,
+            RDMActions.Zwerchhau,
+            RDMActions.EnchantedZwerchhau,
+            RDMActions.Redoublement,
+            RDMActions.EnchantedRedoublement,
+            RDMActions.Verflare,
+            RDMActions.Verholy,
+            RDMActions.Scorch,
+            RDMActions.Resolution,
+            RDMActions.GrandImpact,
+            RDMActions.EnchantedMoulinet,
+            RDMActions.EnchantedMoulinetDeux,
+            RDMActions.EnchantedMoulinetTrois);
+
+        // oGCDs
+        RegisterActions(rdmJobId,
+            RDMActions.Fleche,
+            RDMActions.ContreSixte,
+            RDMActions.CorpsACorps,
+            RDMActions.Engagement,
+            RDMActions.Displacement,
+            RDMActions.ViceOfThorns,
+            RDMActions.Prefulgence,
+            RDMActions.Embolden,
+            RDMActions.Manafication,
+            RDMActions.Acceleration);
+
+        // Role Actions
+        RegisterActions(rdmJobId,
+            RDMActions.Swiftcast,
+            RDMActions.LucidDreaming,
+            RDMActions.Vercure,
+            RDMActions.Verraise,
+            RDMActions.MagickBarrier,
+            RDMActions.Addle,
+            RDMActions.Surecast);
+    }
+
+    /// <summary>
+    /// Registers all Pictomancer (PCT) actions.
+    /// </summary>
+    private void RegisterPictomancerActions()
+    {
+        const uint pctJobId = JobRegistry.Pictomancer;
+
+        // Basic paint GCDs
+        RegisterActions(pctJobId,
+            PCTActions.FireInRed,
+            PCTActions.AeroInGreen,
+            PCTActions.WaterInBlue,
+            PCTActions.BlizzardInCyan,
+            PCTActions.StoneInYellow,
+            PCTActions.ThunderInMagenta,
+            PCTActions.Fire2InRed,
+            PCTActions.Aero2InGreen,
+            PCTActions.Water2InBlue,
+            PCTActions.Blizzard2InCyan,
+            PCTActions.Stone2InYellow,
+            PCTActions.Thunder2InMagenta,
+            PCTActions.HolyInWhite,
+            PCTActions.CometInBlack);
+
+        // Motifs
+        RegisterActions(pctJobId,
+            PCTActions.CreatureMotif,
+            PCTActions.PomMotif,
+            PCTActions.WingMotif,
+            PCTActions.ClawMotif,
+            PCTActions.MawMotif,
+            PCTActions.WeaponMotif,
+            PCTActions.HammerMotif,
+            PCTActions.LandscapeMotif,
+            PCTActions.StarrySkyMotif);
+
+        // Muse / Living Muse
+        RegisterActions(pctJobId,
+            PCTActions.LivingMuse,
+            PCTActions.PomMuse,
+            PCTActions.WingedMuse,
+            PCTActions.ClawedMuse,
+            PCTActions.FangedMuse,
+            PCTActions.SteelMuse,
+            PCTActions.StrikingMuse,
+            PCTActions.ScenicMuse,
+            PCTActions.StarryMuse);
+
+        // Hammer / Finishers
+        RegisterActions(pctJobId,
+            PCTActions.HammerStamp,
+            PCTActions.HammerBrush,
+            PCTActions.PolishingHammer,
+            PCTActions.MogOfTheAges,
+            PCTActions.RetributionOfTheMadeen,
+            PCTActions.RainbowDrip,
+            PCTActions.StarPrism);
+
+        // Utility
+        RegisterActions(pctJobId,
+            PCTActions.SubtractivePalette,
+            PCTActions.TemperaCoat,
+            PCTActions.TemperaGrassa,
+            PCTActions.Smudge);
+
+        // Role Actions
+        RegisterActions(pctJobId,
+            PCTActions.Swiftcast,
+            PCTActions.LucidDreaming,
+            PCTActions.Surecast,
+            PCTActions.Addle);
     }
 }
