@@ -349,6 +349,15 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
         if (!context.HasHammerTime && !context.IsInHammerCombo)
             return false;
 
+        // Hold Hammer Stamp activation for burst when burst is imminent
+        // (Hammer has 30s to use once Striking Muse is active - safe to pool)
+        // Only hold the first hit (step 0 = Stamp); always continue once in the combo
+        if (context.Configuration.Pictomancer.EnableBurstPooling && ShouldHoldForBurst(8f) && context.HammerComboStep == 0)
+        {
+            context.Debug.DamageState = "Holding Hammer Stamp for burst";
+            return false;
+        }
+
         // Get the next hammer action
         var hammerAction = PCTActions.GetHammerComboAction(context.HammerComboStep, level);
         if (hammerAction == null)

@@ -122,7 +122,7 @@ public sealed class Prometheus : BaseRangedDpsRotation<IPrometheusContext, IProm
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<IPrometheusModule>
         {
-            new BuffModule(),    // Priority 20 - Buff management (Wildfire, Hypercharge, Queen)
+            new BuffModule(BurstWindowService),    // Priority 20 - Buff management (Wildfire, Hypercharge, Queen)
             new DamageModule(BurstWindowService),  // Priority 30 - DPS rotation
         };
 

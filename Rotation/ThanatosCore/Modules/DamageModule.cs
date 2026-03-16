@@ -188,6 +188,10 @@ public sealed class DamageModule : BaseDpsDamageModule<IThanatosContext>, IThana
         {
             if (context.ActionService.IsActionReady(RPRActions.Gluttony.ActionId))
             {
+                // Hold Gluttony for burst (it gives 2 Soul Reaver stacks - best used in burst)
+                if (context.Configuration.Reaper.EnableBurstPooling && ShouldHoldForBurst(8f))
+                    return false;
+
                 // Only use Gluttony if we can spend the Soul Reaver stacks
                 // (not about to enter Enshroud)
                 if (context.Shroud < 50 || !context.ActionService.IsActionReady(RPRActions.Enshroud.ActionId))

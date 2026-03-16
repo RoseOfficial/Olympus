@@ -88,6 +88,10 @@ public sealed class DamageModule : BaseDpsDamageModule<IKratosContext>, IKratosM
         if (context.Chakra < 5)
             return false;
 
+        // Hold Chakra for burst when not at risk of capping (50 = max chakra, hold below 45 if burst imminent)
+        if (context.Configuration.Monk.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Chakra < 45)
+            return false;
+
         // Choose ST or AoE based on enemy count
         if (enemyCount >= AoeThreshold && level >= MNKActions.HowlingFist.MinLevel)
         {

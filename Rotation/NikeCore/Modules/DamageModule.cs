@@ -88,6 +88,10 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
         if (context.Kenki < KenkiSpendThreshold)
             return false;
 
+        // Hold Kenki for burst when not at risk of capping (100 = max, hold below 85 if burst imminent)
+        if (context.Configuration.Samurai.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Kenki < 85)
+            return false;
+
         // Don't overcap - always spend if near max
         var shouldSpend = context.Kenki >= 85;
 

@@ -456,6 +456,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
             }
         }
 
+        // Hold Polyglot for burst when not at risk of capping (cap = maxPolyglot, hold at 1 if burst imminent)
+        if (context.Configuration.BlackMage.EnableBurstPooling && ShouldHoldForBurst(8f) && context.PolyglotStacks < 2)
+        {
+            context.Debug.DamageState = $"Holding Polyglot for burst ({context.PolyglotStacks}/{maxPolyglot})";
+            return false;
+        }
+
         // Use for movement if needed
         if (isMoving && !context.HasInstantCast)
         {

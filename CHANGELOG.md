@@ -3,11 +3,25 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.27
+
+- Burst resource pooling is now individually tuned for each DPS job — gauge resources and key cooldowns are held more precisely in the final seconds before a burst window rather than spending freely
+  - Dragoon no longer accidentally triggers Life of the Dragon before burst when Geirskogul would activate it at an inopportune time
+  - Bard uses Apex Arrow at a lower Soul Voice threshold during active burst windows to guarantee value under raid buffs
+  - Viper holds Reawaken to enter it inside the burst window (bypassed when Ready to Reawaken proc is available)
+  - Pictomancer delays Hammer Stamp activation to align the combo with burst timing
+  - Red Mage delays entering melee combo when a burst window is seconds away
+  - Reaper holds Gluttony so the Soul Reaver stacks it generates land under raid buffs; Enshroud is also now held for burst when Shroud is not near cap
+  - Dancer holds Saber Dance when Esprit is not approaching the cap, saving gauge for burst
+  - Machinist holds Hypercharge for burst when Heat is below 90
+  - Black Mage holds Polyglot stacks for burst timing when below 2 stacks
+  - Ninja, Samurai, and Monk hold their primary gauge spender when a burst window is imminent but the gauge is not near cap
+
+<!-- LATEST-END -->
+
 ## v4.10.26
 
 - Fight timelines are now available for Dragonsong's Reprise (Ultimate), The Omega Protocol (Ultimate), and Futures Rewritten (Ultimate) — the plugin can now predict upcoming raidwides and tankbusters in all three fights.
-
-<!-- LATEST-END -->
 
 ## v4.10.25
 

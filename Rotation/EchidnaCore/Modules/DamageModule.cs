@@ -257,6 +257,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IEchidnaContext>, IEchidn
             return false;
         }
 
+        // Hold Reawaken activation for burst when burst is imminent (unless free via Ready to Reawaken)
+        if (context.Configuration.Viper.EnableBurstPooling && ShouldHoldForBurst(8f) && !context.HasReadyToReawaken)
+        {
+            SetDamageState(context, "Holding Reawaken for burst");
+            return false;
+        }
+
         // Optimal timing: Have both buffs active with good duration
         if (!context.HasHuntersInstinct || context.HuntersInstinctRemaining < 10f)
         {

@@ -89,6 +89,10 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
         if (context.Ninki < NinkiSpendThreshold)
             return false;
 
+        // Hold Ninki for burst when not at risk of capping (100 = max, hold below 85 if burst imminent)
+        if (context.Configuration.Ninja.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Ninki < 85)
+            return false;
+
         // Choose ST or AoE based on enemy count
         if (enemyCount >= AoeThreshold && level >= NINActions.HellfrogMedium.MinLevel)
         {

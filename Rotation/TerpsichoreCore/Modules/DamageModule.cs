@@ -375,10 +375,17 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
             return false;
         }
 
+        // Hold Saber Dance for burst when Esprit is not near cap
+        if (context.Configuration.Dancer.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Esprit < 80)
+        {
+            context.Debug.DamageState = $"Holding Esprit for burst ({context.Esprit}/80)";
+            return false;
+        }
+
         // Use at 80+ to prevent overcap
-        // Or use at 50+ during burst
+        // Or use at 50+ during burst (IsInBurst covers Devilment/TechnicalFinish overlap)
         bool shouldUse = context.Esprit >= 80 ||
-                         (context.Esprit >= 50 && (context.HasDevilment || context.HasTechnicalFinish));
+                         (context.Esprit >= 50 && (IsInBurst || context.HasDevilment || context.HasTechnicalFinish));
 
         if (!shouldUse)
         {

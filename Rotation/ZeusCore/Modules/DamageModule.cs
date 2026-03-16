@@ -365,6 +365,10 @@ public sealed class DamageModule : BaseDpsDamageModule<IZeusContext>, IZeusModul
         if (context.IsLifeOfDragonActive)
             return false;
 
+        // Hold Geirskogul for burst when it would activate Life of the Dragon and burst is imminent
+        if (context.Configuration.Dragoon.EnableBurstPooling && ShouldHoldForBurst(8f) && context.EyeCount == 2)
+            return false;
+
         if (!context.ActionService.IsActionReady(DRGActions.Geirskogul.ActionId))
             return false;
 

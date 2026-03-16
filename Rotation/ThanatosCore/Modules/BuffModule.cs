@@ -1,6 +1,7 @@
 using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.ThanatosCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 using Olympus.Timeline.Models;
 
@@ -15,6 +16,17 @@ public sealed class BuffModule : IThanatosModule
 {
     public int Priority => 20; // After role actions
     public string Name => "Buff";
+
+    private readonly IBurstWindowService? _burstWindowService;
+
+    public BuffModule(IBurstWindowService? burstWindowService = null)
+    {
+        _burstWindowService = burstWindowService;
+    }
+
+    private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
+        _burstWindowService?.IsBurstImminent(thresholdSeconds) == true &&
+        _burstWindowService?.IsInBurstWindow != true;
 
     public bool TryExecute(IThanatosContext context, bool isMoving)
     {
@@ -196,6 +208,13 @@ public sealed class BuffModule : IThanatosModule
         if (!context.ActionService.IsActionReady(RPRActions.Enshroud.ActionId))
         {
             context.Debug.BuffState = "Enshroud on cooldown";
+            return false;
+        }
+
+        // Hold Enshroud activation for burst when burst is imminent (unless capping on Shroud)
+        if (context.Configuration.Reaper.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Shroud < 90)
+        {
+            context.Debug.BuffState = "Holding Enshroud for burst";
             return false;
         }
 

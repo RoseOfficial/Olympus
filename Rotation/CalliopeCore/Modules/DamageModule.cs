@@ -386,16 +386,20 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
 
         // Use at 80+ during burst for Blast Arrow follow-up
         // Or use at 100 to avoid overcapping
+        // During burst, lower threshold to 50 for immediate value under raid buffs
+        var apexThreshold = (context.Configuration.Bard.EnableBurstPooling && IsInBurst) ? 50 : 80;
+
         bool shouldUse = false;
 
         if (context.SoulVoice >= 100)
         {
             shouldUse = true;
         }
-        else if (context.SoulVoice >= 80)
+        else if (context.SoulVoice >= apexThreshold)
         {
             // During burst window or no buffs to wait for
-            shouldUse = context.HasRagingStrikes ||
+            shouldUse = IsInBurst ||
+                        context.HasRagingStrikes ||
                         !context.ActionService.IsActionReady(BRDActions.RagingStrikes.ActionId);
         }
 

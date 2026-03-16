@@ -2,6 +2,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.PrometheusCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 using Olympus.Timeline.Models;
 
@@ -13,6 +14,17 @@ namespace Olympus.Rotation.PrometheusCore.Modules;
 /// </summary>
 public sealed class BuffModule : IPrometheusModule
 {
+    private readonly IBurstWindowService? _burstWindowService;
+
+    public BuffModule(IBurstWindowService? burstWindowService = null)
+    {
+        _burstWindowService = burstWindowService;
+    }
+
+    private bool IsInBurst => _burstWindowService?.IsInBurstWindow == true;
+    private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
+        _burstWindowService?.IsBurstImminent(thresholdSeconds) == true && !IsInBurst;
+
     public int Priority => 20; // Higher priority than damage
     public string Name => "Buff";
 
@@ -320,6 +332,13 @@ public sealed class BuffModule : IPrometheusModule
         if (context.Heat < 50)
         {
             context.Debug.BuffState = $"Need 50 Heat ({context.Heat}/50)";
+            return false;
+        }
+
+        // Hold Hypercharge for burst when Heat < 90 (to avoid capping at 100)
+        if (context.Configuration.Machinist.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Heat < 90)
+        {
+            context.Debug.BuffState = $"Holding Hypercharge for burst ({context.Heat} Heat)";
             return false;
         }
 

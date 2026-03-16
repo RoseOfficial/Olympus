@@ -331,6 +331,14 @@ public sealed class DamageModule : BaseDpsDamageModule<ICirceContext>, ICirceMod
             }
         }
 
+        // Hold melee combo entry for burst when burst is imminent
+        // (execute during burst for finisher damage under raid buffs)
+        if (context.Configuration.RedMage.EnableBurstPooling && ShouldHoldForBurst(8f) && !IsInBurst && !verySoon)
+        {
+            context.Debug.DamageState = "Holding melee combo for burst";
+            return false;
+        }
+
         // Start with Enchanted Riposte
         if (context.ActionService.ExecuteGcd(RDMActions.EnchantedRiposte, target.GameObjectId))
         {

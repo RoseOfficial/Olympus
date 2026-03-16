@@ -125,7 +125,7 @@ public sealed class Thanatos : BaseMeleeDpsRotation<IThanatosContext, IThanatosM
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<IThanatosModule>
         {
-            new BuffModule(),    // Priority 20 - Buff management (Arcane Circle, Enshroud)
+            new BuffModule(BurstWindowService),    // Priority 20 - Buff management (Arcane Circle, Enshroud)
             new DamageModule(BurstWindowService),  // Priority 30 - DPS rotation
         };
 
