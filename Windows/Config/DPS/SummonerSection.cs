@@ -49,10 +49,19 @@ public sealed class SummonerSection
 
             ConfigUIHelpers.Spacing();
 
-            config.Summoner.AoEMinTargets = ConfigUIHelpers.IntSlider(
-                Loc.T(LocalizedStrings.Summoner.AoEMinTargets, "AoE Min Targets"),
-                config.Summoner.AoEMinTargets, 2, 8,
-                Loc.T(LocalizedStrings.Summoner.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Summoner.EnableAoERotation, "Enable AoE Rotation"),
+                () => config.Summoner.EnableAoERotation,
+                v => config.Summoner.EnableAoERotation = v,
+                Loc.T(LocalizedStrings.Summoner.EnableAoERotationDesc, "Switch to AoE combo at 3+ enemies."), save);
+
+            if (config.Summoner.EnableAoERotation)
+            {
+                config.Summoner.AoEMinTargets = ConfigUIHelpers.IntSlider(
+                    Loc.T(LocalizedStrings.Summoner.AoEMinTargets, "AoE Min Targets"),
+                    config.Summoner.AoEMinTargets, 2, 8,
+                    Loc.T(LocalizedStrings.Summoner.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            }
 
             ConfigUIHelpers.EndIndent();
         }

@@ -170,6 +170,12 @@ public sealed class DancerConfig
     #region Burst Window Settings
 
     /// <summary>
+    /// Pool Esprit gauge for raid buff burst windows.
+    /// When enabled, uses Saber Dance at 50+ during burst (vs 80+ normally).
+    /// </summary>
+    public bool EnableBurstPooling { get; set; } = true;
+
+    /// <summary>
     /// Align Technical Finish with party burst windows.
     /// </summary>
     public bool AlignTechnicalWithParty { get; set; } = true;

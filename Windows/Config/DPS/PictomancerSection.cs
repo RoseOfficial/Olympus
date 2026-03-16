@@ -55,10 +55,19 @@ public sealed class PictomancerSection
 
             ConfigUIHelpers.Spacing();
 
-            config.Pictomancer.AoEMinTargets = ConfigUIHelpers.IntSlider(
-                Loc.T(LocalizedStrings.Pictomancer.AoEMinTargets, "AoE Min Targets"),
-                config.Pictomancer.AoEMinTargets, 2, 8,
-                Loc.T(LocalizedStrings.Pictomancer.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.EnableAoERotation, "Enable AoE Rotation"),
+                () => config.Pictomancer.EnableAoERotation,
+                v => config.Pictomancer.EnableAoERotation = v,
+                Loc.T(LocalizedStrings.Pictomancer.EnableAoERotationDesc, "Switch to AoE combo at 3+ enemies."), save);
+
+            if (config.Pictomancer.EnableAoERotation)
+            {
+                config.Pictomancer.AoEMinTargets = ConfigUIHelpers.IntSlider(
+                    Loc.T(LocalizedStrings.Pictomancer.AoEMinTargets, "AoE Min Targets"),
+                    config.Pictomancer.AoEMinTargets, 2, 8,
+                    Loc.T(LocalizedStrings.Pictomancer.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            }
 
             ConfigUIHelpers.EndIndent();
         }

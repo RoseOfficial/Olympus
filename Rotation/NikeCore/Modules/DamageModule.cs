@@ -3,6 +3,7 @@ using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.NikeCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.NikeCore.Modules;
@@ -14,6 +15,8 @@ namespace Olympus.Rotation.NikeCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModule
 {
+    public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
+
     // Kenki threshold for spending (Shinten/Kyuten cost 25)
     private const int KenkiSpendThreshold = 25;
 
@@ -54,6 +57,12 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
     /// </summary>
     protected override void SetPlannedAction(INikeContext context, string action) =>
         context.Debug.PlannedAction = action;
+
+    protected override bool IsAoEEnabled(INikeContext context) =>
+        context.Configuration.Samurai.EnableAoERotation;
+
+    protected override int GetConfiguredAoEThreshold(INikeContext context) =>
+        context.Configuration.Samurai.AoEMinTargets;
 
     /// <summary>
     /// oGCD damage for Samurai - Kenki spenders (Shinten, Kyuten).

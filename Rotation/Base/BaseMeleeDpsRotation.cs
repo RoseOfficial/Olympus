@@ -27,6 +27,12 @@ public abstract class BaseMeleeDpsRotation<TContext, TModule> : BaseRotation<TCo
 
     protected readonly IPositionalService PositionalService;
 
+    /// <summary>
+    /// Optional service for detecting raid buff burst windows.
+    /// Null when party coordination is disabled or unavailable.
+    /// </summary>
+    protected readonly IBurstWindowService? BurstWindowService;
+
     #endregion
 
     #region Combo Tracking
@@ -97,6 +103,7 @@ public abstract class BaseMeleeDpsRotation<TContext, TModule> : BaseRotation<TCo
         IPlayerStatsService playerStatsService,
         IDebuffDetectionService debuffDetectionService,
         IPositionalService positionalService,
+        IBurstWindowService? burstWindowService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -115,6 +122,7 @@ public abstract class BaseMeleeDpsRotation<TContext, TModule> : BaseRotation<TCo
             errorMetrics)
     {
         PositionalService = positionalService;
+        BurstWindowService = burstWindowService;
     }
 
     #endregion
@@ -232,6 +240,9 @@ public abstract class BaseMeleeDpsRotation<TContext, TModule> : BaseRotation<TCo
 
         // Update positional state
         UpdatePositionalState(player);
+
+        // Update burst window tracking
+        BurstWindowService?.Update(player);
 
         // Update damage trend service with player entity ID (melee track their own damage for self-healing considerations)
         if (inCombat)

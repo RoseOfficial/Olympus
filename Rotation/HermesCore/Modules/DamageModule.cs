@@ -4,6 +4,7 @@ using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.HermesCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.HermesCore.Modules;
@@ -15,6 +16,8 @@ namespace Olympus.Rotation.HermesCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesModule
 {
+    public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
+
     // Ninki threshold for spending
     private const int NinkiSpendThreshold = 50;
 
@@ -55,6 +58,12 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
     /// </summary>
     protected override void SetPlannedAction(IHermesContext context, string action) =>
         context.Debug.PlannedAction = action;
+
+    protected override bool IsAoEEnabled(IHermesContext context) =>
+        context.Configuration.Ninja.EnableAoERotation;
+
+    protected override int GetConfiguredAoEThreshold(IHermesContext context) =>
+        context.Configuration.Ninja.AoEMinTargets;
 
     /// <summary>
     /// oGCD damage for Ninja - Ninki spenders (Bhavacakra, Hellfrog).

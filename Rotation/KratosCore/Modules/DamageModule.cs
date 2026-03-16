@@ -5,6 +5,7 @@ using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.KratosCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.KratosCore.Modules;
@@ -16,6 +17,8 @@ namespace Olympus.Rotation.KratosCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<IKratosContext>, IKratosModule
 {
+    public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
+
     #region Abstract Method Implementations
 
     /// <summary>
@@ -50,6 +53,12 @@ public sealed class DamageModule : BaseDpsDamageModule<IKratosContext>, IKratosM
     /// </summary>
     protected override void SetPlannedAction(IKratosContext context, string action) =>
         context.Debug.PlannedAction = action;
+
+    protected override bool IsAoEEnabled(IKratosContext context) =>
+        context.Configuration.Monk.EnableAoERotation;
+
+    protected override int GetConfiguredAoEThreshold(IKratosContext context) =>
+        context.Configuration.Monk.AoEMinTargets;
 
     /// <summary>
     /// oGCD damage for Monk - Chakra spenders and Thunderclap.

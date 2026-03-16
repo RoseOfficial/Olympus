@@ -40,6 +40,16 @@ public abstract class BaseRangedDpsRotation<TContext, TModule> : BaseRotation<TC
 
     #endregion
 
+    #region Ranged DPS-Specific Services
+
+    /// <summary>
+    /// Optional service for detecting raid buff burst windows.
+    /// Null when party coordination is disabled or unavailable.
+    /// </summary>
+    protected readonly IBurstWindowService? BurstWindowService;
+
+    #endregion
+
     #region Debug State
 
     // Ranged DPS rotations typically have both job-specific and common debug states
@@ -63,6 +73,7 @@ public abstract class BaseRangedDpsRotation<TContext, TModule> : BaseRotation<TC
         ActionService actionService,
         IPlayerStatsService playerStatsService,
         IDebuffDetectionService debuffDetectionService,
+        IBurstWindowService? burstWindowService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -80,6 +91,7 @@ public abstract class BaseRangedDpsRotation<TContext, TModule> : BaseRotation<TC
             debuffDetectionService,
             errorMetrics)
     {
+        BurstWindowService = burstWindowService;
     }
 
     #endregion
@@ -133,6 +145,9 @@ public abstract class BaseRangedDpsRotation<TContext, TModule> : BaseRotation<TC
 
         // Read combo state
         UpdateComboState();
+
+        // Update burst window tracking
+        BurstWindowService?.Update(player);
 
         // Update damage trend service with player entity ID
         if (inCombat)

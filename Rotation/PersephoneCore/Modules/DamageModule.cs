@@ -4,6 +4,7 @@ using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.PersephoneCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.PersephoneCore.Modules;
@@ -14,6 +15,8 @@ namespace Olympus.Rotation.PersephoneCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPersephoneModule
 {
+    public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
+
     #region Abstract Method Implementations
 
     protected override float GetTargetingRange() => FFXIVConstants.CasterTargetingRange;
@@ -28,6 +31,12 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
 
     protected override void SetPlannedAction(IPersephoneContext context, string action) =>
         context.Debug.PlannedAction = action;
+
+    protected override bool IsAoEEnabled(IPersephoneContext context) =>
+        context.Configuration.Summoner.EnableAoERotation;
+
+    protected override int GetConfiguredAoEThreshold(IPersephoneContext context) =>
+        context.Configuration.Summoner.AoEMinTargets;
 
     /// <summary>
     /// SMN has no damage oGCDs - all abilities are in the GCD phase or BuffModule.

@@ -55,10 +55,19 @@ public sealed class ReaperSection
 
             ConfigUIHelpers.Spacing();
 
-            config.Reaper.AoEMinTargets = ConfigUIHelpers.IntSlider(
-                Loc.T(LocalizedStrings.Reaper.AoEMinTargets, "AoE Min Targets"),
-                config.Reaper.AoEMinTargets, 2, 8,
-                Loc.T(LocalizedStrings.Reaper.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Reaper.EnableAoERotation, "Enable AoE Rotation"),
+                () => config.Reaper.EnableAoERotation,
+                v => config.Reaper.EnableAoERotation = v,
+                Loc.T(LocalizedStrings.Reaper.EnableAoERotationDesc, "Switch to AoE combo at 3+ enemies."), save);
+
+            if (config.Reaper.EnableAoERotation)
+            {
+                config.Reaper.AoEMinTargets = ConfigUIHelpers.IntSlider(
+                    Loc.T(LocalizedStrings.Reaper.AoEMinTargets, "AoE Min Targets"),
+                    config.Reaper.AoEMinTargets, 2, 8,
+                    Loc.T(LocalizedStrings.Reaper.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            }
 
             ConfigUIHelpers.EndIndent();
         }

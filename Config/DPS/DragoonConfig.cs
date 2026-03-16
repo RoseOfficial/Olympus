@@ -118,6 +118,12 @@ public sealed class DragoonConfig
         set => _battleLitanyHoldTime = Math.Clamp(value, 0f, 10f);
     }
 
+    /// <summary>
+    /// Pool gauge resources (Geirskogul, Nastrond) for raid buff burst windows.
+    /// When enabled, holds gauge spenders within 8s of an imminent burst.
+    /// </summary>
+    public bool EnableBurstPooling { get; set; } = true;
+
     #endregion
 
     #region AoE Settings

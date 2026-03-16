@@ -55,10 +55,19 @@ public sealed class DancerSection
 
             ConfigUIHelpers.Spacing();
 
-            config.Dancer.AoEMinTargets = ConfigUIHelpers.IntSlider(
-                Loc.T(LocalizedStrings.Dancer.AoEMinTargets, "AoE Min Targets"),
-                config.Dancer.AoEMinTargets, 2, 8,
-                Loc.T(LocalizedStrings.Dancer.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.EnableAoERotation, "Enable AoE Rotation"),
+                () => config.Dancer.EnableAoERotation,
+                v => config.Dancer.EnableAoERotation = v,
+                Loc.T(LocalizedStrings.Dancer.EnableAoERotationDesc, "Switch to AoE combo at 3+ enemies."), save);
+
+            if (config.Dancer.EnableAoERotation)
+            {
+                config.Dancer.AoEMinTargets = ConfigUIHelpers.IntSlider(
+                    Loc.T(LocalizedStrings.Dancer.AoEMinTargets, "AoE Min Targets"),
+                    config.Dancer.AoEMinTargets, 2, 8,
+                    Loc.T(LocalizedStrings.Dancer.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            }
 
             ConfigUIHelpers.EndIndent();
         }

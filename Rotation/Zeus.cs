@@ -93,6 +93,7 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
+        IBurstWindowService? burstWindowService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -109,6 +110,7 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
             playerStatsService,
             debuffDetectionService,
             positionalService,
+            burstWindowService,
             errorMetrics)
     {
         _timelineService = timelineService;
@@ -123,7 +125,7 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
         _modules = new List<IZeusModule>
         {
             new BuffModule(),    // Priority 20 - Buff management (Lance Charge, Battle Litany, Life Surge)
-            new DamageModule(),  // Priority 30 - DPS rotation
+            new DamageModule(BurstWindowService),  // Priority 30 - DPS rotation
         };
 
         // Sort by priority

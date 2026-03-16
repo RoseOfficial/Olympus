@@ -92,6 +92,7 @@ public sealed class Calliope : BaseRangedDpsRotation<ICalliopeContext, ICalliope
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
+        IBurstWindowService? burstWindowService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -107,6 +108,7 @@ public sealed class Calliope : BaseRangedDpsRotation<ICalliopeContext, ICalliope
             actionService,
             playerStatsService,
             debuffDetectionService,
+            burstWindowService,
             errorMetrics)
     {
         _timelineService = timelineService;
@@ -121,7 +123,7 @@ public sealed class Calliope : BaseRangedDpsRotation<ICalliopeContext, ICalliope
         _modules = new List<ICalliopeModule>
         {
             new BuffModule(),    // Priority 20 - Song rotation, buffs, oGCDs
-            new DamageModule(),  // Priority 30 - GCD rotation
+            new DamageModule(BurstWindowService),  // Priority 30 - GCD rotation
         };
 
         // Sort by priority

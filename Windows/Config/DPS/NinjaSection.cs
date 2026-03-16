@@ -55,10 +55,19 @@ public sealed class NinjaSection
 
             ConfigUIHelpers.Spacing();
 
-            config.Ninja.AoEMinTargets = ConfigUIHelpers.IntSlider(
-                Loc.T(LocalizedStrings.Ninja.AoEMinTargets, "AoE Min Targets"),
-                config.Ninja.AoEMinTargets, 2, 8,
-                Loc.T(LocalizedStrings.Ninja.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Ninja.EnableAoERotation, "Enable AoE Rotation"),
+                () => config.Ninja.EnableAoERotation,
+                v => config.Ninja.EnableAoERotation = v,
+                Loc.T(LocalizedStrings.Ninja.EnableAoERotationDesc, "Switch to AoE combo at 3+ enemies."), save);
+
+            if (config.Ninja.EnableAoERotation)
+            {
+                config.Ninja.AoEMinTargets = ConfigUIHelpers.IntSlider(
+                    Loc.T(LocalizedStrings.Ninja.AoEMinTargets, "AoE Min Targets"),
+                    config.Ninja.AoEMinTargets, 2, 8,
+                    Loc.T(LocalizedStrings.Ninja.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            }
 
             ConfigUIHelpers.EndIndent();
         }

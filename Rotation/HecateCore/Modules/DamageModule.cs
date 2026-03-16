@@ -3,6 +3,7 @@ using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.HecateCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.HecateCore.Modules;
@@ -14,6 +15,8 @@ namespace Olympus.Rotation.HecateCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateModule
 {
+    public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
+
     // MP thresholds
     private const int Fire4MpCost = 800;
     private const int DespairMpCost = 800;
@@ -51,6 +54,12 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
     /// </summary>
     protected override void SetPlannedAction(IHecateContext context, string action) =>
         context.Debug.PlannedAction = action;
+
+    protected override bool IsAoEEnabled(IHecateContext context) =>
+        context.Configuration.BlackMage.EnableAoERotation;
+
+    protected override int GetConfiguredAoEThreshold(IHecateContext context) =>
+        context.Configuration.BlackMage.AoEMinTargets;
 
     /// <summary>
     /// BLM has no damage oGCDs - all oGCDs (Triplecast, Ley Lines, etc.) are in BuffModule.

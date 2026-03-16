@@ -88,6 +88,7 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
         IDebuffDetectionService debuffDetectionService,
         ITimelineService? timelineService = null,
         ITrainingService? trainingService = null,
+        IBurstWindowService? burstWindowService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -103,6 +104,7 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
             actionService,
             playerStatsService,
             debuffDetectionService,
+            burstWindowService,
             errorMetrics)
     {
         _timelineService = timelineService;
@@ -116,7 +118,7 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
         _modules = new List<IHecateModule>
         {
             new BuffModule(),    // Priority 20 - oGCD management (Ley Lines, Triplecast, Amplifier, Manafont)
-            new DamageModule(),  // Priority 30 - GCD rotation
+            new DamageModule(BurstWindowService),  // Priority 30 - GCD rotation
         };
 
         // Sort by priority

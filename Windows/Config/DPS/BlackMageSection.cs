@@ -55,10 +55,19 @@ public sealed class BlackMageSection
 
             ConfigUIHelpers.Spacing();
 
-            config.BlackMage.AoEMinTargets = ConfigUIHelpers.IntSlider(
-                Loc.T(LocalizedStrings.BlackMage.AoEMinTargets, "AoE Min Targets"),
-                config.BlackMage.AoEMinTargets, 2, 8,
-                Loc.T(LocalizedStrings.BlackMage.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.BlackMage.EnableAoERotation, "Enable AoE Rotation"),
+                () => config.BlackMage.EnableAoERotation,
+                v => config.BlackMage.EnableAoERotation = v,
+                Loc.T(LocalizedStrings.BlackMage.EnableAoERotationDesc, "Switch to AoE combo at 3+ enemies."), save);
+
+            if (config.BlackMage.EnableAoERotation)
+            {
+                config.BlackMage.AoEMinTargets = ConfigUIHelpers.IntSlider(
+                    Loc.T(LocalizedStrings.BlackMage.AoEMinTargets, "AoE Min Targets"),
+                    config.BlackMage.AoEMinTargets, 2, 8,
+                    Loc.T(LocalizedStrings.BlackMage.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            }
 
             ConfigUIHelpers.EndIndent();
         }

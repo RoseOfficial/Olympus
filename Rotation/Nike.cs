@@ -96,6 +96,7 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>, IDis
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
+        IBurstWindowService? burstWindowService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -112,6 +113,7 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>, IDis
             playerStatsService,
             debuffDetectionService,
             positionalService,
+            burstWindowService,
             errorMetrics)
     {
         _timelineService = timelineService;
@@ -129,7 +131,7 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>, IDis
         _modules = new List<INikeModule>
         {
             new BuffModule(),    // Priority 20 - Buff management
-            new DamageModule(),  // Priority 30 - DPS rotation
+            new DamageModule(BurstWindowService),  // Priority 30 - DPS rotation
         };
 
         // Sort by priority

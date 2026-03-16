@@ -260,6 +260,16 @@ public sealed class BlackMageConfig
 
     #endregion
 
+    #region Burst Window Settings
+
+    /// <summary>
+    /// Pool Polyglot stacks for raid buff burst windows.
+    /// When enabled, holds Xenoglossy/Foul within 8s of an imminent burst.
+    /// </summary>
+    public bool EnableBurstPooling { get; set; } = true;
+
+    #endregion
+
     #region MP Management
 
     /// <summary>

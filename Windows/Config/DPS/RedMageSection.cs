@@ -49,10 +49,19 @@ public sealed class RedMageSection
 
             ConfigUIHelpers.Spacing();
 
-            config.RedMage.AoEMinTargets = ConfigUIHelpers.IntSlider(
-                Loc.T(LocalizedStrings.RedMage.AoEMinTargets, "AoE Min Targets"),
-                config.RedMage.AoEMinTargets, 2, 8,
-                Loc.T(LocalizedStrings.RedMage.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.RedMage.EnableAoERotation, "Enable AoE Rotation"),
+                () => config.RedMage.EnableAoERotation,
+                v => config.RedMage.EnableAoERotation = v,
+                Loc.T(LocalizedStrings.RedMage.EnableAoERotationDesc, "Switch to AoE combo at 3+ enemies."), save);
+
+            if (config.RedMage.EnableAoERotation)
+            {
+                config.RedMage.AoEMinTargets = ConfigUIHelpers.IntSlider(
+                    Loc.T(LocalizedStrings.RedMage.AoEMinTargets, "AoE Min Targets"),
+                    config.RedMage.AoEMinTargets, 2, 8,
+                    Loc.T(LocalizedStrings.RedMage.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            }
 
             ConfigUIHelpers.EndIndent();
         }

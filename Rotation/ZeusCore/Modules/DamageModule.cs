@@ -4,6 +4,7 @@ using Olympus.Models.Action;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.ZeusCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ZeusCore.Modules;
@@ -15,6 +16,8 @@ namespace Olympus.Rotation.ZeusCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<IZeusContext>, IZeusModule
 {
+    public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
+
     #region Abstract Method Implementations
 
     /// <summary>
@@ -49,6 +52,12 @@ public sealed class DamageModule : BaseDpsDamageModule<IZeusContext>, IZeusModul
     /// </summary>
     protected override void SetPlannedAction(IZeusContext context, string action) =>
         context.Debug.PlannedAction = action;
+
+    protected override bool IsAoEEnabled(IZeusContext context) =>
+        context.Configuration.Dragoon.EnableAoERotation;
+
+    protected override int GetConfiguredAoEThreshold(IZeusContext context) =>
+        context.Configuration.Dragoon.AoEMinTargets;
 
     /// <summary>
     /// oGCD damage for Dragoon - Life of the Dragon abilities, jumps, etc.

@@ -3,6 +3,7 @@ using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.TerpsichoreCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.TerpsichoreCore.Modules;
@@ -14,6 +15,8 @@ namespace Olympus.Rotation.TerpsichoreCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITerpsichoreModule
 {
+    public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
+
     #region Abstract Method Implementations
 
     /// <summary>
@@ -43,6 +46,12 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
     /// </summary>
     protected override void SetPlannedAction(ITerpsichoreContext context, string action) =>
         context.Debug.PlannedAction = action;
+
+    protected override bool IsAoEEnabled(ITerpsichoreContext context) =>
+        context.Configuration.Dancer.EnableAoERotation;
+
+    protected override int GetConfiguredAoEThreshold(ITerpsichoreContext context) =>
+        context.Configuration.Dancer.AoEMinTargets;
 
     /// <summary>
     /// Pre-execute checks for Dancer - also checks if dancing (handled by BuffModule).

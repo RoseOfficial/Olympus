@@ -3,6 +3,7 @@ using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.CirceCore.Context;
 using Olympus.Rotation.Common.Modules;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.CirceCore.Modules;
@@ -13,6 +14,8 @@ namespace Olympus.Rotation.CirceCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<ICirceContext>, ICirceModule
 {
+    public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
+
     #region Abstract Method Implementations
 
     protected override float GetTargetingRange() => FFXIVConstants.CasterTargetingRange;
@@ -27,6 +30,12 @@ public sealed class DamageModule : BaseDpsDamageModule<ICirceContext>, ICirceMod
 
     protected override void SetPlannedAction(ICirceContext context, string action) =>
         context.Debug.PlannedAction = action;
+
+    protected override bool IsAoEEnabled(ICirceContext context) =>
+        context.Configuration.RedMage.EnableAoERotation;
+
+    protected override int GetConfiguredAoEThreshold(ICirceContext context) =>
+        context.Configuration.RedMage.AoEMinTargets;
 
     /// <summary>
     /// RDM has no damage oGCDs - all abilities are GCDs or utility oGCDs in BuffModule.

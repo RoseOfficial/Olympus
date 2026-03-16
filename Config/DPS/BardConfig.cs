@@ -195,6 +195,12 @@ public sealed class BardConfig
     #region Burst Window Settings
 
     /// <summary>
+    /// Pool Soul Voice gauge for raid buff burst windows.
+    /// When enabled, uses Apex Arrow at 50+ during burst (vs 80+ normally).
+    /// </summary>
+    public bool EnableBurstPooling { get; set; } = true;
+
+    /// <summary>
     /// Align Battle Voice/Radiant Finale with party burst windows.
     /// </summary>
     public bool AlignBuffsWithParty { get; set; } = true;

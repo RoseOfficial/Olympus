@@ -54,10 +54,19 @@ public sealed class BardSection
 
             ConfigUIHelpers.Spacing();
 
-            config.Bard.AoEMinTargets = ConfigUIHelpers.IntSlider(
-                Loc.T(LocalizedStrings.Bard.AoEMinTargets, "AoE Min Targets"),
-                config.Bard.AoEMinTargets, 2, 8,
-                Loc.T(LocalizedStrings.Bard.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnableAoERotation, "Enable AoE Rotation"),
+                () => config.Bard.EnableAoERotation,
+                v => config.Bard.EnableAoERotation = v,
+                Loc.T(LocalizedStrings.Bard.EnableAoERotationDesc, "Switch to AoE combo at 3+ enemies."), save);
+
+            if (config.Bard.EnableAoERotation)
+            {
+                config.Bard.AoEMinTargets = ConfigUIHelpers.IntSlider(
+                    Loc.T(LocalizedStrings.Bard.AoEMinTargets, "AoE Min Targets"),
+                    config.Bard.AoEMinTargets, 2, 8,
+                    Loc.T(LocalizedStrings.Bard.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            }
 
             ConfigUIHelpers.EndIndent();
         }

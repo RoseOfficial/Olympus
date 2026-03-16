@@ -170,6 +170,12 @@ public sealed class PictomancerConfig
     #region Burst Window Settings
 
     /// <summary>
+    /// Pool Hammer Time and paint resources for raid buff burst windows.
+    /// When enabled, saves Hammer Stamp combos within 8s of an imminent burst.
+    /// </summary>
+    public bool EnableBurstPooling { get; set; } = true;
+
+    /// <summary>
     /// Align Starry Muse with party burst windows.
     /// </summary>
     public bool AlignStarryMuseWithParty { get; set; } = true;

@@ -3,6 +3,7 @@ using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.CalliopeCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.CalliopeCore.Modules;
@@ -14,6 +15,8 @@ namespace Olympus.Rotation.CalliopeCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalliopeModule
 {
+    public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
+
     // DoT refresh window (refresh between 3-7s remaining)
     private const float DotRefreshMin = 3f;
     private const float DotRefreshMax = 7f;
@@ -47,6 +50,12 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
     /// </summary>
     protected override void SetPlannedAction(ICalliopeContext context, string action) =>
         context.Debug.PlannedAction = action;
+
+    protected override bool IsAoEEnabled(ICalliopeContext context) =>
+        context.Configuration.Bard.EnableAoERotation;
+
+    protected override int GetConfiguredAoEThreshold(ICalliopeContext context) =>
+        context.Configuration.Bard.AoEMinTargets;
 
     /// <summary>
     /// oGCD damage for Bard - primarily interrupt handling.

@@ -6,6 +6,7 @@ using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.EchidnaCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.EchidnaCore.Modules;
@@ -17,6 +18,8 @@ namespace Olympus.Rotation.EchidnaCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<IEchidnaContext>, IEchidnaModule
 {
+    public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
+
     #region Base Class Implementation
 
     protected override float GetTargetingRange() => FFXIVConstants.MeleeTargetingRange;
@@ -33,6 +36,12 @@ public sealed class DamageModule : BaseDpsDamageModule<IEchidnaContext>, IEchidn
 
     protected override void SetPlannedAction(IEchidnaContext context, string action) =>
         context.Debug.PlannedAction = action;
+
+    protected override bool IsAoEEnabled(IEchidnaContext context) =>
+        context.Configuration.Viper.EnableAoERotation;
+
+    protected override int GetConfiguredAoEThreshold(IEchidnaContext context) =>
+        context.Configuration.Viper.AoEMinTargets;
 
     protected override bool TryOgcdDamage(IEchidnaContext context, IBattleChara target, int enemyCount)
     {

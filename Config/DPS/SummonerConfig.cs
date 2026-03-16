@@ -145,6 +145,12 @@ public sealed class SummonerConfig
     #region Burst Window Settings
 
     /// <summary>
+    /// Align Demi-summon windows with raid buff burst windows.
+    /// When enabled, uses Energy Drain more aggressively during burst.
+    /// </summary>
+    public bool EnableBurstPooling { get; set; } = true;
+
+    /// <summary>
     /// Align Searing Light with party burst windows.
     /// </summary>
     public bool AlignSearingLightWithParty { get; set; } = true;

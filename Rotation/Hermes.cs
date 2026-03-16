@@ -92,6 +92,7 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
+        IBurstWindowService? burstWindowService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -108,6 +109,7 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
             playerStatsService,
             debuffDetectionService,
             positionalService,
+            burstWindowService,
             errorMetrics)
     {
         _timelineService = timelineService;
@@ -124,7 +126,7 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
         {
             new NinjutsuModule(),  // Priority 10 - Mudra sequences (highest priority)
             new BuffModule(),      // Priority 20 - Buff management
-            new DamageModule(),    // Priority 30 - DPS rotation
+            new DamageModule(BurstWindowService),    // Priority 30 - DPS rotation
         };
 
         // Sort by priority

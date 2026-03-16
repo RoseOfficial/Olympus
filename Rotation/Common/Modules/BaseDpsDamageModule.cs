@@ -1,4 +1,5 @@
 using Dalamud.Game.ClientState.Objects.Types;
+using Olympus.Services;
 using Olympus.Services.Targeting;
 
 namespace Olympus.Rotation.Common.Modules;
@@ -13,6 +14,20 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
     where TContext : IRotationContext
 {
     /// <summary>
+    /// Optional service for detecting raid buff burst windows.
+    /// Provided by the rotation constructor when available.
+    /// </summary>
+    protected readonly IBurstWindowService? BurstWindowService;
+
+    /// <summary>
+    /// Initializes the damage module with an optional burst window service.
+    /// </summary>
+    protected BaseDpsDamageModule(IBurstWindowService? burstWindowService = null)
+    {
+        BurstWindowService = burstWindowService;
+    }
+
+    /// <summary>
     /// Default priority for damage modules (30 = lowest priority, after buffs/utility).
     /// </summary>
     public virtual int Priority => 30;
@@ -23,10 +38,14 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
     public virtual string Name => "Damage";
 
     /// <summary>
-    /// Default AoE threshold - use AoE rotation when >= this many enemies.
-    /// Override in derived class to change threshold.
+    /// Effective AoE threshold for the current frame. Updated by TryExecute each frame via GetConfiguredAoEThreshold.
     /// </summary>
-    protected virtual int AoeThreshold => 3;
+    private int _currentAoeThreshold = 3;
+
+    /// <summary>
+    /// Current-frame AoE threshold. Reflects the job config value set by GetConfiguredAoEThreshold each frame.
+    /// </summary>
+    protected int AoeThreshold => _currentAoeThreshold;
 
     #region Abstract Methods - Must be implemented by job-specific modules
 
@@ -80,7 +99,37 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
 
     #endregion
 
+    #region Burst Window Helpers
+
+    /// <summary>
+    /// True when raid buff burst window is currently active.
+    /// Use to unlock aggressive gauge spending during burst.
+    /// </summary>
+    protected bool IsInBurst => BurstWindowService?.IsInBurstWindow == true;
+
+    /// <summary>
+    /// True when burst is imminent within <paramref name="thresholdSeconds"/> and not yet active.
+    /// Use to hold gauge spenders until the burst window opens.
+    /// Default threshold is 8 seconds.
+    /// </summary>
+    protected bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
+        BurstWindowService?.IsBurstImminent(thresholdSeconds) == true && !IsInBurst;
+
+    #endregion
+
     #region Virtual Methods - Can be overridden for customization
+
+    /// <summary>
+    /// Returns whether AoE rotation is enabled from job config. Override to check the job-specific setting.
+    /// When false, enemy count is treated as 0 so all AoE branches are skipped.
+    /// </summary>
+    protected virtual bool IsAoEEnabled(TContext context) => true;
+
+    /// <summary>
+    /// Returns the configured minimum enemy count for AoE rotation from job config.
+    /// Override to return the job-specific AoEMinTargets setting.
+    /// </summary>
+    protected virtual int GetConfiguredAoEThreshold(TContext context) => 3;
 
     /// <summary>
     /// Performs pre-execution checks before attempting any damage.
@@ -154,8 +203,12 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
         }
 
         // Phase 3: Enemy count for AoE decisions
-        var enemyCount = context.TargetingService.CountEnemiesInRange(GetAoECountRange(), context.Player);
-        SetNearbyEnemies(context, enemyCount);
+        // Update the per-frame threshold from config before counting enemies.
+        _currentAoeThreshold = GetConfiguredAoEThreshold(context);
+        var rawEnemyCount = context.TargetingService.CountEnemiesInRange(GetAoECountRange(), context.Player);
+        SetNearbyEnemies(context, rawEnemyCount);
+        // Treat enemy count as 0 when AoE rotation is disabled — all ShouldUseAoE / AoeThreshold checks return false.
+        var enemyCount = IsAoEEnabled(context) ? rawEnemyCount : 0;
 
         // Phase 3b: Smart AoE — compute optimal facing for the last/next directional ability
         if (enemyCount > 0)

@@ -166,6 +166,12 @@ public sealed class MachinistConfig
     #region Burst Window Settings
 
     /// <summary>
+    /// Pool Heat gauge for raid buff burst windows.
+    /// When enabled, holds Hypercharge within 8s of an imminent burst.
+    /// </summary>
+    public bool EnableBurstPooling { get; set; } = true;
+
+    /// <summary>
     /// Align Wildfire with party burst windows.
     /// </summary>
     public bool AlignWildfireWithParty { get; set; } = true;

@@ -93,6 +93,7 @@ public sealed class Echidna : BaseMeleeDpsRotation<IEchidnaContext, IEchidnaModu
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
+        IBurstWindowService? burstWindowService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -109,6 +110,7 @@ public sealed class Echidna : BaseMeleeDpsRotation<IEchidnaContext, IEchidnaModu
             playerStatsService,
             debuffDetectionService,
             positionalService,
+            burstWindowService,
             errorMetrics)
     {
         _timelineService = timelineService;
@@ -123,7 +125,7 @@ public sealed class Echidna : BaseMeleeDpsRotation<IEchidnaContext, IEchidnaModu
         _modules = new List<IEchidnaModule>
         {
             new BuffModule(),    // Priority 20 - Buff management (Serpent's Ire)
-            new DamageModule(),  // Priority 30 - DPS rotation
+            new DamageModule(BurstWindowService),  // Priority 30 - DPS rotation
         };
 
         // Sort by priority

@@ -49,10 +49,19 @@ public sealed class ViperSection
 
             ConfigUIHelpers.Spacing();
 
-            config.Viper.AoEMinTargets = ConfigUIHelpers.IntSlider(
-                Loc.T(LocalizedStrings.Viper.AoEMinTargets, "AoE Min Targets"),
-                config.Viper.AoEMinTargets, 2, 8,
-                Loc.T(LocalizedStrings.Viper.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Viper.EnableAoERotation, "Enable AoE Rotation"),
+                () => config.Viper.EnableAoERotation,
+                v => config.Viper.EnableAoERotation = v,
+                Loc.T(LocalizedStrings.Viper.EnableAoERotationDesc, "Switch to AoE combo at 3+ enemies."), save);
+
+            if (config.Viper.EnableAoERotation)
+            {
+                config.Viper.AoEMinTargets = ConfigUIHelpers.IntSlider(
+                    Loc.T(LocalizedStrings.Viper.AoEMinTargets, "AoE Min Targets"),
+                    config.Viper.AoEMinTargets, 2, 8,
+                    Loc.T(LocalizedStrings.Viper.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            }
 
             ConfigUIHelpers.EndIndent();
         }

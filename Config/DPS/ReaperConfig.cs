@@ -146,6 +146,12 @@ public sealed class ReaperConfig
     /// </summary>
     public bool UseEnshroudDuringArcaneCircle { get; set; } = true;
 
+    /// <summary>
+    /// Pool gauge resources (Gluttony, Enshroud) for raid buff burst windows.
+    /// When enabled, holds Soul spenders within 8s of an imminent burst.
+    /// </summary>
+    public bool EnableBurstPooling { get; set; } = true;
+
     #endregion
 
     #region AoE Settings

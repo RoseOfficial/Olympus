@@ -62,10 +62,19 @@ public sealed class DragoonSection
 
             ConfigUIHelpers.Spacing();
 
-            config.Dragoon.AoEMinTargets = ConfigUIHelpers.IntSlider(
-                Loc.T(LocalizedStrings.Dragoon.AoEMinTargets, "AoE Min Targets"),
-                config.Dragoon.AoEMinTargets, 2, 8,
-                Loc.T(LocalizedStrings.Dragoon.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dragoon.EnableAoERotation, "Enable AoE Rotation"),
+                () => config.Dragoon.EnableAoERotation,
+                v => config.Dragoon.EnableAoERotation = v,
+                Loc.T(LocalizedStrings.Dragoon.EnableAoERotationDesc, "Switch to AoE combo at 3+ enemies."), save);
+
+            if (config.Dragoon.EnableAoERotation)
+            {
+                config.Dragoon.AoEMinTargets = ConfigUIHelpers.IntSlider(
+                    Loc.T(LocalizedStrings.Dragoon.AoEMinTargets, "AoE Min Targets"),
+                    config.Dragoon.AoEMinTargets, 2, 8,
+                    Loc.T(LocalizedStrings.Dragoon.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            }
 
             ConfigUIHelpers.EndIndent();
         }

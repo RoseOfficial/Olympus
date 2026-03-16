@@ -92,6 +92,7 @@ public sealed class Prometheus : BaseRangedDpsRotation<IPrometheusContext, IProm
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
+        IBurstWindowService? burstWindowService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -107,6 +108,7 @@ public sealed class Prometheus : BaseRangedDpsRotation<IPrometheusContext, IProm
             actionService,
             playerStatsService,
             debuffDetectionService,
+            burstWindowService,
             errorMetrics)
     {
         _timelineService = timelineService;
@@ -121,7 +123,7 @@ public sealed class Prometheus : BaseRangedDpsRotation<IPrometheusContext, IProm
         _modules = new List<IPrometheusModule>
         {
             new BuffModule(),    // Priority 20 - Buff management (Wildfire, Hypercharge, Queen)
-            new DamageModule(),  // Priority 30 - DPS rotation
+            new DamageModule(BurstWindowService),  // Priority 30 - DPS rotation
         };
 
         // Sort by priority

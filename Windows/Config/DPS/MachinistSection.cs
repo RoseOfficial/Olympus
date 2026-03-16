@@ -55,10 +55,19 @@ public sealed class MachinistSection
 
             ConfigUIHelpers.Spacing();
 
-            config.Machinist.AoEMinTargets = ConfigUIHelpers.IntSlider(
-                Loc.T(LocalizedStrings.Machinist.AoEMinTargets, "AoE Min Targets"),
-                config.Machinist.AoEMinTargets, 2, 8,
-                Loc.T(LocalizedStrings.Machinist.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Machinist.EnableAoERotation, "Enable AoE Rotation"),
+                () => config.Machinist.EnableAoERotation,
+                v => config.Machinist.EnableAoERotation = v,
+                Loc.T(LocalizedStrings.Machinist.EnableAoERotationDesc, "Switch to AoE combo at 3+ enemies."), save);
+
+            if (config.Machinist.EnableAoERotation)
+            {
+                config.Machinist.AoEMinTargets = ConfigUIHelpers.IntSlider(
+                    Loc.T(LocalizedStrings.Machinist.AoEMinTargets, "AoE Min Targets"),
+                    config.Machinist.AoEMinTargets, 2, 8,
+                    Loc.T(LocalizedStrings.Machinist.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            }
 
             ConfigUIHelpers.EndIndent();
         }

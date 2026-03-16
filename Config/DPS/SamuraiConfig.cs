@@ -162,6 +162,12 @@ public sealed class SamuraiConfig
     /// </summary>
     public bool UseMeikyoInBurst { get; set; } = true;
 
+    /// <summary>
+    /// Pool gauge resources (Shinten, Senei) for raid buff burst windows.
+    /// When enabled, holds Kenki spenders within 8s of an imminent burst.
+    /// </summary>
+    public bool EnableBurstPooling { get; set; } = true;
+
     #endregion
 
     #region AoE Settings

@@ -92,6 +92,7 @@ public sealed class Terpsichore : BaseRangedDpsRotation<ITerpsichoreContext, ITe
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
+        IBurstWindowService? burstWindowService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -107,6 +108,7 @@ public sealed class Terpsichore : BaseRangedDpsRotation<ITerpsichoreContext, ITe
             actionService,
             playerStatsService,
             debuffDetectionService,
+            burstWindowService,
             errorMetrics)
     {
         _timelineService = timelineService;
@@ -121,7 +123,7 @@ public sealed class Terpsichore : BaseRangedDpsRotation<ITerpsichoreContext, ITe
         _modules = new List<ITerpsichoreModule>
         {
             new BuffModule(),    // Priority 20 - Dance execution, buffs, oGCDs
-            new DamageModule(),  // Priority 30 - GCD rotation
+            new DamageModule(BurstWindowService),  // Priority 30 - GCD rotation
         };
 
         // Sort by priority

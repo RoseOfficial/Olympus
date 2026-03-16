@@ -64,6 +64,15 @@ public static class TimelineZoneMapping
 
         // The Epic of Alexander (Ultimate) - TEA
         [694] = new ZoneInfo("tea", "The Epic of Alexander (Ultimate)", "Olympus.Timeline.Data.tea.txt"),
+
+        // Dragonsong's Reprise (Ultimate) - DSU
+        [968] = new ZoneInfo("dsu", "Dragonsong's Reprise (Ultimate)", "Olympus.Timeline.Data.dsu.txt"),
+
+        // The Omega Protocol (Ultimate) - TOP
+        [1122] = new ZoneInfo("top", "The Omega Protocol (Ultimate)", "Olympus.Timeline.Data.top.txt"),
+
+        // Futures Rewritten (Ultimate) - FRU
+        [1238] = new ZoneInfo("fru", "Futures Rewritten (Ultimate)", "Olympus.Timeline.Data.fru.txt"),
     };
 
     /// <summary>

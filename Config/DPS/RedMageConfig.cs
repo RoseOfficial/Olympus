@@ -156,6 +156,12 @@ public sealed class RedMageConfig
     #region Burst Window Settings
 
     /// <summary>
+    /// Hold melee combo entry for raid buff burst windows.
+    /// When enabled, delays melee combo when burst is imminent within 8s.
+    /// </summary>
+    public bool EnableBurstPooling { get; set; } = true;
+
+    /// <summary>
     /// Align Embolden with party burst windows.
     /// </summary>
     public bool AlignEmboldenWithParty { get; set; } = true;

@@ -36,7 +36,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "4.10.24";
+    public const string PluginVersion = "4.10.25";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;
@@ -78,6 +78,9 @@ public sealed class Plugin : IDalamudPlugin
 
     // Melee DPS services
     private readonly PositionalService positionalService;
+
+    // Burst window tracking for DPS rotations
+    private readonly BurstWindowService burstWindowService;
 
     // Timeline service
     private readonly TimelineService timelineService;
@@ -211,6 +214,10 @@ public sealed class Plugin : IDalamudPlugin
             this.partyCoordinationIpc = new PartyCoordinationIpc(pluginInterface, partyCoordinationService, log);
         }
 
+        // Burst window service (DPS resource pooling during raid buffs)
+        // Created after partyCoordinationService so it can use IPC data when available
+        this.burstWindowService = new BurstWindowService(this.partyCoordinationService);
+
         // Performance analytics
         this.performanceTracker = new PerformanceTracker(
             configuration.Analytics,
@@ -289,11 +296,11 @@ public sealed class Plugin : IDalamudPlugin
         this.mainWindow = new MainWindow(configuration, SaveConfiguration, OpenConfigUI, OpenDebugUI, OpenAnalyticsUI, OpenTrainingUI, OpenOverlayUI, PluginVersion, rotationManager, textureProvider);
         var smartAoETab = new SmartAoETab(aoeTracker, drawCanvas, objectTable);
         this.debugWindow = new DebugWindow(debugService, configuration, timelineService, smartAoETab);
-        this.welcomeWindow = new WelcomeWindow(configuration, SaveConfiguration);
+        this.welcomeWindow = new WelcomeWindow(configuration, SaveConfiguration, OpenConfigUI);
         this.analyticsWindow = new AnalyticsWindow(performanceTracker, configuration, fflogsService);
         this.trainingWindow = new TrainingWindow(trainingService, configuration, decisionValidationService, spacedRepetitionService);
         this.hintOverlay = new HintOverlay(realTimeCoachingService, configuration.Training);
-        this.overlayWindow = new OverlayWindow(configuration, SaveConfiguration);
+        this.overlayWindow = new OverlayWindow(configuration, SaveConfiguration, rotationManager);
 
         // Telemetry service for anonymous usage tracking
         this.telemetryService = new TelemetryService(configuration, log);
@@ -397,6 +404,9 @@ public sealed class Plugin : IDalamudPlugin
 
         // Melee DPS services
         container.Register<IPositionalService, PositionalService>(positionalService);
+
+        // DPS burst window service
+        container.Register<IBurstWindowService, BurstWindowService>(burstWindowService);
 
         // Optional services (rotations have default null parameters)
         container.Register<ITimelineService, TimelineService>(timelineService);

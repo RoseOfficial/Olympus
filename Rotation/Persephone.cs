@@ -105,6 +105,7 @@ public sealed class Persephone : BaseCasterDpsRotation<IPersephoneContext, IPers
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
+        IBurstWindowService? burstWindowService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -120,6 +121,7 @@ public sealed class Persephone : BaseCasterDpsRotation<IPersephoneContext, IPers
             actionService,
             playerStatsService,
             debuffDetectionService,
+            burstWindowService,
             errorMetrics)
     {
         _timelineService = timelineService;
@@ -134,7 +136,7 @@ public sealed class Persephone : BaseCasterDpsRotation<IPersephoneContext, IPers
         _modules = new List<IPersephoneModule>
         {
             new BuffModule(),    // Priority 20 - oGCD management (Enkindle, Astral Flow, Aetherflow, Searing Light)
-            new DamageModule(),  // Priority 30 - GCD rotation
+            new DamageModule(BurstWindowService),  // Priority 30 - GCD rotation
         };
 
         // Sort by priority

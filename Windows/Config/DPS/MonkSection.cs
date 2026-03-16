@@ -49,10 +49,19 @@ public sealed class MonkSection
 
             ConfigUIHelpers.Spacing();
 
-            config.Monk.AoEMinTargets = ConfigUIHelpers.IntSlider(
-                Loc.T(LocalizedStrings.Monk.AoEMinTargets, "AoE Min Targets"),
-                config.Monk.AoEMinTargets, 2, 8,
-                Loc.T(LocalizedStrings.Monk.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Monk.EnableAoERotation, "Enable AoE Rotation"),
+                () => config.Monk.EnableAoERotation,
+                v => config.Monk.EnableAoERotation = v,
+                Loc.T(LocalizedStrings.Monk.EnableAoERotationDesc, "Switch to AoE combo at 3+ enemies."), save);
+
+            if (config.Monk.EnableAoERotation)
+            {
+                config.Monk.AoEMinTargets = ConfigUIHelpers.IntSlider(
+                    Loc.T(LocalizedStrings.Monk.AoEMinTargets, "AoE Min Targets"),
+                    config.Monk.AoEMinTargets, 2, 8,
+                    Loc.T(LocalizedStrings.Monk.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            }
 
             ConfigUIHelpers.EndIndent();
         }

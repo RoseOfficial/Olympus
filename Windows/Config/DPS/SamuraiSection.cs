@@ -55,10 +55,19 @@ public sealed class SamuraiSection
 
             ConfigUIHelpers.Spacing();
 
-            config.Samurai.AoEMinTargets = ConfigUIHelpers.IntSlider(
-                Loc.T(LocalizedStrings.Samurai.AoEMinTargets, "AoE Min Targets"),
-                config.Samurai.AoEMinTargets, 2, 8,
-                Loc.T(LocalizedStrings.Samurai.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Samurai.EnableAoERotation, "Enable AoE Rotation"),
+                () => config.Samurai.EnableAoERotation,
+                v => config.Samurai.EnableAoERotation = v,
+                Loc.T(LocalizedStrings.Samurai.EnableAoERotationDesc, "Switch to AoE combo at 3+ enemies."), save);
+
+            if (config.Samurai.EnableAoERotation)
+            {
+                config.Samurai.AoEMinTargets = ConfigUIHelpers.IntSlider(
+                    Loc.T(LocalizedStrings.Samurai.AoEMinTargets, "AoE Min Targets"),
+                    config.Samurai.AoEMinTargets, 2, 8,
+                    Loc.T(LocalizedStrings.Samurai.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+            }
 
             ConfigUIHelpers.EndIndent();
         }

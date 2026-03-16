@@ -94,6 +94,7 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
+        IBurstWindowService? burstWindowService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -109,6 +110,7 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
             actionService,
             playerStatsService,
             debuffDetectionService,
+            burstWindowService,
             errorMetrics)
     {
         _timelineService = timelineService;
@@ -123,7 +125,7 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
         _modules = new List<ICirceModule>
         {
             new BuffModule(),    // Priority 20 - oGCD management (Fleche, Contre Sixte, Embolden, etc.)
-            new DamageModule(),  // Priority 30 - GCD rotation (Dualcast, melee combo, finishers)
+            new DamageModule(BurstWindowService),  // Priority 30 - GCD rotation (Dualcast, melee combo, finishers)
         };
 
         // Sort by priority

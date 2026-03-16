@@ -3,6 +3,7 @@ using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.IrisCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.IrisCore.Modules;
@@ -13,6 +14,8 @@ namespace Olympus.Rotation.IrisCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModule
 {
+    public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
+
     #region Abstract Method Implementations
 
     protected override float GetTargetingRange() => FFXIVConstants.CasterTargetingRange;
@@ -27,6 +30,12 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
 
     protected override void SetPlannedAction(IIrisContext context, string action) =>
         context.Debug.PlannedAction = action;
+
+    protected override bool IsAoEEnabled(IIrisContext context) =>
+        context.Configuration.Pictomancer.EnableAoERotation;
+
+    protected override int GetConfiguredAoEThreshold(IIrisContext context) =>
+        context.Configuration.Pictomancer.AoEMinTargets;
 
     /// <summary>
     /// PCT has no damage oGCDs - all abilities are GCDs or utility oGCDs in BuffModule.
@@ -75,9 +84,10 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
             return false;
         }
 
-        // Enemy count for AoE decisions
-        var enemyCount = context.TargetingService.CountEnemiesInRange(GetAoECountRange(), context.Player);
-        SetNearbyEnemies(context, enemyCount);
+        // Enemy count for AoE decisions (respects EnableAoERotation config)
+        var rawEnemyCount = context.TargetingService.CountEnemiesInRange(GetAoECountRange(), context.Player);
+        SetNearbyEnemies(context, rawEnemyCount);
+        var enemyCount = IsAoEEnabled(context) ? rawEnemyCount : 0;
 
         // GCD damage phase
         if (TryGcdDamage(context, target, enemyCount, isMoving))

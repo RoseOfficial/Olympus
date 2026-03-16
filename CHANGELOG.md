@@ -3,11 +3,17 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.25
+
+- The overlay window has been rebuilt as a real-time combat HUD — it now shows your active rotation and job, a clickable ACTIVE/INACTIVE status indicator, your next queued action highlighted in green, HP percentage with a color-coded indicator, injured party member count, raise-in-progress alerts, and current positional (Rear/Flank/Front) for melee DPS jobs.
+- The first-run welcome screen is now a three-page onboarding wizard — it walks you through key features, lets you enable the plugin and choose a behavior preset, and ends with practical tips and a Discord link.
+- Burst window pooling added for all 13 DPS jobs — gauge resources and cooldowns are now held in the final seconds before party raid buff windows, improving damage alignment with the rest of the group. Can be disabled per-job in Settings.
+
+<!-- LATEST-END -->
+
 ## v4.10.24
 
 - Action metadata is now registered for all 21 jobs — previously only White Mage had full action data, which limited features like action-level filtering and heal/damage categorization to WHM only. All jobs now have complete coverage.
-
-<!-- LATEST-END -->
 
 ## v4.10.23
 

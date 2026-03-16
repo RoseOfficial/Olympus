@@ -146,6 +146,12 @@ public sealed class NinjaConfig
     /// </summary>
     public bool SaveNinkiForBurst { get; set; } = true;
 
+    /// <summary>
+    /// Pool gauge resources (Bhavacakra, Hellfrog Medium) for raid buff burst windows.
+    /// When enabled, holds gauge spenders within 8s of an imminent burst.
+    /// </summary>
+    public bool EnableBurstPooling { get; set; } = true;
+
     #endregion
 
     #region AoE Settings

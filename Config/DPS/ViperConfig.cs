@@ -135,6 +135,12 @@ public sealed class ViperConfig
     /// </summary>
     public bool UseReawakenDuringBurst { get; set; } = true;
 
+    /// <summary>
+    /// Pool gauge resources (Reawaken) for raid buff burst windows.
+    /// When enabled, holds Serpent Offering spenders within 8s of an imminent burst.
+    /// </summary>
+    public bool EnableBurstPooling { get; set; } = true;
+
     #endregion
 
     #region AoE Settings

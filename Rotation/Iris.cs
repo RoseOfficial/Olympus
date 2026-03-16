@@ -97,6 +97,7 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
         IPlayerStatsService playerStatsService,
         IDebuffDetectionService debuffDetectionService,
         ITimelineService? timelineService = null,
+        IBurstWindowService? burstWindowService = null,
         IErrorMetricsService? errorMetrics = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null)
@@ -114,6 +115,7 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
             actionService,
             playerStatsService,
             debuffDetectionService,
+            burstWindowService,
             errorMetrics)
     {
         _timelineService = timelineService;
@@ -128,7 +130,7 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
         _modules = new List<IIrisModule>
         {
             new BuffModule(),    // Priority 20 - oGCD management (Muses, Portraits, Subtractive Palette, etc.)
-            new DamageModule(),  // Priority 30 - GCD rotation (combos, paint spenders, finishers)
+            new DamageModule(BurstWindowService),  // Priority 30 - GCD rotation (combos, paint spenders, finishers)
         };
 
         // Sort by priority

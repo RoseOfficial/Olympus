@@ -3,6 +3,7 @@ using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.PrometheusCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.PrometheusCore.Modules;
@@ -14,6 +15,8 @@ namespace Olympus.Rotation.PrometheusCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPrometheusModule
 {
+    public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
+
     #region Abstract Method Implementations
 
     /// <summary>
@@ -43,6 +46,12 @@ public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPro
     /// </summary>
     protected override void SetPlannedAction(IPrometheusContext context, string action) =>
         context.Debug.PlannedAction = action;
+
+    protected override bool IsAoEEnabled(IPrometheusContext context) =>
+        context.Configuration.Machinist.EnableAoERotation;
+
+    protected override int GetConfiguredAoEThreshold(IPrometheusContext context) =>
+        context.Configuration.Machinist.AoEMinTargets;
 
     /// <summary>
     /// oGCD damage for Machinist - primarily interrupt handling.

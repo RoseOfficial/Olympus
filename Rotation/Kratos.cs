@@ -93,6 +93,7 @@ public sealed class Kratos : BaseMeleeDpsRotation<IKratosContext, IKratosModule>
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
+        IBurstWindowService? burstWindowService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -109,6 +110,7 @@ public sealed class Kratos : BaseMeleeDpsRotation<IKratosContext, IKratosModule>
             playerStatsService,
             debuffDetectionService,
             positionalService,
+            burstWindowService,
             errorMetrics)
     {
         _timelineService = timelineService;
@@ -123,7 +125,7 @@ public sealed class Kratos : BaseMeleeDpsRotation<IKratosContext, IKratosModule>
         _modules = new List<IKratosModule>
         {
             new BuffModule(),    // Priority 20 - Buff management (RoF, Brotherhood, PB)
-            new DamageModule(),  // Priority 30 - DPS rotation
+            new DamageModule(BurstWindowService),  // Priority 30 - DPS rotation
         };
 
         // Sort by priority

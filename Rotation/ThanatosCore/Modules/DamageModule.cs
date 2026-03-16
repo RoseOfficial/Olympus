@@ -5,6 +5,7 @@ using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.ThanatosCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ThanatosCore.Modules;
@@ -16,6 +17,8 @@ namespace Olympus.Rotation.ThanatosCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<IThanatosContext>, IThanatosModule
 {
+    public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
+
     #region Abstract Method Implementations
 
     /// <summary>
@@ -50,6 +53,12 @@ public sealed class DamageModule : BaseDpsDamageModule<IThanatosContext>, IThana
     /// </summary>
     protected override void SetPlannedAction(IThanatosContext context, string action) =>
         context.Debug.PlannedAction = action;
+
+    protected override bool IsAoEEnabled(IThanatosContext context) =>
+        context.Configuration.Reaper.EnableAoERotation;
+
+    protected override int GetConfiguredAoEThreshold(IThanatosContext context) =>
+        context.Configuration.Reaper.AoEMinTargets;
 
     /// <summary>
     /// oGCD damage for Reaper - Lemure abilities and other damage oGCDs.

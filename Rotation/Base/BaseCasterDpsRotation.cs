@@ -22,6 +22,16 @@ public abstract class BaseCasterDpsRotation<TContext, TModule> : BaseRotation<TC
     where TContext : ICasterDpsRotationContext
     where TModule : IRotationModule<TContext>
 {
+    #region Caster DPS-Specific Services
+
+    /// <summary>
+    /// Optional service for detecting raid buff burst windows.
+    /// Null when party coordination is disabled or unavailable.
+    /// </summary>
+    protected readonly IBurstWindowService? BurstWindowService;
+
+    #endregion
+
     #region Debug State
 
     // Caster DPS rotations typically have both job-specific and common debug states
@@ -45,6 +55,7 @@ public abstract class BaseCasterDpsRotation<TContext, TModule> : BaseRotation<TC
         ActionService actionService,
         IPlayerStatsService playerStatsService,
         IDebuffDetectionService debuffDetectionService,
+        IBurstWindowService? burstWindowService = null,
         IErrorMetricsService? errorMetrics = null)
         : base(
             log,
@@ -62,6 +73,7 @@ public abstract class BaseCasterDpsRotation<TContext, TModule> : BaseRotation<TC
             debuffDetectionService,
             errorMetrics)
     {
+        BurstWindowService = burstWindowService;
     }
 
     #endregion
@@ -92,6 +104,9 @@ public abstract class BaseCasterDpsRotation<TContext, TModule> : BaseRotation<TC
     {
         // Read job gauge
         ReadGaugeValues();
+
+        // Update burst window tracking
+        BurstWindowService?.Update(player);
 
         // Update damage trend service with player entity ID
         if (inCombat)

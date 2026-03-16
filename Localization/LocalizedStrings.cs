@@ -1009,6 +1009,8 @@ public static class LocalizedStrings
         public const string EnableJumpsDesc = "config.job.drg.enable_jumps_desc";
         public const string EnableLifeSurge = "config.job.drg.enable_life_surge";
         public const string EnableLifeSurgeDesc = "config.job.drg.enable_life_surge_desc";
+        public const string EnableAoERotation = "config.job.drg.enable_aoe_rotation";
+        public const string EnableAoERotationDesc = "config.job.drg.enable_aoe_rotation_desc";
         public const string AoEMinTargets = "config.job.drg.aoe_min_targets";
         public const string AoEMinTargetsDesc = "config.job.drg.aoe_min_targets_desc";
         public const string GeirskogulMinEyes = "config.job.drg.geirskogul_min_eyes";
@@ -1042,6 +1044,8 @@ public static class LocalizedStrings
         public const string EnableRaijuDesc = "config.job.nin.enable_raiju_desc";
         public const string EnablePhantomKamaitachi = "config.job.nin.enable_phantom_kamaitachi";
         public const string EnablePhantomKamaitachiDesc = "config.job.nin.enable_phantom_kamaitachi_desc";
+        public const string EnableAoERotation = "config.job.nin.enable_aoe_rotation";
+        public const string EnableAoERotationDesc = "config.job.nin.enable_aoe_rotation_desc";
         public const string AoEMinTargets = "config.job.nin.aoe_min_targets";
         public const string AoEMinTargetsDesc = "config.job.nin.aoe_min_targets_desc";
         public const string NinkiSection = "config.job.nin.ninki_section";
@@ -1077,6 +1081,8 @@ public static class LocalizedStrings
         public const string EnableTsubamegaeshiDesc = "config.job.sam.enable_tsubamegaeshi_desc";
         public const string EnableOgiNamikiri = "config.job.sam.enable_ogi_namikiri";
         public const string EnableOgiNamikiriDesc = "config.job.sam.enable_ogi_namikiri_desc";
+        public const string EnableAoERotation = "config.job.sam.enable_aoe_rotation";
+        public const string EnableAoERotationDesc = "config.job.sam.enable_aoe_rotation_desc";
         public const string AoEMinTargets = "config.job.sam.aoe_min_targets";
         public const string AoEMinTargetsDesc = "config.job.sam.aoe_min_targets_desc";
         public const string KenkiSection = "config.job.sam.kenki_section";
@@ -1112,6 +1118,8 @@ public static class LocalizedStrings
         public const string EnableMasterfulBlitzDesc = "config.job.mnk.enable_masterful_blitz_desc";
         public const string EnableSixSidedStar = "config.job.mnk.enable_six_sided_star";
         public const string EnableSixSidedStarDesc = "config.job.mnk.enable_six_sided_star_desc";
+        public const string EnableAoERotation = "config.job.mnk.enable_aoe_rotation";
+        public const string EnableAoERotationDesc = "config.job.mnk.enable_aoe_rotation_desc";
         public const string AoEMinTargets = "config.job.mnk.aoe_min_targets";
         public const string AoEMinTargetsDesc = "config.job.mnk.aoe_min_targets_desc";
         public const string ChakraSection = "config.job.mnk.chakra_section";
@@ -1145,6 +1153,8 @@ public static class LocalizedStrings
         public const string EnableCommunioDesc = "config.job.rpr.enable_communio_desc";
         public const string EnablePerfectio = "config.job.rpr.enable_perfectio";
         public const string EnablePerfectioDesc = "config.job.rpr.enable_perfectio_desc";
+        public const string EnableAoERotation = "config.job.rpr.enable_aoe_rotation";
+        public const string EnableAoERotationDesc = "config.job.rpr.enable_aoe_rotation_desc";
         public const string AoEMinTargets = "config.job.rpr.aoe_min_targets";
         public const string AoEMinTargetsDesc = "config.job.rpr.aoe_min_targets_desc";
         public const string GaugeSection = "config.job.rpr.gauge_section";
@@ -1178,6 +1188,8 @@ public static class LocalizedStrings
         public const string EnableTwinbladeComboDesc = "config.job.vpr.enable_twinblade_combo_desc";
         public const string EnableUncoiledFury = "config.job.vpr.enable_uncoiled_fury";
         public const string EnableUncoiledFuryDesc = "config.job.vpr.enable_uncoiled_fury_desc";
+        public const string EnableAoERotation = "config.job.vpr.enable_aoe_rotation";
+        public const string EnableAoERotationDesc = "config.job.vpr.enable_aoe_rotation_desc";
         public const string AoEMinTargets = "config.job.vpr.aoe_min_targets";
         public const string AoEMinTargetsDesc = "config.job.vpr.aoe_min_targets_desc";
         public const string ReawakenSection = "config.job.vpr.reawaken_section";
@@ -1240,6 +1252,8 @@ public static class LocalizedStrings
         public const string EnableChainSawDesc = "config.job.mch.enable_chain_saw_desc";
         public const string EnableAirAnchor = "config.job.mch.enable_air_anchor";
         public const string EnableAirAnchorDesc = "config.job.mch.enable_air_anchor_desc";
+        public const string EnableAoERotation = "config.job.mch.enable_aoe_rotation";
+        public const string EnableAoERotationDesc = "config.job.mch.enable_aoe_rotation_desc";
         public const string AoEMinTargets = "config.job.mch.aoe_min_targets";
         public const string AoEMinTargetsDesc = "config.job.mch.aoe_min_targets_desc";
         public const string GaugeSection = "config.job.mch.gauge_section";
@@ -1279,6 +1293,8 @@ public static class LocalizedStrings
         public const string ApexArrowMinGaugeDesc = "config.job.brd.apex_arrow_min_gauge_desc";
         public const string EnableBlastArrow = "config.job.brd.enable_blast_arrow";
         public const string EnableBlastArrowDesc = "config.job.brd.enable_blast_arrow_desc";
+        public const string EnableAoERotation = "config.job.brd.enable_aoe_rotation";
+        public const string EnableAoERotationDesc = "config.job.brd.enable_aoe_rotation_desc";
         public const string AoEMinTargets = "config.job.brd.aoe_min_targets";
         public const string AoEMinTargetsDesc = "config.job.brd.aoe_min_targets_desc";
         public const string SongSection = "config.job.brd.song_section";
@@ -1320,6 +1336,8 @@ public static class LocalizedStrings
         public const string EnableStarfallDanceDesc = "config.job.dnc.enable_starfall_dance_desc";
         public const string EnableTillana = "config.job.dnc.enable_tillana";
         public const string EnableTillanaDesc = "config.job.dnc.enable_tillana_desc";
+        public const string EnableAoERotation = "config.job.dnc.enable_aoe_rotation";
+        public const string EnableAoERotationDesc = "config.job.dnc.enable_aoe_rotation_desc";
         public const string AoEMinTargets = "config.job.dnc.aoe_min_targets";
         public const string AoEMinTargetsDesc = "config.job.dnc.aoe_min_targets_desc";
         public const string DanceSection = "config.job.dnc.dance_section";
@@ -1386,6 +1404,8 @@ public static class LocalizedStrings
         public const string EnableDespairDesc = "config.job.blm.enable_despair_desc";
         public const string EnableFlareStar = "config.job.blm.enable_flare_star";
         public const string EnableFlareStarDesc = "config.job.blm.enable_flare_star_desc";
+        public const string EnableAoERotation = "config.job.blm.enable_aoe_rotation";
+        public const string EnableAoERotationDesc = "config.job.blm.enable_aoe_rotation_desc";
         public const string AoEMinTargets = "config.job.blm.aoe_min_targets";
         public const string AoEMinTargetsDesc = "config.job.blm.aoe_min_targets_desc";
         public const string PhaseSection = "config.job.blm.phase_section";
@@ -1419,6 +1439,8 @@ public static class LocalizedStrings
         public const string EnableRuinIVDesc = "config.job.smn.enable_ruin_iv_desc";
         public const string EnablePrimalAbilities = "config.job.smn.enable_primal_abilities";
         public const string EnablePrimalAbilitiesDesc = "config.job.smn.enable_primal_abilities_desc";
+        public const string EnableAoERotation = "config.job.smn.enable_aoe_rotation";
+        public const string EnableAoERotationDesc = "config.job.smn.enable_aoe_rotation_desc";
         public const string AoEMinTargets = "config.job.smn.aoe_min_targets";
         public const string AoEMinTargetsDesc = "config.job.smn.aoe_min_targets_desc";
         public const string PrimalSection = "config.job.smn.primal_section";
@@ -1456,6 +1478,8 @@ public static class LocalizedStrings
         public const string EnableProcsDesc = "config.job.rdm.enable_procs_desc";
         public const string EnableGrandImpact = "config.job.rdm.enable_grand_impact";
         public const string EnableGrandImpactDesc = "config.job.rdm.enable_grand_impact_desc";
+        public const string EnableAoERotation = "config.job.rdm.enable_aoe_rotation";
+        public const string EnableAoERotationDesc = "config.job.rdm.enable_aoe_rotation_desc";
         public const string AoEMinTargets = "config.job.rdm.aoe_min_targets";
         public const string AoEMinTargetsDesc = "config.job.rdm.aoe_min_targets_desc";
         public const string ManaSection = "config.job.rdm.mana_section";
@@ -1493,6 +1517,8 @@ public static class LocalizedStrings
         public const string EnableCometInBlackDesc = "config.job.pct.enable_comet_in_black_desc";
         public const string EnableStarPrism = "config.job.pct.enable_star_prism";
         public const string EnableStarPrismDesc = "config.job.pct.enable_star_prism_desc";
+        public const string EnableAoERotation = "config.job.pct.enable_aoe_rotation";
+        public const string EnableAoERotationDesc = "config.job.pct.enable_aoe_rotation_desc";
         public const string AoEMinTargets = "config.job.pct.aoe_min_targets";
         public const string AoEMinTargetsDesc = "config.job.pct.aoe_min_targets_desc";
         public const string CanvasSection = "config.job.pct.canvas_section";
@@ -2850,6 +2876,63 @@ public static class LocalizedStrings
         public const string Aurora = "debug.gunbreaker.aurora";
         public const string SonicBreak = "debug.gunbreaker.sonic_break";
         public const string BowShock = "debug.gunbreaker.bow_shock";
+    }
+
+    #endregion
+
+    #region Overlay Window (ui.overlay.*)
+
+    /// <summary>Keys for the overlay HUD window.</summary>
+    public static class Overlay
+    {
+        public const string NoRotation = "ui.overlay.no_rotation";
+        public const string StatusActive = "ui.overlay.status_active";
+        public const string StatusInactive = "ui.overlay.status_inactive";
+        public const string NextActionLabel = "ui.overlay.next_action";
+        public const string NoAction = "ui.overlay.no_action";
+        public const string HpLabel = "ui.overlay.hp_label";
+        public const string PartyLabel = "ui.overlay.party_label";
+        public const string PartyInjured = "ui.overlay.party_injured";
+        public const string RaiseAlert = "ui.overlay.raise_alert";
+        public const string PositionalLabel = "ui.overlay.positional";
+        public const string Rear = "ui.overlay.rear";
+        public const string Flank = "ui.overlay.flank";
+        public const string Front = "ui.overlay.front";
+        public const string Immune = "ui.overlay.immune";
+        public const string HealingToggle = "ui.overlay.healing";
+        public const string DamageToggle = "ui.overlay.damage";
+    }
+
+    #endregion
+
+    #region Welcome Window (ui.welcome.*)
+
+    /// <summary>Keys for the first-run welcome/onboarding window.</summary>
+    public static class Welcome
+    {
+        public const string Title = "ui.welcome.title";
+        public const string Subtitle = "ui.welcome.subtitle";
+        public const string PageIndicator = "ui.welcome.page";
+        public const string FeatureHealing = "ui.welcome.feature_healing";
+        public const string FeatureDps = "ui.welcome.feature_dps";
+        public const string FeaturePositionals = "ui.welcome.feature_positionals";
+        public const string FeatureCoordination = "ui.welcome.feature_coordination";
+        public const string SetupTitle = "ui.welcome.setup_title";
+        public const string SetupNote = "ui.welcome.setup_note";
+        public const string EnableRotation = "ui.welcome.enable_rotation";
+        public const string EnableRotationDesc = "ui.welcome.enable_rotation_desc";
+        public const string PresetLabel = "ui.welcome.preset_label";
+        public const string PresetDesc = "ui.welcome.preset_desc";
+        public const string ReadyTitle = "ui.welcome.ready_title";
+        public const string ReadySubtitle = "ui.welcome.ready_subtitle";
+        public const string TipCommand = "ui.welcome.tip_command";
+        public const string TipOverlay = "ui.welcome.tip_overlay";
+        public const string TipSettings = "ui.welcome.tip_settings";
+        public const string OpenSettings = "ui.welcome.open_settings";
+        public const string LetsGo = "ui.welcome.lets_go";
+        public const string Back = "ui.welcome.back";
+        public const string Next = "ui.welcome.next";
+        public const string JoinDiscord = "ui.welcome.join_discord";
     }
 
     #endregion

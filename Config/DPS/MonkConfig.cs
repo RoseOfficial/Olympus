@@ -126,6 +126,12 @@ public sealed class MonkConfig
     /// </summary>
     public bool UseRiddleOfFireWithPerfectBalance { get; set; } = true;
 
+    /// <summary>
+    /// Pool gauge resources (Forbidden Chakra, Masterful Blitz) for raid buff burst windows.
+    /// When enabled, holds gauge spenders within 8s of an imminent burst.
+    /// </summary>
+    public bool EnableBurstPooling { get; set; } = true;
+
     #endregion
 
     #region AoE Settings
