@@ -1,8 +1,11 @@
+using System;
 using Dalamud.Game.ClientState.Objects.Types;
+using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.AsclepiusCore.Context;
 using Olympus.Rotation.Common.Modules;
+using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AsclepiusCore.Modules;
 
@@ -130,6 +133,38 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
             {
                 SetPlannedAction(context, dotAction.Name);
                 SetDpsState(context, "DoT Applied");
+
+                // Training mode: capture explanation
+                if (context.TrainingService?.IsTrainingEnabled == true)
+                {
+                    var targetName = enemy.Name?.TextValue ?? "Unknown";
+                    context.TrainingService.RecordDecision(new ActionExplanation
+                    {
+                        Timestamp = DateTime.Now,
+                        ActionId = dotAction.ActionId,
+                        ActionName = dotAction.Name,
+                        Category = "Damage",
+                        TargetName = targetName,
+                        ShortReason = $"Eukrasian Dosis DoT applied on {targetName}",
+                        DetailedReason = $"Applied Eukrasian Dosis on {targetName} after activating Eukrasia. This is SGE's primary DoT - the Eukrasia oGCD converts the next cast into its enhanced Eukrasian version, which applies a long-duration DoT tick that deals damage passively while you continue healing or dealing damage.",
+                        Factors = new[]
+                        {
+                            "Eukrasia was active - must apply immediately",
+                            "DoT was not present or near expiry",
+                            "Deals damage over 30s passively",
+                            "Enables full Dosis rotation",
+                        },
+                        Alternatives = new[]
+                        {
+                            "Already committed - Eukrasia was active",
+                            "Delay if target is about to die",
+                        },
+                        Tip = "Always apply Eukrasian Dosis immediately after activating Eukrasia - the buff expires if unused! DoT uptime is a significant portion of SGE's overall DPS.",
+                        ConceptId = SgeConcepts.EukrasianDosisUsage,
+                        Priority = ExplanationPriority.Normal,
+                    });
+                }
+
                 return true;
             }
 
@@ -158,6 +193,37 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
                 SetPlannedAction(context, eukrasiaAction.Name);
                 SetDpsState(context, "Eukrasia for DoT");
                 context.Debug.EukrasiaState = "Activating";
+
+                // Training mode: capture explanation
+                if (context.TrainingService?.IsTrainingEnabled == true)
+                {
+                    context.TrainingService.RecordDecision(new ActionExplanation
+                    {
+                        Timestamp = DateTime.Now,
+                        ActionId = eukrasiaAction.ActionId,
+                        ActionName = "Eukrasia",
+                        Category = "Damage",
+                        TargetName = target.Name?.TextValue ?? "Unknown",
+                        ShortReason = "Eukrasia activated - DoT needs to be applied or refreshed",
+                        DetailedReason = "Eukrasia activated to prepare Eukrasian Dosis. SGE's DoT requires a two-step process: activate Eukrasia (instant oGCD) then cast the enhanced Dosis version. The next GCD must be Eukrasian Dosis or Eukrasia is wasted.",
+                        Factors = new[]
+                        {
+                            "DoT absent or below refresh threshold",
+                            "Eukrasia is free (no resource cost)",
+                            "Must cast Eukrasian Dosis next GCD",
+                            "DoT deals damage passively over 30s",
+                        },
+                        Alternatives = new[]
+                        {
+                            "Skip DoT (only if target will die soon)",
+                            "Wait until next oGCD window",
+                        },
+                        Tip = "Eukrasia transforms your next cast into a Eukrasian version. For DPS, activate Eukrasia in an oGCD window then immediately cast Eukrasian Dosis. Never let your DoT drop completely!",
+                        ConceptId = SgeConcepts.EukrasiaDecisions,
+                        Priority = ExplanationPriority.Normal,
+                    });
+                }
+
                 return true;
             }
         }
@@ -216,6 +282,38 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
             SetPlannedAction(context, SGEActions.Psyche.Name);
             SetDpsState(context, "Psyche");
             context.Debug.PsycheState = "Executing";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var targetName = enemy.Name?.TextValue ?? "Unknown";
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = SGEActions.Psyche.ActionId,
+                    ActionName = "Psyche",
+                    Category = "Damage",
+                    TargetName = targetName,
+                    ShortReason = $"Psyche oGCD damage on {targetName}",
+                    DetailedReason = $"Psyche used on {targetName} - SGE's oGCD damage cooldown. Psyche deals high potency damage in an oGCD slot, meaning it deals damage without interrupting your GCD rotation. Always use on cooldown for optimal DPS.",
+                    Factors = new[]
+                    {
+                        "Psyche is off cooldown",
+                        "Enemy in range",
+                        "oGCD slot available",
+                        "High potency damage without using GCD",
+                    },
+                    Alternatives = new[]
+                    {
+                        "Nothing - use Psyche on cooldown",
+                        "Delay only if you need the oGCD for Eukrasia/healing",
+                    },
+                    Tip = "Psyche is one of SGE's best oGCD damage tools! Weave it between GCDs on cooldown. It doesn't cost Addersgall, so there's no reason to hold it unless you need that oGCD slot for healing.",
+                    ConceptId = SgeConcepts.PsycheUsage,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -273,6 +371,39 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
             SetPlannedAction(context, phlegmaAction.Name);
             SetDpsState(context, phlegmaAction.Name);
             context.Debug.PhlegmaState = "Executing";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var targetName = enemy.Name?.TextValue ?? "Unknown";
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = phlegmaAction.ActionId,
+                    ActionName = phlegmaAction.Name,
+                    Category = "Damage",
+                    TargetName = targetName,
+                    ShortReason = $"{phlegmaAction.Name} on {targetName} ({charges}/{maxCharges} charges)",
+                    DetailedReason = $"Used {phlegmaAction.Name} on {targetName}. Phlegma is SGE's highest potency instant GCD damage skill and must be used at melee range. Current charges: {charges}/{maxCharges}. Spending charges now to avoid overcapping - always use at 2 stacks or when one is about to recharge.",
+                    Factors = new[]
+                    {
+                        $"Phlegma charges: {charges}/{maxCharges}",
+                        "Highest single-target GCD potency for SGE",
+                        "Instant cast - no cast time",
+                        "Must be in melee range (6y)",
+                        "Overcap prevention",
+                    },
+                    Alternatives = new[]
+                    {
+                        "Dosis (longer range, lower potency)",
+                        "Save for boss phase (if adds incoming soon)",
+                    },
+                    Tip = "Phlegma is your best GCD damage skill! It requires melee range (6 yalms), so plan positioning. Use charges before they overcap - holding 2 charges wastes DPS when the third would be generated.",
+                    ConceptId = SgeConcepts.PhlegmaUsage,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
@@ -317,6 +448,39 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
             SetPlannedAction(context, toxikonAction.Name);
             SetDpsState(context, toxikonAction.Name);
             context.Debug.ToxikonState = "Executing";
+
+            // Training mode: capture explanation
+            if (context.TrainingService?.IsTrainingEnabled == true)
+            {
+                var targetName = enemy.Name?.TextValue ?? "Unknown";
+                var adderstingStacks = context.AdderstingStacks;
+                context.TrainingService.RecordDecision(new ActionExplanation
+                {
+                    Timestamp = DateTime.Now,
+                    ActionId = toxikonAction.ActionId,
+                    ActionName = toxikonAction.Name,
+                    Category = "Damage",
+                    TargetName = targetName,
+                    ShortReason = $"{toxikonAction.Name} while moving ({adderstingStacks} Addersting)",
+                    DetailedReason = $"Used {toxikonAction.Name} on {targetName} while moving. Toxikon is an instant-cast damage spell that consumes Addersting stacks. Addersting is generated when an Eukrasian Diagnosis shield is fully absorbed by damage. This allows continued DPS output during movement mechanics.",
+                    Factors = new[]
+                    {
+                        "Currently moving - cannot cast Dosis (cast time)",
+                        $"Addersting stacks available: {adderstingStacks}",
+                        "Instant cast - usable during movement",
+                        "Generated from broken E.Diagnosis shields",
+                    },
+                    Alternatives = new[]
+                    {
+                        "Phlegma (if charges available and in melee range)",
+                        "Hold DPS until movement ends",
+                    },
+                    Tip = "Toxikon is SGE's answer to movement mechanics! Apply E.Diagnosis shields on tanks to generate Addersting, then spend those stacks on Toxikon during movement. It's instant cast, so you never have to stop DPS during movement!",
+                    ConceptId = SgeConcepts.ToxikonUsage,
+                    Priority = ExplanationPriority.Normal,
+                });
+            }
+
             return true;
         }
 
