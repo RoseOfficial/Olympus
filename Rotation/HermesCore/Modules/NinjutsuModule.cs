@@ -1,6 +1,6 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
-using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.HermesCore.Context;
 using Olympus.Rotation.HermesCore.Helpers;
 using Olympus.Services.Training;

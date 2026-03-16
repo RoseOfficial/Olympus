@@ -1,7 +1,7 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Models.Action;
-using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.ZeusCore.Context;
 using Olympus.Services.Training;

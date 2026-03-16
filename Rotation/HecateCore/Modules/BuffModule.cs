@@ -1,6 +1,6 @@
 using Olympus.Config;
 using Olympus.Data;
-using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.HecateCore.Context;
 using Olympus.Services.Training;
 using Olympus.Timeline.Models;

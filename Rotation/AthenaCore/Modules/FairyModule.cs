@@ -2,6 +2,7 @@ using System;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.AthenaCore.Context;
 using Olympus.Services.Scholar;
 using Olympus.Services.Training;

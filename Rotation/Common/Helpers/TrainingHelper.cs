@@ -2,7 +2,7 @@ using System;
 using Olympus.Config;
 using Olympus.Services.Training;
 
-namespace Olympus.Rotation.ApolloCore.Helpers;
+namespace Olympus.Rotation.Common.Helpers;
 
 /// <summary>
 /// Helper methods to reduce boilerplate when recording training decisions.
