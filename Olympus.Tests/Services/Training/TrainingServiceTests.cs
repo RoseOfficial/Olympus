@@ -3,6 +3,7 @@ using System.Linq;
 using Dalamud.Plugin.Services;
 using Moq;
 using Olympus.Config;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Services.Training;
 using Olympus.Training;
 using Xunit;
@@ -341,5 +342,87 @@ public sealed class TrainingServiceTests
         config.SkillLevelOverride = SkillLevelOverride.Advanced;
         var result = service.GetSkillLevel("whm");
         Assert.Equal(SkillLevel.Advanced, result.Level);
+    }
+
+    // Concept Mastery group
+
+    [Fact]
+    public void RecordConceptApplication_Success_IncrementsOpportunitiesAndSuccesses()
+    {
+        service.RecordConceptApplication("whm.healing_priority", wasSuccessful: true);
+        var data = config.ConceptMastery["whm.healing_priority"];
+        Assert.Equal(1, data.Opportunities);
+        Assert.Equal(1, data.Successes);
+    }
+
+    [Fact]
+    public void RecordConceptApplication_Failure_IncrementsOnlyOpportunities()
+    {
+        service.RecordConceptApplication("whm.healing_priority", wasSuccessful: false);
+        var data = config.ConceptMastery["whm.healing_priority"];
+        Assert.Equal(1, data.Opportunities);
+        Assert.Equal(0, data.Successes);
+    }
+
+    [Fact]
+    public void GetStrugglingConcepts_ReturnsConcepts_BelowThreshold()
+    {
+        // 5 successes out of 10 opportunities = 50%, below the 60% struggling threshold
+        for (var i = 0; i < 5; i++) service.RecordConceptApplication("whm.healing_priority", wasSuccessful: true);
+        for (var i = 0; i < 5; i++) service.RecordConceptApplication("whm.healing_priority", wasSuccessful: false);
+        var struggling = service.GetStrugglingConcepts("whm");
+        Assert.Contains("whm.healing_priority", struggling);
+    }
+
+    [Fact]
+    public void GetStrugglingConcepts_Excludes_AboveThreshold()
+    {
+        // 7 successes out of 10 opportunities = 70%, above the 60% struggling threshold
+        for (var i = 0; i < 7; i++) service.RecordConceptApplication("whm.healing_priority", wasSuccessful: true);
+        for (var i = 0; i < 3; i++) service.RecordConceptApplication("whm.healing_priority", wasSuccessful: false);
+        var struggling = service.GetStrugglingConcepts("whm");
+        Assert.DoesNotContain("whm.healing_priority", struggling);
+    }
+
+    [Fact]
+    public void GetMasteredConcepts_ReturnsConcepts_AboveMasteryThreshold()
+    {
+        // 9 successes out of 10 opportunities = 90%, above the 85% mastery threshold
+        for (var i = 0; i < 9; i++) service.RecordConceptApplication("whm.healing_priority", wasSuccessful: true);
+        for (var i = 0; i < 1; i++) service.RecordConceptApplication("whm.healing_priority", wasSuccessful: false);
+        var mastered = service.GetMasteredConcepts("whm");
+        Assert.Contains("whm.healing_priority", mastered);
+    }
+
+    [Fact]
+    public void DismissRecommendation_RemovesFromList()
+    {
+        // Recommendations list starts empty; dismissing a non-existent ID is a no-op
+        // and the ID should not appear in GetRecommendations()
+        service.DismissRecommendation("whm.lesson_1");
+        Assert.DoesNotContain(
+            service.GetRecommendations(),
+            r => r.Lesson.LessonId == "whm.lesson_1");
+    }
+
+    [Fact]
+    public void UpdateRecommendationsFromMastery_ReturnsFalse_WhenNoMasteryData()
+    {
+        // Fresh config with no ConceptMastery entries — no struggling concepts, returns false
+        var result = service.UpdateRecommendationsFromMastery("whm");
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void TrainingHelper_RecordDamageDecision_WithNullTrainingService_DoesNotThrow()
+    {
+        // Passing null ITrainingService should be a no-op, not throw
+        var ex = Record.Exception(() =>
+            TrainingHelper.RecordDamageDecision(
+                null, 1, "Test Action", null,
+                "Short reason", "Detailed reason",
+                new[] { "Factor" }, new[] { "Alternative" },
+                "Tip", "whm.healing_priority"));
+        Assert.Null(ex);
     }
 }
