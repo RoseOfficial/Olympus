@@ -89,4 +89,68 @@ public sealed class TrainingServiceTests
         service.RecordDecision(MakeExplanation("whm.healing_priority"));
         Assert.Equal(2, service.GetConceptExposureCount("whm.healing_priority"));
     }
+
+    [Fact]
+    public void ClearExplanations_RemovesAll()
+    {
+        service.RecordDecision(MakeExplanation());
+        service.RecordDecision(MakeExplanation());
+        service.ClearExplanations();
+        Assert.Empty(service.RecentExplanations);
+    }
+
+    [Fact]
+    public void MarkConceptLearned_AddsToLearnedSet()
+    {
+        service.MarkConceptLearned("whm.healing_priority");
+        Assert.Contains("whm.healing_priority", config.LearnedConcepts);
+    }
+
+    [Fact]
+    public void UnmarkConceptLearned_RemovesFromLearnedSet()
+    {
+        service.MarkConceptLearned("whm.healing_priority");
+        service.UnmarkConceptLearned("whm.healing_priority");
+        Assert.DoesNotContain("whm.healing_priority", config.LearnedConcepts);
+    }
+
+    [Fact]
+    public void GetProgress_TotalConceptsIsPositive()
+    {
+        var progress = service.GetProgress();
+        Assert.True(progress.TotalConcepts > 0);
+    }
+
+    [Fact]
+    public void GetProgress_CountsLearnedConcepts()
+    {
+        service.MarkConceptLearned("whm.healing_priority");
+        service.MarkConceptLearned("whm.ogcd_weaving");
+        var progress = service.GetProgress();
+        Assert.Equal(2, progress.LearnedConcepts);
+    }
+
+    [Fact]
+    public void GetProgress_HighExposureUnlearned_AppearsInNeedsAttention()
+    {
+        config.ConceptExposureCount["whm.healing_priority"] = 10;
+        var progress = service.GetProgress();
+        Assert.Contains("whm.healing_priority", progress.ConceptsNeedingAttention);
+    }
+
+    [Fact]
+    public void GetProgress_LowExposureUnlearned_NotInNeedsAttention()
+    {
+        config.ConceptExposureCount["whm.healing_priority"] = 5;
+        var progress = service.GetProgress();
+        Assert.DoesNotContain("whm.healing_priority", progress.ConceptsNeedingAttention);
+    }
+
+    [Fact]
+    public void GetProgress_RecentExplanations_AppearsInRecentlySeen()
+    {
+        service.RecordDecision(MakeExplanation("whm.healing_priority"));
+        var progress = service.GetProgress();
+        Assert.Contains("whm.healing_priority", progress.RecentlyDemonstratedConcepts);
+    }
 }
