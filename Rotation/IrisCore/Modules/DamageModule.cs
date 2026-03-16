@@ -317,6 +317,8 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
                     .Tip("Hardcast Rainbow Drip only during burst windows. Normally wait for the instant proc.")
                     .Concept(PctConcepts.RainbowDrip)
                     .Record();
+
+                context.TrainingService?.RecordConceptApplication(PctConcepts.RainbowDrip, true, "Rainbow Drip hardcast used");
             }
 
             return true;

@@ -444,6 +444,8 @@ public sealed class BuffModule : IIrisModule
                 .Concept(PctConcepts.PaletteGauge)
                 .Record();
 
+            context.TrainingService?.RecordConceptApplication(PctConcepts.PaletteGauge, true, "Lucid Dreaming used for MP");
+
             return true;
         }
 
