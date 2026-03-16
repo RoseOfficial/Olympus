@@ -35,10 +35,10 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
     private readonly object _dotLock = new();
 
     // Boss mechanic detector for predictive damage
-    private IBossMechanicDetector? _bossMechanicDetector;
+    private volatile IBossMechanicDetector? _bossMechanicDetector;
 
     // Timeline service for fight-aware predictive damage
-    private ITimelineService? _timelineService;
+    private volatile ITimelineService? _timelineService;
 
     // Default window for damage tracking
     private const float DefaultWindowSeconds = 5f;
@@ -330,6 +330,15 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
             {
                 totalForecast += TimelineRaidwideEstimate;
             }
+
+            // Tank buster is party-level threat (the party needs a tank healed); add once here.
+            var nextTankBuster = _timelineService.NextTankBuster;
+            if (nextTankBuster.HasValue &&
+                nextTankBuster.Value.SecondsUntil > 0f &&
+                nextTankBuster.Value.SecondsUntil <= forecastSeconds)
+            {
+                totalForecast += TimelineTankBusterEstimate;
+            }
         }
 
         return totalForecast;
@@ -355,18 +364,6 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
             tankBuster.SecondsUntil <= forecastSeconds)
         {
             forecast += tankBuster.EstimatedDamage;
-        }
-
-        // Add predicted tank buster from timeline service if imminent
-        if (_timelineService is { IsActive: true })
-        {
-            var nextTankBuster = _timelineService.NextTankBuster;
-            if (nextTankBuster.HasValue &&
-                nextTankBuster.Value.SecondsUntil > 0f &&
-                nextTankBuster.Value.SecondsUntil <= forecastSeconds)
-            {
-                forecast += TimelineTankBusterEstimate;
-            }
         }
 
         return forecast;
