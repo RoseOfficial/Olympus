@@ -24,7 +24,11 @@ public sealed class ActionLibraryService : IActionLibrary
         RegisterScholarActions();
         RegisterAstrologianActions();
         RegisterSageActions();
-        // Future: tanks, melee, ranged, casters
+        RegisterWarriorActions();
+        RegisterPaladinActions();
+        RegisterDarkKnightActions();
+        RegisterGunbreakerActions();
+        // Future: melee, ranged, casters
     }
 
     /// <inheritdoc />
@@ -411,5 +415,287 @@ public sealed class ActionLibraryService : IActionLibrary
             SGEActions.Rescue,
             SGEActions.Esuna,
             SGEActions.Egeiro);
+    }
+
+    /// <summary>
+    /// Registers all Warrior (WAR) and Marauder (MRD) actions.
+    /// </summary>
+    private void RegisterWarriorActions()
+    {
+        const uint warJobId = JobRegistry.Warrior;
+        const uint mrdJobId = JobRegistry.Marauder;
+
+        // Combo GCDs
+        RegisterActions(warJobId,
+            WARActions.HeavySwing,
+            WARActions.Maim,
+            WARActions.StormsPath,
+            WARActions.StormsEye,
+            WARActions.Overpower,
+            WARActions.MythrilTempest);
+
+        // Spenders
+        RegisterActions(warJobId,
+            WARActions.InnerBeast,
+            WARActions.FellCleave,
+            WARActions.InnerChaos,
+            WARActions.SteelCyclone,
+            WARActions.Decimate,
+            WARActions.ChaoticCyclone,
+            WARActions.PrimalRend,
+            WARActions.PrimalRuination);
+
+        // oGCDs
+        RegisterActions(warJobId,
+            WARActions.Tomahawk,
+            WARActions.Upheaval,
+            WARActions.Orogeny,
+            WARActions.Onslaught,
+            WARActions.Berserk,
+            WARActions.InnerRelease,
+            WARActions.Infuriate);
+
+        // Defensive / Mitigation
+        RegisterActions(warJobId,
+            WARActions.Defiance,
+            WARActions.Holmgang,
+            WARActions.Vengeance,
+            WARActions.Damnation,
+            WARActions.RawIntuition,
+            WARActions.Bloodwhetting,
+            WARActions.ThrillOfBattle,
+            WARActions.Equilibrium,
+            WARActions.ShakeItOff,
+            WARActions.NascentFlash);
+
+        // Role Actions
+        RegisterActions(warJobId,
+            WARActions.Rampart,
+            WARActions.Reprisal,
+            WARActions.Provoke,
+            WARActions.Shirk,
+            WARActions.ArmsLength,
+            WARActions.LowBlow,
+            WARActions.Interject);
+
+        // Marauder base class — starter subset
+        RegisterActions(mrdJobId,
+            WARActions.HeavySwing,
+            WARActions.Maim,
+            WARActions.Overpower,
+            WARActions.Tomahawk,
+            WARActions.Provoke,
+            WARActions.Shirk,
+            WARActions.Rampart);
+    }
+
+    /// <summary>
+    /// Registers all Paladin (PLD) and Gladiator (GLA) actions.
+    /// </summary>
+    private void RegisterPaladinActions()
+    {
+        const uint pldJobId = JobRegistry.Paladin;
+        const uint glaJobId = JobRegistry.Gladiator;
+
+        // Combo GCDs
+        RegisterActions(pldJobId,
+            PLDActions.FastBlade,
+            PLDActions.RiotBlade,
+            PLDActions.RoyalAuthority,
+            PLDActions.RageOfHalone,
+            PLDActions.GoringBlade,
+            PLDActions.BladeOfHonor,
+            PLDActions.Atonement,
+            PLDActions.Supplication,
+            PLDActions.Sepulchre,
+            PLDActions.TotalEclipse,
+            PLDActions.Prominence);
+
+        // Holy Spirit / Requiescat
+        RegisterActions(pldJobId,
+            PLDActions.HolySpirit,
+            PLDActions.HolyCircle,
+            PLDActions.Confiteor,
+            PLDActions.BladeOfFaith,
+            PLDActions.BladeOfTruth,
+            PLDActions.BladeOfValor);
+
+        // oGCDs
+        RegisterActions(pldJobId,
+            PLDActions.CircleOfScorn,
+            PLDActions.Expiacion,
+            PLDActions.SpiritsWithin,
+            PLDActions.Intervene,
+            PLDActions.FightOrFlight,
+            PLDActions.Requiescat);
+
+        // Defensive / Mitigation
+        RegisterActions(pldJobId,
+            PLDActions.IronWill,
+            PLDActions.Sheltron,
+            PLDActions.HolySheltron,
+            PLDActions.Sentinel,
+            PLDActions.Guardian,
+            PLDActions.Bulwark,
+            PLDActions.HallowedGround,
+            PLDActions.DivineVeil,
+            PLDActions.PassageOfArms,
+            PLDActions.Cover,
+            PLDActions.Clemency);
+
+        // Role Actions
+        RegisterActions(pldJobId,
+            PLDActions.Rampart,
+            PLDActions.Reprisal,
+            PLDActions.Provoke,
+            PLDActions.Shirk,
+            PLDActions.ArmsLength,
+            PLDActions.LowBlow,
+            PLDActions.Interject,
+            PLDActions.ShieldLob);
+
+        // Gladiator base class — starter subset
+        RegisterActions(glaJobId,
+            PLDActions.FastBlade,
+            PLDActions.RiotBlade,
+            PLDActions.TotalEclipse,
+            PLDActions.ShieldLob,
+            PLDActions.Provoke,
+            PLDActions.Shirk,
+            PLDActions.Rampart);
+    }
+
+    /// <summary>
+    /// Registers all Dark Knight (DRK) actions.
+    /// </summary>
+    private void RegisterDarkKnightActions()
+    {
+        const uint drkJobId = JobRegistry.DarkKnight;
+
+        // Combo GCDs
+        RegisterActions(drkJobId,
+            DRKActions.HardSlash,
+            DRKActions.SyphonStrike,
+            DRKActions.Souleater,
+            DRKActions.Unleash,
+            DRKActions.StalwartSoul);
+
+        // Spenders
+        RegisterActions(drkJobId,
+            DRKActions.Bloodspiller,
+            DRKActions.Quietus,
+            DRKActions.ScarletDelirium,
+            DRKActions.Comeuppance,
+            DRKActions.Torcleaver,
+            DRKActions.Disesteem);
+
+        // oGCDs — Damage
+        RegisterActions(drkJobId,
+            DRKActions.EdgeOfDarkness,
+            DRKActions.EdgeOfShadow,
+            DRKActions.FloodOfDarkness,
+            DRKActions.FloodOfShadow,
+            DRKActions.Shadowbringer,
+            DRKActions.CarveAndSpit,
+            DRKActions.AbyssalDrain,
+            DRKActions.SaltedEarth,
+            DRKActions.SaltAndDarkness,
+            DRKActions.Plunge,
+            DRKActions.Shadowstride);
+
+        // Buffs / Defensive
+        RegisterActions(drkJobId,
+            DRKActions.BloodWeapon,
+            DRKActions.Delirium,
+            DRKActions.LivingShadow,
+            DRKActions.Grit,
+            DRKActions.TheBlackestNight,
+            DRKActions.LivingDead,
+            DRKActions.ShadowWall,
+            DRKActions.ShadowedVigil,
+            DRKActions.DarkMind,
+            DRKActions.DarkMissionary,
+            DRKActions.Oblation,
+            DRKActions.Unmend);
+
+        // Role Actions
+        RegisterActions(drkJobId,
+            DRKActions.Rampart,
+            DRKActions.Reprisal,
+            DRKActions.Provoke,
+            DRKActions.Shirk,
+            DRKActions.ArmsLength,
+            DRKActions.LowBlow,
+            DRKActions.Interject);
+    }
+
+    /// <summary>
+    /// Registers all Gunbreaker (GNB) actions.
+    /// </summary>
+    private void RegisterGunbreakerActions()
+    {
+        const uint gnbJobId = JobRegistry.Gunbreaker;
+
+        // Combo GCDs
+        RegisterActions(gnbJobId,
+            GNBActions.KeenEdge,
+            GNBActions.BrutalShell,
+            GNBActions.SolidBarrel,
+            GNBActions.DemonSlice,
+            GNBActions.DemonSlaughter);
+
+        // Gnashing Fang combo
+        RegisterActions(gnbJobId,
+            GNBActions.GnashingFang,
+            GNBActions.SavageClaw,
+            GNBActions.WickedTalon,
+            GNBActions.Continuation,
+            GNBActions.JugularRip,
+            GNBActions.AbdomenTear,
+            GNBActions.EyeGouge,
+            GNBActions.Hypervelocity);
+
+        // Spenders
+        RegisterActions(gnbJobId,
+            GNBActions.BurstStrike,
+            GNBActions.FatedCircle,
+            GNBActions.DoubleDown,
+            GNBActions.ReignOfBeasts,
+            GNBActions.NobleBlood,
+            GNBActions.LionHeart);
+
+        // oGCDs
+        RegisterActions(gnbJobId,
+            GNBActions.LightningShot,
+            GNBActions.RoughDivide,
+            GNBActions.Trajectory,
+            GNBActions.DangerZone,
+            GNBActions.BlastingZone,
+            GNBActions.BowShock,
+            GNBActions.SonicBreak,
+            GNBActions.NoMercy,
+            GNBActions.Bloodfest);
+
+        // Defensive / Mitigation
+        RegisterActions(gnbJobId,
+            GNBActions.RoyalGuard,
+            GNBActions.Camouflage,
+            GNBActions.Nebula,
+            GNBActions.GreatNebula,
+            GNBActions.HeartOfStone,
+            GNBActions.HeartOfCorundum,
+            GNBActions.Superbolide,
+            GNBActions.Aurora,
+            GNBActions.HeartOfLight);
+
+        // Role Actions
+        RegisterActions(gnbJobId,
+            GNBActions.Rampart,
+            GNBActions.Reprisal,
+            GNBActions.Provoke,
+            GNBActions.Shirk,
+            GNBActions.ArmsLength,
+            GNBActions.LowBlow,
+            GNBActions.Interject);
     }
 }
