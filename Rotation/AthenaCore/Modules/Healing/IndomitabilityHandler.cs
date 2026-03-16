@@ -102,6 +102,8 @@ public sealed class IndomitabilityHandler : IHealingHandler
                     ConceptId = SchConcepts.IndomitabilityUsage,
                     Priority = avgHp < 0.5f ? ExplanationPriority.High : ExplanationPriority.Normal,
                 });
+
+                context.TrainingService.RecordConceptApplication(SchConcepts.IndomitabilityUsage, wasSuccessful: true);
             }
 
             return true;

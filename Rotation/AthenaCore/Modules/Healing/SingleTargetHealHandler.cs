@@ -153,6 +153,8 @@ public sealed class SingleTargetHealHandler : IHealingHandler
                     ConceptId = conceptId,
                     Priority = hpPercent < 0.3f ? ExplanationPriority.High : ExplanationPriority.Normal,
                 });
+
+                context.TrainingService.RecordConceptApplication(conceptId, wasSuccessful: true);
             }
 
             return true;

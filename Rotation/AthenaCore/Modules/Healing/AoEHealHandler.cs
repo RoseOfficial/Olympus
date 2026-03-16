@@ -110,6 +110,8 @@ public sealed class AoEHealHandler : IHealingHandler
                     ConceptId = SchConcepts.SuccorUsage,
                     Priority = raidwideImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
                 });
+
+                context.TrainingService.RecordConceptApplication(SchConcepts.SuccorUsage, wasSuccessful: true);
             }
 
             return true;

@@ -94,6 +94,8 @@ public sealed class EmergencyTacticsHandler : IHealingHandler
                         ConceptId = SchConcepts.EmergencyTacticsUsage,
                         Priority = ExplanationPriority.Normal,
                     });
+
+                    context.TrainingService.RecordConceptApplication(SchConcepts.EmergencyTacticsUsage, wasSuccessful: true);
                 }
 
                 return true;

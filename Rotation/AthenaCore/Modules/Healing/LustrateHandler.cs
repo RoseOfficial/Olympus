@@ -103,6 +103,8 @@ public sealed class LustrateHandler : IHealingHandler
                     ConceptId = SchConcepts.LustrateUsage,
                     Priority = hpPercent < 0.3f ? ExplanationPriority.Critical : ExplanationPriority.High,
                 });
+
+                context.TrainingService.RecordConceptApplication(SchConcepts.LustrateUsage, wasSuccessful: true);
             }
 
             return true;

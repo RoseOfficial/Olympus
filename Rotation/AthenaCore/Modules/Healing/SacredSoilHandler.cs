@@ -153,6 +153,8 @@ public sealed class SacredSoilHandler : IHealingHandler
                     ConceptId = SchConcepts.SacredSoilUsage,
                     Priority = raidwideImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
                 });
+
+                context.TrainingService.RecordConceptApplication(SchConcepts.SacredSoilUsage, wasSuccessful: true);
             }
 
             return true;

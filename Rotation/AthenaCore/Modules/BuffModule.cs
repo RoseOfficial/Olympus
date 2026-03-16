@@ -143,6 +143,8 @@ public sealed class BuffModule : BaseBuffModule<IAthenaContext>, IAthenaModule
                     ConceptId = SchConcepts.DissipationUsage,
                     Priority = ExplanationPriority.Normal,
                 });
+
+                context.TrainingService.RecordConceptApplication(SchConcepts.DissipationUsage, wasSuccessful: true);
             }
 
             return true;

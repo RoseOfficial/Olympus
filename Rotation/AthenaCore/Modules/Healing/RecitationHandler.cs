@@ -102,6 +102,8 @@ public sealed class RecitationHandler : IHealingHandler
                     ConceptId = SchConcepts.RecitationUsage,
                     Priority = ExplanationPriority.Normal,
                 });
+
+                context.TrainingService.RecordConceptApplication(SchConcepts.RecitationUsage, wasSuccessful: true);
             }
 
             return true;

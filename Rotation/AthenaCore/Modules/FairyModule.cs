@@ -130,6 +130,21 @@ public sealed class FairyModule : IAthenaModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Summoning Fairy";
+
+            TrainingHelper.RecordUtilityDecision(
+                context.TrainingService,
+                action.ActionId, action.Name,
+                null,
+                "Summon Eos - fairy not present",
+                "Eos (or Selene) must be summoned when not present to restore fairy healing uptime. The fairy passively heals with Embrace and enables all fairy abilities (Whispering Dawn, Fey Blessing, Fey Union, Fey Illumination). Keeping the fairy active is one of SCH's highest priorities.",
+                new[] { "Fairy not summoned", "Not during Dissipation (would cancel it)", "Fairy uptime critical for healing" },
+                new[] { "Continue without fairy (not recommended)", "Wait until out of combat (unnecessary)" },
+                "Fairy uptime is crucial for Scholar. Eos provides constant passive healing and enables powerful fairy abilities. Resummon immediately if the fairy despawns.",
+                SchConcepts.FairyManagement,
+                ExplanationPriority.High);
+
+            context.TrainingService?.RecordConceptApplication(SchConcepts.FairyManagement, wasSuccessful: true);
+
             return true;
         }
 
@@ -204,6 +219,8 @@ public sealed class FairyModule : IAthenaModule
                     ConceptId = SchConcepts.SeraphUsage,
                     Priority = ExplanationPriority.Normal,
                 });
+
+                context.TrainingService.RecordConceptApplication(SchConcepts.SeraphUsage, wasSuccessful: true);
             }
 
             return true;
@@ -240,6 +257,27 @@ public sealed class FairyModule : IAthenaModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Seraphism";
+
+            var (avgHpSeraphism, _, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
+            var usedForHealingSeraphism = config.SeraphismStrategy == SeraphismUsageStrategy.SaveForDamage;
+
+            TrainingHelper.RecordHealDecision(
+                context.TrainingService,
+                action.ActionId, "Seraphism",
+                null,
+                avgHpSeraphism, 0,
+                usedForHealingSeraphism
+                    ? $"Seraphism - party HP {avgHpSeraphism:P0}"
+                    : "Seraphism - on cooldown",
+                $"Seraphism (level 100) transforms Scholar abilities for 20s. GCD heals become Concitation (upgraded Succor) and Manifestation (upgraded Adloquium). {(usedForHealingSeraphism ? $"Party HP at {avgHpSeraphism:P0} triggered threshold. " : "Using on cooldown for maximum value. ")}During Seraphism all Aetherflow abilities become free (no stack cost) and are automatically guaranteed critical heals.",
+                new[] { $"Strategy: {config.SeraphismStrategy}", usedForHealingSeraphism ? $"Party HP: {avgHpSeraphism:P0}" : "On cooldown", "All heals auto-crit, Aetherflow free", "20s duration" },
+                new[] { "Summon Seraph instead", "Save for next damage phase", "Use oGCDs directly" },
+                "Seraphism is SCH's ultimate healing tool at level 100. During it, spam Manifestation, Excogitation, Indomitability, and Lustrate freely - they cost no Aetherflow and auto-crit!",
+                SchConcepts.SeraphUsage,
+                ExplanationPriority.High);
+
+            context.TrainingService?.RecordConceptApplication(SchConcepts.SeraphUsage, wasSuccessful: true);
+
             return true;
         }
 
@@ -274,6 +312,24 @@ public sealed class FairyModule : IAthenaModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.PlanningState = "Consolation";
+
+            var (avgHpCons, _, injuredCountCons) = context.PartyHelper.CalculatePartyHealthMetrics(player);
+
+            TrainingHelper.RecordHealDecision(
+                context.TrainingService,
+                action.ActionId, "Consolation",
+                "Party",
+                avgHpCons, 0,
+                $"Consolation - Seraph AoE heal+shield ({injuredCountCons} injured)",
+                $"Consolation is Seraph's exclusive ability. It provides AoE healing and applies Seraphic Veil (shield) to the party. Seraph has 2 charges of Consolation - both should be used before Seraph expires at 22s. {injuredCountCons} party members below HP threshold at {avgHpCons:P0} average HP.",
+                new[] { $"Seraph active (Consolation available)", $"Party avg HP: {avgHpCons:P0}", $"Injured count: {injuredCountCons}", "AoE heal + shield combo", "2 charges per Seraph window" },
+                new[] { "Whispering Dawn (HoT instead)", "Fey Blessing (instant heal)", "Save both charges for next damage" },
+                "Always use both Consolation charges before Seraph expires! Consolation provides both healing and shielding, making it extremely efficient. Time it around incoming damage.",
+                SchConcepts.SeraphUsage,
+                ExplanationPriority.Normal);
+
+            context.TrainingService?.RecordConceptApplication(SchConcepts.SeraphUsage, wasSuccessful: true);
+
             return true;
         }
 
@@ -348,6 +404,8 @@ public sealed class FairyModule : IAthenaModule
                     ConceptId = SchConcepts.FeyUnionUsage,
                     Priority = ExplanationPriority.Normal,
                 });
+
+                context.TrainingService.RecordConceptApplication(SchConcepts.FeyUnionUsage, wasSuccessful: true);
             }
 
             return true;
@@ -448,6 +506,8 @@ public sealed class FairyModule : IAthenaModule
                     ConceptId = SchConcepts.FeyBlessingUsage,
                     Priority = raidwideImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
                 });
+
+                context.TrainingService.RecordConceptApplication(SchConcepts.FeyBlessingUsage, wasSuccessful: true);
             }
 
             return true;
@@ -550,6 +610,8 @@ public sealed class FairyModule : IAthenaModule
                     ConceptId = SchConcepts.WhisperingDawnUsage,
                     Priority = raidwideImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
                 });
+
+                context.TrainingService.RecordConceptApplication(SchConcepts.WhisperingDawnUsage, wasSuccessful: true);
             }
 
             return true;
@@ -617,6 +679,8 @@ public sealed class FairyModule : IAthenaModule
                     ConceptId = SchConcepts.FeyIlluminationUsage,
                     Priority = ExplanationPriority.Normal,
                 });
+
+                context.TrainingService.RecordConceptApplication(SchConcepts.FeyIlluminationUsage, wasSuccessful: true);
             }
 
             return true;

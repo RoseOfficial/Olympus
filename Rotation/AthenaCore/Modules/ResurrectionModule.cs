@@ -89,5 +89,7 @@ public sealed class ResurrectionModule : BaseResurrectionModule<IAthenaContext>,
             ConceptId = SchConcepts.RaiseDecision,
             Priority = ExplanationPriority.High,
         });
+
+        context.TrainingService.RecordConceptApplication(SchConcepts.RaiseDecision, wasSuccessful: true);
     }
 }

@@ -156,6 +156,8 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAthenaContext>, IAthe
                     ConceptId = SchConcepts.ExpedientUsage,
                     Priority = ExplanationPriority.High,
                 });
+
+                context.TrainingService.RecordConceptApplication(SchConcepts.ExpedientUsage, wasSuccessful: true);
             }
 
             return true;
@@ -237,6 +239,8 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAthenaContext>, IAthe
                     ConceptId = SchConcepts.DeploymentTactics,
                     Priority = ExplanationPriority.Normal,
                 });
+
+                context.TrainingService.RecordConceptApplication(SchConcepts.DeploymentTactics, wasSuccessful: true);
             }
 
             return true;

@@ -121,6 +121,8 @@ public sealed class ExcogitationHandler : IHealingHandler
                     ConceptId = SchConcepts.ExcogitationUsage,
                     Priority = tankBusterImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
                 });
+
+                context.TrainingService.RecordConceptApplication(SchConcepts.ExcogitationUsage, wasSuccessful: true);
             }
 
             return true;

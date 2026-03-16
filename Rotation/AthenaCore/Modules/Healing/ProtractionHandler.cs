@@ -96,6 +96,8 @@ public sealed class ProtractionHandler : IHealingHandler
                     ConceptId = SchConcepts.EmergencyHealing,
                     Priority = ExplanationPriority.Normal,
                 });
+
+                context.TrainingService.RecordConceptApplication(SchConcepts.EmergencyHealing, wasSuccessful: true);
             }
 
             return true;
