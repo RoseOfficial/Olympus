@@ -14,6 +14,8 @@ namespace Olympus.Rotation.IrisCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModule
 {
+    public override int Priority => 50; // Lower priority than buff module (higher number = lower priority)
+
     public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
 
     #region Abstract Method Implementations
@@ -99,6 +101,14 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
 
     protected override bool TryGcdDamage(IIrisContext context, IBattleChara target, int enemyCount, bool isMoving)
     {
+        // Hyperphantasia makes GCDs effectively instant — treat as stationary
+        if (context.HasHyperphantasia)
+            isMoving = false;
+
+        // Priority 0: Paint missing motifs during Inspiration (reduced cast time)
+        if (TryMotifDuringInspiration(context, isMoving))
+            return true;
+
         // Priority 1: Star Prism during Starstruck (instant, high potency)
         if (TryStarPrism(context, target))
             return true;
@@ -133,6 +143,47 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
     #endregion
 
     #region GCD Actions
+
+    private bool TryMotifDuringInspiration(IIrisContext context, bool isMoving)
+    {
+        if (isMoving)
+            return false;
+        if (!context.HasInspiration)
+            return false;
+        if (context.IsCasting && !context.CanSlidecast)
+            return false;
+        var level = context.Player.Level;
+        var player = context.Player;
+        if (context.NeedsLandscapeMotif && level >= PCTActions.LandscapeMotif.MinLevel)
+        {
+            if (context.ActionService.ExecuteGcd(PCTActions.StarrySkyMotif, player.GameObjectId))
+            {
+                context.Debug.PlannedAction = PCTActions.StarrySkyMotif.Name;
+                context.Debug.DamageState = "Inspiration: Painting Starry Sky";
+                return true;
+            }
+        }
+        if (context.NeedsCreatureMotif && level >= PCTActions.CreatureMotif.MinLevel)
+        {
+            var motif = PCTActions.GetCreatureMotif(level, context.LivingMuseCharges);
+            if (context.ActionService.ExecuteGcd(motif, player.GameObjectId))
+            {
+                context.Debug.PlannedAction = motif.Name;
+                context.Debug.DamageState = $"Inspiration: Painting {motif.Name}";
+                return true;
+            }
+        }
+        if (context.NeedsWeaponMotif && level >= PCTActions.WeaponMotif.MinLevel)
+        {
+            if (context.ActionService.ExecuteGcd(PCTActions.HammerMotif, player.GameObjectId))
+            {
+                context.Debug.PlannedAction = PCTActions.HammerMotif.Name;
+                context.Debug.DamageState = "Inspiration: Painting Hammer";
+                return true;
+            }
+        }
+        return false;
+    }
 
     private bool TryPrepaintMotif(IIrisContext context)
     {
@@ -173,7 +224,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
 
         if (context.NeedsCreatureMotif && level >= PCTActions.CreatureMotif.MinLevel)
         {
-            var motif = PCTActions.GetCreatureMotif(level, 0);
+            var motif = PCTActions.GetCreatureMotif(level, context.LivingMuseCharges);
             if (context.ActionService.ExecuteGcd(motif, player.GameObjectId))
             {
                 context.Debug.PlannedAction = motif.Name;

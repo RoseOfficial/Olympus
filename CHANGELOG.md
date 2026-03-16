@@ -3,12 +3,22 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.29
+
+- Pictomancer (Iris): Creature motifs now correctly alternate between types based on level when painting outside combat — Lv.96+ paints Claw/Maw, lower levels alternate Pom/Wing
+- Pictomancer (Iris): During the Inspiration buff window (Starry Muse), missing canvases are now painted with reduced cast time rather than waiting for the next gap in the rotation
+- Pictomancer (Iris): Hyperphantasia (granted by Starry Muse) now allows combo GCDs to be used while moving — no more lost uptime during the burst window
+- Pictomancer (Iris): Subtractive Palette now fires immediately when Subtractive Spectrum is active rather than waiting for a burst window
+- Pictomancer (Iris): Tempera Coat and Tempera Grassa are now used automatically when you or your party are taking significant damage
+- Pictomancer (Iris): Smudge is now used automatically when moving and no instant GCDs are available
+- Pictomancer (Iris): Swiftcast is now used during movement when no other instant options are available, preventing cast interruption
+
+<!-- LATEST-END -->
+
 ## v4.10.28
 
 - Tank cooldown abilities now pre-empt tank busters predicted by the fight timeline — major defensives activate up to 8 seconds before a known tank buster rather than only reacting after damage starts
 - Damage forecasts used for healing triage now factor in timeline-predicted raidwides and tank busters, so healers and shields are deployed before mechanics land rather than in response to them
-
-<!-- LATEST-END -->
 
 ## v4.10.27
 

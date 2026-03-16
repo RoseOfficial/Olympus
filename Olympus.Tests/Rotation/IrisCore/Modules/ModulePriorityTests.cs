@@ -15,12 +15,12 @@ public class ModulePriorityTests
     [Fact]
     public void BuffModule_Priority_IsCorrectValue()
     {
-        Assert.Equal(20, new BuffModule().Priority);
+        Assert.Equal(30, new BuffModule().Priority);
     }
 
     [Fact]
     public void DamageModule_Priority_IsCorrectValue()
     {
-        Assert.Equal(30, new DamageModule().Priority);
+        Assert.Equal(50, new DamageModule().Priority);
     }
 }

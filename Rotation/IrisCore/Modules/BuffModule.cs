@@ -13,7 +13,7 @@ namespace Olympus.Rotation.IrisCore.Modules;
 /// </summary>
 public sealed class BuffModule : IIrisModule
 {
-    public int Priority => 20; // Higher priority than damage (lower number = higher priority)
+    public int Priority => 30; // Higher priority than damage (lower number = higher priority)
     public string Name => "Buff";
 
     public bool TryExecute(IIrisContext context, bool isMoving)
@@ -66,8 +66,23 @@ public sealed class BuffModule : IIrisModule
         if (TryLucidDreaming(context))
             return true;
 
-        // Priority 8: Tempera Coat for mitigation
-        // (Not automated - save for tankbusters)
+        // Priority 8: Tempera Grassa (party mitigation — triggered by damage)
+        if (TryTemperaGrassa(context))
+            return true;
+
+        // Priority 9: Tempera Coat (self mitigation — triggered by damage)
+        if (TryTemperaCoat(context))
+            return true;
+
+        // Priority 10: Smudge (movement buff)
+        if (TrySmudge(context, isMoving))
+            return true;
+
+        // Priority 11: Swiftcast (movement — only when no instant GCDs available)
+        if (TrySwiftcast(context, isMoving))
+            return true;
+
+        // Surecast: not automated; requires mechanic-specific timeline awareness to use safely.
 
         context.Debug.BuffState = "No oGCD needed";
         return false;
@@ -272,6 +287,10 @@ public sealed class BuffModule : IIrisModule
             return false;
         }
 
+        // Force-use at cap to prevent charge loss — even if burst pooling would otherwise hold.
+        // Currently no burst hold in this method, but this comment documents the intent:
+        // if a hold guard is ever added, the cap case (LivingMuseCharges >= 2) must bypass it.
+
         // Get the appropriate muse action based on creature type
         var museAction = PCTActions.GetLivingMuse(context.CreatureMotifType);
 
@@ -368,6 +387,10 @@ public sealed class BuffModule : IIrisModule
         if (context.HasSubtractivePalette)
             return false;
 
+        // SubtractiveSpectrum already provides a free enhanced subtractive combo — don't waste gauge on top of it
+        if (context.HasSubtractiveSpectrum)
+            return false;
+
         // Need 50+ gauge
         if (!context.CanUseSubtractivePalette)
         {
@@ -404,6 +427,112 @@ public sealed class BuffModule : IIrisModule
 
             context.TrainingService?.RecordConceptApplication(PctConcepts.SubtractivePalette, true, "Subtractive combo enabled");
 
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TryTemperaGrassa(IIrisContext context)
+    {
+        var player = context.Player;
+        var level = player.Level;
+
+        if (level < PCTActions.TemperaGrassa.MinLevel)
+            return false;
+
+        if (!context.Configuration.Pictomancer.EnableTemperaGrassa)
+            return false;
+
+        if (!context.TemperaGrassaReady)
+            return false;
+
+        var playerHpPct = player.MaxHp > 0 ? (float)player.CurrentHp / player.MaxHp : 1f;
+        var partyAvgHp = context.PartyHealthMetrics.avgHpPercent;
+        if (playerHpPct > 0.85f && partyAvgHp > 0.85f)
+            return false;
+
+        if (context.ActionService.ExecuteOgcd(PCTActions.TemperaGrassa, player.GameObjectId))
+        {
+            context.Debug.PlannedAction = PCTActions.TemperaGrassa.Name;
+            context.Debug.BuffState = "Tempera Grassa (party mitigation)";
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TryTemperaCoat(IIrisContext context)
+    {
+        var player = context.Player;
+        var level = player.Level;
+
+        if (level < PCTActions.TemperaCoat.MinLevel)
+            return false;
+
+        if (!context.Configuration.Pictomancer.EnableTemperaCoat)
+            return false;
+
+        if (!context.TemperaCoatReady)
+            return false;
+
+        var playerHpPct = player.MaxHp > 0 ? (float)player.CurrentHp / player.MaxHp : 1f;
+        if (playerHpPct > 0.80f)
+            return false;
+
+        if (context.ActionService.ExecuteOgcd(PCTActions.TemperaCoat, player.GameObjectId))
+        {
+            context.Debug.PlannedAction = PCTActions.TemperaCoat.Name;
+            context.Debug.BuffState = "Tempera Coat (self mitigation)";
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TrySmudge(IIrisContext context, bool isMoving)
+    {
+        if (!isMoving)
+            return false;
+
+        var level = context.Player.Level;
+        if (level < PCTActions.Smudge.MinLevel)
+            return false;
+
+        if (!context.SmudgeReady)
+            return false;
+
+        if (context.ActionService.ExecuteOgcd(PCTActions.Smudge, context.Player.GameObjectId))
+        {
+            context.Debug.PlannedAction = PCTActions.Smudge.Name;
+            context.Debug.BuffState = "Smudge (movement)";
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TrySwiftcast(IIrisContext context, bool isMoving)
+    {
+        if (!isMoving)
+            return false;
+
+        var level = context.Player.Level;
+        if (level < PCTActions.Swiftcast.MinLevel)
+            return false;
+
+        if (!context.SwiftcastReady)
+            return false;
+
+        // Only use if we have no other instant options
+        if (context.HasInstantCast || context.HasWhitePaint || context.HasBlackPaint ||
+            context.HasRainbowBright || context.HasStarstruck || context.HasHammerTime)
+            return false;
+
+        if (context.ActionService.ExecuteOgcd(PCTActions.Swiftcast, context.Player.GameObjectId))
+        {
+            context.Debug.PlannedAction = PCTActions.Swiftcast.Name;
+            context.Debug.BuffState = "Swiftcast (movement)";
             return true;
         }
 
