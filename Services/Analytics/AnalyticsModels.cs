@@ -54,7 +54,7 @@ public sealed class CombatMetricsSnapshot
     /// <summary>
     /// Cooldown usage efficiency for tracked abilities.
     /// </summary>
-    public IReadOnlyList<CooldownUsage> Cooldowns { get; init; } = Array.Empty<CooldownUsage>();
+    public List<CooldownUsage> Cooldowns { get; init; } = new();
 
     /// <summary>
     /// Timestamp when this snapshot was taken.
@@ -169,7 +169,7 @@ public sealed class CooldownUsage
     /// <summary>
     /// Individual drift values for each use (for detailed analysis).
     /// </summary>
-    public IReadOnlyList<float> DriftValues { get; init; } = Array.Empty<float>();
+    public List<float> DriftValues { get; init; } = new();
 }
 
 /// <summary>
@@ -375,7 +375,7 @@ public sealed class FightSession
     /// <summary>
     /// Issues detected during the fight.
     /// </summary>
-    public IReadOnlyList<PerformanceIssue> Issues { get; init; } = Array.Empty<PerformanceIssue>();
+    public List<PerformanceIssue> Issues { get; init; } = new();
 
     /// <summary>
     /// Brief summary for history display.

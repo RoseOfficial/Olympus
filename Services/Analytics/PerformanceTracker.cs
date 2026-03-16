@@ -22,6 +22,9 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
     private readonly IDataManager dataManager;
     private readonly IPartyCoordinationService? partyCoordinationService;
 
+    private readonly string configDirectory;
+    private string SessionsFilePath => System.IO.Path.Combine(configDirectory, "sessions.json");
+
     // Session history (most recent first)
     private readonly LinkedList<FightSession> sessionHistory = new();
     private readonly object historyLock = new();
@@ -58,7 +61,8 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         IPartyList partyList,
         IPluginLog log,
         IDataManager dataManager,
-        IPartyCoordinationService? partyCoordinationService = null)
+        IPartyCoordinationService? partyCoordinationService = null,
+        string configDirectory = "")
     {
         this.config = config;
         this.actionTracker = actionTracker;
@@ -68,10 +72,14 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         this.log = log;
         this.dataManager = dataManager;
         this.partyCoordinationService = partyCoordinationService;
+        this.configDirectory = configDirectory;
 
         // Subscribe to combat events
         combatEventService.OnLocalPlayerDamageDealt += OnLocalPlayerDamageDealt;
         combatEventService.OnLocalPlayerHealLanded += OnHealLanded;
+
+        if (!string.IsNullOrEmpty(configDirectory))
+            LoadPersistedSessions();
     }
 
     public void Update()
@@ -167,6 +175,7 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
                 session.Duration, session.Score?.Overall ?? 0);
 
             OnSessionCompleted?.Invoke(session);
+            SaveSessionsToDisk();
         }
 
         combatStartTime = null;
@@ -726,8 +735,45 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         return string.IsNullOrEmpty(name) ? $"Action {actionId}" : name;
     }
 
+    private void LoadPersistedSessions()
+    {
+        try
+        {
+            var loaded = SessionPersistence.Load(SessionsFilePath);
+            if (loaded.Count == 0) return;
+            lock (historyLock)
+            {
+                foreach (var session in loaded)
+                    sessionHistory.AddLast(session);
+                while (sessionHistory.Count > config.MaxSessionHistory)
+                    sessionHistory.RemoveLast();
+            }
+            log.Information("PerformanceTracker: Loaded {Count} session(s) from disk", loaded.Count);
+        }
+        catch (Exception ex)
+        {
+            log.Warning(ex, "PerformanceTracker: Failed to load persisted sessions");
+        }
+    }
+
+    private void SaveSessionsToDisk()
+    {
+        if (string.IsNullOrEmpty(configDirectory)) return;
+        try
+        {
+            List<FightSession> snapshot;
+            lock (historyLock) { snapshot = sessionHistory.ToList(); }
+            SessionPersistence.Save(SessionsFilePath, snapshot);
+        }
+        catch (Exception ex)
+        {
+            log.Warning(ex, "PerformanceTracker: Failed to save sessions to disk");
+        }
+    }
+
     public void Dispose()
     {
+        SaveSessionsToDisk();
         combatEventService.OnLocalPlayerDamageDealt -= OnLocalPlayerDamageDealt;
         combatEventService.OnLocalPlayerHealLanded -= OnHealLanded;
     }
@@ -757,5 +803,33 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         public float EndFightTime { get; set; }
         public float Duration => EndFightTime - StartFightTime;
         public string Reason { get; set; } = "Unknown";
+    }
+}
+
+public static class SessionPersistence
+{
+    private static readonly System.Text.Json.JsonSerializerOptions Options = new()
+    {
+        WriteIndented = false,
+        Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() },
+        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+    };
+
+    public static void Save(string filePath, IEnumerable<FightSession> sessions)
+    {
+        var json = System.Text.Json.JsonSerializer.Serialize(sessions.ToList(), Options);
+        System.IO.File.WriteAllText(filePath, json);
+    }
+
+    public static List<FightSession> Load(string filePath)
+    {
+        if (!System.IO.File.Exists(filePath)) return new();
+        try
+        {
+            var json = System.IO.File.ReadAllText(filePath);
+            return System.Text.Json.JsonSerializer.Deserialize<List<FightSession>>(json, Options) ?? new();
+        }
+        catch (System.Text.Json.JsonException) { return new(); }
+        catch (System.IO.IOException) { return new(); }
     }
 }

@@ -3,9 +3,9 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
-## v4.10.20
+## v4.10.21
 
-- DoT damage is now factored into healing urgency calculations — the plugin accounts for pending tick damage when deciding whether to heal
+- Fight history in the Analytics window is now preserved when the plugin reloads — session data is saved to disk and restored automatically
 
 <!-- LATEST-END -->
 
