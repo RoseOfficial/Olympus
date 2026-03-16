@@ -153,4 +153,49 @@ public sealed class TrainingServiceTests
         var progress = service.GetProgress();
         Assert.Contains("whm.healing_priority", progress.RecentlyDemonstratedConcepts);
     }
+
+    // Note: uses real WHM lesson IDs from embedded JSON.
+    // whm.lesson_1 has no prerequisites; whm.lesson_2 requires whm.lesson_1.
+
+    [Fact]
+    public void IsLessonComplete_ReturnsFalse_WhenNotCompleted()
+    {
+        Assert.False(service.IsLessonComplete("whm.lesson_1"));
+    }
+
+    [Fact]
+    public void MarkLessonComplete_SetsCompleted()
+    {
+        service.MarkLessonComplete("whm.lesson_1");
+        Assert.True(service.IsLessonComplete("whm.lesson_1"));
+    }
+
+    [Fact]
+    public void MarkLessonComplete_AlsoMarksConceptsCovered()
+    {
+        // whm.lesson_1 covers concepts — after completing it, at least one concept should be learned
+        service.MarkLessonComplete("whm.lesson_1");
+        Assert.NotEmpty(config.LearnedConcepts);
+    }
+
+    [Fact]
+    public void AreLessonPrerequisitesMet_NoPrereqs_ReturnsTrue()
+    {
+        // whm.lesson_1 has no prerequisites
+        Assert.True(service.AreLessonPrerequisitesMet("whm.lesson_1"));
+    }
+
+    [Fact]
+    public void AreLessonPrerequisitesMet_UnmetPrereqs_ReturnsFalse()
+    {
+        // whm.lesson_2 requires whm.lesson_1 — do NOT complete lesson_1 first
+        Assert.False(service.AreLessonPrerequisitesMet("whm.lesson_2"));
+    }
+
+    [Fact]
+    public void AreLessonPrerequisitesMet_MetPrereqs_ReturnsTrue()
+    {
+        service.MarkLessonComplete("whm.lesson_1");
+        Assert.True(service.AreLessonPrerequisitesMet("whm.lesson_2"));
+    }
 }
