@@ -3,9 +3,9 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
-## v4.10.18
+## v4.10.19
 
-- Added update checker: Olympus now notifies you 15 seconds after login if a newer version is available, and a "Check for Updates" button is available in Settings for on-demand checks.
+- Add Spanish, Portuguese, and Russian as selectable languages — strings currently display in English until community translations are contributed
 
 <!-- LATEST-END -->
 
