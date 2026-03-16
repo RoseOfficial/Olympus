@@ -288,9 +288,14 @@ public class ShieldTrackingServiceTests
     // -------------------------------------------------------------------------
 
     [Fact]
-    public void MitigationValues_RampartPlusSentinel_IsMultiplicative()
+    public void MultiplicativeMitigationFormula_Math_IsCorrect()
     {
-        // 20% + 30% multiplicative = 1 - (0.80 * 0.70) = 0.44
+        // Validates the multiplicative stacking formula in isolation:
+        //   20% + 30% multiplicative = 1 - (0.80 * 0.70) = 0.44
+        // Note: GetCombinedMitigation() on ShieldTrackingService uses this same formula
+        // but its _mitigations dictionary is only populated via Update(), which requires
+        // live Dalamud IPartyList/IObjectTable. Testing GetCombinedMitigation() with actual
+        // mitigation data requires integration testing — this test validates the arithmetic.
         var rampart  = MitigationValues.GetMitigationPercent(MitigationStatusIds.Rampart);   // 0.20
         var sentinel = MitigationValues.GetMitigationPercent(MitigationStatusIds.Sentinel);  // 0.30
         var combined = 1f - (1f - rampart) * (1f - sentinel);
