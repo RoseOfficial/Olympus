@@ -265,4 +265,81 @@ public sealed class TrainingServiceTests
         Assert.NotNull(best);
         Assert.Equal(4, best.Score);
     }
+
+    // Skill Level group
+
+    [Fact]
+    public void GetSkillLevel_NewUser_ReturnsBeginner()
+    {
+        var result = service.GetSkillLevel("whm");
+        Assert.Equal(SkillLevel.Beginner, result.Level);
+    }
+
+    [Fact]
+    public void GetSkillLevel_AllQuizzesAndLessonsPassed_ReturnsAdvanced()
+    {
+        // Pass all 7 WHM quizzes with perfect scores
+        var quizIds = new[]
+        {
+            "whm.lesson_1.quiz",
+            "whm.lesson_2.quiz",
+            "whm.lesson_3.quiz",
+            "whm.lesson_4.quiz",
+            "whm.lesson_5.quiz",
+            "whm.lesson_6.quiz",
+            "whm.lesson_7.quiz",
+        };
+        foreach (var qid in quizIds)
+        {
+            config.CompletedQuizzes.Add(qid);
+            config.BestQuizAttempts[qid] = new QuizAttemptData
+            {
+                Score = 5,
+                TotalQuestions = 5,
+                Passed = true,
+                AttemptedAt = DateTime.Now,
+            };
+        }
+
+        // Complete all 7 lessons
+        var lessonIds = new[]
+        {
+            "whm.lesson_1",
+            "whm.lesson_2",
+            "whm.lesson_3",
+            "whm.lesson_4",
+            "whm.lesson_5",
+            "whm.lesson_6",
+            "whm.lesson_7",
+        };
+        foreach (var lid in lessonIds)
+            config.CompletedLessons.Add(lid);
+
+        // Mark all WHM concepts as learned so conceptsLearned score reaches 100%
+        var conceptIds = new[]
+        {
+            "whm.healing_priority", "whm.tank_priority", "whm.party_wide_damage", "whm.ogcd_weaving",
+            "whm.emergency_healing", "whm.benediction_usage", "whm.tetragrammaton_usage",
+            "whm.lily_management", "whm.afflatus_solace_usage", "whm.afflatus_rapture_usage",
+            "whm.blood_lily_building", "whm.afflatus_misery_timing",
+            "whm.proactive_healing", "whm.regen_maintenance", "whm.shield_timing",
+            "whm.divine_benison_usage", "whm.assize_usage",
+            "whm.temperance_usage", "whm.aquaveil_usage", "whm.liturgy_usage",
+            "whm.dps_optimization", "whm.glare_priority", "whm.dot_maintenance",
+            "whm.esuna_usage", "whm.raise_decision", "whm.cohealer_awareness", "whm.party_coordination",
+        };
+        foreach (var cid in conceptIds)
+            config.LearnedConcepts.Add(cid);
+
+        var result = service.GetSkillLevel("whm");
+        Assert.Equal(SkillLevel.Advanced, result.Level);
+    }
+
+    [Fact]
+    public void GetSkillLevel_WithOverride_ReturnsOverrideLevel()
+    {
+        config.SkillLevelOverride = SkillLevelOverride.Advanced;
+        var result = service.GetSkillLevel("whm");
+        Assert.Equal(SkillLevel.Advanced, result.Level);
+    }
 }
