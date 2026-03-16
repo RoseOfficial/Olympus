@@ -1,0 +1,142 @@
+{
+  "jobPrefix": "sch",
+  "jobName": "学者",
+  "lessons": [
+    {
+      "lessonId": "sch.lesson_1",
+      "lessonNumber": 1,
+      "title": "学者の基本",
+      "description": "学者のヒールの本質を学びます。ルストレートによる緊急ヒール、バリアのタイミング、ダメージを防ぐことの重要性について解説します。",
+      "prerequisites": [],
+      "conceptsCovered": ["sch.emergency_healing", "sch.lustrate_usage", "sch.shield_timing"],
+      "keyPoints": [
+        "学者はバリアヒーラー——ダメージを受けてから回復するのではなく、事前に防ぐことが重要",
+        "ルストレートは緊急単体ヒール（エーテルフロー1スタック消費）",
+        "バリアはダメージが当たる前に付与しなければ効果がない",
+        "緊急ヒールとは、すぐに介入しなければ誰かが死ぬ状況を指します"
+      ],
+      "relatedAbilities": ["Lustrate", "Adloquium", "Succor", "Physick"],
+      "tips": [
+        "ルストレートは即時効果——タンクが危険な時に使いましょう",
+        "ボスの攻撃モーションを見てダメージが当たる前にバリアを付与しましょう"
+      ]
+    },
+    {
+      "lessonId": "sch.lesson_2",
+      "lessonNumber": 2,
+      "title": "エーテルフロー管理",
+      "description": "エーテルフローリソース管理を習得します。リフレッシュのタイミング、ヒールとエナジードレインのバランス、無駄を避ける方法を学びます。",
+      "prerequisites": ["sch.lesson_1"],
+      "conceptsCovered": ["sch.aetherflow_management", "sch.aetherflow_refresh", "sch.energy_drain_usage"],
+      "keyPoints": [
+        "エーテルフローは60秒ごとにスタックを3つ付与——クールダウンが切れたまま放置しないこと",
+        "リフレッシュ前に全スタックを消費して無駄を避けること",
+        "エナジードレインはDPS——余剰エーテルフロースタックをこれに使用",
+        "ヒール用エーテルフロースキルはエナジードレインより優先"
+      ],
+      "relatedAbilities": ["Aetherflow", "Energy Drain", "Lustrate", "Indomitability", "Sacred Soil", "Excogitation"],
+      "tips": [
+        "60秒のクールダウンに合わせてエーテルフローの使い方を計画しましょう",
+        "ダメージが少ないフェーズではリフレッシュ前にエナジードレインでスタックを消費しましょう"
+      ]
+    },
+    {
+      "lessonId": "sch.lesson_3",
+      "lessonNumber": 3,
+      "title": "フェアリー管理",
+      "description": "フェアリーコンパニオンを理解します。パッシブヒール、ウィスパリング・ドーン、フェイ・イルミネーション、フェイ・ブレッシング、フェイ・ユニオンについて学びます。",
+      "prerequisites": ["sch.lesson_2"],
+      "conceptsCovered": ["sch.fairy_management", "sch.whispering_dawn_usage", "sch.fey_illumination_usage", "sch.fey_blessing_usage", "sch.fey_union_usage"],
+      "keyPoints": [
+        "フェアリーは自動でヒールします——エンブレイスは無料のパッシブヒール",
+        "ウィスパリング・ドーン：パーティHoT（60秒CD）——持続的な全体ダメージに使用",
+        "フェイ・イルミネーション：ヒール強化＋魔法軽減（2分CD）",
+        "フェイ・ブレッシング：即時パーティヒール（60秒CD）——バースト全体ダメージに使用",
+        "フェイ・ユニオン：フェアリーをタンクに繋いで継続単体ヒール"
+      ],
+      "relatedAbilities": ["Summon Eos", "Whispering Dawn", "Fey Illumination", "Fey Blessing", "Fey Union"],
+      "tips": [
+        "フェアリースキルはoGCD——自由にウィーブしましょう",
+        "フェイ・ユニオンはフェアリーゲージを消費します——ゲージを確認してください"
+      ]
+    },
+    {
+      "lessonId": "sch.lesson_4",
+      "lessonNumber": 4,
+      "title": "フェアリー上級とセラフィム",
+      "description": "セラフィムへの変身、フェアリーを犠牲にするディシペーション、エクスコジテーションの遅延ヒールを習得します。",
+      "prerequisites": ["sch.lesson_3"],
+      "conceptsCovered": ["sch.seraph_usage", "sch.dissipation_usage", "sch.excogitation_usage"],
+      "keyPoints": [
+        "セラフィムはフェアリーを22秒間強力なアビリティを持つセラフィムに変身させます",
+        "セラフィムのコンソレーションはバリアを付与——ダメージの前に使用",
+        "ディシペーションはフェアリーを犠牲にしてエーテルフロー3スタック＋20%ヒール強化を得ます",
+        "エクスコジテーション：対象のHPが50%以下になると発動する遅延ヒール"
+      ],
+      "relatedAbilities": ["Summon Seraph", "Consolation", "Dissipation", "Excogitation"],
+      "tips": [
+        "タンク強攻撃の前にタンクへのエクスコジテーションは優れた先読みヒールです",
+        "ディシペーションはバーストヒールが必要な時やダウンタイム前に使うと最善"
+      ]
+    },
+    {
+      "lessonId": "sch.lesson_5",
+      "lessonNumber": 5,
+      "title": "バリアエコノミー",
+      "description": "バリアを最適化します。アドロキウムとサクコルの使い分け、展開戦術での展開、エマージェンシータクティクスへの変換、レシテーションのクリット保証について学びます。",
+      "prerequisites": ["sch.lesson_4"],
+      "conceptsCovered": ["sch.adloquium_usage", "sch.succor_usage", "sch.deployment_tactics", "sch.emergency_tactics_usage", "sch.recitation_usage"],
+      "keyPoints": [
+        "アドロキウム：単体バリア＋ヒール——タンクに使用",
+        "サクコル：全体バリア＋ヒール——全体ダメージの前に使用",
+        "展開戦術：アドロキウムのバリアをパーティ全員に展開",
+        "エマージェンシータクティクス：次のバリアを純粋なヒールに変換",
+        "レシテーション：次のアドロ/サクコル/インドミタビリティ/エクスコジテーションをクリット保証"
+      ],
+      "relatedAbilities": ["Adloquium", "Succor", "Deployment Tactics", "Emergency Tactics", "Recitation"],
+      "tips": [
+        "レシテーション＋アドロ＋展開戦術＝強力なパーティ全体バリア",
+        "エマージェンシータクティクスはバリアが無駄になる（既にバリアあり）時に有用"
+      ]
+    },
+    {
+      "lessonId": "sch.lesson_6",
+      "lessonNumber": 6,
+      "title": "oGCDヒールと軽減",
+      "description": "バーストパーティヒールのためのインドミタビリティ、軽減ゾーンのためのセイクリッドソイル、移動と防御のためのエクスペディエントを習得します。",
+      "prerequisites": ["sch.lesson_5"],
+      "conceptsCovered": ["sch.indomitability_usage", "sch.sacred_soil_usage", "sch.expedient_usage"],
+      "keyPoints": [
+        "インドミタビリティ：即時パーティヒール（エーテルフロー1スタック消費、30秒CD）",
+        "セイクリッドソイル：10%軽減＋HoTの地面範囲（エーテルフロー1スタック消費）",
+        "エクスペディエント：パーティダッシュ＋20秒間10%軽減（2分CD）",
+        "セイクリッドソイルのHoTは非常に強力——ダメージの前に設置すること"
+      ],
+      "relatedAbilities": ["Indomitability", "Sacred Soil", "Expedient"],
+      "tips": [
+        "軽減効果があるためセイクリッドソイルはインドミタビリティより優れることが多い",
+        "エクスペディエントは移動を要求するギミックに最適"
+      ]
+    },
+    {
+      "lessonId": "sch.lesson_7",
+      "lessonNumber": 7,
+      "title": "DPSと連携",
+      "description": "最終レッスン：チェイン・ストラテジェムのレイドバフ、DoT維持、蘇生の連携、コヒーラーとの協力について学びます。",
+      "prerequisites": ["sch.lesson_6"],
+      "conceptsCovered": ["sch.dps_optimization", "sch.chain_stratagem_timing", "sch.dot_maintenance", "sch.raise_decision", "sch.cohealer_awareness", "sch.esuna_usage"],
+      "keyPoints": [
+        "チェイン・ストラテジェム：対象のクリット率を10%上昇（20秒間、2分CD）",
+        "チェイン・ストラテジェムをパーティのバーストウィンドウに合わせる",
+        "バイオリシス（DoT）をボスに常に維持すること",
+        "コヒーラーと蘇生を調整して重複した蘇生を避ける",
+        "学者はバリアを担当し、リジェネヒーラーはHoTを担当することが多い"
+      ],
+      "relatedAbilities": ["Chain Stratagem", "Broil IV", "Biolysis", "Resurrection", "Esuna"],
+      "tips": [
+        "チェイン・ストラテジェムは戦闘開始時とバーストに合わせてクールダウンごとに使用",
+        "攻略中はバリア計画をコヒーラーと調整してください"
+      ]
+    }
+  ]
+}

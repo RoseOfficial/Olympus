@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "pld",
+  "jobName": "ナイト",
+  "quizzes": [
+    {
+      "quizId": "pld.lesson_1.quiz",
+      "lessonId": "pld.lesson_1",
+      "title": "クイズ: オースゲージとスタンス",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "pld.lesson_1.q1",
+          "conceptId": "pld.oath_gauge",
+          "scenario": "オースゲージが90あります。5秒後にタンク強攻撃が来ます。",
+          "question": "オースをどう使うべきですか？",
+          "options": ["100まで待つ", "今すぐシェルトロンを使う", "緊急時のために温存", "コタンクにインターベンションを使う"],
+          "correctIndex": 1,
+          "explanation": "タンク強攻撃が来る時にオース90あれば、今すぐシェルトロンを使いましょう。強攻撃への軽減になり、100でのオーバーキャップも防げます。"
+        },
+        {
+          "questionId": "pld.lesson_1.q2",
+          "conceptId": "pld.sheltron",
+          "scenario": "パーティメンバーがターゲット指定攻撃を受けようとしています。",
+          "question": "どのスキルを使うべきですか？",
+          "options": ["シェルトロン", "カバー", "インターベンション", "ディヴァインヴェール"],
+          "correctIndex": 2,
+          "explanation": "インターベンションはオースを消費してシェルトロンの軽減効果を他のパーティメンバーに付与します。カバーはダメージを引き受けるのでリスクが高いです。"
+        },
+        {
+          "questionId": "pld.lesson_1.q3",
+          "conceptId": "pld.oath_gauge",
+          "scenario": "オフタンクをしていてしばらくヒットされていません。オースが20しかありません。",
+          "question": "なぜオースが溜まっていないのですか？",
+          "options": ["アイアンウィルがオフ", "コンボを使っていない", "オートアタックしていない", "オースの蓄積が遅い"],
+          "correctIndex": 2,
+          "explanation": "オースゲージはオートアタックから積まれ、コンボからではありません。近接範囲でオートアタックしていないとオースは溜まりません。"
+        },
+        {
+          "questionId": "pld.lesson_1.q4",
+          "conceptId": "pld.sheltron",
+          "scenario": "ホーリーシェルトロンが切れました。タンクのオートアタックが痛いです。",
+          "question": "ホーリーシェルトロンはブロック以外に何を提供しますか？",
+          "options": ["ダメージ強化", "HoTと軽減", "MP回復", "ヘイト強化"],
+          "correctIndex": 1,
+          "explanation": "ホーリーシェルトロンはHoT（騎士の決意）と軽減を提供し、継続ダメージへの対処に優れています。"
+        },
+        {
+          "questionId": "pld.lesson_1.q5",
+          "conceptId": "pld.oath_gauge",
+          "scenario": "戦闘が始まったばかりです。オースが0です。",
+          "question": "最も素早くオースを積む方法は何ですか？",
+          "options": ["ライアットブレードを使う", "ボスをオートアタックする", "ホーリースピリットを使う", "リジェネを待つ"],
+          "correctIndex": 1,
+          "explanation": "オースは戦闘中のオートアタックからのみ溜まります。近接範囲で維持してオートアタックでゲージを生成しましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "pld.lesson_2.quiz",
+      "lessonId": "pld.lesson_2",
+      "title": "クイズ: 防御の基本",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "pld.lesson_2.q1",
+          "conceptId": "pld.sentinel",
+          "scenario": "大きなタンク強攻撃が来ます。ランパートはCD中です。センチネルは使用可能です。",
+          "question": "センチネルを使うべきですか？",
+          "options": ["いいえ——緊急時のために温存", "はい——30%軽減があります", "いいえ——シェルトロンのみ使う", "ランパートを待つ"],
+          "correctIndex": 1,
+          "explanation": "センチネルは30%軽減——大きなタンク強攻撃に使いましょう。来るかどうかわからない緊急時のために温存しないこと。"
+        },
+        {
+          "questionId": "pld.lesson_2.q2",
+          "conceptId": "pld.mitigation_stacking",
+          "scenario": "ランパート、センチネル、シェルトロンがすべて使用可能です。巨大なタンク強攻撃が来ます。",
+          "question": "最善の軽減アプローチは何ですか？",
+          "options": ["3つすべて同時に使う", "ランパート＋シェルトロン", "センチネル＋シェルトロン", "センチネルのみ"],
+          "correctIndex": 2,
+          "explanation": "センチネル（30%）＋シェルトロンで通常は十分です。ランパートは次の強攻撃のために残しましょう。3つすべて重ねるのはやりすぎでCDを無駄にします。"
+        },
+        {
+          "questionId": "pld.lesson_2.q3",
+          "conceptId": "pld.bulwark",
+          "scenario": "ダンジョンで大型の雑魚引きをしています。多数の敵がオートアタックしてきます。",
+          "question": "ここでシェルトロンと最も相性が良いCDはどれですか？",
+          "options": ["センチネル", "バルワーク", "リプライザル", "ランパート"],
+          "correctIndex": 1,
+          "explanation": "バルワークはブロック率を増加させ、シェルトロンの確実なブロックと組み合わせて継続オートアタック軽減に優れています。"
+        },
+        {
+          "questionId": "pld.lesson_2.q4",
+          "conceptId": "pld.sentinel",
+          "scenario": "戦闘開始時にセンチネルを使いました。もうすぐクールダウンが明けます。",
+          "question": "いつ再び使うべきですか？",
+          "options": ["CDが明けたらすぐに", "タンク強攻撃のために温存", "HPが低くなるまで待つ", "ランパートと交互に使う"],
+          "correctIndex": 1,
+          "explanation": "タンク強攻撃などの大ダメージイベントに合わせてセンチネルの使用を計画しましょう。反応的ではなく先を見越して使うのが良いです。"
+        },
+        {
+          "questionId": "pld.lesson_2.q5",
+          "conceptId": "pld.mitigation_stacking",
+          "scenario": "ランパートの残り時間が5秒です。もう一つ小さい攻撃が来ます。",
+          "question": "別のCDを追加すべきですか？",
+          "options": ["はい——軽減を重ねる", "いいえ——ランパートで十分", "リプライザルを使う", "ダメージ次第"],
+          "correctIndex": 1,
+          "explanation": "小さい攻撃には軽減一つで十分です。軽微なダメージにCDを重ねないでください——大きい攻撃のために残しましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "pld.lesson_3.quiz",
+      "lessonId": "pld.lesson_3",
+      "title": "クイズ: ハロードグラウンド",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "pld.lesson_3.q1",
+          "conceptId": "pld.hallowed_ground",
+          "scenario": "ボスが大規模なタンク強攻撃を詠唱しています。HPが30%です。",
+          "question": "ハロードグラウンドを使うべきですか？",
+          "options": ["いいえ——温存する", "はい——攻撃を生き延びる", "いいえ——センチネルを使う", "もっと低くなるまで待つ"],
+          "correctIndex": 1,
+          "explanation": "30%で大規模な攻撃が来る時、ハロードグラウンドで生存が保証されます。最強のタンク無敵——ダメージをゼロにします。"
+        },
+        {
+          "questionId": "pld.lesson_3.q2",
+          "conceptId": "pld.invuln_timing",
+          "scenario": "ハロードグラウンドは420秒（7分）クールダウンです。",
+          "question": "これは使い方にどう影響しますか？",
+          "options": ["戦闘中1回のみ使う", "必要な時に使う", "エンレイジのために温存", "早めに使って2回使用を狙う"],
+          "correctIndex": 3,
+          "explanation": "長い戦闘では早めに使えば2回目の使用も可能です。戦闘タイムラインに合わせて計画しましょう。"
+        },
+        {
+          "questionId": "pld.lesson_3.q3",
+          "conceptId": "pld.hallowed_ground",
+          "scenario": "ダンジョンで大規模な全体引きをしています。ヒーラーが苦しんでいます。",
+          "question": "ここでハロードグラウンドは有用ですか？",
+          "options": ["いいえ——ボス専用", "はい——ダメージがゼロに", "いいえ——CDが長すぎる", "代わりにセンチネルを使う"],
+          "correctIndex": 1,
+          "explanation": "ハロードグラウンドはダンジョンの大型プルに最適です——10秒の無敵でヒーラーが態勢を整える時間を確保できます。"
+        },
+        {
+          "questionId": "pld.lesson_3.q4",
+          "conceptId": "pld.invuln_timing",
+          "scenario": "ナイトの無敵スキルを他のタンクと比べています。",
+          "question": "ハロードグラウンドの特徴は何ですか？",
+          "options": ["最短のCD", "ヒーラーの対応不要", "最長の持続時間", "最高のポテンシー"],
+          "correctIndex": 1,
+          "explanation": "ハロードグラウンドは完全無敵——スーパーボライドのようなHP低下もなく、リビングデッドのようなヒール要件もありません。"
+        },
+        {
+          "questionId": "pld.lesson_3.q5",
+          "conceptId": "pld.hallowed_ground",
+          "scenario": "ハロードグラウンドを使いました。10秒間の無敵です。",
+          "question": "このウィンドウ中に何に集中すべきですか？",
+          "options": ["防御に徹する", "最大限のDPS", "ヒーラーを助ける", "離れる"],
+          "correctIndex": 1,
+          "explanation": "ハロードグラウンド中はダメージを受けません。このウィンドウを最大限の攻撃に使いましょう——防御行動は不要です。"
+        }
+      ]
+    },
+    {
+      "quizId": "pld.lesson_4.quiz",
+      "lessonId": "pld.lesson_4",
+      "title": "クイズ: ファイト・オア・フライト",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "pld.lesson_4.q1",
+          "conceptId": "pld.fight_or_flight",
+          "scenario": "戦闘が始まりました。ファイト・オア・フライトはいつ使うべきですか？",
+          "question": "最適なタイミングはいつですか？",
+          "options": ["最初のGCDの前", "最初のGCDの後", "コンボフィニッシャーの後", "バーストを待つ"],
+          "correctIndex": 1,
+          "explanation": "最初のGCDの後にファイト・オア・フライトを使い20秒のウィンドウを最大化しましょう。GCDの前に使うと時間を無駄にします。"
+        },
+        {
+          "questionId": "pld.lesson_4.q2",
+          "conceptId": "pld.goring_blade",
+          "scenario": "ゴーリングブレードコンボフィニッシャーが使用可能です。ファイト・オア・フライトが有効です。",
+          "question": "ゴーリングブレードは何を付与しますか？",
+          "options": ["シールド", "DoTダメージ", "バフ", "ヒール"],
+          "correctIndex": 1,
+          "explanation": "ゴーリングブレードは強力なDoTを付与します。ファイト・オア・フライト中に使うとDoTが25%多くダメージを与えます。"
+        },
+        {
+          "questionId": "pld.lesson_4.q3",
+          "conceptId": "pld.atonement_chain",
+          "scenario": "ロイヤルオーソリティを使いました。3スタックのアトーンメントが使用可能です。",
+          "question": "アトーンメントチェーンの正しい順序は何ですか？",
+          "options": ["アトーンメント×3", "アトーンメント→サプリケーション→セパルカー", "順番はどれでも", "セパルカーから始める"],
+          "correctIndex": 1,
+          "explanation": "チェーンの順序はアトーンメント→サプリケーション→セパルカーです。チェーン内の各攻撃は増加するダメージを与えます。"
+        },
+        {
+          "questionId": "pld.lesson_4.q4",
+          "conceptId": "pld.burst_window",
+          "scenario": "ファイト・オア・フライトが有効です。エクスピアシオンとサークル・オブ・スコーンが使用可能です。",
+          "question": "これらのoGCDはどう使うべきですか？",
+          "options": ["ファイト・オア・フライト後に使う", "ファイト・オア・フライトウィンドウ中に使う", "交互に使う", "関係ない"],
+          "correctIndex": 1,
+          "explanation": "25%のダメージ増加から恩恵を受けるためにoGCDはファイト・オア・フライト中に使いましょう。バーストをウィンドウ内に集中させること。"
+        },
+        {
+          "questionId": "pld.lesson_4.q5",
+          "conceptId": "pld.fight_or_flight",
+          "scenario": "ファイト・オア・フライトの残り時間が3秒です。移動が必要です。",
+          "question": "何を優先すべきですか？",
+          "options": ["ボスを攻撃し続ける", "ホーリースピリットを使う", "移動してシールドロブ", "ただ移動する"],
+          "correctIndex": 1,
+          "explanation": "ホーリースピリットはレクイエスカット中はインスタントですが、それ以外でもファイト・オア・フライトウィンドウ中の移動時にDPSを維持します。"
+        }
+      ]
+    },
+    {
+      "quizId": "pld.lesson_5.quiz",
+      "lessonId": "pld.lesson_5",
+      "title": "クイズ: マジックフェーズ",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "pld.lesson_5.q1",
+          "conceptId": "pld.requiescat",
+          "scenario": "レクイエスカットのクールダウンが明けました。物理コンボの途中です。",
+          "question": "レクイエスカットをいつ使うべきですか？",
+          "options": ["すぐに使う", "コンボが終わってから", "移動中に", "ファイト・オア・フライトと一緒に"],
+          "correctIndex": 1,
+          "explanation": "まず物理コンボを終わらせてから、レクイエスカットを使ってマジックフェーズに移行しましょう。コンボを中断しないこと。"
+        },
+        {
+          "questionId": "pld.lesson_5.q2",
+          "conceptId": "pld.holy_spirit",
+          "scenario": "レクイエスカットが有効です。ホーリースピリットをキャストする必要があります。",
+          "question": "レクイエスカット中のキャスト時間はどのくらいですか？",
+          "options": ["2.5秒", "1.5秒", "インスタント", "変化なし"],
+          "correctIndex": 2,
+          "explanation": "レクイエスカットはホーリースピリットとホーリーサークルをインスタントキャストにします。だからこそマジックフェーズは移動に最適なのです。"
+        },
+        {
+          "questionId": "pld.lesson_5.q3",
+          "conceptId": "pld.confiteor",
+          "scenario": "レクイエスカットのスタックが4あります。どのコンボを始めるべきですか？",
+          "question": "正しい順序は何ですか？",
+          "options": ["ホーリースピリット×4", "コンフィテオルコンボ", "両方を混ぜる", "ホーリースピリット×3＋コンフィテオル"],
+          "correctIndex": 1,
+          "explanation": "コンフィテオルコンボ（コンフィテオル→フェイス→トゥルース→ヴァラー）が最強の魔法バーストです。スタックを消費するためにこれを使いましょう。"
+        },
+        {
+          "questionId": "pld.lesson_5.q4",
+          "conceptId": "pld.blade_combo",
+          "scenario": "ブレード・オブ・フェイスの途中です。ボスがターゲット不可になりました。",
+          "question": "コンボはどうなりますか？",
+          "options": ["コンボが途切れる", "コンボが継続する", "スタックが失われる", "最初からやり直し"],
+          "correctIndex": 1,
+          "explanation": "ブレードコンボは真のコンボチェーンです——短いターゲット不可フェーズを通じても継続します。焦らなくて大丈夫です。"
+        },
+        {
+          "questionId": "pld.lesson_5.q5",
+          "conceptId": "pld.magic_phase",
+          "scenario": "次のギミックでかなりの移動が必要です。",
+          "question": "移動をより上手く処理できるフェーズはどちらですか？",
+          "options": ["物理フェーズ", "マジックフェーズ（レクイエスカット）", "両方同じ", "どちらもダメ——その場に留まる"],
+          "correctIndex": 1,
+          "explanation": "レクイエスカットのマジックフェーズはインスタントキャストを提供します。できる限り高移動ギミック用にマジックフェーズを温存しましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "pld.lesson_6.quiz",
+      "lessonId": "pld.lesson_6",
+      "title": "クイズ: パーティ保護",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "pld.lesson_6.q1",
+          "conceptId": "pld.divine_veil",
+          "scenario": "ディヴァインヴェールが自分に有効です。全体攻撃が来ます。",
+          "question": "ディヴァインヴェールのパーティシールドは何によって発動しますか？",
+          "options": ["ダメージを受ける", "ヒールを受ける", "時間切れ", "GCDを使う"],
+          "correctIndex": 1,
+          "explanation": "ディヴァインヴェールはヒールを受けると発動します。ダメージの前にシールドが展開されるようにヒーラーと連携しましょう。"
+        },
+        {
+          "questionId": "pld.lesson_6.q2",
+          "conceptId": "pld.cover",
+          "scenario": "パーティメンバーが致死的なヒットを受けようとしています。カバーが使用可能です。",
+          "question": "カバーは何をしますか？",
+          "options": ["彼らのダメージを軽減する", "あなたが彼らのダメージを受ける", "彼らをシールドする", "彼らをヒールする"],
+          "correctIndex": 1,
+          "explanation": "カバーはターゲットへの物理ダメージをすべてあなたが受けるようにします。有用ですが危険——あなたが攻撃に耐えられる必要があります。"
+        },
+        {
+          "questionId": "pld.lesson_6.q3",
+          "conceptId": "pld.passage_of_arms",
+          "scenario": "全体攻撃に備えてパーティがあなたの後ろに集合します。パッセージ・オブ・アームスが使用可能です。",
+          "question": "パッセージ・オブ・アームスはどのように機能しますか？",
+          "options": ["即時軽減", "チャネル、攻撃をブロック", "味方へのシールド", "ダメージ軽減ゾーン"],
+          "correctIndex": 3,
+          "explanation": "パッセージ・オブ・アームスはあなたの背後にコーンを作りダメージを軽減します。チャネル型ですがキャンセル後も短時間バフが持続します。"
+        },
+        {
+          "questionId": "pld.lesson_6.q4",
+          "conceptId": "pld.clemency",
+          "scenario": "ヒーラーが死んでいます。タンクのHPが30%です。",
+          "question": "クレメンシーはいつ適切ですか？",
+          "options": ["決して使わない", "このような緊急時のみ", "自由に使う", "ダンジョンのみ"],
+          "correctIndex": 1,
+          "explanation": "クレメンシーはDPS低下（GCDコスト＋MP）を招きます。ヒーラーが対応できない緊急時のみ使用しましょう。"
+        },
+        {
+          "questionId": "pld.lesson_6.q5",
+          "conceptId": "pld.party_protection",
+          "scenario": "ディヴァインヴェールを使いましたが発動せずに切れました。",
+          "question": "何が問題でしたか？",
+          "options": ["早く使いすぎた", "ヒールを受けなかった", "パーティが離れた", "間違ったスキルを使った"],
+          "correctIndex": 1,
+          "explanation": "ディヴァインヴェールの発動にはヒールを受ける必要があります。ヒールが来なければスキルは無駄になります。"
+        }
+      ]
+    },
+    {
+      "quizId": "pld.lesson_7.quiz",
+      "lessonId": "pld.lesson_7",
+      "title": "クイズ: 上級最適化",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "pld.lesson_7.q1",
+          "conceptId": "pld.tank_swap",
+          "scenario": "タンクスワップのギミックです。現在オフタンクです。",
+          "question": "正しいスワップ手順は何ですか？",
+          "options": ["プロヴォークだけ", "強攻撃の後にプロヴォーク", "プロヴォークの後コタンクがシャーク", "ヒーラーを待つ"],
+          "correctIndex": 2,
+          "explanation": "正しいタンクスワップ：あなたがプロヴォーク、その後コタンクがあなたにシャーク。これによりヘイトの行き来なしにスムーズなアグロ移転が確保されます。"
+        },
+        {
+          "questionId": "pld.lesson_7.q2",
+          "conceptId": "pld.expiacion",
+          "scenario": "エクスピアシオンのCDが明けました。10秒後にファイト・オア・フライトが来ます。",
+          "question": "今すぐエクスピアシオンを使うべきですか？",
+          "options": ["はい——温存しない", "いいえ——ファイト・オア・フライトを待つ", "戦闘時間次第", "代わりにサークル・オブ・スコーンを使う"],
+          "correctIndex": 2,
+          "explanation": "ファイト・オア・フライトが近くて使用回数を失わないなら待ちましょう。待つことで戦闘全体での使用回数が減るなら今使いましょう。"
+        },
+        {
+          "questionId": "pld.lesson_7.q3",
+          "conceptId": "pld.circle_of_scorn",
+          "scenario": "複数の敵がいます。サークル・オブ・スコーンが使用可能です。",
+          "question": "AoEでサークル・オブ・スコーンが価値ある理由は何ですか？",
+          "options": ["高いポテンシー", "全ターゲットにDoT", "インスタントキャスト", "クールダウンなし"],
+          "correctIndex": 1,
+          "explanation": "サークル・オブ・スコーンは当たった全ての敵にDoTを付与します。AoE状況では時間経過ダメージとして非常に大きくなります。"
+        },
+        {
+          "questionId": "pld.lesson_7.q4",
+          "conceptId": "pld.intervene",
+          "scenario": "ボスへの距離を詰める必要があります。インターベンのチャージが2つあります。",
+          "question": "インターベンのチャージはどう管理すべきですか？",
+          "options": ["両方すぐに使う", "両方バーストのために温存", "1つ使い1つ残す", "移動のみに使う"],
+          "correctIndex": 2,
+          "explanation": "機動性のために少なくとも1チャージを残しましょう。バーストウィンドウ中にダメージとして余剰チャージを使いましょう。"
+        },
+        {
+          "questionId": "pld.lesson_7.q5",
+          "conceptId": "pld.tank_swap",
+          "scenario": "メインタンクです。デバフによりスワップが必要です。コタンクがプロヴォークしました。",
+          "question": "その後何をすべきですか？",
+          "options": ["攻撃を続ける", "コタンクにシャーク", "防御CDを使う", "攻撃をやめる"],
+          "correctIndex": 1,
+          "explanation": "プロヴォークされたら、新しいメインタンクにシャークしましょう。これで彼らに十分なアグロのリードを与えられます。"
+        }
+      ]
+    }
+  ]
+}

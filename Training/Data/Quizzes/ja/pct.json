@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "pct",
+  "jobName": "ピクトマンサー",
+  "quizzes": [
+    {
+      "quizId": "pct.lesson_1.quiz",
+      "lessonId": "pct.lesson_1",
+      "title": "クイズ: 絵画の基本",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "pct.lesson_1.q1",
+          "conceptId": "pct.palette_gauge",
+          "scenario": "パレットゲージが45です。",
+          "question": "サブトラクティブパレットを使えますか？",
+          "options": ["はい——どの量でも使える", "いいえ——最低50が必要", "いいえ——100が必要", "はい——ただしDPS損失"],
+          "correctIndex": 1,
+          "explanation": "サブトラクティブパレットの起動には最低50のパレットゲージが必要です。45の場合はゲージをさらに積むために基本コンボを続ける必要があります。"
+        },
+        {
+          "questionId": "pct.lesson_1.q2",
+          "conceptId": "pct.white_paint",
+          "scenario": "ホワイトペイントが5スタックでコンボを終えました。",
+          "question": "どうすべきですか？",
+          "options": ["コンボを続ける——ペイントが多い方が良い", "スタックを消費するためにホーリーインホワイトを使う", "バーストのためにペイントを温存", "ホワイトペイントはキャップしない"],
+          "correctIndex": 1,
+          "explanation": "ホワイトペイントは5スタックでキャップします。最大の場合、コンボフィニッシャーが別のスタックを付与する前にスタックを消費するためにホーリーインホワイトを使いましょう——でないとペイントを無駄にします。"
+        },
+        {
+          "questionId": "pct.lesson_1.q3",
+          "conceptId": "pct.combo_basics",
+          "scenario": "ファイアインレッドを使用しました。",
+          "question": "コンボの次は何ですか？",
+          "options": ["ウォーターインブルー", "エアロイングリーン", "ホーリーインホワイト", "どのスペルでも"],
+          "correctIndex": 1,
+          "explanation": "基本コンボはファイアインレッド → エアロイングリーン → ウォーターインブルーです。この順序に従うことでパレットゲージとホワイトペイントの両方が積まれます。"
+        },
+        {
+          "questionId": "pct.lesson_1.q4",
+          "conceptId": "pct.black_paint",
+          "scenario": "リビングミューズを使ってクリーチャーを召喚しました。",
+          "question": "どのプロックを受けますか？",
+          "options": ["ホワイトペイントスタック", "ブラックペイント（コメット準備完了）", "レインボードリップ", "ミューズからはプロックなし"],
+          "correctIndex": 1,
+          "explanation": "リビングミューズを使ってクリーチャーを召喚するとブラックペイントプロックが付与され、強力なコメットインブラックスペルが有効化されます。"
+        },
+        {
+          "questionId": "pct.lesson_1.q5",
+          "conceptId": "pct.white_paint",
+          "scenario": "メカニクスのために移動が必要です。",
+          "question": "どのアビリティで移動しながらキャストできますか？",
+          "options": ["ファイアインレッド（ハードキャスト）", "ホーリーインホワイト（即時）", "ウォーターインブルー（ハードキャスト）", "サブトラクティブパレット"],
+          "correctIndex": 1,
+          "explanation": "ホーリーインホワイトは即時キャストスペルです。移動のためにこれと他の即時キャスト（コメットインブラック、レインボードリップ）を使いましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "pct.lesson_2.quiz",
+      "lessonId": "pct.lesson_2",
+      "title": "クイズ: キャンバスの習得",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "pct.lesson_2.q1",
+          "conceptId": "pct.creature_motifs",
+          "scenario": "リビングミューズを使いたいですがクリーチャーを描いていません。",
+          "question": "最初に何をしなければなりませんか？",
+          "options": ["とにかくリビングミューズを使う", "クリーチャーモチーフ（ポム/ウィング/クロー/マウ）を描く", "代わりにスターリーミューズを使う", "自動生成を待つ"],
+          "correctIndex": 1,
+          "explanation": "リビングミューズを使って召喚する前に、まずキャンバスにクリーチャーモチーフ（ポム、ウィング、クロー、またはマウ）を描く必要があります。"
+        },
+        {
+          "questionId": "pct.lesson_2.q2",
+          "conceptId": "pct.canvas_prepull",
+          "scenario": "プルまでのカウントダウンが15秒です。",
+          "question": "何をすべきですか？",
+          "options": ["立ったまま待つ", "全3つのキャンバス（クリーチャー、ウェポン、ランドスケープ）を描く", "コンボを早めに開始する", "1つのキャンバスのみ描く"],
+          "correctIndex": 1,
+          "explanation": "プルプレパ：全3つのキャンバス（クリーチャー、ウェポン、ランドスケープ）を描いて戦闘開始時に全ミューズに即時アクセスできるようにしましょう。"
+        },
+        {
+          "questionId": "pct.lesson_2.q3",
+          "conceptId": "pct.weapon_canvas",
+          "scenario": "ウェポンキャンバスにハンマーモチーフを描きました。",
+          "question": "これは何を有効化しますか？",
+          "options": ["リビングミューズ", "ストライキングミューズ → ハンマーコンボ", "スターリーミューズ", "コメットインブラック"],
+          "correctIndex": 1,
+          "explanation": "ウェポンキャンバスのハンマーモチーフはストライキングミューズを有効化し、強力な3ヒットハンマーコンボを起動します。"
+        },
+        {
+          "questionId": "pct.lesson_2.q4",
+          "conceptId": "pct.landscape_canvas",
+          "scenario": "ランドスケープキャンバスにスターリースカイモチーフを描きました。",
+          "question": "これは何を有効化しますか？",
+          "options": ["リビングミューズ", "ストライキングミューズ", "スターリーミューズ（パーティバフ）", "ホーリーインホワイト"],
+          "correctIndex": 2,
+          "explanation": "ランドスケープキャンバスのスターリースカイモチーフはスターリーミューズを有効化します——2分パーティダメージバフです。"
+        },
+        {
+          "questionId": "pct.lesson_2.q5",
+          "conceptId": "pct.canvas_prepull",
+          "scenario": "戦闘中にボスが10秒間攻撃不能になりました。",
+          "question": "ダウンタイム中に何をすべきですか？",
+          "options": ["ボスが戻るまで待つ", "空のキャンバスを描く", "ホーリーインホワイトをスパム", "全ミューズをすぐに使う"],
+          "correctIndex": 1,
+          "explanation": "ダウンタイムを使って空のキャンバスを描きましょう。ボスが再び攻撃可能になったときに最大ダメージの準備ができます。"
+        }
+      ]
+    },
+    {
+      "quizId": "pct.lesson_3.quiz",
+      "lessonId": "pct.lesson_3",
+      "title": "クイズ: ミューズアビリティ",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "pct.lesson_3.q1",
+          "conceptId": "pct.living_muse",
+          "scenario": "ポムモチーフを描いた状態でリビングミューズを使用しました。",
+          "question": "何が起きますか？",
+          "options": ["何もない——ポムは有効でない", "ポムミューズを召喚 + ブラックペイントを付与", "ホワイトペイントのみ付与", "スターリーミューズを起動"],
+          "correctIndex": 1,
+          "explanation": "リビングミューズは描いたクリーチャー（この場合はポムミューズ）を召喚し、コメットインブラックのためのブラックペイントプロックを付与します。"
+        },
+        {
+          "questionId": "pct.lesson_3.q2",
+          "conceptId": "pct.starry_muse",
+          "scenario": "スターリーミューズは120秒CDです。",
+          "question": "このアビリティはどの種類ですか？",
+          "options": ["個人ダメージバフ", "2分パーティダメージバフ", "回復アビリティ", "移動ツール"],
+          "correctIndex": 1,
+          "explanation": "スターリーミューズは2分パーティダメージバフ（20秒間ダメージ+5%）です。最大恩恵のために他のレイドバフと合わせましょう。"
+        },
+        {
+          "questionId": "pct.lesson_3.q3",
+          "conceptId": "pct.muse_timing",
+          "scenario": "スターリーミューズがアクティブです（パーティバフウィンドウ）。",
+          "question": "このウィンドウで何を優先すべきですか？",
+          "options": ["基本コンボのみ使う", "リビングミューズ、コメット、ハンマーコンボ、スタープリズム", "後のためにミューズを温存", "描くことに集中"],
+          "correctIndex": 1,
+          "explanation": "スターリーミューズ中は全ての高ダメージアビリティを使いましょう：リビングミューズ（コメットのため）、ストライキングミューズ（ハンマーコンボ）、スタープリズム。"
+        },
+        {
+          "questionId": "pct.lesson_3.q4",
+          "conceptId": "pct.striking_muse",
+          "scenario": "ハンマーモチーフでストライキングミューズを起動しました。",
+          "question": "これはどのコンボを有効化しますか？",
+          "options": ["ファイア → エアロ → ウォーター", "ハンマースタンプ → ハンマーブラッシュ → ポリッシングハンマー", "サンダー → ストーン → ブリザード", "コンボなし——1ヒットのみ"],
+          "correctIndex": 1,
+          "explanation": "ストライキングミューズはハンマーコンボを有効化します：ハンマースタンプ → ハンマーブラッシュ → ポリッシングハンマー。3ヒット全て即時です。"
+        },
+        {
+          "questionId": "pct.lesson_3.q5",
+          "conceptId": "pct.living_muse",
+          "scenario": "リビングミューズからブラックペイントプロックがあります。",
+          "question": "どのアビリティに使うべきですか？",
+          "options": ["ホーリーインホワイト", "コメットインブラック", "レインボードリップ", "どのスペルでも"],
+          "correctIndex": 1,
+          "explanation": "ブラックペイントはコメットインブラックを有効化します——最高威力のスペルの一つです。プロックが切れる前に使いましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "pct.lesson_4.quiz",
+      "lessonId": "pct.lesson_4",
+      "title": "クイズ: サブトラクティブパレット",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "pct.lesson_4.q1",
+          "conceptId": "pct.subtractive_palette",
+          "scenario": "パレットゲージが75です。",
+          "question": "どうすべきですか？",
+          "options": ["100まで積み続ける", "サブトラクティブパレットを使う（50以上で十分）", "バーストウィンドウを待つ", "ホーリーインホワイトを使う"],
+          "correctIndex": 1,
+          "explanation": "サブトラクティブパレットに必要なのは50ゲージのみです。75では、オーバーキャップを避けるために使うべきです——ゲージはこれからも積まれます。"
+        },
+        {
+          "questionId": "pct.lesson_4.q2",
+          "conceptId": "pct.subtractive_combo",
+          "scenario": "サブトラクティブパレットを起動しました。",
+          "question": "正しいコンボ順序はどれですか？",
+          "options": ["ファイア → エアロ → ウォーター", "サンダーインシアン → ストーンインイエロー → ブリザードインマゼンタ", "どの順序でも同じ", "ハンマースタンプ → ブラッシュ → ポリッシュ"],
+          "correctIndex": 1,
+          "explanation": "サブトラクティブパレット後はサンダーインシアン → ストーンインイエロー → ブリザードインマゼンタを使いましょう。このコンボはスタープリズムに向けてゲージを積みます。"
+        },
+        {
+          "questionId": "pct.lesson_4.q3",
+          "conceptId": "pct.monochromatic_tones",
+          "scenario": "フルシアンコンボ（サンダー → ストーン → ブリザード）を完成させました。",
+          "question": "どのアビリティが利用可能になりますか？",
+          "options": ["もう一つのサブトラクティブパレット", "スタープリズム（フィニッシャー）", "レインボードリップ", "コメットインブラック"],
+          "correctIndex": 1,
+          "explanation": "シアンコンボ（モノクロマティックトーンズ）を完成させるとスタープリズムが有効化されます——高威力の大型フィニッシャーアビリティです。"
+        },
+        {
+          "questionId": "pct.lesson_4.q4",
+          "conceptId": "pct.palette_spending",
+          "scenario": "パレットゲージが95でまだ積まれています。",
+          "question": "リスクは何ですか？",
+          "options": ["リスクなし——高い方が良い", "オーバーキャップはゲージ生成を無駄にする", "ゲージがリセットされる", "アビリティが弱くなる"],
+          "correctIndex": 1,
+          "explanation": "95以上では、オーバーキャップのリスクがあります。100を超えて生成されたゲージは全て無駄になります。これを防ぐためにサブトラクティブパレットを50以上で使いましょう。"
+        },
+        {
+          "questionId": "pct.lesson_4.q5",
+          "conceptId": "pct.subtractive_combo",
+          "scenario": "サンダーインシアンを使用しましたがメカニクスのために移動が必要です。",
+          "question": "どうすべきですか？",
+          "options": ["コンボを落として移動する", "コンボを続ける——ストーンとブリザードが重要", "代わりにホーリーインホワイトを使う", "メカニクスが終わるまで待つ"],
+          "correctIndex": 1,
+          "explanation": "移動中に即時キャストを使う場合でもシアンコンボを完成させましょう。コンボを中断すると大きなDPS損失とスタープリズムアクセスを失います。"
+        }
+      ]
+    },
+    {
+      "quizId": "pct.lesson_5.quiz",
+      "lessonId": "pct.lesson_5",
+      "title": "クイズ: ペイントスペンダー",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "pct.lesson_5.q1",
+          "conceptId": "pct.comet_in_black",
+          "scenario": "ブラックペイント（コメット準備完了）とホワイトペイント5スタック両方があります。",
+          "question": "どちらを先に使うべきですか？",
+          "options": ["ホーリーインホワイト（キャップを防ぐ）", "コメットインブラック（より高い優先度）", "どちらでも——同じ威力", "バーストのために両方温存"],
+          "correctIndex": 1,
+          "explanation": "コメットインブラックはより高い威力を持ち、切れる可能性のあるプロックです。先に使い、その後ホーリーインホワイトでホワイトペイントスタックを管理しましょう。"
+        },
+        {
+          "questionId": "pct.lesson_5.q2",
+          "conceptId": "pct.rainbow_drip",
+          "scenario": "バーにレインボードリップバフが見えます。",
+          "question": "レインボードリップとは何ですか？",
+          "options": ["適用するDoT", "即時高威力プロックスペル", "守備的クールダウン", "移動アビリティ"],
+          "correctIndex": 1,
+          "explanation": "レインボードリップは即時高威力スペルを付与するプロックです。切れる前に使いましょう。"
+        },
+        {
+          "questionId": "pct.lesson_5.q3",
+          "conceptId": "pct.holy_in_white",
+          "scenario": "ホワイトペイントが3スタックで他のプロックがありません。",
+          "question": "ホーリーインホワイトはいつ使うべきですか？",
+          "options": ["5スタックのときのみ", "移動のために即時キャストが必要なとき", "絶対に使わない——全ペイントを温存", "バーストのみ"],
+          "correctIndex": 1,
+          "explanation": "ホーリーインホワイトは即時キャストなので移動に価値があります。機動性が必要なとき、または5スタックに近づいてキャップを避けるときに使いましょう。"
+        },
+        {
+          "questionId": "pct.lesson_5.q4",
+          "conceptId": "pct.finisher_priority",
+          "scenario": "コメット準備完了、レインボードリッププロック、ホワイトペイント4スタックがあります。",
+          "question": "優先順位はどれですか？",
+          "options": ["レインボードリップ > コメット > ホーリー", "コメット > レインボードリップ > ホーリー", "ホーリー > コメット > レインボードリップ", "どの順序でも"],
+          "correctIndex": 1,
+          "explanation": "優先順位：コメットインブラック（最高威力、プロック）> レインボードリップ（高威力、プロック）> ホーリーインホワイト（一定だが低優先度）。"
+        },
+        {
+          "questionId": "pct.lesson_5.q5",
+          "conceptId": "pct.comet_in_black",
+          "scenario": "ブラックペイントプロックが残り3秒です。",
+          "question": "どうすべきですか？",
+          "options": ["現在のキャストを終えてからコメット", "切れる前にすぐにコメットを使う", "中断する価値がない——切れさせる", "バーストウィンドウのために温存"],
+          "correctIndex": 1,
+          "explanation": "ブラックペイントは高価値プロックです。切れそうなら、失うより今すぐコメットインブラックを優先して使いましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "pct.lesson_6.quiz",
+      "lessonId": "pct.lesson_6",
+      "title": "クイズ: バーストウィンドウ",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "pct.lesson_6.q1",
+          "conceptId": "pct.starry_muse_burst",
+          "scenario": "スターリーミューズがリキャストアップしました。",
+          "question": "使う前に何を確認すべきですか？",
+          "options": ["何もない——すぐに使う", "バースト用にキャンバスを全て描いておく", "ゲージ100まで待つ", "プルのときのみ使う"],
+          "correctIndex": 1,
+          "explanation": "スターリーミューズの前に、バフウィンドウ中にリビングミューズとストライキングミューズを使えるようにキャンバス（特にクリーチャーとウェポン）を描いておきましょう。"
+        },
+        {
+          "questionId": "pct.lesson_6.q2",
+          "conceptId": "pct.hammer_combo",
+          "scenario": "スターリーミューズバーストウィンドウ中です。",
+          "question": "ここでハンマーコンボがなぜ価値があるのですか？",
+          "options": ["唯一の選択肢だから", "レイドバフ下での3回の即時高威力ヒット", "最もゲージを生成するから", "スタープリズムに必要だから"],
+          "correctIndex": 1,
+          "explanation": "ハンマーコンボ（ハンマースタンプ → ブラッシュ → ポリッシングハンマー）はスターリーミューズのダメージバフ下で全て恩恵を受ける3回の即時高威力ヒットです。"
+        },
+        {
+          "questionId": "pct.lesson_6.q3",
+          "conceptId": "pct.party_coordination",
+          "scenario": "竜騎士が5秒後にバトルリタニーが来ると告知しています。",
+          "question": "スターリーミューズをどうすべきですか？",
+          "options": ["すぐに使う", "バトルリタニーと合わせるために少し待つ", "次のバーストウィンドウのために温存", "バトルリタニーはPCTに影響しない"],
+          "correctIndex": 1,
+          "explanation": "スターリーミューズはパーティバフです。他のレイドバフ（バトルリタニーなど）と合わせることでパーティ全体の恩恵が乗算されます。"
+        },
+        {
+          "questionId": "pct.lesson_6.q4",
+          "conceptId": "pct.starry_muse_burst",
+          "scenario": "スターリーミューズがアクティブです。コメット準備完了とスタープリズムが利用可能です。",
+          "question": "優先度はどれですか？",
+          "options": ["スタープリズムを先に（最大ヒット）", "コメットを先に（プロックが切れる可能性）", "基本コンボのみ", "両方を次のウィンドウのために温存"],
+          "correctIndex": 1,
+          "explanation": "コメットインブラックは切れる可能性のあるプロックです。失わないよう先に使い、残りのバフ持続時間中にスタープリズムを使いましょう。"
+        },
+        {
+          "questionId": "pct.lesson_6.q5",
+          "conceptId": "pct.hammer_combo",
+          "scenario": "バースト中にハンマースタンプを使用しました。",
+          "question": "次に何をしなければなりませんか？",
+          "options": ["どのスペルでも使う", "ハンマーブラッシュ → ポリッシングハンマーを続ける", "基本コンボに戻る", "スタープリズムを使う"],
+          "correctIndex": 1,
+          "explanation": "ハンマーコンボを始めたら完了させましょう：ハンマースタンプ → ハンマーブラッシュ → ポリッシングハンマー。中断するとコンボが無駄になります。"
+        }
+      ]
+    },
+    {
+      "quizId": "pct.lesson_7.quiz",
+      "lessonId": "pct.lesson_7",
+      "title": "クイズ: 上級最適化",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "pct.lesson_7.q1",
+          "conceptId": "pct.aoe_rotation",
+          "scenario": "4体の敵がグループになっています。",
+          "question": "どの回転を使うべきですか？",
+          "options": ["各ターゲットに単体攻撃", "ファイアII → エアロII → ウォーターII（AoEコンボ）", "ホーリーインホワイトのみ使う", "AoEは意味がない"],
+          "correctIndex": 1,
+          "explanation": "3体以上の場合はAoEコンボを使いましょう：ファイアIIインレッド → エアロIIイングリーン → ウォーターIIインブルー。複数のターゲットにゲージとペイントをより速く生成します。"
+        },
+        {
+          "questionId": "pct.lesson_7.q2",
+          "conceptId": "pct.movement_optimization",
+          "scenario": "メカニクスでアリーナを横断する必要があります。",
+          "question": "DPSを維持する最善の方法は何ですか？",
+          "options": ["キャストをやめて走る", "即時キャストを使う：ホーリーインホワイト、コメット、レインボードリップ、ハンマーコンボ", "スライドキャストのみ", "スウィフトキャストを待つ"],
+          "correctIndex": 1,
+          "explanation": "PCTには多くの即時キャストがあります：ホーリーインホワイト（ペイント）、コメットインブラック（プロック）、レインボードリップ（プロック）、ハンマーコンボ全体。移動のためにこれらを計画しましょう。"
+        },
+        {
+          "questionId": "pct.lesson_7.q3",
+          "conceptId": "pct.aoe_rotation",
+          "scenario": "何体でAoE回転に切り替えるべきですか？",
+          "question": "閾値はどのくらいですか？",
+          "options": ["2体", "3体", "4体", "5体"],
+          "correctIndex": 1,
+          "explanation": "3体以上でAoE回転に切り替えましょう。この時点でスペルのAoEバージョンがより効率的になります。"
+        },
+        {
+          "questionId": "pct.lesson_7.q4",
+          "conceptId": "pct.movement_optimization",
+          "scenario": "ファイアインレッドをキャスト中に自分の下にAoEインジケーターが現れました。",
+          "question": "どのテクニックでよりキャストを続けられますか？",
+          "options": ["すぐにキャストをキャンセル", "スライドキャスト——キャストバー終了近くで移動開始", "シュアキャストを使う", "AoEに立つ"],
+          "correctIndex": 1,
+          "explanation": "スライドキャスト：キャストバーが約80%完成したときに移動を始めます。既に安全な場所に移動しながらもスペルが発動します。"
+        },
+        {
+          "questionId": "pct.lesson_7.q5",
+          "conceptId": "pct.movement_optimization",
+          "scenario": "フェーズ移行でボスが攻撃不能になりました。",
+          "question": "この間何をすべきですか？",
+          "options": ["ボスが戻るまで待つ", "空のキャンバスを描いて次のフェーズの準備をする", "ホーリーインホワイトをスパム", "何もないものに全ミューズを使う"],
+          "correctIndex": 1,
+          "explanation": "ダウンタイムを有効活用しましょう：空のキャンバスを描き、次のフェーズのために位置を取り、ボスが戻ったときにすぐバーストできるよう準備しましょう。"
+        }
+      ]
+    }
+  ]
+}

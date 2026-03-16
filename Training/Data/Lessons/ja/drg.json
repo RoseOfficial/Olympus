@@ -1,0 +1,139 @@
+{
+  "jobPrefix": "drg",
+  "jobName": "竜騎士",
+  "lessons": [
+    {
+      "lessonId": "drg.lesson_1",
+      "lessonNumber": 1,
+      "title": "竜騎士の基本",
+      "description": "竜騎士の基本を習得します。コンボの流れ、パワーサージバフ、方向指定の要件について解説します。",
+      "prerequisites": [],
+      "conceptsCovered": ["drg.combo_basics", "drg.power_surge", "drg.positionals"],
+      "keyPoints": [
+        "2つのコンボルート：トゥルースラスト→ボーパルスラスト→フルスラスト（ダメージ）またはトゥルースラスト→ディセンボウェル→カオスサスト（DoT＋バフ）",
+        "ディセンボウェルはパワーサージを付与：+10%ダメージ（30秒）——このバフを常に維持",
+        "カオスサストは後方から、フルスラストは側面から最大ダメージ",
+        "コンボを交互に使用：カオスサストコンボ→フルスラストコンボ→繰り返し"
+      ],
+      "relatedAbilities": ["True Thrust", "Vorpal Thrust", "Full Thrust", "Disembowel", "Chaos Thrust"],
+      "tips": [
+        "パワーサージが切れる前に必ずリフレッシュしてください",
+        "方向指定ミスは威力100の損失——必要なときにトゥルーノースを使いましょう"
+      ]
+    },
+    {
+      "lessonId": "drg.lesson_2",
+      "lessonNumber": 2,
+      "title": "ジャンプ管理",
+      "description": "竜騎士の代名詞的なジャンプアビリティを安全かつ効果的に使用する方法を学びます。",
+      "prerequisites": ["drg.lesson_1"],
+      "conceptsCovered": ["drg.high_jump", "drg.mirage_dive", "drg.animation_lock"],
+      "keyPoints": [
+        "ハイジャンプ：メインジャンプoGCD（30秒CD）——ダメージを与えてダイブレディを付与",
+        "ダイブレディはミラージュダイブを使用可能にします——アイゲージ積み（レッスン3で説明）",
+        "ジャンプには約0.8秒のアニメーションロックがあります——ギミックやAoEマーカー中は絶対使用しないこと",
+        "GCDが完了した後にジャンプをウィーブしてクリッピングを避けてください"
+      ],
+      "relatedAbilities": ["High Jump", "Mirage Dive"],
+      "tips": [
+        "ジャンプは元の位置に戻ります——飛んでいなくなることはありません",
+        "まず低難度コンテンツでジャンプのタイミングを練習してください"
+      ]
+    },
+    {
+      "lessonId": "drg.lesson_3",
+      "lessonNumber": 3,
+      "title": "アイゲージとゲイルスコグル",
+      "description": "アイゲージシステムとライフ・オブ・ザ・ドラゴンの発動方法を理解します。",
+      "prerequisites": ["drg.lesson_2"],
+      "conceptsCovered": ["drg.eye_gauge", "drg.geirskogul", "drg.life_of_dragon"],
+      "keyPoints": [
+        "ミラージュダイブはアイゲージを積みます（1回につきアイ1つ、最大2つ）",
+        "ゲイルスコグル（60秒CD）：アイが2つの状態で使うとライフ・オブ・ザ・ドラゴンに移行",
+        "アイ2つでゲイルスコグルを使うと20秒間ライフ・オブ・ザ・ドラゴン状態になります",
+        "ライフ・オブ・ザ・ドラゴンはナストロンドとスターダイバーを解放（レッスン4）"
+      ],
+      "relatedAbilities": ["Mirage Dive", "Geirskogul"],
+      "tips": [
+        "ゲイルスコグルを使う前にアイを2つ積んでライフ・オブ・ザ・ドラゴンの稼働率を最大化",
+        "アイの数を把握してください——アイ2つの状態でミラージュダイブを無駄にしないこと"
+      ]
+    },
+    {
+      "lessonId": "drg.lesson_4",
+      "lessonNumber": 4,
+      "title": "ライフ・オブ・ザ・ドラゴン",
+      "description": "強力なライフ・オブ・ザ・ドラゴンフェーズ中にダメージを最大化します。",
+      "prerequisites": ["drg.lesson_3"],
+      "conceptsCovered": ["drg.nastrond", "drg.stardiver", "drg.life_optimization"],
+      "keyPoints": [
+        "ライフ・オブ・ザ・ドラゴン中：ゲイルスコグルがナストロンドになります（同CDでアイコスト不要）",
+        "ナストロンド：強力な直線AoE——20秒ウィンドウ中に3〜4回使用",
+        "スターダイバー：大ダイブ攻撃（30秒CD）——ライフフェーズごとに1回使用で大ダメージ",
+        "スタークロスはスターダイバーの後に自動的に使用可能——無料の追加ダメージ"
+      ],
+      "relatedAbilities": ["Nastrond", "Stardiver", "Starcross"],
+      "tips": [
+        "バフウィンドウ中にライフ・オブ・ザ・ドラゴンに入ると最大バーストに",
+        "ナストロンドとスターダイバーを使わずにライフが切れないようにしてください"
+      ]
+    },
+    {
+      "lessonId": "drg.lesson_5",
+      "lessonNumber": 5,
+      "title": "バーストウィンドウの準備",
+      "description": "最大ダメージ出力のためにバフとバーストアビリティを揃えます。",
+      "prerequisites": ["drg.lesson_4"],
+      "conceptsCovered": ["drg.lance_charge", "drg.battle_litany", "drg.burst_window"],
+      "keyPoints": [
+        "ランスチャージ（60秒CD）：個人+10%ダメージ（20秒）——主要ダメージバフ",
+        "バトルリタニー（120秒CD）：パーティ全体+10%クリット率——レイドバフと連携",
+        "ランスチャージはCDごとに使用、バトルリタニーは2分バーストウィンドウに合わせる",
+        "ランスチャージ中にライフ・オブ・ザ・ドラゴンに入ってバフ入りナストロンドとスターダイバーを"
+      ],
+      "relatedAbilities": ["Lance Charge", "Battle Litany"],
+      "tips": [
+        "バトルリタニーはパーティ全体に恩恵——他のレイドバフと合わせて使いましょう",
+        "バトルリタニーを待ってランスチャージを溜めないこと——60秒サイクルです"
+      ]
+    },
+    {
+      "lessonId": "drg.lesson_6",
+      "lessonNumber": 6,
+      "title": "ライフサージとクリティカルヒット",
+      "description": "ライフサージの使用を最適化し、トゥルーノースで方向指定を回復します。",
+      "prerequisites": ["drg.lesson_5"],
+      "conceptsCovered": ["drg.life_surge", "drg.true_north_usage", "drg.positional_recovery", "drg.buff_alignment"],
+      "keyPoints": [
+        "ライフサージ（40秒CD、2チャージ）：次のウェポンスキルをクリット保証＋回復",
+        "ライフサージは必ずヘブンズスラスト（最高威力GCD）に使用",
+        "トゥルーノース（45秒CD、2チャージ）：10秒間方向指定を無視",
+        "ギミックで後方/側面に届かないときにトゥルーノースを温存してください"
+      ],
+      "relatedAbilities": ["Life Surge", "True North", "Heavens' Thrust"],
+      "tips": [
+        "ライフサージは2チャージ——キャップさせないこと",
+        "トゥルーノースも2チャージ——必要に応じてカオスサスト用とフルスラスト用に使い分けましょう"
+      ]
+    },
+    {
+      "lessonId": "drg.lesson_7",
+      "lessonNumber": 7,
+      "title": "上級最適化",
+      "description": "ワームウィンドスラスト、DoT稼働率、AoE回転などの上級テクニックを習得します。",
+      "prerequisites": ["drg.lesson_6"],
+      "conceptsCovered": ["drg.wyrmwind_thrust", "drg.dot_maintenance", "drg.aoe_rotation", "drg.firstminds_focus", "drg.spineshatter_dive", "drg.dragonfire_dive"],
+      "keyPoints": [
+        "ワームウィンドスラスト：ファーストマインズフォーカス2つで解放（レイデン/ヘブンズスラストから積む）",
+        "ケイオティックスプリング（カオスサストの強化版）：DoTを常に維持（約30秒）",
+        "AoE：3体以上でドゥームスパイク→ソニックスラスト→コアーサントルメント",
+        "スパインシャッタードライブ/ドラゴンファイヤーダイブ：ダメージ付きギャップクローザー——バーストで使用"
+      ],
+      "relatedAbilities": ["Wyrmwind Thrust", "Chaotic Spring", "Doom Spike", "Sonic Thrust", "Coerthan Torment", "Spineshatter Dive", "Dragonfire Dive"],
+      "tips": [
+        "ワームウィンドスラストは遠隔攻撃——強制離脱時に便利です",
+        "ドラゴンファイヤーダイブはAoE——できるだけ複数ターゲット時に使いましょう"
+      ]
+    }
+  ]
+}

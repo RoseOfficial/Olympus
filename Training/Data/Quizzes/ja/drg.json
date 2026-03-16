@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "drg",
+  "jobName": "竜騎士",
+  "quizzes": [
+    {
+      "quizId": "drg.lesson_1.quiz",
+      "lessonId": "drg.lesson_1",
+      "title": "クイズ: 竜騎士の基本",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "drg.lesson_1.q1",
+          "conceptId": "drg.combo_basics",
+          "scenario": "戦闘を開始したばかりです。最初のGCDはトゥルースラストです。",
+          "question": "パワーサージを付与するコンボパスはどれですか？",
+          "options": ["トゥルースラスト→ボーパルスラスト", "トゥルースラスト→ディセンボウェル", "どのコンボパスでも", "フルスラストコンボ"],
+          "correctIndex": 1,
+          "explanation": "ディセンボウェルはパワーサージ（+10%ダメージ）を付与します。常にこのコンボから始めてバフを早めに取りましょう。"
+        },
+        {
+          "questionId": "drg.lesson_1.q2",
+          "conceptId": "drg.power_surge",
+          "scenario": "パワーサージの残り時間が8秒です。フルスラストコンボを終えたところです。",
+          "question": "次のコンボは何にすべきですか？",
+          "options": ["フルスラストコンボを再度", "カオスサストコンボ", "どちらでもよい", "oGCDのみ使う"],
+          "correctIndex": 1,
+          "explanation": "残り8秒なのでカオスサストコンボを使ってパワーサージが切れる前にリフレッシュしてください。このバフを切らさないこと。"
+        },
+        {
+          "questionId": "drg.lesson_1.q3",
+          "conceptId": "drg.positionals",
+          "scenario": "カオスサストを使う必要があります。どこに立つべきですか？",
+          "question": "カオスサストの正しい方向指定は？",
+          "options": ["側面（横）", "後方（後ろ）", "前方", "どこでも"],
+          "correctIndex": 1,
+          "explanation": "カオスサストはボーナスダメージのために後方方向指定が必要です。フルスラストは側面が必要。外すと威力100の損失。"
+        },
+        {
+          "questionId": "drg.lesson_1.q4",
+          "conceptId": "drg.combo_basics",
+          "scenario": "標準の回転ではコンボを交互に使います。",
+          "question": "基本の単体ターゲットパターンは？",
+          "options": ["フルスラストコンボをスパム", "カオス/フルコンボを交互", "ランダムな順序", "カオスサストのみ"],
+          "correctIndex": 1,
+          "explanation": "交互に使います：カオスサストコンボ→フルスラストコンボ→カオスサストコンボ。DoTとパワーサージの両方を維持できます。"
+        },
+        {
+          "questionId": "drg.lesson_1.q5",
+          "conceptId": "drg.power_surge",
+          "scenario": "パワーサージが戦闘中に切れました。パーティはバーストフェーズ中です。",
+          "question": "優先順位は何ですか？",
+          "options": ["フルスラストコンボを続ける", "すぐにパワーサージを取り戻す", "ダメージのためにジャンプを使う", "バフウィンドウを待つ"],
+          "correctIndex": 1,
+          "explanation": "パワーサージは全ダメージに+10%です。バースト中でも、このバフを失うことは他のアクションを遅らせるより悪いです。すぐに取り戻してください。"
+        }
+      ]
+    },
+    {
+      "quizId": "drg.lesson_2.quiz",
+      "lessonId": "drg.lesson_2",
+      "title": "クイズ: ジャンプ管理",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "drg.lesson_2.q1",
+          "conceptId": "drg.high_jump",
+          "scenario": "ハイジャンプのCDが切れました。GCDを使ったばかりです。",
+          "question": "ハイジャンプはいつ使うべきですか？",
+          "options": ["次のGCD前", "次のGCD後", "GCDウィンドウ中（ウィーブ）", "バーストのために温存"],
+          "correctIndex": 2,
+          "explanation": "GCDウィンドウ中（GCDが完了した後、次が使用可能になる前）にハイジャンプをウィーブしてください。クリッピングを防げます。"
+        },
+        {
+          "questionId": "drg.lesson_2.q2",
+          "conceptId": "drg.mirage_dive",
+          "scenario": "ハイジャンプを使いました。ダイブレディバフがあります。",
+          "question": "ダイブレディをどうすべきですか？",
+          "options": ["後のために温存", "すぐにミラージュダイブを使う", "自然に切れる", "ロージャンプを待つ"],
+          "correctIndex": 1,
+          "explanation": "ダイブレディはミラージュダイブを使用可能にし、アイゲージを積みます。次のハイジャンプの前に使わないと無駄になります。"
+        },
+        {
+          "questionId": "drg.lesson_2.q3",
+          "conceptId": "drg.animation_lock",
+          "scenario": "足元にAoEマーカーがあります。ハイジャンプが使用可能です。",
+          "question": "今ハイジャンプを使うべきですか？",
+          "options": ["はい——ジャンプにはiフレームがある", "はい——位置に戻る", "いいえ——アニメーションロックが危険", "AoEによる"],
+          "correctIndex": 2,
+          "explanation": "ジャンプには約0.8秒のアニメーションロックがあり、移動も行動もできません。AoE中に使うとヒットします。先に移動してください。"
+        },
+        {
+          "questionId": "drg.lesson_2.q4",
+          "conceptId": "drg.high_jump",
+          "scenario": "ハイジャンプを使いました。どこに着地しますか？",
+          "question": "あなたのポジションはどうなりますか？",
+          "options": ["ボスの元に残る", "元の位置に戻る", "ランダムな場所", "ボスの後ろ"],
+          "correctIndex": 1,
+          "explanation": "ハイジャンプは元の位置に戻ります。飛んでいかないので方向指定の維持に安全です。"
+        },
+        {
+          "questionId": "drg.lesson_2.q5",
+          "conceptId": "drg.animation_lock",
+          "scenario": "oGCDを2つウィーブする必要があります。ハイジャンプと別のアビリティ。",
+          "question": "ハイジャンプとのダブルウィーブがリスキーな理由は？",
+          "options": ["リスクはない", "ハイジャンプが遅い", "アニメーションロックでクリッピング", "DPS損失"],
+          "correctIndex": 2,
+          "explanation": "ハイジャンプのアニメーションロックは多くのoGCDより長いです。これとのダブルウィーブはGCDクリップを頻繁に引き起こします。シングルウィーブが安全です。"
+        }
+      ]
+    },
+    {
+      "quizId": "drg.lesson_3.quiz",
+      "lessonId": "drg.lesson_3",
+      "title": "クイズ: アイゲージとゲイルスコグル",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "drg.lesson_3.q1",
+          "conceptId": "drg.eye_gauge",
+          "scenario": "アイが1つあります。ミラージュダイブが使用可能です。",
+          "question": "ミラージュダイブを使うとどうなりますか？",
+          "options": ["アイを失う", "2つ目のアイを獲得", "ライフ・オブ・ドラゴンに入る", "特に変化なし"],
+          "correctIndex": 1,
+          "explanation": "ミラージュダイブはアイを1つ付与します（最大2つ）。ゲイルスコグルでライフ・オブ・ザ・ドラゴンに入る前にアイを2つ積む必要があります。"
+        },
+        {
+          "questionId": "drg.lesson_3.q2",
+          "conceptId": "drg.geirskogul",
+          "scenario": "アイが2つあります。ゲイルスコグルが使用可能です。",
+          "question": "アイ2つでゲイルスコグルを使うとどうなりますか？",
+          "options": ["ダメージのみ", "ライフ・オブ・ドラゴンに入る", "アイを両方消費", "アイをさらに付与"],
+          "correctIndex": 1,
+          "explanation": "アイ2つでゲイルスコグルを使うとアイを1つ消費して20秒間ライフ・オブ・ザ・ドラゴンに変身します。"
+        },
+        {
+          "questionId": "drg.lesson_3.q3",
+          "conceptId": "drg.life_of_dragon",
+          "scenario": "アイが1つあります。ゲイルスコグルが使用可能です。",
+          "question": "今ゲイルスコグルを使うべきですか？",
+          "options": ["はい——CDごとに", "いいえ——アイ2つになるまで待つ", "バーストのみ", "どちらでも同じ"],
+          "correctIndex": 1,
+          "explanation": "アイ1つでゲイルスコグルを使うとライフ・オブ・ザ・ドラゴンに入らずダメージのみです。まずアイを2つにしてください。"
+        },
+        {
+          "questionId": "drg.lesson_3.q4",
+          "conceptId": "drg.eye_gauge",
+          "scenario": "アイが2つあります。ミラージュダイブが使えますがゲイルスコグルはCD中です。",
+          "question": "ミラージュダイブを使うべきですか？",
+          "options": ["はい——とにかく使う", "いいえ——アイが無駄になる", "後のために温存", "使ってからゲイルスコグル"],
+          "correctIndex": 1,
+          "explanation": "アイ2つでキャップです。ミラージュダイブを使うとアイが無駄になります。ゲイルスコグルがアイを消費するまで待ってください。"
+        },
+        {
+          "questionId": "drg.lesson_3.q5",
+          "conceptId": "drg.geirskogul",
+          "scenario": "バーストウィンドウが来そうです。アイが0です。",
+          "question": "アイ積みの優先順位は？",
+          "options": ["アイは飛ばして今バーストする", "ライフフェーズのためにアイ2つを積む", "アイ1つだけ積む", "アイは関係ない"],
+          "correctIndex": 1,
+          "explanation": "ライフ・オブ・ザ・ドラゴン（アイ2つから）はナストロンドとスターダイバーを解放します。バースト中にライフに入れるようにアイ積みを計画してください。"
+        }
+      ]
+    },
+    {
+      "quizId": "drg.lesson_4.quiz",
+      "lessonId": "drg.lesson_4",
+      "title": "クイズ: ライフ・オブ・ザ・ドラゴン",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "drg.lesson_4.q1",
+          "conceptId": "drg.nastrond",
+          "scenario": "ライフ・オブ・ザ・ドラゴン中です。残り18秒あります。",
+          "question": "ライフ中にゲイルスコグルはどうなりますか？",
+          "options": ["ゲイルスコグルのまま", "ナストロンドになる", "スターダイバーになる", "消える"],
+          "correctIndex": 1,
+          "explanation": "ライフ・オブ・ザ・ドラゴン中、ゲイルスコグルはナストロンドに変身します——同じボタン、アイコストなし、強力な直線AoEです。"
+        },
+        {
+          "questionId": "drg.lesson_4.q2",
+          "conceptId": "drg.stardiver",
+          "scenario": "ライフ・オブ・ザ・ドラゴンが発動中です。スターダイバーが使用可能。ライフタイマーが5秒あります。",
+          "question": "スターダイバーを使うべきですか？",
+          "options": ["いいえ——次のライフまで温存", "はい——ライフが終わる前に使う", "いいえ——ナストロンドの方が良い", "バフウィンドウを待つ"],
+          "correctIndex": 1,
+          "explanation": "スターダイバーはライフ・オブ・ザ・ドラゴン中のみ使用可能です。残り5秒なら今使わなければ機会を失います。"
+        },
+        {
+          "questionId": "drg.lesson_4.q3",
+          "conceptId": "drg.nastrond",
+          "scenario": "ライフ・オブ・ザ・ドラゴンは20秒持続します。ナストロンドはゲイルスコグルのCDを共有します。",
+          "question": "1回のライフウィンドウに何回ナストロンドを使えますか？",
+          "options": ["1〜2回", "3〜4回", "5〜6回", "無制限"],
+          "correctIndex": 1,
+          "explanation": "ライフ持続時間20秒とナストロンドの約10秒CDで、ライフフェーズごとに3〜4回のナストロンドが使えます。"
+        },
+        {
+          "questionId": "drg.lesson_4.q4",
+          "conceptId": "drg.life_optimization",
+          "scenario": "ランスチャージが発動中です。アイが2つあってゲイルスコグルが使用可能です。",
+          "question": "今ライフに入るのは良いタイミングですか？",
+          "options": ["いいえ——ライフは後のために温存", "はい——バフがライフのアビリティに効く", "どちらでも同じ", "バトルリタニー中のみ"],
+          "correctIndex": 1,
+          "explanation": "ランスチャージ中にライフに入るとナストロンドとスターダイバーに+10%ダメージバフが乗ります。最適なタイミングです。"
+        },
+        {
+          "questionId": "drg.lesson_4.q5",
+          "conceptId": "drg.stardiver",
+          "scenario": "スターダイバーを使いました。新しいボタンが現れました。",
+          "question": "スタークロスとは何ですか？",
+          "options": ["別のクールダウン", "スターダイバーのフォローアップ", "AoE版", "防御スキル"],
+          "correctIndex": 1,
+          "explanation": "スタークロスはスターダイバーの後に使用可能になる無料フォローアップです。すぐに使って追加ダメージを。"
+        }
+      ]
+    },
+    {
+      "quizId": "drg.lesson_5.quiz",
+      "lessonId": "drg.lesson_5",
+      "title": "クイズ: バーストウィンドウの準備",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "drg.lesson_5.q1",
+          "conceptId": "drg.lance_charge",
+          "scenario": "戦闘開始直後です。ランスチャージが使用可能です。",
+          "question": "ランスチャージはいつ使うべきですか？",
+          "options": ["最初のGCDの前", "オープナー開始後", "2分まで待つ", "緊急用に温存"],
+          "correctIndex": 1,
+          "explanation": "できるだけ多くのGCDとoGCDにバフをかけるためにオープナーの早い段階でランスチャージを使いましょう。60秒CDなので溜めないこと。"
+        },
+        {
+          "questionId": "drg.lesson_5.q2",
+          "conceptId": "drg.battle_litany",
+          "scenario": "バトルリタニーが使用可能です。他のDPSが2分バフを使っています。",
+          "question": "バトルリタニーは何を提供しますか？",
+          "options": ["自分に+10%ダメージ", "パーティに+10%クリット率", "+10%速度上昇", "ダメージ軽減"],
+          "correctIndex": 1,
+          "explanation": "バトルリタニーはパーティ全体にクリット率+10%を付与します。最大インパクトのために他の2分レイドバフと合わせて使いましょう。"
+        },
+        {
+          "questionId": "drg.lesson_5.q3",
+          "conceptId": "drg.burst_window",
+          "scenario": "ランスチャージが発動中です。バトルリタニーも発動中です。アイが2つあります。",
+          "question": "何を優先すべきですか？",
+          "options": ["アイを後のために温存", "ライフ・オブ・ドラゴンに入る", "GCDだけ使う", "クールダウンを待つ"],
+          "correctIndex": 1,
+          "explanation": "ダブルバフウィンドウがライフ・オブ・ザ・ドラゴンの最適なタイミングです。ナストロンドとスターダイバーが大幅に強化されます。"
+        },
+        {
+          "questionId": "drg.lesson_5.q4",
+          "conceptId": "drg.buff_alignment",
+          "scenario": "ランスチャージ（60秒CD）とバトルリタニー（120秒CD）が両方使用可能です。",
+          "question": "異なるCDをどう扱いますか？",
+          "options": ["常に一緒に使う", "ランスチャージはCD通り、リタニーは2分", "リタニーのためにランスを溜める", "交互に使う"],
+          "correctIndex": 1,
+          "explanation": "ランスチャージはCDごとに使用（60秒サイクル）。バトルリタニーは2分レイドバフに合わせます。1回おきのランスチャージで同期します。"
+        },
+        {
+          "questionId": "drg.lesson_5.q5",
+          "conceptId": "drg.lance_charge",
+          "scenario": "ランスチャージの残り時間が5秒です。ボスが跳び去ろうとしています。",
+          "question": "何を優先すべきですか？",
+          "options": ["アビリティを後のために温存", "バフ中に全ダメージを使い切る", "オートアタックだけ", "攻撃をやめる"],
+          "correctIndex": 1,
+          "explanation": "ランスチャージが切れるかボスが去る前にバフ入りアクションを全て使い切りましょう。ジャンプ、ナストロンド、使えるものは全て。"
+        }
+      ]
+    },
+    {
+      "quizId": "drg.lesson_6.quiz",
+      "lessonId": "drg.lesson_6",
+      "title": "クイズ: ライフサージとクリティカルヒット",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "drg.lesson_6.q1",
+          "conceptId": "drg.life_surge",
+          "scenario": "ライフサージが2チャージあります。ヘブンズスラストを使おうとしています。",
+          "question": "ライフサージを使うべきですか？",
+          "options": ["いいえ——チャージを温存", "はい——ヘブンズスラストが最適", "バフ中のみ", "任意のGCDに使う"],
+          "correctIndex": 1,
+          "explanation": "ライフサージはクリットを保証します。最高威力GCDであるヘブンズスラストに使って最大効果を発揮しましょう。"
+        },
+        {
+          "questionId": "drg.lesson_6.q2",
+          "conceptId": "drg.life_surge",
+          "scenario": "ライフサージが2チャージです。すぐにコンボフィニッシャーは来ません。",
+          "question": "どうすべきですか？",
+          "options": ["フィニッシャーを待つ", "キャップを避けるため任意のGCDに使う", "両方のチャージを温存", "DoTにのみ使う"],
+          "correctIndex": 1,
+          "explanation": "2チャージでキャップです。潜在チャージを失っています。CDを無駄にするよりも弱いGCDに使う方がよいです。"
+        },
+        {
+          "questionId": "drg.lesson_6.q3",
+          "conceptId": "drg.true_north_usage",
+          "scenario": "ボスが壁際にいます。カオスサストのために後方に届きません。",
+          "question": "何を使うべきですか？",
+          "options": ["カオスサストを飛ばす", "トゥルーノースを使う", "方向指定を外すだけ", "ボスを移動させる"],
+          "correctIndex": 1,
+          "explanation": "トゥルーノースは10秒間方向指定を無効にします。正しい位置に物理的に届かないときに使用してください。"
+        },
+        {
+          "questionId": "drg.lesson_6.q4",
+          "conceptId": "drg.positional_recovery",
+          "scenario": "トゥルーノースが2チャージあります。側面にいますが後方が必要です。",
+          "question": "トゥルーノースを使うべきですか？",
+          "options": ["はい——方向指定は重要", "いいえ——ギミック用に温存", "両方のチャージがある場合のみ", "代わりに後方に歩く"],
+          "correctIndex": 3,
+          "explanation": "時間内に後方に届くなら歩いてトゥルーノースを温存してください。再配置が不可能なときのみ使用。"
+        },
+        {
+          "questionId": "drg.lesson_6.q5",
+          "conceptId": "drg.buff_alignment",
+          "scenario": "ライフサージが使用可能です。バトルリタニーが発動中（+10%クリット率）。",
+          "question": "リタニー中のライフサージのクリット保証は無駄になりますか？",
+          "options": ["はい——クリットが上限に達する", "いいえ——クリットダメージはまだ乗る", "部分的に無駄", "一緒に使わない"],
+          "correctIndex": 1,
+          "explanation": "ライフサージはクリットを保証し、バトルリタニーはクリット率を上昇させます。組み合わせてもダメージを最大化できます——クリットダメージは減少しません。"
+        }
+      ]
+    },
+    {
+      "quizId": "drg.lesson_7.quiz",
+      "lessonId": "drg.lesson_7",
+      "title": "クイズ: 上級最適化",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "drg.lesson_7.q1",
+          "conceptId": "drg.wyrmwind_thrust",
+          "scenario": "ファーストマインズフォーカスが2つあります。ボスが遠くにいます。",
+          "question": "遠距離で使えるスキルは何ですか？",
+          "options": ["なし——近接のみ", "ワームウィンドスラスト", "ピアシングタロンのみ", "ボスを待つ"],
+          "correctIndex": 1,
+          "explanation": "ワームウィンドスラストは遠距離攻撃でファーストマインズフォーカスを使います。ボスに届かないときの離脱ツールです。"
+        },
+        {
+          "questionId": "drg.lesson_7.q2",
+          "conceptId": "drg.firstminds_focus",
+          "scenario": "ヘブンズスラストを使いました。ファーストマインズフォーカスが増加しました。",
+          "question": "ファーストマインズフォーカスはどうやって積みますか？",
+          "options": ["任意のコンボフィニッシャー", "ヘブンズ/レイデンスラストのみ", "全GCD", "oGCDのみ"],
+          "correctIndex": 1,
+          "explanation": "ファーストマインズフォーカスはレイデンスラストとヘブンズスラスト（アップグレードされたコンボフィニッシャー）から積まれます。フォーカス2つでワームウィンドスラスト。"
+        },
+        {
+          "questionId": "drg.lesson_7.q3",
+          "conceptId": "drg.dot_maintenance",
+          "scenario": "ケイオティックスプリングのDoTの残り時間が5秒です。フルスラストコンボの途中です。",
+          "question": "どうすべきですか？",
+          "options": ["今のコンボを完了させる", "カオスコンボに切り替える", "すぐにリフレッシュ", "DoTを切らす"],
+          "correctIndex": 0,
+          "explanation": "5秒あれば現在のコンボを完了してからカオスサストコンボを始めるのに十分な時間があります。コンボを中断するとDoTを数ティック失うより損失が大きいです。"
+        },
+        {
+          "questionId": "drg.lesson_7.q4",
+          "conceptId": "drg.aoe_rotation",
+          "scenario": "3体の敵がいます。単体ターゲットコンボの途中です。",
+          "question": "AoE回転は何ですか？",
+          "options": ["単体を続ける", "ドゥームスパイク→ソニックスラスト→コアーサント", "ドラゴンファイヤーダイブだけ使う", "AoEはDPS損失"],
+          "correctIndex": 1,
+          "explanation": "3体以上ではAoEコンボを使います：ドゥームスパイク→ソニックスラスト→コアーサントルメント。トータルダメージが高くなります。"
+        },
+        {
+          "questionId": "drg.lesson_7.q5",
+          "conceptId": "drg.dragonfire_dive",
+          "scenario": "複数の敵がまとまっています。ドラゴンファイヤーダイブとスターダイバーが両方使用可能です。",
+          "question": "AoEでドラゴンファイヤーダイブが優れている理由は？",
+          "options": ["単体威力が高い", "AoEダメージ", "バフを付与", "アニメーションロックなし"],
+          "correctIndex": 1,
+          "explanation": "ドラゴンファイヤーダイブは着地時にAoEダメージを与えます。複数ターゲット状況では単体より価値が高くなります。"
+        }
+      ]
+    }
+  ]
+}

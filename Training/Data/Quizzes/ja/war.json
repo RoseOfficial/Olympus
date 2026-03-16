@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "war",
+  "jobName": "戦士",
+  "quizzes": [
+    {
+      "quizId": "war.lesson_1.quiz",
+      "lessonId": "war.lesson_1",
+      "title": "クイズ: 獣のゲージとサージング・テンペスト",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "war.lesson_1.q1",
+          "conceptId": "war.beast_gauge",
+          "scenario": "獣のゲージが90あります。ストームズパスを使うとさらに10溜まります。",
+          "question": "どうすべきですか？",
+          "options": ["通常通りコンボを続ける", "先にフェルクリーブを使う", "ゲージをキャップさせる", "コンボフィニッシャーをスキップ"],
+          "correctIndex": 1,
+          "explanation": "ゲージ90でストームズパスを使うとオーバーキャップします。先にフェルクリーブでゲージを消費してからコンボを続けましょう。"
+        },
+        {
+          "questionId": "war.lesson_1.q2",
+          "conceptId": "war.surging_tempest",
+          "scenario": "サージング・テンペストの残り時間が10秒です。",
+          "question": "ストームズアイでリフレッシュすべきですか？",
+          "options": ["はい——バフを維持する", "いいえ——もっと低くなるまで待つ", "コンボ次第", "代わりにストームズパスを使う"],
+          "correctIndex": 1,
+          "explanation": "サージング・テンペストは最長60秒まで延長できます。残り10秒ならまだ時間があります。10秒以下になるまで待ちましょう。"
+        },
+        {
+          "questionId": "war.lesson_1.q3",
+          "conceptId": "war.beast_gauge",
+          "scenario": "戦闘開始です。獣のゲージが空です。",
+          "question": "ゲージはどのように積みますか？",
+          "options": ["オートアタック", "コンボフィニッシャー", "任意のGCD", "oGCD"],
+          "correctIndex": 1,
+          "explanation": "獣のゲージはコンボフィニッシャーから積まれます（ストームズパスで10、ストームズアイで10）。オートアタックではゲージは生成されません。"
+        },
+        {
+          "questionId": "war.lesson_1.q4",
+          "conceptId": "war.surging_tempest",
+          "scenario": "ダウンタイム中にサージング・テンペストが切れました。",
+          "question": "ボスが戻った時の優先事項は何ですか？",
+          "options": ["フェルクリーブを使う", "サージング・テンペストをリフレッシュ", "原初の解放を使う", "通常のローテーション"],
+          "correctIndex": 1,
+          "explanation": "サージング・テンペストは10%のダメージバフです。バーストより先にバフを戻すことが優先されます。"
+        },
+        {
+          "questionId": "war.lesson_1.q5",
+          "conceptId": "war.beast_gauge",
+          "scenario": "ゲージが50あります。5秒後に原初の解放が来ます。",
+          "question": "今ゲージを消費すべきですか？",
+          "options": ["はい——オーバーキャップを避ける", "いいえ——原初の解放のために温存", "20だけ消費する", "関係ない"],
+          "correctIndex": 1,
+          "explanation": "原初の解放のためにゲージを温存しましょう。原初の解放中はフェルクリーブが無料ですが、ゲージを持って入ることで原初の解放後のダメージが増えます。"
+        }
+      ]
+    },
+    {
+      "quizId": "war.lesson_2.quiz",
+      "lessonId": "war.lesson_2",
+      "title": "クイズ: 防御の基本",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "war.lesson_2.q1",
+          "conceptId": "war.bloodwhetting",
+          "scenario": "ダンジョンで大型プルをしています。8体の敵があなたを攻撃しています。",
+          "question": "ここでブラッドウェッティングが強い理由は何ですか？",
+          "options": ["固定ダメージ軽減", "攻撃した敵の数分ヒール", "使用時にシールド", "持続時間が長い"],
+          "correctIndex": 1,
+          "explanation": "ブラッドウェッティングは攻撃で当たった敵ごとにヒールします。8体の敵がいると範囲攻撃で大量にヒールできます。"
+        },
+        {
+          "questionId": "war.lesson_2.q2",
+          "conceptId": "war.vengeance",
+          "scenario": "ヴェンジェンスが有効です。タンクのオートアタックが痛いです。",
+          "question": "ヴェンジェンスは軽減以外に何を提供しますか？",
+          "options": ["ヒール", "ダメージ反射", "ヘイト強化", "ゲージ生成"],
+          "correctIndex": 1,
+          "explanation": "ヴェンジェンスは被攻撃時にダメージを攻撃者に反射します。雑魚引きに最適です。"
+        },
+        {
+          "questionId": "war.lesson_2.q3",
+          "conceptId": "war.mitigation_stacking",
+          "scenario": "ランパートを使いました。タンク強攻撃が来ます。",
+          "question": "ランパートと相性が良いのはどれですか？",
+          "options": ["もう一つのランパート", "ブラッドウェッティング", "何もなし——十分", "ヴェンジェンス"],
+          "correctIndex": 1,
+          "explanation": "ブラッドウェッティングは追加軽減と攻撃を通じたヒールを提供します。大きなCDを無駄にせず良い組み合わせです。"
+        },
+        {
+          "questionId": "war.lesson_2.q4",
+          "conceptId": "war.raw_intuition",
+          "scenario": "ブラッドウェッティングがまだ使えません。ロウ・インテュイションが使用可能です。",
+          "question": "両者の違いは何ですか？",
+          "options": ["同じスキル", "ロウはヒールが少ない", "ブラッドウェッティングはAoE", "異なるクールダウン"],
+          "correctIndex": 1,
+          "explanation": "ロウ・インテュイションは同じ軽減を持ちますがヒールが少ない以前のバージョンです。ブラッドウェッティングがアップグレードします。"
+        },
+        {
+          "questionId": "war.lesson_2.q5",
+          "conceptId": "war.bloodwhetting",
+          "scenario": "シングルターゲットのボスです。ブラッドウェッティングが使用可能です。",
+          "question": "シングルターゲットでブラッドウェッティングの価値は下がりますか？",
+          "options": ["はい——かなり弱くなる", "それでも強力", "使わない方が良い", "複数ターゲット専用"],
+          "correctIndex": 1,
+          "explanation": "ブラッドウェッティングはシングルターゲットでも軽減とヒールを提供します。AoEより少ないですが、それでも優秀です。"
+        }
+      ]
+    },
+    {
+      "quizId": "war.lesson_3.quiz",
+      "lessonId": "war.lesson_3",
+      "title": "クイズ: ホルムギャング",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "war.lesson_3.q1",
+          "conceptId": "war.holmgang",
+          "scenario": "HPが50%です。大きなタンク強攻撃が来ます。",
+          "question": "ホルムギャングを使うと何が起きますか？",
+          "options": ["完全無敵", "HP1以下にならない", "50%ダメージ軽減", "全回復"],
+          "correctIndex": 1,
+          "explanation": "ホルムギャングはHP1以下にならないようにします。ダメージを受けますが生き延びられます。"
+        },
+        {
+          "questionId": "war.lesson_3.q2",
+          "conceptId": "war.invuln_timing",
+          "scenario": "ホルムギャングは240秒クールダウンです。",
+          "question": "他のタンク無敵スキルと比べてどうですか？",
+          "options": ["最長のCD", "最短のCD", "平均的なCD", "ナイトと同じ"],
+          "correctIndex": 1,
+          "explanation": "ホルムギャングは最短の無敵クールダウン（4分）で、戦闘でより頻繁に使用できます。"
+        },
+        {
+          "questionId": "war.lesson_3.q3",
+          "conceptId": "war.holmgang",
+          "scenario": "ホルムギャングが発動しました。HP1です。",
+          "question": "最善の回復方法は何ですか？",
+          "options": ["ヒーラーを待つ", "ブラッドウェッティング＋攻撃", "イクイリブリアムを使う", "上記すべて"],
+          "correctIndex": 3,
+          "explanation": "戦士は優れた自己回復を持っています。ブラッドウェッティングは攻撃でヒール、イクイリブリアムは強力な自己ヒールです。使えるものはすべて使いましょう。"
+        },
+        {
+          "questionId": "war.lesson_3.q4",
+          "conceptId": "war.invuln_timing",
+          "scenario": "ボスは3分おきに連続してタンク強攻撃を使います。",
+          "question": "両方にホルムギャングを使えますか？",
+          "options": ["いいえ——CDが短すぎる", "はい——240秒CDで対応可能", "助けがあれば", "タイミング次第"],
+          "correctIndex": 1,
+          "explanation": "ホルムギャングは240秒（4分）です。3分間隔の強攻撃なら、タイミング次第で両方に使うことができます。"
+        },
+        {
+          "questionId": "war.lesson_3.q5",
+          "conceptId": "war.holmgang",
+          "scenario": "ホルムギャングはターゲットとあなたを結びつけます。",
+          "question": "この拘束は何をしますか？",
+          "options": ["追加ダメージ", "大きく離れられない", "ターゲットが動けない", "特に重要ではない"],
+          "correctIndex": 1,
+          "explanation": "ホルムギャングの拘束によってあなたとターゲットは互いに射程内に留まります。通常は問題ありませんが、移動に影響する場合があります。"
+        }
+      ]
+    },
+    {
+      "quizId": "war.lesson_4.quiz",
+      "lessonId": "war.lesson_4",
+      "title": "クイズ: 原初の解放",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "war.lesson_4.q1",
+          "conceptId": "war.inner_release",
+          "scenario": "原初の解放が使用可能です。獣のゲージが30あります。",
+          "question": "原初の解放の前にゲージを消費すべきですか？",
+          "options": ["はい——無駄を避ける", "いいえ——温存する", "0まで消費する", "関係ない"],
+          "correctIndex": 1,
+          "explanation": "原初の解放中はフェルクリーブのゲージコストが0になります。原初の解放終了後に使うためにゲージを残しましょう。"
+        },
+        {
+          "questionId": "war.lesson_4.q2",
+          "conceptId": "war.fell_cleave",
+          "scenario": "原初の解放が有効です。3回の無料フェルクリーブが使用可能です。",
+          "question": "このウィンドウに何回フェルクリーブを収められますか？",
+          "options": ["3回のみ", "タイミング次第で5回", "無制限", "最大4回"],
+          "correctIndex": 1,
+          "explanation": "原初の解放は15秒間続き3回の無料スタックがありますが、適切なGCDタイミングで5回のフェルクリーブを収めることができます。"
+        },
+        {
+          "questionId": "war.lesson_4.q3",
+          "conceptId": "war.infuriate",
+          "scenario": "インフュリエートが使用可能です。ゲージが0です。原初の解放はCD中です。",
+          "question": "インフュリエートは何を提供しますか？",
+          "options": ["50ゲージのみ", "50ゲージ＋ナセントカオス", "フェルクリーブ無料", "ダメージバフ"],
+          "correctIndex": 1,
+          "explanation": "インフュリエートは獣のゲージ50とナセントカオスバフを付与し、フェルクリーブの代わりにインナーカオスを使えるようにします。"
+        },
+        {
+          "questionId": "war.lesson_4.q4",
+          "conceptId": "war.ir_window",
+          "scenario": "原初の解放ウィンドウ中です。プライマルレンドが使用可能です。",
+          "question": "プライマルレンドをいつ使うべきですか？",
+          "options": ["すぐに", "フェルクリーブの後", "後のために温存", "原初の解放の前"],
+          "correctIndex": 1,
+          "explanation": "原初の解放中は先にフェルクリーブを使い（無料なので）、バフが切れる前にプライマルレンドを使いましょう。"
+        },
+        {
+          "questionId": "war.lesson_4.q5",
+          "conceptId": "war.inner_release",
+          "scenario": "原初の解放が終わりました。獣のゲージが80あります。",
+          "question": "そのゲージはどうすべきですか？",
+          "options": ["次の原初の解放のために温存", "フェルクリーブに消費", "インナーカオスを使う", "待つ"],
+          "correctIndex": 2,
+          "explanation": "インフュリエートからナセントカオスがあればインナーカオスを使いましょう（フェルクリーブより強力）。そうでなければ通常通りゲージを消費します。"
+        }
+      ]
+    },
+    {
+      "quizId": "war.lesson_5.quiz",
+      "lessonId": "war.lesson_5",
+      "title": "クイズ: 自己回復",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "war.lesson_5.q1",
+          "conceptId": "war.thrill_of_battle",
+          "scenario": "大ダメージフェーズが始まります。スリル・オブ・バトルが使用可能です。",
+          "question": "スリル・オブ・バトルを使う最適なタイミングはいつですか？",
+          "options": ["ダメージを受けた後", "ダメージを受ける前", "HPが低い時", "イクイリブリアムと一緒に"],
+          "correctIndex": 1,
+          "explanation": "スリル・オブ・バトルは最大HPを20%増加させます。ダメージの前に使うことで、より多くのHPでダメージを吸収できます。"
+        },
+        {
+          "questionId": "war.lesson_5.q2",
+          "conceptId": "war.equilibrium",
+          "scenario": "HPが40%です。イクイリブリアムが使用可能です。",
+          "question": "イクイリブリアムは何を提供しますか？",
+          "options": ["即時ヒールのみ", "即時ヒール＋HoT", "シールド", "ダメージバフ"],
+          "correctIndex": 1,
+          "explanation": "イクイリブリアムは強力な即時ヒールとHoT効果を提供します。回復に最適です。"
+        },
+        {
+          "questionId": "war.lesson_5.q3",
+          "conceptId": "war.nascent_chaos",
+          "scenario": "インフュリエートが使用可能です。最大ダメージを出したいです。",
+          "question": "ナセントカオスは何に使うべきですか？",
+          "options": ["フェルクリーブ", "インナーカオス", "温存する", "カオティックサイクロン"],
+          "correctIndex": 1,
+          "explanation": "ナセントカオスはインナーカオス（シングルターゲット）またはカオティックサイクロン（AoE）を有効にします。インナーカオスが最強の単発ヒットです。"
+        },
+        {
+          "questionId": "war.lesson_5.q4",
+          "conceptId": "war.thrill_of_battle",
+          "scenario": "スリル・オブ・バトルとイクイリブリアムが両方使用可能です。",
+          "question": "ヒール量を最大化するにはどちらを先に使いますか？",
+          "options": ["イクイリブリアムから", "スリルから", "順番は関係ない", "同時に使う"],
+          "correctIndex": 1,
+          "explanation": "先にスリルで最大HPを増加させましょう。HPプールが大きくなった状態でイクイリブリアムを使うとより多くヒールできます。"
+        },
+        {
+          "questionId": "war.lesson_5.q5",
+          "conceptId": "war.equilibrium",
+          "scenario": "メインタンクをしています。HPが80%で安定しています。",
+          "question": "イクイリブリアムを使うべきですか？",
+          "options": ["はい——HP低下を防ぐ", "いいえ——緊急時のために温存", "はい——CDごとに使う", "来るダメージ次第"],
+          "correctIndex": 3,
+          "explanation": "80%で差し迫った危険がなければイクイリブリアムを温存できます。しかしダメージが来る場合は先行使用しても問題ありません。"
+        }
+      ]
+    },
+    {
+      "quizId": "war.lesson_6.quiz",
+      "lessonId": "war.lesson_6",
+      "title": "クイズ: パーティ保護",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "war.lesson_6.q1",
+          "conceptId": "war.shake_it_off",
+          "scenario": "ランパートが有効です。全体攻撃が来ます。",
+          "question": "今シェイク・イット・オフを使うと何が起きますか？",
+          "options": ["より大きなシールド", "通常のシールド", "ランパートを無駄にする", "ランパート中は使用不可"],
+          "correctIndex": 0,
+          "explanation": "シェイク・イット・オフは個人バフ（ランパート、ヴェンジェンスなど）を消費してパーティシールドの強度を増加させます。"
+        },
+        {
+          "questionId": "war.lesson_6.q2",
+          "conceptId": "war.nascent_flash",
+          "scenario": "ブラッドウェッティングが有効です。DPSがダメージを受けています。",
+          "question": "ナセントフラッシュは何をしますか？",
+          "options": ["DPSをヒールする", "ブラッドウェッティングのヒールを共有する", "DPSをシールドする", "アグロを移す"],
+          "correctIndex": 1,
+          "explanation": "ナセントフラッシュはブラッドウェッティングのヒールをパーティメンバーと共有します。あなたの攻撃が両者をヒールします。"
+        },
+        {
+          "questionId": "war.lesson_6.q3",
+          "conceptId": "war.party_protection",
+          "scenario": "シェイク・イット・オフが使用可能です。個人バフは何も有効ではありません。",
+          "question": "それでもシェイク・イット・オフは有用ですか？",
+          "options": ["いいえ——バフが必要", "はい——基本シールドが機能する", "効果が低下する", "バフのために温存"],
+          "correctIndex": 1,
+          "explanation": "シェイク・イット・オフはバフがなくてもパーティシールドを提供します。バフの消費はシールドを強化するだけです。"
+        },
+        {
+          "questionId": "war.lesson_6.q4",
+          "conceptId": "war.shake_it_off",
+          "scenario": "5秒後に大きな全体攻撃があります。ヴェンジェンスの残り時間が3秒です。",
+          "question": "今シェイク・イット・オフを使うべきですか？",
+          "options": ["はい——シールドを最大化", "いいえ——ヴェンジェンスはまだ有用", "もっとバフが溜まるまで待つ", "ヴェンジェンスなしでシェイク"],
+          "correctIndex": 0,
+          "explanation": "ヴェンジェンスがどうせ切れるなら、全体攻撃のためにシェイク・イット・オフを使ってパーティ保護に変換しましょう。"
+        },
+        {
+          "questionId": "war.lesson_6.q5",
+          "conceptId": "war.nascent_flash",
+          "scenario": "大型プルです。ヒーラーが苦しんでいます。ナセントフラッシュが使用可能です。",
+          "question": "ナセントフラッシュを誰に使うべきですか？",
+          "options": ["ヒーラーに", "自分に", "自己ヒールで不要", "タンクに"],
+          "correctIndex": 0,
+          "explanation": "ヒーラーにナセントフラッシュを使うと、ブラッドウェッティングのヒールを共有してヒーラーが態勢を立て直す間生き延びられます。"
+        }
+      ]
+    },
+    {
+      "quizId": "war.lesson_7.quiz",
+      "lessonId": "war.lesson_7",
+      "title": "クイズ: 上級最適化",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "war.lesson_7.q1",
+          "conceptId": "war.gauge_pooling",
+          "scenario": "15秒後に原初の解放が来ます。ゲージが40あります。",
+          "question": "最適なゲージ管理は何ですか？",
+          "options": ["0まで消費する", "80〜90まで積む", "40のままにする", "今インフュリエートを使う"],
+          "correctIndex": 1,
+          "explanation": "原初の解放前に50〜80のゲージをプールしましょう。原初の解放終了後に消費するゲージを確保してダメージを最大化します。"
+        },
+        {
+          "questionId": "war.lesson_7.q2",
+          "conceptId": "war.primal_rend",
+          "scenario": "原初の解放からプライマルレンドが使用可能です。ボスがジャンプしました。",
+          "question": "プライマルレンドをどのくらい保留できますか？",
+          "options": ["すぐに使わなければならない", "30秒", "次の原初の解放まで", "永久に"],
+          "correctIndex": 1,
+          "explanation": "プライマルレンドは30秒間保留できます。これによりギミックやレイドバフのタイミング合わせに柔軟性が生まれます。"
+        },
+        {
+          "questionId": "war.lesson_7.q3",
+          "conceptId": "war.upheaval",
+          "scenario": "激震のCDが明けました。GCDの途中です。",
+          "question": "激震はいつ使うべきですか？",
+          "options": ["GCDを待つ", "今ウィーブする", "原初の解放のために温存", "コンボの後"],
+          "correctIndex": 1,
+          "explanation": "激震はoGCDです。GCDの間にウィーブしましょう。CDが明けたままにしないでください。"
+        },
+        {
+          "questionId": "war.lesson_7.q4",
+          "conceptId": "war.onslaught",
+          "scenario": "アンスロートのチャージが3あります。原初の解放が有効です。",
+          "question": "アンスロートのチャージはどう使うべきですか？",
+          "options": ["移動のために温存", "原初の解放中に全部使う", "1〜2使い残りを残す", "戦闘全体に分散"],
+          "correctIndex": 2,
+          "explanation": "ダメージのために原初の解放中にいくつかのアンスロートチャージを使いますが、緊急のギャップクローズのために少なくとも1チャージは残しましょう。"
+        },
+        {
+          "questionId": "war.lesson_7.q5",
+          "conceptId": "war.tank_swap",
+          "scenario": "タンクスワップが必要です。オフタンクで原初の解放が使用可能です。",
+          "question": "スワップしてから原初の解放を使うべきですか？",
+          "options": ["はい——より多くのダメージ", "いいえ——先に原初の解放", "原初の解放中にスワップ", "コタンクにボスを持たせたまま"],
+          "correctIndex": 0,
+          "explanation": "先にプロヴォークしてボスを取り、それから原初の解放を使いましょう。バーストウィンドウ中にボスを攻撃していることが重要です。"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "nin",
+  "jobName": "忍者",
+  "quizzes": [
+    {
+      "quizId": "nin.lesson_1.quiz",
+      "lessonId": "nin.lesson_1",
+      "title": "クイズ: 忍者の基本",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "nin.lesson_1.q1",
+          "conceptId": "nin.combo_basics",
+          "scenario": "戦闘を開始したばかりです。最初のGCDはスピニングエッジです。",
+          "question": "忍者の基本コンボシーケンスはどれですか？",
+          "options": ["スピニングエッジ → エオリアンエッジ", "スピニングエッジ → ガストスラッシュ → フィニッシャー", "どの順番でも可", "アーマークラッシュ → エオリアンエッジ"],
+          "correctIndex": 1,
+          "explanation": "基本コンボはスピニングエッジ → ガストスラッシュ → フィニッシャー（エオリアンエッジまたはアーマークラッシュ）です。最大威力のために常にフルコンボを完成させましょう。"
+        },
+        {
+          "questionId": "nin.lesson_1.q2",
+          "conceptId": "nin.positionals",
+          "scenario": "エオリアンエッジを使う必要があります。どこに立つべきですか？",
+          "question": "エオリアンエッジの正しい方向指定はどれですか？",
+          "options": ["側面（横）", "後方（後ろ）", "正面", "どの位置でも可"],
+          "correctIndex": 1,
+          "explanation": "エオリアンエッジはボーナスダメージのために後方方向指定が必要です。アーマークラッシュは側面です。方向指定を外すと大きな威力損失になります。"
+        },
+        {
+          "questionId": "nin.lesson_1.q3",
+          "conceptId": "nin.kazematoi",
+          "scenario": "風纏いスタックが0で、すぐにバーストダメージが必要です。",
+          "question": "風纏いスタックを積むにはどうすればいいですか？",
+          "options": ["エオリアンエッジを使う", "アーマークラッシュを使う", "忍術を使う", "忍力スペンダーを使う"],
+          "correctIndex": 1,
+          "explanation": "アーマークラッシュ（側面方向指定フィニッシャー）が風纏いスタックを付与します。エオリアンエッジはそれを消費して強化ダメージを与えます。"
+        },
+        {
+          "questionId": "nin.lesson_1.q4",
+          "conceptId": "nin.positionals",
+          "scenario": "側面にいてエオリアンエッジを使う必要があります。",
+          "question": "後方ではなく側面からエオリアンエッジを使うとどうなりますか？",
+          "options": ["同じダメージ", "ボーナス威力を失う", "コンボが途切れる", "実行できない"],
+          "correctIndex": 1,
+          "explanation": "方向指定を外すとボーナス威力を失います。攻撃は当たりますが、ダメージが少なくなります。"
+        },
+        {
+          "questionId": "nin.lesson_1.q5",
+          "conceptId": "nin.combo_basics",
+          "scenario": "スピニングエッジを使った後、気が散って15秒経ちました。",
+          "question": "コンボはどうなりますか？",
+          "options": ["何もない——継続できる", "時間経過でコンボが途切れる", "ダメージが増加する", "oGCDを使わなければならない"],
+          "correctIndex": 1,
+          "explanation": "コンボは続けなければ約15秒でタイムアウトします。スピニングエッジから再スタートする必要があります。"
+        }
+      ]
+    },
+    {
+      "quizId": "nin.lesson_2.quiz",
+      "lessonId": "nin.lesson_2",
+      "title": "クイズ: 印術の習得",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "nin.lesson_2.q1",
+          "conceptId": "nin.mudra_system",
+          "scenario": "単体ダメージのためにライトンを使いたいです。",
+          "question": "ライトンを作る印の順序はどれですか？",
+          "options": ["天 → 地 → 人", "天 → 地（または地 → 天）", "人 → 地 → 天", "どの2つの印でも可"],
+          "correctIndex": 1,
+          "explanation": "ライトンは天 → 地または地 → 天で作られます。主力のダメージ忍術です。"
+        },
+        {
+          "questionId": "nin.lesson_2.q2",
+          "conceptId": "nin.mudra_system",
+          "scenario": "苦無の凶刃を有効にするために水遁が必要です。",
+          "question": "水遁を作る印の順序はどれですか？",
+          "options": ["天 → 地", "地 → 人", "天 → 地 → 人", "人 → 天"],
+          "correctIndex": 2,
+          "explanation": "水遁は3つの印が必要です：天 → 地 → 人。苦無の凶刃を有効にするバフを付与します。"
+        },
+        {
+          "questionId": "nin.lesson_2.q3",
+          "conceptId": "nin.ninjutsu_weaving",
+          "scenario": "GCDを押したばかりです。印が使用可能です。",
+          "question": "印をいつ入力すべきですか？",
+          "options": ["GCDの前", "GCDウィンドウ中", "次のGCDの後", "いつでも"],
+          "correctIndex": 1,
+          "explanation": "印はoGCDです——GCDウィンドウ中にウィーブします。結果として生成される忍術はGCDです。"
+        },
+        {
+          "questionId": "nin.lesson_2.q4",
+          "conceptId": "nin.mudra_system",
+          "scenario": "間違った印の順序を入力しました。",
+          "question": "印を間違えるとどうなりますか？",
+          "options": ["何も起こらない", "ラビットミディアムが現れる", "ゲームがクラッシュする", "敵にダメージ"],
+          "correctIndex": 1,
+          "explanation": "無効な印の順序はラビットミディアム（うさぎ）を生成します——ダメージなし、恥ずかしいだけです。次回また試してみましょう！"
+        },
+        {
+          "questionId": "nin.lesson_2.q5",
+          "conceptId": "nin.huton",
+          "scenario": "低レベルでは風遁が速度バフを付与します。",
+          "question": "風遁を作る印の順序はどれですか？",
+          "options": ["天 → 地", "地 → 天", "人 → 地 → 天", "天 → 人"],
+          "correctIndex": 2,
+          "explanation": "風遁は人 → 地 → 天です。高レベルではこのバフはパッシブになりますが、印の理解は全体的な習熟に役立ちます。"
+        }
+      ]
+    },
+    {
+      "quizId": "nin.lesson_3.quiz",
+      "lessonId": "nin.lesson_3",
+      "title": "クイズ: 忍力とスペンダー",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "nin.lesson_3.q1",
+          "conceptId": "nin.ninki_gauge",
+          "scenario": "忍力ゲージが90です。バーヴァチャクラのコストは50です。",
+          "question": "どうすべきですか？",
+          "options": ["100まで待つ", "今すぐバーヴァチャクラを使う", "後で温存する", "ウェポンスキルのみ使う"],
+          "correctIndex": 1,
+          "explanation": "忍力90では上限に近いです。ゲージ生成を無駄にしないようにバーヴァチャクラを使ってオーバーキャップを防ぎましょう。"
+        },
+        {
+          "questionId": "nin.lesson_3.q2",
+          "conceptId": "nin.bhavacakra",
+          "scenario": "単体戦闘です。忍力が50あります。",
+          "question": "どの忍力スペンダーを使うべきですか？",
+          "options": ["ヘルフロッグミディアム", "バーヴァチャクラ", "温存する", "どちらでも可"],
+          "correctIndex": 1,
+          "explanation": "バーヴァチャクラは単体スペンダーです。ヘルフロッグミディアムはAoE（3体以上）用です。"
+        },
+        {
+          "questionId": "nin.lesson_3.q3",
+          "conceptId": "nin.ninki_pooling",
+          "scenario": "苦無の凶刃が10秒後に来ます。忍力が40あります。",
+          "question": "最適なアプローチは何ですか？",
+          "options": ["今すぐ忍力を使う", "バーストのために忍力を温存する", "どちらでも同じ", "攻撃を止める"],
+          "correctIndex": 1,
+          "explanation": "バーストウィンドウ前に忍力を温存しましょう。苦無の凶刃バフ中にバーヴァチャクラを使うとより多くのダメージを与えられます。"
+        },
+        {
+          "questionId": "nin.lesson_3.q4",
+          "conceptId": "nin.ninki_gauge",
+          "scenario": "ボスにムッグ/毒盛りを使いました。",
+          "question": "ムッグ/毒盛りはどれだけの忍力を生成しますか？",
+          "options": ["20", "40", "50", "0"],
+          "correctIndex": 1,
+          "explanation": "ムッグ/毒盛りはダメージを与えるのに加えて忍力40を生成します。バーストのための大きなゲージブーストです。"
+        },
+        {
+          "questionId": "nin.lesson_3.q5",
+          "conceptId": "nin.bhavacakra",
+          "scenario": "苦無の凶刃ウィンドウ中に忍力が100あります。",
+          "question": "バーヴァチャクラを何回使えますか？",
+          "options": ["1回", "2回", "3回", "無制限"],
+          "correctIndex": 1,
+          "explanation": "忍力100では、バーヴァチャクラを2回（各50）使えます。バフウィンドウ中にGCDの間にウィーブしましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "nin.lesson_4.quiz",
+      "lessonId": "nin.lesson_4",
+      "title": "クイズ: バーストウィンドウの基本",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "nin.lesson_4.q1",
+          "conceptId": "nin.suiton",
+          "scenario": "苦無の凶刃を使いたいですが、水遁バフがありません。",
+          "question": "水遁なしで苦無の凶刃を使えますか？",
+          "options": ["はい——いつでも", "いいえ——水遁が必要", "AoEのみ", "リキャストのみ"],
+          "correctIndex": 1,
+          "explanation": "苦無の凶刃は水遁バフが有効である必要があります。バーストウィンドウ前に必ず水遁を準備してください。"
+        },
+        {
+          "questionId": "nin.lesson_4.q2",
+          "conceptId": "nin.kunais_bane",
+          "scenario": "苦無の凶刃をボスに成功して適用しました。",
+          "question": "苦無の凶刃は何をしますか？",
+          "options": ["直接ダメージのみ", "ターゲットに+10%被ダメージデバフ", "速度バフ", "MP回復"],
+          "correctIndex": 1,
+          "explanation": "苦無の凶刃はターゲットに+10%被ダメージデバフを付与します。このウィンドウ中のすべての攻撃がより多くのダメージを与えます。"
+        },
+        {
+          "questionId": "nin.lesson_4.q3",
+          "conceptId": "nin.mug_dokumori",
+          "scenario": "ムッグ/毒盛りのリキャストが明けています。苦無の凶刃ウィンドウが始まります。",
+          "question": "ムッグ/毒盛りをいつ使うべきですか？",
+          "options": ["苦無の凶刃の後", "苦無の凶刃の前", "どちらでも同じ", "次のバーストに温存"],
+          "correctIndex": 1,
+          "explanation": "ダメージを最大化してバーストウィンドウのための忍力を生成するために、苦無の凶刃の直前にムッグ/毒盛りを使ってください。"
+        },
+        {
+          "questionId": "nin.lesson_4.q4",
+          "conceptId": "nin.kunais_bane",
+          "scenario": "苦無の凶刃のリキャストは60秒です。",
+          "question": "これはパーティバフとどう合わさりますか？",
+          "options": ["合わない", "1回おきのレイドバフ", "毎レイドバフウィンドウ", "ランダムタイミング"],
+          "correctIndex": 2,
+          "explanation": "60秒リキャストは苦無の凶刃が標準レイドバフウィンドウ（60秒/120秒）に合わせられることを意味します。パーティと連携してください。"
+        },
+        {
+          "questionId": "nin.lesson_4.q5",
+          "conceptId": "nin.suiton",
+          "scenario": "水遁を使いましたが、苦無の凶刃の前にボスがターゲット不可になりました。",
+          "question": "水遁バフはどうなりますか？",
+          "options": ["永続する", "時間経過で消える", "次のターゲットに移る", "即座に失われる"],
+          "correctIndex": 1,
+          "explanation": "水遁バフには持続時間があります。時間内に苦無の凶刃を使えない場合、バフは消えて再び適用する必要があります。"
+        }
+      ]
+    },
+    {
+      "quizId": "nin.lesson_5.quiz",
+      "lessonId": "nin.lesson_5",
+      "title": "クイズ: 天地人とカッサツ",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "nin.lesson_5.q1",
+          "conceptId": "nin.kassatsu",
+          "scenario": "カッサツが使用可能です。忍術を使おうとしています。",
+          "question": "カッサツの後にどの忍術を使うべきですか？",
+          "options": ["ライトン", "水遁", "氷晶乱流", "風遁"],
+          "correctIndex": 2,
+          "explanation": "カッサツは氷晶乱流を有効にします——巨大な威力を持つ氷の忍術です。これは最高ダメージの忍術です。"
+        },
+        {
+          "questionId": "nin.lesson_5.q2",
+          "conceptId": "nin.ten_chi_jin",
+          "scenario": "天地人を起動しました。ボスがAoEを開始します。",
+          "question": "天地人中に移動するとどうなりますか？",
+          "options": ["何もない", "天地人が継続する", "天地人がキャンセルされる", "追加ダメージ"],
+          "correctIndex": 2,
+          "explanation": "天地人は移動またはダメージを受けるとキャンセルされます。起動する前に安全な位置を取りましょう。"
+        },
+        {
+          "questionId": "nin.lesson_5.q3",
+          "conceptId": "nin.tcj_optimization",
+          "scenario": "2分バーストに天地人を使っています。標準シーケンスは何ですか？",
+          "question": "天地人中の忍術シーケンスはどれですか？",
+          "options": ["ライトンのみ", "風魔手裏剣 → ライトン → 水遁", "水遁 → ライトン → 風魔手裏剣", "ライトン3回"],
+          "correctIndex": 1,
+          "explanation": "標準天地人シーケンスは風魔手裏剣 → ライトン → 水遁です。最後に水遁で苦無の凶刃を準備します。"
+        },
+        {
+          "questionId": "nin.lesson_5.q4",
+          "conceptId": "nin.kassatsu",
+          "scenario": "カッサツと苦無の凶刃の両方が使用可能です。",
+          "question": "カッサツのタイミングをどうすべきですか？",
+          "options": ["苦無の凶刃の前", "苦無の凶刃の後", "苦無の凶刃中", "バーストとは別に"],
+          "correctIndex": 2,
+          "explanation": "苦無の凶刃中にカッサツを使って、氷晶乱流が+10%被ダメージデバフの恩恵を受けるようにしてください。"
+        },
+        {
+          "questionId": "nin.lesson_5.q5",
+          "conceptId": "nin.ten_chi_jin",
+          "scenario": "天地人のリキャストは120秒です。",
+          "question": "天地人はレイドバフとどう合わさりますか？",
+          "options": ["60秒バーストごと", "120秒バーストごと", "合わない", "使えるときに使う"],
+          "correctIndex": 1,
+          "explanation": "天地人の120秒リキャストは2分レイドバフウィンドウに合わせられます。パーティの連携バーストのために温存してください。"
+        }
+      ]
+    },
+    {
+      "quizId": "nin.lesson_6.quiz",
+      "lessonId": "nin.lesson_6",
+      "title": "クイズ: プロックと移動",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "nin.lesson_6.q1",
+          "conceptId": "nin.raiju_procs",
+          "scenario": "ライトンを使いました。雷獣走バフが現れました。",
+          "question": "分身雷獣走と雷獣走の違いは何ですか？",
+          "options": ["ダメージの違い", "分身雷獣走はギャップクローザー、雷獣走は定点", "同じアビリティ", "片方はAoE"],
+          "correctIndex": 1,
+          "explanation": "分身雷獣走はターゲットへの距離を詰めます。雷獣走は現在位置から使います。移動が必要かどうかに応じて選びましょう。"
+        },
+        {
+          "questionId": "nin.lesson_6.q2",
+          "conceptId": "nin.raiju_procs",
+          "scenario": "雷獣走が使用可能です。ボスが遠くにいます。",
+          "question": "どちらの雷獣走を使うべきですか？",
+          "options": ["雷獣走", "分身雷獣走", "どちらでも可", "ボスを待つ"],
+          "correctIndex": 1,
+          "explanation": "ボスへの距離を詰めながらダメージを与えるために分身雷獣走を使いましょう。ダメージ付きのギャップクローザーです。"
+        },
+        {
+          "questionId": "nin.lesson_6.q3",
+          "conceptId": "nin.bunshin",
+          "scenario": "分身の術が使用可能です。バーストウィンドウが始まります。",
+          "question": "分身の術をいつ使うべきですか？",
+          "options": ["バーストの後", "バーストが始まる前", "ダウンタイム中", "AoEのために温存"],
+          "correctIndex": 1,
+          "explanation": "バーストの前に分身の術を使って、影の分身がバフ中のアビリティ中に攻撃するようにしてダメージを最大化します。"
+        },
+        {
+          "questionId": "nin.lesson_6.q4",
+          "conceptId": "nin.phantom_kamaitachi",
+          "scenario": "分身の術を使いました。新しいアビリティが現れました。",
+          "question": "幻影鎌鼬とは何ですか？",
+          "options": ["oGCDフォローアップ", "分身の術からのGCDプロック", "パッシブバフ", "AoE忍力スペンダー"],
+          "correctIndex": 1,
+          "explanation": "幻影鎌鼬は分身の術が付与するGCDプロックです。AoEダメージです——消える前に使いましょう。"
+        },
+        {
+          "questionId": "nin.lesson_6.q5",
+          "conceptId": "nin.tenri_jindo",
+          "scenario": "苦無の凶刃を使ったばかりです。新しいアビリティが現れました。",
+          "question": "天理神道とは何ですか？",
+          "options": ["パッシブバフ", "苦無の凶刃後のフォローアッププロック", "ライトンの代替", "防御アビリティ"],
+          "correctIndex": 1,
+          "explanation": "天理神道は苦無の凶刃の後に現れる強力なフォローアップです（Lv.100）。大ダメージのためにすぐに使いましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "nin.lesson_7.quiz",
+      "lessonId": "nin.lesson_7",
+      "title": "クイズ: 最適化とAoE",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "nin.lesson_7.q1",
+          "conceptId": "nin.kazematoi_management",
+          "scenario": "バーストウィンドウが近づいています。風纏いスタックが0です。",
+          "question": "バーストの前に何をすべきですか？",
+          "options": ["どちらでも同じ", "アーマークラッシュで風纏いを積む", "エオリアンエッジを使う", "方向指定を無視する"],
+          "correctIndex": 1,
+          "explanation": "バーストの前にアーマークラッシュで風纏いスタックを積み、バフウィンドウ中に強化エオリアンエッジを消費しましょう。"
+        },
+        {
+          "questionId": "nin.lesson_7.q2",
+          "conceptId": "nin.true_north_usage",
+          "scenario": "ボスが壁際にいます。エオリアンエッジのための後方に届けません。",
+          "question": "何を使うべきですか？",
+          "options": ["攻撃をスキップする", "トゥルーノースを使う", "方向指定を外すだけ", "アーマークラッシュに切り替える"],
+          "correctIndex": 1,
+          "explanation": "トゥルーノースは10秒間方向指定の条件を解除します。物理的に正しい位置に届かないときに使いましょう。"
+        },
+        {
+          "questionId": "nin.lesson_7.q3",
+          "conceptId": "nin.meisui",
+          "scenario": "水遁バフがありますが苦無の凶刃が不要です（リキャスト中）。",
+          "question": "水遁バフで何ができますか？",
+          "options": ["無駄になる", "明水で忍力50を得る", "苦無の凶刃を待つ", "水遁に他の使い方はない"],
+          "correctIndex": 1,
+          "explanation": "明水は水遁バフを忍力50に変換します。苦無の凶刃が使用できないときにバフを無駄にしないために使いましょう。"
+        },
+        {
+          "questionId": "nin.lesson_7.q4",
+          "conceptId": "nin.aoe_combo",
+          "scenario": "3体の敵がまとまっています。",
+          "question": "忍者のAoEコンボは何ですか？",
+          "options": ["スピニングエッジ → エオリアンエッジ", "花散り → 八卦無尽斬", "火遁を使うだけ", "単体の方が良い"],
+          "correctIndex": 1,
+          "explanation": "3体以上では、単体コンボよりも合計ダメージが高い花散り → 八卦無尽斬を使いましょう。"
+        },
+        {
+          "questionId": "nin.lesson_7.q5",
+          "conceptId": "nin.aoe_ninjutsu",
+          "scenario": "3体の敵が20秒間静止します。",
+          "question": "最も良いAoE忍術はどれですか？",
+          "options": ["火遁", "土遁", "各敵にライトン", "氷晶乱流"],
+          "correctIndex": 1,
+          "explanation": "土遁は地面DoTを作成します。敵がフル持続時間その場にいると、火遁より合計ダメージが多くなります。"
+        }
+      ]
+    }
+  ]
+}

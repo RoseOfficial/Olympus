@@ -3,6 +3,12 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.30
+
+- Japanese translations are now available for all 21 combat jobs in the Training module — every lesson and quiz can now be displayed in Japanese
+
+<!-- LATEST-END -->
+
 ## v4.10.29
 
 - Pictomancer (Iris): Creature motifs now correctly alternate between types based on level when painting outside combat — Lv.96+ paints Claw/Maw, lower levels alternate Pom/Wing
@@ -13,13 +19,10 @@ All notable changes to Olympus will be documented in this file.
 - Pictomancer (Iris): Smudge is now used automatically when moving and no instant GCDs are available
 - Pictomancer (Iris): Swiftcast is now used during movement when no other instant options are available, preventing cast interruption
 
-<!-- LATEST-END -->
-
 ## v4.10.28
 
 - Tank cooldown abilities now pre-empt tank busters predicted by the fight timeline — major defensives activate up to 8 seconds before a known tank buster rather than only reacting after damage starts
 - Damage forecasts used for healing triage now factor in timeline-predicted raidwides and tank busters, so healers and shields are deployed before mechanics land rather than in response to them
-
 ## v4.10.27
 
 - Burst resource pooling is now individually tuned for each DPS job — gauge resources and key cooldowns are held more precisely in the final seconds before a burst window rather than spending freely

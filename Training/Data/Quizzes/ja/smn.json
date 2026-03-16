@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "smn",
+  "jobName": "召喚士",
+  "quizzes": [
+    {
+      "quizId": "smn.lesson_1.quiz",
+      "lessonId": "smn.lesson_1",
+      "title": "クイズ: エーテルフローの基本",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "smn.lesson_1.q1",
+          "conceptId": "smn.aetherflow_stacks",
+          "scenario": "エーテルフロースタックが0です。エナジードレインが利用可能です。",
+          "question": "どうすべきですか？",
+          "options": ["スタックが自然に再生するまで待つ", "2スタックのためにエナジードレインを使う", "とにかくフェスターを使う", "エナジードレインを温存"],
+          "correctIndex": 1,
+          "explanation": "エナジードレインはエーテルフロースタック2つとフューリングルーインバフを付与します。スタックを得るためにスタックが0のときに使いましょう。"
+        },
+        {
+          "questionId": "smn.lesson_1.q2",
+          "conceptId": "smn.energy_drain_usage",
+          "scenario": "エーテルフロースタックが2つあります。エナジードレインが5秒後にリキャストアップします。",
+          "question": "スタックをどうすべきですか？",
+          "options": ["後のために温存", "フェスター/ネクロタイズで両方消費", "エナジードレインを待つ", "1つ使って1つ温存"],
+          "correctIndex": 1,
+          "explanation": "スタックを保持したままエナジードレインのリキャストが来るのを待たないようにしましょう——新しいスタックを無駄にしてしまいます。更新前に今のスタックを消費しましょう。"
+        },
+        {
+          "questionId": "smn.lesson_1.q3",
+          "conceptId": "smn.fester_necrotize",
+          "scenario": "エーテルフロースタックが1つあります。ボスがもうすぐ死にます。",
+          "question": "フェスター/ネクロタイズを使うべきですか？",
+          "options": ["いいえ——次の戦闘のために温存", "はい——ダメージに変換", "もっとスタックがある場合のみ", "バーストまで待つ"],
+          "correctIndex": 1,
+          "explanation": "ボスが死にそうならフェスター/ネクロタイズでスタックをダメージに変換しましょう。戦闘終了時の未使用スタックは無駄なリソースです。"
+        },
+        {
+          "questionId": "smn.lesson_1.q4",
+          "conceptId": "smn.aetherflow_timing",
+          "scenario": "エナジードレインは60秒CDです。",
+          "question": "エーテルフローの使用をどのように計画しますか？",
+          "options": ["ランダムにスタックを消費", "各更新前にスタックを空にする計画を立てる", "緊急時のためにスタックを保持", "バーストのみで使う"],
+          "correctIndex": 1,
+          "explanation": "60秒CDに合わせてエーテルフローの消費を計画しましょう。エナジードレインが戻る前に両スタックを消費することを目指して無駄を避けましょう。"
+        },
+        {
+          "questionId": "smn.lesson_1.q5",
+          "conceptId": "smn.fester_necrotize",
+          "scenario": "エナジードレインはフューリングルーインバフも付与します。",
+          "question": "フューリングルーインは何を有効化しますか？",
+          "options": ["より強力なフェスター", "ルインIV（強力な即時キャスト）", "追加エーテルフロー", "キャスト速度を上げる"],
+          "correctIndex": 1,
+          "explanation": "フューリングルーインはルインIVを有効化します——強力な即時キャストスペルです。バフが切れる前に使いましょう——エナジードレインからの無料ダメージです。"
+        }
+      ]
+    },
+    {
+      "quizId": "smn.lesson_2.quiz",
+      "lessonId": "smn.lesson_2",
+      "title": "クイズ: プライマルアテューンメントシステム",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "smn.lesson_2.q1",
+          "conceptId": "smn.attunement_system",
+          "scenario": "イフリートを召喚してアテューンメントスタックを2つ受けました。",
+          "question": "アテューンメントスタックは何を表しますか？",
+          "options": ["ダメージ強化", "使えるプライマルアビリティの数", "召喚の持続時間", "MPコスト軽減"],
+          "correctIndex": 1,
+          "explanation": "アテューンメントスタックは使えるプライマルアビリティの数を表します。イフリートは2つ（ルビーライト）、タイタン/ガルーダはそれぞれ4つ付与します。"
+        },
+        {
+          "questionId": "smn.lesson_2.q2",
+          "conceptId": "smn.ifrit_phase",
+          "scenario": "イフリートフェーズです。ルビーライトにキャスト時間があります。",
+          "question": "イフリートフェーズはいつが最適ですか？",
+          "options": ["移動中", "立ち止まれるとき", "戦闘開始時", "絶対にしない——イフリートはスキップ"],
+          "correctIndex": 1,
+          "explanation": "イフリートは最高ダメージですがキャストが必要です。ルビーライトの全価値を得るために立ち止まれる時間にイフリートを温存しましょう。"
+        },
+        {
+          "questionId": "smn.lesson_2.q3",
+          "conceptId": "smn.titan_phase",
+          "scenario": "10秒後に大きな移動が予想されます。",
+          "question": "どのプライマルを召喚すべきですか？",
+          "options": ["ダメージのためにイフリート", "即時キャストのためにタイタン", "速さのためにガルーダ", "関係ない"],
+          "correctIndex": 1,
+          "explanation": "タイタンのトパーズライトは即時キャストです。移動フェーズ前にタイタンを召喚して移動中にダメージを出せるようにしましょう。"
+        },
+        {
+          "questionId": "smn.lesson_2.q4",
+          "conceptId": "smn.garuda_phase",
+          "scenario": "ガルーダを召喚してエメラルドアテューンメントスタックを4つ得ました。",
+          "question": "ガルーダの特別な点は何ですか？",
+          "options": ["最高ダメージ", "速い即時キャストだが1ヒットのダメージは低い", "移動速度ボーナス", "パーティバフ"],
+          "correctIndex": 1,
+          "explanation": "ガルーダのエメラルドライトは速くて即時キャストですが1キャストあたりのダメージは低いです。適度な移動と素早いアテューンメント消費に適しています。"
+        },
+        {
+          "questionId": "smn.lesson_2.q5",
+          "conceptId": "smn.attunement_system",
+          "scenario": "次のデミ召喚の前に全プライマルアテューンメントを消費する必要があります。",
+          "question": "デミ召喚の要件は何ですか？",
+          "options": ["いつでも可", "全3プライマルを召喚して消費する必要がある", "バーストの後のみ", "バハムートの後のみ"],
+          "correctIndex": 1,
+          "explanation": "次のデミ召喚が利用可能になる前に全3プライマル（イフリート、タイタン、ガルーダ）を召喚して消費する必要があります。"
+        }
+      ]
+    },
+    {
+      "quizId": "smn.lesson_3.quiz",
+      "lessonId": "smn.lesson_3",
+      "title": "クイズ: プライマルフェイバーアビリティ",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "smn.lesson_3.q1",
+          "conceptId": "smn.crimson_cyclone",
+          "scenario": "クリムゾンサイクロンが利用可能なイフリートフェーズです。",
+          "question": "クリムゾンサイクロンは何をしますか？",
+          "options": ["遠隔攻撃", "ターゲットへのギャップクローザーGCD", "パーティバフ", "DoT適用"],
+          "correctIndex": 1,
+          "explanation": "クリムゾンサイクロンはターゲットに移動するギャップクローザーです。クリムゾンストライクで近接コンボとして続けます。まず位置を調整しましょう。"
+        },
+        {
+          "questionId": "smn.lesson_3.q2",
+          "conceptId": "smn.mountain_buster",
+          "scenario": "トパーズライト（タイタンフェーズ）をキャストしました。",
+          "question": "どのoGCDが利用可能になりますか？",
+          "options": ["クリムゾンストライク", "マウンテンバスター", "スリップストリーム", "何もない"],
+          "correctIndex": 1,
+          "explanation": "マウンテンバスターは各トパーズライトの後にプロックします。すぐにウィーブしましょう——タイタンフェーズ中に大幅なダメージを追加するoGCDです。"
+        },
+        {
+          "questionId": "smn.lesson_3.q3",
+          "conceptId": "smn.slipstream",
+          "scenario": "ガルーダフェーズです。スリップストリームが利用可能です。",
+          "question": "スリップストリームの特別な点は何ですか？",
+          "options": ["即時キャスト", "3秒チャネルAoE", "DoT", "回復"],
+          "correctIndex": 1,
+          "explanation": "スリップストリームは約3秒かかるチャネルAoEです。立ち止まれるときに使いましょう——チャネル中に移動すると無駄になります。"
+        },
+        {
+          "questionId": "smn.lesson_3.q4",
+          "conceptId": "smn.crimson_cyclone",
+          "scenario": "クリムゾンサイクロンを使用して近接範囲にいます。",
+          "question": "次に何をすべきですか？",
+          "options": ["遠距離に戻る", "クリムゾンストライク（近接フォローアップ）", "ルビーライト", "マウンテンバスター"],
+          "correctIndex": 1,
+          "explanation": "クリムゾンストライクはクリムゾンサイクロンに続き近接範囲が必要です。早く移動してスキップしないようにしましょう。"
+        },
+        {
+          "questionId": "smn.lesson_3.q5",
+          "conceptId": "smn.favor_timing",
+          "scenario": "フェイバーアビリティはアップグレードされたプライマルを召喚した後に得られます。",
+          "question": "クリムゾンサイクロンはいつ得られますか？",
+          "options": ["レベル90で", "イフリートII/IIIを召喚した後", "エナジードレインから", "バハムート中"],
+          "correctIndex": 1,
+          "explanation": "クリムゾンサイクロンのようなフェイバーアビリティはアップグレードされたプライマル（ベースのイフリートではなくイフリートII/III）を召喚するとアンロックされます。"
+        }
+      ]
+    },
+    {
+      "quizId": "smn.lesson_4.quiz",
+      "lessonId": "smn.lesson_4",
+      "title": "クイズ: デミ召喚フェーズ",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "smn.lesson_4.q1",
+          "conceptId": "smn.demi_phases",
+          "scenario": "デミ召喚は15秒間持続します。",
+          "question": "デミフェーズ中に何をスパムしますか？",
+          "options": ["ルインIII", "プライマルアビリティ", "デミ専用GCD（アストラルインパルスなど）", "エナジードレイン"],
+          "correctIndex": 2,
+          "explanation": "デミフェーズ中はGCDがデミ専用スペルに変わります（バハムートはアストラルインパルス、フェニックスはファウンテンオブファイアなど）。"
+        },
+        {
+          "questionId": "smn.lesson_4.q2",
+          "conceptId": "smn.bahamut_phase",
+          "scenario": "バハムートを召喚しました。",
+          "question": "バハムートの主なGCDは何ですか？",
+          "options": ["ルビーライト", "アストラルインパルス", "ファウンテンオブファイア", "ルインIV"],
+          "correctIndex": 1,
+          "explanation": "バハムートフェーズ中はアストラルインパルスをスパムします。このデミ召喚中のGCDで、バハムートがあなたと一緒に攻撃します。"
+        },
+        {
+          "questionId": "smn.lesson_4.q3",
+          "conceptId": "smn.phoenix_phase",
+          "scenario": "フェニックスを召喚しました。",
+          "question": "フェニックスはどのような追加の恩恵を提供しますか？",
+          "options": ["バハムートよりもっとダメージ", "リキンドルによるパーティ回復", "より速いGCD", "追加エーテルフロー"],
+          "correctIndex": 1,
+          "explanation": "フェニックスフェーズにはパーティメンバーを回復するリキンドルが含まれます。フェニックスはダメージと一緒にサポートを提供します——回復が多いフェーズに役立ちます。"
+        },
+        {
+          "questionId": "smn.lesson_4.q4",
+          "conceptId": "smn.solar_bahamut_phase",
+          "scenario": "レベル100でソーラーバハムートを召喚しました。",
+          "question": "デミ召喚の回転サイクルはどれですか？",
+          "options": ["バハムートのみ繰り返す", "バハムート → フェニックス → ソーラーバハムート", "どの順序でも可", "ソーラーバハムート → フェニックス → バハムート"],
+          "correctIndex": 1,
+          "explanation": "サイクルは：バハムート → 3プライマル → フェニックス → 3プライマル → ソーラーバハムート → 繰り返しです。各デミは全プライマルを消費した後に続きます。"
+        },
+        {
+          "questionId": "smn.lesson_4.q5",
+          "conceptId": "smn.demi_phases",
+          "scenario": "全てのデミ召喚GCDは即時キャストです。",
+          "question": "これはなぜ重要ですか？",
+          "options": ["重要ではない", "デミフェーズ中の移動が自由", "DPSが速い", "より多くのプロック"],
+          "correctIndex": 1,
+          "explanation": "デミGCDが即時キャストということは、デミフェーズ中に完全な移動の自由があることを意味します。これらのウィンドウをメカニクスに使いましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "smn.lesson_5.quiz",
+      "lessonId": "smn.lesson_5",
+      "title": "クイズ: バースト：エンキンドルとアストラルフロー",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "smn.lesson_5.q1",
+          "conceptId": "smn.enkindle",
+          "scenario": "バハムートフェーズです。エンキンドルバハムートが利用可能です。",
+          "question": "デミフェーズごとにエンキンドルは何回使えますか？",
+          "options": ["無制限", "デミフェーズごとに1回", "2回", "3回"],
+          "correctIndex": 1,
+          "explanation": "エンキンドルはデミ召喚フェーズごとに1回しか使えません。大ダメージoGCDです——使い忘れないようにしましょう！"
+        },
+        {
+          "questionId": "smn.lesson_5.q2",
+          "conceptId": "smn.astral_flow",
+          "scenario": "アストラルフローは現在のデミによって変わります。",
+          "question": "バハムート中のアストラルフローは何ですか？",
+          "options": ["リキンドル", "サンフレア", "デスフレア", "マウンテンバスター"],
+          "correctIndex": 2,
+          "explanation": "バハムート中はアストラルフローがデスフレアになります——強力なフィニッシャーです。フェニックス中はリキンドル（回復）、ソーラーバハムート中はサンフレアになります。"
+        },
+        {
+          "questionId": "smn.lesson_5.q3",
+          "conceptId": "smn.searing_flash",
+          "scenario": "シアリングライト（パーティバフ）がアクティブです。",
+          "question": "シアリングライト中にどのアビリティが利用可能になりますか？",
+          "options": ["追加エンキンドル", "シアリングフラッシュ（ボーナスoGCD）", "より多くのエーテルフロー", "即時デミ"],
+          "correctIndex": 1,
+          "explanation": "シアリングライトウィンドウ中はシアリングフラッシュにアクセスできます——追加バーストダメージのための追加oGCDです。"
+        },
+        {
+          "questionId": "smn.lesson_5.q4",
+          "conceptId": "smn.enkindle",
+          "scenario": "デミフェーズです。エンキンドルはいつ使うべきですか？",
+          "question": "最適なエンキンドルタイミングはいつですか？",
+          "options": ["最後に", "フェーズ早めに", "フェーズ中盤のみ", "関係ない"],
+          "correctIndex": 1,
+          "explanation": "デミフェーズの早めにエンキンドルを使いましょう。ボスが戦闘不能になったりフェーズが終わったりした場合に失ってしまいます。ウィンドウを逃すリスクは避けましょう。"
+        },
+        {
+          "questionId": "smn.lesson_5.q5",
+          "conceptId": "smn.astral_flow",
+          "scenario": "フェニックスフェーズが終わろうとしています。リキンドルを使っていません。",
+          "question": "フェニックスが去る前にリキンドルを使うべきですか？",
+          "options": ["いいえ——温存", "はい——フェニックスが去ると失われる", "誰かのHPが低いときのみ", "リキンドルは持続する"],
+          "correctIndex": 1,
+          "explanation": "リキンドルはフェニックスフェーズ中のみ使えます。使わないと失います。タンクやHPが少ない誰かにキャストしましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "smn.lesson_6.quiz",
+      "lessonId": "smn.lesson_6",
+      "title": "クイズ: シアリングライトの連携",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "smn.lesson_6.q1",
+          "conceptId": "smn.searing_light",
+          "scenario": "シアリングライトは2分パーティバフです。",
+          "question": "シアリングライトは何を提供しますか？",
+          "options": ["10秒間ダメージ+10%", "20秒間ダメージ+5%", "クリティカルヒット強化", "ヘイストバフ"],
+          "correctIndex": 1,
+          "explanation": "シアリングライトはパーティに20秒間ダメージ+5%を付与します。レイドバフです——他のパーティCDと合わせましょう。"
+        },
+        {
+          "questionId": "smn.lesson_6.q2",
+          "conceptId": "smn.party_coordination",
+          "scenario": "他のレイドバフが0:00、2:00、4:00に使われています。",
+          "question": "シアリングライトはいつ使うべきですか？",
+          "options": ["関係なくリキャストで", "2分マークでパーティバフと合わせて", "緊急時のために温存", "デミフェーズ中のみ"],
+          "correctIndex": 1,
+          "explanation": "乗算的なダメージのために他のパーティレイドバフとシアリングライトを合わせましょう。0:00、2:00、4:00などが標準的なバーストウィンドウです。"
+        },
+        {
+          "questionId": "smn.lesson_6.q3",
+          "conceptId": "smn.searing_light",
+          "scenario": "デミ召喚まで5秒です。",
+          "question": "デミと合わせるためにシアリングライトを待つべきですか？",
+          "options": ["いいえ——すぐに使う", "はい——デミフェーズは高ダメージ", "バハムートのみ", "関係ない"],
+          "correctIndex": 1,
+          "explanation": "可能な限りシアリングライトをデミ召喚フェーズに合わせましょう。デミフェーズが最高ダメージです——自分のバフ下に置きましょう。"
+        },
+        {
+          "questionId": "smn.lesson_6.q4",
+          "conceptId": "smn.party_coordination",
+          "scenario": "竜騎士がバトルリタニーが来ると告知しています。",
+          "question": "どうすべきですか？",
+          "options": ["無視する", "重ねるためにシアリングライトを連携させる", "先にシアリングライトを使う", "後のために温存"],
+          "correctIndex": 1,
+          "explanation": "他のレイドバフと連携しましょう。バトルリタニーが数秒後に来るなら、最大パーティダメージのためにバフを重ねるためにシアリングライトを少し保持しましょう。"
+        },
+        {
+          "questionId": "smn.lesson_6.q5",
+          "conceptId": "smn.searing_light",
+          "scenario": "シアリングライトがパーティバフから15秒ずれています。",
+          "question": "何を検討すべきですか？",
+          "options": ["リキャストで使い続ける", "パーティと再整合するために遅らせる", "CDを保持しない", "最適化でのみ重要"],
+          "correctIndex": 1,
+          "explanation": "大きくズレている場合は、パーティバーストウィンドウに再整合するために次のシアリングライトを遅らせることを検討しましょう。重ねたバフ > 個別稼働率。"
+        }
+      ]
+    },
+    {
+      "quizId": "smn.lesson_7.quiz",
+      "lessonId": "smn.lesson_7",
+      "title": "クイズ: 上級回転",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "smn.lesson_7.q1",
+          "conceptId": "smn.primal_order",
+          "scenario": "次の戦闘のためにプライマル順序を最適化する必要があります。",
+          "question": "推奨されるプライマル順序はどれですか？",
+          "options": ["イフリート → タイタン → ガルーダ", "タイタン → ガルーダ → イフリート", "ガルーダ → イフリート → タイタン", "どの順序でも同じ"],
+          "correctIndex": 1,
+          "explanation": "タイタン → ガルーダ → イフリートが最適です。タイタンは早期に移動の柔軟性を付与し、イフリート（キャストあり）は立ち止まれるときのために温存します。"
+        },
+        {
+          "questionId": "smn.lesson_7.q2",
+          "conceptId": "smn.ruin_spells",
+          "scenario": "プライマル/デミフェーズの合間で他に何もありません。",
+          "question": "フィラーGCDは何ですか？",
+          "options": ["次のフェーズを待つ", "ルインIII", "オートアタックのみ", "エナジードレイン"],
+          "correctIndex": 1,
+          "explanation": "ルインIIIはプライマルとデミフェーズの合間のフィラースペルです。常にキャストし続けましょう——待機してはいけません。"
+        },
+        {
+          "questionId": "smn.lesson_7.q3",
+          "conceptId": "smn.ruin_iv_procs",
+          "scenario": "フューリングルーインバフ（ルインIV準備完了）があります。",
+          "question": "ルインIVはいつ使うべきですか？",
+          "options": ["すぐに", "バーストのために温存", "切れる前またはエナジードレインが更新される前", "絶対に——弱い"],
+          "correctIndex": 2,
+          "explanation": "バフが切れる前にルインIVを使いましょう。またエナジードレインが戻る前にも消費しましょう——新しいフューリングルーインバフが無駄になります。"
+        },
+        {
+          "questionId": "smn.lesson_7.q4",
+          "conceptId": "smn.aoe_rotation",
+          "scenario": "4体の敵がグループになっています。",
+          "question": "AoEで何が変わりますか？",
+          "options": ["全て単体ターゲット", "トライディザスターフィラー、プライマルカタストロフィバリアント", "デミフェーズのみ使う", "AoEは意味がない"],
+          "correctIndex": 1,
+          "explanation": "AoEではルインIIIの代わりにトライディザスター、ライトスペルの代わりにプライマルカタストロフィバリアント（ルビー/トパーズ/エメラルドカタストロフィ）を使います。"
+        },
+        {
+          "questionId": "smn.lesson_7.q5",
+          "conceptId": "smn.primal_order",
+          "scenario": "タイタンを最初に使うことが一般的に推奨される理由は何ですか？",
+          "question": "タイタンを最初にする利点は何ですか？",
+          "options": ["最高ダメージ", "後の移動に最も柔軟性がある", "回転で必須", "推奨されていない"],
+          "correctIndex": 1,
+          "explanation": "タイタン（即時キャスト）から始めることで早期に移動の柔軟性が得られます。メカニクスで立ち止まれるときのためにイフリートを温存します。"
+        }
+      ]
+    }
+  ]
+}

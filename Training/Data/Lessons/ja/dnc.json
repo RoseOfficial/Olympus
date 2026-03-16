@@ -1,0 +1,139 @@
+{
+  "jobPrefix": "dnc",
+  "jobName": "踊り子",
+  "lessons": [
+    {
+      "lessonId": "dnc.lesson_1",
+      "lessonNumber": 1,
+      "title": "ダンスの基本",
+      "description": "コアダンスシステムを学びます。パーティバフのためのスタンダードステップ、レイドバーストのためのテクニカルステップ、ダンスシーケンス実行のリズム。",
+      "prerequisites": [],
+      "conceptsCovered": ["dnc.standard_step", "dnc.technical_step", "dnc.dance_execution", "dnc.dance_timers"],
+      "keyPoints": [
+        "スタンダードステップ：2ステップダンス、30秒リキャスト、パーティダメージバフを付与",
+        "テクニカルステップ：4ステップダンス、120秒リキャスト、レイドバーストに合わせる",
+        "ハイライトされたボタンを順番に押してステップを実行",
+        "両方のダンスにタイマーがある——期限切れ前に完了しないとステップを失う"
+      ],
+      "relatedAbilities": ["Standard Step", "Standard Finish", "Technical Step", "Technical Finish"],
+      "tips": [
+        "ステップボタンを見る——シーケンスの番が来たときに光る",
+        "最大稼働率のためにスタンダードステップをリキャストで使う"
+      ]
+    },
+    {
+      "lessonId": "dnc.lesson_2",
+      "lessonNumber": 2,
+      "title": "プロック管理",
+      "description": "シルクンシンメトリーとシルクンフロープロックシステム、フラリッシュからのスリーフォールドファンとフォーフォールドファンを習得します。",
+      "prerequisites": ["dnc.lesson_1"],
+      "conceptsCovered": ["dnc.silken_symmetry", "dnc.silken_flow", "dnc.threefold_fan", "dnc.fourfold_fan"],
+      "keyPoints": [
+        "シルクンシンメトリー：カスケードからプロック、リバースカスケードを有効化",
+        "シルクンフロー：ファウンテンからプロック、ファウンテンフォールを有効化",
+        "両方のプロックは消費するとフェザーを付与",
+        "フラリッシュは一度に全プロックを付与——バーストウィンドウ中に使う"
+      ],
+      "relatedAbilities": ["Cascade", "Fountain", "Reverse Cascade", "Fountainfall", "Flourish", "Fan Dance III", "Fan Dance IV"],
+      "tips": [
+        "プロックを切らさない——主要ダメージソース",
+        "フラリッシュは60秒リキャスト——毎バーストウィンドウで使う"
+      ]
+    },
+    {
+      "lessonId": "dnc.lesson_3",
+      "lessonNumber": 3,
+      "title": "エスプリゲージの習得",
+      "description": "エスプリゲージ、セイバーダンス消費、最大DPSのためのオーバーキャップ防止を理解します。",
+      "prerequisites": ["dnc.lesson_2"],
+      "conceptsCovered": ["dnc.esprit_gauge", "dnc.saber_dance", "dnc.esprit_overcapping"],
+      "keyPoints": [
+        "エスプリはあなたとパートナーのウェポンスキルから積まれる",
+        "セイバーダンスはエスプリ50を消費——最高威力GCD",
+        "オーバーキャップを防ぐためにエスプリ80以上でセイバーダンスを使う",
+        "バフウィンドウ中にセイバーダンスを優先"
+      ],
+      "relatedAbilities": ["Saber Dance"],
+      "tips": [
+        "バーストウィンドウではバフ中により多くを収めるためにエスプリ50以上でもセイバーダンスを使う",
+        "速いエスプリ生成のために高CPMジョブ（忍者、モンク）をパートナーに"
+      ]
+    },
+    {
+      "lessonId": "dnc.lesson_4",
+      "lessonNumber": 4,
+      "title": "フェザーの最適化",
+      "description": "オーバーキャップなしでoGCDダメージを最大化するためのフェザー蓄積とファンダンス使用を習得します。",
+      "prerequisites": ["dnc.lesson_3"],
+      "conceptsCovered": ["dnc.feather_gauge", "dnc.fan_dance_usage", "dnc.feather_overcapping"],
+      "keyPoints": [
+        "フェザーはシルクンプロックの消費から得られる（最大4枚）",
+        "ファンダンスI/IIは各1フェザーを消費",
+        "フェザー4枚を保持しない——別のプロックを消費する前に1枚使う",
+        "デビルメント中に放出するためにバーストに入るとき3フェザーを保持"
+      ],
+      "relatedAbilities": ["Fan Dance", "Fan Dance II"],
+      "tips": [
+        "ファンダンスIIIはファンダンスIからプロック——すぐにウィーブ",
+        "ファンダンスIVはフラリッシュからプロック——バースト中に高優先度"
+      ]
+    },
+    {
+      "lessonId": "dnc.lesson_5",
+      "lessonNumber": 5,
+      "title": "バーストウィンドウの実行",
+      "description": "2分バーストを習得します：テクニカルステップ → デビルメント → フラリッシュのタイミングとIPCを通じたパーティ連携。",
+      "prerequisites": ["dnc.lesson_4"],
+      "conceptsCovered": ["dnc.devilment", "dnc.flourish", "dnc.burst_alignment", "dnc.party_burst_sync"],
+      "keyPoints": [
+        "バーストシーケンス：テクニカルフィニッシュ → デビルメント → フラリッシュ",
+        "デビルメントはあなたとパートナーにクリット/直接命中+15%を付与",
+        "テクニカルフィニッシュは全パーティメンバーにダメージ+5%を付与",
+        "IPCを通じてパーティバーストと連携——テクニカルを告知"
+      ],
+      "relatedAbilities": ["Technical Finish", "Devilment", "Flourish"],
+      "tips": [
+        "最大出力のためにバーストに入るとき3フェザーとエスプリ50以上を用意",
+        "テクニカルフィニッシュはパーティの2分バフウィンドウ——ずらさない"
+      ]
+    },
+    {
+      "lessonId": "dnc.lesson_6",
+      "lessonNumber": 6,
+      "title": "高レベルアビリティ",
+      "description": "強力なフォローアップアビリティを学びます：スターフォールダンス、フィニッシングムーブ、ラストダンス、ティッラーナ。",
+      "prerequisites": ["dnc.lesson_5"],
+      "conceptsCovered": ["dnc.starfall_dance", "dnc.finishing_move", "dnc.last_dance", "dnc.tillana"],
+      "keyPoints": [
+        "スターフォールダンス：デビルメントからの600威力プロック——高優先度",
+        "フィニッシングムーブ：スタンダードフィニッシュからの850威力プロック",
+        "ラストダンス：フィニッシングムーブからチェーンされた520威力",
+        "ティッラーナ：テクニカルフィニッシュからの600威力プロック"
+      ],
+      "relatedAbilities": ["Starfall Dance", "Finishing Move", "Last Dance", "Tillana"],
+      "tips": [
+        "これらのプロックには持続時間がある——切れる前に使う",
+        "スターフォールダンスはデビルメント中の最高優先度プロック"
+      ]
+    },
+    {
+      "lessonId": "dnc.lesson_7",
+      "lessonNumber": 7,
+      "title": "パートナーとパーティ連携",
+      "description": "ダンスパートナーの選択、シールドサンバの防御ユーティリティ、他のOlympusユーザーとの連携を習得します。",
+      "prerequisites": ["dnc.lesson_6"],
+      "conceptsCovered": ["dnc.closed_position", "dnc.shield_samba", "dnc.party_utility"],
+      "keyPoints": [
+        "クローズドポジション：最高DPSプレイヤーをパートナーに（通常は侍/忍者/モンク）",
+        "パートナーはエスプリ生成を共有しデビルメントバフを受ける",
+        "シールドサンバ：レイドワイドへのパーティ軽減15%",
+        "緊急回復にキュアリングワルツ、シールドにインプロビゼーション"
+      ],
+      "relatedAbilities": ["Closed Position", "Shield Samba", "Curing Waltz", "Improvisation", "En Avant"],
+      "tips": [
+        "パートナー選択は重要——エスプリを生成しデビルメントを受ける",
+        "シールドサンバは他の軽減との重複を避けるためにIPCで連携"
+      ]
+    }
+  ]
+}

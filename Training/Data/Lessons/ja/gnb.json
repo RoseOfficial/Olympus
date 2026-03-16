@@ -1,0 +1,139 @@
+{
+  "jobPrefix": "gnb",
+  "jobName": "ガンブレイカー",
+  "lessons": [
+    {
+      "lessonId": "gnb.lesson_1",
+      "lessonNumber": 1,
+      "title": "カートリッジゲージ",
+      "description": "ガンブレイカーのコアメカニクスを学びます。カートリッジゲージの生成、バーストストライクの使い方、基本コンボの流れについて解説します。",
+      "prerequisites": [],
+      "conceptsCovered": ["gnb.cartridge_gauge", "gnb.burst_strike"],
+      "keyPoints": [
+        "カートリッジゲージはソリッドバレルコンボフィニッシャーから積みます（1カートリッジ）",
+        "バーストストライク：カートリッジ1つを消費して高ダメージ",
+        "最大3カートリッジ——オーバーキャップしないこと",
+        "ヘイトのためにロイヤルガード（タンクスタンス）は常に有効にすること"
+      ],
+      "relatedAbilities": ["Royal Guard", "Keen Edge", "Brutal Shell", "Solid Barrel", "Burst Strike"],
+      "tips": [
+        "ブルータルシェルコンボは小さなバリアとヒールを付与します——良い継続回復",
+        "できるだけノーマーシーウィンドウのためにカートリッジを温存しましょう"
+      ]
+    },
+    {
+      "lessonId": "gnb.lesson_2",
+      "lessonNumber": 2,
+      "title": "防御の基本",
+      "description": "ガンブレイカーの防御ツールを習得します。ランパート、ネビュラ、カモフラージュ、強力なハート・オブ・コランダムについて解説します。",
+      "prerequisites": ["gnb.lesson_1"],
+      "conceptsCovered": ["gnb.nebula", "gnb.camouflage", "gnb.heart_of_corundum", "gnb.aurora", "gnb.mitigation_stacking"],
+      "keyPoints": [
+        "ランパート：20%ダメージ軽減（20秒、90秒CD）——標準タンク防御クールダウン",
+        "ネビュラ：30%ダメージ軽減（15秒、120秒CD）——大型防御クールダウン",
+        "カモフラージュ：20秒間10%軽減＋パリー率上昇（90秒CD）",
+        "ハート・オブ・コランダム：15%軽減＋ヒール＋バリア（25秒CD）"
+      ],
+      "relatedAbilities": ["Rampart", "Nebula", "Camouflage", "Heart of Corundum", "Aurora"],
+      "tips": [
+        "ハート・オブ・コランダムは非常に強力——頻繁に使用してください",
+        "オーロラはHoTで自分またはパーティメンバーに使用できます"
+      ]
+    },
+    {
+      "lessonId": "gnb.lesson_3",
+      "lessonNumber": 3,
+      "title": "スーパーボライド",
+      "description": "ガンブレイカーの無敵スキルを習得します。スーパーボライドのメカニクス、HP低下、ヒーラーとの連携について解説します。",
+      "prerequisites": ["gnb.lesson_2"],
+      "conceptsCovered": ["gnb.superbolide", "gnb.invuln_timing"],
+      "keyPoints": [
+        "スーパーボライド：HPを1まで下げた後10秒間無敵（360秒CD）",
+        "HPが1になります——ヒーラーは直後に回復が必要",
+        "死にそうなとき事後対応として、または大ダメージに事前対応として使用可能",
+        "ホルムギャング（240秒）に次いで2番目に短いタンク無敵クールダウン"
+      ],
+      "relatedAbilities": ["Superbolide"],
+      "tips": [
+        "ヒーラーをパニックさせないように——スーパーボライド使用前に連絡してください",
+        "スーパーボライド後のハート・オブ・コランダムで回復を助けましょう"
+      ]
+    },
+    {
+      "lessonId": "gnb.lesson_4",
+      "lessonNumber": 4,
+      "title": "ノーマーシーウィンドウ",
+      "description": "ガンブレイカーのバーストウィンドウを習得します。ノーマーシーのセットアップ、ダブルダウン、ウィンドウ中のダメージ最大化について解説します。",
+      "prerequisites": ["gnb.lesson_3"],
+      "conceptsCovered": ["gnb.no_mercy", "gnb.no_mercy_window", "gnb.double_down", "gnb.bloodfest"],
+      "keyPoints": [
+        "ノーマーシー：20秒間ダメージ20%上昇（60秒CD）",
+        "ダブルダウン：カートリッジ2つ消費の大AoEダメージ（60秒CD）",
+        "ブラッドフェスト：即座にカートリッジを3つ付与（120秒CD）",
+        "ノーマーシーウィンドウに最大火力を集中させてください"
+      ],
+      "relatedAbilities": ["No Mercy", "Double Down", "Bloodfest"],
+      "tips": [
+        "ダブルダウンのためにカートリッジ2つ以上持ってノーマーシーに入りましょう",
+        "ブラッドフェストはカートリッジ補充のために1回おきのノーマーシーで使用"
+      ]
+    },
+    {
+      "lessonId": "gnb.lesson_5",
+      "lessonNumber": 5,
+      "title": "ナッシングファングコンボ",
+      "description": "ガンブレイカーの代名詞的コンボを習得します。ナッシングファング、コンティニュエーションのウィーブ、全コンボチェーンについて解説します。",
+      "prerequisites": ["gnb.lesson_4"],
+      "conceptsCovered": ["gnb.gnashing_fang", "gnb.continuation", "gnb.continuation_chain"],
+      "keyPoints": [
+        "ナッシングファング：3ヒットコンボの始動、カートリッジ1つ消費（30秒CD）",
+        "各ヒット後にコンティニュエーションoGCDが使用可能になります——ウィーブすること！",
+        "ナッシングファング→ジャグラーリップ→サベッジクロウ→アブドメンティア→ウィッケドタロン→アイゴーグ",
+        "ガンブレイカー最も複雑でやりがいのあるコンボです"
+      ],
+      "relatedAbilities": ["Gnashing Fang", "Savage Claw", "Wicked Talon", "Jugular Rip", "Abdomen Tear", "Eye Gouge"],
+      "tips": [
+        "コンティニュエーションを絶対に飛ばさないこと——無料oGCDダメージです",
+        "リズムを練習してください：GCD→oGCD→GCD→oGCD→GCD→oGCD"
+      ]
+    },
+    {
+      "lessonId": "gnb.lesson_6",
+      "lessonNumber": 6,
+      "title": "パーティ保護",
+      "description": "ガンブレイカーのパーティユーティリティを習得します。パーティ軽減のためのハート・オブ・ライト、味方保護のためのハート・オブ・コランダムについて解説します。",
+      "prerequisites": ["gnb.lesson_5"],
+      "conceptsCovered": ["gnb.heart_of_light", "gnb.great_nebula", "gnb.party_protection"],
+      "keyPoints": [
+        "ハート・オブ・ライト：15秒間パーティ全体に魔法ダメージ10%軽減（90秒CD）",
+        "ハート・オブ・コランダムは自分だけでなく味方にも使用できます",
+        "オーロラもパーティメンバーに使用してヒールできます",
+        "ヒーラーとコタンクとパーティ軽減を調整してください"
+      ],
+      "relatedAbilities": ["Heart of Light", "Heart of Corundum", "Aurora"],
+      "tips": [
+        "ハート・オブ・ライトは魔法ダメージのみ軽減——ボスのダメージタイプを覚えましょう",
+        "ヒーラーへのハート・オブ・コランダムは重いダメージ時に命を救います"
+      ]
+    },
+    {
+      "lessonId": "gnb.lesson_7",
+      "lessonNumber": 7,
+      "title": "上級最適化",
+      "description": "最終レッスン：タンクスワップ、oGCDウィーブ、レイン・オブ・ビーストコンボ、フル回転の最適化について学びます。",
+      "prerequisites": ["gnb.lesson_6"],
+      "conceptsCovered": ["gnb.tank_swap", "gnb.sonic_break", "gnb.bow_shock", "gnb.reign_of_beasts", "gnb.blasting_zone", "gnb.trajectory"],
+      "keyPoints": [
+        "ソニックブレイク：DoT攻撃（60秒CD）——ノーマーシー中に使用",
+        "ボウショック：AoE DoT（60秒CD）——ノーマーシー中に使用",
+        "レイン・オブ・ビースト：ノーマーシーから発動する新コンボ、3ヒットチェーン",
+        "ブラスティングゾーン：強力なoGCD（30秒CD）——クールダウンごとにウィーブ"
+      ],
+      "relatedAbilities": ["Provoke", "Shirk", "Sonic Break", "Bow Shock", "Reign of Beasts", "Blasting Zone", "Trajectory"],
+      "tips": [
+        "トラジェクトリーは2チャージ——移動またはギャップクローズのために温存してください",
+        "ガンブレイカーは最もアクション数の多い回転——oGCDウィーブを練習しましょう"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "jobPrefix": "pld",
+  "jobName": "ナイト",
+  "lessons": [
+    {
+      "lessonId": "pld.lesson_1",
+      "lessonNumber": 1,
+      "title": "オースゲージとスタンス",
+      "description": "ナイトのコアメカニクスを学びます。オースゲージシステム、タンクスタンスの維持、シェルトロンによる自己軽減について解説します。",
+      "prerequisites": [],
+      "conceptsCovered": ["pld.oath_gauge", "pld.sheltron"],
+      "keyPoints": [
+        "オースゲージはアイアンウィル（タンクスタンス）有効中のオートアタックから積みます",
+        "シェルトロンはオース50を消費して強力なバリア＋軽減を提供します",
+        "オースを100でキャップさせないでください——定期的にシェルトロンで消費",
+        "ヘイトとオースを生成するためにアイアンウィルは常にオンにしておく必要があります"
+      ],
+      "relatedAbilities": ["Iron Will", "Sheltron", "Holy Sheltron", "Intervention"],
+      "tips": [
+        "タンク強攻撃の後ではなく前にシェルトロンを先行使用してください",
+        "インターベンションで自分のシェルトロンを他のパーティメンバーに付与できます"
+      ]
+    },
+    {
+      "lessonId": "pld.lesson_2",
+      "lessonNumber": 2,
+      "title": "防御の基本",
+      "description": "ナイトの防御ツールを習得します。ランパート、センチネル、バルワーク、リプライザルによる安定したダメージ軽減について学びます。",
+      "prerequisites": ["pld.lesson_1"],
+      "conceptsCovered": ["pld.sentinel", "pld.bulwark", "pld.mitigation_stacking"],
+      "keyPoints": [
+        "ランパート：20%軽減（20秒間、90秒CD）——基本の軽減スキル",
+        "センチネル：30%軽減（15秒間、120秒CD）——重ダメージ時に使用",
+        "バルワーク：10秒間ブロック率増加（90秒CD）——シェルトロンと相性が良い",
+        "異なるスキルを組み合わせて軽減を重ねること（同じスキルの重複は不可）"
+      ],
+      "relatedAbilities": ["Rampart", "Sentinel", "Bulwark", "Reprisal", "Arm's Length"],
+      "tips": [
+        "ランパートとセンチネルを交互に使い常に軽減が使用可能な状態にしましょう",
+        "バルワーク＋シェルトロン＝継続ダメージに対する高いブロック率"
+      ]
+    },
+    {
+      "lessonId": "pld.lesson_3",
+      "lessonNumber": 3,
+      "title": "ハロードグラウンド",
+      "description": "ナイトの無敵スキルを習得します。ハロードグラウンドのタイミング、考慮事項、緊急時の対応について学びます。",
+      "prerequisites": ["pld.lesson_2"],
+      "conceptsCovered": ["pld.hallowed_ground", "pld.invuln_timing"],
+      "keyPoints": [
+        "ハロードグラウンド：10秒間完全無敵（420秒CD）",
+        "タンク無敵スキルの中で最も長いクールダウン——賢く使用すること",
+        "ゲーム最強の無敵スキル——ダメージをゼロにし、ヒーラーの対応不要",
+        "大型プルの先手として、または緊急時の後手として使用可能"
+      ],
+      "relatedAbilities": ["Hallowed Ground"],
+      "tips": [
+        "「もしもの時のため」にハロードグラウンドを温存しないでください——クールダウンが長すぎて無駄になります",
+        "計画的なダメージで使用する場合はヒーラーと事前に連絡しましょう"
+      ]
+    },
+    {
+      "lessonId": "pld.lesson_4",
+      "lessonNumber": 4,
+      "title": "ファイト・オア・フライト",
+      "description": "ダメージを最適化します。ファイト・オア・フライトのバーストウィンドウ、アトーンメントチェーン、ゴーリングブレードのDoT管理について学びます。",
+      "prerequisites": ["pld.lesson_3"],
+      "conceptsCovered": ["pld.fight_or_flight", "pld.burst_window", "pld.goring_blade", "pld.atonement_chain"],
+      "keyPoints": [
+        "ファイト・オア・フライト：20秒間25%ダメージ増加（60秒CD）",
+        "ゴーリングブレードコンボのフィニッシャーは強力なDoTを付与——維持すること",
+        "アトーンメントチェーンはロイヤルオーソリティの後——3回の無料アトーンメント",
+        "最も大きな攻撃をファイト・オア・フライトウィンドウ内に集中させること"
+      ],
+      "relatedAbilities": ["Fight or Flight", "Goring Blade", "Atonement", "Supplication", "Sepulchre"],
+      "tips": [
+        "ファイト・オア・フライトは稼働率を最大化するため最初のGCDの後に使いましょう",
+        "アトーンメント→サプリケーション→セパルカーが正しい順序です"
+      ]
+    },
+    {
+      "lessonId": "pld.lesson_5",
+      "lessonNumber": 5,
+      "title": "マジックフェーズ",
+      "description": "ナイトのユニークな魔法ローテーションを習得します。レクイエスカット、ホーリースピリット、コンフィテオルブレードコンボについて学びます。",
+      "prerequisites": ["pld.lesson_4"],
+      "conceptsCovered": ["pld.requiescat", "pld.holy_spirit", "pld.confiteor", "pld.blade_combo", "pld.magic_phase"],
+      "keyPoints": [
+        "レクイエスカット：インスタントキャストのホーリースピリットとコンフィテオルコンボを有効にします（60秒CD）",
+        "ホーリースピリット：遠距離魔法攻撃——レクイエスカット中はインスタント",
+        "コンフィテオル＋ブレードコンボ：レクイエスカットスタックを消費する4連フィニッシャー",
+        "マジックフェーズは移動の柔軟性と高いバーストダメージを提供します"
+      ],
+      "relatedAbilities": ["Requiescat", "Holy Spirit", "Holy Circle", "Confiteor", "Blade of Faith", "Blade of Truth", "Blade of Valor"],
+      "tips": [
+        "移動が必要な時またはダウンタイム中にマジックフェーズを使いましょう",
+        "レクイエスカットのスタックはコンフィテオルコンボで消費します——無駄にしないでください"
+      ]
+    },
+    {
+      "lessonId": "pld.lesson_6",
+      "lessonNumber": 6,
+      "title": "パーティ保護",
+      "description": "ナイトのパーティユーティリティを習得します。ディヴァインヴェールによるパーティバリア、カバーによる仲間の保護、パッセージ・オブ・アームスについて学びます。",
+      "prerequisites": ["pld.lesson_5"],
+      "conceptsCovered": ["pld.divine_veil", "pld.cover", "pld.passage_of_arms", "pld.party_protection", "pld.clemency"],
+      "keyPoints": [
+        "ディヴァインヴェール：ヒールを受けるとパーティバリアを発動（90秒CD）",
+        "カバー：パーティメンバーのダメージを引き受ける（120秒CD）——慎重に使用",
+        "パッセージ・オブ・アームス：自分の背後で15%のパーティ軽減をチャネル",
+        "クレメンシー：自分や他のメンバーへの緊急ヒール（GCDとMPを消費）"
+      ],
+      "relatedAbilities": ["Divine Veil", "Cover", "Passage of Arms", "Clemency"],
+      "tips": [
+        "ディヴァインヴェールの発動にはヒールが必要——ヒーラーと連携してください",
+        "パッセージ・オブ・アームスはバフ適用後すぐにキャンセル可能です"
+      ]
+    },
+    {
+      "lessonId": "pld.lesson_7",
+      "lessonNumber": 7,
+      "title": "上級最適化",
+      "description": "最終レッスン：タンクスワップ、軽減計画、oGCDウィービング、フルローテーションの最適化について学びます。",
+      "prerequisites": ["pld.lesson_6"],
+      "conceptsCovered": ["pld.tank_swap", "pld.expiacion", "pld.circle_of_scorn", "pld.intervene"],
+      "keyPoints": [
+        "プロヴォーク＋シャークでギミック中のスムーズなタンクスワップ",
+        "エクスピアシオン：強力なoGCDダメージ（30秒CD）——ウィーブすること",
+        "サークル・オブ・スコーン：DoT＋ダメージoGCD（30秒CD）——クールダウンごとに使用",
+        "インターベン：2チャージのギャップクローザー——移動またはバーストのために温存"
+      ],
+      "relatedAbilities": ["Provoke", "Shirk", "Expiacion", "Circle of Scorn", "Intervene"],
+      "tips": [
+        "効率を最大化するためにボスのタイムラインに合わせて軽減を計画しましょう",
+        "プル前にコタンクとタンクスワップを事前に話し合いましょう"
+      ]
+    }
+  ]
+}

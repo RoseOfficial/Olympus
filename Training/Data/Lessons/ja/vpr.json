@@ -1,0 +1,139 @@
+{
+  "jobPrefix": "vpr",
+  "jobName": "ヴァイパー",
+  "lessons": [
+    {
+      "lessonId": "vpr.lesson_1",
+      "lessonNumber": 1,
+      "title": "ヴァイパーの基本",
+      "description": "ヴァイパーのコア原則を学びます。2パスコンボシステム、ハンターズ・インスティンクトとスウィフトスケールのバフ維持、ホーンドバフの使い方について解説します。",
+      "prerequisites": [],
+      "conceptsCovered": ["vpr.combo_basics", "vpr.buff_cycling", "vpr.honed_buffs"],
+      "keyPoints": [
+        "2つのコンボパス：スチールファングスパス（ハンターズ・インスティンクト+10%ダメージ）とリービングファングスパス（スウィフトスケール+15%オートアタック）",
+        "両方のバフを常に維持するためにパスを交互に（両方40秒持続）",
+        "ホーンドスチール/ホーンドリーバーズプロックはコンボスターターをアップグレード——より多くのダメージ",
+        "各パス：スターター→フランクスティング/ヒンドスティングフィニッシャー→次は別パス"
+      ],
+      "relatedAbilities": ["Steel Fangs", "Reaving Fangs", "Hunter's Sting", "Swiftskin's Sting", "Flanksting Strike", "Hindsting Strike", "Flanksbane Fang", "Hindsbane Fang"],
+      "tips": [
+        "ハンターズ・インスティンクトもスウィフトスケールも切らさないこと——両方がダメージに重要",
+        "ホーンドプロックをすぐに使用——60秒しか持続せず次のコンボスターターをアップグレードします"
+      ]
+    },
+    {
+      "lessonId": "vpr.lesson_2",
+      "lessonNumber": 2,
+      "title": "リソース管理",
+      "description": "サーペントオファリングゲージの積み方、ラトリングコイルスタック、移動のためのアンコイルドフューリーを習得します。",
+      "prerequisites": ["vpr.lesson_1"],
+      "conceptsCovered": ["vpr.serpent_offering", "vpr.rattling_coil", "vpr.offering_generation"],
+      "keyPoints": [
+        "サーペントオファリング（0〜100）：コンボフィニッシャーで積まれ（各10）、リアウェイクン（50）で消費",
+        "ラトリングコイル（0〜3スタック）：ツインブレードコンボとサーペンツ・アイアーで積まれ、アンコイルドフューリーで消費",
+        "アンコイルドフューリー：ラトリングコイル1消費の遠隔GCD——移動またはオーバーキャップ防止に使用",
+        "サーペントオファリングを100でキャップさせないこと——キャップ前にリアウェイクンに入る"
+      ],
+      "relatedAbilities": ["Uncoiled Fury", "Writhing Snap", "Serpent's Ire"],
+      "tips": [
+        "強制移動フェーズにアンコイルドフューリーを使ってDPSを維持",
+        "サーペントオファリングを慎重に管理——ゲージの無駄は大きなDPS損失"
+      ]
+    },
+    {
+      "lessonId": "vpr.lesson_3",
+      "lessonNumber": 3,
+      "title": "毒とポジショナル",
+      "description": "毒バフシステムと、どの方向指定フィニッシャーを使うかの決定方法を理解します。",
+      "prerequisites": ["vpr.lesson_2"],
+      "conceptsCovered": ["vpr.venom_system", "vpr.positional_finishers", "vpr.positionals", "vpr.true_north_usage"],
+      "keyPoints": [
+        "毒バフ（フランクスタング、ヒンドスタング、フランクスベイン、ヒンドスベイン）は次の方向指定を示します",
+        "フランクスタング/フランクスベイン→側面（横）方向指定フィニッシャーでボーナス威力",
+        "ヒンドスタング/ヒンドスベイン→後方（後ろ）方向指定フィニッシャーでボーナス威力",
+        "トゥルーノースは10秒間方向指定を無視（2チャージ、45秒リチャージ）"
+      ],
+      "relatedAbilities": ["Flanksting Strike", "Hindsting Strike", "Flanksbane Fang", "Hindsbane Fang", "True North"],
+      "tips": [
+        "毒の名前がどこに立つかを教えてくれます：フランク = 側面、ヒンド = 後方",
+        "悪い位置を強制するギミックのためにトゥルーノースチャージを温存してください"
+      ]
+    },
+    {
+      "lessonId": "vpr.lesson_4",
+      "lessonNumber": 4,
+      "title": "ツインブレードコンボ",
+      "description": "ツインブレードシステムを習得します。ヴァイスワインダー起動、コイルフォローアップ、ノクシアスグナッシュの維持について解説します。",
+      "prerequisites": ["vpr.lesson_3"],
+      "conceptsCovered": ["vpr.dread_combo", "vpr.vicewinder", "vpr.twinfang_twinblood", "vpr.noxious_gnash"],
+      "keyPoints": [
+        "ヴァイスワインダー：ツインブレードコンボを開始、ノクシアスグナッシュデバフを付与（+10%ダメージ、20秒）",
+        "ヴァイスワインダー後、位置に応じてハンターズコイル（側面）またはスウィフトスキンズコイル（後方）を使用",
+        "各コイルはトゥインファングまたはトゥインブラッドプロックを付与——oGCDとしてすぐにウィーブ",
+        "ツインブレードGCDはリキャスト3.0秒（通常より速い）——ラトリングコイルスタック1積む"
+      ],
+      "relatedAbilities": ["Vicewinder", "Hunter's Coil", "Swiftskin's Coil", "Twinfang", "Twinblood", "Uncoiled Fury"],
+      "tips": [
+        "リアウェイクンに入るためにノクシアスグナッシュが有効である必要があります——ヴァイスワインダー/ヴァイスピットでリフレッシュ",
+        "コイル後すぐにトゥインファング/トゥインブラッドを使用——無料oGCDダメージです"
+      ]
+    },
+    {
+      "lessonId": "vpr.lesson_5",
+      "lessonNumber": 5,
+      "title": "リアウェイクンバースト",
+      "description": "リアウェイクンバーストフェーズを実行します。入場条件、ジェネレーションGCDシーケンス、レガシーoGCDウィーブについて解説します。",
+      "prerequisites": ["vpr.lesson_4"],
+      "conceptsCovered": ["vpr.reawaken_entry", "vpr.generation_sequence", "vpr.legacy_weaving", "vpr.anguine_tribute"],
+      "keyPoints": [
+        "リアウェイクン入場条件：サーペントオファリング50以上 AND ノクシアスグナッシュがターゲットに AND バフの残り時間10秒以上",
+        "リアウェイクンはアンガイントリビュートスタックを5つ付与——ジェネレーションGCDで消費",
+        "ジェネレーションシーケンス：1→2→3→4ジェネレーション→ウロボロスフィニッシャー",
+        "各ジェネレーションGCDはレガシーoGCDを付与——GCDの間に1st/2nd/3rd/4thレガシーをウィーブ"
+      ],
+      "relatedAbilities": ["Reawaken", "First Generation", "Second Generation", "Third Generation", "Fourth Generation", "First Legacy", "Second Legacy", "Third Legacy", "Fourth Legacy", "Ouroboros"],
+      "tips": [
+        "バフがバースト中に切れる場合はリアウェイクンに入らないこと——先にリフレッシュ",
+        "ジェネレーションGCDはリキャスト2.1秒——各GCDの間にレガシーoGCDを1つウィーブ"
+      ]
+    },
+    {
+      "lessonId": "vpr.lesson_6",
+      "lessonNumber": 6,
+      "title": "バーストの最適化",
+      "description": "サーペンツ・アイアーのタイミング、リアウェイクンレディプロック、レイドバフ同期でバーストダメージを最大化します。",
+      "prerequisites": ["vpr.lesson_5"],
+      "conceptsCovered": ["vpr.burst_window", "vpr.ready_to_reawaken", "vpr.serpents_ire", "vpr.timeline_awareness"],
+      "keyPoints": [
+        "サーペンツ・アイアー：2分CDでラトリングコイル1つとリアウェイクンレディを付与",
+        "リアウェイクンレディ：サーペントオファリング消費なしで無料リアウェイクンが可能（すぐに使うこと！）",
+        "最大ダメージのためにリアウェイクンをパーティレイドバフウィンドウ（2分間隔）に合わせる",
+        "レイドバフが近い場合（5〜10秒以内）はリアウェイクンを少し待つ"
+      ],
+      "relatedAbilities": ["Serpent's Ire", "Reawaken"],
+      "tips": [
+        "サーペンツ・アイアーはバーストのイネーブラー——パーティバフと常に合わせましょう",
+        "リアウェイクンを溜めすぎないこと——戦闘中の使用回数を失う方が一部のバフを外すより悪い"
+      ]
+    },
+    {
+      "lessonId": "vpr.lesson_7",
+      "lessonNumber": 7,
+      "title": "完全な回転",
+      "description": "ヴァイパーのすべてのメカニクスを統合します：フル回転の流れ、AoEの判断、移動の最適化。",
+      "prerequisites": ["vpr.lesson_6"],
+      "conceptsCovered": ["vpr.uncoiled_fury", "vpr.aoe_rotation", "vpr.dual_wield_aoe"],
+      "keyPoints": [
+        "AoEしきい値：3体以上でAoE回転（スチールモー→リービングモーパス）",
+        "ヴァイスピットはヴァイスワインダーのAoE版——全ターゲットにノクシアスグナッシュを適用",
+        "AoEツインブレード：ピットコンボ＋ブラッド/ファングフォローアップでAoEラトリングコイルを積む",
+        "ボスに届かない移動フェーズにアンコイルドフューリーを使用"
+      ],
+      "relatedAbilities": ["Steel Maw", "Reaving Maw", "Vicepit", "Hunter's Den", "Swiftskin's Den", "Uncoiled Twinfang", "Uncoiled Twinblood"],
+      "tips": [
+        "ダンジョンではAoEへの+10%ダメージのためにヴァイスピットでノクシアスグナッシュを維持",
+        "移動の周りにラトリングコイルの使用を計画——アンコイルドフューリーが移動ツールです"
+      ]
+    }
+  ]
+}

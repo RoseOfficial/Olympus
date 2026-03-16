@@ -1,0 +1,140 @@
+{
+  "jobPrefix": "sam",
+  "jobName": "侍",
+  "lessons": [
+    {
+      "lessonId": "sam.lesson_1",
+      "lessonNumber": 1,
+      "title": "侍の基本",
+      "description": "侍のコア原則を学びます。コンボルート、セン収集、ダメージとヘイストバフの維持について解説します。",
+      "prerequisites": [],
+      "conceptsCovered": ["sam.combo_basics", "sam.sen_system", "sam.fugetsu_buff", "sam.fuka_buff"],
+      "keyPoints": [
+        "3つのコンボルート：仁風路（月刃）、士風路（花刃）、雪風路（雪刃）",
+        "風月バフ（+13%ダメージ）は仁風路から——絶対に切らさないこと",
+        "風花バフ（+13%ヘイスト）は士風路から——GCDを速くするために維持",
+        "各コンボフィニッシャー（月光、花車、雪風）が1つのセンを付与"
+      ],
+      "relatedAbilities": ["Hakaze", "Gyofu", "Jinpu", "Shifu", "Gekko", "Kasha", "Yukikaze"],
+      "tips": [
+        "風月と風花の残り時間が約5秒になったらリフレッシュしてください",
+        "両方が切れそうなら、風月（ダメージ）を優先してください"
+      ]
+    },
+    {
+      "lessonId": "sam.lesson_2",
+      "lessonNumber": 2,
+      "title": "剣気と瞑想",
+      "description": "剣気ゲージ管理と瞑想スタックを習得してダメージ出力を最大化します。",
+      "prerequisites": ["sam.lesson_1"],
+      "conceptsCovered": ["sam.kenki_gauge", "sam.kenki_spending", "sam.meditation"],
+      "keyPoints": [
+        "剣気はコンボアクションから積まれ、100でキャップ——オーバーキャップさせないこと",
+        "真剣一閃（剣気25）：単体oGCDダメージ——主な剣気消費スキル",
+        "天輪迅（剣気25）：3体以上のAoE代替",
+        "瞑想スタック（最大3）は居合術から積まれます——正花で大ダメージに消費"
+      ],
+      "relatedAbilities": ["Shinten", "Kyuten", "Shoha", "Shoha II"],
+      "tips": [
+        "オーバーキャップを避けるために剣気を積極的に消費——無料ダメージです",
+        "ギミックが来ることがわかっているなら移動のために剣気を少し温存してください"
+      ]
+    },
+    {
+      "lessonId": "sam.lesson_3",
+      "lessonNumber": 3,
+      "title": "居合術システム",
+      "description": "セン数と戦況に応じてどの居合術を使うかを学びます。",
+      "prerequisites": ["sam.lesson_2"],
+      "conceptsCovered": ["sam.iaijutsu_selection", "sam.higanbana_dot", "sam.midare_setsugekka", "sam.tenka_goken"],
+      "keyPoints": [
+        "セン1 = 彼岸花：60秒DoT——一度適用後リフレッシュして維持",
+        "セン2 = 天下五剣：AoEダメージ——複数ターゲット状況でのみ使用",
+        "セン3 = 乱れ雪月花：最強の単体GCD——主要バーストツール",
+        "単体では常にセン3を積んで乱れ雪月花（彼岸花/天下五剣はセン1〜2には使わない）"
+      ],
+      "relatedAbilities": ["Iaijutsu", "Higanbana", "Midare Setsugekka", "Tenka Goken"],
+      "tips": [
+        "彼岸花の残り時間が3秒以下になったらリフレッシュ",
+        "オープナーでは最初のセンで彼岸花を適用し、その後乱れ雪月花に集中"
+      ]
+    },
+    {
+      "lessonId": "sam.lesson_4",
+      "lessonNumber": 4,
+      "title": "燕返しと明鏡止水",
+      "description": "燕返しのフォローアップと明鏡止水のコンボスキップ能力を習得します。",
+      "prerequisites": ["sam.lesson_3"],
+      "conceptsCovered": ["sam.tsubame_gaeshi", "sam.meikyo_shisui", "sam.meikyo_finisher_priority"],
+      "keyPoints": [
+        "任意の居合術の後、燕返しで返し技フォローアップが使用可能（同セン条件）",
+        "返し雪月花（乱れ後）は大ダメージ——絶対に飛ばさないこと",
+        "明鏡止水（3スタック）：コンボなしでコンボフィニッシャーを使用（初風/仁風/士風をスキップ）",
+        "明鏡中は欠けているセンタイプを優先し、次に月光（最高威力）"
+      ],
+      "relatedAbilities": ["Tsubame-gaeshi", "Kaeshi: Setsugekka", "Kaeshi: Goken", "Kaeshi: Higanbana", "Meikyo Shisui"],
+      "tips": [
+        "コンボをスキップするだけのために明鏡止水を使わないこと——セン積みやバフリフレッシュに使う",
+        "明鏡止水＋フィニッシャー3つ = 乱れ雪月花用の即時セン3"
+      ]
+    },
+    {
+      "lessonId": "sam.lesson_5",
+      "lessonNumber": 5,
+      "title": "如来神掌バーストウィンドウ",
+      "description": "如来神掌と鬼車・残心による強力なバーストシーケンスを実行します。",
+      "prerequisites": ["sam.lesson_4"],
+      "conceptsCovered": ["sam.ikishoten_burst", "sam.ogi_namikiri", "sam.zanshin", "sam.senei_timing"],
+      "keyPoints": [
+        "如来神掌（120秒CD）：剣気50付与＋扇一文字レディ",
+        "扇一文字：最高威力GCD——如来神掌直後に使用",
+        "返し扇一文字は扇一文字の後に続く——もう一つの大ダメージ",
+        "残心：扇一文字シーケンス後の強化剣気消費スキル",
+        "正花（120秒CD）：高威力oGCD——バーストウィンドウに合わせる"
+      ],
+      "relatedAbilities": ["Ikishoten", "Ogi Namikiri", "Kaeshi: Namikiri", "Zanshin", "Senei"],
+      "tips": [
+        "剣気50以上で如来神掌を使わないこと——オーバーキャップしてゲージを無駄に",
+        "完全バースト：如来神掌→扇一文字→返し扇一文字→残心→正花"
+      ]
+    },
+    {
+      "lessonId": "sam.lesson_6",
+      "lessonNumber": 6,
+      "title": "方向指定とトゥルーノース",
+      "description": "方向指定を正確に当ててダメージを最大化し、必要なときにトゥルーノースを使います。",
+      "prerequisites": ["sam.lesson_5"],
+      "conceptsCovered": ["sam.positionals", "sam.true_north_usage", "sam.positional_recovery"],
+      "keyPoints": [
+        "月光：後方方向指定——ボスの後ろに立つ",
+        "花車：側面方向指定——ボスの横に立つ",
+        "方向指定を外すと大きな威力損失——攻撃は当たるが弱くなります",
+        "トゥルーノース（45秒CD、2チャージ）：10秒間方向指定を無視"
+      ],
+      "relatedAbilities": ["Gekko", "Kasha", "True North"],
+      "tips": [
+        "明鏡止水フィニッシャーをポジションに合わせて計画——トゥルーノースを無駄にしないこと",
+        "正しい位置に物理的に届かないときのためにトゥルーノースを温存"
+      ]
+    },
+    {
+      "lessonId": "sam.lesson_7",
+      "lessonNumber": 7,
+      "title": "上級最適化",
+      "description": "バースト同期、明鏡止水バフ管理、AoE回転、神楽落としの活用など上級テクニック。",
+      "prerequisites": ["sam.lesson_6"],
+      "conceptsCovered": ["sam.burst_alignment", "sam.meikyo_buff_refresh", "sam.aoe_rotation", "sam.hagakure_usage"],
+      "keyPoints": [
+        "如来神掌は2分パーティバフに合わせる——バーストウィンドウを調整",
+        "切れそうなバフ（風月/風花）を素早くリフレッシュするために明鏡止水を積極的に使用",
+        "AoE回転：風車→満月（月刃）または桜散り（花刃）——セン2種類のみ積まれる",
+        "神楽落とし：全センを剣気に変換（セン1つにつき10）——フェーズ移行前に使用"
+      ],
+      "relatedAbilities": ["Fuko", "Mangetsu", "Oka", "Hagakure"],
+      "tips": [
+        "AoEでは雪刃が積めません——回転を調整してください",
+        "神楽落としはダウンタイム中に使うと最適——どうせセンを無駄にするとき"
+      ]
+    }
+  ]
+}

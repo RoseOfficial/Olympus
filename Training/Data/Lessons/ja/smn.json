@@ -1,0 +1,141 @@
+{
+  "jobPrefix": "smn",
+  "jobName": "召喚士",
+  "lessons": [
+    {
+      "lessonId": "smn.lesson_1",
+      "lessonNumber": 1,
+      "title": "エーテルフローの基本",
+      "description": "召喚士のエーテルフローシステムを学びます。エナジードレインでスタックを生成し、フェスター/ネクロタイズで消費し、60秒リキャストに合わせたタイミング。",
+      "prerequisites": [],
+      "conceptsCovered": ["smn.aetherflow_stacks", "smn.energy_drain_usage", "smn.aetherflow_timing", "smn.fester_necrotize"],
+      "keyPoints": [
+        "エナジードレイン：エーテルフロースタック2つとフューリングルーインバフを付与（60秒CD）",
+        "フェスター/ネクロタイズ：スタックをダメージに消費——リキャストで使用",
+        "エナジードレインをリキャストのまま放置しない——使わないとDPS損失",
+        "フューリングルーインはルインIV——強力な即時キャストプロック——を有効化"
+      ],
+      "relatedAbilities": ["Energy Drain", "Fester", "Necrotize", "Ruin IV"],
+      "tips": [
+        "エナジードレインのリキャストが明ける前にエーテルフロースタックを両方消費",
+        "エナジーサイフォンはAoE版——同じリソースを付与"
+      ]
+    },
+    {
+      "lessonId": "smn.lesson_2",
+      "lessonNumber": 2,
+      "title": "プライマルアテューンメントシステム",
+      "description": "3つのプライマルフェーズを理解します：イフリート（ルビー）、タイタン（トパーズ）、ガルーダ（エメラルド）——それぞれ独自のアテューンメントスタックとアビリティ。",
+      "prerequisites": ["smn.lesson_1"],
+      "conceptsCovered": ["smn.attunement_system", "smn.ifrit_phase", "smn.titan_phase", "smn.garuda_phase"],
+      "keyPoints": [
+        "プライマルを召喚してアテューンメントスタックを得る（イフリート：2、タイタン/ガルーダ：4）",
+        "イフリート：最高ダメージだがキャスト時間あり（ルビーライト）",
+        "タイタン：マウンテンバスタープロック付きの即時キャスト",
+        "ガルーダ：低ダメージだが速い即時キャスト（エメラルドライト）",
+        "デミ召喚の前に各プライマルを召喚して完全消費する必要がある"
+      ],
+      "relatedAbilities": ["Summon Ifrit", "Summon Titan", "Summon Garuda", "Ruby Rite", "Topaz Rite", "Emerald Rite"],
+      "tips": [
+        "タイタンは移動が多いフェーズに最適——全て即時キャスト",
+        "静止してキャストできるときのためにイフリートを温存"
+      ]
+    },
+    {
+      "lessonId": "smn.lesson_3",
+      "lessonNumber": 3,
+      "title": "プライマルフェイバーアビリティ",
+      "description": "ユニークなプライマルフェイバーアビリティを習得します：クリムゾンサイクロン/ストライク（イフリート）、マウンテンバスター（タイタン）、スリップストリーム（ガルーダ）。",
+      "prerequisites": ["smn.lesson_2"],
+      "conceptsCovered": ["smn.crimson_cyclone", "smn.mountain_buster", "smn.slipstream", "smn.favor_timing"],
+      "keyPoints": [
+        "クリムゾンサイクロン：ギャップクローザーGCD、クリムゾンストライク（近接）が続く",
+        "マウンテンバスター：各トパーズライト後のoGCD——すぐにウィーブ",
+        "スリップストリーム：3秒チャネルAoE——静止できるときに使う",
+        "フェイバーアビリティはアップグレードされたプライマルを召喚した後に得られる"
+      ],
+      "relatedAbilities": ["Crimson Cyclone", "Crimson Strike", "Mountain Buster", "Slipstream"],
+      "tips": [
+        "クリムゾンストライクには近接範囲が必要——サイクロン前に位置取り",
+        "スリップストリームはダウンタイムや安全なフェーズで最も使いやすい"
+      ]
+    },
+    {
+      "lessonId": "smn.lesson_4",
+      "lessonNumber": 4,
+      "title": "デミ召喚フェーズ",
+      "description": "デミ召喚サイクルを理解します：バハムート、フェニックス、ソーラーバハムート——それぞれ独自のGCDとアビリティ。",
+      "prerequisites": ["smn.lesson_3"],
+      "conceptsCovered": ["smn.demi_phases", "smn.bahamut_phase", "smn.phoenix_phase", "smn.solar_bahamut_phase"],
+      "keyPoints": [
+        "デミ召喚：3つのプライマルを全て消費した後の15秒フェーズ",
+        "バハムート：アストラルインパルスGCD、デスフレアフィニッシャー",
+        "フェニックス：ファウンテンオブファイアGCD、リキンドルによるパーティ回復",
+        "ソーラーバハムート：アンブラルインパルスGCD、サンフレアフィニッシャー（Lv.100）",
+        "サイクル：バハムート → 3プライマル → フェニックス → 3プライマル → ソーラーバハムート"
+      ],
+      "relatedAbilities": ["Summon Bahamut", "Summon Phoenix", "Summon Solar Bahamut", "Astral Impulse", "Fountain of Fire"],
+      "tips": [
+        "デミGCDは全て即時——これらのフェーズ中は移動自由",
+        "フェニックスフェーズはパーティ回復を提供——可能であればレイドワイドに合わせる"
+      ]
+    },
+    {
+      "lessonId": "smn.lesson_5",
+      "lessonNumber": 5,
+      "title": "バースト：エンキンドルとアストラルフロー",
+      "description": "エンキンドル（アクモーン/リベレーション）とアストラルフロー（デスフレア/リキンドル/サンフレア）でデミ召喚ダメージを最大化します。",
+      "prerequisites": ["smn.lesson_4"],
+      "conceptsCovered": ["smn.enkindle", "smn.astral_flow", "smn.searing_flash"],
+      "keyPoints": [
+        "エンキンドル：各デミフェーズ中の1回限りの大ダメージoGCD",
+        "アストラルフロー：デミによって変化——デスフレア/リキンドル/サンフレア",
+        "デミフェーズ中にエンキンドルとアストラルフローを両方使う——忘れない！",
+        "シアリングフラッシュ：シアリングライトウィンドウ中の追加ダメージoGCD"
+      ],
+      "relatedAbilities": ["Enkindle Bahamut", "Enkindle Phoenix", "Deathflare", "Rekindle", "Sunflare", "Searing Flash"],
+      "tips": [
+        "フェーズ移行で失わないようにデミフェーズ早めにエンキンドルを使う",
+        "リキンドルはパーティメンバーを回復——タンクまたはHP少ないターゲットに使う"
+      ]
+    },
+    {
+      "lessonId": "smn.lesson_6",
+      "lessonNumber": 6,
+      "title": "シアリングライトの連携",
+      "description": "シアリングライトのタイミングを習得します：パーティバーストウィンドウとの整合と最適レイドDPSのためのIPC連携。",
+      "prerequisites": ["smn.lesson_5"],
+      "conceptsCovered": ["smn.searing_light", "smn.party_coordination"],
+      "keyPoints": [
+        "シアリングライト：20秒間パーティダメージ+5%（2分CD）",
+        "0:00、2:00、4:00などで他のパーティレイドバフと整合",
+        "最大個人DPS貢献のためにデミフェーズ中に使う",
+        "IPC連携で他のレイドバフとの重複を防ぐ"
+      ],
+      "relatedAbilities": ["Searing Light", "Searing Flash"],
+      "tips": [
+        "パーティがクールダウンを整合できるようにIPCでバーストインテントを告知",
+        "同期が外れた場合はパーティと再整合するために遅らせることを検討"
+      ]
+    },
+    {
+      "lessonId": "smn.lesson_7",
+      "lessonNumber": 7,
+      "title": "上級回転",
+      "description": "最終レッスン：プライマル順序の最適化、ルインIVプロックの処理、AoE回転。",
+      "prerequisites": ["smn.lesson_6"],
+      "conceptsCovered": ["smn.primal_order", "smn.ruin_spells", "smn.ruin_iv_procs", "smn.aoe_rotation"],
+      "keyPoints": [
+        "最適順序：タイタン → ガルーダ → イフリート（移動しやすいものを先に、イフリートを最後に）",
+        "ルインIIIはプライマル/デミフェーズの合間のフィラー",
+        "ルインIVプロック：切れる前またはオーバーキャップ前に使う",
+        "AoE：トライディザスターフィラー、プライマルカタストロフィバリアント、同じデミ回転"
+      ],
+      "relatedAbilities": ["Ruin III", "Ruin IV", "Tri-disaster", "Ruby Catastrophe", "Topaz Catastrophe", "Emerald Catastrophe"],
+      "tips": [
+        "タイタン最初が後の移動に最も柔軟性を与える",
+        "ルインIVを長く保持しない——エナジードレインがプロックをリフレッシュする"
+      ]
+    }
+  ]
+}

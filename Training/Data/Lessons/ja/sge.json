@@ -1,0 +1,142 @@
+{
+  "jobPrefix": "sge",
+  "jobName": "賢者",
+  "lessons": [
+    {
+      "lessonId": "sge.lesson_1",
+      "lessonNumber": 1,
+      "title": "賢者の基本",
+      "description": "賢者のユニークな役割を学びます。カルディアのパッシブヒール、緊急対応、最適なカルディア使用のためのターゲット選択について解説します。",
+      "prerequisites": [],
+      "conceptsCovered": ["sge.emergency_healing", "sge.kardia_management", "sge.kardia_target_selection"],
+      "keyPoints": [
+        "カルディア：ダメージを与えると対象をヒールするパッシブ——タンクにかけておく",
+        "賢者はダメージを与えることでヒールします（カルディア）——DPS＝ヒール",
+        "緊急ヒールはアダーズゴールスキル（ドルオコール、タウロコール）を使用",
+        "カルディアのターゲットはメインタンクに設定したら基本的に変更しない"
+      ],
+      "relatedAbilities": ["Kardia", "Diagnosis", "Prognosis", "Druochole"],
+      "tips": [
+        "戦闘前にカルディアを付与しましょう——タンクへの主要ヒール手段です",
+        "GCDで攻撃するとカルディア対象が自動でヒールされます"
+      ]
+    },
+    {
+      "lessonId": "sge.lesson_2",
+      "lessonNumber": 2,
+      "title": "アダーズゴールエコノミー",
+      "description": "アダーズゴールリソースを習得します。生成タイミング、ヒールとダメージへの消費方法、4つのアダーズゴールスキルについて学びます。",
+      "prerequisites": ["sge.lesson_1"],
+      "conceptsCovered": ["sge.addersgall_management", "sge.druochole_usage", "sge.taurochole_usage", "sge.kerachole_usage", "sge.ixochole_usage"],
+      "keyPoints": [
+        "アダーズゴール：20秒ごとに1スタック回復（最大3）",
+        "ドルオコール：単体ヒール（1スタック）——基本的なタンクヒール",
+        "タウロコール：単体ヒール＋10%軽減（1スタック）",
+        "ケラコール：パーティ軽減＋HoT（1スタック）——30秒CD",
+        "イクソコール：パーティヒール（1スタック）——30秒CD"
+      ],
+      "relatedAbilities": ["Druochole", "Taurochole", "Kerachole", "Ixochole"],
+      "tips": [
+        "アダーズゴールをオーバーキャップしないでください——3スタックになる前に消費",
+        "ケラコールは非常に効率的——軽減のためにクールダウンごとに使用"
+      ]
+    },
+    {
+      "lessonId": "sge.lesson_3",
+      "lessonNumber": 3,
+      "title": "カルディア最適化",
+      "description": "ソテリアのブーストとフィロソフィアのパーティ全体カルディア効果でカルディアヒールを強化します。",
+      "prerequisites": ["sge.lesson_2"],
+      "conceptsCovered": ["sge.soteria_usage", "sge.philosophia_usage"],
+      "keyPoints": [
+        "ソテリア：15秒間カルディアヒール50%増加（60秒CD）",
+        "重いタンクダメージフェーズでソテリアを使用",
+        "フィロソフィア：20秒間パーティ全体カルディア効果（3分CD）",
+        "フィロソフィアでダメージがパーティ全体をヒール"
+      ],
+      "relatedAbilities": ["Soteria", "Philosophia"],
+      "tips": [
+        "ソテリアは無料の追加ヒール——積極的に使いましょう",
+        "範囲ダメージフェーズ中のフィロソフィアは非常に強力"
+      ]
+    },
+    {
+      "lessonId": "sge.lesson_4",
+      "lessonNumber": 4,
+      "title": "エウクラシアシステム",
+      "description": "エウクラシアを理解します。ディアグノシスをバリアに、プログノシスをパーティバリアに、ドシスをDoTに変換する方法を学びます。",
+      "prerequisites": ["sge.lesson_3"],
+      "conceptsCovered": ["sge.eukrasia_decisions", "sge.eukrasian_diagnosis_usage", "sge.eukrasian_prognosis_usage", "sge.eukrasian_dosis_usage"],
+      "keyPoints": [
+        "エウクラシアは次のディアグノシス、プログノシス、またはドシスを変化させます",
+        "エウクラシア・ディアグノシス（E.ディアグノシス）：単体バリア——タンク強攻撃の前に付与",
+        "エウクラシア・プログノシス（E.プログノシス）：パーティバリア——全体攻撃の前に付与",
+        "エウクラシア・ドシス（E.ドシス）：DoT——ボスへの100%稼働率を維持"
+      ],
+      "relatedAbilities": ["Eukrasia", "Eukrasian Diagnosis", "Eukrasian Prognosis", "Eukrasian Dosis"],
+      "tips": [
+        "エウクラシアはインスタント——バリアスペルの前にウィーブできます",
+        "E.ドシスは残り3秒以下でリフレッシュしてクリッピングを避けること"
+      ]
+    },
+    {
+      "lessonId": "sge.lesson_5",
+      "lessonNumber": 5,
+      "title": "oGCDヒールツールキット",
+      "description": "賢者の強力なoGCDヒールを習得します。フィシス、ホロス、プネウマ、クラシスによるヒール強化について学びます。",
+      "prerequisites": ["sge.lesson_4"],
+      "conceptsCovered": ["sge.physis_usage", "sge.holos_usage", "sge.pneuma_usage", "sge.krasis_usage"],
+      "keyPoints": [
+        "フィシスII：パーティHoT＋ヒール受ける量増加（60秒CD）",
+        "ホロス：パーティバリア＋ヒール（2分CD）——強力な全体攻撃軽減",
+        "プネウマ：直線範囲ダメージ＋パーティヒール（2分CD）",
+        "クラシス：対象への20%ヒール受ける量増加（10秒間、60秒CD）"
+      ],
+      "relatedAbilities": ["Physis II", "Holos", "Pneuma", "Krasis"],
+      "tips": [
+        "フィシスは無料——ヒール強化のためにクールダウンごとに使用",
+        "プネウマはダメージとヒールを同時に——使わずに放置しないこと"
+      ]
+    },
+    {
+      "lessonId": "sge.lesson_6",
+      "lessonNumber": 6,
+      "title": "防御クールダウン",
+      "description": "賢者の防御スキルを習得します。ハイマ、パンハイマ、ペプシスによるバリア変換、ゾエによるヒール強化、リゾマタによるリソース生成について学びます。",
+      "prerequisites": ["sge.lesson_5"],
+      "conceptsCovered": ["sge.haima_usage", "sge.panhaima_usage", "sge.pepsis_usage", "sge.zoe_usage", "sge.rhizomata_usage"],
+      "keyPoints": [
+        "ハイマ：単体へのスタッキングバリア（2分CD）——タンク強攻撃に最適",
+        "パンハイマ：パーティへのスタッキングバリア（2分CD）——多段全体攻撃に最適",
+        "ペプシス：バリアを即時ヒールに変換",
+        "ゾエ：次のGCDヒールを50%増加（90秒CD）",
+        "リゾマタ：アダーズゴール1スタック付与（90秒CD）——無料のリソース"
+      ],
+      "relatedAbilities": ["Haima", "Panhaima", "Pepsis", "Zoe", "Rhizomata"],
+      "tips": [
+        "ハイマのバリアは壊れるとリフレッシュします——オートアタックの前にタンクにかけましょう",
+        "ペプシスはバリアが無駄になる時に有用"
+      ]
+    },
+    {
+      "lessonId": "sge.lesson_7",
+      "lessonNumber": 7,
+      "title": "DPSと連携",
+      "description": "最終レッスン：DPS最適化、DoT維持、攻撃スキル（フレグマ、トクシコン、シュケー）の活用、蘇生の連携、コヒーラーとの協力について学びます。",
+      "prerequisites": ["sge.lesson_6"],
+      "conceptsCovered": ["sge.dps_optimization", "sge.dot_maintenance", "sge.phlegma_usage", "sge.toxikon_usage", "sge.psyche_usage", "sge.raise_decision", "sge.cohealer_awareness", "sge.esuna_usage"],
+      "keyPoints": [
+        "ドシスはフィラー——ヒールが不要な時はこれをキャストする（カルディアがタンクをヒール）",
+        "フレグマ：2チャージ、強力なインスタントダメージ——バーストウィンドウで使用",
+        "トクシコン：インスタントダメージ、アダーズスティングを消費（E.ディアグノシスバリアが壊れると生成）",
+        "シュケー：強力なoGCDダメージ（1分CD）——クールダウンごとに使用",
+        "蘇生はコヒーラーと調整し、バリアはリジェネヒーラーと調整"
+      ],
+      "relatedAbilities": ["Dosis III", "Phlegma III", "Toxikon II", "Psyche", "Egeiro", "Esuna"],
+      "tips": [
+        "賢者の高いDPSはカルディアによるもの——ドシスをキャストすることでヒールとダメージを同時に",
+        "可能であればバーストウィンドウのためにフレグマのチャージを温存"
+      ]
+    }
+  ]
+}

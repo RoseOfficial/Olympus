@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "dnc",
+  "jobName": "踊り子",
+  "quizzes": [
+    {
+      "quizId": "dnc.lesson_1.quiz",
+      "lessonId": "dnc.lesson_1",
+      "title": "クイズ: ダンスの基本",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "dnc.lesson_1.q1",
+          "conceptId": "dnc.standard_step",
+          "scenario": "スタンダードステップは30秒リキャストです。",
+          "question": "スタンダードステップはどのように使うべきですか？",
+          "options": ["バーストのためだけに温存", "稼働率最大化のためにリキャストで使う", "テクニカルステップと一緒のみ", "戦闘中1回のみ"],
+          "correctIndex": 1,
+          "explanation": "スタンダードステップはリキャストで使うべきです。パーティダメージバフを付与します——最大稼働率は最大パーティDPSを意味します。"
+        },
+        {
+          "questionId": "dnc.lesson_1.q2",
+          "conceptId": "dnc.technical_step",
+          "scenario": "テクニカルステップは120秒CDです。",
+          "question": "テクニカルステップの特別な点は何ですか？",
+          "options": ["個人バフのみ", "2分パーティバーストウィンドウ", "回復アビリティ", "移動速度"],
+          "correctIndex": 1,
+          "explanation": "テクニカルステップはあなたの2分パーティバフです。他のレイドバフと合わせることでパーティ全体の最大バーストダメージを達成します。"
+        },
+        {
+          "questionId": "dnc.lesson_1.q3",
+          "conceptId": "dnc.dance_execution",
+          "scenario": "ダンスを実行中です。ボタンが順番に光っています。",
+          "question": "ダンスをどのように完了させますか？",
+          "options": ["素早くどのボタンも押す", "表示された順番に光っているボタンを押す", "フィニッシュにスキップ", "全てのステップボタンをスパム"],
+          "correctIndex": 1,
+          "explanation": "光っているステップボタンを表示された順番に押します。スタンダードは2ステップ、テクニカルは4ステップあります。その後フィニッシュを押します。"
+        },
+        {
+          "questionId": "dnc.lesson_1.q4",
+          "conceptId": "dnc.dance_timers",
+          "scenario": "ダンスを開始しましたがメカニクスで気が散りました。",
+          "question": "ダンスタイマーが切れるとどうなりますか？",
+          "options": ["ダンスが自動的に完了", "ステップを失いやり直しが必要", "何もない——タイマーはビジュアルのみ", "ダメージペナルティ"],
+          "correctIndex": 1,
+          "explanation": "ダンスにはタイマーがあります。時間内にステップを完了しないと進行を失い最初からやり直しになります。ダンスを素早く完了させましょう。"
+        },
+        {
+          "questionId": "dnc.lesson_1.q5",
+          "conceptId": "dnc.standard_step",
+          "scenario": "スタンダードフィニッシュがパーティダメージバフを付与します。",
+          "question": "バフの持続時間はどのくらいですか？",
+          "options": ["10秒", "15秒", "30秒", "60秒"],
+          "correctIndex": 2,
+          "explanation": "スタンダードフィニッシュのバフはリキャストと完全に一致する30秒持続します。リキャストで使うことで永続稼働率を維持できます。"
+        }
+      ]
+    },
+    {
+      "quizId": "dnc.lesson_2.quiz",
+      "lessonId": "dnc.lesson_2",
+      "title": "クイズ: プロック管理",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "dnc.lesson_2.q1",
+          "conceptId": "dnc.silken_symmetry",
+          "scenario": "カスケードを使用しました。",
+          "question": "どのプロックが発生する可能性がありますか？",
+          "options": ["シルクンフロー", "シルクンシンメトリー（リバースカスケード）", "スリーフォールドファン", "カスケードからはプロックなし"],
+          "correctIndex": 1,
+          "explanation": "カスケードはシルクンシンメトリーをプロックでき、リバースカスケードを有効化します。プロックを消費するとフェザーを得ます。"
+        },
+        {
+          "questionId": "dnc.lesson_2.q2",
+          "conceptId": "dnc.silken_flow",
+          "scenario": "ファウンテンを使用してシルクンフローを得ました。",
+          "question": "シルクンフローはどのアビリティを有効化しますか？",
+          "options": ["リバースカスケード", "ファウンテンフォール", "セイバーダンス", "テクニカルステップ"],
+          "correctIndex": 1,
+          "explanation": "シルクンフローはファウンテンフォールを有効化します。シルクンシンメトリー/リバースカスケードと同様に、このプロックを消費するとフェザーを得ます。"
+        },
+        {
+          "questionId": "dnc.lesson_2.q3",
+          "conceptId": "dnc.threefold_fan",
+          "scenario": "フラリッシュがリキャストアップしました。",
+          "question": "フラリッシュは何をしますか？",
+          "options": ["ランダムに1つのプロックを付与", "全てのプロックを一度に付与", "ダンスのCDをリセット", "パーティバフ"],
+          "correctIndex": 1,
+          "explanation": "フラリッシュは一度に全てのプロック（シルクンシンメトリー、シルクンフロー、スリーフォールドファン、フォーフォールドファン）を付与します。バーストウィンドウ中に使いましょう。"
+        },
+        {
+          "questionId": "dnc.lesson_2.q4",
+          "conceptId": "dnc.fourfold_fan",
+          "scenario": "スリーフォールドファンダンスとフォーフォールドファンダンスのプロックがあります。",
+          "question": "これらは何を有効化しますか？",
+          "options": ["ファンダンスI/II", "ファンダンスIII/IV", "セイバーダンス", "スタンダードステップ"],
+          "correctIndex": 1,
+          "explanation": "スリーフォールドとフォーフォールドのプロックはそれぞれファンダンスIIIとIVを有効化します。フラリッシュからの高威力攻撃です。"
+        },
+        {
+          "questionId": "dnc.lesson_2.q5",
+          "conceptId": "dnc.silken_symmetry",
+          "scenario": "シルクンシンメトリーが残り5秒です。",
+          "question": "何を優先すべきですか？",
+          "options": ["切れさせる", "切れる前にリバースカスケードを使う", "バーストのために温存", "再度カスケードを使う"],
+          "correctIndex": 1,
+          "explanation": "プロックを切れさせない——主要ダメージソースです。プロックが切れる前にリバースカスケードを使ってダメージとフェザーを得ましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "dnc.lesson_3.quiz",
+      "lessonId": "dnc.lesson_3",
+      "title": "クイズ: エスプリゲージの習得",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "dnc.lesson_3.q1",
+          "conceptId": "dnc.esprit_gauge",
+          "scenario": "戦闘中にエスプリゲージが積まれています。",
+          "question": "エスプリは何から生成されますか？",
+          "options": ["あなたの攻撃のみ", "あなたとパートナーのウェポンスキルから", "ダンスのみから", "フェザーから"],
+          "correctIndex": 1,
+          "explanation": "エスプリはあなたとダンスパートナー両方のウェポンスキルから生成されます。CPMが高いパートナーほどエスプリを速く生成します。"
+        },
+        {
+          "questionId": "dnc.lesson_3.q2",
+          "conceptId": "dnc.saber_dance",
+          "scenario": "セイバーダンスはエスプリ50を消費します。",
+          "question": "セイバーダンスはなぜ重要ですか？",
+          "options": ["最も弱いGCDだから", "最高威力のGCDだから", "フェザーを生成するから", "パーティをバフするから"],
+          "correctIndex": 1,
+          "explanation": "セイバーダンスは最高威力のGCDです。エスプリを定期的に消費しましょう——ゲージを100でキャップさせてはいけません。"
+        },
+        {
+          "questionId": "dnc.lesson_3.q3",
+          "conceptId": "dnc.esprit_overcapping",
+          "scenario": "エスプリが85でまだ積まれています。",
+          "question": "どうすべきですか？",
+          "options": ["100まで待つ", "キャップを防ぐためにセイバーダンスを使う", "バーストのために温存", "エスプリはキャップしない"],
+          "correctIndex": 1,
+          "explanation": "オーバーキャップを防ぐために80以上でセイバーダンスを使いましょう。100でのエスプリ生成は全て無駄になります。"
+        },
+        {
+          "questionId": "dnc.lesson_3.q4",
+          "conceptId": "dnc.saber_dance",
+          "scenario": "バーストウィンドウがアクティブです。エスプリが60あります。",
+          "question": "今セイバーダンスを使うべきですか？",
+          "options": ["いいえ——もっと高いエスプリのために温存", "はい——バフ中により多くを収める", "100のときのみ", "プロックを待つ"],
+          "correctIndex": 1,
+          "explanation": "バーストウィンドウ中はエスプリ50以上でもセイバーダンスを使いましょう。レイドバフ中により多くの高威力ヒットを収めることが重要です。"
+        },
+        {
+          "questionId": "dnc.lesson_3.q5",
+          "conceptId": "dnc.esprit_gauge",
+          "scenario": "ダンスパートナーを選んでいます。",
+          "question": "最も速くエスプリを生成するジョブタイプはどれですか？",
+          "options": ["タンク", "ヒーラー", "忍者/モンクのような高CPM DPS", "他の踊り子"],
+          "correctIndex": 2,
+          "explanation": "忍者やモンクのようなCPM（毎分キャスト数）が高いジョブをパートナーに選びましょう。より多くのウェポンスキル = お互いのより速いエスプリ生成。"
+        }
+      ]
+    },
+    {
+      "quizId": "dnc.lesson_4.quiz",
+      "lessonId": "dnc.lesson_4",
+      "title": "クイズ: フェザーの最適化",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "dnc.lesson_4.q1",
+          "conceptId": "dnc.feather_gauge",
+          "scenario": "フェザーが4枚でシルクンシンメトリープロックがあります。",
+          "question": "最初に何をすべきですか？",
+          "options": ["すぐにリバースカスケードを使う", "まずファンダンスI、その後リバースカスケード", "リバースカスケードを温存", "全てのファンダンスを先に使う"],
+          "correctIndex": 1,
+          "explanation": "フェザー4枚でキャップしています。まずファンダンスIを使ってスペースを作り、リバースカスケードでフェザーを無駄にしないようにします。"
+        },
+        {
+          "questionId": "dnc.lesson_4.q2",
+          "conceptId": "dnc.fan_dance_usage",
+          "scenario": "ファンダンスIはフェザー1枚を消費します。",
+          "question": "ファンダンスIは何をプロックする可能性がありますか？",
+          "options": ["別のフェザー", "ファンダンスIII", "シルクンシンメトリー", "エスプリ"],
+          "correctIndex": 1,
+          "explanation": "ファンダンスIはファンダンスIIIをプロックする確率があります。プロックしたらすぐにファンダンスIIIをウィーブしましょう。"
+        },
+        {
+          "questionId": "dnc.lesson_4.q3",
+          "conceptId": "dnc.feather_overcapping",
+          "scenario": "フェザーが3枚あります。バーストウィンドウが10秒後に始まります。",
+          "question": "バーストに入るとき3フェザーは良い数ですか？",
+          "options": ["いいえ——0にすべき", "はい——デビルメント中に放出", "ちょうど4枚が必要", "バーストにフェザーは関係ない"],
+          "correctIndex": 1,
+          "explanation": "バーストに入るとき3フェザーを保持してデビルメント中に放出しましょう。個人バフ中のoGCDダメージを最大化します。"
+        },
+        {
+          "questionId": "dnc.lesson_4.q4",
+          "conceptId": "dnc.feather_gauge",
+          "scenario": "フェザーが4枚でキャップしています。",
+          "question": "フェザーはどのように得られますか？",
+          "options": ["ファンダンスから", "シルクンプロックを消費することで", "ダンスから", "エスプリを使うことで"],
+          "correctIndex": 1,
+          "explanation": "フェザーはリバースカスケードとファウンテンフォールを使用（シルクンシンメトリーとシルクンフロープロックを消費）することで得られます。"
+        },
+        {
+          "questionId": "dnc.lesson_4.q5",
+          "conceptId": "dnc.fan_dance_usage",
+          "scenario": "フラリッシュがフォーフォールドファンダンスを付与しました。",
+          "question": "ファンダンスIVとは何ですか？",
+          "options": ["ファンダンスIより弱い", "フラリッシュからの高優先度プロック", "AoEのみ", "回復アビリティ"],
+          "correctIndex": 1,
+          "explanation": "フラリッシュからのファンダンスIVは高威力でバーストに使うべきです。バーストウィンドウ中の高優先度oGCDです。"
+        }
+      ]
+    },
+    {
+      "quizId": "dnc.lesson_5.quiz",
+      "lessonId": "dnc.lesson_5",
+      "title": "クイズ: バーストウィンドウの実行",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "dnc.lesson_5.q1",
+          "conceptId": "dnc.burst_alignment",
+          "scenario": "テクニカルフィニッシュは2分パーティバフです。",
+          "question": "正しいバーストオープナーシーケンスはどれですか？",
+          "options": ["デビルメント → テクニカル → フラリッシュ", "テクニカルフィニッシュ → デビルメント → フラリッシュ", "フラリッシュ → テクニカル → デビルメント", "どの順序でも同じ"],
+          "correctIndex": 1,
+          "explanation": "テクニカルフィニッシュ（パーティバフ）→ デビルメント（個人バフ）→ フラリッシュ（プロック）が正しい順序です。バフを重ねて最大ダメージを出します。"
+        },
+        {
+          "questionId": "dnc.lesson_5.q2",
+          "conceptId": "dnc.devilment",
+          "scenario": "デビルメントはクリット/ダイレクトヒット+15%を付与します。",
+          "question": "デビルメントから誰が恩恵を受けますか？",
+          "options": ["あなただけ", "あなたとダンスパートナー", "パーティ全体", "パートナーのみ"],
+          "correctIndex": 1,
+          "explanation": "デビルメントのクリット/ダイレクトヒットバフはあなたとダンスパートナー両方に適用されます。パートナーを賢く選びましょう。"
+        },
+        {
+          "questionId": "dnc.lesson_5.q3",
+          "conceptId": "dnc.party_burst_sync",
+          "scenario": "他のDPSが2分バフを告知しています。",
+          "question": "テクニカルステップのタイミングはどうすべきですか？",
+          "options": ["関係なくすぐに使う", "パーティバフと連携", "彼らが終わるまで待つ", "テクニカルは個人のみ"],
+          "correctIndex": 1,
+          "explanation": "テクニカルフィニッシュはパーティバフです。他の2分レイドバフ（バトルリタニー、チェーンストラテジェム等）と連携して重ねた価値を出しましょう。"
+        },
+        {
+          "questionId": "dnc.lesson_5.q4",
+          "conceptId": "dnc.flourish",
+          "scenario": "フラリッシュは60秒CDです。",
+          "question": "フラリッシュはいつ使うべきですか？",
+          "options": ["常にリキャストで", "毎バーストウィンドウで", "緊急時のために温存", "テクニカルと一緒のみ"],
+          "correctIndex": 1,
+          "explanation": "毎バーストウィンドウでフラリッシュを使いましょう（60秒は1分おきに合わせられる）。全プロックを付与して最大バーストダメージを出します。"
+        },
+        {
+          "questionId": "dnc.lesson_5.q5",
+          "conceptId": "dnc.burst_alignment",
+          "scenario": "バーストウィンドウに入ろうとしています。",
+          "question": "どのリソースを準備しておくべきですか？",
+          "options": ["ゲージを空に", "3フェザーとエスプリ50以上", "フェザーだけ", "エスプリだけ"],
+          "correctIndex": 1,
+          "explanation": "バーストに入るとき3フェザーとエスプリ50以上を準備しましょう。テクニカル/デビルメント中にセイバーダンスとファンダンスを放出できます。"
+        }
+      ]
+    },
+    {
+      "quizId": "dnc.lesson_6.quiz",
+      "lessonId": "dnc.lesson_6",
+      "title": "クイズ: 高レベルアビリティ",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "dnc.lesson_6.q1",
+          "conceptId": "dnc.starfall_dance",
+          "scenario": "デビルメントがスターフォールダンスプロックを付与しました。",
+          "question": "スターフォールダンスの優先度はどのくらいですか？",
+          "options": ["低い——いつでも使える", "高い——600威力の即時攻撃", "中程度——他のプロックの後", "AoEのみ"],
+          "correctIndex": 1,
+          "explanation": "スターフォールダンスは600威力でデビルメント中の最高優先度プロックです。バフが切れる前に使いましょう。"
+        },
+        {
+          "questionId": "dnc.lesson_6.q2",
+          "conceptId": "dnc.finishing_move",
+          "scenario": "スタンダードフィニッシュがフィニッシングムーブを付与しました。",
+          "question": "フィニッシングムーブの威力はどのくらいですか？",
+          "options": ["400", "600", "850", "1000"],
+          "correctIndex": 2,
+          "explanation": "フィニッシングムーブは850威力——非常に強力です。バフ下で最大価値を引き出すためにバーストウィンドウ中に使いましょう。"
+        },
+        {
+          "questionId": "dnc.lesson_6.q3",
+          "conceptId": "dnc.last_dance",
+          "scenario": "フィニッシングムーブを使用しました。",
+          "question": "フィニッシングムーブから何がチェーンされますか？",
+          "options": ["何もない", "ラストダンス（520威力）", "もう一つのフィニッシングムーブ", "スターフォールダンス"],
+          "correctIndex": 1,
+          "explanation": "ラストダンスはフィニッシングムーブに続く520威力の即時攻撃です。コンボチェーンです——フォローアップを忘れずに。"
+        },
+        {
+          "questionId": "dnc.lesson_6.q4",
+          "conceptId": "dnc.tillana",
+          "scenario": "テクニカルフィニッシュを使用しました。",
+          "question": "テクニカルフィニッシュはどのプロックを付与しますか？",
+          "options": ["スターフォールダンス", "フィニッシングムーブ", "ティッラーナ（600威力）", "ラストダンス"],
+          "correctIndex": 2,
+          "explanation": "テクニカルフィニッシュはティッラーナを付与します——600威力の即時攻撃です。バーストウィンドウ中に使いましょう。テクニカル固有のアビリティです。"
+        },
+        {
+          "questionId": "dnc.lesson_6.q5",
+          "conceptId": "dnc.starfall_dance",
+          "scenario": "デビルメントが残り3秒で終わります。スターフォールダンスが未使用です。",
+          "question": "何を優先すべきですか？",
+          "options": ["現在のコンボを終わらせる", "すぐにスターフォールダンスを使う", "次のデビルメントのために温存", "代わりにセイバーダンスを使う"],
+          "correctIndex": 1,
+          "explanation": "スターフォールダンスはデビルメント中のみ使用できます。終わりそうなときはすぐに使わないと完全に失ってしまいます。"
+        }
+      ]
+    },
+    {
+      "quizId": "dnc.lesson_7.quiz",
+      "lessonId": "dnc.lesson_7",
+      "title": "クイズ: パートナーとパーティ連携",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "dnc.lesson_7.q1",
+          "conceptId": "dnc.closed_position",
+          "scenario": "ダンスパートナーを選んでいます。",
+          "question": "最良のパートナーは誰ですか？",
+          "options": ["どのDPSでも", "最高個人DPS（侍/忍者/モンク）", "生存率のためにタンク", "他の踊り子"],
+          "correctIndex": 1,
+          "explanation": "最高DPSプレイヤーをパートナーに選びましょう——通常は侍、忍者、またはモンクです。デビルメントから最も恩恵を受け、エスプリを最も速く生成します。"
+        },
+        {
+          "questionId": "dnc.lesson_7.q2",
+          "conceptId": "dnc.closed_position",
+          "scenario": "ダンスパートナーが死亡しました。",
+          "question": "何をすべきですか？",
+          "options": ["蘇生を待つ", "すぐに別の誰かをパートナーにする", "パートナーなしで続ける", "パートナーアビリティの使用をやめる"],
+          "correctIndex": 1,
+          "explanation": "すぐに別のDPSにパートナーを切り替えましょう。生存中のパートナーがエスプリを生成してデビルメントバフを受ける方が、蘇生を待つよりも良いです。"
+        },
+        {
+          "questionId": "dnc.lesson_7.q3",
+          "conceptId": "dnc.shield_samba",
+          "scenario": "5秒後にレイドワイドアタックが来ます。",
+          "question": "何を使うべきですか？",
+          "options": ["テクニカルステップ", "シールドサンバ（パーティ軽減15%）", "インプロビゼーション", "何もしない——踊り子は軽減できない"],
+          "correctIndex": 1,
+          "explanation": "シールドサンバは15秒間パーティダメージを15%軽減します。レイドワイドの前に使ってダメージを軽減しましょう。"
+        },
+        {
+          "questionId": "dnc.lesson_7.q4",
+          "conceptId": "dnc.party_utility",
+          "scenario": "インプロビゼーションが利用可能です。",
+          "question": "インプロビゼーションは何を提供しますか？",
+          "options": ["ダメージバフ", "継続回復とバリア", "移動速度", "MP再生"],
+          "correctIndex": 1,
+          "explanation": "インプロビゼーションはパーティの継続回復とバリアを提供します。ダウンタイム中や大ダメージの前に使いましょう。"
+        },
+        {
+          "questionId": "dnc.lesson_7.q5",
+          "conceptId": "dnc.shield_samba",
+          "scenario": "パーティに別の踊り子もいてシールドサンバがあります。",
+          "question": "どのように連携すべきですか？",
+          "options": ["同じレイドワイドに両方使う", "より多くのレイドワイドをカバーするために交互に使う", "一人の踊り子だけが使えばいい", "関係ない"],
+          "correctIndex": 1,
+          "explanation": "IPCや連絡でシールドサンバを連携しましょう。1つのレイドワイドに重ねるより交互に使ってより多くのレイドワイドをカバーします。"
+        }
+      ]
+    }
+  ]
+}

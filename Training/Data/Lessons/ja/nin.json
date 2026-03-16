@@ -1,0 +1,146 @@
+{
+  "jobPrefix": "nin",
+  "jobName": "忍者",
+  "lessons": [
+    {
+      "lessonId": "nin.lesson_1",
+      "lessonNumber": 1,
+      "title": "忍者の基本",
+      "description": "忍者の基本を習得します。コンボの流れ、方向指定の要件、カゼマトイ管理について解説します。",
+      "prerequisites": [],
+      "conceptsCovered": ["nin.combo_basics", "nin.positionals", "nin.kazematoi"],
+      "keyPoints": [
+        "基本コンボ：スピニングエッジ→ガストスラッシュ→エオリアンエッジ（後方）またはアーマークラッシュ（側面）",
+        "エオリアンエッジ（後方方向指定）：最高威力フィニッシャー",
+        "アーマークラッシュ（側面方向指定）：カゼマトイスタックを付与",
+        "カゼマトイはエオリアンエッジを強化——アーマークラッシュで積み、エオリアンエッジで消費"
+      ],
+      "relatedAbilities": ["Spinning Edge", "Gust Slash", "Aeolian Edge", "Armor Crush"],
+      "tips": [
+        "フィニッシャーを交互に：アーマークラッシュでカゼマトイを積み、エオリアンエッジで消費",
+        "方向指定ミスは大きな威力損失——必要なときにトゥルーノースを使いましょう"
+      ]
+    },
+    {
+      "lessonId": "nin.lesson_2",
+      "lessonNumber": 2,
+      "title": "印術の習得",
+      "description": "印術システムを学び、忍術の組み合わせを効果的に実行します。",
+      "prerequisites": ["nin.lesson_1"],
+      "conceptsCovered": ["nin.mudra_system", "nin.ninjutsu_weaving", "nin.huton"],
+      "keyPoints": [
+        "印（天、地、人）を組み合わせて忍術を作ります——シーケンスを暗記してください",
+        "雷遁（天→地または地→天）：単体ダメージ——基本の忍術",
+        "風遁（人→地→天）：低レベル時に風遁バフ（攻撃速度+15%）を付与",
+        "水遁（天→地→人）：遠隔から風魔手裏剣を使用可能に——バーストに必須",
+        "印はoGCDですが忍術はGCDです——GCDの間に印をウィーブ"
+      ],
+      "relatedAbilities": ["Ten", "Chi", "Jin", "Ninjutsu", "Raiton", "Huton", "Suiton"],
+      "tips": [
+        "印シーケンスが筋肉記憶になるまで練習してください",
+        "ミスするとバニー（ラビットミディアム）が出ます——ダメージなし、再挑戦してください"
+      ]
+    },
+    {
+      "lessonId": "nin.lesson_3",
+      "lessonNumber": 3,
+      "title": "忍力とスペンダー",
+      "description": "忍力ゲージ管理とタイミングよく消費する方法を理解します。",
+      "prerequisites": ["nin.lesson_2"],
+      "conceptsCovered": ["nin.ninki_gauge", "nin.bhavacakra", "nin.ninki_pooling"],
+      "keyPoints": [
+        "忍力はウェポンスキルとムグ/毒塗り薬（0〜100ゲージ）から積まれます",
+        "ヴァチャクラ（忍力50）：高威力単体oGCDダメージ",
+        "ヘルフロッグミディアム（忍力50）：3体以上のAoE代替",
+        "バーストウィンドウ前に忍力を溜めて——九頭竜閃中にバフ入りダメージで消費"
+      ],
+      "relatedAbilities": ["Bhavacakra", "Hellfrog Medium"],
+      "tips": [
+        "忍力100でキャップさせないこと——オーバーキャップ前に消費",
+        "バースト中はGCDの間にヴァチャクラをウィーブして最大ダメージ"
+      ]
+    },
+    {
+      "lessonId": "nin.lesson_4",
+      "lessonNumber": 4,
+      "title": "バーストウィンドウの基本",
+      "description": "水遁と九頭竜閃でバーストウィンドウを準備・実行します。",
+      "prerequisites": ["nin.lesson_3"],
+      "conceptsCovered": ["nin.suiton", "nin.kunais_bane", "nin.mug_dokumori"],
+      "keyPoints": [
+        "水遁（天→地→人）は九頭竜閃を使用可能にするバフを付与",
+        "九頭竜閃（60秒CD）：主要バースト——対象に+10%ダメージデバフ",
+        "ムグ（120秒CD）：ダメージ＋忍力40生成——バーストウィンドウで使用",
+        "毒塗り薬（120秒CD）：高レベルでムグの代替、パーティバフを付与",
+        "バースト順序：水遁→ムグ/毒塗り薬→九頭竜閃→忍力とoGCDを消費"
+      ],
+      "relatedAbilities": ["Suiton", "Kunai's Bane", "Mug", "Dokumori"],
+      "tips": [
+        "九頭竜閃の前に常に水遁を準備——必須条件です",
+        "九頭竜閃は60秒パーティバフと同期——チームと連携してください"
+      ]
+    },
+    {
+      "lessonId": "nin.lesson_5",
+      "lessonNumber": 5,
+      "title": "上級バースト：天地人とカッサツ",
+      "description": "最大バーストダメージのために天地人とカッサツを習得します。",
+      "prerequisites": ["nin.lesson_4"],
+      "conceptsCovered": ["nin.kassatsu", "nin.ten_chi_jin", "nin.tcj_optimization"],
+      "keyPoints": [
+        "カッサツ（60秒CD）：次の忍術を強化かつ即時に——氷斬乱流に使用",
+        "氷斬乱流：カッサツ専用の大威力氷忍術",
+        "天地人（120秒CD）：GCDなしで3つの忍術を連続実行",
+        "天地人シーケンス：風魔手裏剣→雷遁→水遁（標準）で2分バーストに",
+        "天地人中は移動不可——発動前に安全な位置に"
+      ],
+      "relatedAbilities": ["Kassatsu", "Ten Chi Jin", "Hyosho Ranryu"],
+      "tips": [
+        "移動やダメージで天地人が終了します——安全なウィンドウで使用してください",
+        "カッサツは九頭竜閃ウィンドウごとに合わせて氷斬乱流を"
+      ]
+    },
+    {
+      "lessonId": "nin.lesson_6",
+      "lessonNumber": 6,
+      "title": "プロックと移動",
+      "description": "雷神プロック、分身、移動アビリティを効果的に活用します。",
+      "prerequisites": ["nin.lesson_5"],
+      "conceptsCovered": ["nin.raiju_procs", "nin.bunshin", "nin.phantom_kamaitachi", "nin.tenri_jindo"],
+      "keyPoints": [
+        "雷遁は雷神レディを付与：フォークド雷神（ギャップクローザー）またはフリーティング雷神（静止）を選択",
+        "フォークド雷神：ボスへの距離を縮めたいときに使用",
+        "フリーティング雷神：既に近接距離にいるとき——同ダメージ、移動なし",
+        "分身（90秒CD、忍力50）：あなたと一緒に攻撃するシャドウクローン——バーストで使用",
+        "幻影忍蜂：分身がこのAoE GCDプロックを付与——無駄にしないこと",
+        "天理神刀（Lv.100）：九頭竜閃後のプロック——大ダメージフィニッシャー"
+      ],
+      "relatedAbilities": ["Forked Raiju", "Fleeting Raiju", "Bunshin", "Phantom Kamaitachi", "Tenri Jindo"],
+      "tips": [
+        "雷神プロックを放置しないこと——期限切れになるとダメージ損失",
+        "バースト前の分身でバフ中にシャドウ攻撃を増やしましょう"
+      ]
+    },
+    {
+      "lessonId": "nin.lesson_7",
+      "lessonNumber": 7,
+      "title": "最適化とAoE",
+      "description": "カゼマトイ管理、メイスイ、トゥルーノース、AoE回転を含む上級最適化。",
+      "prerequisites": ["nin.lesson_6"],
+      "conceptsCovered": ["nin.kazematoi_management", "nin.true_north_usage", "nin.burst_alignment", "nin.meisui", "nin.aoe_combo", "nin.aoe_ninjutsu"],
+      "keyPoints": [
+        "カゼマトイ：バースト前にアーマークラッシュで積み、バースト中に強化エオリアンエッジで消費",
+        "トゥルーノース（45秒CD、2チャージ）：ギミックで方向指定不可な場合に使用",
+        "メイスイ：水遁バフを忍力50に変換——九頭竜閃が不要な場合に使用",
+        "バースト同期：九頭竜閃をパーティ60秒/120秒ウィンドウに合わせる",
+        "AoEコンボ：3体以上で死の花→八卦無刃殺",
+        "AoE忍術：火遁（2体以上）、土遁（3体以上の静止）、護火滅却（カッサツAoE）"
+      ],
+      "relatedAbilities": ["True North", "Meisui", "Death Blossom", "Hakke Mujinsatsu", "Katon", "Doton", "Goka Mekkyaku"],
+      "tips": [
+        "トゥルーノースを無駄にしないこと——本当に方向に届かない時のみ使用",
+        "土遁はGround DoT——敵がその場に留まる場合のみ使用"
+      ]
+    }
+  ]
+}

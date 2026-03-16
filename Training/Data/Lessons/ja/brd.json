@@ -1,0 +1,139 @@
+{
+  "jobPrefix": "brd",
+  "jobName": "吟遊詩人",
+  "lessons": [
+    {
+      "lessonId": "brd.lesson_1",
+      "lessonNumber": 1,
+      "title": "吟遊詩人の基本",
+      "description": "吟遊詩人のコア原則を学びます。3曲ローテーション、各曲のパーティバフ、切り替えのリズムについて解説します。",
+      "prerequisites": [],
+      "conceptsCovered": ["brd.song_rotation", "brd.wanderers_minuet", "brd.mages_ballad", "brd.armys_paeon"],
+      "keyPoints": [
+        "曲はパーティ全体にバフを付与：旅人のメヌエット（クリティカル）、魔法の聖歌（ダメージ）、軍神の行進（直接命中）",
+        "標準ローテーション：旅人のメヌエット → 魔法の聖歌 → 軍神の行進 → 繰り返し",
+        "各曲は45秒の持続時間中にユニークな副効果を持つ",
+        "デッドタイムを避けるために残り3秒未満になったら曲を切り替える"
+      ],
+      "relatedAbilities": ["Wanderer's Minuet", "Mage's Ballad", "Army's Paeon"],
+      "tips": [
+        "曲タイマーを見る——早すぎる切り替えはダメージ損失、遅すぎる切り替えはギャップを生む",
+        "オープナーでクリットバフのために旅人のメヌエットから戦闘を始める"
+      ]
+    },
+    {
+      "lessonId": "brd.lesson_2",
+      "lessonNumber": 2,
+      "title": "楽譜の習得",
+      "description": "旅人のメヌエットフェーズを習得します。DoTクリットからの楽譜スタック生成とピッチパーフェクトでの最適消費について解説します。",
+      "prerequisites": ["brd.lesson_1"],
+      "conceptsCovered": ["brd.repertoire_stacks", "brd.pitch_perfect", "brd.song_switching"],
+      "keyPoints": [
+        "楽譜スタックは旅人のメヌエット中のみ生成（DoTクリットから）",
+        "ピッチパーフェクトはスタック3で最大威力（540）——1〜2スタックでは使わない",
+        "スタックを無駄にしないために曲が終わる前にピッチパーフェクトを使う",
+        "天空の旋矢はWM中に楽譜プロックを1つ保証"
+      ],
+      "relatedAbilities": ["Pitch Perfect", "Empyreal Arrow"],
+      "tips": [
+        "WMが残り3秒未満で2スタックある場合はとにかくピッチパーフェクトを使う——2スタック失う方が最適威力を逃すより悪い",
+        "クリットが多いほど楽譜プロックが増える——これがWMをレイドバフと合わせる理由"
+      ]
+    },
+    {
+      "lessonId": "brd.lesson_3",
+      "lessonNumber": 3,
+      "title": "ソウルヴォイスとエーペックスアロー",
+      "description": "ソウルヴォイスゲージ管理と強力なエーペックスアロー → ブラストアロースコンボを理解します。",
+      "prerequisites": ["brd.lesson_2"],
+      "conceptsCovered": ["brd.soul_voice_gauge", "brd.apex_arrow", "brd.blast_arrow", "brd.soul_voice_overcapping"],
+      "keyPoints": [
+        "ソウルヴォイスは楽譜プロックから戦闘中にパッシブに積まれる",
+        "エーペックスアローはゲージ80以上でブラストアロー（フォローアップ）を解放",
+        "オーバーキャップを防ぐためにゲージ100で使用——常にフルゲージでいない",
+        "バフスタッキングのためにバーストウィンドウ中にエーペックスを優先する"
+      ],
+      "relatedAbilities": ["Apex Arrow", "Blast Arrow"],
+      "tips": [
+        "エーペックスアローは直線AoE——可能なら複数ターゲットにヒットするよう位置取り",
+        "バースト中はゲージ80以上でのエーペックス使用は問題ない——100まで待つとバフを逃す可能性"
+      ]
+    },
+    {
+      "lessonId": "brd.lesson_4",
+      "lessonNumber": 4,
+      "title": "プロック管理",
+      "description": "ホークスアイプロック、リフルジェントアローの優先順位、バレージ + レゾナントアローの組み合わせを習得します。",
+      "prerequisites": ["brd.lesson_3"],
+      "conceptsCovered": ["brd.straight_shot_ready", "brd.refulgent_arrow", "brd.barrage", "brd.resonant_arrow"],
+      "keyPoints": [
+        "スターライトショットレディはバーストショットから約35%の確率でプロック",
+        "リフルジェントアローは最高優先度のプロック消費——切れさせない",
+        "バレージ + リフルジェント = ダメージ3倍（合計威力840）",
+        "レゾナントアローはバレージ後の無料フォローアップ——忘れないこと"
+      ],
+      "relatedAbilities": ["Burst Shot", "Refulgent Arrow", "Barrage", "Resonant Arrow"],
+      "tips": [
+        "可能なときはリフルジェントアロープロックのためにバレージを保持",
+        "バレージは120秒リキャスト——2分バーストに合わせる"
+      ]
+    },
+    {
+      "lessonId": "brd.lesson_5",
+      "lessonNumber": 5,
+      "title": "DoTの最適化",
+      "description": "最適なDoT稼働率、アイアンジョーズのリフレッシュウィンドウ、最大ダメージのためのバフスナップショットを学びます。",
+      "prerequisites": ["brd.lesson_4"],
+      "conceptsCovered": ["brd.caustic_bite", "brd.stormbite", "brd.iron_jaws"],
+      "keyPoints": [
+        "両方のDoTは45秒持続——最適稼働率のために残り3〜7秒でリフレッシュ",
+        "アイアンジョーズは両方のDoTを同時にリフレッシュ——個別に適用しない",
+        "DoTは適用時にバフをスナップショット——ラージングストライクス中にリフレッシュ",
+        "新鮮にDoTを適用する場合はストームバイトから（威力が高い）"
+      ],
+      "relatedAbilities": ["Caustic Bite", "Stormbite", "Iron Jaws"],
+      "tips": [
+        "バースト中のアイアンジョーズはバフがかかったダメージを45秒間スナップショット",
+        "DoTクリットは楽譜とソウルヴォイスを促進——100%稼働率が重要"
+      ]
+    },
+    {
+      "lessonId": "brd.lesson_6",
+      "lessonNumber": 6,
+      "title": "バーストウィンドウの実行",
+      "description": "2分バーストウィンドウを習得します：ラージングストライクス、バトルヴォイス、ラディアントフィナーレのタイミングとパーティ連携。",
+      "prerequisites": ["brd.lesson_5"],
+      "conceptsCovered": ["brd.raging_strikes", "brd.battle_voice", "brd.radiant_finale", "brd.radiant_encore"],
+      "keyPoints": [
+        "バーストシーケンス：ラージングストライクス → バトルヴォイス → ラディアントフィナーレ",
+        "最大楽譜のために旅人のメヌエットとバーストを合わせる",
+        "ラディアントフィナーレの威力はコーダ（使用した1〜3曲）でスケール",
+        "ラディアントアンコールはラディアントフィナーレからの無料フォローアッププロック"
+      ],
+      "relatedAbilities": ["Raging Strikes", "Battle Voice", "Radiant Finale", "Radiant Encore"],
+      "tips": [
+        "バトルヴォイスはパーティバフ——他のDPSバーストウィンドウと連携",
+        "ラージングストライクス中のアイアンジョーズはバフがかかったDoTを45秒スナップショット"
+      ]
+    },
+    {
+      "lessonId": "brd.lesson_7",
+      "lessonNumber": 7,
+      "title": "上級連携",
+      "description": "oGCDウィーブ、魔法の聖歌中のブラッドレターチャージ管理、パーティサポートユーティリティを学びます。",
+      "prerequisites": ["brd.lesson_6"],
+      "conceptsCovered": ["brd.empyreal_arrow", "brd.bloodletter_management", "brd.party_utility"],
+      "keyPoints": [
+        "天空の旋矢は15秒ごと——WM中に楽譜を保証",
+        "魔法の聖歌中はブラッドレターがリセット——自由にスパム",
+        "レイドワイドにはトルバドゥール、回復バフにはネイチャーズミンネ",
+        "ヘッドグレイズは割り込み優先度のためにIPCで連携"
+      ],
+      "relatedAbilities": ["Empyreal Arrow", "Bloodletter", "Troubadour", "Nature's Minne", "Head Graze"],
+      "tips": [
+        "MB中はブラッドレターが常時リセット——チャージを保持しない",
+        "特にバースト中はoGCDダメージのためにサイドワインダーをリキャストで使う"
+      ]
+    }
+  ]
+}

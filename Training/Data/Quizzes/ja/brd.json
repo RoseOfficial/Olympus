@@ -1,0 +1,552 @@
+{
+  "jobPrefix": "brd",
+  "jobName": "吟遊詩人",
+  "quizzes": [
+    {
+      "quizId": "brd.lesson_1.quiz",
+      "lessonId": "brd.lesson_1",
+      "title": "クイズ: 吟遊詩人の基本",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "brd.lesson_1.q1",
+          "conceptId": "brd.song_rotation",
+          "scenario": "戦闘開始時に全ての曲が利用可能です。",
+          "question": "吟遊詩人の最適な曲のローテーション順序はどれですか？",
+          "options": [
+            "魔弾の射手 → 軍神のパイオン → 隊商のバラード",
+            "軍神のパイオン → 魔弾の射手 → 隊商のバラード",
+            "どの順序でも可",
+            "隊商のバラード → 軍神のパイオン → 魔弾の射手"
+          ],
+          "correctIndex": 0,
+          "explanation": "最適な順序は魔弾の射手（WM）→ 軍神のパイオン（MB）→ 隊商のバラード（AP）です。WMはクリティカルバフを付与し、メインバーストに合わせます。"
+        },
+        {
+          "questionId": "brd.lesson_1.q2",
+          "conceptId": "brd.song_rotation",
+          "scenario": "軍神のパイオン中です。複数のブラッドレターリセットが利用可能です。",
+          "question": "MB中にブラッドレターリセットが最も頻繁に発生する条件はどれですか？",
+          "options": [
+            "バーストショットをキャストするたびに",
+            "エンピリアルアローをキャストするたびに",
+            "DoTがクリティカルヒットするたびに",
+            "DoTがダメージを与えるたびに"
+          ],
+          "correctIndex": 3,
+          "explanation": "MB中はDoTティックごとにブラッドレターリセットの確率があります。DoTがダメージを与えるたびにリセットが発生する可能性があります。"
+        },
+        {
+          "questionId": "brd.lesson_1.q3",
+          "conceptId": "brd.wanderers_minuet",
+          "scenario": "魔弾の射手が有効になりました。",
+          "question": "WMはパーティにどのバフを提供しますか？",
+          "options": [
+            "ダメージ+2%",
+            "クリティカルヒット+2%",
+            "ダイレクトヒット+4%",
+            "スキルスピード+2%"
+          ],
+          "correctIndex": 1,
+          "explanation": "魔弾の射手はパーティのクリティカルヒット率を+2%上昇させます。これがWMを最初に使用する主な理由の一つです。"
+        },
+        {
+          "questionId": "brd.lesson_1.q4",
+          "conceptId": "brd.song_rotation",
+          "scenario": "魔弾の射手が残り3秒です。次の曲の準備ができています。",
+          "question": "次の曲はいつ使うべきですか？",
+          "options": [
+            "残り時間が0になるまで待つ",
+            "残り3秒以内——WMコーダを得てから次の曲に切り替え",
+            "残り10秒で切り替え",
+            "バフがなくなった直後"
+          ],
+          "correctIndex": 1,
+          "explanation": "曲が終わる直前（残り3秒以内）に切り替えてコーダを得てから次の曲に移ります。早すぎるとコーダを失います。"
+        },
+        {
+          "questionId": "brd.lesson_1.q5",
+          "conceptId": "brd.song_rotation",
+          "scenario": "隊商のバラードが有効になりました。",
+          "question": "APはパーティにどのバフを提供しますか？",
+          "options": [
+            "クリティカルヒット+2%",
+            "ダメージ+2%",
+            "ダイレクトヒット+4%",
+            "リキャスト短縮"
+          ],
+          "correctIndex": 2,
+          "explanation": "隊商のバラードはパーティのダイレクトヒット率を+4%上昇させます。これはダイレクトヒット率の高いジョブにとって価値があります。"
+        }
+      ]
+    },
+    {
+      "quizId": "brd.lesson_2.quiz",
+      "lessonId": "brd.lesson_2",
+      "title": "クイズ: 楽譜の習得",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "brd.lesson_2.q1",
+          "conceptId": "brd.repertoire",
+          "scenario": "魔弾の射手中です。DoTがボスに適用されています。",
+          "question": "WM中にレパートワーはどのように生成されますか？",
+          "options": [
+            "全てのウェポンスキルで",
+            "DoTのクリティカルヒットで",
+            "バーストショットで",
+            "エンピリアルアローで"
+          ],
+          "correctIndex": 1,
+          "explanation": "WM中はDoTがクリティカルヒットするたびにレパートワースタックが生成されます。これがWM中にDoTを維持することが重要な理由です。"
+        },
+        {
+          "questionId": "brd.lesson_2.q2",
+          "conceptId": "brd.pitch_perfect",
+          "scenario": "レパートワーが3スタックです。",
+          "question": "ピッチパーフェクトはいつ使うのが最適ですか？",
+          "options": [
+            "1スタックで——即座に使う",
+            "2スタックで——バランスが良い",
+            "3スタックで——最高威力",
+            "次の曲が来るまで待つ"
+          ],
+          "correctIndex": 2,
+          "explanation": "ピッチパーフェクトは3スタックで最高威力になります。3スタックになってから使うのが最適です。"
+        },
+        {
+          "questionId": "brd.lesson_2.q3",
+          "conceptId": "brd.pitch_perfect",
+          "scenario": "魔弾の射手が残り2秒で終わりそうです。レパートワーが2スタックです。",
+          "question": "ピッチパーフェクトをどうすべきですか？",
+          "options": [
+            "曲が終わる前に使う——スタックが失われる",
+            "3スタックになるまで待つ",
+            "次の曲が始まってから使う",
+            "完全に無視する"
+          ],
+          "correctIndex": 0,
+          "explanation": "WMが終わるとレパートワースタックは失われます。曲が終わる前に使って無駄にしないようにしましょう。"
+        },
+        {
+          "questionId": "brd.lesson_2.q4",
+          "conceptId": "brd.repertoire",
+          "scenario": "WM中にエンピリアルアローを使用しました。",
+          "question": "エンピリアルアローはレパートワーにどう影響しますか？",
+          "options": [
+            "全スタックをリセット",
+            "スタックを増やさない",
+            "確実に1スタック付与",
+            "確率で2スタック付与"
+          ],
+          "correctIndex": 2,
+          "explanation": "エンピリアルアローはWM中に確実にレパートワーを1スタック付与します。これにより安定したスタック生成が可能です。"
+        },
+        {
+          "questionId": "brd.lesson_2.q5",
+          "conceptId": "brd.repertoire",
+          "scenario": "魔弾の射手が終了しました。レパートワースタックがありました。",
+          "question": "WMが終わるとどうなりますか？",
+          "options": [
+            "スタックは次の曲に持ち越し",
+            "スタックは失われる",
+            "ピッチパーフェクトが自動的に発動",
+            "スタックはソウルヴォイスに変換"
+          ],
+          "correctIndex": 1,
+          "explanation": "魔弾の射手が終了するとレパートワースタックは失われます。曲が終わる前にピッチパーフェクトを使い切りましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "brd.lesson_3.quiz",
+      "lessonId": "brd.lesson_3",
+      "title": "クイズ: ソウルヴォイスとエーペックス",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "brd.lesson_3.q1",
+          "conceptId": "brd.soul_voice",
+          "scenario": "戦闘中です。ソウルヴォイスゲージを積んでいます。",
+          "question": "ソウルヴォイスゲージはどのように積まれますか？",
+          "options": [
+            "ウェポンスキルをキャストするたびに",
+            "曲がアクティブなときにレパートワースタックを消費することで",
+            "エンピリアルアローの使用で",
+            "DoTがダメージを与えるたびに"
+          ],
+          "correctIndex": 1,
+          "explanation": "ソウルヴォイスゲージはレパートワースタックを消費（ピッチパーフェクト使用）したときに積まれます。"
+        },
+        {
+          "questionId": "brd.lesson_3.q2",
+          "conceptId": "brd.apex_arrow",
+          "scenario": "ソウルヴォイスが80になりました。",
+          "question": "エーペックスアローをいつ使うべきですか？",
+          "options": [
+            "ゲージが20になったとき",
+            "ゲージが50になったとき",
+            "ゲージが80以上になったとき",
+            "ゲージが100のときのみ"
+          ],
+          "correctIndex": 2,
+          "explanation": "エーペックスアローは80以上のときに使うのが最適です。80以上の場合に最大ダメージになり、オーバーキャップも防げます。"
+        },
+        {
+          "questionId": "brd.lesson_3.q3",
+          "conceptId": "brd.blast_arrow",
+          "scenario": "エーペックスアローを使用しました。",
+          "question": "エーペックスアローを使用した後、何が利用可能になりますか？",
+          "options": [
+            "ストレートショットレディが自動的にプロック",
+            "ブラストアローが利用可能になる",
+            "エンピリアルアローのリキャストがリセット",
+            "ブラッドレターがリセット"
+          ],
+          "correctIndex": 1,
+          "explanation": "エーペックスアローを使用するとブラストアローが利用可能になります。これを使い忘れないようにしましょう。"
+        },
+        {
+          "questionId": "brd.lesson_3.q4",
+          "conceptId": "brd.soul_voice",
+          "scenario": "ソウルヴォイスが100でキャップされています。",
+          "question": "ソウルヴォイスをオーバーキャップするとどうなりますか？",
+          "options": [
+            "自動的にエーペックスアローが発動",
+            "超過ゲージは失われる——DPS損失",
+            "ゲージがリセットされる",
+            "影響なし"
+          ],
+          "correctIndex": 1,
+          "explanation": "ソウルヴォイスをオーバーキャップすると超過ゲージは失われます。100になる前にエーペックスアローを使いましょう。"
+        },
+        {
+          "questionId": "brd.lesson_3.q5",
+          "conceptId": "brd.apex_arrow",
+          "scenario": "バーストウィンドウ中です。ソウルヴォイスが85です。",
+          "question": "バーストウィンドウ中のソウルヴォイスの使用はどうすべきですか？",
+          "options": [
+            "バーストウィンドウを待って100まで積む",
+            "80以上であれば使用——バフウィンドウ中のダメージが重要",
+            "バーストウィンドウでは使わない",
+            "50でも使用"
+          ],
+          "correctIndex": 1,
+          "explanation": "バーストウィンドウ中にソウルヴォイスが80以上であれば使用しましょう。バフウィンドウ中のダメージを最大化するのが重要です。"
+        }
+      ]
+    },
+    {
+      "quizId": "brd.lesson_4.quiz",
+      "lessonId": "brd.lesson_4",
+      "title": "クイズ: プロック管理",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "brd.lesson_4.q1",
+          "conceptId": "brd.straight_shot_ready",
+          "scenario": "バーストショットを使用しました。",
+          "question": "バーストショットはどのプロックを発生させる可能性がありますか？",
+          "options": [
+            "ブラッドレターリセット",
+            "ストレートショットレディ",
+            "エンピリアルアロー強化",
+            "ブラストアロー"
+          ],
+          "correctIndex": 1,
+          "explanation": "バーストショットは約35%の確率でストレートショットレディをプロックします。これによりリフルジェントアローが使えるようになります。"
+        },
+        {
+          "questionId": "brd.lesson_4.q2",
+          "conceptId": "brd.barrage",
+          "scenario": "バラージュとリフルジェントアローが両方利用可能です。",
+          "question": "バラージュ+リフルジェントアローの組み合わせはなぜ強力ですか？",
+          "options": [
+            "リキャストを短縮するから",
+            "リフルジェントアローを3ヒットに強化するから",
+            "DoTをリフレッシュするから",
+            "ソウルヴォイスを増加するから"
+          ],
+          "correctIndex": 1,
+          "explanation": "バラージュはリフルジェントアローを3連続ヒットに強化します。これにより非常に高いバーストダメージを出せます。"
+        },
+        {
+          "questionId": "brd.lesson_4.q3",
+          "conceptId": "brd.refulgent_arrow",
+          "scenario": "ストレートショットレディがプロックしました。バーストショットとリフルジェントアロー両方使えます。",
+          "question": "最高優先度のGCDはどれですか？",
+          "options": [
+            "バーストショット——DoTを維持するため",
+            "リフルジェントアロー——プロックは切れることがある",
+            "エーペックスアロー——ソウルヴォイスを消費",
+            "アイアンジョーズ——DoTを常にリフレッシュ"
+          ],
+          "correctIndex": 1,
+          "explanation": "リフルジェントアローは最高優先度です。プロックが切れるとDPS損失になります。プロックを持続させましょう。"
+        },
+        {
+          "questionId": "brd.lesson_4.q4",
+          "conceptId": "brd.resonant_arrow",
+          "scenario": "バラージュを使用しました。",
+          "question": "バラージュ使用後、何が利用可能になりますか？",
+          "options": [
+            "エーペックスアロー",
+            "レゾナントアロー",
+            "ブラストアロー",
+            "ラジアントフィナーレ"
+          ],
+          "correctIndex": 1,
+          "explanation": "バラージュを使用するとレゾナントアローが利用可能になります。これは高威力の追加攻撃です。"
+        },
+        {
+          "questionId": "brd.lesson_4.q5",
+          "conceptId": "brd.straight_shot_ready",
+          "scenario": "ストレートショットレディプロックが残り2秒です。",
+          "question": "プロックが切れそうなときはどうすべきですか？",
+          "options": [
+            "バーストショットで更新を試みる",
+            "プロックが切れる前にリフルジェントアローを使う",
+            "DoTのリフレッシュを優先",
+            "エンピリアルアローを代わりに使う"
+          ],
+          "correctIndex": 1,
+          "explanation": "プロックが切れる前にリフルジェントアローを使いましょう。プロックを失うとDPS損失になります。"
+        }
+      ]
+    },
+    {
+      "quizId": "brd.lesson_5.quiz",
+      "lessonId": "brd.lesson_5",
+      "title": "クイズ: DoTの最適化",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "brd.lesson_5.q1",
+          "conceptId": "brd.dot_refresh",
+          "scenario": "ストームバイトのDoTが残り5秒です。",
+          "question": "DoTはいつリフレッシュすべきですか？",
+          "options": [
+            "残り15秒以上で再適用",
+            "残り10秒以上で再適用",
+            "残り3〜7秒のウィンドウで再適用",
+            "DoTが完全に切れてから再適用"
+          ],
+          "correctIndex": 2,
+          "explanation": "DoTは残り3〜7秒のウィンドウでリフレッシュするのが最適です。早すぎると時間を無駄にし、遅すぎると稼働率が下がります。"
+        },
+        {
+          "questionId": "brd.lesson_5.q2",
+          "conceptId": "brd.iron_jaws",
+          "scenario": "ストームバイトとカースビットの両方が適用中です。",
+          "question": "アイアンジョーズは何をしますか？",
+          "options": [
+            "ストームバイトだけをリフレッシュ",
+            "カースビットだけをリフレッシュ",
+            "両方のDoTを同時にリフレッシュ",
+            "DoTのスタックを追加"
+          ],
+          "correctIndex": 2,
+          "explanation": "アイアンジョーズは1つのGCDで両方のDoT（ストームバイトとカースビット）を同時にリフレッシュします。非常に効率的です。"
+        },
+        {
+          "questionId": "brd.lesson_5.q3",
+          "conceptId": "brd.dot_application",
+          "scenario": "新しいボスに戦闘開始します。DoTがありません。",
+          "question": "DoTはどの順番で適用すべきですか？",
+          "options": [
+            "カースビットを最初に——より高い威力",
+            "ストームバイトを最初に——カースビットのプロックを付与",
+            "どちらでも同じ",
+            "アイアンジョーズで両方同時に"
+          ],
+          "correctIndex": 1,
+          "explanation": "ストームバイトを最初に適用します。これによりカースビットをプロックするバフが付与され、より効率的にDoTを適用できます。"
+        },
+        {
+          "questionId": "brd.lesson_5.q4",
+          "conceptId": "brd.dot_refresh",
+          "scenario": "ラジアントフィナーレ（バフ中）でアイアンジョーズを使用しました。",
+          "question": "バフウィンドウ中にDoTをリフレッシュすることのメリットはなぜですか？",
+          "options": [
+            "DoTの期間を延長するから",
+            "DoTが新しい強化されたスタッツをスナップショットするから",
+            "ソウルヴォイスを増加させるから",
+            "ブラッドレターをリセットするから"
+          ],
+          "correctIndex": 1,
+          "explanation": "DoTは適用時のスタッツをスナップショットします。バフ（RS）中にリフレッシュすると、そのバフを持続時間全体に適用できます。"
+        },
+        {
+          "questionId": "brd.lesson_5.q5",
+          "conceptId": "brd.dot_refresh",
+          "scenario": "DoTが完全に切れてしまいました。",
+          "question": "DoTが切れた場合はどうすべきですか？",
+          "options": [
+            "アイアンジョーズでリフレッシュ——どこでも使える",
+            "各DoTを手動で再適用",
+            "曲を切り替えてリセット",
+            "バーストウィンドウまで待つ"
+          ],
+          "correctIndex": 1,
+          "explanation": "DoTが切れた場合は各DoTを手動で再適用します。アイアンジョーズはDoTが既に適用中のときのみリフレッシュできます。"
+        }
+      ]
+    },
+    {
+      "quizId": "brd.lesson_6.quiz",
+      "lessonId": "brd.lesson_6",
+      "title": "クイズ: バーストウィンドウ",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "brd.lesson_6.q1",
+          "conceptId": "brd.radiant_finale",
+          "scenario": "バーストウィンドウを開始しています。3つのコーダがあります。",
+          "question": "バーストシーケンスの正しい順序はどれですか？",
+          "options": [
+            "バラージュ → ラジアントフィナーレ → バトルヴォイス",
+            "ラジアントフィナーレ → バトルヴォイス → バラージュ",
+            "バトルヴォイス → ラジアントフィナーレ → バラージュ",
+            "どの順序でも同じ"
+          ],
+          "correctIndex": 1,
+          "explanation": "正しい順序はラジアントフィナーレ（RF）→ バトルヴォイス（BV）→ バラージュです。RFを最初に使い、バフウィンドウを最大化します。"
+        },
+        {
+          "questionId": "brd.lesson_6.q2",
+          "conceptId": "brd.radiant_finale",
+          "scenario": "ラジアントフィナーレを使用しようとしています。コーダを2つ持っています。",
+          "question": "ラジアントフィナーレの強度はコーダ数にどう依存しますか？",
+          "options": [
+            "コーダ数に関わらず常に同じ",
+            "コーダ1つで最大——早く使うべき",
+            "コーダ数に応じて強化——3つで最大（+6%ダメージ）",
+            "コーダの種類だけが重要"
+          ],
+          "correctIndex": 2,
+          "explanation": "ラジアントフィナーレはコーダ数に応じて強化されます。3コーダで最大効果（+6%ダメージ）になります。できるだけ3つ集めましょう。"
+        },
+        {
+          "questionId": "brd.lesson_6.q3",
+          "conceptId": "brd.battle_voice",
+          "scenario": "バトルヴォイスが利用可能です。",
+          "question": "バトルヴォイスはパーティにどのバフを提供しますか？",
+          "options": [
+            "クリティカルヒット+20%",
+            "ダメージ+20%",
+            "ダイレクトヒット+20%",
+            "スキルスピード+20%"
+          ],
+          "correctIndex": 2,
+          "explanation": "バトルヴォイスはパーティのダイレクトヒット率を20%上昇させます。120秒CDなので2分バーストに合わせましょう。"
+        },
+        {
+          "questionId": "brd.lesson_6.q4",
+          "conceptId": "brd.song_rotation",
+          "scenario": "バーストウィンドウを通じて曲を切り替えています。",
+          "question": "コーダはどのように得られますか？",
+          "options": [
+            "各曲のリキャストが来るたびに",
+            "各ユニークな曲を使用するたびに1コーダ",
+            "ピッチパーフェクトを使用するたびに",
+            "バトルヴォイス使用時に3コーダすべて"
+          ],
+          "correctIndex": 1,
+          "explanation": "各ユニークな曲（WM、MB、AP）を使用するたびに1コーダを得ます。最大3コーダのためにはすべての曲を使用する必要があります。"
+        },
+        {
+          "questionId": "brd.lesson_6.q5",
+          "conceptId": "brd.radiant_encore",
+          "scenario": "ラジアントフィナーレを使用しました。",
+          "question": "ラジアントフィナーレ使用後に何が利用可能になりますか？",
+          "options": [
+            "バトルヴォイスが強化される",
+            "ラジアントアンコールが利用可能になる",
+            "ブラストアローが強化される",
+            "すべてのoGCDがリセットされる"
+          ],
+          "correctIndex": 1,
+          "explanation": "ラジアントフィナーレを使用するとラジアントアンコールが利用可能になります。バーストウィンドウ中に使いましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "brd.lesson_7.quiz",
+      "lessonId": "brd.lesson_7",
+      "title": "クイズ: 上級連携",
+      "passingScore": 80,
+      "questions": [
+        {
+          "questionId": "brd.lesson_7.q1",
+          "conceptId": "brd.empyreal_arrow",
+          "scenario": "エンピリアルアローがリキャストアップしています。",
+          "question": "エンピリアルアローのリキャストはどのくらいですか？",
+          "options": [
+            "30秒",
+            "15秒",
+            "60秒",
+            "45秒"
+          ],
+          "correctIndex": 1,
+          "explanation": "エンピリアルアローは15秒リキャストです。WM中はレパートワースタックを確実に付与します。"
+        },
+        {
+          "questionId": "brd.lesson_7.q2",
+          "conceptId": "brd.bloodletter",
+          "scenario": "軍神のパイオン中です。ブラッドレターが複数のチャージで利用可能です。",
+          "question": "MB中にブラッドレターをどう管理すべきですか？",
+          "options": [
+            "バーストウィンドウのために温存",
+            "使用可能になり次第すぐに使う——MB中はリセットが多い",
+            "ヴォノメが使えるときのみ使用",
+            "MB中は完全に無視"
+          ],
+          "correctIndex": 1,
+          "explanation": "MB中はブラッドレターリセットが多いため、使用可能になり次第すぐに使いましょう。溢れさせないことが重要です。"
+        },
+        {
+          "questionId": "brd.lesson_7.q3",
+          "conceptId": "brd.troubadour",
+          "scenario": "ボスがレイドワイドアタックを使おうとしています。",
+          "question": "トルバドールはいつ使うべきですか？",
+          "options": [
+            "被ダメージ後",
+            "レイドワイドダメージの前",
+            "バーストウィンドウと合わせて",
+            "HPが低いときのみ"
+          ],
+          "correctIndex": 1,
+          "explanation": "トルバドールはレイドワイドダメージの前に使いましょう。事前に使用することでパーティ全体のダメージを軽減できます。"
+        },
+        {
+          "questionId": "brd.lesson_7.q4",
+          "conceptId": "brd.party_coordination",
+          "scenario": "ボスのキャストバーが見えます。割り込みたいです。",
+          "question": "吟遊詩人はボスのキャストをどのように中断できますか？",
+          "options": [
+            "ヘッドグレイズで",
+            "ノクターナルフィナーレで",
+            "プロデュースで",
+            "コンテムプトで"
+          ],
+          "correctIndex": 0,
+          "explanation": "ヘッドグレイズはボスのキャストを中断する割り込み技です。IPCで連携して誰が使うかを調整しましょう。"
+        },
+        {
+          "questionId": "brd.lesson_7.q5",
+          "conceptId": "brd.ogcd_priority",
+          "scenario": "エンピリアルアロー、サイドワインダー、ブラッドレターが全て利用可能です。",
+          "question": "優先順位はどれですか？",
+          "options": [
+            "ブラッドレター → サイドワインダー → エンピリアルアロー",
+            "エンピリアルアロー → サイドワインダー → ブラッドレター",
+            "サイドワインダー → ブラッドレター → エンピリアルアロー",
+            "全て同じ優先度"
+          ],
+          "correctIndex": 1,
+          "explanation": "優先順位はエンピリアルアロー → サイドワインダー → ブラッドレターです。エンピリアルアローはWMでレパートワーを確実に付与するため最優先です。"
+        }
+      ]
+    }
+  ]
+}

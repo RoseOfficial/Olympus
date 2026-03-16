@@ -1,0 +1,144 @@
+{
+  "jobPrefix": "whm",
+  "jobName": "白魔道士",
+  "lessons": [
+    {
+      "lessonId": "whm.lesson_1",
+      "lessonNumber": 1,
+      "title": "ヒーラーの基本",
+      "description": "FFXIVにおけるヒールの基本原則を学びます。ターゲットの優先順位、全体攻撃への対応、oGCDの効果的なウィーブについて解説します。",
+      "prerequisites": [],
+      "conceptsCovered": ["whm.healing_priority", "whm.tank_priority", "whm.party_wide_damage", "whm.ogcd_weaving"],
+      "keyPoints": [
+        "ほとんどのシナリオでタンクが優先されます——常に安定したダメージを受けているためです",
+        "全体攻撃はタンクへの単体ダメージとは異なる対応が必要です",
+        "oGCDヒールはGCD間にウィーブしてDPS稼働率を維持してください",
+        "ヒールが必要なときにoGCDを使わずに放置しないでください"
+      ],
+      "relatedAbilities": ["Cure", "Cure II", "Medica", "Medica II", "Regen"],
+      "tips": [
+        "パーティリストを常に確認し、ダメージが来る前に予測しましょう",
+        "ストライキングダミーでGCDのたびにoGCDを1つウィーブする練習をしましょう"
+      ]
+    },
+    {
+      "lessonId": "whm.lesson_2",
+      "lessonNumber": 2,
+      "title": "緊急対応",
+      "description": "白魔道士の緊急ヒールツールを習得します。ベネディクション、テトラグラマトンの使い方、緊急事態への対処法を学びます。",
+      "prerequisites": ["whm.lesson_1"],
+      "conceptsCovered": ["whm.emergency_healing", "whm.benediction_usage", "whm.tetragrammaton_usage"],
+      "keyPoints": [
+        "ベネディクションは緊急ボタン——HPを全回復するクールダウン180秒のスキル",
+        "テトラグラマトンは強力なoGCDヒール（60秒）——積極的に使いましょう",
+        "緊急ヒールとは、すぐに介入しなければ誰かが死ぬ状況を指します",
+        "「もしもの時のため」にベネディクションをためらうのはやめましょう"
+      ],
+      "relatedAbilities": ["Benediction", "Tetragrammaton"],
+      "tips": [
+        "タンクのHPが30%を下回り重いダメージを受けているなら緊急事態です",
+        "テトラグラマトンはほとんどの「緊急」状況を対処できます——真の緊急時のためにベネディクションを温存してください"
+      ]
+    },
+    {
+      "lessonId": "whm.lesson_3",
+      "lessonNumber": 3,
+      "title": "リリーシステム",
+      "description": "白魔道士のリリーゲージを理解します。リリーの生成方法、効率的な消費方法、血のリリーのダメージ最大化について学びます。",
+      "prerequisites": ["whm.lesson_2"],
+      "conceptsCovered": ["whm.lily_management", "whm.afflatus_solace_usage", "whm.afflatus_rapture_usage", "whm.blood_lily_building", "whm.afflatus_misery_timing"],
+      "keyPoints": [
+        "リリーは戦闘中20秒ごとに生成されます（低レベル時は30秒）",
+        "アフラトゥス・ソラス：単体リリーヒール——タンクのヒールに使用",
+        "アフラトゥス・ラプチャー：範囲リリーヒール——全体ダメージに使用",
+        "リリーを1つ使うごとに血のリリーに近づきます（アフラトゥス・ミゼリー）",
+        "アフラトゥス・ミゼリーはあなたの最強の攻撃——無駄にしないでください"
+      ],
+      "relatedAbilities": ["Afflatus Solace", "Afflatus Rapture", "Afflatus Misery"],
+      "tips": [
+        "リリーは「無料」ヒール——MPを消費せず、ミゼリーでGCD時間を取り戻せます",
+        "ダウンタイムの前にリリーを3つ使い切りミゼリーを準備しましょう",
+        "リリーをオーバーキャップしないように（最大3つ）——使うか失うかです"
+      ]
+    },
+    {
+      "lessonId": "whm.lesson_4",
+      "lessonNumber": 4,
+      "title": "先読みヒール",
+      "description": "ダメージが来る前にヒールする方法を学びます。リジェネの維持、バリアのタイミング、アサイズとディヴァイン・ベニゾンの効果的な活用について解説します。",
+      "prerequisites": ["whm.lesson_3"],
+      "conceptsCovered": ["whm.proactive_healing", "whm.regen_maintenance", "whm.shield_timing", "whm.divine_benison_usage", "whm.assize_usage"],
+      "keyPoints": [
+        "先読みヒールはダメージが来る前に緊急事態を防ぎます",
+        "戦闘中はタンクに常にリジェネをかけておきましょう",
+        "ディヴァイン・ベニゾンはバリアを付与——ダメージの後ではなく前に使用すること",
+        "アサイズはヒールとダメージを同時に行います——ヒールが十分なときはクールダウンごとにDPS目的で使用",
+        "ダメージを受けた後にバリアを付与しても意味がありません"
+      ],
+      "relatedAbilities": ["Regen", "Divine Benison", "Assize"],
+      "tips": [
+        "タンクへのリジェネはプルの前（戦闘開始前）にかけましょう",
+        "アサイズのクールダウンは短い（40秒）——「大きなヒールのため」に温存しないでください"
+      ]
+    },
+    {
+      "lessonId": "whm.lesson_5",
+      "lessonNumber": 5,
+      "title": "防御クールダウン",
+      "description": "白魔道士の防御ツールを習得します。パーティダメージ軽減のためのテンペランス、タンク保護のためのアクアヴェール、高ダメージ対応のリタニー・オブ・ベルについて学びます。",
+      "prerequisites": ["whm.lesson_4"],
+      "conceptsCovered": ["whm.temperance_usage", "whm.aquaveil_usage", "whm.liturgy_usage"],
+      "keyPoints": [
+        "テンペランス：パーティ10%ダメージ軽減＋20秒間ヒール強化（2分CD）",
+        "アクアヴェール：対象への15%ダメージ軽減（8秒、1分CD）——タンク強攻撃に最適",
+        "リタニー・オブ・ベル：設置後、パーティがダメージを受けるとベルがヒールします",
+        "テンペランスは重い全体ダメージフェーズの前に先行して使用してください"
+      ],
+      "relatedAbilities": ["Temperance", "Aquaveil", "Liturgy of the Bell"],
+      "tips": [
+        "リタニーは最大限のヒールのために5回分のダメージ「リング」が必要です——ギミックに合わせて計画してください",
+        "タンク強攻撃の前にアクアヴェールをかける方がダメージ後に回復するよりも効果的です"
+      ]
+    },
+    {
+      "lessonId": "whm.lesson_6",
+      "lessonNumber": 6,
+      "title": "DPS最適化",
+      "description": "ダメージ貢献を最大化します。グレアの優先、ディア（DoT）の維持、DPSとヒールのバランスについて学びます。",
+      "prerequisites": ["whm.lesson_5"],
+      "conceptsCovered": ["whm.dps_optimization", "whm.glare_priority", "whm.dot_maintenance"],
+      "keyPoints": [
+        "グレアはフィラーです——ヒールが不要なときはこれをキャストしてください",
+        "ディア（DoT）はボスに常に維持してください",
+        "DoTは残り3秒以下でリフレッシュ——クリッピングを避けるため",
+        "優秀なヒーラーはパーティを生存させながらダメージを出します",
+        "死んだDPSのダメージはゼロ——ヒールはパーティのDPSを支えます"
+      ],
+      "relatedAbilities": ["Glare III", "Dia", "Holy"],
+      "tips": [
+        "ダンジョンではホーリーのスタンが軽減手段になります——大型プルの最初に使用しましょう",
+        "ボス戦ではグレアのGCD稼働率80%以上を目指しましょう"
+      ]
+    },
+    {
+      "lessonId": "whm.lesson_7",
+      "lessonNumber": 7,
+      "title": "ユーティリティと連携",
+      "description": "最終レッスン：エスナの使い方、蘇生の優先判断、コヒーラーとの連携によるパーティパフォーマンス最適化について学びます。",
+      "prerequisites": ["whm.lesson_6"],
+      "conceptsCovered": ["whm.esuna_usage", "whm.raise_decision", "whm.cohealer_awareness", "whm.party_coordination"],
+      "keyPoints": [
+        "エスナはアイコン上の白いバーがあるデバフを除去します",
+        "レイズのキャスト時間は長い——スウィフトキャスト＋レイズが基本コンボです",
+        "コヒーラーと連絡を取り合い、重複した蘇生を避けましょう",
+        "ヒーラー2人が同時にパーティ軽減を使わないようにしてください",
+        "タンクのヒールとパーティのヒールをどちらが担当するか分担しましょう"
+      ],
+      "relatedAbilities": ["Esuna", "Raise", "Swiftcast"],
+      "tips": [
+        "攻略時はボイスチャットで蘇生を宣言することでMP無駄遣いを防げます",
+        "白いバーがあっても除去できないデバフがあります——どれか覚えておきましょう"
+      ]
+    }
+  ]
+}

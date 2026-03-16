@@ -1,0 +1,139 @@
+{
+  "jobPrefix": "drk",
+  "jobName": "暗黒騎士",
+  "lessons": [
+    {
+      "lessonId": "drk.lesson_1",
+      "lessonNumber": 1,
+      "title": "ブラッドゲージとダークサイド",
+      "description": "暗黒騎士のコアメカニクスを学びます。ブラッドゲージ、ダークサイドバフの維持、基本的なMP管理について解説します。",
+      "prerequisites": [],
+      "conceptsCovered": ["drk.blood_gauge", "drk.darkside", "drk.darkside_maintenance"],
+      "keyPoints": [
+        "ブラッドゲージはコンボアクションから積みます（コンボフィニッシャー1回につき20）",
+        "ダークサイド：10%ダメージバフ——エッジ/フラッド・オブ・シャドウで維持",
+        "エッジ・オブ・シャドウはMP3000を消費してダークサイドタイマーをリフレッシュします",
+        "ダークサイドを切らさないでください——主要なダメージバフです"
+      ],
+      "relatedAbilities": ["Grit", "Hard Slash", "Syphon Strike", "Souleater", "Edge of Shadow"],
+      "tips": [
+        "MPが高いときにエッジ・オブ・シャドウを使ってオーバーキャップを防ぎましょう",
+        "ダークサイドのタイマーは最大60秒まで延長できます——過剰リフレッシュに注意"
+      ]
+    },
+    {
+      "lessonId": "drk.lesson_2",
+      "lessonNumber": 2,
+      "title": "防御の基本",
+      "description": "暗黒騎士の防御ツールを習得します。ランパート、シャドウウォール、ダークマインド、オブレーションについて解説します。",
+      "prerequisites": ["drk.lesson_1"],
+      "conceptsCovered": ["drk.shadow_wall", "drk.dark_mind", "drk.oblation", "drk.mitigation_stacking"],
+      "keyPoints": [
+        "ランパート：20%ダメージ軽減（20秒、90秒CD）——標準タンク防御クールダウン",
+        "シャドウウォール：30%ダメージ軽減（15秒、120秒CD）——大型防御クールダウン",
+        "ダークマインド：魔法ダメージ20%軽減（60秒CD）——魔法ダメージに使用",
+        "オブレーション：2チャージの10%ダメージ軽減（60秒CD）——積極的に使用"
+      ],
+      "relatedAbilities": ["Rampart", "Shadow Wall", "Dark Mind", "Oblation", "Reprisal"],
+      "tips": [
+        "ダークマインドは魔法ダメージのみ有効です——どの攻撃が魔法か覚えましょう",
+        "オブレーションは自分またはパーティメンバーに使用できます"
+      ]
+    },
+    {
+      "lessonId": "drk.lesson_3",
+      "lessonNumber": 3,
+      "title": "リビングデッド",
+      "description": "暗黒騎士のユニークな無敵スキルを習得します。リビングデッドのメカニクス、ウォーキングデッド状態、ヒーラーとの連携について解説します。",
+      "prerequisites": ["drk.lesson_2"],
+      "conceptsCovered": ["drk.living_dead", "drk.walking_dead", "drk.invuln_timing"],
+      "keyPoints": [
+        "リビングデッド：10秒のバフ——死ぬはずのダメージを受けるとウォーキングデッドに移行",
+        "ウォーキングデッド：10秒間死なないが、HP全回復しなければ死亡",
+        "ウォーキングデッド中は攻撃がHPを回復します——攻撃を止めないこと！",
+        "最も複雑なタンク無敵——ヒーラーとの連携が必要"
+      ],
+      "relatedAbilities": ["Living Dead"],
+      "tips": [
+        "ウォーキングデッドはダメージを与えることで回復します——AoE攻撃が有効",
+        "攻略中はリビングデッド使用前にヒーラーに連絡してください"
+      ]
+    },
+    {
+      "lessonId": "drk.lesson_4",
+      "lessonNumber": 4,
+      "title": "ザ・ブラックエストナイト",
+      "description": "暗黒騎士の代名詞的スキルを習得します。ザ・ブラックエストナイトのバリアタイミング、ダークアーツの発動、最適な使用方法について解説します。",
+      "prerequisites": ["drk.lesson_3"],
+      "conceptsCovered": ["drk.the_blackest_night", "drk.tbn_management", "drk.dark_arts"],
+      "keyPoints": [
+        "TBN：自身またはパーティメンバーに最大HP25%のバリア（MP3000消費、15秒CD）",
+        "バリアが完全に消えるとダークアーツを獲得（エッジ/フラッド・オブ・シャドウが無料）",
+        "TBNは暗黒騎士最強の防御かつ攻撃的なツールです",
+        "ダークアーツを得るためにはバリアを完全に消す必要があります——小ダメージには使わないこと"
+      ],
+      "relatedAbilities": ["The Blackest Night", "Edge of Shadow", "Flood of Shadow"],
+      "tips": [
+        "タンク強攻撃の前にTBNを使えばバリアが確実に消えます",
+        "低ダメージ時のTBNは無駄——バリアが消えないとMP損失のみ"
+      ]
+    },
+    {
+      "lessonId": "drk.lesson_5",
+      "lessonNumber": 5,
+      "title": "ブラッドウェポンとデリリアム",
+      "description": "暗黒騎士のバーストウィンドウを習得します。MPとゲージのためのブラッドウェポン、ブラッドスピラースパムのためのデリリアムについて解説します。",
+      "prerequisites": ["drk.lesson_4"],
+      "conceptsCovered": ["drk.blood_weapon", "drk.delirium", "drk.bloodspiller", "drk.edge_of_shadow"],
+      "keyPoints": [
+        "ブラッドウェポン：15秒間攻撃するたびMPとブラッドゲージが回復（60秒CD）",
+        "デリリアム：15秒間ブラッドスピラーが無料でクリット保証（60秒CD）",
+        "ブラッドスピラー：ブラッドゲージ50を消費して高ダメージ",
+        "ブラッドウェポンとデリリアムを重ねて大バーストを出しましょう"
+      ],
+      "relatedAbilities": ["Blood Weapon", "Delirium", "Bloodspiller", "Quietus"],
+      "tips": [
+        "ブラッドウェポン中に5GCDを入れてMP・ゲージ獲得を最大化しましょう",
+        "デリリアムのブラッドスピラーは無料——ウィンドウ中にスパムしてください"
+      ]
+    },
+    {
+      "lessonId": "drk.lesson_6",
+      "lessonNumber": 6,
+      "title": "パーティ保護",
+      "description": "暗黒騎士のパーティユーティリティを習得します。パーティ軽減のためのダークミッショナリー、ダメージのためのリビングシャドウについて解説します。",
+      "prerequisites": ["drk.lesson_5"],
+      "conceptsCovered": ["drk.dark_missionary", "drk.living_shadow", "drk.party_protection"],
+      "keyPoints": [
+        "ダークミッショナリー：パーティ全体に魔法ダメージ10%軽減（15秒、90秒CD）",
+        "リビングシャドウ：24秒間攻撃するシャドウクローンを召喚（120秒CD）",
+        "リビングシャドウは大きなDPS向上——使わずに放置しないこと",
+        "ヒーラーとコタンクとパーティ軽減を調整してください"
+      ],
+      "relatedAbilities": ["Dark Missionary", "Living Shadow"],
+      "tips": [
+        "ダークミッショナリーは魔法ダメージのみ軽減——ボスのダメージタイプを覚えましょう",
+        "リビングシャドウは召喚後しばらくしてから攻撃を開始します"
+      ]
+    },
+    {
+      "lessonId": "drk.lesson_7",
+      "lessonNumber": 7,
+      "title": "上級最適化",
+      "description": "最終レッスン：MP管理、タンクスワップ、oGCDウィーブ、ダメージ出力の最大化について学びます。",
+      "prerequisites": ["drk.lesson_6"],
+      "conceptsCovered": ["drk.tank_swap", "drk.carve_and_spit", "drk.salted_earth", "drk.shadowbringer", "drk.disesteem"],
+      "keyPoints": [
+        "MPを慎重に管理してください——TBNとエッジ・オブ・シャドウ用に3000が必要",
+        "カーブ・アンド・スピット：強力なoGCD＋MP回復（60秒CD）",
+        "ソルティッドアース：ボスの足元に設置するGround DoTゾーン（90秒CD）",
+        "シャドウブリンガー：大ダメージoGCD、2チャージ（60秒CD）"
+      ],
+      "relatedAbilities": ["Provoke", "Shirk", "Carve and Spit", "Salted Earth", "Shadowbringer", "Disesteem"],
+      "tips": [
+        "MPをオーバーキャップさせないこと——ブラッドウェポン前にエッジ・オブ・シャドウで消費",
+        "ソルティッドアース＋ソルト・アンド・ダークネスコンボでバーストダメージを出しましょう"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "drk",
+  "jobName": "暗黒騎士",
+  "quizzes": [
+    {
+      "quizId": "drk.lesson_1.quiz",
+      "lessonId": "drk.lesson_1",
+      "title": "クイズ: ブラッドゲージとダークサイド",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "drk.lesson_1.q1",
+          "conceptId": "drk.darkside",
+          "scenario": "ダークサイドの残り時間が5秒です。MPが6000あります。",
+          "question": "どうすべきですか？",
+          "options": ["ダークサイドを切らす", "エッジ・オブ・シャドウでリフレッシュ", "ダメージを待つ", "ブラッドゲージを使う"],
+          "correctIndex": 1,
+          "explanation": "エッジ・オブ・シャドウはMP3000を消費してダークサイドをリフレッシュします。5秒のタイミングで10%ダメージバフが切れる前にリフレッシュしてください。"
+        },
+        {
+          "questionId": "drk.lesson_1.q2",
+          "conceptId": "drk.blood_gauge",
+          "scenario": "ブラッドゲージが80です。ソウルイーターコンボが使用可能です。",
+          "question": "ソウルイーターを使うとどうなりますか？",
+          "options": ["ブラッド20獲得", "100でキャップ", "ブラッド獲得なし", "ブラッド10獲得"],
+          "correctIndex": 0,
+          "explanation": "ソウルイーターはブラッドゲージを20増加させます。80から100になります——問題ありませんが、オーバーキャップに注意してください。"
+        },
+        {
+          "questionId": "drk.lesson_1.q3",
+          "conceptId": "drk.darkside_maintenance",
+          "scenario": "ダークサイドのタイマーが40秒です。MPが9000あります。",
+          "question": "エッジ・オブ・シャドウを使うべきですか？",
+          "options": ["はい——MPオーバーキャップを防ぐ", "いいえ——ダークサイドは大丈夫", "TBNのために温存", "フラッドを使う"],
+          "correctIndex": 0,
+          "explanation": "MPが9000でオーバーキャップのリスクがあります（最大10000）。エッジ・オブ・シャドウでMPを消費してダークサイドを延長しましょう。"
+        },
+        {
+          "questionId": "drk.lesson_1.q4",
+          "conceptId": "drk.blood_gauge",
+          "scenario": "ブラッドが50あります。ブラッドスピラーを使うかデリリアムまで温存するか？",
+          "question": "デリリアムが20秒後にCDから戻ります。",
+          "options": ["今すぐブラッドスピラー", "全て温存", "30まで使う", "100まで待つ"],
+          "correctIndex": 0,
+          "explanation": "デリリアムまで20秒あるため、使用して再生成する時間があります。オーバーキャップを避けるためにブラッドスピラーを使いましょう。"
+        },
+        {
+          "questionId": "drk.lesson_1.q5",
+          "conceptId": "drk.darkside",
+          "scenario": "戦闘開始直後です。ダークサイドが発動していません。",
+          "question": "ダークサイドを発動させる方法は？",
+          "options": ["手動でオンにする", "エッジ・オブ・シャドウを使う", "攻撃するだけ", "グリットを使う"],
+          "correctIndex": 1,
+          "explanation": "ダークサイドはエッジ・オブ・シャドウまたはフラッド・オブ・シャドウを使うことで発動します。早めに使ってダメージバフを得ましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "drk.lesson_2.quiz",
+      "lessonId": "drk.lesson_2",
+      "title": "クイズ: 防御の基本",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "drk.lesson_2.q1",
+          "conceptId": "drk.dark_mind",
+          "scenario": "魔法タンク強攻撃が来ます。ダークマインドが使用可能です。",
+          "question": "ダークマインドはここで有効ですか？",
+          "options": ["いいえ——シャドウウォールを使う", "はい——魔法ダメージ20%軽減", "部分的に有効", "AoEのみ有効"],
+          "correctIndex": 1,
+          "explanation": "ダークマインドは魔法ダメージ20%軽減を提供します。魔法タンク強攻撃に最適です。"
+        },
+        {
+          "questionId": "drk.lesson_2.q2",
+          "conceptId": "drk.oblation",
+          "scenario": "オブレーションが2チャージあります。軽いダメージが来ます。",
+          "question": "オブレーションを使うべきですか？",
+          "options": ["いいえ——大ダメージ用に温存", "はい——10%軽減です", "両方のチャージを使う", "他人のみに使う"],
+          "correctIndex": 1,
+          "explanation": "オブレーションは10%のみですが2チャージと短CDがあります。安定した軽減のために積極的に使いましょう。"
+        },
+        {
+          "questionId": "drk.lesson_2.q3",
+          "conceptId": "drk.shadow_wall",
+          "scenario": "大きなタンク強攻撃です。シャドウウォールとランパートの両方が使用可能です。",
+          "question": "どちらを使うべきですか？",
+          "options": ["両方を重ねる", "シャドウウォールのみ", "ランパートのみ", "シャドウウォール＋オブレーション"],
+          "correctIndex": 3,
+          "explanation": "シャドウウォール（30%）＋オブレーション（10%）で大ダメージに対処できます。次の攻撃のためにランパートを温存してください。"
+        },
+        {
+          "questionId": "drk.lesson_2.q4",
+          "conceptId": "drk.dark_mind",
+          "scenario": "物理タンク強攻撃が来ます。ダークマインドのみ使用可能です。",
+          "question": "ダークマインドを使うべきですか？",
+          "options": ["はい——ある程度の軽減になる", "いいえ——効果がない", "とりあえず使う", "オブレーションと一緒に"],
+          "correctIndex": 1,
+          "explanation": "ダークマインドは魔法ダメージのみ軽減します。物理攻撃には全く効果がありません。"
+        },
+        {
+          "questionId": "drk.lesson_2.q5",
+          "conceptId": "drk.mitigation_stacking",
+          "scenario": "シャドウウォール、オブレーション、TBNが使用可能です。",
+          "question": "最適な重ね合わせの順序は？",
+          "options": ["全部同時に", "シャドウウォール＋TBN", "シャドウウォール＋オブレーション", "TBNのみ"],
+          "correctIndex": 1,
+          "explanation": "シャドウウォール（30%）＋TBN（最大HP25%バリア）で通常は十分です。次のヒットのためにオブレーションを温存してください。"
+        }
+      ]
+    },
+    {
+      "quizId": "drk.lesson_3.quiz",
+      "lessonId": "drk.lesson_3",
+      "title": "クイズ: リビングデッド",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "drk.lesson_3.q1",
+          "conceptId": "drk.living_dead",
+          "scenario": "リビングデッドを発動しました。HPが80%です。",
+          "question": "致死ダメージを受けるとどうなりますか？",
+          "options": ["死亡する", "ウォーキングデッドに移行", "HP全回復", "リビングデッドが延長"],
+          "correctIndex": 1,
+          "explanation": "リビングデッド中に死ぬはずのダメージを受けると、代わりにウォーキングデッドになります——10秒間死なない状態です。"
+        },
+        {
+          "questionId": "drk.lesson_3.q2",
+          "conceptId": "drk.walking_dead",
+          "scenario": "ウォーキングデッド状態です。タイマーが動いています。",
+          "question": "終了前に何が必要ですか？",
+          "options": ["何もしなくても生き残る", "HP100%まで回復", "何かを倒す", "クールダウンを使う"],
+          "correctIndex": 1,
+          "explanation": "ウォーキングデッドは終了前にHP100%まで回復しないと、バフが切れた時点で死亡します。"
+        },
+        {
+          "questionId": "drk.lesson_3.q3",
+          "conceptId": "drk.walking_dead",
+          "scenario": "ウォーキングデッドが発動中です。AoE攻撃が使用可能です。",
+          "question": "生き残るために何が助けになりますか？",
+          "options": ["攻撃を止める", "AoE攻撃で回復", "ヒーラーのみ頼る", "防御CDを使う"],
+          "correctIndex": 1,
+          "explanation": "ウォーキングデッド中は攻撃がHPを回復します。複数の敵へのAoE攻撃はより多く回復させます。"
+        },
+        {
+          "questionId": "drk.lesson_3.q4",
+          "conceptId": "drk.invuln_timing",
+          "scenario": "リビングデッドは300秒のクールダウンです。",
+          "question": "これはどう活用に影響しますか？",
+          "options": ["1回だけ使う", "緊急用に温存", "計画した大ダメージに使う", "絶対使わない"],
+          "correctIndex": 2,
+          "explanation": "300秒（5分）なので計画したダメージイベントに使用できます。最適な使用のためにヒーラーと連携してください。"
+        },
+        {
+          "questionId": "drk.lesson_3.q5",
+          "conceptId": "drk.living_dead",
+          "scenario": "リビングデッドを使用しました。致死ダメージを受けずにタイマーが切れました。",
+          "question": "どうなりますか？",
+          "options": ["それでも死亡する", "何もなし——バフが切れるだけ", "ウォーキングデッドが発動", "CDがリセットされない"],
+          "correctIndex": 1,
+          "explanation": "リビングデッド中に致死ダメージを受けなければ、そのままバフが切れるだけです。ウォーキングデッドへの移行もなく、ペナルティもありません。"
+        }
+      ]
+    },
+    {
+      "quizId": "drk.lesson_4.quiz",
+      "lessonId": "drk.lesson_4",
+      "title": "クイズ: ザ・ブラックエストナイト",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "drk.lesson_4.q1",
+          "conceptId": "drk.the_blackest_night",
+          "scenario": "タンク強攻撃が来ます。TBNが使用可能です。MPが5000あります。",
+          "question": "TBNを使うべきですか？",
+          "options": ["いいえ——MPを温存", "はい——バリアが消える", "HPが低いときのみ", "代わりにオブレーションを使う"],
+          "correctIndex": 1,
+          "explanation": "タンク強攻撃はTBNのバリアを消し、ダークアーツ（無料のエッジ・オブ・シャドウ）を与えます。防御的かつ攻撃的なツールです。"
+        },
+        {
+          "questionId": "drk.lesson_4.q2",
+          "conceptId": "drk.dark_arts",
+          "scenario": "TBNのバリアが完全に消えました。",
+          "question": "ダークアーツから何を得ますか？",
+          "options": ["MPが戻る", "エッジ/フラッド・オブ・シャドウが無料", "ダメージバフ", "ヒール"],
+          "correctIndex": 1,
+          "explanation": "ダークアーツは無料のエッジ・オブ・シャドウ（またはフラッド）を付与します。TBNに使ったMP3000が実質ダメージとして返ってきます。"
+        },
+        {
+          "questionId": "drk.lesson_4.q3",
+          "conceptId": "drk.tbn_management",
+          "scenario": "軽いオートアタックのみです。TBNが使用可能です。",
+          "question": "TBNを使うべきですか？",
+          "options": ["はい——無料バリア", "いいえ——バリアが消えない", "HPが低いときのみ", "CDごとに使う"],
+          "correctIndex": 1,
+          "explanation": "TBNのバリアが完全に消えなければ、MPを失ってダークアーツも得られません。より大きなダメージのために温存してください。"
+        },
+        {
+          "questionId": "drk.lesson_4.q4",
+          "conceptId": "drk.the_blackest_night",
+          "scenario": "パーティメンバーが大ダメージを受けそうです。TBNが使用可能です。",
+          "question": "彼らにTBNを使えますか？",
+          "options": ["いいえ——自分のみ", "はい——誰にでも使える", "タンクのみ", "戦闘中のみ"],
+          "correctIndex": 1,
+          "explanation": "TBNは任意のパーティメンバーに使用できます。そのバリアが消えた場合、ダークアーツを得るのはあなたです。"
+        },
+        {
+          "questionId": "drk.lesson_4.q5",
+          "conceptId": "drk.dark_arts",
+          "scenario": "ダークアーツを持っています。エッジ・オブ・シャドウは通常MP3000かかります。",
+          "question": "ダークアーツによるエッジのMPコストは？",
+          "options": ["MP3000", "MP1500", "MP0", "ブラッドを消費"],
+          "correctIndex": 2,
+          "explanation": "ダークアーツは次のエッジ・オブ・シャドウまたはフラッド・オブ・シャドウを完全に無料にします。純粋な得です。"
+        }
+      ]
+    },
+    {
+      "quizId": "drk.lesson_5.quiz",
+      "lessonId": "drk.lesson_5",
+      "title": "クイズ: ブラッドウェポンとデリリアム",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "drk.lesson_5.q1",
+          "conceptId": "drk.blood_weapon",
+          "scenario": "ブラッドウェポンが使用可能です。コンボを始めようとしています。",
+          "question": "ブラッドウェポンは何を提供しますか？",
+          "options": ["ダメージバフ", "攻撃のたびにMP＋ブラッド回復", "ブラッドスピラーが無料", "クリット上昇"],
+          "correctIndex": 1,
+          "explanation": "ブラッドウェポンは15秒間攻撃するたびMPとブラッドゲージを回復させます。バーストの前に発動させてください。"
+        },
+        {
+          "questionId": "drk.lesson_5.q2",
+          "conceptId": "drk.delirium",
+          "scenario": "デリリアムが発動しました。無料のブラッドスピラーが3チャージあります。",
+          "question": "デリリアムのブラッドスピラーの特徴は？",
+          "options": ["威力が高い", "無料＋クリット保証", "AoEダメージ", "自身を回復"],
+          "correctIndex": 1,
+          "explanation": "デリリアムのブラッドスピラーはブラッドゲージを消費せずクリットが保証されます。最大バーストです。"
+        },
+        {
+          "questionId": "drk.lesson_5.q3",
+          "conceptId": "drk.bloodspiller",
+          "scenario": "ブラッドが50あります。デリリアムは使用できません。",
+          "question": "ブラッドスピラーを使うべきですか？",
+          "options": ["いいえ——デリリアムまで温存", "はい——ブラッドを消費", "100まで待つ", "クワイエタスを使う"],
+          "correctIndex": 1,
+          "explanation": "ブラッドをオーバーキャップさせないでください。デリリアムがCDのときはブラッドスピラーでゲージを消費しましょう。"
+        },
+        {
+          "questionId": "drk.lesson_5.q4",
+          "conceptId": "drk.blood_weapon",
+          "scenario": "ブラッドウェポンの残り時間が3秒です。コンボの途中です。",
+          "question": "何GCD収めるべきですか？",
+          "options": ["1〜2", "3", "5", "できるだけ多く"],
+          "correctIndex": 2,
+          "explanation": "ブラッドウェポンは15秒続きます。MP・ブラッド獲得を最大化するために5GCDを収めてください。"
+        },
+        {
+          "questionId": "drk.lesson_5.q5",
+          "conceptId": "drk.edge_of_shadow",
+          "scenario": "ブラッドウェポンが発動中です。MPが9000あります。",
+          "question": "エッジ・オブ・シャドウを使うべきですか？",
+          "options": ["いいえ——ブラッドウェポンがMPを与える", "はい——オーバーキャップを防ぐ", "10000まで待つ", "代わりにフラッドを使う"],
+          "correctIndex": 1,
+          "explanation": "ブラッドウェポンはMPを生成します。9000ではオーバーキャップします。エッジ・オブ・シャドウでMPを消費してください。"
+        }
+      ]
+    },
+    {
+      "quizId": "drk.lesson_6.quiz",
+      "lessonId": "drk.lesson_6",
+      "title": "クイズ: パーティ保護",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "drk.lesson_6.q1",
+          "conceptId": "drk.dark_missionary",
+          "scenario": "魔法全体攻撃が来ます。ダークミッショナリーが使用可能です。",
+          "question": "ダークミッショナリーは何を提供しますか？",
+          "options": ["完全軽減", "パーティ全体に魔法ダメージ10%軽減", "バリア", "ヒール"],
+          "correctIndex": 1,
+          "explanation": "ダークミッショナリーはパーティ全体に15秒間魔法ダメージ10%軽減を付与します。"
+        },
+        {
+          "questionId": "drk.lesson_6.q2",
+          "conceptId": "drk.living_shadow",
+          "scenario": "リビングシャドウが使用可能です。バーストウィンドウが始まります。",
+          "question": "いつリビングシャドウを召喚すべきですか？",
+          "options": ["後のために温存", "バーストウィンドウ中", "バーストの後", "AoEのみ"],
+          "correctIndex": 1,
+          "explanation": "リビングシャドウは24秒間攻撃し大ダメージを与えます。バーストウィンドウ中に召喚してレイドバフの恩恵を最大化しましょう。"
+        },
+        {
+          "questionId": "drk.lesson_6.q3",
+          "conceptId": "drk.dark_missionary",
+          "scenario": "物理全体攻撃が来ます。ダークミッショナリーが使用可能です。",
+          "question": "ダークミッショナリーを使うべきですか？",
+          "options": ["はい——ある程度の軽減になる", "いいえ——魔法のみ", "部分的に有効", "代わりにリプライザルを使う"],
+          "correctIndex": 1,
+          "explanation": "ダークミッショナリーは魔法ダメージのみ軽減します。物理全体攻撃には代わりにリプライザルを使いましょう。"
+        },
+        {
+          "questionId": "drk.lesson_6.q4",
+          "conceptId": "drk.living_shadow",
+          "scenario": "リビングシャドウを召喚しました。ボスが無敵になりました。",
+          "question": "リビングシャドウはどうなりますか？",
+          "options": ["消える", "待機してから継続", "時間を無駄にする", "とにかく攻撃する"],
+          "correctIndex": 1,
+          "explanation": "リビングシャドウは無敵フェーズを通じて持続し、ボスが戻ってきたら攻撃を再開します。"
+        },
+        {
+          "questionId": "drk.lesson_6.q5",
+          "conceptId": "drk.party_protection",
+          "scenario": "パーティメンバーにTBNを使用しています。ダークミッショナリーが使用可能です。大ダメージが来ます。",
+          "question": "これらの保護を重ねることができますか？",
+          "options": ["いいえ——1つずつ", "はい——重ねられる", "自分にのみ", "TBNは軽減を置き換える"],
+          "correctIndex": 1,
+          "explanation": "TBN（バリア）とダークミッショナリー（軽減）は重ねられます。TBNは軽減後の残りダメージを吸収します。"
+        }
+      ]
+    },
+    {
+      "quizId": "drk.lesson_7.quiz",
+      "lessonId": "drk.lesson_7",
+      "title": "クイズ: 上級最適化",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "drk.lesson_7.q1",
+          "conceptId": "drk.carve_and_spit",
+          "scenario": "カーブ・アンド・スピットがCDから戻りました。MPが6000あります。",
+          "question": "カーブ・アンド・スピットはダメージ以外に何を提供しますか？",
+          "options": ["ブラッドゲージ", "MP回復", "バリア", "ヒール"],
+          "correctIndex": 1,
+          "explanation": "カーブ・アンド・スピットはダメージを与えるだけでなくMPも回復します。MPレベルの維持に役立てましょう。"
+        },
+        {
+          "questionId": "drk.lesson_7.q2",
+          "conceptId": "drk.salted_earth",
+          "scenario": "ソルティッドアースが使用可能です。ボスが静止しています。",
+          "question": "ソルティッドアースをどこに設置すべきですか？",
+          "options": ["自分の足元", "ボスの足元", "どこでも同じ", "ボスの後ろ"],
+          "correctIndex": 1,
+          "explanation": "ソルティッドアースはGround DoTゾーンです。全持続時間ダメージを与えられるようにボスの足元に設置してください。"
+        },
+        {
+          "questionId": "drk.lesson_7.q3",
+          "conceptId": "drk.shadowbringer",
+          "scenario": "シャドウブリンガーが2チャージあります。バーストウィンドウが発動中です。",
+          "question": "チャージをどう使うべきですか？",
+          "options": ["間隔を空けて使う", "バーストウィンドウ中に両方使う", "1つ温存", "ブラッドウェポンと一緒に使う"],
+          "correctIndex": 1,
+          "explanation": "シャドウブリンガーのチャージはバーストウィンドウ中に使用してレイドバフ下でのダメージを最大化しましょう。"
+        },
+        {
+          "questionId": "drk.lesson_7.q4",
+          "conceptId": "drk.tank_swap",
+          "scenario": "タンクスワップが必要です。アグロを取る必要があります。",
+          "question": "プロヴォーク後にすべきことは？",
+          "options": ["何もしない", "シャークを待つ", "自分にTBNを使う", "リビングシャドウを使う"],
+          "correctIndex": 2,
+          "explanation": "プロヴォーク後はあなたがメインタンクになります。受けることになるダメージのために自分にTBNを使いましょう。"
+        },
+        {
+          "questionId": "drk.lesson_7.q5",
+          "conceptId": "drk.disesteem",
+          "scenario": "ソルティッドアースが発動中です。ソルト・アンド・ダークネスが使用可能です。",
+          "question": "どんなコンボができますか？",
+          "options": ["特になし", "ソルト・アンド・ダークネスでバーストダメージ", "ソルティッドアースをもう一度", "デリリアム中のみ"],
+          "correctIndex": 1,
+          "explanation": "ソルティッドアース発動中はソルト・アンド・ダークネスが使用可能になり追加バーストダメージを与えられます。"
+        }
+      ]
+    }
+  ]
+}
