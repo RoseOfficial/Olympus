@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "mnk",
+  "jobName": "モンク",
+  "quizzes": [
+    {
+      "quizId": "mnk.lesson_1.quiz",
+      "lessonId": "mnk.lesson_1",
+      "title": "クイズ: モンクの基本",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "mnk.lesson_1.q1",
+          "conceptId": "mnk.form_system",
+          "scenario": "ブートシャインを使ったばかりです。今はどの型にいますか？",
+          "question": "オポ・オポ型の後にどの型に移行しますか？",
+          "options": ["オポ・オポ", "ラプター", "クーアル", "型なし"],
+          "correctIndex": 1,
+          "explanation": "オポ・オポ型アビリティ（ブートシャイン/ドラゴンキック）を使った後、ラプター型に移行します。"
+        },
+        {
+          "questionId": "mnk.lesson_1.q2",
+          "conceptId": "mnk.positionals",
+          "scenario": "ボスにブートシャインを使おうとしています。",
+          "question": "方向指定ボーナスのためにどこに立つべきですか？",
+          "options": ["正面", "側面（横）", "後方（後ろ）", "どの位置でも"],
+          "correctIndex": 2,
+          "explanation": "ブートシャインは後方方向指定があります。ボスの後ろに立つとボーナス威力が得られます。"
+        },
+        {
+          "questionId": "mnk.lesson_1.q3",
+          "conceptId": "mnk.combo_basics",
+          "scenario": "ラプター型にいます。",
+          "question": "ラプター型で使えるアビリティはどれですか？",
+          "options": ["ブートシャイン/ドラゴンキック", "トゥルーストライク/ツインスネイクス", "スナップパンチ/デモリッシュ", "どのアビリティでも"],
+          "correctIndex": 1,
+          "explanation": "トゥルーストライクとツインスネイクスはラプター型アビリティです。使用するとクーアル型に移行します。"
+        },
+        {
+          "questionId": "mnk.lesson_1.q4",
+          "conceptId": "mnk.positionals",
+          "scenario": "スナップパンチを使う必要があります。",
+          "question": "方向指定ボーナスのためにどこに立つべきですか？",
+          "options": ["正面", "側面（横）", "後方（後ろ）", "どの位置でも"],
+          "correctIndex": 1,
+          "explanation": "スナップパンチは側面方向指定があります。ボーナス威力のためにボスの横に立ちましょう。"
+        },
+        {
+          "questionId": "mnk.lesson_1.q5",
+          "conceptId": "mnk.form_system",
+          "scenario": "クーアル型でスナップパンチを使いました。",
+          "question": "どの型に移行しますか？",
+          "options": ["クーアル型のまま", "ラプター", "オポ・オポ", "型なし"],
+          "correctIndex": 2,
+          "explanation": "クーアル型アビリティの後、オポ・オポ型に戻り型ローテーションが完成します。"
+        }
+      ]
+    },
+    {
+      "quizId": "mnk.lesson_2.quiz",
+      "lessonId": "mnk.lesson_2",
+      "title": "クイズ: バフの維持",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "mnk.lesson_2.q1",
+          "conceptId": "mnk.disciplined_fist",
+          "scenario": "規律の拳の残り時間が5秒です。",
+          "question": "何を優先すべきですか？",
+          "options": ["ダメージのためにブートシャインを使う", "規律の拳をリフレッシュする", "禁断のチャクラを使う", "完全なバランスを使う"],
+          "correctIndex": 1,
+          "explanation": "規律の拳（+15%ダメージ）は重要です。切れる前にツインスネイクスまたはデモリッシュでリフレッシュしてください。"
+        },
+        {
+          "questionId": "mnk.lesson_2.q2",
+          "conceptId": "mnk.demolish_dot",
+          "scenario": "ボスのデモリッシュが残り5秒です。",
+          "question": "今リフレッシュすべきですか？",
+          "options": ["はい——100%稼働率を維持", "いいえ——3秒以下まで待つ", "いいえ——切れさせる", "バーストのみ"],
+          "correctIndex": 1,
+          "explanation": "クリップを避けるために3秒以下でDoTをリフレッシュしましょう。5秒でリフレッシュすると潜在的なダメージチックを無駄にします。"
+        },
+        {
+          "questionId": "mnk.lesson_2.q3",
+          "conceptId": "mnk.disciplined_fist",
+          "scenario": "どのアビリティが規律の拳を付与しますか？",
+          "question": "正しい答えを選んでください。",
+          "options": ["ブートシャインとドラゴンキック", "トゥルーストライクとスナップパンチ", "ツインスネイクスとデモリッシュ", "全ウェポンスキル"],
+          "correctIndex": 2,
+          "explanation": "ツインスネイクス（ラプター）とデモリッシュ（クーアル）の両方が規律の拳バフを付与します。"
+        },
+        {
+          "questionId": "mnk.lesson_2.q4",
+          "conceptId": "mnk.meditation",
+          "scenario": "プルを待っています。チャクラゲージが0です。",
+          "question": "何をすべきですか？",
+          "options": ["おとなしく待つ", "瞑想を使ってチャクラを積む", "完全なバランスを使う", "何もしない——チャクラは戦闘で積まれる"],
+          "correctIndex": 1,
+          "explanation": "瞑想は戦闘外でチャクラを積みます。バーストのためにチャクラ5で戦闘を始めましょう。"
+        },
+        {
+          "questionId": "mnk.lesson_2.q5",
+          "conceptId": "mnk.demolish_dot",
+          "scenario": "デモリッシュは18秒持続のDoTです。",
+          "question": "デモリッシュは規律の拳とどう相互作用しますか？",
+          "options": ["相互作用なし", "デモリッシュが規律の拳を付与する", "規律の拳がデモリッシュを延長する", "同じバフ"],
+          "correctIndex": 1,
+          "explanation": "デモリッシュは敵にDoTを適用すると同時にあなたに規律の拳ダメージバフを付与します。"
+        }
+      ]
+    },
+    {
+      "quizId": "mnk.lesson_3.quiz",
+      "lessonId": "mnk.lesson_3",
+      "title": "クイズ: チャクラシステム",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "mnk.lesson_3.q1",
+          "conceptId": "mnk.chakra_gauge",
+          "scenario": "チャクラゲージが5スタックです。",
+          "question": "どうすべきですか？",
+          "options": ["チャクラをもっと積む", "禁断のチャクラを使う", "バーストウィンドウのために温存する", "チャクラはキャップしない"],
+          "correctIndex": 1,
+          "explanation": "チャクラは5スタックでキャップします。潜在的なチャクラ生成を無駄にしないために消費してください。"
+        },
+        {
+          "questionId": "mnk.lesson_3.q2",
+          "conceptId": "mnk.the_forbidden_chakra",
+          "scenario": "単体戦闘です。チャクラが5あります。",
+          "question": "どのチャクラスペンダーを使うべきですか？",
+          "options": ["禁断のチャクラ", "エンライトメント", "鉄山靠", "ハウリングフィスト"],
+          "correctIndex": 0,
+          "explanation": "禁断のチャクラは単体チャクラスペンダーです。エンライトメントはAoE（3体以上）用です。"
+        },
+        {
+          "questionId": "mnk.lesson_3.q3",
+          "conceptId": "mnk.enlightenment",
+          "scenario": "4体の敵がまとまっています。チャクラが5あります。",
+          "question": "どのアビリティを使うべきですか？",
+          "options": ["禁断のチャクラ", "エンライトメント", "チャクラを温存する", "ハウリングフィストのみ"],
+          "correctIndex": 1,
+          "explanation": "エンライトメントはAoEチャクラスペンダーです。4体では単体より合計ダメージが多くなります。"
+        },
+        {
+          "questionId": "mnk.lesson_3.q4",
+          "conceptId": "mnk.chakra_gauge",
+          "scenario": "兄弟愛を使おうとしています。",
+          "question": "兄弟愛はチャクラ生成にどう影響しますか？",
+          "options": ["影響なし", "チャクラを5つ即時付与", "クリティカルヒットからのチャクラ生成を増加", "チャクラ獲得を2倍に"],
+          "correctIndex": 2,
+          "explanation": "兄弟愛はパーティのクリティカルヒット率を上げ、クリティカルヒットのウェポンスキルからのチャクラ生成が増えます。"
+        },
+        {
+          "questionId": "mnk.lesson_3.q5",
+          "conceptId": "mnk.chakra_gauge",
+          "scenario": "戦闘中にチャクラはどのように積まれますか？",
+          "question": "チャクラを生成するものはどれですか？",
+          "options": ["時間のみ", "ウェポンスキルとクリティカルヒット", "oGCDのみ", "ダメージを受けること"],
+          "correctIndex": 1,
+          "explanation": "チャクラはウェポンスキルを使うと積まれ、クリティカルヒット時に追加で生成されるチャンスがあります。"
+        }
+      ]
+    },
+    {
+      "quizId": "mnk.lesson_4.quiz",
+      "lessonId": "mnk.lesson_4",
+      "title": "クイズ: 獣のチャクラとマスターフル・ブリッツ",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "mnk.lesson_4.q1",
+          "conceptId": "mnk.beast_chakra",
+          "scenario": "ドラゴンキック（オポ・オポ型アビリティ）を使いました。",
+          "question": "どの獣のチャクラタイプを得ますか？",
+          "options": ["月（ルナー）", "陽（ソーラー）", "天（セレスティアル）", "なし"],
+          "correctIndex": 0,
+          "explanation": "オポ・オポ型アビリティ（ブートシャイン、ドラゴンキック）は月の獣のチャクラを付与します。"
+        },
+        {
+          "questionId": "mnk.lesson_4.q2",
+          "conceptId": "mnk.masterful_blitz",
+          "scenario": "獣のチャクラが3つあります：月、陽、天。",
+          "question": "マスターフル・ブリッツはどのブリッツになりますか？",
+          "options": ["エリクシールフィールド", "ライジングフェニックス", "ファントムラッシュ", "ランダム"],
+          "correctIndex": 2,
+          "explanation": "全3種の異なる獣のチャクラ = ファントムラッシュ。最高単体ダメージのブリッツです。"
+        },
+        {
+          "questionId": "mnk.lesson_4.q3",
+          "conceptId": "mnk.elixir_field",
+          "scenario": "月の獣のチャクラが3つあります（全部同じ）。",
+          "question": "マスターフル・ブリッツはどのブリッツになりますか？",
+          "options": ["エリクシールフィールド", "ライジングフェニックス", "ファントムラッシュ", "フリントストライク"],
+          "correctIndex": 0,
+          "explanation": "3つ同じ獣のチャクラ = エリクシールフィールド。広範囲のAoE攻撃です。"
+        },
+        {
+          "questionId": "mnk.lesson_4.q4",
+          "conceptId": "mnk.rising_phoenix",
+          "scenario": "陽のチャクラが2つと月のチャクラが1つあります。",
+          "question": "マスターフル・ブリッツはどのブリッツになりますか？",
+          "options": ["エリクシールフィールド", "ライジングフェニックス", "ファントムラッシュ", "エリクシールバースト"],
+          "correctIndex": 1,
+          "explanation": "同じタイプ2つ + 異なる1つ = ライジングフェニックス（陽チャクラが必要）。扇形AoEです。"
+        },
+        {
+          "questionId": "mnk.lesson_4.q5",
+          "conceptId": "mnk.phantom_rush",
+          "scenario": "単体ボス戦闘です。獣のチャクラを積もうとしています。",
+          "question": "どの組み合わせを目指すべきですか？",
+          "options": ["エリクシールフィールドのために3つ同じ", "ファントムラッシュのために全3種異なる", "ライジングフェニックスのために2+1", "どちらでも同じ"],
+          "correctIndex": 1,
+          "explanation": "単体では、ファントムラッシュ（全3種異なる）が最高ダメージを与えます。"
+        }
+      ]
+    },
+    {
+      "quizId": "mnk.lesson_5.quiz",
+      "lessonId": "mnk.lesson_5",
+      "title": "クイズ: バーストウィンドウ",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "mnk.lesson_5.q1",
+          "conceptId": "mnk.perfect_balance",
+          "scenario": "完全なバランスを起動しました。",
+          "question": "完全なバランスで何ができますか？",
+          "options": ["15秒間ダメージ2倍", "型に関わらずどのウェポンスキルも使える", "全リキャストリセット", "方向指定を無視"],
+          "correctIndex": 1,
+          "explanation": "完全なバランスは現在の型に関わらず3回ウェポンスキルを使えます。"
+        },
+        {
+          "questionId": "mnk.lesson_5.q2",
+          "conceptId": "mnk.riddle_of_fire",
+          "scenario": "炎の理は60秒リキャストのダメージバフです。",
+          "question": "どれだけのダメージ増加が得られますか？",
+          "options": ["+5%", "+10%", "+15%", "+20%"],
+          "correctIndex": 2,
+          "explanation": "炎の理は20秒間+15%ダメージを付与します。コアバーストウィンドウアビリティです。"
+        },
+        {
+          "questionId": "mnk.lesson_5.q3",
+          "conceptId": "mnk.brotherhood",
+          "scenario": "兄弟愛のリキャストは120秒です。",
+          "question": "兄弟愛は何を提供しますか？",
+          "options": ["個人ダメージバフのみ", "パーティダメージバフ + チャクラブースト", "持続回復", "移動速度"],
+          "correctIndex": 1,
+          "explanation": "兄弟愛はパーティに5%ダメージ増加を付与し、クリティカルヒット率の向上でチャクラ生成を強化します。"
+        },
+        {
+          "questionId": "mnk.lesson_5.q4",
+          "conceptId": "mnk.burst_alignment",
+          "scenario": "パーティレイドバフが10秒後に来ます。",
+          "question": "バーストアビリティのタイミングをどうすべきですか？",
+          "options": ["すぐに使う", "レイドバフを待つ", "緊急時のために温存する", "ランダムに使う"],
+          "correctIndex": 1,
+          "explanation": "最大ダメージ増幅のためにバーストアビリティ（炎の理、兄弟愛）をパーティレイドバフに合わせましょう。"
+        },
+        {
+          "questionId": "mnk.lesson_5.q5",
+          "conceptId": "mnk.perfect_balance",
+          "scenario": "完全なバランスは40秒リチャージで2チャージあります。",
+          "question": "バースト中に完全なバランスをどう使うべきですか？",
+          "options": ["両チャージを温存する", "獣のチャクラを素早く積むために使う", "方向指定の自由のために使う", "緊急時のみ使う"],
+          "correctIndex": 1,
+          "explanation": "マスターフル・ブリッツのために炎の理中に獣のチャクラを素早く積むために完全なバランスを使いましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "mnk.lesson_6.quiz",
+      "lessonId": "mnk.lesson_6",
+      "title": "クイズ: 移動とユーティリティ",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "mnk.lesson_6.q1",
+          "conceptId": "mnk.thunderclap",
+          "scenario": "ボスがアリーナを横切ってダッシュします。サンダークラップが3チャージあります。",
+          "question": "サンダークラップをどう使うべきですか？",
+          "options": ["全チャージを使って追いつく", "1チャージを使い残りを温存する", "全チャージを温存する", "普通に歩く"],
+          "correctIndex": 1,
+          "explanation": "距離を詰めるためにサンダークラップを使いますが、将来の移動ニーズのためにチャージを温存してください。"
+        },
+        {
+          "questionId": "mnk.lesson_6.q2",
+          "conceptId": "mnk.true_north_usage",
+          "scenario": "ボスが壁際にいます。ブートシャインのための後方に届けません。",
+          "question": "どうすべきですか？",
+          "options": ["方向指定を外す", "トゥルーノースを使う", "代わりにドラゴンキックを使う", "ボスが動くのを待つ"],
+          "correctIndex": 1,
+          "explanation": "トゥルーノースは10秒間方向指定の条件を解除します。ポジショニングが不可能なときに使いましょう。"
+        },
+        {
+          "questionId": "mnk.lesson_6.q3",
+          "conceptId": "mnk.riddle_of_wind",
+          "scenario": "風の理はオートアタック速度を上げます。",
+          "question": "風の理をいつ使うべきですか？",
+          "options": ["AoEのみ", "バーストウィンドウ中", "移動のみ", "無用——使わない"],
+          "correctIndex": 1,
+          "explanation": "風の理はより速いオートアタックで無料ダメージを提供します。最大価値のためにバースト中に使いましょう。"
+        },
+        {
+          "questionId": "mnk.lesson_6.q4",
+          "conceptId": "mnk.true_north_usage",
+          "scenario": "トゥルーノースは45秒リチャージで2チャージあります。",
+          "question": "トゥルーノースをどう管理すべきですか？",
+          "options": ["リキャストで使う", "緊急時のために両方温存する", "1つ使い、1つ温存する", "絶対使わない"],
+          "correctIndex": 2,
+          "explanation": "予期しない状況のために少なくとも1チャージを維持してください。2でキャップしないこと、でも無駄にもしないこと。"
+        },
+        {
+          "questionId": "mnk.lesson_6.q5",
+          "conceptId": "mnk.thunderclap",
+          "scenario": "AoEを回避する必要がありますが、すぐGCDが来ます。",
+          "question": "最善のアプローチは何ですか？",
+          "options": ["GCDをキャンセルして走る", "サンダークラップで回避しつつ継続する", "ダメージを受ける", "GCDを待つ"],
+          "correctIndex": 1,
+          "explanation": "サンダークラップはGCD稼働率を維持しながら素早い位置調整に使えます。"
+        }
+      ]
+    },
+    {
+      "quizId": "mnk.lesson_7.quiz",
+      "lessonId": "mnk.lesson_7",
+      "title": "クイズ: AoEと最適化",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "mnk.lesson_7.q1",
+          "conceptId": "mnk.aoe_combo",
+          "scenario": "5体の敵がまとまっています。",
+          "question": "AoEコンボシーケンスは何ですか？",
+          "options": ["ブートシャインをスパム", "地天破 → 四点破 → 岩砕き", "ドラゴンキックをスパム", "単体回転"],
+          "correctIndex": 1,
+          "explanation": "地天破 → 四点破 → 岩砕きがAoEコンボで、近くの全敵にヒットします。"
+        },
+        {
+          "questionId": "mnk.lesson_7.q2",
+          "conceptId": "mnk.aoe_threshold",
+          "scenario": "敵が2体います。",
+          "question": "AoEまたは単体回転どちらを使うべきですか？",
+          "options": ["AoE回転", "単体回転", "両方の混合", "どちらでも同じ"],
+          "correctIndex": 1,
+          "explanation": "3体以上でAoEに切り替えましょう。2体では単体回転の方が効率的です。"
+        },
+        {
+          "questionId": "mnk.lesson_7.q3",
+          "conceptId": "mnk.howling_fist",
+          "scenario": "ダンジョンで大きなトラッシュプルです。チャクラが5あります。",
+          "question": "どのチャクラスペンダーを使うべきですか？",
+          "options": ["禁断のチャクラ", "エンライトメント", "ボスのために温存", "瞑想"],
+          "correctIndex": 1,
+          "explanation": "エンライトメントはAoEチャクラスペンダーです。3体以上のダンジョンプルでより多くの合計ダメージを与えます。"
+        },
+        {
+          "questionId": "mnk.lesson_7.q4",
+          "conceptId": "mnk.aoe_combo",
+          "scenario": "AoE回転をしています。",
+          "question": "AoEコンボは規律の拳を維持しますか？",
+          "options": ["いいえ——単体が必要", "はい——自動的に維持", "デモリッシュのみ機能する", "AoEはバフを解除する"],
+          "correctIndex": 1,
+          "explanation": "AoEコンボアビリティも規律の拳を付与・維持するので、単体に切り替える必要はありません。"
+        },
+        {
+          "questionId": "mnk.lesson_7.q5",
+          "conceptId": "mnk.aoe_threshold",
+          "scenario": "ダンジョンプル：6体の敵、1体がほぼ死にかけ。",
+          "question": "残りHP少ない敵のために単体に切り替えるべきですか？",
+          "options": ["はい——早く倒す", "いいえ——AoEを続ける", "oGCDを弱い敵に使う", "ヒーラーに集中"],
+          "correctIndex": 1,
+          "explanation": "6体いるとAoEダメージの方がまだ良いです。HP少ない敵はとにかくAoEダメージで倒れます。"
+        }
+      ]
+    }
+  ]
+}

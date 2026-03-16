@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "sam",
+  "jobName": "侍",
+  "quizzes": [
+    {
+      "quizId": "sam.lesson_1.quiz",
+      "lessonId": "sam.lesson_1",
+      "title": "クイズ: 侍の基本",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sam.lesson_1.q1",
+          "conceptId": "sam.combo_basics",
+          "scenario": "月刃を取得したいです。",
+          "question": "月刃を付与するコンボルートはどれですか？",
+          "options": ["初風 → 士風 → 花車", "初風 → 仁風 → 月光", "初風 → 雪風", "どのフィニッシャーでも"],
+          "correctIndex": 1,
+          "explanation": "初風 → 仁風 → 月光は仁風路で、月光から月刃を付与します。士風路は花刃を付与します。"
+        },
+        {
+          "questionId": "sam.lesson_1.q2",
+          "conceptId": "sam.fugetsu_buff",
+          "scenario": "風月バフが切れそうです。風花の残り時間は20秒です。",
+          "question": "どちらのバフを優先してリフレッシュすべきですか？",
+          "options": ["風花——ヘイストバフだから", "風月——ダメージバフだから", "どちらでも同じ", "どちらも——居合術をする"],
+          "correctIndex": 1,
+          "explanation": "風月（+13%ダメージ）は風花（+13%ヘイスト）より優先すべきです。ダメージはすべてのアビリティに影響します。"
+        },
+        {
+          "questionId": "sam.lesson_1.q3",
+          "conceptId": "sam.sen_system",
+          "scenario": "月刃と花刃があります。雪刃が必要です。",
+          "question": "雪刃を付与するアビリティはどれですか？",
+          "options": ["月光", "花車", "雪風", "仁風"],
+          "correctIndex": 2,
+          "explanation": "雪風は雪刃を付与する唯一のフィニッシャーです。方向指定なしの2ヒットコンボ（初風 → 雪風）です。"
+        },
+        {
+          "questionId": "sam.lesson_1.q4",
+          "conceptId": "sam.fuka_buff",
+          "scenario": "戦闘を開始します。最初に何を確立すべきですか？",
+          "question": "オープナーでのバフ優先順位は何ですか？",
+          "options": ["速度のために風花を先に", "ダメージのために風月を先に", "両方をできるだけ早く", "どちらも後回し——すぐに居合術"],
+          "correctIndex": 2,
+          "explanation": "オープナーでは両方のバフを素早く立ち上げたいです。標準オープナーは最初の乱れ雪月花の前に風月と風花の両方を確立します。"
+        },
+        {
+          "questionId": "sam.lesson_1.q5",
+          "conceptId": "sam.combo_basics",
+          "scenario": "Lv.92以上では、コンボスターターが変わります。",
+          "question": "Lv.92で初風の代わりに何が来ますか？",
+          "options": ["仁風", "士風", "行風", "何も変わらない"],
+          "correctIndex": 2,
+          "explanation": "行風はLv.92で初風に替わり、より高い威力になります。コンボスターターとして同じように使います。"
+        }
+      ]
+    },
+    {
+      "quizId": "sam.lesson_2.quiz",
+      "lessonId": "sam.lesson_2",
+      "title": "クイズ: 剣気と瞑想",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sam.lesson_2.q1",
+          "conceptId": "sam.kenki_gauge",
+          "scenario": "剣気ゲージが85です。剣気10を生成するコンボを使おうとしています。",
+          "question": "どうすべきですか？",
+          "options": ["コンボを先に完成させる", "オーバーキャップを避けるために真剣一閃を使う", "剣気100まで待つ", "バーストのために温存する"],
+          "correctIndex": 1,
+          "explanation": "剣気85であと10来ると95になります（5を無駄に）。余裕を作るために真剣一閃（コスト25）を使いましょう。"
+        },
+        {
+          "questionId": "sam.lesson_2.q2",
+          "conceptId": "sam.kenki_spending",
+          "scenario": "単体戦闘です。剣気が50あります。",
+          "question": "どの剣気スペンダーを使うべきですか？",
+          "options": ["天輪迅", "真剣一閃", "正花のために温存する", "神楽落とし"],
+          "correctIndex": 1,
+          "explanation": "真剣一閃は単体剣気スペンダーです。天輪迅はAoE（3体以上）用です。正花は剣気25を使いリキャストがあります。"
+        },
+        {
+          "questionId": "sam.lesson_2.q3",
+          "conceptId": "sam.meditation",
+          "scenario": "瞑想スタックが3つあります。正花をいつ使うべきですか？",
+          "question": "最適な正花のタイミングはどれですか？",
+          "options": ["すぐに——スタックを保持しない", "バーストウィンドウ中", "居合術の前", "緊急時のために温存"],
+          "correctIndex": 1,
+          "explanation": "可能であればバーストウィンドウ中に正花を使いましょう。3スタックではこれ以上積めないので、無駄を避けるために消費してください。"
+        },
+        {
+          "questionId": "sam.lesson_2.q4",
+          "conceptId": "sam.kenki_gauge",
+          "scenario": "如来神掌を使おうとしています。剣気が60です。",
+          "question": "この状況の何が問題ですか？",
+          "options": ["問題ない", "如来神掌で剣気がオーバーキャップする", "先に明鏡止水が必要", "セン数が足りない"],
+          "correctIndex": 1,
+          "explanation": "如来神掌は剣気50を付与します。剣気60で使うと110になり10ゲージを無駄にします。先に50以下に消費してください。"
+        },
+        {
+          "questionId": "sam.lesson_2.q5",
+          "conceptId": "sam.meditation",
+          "scenario": "居合術を使うたびに瞑想スタックが積まれます。",
+          "question": "1回の居合術で瞑想スタックはいくつ積まれますか？",
+          "options": ["1スタック", "2スタック", "3スタック", "セン数による"],
+          "correctIndex": 0,
+          "explanation": "各居合術は瞑想スタックを1つ付与します。正花を使用可能にするには居合術を3回詠唱する必要があります。"
+        }
+      ]
+    },
+    {
+      "quizId": "sam.lesson_3.quiz",
+      "lessonId": "sam.lesson_3",
+      "title": "クイズ: 居合術システム",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sam.lesson_3.q1",
+          "conceptId": "sam.higanbana_dot",
+          "scenario": "単体戦闘です。ボスに彼岸花がありません。セン1つあります。",
+          "question": "今すぐ彼岸花を使うべきですか？",
+          "options": ["はい——すぐDoTを適用する", "いいえ——乱れ雪月花のためにセン3つ積む", "オープナーのみ", "戦闘時間による"],
+          "correctIndex": 3,
+          "explanation": "彼岸花はDoTが十分にチックするだけボスが生きている場合のみ価値があります（60秒持続）。短い戦闘では乱れ雪月花の方が良いです。"
+        },
+        {
+          "questionId": "sam.lesson_3.q2",
+          "conceptId": "sam.midare_setsugekka",
+          "scenario": "セン2つ（月刃と花刃）あります。ボスのHPが5%です。",
+          "question": "どうすべきですか？",
+          "options": ["天下五剣を使う（セン2）", "乱れ雪月花のためにセン3つ積む", "彼岸花を使う", "追加敵による"],
+          "correctIndex": 1,
+          "explanation": "ボスのHPが低くても、乱れ雪月花のためにセン3つ積む価値はあります。天下五剣は複数ターゲット専用です。"
+        },
+        {
+          "questionId": "sam.lesson_3.q3",
+          "conceptId": "sam.tenka_goken",
+          "scenario": "3体の敵がまとまっています。セン2つあります。",
+          "question": "どの居合術を使うべきですか？",
+          "options": ["乱れ雪月花", "天下五剣", "各敵に彼岸花", "セン3つ積む"],
+          "correctIndex": 1,
+          "explanation": "天下五剣は近くの全敵にヒットします。3体では単体乱れ雪月花より2センAoEダメージの方が効率的です。"
+        },
+        {
+          "questionId": "sam.lesson_3.q4",
+          "conceptId": "sam.higanbana_dot",
+          "scenario": "ボスの彼岸花が残り5秒です。",
+          "question": "今すぐリフレッシュすべきですか？",
+          "options": ["はい——100%稼働率を維持", "いいえ——3秒以下まで待つ", "いいえ——切れさせる", "バーストのみ"],
+          "correctIndex": 1,
+          "explanation": "クリップを避けるために3秒以下でDoTをリフレッシュしましょう（チックを失わないため）。5秒でリフレッシュすると潜在的なダメージを無駄にします。"
+        },
+        {
+          "questionId": "sam.lesson_3.q5",
+          "conceptId": "sam.iaijutsu_selection",
+          "scenario": "単体でセン1つあります。ボスに彼岸花が40秒残っています。",
+          "question": "このセンをどうすべきですか？",
+          "options": ["とにかく彼岸花を使う", "乱れ雪月花のためにセン3つ積む", "神楽落としを使う", "彼岸花が切れるまで待つ"],
+          "correctIndex": 1,
+          "explanation": "彼岸花を早めに上書きしないこと。代わりに乱れ雪月花のためにセン3つ積みましょう——これが主要ダメージツールです。"
+        }
+      ]
+    },
+    {
+      "quizId": "sam.lesson_4.quiz",
+      "lessonId": "sam.lesson_4",
+      "title": "クイズ: 燕返しと明鏡止水",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sam.lesson_4.q1",
+          "conceptId": "sam.tsubame_gaeshi",
+          "scenario": "乱れ雪月花を使ったばかりです。燕返しが使用可能です。",
+          "question": "次に何をすべきですか？",
+          "options": ["新しいコンボを始める", "すぐに燕返しを使う", "先に真剣一閃を使う", "次のGCDまで待つ"],
+          "correctIndex": 1,
+          "explanation": "燕返しは居合術の後すぐに使うべきです。返し雪月花は大ダメージ——絶対に飛ばさないこと。"
+        },
+        {
+          "questionId": "sam.lesson_4.q2",
+          "conceptId": "sam.meikyo_shisui",
+          "scenario": "明鏡止水が使用可能です。セン0でもうすぐバーストが必要です。",
+          "question": "最適な明鏡止水の使い方はどれですか？",
+          "options": ["速いセンのために雪風を3回", "月光 → 花車 → 雪風", "ダメージのために月光を3回", "緊急時のために温存"],
+          "correctIndex": 1,
+          "explanation": "即時乱れ雪月花のために全3種のセン（月刃、花刃、雪刃）を得るために各フィニッシャーを1回ずつ使いましょう。"
+        },
+        {
+          "questionId": "sam.lesson_4.q3",
+          "conceptId": "sam.meikyo_finisher_priority",
+          "scenario": "明鏡止水中に月刃と花刃がすでにあります。明鏡止水スタックが1つ残っています。",
+          "question": "どのフィニッシャーを使うべきですか？",
+          "options": ["月光——最高威力", "花車——側面は楽", "雪風——雪刃を取得", "どちらでも同じ"],
+          "correctIndex": 2,
+          "explanation": "雪刃がありません。乱れ雪月花のセンコレクションを完成させるために雪風を使いましょう。"
+        },
+        {
+          "questionId": "sam.lesson_4.q4",
+          "conceptId": "sam.tsubame_gaeshi",
+          "scenario": "AoEで天下五剣を使いました。どの返し技が現れますか？",
+          "question": "天下五剣の後に何が続きますか？",
+          "options": ["返し雪月花", "返し五剣", "返し彼岸花", "何もない——乱れにしかフォローアップがない"],
+          "correctIndex": 1,
+          "explanation": "燕返しは居合術に合わせた返し技バージョンを作ります。天下五剣 → AoEのための返し五剣。"
+        },
+        {
+          "questionId": "sam.lesson_4.q5",
+          "conceptId": "sam.meikyo_shisui",
+          "scenario": "明鏡止水のリキャストは55秒です。",
+          "question": "これはどのように回転に影響しますか？",
+          "options": ["常にリキャストで使う", "60秒バフに合わせる", "緊急時のために温存する", "オープナーでのみ使う"],
+          "correctIndex": 1,
+          "explanation": "リキャスト55秒で明鏡止水はおおよそ60秒バーストウィンドウに合わせられます。パーティバフを中心に使用を計画してください。"
+        }
+      ]
+    },
+    {
+      "quizId": "sam.lesson_5.quiz",
+      "lessonId": "sam.lesson_5",
+      "title": "クイズ: 如来神掌バーストウィンドウ",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sam.lesson_5.q1",
+          "conceptId": "sam.ikishoten_burst",
+          "scenario": "如来神掌が使用可能です。剣気が30です。",
+          "question": "如来神掌を安全に使えますか？",
+          "options": ["はい——オーバーキャップしない", "いいえ——剣気が多すぎる", "バーストのみ", "剣気0が必要"],
+          "correctIndex": 0,
+          "explanation": "剣気30で如来神掌（+50）を使うと80になります。安全です。剣気50以上では如来神掌を使わないこと。"
+        },
+        {
+          "questionId": "sam.lesson_5.q2",
+          "conceptId": "sam.ogi_namikiri",
+          "scenario": "如来神掌を使いました。次のGCDは何ですか？",
+          "question": "正しいシーケンスはどれですか？",
+          "options": ["通常コンボ", "扇一文字", "乱れ雪月花", "明鏡止水"],
+          "correctIndex": 1,
+          "explanation": "如来神掌は扇一文字レディを付与します。最高威力のGCDのためにすぐに扇一文字を使いましょう。"
+        },
+        {
+          "questionId": "sam.lesson_5.q3",
+          "conceptId": "sam.zanshin",
+          "scenario": "返し扇一文字を使ったばかりです。残心が使用可能です。",
+          "question": "残心とは何ですか？",
+          "options": ["GCDフォローアップ", "強化剣気スペンダー", "防御クールダウン", "移動アビリティ"],
+          "correctIndex": 1,
+          "explanation": "残心は扇一文字シーケンス後に使用可能な強化oGCD剣気スペンダーです。大ダメージです！"
+        },
+        {
+          "questionId": "sam.lesson_5.q4",
+          "conceptId": "sam.senei_timing",
+          "scenario": "正花（高威力oGCD）が使用可能です。バーストウィンドウにいます。",
+          "question": "正花をいつ使うべきですか？",
+          "options": ["如来神掌の前", "バーストウィンドウ中", "バースト終了後", "リキャストに関わらず"],
+          "correctIndex": 1,
+          "explanation": "正花は高ダメージを与えます。最大効果のためにパーティバフが有効なバーストウィンドウ中に使いましょう。"
+        },
+        {
+          "questionId": "sam.lesson_5.q5",
+          "conceptId": "sam.ikishoten_burst",
+          "scenario": "如来神掌のリキャストは120秒です。",
+          "question": "これはパーティバーストとどう合わさりますか？",
+          "options": ["1分ごと", "2分ごと", "90秒ごと", "合わない"],
+          "correctIndex": 1,
+          "explanation": "120秒 = 2分。如来神掌は標準の2分レイドバフウィンドウに完璧に合わせられます。"
+        }
+      ]
+    },
+    {
+      "quizId": "sam.lesson_6.quiz",
+      "lessonId": "sam.lesson_6",
+      "title": "クイズ: 方向指定とトゥルーノース",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sam.lesson_6.q1",
+          "conceptId": "sam.positionals",
+          "scenario": "月刃のために月光を使う必要があります。",
+          "question": "どこに立つべきですか？",
+          "options": ["正面", "側面（横）", "後方（後ろ）", "どの位置でも"],
+          "correctIndex": 2,
+          "explanation": "月光は後方方向指定があります。ボーナス威力のためにボスの後ろに立ちましょう。"
+        },
+        {
+          "questionId": "sam.lesson_6.q2",
+          "conceptId": "sam.positionals",
+          "scenario": "花刃のために花車を使う必要があります。",
+          "question": "どこに立つべきですか？",
+          "options": ["正面", "側面（横）", "後方（後ろ）", "どの位置でも"],
+          "correctIndex": 1,
+          "explanation": "花車は側面方向指定があります。ボーナス威力のためにボスの横に立ちましょう。"
+        },
+        {
+          "questionId": "sam.lesson_6.q3",
+          "conceptId": "sam.true_north_usage",
+          "scenario": "ボスが壁際にいます。月光のための後方に届けません。",
+          "question": "どうすべきですか？",
+          "options": ["方向指定を外す", "トゥルーノースを使う", "代わりに花車を使う", "ボスが動くのを待つ"],
+          "correctIndex": 1,
+          "explanation": "トゥルーノースは10秒間方向指定の条件を解除します。物理的に正しい位置に届かないときに使いましょう。"
+        },
+        {
+          "questionId": "sam.lesson_6.q4",
+          "conceptId": "sam.positional_recovery",
+          "scenario": "月光の方向指定を外しました。攻撃は発動しました。",
+          "question": "何が起きましたか？",
+          "options": ["攻撃が失敗した", "フルダメージが入った", "威力が下がった", "コンボが途切れた"],
+          "correctIndex": 2,
+          "explanation": "方向指定を外すと攻撃は当たりますが威力が下がります。ボーナスダメージを失います。"
+        },
+        {
+          "questionId": "sam.lesson_6.q5",
+          "conceptId": "sam.true_north_usage",
+          "scenario": "トゥルーノースは2チャージで各45秒リチャージです。",
+          "question": "トゥルーノースの使用をどう管理すべきですか？",
+          "options": ["自由に使う——常に使用可能", "緊急時のために両方温存", "1つ使い、1つ温存", "必要ない"],
+          "correctIndex": 2,
+          "explanation": "予期しない状況のために少なくとも1チャージを維持しましょう。2チャージでキャップしないこと、でも無駄にもしないこと。"
+        }
+      ]
+    },
+    {
+      "quizId": "sam.lesson_7.quiz",
+      "lessonId": "sam.lesson_7",
+      "title": "クイズ: 上級最適化",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "sam.lesson_7.q1",
+          "conceptId": "sam.burst_alignment",
+          "scenario": "パーティレイドバフが5秒後に来ます。如来神掌が使用可能です。",
+          "question": "如来神掌をいつ使うべきですか？",
+          "options": ["今——リキャストで", "バフが上がったとき", "バフが切れた後", "どちらでも同じ"],
+          "correctIndex": 1,
+          "explanation": "扇一文字と全バーストシーケンス中の最大ダメージのためにパーティレイドバフに如来神掌を合わせましょう。"
+        },
+        {
+          "questionId": "sam.lesson_7.q2",
+          "conceptId": "sam.hagakure_usage",
+          "scenario": "ボスがあと20秒でターゲット不可になります。セン3つあります。",
+          "question": "センをどうすべきですか？",
+          "options": ["ダウンタイム前に乱れ雪月花を使う", "神楽落としで剣気を得る", "後のためにセンを保持", "どちらでも同じ"],
+          "correctIndex": 0,
+          "explanation": "可能ならダウンタイム前に乱れ雪月花を使いましょう。間に合わない場合のみ神楽落としを使う——乱れ雪月花のダメージ > 剣気価値。"
+        },
+        {
+          "questionId": "sam.lesson_7.q3",
+          "conceptId": "sam.aoe_rotation",
+          "scenario": "4体の敵がまとまっています。AoE回転をしています。",
+          "question": "AoEコンボで積めるセンの種類はどれですか？",
+          "options": ["3種すべて（月刃、花刃、雪刃）", "月刃と花刃のみ", "雪刃のみ", "なし——AoEはセンを付与しない"],
+          "correctIndex": 1,
+          "explanation": "風車 → 満月で月刃。風車 → 桜散りで花刃。AoEでは雪刃を積めません——雪風が必要です。"
+        },
+        {
+          "questionId": "sam.lesson_7.q4",
+          "conceptId": "sam.meikyo_buff_refresh",
+          "scenario": "風月が残り3秒です。明鏡止水が使用可能です。",
+          "question": "明鏡止水で風月をリフレッシュすべきですか？",
+          "options": ["いいえ——センのために明鏡止水を温存", "はい——素早いバフリフレッシュ", "風花も低い場合のみ", "代わりに通常コンボを使う"],
+          "correctIndex": 1,
+          "explanation": "明鏡止水は緊急時に素早くバフをリフレッシュできます。月光はフルコンボなしで風月をリフレッシュします。"
+        },
+        {
+          "questionId": "sam.lesson_7.q5",
+          "conceptId": "sam.hagakure_usage",
+          "scenario": "セン3つあります。フェーズ移行がGCD2回分後に来ます。",
+          "question": "時間内に乱れ雪月花を使えません。最善の選択は何ですか？",
+          "options": ["センを無駄にする", "神楽落としで剣気30", "天下五剣を使う", "移行後まで保持"],
+          "correctIndex": 1,
+          "explanation": "神楽落としはセンを剣気に変換します（セン1つにつき10）。剣気30はフェーズ移行でセンを完全に失うより良いです。"
+        }
+      ]
+    }
+  ]
+}

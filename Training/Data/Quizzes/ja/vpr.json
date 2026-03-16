@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "vpr",
+  "jobName": "ヴァイパー",
+  "quizzes": [
+    {
+      "quizId": "vpr.lesson_1.quiz",
+      "lessonId": "vpr.lesson_1",
+      "title": "クイズ: ヴァイパーの基本",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "vpr.lesson_1.q1",
+          "conceptId": "vpr.combo_basics",
+          "scenario": "スチールファングスを使ってコンボパスを完成させました。",
+          "question": "どのバフを受けましたか？",
+          "options": ["スウィフトスケール（+15%オートアタック）", "ハンターズ・インスティンクト（+10%ダメージ）", "両方のバフ", "フィニッシャーまでバフなし"],
+          "correctIndex": 1,
+          "explanation": "スチールファングスパスはハンターズ・インスティンクト（+10%ダメージバフ）を付与します。リービングファングスパスはスウィフトスケールを付与します。"
+        },
+        {
+          "questionId": "vpr.lesson_1.q2",
+          "conceptId": "vpr.buff_cycling",
+          "scenario": "ハンターズ・インスティンクトの残り時間が10秒。スウィフトスケールが35秒。",
+          "question": "どのコンボパスを始めるべきですか？",
+          "options": ["リービングファングスパス", "スチールファングスパス", "どちらでも同じ", "コンボをスキップしてヴァイスワインダーを使う"],
+          "correctIndex": 1,
+          "explanation": "ハンターズ・インスティンクトが切れそうです（10秒）。切れる前にリフレッシュするためにスチールファングスパスを始めましょう。"
+        },
+        {
+          "questionId": "vpr.lesson_1.q3",
+          "conceptId": "vpr.honed_buffs",
+          "scenario": "ホーンドスチールバフを持っています。これは何をしますか？",
+          "question": "ホーンドスチールはどのような効果を提供しますか？",
+          "options": ["次の攻撃のダメージを増加", "スチールファングスをホーンドスチールファングスにアップグレード", "サーペントオファリングを追加付与", "ハンターズ・インスティンクトを延長"],
+          "correctIndex": 1,
+          "explanation": "ホーンドスチールは次のスチールファングスをより多くのダメージを与えるホーンドスチールファングスにアップグレードします。"
+        },
+        {
+          "questionId": "vpr.lesson_1.q4",
+          "conceptId": "vpr.combo_basics",
+          "scenario": "ハンターズ・インスティンクトとスウィフトスケールの両方を維持したいです。",
+          "question": "正しいアプローチは何ですか？",
+          "options": ["スチールファングスパスのみ使う", "リービングファングスパスのみ使う", "両方のパスを交互に使う", "使用可能な方を使う"],
+          "correctIndex": 2,
+          "explanation": "ハンターズ・インスティンクトとスウィフトスケールの両方のバフを維持するためにスチールファングスパスとリービングファングスパスを交互に使いましょう。"
+        },
+        {
+          "questionId": "vpr.lesson_1.q5",
+          "conceptId": "vpr.buff_cycling",
+          "scenario": "ハンターズ・インスティンクトとスウィフトスケールの両方が40秒残っています。",
+          "question": "どうすべきですか？",
+          "options": ["今すぐハンターズ・インスティンクトをリフレッシュ", "今すぐスウィフトスケールをリフレッシュ", "通常回転を続ける", "どちらかが低くなるまで待つ"],
+          "correctIndex": 2,
+          "explanation": "両方のバフが40秒で健全です。通常回転を続けましょう——自然に切れる前にリフレッシュされます。"
+        }
+      ]
+    },
+    {
+      "quizId": "vpr.lesson_2.quiz",
+      "lessonId": "vpr.lesson_2",
+      "title": "クイズ: リソース管理",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "vpr.lesson_2.q1",
+          "conceptId": "vpr.serpent_offering",
+          "scenario": "サーペントオファリングが45でコンボフィニッシャーを完成させました。",
+          "question": "今サーペントオファリングはいくつですか？",
+          "options": ["45（フィニッシャーはゲージを付与しない）", "サーペントオファリング50", "サーペントオファリング55", "サーペントオファリング100"],
+          "correctIndex": 2,
+          "explanation": "コンボフィニッシャーは各10のサーペントオファリングを付与します。45 + 10 = 55サーペントオファリング。"
+        },
+        {
+          "questionId": "vpr.lesson_2.q2",
+          "conceptId": "vpr.rattling_coil",
+          "scenario": "ラトリングコイルスタックが3つあります。ツインブレードコンボが使用可能です。",
+          "question": "どうすべきですか？",
+          "options": ["すぐにツインブレードコンボを始める", "オーバーキャップを避けるために先にアンコイルドフューリーを使う", "ラトリングコイルを後で温存する", "サーペンツ・アイアーを待つ"],
+          "correctIndex": 1,
+          "explanation": "最大ラトリングコイル（3）では、ツインブレードコンボからさらに積む前にオーバーキャップを避けるためにアンコイルドフューリーを使いましょう。"
+        },
+        {
+          "questionId": "vpr.lesson_2.q3",
+          "conceptId": "vpr.offering_generation",
+          "scenario": "サーペントオファリングが95あります。コンボフィニッシャーをもう一度使う必要があります。",
+          "question": "どうすべきですか？",
+          "options": ["とにかくコンボを完成させる", "先にリアウェイクンに入る", "フィニッシャーをスキップする", "アンコイルドフューリーを使う"],
+          "correctIndex": 1,
+          "explanation": "サーペントオファリング95でフィニッシャーを完成させるとオーバーキャップします。先にゲージを消費するためにリアウェイクン（コスト50）に入りましょう。"
+        },
+        {
+          "questionId": "vpr.lesson_2.q4",
+          "conceptId": "vpr.rattling_coil",
+          "scenario": "ボスが遠くに跳びました。ラトリングコイルスタックが2つあります。",
+          "question": "どうすべきですか？",
+          "options": ["ボスが戻るのを待つ", "アンコイルドフューリーを使う", "とぐろ巻きの一撃を使う", "何もしない"],
+          "correctIndex": 1,
+          "explanation": "アンコイルドフューリーはラトリングコイルを消費する遠距離GCDです。DPSを維持するために強制離脱中に使いましょう。"
+        },
+        {
+          "questionId": "vpr.lesson_2.q5",
+          "conceptId": "vpr.serpent_offering",
+          "scenario": "サーペントオファリングが50でリアウェイクンが使用可能です。",
+          "question": "リアウェイクンを使えますか？",
+          "options": ["いいえ——サーペントオファリング100が必要", "はい——50が最小要件", "サーペンツ・アイアーバフ付きのみ", "ターゲットにノクシアスグナッシュが有効な場合のみ"],
+          "correctIndex": 3,
+          "explanation": "リアウェイクンはサーペントオファリング50以上 AND ターゲットにノクシアスグナッシュが有効であることが必要です。両方の条件を満たさなければなりません。"
+        }
+      ]
+    },
+    {
+      "quizId": "vpr.lesson_3.quiz",
+      "lessonId": "vpr.lesson_3",
+      "title": "クイズ: 毒とポジショナル",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "vpr.lesson_3.q1",
+          "conceptId": "vpr.venom_system",
+          "scenario": "フランクスタングヴェノムバフが有効です。",
+          "question": "次のフィニッシャーのためにどこに位置取りすべきですか？",
+          "options": ["ボスの後ろ（後方）", "ボスの横（側面）", "ボスの正面", "どこでも——毒は方向指定を無視する"],
+          "correctIndex": 1,
+          "explanation": "フランクスタングは側面（フランク）方向指定を示します。方向指定ボーナスのためにボスの横に位置取りしてください。"
+        },
+        {
+          "questionId": "vpr.lesson_3.q2",
+          "conceptId": "vpr.positional_finishers",
+          "scenario": "ヒンドスベインヴェノムがあります。ボスの後ろに立っています。",
+          "question": "どのフィニッシャーを使うべきですか？",
+          "options": ["フランクスベインファング", "ヒンドスベインファング", "どちらでも可——両方機能する", "別の毒を待つ"],
+          "correctIndex": 1,
+          "explanation": "ヒンドスベインは後方（ヒンド）方向指定を示します。方向指定ボーナスのために後ろからヒンドスベインファングを使いましょう。"
+        },
+        {
+          "questionId": "vpr.lesson_3.q3",
+          "conceptId": "vpr.true_north_usage",
+          "scenario": "ギミックでボスの正面に立たされています。フランクスタングヴェノムとトゥルーノースが使用可能です。",
+          "question": "どうすべきですか？",
+          "options": ["フィニッシャーをスキップする", "トゥルーノースを使ってフィニッシャーを出す", "ギミックが終わるまで待つ", "別の攻撃を使う"],
+          "correctIndex": 1,
+          "explanation": "トゥルーノースは10秒間方向指定の条件を解除します。ダメージを失わずにフィニッシャーを使うために使いましょう。"
+        },
+        {
+          "questionId": "vpr.lesson_3.q4",
+          "conceptId": "vpr.venom_system",
+          "scenario": "フランクスティングストライクを使いました。今どの毒バフを持っていますか？",
+          "question": "どの毒バフが有効ですか？",
+          "options": ["フランクスタングヴェノム", "ヒンドスタングヴェノム", "フランクスベインヴェノム", "ヒンドスベインヴェノム"],
+          "correctIndex": 1,
+          "explanation": "フランクスティングストライクはヒンドスタングヴェノムを付与し、次は後方方向指定を使うよう示します。"
+        },
+        {
+          "questionId": "vpr.lesson_3.q5",
+          "conceptId": "vpr.positionals",
+          "scenario": "ボスがこちらに向いています（後ろに回れない）。ヒンドスタングヴェノムがあり、トゥルーノースもありません。",
+          "question": "どうすべきですか？",
+          "options": ["ボスが向きを変えるまで待つ", "とにかくフィニッシャーを使う（方向指定を外す）", "回転をスキップする", "ヴァイスワインダーのみ使う"],
+          "correctIndex": 1,
+          "explanation": "方向指定なしでフィニッシャーを使う方が全く使わないよりマシです。若干威力を失いますが回転の流れを維持できます。"
+        }
+      ]
+    },
+    {
+      "quizId": "vpr.lesson_4.quiz",
+      "lessonId": "vpr.lesson_4",
+      "title": "クイズ: ツインブレードコンボ",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "vpr.lesson_4.q1",
+          "conceptId": "vpr.vicewinder",
+          "scenario": "ボスにヴァイスワインダーを使いました。",
+          "question": "ヴァイスワインダーはどのデバフを付与しますか？",
+          "options": ["デス・デザイン", "ノクシアスグナッシュ（+10%ダメージ）", "ヴェノムバイト", "デバフなし"],
+          "correctIndex": 1,
+          "explanation": "ヴァイスワインダーはノクシアスグナッシュを付与し、ターゲットへの与ダメージを10%増加させるデバフです。"
+        },
+        {
+          "questionId": "vpr.lesson_4.q2",
+          "conceptId": "vpr.twinfang_twinblood",
+          "scenario": "ツインブレードコンボ中にハンターズコイルを使ったばかりです。",
+          "question": "次に何をすべきですか？",
+          "options": ["スウィフトスキンズコイルを使う", "トゥインファングoGCDを使う", "ヴァイスワインダーをもう一度使う", "GCDを待つ"],
+          "correctIndex": 1,
+          "explanation": "ハンターズコイルはトゥインファングプロックを付与します。次のGCDの前に無料oGCDとしてすぐにトゥインファングをウィーブしましょう。"
+        },
+        {
+          "questionId": "vpr.lesson_4.q3",
+          "conceptId": "vpr.noxious_gnash",
+          "scenario": "ボスのノクシアスグナッシュが残り5秒です。サーペントオファリングが55あります。",
+          "question": "リアウェイクンに入れますか？",
+          "options": ["はい——オファリングが十分ある", "いいえ——ノクシアスグナッシュが低すぎる", "はい——リアウェイクンがリフレッシュする", "トゥルーノースのみ"],
+          "correctIndex": 1,
+          "explanation": "リアウェイクンにはノクシアスグナッシュが有効である必要があります。5秒ではリアウェイクン中に切れるかもしれません。先にヴァイスワインダーでリフレッシュしてください。"
+        },
+        {
+          "questionId": "vpr.lesson_4.q4",
+          "conceptId": "vpr.dread_combo",
+          "scenario": "ツインブレードコンボ中でボスの後ろにいます。どちらのコイルを使うべきですか？",
+          "question": "後方ポジショニングに正しいアビリティはどれですか？",
+          "options": ["ハンターズコイル（側面）", "スウィフトスキンズコイル（後方）", "どちらでも可", "毒による"],
+          "correctIndex": 1,
+          "explanation": "スウィフトスキンズコイルは後方方向指定があります。ボーナス威力のためにボスの後ろから使いましょう。"
+        },
+        {
+          "questionId": "vpr.lesson_4.q5",
+          "conceptId": "vpr.vicewinder",
+          "scenario": "ツインブレードコンボ（ヴァイスワインダー → コイル → コイル）を完成させました。",
+          "question": "ラトリングコイルスタックをいくつ獲得しましたか？",
+          "options": ["0スタック", "1スタック", "2スタック", "3スタック"],
+          "correctIndex": 1,
+          "explanation": "各ツインブレードコンボ完成でアンコイルドフューリーに使用するラトリングコイルスタック1つを獲得します。"
+        }
+      ]
+    },
+    {
+      "quizId": "vpr.lesson_5.quiz",
+      "lessonId": "vpr.lesson_5",
+      "title": "クイズ: リアウェイクンバースト",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "vpr.lesson_5.q1",
+          "conceptId": "vpr.reawaken_entry",
+          "scenario": "サーペントオファリングが50、ターゲットにノクシアスグナッシュがありますが、ハンターズ・インスティンクトが残り8秒です。",
+          "question": "リアウェイクンに入るべきですか？",
+          "options": ["はい——全条件を満たしている", "いいえ——バフ持続時間が低すぎる", "はい——リアウェイクンがバフを延長する", "サーペンツ・アイアーが使用可能な場合のみ"],
+          "correctIndex": 1,
+          "explanation": "リアウェイクンにはバフの残り10秒以上が必要です。8秒ではバースト中にハンターズ・インスティンクトが切れるかもしれません。先にバフをリフレッシュしてください。"
+        },
+        {
+          "questionId": "vpr.lesson_5.q2",
+          "conceptId": "vpr.generation_sequence",
+          "scenario": "リアウェイクンに入ったばかりです。",
+          "question": "正しいGCDシーケンスはどれですか？",
+          "options": ["4→3→2→1ジェネレーション→ウロボロス", "1→2→3→4ジェネレーション→ウロボロス", "どの順番でも可", "ウロボロス→1→2→3→4ジェネレーション"],
+          "correctIndex": 1,
+          "explanation": "ジェネレーションシーケンスは順番通りに行わなければなりません：1st→2nd→3rd→4thジェネレーション→ウロボロス（フィニッシャー）。"
+        },
+        {
+          "questionId": "vpr.lesson_5.q3",
+          "conceptId": "vpr.legacy_weaving",
+          "scenario": "リアウェイクン中に1stジェネレーションを使ったばかりです。",
+          "question": "2ndジェネレーションの前に何をウィーブすべきですか？",
+          "options": ["何もない——すぐに2ndジェネレーションを使う", "1stレガシーoGCD", "トゥインファング", "サーペンツ・アイアー"],
+          "correctIndex": 1,
+          "explanation": "各ジェネレーションGCDは対応するレガシーoGCDを付与します。1stジェネレーションの後に1stレガシーをウィーブしてください。"
+        },
+        {
+          "questionId": "vpr.lesson_5.q4",
+          "conceptId": "vpr.anguine_tribute",
+          "scenario": "リアウェイクンに入りました。アンガイントリビュートスタックはいくつですか？",
+          "question": "開始時のアンガイントリビュート数はいくつですか？",
+          "options": ["3スタック", "4スタック", "5スタック", "サーペントオファリングの消費量による"],
+          "correctIndex": 2,
+          "explanation": "リアウェイクンは消費したサーペントオファリングの量に関わらず常に5つのアンガイントリビュートスタックを付与します。"
+        },
+        {
+          "questionId": "vpr.lesson_5.q5",
+          "conceptId": "vpr.generation_sequence",
+          "scenario": "リアウェイクン中でアンガイントリビュートが1つ残っています。",
+          "question": "何を使うべきですか？",
+          "options": ["もう一度1stジェネレーション", "どのジェネレーションGCDでも", "ウロボロス", "リアウェイクンを終了する"],
+          "correctIndex": 2,
+          "explanation": "アンガイントリビュートが1つのとき、リアウェイクンフェーズを完了させるためにウロボロスをフィニッシャーとして使いましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "vpr.lesson_6.quiz",
+      "lessonId": "vpr.lesson_6",
+      "title": "クイズ: バーストの最適化",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "vpr.lesson_6.q1",
+          "conceptId": "vpr.serpents_ire",
+          "scenario": "サーペンツ・アイアーが使用可能です。パーティレイドバフが展開されています。",
+          "question": "サーペンツ・アイアーは何を付与しますか？",
+          "options": ["サーペントオファリング50", "リアウェイクンレディ + ラトリングコイル1つ", "ノクシアスグナッシュを延長", "全リキャストリセット"],
+          "correctIndex": 1,
+          "explanation": "サーペンツ・アイアーはリアウェイクンレディ（無料リアウェイクン）とラトリングコイルスタック1つを付与します。"
+        },
+        {
+          "questionId": "vpr.lesson_6.q2",
+          "conceptId": "vpr.ready_to_reawaken",
+          "scenario": "リアウェイクンレディバフがあります。サーペントオファリングも80あります。",
+          "question": "リアウェイクンを使うとどうなりますか？",
+          "options": ["オファリング50を消費 + バフを使用", "リアウェイクンレディのみ使用（オファリングを維持）", "オファリング80すべてを消費", "使用不可——先にオファリングを消費する必要がある"],
+          "correctIndex": 1,
+          "explanation": "リアウェイクンレディはサーペントオファリングを消費せずに無料でリアウェイクンできます。オファリング80が保持されます。"
+        },
+        {
+          "questionId": "vpr.lesson_6.q3",
+          "conceptId": "vpr.burst_window",
+          "scenario": "戦闘開始から1分55秒です。サーペンツ・アイアーが使用可能です。パーティバフはまだ見えません。",
+          "question": "どうすべきですか？",
+          "options": ["すぐにサーペンツ・アイアーを使う", "2分パーティバフのために数秒待つ", "次のウィンドウのために温存する", "サーペンツ・アイアーなしでリアウェイクンを使う"],
+          "correctIndex": 1,
+          "explanation": "パーティ2分バフは2:00前後に合わさります。パーティバフウィンドウと合わせるために数秒待ってサーペンツ・アイアーを使いましょう。"
+        },
+        {
+          "questionId": "vpr.lesson_6.q4",
+          "conceptId": "vpr.timeline_awareness",
+          "scenario": "ボスがあと15秒でターゲット不可になります。サーペントオファリングが50あります。",
+          "question": "今リアウェイクンに入るべきですか？",
+          "options": ["はい——フェーズ移行前にバーストを完成させる", "いいえ——移行後のために温存する", "サーペンツ・アイアーが使用可能な場合のみ", "代わりにアンコイルドフューリーを使う"],
+          "correctIndex": 0,
+          "explanation": "リアウェイクンバーストには約12〜13秒かかります。ボスがターゲット不可になる前に完了させるために今入りましょう。"
+        },
+        {
+          "questionId": "vpr.lesson_6.q5",
+          "conceptId": "vpr.serpents_ire",
+          "scenario": "サーペンツ・アイアーのリキャストが残り10秒です。レイドバフが展開されたばかりです。",
+          "question": "今リアウェイクンすべきか、サーペンツ・アイアーを待つべきか？",
+          "options": ["サーペンツ・アイアーを待つ", "今リアウェイクン——レイドバフに乗る", "代わりにツインブレードを使う", "どちらでも同じ"],
+          "correctIndex": 1,
+          "explanation": "レイドバフはリアウェイクンレディより重要です。パーティバフに乗るために今すぐ通常リアウェイクンを使いましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "vpr.lesson_7.quiz",
+      "lessonId": "vpr.lesson_7",
+      "title": "クイズ: 完全な回転",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "vpr.lesson_7.q1",
+          "conceptId": "vpr.aoe_rotation",
+          "scenario": "ダンジョンで4体の敵と戦っています。",
+          "question": "どのコンボを使うべきですか？",
+          "options": ["スチールファングス → フィニッシャー", "スチールモー → リービングモーパス", "集中ダメージのために単体", "ヴァイスワインダーのみ"],
+          "correctIndex": 1,
+          "explanation": "3体以上では、より多くの合計ダメージのためにAoEコンボ（スチールモー → リービングモーパス）を使いましょう。"
+        },
+        {
+          "questionId": "vpr.lesson_7.q2",
+          "conceptId": "vpr.dual_wield_aoe",
+          "scenario": "複数の敵にノクシアスグナッシュを適用したいです。",
+          "question": "どのアビリティを使うべきですか？",
+          "options": ["各敵にヴァイスワインダー", "ヴァイスピット（AoEヴァイスワインダー）", "シャドウ・オブ・デス", "死の旋風"],
+          "correctIndex": 1,
+          "explanation": "ヴァイスピットはヴァイスワインダーのAoE版——ヒットした全敵にノクシアスグナッシュを適用します。"
+        },
+        {
+          "questionId": "vpr.lesson_7.q3",
+          "conceptId": "vpr.uncoiled_fury",
+          "scenario": "ラトリングコイルが2つあります。ボスが近接範囲内にいます。",
+          "question": "アンコイルドフューリーを使うべきですか？",
+          "options": ["はい——常にリキャストで使う", "いいえ——移動のために温存する", "はい——オーバーキャップを防ぐ", "リアウェイクン中のみ"],
+          "correctIndex": 1,
+          "explanation": "近接範囲内では、移動フェーズのためにラトリングコイルを温存してください。近接GCDを使える場合はアンコイルドフューリーはDPS損失です。"
+        },
+        {
+          "questionId": "vpr.lesson_7.q4",
+          "conceptId": "vpr.aoe_rotation",
+          "scenario": "2体の敵がいます。1体はHP80%、1体はHP20%です。",
+          "question": "どの回転を使うべきですか？",
+          "options": ["両方にAoE回転", "HP少ない敵に単体", "単体——AoEは3体以上", "HP高い敵に集中"],
+          "correctIndex": 2,
+          "explanation": "ヴァイパーのAoEしきい値は3体以上です。2体では単体回転の方が効率的です。"
+        },
+        {
+          "questionId": "vpr.lesson_7.q5",
+          "conceptId": "vpr.uncoiled_fury",
+          "scenario": "ボスがダッシュしました。ラトリングコイルが0でとぐろ巻きの一撃が使用可能です。",
+          "question": "どうすべきですか？",
+          "options": ["ボスが戻るのを待つ", "とぐろ巻きの一撃を使う", "スプリントで距離を詰める", "何もしない"],
+          "correctIndex": 1,
+          "explanation": "とぐろ巻きの一撃はラトリングコイルがないときの遠距離フィラーです。強制離脱中に使いましょう。"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "rpr",
+  "jobName": "リーパー",
+  "quizzes": [
+    {
+      "quizId": "rpr.lesson_1.quiz",
+      "lessonId": "rpr.lesson_1",
+      "title": "クイズ: リーパーの基本",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "rpr.lesson_1.q1",
+          "conceptId": "rpr.combo_basics",
+          "scenario": "スライス → ワクシングスライス → インファーナルスライスのコンボを完成させました。",
+          "question": "このコンボでソウルゲージはどれだけ得られましたか？",
+          "options": ["ソウルゲージ30", "ソウルゲージ20", "ソウルゲージ10", "ソウルゲージ50"],
+          "correctIndex": 2,
+          "explanation": "基本コンボ（スライス → ワクシングスライス → インファーナルスライス）はインファーナルスライス完成時にソウルゲージ10を付与します。"
+        },
+        {
+          "questionId": "rpr.lesson_1.q2",
+          "conceptId": "rpr.soul_slice",
+          "scenario": "ソウルスライスが2チャージあります。ソウルゲージが40です。",
+          "question": "ソウルスライスを使うべきですか？",
+          "options": ["いいえ——緊急時のためにチャージを温存する", "はい——オーバーキャップを避けるためにリキャストで使う", "いいえ——ソウルゲージが0になるまで待つ", "1チャージのみ使う"],
+          "correctIndex": 1,
+          "explanation": "ソウルスライスは使用ごとにソウルゲージ50を付与します。ソウル40で使うとオーバーキャップしません（最大90）。ゲージ生成を最大化するためにリキャストでチャージを使いましょう。"
+        },
+        {
+          "questionId": "rpr.lesson_1.q3",
+          "conceptId": "rpr.deaths_design",
+          "scenario": "ボスのデス・デザインが残り5秒です。",
+          "question": "どうすべきですか？",
+          "options": ["切れさせる", "シャドウ・オブ・デスでリフレッシュする", "切れるまで待つ", "死の旋風を使う"],
+          "correctIndex": 1,
+          "explanation": "デス・デザイン（+10%ダメージ）は絶対に切れさせてはいけません。ダメージバフを維持するために残り時間が少なくなったらシャドウ・オブ・デスでリフレッシュしてください。"
+        },
+        {
+          "questionId": "rpr.lesson_1.q4",
+          "conceptId": "rpr.deaths_design",
+          "scenario": "ボスのデス・デザインが55秒の持続時間です。",
+          "question": "シャドウ・オブ・デスを使うべきですか？",
+          "options": ["はい——リフレッシュし続ける", "いいえ——最大（60秒）に近い", "はい——常にリキャストで使う", "いいえ——デス・デザインはスタックしない"],
+          "correctIndex": 1,
+          "explanation": "デス・デザインは60秒でキャップします。55秒では、シャドウ・オブ・デスを使っても5秒しか追加されず延長の大半を無駄にします。もっと低くなるまで待ちましょう。"
+        },
+        {
+          "questionId": "rpr.lesson_1.q5",
+          "conceptId": "rpr.soul_gauge",
+          "scenario": "ソウルゲージが95で、ソウルスライスが2チャージ使用可能です。",
+          "question": "どうすべきですか？",
+          "options": ["すぐにソウルスライスを使う", "まずブラッドストークでソウルを消費する", "ソウルスライスを2チャージ使う", "ソウルが減るまで待つ"],
+          "correctIndex": 1,
+          "explanation": "ソウル95でソウルスライス（ゲージ50）を使うとオーバーキャップします。まずブラッドストーク（コスト50）でソウルを消費してソウルスライス生成の余裕を作りましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "rpr.lesson_2.quiz",
+      "lessonId": "rpr.lesson_2",
+      "title": "クイズ: ソウルリーバーと方向指定",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "rpr.lesson_2.q1",
+          "conceptId": "rpr.gibbet",
+          "scenario": "ソウルリーバーが有効でボスの側面（横）にいます。",
+          "question": "方向指定ボーナスのためにどのアビリティを使うべきですか？",
+          "options": ["ギャローズ", "ギベット", "どちらでも可", "ギロチン"],
+          "correctIndex": 1,
+          "explanation": "ギベットは側面方向指定があります。ボーナス威力のためにボスの横から使いましょう。"
+        },
+        {
+          "questionId": "rpr.lesson_2.q2",
+          "conceptId": "rpr.gallows",
+          "scenario": "ソウルリーバーが有効でボスの後ろ（後方）に立っています。",
+          "question": "どのアビリティを使うべきですか？",
+          "options": ["ギベット", "ギャローズ", "どちらでも可", "ソウルリーバーを温存する"],
+          "correctIndex": 1,
+          "explanation": "ギャローズは後方方向指定があります。ボーナス威力のためにボスの後ろから使いましょう。"
+        },
+        {
+          "questionId": "rpr.lesson_2.q3",
+          "conceptId": "rpr.enhanced_procs",
+          "scenario": "ギベットを使ったばかりです。どのバフを受けましたか？",
+          "question": "今どの強化バフを持っていますか？",
+          "options": ["強化ギベット", "強化ギャローズ", "強化ギロチン", "バフなし"],
+          "correctIndex": 1,
+          "explanation": "ギベットは強化ギャローズを付与します。次に使うギャローズがボーナスダメージを与えます。"
+        },
+        {
+          "questionId": "rpr.lesson_2.q4",
+          "conceptId": "rpr.soul_reaver",
+          "scenario": "ソウルゲージが50でグラトニーが使用可能です。",
+          "question": "グラトニーはソウルリーバースタックをいくつ付与しますか？",
+          "options": ["1スタック", "2スタック", "3スタック", "スタックなし"],
+          "correctIndex": 1,
+          "explanation": "グラトニーは2つのソウルリーバースタックを付与し、同じソウルコストでブラッドストーク（1スタック）より効率的です。"
+        },
+        {
+          "questionId": "rpr.lesson_2.q5",
+          "conceptId": "rpr.positionals",
+          "scenario": "ギミックでボスの正面に立たされています。ソウルリーバーとトゥルーノースが使用可能です。",
+          "question": "どうすべきですか？",
+          "options": ["ソウルリーバーアビリティをスキップする", "トゥルーノースを使って方向指定をする", "とにかくギベット/ギャローズを使う", "ギミックが終わるまで待つ"],
+          "correctIndex": 1,
+          "explanation": "トゥルーノースは方向指定の条件を無視できます。ギミックで正しい位置取りができないときに使いましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "rpr.lesson_3.quiz",
+      "lessonId": "rpr.lesson_3",
+      "title": "クイズ: シュラウドゲージ管理",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "rpr.lesson_3.q1",
+          "conceptId": "rpr.shroud_gauge",
+          "scenario": "ソウルリーバースタックを消費するためにギベットを使いました。",
+          "question": "シュラウドゲージをどれだけ獲得しますか？",
+          "options": ["シュラウド5", "シュラウド10", "シュラウド20", "シュラウド50"],
+          "correctIndex": 1,
+          "explanation": "各ソウルリーバーアビリティ（ギベット、ギャローズ、またはギロチン）はシュラウドゲージ10を付与します。"
+        },
+        {
+          "questionId": "rpr.lesson_3.q2",
+          "conceptId": "rpr.enshroud",
+          "scenario": "シュラウドゲージが50あります。",
+          "question": "このシュラウドで何ができますか？",
+          "options": ["まだ何もできない", "エンシュラードに入る", "ルミュールスライスを使う", "ソウルゲージに変換する"],
+          "correctIndex": 1,
+          "explanation": "エンシュラードの起動にはシュラウドゲージ50が必要です。シュラウド50でバーストステートに入れます。"
+        },
+        {
+          "questionId": "rpr.lesson_3.q3",
+          "conceptId": "rpr.guillotine",
+          "scenario": "ソウルリーバースタックが2つあり、近くに4体の敵がいます。",
+          "question": "どのソウルリーバーアビリティを使うべきですか？",
+          "options": ["ギベット", "ギャローズ", "ギロチン", "ギベット/ギャローズを交互に"],
+          "correctIndex": 2,
+          "explanation": "ギロチンはAoEソウルリーバーアビリティです。3体以上では単体オプションより合計ダメージが多くなります。"
+        },
+        {
+          "questionId": "rpr.lesson_3.q4",
+          "conceptId": "rpr.shroud_gauge",
+          "scenario": "シュラウドゲージが90あります。ブラッドストークが使用可能です。",
+          "question": "何を優先すべきですか？",
+          "options": ["ソウルリーバーのためにブラッドストークを使う", "先にエンシュラードに入る", "もっとシュラウドを積む", "レイドバフを待つ"],
+          "correctIndex": 1,
+          "explanation": "シュラウド90ではキャップ（最大100）に近いです。ソウルリーバーからさらに積む前にシュラウドを消費するためにエンシュラードに入りましょう。"
+        },
+        {
+          "questionId": "rpr.lesson_3.q5",
+          "conceptId": "rpr.guillotine",
+          "scenario": "敵のグループにギロチンを使いました。",
+          "question": "どのバフを受けましたか？",
+          "options": ["強化ギベット", "強化ギャローズ", "両方の強化バフ", "強化バフなし"],
+          "correctIndex": 2,
+          "explanation": "ギロチンは強化ギベットと強化ギャローズの両方のバフを付与し、その後どちらの強化版も使えます。"
+        }
+      ]
+    },
+    {
+      "quizId": "rpr.lesson_4.quiz",
+      "lessonId": "rpr.lesson_4",
+      "title": "クイズ: エンシュラードバーストウィンドウ",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "rpr.lesson_4.q1",
+          "conceptId": "rpr.lemure_shroud",
+          "scenario": "エンシュラードに入ったばかりです。",
+          "question": "ルミュールシュラウドスタックはいくつから始まりますか？",
+          "options": ["3スタック", "4スタック", "5スタック", "変動する"],
+          "correctIndex": 2,
+          "explanation": "エンシュラードは必ず5つのルミュールシュラウドスタックを付与し、ヴォイド/クロスリービングで消費します。"
+        },
+        {
+          "questionId": "rpr.lesson_4.q2",
+          "conceptId": "rpr.void_shroud",
+          "scenario": "エンシュラード中にヴォイドリービングを使いました。",
+          "question": "ダメージ以外に何を得ますか？",
+          "options": ["ソウルゲージ", "シュラウドゲージ", "ヴォイドシュラウドスタック1つ", "何もない"],
+          "correctIndex": 2,
+          "explanation": "各ヴォイドリービングとクロスリービングはルミュールスライスoGCD用のヴォイドシュラウドスタック1つを付与します。"
+        },
+        {
+          "questionId": "rpr.lesson_4.q3",
+          "conceptId": "rpr.void_reaping",
+          "scenario": "エンシュラード中にヴォイドリービングを使ったばかりです。",
+          "question": "最大ダメージのために次に何を使うべきですか？",
+          "options": ["もう一度ヴォイドリービング", "クロスリービング", "コミュニオ", "ルミュールスライス"],
+          "correctIndex": 1,
+          "explanation": "ヴォイドリービングは強化クロスリービングを付与します。強化ダメージボーナスのために交互に使いましょう。"
+        },
+        {
+          "questionId": "rpr.lesson_4.q4",
+          "conceptId": "rpr.grim_reaping",
+          "scenario": "5体の敵がまとまった状態でエンシュラードにいます。",
+          "question": "どのGCDを使うべきですか？",
+          "options": ["ヴォイドリービング", "クロスリービング", "グリムリービング", "エンシュラードを終了する"],
+          "correctIndex": 2,
+          "explanation": "グリムリービングはヴォイド/クロスリービングのAoE版です。エンシュラード中に3体以上で使いましょう。"
+        },
+        {
+          "questionId": "rpr.lesson_4.q5",
+          "conceptId": "rpr.lemure_shroud",
+          "scenario": "エンシュラード中でルミュールシュラウドが2つ残っています。",
+          "question": "コミュニオの前にGCDをあといくつ使えますか？",
+          "options": ["0——今すぐコミュニオを使う", "ヴォイド/クロスリービングをあと1回", "ヴォイド/クロスリービングをあと2回", "好きなだけ"],
+          "correctIndex": 1,
+          "explanation": "コミュニオはルミュールシュラウドが1つ残っているときに使うべきです。2スタックでは先にヴォイド/クロスリービングをもう1回使いましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "rpr.lesson_5.quiz",
+      "lessonId": "rpr.lesson_5",
+      "title": "クイズ: エンシュラードフィニッシャー",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "rpr.lesson_5.q1",
+          "conceptId": "rpr.communio",
+          "scenario": "エンシュラード中でルミュールシュラウドスタックが1つ残っています。",
+          "question": "どうすべきですか？",
+          "options": ["ヴォイドリービングを使う", "クロスリービングを使う", "コミュニオを使う", "エンシュラードを終了する"],
+          "correctIndex": 2,
+          "explanation": "ルミュールシュラウドが1つ残っているときにコミュニオを使うべきです。高威力フィニッシャーです。"
+        },
+        {
+          "questionId": "rpr.lesson_5.q2",
+          "conceptId": "rpr.perfectio",
+          "scenario": "コミュニオを使ったばかりです。",
+          "question": "どのプロックを受けましたか？",
+          "options": ["ソウルリーバー", "強化ギベット", "ペルフェクティオレディ", "何もない"],
+          "correctIndex": 2,
+          "explanation": "コミュニオはペルフェクティオレディを付与し、強力なペルフェクティオフォローアップ攻撃を使えます。"
+        },
+        {
+          "questionId": "rpr.lesson_5.q3",
+          "conceptId": "rpr.lemures_slice",
+          "scenario": "エンシュラード中にヴォイドシュラウドスタックが4つあります。",
+          "question": "ルミュールスライスを何回使えますか？",
+          "options": ["1回", "2回", "4回", "無制限"],
+          "correctIndex": 1,
+          "explanation": "ルミュールスライスは1回につきヴォイドシュラウド2つを消費します。4スタックでは2回使えます（2 + 2 = 4）。"
+        },
+        {
+          "questionId": "rpr.lesson_5.q4",
+          "conceptId": "rpr.sacrificium",
+          "scenario": "Lv.92でルミュールスライスにヴォイドシュラウドをすべて使いました。",
+          "question": "どの追加フィニッシャーアビリティが使用可能ですか？",
+          "options": ["2回目のコミュニオ", "サクリフィシウム", "豊穣の収穫", "何もない"],
+          "correctIndex": 1,
+          "explanation": "サクリフィシウム（Lv.92）はエンシュラード中にヴォイドシュラウドを消費した後に使用可能になる追加oGCDフィニッシャーです。"
+        },
+        {
+          "questionId": "rpr.lesson_5.q5",
+          "conceptId": "rpr.communio",
+          "scenario": "ルミュールシュラウドが3つ残っていますが、エンシュラードが切れそうです。",
+          "question": "どうすべきですか？",
+          "options": ["3スタックすべてを使おうとする", "すぐにコミュニオを使う", "エンシュラードを切れさせる", "ハーベストムーンで終了する"],
+          "correctIndex": 1,
+          "explanation": "エンシュラードが切れそうなら、完全に失うよりフィニッシャーダメージを得るためにコミュニオを使いましょう。少しのダメージでも無いよりマシです。"
+        }
+      ]
+    },
+    {
+      "quizId": "rpr.lesson_6.quiz",
+      "lessonId": "rpr.lesson_6",
+      "title": "クイズ: パーティバフの連携",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "rpr.lesson_6.q1",
+          "conceptId": "rpr.arcane_circle",
+          "scenario": "戦闘が始まりました。パーティに複数のレイドバフジョブがいます。",
+          "question": "アーケインサークルをいつ使うべきですか？",
+          "options": ["プル時すぐに", "30秒待つ", "エンシュラード中のみ", "緊急時のために温存する"],
+          "correctIndex": 0,
+          "explanation": "他のパーティレイドバフと合わせるために戦闘開始時にアーケインサークルを使いましょう。2分リキャストです。"
+        },
+        {
+          "questionId": "rpr.lesson_6.q2",
+          "conceptId": "rpr.immortal_sacrifice",
+          "scenario": "アーケインサークルが有効です。8人全員のパーティメンバーがダメージを与えています。",
+          "question": "不死の犠牲スタックをいくつ獲得できますか？",
+          "options": ["4スタック", "8スタック", "無制限", "ダメージによる"],
+          "correctIndex": 1,
+          "explanation": "犠牲の輪の下にいる各パーティメンバーが不死の犠牲スタックを1つ付与でき、最大8スタックです。"
+        },
+        {
+          "questionId": "rpr.lesson_6.q3",
+          "conceptId": "rpr.plentiful_harvest",
+          "scenario": "不死の犠牲スタックが8つあります。",
+          "question": "豊穣の収穫でシュラウドゲージはどれだけ得られますか？",
+          "options": ["シュラウド0", "シュラウド25", "シュラウド50", "シュラウド100"],
+          "correctIndex": 2,
+          "explanation": "豊穣の収穫は不死の犠牲スタックを消費してシュラウドゲージ50を付与し、素早いエンシュラードへの移行を可能にします。"
+        },
+        {
+          "questionId": "rpr.lesson_6.q4",
+          "conceptId": "rpr.arcane_circle",
+          "scenario": "戦闘開始から2分が経ちました。アーケインサークルが使用可能です。",
+          "question": "アーケインサークルを使う前に何を考慮すべきですか？",
+          "options": ["何も——すぐに使う", "パーティバフが使用可能か確認する", "エンシュラードを待つ", "次のフェーズに温存する"],
+          "correctIndex": 1,
+          "explanation": "アーケインサークルはパーティの2分バフに合わせるべきです。最大恩恵のために他のレイドバフが使われているか確認してください。"
+        },
+        {
+          "questionId": "rpr.lesson_6.q5",
+          "conceptId": "rpr.plentiful_harvest",
+          "scenario": "アーケインサークルが終了しました。不死の犠牲スタックがあります。",
+          "question": "豊穣の収穫をいつ使うべきですか？",
+          "options": ["すぐに", "次のアーケインサークルまで待つ", "エンシュラード中のみ", "絶対使わない——スタックを温存する"],
+          "correctIndex": 0,
+          "explanation": "不死の犠牲バフが切れる前に豊穣の収穫を使いましょう。得られたシュラウドはバフウィンドウ中のエンシュラードへの移行に役立ちます。"
+        }
+      ]
+    },
+    {
+      "quizId": "rpr.lesson_7.quiz",
+      "lessonId": "rpr.lesson_7",
+      "title": "クイズ: AoEと移動",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "rpr.lesson_7.q1",
+          "conceptId": "rpr.aoe_rotation",
+          "scenario": "ダンジョンで4体の敵と戦っています。",
+          "question": "どのコンボを使うべきですか？",
+          "options": ["スライス → ワクシングスライス → インファーナルスライス", "紡ぎ鎌 → 悪夢鎌", "シャドウ・オブ・デスをスパム", "集中ダメージのために単体"],
+          "correctIndex": 1,
+          "explanation": "3体以上では、より多くの合計ダメージのためにAoEコンボ（紡ぎ鎌 → 悪夢鎌）を使いましょう。"
+        },
+        {
+          "questionId": "rpr.lesson_7.q2",
+          "conceptId": "rpr.harvest_moon",
+          "scenario": "ボスが遠くに跳んで届けません。ハーベストムーンが使用可能です。",
+          "question": "どうすべきですか？",
+          "options": ["ボスが戻るのを待つ", "ハーベストムーンを使う", "シャドウ・オブ・デスを使う", "何もしない"],
+          "correctIndex": 1,
+          "explanation": "ハーベストムーンはボスに届けない瞬間に最適な遠距離GCDです。離脱状況で使いましょう。"
+        },
+        {
+          "questionId": "rpr.lesson_7.q3",
+          "conceptId": "rpr.harvest_moon",
+          "scenario": "ダンジョンのプルを待っています。ハーベストムーンが使用可能ではありません。",
+          "question": "どうすべきですか？",
+          "options": ["ただ待つ", "魂刈りを使ってハーベストムーンを準備する", "スライスから始める", "エンシュラードを使う"],
+          "correctIndex": 1,
+          "explanation": "魂刈りはハーベストムーンを準備します（5秒詠唱、戦闘外で使用可能）。常にハーベストムーンを準備した状態で戦闘に入りましょう。"
+        },
+        {
+          "questionId": "rpr.lesson_7.q4",
+          "conceptId": "rpr.aoe_rotation",
+          "scenario": "5体の敵と戦っています。どの敵にもデス・デザインがありません。",
+          "question": "最初に何をすべきですか？",
+          "options": ["すぐにAoEコンボを始める", "死の旋風を適用する", "各敵にシャドウ・オブ・デスを適用する", "1体に集中する"],
+          "correctIndex": 1,
+          "explanation": "死の旋風は範囲内の全敵にデス・デザインを適用します。その後の全攻撃で+10%ダメージを得るために先に適用しましょう。"
+        },
+        {
+          "questionId": "rpr.lesson_7.q5",
+          "conceptId": "rpr.aoe_rotation",
+          "scenario": "2体の敵がいます。1体がほぼ死にかけです。",
+          "question": "どの回転を使うべきですか？",
+          "options": ["AoE——常に2体以上で", "HP少ない敵に単体", "単体——AoEは3体以上", "どちらでも同じ"],
+          "correctIndex": 2,
+          "explanation": "リーパーのAoEしきい値は3体以上です。2体では単体回転の方が効率的です。"
+        }
+      ]
+    }
+  ]
+}
