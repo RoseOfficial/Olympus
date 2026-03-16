@@ -970,6 +970,124 @@ public class DamageModuleTests
             It.IsAny<ulong>()), Times.Once);
     }
 
+    [Fact]
+    public void TryExecute_Feint_FiresWhenEnabled()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        // Disable SecondWind and Bloodbath so Feint can fire
+        actionService.Setup(x => x.IsActionReady(VPRActions.SecondWind.ActionId)).Returns(false);
+        actionService.Setup(x => x.IsActionReady(VPRActions.Bloodbath.ActionId)).Returns(false);
+        actionService.Setup(x => x.IsActionReady(VPRActions.Feint.ActionId)).Returns(true);
+        actionService.Setup(x => x.ExecuteOgcd(
+                It.Is<ActionDefinition>(a => a.ActionId == VPRActions.Feint.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        var config = EchidnaTestContext.CreateDefaultViperConfiguration();
+        config.Viper.EnableSecondWind = false;
+        config.Viper.EnableBloodbath = false;
+        config.Viper.EnableFeint = true;
+
+        var player = MockBuilders.CreateMockPlayerCharacter(level: 100);
+        player.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        var mockContext = new Mock<IEchidnaContext>();
+        mockContext.Setup(x => x.InCombat).Returns(true);
+        mockContext.Setup(x => x.CanExecuteGcd).Returns(false);
+        mockContext.Setup(x => x.CanExecuteOgcd).Returns(true);
+        mockContext.Setup(x => x.Player).Returns(player.Object);
+        mockContext.Setup(x => x.Configuration).Returns(config);
+        mockContext.Setup(x => x.ActionService).Returns(actionService.Object);
+        mockContext.Setup(x => x.TargetingService).Returns(targeting.Object);
+        mockContext.Setup(x => x.TrainingService).Returns((Olympus.Services.Training.ITrainingService?)null);
+        mockContext.Setup(x => x.Debug).Returns(new EchidnaDebugState());
+        mockContext.Setup(x => x.SerpentCombo).Returns(VPRActions.SerpentCombo.None);
+        mockContext.Setup(x => x.DreadCombo).Returns(VPRActions.DreadCombo.None);
+        mockContext.Setup(x => x.IsReawakened).Returns(false);
+        mockContext.Setup(x => x.HasPoisedForTwinfang).Returns(false);
+        mockContext.Setup(x => x.HasPoisedForTwinblood).Returns(false);
+        mockContext.Setup(x => x.RattlingCoils).Returns(0);
+        mockContext.Setup(x => x.SerpentOffering).Returns(0);
+        mockContext.Setup(x => x.AnguineTribute).Returns(0);
+        mockContext.Setup(x => x.HasNoxiousGnash).Returns(true);
+        mockContext.Setup(x => x.NoxiousGnashRemaining).Returns(15f);
+        mockContext.Setup(x => x.StatusHelper).Returns(new EchidnaStatusHelper());
+        mockContext.Setup(x => x.IsAtRear).Returns(false);
+        mockContext.Setup(x => x.IsAtFlank).Returns(false);
+        mockContext.Setup(x => x.HasTrueNorth).Returns(false);
+        mockContext.Setup(x => x.TargetHasPositionalImmunity).Returns(false);
+        mockContext.Setup(x => x.PartyList).Returns(MockBuilders.CreateMockPartyList().Object);
+
+        var result = _module.TryExecute(mockContext.Object, isMoving: false);
+
+        Assert.True(result);
+        actionService.Verify(x => x.ExecuteOgcd(
+            It.Is<ActionDefinition>(a => a.ActionId == VPRActions.Feint.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+    }
+
+    [Fact]
+    public void TryExecute_TrueNorth_FiresWhenOutOfPositionAndEnabled()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        // Disable higher-priority role actions so TrueNorth can fire
+        actionService.Setup(x => x.IsActionReady(VPRActions.SecondWind.ActionId)).Returns(false);
+        actionService.Setup(x => x.IsActionReady(VPRActions.Bloodbath.ActionId)).Returns(false);
+        actionService.Setup(x => x.IsActionReady(VPRActions.Feint.ActionId)).Returns(false);
+        actionService.Setup(x => x.IsActionReady(VPRActions.TrueNorth.ActionId)).Returns(true);
+        actionService.Setup(x => x.ExecuteOgcd(
+                It.Is<ActionDefinition>(a => a.ActionId == VPRActions.TrueNorth.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        var config = EchidnaTestContext.CreateDefaultViperConfiguration();
+        config.Viper.EnableSecondWind = false;
+        config.Viper.EnableBloodbath = false;
+        config.Viper.EnableFeint = false;
+        config.Viper.EnableTrueNorth = true;
+
+        var player = MockBuilders.CreateMockPlayerCharacter(level: 100);
+        player.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        var mockContext = new Mock<IEchidnaContext>();
+        mockContext.Setup(x => x.InCombat).Returns(true);
+        mockContext.Setup(x => x.CanExecuteGcd).Returns(false);
+        mockContext.Setup(x => x.CanExecuteOgcd).Returns(true);
+        mockContext.Setup(x => x.Player).Returns(player.Object);
+        mockContext.Setup(x => x.Configuration).Returns(config);
+        mockContext.Setup(x => x.ActionService).Returns(actionService.Object);
+        mockContext.Setup(x => x.TargetingService).Returns(targeting.Object);
+        mockContext.Setup(x => x.TrainingService).Returns((Olympus.Services.Training.ITrainingService?)null);
+        mockContext.Setup(x => x.Debug).Returns(new EchidnaDebugState());
+        mockContext.Setup(x => x.SerpentCombo).Returns(VPRActions.SerpentCombo.None);
+        mockContext.Setup(x => x.DreadCombo).Returns(VPRActions.DreadCombo.None);
+        mockContext.Setup(x => x.IsReawakened).Returns(false);
+        mockContext.Setup(x => x.HasPoisedForTwinfang).Returns(false);
+        mockContext.Setup(x => x.HasPoisedForTwinblood).Returns(false);
+        mockContext.Setup(x => x.RattlingCoils).Returns(0);
+        mockContext.Setup(x => x.SerpentOffering).Returns(0);
+        mockContext.Setup(x => x.AnguineTribute).Returns(0);
+        mockContext.Setup(x => x.HasNoxiousGnash).Returns(true);
+        mockContext.Setup(x => x.NoxiousGnashRemaining).Returns(15f);
+        mockContext.Setup(x => x.StatusHelper).Returns(new EchidnaStatusHelper());
+        mockContext.Setup(x => x.IsAtRear).Returns(false);
+        mockContext.Setup(x => x.IsAtFlank).Returns(false);
+        mockContext.Setup(x => x.HasTrueNorth).Returns(false);  // No TrueNorth buff active
+        mockContext.Setup(x => x.TargetHasPositionalImmunity).Returns(false);
+        mockContext.Setup(x => x.PartyList).Returns(MockBuilders.CreateMockPartyList().Object);
+
+        var result = _module.TryExecute(mockContext.Object, isMoving: false);
+
+        Assert.True(result);
+        actionService.Verify(x => x.ExecuteOgcd(
+            It.Is<ActionDefinition>(a => a.ActionId == VPRActions.TrueNorth.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+    }
+
     #endregion
 
     #region GCD — Writhing Snap
