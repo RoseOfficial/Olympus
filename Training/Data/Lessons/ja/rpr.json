@@ -1,0 +1,142 @@
+{
+  "jobPrefix": "rpr",
+  "jobName": "リーパー",
+  "lessons": [
+    {
+      "lessonId": "rpr.lesson_1",
+      "lessonNumber": 1,
+      "title": "リーパーの基本",
+      "description": "リーパーのコア原則を学びます。基本コンボ、ソウルゲージの積み方、デス・デザインの維持について解説します。",
+      "prerequisites": [],
+      "conceptsCovered": ["rpr.combo_basics", "rpr.soul_gauge", "rpr.soul_slice", "rpr.deaths_design"],
+      "keyPoints": [
+        "基本コンボ：スライス→ワクシングスライス→インファーナルスライスでソウルゲージ10獲得",
+        "ソウルスライスはoGCDでソウルゲージ50付与（30秒リチャージ、2チャージ）",
+        "デス・デザイン（+10%ダメージ）はシャドウ・オブ・デスで常に維持が必須",
+        "シャドウ・オブ・デスはデス・デザインを30秒延長（最大60秒）——切れる前にリフレッシュ"
+      ],
+      "relatedAbilities": ["Slice", "Waxing Slice", "Infernal Slice", "Soul Slice", "Shadow of Death"],
+      "tips": [
+        "チャージがオーバーキャップしないようにソウルスライスをCDごとに使用",
+        "デス・デザインの残り時間が約10〜15秒になったらリフレッシュしてスムーズな稼働率を"
+      ]
+    },
+    {
+      "lessonId": "rpr.lesson_2",
+      "lessonNumber": 2,
+      "title": "ソウルリーバーと方向指定",
+      "description": "ソウルリーバー状態を習得します。ブラッドストーク/グラトニーで入り、ギベット/ギャローズの方向指定、強化プロックについて解説します。",
+      "prerequisites": ["rpr.lesson_1"],
+      "conceptsCovered": ["rpr.soul_reaver", "rpr.gibbet", "rpr.gallows", "rpr.positionals", "rpr.enhanced_procs"],
+      "keyPoints": [
+        "ブラッドストーク（ソウル50）でソウルリーバー1スタック、グラトニー（ソウル50）で2スタック",
+        "ギベット（側面方向指定）：横から使用、強化ギャローズバフを付与",
+        "ギャローズ（後方方向指定）：後ろから使用、強化ギベットバフを付与",
+        "強化プロックは60秒持続——常に強化版を使うようにギベット/ギャローズを交互に",
+        "各ソウルリーバーアビリティはシュラウドゲージ10を付与"
+      ],
+      "relatedAbilities": ["Blood Stalk", "Gluttony", "Gibbet", "Gallows", "True North"],
+      "tips": [
+        "グラトニーはブラッドストークより優先（2スタック対1）——使用可能なら使いましょう",
+        "ギミックで方向指定不可な場合はトゥルーノースを使用"
+      ]
+    },
+    {
+      "lessonId": "rpr.lesson_3",
+      "lessonNumber": 3,
+      "title": "シュラウドゲージ管理",
+      "description": "シュラウドゲージの積み方、ギロチンによるAoEソウルリーバー、エンシュラードへの移行を理解します。",
+      "prerequisites": ["rpr.lesson_2"],
+      "conceptsCovered": ["rpr.shroud_gauge", "rpr.guillotine", "rpr.enshroud"],
+      "keyPoints": [
+        "シュラウドゲージはソウルリーバーアビリティから積まれます（ギベット/ギャローズ/ギロチン = 各+10）",
+        "エンシュラードはシュラウドゲージ50が必要（強力なバーストステート）",
+        "ギロチンはAoEソウルリーバー（方向指定なし）——3体以上で使用",
+        "シュラウドを100でキャップさせないこと——キャップ前にエンシュラードに入る"
+      ],
+      "relatedAbilities": ["Gibbet", "Gallows", "Guillotine", "Enshroud"],
+      "tips": [
+        "レイドバフウィンドウ中にエンシュラードに入れるようにソウルリーバーの使用を計画",
+        "ギロチンはAoEでも強化プロックを付与しますが方向指定ボーナスはありません"
+      ]
+    },
+    {
+      "lessonId": "rpr.lesson_4",
+      "lessonNumber": 4,
+      "title": "エンシュラードバーストウィンドウ",
+      "description": "エンシュラードバーストフェーズを実行します。ルミュールシュラウドスタック、ヴォイドシュラウド生成、ヴォイド/クロスリービングについて解説します。",
+      "prerequisites": ["rpr.lesson_3"],
+      "conceptsCovered": ["rpr.lemure_shroud", "rpr.void_shroud", "rpr.void_reaping", "rpr.grim_reaping"],
+      "keyPoints": [
+        "エンシュラードはルミュールシュラウドスタックを5つ付与（ヴォイド/クロスリービングで消費）",
+        "ヴォイドリービングとクロスリービングがエンシュラード中のメインGCD",
+        "各ヴォイド/クロスリービングはヴォイドシュラウドスタック1つ付与（oGCD用）",
+        "グリムリービングはヴォイド/クロスリービングのAoE版（方向指定なし）",
+        "エンシュラードは30秒持続——5スタック全部とフィニッシャーを使う時間があります"
+      ],
+      "relatedAbilities": ["Enshroud", "Void Reaping", "Cross Reaping", "Grim Reaping"],
+      "tips": [
+        "強化ダメージボーナスのためにヴォイドリービングとクロスリービングを交互に",
+        "できる限りレイドバフウィンドウのためにエンシュラードを温存"
+      ]
+    },
+    {
+      "lessonId": "rpr.lesson_5",
+      "lessonNumber": 5,
+      "title": "エンシュラードフィニッシャー",
+      "description": "エンシュラードフィニッシャーを習得します。コミュニオのタイミング、ペルフェクティオプロック、ルミュール スライスoGCD、サクリフィシウムについて解説します。",
+      "prerequisites": ["rpr.lesson_4"],
+      "conceptsCovered": ["rpr.communio", "rpr.perfectio", "rpr.lemures_slice", "rpr.sacrificium"],
+      "keyPoints": [
+        "コミュニオ：ルミュールシュラウドが1つ残っているときに使用（高威力フィニッシャー）",
+        "コミュニオはペルフェクティオレディバフを付与——直後にペルフェクティオを使用",
+        "ルミュールスライス/スライスはヴォイドシュラウド2つずつ消費——エンシュラード中にウィーブ",
+        "サクリフィシウム（Lv.92）：ヴォイドシュラウド消費後の追加フィニッシャーoGCD"
+      ],
+      "relatedAbilities": ["Communio", "Perfectio", "Lemure's Slice", "Lemure's Scythe", "Sacrificium"],
+      "tips": [
+        "標準エンシュラード：ヴォイド/クロスリービング×4→コミュニオ→ペルフェクティオ",
+        "ヴォイドシュラウドが2つ以上あるときはGCDの間にルミュールスライスをウィーブ"
+      ]
+    },
+    {
+      "lessonId": "rpr.lesson_6",
+      "lessonNumber": 6,
+      "title": "パーティバフの連携",
+      "description": "アーケインサークル、不死の犠牲スタック、豊穣の収穫でパーティダメージを最大化します。",
+      "prerequisites": ["rpr.lesson_5"],
+      "conceptsCovered": ["rpr.arcane_circle", "rpr.immortal_sacrifice", "rpr.plentiful_harvest"],
+      "keyPoints": [
+        "アーケインサークル：20秒間パーティ全体3%ダメージバフ（120秒CD）",
+        "犠牲の輪：アーケインサークル下のパーティメンバーが不死の犠牲スタックを付与（最大8）",
+        "豊穣の収穫は不死の犠牲スタックを消費してダメージ＋シュラウドゲージ50",
+        "最大効果のためにアーケインサークルをパーティの2分バーストウィンドウに合わせる"
+      ],
+      "relatedAbilities": ["Arcane Circle", "Plentiful Harvest"],
+      "tips": [
+        "戦闘開始時とパーティバフに合わせて2分ごとにアーケインサークルを使用",
+        "豊穣の収穫はアーケインサークル後にシュラウドを素早く積む手段"
+      ]
+    },
+    {
+      "lessonId": "rpr.lesson_7",
+      "lessonNumber": 7,
+      "title": "AoEと移動",
+      "description": "AoE回転を学び、移動や遠距離状況でハーベストムーンを活用します。",
+      "prerequisites": ["rpr.lesson_6"],
+      "conceptsCovered": ["rpr.aoe_rotation", "rpr.harvest_moon"],
+      "keyPoints": [
+        "AoEしきい値：3体以上でAoE回転に切り替え",
+        "AoEコンボ：紡ぎ鎌→悪夢鎌（ソウルゲージ10付与）",
+        "死の旋風はデス・デザインを全ターゲットに適用（シャドウ・オブ・デスのAoE版）",
+        "ハーベストムーン：移動や離脱状況のための遠隔GCD",
+        "戦闘前に魂刈りを使ってハーベストムーンを準備しておく"
+      ],
+      "relatedAbilities": ["Spinning Scythe", "Nightmare Scythe", "Whorl of Death", "Soulsow", "Harvest Moon"],
+      "tips": [
+        "ダンジョンでは全敵への死の旋風からコンボを始めましょう",
+        "ハーベストムーンはボスの離脱フェーズに最適"
+      ]
+    }
+  ]
+}

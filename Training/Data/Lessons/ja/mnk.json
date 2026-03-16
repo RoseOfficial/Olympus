@@ -1,0 +1,140 @@
+{
+  "jobPrefix": "mnk",
+  "jobName": "モンク",
+  "lessons": [
+    {
+      "lessonId": "mnk.lesson_1",
+      "lessonNumber": 1,
+      "title": "モンクの基本",
+      "description": "モンクのコア原則を学びます。型システム、基本コンボ、方向指定の要件について解説します。",
+      "prerequisites": [],
+      "conceptsCovered": ["mnk.combo_basics", "mnk.form_system", "mnk.positionals"],
+      "keyPoints": [
+        "型のサイクル：オポ・オポ→ラプター→クーアル→オポ・オポ",
+        "各型に特定のウェポンスキル：ブートシャイン/ドラゴンキック（オポ・オポ）、トゥルーストライク/ツインスネイクス（ラプター）、スナップパンチ/デモリッシュ（クーアル）",
+        "方向指定：ブートシャイン/デモリッシュは後方、トゥルーストライク/スナップパンチは側面",
+        "方向指定を正しく当てるとボーナス威力——最適ダメージに必須"
+      ],
+      "relatedAbilities": ["Bootshine", "Dragon Kick", "True Strike", "Twin Snakes", "Snap Punch", "Demolish"],
+      "tips": [
+        "型のサイクルは自動——現在の型に合ったGCDを使うだけ",
+        "GCDが当たる前に方向指定のためにボスのパターンを学んで事前に位置取りしましょう"
+      ]
+    },
+    {
+      "lessonId": "mnk.lesson_2",
+      "lessonNumber": 2,
+      "title": "バフの維持",
+      "description": "規律の拳、デモリッシュDoT、戦闘外の瞑想によるバフ維持を習得します。",
+      "prerequisites": ["mnk.lesson_1"],
+      "conceptsCovered": ["mnk.disciplined_fist", "mnk.demolish_dot", "mnk.meditation"],
+      "keyPoints": [
+        "規律の拳（+15%ダメージ）はツインスネイクス/デモリッシュから——絶対に切らさないこと",
+        "デモリッシュは強力なDoT（持続18秒）——ほぼ100%の稼働率を維持",
+        "デモリッシュの残り時間が約3秒になったらリフレッシュ",
+        "瞑想：戦闘外でチャクラを積んで戦闘開始時にリソースを準備"
+      ],
+      "relatedAbilities": ["Twin Snakes", "Demolish", "Meditation"],
+      "tips": [
+        "ツインスネイクス（ラプター型）とデモリッシュ（クーアル型）の両方が規律の拳を付与",
+        "ダウンタイム中やプル前に瞑想を使ってバーストのためにチャクラを積みましょう"
+      ]
+    },
+    {
+      "lessonId": "mnk.lesson_3",
+      "lessonNumber": 3,
+      "title": "チャクラシステム",
+      "description": "チャクラの生成と消費を理解して最適なダメージ出力を実現します。",
+      "prerequisites": ["mnk.lesson_2"],
+      "conceptsCovered": ["mnk.chakra_gauge", "mnk.the_forbidden_chakra", "mnk.enlightenment", "mnk.steel_peak"],
+      "keyPoints": [
+        "チャクラゲージ：0〜5スタック、ウェポンスキルとクリティカルヒットから積まれます",
+        "禁断のチャクラ（チャクラ5）：高威力単体oGCD",
+        "エンライトメント（チャクラ5）：3体以上のAoE代替",
+        "チャクラをオーバーキャップさせないこと——5スタックでそれ以上積む前に消費"
+      ],
+      "relatedAbilities": ["The Forbidden Chakra", "Enlightenment", "Steel Peak", "Howling Fist"],
+      "tips": [
+        "チャクラは兄弟愛バフ中に速く積まれます——クリティカルヒットが増えるため",
+        "ダメージを最大化するためにGCDの間にチャクラスペンダーをウィーブ"
+      ]
+    },
+    {
+      "lessonId": "mnk.lesson_4",
+      "lessonNumber": 4,
+      "title": "獣のチャクラとマスターフル・ブリッツ",
+      "description": "獣のチャクラシステムを習得し、組み合わせに応じてどのブリッツを実行するかを学びます。",
+      "prerequisites": ["mnk.lesson_3"],
+      "conceptsCovered": ["mnk.beast_chakra", "mnk.masterful_blitz", "mnk.elixir_field", "mnk.rising_phoenix", "mnk.phantom_rush"],
+      "keyPoints": [
+        "獣のチャクラタイプ：オポ・オポ（月）、ラプター（陽）、クーアル（天）",
+        "同一の獣のチャクラ3つ = エリクシールフィールド（広範囲AoE）",
+        "陽2つ＋別の1つ = ライジングフェニックス（扇形AoE）",
+        "全3タイプ異なる = ファントムラッシュ（最高単体威力、激昂バフ必要）",
+        "獣のチャクラが3つになったときマスターフル・ブリッツが使用可能に"
+      ],
+      "relatedAbilities": ["Masterful Blitz", "Elixir Field", "Rising Phoenix", "Phantom Rush", "Elixir Burst", "Flint Strike"],
+      "tips": [
+        "単体では最大ダメージのためにファントムラッシュ（全3タイプ異なる）を目指す",
+        "AoEではエリクシールフィールド（3つ同一）が近くの全敵にヒット"
+      ]
+    },
+    {
+      "lessonId": "mnk.lesson_5",
+      "lessonNumber": 5,
+      "title": "バーストウィンドウ",
+      "description": "完全なバランス、炎の理、兄弟愛による強力なバーストウィンドウを実行します。",
+      "prerequisites": ["mnk.lesson_4"],
+      "conceptsCovered": ["mnk.perfect_balance", "mnk.riddle_of_fire", "mnk.brotherhood", "mnk.burst_alignment"],
+      "keyPoints": [
+        "完全なバランス（2チャージ、40秒リチャージ）：型に関わらず任意のウェポンスキルを使用可能",
+        "炎の理（60秒CD、20秒持続）：+15%ダメージバフ——コアバーストウィンドウ",
+        "兄弟愛（120秒CD）：パーティ全体5%ダメージバフ＋チャクラ生成増加",
+        "炎の理と兄弟愛をパーティレイドバフに合わせて最大インパクトを"
+      ],
+      "relatedAbilities": ["Perfect Balance", "Riddle of Fire", "Brotherhood"],
+      "tips": [
+        "炎の理中に完全なバランスを使って獣のチャクラを素早く積みましょう",
+        "兄弟愛は2分パーティバフに合わせます——グループと連携してください"
+      ]
+    },
+    {
+      "lessonId": "mnk.lesson_6",
+      "lessonNumber": 6,
+      "title": "移動とユーティリティ",
+      "description": "ギャップクローザー、トゥルーノースの活用、オートアタック最適化を習得します。",
+      "prerequisites": ["mnk.lesson_5"],
+      "conceptsCovered": ["mnk.thunderclap", "mnk.true_north_usage", "mnk.riddle_of_wind"],
+      "keyPoints": [
+        "サンダークラップ（3チャージ）：ターゲットへのダッシュ——ギャップクローズや回避に使用",
+        "トゥルーノース（2チャージ、45秒リチャージ）：10秒間方向指定を無視",
+        "風の理：オートアタック速度を上昇——バースト中の無料ダメージ",
+        "ギミックで正しい方向指定ができないときのためにトゥルーノースを温存"
+      ],
+      "relatedAbilities": ["Thunderclap", "True North", "Riddle of Wind"],
+      "tips": [
+        "サンダークラップチャージを無駄にしないこと——緊急移動のために少なくとも1つ温存",
+        "方向指定を乱すギミックに合わせてトゥルーノースの使用を計画してください"
+      ]
+    },
+    {
+      "lessonId": "mnk.lesson_7",
+      "lessonNumber": 7,
+      "title": "AoEと最適化",
+      "description": "AoE回転と上級最適化テクニックを学びます。",
+      "prerequisites": ["mnk.lesson_6"],
+      "conceptsCovered": ["mnk.aoe_combo", "mnk.howling_fist", "mnk.aoe_threshold"],
+      "keyPoints": [
+        "AoEコンボ：地天破→四点破→岩砕き",
+        "効率のために3体以上でAoE回転に切り替え",
+        "ハウリングフィスト：AoE oGCD——複数ターゲット時にエンライトメントと一緒に使用",
+        "完全なバランスはAoEでも機能——エリクシールフィールドのために獣のチャクラを素早く積む"
+      ],
+      "relatedAbilities": ["Arm of the Destroyer", "Four-point Fury", "Rockbreaker", "Howling Fist"],
+      "tips": [
+        "ダンジョンではザコにAoEコンボ、ボスには単体を使いましょう",
+        "AoEでも規律の拳バフを維持してダメージボーナスを得てください"
+      ]
+    }
+  ]
+}
