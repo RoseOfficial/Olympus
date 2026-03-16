@@ -1,0 +1,139 @@
+{
+  "jobPrefix": "war",
+  "jobName": "戦士",
+  "lessons": [
+    {
+      "lessonId": "war.lesson_1",
+      "lessonNumber": 1,
+      "title": "獣のゲージとサージング・テンペスト",
+      "description": "戦士のコアメカニクスを学びます。獣のゲージの生成、サージング・テンペストバフの維持、基本コンボの流れについて解説します。",
+      "prerequisites": [],
+      "conceptsCovered": ["war.beast_gauge", "war.surging_tempest"],
+      "keyPoints": [
+        "獣のゲージはウェポンスキルコンボから積みます（コンボアクション1回につき10）",
+        "サージング・テンペスト：ストームズアイコンボフィニッシャーによる10%ダメージバフ",
+        "サージング・テンペストを常に維持してください——主要なダメージバフです",
+        "獣のゲージを100でキャップさせないでください——フェルクリーブで消費すること"
+      ],
+      "relatedAbilities": ["Defiance", "Heavy Swing", "Maim", "Storm's Path", "Storm's Eye"],
+      "tips": [
+        "ストームズパス（ゲージ）とストームズアイ（バフリフレッシュ）を交互に使いましょう",
+        "サージング・テンペストは最長60秒まで延長できます——早めにリフレッシュしすぎないこと"
+      ]
+    },
+    {
+      "lessonId": "war.lesson_2",
+      "lessonNumber": 2,
+      "title": "防御の基本",
+      "description": "戦士の防御ツールを習得します。ランパート、ヴェンジェンス、そして強力なブラッドウェッティングによる自己回復について学びます。",
+      "prerequisites": ["war.lesson_1"],
+      "conceptsCovered": ["war.vengeance", "war.bloodwhetting", "war.raw_intuition", "war.mitigation_stacking"],
+      "keyPoints": [
+        "ランパート：20%軽減（20秒間、90秒CD）——標準タンクCD",
+        "ヴェンジェンス：30%軽減＋攻撃反射（15秒間、120秒CD）",
+        "ブラッドウェッティング：10%軽減＋攻撃時に大きな回復（25秒CD）",
+        "ブラッドウェッティングは大型プルでの戦士をほぼ不死身にします"
+      ],
+      "relatedAbilities": ["Rampart", "Vengeance", "Bloodwhetting", "Raw Intuition", "Reprisal"],
+      "tips": [
+        "ブラッドウェッティングはダンジョンで最強のCD——回復量はヒットした敵の数で増加します",
+        "ダンジョンでヴェンジェンスと範囲攻撃を組み合わせると反射ダメージを活かせます"
+      ]
+    },
+    {
+      "lessonId": "war.lesson_3",
+      "lessonNumber": 3,
+      "title": "ホルムギャング",
+      "description": "戦士の無敵スキルを習得します。ホルムギャングのタイミング、ターゲット要件、ヒーラーとの連携について学びます。",
+      "prerequisites": ["war.lesson_2"],
+      "conceptsCovered": ["war.holmgang", "war.invuln_timing"],
+      "keyPoints": [
+        "ホルムギャング：10秒間HP1以下にならない（240秒CD）",
+        "タンク無敵スキルの中で最も短いクールダウン——頻繁に使用可能",
+        "HP1まで落ちます——ヒーラーは後で回復が必要",
+        "持続中はターゲットと結びついています——移動が制限される可能性あり"
+      ],
+      "relatedAbilities": ["Holmgang"],
+      "tips": [
+        "短いクールダウンを活かして積極的にホルムギャングを使いましょう",
+        "ホルムギャング後にブラッドウェッティングで自力回復できます"
+      ]
+    },
+    {
+      "lessonId": "war.lesson_4",
+      "lessonNumber": 4,
+      "title": "原初の解放",
+      "description": "戦士のバーストウィンドウを習得します。原初の解放のセットアップ、フェルクリーブの連打、ウィンドウ中のダメージ最大化について学びます。",
+      "prerequisites": ["war.lesson_3"],
+      "conceptsCovered": ["war.inner_release", "war.ir_window", "war.fell_cleave", "war.infuriate"],
+      "keyPoints": [
+        "原初の解放：15秒間フェルクリーブ無料＋クリット保証（60秒CD）",
+        "原初の解放中はフェルクリーブを連打——獣のゲージコストなし",
+        "インフュリエート：獣のゲージ50を即時付与（60秒CD）＋ナセントカオスバフ",
+        "各原初の解放ウィンドウに最低5回のフェルクリーブを収めること"
+      ],
+      "relatedAbilities": ["Inner Release", "Fell Cleave", "Infuriate", "Primal Rend"],
+      "tips": [
+        "さらにダメージを増やすため原初の解放前に獣のゲージをプールしましょう",
+        "原初の解放＋プライマルレンドが最大のバーストコンボです"
+      ]
+    },
+    {
+      "lessonId": "war.lesson_5",
+      "lessonNumber": 5,
+      "title": "自己回復",
+      "description": "戦士の優れた自己回復を習得します。スリル・オブ・バトル、イクイリブリアム、ブラッドウェッティングのシナジーについて学びます。",
+      "prerequisites": ["war.lesson_4"],
+      "conceptsCovered": ["war.thrill_of_battle", "war.equilibrium", "war.nascent_chaos"],
+      "keyPoints": [
+        "スリル・オブ・バトル：最大HP20%増加＋10秒間ヒール強化（90秒CD）",
+        "イクイリブリアム：強力な自己ヒール＋HoT（60秒CD）",
+        "ナセントカオス：インフュリエートから得られるインナーカオス（フェルクリーブの代わり）",
+        "戦士は適切なクールダウン管理でほとんどのコンテンツを自力でサバイブできます"
+      ],
+      "relatedAbilities": ["Thrill of Battle", "Equilibrium", "Inner Chaos"],
+      "tips": [
+        "大ダメージ前にスリル・オブ・バトルを使うとヒール受ける量が増えます",
+        "インナーカオスは最も強力な単発ヒット——バーストウィンドウで使用すること"
+      ]
+    },
+    {
+      "lessonId": "war.lesson_6",
+      "lessonNumber": 6,
+      "title": "パーティ保護",
+      "description": "戦士のパーティユーティリティを習得します。シェイク・イット・オフによるパーティバリアと、ナセントフラッシュによる仲間の保護について学びます。",
+      "prerequisites": ["war.lesson_5"],
+      "conceptsCovered": ["war.shake_it_off", "war.nascent_flash", "war.party_protection"],
+      "keyPoints": [
+        "シェイク・イット・オフ：有効バフに応じたパーティバリア（90秒CD）",
+        "ナセントフラッシュ：ブラッドウェッティングの回復をパーティメンバーと共有",
+        "シェイク・イット・オフはランパート/ヴェンジェンスなどを消費するが、より大きなバリアに",
+        "ヒーラーとコタンクとパーティ軽減を調整してください"
+      ],
+      "relatedAbilities": ["Shake It Off", "Nascent Flash"],
+      "tips": [
+        "バフが自然に切れる前にシェイク・イット・オフを使いましょう",
+        "ブラッドウェッティング中にDPSへのナセントフラッシュで両方をヒールできます"
+      ]
+    },
+    {
+      "lessonId": "war.lesson_7",
+      "lessonNumber": 7,
+      "title": "上級最適化",
+      "description": "最終レッスン：ゲージのプール、タンクスワップ、oGCDウィービング、生存力を維持しながらのダメージ最大化について学びます。",
+      "prerequisites": ["war.lesson_6"],
+      "conceptsCovered": ["war.gauge_pooling", "war.tank_swap", "war.primal_rend", "war.upheaval", "war.onslaught", "war.orogeny"],
+      "keyPoints": [
+        "原初の解放前に50〜80ゲージをプールして最大バーストに備える",
+        "プライマルレンド：原初の解放で付与される巨大ダメージスキル、遅延可能",
+        "激震：強力なoGCD（30秒CD）——クールダウンごとにウィーブすること",
+        "アンスロート：3チャージのギャップクローザー——移動またはダメージに使用"
+      ],
+      "relatedAbilities": ["Provoke", "Shirk", "Primal Rend", "Upheaval", "Onslaught", "Orogeny"],
+      "tips": [
+        "プライマルレンドはレイドバフ合わせのために最長30秒保留できます",
+        "可能であれば3チャージ全部をバーストウィンドウで使いましょう"
+      ]
+    }
+  ]
+}

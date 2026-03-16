@@ -1,0 +1,377 @@
+{
+  "jobPrefix": "gnb",
+  "jobName": "ガンブレイカー",
+  "quizzes": [
+    {
+      "quizId": "gnb.lesson_1.quiz",
+      "lessonId": "gnb.lesson_1",
+      "title": "クイズ: カートリッジゲージ",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "gnb.lesson_1.q1",
+          "conceptId": "gnb.cartridge_gauge",
+          "scenario": "カートリッジが2つあります。ソリッドバレルコンボが使用可能です。",
+          "question": "ソリッドバレル後にどうなりますか？",
+          "options": ["カートリッジ1獲得", "オーバーキャップ警告", "3つになる", "変化なし"],
+          "correctIndex": 2,
+          "explanation": "ソリッドバレルはカートリッジを1つ生成します。2つから3つ（最大）になります。カートリッジが3つのときにソリッドバレルを使わないでください。"
+        },
+        {
+          "questionId": "gnb.lesson_1.q2",
+          "conceptId": "gnb.burst_strike",
+          "scenario": "カートリッジが1つあります。ノーマーシーは使用できません。",
+          "question": "バーストストライクを使うべきですか？",
+          "options": ["はい——カートリッジを消費", "いいえ——ノーマーシーのために温存", "オーバーキャップする場合のみ", "ナッシングファングを使う"],
+          "correctIndex": 2,
+          "explanation": "通常はノーマーシーウィンドウのためにカートリッジを温存してください。バーストストライクはオーバーキャップを防ぐためにのみ使いましょう。"
+        },
+        {
+          "questionId": "gnb.lesson_1.q3",
+          "conceptId": "gnb.cartridge_gauge",
+          "scenario": "戦闘開始直後です。カートリッジゲージが空です。",
+          "question": "カートリッジはどうやって積みますか？",
+          "options": ["オートアタック", "任意のGCD", "ソリッドバレルコンボフィニッシャー", "oGCD"],
+          "correctIndex": 2,
+          "explanation": "カートリッジはソリッドバレル（1）とブラッドフェスト（3）から得られます。コンボフィニッシャーのみがゲージを生成します。"
+        },
+        {
+          "questionId": "gnb.lesson_1.q4",
+          "conceptId": "gnb.burst_strike",
+          "scenario": "バーストストライクを使用しました。ハイパーベロシティが使用可能になりました。",
+          "question": "ハイパーベロシティとは何ですか？",
+          "options": ["次のコンボアクション", "無料のoGCDダメージ", "防御スキル", "移動スキル"],
+          "correctIndex": 1,
+          "explanation": "バーストストライクはハイパーベロシティ（レディ・トゥ・ブラスト）を付与します——無料のoGCDフォローアップ攻撃です。"
+        },
+        {
+          "questionId": "gnb.lesson_1.q5",
+          "conceptId": "gnb.cartridge_gauge",
+          "scenario": "カートリッジが3つあります。ナッシングファングはカートリッジ1消費、ダブルダウンは2消費です。",
+          "question": "バーストでどちらを先に使うべきですか？",
+          "options": ["ナッシングファング", "ダブルダウン", "バーストストライク×3", "温存"],
+          "correctIndex": 1,
+          "explanation": "ダブルダウンは最高威力のカートリッジ消費スキルです。ウィンドウ内に確実に収めるためにノーマーシー序盤に使いましょう。"
+        }
+      ]
+    },
+    {
+      "quizId": "gnb.lesson_2.quiz",
+      "lessonId": "gnb.lesson_2",
+      "title": "クイズ: 防御の基本",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "gnb.lesson_2.q1",
+          "conceptId": "gnb.heart_of_corundum",
+          "scenario": "タンク強攻撃が来ます。ハート・オブ・コランダムが使用可能です。",
+          "question": "ハート・オブ・コランダムは何を提供しますか？",
+          "options": ["バリアのみ", "軽減＋ヒール＋バリア", "軽減のみ", "継続回復"],
+          "correctIndex": 1,
+          "explanation": "ハート・オブ・コランダムは15%軽減、ダメージ時のヒール、バリアを提供します。非常に強力です。"
+        },
+        {
+          "questionId": "gnb.lesson_2.q2",
+          "conceptId": "gnb.aurora",
+          "scenario": "タンクへのオートアタックが痛いです。オーロラが2チャージあります。",
+          "question": "オーロラは何を提供しますか？",
+          "options": ["軽減", "継続回復", "バリア", "ダメージバフ"],
+          "correctIndex": 1,
+          "explanation": "オーロラはHoT（継続回復）です。2チャージを活かして継続的なダメージを緩和しましょう。"
+        },
+        {
+          "questionId": "gnb.lesson_2.q3",
+          "conceptId": "gnb.nebula",
+          "scenario": "大きなタンク強攻撃です。ネビュラとハート・オブ・コランダムが使用可能です。",
+          "question": "最善の組み合わせは？",
+          "options": ["ネビュラのみ", "ハート・オブ・コランダムのみ", "両方を重ねる", "代わりにカモフラージュを使う"],
+          "correctIndex": 2,
+          "explanation": "大きなタンク強攻撃にはネビュラ（30%）とハート・オブ・コランダム（15%＋ヒール＋バリア）を重ねましょう。"
+        },
+        {
+          "questionId": "gnb.lesson_2.q4",
+          "conceptId": "gnb.camouflage",
+          "scenario": "継続的なオートアタックを受けています。カモフラージュが使用可能です。",
+          "question": "カモフラージュがオートアタックに有効な理由は？",
+          "options": ["最大軽減", "パリー率上昇", "最長持続時間", "ヒット時に回復"],
+          "correctIndex": 1,
+          "explanation": "カモフラージュはパリー率を上昇させます。頻繁なオートアタックに対して特に効果的です。"
+        },
+        {
+          "questionId": "gnb.lesson_2.q5",
+          "conceptId": "gnb.mitigation_stacking",
+          "scenario": "ランパートを使用しました。もうすぐ別のヒットが来ます。",
+          "question": "アクティブなランパートと相性の良いスキルは？",
+          "options": ["ネビュラ", "ハート・オブ・コランダム", "ランパートをもう一度", "何も不要"],
+          "correctIndex": 1,
+          "explanation": "ハート・オブ・コランダム（25秒CD）はランパート（90秒CD）と相性が良いです。ランパートが切れたときのためにネビュラを温存してください。"
+        }
+      ]
+    },
+    {
+      "quizId": "gnb.lesson_3.quiz",
+      "lessonId": "gnb.lesson_3",
+      "title": "クイズ: スーパーボライド",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "gnb.lesson_3.q1",
+          "conceptId": "gnb.superbolide",
+          "scenario": "HPが80%あります。スーパーボライドが使用可能です。",
+          "question": "スーパーボライドを使うとどうなりますか？",
+          "options": ["80%を維持", "HP1まで下がり無敵", "HP50%を受ける", "HP低下なしで無敵"],
+          "correctIndex": 1,
+          "explanation": "スーパーボライドは即座にHPを1にし、その後10秒間無敵にします。"
+        },
+        {
+          "questionId": "gnb.lesson_3.q2",
+          "conceptId": "gnb.invuln_timing",
+          "scenario": "スーパーボライドは360秒（6分）のクールダウンです。",
+          "question": "他のタンク無敵と比べてどうですか？",
+          "options": ["最長CD", "2番目に短いCD", "平均的", "最短"],
+          "correctIndex": 1,
+          "explanation": "スーパーボライド（360秒）はホルムギャング（240秒）に次いで2番目に短いCDです。かなり頻繁に使えます。"
+        },
+        {
+          "questionId": "gnb.lesson_3.q3",
+          "conceptId": "gnb.superbolide",
+          "scenario": "HPが20%です。致死ダメージが来ます。",
+          "question": "ここでスーパーボライドは使う価値がありますか？",
+          "options": ["いいえ——既に低い", "はい——そのヒットを生き延びる", "代わりに防御CDを使う", "ヒーラーが助けられない場合のみ"],
+          "correctIndex": 1,
+          "explanation": "20%のHPで致死ダメージが来るならスーパーボライドで生き延びましょう。HP1まで下がりますが死にません。"
+        },
+        {
+          "questionId": "gnb.lesson_3.q4",
+          "conceptId": "gnb.invuln_timing",
+          "scenario": "スーパーボライドを使用しました。HP1で10秒の無敵です。",
+          "question": "ヒーラーは何をすべきですか？",
+          "options": ["すぐにパニックヒール", "後から回復", "何もしない——無敵だから", "安定のためにヒール"],
+          "correctIndex": 3,
+          "explanation": "10秒間無敵ですがHP1です。無敵ウィンドウ中にヒーラーがあなたを回復すれば、無敵が切れたときも安全です。"
+        },
+        {
+          "questionId": "gnb.lesson_3.q5",
+          "conceptId": "gnb.superbolide",
+          "scenario": "ダンジョンの大型プルで死にそうです。",
+          "question": "ここでスーパーボライドは有効ですか？",
+          "options": ["いいえ——ボス専用", "はい——10秒の安全確保", "まず他のCDを使う", "レイドのみ"],
+          "correctIndex": 1,
+          "explanation": "スーパーボライドはダンジョンの大型プルに最適です。10秒間の無敵であなたとヒーラーが態勢を立て直せます。"
+        }
+      ]
+    },
+    {
+      "quizId": "gnb.lesson_4.quiz",
+      "lessonId": "gnb.lesson_4",
+      "title": "クイズ: ノーマーシーウィンドウ",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "gnb.lesson_4.q1",
+          "conceptId": "gnb.no_mercy",
+          "scenario": "ノーマーシーのCDが切れました。カートリッジが1つあります。",
+          "question": "ノーマーシー前に何をすべきですか？",
+          "options": ["今すぐノーマーシーを使う", "カートリッジを2つ以上に積む", "その1つを使う", "ブラッドフェストを待つ"],
+          "correctIndex": 1,
+          "explanation": "ダブルダウン（2消費）のためにカートリッジ2つ以上持ってノーマーシーに入りましょう。まずゲージを積んでください。"
+        },
+        {
+          "questionId": "gnb.lesson_4.q2",
+          "conceptId": "gnb.double_down",
+          "scenario": "ノーマーシーが発動中です。カートリッジが3つあります。",
+          "question": "最初に何を使うべきですか？",
+          "options": ["ナッシングファング", "ダブルダウン", "バーストストライク×3", "ソニックブレイク"],
+          "correctIndex": 1,
+          "explanation": "ダブルダウンは最高威力の攻撃です。ウィンドウ内に確実に収めるためにノーマーシー序盤に使いましょう。"
+        },
+        {
+          "questionId": "gnb.lesson_4.q3",
+          "conceptId": "gnb.bloodfest",
+          "scenario": "ブラッドフェストが使用可能です。カートリッジが0です。",
+          "question": "ブラッドフェストは何を提供しますか？",
+          "options": ["カートリッジ1", "カートリッジ2", "カートリッジ3", "カートリッジ最大"],
+          "correctIndex": 2,
+          "explanation": "ブラッドフェストは即座にカートリッジを3つ付与します。ノーマーシー中にカートリッジを消費した後に使いましょう。"
+        },
+        {
+          "questionId": "gnb.lesson_4.q4",
+          "conceptId": "gnb.no_mercy_window",
+          "scenario": "ノーマーシーの残り時間が5秒です。ナッシングファングが使用可能です。",
+          "question": "ナッシングファングを始めるべきですか？",
+          "options": ["いいえ——時間が足りない", "はい——ウィンドウ内に収まる", "次のノーマーシーまで温存", "最初のヒットのみ"],
+          "correctIndex": 1,
+          "explanation": "ナッシングファングコンボは速いです。5秒あればノーマーシー内に完了できます。"
+        },
+        {
+          "questionId": "gnb.lesson_4.q5",
+          "conceptId": "gnb.no_mercy",
+          "scenario": "ノーマーシーは20秒間ダメージ20%上昇を提供します。",
+          "question": "このウィンドウに何を詰め込むべきですか？",
+          "options": ["カートリッジ消費スキルのみ", "できる全てのスキル", "一部を後に温存", "防御スキル"],
+          "correctIndex": 1,
+          "explanation": "ノーマーシーに全大ダメージを詰め込みましょう：ダブルダウン、ナッシングファングコンボ、ソニックブレイク、oGCDなど。"
+        }
+      ]
+    },
+    {
+      "quizId": "gnb.lesson_5.quiz",
+      "lessonId": "gnb.lesson_5",
+      "title": "クイズ: ナッシングファングコンボ",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "gnb.lesson_5.q1",
+          "conceptId": "gnb.gnashing_fang",
+          "scenario": "ナッシングファングが使用可能です。カートリッジが1つあります。",
+          "question": "ナッシングファングは何を始めますか？",
+          "options": ["単体攻撃", "3ヒットコンボチェーン", "AoE攻撃", "防御スキル"],
+          "correctIndex": 1,
+          "explanation": "ナッシングファングは3ヒットコンボを始めます：ナッシングファング→サベッジクロウ→ウィッケドタロン、それぞれにコンティニュエーションフォローアップがあります。"
+        },
+        {
+          "questionId": "gnb.lesson_5.q2",
+          "conceptId": "gnb.continuation",
+          "scenario": "ナッシングファングを使いました。ジャグラーリップが使用可能です。",
+          "question": "ジャグラーリップとは何ですか？",
+          "options": ["次のコンボGCD", "無料のoGCDフォローアップ", "別フィニッシャー", "防御スキル"],
+          "correctIndex": 1,
+          "explanation": "ジャグラーリップはナッシングファング後のコンティニュエーションoGCDです。次のGCDの前にウィーブしてください。"
+        },
+        {
+          "questionId": "gnb.lesson_5.q3",
+          "conceptId": "gnb.continuation_chain",
+          "scenario": "コンティニュエーション込みのナッシングファング完全コンボです。",
+          "question": "完全なシーケンスは？",
+          "options": ["GF→SC→WT", "GF→JR→SC→AT→WT→EG", "GF→JR→JR→JR", "どの順でも可"],
+          "correctIndex": 1,
+          "explanation": "ナッシングファング→ジャグラーリップ→サベッジクロウ→アブドメンティア→ウィッケドタロン→アイゴーグ。GCD→oGCDのパターンです。"
+        },
+        {
+          "questionId": "gnb.lesson_5.q4",
+          "conceptId": "gnb.continuation",
+          "scenario": "サベッジクロウを使いましたがアブドメンティアを忘れました。",
+          "question": "まだアブドメンティアを使えますか？",
+          "options": ["はい——いつでも", "いいえ——ウィンドウが過ぎた", "ウィッケドタロン後のみ", "コンボをリセット"],
+          "correctIndex": 1,
+          "explanation": "各コンティニュエーションは次のGCDの前に使用する必要があります。飛ばしたらそれで終わりです。リズムを練習してください。"
+        },
+        {
+          "questionId": "gnb.lesson_5.q5",
+          "conceptId": "gnb.gnashing_fang",
+          "scenario": "ナッシングファングは30秒のクールダウンです。",
+          "question": "このコンボはどのくらいの頻度で使えますか？",
+          "options": ["1分に1回", "1分に2回", "ノーマーシーごと", "戦闘で1回"],
+          "correctIndex": 1,
+          "explanation": "30秒CDなので1分間に2回ナッシングファングコンボを使え、ノーマーシーウィンドウに合わせられます。"
+        }
+      ]
+    },
+    {
+      "quizId": "gnb.lesson_6.quiz",
+      "lessonId": "gnb.lesson_6",
+      "title": "クイズ: パーティ保護",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "gnb.lesson_6.q1",
+          "conceptId": "gnb.heart_of_light",
+          "scenario": "魔法全体攻撃が来ます。ハート・オブ・ライトが使用可能です。",
+          "question": "ハート・オブ・ライトは何を提供しますか？",
+          "options": ["物理軽減", "パーティ全体に魔法ダメージ10%軽減", "バリア", "ヒール"],
+          "correctIndex": 1,
+          "explanation": "ハート・オブ・ライトはパーティ全体に15秒間魔法ダメージ10%軽減を付与します。"
+        },
+        {
+          "questionId": "gnb.lesson_6.q2",
+          "conceptId": "gnb.heart_of_corundum",
+          "scenario": "パーティメンバーが大ダメージを受けそうです。",
+          "question": "ハート・オブ・コランダムを彼らに使えますか？",
+          "options": ["いいえ——自分のみ", "はい——誰にでも使える", "タンクのみ", "ダンジョンのみ"],
+          "correctIndex": 1,
+          "explanation": "ハート・オブ・コランダムは任意のパーティメンバーに使用でき、軽減、ヒール、バリアを付与します。"
+        },
+        {
+          "questionId": "gnb.lesson_6.q3",
+          "conceptId": "gnb.heart_of_light",
+          "scenario": "物理全体攻撃が来ます。ハート・オブ・ライトが使用可能です。",
+          "question": "ハート・オブ・ライトを使うべきですか？",
+          "options": ["はい——ある程度の軽減になる", "いいえ——魔法のみ", "部分的に有効", "代わりにオーロラを使う"],
+          "correctIndex": 1,
+          "explanation": "ハート・オブ・ライトは魔法ダメージのみ軽減します。物理全体攻撃には代わりにリプライザルを使いましょう。"
+        },
+        {
+          "questionId": "gnb.lesson_6.q4",
+          "conceptId": "gnb.aurora",
+          "scenario": "ヒーラーがダメージを受けています。オーロラが使用可能です。",
+          "question": "ヒーラーにオーロラを使えますか？",
+          "options": ["いいえ——自分のみ", "はい——対象指定HoTです", "戦闘中のみ", "HPが低いときのみ"],
+          "correctIndex": 1,
+          "explanation": "オーロラは任意のパーティメンバーに使用できます。苦しんでいるヒーラーやダメージを受けているDPSに使いましょう。"
+        },
+        {
+          "questionId": "gnb.lesson_6.q5",
+          "conceptId": "gnb.party_protection",
+          "scenario": "コタンクがタンク強攻撃を受けそうです。ハート・オブ・コランダムが使用可能です。",
+          "question": "使うべきですか？",
+          "options": ["いいえ——自分のCDがある", "はい——生存を助ける", "頼まれた場合のみ", "自分のために温存"],
+          "correctIndex": 1,
+          "explanation": "コタンクへのハート・オブ・コランダムは彼らの軽減に上乗せされ、大ダメージ時の生存を確実にします。"
+        }
+      ]
+    },
+    {
+      "quizId": "gnb.lesson_7.quiz",
+      "lessonId": "gnb.lesson_7",
+      "title": "クイズ: 上級最適化",
+      "passingScore": 4,
+      "questions": [
+        {
+          "questionId": "gnb.lesson_7.q1",
+          "conceptId": "gnb.sonic_break",
+          "scenario": "ソニックブレイクが使用可能です。ノーマーシーが発動中です。",
+          "question": "なぜノーマーシー中にソニックブレイクを使うのですか？",
+          "options": ["即時キャスト", "DoTがバフの恩恵を受ける", "最高威力", "カートリッジを付与"],
+          "correctIndex": 1,
+          "explanation": "ソニックブレイクはDoTを付与します。ノーマーシー中に使うとDoTのダメージティックも20%上昇の恩恵を受けます。"
+        },
+        {
+          "questionId": "gnb.lesson_7.q2",
+          "conceptId": "gnb.bow_shock",
+          "scenario": "複数の敵がいます。ボウショックが使用可能です。",
+          "question": "AoEでボウショックが価値ある理由は？",
+          "options": ["基礎ダメージが高い", "全ターゲットにDoT", "カートリッジを生成", "クールダウンなし"],
+          "correctIndex": 1,
+          "explanation": "ボウショックはヒットした全ての敵にDoTを付与します。AoEシチュエーションでは継続的な大ダメージになります。"
+        },
+        {
+          "questionId": "gnb.lesson_7.q3",
+          "conceptId": "gnb.blasting_zone",
+          "scenario": "ブラスティングゾーンのCDが切れました。バーストウィンドウではありません。",
+          "question": "ブラスティングゾーンを使うべきですか？",
+          "options": ["ノーマーシーのために温存", "CDごとに使う", "AoEのみ", "HPが低いときのみ"],
+          "correctIndex": 1,
+          "explanation": "ブラスティングゾーンは30秒CDのoGCDです。CDごとに使いましょう——バーストを待って使用回数を失わないでください。"
+        },
+        {
+          "questionId": "gnb.lesson_7.q4",
+          "conceptId": "gnb.reign_of_beasts",
+          "scenario": "ノーマーシーがレイン・オブ・ビーストを使用可能にします。",
+          "question": "レイン・オブ・ビーストとは何ですか？",
+          "options": ["防御クールダウン", "3ヒットコンボチェーン", "AoE攻撃", "ギャップクローザー"],
+          "correctIndex": 1,
+          "explanation": "レイン・オブ・ビーストはノーマーシー中に付与される新しい3ヒットコンボです。ウィンドウ内に収める追加バーストコンボです。"
+        },
+        {
+          "questionId": "gnb.lesson_7.q5",
+          "conceptId": "gnb.tank_swap",
+          "scenario": "タンクスワップが必要です。ノーマーシーが来そうです。",
+          "question": "最適な順序は？",
+          "options": ["スワップしてからバースト", "バーストしてからスワップ", "バースト中にスワップ", "コタンクにボスを持たせ続ける"],
+          "correctIndex": 0,
+          "explanation": "まずプロヴォークしてボスを取ってから、ノーマーシーを使いましょう。バーストウィンドウ中はあなたが攻撃している必要があります。"
+        }
+      ]
+    }
+  ]
+}
