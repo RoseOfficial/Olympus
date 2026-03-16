@@ -44,6 +44,12 @@ public interface IEchidnaContext : IMeleeDpsRotationContext
     /// </summary>
     VPRActions.DreadCombo DreadCombo { get; }
 
+    /// <summary>
+    /// Current SerpentCombo state from the job gauge.
+    /// Tracks follow-up oGCD availability: Death Rattle, Last Lash, and Legacy oGCDs.
+    /// </summary>
+    VPRActions.SerpentCombo SerpentCombo { get; }
+
     #endregion
 
     #region Buff State

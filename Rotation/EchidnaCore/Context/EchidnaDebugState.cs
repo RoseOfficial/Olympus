@@ -21,6 +21,7 @@ public sealed class EchidnaDebugState
     public int AnguineTribute { get; set; }
     public int RattlingCoils { get; set; }
     public VPRActions.DreadCombo DreadCombo { get; set; }
+    public VPRActions.SerpentCombo SerpentCombo { get; set; }
 
     // State tracking
     public bool IsReawakened { get; set; }

@@ -788,6 +788,28 @@ public static class SafeGameAccess
     }
 
     /// <summary>
+    /// Safely gets the Viper Serpent Combo state.
+    /// </summary>
+    /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>
+    /// <returns>SerpentCombo enum value as byte, or 0 if unavailable.</returns>
+    public static unsafe byte GetVprSerpentCombo(IErrorMetricsService? errorMetrics = null)
+    {
+        var jobGauge = GetJobGaugeManager(errorMetrics);
+        if (jobGauge == null)
+            return 0;
+
+        try
+        {
+            return (byte)jobGauge->Viper.SerpentCombo;
+        }
+        catch
+        {
+            errorMetrics?.RecordError("SafeGameAccess", "Failed to read VPR Serpent Combo");
+            return 0;
+        }
+    }
+
+    /// <summary>
     /// Safely gets the Viper Reawakened timer remaining in seconds.
     /// </summary>
     /// <param name="errorMetrics">Optional error metrics service for tracking failures.</param>

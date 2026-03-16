@@ -3,11 +3,20 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.31
+
+### Viper
+- The rotation now weaves Legacy oGCDs (First through Fourth Legacy) during Reawaken bursts, significantly improving burst damage output
+- Death Rattle now fires automatically after single-target combo finishers
+- Last Lash now fires automatically after AoE combo finishers
+- Second Wind, Bloodbath, Feint, and True North are now active in the rotation
+- Writhing Snap is now used as a ranged filler when out of melee range with no Rattling Coils available
+
+<!-- LATEST-END -->
+
 ## v4.10.30
 
 - Japanese translations are now available for all 21 combat jobs in the Training module — every lesson and quiz can now be displayed in Japanese
-
-<!-- LATEST-END -->
 
 ## v4.10.29
 
@@ -23,6 +32,7 @@ All notable changes to Olympus will be documented in this file.
 
 - Tank cooldown abilities now pre-empt tank busters predicted by the fight timeline — major defensives activate up to 8 seconds before a known tank buster rather than only reacting after damage starts
 - Damage forecasts used for healing triage now factor in timeline-predicted raidwides and tank busters, so healers and shields are deployed before mechanics land rather than in response to them
+
 ## v4.10.27
 
 - Burst resource pooling is now individually tuned for each DPS job — gauge resources and key cooldowns are held more precisely in the final seconds before a burst window rather than spending freely

@@ -74,6 +74,7 @@ public sealed class Echidna : BaseMeleeDpsRotation<IEchidnaContext, IEchidnaModu
     private int _anguineTribute;
     private int _rattlingCoils;
     private VPRActions.DreadCombo _dreadCombo;
+    private VPRActions.SerpentCombo _serpentCombo;
 
     public Echidna(
         IPluginLog log,
@@ -141,6 +142,7 @@ public sealed class Echidna : BaseMeleeDpsRotation<IEchidnaContext, IEchidnaModu
         _anguineTribute = SafeGameAccess.GetVprAnguineTribute(ErrorMetrics);
         _rattlingCoils = SafeGameAccess.GetVprRattlingCoilStacks(ErrorMetrics);
         _dreadCombo = (VPRActions.DreadCombo)SafeGameAccess.GetVprDreadCombo(ErrorMetrics);
+        _serpentCombo = (VPRActions.SerpentCombo)SafeGameAccess.GetVprSerpentCombo(ErrorMetrics);
     }
 
     /// <summary>
@@ -245,6 +247,7 @@ public sealed class Echidna : BaseMeleeDpsRotation<IEchidnaContext, IEchidnaModu
             anguineTribute: _anguineTribute,
             rattlingCoils: _rattlingCoils,
             dreadCombo: _dreadCombo,
+            serpentCombo: _serpentCombo,
             comboStep: ComboStep,
             lastComboAction: LastComboAction,
             comboTimeRemaining: ComboTimeRemaining,

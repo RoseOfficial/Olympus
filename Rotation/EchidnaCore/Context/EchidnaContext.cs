@@ -77,6 +77,7 @@ public sealed class EchidnaContext : IEchidnaContext
     public int RattlingCoils { get; }
     public bool IsReawakened { get; }
     public VPRActions.DreadCombo DreadCombo { get; }
+    public VPRActions.SerpentCombo SerpentCombo { get; }
 
     // Buff state
     public bool HasHuntersInstinct { get; }
@@ -146,6 +147,7 @@ public sealed class EchidnaContext : IEchidnaContext
         int anguineTribute,
         int rattlingCoils,
         VPRActions.DreadCombo dreadCombo,
+        VPRActions.SerpentCombo serpentCombo,
         int comboStep,
         uint lastComboAction,
         float comboTimeRemaining,
@@ -201,6 +203,7 @@ public sealed class EchidnaContext : IEchidnaContext
         AnguineTribute = anguineTribute;
         RattlingCoils = rattlingCoils;
         DreadCombo = dreadCombo;
+        SerpentCombo = serpentCombo;
         IsReawakened = anguineTribute > 0;
 
         // Buff state
@@ -280,6 +283,7 @@ public sealed class EchidnaContext : IEchidnaContext
         Debug.AnguineTribute = AnguineTribute;
         Debug.RattlingCoils = RattlingCoils;
         Debug.DreadCombo = DreadCombo;
+        Debug.SerpentCombo = SerpentCombo;
 
         // State
         Debug.IsReawakened = IsReawakened;
