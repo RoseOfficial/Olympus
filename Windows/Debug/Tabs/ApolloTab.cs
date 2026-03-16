@@ -1,7 +1,7 @@
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Localization;
-using Olympus.Rotation.ApolloCore.Context;
+using Olympus.Rotation.Common;
 using Olympus.Windows.Debug;
 
 namespace Olympus.Windows.Debug.Tabs;

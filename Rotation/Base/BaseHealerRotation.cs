@@ -5,6 +5,7 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Rotation.Common;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Cooldown;
@@ -123,14 +124,27 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
     }
 
     /// <summary>
+    /// The party helper for this healer rotation.
+    /// Used by the default implementations of GetPartyEntityIds and GetPartyHealthMetrics.
+    /// </summary>
+    protected abstract HealerPartyHelper HealerParty { get; }
+
+    /// <summary>
     /// Collects party entity IDs for damage trend tracking.
     /// </summary>
-    protected abstract IEnumerable<uint> GetPartyEntityIds(IPlayerCharacter player);
+    protected virtual IEnumerable<uint> GetPartyEntityIds(IPlayerCharacter player)
+    {
+        foreach (var member in HealerParty.GetAllPartyMembers(player))
+            yield return member.EntityId;
+    }
 
     /// <summary>
     /// Gets party health metrics for cooldown planning.
     /// </summary>
-    protected abstract (float avgHpPercent, float lowestHpPercent, int injuredCount) GetPartyHealthMetrics(IPlayerCharacter player);
+    protected virtual (float avgHpPercent, float lowestHpPercent, int injuredCount) GetPartyHealthMetrics(IPlayerCharacter player)
+    {
+        return HealerParty.CalculatePartyHealthMetrics(player);
+    }
 
     #endregion
 

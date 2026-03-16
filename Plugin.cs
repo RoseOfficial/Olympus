@@ -36,7 +36,7 @@ namespace Olympus;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginVersion = "4.10.16";
+    public const string PluginVersion = "4.10.17";
     private const string CommandName = "/olympus";
 
     private readonly IDalamudPluginInterface pluginInterface;

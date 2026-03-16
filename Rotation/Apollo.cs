@@ -6,6 +6,8 @@ using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.ApolloCore.Modules;
+using Olympus.Rotation.Common;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Base;
 using Olympus.Services;
 using Olympus.Services.Action;
@@ -40,6 +42,9 @@ public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
 
     /// <inheritdoc />
     protected override List<IApolloModule> Modules => _modules;
+
+    /// <inheritdoc />
+    protected override HealerPartyHelper HealerParty => _partyHelper;
 
     // Persistent debug state (shared with contexts, exposed for DebugService)
     private readonly DebugState _debugState = new();
@@ -179,21 +184,6 @@ public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
             trainingService: _trainingService,
             debugState: _debugState,
             log: Log);
-    }
-
-    /// <inheritdoc />
-    protected override IEnumerable<uint> GetPartyEntityIds(IPlayerCharacter player)
-    {
-        foreach (var member in _partyHelper.GetAllPartyMembers(player))
-        {
-            yield return member.EntityId;
-        }
-    }
-
-    /// <inheritdoc />
-    protected override (float avgHpPercent, float lowestHpPercent, int injuredCount) GetPartyHealthMetrics(IPlayerCharacter player)
-    {
-        return _partyHelper.CalculatePartyHealthMetrics(player);
     }
 
     #endregion

@@ -3,8 +3,9 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Data;
-using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
+using Olympus.Rotation.Common;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.AsclepiusCore.Context;
 using Olympus.Rotation.AsclepiusCore.Helpers;
 using Olympus.Rotation.AsclepiusCore.Modules;
@@ -39,10 +40,13 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
     public override uint[] SupportedJobIds => [JobRegistry.Sage];
 
     /// <inheritdoc />
-    public override DebugState DebugState => ConvertToApolloDebugState();
+    public override DebugState DebugState => _debugState;
 
     /// <inheritdoc />
     protected override List<IAsclepiusModule> Modules => _modules;
+
+    /// <inheritdoc />
+    protected override HealerPartyHelper HealerParty => _partyHelper;
 
     /// <summary>
     /// Gets the Asclepius-specific debug state.
@@ -60,7 +64,7 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
 
     // Helpers
     private readonly AsclepiusStatusHelper _statusHelper;
-    private readonly IPartyHelper _partyHelper;
+    private readonly PartyHelper _partyHelper;
 
     // Timeline integration
     private readonly ITimelineService? _timelineService;
@@ -182,6 +186,11 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
         _debugState.KardiaTarget = _kardiaManager.HasKardia ? $"ID: {_kardiaManager.CurrentKardiaTarget}" : "None";
         _debugState.SoteriaStacks = _kardiaManager.GetSoteriaStacks(player);
         _debugState.PlayerHpPercent = player.MaxHp > 0 ? (float)player.CurrentHp / player.MaxHp : 1f;
+
+        // Populate shared DebugState resource fields for the debug snapshot
+        _debugState.LilyCount = _debugState.AddersgallStacks;
+        _debugState.BloodLilyCount = _debugState.AdderstingStacks;
+        _debugState.LilyStrategy = _debugState.AddersgallStrategy;
     }
 
     /// <inheritdoc />
@@ -225,51 +234,6 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
             log: Log);
     }
 
-    /// <inheritdoc />
-    protected override IEnumerable<uint> GetPartyEntityIds(IPlayerCharacter player)
-    {
-        foreach (var member in _partyHelper.GetAllPartyMembers(player))
-        {
-            yield return member.EntityId;
-        }
-    }
-
-    /// <inheritdoc />
-    protected override (float avgHpPercent, float lowestHpPercent, int injuredCount) GetPartyHealthMetrics(IPlayerCharacter player)
-    {
-        return _partyHelper.CalculatePartyHealthMetrics(player);
-    }
-
     #endregion
 
-    /// <summary>
-    /// Converts Asclepius debug state to Apollo debug state for UI compatibility.
-    /// </summary>
-    private DebugState ConvertToApolloDebugState()
-    {
-        return new DebugState
-        {
-            PlanningState = _debugState.PlanningState,
-            PlannedAction = _debugState.PlannedAction,
-            AoEInjuredCount = _debugState.AoEInjuredCount,
-            AoEStatus = _debugState.AoEStatus,
-            PlayerHpPercent = _debugState.PlayerHpPercent,
-            PartyListCount = _debugState.PartyListCount,
-            PartyValidCount = _debugState.PartyValidCount,
-            DpsState = _debugState.DpsState,
-            AoEDpsState = _debugState.AoEDpsState,
-            AoEDpsEnemyCount = _debugState.AoEDpsEnemyCount,
-            LastHealAmount = _debugState.LastHealAmount,
-            LastHealStats = _debugState.LastHealStats,
-            RaiseState = _debugState.RaiseState,
-            RaiseTarget = _debugState.RaiseTarget,
-            EsunaState = _debugState.EsunaState,
-            EsunaTarget = _debugState.EsunaTarget,
-            LucidState = _debugState.LucidState,
-            // SGE-specific mappings for display compatibility
-            LilyCount = _debugState.AddersgallStacks, // Map Addersgall to Lily count for display
-            BloodLilyCount = _debugState.AdderstingStacks, // Map Addersting to Blood Lily
-            LilyStrategy = _debugState.AddersgallStrategy,
-        };
-    }
 }

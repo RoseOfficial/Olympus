@@ -184,12 +184,8 @@ public sealed class AstraeaContext : BaseHealerContext, IAstraeaContext
 /// <summary>
 /// Mutable debug state for Astraea modules.
 /// </summary>
-public sealed class AstraeaDebugState
+public sealed class AstraeaDebugState : DebugState
 {
-    // General
-    public string PlanningState { get; set; } = "Idle";
-    public string PlannedAction { get; set; } = "None";
-
     // Cards
     public string CurrentCardType { get; set; } = "None";
     public string MinorArcanaType { get; set; } = "None";
@@ -208,13 +204,6 @@ public sealed class AstraeaDebugState
     public bool IsStarMature { get; set; }
     public int StarTargetsInRange { get; set; }
 
-    // Healing
-    public int LastHealAmount { get; set; }
-    public string LastHealStats { get; set; } = "";
-    public string SingleHealState { get; set; } = "Idle";
-    public string AoEHealState { get; set; } = "Idle";
-    public int AoEInjuredCount { get; set; }
-
     // oGCD Heals
     public string EssentialDignityState { get; set; } = "Idle";
     public string CelestialIntersectionState { get; set; } = "Idle";
@@ -232,26 +221,4 @@ public sealed class AstraeaDebugState
     // Buffs
     public string LightspeedState { get; set; } = "Idle";
     public string CollectiveUnconsciousState { get; set; } = "Idle";
-
-    // DPS
-    public string DpsState { get; set; } = "Idle";
-    public string DotState { get; set; } = "Idle";
-    public string AoEDpsState { get; set; } = "Idle";
-    public int AoEDpsEnemyCount { get; set; }
-
-    // Resurrection
-    public string RaiseState { get; set; } = "Idle";
-    public string RaiseTarget { get; set; } = "None";
-
-    // Esuna
-    public string EsunaState { get; set; } = "Idle";
-    public string EsunaTarget { get; set; } = "None";
-
-    // Resources
-    public string LucidState { get; set; } = "Idle";
-
-    // Party
-    public float PlayerHpPercent { get; set; }
-    public int PartyListCount { get; set; }
-    public int PartyValidCount { get; set; }
 }

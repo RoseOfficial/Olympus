@@ -3,6 +3,7 @@ using Dalamud.Plugin.Services;
 using Moq;
 using Olympus.Rotation;
 using Olympus.Rotation.ApolloCore.Context;
+using Olympus.Rotation.Common;
 using Olympus.Services;
 
 namespace Olympus.Tests.Rotation;

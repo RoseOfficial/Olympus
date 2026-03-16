@@ -153,12 +153,8 @@ public sealed class AthenaContext : BaseHealerContext, IAthenaContext
 /// <summary>
 /// Mutable debug state for Athena modules.
 /// </summary>
-public sealed class AthenaDebugState
+public sealed class AthenaDebugState : DebugState
 {
-    // General
-    public string PlanningState { get; set; } = "Idle";
-    public string PlannedAction { get; set; } = "None";
-
     // Aetherflow
     public int AetherflowStacks { get; set; }
     public string AetherflowState { get; set; } = "Idle";
@@ -169,13 +165,6 @@ public sealed class AthenaDebugState
     public string FairyState { get; set; } = "None";
     public string FeyUnionState { get; set; } = "Idle";
     public string SeraphState { get; set; } = "Idle";
-
-    // Healing
-    public int LastHealAmount { get; set; }
-    public string LastHealStats { get; set; } = "";
-    public string SingleHealState { get; set; } = "Idle";
-    public string AoEHealState { get; set; } = "Idle";
-    public int AoEInjuredCount { get; set; }
 
     // Shields
     public string ShieldState { get; set; } = "Idle";
@@ -189,28 +178,10 @@ public sealed class AthenaDebugState
     public string SacredSoilState { get; set; } = "Idle";
 
     // DPS
-    public string DpsState { get; set; } = "Idle";
-    public string DotState { get; set; } = "Idle";
-    public string AoEDpsState { get; set; } = "Idle";
-    public int AoEDpsEnemyCount { get; set; }
     public string ChainStratagemState { get; set; } = "Idle";
-
-    // Resurrection
-    public string RaiseState { get; set; } = "Idle";
-    public string RaiseTarget { get; set; } = "None";
-
-    // Esuna
-    public string EsunaState { get; set; } = "Idle";
-    public string EsunaTarget { get; set; } = "None";
 
     // Buffs/Utilities
     public string RecitationState { get; set; } = "Idle";
     public string DissipationState { get; set; } = "Idle";
     public string ExpedientState { get; set; } = "Idle";
-    public string LucidState { get; set; } = "Idle";
-
-    // Party
-    public float PlayerHpPercent { get; set; }
-    public int PartyListCount { get; set; }
-    public int PartyValidCount { get; set; }
 }

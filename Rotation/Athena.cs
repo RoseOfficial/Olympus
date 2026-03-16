@@ -3,8 +3,9 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Data;
-using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.AthenaCore.Context;
+using Olympus.Rotation.Common;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.AthenaCore.Helpers;
 using Olympus.Rotation.AthenaCore.Modules;
 using Olympus.Rotation.Base;
@@ -38,10 +39,13 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
     public override uint[] SupportedJobIds => [JobRegistry.Scholar, JobRegistry.Arcanist];
 
     /// <inheritdoc />
-    public override DebugState DebugState => ConvertToApolloDebugState();
+    public override DebugState DebugState => _debugState;
 
     /// <inheritdoc />
     protected override List<IAthenaModule> Modules => _modules;
+
+    /// <inheritdoc />
+    protected override HealerPartyHelper HealerParty => _partyHelper;
 
     /// <summary>
     /// Gets the Athena-specific debug state.
@@ -174,6 +178,12 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
         _debugState.FairyGauge = _fairyGaugeService.CurrentGauge;
         _debugState.FairyState = _fairyStateManager.CurrentState.ToString();
         _debugState.PlayerHpPercent = player.MaxHp > 0 ? (float)player.CurrentHp / player.MaxHp : 1f;
+
+        // Populate shared DebugState fields for the debug snapshot
+        _debugState.AoEStatus = _debugState.AoEHealState;
+        _debugState.LilyCount = _debugState.AetherflowStacks;
+        _debugState.BloodLilyCount = _debugState.FairyGauge / 33; // integer division
+        _debugState.LilyStrategy = _debugState.AetherflowState;
     }
 
     /// <inheritdoc />
@@ -216,51 +226,6 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
             log: Log);
     }
 
-    /// <inheritdoc />
-    protected override IEnumerable<uint> GetPartyEntityIds(IPlayerCharacter player)
-    {
-        foreach (var member in _partyHelper.GetAllPartyMembers(player))
-        {
-            yield return member.EntityId;
-        }
-    }
-
-    /// <inheritdoc />
-    protected override (float avgHpPercent, float lowestHpPercent, int injuredCount) GetPartyHealthMetrics(IPlayerCharacter player)
-    {
-        return _partyHelper.CalculatePartyHealthMetrics(player);
-    }
-
     #endregion
 
-    /// <summary>
-    /// Converts Athena debug state to Apollo debug state for UI compatibility.
-    /// </summary>
-    private DebugState ConvertToApolloDebugState()
-    {
-        return new DebugState
-        {
-            PlanningState = _debugState.PlanningState,
-            PlannedAction = _debugState.PlannedAction,
-            AoEInjuredCount = _debugState.AoEInjuredCount,
-            AoEStatus = _debugState.AoEHealState,
-            PlayerHpPercent = _debugState.PlayerHpPercent,
-            PartyListCount = _debugState.PartyListCount,
-            PartyValidCount = _debugState.PartyValidCount,
-            DpsState = _debugState.DpsState,
-            AoEDpsState = _debugState.AoEDpsState,
-            AoEDpsEnemyCount = _debugState.AoEDpsEnemyCount,
-            LastHealAmount = _debugState.LastHealAmount,
-            LastHealStats = _debugState.LastHealStats,
-            RaiseState = _debugState.RaiseState,
-            RaiseTarget = _debugState.RaiseTarget,
-            EsunaState = _debugState.EsunaState,
-            EsunaTarget = _debugState.EsunaTarget,
-            LucidState = _debugState.LucidState,
-            // Scholar-specific mappings
-            LilyCount = _debugState.AetherflowStacks, // Map Aetherflow to Lily for display
-            BloodLilyCount = _debugState.FairyGauge / 33, // Rough conversion for display
-            LilyStrategy = _debugState.AetherflowState,
-        };
-    }
 }
