@@ -204,6 +204,280 @@ public class DamageModuleTests
             It.IsAny<ulong>()), Times.Once);
     }
 
+    // ---- Task 2-A: Creature motif selection uses LivingMuseCharges ----
+
+    [Fact]
+    public void TryPrepaintCreature_Lv96_WithChargesAtZero_PaintsClawMotif()
+    {
+        // creatureCount = 0 (even) → ClawMotif at 96+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        actionService.Setup(x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == PCTActions.ClawMotif.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        var context = IrisTestContext.Create(
+            inCombat: false,
+            level: 100,
+            canExecuteGcd: true,
+            isCasting: false,
+            needsLandscapeMotif: false,
+            needsCreatureMotif: true,
+            needsWeaponMotif: false,
+            livingMuseCharges: 0,
+            actionService: actionService);
+
+        var result = _module.TryExecute(context, isMoving: false);
+
+        Assert.True(result);
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == PCTActions.ClawMotif.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+    }
+
+    [Fact]
+    public void TryPrepaintCreature_Lv96_WithChargesAtOne_PaintsMawMotif()
+    {
+        // creatureCount = 1 (odd) → MawMotif at 96+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        actionService.Setup(x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == PCTActions.MawMotif.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        var context = IrisTestContext.Create(
+            inCombat: false,
+            level: 100,
+            canExecuteGcd: true,
+            isCasting: false,
+            needsLandscapeMotif: false,
+            needsCreatureMotif: true,
+            needsWeaponMotif: false,
+            livingMuseCharges: 1,
+            actionService: actionService);
+
+        var result = _module.TryExecute(context, isMoving: false);
+
+        Assert.True(result);
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == PCTActions.MawMotif.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+    }
+
+    [Fact]
+    public void TryPrepaintCreature_Lv50_WithChargesAtZero_PaintsPomMotif()
+    {
+        // creatureCount = 0 (even) → PomMotif at level < 96
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        actionService.Setup(x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == PCTActions.PomMotif.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        var context = IrisTestContext.Create(
+            inCombat: false,
+            level: 50,
+            canExecuteGcd: true,
+            isCasting: false,
+            needsLandscapeMotif: false,
+            needsCreatureMotif: true,
+            needsWeaponMotif: false,
+            livingMuseCharges: 0,
+            actionService: actionService);
+
+        var result = _module.TryExecute(context, isMoving: false);
+
+        Assert.True(result);
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == PCTActions.PomMotif.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+    }
+
+    [Fact]
+    public void TryPrepaintCreature_Lv50_WithChargesAtOne_PaintsWingMotif()
+    {
+        // creatureCount = 1 (odd) → WingMotif at level < 96
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        actionService.Setup(x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == PCTActions.WingMotif.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        var context = IrisTestContext.Create(
+            inCombat: false,
+            level: 50,
+            canExecuteGcd: true,
+            isCasting: false,
+            needsLandscapeMotif: false,
+            needsCreatureMotif: true,
+            needsWeaponMotif: false,
+            livingMuseCharges: 1,
+            actionService: actionService);
+
+        var result = _module.TryExecute(context, isMoving: false);
+
+        Assert.True(result);
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == PCTActions.WingMotif.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+    }
+
+    // ---- Task 2-B: In-combat Inspiration motif painting ----
+
+    [Fact]
+    public void TryGcdDamage_WithInspiration_LandscapeNeeded_PaintsStarrySkyMotif()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        actionService.Setup(x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == PCTActions.StarrySkyMotif.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        var context = IrisTestContext.Create(
+            inCombat: true,
+            canExecuteGcd: true,
+            hasInspiration: true,
+            needsLandscapeMotif: true,
+            needsCreatureMotif: false,
+            needsWeaponMotif: false,
+            hasStarstruck: false,
+            hasRainbowBright: false,
+            hasHammerTime: false,
+            hasBlackPaint: false,
+            hasWhitePaint: false,
+            actionService: actionService,
+            targetingService: targeting);
+
+        var result = _module.TryExecute(context, isMoving: false);
+
+        Assert.True(result);
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == PCTActions.StarrySkyMotif.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+    }
+
+    [Fact]
+    public void TryGcdDamage_WithInspiration_NoMotifsNeeded_SkipsToNormalRotation()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        // Set up base combo (FireInRed) to fire — so the normal rotation proceeds
+        actionService.Setup(x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == PCTActions.FireInRed.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        var context = IrisTestContext.Create(
+            inCombat: true,
+            canExecuteGcd: true,
+            hasInspiration: true,
+            needsLandscapeMotif: false,
+            needsCreatureMotif: false,
+            needsWeaponMotif: false,
+            hasStarstruck: false,
+            hasRainbowBright: false,
+            hasHammerTime: false,
+            hasBlackPaint: false,
+            hasWhitePaint: false,
+            baseComboStep: 0,
+            actionService: actionService,
+            targetingService: targeting);
+
+        var result = _module.TryExecute(context, isMoving: false);
+
+        Assert.True(result);
+        // Confirmed Inspiration short-circuit was skipped and normal combo fired
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == PCTActions.FireInRed.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == PCTActions.StarrySkyMotif.ActionId),
+            It.IsAny<ulong>()), Times.Never);
+    }
+
+    // ---- Task 3: Hyperphantasia movement override ----
+
+    [Fact]
+    public void TryGcdDamage_WithHyperphantasia_WhileMoving_AllowsBaseCombo()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        actionService.Setup(x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == PCTActions.FireInRed.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        var context = IrisTestContext.Create(
+            inCombat: true,
+            canExecuteGcd: true,
+            isMoving: true,
+            hasHyperphantasia: true,
+            hyperphantasiaStacks: 3,
+            hasStarstruck: false,
+            hasRainbowBright: false,
+            hasHammerTime: false,
+            isInHammerCombo: false,
+            hasBlackPaint: false,
+            hasWhitePaint: false,
+            hasSubtractivePalette: false,
+            hasSubtractiveSpectrum: false,
+            baseComboStep: 0,
+            hasInspiration: false,
+            needsLandscapeMotif: false,
+            needsCreatureMotif: false,
+            needsWeaponMotif: false,
+            actionService: actionService,
+            targetingService: targeting);
+
+        var result = _module.TryExecute(context, isMoving: true);
+
+        Assert.True(result);
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == PCTActions.FireInRed.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+    }
+
+    [Fact]
+    public void TryGcdDamage_WithoutHyperphantasia_WhileMoving_SkipsBaseCombo()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+
+        var context = IrisTestContext.Create(
+            inCombat: true,
+            canExecuteGcd: true,
+            isMoving: true,
+            hasHyperphantasia: false,
+            hasStarstruck: false,
+            hasRainbowBright: false,
+            hasHammerTime: false,
+            isInHammerCombo: false,
+            hasBlackPaint: false,
+            hasWhitePaint: false,
+            hasSubtractivePalette: false,
+            hasSubtractiveSpectrum: false,
+            hasInspiration: false,
+            needsLandscapeMotif: false,
+            needsCreatureMotif: false,
+            needsWeaponMotif: false,
+            actionService: actionService,
+            targetingService: targeting);
+
+        var result = _module.TryExecute(context, isMoving: true);
+
+        // No instants available; base combo blocked by movement
+        Assert.False(result);
+    }
+
     #region Helpers
 
     private static Mock<IBattleNpc> CreateMockEnemy(ulong objectId = 99999UL)
