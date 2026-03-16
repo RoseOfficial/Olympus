@@ -160,6 +160,22 @@ public sealed class MitigationModule : IAresModule
             {
                 context.Debug.PlannedAction = WARActions.Interject.Name;
                 context.Debug.MitigationState = "Interrupted cast";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(WARActions.Interject.ActionId, WARActions.Interject.Name)
+                    .AsDefensive()
+                    .Target(target.Name?.TextValue)
+                    .Reason(
+                        $"Interject used to interrupt {target.Name?.TextValue}'s cast. Stopping interruptible casts prevents avoidable damage.",
+                        "Interject is your dedicated interrupt. Interruptible casts are marked in the duty finder and cause significant damage if they complete.")
+                    .Factors("Target casting an interruptible ability", "Interject available", "Interrupt is highest priority utility")
+                    .Alternatives("Low Blow (stun interrupt, longer cooldown)", "Do nothing (take avoidable damage)")
+                    .Tip("Always interrupt interruptible casts — this is one of a tank's key responsibilities. Check for the purple cast bar.")
+                    .Concept(WarConcepts.TankSwap)
+                    .Record();
+
+                context.TrainingService?.RecordConceptApplication(WarConcepts.TankSwap, true, "Cast interrupted");
+
                 return true;
             }
 
@@ -184,6 +200,22 @@ public sealed class MitigationModule : IAresModule
             {
                 context.Debug.PlannedAction = WARActions.LowBlow.Name;
                 context.Debug.MitigationState = "Stunned (interrupt)";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(WARActions.LowBlow.ActionId, WARActions.LowBlow.Name)
+                    .AsDefensive()
+                    .Target(target.Name?.TextValue)
+                    .Reason(
+                        $"Low Blow used as backup interrupt (stun) on {target.Name?.TextValue}'s cast. Interject was unavailable.",
+                        "Low Blow stuns the target, which can interrupt their cast. It has a longer cooldown than Interject — use it only when Interject is on cooldown.")
+                    .Factors("Target casting interruptible ability", "Interject on cooldown", "Low Blow stun as fallback interrupt")
+                    .Alternatives("Interject (preferred, shorter cooldown)", "Do nothing (take avoidable damage)")
+                    .Tip("Keep both Interject and Low Blow in mind for back-to-back interrupt situations. Tanks are often responsible for all interrupts.")
+                    .Concept(WarConcepts.TankSwap)
+                    .Record();
+
+                context.TrainingService?.RecordConceptApplication(WarConcepts.TankSwap, true, "Stun interrupt fallback");
+
                 return true;
             }
 
@@ -451,6 +483,21 @@ public sealed class MitigationModule : IAresModule
             context.Debug.PlannedAction = WARActions.Rampart.Name;
             context.Debug.MitigationState = $"Rampart ({hpPercent:P0} HP)";
             partyCoord?.OnCooldownUsed(WARActions.Rampart.ActionId, 90_000);
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(WARActions.Rampart.ActionId, WARActions.Rampart.Name)
+                .AsMitigation(hpPercent)
+                .Reason(
+                    $"Rampart activated for 20% damage reduction. HP at {hpPercent:P0} and taking sustained damage.",
+                    "Rampart is a role action giving 20% mitigation for 20 seconds, with a 90s recast. It's your most accessible mitigation — use it frequently during heavy damage phases.")
+                .Factors($"HP at {hpPercent:P0}", $"Damage rate: {damageRate:F1}/s", "No major mitigation currently active")
+                .Alternatives("Use Vengeance (stronger but longer cooldown)", "Rely on Bloodwhetting (less mitigation, more healing)")
+                .Tip("Use Rampart early and often — the 90s cooldown means you can often get two uses in a long boss fight. Don't save it for 'the big hit'.")
+                .Concept(WarConcepts.MitigationStacking)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(WarConcepts.MitigationStacking, true, "Rampart mitigation");
+
             return true;
         }
 
@@ -552,6 +599,21 @@ public sealed class MitigationModule : IAresModule
         {
             context.Debug.PlannedAction = WARActions.ThrillOfBattle.Name;
             context.Debug.MitigationState = $"Thrill ({hpPercent:P0} HP)";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(WARActions.ThrillOfBattle.ActionId, WARActions.ThrillOfBattle.Name)
+                .AsMitigation(hpPercent)
+                .Reason(
+                    $"Thrill of Battle used at {hpPercent:P0} HP. Temporarily increases maximum HP by 20% and restores proportional HP.",
+                    "Thrill of Battle boosts max HP by 20% for 10 seconds and immediately heals the equivalent amount. It's effectively a 20% HP buffer — great when you're mid-range HP but expect a big hit.")
+                .Factors($"HP at {hpPercent:P0}", "Thrill of Battle available", "20% max HP boost + heal")
+                .Alternatives("Use Rampart (mitigation instead of HP boost)", "Wait for healers (puts strain on party)")
+                .Tip("Thrill of Battle is unique — it inflates your HP pool temporarily. Use it before tankbusters or when healers are busy. The heal is especially good at 60-70% HP.")
+                .Concept(WarConcepts.ThrillOfBattle)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(WarConcepts.ThrillOfBattle, true, "HP boost and mitigation");
+
             return true;
         }
 
@@ -577,6 +639,21 @@ public sealed class MitigationModule : IAresModule
         {
             context.Debug.PlannedAction = WARActions.Equilibrium.Name;
             context.Debug.MitigationState = $"Equilibrium ({hpPercent:P0} HP)";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(WARActions.Equilibrium.ActionId, WARActions.Equilibrium.Name)
+                .AsMitigation(hpPercent)
+                .Reason(
+                    $"Equilibrium used at {hpPercent:P0} HP. Heals you for 1200 potency instantly and applies a 200-potency regen.",
+                    "Equilibrium is a powerful self-heal (1200 potency heal + regen) on a 60s cooldown. Warriors can heal themselves effectively — use Equilibrium when low to reduce healer burden.")
+                .Factors($"HP at {hpPercent:P0}", "Equilibrium available", "Strong self-heal reduces healer GCD usage")
+                .Alternatives("Wait for healer (puts burden on healers)", "Use Bloodwhetting (mitigation + healing, lower threshold)")
+                .Tip("Equilibrium is a free heal that saves healer GCDs. Use it at or below 50% HP whenever it's available. Warriors are self-sufficient tanks.")
+                .Concept(WarConcepts.Equilibrium)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(WarConcepts.Equilibrium, true, "Self-heal to reduce healer load");
+
             return true;
         }
 
@@ -636,6 +713,21 @@ public sealed class MitigationModule : IAresModule
             context.Debug.PlannedAction = WARActions.Reprisal.Name;
             context.Debug.MitigationState = $"Reprisal ({enemyCount} enemies)";
             partyCoord?.OnCooldownUsed(WARActions.Reprisal.ActionId, 60_000);
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(WARActions.Reprisal.ActionId, WARActions.Reprisal.Name)
+                .AsPartyMit()
+                .Reason(
+                    $"Reprisal used to reduce enemy damage by 10% for {enemyCount} enemies. Party mitigation for multi-target pulls.",
+                    "Reprisal reduces the targets' damage dealt by 10% for 10 seconds. Since it affects all enemies in range, it's exceptionally strong during dungeon pulls.")
+                .Factors($"{enemyCount} enemies in range", "Reprisal available", "60s cooldown — frequent use in pulls")
+                .Alternatives("Save for raidwide (depends on content)", "Rely on personal mitigation (loses party value)")
+                .Tip("Use Reprisal frequently in dungeon pulls — it reduces damage from every enemy hitting you. In raids, coordinate with other tanks for raidwide coverage.")
+                .Concept(WarConcepts.PartyProtection)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(WarConcepts.PartyProtection, true, "Party mitigation deployed");
+
             return true;
         }
 
@@ -732,6 +824,22 @@ public sealed class MitigationModule : IAresModule
             var targetHp = context.PartyHelper.GetHpPercent(flashTarget);
             context.Debug.PlannedAction = WARActions.NascentFlash.Name;
             context.Debug.MitigationState = $"Nascent Flash ({targetHp:P0} HP ally)";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(WARActions.NascentFlash.ActionId, WARActions.NascentFlash.Name)
+                .AsPartyMit()
+                .Target(flashTarget.Name?.TextValue)
+                .Reason(
+                    $"Nascent Flash used on {flashTarget.Name?.TextValue} ({targetHp:P0} HP) — grants them mitigation and heals you both when you attack.",
+                    "Nascent Flash gives an ally a 16% mitigation shield and triggers a heal-on-hit effect for 8 seconds. Warriors are unique in being able to support allies with their attacks.")
+                .Factors($"Ally {flashTarget.Name?.TextValue} at {targetHp:P0} HP", "Your own HP above 60%", "25s cooldown — reactive support")
+                .Alternatives("Shake It Off (party-wide, different trigger)", "Focus on your own survival (less team support)")
+                .Tip("Use Nascent Flash on DPS or healers taking spike damage. It gives them a shield and every weapon skill you land heals them.")
+                .Concept(WarConcepts.NascentFlash)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(WarConcepts.NascentFlash, true, "Ally protection with heal-on-hit");
+
             return true;
         }
 

@@ -154,6 +154,22 @@ public sealed class DamageModule : IAresModule
         {
             context.Debug.PlannedAction = WARActions.Upheaval.Name;
             context.Debug.DamageState = "Upheaval";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(WARActions.Upheaval.ActionId, WARActions.Upheaval.Name)
+                .AsTankDamage()
+                .Target(target.Name?.TextValue)
+                .Reason(
+                    "Upheaval deals heavy oGCD burst damage on a single target. Use it on cooldown.",
+                    "Upheaval is a 400-potency oGCD that costs no resources. Use it every 30 seconds as part of your weave rotation.")
+                .Factors("Upheaval ready", "Single target situation", "No Orogeny at level or fewer than 3 enemies")
+                .Alternatives("Skip and lose potency (no reason to hold)", "Use Orogeny instead (AoE only)")
+                .Tip("Upheaval is a free damage boost — use it on cooldown during every GCD window. Never hold it.")
+                .Concept(WarConcepts.Upheaval)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(WarConcepts.Upheaval, true, "oGCD burst damage");
+
             return true;
         }
 
@@ -179,6 +195,22 @@ public sealed class DamageModule : IAresModule
         {
             context.Debug.PlannedAction = WARActions.Orogeny.Name;
             context.Debug.DamageState = $"Orogeny ({enemyCount} enemies)";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(WARActions.Orogeny.ActionId, WARActions.Orogeny.Name)
+                .AsTankDamage()
+                .Target(target.Name?.TextValue)
+                .Reason(
+                    $"Orogeny deals AoE oGCD damage hitting {enemyCount} enemies simultaneously.",
+                    "Orogeny replaces Upheaval in AoE situations — same potency per target but hits everything around you. Use it on cooldown when pulling packs.")
+                .Factors($"{enemyCount} enemies in range", "AoE threshold met (3+)", "Orogeny preferred over Upheaval for multi-target")
+                .Alternatives("Use Upheaval (single-target only)", "Skip (lose free AoE damage)")
+                .Tip("In dungeon pulls, Orogeny is your free AoE damage button. Hit it every 30 seconds while tanking large packs.")
+                .Concept(WarConcepts.Orogeny)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(WarConcepts.Orogeny, true, "AoE oGCD burst");
+
             return true;
         }
 
@@ -212,6 +244,22 @@ public sealed class DamageModule : IAresModule
             {
                 context.Debug.PlannedAction = WARActions.Onslaught.Name;
                 context.Debug.DamageState = "Onslaught (gap close)";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(WARActions.Onslaught.ActionId, WARActions.Onslaught.Name)
+                    .AsTankDamage()
+                    .Target(target.Name?.TextValue)
+                    .Reason(
+                        "Onslaught used as gap closer — you're out of melee range and need to re-engage.",
+                        "Onslaught is both a gap closer and a damage tool. Use it to close the distance when you drift out of melee range to avoid losing GCD time.")
+                    .Factors("Out of melee range", $"Target within 20y ({distance:F1}y)", "Gap close re-engagement")
+                    .Alternatives("Run to target (slower, lose GCD time)", "Use Tomahawk (ranged but lower priority)")
+                    .Tip("Use Onslaught to stay glued to the boss. A charge wasted on gap-closing is still worth it to maintain uptime.")
+                    .Concept(WarConcepts.Onslaught)
+                    .Record();
+
+                context.TrainingService?.RecordConceptApplication(WarConcepts.Onslaught, true, "Gap close re-engagement");
+
                 return true;
             }
         }
@@ -222,6 +270,22 @@ public sealed class DamageModule : IAresModule
             {
                 context.Debug.PlannedAction = WARActions.Onslaught.Name;
                 context.Debug.DamageState = "Onslaught (weave)";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(WARActions.Onslaught.ActionId, WARActions.Onslaught.Name)
+                    .AsTankDamage()
+                    .Target(target.Name?.TextValue)
+                    .Reason(
+                        "Onslaught woven as extra damage. At high levels you have 3 charges — use them freely for additional potency.",
+                        "Onslaught is 100 potency with no GCD cost. Weave it freely when in melee range, especially during Inner Release windows for extra burst.")
+                    .Factors("In melee range", "Charge available", "oGCD weave slot open")
+                    .Alternatives("Hold charges (loses potency)", "Save all charges for gap close (low-risk in most fights)")
+                    .Tip("With 3 Onslaught charges at level 88+, use them regularly. The damage adds up over a fight.")
+                    .Concept(WarConcepts.Onslaught)
+                    .Record();
+
+                context.TrainingService?.RecordConceptApplication(WarConcepts.Onslaught, true, "oGCD weave damage");
+
                 return true;
             }
         }
@@ -248,6 +312,22 @@ public sealed class DamageModule : IAresModule
         {
             context.Debug.PlannedAction = WARActions.Tomahawk.Name;
             context.Debug.DamageState = "Tomahawk (ranged)";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(WARActions.Tomahawk.ActionId, WARActions.Tomahawk.Name)
+                .AsTankDamage()
+                .Target(target.Name?.TextValue)
+                .Reason(
+                    "Tomahawk used as a ranged attack — you're outside melee range and can't close with Onslaught.",
+                    "Tomahawk is your only ranged GCD. Use it when you can't reach the target to keep dealing damage and maintain enmity.")
+                .Factors("Out of melee range", "Onslaught not available or on cooldown", "Ranged attack keeps uptime")
+                .Alternatives("Do nothing (waste GCD entirely)", "Move closer (may take too long)")
+                .Tip("Tomahawk keeps your GCD rolling when you're forced out of melee range. Onslaught is better for gap-closing when charges are available.")
+                .Concept(WarConcepts.FellCleave)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(WarConcepts.FellCleave, true, "Ranged GCD uptime");
+
             return true;
         }
 
@@ -278,6 +358,22 @@ public sealed class DamageModule : IAresModule
         {
             context.Debug.PlannedAction = WARActions.PrimalRend.Name;
             context.Debug.DamageState = "Primal Rend";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(WARActions.PrimalRend.ActionId, WARActions.PrimalRend.Name)
+                .AsTankBurst()
+                .Target(target.Name?.TextValue)
+                .Reason(
+                    "Primal Rend used while Primal Rend Ready is active. This is Inner Release's bonus GCD — highest potency in the burst window.",
+                    "Primal Rend Ready is granted by Inner Release. Primal Rend is a 700-potency ranged GCD that must be used before the buff expires. It unlocks Primal Ruination.")
+                .Factors("Primal Rend Ready active (from Inner Release)", "Highest potency GCD available", "Unlocks Primal Ruination follow-up")
+                .Alternatives("Use Fell Cleave instead (wastes Primal Rend Ready)", "Delay (buff will expire)")
+                .Tip("Always use Primal Rend immediately when Primal Rend Ready is active. It's your strongest single hit and is followed by Primal Ruination.")
+                .Concept(WarConcepts.PrimalRend)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(WarConcepts.PrimalRend, true, "Inner Release bonus GCD");
+
             return true;
         }
 
@@ -303,6 +399,22 @@ public sealed class DamageModule : IAresModule
         {
             context.Debug.PlannedAction = WARActions.PrimalRuination.Name;
             context.Debug.DamageState = "Primal Ruination";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(WARActions.PrimalRuination.ActionId, WARActions.PrimalRuination.Name)
+                .AsTankBurst()
+                .Target(target.Name?.TextValue)
+                .Reason(
+                    "Primal Ruination used as follow-up to Primal Rend. This completes the Inner Release burst chain.",
+                    "Primal Ruination Ready is granted by using Primal Rend. It's a massive AoE GCD that caps the burst window. Always use it immediately after Primal Rend.")
+                .Factors("Primal Ruination Ready active (follow-up to Primal Rend)", "Burst chain continuation", "Must be consumed before buff expires")
+                .Alternatives("Use Fell Cleave instead (wastes Primal Ruination Ready)", "Delay (buff will expire)")
+                .Tip("Primal Ruination follows Primal Rend in every Inner Release window. The sequence is: Inner Release → Fell Cleave × 3 → Primal Rend → Primal Ruination.")
+                .Concept(WarConcepts.PrimalRend)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(WarConcepts.PrimalRend, true, "Primal Ruination burst chain");
+
             return true;
         }
 
@@ -346,6 +458,22 @@ public sealed class DamageModule : IAresModule
         {
             context.Debug.PlannedAction = WARActions.InnerChaos.Name;
             context.Debug.DamageState = "Inner Chaos";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(WARActions.InnerChaos.ActionId, WARActions.InnerChaos.Name)
+                .AsTankBurst()
+                .Target(target.Name?.TextValue)
+                .Reason(
+                    "Inner Chaos used while Nascent Chaos is active. This is your highest single-target potency GCD and is free (no gauge cost).",
+                    "Nascent Chaos is granted by using Infuriate during Inner Release. Inner Chaos is a 660-potency guaranteed crit + direct hit GCD that costs 0 gauge.")
+                .Factors("Nascent Chaos active", "Single target situation", "Free gauge cost — guaranteed crit + direct hit")
+                .Alternatives("Use Fell Cleave instead (wastes Nascent Chaos)", "Delay (buff will expire)")
+                .Tip("Always use Inner Chaos when Nascent Chaos is active. Using Infuriate during Inner Release to get this is a core rotation decision.")
+                .Concept(WarConcepts.InnerChaos)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(WarConcepts.InnerChaos, true, "Nascent Chaos burst GCD");
+
             return true;
         }
 
@@ -363,6 +491,22 @@ public sealed class DamageModule : IAresModule
         {
             context.Debug.PlannedAction = WARActions.ChaoticCyclone.Name;
             context.Debug.DamageState = $"Chaotic Cyclone ({enemyCount} enemies)";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(WARActions.ChaoticCyclone.ActionId, WARActions.ChaoticCyclone.Name)
+                .AsTankBurst()
+                .Target(target.Name?.TextValue)
+                .Reason(
+                    $"Chaotic Cyclone used while Nascent Chaos is active in AoE ({enemyCount} enemies). Free guaranteed crit AoE GCD.",
+                    "Chaotic Cyclone is the AoE version of Inner Chaos — same guaranteed crit + direct hit, no gauge cost, but hits all enemies. Use it over Inner Chaos when 3+ enemies are present.")
+                .Factors($"Nascent Chaos active", $"{enemyCount} enemies in range", "AoE preferred over single target")
+                .Alternatives("Use Inner Chaos (single target only)", "Use Decimate (costs gauge, lower priority)")
+                .Tip("In AoE situations with Nascent Chaos, always use Chaotic Cyclone over Inner Chaos. More targets means more total damage.")
+                .Concept(WarConcepts.NascentChaos)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(WarConcepts.NascentChaos, true, "Chaotic Cyclone AoE burst");
+
             return true;
         }
 
@@ -486,9 +630,43 @@ public sealed class DamageModule : IAresModule
         {
             context.Debug.PlannedAction = decimateAction.Name;
             if (context.HasInnerRelease)
+            {
                 context.Debug.DamageState = $"{decimateAction.Name} ({enemyCount} enemies, IR)";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(decimateAction.ActionId, decimateAction.Name)
+                    .AsTankBurst()
+                    .Target(target.Name?.TextValue)
+                    .Reason(
+                        $"{decimateAction.Name} during Inner Release — free AoE gauge spender hitting {enemyCount} enemies.",
+                        "During Inner Release, Decimate costs 0 gauge and is guaranteed to crit + direct hit. It's the AoE equivalent of Fell Cleave during the burst window.")
+                    .Factors($"Inner Release active ({context.InnerReleaseStacks} stacks)", $"{enemyCount} enemies in range", "Free gauge cost — guaranteed crit + direct hit")
+                    .Alternatives("Use Fell Cleave (single target only)", "Skip AoE (waste IR value on multi-target)")
+                    .Tip("During Inner Release with multiple targets, always use Decimate instead of Fell Cleave. You hit all enemies for free.")
+                    .Concept(WarConcepts.IRWindow)
+                    .Record();
+
+                context.TrainingService?.RecordConceptApplication(WarConcepts.IRWindow, true, "AoE burst during Inner Release");
+            }
             else
+            {
                 context.Debug.DamageState = $"{decimateAction.Name} ({enemyCount} enemies)";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(decimateAction.ActionId, decimateAction.Name)
+                    .AsTankResource(context.BeastGauge)
+                    .Target(target.Name?.TextValue)
+                    .Reason(
+                        $"{decimateAction.Name} to spend Beast Gauge on {enemyCount} enemies. AoE gauge spender for multi-target pulls.",
+                        "Decimate spends 50 Beast Gauge to deal AoE damage. In large pulls it's significantly better than Fell Cleave since the potency hits all targets.")
+                    .Factors($"Beast Gauge at {context.BeastGauge}", $"{enemyCount} enemies in range", "50 gauge cost — AoE preferred")
+                    .Alternatives("Use Fell Cleave (single target, wastes AoE opportunity)", "Hold gauge (risks overcap)")
+                    .Tip("With 3+ enemies, always Decimate over Fell Cleave. The 50 gauge is the same cost but Decimate hits everyone.")
+                    .Concept(WarConcepts.BeastGauge)
+                    .Record();
+
+                context.TrainingService?.RecordConceptApplication(WarConcepts.BeastGauge, true, "AoE gauge spending");
+            }
             return true;
         }
 
@@ -547,6 +725,27 @@ public sealed class DamageModule : IAresModule
         {
             context.Debug.PlannedAction = WARActions.StormsEye.Name;
             context.Debug.DamageState = "Storm's Eye (refresh buff)";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(WARActions.StormsEye.ActionId, WARActions.StormsEye.Name)
+                .AsTankDamage()
+                .Target(target.Name?.TextValue)
+                .Reason(
+                    $"Storm's Eye used to refresh Surging Tempest. Buff has {context.SurgingTempestRemaining:F1}s remaining — must be refreshed before it expires.",
+                    "Surging Tempest increases all damage dealt by 10%. Storm's Eye refreshes it as the combo finisher. Never let Surging Tempest fall off.")
+                .Factors(
+                    context.HasSurgingTempest
+                        ? $"Surging Tempest at {context.SurgingTempestRemaining:F1}s (needs refresh)"
+                        : "Surging Tempest not active (first application)",
+                    "At combo step 3 (after Maim)",
+                    "10% damage buff must be maintained")
+                .Alternatives("Use Storm's Path (grants more gauge, but lets buff expire)", "Skip combo (loses buff and damage)")
+                .Tip("Choose Storm's Eye when Surging Tempest is below 10s or missing. Choose Storm's Path when the buff has plenty of time left.")
+                .Concept(WarConcepts.SurgingTempest)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(WarConcepts.SurgingTempest, true, "Surging Tempest refresh");
+
             return true;
         }
 
@@ -572,6 +771,27 @@ public sealed class DamageModule : IAresModule
         {
             context.Debug.PlannedAction = WARActions.MythrilTempest.Name;
             context.Debug.DamageState = $"Mythril Tempest ({enemyCount} enemies, refresh buff)";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(WARActions.MythrilTempest.ActionId, WARActions.MythrilTempest.Name)
+                .AsTankDamage()
+                .Target(target.Name?.TextValue)
+                .Reason(
+                    $"Mythril Tempest used to refresh Surging Tempest in AoE situation. {enemyCount} enemies present, buff has {context.SurgingTempestRemaining:F1}s remaining.",
+                    "Surging Tempest applies to all your damage including AoE. Mythril Tempest is the AoE combo finisher that refreshes the buff while hitting all enemies.")
+                .Factors(
+                    context.HasSurgingTempest
+                        ? $"Surging Tempest at {context.SurgingTempestRemaining:F1}s (needs refresh)"
+                        : "Surging Tempest not active",
+                    $"{enemyCount} enemies in range",
+                    "AoE combo step 2 (after Overpower)")
+                .Alternatives("Single target combo (misses AoE damage)", "Prioritize gauge spenders (buff expires)")
+                .Tip("In AoE pulls, always complete Overpower → Mythril Tempest to keep Surging Tempest active. The buff affects all your AoE damage too.")
+                .Concept(WarConcepts.SurgingTempest)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(WarConcepts.SurgingTempest, true, "AoE Surging Tempest refresh");
+
             return true;
         }
 
@@ -620,6 +840,34 @@ public sealed class DamageModule : IAresModule
                 {
                     context.Debug.PlannedAction = finisherAction.Name;
                     context.Debug.DamageState = $"{finisherAction.Name} (combo 3)";
+
+                    var isStormsEye = finisherAction.ActionId == WARActions.StormsEye.ActionId;
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(finisherAction.ActionId, finisherAction.Name)
+                        .AsTankDamage()
+                        .Target(target.Name?.TextValue)
+                        .Reason(
+                            isStormsEye
+                                ? "Storm's Eye used as combo finisher — grants Beast Gauge and refreshes Surging Tempest."
+                                : "Storm's Path used as combo finisher — grants 20 Beast Gauge (more than Storm's Eye).",
+                            isStormsEye
+                                ? "Storm's Eye gives 10 gauge and refreshes Surging Tempest (your 10% damage buff). Choose it when the buff needs refreshing."
+                                : "Storm's Path gives 20 gauge and builds toward Fell Cleave. Choose it when Surging Tempest has plenty of time remaining.")
+                        .Factors(
+                            "Combo step 3 (after Maim)",
+                            isStormsEye
+                                ? $"Surging Tempest has {context.SurgingTempestRemaining:F1}s (needs refresh)"
+                                : $"Surging Tempest OK ({context.SurgingTempestRemaining:F1}s), maximizing gauge")
+                        .Alternatives(
+                            isStormsEye
+                                ? "Storm's Path (more gauge, but buff expires)"
+                                : "Storm's Eye (refresh buff, but less gauge)")
+                        .Tip("Alternate finishers: Storm's Eye when Surging Tempest is low (< 10s), Storm's Path when the buff is healthy and you need gauge.")
+                        .Concept(WarConcepts.SurgingTempest)
+                        .Record();
+
+                    context.TrainingService?.RecordConceptApplication(WarConcepts.SurgingTempest, true, "Combo finisher selection");
+
                     return true;
                 }
             }
@@ -636,6 +884,22 @@ public sealed class DamageModule : IAresModule
                     {
                         context.Debug.PlannedAction = WARActions.Maim.Name;
                         context.Debug.DamageState = "Maim (combo 2)";
+
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(WARActions.Maim.ActionId, WARActions.Maim.Name)
+                            .AsTankDamage()
+                            .Target(target.Name?.TextValue)
+                            .Reason(
+                                "Maim is combo step 2 — follows Heavy Swing and leads to Storm's Path or Storm's Eye.",
+                                "The Warrior ST combo is Heavy Swing → Maim → Storm's Path/Eye. Maim is the middle step that grants 10 Beast Gauge and sets up the finisher choice.")
+                            .Factors("Combo step 2 (after Heavy Swing)", "Grants 10 Beast Gauge", "Unlocks Storm's Path and Storm's Eye")
+                            .Alternatives("Skip combo (reset to Heavy Swing, wastes combo bonus)", "Break combo early (significant damage loss)")
+                            .Tip("Never break your combo chain — always follow Heavy Swing with Maim, then choose your finisher.")
+                            .Concept(WarConcepts.BeastGauge)
+                            .Record();
+
+                        context.TrainingService?.RecordConceptApplication(WarConcepts.BeastGauge, true, "Combo gauge generation");
+
                         return true;
                     }
                 }
@@ -649,6 +913,22 @@ public sealed class DamageModule : IAresModule
             {
                 context.Debug.PlannedAction = WARActions.HeavySwing.Name;
                 context.Debug.DamageState = "Heavy Swing (combo 1)";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(WARActions.HeavySwing.ActionId, WARActions.HeavySwing.Name)
+                    .AsTankDamage()
+                    .Target(target.Name?.TextValue)
+                    .Reason(
+                        "Heavy Swing starts or restarts the single-target combo chain.",
+                        "Heavy Swing is the first GCD of the Warrior ST combo: Heavy Swing → Maim → Storm's Path/Eye. It's your bread-and-butter filler when no higher-priority actions are available.")
+                    .Factors("Combo step 1 — starts the chain", "No higher priority GCDs available", "ST rotation foundation")
+                    .Alternatives("Use Inner Chaos (only with Nascent Chaos)", "Use Fell Cleave (only with 50 gauge)")
+                    .Tip("The WAR combo flows naturally. Heavy Swing → Maim → finisher, then back to Heavy Swing. Keep the chain going to generate gauge.")
+                    .Concept(WarConcepts.BeastGauge)
+                    .Record();
+
+                context.TrainingService?.RecordConceptApplication(WarConcepts.BeastGauge, true, "Combo chain start");
+
                 return true;
             }
         }
@@ -674,6 +954,22 @@ public sealed class DamageModule : IAresModule
                     {
                         context.Debug.PlannedAction = WARActions.MythrilTempest.Name;
                         context.Debug.DamageState = $"Mythril Tempest ({enemyCount} enemies, combo 2)";
+
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(WARActions.MythrilTempest.ActionId, WARActions.MythrilTempest.Name)
+                            .AsTankDamage()
+                            .Target(target.Name?.TextValue)
+                            .Reason(
+                                $"Mythril Tempest completes the AoE combo — grants 20 Beast Gauge and applies Surging Tempest to {enemyCount} enemies.",
+                                "Overpower → Mythril Tempest is the AoE combo. Mythril Tempest grants 20 Beast Gauge and refreshes Surging Tempest. Always complete the combo in AoE pulls.")
+                            .Factors($"{enemyCount} enemies in range", "AoE combo step 2 (after Overpower)", "Grants 20 Beast Gauge + Surging Tempest")
+                            .Alternatives("Single target combo (misses AoE gauge generation)", "Stop at Overpower (less gauge)")
+                            .Tip("In dungeon pulls, spam Overpower → Mythril Tempest to build gauge quickly and keep Surging Tempest active.")
+                            .Concept(WarConcepts.BeastGauge)
+                            .Record();
+
+                        context.TrainingService?.RecordConceptApplication(WarConcepts.BeastGauge, true, "AoE combo gauge generation");
+
                         return true;
                     }
                 }
@@ -689,6 +985,22 @@ public sealed class DamageModule : IAresModule
                 {
                     context.Debug.PlannedAction = WARActions.Overpower.Name;
                     context.Debug.DamageState = $"Overpower ({enemyCount} enemies, combo 1)";
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(WARActions.Overpower.ActionId, WARActions.Overpower.Name)
+                        .AsTankDamage()
+                        .Target(target.Name?.TextValue)
+                        .Reason(
+                            $"Overpower starts the AoE combo for {enemyCount} enemies. Use it to build gauge and set up Mythril Tempest.",
+                            "Overpower is step 1 of the AoE combo. It deals AoE damage in a cone and leads to Mythril Tempest which grants gauge and Surging Tempest.")
+                        .Factors($"{enemyCount} enemies in range", "AoE combo step 1", "Sets up Mythril Tempest")
+                        .Alternatives("Heavy Swing (single target, loses AoE value)", "Skip (miss gauge generation opportunity)")
+                        .Tip("With 3+ enemies, use Overpower to start the AoE chain. Follow with Mythril Tempest to complete the combo.")
+                        .Concept(WarConcepts.BeastGauge)
+                        .Record();
+
+                    context.TrainingService?.RecordConceptApplication(WarConcepts.BeastGauge, true, "AoE combo start");
+
                     return true;
                 }
             }
