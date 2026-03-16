@@ -30,6 +30,10 @@ public sealed class ConfigWindow : Window
     private HashSet<ConfigSection>? matchingSections;
     private readonly SettingRegistry settingRegistry = new();
 
+    // Clipboard import/export state
+    private string _clipboardStatusMessage = string.Empty;
+    private DateTime _clipboardStatusExpiry = DateTime.MinValue;
+
     // Sidebar navigation
     private readonly ConfigSidebar sidebar = new();
 
@@ -416,6 +420,31 @@ public sealed class ConfigWindow : Window
                 break;
         }
 
+        ImGui.Spacing();
+        ImGui.Separator();
+        ImGui.Spacing();
+
+        if (ImGui.Button(Loc.T(LocalizedStrings.Config.ExportConfig, "Export Config")))
+            ExportToClipboard();
+
+        ImGui.SameLine();
+
+        if (ImGui.Button(Loc.T(LocalizedStrings.Config.ImportConfig, "Import Config")))
+            ImportFromClipboard();
+
+        if (_clipboardStatusMessage.Length > 0)
+        {
+            if (DateTime.UtcNow < _clipboardStatusExpiry)
+            {
+                ImGui.SameLine();
+                ImGui.TextDisabled(_clipboardStatusMessage);
+            }
+            else
+            {
+                _clipboardStatusMessage = string.Empty;
+            }
+        }
+
         // Local variable for popup close button state - must be true to show close button
         var popupOpen = true;
         if (ImGui.BeginPopupModal(Loc.T(LocalizedStrings.Config.ResetConfirmation, "Reset Confirmation"), ref popupOpen, ImGuiWindowFlags.AlwaysAutoResize))
@@ -439,6 +468,85 @@ public sealed class ConfigWindow : Window
             }
 
             ImGui.EndPopup();
+        }
+    }
+
+    private void ExportToClipboard()
+    {
+        var json = System.Text.Json.JsonSerializer.Serialize(
+            configuration,
+            new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+        ImGui.SetClipboardText(json);
+        _clipboardStatusMessage = Loc.T(LocalizedStrings.Config.ExportSuccess, "Copied to clipboard!");
+        _clipboardStatusExpiry  = DateTime.UtcNow.AddSeconds(3);
+    }
+
+    private void ImportFromClipboard()
+    {
+        try
+        {
+            var text     = ImGui.GetClipboardText();
+            var imported = System.Text.Json.JsonSerializer.Deserialize<Configuration>(text,
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            if (imported == null) throw new InvalidOperationException("Null result");
+
+            // Apply portable user settings only.
+            // Excluded: Enabled (runtime state — recipient keeps their own enable/disable preference),
+            //           MainWindowVisible, IsDebugWindowOpen, HasSeenWelcome, TelemetryEndpoint,
+            //           Calibration, Debug (runtime state / infrastructure)
+            configuration.ActivePreset        = imported.ActivePreset;
+            configuration.MovementTolerance   = imported.MovementTolerance;
+            configuration.EnableOnAutoAttack  = imported.EnableOnAutoAttack;
+            configuration.EnableHealing       = imported.EnableHealing;
+            configuration.EnableDamage        = imported.EnableDamage;
+            configuration.EnableDoT           = imported.EnableDoT;
+            configuration.PreventEscapeClose  = imported.PreventEscapeClose;
+            configuration.ShowDuringCutscenes = imported.ShowDuringCutscenes;
+            configuration.TelemetryEnabled    = imported.TelemetryEnabled;
+            configuration.LanguageOverride    = imported.LanguageOverride;
+
+            // Nested behavioral configs — null-coalesce to defaults if the import was partial
+            configuration.Healing           = imported.Healing           ?? new();
+            configuration.Damage            = imported.Damage            ?? new();
+            configuration.Dot               = imported.Dot               ?? new();
+            configuration.Defensive         = imported.Defensive         ?? new();
+            configuration.Buffs             = imported.Buffs             ?? new();
+            configuration.Resurrection      = imported.Resurrection      ?? new();
+            configuration.Targeting         = imported.Targeting         ?? new();
+            configuration.RoleActions       = imported.RoleActions       ?? new();
+            configuration.Analytics         = imported.Analytics         ?? new();
+            configuration.Training          = imported.Training          ?? new();
+            configuration.Overlay           = imported.Overlay           ?? new();
+            configuration.DrawHelper        = imported.DrawHelper        ?? new();
+            configuration.Tank              = imported.Tank              ?? new();
+            configuration.Scholar           = imported.Scholar           ?? new();
+            configuration.Astrologian       = imported.Astrologian       ?? new();
+            configuration.Sage              = imported.Sage              ?? new();
+            configuration.Dragoon           = imported.Dragoon           ?? new();
+            configuration.Ninja             = imported.Ninja             ?? new();
+            configuration.Samurai           = imported.Samurai           ?? new();
+            configuration.Monk              = imported.Monk              ?? new();
+            configuration.Reaper            = imported.Reaper            ?? new();
+            configuration.Viper             = imported.Viper             ?? new();
+            configuration.Machinist         = imported.Machinist         ?? new();
+            configuration.Bard              = imported.Bard              ?? new();
+            configuration.Dancer            = imported.Dancer            ?? new();
+            configuration.BlackMage         = imported.BlackMage         ?? new();
+            configuration.Summoner          = imported.Summoner          ?? new();
+            configuration.RedMage           = imported.RedMage           ?? new();
+            configuration.Pictomancer       = imported.Pictomancer       ?? new();
+            configuration.FFLogs            = imported.FFLogs            ?? new();
+            configuration.PartyCoordination = imported.PartyCoordination ?? new();
+
+            saveConfiguration();
+            _clipboardStatusMessage = Loc.T(LocalizedStrings.Config.ImportSuccess, "Settings imported!");
+            _clipboardStatusExpiry  = DateTime.UtcNow.AddSeconds(3);
+        }
+        catch
+        {
+            _clipboardStatusMessage = Loc.T(LocalizedStrings.Config.ImportError,
+                "Import failed: invalid config data.");
+            _clipboardStatusExpiry  = DateTime.UtcNow.AddSeconds(4);
         }
     }
 

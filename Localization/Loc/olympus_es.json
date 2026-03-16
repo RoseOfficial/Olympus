@@ -1,4 +1,5 @@
 {
+  "_comment": "UNTRANSLATED — copy of English strings; starting template for Spanish translation.",
   "ui.main.status": "Status:",
   "ui.main.active": "ACTIVE",
   "ui.main.inactive": "INACTIVE",
@@ -13,7 +14,6 @@
   "ui.main.training": "Training",
   "ui.main.debug": "Debug",
   "ui.main.preset": "Preset:",
-
   "config.window_title": "Olympus Settings",
   "config.join_discord": "Join Discord",
   "config.enable_rotation": "Enable Rotation",
@@ -39,7 +39,6 @@
   "config.export_success": "Copied to clipboard!",
   "config.import_success": "Settings imported!",
   "config.import_error": "Import failed: invalid config data.",
-
   "config.sidebar.general": "GENERAL",
   "config.sidebar.general_item": "General",
   "config.sidebar.targeting": "Targeting",
@@ -55,14 +54,12 @@
   "config.sidebar.warrior": "Warrior",
   "config.sidebar.dark_knight": "Dark Knight",
   "config.sidebar.gunbreaker": "Gunbreaker",
-
   "config.general.header": "General Settings",
   "config.general.movement_tolerance": "Movement Tolerance",
   "config.general.movement_tolerance_desc": "How long to wait after movement stops before casting (seconds).",
   "config.general.enable_healing": "Enable Healing",
   "config.general.enable_damage": "Enable Damage",
   "config.general.enable_dot": "Enable DoT",
-
   "config.targeting.header": "Targeting Settings",
   "config.targeting.mode": "Targeting Mode",
   "config.targeting.lowest_hp": "Lowest HP",
@@ -86,7 +83,6 @@
   "config.targeting.fallback_to_lowest_hp_desc": "If no tank target found, use Lowest HP instead.",
   "config.targeting.movement_tolerance": "Movement Tolerance",
   "config.targeting.movement_tolerance_desc": "Delay after stopping before casting. Lower = faster, higher = safer.",
-
   "config.role_actions.header": "Role Actions",
   "config.role_actions.lucid_dreaming": "Lucid Dreaming",
   "config.role_actions.lucid_dreaming_threshold": "MP Threshold",
@@ -113,7 +109,6 @@
   "config.role_actions.enable_rescue": "Enable Rescue",
   "config.role_actions.enable_rescue_desc": "Pulls party member to your position. Manual use only.",
   "config.role_actions.rescue_warning": "WARNING: Rescue can kill party members if misused!",
-
   "config.resurrection.section": "Resurrection",
   "config.resurrection.enable_raise": "Enable Raise",
   "config.resurrection.enable_raise_desc": "Automatically resurrect dead party members.",
@@ -128,11 +123,9 @@
   "config.resurrection.allow_hardcast_desc": "Cast Raise without Swiftcast (8s cast). Use with caution.",
   "config.resurrection.min_mp_for_raise": "Min MP for Raise",
   "config.resurrection.min_mp_for_raise_desc": "Minimum MP percentage before attempting to raise.",
-
   "config.privacy.section": "Privacy",
   "config.privacy.telemetry": "Send anonymous usage statistics",
   "config.privacy.telemetry_desc": "Only sends plugin version. No personal data.",
-
   "config.healing.section": "Healing",
   "config.healing.single_target": "Single Target Healing",
   "config.healing.aoe": "AoE Healing",
@@ -143,23 +136,19 @@
   "config.healing.overheal_threshold": "Overheal Threshold",
   "config.healing.party_heal_threshold": "Party Heal Threshold",
   "config.healing.min_targets": "Minimum Targets",
-
   "config.damage.section": "Damage",
   "config.damage.enable": "Enable Damage",
   "config.damage.min_mana_threshold": "Minimum Mana Threshold",
   "config.damage.safe_to_attack": "Safe to Attack Threshold",
   "config.damage.safe_to_attack_desc": "Party HP threshold above which damage spells are used.",
-
   "config.buffs.section": "Buffs & Cooldowns",
   "config.buffs.use_on_cooldown": "Use on Cooldown",
   "config.buffs.align_with_burst": "Align with Burst",
   "config.buffs.save_for_emergency": "Save for Emergency",
-
   "config.defensive.section": "Defensive Cooldowns",
   "config.defensive.enable": "Enable Defensive Cooldowns",
   "config.defensive.tankbuster_threshold": "Tankbuster Threshold",
   "config.defensive.raidwide_threshold": "Raidwide Threshold",
-
   "config.job.whm.header": "Apollo (White Mage) Settings",
   "config.job.whm.lily_section": "Lily System",
   "config.job.whm.lily_priority": "Lily Priority",
@@ -230,7 +219,6 @@
   "config.job.whm.holy_desc": "Self-centered AoE (8y radius). Use when enemies are stacked.",
   "config.job.whm.misery_desc": "1240p AoE damage (costs 3 Blood Lilies). Use at 3 stacks.",
   "config.job.whm.enable_dot": "Enable DoT",
-
   "config.job.sch.header": "Athena (Scholar) Settings",
   "config.job.sch.aetherpact_threshold": "Aetherpact Threshold",
   "config.job.sch.fairy_abilities": "Fairy Abilities",
@@ -317,7 +305,6 @@
   "config.job.sch.chain_stratagem_desc": "+10% crit rate on target for party.",
   "config.job.sch.enable_baneful_impaction": "Enable Baneful Impaction",
   "config.job.sch.baneful_impaction_desc": "AoE follow-up when Impact Imminent is active.",
-
   "config.job.ast.header": "Astraea (Astrologian) Settings",
   "config.job.ast.card_system": "Card System",
   "config.job.ast.earthly_star": "Earthly Star",
@@ -445,7 +432,6 @@
   "config.job.ast.enable_collective_unconscious": "Enable Collective Unconscious",
   "config.job.ast.collective_unconscious_warning": "Channeled ability - may interrupt other actions.",
   "config.job.ast.collective_unconscious_threshold": "CU HP Threshold",
-
   "config.job.sge.header": "Asclepius (Sage) Settings",
   "config.job.sge.kardia": "Kardia",
   "config.job.sge.eukrasia": "Eukrasia",
@@ -570,7 +556,6 @@
   "config.job.sge.psyche_desc": "oGCD damage ability.",
   "config.job.sge.enable_lucid_dreaming": "Enable Lucid Dreaming",
   "config.job.sge.lucid_mp_threshold": "Lucid MP Threshold",
-
   "config.job.tank.header": "Tank Settings",
   "config.job.tank.mitigation": "Mitigation",
   "config.job.tank.auto_provoke": "Auto Provoke",
@@ -606,7 +591,6 @@
   "config.job.tank.current_min_targets": "Current min targets: {0}",
   "config.job.tank.uses_shared_aoe_settings": "Uses shared tank AoE settings.",
   "config.job.tank.uses_shared_gauge_setting": "Uses shared tank gauge setting.",
-
   "config.job.pld.mitigation_section": "Mitigation",
   "config.job.pld.mitigation_desc": "Paladin-specific mitigation settings:",
   "config.job.pld.oath_gauge_abilities": "Oath Gauge Abilities:",
@@ -634,7 +618,6 @@
   "config.job.pld.aoe_rotation": "AoE Rotation:",
   "config.job.pld.total_eclipse_combo": "Total Eclipse combo",
   "config.job.pld.circle_of_scorn": "Circle of Scorn",
-
   "config.job.war.mitigation_section": "Mitigation",
   "config.job.war.mitigation_desc": "Warrior-specific mitigation settings:",
   "config.job.war.beast_gauge_abilities": "Beast Gauge Abilities:",
@@ -666,7 +649,6 @@
   "config.job.war.overpower_combo": "Overpower combo",
   "config.job.war.decimate_inner_release": "Decimate under Inner Release",
   "config.job.war.orogeny": "Orogeny",
-
   "config.job.drk.mitigation_section": "Mitigation",
   "config.job.drk.mitigation_desc": "Dark Knight-specific mitigation settings:",
   "config.job.drk.tbn_label": "The Blackest Night (TBN):",
@@ -704,7 +686,6 @@
   "config.job.drk.quietus_delirium": "Quietus under Delirium",
   "config.job.drk.flood_of_shadow": "Flood of Shadow",
   "config.job.drk.abyssal_drain": "Abyssal Drain",
-
   "config.job.gnb.mitigation_section": "Mitigation",
   "config.job.gnb.mitigation_desc": "Gunbreaker-specific mitigation settings:",
   "config.job.gnb.heart_of_corundum_label": "Heart of Corundum:",
@@ -741,19 +722,17 @@
   "config.job.gnb.demon_slice_combo": "Demon Slice combo",
   "config.job.gnb.fated_circle": "Fated Circle",
   "config.job.gnb.bow_shock": "Bow Shock",
-
   "analytics.window_title": "Olympus Analytics",
   "analytics.realtime": "Realtime",
   "analytics.history": "History",
   "analytics.fight_summary": "Fight Summary",
   "analytics.fflogs": "FFLogs",
-  "analytics.gcd_uptime": "GCD Uptime",
+  "analytics.gcd_uptime": "GCD Uptime:",
   "analytics.apm": "Actions/Min",
-  "analytics.deaths": "Deaths",
+  "analytics.deaths": "Deaths:",
   "analytics.damage_dealt": "Damage Dealt",
   "analytics.healing_done": "Healing Done",
   "analytics.overheal": "Overheal",
-
   "training.window_title": "Olympus Training",
   "training.live_coaching": "Live Coaching",
   "training.lessons": "Lessons",
@@ -767,7 +746,6 @@
   "training.personality.analytical": "Analytical",
   "training.personality.strict": "Strict",
   "training.personality.silent": "Silent",
-
   "common.yes": "Yes",
   "common.no": "No",
   "common.ok": "OK",
@@ -790,11 +768,8 @@
   "common.warning": "Warning",
   "common.info": "Info",
   "common.success": "Success",
-
   "ui.helpers.job_header_format": "{0} ({1}) Settings",
   "ui.helpers.settings": "Settings",
-
-  "analytics.window_title": "Olympus Analytics",
   "analytics.tab.realtime": "Realtime",
   "analytics.tab.fight_summary": "Fight Summary",
   "analytics.tab.history": "History",
@@ -818,11 +793,9 @@
   "analytics.tracking": "TRACKING",
   "analytics.idle": "IDLE",
   "analytics.combat": "Combat:",
-  "analytics.gcd_uptime": "GCD Uptime:",
   "analytics.dps": "DPS:",
   "analytics.healing": "Healing:",
   "analytics.overheal_format": "({0}% overheal)",
-  "analytics.deaths": "Deaths:",
   "analytics.near_deaths": "Near-Deaths:",
   "analytics.no_cooldowns": "No cooldowns tracked for this job.",
   "analytics.ability": "Ability",
@@ -830,7 +803,6 @@
   "analytics.efficiency": "Efficiency",
   "analytics.drift": "Drift",
   "analytics.na": "N/A",
-
   "analytics.no_fight_data": "No fight data available.",
   "analytics.complete_combat": "Complete a combat encounter to see analysis.",
   "analytics.last_fight": "Last Fight:",
@@ -848,7 +820,6 @@
   "analytics.value": "Value",
   "analytics.duration": "Duration:",
   "analytics.total_healing": "Total Healing:",
-
   "analytics.no_downtime": "No significant downtime detected!",
   "analytics.total_downtime": "Total Downtime: {0}s",
   "analytics.movement": "Movement:",
@@ -862,7 +833,6 @@
   "analytics.tip_unexplained": "Tip: {0}s of unexplained downtime. Try to always be casting or weaving oGCDs.",
   "analytics.tip_movement": "Tip: Movement caused most downtime. Use instant casts or slidecast during movement.",
   "analytics.tip": "Tip:",
-
   "analytics.cooldown_analysis": "Cooldown Analysis",
   "analytics.no_cooldown_data": "No cooldown data available.",
   "analytics.uses_format": "Uses: {0}/{1} ({2}%)",
@@ -872,10 +842,8 @@
   "analytics.burst": "Burst: {0}",
   "analytics.sustained": "Sustained: {0}",
   "analytics.perfect_usage": "Perfect usage!",
-
   "analytics.issues_format": "Issues ({0})",
   "analytics.no_issues": "No significant issues detected.",
-
   "analytics.performance_trends": "Performance Trends",
   "analytics.need_sessions_for_trends": "Need at least 3 sessions for trends ({0} recorded).",
   "analytics.sessions_count": "Sessions:",
@@ -888,7 +856,6 @@
   "analytics.clear_history": "Clear History",
   "analytics.time": "Time",
   "analytics.gcd_percent": "GCD%",
-
   "analytics.fflogs_service_not_init": "FFLogs service not initialized.",
   "analytics.fflogs_setup": "FFLogs Setup",
   "analytics.fflogs_intro": "To use FFLogs integration, you need to create an API client on FFLogs.",
@@ -935,20 +902,16 @@
   "analytics.connection_failed": "Connection failed. Check your credentials.",
   "analytics.character_found": "Character found! FFLogs ID: {0}",
   "analytics.character_not_found": "Character not found.",
-
-  "training.window_title": "Olympus Training",
   "training.tab.live_coaching": "Live Coaching",
   "training.tab.recommended": "Recommended",
   "training.tab.lessons": "Lessons",
   "training.tab.quizzes": "Quizzes",
   "training.tab.progress": "Progress",
   "training.tab.skill_level": "Skill Level",
-
   "training.enable_training_mode": "Enable Training Mode",
   "training.enable_training_mode_tooltip": "When enabled, captures and explains rotation decisions in real-time.",
   "training.clear": "Clear",
   "training.clear_tooltip": "Clear all captured explanations.",
-
   "training.display_options": "Display Options",
   "training.show_alternatives": "Show Alternatives",
   "training.show_tips": "Show Tips",
@@ -967,7 +930,6 @@
   "training.section.alternatives": "Alternatives",
   "training.section.tips": "Tips",
   "training.section.recent_history": "Recent History",
-
   "training.coaching_hints_header": "Coaching Hints (v3.49)",
   "training.show_coaching_hints": "Show Coaching Hints",
   "training.show_coaching_hints_tooltip": "Show real-time hints during combat for struggling concepts.",
@@ -975,7 +937,6 @@
   "training.hint_duration": "Hint Duration",
   "training.coaching_personality_header": "Coaching Personality (v3.51)",
   "training.personality_tooltip": "Encouraging: Positive, supportive feedback\nAnalytical: Data-focused, objective feedback\nStrict: Direct, high-standards feedback\nSilent: Minimal feedback, critical only",
-
   "training.learning_progress": "Learning Progress",
   "training.concepts_format": "{0}/{1} concepts",
   "training.progress_format": "Progress: {0}%",
@@ -983,7 +944,6 @@
   "training.learned": "[Learned]",
   "training.mark_learned": "Mark Learned",
   "training.needs_review": "Needs Review (seen 10+ times):",
-
   "training.in_combat_active": "IN COMBAT - COACHING ACTIVE",
   "training.waiting_for_combat": "Waiting for combat...",
   "training.decisions_label": "Decisions:",
@@ -1012,7 +972,6 @@
   "training.reason_column": "Reason",
   "training.seconds_ago": "{0}s ago",
   "training.minutes_ago": "{0}m ago",
-
   "training.based_on_both": "Based on fight performance and mastery data:",
   "training.based_on_mastery": "Based on concept mastery data:",
   "training.based_on_performance": "Based on your recent fight performance:",
@@ -1051,7 +1010,6 @@
   "training.issue_cooldown_drift": "Cooldown Drift",
   "training.issue_high_overheal": "High Overheal",
   "training.issue_capped_resources": "Capped Resources",
-
   "training.no_lessons_available": "No lessons available for this job.",
   "training.lessons_header": "Lessons",
   "training.prerequisites_not_met": "Prerequisites not met:",
@@ -1082,7 +1040,6 @@
   "training.skill_intermediate": "Intermediate",
   "training.skill_advanced": "Advanced",
   "training.skill_unknown": "Unknown",
-
   "training.no_quizzes_available": "No quizzes available for this job.",
   "training.quizzes_header": "Quizzes",
   "training.best_score_format": "Best: {0}/{1}",
@@ -1117,7 +1074,6 @@
   "training.explanation": "EXPLANATION:",
   "training.back_to_results": "Back to Results",
   "training.exit_quiz": "Exit Quiz",
-
   "training.adaptive_explanations": "Adaptive Explanations",
   "training.enable_adaptive_verbosity": "Enable Adaptive Verbosity",
   "training.adaptive_verbosity_tooltip": "When enabled, explanation verbosity automatically adjusts based on your skill level:\n- Beginners see detailed explanations for all decisions\n- Intermediate players see normal detail, with extra detail for unfamiliar concepts\n- Advanced players see minimal detail, except for new or critical decisions",
@@ -1127,7 +1083,6 @@
   "training.intermediate": "Intermediate",
   "training.advanced": "Advanced",
   "training.skill_override_tooltip": "Override the detected skill level:\n- Auto-detect: Uses quiz and lesson progress to determine level\n- Beginner/Intermediate/Advanced: Force a specific level",
-
   "training.focus_areas_format": "⚠ Focus Areas ({0} concepts need practice)",
   "training.concept_success_format": "  ├─ {0}: {1} ({2} success)",
   "training.study": "Study",
@@ -1135,7 +1090,6 @@
   "training.and_more_format": "  └─ ... and {0} more",
   "training.recently_mastered_format": "✓ Recently Mastered ({0} concepts)",
   "training.play_to_build_mastery": "Play with Training Mode enabled to build mastery data.",
-
   "training.skill_levels_by_job": "Skill Levels by Job",
   "training.enable_adaptive_to_see_skills": "Enable adaptive explanations above to see skill levels.",
   "training.no_progress_yet": "No progress yet. Complete lessons and quizzes to see your skill levels.",
@@ -1159,7 +1113,6 @@
   "training.weight_format": "({0}% weight)",
   "training.struggling_format": "⚠{0} struggling",
   "training.mastered_format": "✓{0} mastered",
-
   "training.concept_mastery_details": "Concept Mastery Details:",
   "training.mastered_count_format": "  Mastered ({0}):",
   "training.needs_practice_count_format": "  Needs Practice ({0}):",
@@ -1167,7 +1120,6 @@
   "training.developing_format": "  Developing: {0} concepts (need more practice)",
   "training.developing_tooltip": "These concepts need at least 10 opportunities before mastery can be evaluated.",
   "training.play_more_to_build_mastery": "  Play more to build mastery data!",
-
   "training.knowledge_retention": "Knowledge Retention",
   "training.track_knowledge_retention": "Track Knowledge Retention",
   "training.retention_tooltip": "Track how well you remember concepts over time.\nConcepts decay without practice - review suggested when retention drops below 40%.",
@@ -1184,10 +1136,8 @@
   "training.suggested_review_quizzes": "Suggested Review Quizzes:",
   "training.job_quiz_format": "  • {0} Quiz {1}",
   "training.take_quiz": "Take Quiz",
-
   "debug.window_title": "Olympus Debug",
   "debug.section_visibility": "Section Visibility",
-
   "debug.tab.overview": "Overview",
   "debug.tab.why_stuck": "Why Stuck?",
   "debug.tab.healing": "Healing",
@@ -1197,14 +1147,12 @@
   "debug.tab.performance": "Performance",
   "debug.tab.job_details": "Job Details",
   "debug.tab.timeline": "Timeline",
-
   "debug.visibility.overview_tab": "Overview Tab",
   "debug.visibility.why_stuck_tab": "Why Stuck? Tab",
   "debug.visibility.healing_tab": "Healing Tab",
   "debug.visibility.overheal_tab": "Overheal Tab",
   "debug.visibility.actions_tab": "Actions Tab",
   "debug.visibility.performance_tab": "Performance Tab",
-
   "debug.section.gcd_planning": "GCD Planning",
   "debug.section.quick_stats": "Quick Stats",
   "debug.section.gcd_priority_chain": "GCD Priority Chain",
@@ -1227,7 +1175,6 @@
   "debug.section.action_history": "Action History",
   "debug.section.statistics": "Statistics",
   "debug.section.downtime": "Downtime",
-
   "debug.overview.state": "State:",
   "debug.overview.planned_action": "Planned Action:",
   "debug.overview.dps": "DPS:",
@@ -1250,7 +1197,6 @@
   "debug.overview.last_format": "Last: {0}",
   "debug.common.yes": "Yes",
   "debug.common.no": "No",
-
   "debug.why_stuck.current_state": "Current State",
   "debug.why_stuck.gcd_ready": "GCD READY",
   "debug.why_stuck.gcd_state_format": "GCD: {0} ({1}s)",
@@ -1294,7 +1240,6 @@
   "debug.why_stuck.lily_strategy_format": "Lily Strategy: {0}",
   "debug.why_stuck.sacred_sight_format": "Sacred Sight: {0} stacks (instant Glare IV)",
   "debug.why_stuck.sacred_sight_zero": "Sacred Sight: 0 stacks",
-
   "debug.actions.gcd_state_details": "GCD State Details",
   "debug.actions.current_state": "Current State:",
   "debug.actions.gcd_remaining": "GCD Remaining:",
@@ -1316,7 +1261,6 @@
   "debug.actions.property_header": "Property",
   "debug.actions.value_header": "Value",
   "debug.common.yes_upper": "YES",
-
   "debug.healing.not_logged_in": "Not logged in",
   "debug.healing.level_format": "(Lv{0})",
   "debug.healing.gcd_heals_single": "GCD Heals (Single)",
@@ -1365,7 +1309,6 @@
   "debug.common.none": "None",
   "debug.healing.slots_format": "Slots: {0}",
   "debug.healing.weave_label": "Weave: {0}",
-
   "debug.overheal.summary": "Summary",
   "debug.overheal.session_duration": "Session Duration:",
   "debug.overheal.total_healing": "Total Healing:",
@@ -1384,7 +1327,6 @@
   "debug.overheal.time": "Time",
   "debug.overheal.reset_statistics": "Reset Statistics",
   "debug.overheal.reset_statistics_desc": "Clears all overheal data and starts a new session",
-
   "debug.performance.top_fail": "Top fail:",
   "debug.performance.gcd_ready_downtime": "GCD: READY (downtime)",
   "debug.performance.gcd_active": "GCD: ACTIVE",
@@ -1419,7 +1361,6 @@
   "debug.performance.party_list": "Party List:",
   "debug.performance.valid_members": "Valid Members:",
   "debug.performance.shadow_hp_header": "--- Shadow HP ---",
-
   "debug.timeline.not_available": "Timeline service not available",
   "debug.timeline.simulation_controls": "Simulation Controls",
   "debug.timeline.simulation_active": "● SIMULATION ACTIVE",
@@ -1452,7 +1393,6 @@
   "debug.timeline.pre_shield": "Pre-shield",
   "debug.timeline.prepare": "Prepare",
   "debug.timeline.upcoming": "Upcoming",
-
   "debug.job.rotation_not_active": "{0} rotation not active.",
   "debug.job.switch_to_job": "Switch to {0} to see debug info.",
   "debug.job.gauge": "Gauge",
@@ -1491,7 +1431,6 @@
   "debug.job.injured_format": "{0} ({1} injured)",
   "debug.job.enemies_format": "{0} ({1} enemies)",
   "debug.job.hp_format": "{0:N0} HP",
-
   "debug.scholar.not_active": "Scholar rotation not active.",
   "debug.scholar.switch_to": "Switch to Scholar to see debug info.",
   "debug.scholar.aetherflow": "Aetherflow:",
@@ -1515,7 +1454,6 @@
   "debug.scholar.chain_stratagem": "Chain Stratagem:",
   "debug.scholar.energy_drain": "Energy Drain:",
   "debug.scholar.lucid_dreaming": "Lucid Dreaming:",
-
   "debug.astrologian.not_active": "Astrologian rotation not active.",
   "debug.astrologian.switch_to": "Switch to Astrologian to see debug info.",
   "debug.astrologian.cards": "Cards",
@@ -1539,7 +1477,6 @@
   "debug.astrologian.neutral_sect": "Neutral Sect:",
   "debug.astrologian.synastry": "Synastry:",
   "debug.astrologian.lightspeed": "Lightspeed:",
-
   "debug.dragoon.not_active": "Dragoon rotation not active.",
   "debug.dragoon.switch_to": "Switch to Dragoon to see debug info.",
   "debug.dragoon.dragon_state": "Dragon State:",
@@ -1557,7 +1494,6 @@
   "debug.dragoon.fang_and_claw": "Fang and Claw:",
   "debug.dragoon.wheel_in_motion": "Wheel in Motion:",
   "debug.dragoon.draconian_fire": "Draconian Fire:",
-
   "debug.black_mage.not_active": "Black Mage rotation not active.",
   "debug.black_mage.switch_to": "Switch to Black Mage to see debug info.",
   "debug.black_mage.element_state": "Element State",
@@ -1584,7 +1520,6 @@
   "debug.black_mage.thunder_dot": "Thunder DoT:",
   "debug.black_mage.target_section": "Target",
   "debug.black_mage.stacks_format": "{0} stacks",
-
   "debug.ninja.not_active": "Ninja rotation not active.",
   "debug.ninja.switch_to": "Switch to Ninja to see debug info.",
   "debug.ninja.mudra": "Mudra",
@@ -1605,7 +1540,6 @@
   "debug.ninja.target_debuffs": "Target Debuffs",
   "debug.ninja.kunais_bane": "Kunai's Bane:",
   "debug.ninja.dokumori": "Dokumori:",
-
   "debug.samurai.not_active": "Samurai rotation not active.",
   "debug.samurai.switch_to": "Switch to Samurai to see debug info.",
   "debug.samurai.sen": "Sen:",
@@ -1621,7 +1555,6 @@
   "debug.samurai.zanshin_ready": "Zanshin Ready:",
   "debug.samurai.higanbana": "Higanbana:",
   "debug.samurai.remaining_format": "{0:F1}s remaining",
-
   "debug.monk.not_active": "Monk rotation not active.",
   "debug.monk.switch_to": "Switch to Monk to see debug info.",
   "debug.monk.form": "Form",
@@ -1643,7 +1576,6 @@
   "debug.monk.fires_rumination": "Fire's Rumination:",
   "debug.monk.winds_rumination": "Wind's Rumination:",
   "debug.monk.demolish": "Demolish:",
-
   "debug.reaper.not_active": "Reaper rotation not active.",
   "debug.reaper.switch_to": "Switch to Reaper to see debug info.",
   "debug.reaper.soul": "Soul:",
@@ -1663,7 +1595,6 @@
   "debug.reaper.perfectio_parata": "Perfectio Parata:",
   "debug.reaper.oblatio": "Oblatio:",
   "debug.reaper.soulsow": "Soulsow:",
-
   "debug.viper.not_active": "Viper rotation not active.",
   "debug.viper.switch_to": "Switch to Viper to see debug info.",
   "debug.viper.serpent_offering": "Serpent Offering:",
@@ -1681,7 +1612,6 @@
   "debug.viper.active_venom": "Active Venom:",
   "debug.viper.twinfang_ready": "Twinfang Ready:",
   "debug.viper.twinblood_ready": "Twinblood Ready:",
-
   "debug.machinist.not_active": "Machinist rotation not active.",
   "debug.machinist.switch_to": "Switch to Machinist to see debug info.",
   "debug.machinist.heat": "Heat:",
@@ -1701,7 +1631,6 @@
   "debug.machinist.ricochet": "Ricochet:",
   "debug.machinist.wildfire": "Wildfire:",
   "debug.machinist.bioblaster": "Bioblaster:",
-
   "debug.bard.not_active": "Bard rotation not active.",
   "debug.bard.switch_to": "Switch to Bard to see debug info.",
   "debug.bard.song": "Song",
@@ -1722,7 +1651,6 @@
   "debug.bard.dots": "DoTs",
   "debug.bard.caustic_bite": "Caustic Bite:",
   "debug.bard.stormbite": "Stormbite:",
-
   "debug.dancer.not_active": "Dancer rotation not active.",
   "debug.dancer.switch_to": "Switch to Dancer to see debug info.",
   "debug.dancer.dance": "Dance",
@@ -1745,7 +1673,6 @@
   "debug.dancer.devilment": "Devilment:",
   "debug.dancer.target_partner": "Target/Partner",
   "debug.dancer.dance_partner": "Dance Partner:",
-
   "debug.summoner.not_active": "Summoner rotation not active.",
   "debug.summoner.switch_to": "Switch to Summoner to see debug info.",
   "debug.summoner.demi_summon": "Demi-Summon",
@@ -1774,7 +1701,6 @@
   "debug.summoner.astral_flow": "Astral Flow:",
   "debug.summoner.radiant_aegis": "Radiant Aegis:",
   "debug.summoner.on_cd": "On CD",
-
   "debug.red_mage.not_active": "Red Mage rotation not active.",
   "debug.red_mage.switch_to": "Switch to Red Mage to see debug info.",
   "debug.red_mage.mana": "Mana",
@@ -1803,7 +1729,6 @@
   "debug.red_mage.contre_sixte": "Contre Sixte:",
   "debug.red_mage.corps_a_corps": "Corps-a-Corps:",
   "debug.red_mage.engagement": "Engagement:",
-
   "debug.pictomancer.not_active": "Pictomancer rotation not active.",
   "debug.pictomancer.switch_to": "Switch to Pictomancer to see debug info.",
   "debug.pictomancer.canvas": "Canvas",
@@ -1832,7 +1757,6 @@
   "debug.pictomancer.hammer_time": "Hammer Time:",
   "debug.pictomancer.starry_muse_cd": "Starry Muse CD:",
   "debug.pictomancer.living_muse": "Living Muse:",
-
   "config.language.section": "Language",
   "config.language.select": "Language",
   "config.language.select_desc": "Select your preferred language. Auto uses the game client language.",
