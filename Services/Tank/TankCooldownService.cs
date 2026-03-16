@@ -1,5 +1,7 @@
 using System;
 using Olympus.Config;
+using Olympus.Timeline;
+using Olympus.Timeline.Models;
 
 namespace Olympus.Services.Tank;
 
@@ -10,15 +12,17 @@ namespace Olympus.Services.Tank;
 public sealed class TankCooldownService : ITankCooldownService
 {
     private readonly TankConfig _config;
+    private readonly ITimelineService? _timelineService;
 
     private float _currentHpPercent;
     private float _currentDamageRate;
     private float _recentDamagePeak;
     private DateTime _lastPeakTime = DateTime.MinValue;
 
-    public TankCooldownService(TankConfig config)
+    public TankCooldownService(TankConfig config, ITimelineService? timelineService = null)
     {
         _config = config;
+        _timelineService = timelineService;
     }
 
     /// <inheritdoc />
@@ -70,6 +74,18 @@ public sealed class TankCooldownService : ITankCooldownService
         // Use on cooldown if configured and taking damage
         if (_config.UseRampartOnCooldown && incomingDamageRate > 200f)
             return true;
+
+        // Timeline-informed tank buster prediction
+        if (_timelineService is { IsActive: true })
+        {
+            // Primary path: NextTankBuster cached property (ShouldHoldCooldowns = IsSoon && IsHighConfidence)
+            if (_timelineService.NextTankBuster?.ShouldHoldCooldowns == true)
+                return true;
+
+            // Fallback: explicit IsMechanicImminent check with 8-second window
+            if (_timelineService.IsMechanicImminent(TimelineEntryType.TankBuster, 8f))
+                return true;
+        }
 
         return false;
     }
