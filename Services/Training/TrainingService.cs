@@ -897,7 +897,7 @@ public sealed class TrainingService : ITrainingService
         }
 
         // Count quizzes and passes for this job
-        var quizIds = lessons.Select(l => $"quiz.{l.LessonId}").ToArray();
+        var quizIds = lessons.Select(l => $"{l.LessonId}.quiz").ToArray();
         var totalQuizzes = quizIds.Length;
         var passedQuizzes = quizIds.Count(qid => this.config.CompletedQuizzes.Contains(qid));
         var quizPassRate = totalQuizzes > 0 ? (float)passedQuizzes / totalQuizzes * 100f : 0f;
