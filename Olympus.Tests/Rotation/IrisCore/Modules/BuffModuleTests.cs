@@ -184,10 +184,10 @@ public class BuffModuleTests
         Assert.False(_module.TryExecute(context, isMoving: false));
     }
 
-    // ---- Task 4: SubtractiveSpectrum bypasses burst hold ----
+    // ---- Task 4: SubtractiveSpectrum skips SubtractivePalette activation ----
 
     [Fact]
-    public void TrySubtractivePalette_WithSubtractiveSpectrum_BypassesBurstHold()
+    public void TrySubtractivePalette_WithSubtractiveSpectrum_SkipsActivation()
     {
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         actionService.Setup(x => x.ExecuteOgcd(
@@ -214,10 +214,11 @@ public class BuffModuleTests
 
         var result = _module.TryExecute(context, isMoving: false);
 
-        Assert.True(result);
+        // SubtractiveSpectrum already provides a free enhanced combo — don't waste gauge
+        Assert.False(result);
         actionService.Verify(x => x.ExecuteOgcd(
             It.Is<ActionDefinition>(a => a.ActionId == PCTActions.SubtractivePalette.ActionId),
-            It.IsAny<ulong>()), Times.Once);
+            It.IsAny<ulong>()), Times.Never);
     }
 
     [Fact]
@@ -541,6 +542,76 @@ public class BuffModuleTests
             actionService: actionService);
 
         var result = _module.TryExecute(context, isMoving: false);
+
+        Assert.False(result);
+        actionService.Verify(x => x.ExecuteOgcd(
+            It.Is<ActionDefinition>(a => a.ActionId == PCTActions.Swiftcast.ActionId),
+            It.IsAny<ulong>()), Times.Never);
+    }
+
+    [Fact]
+    public void TrySwiftcast_WhenMovingWithStarstruck_Skips()
+    {
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+
+        var context = IrisTestContext.Create(
+            inCombat: true,
+            canExecuteOgcd: true,
+            madeenReady: false,
+            mogReady: false,
+            starryMuseReady: false,
+            livingMuseReady: false,
+            strikingMuseReady: false,
+            subtractivePaletteReady: false,
+            lucidDreamingReady: false,
+            temperaGrassaReady: false,
+            temperaCoatReady: false,
+            smudgeReady: false,
+            swiftcastReady: true,
+            hasInstantCast: false,
+            hasWhitePaint: false,
+            hasBlackPaint: false,
+            hasRainbowBright: false,
+            hasStarstruck: true,
+            partyHealthMetrics: (1.0f, 1.0f, 0),
+            actionService: actionService);
+
+        var result = _module.TryExecute(context, isMoving: true);
+
+        Assert.False(result);
+        actionService.Verify(x => x.ExecuteOgcd(
+            It.Is<ActionDefinition>(a => a.ActionId == PCTActions.Swiftcast.ActionId),
+            It.IsAny<ulong>()), Times.Never);
+    }
+
+    [Fact]
+    public void TrySwiftcast_WhenMovingWithHammerTime_Skips()
+    {
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+
+        var context = IrisTestContext.Create(
+            inCombat: true,
+            canExecuteOgcd: true,
+            madeenReady: false,
+            mogReady: false,
+            starryMuseReady: false,
+            livingMuseReady: false,
+            strikingMuseReady: false,
+            subtractivePaletteReady: false,
+            lucidDreamingReady: false,
+            temperaGrassaReady: false,
+            temperaCoatReady: false,
+            smudgeReady: false,
+            swiftcastReady: true,
+            hasInstantCast: false,
+            hasWhitePaint: false,
+            hasBlackPaint: false,
+            hasRainbowBright: false,
+            hasHammerTime: true,
+            partyHealthMetrics: (1.0f, 1.0f, 0),
+            actionService: actionService);
+
+        var result = _module.TryExecute(context, isMoving: true);
 
         Assert.False(result);
         actionService.Verify(x => x.ExecuteOgcd(

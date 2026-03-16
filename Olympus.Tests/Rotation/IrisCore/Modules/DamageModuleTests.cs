@@ -400,6 +400,139 @@ public class DamageModuleTests
             It.IsAny<ulong>()), Times.Never);
     }
 
+    // ---- Fix 1: isMoving guard in TryMotifDuringInspiration ----
+
+    [Fact]
+    public void TryGcdDamage_WithInspiration_CreatureNeeded_WhileMoving_Skips()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+
+        var context = IrisTestContext.Create(
+            inCombat: true,
+            canExecuteGcd: true,
+            hasInspiration: true,
+            needsLandscapeMotif: false,
+            needsCreatureMotif: true,
+            needsWeaponMotif: false,
+            hasStarstruck: false,
+            hasRainbowBright: false,
+            hasHammerTime: false,
+            hasBlackPaint: false,
+            hasWhitePaint: false,
+            actionService: actionService,
+            targetingService: targeting);
+
+        var result = _module.TryExecute(context, isMoving: true);
+
+        // Moving — motif cannot be cast (cast time, not instant)
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void TryGcdDamage_WithInspiration_WeaponNeeded_WhileMoving_Skips()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+
+        var context = IrisTestContext.Create(
+            inCombat: true,
+            canExecuteGcd: true,
+            hasInspiration: true,
+            needsLandscapeMotif: false,
+            needsCreatureMotif: false,
+            needsWeaponMotif: true,
+            hasStarstruck: false,
+            hasRainbowBright: false,
+            hasHammerTime: false,
+            hasBlackPaint: false,
+            hasWhitePaint: false,
+            actionService: actionService,
+            targetingService: targeting);
+
+        var result = _module.TryExecute(context, isMoving: true);
+
+        // Moving — motif cannot be cast (cast time, not instant)
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void TryGcdDamage_WithInspiration_CreatureNeeded_NotMoving_Fires()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        // At level 100 with 0 charges: ClawMotif (even charge count)
+        actionService.Setup(x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == PCTActions.ClawMotif.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        var context = IrisTestContext.Create(
+            inCombat: true,
+            level: 100,
+            canExecuteGcd: true,
+            hasInspiration: true,
+            needsLandscapeMotif: false,
+            needsCreatureMotif: true,
+            needsWeaponMotif: false,
+            livingMuseCharges: 0,
+            hasStarstruck: false,
+            hasRainbowBright: false,
+            hasHammerTime: false,
+            hasBlackPaint: false,
+            hasWhitePaint: false,
+            actionService: actionService,
+            targetingService: targeting);
+
+        var result = _module.TryExecute(context, isMoving: false);
+
+        Assert.True(result);
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == PCTActions.ClawMotif.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+    }
+
+    [Fact]
+    public void TryGcdDamage_WithInspiration_WeaponNeeded_NotMoving_Fires()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        actionService.Setup(x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == PCTActions.HammerMotif.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        var context = IrisTestContext.Create(
+            inCombat: true,
+            canExecuteGcd: true,
+            hasInspiration: true,
+            needsLandscapeMotif: false,
+            needsCreatureMotif: false,
+            needsWeaponMotif: true,
+            hasStarstruck: false,
+            hasRainbowBright: false,
+            hasHammerTime: false,
+            hasBlackPaint: false,
+            hasWhitePaint: false,
+            actionService: actionService,
+            targetingService: targeting);
+
+        var result = _module.TryExecute(context, isMoving: false);
+
+        Assert.True(result);
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == PCTActions.HammerMotif.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+    }
+
     // ---- Task 3: Hyperphantasia movement override ----
 
     [Fact]

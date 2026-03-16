@@ -13,7 +13,7 @@ namespace Olympus.Rotation.IrisCore.Modules;
 /// </summary>
 public sealed class BuffModule : IIrisModule
 {
-    public int Priority => 20; // Higher priority than damage (lower number = higher priority)
+    public int Priority => 30; // Higher priority than damage (lower number = higher priority)
     public string Name => "Buff";
 
     public bool TryExecute(IIrisContext context, bool isMoving)
@@ -290,7 +290,6 @@ public sealed class BuffModule : IIrisModule
         // Force-use at cap to prevent charge loss — even if burst pooling would otherwise hold.
         // Currently no burst hold in this method, but this comment documents the intent:
         // if a hold guard is ever added, the cap case (LivingMuseCharges >= 2) must bypass it.
-        // bool atChargeCap = context.LivingMuseCharges >= 2;
 
         // Get the appropriate muse action based on creature type
         var museAction = PCTActions.GetLivingMuse(context.CreatureMotifType);
@@ -388,6 +387,10 @@ public sealed class BuffModule : IIrisModule
         if (context.HasSubtractivePalette)
             return false;
 
+        // SubtractiveSpectrum already provides a free enhanced subtractive combo — don't waste gauge on top of it
+        if (context.HasSubtractiveSpectrum)
+            return false;
+
         // Need 50+ gauge
         if (!context.CanUseSubtractivePalette)
         {
@@ -397,8 +400,7 @@ public sealed class BuffModule : IIrisModule
 
         // Prefer to use during burst window
         // But don't overcap gauge (use at 75+ regardless)
-        // SubtractiveSpectrum is a free enhanced sequence — bypass burst hold to avoid missing it
-        if (!context.IsInBurstWindow && context.PaletteGauge < 75 && !context.HasSubtractiveSpectrum)
+        if (!context.IsInBurstWindow && context.PaletteGauge < 75)
         {
             context.Debug.BuffState = "Hold Subtractive for burst";
             return false;
@@ -523,7 +525,8 @@ public sealed class BuffModule : IIrisModule
             return false;
 
         // Only use if we have no other instant options
-        if (context.HasInstantCast || context.HasWhitePaint || context.HasBlackPaint || context.HasRainbowBright)
+        if (context.HasInstantCast || context.HasWhitePaint || context.HasBlackPaint ||
+            context.HasRainbowBright || context.HasStarstruck || context.HasHammerTime)
             return false;
 
         if (context.ActionService.ExecuteOgcd(PCTActions.Swiftcast, context.Player.GameObjectId))

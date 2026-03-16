@@ -14,6 +14,8 @@ namespace Olympus.Rotation.IrisCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModule
 {
+    public override int Priority => 50; // Lower priority than buff module (higher number = lower priority)
+
     public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
 
     #region Abstract Method Implementations
@@ -104,7 +106,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
             isMoving = false;
 
         // Priority 0: Paint missing motifs during Inspiration (reduced cast time)
-        if (TryMotifDuringInspiration(context))
+        if (TryMotifDuringInspiration(context, isMoving))
             return true;
 
         // Priority 1: Star Prism during Starstruck (instant, high potency)
@@ -142,8 +144,10 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
 
     #region GCD Actions
 
-    private bool TryMotifDuringInspiration(IIrisContext context)
+    private bool TryMotifDuringInspiration(IIrisContext context, bool isMoving)
     {
+        if (isMoving)
+            return false;
         if (!context.HasInspiration)
             return false;
         if (context.IsCasting && !context.CanSlidecast)
