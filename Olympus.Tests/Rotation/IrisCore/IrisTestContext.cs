@@ -98,11 +98,14 @@ public static class IrisTestContext
         bool needsCreatureMotif = false,
         bool needsWeaponMotif = false,
         bool needsLandscapeMotif = false,
+        (float avgHpPercent, float lowestHpPercent, int injuredCount) partyHealthMetrics = default,
+        uint currentHp = 50000,
+        uint maxHp = 50000,
         IrisDebugState? debugState = null)
     {
         config ??= CreateDefaultPctConfiguration();
 
-        var player = MockBuilders.CreateMockPlayerCharacter(level: level, currentMp: (uint)currentMp, maxMp: (uint)maxMp);
+        var player = MockBuilders.CreateMockPlayerCharacter(level: level, currentHp: currentHp, maxHp: maxHp, currentMp: (uint)currentMp, maxMp: (uint)maxMp);
         player.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
 
         actionService ??= MockBuilders.CreateMockActionService(
@@ -212,6 +215,12 @@ public static class IrisTestContext
         mock.Setup(x => x.NeedsCreatureMotif).Returns(needsCreatureMotif);
         mock.Setup(x => x.NeedsWeaponMotif).Returns(needsWeaponMotif);
         mock.Setup(x => x.NeedsLandscapeMotif).Returns(needsLandscapeMotif);
+
+        // Party health metrics (default: all healthy)
+        var healthMetrics = partyHealthMetrics == default
+            ? (1.0f, 1.0f, 0)
+            : partyHealthMetrics;
+        mock.Setup(x => x.PartyHealthMetrics).Returns(healthMetrics);
 
         // Coordination / party
         mock.Setup(x => x.PartyCoordinationService).Returns((IPartyCoordinationService?)null);
