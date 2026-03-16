@@ -45,12 +45,20 @@ public sealed class DamageModule : BaseDpsDamageModule<IEchidnaContext>, IEchidn
 
     protected override bool TryOgcdDamage(IEchidnaContext context, IBattleChara target, int enemyCount)
     {
+        // Priority 0: Legacy oGCDs during Reawaken + Death Rattle/Last Lash (highest priority oGCD)
+        if (TryLegacyOgcd(context, target))
+            return true;
+
         // Priority 1: Poised oGCDs (from twinblade combos)
         if (TryPoisedOgcd(context, target, enemyCount))
             return true;
 
         // Priority 2: Uncoiled follow-ups
         if (TryUncoiledOgcd(context, target))
+            return true;
+
+        // Priority 3: Role actions (defensive / utility)
+        if (TryRoleActions(context, target))
             return true;
 
         return false;
@@ -97,12 +105,50 @@ public sealed class DamageModule : BaseDpsDamageModule<IEchidnaContext>, IEchidn
         if (TryDualWieldCombo(context, target, enemyCount))
             return true;
 
+        // Priority 7: Writhing Snap (ranged filler when out of range and no coils)
+        if (TryWrithingSnap(context, target, isMoving))
+            return true;
+
         return false;
     }
 
     #endregion
 
     #region oGCD Damage
+
+    private bool TryLegacyOgcd(IEchidnaContext context, IBattleChara target)
+    {
+        var action = VPRActions.GetLegacyOgcd(context.SerpentCombo);
+        if (action == null)
+            return false;
+
+        var level = context.Player.Level;
+        if (level < action.MinLevel)
+            return false;
+
+        if (!context.ActionService.IsActionReady(action.ActionId))
+            return false;
+
+        if (ExecuteOgcdWithDebug(context, action, target.GameObjectId))
+        {
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(action.ActionId, action.Name)
+                .AsMeleeDamage()
+                .Target(target.Name?.TextValue ?? "Target")
+                .Reason($"Using {action.Name} (SerpentCombo follow-up)",
+                    "Legacy oGCDs are weaved between Generation GCDs during Reawaken. " +
+                    "Death Rattle fires after ST finishers; Last Lash fires after AoE finishers.")
+                .Factors(new[] { $"SerpentCombo: {context.SerpentCombo}" })
+                .Alternatives(new[] { "No reason to hold" })
+                .Tip("Always weave the SerpentCombo follow-up immediately when available.")
+                .Concept("vpr.generation_sequence")
+                .Record();
+            context.TrainingService?.RecordConceptApplication("vpr.generation_sequence", true, "SerpentCombo oGCD");
+            return true;
+        }
+
+        return false;
+    }
 
     private bool TryPoisedOgcd(IEchidnaContext context, IBattleChara target, int enemyCount)
     {
@@ -228,6 +274,69 @@ public sealed class DamageModule : BaseDpsDamageModule<IEchidnaContext>, IEchidn
 
                     return true;
                 }
+            }
+        }
+
+        return false;
+    }
+
+    private bool TryRoleActions(IEchidnaContext context, IBattleChara target)
+    {
+        var player = context.Player;
+        var level = player.Level;
+        var hpPercent = player.MaxHp > 0 ? (float)player.CurrentHp / player.MaxHp : 1f;
+
+        // Second Wind — self heal when HP low
+        if (level >= VPRActions.SecondWind.MinLevel &&
+            context.Configuration.Viper.EnableSecondWind &&
+            hpPercent < context.Configuration.Viper.SecondWindHpThreshold &&
+            context.ActionService.IsActionReady(VPRActions.SecondWind.ActionId))
+        {
+            if (context.ActionService.ExecuteOgcd(VPRActions.SecondWind, player.GameObjectId))
+            {
+                SetPlannedAction(context, VPRActions.SecondWind.Name);
+                return true;
+            }
+        }
+
+        // Bloodbath — lifesteal when HP low and buff not active
+        if (level >= VPRActions.Bloodbath.MinLevel &&
+            context.Configuration.Viper.EnableBloodbath &&
+            hpPercent < context.Configuration.Viper.BloodbathHpThreshold &&
+            !context.StatusHelper.HasBloodbath(player) &&
+            context.ActionService.IsActionReady(VPRActions.Bloodbath.ActionId))
+        {
+            if (context.ActionService.ExecuteOgcd(VPRActions.Bloodbath, player.GameObjectId))
+            {
+                SetPlannedAction(context, VPRActions.Bloodbath.Name);
+                return true;
+            }
+        }
+
+        // Feint — enemy mitigation (party defense)
+        if (level >= VPRActions.Feint.MinLevel &&
+            context.Configuration.Viper.EnableFeint &&
+            context.ActionService.IsActionReady(VPRActions.Feint.ActionId))
+        {
+            if (context.ActionService.ExecuteOgcd(VPRActions.Feint, target.GameObjectId))
+            {
+                SetPlannedAction(context, VPRActions.Feint.Name);
+                return true;
+            }
+        }
+
+        // True North — remove positional requirement when out of position
+        if (level >= VPRActions.TrueNorth.MinLevel &&
+            context.Configuration.Viper.EnableTrueNorth &&
+            !context.HasTrueNorth &&
+            !context.IsAtRear && !context.IsAtFlank &&
+            !context.TargetHasPositionalImmunity &&
+            context.ActionService.IsActionReady(VPRActions.TrueNorth.ActionId))
+        {
+            if (context.ActionService.ExecuteOgcd(VPRActions.TrueNorth, player.GameObjectId))
+            {
+                SetPlannedAction(context, VPRActions.TrueNorth.Name);
+                return true;
             }
         }
 
@@ -971,6 +1080,50 @@ public sealed class DamageModule : BaseDpsDamageModule<IEchidnaContext>, IEchidn
             return VPRActions.SteelMaw;
 
         return VPRActions.ReavingMaw;
+    }
+
+    #endregion
+
+    #region Ranged Filler
+
+    private bool TryWrithingSnap(IEchidnaContext context, IBattleChara target, bool isMoving)
+    {
+        var player = context.Player;
+        var level = player.Level;
+
+        if (level < VPRActions.WrithingSnap.MinLevel)
+            return false;
+
+        // Only use when moving or out of melee range — not as a DPS gain while stationary
+        bool outOfRange = !DistanceHelper.IsActionInRange(VPRActions.SteelFangs.ActionId, player, target);
+        if (!outOfRange && !isMoving)
+            return false;
+
+        // Prefer UncoiledFury if we have coils — it deals more damage
+        if (context.RattlingCoils > 0)
+            return false;
+
+        if (!context.ActionService.IsActionReady(VPRActions.WrithingSnap.ActionId))
+            return false;
+
+        if (ExecuteGcdWithDebug(context, VPRActions.WrithingSnap, target.GameObjectId, "Writhing Snap (ranged filler)"))
+        {
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(VPRActions.WrithingSnap.ActionId, VPRActions.WrithingSnap.Name)
+                .AsMeleeDamage()
+                .Target(target.Name?.TextValue ?? "Target")
+                .Reason("Using Writhing Snap (out of melee range, no Rattling Coils)",
+                    "Writhing Snap is VPR's basic ranged GCD filler. Use only when out of melee range " +
+                    "and no Rattling Coils are available for Uncoiled Fury.")
+                .Factors(new[] { outOfRange ? "Out of melee range" : "Moving", $"Rattling Coils: {context.RattlingCoils}" })
+                .Alternatives(new[] { "Return to melee range", "Use Uncoiled Fury if coils available" })
+                .Tip("Prioritize Uncoiled Fury over Writhing Snap whenever possible.")
+                .Concept("vpr.rattling_coil")
+                .Record();
+            return true;
+        }
+
+        return false;
     }
 
     #endregion
