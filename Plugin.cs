@@ -118,6 +118,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly SmartAoEService smartAoEService;
 
     private readonly OlympusIpc olympusIpc;
+    private readonly UpdateCheckerService updateCheckerService;
     public Plugin(
         IDalamudPluginInterface pluginInterface,
         IFramework framework,
@@ -133,7 +134,8 @@ public sealed class Plugin : IDalamudPlugin
         ITargetManager targetManager,
         IJobGauges jobGauges,
         ITextureProvider textureProvider,
-        IGameGui gameGui)
+        IGameGui gameGui,
+        INotificationManager notificationManager)
     {
         this.pluginInterface = pluginInterface;
         this.framework = framework;
@@ -279,7 +281,8 @@ public sealed class Plugin : IDalamudPlugin
         SmartAoEService.Instance = this.smartAoEService;
         this.drawingService = new DrawingService(pluginInterface, configuration.DrawHelper, log);
         this.drawCanvas = new DrawCanvas(drawingService, configuration, objectTable, clientState, targetManager, gameGui, positionalService, rotationManager);
-        this.configWindow = new ConfigWindow(configuration, SaveConfiguration);
+        this.updateCheckerService = new UpdateCheckerService(PluginVersion, notificationManager, log);
+        this.configWindow = new ConfigWindow(configuration, SaveConfiguration, updateCheckerService);
         this.mainWindow = new MainWindow(configuration, SaveConfiguration, OpenConfigUI, OpenDebugUI, OpenAnalyticsUI, OpenTrainingUI, OpenOverlayUI, PluginVersion, rotationManager, textureProvider);
         var smartAoETab = new SmartAoETab(aoeTracker, drawCanvas, objectTable);
         this.debugWindow = new DebugWindow(debugService, configuration, timelineService, smartAoETab);
@@ -341,6 +344,9 @@ public sealed class Plugin : IDalamudPlugin
 
         // Send anonymous telemetry ping (fire-and-forget)
         telemetryService.SendStartupPing(PluginVersion);
+
+        // Check for updates in the background (delayed 15s)
+        updateCheckerService.StartupCheck();
     }
 
     private void OnTerritoryChanged(ushort zoneId)
@@ -526,6 +532,7 @@ public sealed class Plugin : IDalamudPlugin
         partyCoordinationIpc?.Dispose();
         fflogsService?.Dispose();
         telemetryService.Dispose();
+        updateCheckerService.Dispose();
 
         // Dispose rotations created by the factory
         rotationFactory?.DisposeRotations();

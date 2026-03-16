@@ -6,6 +6,7 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
 using Olympus.Config;
 using Olympus.Localization;
+using Olympus.Services;
 using Olympus.Windows.Config;
 using Olympus.Windows.Config.DPS;
 using Olympus.Windows.Config.Healers;
@@ -21,6 +22,7 @@ public sealed class ConfigWindow : Window
 {
     private readonly Configuration configuration;
     private readonly Action saveConfiguration;
+    private readonly UpdateCheckerService updateCheckerService;
     private ConfigurationPreset selectedPreset;
 
     // Search state
@@ -62,11 +64,12 @@ public sealed class ConfigWindow : Window
     private readonly PictomancerSection pictomancerSection;
     private readonly DrawHelperSection drawHelperSection;
 
-    public ConfigWindow(Configuration configuration, Action saveConfiguration)
+    public ConfigWindow(Configuration configuration, Action saveConfiguration, UpdateCheckerService updateCheckerService)
         : base(Loc.T(LocalizedStrings.Config.WindowTitle, "Olympus Settings"), ImGuiWindowFlags.NoCollapse)
     {
         this.configuration = configuration;
         this.saveConfiguration = saveConfiguration;
+        this.updateCheckerService = updateCheckerService;
 
         // Initialize all section renderers
         generalSection = new GeneralSection(configuration, saveConfiguration);
@@ -377,6 +380,40 @@ public sealed class ConfigWindow : Window
         if (ImGui.Button(Loc.T(LocalizedStrings.Config.ResetToDefaults, "Reset to Defaults")))
         {
             ImGui.OpenPopup(Loc.T(LocalizedStrings.Config.ResetConfirmation, "Reset Confirmation"));
+        }
+
+        ImGui.SameLine();
+
+        var isChecking = updateCheckerService.Status == UpdateCheckStatus.Checking;
+        if (isChecking)
+            ImGui.BeginDisabled();
+
+        if (ImGui.Button("Check for Updates"))
+            _ = updateCheckerService.CheckAsync();
+
+        if (isChecking)
+            ImGui.EndDisabled();
+
+        switch (updateCheckerService.Status)
+        {
+            case UpdateCheckStatus.Checking:
+                ImGui.SameLine();
+                ImGui.TextDisabled("Checking...");
+                break;
+            case UpdateCheckStatus.UpToDate:
+                ImGui.SameLine();
+                ImGui.TextColored(new Vector4(0.4f, 1f, 0.4f, 1f),
+                    $"Up to date (v{updateCheckerService.LatestVersion})");
+                break;
+            case UpdateCheckStatus.UpdateAvailable:
+                ImGui.SameLine();
+                ImGui.TextColored(new Vector4(1f, 0.85f, 0.2f, 1f),
+                    $"Update available: v{updateCheckerService.LatestVersion} — use /xlplugins");
+                break;
+            case UpdateCheckStatus.Failed:
+                ImGui.SameLine();
+                ImGui.TextColored(new Vector4(1f, 0.4f, 0.4f, 1f), "Check failed");
+                break;
         }
 
         // Local variable for popup close button state - must be true to show close button
