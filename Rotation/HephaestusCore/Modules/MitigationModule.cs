@@ -236,6 +236,23 @@ public sealed class MitigationModule : IHephaestusModule
                 {
                     context.Debug.PlannedAction = heartAction.Name;
                     context.Debug.MitigationState = $"Proactive Heart ({reason})";
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(heartAction.ActionId, heartAction.Name)
+                        .AsMitigation(hpPercent)
+                        .Target("Self")
+                        .Reason(
+                            $"Proactive {heartAction.Name} - {reason}",
+                            $"Timeline analysis predicts a tankbuster in {secondsUntil:F1} seconds. " +
+                            $"{heartAction.Name} is being pre-applied to be active when the damage lands. " +
+                            "Pre-stacking mitigation 1.5-4 seconds early ensures full coverage during the hit.")
+                        .Factors(reason, "Timeline prediction high confidence", "Pre-stacking 1.5-4s before impact")
+                        .Alternatives("React after damage (risky)", "Wait for healer to handle (pressure on healer)")
+                        .Tip("Proactive mitigation is always better than reactive. When you know a tankbuster is coming, use defensives 2-3 seconds early for full coverage.")
+                        .Concept("gnb_heart_of_corundum")
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication("gnb_heart_of_corundum", true, "Proactive timeline mitigation");
+
                     return true;
                 }
             }
@@ -252,6 +269,23 @@ public sealed class MitigationModule : IHephaestusModule
                 {
                     context.Debug.PlannedAction = GNBActions.Rampart.Name;
                     context.Debug.MitigationState = $"Proactive Rampart ({reason})";
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(GNBActions.Rampart.ActionId, GNBActions.Rampart.Name)
+                        .AsMitigation(hpPercent)
+                        .Target("Self")
+                        .Reason(
+                            $"Proactive Rampart - {reason}",
+                            $"Timeline analysis predicts a tankbuster in {secondsUntil:F1} seconds. " +
+                            "Rampart (20% damage reduction for 20 seconds) is being pre-applied with no active mitigation. " +
+                            "Using Rampart early ensures it's active and contributes its full value during the hit.")
+                        .Factors(reason, "No active mitigation currently", "Timeline prediction high confidence")
+                        .Alternatives("Stack with Heart of Corundum for more coverage", "Use Nebula for bigger hits")
+                        .Tip("Pre-stacking Rampart before predicted tankbusters is a core tanking skill. Plan your mitigation cooldown rotation around fight timelines.")
+                        .Concept("gnb_nebula")
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication("gnb_nebula", true, "Proactive Rampart timeline");
+
                     return true;
                 }
             }
@@ -268,6 +302,23 @@ public sealed class MitigationModule : IHephaestusModule
                 {
                     context.Debug.PlannedAction = nebulaAction.Name;
                     context.Debug.MitigationState = $"Proactive Nebula ({reason})";
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(nebulaAction.ActionId, nebulaAction.Name)
+                        .AsMitigation(hpPercent)
+                        .Target("Self")
+                        .Reason(
+                            $"Proactive {nebulaAction.Name} - {reason}",
+                            $"Timeline analysis predicts a tankbuster in {secondsUntil:F1} seconds. " +
+                            $"{nebulaAction.Name} (30% damage reduction) is being pre-applied for the incoming heavy hit. " +
+                            "This is GNB's strongest personal cooldown and should be saved for the hardest hits.")
+                        .Factors(reason, "Timeline prediction high confidence", $"Pre-applying {nebulaAction.Name} for maximum coverage")
+                        .Alternatives("Stack Heart of Corundum too for extra mitigation", "Save Nebula for an even bigger hit later")
+                        .Tip($"Use {nebulaAction.Name} for your hardest-hitting tankbusters. With proactive stacking, it provides full 30% DR when damage lands.")
+                        .Concept("gnb_nebula")
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication("gnb_nebula", true, "Proactive Nebula timeline");
+
                     return true;
                 }
             }
@@ -555,6 +606,23 @@ public sealed class MitigationModule : IHephaestusModule
             context.Debug.PlannedAction = GNBActions.Rampart.Name;
             context.Debug.MitigationState = $"Rampart ({hpPercent:P0} HP)";
             partyCoord?.OnCooldownUsed(GNBActions.Rampart.ActionId, 90_000);
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(GNBActions.Rampart.ActionId, GNBActions.Rampart.Name)
+                .AsMitigation(hpPercent)
+                .Target("Self")
+                .Reason(
+                    $"Rampart at {hpPercent:P0} HP",
+                    "Rampart is a role action providing 20% damage reduction for 20 seconds (90s cooldown). " +
+                    "It's weaker than Nebula (30%) but has a shorter cooldown, making it a reliable mid-tier defensive. " +
+                    "Best used when taking significant sustained damage or before a predictable tankbuster.")
+                .Factors($"HP at {hpPercent:P0}", $"Damage rate elevated ({damageRate:F3})", "90s cooldown available")
+                .Alternatives("Stack with Nebula for bigger hits", "Use Heart of Corundum (shorter CD, different mitigation type)")
+                .Tip("Rampart and Nebula don't share a cooldown - you can use both together for major tankbusters requiring heavy mitigation.")
+                .Concept("gnb_nebula")
+                .Record();
+            context.TrainingService?.RecordConceptApplication("gnb_nebula", true, "Rampart defensive cooldown");
+
             return true;
         }
 
@@ -593,6 +661,23 @@ public sealed class MitigationModule : IHephaestusModule
         {
             context.Debug.PlannedAction = GNBActions.Camouflage.Name;
             context.Debug.MitigationState = $"Camouflage ({hpPercent:P0} HP)";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(GNBActions.Camouflage.ActionId, GNBActions.Camouflage.Name)
+                .AsMitigation(hpPercent)
+                .Target("Self")
+                .Reason(
+                    $"Camouflage at {hpPercent:P0} HP",
+                    "Camouflage gives 50% parry rate increase for 20 seconds (90s cooldown), plus 10% damage reduction. " +
+                    "Parry mitigation is variable (depends on incoming hit type and proc), but the baseline 10% DR is consistent. " +
+                    "Use it as a supplementary defensive when HP is low.")
+                .Factors($"HP at {hpPercent:P0}", "Camouflage ready", "50% parry boost + 10% base DR")
+                .Alternatives("Heart of Corundum (reliable 15% DR)", "Rampart (20% DR, more consistent)")
+                .Tip("Camouflage's parry mitigation is somewhat RNG-based on physical attacks. It's a useful cooldown but prioritize more reliable mitigation first.")
+                .Concept("gnb_camouflage")
+                .Record();
+            context.TrainingService?.RecordConceptApplication("gnb_camouflage", true, "Camouflage defensive");
+
             return true;
         }
 
@@ -619,6 +704,23 @@ public sealed class MitigationModule : IHephaestusModule
                 {
                     context.Debug.PlannedAction = GNBActions.Aurora.Name;
                     context.Debug.MitigationState = $"Self Aurora ({hpPercent:P0} HP)";
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(GNBActions.Aurora.ActionId, GNBActions.Aurora.Name)
+                        .AsMitigation(hpPercent)
+                        .Target("Self")
+                        .Reason(
+                            $"Self Aurora at {hpPercent:P0} HP",
+                            "Aurora applies a healing-over-time (HoT) that restores HP over 18 seconds. " +
+                            "With 2 charges (45s recharge each), it can be used frequently for sustained self-healing. " +
+                            "Using on self when HP is low reduces pressure on the healer.")
+                        .Factors($"HP at {hpPercent:P0} (below 70%)", "Aurora not already active", "HoT provides sustained recovery")
+                        .Alternatives("Use on an ally who needs healing more", "Let healer handle (might be occupied)")
+                        .Tip("Aurora has 2 charges - use one on yourself when injured and keep one available for a party member in need.")
+                        .Concept("gnb_aurora")
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication("gnb_aurora", true, "Self Aurora heal");
+
                     return true;
                 }
             }
@@ -643,6 +745,23 @@ public sealed class MitigationModule : IHephaestusModule
                         var targetHp = context.PartyHelper.GetHpPercent(auroraTarget);
                         context.Debug.PlannedAction = GNBActions.Aurora.Name;
                         context.Debug.MitigationState = $"Aurora ({targetHp:P0} HP ally)";
+
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(GNBActions.Aurora.ActionId, GNBActions.Aurora.Name)
+                            .AsMitigation(targetHp)
+                            .Target(auroraTarget.Name?.TextValue ?? "Ally")
+                            .Reason(
+                                $"Aurora on ally at {targetHp:P0} HP",
+                                "Aurora can be targeted on any party member within 30 yards, making it a supportive tool for a tank. " +
+                                "With 2 charges, you can afford to share healing with injured allies when you are healthy. " +
+                                "This reduces healer GCD pressure during heavy damage phases.")
+                            .Factors($"Ally HP at {targetHp:P0} (below 70%)", "Self HP healthy (above 70%)", "Aurora charge available")
+                            .Alternatives("Use another charge later if self HP drops", "Save for co-tank during tankbuster")
+                            .Tip("As a tank, using Aurora on low-HP party members is a valuable contribution - tanks rarely use AoE healing tools, but Aurora is an exception.")
+                            .Concept("gnb_aurora")
+                            .Record();
+                        context.TrainingService?.RecordConceptApplication("gnb_aurora", true, "Ally Aurora heal");
+
                         return true;
                     }
                 }
