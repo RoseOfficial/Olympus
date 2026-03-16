@@ -3,6 +3,12 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.24
+
+- Action metadata is now registered for all 21 jobs — previously only White Mage had full action data, which limited features like action-level filtering and heal/damage categorization to WHM only. All jobs now have complete coverage.
+
+<!-- LATEST-END -->
+
 ## v4.10.23
 
 - Add preset quick-switcher to the main window — switch between Raid, Dungeon, Casual, and other presets without opening the full settings window
@@ -10,8 +16,6 @@ All notable changes to Olympus will be documented in this file.
 - DoT damage is now included in healing urgency calculations — the plugin accounts for pending tick damage when deciding whether to heal, reducing unnecessary heal spam on targets with active DoTs
 - Add config import/export via clipboard in the settings window footer — share your settings with other players or back up your configuration
 - Add Spanish, Portuguese, and Russian as selectable languages — strings currently display in English until community translations are contributed
-
-<!-- LATEST-END -->
 
 ## v4.10.19 - Training Mode Now Fully Wired
 
