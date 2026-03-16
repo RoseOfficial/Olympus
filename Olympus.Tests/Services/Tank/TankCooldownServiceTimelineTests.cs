@@ -43,14 +43,13 @@ public sealed class TankCooldownServiceTimelineTests
     [Fact]
     public void ShouldUseMajorCooldown_TankBusterSoonLowConfidence_ReturnsFalse()
     {
-        // Arrange — soon but low confidence (0.5), so ShouldHoldCooldowns=false
+        // Arrange — soon but low confidence (0.5), so ShouldHoldCooldowns=false; no fallback path
         var timeline = ActiveTimeline(confidence: 0.5f);
         timeline.Setup(x => x.NextTankBuster).Returns(new MechanicPrediction(
             secondsUntil: 5f,
             type: TimelineEntryType.TankBuster,
             name: "Megaflare",
             confidence: 0.5f));
-        timeline.Setup(x => x.IsMechanicImminent(TimelineEntryType.TankBuster, 8f)).Returns(false);
         var sut = new TankCooldownService(DefaultConfig(), timeline.Object);
 
         // Act
@@ -70,7 +69,6 @@ public sealed class TankCooldownServiceTimelineTests
             type: TimelineEntryType.TankBuster,
             name: "Megaflare",
             confidence: 0.9f));
-        timeline.Setup(x => x.IsMechanicImminent(TimelineEntryType.TankBuster, 8f)).Returns(false);
         var sut = new TankCooldownService(DefaultConfig(), timeline.Object);
 
         // Act
@@ -80,22 +78,22 @@ public sealed class TankCooldownServiceTimelineTests
         Assert.False(result);
     }
 
-    // ── ShouldUseMajorCooldown: IsMechanicImminent (wider window fallback) ──
+    // ── ShouldUseMajorCooldown: NextTankBuster null with active timeline ──
 
     [Fact]
-    public void ShouldUseMajorCooldown_IsMechanicImminentWithin8s_ReturnsTrue()
+    public void ShouldUseMajorCooldown_NextTankBusterNull_ReturnsFalse()
     {
-        // Arrange — NextTankBuster is null but IsMechanicImminent returns true
+        // Arrange — no tank buster prediction available; without ShouldHoldCooldowns the
+        // timeline branch does not fire, so the result must be false at low damage/high HP
         var timeline = ActiveTimeline();
         timeline.Setup(x => x.NextTankBuster).Returns((MechanicPrediction?)null);
-        timeline.Setup(x => x.IsMechanicImminent(TimelineEntryType.TankBuster, 8f)).Returns(true);
         var sut = new TankCooldownService(DefaultConfig(), timeline.Object);
 
         // Act
         var result = sut.ShouldUseMajorCooldown(hpPercent: 0.95f, incomingDamageRate: 0f);
 
         // Assert
-        Assert.True(result);
+        Assert.False(result);
     }
 
     // ── ShouldUseMajorCooldown: timeline inactive / null ──

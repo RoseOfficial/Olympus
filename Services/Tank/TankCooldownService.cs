@@ -76,16 +76,10 @@ public sealed class TankCooldownService : ITankCooldownService
             return true;
 
         // Timeline-informed tank buster prediction
-        if (_timelineService is { IsActive: true })
-        {
-            // Primary path: NextTankBuster cached property (ShouldHoldCooldowns = IsSoon && IsHighConfidence)
-            if (_timelineService.NextTankBuster?.ShouldHoldCooldowns == true)
-                return true;
-
-            // Fallback: explicit IsMechanicImminent check with 8-second window
-            if (_timelineService.IsMechanicImminent(TimelineEntryType.TankBuster, 8f))
-                return true;
-        }
+        // ShouldHoldCooldowns = IsSoon (<=8s) && IsHighConfidence (>=0.8)
+        if (_timelineService is { IsActive: true } &&
+            _timelineService.NextTankBuster?.ShouldHoldCooldowns == true)
+            return true;
 
         return false;
     }

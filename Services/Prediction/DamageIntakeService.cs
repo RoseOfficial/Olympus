@@ -35,10 +35,10 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
     private readonly object _dotLock = new();
 
     // Boss mechanic detector for predictive damage
-    private volatile IBossMechanicDetector? _bossMechanicDetector;
+    private IBossMechanicDetector? _bossMechanicDetector;
 
     // Timeline service for fight-aware predictive damage
-    private volatile ITimelineService? _timelineService;
+    private ITimelineService? _timelineService;
 
     // Default window for damage tracking
     private const float DefaultWindowSeconds = 5f;
