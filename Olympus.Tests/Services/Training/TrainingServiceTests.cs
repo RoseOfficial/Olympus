@@ -198,4 +198,71 @@ public sealed class TrainingServiceTests
         service.MarkLessonComplete("whm.lesson_1");
         Assert.True(service.AreLessonPrerequisitesMet("whm.lesson_2"));
     }
+
+    [Fact]
+    public void IsQuizPassed_ReturnsFalse_WhenNeverAttempted()
+    {
+        Assert.False(service.IsQuizPassed("whm.lesson_1.quiz"));
+    }
+
+    [Fact]
+    public void RecordQuizAttempt_PassingScore_SetsIsQuizPassed()
+    {
+        var quiz = service.GetQuizForLesson("whm.lesson_1");
+        Assert.NotNull(quiz);
+
+        service.RecordQuizAttempt(new QuizAttempt
+        {
+            QuizId = quiz.QuizId,
+            Score = quiz.PassingScore,
+            Passed = true,
+            AttemptedAt = DateTime.Now,
+        });
+
+        Assert.True(service.IsQuizPassed(quiz.QuizId));
+    }
+
+    [Fact]
+    public void RecordQuizAttempt_FailingScore_DoesNotSetPassed()
+    {
+        var quiz = service.GetQuizForLesson("whm.lesson_1");
+        Assert.NotNull(quiz);
+
+        service.RecordQuizAttempt(new QuizAttempt
+        {
+            QuizId = quiz.QuizId,
+            Score = quiz.PassingScore - 1,
+            Passed = false,
+            AttemptedAt = DateTime.Now,
+        });
+
+        Assert.False(service.IsQuizPassed(quiz.QuizId));
+    }
+
+    [Fact]
+    public void GetBestAttempt_ReturnsHighestScore()
+    {
+        var quiz = service.GetQuizForLesson("whm.lesson_1");
+        Assert.NotNull(quiz);
+
+        service.RecordQuizAttempt(new QuizAttempt
+        {
+            QuizId = quiz.QuizId,
+            Score = 2,
+            Passed = false,
+            AttemptedAt = DateTime.Now.AddMinutes(-5),
+        });
+
+        service.RecordQuizAttempt(new QuizAttempt
+        {
+            QuizId = quiz.QuizId,
+            Score = 4,
+            Passed = true,
+            AttemptedAt = DateTime.Now,
+        });
+
+        var best = service.GetBestAttempt(quiz.QuizId);
+        Assert.NotNull(best);
+        Assert.Equal(4, best.Score);
+    }
 }
