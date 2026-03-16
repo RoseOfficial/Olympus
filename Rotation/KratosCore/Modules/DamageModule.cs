@@ -169,6 +169,22 @@ public sealed class DamageModule : BaseDpsDamageModule<IKratosContext>, IKratosM
         {
             context.Debug.PlannedAction = MNKActions.Thunderclap.Name;
             context.Debug.DamageState = "Thunderclap (gap close)";
+
+            // Training: Record Thunderclap gap-close decision
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(MNKActions.Thunderclap.ActionId, MNKActions.Thunderclap.Name)
+                .AsMeleeDamage()
+                .Target(target.Name?.TextValue ?? "Target")
+                .Reason("Thunderclap to close gap and re-enter melee range",
+                    "Thunderclap is MNK's gap closer. Use when out of melee range to quickly return to the target. " +
+                    "Has a 30y maximum range and shares charges.")
+                .Factors(new[] { "Out of melee range", "Target within 20y", "Thunderclap ready" })
+                .Alternatives(new[] { "Sprint + run in (slower)", "Wait for target to move closer" })
+                .Tip("Thunderclap keeps you in melee range. Use freely when the gap opens.")
+                .Concept("mnk_positionals")
+                .Record();
+            context.TrainingService?.RecordConceptApplication("mnk_positionals", true, "Gap close");
+
             return true;
         }
 
@@ -560,6 +576,22 @@ public sealed class DamageModule : BaseDpsDamageModule<IKratosContext>, IKratosM
                 {
                     context.Debug.PlannedAction = aoeAction.Name;
                     context.Debug.DamageState = $"{aoeAction.Name} (Opo-opo)";
+
+                    // Training: Record AoE Opo-opo form decision
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(aoeAction.ActionId, aoeAction.Name)
+                        .AsAoE(0)
+                        .Target($"AoE group")
+                        .Reason($"Opo-opo AoE: {aoeAction.Name}",
+                            "Shadow/Arm of the Destroyer is the Opo-opo AoE GCD. " +
+                            "Use during form rotation when 3+ enemies are in range.")
+                        .Factors(new[] { "Opo-opo form", "AoE situation", "Form rotation" })
+                        .Alternatives(new[] { "Single-target Bootshine/Dragon Kick (fewer enemies)" })
+                        .Tip("Use AoE GCDs when 3+ enemies are in melee range.")
+                        .Concept("mnk_positionals")
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication("mnk_positionals", true, "AoE Opo-opo GCD");
+
                     return true;
                 }
             }
@@ -622,6 +654,22 @@ public sealed class DamageModule : BaseDpsDamageModule<IKratosContext>, IKratosM
                     {
                         context.Debug.PlannedAction = MNKActions.FourPointFury.Name;
                         context.Debug.DamageState = "Four-point Fury (Raptor)";
+
+                        // Training: Record Four-point Fury AoE decision
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(MNKActions.FourPointFury.ActionId, MNKActions.FourPointFury.Name)
+                            .AsAoE(0)
+                            .Target("AoE group")
+                            .Reason("Raptor AoE: Four-point Fury",
+                                "Four-point Fury is the Raptor form AoE GCD. Also refreshes Disciplined Fist. " +
+                                "Use when 3+ enemies are in range during Raptor form.")
+                            .Factors(new[] { "Raptor form", "AoE situation", "Refreshes Disciplined Fist" })
+                            .Alternatives(new[] { "Single-target True Strike/Twin Snakes (fewer enemies)" })
+                            .Tip("Four-point Fury refreshes Disciplined Fist while doing AoE damage.")
+                            .Concept("mnk_positionals")
+                            .Record();
+                        context.TrainingService?.RecordConceptApplication("mnk_positionals", true, "AoE Raptor GCD");
+
                         return true;
                     }
                 }
@@ -685,6 +733,22 @@ public sealed class DamageModule : BaseDpsDamageModule<IKratosContext>, IKratosM
                     {
                         context.Debug.PlannedAction = MNKActions.Rockbreaker.Name;
                         context.Debug.DamageState = "Rockbreaker (Coeurl)";
+
+                        // Training: Record Rockbreaker AoE decision
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(MNKActions.Rockbreaker.ActionId, MNKActions.Rockbreaker.Name)
+                            .AsAoE(0)
+                            .Target("AoE group")
+                            .Reason("Coeurl AoE: Rockbreaker",
+                                "Rockbreaker is the Coeurl form AoE GCD. " +
+                                "Use when 3+ enemies are in range during Coeurl form.")
+                            .Factors(new[] { "Coeurl form", "AoE situation", "Form rotation" })
+                            .Alternatives(new[] { "Single-target Snap Punch/Demolish (fewer enemies)" })
+                            .Tip("Rockbreaker is your Coeurl AoE GCD. Prioritize Demolish on single targets.")
+                            .Concept("mnk_positionals")
+                            .Record();
+                        context.TrainingService?.RecordConceptApplication("mnk_positionals", true, "AoE Coeurl GCD");
+
                         return true;
                     }
                 }
