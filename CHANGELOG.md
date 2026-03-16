@@ -3,6 +3,17 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.28
+
+- Pictomancer (Iris): Creature motifs now correctly alternate between types based on level when painting outside combat — Lv.96+ paints Claw/Maw, lower levels alternate Pom/Wing
+- Pictomancer (Iris): During the Inspiration buff window (Starry Muse), missing canvases are now painted with reduced cast time rather than waiting for the next gap in the rotation
+- Pictomancer (Iris): Hyperphantasia (granted by Starry Muse) now allows combo GCDs to be used while moving — no more lost uptime during the burst window
+- Pictomancer (Iris): Subtractive Palette now fires immediately when Subtractive Spectrum is active rather than waiting for a burst window
+- Pictomancer (Iris): Tempera Coat and Tempera Grassa are now used automatically when you or your party are taking significant damage
+- Pictomancer (Iris): Smudge is now used automatically when moving and no instant GCDs are available
+- Pictomancer (Iris): Swiftcast is now used during movement when no other instant options are available, preventing cast interruption
+<!-- LATEST-END -->
+
 ## v4.10.27
 
 - Burst resource pooling is now individually tuned for each DPS job — gauge resources and key cooldowns are held more precisely in the final seconds before a burst window rather than spending freely
@@ -16,8 +27,6 @@ All notable changes to Olympus will be documented in this file.
   - Machinist holds Hypercharge for burst when Heat is below 90
   - Black Mage holds Polyglot stacks for burst timing when below 2 stacks
   - Ninja, Samurai, and Monk hold their primary gauge spender when a burst window is imminent but the gauge is not near cap
-
-<!-- LATEST-END -->
 
 ## v4.10.26
 
