@@ -163,6 +163,22 @@ public sealed class MitigationModule : INyxModule
             {
                 context.Debug.PlannedAction = DRKActions.Interject.Name;
                 context.Debug.MitigationState = "Interrupted cast";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(DRKActions.Interject.ActionId, DRKActions.Interject.Name)
+                    .AsInterrupt()
+                    .Target(target.Name?.TextValue)
+                    .Reason(
+                        "Interject — interrupting enemy cast to prevent incoming damage or debuff.",
+                        "Interject interrupts an enemy's interruptible cast. Always interrupt when available — it prevents damage, debuffs, or mechanics that would otherwise go off. Prioritize Interject over Low Blow for guaranteed interrupt.")
+                    .Factors("Target casting interruptible ability", "Interject available", "Prevents incoming mechanics")
+                    .Alternatives("Low Blow (stun as backup)", "Let it cast (may wipe the party)")
+                    .Tip("Always interrupt when the cast has an interruptible indicator. Interrupts prevent significant damage or dangerous mechanics. Coordinate with co-tank to avoid both wasting interrupts on the same cast.")
+                    .Concept(DrkConcepts.MitigationStacking)
+                    .Record();
+
+                context.TrainingService?.RecordConceptApplication(DrkConcepts.MitigationStacking, wasSuccessful: true);
+
                 return true;
             }
 
@@ -187,6 +203,22 @@ public sealed class MitigationModule : INyxModule
             {
                 context.Debug.PlannedAction = DRKActions.LowBlow.Name;
                 context.Debug.MitigationState = "Stunned (interrupt)";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(DRKActions.LowBlow.ActionId, DRKActions.LowBlow.Name)
+                    .AsInterrupt()
+                    .Target(target.Name?.TextValue)
+                    .Reason(
+                        "Low Blow — stunning target to interrupt cast when Interject is unavailable.",
+                        "Low Blow stuns an enemy for 5 seconds, which interrupts any ongoing cast. Use it as a backup interrupt when Interject is on cooldown. The stun also briefly prevents the enemy from acting.")
+                    .Factors("Target casting interruptible ability", "Interject unavailable", "Low Blow available as backup")
+                    .Alternatives("Interject (preferred interrupt)", "Let it cast (may cause wipe)")
+                    .Tip("Low Blow is your backup interrupt. When Interject is on cooldown, Low Blow can still interrupt interruptible casts via stun. Coordinate with party to use both efficiently.")
+                    .Concept(DrkConcepts.MitigationStacking)
+                    .Record();
+
+                context.TrainingService?.RecordConceptApplication(DrkConcepts.MitigationStacking, wasSuccessful: true);
+
                 return true;
             }
 
@@ -235,6 +267,21 @@ public sealed class MitigationModule : INyxModule
             {
                 context.Debug.PlannedAction = DRKActions.TheBlackestNight.Name;
                 context.Debug.MitigationState = $"Proactive TBN ({reason})";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(DRKActions.TheBlackestNight.ActionId, DRKActions.TheBlackestNight.Name)
+                    .AsMitigation((float)player.CurrentHp / player.MaxHp)
+                    .Reason(
+                        $"Proactive TBN — {reason}. Pre-stacking shield before predicted tankbuster.",
+                        "Timeline prediction shows a tankbuster incoming. The Blackest Night pre-stacked now will absorb the hit and grant Dark Arts for free Edge of Shadow damage.")
+                    .Factors(reason, "MP available", "No Dark Arts proc to waste")
+                    .Alternatives("React after taking damage (shield may not fully absorb)", "Other mitigations (no Dark Arts proc)")
+                    .Tip("Pre-stacking TBN before tankbusters is optimal — the shield absorbs more damage and the guaranteed Dark Arts proc adds free damage.")
+                    .Concept(DrkConcepts.TBNManagement)
+                    .Record();
+
+                context.TrainingService?.RecordConceptApplication(DrkConcepts.TBNManagement, wasSuccessful: true);
+
                 return true;
             }
         }
@@ -250,6 +297,21 @@ public sealed class MitigationModule : INyxModule
                 {
                     context.Debug.PlannedAction = DRKActions.Rampart.Name;
                     context.Debug.MitigationState = $"Proactive Rampart ({reason})";
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(DRKActions.Rampart.ActionId, DRKActions.Rampart.Name)
+                        .AsMitigation((float)player.CurrentHp / player.MaxHp)
+                        .Reason(
+                            $"Proactive Rampart — {reason}. Pre-stacking mitigation before predicted tankbuster.",
+                            "Timeline prediction shows a tankbuster incoming. Rampart pre-stacked now will be active when the hit lands, providing 20% damage reduction for 20 seconds.")
+                        .Factors(reason, "No active mitigation", "Rampart available")
+                        .Alternatives("React after hit (Rampart won't be ready in time)", "Shadow Wall (better but may be on cooldown)")
+                        .Tip("Pre-stack Rampart 2-4 seconds before predicted tankbusters. Always layer multiple mitigations for big hits.")
+                        .Concept(DrkConcepts.MitigationStacking)
+                        .Record();
+
+                    context.TrainingService?.RecordConceptApplication(DrkConcepts.MitigationStacking, wasSuccessful: true);
+
                     return true;
                 }
             }
@@ -266,6 +328,21 @@ public sealed class MitigationModule : INyxModule
                 {
                     context.Debug.PlannedAction = shadowWallAction.Name;
                     context.Debug.MitigationState = $"Proactive Shadow Wall ({reason})";
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(shadowWallAction.ActionId, shadowWallAction.Name)
+                        .AsMitigation((float)player.CurrentHp / player.MaxHp)
+                        .Reason(
+                            $"Proactive Shadow Wall — {reason}. Major cooldown pre-stacked for predicted tankbuster.",
+                            "Timeline prediction shows a high-damage tankbuster incoming. Shadow Wall pre-stacked now provides 30% damage reduction for 15 seconds, significantly reducing the hit.")
+                        .Factors(reason, "Shadow Wall available", "High-damage hit incoming")
+                        .Alternatives("Rampart (weaker, shorter CD)", "React after hit (too late for pre-emptive stacking)")
+                        .Tip("Shadow Wall is DRK's strongest personal cooldown. Pre-stack it before major tankbusters. Combine with TBN for maximum mitigation.")
+                        .Concept(DrkConcepts.ShadowWall)
+                        .Record();
+
+                    context.TrainingService?.RecordConceptApplication(DrkConcepts.ShadowWall, wasSuccessful: true);
+
                     return true;
                 }
             }
@@ -323,10 +400,10 @@ public sealed class MitigationModule : INyxModule
                 .Factors($"HP critical ({hpPercent:P0})", "Death imminent", "No other defensive available")
                 .Alternatives("Use Shadow Wall (only 30% DR)", "Use TBN (only 25% HP shield)", "Die and cause a wipe")
                 .Tip("Living Dead requires healer attention. Call it out in voice chat or use a macro. Healers have ~10 seconds to heal you to full HP.")
-                .Concept("drk_living_dead")
+                .Concept(DrkConcepts.LivingDead)
                 .Record();
 
-            context.TrainingService?.RecordConceptApplication("drk_living_dead", true, "Emergency invulnerability");
+            context.TrainingService?.RecordConceptApplication(DrkConcepts.LivingDead, wasSuccessful: true);
 
             return true;
         }
@@ -426,10 +503,10 @@ public sealed class MitigationModule : INyxModule
                 .Factors($"MP available ({context.CurrentMp})", reason, "No Dark Arts active")
                 .Alternatives("Save MP for Edge of Shadow (no shield)", "Use other mitigation (no Dark Arts proc)")
                 .Tip("TBN is DRK's signature ability. Use it when you know the shield will break to get free damage. Avoid using when Dark Arts is already active.")
-                .Concept("drk_tbn")
+                .Concept(DrkConcepts.TheBlackestNight)
                 .Record();
 
-            context.TrainingService?.RecordConceptApplication("drk_tbn", true, reason);
+            context.TrainingService?.RecordConceptApplication(DrkConcepts.TheBlackestNight, wasSuccessful: true);
 
             return true;
         }
@@ -492,10 +569,10 @@ public sealed class MitigationModule : INyxModule
                 .Factors($"HP at {hpPercent:P0}", $"Taking sustained damage", "Major cooldown available")
                 .Alternatives("Use Rampart (shorter duration)", "Use TBN (only shield)", "Take full damage (risky)")
                 .Tip("Shadow Wall is your go-to for tankbusters. Combine with TBN for massive mitigation. At Lv.82, it upgrades to Shadowed Vigil with a heal.")
-                .Concept("drk_shadow_wall")
+                .Concept(DrkConcepts.ShadowWall)
                 .Record();
 
-            context.TrainingService?.RecordConceptApplication("drk_shadow_wall", true, "Major cooldown");
+            context.TrainingService?.RecordConceptApplication(DrkConcepts.ShadowWall, wasSuccessful: true);
 
             return true;
         }
@@ -545,6 +622,21 @@ public sealed class MitigationModule : INyxModule
             context.Debug.PlannedAction = DRKActions.Rampart.Name;
             context.Debug.MitigationState = $"Rampart ({hpPercent:P0} HP)";
             partyCoord?.OnCooldownUsed(DRKActions.Rampart.ActionId, 90_000);
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(DRKActions.Rampart.ActionId, DRKActions.Rampart.Name)
+                .AsMitigation(hpPercent)
+                .Reason(
+                    $"Rampart at {hpPercent:P0} HP — 20% damage reduction for 20 seconds.",
+                    "Rampart is a role action providing 20% damage reduction for 20 seconds on a 90-second cooldown. Use it reactively when taking sustained damage or proactively before tankbusters.")
+                .Factors($"HP at {hpPercent:P0}", "Sustained damage incoming", "Rampart available")
+                .Alternatives("Shadow Wall (stronger but longer CD)", "TBN (shield + Dark Arts proc)")
+                .Tip("Rampart is your reliable short-cooldown mitigation. Use it on cooldown during fights to maintain defensive coverage. Combine with TBN for back-to-back tankbuster mitigation.")
+                .Concept(DrkConcepts.MitigationStacking)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(DrkConcepts.MitigationStacking, wasSuccessful: true);
+
             return true;
         }
 
@@ -583,6 +675,21 @@ public sealed class MitigationModule : INyxModule
         {
             context.Debug.PlannedAction = DRKActions.DarkMind.Name;
             context.Debug.MitigationState = $"Dark Mind ({hpPercent:P0} HP)";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(DRKActions.DarkMind.ActionId, DRKActions.DarkMind.Name)
+                .AsMitigation(hpPercent)
+                .Reason(
+                    $"Dark Mind at {hpPercent:P0} HP — 20% magic damage reduction for 10 seconds.",
+                    "Dark Mind reduces magic damage taken by 20% for 10 seconds on a 60-second cooldown. Most raidwides deal magic damage, making Dark Mind valuable for surviving them.")
+                .Factors($"HP at {hpPercent:P0}", "Magic damage incoming", "Dark Mind available")
+                .Alternatives("Rampart (physical + magic)", "TBN (absorbs any damage type)")
+                .Tip("Dark Mind is specifically for magic damage. Use it before raidwides and magic-based tankbusters. In fights with frequent magic damage, keep it cycling on cooldown.")
+                .Concept(DrkConcepts.DarkMind)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(DrkConcepts.DarkMind, wasSuccessful: true);
+
             return true;
         }
 
@@ -609,6 +716,21 @@ public sealed class MitigationModule : INyxModule
                 {
                     context.Debug.PlannedAction = DRKActions.Oblation.Name;
                     context.Debug.MitigationState = $"Self Oblation ({hpPercent:P0} HP)";
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(DRKActions.Oblation.ActionId, DRKActions.Oblation.Name)
+                        .AsMitigation(hpPercent)
+                        .Reason(
+                            $"Oblation on self at {hpPercent:P0} HP — 10% damage reduction for 10 seconds.",
+                            "Oblation applies a 10% damage reduction barrier to yourself or an ally for 10 seconds. It has 2 charges on a 60-second cooldown. Use it when taking significant damage or to help a struggling ally.")
+                        .Factors($"HP at {hpPercent:P0}", "Self-mitigation needed", "Oblation charge available")
+                        .Alternatives("TBN (stronger but costs MP)", "Rampart (longer duration)", "Dark Mind (magic only)")
+                        .Tip("Oblation has 2 charges — use one on yourself and save one for a party member who needs help. It's a flexible mitigation tool that works on any target.")
+                        .Concept(DrkConcepts.Oblation)
+                        .Record();
+
+                    context.TrainingService?.RecordConceptApplication(DrkConcepts.Oblation, wasSuccessful: true);
+
                     return true;
                 }
             }
@@ -633,6 +755,22 @@ public sealed class MitigationModule : INyxModule
                         var targetHp = context.PartyHelper.GetHpPercent(oblationTarget);
                         context.Debug.PlannedAction = DRKActions.Oblation.Name;
                         context.Debug.MitigationState = $"Oblation ({targetHp:P0} HP ally)";
+
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(DRKActions.Oblation.ActionId, DRKActions.Oblation.Name)
+                            .AsMitigation(targetHp)
+                            .Target(oblationTarget.Name?.TextValue)
+                            .Reason(
+                                $"Oblation on ally at {targetHp:P0} HP — shielding party member taking damage.",
+                                "Oblation can be cast on any party member. Using spare charges on injured allies is excellent support. It reduces their incoming damage by 10% for 10 seconds, giving healers more time.")
+                            .Factors($"Ally at {targetHp:P0} HP", "Spare Oblation charge available", "You are not in danger")
+                            .Alternatives("Save charge (future emergencies)", "Let healers handle it (wastes your tools)")
+                            .Tip("If you're healthy and have extra Oblation charges, share them with injured party members. DRK's Oblation is a valuable party support tool.")
+                            .Concept(DrkConcepts.Oblation)
+                            .Record();
+
+                        context.TrainingService?.RecordConceptApplication(DrkConcepts.Oblation, wasSuccessful: true);
+
                         return true;
                     }
                 }
@@ -708,10 +846,10 @@ public sealed class MitigationModule : INyxModule
                 .Factors($"{injuredCount} party members injured", $"Average HP {avgHp:P0}", "Raidwide incoming")
                 .Alternatives("Reprisal (physical reduction on enemy)", "Save for later raidwide", "Let healers handle it")
                 .Tip("Dark Missionary is your party mitigation for magic damage. Coordinate with healers and co-tank to avoid overlapping party mitigations.")
-                .Concept("drk_dark_missionary")
+                .Concept(DrkConcepts.DarkMissionary)
                 .Record();
 
-            context.TrainingService?.RecordConceptApplication("drk_dark_missionary", true, "Party mitigation");
+            context.TrainingService?.RecordConceptApplication(DrkConcepts.DarkMissionary, wasSuccessful: true);
 
             return true;
         }
@@ -753,6 +891,21 @@ public sealed class MitigationModule : INyxModule
             context.Debug.PlannedAction = DRKActions.Reprisal.Name;
             context.Debug.MitigationState = $"Reprisal ({enemyCount} enemies)";
             partyCoord?.OnCooldownUsed(DRKActions.Reprisal.ActionId, 60_000);
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(DRKActions.Reprisal.ActionId, DRKActions.Reprisal.Name)
+                .AsPartyMit()
+                .Reason(
+                    $"Reprisal — 10% enemy damage reduction affecting {enemyCount} nearby enemies.",
+                    "Reprisal reduces damage dealt by all nearby enemies by 10% for 15 seconds. It affects all enemies in range, making it excellent for AoE pulls and raidwides. Coordinate with your co-tank to avoid overlap.")
+                .Factors($"{enemyCount} enemies in range", "Reprisal available", "Party needs mitigation")
+                .Alternatives("Dark Missionary (magic damage only)", "Personal mitigations (self only)", "Let it ride (party takes full damage)")
+                .Tip("Reprisal debuffs enemies rather than buffing your party, making it apply to all their attacks including raidwides. Use it in AoE pulls and before raidwides.")
+                .Concept(DrkConcepts.PartyProtection)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(DrkConcepts.PartyProtection, wasSuccessful: true);
+
             return true;
         }
 

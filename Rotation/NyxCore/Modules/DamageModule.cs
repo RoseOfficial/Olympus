@@ -148,6 +148,21 @@ public sealed class DamageModule : INyxModule
         {
             context.Debug.PlannedAction = action.Name;
             context.Debug.DamageState = "Dark Arts proc!";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(action.ActionId, action.Name)
+                .AsTankBurst()
+                .Reason(
+                    "Dark Arts proc — free Edge/Flood of Shadow from broken The Blackest Night shield.",
+                    "When TBN's shield breaks, you get Dark Arts which makes the next Edge/Flood of Shadow cost no MP. This is highest priority to avoid wasting the proc.")
+                .Factors("Dark Arts active", "Edge/Flood free (no MP cost)", "Highest priority oGCD")
+                .Alternatives("Delay (Dark Arts will expire)", "Use other oGCD (wastes free damage)")
+                .Tip("Never let Dark Arts expire. Use Edge/Flood immediately when you see the proc. This effectively makes TBN damage-neutral when its shield breaks.")
+                .Concept(DrkConcepts.DarkArts)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(DrkConcepts.DarkArts, wasSuccessful: true);
+
             return true;
         }
 
@@ -170,6 +185,22 @@ public sealed class DamageModule : INyxModule
         {
             context.Debug.PlannedAction = DRKActions.Shadowbringer.Name;
             context.Debug.DamageState = "Shadowbringer";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(DRKActions.Shadowbringer.ActionId, DRKActions.Shadowbringer.Name)
+                .AsTankBurst()
+                .Target(context.CurrentTarget?.Name.TextValue)
+                .Reason(
+                    "Shadowbringer — high potency oGCD with 2 charges, use on cooldown.",
+                    "Shadowbringer has 2 charges and deals 600 potency each. Use on cooldown to maximize DPS. Hold one charge if a 2-minute window is less than 30 seconds away.")
+                .Factors("Charge available", "High potency oGCD", "Darkside active")
+                .Alternatives("Hold for burst window (loses a use)", "Other oGCDs (lower potency)")
+                .Tip("Shadowbringer has 2 charges so you have flexibility. Use on cooldown during normal play, but consider holding for 2-minute burst windows.")
+                .Concept(DrkConcepts.Shadowbringer)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(DrkConcepts.Shadowbringer, wasSuccessful: true);
+
             return true;
         }
 
@@ -192,6 +223,21 @@ public sealed class DamageModule : INyxModule
         {
             context.Debug.PlannedAction = DRKActions.SaltedEarth.Name;
             context.Debug.DamageState = "Salted Earth";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(DRKActions.SaltedEarth.ActionId, DRKActions.SaltedEarth.Name)
+                .AsTankDamage()
+                .Reason(
+                    "Salted Earth — ground AoE DoT, place on cooldown for sustained damage.",
+                    "Salted Earth creates a ground AoE that ticks for 50 potency per second for 15 seconds. Place it under the boss on cooldown for free sustained damage.")
+                .Factors("Salted Earth ready", "Ground DoT for sustained damage", "Boss stationary")
+                .Alternatives("Skip (loses significant DPS)", "Save for AoE (loses single-target uptime)")
+                .Tip("Always place Salted Earth under the boss. Combine with Salt and Darkness to enhance it. The DoT ticks automatically while you execute your rotation.")
+                .Concept(DrkConcepts.SaltedEarth)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(DrkConcepts.SaltedEarth, wasSuccessful: true);
+
             return true;
         }
 
@@ -216,6 +262,21 @@ public sealed class DamageModule : INyxModule
         {
             context.Debug.PlannedAction = DRKActions.SaltAndDarkness.Name;
             context.Debug.DamageState = "Salt and Darkness";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(DRKActions.SaltAndDarkness.ActionId, DRKActions.SaltAndDarkness.Name)
+                .AsTankDamage()
+                .Reason(
+                    "Salt and Darkness — enhances Salted Earth for bonus potency.",
+                    "Salt and Darkness deals 500 potency and empowers the active Salted Earth to deal extra damage. Always use it after placing Salted Earth.")
+                .Factors("Salt and Darkness ready", "Enhances Salted Earth uptime", "Bonus potency oGCD")
+                .Alternatives("Skip (loses bonus Salted Earth damage)", "Other oGCDs (lower synergy)")
+                .Tip("Use Salt and Darkness after Salted Earth every time. The cooldown lines up naturally with Salted Earth's cooldown.")
+                .Concept(DrkConcepts.SaltedEarth)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(DrkConcepts.SaltedEarth, wasSuccessful: true);
+
             return true;
         }
 
@@ -250,6 +311,22 @@ public sealed class DamageModule : INyxModule
                 {
                     context.Debug.PlannedAction = action.Name;
                     context.Debug.DamageState = $"Darkside refresh ({context.DarksideRemaining:F1}s)";
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(action.ActionId, action.Name)
+                        .AsTankResource(context.CurrentMp)
+                        .Target(context.CurrentTarget?.Name.TextValue)
+                        .Reason(
+                            $"Darkside refresh — {context.DarksideRemaining:F1}s remaining, use Edge/Flood to extend.",
+                            "Darkside provides a 10% damage buff and must be kept active at all times. Each Edge/Flood of Shadow grants 30 seconds. Refresh before it expires.")
+                        .Factors($"Darkside at {context.DarksideRemaining:F1}s", "About to expire", $"MP: {context.CurrentMp}")
+                        .Alternatives("Let Darkside fall (10% damage loss)", "Delay until next oGCD window (risky)")
+                        .Tip("Darkside is your most important buff. Refresh it when it has <10s remaining using Edge/Flood. Losing Darkside is a significant DPS loss.")
+                        .Concept(DrkConcepts.DarksideMaintenance)
+                        .Record();
+
+                    context.TrainingService?.RecordConceptApplication(DrkConcepts.DarksideMaintenance, wasSuccessful: true);
+
                     return true;
                 }
             }
@@ -264,6 +341,22 @@ public sealed class DamageModule : INyxModule
                 {
                     context.Debug.PlannedAction = action.Name;
                     context.Debug.DamageState = "Darkside activate";
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(action.ActionId, action.Name)
+                        .AsTankResource(context.CurrentMp)
+                        .Target(context.CurrentTarget?.Name.TextValue)
+                        .Reason(
+                            "Darkside inactive — activate immediately with Edge/Flood of Shadow.",
+                            "Darkside is a 10% damage buff that must be maintained. Use Edge/Flood to activate it as soon as possible whenever it's not active.")
+                        .Factors("No Darkside buff", "10% damage buff missing", $"MP: {context.CurrentMp}")
+                        .Alternatives("Continue without Darkside (10% damage loss)", "Use other oGCDs first (wastes opportunity)")
+                        .Tip("Never fight without Darkside. Activate it at the start of combat and maintain it throughout. Each Edge/Flood grants 30 seconds of Darkside.")
+                        .Concept(DrkConcepts.Darkside)
+                        .Record();
+
+                    context.TrainingService?.RecordConceptApplication(DrkConcepts.Darkside, wasSuccessful: true);
+
                     return true;
                 }
             }
@@ -278,6 +371,22 @@ public sealed class DamageModule : INyxModule
                 {
                     context.Debug.PlannedAction = action.Name;
                     context.Debug.DamageState = "MP dump";
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(action.ActionId, action.Name)
+                        .AsTankResource(context.CurrentMp)
+                        .Target(context.CurrentTarget?.Name.TextValue)
+                        .Reason(
+                            $"MP dump — at {context.CurrentMp} MP, spending to avoid overcap and extend Darkside.",
+                            "Edge/Flood of Shadow costs 3000 MP and also extends Darkside. Spend MP when near the cap (10000) to avoid wasting mana from natural regeneration.")
+                        .Factors($"MP at {context.CurrentMp} (near cap)", "Avoiding MP overcap", "Darkside extension bonus")
+                        .Alternatives("Hold MP (will overcap and waste)", "Use TBN (different purpose)")
+                        .Tip("DRK generates MP from Blood Weapon and combo actions. Spend it with Edge/Flood before reaching 10000 to never waste MP.")
+                        .Concept(DrkConcepts.EdgeOfShadow)
+                        .Record();
+
+                    context.TrainingService?.RecordConceptApplication(DrkConcepts.EdgeOfShadow, wasSuccessful: true);
+
                     return true;
                 }
             }
@@ -301,6 +410,22 @@ public sealed class DamageModule : INyxModule
         {
             context.Debug.PlannedAction = DRKActions.CarveAndSpit.Name;
             context.Debug.DamageState = "Carve and Spit";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(DRKActions.CarveAndSpit.ActionId, DRKActions.CarveAndSpit.Name)
+                .AsTankDamage()
+                .Target(context.CurrentTarget?.Name.TextValue)
+                .Reason(
+                    "Carve and Spit — single-target oGCD that restores MP. Use on cooldown.",
+                    "Carve and Spit deals 512 potency and restores 600 MP. Shares cooldown with Abyssal Drain. In single-target, always prefer Carve and Spit for the MP restoration.")
+                .Factors("Carve and Spit ready", "Single target", "MP restoration on use")
+                .Alternatives("Abyssal Drain (AoE only)", "Skip (loses MP and damage)")
+                .Tip("Carve and Spit is your primary MP restoration tool alongside Blood Weapon. Use on cooldown in single-target fights to sustain Edge of Shadow usage.")
+                .Concept(DrkConcepts.CarveAndSpit)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(DrkConcepts.CarveAndSpit, wasSuccessful: true);
+
             return true;
         }
 
@@ -326,6 +451,22 @@ public sealed class DamageModule : INyxModule
         {
             context.Debug.PlannedAction = DRKActions.AbyssalDrain.Name;
             context.Debug.DamageState = $"Abyssal Drain ({enemyCount} enemies)";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(DRKActions.AbyssalDrain.ActionId, DRKActions.AbyssalDrain.Name)
+                .AsAoE(enemyCount)
+                .Target(context.CurrentTarget?.Name.TextValue)
+                .Reason(
+                    $"Abyssal Drain — AoE oGCD hitting {enemyCount} enemies, better than Carve and Spit in AoE.",
+                    "Abyssal Drain deals 240 potency per enemy and restores 600 MP. In AoE situations (3+ enemies), it outperforms Carve and Spit. Shares their cooldown, so choose based on enemy count.")
+                .Factors($"{enemyCount} enemies in range", "AoE oGCD preferred", "MP restoration on hit")
+                .Alternatives("Carve and Spit (single-target only)", "Skip (loses AoE damage and MP)")
+                .Tip("Switch to Abyssal Drain when fighting 3+ enemies. It hits all of them for significant AoE damage while restoring MP.")
+                .Concept(DrkConcepts.CarveAndSpit)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(DrkConcepts.CarveAndSpit, wasSuccessful: true);
+
             return true;
         }
 
@@ -347,6 +488,22 @@ public sealed class DamageModule : INyxModule
         {
             context.Debug.PlannedAction = DRKActions.Shadowstride.Name;
             context.Debug.DamageState = "Shadowstride";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(DRKActions.Shadowstride.ActionId, DRKActions.Shadowstride.Name)
+                .AsTankDamage()
+                .Target(context.CurrentTarget?.Name.TextValue)
+                .Reason(
+                    "Shadowstride — gap closer oGCD to engage or reposition to target.",
+                    "Shadowstride teleports you to the target and deals damage. Use it to close gaps quickly or as a filler oGCD when in melee range. Generates no resources.")
+                .Factors("Target available", "Shadowstride ready", "Melee engagement or repositioning")
+                .Alternatives("Unmend (ranged GCD, lower damage)", "Walk to target (loses GCDs)")
+                .Tip("Shadowstride is your primary mobility tool. Use it to engage quickly or reposition. It deals damage on use, making it a minor DPS bonus too.")
+                .Concept(DrkConcepts.EdgeOfShadow)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(DrkConcepts.EdgeOfShadow, wasSuccessful: true);
+
             return true;
         }
 
@@ -367,6 +524,22 @@ public sealed class DamageModule : INyxModule
         {
             context.Debug.PlannedAction = DRKActions.Unmend.Name;
             context.Debug.DamageState = "Unmend (ranged)";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(DRKActions.Unmend.ActionId, DRKActions.Unmend.Name)
+                .AsTankDamage()
+                .Target(context.CurrentTarget?.Name.TextValue)
+                .Reason(
+                    "Unmend — ranged pull GCD to engage when out of melee range.",
+                    "Unmend is a ranged GCD that deals modest damage and pulls enemies. Use it to open combat from range or when you can't close the gap with Shadowstride.")
+                .Factors("Out of melee range", "Shadowstride unavailable or on cooldown", "Need to apply damage/enmity")
+                .Alternatives("Shadowstride (better gap closer, deals more damage)", "Wait to enter melee range")
+                .Tip("Use Unmend only to pull from range. Once in melee, stick to your combo. Unmend has low potency compared to melee actions.")
+                .Concept(DrkConcepts.Darkside)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(DrkConcepts.Darkside, wasSuccessful: true);
+
             return true;
         }
 
@@ -401,6 +574,22 @@ public sealed class DamageModule : INyxModule
             {
                 context.Debug.PlannedAction = "Delirium Combo";
                 context.Debug.DamageState = "Delirium combo";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(DRKActions.ScarletDelirium.ActionId, "Delirium Combo")
+                    .AsTankBurst()
+                    .Target(context.CurrentTarget?.Name.TextValue)
+                    .Reason(
+                        "Delirium combo — Scarlet Delirium → Comeuppance → Torcleaver sequence for maximum burst damage.",
+                        "At Lv.96+, Delirium enables a 3-step combo: Scarlet Delirium → Comeuppance → Torcleaver. Each step deals high potency. Complete all 3 steps before Delirium expires, then use Disesteem for the finisher.")
+                    .Factors("Delirium active", "Lv.96+ Scarlet Delirium combo enabled", "Highest GCD potency available")
+                    .Alternatives("Bloodspiller (weaker, pre-96 option)", "Regular combo (massive damage loss during Delirium)")
+                    .Tip("During Delirium at Lv.96+, always execute Scarlet Delirium → Comeuppance → Torcleaver → Disesteem. Never use regular combo during Delirium.")
+                    .Concept(DrkConcepts.Delirium)
+                    .Record();
+
+                context.TrainingService?.RecordConceptApplication(DrkConcepts.Delirium, wasSuccessful: true);
+
                 return true;
             }
         }
@@ -427,6 +616,22 @@ public sealed class DamageModule : INyxModule
         {
             context.Debug.PlannedAction = DRKActions.Disesteem.Name;
             context.Debug.DamageState = "Disesteem";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(DRKActions.Disesteem.ActionId, DRKActions.Disesteem.Name)
+                .AsTankBurst()
+                .Target(context.CurrentTarget?.Name.TextValue)
+                .Reason(
+                    "Disesteem — Delirium combo finisher with Scornful Edge buff, deals massive AoE damage.",
+                    "Disesteem is the finisher after Torcleaver in the Delirium combo. It requires the Scornful Edge buff and deals 1000 potency in a cone AoE. Always complete the combo: Scarlet Delirium → Comeuppance → Torcleaver → Disesteem.")
+                .Factors("Scornful Edge buff active (from Torcleaver)", "Delirium combo finisher", "Highest potency GCD")
+                .Alternatives("Skip (wastes Scornful Edge buff)", "Use other GCDs (massively lower potency)")
+                .Tip("Disesteem is the crown jewel of the Delirium combo. Always execute all 4 steps: Scarlet Delirium, Comeuppance, Torcleaver, then Disesteem.")
+                .Concept(DrkConcepts.Disesteem)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(DrkConcepts.Disesteem, wasSuccessful: true);
+
             return true;
         }
 
@@ -470,6 +675,22 @@ public sealed class DamageModule : INyxModule
                 {
                     context.Debug.PlannedAction = DRKActions.Quietus.Name;
                     context.Debug.DamageState = $"Quietus ({context.BloodGauge} Blood)";
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(DRKActions.Quietus.ActionId, DRKActions.Quietus.Name)
+                        .AsTankResource(context.BloodGauge)
+                        .Target(context.CurrentTarget?.Name.TextValue)
+                        .Reason(
+                            $"Quietus — AoE Blood Gauge spender at {context.BloodGauge} Blood with {enemyCount} enemies.",
+                            "Quietus costs 50 Blood Gauge and hits all nearby enemies. In AoE situations (3+ enemies), Quietus outperforms Bloodspiller. Spend Blood when high to prevent overcapping from Stalwart Soul.")
+                        .Factors($"Blood Gauge at {context.BloodGauge}", $"{enemyCount} enemies in range", "AoE Blood spender preferred")
+                        .Alternatives("Bloodspiller (single-target only)", "Continue AoE combo (may overcap Blood)")
+                        .Tip("In AoE, Quietus is your Blood spender. Stalwart Soul also generates Blood, so spend it before reaching 100 to avoid overcapping.")
+                        .Concept(DrkConcepts.BloodGauge)
+                        .Record();
+
+                    context.TrainingService?.RecordConceptApplication(DrkConcepts.BloodGauge, wasSuccessful: true);
+
                     return true;
                 }
             }
@@ -496,10 +717,10 @@ public sealed class DamageModule : INyxModule
                             .Factors("Delirium active", "Bloodspiller free", "Guaranteed crit + direct hit")
                             .Alternatives("Use combo (massive damage loss)", "Wait (Delirium will expire)")
                             .Tip("During Delirium, Bloodspiller is your highest priority GCD. Don't let stacks expire - use all 3 before Delirium ends.")
-                            .Concept("drk_delirium")
+                            .Concept(DrkConcepts.Delirium)
                             .Record();
 
-                        context.TrainingService?.RecordConceptApplication("drk_delirium", true, "Delirium burst");
+                        context.TrainingService?.RecordConceptApplication(DrkConcepts.Delirium, wasSuccessful: true);
                     }
                     else
                     {
@@ -513,10 +734,10 @@ public sealed class DamageModule : INyxModule
                             .Factors($"Blood Gauge at {context.BloodGauge}", "Near overcap", "High potency spender")
                             .Alternatives("Continue combo (may overcap)", "Save for Delirium (loses damage if overcap)")
                             .Tip("Spend Blood when above 70-80 gauge to prevent overcapping from combo finishers. Each Souleater grants 20 Blood.")
-                            .Concept("drk_blood_gauge")
+                            .Concept(DrkConcepts.BloodGauge)
                             .Record();
 
-                        context.TrainingService?.RecordConceptApplication("drk_blood_gauge", true, "Gauge spending");
+                        context.TrainingService?.RecordConceptApplication(DrkConcepts.BloodGauge, wasSuccessful: true);
                     }
 
                     return true;
@@ -556,6 +777,22 @@ public sealed class DamageModule : INyxModule
                 {
                     context.Debug.PlannedAction = DRKActions.Souleater.Name;
                     context.Debug.DamageState = "Souleater (combo)";
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(DRKActions.Souleater.ActionId, DRKActions.Souleater.Name)
+                        .AsCombo(2)
+                        .Target(context.CurrentTarget?.Name.TextValue)
+                        .Reason(
+                            "Souleater — combo finisher that generates 20 Blood Gauge.",
+                            "Souleater is the third and final step of the Hard Slash → Syphon Strike → Souleater combo. It generates 20 Blood Gauge and deals the highest potency of the combo. Always complete the full combo.")
+                        .Factors("Combo step 2 active", "Generates 20 Blood Gauge", "Highest potency in combo")
+                        .Alternatives("Break combo (massive damage loss)", "Spend Blood first if near cap")
+                        .Tip("Complete the full 3-step combo every time. Souleater grants 20 Blood which you need for Bloodspiller. Syphon Strike also restores MP.")
+                        .Concept(DrkConcepts.BloodGauge)
+                        .Record();
+
+                    context.TrainingService?.RecordConceptApplication(DrkConcepts.BloodGauge, wasSuccessful: true);
+
                     return true;
                 }
             }
@@ -570,6 +807,22 @@ public sealed class DamageModule : INyxModule
                 {
                     context.Debug.PlannedAction = DRKActions.SyphonStrike.Name;
                     context.Debug.DamageState = "Syphon Strike (combo)";
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(DRKActions.SyphonStrike.ActionId, DRKActions.SyphonStrike.Name)
+                        .AsCombo(1)
+                        .Target(context.CurrentTarget?.Name.TextValue)
+                        .Reason(
+                            "Syphon Strike — combo step 2, restores MP and continues to Souleater.",
+                            "Syphon Strike is the second step of the Hard Slash → Syphon Strike → Souleater combo. It restores 600 MP and continues the combo chain. Always follow with Souleater.")
+                        .Factors("Combo step 1 active", "Restores 600 MP", "Continues combo chain")
+                        .Alternatives("Break combo (loses MP and Souleater Blood)", "Skip to Souleater (not available without full combo)")
+                        .Tip("Syphon Strike restores precious MP used for Edge/Flood of Shadow. The full combo is: Hard Slash → Syphon Strike → Souleater.")
+                        .Concept(DrkConcepts.Darkside)
+                        .Record();
+
+                    context.TrainingService?.RecordConceptApplication(DrkConcepts.Darkside, wasSuccessful: true);
+
                     return true;
                 }
             }
@@ -582,6 +835,22 @@ public sealed class DamageModule : INyxModule
             {
                 context.Debug.PlannedAction = DRKActions.HardSlash.Name;
                 context.Debug.DamageState = "Hard Slash (start)";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(DRKActions.HardSlash.ActionId, DRKActions.HardSlash.Name)
+                    .AsCombo(0)
+                    .Target(context.CurrentTarget?.Name.TextValue)
+                    .Reason(
+                        "Hard Slash — combo starter, begins the Hard Slash → Syphon Strike → Souleater chain.",
+                        "Hard Slash starts the primary single-target combo. Follow with Syphon Strike then Souleater for MP restoration and Blood Gauge generation. This is your filler when no higher priority GCDs are available.")
+                    .Factors("No higher priority GCD available", "Combo starter", "Enables Syphon Strike")
+                    .Alternatives("Bloodspiller if near Blood cap", "Delirium combo if Delirium active")
+                    .Tip("Hard Slash begins your bread-and-butter combo. Keep it cycling to generate Blood Gauge and restore MP. Interrupt the combo only for Bloodspiller or Delirium combo.")
+                    .Concept(DrkConcepts.Darkside)
+                    .Record();
+
+                context.TrainingService?.RecordConceptApplication(DrkConcepts.Darkside, wasSuccessful: true);
+
                 return true;
             }
         }
@@ -603,6 +872,22 @@ public sealed class DamageModule : INyxModule
                 {
                     context.Debug.PlannedAction = DRKActions.StalwartSoul.Name;
                     context.Debug.DamageState = "Stalwart Soul (AoE combo)";
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(DRKActions.StalwartSoul.ActionId, DRKActions.StalwartSoul.Name)
+                        .AsCombo(1)
+                        .Target(context.CurrentTarget?.Name.TextValue)
+                        .Reason(
+                            "Stalwart Soul — AoE combo finisher, restores MP and generates Blood Gauge.",
+                            "Stalwart Soul is the second step of the Unleash → Stalwart Soul AoE combo. It restores 600 MP and generates 20 Blood Gauge. Always follow Unleash with Stalwart Soul in AoE situations.")
+                        .Factors("AoE combo step 1 active", "Restores 600 MP", "Generates 20 Blood Gauge")
+                        .Alternatives("Break combo (loses resources)", "Single-target combo (lower AoE damage)")
+                        .Tip("In AoE, keep the Unleash → Stalwart Soul combo cycling. Spend Blood with Quietus when above 50 to prevent overcap.")
+                        .Concept(DrkConcepts.BloodGauge)
+                        .Record();
+
+                    context.TrainingService?.RecordConceptApplication(DrkConcepts.BloodGauge, wasSuccessful: true);
+
                     return true;
                 }
             }
@@ -615,6 +900,22 @@ public sealed class DamageModule : INyxModule
             {
                 context.Debug.PlannedAction = DRKActions.Unleash.Name;
                 context.Debug.DamageState = "Unleash (AoE start)";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(DRKActions.Unleash.ActionId, DRKActions.Unleash.Name)
+                    .AsCombo(0)
+                    .Target(context.CurrentTarget?.Name.TextValue)
+                    .Reason(
+                        "Unleash — AoE combo starter hitting all nearby enemies.",
+                        "Unleash is the first step of the AoE combo. Follow with Stalwart Soul for MP restoration and Blood Gauge. Use the AoE combo when fighting 3+ enemies for more total damage than single-target actions.")
+                    .Factors("3+ enemies in range", "AoE combo starter", "Enables Stalwart Soul")
+                    .Alternatives("Hard Slash combo (single-target only)", "Quietus if Blood gauge is high")
+                    .Tip("Switch to Unleash → Stalwart Soul when there are 3 or more enemies. This deals more total damage than single-target actions in AoE situations.")
+                    .Concept(DrkConcepts.Darkside)
+                    .Record();
+
+                context.TrainingService?.RecordConceptApplication(DrkConcepts.Darkside, wasSuccessful: true);
+
                 return true;
             }
         }

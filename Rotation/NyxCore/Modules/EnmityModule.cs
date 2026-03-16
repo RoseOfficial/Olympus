@@ -111,10 +111,10 @@ public sealed class EnmityModule : INyxModule
                     .Factors("Co-tank requested swap via IPC", "Provoke available", $"Target: {target.Name?.TextValue}")
                     .Alternatives("Ignore swap request (may cause wipe)", "Wait longer (mechanics may not allow)")
                     .Tip("Always respond to coordinated tank swap requests promptly. The co-tank likely needs to drop a debuff or handle a mechanic.")
-                    .Concept("drk_provoke")
+                    .Concept(DrkConcepts.TankSwap)
                     .Record();
 
-                context.TrainingService?.RecordConceptApplication("drk_provoke", true, "Coordinated tank swap");
+                context.TrainingService?.RecordConceptApplication(DrkConcepts.TankSwap, wasSuccessful: true);
 
                 return true;
             }
@@ -179,10 +179,10 @@ public sealed class EnmityModule : INyxModule
                 .Factors("Lost aggro to non-tank", "Boss about to attack party", $"Target: {target.Name?.TextValue}")
                 .Alternatives("Let co-tank take it (risky if unprepared)", "Use enmity combo (too slow in emergencies)")
                 .Tip("If you're losing aggro as main tank, Provoke immediately. DPS dying to auto-attacks is always worse than using a cooldown.")
-                .Concept("drk_provoke")
+                .Concept(DrkConcepts.TankSwap)
                 .Record();
 
-            context.TrainingService?.RecordConceptApplication("drk_provoke", true, "Emergency aggro recovery");
+            context.TrainingService?.RecordConceptApplication(DrkConcepts.TankSwap, wasSuccessful: true);
 
             return true;
         }
@@ -257,10 +257,10 @@ public sealed class EnmityModule : INyxModule
                     .Factors("Co-tank requested swap via IPC", "Shirk available", $"Co-tank: {coTankForSwap.Name?.TextValue}")
                     .Alternatives("Ignore swap (co-tank struggles to hold aggro)", "Keep aggro (may cause mechanic failures)")
                     .Tip("After co-tank Provokes, use Shirk immediately. The 25% enmity transfer ensures they maintain aggro without risk of you pulling back.")
-                    .Concept("drk_shirk")
+                    .Concept(DrkConcepts.TankSwap)
                     .Record();
 
-                context.TrainingService?.RecordConceptApplication("drk_shirk", true, "Coordinated tank swap");
+                context.TrainingService?.RecordConceptApplication(DrkConcepts.TankSwap, wasSuccessful: true);
 
                 return true;
             }
@@ -325,10 +325,10 @@ public sealed class EnmityModule : INyxModule
                 .Factors("You're in off-tank position (#2)", "Building enmity from DPS rotation", $"Co-tank: {coTank.Name?.TextValue}")
                 .Alternatives("Stop DPSing (massive damage loss)", "Let main tank use Provoke (wastes their cooldown)")
                 .Tip("As off-tank, Shirk periodically to stay comfortable below the main tank. This lets you maintain full DPS without risk of pulling.")
-                .Concept("drk_shirk")
+                .Concept(DrkConcepts.TankSwap)
                 .Record();
 
-            context.TrainingService?.RecordConceptApplication("drk_shirk", true, "Off-tank enmity management");
+            context.TrainingService?.RecordConceptApplication(DrkConcepts.TankSwap, wasSuccessful: true);
 
             return true;
         }

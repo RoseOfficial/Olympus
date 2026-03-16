@@ -128,10 +128,10 @@ public sealed class BuffModule : BaseTankBuffModule<INyxContext>, INyxModule
                 .Factors($"Darkside active ({context.DarksideRemaining:F1}s)", $"Blood Gauge at {context.BloodGauge}", "Ready to burst")
                 .Alternatives("Wait for more gauge (may overcap)", "Hold for raid buffs (may lose a use)")
                 .Tip("Use Delirium on cooldown when Darkside is active. At Lv.96+, you get the Scarlet Delirium combo instead of free Bloodspillers.")
-                .Concept("drk_delirium")
+                .Concept(DrkConcepts.Delirium)
                 .Record();
 
-            context.TrainingService?.RecordConceptApplication("drk_delirium", true, "Burst window activated");
+            context.TrainingService?.RecordConceptApplication(DrkConcepts.Delirium, wasSuccessful: true);
 
             return true;
         }
@@ -175,6 +175,21 @@ public sealed class BuffModule : BaseTankBuffModule<INyxContext>, INyxModule
         {
             context.Debug.PlannedAction = DRKActions.LivingShadow.Name;
             context.Debug.BuffState = "Living Shadow summoned";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(DRKActions.LivingShadow.ActionId, DRKActions.LivingShadow.Name)
+                .AsTankBurst()
+                .Reason(
+                    "Living Shadow summoned — autonomous shadow companion deals significant sustained damage.",
+                    "Living Shadow costs 50 Blood Gauge and summons a shadow that attacks independently for 20 seconds. It performs a fixed sequence of 7 attacks. Use on cooldown during Darkside for maximum DPS contribution.")
+                .Factors($"Blood Gauge at {context.BloodGauge} (50+ required)", "Darkside active", "Living Shadow ready")
+                .Alternatives("Save Blood for Bloodspiller (lower total damage)", "Skip (loses major DPS)")
+                .Tip("Living Shadow is one of DRK's most powerful abilities. Summon it on cooldown whenever you have 50+ Blood and Darkside is active. It attacks independently, adding to your damage without any extra input.")
+                .Concept(DrkConcepts.LivingShadow)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(DrkConcepts.LivingShadow, wasSuccessful: true);
+
             return true;
         }
 
