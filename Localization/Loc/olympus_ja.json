@@ -12,6 +12,7 @@
   "ui.main.analytics": "分析",
   "ui.main.training": "トレーニング",
   "ui.main.debug": "デバッグ",
+  "ui.main.preset": "Preset:",
   "config.window_title": "Olympus 設定",
   "config.join_discord": "Discordに参加",
   "config.enable_rotation": "ローテーション有効",

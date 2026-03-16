@@ -30,6 +30,7 @@ public static class LocalizedStrings
         public const string PositionalFlank = "ui.main.positional_flank";
         public const string PositionalFront = "ui.main.positional_front";
         public const string PositionalImmune = "ui.main.positional_immune";
+        public const string Preset = "ui.main.preset";
     }
 
     #endregion

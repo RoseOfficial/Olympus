@@ -4,6 +4,7 @@ using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Textures;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
+using Olympus.Config;
 using Olympus.Data;
 using Olympus.Localization;
 using Olympus.Rotation;
@@ -13,6 +14,8 @@ namespace Olympus.Windows;
 
 public sealed class MainWindow : Window
 {
+    private static readonly string[] PresetNames = Enum.GetNames<ConfigurationPreset>();
+
     private readonly Configuration configuration;
     private readonly Action saveConfiguration;
     private readonly Action openSettings;
@@ -127,6 +130,25 @@ public sealed class MainWindow : Window
         {
             configuration.Enabled = !configuration.Enabled;
             saveConfiguration();
+        }
+
+        ImGui.Text(Loc.T(LocalizedStrings.Main.Preset, "Preset:"));
+        ImGui.SameLine();
+        var currentPreset = (int)configuration.ActivePreset;
+        ImGui.SetNextItemWidth(-1);
+        if (ImGui.Combo("##MainPresetCombo", ref currentPreset, PresetNames, PresetNames.Length))
+        {
+            var selected = (ConfigurationPreset)currentPreset;
+            if (selected != ConfigurationPreset.Custom)
+            {
+                ConfigurationPresets.ApplyPreset(configuration, selected);
+                saveConfiguration();
+            }
+            else
+            {
+                configuration.ActivePreset = ConfigurationPreset.Custom;
+                saveConfiguration();
+            }
         }
 
         if (ImGui.Button(Loc.T(LocalizedStrings.Main.Settings, "Settings"), new Vector2(-1, 0)))

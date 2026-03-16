@@ -12,6 +12,7 @@
   "ui.main.analytics": "Analytics",
   "ui.main.training": "Training",
   "ui.main.debug": "Debug",
+  "ui.main.preset": "Preset:",
   "config.window_title": "Olympus Settings",
   "config.join_discord": "Join Discord",
   "config.enable_rotation": "Enable Rotation",

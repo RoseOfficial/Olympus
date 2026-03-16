@@ -3,9 +3,9 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
-## v4.10.21
+## v4.10.22
 
-- Fight history in the Analytics window is now preserved when the plugin reloads — session data is saved to disk and restored automatically
+- Add preset quick-switcher to the main window — switch between Raid, Dungeon, Casual, and other presets without opening the full settings window
 
 <!-- LATEST-END -->
 

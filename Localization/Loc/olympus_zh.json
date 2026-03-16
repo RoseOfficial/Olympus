@@ -12,6 +12,7 @@
   "ui.main.analytics": "分析",
   "ui.main.training": "训练",
   "ui.main.debug": "调试",
+  "ui.main.preset": "Preset:",
   "config.window_title": "奥林匹斯设置",
   "config.join_discord": "加入Discord",
   "config.enable_rotation": "启用循环",
