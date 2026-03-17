@@ -27,6 +27,11 @@
     <EmbeddedResource Include="Localization\Loc\*.json" />
   </ItemGroup>
 
+  <!-- Embedded changelog for in-game display -->
+  <ItemGroup>
+    <EmbeddedResource Include="CHANGELOG.md" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Pictomancy" Version="0.0.2" />
   </ItemGroup>

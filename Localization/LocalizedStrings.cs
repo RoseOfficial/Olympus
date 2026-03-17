@@ -25,6 +25,7 @@ public static class LocalizedStrings
         public const string Analytics = "ui.main.analytics";
         public const string Training = "ui.main.training";
         public const string Debug = "ui.main.debug";
+        public const string Changelog = "ui.main.changelog";
         public const string Positional = "ui.main.positional";
         public const string PositionalRear = "ui.main.positional_rear";
         public const string PositionalFlank = "ui.main.positional_flank";

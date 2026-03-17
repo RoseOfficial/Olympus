@@ -113,6 +113,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly WelcomeWindow welcomeWindow;
     private readonly AnalyticsWindow analyticsWindow;
     private readonly TrainingWindow trainingWindow;
+    private readonly ChangelogWindow changelogWindow;
     private readonly HintOverlay hintOverlay;
     private readonly OverlayWindow overlayWindow;
     private readonly TelemetryService telemetryService;
@@ -295,13 +296,14 @@ public sealed class Plugin : IDalamudPlugin
         this.drawingService = new DrawingService(pluginInterface, configuration.DrawHelper, log);
         this.drawCanvas = new DrawCanvas(drawingService, configuration, objectTable, clientState, targetManager, gameGui, positionalService, rotationManager);
         this.updateCheckerService = new UpdateCheckerService(PluginVersion, notificationManager, log);
-        this.configWindow = new ConfigWindow(configuration, SaveConfiguration, updateCheckerService);
-        this.mainWindow = new MainWindow(configuration, SaveConfiguration, OpenConfigUI, OpenDebugUI, OpenAnalyticsUI, OpenTrainingUI, OpenOverlayUI, PluginVersion, rotationManager, textureProvider);
+        this.configWindow = new ConfigWindow(configuration, SaveConfiguration, updateCheckerService, textureProvider);
+        this.mainWindow = new MainWindow(configuration, SaveConfiguration, OpenConfigUI, OpenDebugUI, OpenAnalyticsUI, OpenTrainingUI, OpenChangelogUI, OpenOverlayUI, PluginVersion, rotationManager, textureProvider);
         var smartAoETab = new SmartAoETab(aoeTracker, drawCanvas, objectTable);
         this.debugWindow = new DebugWindow(debugService, configuration, timelineService, smartAoETab);
         this.welcomeWindow = new WelcomeWindow(configuration, SaveConfiguration, OpenConfigUI);
         this.analyticsWindow = new AnalyticsWindow(performanceTracker, configuration, fflogsService);
         this.trainingWindow = new TrainingWindow(trainingService, configuration, decisionValidationService, spacedRepetitionService);
+        this.changelogWindow = new ChangelogWindow();
         this.hintOverlay = new HintOverlay(realTimeCoachingService, configuration.Training);
         this.overlayWindow = new OverlayWindow(configuration, SaveConfiguration, rotationManager);
 
@@ -323,6 +325,7 @@ public sealed class Plugin : IDalamudPlugin
         windowSystem.AddWindow(welcomeWindow);
         windowSystem.AddWindow(analyticsWindow);
         windowSystem.AddWindow(trainingWindow);
+        windowSystem.AddWindow(changelogWindow);
         windowSystem.AddWindow(hintOverlay);
         windowSystem.AddWindow(overlayWindow);
         overlayWindow.IsOpen = configuration.Overlay.IsVisible;
@@ -452,6 +455,8 @@ public sealed class Plugin : IDalamudPlugin
     private void OpenAnalyticsUI() => analyticsWindow.Toggle();
 
     private void OpenTrainingUI() => trainingWindow.Toggle();
+
+    private void OpenChangelogUI() => changelogWindow.Toggle();
 
     private void OpenOverlayUI() => overlayWindow.Toggle();
 
