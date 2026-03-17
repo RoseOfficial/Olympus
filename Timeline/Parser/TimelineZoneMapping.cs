@@ -42,6 +42,31 @@ public static class TimelineZoneMapping
     /// </summary>
     private static readonly Dictionary<uint, ZoneInfo> ZoneMappings = new()
     {
+        // Pandaemonium Savage (Endwalker)
+        // Asphodelos: The First Circle (Savage) - Erichthonios
+        [1003] = new ZoneInfo("p1s", "Asphodelos: The First Circle (Savage)", "Olympus.Timeline.Data.p1s.txt"),
+
+        // Asphodelos: The Second Circle (Savage) - Hippokampos
+        [1005] = new ZoneInfo("p2s", "Asphodelos: The Second Circle (Savage)", "Olympus.Timeline.Data.p2s.txt"),
+
+        // Asphodelos: The Third Circle (Savage) - Phoinix
+        [1007] = new ZoneInfo("p3s", "Asphodelos: The Third Circle (Savage)", "Olympus.Timeline.Data.p3s.txt"),
+
+        // Asphodelos: The Fourth Circle (Savage) - Hesperos
+        [1009] = new ZoneInfo("p4s", "Asphodelos: The Fourth Circle (Savage)", "Olympus.Timeline.Data.p4s.txt"),
+
+        // Abyssos: The Fifth Circle (Savage) - Proto-Carbuncle
+        [1083] = new ZoneInfo("p5s", "Abyssos: The Fifth Circle (Savage)", "Olympus.Timeline.Data.p5s.txt"),
+
+        // Abyssos: The Sixth Circle (Savage) - Hegemone
+        [1085] = new ZoneInfo("p6s", "Abyssos: The Sixth Circle (Savage)", "Olympus.Timeline.Data.p6s.txt"),
+
+        // Abyssos: The Seventh Circle (Savage) - Agdistis
+        [1087] = new ZoneInfo("p7s", "Abyssos: The Seventh Circle (Savage)", "Olympus.Timeline.Data.p7s.txt"),
+
+        // Abyssos: The Eighth Circle (Savage) - Hephaistos
+        [1089] = new ZoneInfo("p8s", "Abyssos: The Eighth Circle (Savage)", "Olympus.Timeline.Data.p8s.txt"),
+
         // Arcadion Savage (Dawntrail)
         // AAC Light-heavyweight M1 (Savage) - Black Cat
         [1226] = new ZoneInfo("r1s", "AAC Light-heavyweight M1 (Savage)", "Olympus.Timeline.Data.r1s.txt"),
