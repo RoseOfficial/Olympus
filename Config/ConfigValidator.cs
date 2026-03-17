@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Olympus.Config.DPS;
 
 namespace Olympus.Config;
 
@@ -43,6 +44,7 @@ public static class ConfigValidator
         // New validations
         ValidateTankSettings(config.Tank, issues);
         ValidatePartyCoordinationSettings(config.PartyCoordination, issues);
+        ValidateDpsSettings(config, issues);
 
         return issues;
     }
@@ -340,6 +342,98 @@ public static class ConfigValidator
                 Category = "Party Coordination",
                 Message = $"Ground effect overlap threshold ({coord.GroundEffectOverlapThreshold:P1}) is very conservative. May skip useful ground effects.",
                 SuggestedFix = "Set to 0.5 for balanced ground effect usage"
+            });
+        }
+    }
+
+    /// <summary>
+    /// Validates DPS job-specific configuration settings.
+    /// Only checks cross-field relationships that can silently lock out an ability.
+    /// </summary>
+    private static void ValidateDpsSettings(Configuration config, List<ValidationIssue> issues)
+    {
+        // Ninja: if minimum Ninki exceeds the overcap threshold, the Ninki spender is
+        // never reached — the overcap dump fires (or not) before the minimum check passes.
+        if (config.Ninja.NinkiMinGauge > config.Ninja.NinkiOvercapThreshold)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Warning,
+                Category = "Ninja",
+                Message = $"Ninja Ninki minimum gauge ({config.Ninja.NinkiMinGauge}) exceeds overcap threshold ({config.Ninja.NinkiOvercapThreshold}) — Ninki will never be spent.",
+                SuggestedFix = "Lower the minimum gauge or raise the overcap threshold so the minimum is at or below the overcap value."
+            });
+        }
+
+        // Samurai: same min/overcap pattern for Kenki gauge.
+        if (config.Samurai.KenkiMinGauge > config.Samurai.KenkiOvercapThreshold)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Warning,
+                Category = "Samurai",
+                Message = $"Samurai Kenki minimum gauge ({config.Samurai.KenkiMinGauge}) exceeds overcap threshold ({config.Samurai.KenkiOvercapThreshold}) — Shinten and Kyuten will never be spent.",
+                SuggestedFix = "Lower the minimum gauge or raise the overcap threshold so the minimum is at or below the overcap value."
+            });
+        }
+
+        // Reaper: same min/overcap pattern for Soul gauge.
+        if (config.Reaper.SoulMinGauge > config.Reaper.SoulOvercapThreshold)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Warning,
+                Category = "Reaper",
+                Message = $"Reaper Soul minimum gauge ({config.Reaper.SoulMinGauge}) exceeds overcap threshold ({config.Reaper.SoulOvercapThreshold}) — Blood Stalk and Grim Swathe will never be spent.",
+                SuggestedFix = "Lower the minimum gauge or raise the overcap threshold so the minimum is at or below the overcap value."
+            });
+        }
+
+        // Machinist: same min/overcap pattern for Heat gauge (Hypercharge).
+        if (config.Machinist.HeatMinGauge > config.Machinist.HeatOvercapThreshold)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Warning,
+                Category = "Machinist",
+                Message = $"Machinist Heat minimum gauge ({config.Machinist.HeatMinGauge}) exceeds overcap threshold ({config.Machinist.HeatOvercapThreshold}) — Hypercharge will never fire.",
+                SuggestedFix = "Lower the minimum gauge or raise the overcap threshold so the minimum is at or below the overcap value."
+            });
+        }
+
+        // Machinist: same min/overcap pattern for Battery gauge (Automaton Queen).
+        if (config.Machinist.BatteryMinGauge > config.Machinist.BatteryOvercapThreshold)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Warning,
+                Category = "Machinist",
+                Message = $"Machinist Battery minimum gauge ({config.Machinist.BatteryMinGauge}) exceeds overcap threshold ({config.Machinist.BatteryOvercapThreshold}) — Automaton Queen will never be summoned.",
+                SuggestedFix = "Lower the minimum gauge or raise the overcap threshold so the minimum is at or below the overcap value."
+            });
+        }
+
+        // Dancer: same min/overcap pattern for Esprit gauge (Saber Dance).
+        if (config.Dancer.SaberDanceMinGauge > config.Dancer.EspritOvercapThreshold)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Warning,
+                Category = "Dancer",
+                Message = $"Dancer Saber Dance minimum Esprit ({config.Dancer.SaberDanceMinGauge}) exceeds overcap threshold ({config.Dancer.EspritOvercapThreshold}) — Saber Dance will never fire.",
+                SuggestedFix = "Lower the minimum gauge or raise the overcap threshold so the minimum is at or below the overcap value."
+            });
+        }
+
+        // Dancer: same min/overcap pattern for Feather gauge (Fan Dance).
+        if (config.Dancer.FanDanceMinFeathers > config.Dancer.FeatherOvercapThreshold)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Warning,
+                Category = "Dancer",
+                Message = $"Dancer Fan Dance minimum feathers ({config.Dancer.FanDanceMinFeathers}) exceeds overcap threshold ({config.Dancer.FeatherOvercapThreshold}) — Fan Dance will never fire.",
+                SuggestedFix = "Lower the minimum feathers or raise the overcap threshold so the minimum is at or below the overcap value."
             });
         }
     }
