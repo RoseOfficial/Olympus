@@ -3,6 +3,14 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.10.32
+
+- Thaumaturge (pre-Black Mage) is now recognized and handled by the Black Mage rotation
+- Archer (pre-Bard) is now recognized and handled by the Bard rotation
+- Settings now show action icons next to toggle names, with a tooltip displaying the action's ID, type (GCD/oGCD), cast time, recast time, range, and AoE range
+- A new Changelog window (accessible from the main window) shows the 20 most recent plugin updates
+
+<!-- LATEST-END -->
 ## v4.10.31
 
 ### Viper
@@ -31,8 +39,6 @@ All notable changes to Olympus will be documented in this file.
 
 - Tank cooldown abilities now pre-empt tank busters predicted by the fight timeline — major defensives activate up to 8 seconds before a known tank buster rather than only reacting after damage starts
 - Damage forecasts used for healing triage now factor in timeline-predicted raidwides and tank busters, so healers and shields are deployed before mechanics land rather than in response to them
-
-<!-- LATEST-END -->
 
 ## v4.10.27
 
