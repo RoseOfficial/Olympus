@@ -4,6 +4,17 @@ using System.Collections.Generic;
 using Dalamud.Plugin.Services;
 using Lumina.Excel.Sheets;
 
+public record ActionTooltipData(
+    string Name,
+    uint ActionId,
+    bool IsGcd,
+    float CastTime,
+    float RecastTime,
+    int Range,
+    int EffectRange,
+    uint IconId
+);
+
 /// <summary>
 /// Provides localized FFXIV ability names directly from game data.
 /// Uses Lumina Excel sheets to get ability names in the current client language.
@@ -13,6 +24,7 @@ public sealed class GameDataLocalizer
     private readonly IDataManager dataManager;
     private readonly Dictionary<uint, string> actionNameCache = new();
     private readonly Dictionary<uint, string> statusNameCache = new();
+    private readonly Dictionary<uint, ActionTooltipData> actionTooltipCache = new();
 
     /// <summary>
     /// Singleton instance for easy access.
@@ -80,6 +92,39 @@ public sealed class GameDataLocalizer
     }
 
     /// <summary>
+    /// Gets tooltip data for an action (name, type, cast/recast, range, icon).
+    /// Queries the Lumina Action sheet and caches by action ID.
+    /// Returns null if the action ID is not found.
+    /// </summary>
+    public ActionTooltipData? GetActionTooltipData(uint actionId)
+    {
+        if (actionTooltipCache.TryGetValue(actionId, out var cached))
+            return cached;
+
+        var actionSheet = dataManager.GetExcelSheet<Action>();
+        if (actionSheet == null)
+            return null;
+
+        var row = actionSheet.GetRowOrDefault(actionId);
+        if (row == null)
+            return null;
+
+        var action = row.Value;
+        var data = new ActionTooltipData(
+            Name: action.Name.ToString(),
+            ActionId: actionId,
+            IsGcd: action.ActionCategory.RowId is 2 or 3,
+            CastTime: action.Cast100ms / 1000f,
+            RecastTime: action.Recast100ms / 1000f,
+            Range: (int)action.Range,
+            EffectRange: (int)action.EffectRange,
+            IconId: (uint)action.Icon
+        );
+        actionTooltipCache[actionId] = data;
+        return data;
+    }
+
+    /// <summary>
     /// Gets the localized name for a job/class by its ID.
     /// </summary>
     /// <param name="jobId">The class/job ID.</param>
@@ -123,6 +168,7 @@ public sealed class GameDataLocalizer
     {
         this.actionNameCache.Clear();
         this.statusNameCache.Clear();
+        this.actionTooltipCache.Clear();
     }
 }
 
