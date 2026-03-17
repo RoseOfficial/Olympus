@@ -145,8 +145,11 @@ public class IrisTests
         // PCT's DamageModule may try prepaint when not in combat.
         // With all motif needs set to false (default), prepaint does nothing and returns false.
         var module = new DamageModule();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
         var context = IrisTestContext.Create(
             inCombat: false,
+            canExecuteGcd: true,
+            actionService: actionService,
             needsCreatureMotif: false,
             needsWeaponMotif: false,
             needsLandscapeMotif: false);
@@ -154,6 +157,7 @@ public class IrisTests
         var result = module.TryExecute(context, isMoving: false);
 
         Assert.False(result);
+        actionService.Verify(x => x.ExecuteGcd(It.IsAny<Olympus.Models.Action.ActionDefinition>(), It.IsAny<ulong>()), Times.Never);
     }
 
     [Fact]
