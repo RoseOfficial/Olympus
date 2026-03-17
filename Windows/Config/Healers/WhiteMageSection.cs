@@ -2,6 +2,7 @@ using System;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config.Healers;
@@ -43,33 +44,39 @@ public sealed class WhiteMageSection
             ConfigUIHelpers.BeginDisabledGroup(!this.config.EnableHealing);
 
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.WhiteMage.SingleTarget, "Single-Target:"));
-            ConfigUIHelpers.Toggle("Cure", () => config.Healing.EnableCure, v => config.Healing.EnableCure = v, null, save);
+            ConfigUIHelpers.Toggle("Cure", () => config.Healing.EnableCure, v => config.Healing.EnableCure = v, null, save,
+                actionId: WHMActions.Cure.ActionId);
 
             ImGui.SameLine();
-            ConfigUIHelpers.Toggle("Cure II", () => config.Healing.EnableCureII, v => config.Healing.EnableCureII = v, null, save);
+            ConfigUIHelpers.Toggle("Cure II", () => config.Healing.EnableCureII, v => config.Healing.EnableCureII = v, null, save,
+                actionId: WHMActions.CureII.ActionId);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.WhiteMage.AoEHealing, "AoE Healing:"));
 
-            ConfigUIHelpers.Toggle("Medica", () => config.Healing.EnableMedica, v => config.Healing.EnableMedica = v, null, save);
+            ConfigUIHelpers.Toggle("Medica", () => config.Healing.EnableMedica, v => config.Healing.EnableMedica = v, null, save,
+                actionId: WHMActions.Medica.ActionId);
 
             ImGui.SameLine();
-            ConfigUIHelpers.Toggle("Medica II", () => config.Healing.EnableMedicaII, v => config.Healing.EnableMedicaII = v, null, save);
+            ConfigUIHelpers.Toggle("Medica II", () => config.Healing.EnableMedicaII, v => config.Healing.EnableMedicaII = v, null, save,
+                actionId: WHMActions.MedicaII.ActionId);
 
             ImGui.SameLine();
-            ConfigUIHelpers.Toggle("Medica III", () => config.Healing.EnableMedicaIII, v => config.Healing.EnableMedicaIII = v, null, save);
+            ConfigUIHelpers.Toggle("Medica III", () => config.Healing.EnableMedicaIII, v => config.Healing.EnableMedicaIII = v, null, save,
+                actionId: WHMActions.MedicaIII.ActionId);
 
             ConfigUIHelpers.Toggle("Cure III", () => config.Healing.EnableCureIII, v => config.Healing.EnableCureIII = v,
-                Loc.T(LocalizedStrings.WhiteMage.CureIIIDesc, "Targeted AoE heal (10y radius around target). Best when stacked."), save);
+                null, save, actionId: WHMActions.CureIII.ActionId);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.WhiteMage.LilyHeals, "Lily Heals:"));
 
-            ConfigUIHelpers.Toggle("Afflatus Solace", () => config.Healing.EnableAfflatusSolace, v => config.Healing.EnableAfflatusSolace = v, null, save);
+            ConfigUIHelpers.Toggle("Afflatus Solace", () => config.Healing.EnableAfflatusSolace, v => config.Healing.EnableAfflatusSolace = v, null, save,
+                actionId: WHMActions.AfflatusSolace.ActionId);
 
             ImGui.SameLine();
             ConfigUIHelpers.Toggle("Afflatus Rapture", () => config.Healing.EnableAfflatusRapture, v => config.Healing.EnableAfflatusRapture = v,
-                Loc.T(LocalizedStrings.WhiteMage.LilyHealsDesc, "Free heals that consume Lily gauge."), save);
+                null, save, actionId: WHMActions.AfflatusRapture.ActionId);
 
             // Blood Lily Optimization Strategy
             ConfigUIHelpers.Spacing();
@@ -102,35 +109,39 @@ public sealed class WhiteMageSection
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.WhiteMage.OgcdHeals, "oGCD Heals:"));
 
-            ConfigUIHelpers.Toggle("Tetragrammaton", () => config.Healing.EnableTetragrammaton, v => config.Healing.EnableTetragrammaton = v, null, save);
+            ConfigUIHelpers.Toggle("Tetragrammaton", () => config.Healing.EnableTetragrammaton, v => config.Healing.EnableTetragrammaton = v, null, save,
+                actionId: WHMActions.Tetragrammaton.ActionId);
 
             ImGui.SameLine();
-            ConfigUIHelpers.Toggle("Benediction", () => config.Healing.EnableBenediction, v => config.Healing.EnableBenediction = v, null, save);
+            ConfigUIHelpers.Toggle("Benediction", () => config.Healing.EnableBenediction, v => config.Healing.EnableBenediction = v, null, save,
+                actionId: WHMActions.Benediction.ActionId);
 
             ImGui.SameLine();
             ConfigUIHelpers.Toggle("Assize", () => config.Healing.EnableAssize, v => config.Healing.EnableAssize = v,
-                Loc.T(LocalizedStrings.WhiteMage.OgcdHealsDesc, "Instant heals used during weave windows."), save);
+                null, save, actionId: WHMActions.Assize.ActionId);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.WhiteMage.HealingHots, "Healing HoTs:"));
 
-            ConfigUIHelpers.Toggle("Regen", () => config.Healing.EnableRegen, v => config.Healing.EnableRegen = v, null, save);
+            ConfigUIHelpers.Toggle("Regen", () => config.Healing.EnableRegen, v => config.Healing.EnableRegen = v, null, save,
+                actionId: WHMActions.Regen.ActionId);
 
             ImGui.SameLine();
             ConfigUIHelpers.Toggle("Asylum", () => config.Healing.EnableAsylum, v => config.Healing.EnableAsylum = v,
-                Loc.T(LocalizedStrings.WhiteMage.HealingHotsDesc, "Regen (single-target) and Asylum (ground AoE HoT)."), save);
+                null, save, actionId: WHMActions.Asylum.ActionId);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.WhiteMage.Buffs, "Buffs:"));
 
-            ConfigUIHelpers.Toggle("Presence of Mind", () => config.Buffs.EnablePresenceOfMind, v => config.Buffs.EnablePresenceOfMind = v, null, save);
+            ConfigUIHelpers.Toggle("Presence of Mind", () => config.Buffs.EnablePresenceOfMind, v => config.Buffs.EnablePresenceOfMind = v, null, save,
+                actionId: WHMActions.PresenceOfMind.ActionId);
 
             ImGui.SameLine();
             ConfigUIHelpers.Toggle("Thin Air", () => config.Buffs.EnableThinAir, v => config.Buffs.EnableThinAir = v,
-                Loc.T(LocalizedStrings.WhiteMage.BuffsDesc, "Speed buff and MP cost reduction."), save);
+                null, save, actionId: WHMActions.ThinAir.ActionId);
 
             ConfigUIHelpers.Toggle("Aetherial Shift", () => config.Buffs.EnableAetherialShift, v => config.Buffs.EnableAetherialShift = v,
-                Loc.T(LocalizedStrings.WhiteMage.AetherialShiftDesc, "Gap closer (15y dash) when out of spell range."), save);
+                null, save, actionId: WHMActions.AetherialShift.ActionId);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.WhiteMage.EmergencyThresholds, "Emergency Thresholds:"));
@@ -284,29 +295,32 @@ public sealed class WhiteMageSection
 
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.WhiteMage.Shields, "Shields:"));
 
-            ConfigUIHelpers.Toggle("Divine Benison", () => config.Defensive.EnableDivineBenison, v => config.Defensive.EnableDivineBenison = v, null, save);
+            ConfigUIHelpers.Toggle("Divine Benison", () => config.Defensive.EnableDivineBenison, v => config.Defensive.EnableDivineBenison = v, null, save,
+                actionId: WHMActions.DivineBenison.ActionId);
 
             ImGui.SameLine();
             ConfigUIHelpers.Toggle("Aquaveil", () => config.Defensive.EnableAquaveil, v => config.Defensive.EnableAquaveil = v,
-                Loc.T(LocalizedStrings.WhiteMage.ShieldsDesc, "Single-target shields. Applied to tank when HP < 90%."), save);
+                null, save, actionId: WHMActions.Aquaveil.ActionId);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.WhiteMage.PartyMitigation, "Party Mitigation:"));
 
-            ConfigUIHelpers.Toggle("Plenary Indulgence", () => config.Defensive.EnablePlenaryIndulgence, v => config.Defensive.EnablePlenaryIndulgence = v, null, save);
+            ConfigUIHelpers.Toggle("Plenary Indulgence", () => config.Defensive.EnablePlenaryIndulgence, v => config.Defensive.EnablePlenaryIndulgence = v, null, save,
+                actionId: WHMActions.PlenaryIndulgence.ActionId);
 
             ImGui.SameLine();
             ConfigUIHelpers.Toggle("Temperance", () => config.Defensive.EnableTemperance, v => config.Defensive.EnableTemperance = v,
-                Loc.T(LocalizedStrings.WhiteMage.PartyMitigationDesc, "Party-wide mitigation. Used when 3+ injured or avg HP low."), save);
+                null, save, actionId: WHMActions.Temperance.ActionId);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.WhiteMage.Advanced, "Advanced:"));
 
-            ConfigUIHelpers.Toggle("Liturgy of the Bell", () => config.Defensive.EnableLiturgyOfTheBell, v => config.Defensive.EnableLiturgyOfTheBell = v, null, save);
+            ConfigUIHelpers.Toggle("Liturgy of the Bell", () => config.Defensive.EnableLiturgyOfTheBell, v => config.Defensive.EnableLiturgyOfTheBell = v, null, save,
+                actionId: WHMActions.LiturgyOfTheBell.ActionId);
 
             ImGui.SameLine();
             ConfigUIHelpers.Toggle("Divine Caress", () => config.Defensive.EnableDivineCaress, v => config.Defensive.EnableDivineCaress = v,
-                Loc.T(LocalizedStrings.WhiteMage.BellAndCaressDesc, "Bell: Ground AoE reactive heal. Caress: AoE shield after Temperance."), save);
+                null, save, actionId: WHMActions.DivineCaress.ActionId);
 
             ConfigUIHelpers.Spacing();
 
@@ -350,35 +364,43 @@ public sealed class WhiteMageSection
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.WhiteMage.StoneProgression, "Stone Progression:"));
 
-            ConfigUIHelpers.Toggle("Stone", () => config.Damage.EnableStone, v => config.Damage.EnableStone = v, null, save);
+            ConfigUIHelpers.Toggle("Stone", () => config.Damage.EnableStone, v => config.Damage.EnableStone = v, null, save,
+                actionId: WHMActions.Stone.ActionId);
 
             ImGui.SameLine();
-            ConfigUIHelpers.Toggle("Stone II", () => config.Damage.EnableStoneII, v => config.Damage.EnableStoneII = v, null, save);
+            ConfigUIHelpers.Toggle("Stone II", () => config.Damage.EnableStoneII, v => config.Damage.EnableStoneII = v, null, save,
+                actionId: WHMActions.StoneII.ActionId);
 
             ImGui.SameLine();
-            ConfigUIHelpers.Toggle("Stone III", () => config.Damage.EnableStoneIII, v => config.Damage.EnableStoneIII = v, null, save);
+            ConfigUIHelpers.Toggle("Stone III", () => config.Damage.EnableStoneIII, v => config.Damage.EnableStoneIII = v, null, save,
+                actionId: WHMActions.StoneIII.ActionId);
 
-            ConfigUIHelpers.Toggle("Stone IV", () => config.Damage.EnableStoneIV, v => config.Damage.EnableStoneIV = v, null, save);
+            ConfigUIHelpers.Toggle("Stone IV", () => config.Damage.EnableStoneIV, v => config.Damage.EnableStoneIV = v, null, save,
+                actionId: WHMActions.StoneIV.ActionId);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.WhiteMage.GlareProgression, "Glare Progression:"));
 
-            ConfigUIHelpers.Toggle("Glare", () => config.Damage.EnableGlare, v => config.Damage.EnableGlare = v, null, save);
+            ConfigUIHelpers.Toggle("Glare", () => config.Damage.EnableGlare, v => config.Damage.EnableGlare = v, null, save,
+                actionId: WHMActions.Glare.ActionId);
 
             ImGui.SameLine();
-            ConfigUIHelpers.Toggle("Glare III", () => config.Damage.EnableGlareIII, v => config.Damage.EnableGlareIII = v, null, save);
+            ConfigUIHelpers.Toggle("Glare III", () => config.Damage.EnableGlareIII, v => config.Damage.EnableGlareIII = v, null, save,
+                actionId: WHMActions.GlareIII.ActionId);
 
             ImGui.SameLine();
-            ConfigUIHelpers.Toggle("Glare IV", () => config.Damage.EnableGlareIV, v => config.Damage.EnableGlareIV = v, null, save);
+            ConfigUIHelpers.Toggle("Glare IV", () => config.Damage.EnableGlareIV, v => config.Damage.EnableGlareIV = v, null, save,
+                actionId: WHMActions.GlareIV.ActionId);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.WhiteMage.AoEDamage, "AoE Damage:"));
 
-            ConfigUIHelpers.Toggle("Holy", () => config.Damage.EnableHoly, v => config.Damage.EnableHoly = v, null, save);
+            ConfigUIHelpers.Toggle("Holy", () => config.Damage.EnableHoly, v => config.Damage.EnableHoly = v, null, save,
+                actionId: WHMActions.Holy.ActionId);
 
             ImGui.SameLine();
             ConfigUIHelpers.Toggle("Holy III", () => config.Damage.EnableHolyIII, v => config.Damage.EnableHolyIII = v,
-                Loc.T(LocalizedStrings.WhiteMage.HolyDesc, "Self-centered AoE (8y radius). Use when enemies are stacked."), save);
+                null, save, actionId: WHMActions.HolyIII.ActionId);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.WhiteMage.BloodLily, "Blood Lily:"));
@@ -406,13 +428,16 @@ public sealed class WhiteMageSection
 
             ConfigUIHelpers.BeginDisabledGroup(!config.EnableDoT);
 
-            ConfigUIHelpers.Toggle("Aero", () => config.Dot.EnableAero, v => config.Dot.EnableAero = v, null, save);
+            ConfigUIHelpers.Toggle("Aero", () => config.Dot.EnableAero, v => config.Dot.EnableAero = v, null, save,
+                actionId: WHMActions.Aero.ActionId);
 
             ImGui.SameLine();
-            ConfigUIHelpers.Toggle("Aero II", () => config.Dot.EnableAeroII, v => config.Dot.EnableAeroII = v, null, save);
+            ConfigUIHelpers.Toggle("Aero II", () => config.Dot.EnableAeroII, v => config.Dot.EnableAeroII = v, null, save,
+                actionId: WHMActions.AeroII.ActionId);
 
             ImGui.SameLine();
-            ConfigUIHelpers.Toggle("Dia", () => config.Dot.EnableDia, v => config.Dot.EnableDia = v, null, save);
+            ConfigUIHelpers.Toggle("Dia", () => config.Dot.EnableDia, v => config.Dot.EnableDia = v, null, save,
+                actionId: WHMActions.Dia.ActionId);
 
             ConfigUIHelpers.EndDisabledGroup();
             ConfigUIHelpers.EndIndent();

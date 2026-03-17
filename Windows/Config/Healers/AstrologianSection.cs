@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config.Healers;
@@ -42,37 +43,40 @@ public sealed class AstrologianSection
 
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Astrologian.GcdHeals, "GCD Heals:"));
 
-            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableBenefic, "Enable Benefic"), () => config.Astrologian.EnableBenefic, v => config.Astrologian.EnableBenefic = v, null, save);
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableBenefic, "Enable Benefic"), () => config.Astrologian.EnableBenefic, v => config.Astrologian.EnableBenefic = v, null, save,
+                actionId: ASTActions.Benefic.ActionId);
 
             ImGui.SameLine();
-            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableBeneficII, "Enable Benefic II"), () => config.Astrologian.EnableBeneficII, v => config.Astrologian.EnableBeneficII = v, null, save);
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableBeneficII, "Enable Benefic II"), () => config.Astrologian.EnableBeneficII, v => config.Astrologian.EnableBeneficII = v, null, save,
+                actionId: ASTActions.BeneficII.ActionId);
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableAspectedBenefic, "Enable Aspected Benefic"), () => config.Astrologian.EnableAspectedBenefic, v => config.Astrologian.EnableAspectedBenefic = v,
-                Loc.T(LocalizedStrings.Astrologian.AspectedBeneficDesc, "Single-target regen."), save);
+                null, save, actionId: ASTActions.AspectedBenefic.ActionId);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Astrologian.AoEHeals, "AoE Heals:"));
 
-            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableHelios, "Enable Helios"), () => config.Astrologian.EnableHelios, v => config.Astrologian.EnableHelios = v, null, save);
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableHelios, "Enable Helios"), () => config.Astrologian.EnableHelios, v => config.Astrologian.EnableHelios = v, null, save,
+                actionId: ASTActions.Helios.ActionId);
 
             ImGui.SameLine();
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableAspectedHelios, "Enable Aspected Helios"), () => config.Astrologian.EnableAspectedHelios, v => config.Astrologian.EnableAspectedHelios = v,
-                Loc.T(LocalizedStrings.Astrologian.AspectedHeliosDesc, "AoE heal + regen. Becomes Helios Conjunction at higher levels."), save);
+                null, save, actionId: ASTActions.AspectedHelios.ActionId);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Astrologian.OgcdHeals, "oGCD Heals:"));
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableEssentialDignity, "Enable Essential Dignity"), () => config.Astrologian.EnableEssentialDignity, v => config.Astrologian.EnableEssentialDignity = v,
-                Loc.T(LocalizedStrings.Astrologian.EssentialDignityDesc, "Potency scales with target's missing HP (400-1100)."), save);
+                null, save, actionId: ASTActions.EssentialDignity.ActionId);
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableCelestialIntersection, "Enable Celestial Intersection"), () => config.Astrologian.EnableCelestialIntersection, v => config.Astrologian.EnableCelestialIntersection = v,
-                Loc.T(LocalizedStrings.Astrologian.CelestialIntersectionDesc, "oGCD heal + shield."), save);
+                null, save, actionId: ASTActions.CelestialIntersection.ActionId);
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableCelestialOpposition, "Enable Celestial Opposition"), () => config.Astrologian.EnableCelestialOpposition, v => config.Astrologian.EnableCelestialOpposition = v,
-                Loc.T(LocalizedStrings.Astrologian.CelestialOppositionDesc, "oGCD AoE heal + regen."), save);
+                null, save, actionId: ASTActions.CelestialOpposition.ActionId);
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableExaltation, "Enable Exaltation"), () => config.Astrologian.EnableExaltation, v => config.Astrologian.EnableExaltation = v,
-                Loc.T(LocalizedStrings.Astrologian.ExaltationDesc, "Damage reduction + delayed heal."), save);
+                null, save, actionId: ASTActions.Exaltation.ActionId);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Astrologian.SingleTargetThresholds, "Single-Target Thresholds:"));
@@ -111,7 +115,7 @@ public sealed class AstrologianSection
             ConfigUIHelpers.BeginIndent();
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableEarthlyStar, "Enable Earthly Star"), () => config.Astrologian.EnableEarthlyStar, v => config.Astrologian.EnableEarthlyStar = v,
-                Loc.T(LocalizedStrings.Astrologian.EarthlyStarDesc, "Ground-targeted AoE that matures over 10s."), save);
+                null, save, actionId: ASTActions.EarthlyStar.ActionId);
 
             ConfigUIHelpers.BeginDisabledGroup(!config.Astrologian.EnableEarthlyStar);
 
@@ -163,7 +167,7 @@ public sealed class AstrologianSection
             ConfigUIHelpers.BeginIndent();
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableHoroscope, "Enable Horoscope"), () => config.Astrologian.EnableHoroscope, v => config.Astrologian.EnableHoroscope = v,
-                Loc.T(LocalizedStrings.Astrologian.HoroscopeDesc, "Delayed AoE heal that can be detonated manually."), save);
+                null, save, actionId: ASTActions.Horoscope.ActionId);
 
             ConfigUIHelpers.BeginDisabledGroup(!config.Astrologian.EnableHoroscope);
 
@@ -188,7 +192,7 @@ public sealed class AstrologianSection
             ConfigUIHelpers.BeginIndent();
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableMacrocosmos, "Enable Macrocosmos"), () => config.Astrologian.EnableMacrocosmos, v => config.Astrologian.EnableMacrocosmos = v,
-                Loc.T(LocalizedStrings.Astrologian.MacrocosmosDesc, "Absorbs damage taken and heals based on it."), save);
+                null, save, actionId: ASTActions.Macrocosmos.ActionId);
 
             ConfigUIHelpers.BeginDisabledGroup(!config.Astrologian.EnableMacrocosmos);
 
@@ -212,7 +216,7 @@ public sealed class AstrologianSection
             ConfigUIHelpers.BeginIndent();
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableNeutralSect, "Enable Neutral Sect"), () => config.Astrologian.EnableNeutralSect, v => config.Astrologian.EnableNeutralSect = v,
-                Loc.T(LocalizedStrings.Astrologian.NeutralSectDesc, "Boosts healing and adds shield to Aspected spells."), save);
+                null, save, actionId: ASTActions.NeutralSect.ActionId);
 
             ConfigUIHelpers.BeginDisabledGroup(!config.Astrologian.EnableNeutralSect);
 
@@ -238,7 +242,7 @@ public sealed class AstrologianSection
                 config.Astrologian.NeutralSectThreshold, 40f, 85f, Loc.T(LocalizedStrings.Astrologian.NeutralSectThresholdDesc, "Party average HP to trigger."), save);
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableSunSign, "Enable Sun Sign"), () => config.Astrologian.EnableSunSign, v => config.Astrologian.EnableSunSign = v,
-                Loc.T(LocalizedStrings.Astrologian.SunSignDesc, "Level 100 follow-up ability."), save);
+                null, save, actionId: ASTActions.SunSign.ActionId);
 
             ConfigUIHelpers.EndDisabledGroup();
             ConfigUIHelpers.EndIndent();
@@ -299,9 +303,10 @@ public sealed class AstrologianSection
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Astrologian.BurstAbilities, "Burst Abilities:"));
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableDivination, "Enable Divination"), () => config.Astrologian.EnableDivination, v => config.Astrologian.EnableDivination = v,
-                Loc.T(LocalizedStrings.Astrologian.DivinationDesc, "Party-wide damage buff."), save);
+                null, save, actionId: ASTActions.Divination.ActionId);
 
-            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableAstrodyne, "Enable Astrodyne"), () => config.Astrologian.EnableAstrodyne, v => config.Astrologian.EnableAstrodyne = v, null, save);
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableAstrodyne, "Enable Astrodyne"), () => config.Astrologian.EnableAstrodyne, v => config.Astrologian.EnableAstrodyne = v, null, save,
+                actionId: ASTActions.Astrodyne.ActionId);
 
             if (config.Astrologian.EnableAstrodyne)
             {
@@ -311,7 +316,7 @@ public sealed class AstrologianSection
             }
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableOracle, "Enable Oracle"), () => config.Astrologian.EnableOracle, v => config.Astrologian.EnableOracle = v,
-                Loc.T(LocalizedStrings.Astrologian.OracleDesc, "Divination follow-up ability."), save);
+                null, save, actionId: ASTActions.Oracle.ActionId);
 
             ConfigUIHelpers.EndDisabledGroup();
             ConfigUIHelpers.EndIndent();
@@ -325,7 +330,7 @@ public sealed class AstrologianSection
             ConfigUIHelpers.BeginIndent();
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableSynastry, "Enable Synastry"), () => config.Astrologian.EnableSynastry, v => config.Astrologian.EnableSynastry = v,
-                Loc.T(LocalizedStrings.Astrologian.SynastryDesc, "Mirrors 40% of single-target heals to Synastry target."), save);
+                null, save, actionId: ASTActions.Synastry.ActionId);
 
             ConfigUIHelpers.BeginDisabledGroup(!config.Astrologian.EnableSynastry);
 
@@ -344,7 +349,7 @@ public sealed class AstrologianSection
             ConfigUIHelpers.BeginIndent();
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableLightspeed, "Enable Lightspeed"), () => config.Astrologian.EnableLightspeed, v => config.Astrologian.EnableLightspeed = v,
-                Loc.T(LocalizedStrings.Astrologian.LightspeedDesc, "Reduces cast times and MP costs."), save);
+                null, save, actionId: ASTActions.Lightspeed.ActionId);
 
             ConfigUIHelpers.BeginDisabledGroup(!config.Astrologian.EnableLightspeed);
 
@@ -419,7 +424,8 @@ public sealed class AstrologianSection
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Astrologian.CollectiveUnconsciousLabel, "Collective Unconscious:"));
 
-            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableCollectiveUnconscious, "Enable Collective Unconscious"), () => config.Astrologian.EnableCollectiveUnconscious, v => config.Astrologian.EnableCollectiveUnconscious = v, null, save);
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableCollectiveUnconscious, "Enable Collective Unconscious"), () => config.Astrologian.EnableCollectiveUnconscious, v => config.Astrologian.EnableCollectiveUnconscious = v, null, save,
+                actionId: ASTActions.CollectiveUnconscious.ActionId);
             ConfigUIHelpers.WarningText(Loc.T(LocalizedStrings.Astrologian.CollectiveUnconsciousWarning, "Channeled ability - may interrupt other actions."));
 
             if (config.Astrologian.EnableCollectiveUnconscious)
