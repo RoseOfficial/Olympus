@@ -1,6 +1,7 @@
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
+using Olympus.Windows.Config;
 
 namespace Olympus.Windows;
 
@@ -26,7 +27,7 @@ public sealed class ChangelogWindow : Window
 
         ImGui.BeginChild("##changelog", new Vector2(0, 0), false);
 
-        var accentBlue = new Vector4(0.4f, 0.8f, 1.0f, 1f);
+        var accentBlue = ConfigUIHelpers.AccentBlue;
         var first = true;
 
         foreach (var entry in entries)

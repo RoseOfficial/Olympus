@@ -68,6 +68,13 @@ public sealed class ConfigSidebar
     private static readonly Vector4 HoverColor = new(0.25f, 0.4f, 0.6f, 1.0f);
     private static readonly Vector4 SearchMatchColor = new(1.0f, 0.9f, 0.4f, 1.0f);
 
+    private static readonly ConfigSection[] GeneralSections  = [ConfigSection.General, ConfigSection.Targeting, ConfigSection.RoleActions, ConfigSection.DrawHelper];
+    private static readonly ConfigSection[] HealerSections   = [ConfigSection.WhiteMage, ConfigSection.Scholar, ConfigSection.Astrologian, ConfigSection.Sage];
+    private static readonly ConfigSection[] TankSections     = [ConfigSection.TankShared, ConfigSection.Paladin, ConfigSection.Warrior, ConfigSection.DarkKnight, ConfigSection.Gunbreaker];
+    private static readonly ConfigSection[] MeleeSections    = [ConfigSection.MeleeDpsShared, ConfigSection.Dragoon, ConfigSection.Ninja, ConfigSection.Samurai, ConfigSection.Monk, ConfigSection.Reaper, ConfigSection.Viper];
+    private static readonly ConfigSection[] RangedSections   = [ConfigSection.RangedDpsShared, ConfigSection.Machinist, ConfigSection.Bard, ConfigSection.Dancer];
+    private static readonly ConfigSection[] CasterSections   = [ConfigSection.CasterShared, ConfigSection.BlackMage, ConfigSection.Summoner, ConfigSection.RedMage, ConfigSection.Pictomancer];
+
     // Maps sidebar sections to their primary job ID for icon lookup.
     private static readonly Dictionary<ConfigSection, uint> SectionJobIds = new()
     {
@@ -122,8 +129,7 @@ public sealed class ConfigSidebar
         ImGui.BeginChild("##ConfigSidebar", new Vector2(SidebarWidth, 0), true);
 
         // GENERAL section
-        var generalSections = new[] { ConfigSection.General, ConfigSection.Targeting, ConfigSection.RoleActions, ConfigSection.DrawHelper };
-        if (ShouldShowCategory(generalSections, matchingSections, hasSearch))
+        if (ShouldShowCategory(GeneralSections, matchingSections, hasSearch))
         {
             DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.General, "GENERAL"));
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.GeneralItem, "General"), ConfigSection.General, null, matchingSections, hasSearch);
@@ -134,8 +140,7 @@ public sealed class ConfigSidebar
         }
 
         // HEALERS section
-        var healerSections = new[] { ConfigSection.WhiteMage, ConfigSection.Scholar, ConfigSection.Astrologian, ConfigSection.Sage };
-        if (ShouldShowCategory(healerSections, matchingSections, hasSearch))
+        if (ShouldShowCategory(HealerSections, matchingSections, hasSearch))
         {
             DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.Healers, "HEALERS"));
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.WhiteMage, "White Mage"), ConfigSection.WhiteMage, ConfigUIHelpers.WhiteMageColor, matchingSections, hasSearch);
@@ -146,8 +151,7 @@ public sealed class ConfigSidebar
         }
 
         // TANKS section
-        var tankSections = new[] { ConfigSection.TankShared, ConfigSection.Paladin, ConfigSection.Warrior, ConfigSection.DarkKnight, ConfigSection.Gunbreaker };
-        if (ShouldShowCategory(tankSections, matchingSections, hasSearch))
+        if (ShouldShowCategory(TankSections, matchingSections, hasSearch))
         {
             DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.Tanks, "TANKS"));
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Shared, "Shared"), ConfigSection.TankShared, null, matchingSections, hasSearch);
@@ -159,8 +163,7 @@ public sealed class ConfigSidebar
         }
 
         // MELEE DPS section
-        var meleeSections = new[] { ConfigSection.MeleeDpsShared, ConfigSection.Dragoon, ConfigSection.Ninja, ConfigSection.Samurai, ConfigSection.Monk, ConfigSection.Reaper, ConfigSection.Viper };
-        if (ShouldShowCategory(meleeSections, matchingSections, hasSearch))
+        if (ShouldShowCategory(MeleeSections, matchingSections, hasSearch))
         {
             DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.MeleeDps, "MELEE DPS"));
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Shared, "Shared"), ConfigSection.MeleeDpsShared, null, matchingSections, hasSearch);
@@ -174,8 +177,7 @@ public sealed class ConfigSidebar
         }
 
         // RANGED DPS section
-        var rangedSections = new[] { ConfigSection.RangedDpsShared, ConfigSection.Machinist, ConfigSection.Bard, ConfigSection.Dancer };
-        if (ShouldShowCategory(rangedSections, matchingSections, hasSearch))
+        if (ShouldShowCategory(RangedSections, matchingSections, hasSearch))
         {
             DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.RangedDps, "RANGED DPS"));
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Shared, "Shared"), ConfigSection.RangedDpsShared, null, matchingSections, hasSearch);
@@ -186,8 +188,7 @@ public sealed class ConfigSidebar
         }
 
         // CASTERS section
-        var casterSections = new[] { ConfigSection.CasterShared, ConfigSection.BlackMage, ConfigSection.Summoner, ConfigSection.RedMage, ConfigSection.Pictomancer };
-        if (ShouldShowCategory(casterSections, matchingSections, hasSearch))
+        if (ShouldShowCategory(CasterSections, matchingSections, hasSearch))
         {
             DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.Casters, "CASTERS"));
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Shared, "Shared"), ConfigSection.CasterShared, null, matchingSections, hasSearch);
@@ -221,7 +222,7 @@ public sealed class ConfigSidebar
         if (hasSearch && matchingSections != null && !matchingSections.Contains(section))
             return false;
 
-        var isMatch = hasSearch && matchingSections != null && matchingSections.Contains(section);
+        var isMatch = hasSearch && matchingSections != null;
         return DrawNavItem(label, section, color, isMatch);
     }
 

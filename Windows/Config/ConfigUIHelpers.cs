@@ -18,6 +18,11 @@ public static class ConfigUIHelpers
     private const float SmallSliderWidth = 150f;
 
     /// <summary>
+    /// Accent blue used for active/highlighted UI elements.
+    /// </summary>
+    public static readonly Vector4 AccentBlue = new(0.4f, 0.8f, 1.0f, 1.0f);
+
+    /// <summary>
     /// Highlight color for search matches (yellow-gold).
     /// </summary>
     public static readonly Vector4 SearchHighlightColor = new(1.0f, 0.9f, 0.4f, 1.0f);

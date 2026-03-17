@@ -6,6 +6,7 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
 using Olympus.Config;
 using Olympus.Data;
+using Olympus.Windows.Config;
 using Olympus.Localization;
 using Olympus.Rotation;
 using Olympus.Rotation.Common;
@@ -78,7 +79,7 @@ public sealed class MainWindow : Window
         {
             var activeJobId = activeRotation.SupportedJobIds[0];
             var jobName = JobRegistry.GetJobName(activeJobId);
-            var activeColor = new Vector4(0.4f, 0.8f, 1.0f, 1.0f);
+            var activeColor = ConfigUIHelpers.AccentBlue;
 
             var iconId = JobRegistry.GetJobIconId(activeJobId);
             if (iconId != 0)
