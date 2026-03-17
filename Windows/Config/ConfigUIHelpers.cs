@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Dalamud.Interface.Textures;
+using Dalamud.Plugin.Services;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config;
@@ -22,6 +26,37 @@ public static class ConfigUIHelpers
     /// Current search query for highlighting. Set by ConfigWindow.
     /// </summary>
     public static string? CurrentSearchQuery { get; set; }
+
+    /// <summary>
+    /// Texture provider for rendering job icons. Set by ConfigWindow.
+    /// </summary>
+    public static ITextureProvider? TextureProvider { get; set; }
+
+    // Maps job display names (as passed to JobHeader) to their primary job IDs.
+    private static readonly Dictionary<string, uint> JobNameToId = new(StringComparer.OrdinalIgnoreCase)
+    {
+        { "White Mage",    JobRegistry.WhiteMage },
+        { "Scholar",       JobRegistry.Scholar },
+        { "Astrologian",   JobRegistry.Astrologian },
+        { "Sage",          JobRegistry.Sage },
+        { "Paladin",       JobRegistry.Paladin },
+        { "Warrior",       JobRegistry.Warrior },
+        { "Dark Knight",   JobRegistry.DarkKnight },
+        { "Gunbreaker",    JobRegistry.Gunbreaker },
+        { "Dragoon",       JobRegistry.Dragoon },
+        { "Ninja",         JobRegistry.Ninja },
+        { "Samurai",       JobRegistry.Samurai },
+        { "Monk",          JobRegistry.Monk },
+        { "Reaper",        JobRegistry.Reaper },
+        { "Viper",         JobRegistry.Viper },
+        { "Bard",          JobRegistry.Bard },
+        { "Machinist",     JobRegistry.Machinist },
+        { "Dancer",        JobRegistry.Dancer },
+        { "Black Mage",    JobRegistry.BlackMage },
+        { "Summoner",      JobRegistry.Summoner },
+        { "Red Mage",      JobRegistry.RedMage },
+        { "Pictomancer",   JobRegistry.Pictomancer },
+    };
 
     #region Job Header Colors
 
@@ -61,10 +96,21 @@ public static class ConfigUIHelpers
     #region Headers
 
     /// <summary>
-    /// Renders a job header with the job name and Greek deity name.
+    /// Renders a job header with the job name and Greek deity name, with an icon when available.
     /// </summary>
     public static void JobHeader(string jobName, string deityName, Vector4 color)
     {
+        if (TextureProvider != null && JobNameToId.TryGetValue(jobName, out var jobId))
+        {
+            var iconId = JobRegistry.GetJobIconId(jobId);
+            if (iconId != 0)
+            {
+                var wrap = TextureProvider.GetFromGameIcon(new GameIconLookup(iconId)).GetWrapOrEmpty();
+                ImGui.Image(wrap.Handle, new Vector2(20, 20));
+                ImGui.SameLine();
+            }
+        }
+
         var headerText = Loc.TFormat(LocalizedStrings.Helpers.JobHeaderFormat, "{0} ({1}) Settings", deityName, jobName);
         ImGui.TextColored(color, headerText);
         ImGui.Spacing();
@@ -129,13 +175,44 @@ public static class ConfigUIHelpers
 
     /// <summary>
     /// Binds a boolean config property to a checkbox using getter/setter lambdas.
-    /// Eliminates the local-variable workaround required by ImGui's ref bool parameter.
+    /// When actionId is non-zero, renders a 16x16 action icon before the checkbox and shows
+    /// a structured game-data tooltip on hover. When actionId is zero, delegates to ToggleCheckbox.
     /// </summary>
-    public static void Toggle(string label, Func<bool> get, Action<bool> set, string? tooltip, Action save)
+    public static void Toggle(string label, Func<bool> get, Action<bool> set, string? tooltip, Action save, uint actionId = 0)
     {
-        var val = get();
-        if (ToggleCheckbox(label, ref val, tooltip, save))
-            set(val);
+        if (actionId != 0)
+        {
+            var data = GameDataLocalizer.Instance?.GetActionTooltipData(actionId);
+            if (data != null && TextureProvider != null)
+            {
+                var wrap = TextureProvider.GetFromGameIcon(new GameIconLookup(data.IconId)).GetWrapOrEmpty();
+                ImGui.Image(wrap.Handle, new Vector2(16, 16));
+                ImGui.SameLine(0, 4);
+            }
+
+            var val = get();
+            var changed = ImGui.Checkbox(label, ref val);
+            if (changed)
+            {
+                set(val);
+                save();
+            }
+
+            if (data != null && ImGui.IsItemHovered())
+            {
+                ImGui.BeginTooltip();
+                ImGui.Text($"{data.Name} (ID: {data.ActionId}) [{(data.IsGcd ? "GCD" : "oGCD")}]");
+                ImGui.Text($"Cast: {data.CastTime:F1}s   Recast: {data.RecastTime:F1}s");
+                ImGui.Text($"Range: {data.Range}y   AoE: {data.EffectRange}y");
+                ImGui.EndTooltip();
+            }
+        }
+        else
+        {
+            var val = get();
+            if (ToggleCheckbox(label, ref val, tooltip, save))
+                set(val);
+        }
     }
 
     /// <summary>
