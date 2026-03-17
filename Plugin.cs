@@ -124,6 +124,10 @@ public sealed class Plugin : IDalamudPlugin
 
     private readonly OlympusIpc olympusIpc;
     private readonly UpdateCheckerService updateCheckerService;
+
+    // Stored event handler delegates to allow removal in Dispose
+    private readonly Action<uint, uint> onAbilityUsedHandler;
+    private readonly Action<FightSession> onSessionCompletedHandler;
     public Plugin(
         IDalamudPluginInterface pluginInterface,
         IFramework framework,
@@ -199,7 +203,8 @@ public sealed class Plugin : IDalamudPlugin
 
         // Timeline service for fight-aware predictions (must precede TankCooldownService)
         this.timelineService = new TimelineService(log, combatEventService);
-        combatEventService.OnAbilityUsed += (sourceId, actionId) => timelineService.OnAbilityUsed(sourceId, actionId);
+        this.onAbilityUsedHandler = (sourceId, actionId) => timelineService.OnAbilityUsed(sourceId, actionId);
+        combatEventService.OnAbilityUsed += this.onAbilityUsedHandler;
 
         // Wire timeline into damage prediction service
         this.damageIntakeService.SetTimelineService(this.timelineService);
@@ -262,10 +267,8 @@ public sealed class Plugin : IDalamudPlugin
         this.trainingService.SetSpacedRepetitionService(this.spacedRepetitionService);
 
         // Connect analytics to training recommendations (v3.10.0)
-        this.performanceTracker.OnSessionCompleted += session =>
-        {
-            this.trainingService.UpdateRecommendations(session);
-        };
+        this.onSessionCompletedHandler = session => this.trainingService.UpdateRecommendations(session);
+        this.performanceTracker.OnSessionCompleted += this.onSessionCompletedHandler;
 
         // Create service container for rotation dependency injection
         this.serviceContainer = CreateServiceContainer();
@@ -542,6 +545,8 @@ public sealed class Plugin : IDalamudPlugin
 
         framework.Update -= OnFrameworkUpdate;
         clientState.TerritoryChanged -= OnTerritoryChanged;
+        combatEventService.OnAbilityUsed -= this.onAbilityUsedHandler;
+        performanceTracker.OnSessionCompleted -= this.onSessionCompletedHandler;
         commandManager.RemoveHandler(CommandName);
 
         pluginInterface.UiBuilder.Draw -= DrawUI;
