@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config.Tanks;
@@ -45,7 +46,8 @@ public sealed class TankSharedSection
                 config.Tank.MitigationThreshold, 40f, 90f, Loc.T(LocalizedStrings.Tank.MitigationThresholdDesc, "Use mitigation when HP drops below this %."), save);
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Tank.UseRampartOnCooldown, "Use Rampart on Cooldown"), () => config.Tank.UseRampartOnCooldown, v => config.Tank.UseRampartOnCooldown = v,
-                Loc.T(LocalizedStrings.Tank.UseRampartOnCooldownDesc, "If disabled, saves major cooldowns for tank busters."), save);
+                null, save,
+                actionId: PLDActions.Rampart.ActionId);
 
             config.Tank.SheltronMinGauge = ConfigUIHelpers.IntSlider(Loc.T(LocalizedStrings.Tank.SheltronMinGauge, "Min Gauge for Short CDs"),
                 config.Tank.SheltronMinGauge, 0, 100,
@@ -95,7 +97,8 @@ public sealed class TankSharedSection
             ImGui.TextDisabled(Loc.T("config.job.tank.mt_ot_role_desc", "Auto detects based on who the enemy is targeting. Override if detection is unreliable."));
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Tank.AutoProvoke, "Auto Provoke"), () => config.Tank.AutoProvoke, v => config.Tank.AutoProvoke = v,
-                Loc.T(LocalizedStrings.Tank.AutoProvokeDesc, "Automatically Provoke when losing aggro."), save);
+                null, save,
+                actionId: PLDActions.Provoke.ActionId);
 
             if (config.Tank.AutoProvoke)
             {
@@ -105,7 +108,8 @@ public sealed class TankSharedSection
             }
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Tank.AutoShirk, "Auto Shirk"), () => config.Tank.AutoShirk, v => config.Tank.AutoShirk = v,
-                Loc.T(LocalizedStrings.Tank.AutoShirkDesc, "Shirk to co-tank after tank swap."), save);
+                null, save,
+                actionId: PLDActions.Shirk.ActionId);
 
             ConfigUIHelpers.EndIndent();
         }
