@@ -12,7 +12,6 @@ All notable changes to Olympus will be documented in this file.
 - Second Wind, Bloodbath, Feint, and True North are now active in the rotation
 - Writhing Snap is now used as a ranged filler when out of melee range with no Rattling Coils available
 
-<!-- LATEST-END -->
 
 ## v4.10.30
 
@@ -32,6 +31,8 @@ All notable changes to Olympus will be documented in this file.
 
 - Tank cooldown abilities now pre-empt tank busters predicted by the fight timeline — major defensives activate up to 8 seconds before a known tank buster rather than only reacting after damage starts
 - Damage forecasts used for healing triage now factor in timeline-predicted raidwides and tank busters, so healers and shields are deployed before mechanics land rather than in response to them
+
+<!-- LATEST-END -->
 
 ## v4.10.27
 
