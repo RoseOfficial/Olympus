@@ -1086,7 +1086,7 @@ public static class SGEActions
     /// <summary>
     /// Addersting buff status ID (indicates available Toxikon charges).
     /// </summary>
-    public const ushort AdderstingStatusId = 2604;
+    public const ushort AdderstingStatusId = 2626;
 
     #endregion
 }
