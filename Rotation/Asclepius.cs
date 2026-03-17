@@ -138,6 +138,7 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
             new KardiaModule(),         // Priority 3 - Ensure Kardia is placed
             new ResurrectionModule(),   // Priority 5 - Raise dead party members
             new HealingModule(),        // Priority 10 - Addersgall heals, oGCDs, GCD heals
+            new DefensiveModule(),      // Priority 20 - Kerachole, Taurochole, Holos, Panhaima, Haima
             new DamageModule(),         // Priority 50 - DoT, Dosis, Phlegma, Psyche
         };
 

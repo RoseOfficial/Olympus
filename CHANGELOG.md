@@ -11,6 +11,7 @@ All notable changes to Olympus will be documented in this file.
 - A new Changelog window (accessible from the main window) shows the 20 most recent plugin updates
 - Fight timelines are now available for all 8 Pandaemonium Savage raids (P1S–P8S), enabling timeline-aware cooldown planning in those encounters
 - Internal error tracking is now active, allowing suppressed errors to be surfaced in the debug window without flooding game logs
+- Sage now automatically uses mitigation cooldowns (Kerachole, Taurochole, Holos, Panhaima, Haima), matching other healer jobs
 
 <!-- LATEST-END -->
 ## v4.10.31
