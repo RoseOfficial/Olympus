@@ -556,10 +556,24 @@ public static class ConfigUIHelpers
 
     /// <summary>
     /// Renders a checkbox with search highlighting support.
+    /// When actionId is non-zero, renders a 16x16 action icon before the checkbox and shows
+    /// a structured game-data tooltip on hover.
     /// </summary>
-    public static bool HighlightedCheckbox(string label, ref bool value, string? description, Action save)
+    public static bool HighlightedCheckbox(string label, ref bool value, string? description, Action save, uint actionId = 0)
     {
         var highlighted = BeginSearchHighlight(label, description);
+
+        ActionTooltipData? data = null;
+        if (actionId != 0)
+        {
+            data = GameDataLocalizer.Instance?.GetActionTooltipData(actionId);
+            if (data != null && TextureProvider != null && data.IconId != 0)
+            {
+                var wrap = TextureProvider.GetFromGameIcon(new GameIconLookup(data.IconId)).GetWrapOrEmpty();
+                ImGui.Image(wrap.Handle, new Vector2(16, 16));
+                ImGui.SameLine(0, 4);
+            }
+        }
 
         var changed = ImGui.Checkbox(label, ref value);
         if (changed)
@@ -567,6 +581,15 @@ public static class ConfigUIHelpers
 
         if (highlighted)
             EndSearchHighlight();
+
+        if (data != null && ImGui.IsItemHovered())
+        {
+            ImGui.BeginTooltip();
+            ImGui.Text($"{data.Name} (ID: {data.ActionId}) [{(data.IsGcd ? "GCD" : "oGCD")}]");
+            ImGui.Text($"Cast: {data.CastTime:F1}s   Recast: {data.RecastTime:F1}s");
+            ImGui.Text($"Range: {data.Range}y   AoE: {data.EffectRange}y");
+            ImGui.EndTooltip();
+        }
 
         if (!string.IsNullOrEmpty(description))
             HighlightedTextDisabled(description);
