@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config.DPS;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config.DPS;
@@ -39,19 +40,19 @@ public sealed class BlackMageSection
                 Loc.T(LocalizedStrings.BlackMage.EnableXenoglossy, "Enable Xenoglossy"),
                 () => config.BlackMage.EnableXenoglossy,
                 v => config.BlackMage.EnableXenoglossy = v,
-                Loc.T(LocalizedStrings.BlackMage.EnableXenoglossyDesc, "Use Xenoglossy (Polyglot spender)"), save);
+                null, save, actionId: BLMActions.Xenoglossy.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.BlackMage.EnableDespair, "Enable Despair"),
                 () => config.BlackMage.EnableDespair,
                 v => config.BlackMage.EnableDespair = v,
-                Loc.T(LocalizedStrings.BlackMage.EnableDespairDesc, "Use Despair"), save);
+                null, save, actionId: BLMActions.Despair.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.BlackMage.EnableFlareStar, "Enable Flare Star"),
                 () => config.BlackMage.EnableFlareStar,
                 v => config.BlackMage.EnableFlareStar = v,
-                Loc.T(LocalizedStrings.BlackMage.EnableFlareStarDesc, "Use Flare Star"), save);
+                null, save, actionId: BLMActions.FlareStar.ActionId);
 
             ConfigUIHelpers.Spacing();
 
@@ -121,7 +122,7 @@ public sealed class BlackMageSection
                 Loc.T(LocalizedStrings.BlackMage.EnableLeyLines, "Enable Ley Lines"),
                 () => config.BlackMage.EnableLeyLines,
                 v => config.BlackMage.EnableLeyLines = v,
-                Loc.T(LocalizedStrings.BlackMage.EnableLeyLinesDesc, "Use Ley Lines"), save);
+                null, save, actionId: BLMActions.LeyLines.ActionId);
 
             ConfigUIHelpers.EndIndent();
         }

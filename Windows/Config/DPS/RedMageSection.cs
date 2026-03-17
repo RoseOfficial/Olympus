@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config.DPS;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config.DPS;
@@ -45,7 +46,7 @@ public sealed class RedMageSection
                 Loc.T(LocalizedStrings.RedMage.EnableGrandImpact, "Enable Grand Impact"),
                 () => config.RedMage.EnableGrandImpact,
                 v => config.RedMage.EnableGrandImpact = v,
-                Loc.T(LocalizedStrings.RedMage.EnableGrandImpactDesc, "Use Grand Impact procs"), save);
+                null, save, actionId: RDMActions.GrandImpact.ActionId);
 
             ConfigUIHelpers.Spacing();
 
@@ -132,13 +133,13 @@ public sealed class RedMageSection
                 Loc.T(LocalizedStrings.RedMage.EnableEmbolden, "Enable Embolden"),
                 () => config.RedMage.EnableEmbolden,
                 v => config.RedMage.EnableEmbolden = v,
-                Loc.T(LocalizedStrings.RedMage.EnableEmboldenDesc, "Use Embolden (party buff)"), save);
+                null, save, actionId: RDMActions.Embolden.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.RedMage.EnableManafication, "Enable Manafication"),
                 () => config.RedMage.EnableManafication,
                 v => config.RedMage.EnableManafication = v,
-                Loc.T(LocalizedStrings.RedMage.EnableManaficationDesc, "Use Manafication"), save);
+                null, save, actionId: RDMActions.Manafication.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.RedMage.AlignWithParty, "Align with Party"),

@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config.DPS;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config.DPS;
@@ -39,7 +40,7 @@ public sealed class SummonerSection
                 Loc.T(LocalizedStrings.Summoner.EnableRuinIV, "Enable Ruin IV"),
                 () => config.Summoner.EnableRuinIV,
                 v => config.Summoner.EnableRuinIV = v,
-                Loc.T(LocalizedStrings.Summoner.EnableRuinIVDesc, "Use Ruin IV procs"), save);
+                null, save, actionId: SMNActions.Ruin4.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Summoner.EnablePrimalAbilities, "Enable Primal Abilities"),
@@ -93,19 +94,19 @@ public sealed class SummonerSection
                 Loc.T(LocalizedStrings.Summoner.EnableIfrit, "Enable Ifrit"),
                 () => config.Summoner.EnableIfrit,
                 v => config.Summoner.EnableIfrit = v,
-                null, save);
+                null, save, actionId: SMNActions.SummonIfrit.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Summoner.EnableTitan, "Enable Titan"),
                 () => config.Summoner.EnableTitan,
                 v => config.Summoner.EnableTitan = v,
-                null, save);
+                null, save, actionId: SMNActions.SummonTitan.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Summoner.EnableGaruda, "Enable Garuda"),
                 () => config.Summoner.EnableGaruda,
                 v => config.Summoner.EnableGaruda = v,
-                null, save);
+                null, save, actionId: SMNActions.SummonGaruda.ActionId);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -121,19 +122,19 @@ public sealed class SummonerSection
                 Loc.T(LocalizedStrings.Summoner.EnableBahamut, "Enable Bahamut"),
                 () => config.Summoner.EnableBahamut,
                 v => config.Summoner.EnableBahamut = v,
-                Loc.T(LocalizedStrings.Summoner.EnableBahamutDesc, "Summon Bahamut"), save);
+                null, save, actionId: SMNActions.SummonBahamut.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Summoner.EnablePhoenix, "Enable Phoenix"),
                 () => config.Summoner.EnablePhoenix,
                 v => config.Summoner.EnablePhoenix = v,
-                Loc.T(LocalizedStrings.Summoner.EnablePhoenixDesc, "Summon Phoenix"), save);
+                null, save, actionId: SMNActions.SummonPhoenix.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Summoner.EnableSolarBahamut, "Enable Solar Bahamut"),
                 () => config.Summoner.EnableSolarBahamut,
                 v => config.Summoner.EnableSolarBahamut = v,
-                Loc.T(LocalizedStrings.Summoner.EnableSolarBahamutDesc, "Summon Solar Bahamut"), save);
+                null, save, actionId: SMNActions.SummonSolarBahamut.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Summoner.EnableEnkindle, "Enable Enkindle"),
@@ -155,7 +156,7 @@ public sealed class SummonerSection
                 Loc.T(LocalizedStrings.Summoner.EnableSearingLight, "Enable Searing Light"),
                 () => config.Summoner.EnableSearingLight,
                 v => config.Summoner.EnableSearingLight = v,
-                Loc.T(LocalizedStrings.Summoner.EnableSearingLightDesc, "Use Searing Light (party buff)"), save);
+                null, save, actionId: SMNActions.SearingLight.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Summoner.AlignWithParty, "Align with Party"),

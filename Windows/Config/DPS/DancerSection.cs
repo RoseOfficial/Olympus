@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config.DPS;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config.DPS;
@@ -45,13 +46,13 @@ public sealed class DancerSection
                 Loc.T(LocalizedStrings.Dancer.EnableStarfallDance, "Enable Starfall Dance"),
                 () => config.Dancer.EnableStarfallDance,
                 v => config.Dancer.EnableStarfallDance = v,
-                Loc.T(LocalizedStrings.Dancer.EnableStarfallDanceDesc, "Use Starfall Dance"), save);
+                null, save, actionId: DNCActions.StarfallDance.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Dancer.EnableTillana, "Enable Tillana"),
                 () => config.Dancer.EnableTillana,
                 v => config.Dancer.EnableTillana = v,
-                Loc.T(LocalizedStrings.Dancer.EnableTillanaDesc, "Use Tillana"), save);
+                null, save, actionId: DNCActions.Tillana.ActionId);
 
             ConfigUIHelpers.Spacing();
 
@@ -83,13 +84,13 @@ public sealed class DancerSection
                 Loc.T(LocalizedStrings.Dancer.EnableStandardStep, "Enable Standard Step"),
                 () => config.Dancer.EnableStandardStep,
                 v => config.Dancer.EnableStandardStep = v,
-                Loc.T(LocalizedStrings.Dancer.EnableStandardStepDesc, "Use Standard Step"), save);
+                null, save, actionId: DNCActions.StandardStep.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Dancer.EnableTechnicalStep, "Enable Technical Step"),
                 () => config.Dancer.EnableTechnicalStep,
                 v => config.Dancer.EnableTechnicalStep = v,
-                Loc.T(LocalizedStrings.Dancer.EnableTechnicalStepDesc, "Use Technical Step"), save);
+                null, save, actionId: DNCActions.TechnicalStep.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Dancer.DelayStandardForTechnical, "Delay Standard for Technical"),
@@ -111,7 +112,7 @@ public sealed class DancerSection
                 Loc.T(LocalizedStrings.Dancer.EnableSaberDance, "Enable Saber Dance"),
                 () => config.Dancer.EnableSaberDance,
                 v => config.Dancer.EnableSaberDance = v,
-                Loc.T(LocalizedStrings.Dancer.EnableSaberDanceDesc, "Use Saber Dance"), save);
+                null, save, actionId: DNCActions.SaberDance.ActionId);
 
             config.Dancer.SaberDanceMinGauge = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Dancer.SaberDanceMinGauge, "Saber Dance Min Gauge"),
@@ -145,7 +146,7 @@ public sealed class DancerSection
                 Loc.T(LocalizedStrings.Dancer.EnableDevilment, "Enable Devilment"),
                 () => config.Dancer.EnableDevilment,
                 v => config.Dancer.EnableDevilment = v,
-                Loc.T(LocalizedStrings.Dancer.EnableDevilmentDesc, "Use Devilment"), save);
+                null, save, actionId: DNCActions.Devilment.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Dancer.AlignWithParty, "Align with Party"),

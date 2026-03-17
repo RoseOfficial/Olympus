@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config.DPS;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config.DPS;
@@ -39,19 +40,19 @@ public sealed class PictomancerSection
                 Loc.T(LocalizedStrings.Pictomancer.EnableHolyInWhite, "Enable Holy in White"),
                 () => config.Pictomancer.EnableHolyInWhite,
                 v => config.Pictomancer.EnableHolyInWhite = v,
-                Loc.T(LocalizedStrings.Pictomancer.EnableHolyInWhiteDesc, "Use Holy in White"), save);
+                null, save, actionId: PCTActions.HolyInWhite.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Pictomancer.EnableCometInBlack, "Enable Comet in Black"),
                 () => config.Pictomancer.EnableCometInBlack,
                 v => config.Pictomancer.EnableCometInBlack = v,
-                Loc.T(LocalizedStrings.Pictomancer.EnableCometInBlackDesc, "Use Comet in Black"), save);
+                null, save, actionId: PCTActions.CometInBlack.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Pictomancer.EnableStarPrism, "Enable Star Prism"),
                 () => config.Pictomancer.EnableStarPrism,
                 v => config.Pictomancer.EnableStarPrism = v,
-                Loc.T(LocalizedStrings.Pictomancer.EnableStarPrismDesc, "Use Star Prism"), save);
+                null, save, actionId: PCTActions.StarPrism.ActionId);
 
             ConfigUIHelpers.Spacing();
 
@@ -126,19 +127,19 @@ public sealed class PictomancerSection
                 Loc.T(LocalizedStrings.Pictomancer.EnableLivingMuse, "Enable Living Muse"),
                 () => config.Pictomancer.EnableLivingMuse,
                 v => config.Pictomancer.EnableLivingMuse = v,
-                Loc.T(LocalizedStrings.Pictomancer.EnableLivingMuseDesc, "Use Living Muse"), save);
+                null, save, actionId: PCTActions.LivingMuse.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Pictomancer.EnableSteelMuse, "Enable Steel Muse"),
                 () => config.Pictomancer.EnableSteelMuse,
                 v => config.Pictomancer.EnableSteelMuse = v,
-                Loc.T(LocalizedStrings.Pictomancer.EnableSteelMuseDesc, "Use Steel Muse"), save);
+                null, save, actionId: PCTActions.SteelMuse.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Pictomancer.EnableScenicMuse, "Enable Scenic Muse"),
                 () => config.Pictomancer.EnableScenicMuse,
                 v => config.Pictomancer.EnableScenicMuse = v,
-                Loc.T(LocalizedStrings.Pictomancer.EnableScenicMuseDesc, "Use Scenic Muse"), save);
+                null, save, actionId: PCTActions.ScenicMuse.ActionId);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -154,7 +155,7 @@ public sealed class PictomancerSection
                 Loc.T(LocalizedStrings.Pictomancer.EnableStarryMuse, "Enable Starry Muse"),
                 () => config.Pictomancer.EnableStarryMuse,
                 v => config.Pictomancer.EnableStarryMuse = v,
-                Loc.T(LocalizedStrings.Pictomancer.EnableStarryMuseDesc, "Use Starry Muse (party buff)"), save);
+                null, save, actionId: PCTActions.StarryMuse.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Pictomancer.AlignWithParty, "Align with Party"),

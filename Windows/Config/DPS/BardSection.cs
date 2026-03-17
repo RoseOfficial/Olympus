@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config.DPS;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config.DPS;
@@ -39,13 +40,13 @@ public sealed class BardSection
                 Loc.T(LocalizedStrings.Bard.EnableApexArrow, "Enable Apex Arrow"),
                 () => config.Bard.EnableApexArrow,
                 v => config.Bard.EnableApexArrow = v,
-                Loc.T(LocalizedStrings.Bard.EnableApexArrowDesc, "Use Apex Arrow"), save);
+                null, save, actionId: BRDActions.ApexArrow.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Bard.EnableBlastArrow, "Enable Blast Arrow"),
                 () => config.Bard.EnableBlastArrow,
                 v => config.Bard.EnableBlastArrow = v,
-                Loc.T(LocalizedStrings.Bard.EnableBlastArrowDesc, "Use Blast Arrow"), save);
+                null, save, actionId: BRDActions.BlastArrow.ActionId);
 
             config.Bard.ApexArrowMinGauge = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Bard.ApexArrowMinGauge, "Apex Arrow Min Gauge"),
@@ -89,7 +90,7 @@ public sealed class BardSection
                 Loc.T(LocalizedStrings.Bard.EnablePitchPerfect, "Enable Pitch Perfect"),
                 () => config.Bard.EnablePitchPerfect,
                 v => config.Bard.EnablePitchPerfect = v,
-                Loc.T(LocalizedStrings.Bard.EnablePitchPerfectDesc, "Use Pitch Perfect during Wanderer's Minuet"), save);
+                null, save, actionId: BRDActions.PitchPerfect.ActionId);
 
             config.Bard.PitchPerfectMinStacks = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Bard.PitchPerfectMinStacks, "Pitch Perfect Min Stacks"),
@@ -116,13 +117,13 @@ public sealed class BardSection
                 Loc.T(LocalizedStrings.Bard.EnableCausticBite, "Enable Caustic Bite"),
                 () => config.Bard.EnableCausticBite,
                 v => config.Bard.EnableCausticBite = v,
-                Loc.T(LocalizedStrings.Bard.EnableCausticBiteDesc, "Maintain Caustic Bite DoT"), save);
+                null, save, actionId: BRDActions.CausticBite.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Bard.EnableStormbite, "Enable Stormbite"),
                 () => config.Bard.EnableStormbite,
                 v => config.Bard.EnableStormbite = v,
-                Loc.T(LocalizedStrings.Bard.EnableStormBiteDesc, "Maintain Stormbite DoT"), save);
+                null, save, actionId: BRDActions.Stormbite.ActionId);
 
             config.Bard.DotRefreshThreshold = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Bard.DotRefreshThreshold, "DoT Refresh Threshold"),
@@ -149,13 +150,13 @@ public sealed class BardSection
                 Loc.T(LocalizedStrings.Bard.EnableBattleVoice, "Enable Battle Voice"),
                 () => config.Bard.EnableBattleVoice,
                 v => config.Bard.EnableBattleVoice = v,
-                Loc.T(LocalizedStrings.Bard.EnableBattleVoiceDesc, "Use Battle Voice (party buff)"), save);
+                null, save, actionId: BRDActions.BattleVoice.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Bard.EnableRadiantFinale, "Enable Radiant Finale"),
                 () => config.Bard.EnableRadiantFinale,
                 v => config.Bard.EnableRadiantFinale = v,
-                Loc.T(LocalizedStrings.Bard.EnableRadiantFinaleDesc, "Use Radiant Finale (party buff)"), save);
+                null, save, actionId: BRDActions.RadiantFinale.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Bard.AlignWithParty, "Align with Party"),

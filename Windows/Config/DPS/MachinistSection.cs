@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config.DPS;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config.DPS;
@@ -39,19 +40,19 @@ public sealed class MachinistSection
                 Loc.T(LocalizedStrings.Machinist.EnableDrill, "Enable Drill"),
                 () => config.Machinist.EnableDrill,
                 v => config.Machinist.EnableDrill = v,
-                Loc.T(LocalizedStrings.Machinist.EnableDrillDesc, "Use Drill"), save);
+                null, save, actionId: MCHActions.Drill.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Machinist.EnableAirAnchor, "Enable Air Anchor"),
                 () => config.Machinist.EnableAirAnchor,
                 v => config.Machinist.EnableAirAnchor = v,
-                Loc.T(LocalizedStrings.Machinist.EnableAirAnchorDesc, "Use Air Anchor"), save);
+                null, save, actionId: MCHActions.AirAnchor.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Machinist.EnableChainSaw, "Enable Chain Saw"),
                 () => config.Machinist.EnableChainSaw,
                 v => config.Machinist.EnableChainSaw = v,
-                Loc.T(LocalizedStrings.Machinist.EnableChainSawDesc, "Use Chain Saw"), save);
+                null, save, actionId: MCHActions.ChainSaw.ActionId);
 
             ConfigUIHelpers.Spacing();
 
@@ -118,13 +119,13 @@ public sealed class MachinistSection
                 Loc.T(LocalizedStrings.Machinist.EnableAutomatonQueen, "Enable Automaton Queen"),
                 () => config.Machinist.EnableAutomatonQueen,
                 v => config.Machinist.EnableAutomatonQueen = v,
-                Loc.T(LocalizedStrings.Machinist.EnableAutomatonQueenDesc, "Summon Automaton Queen"), save);
+                null, save, actionId: MCHActions.AutomatonQueen.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Machinist.EnableQueenOverdrive, "Enable Queen Overdrive"),
                 () => config.Machinist.EnableQueenOverdrive,
                 v => config.Machinist.EnableQueenOverdrive = v,
-                Loc.T(LocalizedStrings.Machinist.EnableQueenOverdriveDesc, "Use Queen Overdrive for burst"), save);
+                null, save, actionId: MCHActions.QueenOverdrive.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Machinist.SaveBatteryForBurst, "Save Battery for Burst"),
@@ -146,7 +147,7 @@ public sealed class MachinistSection
                 Loc.T(LocalizedStrings.Machinist.EnableWildfire, "Enable Wildfire"),
                 () => config.Machinist.EnableWildfire,
                 v => config.Machinist.EnableWildfire = v,
-                Loc.T(LocalizedStrings.Machinist.EnableWildfireDesc, "Use Wildfire"), save);
+                null, save, actionId: MCHActions.Wildfire.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Machinist.AlignWithParty, "Align with Party"),
