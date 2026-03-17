@@ -176,8 +176,7 @@ public sealed class ScholarSection
                 config.Scholar.SeraphPartyHpThreshold, 50f, 90f, null, save);
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableConsolation, "Enable Consolation"), () => config.Scholar.EnableConsolation, v => config.Scholar.EnableConsolation = v,
-                Loc.T(LocalizedStrings.Scholar.ConsolationDesc, "Seraph AoE heal + shield ability."), save,
-                actionId: SCHActions.Consolation.ActionId);
+                null, save, actionId: SCHActions.Consolation.ActionId);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.SeraphismLabel, "Seraphism (Lv100):"));
