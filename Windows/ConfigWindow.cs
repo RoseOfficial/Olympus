@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
+using Dalamud.Plugin.Services;
 using Dalamud.Utility;
 using Olympus.Config;
 using Olympus.Localization;
@@ -35,7 +36,7 @@ public sealed class ConfigWindow : Window
     private DateTime _clipboardStatusExpiry = DateTime.MinValue;
 
     // Sidebar navigation
-    private readonly ConfigSidebar sidebar = new();
+    private readonly ConfigSidebar sidebar;
 
     // Section renderers
     private readonly GeneralSection generalSection;
@@ -68,12 +69,15 @@ public sealed class ConfigWindow : Window
     private readonly PictomancerSection pictomancerSection;
     private readonly DrawHelperSection drawHelperSection;
 
-    public ConfigWindow(Configuration configuration, Action saveConfiguration, UpdateCheckerService updateCheckerService)
+    public ConfigWindow(Configuration configuration, Action saveConfiguration, UpdateCheckerService updateCheckerService, ITextureProvider textureProvider)
         : base(Loc.T(LocalizedStrings.Config.WindowTitle, "Olympus Settings"), ImGuiWindowFlags.NoCollapse)
     {
         this.configuration = configuration;
         this.saveConfiguration = saveConfiguration;
         this.updateCheckerService = updateCheckerService;
+
+        ConfigUIHelpers.TextureProvider = textureProvider;
+        sidebar = new ConfigSidebar(textureProvider);
 
         // Initialize all section renderers
         generalSection = new GeneralSection(configuration, saveConfiguration);

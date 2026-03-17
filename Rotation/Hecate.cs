@@ -25,7 +25,7 @@ namespace Olympus.Rotation;
 /// Orchestrates modular execution: each module handles a specific concern.
 /// Named after Hecate, the Greek goddess of magic and witchcraft.
 /// </summary>
-[Rotation("Hecate", JobRegistry.BlackMage, Role = RotationRole.Caster)]
+[Rotation("Hecate", JobRegistry.BlackMage, JobRegistry.Thaumaturge, Role = RotationRole.Caster)]
 public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule>
 {
     /// <inheritdoc />

@@ -26,14 +26,14 @@ namespace Olympus.Rotation;
 /// Orchestrates modular execution: each module handles a specific concern.
 /// Named after Calliope, the Greek muse of epic poetry.
 /// </summary>
-[Rotation("Calliope", JobRegistry.Bard, Role = RotationRole.RangedDps)]
+[Rotation("Calliope", JobRegistry.Bard, JobRegistry.Archer, Role = RotationRole.RangedDps)]
 public sealed class Calliope : BaseRangedDpsRotation<ICalliopeContext, ICalliopeModule>
 {
     /// <inheritdoc />
     public override string Name => "Calliope";
 
     /// <inheritdoc />
-    public override uint[] SupportedJobIds => [JobRegistry.Bard];
+    public override uint[] SupportedJobIds => [JobRegistry.Bard, JobRegistry.Archer];
 
     /// <inheritdoc />
     public override DebugState DebugState => _debugState;

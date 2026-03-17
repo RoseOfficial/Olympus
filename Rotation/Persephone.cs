@@ -33,7 +33,7 @@ public sealed class Persephone : BaseCasterDpsRotation<IPersephoneContext, IPers
     public override string Name => "Persephone";
 
     /// <inheritdoc />
-    public override uint[] SupportedJobIds => [JobRegistry.Summoner, JobRegistry.Arcanist];
+    public override uint[] SupportedJobIds => [JobRegistry.Summoner];
 
     /// <inheritdoc />
     public override DebugState DebugState => _debugState;

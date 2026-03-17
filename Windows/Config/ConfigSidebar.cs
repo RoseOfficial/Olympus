@@ -1,7 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Dalamud.Interface.Textures;
+using Dalamud.Plugin.Services;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config;
@@ -65,6 +67,39 @@ public sealed class ConfigSidebar
     private static readonly Vector4 SelectedColor = new(0.3f, 0.5f, 0.8f, 1.0f);
     private static readonly Vector4 HoverColor = new(0.25f, 0.4f, 0.6f, 1.0f);
     private static readonly Vector4 SearchMatchColor = new(1.0f, 0.9f, 0.4f, 1.0f);
+
+    // Maps sidebar sections to their primary job ID for icon lookup.
+    private static readonly Dictionary<ConfigSection, uint> SectionJobIds = new()
+    {
+        { ConfigSection.WhiteMage,   JobRegistry.WhiteMage },
+        { ConfigSection.Scholar,     JobRegistry.Scholar },
+        { ConfigSection.Astrologian, JobRegistry.Astrologian },
+        { ConfigSection.Sage,        JobRegistry.Sage },
+        { ConfigSection.Paladin,     JobRegistry.Paladin },
+        { ConfigSection.Warrior,     JobRegistry.Warrior },
+        { ConfigSection.DarkKnight,  JobRegistry.DarkKnight },
+        { ConfigSection.Gunbreaker,  JobRegistry.Gunbreaker },
+        { ConfigSection.Dragoon,     JobRegistry.Dragoon },
+        { ConfigSection.Ninja,       JobRegistry.Ninja },
+        { ConfigSection.Samurai,     JobRegistry.Samurai },
+        { ConfigSection.Monk,        JobRegistry.Monk },
+        { ConfigSection.Reaper,      JobRegistry.Reaper },
+        { ConfigSection.Viper,       JobRegistry.Viper },
+        { ConfigSection.Bard,        JobRegistry.Bard },
+        { ConfigSection.Machinist,   JobRegistry.Machinist },
+        { ConfigSection.Dancer,      JobRegistry.Dancer },
+        { ConfigSection.BlackMage,   JobRegistry.BlackMage },
+        { ConfigSection.Summoner,    JobRegistry.Summoner },
+        { ConfigSection.RedMage,     JobRegistry.RedMage },
+        { ConfigSection.Pictomancer, JobRegistry.Pictomancer },
+    };
+
+    private readonly ITextureProvider? _textureProvider;
+
+    public ConfigSidebar(ITextureProvider? textureProvider = null)
+    {
+        _textureProvider = textureProvider;
+    }
 
     public ConfigSection CurrentSection { get; private set; } = ConfigSection.General;
 
@@ -211,22 +246,36 @@ public sealed class ConfigSidebar
                 ImGui.GetColorU32(SelectedColor));
         }
 
-        // Draw the selectable item
         ImGui.Indent(10);
+
+        // Draw job icon when available
+        var hasIcon = false;
+        if (_textureProvider != null && SectionJobIds.TryGetValue(section, out var jobId))
+        {
+            var iconId = JobRegistry.GetJobIconId(jobId);
+            if (iconId != 0)
+            {
+                var wrap = _textureProvider.GetFromGameIcon(new GameIconLookup(iconId)).GetWrapOrEmpty();
+                ImGui.Image(wrap.Handle, new Vector2(16, 16));
+                ImGui.SameLine(0, 4);
+                hasIcon = true;
+            }
+        }
 
         var textColor = color ?? new Vector4(1f, 1f, 1f, 1f);
         if (isSelected)
-            textColor = new Vector4(1f, 1f, 1f, 1f); // Always white when selected
+            textColor = new Vector4(1f, 1f, 1f, 1f);
         else if (isSearchMatch)
-            textColor = SearchMatchColor; // Yellow highlight for search matches
+            textColor = SearchMatchColor;
 
         ImGui.PushStyleColor(ImGuiCol.Text, textColor);
         ImGui.PushStyleColor(ImGuiCol.Header, SelectedColor);
         ImGui.PushStyleColor(ImGuiCol.HeaderHovered, HoverColor);
         ImGui.PushStyleColor(ImGuiCol.HeaderActive, SelectedColor);
 
+        var selectableWidth = hasIcon ? SidebarWidth - 45 : SidebarWidth - 25;
         var clicked = ImGui.Selectable($"  {label}", isSelected, ImGuiSelectableFlags.None,
-            new Vector2(SidebarWidth - 25, 0));
+            new Vector2(selectableWidth, 0));
 
         ImGui.PopStyleColor(4);
         ImGui.Unindent(10);
