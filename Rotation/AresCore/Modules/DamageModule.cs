@@ -20,6 +20,12 @@ public sealed class DamageModule : IAresModule
 
     public bool TryExecute(IAresContext context, bool isMoving)
     {
+        if (!context.Configuration.Tank.EnableDamage)
+        {
+            context.Debug.DamageState = "Disabled";
+            return false;
+        }
+
         if (!context.InCombat)
         {
             context.Debug.DamageState = "Not in combat";

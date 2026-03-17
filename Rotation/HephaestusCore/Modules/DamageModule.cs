@@ -16,6 +16,12 @@ public sealed class DamageModule : IHephaestusModule
 
     public bool TryExecute(IHephaestusContext context, bool isMoving)
     {
+        if (!context.Configuration.Tank.EnableDamage)
+        {
+            context.Debug.DamageState = "Disabled";
+            return false;
+        }
+
         if (!context.InCombat)
         {
             context.Debug.DamageState = "Not in combat";
