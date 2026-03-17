@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config.DPS;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config.DPS;
@@ -45,7 +46,8 @@ public sealed class ViperSection
                 Loc.T(LocalizedStrings.Viper.EnableUncoiledFury, "Enable Uncoiled Fury"),
                 () => config.Viper.EnableUncoiledFury,
                 v => config.Viper.EnableUncoiledFury = v,
-                Loc.T(LocalizedStrings.Viper.EnableUncoiledFuryDesc, "Use Uncoiled Fury"), save);
+                null, save,
+                actionId: VPRActions.UncoiledFury.ActionId);
 
             ConfigUIHelpers.Spacing();
 
@@ -77,13 +79,15 @@ public sealed class ViperSection
                 Loc.T(LocalizedStrings.Viper.EnableReawaken, "Enable Reawaken"),
                 () => config.Viper.EnableReawaken,
                 v => config.Viper.EnableReawaken = v,
-                Loc.T(LocalizedStrings.Viper.EnableReawakenDesc, "Use Reawaken burst sequence"), save);
+                null, save,
+                actionId: VPRActions.Reawaken.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Viper.EnableOuroboros, "Enable Ouroboros"),
                 () => config.Viper.EnableOuroboros,
                 v => config.Viper.EnableOuroboros = v,
-                Loc.T(LocalizedStrings.Viper.EnableOuroborosDesc, "Use Ouroboros finisher"), save);
+                null, save,
+                actionId: VPRActions.Ouroboros.ActionId);
 
             config.Viper.AnguineMinStacks = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Viper.AnguineMinStacks, "Anguine Min Stacks"),
@@ -110,7 +114,8 @@ public sealed class ViperSection
                 Loc.T(LocalizedStrings.Viper.EnableSerpentsIre, "Enable Serpent's Ire"),
                 () => config.Viper.EnableSerpentsIre,
                 v => config.Viper.EnableSerpentsIre = v,
-                Loc.T(LocalizedStrings.Viper.EnableSerpentsIreDesc, "Use Serpent's Ire"), save);
+                null, save,
+                actionId: VPRActions.SerpentsIre.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Viper.AlignWithParty, "Align with Party"),

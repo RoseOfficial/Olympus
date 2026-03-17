@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config.DPS;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config.DPS;
@@ -45,13 +46,15 @@ public sealed class ReaperSection
                 Loc.T(LocalizedStrings.Reaper.EnableCommunio, "Enable Communio"),
                 () => config.Reaper.EnableCommunio,
                 v => config.Reaper.EnableCommunio = v,
-                Loc.T(LocalizedStrings.Reaper.EnableCommunioDesc, "Use Communio finisher"), save);
+                null, save,
+                actionId: RPRActions.Communio.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Reaper.EnablePerfectio, "Enable Perfectio"),
                 () => config.Reaper.EnablePerfectio,
                 v => config.Reaper.EnablePerfectio = v,
-                Loc.T(LocalizedStrings.Reaper.EnablePerfectioDesc, "Use Perfectio"), save);
+                null, save,
+                actionId: RPRActions.Perfectio.ActionId);
 
             ConfigUIHelpers.Spacing();
 
@@ -110,7 +113,8 @@ public sealed class ReaperSection
                 Loc.T(LocalizedStrings.Reaper.EnableEnshroud, "Enable Enshroud"),
                 () => config.Reaper.EnableEnshroud,
                 v => config.Reaper.EnableEnshroud = v,
-                Loc.T(LocalizedStrings.Reaper.EnableEnshroudDesc, "Enter Enshroud burst window"), save);
+                null, save,
+                actionId: RPRActions.Enshroud.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Reaper.EnableLemureAbilities, "Enable Lemure Abilities"),
@@ -138,7 +142,8 @@ public sealed class ReaperSection
                 Loc.T(LocalizedStrings.Reaper.EnableArcaneCircle, "Enable Arcane Circle"),
                 () => config.Reaper.EnableArcaneCircle,
                 v => config.Reaper.EnableArcaneCircle = v,
-                Loc.T(LocalizedStrings.Reaper.EnableArcaneCircleDesc, "Use Arcane Circle (party buff)"), save);
+                null, save,
+                actionId: RPRActions.ArcaneCircle.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Reaper.AlignWithParty, "Align with Party"),

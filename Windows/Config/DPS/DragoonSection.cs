@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config.DPS;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config.DPS;
@@ -45,13 +46,15 @@ public sealed class DragoonSection
                 Loc.T(LocalizedStrings.Dragoon.EnableStardiver, "Enable Stardiver"),
                 () => config.Dragoon.EnableStardiver,
                 v => config.Dragoon.EnableStardiver = v,
-                Loc.T(LocalizedStrings.Dragoon.EnableStardiverDesc, "Use Stardiver during Life of the Dragon"), save);
+                null, save,
+                actionId: DRGActions.Stardiver.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Dragoon.EnableGeirskogul, "Enable Geirskogul"),
                 () => config.Dragoon.EnableGeirskogul,
                 v => config.Dragoon.EnableGeirskogul = v,
-                Loc.T(LocalizedStrings.Dragoon.EnableGeirskogulDesc, "Use Geirskogul to enter Life of the Dragon"), save);
+                null, save,
+                actionId: DRGActions.Geirskogul.ActionId);
 
             ConfigUIHelpers.Spacing();
 
@@ -90,19 +93,22 @@ public sealed class DragoonSection
                 Loc.T(LocalizedStrings.Dragoon.EnableLanceCharge, "Enable Lance Charge"),
                 () => config.Dragoon.EnableLanceCharge,
                 v => config.Dragoon.EnableLanceCharge = v,
-                Loc.T(LocalizedStrings.Dragoon.EnableLanceChargeDesc, "Use Lance Charge for damage buff"), save);
+                null, save,
+                actionId: DRGActions.LanceCharge.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Dragoon.EnableBattleLitany, "Enable Battle Litany"),
                 () => config.Dragoon.EnableBattleLitany,
                 v => config.Dragoon.EnableBattleLitany = v,
-                Loc.T(LocalizedStrings.Dragoon.EnableBattleLitanyDesc, "Use Battle Litany (party crit buff)"), save);
+                null, save,
+                actionId: DRGActions.BattleLitany.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Dragoon.EnableLifeSurge, "Enable Life Surge"),
                 () => config.Dragoon.EnableLifeSurge,
                 v => config.Dragoon.EnableLifeSurge = v,
-                Loc.T(LocalizedStrings.Dragoon.EnableLifeSurgeDesc, "Use Life Surge for guaranteed crits"), save);
+                null, save,
+                actionId: DRGActions.LifeSurge.ActionId);
 
             ConfigUIHelpers.EndIndent();
         }

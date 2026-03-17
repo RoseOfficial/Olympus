@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config.DPS;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config.DPS;
@@ -45,7 +46,8 @@ public sealed class MonkSection
                 Loc.T(LocalizedStrings.Monk.EnableSixSidedStar, "Enable Six-Sided Star"),
                 () => config.Monk.EnableSixSidedStar,
                 v => config.Monk.EnableSixSidedStar = v,
-                Loc.T(LocalizedStrings.Monk.EnableSixSidedStarDesc, "Use Six-Sided Star for downtime"), save);
+                null, save,
+                actionId: MNKActions.SixSidedStar.ActionId);
 
             ConfigUIHelpers.Spacing();
 
@@ -98,13 +100,15 @@ public sealed class MonkSection
                 Loc.T(LocalizedStrings.Monk.EnableRiddleOfFire, "Enable Riddle of Fire"),
                 () => config.Monk.EnableRiddleOfFire,
                 v => config.Monk.EnableRiddleOfFire = v,
-                Loc.T(LocalizedStrings.Monk.EnableRiddleOfFireDesc, "Use Riddle of Fire for damage buff"), save);
+                null, save,
+                actionId: MNKActions.RiddleOfFire.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Monk.EnableBrotherhood, "Enable Brotherhood"),
                 () => config.Monk.EnableBrotherhood,
                 v => config.Monk.EnableBrotherhood = v,
-                Loc.T(LocalizedStrings.Monk.EnableBrotherhoodDesc, "Use Brotherhood (party buff)"), save);
+                null, save,
+                actionId: MNKActions.Brotherhood.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Monk.AlignWithParty, "Align Brotherhood with Party"),

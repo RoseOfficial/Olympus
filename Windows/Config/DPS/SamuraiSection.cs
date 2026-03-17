@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config.DPS;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config.DPS;
@@ -45,13 +46,15 @@ public sealed class SamuraiSection
                 Loc.T(LocalizedStrings.Samurai.EnableTsubamegaeshi, "Enable Tsubame-gaeshi"),
                 () => config.Samurai.EnableTsubamegaeshi,
                 v => config.Samurai.EnableTsubamegaeshi = v,
-                Loc.T(LocalizedStrings.Samurai.EnableTsubamegaeshiDesc, "Use Tsubame-gaeshi after Iaijutsu"), save);
+                null, save,
+                actionId: SAMActions.TsubameGaeshi.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Samurai.EnableOgiNamikiri, "Enable Ogi Namikiri"),
                 () => config.Samurai.EnableOgiNamikiri,
                 v => config.Samurai.EnableOgiNamikiri = v,
-                Loc.T(LocalizedStrings.Samurai.EnableOgiNamikiriDesc, "Use Ogi Namikiri"), save);
+                null, save,
+                actionId: SAMActions.OgiNamikiri.ActionId);
 
             ConfigUIHelpers.Spacing();
 
@@ -83,13 +86,15 @@ public sealed class SamuraiSection
                 Loc.T(LocalizedStrings.Samurai.EnableShinten, "Enable Shinten"),
                 () => config.Samurai.EnableShinten,
                 v => config.Samurai.EnableShinten = v,
-                Loc.T(LocalizedStrings.Samurai.EnableShintenDesc, "Use Shinten (single-target Kenki spender)"), save);
+                null, save,
+                actionId: SAMActions.Shinten.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Samurai.EnableSenei, "Enable Senei"),
                 () => config.Samurai.EnableSenei,
                 v => config.Samurai.EnableSenei = v,
-                Loc.T(LocalizedStrings.Samurai.EnableSeneiDesc, "Use Senei (high-damage Kenki spender)"), save);
+                null, save,
+                actionId: SAMActions.Senei.ActionId);
 
             config.Samurai.KenkiMinGauge = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Samurai.KenkiMinGauge, "Kenki Min Gauge"),
@@ -141,7 +146,8 @@ public sealed class SamuraiSection
                 Loc.T(LocalizedStrings.Samurai.EnableIkishoten, "Enable Ikishoten"),
                 () => config.Samurai.EnableIkishoten,
                 v => config.Samurai.EnableIkishoten = v,
-                Loc.T(LocalizedStrings.Samurai.EnableIkishotenDesc, "Use Ikishoten"), save);
+                null, save,
+                actionId: SAMActions.Ikishoten.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Samurai.AlignWithParty, "Align with Party"),

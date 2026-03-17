@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config.DPS;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config.DPS;
@@ -51,7 +52,8 @@ public sealed class NinjaSection
                 Loc.T(LocalizedStrings.Ninja.EnablePhantomKamaitachi, "Enable Phantom Kamaitachi"),
                 () => config.Ninja.EnablePhantomKamaitachi,
                 v => config.Ninja.EnablePhantomKamaitachi = v,
-                Loc.T(LocalizedStrings.Ninja.EnablePhantomKamaitachiDesc, "Use Phantom Kamaitachi"), save);
+                null, save,
+                actionId: NINActions.PhantomKamaitachi.ActionId);
 
             ConfigUIHelpers.Spacing();
 
@@ -83,7 +85,8 @@ public sealed class NinjaSection
                 Loc.T(LocalizedStrings.Ninja.EnableBhavacakra, "Enable Bhavacakra"),
                 () => config.Ninja.EnableBhavacakra,
                 v => config.Ninja.EnableBhavacakra = v,
-                Loc.T(LocalizedStrings.Ninja.EnableBhavacakraDesc, "Use Bhavacakra (single-target Ninki spender)"), save);
+                null, save,
+                actionId: NINActions.Bhavacakra.ActionId);
 
             config.Ninja.NinkiMinGauge = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Ninja.NinkiMinGauge, "Ninki Min Gauge"),
@@ -116,7 +119,8 @@ public sealed class NinjaSection
                 Loc.T(LocalizedStrings.Ninja.UseDotonForAoE, "Use Doton for AoE"),
                 () => config.Ninja.UseDotonForAoE,
                 v => config.Ninja.UseDotonForAoE = v,
-                Loc.T(LocalizedStrings.Ninja.UseDotonForAoEDesc, "Place Doton for AoE situations"), save);
+                null, save,
+                actionId: NINActions.Doton.ActionId);
 
             config.Ninja.DotonMinTargets = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Ninja.DotonMinTargets, "Doton Min Targets"),
@@ -137,7 +141,8 @@ public sealed class NinjaSection
                 Loc.T(LocalizedStrings.Ninja.EnableKunaisBane, "Enable Kunai's Bane"),
                 () => config.Ninja.EnableKunaisBane,
                 v => config.Ninja.EnableKunaisBane = v,
-                Loc.T(LocalizedStrings.Ninja.EnableKunaisBaneDesc, "Use Kunai's Bane (formerly Trick Attack)"), save);
+                null, save,
+                actionId: NINActions.KunaisBane.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Ninja.AlignWithParty, "Align with Party"),
