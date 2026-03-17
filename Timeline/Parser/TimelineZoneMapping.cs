@@ -56,16 +56,16 @@ public static class TimelineZoneMapping
         [1009] = new ZoneInfo("p4s", "Asphodelos: The Fourth Circle (Savage)", "Olympus.Timeline.Data.p4s.txt"),
 
         // Abyssos: The Fifth Circle (Savage) - Proto-Carbuncle
-        [1083] = new ZoneInfo("p5s", "Abyssos: The Fifth Circle (Savage)", "Olympus.Timeline.Data.p5s.txt"),
+        [1082] = new ZoneInfo("p5s", "Abyssos: The Fifth Circle (Savage)", "Olympus.Timeline.Data.p5s.txt"),
 
         // Abyssos: The Sixth Circle (Savage) - Hegemone
-        [1085] = new ZoneInfo("p6s", "Abyssos: The Sixth Circle (Savage)", "Olympus.Timeline.Data.p6s.txt"),
+        [1084] = new ZoneInfo("p6s", "Abyssos: The Sixth Circle (Savage)", "Olympus.Timeline.Data.p6s.txt"),
 
         // Abyssos: The Seventh Circle (Savage) - Agdistis
-        [1087] = new ZoneInfo("p7s", "Abyssos: The Seventh Circle (Savage)", "Olympus.Timeline.Data.p7s.txt"),
+        [1086] = new ZoneInfo("p7s", "Abyssos: The Seventh Circle (Savage)", "Olympus.Timeline.Data.p7s.txt"),
 
         // Abyssos: The Eighth Circle (Savage) - Hephaistos
-        [1089] = new ZoneInfo("p8s", "Abyssos: The Eighth Circle (Savage)", "Olympus.Timeline.Data.p8s.txt"),
+        [1088] = new ZoneInfo("p8s", "Abyssos: The Eighth Circle (Savage)", "Olympus.Timeline.Data.p8s.txt"),
 
         // Arcadion Savage (Dawntrail)
         // AAC Light-heavyweight M1 (Savage) - Black Cat

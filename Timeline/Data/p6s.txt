@@ -1,6 +1,6 @@
 # Abyssos: The Sixth Circle (Savage) - Hegemone Timeline
 # Based on Cactbot format
-# Zone ID: 1085
+# Zone ID: 1084
 
 hideall "--sync--"
 hideall "--Reset--"

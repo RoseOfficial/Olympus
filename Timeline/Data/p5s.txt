@@ -1,6 +1,6 @@
 # Abyssos: The Fifth Circle (Savage) - Proto-Carbuncle Timeline
 # Based on Cactbot format
-# Zone ID: 1083
+# Zone ID: 1082
 
 hideall "--sync--"
 hideall "--Reset--"

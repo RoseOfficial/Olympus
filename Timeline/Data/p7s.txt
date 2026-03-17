@@ -1,6 +1,6 @@
 # Abyssos: The Seventh Circle (Savage) - Agdistis Timeline
 # Based on Cactbot format
-# Zone ID: 1087
+# Zone ID: 1086
 
 hideall "--sync--"
 hideall "--Reset--"

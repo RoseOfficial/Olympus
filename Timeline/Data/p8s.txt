@@ -1,6 +1,6 @@
 # Abyssos: The Eighth Circle (Savage) - Hephaistos Timeline
 # Based on Cactbot format
-# Zone ID: 1089
+# Zone ID: 1088
 # Note: This fight has two distinct phases with a checkpoint
 
 hideall "--sync--"
