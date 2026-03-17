@@ -183,7 +183,7 @@ public static class ConfigUIHelpers
         if (actionId != 0)
         {
             var data = GameDataLocalizer.Instance?.GetActionTooltipData(actionId);
-            if (data != null && TextureProvider != null)
+            if (data != null && TextureProvider != null && data.IconId != 0)
             {
                 var wrap = TextureProvider.GetFromGameIcon(new GameIconLookup(data.IconId)).GetWrapOrEmpty();
                 ImGui.Image(wrap.Handle, new Vector2(16, 16));

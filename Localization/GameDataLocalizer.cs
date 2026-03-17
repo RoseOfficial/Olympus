@@ -114,8 +114,8 @@ public sealed class GameDataLocalizer
             Name: action.Name.ToString(),
             ActionId: actionId,
             IsGcd: action.ActionCategory.RowId is 2 or 3,
-            CastTime: action.Cast100ms / 1000f,
-            RecastTime: action.Recast100ms / 1000f,
+            CastTime: action.Cast100ms / 10f,
+            RecastTime: action.Recast100ms / 10f,
             Range: (int)action.Range,
             EffectRange: (int)action.EffectRange,
             IconId: (uint)action.Icon
