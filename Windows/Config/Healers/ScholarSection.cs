@@ -202,8 +202,7 @@ public sealed class ScholarSection
             ConfigUIHelpers.BeginIndent();
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EmergencyTactics, "Emergency Tactics"), () => config.Scholar.EnableEmergencyTactics, v => config.Scholar.EnableEmergencyTactics = v,
-                Loc.T(LocalizedStrings.Scholar.EmergencyTacticsDesc, "Convert next shield to direct healing."), save,
-                actionId: SCHActions.EmergencyTactics.ActionId);
+                null, save, actionId: SCHActions.EmergencyTactics.ActionId);
 
             if (config.Scholar.EnableEmergencyTactics)
             {
