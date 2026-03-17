@@ -125,6 +125,9 @@ public sealed class Plugin : IDalamudPlugin
     private readonly OlympusIpc olympusIpc;
     private readonly UpdateCheckerService updateCheckerService;
 
+    // Error metrics
+    private readonly ErrorMetricsService errorMetricsService;
+
     // Stored event handler delegates to allow removal in Dispose
     private readonly Action<uint, uint> onAbilityUsedHandler;
     private readonly Action<FightSession> onSessionCompletedHandler;
@@ -269,6 +272,9 @@ public sealed class Plugin : IDalamudPlugin
         // Connect analytics to training recommendations (v3.10.0)
         this.onSessionCompletedHandler = session => this.trainingService.UpdateRecommendations(session);
         this.performanceTracker.OnSessionCompleted += this.onSessionCompletedHandler;
+
+        // Error metrics service (aggregates suppressed errors for debugging)
+        this.errorMetricsService = new ErrorMetricsService();
 
         // Create service container for rotation dependency injection
         this.serviceContainer = CreateServiceContainer();
@@ -422,6 +428,7 @@ public sealed class Plugin : IDalamudPlugin
         if (partyCoordinationService != null)
             container.Register<IPartyCoordinationService, PartyCoordinationService>(partyCoordinationService);
         container.Register<ITrainingService, TrainingService>(trainingService);
+        container.Register<IErrorMetricsService, ErrorMetricsService>(errorMetricsService);
 
         return container;
     }
