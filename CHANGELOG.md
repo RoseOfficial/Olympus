@@ -13,6 +13,7 @@ All notable changes to Olympus will be documented in this file.
 - Internal error tracking is now active, allowing suppressed errors to be surfaced in the debug window without flooding game logs
 - Sage now automatically uses mitigation cooldowns (Kerachole, Taurochole, Holos, Panhaima, Haima), matching other healer jobs
 - Paladin, Warrior, Dark Knight, and Gunbreaker now have job-specific settings (Cover, Passage of Arms, Divine Veil, Clemency, Nascent Flash, Holmgang, Living Dead, The Blackest Night, Dark Missionary, Heart of Light, Heart of Corundum)
+- Settings validation now detects gauge configuration conflicts for Ninja, Samurai, Reaper, Machinist, and Dancer — when the minimum gauge to spend is higher than the overcap threshold, the rotation can never spend that gauge and the issue is flagged with a suggested fix
 
 <!-- LATEST-END -->
 ## v4.10.31
