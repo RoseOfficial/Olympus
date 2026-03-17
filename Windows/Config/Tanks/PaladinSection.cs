@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config.Tanks;
@@ -43,16 +44,30 @@ public sealed class PaladinSection
             ImGui.TextDisabled(Loc.TFormat(LocalizedStrings.Tank.CurrentMinGauge, "Current minimum: {0}", config.Tank.SheltronMinGauge));
 
             ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Paladin.AvailableAbilities, "Available Abilities:"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.Paladin.SheltronHolySheltron, "Sheltron / Holy Sheltron"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.Paladin.Intervention, "Intervention"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.Paladin.Cover, "Cover"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.Paladin.DivineVeil, "Divine Veil"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.Paladin.PassageOfArms, "Passage of Arms"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.Paladin.HallowedGround, "Hallowed Ground"));
 
-            ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.WarningText(Loc.T(LocalizedStrings.Paladin.DetailedSettingsWarning, "Detailed PLD settings coming in future update."));
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Paladin.EnableCover, "Cover"),
+                () => config.Tank.EnableCover,
+                v => config.Tank.EnableCover = v,
+                Loc.T(LocalizedStrings.Paladin.EnableCoverDesc, "Use Cover to redirect co-tank damage to yourself."),
+                save,
+                actionId: PLDActions.Cover.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Paladin.EnablePassageOfArms, "Passage of Arms"),
+                () => config.Tank.EnablePassageOfArms,
+                v => config.Tank.EnablePassageOfArms = v,
+                Loc.T(LocalizedStrings.Paladin.EnablePassageOfArmsDesc, "Use Passage of Arms to block party damage during raidwides."),
+                save,
+                actionId: PLDActions.PassageOfArms.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Paladin.EnableDivineVeil, "Divine Veil"),
+                () => config.Tank.EnableDivineVeil,
+                v => config.Tank.EnableDivineVeil = v,
+                Loc.T(LocalizedStrings.Paladin.EnableDivineVeilDesc, "Proactively apply Divine Veil party shield."),
+                save,
+                actionId: PLDActions.DivineVeil.ActionId);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -64,12 +79,21 @@ public sealed class PaladinSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Paladin.ClemencyLabel, "Clemency:"));
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Paladin.ClemencyDesc1, "GCD heal that can be used on self or party members."));
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Paladin.ClemencyDesc2, "Uses MP that could be spent on damage spells."));
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Paladin.EnableClemency, "Clemency"),
+                () => config.Tank.EnableClemency,
+                v => config.Tank.EnableClemency = v,
+                Loc.T(LocalizedStrings.Paladin.EnableClemencyDesc, "Use Clemency GCD heal when HP is critically low."),
+                save,
+                actionId: PLDActions.Clemency.ActionId);
 
-            ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.WarningText(Loc.T(LocalizedStrings.Paladin.ClemencyWarning, "Clemency settings coming in future update."));
+            ConfigUIHelpers.BeginDisabledGroup(!config.Tank.EnableClemency);
+            config.Tank.ClemencyThreshold = ConfigUIHelpers.ThresholdSlider(
+                Loc.T(LocalizedStrings.Paladin.ClemencyThreshold, "Clemency Threshold"),
+                config.Tank.ClemencyThreshold, 20f, 70f,
+                Loc.T(LocalizedStrings.Paladin.ClemencyThresholdDesc, "Use Clemency when HP falls below this %."),
+                save);
+            ConfigUIHelpers.EndDisabledGroup();
 
             ConfigUIHelpers.EndIndent();
         }

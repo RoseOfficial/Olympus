@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config.Tanks;
@@ -40,19 +41,34 @@ public sealed class GunbreakerSection
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Gunbreaker.HeartOfCorundumLabel, "Heart of Corundum:"));
             ImGui.TextDisabled(Loc.T(LocalizedStrings.Gunbreaker.HeartOfCorundumDesc1, "Powerful short cooldown mitigation."));
             ImGui.TextDisabled(Loc.T(LocalizedStrings.Gunbreaker.HeartOfCorundumDesc2, "Grants healing and damage reduction."));
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Tank.UsesSharedGaugeSetting, "Uses shared tank gauge setting."));
-            ImGui.TextDisabled(Loc.TFormat(LocalizedStrings.Tank.CurrentMinGauge, "Current minimum: {0}", config.Tank.SheltronMinGauge));
 
             ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Gunbreaker.AvailableAbilities, "Available Abilities:"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.HeartOfStoneCorundum, "Heart of Stone / Heart of Corundum"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.Aurora, "Aurora (regen)"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.Camouflage, "Camouflage"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.HeartOfLight, "Heart of Light"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.Superbolide, "Superbolide"));
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Gunbreaker.EnableHeartOfCorundum, "Heart of Corundum"),
+                () => config.Tank.EnableHeartOfCorundum,
+                v => config.Tank.EnableHeartOfCorundum = v,
+                Loc.T(LocalizedStrings.Gunbreaker.EnableHeartOfCorundumDesc, "Apply Heart of Corundum shield to the tank."),
+                save,
+                actionId: GNBActions.HeartOfCorundum.ActionId);
+
+            ConfigUIHelpers.BeginDisabledGroup(!config.Tank.EnableHeartOfCorundum);
+            config.Tank.HeartOfCorundumThreshold = ConfigUIHelpers.ThresholdSlider(
+                Loc.T(LocalizedStrings.Gunbreaker.HeartOfCorundumThreshold, "Heart of Corundum Threshold"),
+                config.Tank.HeartOfCorundumThreshold, 50f, 100f,
+                Loc.T(LocalizedStrings.Gunbreaker.HeartOfCorundumThresholdDesc, "Apply Heart of Corundum when HP falls below this %."),
+                save);
+            ConfigUIHelpers.EndDisabledGroup();
 
             ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.WarningText(Loc.T(LocalizedStrings.Gunbreaker.DetailedSettingsWarning, "Detailed GNB settings coming in future update."));
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Gunbreaker.EnableHeartOfLight, "Heart of Light"),
+                () => config.Tank.EnableHeartOfLight,
+                v => config.Tank.EnableHeartOfLight = v,
+                Loc.T(LocalizedStrings.Gunbreaker.EnableHeartOfLightDesc, "Use Heart of Light for party magic damage mitigation."),
+                save,
+                actionId: GNBActions.HeartOfLight.ActionId);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -75,9 +91,6 @@ public sealed class GunbreakerSection
             ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.BurstStrike, "Burst Strike (1 cartridge)"));
             ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.DoubleDown, "Double Down (2 cartridges)"));
             ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.FatedCircleAoE, "Fated Circle AoE (1 cartridge)"));
-
-            ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.WarningText(Loc.T(LocalizedStrings.Gunbreaker.CartridgeWarning, "Cartridge settings coming in future update."));
 
             ConfigUIHelpers.EndIndent();
         }

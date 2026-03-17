@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config.Tanks;
@@ -40,19 +41,42 @@ public sealed class DarkKnightSection
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.DarkKnight.TBNLabel, "The Blackest Night (TBN):"));
             ImGui.TextDisabled(Loc.T(LocalizedStrings.DarkKnight.TBNDesc1, "Powerful single-target shield."));
             ImGui.TextDisabled(Loc.T(LocalizedStrings.DarkKnight.TBNDesc2, "Grants Dark Arts when shield breaks."));
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Tank.UsesSharedGaugeSetting, "Uses shared tank gauge setting."));
-            ImGui.TextDisabled(Loc.TFormat(LocalizedStrings.Tank.CurrentMinGauge, "Current minimum: {0}", config.Tank.SheltronMinGauge));
 
             ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.DarkKnight.AvailableAbilities, "Available Abilities:"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.DarkKnight.TheBlackestNight, "The Blackest Night"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.DarkKnight.Oblation, "Oblation"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.DarkKnight.DarkMind, "Dark Mind (magic only)"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.DarkKnight.DarkMissionary, "Dark Missionary"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.DarkKnight.LivingDead, "Living Dead"));
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.DarkKnight.EnableTheBlackestNight, "The Blackest Night"),
+                () => config.Tank.EnableTheBlackestNight,
+                v => config.Tank.EnableTheBlackestNight = v,
+                Loc.T(LocalizedStrings.DarkKnight.EnableTheBlackestNightDesc, "Apply The Blackest Night shield to the tank."),
+                save,
+                actionId: DRKActions.TheBlackestNight.ActionId);
+
+            ConfigUIHelpers.BeginDisabledGroup(!config.Tank.EnableTheBlackestNight);
+            config.Tank.TBNThreshold = ConfigUIHelpers.ThresholdSlider(
+                Loc.T(LocalizedStrings.DarkKnight.TBNThreshold, "TBN Threshold"),
+                config.Tank.TBNThreshold, 50f, 100f,
+                Loc.T(LocalizedStrings.DarkKnight.TBNThresholdDesc, "Apply TBN when HP is above this %, ensuring the shield will break for Dark Arts."),
+                save);
+            ConfigUIHelpers.EndDisabledGroup();
 
             ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.WarningText(Loc.T(LocalizedStrings.DarkKnight.DetailedSettingsWarning, "Detailed DRK settings coming in future update."));
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.DarkKnight.EnableLivingDead, "Living Dead"),
+                () => config.Tank.EnableLivingDead,
+                v => config.Tank.EnableLivingDead = v,
+                Loc.T(LocalizedStrings.DarkKnight.EnableLivingDeadDesc, "Use Living Dead as an invulnerability cooldown."),
+                save,
+                actionId: DRKActions.LivingDead.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.DarkKnight.EnableDarkMissionary, "Dark Missionary"),
+                () => config.Tank.EnableDarkMissionary,
+                v => config.Tank.EnableDarkMissionary = v,
+                Loc.T(LocalizedStrings.DarkKnight.EnableDarkMissionaryDesc, "Use Dark Missionary for party magic damage mitigation."),
+                save,
+                actionId: DRKActions.DarkMissionary.ActionId);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -69,6 +93,14 @@ public sealed class DarkKnightSection
             ImGui.TextDisabled(Loc.T(LocalizedStrings.DarkKnight.BloodGaugeDesc2, "Spent on Bloodspiller/Quietus and Living Shadow."));
 
             ConfigUIHelpers.Spacing();
+
+            config.Tank.BloodGaugeCap = ConfigUIHelpers.IntSlider(
+                Loc.T(LocalizedStrings.DarkKnight.BloodGaugeCap, "Blood Gauge Cap"),
+                config.Tank.BloodGaugeCap, 0, 100,
+                Loc.T(LocalizedStrings.DarkKnight.BloodGaugeCapDesc, "Spend Blood Gauge before reaching this amount to avoid overcapping."),
+                save);
+
+            ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.DarkKnight.MPManagement, "MP Management:"));
             ImGui.TextDisabled(Loc.T(LocalizedStrings.DarkKnight.MPDesc1, "Edge of Shadow/Flood of Shadow costs 3000 MP."));
             ImGui.TextDisabled(Loc.T(LocalizedStrings.DarkKnight.MPDesc2, "TBN costs 3000 MP."));
@@ -78,9 +110,6 @@ public sealed class DarkKnightSection
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.DarkKnight.DeliriumLabel, "Delirium:"));
             ImGui.TextDisabled(Loc.T(LocalizedStrings.DarkKnight.DeliriumDesc1, "Grants 3 free Bloodspillers."));
             ImGui.TextDisabled(Loc.T(LocalizedStrings.DarkKnight.DeliriumDesc2, "Scarlet Delirium follow-up combo."));
-
-            ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.WarningText(Loc.T(LocalizedStrings.DarkKnight.BloodGaugeWarning, "Blood Gauge settings coming in future update."));
 
             ConfigUIHelpers.EndIndent();
         }

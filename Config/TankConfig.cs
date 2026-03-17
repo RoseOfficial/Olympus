@@ -97,6 +97,132 @@ public sealed class TankConfig
         set => _aoEMinTargets = Math.Clamp(value, 2, 8);
     }
 
+    #region Paladin
+
+    /// <summary>
+    /// Use Cover to redirect damage from a co-tank to yourself.
+    /// </summary>
+    public bool EnableCover { get; set; } = true;
+
+    /// <summary>
+    /// Use Passage of Arms to reduce damage for party members during raidwides.
+    /// </summary>
+    public bool EnablePassageOfArms { get; set; } = true;
+
+    /// <summary>
+    /// Proactively apply Divine Veil party shield.
+    /// </summary>
+    public bool EnableDivineVeil { get; set; } = true;
+
+    /// <summary>
+    /// Use Clemency GCD heal when HP is critically low.
+    /// </summary>
+    public bool EnableClemency { get; set; } = false;
+
+    /// <summary>
+    /// HP percentage threshold to trigger Clemency.
+    /// Range: 0.0 to 1.0 (0% to 100%).
+    /// </summary>
+    private float _clemencyThreshold = 0.30f;
+    public float ClemencyThreshold
+    {
+        get => _clemencyThreshold;
+        set => _clemencyThreshold = Math.Clamp(value, 0f, 1f);
+    }
+
+    #endregion
+
+    #region Warrior
+
+    /// <summary>
+    /// Share mitigation and healing with a party member via Nascent Flash.
+    /// </summary>
+    public bool EnableNascentFlash { get; set; } = true;
+
+    /// <summary>
+    /// Use Holmgang as an invulnerability cooldown.
+    /// </summary>
+    public bool EnableHolmgang { get; set; } = true;
+
+    /// <summary>
+    /// Spend Beast Gauge before reaching this cap to avoid overcapping.
+    /// Range: 0 to 100.
+    /// </summary>
+    private int _beastGaugeCap = 90;
+    public int BeastGaugeCap
+    {
+        get => _beastGaugeCap;
+        set => _beastGaugeCap = Math.Clamp(value, 0, 100);
+    }
+
+    #endregion
+
+    #region Dark Knight
+
+    /// <summary>
+    /// Use Living Dead as an invulnerability cooldown.
+    /// </summary>
+    public bool EnableLivingDead { get; set; } = true;
+
+    /// <summary>
+    /// Use Dark Missionary for party magic damage mitigation.
+    /// </summary>
+    public bool EnableDarkMissionary { get; set; } = true;
+
+    /// <summary>
+    /// Apply The Blackest Night shield to the tank when HP is high enough.
+    /// </summary>
+    public bool EnableTheBlackestNight { get; set; } = true;
+
+    /// <summary>
+    /// HP percentage threshold to apply The Blackest Night.
+    /// Range: 0.0 to 1.0 (0% to 100%).
+    /// </summary>
+    private float _tbnThreshold = 0.80f;
+    public float TBNThreshold
+    {
+        get => _tbnThreshold;
+        set => _tbnThreshold = Math.Clamp(value, 0f, 1f);
+    }
+
+    /// <summary>
+    /// Spend Blood Gauge before reaching this cap to avoid overcapping.
+    /// Range: 0 to 100.
+    /// </summary>
+    private int _bloodGaugeCap = 90;
+    public int BloodGaugeCap
+    {
+        get => _bloodGaugeCap;
+        set => _bloodGaugeCap = Math.Clamp(value, 0, 100);
+    }
+
+    #endregion
+
+    #region Gunbreaker
+
+    /// <summary>
+    /// Use Heart of Light for party magic damage mitigation.
+    /// </summary>
+    public bool EnableHeartOfLight { get; set; } = true;
+
+    /// <summary>
+    /// Apply Heart of Corundum shield to the tank.
+    /// </summary>
+    public bool EnableHeartOfCorundum { get; set; } = true;
+
+    /// <summary>
+    /// HP percentage threshold to apply Heart of Corundum.
+    /// Range: 0.0 to 1.0 (0% to 100%).
+    /// </summary>
+    private float _heartOfCorundumThreshold = 0.80f;
+    public float HeartOfCorundumThreshold
+    {
+        get => _heartOfCorundumThreshold;
+        set => _heartOfCorundumThreshold = Math.Clamp(value, 0f, 1f);
+    }
+
+    #endregion
+
     /// <summary>
     /// Enable coordination of personal defensive cooldowns between Olympus tanks.
     /// When enabled, tanks will stagger major mitigations (Rampart, Sentinel, etc.)

@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Bindings.ImGui;
 using Olympus.Config;
+using Olympus.Data;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config.Tanks;
@@ -42,16 +43,22 @@ public sealed class WarriorSection
             ImGui.TextDisabled(Loc.TFormat(LocalizedStrings.Tank.CurrentMinGauge, "Current minimum: {0}", config.Tank.SheltronMinGauge));
 
             ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Warrior.AvailableAbilities, "Available Abilities:"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.Warrior.RawIntuitionBloodwhetting, "Raw Intuition / Bloodwhetting"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.Warrior.NascentFlash, "Nascent Flash (party member)"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.Warrior.ThrillOfBattle, "Thrill of Battle"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.Warrior.Equilibrium, "Equilibrium (self-heal)"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.Warrior.ShakeItOff, "Shake It Off"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.Warrior.Holmgang, "Holmgang"));
 
-            ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.WarningText(Loc.T(LocalizedStrings.Warrior.DetailedSettingsWarning, "Detailed WAR settings coming in future update."));
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Warrior.EnableNascentFlash, "Nascent Flash"),
+                () => config.Tank.EnableNascentFlash,
+                v => config.Tank.EnableNascentFlash = v,
+                Loc.T(LocalizedStrings.Warrior.EnableNascentFlashDesc, "Share mitigation and healing with a party member via Nascent Flash."),
+                save,
+                actionId: WARActions.NascentFlash.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Warrior.EnableHolmgang, "Holmgang"),
+                () => config.Tank.EnableHolmgang,
+                v => config.Tank.EnableHolmgang = v,
+                Loc.T(LocalizedStrings.Warrior.EnableHolmgangDesc, "Use Holmgang as an invulnerability cooldown."),
+                save,
+                actionId: WARActions.Holmgang.ActionId);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -73,7 +80,12 @@ public sealed class WarriorSection
             ImGui.TextDisabled(Loc.T(LocalizedStrings.Warrior.InnerReleaseDesc2, "Primal Rend follow-up."));
 
             ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.WarningText(Loc.T(LocalizedStrings.Warrior.BeastGaugeWarning, "Beast Gauge settings coming in future update."));
+
+            config.Tank.BeastGaugeCap = ConfigUIHelpers.IntSlider(
+                Loc.T(LocalizedStrings.Warrior.BeastGaugeCap, "Beast Gauge Cap"),
+                config.Tank.BeastGaugeCap, 0, 100,
+                Loc.T(LocalizedStrings.Warrior.BeastGaugeCapDesc, "Spend Beast Gauge before reaching this amount to avoid overcapping."),
+                save);
 
             ConfigUIHelpers.EndIndent();
         }

@@ -853,6 +853,18 @@ public static class LocalizedStrings
         public const string AoERotation = "config.job.pld.aoe_rotation";
         public const string TotalEclipseCombo = "config.job.pld.total_eclipse_combo";
         public const string CircleOfScorn = "config.job.pld.circle_of_scorn";
+
+        // Job-specific toggles
+        public const string EnableCover = "config.job.pld.enable_cover";
+        public const string EnableCoverDesc = "config.job.pld.enable_cover_desc";
+        public const string EnablePassageOfArms = "config.job.pld.enable_passage_of_arms";
+        public const string EnablePassageOfArmsDesc = "config.job.pld.enable_passage_of_arms_desc";
+        public const string EnableDivineVeil = "config.job.pld.enable_divine_veil";
+        public const string EnableDivineVeilDesc = "config.job.pld.enable_divine_veil_desc";
+        public const string EnableClemency = "config.job.pld.enable_clemency";
+        public const string EnableClemencyDesc = "config.job.pld.enable_clemency_desc";
+        public const string ClemencyThreshold = "config.job.pld.clemency_threshold";
+        public const string ClemencyThresholdDesc = "config.job.pld.clemency_threshold_desc";
     }
 
     /// <summary>Keys for Warrior specific settings.</summary>
@@ -889,6 +901,14 @@ public static class LocalizedStrings
         public const string OverpowerCombo = "config.job.war.overpower_combo";
         public const string DecimateInnerRelease = "config.job.war.decimate_inner_release";
         public const string Orogeny = "config.job.war.orogeny";
+
+        // Job-specific toggles
+        public const string EnableNascentFlash = "config.job.war.enable_nascent_flash";
+        public const string EnableNascentFlashDesc = "config.job.war.enable_nascent_flash_desc";
+        public const string EnableHolmgang = "config.job.war.enable_holmgang";
+        public const string EnableHolmgangDesc = "config.job.war.enable_holmgang_desc";
+        public const string BeastGaugeCap = "config.job.war.beast_gauge_cap";
+        public const string BeastGaugeCapDesc = "config.job.war.beast_gauge_cap_desc";
     }
 
     /// <summary>Keys for Dark Knight specific settings.</summary>
@@ -931,6 +951,18 @@ public static class LocalizedStrings
         public const string QuietusDelirium = "config.job.drk.quietus_delirium";
         public const string FloodOfShadow = "config.job.drk.flood_of_shadow";
         public const string AbyssalDrain = "config.job.drk.abyssal_drain";
+
+        // Job-specific toggles
+        public const string EnableLivingDead = "config.job.drk.enable_living_dead";
+        public const string EnableLivingDeadDesc = "config.job.drk.enable_living_dead_desc";
+        public const string EnableDarkMissionary = "config.job.drk.enable_dark_missionary";
+        public const string EnableDarkMissionaryDesc = "config.job.drk.enable_dark_missionary_desc";
+        public const string EnableTheBlackestNight = "config.job.drk.enable_the_blackest_night";
+        public const string EnableTheBlackestNightDesc = "config.job.drk.enable_the_blackest_night_desc";
+        public const string TBNThreshold = "config.job.drk.tbn_threshold";
+        public const string TBNThresholdDesc = "config.job.drk.tbn_threshold_desc";
+        public const string BloodGaugeCap = "config.job.drk.blood_gauge_cap";
+        public const string BloodGaugeCapDesc = "config.job.drk.blood_gauge_cap_desc";
     }
 
     /// <summary>Keys for Gunbreaker specific settings.</summary>
@@ -972,6 +1004,14 @@ public static class LocalizedStrings
         public const string DemonSliceCombo = "config.job.gnb.demon_slice_combo";
         public const string FatedCircle = "config.job.gnb.fated_circle";
         public const string BowShock = "config.job.gnb.bow_shock";
+
+        // Job-specific toggles
+        public const string EnableHeartOfLight = "config.job.gnb.enable_heart_of_light";
+        public const string EnableHeartOfLightDesc = "config.job.gnb.enable_heart_of_light_desc";
+        public const string EnableHeartOfCorundum = "config.job.gnb.enable_heart_of_corundum";
+        public const string EnableHeartOfCorundumDesc = "config.job.gnb.enable_heart_of_corundum_desc";
+        public const string HeartOfCorundumThreshold = "config.job.gnb.heart_of_corundum_threshold";
+        public const string HeartOfCorundumThresholdDesc = "config.job.gnb.heart_of_corundum_threshold_desc";
     }
 
     // ===== MELEE DPS =====
