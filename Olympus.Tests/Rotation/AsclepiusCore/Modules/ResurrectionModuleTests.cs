@@ -62,7 +62,7 @@ public class ResurrectionModuleTests
         // Assert
         Assert.False(result);
         actionService.Verify(a => a.ExecuteGcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == SGEActions.Egeiro.ActionId),
+            It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.Egeiro.ActionId),
             It.IsAny<ulong>()), Times.Never);
     }
 
@@ -93,7 +93,7 @@ public class ResurrectionModuleTests
         // Assert
         Assert.False(result);
         actionService.Verify(a => a.ExecuteGcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == SGEActions.Egeiro.ActionId),
+            It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.Egeiro.ActionId),
             It.IsAny<ulong>()), Times.Never);
     }
 
@@ -209,9 +209,9 @@ public class ResurrectionModuleTests
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
         // No Swiftcast ready
-        actionService.Setup(a => a.IsActionReady(SGEActions.Swiftcast.ActionId))
+        actionService.Setup(a => a.IsActionReady(RoleActions.Swiftcast.ActionId))
             .Returns(false);
-        actionService.Setup(a => a.GetCooldownRemaining(SGEActions.Swiftcast.ActionId))
+        actionService.Setup(a => a.GetCooldownRemaining(RoleActions.Swiftcast.ActionId))
             .Returns(15f);
 
         var context = AsclepiusTestContext.Create(
@@ -228,7 +228,7 @@ public class ResurrectionModuleTests
         // Assert
         Assert.False(result);
         actionService.Verify(a => a.ExecuteGcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == SGEActions.Egeiro.ActionId),
+            It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.Egeiro.ActionId),
             It.IsAny<ulong>()), Times.Never);
     }
 
@@ -246,9 +246,9 @@ public class ResurrectionModuleTests
             .Returns(deadMember.Object);
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
-        actionService.Setup(a => a.IsActionReady(SGEActions.Swiftcast.ActionId))
+        actionService.Setup(a => a.IsActionReady(RoleActions.Swiftcast.ActionId))
             .Returns(false);
-        actionService.Setup(a => a.GetCooldownRemaining(SGEActions.Swiftcast.ActionId))
+        actionService.Setup(a => a.GetCooldownRemaining(RoleActions.Swiftcast.ActionId))
             .Returns(15f);
 
         var context = AsclepiusTestContext.Create(
@@ -285,9 +285,9 @@ public class ResurrectionModuleTests
         var actionService = MockBuilders.CreateMockActionService(
             canExecuteGcd: false,
             canExecuteOgcd: true);
-        actionService.Setup(a => a.IsActionReady(SGEActions.Swiftcast.ActionId))
+        actionService.Setup(a => a.IsActionReady(RoleActions.Swiftcast.ActionId))
             .Returns(true);
-        actionService.Setup(a => a.ExecuteOgcd(SGEActions.Swiftcast, It.IsAny<ulong>()))
+        actionService.Setup(a => a.ExecuteOgcd(RoleActions.Swiftcast, It.IsAny<ulong>()))
             .Returns(true);
 
         var context = AsclepiusTestContext.Create(
@@ -304,7 +304,7 @@ public class ResurrectionModuleTests
 
         // Assert
         Assert.True(result);
-        actionService.Verify(a => a.ExecuteOgcd(SGEActions.Swiftcast, It.IsAny<ulong>()), Times.Once);
+        actionService.Verify(a => a.ExecuteOgcd(RoleActions.Swiftcast, It.IsAny<ulong>()), Times.Once);
     }
 
     [Fact]
@@ -336,7 +336,7 @@ public class ResurrectionModuleTests
         _module.TryExecute(context, isMoving: false);
 
         // Assert
-        actionService.Verify(a => a.ExecuteOgcd(SGEActions.Swiftcast, It.IsAny<ulong>()), Times.Never);
+        actionService.Verify(a => a.ExecuteOgcd(RoleActions.Swiftcast, It.IsAny<ulong>()), Times.Never);
     }
 
     #endregion
@@ -362,12 +362,12 @@ public class ResurrectionModuleTests
         var actionService = MockBuilders.CreateMockActionService(
             canExecuteGcd: true,
             canExecuteOgcd: false);
-        actionService.Setup(a => a.IsActionReady(SGEActions.Swiftcast.ActionId))
+        actionService.Setup(a => a.IsActionReady(RoleActions.Swiftcast.ActionId))
             .Returns(false);
-        actionService.Setup(a => a.GetCooldownRemaining(SGEActions.Swiftcast.ActionId))
+        actionService.Setup(a => a.GetCooldownRemaining(RoleActions.Swiftcast.ActionId))
             .Returns(60f); // Swiftcast on long cooldown
         actionService.Setup(a => a.ExecuteGcd(
-                It.Is<ActionDefinition>(ad => ad.ActionId == SGEActions.Egeiro.ActionId),
+                It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.Egeiro.ActionId),
                 It.IsAny<ulong>()))
             .Returns(true);
 
@@ -386,7 +386,7 @@ public class ResurrectionModuleTests
         // Assert - should execute raise without waiting for any pre-buff
         Assert.True(result);
         actionService.Verify(a => a.ExecuteGcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == SGEActions.Egeiro.ActionId),
+            It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.Egeiro.ActionId),
             It.IsAny<ulong>()), Times.Once);
     }
 

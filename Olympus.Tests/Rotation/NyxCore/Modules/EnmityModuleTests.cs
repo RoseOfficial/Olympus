@@ -98,7 +98,7 @@ public class EnmityModuleTests
 
         // Should not use Provoke when we have aggro
         actionService.Verify(x => x.ExecuteOgcd(
-            It.Is<ActionDefinition>(a => a.ActionId == DRKActions.Provoke.ActionId),
+            It.Is<ActionDefinition>(a => a.ActionId == RoleActions.Provoke.ActionId),
             It.IsAny<ulong>()), Times.Never);
     }
 

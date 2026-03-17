@@ -269,7 +269,7 @@ public class BuffModuleTests
         config.Astrologian.LucidDreamingThreshold = 0.70f;
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
-        actionService.Setup(a => a.IsActionReady(ASTActions.LucidDreaming.ActionId)).Returns(true);
+        actionService.Setup(a => a.IsActionReady(RoleActions.LucidDreaming.ActionId)).Returns(true);
 
         var context = AstraeaTestContext.Create(
             config: config,
@@ -285,7 +285,7 @@ public class BuffModuleTests
 
         Assert.False(result);
         actionService.Verify(a => a.ExecuteOgcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == ASTActions.LucidDreaming.ActionId),
+            It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.LucidDreaming.ActionId),
             It.IsAny<ulong>()), Times.Never);
     }
 
@@ -300,9 +300,9 @@ public class BuffModuleTests
         var actionService = MockBuilders.CreateMockActionService(
             canExecuteOgcd: true,
             canExecuteGcd: false);
-        actionService.Setup(a => a.IsActionReady(ASTActions.LucidDreaming.ActionId)).Returns(true);
+        actionService.Setup(a => a.IsActionReady(RoleActions.LucidDreaming.ActionId)).Returns(true);
         actionService.Setup(a => a.ExecuteOgcd(
-                It.Is<ActionDefinition>(ad => ad.ActionId == ASTActions.LucidDreaming.ActionId),
+                It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.LucidDreaming.ActionId),
                 It.IsAny<ulong>()))
             .Returns(true);
 
@@ -321,7 +321,7 @@ public class BuffModuleTests
 
         Assert.True(result);
         actionService.Verify(a => a.ExecuteOgcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == ASTActions.LucidDreaming.ActionId),
+            It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.LucidDreaming.ActionId),
             It.IsAny<ulong>()), Times.Once);
     }
 
@@ -333,7 +333,7 @@ public class BuffModuleTests
         config.Astrologian.EnableLucidDreaming = false;
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
-        actionService.Setup(a => a.IsActionReady(ASTActions.LucidDreaming.ActionId)).Returns(true);
+        actionService.Setup(a => a.IsActionReady(RoleActions.LucidDreaming.ActionId)).Returns(true);
 
         var context = AstraeaTestContext.Create(
             config: config,
@@ -347,7 +347,7 @@ public class BuffModuleTests
 
         Assert.False(result);
         actionService.Verify(a => a.ExecuteOgcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == ASTActions.LucidDreaming.ActionId),
+            It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.LucidDreaming.ActionId),
             It.IsAny<ulong>()), Times.Never);
     }
 

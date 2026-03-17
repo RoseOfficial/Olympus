@@ -144,25 +144,25 @@ public sealed class MitigationModule : IAresModule
         var castTimeMs = (int)remainingCastTime;
 
         // Try Interject first (dedicated interrupt)
-        if (context.ActionService.IsActionReady(WARActions.Interject.ActionId))
+        if (context.ActionService.IsActionReady(RoleActions.Interject.ActionId))
         {
             // Reserve the interrupt target
             if (coordConfig.EnableInterruptCoordination)
             {
-                if (!partyCoord?.ReserveInterruptTarget(targetId, WARActions.Interject.ActionId, castTimeMs) ?? false)
+                if (!partyCoord?.ReserveInterruptTarget(targetId, RoleActions.Interject.ActionId, castTimeMs) ?? false)
                 {
                     context.Debug.MitigationState = "Failed to reserve interrupt";
                     return false;
                 }
             }
 
-            if (context.ActionService.ExecuteOgcd(WARActions.Interject, target.GameObjectId))
+            if (context.ActionService.ExecuteOgcd(RoleActions.Interject, target.GameObjectId))
             {
-                context.Debug.PlannedAction = WARActions.Interject.Name;
+                context.Debug.PlannedAction = RoleActions.Interject.Name;
                 context.Debug.MitigationState = "Interrupted cast";
 
                 TrainingHelper.Decision(context.TrainingService)
-                    .Action(WARActions.Interject.ActionId, WARActions.Interject.Name)
+                    .Action(RoleActions.Interject.ActionId, RoleActions.Interject.Name)
                     .AsDefensive()
                     .Target(target.Name?.TextValue)
                     .Reason(
@@ -184,25 +184,25 @@ public sealed class MitigationModule : IAresModule
         }
 
         // Try Low Blow as backup (stun can interrupt some casts)
-        if (level >= 12 && context.ActionService.IsActionReady(WARActions.LowBlow.ActionId))
+        if (level >= 12 && context.ActionService.IsActionReady(RoleActions.LowBlow.ActionId))
         {
             // Reserve the interrupt target
             if (coordConfig.EnableInterruptCoordination)
             {
-                if (!partyCoord?.ReserveInterruptTarget(targetId, WARActions.LowBlow.ActionId, castTimeMs) ?? false)
+                if (!partyCoord?.ReserveInterruptTarget(targetId, RoleActions.LowBlow.ActionId, castTimeMs) ?? false)
                 {
                     context.Debug.MitigationState = "Failed to reserve interrupt";
                     return false;
                 }
             }
 
-            if (context.ActionService.ExecuteOgcd(WARActions.LowBlow, target.GameObjectId))
+            if (context.ActionService.ExecuteOgcd(RoleActions.LowBlow, target.GameObjectId))
             {
-                context.Debug.PlannedAction = WARActions.LowBlow.Name;
+                context.Debug.PlannedAction = RoleActions.LowBlow.Name;
                 context.Debug.MitigationState = "Stunned (interrupt)";
 
                 TrainingHelper.Decision(context.TrainingService)
-                    .Action(WARActions.LowBlow.ActionId, WARActions.LowBlow.Name)
+                    .Action(RoleActions.LowBlow.ActionId, RoleActions.LowBlow.Name)
                     .AsDefensive()
                     .Target(target.Name?.TextValue)
                     .Reason(
@@ -271,15 +271,15 @@ public sealed class MitigationModule : IAresModule
         }
 
         // Priority 2: Rampart (if no active mitigation)
-        if (level >= WARActions.Rampart.MinLevel &&
+        if (level >= RoleActions.Rampart.MinLevel &&
             !context.HasActiveMitigation &&
             !context.StatusHelper.HasRampart(player))
         {
-            if (context.ActionService.IsActionReady(WARActions.Rampart.ActionId))
+            if (context.ActionService.IsActionReady(RoleActions.Rampart.ActionId))
             {
-                if (context.ActionService.ExecuteOgcd(WARActions.Rampart, player.GameObjectId))
+                if (context.ActionService.ExecuteOgcd(RoleActions.Rampart, player.GameObjectId))
                 {
-                    context.Debug.PlannedAction = WARActions.Rampart.Name;
+                    context.Debug.PlannedAction = RoleActions.Rampart.Name;
                     context.Debug.MitigationState = $"Proactive Rampart ({reason})";
                     return true;
                 }
@@ -446,7 +446,7 @@ public sealed class MitigationModule : IAresModule
         var player = context.Player;
         var level = player.Level;
 
-        if (level < WARActions.Rampart.MinLevel)
+        if (level < RoleActions.Rampart.MinLevel)
             return false;
 
         // Check if we should use mitigation
@@ -475,17 +475,17 @@ public sealed class MitigationModule : IAresModule
             return false;
         }
 
-        if (!context.ActionService.IsActionReady(WARActions.Rampart.ActionId))
+        if (!context.ActionService.IsActionReady(RoleActions.Rampart.ActionId))
             return false;
 
-        if (context.ActionService.ExecuteOgcd(WARActions.Rampart, player.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(RoleActions.Rampart, player.GameObjectId))
         {
-            context.Debug.PlannedAction = WARActions.Rampart.Name;
+            context.Debug.PlannedAction = RoleActions.Rampart.Name;
             context.Debug.MitigationState = $"Rampart ({hpPercent:P0} HP)";
-            partyCoord?.OnCooldownUsed(WARActions.Rampart.ActionId, 90_000);
+            partyCoord?.OnCooldownUsed(RoleActions.Rampart.ActionId, 90_000);
 
             TrainingHelper.Decision(context.TrainingService)
-                .Action(WARActions.Rampart.ActionId, WARActions.Rampart.Name)
+                .Action(RoleActions.Rampart.ActionId, RoleActions.Rampart.Name)
                 .AsMitigation(hpPercent)
                 .Reason(
                     $"Rampart activated for 20% damage reduction. HP at {hpPercent:P0} and taking sustained damage.",
@@ -665,7 +665,7 @@ public sealed class MitigationModule : IAresModule
         var player = context.Player;
         var level = player.Level;
 
-        if (level < WARActions.ArmsLength.MinLevel)
+        if (level < RoleActions.ArmsLength.MinLevel)
             return false;
 
         // Arm's Length is primarily used for knockback immunity
@@ -684,7 +684,7 @@ public sealed class MitigationModule : IAresModule
         var player = context.Player;
         var level = player.Level;
 
-        if (level < WARActions.Reprisal.MinLevel)
+        if (level < RoleActions.Reprisal.MinLevel)
             return false;
 
         // Check if another instance recently used a party mitigation (cooldown coordination)
@@ -705,17 +705,17 @@ public sealed class MitigationModule : IAresModule
         if (enemyCount < 2)
             return false;
 
-        if (!context.ActionService.IsActionReady(WARActions.Reprisal.ActionId))
+        if (!context.ActionService.IsActionReady(RoleActions.Reprisal.ActionId))
             return false;
 
-        if (context.ActionService.ExecuteOgcd(WARActions.Reprisal, player.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(RoleActions.Reprisal, player.GameObjectId))
         {
-            context.Debug.PlannedAction = WARActions.Reprisal.Name;
+            context.Debug.PlannedAction = RoleActions.Reprisal.Name;
             context.Debug.MitigationState = $"Reprisal ({enemyCount} enemies)";
-            partyCoord?.OnCooldownUsed(WARActions.Reprisal.ActionId, 60_000);
+            partyCoord?.OnCooldownUsed(RoleActions.Reprisal.ActionId, 60_000);
 
             TrainingHelper.Decision(context.TrainingService)
-                .Action(WARActions.Reprisal.ActionId, WARActions.Reprisal.Name)
+                .Action(RoleActions.Reprisal.ActionId, RoleActions.Reprisal.Name)
                 .AsPartyMit()
                 .Reason(
                     $"Reprisal used to reduce enemy damage by 10% for {enemyCount} enemies. Party mitigation for multi-target pulls.",

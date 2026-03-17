@@ -147,21 +147,21 @@ public sealed class MitigationModule : IHephaestusModule
         var castTimeMs = (int)remainingCastTime;
 
         // Try Interject first (dedicated interrupt)
-        if (context.ActionService.IsActionReady(GNBActions.Interject.ActionId))
+        if (context.ActionService.IsActionReady(RoleActions.Interject.ActionId))
         {
             // Reserve the interrupt target
             if (coordConfig.EnableInterruptCoordination)
             {
-                if (!partyCoord?.ReserveInterruptTarget(targetId, GNBActions.Interject.ActionId, castTimeMs) ?? false)
+                if (!partyCoord?.ReserveInterruptTarget(targetId, RoleActions.Interject.ActionId, castTimeMs) ?? false)
                 {
                     context.Debug.MitigationState = "Failed to reserve interrupt";
                     return false;
                 }
             }
 
-            if (context.ActionService.ExecuteOgcd(GNBActions.Interject, target.GameObjectId))
+            if (context.ActionService.ExecuteOgcd(RoleActions.Interject, target.GameObjectId))
             {
-                context.Debug.PlannedAction = GNBActions.Interject.Name;
+                context.Debug.PlannedAction = RoleActions.Interject.Name;
                 context.Debug.MitigationState = "Interrupted cast";
                 return true;
             }
@@ -171,21 +171,21 @@ public sealed class MitigationModule : IHephaestusModule
         }
 
         // Try Low Blow as backup (stun can interrupt some casts)
-        if (level >= 12 && context.ActionService.IsActionReady(GNBActions.LowBlow.ActionId))
+        if (level >= 12 && context.ActionService.IsActionReady(RoleActions.LowBlow.ActionId))
         {
             // Reserve the interrupt target
             if (coordConfig.EnableInterruptCoordination)
             {
-                if (!partyCoord?.ReserveInterruptTarget(targetId, GNBActions.LowBlow.ActionId, castTimeMs) ?? false)
+                if (!partyCoord?.ReserveInterruptTarget(targetId, RoleActions.LowBlow.ActionId, castTimeMs) ?? false)
                 {
                     context.Debug.MitigationState = "Failed to reserve interrupt";
                     return false;
                 }
             }
 
-            if (context.ActionService.ExecuteOgcd(GNBActions.LowBlow, target.GameObjectId))
+            if (context.ActionService.ExecuteOgcd(RoleActions.LowBlow, target.GameObjectId))
             {
-                context.Debug.PlannedAction = GNBActions.LowBlow.Name;
+                context.Debug.PlannedAction = RoleActions.LowBlow.Name;
                 context.Debug.MitigationState = "Stunned (interrupt)";
                 return true;
             }
@@ -259,19 +259,19 @@ public sealed class MitigationModule : IHephaestusModule
         }
 
         // Priority 2: Rampart (if no active mitigation)
-        if (level >= GNBActions.Rampart.MinLevel &&
+        if (level >= RoleActions.Rampart.MinLevel &&
             !context.HasActiveMitigation &&
             !context.StatusHelper.HasRampart(player))
         {
-            if (context.ActionService.IsActionReady(GNBActions.Rampart.ActionId))
+            if (context.ActionService.IsActionReady(RoleActions.Rampart.ActionId))
             {
-                if (context.ActionService.ExecuteOgcd(GNBActions.Rampart, player.GameObjectId))
+                if (context.ActionService.ExecuteOgcd(RoleActions.Rampart, player.GameObjectId))
                 {
-                    context.Debug.PlannedAction = GNBActions.Rampart.Name;
+                    context.Debug.PlannedAction = RoleActions.Rampart.Name;
                     context.Debug.MitigationState = $"Proactive Rampart ({reason})";
 
                     TrainingHelper.Decision(context.TrainingService)
-                        .Action(GNBActions.Rampart.ActionId, GNBActions.Rampart.Name)
+                        .Action(RoleActions.Rampart.ActionId, RoleActions.Rampart.Name)
                         .AsMitigation(hpPercent)
                         .Target("Self")
                         .Reason(
@@ -569,7 +569,7 @@ public sealed class MitigationModule : IHephaestusModule
         var player = context.Player;
         var level = player.Level;
 
-        if (level < GNBActions.Rampart.MinLevel)
+        if (level < RoleActions.Rampart.MinLevel)
             return false;
 
         // Check if we should use mitigation
@@ -598,17 +598,17 @@ public sealed class MitigationModule : IHephaestusModule
             return false;
         }
 
-        if (!context.ActionService.IsActionReady(GNBActions.Rampart.ActionId))
+        if (!context.ActionService.IsActionReady(RoleActions.Rampart.ActionId))
             return false;
 
-        if (context.ActionService.ExecuteOgcd(GNBActions.Rampart, player.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(RoleActions.Rampart, player.GameObjectId))
         {
-            context.Debug.PlannedAction = GNBActions.Rampart.Name;
+            context.Debug.PlannedAction = RoleActions.Rampart.Name;
             context.Debug.MitigationState = $"Rampart ({hpPercent:P0} HP)";
-            partyCoord?.OnCooldownUsed(GNBActions.Rampart.ActionId, 90_000);
+            partyCoord?.OnCooldownUsed(RoleActions.Rampart.ActionId, 90_000);
 
             TrainingHelper.Decision(context.TrainingService)
-                .Action(GNBActions.Rampart.ActionId, GNBActions.Rampart.Name)
+                .Action(RoleActions.Rampart.ActionId, RoleActions.Rampart.Name)
                 .AsMitigation(hpPercent)
                 .Target("Self")
                 .Reason(
@@ -776,7 +776,7 @@ public sealed class MitigationModule : IHephaestusModule
         var player = context.Player;
         var level = player.Level;
 
-        if (level < GNBActions.ArmsLength.MinLevel)
+        if (level < RoleActions.ArmsLength.MinLevel)
             return false;
 
         // Arm's Length is primarily used for knockback immunity
@@ -854,7 +854,7 @@ public sealed class MitigationModule : IHephaestusModule
         var player = context.Player;
         var level = player.Level;
 
-        if (level < GNBActions.Reprisal.MinLevel)
+        if (level < RoleActions.Reprisal.MinLevel)
             return false;
 
         // Check if another instance recently used a party mitigation (cooldown coordination)
@@ -875,14 +875,14 @@ public sealed class MitigationModule : IHephaestusModule
         if (enemyCount < 2)
             return false;
 
-        if (!context.ActionService.IsActionReady(GNBActions.Reprisal.ActionId))
+        if (!context.ActionService.IsActionReady(RoleActions.Reprisal.ActionId))
             return false;
 
-        if (context.ActionService.ExecuteOgcd(GNBActions.Reprisal, player.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(RoleActions.Reprisal, player.GameObjectId))
         {
-            context.Debug.PlannedAction = GNBActions.Reprisal.Name;
+            context.Debug.PlannedAction = RoleActions.Reprisal.Name;
             context.Debug.MitigationState = $"Reprisal ({enemyCount} enemies)";
-            partyCoord?.OnCooldownUsed(GNBActions.Reprisal.ActionId, 60_000);
+            partyCoord?.OnCooldownUsed(RoleActions.Reprisal.ActionId, 60_000);
             return true;
         }
 

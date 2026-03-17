@@ -19,7 +19,7 @@ public abstract class BaseResurrectionModule<TContext> : IHealerRotationModule<T
     #region Abstract Properties - Must be implemented by job-specific modules
 
     /// <summary>
-    /// The raise action for this job (e.g., WHMActions.Raise, SCHActions.Resurrection).
+    /// The raise action for this job (e.g., RoleActions.Raise, RoleActions.Resurrection).
     /// </summary>
     protected abstract ActionDefinition RaiseAction { get; }
 

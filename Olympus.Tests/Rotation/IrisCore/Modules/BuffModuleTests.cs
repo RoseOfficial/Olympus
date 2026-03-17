@@ -454,7 +454,7 @@ public class BuffModuleTests
     {
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         actionService.Setup(x => x.ExecuteOgcd(
-                It.Is<ActionDefinition>(a => a.ActionId == PCTActions.Swiftcast.ActionId),
+                It.Is<ActionDefinition>(a => a.ActionId == RoleActions.Swiftcast.ActionId),
                 It.IsAny<ulong>()))
             .Returns(true);
 
@@ -483,7 +483,7 @@ public class BuffModuleTests
 
         Assert.True(result);
         actionService.Verify(x => x.ExecuteOgcd(
-            It.Is<ActionDefinition>(a => a.ActionId == PCTActions.Swiftcast.ActionId),
+            It.Is<ActionDefinition>(a => a.ActionId == RoleActions.Swiftcast.ActionId),
             It.IsAny<ulong>()), Times.Once);
     }
 
@@ -514,7 +514,7 @@ public class BuffModuleTests
 
         Assert.False(result);
         actionService.Verify(x => x.ExecuteOgcd(
-            It.Is<ActionDefinition>(a => a.ActionId == PCTActions.Swiftcast.ActionId),
+            It.Is<ActionDefinition>(a => a.ActionId == RoleActions.Swiftcast.ActionId),
             It.IsAny<ulong>()), Times.Never);
     }
 
@@ -545,7 +545,7 @@ public class BuffModuleTests
 
         Assert.False(result);
         actionService.Verify(x => x.ExecuteOgcd(
-            It.Is<ActionDefinition>(a => a.ActionId == PCTActions.Swiftcast.ActionId),
+            It.Is<ActionDefinition>(a => a.ActionId == RoleActions.Swiftcast.ActionId),
             It.IsAny<ulong>()), Times.Never);
     }
 
@@ -580,7 +580,7 @@ public class BuffModuleTests
 
         Assert.False(result);
         actionService.Verify(x => x.ExecuteOgcd(
-            It.Is<ActionDefinition>(a => a.ActionId == PCTActions.Swiftcast.ActionId),
+            It.Is<ActionDefinition>(a => a.ActionId == RoleActions.Swiftcast.ActionId),
             It.IsAny<ulong>()), Times.Never);
     }
 
@@ -615,7 +615,7 @@ public class BuffModuleTests
 
         Assert.False(result);
         actionService.Verify(x => x.ExecuteOgcd(
-            It.Is<ActionDefinition>(a => a.ActionId == PCTActions.Swiftcast.ActionId),
+            It.Is<ActionDefinition>(a => a.ActionId == RoleActions.Swiftcast.ActionId),
             It.IsAny<ulong>()), Times.Never);
     }
 

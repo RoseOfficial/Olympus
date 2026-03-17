@@ -298,10 +298,10 @@ public sealed class CirceContext : ICirceContext
             ? (int)actionService.GetCurrentCharges(RDMActions.Acceleration.ActionId)
             : 0;
 
-        SwiftcastReady = level >= RDMActions.Swiftcast.MinLevel &&
-                        actionService.IsActionReady(RDMActions.Swiftcast.ActionId);
-        LucidDreamingReady = level >= RDMActions.LucidDreaming.MinLevel &&
-                            actionService.IsActionReady(RDMActions.LucidDreaming.ActionId);
+        SwiftcastReady = level >= RoleActions.Swiftcast.MinLevel &&
+                        actionService.IsActionReady(RoleActions.Swiftcast.ActionId);
+        LucidDreamingReady = level >= RoleActions.LucidDreaming.MinLevel &&
+                            actionService.IsActionReady(RoleActions.LucidDreaming.ActionId);
 
         // Update debug state
         UpdateDebugState();

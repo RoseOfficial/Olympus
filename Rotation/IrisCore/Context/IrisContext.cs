@@ -322,10 +322,10 @@ public sealed class IrisContext : IIrisContext
                            actionService.IsActionReady(PCTActions.TemperaGrassa.ActionId);
         SmudgeReady = level >= PCTActions.Smudge.MinLevel &&
                      actionService.IsActionReady(PCTActions.Smudge.ActionId);
-        SwiftcastReady = level >= PCTActions.Swiftcast.MinLevel &&
-                        actionService.IsActionReady(PCTActions.Swiftcast.ActionId);
-        LucidDreamingReady = level >= PCTActions.LucidDreaming.MinLevel &&
-                            actionService.IsActionReady(PCTActions.LucidDreaming.ActionId);
+        SwiftcastReady = level >= RoleActions.Swiftcast.MinLevel &&
+                        actionService.IsActionReady(RoleActions.Swiftcast.ActionId);
+        LucidDreamingReady = level >= RoleActions.LucidDreaming.MinLevel &&
+                            actionService.IsActionReady(RoleActions.LucidDreaming.ActionId);
 
         // Update debug state
         UpdateDebugState();

@@ -733,7 +733,7 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
         var level = player.Level;
 
         // Need at least Head Graze (Lv.24)
-        if (level < DNCActions.HeadGraze.MinLevel)
+        if (level < RoleActions.HeadGraze.MinLevel)
             return false;
 
         // Check if target is casting something interruptible
@@ -761,26 +761,26 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
         var castTimeMs = (int)remainingCastTime;
 
         // Try Head Graze
-        if (context.ActionService.IsActionReady(DNCActions.HeadGraze.ActionId))
+        if (context.ActionService.IsActionReady(RoleActions.HeadGraze.ActionId))
         {
             // Reserve the interrupt target
             if (coordConfig.EnableInterruptCoordination)
             {
-                if (!partyCoord?.ReserveInterruptTarget(targetId, DNCActions.HeadGraze.ActionId, castTimeMs) ?? false)
+                if (!partyCoord?.ReserveInterruptTarget(targetId, RoleActions.HeadGraze.ActionId, castTimeMs) ?? false)
                 {
                     context.Debug.DamageState = "Failed to reserve interrupt";
                     return false;
                 }
             }
 
-            if (context.ActionService.ExecuteOgcd(DNCActions.HeadGraze, target.GameObjectId))
+            if (context.ActionService.ExecuteOgcd(RoleActions.HeadGraze, target.GameObjectId))
             {
-                context.Debug.PlannedAction = DNCActions.HeadGraze.Name;
+                context.Debug.PlannedAction = RoleActions.HeadGraze.Name;
                 context.Debug.DamageState = "Interrupted cast";
 
                 // Training: Record interrupt decision
                 TrainingHelper.Decision(context.TrainingService)
-                    .Action(DNCActions.HeadGraze.ActionId, DNCActions.HeadGraze.Name)
+                    .Action(RoleActions.HeadGraze.ActionId, RoleActions.HeadGraze.Name)
                     .AsInterrupt()
                     .Target(target.Name?.TextValue ?? "Target")
                     .Reason(

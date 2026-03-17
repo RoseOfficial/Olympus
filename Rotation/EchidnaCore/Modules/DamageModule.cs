@@ -287,55 +287,55 @@ public sealed class DamageModule : BaseDpsDamageModule<IEchidnaContext>, IEchidn
         var hpPercent = player.MaxHp > 0 ? (float)player.CurrentHp / player.MaxHp : 1f;
 
         // Second Wind — self heal when HP low
-        if (level >= VPRActions.SecondWind.MinLevel &&
+        if (level >= RoleActions.SecondWind.MinLevel &&
             context.Configuration.Viper.EnableSecondWind &&
             hpPercent < context.Configuration.Viper.SecondWindHpThreshold &&
-            context.ActionService.IsActionReady(VPRActions.SecondWind.ActionId))
+            context.ActionService.IsActionReady(RoleActions.SecondWind.ActionId))
         {
-            if (context.ActionService.ExecuteOgcd(VPRActions.SecondWind, player.GameObjectId))
+            if (context.ActionService.ExecuteOgcd(RoleActions.SecondWind, player.GameObjectId))
             {
-                SetPlannedAction(context, VPRActions.SecondWind.Name);
+                SetPlannedAction(context, RoleActions.SecondWind.Name);
                 return true;
             }
         }
 
         // Bloodbath — lifesteal when HP low and buff not active
-        if (level >= VPRActions.Bloodbath.MinLevel &&
+        if (level >= RoleActions.Bloodbath.MinLevel &&
             context.Configuration.Viper.EnableBloodbath &&
             hpPercent < context.Configuration.Viper.BloodbathHpThreshold &&
             !context.StatusHelper.HasBloodbath(player) &&
-            context.ActionService.IsActionReady(VPRActions.Bloodbath.ActionId))
+            context.ActionService.IsActionReady(RoleActions.Bloodbath.ActionId))
         {
-            if (context.ActionService.ExecuteOgcd(VPRActions.Bloodbath, player.GameObjectId))
+            if (context.ActionService.ExecuteOgcd(RoleActions.Bloodbath, player.GameObjectId))
             {
-                SetPlannedAction(context, VPRActions.Bloodbath.Name);
+                SetPlannedAction(context, RoleActions.Bloodbath.Name);
                 return true;
             }
         }
 
         // Feint — enemy mitigation (party defense)
-        if (level >= VPRActions.Feint.MinLevel &&
+        if (level >= RoleActions.Feint.MinLevel &&
             context.Configuration.Viper.EnableFeint &&
-            context.ActionService.IsActionReady(VPRActions.Feint.ActionId))
+            context.ActionService.IsActionReady(RoleActions.Feint.ActionId))
         {
-            if (context.ActionService.ExecuteOgcd(VPRActions.Feint, target.GameObjectId))
+            if (context.ActionService.ExecuteOgcd(RoleActions.Feint, target.GameObjectId))
             {
-                SetPlannedAction(context, VPRActions.Feint.Name);
+                SetPlannedAction(context, RoleActions.Feint.Name);
                 return true;
             }
         }
 
         // True North — remove positional requirement when out of position
-        if (level >= VPRActions.TrueNorth.MinLevel &&
+        if (level >= RoleActions.TrueNorth.MinLevel &&
             context.Configuration.Viper.EnableTrueNorth &&
             !context.HasTrueNorth &&
             !context.IsAtRear && !context.IsAtFlank &&
             !context.TargetHasPositionalImmunity &&
-            context.ActionService.IsActionReady(VPRActions.TrueNorth.ActionId))
+            context.ActionService.IsActionReady(RoleActions.TrueNorth.ActionId))
         {
-            if (context.ActionService.ExecuteOgcd(VPRActions.TrueNorth, player.GameObjectId))
+            if (context.ActionService.ExecuteOgcd(RoleActions.TrueNorth, player.GameObjectId))
             {
-                SetPlannedAction(context, VPRActions.TrueNorth.Name);
+                SetPlannedAction(context, RoleActions.TrueNorth.Name);
                 return true;
             }
         }

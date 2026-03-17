@@ -803,9 +803,9 @@ public class DamageModuleTests
         var enemy = CreateMockEnemy();
         var targeting = CreateTargetingWithEnemy(enemy);
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
-        actionService.Setup(x => x.IsActionReady(VPRActions.SecondWind.ActionId)).Returns(true);
+        actionService.Setup(x => x.IsActionReady(RoleActions.SecondWind.ActionId)).Returns(true);
         actionService.Setup(x => x.ExecuteOgcd(
-                It.Is<ActionDefinition>(a => a.ActionId == VPRActions.SecondWind.ActionId),
+                It.Is<ActionDefinition>(a => a.ActionId == RoleActions.SecondWind.ActionId),
                 It.IsAny<ulong>()))
             .Returns(true);
 
@@ -858,7 +858,7 @@ public class DamageModuleTests
 
         Assert.True(result);
         actionService.Verify(x => x.ExecuteOgcd(
-            It.Is<ActionDefinition>(a => a.ActionId == VPRActions.SecondWind.ActionId),
+            It.Is<ActionDefinition>(a => a.ActionId == RoleActions.SecondWind.ActionId),
             It.IsAny<ulong>()), Times.Once);
     }
 
@@ -868,7 +868,7 @@ public class DamageModuleTests
         var enemy = CreateMockEnemy();
         var targeting = CreateTargetingWithEnemy(enemy);
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
-        actionService.Setup(x => x.IsActionReady(VPRActions.SecondWind.ActionId)).Returns(true);
+        actionService.Setup(x => x.IsActionReady(RoleActions.SecondWind.ActionId)).Returns(true);
 
         var config = EchidnaTestContext.CreateDefaultViperConfiguration();
         config.Viper.EnableSecondWind = true;
@@ -908,7 +908,7 @@ public class DamageModuleTests
         _module.TryExecute(mockContext.Object, isMoving: false);
 
         actionService.Verify(x => x.ExecuteOgcd(
-            It.Is<ActionDefinition>(a => a.ActionId == VPRActions.SecondWind.ActionId),
+            It.Is<ActionDefinition>(a => a.ActionId == RoleActions.SecondWind.ActionId),
             It.IsAny<ulong>()), Times.Never);
     }
 
@@ -919,10 +919,10 @@ public class DamageModuleTests
         var targeting = CreateTargetingWithEnemy(enemy);
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         // Disable SecondWind so Bloodbath can fire
-        actionService.Setup(x => x.IsActionReady(VPRActions.SecondWind.ActionId)).Returns(false);
-        actionService.Setup(x => x.IsActionReady(VPRActions.Bloodbath.ActionId)).Returns(true);
+        actionService.Setup(x => x.IsActionReady(RoleActions.SecondWind.ActionId)).Returns(false);
+        actionService.Setup(x => x.IsActionReady(RoleActions.Bloodbath.ActionId)).Returns(true);
         actionService.Setup(x => x.ExecuteOgcd(
-                It.Is<ActionDefinition>(a => a.ActionId == VPRActions.Bloodbath.ActionId),
+                It.Is<ActionDefinition>(a => a.ActionId == RoleActions.Bloodbath.ActionId),
                 It.IsAny<ulong>()))
             .Returns(true);
 
@@ -966,7 +966,7 @@ public class DamageModuleTests
 
         Assert.True(result);
         actionService.Verify(x => x.ExecuteOgcd(
-            It.Is<ActionDefinition>(a => a.ActionId == VPRActions.Bloodbath.ActionId),
+            It.Is<ActionDefinition>(a => a.ActionId == RoleActions.Bloodbath.ActionId),
             It.IsAny<ulong>()), Times.Once);
     }
 
@@ -977,11 +977,11 @@ public class DamageModuleTests
         var targeting = CreateTargetingWithEnemy(enemy);
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         // Disable SecondWind and Bloodbath so Feint can fire
-        actionService.Setup(x => x.IsActionReady(VPRActions.SecondWind.ActionId)).Returns(false);
-        actionService.Setup(x => x.IsActionReady(VPRActions.Bloodbath.ActionId)).Returns(false);
-        actionService.Setup(x => x.IsActionReady(VPRActions.Feint.ActionId)).Returns(true);
+        actionService.Setup(x => x.IsActionReady(RoleActions.SecondWind.ActionId)).Returns(false);
+        actionService.Setup(x => x.IsActionReady(RoleActions.Bloodbath.ActionId)).Returns(false);
+        actionService.Setup(x => x.IsActionReady(RoleActions.Feint.ActionId)).Returns(true);
         actionService.Setup(x => x.ExecuteOgcd(
-                It.Is<ActionDefinition>(a => a.ActionId == VPRActions.Feint.ActionId),
+                It.Is<ActionDefinition>(a => a.ActionId == RoleActions.Feint.ActionId),
                 It.IsAny<ulong>()))
             .Returns(true);
 
@@ -1024,7 +1024,7 @@ public class DamageModuleTests
 
         Assert.True(result);
         actionService.Verify(x => x.ExecuteOgcd(
-            It.Is<ActionDefinition>(a => a.ActionId == VPRActions.Feint.ActionId),
+            It.Is<ActionDefinition>(a => a.ActionId == RoleActions.Feint.ActionId),
             It.IsAny<ulong>()), Times.Once);
     }
 
@@ -1035,12 +1035,12 @@ public class DamageModuleTests
         var targeting = CreateTargetingWithEnemy(enemy);
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         // Disable higher-priority role actions so TrueNorth can fire
-        actionService.Setup(x => x.IsActionReady(VPRActions.SecondWind.ActionId)).Returns(false);
-        actionService.Setup(x => x.IsActionReady(VPRActions.Bloodbath.ActionId)).Returns(false);
-        actionService.Setup(x => x.IsActionReady(VPRActions.Feint.ActionId)).Returns(false);
-        actionService.Setup(x => x.IsActionReady(VPRActions.TrueNorth.ActionId)).Returns(true);
+        actionService.Setup(x => x.IsActionReady(RoleActions.SecondWind.ActionId)).Returns(false);
+        actionService.Setup(x => x.IsActionReady(RoleActions.Bloodbath.ActionId)).Returns(false);
+        actionService.Setup(x => x.IsActionReady(RoleActions.Feint.ActionId)).Returns(false);
+        actionService.Setup(x => x.IsActionReady(RoleActions.TrueNorth.ActionId)).Returns(true);
         actionService.Setup(x => x.ExecuteOgcd(
-                It.Is<ActionDefinition>(a => a.ActionId == VPRActions.TrueNorth.ActionId),
+                It.Is<ActionDefinition>(a => a.ActionId == RoleActions.TrueNorth.ActionId),
                 It.IsAny<ulong>()))
             .Returns(true);
 
@@ -1084,7 +1084,7 @@ public class DamageModuleTests
 
         Assert.True(result);
         actionService.Verify(x => x.ExecuteOgcd(
-            It.Is<ActionDefinition>(a => a.ActionId == VPRActions.TrueNorth.ActionId),
+            It.Is<ActionDefinition>(a => a.ActionId == RoleActions.TrueNorth.ActionId),
             It.IsAny<ulong>()), Times.Once);
     }
 

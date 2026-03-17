@@ -179,7 +179,7 @@ public sealed class BuffModule : IApolloModule
             var deadMember = context.PartyHelper.FindDeadPartyMemberNeedingRaise(player);
             if (deadMember is not null)
             {
-                var swiftcastReady = context.ActionService.IsActionReady(WHMActions.Swiftcast.ActionId);
+                var swiftcastReady = context.ActionService.IsActionReady(RoleActions.Swiftcast.ActionId);
 
                 if (context.HasSwiftcast || swiftcastReady || config.Resurrection.AllowHardcastRaise)
                 {
@@ -290,8 +290,8 @@ public sealed class BuffModule : IApolloModule
             if (deadMember is not null)
             {
                 // Check if Swiftcast is ready or coming soon
-                var swiftcastReady = context.ActionService.IsActionReady(WHMActions.Swiftcast.ActionId);
-                var swiftcastCooldown = context.ActionService.GetCooldownRemaining(WHMActions.Swiftcast.ActionId);
+                var swiftcastReady = context.ActionService.IsActionReady(RoleActions.Swiftcast.ActionId);
+                var swiftcastCooldown = context.ActionService.GetCooldownRemaining(RoleActions.Swiftcast.ActionId);
 
                 // Don't use PoM if Swiftcast is about to be ready and we need to raise
                 if (!swiftcastReady && swiftcastCooldown <= config.Buffs.PoMRaiseDelayCooldown)
@@ -557,10 +557,10 @@ public sealed class BuffModule : IApolloModule
         var player = context.Player;
         var mpPercent = context.MpForecastService.MpPercent;
 
-        if (player.Level < 24)
+        if (player.Level < RoleActions.LucidDreaming.MinLevel)
             return false;
 
-        if (!context.ActionService.IsActionReady(WHMActions.LucidDreaming.ActionId))
+        if (!context.ActionService.IsActionReady(RoleActions.LucidDreaming.ActionId))
             return false;
 
         // Already have Lucid Dreaming active
@@ -607,7 +607,7 @@ public sealed class BuffModule : IApolloModule
         if (!shouldUseLucid)
             return false;
 
-        if (ActionExecutor.ExecuteOgcd(context, WHMActions.LucidDreaming, player.GameObjectId,
+        if (ActionExecutor.ExecuteOgcd(context, RoleActions.LucidDreaming, player.GameObjectId,
             player.Name?.TextValue ?? "Unknown", player.CurrentMp, reason))
         {
             context.Debug.LucidState = reason;
@@ -654,9 +654,9 @@ public sealed class BuffModule : IApolloModule
             return false;
         }
 
-        if (player.Level < WHMActions.Surecast.MinLevel)
+        if (player.Level < RoleActions.Surecast.MinLevel)
         {
-            context.Debug.SurecastState = $"Level {player.Level} < {WHMActions.Surecast.MinLevel}";
+            context.Debug.SurecastState = $"Level {player.Level} < {RoleActions.Surecast.MinLevel}";
             return false;
         }
 
@@ -666,9 +666,9 @@ public sealed class BuffModule : IApolloModule
             return false;
         }
 
-        if (!context.ActionService.IsActionReady(WHMActions.Surecast.ActionId))
+        if (!context.ActionService.IsActionReady(RoleActions.Surecast.ActionId))
         {
-            var cd = context.ActionService.GetCooldownRemaining(WHMActions.Surecast.ActionId);
+            var cd = context.ActionService.GetCooldownRemaining(RoleActions.Surecast.ActionId);
             context.Debug.SurecastState = $"CD: {cd:F1}s";
             return false;
         }
@@ -676,7 +676,7 @@ public sealed class BuffModule : IApolloModule
         // Mode 1: Use on cooldown in combat
         if (config.RoleActions.SurecastMode == 1)
         {
-            if (ActionExecutor.ExecuteOgcd(context, WHMActions.Surecast, player.GameObjectId,
+            if (ActionExecutor.ExecuteOgcd(context, RoleActions.Surecast, player.GameObjectId,
                 player.Name?.TextValue ?? "Unknown", player.CurrentHp))
             {
                 context.Debug.SurecastState = "Executed";

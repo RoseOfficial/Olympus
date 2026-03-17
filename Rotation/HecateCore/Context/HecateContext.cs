@@ -246,7 +246,7 @@ public sealed class HecateContext : IHecateContext
 
         // Cooldown tracking
         TriplecastCharges = (int)actionService.GetCurrentCharges(BLMActions.Triplecast.ActionId);
-        SwiftcastReady = actionService.IsActionReady(BLMActions.Swiftcast.ActionId);
+        SwiftcastReady = actionService.IsActionReady(RoleActions.Swiftcast.ActionId);
         ManafontReady = actionService.IsActionReady(BLMActions.Manafont.ActionId);
         AmplifierReady = actionService.IsActionReady(BLMActions.Amplifier.ActionId);
         LeyLinesReady = actionService.IsActionReady(BLMActions.LeyLines.ActionId);

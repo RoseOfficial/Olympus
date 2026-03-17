@@ -28,10 +28,10 @@ public sealed class LucidDreamingHandler : IHealingHandler
             return false;
         }
 
-        if (player.Level < SGEActions.LucidDreaming.MinLevel)
+        if (player.Level < RoleActions.LucidDreaming.MinLevel)
             return false;
 
-        if (!context.ActionService.IsActionReady(SGEActions.LucidDreaming.ActionId))
+        if (!context.ActionService.IsActionReady(RoleActions.LucidDreaming.ActionId))
         {
             context.Debug.LucidState = "On CD";
             return false;
@@ -44,7 +44,7 @@ public sealed class LucidDreamingHandler : IHealingHandler
             return false;
         }
 
-        var action = SGEActions.LucidDreaming;
+        var action = RoleActions.LucidDreaming;
         if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
         {
             context.Debug.PlannedAction = action.Name;

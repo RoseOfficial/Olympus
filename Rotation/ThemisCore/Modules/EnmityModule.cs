@@ -55,7 +55,7 @@ public sealed class EnmityModule : IThemisModule
         var player = context.Player;
         var level = player.Level;
 
-        if (level < PLDActions.Provoke.MinLevel)
+        if (level < RoleActions.Provoke.MinLevel)
             return false;
 
         // Check configuration
@@ -85,7 +85,7 @@ public sealed class EnmityModule : IThemisModule
         if (pendingSwap != null && !pendingSwap.IntendToTakeAggro)
         {
             // Co-tank wants to give aggro - confirm and execute Provoke
-            if (!context.ActionService.IsActionReady(PLDActions.Provoke.ActionId))
+            if (!context.ActionService.IsActionReady(RoleActions.Provoke.ActionId))
             {
                 context.Debug.EnmityState = "Provoke on CD (swap pending)";
                 return false;
@@ -93,16 +93,16 @@ public sealed class EnmityModule : IThemisModule
 
             partyCoord?.ConfirmTankSwap(targetEntityId);
 
-            if (context.ActionService.ExecuteOgcd(PLDActions.Provoke, target.GameObjectId))
+            if (context.ActionService.ExecuteOgcd(RoleActions.Provoke, target.GameObjectId))
             {
                 _lastProvokeTime = DateTime.UtcNow;
                 partyCoord?.ClearTankSwapReservation(targetEntityId);
-                context.Debug.PlannedAction = PLDActions.Provoke.Name;
+                context.Debug.PlannedAction = RoleActions.Provoke.Name;
                 context.Debug.EnmityState = "Provoking (coordinated swap)";
 
                 // Training: Record coordinated Provoke
                 TrainingHelper.Decision(context.TrainingService)
-                    .Action(PLDActions.Provoke.ActionId, PLDActions.Provoke.Name)
+                    .Action(RoleActions.Provoke.ActionId, RoleActions.Provoke.Name)
                     .AsEnmity()
                     .Target(target.Name?.TextValue)
                     .Reason(
@@ -138,7 +138,7 @@ public sealed class EnmityModule : IThemisModule
         }
 
         // Check if Provoke is ready
-        if (!context.ActionService.IsActionReady(PLDActions.Provoke.ActionId))
+        if (!context.ActionService.IsActionReady(RoleActions.Provoke.ActionId))
         {
             context.Debug.EnmityState = "Provoke on CD";
             return false;
@@ -161,16 +161,16 @@ public sealed class EnmityModule : IThemisModule
         }
 
         // Execute Provoke (solo or after timeout)
-        if (context.ActionService.ExecuteOgcd(PLDActions.Provoke, target.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(RoleActions.Provoke, target.GameObjectId))
         {
             _lastProvokeTime = DateTime.UtcNow;
             partyCoord?.ClearTankSwapReservation(targetEntityId);
-            context.Debug.PlannedAction = PLDActions.Provoke.Name;
+            context.Debug.PlannedAction = RoleActions.Provoke.Name;
             context.Debug.EnmityState = "Provoking (losing aggro)";
 
             // Training: Record emergency Provoke
             TrainingHelper.Decision(context.TrainingService)
-                .Action(PLDActions.Provoke.ActionId, PLDActions.Provoke.Name)
+                .Action(RoleActions.Provoke.ActionId, RoleActions.Provoke.Name)
                 .AsEnmity()
                 .Target(target.Name?.TextValue)
                 .Reason(
@@ -199,7 +199,7 @@ public sealed class EnmityModule : IThemisModule
         var player = context.Player;
         var level = player.Level;
 
-        if (level < PLDActions.Shirk.MinLevel)
+        if (level < RoleActions.Shirk.MinLevel)
             return false;
 
         // Check configuration
@@ -224,7 +224,7 @@ public sealed class EnmityModule : IThemisModule
         if (pendingSwap != null && pendingSwap.IntendToTakeAggro)
         {
             // Co-tank wants to take aggro - confirm and execute Shirk
-            if (!context.ActionService.IsActionReady(PLDActions.Shirk.ActionId))
+            if (!context.ActionService.IsActionReady(RoleActions.Shirk.ActionId))
             {
                 context.Debug.EnmityState = "Shirk on CD (swap pending)";
                 return false;
@@ -240,15 +240,15 @@ public sealed class EnmityModule : IThemisModule
 
             partyCoord?.ConfirmTankSwap(targetEntityId);
 
-            if (context.ActionService.ExecuteOgcd(PLDActions.Shirk, coTankForSwap.GameObjectId))
+            if (context.ActionService.ExecuteOgcd(RoleActions.Shirk, coTankForSwap.GameObjectId))
             {
                 partyCoord?.ClearTankSwapReservation(targetEntityId);
-                context.Debug.PlannedAction = PLDActions.Shirk.Name;
+                context.Debug.PlannedAction = RoleActions.Shirk.Name;
                 context.Debug.EnmityState = "Shirking (coordinated swap)";
 
                 // Training: Record coordinated Shirk
                 TrainingHelper.Decision(context.TrainingService)
-                    .Action(PLDActions.Shirk.ActionId, PLDActions.Shirk.Name)
+                    .Action(RoleActions.Shirk.ActionId, RoleActions.Shirk.Name)
                     .AsEnmity()
                     .Target(coTankForSwap.Name?.TextValue)
                     .Reason(
@@ -294,7 +294,7 @@ public sealed class EnmityModule : IThemisModule
         }
 
         // Check if Shirk is ready
-        if (!context.ActionService.IsActionReady(PLDActions.Shirk.ActionId))
+        if (!context.ActionService.IsActionReady(RoleActions.Shirk.ActionId))
         {
             context.Debug.EnmityState = "Shirk on CD";
             return false;
@@ -309,14 +309,14 @@ public sealed class EnmityModule : IThemisModule
         }
 
         // Execute Shirk
-        if (context.ActionService.ExecuteOgcd(PLDActions.Shirk, coTank.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(RoleActions.Shirk, coTank.GameObjectId))
         {
-            context.Debug.PlannedAction = PLDActions.Shirk.Name;
+            context.Debug.PlannedAction = RoleActions.Shirk.Name;
             context.Debug.EnmityState = "Shirking to co-tank";
 
             // Training: Record proactive Shirk
             TrainingHelper.Decision(context.TrainingService)
-                .Action(PLDActions.Shirk.ActionId, PLDActions.Shirk.Name)
+                .Action(RoleActions.Shirk.ActionId, RoleActions.Shirk.Name)
                 .AsEnmity()
                 .Target(coTank.Name?.TextValue)
                 .Reason(

@@ -45,7 +45,7 @@ public class AstraeaPartyHelper : HealerPartyHelper
     /// </summary>
     public IBattleChara? FindDeadPartyMemberNeedingRaise(IPlayerCharacter player)
     {
-        return FindDeadPartyMemberNeedingRaise(player, ASTActions.Ascend.RangeSquared);
+        return FindDeadPartyMemberNeedingRaise(player, RoleActions.Ascend.RangeSquared);
     }
 
     #endregion

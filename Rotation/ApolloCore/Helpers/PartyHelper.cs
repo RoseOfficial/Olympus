@@ -59,7 +59,7 @@ public class PartyHelper : HealerPartyHelper, IPartyHelper
     /// <inheritdoc />
     public IBattleChara? FindDeadPartyMemberNeedingRaise(IPlayerCharacter player)
     {
-        return FindDeadPartyMemberNeedingRaise(player, WHMActions.Raise.RangeSquared);
+        return FindDeadPartyMemberNeedingRaise(player, RoleActions.Raise.RangeSquared);
     }
 
     #endregion

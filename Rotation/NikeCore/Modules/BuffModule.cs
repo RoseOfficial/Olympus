@@ -424,7 +424,7 @@ public sealed class BuffModule : INikeModule
         var player = context.Player;
         var level = player.Level;
 
-        if (level < SAMActions.TrueNorth.MinLevel)
+        if (level < RoleActions.TrueNorth.MinLevel)
             return false;
 
         // Already have True North
@@ -461,12 +461,12 @@ public sealed class BuffModule : INikeModule
         if (!needPositional)
             return false;
 
-        if (!context.ActionService.IsActionReady(SAMActions.TrueNorth.ActionId))
+        if (!context.ActionService.IsActionReady(RoleActions.TrueNorth.ActionId))
             return false;
 
-        if (context.ActionService.ExecuteOgcd(SAMActions.TrueNorth, player.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(RoleActions.TrueNorth, player.GameObjectId))
         {
-            context.Debug.PlannedAction = SAMActions.TrueNorth.Name;
+            context.Debug.PlannedAction = RoleActions.TrueNorth.Name;
             context.Debug.BuffState = "True North";
 
             // Training: Record True North decision
@@ -474,7 +474,7 @@ public sealed class BuffModule : INikeModule
                          context.ComboStep == 2 && context.LastComboAction == SAMActions.Jinpu.ActionId ? "Gekko (rear) incoming" :
                          "Kasha (flank) incoming";
             TrainingHelper.Decision(context.TrainingService)
-                .Action(SAMActions.TrueNorth.ActionId, SAMActions.TrueNorth.Name)
+                .Action(RoleActions.TrueNorth.ActionId, RoleActions.TrueNorth.Name)
                 .AsMeleeDamage()
                 .Target("Self")
                 .Reason($"True North — ignoring positional for next hit ({reason})",

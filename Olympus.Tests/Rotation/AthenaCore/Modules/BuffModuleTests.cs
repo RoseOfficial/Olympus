@@ -64,7 +64,7 @@ public class BuffModuleTests
 
         Assert.False(result);
         actionService.Verify(a => a.ExecuteOgcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == SCHActions.LucidDreaming.ActionId),
+            It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.LucidDreaming.ActionId),
             It.IsAny<ulong>()), Times.Never);
     }
 
@@ -79,7 +79,7 @@ public class BuffModuleTests
         var actionService = MockBuilders.CreateMockActionService(
             canExecuteGcd: false,
             canExecuteOgcd: true);
-        actionService.Setup(a => a.IsActionReady(SCHActions.LucidDreaming.ActionId)).Returns(true);
+        actionService.Setup(a => a.IsActionReady(RoleActions.LucidDreaming.ActionId)).Returns(true);
 
         var context = AthenaTestContext.Create(
             config: config,
@@ -95,7 +95,7 @@ public class BuffModuleTests
 
         Assert.False(result);
         actionService.Verify(a => a.ExecuteOgcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == SCHActions.LucidDreaming.ActionId),
+            It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.LucidDreaming.ActionId),
             It.IsAny<ulong>()), Times.Never);
     }
 
@@ -110,9 +110,9 @@ public class BuffModuleTests
         var actionService = MockBuilders.CreateMockActionService(
             canExecuteGcd: false,
             canExecuteOgcd: true);
-        actionService.Setup(a => a.IsActionReady(SCHActions.LucidDreaming.ActionId)).Returns(true);
+        actionService.Setup(a => a.IsActionReady(RoleActions.LucidDreaming.ActionId)).Returns(true);
         actionService.Setup(a => a.ExecuteOgcd(
-                It.Is<ActionDefinition>(ad => ad.ActionId == SCHActions.LucidDreaming.ActionId),
+                It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.LucidDreaming.ActionId),
                 It.IsAny<ulong>()))
             .Returns(true);
 
@@ -130,7 +130,7 @@ public class BuffModuleTests
 
         Assert.True(result);
         actionService.Verify(a => a.ExecuteOgcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == SCHActions.LucidDreaming.ActionId),
+            It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.LucidDreaming.ActionId),
             It.IsAny<ulong>()), Times.Once);
     }
 
@@ -145,7 +145,7 @@ public class BuffModuleTests
         var actionService = MockBuilders.CreateMockActionService(
             canExecuteGcd: false,
             canExecuteOgcd: true);
-        actionService.Setup(a => a.IsActionReady(SCHActions.LucidDreaming.ActionId)).Returns(true);
+        actionService.Setup(a => a.IsActionReady(RoleActions.LucidDreaming.ActionId)).Returns(true);
 
         var context = AthenaTestContext.Create(
             config: config,

@@ -45,7 +45,7 @@ public class AthenaPartyHelper : HealerPartyHelper
     /// </summary>
     public IBattleChara? FindDeadPartyMemberNeedingRaise(IPlayerCharacter player)
     {
-        return FindDeadPartyMemberNeedingRaise(player, SCHActions.Resurrection.RangeSquared);
+        return FindDeadPartyMemberNeedingRaise(player, RoleActions.Resurrection.RangeSquared);
     }
 
     #endregion

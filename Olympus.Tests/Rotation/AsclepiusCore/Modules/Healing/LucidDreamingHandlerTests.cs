@@ -20,9 +20,9 @@ public class LucidDreamingHandlerTests
         config.Sage.LucidDreamingThreshold = 0.80f;
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: false, canExecuteOgcd: true);
-        actionService.Setup(x => x.IsActionReady(SGEActions.LucidDreaming.ActionId)).Returns(true);
+        actionService.Setup(x => x.IsActionReady(RoleActions.LucidDreaming.ActionId)).Returns(true);
         actionService.Setup(x => x.ExecuteOgcd(
-                It.Is<ActionDefinition>(a => a.ActionId == SGEActions.LucidDreaming.ActionId),
+                It.Is<ActionDefinition>(a => a.ActionId == RoleActions.LucidDreaming.ActionId),
                 It.IsAny<ulong>()))
             .Returns(true);
 
@@ -38,7 +38,7 @@ public class LucidDreamingHandlerTests
 
         Assert.True(result);
         actionService.Verify(x => x.ExecuteOgcd(
-            It.Is<ActionDefinition>(a => a.ActionId == SGEActions.LucidDreaming.ActionId),
+            It.Is<ActionDefinition>(a => a.ActionId == RoleActions.LucidDreaming.ActionId),
             It.IsAny<ulong>()), Times.Once);
     }
 
@@ -46,7 +46,7 @@ public class LucidDreamingHandlerTests
     public void TryExecute_WhenOnCooldown_Skips()
     {
         var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: false, canExecuteOgcd: true);
-        actionService.Setup(x => x.IsActionReady(SGEActions.LucidDreaming.ActionId)).Returns(false);
+        actionService.Setup(x => x.IsActionReady(RoleActions.LucidDreaming.ActionId)).Returns(false);
 
         var context = AsclepiusTestContext.Create(
             actionService: actionService,
@@ -64,7 +64,7 @@ public class LucidDreamingHandlerTests
         config.Sage.LucidDreamingThreshold = 0.70f;
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: false, canExecuteOgcd: true);
-        actionService.Setup(x => x.IsActionReady(SGEActions.LucidDreaming.ActionId)).Returns(true);
+        actionService.Setup(x => x.IsActionReady(RoleActions.LucidDreaming.ActionId)).Returns(true);
 
         // currentMp=9000, maxMp=10000 → 90% > threshold 70%
         var context = AsclepiusTestContext.Create(

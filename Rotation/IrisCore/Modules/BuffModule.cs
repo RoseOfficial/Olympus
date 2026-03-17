@@ -518,7 +518,7 @@ public sealed class BuffModule : IIrisModule
             return false;
 
         var level = context.Player.Level;
-        if (level < PCTActions.Swiftcast.MinLevel)
+        if (level < RoleActions.Swiftcast.MinLevel)
             return false;
 
         if (!context.SwiftcastReady)
@@ -529,9 +529,9 @@ public sealed class BuffModule : IIrisModule
             context.HasRainbowBright || context.HasStarstruck || context.HasHammerTime)
             return false;
 
-        if (context.ActionService.ExecuteOgcd(PCTActions.Swiftcast, context.Player.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(RoleActions.Swiftcast, context.Player.GameObjectId))
         {
-            context.Debug.PlannedAction = PCTActions.Swiftcast.Name;
+            context.Debug.PlannedAction = RoleActions.Swiftcast.Name;
             context.Debug.BuffState = "Swiftcast (movement)";
             return true;
         }
@@ -544,7 +544,7 @@ public sealed class BuffModule : IIrisModule
         var player = context.Player;
         var level = player.Level;
 
-        if (level < PCTActions.LucidDreaming.MinLevel)
+        if (level < RoleActions.LucidDreaming.MinLevel)
             return false;
 
         if (!context.LucidDreamingReady)
@@ -554,14 +554,14 @@ public sealed class BuffModule : IIrisModule
         if (context.MpPercent > 0.7f)
             return false;
 
-        if (context.ActionService.ExecuteOgcd(PCTActions.LucidDreaming, player.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(RoleActions.LucidDreaming, player.GameObjectId))
         {
-            context.Debug.PlannedAction = PCTActions.LucidDreaming.Name;
+            context.Debug.PlannedAction = RoleActions.LucidDreaming.Name;
             context.Debug.BuffState = "Lucid Dreaming (MP)";
 
             // Training Mode integration
             TrainingHelper.Decision(context.TrainingService)
-                .Action(PCTActions.LucidDreaming.ActionId, PCTActions.LucidDreaming.Name)
+                .Action(RoleActions.LucidDreaming.ActionId, RoleActions.LucidDreaming.Name)
                 .AsCasterResource("MP", context.CurrentMp)
                 .Reason("Lucid Dreaming - MP recovery",
                     "Lucid Dreaming restores MP over time. Use when below 70% MP to avoid running out " +

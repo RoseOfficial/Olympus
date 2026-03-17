@@ -16,8 +16,8 @@ namespace Olympus.Rotation.ApolloCore.Modules;
 /// </summary>
 public sealed class ResurrectionModule : BaseResurrectionModule<IApolloContext>, IApolloModule
 {
-    protected override ActionDefinition RaiseAction => WHMActions.Raise;
-    protected override ActionDefinition SwiftcastAction => WHMActions.Swiftcast;
+    protected override ActionDefinition RaiseAction => RoleActions.Raise;
+    protected override ActionDefinition SwiftcastAction => RoleActions.Swiftcast;
     protected override int RaiseMpCost => 2400;
 
     protected override IBattleChara? FindDeadPartyMemberNeedingRaise(IApolloContext context)
@@ -127,7 +127,7 @@ public sealed class ResurrectionModule : BaseResurrectionModule<IApolloContext>,
         context.TrainingService.RecordDecision(new ActionExplanation
         {
             Timestamp = DateTime.Now,
-            ActionId = WHMActions.Raise.ActionId,
+            ActionId = RoleActions.Raise.ActionId,
             ActionName = "Raise",
             Category = "Resurrection",
             TargetName = targetName,

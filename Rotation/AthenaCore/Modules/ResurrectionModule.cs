@@ -16,9 +16,9 @@ namespace Olympus.Rotation.AthenaCore.Modules;
 /// </summary>
 public sealed class ResurrectionModule : BaseResurrectionModule<IAthenaContext>, IAthenaModule
 {
-    protected override ActionDefinition RaiseAction => SCHActions.Resurrection;
-    protected override ActionDefinition SwiftcastAction => SCHActions.Swiftcast;
-    protected override int RaiseMpCost => SCHActions.Resurrection.MpCost;
+    protected override ActionDefinition RaiseAction => RoleActions.Resurrection;
+    protected override ActionDefinition SwiftcastAction => RoleActions.Swiftcast;
+    protected override int RaiseMpCost => RoleActions.Resurrection.MpCost;
 
     protected override IBattleChara? FindDeadPartyMemberNeedingRaise(IAthenaContext context)
         => context.PartyHelper.FindDeadPartyMemberNeedingRaise(context.Player);
@@ -77,7 +77,7 @@ public sealed class ResurrectionModule : BaseResurrectionModule<IAthenaContext>,
         context.TrainingService.RecordDecision(new ActionExplanation
         {
             Timestamp = DateTime.Now,
-            ActionId = SCHActions.Resurrection.ActionId,
+            ActionId = RoleActions.Resurrection.ActionId,
             ActionName = "Resurrection",
             Category = "Resurrection",
             TargetName = targetName,

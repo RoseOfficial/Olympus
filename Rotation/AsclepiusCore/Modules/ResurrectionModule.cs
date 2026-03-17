@@ -16,8 +16,8 @@ namespace Olympus.Rotation.AsclepiusCore.Modules;
 /// </summary>
 public sealed class ResurrectionModule : BaseResurrectionModule<IAsclepiusContext>, IAsclepiusModule
 {
-    protected override ActionDefinition RaiseAction => SGEActions.Egeiro;
-    protected override ActionDefinition SwiftcastAction => SGEActions.Swiftcast;
+    protected override ActionDefinition RaiseAction => RoleActions.Egeiro;
+    protected override ActionDefinition SwiftcastAction => RoleActions.Swiftcast;
     protected override int RaiseMpCost => 2400;
 
     protected override IBattleChara? FindDeadPartyMemberNeedingRaise(IAsclepiusContext context)
@@ -88,7 +88,7 @@ public sealed class ResurrectionModule : BaseResurrectionModule<IAsclepiusContex
         context.TrainingService.RecordDecision(new ActionExplanation
         {
             Timestamp = DateTime.Now,
-            ActionId = SGEActions.Egeiro.ActionId,
+            ActionId = RoleActions.Egeiro.ActionId,
             ActionName = "Egeiro",
             Category = "Resurrection",
             TargetName = targetName,

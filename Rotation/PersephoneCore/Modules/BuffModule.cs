@@ -617,7 +617,7 @@ public sealed class BuffModule : IPersephoneModule
         var player = context.Player;
         var level = player.Level;
 
-        if (level < SMNActions.LucidDreaming.MinLevel)
+        if (level < RoleActions.LucidDreaming.MinLevel)
             return false;
 
         if (!context.LucidDreamingReady)
@@ -627,16 +627,16 @@ public sealed class BuffModule : IPersephoneModule
         if (context.MpPercent > 0.7f)
             return false;
 
-        if (context.ActionService.ExecuteOgcd(SMNActions.LucidDreaming, player.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(RoleActions.LucidDreaming, player.GameObjectId))
         {
-            context.Debug.PlannedAction = SMNActions.LucidDreaming.Name;
+            context.Debug.PlannedAction = RoleActions.LucidDreaming.Name;
             context.Debug.BuffState = "Lucid Dreaming (MP)";
 
             // Training Mode recording (no specific SMN concept for MP management)
             if (context.TrainingService?.IsTrainingEnabled == true)
             {
                 TrainingHelper.Decision(context.TrainingService)
-                    .Action(SMNActions.LucidDreaming.ActionId, SMNActions.LucidDreaming.Name)
+                    .Action(RoleActions.LucidDreaming.ActionId, RoleActions.LucidDreaming.Name)
                     .AsCasterResource("MP", context.CurrentMp)
                     .Reason("Lucid Dreaming for MP recovery",
                         "Lucid Dreaming restores MP over time. Use it around 70% MP to ensure you never run dry. " +

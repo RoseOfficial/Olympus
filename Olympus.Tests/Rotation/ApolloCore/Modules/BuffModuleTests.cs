@@ -317,7 +317,7 @@ public class BuffModuleTests
 
         // Assert
         actionService.Verify(a => a.ExecuteOgcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == WHMActions.LucidDreaming.ActionId),
+            It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.LucidDreaming.ActionId),
             It.IsAny<ulong>()), Times.Never);
     }
 
@@ -340,7 +340,7 @@ public class BuffModuleTests
 
         // Assert
         actionService.Verify(a => a.ExecuteOgcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == WHMActions.LucidDreaming.ActionId),
+            It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.LucidDreaming.ActionId),
             It.IsAny<ulong>()), Times.Never);
     }
 
@@ -367,7 +367,7 @@ public class BuffModuleTests
 
         // Assert
         actionService.Verify(a => a.ExecuteOgcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == WHMActions.Surecast.ActionId),
+            It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.Surecast.ActionId),
             It.IsAny<ulong>()), Times.Never);
     }
 
@@ -391,7 +391,7 @@ public class BuffModuleTests
 
         // Assert
         actionService.Verify(a => a.ExecuteOgcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == WHMActions.Surecast.ActionId),
+            It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.Surecast.ActionId),
             It.IsAny<ulong>()), Times.Never);
     }
 

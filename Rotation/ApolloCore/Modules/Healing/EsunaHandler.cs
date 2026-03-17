@@ -32,15 +32,15 @@ public sealed class EsunaHandler : IHealingHandler
             return false;
         }
 
-        if (player.Level < WHMActions.Esuna.MinLevel)
+        if (player.Level < RoleActions.Esuna.MinLevel)
         {
-            context.Debug.EsunaState = $"Level {player.Level} < {WHMActions.Esuna.MinLevel}";
+            context.Debug.EsunaState = $"Level {player.Level} < {RoleActions.Esuna.MinLevel}";
             return false;
         }
 
-        if (player.CurrentMp < WHMActions.Esuna.MpCost)
+        if (player.CurrentMp < RoleActions.Esuna.MpCost)
         {
-            context.Debug.EsunaState = $"MP {player.CurrentMp} < {WHMActions.Esuna.MpCost}";
+            context.Debug.EsunaState = $"MP {player.CurrentMp} < {RoleActions.Esuna.MpCost}";
             return false;
         }
 
@@ -74,7 +74,7 @@ public sealed class EsunaHandler : IHealingHandler
         }
 
         // Reserve the target before executing
-        if (partyCoord != null && !partyCoord.ReserveCleanseTarget(targetEntityId, statusId, WHMActions.Esuna.ActionId, (int)priority))
+        if (partyCoord != null && !partyCoord.ReserveCleanseTarget(targetEntityId, statusId, RoleActions.Esuna.ActionId, (int)priority))
         {
             context.Debug.EsunaState = "Failed to reserve";
             return false;
@@ -84,7 +84,7 @@ public sealed class EsunaHandler : IHealingHandler
         context.Debug.EsunaTarget = targetName;
         context.Debug.EsunaState = $"Cleansing {priority} debuff";
 
-        if (ActionExecutor.ExecuteGcd(context, WHMActions.Esuna, target.GameObjectId,
+        if (ActionExecutor.ExecuteGcd(context, RoleActions.Esuna, target.GameObjectId,
             targetName, target.CurrentHp, "Esuna",
             appendThinAirNote: false))
         {
@@ -119,7 +119,7 @@ public sealed class EsunaHandler : IHealingHandler
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
                     Timestamp = DateTime.Now,
-                    ActionId = WHMActions.Esuna.ActionId,
+                    ActionId = RoleActions.Esuna.ActionId,
                     ActionName = "Esuna",
                     Category = "Utility",
                     TargetName = targetName,
@@ -154,7 +154,7 @@ public sealed class EsunaHandler : IHealingHandler
             if (member.IsDead)
                 continue;
 
-            if (!DistanceHelper.IsInRange(player, member, WHMActions.Esuna.Range))
+            if (!DistanceHelper.IsInRange(player, member, RoleActions.Esuna.Range))
                 continue;
 
             var (statusId, priority, remainingTime) = context.DebuffDetectionService.FindHighestPriorityDebuff(member);

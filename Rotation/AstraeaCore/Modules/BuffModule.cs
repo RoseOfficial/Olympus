@@ -31,7 +31,7 @@ public sealed class BuffModule : BaseBuffModule<IAstraeaContext>, IAstraeaModule
         context.Configuration.Astrologian.EnableLucidDreaming;
 
     protected override ActionDefinition GetLucidDreamingAction() =>
-        ASTActions.LucidDreaming;
+        RoleActions.LucidDreaming;
 
     protected override bool HasLucidDreaming(IAstraeaContext context) =>
         AstraeaStatusHelper.HasLucidDreaming(context.Player);

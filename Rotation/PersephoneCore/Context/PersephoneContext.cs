@@ -302,10 +302,10 @@ public sealed class PersephoneContext : IPersephoneContext
             ? (int)actionService.GetCurrentCharges(SMNActions.RadiantAegis.ActionId)
             : 0;
 
-        SwiftcastReady = level >= SMNActions.Swiftcast.MinLevel &&
-                        actionService.IsActionReady(SMNActions.Swiftcast.ActionId);
-        LucidDreamingReady = level >= SMNActions.LucidDreaming.MinLevel &&
-                            actionService.IsActionReady(SMNActions.LucidDreaming.ActionId);
+        SwiftcastReady = level >= RoleActions.Swiftcast.MinLevel &&
+                        actionService.IsActionReady(RoleActions.Swiftcast.ActionId);
+        LucidDreamingReady = level >= RoleActions.LucidDreaming.MinLevel &&
+                            actionService.IsActionReady(RoleActions.LucidDreaming.ActionId);
 
         // Tracking state
         HasUsedEnkindleThisPhase = hasUsedEnkindleThisPhase;

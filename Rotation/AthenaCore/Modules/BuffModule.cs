@@ -31,7 +31,7 @@ public sealed class BuffModule : BaseBuffModule<IAthenaContext>, IAthenaModule
         context.Configuration.Scholar.EnableLucidDreaming;
 
     protected override ActionDefinition GetLucidDreamingAction() =>
-        SCHActions.LucidDreaming;
+        RoleActions.LucidDreaming;
 
     protected override bool HasLucidDreaming(IAthenaContext context) =>
         AthenaStatusHelper.HasLucidDreaming(context.Player);

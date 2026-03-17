@@ -177,7 +177,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
             // Use Swiftcast for Ruby Rite if moving
             if (context.SwiftcastReady)
             {
-                if (context.ActionService.ExecuteOgcd(SMNActions.Swiftcast, player.GameObjectId))
+                if (context.ActionService.ExecuteOgcd(RoleActions.Swiftcast, player.GameObjectId))
                 {
                     context.Debug.DamageState = "Swiftcast for Ruby";
                     return true;
@@ -284,7 +284,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
                 // Use Swiftcast for Slipstream if available
                 if (context.SwiftcastReady)
                 {
-                    if (context.ActionService.ExecuteOgcd(SMNActions.Swiftcast, player.GameObjectId))
+                    if (context.ActionService.ExecuteOgcd(RoleActions.Swiftcast, player.GameObjectId))
                     {
                         context.Debug.DamageState = "Swiftcast for Slipstream";
 
@@ -292,7 +292,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
                         if (context.TrainingService?.IsTrainingEnabled == true)
                         {
                             TrainingHelper.Decision(context.TrainingService)
-                                .Action(SMNActions.Swiftcast.ActionId, SMNActions.Swiftcast.Name)
+                                .Action(RoleActions.Swiftcast.ActionId, RoleActions.Swiftcast.Name)
                                 .AsMovement()
                                 .Target(target.Name?.TextValue)
                                 .Reason("Swiftcast for Slipstream while moving",

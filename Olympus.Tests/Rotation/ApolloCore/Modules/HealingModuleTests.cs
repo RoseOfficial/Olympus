@@ -428,7 +428,7 @@ public class HealingModuleTests
         Assert.True(result);
         actionServiceMock.Verify(
             x => x.ExecuteGcd(
-                It.Is<ActionDefinition>(a => a.ActionId == WHMActions.Esuna.ActionId),
+                It.Is<ActionDefinition>(a => a.ActionId == RoleActions.Esuna.ActionId),
                 It.IsAny<ulong>()),
             Times.Once);
     }
@@ -467,7 +467,7 @@ public class HealingModuleTests
         Assert.Contains("Priority High > threshold 0", context.Debug.EsunaState);
         actionServiceMock.Verify(
             x => x.ExecuteGcd(
-                It.Is<ActionDefinition>(a => a.ActionId == WHMActions.Esuna.ActionId),
+                It.Is<ActionDefinition>(a => a.ActionId == RoleActions.Esuna.ActionId),
                 It.IsAny<ulong>()),
             Times.Never);
     }
@@ -508,7 +508,7 @@ public class HealingModuleTests
         Assert.True(result);
         actionServiceMock.Verify(
             x => x.ExecuteGcd(
-                It.Is<ActionDefinition>(a => a.ActionId == WHMActions.Esuna.ActionId),
+                It.Is<ActionDefinition>(a => a.ActionId == RoleActions.Esuna.ActionId),
                 It.IsAny<ulong>()),
             Times.Once);
     }
@@ -1096,7 +1096,7 @@ public class HealingModuleTests
         Assert.True(result);
         actionServiceMock.Verify(
             x => x.ExecuteGcd(
-                It.Is<ActionDefinition>(a => a.ActionId == WHMActions.Esuna.ActionId),
+                It.Is<ActionDefinition>(a => a.ActionId == RoleActions.Esuna.ActionId),
                 It.IsAny<ulong>()),
             Times.Once);
     }

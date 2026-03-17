@@ -173,12 +173,12 @@ public sealed class ActionLibraryService : IActionLibrary
 
         // Role Actions
         RegisterActions(whmJobId,
-            WHMActions.Esuna,
-            WHMActions.Raise,
-            WHMActions.Swiftcast,
-            WHMActions.LucidDreaming,
-            WHMActions.Surecast,
-            WHMActions.Rescue);
+            RoleActions.Esuna,
+            RoleActions.Raise,
+            RoleActions.Swiftcast,
+            RoleActions.LucidDreaming,
+            RoleActions.Surecast,
+            RoleActions.Rescue);
 
         // Also register CNJ base class actions
         RegisterActions(cnjJobId,
@@ -186,8 +186,8 @@ public sealed class ActionLibraryService : IActionLibrary
             WHMActions.Stone,
             WHMActions.Aero,
             WHMActions.Medica,
-            WHMActions.Raise,
-            WHMActions.Esuna);
+            RoleActions.Raise,
+            RoleActions.Esuna);
     }
 
     /// <summary>
@@ -259,12 +259,12 @@ public sealed class ActionLibraryService : IActionLibrary
 
         // Role Actions
         RegisterActions(schJobId,
-            SCHActions.Swiftcast,
-            SCHActions.LucidDreaming,
-            SCHActions.Surecast,
-            SCHActions.Rescue,
-            SCHActions.Esuna,
-            SCHActions.Resurrection);
+            RoleActions.Swiftcast,
+            RoleActions.LucidDreaming,
+            RoleActions.Surecast,
+            RoleActions.Rescue,
+            RoleActions.Esuna,
+            RoleActions.Resurrection);
 
         // Arcanist base class — starter subset
         RegisterActions(acnJobId,
@@ -272,8 +272,8 @@ public sealed class ActionLibraryService : IActionLibrary
             SCHActions.Ruin,
             SCHActions.Bio,
             SCHActions.Succor,
-            SCHActions.Resurrection,
-            SCHActions.Esuna);
+            RoleActions.Resurrection,
+            RoleActions.Esuna);
     }
 
     /// <summary>
@@ -351,12 +351,12 @@ public sealed class ActionLibraryService : IActionLibrary
 
         // Role Actions
         RegisterActions(astJobId,
-            ASTActions.Swiftcast,
-            ASTActions.LucidDreaming,
-            ASTActions.Surecast,
-            ASTActions.Rescue,
-            ASTActions.Esuna,
-            ASTActions.Ascend);
+            RoleActions.Swiftcast,
+            RoleActions.LucidDreaming,
+            RoleActions.Surecast,
+            RoleActions.Rescue,
+            RoleActions.Esuna,
+            RoleActions.Ascend);
     }
 
     /// <summary>
@@ -421,12 +421,12 @@ public sealed class ActionLibraryService : IActionLibrary
 
         // Role Actions
         RegisterActions(sgeJobId,
-            SGEActions.Swiftcast,
-            SGEActions.LucidDreaming,
-            SGEActions.Surecast,
-            SGEActions.Rescue,
-            SGEActions.Esuna,
-            SGEActions.Egeiro);
+            RoleActions.Swiftcast,
+            RoleActions.LucidDreaming,
+            RoleActions.Surecast,
+            RoleActions.Rescue,
+            RoleActions.Esuna,
+            RoleActions.Egeiro);
     }
 
     /// <summary>
@@ -482,13 +482,13 @@ public sealed class ActionLibraryService : IActionLibrary
 
         // Role Actions
         RegisterActions(warJobId,
-            WARActions.Rampart,
-            WARActions.Reprisal,
-            WARActions.Provoke,
-            WARActions.Shirk,
-            WARActions.ArmsLength,
-            WARActions.LowBlow,
-            WARActions.Interject);
+            RoleActions.Rampart,
+            RoleActions.Reprisal,
+            RoleActions.Provoke,
+            RoleActions.Shirk,
+            RoleActions.ArmsLength,
+            RoleActions.LowBlow,
+            RoleActions.Interject);
 
         // Marauder base class — starter subset
         RegisterActions(mrdJobId,
@@ -496,9 +496,9 @@ public sealed class ActionLibraryService : IActionLibrary
             WARActions.Maim,
             WARActions.Overpower,
             WARActions.Tomahawk,
-            WARActions.Provoke,
-            WARActions.Shirk,
-            WARActions.Rampart);
+            RoleActions.Provoke,
+            RoleActions.Shirk,
+            RoleActions.Rampart);
     }
 
     /// <summary>
@@ -557,13 +557,13 @@ public sealed class ActionLibraryService : IActionLibrary
 
         // Role Actions
         RegisterActions(pldJobId,
-            PLDActions.Rampart,
-            PLDActions.Reprisal,
-            PLDActions.Provoke,
-            PLDActions.Shirk,
-            PLDActions.ArmsLength,
-            PLDActions.LowBlow,
-            PLDActions.Interject,
+            RoleActions.Rampart,
+            RoleActions.Reprisal,
+            RoleActions.Provoke,
+            RoleActions.Shirk,
+            RoleActions.ArmsLength,
+            RoleActions.LowBlow,
+            RoleActions.Interject,
             PLDActions.ShieldLob);
 
         // Gladiator base class — starter subset
@@ -572,9 +572,9 @@ public sealed class ActionLibraryService : IActionLibrary
             PLDActions.RiotBlade,
             PLDActions.TotalEclipse,
             PLDActions.ShieldLob,
-            PLDActions.Provoke,
-            PLDActions.Shirk,
-            PLDActions.Rampart);
+            RoleActions.Provoke,
+            RoleActions.Shirk,
+            RoleActions.Rampart);
     }
 
     /// <summary>
@@ -632,13 +632,13 @@ public sealed class ActionLibraryService : IActionLibrary
 
         // Role Actions
         RegisterActions(drkJobId,
-            DRKActions.Rampart,
-            DRKActions.Reprisal,
-            DRKActions.Provoke,
-            DRKActions.Shirk,
-            DRKActions.ArmsLength,
-            DRKActions.LowBlow,
-            DRKActions.Interject);
+            RoleActions.Rampart,
+            RoleActions.Reprisal,
+            RoleActions.Provoke,
+            RoleActions.Shirk,
+            RoleActions.ArmsLength,
+            RoleActions.LowBlow,
+            RoleActions.Interject);
     }
 
     /// <summary>
@@ -702,13 +702,13 @@ public sealed class ActionLibraryService : IActionLibrary
 
         // Role Actions
         RegisterActions(gnbJobId,
-            GNBActions.Rampart,
-            GNBActions.Reprisal,
-            GNBActions.Provoke,
-            GNBActions.Shirk,
-            GNBActions.ArmsLength,
-            GNBActions.LowBlow,
-            GNBActions.Interject);
+            RoleActions.Rampart,
+            RoleActions.Reprisal,
+            RoleActions.Provoke,
+            RoleActions.Shirk,
+            RoleActions.ArmsLength,
+            RoleActions.LowBlow,
+            RoleActions.Interject);
     }
 
     /// <summary>
@@ -766,12 +766,12 @@ public sealed class ActionLibraryService : IActionLibrary
 
         // Role Actions
         RegisterActions(mnkJobId,
-            MNKActions.SecondWind,
-            MNKActions.Bloodbath,
-            MNKActions.Feint,
-            MNKActions.ArmsLength,
-            MNKActions.TrueNorth,
-            MNKActions.LegSweep);
+            RoleActions.SecondWind,
+            RoleActions.Bloodbath,
+            RoleActions.Feint,
+            RoleActions.ArmsLength,
+            RoleActions.TrueNorth,
+            RoleActions.LegSweep);
 
         // Pugilist base class
         RegisterActions(pglJobId,
@@ -780,8 +780,8 @@ public sealed class ActionLibraryService : IActionLibrary
             MNKActions.SnapPunch,
             MNKActions.ArmOfTheDestroyer,
             MNKActions.Mantra,
-            MNKActions.SecondWind,
-            MNKActions.LegSweep);
+            RoleActions.SecondWind,
+            RoleActions.LegSweep);
     }
 
     /// <summary>
@@ -834,12 +834,12 @@ public sealed class ActionLibraryService : IActionLibrary
 
         // Role Actions
         RegisterActions(drgJobId,
-            DRGActions.SecondWind,
-            DRGActions.Bloodbath,
-            DRGActions.Feint,
-            DRGActions.ArmsLength,
-            DRGActions.TrueNorth,
-            DRGActions.LegSweep);
+            RoleActions.SecondWind,
+            RoleActions.Bloodbath,
+            RoleActions.Feint,
+            RoleActions.ArmsLength,
+            RoleActions.TrueNorth,
+            RoleActions.LegSweep);
 
         // Lancer base class
         RegisterActions(lncJobId,
@@ -847,8 +847,8 @@ public sealed class ActionLibraryService : IActionLibrary
             DRGActions.VorpalThrust,
             DRGActions.DoomSpike,
             DRGActions.PiercingTalon,
-            DRGActions.SecondWind,
-            DRGActions.LegSweep);
+            RoleActions.SecondWind,
+            RoleActions.LegSweep);
     }
 
     /// <summary>
@@ -908,12 +908,12 @@ public sealed class ActionLibraryService : IActionLibrary
 
         // Role Actions
         RegisterActions(ninJobId,
-            NINActions.SecondWind,
-            NINActions.Bloodbath,
-            NINActions.Feint,
-            NINActions.ArmsLength,
-            NINActions.TrueNorth,
-            NINActions.LegSweep);
+            RoleActions.SecondWind,
+            RoleActions.Bloodbath,
+            RoleActions.Feint,
+            RoleActions.ArmsLength,
+            RoleActions.TrueNorth,
+            RoleActions.LegSweep);
 
         // Rogue base class
         RegisterActions(rogJobId,
@@ -922,8 +922,8 @@ public sealed class ActionLibraryService : IActionLibrary
             NINActions.AeolianEdge,
             NINActions.DeathBlossom,
             NINActions.ShadeShift,
-            NINActions.SecondWind,
-            NINActions.LegSweep);
+            RoleActions.SecondWind,
+            RoleActions.LegSweep);
     }
 
     /// <summary>
@@ -979,12 +979,12 @@ public sealed class ActionLibraryService : IActionLibrary
 
         // Role Actions
         RegisterActions(samJobId,
-            SAMActions.SecondWind,
-            SAMActions.Bloodbath,
-            SAMActions.Feint,
-            SAMActions.ArmsLength,
-            SAMActions.TrueNorth,
-            SAMActions.LegSweep);
+            RoleActions.SecondWind,
+            RoleActions.Bloodbath,
+            RoleActions.Feint,
+            RoleActions.ArmsLength,
+            RoleActions.TrueNorth,
+            RoleActions.LegSweep);
     }
 
     /// <summary>
@@ -1043,12 +1043,12 @@ public sealed class ActionLibraryService : IActionLibrary
 
         // Role Actions
         RegisterActions(rprJobId,
-            RPRActions.SecondWind,
-            RPRActions.Bloodbath,
-            RPRActions.Feint,
-            RPRActions.ArmsLength,
-            RPRActions.TrueNorth,
-            RPRActions.LegSweep);
+            RoleActions.SecondWind,
+            RoleActions.Bloodbath,
+            RoleActions.Feint,
+            RoleActions.ArmsLength,
+            RoleActions.TrueNorth,
+            RoleActions.LegSweep);
     }
 
     /// <summary>
@@ -1119,12 +1119,12 @@ public sealed class ActionLibraryService : IActionLibrary
 
         // Role Actions
         RegisterActions(vprJobId,
-            VPRActions.SecondWind,
-            VPRActions.Bloodbath,
-            VPRActions.Feint,
-            VPRActions.ArmsLength,
-            VPRActions.TrueNorth,
-            VPRActions.LegSweep);
+            RoleActions.SecondWind,
+            RoleActions.Bloodbath,
+            RoleActions.Feint,
+            RoleActions.ArmsLength,
+            RoleActions.TrueNorth,
+            RoleActions.LegSweep);
     }
 
     /// <summary>
@@ -1179,10 +1179,10 @@ public sealed class ActionLibraryService : IActionLibrary
 
         // Role Actions
         RegisterActions(brdJobId,
-            BRDActions.SecondWind,
-            BRDActions.ArmsLength,
-            BRDActions.HeadGraze,
-            BRDActions.Peloton);
+            RoleActions.SecondWind,
+            RoleActions.ArmsLength,
+            RoleActions.HeadGraze,
+            RoleActions.Peloton);
 
         // Archer base class
         RegisterActions(arcJobId,
@@ -1191,8 +1191,8 @@ public sealed class ActionLibraryService : IActionLibrary
             BRDActions.VenomousBite,
             BRDActions.QuickNock,
             BRDActions.RepellingShot,
-            BRDActions.SecondWind,
-            BRDActions.HeadGraze);
+            RoleActions.SecondWind,
+            RoleActions.HeadGraze);
     }
 
     /// <summary>
@@ -1243,10 +1243,10 @@ public sealed class ActionLibraryService : IActionLibrary
 
         // Role Actions
         RegisterActions(mchJobId,
-            MCHActions.SecondWind,
-            MCHActions.ArmsLength,
-            MCHActions.HeadGraze,
-            MCHActions.Peloton,
+            RoleActions.SecondWind,
+            RoleActions.ArmsLength,
+            RoleActions.HeadGraze,
+            RoleActions.Peloton,
             MCHActions.Tactician,
             MCHActions.Dismantle);
     }
@@ -1310,10 +1310,10 @@ public sealed class ActionLibraryService : IActionLibrary
 
         // Role Actions
         RegisterActions(dncJobId,
-            DNCActions.SecondWind,
-            DNCActions.ArmsLength,
-            DNCActions.HeadGraze,
-            DNCActions.Peloton);
+            RoleActions.SecondWind,
+            RoleActions.ArmsLength,
+            RoleActions.HeadGraze,
+            RoleActions.Peloton);
     }
 
     /// <summary>
@@ -1374,11 +1374,11 @@ public sealed class ActionLibraryService : IActionLibrary
 
         // Role Actions
         RegisterActions(blmJobId,
-            BLMActions.Swiftcast,
-            BLMActions.Surecast,
-            BLMActions.LucidDreaming,
-            BLMActions.Addle,
-            BLMActions.Sleep);
+            RoleActions.Swiftcast,
+            RoleActions.Surecast,
+            RoleActions.LucidDreaming,
+            RoleActions.Addle,
+            RoleActions.Sleep);
 
         // Thaumaturge base class
         RegisterActions(thmJobId,
@@ -1388,9 +1388,9 @@ public sealed class ActionLibraryService : IActionLibrary
             BLMActions.Fire2,
             BLMActions.Blizzard2,
             BLMActions.Transpose,
-            BLMActions.Swiftcast,
-            BLMActions.LucidDreaming,
-            BLMActions.Addle);
+            RoleActions.Swiftcast,
+            RoleActions.LucidDreaming,
+            RoleActions.Addle);
     }
 
     /// <summary>
@@ -1463,11 +1463,11 @@ public sealed class ActionLibraryService : IActionLibrary
 
         // Role Actions
         RegisterActions(smnJobId,
-            SMNActions.Swiftcast,
-            SMNActions.LucidDreaming,
-            SMNActions.Addle,
-            SMNActions.Surecast,
-            SMNActions.Resurrection);
+            RoleActions.Swiftcast,
+            RoleActions.LucidDreaming,
+            RoleActions.Addle,
+            RoleActions.Surecast,
+            RoleActions.Resurrection);
     }
 
     /// <summary>
@@ -1524,13 +1524,13 @@ public sealed class ActionLibraryService : IActionLibrary
 
         // Role Actions
         RegisterActions(rdmJobId,
-            RDMActions.Swiftcast,
-            RDMActions.LucidDreaming,
+            RoleActions.Swiftcast,
+            RoleActions.LucidDreaming,
             RDMActions.Vercure,
             RDMActions.Verraise,
             RDMActions.MagickBarrier,
-            RDMActions.Addle,
-            RDMActions.Surecast);
+            RoleActions.Addle,
+            RoleActions.Surecast);
     }
 
     /// <summary>
@@ -1600,9 +1600,9 @@ public sealed class ActionLibraryService : IActionLibrary
 
         // Role Actions
         RegisterActions(pctJobId,
-            PCTActions.Swiftcast,
-            PCTActions.LucidDreaming,
-            PCTActions.Surecast,
-            PCTActions.Addle);
+            RoleActions.Swiftcast,
+            RoleActions.LucidDreaming,
+            RoleActions.Surecast,
+            RoleActions.Addle);
     }
 }

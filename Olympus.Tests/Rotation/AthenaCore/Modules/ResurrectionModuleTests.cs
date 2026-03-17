@@ -114,9 +114,9 @@ public class ResurrectionModuleTests
             canExecuteOgcd: true);
 
         // Swiftcast is ready as an oGCD — module will use it first, then raise on next GCD
-        actionService.Setup(a => a.IsActionReady(SCHActions.Swiftcast.ActionId)).Returns(true);
+        actionService.Setup(a => a.IsActionReady(RoleActions.Swiftcast.ActionId)).Returns(true);
         actionService.Setup(a => a.ExecuteOgcd(
-                It.Is<ActionDefinition>(ad => ad.ActionId == SCHActions.Swiftcast.ActionId),
+                It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.Swiftcast.ActionId),
                 It.IsAny<ulong>()))
             .Returns(true);
 
@@ -185,11 +185,11 @@ public class ResurrectionModuleTests
             canExecuteOgcd: false);
 
         // Swiftcast is NOT ready — must hardcast
-        actionService.Setup(a => a.IsActionReady(SCHActions.Swiftcast.ActionId)).Returns(false);
+        actionService.Setup(a => a.IsActionReady(RoleActions.Swiftcast.ActionId)).Returns(false);
         // Swiftcast is on a long cooldown (>10s) — triggers hardcast path
-        actionService.Setup(a => a.GetCooldownRemaining(SCHActions.Swiftcast.ActionId)).Returns(55f);
+        actionService.Setup(a => a.GetCooldownRemaining(RoleActions.Swiftcast.ActionId)).Returns(55f);
         actionService.Setup(a => a.ExecuteGcd(
-                It.Is<ActionDefinition>(ad => ad.ActionId == SCHActions.Resurrection.ActionId),
+                It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.Resurrection.ActionId),
                 It.IsAny<ulong>()))
             .Returns(true);
 
@@ -223,7 +223,7 @@ public class ResurrectionModuleTests
             canExecuteOgcd: false);
 
         // Swiftcast is NOT ready, hardcast disabled
-        actionService.Setup(a => a.IsActionReady(SCHActions.Swiftcast.ActionId)).Returns(false);
+        actionService.Setup(a => a.IsActionReady(RoleActions.Swiftcast.ActionId)).Returns(false);
 
         var context = AthenaTestContext.Create(
             config: config,
@@ -259,9 +259,9 @@ public class ResurrectionModuleTests
             canExecuteGcd: true,
             canExecuteOgcd: false);
         // Swiftcast is on a long cooldown (>10s) — triggers hardcast path
-        actionService.Setup(a => a.GetCooldownRemaining(SCHActions.Swiftcast.ActionId)).Returns(55f);
+        actionService.Setup(a => a.GetCooldownRemaining(RoleActions.Swiftcast.ActionId)).Returns(55f);
         actionService.Setup(a => a.ExecuteGcd(
-                It.Is<ActionDefinition>(ad => ad.ActionId == SCHActions.Resurrection.ActionId),
+                It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.Resurrection.ActionId),
                 It.IsAny<ulong>()))
             .Returns(true);
 

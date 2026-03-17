@@ -196,12 +196,12 @@ public sealed class SpellStatusService
             CreateDef(WHMActions.Dia, SpellCategory.GcdDoT),
 
             // Utility
-            CreateDef(WHMActions.Swiftcast, SpellCategory.Utility),
-            CreateDef(WHMActions.LucidDreaming, SpellCategory.Utility),
-            CreateDef(WHMActions.Surecast, SpellCategory.Utility),
-            CreateDef(WHMActions.Rescue, SpellCategory.Utility),
-            CreateDef(WHMActions.Esuna, SpellCategory.Utility),
-            CreateDef(WHMActions.Raise, SpellCategory.Utility),
+            CreateDef(RoleActions.Swiftcast, SpellCategory.Utility),
+            CreateDef(RoleActions.LucidDreaming, SpellCategory.Utility),
+            CreateDef(RoleActions.Surecast, SpellCategory.Utility),
+            CreateDef(RoleActions.Rescue, SpellCategory.Utility),
+            CreateDef(RoleActions.Esuna, SpellCategory.Utility),
+            CreateDef(RoleActions.Raise, SpellCategory.Utility),
             CreateDef(WHMActions.PresenceOfMind, SpellCategory.Utility),
             CreateDef(WHMActions.AetherialShift, SpellCategory.Utility),
         };

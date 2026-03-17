@@ -564,13 +564,13 @@ public sealed class DamageModule : BaseDpsDamageModule<ICirceContext>, ICirceMod
             // Use Swiftcast for movement if available
             if (context.SwiftcastReady)
             {
-                if (context.ActionService.ExecuteOgcd(RDMActions.Swiftcast, player.GameObjectId))
+                if (context.ActionService.ExecuteOgcd(RoleActions.Swiftcast, player.GameObjectId))
                 {
                     context.Debug.DamageState = "Swiftcast for movement";
 
                     // Training Mode integration
                     TrainingHelper.Decision(context.TrainingService)
-                        .Action(RDMActions.Swiftcast.ActionId, RDMActions.Swiftcast.Name)
+                        .Action(RoleActions.Swiftcast.ActionId, RoleActions.Swiftcast.Name)
                         .AsMovement()
                         .Reason("Swiftcast - movement tool",
                             "Using Swiftcast to enable an instant long spell while moving. This lets you " +

@@ -16,9 +16,9 @@ namespace Olympus.Rotation.AstraeaCore.Modules;
 /// </summary>
 public sealed class ResurrectionModule : BaseResurrectionModule<IAstraeaContext>, IAstraeaModule
 {
-    protected override ActionDefinition RaiseAction => ASTActions.Ascend;
-    protected override ActionDefinition SwiftcastAction => ASTActions.Swiftcast;
-    protected override int RaiseMpCost => ASTActions.Ascend.MpCost;
+    protected override ActionDefinition RaiseAction => RoleActions.Ascend;
+    protected override ActionDefinition SwiftcastAction => RoleActions.Swiftcast;
+    protected override int RaiseMpCost => RoleActions.Ascend.MpCost;
 
     protected override IBattleChara? FindDeadPartyMemberNeedingRaise(IAstraeaContext context)
         => context.PartyHelper.FindDeadPartyMemberNeedingRaise(context.Player);
@@ -82,7 +82,7 @@ public sealed class ResurrectionModule : BaseResurrectionModule<IAstraeaContext>
         context.TrainingService.RecordDecision(new ActionExplanation
         {
             Timestamp = DateTime.Now,
-            ActionId = ASTActions.Ascend.ActionId,
+            ActionId = RoleActions.Ascend.ActionId,
             ActionName = "Ascend",
             Category = "Resurrection",
             TargetName = targetName,

@@ -69,7 +69,7 @@ public static class SpellChecklistRegistry
                                         .Where(a => a.MinLevel <= l).ToArray()),
         new("Utility",          l => new[] { WHMActions.AetherialShift }
                                         .Where(a => a.MinLevel <= l).ToArray()),
-        new("Role Actions",     l => new[] { WHMActions.Swiftcast, WHMActions.LucidDreaming, WHMActions.Surecast, WHMActions.Rescue, WHMActions.Esuna, WHMActions.Raise }
+        new("Role Actions",     l => new[] { RoleActions.Swiftcast, RoleActions.LucidDreaming, RoleActions.Surecast, RoleActions.Rescue, RoleActions.Esuna, RoleActions.Raise }
                                         .Where(a => a.MinLevel <= l).ToArray()),
     };
 
@@ -90,7 +90,7 @@ public static class SpellChecklistRegistry
                                         .Where(a => a.MinLevel <= l).ToArray()),
         new("Buffs",            l => new[] { SCHActions.ChainStratagem, SCHActions.Dissipation, SCHActions.Recitation, SCHActions.EmergencyTactics, SCHActions.DeploymentTactics, SCHActions.Expedient, SCHActions.BanefulImpaction }
                                         .Where(a => a.MinLevel <= l).ToArray()),
-        new("Role Actions",     l => new[] { SCHActions.Swiftcast, SCHActions.LucidDreaming, SCHActions.Surecast, SCHActions.Rescue, SCHActions.Esuna, SCHActions.Resurrection }
+        new("Role Actions",     l => new[] { RoleActions.Swiftcast, RoleActions.LucidDreaming, RoleActions.Surecast, RoleActions.Rescue, RoleActions.Esuna, RoleActions.Resurrection }
                                         .Where(a => a.MinLevel <= l).ToArray()),
     };
 
@@ -115,7 +115,7 @@ public static class SpellChecklistRegistry
                                         .Where(a => a.MinLevel <= l).ToArray()),
         new("Utility",          l => new[] { SGEActions.Icarus }
                                         .Where(a => a.MinLevel <= l).ToArray()),
-        new("Role Actions",     l => new[] { SGEActions.Swiftcast, SGEActions.LucidDreaming, SGEActions.Surecast, SGEActions.Rescue, SGEActions.Esuna, SGEActions.Egeiro }
+        new("Role Actions",     l => new[] { RoleActions.Swiftcast, RoleActions.LucidDreaming, RoleActions.Surecast, RoleActions.Rescue, RoleActions.Esuna, RoleActions.Egeiro }
                                         .Where(a => a.MinLevel <= l).ToArray()),
     };
 
@@ -137,7 +137,7 @@ public static class SpellChecklistRegistry
                                         .Where(a => a.MinLevel <= l).ToArray()),
         new("Buffs",            l => new[] { ASTActions.Divination, ASTActions.Oracle, ASTActions.Lightspeed, ASTActions.Synastry, ASTActions.NeutralSect, ASTActions.SunSign, ASTActions.Astrodyne }
                                         .Where(a => a.MinLevel <= l).ToArray()),
-        new("Role Actions",     l => new[] { ASTActions.Swiftcast, ASTActions.LucidDreaming, ASTActions.Surecast, ASTActions.Rescue, ASTActions.Esuna, ASTActions.Ascend }
+        new("Role Actions",     l => new[] { RoleActions.Swiftcast, RoleActions.LucidDreaming, RoleActions.Surecast, RoleActions.Rescue, RoleActions.Esuna, RoleActions.Ascend }
                                         .Where(a => a.MinLevel <= l).ToArray()),
     };
 
@@ -159,7 +159,7 @@ public static class SpellChecklistRegistry
                                        .Where(a => a.MinLevel <= l).ToArray()),
         new("Utility",        l => new[] { WARActions.Tomahawk, WARActions.Defiance }
                                        .Where(a => a.MinLevel <= l).ToArray()),
-        new("Role Actions",   l => new[] { WARActions.Rampart, WARActions.LowBlow, WARActions.Reprisal, WARActions.Provoke, WARActions.Shirk, WARActions.ArmsLength, WARActions.Interject }
+        new("Role Actions",   l => new[] { RoleActions.Rampart, RoleActions.LowBlow, RoleActions.Reprisal, RoleActions.Provoke, RoleActions.Shirk, RoleActions.ArmsLength, RoleActions.Interject }
                                        .Where(a => a.MinLevel <= l).ToArray()),
     };
 
@@ -181,7 +181,7 @@ public static class SpellChecklistRegistry
                                        .Where(a => a.MinLevel <= l).ToArray()),
         new("Utility",        l => new[] { DRKActions.Unmend, DRKActions.Grit }
                                        .Where(a => a.MinLevel <= l).ToArray()),
-        new("Role Actions",   l => new[] { DRKActions.Rampart, DRKActions.LowBlow, DRKActions.Reprisal, DRKActions.Provoke, DRKActions.Shirk, DRKActions.ArmsLength, DRKActions.Interject }
+        new("Role Actions",   l => new[] { RoleActions.Rampart, RoleActions.LowBlow, RoleActions.Reprisal, RoleActions.Provoke, RoleActions.Shirk, RoleActions.ArmsLength, RoleActions.Interject }
                                        .Where(a => a.MinLevel <= l).ToArray()),
     };
 
@@ -203,7 +203,7 @@ public static class SpellChecklistRegistry
                                         .Where(a => a.MinLevel <= l).ToArray()),
         new("Utility",         l => new[] { PLDActions.ShieldLob, PLDActions.IronWill }
                                         .Where(a => a.MinLevel <= l).ToArray()),
-        new("Role Actions",    l => new[] { PLDActions.Rampart, PLDActions.LowBlow, PLDActions.Reprisal, PLDActions.Provoke, PLDActions.Shirk, PLDActions.ArmsLength, PLDActions.Interject }
+        new("Role Actions",    l => new[] { RoleActions.Rampart, RoleActions.LowBlow, RoleActions.Reprisal, RoleActions.Provoke, RoleActions.Shirk, RoleActions.ArmsLength, RoleActions.Interject }
                                         .Where(a => a.MinLevel <= l).ToArray()),
     };
 
@@ -225,7 +225,7 @@ public static class SpellChecklistRegistry
                                           .Where(a => a.MinLevel <= l).ToArray()),
         new("Utility",           l => new[] { GNBActions.LightningShot, GNBActions.RoyalGuard }
                                           .Where(a => a.MinLevel <= l).ToArray()),
-        new("Role Actions",      l => new[] { GNBActions.Rampart, GNBActions.LowBlow, GNBActions.Reprisal, GNBActions.Provoke, GNBActions.Shirk, GNBActions.ArmsLength, GNBActions.Interject }
+        new("Role Actions",      l => new[] { RoleActions.Rampart, RoleActions.LowBlow, RoleActions.Reprisal, RoleActions.Provoke, RoleActions.Shirk, RoleActions.ArmsLength, RoleActions.Interject }
                                           .Where(a => a.MinLevel <= l).ToArray()),
     };
 
@@ -243,7 +243,7 @@ public static class SpellChecklistRegistry
                                      .Where(a => a.MinLevel <= l).ToArray()),
         new("Utility",      l => new[] { DRGActions.PiercingTalon, DRGActions.ElusiveJump, DRGActions.WingedGlide }
                                      .Where(a => a.MinLevel <= l).ToArray()),
-        new("Role Actions", l => new[] { DRGActions.Feint, DRGActions.TrueNorth, DRGActions.Bloodbath, DRGActions.SecondWind, DRGActions.LegSweep, DRGActions.ArmsLength }
+        new("Role Actions", l => new[] { RoleActions.Feint, RoleActions.TrueNorth, RoleActions.Bloodbath, RoleActions.SecondWind, RoleActions.LegSweep, RoleActions.ArmsLength }
                                      .Where(a => a.MinLevel <= l).ToArray()),
     };
 
@@ -265,7 +265,7 @@ public static class SpellChecklistRegistry
                                      .Where(a => a.MinLevel <= l).ToArray()),
         new("Utility",      l => new[] { MNKActions.Thunderclap, MNKActions.FormShift, MNKActions.Anatman, MNKActions.SixSidedStar }
                                      .Where(a => a.MinLevel <= l).ToArray()),
-        new("Role Actions", l => new[] { MNKActions.Feint, MNKActions.TrueNorth, MNKActions.Bloodbath, MNKActions.SecondWind, MNKActions.LegSweep, MNKActions.ArmsLength }
+        new("Role Actions", l => new[] { RoleActions.Feint, RoleActions.TrueNorth, RoleActions.Bloodbath, RoleActions.SecondWind, RoleActions.LegSweep, RoleActions.ArmsLength }
                                      .Where(a => a.MinLevel <= l).ToArray()),
     };
 
@@ -287,7 +287,7 @@ public static class SpellChecklistRegistry
                                      .Where(a => a.MinLevel <= l).ToArray()),
         new("Utility",      l => new[] { NINActions.Shukuchi, NINActions.ShadeShift }
                                      .Where(a => a.MinLevel <= l).ToArray()),
-        new("Role Actions", l => new[] { NINActions.Feint, NINActions.TrueNorth, NINActions.Bloodbath, NINActions.SecondWind, NINActions.LegSweep, NINActions.ArmsLength }
+        new("Role Actions", l => new[] { RoleActions.Feint, RoleActions.TrueNorth, RoleActions.Bloodbath, RoleActions.SecondWind, RoleActions.LegSweep, RoleActions.ArmsLength }
                                      .Where(a => a.MinLevel <= l).ToArray()),
     };
 
@@ -305,7 +305,7 @@ public static class SpellChecklistRegistry
                                      .Where(a => a.MinLevel <= l).ToArray()),
         new("Utility",      l => new[] { SAMActions.Enpi, SAMActions.Gyoten, SAMActions.Yaten, SAMActions.ThirdEye, SAMActions.Tengentsu }
                                      .Where(a => a.MinLevel <= l).ToArray()),
-        new("Role Actions", l => new[] { SAMActions.Feint, SAMActions.TrueNorth, SAMActions.Bloodbath, SAMActions.SecondWind, SAMActions.LegSweep, SAMActions.ArmsLength }
+        new("Role Actions", l => new[] { RoleActions.Feint, RoleActions.TrueNorth, RoleActions.Bloodbath, RoleActions.SecondWind, RoleActions.LegSweep, RoleActions.ArmsLength }
                                      .Where(a => a.MinLevel <= l).ToArray()),
     };
 
@@ -327,7 +327,7 @@ public static class SpellChecklistRegistry
                                        .Where(a => a.MinLevel <= l).ToArray()),
         new("Utility",        l => new[] { RPRActions.Harpe, RPRActions.HellsIngress, RPRActions.HellsEgress, RPRActions.Regress, RPRActions.ArcaneCrest }
                                        .Where(a => a.MinLevel <= l).ToArray()),
-        new("Role Actions",   l => new[] { RPRActions.Feint, RPRActions.TrueNorth, RPRActions.Bloodbath, RPRActions.SecondWind, RPRActions.LegSweep, RPRActions.ArmsLength }
+        new("Role Actions",   l => new[] { RoleActions.Feint, RoleActions.TrueNorth, RoleActions.Bloodbath, RoleActions.SecondWind, RoleActions.LegSweep, RoleActions.ArmsLength }
                                        .Where(a => a.MinLevel <= l).ToArray()),
     };
 
@@ -345,7 +345,7 @@ public static class SpellChecklistRegistry
                                        .Where(a => a.MinLevel <= l).ToArray()),
         new("Utility",        l => new[] { VPRActions.WrithingSnap }
                                        .Where(a => a.MinLevel <= l).ToArray()),
-        new("Role Actions",   l => new[] { VPRActions.Feint, VPRActions.TrueNorth, VPRActions.Bloodbath, VPRActions.SecondWind, VPRActions.LegSweep, VPRActions.ArmsLength }
+        new("Role Actions",   l => new[] { RoleActions.Feint, RoleActions.TrueNorth, RoleActions.Bloodbath, RoleActions.SecondWind, RoleActions.LegSweep, RoleActions.ArmsLength }
                                        .Where(a => a.MinLevel <= l).ToArray()),
     };
 
@@ -367,7 +367,7 @@ public static class SpellChecklistRegistry
                                        .Where(a => a.MinLevel <= l).ToArray()),
         new("Support",        l => new[] { BRDActions.Troubadour, BRDActions.NaturesMinne, BRDActions.WardensPaean, BRDActions.RepellingShot }
                                        .Where(a => a.MinLevel <= l).ToArray()),
-        new("Role Actions",   l => new[] { BRDActions.Peloton, BRDActions.HeadGraze, BRDActions.SecondWind, BRDActions.ArmsLength }
+        new("Role Actions",   l => new[] { RoleActions.Peloton, RoleActions.HeadGraze, RoleActions.SecondWind, RoleActions.ArmsLength }
                                        .Where(a => a.MinLevel <= l).ToArray()),
     };
 
@@ -387,7 +387,7 @@ public static class SpellChecklistRegistry
                                        .Where(a => a.MinLevel <= l).ToArray()),
         new("Support",        l => new[] { MCHActions.Tactician, MCHActions.Dismantle }
                                        .Where(a => a.MinLevel <= l).ToArray()),
-        new("Role Actions",   l => new[] { MCHActions.Peloton, MCHActions.HeadGraze, MCHActions.SecondWind, MCHActions.ArmsLength }
+        new("Role Actions",   l => new[] { RoleActions.Peloton, RoleActions.HeadGraze, RoleActions.SecondWind, RoleActions.ArmsLength }
                                        .Where(a => a.MinLevel <= l).ToArray()),
     };
 
@@ -409,7 +409,7 @@ public static class SpellChecklistRegistry
                                        .Where(a => a.MinLevel <= l).ToArray()),
         new("Utility",        l => new[] { DNCActions.EnAvant }
                                        .Where(a => a.MinLevel <= l).ToArray()),
-        new("Role Actions",   l => new[] { DNCActions.Peloton, DNCActions.HeadGraze, DNCActions.SecondWind, DNCActions.ArmsLength }
+        new("Role Actions",   l => new[] { RoleActions.Peloton, RoleActions.HeadGraze, RoleActions.SecondWind, RoleActions.ArmsLength }
                                        .Where(a => a.MinLevel <= l).ToArray()),
     };
 
@@ -433,9 +433,9 @@ public static class SpellChecklistRegistry
                                        .Where(a => a.MinLevel <= l).ToArray()),
         new("Buffs",          l => new[] { BLMActions.Manafont, BLMActions.Triplecast, BLMActions.LeyLines, BLMActions.Amplifier }
                                        .Where(a => a.MinLevel <= l).ToArray()),
-        new("Utility",        l => new[] { BLMActions.Transpose, BLMActions.Scathe, BLMActions.BetweenTheLines, BLMActions.Retrace, BLMActions.Manaward, BLMActions.Sleep }
+        new("Utility",        l => new[] { BLMActions.Transpose, BLMActions.Scathe, BLMActions.BetweenTheLines, BLMActions.Retrace, BLMActions.Manaward, RoleActions.Sleep }
                                        .Where(a => a.MinLevel <= l).ToArray()),
-        new("Role Actions",   l => new[] { BLMActions.Swiftcast, BLMActions.LucidDreaming, BLMActions.Surecast, BLMActions.Addle }
+        new("Role Actions",   l => new[] { RoleActions.Swiftcast, RoleActions.LucidDreaming, RoleActions.Surecast, RoleActions.Addle }
                                        .Where(a => a.MinLevel <= l).ToArray()),
     };
 
@@ -455,7 +455,7 @@ public static class SpellChecklistRegistry
                                        .Where(a => a.MinLevel <= l).ToArray()),
         new("Utility",        l => new[] { SMNActions.SummonCarbuncle, SMNActions.RadiantAegis }
                                        .Where(a => a.MinLevel <= l).ToArray()),
-        new("Role Actions",   l => new[] { SMNActions.Swiftcast, SMNActions.LucidDreaming, SMNActions.Surecast, SMNActions.Addle, SMNActions.Resurrection }
+        new("Role Actions",   l => new[] { RoleActions.Swiftcast, RoleActions.LucidDreaming, RoleActions.Surecast, RoleActions.Addle, RoleActions.Resurrection }
                                        .Where(a => a.MinLevel <= l).ToArray()),
     };
 
@@ -475,7 +475,7 @@ public static class SpellChecklistRegistry
                                        .Where(a => a.MinLevel <= l).ToArray()),
         new("Support",        l => new[] { RDMActions.Vercure, RDMActions.Verraise, RDMActions.MagickBarrier }
                                        .Where(a => a.MinLevel <= l).ToArray()),
-        new("Role Actions",   l => new[] { RDMActions.Swiftcast, RDMActions.LucidDreaming, RDMActions.Surecast, RDMActions.Addle }
+        new("Role Actions",   l => new[] { RoleActions.Swiftcast, RoleActions.LucidDreaming, RoleActions.Surecast, RoleActions.Addle }
                                        .Where(a => a.MinLevel <= l).ToArray()),
     };
 
@@ -499,7 +499,7 @@ public static class SpellChecklistRegistry
                                          .Where(a => a.MinLevel <= l).ToArray()),
         new("Utility",          l => new[] { PCTActions.Smudge }
                                          .Where(a => a.MinLevel <= l).ToArray()),
-        new("Role Actions",     l => new[] { PCTActions.Swiftcast, PCTActions.LucidDreaming, PCTActions.Surecast, PCTActions.Addle }
+        new("Role Actions",     l => new[] { RoleActions.Swiftcast, RoleActions.LucidDreaming, RoleActions.Surecast, RoleActions.Addle }
                                          .Where(a => a.MinLevel <= l).ToArray()),
     };
 }

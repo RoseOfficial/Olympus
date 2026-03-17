@@ -504,10 +504,10 @@ public class SpellEnablementServiceTests
         config.RoleActions.EnableEsuna = false;
         var service = CreateService(config);
 
-        Assert.False(service.IsSpellEnabled(WHMActions.Esuna.ActionId));
+        Assert.False(service.IsSpellEnabled(RoleActions.Esuna.ActionId));
 
         config.RoleActions.EnableEsuna = true;
-        Assert.True(service.IsSpellEnabled(WHMActions.Esuna.ActionId));
+        Assert.True(service.IsSpellEnabled(RoleActions.Esuna.ActionId));
     }
 
     #endregion
@@ -521,10 +521,10 @@ public class SpellEnablementServiceTests
         config.Resurrection.EnableRaise = false;
         var service = CreateService(config);
 
-        Assert.False(service.IsSpellEnabled(WHMActions.Raise.ActionId));
+        Assert.False(service.IsSpellEnabled(RoleActions.Raise.ActionId));
 
         config.Resurrection.EnableRaise = true;
-        Assert.True(service.IsSpellEnabled(WHMActions.Raise.ActionId));
+        Assert.True(service.IsSpellEnabled(RoleActions.Raise.ActionId));
     }
 
     #endregion
@@ -560,8 +560,8 @@ public class SpellEnablementServiceTests
         Assert.True(service.IsSpellEnabled(WHMActions.Aero.ActionId));
         Assert.True(service.IsSpellEnabled(WHMActions.Benediction.ActionId));
         Assert.True(service.IsSpellEnabled(WHMActions.Tetragrammaton.ActionId));
-        Assert.True(service.IsSpellEnabled(WHMActions.Raise.ActionId));
-        Assert.True(service.IsSpellEnabled(WHMActions.Esuna.ActionId));
+        Assert.True(service.IsSpellEnabled(RoleActions.Raise.ActionId));
+        Assert.True(service.IsSpellEnabled(RoleActions.Esuna.ActionId));
     }
 
     #endregion

@@ -15,6 +15,7 @@ All notable changes to Olympus will be documented in this file.
 - Paladin, Warrior, Dark Knight, and Gunbreaker now have job-specific settings (Cover, Passage of Arms, Divine Veil, Clemency, Nascent Flash, Holmgang, Living Dead, The Blackest Night, Dark Missionary, Heart of Light, Heart of Corundum)
 - Settings validation now detects gauge configuration conflicts for Ninja, Samurai, Reaper, Machinist, and Dancer — when the minimum gauge to spend is higher than the overcap threshold, the rotation can never spend that gauge and the issue is flagged with a suggested fix
 - Minor internal cleanup: accent color consolidated to a shared constant, config sidebar category lists promoted to static fields to avoid per-frame allocations, and a redundant set lookup removed
+- Internal refactor: role actions (Swiftcast, Lucid Dreaming, Feint, Rampart, etc.) are now defined once and shared across all jobs instead of being duplicated in each job's action file
 
 <!-- LATEST-END -->
 ## v4.10.31

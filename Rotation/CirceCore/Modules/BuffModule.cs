@@ -620,7 +620,7 @@ public sealed class BuffModule : ICirceModule
         var player = context.Player;
         var level = player.Level;
 
-        if (level < RDMActions.LucidDreaming.MinLevel)
+        if (level < RoleActions.LucidDreaming.MinLevel)
             return false;
 
         if (!context.LucidDreamingReady)
@@ -630,14 +630,14 @@ public sealed class BuffModule : ICirceModule
         if (context.MpPercent > 0.7f)
             return false;
 
-        if (context.ActionService.ExecuteOgcd(RDMActions.LucidDreaming, player.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(RoleActions.LucidDreaming, player.GameObjectId))
         {
-            context.Debug.PlannedAction = RDMActions.LucidDreaming.Name;
+            context.Debug.PlannedAction = RoleActions.LucidDreaming.Name;
             context.Debug.BuffState = "Lucid Dreaming (MP)";
 
             // Training Mode integration
             TrainingHelper.Decision(context.TrainingService)
-                .Action(RDMActions.LucidDreaming.ActionId, RDMActions.LucidDreaming.Name)
+                .Action(RoleActions.LucidDreaming.ActionId, RoleActions.LucidDreaming.Name)
                 .AsCasterResource("MP", context.CurrentMp)
                 .Reason("Lucid Dreaming - MP recovery",
                     "Lucid Dreaming restores MP over time. Use when below 70% MP to avoid running out " +

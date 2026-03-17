@@ -47,7 +47,7 @@ public sealed class TankSharedSection
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Tank.UseRampartOnCooldown, "Use Rampart on Cooldown"), () => config.Tank.UseRampartOnCooldown, v => config.Tank.UseRampartOnCooldown = v,
                 null, save,
-                actionId: PLDActions.Rampart.ActionId);
+                actionId: RoleActions.Rampart.ActionId);
 
             config.Tank.SheltronMinGauge = ConfigUIHelpers.IntSlider(Loc.T(LocalizedStrings.Tank.SheltronMinGauge, "Min Gauge for Short CDs"),
                 config.Tank.SheltronMinGauge, 0, 100,
@@ -98,7 +98,7 @@ public sealed class TankSharedSection
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Tank.AutoProvoke, "Auto Provoke"), () => config.Tank.AutoProvoke, v => config.Tank.AutoProvoke = v,
                 null, save,
-                actionId: PLDActions.Provoke.ActionId);
+                actionId: RoleActions.Provoke.ActionId);
 
             if (config.Tank.AutoProvoke)
             {
@@ -109,7 +109,7 @@ public sealed class TankSharedSection
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Tank.AutoShirk, "Auto Shirk"), () => config.Tank.AutoShirk, v => config.Tank.AutoShirk = v,
                 null, save,
-                actionId: PLDActions.Shirk.ActionId);
+                actionId: RoleActions.Shirk.ActionId);
 
             ConfigUIHelpers.EndIndent();
         }
