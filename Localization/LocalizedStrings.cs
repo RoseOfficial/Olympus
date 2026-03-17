@@ -127,6 +127,32 @@ public static class LocalizedStrings
         public const string EnableHealing = "config.general.enable_healing";
         public const string EnableDamage = "config.general.enable_damage";
         public const string EnableDoT = "config.general.enable_dot";
+        public const string CombatBehaviorHeader = "config.general.combat_behavior_header";
+        public const string StartOnAutoAttack = "config.general.start_on_auto_attack";
+        public const string StartOnAutoAttackDesc = "config.general.start_on_auto_attack_desc";
+    }
+
+    /// <summary>Keys for Draw Helper overlay settings section.</summary>
+    public static class DrawHelper
+    {
+        public const string SectionTitle = "DrawHelper.SectionTitle";
+        public const string EnableDrawing = "DrawHelper.EnableDrawing";
+        public const string EnableDrawingDisabledHint = "DrawHelper.EnableDrawingDisabledHint";
+        public const string RenderingHeader = "DrawHelper.RenderingHeader";
+        public const string UsePictomancy = "DrawHelper.UsePictomancy";
+        public const string UsePictomancyTooltip = "DrawHelper.UsePictomancyTooltip";
+        public const string MaxAlpha = "DrawHelper.MaxAlpha";
+        public const string ClipToGameUI = "DrawHelper.ClipToGameUI";
+        public const string EnemyHitboxesHeader = "DrawHelper.EnemyHitboxesHeader";
+        public const string ShowEnemyHitboxes = "DrawHelper.ShowEnemyHitboxes";
+        public const string MeleeRangeHeader = "DrawHelper.MeleeRangeHeader";
+        public const string ShowMeleeRange = "DrawHelper.ShowMeleeRange";
+        public const string FadeWhenInRange = "DrawHelper.FadeWhenInRange";
+        public const string RangedRangeHeader = "DrawHelper.RangedRangeHeader";
+        public const string ShowRangedRange = "DrawHelper.ShowRangedRange";
+        public const string RangedRangeAutoDetect = "DrawHelper.RangedRangeAutoDetect";
+        public const string PositionalsHeader = "DrawHelper.PositionalsHeader";
+        public const string ShowPositionals = "DrawHelper.ShowPositionals";
     }
 
     /// <summary>Keys for targeting settings section.</summary>

@@ -115,17 +115,17 @@ public sealed class GeneralSection
 
     private void DrawCombatBehaviorSection()
     {
-        if (ConfigUIHelpers.SectionHeader("Combat Behavior"))
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.General.CombatBehaviorHeader, "Combat Behavior")))
         {
             ConfigUIHelpers.BeginIndent();
 
             var enableOnAutoAttack = this.config.EnableOnAutoAttack;
-            if (ImGui.Checkbox("Start rotation on auto-attack", ref enableOnAutoAttack))
+            if (ImGui.Checkbox(Loc.T(LocalizedStrings.General.StartOnAutoAttack, "Start rotation on auto-attack"), ref enableOnAutoAttack))
             {
                 this.config.EnableOnAutoAttack = enableOnAutoAttack;
                 this.save();
             }
-            ImGui.TextDisabled("When enabled, Olympus starts executing the rotation as soon as auto-attack is active on a target, before the server sets the in-combat flag.");
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.General.StartOnAutoAttackDesc, "When enabled, Olympus starts executing the rotation as soon as auto-attack is active on a target, before the server sets the in-combat flag."));
 
             ConfigUIHelpers.EndIndent();
         }
