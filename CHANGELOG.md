@@ -12,6 +12,7 @@ All notable changes to Olympus will be documented in this file.
 - Fight timelines are now available for all 8 Pandaemonium Savage raids (P1S–P8S), enabling timeline-aware cooldown planning in those encounters
 - Internal error tracking is now active, allowing suppressed errors to be surfaced in the debug window without flooding game logs
 - Sage now automatically uses mitigation cooldowns (Kerachole, Taurochole, Holos, Panhaima, Haima), matching other healer jobs
+- Paladin, Warrior, Dark Knight, and Gunbreaker now have job-specific settings (Cover, Passage of Arms, Divine Veil, Clemency, Nascent Flash, Holmgang, Living Dead, The Blackest Night, Dark Missionary, Heart of Light, Heart of Corundum)
 
 <!-- LATEST-END -->
 ## v4.10.31
