@@ -15,25 +15,20 @@ namespace Olympus.Tests.Rotation.AsclepiusCore.Modules;
 /// </summary>
 public class DefensiveModuleTests
 {
-    private readonly DefensiveModule _module;
-
-    public DefensiveModuleTests()
-    {
-        _module = new DefensiveModule();
-    }
-
     #region Module Properties
 
     [Fact]
     public void Priority_Is20()
     {
-        Assert.Equal(20, _module.Priority);
+        var module = new DefensiveModule();
+        Assert.Equal(20, module.Priority);
     }
 
     [Fact]
     public void Name_IsDefensive()
     {
-        Assert.Equal("Defensive", _module.Name);
+        var module = new DefensiveModule();
+        Assert.Equal("Defensive", module.Name);
     }
 
     #endregion
@@ -44,6 +39,7 @@ public class DefensiveModuleTests
     public void DefensiveModule_DoesNotFire_WhenNotInCombat()
     {
         // Arrange: not in combat — base class returns false before any defensive logic
+        var module = new DefensiveModule();
         var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
@@ -57,7 +53,7 @@ public class DefensiveModuleTests
             level: 90);
 
         // Act
-        var result = _module.TryExecute(context, isMoving: false);
+        var result = module.TryExecute(context, isMoving: false);
 
         // Assert
         Assert.False(result);
@@ -74,6 +70,7 @@ public class DefensiveModuleTests
     public void Taurochole_Fires_WhenTankBelowThreshold_AndHasAddersgall()
     {
         // Arrange: tank at 50% HP, threshold 0.55, 2 Addersgall stacks
+        var module = new DefensiveModule();
         var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
         config.Sage.TaurocholeThreshold = 0.55f;
         // Disable other defensives so Taurochole fires first
@@ -110,7 +107,7 @@ public class DefensiveModuleTests
             level: 90);
 
         // Act
-        var result = _module.TryExecute(context, isMoving: false);
+        var result = module.TryExecute(context, isMoving: false);
 
         // Assert
         Assert.True(result);
@@ -125,6 +122,7 @@ public class DefensiveModuleTests
     public void Taurochole_DoesNotFire_WhenNoAddersgall()
     {
         // Arrange: tank at 50% HP, threshold 0.55, 0 stacks
+        var module = new DefensiveModule();
         var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
         config.Sage.TaurocholeThreshold = 0.55f;
         config.Sage.EnableKerachole = false;
@@ -159,7 +157,7 @@ public class DefensiveModuleTests
             level: 90);
 
         // Act
-        var result = _module.TryExecute(context, isMoving: false);
+        var result = module.TryExecute(context, isMoving: false);
 
         // Assert
         Assert.False(result);
@@ -178,6 +176,7 @@ public class DefensiveModuleTests
     public void Kerachole_Fires_WhenPartyInjured()
     {
         // Arrange: 4 injured members (>= AoEHealMinTargets 3), 2 Addersgall stacks
+        var module = new DefensiveModule();
         var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
         config.Sage.AoEHealMinTargets = 3;
         config.Sage.KeracholeThreshold = 0.80f;
@@ -210,7 +209,7 @@ public class DefensiveModuleTests
             level: 90);
 
         // Act
-        var result = _module.TryExecute(context, isMoving: false);
+        var result = module.TryExecute(context, isMoving: false);
 
         // Assert
         Assert.True(result);
@@ -229,6 +228,7 @@ public class DefensiveModuleTests
     public void Holos_Fires_WhenAvgHpBelowThreshold()
     {
         // Arrange: avg HP 55%, threshold 0.60
+        var module = new DefensiveModule();
         var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
         config.Sage.HolosThreshold = 0.60f;
         // Disable higher-priority defensives
@@ -257,7 +257,7 @@ public class DefensiveModuleTests
             level: 90);
 
         // Act
-        var result = _module.TryExecute(context, isMoving: false);
+        var result = module.TryExecute(context, isMoving: false);
 
         // Assert
         Assert.True(result);
@@ -276,6 +276,7 @@ public class DefensiveModuleTests
     public void Panhaima_Fires_WhenAvgHpBelowThreshold()
     {
         // Arrange: avg HP 80%, threshold 0.85
+        var module = new DefensiveModule();
         var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
         config.Sage.PanhaimaThreshold = 0.85f;
         // Disable higher-priority defensives
@@ -305,7 +306,7 @@ public class DefensiveModuleTests
             level: 90);
 
         // Act
-        var result = _module.TryExecute(context, isMoving: false);
+        var result = module.TryExecute(context, isMoving: false);
 
         // Assert
         Assert.True(result);
@@ -324,6 +325,7 @@ public class DefensiveModuleTests
     public void Haima_Fires_WhenTankBelowThreshold()
     {
         // Arrange: tank at 75% HP, threshold 0.80
+        var module = new DefensiveModule();
         var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
         config.Sage.HaimaThreshold = 0.80f;
         // Disable higher-priority defensives
@@ -359,7 +361,7 @@ public class DefensiveModuleTests
             level: 90);
 
         // Act
-        var result = _module.TryExecute(context, isMoving: false);
+        var result = module.TryExecute(context, isMoving: false);
 
         // Assert
         Assert.True(result);

@@ -5,7 +5,7 @@ namespace Olympus.Tests.Rotation.AsclepiusCore.Modules;
 /// <summary>
 /// Tests for Asclepius (Sage) module priority ordering.
 /// Ensures modules execute in the correct priority order:
-///   3 - Kardia, 5 - Resurrection, 10 - Healing, 50 - Damage
+///   3 - Kardia, 5 - Resurrection, 10 - Healing, 20 - Defensive, 50 - Damage
 /// </summary>
 public class ModulePriorityTests
 {
@@ -15,11 +15,13 @@ public class ModulePriorityTests
         var kardia = new KardiaModule();
         var resurrection = new ResurrectionModule();
         var healing = new HealingModule();
+        var defensive = new DefensiveModule();
         var damage = new DamageModule();
 
         // Kardia should have the lowest priority number (runs first)
         Assert.True(kardia.Priority < resurrection.Priority);
         Assert.True(kardia.Priority < healing.Priority);
+        Assert.True(kardia.Priority < defensive.Priority);
         Assert.True(kardia.Priority < damage.Priority);
     }
 
@@ -29,10 +31,12 @@ public class ModulePriorityTests
         var kardia = new KardiaModule();
         var resurrection = new ResurrectionModule();
         var healing = new HealingModule();
+        var defensive = new DefensiveModule();
         var damage = new DamageModule();
 
         Assert.True(resurrection.Priority > kardia.Priority);
         Assert.True(resurrection.Priority < healing.Priority);
+        Assert.True(resurrection.Priority < defensive.Priority);
         Assert.True(resurrection.Priority < damage.Priority);
     }
 
@@ -42,10 +46,12 @@ public class ModulePriorityTests
         var kardia = new KardiaModule();
         var resurrection = new ResurrectionModule();
         var healing = new HealingModule();
+        var defensive = new DefensiveModule();
         var damage = new DamageModule();
 
         Assert.True(healing.Priority > kardia.Priority);
         Assert.True(healing.Priority > resurrection.Priority);
+        Assert.True(healing.Priority < defensive.Priority);
         Assert.True(healing.Priority < damage.Priority);
     }
 
@@ -55,12 +61,14 @@ public class ModulePriorityTests
         var kardia = new KardiaModule();
         var resurrection = new ResurrectionModule();
         var healing = new HealingModule();
+        var defensive = new DefensiveModule();
         var damage = new DamageModule();
 
         // Damage should have the highest priority number (runs last)
         Assert.True(damage.Priority > kardia.Priority);
         Assert.True(damage.Priority > resurrection.Priority);
         Assert.True(damage.Priority > healing.Priority);
+        Assert.True(damage.Priority > defensive.Priority);
     }
 
     [Fact]
@@ -71,6 +79,7 @@ public class ModulePriorityTests
             new KardiaModule(),
             new ResurrectionModule(),
             new HealingModule(),
+            new DefensiveModule(),
             new DamageModule()
         };
 
@@ -87,6 +96,7 @@ public class ModulePriorityTests
             new KardiaModule(),
             new ResurrectionModule(),
             new HealingModule(),
+            new DefensiveModule(),
             new DamageModule()
         };
 
@@ -105,6 +115,7 @@ public class ModulePriorityTests
             new KardiaModule(),
             new ResurrectionModule(),
             new HealingModule(),
+            new DefensiveModule(),
             new DamageModule()
         };
 
@@ -120,6 +131,7 @@ public class ModulePriorityTests
         {
             new DamageModule(),      // Added out of order
             new HealingModule(),
+            new DefensiveModule(),
             new ResurrectionModule(),
             new KardiaModule()
         };
@@ -132,6 +144,7 @@ public class ModulePriorityTests
             "Kardia",
             "Resurrection",
             "Healing",
+            "Defensive",
             "Damage"
         };
 
@@ -144,6 +157,7 @@ public class ModulePriorityTests
     [InlineData(typeof(KardiaModule), 3)]
     [InlineData(typeof(ResurrectionModule), 5)]
     [InlineData(typeof(HealingModule), 10)]
+    [InlineData(typeof(DefensiveModule), 20)]
     [InlineData(typeof(DamageModule), 50)]
     public void Module_HasExpectedPriority(Type moduleType, int expectedPriority)
     {
