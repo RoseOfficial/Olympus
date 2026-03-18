@@ -894,8 +894,6 @@ public static class LocalizedStrings
         // Job-specific toggles
         public const string EnableCover = "config.job.pld.enable_cover";
         public const string EnableCoverDesc = "config.job.pld.enable_cover_desc";
-        public const string EnablePassageOfArms = "config.job.pld.enable_passage_of_arms";
-        public const string EnablePassageOfArmsDesc = "config.job.pld.enable_passage_of_arms_desc";
         public const string EnableDivineVeil = "config.job.pld.enable_divine_veil";
         public const string EnableDivineVeilDesc = "config.job.pld.enable_divine_veil_desc";
         public const string EnableClemency = "config.job.pld.enable_clemency";
