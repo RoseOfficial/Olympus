@@ -349,6 +349,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IEchidnaContext>, IEchidn
 
     private bool TryReawaken(IEchidnaContext context, IBattleChara target)
     {
+        if (!context.Configuration.Viper.EnableReawaken) return false;
         var player = context.Player;
         var level = player.Level;
 
