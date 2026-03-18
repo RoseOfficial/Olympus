@@ -156,6 +156,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IZeusContext>, IZeusModul
 
     private bool TryStarcross(IZeusContext context, IBattleChara target)
     {
+        if (!context.Configuration.Dragoon.EnableStardiver) return false;
         var level = context.Player.Level;
 
         if (level < DRGActions.Starcross.MinLevel)
@@ -195,6 +196,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IZeusContext>, IZeusModul
 
     private bool TryRiseOfTheDragon(IZeusContext context, IBattleChara target)
     {
+        if (!context.Configuration.Dragoon.EnableDragonfireDive) return false;
         var level = context.Player.Level;
 
         if (level < DRGActions.RiseOfTheDragon.MinLevel)
