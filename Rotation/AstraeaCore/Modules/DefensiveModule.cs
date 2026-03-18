@@ -2,6 +2,7 @@ using System;
 using System.Numerics;
 using Olympus.Config;
 using Olympus.Data;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.AstraeaCore.Context;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Services.Party;
@@ -125,6 +126,17 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAstraeaContext>, IAst
             NeutralSectUsageStrategy.Manual => false,
             _ => false
         };
+
+        // Proactive raidwide path: override SaveForDamage threshold when a raidwide is imminent
+        // (not applicable for Manual — user has opted out of automation)
+        if (!shouldUse && config.NeutralSectStrategy != NeutralSectUsageStrategy.Manual)
+        {
+            shouldUse = TimelineHelper.IsRaidwideImminent(
+                context.TimelineService,
+                context.BossMechanicDetector,
+                context.Configuration.Healing,
+                out _);
+        }
 
         if (!shouldUse)
             return false;
@@ -311,7 +323,15 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAstraeaContext>, IAst
 
         // Check party health - use when party is taking significant damage
         var (avgHp, _, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
-        if (avgHp > config.CollectiveUnconsciousThreshold)
+
+        // Proactive raidwide path: deploy before predicted raidwides even if HP threshold not yet met
+        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
+            context.TimelineService,
+            context.BossMechanicDetector,
+            context.Configuration.Healing,
+            out _);
+
+        if (avgHp > config.CollectiveUnconsciousThreshold && !raidwideImminent)
             return false;
 
         // Need multiple party members in range
