@@ -324,6 +324,7 @@ public sealed class NinjutsuModule : IHermesModule
 
     private bool ShouldStartNinjutsu(IHermesContext context, byte level, int enemyCount)
     {
+        if (!context.Configuration.Ninja.EnableNinjutsu) return false;
         // Can't use Ninjutsu below level 30
         if (level < NINActions.Ten.MinLevel)
             return false;
