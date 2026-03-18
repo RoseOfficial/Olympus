@@ -3,7 +3,7 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
-## v4.10.32
+## v4.11.0
 
 ### All DPS Jobs
 - Ability toggles in settings now actually take effect for all 12 DPS jobs — Dragoon, Monk, Machinist, Samurai, Reaper, Ninja, Bard, Dancer, Black Mage, Summoner, Red Mage, and Pictomancer all had toggles that were displayed but silently ignored by the rotation engine
