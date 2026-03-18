@@ -145,6 +145,11 @@ public sealed class GeneralSection
             ConfigUIHelpers.Toggle(Loc.T("config.window.show_during_cutscenes", "Show window during cutscenes"), () => this.config.ShowDuringCutscenes, v => this.config.ShowDuringCutscenes = v,
                 Loc.T("config.window.show_during_cutscenes_desc", "When enabled, Olympus windows stay visible during in-game cutscenes."), this.save);
 
+            ConfigUIHelpers.Spacing();
+
+            ConfigUIHelpers.Toggle(Loc.T("config.overlay.show_mechanics_forecast", "Show mechanic forecast in overlay"), () => this.config.Overlay.ShowMechanicsForecast, v => this.config.Overlay.ShowMechanicsForecast = v,
+                Loc.T("config.overlay.show_mechanics_forecast_desc", "Displays upcoming fight mechanics (raidwides, tank busters, phases) with countdown timers in the overlay. Only visible when a fight timeline is loaded."), this.save);
+
             ConfigUIHelpers.EndIndent();
         }
     }
