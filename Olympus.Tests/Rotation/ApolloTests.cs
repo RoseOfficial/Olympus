@@ -6,6 +6,7 @@ using Moq;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Context;
+using Olympus.Tests.Rotation.ApolloCore;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.ApolloCore.Modules;
 using Olympus.Rotation.Common;
@@ -520,7 +521,7 @@ public class ApolloTests
     /// <summary>
     /// Creates a test ApolloContext with mocked dependencies.
     /// </summary>
-    private ApolloContext CreateTestContext(
+    private static ApolloContext CreateTestContext(
         Configuration? config = null,
         IPlayerCharacter? player = null,
         Mock<IPartyHelper>? partyHelper = null,
@@ -532,76 +533,17 @@ public class ApolloTests
         bool canExecuteGcd = true,
         bool canExecuteOgcd = false)
     {
-        config ??= MockBuilders.CreateDefaultConfiguration();
-        partyHelper ??= MockBuilders.CreateMockPartyHelper();
-        actionService ??= MockBuilders.CreateMockActionService(canExecuteGcd: canExecuteGcd, canExecuteOgcd: canExecuteOgcd);
-
-        var playerMock = player ?? MockBuilders.CreateMockPlayerCharacter(level: level).Object;
-
-        var combatEventService = MockBuilders.CreateMockCombatEventService();
-        var hpPredictionService = MockBuilders.CreateMockHpPredictionService();
-        var playerStatsService = MockBuilders.CreateMockPlayerStatsService();
-        var targetingService = MockBuilders.CreateMockTargetingService();
-        var objectTable = MockBuilders.CreateMockObjectTable();
-        var partyList = MockBuilders.CreateMockPartyList();
-        var debuffDetectionService = MockBuilders.CreateMockDebuffDetectionService();
-        var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
-        var actionTracker = MockBuilders.CreateMockActionTracker(config);
-        var statusHelper = new StatusHelper();
-
-        // Create mock healing spell selector
-        var healingSpellSelectorMock = new Mock<IHealingSpellSelector>();
-        healingSpellSelectorMock.Setup(x => x.SelectBestSingleHeal(
-                It.IsAny<IPlayerCharacter>(),
-                It.IsAny<IBattleChara>(),
-                It.IsAny<bool>(),
-                It.IsAny<bool>(),
-                It.IsAny<bool>(),
-                It.IsAny<float>()))
-            .Returns(((ActionDefinition?)null, 0));
-
-        healingSpellSelectorMock.Setup(x => x.SelectBestAoEHeal(
-                It.IsAny<IPlayerCharacter>(),
-                It.IsAny<int>(),
-                It.IsAny<int>(),
-                It.IsAny<bool>(),
-                It.IsAny<bool>(),
-                It.IsAny<int>(),
-                It.IsAny<IBattleChara?>()))
-            .Returns(((ActionDefinition?)null, 0, null));
-
-        var damageTrendService = MockBuilders.CreateMockDamageTrendService();
-        var frameCache = MockBuilders.CreateMockFrameScopedCache();
-        var mpForecastService = MockBuilders.CreateMockMpForecastService();
-
-        return new ApolloContext(
-            playerMock,
-            inCombat,
-            isMoving,
-            canExecuteGcd,
-            canExecuteOgcd,
-            actionService.Object,
-            actionTracker,
-            combatEventService.Object,
-            damageIntakeService.Object,
-            damageTrendService.Object,
-            frameCache.Object,
-            config,
-            debuffDetectionService.Object,
-            hpPredictionService.Object,
-            mpForecastService.Object,
-            objectTable.Object,
-            partyList.Object,
-            playerStatsService.Object,
-            targetingService.Object,
-            healingSpellSelectorMock.Object,
-            MockBuilders.CreateMockCooldownPlanner().Object,
-            statusHelper,
-            partyHelper.Object,
-            coHealerDetectionService: null,
-            bossMechanicDetector: null,
-            shieldTrackingService: null,
-            debugState: debugState);
+        return ApolloTestContext.Create(
+            config: config,
+            player: player,
+            partyHelper: partyHelper,
+            actionService: actionService,
+            debugState: debugState,
+            level: level,
+            inCombat: inCombat,
+            isMoving: isMoving,
+            canExecuteGcd: canExecuteGcd,
+            canExecuteOgcd: canExecuteOgcd);
     }
 
     #endregion

@@ -7,6 +7,7 @@ using Dalamud.Plugin.Services;
 using Moq;
 using Olympus.Data;
 using Olympus.Models.Action;
+using Olympus.Rotation.ApolloCore;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.ApolloCore.Modules;
@@ -80,7 +81,7 @@ public class HealingModuleTests
         partyHelperMock.Setup(x => x.FindLowestHpPartyMember(It.IsAny<IPlayerCharacter>(), It.IsAny<int>()))
             .Returns((IBattleChara?)null);
 
-        var healingSpellSelectorMock = CreateMockHealingSpellSelector();
+        var healingSpellSelectorMock = ApolloTestContext.CreateDefaultHealingSpellSelector();
         healingSpellSelectorMock.Setup(x => x.SelectBestSingleHeal(
                 It.IsAny<IPlayerCharacter>(),
                 It.IsAny<IBattleChara>(),
@@ -93,7 +94,7 @@ public class HealingModuleTests
         var context = CreateTestContext(
             config: config,
             partyHelper: partyHelperMock,
-            healingSpellSelector: healingSpellSelectorMock.Object);
+            healingSpellSelector: healingSpellSelectorMock);
 
         // Act
         var result = _module.TryExecute(context, isMoving: false);
@@ -806,7 +807,7 @@ public class HealingModuleTests
                 It.IsAny<int>()))
             .Returns(((IBattleChara?)null, 0, new List<uint>()));
 
-        var healingSpellSelectorMock = CreateMockHealingSpellSelector();
+        var healingSpellSelectorMock = ApolloTestContext.CreateDefaultHealingSpellSelector();
         healingSpellSelectorMock.Setup(x => x.SelectBestAoEHeal(
                 It.IsAny<IPlayerCharacter>(),
                 It.IsAny<int>(),
@@ -820,7 +821,7 @@ public class HealingModuleTests
         var context = CreateTestContext(
             config: config,
             partyHelper: partyHelperMock,
-            healingSpellSelector: healingSpellSelectorMock.Object,
+            healingSpellSelector: healingSpellSelectorMock,
             level: 90);
 
         // Act
@@ -849,7 +850,7 @@ public class HealingModuleTests
                 It.IsAny<int>()))
             .Returns(((IBattleChara?)null, 0, new List<uint>()));
 
-        var healingSpellSelectorMock = CreateMockHealingSpellSelector();
+        var healingSpellSelectorMock = ApolloTestContext.CreateDefaultHealingSpellSelector();
         healingSpellSelectorMock.Setup(x => x.SelectBestAoEHeal(
                 It.IsAny<IPlayerCharacter>(),
                 It.IsAny<int>(),
@@ -867,7 +868,7 @@ public class HealingModuleTests
         var context = CreateTestContext(
             config: config,
             partyHelper: partyHelperMock,
-            healingSpellSelector: healingSpellSelectorMock.Object,
+            healingSpellSelector: healingSpellSelectorMock,
             actionService: actionServiceMock,
             level: 90);
 
@@ -921,7 +922,7 @@ public class HealingModuleTests
 
         var partyHelperMock = MockBuilders.CreateMockPartyHelper(lowestHpMember: target.Object);
 
-        var healingSpellSelectorMock = CreateMockHealingSpellSelector();
+        var healingSpellSelectorMock = ApolloTestContext.CreateDefaultHealingSpellSelector();
         healingSpellSelectorMock.Setup(x => x.SelectBestSingleHeal(
                 It.IsAny<IPlayerCharacter>(),
                 It.IsAny<IBattleChara>(),
@@ -936,7 +937,7 @@ public class HealingModuleTests
         var context = CreateTestContext(
             config: config,
             partyHelper: partyHelperMock,
-            healingSpellSelector: healingSpellSelectorMock.Object,
+            healingSpellSelector: healingSpellSelectorMock,
             actionService: actionServiceMock,
             level: 90);
 
@@ -962,7 +963,7 @@ public class HealingModuleTests
 
         var partyHelperMock = MockBuilders.CreateMockPartyHelper(lowestHpMember: target.Object);
 
-        var healingSpellSelectorMock = CreateMockHealingSpellSelector();
+        var healingSpellSelectorMock = ApolloTestContext.CreateDefaultHealingSpellSelector();
         healingSpellSelectorMock.Setup(x => x.SelectBestSingleHeal(
                 It.IsAny<IPlayerCharacter>(),
                 It.IsAny<IBattleChara>(),
@@ -979,7 +980,7 @@ public class HealingModuleTests
         var context = CreateTestContext(
             config: config,
             partyHelper: partyHelperMock,
-            healingSpellSelector: healingSpellSelectorMock.Object,
+            healingSpellSelector: healingSpellSelectorMock,
             actionService: actionServiceMock,
             level: 90);
 
@@ -1020,7 +1021,7 @@ public class HealingModuleTests
         actionServiceMock.Setup(x => x.ExecuteOgcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()))
             .Returns(true);
 
-        var healingSpellSelectorMock = CreateMockHealingSpellSelector();
+        var healingSpellSelectorMock = ApolloTestContext.CreateDefaultHealingSpellSelector();
         healingSpellSelectorMock.Setup(x => x.SelectBestSingleHeal(
                 It.IsAny<IPlayerCharacter>(),
                 It.IsAny<IBattleChara>(),
@@ -1034,7 +1035,7 @@ public class HealingModuleTests
             config: config,
             partyHelper: partyHelperMock,
             actionService: actionServiceMock,
-            healingSpellSelector: healingSpellSelectorMock.Object,
+            healingSpellSelector: healingSpellSelectorMock,
             level: 90,
             canExecuteOgcd: true);
 
@@ -1108,12 +1109,12 @@ public class HealingModuleTests
     /// <summary>
     /// Creates a test ApolloContext with mocked dependencies.
     /// </summary>
-    private ApolloContext CreateTestContext(
+    private static ApolloContext CreateTestContext(
         Configuration? config = null,
         Mock<IPartyHelper>? partyHelper = null,
         Mock<IActionService>? actionService = null,
         Mock<IDebuffDetectionService>? debuffDetectionService = null,
-        IHealingSpellSelector? healingSpellSelector = null,
+        Mock<IHealingSpellSelector>? healingSpellSelector = null,
         byte level = 90,
         uint currentHp = 50000,
         uint maxHp = 50000,
@@ -1122,89 +1123,30 @@ public class HealingModuleTests
         bool canExecuteGcd = true,
         bool canExecuteOgcd = false)
     {
-        config ??= MockBuilders.CreateDefaultConfiguration();
-        partyHelper ??= MockBuilders.CreateMockPartyHelper();
-        actionService ??= MockBuilders.CreateMockActionService(canExecuteGcd: canExecuteGcd, canExecuteOgcd: canExecuteOgcd);
-        debuffDetectionService ??= MockBuilders.CreateMockDebuffDetectionService();
+        // Only apply default setups when no custom partyHelper is provided;
+        // caller-supplied mocks carry their own setups and must not be overridden.
+        if (partyHelper == null)
+        {
+            partyHelper = MockBuilders.CreateMockPartyHelper();
+            partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
+                .Returns((1.0f, 1.0f, 0));
+            partyHelper.Setup(p => p.CountPartyMembersNeedingAoEHeal(It.IsAny<IPlayerCharacter>(), It.IsAny<int>()))
+                .Returns((0, false, new List<(uint entityId, string name)>(), 0));
+        }
 
-        var player = MockBuilders.CreateMockPlayerCharacter(
+        return ApolloTestContext.Create(
+            config: config,
+            partyHelper: partyHelper,
+            actionService: actionService,
+            debuffDetectionService: debuffDetectionService,
+            healingSpellSelector: healingSpellSelector,
             level: level,
             currentHp: currentHp,
             maxHp: maxHp,
-            currentMp: currentMp);
-
-        var combatEventService = MockBuilders.CreateMockCombatEventService();
-        var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
-        var damageTrendService = MockBuilders.CreateMockDamageTrendService();
-        var frameCache = MockBuilders.CreateMockFrameScopedCache();
-        var hpPredictionService = MockBuilders.CreateMockHpPredictionService();
-        var mpForecastService = MockBuilders.CreateMockMpForecastService();
-        var playerStatsService = MockBuilders.CreateMockPlayerStatsService();
-        var targetingService = MockBuilders.CreateMockTargetingService();
-        var objectTable = MockBuilders.CreateMockObjectTable();
-        var partyList = MockBuilders.CreateMockPartyList();
-
-        // Create real ActionTracker and StatusHelper with mocked dependencies
-        var actionTracker = MockBuilders.CreateMockActionTracker(config);
-        var statusHelper = new StatusHelper();
-
-        // Use provided or create default mock HealingSpellSelector
-        healingSpellSelector ??= CreateMockHealingSpellSelector().Object;
-
-        return new ApolloContext(
-            player.Object,
-            inCombat,
-            isMoving: false,
-            canExecuteGcd,
-            canExecuteOgcd,
-            actionService.Object,
-            actionTracker,
-            combatEventService.Object,
-            damageIntakeService.Object,
-            damageTrendService.Object,
-            frameCache.Object,
-            config,
-            debuffDetectionService.Object,
-            hpPredictionService.Object,
-            mpForecastService.Object,
-            objectTable.Object,
-            partyList.Object,
-            playerStatsService.Object,
-            targetingService.Object,
-            healingSpellSelector,
-            MockBuilders.CreateMockCooldownPlanner().Object,
-            statusHelper,
-            partyHelper.Object);
-    }
-
-    /// <summary>
-    /// Creates a mock IHealingSpellSelector that returns no heals by default.
-    /// </summary>
-    private static Mock<IHealingSpellSelector> CreateMockHealingSpellSelector()
-    {
-        var mock = new Mock<IHealingSpellSelector>();
-
-        // Default: return no heal
-        mock.Setup(x => x.SelectBestSingleHeal(
-                It.IsAny<IPlayerCharacter>(),
-                It.IsAny<IBattleChara>(),
-                It.IsAny<bool>(),
-                It.IsAny<bool>(),
-                It.IsAny<bool>(),
-                It.IsAny<float>()))
-            .Returns(((ActionDefinition?)null, 0));
-
-        mock.Setup(x => x.SelectBestAoEHeal(
-                It.IsAny<IPlayerCharacter>(),
-                It.IsAny<int>(),
-                It.IsAny<int>(),
-                It.IsAny<bool>(),
-                It.IsAny<bool>(),
-                It.IsAny<int>(),
-                It.IsAny<IBattleChara?>()))
-            .Returns(((ActionDefinition?)null, 0, null));
-
-        return mock;
+            currentMp: currentMp,
+            inCombat: inCombat,
+            canExecuteGcd: canExecuteGcd,
+            canExecuteOgcd: canExecuteOgcd);
     }
 
     #endregion

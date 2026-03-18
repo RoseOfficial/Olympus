@@ -4,6 +4,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Moq;
 using Olympus.Data;
 using Olympus.Models.Action;
+using Olympus.Rotation.ApolloCore;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.ApolloCore.Modules;
@@ -443,58 +444,21 @@ public class DamageModuleTests
     /// <summary>
     /// Creates a test ApolloContext with mocked dependencies.
     /// </summary>
-    private ApolloContext CreateTestContext(
+    private static ApolloContext CreateTestContext(
         Configuration? config = null,
         Mock<ITargetingService>? targetingService = null,
         Mock<IActionService>? actionService = null,
         byte level = 90,
         bool inCombat = false)
     {
-        config ??= MockBuilders.CreateDefaultConfiguration();
-        targetingService ??= MockBuilders.CreateMockTargetingService();
-        actionService ??= MockBuilders.CreateMockActionService();
-
-        var player = MockBuilders.CreateMockPlayerCharacter(level: level);
-        var partyHelper = MockBuilders.CreateMockPartyHelper();
-        var combatEventService = MockBuilders.CreateMockCombatEventService();
-        var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
-        var damageTrendService = MockBuilders.CreateMockDamageTrendService();
-        var frameCache = MockBuilders.CreateMockFrameScopedCache();
-        var hpPredictionService = MockBuilders.CreateMockHpPredictionService();
-        var mpForecastService = MockBuilders.CreateMockMpForecastService();
-        var playerStatsService = MockBuilders.CreateMockPlayerStatsService();
-        var debuffDetectionService = MockBuilders.CreateMockDebuffDetectionService();
-        var objectTable = MockBuilders.CreateMockObjectTable();
-        var partyList = MockBuilders.CreateMockPartyList();
-
-        var actionTracker = MockBuilders.CreateMockActionTracker(config);
-        var statusHelper = new StatusHelper();
-        var healingSpellSelector = CreateMockHealingSpellSelector();
-
-        return new ApolloContext(
-            player.Object,
-            inCombat,
-            isMoving: false,
+        return ApolloTestContext.Create(
+            config: config,
+            targetingService: targetingService,
+            actionService: actionService,
+            level: level,
+            inCombat: inCombat,
             canExecuteGcd: true,
-            canExecuteOgcd: true,
-            actionService.Object,
-            actionTracker,
-            combatEventService.Object,
-            damageIntakeService.Object,
-            damageTrendService.Object,
-            frameCache.Object,
-            config,
-            debuffDetectionService.Object,
-            hpPredictionService.Object,
-            mpForecastService.Object,
-            objectTable.Object,
-            partyList.Object,
-            playerStatsService.Object,
-            targetingService.Object,
-            healingSpellSelector.Object,
-            MockBuilders.CreateMockCooldownPlanner().Object,
-            statusHelper,
-            partyHelper.Object);
+            canExecuteOgcd: true);
     }
 
     /// <summary>
@@ -511,32 +475,6 @@ public class DamageModuleTests
         mock.Setup(x => x.CurrentHp).Returns(currentHp);
         mock.Setup(x => x.MaxHp).Returns(maxHp);
         mock.Setup(x => x.Position).Returns(Vector3.Zero);
-        return mock;
-    }
-
-    /// <summary>
-    /// Creates a mock IHealingSpellSelector.
-    /// </summary>
-    private static Mock<IHealingSpellSelector> CreateMockHealingSpellSelector()
-    {
-        var mock = new Mock<IHealingSpellSelector>();
-        mock.Setup(x => x.SelectBestSingleHeal(
-                It.IsAny<IPlayerCharacter>(),
-                It.IsAny<IBattleChara>(),
-                It.IsAny<bool>(),
-                It.IsAny<bool>(),
-                It.IsAny<bool>(),
-                It.IsAny<float>()))
-            .Returns(((ActionDefinition?)null, 0));
-        mock.Setup(x => x.SelectBestAoEHeal(
-                It.IsAny<IPlayerCharacter>(),
-                It.IsAny<int>(),
-                It.IsAny<int>(),
-                It.IsAny<bool>(),
-                It.IsAny<bool>(),
-                It.IsAny<int>(),
-                It.IsAny<IBattleChara?>()))
-            .Returns(((ActionDefinition?)null, 0, null));
         return mock;
     }
 
