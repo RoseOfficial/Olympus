@@ -15,9 +15,6 @@ public sealed class DamageModule : IAresModule
     public int Priority => 30; // Lowest priority - damage after utility
     public string Name => "Damage";
 
-    // Threshold for AoE rotation
-    private const int AoeThreshold = 3;
-
     public bool TryExecute(IAresContext context, bool isMoving)
     {
         if (!context.Configuration.Tank.EnableDamage)
@@ -150,7 +147,9 @@ public sealed class DamageModule : IAresModule
             return false;
 
         // Prefer Orogeny for AoE
-        if (enemyCount >= AoeThreshold && level >= WARActions.Orogeny.MinLevel)
+        if (context.Configuration.Tank.EnableAoEDamage &&
+            enemyCount >= context.Configuration.Tank.AoEMinTargets &&
+            level >= WARActions.Orogeny.MinLevel)
             return false;
 
         if (!context.ActionService.IsActionReady(WARActions.Upheaval.ActionId))
@@ -191,7 +190,8 @@ public sealed class DamageModule : IAresModule
             return false;
 
         // Only use in AoE situations
-        if (enemyCount < AoeThreshold)
+        if (!context.Configuration.Tank.EnableAoEDamage ||
+            enemyCount < context.Configuration.Tank.AoEMinTargets)
             return false;
 
         if (!context.ActionService.IsActionReady(WARActions.Orogeny.ActionId))
@@ -441,7 +441,9 @@ public sealed class DamageModule : IAresModule
             return false;
 
         // Choose ST or AoE based on enemy count
-        if (enemyCount >= AoeThreshold && level >= WARActions.ChaoticCyclone.MinLevel)
+        if (context.Configuration.Tank.EnableAoEDamage &&
+            enemyCount >= context.Configuration.Tank.AoEMinTargets &&
+            level >= WARActions.ChaoticCyclone.MinLevel)
         {
             return TryChaoticCyclone(context, target, enemyCount);
         }
@@ -536,7 +538,8 @@ public sealed class DamageModule : IAresModule
             return false;
 
         // Choose ST or AoE spender
-        if (enemyCount >= AoeThreshold)
+        if (context.Configuration.Tank.EnableAoEDamage &&
+            enemyCount >= context.Configuration.Tank.AoEMinTargets)
         {
             return TryDecimate(context, target, enemyCount);
         }
@@ -701,7 +704,8 @@ public sealed class DamageModule : IAresModule
             return false;
 
         // Check if we can finish the combo
-        if (enemyCount >= AoeThreshold)
+        if (context.Configuration.Tank.EnableAoEDamage &&
+            enemyCount >= context.Configuration.Tank.AoEMinTargets)
         {
             return TryMythrilTempestFinish(context, target, enemyCount);
         }
@@ -813,8 +817,9 @@ public sealed class DamageModule : IAresModule
         var player = context.Player;
         var level = player.Level;
 
-        // AoE rotation for 3+ enemies
-        if (enemyCount >= AoeThreshold)
+        // AoE rotation for configured threshold
+        if (context.Configuration.Tank.EnableAoEDamage &&
+            enemyCount >= context.Configuration.Tank.AoEMinTargets)
         {
             return TryAoeCombo(context, target, enemyCount);
         }
