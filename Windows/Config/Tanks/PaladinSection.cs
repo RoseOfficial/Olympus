@@ -54,14 +54,6 @@ public sealed class PaladinSection
                 actionId: PLDActions.Cover.ActionId);
 
             ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Paladin.EnablePassageOfArms, "Passage of Arms"),
-                () => config.Tank.EnablePassageOfArms,
-                v => config.Tank.EnablePassageOfArms = v,
-                null,
-                save,
-                actionId: PLDActions.PassageOfArms.ActionId);
-
-            ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Paladin.EnableDivineVeil, "Divine Veil"),
                 () => config.Tank.EnableDivineVeil,
                 v => config.Tank.EnableDivineVeil = v,

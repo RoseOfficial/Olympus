@@ -105,11 +105,6 @@ public sealed class TankConfig
     public bool EnableCover { get; set; } = true;
 
     /// <summary>
-    /// Use Passage of Arms to reduce damage for party members during raidwides.
-    /// </summary>
-    public bool EnablePassageOfArms { get; set; } = true;
-
-    /// <summary>
     /// Proactively apply Divine Veil party shield.
     /// </summary>
     public bool EnableDivineVeil { get; set; } = true;
