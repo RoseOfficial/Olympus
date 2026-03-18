@@ -33,11 +33,11 @@ public enum HealingPriority
     /// <summary>Spike damage prediction healing.</summary>
     PreemptiveHeal = 30,
 
-    /// <summary>HoT maintenance (Regen) - apply before GCD heals to prevent overhealing.</summary>
-    Regen = 35,
-
     /// <summary>Multi-target healing (Medica, Cure III, etc.).</summary>
     AoEHeal = 34,
+
+    /// <summary>HoT maintenance (Regen) - fires after AoE heal threshold check (priority 34); applies Regen when AoE count is below the configured threshold.</summary>
+    Regen = 35,
 
     /// <summary>Single-target GCD heals.</summary>
     SingleHeal = 50,

@@ -211,10 +211,8 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAstraeaContext>, IAst
         if (!context.ActionService.IsActionReady(ASTActions.SunSign.ActionId))
             return false;
 
-        // Check if party would benefit from the shield
+        // Calculate party health for training telemetry (not used as a gate — SunSign is a shield, not a heal)
         var (avgHp, _, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
-        if (avgHp > 0.85f)
-            return false; // Party is healthy, save it
 
         // Count party members in range
         int membersInRange = 0;

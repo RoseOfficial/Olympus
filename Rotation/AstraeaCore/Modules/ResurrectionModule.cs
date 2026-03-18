@@ -23,7 +23,8 @@ public sealed class ResurrectionModule : BaseResurrectionModule<IAstraeaContext>
     protected override IBattleChara? FindDeadPartyMemberNeedingRaise(IAstraeaContext context)
         => context.PartyHelper.FindDeadPartyMemberNeedingRaise(context.Player);
 
-    protected override bool HasSwiftcast(IAstraeaContext context) => context.HasSwiftcast;
+    // Lightspeed also grants instant cast — treat it as equivalent to Swiftcast for raise purposes
+    protected override bool HasSwiftcast(IAstraeaContext context) => context.HasSwiftcast || context.HasLightspeed;
 
     protected override void SetRaiseState(IAstraeaContext context, string state) => context.Debug.RaiseState = state;
     protected override void SetRaiseTarget(IAstraeaContext context, string target) => context.Debug.RaiseTarget = target;
@@ -31,7 +32,54 @@ public sealed class ResurrectionModule : BaseResurrectionModule<IAstraeaContext>
     protected override void SetPlannedAction(IAstraeaContext context, string action) => context.Debug.PlannedAction = action;
     protected override IPartyCoordinationService? GetPartyCoordinationService(IAstraeaContext context) => context.PartyCoordinationService;
 
-    // Astrologian doesn't have Thin Air equivalent, so no pre-raise buff waiting
+    /// <summary>
+    /// Wait for Lightspeed if it is close to ready and no instant-cast buff is active.
+    /// Prevents starting an 8-second hardcast when Lightspeed would be available in &lt;=10s.
+    /// </summary>
+    protected override bool ShouldWaitForPreRaiseBuff(IAstraeaContext context)
+    {
+        if (context.HasSwiftcast || context.HasLightspeed)
+            return false;
+
+        var lightspeedCooldown = context.ActionService.GetCooldownRemaining(ASTActions.Lightspeed.ActionId);
+        return lightspeedCooldown <= 10f;
+    }
+
+    /// <summary>
+    /// Use Lightspeed as an oGCD instant-cast enabler for raises, in addition to Swiftcast.
+    /// Tries Swiftcast first; falls back to Lightspeed if Swiftcast is unavailable.
+    /// </summary>
+    protected override bool TrySwiftcastForRaise(IAstraeaContext context)
+    {
+        // Try Swiftcast first (base behaviour)
+        if (base.TrySwiftcastForRaise(context))
+            return true;
+
+        // Fall back to Lightspeed when Swiftcast is on cooldown
+        var config = context.Configuration;
+        var player = context.Player;
+
+        if (!config.Resurrection.EnableRaise)
+            return false;
+
+        if (player.Level < ASTActions.Lightspeed.MinLevel)
+            return false;
+
+        if (context.HasLightspeed)
+            return false; // Already active — raise will execute on the GCD path
+
+        var deadMember = FindDeadPartyMemberNeedingRaise(context);
+        if (deadMember is null)
+            return false;
+
+        if (player.CurrentMp < RaiseMpCost)
+            return false;
+
+        if (!context.ActionService.IsActionReady(ASTActions.Lightspeed.ActionId))
+            return false;
+
+        return context.ActionService.ExecuteOgcd(ASTActions.Lightspeed, player.GameObjectId);
+    }
 
     /// <summary>
     /// Records training explanation for raise decisions.

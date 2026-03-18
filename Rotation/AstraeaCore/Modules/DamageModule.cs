@@ -168,14 +168,6 @@ public sealed class DamageModule : BaseDamageModule<IAstraeaContext>, IAstraeaMo
         if (player.Level < ASTActions.LordOfCrowns.MinLevel)
             return false;
 
-        // Only use Lord in damage module if Minor Arcana strategy is OnCooldown or SaveForBurst
-        // Emergency mode means we're saving Lady for healing
-        if (config.MinorArcanaStrategy == Config.MinorArcanaUsageStrategy.EmergencyOnly)
-        {
-            // In emergency mode, we use Lord when we have it, since we'd use Lady for heals
-            // This is a bit aggressive, but if we have Lord it means Lady isn't available
-        }
-
         var target = context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy,
             ASTActions.LordOfCrowns.Range,

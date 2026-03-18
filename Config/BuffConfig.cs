@@ -11,6 +11,14 @@ public sealed class BuffConfig
     public bool EnableThinAir { get; set; } = true;
     public bool EnableAetherialShift { get; set; } = true;
 
+    // Lucid Dreaming
+
+    /// <summary>
+    /// Master toggle for Lucid Dreaming. When false, Lucid Dreaming is never used.
+    /// Default true.
+    /// </summary>
+    public bool EnableLucidDreaming { get; set; } = true;
+
     // Predictive Lucid Dreaming Settings
 
     /// <summary>
