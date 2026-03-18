@@ -307,6 +307,7 @@
   "config.job.sch.safe_party_hp_desc": "Only use when party HP is above this.",
   "config.job.sch.mp_management": "MP Management:",
   "config.job.sch.enable_lucid_dreaming": "Enable Lucid Dreaming",
+  "config.job.sch.lucid_mp_threshold": "Lucid MP Threshold",
   "config.job.sch.single_target_damage": "Single-Target Damage:",
   "config.job.sch.enable_broil_ruin": "Enable Broil/Ruin",
   "config.job.sch.broil_ruin_desc": "Casted single-target damage spells.",
