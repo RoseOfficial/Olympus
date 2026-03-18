@@ -281,6 +281,7 @@ public sealed class BuffModule : INikeModule
 
     private bool TryMeikyoShisui(INikeContext context)
     {
+        if (!context.Configuration.Samurai.EnableMeikyoShisui) return false;
         var player = context.Player;
         var level = player.Level;
 
