@@ -1112,13 +1112,9 @@ public static class LocalizedStrings
         public const string AllowPositionalLoss = "config.job.drg.allow_positional_loss";
         public const string AllowPositionalLossDesc = "config.job.drg.allow_positional_loss_desc";
         public const string EnableDragonfireDive = "config.job.drg.enable_dragonfire_dive";
-        public const string EnableDragonfireDiveDesc = "config.job.drg.enable_dragonfire_dive_desc";
         public const string EnableNastrond = "config.job.drg.enable_nastrond";
-        public const string EnableNastrondDesc = "config.job.drg.enable_nastrond_desc";
         public const string EnableWyrmwindThrust = "config.job.drg.enable_wyrmwind_thrust";
-        public const string EnableWyrmwindThrustDesc = "config.job.drg.enable_wyrmwind_thrust_desc";
         public const string EnableMirageDive = "config.job.drg.enable_mirage_dive";
-        public const string EnableMirageDiveDesc = "config.job.drg.enable_mirage_dive_desc";
         public const string EnableBurstPooling = "config.job.drg.enable_burst_pooling";
         public const string EnableBurstPoolingDesc = "config.job.drg.enable_burst_pooling_desc";
     }

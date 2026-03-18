@@ -53,28 +53,28 @@ public sealed class DragoonSection
                 Loc.T(LocalizedStrings.Dragoon.EnableDragonfireDive, "Enable Dragonfire Dive"),
                 () => config.Dragoon.EnableDragonfireDive,
                 v => config.Dragoon.EnableDragonfireDive = v,
-                Loc.T(LocalizedStrings.Dragoon.EnableDragonfireDiveDesc, "Use Dragonfire Dive on cooldown"), save,
+                null, save,
                 actionId: DRGActions.DragonfireDive.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Dragoon.EnableNastrond, "Enable Nastrond"),
                 () => config.Dragoon.EnableNastrond,
                 v => config.Dragoon.EnableNastrond = v,
-                Loc.T(LocalizedStrings.Dragoon.EnableNastrondDesc, "Use Nastrond during Life of the Dragon"), save,
+                null, save,
                 actionId: DRGActions.Nastrond.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Dragoon.EnableWyrmwindThrust, "Enable Wyrmwind Thrust"),
                 () => config.Dragoon.EnableWyrmwindThrust,
                 v => config.Dragoon.EnableWyrmwindThrust = v,
-                Loc.T(LocalizedStrings.Dragoon.EnableWyrmwindThrustDesc, "Use Wyrmwind Thrust when available"), save,
+                null, save,
                 actionId: DRGActions.WyrmwindThrust.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Dragoon.EnableMirageDive, "Enable Mirage Dive"),
                 () => config.Dragoon.EnableMirageDive,
                 v => config.Dragoon.EnableMirageDive = v,
-                Loc.T(LocalizedStrings.Dragoon.EnableMirageDiveDesc, "Use Mirage Dive during Life Surge"), save,
+                null, save,
                 actionId: DRGActions.MirageDive.ActionId);
 
             ConfigUIHelpers.Toggle(
