@@ -245,7 +245,7 @@ public class ApolloTests
     public void ApolloContext_StoresPlayerReference()
     {
         var player = MockBuilders.CreateMockPlayerCharacter(level: 90);
-        var context = CreateTestContext(player: player.Object);
+        var context = ApolloTestContext.Create(player: player.Object);
 
         Assert.Same(player.Object, context.Player);
     }
@@ -253,47 +253,47 @@ public class ApolloTests
     [Fact]
     public void ApolloContext_TracksMovementState()
     {
-        var context = CreateTestContext(isMoving: true);
+        var context = ApolloTestContext.Create(isMoving: true);
         Assert.True(context.IsMoving);
 
-        var context2 = CreateTestContext(isMoving: false);
+        var context2 = ApolloTestContext.Create(isMoving: false);
         Assert.False(context2.IsMoving);
     }
 
     [Fact]
     public void ApolloContext_TracksCombatState()
     {
-        var context = CreateTestContext(inCombat: true);
+        var context = ApolloTestContext.Create(inCombat: true);
         Assert.True(context.InCombat);
 
-        var context2 = CreateTestContext(inCombat: false);
+        var context2 = ApolloTestContext.Create(inCombat: false);
         Assert.False(context2.InCombat);
     }
 
     [Fact]
     public void ApolloContext_TracksGcdState()
     {
-        var context = CreateTestContext(canExecuteGcd: true);
+        var context = ApolloTestContext.Create(canExecuteGcd: true);
         Assert.True(context.CanExecuteGcd);
 
-        var context2 = CreateTestContext(canExecuteGcd: false);
+        var context2 = ApolloTestContext.Create(canExecuteGcd: false);
         Assert.False(context2.CanExecuteGcd);
     }
 
     [Fact]
     public void ApolloContext_TracksOgcdState()
     {
-        var context = CreateTestContext(canExecuteOgcd: true);
+        var context = ApolloTestContext.Create(canExecuteOgcd: true);
         Assert.True(context.CanExecuteOgcd);
 
-        var context2 = CreateTestContext(canExecuteOgcd: false);
+        var context2 = ApolloTestContext.Create(canExecuteOgcd: false);
         Assert.False(context2.CanExecuteOgcd);
     }
 
     [Fact]
     public void ApolloContext_HasDebugState()
     {
-        var context = CreateTestContext();
+        var context = ApolloTestContext.Create();
         Assert.NotNull(context.Debug);
     }
 
@@ -301,7 +301,7 @@ public class ApolloTests
     public void ApolloContext_SharesDebugState()
     {
         var debugState = new DebugState { PlanningState = "Test" };
-        var context = CreateTestContext(debugState: debugState);
+        var context = ApolloTestContext.Create(debugState: debugState);
 
         Assert.Same(debugState, context.Debug);
         Assert.Equal("Test", context.Debug.PlanningState);
@@ -313,7 +313,7 @@ public class ApolloTests
         var config = MockBuilders.CreateDefaultConfiguration();
         config.Healing.BenedictionEmergencyThreshold = 0.25f;
 
-        var context = CreateTestContext(config: config);
+        var context = ApolloTestContext.Create(config: config);
 
         Assert.Equal(0.25f, context.Configuration.Healing.BenedictionEmergencyThreshold);
     }
@@ -321,7 +321,7 @@ public class ApolloTests
     [Fact]
     public void ApolloContext_ServicesAreAccessible()
     {
-        var context = CreateTestContext();
+        var context = ApolloTestContext.Create();
 
         Assert.NotNull(context.ActionService);
         Assert.NotNull(context.HealingSpellSelector);
@@ -356,7 +356,7 @@ public class ApolloTests
         actionServiceMock.Setup(x => x.ExecuteOgcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()))
             .Returns(true);
 
-        var context = CreateTestContext(
+        var context = ApolloTestContext.Create(
             config: config,
             partyHelper: partyHelperMock,
             actionService: actionServiceMock,
@@ -378,7 +378,7 @@ public class ApolloTests
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableDamage = false;
 
-        var context = CreateTestContext(config: config, inCombat: true);
+        var context = ApolloTestContext.Create(config: config, inCombat: true);
 
         var result = module.TryExecute(context, isMoving: false);
 
@@ -392,7 +392,7 @@ public class ApolloTests
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableDamage = true;
 
-        var context = CreateTestContext(config: config, inCombat: false);
+        var context = ApolloTestContext.Create(config: config, inCombat: false);
 
         var result = module.TryExecute(context, isMoving: false);
 
@@ -407,7 +407,7 @@ public class ApolloTests
 
         var partyHelperMock = MockBuilders.CreateMockPartyHelper(deadMember: null);
 
-        var context = CreateTestContext(
+        var context = ApolloTestContext.Create(
             config: config,
             partyHelper: partyHelperMock,
             inCombat: true);
@@ -428,7 +428,7 @@ public class ApolloTests
         partyHelperMock.Setup(x => x.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
             .Returns((1.0f, 1.0f, 0));
 
-        var context = CreateTestContext(
+        var context = ApolloTestContext.Create(
             config: config,
             partyHelper: partyHelperMock,
             canExecuteOgcd: true);
@@ -444,7 +444,7 @@ public class ApolloTests
         var module = new BuffModule();
         var config = MockBuilders.CreateDefaultConfiguration();
 
-        var context = CreateTestContext(config: config, inCombat: false);
+        var context = ApolloTestContext.Create(config: config, inCombat: false);
 
         var result = module.TryExecute(context, isMoving: false);
 
@@ -516,35 +516,4 @@ public class ApolloTests
 
     #endregion
 
-    #region Helper Methods
-
-    /// <summary>
-    /// Creates a test ApolloContext with mocked dependencies.
-    /// </summary>
-    private static ApolloContext CreateTestContext(
-        Configuration? config = null,
-        IPlayerCharacter? player = null,
-        Mock<IPartyHelper>? partyHelper = null,
-        Mock<IActionService>? actionService = null,
-        DebugState? debugState = null,
-        byte level = 90,
-        bool inCombat = false,
-        bool isMoving = false,
-        bool canExecuteGcd = true,
-        bool canExecuteOgcd = false)
-    {
-        return ApolloTestContext.Create(
-            config: config,
-            player: player,
-            partyHelper: partyHelper,
-            actionService: actionService,
-            debugState: debugState,
-            level: level,
-            inCombat: inCombat,
-            isMoving: isMoving,
-            canExecuteGcd: canExecuteGcd,
-            canExecuteOgcd: canExecuteOgcd);
-    }
-
-    #endregion
 }
