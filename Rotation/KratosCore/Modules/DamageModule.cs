@@ -162,6 +162,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IKratosContext>, IKratosM
 
     private bool TryThunderclap(IKratosContext context, IBattleChara target)
     {
+        if (!context.Configuration.Monk.EnableThunderclap) return false;
         var player = context.Player;
         var level = player.Level;
 
