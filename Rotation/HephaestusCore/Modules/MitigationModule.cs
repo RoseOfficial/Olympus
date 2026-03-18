@@ -861,6 +861,11 @@ public sealed class MitigationModule : IHephaestusModule
         if (level < RoleActions.Reprisal.MinLevel)
             return false;
 
+        // Reprisal targets an enemy — bail if no target
+        var target = context.CurrentTarget;
+        if (target == null)
+            return false;
+
         // Check if another instance recently used a party mitigation (cooldown coordination)
         var partyCoord = context.PartyCoordinationService;
         var coordConfig = context.Configuration.PartyCoordination;
@@ -871,6 +876,12 @@ public sealed class MitigationModule : IHephaestusModule
             return false;
         }
 
+        // Only use Reprisal when there is incoming damage pressure
+        // Require multiple injured party members or low average HP
+        var (avgHp, lowestHp, injuredCount) = context.PartyHealthMetrics;
+        if (injuredCount < 3 || avgHp > 0.85f)
+            return false;
+
         // Use Reprisal as a party mitigation tool
         // Best used before raidwides or during pulls with multiple enemies
 
@@ -879,11 +890,26 @@ public sealed class MitigationModule : IHephaestusModule
         if (!context.ActionService.IsActionReady(RoleActions.Reprisal.ActionId))
             return false;
 
-        if (context.ActionService.ExecuteOgcd(RoleActions.Reprisal, player.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(RoleActions.Reprisal, target.EntityId))
         {
             context.Debug.PlannedAction = RoleActions.Reprisal.Name;
             context.Debug.MitigationState = $"Reprisal ({enemyCount} enemies)";
             partyCoord?.OnCooldownUsed(RoleActions.Reprisal.ActionId, 60_000);
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(RoleActions.Reprisal.ActionId, RoleActions.Reprisal.Name)
+                .AsPartyMit()
+                .Reason(
+                    $"Reprisal used to reduce enemy damage by 10% for {enemyCount} enemies. Party mitigation during heavy damage phase.",
+                    "Reprisal reduces the targets' damage dealt by 10% for 10 seconds. Since it affects all enemies in range, it's exceptionally strong during dungeon pulls and raidwides.")
+                .Factors($"{enemyCount} enemies in range", $"{injuredCount} party members injured", $"Party average HP: {avgHp:P0}", "Reprisal available", "60s cooldown — deploy during damage pressure")
+                .Alternatives("Save for raidwide (depends on content)", "Heart of Light (magic only)", "Rely on personal mitigation (loses party value)")
+                .Tip("Use Reprisal during dungeon pulls — it reduces damage from every enemy hitting you. In raids, coordinate with your co-tank for raidwide coverage.")
+                .Concept("gnb_heart_of_light")
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication("gnb_heart_of_light", true, "Party mitigation deployed");
+
             return true;
         }
 
