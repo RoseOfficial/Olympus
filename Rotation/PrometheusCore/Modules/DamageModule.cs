@@ -165,6 +165,8 @@ public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPro
 
     private bool TryFullMetalField(IPrometheusContext context, IBattleChara target)
     {
+        if (!context.Configuration.Machinist.EnableFullMetalField) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -206,6 +208,8 @@ public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPro
 
     private bool TryExcavator(IPrometheusContext context, IBattleChara target)
     {
+        if (!context.Configuration.Machinist.EnableExcavator) return false;
+
         var player = context.Player;
         var level = player.Level;
 
