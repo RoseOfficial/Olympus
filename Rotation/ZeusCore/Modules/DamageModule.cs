@@ -466,7 +466,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IZeusContext>, IZeusModul
 
     private bool TrySpineshatterDive(IZeusContext context, IBattleChara target)
     {
-        if (!context.Configuration.Dragoon.EnableJumps) return false;
+        if (!context.Configuration.Dragoon.EnableSpineshatterDive) return false;
 
         var level = context.Player.Level;
 

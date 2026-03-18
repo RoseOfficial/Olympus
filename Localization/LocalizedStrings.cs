@@ -1083,6 +1083,8 @@ public static class LocalizedStrings
         public const string EnableStardiverDesc = "config.job.drg.enable_stardiver_desc";
         public const string EnableJumps = "config.job.drg.enable_jumps";
         public const string EnableJumpsDesc = "config.job.drg.enable_jumps_desc";
+        public const string EnableSpineshatterDive = "config.job.drg.enable_spineshatter_dive";
+        public const string EnableSpineshatterDiveDesc = "config.job.drg.enable_spineshatter_dive_desc";
         public const string EnableLifeSurge = "config.job.drg.enable_life_surge";
         public const string EnableLifeSurgeDesc = "config.job.drg.enable_life_surge_desc";
         public const string EnableAoERotation = "config.job.drg.enable_aoe_rotation";
