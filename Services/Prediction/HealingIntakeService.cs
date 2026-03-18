@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -19,7 +18,7 @@ public sealed class HealingIntakeService : IHealingIntakeService, IDisposable
     private record HealingEntry(int Amount, DateTime Timestamp);
 
     // Healing records: entityId -> list of healing entries
-    private readonly ConcurrentDictionary<uint, List<HealingEntry>> _healingByEntity = new();
+    private readonly Dictionary<uint, List<HealingEntry>> _healingByEntity = new();
     private readonly object _healingLock = new();
 
     // Default window for healing tracking
@@ -157,7 +156,7 @@ public sealed class HealingIntakeService : IHealingIntakeService, IDisposable
     {
         lock (_healingLock)
         {
-            _healingByEntity.TryRemove(entityId, out _);
+            _healingByEntity.Remove(entityId);
         }
     }
 
@@ -184,7 +183,7 @@ public sealed class HealingIntakeService : IHealingIntakeService, IDisposable
 
             foreach (var key in emptyKeys)
             {
-                _healingByEntity.TryRemove(key, out _);
+                _healingByEntity.Remove(key);
             }
         }
     }

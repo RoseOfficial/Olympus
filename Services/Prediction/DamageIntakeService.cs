@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Olympus.Timeline;
@@ -27,11 +26,11 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
     private record ActiveDoT(int DamagePerTick, DateTime ExpiresAt);
 
     // Damage records: entityId -> list of damage entries
-    private readonly ConcurrentDictionary<uint, List<DamageEntry>> _damageByEntity = new();
+    private readonly Dictionary<uint, List<DamageEntry>> _damageByEntity = new();
     private readonly object _damageLock = new();
 
     // Active DoT tracking: entityId -> list of active DoTs
-    private readonly ConcurrentDictionary<uint, List<ActiveDoT>> _activeDoTs = new();
+    private readonly Dictionary<uint, List<ActiveDoT>> _activeDoTs = new();
     private readonly object _dotLock = new();
 
     // Boss mechanic detector for predictive damage
@@ -214,7 +213,7 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
     {
         lock (_damageLock)
         {
-            _damageByEntity.TryRemove(entityId, out _);
+            _damageByEntity.Remove(entityId);
         }
     }
 
@@ -241,7 +240,7 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
 
             foreach (var key in emptyKeys)
             {
-                _damageByEntity.TryRemove(key, out _);
+                _damageByEntity.Remove(key);
             }
         }
 
@@ -294,7 +293,7 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
     {
         lock (_dotLock)
         {
-            _activeDoTs.TryRemove(entityId, out _);
+            _activeDoTs.Remove(entityId);
         }
     }
 
@@ -461,7 +460,7 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
 
             foreach (var key in emptyKeys)
             {
-                _activeDoTs.TryRemove(key, out _);
+                _activeDoTs.Remove(key);
             }
         }
     }
