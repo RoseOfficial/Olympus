@@ -803,6 +803,7 @@
   "config.job.pct.enable_aoe_rotation_desc": "Switch to AoE combo at 3+ enemies.",
   "config.job.pct.aoe_min_targets": "AoE Min Targets",
   "config.job.pct.aoe_min_targets_desc": "Minimum enemies for AoE rotation",
+  "config.job.pct.palette_section": "Palette",
   "config.job.pct.holy_min_palette": "Holy in White Min Palette",
   "config.job.pct.holy_min_palette_desc": "Minimum Palette gauge to spend on Holy in White",
   "config.job.pct.save_palette_for_comet": "Save Palette for Comet",

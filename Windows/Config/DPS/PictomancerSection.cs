@@ -89,6 +89,8 @@ public sealed class PictomancerSection
 
             ConfigUIHelpers.Spacing();
 
+            ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Pictomancer.PaletteSection, "Palette:"));
+
             config.Pictomancer.HolyMinPalette = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Pictomancer.HolyMinPalette, "Holy in White Min Palette"),
                 config.Pictomancer.HolyMinPalette, 25, 100,

@@ -1639,6 +1639,7 @@ public static class LocalizedStrings
         public const string EnableBurstPoolingDesc = "config.job.pct.enable_burst_pooling_desc";
         public const string UseHammerDuringBurst = "config.job.pct.use_hammer_during_burst";
         public const string UseHammerDuringBurstDesc = "config.job.pct.use_hammer_during_burst_desc";
+        public const string PaletteSection = "config.job.pct.palette_section";
         public const string HolyMinPalette = "config.job.pct.holy_min_palette";
         public const string HolyMinPaletteDesc = "config.job.pct.holy_min_palette_desc";
         public const string SavePaletteForComet = "config.job.pct.save_palette_for_comet";
