@@ -1,6 +1,7 @@
 using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.ZeusCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 using Olympus.Services.Party;
 using Olympus.Timeline.Models;
@@ -16,6 +17,17 @@ public sealed class BuffModule : IZeusModule
 {
     public int Priority => 20; // Higher priority than damage
     public string Name => "Buff";
+
+    private readonly IBurstWindowService? _burstWindowService;
+
+    public BuffModule(IBurstWindowService? burstWindowService = null)
+    {
+        _burstWindowService = burstWindowService;
+    }
+
+    private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
+        _burstWindowService?.IsBurstImminent(thresholdSeconds) == true &&
+        _burstWindowService?.IsInBurstWindow != true;
 
     public bool TryExecute(IZeusContext context, bool isMoving)
     {
@@ -195,6 +207,13 @@ public sealed class BuffModule : IZeusModule
             return false;
         }
 
+        // Hold for burst window when burst is imminent
+        if (ShouldHoldForBurst())
+        {
+            context.Debug.BuffState = "Holding Lance Charge for burst";
+            return false;
+        }
+
         // Requirements for optimal Lance Charge usage:
         // 1. Power Surge should be active (personal damage buff)
         // 2. Ideally align with Battle Litany for maximum burst
@@ -264,6 +283,13 @@ public sealed class BuffModule : IZeusModule
         if (ShouldHoldBurstForPhase(context))
         {
             context.Debug.BuffState = "Holding Battle Litany (phase soon)";
+            return false;
+        }
+
+        // Hold for burst window when burst is imminent
+        if (ShouldHoldForBurst())
+        {
+            context.Debug.BuffState = "Holding Battle Litany for burst";
             return false;
         }
 

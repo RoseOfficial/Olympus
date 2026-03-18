@@ -1,6 +1,7 @@
 using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.KratosCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 using Olympus.Timeline.Models;
 
@@ -15,6 +16,17 @@ public sealed class BuffModule : IKratosModule
 {
     public int Priority => 20; // After role actions
     public string Name => "Buff";
+
+    private readonly IBurstWindowService? _burstWindowService;
+
+    public BuffModule(IBurstWindowService? burstWindowService = null)
+    {
+        _burstWindowService = burstWindowService;
+    }
+
+    private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
+        _burstWindowService?.IsBurstImminent(thresholdSeconds) == true &&
+        _burstWindowService?.IsInBurstWindow != true;
 
     public bool TryExecute(IKratosContext context, bool isMoving)
     {
@@ -115,6 +127,13 @@ public sealed class BuffModule : IKratosModule
             return false;
         }
 
+        // Hold for burst window when burst is imminent
+        if (ShouldHoldForBurst())
+        {
+            context.Debug.BuffState = "Holding Riddle of Fire for burst";
+            return false;
+        }
+
         if (context.ActionService.ExecuteOgcd(MNKActions.RiddleOfFire, player.GameObjectId))
         {
             context.Debug.PlannedAction = MNKActions.RiddleOfFire.Name;
@@ -175,6 +194,13 @@ public sealed class BuffModule : IKratosModule
         if (ShouldHoldBurstForPhase(context))
         {
             context.Debug.BuffState = "Holding Brotherhood (phase soon)";
+            return false;
+        }
+
+        // Hold for burst window when burst is imminent
+        if (ShouldHoldForBurst())
+        {
+            context.Debug.BuffState = "Holding Brotherhood for burst";
             return false;
         }
 

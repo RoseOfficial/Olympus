@@ -125,7 +125,7 @@ public sealed class Echidna : BaseMeleeDpsRotation<IEchidnaContext, IEchidnaModu
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<IEchidnaModule>
         {
-            new BuffModule(),    // Priority 20 - Buff management (Serpent's Ire)
+            new BuffModule(BurstWindowService),    // Priority 20 - Buff management (Serpent's Ire)
             new DamageModule(BurstWindowService),  // Priority 30 - DPS rotation
         };
 

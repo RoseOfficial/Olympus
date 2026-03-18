@@ -125,7 +125,7 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
         _modules = new List<IHermesModule>
         {
             new NinjutsuModule(),  // Priority 10 - Mudra sequences (highest priority)
-            new BuffModule(),      // Priority 20 - Buff management
+            new BuffModule(BurstWindowService),      // Priority 20 - Buff management
             new DamageModule(BurstWindowService),    // Priority 30 - DPS rotation
         };
 

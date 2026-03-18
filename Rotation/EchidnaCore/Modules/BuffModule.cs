@@ -1,6 +1,7 @@
 using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.EchidnaCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 using Olympus.Timeline.Models;
 
@@ -14,6 +15,17 @@ public sealed class BuffModule : IEchidnaModule
 {
     public int Priority => 20; // After role actions
     public string Name => "Buff";
+
+    private readonly IBurstWindowService? _burstWindowService;
+
+    public BuffModule(IBurstWindowService? burstWindowService = null)
+    {
+        _burstWindowService = burstWindowService;
+    }
+
+    private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
+        _burstWindowService?.IsBurstImminent(thresholdSeconds) == true &&
+        _burstWindowService?.IsInBurstWindow != true;
 
     public bool TryExecute(IEchidnaContext context, bool isMoving)
     {
@@ -82,6 +94,13 @@ public sealed class BuffModule : IEchidnaModule
         if (ShouldHoldBurstForPhase(context))
         {
             context.Debug.BuffState = "Holding Serpent's Ire (phase soon)";
+            return false;
+        }
+
+        // Hold for burst window when burst is imminent
+        if (ShouldHoldForBurst())
+        {
+            context.Debug.BuffState = "Holding Serpent's Ire for burst";
             return false;
         }
 

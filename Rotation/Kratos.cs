@@ -124,7 +124,7 @@ public sealed class Kratos : BaseMeleeDpsRotation<IKratosContext, IKratosModule>
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<IKratosModule>
         {
-            new BuffModule(),    // Priority 20 - Buff management (RoF, Brotherhood, PB)
+            new BuffModule(BurstWindowService),    // Priority 20 - Buff management (RoF, Brotherhood, PB)
             new DamageModule(BurstWindowService),  // Priority 30 - DPS rotation
         };
 
