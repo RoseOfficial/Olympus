@@ -580,12 +580,8 @@ public sealed class Plugin : IDalamudPlugin
         rotationManager.Dispose();
 
         dotTrackingService.Dispose();
-        damageIntakeService.Dispose();
         healingIntakeService.Dispose();
-        hpPredictionService.Dispose();
         performanceTracker.Dispose();
-        timelineService.Dispose();
-        combatEventService.Dispose();
         smartAoEService.Dispose();
         drawingService.Dispose();
         localization.Dispose();
