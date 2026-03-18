@@ -205,6 +205,11 @@ public class ResurrectionModuleTests
         var result = _module.TryExecute(context, isMoving: false);
 
         Assert.True(result);
+        actionService.Verify(
+            a => a.ExecuteGcd(
+                It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.Resurrection.ActionId),
+                It.IsAny<ulong>()),
+            Times.Once);
     }
 
     [Fact]
@@ -278,6 +283,11 @@ public class ResurrectionModuleTests
         var result = _module.TryExecute(context, isMoving: false);
 
         Assert.True(result);
+        actionService.Verify(
+            a => a.ExecuteGcd(
+                It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.Resurrection.ActionId),
+                It.IsAny<ulong>()),
+            Times.Once);
     }
 
     #endregion
