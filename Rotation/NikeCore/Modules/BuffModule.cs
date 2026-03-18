@@ -105,6 +105,8 @@ public sealed class BuffModule : INikeModule
 
     private bool TryShoha(INikeContext context, IBattleChara target)
     {
+        if (!context.Configuration.Samurai.EnableShoha) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -360,10 +362,13 @@ public sealed class BuffModule : INikeModule
 
         if (useAoe)
         {
+            if (!context.Configuration.Samurai.EnableGuren)
+                return false;
+
             if (!context.ActionService.IsActionReady(SAMActions.Guren.ActionId))
                 return false;
 
-            if (context.ActionService.ExecuteOgcd(SAMActions.Guren, player.GameObjectId))
+            if (context.ActionService.ExecuteOgcd(SAMActions.Guren, target.GameObjectId))
             {
                 context.Debug.PlannedAction = SAMActions.Guren.Name;
                 context.Debug.BuffState = $"Guren ({enemyCount} enemies)";

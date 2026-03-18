@@ -144,7 +144,7 @@ public sealed class DebugWindow : Window
                 ImGui.EndTabItem();
             }
 
-            if (_smartAoETab != null && ImGui.BeginTabItem("Smart AoE"))
+            if (_smartAoETab != null && ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabSmartAoE, "Smart AoE")))
             {
                 _smartAoETab.Draw(_configuration);
                 ImGui.EndTabItem();
@@ -260,7 +260,7 @@ public sealed class DebugWindow : Window
         // Fallback: player not logged in or job unresolved
         if (_selectedJobId == 0)
         {
-            ImGui.TextDisabled("Not logged in.");
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.NotLoggedIn, "Not logged in."));
             return;
         }
 
@@ -299,7 +299,7 @@ public sealed class DebugWindow : Window
             case JobRegistry.Pictomancer: IrisTab.Draw(_debugService.GetIrisDebugState(), _configuration); break;
 
             default:
-                ImGui.TextDisabled("No debug info available for this job.");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Debug.NoDebugInfoForJob, "No debug info available for this job."));
                 break;
         }
     }

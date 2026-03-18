@@ -90,9 +90,9 @@ public sealed class BuffModule : BaseTankBuffModule<INyxContext>, INyxModule
         }
 
         // Requirements:
-        // 1. Have Darkside active (or about to activate)
+        // 1. Have Darkside active
         // 2. Preferably have gauge for initial Bloodspillers
-        if (!context.HasDarkside && context.DarksideRemaining < 5f)
+        if (!context.HasDarkside)
         {
             // Don't pop Delirium without Darkside - wasted damage
             return false;

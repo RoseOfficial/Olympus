@@ -136,7 +136,7 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
     {
         // No combo active
         if (comboAction == 0 || comboTimer <= 0)
-            return 1;
+            return 0;
 
         // Check for single-target combo
         if (comboAction == PLDActions.FastBlade.ActionId)
@@ -150,7 +150,7 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
             return 2; // Ready for Prominence
 
         // Unknown combo action, restart
-        return 1;
+        return 0;
     }
 
     /// <inheritdoc />

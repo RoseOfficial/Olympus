@@ -2,6 +2,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.CalliopeCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 using Olympus.Timeline.Models;
 
@@ -14,6 +15,15 @@ namespace Olympus.Rotation.CalliopeCore.Modules;
 /// </summary>
 public sealed class BuffModule : ICalliopeModule
 {
+    private readonly IBurstWindowService? _burstWindowService;
+
+    public BuffModule(IBurstWindowService? burstWindowService = null)
+    {
+        _burstWindowService = burstWindowService;
+    }
+
+    private bool IsInBurst => _burstWindowService?.IsInBurstWindow == true;
+
     public int Priority => 20; // Higher priority than damage
     public string Name => "Buff";
 
@@ -317,6 +327,8 @@ public sealed class BuffModule : ICalliopeModule
 
     private bool TryRagingStrikes(ICalliopeContext context)
     {
+        if (!context.Configuration.Bard.EnableRagingStrikes) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -555,6 +567,8 @@ public sealed class BuffModule : ICalliopeModule
 
     private bool TryBarrage(ICalliopeContext context)
     {
+        if (!context.Configuration.Bard.EnableBarrage) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -608,6 +622,8 @@ public sealed class BuffModule : ICalliopeModule
 
     private bool TryEmpyrealArrow(ICalliopeContext context, IBattleChara target)
     {
+        if (!context.Configuration.Bard.EnableEmpyrealArrow) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -647,6 +663,8 @@ public sealed class BuffModule : ICalliopeModule
 
     private bool TrySidewinder(ICalliopeContext context, IBattleChara target)
     {
+        if (!context.Configuration.Bard.EnableSidewinder) return false;
+
         var player = context.Player;
         var level = player.Level;
 

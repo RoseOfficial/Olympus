@@ -96,6 +96,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
         // Choose ST or AoE based on enemy count
         if (enemyCount >= AoeThreshold && level >= NINActions.HellfrogMedium.MinLevel)
         {
+            if (!context.Configuration.Ninja.EnableHellfrogMedium)
+                return false;
+
             // Use AoE Ninki spender
             var aoeAction = NINActions.GetAoeNinkiSpender((byte)level, context.HasMeisui);
             if (context.ActionService.IsActionReady(aoeAction.ActionId))

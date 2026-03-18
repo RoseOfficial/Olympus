@@ -490,6 +490,8 @@ public sealed class DamageModule : BaseDpsDamageModule<IEchidnaContext>, IEchidn
 
     private bool TryTwinbladeCombo(IEchidnaContext context, IBattleChara target, int enemyCount)
     {
+        if (!context.Configuration.Viper.EnableTwinbladeCombo) return false;
+
         var player = context.Player;
         var level = player.Level;
 

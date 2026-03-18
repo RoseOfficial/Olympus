@@ -187,7 +187,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IThanatosContext>, IThana
             return false;
 
         // Prioritize Gluttony (2 Soul Reaver stacks, 60s CD)
-        if (level >= RPRActions.Gluttony.MinLevel)
+        if (level >= RPRActions.Gluttony.MinLevel && context.Configuration.Reaper.EnableGluttony)
         {
             if (context.ActionService.IsActionReady(RPRActions.Gluttony.ActionId))
             {
@@ -794,8 +794,8 @@ public sealed class DamageModule : BaseDpsDamageModule<IThanatosContext>, IThana
         var level = player.Level;
 
         // Soul Slice / Soul Scythe grants 50 Soul
-        // Use when Soul < 50 to enable spenders
-        if (context.Soul >= 50)
+        // Use when Soul < 100 to avoid overcapping (max is 100, each cast gives 50)
+        if (context.Soul >= 100)
             return false;
 
         var useAoe = enemyCount >= AoeThreshold && level >= RPRActions.SoulScythe.MinLevel;

@@ -311,6 +311,8 @@ public sealed class MitigationModule : IAresModule
 
     private bool TryHolmgang(IAresContext context, float hpPercent)
     {
+        if (!context.Configuration.Tank.EnableHolmgang) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -700,10 +702,7 @@ public sealed class MitigationModule : IAresModule
         // Use Reprisal as a party mitigation tool
         // Best used before raidwides or during pulls with multiple enemies
 
-        // Check if there are multiple enemies nearby
         var enemyCount = context.TargetingService.CountEnemiesInRange(5f, player);
-        if (enemyCount < 2)
-            return false;
 
         if (!context.ActionService.IsActionReady(RoleActions.Reprisal.ActionId))
             return false;
@@ -792,6 +791,8 @@ public sealed class MitigationModule : IAresModule
 
     private bool TryNascentFlash(IAresContext context, float myHpPercent)
     {
+        if (!context.Configuration.Tank.EnableNascentFlash) return false;
+
         var player = context.Player;
         var level = player.Level;
 

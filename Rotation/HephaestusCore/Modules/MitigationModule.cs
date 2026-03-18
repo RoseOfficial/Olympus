@@ -402,6 +402,8 @@ public sealed class MitigationModule : IHephaestusModule
     /// </summary>
     private bool TryHeartOfCorundum(IHephaestusContext context, float hpPercent, float damageRate)
     {
+        if (!context.Configuration.Tank.EnableHeartOfCorundum) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -434,8 +436,8 @@ public sealed class MitigationModule : IHephaestusModule
             return ExecuteHeart(context, player.GameObjectId, heartAction, "Reactive Heart");
         }
 
-        // 3. Proactive usage: HP < 80% while tanking
-        if (context.IsMainTank && hpPercent < 0.80f && damageRate > 0.01f)
+        // 3. Proactive usage: HP below the configured threshold while tanking
+        if (context.IsMainTank && hpPercent < context.Configuration.Tank.HeartOfCorundumThreshold && damageRate > 0.01f)
         {
             return ExecuteHeart(context, player.GameObjectId, heartAction, "Proactive Heart");
         }
@@ -792,6 +794,8 @@ public sealed class MitigationModule : IHephaestusModule
 
     private bool TryHeartOfLight(IHephaestusContext context)
     {
+        if (!context.Configuration.Tank.EnableHeartOfLight) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -870,10 +874,7 @@ public sealed class MitigationModule : IHephaestusModule
         // Use Reprisal as a party mitigation tool
         // Best used before raidwides or during pulls with multiple enemies
 
-        // Check if there are multiple enemies nearby
         var enemyCount = context.TargetingService.CountEnemiesInRange(5f, player);
-        if (enemyCount < 2)
-            return false;
 
         if (!context.ActionService.IsActionReady(RoleActions.Reprisal.ActionId))
             return false;

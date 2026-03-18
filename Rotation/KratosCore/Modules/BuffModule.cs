@@ -249,6 +249,8 @@ public sealed class BuffModule : IKratosModule
 
     private bool TryPerfectBalance(IKratosContext context)
     {
+        if (!context.Configuration.Monk.EnablePerfectBalance) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -335,6 +337,8 @@ public sealed class BuffModule : IKratosModule
 
     private bool TryRiddleOfWind(IKratosContext context)
     {
+        if (!context.Configuration.Monk.EnableRiddleOfWind) return false;
+
         var player = context.Player;
         var level = player.Level;
 

@@ -690,10 +690,7 @@ public sealed class MitigationModule : IThemisModule
         // Use Reprisal as a party mitigation tool
         // Best used before raidwides or during pulls with multiple enemies
 
-        // Check if there are multiple enemies nearby
         var enemyCount = context.TargetingService.CountEnemiesInRange(5f, player);
-        if (enemyCount < 2)
-            return false;
 
         if (!context.ActionService.IsActionReady(RoleActions.Reprisal.ActionId))
             return false;
@@ -726,6 +723,8 @@ public sealed class MitigationModule : IThemisModule
 
     private bool TryDivineVeil(IThemisContext context)
     {
+        if (!context.Configuration.Tank.EnableDivineVeil) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -783,6 +782,8 @@ public sealed class MitigationModule : IThemisModule
 
     private bool TryCover(IThemisContext context, float myHpPercent)
     {
+        if (!context.Configuration.Tank.EnableCover) return false;
+
         var player = context.Player;
         var level = player.Level;
 

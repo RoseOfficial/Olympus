@@ -116,6 +116,8 @@ public sealed class DamageModule : BaseDpsDamageModule<IZeusContext>, IZeusModul
 
     private bool TryMirageDive(IZeusContext context, IBattleChara target)
     {
+        if (!context.Configuration.Dragoon.EnableMirageDive) return false;
+
         var level = context.Player.Level;
 
         if (level < DRGActions.MirageDive.MinLevel)
@@ -231,6 +233,8 @@ public sealed class DamageModule : BaseDpsDamageModule<IZeusContext>, IZeusModul
 
     private bool TryWyrmwindThrust(IZeusContext context, IBattleChara target)
     {
+        if (!context.Configuration.Dragoon.EnableWyrmwindThrust) return false;
+
         var level = context.Player.Level;
 
         if (level < DRGActions.WyrmwindThrust.MinLevel)
@@ -271,6 +275,8 @@ public sealed class DamageModule : BaseDpsDamageModule<IZeusContext>, IZeusModul
 
     private bool TryNastrond(IZeusContext context, IBattleChara target)
     {
+        if (!context.Configuration.Dragoon.EnableNastrond) return false;
+
         var level = context.Player.Level;
 
         if (level < DRGActions.Nastrond.MinLevel)
@@ -310,6 +316,8 @@ public sealed class DamageModule : BaseDpsDamageModule<IZeusContext>, IZeusModul
 
     private bool TryStardiver(IZeusContext context, IBattleChara target)
     {
+        if (!context.Configuration.Dragoon.EnableStardiver) return false;
+
         var level = context.Player.Level;
 
         if (level < DRGActions.Stardiver.MinLevel)
@@ -356,6 +364,8 @@ public sealed class DamageModule : BaseDpsDamageModule<IZeusContext>, IZeusModul
 
     private bool TryGeirskogul(IZeusContext context, IBattleChara target)
     {
+        if (!context.Configuration.Dragoon.EnableGeirskogul) return false;
+
         var level = context.Player.Level;
 
         if (level < DRGActions.Geirskogul.MinLevel)
@@ -413,6 +423,8 @@ public sealed class DamageModule : BaseDpsDamageModule<IZeusContext>, IZeusModul
 
     private bool TryJump(IZeusContext context, IBattleChara target)
     {
+        if (!context.Configuration.Dragoon.EnableJumps) return false;
+
         var level = context.Player.Level;
 
         if (level < DRGActions.Jump.MinLevel)
@@ -452,6 +464,8 @@ public sealed class DamageModule : BaseDpsDamageModule<IZeusContext>, IZeusModul
 
     private bool TrySpineshatterDive(IZeusContext context, IBattleChara target)
     {
+        if (!context.Configuration.Dragoon.EnableJumps) return false;
+
         var level = context.Player.Level;
 
         if (level < DRGActions.SpineshatterDive.MinLevel)
@@ -488,6 +502,8 @@ public sealed class DamageModule : BaseDpsDamageModule<IZeusContext>, IZeusModul
 
     private bool TryDragonfireDive(IZeusContext context, IBattleChara target)
     {
+        if (!context.Configuration.Dragoon.EnableDragonfireDive) return false;
+
         var level = context.Player.Level;
 
         if (level < DRGActions.DragonfireDive.MinLevel)

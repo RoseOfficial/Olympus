@@ -157,7 +157,7 @@ public sealed class Kratos : BaseMeleeDpsRotation<IKratosContext, IKratosModule>
     /// Determines the required positional for the next Monk GCD based on current form.
     /// Opo-opo form → Rear (Bootshine/LeapingOpo)
     /// Raptor form → Flank (TrueStrike/TwinSnakes/RisingRaptor)
-    /// Coeurl form → Rear (SnapPunch/Demolish/PouncingCoeurl)
+    /// Coeurl form → Rear (Demolish, when DoT needs refresh) or Flank (Snap Punch/Pouncing Coeurl)
     /// No form / Formless → Rear (starts with Opo-opo)
     /// </summary>
     protected override PositionalType? GetNextRequiredPositional()
@@ -170,8 +170,23 @@ public sealed class Kratos : BaseMeleeDpsRotation<IKratosContext, IKratosModule>
         {
             if (status.StatusId == MNKActions.StatusIds.RaptorForm)
                 return PositionalType.Flank;
-            if (status.StatusId is MNKActions.StatusIds.OpoOpoForm or MNKActions.StatusIds.CoeurlForm
-                or MNKActions.StatusIds.FormlessFist)
+            if (status.StatusId == MNKActions.StatusIds.CoeurlForm)
+            {
+                // Coeurl alternates: Demolish (rear) when DoT needs refresh, Snap Punch/Pouncing Coeurl (flank) otherwise.
+                // Mirror the GetCoeurlAction condition from DamageModule.
+                var target = TargetingService.FindEnemyForAction(
+                    Configuration.Targeting.EnemyStrategy,
+                    MNKActions.Demolish.ActionId,
+                    player);
+                if (target != null)
+                {
+                    var demolishNeedsRefresh = !_statusHelper.HasDemolish(target, player.EntityId)
+                        || _statusHelper.GetDemolishRemaining(target, player.EntityId) < 3f;
+                    return demolishNeedsRefresh ? PositionalType.Rear : PositionalType.Flank;
+                }
+                return PositionalType.Rear;
+            }
+            if (status.StatusId is MNKActions.StatusIds.OpoOpoForm or MNKActions.StatusIds.FormlessFist)
                 return PositionalType.Rear;
         }
 

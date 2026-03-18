@@ -105,6 +105,9 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
         // Choose ST or AoE based on enemy count
         if (enemyCount >= AoeThreshold && level >= SAMActions.Kyuten.MinLevel)
         {
+            if (!context.Configuration.Samurai.EnableKyuten)
+                return false;
+
             if (context.ActionService.IsActionReady(SAMActions.Kyuten.ActionId))
             {
                 if (context.ActionService.ExecuteOgcd(SAMActions.Kyuten, player.GameObjectId))

@@ -357,6 +357,8 @@ public sealed class MitigationModule : INyxModule
 
     private bool TryLivingDead(INyxContext context, float hpPercent)
     {
+        if (!context.Configuration.Tank.EnableLivingDead) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -423,6 +425,8 @@ public sealed class MitigationModule : INyxModule
     /// </summary>
     private bool TryTheBlackestNight(INyxContext context, float hpPercent, float damageRate)
     {
+        if (!context.Configuration.Tank.EnableTheBlackestNight) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -466,9 +470,9 @@ public sealed class MitigationModule : INyxModule
         }
 
         // 3. MP pooling consideration:
-        // If MP is high (>6000) and HP is moderate (<70%), use TBN
+        // If MP is high (>6000) and HP is below the configured TBN threshold, use TBN
         // This ensures we get Dark Arts procs for damage while not wasting MP
-        if (context.CurrentMp >= 6000 && hpPercent < 0.70f && context.IsMainTank)
+        if (context.CurrentMp >= 6000 && hpPercent < context.Configuration.Tank.TBNThreshold && context.IsMainTank)
         {
             // Check if we're taking damage (shield will likely break)
             if (damageRate > 0.02f)
@@ -486,6 +490,8 @@ public sealed class MitigationModule : INyxModule
 
     private bool ExecuteTbn(INyxContext context, ulong targetId, string reason)
     {
+        if (!context.ActionService.IsActionReady(DRKActions.TheBlackestNight.ActionId)) return false;
+
         if (context.ActionService.ExecuteOgcd(DRKActions.TheBlackestNight, targetId))
         {
             context.Debug.PlannedAction = DRKActions.TheBlackestNight.Name;
@@ -801,6 +807,8 @@ public sealed class MitigationModule : INyxModule
 
     private bool TryDarkMissionary(INyxContext context)
     {
+        if (!context.Configuration.Tank.EnableDarkMissionary) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -878,10 +886,7 @@ public sealed class MitigationModule : INyxModule
         // Use Reprisal as a party mitigation tool
         // Best used before raidwides or during pulls with multiple enemies
 
-        // Check if there are multiple enemies nearby
         var enemyCount = context.TargetingService.CountEnemiesInRange(5f, player);
-        if (enemyCount < 2)
-            return false;
 
         if (!context.ActionService.IsActionReady(RoleActions.Reprisal.ActionId))
             return false;

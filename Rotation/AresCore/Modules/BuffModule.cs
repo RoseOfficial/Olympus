@@ -195,10 +195,7 @@ public sealed class BuffModule : BaseTankBuffModule<IAresContext>, IAresModule
 
     private int GetInfuriateCharges(IAresContext context)
     {
-        // Get current charges of Infuriate
-        // This is a simplification - ideally we'd read from the game
-        // For now, check if action is ready (has at least 1 charge)
-        return context.ActionService.IsActionReady(WARActions.Infuriate.ActionId) ? 1 : 0;
+        return (int)context.ActionService.GetCurrentCharges(WARActions.Infuriate.ActionId);
     }
 
     #endregion

@@ -63,6 +63,8 @@ public sealed class BuffModule : IEchidnaModule
 
     private bool TrySerpentsIre(IEchidnaContext context)
     {
+        if (!context.Configuration.Viper.EnableSerpentsIre) return false;
+
         var player = context.Player;
         var level = player.Level;
 

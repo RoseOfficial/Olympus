@@ -311,6 +311,8 @@ public sealed class BuffModule : IHermesModule
 
     private bool TryKassatsu(IHermesContext context)
     {
+        if (!context.Configuration.Ninja.EnableKassatsu) return false;
+
         var level = context.Player.Level;
 
         if (level < NINActions.Kassatsu.MinLevel)
@@ -363,6 +365,8 @@ public sealed class BuffModule : IHermesModule
 
     private bool TryTenChiJin(IHermesContext context)
     {
+        if (!context.Configuration.Ninja.EnableTenChiJin) return false;
+
         var level = context.Player.Level;
 
         if (level < NINActions.TenChiJin.MinLevel)
@@ -423,6 +427,8 @@ public sealed class BuffModule : IHermesModule
 
     private bool TryBunshin(IHermesContext context)
     {
+        if (!context.Configuration.Ninja.EnableBunshin) return false;
+
         var level = context.Player.Level;
 
         if (level < NINActions.Bunshin.MinLevel)
@@ -481,6 +487,8 @@ public sealed class BuffModule : IHermesModule
 
     private bool TryMeisui(IHermesContext context)
     {
+        if (!context.Configuration.Ninja.EnableMeisui) return false;
+
         var level = context.Player.Level;
 
         if (level < NINActions.Meisui.MinLevel)
