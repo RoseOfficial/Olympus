@@ -1,6 +1,7 @@
 using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.CirceCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 using Olympus.Timeline.Models;
 
@@ -14,6 +15,17 @@ public sealed class BuffModule : ICirceModule
 {
     public int Priority => 20; // Higher priority than damage (lower number = higher priority)
     public string Name => "Buff";
+
+    private readonly IBurstWindowService? _burstWindowService;
+
+    public BuffModule(IBurstWindowService? burstWindowService = null)
+    {
+        _burstWindowService = burstWindowService;
+    }
+
+    private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
+        _burstWindowService?.IsBurstImminent(thresholdSeconds) == true &&
+        _burstWindowService?.IsInBurstWindow != true;
 
     public bool TryExecute(ICirceContext context, bool isMoving)
     {
@@ -300,6 +312,13 @@ public sealed class BuffModule : ICirceModule
         if (ShouldHoldBurstForPhase(context))
         {
             context.Debug.BuffState = "Holding Embolden (phase soon)";
+            return false;
+        }
+
+        // Hold Embolden for imminent burst window
+        if (ShouldHoldForBurst(8f))
+        {
+            context.Debug.BuffState = "Holding Embolden for burst";
             return false;
         }
 

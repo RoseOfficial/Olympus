@@ -124,7 +124,7 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<ICirceModule>
         {
-            new BuffModule(),    // Priority 20 - oGCD management (Fleche, Contre Sixte, Embolden, etc.)
+            new BuffModule(BurstWindowService),    // Priority 20 - oGCD management (Fleche, Contre Sixte, Embolden, etc.)
             new DamageModule(BurstWindowService),  // Priority 30 - GCD rotation (Dualcast, melee combo, finishers)
         };
 
