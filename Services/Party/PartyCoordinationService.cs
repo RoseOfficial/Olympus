@@ -73,6 +73,9 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     private DateTime _lastHeartbeatSent = DateTime.MinValue;
     private DateTime _lastGaugeBroadcast = DateTime.MinValue;
 
+    // Lock protecting all remote state against concurrent IPC callbacks
+    private readonly object _stateLock = new();
+
     // Event callbacks for IPC layer
     public event Action<HeartbeatMessage>? OnHeartbeatReady;
     public event Action<HealIntentMessage>? OnHealIntentReady;
@@ -99,9 +102,16 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
     public bool IsPartyCoordinationEnabled => _config.EnablePartyCoordination;
 
-    public int RemoteInstanceCount => _remoteInstances.Count;
+    public int RemoteInstanceCount { get { lock (_stateLock) return _remoteInstances.Count; } }
 
-    public bool HasRemoteHealers => _remoteInstances.Values.Any(i => i.IsEnabled && JobRegistry.IsHealer(i.JobId));
+    public bool HasRemoteHealers
+    {
+        get
+        {
+            lock (_stateLock)
+                return _remoteInstances.Values.Any(i => i.IsEnabled && JobRegistry.IsHealer(i.JobId));
+        }
+    }
 
     public Guid InstanceId => _instanceId;
 
@@ -110,19 +120,22 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination)
             return false;
 
-        // Check remote reservations
-        if (_remoteReservations.TryGetValue(entityId, out var reservation))
+        lock (_stateLock)
         {
-            // Check if reservation is still valid
-            var elapsed = (DateTime.UtcNow - reservation.ReservedAt).TotalMilliseconds;
-            if (elapsed < _config.HealReservationExpiryMs)
-                return true;
+            // Check remote reservations
+            if (_remoteReservations.TryGetValue(entityId, out var reservation))
+            {
+                // Check if reservation is still valid
+                var elapsed = (DateTime.UtcNow - reservation.ReservedAt).TotalMilliseconds;
+                if (elapsed < _config.HealReservationExpiryMs)
+                    return true;
 
-            // Expired, clean up
-            _remoteReservations.Remove(entityId);
+                // Expired, clean up
+                _remoteReservations.Remove(entityId);
+            }
+
+            return false;
         }
-
-        return false;
     }
 
     public bool ReserveTarget(uint entityId, int healAmount, uint actionId, int castTimeMs = 0)
@@ -195,12 +208,14 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
     public IReadOnlyDictionary<uint, HealReservation> GetRemoteReservations()
     {
-        return _remoteReservations;
+        lock (_stateLock)
+            return new Dictionary<uint, HealReservation>(_remoteReservations);
     }
 
     public IReadOnlyList<RemoteOlympusInstance> GetRemoteInstances()
     {
-        return _remoteInstances.Values.ToList();
+        lock (_stateLock)
+            return _remoteInstances.Values.ToList();
     }
 
     public int GetRemotePendingHealAmount(uint entityId)
@@ -208,14 +223,17 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination)
             return 0;
 
-        if (_remoteReservations.TryGetValue(entityId, out var reservation))
+        lock (_stateLock)
         {
-            var elapsed = (DateTime.UtcNow - reservation.ReservedAt).TotalMilliseconds;
-            if (elapsed < _config.HealReservationExpiryMs)
-                return reservation.EstimatedHealAmount;
-        }
+            if (_remoteReservations.TryGetValue(entityId, out var reservation))
+            {
+                var elapsed = (DateTime.UtcNow - reservation.ReservedAt).TotalMilliseconds;
+                if (elapsed < _config.HealReservationExpiryMs)
+                    return reservation.EstimatedHealAmount;
+            }
 
-        return 0;
+            return 0;
+        }
     }
 
     #region AoE Heal Coordination
@@ -225,13 +243,16 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableAoEHealCoordination)
             return false;
 
-        // Check if remote reservation exists and is not expired
-        if (_remoteAoEReservation != null && !_remoteAoEReservation.IsExpired)
-            return true;
+        lock (_stateLock)
+        {
+            // Check if remote reservation exists and is not expired
+            if (_remoteAoEReservation != null && !_remoteAoEReservation.IsExpired)
+                return true;
 
-        // Expired, clean up
-        _remoteAoEReservation = null;
-        return false;
+            // Expired, clean up
+            _remoteAoEReservation = null;
+            return false;
+        }
     }
 
     public void ReserveAoEHeal(uint actionId, int healPotency, int castTimeMs)
@@ -255,10 +276,13 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableCooldownCoordination)
             return false;
 
-        if (!_remoteCooldowns.TryGetValue(actionId, out var list))
-            return false;
+        lock (_stateLock)
+        {
+            if (!_remoteCooldowns.TryGetValue(actionId, out var list))
+                return false;
 
-        return list.Exists(c => c.IsOnCooldown);
+            return list.Exists(c => c.IsOnCooldown);
+        }
     }
 
     public int GetRemoteCooldownCount(uint actionId)
@@ -266,16 +290,19 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableCooldownCoordination)
             return 0;
 
-        if (!_remoteCooldowns.TryGetValue(actionId, out var list))
-            return 0;
-
-        var count = 0;
-        foreach (var cd in list)
+        lock (_stateLock)
         {
-            if (cd.IsOnCooldown)
-                count++;
+            if (!_remoteCooldowns.TryGetValue(actionId, out var list))
+                return 0;
+
+            var count = 0;
+            foreach (var cd in list)
+            {
+                if (cd.IsOnCooldown)
+                    count++;
+            }
+            return count;
         }
-        return count;
     }
 
     public float GetShortestRemoteCooldownRemaining(uint actionId)
@@ -283,22 +310,25 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableCooldownCoordination)
             return 0;
 
-        if (!_remoteCooldowns.TryGetValue(actionId, out var list))
-            return 0;
-
-        var shortest = float.MaxValue;
-        var found = false;
-
-        foreach (var cd in list)
+        lock (_stateLock)
         {
-            if (cd.IsOnCooldown && cd.RemainingSeconds < shortest)
-            {
-                shortest = cd.RemainingSeconds;
-                found = true;
-            }
-        }
+            if (!_remoteCooldowns.TryGetValue(actionId, out var list))
+                return 0;
 
-        return found ? shortest : 0;
+            var shortest = float.MaxValue;
+            var found = false;
+
+            foreach (var cd in list)
+            {
+                if (cd.IsOnCooldown && cd.RemainingSeconds < shortest)
+                {
+                    shortest = cd.RemainingSeconds;
+                    found = true;
+                }
+            }
+
+            return found ? shortest : 0;
+        }
     }
 
     public bool WasPartyMitigationUsedRecently(float withinSeconds = 3f)
@@ -306,20 +336,23 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableCooldownCoordination)
             return false;
 
-        foreach (var kvp in _remoteCooldowns)
+        lock (_stateLock)
         {
-            // Only check coordinated cooldowns (should already be filtered, but double-check)
-            if (!CoordinatedCooldowns.IsCoordinatedCooldown(kvp.Key))
-                continue;
-
-            foreach (var cd in kvp.Value)
+            foreach (var kvp in _remoteCooldowns)
             {
-                if (cd.SecondsSinceUsed <= withinSeconds)
-                    return true;
-            }
-        }
+                // Only check coordinated cooldowns (should already be filtered, but double-check)
+                if (!CoordinatedCooldowns.IsCoordinatedCooldown(kvp.Key))
+                    continue;
 
-        return false;
+                foreach (var cd in kvp.Value)
+                {
+                    if (cd.SecondsSinceUsed <= withinSeconds)
+                        return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     public bool WasPersonalDefensiveUsedRecently(float withinSeconds = 3f)
@@ -327,20 +360,23 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableCooldownCoordination)
             return false;
 
-        foreach (var kvp in _remoteCooldowns)
+        lock (_stateLock)
         {
-            // Only check personal defensives
-            if (!CoordinatedCooldowns.IsPersonalDefensive(kvp.Key))
-                continue;
-
-            foreach (var cd in kvp.Value)
+            foreach (var kvp in _remoteCooldowns)
             {
-                if (cd.SecondsSinceUsed <= withinSeconds)
-                    return true;
-            }
-        }
+                // Only check personal defensives
+                if (!CoordinatedCooldowns.IsPersonalDefensive(kvp.Key))
+                    continue;
 
-        return false;
+                foreach (var cd in kvp.Value)
+                {
+                    if (cd.SecondsSinceUsed <= withinSeconds)
+                        return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     public bool WasInvulnerabilityUsedRecently(float withinSeconds = 5f)
@@ -348,20 +384,23 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableCooldownCoordination)
             return false;
 
-        foreach (var kvp in _remoteCooldowns)
+        lock (_stateLock)
         {
-            // Only check invulnerabilities
-            if (!CoordinatedCooldowns.IsInvulnerability(kvp.Key))
-                continue;
-
-            foreach (var cd in kvp.Value)
+            foreach (var kvp in _remoteCooldowns)
             {
-                if (cd.SecondsSinceUsed <= withinSeconds)
-                    return true;
-            }
-        }
+                // Only check invulnerabilities
+                if (!CoordinatedCooldowns.IsInvulnerability(kvp.Key))
+                    continue;
 
-        return false;
+                foreach (var cd in kvp.Value)
+                {
+                    if (cd.SecondsSinceUsed <= withinSeconds)
+                        return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     public IReadOnlyList<RemoteCooldownInfo> GetRemoteCooldowns(uint actionId)
@@ -369,24 +408,34 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableCooldownCoordination)
             return Array.Empty<RemoteCooldownInfo>();
 
-        if (!_remoteCooldowns.TryGetValue(actionId, out var list))
-            return Array.Empty<RemoteCooldownInfo>();
-
-        // Return only active cooldowns
-        var active = new List<RemoteCooldownInfo>();
-        foreach (var cd in list)
+        lock (_stateLock)
         {
-            if (cd.IsOnCooldown)
-                active.Add(cd);
+            if (!_remoteCooldowns.TryGetValue(actionId, out var list))
+                return Array.Empty<RemoteCooldownInfo>();
+
+            // Return only active cooldowns — snapshot to avoid holding lock while caller iterates
+            var active = new List<RemoteCooldownInfo>();
+            foreach (var cd in list)
+            {
+                if (cd.IsOnCooldown)
+                    active.Add(cd);
+            }
+            return active;
         }
-        return active;
     }
 
     #endregion
 
     #region Raid Buff Coordination
 
-    public bool HasRemoteDps => _remoteInstances.Values.Any(i => i.IsEnabled && JobRegistry.IsDps(i.JobId));
+    public bool HasRemoteDps
+    {
+        get
+        {
+            lock (_stateLock)
+                return _remoteInstances.Values.Any(i => i.IsEnabled && JobRegistry.IsDps(i.JobId));
+        }
+    }
 
     public bool HasPendingRaidBuffIntent(float withinSeconds = 5f)
     {
@@ -395,22 +444,25 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
         var now = DateTime.UtcNow;
 
-        foreach (var kvp in _remoteRaidBuffStates)
+        lock (_stateLock)
         {
-            foreach (var state in kvp.Value)
+            foreach (var kvp in _remoteRaidBuffStates)
             {
-                if (state.IsIntentOnly && !state.IsIntentExpired)
+                foreach (var state in kvp.Value)
                 {
-                    // Check if activation is expected within the window
-                    var expectedActivation = state.IntentAnnouncedAt.AddSeconds(state.PlannedDelaySeconds);
-                    var timeUntilActivation = (expectedActivation - now).TotalSeconds;
-                    if (timeUntilActivation <= withinSeconds && timeUntilActivation >= -1)
-                        return true;
+                    if (state.IsIntentOnly && !state.IsIntentExpired)
+                    {
+                        // Check if activation is expected within the window
+                        var expectedActivation = state.IntentAnnouncedAt.AddSeconds(state.PlannedDelaySeconds);
+                        var timeUntilActivation = (expectedActivation - now).TotalSeconds;
+                        if (timeUntilActivation <= withinSeconds && timeUntilActivation >= -1)
+                            return true;
+                    }
                 }
             }
-        }
 
-        return false;
+            return false;
+        }
     }
 
     public IReadOnlyList<RemoteRaidBuffState> GetPendingRaidBuffIntents()
@@ -418,18 +470,21 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableRaidBuffCoordination)
             return Array.Empty<RemoteRaidBuffState>();
 
-        var result = new List<RemoteRaidBuffState>();
-
-        foreach (var kvp in _remoteRaidBuffStates)
+        lock (_stateLock)
         {
-            foreach (var state in kvp.Value)
-            {
-                if (state.IsIntentOnly && !state.IsIntentExpired)
-                    result.Add(state);
-            }
-        }
+            var result = new List<RemoteRaidBuffState>();
 
-        return result;
+            foreach (var kvp in _remoteRaidBuffStates)
+            {
+                foreach (var state in kvp.Value)
+                {
+                    if (state.IsIntentOnly && !state.IsIntentExpired)
+                        result.Add(state);
+                }
+            }
+
+            return result;
+        }
     }
 
     public bool IsInBurstWindow()
@@ -437,25 +492,28 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableRaidBuffCoordination)
             return false;
 
-        // Check local burst window tracking
-        if (_burstWindowStart.HasValue)
+        lock (_stateLock)
         {
-            var elapsed = (DateTime.UtcNow - _burstWindowStart.Value).TotalSeconds;
-            if (elapsed < _burstWindowDuration)
-                return true;
-        }
-
-        // Check if any remote instances have active buffs
-        foreach (var kvp in _remoteRaidBuffStates)
-        {
-            foreach (var state in kvp.Value)
+            // Check local burst window tracking
+            if (_burstWindowStart.HasValue)
             {
-                if (state.IsBuffActive)
+                var elapsed = (DateTime.UtcNow - _burstWindowStart.Value).TotalSeconds;
+                if (elapsed < _burstWindowDuration)
                     return true;
             }
-        }
 
-        return false;
+            // Check if any remote instances have active buffs
+            foreach (var kvp in _remoteRaidBuffStates)
+            {
+                foreach (var state in kvp.Value)
+                {
+                    if (state.IsBuffActive)
+                        return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     public float GetBurstWindowRemaining()
@@ -463,28 +521,31 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableRaidBuffCoordination)
             return 0;
 
-        float maxRemaining = 0;
-
-        // Check local burst window
-        if (_burstWindowStart.HasValue)
+        lock (_stateLock)
         {
-            var elapsed = (float)(DateTime.UtcNow - _burstWindowStart.Value).TotalSeconds;
-            var remaining = _burstWindowDuration - elapsed;
-            if (remaining > maxRemaining)
-                maxRemaining = remaining;
-        }
+            float maxRemaining = 0;
 
-        // Check remote buff durations
-        foreach (var kvp in _remoteRaidBuffStates)
-        {
-            foreach (var state in kvp.Value)
+            // Check local burst window
+            if (_burstWindowStart.HasValue)
             {
-                if (state.BuffRemainingSeconds > maxRemaining)
-                    maxRemaining = state.BuffRemainingSeconds;
+                var elapsed = (float)(DateTime.UtcNow - _burstWindowStart.Value).TotalSeconds;
+                var remaining = _burstWindowDuration - elapsed;
+                if (remaining > maxRemaining)
+                    maxRemaining = remaining;
             }
-        }
 
-        return Math.Max(0, maxRemaining);
+            // Check remote buff durations
+            foreach (var kvp in _remoteRaidBuffStates)
+            {
+                foreach (var state in kvp.Value)
+                {
+                    if (state.BuffRemainingSeconds > maxRemaining)
+                        maxRemaining = state.BuffRemainingSeconds;
+                }
+            }
+
+            return Math.Max(0, maxRemaining);
+        }
     }
 
     public void AnnounceRaidBuffIntent(uint actionId, float secondsUntilActivation = 0f)
@@ -514,10 +575,13 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         var duration = CoordinatedRaidBuffs.GetBuffDuration(actionId);
         var isMajorBurst = recastTimeMs >= 100_000; // 100+ second CD = major burst
 
-        // Update local burst window tracking
-        _burstWindowStart = DateTime.UtcNow;
-        _burstWindowDuration = duration;
-        _burstWindowTriggerAction = actionId;
+        lock (_stateLock)
+        {
+            // Update local burst window tracking
+            _burstWindowStart = DateTime.UtcNow;
+            _burstWindowDuration = duration;
+            _burstWindowTriggerAction = actionId;
+        }
 
         var message = new BurstWindowStartMessage(_instanceId, actionId, duration, isMajorBurst);
         OnBurstWindowStartReady?.Invoke(message);
@@ -535,28 +599,31 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (toleranceSeconds <= 0)
             toleranceSeconds = _config.MaxBuffDesyncSeconds;
 
-        // If no remote data for this action, consider aligned
-        if (!_remoteRaidBuffStates.TryGetValue(actionId, out var states) || states.Count == 0)
-            return true;
-
-        // Check if any remote instance has significantly different cooldown timing
-        foreach (var state in states)
+        lock (_stateLock)
         {
-            // If they recently used the buff, check how desynced we would be
-            var remoteCdRemaining = state.CooldownRemainingSeconds;
+            // If no remote data for this action, consider aligned
+            if (!_remoteRaidBuffStates.TryGetValue(actionId, out var states) || states.Count == 0)
+                return true;
 
-            // If remote CD is much higher (they used it recently but we haven't)
-            // or much lower (we used it recently but they haven't), we're desynced
-            if (remoteCdRemaining > toleranceSeconds)
+            // Check if any remote instance has significantly different cooldown timing
+            foreach (var state in states)
             {
-                if (_config.LogRaidBuffCoordination)
-                    _log.Debug("[PartyCoord] Raid buff desynced: action {0}, remote CD remaining {1:F1}s > tolerance {2:F1}s",
-                        actionId, remoteCdRemaining, toleranceSeconds);
-                return false;
-            }
-        }
+                // If they recently used the buff, check how desynced we would be
+                var remoteCdRemaining = state.CooldownRemainingSeconds;
 
-        return true;
+                // If remote CD is much higher (they used it recently but we haven't)
+                // or much lower (we used it recently but they haven't), we're desynced
+                if (remoteCdRemaining > toleranceSeconds)
+                {
+                    if (_config.LogRaidBuffCoordination)
+                        _log.Debug("[PartyCoord] Raid buff desynced: action {0}, remote CD remaining {1:F1}s > tolerance {2:F1}s",
+                            actionId, remoteCdRemaining, toleranceSeconds);
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 
     public BurstWindowState GetBurstWindowState()
@@ -667,7 +734,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableHealerGaugeSharing)
             return null;
 
-        return _remoteHealerGauges.TryGetValue(instanceId, out var state) ? state : null;
+        lock (_stateLock)
+            return _remoteHealerGauges.TryGetValue(instanceId, out var state) ? state : null;
     }
 
     public IReadOnlyList<RemoteHealerGaugeState> GetAllRemoteHealerGaugeStates()
@@ -675,7 +743,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableHealerGaugeSharing)
             return Array.Empty<RemoteHealerGaugeState>();
 
-        return _remoteHealerGauges.Values.ToList();
+        lock (_stateLock)
+            return _remoteHealerGauges.Values.ToList();
     }
 
     public bool IsAnyRemoteHealerResourceRich(int minimumPrimaryResource = 2)
@@ -683,13 +752,16 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableHealerGaugeSharing)
             return false;
 
-        foreach (var state in _remoteHealerGauges.Values)
+        lock (_stateLock)
         {
-            if (state.PrimaryResource >= minimumPrimaryResource)
-                return true;
-        }
+            foreach (var state in _remoteHealerGauges.Values)
+            {
+                if (state.PrimaryResource >= minimumPrimaryResource)
+                    return true;
+            }
 
-        return false;
+            return false;
+        }
     }
 
     #endregion
@@ -728,19 +800,22 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             // Auto-determine based on job priority
             var localPriority = GetHealerJobPriority(_localJobId);
 
-            foreach (var remoteRole in _remoteHealerRoles.Values)
+            lock (_stateLock)
             {
-                // If any remote healer has higher priority (lower number), we're secondary
-                if (remoteRole.JobPriority < localPriority)
-                    return false;
+                foreach (var remoteRole in _remoteHealerRoles.Values)
+                {
+                    // If any remote healer has higher priority (lower number), we're secondary
+                    if (remoteRole.JobPriority < localPriority)
+                        return false;
 
-                // If same priority, use instance ID as tiebreaker (lower ID = primary)
-                if (remoteRole.JobPriority == localPriority &&
-                    remoteRole.InstanceId.CompareTo(_instanceId) < 0)
-                    return false;
+                    // If same priority, use instance ID as tiebreaker (lower ID = primary)
+                    if (remoteRole.JobPriority == localPriority &&
+                        remoteRole.InstanceId.CompareTo(_instanceId) < 0)
+                        return false;
+                }
+
+                return true;
             }
-
-            return true;
         }
     }
 
@@ -749,7 +824,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableHealerRoleCoordination)
             return null;
 
-        return _remoteHealerRoles.TryGetValue(instanceId, out var role) ? role : null;
+        lock (_stateLock)
+            return _remoteHealerRoles.TryGetValue(instanceId, out var role) ? role : null;
     }
 
     public IReadOnlyList<RemoteHealerRole> GetAllRemoteHealerRoles()
@@ -757,7 +833,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableHealerRoleCoordination)
             return Array.Empty<RemoteHealerRole>();
 
-        return _remoteHealerRoles.Values.ToList();
+        lock (_stateLock)
+            return _remoteHealerRoles.Values.ToList();
     }
 
     public int GetHealerJobPriority(uint jobId)
@@ -789,33 +866,36 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
         var localRadius = info.Value.Radius;
 
-        // Check all active remote ground effects
-        foreach (var remote in _remoteGroundEffects)
+        lock (_stateLock)
         {
-            if (remote.IsExpired)
-                continue;
-
-            // Calculate distance between centers
-            var distance = Vector3.Distance(position, remote.Position);
-
-            // Calculate overlap ratio
-            // If distance < sum of radii, they overlap
-            var sumOfRadii = localRadius + remote.Radius;
-            if (distance < sumOfRadii)
+            // Check all active remote ground effects
+            foreach (var remote in _remoteGroundEffects)
             {
-                // Calculate how much they overlap (0 = just touching, 1 = same position)
-                var overlap = 1f - (distance / sumOfRadii);
-                if (overlap >= overlapThreshold)
+                if (remote.IsExpired)
+                    continue;
+
+                // Calculate distance between centers
+                var distance = Vector3.Distance(position, remote.Position);
+
+                // Calculate overlap ratio
+                // If distance < sum of radii, they overlap
+                var sumOfRadii = localRadius + remote.Radius;
+                if (distance < sumOfRadii)
                 {
-                    if (_config.LogCoordinationEvents)
-                        _log.Debug("[PartyCoord] Ground effect would overlap: {0} at ({1:F1},{2:F1},{3:F1}) overlaps {4:P0} with remote {5}",
-                            actionId, position.X, position.Y, position.Z, overlap, remote.ActionId);
-                    return true;
+                    // Calculate how much they overlap (0 = just touching, 1 = same position)
+                    var overlap = 1f - (distance / sumOfRadii);
+                    if (overlap >= overlapThreshold)
+                    {
+                        if (_config.LogCoordinationEvents)
+                            _log.Debug("[PartyCoord] Ground effect would overlap: {0} at ({1:F1},{2:F1},{3:F1}) overlaps {4:P0} with remote {5}",
+                                actionId, position.X, position.Y, position.Z, overlap, remote.ActionId);
+                        return true;
+                    }
                 }
             }
-        }
 
-        return false;
+            return false;
+        }
     }
 
     public void OnGroundEffectPlaced(uint actionId, Vector3 position)
@@ -848,8 +928,9 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableGroundEffectCoordination)
             return Array.Empty<RemoteGroundEffect>();
 
-        // Return only non-expired effects
-        return _remoteGroundEffects.Where(e => !e.IsExpired).ToList();
+        lock (_stateLock)
+            // Return only non-expired effects — snapshot to avoid caller iterating under lock
+            return _remoteGroundEffects.Where(e => !e.IsExpired).ToList();
     }
 
     public bool IsRemoteGroundEffectActiveNear(Vector3 position, float radius = 8f)
@@ -857,17 +938,20 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableGroundEffectCoordination)
             return false;
 
-        foreach (var effect in _remoteGroundEffects)
+        lock (_stateLock)
         {
-            if (effect.IsExpired)
-                continue;
+            foreach (var effect in _remoteGroundEffects)
+            {
+                if (effect.IsExpired)
+                    continue;
 
-            var distance = Vector3.Distance(position, effect.Position);
-            if (distance < radius + effect.Radius)
-                return true;
+                var distance = Vector3.Distance(position, effect.Position);
+                if (distance < radius + effect.Radius)
+                    return true;
+            }
+
+            return false;
         }
-
-        return false;
     }
 
     #endregion
@@ -879,18 +963,21 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableRaiseCoordination)
             return false;
 
-        // Check remote reservations
-        if (_remoteRaiseReservations.TryGetValue(entityId, out var reservation))
+        lock (_stateLock)
         {
-            // Check if reservation is still valid
-            if (!reservation.IsExpired)
-                return true;
+            // Check remote reservations
+            if (_remoteRaiseReservations.TryGetValue(entityId, out var reservation))
+            {
+                // Check if reservation is still valid
+                if (!reservation.IsExpired)
+                    return true;
 
-            // Expired, clean up
-            _remoteRaiseReservations.Remove(entityId);
+                // Expired, clean up
+                _remoteRaiseReservations.Remove(entityId);
+            }
+
+            return false;
         }
-
-        return false;
     }
 
     public bool ReserveRaiseTarget(uint entityId, uint actionId, int castTimeMs, bool usingSwiftcast)
@@ -898,29 +985,35 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableRaiseCoordination)
             return true;
 
-        // Check if already reserved by remote with higher priority
-        if (_remoteRaiseReservations.TryGetValue(entityId, out var remoteReservation))
+        bool shouldSkip;
+        lock (_stateLock)
         {
-            if (!remoteReservation.IsExpired)
+            // Check if already reserved by remote with higher priority
+            shouldSkip = false;
+            if (_remoteRaiseReservations.TryGetValue(entityId, out var remoteReservation))
             {
-                // Swiftcast raises take priority over hardcast raises
-                if (remoteReservation.UsingSwiftcast && !usingSwiftcast)
+                if (!remoteReservation.IsExpired)
                 {
-                    if (_config.LogCoordinationEvents)
-                        _log.Debug("[PartyCoord] Raise target {0} reserved by remote with Swiftcast, skipping hardcast", entityId);
-                    return false;
+                    // Swiftcast raises take priority over hardcast raises
+                    if (remoteReservation.UsingSwiftcast && !usingSwiftcast)
+                    {
+                        shouldSkip = true;
+                    }
+                    else if (remoteReservation.UsingSwiftcast == usingSwiftcast)
+                    {
+                        // First reservation wins when both are same type
+                        shouldSkip = true;
+                    }
+                    // else: our Swiftcast takes priority over their hardcast - proceed
                 }
-
-                // If both are same type, first reservation wins
-                if (remoteReservation.UsingSwiftcast == usingSwiftcast)
-                {
-                    if (_config.LogCoordinationEvents)
-                        _log.Debug("[PartyCoord] Raise target {0} already reserved by remote, skipping", entityId);
-                    return false;
-                }
-
-                // Our Swiftcast takes priority over their hardcast - proceed and take over
             }
+        }
+
+        if (shouldSkip)
+        {
+            if (_config.LogCoordinationEvents)
+                _log.Debug("[PartyCoord] Raise target {0} already reserved by remote, skipping", entityId);
+            return false;
         }
 
         var now = DateTime.UtcNow;
@@ -962,7 +1055,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
     public IReadOnlyDictionary<uint, RaiseReservation> GetRemoteRaiseReservations()
     {
-        return _remoteRaiseReservations;
+        lock (_stateLock)
+            return new Dictionary<uint, RaiseReservation>(_remoteRaiseReservations);
     }
 
     #endregion
@@ -974,18 +1068,21 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableCleanseCoordination)
             return false;
 
-        // Check remote reservations
-        if (_remoteCleanseReservations.TryGetValue(entityId, out var reservation))
+        lock (_stateLock)
         {
-            // Check if reservation is still valid
-            if (!reservation.IsExpired)
-                return true;
+            // Check remote reservations
+            if (_remoteCleanseReservations.TryGetValue(entityId, out var reservation))
+            {
+                // Check if reservation is still valid
+                if (!reservation.IsExpired)
+                    return true;
 
-            // Expired, clean up
-            _remoteCleanseReservations.Remove(entityId);
+                // Expired, clean up
+                _remoteCleanseReservations.Remove(entityId);
+            }
+
+            return false;
         }
-
-        return false;
     }
 
     public bool ReserveCleanseTarget(uint entityId, uint statusId, uint actionId, int debuffPriority)
@@ -1035,7 +1132,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
     public IReadOnlyDictionary<uint, CleanseReservation> GetRemoteCleanseReservations()
     {
-        return _remoteCleanseReservations;
+        lock (_stateLock)
+            return new Dictionary<uint, CleanseReservation>(_remoteCleanseReservations);
     }
 
     #endregion
@@ -1047,18 +1145,21 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableInterruptCoordination)
             return false;
 
-        // Check remote reservations
-        if (_remoteInterruptReservations.TryGetValue(entityId, out var reservation))
+        lock (_stateLock)
         {
-            // Check if reservation is still valid
-            if (!reservation.IsExpired)
-                return true;
+            // Check remote reservations
+            if (_remoteInterruptReservations.TryGetValue(entityId, out var reservation))
+            {
+                // Check if reservation is still valid
+                if (!reservation.IsExpired)
+                    return true;
 
-            // Expired, clean up
-            _remoteInterruptReservations.Remove(entityId);
+                // Expired, clean up
+                _remoteInterruptReservations.Remove(entityId);
+            }
+
+            return false;
         }
-
-        return false;
     }
 
     public bool ReserveInterruptTarget(uint entityId, uint actionId, int castTimeMs)
@@ -1108,32 +1209,43 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
     public IReadOnlyDictionary<uint, InterruptReservation> GetRemoteInterruptReservations()
     {
-        return _remoteInterruptReservations;
+        lock (_stateLock)
+            return new Dictionary<uint, InterruptReservation>(_remoteInterruptReservations);
     }
 
     #endregion
 
     #region Tank Swap Coordination
 
-    public bool HasRemoteTank => _remoteInstances.Values.Any(i => i.IsEnabled && JobRegistry.IsTank(i.JobId));
+    public bool HasRemoteTank
+    {
+        get
+        {
+            lock (_stateLock)
+                return _remoteInstances.Values.Any(i => i.IsEnabled && JobRegistry.IsTank(i.JobId));
+        }
+    }
 
     public TankSwapReservation? GetPendingTankSwapRequest(uint targetEntityId)
     {
         if (!_config.EnablePartyCoordination || !_config.EnableTankSwapCoordination)
             return null;
 
-        // Check remote reservations for a pending swap request
-        if (_remoteTankSwapReservations.TryGetValue(targetEntityId, out var reservation))
+        lock (_stateLock)
         {
-            if (!reservation.IsExpired && !reservation.IsConfirmation)
-                return reservation;
+            // Check remote reservations for a pending swap request
+            if (_remoteTankSwapReservations.TryGetValue(targetEntityId, out var reservation))
+            {
+                if (!reservation.IsExpired && !reservation.IsConfirmation)
+                    return reservation;
 
-            // Expired or already confirmed, clean up
-            if (reservation.IsExpired)
-                _remoteTankSwapReservations.Remove(targetEntityId);
+                // Expired or already confirmed, clean up
+                if (reservation.IsExpired)
+                    _remoteTankSwapReservations.Remove(targetEntityId);
+            }
+
+            return null;
         }
-
-        return null;
     }
 
     public bool IsTankSwapInProgress(uint targetEntityId)
@@ -1148,11 +1260,14 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
                 return true;
         }
 
-        // Check if there's a remote swap request
-        if (_remoteTankSwapReservations.TryGetValue(targetEntityId, out var remoteRes))
+        lock (_stateLock)
         {
-            if (!remoteRes.IsExpired)
-                return true;
+            // Check if there's a remote swap request
+            if (_remoteTankSwapReservations.TryGetValue(targetEntityId, out var remoteRes))
+            {
+                if (!remoteRes.IsExpired)
+                    return true;
+            }
         }
 
         return false;
@@ -1249,7 +1364,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             return;
 
         _localTankSwapReservations.Remove(targetEntityId);
-        _remoteTankSwapReservations.Remove(targetEntityId);
+        lock (_stateLock)
+            _remoteTankSwapReservations.Remove(targetEntityId);
 
         if (_config.LogCooldownCoordination)
             _log.Debug("[PartyCoord] Cleared tank swap reservation for {0}", targetEntityId);
@@ -1257,7 +1373,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
     public IReadOnlyDictionary<uint, TankSwapReservation> GetRemoteTankSwapReservations()
     {
-        return _remoteTankSwapReservations;
+        lock (_stateLock)
+            return new Dictionary<uint, TankSwapReservation>(_remoteTankSwapReservations);
     }
 
     #endregion
@@ -1303,26 +1420,31 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
     public void Clear()
     {
-        _remoteInstances.Clear();
+        lock (_stateLock)
+        {
+            _remoteInstances.Clear();
+            _remoteReservations.Clear();
+            _remoteCooldowns.Clear();
+            _remoteAoEReservation = null;
+            _remoteRaidBuffStates.Clear();
+            _burstWindowStart = null;
+            _burstWindowDuration = 0;
+            _burstWindowTriggerAction = 0;
+            _remoteHealerGauges.Clear();
+            _remoteHealerRoles.Clear();
+            _remoteGroundEffects.Clear();
+            _remoteRaiseReservations.Clear();
+            _remoteCleanseReservations.Clear();
+            _remoteInterruptReservations.Clear();
+            _remoteTankSwapReservations.Clear();
+        }
+
+        // Local collections are only touched on the framework thread — no lock needed
         _localReservations.Clear();
-        _remoteReservations.Clear();
-        _remoteCooldowns.Clear();
-        _remoteAoEReservation = null;
-        _remoteRaidBuffStates.Clear();
-        _burstWindowStart = null;
-        _burstWindowDuration = 0;
-        _burstWindowTriggerAction = 0;
-        _remoteHealerGauges.Clear();
-        _remoteHealerRoles.Clear();
-        _remoteGroundEffects.Clear();
         _localRaiseReservations.Clear();
-        _remoteRaiseReservations.Clear();
         _localCleanseReservations.Clear();
-        _remoteCleanseReservations.Clear();
         _localInterruptReservations.Clear();
-        _remoteInterruptReservations.Clear();
         _localTankSwapReservations.Clear();
-        _remoteTankSwapReservations.Clear();
 
         if (_config.LogCoordinationEvents)
             _log.Debug("[PartyCoord] Cleared all coordination state");
@@ -1340,29 +1462,35 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (message.InstanceId == _instanceId)
             return; // Ignore our own messages
 
-        if (_remoteInstances.TryGetValue(message.InstanceId, out var existing))
+        bool isNew;
+        lock (_stateLock)
         {
-            // Update existing instance
-            existing.JobId = message.JobId;
-            existing.PlayerEntityId = message.PlayerEntityId;
-            existing.IsEnabled = message.IsEnabled;
-            existing.LastHeartbeat = DateTime.UtcNow;
-        }
-        else
-        {
-            // New instance discovered
-            _remoteInstances[message.InstanceId] = new RemoteOlympusInstance
+            if (_remoteInstances.TryGetValue(message.InstanceId, out var existing))
             {
-                InstanceId = message.InstanceId,
-                JobId = message.JobId,
-                PlayerEntityId = message.PlayerEntityId,
-                IsEnabled = message.IsEnabled,
-                LastHeartbeat = DateTime.UtcNow
-            };
-
-            if (_config.LogCoordinationEvents)
-                _log.Info("[PartyCoord] Discovered remote Olympus instance: {0} (Job {1})", message.InstanceId, message.JobId);
+                // Update existing instance
+                existing.JobId = message.JobId;
+                existing.PlayerEntityId = message.PlayerEntityId;
+                existing.IsEnabled = message.IsEnabled;
+                existing.LastHeartbeat = DateTime.UtcNow;
+                isNew = false;
+            }
+            else
+            {
+                // New instance discovered
+                _remoteInstances[message.InstanceId] = new RemoteOlympusInstance
+                {
+                    InstanceId = message.InstanceId,
+                    JobId = message.JobId,
+                    PlayerEntityId = message.PlayerEntityId,
+                    IsEnabled = message.IsEnabled,
+                    LastHeartbeat = DateTime.UtcNow
+                };
+                isNew = true;
+            }
         }
+
+        if (isNew && _config.LogCoordinationEvents)
+            _log.Info("[PartyCoord] Discovered remote Olympus instance: {0} (Job {1})", message.InstanceId, message.JobId);
     }
 
     /// <summary>
@@ -1383,7 +1511,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             ExpectedLandingTime = DateTime.UtcNow.AddMilliseconds(message.CastTimeMs)
         };
 
-        _remoteReservations[message.TargetEntityId] = reservation;
+        lock (_stateLock)
+            _remoteReservations[message.TargetEntityId] = reservation;
 
         if (_config.LogCoordinationEvents)
             _log.Debug("[PartyCoord] Remote reservation: target {0}, {1} HP from instance {2}",
@@ -1398,8 +1527,9 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (message.InstanceId == _instanceId)
             return;
 
-        // Clear the reservation for this target
-        _remoteReservations.Remove(message.TargetEntityId);
+        lock (_stateLock)
+            // Clear the reservation for this target
+            _remoteReservations.Remove(message.TargetEntityId);
 
         if (_config.LogCoordinationEvents)
             _log.Debug("[PartyCoord] Remote heal landed: target {0}, {1} HP from instance {2}",
@@ -1435,16 +1565,19 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             RecastTimeMs = message.RecastTimeMs > 0 ? message.RecastTimeMs : CoordinatedCooldowns.GetDefaultRecastTime(message.ActionId)
         };
 
-        // Get or create list for this action
-        if (!_remoteCooldowns.TryGetValue(message.ActionId, out var list))
+        lock (_stateLock)
         {
-            list = new List<RemoteCooldownInfo>();
-            _remoteCooldowns[message.ActionId] = list;
-        }
+            // Get or create list for this action
+            if (!_remoteCooldowns.TryGetValue(message.ActionId, out var list))
+            {
+                list = new List<RemoteCooldownInfo>();
+                _remoteCooldowns[message.ActionId] = list;
+            }
 
-        // Replace existing cooldown from same instance (if any)
-        list.RemoveAll(c => c.InstanceId == message.InstanceId);
-        list.Add(info);
+            // Replace existing cooldown from same instance (if any)
+            list.RemoveAll(c => c.InstanceId == message.InstanceId);
+            list.Add(info);
+        }
 
         var cdType = isInvulnerability ? "invulnerability" : (isPersonalDefensive ? "personal defensive" : "party mitigation");
         if (_config.LogCoordinationEvents)
@@ -1472,7 +1605,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             ExpiresAt = DateTime.UtcNow.AddMilliseconds(_config.AoEHealReservationExpiryMs)
         };
 
-        _remoteAoEReservation = reservation;
+        lock (_stateLock)
+            _remoteAoEReservation = reservation;
 
         if (_config.LogCoordinationEvents)
             _log.Debug("[PartyCoord] Remote AoE heal reservation: action {0}, potency {1} from instance {2}",
@@ -1505,16 +1639,19 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             RecastTimeMs = CoordinatedRaidBuffs.GetDefaultRecastTime(message.ActionId)
         };
 
-        // Get or create list for this action
-        if (!_remoteRaidBuffStates.TryGetValue(message.ActionId, out var list))
+        lock (_stateLock)
         {
-            list = new List<RemoteRaidBuffState>();
-            _remoteRaidBuffStates[message.ActionId] = list;
-        }
+            // Get or create list for this action
+            if (!_remoteRaidBuffStates.TryGetValue(message.ActionId, out var list))
+            {
+                list = new List<RemoteRaidBuffState>();
+                _remoteRaidBuffStates[message.ActionId] = list;
+            }
 
-        // Replace existing state from same instance
-        list.RemoveAll(s => s.InstanceId == message.InstanceId);
-        list.Add(state);
+            // Replace existing state from same instance
+            list.RemoveAll(s => s.InstanceId == message.InstanceId);
+            list.Add(state);
+        }
 
         if (_config.LogRaidBuffCoordination)
             _log.Debug("[PartyCoord] Remote raid buff intent: action {0}, delay {1:F1}s from instance {2}",
@@ -1536,17 +1673,35 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!CoordinatedRaidBuffs.IsCoordinatedRaidBuff(message.TriggerActionId))
             return;
 
-        // Update existing intent state to mark as activated
-        if (_remoteRaidBuffStates.TryGetValue(message.TriggerActionId, out var list))
+        lock (_stateLock)
         {
-            var existingState = list.Find(s => s.InstanceId == message.InstanceId);
-            if (existingState != null)
+            // Update existing intent state to mark as activated
+            if (_remoteRaidBuffStates.TryGetValue(message.TriggerActionId, out var list))
             {
-                existingState.ActivatedAt = DateTime.UtcNow;
+                var existingState = list.Find(s => s.InstanceId == message.InstanceId);
+                if (existingState != null)
+                {
+                    existingState.ActivatedAt = DateTime.UtcNow;
+                }
+                else
+                {
+                    // No intent was received, create state directly
+                    var state = new RemoteRaidBuffState
+                    {
+                        InstanceId = message.InstanceId,
+                        ActionId = message.TriggerActionId,
+                        IntentAnnouncedAt = DateTime.UtcNow,
+                        PlannedDelaySeconds = 0,
+                        ActivatedAt = DateTime.UtcNow,
+                        BuffDuration = message.WindowDuration,
+                        RecastTimeMs = CoordinatedRaidBuffs.GetDefaultRecastTime(message.TriggerActionId)
+                    };
+                    list.Add(state);
+                }
             }
             else
             {
-                // No intent was received, create state directly
+                // No tracking for this action yet, create new
                 var state = new RemoteRaidBuffState
                 {
                     InstanceId = message.InstanceId,
@@ -1557,31 +1712,16 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
                     BuffDuration = message.WindowDuration,
                     RecastTimeMs = CoordinatedRaidBuffs.GetDefaultRecastTime(message.TriggerActionId)
                 };
-                list.Add(state);
+                _remoteRaidBuffStates[message.TriggerActionId] = new List<RemoteRaidBuffState> { state };
             }
-        }
-        else
-        {
-            // No tracking for this action yet, create new
-            var state = new RemoteRaidBuffState
-            {
-                InstanceId = message.InstanceId,
-                ActionId = message.TriggerActionId,
-                IntentAnnouncedAt = DateTime.UtcNow,
-                PlannedDelaySeconds = 0,
-                ActivatedAt = DateTime.UtcNow,
-                BuffDuration = message.WindowDuration,
-                RecastTimeMs = CoordinatedRaidBuffs.GetDefaultRecastTime(message.TriggerActionId)
-            };
-            _remoteRaidBuffStates[message.TriggerActionId] = new List<RemoteRaidBuffState> { state };
-        }
 
-        // Update local burst window tracking for UI display
-        if (!_burstWindowStart.HasValue || message.WindowDuration > _burstWindowDuration)
-        {
-            _burstWindowStart = DateTime.UtcNow;
-            _burstWindowDuration = message.WindowDuration;
-            _burstWindowTriggerAction = message.TriggerActionId;
+            // Update local burst window tracking for UI display
+            if (!_burstWindowStart.HasValue || message.WindowDuration > _burstWindowDuration)
+            {
+                _burstWindowStart = DateTime.UtcNow;
+                _burstWindowDuration = message.WindowDuration;
+                _burstWindowTriggerAction = message.TriggerActionId;
+            }
         }
 
         if (_config.LogRaidBuffCoordination)
@@ -1600,24 +1740,27 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnableHealerGaugeSharing)
             return;
 
-        if (_remoteHealerGauges.TryGetValue(message.InstanceId, out var existing))
+        lock (_stateLock)
         {
-            existing.PrimaryResource = message.PrimaryResource;
-            existing.SecondaryResource = message.SecondaryResource;
-            existing.TertiaryResource = message.TertiaryResource;
-            existing.LastUpdate = DateTime.UtcNow;
-        }
-        else
-        {
-            _remoteHealerGauges[message.InstanceId] = new RemoteHealerGaugeState
+            if (_remoteHealerGauges.TryGetValue(message.InstanceId, out var existing))
             {
-                InstanceId = message.InstanceId,
-                JobId = message.JobId,
-                PrimaryResource = message.PrimaryResource,
-                SecondaryResource = message.SecondaryResource,
-                TertiaryResource = message.TertiaryResource,
-                LastUpdate = DateTime.UtcNow
-            };
+                existing.PrimaryResource = message.PrimaryResource;
+                existing.SecondaryResource = message.SecondaryResource;
+                existing.TertiaryResource = message.TertiaryResource;
+                existing.LastUpdate = DateTime.UtcNow;
+            }
+            else
+            {
+                _remoteHealerGauges[message.InstanceId] = new RemoteHealerGaugeState
+                {
+                    InstanceId = message.InstanceId,
+                    JobId = message.JobId,
+                    PrimaryResource = message.PrimaryResource,
+                    SecondaryResource = message.SecondaryResource,
+                    TertiaryResource = message.TertiaryResource,
+                    LastUpdate = DateTime.UtcNow
+                };
+            }
         }
 
         if (_config.LogCoordinationEvents)
@@ -1636,22 +1779,25 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnableHealerRoleCoordination)
             return;
 
-        if (_remoteHealerRoles.TryGetValue(message.InstanceId, out var existing))
+        lock (_stateLock)
         {
-            existing.Role = message.Role;
-            existing.JobPriority = message.JobPriority;
-            existing.LastUpdate = DateTime.UtcNow;
-        }
-        else
-        {
-            _remoteHealerRoles[message.InstanceId] = new RemoteHealerRole
+            if (_remoteHealerRoles.TryGetValue(message.InstanceId, out var existing))
             {
-                InstanceId = message.InstanceId,
-                JobId = message.JobId,
-                Role = message.Role,
-                JobPriority = message.JobPriority,
-                LastUpdate = DateTime.UtcNow
-            };
+                existing.Role = message.Role;
+                existing.JobPriority = message.JobPriority;
+                existing.LastUpdate = DateTime.UtcNow;
+            }
+            else
+            {
+                _remoteHealerRoles[message.InstanceId] = new RemoteHealerRole
+                {
+                    InstanceId = message.InstanceId,
+                    JobId = message.JobId,
+                    Role = message.Role,
+                    JobPriority = message.JobPriority,
+                    LastUpdate = DateTime.UtcNow
+                };
+            }
         }
 
         if (_config.LogCoordinationEvents)
@@ -1680,11 +1826,14 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             ExpiresAt = DateTime.UtcNow.AddSeconds(message.Duration)
         };
 
-        // Remove any existing effect from the same instance with the same action
-        _remoteGroundEffects.RemoveAll(e =>
-            e.InstanceId == message.InstanceId && e.ActionId == message.ActionId);
+        lock (_stateLock)
+        {
+            // Remove any existing effect from the same instance with the same action
+            _remoteGroundEffects.RemoveAll(e =>
+                e.InstanceId == message.InstanceId && e.ActionId == message.ActionId);
 
-        _remoteGroundEffects.Add(effect);
+            _remoteGroundEffects.Add(effect);
+        }
 
         if (_config.LogCoordinationEvents)
             _log.Debug("[PartyCoord] Remote ground effect: {0} at ({1:F1},{2:F1},{3:F1}) from instance {4}",
@@ -1703,6 +1852,7 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             return;
 
         // Check if we already have a local reservation for this target
+        // (_localRaiseReservations is only touched on the framework thread — no lock needed for this read)
         if (_localRaiseReservations.TryGetValue(message.TargetEntityId, out var localReservation))
         {
             // If we're using Swiftcast and they're not, keep our reservation
@@ -1725,7 +1875,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             UsingSwiftcast = message.UsingSwiftcast
         };
 
-        _remoteRaiseReservations[message.TargetEntityId] = reservation;
+        lock (_stateLock)
+            _remoteRaiseReservations[message.TargetEntityId] = reservation;
 
         if (_config.LogCoordinationEvents)
             _log.Debug("[PartyCoord] Remote raise reservation: target {0}, Swiftcast: {1}, cast time: {2}ms from instance {3}",
@@ -1752,7 +1903,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             ExpiresAt = DateTime.UtcNow.AddMilliseconds(_config.CleanseReservationExpiryMs)
         };
 
-        _remoteCleanseReservations[message.TargetEntityId] = reservation;
+        lock (_stateLock)
+            _remoteCleanseReservations[message.TargetEntityId] = reservation;
 
         if (_config.LogCoordinationEvents)
             _log.Debug("[PartyCoord] Remote cleanse reservation: target {0}, status {1}, priority {2} from instance {3}",
@@ -1779,7 +1931,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             ExpiresAt = DateTime.UtcNow.AddMilliseconds(_config.InterruptReservationExpiryMs)
         };
 
-        _remoteInterruptReservations[message.TargetEntityId] = reservation;
+        lock (_stateLock)
+            _remoteInterruptReservations[message.TargetEntityId] = reservation;
 
         if (_config.LogCoordinationEvents)
             _log.Debug("[PartyCoord] Remote interrupt reservation: target {0}, action {1}, cast time: {2}ms from instance {3}",
@@ -1808,7 +1961,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             ExpiresAt = DateTime.UtcNow.AddMilliseconds(_config.TankSwapReservationExpiryMs)
         };
 
-        _remoteTankSwapReservations[message.TargetEntityId] = reservation;
+        lock (_stateLock)
+            _remoteTankSwapReservations[message.TargetEntityId] = reservation;
 
         if (_config.LogCooldownCoordination)
             _log.Debug("[PartyCoord] Remote tank swap intent: target {0}, take aggro: {1}, confirmation: {2}, priority: {3} from instance {4}",
@@ -1822,126 +1976,118 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     private void CleanupExpiredInstances(DateTime now)
     {
         var expiredInstances = new List<Guid>();
+        List<Guid> timedOutForLogging;
 
-        foreach (var kvp in _remoteInstances)
+        lock (_stateLock)
         {
-            var elapsed = (now - kvp.Value.LastHeartbeat).TotalMilliseconds;
-            if (elapsed > _config.InstanceTimeoutMs)
+            foreach (var kvp in _remoteInstances)
             {
-                expiredInstances.Add(kvp.Key);
+                var elapsed = (now - kvp.Value.LastHeartbeat).TotalMilliseconds;
+                if (elapsed > _config.InstanceTimeoutMs)
+                    expiredInstances.Add(kvp.Key);
             }
+
+            foreach (var id in expiredInstances)
+            {
+                _remoteInstances.Remove(id);
+
+                // Also remove any reservations from this instance
+                var reservationsToRemove = _remoteReservations
+                    .Where(r => r.Value.InstanceId == id)
+                    .Select(r => r.Key)
+                    .ToList();
+
+                foreach (var targetId in reservationsToRemove)
+                    _remoteReservations.Remove(targetId);
+
+                // Remove cooldowns from disconnected instance
+                foreach (var kvp in _remoteCooldowns)
+                    kvp.Value.RemoveAll(c => c.InstanceId == id);
+
+                // Remove raid buff states from disconnected instance
+                foreach (var kvp in _remoteRaidBuffStates)
+                    kvp.Value.RemoveAll(s => s.InstanceId == id);
+
+                // Remove gauge state from disconnected instance
+                _remoteHealerGauges.Remove(id);
+
+                // Remove role declaration from disconnected instance
+                _remoteHealerRoles.Remove(id);
+
+                // Remove ground effects from disconnected instance
+                _remoteGroundEffects.RemoveAll(e => e.InstanceId == id);
+
+                // Remove raise reservations from disconnected instance
+                var raiseReservationsToRemove = _remoteRaiseReservations
+                    .Where(r => r.Value.InstanceId == id)
+                    .Select(r => r.Key)
+                    .ToList();
+
+                foreach (var targetId in raiseReservationsToRemove)
+                    _remoteRaiseReservations.Remove(targetId);
+
+                // Remove cleanse reservations from disconnected instance
+                var cleanseReservationsToRemove = _remoteCleanseReservations
+                    .Where(r => r.Value.InstanceId == id)
+                    .Select(r => r.Key)
+                    .ToList();
+
+                foreach (var targetId in cleanseReservationsToRemove)
+                    _remoteCleanseReservations.Remove(targetId);
+
+                // Remove interrupt reservations from disconnected instance
+                var interruptReservationsToRemove = _remoteInterruptReservations
+                    .Where(r => r.Value.InstanceId == id)
+                    .Select(r => r.Key)
+                    .ToList();
+
+                foreach (var targetId in interruptReservationsToRemove)
+                    _remoteInterruptReservations.Remove(targetId);
+
+                // Remove tank swap reservations from disconnected instance
+                var tankSwapReservationsToRemove = _remoteTankSwapReservations
+                    .Where(r => r.Value.InstanceId == id)
+                    .Select(r => r.Key)
+                    .ToList();
+
+                foreach (var targetId in tankSwapReservationsToRemove)
+                    _remoteTankSwapReservations.Remove(targetId);
+            }
+
+            // Clean up expired cooldowns (no longer on recast)
+            CleanupExpiredCooldownsLocked();
+
+            // Clean up expired raid buff states
+            CleanupExpiredRaidBuffStatesLocked();
+
+            // Clean up burst window if expired
+            if (_burstWindowStart.HasValue)
+            {
+                var elapsed = (DateTime.UtcNow - _burstWindowStart.Value).TotalSeconds;
+                if (elapsed > _burstWindowDuration)
+                {
+                    _burstWindowStart = null;
+                    _burstWindowDuration = 0;
+                    _burstWindowTriggerAction = 0;
+                }
+            }
+
+            timedOutForLogging = new List<Guid>(expiredInstances);
         }
 
-        foreach (var id in expiredInstances)
+        if (_config.LogCoordinationEvents)
         {
-            _remoteInstances.Remove(id);
-
-            // Also remove any reservations from this instance
-            var reservationsToRemove = _remoteReservations
-                .Where(r => r.Value.InstanceId == id)
-                .Select(r => r.Key)
-                .ToList();
-
-            foreach (var targetId in reservationsToRemove)
-            {
-                _remoteReservations.Remove(targetId);
-            }
-
-            // Remove cooldowns from disconnected instance
-            foreach (var kvp in _remoteCooldowns)
-            {
-                kvp.Value.RemoveAll(c => c.InstanceId == id);
-            }
-
-            // Remove raid buff states from disconnected instance
-            foreach (var kvp in _remoteRaidBuffStates)
-            {
-                kvp.Value.RemoveAll(s => s.InstanceId == id);
-            }
-
-            // Remove gauge state from disconnected instance
-            _remoteHealerGauges.Remove(id);
-
-            // Remove role declaration from disconnected instance
-            _remoteHealerRoles.Remove(id);
-
-            // Remove ground effects from disconnected instance
-            _remoteGroundEffects.RemoveAll(e => e.InstanceId == id);
-
-            // Remove raise reservations from disconnected instance
-            var raiseReservationsToRemove = _remoteRaiseReservations
-                .Where(r => r.Value.InstanceId == id)
-                .Select(r => r.Key)
-                .ToList();
-
-            foreach (var targetId in raiseReservationsToRemove)
-            {
-                _remoteRaiseReservations.Remove(targetId);
-            }
-
-            // Remove cleanse reservations from disconnected instance
-            var cleanseReservationsToRemove = _remoteCleanseReservations
-                .Where(r => r.Value.InstanceId == id)
-                .Select(r => r.Key)
-                .ToList();
-
-            foreach (var targetId in cleanseReservationsToRemove)
-            {
-                _remoteCleanseReservations.Remove(targetId);
-            }
-
-            // Remove interrupt reservations from disconnected instance
-            var interruptReservationsToRemove = _remoteInterruptReservations
-                .Where(r => r.Value.InstanceId == id)
-                .Select(r => r.Key)
-                .ToList();
-
-            foreach (var targetId in interruptReservationsToRemove)
-            {
-                _remoteInterruptReservations.Remove(targetId);
-            }
-
-            // Remove tank swap reservations from disconnected instance
-            var tankSwapReservationsToRemove = _remoteTankSwapReservations
-                .Where(r => r.Value.InstanceId == id)
-                .Select(r => r.Key)
-                .ToList();
-
-            foreach (var targetId in tankSwapReservationsToRemove)
-            {
-                _remoteTankSwapReservations.Remove(targetId);
-            }
-
-            if (_config.LogCoordinationEvents)
+            foreach (var id in timedOutForLogging)
                 _log.Info("[PartyCoord] Remote instance timed out: {0}", id);
-        }
-
-        // Clean up expired cooldowns (no longer on recast)
-        CleanupExpiredCooldowns();
-
-        // Clean up expired raid buff states
-        CleanupExpiredRaidBuffStates();
-
-        // Clean up burst window if expired
-        if (_burstWindowStart.HasValue)
-        {
-            var elapsed = (DateTime.UtcNow - _burstWindowStart.Value).TotalSeconds;
-            if (elapsed > _burstWindowDuration)
-            {
-                _burstWindowStart = null;
-                _burstWindowDuration = 0;
-                _burstWindowTriggerAction = 0;
-            }
         }
     }
 
-    private void CleanupExpiredCooldowns()
+    // Caller must hold _stateLock
+    private void CleanupExpiredCooldownsLocked()
     {
         // Remove expired cooldowns from all lists
         foreach (var kvp in _remoteCooldowns)
-        {
             kvp.Value.RemoveAll(c => !c.IsOnCooldown);
-        }
 
         // Remove empty lists
         var emptyKeys = _remoteCooldowns
@@ -1950,12 +2096,11 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             .ToList();
 
         foreach (var key in emptyKeys)
-        {
             _remoteCooldowns.Remove(key);
-        }
     }
 
-    private void CleanupExpiredRaidBuffStates()
+    // Caller must hold _stateLock
+    private void CleanupExpiredRaidBuffStatesLocked()
     {
         // Remove expired intents and inactive buff states
         foreach (var kvp in _remoteRaidBuffStates)
@@ -1981,138 +2126,132 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             .ToList();
 
         foreach (var key in emptyKeys)
-        {
             _remoteRaidBuffStates.Remove(key);
-        }
     }
 
     private void CleanupExpiredReservations(DateTime now)
     {
-        // Clean up local reservations
+        // Clean up local reservations (framework thread only — no lock needed)
         var expiredLocal = _localReservations
             .Where(r => (now - r.Value.ReservedAt).TotalMilliseconds > _config.HealReservationExpiryMs)
             .Select(r => r.Key)
             .ToList();
 
         foreach (var key in expiredLocal)
-        {
             _localReservations.Remove(key);
-        }
 
-        // Clean up remote reservations
-        var expiredRemote = _remoteReservations
-            .Where(r => (now - r.Value.ReservedAt).TotalMilliseconds > _config.HealReservationExpiryMs)
-            .Select(r => r.Key)
-            .ToList();
-
-        foreach (var key in expiredRemote)
+        // Clean up remote reservations (shared with IPC callbacks — lock required)
+        lock (_stateLock)
         {
-            _remoteReservations.Remove(key);
+            var expiredRemote = _remoteReservations
+                .Where(r => (now - r.Value.ReservedAt).TotalMilliseconds > _config.HealReservationExpiryMs)
+                .Select(r => r.Key)
+                .ToList();
+
+            foreach (var key in expiredRemote)
+                _remoteReservations.Remove(key);
         }
     }
 
     private void CleanupExpiredGroundEffects()
     {
-        _remoteGroundEffects.RemoveAll(e => e.IsExpired);
+        lock (_stateLock)
+            _remoteGroundEffects.RemoveAll(e => e.IsExpired);
     }
 
     private void CleanupExpiredRaiseReservations()
     {
-        // Clean up local raise reservations
+        // Clean up local raise reservations (framework thread only — no lock needed)
         var expiredLocal = _localRaiseReservations
             .Where(r => r.Value.IsExpired)
             .Select(r => r.Key)
             .ToList();
 
         foreach (var key in expiredLocal)
-        {
             _localRaiseReservations.Remove(key);
-        }
 
-        // Clean up remote raise reservations
-        var expiredRemote = _remoteRaiseReservations
-            .Where(r => r.Value.IsExpired)
-            .Select(r => r.Key)
-            .ToList();
-
-        foreach (var key in expiredRemote)
+        // Clean up remote raise reservations (shared with IPC callbacks — lock required)
+        lock (_stateLock)
         {
-            _remoteRaiseReservations.Remove(key);
+            var expiredRemote = _remoteRaiseReservations
+                .Where(r => r.Value.IsExpired)
+                .Select(r => r.Key)
+                .ToList();
+
+            foreach (var key in expiredRemote)
+                _remoteRaiseReservations.Remove(key);
         }
     }
 
     private void CleanupExpiredCleanseReservations()
     {
-        // Clean up local cleanse reservations
+        // Clean up local cleanse reservations (framework thread only — no lock needed)
         var expiredLocal = _localCleanseReservations
             .Where(r => r.Value.IsExpired)
             .Select(r => r.Key)
             .ToList();
 
         foreach (var key in expiredLocal)
-        {
             _localCleanseReservations.Remove(key);
-        }
 
-        // Clean up remote cleanse reservations
-        var expiredRemote = _remoteCleanseReservations
-            .Where(r => r.Value.IsExpired)
-            .Select(r => r.Key)
-            .ToList();
-
-        foreach (var key in expiredRemote)
+        // Clean up remote cleanse reservations (shared with IPC callbacks — lock required)
+        lock (_stateLock)
         {
-            _remoteCleanseReservations.Remove(key);
+            var expiredRemote = _remoteCleanseReservations
+                .Where(r => r.Value.IsExpired)
+                .Select(r => r.Key)
+                .ToList();
+
+            foreach (var key in expiredRemote)
+                _remoteCleanseReservations.Remove(key);
         }
     }
 
     private void CleanupExpiredInterruptReservations()
     {
-        // Clean up local interrupt reservations
+        // Clean up local interrupt reservations (framework thread only — no lock needed)
         var expiredLocal = _localInterruptReservations
             .Where(r => r.Value.IsExpired)
             .Select(r => r.Key)
             .ToList();
 
         foreach (var key in expiredLocal)
-        {
             _localInterruptReservations.Remove(key);
-        }
 
-        // Clean up remote interrupt reservations
-        var expiredRemote = _remoteInterruptReservations
-            .Where(r => r.Value.IsExpired)
-            .Select(r => r.Key)
-            .ToList();
-
-        foreach (var key in expiredRemote)
+        // Clean up remote interrupt reservations (shared with IPC callbacks — lock required)
+        lock (_stateLock)
         {
-            _remoteInterruptReservations.Remove(key);
+            var expiredRemote = _remoteInterruptReservations
+                .Where(r => r.Value.IsExpired)
+                .Select(r => r.Key)
+                .ToList();
+
+            foreach (var key in expiredRemote)
+                _remoteInterruptReservations.Remove(key);
         }
     }
 
     private void CleanupExpiredTankSwapReservations()
     {
-        // Clean up local tank swap reservations
+        // Clean up local tank swap reservations (framework thread only — no lock needed)
         var expiredLocal = _localTankSwapReservations
             .Where(r => r.Value.IsExpired)
             .Select(r => r.Key)
             .ToList();
 
         foreach (var key in expiredLocal)
-        {
             _localTankSwapReservations.Remove(key);
-        }
 
-        // Clean up remote tank swap reservations
-        var expiredRemote = _remoteTankSwapReservations
-            .Where(r => r.Value.IsExpired)
-            .Select(r => r.Key)
-            .ToList();
-
-        foreach (var key in expiredRemote)
+        // Clean up remote tank swap reservations (shared with IPC callbacks — lock required)
+        lock (_stateLock)
         {
-            _remoteTankSwapReservations.Remove(key);
+            var expiredRemote = _remoteTankSwapReservations
+                .Where(r => r.Value.IsExpired)
+                .Select(r => r.Key)
+                .ToList();
+
+            foreach (var key in expiredRemote)
+                _remoteTankSwapReservations.Remove(key);
         }
     }
 
