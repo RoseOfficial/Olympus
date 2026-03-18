@@ -10,11 +10,21 @@ namespace Olympus.Ipc;
 /// IPC endpoints for party coordination between multiple Olympus instances.
 /// </summary>
 /// <remarks>
-/// Available IPC endpoints:
-/// - Olympus.Party.Heartbeat: Periodic alive signal (string JSON)
-/// - Olympus.Party.HealIntent: Broadcast heal reservation (string JSON)
-/// - Olympus.Party.HealLanded: Notify heal completion (string JSON)
-/// - Olympus.Party.CooldownUsed: Announce major cooldown usage (string JSON)
+/// Available IPC endpoints (all carry string JSON payloads):
+/// - Olympus.Party.Heartbeat: Periodic alive signal with instance/job info
+/// - Olympus.Party.HealIntent: Broadcast single-target heal reservation
+/// - Olympus.Party.HealLanded: Notify heal completion (clears reservation)
+/// - Olympus.Party.CooldownUsed: Announce major defensive cooldown usage
+/// - Olympus.Party.AoEHealIntent: Broadcast party-wide heal reservation
+/// - Olympus.Party.RaidBuffIntent: Announce intent to use a raid buff
+/// - Olympus.Party.BurstWindowStart: Signal burst window activation
+/// - Olympus.Party.GaugeState: Broadcast healer gauge counts (Lily, Aetherflow, Addersgall)
+/// - Olympus.Party.RoleDeclaration: Declare primary/secondary healer role
+/// - Olympus.Party.GroundEffectPlaced: Announce ground-targeted effect placement
+/// - Olympus.Party.RaiseIntent: Reserve a raise target to prevent double-raising
+/// - Olympus.Party.CleanseIntent: Reserve an Esuna target to prevent double-cleansing
+/// - Olympus.Party.InterruptIntent: Reserve an interrupt target
+/// - Olympus.Party.TankSwapIntent: Coordinate Provoke/Shirk between tank instances
 /// </remarks>
 public sealed class PartyCoordinationIpc : IDisposable
 {

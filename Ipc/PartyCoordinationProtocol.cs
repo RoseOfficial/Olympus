@@ -98,24 +98,26 @@ public abstract class PartyMessage
                 return null;
 
             var type = (PartyMessageType)typeElement.GetInt32();
-            return type switch
+            switch (type)
             {
-                PartyMessageType.Heartbeat => JsonSerializer.Deserialize<HeartbeatMessage>(json, PartyMessageJsonContext.Options),
-                PartyMessageType.HealIntent => JsonSerializer.Deserialize<HealIntentMessage>(json, PartyMessageJsonContext.Options),
-                PartyMessageType.HealLanded => JsonSerializer.Deserialize<HealLandedMessage>(json, PartyMessageJsonContext.Options),
-                PartyMessageType.CooldownUsed => JsonSerializer.Deserialize<CooldownUsedMessage>(json, PartyMessageJsonContext.Options),
-                PartyMessageType.AoEHealIntent => JsonSerializer.Deserialize<AoEHealIntentMessage>(json, PartyMessageJsonContext.Options),
-                PartyMessageType.RaidBuffIntent => JsonSerializer.Deserialize<RaidBuffIntentMessage>(json, PartyMessageJsonContext.Options),
-                PartyMessageType.BurstWindowStart => JsonSerializer.Deserialize<BurstWindowStartMessage>(json, PartyMessageJsonContext.Options),
-                PartyMessageType.GaugeState => JsonSerializer.Deserialize<GaugeStateMessage>(json, PartyMessageJsonContext.Options),
-                PartyMessageType.RoleDeclaration => JsonSerializer.Deserialize<RoleDeclarationMessage>(json, PartyMessageJsonContext.Options),
-                PartyMessageType.GroundEffectPlaced => JsonSerializer.Deserialize<GroundEffectPlacedMessage>(json, PartyMessageJsonContext.Options),
-                PartyMessageType.RaiseIntent => JsonSerializer.Deserialize<RaiseIntentMessage>(json, PartyMessageJsonContext.Options),
-                PartyMessageType.CleanseIntent => JsonSerializer.Deserialize<CleanseIntentMessage>(json, PartyMessageJsonContext.Options),
-                PartyMessageType.InterruptIntent => JsonSerializer.Deserialize<InterruptIntentMessage>(json, PartyMessageJsonContext.Options),
-                PartyMessageType.TankSwapIntent => JsonSerializer.Deserialize<TankSwapIntentMessage>(json, PartyMessageJsonContext.Options),
-                _ => null
-            };
+                case PartyMessageType.Heartbeat: return JsonSerializer.Deserialize<HeartbeatMessage>(json, PartyMessageJsonContext.Options);
+                case PartyMessageType.HealIntent: return JsonSerializer.Deserialize<HealIntentMessage>(json, PartyMessageJsonContext.Options);
+                case PartyMessageType.HealLanded: return JsonSerializer.Deserialize<HealLandedMessage>(json, PartyMessageJsonContext.Options);
+                case PartyMessageType.CooldownUsed: return JsonSerializer.Deserialize<CooldownUsedMessage>(json, PartyMessageJsonContext.Options);
+                case PartyMessageType.AoEHealIntent: return JsonSerializer.Deserialize<AoEHealIntentMessage>(json, PartyMessageJsonContext.Options);
+                case PartyMessageType.RaidBuffIntent: return JsonSerializer.Deserialize<RaidBuffIntentMessage>(json, PartyMessageJsonContext.Options);
+                case PartyMessageType.BurstWindowStart: return JsonSerializer.Deserialize<BurstWindowStartMessage>(json, PartyMessageJsonContext.Options);
+                case PartyMessageType.GaugeState: return JsonSerializer.Deserialize<GaugeStateMessage>(json, PartyMessageJsonContext.Options);
+                case PartyMessageType.RoleDeclaration: return JsonSerializer.Deserialize<RoleDeclarationMessage>(json, PartyMessageJsonContext.Options);
+                case PartyMessageType.GroundEffectPlaced: return JsonSerializer.Deserialize<GroundEffectPlacedMessage>(json, PartyMessageJsonContext.Options);
+                case PartyMessageType.RaiseIntent: return JsonSerializer.Deserialize<RaiseIntentMessage>(json, PartyMessageJsonContext.Options);
+                case PartyMessageType.CleanseIntent: return JsonSerializer.Deserialize<CleanseIntentMessage>(json, PartyMessageJsonContext.Options);
+                case PartyMessageType.InterruptIntent: return JsonSerializer.Deserialize<InterruptIntentMessage>(json, PartyMessageJsonContext.Options);
+                case PartyMessageType.TankSwapIntent: return JsonSerializer.Deserialize<TankSwapIntentMessage>(json, PartyMessageJsonContext.Options);
+                default:
+                    System.Diagnostics.Debug.WriteLine($"Unknown party coordination message type: {(int)type}");
+                    return null;
+            }
         }
         catch
         {

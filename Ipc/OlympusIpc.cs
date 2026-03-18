@@ -193,6 +193,7 @@ public sealed class OlympusIpc : IDisposable
         _getVersion.UnregisterFunc();
         _getActiveRotation.UnregisterFunc();
         _getSupportedJobs.UnregisterFunc();
+        _onStateChanged.UnregisterAction();
         _log.Info("Olympus IPC disposed");
     }
 }

@@ -13,6 +13,9 @@ namespace Olympus.Rotation.NikeCore.Modules;
 /// </summary>
 public sealed class BuffModule : INikeModule
 {
+    // SAM burst pooling is handled entirely in DamageModule via IBurstWindowService.
+    // BuffModule only manages Ikishoten timing — no burst-hold logic needed here.
+
     public int Priority => 20; // Before Damage
     public string Name => "Buff";
 

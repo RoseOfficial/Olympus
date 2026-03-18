@@ -481,6 +481,30 @@ public static class ConfigValidator
                 SuggestedFix = "Lower the minimum feathers or raise the overcap threshold so the minimum is at or below the overcap value."
             });
         }
+
+        // DRG: warn if GeirskogulMinEyes > 0 but EnableGeirskogul is false
+        if (!config.Dragoon.EnableGeirskogul && config.Dragoon.GeirskogulMinEyes > 0)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Warning,
+                Category = "Dragoon",
+                Message = "Dragoon: GeirskogulMinEyes is set but EnableGeirskogul is off — Life of the Dragon cannot be entered",
+                SuggestedFix = "Enable Geirskogul or set GeirskogulMinEyes to 0."
+            });
+        }
+
+        // PCT: warn if HolyMinPalette > 0 but EnableHolyInWhite is false
+        if (!config.Pictomancer.EnableHolyInWhite && config.Pictomancer.HolyMinPalette > 0)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Warning,
+                Category = "Pictomancer",
+                Message = "Pictomancer: HolyMinPalette is set but EnableHolyInWhite is off",
+                SuggestedFix = "Enable Holy in White or set HolyMinPalette to 0."
+            });
+        }
     }
 
     /// <summary>
