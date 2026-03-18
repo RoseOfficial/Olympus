@@ -631,15 +631,74 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableRaidBuffCoordination)
             return BurstWindowState.NoInfo;
 
-        // Check if we have any remote DPS instances
-        if (!HasRemoteDps)
-            return BurstWindowState.NoInfo;
+        bool hasRemoteDps;
+        bool isActive;
+        float remainingSeconds;
+        List<RemoteRaidBuffState> pendingIntents;
 
-        var isActive = IsInBurstWindow();
-        var remainingSeconds = GetBurstWindowRemaining();
+        lock (_stateLock)
+        {
+            // Check if we have any remote DPS instances
+            hasRemoteDps = _remoteInstances.Values.Any(i => i.IsEnabled && JobRegistry.IsDps(i.JobId));
+            if (!hasRemoteDps)
+                return BurstWindowState.NoInfo;
 
-        // Gather pending intents
-        var pendingIntents = GetPendingRaidBuffIntents();
+            // Determine if we are in an active burst window
+            var now = DateTime.UtcNow;
+            isActive = false;
+            if (_burstWindowStart.HasValue)
+            {
+                var elapsed = (now - _burstWindowStart.Value).TotalSeconds;
+                if (elapsed < _burstWindowDuration)
+                    isActive = true;
+            }
+            if (!isActive)
+            {
+                foreach (var kvp in _remoteRaidBuffStates)
+                {
+                    foreach (var state in kvp.Value)
+                    {
+                        if (state.IsBuffActive)
+                        {
+                            isActive = true;
+                            break;
+                        }
+                    }
+                    if (isActive) break;
+                }
+            }
+
+            // Calculate burst window remaining
+            float maxRemaining = 0;
+            if (_burstWindowStart.HasValue)
+            {
+                var elapsed = (float)(now - _burstWindowStart.Value).TotalSeconds;
+                var remaining = _burstWindowDuration - elapsed;
+                if (remaining > maxRemaining)
+                    maxRemaining = remaining;
+            }
+            foreach (var kvp in _remoteRaidBuffStates)
+            {
+                foreach (var state in kvp.Value)
+                {
+                    if (state.BuffRemainingSeconds > maxRemaining)
+                        maxRemaining = state.BuffRemainingSeconds;
+                }
+            }
+            remainingSeconds = Math.Max(0, maxRemaining);
+
+            // Gather pending intents
+            pendingIntents = new List<RemoteRaidBuffState>();
+            foreach (var kvp in _remoteRaidBuffStates)
+            {
+                foreach (var state in kvp.Value)
+                {
+                    if (state.IsIntentOnly && !state.IsIntentExpired)
+                        pendingIntents.Add(state);
+                }
+            }
+        }
+
         var pendingCount = pendingIntents.Count;
 
         // Calculate seconds until next burst from pending intents
@@ -1851,20 +1910,6 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnableRaiseCoordination)
             return;
 
-        // Check if we already have a local reservation for this target
-        // (_localRaiseReservations is only touched on the framework thread — no lock needed for this read)
-        if (_localRaiseReservations.TryGetValue(message.TargetEntityId, out var localReservation))
-        {
-            // If we're using Swiftcast and they're not, keep our reservation
-            if (localReservation.UsingSwiftcast && !message.UsingSwiftcast)
-            {
-                if (_config.LogCoordinationEvents)
-                    _log.Debug("[PartyCoord] Ignoring remote raise intent for {0} - we have Swiftcast priority",
-                        message.TargetEntityId);
-                return;
-            }
-        }
-
         var reservation = new RaiseReservation
         {
             InstanceId = message.InstanceId,
@@ -1876,7 +1921,22 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         };
 
         lock (_stateLock)
+        {
+            // Check if we already have a local reservation for this target
+            if (_localRaiseReservations.TryGetValue(message.TargetEntityId, out var localReservation))
+            {
+                // If we're using Swiftcast and they're not, keep our reservation
+                if (localReservation.UsingSwiftcast && !message.UsingSwiftcast)
+                {
+                    if (_config.LogCoordinationEvents)
+                        _log.Debug("[PartyCoord] Ignoring remote raise intent for {0} - we have Swiftcast priority",
+                            message.TargetEntityId);
+                    return;
+                }
+            }
+
             _remoteRaiseReservations[message.TargetEntityId] = reservation;
+        }
 
         if (_config.LogCoordinationEvents)
             _log.Debug("[PartyCoord] Remote raise reservation: target {0}, Swiftcast: {1}, cast time: {2}ms from instance {3}",
