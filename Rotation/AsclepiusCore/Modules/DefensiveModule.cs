@@ -10,7 +10,7 @@ namespace Olympus.Rotation.AsclepiusCore.Modules;
 
 /// <summary>
 /// Sage-specific defensive module.
-/// Handles party and single-target mitigation: Taurochole, Kerachole, Holos, Panhaima, Haima.
+/// Handles party and single-target mitigation: Taurochole, Kerachole, Holos, Panhaima.
 /// Priority 20 — runs after healing, before buffs.
 /// </summary>
 public sealed class DefensiveModule : BaseDefensiveModule<IAsclepiusContext>, IAsclepiusModule
@@ -35,8 +35,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAsclepiusContext>, IA
     /// Taurochole (tank single-target mit/heal) →
     /// Kerachole (party AoE regen + mit) →
     /// Holos (party heal + shield + mit) →
-    /// Panhaima (party multi-hit shields) →
-    /// Haima (tank single-target multi-hit shields)
+    /// Panhaima (party multi-hit shields)
     /// </summary>
     protected override bool TryJobSpecificDefensives(IAsclepiusContext context, bool isMoving)
     {
