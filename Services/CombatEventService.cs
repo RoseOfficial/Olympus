@@ -286,6 +286,8 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
         ActionEffectHandler.TargetEffects* effects,
         GameObjectId* targetEntityIds)
     {
+        if (receiveHook == null) return;
+
         try
         {
             ProcessEffects(casterEntityId, header, effects, targetEntityIds);
@@ -296,7 +298,7 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
         }
 
         // Always call original
-        receiveHook!.Original(casterEntityId, casterPtr, targetPos, header, effects, targetEntityIds);
+        receiveHook.Original(casterEntityId, casterPtr, targetPos, header, effects, targetEntityIds);
     }
 
     private void ProcessEffects(

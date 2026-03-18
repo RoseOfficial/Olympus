@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Ipc;
 using Dalamud.Plugin.Services;
@@ -155,16 +156,15 @@ public sealed class OlympusIpc : IDisposable
         if (manager == null)
             return Array.Empty<uint>();
 
-        var jobs = new System.Collections.Generic.List<uint>();
+        var jobSet = new System.Collections.Generic.HashSet<uint>();
         foreach (var rotation in manager.RegisteredRotations)
         {
             foreach (var jobId in rotation.SupportedJobIds)
             {
-                if (!jobs.Contains(jobId))
-                    jobs.Add(jobId);
+                jobSet.Add(jobId);
             }
         }
-        return jobs.ToArray();
+        return jobSet.ToArray();
     }
 
     #endregion

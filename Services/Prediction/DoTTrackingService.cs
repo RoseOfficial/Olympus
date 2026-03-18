@@ -52,10 +52,6 @@ public sealed class DoTTrackingService : IDisposable
             { 7480,  (35, 60f) },   // Higanbana
             { 25779, (35, 60f) },   // Higanbana (upgrade)
 
-            // PLD
-            { 28,    (30, 18f) },   // Goring Blade
-            { 36918, (35, 18f) },   // Sepulchre
-
             // MCH
             { 2872,  (35, 15f) },   // Bioblaster (DoT component)
 

@@ -37,22 +37,6 @@ public sealed class PartyCoordinationIpc : IDisposable
     private readonly ICallGateProvider<string, object> _interruptIntentProvider;
     private readonly ICallGateProvider<string, object> _tankSwapIntentProvider;
 
-    // IPC subscribers (for receiving)
-    private readonly ICallGateSubscriber<string, object> _heartbeatSubscriber;
-    private readonly ICallGateSubscriber<string, object> _healIntentSubscriber;
-    private readonly ICallGateSubscriber<string, object> _healLandedSubscriber;
-    private readonly ICallGateSubscriber<string, object> _cooldownUsedSubscriber;
-    private readonly ICallGateSubscriber<string, object> _aoEHealIntentSubscriber;
-    private readonly ICallGateSubscriber<string, object> _raidBuffIntentSubscriber;
-    private readonly ICallGateSubscriber<string, object> _burstWindowStartSubscriber;
-    private readonly ICallGateSubscriber<string, object> _gaugeStateSubscriber;
-    private readonly ICallGateSubscriber<string, object> _roleDeclarationSubscriber;
-    private readonly ICallGateSubscriber<string, object> _groundEffectPlacedSubscriber;
-    private readonly ICallGateSubscriber<string, object> _raiseIntentSubscriber;
-    private readonly ICallGateSubscriber<string, object> _cleanseIntentSubscriber;
-    private readonly ICallGateSubscriber<string, object> _interruptIntentSubscriber;
-    private readonly ICallGateSubscriber<string, object> _tankSwapIntentSubscriber;
-
     public PartyCoordinationIpc(
         IDalamudPluginInterface pluginInterface,
         PartyCoordinationService service,
@@ -92,22 +76,6 @@ public sealed class PartyCoordinationIpc : IDisposable
         _cleanseIntentProvider.RegisterAction(OnCleanseIntentReceived);
         _interruptIntentProvider.RegisterAction(OnInterruptIntentReceived);
         _tankSwapIntentProvider.RegisterAction(OnTankSwapIntentReceived);
-
-        // Subscribe to receive messages from other instances
-        _heartbeatSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.Heartbeat");
-        _healIntentSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.HealIntent");
-        _healLandedSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.HealLanded");
-        _cooldownUsedSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.CooldownUsed");
-        _aoEHealIntentSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.AoEHealIntent");
-        _raidBuffIntentSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.RaidBuffIntent");
-        _burstWindowStartSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.BurstWindowStart");
-        _gaugeStateSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.GaugeState");
-        _roleDeclarationSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.RoleDeclaration");
-        _groundEffectPlacedSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.GroundEffectPlaced");
-        _raiseIntentSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.RaiseIntent");
-        _cleanseIntentSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.CleanseIntent");
-        _interruptIntentSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.InterruptIntent");
-        _tankSwapIntentSubscriber = pluginInterface.GetIpcSubscriber<string, object>("Olympus.Party.TankSwapIntent");
 
         // Wire up service events to IPC broadcasts
         _service.OnHeartbeatReady += SendHeartbeat;

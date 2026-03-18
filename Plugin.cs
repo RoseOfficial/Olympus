@@ -380,7 +380,9 @@ public sealed class Plugin : IDalamudPlugin
         combatEventService.Clear();
         hpPredictionService.ClearPendingHeals();
         damageIntakeService.Clear();
+        damageIntakeService.CleanupExpiredEntries();
         healingIntakeService.Clear();
+        healingIntakeService.CleanupExpiredEntries();
     }
 
     /// <summary>
@@ -498,50 +500,57 @@ public sealed class Plugin : IDalamudPlugin
 
     private void OnFrameworkUpdate(IFramework framework)
     {
-        // Always update debug service frame counter
-        debugService.Update();
+        try
+        {
+            // Always update debug service frame counter
+            debugService.Update();
 
-        // Always update shield tracking for accurate HP predictions
-        shieldTrackingService.Update();
+            // Always update shield tracking for accurate HP predictions
+            shieldTrackingService.Update();
 
-        // Update timeline service for sync and predictions
-        timelineService.Update();
+            // Update timeline service for sync and predictions
+            timelineService.Update();
 
-        // Update performance analytics (tracks combat state independently)
-        performanceTracker.Update();
+            // Update performance analytics (tracks combat state independently)
+            performanceTracker.Update();
 
-        // Update training mode
-        trainingService.Update();
+            // Update training mode
+            trainingService.Update();
 
-        // Update coaching hints (v3.49.0)
-        realTimeCoachingService.Update();
-        hintOverlay.HandleInput();
+            // Update coaching hints (v3.49.0)
+            realTimeCoachingService.Update();
+            hintOverlay.HandleInput();
 
-        if (!configuration.Enabled)
-            return;
+            if (!configuration.Enabled)
+                return;
 
-        if (!clientState.IsLoggedIn)
-            return;
+            if (!clientState.IsLoggedIn)
+                return;
 
-        var localPlayer = objectTable.LocalPlayer;
-        if (localPlayer == null)
-            return;
+            var localPlayer = objectTable.LocalPlayer;
+            if (localPlayer == null)
+                return;
 
-        if (localPlayer.CurrentHp == 0)
-            return;
+            if (localPlayer.CurrentHp == 0)
+                return;
 
-        // Update party coordination service (heartbeat, cleanup)
-        partyCoordinationService?.Update(
-            localPlayer.EntityId,
-            localPlayer.ClassJob.RowId,
-            configuration.Enabled);
+            // Update party coordination service (heartbeat, cleanup)
+            partyCoordinationService?.Update(
+                localPlayer.EntityId,
+                localPlayer.ClassJob.RowId,
+                configuration.Enabled);
 
-        // Check if we have a rotation for the current job
-        var jobId = localPlayer.ClassJob.RowId;
-        if (!rotationManager.UpdateActiveRotation(jobId))
-            return;
+            // Check if we have a rotation for the current job
+            var jobId = localPlayer.ClassJob.RowId;
+            if (!rotationManager.UpdateActiveRotation(jobId))
+                return;
 
-        rotationManager.Execute(localPlayer);
+            rotationManager.Execute(localPlayer);
+        }
+        catch (Exception ex)
+        {
+            log.Error(ex, "Error in OnFrameworkUpdate");
+        }
     }
 
     public void Dispose()
@@ -567,9 +576,6 @@ public sealed class Plugin : IDalamudPlugin
         telemetryService.Dispose();
         updateCheckerService.Dispose();
 
-        // Dispose rotations created by the factory
-        rotationFactory?.DisposeRotations();
-
         // Dispose rotation manager (handles all instantiated rotations)
         rotationManager.Dispose();
 
@@ -583,5 +589,6 @@ public sealed class Plugin : IDalamudPlugin
         smartAoEService.Dispose();
         drawingService.Dispose();
         localization.Dispose();
+        serviceContainer?.Dispose();
     }
 }
