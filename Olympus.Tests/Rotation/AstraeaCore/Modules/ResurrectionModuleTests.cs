@@ -311,6 +311,8 @@ public class ResurrectionModuleTests
             .Returns(false);
         actionService.Setup(a => a.GetCooldownRemaining(RoleActions.Swiftcast.ActionId))
             .Returns(60f); // Swiftcast on cooldown — forces hardcast path
+        actionService.Setup(a => a.GetCooldownRemaining(ASTActions.Lightspeed.ActionId))
+            .Returns(60f); // Lightspeed on cooldown — prevents ShouldWaitForPreRaiseBuff blocking
         actionService.Setup(a => a.ExecuteGcd(
                 It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.Ascend.ActionId),
                 It.IsAny<ulong>()))
@@ -362,6 +364,8 @@ public class ResurrectionModuleTests
             .Returns(false);
         actionService.Setup(a => a.GetCooldownRemaining(RoleActions.Swiftcast.ActionId))
             .Returns(60f);
+        actionService.Setup(a => a.GetCooldownRemaining(ASTActions.Lightspeed.ActionId))
+            .Returns(60f); // Lightspeed on cooldown — prevents ShouldWaitForPreRaiseBuff blocking
         actionService.Setup(a => a.ExecuteGcd(
                 It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.Ascend.ActionId),
                 It.IsAny<ulong>()))

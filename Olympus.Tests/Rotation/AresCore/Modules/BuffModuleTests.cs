@@ -119,6 +119,7 @@ public class BuffModuleTests
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         actionService.Setup(x => x.IsActionReady(WARActions.InnerRelease.ActionId)).Returns(false); // IR not ready
         actionService.Setup(x => x.IsActionReady(WARActions.Infuriate.ActionId)).Returns(true);
+        actionService.Setup(x => x.GetCurrentCharges(WARActions.Infuriate.ActionId)).Returns(1u); // 1 charge available
         actionService.Setup(x => x.ExecuteOgcd(
                 It.Is<ActionDefinition>(a => a.ActionId == WARActions.Infuriate.ActionId),
                 It.IsAny<ulong>()))

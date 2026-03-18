@@ -25,7 +25,7 @@ public class BuffModuleTests
 
         var context = CreateContext(inCombat: true, canExecuteOgcd: true, config: config);
         Assert.False(_module.TryExecute(context, isMoving: false));
-        Assert.Equal("Disabled", context.Debug.BuffState);
+        Assert.Equal("Damage disabled", context.Debug.BuffState);
     }
 
     [Fact]
