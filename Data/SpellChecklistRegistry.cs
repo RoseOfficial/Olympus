@@ -23,6 +23,7 @@ public static class SpellChecklistRegistry
     {
         if (JobRegistry.IsWhiteMage(jobId)) jobId = JobRegistry.WhiteMage;
         if (JobRegistry.IsScholar(jobId))   jobId = JobRegistry.Scholar;
+        if (jobId == JobRegistry.Thaumaturge) jobId = JobRegistry.BlackMage;
 
         return jobId switch
         {

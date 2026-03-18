@@ -674,6 +674,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
 
                 return true;
             }
+
+            // Fire I failed (MP too low in AF to afford another cast) — transition to Ice
+            return TryTransitionToIce(context, target, false);
         }
 
         return false;
@@ -771,6 +774,16 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
             return true;
         }
 
+        // Fallback: if the level-appropriate spell failed (e.g., Blizzard III not yet unlocked),
+        // try basic Blizzard which is available from level 1 and always free in Astral Fire
+        if (iceTransition.ActionId != BLMActions.Blizzard.ActionId &&
+            context.ActionService.ExecuteGcd(BLMActions.Blizzard, target.GameObjectId))
+        {
+            context.Debug.PlannedAction = BLMActions.Blizzard.Name;
+            context.Debug.DamageState = "Transition to Ice (Blizzard)";
+            return true;
+        }
+
         return false;
     }
 
@@ -785,7 +798,29 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
 
         context.Debug.Phase = "Ice";
 
-        // Priority 1: Get Umbral Hearts with Blizzard IV (requires UI3)
+        // Priority 1a: Build to UI3 if entered at UI1 (e.g., via Transpose) for faster MP regen
+        // and to prevent element timer expiry before MP recovers
+        if (context.UmbralIceStacks < 3)
+        {
+            var iceUpgrade = BLMActions.GetIceTransition(level);
+            if (context.ActionService.ExecuteGcd(iceUpgrade, target.GameObjectId))
+            {
+                context.Debug.PlannedAction = iceUpgrade.Name;
+                context.Debug.DamageState = $"{iceUpgrade.Name} (build UI3)";
+                return true;
+            }
+
+            // Fallback to basic Blizzard if level-appropriate spell unavailable
+            if (iceUpgrade.ActionId != BLMActions.Blizzard.ActionId &&
+                context.ActionService.ExecuteGcd(BLMActions.Blizzard, target.GameObjectId))
+            {
+                context.Debug.PlannedAction = BLMActions.Blizzard.Name;
+                context.Debug.DamageState = "Blizzard (build UI stacks)";
+                return true;
+            }
+        }
+
+        // Priority 1b: Get Umbral Hearts with Blizzard IV (requires UI3)
         if (context.UmbralHearts < 3 && context.UmbralIceStacks == 3 && level >= BLMActions.Blizzard4.MinLevel)
         {
             if (context.ActionService.ExecuteGcd(BLMActions.Blizzard4, target.GameObjectId))

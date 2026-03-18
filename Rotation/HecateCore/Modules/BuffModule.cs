@@ -49,6 +49,10 @@ public sealed class BuffModule : IHecateModule
         if (TryManafont(context))
             return true;
 
+        // Priority 5: Transpose - AF→UI instant transition for low-level when stuck with low MP
+        if (TryTranspose(context))
+            return true;
+
         context.Debug.BuffState = "No oGCD needed";
         return false;
     }
@@ -419,6 +423,41 @@ public sealed class BuffModule : IHecateModule
             context.TrainingService?.RecordConceptApplication(BlmConcepts.Manafont, true, "MP restored in Fire phase");
             context.TrainingService?.RecordConceptApplication(BlmConcepts.MpManagement, true, "Extended Fire phase");
 
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TryTranspose(IHecateContext context)
+    {
+        var player = context.Player;
+        var level = player.Level;
+
+        if (level < BLMActions.Transpose.MinLevel)
+            return false;
+
+        // Only use Transpose for the AF→UI emergency transition at low level (no Fire IV/Despair).
+        // At level 60+, the normal transition path handles MP exhaustion correctly.
+        if (level >= BLMActions.Fire4.MinLevel)
+            return false;
+
+        // Only when in Astral Fire 3 with MP too low for another Fire I cast in AF
+        if (!context.InAstralFire || context.AstralFireStacks < 3)
+            return false;
+
+        // Threshold matches approximate Fire I cost in AF3 (2× base cost per tester spec)
+        if (context.CurrentMp >= 1600)
+            return false;
+
+        // Manafont restores MP and is handled above — only reach here if it's not available
+        if (!context.ActionService.IsActionReady(BLMActions.Transpose.ActionId))
+            return false;
+
+        if (context.ActionService.ExecuteOgcd(BLMActions.Transpose, player.GameObjectId))
+        {
+            context.Debug.PlannedAction = BLMActions.Transpose.Name;
+            context.Debug.BuffState = "Transpose (AF→UI, low MP)";
             return true;
         }
 
