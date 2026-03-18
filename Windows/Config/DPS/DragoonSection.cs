@@ -50,6 +50,34 @@ public sealed class DragoonSection
                 actionId: DRGActions.SpineshatterDive.ActionId);
 
             ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dragoon.EnableDragonfireDive, "Enable Dragonfire Dive"),
+                () => config.Dragoon.EnableDragonfireDive,
+                v => config.Dragoon.EnableDragonfireDive = v,
+                Loc.T(LocalizedStrings.Dragoon.EnableDragonfireDiveDesc, "Use Dragonfire Dive on cooldown"), save,
+                actionId: DRGActions.DragonfireDive.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dragoon.EnableNastrond, "Enable Nastrond"),
+                () => config.Dragoon.EnableNastrond,
+                v => config.Dragoon.EnableNastrond = v,
+                Loc.T(LocalizedStrings.Dragoon.EnableNastrondDesc, "Use Nastrond during Life of the Dragon"), save,
+                actionId: DRGActions.Nastrond.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dragoon.EnableWyrmwindThrust, "Enable Wyrmwind Thrust"),
+                () => config.Dragoon.EnableWyrmwindThrust,
+                v => config.Dragoon.EnableWyrmwindThrust = v,
+                Loc.T(LocalizedStrings.Dragoon.EnableWyrmwindThrustDesc, "Use Wyrmwind Thrust when available"), save,
+                actionId: DRGActions.WyrmwindThrust.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dragoon.EnableMirageDive, "Enable Mirage Dive"),
+                () => config.Dragoon.EnableMirageDive,
+                v => config.Dragoon.EnableMirageDive = v,
+                Loc.T(LocalizedStrings.Dragoon.EnableMirageDiveDesc, "Use Mirage Dive during Life Surge"), save,
+                actionId: DRGActions.MirageDive.ActionId);
+
+            ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Dragoon.EnableStardiver, "Enable Stardiver"),
                 () => config.Dragoon.EnableStardiver,
                 v => config.Dragoon.EnableStardiver = v,
@@ -138,6 +166,12 @@ public sealed class DragoonSection
                 () => config.Dragoon.AlignBattleLitanyWithParty,
                 v => config.Dragoon.AlignBattleLitanyWithParty = v,
                 Loc.T(LocalizedStrings.Dragoon.AlignWithPartyDesc, "Coordinate with party burst windows"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dragoon.EnableBurstPooling, "Enable Burst Pooling"),
+                () => config.Dragoon.EnableBurstPooling,
+                v => config.Dragoon.EnableBurstPooling = v,
+                Loc.T(LocalizedStrings.Dragoon.EnableBurstPoolingDesc, "Hold Geirskogul and Nastrond for party burst windows"), save);
 
             config.Dragoon.BattleLitanyHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Dragoon.BattleLitanyHoldTime, "Battle Litany Hold Time"),
