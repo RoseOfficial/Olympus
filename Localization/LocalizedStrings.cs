@@ -94,6 +94,7 @@ public static class LocalizedStrings
         public const string Targeting = "config.sidebar.targeting";
         public const string RoleActions = "config.sidebar.role_actions";
         public const string DrawHelper = "config.sidebar.draw_helper";
+        public const string PartyCoordination = "config.sidebar.party_coordination";
         public const string Healers = "config.sidebar.healers";
         public const string WhiteMage = "config.sidebar.white_mage";
         public const string Scholar = "config.sidebar.scholar";
@@ -3051,6 +3052,31 @@ public static class LocalizedStrings
         public const string Back = "ui.welcome.back";
         public const string Next = "ui.welcome.next";
         public const string JoinDiscord = "ui.welcome.join_discord";
+    }
+
+    #endregion
+
+    #region Party Coordination Settings (config.party_coord.*)
+
+    /// <summary>Keys for Party Coordination settings.</summary>
+    public static class PartyCoordination
+    {
+        public const string EnablePartyCoordination = "config.party_coord.enable";
+        public const string EnablePartyCoordinationDesc = "config.party_coord.enable_desc";
+        public const string CoordinationSection = "config.party_coord.coordination_section";
+        public const string EnableCooldownCoordination = "config.party_coord.enable_cooldown_coordination";
+        public const string EnableCooldownCoordinationDesc = "config.party_coord.enable_cooldown_coordination_desc";
+        public const string EnableAoEHealCoordination = "config.party_coord.enable_aoe_heal_coordination";
+        public const string EnableAoEHealCoordinationDesc = "config.party_coord.enable_aoe_heal_coordination_desc";
+        public const string BroadcastMajorCooldowns = "config.party_coord.broadcast_major_cooldowns";
+        public const string BroadcastMajorCooldownsDesc = "config.party_coord.broadcast_major_cooldowns_desc";
+        public const string ConnectionSection = "config.party_coord.connection_section";
+        public const string HeartbeatInterval = "config.party_coord.heartbeat_interval";
+        public const string HeartbeatIntervalDesc = "config.party_coord.heartbeat_interval_desc";
+        public const string InstanceTimeout = "config.party_coord.instance_timeout";
+        public const string InstanceTimeoutDesc = "config.party_coord.instance_timeout_desc";
+        public const string HealReservationExpiry = "config.party_coord.heal_reservation_expiry";
+        public const string HealReservationExpiryDesc = "config.party_coord.heal_reservation_expiry_desc";
     }
 
     #endregion

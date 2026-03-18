@@ -1988,5 +1988,23 @@
   "ui.welcome.lets_go": "Let's Go!",
   "ui.welcome.back": "← Back",
   "ui.welcome.next": "Next →",
-  "ui.welcome.join_discord": "Join Discord"
+  "ui.welcome.join_discord": "Join Discord",
+
+  "config.sidebar.party_coordination": "Party Coordination",
+  "config.party_coord.enable": "Enable Party Coordination",
+  "config.party_coord.enable_desc": "Coordinate heals and cooldowns with other Olympus users in your party. Changes take effect on next plugin reload.",
+  "config.party_coord.coordination_section": "Coordination",
+  "config.party_coord.enable_cooldown_coordination": "Enable Cooldown Coordination",
+  "config.party_coord.enable_cooldown_coordination_desc": "Prevent stacking defensive cooldowns with other Olympus users",
+  "config.party_coord.enable_aoe_heal_coordination": "Enable AoE Heal Coordination",
+  "config.party_coord.enable_aoe_heal_coordination_desc": "Prevent multiple healers casting party-wide heals simultaneously",
+  "config.party_coord.broadcast_major_cooldowns": "Broadcast Major Cooldowns",
+  "config.party_coord.broadcast_major_cooldowns_desc": "Announce when you use major cooldowns so other instances can coordinate",
+  "config.party_coord.connection_section": "Connection (Advanced)",
+  "config.party_coord.heartbeat_interval": "Heartbeat Interval (ms)",
+  "config.party_coord.heartbeat_interval_desc": "How often to broadcast presence (lower = faster, more overhead)",
+  "config.party_coord.instance_timeout": "Instance Timeout (ms)",
+  "config.party_coord.instance_timeout_desc": "Time before an instance is considered disconnected",
+  "config.party_coord.heal_reservation_expiry": "Heal Reservation Expiry (ms)",
+  "config.party_coord.heal_reservation_expiry_desc": "How long heal reservations stay valid"
 }

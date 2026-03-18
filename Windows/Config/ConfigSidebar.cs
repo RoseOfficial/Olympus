@@ -54,6 +54,7 @@ public enum ConfigSection
     Pictomancer,
 
     // Utility
+    PartyCoordination,
     DrawHelper
 }
 
@@ -68,7 +69,7 @@ public sealed class ConfigSidebar
     private static readonly Vector4 HoverColor = new(0.25f, 0.4f, 0.6f, 1.0f);
     private static readonly Vector4 SearchMatchColor = new(1.0f, 0.9f, 0.4f, 1.0f);
 
-    private static readonly ConfigSection[] GeneralSections  = [ConfigSection.General, ConfigSection.Targeting, ConfigSection.RoleActions, ConfigSection.DrawHelper];
+    private static readonly ConfigSection[] GeneralSections  = [ConfigSection.General, ConfigSection.Targeting, ConfigSection.RoleActions, ConfigSection.PartyCoordination, ConfigSection.DrawHelper];
     private static readonly ConfigSection[] HealerSections   = [ConfigSection.WhiteMage, ConfigSection.Scholar, ConfigSection.Astrologian, ConfigSection.Sage];
     private static readonly ConfigSection[] TankSections     = [ConfigSection.TankShared, ConfigSection.Paladin, ConfigSection.Warrior, ConfigSection.DarkKnight, ConfigSection.Gunbreaker];
     private static readonly ConfigSection[] MeleeSections    = [ConfigSection.MeleeDpsShared, ConfigSection.Dragoon, ConfigSection.Ninja, ConfigSection.Samurai, ConfigSection.Monk, ConfigSection.Reaper, ConfigSection.Viper];
@@ -135,6 +136,7 @@ public sealed class ConfigSidebar
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.GeneralItem, "General"), ConfigSection.General, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Targeting, "Targeting"), ConfigSection.Targeting, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.RoleActions, "Role Actions"), ConfigSection.RoleActions, null, matchingSections, hasSearch);
+            sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.PartyCoordination, "Party Coordination"), ConfigSection.PartyCoordination, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.DrawHelper, "Draw Helper"), ConfigSection.DrawHelper, null, matchingSections, hasSearch);
             ImGui.Spacing();
         }
