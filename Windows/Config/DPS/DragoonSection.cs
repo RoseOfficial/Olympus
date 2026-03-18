@@ -43,6 +43,13 @@ public sealed class DragoonSection
                 Loc.T(LocalizedStrings.Dragoon.EnableJumpsDesc, "Use Jump/High Jump on cooldown"), save);
 
             ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dragoon.EnableSpineshatterDive, "Enable Spineshatter Dive"),
+                () => config.Dragoon.EnableSpineshatterDive,
+                v => config.Dragoon.EnableSpineshatterDive = v,
+                Loc.T(LocalizedStrings.Dragoon.EnableSpineshatterDiveDesc, "Use Spineshatter Dive on cooldown"), save,
+                actionId: DRGActions.SpineshatterDive.ActionId);
+
+            ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Dragoon.EnableStardiver, "Enable Stardiver"),
                 () => config.Dragoon.EnableStardiver,
                 v => config.Dragoon.EnableStardiver = v,
