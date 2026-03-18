@@ -44,6 +44,10 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
     private readonly Dictionary<uint, float> lastHpPercent = new();
     private readonly Dictionary<uint, string> _actionNameCache = new();
 
+    // Frame throttle for party HP checks
+    private int _hpCheckFrameCounter = 0;
+    private const int HpCheckFrameInterval = 10;
+
     // Cooldown tracking
     private readonly Dictionary<uint, CooldownTrackingState> cooldownStates = new();
 
@@ -184,6 +188,11 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
 
     private void UpdateCombatTracking()
     {
+        _hpCheckFrameCounter++;
+        if (_hpCheckFrameCounter < HpCheckFrameInterval)
+            return;
+        _hpCheckFrameCounter = 0;
+
         // Check for near-death events
         foreach (var member in partyList)
         {
@@ -249,8 +258,8 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         {
             CombatDuration = duration,
             GcdUptime = actionTracker.GetGcdUptime(),
-            PersonalDps = duration > 0 ? (float)totalDamageDealt / duration : 0f,
-            TotalDamage = totalDamageDealt,
+            PersonalDps = duration > 0 ? (float)System.Threading.Interlocked.Read(ref totalDamageDealt) / duration : 0f,
+            TotalDamage = System.Threading.Interlocked.Read(ref totalDamageDealt),
             TotalHealing = overhealStats.TotalHealing,
             OverhealPercent = overhealStats.OverhealPercent,
             Deaths = deathCount,
@@ -441,8 +450,8 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         {
             CombatDuration = duration,
             GcdUptime = actionTracker.GetGcdUptime(),
-            PersonalDps = duration > 0 ? (float)totalDamageDealt / duration : 0f,
-            TotalDamage = totalDamageDealt,
+            PersonalDps = duration > 0 ? (float)System.Threading.Interlocked.Read(ref totalDamageDealt) / duration : 0f,
+            TotalDamage = System.Threading.Interlocked.Read(ref totalDamageDealt),
             TotalHealing = overhealStats.TotalHealing,
             OverhealPercent = overhealStats.OverhealPercent,
             Deaths = deathCount,
