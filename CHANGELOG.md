@@ -5,18 +5,39 @@ All notable changes to Olympus will be documented in this file.
 <!-- LATEST-START -->
 ## v4.10.32
 
+### All DPS Jobs
 - Ability toggles in settings now actually take effect for all 12 DPS jobs — Dragoon, Monk, Machinist, Samurai, Reaper, Ninja, Bard, Dancer, Black Mage, Summoner, Red Mage, and Pictomancer all had toggles that were displayed but silently ignored by the rotation engine
+
+### Sage
+- Sage now automatically uses mitigation cooldowns (Kerachole, Taurochole, Holos, Panhaima, Haima), matching other healer jobs
+- Fixed a bug where the Addersting status was tracked with the wrong ID, which could prevent Toxikon from firing when charges were available
+
+### Scholar
+- Fixed an issue in Scholar settings where the Emergency Tactics and Consolation toggle descriptions were displayed incorrectly
+
+### Tanks
+- Paladin, Warrior, Dark Knight, and Gunbreaker now have job-specific settings (Cover, Passage of Arms, Divine Veil, Clemency, Nascent Flash, Holmgang, Living Dead, The Blackest Night, Dark Missionary, Heart of Light, Heart of Corundum)
+
+### Settings
+- Settings now show action icons next to toggle names, with a tooltip displaying the action's ID, type (GCD/oGCD), cast time, recast time, range, and AoE range
+- Settings validation now detects gauge configuration conflicts for Ninja, Samurai, Reaper, Machinist, and Dancer — when the minimum gauge to spend is higher than the overcap threshold, the rotation can never spend that gauge and the issue is flagged with a suggested fix
+- The Draw Helper and General settings sections are now fully localized for all supported languages
+
+### Fight Timeline
+- Fight timelines are now available for all 8 Pandaemonium Savage raids (P1S–P8S), enabling timeline-aware cooldown planning in those encounters
+- Fixed an issue where P5S–P8S fight timelines were registered with incorrect zone IDs, preventing those timelines from activating in-game
+
+### General
 - Thaumaturge (pre-Black Mage) is now recognized and handled by the Black Mage rotation
 - Archer (pre-Bard) is now recognized and handled by the Bard rotation
-- Settings now show action icons next to toggle names, with a tooltip displaying the action's ID, type (GCD/oGCD), cast time, recast time, range, and AoE range
 - A new Changelog window (accessible from the main window) shows the 20 most recent plugin updates
-- Fight timelines are now available for all 8 Pandaemonium Savage raids (P1S–P8S), enabling timeline-aware cooldown planning in those encounters
 - Internal error tracking is now active, allowing suppressed errors to be surfaced in the debug window without flooding game logs
-- Sage now automatically uses mitigation cooldowns (Kerachole, Taurochole, Holos, Panhaima, Haima), matching other healer jobs
-- Paladin, Warrior, Dark Knight, and Gunbreaker now have job-specific settings (Cover, Passage of Arms, Divine Veil, Clemency, Nascent Flash, Holmgang, Living Dead, The Blackest Night, Dark Missionary, Heart of Light, Heart of Corundum)
-- Settings validation now detects gauge configuration conflicts for Ninja, Samurai, Reaper, Machinist, and Dancer — when the minimum gauge to spend is higher than the overcap threshold, the rotation can never spend that gauge and the issue is flagged with a suggested fix
-- Minor internal cleanup: accent color consolidated to a shared constant, config sidebar category lists promoted to static fields to avoid per-frame allocations, and a redundant set lookup removed
-- Internal refactor: role actions (Swiftcast, Lucid Dreaming, Feint, Rampart, etc.) are now defined once and shared across all jobs instead of being duplicated in each job's action file
+- Fixed a resource leak in the plugin's cleanup code that could cause instability when reloading or uninstalling the plugin
+
+### Internal
+- Role actions (Swiftcast, Lucid Dreaming, Feint, Rampart, etc.) are now defined once and shared across all jobs instead of being duplicated in each job's action file
+- Minor cleanup: accent color consolidated to a shared constant, config sidebar category lists promoted to static fields to avoid per-frame allocations, and a redundant set lookup removed
+- Automated integration tests added for all 21 jobs and core services, improving regression detection before changes reach players
 
 <!-- LATEST-END -->
 ## v4.10.31
