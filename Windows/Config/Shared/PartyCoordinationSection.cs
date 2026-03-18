@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Olympus.Localization;
 
 namespace Olympus.Windows.Config.Shared;
@@ -20,8 +21,8 @@ public sealed class PartyCoordinationSection
 
     public void Draw()
     {
-        ConfigUIHelpers.JobHeader("Party Coordination", "", new Vector4(0.4f, 0.8f, 0.9f, 1.0f));
-        ConfigUIHelpers.Spacing();
+        ImGui.TextColored(new Vector4(0.4f, 0.8f, 0.9f, 1.0f), "Party Coordination Settings");
+        ImGui.Separator();
 
         ConfigUIHelpers.Toggle(
             Loc.T(LocalizedStrings.PartyCoordination.EnablePartyCoordination, "Enable Party Coordination"),
