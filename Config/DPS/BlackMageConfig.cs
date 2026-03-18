@@ -11,11 +11,6 @@ public sealed class BlackMageConfig
     #region Damage Toggles
 
     /// <summary>
-    /// Whether to use single-target rotation.
-    /// </summary>
-    public bool EnableSingleTargetRotation { get; set; } = true;
-
-    /// <summary>
     /// Whether to use AoE rotation.
     /// </summary>
     public bool EnableAoERotation { get; set; } = true;

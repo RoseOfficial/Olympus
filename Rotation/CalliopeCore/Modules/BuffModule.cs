@@ -710,6 +710,8 @@ public sealed class BuffModule : ICalliopeModule
 
     private bool TryBloodletter(ICalliopeContext context, IBattleChara target)
     {
+        if (!context.Configuration.Bard.EnableBloodletter) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -724,7 +726,7 @@ public sealed class BuffModule : ICalliopeModule
         context.Debug.NearbyEnemies = enemyCount;
 
         // Use Rain of Death for AoE (3+ targets)
-        if (enemyCount >= 3 && level >= BRDActions.RainOfDeath.MinLevel)
+        if (enemyCount >= context.Configuration.Bard.AoEMinTargets && level >= BRDActions.RainOfDeath.MinLevel)
         {
             if (context.ActionService.IsActionReady(BRDActions.RainOfDeath.ActionId))
             {

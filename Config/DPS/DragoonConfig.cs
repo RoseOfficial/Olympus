@@ -11,11 +11,6 @@ public sealed class DragoonConfig
     #region Damage Toggles
 
     /// <summary>
-    /// Whether to use single-target combo rotation.
-    /// </summary>
-    public bool EnableSingleTargetRotation { get; set; } = true;
-
-    /// <summary>
     /// Whether to use AoE combo rotation.
     /// </summary>
     public bool EnableAoERotation { get; set; } = true;
@@ -73,11 +68,6 @@ public sealed class DragoonConfig
     /// Whether to use Life Surge for guaranteed crits.
     /// </summary>
     public bool EnableLifeSurge { get; set; } = true;
-
-    /// <summary>
-    /// Whether to use Dragon Sight (partner buff).
-    /// </summary>
-    public bool EnableDragonSight { get; set; } = true;
 
     #endregion
 

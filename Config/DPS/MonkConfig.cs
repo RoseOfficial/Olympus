@@ -11,11 +11,6 @@ public sealed class MonkConfig
     #region Damage Toggles
 
     /// <summary>
-    /// Whether to use single-target combo rotation.
-    /// </summary>
-    public bool EnableSingleTargetRotation { get; set; } = true;
-
-    /// <summary>
     /// Whether to use AoE combo rotation.
     /// </summary>
     public bool EnableAoERotation { get; set; } = true;
