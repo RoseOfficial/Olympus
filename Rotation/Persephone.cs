@@ -135,7 +135,7 @@ public sealed class Persephone : BaseCasterDpsRotation<IPersephoneContext, IPers
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<IPersephoneModule>
         {
-            new BuffModule(),    // Priority 20 - oGCD management (Enkindle, Astral Flow, Aetherflow, Searing Light)
+            new BuffModule(BurstWindowService),    // Priority 20 - oGCD management (Enkindle, Astral Flow, Aetherflow, Searing Light)
             new DamageModule(BurstWindowService),  // Priority 30 - GCD rotation
         };
 
