@@ -1631,6 +1631,30 @@ public static class LocalizedStrings
         public const string AlignWithPartyDesc = "config.job.pct.align_with_party_desc";
         public const string StarryMuseHoldTime = "config.job.pct.starry_muse_hold_time";
         public const string StarryMuseHoldTimeDesc = "config.job.pct.starry_muse_hold_time_desc";
+        public const string EnableSubtractiveCombo = "config.job.pct.enable_subtractive_combo";
+        public const string EnableSubtractiveComboDesc = "config.job.pct.enable_subtractive_combo_desc";
+        public const string EnableRainbowDrip = "config.job.pct.enable_rainbow_drip";
+        public const string EnableRainbowDripDesc = "config.job.pct.enable_rainbow_drip_desc";
+        public const string EnableBurstPooling = "config.job.pct.enable_burst_pooling";
+        public const string EnableBurstPoolingDesc = "config.job.pct.enable_burst_pooling_desc";
+        public const string UseHammerDuringBurst = "config.job.pct.use_hammer_during_burst";
+        public const string UseHammerDuringBurstDesc = "config.job.pct.use_hammer_during_burst_desc";
+        public const string HolyMinPalette = "config.job.pct.holy_min_palette";
+        public const string HolyMinPaletteDesc = "config.job.pct.holy_min_palette_desc";
+        public const string SavePaletteForComet = "config.job.pct.save_palette_for_comet";
+        public const string SavePaletteForCometDesc = "config.job.pct.save_palette_for_comet_desc";
+        public const string CreatureMotifOrder = "config.job.pct.creature_motif_order";
+        public const string CreatureMotifOrderDesc = "config.job.pct.creature_motif_order_desc";
+        public const string UtilitySection = "config.job.pct.utility_section";
+        public const string EnableTemperaCoat = "config.job.pct.enable_tempera_coat";
+        public const string EnableTemperaCoatDesc = "config.job.pct.enable_tempera_coat_desc";
+        public const string EnableTemperaGrassa = "config.job.pct.enable_tempera_grassa";
+        public const string EnableTemperaGrassaDesc = "config.job.pct.enable_tempera_grassa_desc";
+        public const string MpManagementSection = "config.job.pct.mp_management_section";
+        public const string EnableLucidDreaming = "config.job.pct.enable_lucid_dreaming";
+        public const string EnableLucidDreamingDesc = "config.job.pct.enable_lucid_dreaming_desc";
+        public const string LucidDreamingThreshold = "config.job.pct.lucid_dreaming_threshold";
+        public const string LucidDreamingThresholdDesc = "config.job.pct.lucid_dreaming_threshold_desc";
     }
 
     #endregion

@@ -28,6 +28,8 @@ public sealed class PictomancerSection
         DrawCanvasSection();
         DrawMuseSection();
         DrawBurstSection();
+        DrawUtilitySection();
+        DrawMpManagementSection();
     }
 
     private void DrawDamageSection()
@@ -35,6 +37,21 @@ public sealed class PictomancerSection
         if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Pictomancer.DamageSection, "Damage"), "PCT"))
         {
             ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.EnableSubtractiveCombo, "Enable Subtractive Combo"),
+                () => config.Pictomancer.EnableSubtractiveCombo,
+                v => config.Pictomancer.EnableSubtractiveCombo = v,
+                Loc.T(LocalizedStrings.Pictomancer.EnableSubtractiveComboDesc, "Use Fire in Red / Aero in Green / Water in Blue combo spells"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.EnableRainbowDrip, "Enable Rainbow Drip"),
+                () => config.Pictomancer.EnableRainbowDrip,
+                v => config.Pictomancer.EnableRainbowDrip = v,
+                null, save,
+                actionId: PCTActions.RainbowDrip.ActionId);
+
+            ConfigUIHelpers.Spacing();
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Pictomancer.EnableHolyInWhite, "Enable Holy in White"),
@@ -69,6 +86,19 @@ public sealed class PictomancerSection
                     config.Pictomancer.AoEMinTargets, 2, 8,
                     Loc.T(LocalizedStrings.Pictomancer.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
             }
+
+            ConfigUIHelpers.Spacing();
+
+            config.Pictomancer.HolyMinPalette = ConfigUIHelpers.IntSlider(
+                Loc.T(LocalizedStrings.Pictomancer.HolyMinPalette, "Holy in White Min Palette"),
+                config.Pictomancer.HolyMinPalette, 25, 100,
+                Loc.T(LocalizedStrings.Pictomancer.HolyMinPaletteDesc, "Minimum Palette gauge to spend on Holy in White"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.SavePaletteForComet, "Save Palette for Comet"),
+                () => config.Pictomancer.SavePaletteForComet,
+                v => config.Pictomancer.SavePaletteForComet = v,
+                Loc.T(LocalizedStrings.Pictomancer.SavePaletteForCometDesc, "Reserve Palette for Comet in Black when Subtractive is active"), save);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -111,6 +141,15 @@ public sealed class PictomancerSection
                 Loc.T(LocalizedStrings.Pictomancer.PrepaintOptionDesc, "Which motifs to pre-paint"), save))
             {
                 config.Pictomancer.PrepaintOption = prepaintOption;
+            }
+
+            var creatureOrder = config.Pictomancer.CreatureMotifOrder;
+            if (ConfigUIHelpers.EnumCombo(
+                Loc.T(LocalizedStrings.Pictomancer.CreatureMotifOrder, "Creature Motif Order"),
+                ref creatureOrder,
+                Loc.T(LocalizedStrings.Pictomancer.CreatureMotifOrderDesc, "Order to cycle through creature motifs"), save))
+            {
+                config.Pictomancer.CreatureMotifOrder = creatureOrder;
             }
 
             ConfigUIHelpers.EndIndent();
@@ -158,6 +197,18 @@ public sealed class PictomancerSection
                 null, save, actionId: PCTActions.StarryMuse.ActionId);
 
             ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.EnableBurstPooling, "Enable Burst Pooling"),
+                () => config.Pictomancer.EnableBurstPooling,
+                v => config.Pictomancer.EnableBurstPooling = v,
+                Loc.T(LocalizedStrings.Pictomancer.EnableBurstPoolingDesc, "Hold Hammer Time and paint resources for party burst windows"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.UseHammerDuringBurst, "Use Hammer During Burst"),
+                () => config.Pictomancer.UseHammerDuringBurst,
+                v => config.Pictomancer.UseHammerDuringBurst = v,
+                Loc.T(LocalizedStrings.Pictomancer.UseHammerDuringBurstDesc, "Prioritize Hammer Stamp combo inside Starry Muse windows"), save);
+
+            ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Pictomancer.AlignWithParty, "Align with Party"),
                 () => config.Pictomancer.AlignStarryMuseWithParty,
                 v => config.Pictomancer.AlignStarryMuseWithParty = v,
@@ -167,6 +218,53 @@ public sealed class PictomancerSection
                 Loc.T(LocalizedStrings.Pictomancer.StarryMuseHoldTime, "Starry Muse Hold Time"),
                 config.Pictomancer.StarryMuseHoldTime, 0f, 10f, "%.1f s",
                 Loc.T(LocalizedStrings.Pictomancer.StarryMuseHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save);
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawUtilitySection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Pictomancer.UtilitySection, "Utility"), "PCT", false))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.EnableTemperaCoat, "Enable Tempera Coat"),
+                () => config.Pictomancer.EnableTemperaCoat,
+                v => config.Pictomancer.EnableTemperaCoat = v,
+                null, save,
+                actionId: PCTActions.TemperaCoat.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.EnableTemperaGrassa, "Enable Tempera Grassa"),
+                () => config.Pictomancer.EnableTemperaGrassa,
+                v => config.Pictomancer.EnableTemperaGrassa = v,
+                null, save,
+                actionId: PCTActions.TemperaGrassa.ActionId);
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawMpManagementSection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Pictomancer.MpManagementSection, "MP Management"), "PCT", false))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.EnableLucidDreaming, "Enable Lucid Dreaming"),
+                () => config.Pictomancer.EnableLucidDreaming,
+                v => config.Pictomancer.EnableLucidDreaming = v,
+                null, save);
+
+            if (config.Pictomancer.EnableLucidDreaming)
+            {
+                config.Pictomancer.LucidDreamingThreshold = ConfigUIHelpers.ThresholdSlider(
+                    Loc.T(LocalizedStrings.Pictomancer.LucidDreamingThreshold, "Lucid MP Threshold"),
+                    config.Pictomancer.LucidDreamingThreshold, 40f, 90f, null, save);
+            }
 
             ConfigUIHelpers.EndIndent();
         }
