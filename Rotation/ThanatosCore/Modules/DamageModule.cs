@@ -197,7 +197,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IThanatosContext>, IThana
 
                 // Only use Gluttony if we can spend the Soul Reaver stacks
                 // (not about to enter Enshroud)
-                if (context.Shroud < 50 || !context.ActionService.IsActionReady(RPRActions.Enshroud.ActionId))
+                if (context.Shroud < 50 && !context.ActionService.IsActionReady(RPRActions.Enshroud.ActionId))
                 {
                     if (context.ActionService.ExecuteOgcd(RPRActions.Gluttony, target.GameObjectId))
                     {
@@ -637,6 +637,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IThanatosContext>, IThana
 
     private bool TryPlentifulHarvest(IThanatosContext context, IBattleChara target)
     {
+        if (!context.Configuration.Reaper.EnablePlentifulHarvest) return false;
         var player = context.Player;
         var level = player.Level;
 
@@ -689,6 +690,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IThanatosContext>, IThana
 
     private bool TryHarvestMoon(IThanatosContext context, IBattleChara target)
     {
+        if (!context.Configuration.Reaper.EnableHarvestMoon) return false;
         var player = context.Player;
         var level = player.Level;
 
