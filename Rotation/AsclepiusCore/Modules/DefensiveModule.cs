@@ -52,9 +52,6 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAsclepiusContext>, IA
         if (TryExecutePanhaima(context))
             return true;
 
-        if (TryExecuteHaima(context))
-            return true;
-
         return false;
     }
 
@@ -333,65 +330,6 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAsclepiusContext>, IA
             SetPlannedAction(context, action.Name);
             context.Debug.PanhaimaState = "Executing";
             partyCoord?.OnCooldownUsed(action.ActionId, 120_000);
-            return true;
-        }
-
-        return false;
-    }
-
-    private bool TryExecuteHaima(IAsclepiusContext context)
-    {
-        var config = context.Configuration.Sage;
-        var player = context.Player;
-
-        if (!config.EnableHaima)
-            return false;
-
-        if (player.Level < SGEActions.Haima.MinLevel)
-            return false;
-
-        if (!context.ActionService.IsActionReady(SGEActions.Haima.ActionId))
-        {
-            context.Debug.HaimaState = "On CD";
-            return false;
-        }
-
-        var tank = context.PartyHelper.FindTankInParty(player);
-        if (tank == null)
-        {
-            context.Debug.HaimaState = "No tank";
-            return false;
-        }
-
-        // Don't use if tank already has Haima
-        if (AsclepiusStatusHelper.HasHaima(tank))
-        {
-            context.Debug.HaimaState = "Already active";
-            return false;
-        }
-
-        var hpPercent = tank.MaxHp > 0 ? (float)tank.CurrentHp / tank.MaxHp : 1f;
-
-        // Check for imminent tank buster — use proactively even at high HP
-        var tankBusterImminent = TimelineHelper.IsTankBusterImminent(
-            context.TimelineService,
-            context.BossMechanicDetector,
-            context.Configuration.Healing,
-            out _);
-
-        if (hpPercent > config.HaimaThreshold && !tankBusterImminent)
-        {
-            context.Debug.HaimaState = $"Tank at {hpPercent:P0}";
-            return false;
-        }
-
-        var action = SGEActions.Haima;
-        if (context.ActionService.ExecuteOgcd(action, tank.GameObjectId))
-        {
-            SetDefensiveState(context, "Haima");
-            SetPlannedAction(context, action.Name);
-            context.Debug.HaimaState = "Executing";
-            context.Debug.HaimaTarget = tank.Name?.TextValue ?? "Unknown";
             return true;
         }
 
