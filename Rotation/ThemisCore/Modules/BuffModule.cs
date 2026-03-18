@@ -41,18 +41,6 @@ public sealed class BuffModule : BaseTankBuffModule<IThemisContext>, IThemisModu
 
     #region Overrides
 
-    public override bool TryExecute(IThemisContext context, bool isMoving)
-    {
-        // Check if damage is enabled before any buff logic
-        if (!context.Configuration.Tank.EnableDamage)
-        {
-            context.Debug.BuffState = "Disabled";
-            return false;
-        }
-
-        return base.TryExecute(context, isMoving);
-    }
-
     protected override bool TryJobSpecificBuffs(IThemisContext context)
     {
         // Priority 1: Fight or Flight (damage buff)
