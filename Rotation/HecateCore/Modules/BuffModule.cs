@@ -173,6 +173,9 @@ public sealed class BuffModule : IHecateModule
 
     private bool TryLeyLines(IHecateContext context, bool isMoving)
     {
+        if (!context.Configuration.BlackMage.EnableLeyLines)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

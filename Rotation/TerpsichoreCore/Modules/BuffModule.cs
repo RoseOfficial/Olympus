@@ -242,6 +242,8 @@ public sealed class BuffModule : ITerpsichoreModule
 
     private bool TryTechnicalStep(ITerpsichoreContext context)
     {
+        if (!context.Configuration.Dancer.EnableTechnicalStep) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -317,6 +319,8 @@ public sealed class BuffModule : ITerpsichoreModule
 
     private bool TryStandardStep(ITerpsichoreContext context)
     {
+        if (!context.Configuration.Dancer.EnableStandardStep) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -375,6 +379,8 @@ public sealed class BuffModule : ITerpsichoreModule
 
     private bool TryDevilment(ITerpsichoreContext context)
     {
+        if (!context.Configuration.Dancer.EnableDevilment) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -588,6 +594,8 @@ public sealed class BuffModule : ITerpsichoreModule
 
     private bool TryFanDance(ITerpsichoreContext context, IBattleChara target)
     {
+        if (!context.Configuration.Dancer.EnableFanDance) return false;
+
         var player = context.Player;
         var level = player.Level;
 

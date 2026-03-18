@@ -276,6 +276,9 @@ public sealed class BuffModule : ICirceModule
 
     private bool TryEmbolden(ICirceContext context)
     {
+        if (!context.Configuration.RedMage.EnableEmbolden)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -367,6 +370,9 @@ public sealed class BuffModule : ICirceModule
 
     private bool TryManafication(ICirceContext context)
     {
+        if (!context.Configuration.RedMage.EnableManafication)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

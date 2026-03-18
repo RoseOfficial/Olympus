@@ -211,6 +211,8 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
 
     private bool TryBlastArrow(ICalliopeContext context, IBattleChara target)
     {
+        if (!context.Configuration.Bard.EnableBlastArrow) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -378,6 +380,8 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
 
     private bool TryApexArrow(ICalliopeContext context, IBattleChara target)
     {
+        if (!context.Configuration.Bard.EnableApexArrow) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -520,7 +524,7 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
         var level = player.Level;
 
         // Apply Stormbite first (higher potency DoT)
-        if (!context.HasStormbite && level >= BRDActions.Windbite.MinLevel)
+        if (!context.HasStormbite && context.Configuration.Bard.EnableStormbite && level >= BRDActions.Windbite.MinLevel)
         {
             var stormAction = BRDActions.GetStormbite(level);
             if (context.ActionService.IsActionReady(stormAction.ActionId))
@@ -552,7 +556,7 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
         }
 
         // Apply Caustic Bite
-        if (!context.HasCausticBite && level >= BRDActions.VenomousBite.MinLevel)
+        if (!context.HasCausticBite && context.Configuration.Bard.EnableCausticBite && level >= BRDActions.VenomousBite.MinLevel)
         {
             var causticAction = BRDActions.GetCausticBite(level);
             if (context.ActionService.IsActionReady(causticAction.ActionId))

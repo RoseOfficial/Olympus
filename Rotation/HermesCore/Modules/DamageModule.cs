@@ -126,6 +126,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
         }
         else if (level >= NINActions.HellfrogMedium.MinLevel)
         {
+            if (!context.Configuration.Ninja.EnableBhavacakra)
+                return false;
+
             // Use ST Ninki spender
             var stAction = NINActions.GetNinkiSpender((byte)level, context.HasMeisui);
             if (context.ActionService.IsActionReady(stAction.ActionId))
@@ -187,6 +190,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
 
     private bool TryRaiju(IHermesContext context, IBattleChara target)
     {
+        if (!context.Configuration.Ninja.EnableRaiju)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -248,6 +254,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
 
     private bool TryPhantomKamaitachi(IHermesContext context, IBattleChara target)
     {
+        if (!context.Configuration.Ninja.EnablePhantomKamaitachi)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

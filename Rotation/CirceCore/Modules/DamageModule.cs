@@ -170,6 +170,9 @@ public sealed class DamageModule : BaseDpsDamageModule<ICirceContext>, ICirceMod
 
     private bool TryGrandImpact(ICirceContext context, IBattleChara target)
     {
+        if (!context.Configuration.RedMage.EnableGrandImpact)
+            return false;
+
         if (context.ActionService.ExecuteGcd(RDMActions.GrandImpact, target.GameObjectId))
         {
             context.Debug.PlannedAction = RDMActions.GrandImpact.Name;
@@ -199,6 +202,9 @@ public sealed class DamageModule : BaseDpsDamageModule<ICirceContext>, ICirceMod
 
     private bool TryFinisher(ICirceContext context, IBattleChara target)
     {
+        if (!context.Configuration.RedMage.EnableFinisherCombo)
+            return false;
+
         var level = context.Player.Level;
 
         // Select finisher based on mana balance
@@ -240,6 +246,9 @@ public sealed class DamageModule : BaseDpsDamageModule<ICirceContext>, ICirceMod
 
     private bool TryMeleeCombo(ICirceContext context, IBattleChara target)
     {
+        if (!context.Configuration.RedMage.EnableMeleeCombo)
+            return false;
+
         var level = context.Player.Level;
 
         // Determine which combo action is next based on combo state
@@ -311,6 +320,9 @@ public sealed class DamageModule : BaseDpsDamageModule<ICirceContext>, ICirceMod
 
     private bool TryStartMeleeCombo(ICirceContext context, IBattleChara target)
     {
+        if (!context.Configuration.RedMage.EnableMeleeCombo)
+            return false;
+
         var level = context.Player.Level;
 
         // Check conditions for entering melee combo
@@ -383,6 +395,9 @@ public sealed class DamageModule : BaseDpsDamageModule<ICirceContext>, ICirceMod
         // 3. Use long spell to balance mana
 
         // Check for procs
+        if (!context.Configuration.RedMage.EnableProcs)
+            return TryLongSpell(context, target, useAoe);
+
         var procSpell = RDMActions.GetProcSpell(
             level,
             context.HasVerfire,
@@ -521,14 +536,14 @@ public sealed class DamageModule : BaseDpsDamageModule<ICirceContext>, ICirceMod
         if (isMoving && !context.HasInstantCast && !context.CanSlidecast)
         {
             // Check for procs first (they're instant)
-            var procSpell = RDMActions.GetProcSpell(
+            var procSpell = context.Configuration.RedMage.EnableProcs ? RDMActions.GetProcSpell(
                 level,
                 context.HasVerfire,
                 context.HasVerstone,
                 context.VerfireRemaining,
                 context.VerstoneRemaining,
                 context.BlackMana,
-                context.WhiteMana);
+                context.WhiteMana) : null;
 
             if (procSpell != null)
             {
@@ -594,14 +609,14 @@ public sealed class DamageModule : BaseDpsDamageModule<ICirceContext>, ICirceMod
         }
 
         // Use proc if available (as filler to generate Dualcast while using the proc)
-        var filler = RDMActions.GetProcSpell(
+        var filler = context.Configuration.RedMage.EnableProcs ? RDMActions.GetProcSpell(
             level,
             context.HasVerfire,
             context.HasVerstone,
             context.VerfireRemaining,
             context.VerstoneRemaining,
             context.BlackMana,
-            context.WhiteMana);
+            context.WhiteMana) : null;
 
         if (filler != null)
         {

@@ -102,6 +102,9 @@ public sealed class BuffModule : IPersephoneModule
 
     private bool TryEnkindle(IPersephoneContext context, Dalamud.Game.ClientState.Objects.Types.IBattleChara? target)
     {
+        if (!context.Configuration.Summoner.EnableEnkindle)
+            return false;
+
         if (target == null)
             return false;
 
@@ -338,6 +341,9 @@ public sealed class BuffModule : IPersephoneModule
 
     private bool TrySearingLight(IPersephoneContext context)
     {
+        if (!context.Configuration.Summoner.EnableSearingLight)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

@@ -248,6 +248,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPro
 
     private bool TryDrill(IPrometheusContext context, IBattleChara target, int enemyCount)
     {
+        if (!context.Configuration.Machinist.EnableDrill)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
         var useAoe = enemyCount >= AoeThreshold;
@@ -326,6 +329,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPro
 
     private bool TryAirAnchor(IPrometheusContext context, IBattleChara target)
     {
+        if (!context.Configuration.Machinist.EnableAirAnchor)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -375,6 +381,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPro
 
     private bool TryChainSaw(IPrometheusContext context, IBattleChara target)
     {
+        if (!context.Configuration.Machinist.EnableChainSaw)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

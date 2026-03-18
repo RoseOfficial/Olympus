@@ -111,6 +111,9 @@ public sealed class BuffModule : IPrometheusModule
 
     private bool TryWildfire(IPrometheusContext context, IBattleChara target)
     {
+        if (!context.Configuration.Machinist.EnableWildfire)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

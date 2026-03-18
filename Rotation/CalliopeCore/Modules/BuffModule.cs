@@ -107,6 +107,8 @@ public sealed class BuffModule : ICalliopeModule
 
     private bool TryPitchPerfect(ICalliopeContext context, IBattleChara target)
     {
+        if (!context.Configuration.Bard.EnablePitchPerfect) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -375,6 +377,8 @@ public sealed class BuffModule : ICalliopeModule
 
     private bool TryBattleVoice(ICalliopeContext context)
     {
+        if (!context.Configuration.Bard.EnableBattleVoice) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -459,6 +463,8 @@ public sealed class BuffModule : ICalliopeModule
 
     private bool TryRadiantFinale(ICalliopeContext context)
     {
+        if (!context.Configuration.Bard.EnableRadiantFinale) return false;
+
         var player = context.Player;
         var level = player.Level;
 

@@ -126,7 +126,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         var level = player.Level;
 
         // Priority 1: Xenoglossy (instant, high damage)
-        if (context.PolyglotStacks > 0 && level >= BLMActions.Xenoglossy.MinLevel && !useAoe)
+        if (context.Configuration.BlackMage.EnableXenoglossy && context.PolyglotStacks > 0 && level >= BLMActions.Xenoglossy.MinLevel && !useAoe)
         {
             if (context.ActionService.ExecuteGcd(BLMActions.Xenoglossy, target.GameObjectId))
             {
@@ -300,6 +300,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
 
     private bool TryFlareStar(IHecateContext context, IBattleChara target)
     {
+        if (!context.Configuration.BlackMage.EnableFlareStar)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -431,7 +434,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         if (context.PolyglotStacks >= maxPolyglot)
         {
             var action = (useAoe && level >= BLMActions.Foul.MinLevel) ? BLMActions.Foul :
-                         (level >= BLMActions.Xenoglossy.MinLevel) ? BLMActions.Xenoglossy : BLMActions.Foul;
+                         (context.Configuration.BlackMage.EnableXenoglossy && level >= BLMActions.Xenoglossy.MinLevel) ? BLMActions.Xenoglossy : BLMActions.Foul;
 
             if (level >= action.MinLevel && context.ActionService.ExecuteGcd(action, target.GameObjectId))
             {
@@ -467,7 +470,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         if (isMoving && !context.HasInstantCast)
         {
             var action = (useAoe && level >= BLMActions.Foul.MinLevel) ? BLMActions.Foul :
-                         (level >= BLMActions.Xenoglossy.MinLevel) ? BLMActions.Xenoglossy : BLMActions.Foul;
+                         (context.Configuration.BlackMage.EnableXenoglossy && level >= BLMActions.Xenoglossy.MinLevel) ? BLMActions.Xenoglossy : BLMActions.Foul;
 
             if (level >= action.MinLevel && context.ActionService.ExecuteGcd(action, target.GameObjectId))
             {
@@ -556,7 +559,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         var level = player.Level;
 
         // Cast Despair when low MP (finisher)
-        if (level >= BLMActions.Despair.MinLevel && context.CurrentMp >= DespairMpCost && context.CurrentMp < Fire4MpCost * 2)
+        if (context.Configuration.BlackMage.EnableDespair && level >= BLMActions.Despair.MinLevel && context.CurrentMp >= DespairMpCost && context.CurrentMp < Fire4MpCost * 2)
         {
             // Use Firestarter first if we have it
             if (context.HasFirestarter)

@@ -91,6 +91,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IThanatosContext>, IThana
 
     private bool TryLemuresSlice(IThanatosContext context, IBattleChara target, int enemyCount)
     {
+        if (!context.Configuration.Reaper.EnableLemureAbilities)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -376,6 +379,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IThanatosContext>, IThana
 
     private bool TryPerfectio(IThanatosContext context, IBattleChara target)
     {
+        if (!context.Configuration.Reaper.EnablePerfectio)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -417,6 +423,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IThanatosContext>, IThana
 
     private bool TryCommunio(IThanatosContext context, IBattleChara target)
     {
+        if (!context.Configuration.Reaper.EnableCommunio)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -523,6 +532,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IThanatosContext>, IThana
 
     private bool TrySoulReaverGcd(IThanatosContext context, IBattleChara target, int enemyCount)
     {
+        if (!context.Configuration.Reaper.EnableSoulReaver)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

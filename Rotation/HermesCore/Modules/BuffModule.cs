@@ -98,6 +98,9 @@ public sealed class BuffModule : IHermesModule
 
     private bool TryKunaisBane(IHermesContext context)
     {
+        if (!context.Configuration.Ninja.EnableKunaisBane)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

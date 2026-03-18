@@ -133,6 +133,9 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
         }
         else if (level >= SAMActions.Shinten.MinLevel)
         {
+            if (!context.Configuration.Samurai.EnableShinten)
+                return false;
+
             if (context.ActionService.IsActionReady(SAMActions.Shinten.ActionId))
             {
                 if (context.ActionService.ExecuteOgcd(SAMActions.Shinten, target.GameObjectId))
@@ -247,6 +250,9 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
 
     private bool TryTsubameGaeshi(INikeContext context, IBattleChara target)
     {
+        if (!context.Configuration.Samurai.EnableTsubamegaeshi)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -296,6 +302,9 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
 
     private bool TryOgiNamikiri(INikeContext context, IBattleChara target)
     {
+        if (!context.Configuration.Samurai.EnableOgiNamikiri)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -341,6 +350,9 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
 
     private bool TryIaijutsu(INikeContext context, IBattleChara target, int enemyCount)
     {
+        if (!context.Configuration.Samurai.EnableIaijutsu)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -355,6 +367,9 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
         {
             case 1:
                 // Higanbana - only if DoT is not up or about to expire
+                if (!context.Configuration.Samurai.MaintainHiganbana)
+                    return false;
+
                 if (level < SAMActions.Higanbana.MinLevel)
                     return false;
 

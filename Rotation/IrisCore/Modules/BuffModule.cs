@@ -183,6 +183,9 @@ public sealed class BuffModule : IIrisModule
 
     private bool TryStarryMuse(IIrisContext context)
     {
+        if (!context.Configuration.Pictomancer.EnableStarryMuse)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -268,6 +271,9 @@ public sealed class BuffModule : IIrisModule
 
     private bool TryLivingMuse(IIrisContext context, IBattleChara? target)
     {
+        if (!context.Configuration.Pictomancer.EnableLivingMuse)
+            return false;
+
         if (target == null)
             return false;
 
@@ -324,6 +330,9 @@ public sealed class BuffModule : IIrisModule
 
     private bool TryStrikingMuse(IIrisContext context)
     {
+        if (!context.Configuration.Pictomancer.EnableSteelMuse)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

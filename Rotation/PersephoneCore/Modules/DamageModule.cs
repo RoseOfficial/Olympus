@@ -163,6 +163,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
 
     private bool TryAttunementGcd(IPersephoneContext context, IBattleChara target, bool useAoe, bool isMoving)
     {
+        if (!context.Configuration.Summoner.EnablePrimalAbilities)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -366,7 +369,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
         // Titan first for instant GCDs during burst
         // After opener, order matters less but Titan is good for movement
 
-        if (context.CanSummonTitan && level >= SMNActions.SummonTitan.MinLevel)
+        if (context.Configuration.Summoner.EnableTitan && context.CanSummonTitan && level >= SMNActions.SummonTitan.MinLevel)
         {
             if (context.ActionService.ExecuteGcd(SMNActions.SummonTitan, player.GameObjectId))
             {
@@ -385,7 +388,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
             }
         }
 
-        if (context.CanSummonGaruda && level >= SMNActions.SummonGaruda.MinLevel)
+        if (context.Configuration.Summoner.EnableGaruda && context.CanSummonGaruda && level >= SMNActions.SummonGaruda.MinLevel)
         {
             if (context.ActionService.ExecuteGcd(SMNActions.SummonGaruda, player.GameObjectId))
             {
@@ -404,7 +407,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
             }
         }
 
-        if (context.CanSummonIfrit && level >= SMNActions.SummonIfrit.MinLevel)
+        if (context.Configuration.Summoner.EnableIfrit && context.CanSummonIfrit && level >= SMNActions.SummonIfrit.MinLevel)
         {
             if (context.ActionService.ExecuteGcd(SMNActions.SummonIfrit, player.GameObjectId))
             {
@@ -459,7 +462,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
 
         // Check which demi-summon is available
         // At level 100, Solar Bahamut replaces every other Bahamut
-        if (level >= SMNActions.SummonSolarBahamut.MinLevel)
+        if (context.Configuration.Summoner.EnableSolarBahamut && level >= SMNActions.SummonSolarBahamut.MinLevel)
         {
             // Try Solar Bahamut first (the game handles the alternation)
             if (context.ActionService.IsActionReady(SMNActions.SummonSolarBahamut.ActionId))
@@ -483,7 +486,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
         }
 
         // Phoenix (Lv.80+)
-        if (level >= SMNActions.SummonPhoenix.MinLevel)
+        if (context.Configuration.Summoner.EnablePhoenix && level >= SMNActions.SummonPhoenix.MinLevel)
         {
             if (context.ActionService.IsActionReady(SMNActions.SummonPhoenix.ActionId))
             {
@@ -506,7 +509,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
         }
 
         // Bahamut (Lv.70+)
-        if (level >= SMNActions.SummonBahamut.MinLevel)
+        if (context.Configuration.Summoner.EnableBahamut && level >= SMNActions.SummonBahamut.MinLevel)
         {
             if (context.ActionService.IsActionReady(SMNActions.SummonBahamut.ActionId))
             {
@@ -556,6 +559,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
 
     private bool TryRuin4(IPersephoneContext context, IBattleChara target)
     {
+        if (!context.Configuration.Summoner.EnableRuinIV)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

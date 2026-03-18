@@ -146,6 +146,8 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
 
     private bool TryStarfallDance(ITerpsichoreContext context, IBattleChara target)
     {
+        if (!context.Configuration.Dancer.EnableStarfallDance) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -269,6 +271,8 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
 
     private bool TryTillana(ITerpsichoreContext context)
     {
+        if (!context.Configuration.Dancer.EnableTillana) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -358,6 +362,8 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
 
     private bool TrySaberDance(ITerpsichoreContext context, IBattleChara target, int enemyCount)
     {
+        if (!context.Configuration.Dancer.EnableSaberDance) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -434,6 +440,8 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
 
     private bool TryFountainfall(ITerpsichoreContext context, IBattleChara target, int enemyCount)
     {
+        if (!context.Configuration.Dancer.EnableProcs) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -506,6 +514,8 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
 
     private bool TryReverseCascade(ITerpsichoreContext context, IBattleChara target, int enemyCount)
     {
+        if (!context.Configuration.Dancer.EnableProcs) return false;
+
         var player = context.Player;
         var level = player.Level;
 

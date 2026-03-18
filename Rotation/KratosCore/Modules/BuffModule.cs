@@ -76,6 +76,9 @@ public sealed class BuffModule : IKratosModule
 
     private bool TryRiddleOfFire(IKratosContext context)
     {
+        if (!context.Configuration.Monk.EnableRiddleOfFire)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -144,6 +147,9 @@ public sealed class BuffModule : IKratosModule
 
     private bool TryBrotherhood(IKratosContext context)
     {
+        if (!context.Configuration.Monk.EnableBrotherhood)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

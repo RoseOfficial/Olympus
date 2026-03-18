@@ -56,6 +56,9 @@ public sealed class BuffModule : IZeusModule
 
     private bool TryLifeSurge(IZeusContext context)
     {
+        if (!context.Configuration.Dragoon.EnableLifeSurge)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -162,6 +165,9 @@ public sealed class BuffModule : IZeusModule
 
     private bool TryLanceCharge(IZeusContext context)
     {
+        if (!context.Configuration.Dragoon.EnableLanceCharge)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -231,6 +237,9 @@ public sealed class BuffModule : IZeusModule
 
     private bool TryBattleLitany(IZeusContext context)
     {
+        if (!context.Configuration.Dragoon.EnableBattleLitany)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

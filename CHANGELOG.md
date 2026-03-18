@@ -5,6 +5,7 @@ All notable changes to Olympus will be documented in this file.
 <!-- LATEST-START -->
 ## v4.10.32
 
+- Ability toggles in settings now actually take effect for all 12 DPS jobs — Dragoon, Monk, Machinist, Samurai, Reaper, Ninja, Bard, Dancer, Black Mage, Summoner, Red Mage, and Pictomancer all had toggles that were displayed but silently ignored by the rotation engine
 - Thaumaturge (pre-Black Mage) is now recognized and handled by the Black Mage rotation
 - Archer (pre-Bard) is now recognized and handled by the Bard rotation
 - Settings now show action icons next to toggle names, with a tooltip displaying the action's ID, type (GCD/oGCD), cast time, recast time, range, and AoE range

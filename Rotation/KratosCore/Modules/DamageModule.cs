@@ -81,11 +81,14 @@ public sealed class DamageModule : BaseDpsDamageModule<IKratosContext>, IKratosM
 
     private bool TryChakraSpender(IKratosContext context, IBattleChara target, int enemyCount)
     {
+        if (!context.Configuration.Monk.EnableChakraSpenders)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
-        // Need 5 Chakra to spend
-        if (context.Chakra < 5)
+        // Need enough Chakra to spend (configured minimum, default 5)
+        if (context.Chakra < context.Configuration.Monk.ChakraMinGauge)
             return false;
 
         // Hold Chakra for burst when not at risk of capping (50 = max chakra, hold below 45 if burst imminent)
@@ -239,6 +242,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IKratosContext>, IKratosM
 
     private bool TryMasterfulBlitz(IKratosContext context, IBattleChara target, int enemyCount)
     {
+        if (!context.Configuration.Monk.EnableMasterfulBlitz)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

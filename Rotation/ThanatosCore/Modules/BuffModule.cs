@@ -80,6 +80,9 @@ public sealed class BuffModule : IThanatosModule
 
     private bool TryArcaneCircle(IThanatosContext context)
     {
+        if (!context.Configuration.Reaper.EnableArcaneCircle)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -177,6 +180,9 @@ public sealed class BuffModule : IThanatosModule
 
     private bool TryEnshroud(IThanatosContext context)
     {
+        if (!context.Configuration.Reaper.EnableEnshroud)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

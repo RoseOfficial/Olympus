@@ -199,6 +199,9 @@ public sealed class BuffModule : INikeModule
 
     private bool TryIkishoten(INikeContext context)
     {
+        if (!context.Configuration.Samurai.EnableIkishoten)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -385,6 +388,9 @@ public sealed class BuffModule : INikeModule
         }
         else if (level >= SAMActions.Senei.MinLevel)
         {
+            if (!context.Configuration.Samurai.EnableSenei)
+                return false;
+
             if (!context.ActionService.IsActionReady(SAMActions.Senei.ActionId))
                 return false;
 

@@ -154,7 +154,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
             return false;
         var level = context.Player.Level;
         var player = context.Player;
-        if (context.NeedsLandscapeMotif && level >= PCTActions.LandscapeMotif.MinLevel)
+        if (context.Configuration.Pictomancer.EnableLandscapeMotif && context.NeedsLandscapeMotif && level >= PCTActions.LandscapeMotif.MinLevel)
         {
             if (context.ActionService.ExecuteGcd(PCTActions.StarrySkyMotif, player.GameObjectId))
             {
@@ -163,7 +163,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
                 return true;
             }
         }
-        if (context.NeedsCreatureMotif && level >= PCTActions.CreatureMotif.MinLevel)
+        if (context.Configuration.Pictomancer.EnableCreatureMotif && context.NeedsCreatureMotif && level >= PCTActions.CreatureMotif.MinLevel)
         {
             var motif = PCTActions.GetCreatureMotif(level, context.LivingMuseCharges);
             if (context.ActionService.ExecuteGcd(motif, player.GameObjectId))
@@ -173,7 +173,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
                 return true;
             }
         }
-        if (context.NeedsWeaponMotif && level >= PCTActions.WeaponMotif.MinLevel)
+        if (context.Configuration.Pictomancer.EnableWeaponMotif && context.NeedsWeaponMotif && level >= PCTActions.WeaponMotif.MinLevel)
         {
             if (context.ActionService.ExecuteGcd(PCTActions.HammerMotif, player.GameObjectId))
             {
@@ -195,7 +195,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
             return false;
 
         // Priority: Landscape > Creature > Weapon (for burst preparation)
-        if (context.NeedsLandscapeMotif && level >= PCTActions.LandscapeMotif.MinLevel)
+        if (context.Configuration.Pictomancer.EnableLandscapeMotif && context.NeedsLandscapeMotif && level >= PCTActions.LandscapeMotif.MinLevel)
         {
             if (context.ActionService.ExecuteGcd(PCTActions.StarrySkyMotif, player.GameObjectId))
             {
@@ -222,7 +222,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
             }
         }
 
-        if (context.NeedsCreatureMotif && level >= PCTActions.CreatureMotif.MinLevel)
+        if (context.Configuration.Pictomancer.EnableCreatureMotif && context.NeedsCreatureMotif && level >= PCTActions.CreatureMotif.MinLevel)
         {
             var motif = PCTActions.GetCreatureMotif(level, context.LivingMuseCharges);
             if (context.ActionService.ExecuteGcd(motif, player.GameObjectId))
@@ -250,7 +250,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
             }
         }
 
-        if (context.NeedsWeaponMotif && level >= PCTActions.WeaponMotif.MinLevel)
+        if (context.Configuration.Pictomancer.EnableWeaponMotif && context.NeedsWeaponMotif && level >= PCTActions.WeaponMotif.MinLevel)
         {
             if (context.ActionService.ExecuteGcd(PCTActions.HammerMotif, player.GameObjectId))
             {
@@ -282,6 +282,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
 
     private bool TryStarPrism(IIrisContext context, IBattleChara target)
     {
+        if (!context.Configuration.Pictomancer.EnableStarPrism)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -452,6 +455,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
 
     private bool TryCometInBlack(IIrisContext context, IBattleChara target, bool isMoving)
     {
+        if (!context.Configuration.Pictomancer.EnableCometInBlack)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -493,6 +499,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
 
     private bool TryHolyInWhite(IIrisContext context, IBattleChara target, bool isMoving)
     {
+        if (!context.Configuration.Pictomancer.EnableHolyInWhite)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
