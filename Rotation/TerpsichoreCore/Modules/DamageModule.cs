@@ -230,6 +230,8 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
 
     private bool TryLastDance(ITerpsichoreContext context, IBattleChara target)
     {
+        if (!context.Configuration.Dancer.EnableLastDance) return false;
+
         var player = context.Player;
         var level = player.Level;
 

@@ -122,7 +122,7 @@ public sealed class Terpsichore : BaseRangedDpsRotation<ITerpsichoreContext, ITe
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<ITerpsichoreModule>
         {
-            new BuffModule(),    // Priority 20 - Dance execution, buffs, oGCDs
+            new BuffModule(BurstWindowService),    // Priority 20 - Dance execution, buffs, oGCDs
             new DamageModule(BurstWindowService),  // Priority 30 - GCD rotation
         };
 

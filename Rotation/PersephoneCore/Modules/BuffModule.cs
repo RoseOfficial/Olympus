@@ -115,6 +115,10 @@ public sealed class BuffModule : IPersephoneModule
         if (!context.IsDemiSummonActive)
             return false;
 
+        // Only use once per demi-summon phase
+        if (context.HasUsedEnkindleThisPhase)
+            return false;
+
         // Check if we have a valid Enkindle action
         var enkindleAction = SMNActions.GetEnkindleAction(
             context.IsBahamutActive,
@@ -130,6 +134,7 @@ public sealed class BuffModule : IPersephoneModule
         // Use Enkindle during demi-summon phase
         if (context.ActionService.ExecuteOgcd(enkindleAction, target.GameObjectId))
         {
+            context.MarkEnkindleUsed();
             context.Debug.PlannedAction = enkindleAction.Name;
             context.Debug.BuffState = $"{enkindleAction.Name} (Enkindle)";
 
@@ -165,11 +170,18 @@ public sealed class BuffModule : IPersephoneModule
 
     private bool TryAstralFlow(IPersephoneContext context, Dalamud.Game.ClientState.Objects.Types.IBattleChara? target)
     {
+        if (!context.Configuration.Summoner.EnableAstralFlow)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
         // Only use during demi-summon phases
         if (!context.IsDemiSummonActive)
+            return false;
+
+        // Only use once per demi-summon phase
+        if (context.HasUsedAstralFlowThisPhase)
             return false;
 
         // Get the appropriate Astral Flow action
@@ -194,6 +206,7 @@ public sealed class BuffModule : IPersephoneModule
                 {
                     context.Debug.PlannedAction = SMNActions.Rekindle.Name;
                     context.Debug.BuffState = "Rekindle (healing)";
+                    context.MarkAstralFlowUsed();
 
                     // Training Mode recording
                     if (context.TrainingService?.IsTrainingEnabled == true)
@@ -225,6 +238,7 @@ public sealed class BuffModule : IPersephoneModule
             {
                 context.Debug.PlannedAction = SMNActions.Rekindle.Name;
                 context.Debug.BuffState = "Rekindle (preventive)";
+                context.MarkAstralFlowUsed();
 
                 // Training Mode recording
                 if (context.TrainingService?.IsTrainingEnabled == true)
@@ -258,6 +272,7 @@ public sealed class BuffModule : IPersephoneModule
         {
             context.Debug.PlannedAction = astralFlowAction.Name;
             context.Debug.BuffState = $"{astralFlowAction.Name} (Astral Flow)";
+            context.MarkAstralFlowUsed();
 
             // Training Mode recording
             if (context.TrainingService?.IsTrainingEnabled == true)
@@ -489,6 +504,9 @@ public sealed class BuffModule : IPersephoneModule
 
     private bool TryEnergyDrain(IPersephoneContext context, Dalamud.Game.ClientState.Objects.Types.IBattleChara? target)
     {
+        if (!context.Configuration.Summoner.EnableEnergyDrain)
+            return false;
+
         if (target == null)
             return false;
 

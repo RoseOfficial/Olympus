@@ -96,6 +96,8 @@ public sealed class BuffModule : IHecateModule
 
     private bool TryAmplifier(IHecateContext context)
     {
+        if (!context.Configuration.BlackMage.EnableAmplifier) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -280,6 +282,8 @@ public sealed class BuffModule : IHecateModule
 
     private bool TryTriplecast(IHecateContext context, bool isMoving)
     {
+        if (!context.Configuration.BlackMage.EnableTriplecast) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -378,6 +382,8 @@ public sealed class BuffModule : IHecateModule
 
     private bool TryManafont(IHecateContext context)
     {
+        if (!context.Configuration.BlackMage.EnableManafont) return false;
+
         var player = context.Player;
         var level = player.Level;
 

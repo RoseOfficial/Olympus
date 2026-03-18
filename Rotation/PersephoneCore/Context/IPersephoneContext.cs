@@ -215,6 +215,16 @@ public interface IPersephoneContext : ICasterDpsRotationContext
     bool HasUsedAstralFlowThisPhase { get; }
 
     /// <summary>
+    /// Marks that Enkindle has been used this demi-summon phase.
+    /// </summary>
+    void MarkEnkindleUsed();
+
+    /// <summary>
+    /// Marks that Astral Flow has been used this demi-summon phase.
+    /// </summary>
+    void MarkAstralFlowUsed();
+
+    /// <summary>
     /// Whether a pet/summon is currently active.
     /// </summary>
     bool HasPetSummoned { get; }

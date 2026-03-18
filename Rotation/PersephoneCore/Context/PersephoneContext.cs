@@ -123,6 +123,12 @@ public sealed class PersephoneContext : IPersephoneContext
     // Tracking state
     public bool HasUsedEnkindleThisPhase { get; private set; }
     public bool HasUsedAstralFlowThisPhase { get; private set; }
+
+    /// <inheritdoc />
+    public void MarkEnkindleUsed() => HasUsedEnkindleThisPhase = true;
+
+    /// <inheritdoc />
+    public void MarkAstralFlowUsed() => HasUsedAstralFlowThisPhase = true;
     public bool HasPetSummoned { get; }
 
     // Helpers

@@ -452,6 +452,8 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
 
     private bool TryIronJaws(ICalliopeContext context, IBattleChara target)
     {
+        if (!context.Configuration.Bard.EnableIronJaws) return false;
+
         var player = context.Player;
         var level = player.Level;
 

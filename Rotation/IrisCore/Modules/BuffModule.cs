@@ -383,6 +383,8 @@ public sealed class BuffModule : IIrisModule
 
     private bool TrySubtractivePalette(IIrisContext context)
     {
+        if (!context.Configuration.Pictomancer.EnableSubtractivePalette) return false;
+
         var player = context.Player;
         var level = player.Level;
 

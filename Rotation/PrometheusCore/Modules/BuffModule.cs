@@ -195,6 +195,8 @@ public sealed class BuffModule : IPrometheusModule
 
     private bool TryBarrelStabilizer(IPrometheusContext context)
     {
+        if (!context.Configuration.Machinist.EnableBarrelStabilizer) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -247,6 +249,8 @@ public sealed class BuffModule : IPrometheusModule
 
     private bool TryReassemble(IPrometheusContext context)
     {
+        if (!context.Configuration.Machinist.EnableReassemble) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -321,6 +325,8 @@ public sealed class BuffModule : IPrometheusModule
 
     private bool TryHypercharge(IPrometheusContext context)
     {
+        if (!context.Configuration.Machinist.EnableHypercharge) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -401,6 +407,8 @@ public sealed class BuffModule : IPrometheusModule
 
     private bool TryAutomatonQueen(IPrometheusContext context)
     {
+        if (!context.Configuration.Machinist.EnableAutomatonQueen) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -471,6 +479,8 @@ public sealed class BuffModule : IPrometheusModule
 
     private bool TryGaussRoundRicochet(IPrometheusContext context, IBattleChara target)
     {
+        if (!context.Configuration.Machinist.EnableGaussRicochet) return false;
+
         var player = context.Player;
         var level = player.Level;
 

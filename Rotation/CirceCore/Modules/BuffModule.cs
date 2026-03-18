@@ -108,6 +108,8 @@ public sealed class BuffModule : ICirceModule
 
     private bool TryFleche(ICirceContext context, Dalamud.Game.ClientState.Objects.Types.IBattleChara? target)
     {
+        if (!context.Configuration.RedMage.EnableFleche) return false;
+
         if (target == null)
             return false;
 
@@ -150,6 +152,8 @@ public sealed class BuffModule : ICirceModule
 
     private bool TryContreSixte(ICirceContext context, Dalamud.Game.ClientState.Objects.Types.IBattleChara? target)
     {
+        if (!context.Configuration.RedMage.EnableContreSixte) return false;
+
         if (target == null)
             return false;
 
@@ -450,6 +454,8 @@ public sealed class BuffModule : ICirceModule
 
     private bool TryCorpsACorps(ICirceContext context, Dalamud.Game.ClientState.Objects.Types.IBattleChara? target)
     {
+        if (!context.Configuration.RedMage.EnableCorpsACorps) return false;
+
         if (target == null)
             return false;
 
@@ -503,6 +509,8 @@ public sealed class BuffModule : ICirceModule
 
     private bool TryEngagement(ICirceContext context, Dalamud.Game.ClientState.Objects.Types.IBattleChara? target)
     {
+        if (!context.Configuration.RedMage.EnableEngagement) return false;
+
         if (target == null)
             return false;
 
@@ -558,6 +566,8 @@ public sealed class BuffModule : ICirceModule
 
     private bool TryAcceleration(ICirceContext context)
     {
+        if (!context.Configuration.RedMage.EnableAcceleration) return false;
+
         var player = context.Player;
         var level = player.Level;
 

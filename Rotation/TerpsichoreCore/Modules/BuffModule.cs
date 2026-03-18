@@ -2,6 +2,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.TerpsichoreCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 using Olympus.Timeline.Models;
 
@@ -14,6 +15,15 @@ namespace Olympus.Rotation.TerpsichoreCore.Modules;
 /// </summary>
 public sealed class BuffModule : ITerpsichoreModule
 {
+    private readonly IBurstWindowService? _burstWindowService;
+
+    public BuffModule(IBurstWindowService? burstWindowService = null)
+    {
+        _burstWindowService = burstWindowService;
+    }
+
+    private bool IsInBurst => _burstWindowService?.IsInBurstWindow == true;
+
     public int Priority => 20; // Higher priority than damage
     public string Name => "Buff";
 
@@ -443,6 +453,8 @@ public sealed class BuffModule : ITerpsichoreModule
 
     private bool TryFlourish(ITerpsichoreContext context)
     {
+        if (!context.Configuration.Dancer.EnableFlourish) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -512,6 +524,8 @@ public sealed class BuffModule : ITerpsichoreModule
 
     private bool TryFanDanceIV(ITerpsichoreContext context, IBattleChara target)
     {
+        if (!context.Configuration.Dancer.EnableFanDanceIV) return false;
+
         var player = context.Player;
         var level = player.Level;
 
