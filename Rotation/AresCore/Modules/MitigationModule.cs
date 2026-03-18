@@ -707,7 +707,7 @@ public sealed class MitigationModule : IAresModule
         // Only use Reprisal when there is incoming damage pressure
         // Require multiple injured party members or low average HP
         var (avgHp, lowestHp, injuredCount) = context.PartyHealthMetrics;
-        if (injuredCount < 3 || avgHp > 0.85f)
+        if (injuredCount < 3 && avgHp > 0.85f)
             return false;
 
         // Use Reprisal as a party mitigation tool
