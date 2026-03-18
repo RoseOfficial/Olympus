@@ -200,6 +200,11 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
         {
             _damageByEntity.Clear();
         }
+
+        lock (_dotLock)
+        {
+            _activeDoTs.Clear();
+        }
     }
 
     /// <summary>
