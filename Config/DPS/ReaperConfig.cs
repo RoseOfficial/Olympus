@@ -50,11 +50,6 @@ public sealed class ReaperConfig
     /// </summary>
     public bool EnablePlentifulHarvest { get; set; } = true;
 
-    /// <summary>
-    /// Whether to use Hell's Ingress/Egress for mobility.
-    /// </summary>
-    public bool EnableHellsMovement { get; set; } = true;
-
     #endregion
 
     #region Buff Toggles

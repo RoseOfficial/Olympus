@@ -231,6 +231,51 @@ public static class ConfigValidator
     /// </summary>
     private static void ValidateTankSettings(TankConfig tank, List<ValidationIssue> issues)
     {
+        // Negative value guards for float percentage fields
+        if (tank.MitigationThreshold < 0f)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Warning,
+                Category = "Tank",
+                Message = "TankConfig.MitigationThreshold is negative — resetting to default",
+                SuggestedFix = "Set to 0.70 (default)"
+            });
+        }
+
+        if (tank.ClemencyThreshold < 0f)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Warning,
+                Category = "Tank",
+                Message = "TankConfig.ClemencyThreshold is negative — resetting to default",
+                SuggestedFix = "Set to 0.30 (default)"
+            });
+        }
+
+        if (tank.TBNThreshold < 0f)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Warning,
+                Category = "Tank",
+                Message = "TankConfig.TBNThreshold is negative — resetting to default",
+                SuggestedFix = "Set to 0.80 (default)"
+            });
+        }
+
+        if (tank.HeartOfCorundumThreshold < 0f)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Warning,
+                Category = "Tank",
+                Message = "TankConfig.HeartOfCorundumThreshold is negative — resetting to default",
+                SuggestedFix = "Set to 0.80 (default)"
+            });
+        }
+
         // Mitigation threshold sanity - very low values may leave tank vulnerable
         if (tank.MitigationThreshold < 0.50f)
         {

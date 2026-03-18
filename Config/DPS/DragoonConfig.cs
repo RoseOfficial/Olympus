@@ -21,6 +21,11 @@ public sealed class DragoonConfig
     public bool EnableJumps { get; set; } = true;
 
     /// <summary>
+    /// Whether to use Spineshatter Dive.
+    /// </summary>
+    public bool EnableSpineshatterDive { get; set; } = true;
+
+    /// <summary>
     /// Whether to use Dragonfire Dive.
     /// </summary>
     public bool EnableDragonfireDive { get; set; } = true;
