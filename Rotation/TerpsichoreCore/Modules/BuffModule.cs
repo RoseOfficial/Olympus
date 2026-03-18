@@ -567,6 +567,8 @@ public sealed class BuffModule : ITerpsichoreModule
 
     private bool TryFanDanceIII(ITerpsichoreContext context, IBattleChara target)
     {
+        if (!context.Configuration.Dancer.EnableFanDance) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -636,7 +638,7 @@ public sealed class BuffModule : ITerpsichoreModule
         context.Debug.NearbyEnemies = enemyCount;
 
         // Use Fan Dance II for AoE (3+ targets)
-        if (enemyCount >= 3 && level >= DNCActions.FanDanceII.MinLevel)
+        if (enemyCount >= context.Configuration.Dancer.AoEMinTargets && level >= DNCActions.FanDanceII.MinLevel)
         {
             if (context.ActionService.IsActionReady(DNCActions.FanDanceII.ActionId))
             {
