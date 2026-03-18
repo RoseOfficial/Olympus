@@ -42,6 +42,7 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
 
     // HP tracking for near-death detection
     private readonly Dictionary<uint, float> lastHpPercent = new();
+    private readonly Dictionary<uint, string> _actionNameCache = new();
 
     // Cooldown tracking
     private readonly Dictionary<uint, CooldownTrackingState> cooldownStates = new();
@@ -723,6 +724,8 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
 
     private string GetActionName(uint actionId)
     {
+        if (_actionNameCache.TryGetValue(actionId, out var cached)) return cached;
+
         var actionSheet = dataManager.GetExcelSheet<Lumina.Excel.Sheets.Action>();
         if (actionSheet == null)
             return $"Action {actionId}";
@@ -732,7 +735,9 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
             return $"Action {actionId}";
 
         var name = row.Value.Name.ToString();
-        return string.IsNullOrEmpty(name) ? $"Action {actionId}" : name;
+        name = string.IsNullOrEmpty(name) ? $"Action {actionId}" : name;
+        _actionNameCache[actionId] = name;
+        return name;
     }
 
     private void LoadPersistedSessions()

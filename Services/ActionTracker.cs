@@ -20,6 +20,7 @@ public sealed class ActionTracker
 
     private readonly LinkedList<ActionAttempt> history = new();
     private readonly object historyLock = new();
+    private readonly Dictionary<uint, string> _actionNameCache = new();
     private IReadOnlyList<ActionAttempt>? cachedHistory;
     private int cachedVersion;
     private int historyVersion;
@@ -481,6 +482,8 @@ public sealed class ActionTracker
     /// </summary>
     private string GetActionName(uint actionId)
     {
+        if (_actionNameCache.TryGetValue(actionId, out var cached)) return cached;
+
         var actionSheet = dataManager.GetExcelSheet<LuminaAction>();
         if (actionSheet == null)
             return $"Action {actionId}";
@@ -490,6 +493,8 @@ public sealed class ActionTracker
             return $"Action {actionId}";
 
         var name = row.Value.Name.ToString();
-        return string.IsNullOrEmpty(name) ? $"Action {actionId}" : name;
+        name = string.IsNullOrEmpty(name) ? $"Action {actionId}" : name;
+        _actionNameCache[actionId] = name;
+        return name;
     }
 }
