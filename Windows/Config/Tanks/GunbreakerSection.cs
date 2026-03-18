@@ -48,7 +48,7 @@ public sealed class GunbreakerSection
                 Loc.T(LocalizedStrings.Gunbreaker.EnableHeartOfCorundum, "Heart of Corundum"),
                 () => config.Tank.EnableHeartOfCorundum,
                 v => config.Tank.EnableHeartOfCorundum = v,
-                Loc.T(LocalizedStrings.Gunbreaker.EnableHeartOfCorundumDesc, "Apply Heart of Corundum shield to the tank."),
+                null,
                 save,
                 actionId: GNBActions.HeartOfCorundum.ActionId);
 
@@ -66,7 +66,7 @@ public sealed class GunbreakerSection
                 Loc.T(LocalizedStrings.Gunbreaker.EnableHeartOfLight, "Heart of Light"),
                 () => config.Tank.EnableHeartOfLight,
                 v => config.Tank.EnableHeartOfLight = v,
-                Loc.T(LocalizedStrings.Gunbreaker.EnableHeartOfLightDesc, "Use Heart of Light for party magic damage mitigation."),
+                null,
                 save,
                 actionId: GNBActions.HeartOfLight.ActionId);
 

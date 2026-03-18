@@ -67,6 +67,17 @@ public static class LocalizedStrings
         public const string SearchNoResults = "config.search.no_results";
         public const string SearchClearTooltip = "config.search.clear_tooltip";
 
+        // Update checker
+        public const string CheckForUpdates = "config.check_for_updates";
+        public const string Checking = "config.checking";
+        public const string UpToDate = "config.up_to_date";
+        public const string UpdateAvailable = "config.update_available";
+        public const string CheckFailed = "config.check_failed";
+
+        // Search result count and clear button
+        public const string SearchResultCount = "config.search.result_count";
+        public const string ClearSearch = "config.search.clear_button";
+
         // Import / Export
         public const string ExportConfig  = "config.export_config";
         public const string ImportConfig  = "config.import_config";
@@ -2071,6 +2082,10 @@ public static class LocalizedStrings
         public const string SuggestedReviewQuizzes = "training.suggested_review_quizzes";
         public const string JobQuizFormat = "training.job_quiz_format";
         public const string TakeQuiz = "training.take_quiz";
+
+        // Hint overlay
+        public const string HintDismiss = "training.hint_dismiss";
+        public const string HintEscToCloseAll = "training.hint_esc_to_close_all";
     }
 
     #endregion
@@ -2136,6 +2151,10 @@ public static class LocalizedStrings
         public const string TabJobDetails = "debug.tab.job_details";
         public const string TabTimeline = "debug.tab.timeline";
         public const string TabChecklist = "debug.tab.checklist";
+        public const string TabSmartAoE = "debug.tab.smart_aoe";
+
+        // Job details fallbacks
+        public const string NoDebugInfoForJob = "debug.job.no_debug_info";
 
         // Checklist tab
         public const string ResetCounts = "debug.reset_counts";

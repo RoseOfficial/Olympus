@@ -6,10 +6,9 @@ using Olympus.Models.Action;
 using Olympus.Rotation.AresCore.Context;
 using Olympus.Rotation.AresCore.Modules;
 using Olympus.Services.Action;
-using Olympus.Services.Tank;
 using Olympus.Services.Targeting;
-using Olympus.Services.Training;
 using Olympus.Tests.Mocks;
+using Olympus.Tests.Rotation.AresCore;
 
 namespace Olympus.Tests.Rotation.AresCore.Modules;
 
@@ -170,6 +169,9 @@ public class DamageModuleTests
         var result = _module.TryExecute(context, isMoving: false);
 
         Assert.True(result);
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == WARActions.FellCleave.ActionId),
+            It.IsAny<ulong>()), Times.Once);
     }
 
     [Fact]
@@ -285,45 +287,24 @@ public class DamageModuleTests
         Mock<ITargetingService>? targetingService = null,
         Mock<IActionService>? actionService = null)
     {
-        targetingService ??= MockBuilders.CreateMockTargetingService();
-        actionService ??= MockBuilders.CreateMockActionService(canExecuteGcd: canExecuteGcd, canExecuteOgcd: canExecuteOgcd);
-
-        var player = MockBuilders.CreateMockPlayerCharacter(level: level);
-        player.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
-
-        var config = AresTestContext.CreateDefaultWarriorConfiguration();
-
-        var mock = new Mock<IAresContext>();
-
-        mock.Setup(x => x.Player).Returns(player.Object);
-        mock.Setup(x => x.InCombat).Returns(inCombat);
-        mock.Setup(x => x.IsMoving).Returns(false);
-        mock.Setup(x => x.CanExecuteGcd).Returns(canExecuteGcd);
-        mock.Setup(x => x.CanExecuteOgcd).Returns(canExecuteOgcd);
-        mock.Setup(x => x.Configuration).Returns(config);
-        mock.Setup(x => x.ActionService).Returns(actionService.Object);
-        mock.Setup(x => x.TargetingService).Returns(targetingService.Object);
-        mock.Setup(x => x.TrainingService).Returns((ITrainingService?)null);
-
-        // WAR-specific state
-        mock.Setup(x => x.BeastGauge).Returns(beastGauge);
-        mock.Setup(x => x.HasInnerRelease).Returns(hasInnerRelease);
-        mock.Setup(x => x.InnerReleaseStacks).Returns(innerReleaseStacks);
-        mock.Setup(x => x.HasNascentChaos).Returns(hasNascentChaos);
-        mock.Setup(x => x.HasPrimalRendReady).Returns(hasPrimalRendReady);
-        mock.Setup(x => x.HasPrimalRuinationReady).Returns(hasPrimalRuinationReady);
-        mock.Setup(x => x.HasSurgingTempest).Returns(hasSurgingTempest);
-        mock.Setup(x => x.SurgingTempestRemaining).Returns(surgingTempestRemaining);
-        mock.Setup(x => x.ComboStep).Returns(comboStep);
-        mock.Setup(x => x.LastComboAction).Returns(lastComboAction);
-
-        targetingService.Setup(x => x.CountEnemiesInRange(It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
-            .Returns(enemyCount);
-
-        var debugState = new AresDebugState();
-        mock.Setup(x => x.Debug).Returns(debugState);
-
-        return mock.Object;
+        return AresTestContext.CreateMock(
+            inCombat: inCombat,
+            canExecuteGcd: canExecuteGcd,
+            canExecuteOgcd: canExecuteOgcd,
+            level: level,
+            comboStep: comboStep,
+            lastComboAction: lastComboAction,
+            beastGauge: beastGauge,
+            hasInnerRelease: hasInnerRelease,
+            innerReleaseStacks: innerReleaseStacks,
+            hasNascentChaos: hasNascentChaos,
+            hasPrimalRendReady: hasPrimalRendReady,
+            hasPrimalRuinationReady: hasPrimalRuinationReady,
+            hasSurgingTempest: hasSurgingTempest,
+            surgingTempestRemaining: surgingTempestRemaining,
+            enemyCount: enemyCount,
+            targetingService: targetingService,
+            actionService: actionService);
     }
 
     #endregion

@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
@@ -17,6 +18,7 @@ public sealed class DebugWindow : Window
 {
     private readonly DebugService _debugService;
     private readonly Configuration _configuration;
+    private readonly Action _saveConfiguration;
     private readonly ITimelineService? _timelineService;
     private readonly SmartAoETab? _smartAoETab;
 
@@ -54,11 +56,12 @@ public sealed class DebugWindow : Window
         (JobRegistry.Pictomancer, JobRegistry.GetJobName(JobRegistry.Pictomancer)),
     ];
 
-    public DebugWindow(DebugService debugService, Configuration configuration, ITimelineService? timelineService = null, SmartAoETab? smartAoETab = null)
+    public DebugWindow(DebugService debugService, Configuration configuration, Action saveConfiguration, ITimelineService? timelineService = null, SmartAoETab? smartAoETab = null)
         : base(Loc.T(LocalizedStrings.Debug.WindowTitle, "Olympus Debug"), ImGuiWindowFlags.NoSavedSettings)
     {
         _debugService = debugService;
         _configuration = configuration;
+        _saveConfiguration = saveConfiguration;
         _timelineService = timelineService;
         _smartAoETab = smartAoETab;
 
@@ -216,6 +219,7 @@ public sealed class DebugWindow : Window
         if (ImGui.Checkbox(label, ref visible))
         {
             _configuration.Debug.DebugSectionVisibility[key] = visible;
+            _saveConfiguration();
         }
     }
 

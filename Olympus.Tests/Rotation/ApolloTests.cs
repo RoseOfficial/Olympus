@@ -365,6 +365,9 @@ public class ApolloTests
         var result = module.TryExecute(context, isMoving: false);
 
         Assert.True(result);
+        actionServiceMock.Verify(x => x.ExecuteOgcd(
+            It.Is<ActionDefinition>(a => a.ActionId == WHMActions.Benediction.ActionId),
+            It.IsAny<ulong>()), Times.Once);
     }
 
     [Fact]

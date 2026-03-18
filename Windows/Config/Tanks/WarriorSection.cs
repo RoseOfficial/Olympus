@@ -48,7 +48,7 @@ public sealed class WarriorSection
                 Loc.T(LocalizedStrings.Warrior.EnableNascentFlash, "Nascent Flash"),
                 () => config.Tank.EnableNascentFlash,
                 v => config.Tank.EnableNascentFlash = v,
-                Loc.T(LocalizedStrings.Warrior.EnableNascentFlashDesc, "Share mitigation and healing with a party member via Nascent Flash."),
+                null,
                 save,
                 actionId: WARActions.NascentFlash.ActionId);
 
@@ -56,7 +56,7 @@ public sealed class WarriorSection
                 Loc.T(LocalizedStrings.Warrior.EnableHolmgang, "Holmgang"),
                 () => config.Tank.EnableHolmgang,
                 v => config.Tank.EnableHolmgang = v,
-                Loc.T(LocalizedStrings.Warrior.EnableHolmgangDesc, "Use Holmgang as an invulnerability cooldown."),
+                null,
                 save,
                 actionId: WARActions.Holmgang.ActionId);
 

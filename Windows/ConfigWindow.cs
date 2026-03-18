@@ -148,7 +148,7 @@ public sealed class ConfigWindow : Window
         ImGui.SameLine();
         if (!string.IsNullOrEmpty(this.searchQuery))
         {
-            if (ImGui.Button("X##ClearSearch"))
+            if (ImGui.Button($"{Loc.T(LocalizedStrings.Config.ClearSearch, "X")}##ClearSearch"))
             {
                 this.searchQuery = string.Empty;
                 this.matchingSections = null;
@@ -176,7 +176,7 @@ public sealed class ConfigWindow : Window
             }
             else
             {
-                ImGui.TextDisabled($"{count} section(s) found");
+                ImGui.TextDisabled(Loc.TFormat(LocalizedStrings.Config.SearchResultCount, "{0} section(s) found", count));
             }
         }
 
@@ -396,7 +396,7 @@ public sealed class ConfigWindow : Window
         if (isChecking)
             ImGui.BeginDisabled();
 
-        if (ImGui.Button("Check for Updates"))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Config.CheckForUpdates, "Check for Updates")))
             _ = updateCheckerService.CheckAsync();
 
         if (isChecking)
@@ -406,21 +406,21 @@ public sealed class ConfigWindow : Window
         {
             case UpdateCheckStatus.Checking:
                 ImGui.SameLine();
-                ImGui.TextDisabled("Checking...");
+                ImGui.TextDisabled(Loc.T(LocalizedStrings.Config.Checking, "Checking..."));
                 break;
             case UpdateCheckStatus.UpToDate:
                 ImGui.SameLine();
                 ImGui.TextColored(new Vector4(0.4f, 1f, 0.4f, 1f),
-                    $"Up to date (v{updateCheckerService.LatestVersion})");
+                    $"{Loc.T(LocalizedStrings.Config.UpToDate, "Up to date")} (v{updateCheckerService.LatestVersion})");
                 break;
             case UpdateCheckStatus.UpdateAvailable:
                 ImGui.SameLine();
                 ImGui.TextColored(new Vector4(1f, 0.85f, 0.2f, 1f),
-                    $"Update available: v{updateCheckerService.LatestVersion} — use /xlplugins");
+                    $"{Loc.T(LocalizedStrings.Config.UpdateAvailable, "Update available")}: v{updateCheckerService.LatestVersion} — use /xlplugins");
                 break;
             case UpdateCheckStatus.Failed:
                 ImGui.SameLine();
-                ImGui.TextColored(new Vector4(1f, 0.4f, 0.4f, 1f), "Check failed");
+                ImGui.TextColored(new Vector4(1f, 0.4f, 0.4f, 1f), Loc.T(LocalizedStrings.Config.CheckFailed, "Check failed"));
                 break;
         }
 

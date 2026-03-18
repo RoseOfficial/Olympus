@@ -49,7 +49,7 @@ public sealed class PaladinSection
                 Loc.T(LocalizedStrings.Paladin.EnableCover, "Cover"),
                 () => config.Tank.EnableCover,
                 v => config.Tank.EnableCover = v,
-                Loc.T(LocalizedStrings.Paladin.EnableCoverDesc, "Use Cover to redirect co-tank damage to yourself."),
+                null,
                 save,
                 actionId: PLDActions.Cover.ActionId);
 
@@ -57,7 +57,7 @@ public sealed class PaladinSection
                 Loc.T(LocalizedStrings.Paladin.EnablePassageOfArms, "Passage of Arms"),
                 () => config.Tank.EnablePassageOfArms,
                 v => config.Tank.EnablePassageOfArms = v,
-                Loc.T(LocalizedStrings.Paladin.EnablePassageOfArmsDesc, "Use Passage of Arms to block party damage during raidwides."),
+                null,
                 save,
                 actionId: PLDActions.PassageOfArms.ActionId);
 
@@ -65,7 +65,7 @@ public sealed class PaladinSection
                 Loc.T(LocalizedStrings.Paladin.EnableDivineVeil, "Divine Veil"),
                 () => config.Tank.EnableDivineVeil,
                 v => config.Tank.EnableDivineVeil = v,
-                Loc.T(LocalizedStrings.Paladin.EnableDivineVeilDesc, "Proactively apply Divine Veil party shield."),
+                null,
                 save,
                 actionId: PLDActions.DivineVeil.ActionId);
 
@@ -83,7 +83,7 @@ public sealed class PaladinSection
                 Loc.T(LocalizedStrings.Paladin.EnableClemency, "Clemency"),
                 () => config.Tank.EnableClemency,
                 v => config.Tank.EnableClemency = v,
-                Loc.T(LocalizedStrings.Paladin.EnableClemencyDesc, "Use Clemency GCD heal when HP is critically low."),
+                null,
                 save,
                 actionId: PLDActions.Clemency.ActionId);
 

@@ -48,7 +48,7 @@ public sealed class DarkKnightSection
                 Loc.T(LocalizedStrings.DarkKnight.EnableTheBlackestNight, "The Blackest Night"),
                 () => config.Tank.EnableTheBlackestNight,
                 v => config.Tank.EnableTheBlackestNight = v,
-                Loc.T(LocalizedStrings.DarkKnight.EnableTheBlackestNightDesc, "Apply The Blackest Night shield to the tank."),
+                null,
                 save,
                 actionId: DRKActions.TheBlackestNight.ActionId);
 
@@ -66,7 +66,7 @@ public sealed class DarkKnightSection
                 Loc.T(LocalizedStrings.DarkKnight.EnableLivingDead, "Living Dead"),
                 () => config.Tank.EnableLivingDead,
                 v => config.Tank.EnableLivingDead = v,
-                Loc.T(LocalizedStrings.DarkKnight.EnableLivingDeadDesc, "Use Living Dead as an invulnerability cooldown."),
+                null,
                 save,
                 actionId: DRKActions.LivingDead.ActionId);
 
@@ -74,7 +74,7 @@ public sealed class DarkKnightSection
                 Loc.T(LocalizedStrings.DarkKnight.EnableDarkMissionary, "Dark Missionary"),
                 () => config.Tank.EnableDarkMissionary,
                 v => config.Tank.EnableDarkMissionary = v,
-                Loc.T(LocalizedStrings.DarkKnight.EnableDarkMissionaryDesc, "Use Dark Missionary for party magic damage mitigation."),
+                null,
                 save,
                 actionId: DRKActions.DarkMissionary.ActionId);
 

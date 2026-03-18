@@ -4,6 +4,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
 using Olympus.Config;
+using Olympus.Localization;
 using Olympus.Services.Training;
 
 /// <summary>
@@ -126,7 +127,7 @@ public sealed class HintOverlay : Window
         // Dismiss button
         ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.3f, 0.3f, 0.3f, 0.5f));
         ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.4f, 0.4f, 0.4f, 0.7f));
-        if (ImGui.SmallButton("Dismiss"))
+        if (ImGui.SmallButton(Loc.T(LocalizedStrings.Training.HintDismiss, "Dismiss")))
         {
             coachingService.DismissHint(hint.Id);
         }
@@ -134,7 +135,7 @@ public sealed class HintOverlay : Window
 
         ImGui.SameLine();
         ImGui.PushStyleColor(ImGuiCol.Text, DimColor);
-        ImGui.Text("ESC to close all");
+        ImGui.Text(Loc.T(LocalizedStrings.Training.HintEscToCloseAll, "ESC to close all"));
         ImGui.PopStyleColor();
     }
 
