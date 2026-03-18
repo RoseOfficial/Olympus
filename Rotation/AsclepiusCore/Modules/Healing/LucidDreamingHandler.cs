@@ -2,6 +2,7 @@ using System;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.AsclepiusCore.Context;
+using Olympus.Rotation.AsclepiusCore.Helpers;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AsclepiusCore.Modules.Healing;
@@ -30,6 +31,12 @@ public sealed class LucidDreamingHandler : IHealingHandler
 
         if (player.Level < RoleActions.LucidDreaming.MinLevel)
             return false;
+
+        if (AsclepiusStatusHelper.HasLucidDreaming(player))
+        {
+            context.Debug.LucidState = "Already active";
+            return false;
+        }
 
         if (!context.ActionService.IsActionReady(RoleActions.LucidDreaming.ActionId))
         {
