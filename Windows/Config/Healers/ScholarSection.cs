@@ -305,7 +305,8 @@ public sealed class ScholarSection
 
             if (config.Scholar.EnableLucidDreaming)
             {
-                config.Scholar.LucidDreamingThreshold = ConfigUIHelpers.ThresholdSlider("Lucid MP Threshold",
+                config.Scholar.LucidDreamingThreshold = ConfigUIHelpers.ThresholdSlider(
+                    Loc.T(LocalizedStrings.Scholar.LucidMpThreshold, "Lucid MP Threshold"),
                     config.Scholar.LucidDreamingThreshold, 40f, 90f, null, save);
             }
 

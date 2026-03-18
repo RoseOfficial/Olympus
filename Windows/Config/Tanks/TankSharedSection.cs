@@ -84,7 +84,7 @@ public sealed class TankSharedSection
                 null => 0
             };
             ImGui.SetNextItemWidth(200);
-            if (ImGui.Combo(Loc.T("config.job.tank.mt_ot_combo_label", "##mt_ot_role"), ref currentRole, roleNames, roleNames.Length))
+            if (ImGui.Combo("##mt_ot_role", ref currentRole, roleNames, roleNames.Length))
             {
                 this.config.Tank.IsMainTankOverride = currentRole switch
                 {

@@ -488,6 +488,7 @@ public static class LocalizedStrings
         public const string SafePartyHpDesc = "config.job.sch.safe_party_hp_desc";
         public const string MpManagement = "config.job.sch.mp_management";
         public const string EnableLucidDreaming = "config.job.sch.enable_lucid_dreaming";
+        public const string LucidMpThreshold = "config.job.sch.lucid_mp_threshold";
 
         // Damage section
         public const string SingleTargetDamage = "config.job.sch.single_target_damage";
