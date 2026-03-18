@@ -117,7 +117,7 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<IHecateModule>
         {
-            new BuffModule(),    // Priority 20 - oGCD management (Ley Lines, Triplecast, Amplifier, Manafont)
+            new BuffModule(BurstWindowService),    // Priority 20 - oGCD management (Ley Lines, Triplecast, Amplifier, Manafont)
             new DamageModule(BurstWindowService),  // Priority 30 - GCD rotation
         };
 

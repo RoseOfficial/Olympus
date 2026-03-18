@@ -2,6 +2,7 @@ using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.HecateCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 using Olympus.Timeline.Models;
 
@@ -15,6 +16,17 @@ public sealed class BuffModule : IHecateModule
 {
     public int Priority => 20; // Higher priority than damage (lower number = higher priority)
     public string Name => "Buff";
+
+    private readonly IBurstWindowService? _burstWindowService;
+
+    public BuffModule(IBurstWindowService? burstWindowService = null)
+    {
+        _burstWindowService = burstWindowService;
+    }
+
+    private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
+        _burstWindowService?.IsBurstImminent(thresholdSeconds) == true &&
+        _burstWindowService?.IsInBurstWindow != true;
 
     public bool TryExecute(IHecateContext context, bool isMoving)
     {
@@ -151,6 +163,13 @@ public sealed class BuffModule : IHecateModule
             return false;
         }
 
+        // Hold Amplifier for imminent burst window
+        if (ShouldHoldForBurst(8f))
+        {
+            context.Debug.BuffState = "Holding Amplifier for burst";
+            return false;
+        }
+
         if (context.ActionService.ExecuteOgcd(BLMActions.Amplifier, player.GameObjectId))
         {
             context.Debug.PlannedAction = BLMActions.Amplifier.Name;
@@ -242,6 +261,13 @@ public sealed class BuffModule : IHecateModule
                 .Concept(BlmConcepts.LeyLines)
                 .Record();
 
+            return false;
+        }
+
+        // Hold Ley Lines for imminent burst window
+        if (ShouldHoldForBurst(8f))
+        {
+            context.Debug.BuffState = "Holding Ley Lines for burst";
             return false;
         }
 
