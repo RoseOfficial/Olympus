@@ -2,6 +2,7 @@ using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.PersephoneCore.Context;
+using Olympus.Services;
 using Olympus.Services.Party;
 using Olympus.Services.Training;
 using Olympus.Timeline.Models;
@@ -16,6 +17,17 @@ public sealed class BuffModule : IPersephoneModule
 {
     public int Priority => 20; // Higher priority than damage (lower number = higher priority)
     public string Name => "Buff";
+
+    private readonly IBurstWindowService? _burstWindowService;
+
+    public BuffModule(IBurstWindowService? burstWindowService = null)
+    {
+        _burstWindowService = burstWindowService;
+    }
+
+    private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
+        _burstWindowService?.IsBurstImminent(thresholdSeconds) == true &&
+        _burstWindowService?.IsInBurstWindow != true;
 
     public bool TryExecute(IPersephoneContext context, bool isMoving)
     {
@@ -379,6 +391,13 @@ public sealed class BuffModule : IPersephoneModule
             return false;
         }
 
+        // Hold Searing Light for imminent burst window
+        if (ShouldHoldForBurst(8f))
+        {
+            context.Debug.BuffState = "Holding Searing Light for burst";
+            return false;
+        }
+
         // Best used during demi-summon phases for burst alignment
         // Also good to align with party buffs (2-minute windows)
         if (!context.IsDemiSummonActive)
@@ -566,6 +585,8 @@ public sealed class BuffModule : IPersephoneModule
 
     private bool TryAetherflowSpender(IPersephoneContext context, Dalamud.Game.ClientState.Objects.Types.IBattleChara? target)
     {
+        if (!context.Configuration.Summoner.EnableFester) return false;
+
         if (target == null)
             return false;
 
