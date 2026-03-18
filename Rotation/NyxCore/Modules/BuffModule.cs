@@ -3,6 +3,7 @@ using Olympus.Models.Action;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.NyxCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.NyxCore.Modules;
@@ -13,6 +14,17 @@ namespace Olympus.Rotation.NyxCore.Modules;
 /// </summary>
 public sealed class BuffModule : BaseTankBuffModule<INyxContext>, INyxModule
 {
+    private readonly IBurstWindowService? _burstWindowService;
+
+    public BuffModule(IBurstWindowService? burstWindowService = null)
+    {
+        _burstWindowService = burstWindowService;
+    }
+
+    private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
+        _burstWindowService?.IsBurstImminent(thresholdSeconds) == true &&
+        _burstWindowService?.IsInBurstWindow != true;
+
     #region Abstract Method Implementations
 
     protected override ActionDefinition GetTankStanceAction() => DRKActions.Grit;
@@ -64,6 +76,13 @@ public sealed class BuffModule : BaseTankBuffModule<INyxContext>, INyxModule
         if (!context.ActionService.IsActionReady(DRKActions.BloodWeapon.ActionId))
             return false;
 
+        // Hold Blood Weapon if a burst window is imminent
+        if (ShouldHoldForBurst(8f))
+        {
+            context.Debug.BuffState = "Holding Blood Weapon for burst";
+            return false;
+        }
+
         if (context.ActionService.ExecuteOgcd(DRKActions.BloodWeapon, player.GameObjectId))
         {
             context.Debug.PlannedAction = DRKActions.BloodWeapon.Name;
@@ -110,6 +129,13 @@ public sealed class BuffModule : BaseTankBuffModule<INyxContext>, INyxModule
 
         if (!context.ActionService.IsActionReady(DRKActions.Delirium.ActionId))
             return false;
+
+        // Hold Delirium if a burst window is imminent
+        if (ShouldHoldForBurst(8f))
+        {
+            context.Debug.BuffState = "Holding Delirium for burst";
+            return false;
+        }
 
         if (context.ActionService.ExecuteOgcd(DRKActions.Delirium, player.GameObjectId))
         {
@@ -170,6 +196,13 @@ public sealed class BuffModule : BaseTankBuffModule<INyxContext>, INyxModule
 
         if (!context.ActionService.IsActionReady(DRKActions.LivingShadow.ActionId))
             return false;
+
+        // Hold Living Shadow if a burst window is imminent
+        if (ShouldHoldForBurst(8f))
+        {
+            context.Debug.BuffState = "Holding Living Shadow for burst";
+            return false;
+        }
 
         if (context.ActionService.ExecuteOgcd(DRKActions.LivingShadow, player.GameObjectId))
         {

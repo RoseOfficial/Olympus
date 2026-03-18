@@ -60,6 +60,9 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
     // Training
     private readonly ITrainingService? _trainingService;
 
+    // Burst window service
+    private readonly IBurstWindowService? _burstWindowService;
+
     // Modules (sorted by priority - lower = higher priority)
     private readonly List<IAresModule> _modules;
 
@@ -82,7 +85,8 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
-        IErrorMetricsService? errorMetrics = null)
+        IErrorMetricsService? errorMetrics = null,
+        IBurstWindowService? burstWindowService = null)
         : base(
             log,
             actionTracker,
@@ -105,6 +109,7 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
     {
         // Initialize training service
         _trainingService = trainingService;
+        _burstWindowService = burstWindowService;
 
         // Initialize helpers
         _statusHelper = new AresStatusHelper();
@@ -113,10 +118,10 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<IAresModule>
         {
-            new EnmityModule(),     // Priority 5 - Enmity management is critical
-            new MitigationModule(), // Priority 10 - Stay alive
-            new BuffModule(),       // Priority 20 - Buff management
-            new DamageModule(),     // Priority 30 - DPS rotation
+            new EnmityModule(),                           // Priority 5 - Enmity management is critical
+            new MitigationModule(),                       // Priority 10 - Stay alive
+            new BuffModule(_burstWindowService),          // Priority 20 - Buff management
+            new DamageModule(),                           // Priority 30 - DPS rotation
         };
 
         // Sort by priority

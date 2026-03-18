@@ -3,6 +3,7 @@ using Olympus.Models.Action;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.ThemisCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ThemisCore.Modules;
@@ -13,6 +14,17 @@ namespace Olympus.Rotation.ThemisCore.Modules;
 /// </summary>
 public sealed class BuffModule : BaseTankBuffModule<IThemisContext>, IThemisModule
 {
+    private readonly IBurstWindowService? _burstWindowService;
+
+    public BuffModule(IBurstWindowService? burstWindowService = null)
+    {
+        _burstWindowService = burstWindowService;
+    }
+
+    private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
+        _burstWindowService?.IsBurstImminent(thresholdSeconds) == true &&
+        _burstWindowService?.IsInBurstWindow != true;
+
     #region Abstract Method Implementations
 
     protected override ActionDefinition GetTankStanceAction() => PLDActions.IronWill;
@@ -101,6 +113,13 @@ public sealed class BuffModule : BaseTankBuffModule<IThemisContext>, IThemisModu
             return false;
         }
 
+        // Hold Fight or Flight if a burst window is imminent
+        if (ShouldHoldForBurst(8f))
+        {
+            context.Debug.BuffState = "Holding Fight or Flight for burst";
+            return false;
+        }
+
         // Optimal timing: Use at combo start or when Sword Oath stacks are available
         // This ensures we get maximum GCDs under the buff
         var goodTiming = context.ComboStep <= 1 || context.HasSwordOath;
@@ -179,6 +198,13 @@ public sealed class BuffModule : BaseTankBuffModule<IThemisContext>, IThemisModu
         var fofOnCooldown = !context.ActionService.IsActionReady(PLDActions.FightOrFlight.ActionId);
         var fofAlmostOver = context.HasFightOrFlight && context.FightOrFlightRemaining < 5f;
         var comboReady = context.ComboStep <= 1;
+
+        // Hold Requiescat if a burst window is imminent
+        if (ShouldHoldForBurst(8f))
+        {
+            context.Debug.BuffState = "Holding Requiescat for burst";
+            return false;
+        }
 
         // Use when FoF is on cooldown and we're not mid-combo
         if ((fofOnCooldown || fofAlmostOver) && comboReady)

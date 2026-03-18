@@ -3,6 +3,7 @@ using Olympus.Models.Action;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.HephaestusCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.HephaestusCore.Modules;
@@ -13,6 +14,17 @@ namespace Olympus.Rotation.HephaestusCore.Modules;
 /// </summary>
 public sealed class BuffModule : BaseTankBuffModule<IHephaestusContext>, IHephaestusModule
 {
+    private readonly IBurstWindowService? _burstWindowService;
+
+    public BuffModule(IBurstWindowService? burstWindowService = null)
+    {
+        _burstWindowService = burstWindowService;
+    }
+
+    private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
+        _burstWindowService?.IsBurstImminent(thresholdSeconds) == true &&
+        _burstWindowService?.IsInBurstWindow != true;
+
     #region Abstract Method Implementations
 
     protected override ActionDefinition GetTankStanceAction() => GNBActions.RoyalGuard;
@@ -81,6 +93,13 @@ public sealed class BuffModule : BaseTankBuffModule<IHephaestusContext>, IHephae
         if (!context.ActionService.IsActionReady(GNBActions.NoMercy.ActionId))
             return false;
 
+        // Hold No Mercy if a burst window is imminent
+        if (ShouldHoldForBurst(8f))
+        {
+            context.Debug.BuffState = "Holding No Mercy for burst";
+            return false;
+        }
+
         if (context.ActionService.ExecuteOgcd(GNBActions.NoMercy, player.GameObjectId))
         {
             context.Debug.PlannedAction = GNBActions.NoMercy.Name;
@@ -144,6 +163,13 @@ public sealed class BuffModule : BaseTankBuffModule<IHephaestusContext>, IHephae
 
         if (!context.ActionService.IsActionReady(GNBActions.Bloodfest.ActionId))
             return false;
+
+        // Hold Bloodfest if a burst window is imminent (unless we're already in No Mercy)
+        if (!context.HasNoMercy && ShouldHoldForBurst(8f))
+        {
+            context.Debug.BuffState = "Holding Bloodfest for burst";
+            return false;
+        }
 
         if (context.ActionService.ExecuteOgcd(GNBActions.Bloodfest, player.GameObjectId))
         {

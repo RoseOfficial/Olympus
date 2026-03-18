@@ -3,6 +3,7 @@ using Olympus.Models.Action;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.AresCore.Context;
 using Olympus.Rotation.Common.Modules;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AresCore.Modules;
@@ -13,6 +14,17 @@ namespace Olympus.Rotation.AresCore.Modules;
 /// </summary>
 public sealed class BuffModule : BaseTankBuffModule<IAresContext>, IAresModule
 {
+    private readonly IBurstWindowService? _burstWindowService;
+
+    public BuffModule(IBurstWindowService? burstWindowService = null)
+    {
+        _burstWindowService = burstWindowService;
+    }
+
+    private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
+        _burstWindowService?.IsBurstImminent(thresholdSeconds) == true &&
+        _burstWindowService?.IsInBurstWindow != true;
+
     #region Abstract Implementation
 
     protected override ActionDefinition GetTankStanceAction() => WARActions.Defiance;
@@ -77,6 +89,13 @@ public sealed class BuffModule : BaseTankBuffModule<IAresContext>, IAresModule
         if (!context.ActionService.IsActionReady(WARActions.InnerRelease.ActionId))
         {
             context.Debug.BuffState = "Inner Release on CD";
+            return false;
+        }
+
+        // Hold Inner Release if a burst window is imminent
+        if (ShouldHoldForBurst(8f))
+        {
+            context.Debug.BuffState = "Holding Inner Release for burst";
             return false;
         }
 
@@ -149,6 +168,13 @@ public sealed class BuffModule : BaseTankBuffModule<IAresContext>, IAresModule
         // Since we can't easily check charges, use freely when gauge is low
         if (charges >= 1)
         {
+            // Hold one charge for the upcoming burst window if imminent
+            if (charges < 2 && ShouldHoldForBurst(8f))
+            {
+                context.Debug.BuffState = "Holding Infuriate for burst";
+                return false;
+            }
+
             return TryExecuteInfuriate(context, "Infuriate");
         }
 

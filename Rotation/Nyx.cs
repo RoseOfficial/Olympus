@@ -63,6 +63,9 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
     // Training
     private readonly ITrainingService? _trainingService;
 
+    // Burst window service
+    private readonly IBurstWindowService? _burstWindowService;
+
     // Darkside timer (read from game gauge)
     private float _darksideTimer;
 
@@ -85,7 +88,8 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
-        IErrorMetricsService? errorMetrics = null)
+        IErrorMetricsService? errorMetrics = null,
+        IBurstWindowService? burstWindowService = null)
         : base(
             log,
             actionTracker,
@@ -108,6 +112,7 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
     {
         // Initialize training service
         _trainingService = trainingService;
+        _burstWindowService = burstWindowService;
 
         // Initialize helpers
         _statusHelper = new NyxStatusHelper();
@@ -116,10 +121,10 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<INyxModule>
         {
-            new EnmityModule(),     // Priority 5 - Enmity management is critical
-            new MitigationModule(), // Priority 10 - Stay alive (TBN intelligence)
-            new BuffModule(),       // Priority 20 - Buff management
-            new DamageModule(),     // Priority 30 - DPS rotation with Darkside
+            new EnmityModule(),                          // Priority 5 - Enmity management is critical
+            new MitigationModule(),                      // Priority 10 - Stay alive (TBN intelligence)
+            new BuffModule(_burstWindowService),         // Priority 20 - Buff management
+            new DamageModule(),                          // Priority 30 - DPS rotation with Darkside
         };
 
         // Sort by priority

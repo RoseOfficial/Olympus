@@ -63,6 +63,9 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
     // Training
     private readonly ITrainingService? _trainingService;
 
+    // Burst window service
+    private readonly IBurstWindowService? _burstWindowService;
+
     // Gnashing Fang combo step tracking
     private int _gnashingFangStep;
 
@@ -85,7 +88,8 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
-        IErrorMetricsService? errorMetrics = null)
+        IErrorMetricsService? errorMetrics = null,
+        IBurstWindowService? burstWindowService = null)
         : base(
             log,
             actionTracker,
@@ -108,6 +112,7 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
     {
         // Initialize training service
         _trainingService = trainingService;
+        _burstWindowService = burstWindowService;
 
         // Initialize helpers
         _statusHelper = new HephaestusStatusHelper();
@@ -116,10 +121,10 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<IHephaestusModule>
         {
-            new EnmityModule(),     // Priority 5 - Enmity management is critical
-            new MitigationModule(), // Priority 10 - Stay alive (Heart of Corundum intelligence)
-            new BuffModule(),       // Priority 20 - Buff management (No Mercy, Bloodfest)
-            new DamageModule(),     // Priority 30 - DPS rotation with Gnashing Fang combo
+            new EnmityModule(),                                // Priority 5 - Enmity management is critical
+            new MitigationModule(),                            // Priority 10 - Stay alive (Heart of Corundum intelligence)
+            new BuffModule(_burstWindowService),               // Priority 20 - Buff management (No Mercy, Bloodfest)
+            new DamageModule(),                                // Priority 30 - DPS rotation with Gnashing Fang combo
         };
 
         // Sort by priority

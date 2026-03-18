@@ -79,9 +79,16 @@ public abstract class BaseTankBuffModule<TContext> : ITankRotationModule<TContex
         if (!context.CanExecuteOgcd)
             return false;
 
-        // Priority 1: Tank stance management
+        // Priority 1: Tank stance management (always runs regardless of damage toggle)
         if (TryTankStance(context))
             return true;
+
+        // Burst buffs and resource generation are damage-oriented — skip when damage is disabled
+        if (!IsDamageEnabled(context))
+        {
+            SetBuffState(context, "Damage disabled");
+            return false;
+        }
 
         // Priority 2: Job-specific burst buffs
         if (TryJobSpecificBuffs(context))
