@@ -490,7 +490,11 @@ public sealed class ActionTracker
 
         var row = actionSheet.GetRowOrDefault(actionId);
         if (!row.HasValue)
-            return $"Action {actionId}";
+        {
+            var fallback = $"Action {actionId}";
+            _actionNameCache[actionId] = fallback;
+            return fallback;
+        }
 
         var name = row.Value.Name.ToString();
         name = string.IsNullOrEmpty(name) ? $"Action {actionId}" : name;
