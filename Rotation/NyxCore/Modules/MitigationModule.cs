@@ -873,6 +873,11 @@ public sealed class MitigationModule : INyxModule
         if (level < RoleActions.Reprisal.MinLevel)
             return false;
 
+        // Reprisal targets an enemy — bail if no target
+        var target = context.CurrentTarget;
+        if (target == null)
+            return false;
+
         // Check if another instance recently used a party mitigation (cooldown coordination)
         var partyCoord = context.PartyCoordinationService;
         var coordConfig = context.Configuration.PartyCoordination;
@@ -883,6 +888,12 @@ public sealed class MitigationModule : INyxModule
             return false;
         }
 
+        // Only use Reprisal when there is incoming damage pressure
+        // Require multiple injured party members or low average HP
+        var (avgHp, lowestHp, injuredCount) = context.PartyHealthMetrics;
+        if (injuredCount < 3 || avgHp > 0.85f)
+            return false;
+
         // Use Reprisal as a party mitigation tool
         // Best used before raidwides or during pulls with multiple enemies
 
@@ -891,7 +902,7 @@ public sealed class MitigationModule : INyxModule
         if (!context.ActionService.IsActionReady(RoleActions.Reprisal.ActionId))
             return false;
 
-        if (context.ActionService.ExecuteOgcd(RoleActions.Reprisal, player.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(RoleActions.Reprisal, target.EntityId))
         {
             context.Debug.PlannedAction = RoleActions.Reprisal.Name;
             context.Debug.MitigationState = $"Reprisal ({enemyCount} enemies)";
