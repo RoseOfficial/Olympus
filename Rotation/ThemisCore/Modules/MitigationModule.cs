@@ -757,7 +757,7 @@ public sealed class MitigationModule : IThemisModule
         var (avgHp, lowestHp, injuredCount) = context.PartyHealthMetrics;
 
         // Use when multiple party members are injured
-        if (injuredCount < 3 || avgHp > 0.85f)
+        if (injuredCount < 3 && avgHp > 0.85f)
             return false;
 
         if (!context.ActionService.IsActionReady(PLDActions.DivineVeil.ActionId))
