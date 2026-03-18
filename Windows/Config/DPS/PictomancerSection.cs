@@ -102,6 +102,8 @@ public sealed class PictomancerSection
                 v => config.Pictomancer.SavePaletteForComet = v,
                 Loc.T(LocalizedStrings.Pictomancer.SavePaletteForCometDesc, "Reserve Palette for Comet in Black when Subtractive is active"), save);
 
+            ConfigUIHelpers.Spacing();
+
             ConfigUIHelpers.EndIndent();
         }
     }
