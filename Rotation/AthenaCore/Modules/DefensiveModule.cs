@@ -2,6 +2,7 @@ using System;
 using System.Numerics;
 using Olympus.Config;
 using Olympus.Data;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.AthenaCore.Context;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Services.Party;
@@ -105,7 +106,15 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAthenaContext>, IAthe
 
         // Check party health - use when party is taking significant damage
         var (avgHp, _, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
-        if (avgHp > config.ExpedientThreshold)
+
+        // Proactive raidwide path: deploy before predicted raidwides even if HP threshold not yet met
+        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
+            context.TimelineService,
+            context.BossMechanicDetector,
+            context.Configuration.Healing,
+            out _);
+
+        if (avgHp > config.ExpedientThreshold && !raidwideImminent)
             return false;
 
         // Need multiple party members in range
