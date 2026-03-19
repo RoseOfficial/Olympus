@@ -111,7 +111,7 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
     /// </summary>
     protected virtual void UpdateDamageTrend(IPlayerCharacter player, IEnumerable<uint> partyEntityIds)
     {
-        (DamageTrendService as DamageTrendService)?.Update(1f / 60f, partyEntityIds);
+        DamageTrendService.Update(1f / 60f, partyEntityIds);
     }
 
     /// <summary>
@@ -169,7 +169,7 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
     protected override void UpdateJobSpecificServices(IPlayerCharacter player, bool inCombat)
     {
         // Update combat event service with combat state (for various tracking)
-        (CombatEventService as CombatEventService)?.UpdateCombatState(inCombat);
+        CombatEventService.UpdateCombatState(inCombat);
 
         // Update healer services
         UpdateHealerServices(player, inCombat);

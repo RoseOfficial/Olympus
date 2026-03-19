@@ -55,6 +55,9 @@ public abstract class BaseRangedDpsRotation<TContext, TModule> : BaseRotation<TC
     // Ranged DPS rotations typically have both job-specific and common debug states
     protected readonly DebugState CommonDebugState = new();
 
+    // Cached list to avoid per-frame heap allocation when passing player ID to DamageTrendService
+    private readonly System.Collections.Generic.List<uint> _damageTrendIds = new(1);
+
     #endregion
 
     #region Constructor
@@ -152,8 +155,9 @@ public abstract class BaseRangedDpsRotation<TContext, TModule> : BaseRotation<TC
         // Update damage trend service with player entity ID
         if (inCombat)
         {
-            var entityIds = new System.Collections.Generic.List<uint> { player.EntityId };
-            (DamageTrendService as DamageTrendService)?.Update(1f / 60f, entityIds);
+            _damageTrendIds.Clear();
+            _damageTrendIds.Add(player.EntityId);
+            DamageTrendService.Update(1f / 60f, _damageTrendIds);
         }
     }
 
