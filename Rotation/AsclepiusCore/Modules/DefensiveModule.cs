@@ -10,7 +10,8 @@ namespace Olympus.Rotation.AsclepiusCore.Modules;
 
 /// <summary>
 /// Sage-specific defensive module.
-/// Handles party and single-target mitigation: Taurochole, Kerachole, Holos, Panhaima.
+/// Handles single-target tank mitigation (Taurochole) and party AoE shields (Panhaima).
+/// Kerachole and Holos are handled exclusively by HealingModule (priority 10).
 /// Priority 20 — runs after healing, before buffs.
 /// </summary>
 public sealed class DefensiveModule : BaseDefensiveModule<IAsclepiusContext>, IAsclepiusModule
@@ -33,19 +34,14 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAsclepiusContext>, IA
     /// <summary>
     /// SGE-specific defensives in priority order:
     /// Taurochole (tank single-target mit/heal) →
-    /// Kerachole (party AoE regen + mit) →
-    /// Holos (party heal + shield + mit) →
     /// Panhaima (party multi-hit shields)
+    /// Note: Kerachole and Holos are handled by HealingModule (priority 10) which is
+    /// authoritative for those abilities. DefensiveModule (priority 20) handles only
+    /// Taurochole and Panhaima to avoid duplicate logic.
     /// </summary>
     protected override bool TryJobSpecificDefensives(IAsclepiusContext context, bool isMoving)
     {
         if (TryExecuteTaurochole(context))
-            return true;
-
-        if (TryExecuteKerachole(context))
-            return true;
-
-        if (TryExecuteHolos(context))
             return true;
 
         if (TryExecutePanhaima(context))
@@ -117,142 +113,6 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAsclepiusContext>, IA
             SetPlannedAction(context, action.Name);
             context.Debug.TaurocholeState = "Executing";
             context.LogAddersgallDecision(action.Name, context.AddersgallStacks, $"Tank at {hpPercent:P0} — heal + 10% mit");
-            return true;
-        }
-
-        return false;
-    }
-
-    private bool TryExecuteKerachole(IAsclepiusContext context)
-    {
-        var config = context.Configuration.Sage;
-        var player = context.Player;
-
-        if (!config.EnableKerachole)
-            return false;
-
-        if (player.Level < SGEActions.Kerachole.MinLevel)
-            return false;
-
-        if (context.AddersgallStacks < 1)
-        {
-            context.Debug.KeracholeState = "No Addersgall";
-            return false;
-        }
-
-        if (!context.ActionService.IsActionReady(SGEActions.Kerachole.ActionId))
-        {
-            context.Debug.KeracholeState = "On CD";
-            return false;
-        }
-
-        // Don't use if party already has the mitigation buff active
-        if (AsclepiusStatusHelper.HasKerachole(player))
-        {
-            context.Debug.KeracholeState = "Already active";
-            return false;
-        }
-
-        var (avgHp, _, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
-
-        // Check for imminent raidwide — deploy proactively for mit + regen
-        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
-            context.TimelineService,
-            context.BossMechanicDetector,
-            context.Configuration.Healing,
-            out _);
-
-        bool meetsThreshold = avgHp < config.KeracholeThreshold || injuredCount >= config.AoEHealMinTargets;
-        if (!meetsThreshold && !raidwideImminent)
-        {
-            context.Debug.KeracholeState = $"Avg HP {avgHp:P0}, {injuredCount} injured";
-            return false;
-        }
-
-        var action = SGEActions.Kerachole;
-        if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
-        {
-            SetDefensiveState(context, "Kerachole");
-            SetPlannedAction(context, action.Name);
-            context.Debug.KeracholeState = "Executing";
-            context.LogAddersgallDecision(action.Name, context.AddersgallStacks, $"Party regen + 10% mit (avg {avgHp:P0})");
-            return true;
-        }
-
-        return false;
-    }
-
-    private bool TryExecuteHolos(IAsclepiusContext context)
-    {
-        var config = context.Configuration.Sage;
-        var player = context.Player;
-
-        if (!config.EnableHolos)
-            return false;
-
-        if (player.Level < SGEActions.Holos.MinLevel)
-            return false;
-
-        // Check if another instance recently used a party mitigation
-        var partyCoord = context.PartyCoordinationService;
-        var coordConfig = context.Configuration.PartyCoordination;
-        if (coordConfig.EnableCooldownCoordination &&
-            partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
-        {
-            context.Debug.HolosState = "Skipped (remote mit)";
-            return false;
-        }
-
-        // Delay mitigations during burst windows unless emergency
-        if (coordConfig.EnableHealerBurstAwareness &&
-            coordConfig.DelayMitigationsDuringBurst &&
-            partyCoord != null)
-        {
-            var (avgHpCheck, _, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
-            var burstState = partyCoord.GetBurstWindowState();
-            if (burstState.IsActive && avgHpCheck > context.Configuration.Healing.GcdEmergencyThreshold)
-            {
-                context.Debug.HolosState = "Delayed (burst active)";
-                return false;
-            }
-        }
-
-        if (!context.ActionService.IsActionReady(SGEActions.Holos.ActionId))
-        {
-            context.Debug.HolosState = "On CD";
-            return false;
-        }
-
-        // Don't use if party already has the Holos mitigation buff
-        if (AsclepiusStatusHelper.HasHolos(player))
-        {
-            context.Debug.HolosState = "Already active";
-            return false;
-        }
-
-        var (avgHp, _, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
-
-        // Check for imminent raidwide — use proactively for heal + shield + mit
-        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
-            context.TimelineService,
-            context.BossMechanicDetector,
-            context.Configuration.Healing,
-            out _);
-
-        bool shouldUse = avgHp < config.HolosThreshold || injuredCount >= config.AoEHealMinTargets;
-        if (!shouldUse && !raidwideImminent)
-        {
-            context.Debug.HolosState = $"Avg HP {avgHp:P0}, {injuredCount} injured";
-            return false;
-        }
-
-        var action = SGEActions.Holos;
-        if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
-        {
-            SetDefensiveState(context, "Holos");
-            SetPlannedAction(context, action.Name);
-            context.Debug.HolosState = "Executing";
-            partyCoord?.OnCooldownUsed(action.ActionId, 120_000);
             return true;
         }
 

@@ -11,7 +11,7 @@ namespace Olympus.Tests.Rotation.AsclepiusCore.Modules;
 
 /// <summary>
 /// Tests for Sage DefensiveModule logic.
-/// Covers Taurochole, Kerachole, Holos, Panhaima, and Haima.
+/// Covers Taurochole and Panhaima (Kerachole and Holos are now exclusively in HealingModule).
 /// </summary>
 public class DefensiveModuleTests
 {
@@ -166,106 +166,6 @@ public class DefensiveModuleTests
                 It.Is<ActionDefinition>(a => a.ActionId == SGEActions.Taurochole.ActionId),
                 It.IsAny<ulong>()),
             Times.Never);
-    }
-
-    #endregion
-
-    #region Kerachole Tests
-
-    [Fact]
-    public void Kerachole_Fires_WhenPartyInjured()
-    {
-        // Arrange: 4 injured members (>= AoEHealMinTargets 3), 2 Addersgall stacks
-        var module = new DefensiveModule();
-        var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
-        config.Sage.AoEHealMinTargets = 3;
-        config.Sage.KeracholeThreshold = 0.80f;
-        // Disable higher-priority defensives that also need addersgall
-        config.Sage.EnableTaurochole = false;
-
-        var partyHelper = MockBuilders.CreateMockPartyHelper();
-        partyHelper.Setup(x => x.FindTankInParty(It.IsAny<IPlayerCharacter>()))
-            .Returns((Dalamud.Game.ClientState.Objects.Types.IBattleChara?)null);
-        partyHelper.Setup(x => x.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
-            .Returns((0.85f, 0.60f, 4)); // 4 injured — triggers AoE threshold
-
-        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
-        actionService.Setup(x => x.IsActionReady(SGEActions.Kerachole.ActionId)).Returns(true);
-        actionService.Setup(x => x.ExecuteOgcd(
-                It.Is<ActionDefinition>(a => a.ActionId == SGEActions.Kerachole.ActionId),
-                It.IsAny<ulong>()))
-            .Returns(true);
-
-        var addersgallService = AsclepiusTestContext.CreateMockAddersgallService(currentStacks: 2);
-
-        var context = AsclepiusTestContext.Create(
-            config: config,
-            partyHelper: partyHelper,
-            actionService: actionService,
-            addersgallService: addersgallService,
-            addersgallStacks: 2,
-            inCombat: true,
-            canExecuteOgcd: true,
-            level: 90);
-
-        // Act
-        var result = module.TryExecute(context, isMoving: false);
-
-        // Assert
-        Assert.True(result);
-        actionService.Verify(
-            x => x.ExecuteOgcd(
-                It.Is<ActionDefinition>(a => a.ActionId == SGEActions.Kerachole.ActionId),
-                It.IsAny<ulong>()),
-            Times.Once);
-    }
-
-    #endregion
-
-    #region Holos Tests
-
-    [Fact]
-    public void Holos_Fires_WhenAvgHpBelowThreshold()
-    {
-        // Arrange: avg HP 55%, threshold 0.60
-        var module = new DefensiveModule();
-        var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
-        config.Sage.HolosThreshold = 0.60f;
-        // Disable higher-priority defensives
-        config.Sage.EnableTaurochole = false;
-        config.Sage.EnableKerachole = false;
-
-        var partyHelper = MockBuilders.CreateMockPartyHelper();
-        partyHelper.Setup(x => x.FindTankInParty(It.IsAny<IPlayerCharacter>()))
-            .Returns((Dalamud.Game.ClientState.Objects.Types.IBattleChara?)null);
-        partyHelper.Setup(x => x.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
-            .Returns((0.55f, 0.40f, 2)); // avg 55% < 60% threshold
-
-        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
-        actionService.Setup(x => x.IsActionReady(SGEActions.Holos.ActionId)).Returns(true);
-        actionService.Setup(x => x.ExecuteOgcd(
-                It.Is<ActionDefinition>(a => a.ActionId == SGEActions.Holos.ActionId),
-                It.IsAny<ulong>()))
-            .Returns(true);
-
-        var context = AsclepiusTestContext.Create(
-            config: config,
-            partyHelper: partyHelper,
-            actionService: actionService,
-            inCombat: true,
-            canExecuteOgcd: true,
-            level: 90);
-
-        // Act
-        var result = module.TryExecute(context, isMoving: false);
-
-        // Assert
-        Assert.True(result);
-        actionService.Verify(
-            x => x.ExecuteOgcd(
-                It.Is<ActionDefinition>(a => a.ActionId == SGEActions.Holos.ActionId),
-                It.IsAny<ulong>()),
-            Times.Once);
     }
 
     #endregion
