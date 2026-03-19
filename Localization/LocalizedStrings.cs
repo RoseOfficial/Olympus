@@ -1095,8 +1095,6 @@ public static class LocalizedStrings
         public const string AoEMinTargetsDesc = "config.job.drg.aoe_min_targets_desc";
         public const string GeirskogulMinEyes = "config.job.drg.geirskogul_min_eyes";
         public const string GeirskogulMinEyesDesc = "config.job.drg.geirskogul_min_eyes_desc";
-        public const string HoldJumpsForBurst = "config.job.drg.hold_jumps_for_burst";
-        public const string HoldJumpsForBurstDesc = "config.job.drg.hold_jumps_for_burst_desc";
         public const string BuffSection = "config.job.drg.buff_section";
         public const string EnableLanceCharge = "config.job.drg.enable_lance_charge";
         public const string EnableLanceChargeDesc = "config.job.drg.enable_lance_charge_desc";
