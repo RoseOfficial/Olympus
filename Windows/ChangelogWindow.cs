@@ -1,6 +1,7 @@
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
+using Olympus.Localization;
 using Olympus.Windows.Config;
 
 namespace Olympus.Windows;
@@ -21,7 +22,7 @@ public sealed class ChangelogWindow : Window
         var entries = ChangelogParser.Entries;
         if (entries.Count == 0)
         {
-            ImGui.TextDisabled("No changelog available.");
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Changelog.NoChangelog, "No changelog available."));
             return;
         }
 

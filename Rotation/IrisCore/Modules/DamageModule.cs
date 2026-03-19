@@ -91,6 +91,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
         SetNearbyEnemies(context, rawEnemyCount);
         var enemyCount = IsAoEEnabled(context) ? rawEnemyCount : 0;
 
+        if (enemyCount > 0)
+            UpdateSmartAoE(context, target);
+
         // GCD damage phase
         if (TryGcdDamage(context, target, enemyCount, isMoving))
             return true;

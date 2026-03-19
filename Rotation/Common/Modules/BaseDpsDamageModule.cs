@@ -308,7 +308,7 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
     private uint _lastSmartAoEActionId;
     private ulong? _lastSmartAoETargetId;
 
-    private void UpdateSmartAoE(TContext context, IBattleChara target)
+    protected void UpdateSmartAoE(TContext context, IBattleChara target)
     {
         var svc = SmartAoEService.Instance;
         if (svc == null) return;

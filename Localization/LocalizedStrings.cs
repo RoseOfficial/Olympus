@@ -3079,5 +3079,11 @@ public static class LocalizedStrings
         public const string HealReservationExpiryDesc = "config.party_coord.heal_reservation_expiry_desc";
     }
 
+    /// <summary>Keys for Changelog window.</summary>
+    public static class Changelog
+    {
+        public const string NoChangelog = "Changelog.NoChangelog";
+    }
+
     #endregion
 }

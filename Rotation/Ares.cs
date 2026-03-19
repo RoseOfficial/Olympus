@@ -121,6 +121,7 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
             new EnmityModule(),                           // Priority 5 - Enmity management is critical
             new MitigationModule(),                       // Priority 10 - Stay alive
             new BuffModule(_burstWindowService),          // Priority 20 - Buff management
+            // WAR DamageModule does not pool for burst — gauge spending is reactive, not window-based.
             new DamageModule(),                           // Priority 30 - DPS rotation
         };
 

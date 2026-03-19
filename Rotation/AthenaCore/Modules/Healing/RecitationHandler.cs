@@ -2,6 +2,7 @@ using System;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
+using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.AthenaCore.Context;
 using Olympus.Services.Training;
 
@@ -159,7 +160,7 @@ public sealed class RecitationHandler : IHealingHandler
         var (avgHp, _, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
 
         // Timeline-aware: pre-shield before raidwides
-        var raidwideImminent = Rotation.ApolloCore.Helpers.TimelineHelper.IsRaidwideImminent(
+        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
             context.TimelineService,
             context.BossMechanicDetector,
             context.Configuration.Healing,

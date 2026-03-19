@@ -108,6 +108,7 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
     public record OverhealEvent(DateTime Timestamp, string SpellName, string TargetName, int HealAmount, int OverhealAmount);
 
     // For calibration: store the last predicted heal (raw, without correction factor)
+    // Both fields are written and read on the game thread only (IFramework.Update).
     private int _lastPredictedHealRaw;
     private DateTime _lastPredictionTime;
 

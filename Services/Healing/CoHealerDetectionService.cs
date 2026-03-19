@@ -99,7 +99,7 @@ public sealed class CoHealerDetectionService : ICoHealerDetectionService, IDispo
         {
             // If no IPC coordination, just return local tracking
             if (_partyCoordination == null || !_partyCoordination.IsPartyCoordinationEnabled)
-                return _pendingHeals;
+                return new Dictionary<uint, int>(_pendingHeals);
 
             // Merge local tracking with IPC reservations
             var merged = new Dictionary<uint, int>(_pendingHeals);
