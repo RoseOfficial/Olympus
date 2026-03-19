@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -178,13 +179,15 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
         // Update healer services
         UpdateHealerServices(player, inCombat);
 
-        // Update damage trends and cooldown planner when in combat
+        // Update damage trends and cooldown planner when in combat.
+        // Compute party members once and reuse for both calls to avoid a second object-table scan.
         if (inCombat)
         {
-            var partyEntityIds = GetPartyEntityIds(player);
+            var partyMembers = HealerParty.GetAllPartyMembers(player).ToList();
+            var partyEntityIds = partyMembers.Select(m => m.EntityId);
             UpdateDamageTrend(player, partyEntityIds);
 
-            var (avgHpPercent, lowestHpPercent, injuredCount) = GetPartyHealthMetrics(player);
+            var (avgHpPercent, lowestHpPercent, injuredCount) = HealerPartyHelper.CalculatePartyHealthMetrics(partyMembers);
             UpdateCooldownPlanner(avgHpPercent, lowestHpPercent, injuredCount);
         }
 

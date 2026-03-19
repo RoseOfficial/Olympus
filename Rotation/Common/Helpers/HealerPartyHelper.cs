@@ -153,12 +153,22 @@ public abstract class HealerPartyHelper : BasePartyHelper
     /// </summary>
     public (float avgHpPercent, float lowestHpPercent, int injuredCount) CalculatePartyHealthMetrics(IPlayerCharacter player)
     {
+        return CalculatePartyHealthMetrics(GetAllPartyMembers(player));
+    }
+
+    /// <summary>
+    /// Calculates party health metrics from a pre-built member list.
+    /// Use this overload when the caller already holds the party member list
+    /// to avoid a second object-table scan.
+    /// </summary>
+    public static (float avgHpPercent, float lowestHpPercent, int injuredCount) CalculatePartyHealthMetrics(IEnumerable<IBattleChara> members)
+    {
         float totalHpPercent = 0;
         float lowestHp = 1f;
         int count = 0;
         int injured = 0;
 
-        foreach (var member in GetAllPartyMembers(player))
+        foreach (var member in members)
         {
             if (member.IsDead)
                 continue;
