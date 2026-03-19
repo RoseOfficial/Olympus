@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -30,7 +31,7 @@ public sealed class BossMechanicDetector : IBossMechanicDetector, IDisposable
     // Damage aggregation for raidwide detection
     private const float DamageAggregationWindowMs = 150f; // 150ms window to aggregate simultaneous hits
     private const float TankBusterDamageThreshold = 0.15f; // 15% HP = tank buster
-    private readonly List<(DateTime time, uint entityId, int damage, uint maxHp)> _pendingDamageEvents = new();
+    private readonly ConcurrentQueue<(DateTime time, uint entityId, int damage, uint maxHp)> _pendingDamageEvents = new();
     private DateTime _lastAggregationCheck = DateTime.MinValue;
 
     // Raidwide tracking
@@ -50,6 +51,9 @@ public sealed class BossMechanicDetector : IBossMechanicDetector, IDisposable
 
     // Timer (seconds since combat started)
     private float _currentTime = 0f;
+
+    // Wall-clock time of the last Update() call, used to compute actual frame delta
+    private DateTime _lastUpdateTime = DateTime.MinValue;
 
     private record RaidwideEvent(float Timestamp, float DamagePercent, int AffectedCount);
     private record TankBusterEvent(float Timestamp, int DamageAmount, float DamagePercent);
@@ -117,8 +121,8 @@ public sealed class BossMechanicDetector : IBossMechanicDetector, IDisposable
 
         if (!isPartyMember) return;
 
-        // Add to pending events for aggregation
-        _pendingDamageEvents.Add((DateTime.UtcNow, entityId, damageAmount, maxHp));
+        // Add to pending events for aggregation (ConcurrentQueue is thread-safe for cross-thread Add/Drain)
+        _pendingDamageEvents.Enqueue((DateTime.UtcNow, entityId, damageAmount, maxHp));
 
         // Check for tank buster immediately (high single-target damage to tank)
         var damagePercent = (float)damageAmount / maxHp;
@@ -131,29 +135,31 @@ public sealed class BossMechanicDetector : IBossMechanicDetector, IDisposable
     /// <summary>
     /// Processes pending damage events to detect raidwides.
     /// Called during Update() to aggregate events within the time window.
+    /// Drains the ConcurrentQueue — safe to call from the game thread while OnDamageReceived
+    /// enqueues from a hook callback thread.
     /// </summary>
     private void ProcessPendingDamageEvents()
     {
-        if (_pendingDamageEvents.Count == 0) return;
-
-        var now = DateTime.UtcNow;
-        var cutoffTime = now.AddMilliseconds(-DamageAggregationWindowMs);
-
-        // Remove old events
-        _pendingDamageEvents.RemoveAll(e => e.time < cutoffTime);
+        if (_pendingDamageEvents.IsEmpty) return;
 
         // Skip if we just checked (avoid processing same batch multiple times)
+        var now = DateTime.UtcNow;
         if ((now - _lastAggregationCheck).TotalMilliseconds < DamageAggregationWindowMs)
             return;
 
         _lastAggregationCheck = now;
 
-        // Count unique entities hit in the aggregation window
+        var cutoffTime = now.AddMilliseconds(-DamageAggregationWindowMs);
+
+        // Drain all queued events; discard those outside the aggregation window
         var hitEntities = new HashSet<uint>();
         var totalDamagePercent = 0f;
 
-        foreach (var evt in _pendingDamageEvents)
+        while (_pendingDamageEvents.TryDequeue(out var evt))
         {
+            if (evt.time < cutoffTime)
+                continue; // Too old — discard
+
             if (!hitEntities.Contains(evt.entityId))
             {
                 hitEntities.Add(evt.entityId);
@@ -168,7 +174,7 @@ public sealed class BossMechanicDetector : IBossMechanicDetector, IDisposable
             if (avgDamagePercent >= _config.RaidwideMinDamagePercent)
             {
                 RecordRaidwideDamage(hitEntities.Count, avgDamagePercent);
-                _pendingDamageEvents.Clear(); // Clear after recording to avoid double-counting
+                // Queue is already drained — no need for an explicit clear
             }
         }
     }
@@ -285,9 +291,18 @@ public sealed class BossMechanicDetector : IBossMechanicDetector, IDisposable
 
     public void Update()
     {
-        // Increment time based on frame time (assumed ~16ms = 0.016s)
-        // In practice, this should be called with actual delta time from framework
-        _currentTime += 0.016f;
+        // Compute actual frame delta from wall-clock time instead of using a fixed 16ms assumption.
+        // Real frame time varies 14-20ms; the fixed value caused prediction drift of 5-15s over a 3-minute fight.
+        var now = DateTime.UtcNow;
+        var deltaSeconds = _lastUpdateTime == DateTime.MinValue
+            ? 0.016f // first call: use default to avoid a large spike
+            : (float)(now - _lastUpdateTime).TotalSeconds;
+        _lastUpdateTime = now;
+
+        // Clamp to avoid large spikes during lag or when Update is suspended temporarily
+        deltaSeconds = Math.Min(deltaSeconds, 0.1f);
+
+        _currentTime += deltaSeconds;
 
         // Process pending damage events to detect raidwides
         ProcessPendingDamageEvents();
@@ -358,6 +373,7 @@ public sealed class BossMechanicDetector : IBossMechanicDetector, IDisposable
         _lastTankBusterTarget = 0;
         _lastTankBusterTime = float.MinValue;
         _currentTime = 0f;
+        _lastUpdateTime = DateTime.MinValue;
     }
 
     private void DetectRaidwidePattern()
