@@ -450,21 +450,21 @@ public sealed class ActionTracker
             failureReasons.Clear();
             spellUsageCounts.Clear();
             lastSuccessfulCast = null;
+
+            // Reset XIVAnalysis-style GCD tracking (inside lock: read by CalculateGcdUptime under same lock)
+            combatStartTime = null;
+            totalGcdTimeSeconds = 0f;
+            lastCombatGcdUptime = 0f;
+            DowntimeEventCount = 0;
+
+            // Reset downtime categorization
+            movementDowntimeSeconds = 0f;
+            deathDowntimeSeconds = 0f;
+            mechanicDowntimeSeconds = 0f;
+            unforcedDowntimeSeconds = 0f;
+            lastPlayerPosition = Vector3.Zero;
+            lastFrameTime = default;
         }
-
-        // Reset XIVAnalysis-style GCD tracking
-        combatStartTime = null;
-        totalGcdTimeSeconds = 0f;
-        lastCombatGcdUptime = 0f;
-        DowntimeEventCount = 0;
-
-        // Reset downtime categorization
-        movementDowntimeSeconds = 0f;
-        deathDowntimeSeconds = 0f;
-        mechanicDowntimeSeconds = 0f;
-        unforcedDowntimeSeconds = 0f;
-        lastPlayerPosition = Vector3.Zero;
-        lastFrameTime = default;
     }
 
     /// <summary>
