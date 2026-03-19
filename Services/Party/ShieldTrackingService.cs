@@ -23,10 +23,6 @@ public sealed class ShieldTrackingService : IShieldTrackingService
     // Mitigation tracking: targetId -> list of active mitigations
     private readonly Dictionary<uint, List<MitigationBuff>> _mitigations = new();
 
-    // Cache for GetAllShields/GetAllMitigations to avoid allocations
-    private readonly Dictionary<uint, IReadOnlyList<ShieldInfo>> _shieldsReadOnly = new();
-    private readonly Dictionary<uint, IReadOnlyList<MitigationBuff>> _mitigationsReadOnly = new();
-
     // Reusable set to track current party entity IDs each frame
     private readonly HashSet<uint> _currentPartyIds = new(8);
 
@@ -408,29 +404,31 @@ public sealed class ShieldTrackingService : IShieldTrackingService
 
     public IReadOnlyDictionary<uint, IReadOnlyList<ShieldInfo>> GetAllShields()
     {
-        _shieldsReadOnly.Clear();
+        // Return a snapshot so callers holding the reference across frames
+        // are not affected by mutations in subsequent frames.
+        var snapshot = new Dictionary<uint, IReadOnlyList<ShieldInfo>>(_shields.Count);
         foreach (var kvp in _shields)
         {
-            _shieldsReadOnly[kvp.Key] = kvp.Value;
+            snapshot[kvp.Key] = kvp.Value;
         }
-        return _shieldsReadOnly;
+        return snapshot;
     }
 
     public IReadOnlyDictionary<uint, IReadOnlyList<MitigationBuff>> GetAllMitigations()
     {
-        _mitigationsReadOnly.Clear();
+        // Return a snapshot so callers holding the reference across frames
+        // are not affected by mutations in subsequent frames.
+        var snapshot = new Dictionary<uint, IReadOnlyList<MitigationBuff>>(_mitigations.Count);
         foreach (var kvp in _mitigations)
         {
-            _mitigationsReadOnly[kvp.Key] = kvp.Value;
+            snapshot[kvp.Key] = kvp.Value;
         }
-        return _mitigationsReadOnly;
+        return snapshot;
     }
 
     public void Clear()
     {
         _shields.Clear();
         _mitigations.Clear();
-        _shieldsReadOnly.Clear();
-        _mitigationsReadOnly.Clear();
     }
 }
