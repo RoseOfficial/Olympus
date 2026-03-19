@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Olympus.Timeline.Models;
 
@@ -49,17 +50,31 @@ public sealed partial class CactbotTimelineParser : ITimelineParser
     [GeneratedRegex(@"^hideall\s+""([^""]+)""", RegexOptions.Compiled)]
     private static partial Regex HideallPattern();
 
-    // Known mechanic type keywords for auto-classification
-    private static readonly HashSet<string> RaidwideKeywords = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "raidwide", "aoe", "party damage", "raid damage", "stack",
-        "spread", "explosion", "blast", "impact", "shockwave"
-    };
-
+    // Known mechanic type keywords for auto-classification.
+    // ClassifyEntryType checks these sets in priority order: TankBuster → Stack → Spread →
+    // Raidwide → Enrage → Adds → Phase → Ability.
+    // Note: "stack" and "spread" appear here and also map to their own entry types, so they
+    // are checked before the general RaidwideKeywords scan.
     private static readonly HashSet<string> TankBusterKeywords = new(StringComparer.OrdinalIgnoreCase)
     {
         "tankbuster", "tank buster", "buster", "cleave", "tank damage",
         "auto-attack", "double attack", "tank swap"
+    };
+
+    private static readonly HashSet<string> StackKeywords = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "stack", "share"
+    };
+
+    private static readonly HashSet<string> SpreadKeywords = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "spread", "out"
+    };
+
+    private static readonly HashSet<string> RaidwideKeywords = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "raidwide", "aoe", "party damage", "raid damage",
+        "explosion", "blast", "impact", "shockwave"
     };
 
     /// <summary>
@@ -274,20 +289,21 @@ public sealed partial class CactbotTimelineParser : ITimelineParser
     {
         var combined = abilityName + " " + modifiers;
 
-        // Check for explicit type markers in comments or modifiers
-        if (combined.Contains("raidwide", StringComparison.OrdinalIgnoreCase))
-            return TimelineEntryType.Raidwide;
-
-        if (combined.Contains("tankbuster", StringComparison.OrdinalIgnoreCase) ||
-            combined.Contains("tank buster", StringComparison.OrdinalIgnoreCase) ||
-            combined.Contains("buster", StringComparison.OrdinalIgnoreCase))
+        // Check in priority order. TankBuster is checked first because tank-buster names
+        // sometimes also contain raidwide-sounding words (e.g. "stack cleave").
+        if (TankBusterKeywords.Any(k => combined.Contains(k, StringComparison.OrdinalIgnoreCase)))
             return TimelineEntryType.TankBuster;
 
-        if (combined.Contains("stack", StringComparison.OrdinalIgnoreCase))
+        // Stack and Spread checked before general raidwide to preserve their specific types.
+        // "stack" appeared in the old RaidwideKeywords set but has its own dedicated type.
+        if (StackKeywords.Any(k => combined.Contains(k, StringComparison.OrdinalIgnoreCase)))
             return TimelineEntryType.Stack;
 
-        if (combined.Contains("spread", StringComparison.OrdinalIgnoreCase))
+        if (SpreadKeywords.Any(k => combined.Contains(k, StringComparison.OrdinalIgnoreCase)))
             return TimelineEntryType.Spread;
+
+        if (RaidwideKeywords.Any(k => combined.Contains(k, StringComparison.OrdinalIgnoreCase)))
+            return TimelineEntryType.Raidwide;
 
         if (combined.Contains("enrage", StringComparison.OrdinalIgnoreCase))
             return TimelineEntryType.Enrage;
@@ -295,12 +311,11 @@ public sealed partial class CactbotTimelineParser : ITimelineParser
         if (combined.Contains("adds", StringComparison.OrdinalIgnoreCase))
             return TimelineEntryType.Adds;
 
-        // Check for phase markers
+        // Phase markers
         if (combined.Contains("phase", StringComparison.OrdinalIgnoreCase) ||
             combined.Contains("--sync--", StringComparison.OrdinalIgnoreCase))
             return TimelineEntryType.Phase;
 
-        // Default to Ability
         return TimelineEntryType.Ability;
     }
 }
