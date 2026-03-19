@@ -83,7 +83,7 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
     private readonly List<OverhealEvent> recentOverhealEvents = new();
     private const int MaxOverhealHistory = 50;
     private readonly object overhealLock = new();
-    private DateTime sessionStartTime = DateTime.Now;
+    private DateTime sessionStartTime = DateTime.UtcNow;
 
     // Internal tracking classes for overheal statistics
     private sealed class SpellOverhealStats
@@ -263,7 +263,7 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
             spellOverhealStats.Clear();
             targetOverhealStats.Clear();
             recentOverhealEvents.Clear();
-            sessionStartTime = DateTime.Now;
+            sessionStartTime = DateTime.UtcNow;
         }
     }
 
@@ -279,7 +279,7 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
         List<OverhealEvent> RecentOverhealEvents)
     {
         public float OverhealPercent => TotalHealing > 0 ? (float)TotalOverheal / TotalHealing * 100f : 0f;
-        public TimeSpan SessionDuration => DateTime.Now - SessionStartTime;
+        public TimeSpan SessionDuration => DateTime.UtcNow - SessionStartTime;
     }
 
     private void ReceiveDetour(
@@ -392,7 +392,7 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
                 }
 
                 var healEvent = new HealEvent(
-                    DateTime.Now,
+                    DateTime.UtcNow,
                     targetId,
                     targetName,
                     header->ActionId,
@@ -434,7 +434,7 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
                     if (overhealAmount > 0)
                     {
                         recentOverhealEvents.Insert(0, new OverhealEvent(
-                            DateTime.Now,
+                            DateTime.UtcNow,
                             $"Action{header->ActionId}",
                             targetName,
                             totalHeal,
