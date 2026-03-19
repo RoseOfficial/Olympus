@@ -33,6 +33,11 @@ public abstract class BaseMeleeDpsRotation<TContext, TModule> : BaseRotation<TCo
     /// </summary>
     protected readonly IBurstWindowService? BurstWindowService;
 
+    /// <summary>
+    /// Optional service for computing optimal directional AoE facing.
+    /// </summary>
+    protected readonly ISmartAoEService? SmartAoEService;
+
     #endregion
 
     #region Combo Tracking
@@ -107,7 +112,8 @@ public abstract class BaseMeleeDpsRotation<TContext, TModule> : BaseRotation<TCo
         IDebuffDetectionService debuffDetectionService,
         IPositionalService positionalService,
         IBurstWindowService? burstWindowService = null,
-        IErrorMetricsService? errorMetrics = null)
+        IErrorMetricsService? errorMetrics = null,
+        ISmartAoEService? smartAoEService = null)
         : base(
             log,
             actionTracker,
@@ -126,6 +132,7 @@ public abstract class BaseMeleeDpsRotation<TContext, TModule> : BaseRotation<TCo
     {
         PositionalService = positionalService;
         BurstWindowService = burstWindowService;
+        SmartAoEService = smartAoEService;
     }
 
     #endregion

@@ -4,6 +4,7 @@ using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.PrometheusCore.Context;
 using Olympus.Services;
+using Olympus.Services.Targeting;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.PrometheusCore.Modules;
@@ -15,7 +16,7 @@ namespace Olympus.Rotation.PrometheusCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPrometheusModule
 {
-    public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
+    public DamageModule(IBurstWindowService? burstWindowService = null, ISmartAoEService? smartAoEService = null) : base(burstWindowService, smartAoEService) { }
 
     #region Abstract Method Implementations
 

@@ -48,6 +48,11 @@ public abstract class BaseRangedDpsRotation<TContext, TModule> : BaseRotation<TC
     /// </summary>
     protected readonly IBurstWindowService? BurstWindowService;
 
+    /// <summary>
+    /// Optional service for computing optimal directional AoE facing.
+    /// </summary>
+    protected readonly ISmartAoEService? SmartAoEService;
+
     #endregion
 
     #region Debug State
@@ -77,7 +82,8 @@ public abstract class BaseRangedDpsRotation<TContext, TModule> : BaseRotation<TC
         IPlayerStatsService playerStatsService,
         IDebuffDetectionService debuffDetectionService,
         IBurstWindowService? burstWindowService = null,
-        IErrorMetricsService? errorMetrics = null)
+        IErrorMetricsService? errorMetrics = null,
+        ISmartAoEService? smartAoEService = null)
         : base(
             log,
             actionTracker,
@@ -95,6 +101,7 @@ public abstract class BaseRangedDpsRotation<TContext, TModule> : BaseRotation<TC
             errorMetrics)
     {
         BurstWindowService = burstWindowService;
+        SmartAoEService = smartAoEService;
     }
 
     #endregion

@@ -4,6 +4,7 @@ using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.IrisCore.Context;
 using Olympus.Services;
+using Olympus.Services.Targeting;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.IrisCore.Modules;
@@ -16,7 +17,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
 {
     public override int Priority => 50; // Lower priority than buff module (higher number = lower priority)
 
-    public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
+    public DamageModule(IBurstWindowService? burstWindowService = null, ISmartAoEService? smartAoEService = null) : base(burstWindowService, smartAoEService) { }
 
     #region Abstract Method Implementations
 
@@ -92,7 +93,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
         var enemyCount = IsAoEEnabled(context) ? rawEnemyCount : 0;
 
         if (enemyCount > 0)
-            UpdateSmartAoE(context, target);
+            UpdateSmartAoE(context, target, rawEnemyCount);
 
         // GCD damage phase
         if (TryGcdDamage(context, target, enemyCount, isMoving))

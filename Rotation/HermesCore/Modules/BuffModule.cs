@@ -28,8 +28,7 @@ public sealed class BuffModule : IHermesModule
     }
 
     private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
-        _burstWindowService?.IsBurstImminent(thresholdSeconds) == true &&
-        _burstWindowService?.IsInBurstWindow != true;
+        BurstHoldHelper.ShouldHoldForBurst(_burstWindowService, thresholdSeconds);
 
     public bool TryExecute(IHermesContext context, bool isMoving)
     {

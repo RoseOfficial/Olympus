@@ -26,8 +26,7 @@ public sealed class BuffModule : IPersephoneModule
     }
 
     private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
-        _burstWindowService?.IsBurstImminent(thresholdSeconds) == true &&
-        _burstWindowService?.IsInBurstWindow != true;
+        BurstHoldHelper.ShouldHoldForBurst(_burstWindowService, thresholdSeconds);
 
     public bool TryExecute(IPersephoneContext context, bool isMoving)
     {

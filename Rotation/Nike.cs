@@ -131,7 +131,7 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>
         _modules = new List<INikeModule>
         {
             new BuffModule(BurstWindowService),    // Priority 20 - Buff management
-            new DamageModule(BurstWindowService),  // Priority 30 - DPS rotation
+            new DamageModule(BurstWindowService, SmartAoEService),  // Priority 30 - DPS rotation
         };
 
         // Sort by priority

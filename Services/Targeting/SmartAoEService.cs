@@ -12,7 +12,7 @@ namespace Olympus.Services.Targeting;
 /// Smart AoE service: uses Lumina Action sheet data to determine the optimal facing angle
 /// for cone/line abilities. Falls back to standard circular targeting for other shapes.
 /// </summary>
-public sealed class SmartAoEService : IDisposable
+public sealed class SmartAoEService : ISmartAoEService, IDisposable
 {
     private readonly ITargetingService _targetingService;
     private readonly IDataManager _dataManager;

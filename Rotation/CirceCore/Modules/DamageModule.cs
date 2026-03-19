@@ -4,6 +4,7 @@ using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.CirceCore.Context;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Services;
+using Olympus.Services.Targeting;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.CirceCore.Modules;
@@ -14,7 +15,7 @@ namespace Olympus.Rotation.CirceCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<ICirceContext>, ICirceModule
 {
-    public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
+    public DamageModule(IBurstWindowService? burstWindowService = null, ISmartAoEService? smartAoEService = null) : base(burstWindowService, smartAoEService) { }
 
     #region Abstract Method Implementations
 

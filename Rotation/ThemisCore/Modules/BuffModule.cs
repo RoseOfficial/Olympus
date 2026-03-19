@@ -22,8 +22,7 @@ public sealed class BuffModule : BaseTankBuffModule<IThemisContext>, IThemisModu
     }
 
     private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
-        _burstWindowService?.IsBurstImminent(thresholdSeconds) == true &&
-        _burstWindowService?.IsInBurstWindow != true;
+        BurstHoldHelper.ShouldHoldForBurst(_burstWindowService, thresholdSeconds);
 
     #region Abstract Method Implementations
 

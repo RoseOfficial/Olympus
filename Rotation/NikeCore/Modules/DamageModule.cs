@@ -4,6 +4,7 @@ using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.NikeCore.Context;
 using Olympus.Services;
+using Olympus.Services.Targeting;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.NikeCore.Modules;
@@ -15,7 +16,7 @@ namespace Olympus.Rotation.NikeCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModule
 {
-    public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
+    public DamageModule(IBurstWindowService? burstWindowService = null, ISmartAoEService? smartAoEService = null) : base(burstWindowService, smartAoEService) { }
 
     // Kenki threshold for spending (Shinten/Kyuten cost 25)
     private const int KenkiSpendThreshold = 25;

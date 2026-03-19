@@ -4,6 +4,7 @@ using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.CalliopeCore.Context;
 using Olympus.Services;
+using Olympus.Services.Targeting;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.CalliopeCore.Modules;
@@ -15,7 +16,7 @@ namespace Olympus.Rotation.CalliopeCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalliopeModule
 {
-    public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
+    public DamageModule(IBurstWindowService? burstWindowService = null, ISmartAoEService? smartAoEService = null) : base(burstWindowService, smartAoEService) { }
 
     // DoT refresh window (refresh between 3-7s remaining)
     private const float DotRefreshMin = 3f;

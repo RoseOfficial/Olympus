@@ -123,7 +123,7 @@ public sealed class Terpsichore : BaseRangedDpsRotation<ITerpsichoreContext, ITe
         _modules = new List<ITerpsichoreModule>
         {
             new BuffModule(BurstWindowService),    // Priority 20 - Dance execution, buffs, oGCDs
-            new DamageModule(BurstWindowService),  // Priority 30 - GCD rotation
+            new DamageModule(BurstWindowService, SmartAoEService),  // Priority 30 - GCD rotation
         };
 
         // Sort by priority

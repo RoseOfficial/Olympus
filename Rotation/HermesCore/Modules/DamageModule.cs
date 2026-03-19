@@ -5,6 +5,7 @@ using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.HermesCore.Context;
 using Olympus.Services;
+using Olympus.Services.Targeting;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.HermesCore.Modules;
@@ -16,7 +17,7 @@ namespace Olympus.Rotation.HermesCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesModule
 {
-    public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
+    public DamageModule(IBurstWindowService? burstWindowService = null, ISmartAoEService? smartAoEService = null) : base(burstWindowService, smartAoEService) { }
 
     // Ninki threshold for spending
     private const int NinkiSpendThreshold = 50;

@@ -7,6 +7,7 @@ using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.EchidnaCore.Context;
 using Olympus.Services;
+using Olympus.Services.Targeting;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.EchidnaCore.Modules;
@@ -18,7 +19,7 @@ namespace Olympus.Rotation.EchidnaCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<IEchidnaContext>, IEchidnaModule
 {
-    public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
+    public DamageModule(IBurstWindowService? burstWindowService = null, ISmartAoEService? smartAoEService = null) : base(burstWindowService, smartAoEService) { }
 
     #region Base Class Implementation
 

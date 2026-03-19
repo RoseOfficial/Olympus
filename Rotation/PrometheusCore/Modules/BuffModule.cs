@@ -21,9 +21,9 @@ public sealed class BuffModule : IPrometheusModule
         _burstWindowService = burstWindowService;
     }
 
-    private bool IsInBurst => _burstWindowService?.IsInBurstWindow == true;
+    private bool IsInBurst => BurstHoldHelper.IsInBurst(_burstWindowService);
     private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
-        _burstWindowService?.IsBurstImminent(thresholdSeconds) == true && !IsInBurst;
+        BurstHoldHelper.ShouldHoldForBurst(_burstWindowService, thresholdSeconds);
 
     public int Priority => 20; // Higher priority than damage
     public string Name => "Buff";

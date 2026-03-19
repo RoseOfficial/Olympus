@@ -125,7 +125,7 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
         _modules = new List<IZeusModule>
         {
             new BuffModule(BurstWindowService),    // Priority 20 - Buff management (Lance Charge, Battle Litany, Life Surge)
-            new DamageModule(BurstWindowService),  // Priority 30 - DPS rotation
+            new DamageModule(BurstWindowService, SmartAoEService),  // Priority 30 - DPS rotation
         };
 
         // Sort by priority

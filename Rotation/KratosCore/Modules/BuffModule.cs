@@ -25,8 +25,7 @@ public sealed class BuffModule : IKratosModule
     }
 
     private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
-        _burstWindowService?.IsBurstImminent(thresholdSeconds) == true &&
-        _burstWindowService?.IsInBurstWindow != true;
+        BurstHoldHelper.ShouldHoldForBurst(_burstWindowService, thresholdSeconds);
 
     public bool TryExecute(IKratosContext context, bool isMoving)
     {

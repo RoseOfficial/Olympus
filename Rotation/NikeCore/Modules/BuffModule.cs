@@ -22,8 +22,7 @@ public sealed class BuffModule : INikeModule
     }
 
     private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
-        _burstWindowService?.IsBurstImminent(thresholdSeconds) == true &&
-        _burstWindowService?.IsInBurstWindow != true;
+        BurstHoldHelper.ShouldHoldForBurst(_burstWindowService, thresholdSeconds);
 
     public int Priority => 20; // Before Damage
     public string Name => "Buff";

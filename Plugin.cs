@@ -308,6 +308,7 @@ public sealed class Plugin : IDalamudPlugin
         this.aoeTracker = new AoETracker();
         this.smartAoEService = new SmartAoEService(targetingService, dataManager, aoeTracker, log);
         this.smartAoEService.SubscribeToCombatEvents(combatEventService);
+        // Keep static Instance for backward compatibility during transition
         SmartAoEService.Instance = this.smartAoEService;
         this.drawingService = new DrawingService(pluginInterface, configuration.DrawHelper, log);
         this.drawCanvas = new DrawCanvas(drawingService, configuration, objectTable, clientState, targetManager, gameGui, positionalService, rotationManager);
@@ -439,6 +440,9 @@ public sealed class Plugin : IDalamudPlugin
 
         // DPS burst window service
         container.Register<IBurstWindowService, BurstWindowService>(burstWindowService);
+
+        // Smart AoE service for directional ability optimization
+        container.Register<ISmartAoEService, SmartAoEService>(smartAoEService);
 
         // Optional services (rotations have default null parameters)
         container.Register<ITimelineService, TimelineService>(timelineService);

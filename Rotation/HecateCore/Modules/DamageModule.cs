@@ -4,6 +4,7 @@ using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.HecateCore.Context;
 using Olympus.Services;
+using Olympus.Services.Targeting;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.HecateCore.Modules;
@@ -15,7 +16,7 @@ namespace Olympus.Rotation.HecateCore.Modules;
 /// </summary>
 public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateModule
 {
-    public DamageModule(IBurstWindowService? burstWindowService = null) : base(burstWindowService) { }
+    public DamageModule(IBurstWindowService? burstWindowService = null, ISmartAoEService? smartAoEService = null) : base(burstWindowService, smartAoEService) { }
 
     // MP thresholds
     private const int Fire4MpCost = 800;

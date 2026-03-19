@@ -123,7 +123,7 @@ public sealed class Calliope : BaseRangedDpsRotation<ICalliopeContext, ICalliope
         _modules = new List<ICalliopeModule>
         {
             new BuffModule(BurstWindowService),    // Priority 20 - Song rotation, buffs, oGCDs
-            new DamageModule(BurstWindowService),  // Priority 30 - GCD rotation
+            new DamageModule(BurstWindowService, SmartAoEService),  // Priority 30 - GCD rotation
         };
 
         // Sort by priority

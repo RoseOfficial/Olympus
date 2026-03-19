@@ -22,7 +22,7 @@ public sealed class BuffModule : ICalliopeModule
         _burstWindowService = burstWindowService;
     }
 
-    private bool IsInBurst => _burstWindowService?.IsInBurstWindow == true;
+    private bool IsInBurst => BurstHoldHelper.IsInBurst(_burstWindowService);
 
     public int Priority => 20; // Higher priority than damage
     public string Name => "Buff";

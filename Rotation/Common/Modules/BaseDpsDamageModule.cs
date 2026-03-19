@@ -20,11 +20,18 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
     protected readonly IBurstWindowService? BurstWindowService;
 
     /// <summary>
-    /// Initializes the damage module with an optional burst window service.
+    /// Optional service for computing optimal directional AoE facing.
+    /// Provided by the rotation constructor when available.
     /// </summary>
-    protected BaseDpsDamageModule(IBurstWindowService? burstWindowService = null)
+    private readonly ISmartAoEService? _smartAoEService;
+
+    /// <summary>
+    /// Initializes the damage module with optional burst window and smart AoE services.
+    /// </summary>
+    protected BaseDpsDamageModule(IBurstWindowService? burstWindowService = null, ISmartAoEService? smartAoEService = null)
     {
         BurstWindowService = burstWindowService;
+        _smartAoEService = smartAoEService;
     }
 
     /// <summary>
@@ -212,7 +219,7 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
 
         // Phase 3b: Smart AoE — compute optimal facing for the last/next directional ability
         if (enemyCount > 0)
-            UpdateSmartAoE(context, target);
+            UpdateSmartAoE(context, target, rawEnemyCount);
 
         // Phase 4: oGCD damage (weave window)
         if (context.CanExecuteOgcd)
@@ -259,7 +266,7 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
     protected bool ExecuteGcdWithDebug(TContext context, Models.Action.ActionDefinition action, ulong targetId, string? stateOverride = null)
     {
         // For directional AoEs: target the optimal enemy to control cone/line direction
-        var svc = SmartAoEService.Instance;
+        var svc = _smartAoEService;
         if (_lastSmartAoETargetId.HasValue && svc != null && svc.IsDirectionalAoE(action.ActionId))
         {
             if (context.ActionService.ExecuteDirectionalGcd(action, _lastSmartAoETargetId.Value))
@@ -312,7 +319,7 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
     // without this guard the prediction recording call would trigger on both passes.
     private ulong _smartAoELastFrame = ulong.MaxValue;
 
-    protected void UpdateSmartAoE(TContext context, IBattleChara target)
+    protected void UpdateSmartAoE(TContext context, IBattleChara target, int enemyCount)
     {
         // Guard: only run once per frame even if TryExecute is called from both oGCD and GCD passes.
         // FrameCache may be null in unit tests (mocked context); skip the guard when unavailable.
@@ -323,11 +330,10 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
             _smartAoELastFrame = currentFrame;
         }
 
-        var svc = SmartAoEService.Instance;
+        var svc = _smartAoEService;
         if (svc == null) return;
 
-        var actionId = GetNextDirectionalAoEActionId(context, target,
-            context.TargetingService.CountEnemiesInRange(GetAoECountRange(), context.Player));
+        var actionId = GetNextDirectionalAoEActionId(context, target, enemyCount);
 
         if (actionId == 0)
         {

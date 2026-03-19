@@ -130,7 +130,7 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
         _modules = new List<IIrisModule>
         {
             new BuffModule(BurstWindowService),    // Priority 30 - oGCD management (Muses, Portraits, Subtractive Palette, etc.)
-            new DamageModule(BurstWindowService),  // Priority 50 - GCD rotation (combos, paint spenders, finishers)
+            new DamageModule(BurstWindowService, SmartAoEService),  // Priority 50 - GCD rotation (combos, paint spenders, finishers)
         };
 
         // Sort by priority
