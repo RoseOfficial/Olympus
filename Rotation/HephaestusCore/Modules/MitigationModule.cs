@@ -282,9 +282,9 @@ public sealed class MitigationModule : IHephaestusModule
                         .Factors(reason, "No active mitigation currently", "Timeline prediction high confidence")
                         .Alternatives("Stack with Heart of Corundum for more coverage", "Use Nebula for bigger hits")
                         .Tip("Pre-stacking Rampart before predicted tankbusters is a core tanking skill. Plan your mitigation cooldown rotation around fight timelines.")
-                        .Concept("gnb_nebula")
+                        .Concept("gnb_rampart")
                         .Record();
-                    context.TrainingService?.RecordConceptApplication("gnb_nebula", true, "Proactive Rampart timeline");
+                    context.TrainingService?.RecordConceptApplication("gnb_rampart", true, "Proactive Rampart timeline");
 
                     return true;
                 }
@@ -621,9 +621,9 @@ public sealed class MitigationModule : IHephaestusModule
                 .Factors($"HP at {hpPercent:P0}", $"Damage rate elevated ({damageRate:F3})", "90s cooldown available")
                 .Alternatives("Stack with Nebula for bigger hits", "Use Heart of Corundum (shorter CD, different mitigation type)")
                 .Tip("Rampart and Nebula don't share a cooldown - you can use both together for major tankbusters requiring heavy mitigation.")
-                .Concept("gnb_nebula")
+                .Concept("gnb_rampart")
                 .Record();
-            context.TrainingService?.RecordConceptApplication("gnb_nebula", true, "Rampart defensive cooldown");
+            context.TrainingService?.RecordConceptApplication("gnb_rampart", true, "Rampart defensive cooldown");
 
             return true;
         }
