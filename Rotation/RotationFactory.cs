@@ -15,7 +15,7 @@ namespace Olympus.Rotation;
 /// Usage:
 /// <code>
 /// var factory = new RotationFactory(services, log);
-/// factory.DiscoverAndRegister(rotationManager);
+/// factory.DiscoverAndRegisterFactories(rotationManager);
 /// </code>
 /// </remarks>
 public sealed class RotationFactory
