@@ -66,14 +66,11 @@ public sealed class MainWindow : Window
             ? Loc.T(LocalizedStrings.Main.Active, "ACTIVE")
             : Loc.T(LocalizedStrings.Main.Inactive, "INACTIVE");
 
-        ImGui.Text(Loc.T(LocalizedStrings.Main.Status, "Status:"));
-        ImGui.SameLine();
         ImGui.TextColored(statusColor, statusText);
-
-        ImGui.Separator();
+        ImGui.SameLine();
+        ImGui.TextDisabled(PresetNames[(int)configuration.ActivePreset]);
 
         // Show active rotation
-        ImGui.Text(Loc.T(LocalizedStrings.Main.ActiveRotation, "Active Rotation:"));
         var activeRotation = rotationManager.ActiveRotation;
         if (activeRotation != null)
         {
@@ -93,7 +90,7 @@ public sealed class MainWindow : Window
         }
         else
         {
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Main.SwitchToSupported, "None (switch to supported job)"));
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Main.SwitchToSupported, "No rotation \u2014 switch to a supported job"));
         }
 
         // Positional indicator — only shown for melee DPS jobs with an active target
