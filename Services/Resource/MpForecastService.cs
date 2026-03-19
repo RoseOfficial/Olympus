@@ -164,9 +164,11 @@ public sealed class MpForecastService : IMpForecastService
         if (secondsFromNow <= 0)
             return _currentMp;
 
-        // Calculate number of ticks in the time window
-        // Server ticks occur every 3 seconds; MP regen happens on ticks
-        var ticksInWindow = secondsFromNow / TickInterval;
+        // Calculate number of ticks in the time window.
+        // FFXIV server ticks are discrete events, not continuous regen.
+        // Floor to the integer tick count so we don't over-predict regen
+        // (e.g., at 5s we get 1 tick, not 1.67 ticks).
+        var ticksInWindow = (int)(secondsFromNow / TickInterval);
 
         // Calculate regen from ticks
         var baseRegenPerTick = _maxMp * BaseMpRegenPercent;
