@@ -33,6 +33,7 @@ public sealed class PartyAnalyzerService : IPartyAnalyzer
     private readonly HashSet<uint> _cachedPartyEntityIds = new(8);
     private int _lastPartyCount = -1;
     private uint _lastPlayerEntityId;
+    private ulong _lastPartyMembersHash;
 
     // Pre-allocated arrays for endangered member triage (avoids per-frame allocation)
     private const int MaxPartySize = 8;
@@ -348,6 +349,17 @@ public sealed class PartyAnalyzerService : IPartyAnalyzer
     }
 
     /// <summary>
+    /// Computes a hash of current party member entity IDs for cache invalidation.
+    /// </summary>
+    private ulong ComputePartyHash()
+    {
+        ulong hash = 0;
+        foreach (var member in _partyList)
+            hash ^= member.EntityId * 2654435761UL;
+        return hash;
+    }
+
+    /// <summary>
     /// Yields all party members (player + party list or Trust NPCs).
     /// </summary>
     private IEnumerable<IBattleChara> GetAllPartyMembers(bool includeDead = false)
@@ -360,7 +372,8 @@ public sealed class PartyAnalyzerService : IPartyAnalyzer
         if (_partyList.Length > 0)
         {
             // Rebuild cache only if party composition changed
-            if (_partyList.Length != _lastPartyCount || _player.EntityId != _lastPlayerEntityId)
+            var memberHash = ComputePartyHash();
+            if (_partyList.Length != _lastPartyCount || _player.EntityId != _lastPlayerEntityId || memberHash != _lastPartyMembersHash)
             {
                 _cachedPartyEntityIds.Clear();
                 foreach (var partyMember in _partyList)
@@ -370,6 +383,7 @@ public sealed class PartyAnalyzerService : IPartyAnalyzer
                 }
                 _lastPartyCount = _partyList.Length;
                 _lastPlayerEntityId = _player.EntityId;
+                _lastPartyMembersHash = memberHash;
             }
 
             foreach (var obj in _objectTable)
