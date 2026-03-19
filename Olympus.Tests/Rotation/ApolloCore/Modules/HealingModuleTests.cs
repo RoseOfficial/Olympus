@@ -312,16 +312,21 @@ public class HealingModuleTests
         var debuffServiceMock = MockBuilders.CreateMockDebuffDetectionService(
             target => (100u, DebuffPriority.Lethal, 10f));
 
+        var actionServiceMock = MockBuilders.CreateMockActionService();
+
         var context = CreateTestContext(
             config: config,
             debuffDetectionService: debuffServiceMock,
+            actionService: actionServiceMock,
             inCombat: false); // Not in combat
 
         // Act
         _module.TryExecute(context, isMoving: false);
 
         // Assert - Esuna check is only done when InCombat
-        // The debug state won't be "Disabled" because we never entered that path
+        actionServiceMock.Verify(
+            a => a.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()),
+            Times.Never);
     }
 
     [Fact]

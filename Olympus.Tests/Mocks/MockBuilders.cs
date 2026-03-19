@@ -149,6 +149,11 @@ public static class MockBuilders
     /// <param name="isActionReady">Function to determine if action is ready. Default: always true.</param>
     /// <param name="canExecuteGcd">Whether GCD can be executed. Default: true.</param>
     /// <param name="canExecuteOgcd">Whether oGCD can be executed. Default: true.</param>
+    /// <remarks>
+    /// GetCurrentCharges defaults to 0u (no charges). Tests for charge-based abilities
+    /// must explicitly call .Setup(a => a.GetCurrentCharges(actionId)).Returns(N).
+    /// GetCooldownRemaining defaults to 0f (not on cooldown).
+    /// </remarks>
     public static Mock<IActionService> CreateMockActionService(
         Func<uint, bool>? isActionReady = null,
         bool canExecuteGcd = true,
@@ -169,6 +174,7 @@ public static class MockBuilders
         mock.Setup(x => x.AnimationLockRemaining).Returns(0f);
         mock.Setup(x => x.IsCasting).Returns(false);
         mock.Setup(x => x.GetCooldownRemaining(It.IsAny<uint>())).Returns(0f);
+        mock.Setup(x => x.GetCurrentCharges(It.IsAny<uint>())).Returns(0u);
         mock.Setup(x => x.GetAvailableWeaveSlots()).Returns(canExecuteOgcd ? 2 : 0);
 
         return mock;
