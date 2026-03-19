@@ -46,6 +46,9 @@ public sealed class DoTTrackingService : IDisposable
             { 25772, (50, 24f) },   // Chaotic Spring
 
             // NIN
+            // Doton is an enemy-targeted ground AoE (not a party DoT), but it registers
+            // here so the forecast engine accounts for the ticking damage enemies receive
+            // from the local player's Doton during AoE phases.
             { 2270,  (80, 15f) },   // Doton
 
             // SAM
@@ -59,9 +62,9 @@ public sealed class DoTTrackingService : IDisposable
             { 74,    (40, 15f) },   // Demolish
 
             // SCH / SMN offensive DoTs
+            // Biolysis (17864) replaced Bio II in Endwalker; Bio II (179) was removed from SCH's kit.
             { 17864, (40, 30f) },   // Biolysis
             { 178,   (25, 30f) },   // Bio
-            { 179,   (35, 30f) },   // Bio II
         };
 
     public DoTTrackingService(ICombatEventService ces, IDamageIntakeService dis)
