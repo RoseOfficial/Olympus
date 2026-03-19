@@ -107,10 +107,13 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
     /// </summary>
     public record OverhealEvent(DateTime Timestamp, string SpellName, string TargetName, int HealAmount, int OverhealAmount);
 
-    // For calibration: store the last predicted heal (raw, without correction factor)
-    // Both fields are written and read on the game thread only (IFramework.Update).
+    // For calibration: store the last predicted heal (raw, without correction factor).
+    // _lastPredictedHealRaw uses Interlocked.Exchange for thread safety (existing pattern).
+    // _lastPredictionTimeTicks uses Interlocked.Read/Exchange for thread safety:
+    //   RegisterPredictionForCalibration() writes from the game frame thread,
+    //   ReceiveDetour() reads from the hook callback thread — a cross-thread access.
     private int _lastPredictedHealRaw;
-    private DateTime _lastPredictionTime;
+    private long _lastPredictionTimeTicks;
 
     // Combat duration tracking
     private DateTime? _combatStartTime;
@@ -147,7 +150,7 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
     public void RegisterPredictionForCalibration(int rawPredictedHeal)
     {
         Interlocked.Exchange(ref _lastPredictedHealRaw, rawPredictedHeal);
-        _lastPredictionTime = DateTime.UtcNow;
+        Interlocked.Exchange(ref _lastPredictionTimeTicks, DateTime.UtcNow.Ticks);
     }
 
     /// <summary>
@@ -446,8 +449,12 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
                 // Raise event so HpPredictionService can clear pending heals for this target
                 OnLocalPlayerHealLanded?.Invoke(targetId);
 
-                // Calibrate if we have a recent prediction (within 3 seconds)
-                var timeSincePrediction = (DateTime.UtcNow - _lastPredictionTime).TotalSeconds;
+                // Calibrate if we have a recent prediction (within 3 seconds).
+                // Use Interlocked.Read for thread-safe access to the ticks field written by the game thread.
+                var predictionTicks = Interlocked.Read(ref _lastPredictionTimeTicks);
+                var timeSincePrediction = predictionTicks == 0
+                    ? double.MaxValue
+                    : (DateTime.UtcNow - new DateTime(predictionTicks, DateTimeKind.Utc)).TotalSeconds;
                 var predictedHeal = Interlocked.Exchange(ref _lastPredictedHealRaw, 0);
                 if (predictedHeal > 0 && timeSincePrediction < 3.0)
                 {
