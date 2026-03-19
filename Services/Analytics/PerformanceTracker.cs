@@ -151,8 +151,12 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         // Notify ActionTracker
         actionTracker.EndCombat();
 
-        // Only record if above minimum duration
-        var duration = CombatDuration;
+        // Compute duration from our own combatStartTime — CombatEventService
+        // has already cleared its state by the time we detect the transition,
+        // so CombatDuration (which reads from CES) would return 0.
+        var duration = combatStartTime.HasValue
+            ? (float)(DateTime.Now - combatStartTime.Value).TotalSeconds
+            : 0f;
         if (duration < config.MinCombatDuration)
         {
             log.Debug("PerformanceTracker: Combat too short ({Duration:F1}s < {Min:F1}s), not recording",

@@ -534,6 +534,22 @@ public sealed class Plugin : IDalamudPlugin
             // Update timeline service for sync and predictions
             timelineService.Update();
 
+            // Update combat state for analytics — must run before performanceTracker
+            // and outside the dead-player gate so sessions end correctly when the
+            // player dies mid-fight. Covers all 21 jobs (previously only healers).
+            {
+                var lp = objectTable.LocalPlayer;
+                if (lp != null)
+                {
+                    var inCombat = (lp.StatusFlags & Dalamud.Game.ClientState.Objects.Enums.StatusFlags.InCombat) != 0;
+                    combatEventService.UpdateCombatState(inCombat);
+                }
+                else
+                {
+                    combatEventService.UpdateCombatState(false);
+                }
+            }
+
             // Update performance analytics (tracks combat state independently)
             performanceTracker.Update();
 

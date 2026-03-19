@@ -173,8 +173,8 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
     /// </summary>
     protected override void UpdateJobSpecificServices(IPlayerCharacter player, bool inCombat)
     {
-        // Update combat event service with combat state (for various tracking)
-        CombatEventService.UpdateCombatState(inCombat);
+        // Combat state is now updated centrally in Plugin.OnFrameworkUpdate()
+        // before the dead-player gate, so all roles get correct session tracking.
 
         // Update healer services
         UpdateHealerServices(player, inCombat);
