@@ -82,9 +82,6 @@ public sealed class ActionTracker
         uint? statusCode = null)
     {
         var now = DateTime.Now;
-        var timeSinceLastCast = lastSuccessfulCast.HasValue
-            ? (float)(now - lastSuccessfulCast.Value).TotalSeconds
-            : 0f;
 
         var spellName = GetActionName(actionId);
         var failureReason = statusCode.HasValue && statusCode.Value != 0
@@ -96,23 +93,28 @@ public sealed class ActionTracker
                 _ => null
             };
 
-        var attempt = new ActionAttempt
-        {
-            Timestamp = now,
-            SpellName = spellName,
-            ActionId = actionId,
-            TargetName = targetName,
-            TargetHp = targetHp,
-            Result = result,
-            PlayerLevel = playerLevel,
-            FailureReason = failureReason,
-            TimeSinceLastCast = timeSinceLastCast,
-            StatusCode = statusCode
-        };
-
         // Add to ring buffer and update statistics
         lock (historyLock)
         {
+            // Compute timeSinceLastCast inside the lock
+            var timeSinceLastCast = lastSuccessfulCast.HasValue
+                ? (float)(now - lastSuccessfulCast.Value).TotalSeconds
+                : 0f;
+
+            var attempt = new ActionAttempt
+            {
+                Timestamp = now,
+                SpellName = spellName,
+                ActionId = actionId,
+                TargetName = targetName,
+                TargetHp = targetHp,
+                Result = result,
+                PlayerLevel = playerLevel,
+                FailureReason = failureReason,
+                TimeSinceLastCast = timeSinceLastCast,
+                StatusCode = statusCode
+            };
+
             // Update statistics
             totalAttempts++;
             if (result == ActionResult.Success)
@@ -388,10 +390,13 @@ public sealed class ActionTracker
     /// </summary>
     public float GetSuccessRate()
     {
-        if (totalAttempts == 0)
-            return 0f;
+        lock (historyLock)
+        {
+            if (totalAttempts == 0)
+                return 0f;
 
-        return (float)successfulCasts / totalAttempts * 100f;
+            return (float)successfulCasts / totalAttempts * 100f;
+        }
     }
 
     /// <summary>
@@ -399,11 +404,14 @@ public sealed class ActionTracker
     /// </summary>
     public (ActionResult reason, int count)? GetMostCommonFailure()
     {
-        if (failureReasons.Count == 0)
-            return null;
+        lock (historyLock)
+        {
+            if (failureReasons.Count == 0)
+                return null;
 
-        var most = failureReasons.MaxBy(kvp => kvp.Value);
-        return (most.Key, most.Value);
+            var most = failureReasons.MaxBy(kvp => kvp.Value);
+            return (most.Key, most.Value);
+        }
     }
 
     /// <summary>
@@ -411,13 +419,20 @@ public sealed class ActionTracker
     /// </summary>
     public (int total, int success, float successRate, float gcdUptime, float avgCastGap) GetStatistics()
     {
-        return (
-            totalAttempts,
-            successfulCasts,
-            GetSuccessRate(),
-            GetGcdUptime(),
-            GetAverageTimeBetweenCasts()
-        );
+        lock (historyLock)
+        {
+            var total = totalAttempts;
+            var success = successfulCasts;
+            var successRate = total == 0 ? 0f : (float)success / total * 100f;
+
+            return (
+                total,
+                success,
+                successRate,
+                GetGcdUptime(),
+                GetAverageTimeBetweenCasts()
+            );
+        }
     }
 
     /// <summary>
@@ -430,13 +445,12 @@ public sealed class ActionTracker
             history.Clear();
             cachedHistory = null;
             historyVersion++;
+            totalAttempts = 0;
+            successfulCasts = 0;
+            failureReasons.Clear();
+            spellUsageCounts.Clear();
+            lastSuccessfulCast = null;
         }
-
-        totalAttempts = 0;
-        successfulCasts = 0;
-        failureReasons.Clear();
-        spellUsageCounts.Clear();
-        lastSuccessfulCast = null;
 
         // Reset XIVAnalysis-style GCD tracking
         combatStartTime = null;
@@ -458,23 +472,31 @@ public sealed class ActionTracker
     /// Does not affect GCD uptime, action history, downtime tracking, or any other state.
     /// </summary>
     public void ClearSpellUsageCounts()
-        => spellUsageCounts.Clear();
+    {
+        lock (historyLock)
+        {
+            spellUsageCounts.Clear();
+        }
+    }
 
     /// <summary>
     /// Get spell usage counts with resolved names, sorted by count descending
     /// </summary>
     public List<(string name, uint actionId, int count)> GetSpellUsageCounts()
     {
-        var result = new List<(string name, uint actionId, int count)>();
-
-        foreach (var (actionId, count) in spellUsageCounts)
+        lock (historyLock)
         {
-            var name = GetActionName(actionId);
-            result.Add((name, actionId, count));
-        }
+            var result = new List<(string name, uint actionId, int count)>();
 
-        result.Sort((a, b) => b.count.CompareTo(a.count));
-        return result;
+            foreach (var (actionId, count) in spellUsageCounts)
+            {
+                var name = GetActionName(actionId);
+                result.Add((name, actionId, count));
+            }
+
+            result.Sort((a, b) => b.count.CompareTo(a.count));
+            return result;
+        }
     }
 
     /// <summary>
