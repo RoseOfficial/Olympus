@@ -10,6 +10,15 @@ namespace Olympus.Services.Prediction;
 /// Tracks damage intake per entity over a rolling time window.
 /// Used to identify party members taking active damage for intelligent healing triage.
 /// Supports predictive damage forecasting using historical rates, boss mechanics, and DoTs.
+///
+/// Raidwide accounting contract:
+/// - <see cref="ForecastPartyDamage"/> is the canonical party-level call. It sums
+///   <see cref="ForecastEntityDamage"/> for all tracked entities and adds the raidwide
+///   uplift once at the party level.
+/// - <see cref="ForecastDamagePercent"/> is a per-entity call and includes raidwide by
+///   default (for standalone per-entity use). Callers that also call
+///   <see cref="ForecastPartyDamage"/> must pass <c>includeRaidwide: false</c> to avoid
+///   double-counting the raidwide estimate.
 /// </summary>
 public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
 {
@@ -376,30 +385,41 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
     /// <summary>
     /// Gets forecasted damage for a specific entity as a percentage of their max HP.
     /// </summary>
-    public float ForecastDamagePercent(uint entityId, int maxHp, float forecastSeconds = DefaultWindowSeconds)
+    /// <param name="entityId">The entity to forecast.</param>
+    /// <param name="maxHp">The entity's max HP.</param>
+    /// <param name="forecastSeconds">Time window to forecast into.</param>
+    /// <param name="includeRaidwide">
+    /// Whether to include the raidwide damage uplift for this entity.
+    /// Pass <c>false</c> when summing per-entity results alongside a separate
+    /// <see cref="ForecastPartyDamage"/> call to avoid double-counting raidwide.
+    /// </param>
+    public float ForecastDamagePercent(uint entityId, int maxHp, float forecastSeconds = DefaultWindowSeconds, bool includeRaidwide = true)
     {
         if (maxHp <= 0)
             return 0f;
 
         var forecastedDamage = ForecastEntityDamage(entityId, forecastSeconds);
 
-        // Add raidwide damage if predicted (affects all entities)
-        if (_bossMechanicDetector?.PredictedRaidwide is { } raidwide &&
-            raidwide.SecondsUntil <= forecastSeconds)
+        if (includeRaidwide)
         {
-            forecastedDamage += (int)(raidwide.EstimatedDamagePercent * maxHp);
-        }
-
-        // Add raidwide from timeline service (applies to all entities)
-        if (_timelineService is { IsActive: true })
-        {
-            var nextRaidwide = _timelineService.NextRaidwide;
-            if (nextRaidwide.HasValue &&
-                nextRaidwide.Value.SecondsUntil > 0f &&
-                nextRaidwide.Value.SecondsUntil <= forecastSeconds)
+            // Add raidwide damage if predicted (affects all entities)
+            if (_bossMechanicDetector?.PredictedRaidwide is { } raidwide &&
+                raidwide.SecondsUntil <= forecastSeconds)
             {
-                // Use a fixed fraction of max HP as raidwide estimate per member (~25%)
-                forecastedDamage += (int)(0.25f * maxHp);
+                forecastedDamage += (int)(raidwide.EstimatedDamagePercent * maxHp);
+            }
+
+            // Add raidwide from timeline service (applies to all entities)
+            if (_timelineService is { IsActive: true })
+            {
+                var nextRaidwide = _timelineService.NextRaidwide;
+                if (nextRaidwide.HasValue &&
+                    nextRaidwide.Value.SecondsUntil > 0f &&
+                    nextRaidwide.Value.SecondsUntil <= forecastSeconds)
+                {
+                    // Use a fixed fraction of max HP as raidwide estimate per member (~25%)
+                    forecastedDamage += (int)(0.25f * maxHp);
+                }
             }
         }
 

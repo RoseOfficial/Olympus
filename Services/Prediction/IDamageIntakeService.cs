@@ -110,6 +110,12 @@ public interface IDamageIntakeService
     /// <param name="entityId">The entity to forecast.</param>
     /// <param name="maxHp">The entity's max HP.</param>
     /// <param name="forecastSeconds">Time window to forecast into.</param>
+    /// <param name="includeRaidwide">
+    /// Whether to include the raidwide damage uplift for this entity.
+    /// Pass <c>false</c> when summing per-entity results alongside a separate
+    /// <see cref="ForecastPartyDamage"/> call to avoid double-counting raidwide.
+    /// Defaults to <c>true</c> for standalone per-entity calls.
+    /// </param>
     /// <returns>Predicted damage as a percentage (0.0 to 1.0+).</returns>
-    float ForecastDamagePercent(uint entityId, int maxHp, float forecastSeconds = 5f);
+    float ForecastDamagePercent(uint entityId, int maxHp, float forecastSeconds = 5f, bool includeRaidwide = true);
 }
