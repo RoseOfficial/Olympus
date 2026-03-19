@@ -1088,7 +1088,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             UsingSwiftcast = usingSwiftcast
         };
 
-        _localRaiseReservations[entityId] = reservation;
+        lock (_stateLock)
+            _localRaiseReservations[entityId] = reservation;
 
         // Broadcast the intent
         var message = new RaiseIntentMessage(_instanceId, entityId, actionId, castTimeMs, usingSwiftcast);
@@ -1106,7 +1107,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableRaiseCoordination)
             return;
 
-        _localRaiseReservations.Remove(entityId);
+        lock (_stateLock)
+            _localRaiseReservations.Remove(entityId);
 
         if (_config.LogCoordinationEvents)
             _log.Debug("[PartyCoord] Cleared raise reservation for {0}", entityId);
