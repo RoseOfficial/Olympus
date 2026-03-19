@@ -67,15 +67,17 @@ public static class ConfigValidator
             });
         }
 
-        // oGCD emergency should be at or below GCD emergency
-        if (healing.OgcdEmergencyThreshold > healing.GcdEmergencyThreshold)
+        // GCD emergency should be strictly lower than oGCD emergency.
+        // GCD heals interrupt DPS and should only fire at lower HP than oGCD heals.
+        // All presets deliberately set oGCD > GCD (e.g., oGCD=0.45, GCD=0.35).
+        if (healing.GcdEmergencyThreshold >= healing.OgcdEmergencyThreshold)
         {
             issues.Add(new ValidationIssue
             {
                 Severity = ValidationSeverity.Warning,
                 Category = "Healing",
-                Message = $"oGCD emergency threshold ({healing.OgcdEmergencyThreshold:P0}) should not exceed GCD emergency threshold ({healing.GcdEmergencyThreshold:P0})",
-                SuggestedFix = "Set oGCD threshold at or below GCD threshold"
+                Message = $"GCD emergency threshold ({healing.GcdEmergencyThreshold:P0}) should be strictly lower than oGCD emergency threshold ({healing.OgcdEmergencyThreshold:P0})",
+                SuggestedFix = "Set GCD threshold below oGCD threshold (e.g., oGCD=0.45, GCD=0.35)"
             });
         }
 
@@ -516,9 +518,9 @@ public static class ConfigValidator
             fixes++;
         }
 
-        if (config.Healing.OgcdEmergencyThreshold > config.Healing.GcdEmergencyThreshold)
+        if (config.Healing.GcdEmergencyThreshold >= config.Healing.OgcdEmergencyThreshold)
         {
-            config.Healing.GcdEmergencyThreshold = config.Healing.OgcdEmergencyThreshold + 0.10f;
+            config.Healing.GcdEmergencyThreshold = Math.Max(0.05f, config.Healing.OgcdEmergencyThreshold - 0.10f);
             fixes++;
         }
 
