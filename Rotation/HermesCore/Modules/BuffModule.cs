@@ -145,7 +145,7 @@ public sealed class BuffModule : IHermesModule
         }
 
         // Hold for burst window when burst is imminent
-        if (ShouldHoldForBurst())
+        if (ShouldHoldForBurst(context.Configuration.Ninja.KunaisBaneHoldTime))
         {
             context.Debug.BuffState = $"Holding {action.Name} for burst";
             return false;

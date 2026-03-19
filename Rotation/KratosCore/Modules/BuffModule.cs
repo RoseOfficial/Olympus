@@ -198,7 +198,7 @@ public sealed class BuffModule : IKratosModule
         }
 
         // Hold for burst window when burst is imminent
-        if (ShouldHoldForBurst())
+        if (ShouldHoldForBurst(context.Configuration.Monk.BrotherhoodHoldTime))
         {
             context.Debug.BuffState = "Holding Brotherhood for burst";
             return false;

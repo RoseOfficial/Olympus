@@ -226,7 +226,7 @@ public sealed class BuffModule : IIrisModule
         }
 
         // Hold Starry Muse for imminent burst window
-        if (ShouldHoldForBurst(8f))
+        if (ShouldHoldForBurst(context.Configuration.Pictomancer.StarryMuseHoldTime))
         {
             context.Debug.BuffState = "Holding Starry Muse for burst";
             return false;

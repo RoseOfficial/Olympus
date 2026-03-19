@@ -98,7 +98,7 @@ public sealed class BuffModule : IEchidnaModule
         }
 
         // Hold for burst window when burst is imminent
-        if (ShouldHoldForBurst())
+        if (ShouldHoldForBurst(context.Configuration.Viper.SerpentsIreHoldTime))
         {
             context.Debug.BuffState = "Holding Serpent's Ire for burst";
             return false;

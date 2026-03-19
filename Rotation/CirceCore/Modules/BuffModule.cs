@@ -316,7 +316,7 @@ public sealed class BuffModule : ICirceModule
         }
 
         // Hold Embolden for imminent burst window
-        if (ShouldHoldForBurst(8f))
+        if (ShouldHoldForBurst(context.Configuration.RedMage.EmboldenHoldTime))
         {
             context.Debug.BuffState = "Holding Embolden for burst";
             return false;

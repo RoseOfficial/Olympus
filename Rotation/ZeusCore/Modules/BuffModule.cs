@@ -287,7 +287,7 @@ public sealed class BuffModule : IZeusModule
         }
 
         // Hold for burst window when burst is imminent
-        if (ShouldHoldForBurst())
+        if (ShouldHoldForBurst(context.Configuration.Dragoon.BattleLitanyHoldTime))
         {
             context.Debug.BuffState = "Holding Battle Litany for burst";
             return false;

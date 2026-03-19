@@ -392,7 +392,7 @@ public sealed class BuffModule : IPersephoneModule
         }
 
         // Hold Searing Light for imminent burst window
-        if (ShouldHoldForBurst(8f))
+        if (ShouldHoldForBurst(context.Configuration.Summoner.SearingLightHoldTime))
         {
             context.Debug.BuffState = "Holding Searing Light for burst";
             return false;
