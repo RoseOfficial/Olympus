@@ -22,12 +22,12 @@ public sealed class RotationFactory
 {
     private readonly ServiceContainer _services;
     private readonly IPluginLog _log;
-    private readonly List<IRotation> _createdRotations = new();
+    private readonly HashSet<IRotation> _createdRotations = new();
 
     /// <summary>
     /// Gets all rotations created by this factory.
     /// </summary>
-    public IReadOnlyList<IRotation> CreatedRotations => _createdRotations;
+    public IReadOnlyCollection<IRotation> CreatedRotations => _createdRotations;
 
     /// <summary>
     /// Creates a new rotation factory.
