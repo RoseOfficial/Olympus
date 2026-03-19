@@ -2038,6 +2038,42 @@ public static class LocalizedStrings
         public const string ConnectionFailed = "analytics.connection_failed";
         public const string CharacterFound = "analytics.character_found";
         public const string CharacterNotFound = "analytics.character_not_found";
+
+        // Pull History
+        public const string PullHistoryTab = "analytics.pull_history_tab";
+        public const string NoPullHistory = "analytics.no_pull_history";
+        public const string TrendLabel = "analytics.trend_label";
+    }
+
+    #endregion
+
+    #region Fight Summary (FightSummary.*)
+
+    /// <summary>Keys for the post-combat fight summary popup.</summary>
+    public static class FightSummary
+    {
+        public const string WindowTitle = "FightSummary.WindowTitle";
+        public const string GcdUptime = "FightSummary.GcdUptime";
+        public const string Percentile = "FightSummary.Percentile";
+        public const string EstDps = "FightSummary.EstDps";
+        public const string Grade = "FightSummary.Grade";
+        public const string ImproveNextPull = "FightSummary.ImproveNextPull";
+        public const string SavedToHistory = "FightSummary.SavedToHistory";
+        public const string ViewInAnalytics = "FightSummary.ViewInAnalytics";
+        public const string SeverityCritical = "FightSummary.Severity.Critical";
+        public const string SeverityWarning = "FightSummary.Severity.Warning";
+        public const string SeverityGood = "FightSummary.Severity.Good";
+        public const string CategoryDrift = "FightSummary.Category.Drift";
+        public const string CategoryWaste = "FightSummary.Category.Waste";
+        public const string CategoryDowntime = "FightSummary.Category.Downtime";
+        public const string CategoryBurstAlignment = "FightSummary.Category.BurstAlignment";
+        public const string CategoryRoleActions = "FightSummary.Category.RoleActions";
+        public const string CategoryDeaths = "FightSummary.Category.Deaths";
+        public const string CategoryDoT = "FightSummary.Category.DoT";
+        public const string ShowOnCombatEnd = "FightSummary.ShowOnCombatEnd";
+        public const string MinDuration = "FightSummary.MinDuration";
+        public const string PopupDelay = "FightSummary.PopupDelay";
+        public const string MaxStored = "FightSummary.MaxStored";
     }
 
     #endregion
