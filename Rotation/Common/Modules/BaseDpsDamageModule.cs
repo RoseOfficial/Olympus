@@ -307,9 +307,18 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
 
     private uint _lastSmartAoEActionId;
     private ulong? _lastSmartAoETargetId;
+    // Tracks which frame UpdateSmartAoE last ran so it fires at most once per frame.
+    // ExecuteModules in BaseRotation iterates all modules twice (oGCD pass + GCD pass);
+    // without this guard the prediction recording call would trigger on both passes.
+    private ulong _smartAoELastFrame = ulong.MaxValue;
 
     protected void UpdateSmartAoE(TContext context, IBattleChara target)
     {
+        // Guard: only run once per frame even if TryExecute is called from both oGCD and GCD passes.
+        var currentFrame = context.FrameCache.FrameNumber;
+        if (currentFrame == _smartAoELastFrame) return;
+        _smartAoELastFrame = currentFrame;
+
         var svc = SmartAoEService.Instance;
         if (svc == null) return;
 
