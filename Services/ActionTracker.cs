@@ -110,26 +110,26 @@ public sealed class ActionTracker
             StatusCode = statusCode
         };
 
-        // Update statistics
-        totalAttempts++;
-        if (result == ActionResult.Success)
-        {
-            successfulCasts++;
-            lastSuccessfulCast = now;
-
-            // Track spell usage
-            spellUsageCounts.TryGetValue(actionId, out var spellCount);
-            spellUsageCounts[actionId] = spellCount + 1;
-        }
-        else
-        {
-            failureReasons.TryGetValue(result, out var count);
-            failureReasons[result] = count + 1;
-        }
-
-        // Add to ring buffer
+        // Add to ring buffer and update statistics
         lock (historyLock)
         {
+            // Update statistics
+            totalAttempts++;
+            if (result == ActionResult.Success)
+            {
+                successfulCasts++;
+                lastSuccessfulCast = now;
+
+                // Track spell usage
+                spellUsageCounts.TryGetValue(actionId, out var spellCount);
+                spellUsageCounts[actionId] = spellCount + 1;
+            }
+            else
+            {
+                failureReasons.TryGetValue(result, out var count);
+                failureReasons[result] = count + 1;
+            }
+
             history.AddFirst(attempt);
             while (history.Count > HistorySize)
             {
