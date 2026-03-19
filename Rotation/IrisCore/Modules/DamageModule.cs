@@ -157,7 +157,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
             return false;
         var level = context.Player.Level;
         var player = context.Player;
-        if (context.Configuration.Pictomancer.EnableLandscapeMotif && context.NeedsLandscapeMotif && level >= PCTActions.LandscapeMotif.MinLevel)
+        if (context.Configuration.Pictomancer.EnableLandscapeMotif && context.NeedsLandscapeMotif && level >= PCTActions.StarrySkyMotif.MinLevel)
         {
             if (context.ActionService.ExecuteGcd(PCTActions.StarrySkyMotif, player.GameObjectId))
             {
@@ -198,7 +198,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
             return false;
 
         // Priority: Landscape > Creature > Weapon (for burst preparation)
-        if (context.Configuration.Pictomancer.EnableLandscapeMotif && context.NeedsLandscapeMotif && level >= PCTActions.LandscapeMotif.MinLevel)
+        if (context.Configuration.Pictomancer.EnableLandscapeMotif && context.NeedsLandscapeMotif && level >= PCTActions.StarrySkyMotif.MinLevel)
         {
             if (context.ActionService.ExecuteGcd(PCTActions.StarrySkyMotif, player.GameObjectId))
             {

@@ -56,6 +56,13 @@ public sealed class SamuraiSection
                 null, save,
                 actionId: SAMActions.OgiNamikiri.ActionId);
 
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Samurai.EnableZanshin, "Enable Zanshin"),
+                () => config.Samurai.EnableZanshin,
+                v => config.Samurai.EnableZanshin = v,
+                null, save,
+                actionId: SAMActions.Zanshin.ActionId);
+
             ConfigUIHelpers.Spacing();
 
             ConfigUIHelpers.Toggle(

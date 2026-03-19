@@ -176,6 +176,9 @@ public sealed class BuffModule : ICalliopeModule
 
     private bool TrySongRotation(ICalliopeContext context)
     {
+        if (!context.Configuration.Bard.EnableSongRotation)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -722,7 +725,7 @@ public sealed class BuffModule : ICalliopeModule
             return false;
 
         // Count enemies for AoE decision
-        var enemyCount = context.TargetingService.CountEnemiesInRange(12f, player);
+        var enemyCount = context.TargetingService.CountEnemiesInRange(8f, player);
         context.Debug.NearbyEnemies = enemyCount;
 
         // Use Rain of Death for AoE (3+ targets)

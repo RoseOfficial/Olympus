@@ -78,6 +78,11 @@ public sealed class DancerConfig
     /// </summary>
     public bool EnableFlourish { get; set; } = true;
 
+    /// <summary>
+    /// Whether to use Finishing Move (follow-up after Last Dance Ready).
+    /// </summary>
+    public bool EnableFinishingMove { get; set; } = true;
+
     #endregion
 
     #region Esprit Gauge Settings

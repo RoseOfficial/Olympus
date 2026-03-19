@@ -59,6 +59,16 @@ public sealed class MonkConfig
     /// </summary>
     public bool EnableRiddleOfWind { get; set; } = true;
 
+    /// <summary>
+    /// Whether to use Fire's Reply (follow-up after Riddle of Fire).
+    /// </summary>
+    public bool EnableFiresReply { get; set; } = true;
+
+    /// <summary>
+    /// Whether to use Wind's Reply (follow-up after Riddle of Wind).
+    /// </summary>
+    public bool EnableWindsReply { get; set; } = true;
+
     #endregion
 
     #region Chakra Settings

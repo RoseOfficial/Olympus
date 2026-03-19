@@ -93,6 +93,21 @@ public sealed class BardConfig
     /// </summary>
     public bool EnableBarrage { get; set; } = true;
 
+    /// <summary>
+    /// Whether to rotate through songs automatically.
+    /// </summary>
+    public bool EnableSongRotation { get; set; } = true;
+
+    /// <summary>
+    /// Whether to use Resonant Arrow.
+    /// </summary>
+    public bool EnableResonantArrow { get; set; } = true;
+
+    /// <summary>
+    /// Whether to use Radiant Encore.
+    /// </summary>
+    public bool EnableRadiantEncore { get; set; } = true;
+
     #endregion
 
     #region Song Settings

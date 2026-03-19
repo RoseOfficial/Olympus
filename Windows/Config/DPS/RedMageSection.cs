@@ -141,6 +141,18 @@ public sealed class RedMageSection
                 v => config.RedMage.EnableManafication = v,
                 null, save, actionId: RDMActions.Manafication.ActionId);
 
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.RedMage.EnableViceOfThorns, "Enable Vice of Thorns"),
+                () => config.RedMage.EnableViceOfThorns,
+                v => config.RedMage.EnableViceOfThorns = v,
+                null, save, actionId: RDMActions.ViceOfThorns.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.RedMage.EnablePrefulgence, "Enable Prefulgence"),
+                () => config.RedMage.EnablePrefulgence,
+                v => config.RedMage.EnablePrefulgence = v,
+                null, save, actionId: RDMActions.Prefulgence.ActionId);
+
             config.RedMage.EmboldenHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.RedMage.EmboldenHoldTime, "Embolden Hold Time"),
                 config.RedMage.EmboldenHoldTime, 0f, 10f, "%.1f s",

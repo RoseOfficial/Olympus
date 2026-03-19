@@ -69,6 +69,16 @@ public sealed class NinjaConfig
     /// </summary>
     public bool EnableMeisui { get; set; } = true;
 
+    /// <summary>
+    /// Whether to use Mug / Dokumori.
+    /// </summary>
+    public bool EnableMug { get; set; } = true;
+
+    /// <summary>
+    /// Whether to use Tenri Jindo (follow-up after Kunai's Bane).
+    /// </summary>
+    public bool EnableTenriJindo { get; set; } = true;
+
     #endregion
 
     #region Ninki Gauge Settings

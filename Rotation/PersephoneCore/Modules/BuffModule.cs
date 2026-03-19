@@ -319,6 +319,9 @@ public sealed class BuffModule : IPersephoneModule
 
     private bool TryMountainBuster(IPersephoneContext context, Dalamud.Game.ClientState.Objects.Types.IBattleChara? target)
     {
+        if (!context.Configuration.Summoner.EnableMountainBuster)
+            return false;
+
         if (target == null)
             return false;
 
@@ -473,6 +476,9 @@ public sealed class BuffModule : IPersephoneModule
 
     private bool TrySearingFlash(IPersephoneContext context, Dalamud.Game.ClientState.Objects.Types.IBattleChara? target)
     {
+        if (!context.Configuration.Summoner.EnableSearingFlash)
+            return false;
+
         if (target == null)
             return false;
 

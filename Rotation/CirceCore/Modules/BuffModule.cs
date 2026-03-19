@@ -208,6 +208,9 @@ public sealed class BuffModule : ICirceModule
 
     private bool TryViceOfThorns(ICirceContext context, Dalamud.Game.ClientState.Objects.Types.IBattleChara? target)
     {
+        if (!context.Configuration.RedMage.EnableViceOfThorns)
+            return false;
+
         if (target == null)
             return false;
 
@@ -250,6 +253,9 @@ public sealed class BuffModule : ICirceModule
 
     private bool TryPrefulgence(ICirceContext context, Dalamud.Game.ClientState.Objects.Types.IBattleChara? target)
     {
+        if (!context.Configuration.RedMage.EnablePrefulgence)
+            return false;
+
         if (target == null)
             return false;
 

@@ -88,6 +88,16 @@ public sealed class RedMageConfig
     /// </summary>
     public bool PreferEngagementOverDisplacement { get; set; } = true;
 
+    /// <summary>
+    /// Whether to use Vice of Thorns (follow-up after Embolden).
+    /// </summary>
+    public bool EnableViceOfThorns { get; set; } = true;
+
+    /// <summary>
+    /// Whether to use Prefulgence (follow-up after Manafication).
+    /// </summary>
+    public bool EnablePrefulgence { get; set; } = true;
+
     #endregion
 
     #region Mana Balance Settings

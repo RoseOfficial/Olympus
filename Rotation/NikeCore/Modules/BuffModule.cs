@@ -165,6 +165,9 @@ public sealed class BuffModule : INikeModule
 
     private bool TryZanshin(INikeContext context, IBattleChara target)
     {
+        if (!context.Configuration.Samurai.EnableZanshin)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

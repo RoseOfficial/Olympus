@@ -203,8 +203,8 @@ public sealed class BuffModule : IPrometheusModule
         if (level < MCHActions.BarrelStabilizer.MinLevel)
             return false;
 
-        // Use when Heat < 50 to avoid overcapping
-        if (context.Heat > 50)
+        // Use when Heat < 70 to avoid overcapping (Barrel Stabilizer adds +50 Heat)
+        if (context.Heat > 70)
         {
             context.Debug.BuffState = "Heat too high for Barrel Stabilizer";
             return false;

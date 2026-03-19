@@ -327,6 +327,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IKratosContext>, IKratosM
 
     private bool TryFiresRumination(IKratosContext context, IBattleChara target)
     {
+        if (!context.Configuration.Monk.EnableFiresReply)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -368,6 +371,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IKratosContext>, IKratosM
 
     private bool TryWindsRumination(IKratosContext context, IBattleChara target)
     {
+        if (!context.Configuration.Monk.EnableWindsReply)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

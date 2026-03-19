@@ -54,6 +54,12 @@ public sealed class DancerSection
                 v => config.Dancer.EnableTillana = v,
                 null, save, actionId: DNCActions.Tillana.ActionId);
 
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.EnableFinishingMove, "Enable Finishing Move"),
+                () => config.Dancer.EnableFinishingMove,
+                v => config.Dancer.EnableFinishingMove = v,
+                null, save, actionId: DNCActions.FinishingMove.ActionId);
+
             ConfigUIHelpers.Spacing();
 
             ConfigUIHelpers.Toggle(

@@ -49,6 +49,20 @@ public sealed class MonkSection
                 null, save,
                 actionId: MNKActions.SixSidedStar.ActionId);
 
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Monk.EnableFiresReply, "Enable Fire's Reply"),
+                () => config.Monk.EnableFiresReply,
+                v => config.Monk.EnableFiresReply = v,
+                null, save,
+                actionId: MNKActions.FiresReply.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Monk.EnableWindsReply, "Enable Wind's Reply"),
+                () => config.Monk.EnableWindsReply,
+                v => config.Monk.EnableWindsReply = v,
+                null, save,
+                actionId: MNKActions.WindsReply.ActionId);
+
             ConfigUIHelpers.Spacing();
 
             ConfigUIHelpers.Toggle(

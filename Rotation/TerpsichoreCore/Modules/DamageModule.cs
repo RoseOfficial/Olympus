@@ -190,6 +190,9 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
 
     private bool TryFinishingMove(ITerpsichoreContext context)
     {
+        if (!context.Configuration.Dancer.EnableFinishingMove)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

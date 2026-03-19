@@ -144,6 +144,20 @@ public sealed class NinjaSection
                 null, save,
                 actionId: NINActions.KunaisBane.ActionId);
 
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Ninja.EnableMug, "Enable Mug / Dokumori"),
+                () => config.Ninja.EnableMug,
+                v => config.Ninja.EnableMug = v,
+                null, save,
+                actionId: NINActions.Mug.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Ninja.EnableTenriJindo, "Enable Tenri Jindo"),
+                () => config.Ninja.EnableTenriJindo,
+                v => config.Ninja.EnableTenriJindo = v,
+                null, save,
+                actionId: NINActions.TenriJindo.ActionId);
+
             config.Ninja.KunaisBaneHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Ninja.KunaisBaneHoldTime, "Kunai's Bane Hold Time"),
                 config.Ninja.KunaisBaneHoldTime, 0f, 10f, "%.1f s",

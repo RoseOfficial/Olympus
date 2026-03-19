@@ -213,6 +213,9 @@ public sealed class BuffModule : IHermesModule
 
     private bool TryTenriJindo(IHermesContext context)
     {
+        if (!context.Configuration.Ninja.EnableTenriJindo)
+            return false;
+
         var level = context.Player.Level;
 
         if (level < NINActions.TenriJindo.MinLevel)
@@ -267,6 +270,9 @@ public sealed class BuffModule : IHermesModule
 
     private bool TryMug(IHermesContext context)
     {
+        if (!context.Configuration.Ninja.EnableMug)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

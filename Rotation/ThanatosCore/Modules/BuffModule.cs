@@ -226,7 +226,7 @@ public sealed class BuffModule : IThanatosModule
         }
 
         // Hold Enshroud activation for burst when burst is imminent (unless capping on Shroud)
-        if (context.Configuration.Reaper.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Shroud < 90)
+        if (context.Configuration.Reaper.EnableBurstPooling && ShouldHoldForBurst(context.Configuration.Reaper.ArcaneCircleHoldTime) && context.Shroud < 90)
         {
             context.Debug.BuffState = "Holding Enshroud for burst";
             return false;

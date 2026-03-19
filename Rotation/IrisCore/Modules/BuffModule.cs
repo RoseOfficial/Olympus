@@ -126,6 +126,9 @@ public sealed class BuffModule : IIrisModule
 
     private bool TryPortrait(IIrisContext context, IBattleChara? target)
     {
+        if (!context.Configuration.Pictomancer.EnablePortraits)
+            return false;
+
         if (target == null)
             return false;
 

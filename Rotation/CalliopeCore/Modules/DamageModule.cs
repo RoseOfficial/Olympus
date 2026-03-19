@@ -128,6 +128,9 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
 
     private bool TryResonantArrow(ICalliopeContext context, IBattleChara target)
     {
+        if (!context.Configuration.Bard.EnableResonantArrow)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -170,6 +173,9 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
 
     private bool TryRadiantEncore(ICalliopeContext context, IBattleChara target)
     {
+        if (!context.Configuration.Bard.EnableRadiantEncore)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -255,6 +261,9 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
 
     private bool TryBarragedRefulgent(ICalliopeContext context, IBattleChara target, int enemyCount)
     {
+        if (!context.Configuration.Bard.EnableBarrage)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

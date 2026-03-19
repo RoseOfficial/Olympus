@@ -122,6 +122,11 @@ public sealed class PictomancerConfig
     /// </summary>
     public bool EnableSubtractivePalette { get; set; } = true;
 
+    /// <summary>
+    /// Whether to use Portrait abilities (Mog of the Ages / Retribution of the Madeen).
+    /// </summary>
+    public bool EnablePortraits { get; set; } = true;
+
     #endregion
 
     #region Palette Settings

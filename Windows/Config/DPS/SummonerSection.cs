@@ -142,6 +142,18 @@ public sealed class SummonerSection
                 v => config.Summoner.EnableEnkindle = v,
                 Loc.T(LocalizedStrings.Summoner.EnableEnkindleDesc, "Use Enkindle abilities"), save);
 
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Summoner.EnableMountainBuster, "Enable Mountain Buster"),
+                () => config.Summoner.EnableMountainBuster,
+                v => config.Summoner.EnableMountainBuster = v,
+                null, save, actionId: SMNActions.MountainBuster.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Summoner.EnableSearingFlash, "Enable Searing Flash"),
+                () => config.Summoner.EnableSearingFlash,
+                v => config.Summoner.EnableSearingFlash = v,
+                null, save, actionId: SMNActions.SearingFlash.ActionId);
+
             ConfigUIHelpers.EndIndent();
         }
     }

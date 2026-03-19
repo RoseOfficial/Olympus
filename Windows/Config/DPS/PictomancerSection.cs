@@ -184,6 +184,12 @@ public sealed class PictomancerSection
                 v => config.Pictomancer.EnableScenicMuse = v,
                 null, save, actionId: PCTActions.ScenicMuse.ActionId);
 
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.EnablePortraits, "Enable Portraits"),
+                () => config.Pictomancer.EnablePortraits,
+                v => config.Pictomancer.EnablePortraits = v,
+                Loc.T(LocalizedStrings.Pictomancer.EnablePortraitsDesc, "Use Mog of the Ages / Retribution of the Madeen"), save);
+
             ConfigUIHelpers.EndIndent();
         }
     }

@@ -97,6 +97,16 @@ public sealed class SummonerConfig
     /// </summary>
     public bool EnableAstralFlow { get; set; } = true;
 
+    /// <summary>
+    /// Whether to use Mountain Buster (Titan follow-up oGCD).
+    /// </summary>
+    public bool EnableMountainBuster { get; set; } = true;
+
+    /// <summary>
+    /// Whether to use Searing Flash (Ifrit follow-up oGCD).
+    /// </summary>
+    public bool EnableSearingFlash { get; set; } = true;
+
     #endregion
 
     #region Aetherflow Settings

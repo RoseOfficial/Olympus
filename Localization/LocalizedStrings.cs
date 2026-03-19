@@ -1149,6 +1149,10 @@ public static class LocalizedStrings
         public const string EnableKunaisBaneDesc = "config.job.nin.enable_kunais_bane_desc";
         public const string KunaisBaneHoldTime = "config.job.nin.kunais_bane_hold_time";
         public const string KunaisBaneHoldTimeDesc = "config.job.nin.kunais_bane_hold_time_desc";
+        public const string EnableMug = "config.job.nin.enable_mug";
+        public const string EnableMugDesc = "config.job.nin.enable_mug_desc";
+        public const string EnableTenriJindo = "config.job.nin.enable_tenri_jindo";
+        public const string EnableTenriJindoDesc = "config.job.nin.enable_tenri_jindo_desc";
     }
 
     /// <summary>Keys for Samurai specific settings.</summary>
@@ -1186,6 +1190,8 @@ public static class LocalizedStrings
         public const string EnableIkishotenDesc = "config.job.sam.enable_ikishoten_desc";
         public const string IkishotenHoldTime = "config.job.sam.ikishoten_hold_time";
         public const string IkishotenHoldTimeDesc = "config.job.sam.ikishoten_hold_time_desc";
+        public const string EnableZanshin = "config.job.sam.enable_zanshin";
+        public const string EnableZanshinDesc = "config.job.sam.enable_zanshin_desc";
     }
 
     /// <summary>Keys for Monk specific settings.</summary>
@@ -1219,6 +1225,10 @@ public static class LocalizedStrings
         public const string BrotherhoodHoldTimeDesc = "config.job.mnk.brotherhood_hold_time_desc";
         public const string EnableBurstPooling = "config.job.mnk.enable_burst_pooling";
         public const string EnableBurstPoolingDesc = "config.job.mnk.enable_burst_pooling_desc";
+        public const string EnableFiresReply = "config.job.mnk.enable_fires_reply";
+        public const string EnableFiresReplyDesc = "config.job.mnk.enable_fires_reply_desc";
+        public const string EnableWindsReply = "config.job.mnk.enable_winds_reply";
+        public const string EnableWindsReplyDesc = "config.job.mnk.enable_winds_reply_desc";
     }
 
     /// <summary>Keys for Reaper specific settings.</summary>
@@ -1403,6 +1413,12 @@ public static class LocalizedStrings
         public const string EnableRadiantFinaleDesc = "config.job.brd.enable_radiant_finale_desc";
         public const string BuffHoldTime = "config.job.brd.buff_hold_time";
         public const string BuffHoldTimeDesc = "config.job.brd.buff_hold_time_desc";
+        public const string EnableSongRotation = "config.job.brd.enable_song_rotation";
+        public const string EnableSongRotationDesc = "config.job.brd.enable_song_rotation_desc";
+        public const string EnableResonantArrow = "config.job.brd.enable_resonant_arrow";
+        public const string EnableResonantArrowDesc = "config.job.brd.enable_resonant_arrow_desc";
+        public const string EnableRadiantEncore = "config.job.brd.enable_radiant_encore";
+        public const string EnableRadiantEncoreDesc = "config.job.brd.enable_radiant_encore_desc";
     }
 
     /// <summary>Keys for Dancer specific settings.</summary>
@@ -1440,6 +1456,8 @@ public static class LocalizedStrings
         public const string EnableDevilmentDesc = "config.job.dnc.enable_devilment_desc";
         public const string TechnicalHoldTime = "config.job.dnc.technical_hold_time";
         public const string TechnicalHoldTimeDesc = "config.job.dnc.technical_hold_time_desc";
+        public const string EnableFinishingMove = "config.job.dnc.enable_finishing_move";
+        public const string EnableFinishingMoveDesc = "config.job.dnc.enable_finishing_move_desc";
     }
 
     // ===== CASTERS =====
@@ -1543,6 +1561,10 @@ public static class LocalizedStrings
         public const string EnableSearingLightDesc = "config.job.smn.enable_searing_light_desc";
         public const string SearingLightHoldTime = "config.job.smn.searing_light_hold_time";
         public const string SearingLightHoldTimeDesc = "config.job.smn.searing_light_hold_time_desc";
+        public const string EnableMountainBuster = "config.job.smn.enable_mountain_buster";
+        public const string EnableMountainBusterDesc = "config.job.smn.enable_mountain_buster_desc";
+        public const string EnableSearingFlash = "config.job.smn.enable_searing_flash";
+        public const string EnableSearingFlashDesc = "config.job.smn.enable_searing_flash_desc";
     }
 
     /// <summary>Keys for Red Mage specific settings.</summary>
@@ -1578,6 +1600,10 @@ public static class LocalizedStrings
         public const string EnableManaficationDesc = "config.job.rdm.enable_manafication_desc";
         public const string EmboldenHoldTime = "config.job.rdm.embolden_hold_time";
         public const string EmboldenHoldTimeDesc = "config.job.rdm.embolden_hold_time_desc";
+        public const string EnableViceOfThorns = "config.job.rdm.enable_vice_of_thorns";
+        public const string EnableViceOfThornsDesc = "config.job.rdm.enable_vice_of_thorns_desc";
+        public const string EnablePrefulgence = "config.job.rdm.enable_prefulgence";
+        public const string EnablePrefulgenceDesc = "config.job.rdm.enable_prefulgence_desc";
     }
 
     /// <summary>Keys for Pictomancer specific settings.</summary>
@@ -1642,6 +1668,8 @@ public static class LocalizedStrings
         public const string EnableLucidDreamingDesc = "config.job.pct.enable_lucid_dreaming_desc";
         public const string LucidDreamingThreshold = "config.job.pct.lucid_dreaming_threshold";
         public const string LucidDreamingThresholdDesc = "config.job.pct.lucid_dreaming_threshold_desc";
+        public const string EnablePortraits = "config.job.pct.enable_portraits";
+        public const string EnablePortraitsDesc = "config.job.pct.enable_portraits_desc";
     }
 
     #endregion

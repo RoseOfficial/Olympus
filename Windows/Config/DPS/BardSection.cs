@@ -48,6 +48,18 @@ public sealed class BardSection
                 v => config.Bard.EnableBlastArrow = v,
                 null, save, actionId: BRDActions.BlastArrow.ActionId);
 
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnableResonantArrow, "Enable Resonant Arrow"),
+                () => config.Bard.EnableResonantArrow,
+                v => config.Bard.EnableResonantArrow = v,
+                null, save, actionId: BRDActions.ResonantArrow.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnableRadiantEncore, "Enable Radiant Encore"),
+                () => config.Bard.EnableRadiantEncore,
+                v => config.Bard.EnableRadiantEncore = v,
+                null, save, actionId: BRDActions.RadiantEncore.ActionId);
+
             config.Bard.ApexArrowMinGauge = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Bard.ApexArrowMinGauge, "Apex Arrow Min Gauge"),
                 config.Bard.ApexArrowMinGauge, 20, 100,
@@ -78,6 +90,12 @@ public sealed class BardSection
         if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Bard.SongSection, "Songs"), "BRD"))
         {
             ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnableSongRotation, "Enable Song Rotation"),
+                () => config.Bard.EnableSongRotation,
+                v => config.Bard.EnableSongRotation = v,
+                Loc.T(LocalizedStrings.Bard.EnableSongRotationDesc, "Automatically rotate through Wanderer's Minuet, Mage's Ballad, and Army's Paeon"), save);
 
             var songRotation = config.Bard.SongRotation;
             if (ConfigUIHelpers.EnumCombo(Loc.T(LocalizedStrings.Bard.SongRotation, "Song Rotation"), ref songRotation,
