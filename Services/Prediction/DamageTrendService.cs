@@ -111,8 +111,11 @@ public sealed class DamageTrendService : IDamageTrendService
     }
 
     /// <summary>
-    /// Legacy method for backwards compatibility.
+    /// Legacy method for backwards compatibility. Do not call from production code.
+    /// Use <see cref="Update(float, System.Collections.Generic.IEnumerable{uint})"/> instead.
+    /// Calling both in the same frame advances the internal clock twice (2× speed).
     /// </summary>
+    [Obsolete("Use Update(float, IEnumerable<uint>) instead. Do not call both in the same frame.")]
     public void UpdateTime(float deltaSeconds)
     {
         _currentTime += deltaSeconds;
