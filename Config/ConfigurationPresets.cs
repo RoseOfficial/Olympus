@@ -307,7 +307,6 @@ public static class ConfigurationPresets
 
         // DPS burst pooling — conservative mode: no burst delay
         config.Dragoon.EnableBurstPooling = false;
-        config.Dragoon.AlignBattleLitanyWithParty = false;
         config.Monk.EnableBurstPooling = false;
         config.Ninja.EnableBurstPooling = false;
         config.Samurai.EnableBurstPooling = false;
@@ -320,7 +319,6 @@ public static class ConfigurationPresets
         config.Summoner.EnableBurstPooling = false;
         config.RedMage.EnableBurstPooling = false;
         config.Pictomancer.EnableBurstPooling = false;
-        config.Pictomancer.AlignStarryMuseWithParty = false;
     }
 
     /// <summary>
@@ -416,7 +414,6 @@ public static class ConfigurationPresets
 
         // DPS burst pooling — aggressive mode: always pool for burst
         config.Dragoon.EnableBurstPooling = true;
-        config.Dragoon.AlignBattleLitanyWithParty = true;
         config.Monk.EnableBurstPooling = true;
         config.Ninja.EnableBurstPooling = true;
         config.Samurai.EnableBurstPooling = true;
@@ -429,7 +426,6 @@ public static class ConfigurationPresets
         config.Summoner.EnableBurstPooling = true;
         config.RedMage.EnableBurstPooling = true;
         config.Pictomancer.EnableBurstPooling = true;
-        config.Pictomancer.AlignStarryMuseWithParty = true;
     }
 
     /// <summary>

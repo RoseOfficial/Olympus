@@ -1541,8 +1541,6 @@ public static class LocalizedStrings
         public const string BurstSection = "config.job.smn.burst_section";
         public const string EnableSearingLight = "config.job.smn.enable_searing_light";
         public const string EnableSearingLightDesc = "config.job.smn.enable_searing_light_desc";
-        public const string AlignWithParty = "config.job.smn.align_with_party";
-        public const string AlignWithPartyDesc = "config.job.smn.align_with_party_desc";
         public const string SearingLightHoldTime = "config.job.smn.searing_light_hold_time";
         public const string SearingLightHoldTimeDesc = "config.job.smn.searing_light_hold_time_desc";
     }
@@ -1578,8 +1576,6 @@ public static class LocalizedStrings
         public const string EnableEmboldenDesc = "config.job.rdm.enable_embolden_desc";
         public const string EnableManafication = "config.job.rdm.enable_manafication";
         public const string EnableManaficationDesc = "config.job.rdm.enable_manafication_desc";
-        public const string AlignWithParty = "config.job.rdm.align_with_party";
-        public const string AlignWithPartyDesc = "config.job.rdm.align_with_party_desc";
         public const string EmboldenHoldTime = "config.job.rdm.embolden_hold_time";
         public const string EmboldenHoldTimeDesc = "config.job.rdm.embolden_hold_time_desc";
     }
@@ -1619,8 +1615,6 @@ public static class LocalizedStrings
         public const string BurstSection = "config.job.pct.burst_section";
         public const string EnableStarryMuse = "config.job.pct.enable_starry_muse";
         public const string EnableStarryMuseDesc = "config.job.pct.enable_starry_muse_desc";
-        public const string AlignWithParty = "config.job.pct.align_with_party";
-        public const string AlignWithPartyDesc = "config.job.pct.align_with_party_desc";
         public const string StarryMuseHoldTime = "config.job.pct.starry_muse_hold_time";
         public const string StarryMuseHoldTimeDesc = "config.job.pct.starry_muse_hold_time_desc";
         public const string EnableSubtractiveCombo = "config.job.pct.enable_subtractive_combo";

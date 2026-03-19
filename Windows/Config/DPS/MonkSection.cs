@@ -97,6 +97,12 @@ public sealed class MonkSection
             ConfigUIHelpers.BeginIndent();
 
             ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Monk.EnableBurstPooling, "Enable Burst Pooling"),
+                () => config.Monk.EnableBurstPooling,
+                v => config.Monk.EnableBurstPooling = v,
+                Loc.T(LocalizedStrings.Monk.EnableBurstPoolingDesc, "Hold Brotherhood for burst windows."), save);
+
+            ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Monk.EnableRiddleOfFire, "Enable Riddle of Fire"),
                 () => config.Monk.EnableRiddleOfFire,
                 v => config.Monk.EnableRiddleOfFire = v,
@@ -109,12 +115,6 @@ public sealed class MonkSection
                 v => config.Monk.EnableBrotherhood = v,
                 null, save,
                 actionId: MNKActions.Brotherhood.ActionId);
-
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Monk.AlignWithParty, "Align Brotherhood with Party"),
-                () => config.Monk.AlignBrotherhoodWithParty,
-                v => config.Monk.AlignBrotherhoodWithParty = v,
-                Loc.T(LocalizedStrings.Monk.AlignWithPartyDesc, "Coordinate with party burst windows"), save);
 
             config.Monk.BrotherhoodHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Monk.BrotherhoodHoldTime, "Brotherhood Hold Time"),

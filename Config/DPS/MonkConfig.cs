@@ -73,38 +73,9 @@ public sealed class MonkConfig
         set => _chakraMinGauge = Math.Clamp(value, 1, 5);
     }
 
-    /// <summary>
-    /// Whether to use Steel Peak for extra Chakra generation.
-    /// </summary>
-    public bool EnableSteelPeak { get; set; } = true;
-
-    /// <summary>
-    /// Whether to use Howling Fist for AoE damage.
-    /// </summary>
-    public bool EnableHowlingFist { get; set; } = true;
-
-    #endregion
-
-    #region Form Settings
-
-    /// <summary>
-    /// Whether to use Form Shift out of combat to maintain Opo-opo form.
-    /// </summary>
-    public bool UseFormShiftPrecombat { get; set; } = true;
-
-    /// <summary>
-    /// Preferred Blitz sequence.
-    /// </summary>
-    public BlitzSequence PreferredBlitz { get; set; } = BlitzSequence.PhantomRush;
-
     #endregion
 
     #region Burst Window Settings
-
-    /// <summary>
-    /// Align Brotherhood with party burst windows.
-    /// </summary>
-    public bool AlignBrotherhoodWithParty { get; set; } = true;
 
     /// <summary>
     /// Maximum seconds to hold Brotherhood waiting for party buffs.
@@ -115,11 +86,6 @@ public sealed class MonkConfig
         get => _brotherhoodHoldTime;
         set => _brotherhoodHoldTime = Math.Clamp(value, 0f, 10f);
     }
-
-    /// <summary>
-    /// Use Riddle of Fire with Perfect Balance.
-    /// </summary>
-    public bool UseRiddleOfFireWithPerfectBalance { get; set; } = true;
 
     /// <summary>
     /// Pool gauge resources (Forbidden Chakra, Masterful Blitz) for raid buff burst windows.
@@ -162,27 +128,6 @@ public sealed class MonkConfig
     public PositionalStrictness PositionalStrictness { get; set; } = PositionalStrictness.Relaxed;
 
     #endregion
-}
-
-/// <summary>
-/// Preferred Masterful Blitz sequence.
-/// </summary>
-public enum BlitzSequence
-{
-    /// <summary>
-    /// Build toward Phantom Rush.
-    /// </summary>
-    PhantomRush,
-
-    /// <summary>
-    /// Build toward Rising Phoenix.
-    /// </summary>
-    RisingPhoenix,
-
-    /// <summary>
-    /// Build toward Elixir Field.
-    /// </summary>
-    ElixirField
 }
 
 /// <summary>
