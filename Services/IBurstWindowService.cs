@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 
 namespace Olympus.Services;
@@ -36,4 +38,16 @@ public interface IBurstWindowService
     /// Returns 0 if currently active, -1 if unknown.
     /// </summary>
     float SecondsUntilNextBurst { get; }
+
+    /// <summary>
+    /// History of burst windows recorded during the current fight.
+    /// Each entry is a (Start, End) pair in UTC.
+    /// </summary>
+    IReadOnlyList<(DateTime Start, DateTime End)> BurstWindowHistory { get; }
+
+    /// <summary>
+    /// Resets burst window history and transition tracking state.
+    /// Call when starting a new fight or clearing analytics data.
+    /// </summary>
+    void ResetHistory();
 }

@@ -102,5 +102,51 @@ public sealed class AnalyticsConfig
         // History tab
         ["HistorySessions"] = true,
         ["HistoryTrends"] = true,
+
+        // Pull History tab
+        ["PullHistoryList"] = true,
+        ["PullHistoryDetail"] = true,
+        ["PullHistoryTrend"] = true,
     };
+
+    /// <summary>
+    /// Whether to automatically show a fight summary popup when combat ends.
+    /// </summary>
+    public bool ShowSummaryOnCombatEnd { get; set; } = true;
+
+    /// <summary>
+    /// Minimum fight duration (seconds) required to show a summary popup.
+    /// Fights shorter than this are silently skipped.
+    /// Valid range: 30-300 seconds.
+    /// </summary>
+    private int _summaryMinimumDurationSeconds = 60;
+    public int SummaryMinimumDurationSeconds
+    {
+        get => _summaryMinimumDurationSeconds;
+        set => _summaryMinimumDurationSeconds = Math.Clamp(value, 30, 300);
+    }
+
+    /// <summary>
+    /// Delay (seconds) after combat ends before showing the summary popup.
+    /// Allows post-combat animations and loot to settle.
+    /// Valid range: 0-10 seconds.
+    /// </summary>
+    private float _summaryPopupDelaySeconds = 3.0f;
+    public float SummaryPopupDelaySeconds
+    {
+        get => _summaryPopupDelaySeconds;
+        set => _summaryPopupDelaySeconds = Math.Clamp(value, 0f, 10f);
+    }
+
+    /// <summary>
+    /// Maximum number of fight summaries to store in history.
+    /// Oldest summaries are discarded when this limit is reached.
+    /// Valid range: 5-25.
+    /// </summary>
+    private int _maxStoredSummaries = 10;
+    public int MaxStoredSummaries
+    {
+        get => _maxStoredSummaries;
+        set => _maxStoredSummaries = Math.Clamp(value, 5, 25);
+    }
 }

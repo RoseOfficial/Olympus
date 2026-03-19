@@ -44,6 +44,11 @@ public sealed class BurstWindowService : IBurstWindowService
     // Tracks when the most recent burst window ended for timer-based prediction
     private DateTime? _lastBurstWindowEnd;
 
+    // Burst window history tracking
+    private readonly List<(DateTime Start, DateTime End)> _burstWindowHistory = new();
+    private DateTime _currentWindowStart;
+    private bool _wasInBurst;
+
     public BurstWindowService(IPartyCoordinationService? partyCoordinationService = null)
     {
         _partyCoordinationService = partyCoordinationService;
@@ -54,6 +59,8 @@ public sealed class BurstWindowService : IBurstWindowService
     public bool IsInBurstWindow => _isInBurstWindow;
 
     public float SecondsRemainingInBurst => _secondsRemainingInBurst;
+
+    public IReadOnlyList<(DateTime Start, DateTime End)> BurstWindowHistory => _burstWindowHistory;
 
     public bool IsBurstImminent(float thresholdSeconds = 5f)
     {
@@ -96,8 +103,6 @@ public sealed class BurstWindowService : IBurstWindowService
 
     public void Update(IPlayerCharacter player)
     {
-        var wasInBurst = _isInBurstWindow;
-
         // Scan player status list for active party raid buffs
         _isInBurstWindow = false;
         _secondsRemainingInBurst = 0f;
@@ -120,8 +125,21 @@ public sealed class BurstWindowService : IBurstWindowService
         }
 
         // Record when the burst window ends for timer-based cycle prediction
-        if (wasInBurst && !_isInBurstWindow)
+        if (_wasInBurst && !_isInBurstWindow)
             _lastBurstWindowEnd = DateTime.UtcNow;
+
+        // Track burst window history transitions
+        if (_isInBurstWindow && !_wasInBurst)
+            _currentWindowStart = DateTime.UtcNow;
+        else if (!_isInBurstWindow && _wasInBurst)
+            _burstWindowHistory.Add((_currentWindowStart, DateTime.UtcNow));
+        _wasInBurst = _isInBurstWindow;
+    }
+
+    public void ResetHistory()
+    {
+        _burstWindowHistory.Clear();
+        _wasInBurst = false;
     }
 
     #endregion
