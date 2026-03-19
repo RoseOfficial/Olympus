@@ -69,13 +69,13 @@ public sealed class TankSharedSection
 
             ConfigUIHelpers.Spacing();
 
-            ConfigUIHelpers.SectionLabel(Loc.T("config.job.tank.mt_ot_role", "Role:"));
+            ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Tank.MtOtRole, "Role:"));
 
             var roleNames = new[]
             {
-                Loc.T("config.job.tank.role_auto", "Auto (detect from enmity)"),
-                Loc.T("config.job.tank.role_mt", "Main Tank"),
-                Loc.T("config.job.tank.role_ot", "Off Tank"),
+                Loc.T(LocalizedStrings.Tank.RoleAuto, "Auto (detect from enmity)"),
+                Loc.T(LocalizedStrings.Tank.RoleMt, "Main Tank"),
+                Loc.T(LocalizedStrings.Tank.RoleOt, "Off Tank"),
             };
             var currentRole = this.config.Tank.IsMainTankOverride switch
             {
@@ -94,7 +94,7 @@ public sealed class TankSharedSection
                 };
                 this.save();
             }
-            ImGui.TextDisabled(Loc.T("config.job.tank.mt_ot_role_desc", "Auto detects based on who the enemy is targeting. Override if detection is unreliable."));
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.Tank.MtOtRoleDesc, "Auto detects based on who the enemy is targeting. Override if detection is unreliable."));
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Tank.AutoProvoke, "Auto Provoke"), () => config.Tank.AutoProvoke, v => config.Tank.AutoProvoke = v,
                 null, save,

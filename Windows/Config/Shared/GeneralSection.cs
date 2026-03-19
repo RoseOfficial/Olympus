@@ -133,22 +133,22 @@ public sealed class GeneralSection
 
     private void DrawWindowBehaviorSection()
     {
-        if (ConfigUIHelpers.SectionHeader(Loc.T("config.window.section", "Window Behavior")))
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Window.Section, "Window Behavior")))
         {
             ConfigUIHelpers.BeginIndent();
 
-            ConfigUIHelpers.Toggle(Loc.T("config.window.prevent_escape_close", "Prevent closing with Escape key"), () => this.config.PreventEscapeClose, v => this.config.PreventEscapeClose = v,
-                Loc.T("config.window.prevent_escape_close_desc", "When enabled, pressing Escape will not close the Olympus window."), this.save);
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Window.PreventEscapeClose, "Prevent closing with Escape key"), () => this.config.PreventEscapeClose, v => this.config.PreventEscapeClose = v,
+                Loc.T(LocalizedStrings.Window.PreventEscapeCloseDesc, "When enabled, pressing Escape will not close the Olympus window."), this.save);
 
             ConfigUIHelpers.Spacing();
 
-            ConfigUIHelpers.Toggle(Loc.T("config.window.show_during_cutscenes", "Show window during cutscenes"), () => this.config.ShowDuringCutscenes, v => this.config.ShowDuringCutscenes = v,
-                Loc.T("config.window.show_during_cutscenes_desc", "When enabled, Olympus windows stay visible during in-game cutscenes."), this.save);
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Window.ShowDuringCutscenes, "Show window during cutscenes"), () => this.config.ShowDuringCutscenes, v => this.config.ShowDuringCutscenes = v,
+                Loc.T(LocalizedStrings.Window.ShowDuringCutsceneDesc, "When enabled, Olympus windows stay visible during in-game cutscenes."), this.save);
 
             ConfigUIHelpers.Spacing();
 
-            ConfigUIHelpers.Toggle(Loc.T("config.overlay.show_mechanics_forecast", "Show mechanic forecast in overlay"), () => this.config.Overlay.ShowMechanicsForecast, v => this.config.Overlay.ShowMechanicsForecast = v,
-                Loc.T("config.overlay.show_mechanics_forecast_desc", "Displays upcoming fight mechanics (raidwides, tank busters, phases) with countdown timers in the overlay. Only visible when a fight timeline is loaded."), this.save);
+            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Overlay.ShowMechanicsForecast, "Show mechanic forecast in overlay"), () => this.config.Overlay.ShowMechanicsForecast, v => this.config.Overlay.ShowMechanicsForecast = v,
+                Loc.T(LocalizedStrings.Overlay.ShowMechanicsForecastDesc, "Displays upcoming fight mechanics (raidwides, tank busters, phases) with countdown timers in the overlay. Only visible when a fight timeline is loaded."), this.save);
 
             ConfigUIHelpers.EndIndent();
         }
