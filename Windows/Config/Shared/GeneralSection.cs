@@ -59,6 +59,7 @@ public sealed class GeneralSection
     {
         DrawCombatBehaviorSection();
         DrawWindowBehaviorSection();
+        DrawCoachingSummarySection();
         DrawResurrectionSection();
         DrawLanguageSection();
         DrawPrivacySection();
@@ -149,6 +150,44 @@ public sealed class GeneralSection
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Overlay.ShowMechanicsForecast, "Show mechanic forecast in overlay"), () => this.config.Overlay.ShowMechanicsForecast, v => this.config.Overlay.ShowMechanicsForecast = v,
                 Loc.T(LocalizedStrings.Overlay.ShowMechanicsForecastDesc, "Displays upcoming fight mechanics (raidwides, tank busters, phases) with countdown timers in the overlay. Only visible when a fight timeline is loaded."), this.save);
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawCoachingSummarySection()
+    {
+        if (ConfigUIHelpers.SectionHeader(
+            Loc.T(LocalizedStrings.FightSummary.WindowTitle, "Coaching Summary"), "CoachingSummary"))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.FightSummary.ShowOnCombatEnd, "Show coaching summary after combat"),
+                () => config.Analytics.ShowSummaryOnCombatEnd,
+                v => config.Analytics.ShowSummaryOnCombatEnd = v,
+                null, save);
+
+            ConfigUIHelpers.Spacing();
+
+            config.Analytics.SummaryMinimumDurationSeconds = ConfigUIHelpers.IntSlider(
+                Loc.T(LocalizedStrings.FightSummary.MinDuration, "Minimum Fight Duration (s)"),
+                config.Analytics.SummaryMinimumDurationSeconds, 30, 300,
+                null, save);
+
+            ConfigUIHelpers.Spacing();
+
+            config.Analytics.SummaryPopupDelaySeconds = ConfigUIHelpers.FloatSlider(
+                Loc.T(LocalizedStrings.FightSummary.PopupDelay, "Popup Delay (s)"),
+                config.Analytics.SummaryPopupDelaySeconds, 0f, 10f, "%.1f",
+                null, save);
+
+            ConfigUIHelpers.Spacing();
+
+            config.Analytics.MaxStoredSummaries = ConfigUIHelpers.IntSlider(
+                Loc.T(LocalizedStrings.FightSummary.MaxStored, "Max Stored Summaries"),
+                config.Analytics.MaxStoredSummaries, 5, 25,
+                null, save);
 
             ConfigUIHelpers.EndIndent();
         }

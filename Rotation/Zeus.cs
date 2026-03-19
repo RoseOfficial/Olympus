@@ -77,7 +77,7 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
 
     public Zeus(
         IPluginLog log,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

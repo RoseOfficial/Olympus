@@ -62,7 +62,7 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
     protected readonly IPluginLog Log;
     protected readonly Configuration Configuration;
     protected readonly ActionService ActionService;
-    protected readonly ActionTracker ActionTracker;
+    protected readonly IActionTracker ActionTracker;
     protected readonly ICombatEventService CombatEventService;
     protected readonly IDamageIntakeService DamageIntakeService;
     protected readonly IDamageTrendService DamageTrendService;
@@ -94,7 +94,7 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
 
     protected BaseRotation(
         IPluginLog log,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

@@ -62,7 +62,7 @@ public interface IRotationContext
     /// <summary>
     /// Tracks action execution history.
     /// </summary>
-    ActionTracker ActionTracker { get; }
+    IActionTracker ActionTracker { get; }
 
     /// <summary>
     /// Service for tracking combat events (damage, healing).

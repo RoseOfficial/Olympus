@@ -90,7 +90,7 @@ public sealed class Persephone : BaseCasterDpsRotation<IPersephoneContext, IPers
 
     public Persephone(
         IPluginLog log,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

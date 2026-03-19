@@ -71,7 +71,7 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
 
     public Nyx(
         IPluginLog log,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

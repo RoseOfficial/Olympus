@@ -68,7 +68,7 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
 
     public Themis(
         IPluginLog log,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

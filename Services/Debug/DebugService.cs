@@ -45,7 +45,7 @@ namespace Olympus.Services.Debug;
 /// </summary>
 public sealed class DebugService
 {
-    private readonly ActionTracker _actionTracker;
+    private readonly IActionTracker _actionTracker;
     private readonly ActionService _actionService;
     private readonly CombatEventService _combatEventService;
     private readonly HpPredictionService _hpPredictionService;
@@ -62,7 +62,7 @@ public sealed class DebugService
     private int _currentFrame;
 
     public DebugService(
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         ActionService actionService,
         CombatEventService combatEventService,
         HpPredictionService hpPredictionService,

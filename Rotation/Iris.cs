@@ -84,7 +84,7 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
 
     public Iris(
         IPluginLog log,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

@@ -13,7 +13,7 @@ namespace Olympus.Services;
 /// <summary>
 /// Tracks action attempts for debugging and GCD uptime analysis
 /// </summary>
-public sealed class ActionTracker
+public sealed class ActionTracker : IActionTracker
 {
     private readonly IDataManager dataManager;
     private readonly int historySize;

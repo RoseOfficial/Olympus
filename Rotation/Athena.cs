@@ -75,7 +75,7 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
 
     public Athena(
         IPluginLog log,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         CombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

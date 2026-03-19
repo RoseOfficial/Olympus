@@ -88,7 +88,7 @@ public sealed class AsclepiusContext : BaseHealerContext, IAsclepiusContext
         bool canExecuteGcd,
         bool canExecuteOgcd,
         IActionService actionService,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

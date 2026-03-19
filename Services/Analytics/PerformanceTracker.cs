@@ -14,7 +14,7 @@ namespace Olympus.Services.Analytics;
 public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
 {
     private readonly AnalyticsConfig config;
-    private readonly ActionTracker actionTracker;
+    private readonly IActionTracker actionTracker;
     private readonly CombatEventService combatEventService;
     private readonly IObjectTable objectTable;
     private readonly IPartyList partyList;
@@ -60,7 +60,7 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
 
     public PerformanceTracker(
         AnalyticsConfig config,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         CombatEventService combatEventService,
         IObjectTable objectTable,
         IPartyList partyList,
