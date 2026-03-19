@@ -326,6 +326,19 @@ public sealed class BuffModule : IZeusModule
 
         if (!shouldUseLitany)
         {
+            // Emergency override: if Lance Charge has a long cooldown (> 30s remaining),
+            // we've likely been waiting through a wipe/reset. Fire Battle Litany to avoid
+            // holding it indefinitely — 30s of lost alignment is better than never using it.
+            var lanceChargeCdRemaining = context.ActionService.GetCooldownRemaining(DRGActions.LanceCharge.ActionId);
+            if (lanceChargeCdRemaining > 30f)
+            {
+                shouldUseLitany = true;
+                context.Debug.BuffState = $"Lance Charge on long CD ({lanceChargeCdRemaining:F0}s) — firing Battle Litany";
+            }
+        }
+
+        if (!shouldUseLitany)
+        {
             // If Lance Charge is on cooldown and we don't have it, wait for alignment
             // unless we've been waiting too long
             context.Debug.BuffState = "Waiting for Lance Charge alignment";
