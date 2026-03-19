@@ -263,7 +263,11 @@ public sealed class MitigationModule : INyxModule
             !context.HasTheBlackestNight &&
             !context.HasDarkArts) // Don't waste Dark Arts proc
         {
-            if (context.ActionService.ExecuteOgcd(DRKActions.TheBlackestNight, player.GameObjectId))
+            if (!context.ActionService.IsActionReady(DRKActions.TheBlackestNight.ActionId))
+            {
+                // TBN on cooldown — fall through to Rampart
+            }
+            else if (context.ActionService.ExecuteOgcd(DRKActions.TheBlackestNight, player.GameObjectId))
             {
                 context.Debug.PlannedAction = DRKActions.TheBlackestNight.Name;
                 context.Debug.MitigationState = $"Proactive TBN ({reason})";
