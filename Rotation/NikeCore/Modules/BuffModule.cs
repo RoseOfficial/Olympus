@@ -2,6 +2,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.NikeCore.Context;
+using Olympus.Services;
 using Olympus.Services.Training;
 using Olympus.Timeline.Models;
 
@@ -13,8 +14,16 @@ namespace Olympus.Rotation.NikeCore.Modules;
 /// </summary>
 public sealed class BuffModule : INikeModule
 {
-    // SAM burst pooling is handled entirely in DamageModule via IBurstWindowService.
-    // BuffModule only manages Ikishoten timing — no burst-hold logic needed here.
+    private readonly IBurstWindowService? _burstWindowService;
+
+    public BuffModule(IBurstWindowService? burstWindowService = null)
+    {
+        _burstWindowService = burstWindowService;
+    }
+
+    private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
+        _burstWindowService?.IsBurstImminent(thresholdSeconds) == true &&
+        _burstWindowService?.IsInBurstWindow != true;
 
     public int Priority => 20; // Before Damage
     public string Name => "Buff";
@@ -212,6 +221,14 @@ public sealed class BuffModule : INikeModule
 
         if (level < SAMActions.Ikishoten.MinLevel)
             return false;
+
+        // Hold Ikishoten when burst is imminent — aligns the 120s raid buff with party burst windows
+        if (context.Configuration.Samurai.EnableBurstPooling &&
+            ShouldHoldForBurst(context.Configuration.Samurai.IkishotenHoldTime))
+        {
+            context.Debug.BuffState = "Ikishoten held — burst imminent";
+            return false;
+        }
 
         // Don't use if we'd overcap Kenki
         if (context.Kenki > KenkiThresholdForIkishoten)

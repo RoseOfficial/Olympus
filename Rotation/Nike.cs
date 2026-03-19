@@ -130,7 +130,7 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>, IDis
         // ever added, it should use priority 15 to avoid conflicting with Buff.
         _modules = new List<INikeModule>
         {
-            new BuffModule(),    // Priority 20 - Buff management
+            new BuffModule(BurstWindowService),    // Priority 20 - Buff management
             new DamageModule(BurstWindowService),  // Priority 30 - DPS rotation
         };
 
