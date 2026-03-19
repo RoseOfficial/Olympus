@@ -152,12 +152,13 @@ public sealed class BuffModule : BaseTankBuffModule<IHephaestusContext>, IHephae
             return false;
         }
 
-        // Prefer to use during No Mercy for maximum damage output
-        // But don't hold forever - use if cartridges are low
-        if (!context.HasNoMercy && context.Cartridges > 0)
+        // Prefer to use during No Mercy for maximum damage output, but only hold when No Mercy
+        // is coming up soon (within 15s). If No Mercy is far away, fire Bloodfest freely to
+        // avoid permanently blocking it when No Mercy has 55s+ remaining.
+        var nmCooldown = context.ActionService.GetCooldownRemaining(GNBActions.NoMercy.ActionId);
+        if (!context.HasNoMercy && context.Cartridges > 0 && nmCooldown < 15f)
         {
-            // Have some cartridges and no No Mercy - can wait
-            // Unless No Mercy is on cooldown for a while
+            // No Mercy is imminent (< 15s) — hold Bloodfest for alignment
             return false;
         }
 
