@@ -144,6 +144,16 @@ public static class LocalizedStrings
         public const string StartOnAutoAttackDesc = "config.general.start_on_auto_attack_desc";
     }
 
+    /// <summary>Keys for window behavior settings.</summary>
+    public static class Window
+    {
+        public const string Section = "config.window.section";
+        public const string PreventEscapeClose = "config.window.prevent_escape_close";
+        public const string PreventEscapeCloseDesc = "config.window.prevent_escape_close_desc";
+        public const string ShowDuringCutscenes = "config.window.show_during_cutscenes";
+        public const string ShowDuringCutsceneDesc = "config.window.show_during_cutscenes_desc";
+    }
+
     /// <summary>Keys for Draw Helper overlay settings section.</summary>
     public static class DrawHelper
     {
@@ -860,6 +870,11 @@ public static class LocalizedStrings
         public const string CurrentMinTargets = "config.job.tank.current_min_targets";
         public const string UsesSharedAoESettings = "config.job.tank.uses_shared_aoe_settings";
         public const string UsesSharedGaugeSetting = "config.job.tank.uses_shared_gauge_setting";
+        public const string MtOtRole = "config.job.tank.mt_ot_role";
+        public const string RoleAuto = "config.job.tank.role_auto";
+        public const string RoleMt = "config.job.tank.role_mt";
+        public const string RoleOt = "config.job.tank.role_ot";
+        public const string MtOtRoleDesc = "config.job.tank.mt_ot_role_desc";
     }
 
     /// <summary>Keys for Paladin specific settings.</summary>
@@ -3014,7 +3029,7 @@ public static class LocalizedStrings
 
     #region Overlay Window (ui.overlay.*)
 
-    /// <summary>Keys for the overlay HUD window.</summary>
+    /// <summary>Keys for the overlay HUD window and overlay-related config settings.</summary>
     public static class Overlay
     {
         public const string NoRotation = "ui.overlay.no_rotation";
@@ -3033,6 +3048,8 @@ public static class LocalizedStrings
         public const string Immune = "ui.overlay.immune";
         public const string HealingToggle = "ui.overlay.healing";
         public const string DamageToggle = "ui.overlay.damage";
+        public const string ShowMechanicsForecast = "config.overlay.show_mechanics_forecast";
+        public const string ShowMechanicsForecastDesc = "config.overlay.show_mechanics_forecast_desc";
     }
 
     #endregion
