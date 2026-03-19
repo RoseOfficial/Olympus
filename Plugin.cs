@@ -283,6 +283,13 @@ public sealed class Plugin : IDalamudPlugin
         // Error metrics service (aggregates suppressed errors for debugging)
         this.errorMetricsService = new ErrorMetricsService();
 
+        // Smart AoE service (must be created before service container)
+        this.aoeTracker = new AoETracker();
+        this.smartAoEService = new SmartAoEService(targetingService, dataManager, aoeTracker, log);
+        this.smartAoEService.SubscribeToCombatEvents(combatEventService);
+        // Keep static Instance for backward compatibility during transition
+        SmartAoEService.Instance = this.smartAoEService;
+
         // Create service container for rotation dependency injection
         this.serviceContainer = CreateServiceContainer();
 
@@ -305,11 +312,6 @@ public sealed class Plugin : IDalamudPlugin
             objectTable,
             dataManager);
 
-        this.aoeTracker = new AoETracker();
-        this.smartAoEService = new SmartAoEService(targetingService, dataManager, aoeTracker, log);
-        this.smartAoEService.SubscribeToCombatEvents(combatEventService);
-        // Keep static Instance for backward compatibility during transition
-        SmartAoEService.Instance = this.smartAoEService;
         this.drawingService = new DrawingService(pluginInterface, configuration.DrawHelper, log);
         this.drawCanvas = new DrawCanvas(drawingService, configuration, objectTable, clientState, targetManager, gameGui, positionalService, rotationManager);
         this.updateCheckerService = new UpdateCheckerService(PluginVersion, notificationManager, log);
