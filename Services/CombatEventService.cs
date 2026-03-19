@@ -380,11 +380,14 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
                     }
                 }
 
-                // Calculate overheal: how much exceeded target's missing HP
+                // Calculate overheal: how much exceeded target's missing HP.
+                // Use shadow HP (which reflects pending heals/damage not yet visible in the
+                // game's HP bar) rather than character.CurrentHp, which is stale at hook time.
                 var overhealAmount = 0;
                 if (targetMaxHp > 0)
                 {
-                    var missingHp = (int)(targetMaxHp - targetCurrentHp);
+                    var shadowHpValue = GetShadowHp(targetId, targetCurrentHp);
+                    var missingHp = (int)(targetMaxHp - shadowHpValue);
                     overhealAmount = Math.Max(0, totalHeal - missingHp);
                 }
 
