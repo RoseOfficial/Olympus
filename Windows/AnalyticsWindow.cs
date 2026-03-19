@@ -19,14 +19,16 @@ public sealed class AnalyticsWindow : Window
     private readonly Configuration configuration;
     private readonly Action saveConfiguration;
     private readonly IFFlogsService? fflogsService;
+    private readonly IFightSummaryService? fightSummaryService;
 
-    public AnalyticsWindow(IPerformanceTracker performanceTracker, Configuration configuration, Action saveConfiguration, IFFlogsService? fflogsService = null)
+    public AnalyticsWindow(IPerformanceTracker performanceTracker, Configuration configuration, Action saveConfiguration, IFFlogsService? fflogsService = null, IFightSummaryService? fightSummaryService = null)
         : base("Olympus Analytics", ImGuiWindowFlags.NoSavedSettings)
     {
         this.performanceTracker = performanceTracker;
         this.configuration = configuration;
         this.saveConfiguration = saveConfiguration;
         this.fflogsService = fflogsService;
+        this.fightSummaryService = fightSummaryService;
 
         Size = new Vector2(500, 400);
         SizeCondition = ImGuiCond.FirstUseEver;
@@ -73,6 +75,13 @@ public sealed class AnalyticsWindow : Window
             if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Analytics.FFlogsTab, "FFLogs")))
             {
                 FFlogsTab.Draw(fflogsService, configuration.FFLogs);
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Analytics.PullHistoryTab, "Pull History")))
+            {
+                if (fightSummaryService != null)
+                    PullHistoryTab.Draw(fightSummaryService, configuration.Analytics);
                 ImGui.EndTabItem();
             }
 

@@ -95,6 +95,9 @@ public sealed class Plugin : IDalamudPlugin
     // FFLogs integration
     private readonly FFlogsService? fflogsService;
 
+    // Post-combat coaching summaries
+    private readonly FightSummaryService? fightSummaryService;
+
     // Training mode
     private readonly TrainingDataRegistry trainingDataRegistry;
     private readonly TrainingService trainingService;
@@ -245,6 +248,10 @@ public sealed class Plugin : IDalamudPlugin
         // FFLogs integration
         this.fflogsService = new FFlogsService(configuration.FFLogs, log);
 
+        // Post-combat coaching summaries
+        this.fightSummaryService = new FightSummaryService(
+            performanceTracker, actionTracker, burstWindowService, fflogsService, configuration);
+
         // Training mode
         this.trainingDataRegistry = new TrainingDataRegistry(log);
         this.trainingService = new TrainingService(configuration.Training, objectTable, trainingDataRegistry, log);
@@ -310,7 +317,7 @@ public sealed class Plugin : IDalamudPlugin
         var smartAoETab = new SmartAoETab(aoeTracker, drawCanvas, objectTable);
         this.debugWindow = new DebugWindow(debugService, configuration, SaveConfiguration, timelineService, smartAoETab);
         this.welcomeWindow = new WelcomeWindow(configuration, SaveConfiguration, OpenConfigUI);
-        this.analyticsWindow = new AnalyticsWindow(performanceTracker, configuration, SaveConfiguration, fflogsService);
+        this.analyticsWindow = new AnalyticsWindow(performanceTracker, configuration, SaveConfiguration, fflogsService, fightSummaryService);
         this.trainingWindow = new TrainingWindow(trainingService, configuration, decisionValidationService, spacedRepetitionService);
         this.changelogWindow = new ChangelogWindow();
         this.hintOverlay = new HintOverlay(realTimeCoachingService, configuration.Training);
@@ -327,6 +334,14 @@ public sealed class Plugin : IDalamudPlugin
             log,
             PluginVersion,
             () => rotationManager);
+
+        if (fightSummaryService != null)
+        {
+            var fightSummaryWindow = new FightSummaryWindow(
+                fightSummaryService, framework, configuration,
+                () => { analyticsWindow.IsOpen = true; });
+            windowSystem.AddWindow(fightSummaryWindow);
+        }
 
         windowSystem.AddWindow(configWindow);
         windowSystem.AddWindow(mainWindow);
@@ -431,6 +446,8 @@ public sealed class Plugin : IDalamudPlugin
             container.Register<IPartyCoordinationService, PartyCoordinationService>(partyCoordinationService);
         container.Register<ITrainingService, TrainingService>(trainingService);
         container.Register<IErrorMetricsService, ErrorMetricsService>(errorMetricsService);
+        if (fightSummaryService != null)
+            container.Register<IFightSummaryService, FightSummaryService>(fightSummaryService);
 
         return container;
     }
