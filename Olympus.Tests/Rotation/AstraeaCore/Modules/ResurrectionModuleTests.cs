@@ -2,7 +2,6 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Moq;
 using Olympus.Data;
-using Olympus.Data.Healers;
 using Olympus.Models.Action;
 using Olympus.Rotation.AstraeaCore.Modules;
 using Olympus.Services.Action;

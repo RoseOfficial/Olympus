@@ -21,6 +21,7 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
     private readonly Configuration _configuration;
     private readonly IShieldTrackingService? _shieldTrackingService;
     private readonly IDamageTrendService? _damageTrendService;
+    private readonly Func<DateTime> _clock;
 
     /// <summary>
     /// Represents a single pending heal entry with its amount and registration time.
@@ -33,7 +34,7 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
     private readonly object _healsLock = new();
 
     public HpPredictionService(ICombatEventService combatEventService, Configuration configuration)
-        : this(combatEventService, configuration, null, null)
+        : this(combatEventService, configuration, null, null, null)
     {
     }
 
@@ -41,12 +42,14 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
         ICombatEventService combatEventService,
         Configuration configuration,
         IShieldTrackingService? shieldTrackingService,
-        IDamageTrendService? damageTrendService)
+        IDamageTrendService? damageTrendService,
+        Func<DateTime>? clock = null)
     {
         _combatEventService = combatEventService;
         _configuration = configuration;
         _shieldTrackingService = shieldTrackingService;
         _damageTrendService = damageTrendService;
+        _clock = clock ?? (() => DateTime.UtcNow);
 
         // Subscribe to heal landed event to clear pending heals for that target
         _combatEventService.OnLocalPlayerHealLanded += OnHealLanded;
@@ -89,7 +92,7 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
         // Iterate outside lock for better frame performance
         if (localHeals != null)
         {
-            var now = DateTime.UtcNow;
+            var now = _clock();
             foreach (var heal in localHeals)
             {
                 // Only count non-expired heals
@@ -127,7 +130,7 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
     /// </summary>
     public void RegisterPendingHeal(uint targetId, int amount)
     {
-        var entry = new PendingHealEntry(amount, DateTime.UtcNow);
+        var entry = new PendingHealEntry(amount, _clock());
 
         lock (_healsLock)
         {
@@ -147,7 +150,7 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
     /// </summary>
     public void RegisterPendingAoEHeal(IEnumerable<uint> targetIds, int amountPerTarget)
     {
-        var now = DateTime.UtcNow;
+        var now = _clock();
 
         lock (_healsLock)
         {
@@ -213,7 +216,7 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
             if (!_pendingHealsByTarget.TryGetValue(targetId, out var heals))
                 return 0;
 
-            var now = DateTime.UtcNow;
+            var now = _clock();
             return heals
                 .Where(h => (now - h.RegisteredTime).TotalSeconds <= FFXIVTimings.HpPredictionTimeoutSeconds)
                 .Sum(h => h.Amount);
@@ -228,7 +231,7 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
     {
         lock (_healsLock)
         {
-            var now = DateTime.UtcNow;
+            var now = _clock();
             var result = new Dictionary<uint, int>();
 
             foreach (var kvp in _pendingHealsByTarget)

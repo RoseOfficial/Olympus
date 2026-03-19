@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using Moq;
 using Olympus.Services;
 using Olympus.Services.Prediction;
@@ -345,19 +344,22 @@ public sealed class HpPredictionServiceTests : IDisposable
     [Fact]
     public void GetPredictedHp_AfterTimeout_IgnoresPending()
     {
-        // Arrange
+        // Arrange — use a controllable clock to avoid sleeping 3+ seconds
         const uint entityId = 1;
         const uint currentHp = 5000;
         const uint maxHp = 10000;
         const int healAmount = 2000;
 
-        _service.RegisterPendingHeal(entityId, healAmount);
+        var fakeTime = DateTime.UtcNow;
+        using var service = new HpPredictionService(_mockCombatEvent.Object, _configuration, null, null, () => fakeTime);
 
-        // Wait for timeout (3 seconds + buffer)
-        Thread.Sleep(3100);
+        service.RegisterPendingHeal(entityId, healAmount);
+
+        // Advance clock past the 3-second HpPredictionTimeoutSeconds threshold
+        fakeTime = fakeTime.AddSeconds(4);
 
         // Act - query after timeout
-        var result = _service.GetPredictedHp(entityId, currentHp, maxHp);
+        var result = service.GetPredictedHp(entityId, currentHp, maxHp);
 
         // Assert - pending heal should be ignored (not added to predicted HP)
         Assert.Equal(currentHp, result);

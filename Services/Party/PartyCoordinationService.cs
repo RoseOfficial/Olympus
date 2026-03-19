@@ -92,10 +92,13 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     public event Action<InterruptIntentMessage>? OnInterruptIntentReady;
     public event Action<TankSwapIntentMessage>? OnTankSwapIntentReady;
 
-    public PartyCoordinationService(PartyCoordinationConfig config, IPluginLog log)
+    private readonly Func<DateTime> _clock;
+
+    public PartyCoordinationService(PartyCoordinationConfig config, IPluginLog log, Func<DateTime>? clock = null)
     {
         _config = config;
         _log = log;
+        _clock = clock ?? (() => DateTime.UtcNow);
     }
 
     #region IPartyCoordinationService Implementation
@@ -126,7 +129,7 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             if (_remoteReservations.TryGetValue(entityId, out var reservation))
             {
                 // Check if reservation is still valid
-                var elapsed = (DateTime.UtcNow - reservation.ReservedAt).TotalMilliseconds;
+                var elapsed = (_clock() - reservation.ReservedAt).TotalMilliseconds;
                 if (elapsed < _config.HealReservationExpiryMs)
                     return true;
 
@@ -227,7 +230,7 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         {
             if (_remoteReservations.TryGetValue(entityId, out var reservation))
             {
-                var elapsed = (DateTime.UtcNow - reservation.ReservedAt).TotalMilliseconds;
+                var elapsed = (_clock() - reservation.ReservedAt).TotalMilliseconds;
                 if (elapsed < _config.HealReservationExpiryMs)
                     return reservation.EstimatedHealAmount;
             }
@@ -1562,14 +1565,15 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (message.InstanceId == _instanceId)
             return;
 
+        var now = _clock();
         var reservation = new HealReservation
         {
             InstanceId = message.InstanceId,
             TargetEntityId = message.TargetEntityId,
             EstimatedHealAmount = message.EstimatedHealAmount,
             ActionId = message.ActionId,
-            ReservedAt = DateTime.UtcNow,
-            ExpectedLandingTime = DateTime.UtcNow.AddMilliseconds(message.CastTimeMs)
+            ReservedAt = now,
+            ExpectedLandingTime = now.AddMilliseconds(message.CastTimeMs)
         };
 
         lock (_stateLock)

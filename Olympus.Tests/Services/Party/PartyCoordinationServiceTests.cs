@@ -24,7 +24,8 @@ public class PartyCoordinationServiceTests
     private static PartyCoordinationService CreateService(
         bool enableCoordination = true,
         int expiryMs = 3000,
-        bool enableHealerRoleCoord = true)
+        bool enableHealerRoleCoord = true,
+        Func<DateTime>? clock = null)
     {
         var config = new PartyCoordinationConfig
         {
@@ -35,7 +36,7 @@ public class PartyCoordinationServiceTests
             EnableHealerRoleCoordination = enableHealerRoleCoord,
         };
         var log = new Mock<IPluginLog>();
-        return new PartyCoordinationService(config, log.Object);
+        return new PartyCoordinationService(config, log.Object, clock);
     }
 
     // -------------------------------------------------------------------------
@@ -162,8 +163,9 @@ public class PartyCoordinationServiceTests
     [Fact]
     public void IsTargetReservedByOther_WhenReservationExpired_ReturnsFalse()
     {
-        // Arrange — expiry set to minimum (1000ms); any value below is clamped to 1000
-        var service = CreateService(expiryMs: 1000);
+        // Arrange — expiry set to 1000ms; advance a controllable clock past expiry instead of sleeping
+        var fakeTime = DateTime.UtcNow;
+        var service = CreateService(expiryMs: 1000, clock: () => fakeTime);
         var remoteInstanceId = Guid.NewGuid();
         var message = new HealIntentMessage(
             instanceId: remoteInstanceId,
@@ -174,7 +176,8 @@ public class PartyCoordinationServiceTests
 
         service.HandleRemoteHealIntent(message);
 
-        System.Threading.Thread.Sleep(1010); // ensure 1000ms expiry window elapses
+        // Advance clock 2 seconds past the 1000ms expiry window
+        fakeTime = fakeTime.AddSeconds(2);
 
         // Act + Assert
         Assert.False(service.IsTargetReservedByOther(entityId: 0x1111));
