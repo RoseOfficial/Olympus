@@ -152,32 +152,40 @@ public sealed class MainWindow : Window
             }
         }
 
-        if (ImGui.Button(Loc.T(LocalizedStrings.Main.Settings, "Settings"), new Vector2(-1, 0)))
+        ImGui.Separator();
+
+        // Navigation grid
+        var buttonWidth = (ImGui.GetContentRegionAvail().X - ImGui.GetStyle().ItemSpacing.X) / 2;
+
+        if (ImGui.Button(Loc.T(LocalizedStrings.Main.Settings, "Settings"), new Vector2(buttonWidth, 0)))
         {
             openSettings();
         }
-
-        if (ImGui.Button(Loc.T(LocalizedStrings.Main.Overlay, "Overlay"), new Vector2(-1, 0)))
+        ImGui.SameLine();
+        if (ImGui.Button(Loc.T(LocalizedStrings.Main.Overlay, "Overlay"), new Vector2(buttonWidth, 0)))
         {
             openOverlay();
         }
 
-        if (ImGui.Button(Loc.T(LocalizedStrings.Main.Analytics, "Analytics"), new Vector2(-1, 0)))
+        if (ImGui.Button(Loc.T(LocalizedStrings.Main.Analytics, "Analytics"), new Vector2(buttonWidth, 0)))
         {
             openAnalytics();
         }
-
-        if (ImGui.Button(Loc.T(LocalizedStrings.Main.Training, "Training"), new Vector2(-1, 0)))
+        ImGui.SameLine();
+        if (ImGui.Button(Loc.T(LocalizedStrings.Main.Training, "Training"), new Vector2(buttonWidth, 0)))
         {
             openTraining();
         }
 
-        if (ImGui.Button(Loc.T(LocalizedStrings.Main.Changelog, "Changelog"), new Vector2(-1, 0)))
+        // Footer links
+        if (ImGui.SmallButton(Loc.T(LocalizedStrings.Main.Changelog, "Changelog")))
         {
             openChangelog();
         }
-
-        if (ImGui.Button(Loc.T(LocalizedStrings.Main.Debug, "Debug"), new Vector2(-1, 0)))
+        ImGui.SameLine();
+        ImGui.Text("\u00B7");
+        ImGui.SameLine();
+        if (ImGui.SmallButton(Loc.T(LocalizedStrings.Main.Debug, "Debug")))
         {
             openDebug();
         }
