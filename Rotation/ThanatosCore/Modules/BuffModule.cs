@@ -103,6 +103,14 @@ public sealed class BuffModule : IThanatosModule
             return false;
         }
 
+        // Hold for party burst window if pooling is enabled
+        if (context.Configuration.Reaper.EnableBurstPooling &&
+            ShouldHoldForBurst(context.Configuration.Reaper.ArcaneCircleHoldTime))
+        {
+            context.Debug.BuffState = "Holding Arcane Circle for burst window";
+            return false;
+        }
+
         // Timeline: Don't waste burst before phase transition
         if (ShouldHoldBurstForPhase(context))
         {
