@@ -127,7 +127,7 @@ public sealed class MainWindow : Window
             ? Loc.T(LocalizedStrings.Main.Disable, "Disable")
             : Loc.T(LocalizedStrings.Main.Enable, "Enable");
 
-        if (ImGui.Button(enableDisableText, new Vector2(-1, 0)))
+        if (ImGui.Button(enableDisableText, new Vector2(-1, 28)))
         {
             configuration.Enabled = !configuration.Enabled;
             saveConfiguration();
