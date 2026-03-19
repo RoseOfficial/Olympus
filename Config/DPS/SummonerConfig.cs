@@ -146,11 +146,6 @@ public sealed class SummonerConfig
     public bool EnableBurstPooling { get; set; } = true;
 
     /// <summary>
-    /// Align Searing Light with party burst windows.
-    /// </summary>
-    public bool AlignSearingLightWithParty { get; set; } = true;
-
-    /// <summary>
     /// Maximum seconds to hold Searing Light waiting for party buffs.
     /// </summary>
     private float _searingLightHoldTime = 3.0f;

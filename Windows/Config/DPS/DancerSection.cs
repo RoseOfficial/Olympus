@@ -148,12 +148,6 @@ public sealed class DancerSection
                 v => config.Dancer.EnableDevilment = v,
                 null, save, actionId: DNCActions.Devilment.ActionId);
 
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Dancer.AlignWithParty, "Align with Party"),
-                () => config.Dancer.AlignTechnicalWithParty,
-                v => config.Dancer.AlignTechnicalWithParty = v,
-                Loc.T(LocalizedStrings.Dancer.AlignWithPartyDesc, "Coordinate Technical Finish with party burst"), save);
-
             config.Dancer.TechnicalHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Dancer.TechnicalHoldTime, "Technical Hold Time"),
                 config.Dancer.TechnicalHoldTime, 0f, 10f, "%.1f s",

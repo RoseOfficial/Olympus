@@ -156,12 +156,6 @@ public sealed class DragoonSection
             ConfigUIHelpers.BeginIndent();
 
             ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Dragoon.AlignWithParty, "Align Battle Litany with Party"),
-                () => config.Dragoon.AlignBattleLitanyWithParty,
-                v => config.Dragoon.AlignBattleLitanyWithParty = v,
-                Loc.T(LocalizedStrings.Dragoon.AlignWithPartyDesc, "Coordinate with party burst windows"), save);
-
-            ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Dragoon.EnableBurstPooling, "Enable Burst Pooling"),
                 () => config.Dragoon.EnableBurstPooling,
                 v => config.Dragoon.EnableBurstPooling = v,

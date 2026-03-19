@@ -94,11 +94,6 @@ public sealed class DragoonConfig
     #region Burst Window Settings
 
     /// <summary>
-    /// Align Battle Litany with party burst windows.
-    /// </summary>
-    public bool AlignBattleLitanyWithParty { get; set; } = true;
-
-    /// <summary>
     /// Maximum seconds to hold Battle Litany waiting for party buffs.
     /// </summary>
     private float _battleLitanyHoldTime = 3.0f;

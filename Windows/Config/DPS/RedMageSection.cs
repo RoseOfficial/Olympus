@@ -141,12 +141,6 @@ public sealed class RedMageSection
                 v => config.RedMage.EnableManafication = v,
                 null, save, actionId: RDMActions.Manafication.ActionId);
 
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.RedMage.AlignWithParty, "Align with Party"),
-                () => config.RedMage.AlignEmboldenWithParty,
-                v => config.RedMage.AlignEmboldenWithParty = v,
-                Loc.T(LocalizedStrings.RedMage.AlignWithPartyDesc, "Coordinate Embolden with party burst"), save);
-
             config.RedMage.EmboldenHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.RedMage.EmboldenHoldTime, "Embolden Hold Time"),
                 config.RedMage.EmboldenHoldTime, 0f, 10f, "%.1f s",

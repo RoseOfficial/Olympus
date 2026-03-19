@@ -196,11 +196,6 @@ public sealed class BardConfig
     public bool EnableBurstPooling { get; set; } = true;
 
     /// <summary>
-    /// Align Battle Voice/Radiant Finale with party burst windows.
-    /// </summary>
-    public bool AlignBuffsWithParty { get; set; } = true;
-
-    /// <summary>
     /// Maximum seconds to hold buffs waiting for party burst.
     /// </summary>
     private float _buffHoldTime = 3.0f;

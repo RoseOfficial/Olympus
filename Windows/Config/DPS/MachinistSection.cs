@@ -149,12 +149,6 @@ public sealed class MachinistSection
                 v => config.Machinist.EnableWildfire = v,
                 null, save, actionId: MCHActions.Wildfire.ActionId);
 
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Machinist.AlignWithParty, "Align with Party"),
-                () => config.Machinist.AlignWildfireWithParty,
-                v => config.Machinist.AlignWildfireWithParty = v,
-                Loc.T(LocalizedStrings.Machinist.AlignWithPartyDesc, "Coordinate Wildfire with party burst"), save);
-
             config.Machinist.WildfireHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Machinist.WildfireHoldTime, "Wildfire Hold Time"),
                 config.Machinist.WildfireHoldTime, 0f, 10f, "%.1f s",

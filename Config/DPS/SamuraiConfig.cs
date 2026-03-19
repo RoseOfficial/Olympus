@@ -138,11 +138,6 @@ public sealed class SamuraiConfig
     #region Burst Window Settings
 
     /// <summary>
-    /// Align Ikishoten with party burst windows.
-    /// </summary>
-    public bool AlignIkishotenWithParty { get; set; } = true;
-
-    /// <summary>
     /// Maximum seconds to hold Ikishoten waiting for party buffs.
     /// </summary>
     private float _ikishotenHoldTime = 3.0f;

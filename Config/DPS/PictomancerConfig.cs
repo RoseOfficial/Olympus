@@ -171,11 +171,6 @@ public sealed class PictomancerConfig
     public bool EnableBurstPooling { get; set; } = true;
 
     /// <summary>
-    /// Align Starry Muse with party burst windows.
-    /// </summary>
-    public bool AlignStarryMuseWithParty { get; set; } = true;
-
-    /// <summary>
     /// Maximum seconds to hold Starry Muse waiting for party buffs.
     /// </summary>
     private float _starryMuseHoldTime = 3.0f;

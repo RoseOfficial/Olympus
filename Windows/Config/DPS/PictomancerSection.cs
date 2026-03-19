@@ -212,12 +212,6 @@ public sealed class PictomancerSection
                 v => config.Pictomancer.UseHammerDuringBurst = v,
                 Loc.T(LocalizedStrings.Pictomancer.UseHammerDuringBurstDesc, "Prioritize Hammer Stamp combo inside Starry Muse windows"), save);
 
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Pictomancer.AlignWithParty, "Align with Party"),
-                () => config.Pictomancer.AlignStarryMuseWithParty,
-                v => config.Pictomancer.AlignStarryMuseWithParty = v,
-                Loc.T(LocalizedStrings.Pictomancer.AlignWithPartyDesc, "Coordinate Starry Muse with party burst"), save);
-
             config.Pictomancer.StarryMuseHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Pictomancer.StarryMuseHoldTime, "Starry Muse Hold Time"),
                 config.Pictomancer.StarryMuseHoldTime, 0f, 10f, "%.1f s",

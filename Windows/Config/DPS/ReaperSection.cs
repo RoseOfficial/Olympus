@@ -145,12 +145,6 @@ public sealed class ReaperSection
                 null, save,
                 actionId: RPRActions.ArcaneCircle.ActionId);
 
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Reaper.AlignWithParty, "Align with Party"),
-                () => config.Reaper.AlignArcaneCircleWithParty,
-                v => config.Reaper.AlignArcaneCircleWithParty = v,
-                Loc.T(LocalizedStrings.Reaper.AlignWithPartyDesc, "Coordinate Arcane Circle with party burst"), save);
-
             config.Reaper.ArcaneCircleHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Reaper.ArcaneCircleHoldTime, "Arcane Circle Hold Time"),
                 config.Reaper.ArcaneCircleHoldTime, 0f, 10f, "%.1f s",

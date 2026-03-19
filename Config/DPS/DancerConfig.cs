@@ -171,11 +171,6 @@ public sealed class DancerConfig
     public bool EnableBurstPooling { get; set; } = true;
 
     /// <summary>
-    /// Align Technical Finish with party burst windows.
-    /// </summary>
-    public bool AlignTechnicalWithParty { get; set; } = true;
-
-    /// <summary>
     /// Maximum seconds to hold Technical Step waiting for party buffs.
     /// </summary>
     private float _technicalHoldTime = 3.0f;

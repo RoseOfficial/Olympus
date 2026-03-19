@@ -157,11 +157,6 @@ public sealed class RedMageConfig
     public bool EnableBurstPooling { get; set; } = true;
 
     /// <summary>
-    /// Align Embolden with party burst windows.
-    /// </summary>
-    public bool AlignEmboldenWithParty { get; set; } = true;
-
-    /// <summary>
     /// Maximum seconds to hold Embolden waiting for party buffs.
     /// </summary>
     private float _emboldenHoldTime = 3.0f;

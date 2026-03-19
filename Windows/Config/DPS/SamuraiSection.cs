@@ -149,12 +149,6 @@ public sealed class SamuraiSection
                 null, save,
                 actionId: SAMActions.Ikishoten.ActionId);
 
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Samurai.AlignWithParty, "Align with Party"),
-                () => config.Samurai.AlignIkishotenWithParty,
-                v => config.Samurai.AlignIkishotenWithParty = v,
-                Loc.T(LocalizedStrings.Samurai.AlignWithPartyDesc, "Coordinate Ikishoten with party burst"), save);
-
             config.Samurai.IkishotenHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Samurai.IkishotenHoldTime, "Ikishoten Hold Time"),
                 config.Samurai.IkishotenHoldTime, 0f, 10f, "%.1f s",

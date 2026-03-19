@@ -167,11 +167,6 @@ public sealed class MachinistConfig
     public bool EnableBurstPooling { get; set; } = true;
 
     /// <summary>
-    /// Align Wildfire with party burst windows.
-    /// </summary>
-    public bool AlignWildfireWithParty { get; set; } = true;
-
-    /// <summary>
     /// Maximum seconds to hold Wildfire waiting for party buffs.
     /// </summary>
     private float _wildfireHoldTime = 3.0f;

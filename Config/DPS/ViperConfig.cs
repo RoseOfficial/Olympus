@@ -111,11 +111,6 @@ public sealed class ViperConfig
     #region Burst Window Settings
 
     /// <summary>
-    /// Align Serpent's Ire with party burst windows.
-    /// </summary>
-    public bool AlignSerpentsIreWithParty { get; set; } = true;
-
-    /// <summary>
     /// Maximum seconds to hold Serpent's Ire waiting for party buffs.
     /// </summary>
     private float _serpentsIreHoldTime = 3.0f;

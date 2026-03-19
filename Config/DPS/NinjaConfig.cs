@@ -122,11 +122,6 @@ public sealed class NinjaConfig
     #region Burst Window Settings
 
     /// <summary>
-    /// Align Kunai's Bane with party burst windows.
-    /// </summary>
-    public bool AlignKunaisBaneWithParty { get; set; } = true;
-
-    /// <summary>
     /// Maximum seconds to hold Kunai's Bane waiting for party buffs.
     /// </summary>
     private float _kunaisBaneHoldTime = 3.0f;

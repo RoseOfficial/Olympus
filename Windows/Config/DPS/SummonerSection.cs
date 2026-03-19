@@ -158,12 +158,6 @@ public sealed class SummonerSection
                 v => config.Summoner.EnableSearingLight = v,
                 null, save, actionId: SMNActions.SearingLight.ActionId);
 
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Summoner.AlignWithParty, "Align with Party"),
-                () => config.Summoner.AlignSearingLightWithParty,
-                v => config.Summoner.AlignSearingLightWithParty = v,
-                Loc.T(LocalizedStrings.Summoner.AlignWithPartyDesc, "Coordinate Searing Light with party burst"), save);
-
             config.Summoner.SearingLightHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Summoner.SearingLightHoldTime, "Searing Light Hold Time"),
                 config.Summoner.SearingLightHoldTime, 0f, 10f, "%.1f s",

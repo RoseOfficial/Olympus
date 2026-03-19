@@ -158,12 +158,6 @@ public sealed class BardSection
                 v => config.Bard.EnableRadiantFinale = v,
                 null, save, actionId: BRDActions.RadiantFinale.ActionId);
 
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Bard.AlignWithParty, "Align with Party"),
-                () => config.Bard.AlignBuffsWithParty,
-                v => config.Bard.AlignBuffsWithParty = v,
-                Loc.T(LocalizedStrings.Bard.AlignWithPartyDesc, "Coordinate buffs with party burst"), save);
-
             config.Bard.BuffHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Bard.BuffHoldTime, "Buff Hold Time"),
                 config.Bard.BuffHoldTime, 0f, 10f, "%.1f s",

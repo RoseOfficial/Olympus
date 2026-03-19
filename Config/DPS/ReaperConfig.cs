@@ -117,11 +117,6 @@ public sealed class ReaperConfig
     #region Burst Window Settings
 
     /// <summary>
-    /// Align Arcane Circle with party burst windows.
-    /// </summary>
-    public bool AlignArcaneCircleWithParty { get; set; } = true;
-
-    /// <summary>
     /// Maximum seconds to hold Arcane Circle waiting for party buffs.
     /// </summary>
     private float _arcaneCircleHoldTime = 3.0f;

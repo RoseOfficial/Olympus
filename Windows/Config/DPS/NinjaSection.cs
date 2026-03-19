@@ -144,12 +144,6 @@ public sealed class NinjaSection
                 null, save,
                 actionId: NINActions.KunaisBane.ActionId);
 
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Ninja.AlignWithParty, "Align with Party"),
-                () => config.Ninja.AlignKunaisBaneWithParty,
-                v => config.Ninja.AlignKunaisBaneWithParty = v,
-                Loc.T(LocalizedStrings.Ninja.AlignWithPartyDesc, "Coordinate Kunai's Bane with party burst"), save);
-
             config.Ninja.KunaisBaneHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Ninja.KunaisBaneHoldTime, "Kunai's Bane Hold Time"),
                 config.Ninja.KunaisBaneHoldTime, 0f, 10f, "%.1f s",
