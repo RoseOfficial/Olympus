@@ -119,6 +119,7 @@ public sealed class BuffModule : IApolloModule
             return false;
         }
 
+        // CNJ max level is 30, ThinAir requires 58 — implicit CNJ guard via level check
         if (player.Level < WHMActions.ThinAir.MinLevel)
         {
             context.Debug.ThinAirState = $"Level {player.Level} < 58";
@@ -278,6 +279,12 @@ public sealed class BuffModule : IApolloModule
     {
         var config = context.Configuration;
         var player = context.Player;
+
+        // Presence of Mind is a WHM-only ability (requires level 30 WHM).
+        // CNJ max level is 30, but PresenceOfMind is not available to CNJ in the game data —
+        // adding an explicit guard here rather than relying on IsActionReady as an implicit gate.
+        if (player.ClassJob.RowId == JobRegistry.Conjurer)
+            return false;
 
         if (!ActionValidator.CanExecute(player, context.ActionService, WHMActions.PresenceOfMind, config,
             c => c.Buffs.EnablePresenceOfMind))
