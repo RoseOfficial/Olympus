@@ -278,18 +278,28 @@ public class HealingCalculatorTests
     }
 
     [Fact]
-    public void CalculateHeal_IntermediateLevel_UsesLowerBracket()
+    public void CalculateHeal_IntermediateLevel_UsesExactEntry()
     {
-        // Level 55 should use level 50 modifiers
-        // Level 50 and 55 with same stats should give same result
+        // Level 55 now has its own entry in the level mod table.
+        // Results at Lv55 should differ from Lv50 (different DIV: 560 vs 341),
+        // and Lv56 should differ from Lv55 (different entry), reflecting synced-content accuracy.
         var heal50 = HealingCalculator.CalculateHeal(
             potency: 400, mind: 500, determination: 400, weaponDamage: 60, level: 50);
 
         var heal55 = HealingCalculator.CalculateHeal(
             potency: 400, mind: 500, determination: 400, weaponDamage: 60, level: 55);
 
-        // Both should use level 50 modifiers, so results should be identical
-        Assert.Equal(heal50, heal55);
+        var heal56 = HealingCalculator.CalculateHeal(
+            potency: 400, mind: 500, determination: 400, weaponDamage: 60, level: 56);
+
+        // Lv55 uses its own mods (DIV=560), not Lv50's (DIV=341) — they differ
+        Assert.NotEqual(heal50, heal55);
+        // Lv56 uses its own mods (DIV=610) — differs from Lv55
+        Assert.NotEqual(heal55, heal56);
+        // All must be positive
+        Assert.True(heal50 > 0);
+        Assert.True(heal55 > 0);
+        Assert.True(heal56 > 0);
     }
 
     #endregion
