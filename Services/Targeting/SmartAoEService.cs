@@ -23,8 +23,15 @@ public sealed class SmartAoEService : IDisposable
 
     /// <summary>
     /// Global instance — set by Plugin.cs, accessed by BaseDpsDamageModule.
+    /// volatile ensures that writes from the init/dispose thread are immediately
+    /// visible to rotation modules running on the framework thread.
     /// </summary>
-    public static SmartAoEService? Instance { get; set; }
+    private static volatile SmartAoEService? _instance;
+    public static SmartAoEService? Instance
+    {
+        get => _instance;
+        set => _instance = value;
+    }
 
     public SmartAoEService(ITargetingService targetingService, IDataManager dataManager, AoETracker tracker, IPluginLog log)
     {

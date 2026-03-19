@@ -314,13 +314,17 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
     {
         var totalForecast = 0;
 
-        // Sum forecasted damage for all tracked entities
+        // Collect entity IDs under the lock, then call ForecastEntityDamage outside it
+        // to avoid re-entrancy: ForecastEntityDamage → GetRecentDamageIntake also acquires _damageLock.
+        List<uint> entityIds;
         lock (_damageLock)
         {
-            foreach (var entityId in _damageByEntity.Keys)
-            {
-                totalForecast += ForecastEntityDamage(entityId, forecastSeconds);
-            }
+            entityIds = _damageByEntity.Keys.ToList();
+        }
+
+        foreach (var entityId in entityIds)
+        {
+            totalForecast += ForecastEntityDamage(entityId, forecastSeconds);
         }
 
         // Add predicted raidwide damage if imminent
@@ -451,7 +455,7 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
                 var effectiveDuration = (float)(effectiveEnd - now).TotalSeconds;
                 var ticksInWindow = (int)(effectiveDuration / DoTTickInterval);
 
-                totalDotDamage += dot.DamagePerTick * Math.Max(1, ticksInWindow);
+                totalDotDamage += dot.DamagePerTick * ticksInWindow;
             }
         }
 

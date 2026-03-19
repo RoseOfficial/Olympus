@@ -386,6 +386,10 @@ public sealed class ConfigWindow : Window
             case ConfigSection.DrawHelper:
                 drawHelperSection.Draw();
                 break;
+
+            default:
+                ImGui.TextColored(new Vector4(1f, 0.3f, 0.3f, 1f), $"Unknown config section: {sidebar.CurrentSection}");
+                break;
         }
     }
 
@@ -504,6 +508,7 @@ public sealed class ConfigWindow : Window
             // Excluded: Enabled (runtime state — recipient keeps their own enable/disable preference),
             //           MainWindowVisible, IsDebugWindowOpen, HasSeenWelcome, TelemetryEndpoint,
             //           Calibration, Debug (runtime state / infrastructure)
+            var previousEnablePartyCoordination = configuration.PartyCoordination.EnablePartyCoordination;
             configuration.ActivePreset        = imported.ActivePreset;
             configuration.MovementTolerance   = imported.MovementTolerance;
             configuration.EnableOnAutoAttack  = imported.EnableOnAutoAttack;
@@ -550,7 +555,9 @@ public sealed class ConfigWindow : Window
 
             saveConfiguration();
             _clipboardStatusMessage = Loc.T(LocalizedStrings.Config.ImportSuccess, "Settings imported!");
-            _clipboardStatusExpiry  = DateTime.UtcNow.AddSeconds(3);
+            if (configuration.PartyCoordination.EnablePartyCoordination != previousEnablePartyCoordination)
+                _clipboardStatusMessage += " Party coordination changes require a plugin reload to take effect.";
+            _clipboardStatusExpiry  = DateTime.UtcNow.AddSeconds(5);
         }
         catch (Exception ex)
         {

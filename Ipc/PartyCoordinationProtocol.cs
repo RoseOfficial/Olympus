@@ -57,6 +57,9 @@ public enum PartyMessageType
 /// </summary>
 public abstract class PartyMessage
 {
+    /// <summary>Current protocol version. Increment when the message schema changes incompatibly.</summary>
+    public const int CurrentProtocolVersion = 1;
+
     /// <summary>Unique identifier for this Olympus instance (stable across frames).</summary>
     [JsonPropertyName("id")]
     public Guid InstanceId { get; set; }
@@ -69,11 +72,16 @@ public abstract class PartyMessage
     [JsonPropertyName("type")]
     public PartyMessageType MessageType { get; set; }
 
+    /// <summary>Protocol version for schema compatibility checking.</summary>
+    [JsonPropertyName("ver")]
+    public int ProtocolVersion { get; set; }
+
     protected PartyMessage(PartyMessageType type)
     {
         InstanceId = Guid.Empty;
         Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         MessageType = type;
+        ProtocolVersion = CurrentProtocolVersion;
     }
 
     /// <summary>
@@ -92,9 +100,14 @@ public abstract class PartyMessage
     {
         try
         {
-            // First parse to get the type
+            // First parse to get the type and protocol version
             using var doc = JsonDocument.Parse(json);
             if (!doc.RootElement.TryGetProperty("type", out var typeElement))
+                return null;
+
+            // Reject messages from incompatible schema versions
+            if (doc.RootElement.TryGetProperty("ver", out var verElement) &&
+                verElement.GetInt32() != CurrentProtocolVersion)
                 return null;
 
             var type = (PartyMessageType)typeElement.GetInt32();

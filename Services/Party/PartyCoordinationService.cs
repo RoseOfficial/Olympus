@@ -1503,9 +1503,12 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             _remoteTankSwapReservations.Clear();
         }
 
-        // Local collections are only touched on the framework thread — no lock needed
+        // Local reservation collections — most are framework-thread only, but
+        // _localRaiseReservations is also read by HandleRemoteRaiseIntent on IPC thread
+        // (under _stateLock), so protect it with _stateLock here as well.
         _localReservations.Clear();
-        _localRaiseReservations.Clear();
+        lock (_stateLock)
+            _localRaiseReservations.Clear();
         _localCleanseReservations.Clear();
         _localInterruptReservations.Clear();
         _localTankSwapReservations.Clear();
@@ -2227,14 +2230,18 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
     private void CleanupExpiredRaiseReservations()
     {
-        // Clean up local raise reservations (framework thread only — no lock needed)
-        var expiredLocal = _localRaiseReservations
-            .Where(r => r.Value.IsExpired)
-            .Select(r => r.Key)
-            .ToList();
+        // _localRaiseReservations is read by HandleRemoteRaiseIntent on the IPC thread
+        // (under _stateLock), so protect cleanup with the same lock.
+        lock (_stateLock)
+        {
+            var expiredLocal = _localRaiseReservations
+                .Where(r => r.Value.IsExpired)
+                .Select(r => r.Key)
+                .ToList();
 
-        foreach (var key in expiredLocal)
-            _localRaiseReservations.Remove(key);
+            foreach (var key in expiredLocal)
+                _localRaiseReservations.Remove(key);
+        }
 
         // Clean up remote raise reservations (shared with IPC callbacks — lock required)
         lock (_stateLock)

@@ -486,11 +486,10 @@ public class SpellEnablementServiceTests
         config.Buffs.EnableAetherialShift = false;
         var service = CreateService(config);
 
-        // Note: AetherialShift is 37012 in SpellEnablementService
-        Assert.False(service.IsSpellEnabled(37012));
+        Assert.False(service.IsSpellEnabled(WHMActions.AetherialShift.ActionId));
 
         config.Buffs.EnableAetherialShift = true;
-        Assert.True(service.IsSpellEnabled(37012));
+        Assert.True(service.IsSpellEnabled(WHMActions.AetherialShift.ActionId));
     }
 
     #endregion

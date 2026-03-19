@@ -33,6 +33,7 @@ public enum DebuffPriority
 public sealed class DebuffDetectionService : IDebuffDetectionService
 {
     private readonly IDataManager _dataManager;
+    private readonly Lumina.Excel.ExcelSheet<Status>? _statusSheet;
 
     // Lethal debuffs - must be cleansed immediately or player dies
     private static readonly HashSet<uint> LethalDebuffs = new()
@@ -73,6 +74,7 @@ public sealed class DebuffDetectionService : IDebuffDetectionService
     public DebuffDetectionService(IDataManager dataManager)
     {
         _dataManager = dataManager;
+        _statusSheet = dataManager.GetExcelSheet<Status>();
     }
 
     /// <summary>
@@ -81,11 +83,10 @@ public sealed class DebuffDetectionService : IDebuffDetectionService
     /// </summary>
     public bool IsDispellable(uint statusId)
     {
-        var statusSheet = _dataManager.GetExcelSheet<Status>();
-        if (statusSheet == null)
+        if (_statusSheet == null)
             return false;
 
-        var status = statusSheet.GetRowOrDefault(statusId);
+        var status = _statusSheet.GetRowOrDefault(statusId);
         return status.HasValue && status.Value.CanDispel;
     }
 

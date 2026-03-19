@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
@@ -16,13 +17,15 @@ public sealed class AnalyticsWindow : Window
 {
     private readonly IPerformanceTracker performanceTracker;
     private readonly Configuration configuration;
+    private readonly Action saveConfiguration;
     private readonly IFFlogsService? fflogsService;
 
-    public AnalyticsWindow(IPerformanceTracker performanceTracker, Configuration configuration, IFFlogsService? fflogsService = null)
+    public AnalyticsWindow(IPerformanceTracker performanceTracker, Configuration configuration, Action saveConfiguration, IFFlogsService? fflogsService = null)
         : base("Olympus Analytics", ImGuiWindowFlags.NoSavedSettings)
     {
         this.performanceTracker = performanceTracker;
         this.configuration = configuration;
+        this.saveConfiguration = saveConfiguration;
         this.fflogsService = fflogsService;
 
         Size = new Vector2(500, 400);
@@ -111,6 +114,7 @@ public sealed class AnalyticsWindow : Window
         if (ImGui.Checkbox(Loc.T(LocalizedStrings.Analytics.EnableTracking, "Enable Tracking"), ref enableTracking))
         {
             configuration.Analytics.EnableTracking = enableTracking;
+            saveConfiguration();
         }
     }
 
@@ -122,6 +126,7 @@ public sealed class AnalyticsWindow : Window
         if (ImGui.Checkbox(label, ref visible))
         {
             configuration.Analytics.SectionVisibility[key] = visible;
+            saveConfiguration();
         }
     }
 }

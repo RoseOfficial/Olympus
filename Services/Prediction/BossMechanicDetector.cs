@@ -34,6 +34,11 @@ public sealed class BossMechanicDetector : IBossMechanicDetector, IDisposable
     private readonly ConcurrentQueue<(DateTime time, uint entityId, int damage, uint maxHp)> _pendingDamageEvents = new();
     private DateTime _lastAggregationCheck = DateTime.MinValue;
 
+    // Lock guarding all mutable history/pattern collections accessed from both the
+    // hook-callback thread (RecordRaidwideDamage, RecordTankBusterDamage) and the
+    // framework thread (Update, Detect*, Cleanup*, PredictedRaidwide, PredictedTankBuster).
+    private readonly object _historyLock = new();
+
     // Raidwide tracking
     private readonly List<RaidwideEvent> _raidwideHistory = new();
     private float _lastRaidwideTime = float.MinValue;
@@ -222,20 +227,24 @@ public sealed class BossMechanicDetector : IBossMechanicDetector, IDisposable
         get
         {
             if (!_config.EnableMechanicAwareness) return null;
-            if (_raidwideIntervalConfidence < _config.MechanicPatternConfidence) return null;
-            if (_detectedRaidwideInterval <= 0) return null;
 
-            // Calculate time until next raidwide based on detected interval
-            var timeSinceLast = _currentTime - _lastRaidwideTime;
-            var timeUntilNext = _detectedRaidwideInterval - timeSinceLast;
+            lock (_historyLock)
+            {
+                if (_raidwideIntervalConfidence < _config.MechanicPatternConfidence) return null;
+                if (_detectedRaidwideInterval <= 0) return null;
 
-            if (timeUntilNext <= 0) return null; // Already passed predicted time
+                // Calculate time until next raidwide based on detected interval
+                var timeSinceLast = _currentTime - _lastRaidwideTime;
+                var timeUntilNext = _detectedRaidwideInterval - timeSinceLast;
 
-            return new RaidwidePrediction(
-                timeUntilNext,
-                _raidwideIntervalConfidence,
-                _lastRaidwideDamagePercent,
-                _detectedRaidwideInterval);
+                if (timeUntilNext <= 0) return null; // Already passed predicted time
+
+                return new RaidwidePrediction(
+                    timeUntilNext,
+                    _raidwideIntervalConfidence,
+                    _lastRaidwideDamagePercent,
+                    _detectedRaidwideInterval);
+            }
         }
     }
 
@@ -244,40 +253,44 @@ public sealed class BossMechanicDetector : IBossMechanicDetector, IDisposable
         get
         {
             if (!_config.EnableMechanicAwareness) return null;
-            if (_lastTankBusterTarget == 0) return null;
 
-            // Find the tank with the best detected pattern
-            uint bestTank = 0;
-            float bestConfidence = 0f;
-            float bestInterval = 0f;
-
-            foreach (var kvp in _tankBusterConfidences)
+            lock (_historyLock)
             {
-                if (kvp.Value > bestConfidence && kvp.Value >= _config.MechanicPatternConfidence)
+                if (_lastTankBusterTarget == 0) return null;
+
+                // Find the tank with the best detected pattern
+                uint bestTank = 0;
+                float bestConfidence = 0f;
+                float bestInterval = 0f;
+
+                foreach (var kvp in _tankBusterConfidences)
                 {
-                    bestConfidence = kvp.Value;
-                    bestTank = kvp.Key;
-                    bestInterval = _detectedTankBusterIntervals.GetValueOrDefault(kvp.Key);
+                    if (kvp.Value > bestConfidence && kvp.Value >= _config.MechanicPatternConfidence)
+                    {
+                        bestConfidence = kvp.Value;
+                        bestTank = kvp.Key;
+                        bestInterval = _detectedTankBusterIntervals.GetValueOrDefault(kvp.Key);
+                    }
                 }
+
+                if (bestTank == 0 || bestInterval <= 0) return null;
+
+                // Get last tank buster time for this tank
+                if (!_tankBusterHistory.TryGetValue(bestTank, out var history) || history.Count == 0)
+                    return null;
+
+                var lastEvent = history[^1];
+                var timeSinceLast = _currentTime - lastEvent.Timestamp;
+                var timeUntilNext = bestInterval - timeSinceLast;
+
+                if (timeUntilNext <= 0) return null;
+
+                return new TankBusterPrediction(
+                    timeUntilNext,
+                    bestConfidence,
+                    lastEvent.DamageAmount,
+                    bestTank);
             }
-
-            if (bestTank == 0 || bestInterval <= 0) return null;
-
-            // Get last tank buster time for this tank
-            if (!_tankBusterHistory.TryGetValue(bestTank, out var history) || history.Count == 0)
-                return null;
-
-            var lastEvent = history[^1];
-            var timeSinceLast = _currentTime - lastEvent.Timestamp;
-            var timeUntilNext = bestInterval - timeSinceLast;
-
-            if (timeUntilNext <= 0) return null;
-
-            return new TankBusterPrediction(
-                timeUntilNext,
-                bestConfidence,
-                lastEvent.DamageAmount,
-                bestTank);
         }
     }
 
@@ -316,19 +329,22 @@ public sealed class BossMechanicDetector : IBossMechanicDetector, IDisposable
         if (affectedCount < _config.RaidwideMinTargets) return;
         if (averageDamagePercent < _config.RaidwideMinDamagePercent) return;
 
-        var timestamp = _currentTime;
-        _raidwideHistory.Add(new RaidwideEvent(timestamp, averageDamagePercent, affectedCount));
+        lock (_historyLock)
+        {
+            var timestamp = _currentTime;
+            _raidwideHistory.Add(new RaidwideEvent(timestamp, averageDamagePercent, affectedCount));
 
-        // Trim history
-        while (_raidwideHistory.Count > MaxEventHistory)
-            _raidwideHistory.RemoveAt(0);
+            // Trim history
+            while (_raidwideHistory.Count > MaxEventHistory)
+                _raidwideHistory.RemoveAt(0);
 
-        // Update last raidwide tracking
-        _lastRaidwideTime = timestamp;
-        _lastRaidwideDamagePercent = averageDamagePercent;
+            // Update last raidwide tracking
+            _lastRaidwideTime = timestamp;
+            _lastRaidwideDamagePercent = averageDamagePercent;
 
-        // Attempt to detect interval pattern
-        DetectRaidwidePattern();
+            // Attempt to detect interval pattern
+            DetectRaidwidePattern();
+        }
     }
 
     public void RecordTankBusterDamage(uint tankEntityId, float damagePercent, int damageAmount)
@@ -336,42 +352,49 @@ public sealed class BossMechanicDetector : IBossMechanicDetector, IDisposable
         if (!_config.EnableMechanicAwareness) return;
         if (damagePercent < _config.TankBusterMinDamagePercent) return;
 
-        var timestamp = _currentTime;
-
-        if (!_tankBusterHistory.TryGetValue(tankEntityId, out var history))
+        lock (_historyLock)
         {
-            history = new List<TankBusterEvent>();
-            _tankBusterHistory[tankEntityId] = history;
+            var timestamp = _currentTime;
+
+            if (!_tankBusterHistory.TryGetValue(tankEntityId, out var history))
+            {
+                history = new List<TankBusterEvent>();
+                _tankBusterHistory[tankEntityId] = history;
+            }
+
+            history.Add(new TankBusterEvent(timestamp, damageAmount, damagePercent));
+
+            // Trim history
+            while (history.Count > MaxEventHistory)
+                history.RemoveAt(0);
+
+            // Update last tank buster tracking
+            _lastTankBusterTarget = tankEntityId;
+            _lastTankBusterTime = timestamp;
+            _lastTankBusterDamage = damageAmount;
+
+            // Attempt to detect interval pattern for this tank
+            DetectTankBusterPattern(tankEntityId);
         }
-
-        history.Add(new TankBusterEvent(timestamp, damageAmount, damagePercent));
-
-        // Trim history
-        while (history.Count > MaxEventHistory)
-            history.RemoveAt(0);
-
-        // Update last tank buster tracking
-        _lastTankBusterTarget = tankEntityId;
-        _lastTankBusterTime = timestamp;
-        _lastTankBusterDamage = damageAmount;
-
-        // Attempt to detect interval pattern for this tank
-        DetectTankBusterPattern(tankEntityId);
     }
 
     public void Clear()
     {
-        _raidwideHistory.Clear();
-        _tankBusterHistory.Clear();
-        _detectedTankBusterIntervals.Clear();
-        _tankBusterConfidences.Clear();
+        lock (_historyLock)
+        {
+            _raidwideHistory.Clear();
+            _tankBusterHistory.Clear();
+            _detectedTankBusterIntervals.Clear();
+            _tankBusterConfidences.Clear();
 
-        _lastRaidwideTime = float.MinValue;
-        _detectedRaidwideInterval = 0f;
-        _raidwideIntervalConfidence = 0f;
+            _lastRaidwideTime = float.MinValue;
+            _detectedRaidwideInterval = 0f;
+            _raidwideIntervalConfidence = 0f;
 
-        _lastTankBusterTarget = 0;
-        _lastTankBusterTime = float.MinValue;
+            _lastTankBusterTarget = 0;
+            _lastTankBusterTime = float.MinValue;
+        }
+
         _currentTime = 0f;
         _lastUpdateTime = DateTime.MinValue;
     }
@@ -493,11 +516,14 @@ public sealed class BossMechanicDetector : IBossMechanicDetector, IDisposable
     {
         var cutoff = _currentTime - EventHistoryWindowSeconds;
 
-        _raidwideHistory.RemoveAll(e => e.Timestamp < cutoff);
-
-        foreach (var history in _tankBusterHistory.Values)
+        lock (_historyLock)
         {
-            history.RemoveAll(e => e.Timestamp < cutoff);
+            _raidwideHistory.RemoveAll(e => e.Timestamp < cutoff);
+
+            foreach (var history in _tankBusterHistory.Values)
+            {
+                history.RemoveAll(e => e.Timestamp < cutoff);
+            }
         }
     }
 }

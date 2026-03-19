@@ -33,6 +33,11 @@ public sealed class CoHealerDetectionService : ICoHealerDetectionService, IDispo
 
     private DateTime _lastHealTime = DateTime.MinValue;
 
+    // Guards _coHealerHeals, _pendingHeals, and _lastHealTime which are written from
+    // the hook-callback thread (OnHealReceived) and read from the framework thread
+    // (Update, property getters).
+    private readonly object _healLock = new();
+
     private record HealRecord(DateTime Timestamp, uint TargetId, int Amount);
 
     public CoHealerDetectionService(
@@ -64,8 +69,11 @@ public sealed class CoHealerDetectionService : ICoHealerDetectionService, IDispo
         get
         {
             if (!HasCoHealer) return false;
-            var secondsSinceHeal = (float)(DateTime.UtcNow - _lastHealTime).TotalSeconds;
-            return secondsSinceHeal <= _config.CoHealerActiveWindow;
+            lock (_healLock)
+            {
+                var secondsSinceHeal = (float)(DateTime.UtcNow - _lastHealTime).TotalSeconds;
+                return secondsSinceHeal <= _config.CoHealerActiveWindow;
+            }
         }
     }
 
@@ -73,20 +81,25 @@ public sealed class CoHealerDetectionService : ICoHealerDetectionService, IDispo
     {
         get
         {
-            if (!HasCoHealer || _coHealerHeals.Count == 0) return 0f;
+            if (!HasCoHealer) return 0f;
 
-            // Calculate HPS over the active window
-            var now = DateTime.UtcNow;
-            var windowStart = now.AddSeconds(-_config.CoHealerActiveWindow);
-            var totalHealing = 0;
-
-            foreach (var heal in _coHealerHeals)
+            lock (_healLock)
             {
-                if (heal.Timestamp >= windowStart)
-                    totalHealing += heal.Amount;
-            }
+                if (_coHealerHeals.Count == 0) return 0f;
 
-            return totalHealing / _config.CoHealerActiveWindow;
+                // Calculate HPS over the active window
+                var now = DateTime.UtcNow;
+                var windowStart = now.AddSeconds(-_config.CoHealerActiveWindow);
+                var totalHealing = 0;
+
+                foreach (var heal in _coHealerHeals)
+                {
+                    if (heal.Timestamp >= windowStart)
+                        totalHealing += heal.Amount;
+                }
+
+                return totalHealing / _config.CoHealerActiveWindow;
+            }
         }
     }
 
@@ -97,23 +110,28 @@ public sealed class CoHealerDetectionService : ICoHealerDetectionService, IDispo
     {
         get
         {
+            Dictionary<uint, int> localCopy;
+            lock (_healLock)
+            {
+                localCopy = new Dictionary<uint, int>(_pendingHeals);
+            }
+
             // If no IPC coordination, just return local tracking
             if (_partyCoordination == null || !_partyCoordination.IsPartyCoordinationEnabled)
-                return new Dictionary<uint, int>(_pendingHeals);
+                return localCopy;
 
             // Merge local tracking with IPC reservations
-            var merged = new Dictionary<uint, int>(_pendingHeals);
             var remoteReservations = _partyCoordination.GetRemoteReservations();
 
             foreach (var kvp in remoteReservations)
             {
-                if (merged.TryGetValue(kvp.Key, out var existing))
-                    merged[kvp.Key] = existing + kvp.Value.EstimatedHealAmount;
+                if (localCopy.TryGetValue(kvp.Key, out var existing))
+                    localCopy[kvp.Key] = existing + kvp.Value.EstimatedHealAmount;
                 else
-                    merged[kvp.Key] = kvp.Value.EstimatedHealAmount;
+                    localCopy[kvp.Key] = kvp.Value.EstimatedHealAmount;
             }
 
-            return merged;
+            return localCopy;
         }
     }
 
@@ -121,9 +139,12 @@ public sealed class CoHealerDetectionService : ICoHealerDetectionService, IDispo
     {
         get
         {
-            if (_lastHealTime == DateTime.MinValue)
-                return float.MaxValue;
-            return (float)(DateTime.UtcNow - _lastHealTime).TotalSeconds;
+            lock (_healLock)
+            {
+                if (_lastHealTime == DateTime.MinValue)
+                    return float.MaxValue;
+                return (float)(DateTime.UtcNow - _lastHealTime).TotalSeconds;
+            }
         }
     }
 
@@ -139,20 +160,24 @@ public sealed class CoHealerDetectionService : ICoHealerDetectionService, IDispo
         // Scan party for co-healer (cached per frame via simple check)
         ScanPartyForCoHealer(localPlayerEntityId);
 
-        // Clean up old pending heals
-        CleanupPendingHeals();
-
-        // Clean up old heal records
-        CleanupHealHistory();
+        // Clean up old pending heals and heal records (both touch guarded collections)
+        lock (_healLock)
+        {
+            CleanupPendingHeals();
+            CleanupHealHistory();
+        }
     }
 
     public void Clear()
     {
         _coHealerEntityId = null;
         _coHealerJobId = 0;
-        _coHealerHeals.Clear();
-        _pendingHeals.Clear();
-        _lastHealTime = DateTime.MinValue;
+        lock (_healLock)
+        {
+            _coHealerHeals.Clear();
+            _pendingHeals.Clear();
+            _lastHealTime = DateTime.MinValue;
+        }
     }
 
     private void ScanPartyForCoHealer(uint localPlayerEntityId)
@@ -190,29 +215,33 @@ public sealed class CoHealerDetectionService : ICoHealerDetectionService, IDispo
         if (!HasCoHealer || healerEntityId != _coHealerEntityId)
             return;
 
-        // Record the heal
         var now = DateTime.UtcNow;
-        _lastHealTime = now;
 
-        _coHealerHeals.Add(new HealRecord(now, targetEntityId, amount));
-        if (_coHealerHeals.Count > MaxHealHistory)
-            _coHealerHeals.RemoveAt(0);
-
-        // When a heal lands, we can assume any "pending" heal for this target has resolved
-        // But also add a small pending estimate for potential follow-up heals
-        // This is a simple heuristic - co-healer just healed, they might heal again soon
-        if (_pendingHeals.ContainsKey(targetEntityId))
+        lock (_healLock)
         {
-            _pendingHeals.Remove(targetEntityId);
-        }
+            // Record the heal
+            _lastHealTime = now;
 
-        // Add a small pending estimate (assume they might cast another heal)
-        // This is an approximation - actual pending heal tracking would require
-        // intercepting cast bar data, which is more complex
-        var estimatedFollowUp = (int)(amount * 0.3f); // 30% of last heal
-        if (estimatedFollowUp > 0)
-        {
-            _pendingHeals[targetEntityId] = estimatedFollowUp;
+            _coHealerHeals.Add(new HealRecord(now, targetEntityId, amount));
+            if (_coHealerHeals.Count > MaxHealHistory)
+                _coHealerHeals.RemoveAt(0);
+
+            // When a heal lands, we can assume any "pending" heal for this target has resolved
+            // But also add a small pending estimate for potential follow-up heals
+            // This is a simple heuristic - co-healer just healed, they might heal again soon
+            if (_pendingHeals.ContainsKey(targetEntityId))
+            {
+                _pendingHeals.Remove(targetEntityId);
+            }
+
+            // Add a small pending estimate (assume they might cast another heal)
+            // This is an approximation - actual pending heal tracking would require
+            // intercepting cast bar data, which is more complex
+            var estimatedFollowUp = (int)(amount * 0.3f); // 30% of last heal
+            if (estimatedFollowUp > 0)
+            {
+                _pendingHeals[targetEntityId] = estimatedFollowUp;
+            }
         }
     }
 

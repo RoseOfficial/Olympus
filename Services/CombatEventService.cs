@@ -116,8 +116,9 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
     private long _lastPredictionTimeTicks;
 
     // Combat duration tracking
+    private readonly object _combatStateLock = new();
     private DateTime? _combatStartTime;
-    private bool _isInCombat;
+    private volatile bool _isInCombat;
 
     // ActionEffectType values from FFXIVClientStructs
     private const byte EffectTypeDamage = 3;
@@ -479,17 +480,20 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
     /// </summary>
     public void UpdateCombatState(bool inCombat)
     {
-        if (inCombat && !_isInCombat)
+        lock (_combatStateLock)
         {
-            // Entering combat
-            _combatStartTime = DateTime.UtcNow;
-            _isInCombat = true;
-        }
-        else if (!inCombat && _isInCombat)
-        {
-            // Leaving combat
-            _combatStartTime = null;
-            _isInCombat = false;
+            if (inCombat && !_isInCombat)
+            {
+                // Entering combat — assign start time before flipping the flag
+                _combatStartTime = DateTime.UtcNow;
+                _isInCombat = true;
+            }
+            else if (!inCombat && _isInCombat)
+            {
+                // Leaving combat — clear flag before clearing the time
+                _isInCombat = false;
+                _combatStartTime = null;
+            }
         }
     }
 
@@ -499,10 +503,13 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
     /// </summary>
     public float GetCombatDurationSeconds()
     {
-        if (!_isInCombat || !_combatStartTime.HasValue)
-            return 0f;
+        lock (_combatStateLock)
+        {
+            if (!_isInCombat || !_combatStartTime.HasValue)
+                return 0f;
 
-        return (float)(DateTime.UtcNow - _combatStartTime.Value).TotalSeconds;
+            return (float)(DateTime.UtcNow - _combatStartTime.Value).TotalSeconds;
+        }
     }
 
     /// <summary>

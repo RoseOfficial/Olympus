@@ -559,6 +559,19 @@ public static class ConfigValidator
             fixes++;
         }
 
+        // Fix negative tank thresholds
+        if (config.Tank.MitigationThreshold < 0f)
+        {
+            config.Tank.MitigationThreshold = 0.70f;
+            fixes++;
+        }
+
+        if (config.Tank.ClemencyThreshold < 0f)
+        {
+            config.Tank.ClemencyThreshold = 0.30f;
+            fixes++;
+        }
+
         // Fix tank invuln stagger window
         if (config.Tank.InvulnerabilityStaggerWindowSeconds < config.Tank.DefensiveStaggerWindowSeconds)
         {

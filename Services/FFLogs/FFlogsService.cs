@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 using Dalamud.Plugin.Services;
 using Olympus.Config;
@@ -25,18 +26,25 @@ public sealed class FFlogsService : IFFlogsService, IDisposable
     private readonly HttpClient httpClient;
     private readonly JsonSerializerOptions jsonOptions;
 
-    // OAuth token state
+    // OAuth token state — guarded by _tokenLock
     private string? accessToken;
     private DateTime tokenExpiresAt = DateTime.MinValue;
+    private readonly SemaphoreSlim _tokenLock = new(1, 1);
 
-    // Caching
+    // Caching — guarded by _cacheLock
     private readonly Dictionary<string, FFlogsCache<object>> cache = new();
     private FFlogsZoneRanking? cachedZoneRanking;
+    private readonly object _cacheLock = new();
+
+    // Volatile fields for cross-thread visibility (written from async continuations,
+    // read from the framework thread).
+    private volatile string? _lastError;
+    private volatile FFlogsRateLimitInfo? _rateLimitInfo;
 
     public bool IsConfigured => config.IsConfigured;
     public bool IsAuthenticated => !string.IsNullOrEmpty(accessToken) && DateTime.Now < tokenExpiresAt;
-    public FFlogsRateLimitInfo? RateLimitInfo { get; private set; }
-    public string? LastError { get; private set; }
+    public FFlogsRateLimitInfo? RateLimitInfo => _rateLimitInfo;
+    public string? LastError => _lastError;
 
     public FFlogsService(FFlogsConfig config, IPluginLog log)
     {
@@ -130,7 +138,8 @@ public sealed class FFlogsService : IFFlogsService, IDisposable
         if (zoneRanking == null)
             return FFlogsResult<FFlogsZoneRanking>.Fail("Failed to parse rankings", FFlogsErrorType.Unknown);
 
-        this.cachedZoneRanking = zoneRanking;
+        lock (_cacheLock)
+            this.cachedZoneRanking = zoneRanking;
         SetCache(cacheKey, zoneRanking, TimeSpan.FromMinutes(config.CacheExpiryMinutes));
         return FFlogsResult<FFlogsZoneRanking>.Ok(zoneRanking);
     }
@@ -171,58 +180,64 @@ public sealed class FFlogsService : IFFlogsService, IDisposable
 
     public float EstimatePercentile(int encounterId, uint jobId, float dps)
     {
-        // Use cached zone ranking data if available
-        if (cachedZoneRanking == null)
-            return 0f;
+        lock (_cacheLock)
+        {
+            // Use cached zone ranking data if available
+            if (cachedZoneRanking == null)
+                return 0f;
 
-        var encounter = cachedZoneRanking.Encounters.Find(e => e.EncounterId == encounterId);
-        if (encounter == null || encounter.BestAmount <= 0)
-            return 0f;
+            var encounter = cachedZoneRanking.Encounters.Find(e => e.EncounterId == encounterId);
+            if (encounter == null || encounter.BestAmount <= 0)
+                return 0f;
 
-        // Simple linear estimation based on best parse
-        // This is a rough approximation - actual percentile curves are more complex
-        var ratio = dps / encounter.BestAmount;
-        return Math.Clamp(ratio * encounter.BestPercentile, 0f, 99f);
+            // Simple linear estimation based on best parse
+            // This is a rough approximation - actual percentile curves are more complex
+            var ratio = dps / encounter.BestAmount;
+            return Math.Clamp(ratio * encounter.BestPercentile, 0f, 99f);
+        }
     }
 
     public FFlogsParseComparison? GenerateComparison(int encounterId, float localDps, float gcdUptime, float cooldownEfficiency)
     {
-        if (cachedZoneRanking == null)
-            return null;
-
-        var encounter = cachedZoneRanking.Encounters.Find(e => e.EncounterId == encounterId);
-        if (encounter == null)
-            return null;
-
-        var comparison = new FFlogsParseComparison
+        lock (_cacheLock)
         {
-            EncounterId = encounterId,
-            EncounterName = encounter.EncounterName,
-            LocalDps = localDps,
-            FFlogsbestDps = encounter.BestAmount,
-            EstimatedPercentile = EstimatePercentile(encounterId, 0, localDps),
-            LocalGcdUptime = gcdUptime,
-            LocalCooldownEfficiency = cooldownEfficiency
-        };
+            if (cachedZoneRanking == null)
+                return null;
 
-        // Generate improvement tips
-        if (gcdUptime < 95f)
-        {
-            comparison.ImprovementTips.Add($"GCD uptime {gcdUptime:F1}% vs top parses ~98.5%");
+            var encounter = cachedZoneRanking.Encounters.Find(e => e.EncounterId == encounterId);
+            if (encounter == null)
+                return null;
+
+            var comparison = new FFlogsParseComparison
+            {
+                EncounterId = encounterId,
+                EncounterName = encounter.EncounterName,
+                LocalDps = localDps,
+                FFlogsbestDps = encounter.BestAmount,
+                EstimatedPercentile = EstimatePercentile(encounterId, 0, localDps),
+                LocalGcdUptime = gcdUptime,
+                LocalCooldownEfficiency = cooldownEfficiency
+            };
+
+            // Generate improvement tips
+            if (gcdUptime < 95f)
+            {
+                comparison.ImprovementTips.Add($"GCD uptime {gcdUptime:F1}% vs top parses ~98.5%");
+            }
+
+            if (cooldownEfficiency < 90f)
+            {
+                comparison.ImprovementTips.Add($"Cooldown efficiency {cooldownEfficiency:F0}% vs optimal ~95%");
+            }
+
+            if (localDps < encounter.BestAmount * 0.9f)
+            {
+                var gap = encounter.BestAmount - localDps;
+                comparison.ImprovementTips.Add($"DPS gap of {gap:N0} to your best parse");
+            }
+
+            return comparison;
         }
-
-        if (cooldownEfficiency < 90f)
-        {
-            comparison.ImprovementTips.Add($"Cooldown efficiency {cooldownEfficiency:F0}% vs optimal ~95%");
-        }
-
-        if (localDps < encounter.BestAmount * 0.9f)
-        {
-            var gap = encounter.BestAmount - localDps;
-            comparison.ImprovementTips.Add($"DPS gap of {gap:N0} to your best parse");
-        }
-
-        return comparison;
     }
 
     public async Task RefreshCacheAsync()
@@ -247,8 +262,11 @@ public sealed class FFlogsService : IFFlogsService, IDisposable
 
     public void ClearCache()
     {
-        cache.Clear();
-        cachedZoneRanking = null;
+        lock (_cacheLock)
+        {
+            cache.Clear();
+            cachedZoneRanking = null;
+        }
     }
 
     public async Task<bool> TestConnectionAsync()
@@ -261,24 +279,30 @@ public sealed class FFlogsService : IFFlogsService, IDisposable
         catch (Exception ex)
         {
             log.Error($"FFLogs connection test failed: {ex.Message}");
-            LastError = ex.Message;
+            _lastError =ex.Message;
             return false;
         }
     }
 
     private async Task<string?> GetAccessTokenAsync()
     {
+        // Fast path: check before acquiring the lock
         if (IsAuthenticated)
             return accessToken;
 
         if (!IsConfigured)
         {
-            LastError = "FFLogs credentials not configured";
+            _lastError = "FFLogs credentials not configured";
             return null;
         }
 
+        await _tokenLock.WaitAsync().ConfigureAwait(false);
         try
         {
+            // Re-check inside the lock in case another concurrent call refreshed the token
+            if (IsAuthenticated)
+                return accessToken;
+
             var credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{config.ClientId}:{config.ClientSecret}"));
 
             using var request = new HttpRequestMessage(HttpMethod.Post, TokenEndpoint);
@@ -288,38 +312,42 @@ public sealed class FFlogsService : IFFlogsService, IDisposable
                 ["grant_type"] = "client_credentials"
             });
 
-            var response = await httpClient.SendAsync(request);
+            var response = await httpClient.SendAsync(request).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync();
-                LastError = $"Token request failed: {response.StatusCode}";
+                var errorBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                _lastError = $"Token request failed: {response.StatusCode}";
                 log.Warning($"FFLogs token request failed: {response.StatusCode} - {errorBody}");
                 return null;
             }
 
-            var content = await response.Content.ReadAsStringAsync();
+            var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             var tokenResponse = JsonSerializer.Deserialize<TokenResponseJson>(content, jsonOptions);
 
             if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.AccessToken))
             {
-                LastError = "Invalid token response";
+                _lastError = "Invalid token response";
                 return null;
             }
 
             accessToken = tokenResponse.AccessToken;
             // Set expiry 5 minutes early to avoid edge cases
             tokenExpiresAt = DateTime.Now.AddSeconds(tokenResponse.ExpiresIn - 300);
-            LastError = null;
+            _lastError = null;
 
             log.Information("FFLogs authentication successful");
             return accessToken;
         }
         catch (Exception ex)
         {
-            LastError = $"Authentication failed: {ex.Message}";
+            _lastError = $"Authentication failed: {ex.Message}";
             log.Error($"FFLogs authentication error: {ex}");
             return null;
+        }
+        finally
+        {
+            _tokenLock.Release();
         }
     }
 
@@ -350,7 +378,7 @@ public sealed class FFlogsService : IFFlogsService, IDisposable
             // Check for rate limiting
             if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
             {
-                LastError = "Rate limited - try again later";
+                _lastError ="Rate limited - try again later";
                 return FFlogsResult<T>.Fail(LastError, FFlogsErrorType.RateLimited);
             }
 
@@ -358,13 +386,13 @@ public sealed class FFlogsService : IFFlogsService, IDisposable
             {
                 // Token may have expired, clear and retry once
                 accessToken = null;
-                LastError = "Authentication expired";
+                _lastError ="Authentication expired";
                 return FFlogsResult<T>.Fail(LastError, FFlogsErrorType.InvalidCredentials);
             }
 
             if (!response.IsSuccessStatusCode)
             {
-                LastError = $"API request failed: {response.StatusCode}";
+                _lastError =$"API request failed: {response.StatusCode}";
                 return FFlogsResult<T>.Fail(LastError, FFlogsErrorType.ServerError);
             }
 
@@ -373,7 +401,7 @@ public sealed class FFlogsService : IFFlogsService, IDisposable
 
             if (result?.Errors != null && result.Errors.Count > 0)
             {
-                LastError = result.Errors[0].Message;
+                _lastError =result.Errors[0].Message;
                 return FFlogsResult<T>.Fail(LastError, FFlogsErrorType.ServerError);
             }
 
@@ -384,12 +412,12 @@ public sealed class FFlogsService : IFFlogsService, IDisposable
         }
         catch (HttpRequestException ex)
         {
-            LastError = $"Network error: {ex.Message}";
+            _lastError =$"Network error: {ex.Message}";
             return FFlogsResult<T>.Fail(LastError, FFlogsErrorType.NetworkError);
         }
         catch (Exception ex)
         {
-            LastError = $"Unexpected error: {ex.Message}";
+            _lastError =$"Unexpected error: {ex.Message}";
             log.Error($"FFLogs API error: {ex}");
             return FFlogsResult<T>.Fail(LastError, FFlogsErrorType.Unknown);
         }
@@ -399,9 +427,9 @@ public sealed class FFlogsService : IFFlogsService, IDisposable
     {
         // FFLogs includes rate limit data in rateLimitData field
         // This is a simplified implementation
-        if (RateLimitInfo == null)
+        if (_rateLimitInfo == null)
         {
-            RateLimitInfo = new FFlogsRateLimitInfo
+            _rateLimitInfo = new FFlogsRateLimitInfo
             {
                 PointsLimit = 3600,
                 PointsRemaining = 3600,
@@ -410,7 +438,7 @@ public sealed class FFlogsService : IFFlogsService, IDisposable
         }
 
         // Decrement points (approximate - actual tracking would need response parsing)
-        RateLimitInfo.PointsRemaining = Math.Max(0, RateLimitInfo.PointsRemaining - 1);
+        _rateLimitInfo.PointsRemaining = Math.Max(0, _rateLimitInfo.PointsRemaining - 1);
     }
 
     private FFlogsZoneRanking? ParseZoneRankings(JsonElement rankingsJson, int zoneId)
@@ -502,33 +530,40 @@ public sealed class FFlogsService : IFFlogsService, IDisposable
 
     private bool TryGetCached<T>(string key, out T? value) where T : class
     {
-        value = null;
-        if (!cache.TryGetValue(key, out var entry))
-            return false;
-
-        if (entry.IsExpired)
+        lock (_cacheLock)
         {
-            cache.Remove(key);
-            return false;
-        }
+            value = null;
+            if (!cache.TryGetValue(key, out var entry))
+                return false;
 
-        value = entry.Data as T;
-        return value != null;
+            if (entry.IsExpired)
+            {
+                cache.Remove(key);
+                return false;
+            }
+
+            value = entry.Data as T;
+            return value != null;
+        }
     }
 
     private void SetCache<T>(string key, T value, TimeSpan expiry) where T : class
     {
-        cache[key] = new FFlogsCache<object>
+        lock (_cacheLock)
         {
-            Data = value,
-            CachedAt = DateTime.Now,
-            ExpiresAt = DateTime.Now.Add(expiry)
-        };
+            cache[key] = new FFlogsCache<object>
+            {
+                Data = value,
+                CachedAt = DateTime.Now,
+                ExpiresAt = DateTime.Now.Add(expiry)
+            };
+        }
     }
 
     public void Dispose()
     {
         httpClient.Dispose();
+        _tokenLock.Dispose();
     }
 
     #region JSON Response Classes

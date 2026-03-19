@@ -30,7 +30,7 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
     private readonly object historyLock = new();
 
     // Current combat tracking state
-    private bool isInCombat;
+    private volatile bool isInCombat;
     private DateTime? combatStartTime;
     private uint currentJobId;
     private string currentZoneName = "Unknown";

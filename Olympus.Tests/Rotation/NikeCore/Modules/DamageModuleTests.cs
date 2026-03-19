@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Moq;
+using Olympus;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.NikeCore.Context;
@@ -471,6 +472,40 @@ public class DamageModuleTests
 
     #endregion
 
+    #region Config Toggle Tests
+
+    [Fact]
+    public void TryExecute_IaijutsuDisabled_DoesNotExecuteHiganbana()
+    {
+        var config = NikeTestContext.CreateDefaultSamuraiConfiguration();
+        config.Samurai.EnableIaijutsu = false;
+
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy, 1);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        actionService.Setup(x => x.IsActionReady(SAMActions.Higanbana.ActionId)).Returns(true);
+
+        var context = CreateContext(
+            inCombat: true,
+            canExecuteGcd: true,
+            canExecuteOgcd: false,
+            level: 50,
+            sen: SAMActions.SenType.Setsu, // 1 Sen — would normally try Higanbana
+            hasHiganbanaOnTarget: false,
+            config: config,
+            actionService: actionService,
+            targetingService: targeting);
+
+        _module.TryExecute(context, isMoving: false);
+
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == SAMActions.Higanbana.ActionId),
+            It.IsAny<ulong>()), Times.Never);
+    }
+
+    #endregion
+
     #region Helpers
 
     private static Mock<IBattleNpc> CreateMockEnemy(ulong objectId = 99999UL)
@@ -520,9 +555,11 @@ public class DamageModuleTests
         float higanbanaRemaining = 0f,
         SAMActions.IaijutsuType lastIaijutsu = SAMActions.IaijutsuType.None,
         Mock<IActionService>? actionService = null,
-        Mock<ITargetingService>? targetingService = null)
+        Mock<ITargetingService>? targetingService = null,
+        Configuration? config = null)
     {
         return NikeTestContext.Create(
+            config: config,
             level: level,
             inCombat: inCombat,
             canExecuteGcd: canExecuteGcd,

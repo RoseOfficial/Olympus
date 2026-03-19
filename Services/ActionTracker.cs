@@ -215,23 +215,26 @@ public sealed class ActionTracker
         wasOnGcdLastFrame = !gcdReady;
 
         // Track categorized downtime when GCD is ready and we're in combat
-        if (gcdReady && combatStartTime != null && deltaTime > 0)
+        lock (historyLock)
         {
-            if (!playerAlive)
+            if (gcdReady && combatStartTime != null && deltaTime > 0)
             {
-                deathDowntimeSeconds += deltaTime;
-            }
-            else if (HasMovedSignificantly(playerPosition))
-            {
-                movementDowntimeSeconds += deltaTime;
-            }
-            else if (inMechanicWindow)
-            {
-                mechanicDowntimeSeconds += deltaTime;
-            }
-            else
-            {
-                unforcedDowntimeSeconds += deltaTime;
+                if (!playerAlive)
+                {
+                    deathDowntimeSeconds += deltaTime;
+                }
+                else if (HasMovedSignificantly(playerPosition))
+                {
+                    movementDowntimeSeconds += deltaTime;
+                }
+                else if (inMechanicWindow)
+                {
+                    mechanicDowntimeSeconds += deltaTime;
+                }
+                else
+                {
+                    unforcedDowntimeSeconds += deltaTime;
+                }
             }
         }
 
@@ -265,17 +268,20 @@ public sealed class ActionTracker
     /// </summary>
     public DowntimeBreakdown GetDowntimeBreakdown()
     {
-        var total = movementDowntimeSeconds + deathDowntimeSeconds +
-                    mechanicDowntimeSeconds + unforcedDowntimeSeconds;
-
-        return new DowntimeBreakdown
+        lock (historyLock)
         {
-            TotalDowntimeSeconds = total,
-            MovementSeconds = movementDowntimeSeconds,
-            DeathSeconds = deathDowntimeSeconds,
-            MechanicSeconds = mechanicDowntimeSeconds,
-            UnforcedSeconds = unforcedDowntimeSeconds
-        };
+            var total = movementDowntimeSeconds + deathDowntimeSeconds +
+                        mechanicDowntimeSeconds + unforcedDowntimeSeconds;
+
+            return new DowntimeBreakdown
+            {
+                TotalDowntimeSeconds = total,
+                MovementSeconds = movementDowntimeSeconds,
+                DeathSeconds = deathDowntimeSeconds,
+                MechanicSeconds = mechanicDowntimeSeconds,
+                UnforcedSeconds = unforcedDowntimeSeconds
+            };
+        }
     }
 
     /// <summary>
@@ -283,19 +289,22 @@ public sealed class ActionTracker
     /// </summary>
     public void StartCombat()
     {
-        if (combatStartTime == null)
+        lock (historyLock)
         {
-            combatStartTime = DateTime.Now;
-            totalGcdTimeSeconds = 0f;
-            lastCombatGcdUptime = 0f;
+            if (combatStartTime == null)
+            {
+                combatStartTime = DateTime.Now;
+                totalGcdTimeSeconds = 0f;
+                lastCombatGcdUptime = 0f;
 
-            // Reset downtime categorization for new combat
-            movementDowntimeSeconds = 0f;
-            deathDowntimeSeconds = 0f;
-            mechanicDowntimeSeconds = 0f;
-            unforcedDowntimeSeconds = 0f;
-            lastPlayerPosition = Vector3.Zero;
-            lastFrameTime = DateTime.Now;
+                // Reset downtime categorization for new combat
+                movementDowntimeSeconds = 0f;
+                deathDowntimeSeconds = 0f;
+                mechanicDowntimeSeconds = 0f;
+                unforcedDowntimeSeconds = 0f;
+                lastPlayerPosition = Vector3.Zero;
+                lastFrameTime = DateTime.Now;
+            }
         }
     }
 
@@ -305,11 +314,14 @@ public sealed class ActionTracker
     /// </summary>
     public void EndCombat()
     {
-        if (combatStartTime != null)
+        lock (historyLock)
         {
-            lastCombatGcdUptime = CalculateGcdUptime();
+            if (combatStartTime != null)
+            {
+                lastCombatGcdUptime = CalculateGcdUptime();
+            }
+            combatStartTime = null;
         }
-        combatStartTime = null;
     }
 
     /// <summary>
@@ -318,9 +330,12 @@ public sealed class ActionTracker
     /// </summary>
     public void LogGcdCast(float gcdDuration)
     {
-        if (combatStartTime != null)
+        lock (historyLock)
         {
-            totalGcdTimeSeconds += gcdDuration;
+            if (combatStartTime != null)
+            {
+                totalGcdTimeSeconds += gcdDuration;
+            }
         }
     }
 
@@ -330,10 +345,13 @@ public sealed class ActionTracker
     /// </summary>
     public float GetGcdUptime()
     {
-        if (combatStartTime == null)
-            return lastCombatGcdUptime;
+        lock (historyLock)
+        {
+            if (combatStartTime == null)
+                return lastCombatGcdUptime;
 
-        return CalculateGcdUptime();
+            return CalculateGcdUptime();
+        }
     }
 
     /// <summary>

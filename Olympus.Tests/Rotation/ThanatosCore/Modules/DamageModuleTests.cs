@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Moq;
+using Olympus;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ThanatosCore.Context;
@@ -613,6 +614,39 @@ public class DamageModuleTests
 
     #endregion
 
+    #region Config Toggle Tests
+
+    [Fact]
+    public void TryExecute_SoulReaverDisabled_DoesNotExecuteGibbet()
+    {
+        var config = ThanatosTestContext.CreateDefaultReaperConfiguration();
+        config.Reaper.EnableSoulReaver = false;
+
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        actionService.Setup(x => x.IsActionReady(RPRActions.Gibbet.ActionId)).Returns(true);
+
+        var context = CreateContext(
+            inCombat: true,
+            canExecuteGcd: true,
+            level: 70, // Gibbet min level
+            hasSoulReaver: true,
+            hasEnhancedGibbet: true,
+            config: config,
+            actionService: actionService,
+            targetingService: targeting);
+
+        _module.TryExecute(context, isMoving: false);
+
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == RPRActions.Gibbet.ActionId),
+            It.IsAny<ulong>()), Times.Never);
+    }
+
+    #endregion
+
     #region Helpers
 
     private static Mock<IBattleNpc> CreateMockEnemy(ulong objectId = 99999UL)
@@ -663,9 +697,11 @@ public class DamageModuleTests
         int comboStep = 0,
         uint lastComboAction = 0,
         Mock<IActionService>? actionService = null,
-        Mock<ITargetingService>? targetingService = null)
+        Mock<ITargetingService>? targetingService = null,
+        Configuration? config = null)
     {
         return ThanatosTestContext.Create(
+            config: config,
             level: level,
             inCombat: inCombat,
             canExecuteGcd: canExecuteGcd,

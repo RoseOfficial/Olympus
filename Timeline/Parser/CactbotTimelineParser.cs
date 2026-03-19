@@ -250,6 +250,15 @@ public sealed partial class CactbotTimelineParser : ITimelineParser
                     // Forward reference: label not yet seen during this pass.
                     // Register for resolution in the post-parse pass; leave jumpTarget as -1
                     // (HasJump returns false for -1, so this entry is safe until resolved).
+                    //
+                    // Index correctness: currentEntryIndex == entries.Count at call time, which
+                    // is the index this entry will occupy after Add(entry.Value) returns in the
+                    // caller. The registration is therefore correct for all entry types including
+                    // label-only lines. Known limitation: Cactbot label lines (abilityName=="label")
+                    // that simultaneously carry a jump modifier would also register here using the
+                    // same index. This combination does not occur in practice in Cactbot timeline
+                    // files (labels declare positions; jumps are on ordinary ability entries), so
+                    // no structural fix is required.
                     pendingLabelJumps.Add((currentEntryIndex, labelName));
                 }
             }

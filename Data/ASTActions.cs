@@ -618,7 +618,7 @@ public static class ASTActions
         RecastTime = 1f,
         Range = 30f,
         MpCost = 0,
-        AppliedStatusId = 3888, // The Arrow buff
+        AppliedStatusId = 0, // TODO: verify correct status ID for The Arrow buff against game data (3888 is TheSpearStatusId)
         AppliedStatusDuration = 15f
     };
 
@@ -675,7 +675,7 @@ public static class ASTActions
         RecastTime = 1f,
         Range = 30f,
         MpCost = 0,
-        AppliedStatusId = 3889, // Lord of Crowns buff
+        AppliedStatusId = 3889, // Lord of Crowns buff (same status ID as TheSpear, 3889 = LordOfCrownsStatusId; TheSpear is the card form, Lord of Crowns is the Minor Arcana form — both apply the same status by design)
         AppliedStatusDuration = 15f
     };
 

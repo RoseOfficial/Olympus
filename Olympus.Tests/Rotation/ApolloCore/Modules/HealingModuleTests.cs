@@ -561,12 +561,19 @@ public class HealingModuleTests
         var config = MockBuilders.CreateDefaultConfiguration();
         config.Healing.EnableRegen = false;
 
-        var context = CreateTestContext(config: config, inCombat: true);
+        var actionServiceMock = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        var context = CreateTestContext(config: config, actionService: actionServiceMock, inCombat: true);
 
         // Act - Regen should not be attempted
-        _module.TryExecute(context, isMoving: false);
+        var result = _module.TryExecute(context, isMoving: false);
 
-        // No direct assertion - just verify no exception and module continues
+        // Assert - module returns false (no other healing triggered) and Regen never fires
+        Assert.False(result);
+        actionServiceMock.Verify(
+            a => a.ExecuteGcd(
+                It.Is<ActionDefinition>(d => d.ActionId == WHMActions.Regen.ActionId),
+                It.IsAny<ulong>()),
+            Times.Never);
     }
 
     [Fact]

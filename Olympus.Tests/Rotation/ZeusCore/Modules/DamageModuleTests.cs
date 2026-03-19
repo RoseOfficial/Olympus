@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Moq;
+using Olympus;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ZeusCore.Context;
@@ -468,6 +469,38 @@ public class DamageModuleTests
 
     #endregion
 
+    #region Config Toggle Tests
+
+    [Fact]
+    public void TryExecute_GeirskogulDisabled_DoesNotExecuteGeirskogul()
+    {
+        var config = ZeusTestContext.CreateDefaultDragoonConfiguration();
+        config.Dragoon.EnableGeirskogul = false;
+
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(x => x.IsActionReady(DRGActions.Geirskogul.ActionId)).Returns(true);
+
+        var context = CreateContext(
+            inCombat: true,
+            canExecuteOgcd: true,
+            isLifeOfDragonActive: false,
+            level: 100,
+            config: config,
+            actionService: actionService,
+            targetingService: targeting);
+
+        _module.TryExecute(context, isMoving: false);
+
+        actionService.Verify(x => x.ExecuteOgcd(
+            It.Is<ActionDefinition>(a => a.ActionId == DRGActions.Geirskogul.ActionId),
+            It.IsAny<ulong>()), Times.Never);
+    }
+
+    #endregion
+
     #region Helpers
 
     private static Mock<IBattleNpc> CreateMockEnemy(ulong objectId = 99999UL)
@@ -513,9 +546,11 @@ public class DamageModuleTests
         bool hasDotOnTarget = false,
         float dotRemaining = 0f,
         Mock<IActionService>? actionService = null,
-        Mock<ITargetingService>? targetingService = null)
+        Mock<ITargetingService>? targetingService = null,
+        Configuration? config = null)
     {
         return ZeusTestContext.Create(
+            config: config,
             level: level,
             inCombat: inCombat,
             canExecuteGcd: canExecuteGcd,

@@ -76,7 +76,7 @@ public class BuffModuleTests
         var config = MockBuilders.CreateDefaultConfiguration();
         config.Buffs.EnableThinAir = false;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         var context = CreateTestContext(
             config: config,
             actionService: actionService,
@@ -99,7 +99,7 @@ public class BuffModuleTests
         var config = MockBuilders.CreateDefaultConfiguration();
         config.Buffs.EnableThinAir = true;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         // Thin Air requires level 58
         var context = CreateTestContext(
             config: config,
@@ -127,7 +127,7 @@ public class BuffModuleTests
         var config = MockBuilders.CreateDefaultConfiguration();
         config.Buffs.EnablePresenceOfMind = false;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         var context = CreateTestContext(
             config: config,
             actionService: actionService,
@@ -150,7 +150,7 @@ public class BuffModuleTests
         var config = MockBuilders.CreateDefaultConfiguration();
         config.Buffs.EnablePresenceOfMind = true;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         // PoM requires level 30
         var context = CreateTestContext(
             config: config,
@@ -179,7 +179,7 @@ public class BuffModuleTests
         config.EnableHealing = true;
         config.Healing.EnableAsylum = false;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         var context = CreateTestContext(
             config: config,
             actionService: actionService,
@@ -203,7 +203,7 @@ public class BuffModuleTests
         config.EnableHealing = true;
         config.Healing.EnableAsylum = true;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         // Asylum requires level 52
         var context = CreateTestContext(
             config: config,
@@ -228,7 +228,7 @@ public class BuffModuleTests
         config.EnableHealing = false;
         config.Healing.EnableAsylum = true;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         var context = CreateTestContext(
             config: config,
             actionService: actionService,
@@ -255,7 +255,7 @@ public class BuffModuleTests
         var config = MockBuilders.CreateDefaultConfiguration();
         config.Healing.EnableAssize = false;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         var context = CreateTestContext(
             config: config,
             actionService: actionService,
@@ -278,7 +278,7 @@ public class BuffModuleTests
         var config = MockBuilders.CreateDefaultConfiguration();
         config.Healing.EnableAssize = true;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         // Assize requires level 56
         var context = CreateTestContext(
             config: config,
@@ -305,7 +305,7 @@ public class BuffModuleTests
         // Arrange: MP at 80%, threshold is 70%
         var config = MockBuilders.CreateDefaultConfiguration();
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         var context = CreateTestContext(
             config: config,
             actionService: actionService,
@@ -328,7 +328,7 @@ public class BuffModuleTests
         // Arrange: Low MP but level too low (requires level 24)
         var config = MockBuilders.CreateDefaultConfiguration();
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         var context = CreateTestContext(
             config: config,
             actionService: actionService,
@@ -356,7 +356,7 @@ public class BuffModuleTests
         var config = MockBuilders.CreateDefaultConfiguration();
         config.RoleActions.EnableSurecast = false;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         var context = CreateTestContext(
             config: config,
             actionService: actionService,
@@ -380,7 +380,7 @@ public class BuffModuleTests
         config.RoleActions.EnableSurecast = true;
         config.RoleActions.SurecastMode = 0;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         var context = CreateTestContext(
             config: config,
             actionService: actionService,
@@ -407,7 +407,7 @@ public class BuffModuleTests
         var config = MockBuilders.CreateDefaultConfiguration();
         config.Buffs.EnableAetherialShift = false;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         var context = CreateTestContext(
             config: config,
             actionService: actionService,
@@ -430,7 +430,7 @@ public class BuffModuleTests
         var config = MockBuilders.CreateDefaultConfiguration();
         config.Buffs.EnableAetherialShift = true;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         var context = CreateTestContext(
             config: config,
             actionService: actionService,

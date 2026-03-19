@@ -90,7 +90,7 @@ public class DefensiveModuleTests
         config.EnableHealing = true;
         config.Defensive.EnableDivineBenison = false;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         var partyHelper = new Mock<IPartyHelper>();
         partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
             .Returns((0.8f, 0.7f, 2));
@@ -120,7 +120,7 @@ public class DefensiveModuleTests
         config.EnableHealing = true;
         config.Defensive.EnableDivineBenison = true;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         var partyHelper = new Mock<IPartyHelper>();
         partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
             .Returns((0.8f, 0.7f, 2));
@@ -154,7 +154,7 @@ public class DefensiveModuleTests
         var config = MockBuilders.CreateDefaultConfiguration();
         config.Defensive.EnableAquaveil = false;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         var partyHelper = new Mock<IPartyHelper>();
         partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
             .Returns((0.8f, 0.7f, 2));
@@ -183,7 +183,7 @@ public class DefensiveModuleTests
         var config = MockBuilders.CreateDefaultConfiguration();
         config.Defensive.EnableAquaveil = true;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         var partyHelper = new Mock<IPartyHelper>();
         partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
             .Returns((0.8f, 0.7f, 2));
@@ -218,7 +218,7 @@ public class DefensiveModuleTests
         config.EnableHealing = true;
         config.Defensive.EnableTemperance = false;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         var partyHelper = new Mock<IPartyHelper>();
         partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
             .Returns((0.5f, 0.3f, 4)); // Low HP to trigger
@@ -248,7 +248,7 @@ public class DefensiveModuleTests
         config.EnableHealing = true;
         config.Defensive.EnableTemperance = true;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         var partyHelper = new Mock<IPartyHelper>();
         partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
             .Returns((0.5f, 0.3f, 4)); // Low HP to trigger
@@ -282,7 +282,9 @@ public class DefensiveModuleTests
         var config = MockBuilders.CreateDefaultConfiguration();
         config.Defensive.EnableLiturgyOfTheBell = false;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        // Block all actions from being ready — this test verifies only the config gate for Liturgy
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(false);
         var partyHelper = new Mock<IPartyHelper>();
         partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
             .Returns((0.5f, 0.3f, 3)); // Multiple injured
@@ -311,7 +313,7 @@ public class DefensiveModuleTests
         var config = MockBuilders.CreateDefaultConfiguration();
         config.Defensive.EnableLiturgyOfTheBell = true;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         actionService.Setup(a => a.IsActionReady(WHMActions.LiturgyOfTheBell.ActionId))
             .Returns(true);
 
@@ -348,7 +350,9 @@ public class DefensiveModuleTests
         config.EnableHealing = true;
         config.Defensive.EnablePlenaryIndulgence = false;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        // Block all actions from being ready — this test verifies only the config gate for Plenary
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(false);
         var partyHelper = new Mock<IPartyHelper>();
         partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
             .Returns((0.6f, 0.4f, 3));
@@ -378,7 +382,7 @@ public class DefensiveModuleTests
         config.EnableHealing = true;
         config.Defensive.EnablePlenaryIndulgence = true;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         var partyHelper = new Mock<IPartyHelper>();
         partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
             .Returns((0.6f, 0.4f, 3));
@@ -413,7 +417,7 @@ public class DefensiveModuleTests
         config.EnableHealing = true;
         config.Defensive.EnableDivineCaress = false;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         var partyHelper = new Mock<IPartyHelper>();
         partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
             .Returns((0.8f, 0.7f, 2));
@@ -449,7 +453,7 @@ public class DefensiveModuleTests
         config.Defensive.EnableDivineBenison = true;
         config.Defensive.EnablePlenaryIndulgence = true;
 
-        var actionService = new Mock<IActionService>();
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         var partyHelper = new Mock<IPartyHelper>();
         partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
             .Returns((0.5f, 0.3f, 4)); // Low HP to trigger

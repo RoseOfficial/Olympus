@@ -310,7 +310,7 @@ public sealed class Plugin : IDalamudPlugin
         var smartAoETab = new SmartAoETab(aoeTracker, drawCanvas, objectTable);
         this.debugWindow = new DebugWindow(debugService, configuration, SaveConfiguration, timelineService, smartAoETab);
         this.welcomeWindow = new WelcomeWindow(configuration, SaveConfiguration, OpenConfigUI);
-        this.analyticsWindow = new AnalyticsWindow(performanceTracker, configuration, fflogsService);
+        this.analyticsWindow = new AnalyticsWindow(performanceTracker, configuration, SaveConfiguration, fflogsService);
         this.trainingWindow = new TrainingWindow(trainingService, configuration, decisionValidationService, spacedRepetitionService);
         this.changelogWindow = new ChangelogWindow();
         this.hintOverlay = new HintOverlay(realTimeCoachingService, configuration.Training);

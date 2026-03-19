@@ -7,7 +7,6 @@ using Olympus.Rotation.ThemisCore.Context;
 using Olympus.Rotation.ThemisCore.Modules;
 using Olympus.Services.Action;
 using Olympus.Services.Targeting;
-using Olympus.Services.Training;
 using Olympus.Tests.Mocks;
 
 namespace Olympus.Tests.Rotation.ThemisCore.Modules;
@@ -100,8 +99,6 @@ public class DamageModuleTests
             canExecuteGcd: true,
             canExecuteOgcd: false,
             level: 60,
-            hasRequiescat: true,
-            requiescatStacks: 4,
             targetingService: targeting,
             actionService: actionService);
 
@@ -165,52 +162,21 @@ public class DamageModuleTests
         return mock;
     }
 
-    private static IThemisContext CreateContext(
+    private static ThemisContext CreateContext(
         bool inCombat,
         bool canExecuteGcd,
         bool canExecuteOgcd,
         byte level = 80,
-        bool hasRequiescat = false,
-        int requiescatStacks = 0,
         Mock<ITargetingService>? targetingService = null,
         Mock<IActionService>? actionService = null)
     {
-        targetingService ??= MockBuilders.CreateMockTargetingService();
-        actionService ??= MockBuilders.CreateMockActionService();
-
-        var player = MockBuilders.CreateMockPlayerCharacter(level: level);
-        var config = MockBuilders.CreateDefaultConfiguration();
-        config.Tank.EnableDamage = true;
-
-        var mock = new Mock<IThemisContext>();
-
-        mock.Setup(x => x.Player).Returns(player.Object);
-        mock.Setup(x => x.InCombat).Returns(inCombat);
-        mock.Setup(x => x.IsMoving).Returns(false);
-        mock.Setup(x => x.CanExecuteGcd).Returns(canExecuteGcd);
-        mock.Setup(x => x.CanExecuteOgcd).Returns(canExecuteOgcd);
-        mock.Setup(x => x.Configuration).Returns(config);
-        mock.Setup(x => x.ActionService).Returns(actionService.Object);
-        mock.Setup(x => x.TargetingService).Returns(targetingService.Object);
-        mock.Setup(x => x.TrainingService).Returns((ITrainingService?)null);
-
-        // PLD-specific — safe defaults
-        mock.Setup(x => x.HasRequiescat).Returns(hasRequiescat);
-        mock.Setup(x => x.RequiescatStacks).Returns(requiescatStacks);
-        mock.Setup(x => x.HasSwordOath).Returns(false);
-        mock.Setup(x => x.SwordOathStacks).Returns(0);
-        mock.Setup(x => x.HasFightOrFlight).Returns(false);
-        mock.Setup(x => x.FightOrFlightRemaining).Returns(0f);
-        mock.Setup(x => x.HasBladeOfHonor).Returns(false);
-        mock.Setup(x => x.ConfiteorStep).Returns(0);
-        mock.Setup(x => x.AtonementStep).Returns(0);
-        mock.Setup(x => x.GoringBladeRemaining).Returns(30f);
-        mock.Setup(x => x.ComboStep).Returns(0);
-
-        var debugState = new ThemisDebugState();
-        mock.Setup(x => x.Debug).Returns(debugState);
-
-        return mock.Object;
+        return ThemisTestContext.Create(
+            level: level,
+            inCombat: inCombat,
+            canExecuteGcd: canExecuteGcd,
+            canExecuteOgcd: canExecuteOgcd,
+            actionService: actionService,
+            targetingService: targetingService);
     }
 
     #endregion

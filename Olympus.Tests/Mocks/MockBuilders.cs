@@ -541,6 +541,7 @@ public static class MockBuilders
         mock.Setup(x => x.GetMpRegenRate()).Returns(200f);
         mock.Setup(x => x.GetMpConsumptionRate()).Returns(0f);
         mock.Setup(x => x.GetNetMpRate()).Returns(200f);
+        mock.Setup(x => x.GetTimeUntilMpBelowThreshold(It.IsAny<int>())).Returns(float.MaxValue);
 
         return mock;
     }

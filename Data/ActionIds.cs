@@ -163,7 +163,7 @@ public static class ActionIds
     public const uint Play = 17055;
     public const uint AstralDraw = 37017;
     public const uint UmbralDraw = 37018;
-    public const uint MinorArcana = 7443;
+    public const uint MinorArcana = 37022;
     public const uint LordOfCrowns = 7444;
     public const uint LadyOfCrowns = 7445;
 

@@ -180,6 +180,9 @@ public sealed class Configuration : IPluginConfiguration
         TelemetryEnabled = true;
         TelemetryEndpoint = "https://olympus-telemetry.christopherscottkeller.workers.dev/";
 
+        // Reset preset to Custom so the UI does not show a stale preset name
+        ActivePreset = ConfigurationPreset.Custom;
+
         // Restore preserved values
         Enabled = wasEnabled;
         MainWindowVisible = mainVisible;
