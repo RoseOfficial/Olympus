@@ -552,10 +552,10 @@ public sealed class ConfigWindow : Window
             _clipboardStatusMessage = Loc.T(LocalizedStrings.Config.ImportSuccess, "Settings imported!");
             _clipboardStatusExpiry  = DateTime.UtcNow.AddSeconds(3);
         }
-        catch
+        catch (Exception ex)
         {
             _clipboardStatusMessage = Loc.T(LocalizedStrings.Config.ImportError,
-                "Import failed: invalid config data.");
+                "Import failed: invalid config data.") + $" ({ex.GetType().Name}: {ex.Message})";
             _clipboardStatusExpiry  = DateTime.UtcNow.AddSeconds(4);
         }
     }

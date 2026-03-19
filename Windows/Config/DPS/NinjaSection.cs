@@ -28,6 +28,7 @@ public sealed class NinjaSection
         DrawNinkiSection();
         DrawMudraSection();
         DrawBurstSection();
+        DrawPositionalSection();
     }
 
     private void DrawDamageSection()
@@ -87,6 +88,13 @@ public sealed class NinjaSection
                 v => config.Ninja.EnableBhavacakra = v,
                 null, save,
                 actionId: NINActions.Bhavacakra.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Ninja.EnableHellfrogMedium, "Enable Hellfrog Medium"),
+                () => config.Ninja.EnableHellfrogMedium,
+                v => config.Ninja.EnableHellfrogMedium = v,
+                null, save,
+                actionId: NINActions.HellfrogMedium.ActionId);
 
             config.Ninja.NinkiMinGauge = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Ninja.NinkiMinGauge, "Ninki Min Gauge"),
@@ -162,6 +170,70 @@ public sealed class NinjaSection
                 Loc.T(LocalizedStrings.Ninja.KunaisBaneHoldTime, "Kunai's Bane Hold Time"),
                 config.Ninja.KunaisBaneHoldTime, 0f, 10f, "%.1f s",
                 Loc.T(LocalizedStrings.Ninja.KunaisBaneHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save);
+
+            ConfigUIHelpers.Spacing();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Ninja.EnableKassatsu, "Enable Kassatsu"),
+                () => config.Ninja.EnableKassatsu,
+                v => config.Ninja.EnableKassatsu = v,
+                null, save,
+                actionId: NINActions.Kassatsu.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Ninja.EnableTenChiJin, "Enable Ten Chi Jin"),
+                () => config.Ninja.EnableTenChiJin,
+                v => config.Ninja.EnableTenChiJin = v,
+                null, save,
+                actionId: NINActions.TenChiJin.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Ninja.EnableBunshin, "Enable Bunshin"),
+                () => config.Ninja.EnableBunshin,
+                v => config.Ninja.EnableBunshin = v,
+                null, save,
+                actionId: NINActions.Bunshin.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Ninja.EnableMeisui, "Enable Meisui"),
+                () => config.Ninja.EnableMeisui,
+                v => config.Ninja.EnableMeisui = v,
+                null, save,
+                actionId: NINActions.Meisui.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Ninja.SaveNinkiForBurst, "Save Ninki for Burst"),
+                () => config.Ninja.SaveNinkiForBurst,
+                v => config.Ninja.SaveNinkiForBurst = v,
+                Loc.T(LocalizedStrings.Ninja.SaveNinkiForBurstDesc, "Hold Ninki spenders for burst windows"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Ninja.EnableBurstPooling, "Enable Burst Pooling"),
+                () => config.Ninja.EnableBurstPooling,
+                v => config.Ninja.EnableBurstPooling = v,
+                Loc.T(LocalizedStrings.Ninja.EnableBurstPoolingDesc, "Hold Ninki spenders for party burst windows"), save);
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawPositionalSection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Ninja.PositionalSection, "Positionals"), "NIN", false))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Ninja.EnforcePositionals, "Enforce Positionals"),
+                () => config.Ninja.EnforcePositionals,
+                v => config.Ninja.EnforcePositionals = v,
+                Loc.T(LocalizedStrings.Ninja.EnforcePositionalsDesc, "Only use positional actions when in correct position"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Ninja.AllowPositionalLoss, "Allow Positional Loss"),
+                () => config.Ninja.AllowPositionalLoss,
+                v => config.Ninja.AllowPositionalLoss = v,
+                Loc.T(LocalizedStrings.Ninja.AllowPositionalLossDesc, "Continue rotation even if positionals will miss"), save);
 
             ConfigUIHelpers.EndIndent();
         }

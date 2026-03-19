@@ -28,6 +28,8 @@ public sealed class DancerSection
         DrawDanceSection();
         DrawGaugeSection();
         DrawBurstSection();
+        DrawPartnerSection();
+        DrawUtilitySection();
     }
 
     private void DrawDamageSection()
@@ -59,6 +61,18 @@ public sealed class DancerSection
                 () => config.Dancer.EnableFinishingMove,
                 v => config.Dancer.EnableFinishingMove = v,
                 null, save, actionId: DNCActions.FinishingMove.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.EnableLastDance, "Enable Last Dance"),
+                () => config.Dancer.EnableLastDance,
+                v => config.Dancer.EnableLastDance = v,
+                null, save, actionId: DNCActions.LastDance.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.EnableFanDanceIV, "Enable Fan Dance IV"),
+                () => config.Dancer.EnableFanDanceIV,
+                v => config.Dancer.EnableFanDanceIV = v,
+                null, save, actionId: DNCActions.FanDanceIV.ActionId);
 
             ConfigUIHelpers.Spacing();
 
@@ -125,6 +139,17 @@ public sealed class DancerSection
                 config.Dancer.SaberDanceMinGauge, 50, 100,
                 Loc.T(LocalizedStrings.Dancer.SaberDanceMinGaugeDesc, "Minimum Esprit for Saber Dance"), save);
 
+            config.Dancer.EspritOvercapThreshold = ConfigUIHelpers.IntSlider(
+                Loc.T(LocalizedStrings.Dancer.EspritOvercapThreshold, "Esprit Overcap Threshold"),
+                config.Dancer.EspritOvercapThreshold, 50, 100,
+                Loc.T(LocalizedStrings.Dancer.EspritOvercapThresholdDesc, "Use Saber Dance above this Esprit to avoid overcap"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.SaveEspritForBurst, "Save Esprit for Burst"),
+                () => config.Dancer.SaveEspritForBurst,
+                v => config.Dancer.SaveEspritForBurst = v,
+                Loc.T(LocalizedStrings.Dancer.SaveEspritForBurstDesc, "Hold Esprit gauge for burst windows"), save);
+
             ConfigUIHelpers.Spacing();
 
             ConfigUIHelpers.Toggle(
@@ -137,6 +162,17 @@ public sealed class DancerSection
                 Loc.T(LocalizedStrings.Dancer.FanDanceMinFeathers, "Fan Dance Min Feathers"),
                 config.Dancer.FanDanceMinFeathers, 1, 4,
                 Loc.T(LocalizedStrings.Dancer.FanDanceMinFeathersDesc, "Minimum Feathers for Fan Dance"), save);
+
+            config.Dancer.FeatherOvercapThreshold = ConfigUIHelpers.IntSlider(
+                Loc.T(LocalizedStrings.Dancer.FeatherOvercapThreshold, "Feather Overcap Threshold"),
+                config.Dancer.FeatherOvercapThreshold, 1, 4,
+                Loc.T(LocalizedStrings.Dancer.FeatherOvercapThresholdDesc, "Use Fan Dance above this count to avoid overcap"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.SaveFeathersForBurst, "Save Feathers for Burst"),
+                () => config.Dancer.SaveFeathersForBurst,
+                v => config.Dancer.SaveFeathersForBurst = v,
+                Loc.T(LocalizedStrings.Dancer.SaveFeathersForBurstDesc, "Hold Feathers for burst windows"), save);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -154,10 +190,79 @@ public sealed class DancerSection
                 v => config.Dancer.EnableDevilment = v,
                 null, save, actionId: DNCActions.Devilment.ActionId);
 
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.EnableFlourish, "Enable Flourish"),
+                () => config.Dancer.EnableFlourish,
+                v => config.Dancer.EnableFlourish = v,
+                null, save, actionId: DNCActions.Flourish.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.EnableDevilmentAfterTechnical, "Enable Devilment After Technical"),
+                () => config.Dancer.UseDevilmentAfterTechnical,
+                v => config.Dancer.UseDevilmentAfterTechnical = v,
+                Loc.T(LocalizedStrings.Dancer.EnableDevilmentAfterTechnicalDesc, "Delay Devilment to use inside Technical Finish window"), save);
+
             config.Dancer.TechnicalHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Dancer.TechnicalHoldTime, "Technical Hold Time"),
                 config.Dancer.TechnicalHoldTime, 0f, 10f, "%.1f s",
                 Loc.T(LocalizedStrings.Dancer.TechnicalHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.EnableBurstPooling, "Enable Burst Pooling"),
+                () => config.Dancer.EnableBurstPooling,
+                v => config.Dancer.EnableBurstPooling = v,
+                Loc.T(LocalizedStrings.Dancer.EnableBurstPoolingDesc, "Pool Esprit and Feathers for party burst windows"), save);
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawPartnerSection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Dancer.PartnerSection, "Dance Partner"), "DNC", false))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            var partnerMode = config.Dancer.PartnerSelectionMode;
+            if (ConfigUIHelpers.EnumCombo(Loc.T(LocalizedStrings.Dancer.PartnerSelectionMode, "Partner Selection Mode"), ref partnerMode,
+                Loc.T(LocalizedStrings.Dancer.PartnerSelectionModeDesc, "How to choose your Dance Partner"), save))
+            {
+                config.Dancer.PartnerSelectionMode = partnerMode;
+            }
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.AutoRepartner, "Auto Repartner"),
+                () => config.Dancer.AutoRepartner,
+                v => config.Dancer.AutoRepartner = v,
+                Loc.T(LocalizedStrings.Dancer.AutoRepartnerDesc, "Automatically re-assign Dance Partner when your partner dies or leaves"), save);
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawUtilitySection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Dancer.UtilitySection, "Utility"), "DNC", false))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.EnableHeadGraze, "Enable Head Graze"),
+                () => config.Dancer.EnableHeadGraze,
+                v => config.Dancer.EnableHeadGraze = v,
+                Loc.T(LocalizedStrings.Dancer.EnableHeadGrazeDesc, "Use Head Graze for interrupts"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.EnableCuringWaltz, "Enable Curing Waltz"),
+                () => config.Dancer.EnableCuringWaltz,
+                v => config.Dancer.EnableCuringWaltz = v,
+                Loc.T(LocalizedStrings.Dancer.EnableCuringWaltzDesc, "Use Curing Waltz for party healing support"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dancer.EnableShieldSamba, "Enable Shield Samba"),
+                () => config.Dancer.EnableShieldSamba,
+                v => config.Dancer.EnableShieldSamba = v,
+                Loc.T(LocalizedStrings.Dancer.EnableShieldSambaDesc, "Use Shield Samba to mitigate incoming damage"), save);
 
             ConfigUIHelpers.EndIndent();
         }

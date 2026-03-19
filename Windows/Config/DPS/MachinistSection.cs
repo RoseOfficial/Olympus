@@ -26,8 +26,10 @@ public sealed class MachinistSection
 
         DrawDamageSection();
         DrawGaugeSection();
+        DrawHyperchargeSection();
         DrawQueenSection();
         DrawBurstSection();
+        DrawUtilitySection();
     }
 
     private void DrawDamageSection()
@@ -53,6 +55,30 @@ public sealed class MachinistSection
                 () => config.Machinist.EnableChainSaw,
                 v => config.Machinist.EnableChainSaw = v,
                 null, save, actionId: MCHActions.ChainSaw.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Machinist.EnableExcavator, "Enable Excavator"),
+                () => config.Machinist.EnableExcavator,
+                v => config.Machinist.EnableExcavator = v,
+                null, save, actionId: MCHActions.Excavator.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Machinist.EnableFullMetalField, "Enable Full Metal Field"),
+                () => config.Machinist.EnableFullMetalField,
+                v => config.Machinist.EnableFullMetalField = v,
+                null, save, actionId: MCHActions.FullMetalField.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Machinist.EnableGaussRicochet, "Enable Gauss Round / Ricochet"),
+                () => config.Machinist.EnableGaussRicochet,
+                v => config.Machinist.EnableGaussRicochet = v,
+                null, save, actionId: MCHActions.GaussRound.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Machinist.EnableCheckAbilities, "Enable Double Check / Checkmate"),
+                () => config.Machinist.EnableCheckAbilities,
+                v => config.Machinist.EnableCheckAbilities = v,
+                null, save, actionId: MCHActions.DoubleCheck.ActionId);
 
             ConfigUIHelpers.Spacing();
 
@@ -91,6 +117,12 @@ public sealed class MachinistSection
                 Loc.T(LocalizedStrings.Machinist.HeatOvercapThreshold, "Heat Overcap Threshold"),
                 config.Machinist.HeatOvercapThreshold, 50, 100,
                 Loc.T(LocalizedStrings.Machinist.HeatOvercapThresholdDesc, "Dump Heat above this to avoid overcap"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Machinist.SaveHeatForWildfire, "Save Heat for Wildfire"),
+                () => config.Machinist.SaveHeatForWildfire,
+                v => config.Machinist.SaveHeatForWildfire = v,
+                Loc.T(LocalizedStrings.Machinist.SaveHeatForWildfireDesc, "Hold Heat gauge for Wildfire windows"), save);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Machinist.BatteryLabel, "Battery Gauge:"));
@@ -149,10 +181,82 @@ public sealed class MachinistSection
                 v => config.Machinist.EnableWildfire = v,
                 null, save, actionId: MCHActions.Wildfire.ActionId);
 
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Machinist.EnableBarrelStabilizer, "Enable Barrel Stabilizer"),
+                () => config.Machinist.EnableBarrelStabilizer,
+                v => config.Machinist.EnableBarrelStabilizer = v,
+                null, save, actionId: MCHActions.BarrelStabilizer.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Machinist.EnableReassemble, "Enable Reassemble"),
+                () => config.Machinist.EnableReassemble,
+                v => config.Machinist.EnableReassemble = v,
+                null, save, actionId: MCHActions.Reassemble.ActionId);
+
+            if (config.Machinist.EnableReassemble)
+            {
+                var reassemblePriority = config.Machinist.ReassemblePriority;
+                if (ConfigUIHelpers.EnumCombo(Loc.T(LocalizedStrings.Machinist.ReassemblePriority, "Reassemble Priority"), ref reassemblePriority,
+                    Loc.T(LocalizedStrings.Machinist.ReassemblePriorityDesc, "Which weapon skill to use Reassemble on"), save))
+                {
+                    config.Machinist.ReassemblePriority = reassemblePriority;
+                }
+            }
+
             config.Machinist.WildfireHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Machinist.WildfireHoldTime, "Wildfire Hold Time"),
                 config.Machinist.WildfireHoldTime, 0f, 10f, "%.1f s",
                 Loc.T(LocalizedStrings.Machinist.WildfireHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Machinist.EnableBurstPooling, "Enable Burst Pooling"),
+                () => config.Machinist.EnableBurstPooling,
+                v => config.Machinist.EnableBurstPooling = v,
+                Loc.T(LocalizedStrings.Machinist.EnableBurstPoolingDesc, "Hold Heat gauge for party burst windows"), save);
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawHyperchargeSection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Machinist.HyperchargeSection, "Hypercharge"), "MCH"))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Machinist.EnableHypercharge, "Enable Hypercharge"),
+                () => config.Machinist.EnableHypercharge,
+                v => config.Machinist.EnableHypercharge = v,
+                null, save, actionId: MCHActions.Hypercharge.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Machinist.EnableHeatBlast, "Enable Heat Blast"),
+                () => config.Machinist.EnableHeatBlast,
+                v => config.Machinist.EnableHeatBlast = v,
+                null, save, actionId: MCHActions.HeatBlast.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Machinist.EnableAutoCrossbow, "Enable Auto Crossbow"),
+                () => config.Machinist.EnableAutoCrossbow,
+                v => config.Machinist.EnableAutoCrossbow = v,
+                null, save, actionId: MCHActions.AutoCrossbow.ActionId);
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawUtilitySection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Machinist.UtilitySection, "Utility"), "MCH", false))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Machinist.EnableHeadGraze, "Enable Head Graze"),
+                () => config.Machinist.EnableHeadGraze,
+                v => config.Machinist.EnableHeadGraze = v,
+                Loc.T(LocalizedStrings.Machinist.EnableHeadGrazeDesc, "Use Head Graze for interrupts"), save);
 
             ConfigUIHelpers.EndIndent();
         }

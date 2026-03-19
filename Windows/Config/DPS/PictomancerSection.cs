@@ -120,17 +120,74 @@ public sealed class PictomancerSection
                 v => config.Pictomancer.EnableCreatureMotif = v,
                 Loc.T(LocalizedStrings.Pictomancer.EnableCreatureMotifDesc, "Use Creature Motif abilities"), save);
 
+            if (config.Pictomancer.EnableCreatureMotif)
+            {
+                ConfigUIHelpers.BeginIndent();
+
+                ConfigUIHelpers.Toggle(
+                    Loc.T(LocalizedStrings.Pictomancer.EnablePomMotif, "Enable Pom Motif"),
+                    () => config.Pictomancer.EnablePomMotif,
+                    v => config.Pictomancer.EnablePomMotif = v,
+                    null, save, actionId: PCTActions.PomMotif.ActionId);
+
+                ConfigUIHelpers.Toggle(
+                    Loc.T(LocalizedStrings.Pictomancer.EnableWingMotif, "Enable Wing Motif"),
+                    () => config.Pictomancer.EnableWingMotif,
+                    v => config.Pictomancer.EnableWingMotif = v,
+                    null, save, actionId: PCTActions.WingMotif.ActionId);
+
+                ConfigUIHelpers.Toggle(
+                    Loc.T(LocalizedStrings.Pictomancer.EnableClawMotif, "Enable Claw Motif"),
+                    () => config.Pictomancer.EnableClawMotif,
+                    v => config.Pictomancer.EnableClawMotif = v,
+                    null, save, actionId: PCTActions.ClawMotif.ActionId);
+
+                ConfigUIHelpers.Toggle(
+                    Loc.T(LocalizedStrings.Pictomancer.EnableMawMotif, "Enable Maw Motif"),
+                    () => config.Pictomancer.EnableMawMotif,
+                    v => config.Pictomancer.EnableMawMotif = v,
+                    null, save, actionId: PCTActions.MawMotif.ActionId);
+
+                ConfigUIHelpers.EndIndent();
+            }
+
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Pictomancer.EnableWeaponMotif, "Enable Weapon Motif"),
                 () => config.Pictomancer.EnableWeaponMotif,
                 v => config.Pictomancer.EnableWeaponMotif = v,
                 Loc.T(LocalizedStrings.Pictomancer.EnableWeaponMotifDesc, "Use Hammer Motif abilities"), save);
 
+            if (config.Pictomancer.EnableWeaponMotif)
+            {
+                ConfigUIHelpers.BeginIndent();
+
+                ConfigUIHelpers.Toggle(
+                    Loc.T(LocalizedStrings.Pictomancer.EnableHammerMotif, "Enable Hammer Motif"),
+                    () => config.Pictomancer.EnableHammerMotif,
+                    v => config.Pictomancer.EnableHammerMotif = v,
+                    null, save, actionId: PCTActions.HammerMotif.ActionId);
+
+                ConfigUIHelpers.EndIndent();
+            }
+
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Pictomancer.EnableLandscapeMotif, "Enable Landscape Motif"),
                 () => config.Pictomancer.EnableLandscapeMotif,
                 v => config.Pictomancer.EnableLandscapeMotif = v,
                 Loc.T(LocalizedStrings.Pictomancer.EnableLandscapeMotifDesc, "Use Starry Sky Motif abilities"), save);
+
+            if (config.Pictomancer.EnableLandscapeMotif)
+            {
+                ConfigUIHelpers.BeginIndent();
+
+                ConfigUIHelpers.Toggle(
+                    Loc.T(LocalizedStrings.Pictomancer.EnableStarrySkyMotif, "Enable Starry Sky Motif"),
+                    () => config.Pictomancer.EnableStarrySkyMotif,
+                    v => config.Pictomancer.EnableStarrySkyMotif = v,
+                    null, save, actionId: PCTActions.StarrySkyMotif.ActionId);
+
+                ConfigUIHelpers.EndIndent();
+            }
 
             ConfigUIHelpers.Spacing();
 
@@ -205,6 +262,13 @@ public sealed class PictomancerSection
                 () => config.Pictomancer.EnableStarryMuse,
                 v => config.Pictomancer.EnableStarryMuse = v,
                 null, save, actionId: PCTActions.StarryMuse.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.EnableSubtractivePalette, "Enable Subtractive Palette"),
+                () => config.Pictomancer.EnableSubtractivePalette,
+                v => config.Pictomancer.EnableSubtractivePalette = v,
+                Loc.T(LocalizedStrings.Pictomancer.EnableSubtractivePaletteDesc, "Use Subtractive Palette to spend Palette gauge during burst"),
+                save, actionId: PCTActions.SubtractivePalette.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Pictomancer.EnableBurstPooling, "Enable Burst Pooling"),

@@ -28,6 +28,7 @@ public sealed class ReaperSection
         DrawGaugeSection();
         DrawEnshroudSection();
         DrawBurstSection();
+        DrawPositionalSection();
     }
 
     private void DrawDamageSection()
@@ -43,6 +44,19 @@ public sealed class ReaperSection
                 Loc.T(LocalizedStrings.Reaper.EnableSoulReaverDesc, "Use Gibbet/Gallows/Guillotine"), save);
 
             ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Reaper.AlternateGibbetGallows, "Alternate Gibbet/Gallows"),
+                () => config.Reaper.AlternateGibbetGallows,
+                v => config.Reaper.AlternateGibbetGallows = v,
+                Loc.T(LocalizedStrings.Reaper.AlternateGibbetGallowsDesc, "Automatically alternate between Gibbet and Gallows based on position"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Reaper.EnableGluttony, "Enable Gluttony"),
+                () => config.Reaper.EnableGluttony,
+                v => config.Reaper.EnableGluttony = v,
+                null, save,
+                actionId: RPRActions.Gluttony.ActionId);
+
+            ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Reaper.EnableCommunio, "Enable Communio"),
                 () => config.Reaper.EnableCommunio,
                 v => config.Reaper.EnableCommunio = v,
@@ -55,6 +69,20 @@ public sealed class ReaperSection
                 v => config.Reaper.EnablePerfectio = v,
                 null, save,
                 actionId: RPRActions.Perfectio.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Reaper.EnablePlentifulHarvest, "Enable Plentiful Harvest"),
+                () => config.Reaper.EnablePlentifulHarvest,
+                v => config.Reaper.EnablePlentifulHarvest = v,
+                null, save,
+                actionId: RPRActions.PlentifulHarvest.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Reaper.EnableHarvestMoon, "Enable Harvest Moon"),
+                () => config.Reaper.EnableHarvestMoon,
+                v => config.Reaper.EnableHarvestMoon = v,
+                null, save,
+                actionId: RPRActions.HarvestMoon.ActionId);
 
             ConfigUIHelpers.Spacing();
 
@@ -123,6 +151,12 @@ public sealed class ReaperSection
                 Loc.T(LocalizedStrings.Reaper.EnableLemureAbilitiesDesc, "Use Lemure abilities during Enshroud"), save);
 
             ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Reaper.EnableAvatarSummon, "Enable Avatar Summon"),
+                () => config.Reaper.EnableAvatarSummon,
+                v => config.Reaper.EnableAvatarSummon = v,
+                Loc.T(LocalizedStrings.Reaper.EnableAvatarSummonDesc, "Summon Immortal Sacrifice stacks via Enshroud"), save);
+
+            ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Reaper.SaveShroudForBurst, "Save Shroud for Burst"),
                 () => config.Reaper.SaveShroudForBurst,
                 v => config.Reaper.SaveShroudForBurst = v,
@@ -149,6 +183,45 @@ public sealed class ReaperSection
                 Loc.T(LocalizedStrings.Reaper.ArcaneCircleHoldTime, "Arcane Circle Hold Time"),
                 config.Reaper.ArcaneCircleHoldTime, 0f, 10f, "%.1f s",
                 Loc.T(LocalizedStrings.Reaper.ArcaneCircleHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Reaper.UseEnshroudDuringArcaneCircle, "Enshroud During Arcane Circle"),
+                () => config.Reaper.UseEnshroudDuringArcaneCircle,
+                v => config.Reaper.UseEnshroudDuringArcaneCircle = v,
+                Loc.T(LocalizedStrings.Reaper.UseEnshroudDuringArcaneCircleDesc, "Enter Enshroud inside Arcane Circle windows"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Reaper.EnableBurstPooling, "Enable Burst Pooling"),
+                () => config.Reaper.EnableBurstPooling,
+                v => config.Reaper.EnableBurstPooling = v,
+                Loc.T(LocalizedStrings.Reaper.EnableBurstPoolingDesc, "Hold Soul spenders for party burst windows"), save);
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawPositionalSection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Reaper.PositionalSection, "Positionals"), "RPR", false))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Reaper.EnforcePositionals, "Enforce Positionals"),
+                () => config.Reaper.EnforcePositionals,
+                v => config.Reaper.EnforcePositionals = v,
+                Loc.T(LocalizedStrings.Reaper.EnforcePositionalsDesc, "Only use positional actions when in correct position"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Reaper.AllowPositionalLoss, "Allow Positional Loss"),
+                () => config.Reaper.AllowPositionalLoss,
+                v => config.Reaper.AllowPositionalLoss = v,
+                Loc.T(LocalizedStrings.Reaper.AllowPositionalLossDesc, "Continue rotation even if positionals will miss"), save);
+
+            config.Reaper.DeathsDesignRefreshThreshold = ConfigUIHelpers.FloatSlider(
+                Loc.T(LocalizedStrings.Reaper.DeathsDesignRefreshThreshold, "Death's Design Refresh"),
+                config.Reaper.DeathsDesignRefreshThreshold, 0f, 30f, "%.1f s",
+                Loc.T(LocalizedStrings.Reaper.DeathsDesignRefreshThresholdDesc, "Seconds remaining on Death's Design before refreshing the DoT"), save);
 
             ConfigUIHelpers.EndIndent();
         }

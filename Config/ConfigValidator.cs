@@ -499,6 +499,33 @@ public static class ConfigValidator
                 SuggestedFix = "Enable Holy in White or set HolyMinPalette to 0."
             });
         }
+
+        // SAM: if KenkiReserveForBurst >= KenkiOvercapThreshold while burst pooling is enabled,
+        // the overcap dump fires before the reserve is ever saved — burst reserve is unreachable.
+        if (config.Samurai.EnableBurstPooling &&
+            config.Samurai.KenkiReserveForBurst >= config.Samurai.KenkiOvercapThreshold)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Warning,
+                Category = "Samurai",
+                Message = $"Samurai Kenki burst reserve ({config.Samurai.KenkiReserveForBurst}) is at or above overcap threshold ({config.Samurai.KenkiOvercapThreshold}) — Kenki will be dumped before the reserve can be saved.",
+                SuggestedFix = "Lower the burst reserve below the overcap threshold (e.g., reserve 25, overcap 80)."
+            });
+        }
+
+        // BRD: if UsePitchPerfectEarly is enabled but PitchPerfectEarlyThreshold is 0,
+        // the early-use window is never reached and the feature has no effect.
+        if (config.Bard.UsePitchPerfectEarly && config.Bard.PitchPerfectEarlyThreshold <= 0f)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Info,
+                Category = "Bard",
+                Message = "Bard: Use Pitch Perfect Early is enabled but early threshold is 0 — Pitch Perfect will never fire early.",
+                SuggestedFix = "Set the early threshold to 2-4 seconds to use Pitch Perfect before the song ends."
+            });
+        }
     }
 
     /// <summary>

@@ -50,6 +50,29 @@ public sealed class ViperSection
                 null, save,
                 actionId: VPRActions.UncoiledFury.ActionId);
 
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Viper.EnableGenerationAbilities, "Enable Generation Abilities"),
+                () => config.Viper.EnableGenerationAbilities,
+                v => config.Viper.EnableGenerationAbilities = v,
+                Loc.T(LocalizedStrings.Viper.EnableGenerationAbilitiesDesc, "Use Twinfang and Twinblood generation abilities"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Viper.MaintainVenoms, "Maintain Venoms"),
+                () => config.Viper.MaintainVenoms,
+                v => config.Viper.MaintainVenoms = v,
+                Loc.T(LocalizedStrings.Viper.MaintainVenomsDesc, "Reapply venom buffs before they expire"), save);
+
+            config.Viper.RattlingCoilMinStacks = ConfigUIHelpers.IntSlider(
+                Loc.T(LocalizedStrings.Viper.RattlingCoilMinStacks, "Rattling Coil Min Stacks"),
+                config.Viper.RattlingCoilMinStacks, 1, 3,
+                Loc.T(LocalizedStrings.Viper.RattlingCoilMinStacksDesc, "Minimum Rattling Coil stacks before spending with Uncoiled Fury"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Viper.SaveRattlingCoilForBurst, "Save Rattling Coil for Burst"),
+                () => config.Viper.SaveRattlingCoilForBurst,
+                v => config.Viper.SaveRattlingCoilForBurst = v,
+                Loc.T(LocalizedStrings.Viper.SaveRattlingCoilForBurstDesc, "Hold Rattling Coil stacks for burst windows"), save);
+
             ConfigUIHelpers.Spacing();
 
             ConfigUIHelpers.Toggle(
@@ -129,6 +152,12 @@ public sealed class ViperSection
                 config.Viper.SerpentsIreHoldTime, 0f, 10f, "%.1f s",
                 Loc.T(LocalizedStrings.Viper.SerpentsIreHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save);
 
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Viper.UseReawakenDuringBurst, "Reawaken During Burst"),
+                () => config.Viper.UseReawakenDuringBurst,
+                v => config.Viper.UseReawakenDuringBurst = v,
+                Loc.T(LocalizedStrings.Viper.UseReawakenDuringBurstDesc, "Use Reawaken inside burst windows"), save);
+
             ConfigUIHelpers.EndIndent();
         }
     }
@@ -204,6 +233,12 @@ public sealed class ViperSection
                 v => config.Viper.EnableTrueNorth = v,
                 null, save,
                 actionId: RoleActions.TrueNorth.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Viper.EnableSlither, "Enable Slither"),
+                () => config.Viper.EnableSlither,
+                v => config.Viper.EnableSlither = v,
+                Loc.T(LocalizedStrings.Viper.EnableSlitherDesc, "Use Slither as a gap closer when out of melee range"), save);
 
             ConfigUIHelpers.EndIndent();
         }

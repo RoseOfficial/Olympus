@@ -50,6 +50,13 @@ public sealed class MonkSection
                 actionId: MNKActions.SixSidedStar.ActionId);
 
             ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Monk.EnableThunderclap, "Enable Thunderclap"),
+                () => config.Monk.EnableThunderclap,
+                v => config.Monk.EnableThunderclap = v,
+                null, save,
+                actionId: MNKActions.Thunderclap.ActionId);
+
+            ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Monk.EnableFiresReply, "Enable Fire's Reply"),
                 () => config.Monk.EnableFiresReply,
                 v => config.Monk.EnableFiresReply = v,
@@ -124,6 +131,20 @@ public sealed class MonkSection
                 actionId: MNKActions.RiddleOfFire.ActionId);
 
             ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Monk.EnableRiddleOfWind, "Enable Riddle of Wind"),
+                () => config.Monk.EnableRiddleOfWind,
+                v => config.Monk.EnableRiddleOfWind = v,
+                null, save,
+                actionId: MNKActions.RiddleOfWind.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Monk.EnablePerfectBalance, "Enable Perfect Balance"),
+                () => config.Monk.EnablePerfectBalance,
+                v => config.Monk.EnablePerfectBalance = v,
+                null, save,
+                actionId: MNKActions.PerfectBalance.ActionId);
+
+            ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Monk.EnableBrotherhood, "Enable Brotherhood"),
                 () => config.Monk.EnableBrotherhood,
                 v => config.Monk.EnableBrotherhood = v,
@@ -144,6 +165,12 @@ public sealed class MonkSection
         if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Monk.PositionalSection, "Positionals"), "MNK", false))
         {
             ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Monk.EnforcePositionals, "Enforce Positionals"),
+                () => config.Monk.EnforcePositionals,
+                v => config.Monk.EnforcePositionals = v,
+                Loc.T(LocalizedStrings.Monk.EnforcePositionalsDesc, "Only use positional actions when in correct position"), save);
 
             var strictness = config.Monk.PositionalStrictness;
             if (ConfigUIHelpers.EnumCombo(Loc.T(LocalizedStrings.Monk.PositionalStrictness, "Positional Strictness"), ref strictness,

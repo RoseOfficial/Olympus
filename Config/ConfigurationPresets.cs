@@ -306,19 +306,22 @@ public static class ConfigurationPresets
         config.PartyCoordination.CooldownOverlapWindowSeconds = 4.0f;
 
         // DPS burst pooling — conservative mode: no burst delay
-        config.Dragoon.EnableBurstPooling = false;
-        config.Monk.EnableBurstPooling = false;
-        config.Ninja.EnableBurstPooling = false;
-        config.Samurai.EnableBurstPooling = false;
-        config.Reaper.EnableBurstPooling = false;
-        config.Viper.EnableBurstPooling = false;
-        config.Bard.EnableBurstPooling = false;
-        config.Machinist.EnableBurstPooling = false;
-        config.Dancer.EnableBurstPooling = false;
-        config.BlackMage.EnableBurstPooling = false;
-        config.Summoner.EnableBurstPooling = false;
-        config.RedMage.EnableBurstPooling = false;
-        config.Pictomancer.EnableBurstPooling = false;
+        if (role is null or JobRole.MeleeDps or JobRole.RangedDps or JobRole.CasterDps)
+        {
+            config.Dragoon.EnableBurstPooling = false;
+            config.Monk.EnableBurstPooling = false;
+            config.Ninja.EnableBurstPooling = false;
+            config.Samurai.EnableBurstPooling = false;
+            config.Reaper.EnableBurstPooling = false;
+            config.Viper.EnableBurstPooling = false;
+            config.Bard.EnableBurstPooling = false;
+            config.Machinist.EnableBurstPooling = false;
+            config.Dancer.EnableBurstPooling = false;
+            config.BlackMage.EnableBurstPooling = false;
+            config.Summoner.EnableBurstPooling = false;
+            config.RedMage.EnableBurstPooling = false;
+            config.Pictomancer.EnableBurstPooling = false;
+        }
     }
 
     /// <summary>
@@ -413,19 +416,22 @@ public static class ConfigurationPresets
         config.PartyCoordination.CooldownOverlapWindowSeconds = 2.0f;
 
         // DPS burst pooling — aggressive mode: always pool for burst
-        config.Dragoon.EnableBurstPooling = true;
-        config.Monk.EnableBurstPooling = true;
-        config.Ninja.EnableBurstPooling = true;
-        config.Samurai.EnableBurstPooling = true;
-        config.Reaper.EnableBurstPooling = true;
-        config.Viper.EnableBurstPooling = true;
-        config.Bard.EnableBurstPooling = true;
-        config.Machinist.EnableBurstPooling = true;
-        config.Dancer.EnableBurstPooling = true;
-        config.BlackMage.EnableBurstPooling = true;
-        config.Summoner.EnableBurstPooling = true;
-        config.RedMage.EnableBurstPooling = true;
-        config.Pictomancer.EnableBurstPooling = true;
+        if (role is null or JobRole.MeleeDps or JobRole.RangedDps or JobRole.CasterDps)
+        {
+            config.Dragoon.EnableBurstPooling = true;
+            config.Monk.EnableBurstPooling = true;
+            config.Ninja.EnableBurstPooling = true;
+            config.Samurai.EnableBurstPooling = true;
+            config.Reaper.EnableBurstPooling = true;
+            config.Viper.EnableBurstPooling = true;
+            config.Bard.EnableBurstPooling = true;
+            config.Machinist.EnableBurstPooling = true;
+            config.Dancer.EnableBurstPooling = true;
+            config.BlackMage.EnableBurstPooling = true;
+            config.Summoner.EnableBurstPooling = true;
+            config.RedMage.EnableBurstPooling = true;
+            config.Pictomancer.EnableBurstPooling = true;
+        }
     }
 
     /// <summary>

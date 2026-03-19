@@ -28,6 +28,7 @@ public sealed class SamuraiSection
         DrawKenkiSection();
         DrawSenSection();
         DrawBurstSection();
+        DrawPositionalSection();
     }
 
     private void DrawDamageSection()
@@ -103,6 +104,27 @@ public sealed class SamuraiSection
                 null, save,
                 actionId: SAMActions.Senei.ActionId);
 
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Samurai.EnableKyuten, "Enable Kyuten"),
+                () => config.Samurai.EnableKyuten,
+                v => config.Samurai.EnableKyuten = v,
+                null, save,
+                actionId: SAMActions.Kyuten.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Samurai.EnableGuren, "Enable Guren"),
+                () => config.Samurai.EnableGuren,
+                v => config.Samurai.EnableGuren = v,
+                null, save,
+                actionId: SAMActions.Guren.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Samurai.EnableShoha, "Enable Shoha"),
+                () => config.Samurai.EnableShoha,
+                v => config.Samurai.EnableShoha = v,
+                null, save,
+                actionId: SAMActions.Shoha.ActionId);
+
             config.Samurai.KenkiMinGauge = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Samurai.KenkiMinGauge, "Kenki Min Gauge"),
                 config.Samurai.KenkiMinGauge, 25, 100,
@@ -160,6 +182,52 @@ public sealed class SamuraiSection
                 Loc.T(LocalizedStrings.Samurai.IkishotenHoldTime, "Ikishoten Hold Time"),
                 config.Samurai.IkishotenHoldTime, 0f, 10f, "%.1f s",
                 Loc.T(LocalizedStrings.Samurai.IkishotenHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Samurai.EnableMeikyoShisui, "Enable Meikyo Shisui"),
+                () => config.Samurai.EnableMeikyoShisui,
+                v => config.Samurai.EnableMeikyoShisui = v,
+                null, save,
+                actionId: SAMActions.MeikyoShisui.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Samurai.UseMeikyoInBurst, "Use Meikyo in Burst"),
+                () => config.Samurai.UseMeikyoInBurst,
+                v => config.Samurai.UseMeikyoInBurst = v,
+                Loc.T(LocalizedStrings.Samurai.UseMeikyoInBurstDesc, "Save Meikyo Shisui for burst windows"), save);
+
+            config.Samurai.KenkiReserveForBurst = ConfigUIHelpers.IntSlider(
+                Loc.T(LocalizedStrings.Samurai.KenkiReserveForBurst, "Kenki Reserve for Burst"),
+                config.Samurai.KenkiReserveForBurst, 0, 50,
+                Loc.T(LocalizedStrings.Samurai.KenkiReserveForBurstDesc, "Reserve this much Kenki for Senei/Guren in burst windows"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Samurai.EnableBurstPooling, "Enable Burst Pooling"),
+                () => config.Samurai.EnableBurstPooling,
+                v => config.Samurai.EnableBurstPooling = v,
+                Loc.T(LocalizedStrings.Samurai.EnableBurstPoolingDesc, "Hold Kenki spenders for party burst windows"), save);
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawPositionalSection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Samurai.PositionalSection, "Positionals"), "SAM", false))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Samurai.EnforcePositionals, "Enforce Positionals"),
+                () => config.Samurai.EnforcePositionals,
+                v => config.Samurai.EnforcePositionals = v,
+                Loc.T(LocalizedStrings.Samurai.EnforcePositionalsDesc, "Only use positional actions when in correct position"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Samurai.AllowPositionalLoss, "Allow Positional Loss"),
+                () => config.Samurai.AllowPositionalLoss,
+                v => config.Samurai.AllowPositionalLoss = v,
+                Loc.T(LocalizedStrings.Samurai.AllowPositionalLossDesc, "Continue rotation even if positionals will miss"), save);
 
             ConfigUIHelpers.EndIndent();
         }

@@ -1168,6 +1168,25 @@ public static class LocalizedStrings
         public const string EnableMugDesc = "config.job.nin.enable_mug_desc";
         public const string EnableTenriJindo = "config.job.nin.enable_tenri_jindo";
         public const string EnableTenriJindoDesc = "config.job.nin.enable_tenri_jindo_desc";
+        public const string EnableHellfrogMedium = "config.job.nin.enable_hellfrog_medium";
+        public const string EnableHellfrogMediumDesc = "config.job.nin.enable_hellfrog_medium_desc";
+        public const string EnableKassatsu = "config.job.nin.enable_kassatsu";
+        public const string EnableKassatsuDesc = "config.job.nin.enable_kassatsu_desc";
+        public const string EnableTenChiJin = "config.job.nin.enable_ten_chi_jin";
+        public const string EnableTenChiJinDesc = "config.job.nin.enable_ten_chi_jin_desc";
+        public const string EnableBunshin = "config.job.nin.enable_bunshin";
+        public const string EnableBunshinDesc = "config.job.nin.enable_bunshin_desc";
+        public const string EnableMeisui = "config.job.nin.enable_meisui";
+        public const string EnableMeisuiDesc = "config.job.nin.enable_meisui_desc";
+        public const string SaveNinkiForBurst = "config.job.nin.save_ninki_for_burst";
+        public const string SaveNinkiForBurstDesc = "config.job.nin.save_ninki_for_burst_desc";
+        public const string EnableBurstPooling = "config.job.nin.enable_burst_pooling";
+        public const string EnableBurstPoolingDesc = "config.job.nin.enable_burst_pooling_desc";
+        public const string PositionalSection = "config.job.nin.positional_section";
+        public const string EnforcePositionals = "config.job.nin.enforce_positionals";
+        public const string EnforcePositionalsDesc = "config.job.nin.enforce_positionals_desc";
+        public const string AllowPositionalLoss = "config.job.nin.allow_positional_loss";
+        public const string AllowPositionalLossDesc = "config.job.nin.allow_positional_loss_desc";
     }
 
     /// <summary>Keys for Samurai specific settings.</summary>
@@ -1207,6 +1226,25 @@ public static class LocalizedStrings
         public const string IkishotenHoldTimeDesc = "config.job.sam.ikishoten_hold_time_desc";
         public const string EnableZanshin = "config.job.sam.enable_zanshin";
         public const string EnableZanshinDesc = "config.job.sam.enable_zanshin_desc";
+        public const string EnableShoha = "config.job.sam.enable_shoha";
+        public const string EnableShohaDesc = "config.job.sam.enable_shoha_desc";
+        public const string EnableKyuten = "config.job.sam.enable_kyuten";
+        public const string EnableKyutenDesc = "config.job.sam.enable_kyuten_desc";
+        public const string EnableGuren = "config.job.sam.enable_guren";
+        public const string EnableGurenDesc = "config.job.sam.enable_guren_desc";
+        public const string EnableMeikyoShisui = "config.job.sam.enable_meikyo_shisui";
+        public const string EnableMeikyoShisuiDesc = "config.job.sam.enable_meikyo_shisui_desc";
+        public const string UseMeikyoInBurst = "config.job.sam.use_meikyo_in_burst";
+        public const string UseMeikyoInBurstDesc = "config.job.sam.use_meikyo_in_burst_desc";
+        public const string KenkiReserveForBurst = "config.job.sam.kenki_reserve_for_burst";
+        public const string KenkiReserveForBurstDesc = "config.job.sam.kenki_reserve_for_burst_desc";
+        public const string EnableBurstPooling = "config.job.sam.enable_burst_pooling";
+        public const string EnableBurstPoolingDesc = "config.job.sam.enable_burst_pooling_desc";
+        public const string PositionalSection = "config.job.sam.positional_section";
+        public const string EnforcePositionals = "config.job.sam.enforce_positionals";
+        public const string EnforcePositionalsDesc = "config.job.sam.enforce_positionals_desc";
+        public const string AllowPositionalLoss = "config.job.sam.allow_positional_loss";
+        public const string AllowPositionalLossDesc = "config.job.sam.allow_positional_loss_desc";
     }
 
     /// <summary>Keys for Monk specific settings.</summary>
@@ -1244,6 +1282,14 @@ public static class LocalizedStrings
         public const string EnableFiresReplyDesc = "config.job.mnk.enable_fires_reply_desc";
         public const string EnableWindsReply = "config.job.mnk.enable_winds_reply";
         public const string EnableWindsReplyDesc = "config.job.mnk.enable_winds_reply_desc";
+        public const string EnableRiddleOfWind = "config.job.mnk.enable_riddle_of_wind";
+        public const string EnableRiddleOfWindDesc = "config.job.mnk.enable_riddle_of_wind_desc";
+        public const string EnableThunderclap = "config.job.mnk.enable_thunderclap";
+        public const string EnableThunderclapDesc = "config.job.mnk.enable_thunderclap_desc";
+        public const string EnablePerfectBalance = "config.job.mnk.enable_perfect_balance";
+        public const string EnablePerfectBalanceDesc = "config.job.mnk.enable_perfect_balance_desc";
+        public const string EnforcePositionals = "config.job.mnk.enforce_positionals";
+        public const string EnforcePositionalsDesc = "config.job.mnk.enforce_positionals_desc";
     }
 
     /// <summary>Keys for Reaper specific settings.</summary>
@@ -1279,6 +1325,27 @@ public static class LocalizedStrings
         public const string EnableArcaneCircleDesc = "config.job.rpr.enable_arcane_circle_desc";
         public const string ArcaneCircleHoldTime = "config.job.rpr.arcane_circle_hold_time";
         public const string ArcaneCircleHoldTimeDesc = "config.job.rpr.arcane_circle_hold_time_desc";
+        public const string EnableBurstPooling = "config.job.rpr.enable_burst_pooling";
+        public const string EnableBurstPoolingDesc = "config.job.rpr.enable_burst_pooling_desc";
+        public const string UseEnshroudDuringArcaneCircle = "config.job.rpr.use_enshroud_during_arcane_circle";
+        public const string UseEnshroudDuringArcaneCircleDesc = "config.job.rpr.use_enshroud_during_arcane_circle_desc";
+        public const string EnableGluttony = "config.job.rpr.enable_gluttony";
+        public const string EnableGluttonyDesc = "config.job.rpr.enable_gluttony_desc";
+        public const string EnableAvatarSummon = "config.job.rpr.enable_avatar_summon";
+        public const string EnableAvatarSummonDesc = "config.job.rpr.enable_avatar_summon_desc";
+        public const string EnableHarvestMoon = "config.job.rpr.enable_harvest_moon";
+        public const string EnableHarvestMoonDesc = "config.job.rpr.enable_harvest_moon_desc";
+        public const string EnablePlentifulHarvest = "config.job.rpr.enable_plentiful_harvest";
+        public const string EnablePlentifulHarvestDesc = "config.job.rpr.enable_plentiful_harvest_desc";
+        public const string AlternateGibbetGallows = "config.job.rpr.alternate_gibbet_gallows";
+        public const string AlternateGibbetGallowsDesc = "config.job.rpr.alternate_gibbet_gallows_desc";
+        public const string DeathsDesignRefreshThreshold = "config.job.rpr.deaths_design_refresh_threshold";
+        public const string DeathsDesignRefreshThresholdDesc = "config.job.rpr.deaths_design_refresh_threshold_desc";
+        public const string PositionalSection = "config.job.rpr.positional_section";
+        public const string EnforcePositionals = "config.job.rpr.enforce_positionals";
+        public const string EnforcePositionalsDesc = "config.job.rpr.enforce_positionals_desc";
+        public const string AllowPositionalLoss = "config.job.rpr.allow_positional_loss";
+        public const string AllowPositionalLossDesc = "config.job.rpr.allow_positional_loss_desc";
     }
 
     /// <summary>Keys for Viper specific settings.</summary>
@@ -1321,6 +1388,18 @@ public static class LocalizedStrings
         public const string EnableTrueNorth = "config.job.vpr.enable_true_north";
         public const string EnableBurstPooling = "config.job.vpr.enable_burst_pooling";
         public const string EnableBurstPoolingDesc = "config.job.vpr.enable_burst_pooling_desc";
+        public const string MaintainVenoms = "config.job.vpr.maintain_venoms";
+        public const string MaintainVenomsDesc = "config.job.vpr.maintain_venoms_desc";
+        public const string RattlingCoilMinStacks = "config.job.vpr.rattling_coil_min_stacks";
+        public const string RattlingCoilMinStacksDesc = "config.job.vpr.rattling_coil_min_stacks_desc";
+        public const string SaveRattlingCoilForBurst = "config.job.vpr.save_rattling_coil_for_burst";
+        public const string SaveRattlingCoilForBurstDesc = "config.job.vpr.save_rattling_coil_for_burst_desc";
+        public const string EnableGenerationAbilities = "config.job.vpr.enable_generation_abilities";
+        public const string EnableGenerationAbilitiesDesc = "config.job.vpr.enable_generation_abilities_desc";
+        public const string UseReawakenDuringBurst = "config.job.vpr.use_reawaken_during_burst";
+        public const string UseReawakenDuringBurstDesc = "config.job.vpr.use_reawaken_during_burst_desc";
+        public const string EnableSlither = "config.job.vpr.enable_slither";
+        public const string EnableSlitherDesc = "config.job.vpr.enable_slither_desc";
     }
 
     // ===== RANGED PHYSICAL DPS =====
@@ -1387,6 +1466,34 @@ public static class LocalizedStrings
         public const string EnableWildfireDesc = "config.job.mch.enable_wildfire_desc";
         public const string WildfireHoldTime = "config.job.mch.wildfire_hold_time";
         public const string WildfireHoldTimeDesc = "config.job.mch.wildfire_hold_time_desc";
+        public const string EnableHypercharge = "config.job.mch.enable_hypercharge";
+        public const string EnableHyperchargeDesc = "config.job.mch.enable_hypercharge_desc";
+        public const string EnableHeatBlast = "config.job.mch.enable_heat_blast";
+        public const string EnableHeatBlastDesc = "config.job.mch.enable_heat_blast_desc";
+        public const string EnableAutoCrossbow = "config.job.mch.enable_auto_crossbow";
+        public const string EnableAutoCrossbowDesc = "config.job.mch.enable_auto_crossbow_desc";
+        public const string EnableExcavator = "config.job.mch.enable_excavator";
+        public const string EnableExcavatorDesc = "config.job.mch.enable_excavator_desc";
+        public const string EnableFullMetalField = "config.job.mch.enable_full_metal_field";
+        public const string EnableFullMetalFieldDesc = "config.job.mch.enable_full_metal_field_desc";
+        public const string EnableGaussRicochet = "config.job.mch.enable_gauss_ricochet";
+        public const string EnableGaussRicochetDesc = "config.job.mch.enable_gauss_ricochet_desc";
+        public const string EnableCheckAbilities = "config.job.mch.enable_check_abilities";
+        public const string EnableCheckAbilitiesDesc = "config.job.mch.enable_check_abilities_desc";
+        public const string EnableBarrelStabilizer = "config.job.mch.enable_barrel_stabilizer";
+        public const string EnableBarrelStabilizerDesc = "config.job.mch.enable_barrel_stabilizer_desc";
+        public const string EnableReassemble = "config.job.mch.enable_reassemble";
+        public const string EnableReassembleDesc = "config.job.mch.enable_reassemble_desc";
+        public const string ReassemblePriority = "config.job.mch.reassemble_priority";
+        public const string ReassemblePriorityDesc = "config.job.mch.reassemble_priority_desc";
+        public const string SaveHeatForWildfire = "config.job.mch.save_heat_for_wildfire";
+        public const string SaveHeatForWildfireDesc = "config.job.mch.save_heat_for_wildfire_desc";
+        public const string EnableBurstPooling = "config.job.mch.enable_burst_pooling";
+        public const string EnableBurstPoolingDesc = "config.job.mch.enable_burst_pooling_desc";
+        public const string EnableHeadGraze = "config.job.mch.enable_head_graze";
+        public const string EnableHeadGrazeDesc = "config.job.mch.enable_head_graze_desc";
+        public const string UtilitySection = "config.job.mch.utility_section";
+        public const string HyperchargeSection = "config.job.mch.hypercharge_section";
     }
 
     /// <summary>Keys for Bard specific settings.</summary>
@@ -1434,6 +1541,35 @@ public static class LocalizedStrings
         public const string EnableResonantArrowDesc = "config.job.brd.enable_resonant_arrow_desc";
         public const string EnableRadiantEncore = "config.job.brd.enable_radiant_encore";
         public const string EnableRadiantEncoreDesc = "config.job.brd.enable_radiant_encore_desc";
+        public const string EnableRefulgentArrow = "config.job.brd.enable_refulgent_arrow";
+        public const string EnableRefulgentArrowDesc = "config.job.brd.enable_refulgent_arrow_desc";
+        public const string EnableBloodletter = "config.job.brd.enable_bloodletter";
+        public const string EnableBloodletterDesc = "config.job.brd.enable_bloodletter_desc";
+        public const string EnableEmpyrealArrow = "config.job.brd.enable_empyreal_arrow";
+        public const string EnableEmpyrealArrowDesc = "config.job.brd.enable_empyreal_arrow_desc";
+        public const string EnableSidewinder = "config.job.brd.enable_sidewinder";
+        public const string EnableSidewinderDesc = "config.job.brd.enable_sidewinder_desc";
+        public const string EnableIronJaws = "config.job.brd.enable_iron_jaws";
+        public const string EnableIronJawsDesc = "config.job.brd.enable_iron_jaws_desc";
+        public const string EnableRagingStrikes = "config.job.brd.enable_raging_strikes";
+        public const string EnableRagingStrikesDesc = "config.job.brd.enable_raging_strikes_desc";
+        public const string EnableBarrage = "config.job.brd.enable_barrage";
+        public const string EnableBarrageDesc = "config.job.brd.enable_barrage_desc";
+        public const string EnableBurstPooling = "config.job.brd.enable_burst_pooling";
+        public const string EnableBurstPoolingDesc = "config.job.brd.enable_burst_pooling_desc";
+        public const string UseApexDuringBurst = "config.job.brd.use_apex_during_burst";
+        public const string UseApexDuringBurstDesc = "config.job.brd.use_apex_during_burst_desc";
+        public const string PitchPerfectEarlyThreshold = "config.job.brd.pitch_perfect_early_threshold";
+        public const string PitchPerfectEarlyThresholdDesc = "config.job.brd.pitch_perfect_early_threshold_desc";
+        public const string RadiantFinaleMinCoda = "config.job.brd.radiant_finale_min_coda";
+        public const string RadiantFinaleMinCodaDesc = "config.job.brd.radiant_finale_min_coda_desc";
+        public const string UtilitySection = "config.job.brd.utility_section";
+        public const string EnableHeadGraze = "config.job.brd.enable_head_graze";
+        public const string EnableHeadGrazeDesc = "config.job.brd.enable_head_graze_desc";
+        public const string EnableNaturesMinne = "config.job.brd.enable_natures_minne";
+        public const string EnableNaturesMinneDesc = "config.job.brd.enable_natures_minne_desc";
+        public const string EnableWardensPaean = "config.job.brd.enable_wardens_paean";
+        public const string EnableWardensPaeanDesc = "config.job.brd.enable_wardens_paean_desc";
     }
 
     /// <summary>Keys for Dancer specific settings.</summary>
@@ -1473,6 +1609,36 @@ public static class LocalizedStrings
         public const string TechnicalHoldTimeDesc = "config.job.dnc.technical_hold_time_desc";
         public const string EnableFinishingMove = "config.job.dnc.enable_finishing_move";
         public const string EnableFinishingMoveDesc = "config.job.dnc.enable_finishing_move_desc";
+        public const string EnableLastDance = "config.job.dnc.enable_last_dance";
+        public const string EnableLastDanceDesc = "config.job.dnc.enable_last_dance_desc";
+        public const string EnableFanDanceIV = "config.job.dnc.enable_fan_dance_iv";
+        public const string EnableFanDanceIVDesc = "config.job.dnc.enable_fan_dance_iv_desc";
+        public const string EnableFlourish = "config.job.dnc.enable_flourish";
+        public const string EnableFlourishDesc = "config.job.dnc.enable_flourish_desc";
+        public const string EspritOvercapThreshold = "config.job.dnc.esprit_overcap_threshold";
+        public const string EspritOvercapThresholdDesc = "config.job.dnc.esprit_overcap_threshold_desc";
+        public const string SaveEspritForBurst = "config.job.dnc.save_esprit_for_burst";
+        public const string SaveEspritForBurstDesc = "config.job.dnc.save_esprit_for_burst_desc";
+        public const string FeatherOvercapThreshold = "config.job.dnc.feather_overcap_threshold";
+        public const string FeatherOvercapThresholdDesc = "config.job.dnc.feather_overcap_threshold_desc";
+        public const string SaveFeathersForBurst = "config.job.dnc.save_feathers_for_burst";
+        public const string SaveFeathersForBurstDesc = "config.job.dnc.save_feathers_for_burst_desc";
+        public const string EnableDevilmentAfterTechnical = "config.job.dnc.enable_devilment_after_technical";
+        public const string EnableDevilmentAfterTechnicalDesc = "config.job.dnc.enable_devilment_after_technical_desc";
+        public const string EnableBurstPooling = "config.job.dnc.enable_burst_pooling";
+        public const string EnableBurstPoolingDesc = "config.job.dnc.enable_burst_pooling_desc";
+        public const string PartnerSection = "config.job.dnc.partner_section";
+        public const string PartnerSelectionMode = "config.job.dnc.partner_selection_mode";
+        public const string PartnerSelectionModeDesc = "config.job.dnc.partner_selection_mode_desc";
+        public const string AutoRepartner = "config.job.dnc.auto_repartner";
+        public const string AutoRepartnerDesc = "config.job.dnc.auto_repartner_desc";
+        public const string UtilitySection = "config.job.dnc.utility_section";
+        public const string EnableHeadGraze = "config.job.dnc.enable_head_graze";
+        public const string EnableHeadGrazeDesc = "config.job.dnc.enable_head_graze_desc";
+        public const string EnableCuringWaltz = "config.job.dnc.enable_curing_waltz";
+        public const string EnableCuringWaltzDesc = "config.job.dnc.enable_curing_waltz_desc";
+        public const string EnableShieldSamba = "config.job.dnc.enable_shield_samba";
+        public const string EnableShieldSambaDesc = "config.job.dnc.enable_shield_samba_desc";
     }
 
     // ===== CASTERS =====
@@ -1685,6 +1851,20 @@ public static class LocalizedStrings
         public const string LucidDreamingThresholdDesc = "config.job.pct.lucid_dreaming_threshold_desc";
         public const string EnablePortraits = "config.job.pct.enable_portraits";
         public const string EnablePortraitsDesc = "config.job.pct.enable_portraits_desc";
+        public const string EnableSubtractivePalette = "config.job.pct.enable_subtractive_palette";
+        public const string EnableSubtractivePaletteDesc = "config.job.pct.enable_subtractive_palette_desc";
+        public const string EnablePomMotif = "config.job.pct.enable_pom_motif";
+        public const string EnablePomMotifDesc = "config.job.pct.enable_pom_motif_desc";
+        public const string EnableWingMotif = "config.job.pct.enable_wing_motif";
+        public const string EnableWingMotifDesc = "config.job.pct.enable_wing_motif_desc";
+        public const string EnableClawMotif = "config.job.pct.enable_claw_motif";
+        public const string EnableClawMotifDesc = "config.job.pct.enable_claw_motif_desc";
+        public const string EnableMawMotif = "config.job.pct.enable_maw_motif";
+        public const string EnableMawMotifDesc = "config.job.pct.enable_maw_motif_desc";
+        public const string EnableHammerMotif = "config.job.pct.enable_hammer_motif";
+        public const string EnableHammerMotifDesc = "config.job.pct.enable_hammer_motif_desc";
+        public const string EnableStarrySkyMotif = "config.job.pct.enable_starry_sky_motif";
+        public const string EnableStarrySkyMotifDesc = "config.job.pct.enable_starry_sky_motif_desc";
     }
 
     #endregion

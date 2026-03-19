@@ -28,6 +28,7 @@ public sealed class BardSection
         DrawSongSection();
         DrawDotSection();
         DrawBurstSection();
+        DrawUtilitySection();
     }
 
     private void DrawDamageSection()
@@ -35,6 +36,30 @@ public sealed class BardSection
         if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Bard.DamageSection, "Damage"), "BRD"))
         {
             ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnableRefulgentArrow, "Enable Refulgent Arrow"),
+                () => config.Bard.EnableRefulgentArrow,
+                v => config.Bard.EnableRefulgentArrow = v,
+                null, save, actionId: BRDActions.RefulgentArrow.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnableBloodletter, "Enable Bloodletter"),
+                () => config.Bard.EnableBloodletter,
+                v => config.Bard.EnableBloodletter = v,
+                null, save, actionId: BRDActions.Bloodletter.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnableEmpyrealArrow, "Enable Empyreal Arrow"),
+                () => config.Bard.EnableEmpyrealArrow,
+                v => config.Bard.EnableEmpyrealArrow = v,
+                null, save, actionId: BRDActions.EmpyrealArrow.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnableSidewinder, "Enable Sidewinder"),
+                () => config.Bard.EnableSidewinder,
+                v => config.Bard.EnableSidewinder = v,
+                null, save, actionId: BRDActions.Sidewinder.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Bard.EnableApexArrow, "Enable Apex Arrow"),
@@ -143,6 +168,12 @@ public sealed class BardSection
                 v => config.Bard.EnableStormbite = v,
                 null, save, actionId: BRDActions.Stormbite.ActionId);
 
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnableIronJaws, "Enable Iron Jaws"),
+                () => config.Bard.EnableIronJaws,
+                v => config.Bard.EnableIronJaws = v,
+                null, save, actionId: BRDActions.IronJaws.ActionId);
+
             config.Bard.DotRefreshThreshold = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Bard.DotRefreshThreshold, "DoT Refresh Threshold"),
                 config.Bard.DotRefreshThreshold, 0f, 15f, "%.0f s",
@@ -165,6 +196,18 @@ public sealed class BardSection
             ConfigUIHelpers.BeginIndent();
 
             ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnableRagingStrikes, "Enable Raging Strikes"),
+                () => config.Bard.EnableRagingStrikes,
+                v => config.Bard.EnableRagingStrikes = v,
+                null, save, actionId: BRDActions.RagingStrikes.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnableBarrage, "Enable Barrage"),
+                () => config.Bard.EnableBarrage,
+                v => config.Bard.EnableBarrage = v,
+                null, save, actionId: BRDActions.Barrage.ActionId);
+
+            ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Bard.EnableBattleVoice, "Enable Battle Voice"),
                 () => config.Bard.EnableBattleVoice,
                 v => config.Bard.EnableBattleVoice = v,
@@ -180,6 +223,40 @@ public sealed class BardSection
                 Loc.T(LocalizedStrings.Bard.BuffHoldTime, "Buff Hold Time"),
                 config.Bard.BuffHoldTime, 0f, 10f, "%.1f s",
                 Loc.T(LocalizedStrings.Bard.BuffHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnableBurstPooling, "Enable Burst Pooling"),
+                () => config.Bard.EnableBurstPooling,
+                v => config.Bard.EnableBurstPooling = v,
+                Loc.T(LocalizedStrings.Bard.EnableBurstPoolingDesc, "Pool Soul Voice gauge for burst windows"), save);
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawUtilitySection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Bard.UtilitySection, "Utility"), "BRD", false))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnableHeadGraze, "Enable Head Graze"),
+                () => config.Bard.EnableHeadGraze,
+                v => config.Bard.EnableHeadGraze = v,
+                Loc.T(LocalizedStrings.Bard.EnableHeadGrazeDesc, "Use Head Graze for interrupts"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnableNaturesMinne, "Enable Nature's Minne"),
+                () => config.Bard.EnableNaturesMinne,
+                v => config.Bard.EnableNaturesMinne = v,
+                Loc.T(LocalizedStrings.Bard.EnableNaturesMinneDesc, "Use Nature's Minne for party healing support"), save);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.EnableWardensPaean, "Enable Warden's Paean"),
+                () => config.Bard.EnableWardensPaean,
+                v => config.Bard.EnableWardensPaean = v,
+                Loc.T(LocalizedStrings.Bard.EnableWardensPaeanDesc, "Use Warden's Paean for cleansing debuffs"), save);
 
             ConfigUIHelpers.EndIndent();
         }
