@@ -92,13 +92,6 @@ public sealed class PartyAnalyzerService : IPartyAnalyzer
             if (predictedHp >= member.MaxHp)
                 continue;
 
-            if (healAmount > 0)
-            {
-                var missingHp = member.MaxHp - predictedHp;
-                if (healAmount > missingHp)
-                    continue;
-            }
-
             var hpPercent = (float)predictedHp / member.MaxHp;
             var damageRate = _damageIntakeService.GetDamageRate(member.EntityId, 5f);
 
@@ -171,13 +164,6 @@ public sealed class PartyAnalyzerService : IPartyAnalyzer
 
             if (predictedHp >= member.MaxHp)
                 continue;
-
-            if (healAmount > 0)
-            {
-                var missingHp = member.MaxHp - predictedHp;
-                if (healAmount > missingHp)
-                    continue;
-            }
 
             if (hpPercent < lowestHpPercent)
             {
