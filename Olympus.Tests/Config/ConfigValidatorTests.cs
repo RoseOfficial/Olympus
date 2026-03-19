@@ -33,18 +33,21 @@ public class ConfigValidatorTests
     }
 
     [Fact]
-    public void Validate_OgcdThresholdAboveGcd_ReturnsWarning()
+    public void Validate_GcdThresholdAboveOgcd_ReturnsWarning()
     {
+        // GCD threshold must be strictly lower than oGCD — oGCD heals fire first (they're instant),
+        // GCD heals interrupt damage and should only fire at lower HP.
+        // Having GCD >= oGCD (inverted) is the bug we detect.
         var config = CreateValidConfig();
-        config.Healing.OgcdEmergencyThreshold = 0.80f;
-        config.Healing.GcdEmergencyThreshold = 0.70f;
+        config.Healing.OgcdEmergencyThreshold = 0.50f;
+        config.Healing.GcdEmergencyThreshold = 0.70f; // GCD > oGCD = invalid
 
         var issues = ConfigValidator.Validate(config);
 
         Assert.Contains(issues, i =>
             i.Severity == ConfigValidator.ValidationSeverity.Warning &&
             i.Category == "Healing" &&
-            i.Message.Contains("oGCD emergency threshold"));
+            i.Message.Contains("GCD emergency threshold"));
     }
 
     [Fact]
@@ -237,15 +240,17 @@ public class ConfigValidatorTests
     }
 
     [Fact]
-    public void AutoFix_InvertedOgcdGcdThreshold_FixesValues()
+    public void AutoFix_InvertedGcdOgcdThreshold_FixesValues()
     {
+        // When GCD >= oGCD (inverted — GCD heals firing before oGCDs, wrong), AutoFix lowers GCD.
         var config = CreateValidConfig();
-        config.Healing.OgcdEmergencyThreshold = 0.80f;
-        config.Healing.GcdEmergencyThreshold = 0.60f;
+        config.Healing.OgcdEmergencyThreshold = 0.50f;
+        config.Healing.GcdEmergencyThreshold = 0.60f; // GCD > oGCD = invalid
 
         var fixCount = ConfigValidator.AutoFix(config);
 
-        Assert.True(config.Healing.GcdEmergencyThreshold >= config.Healing.OgcdEmergencyThreshold);
+        // After fix, GCD must be strictly lower than oGCD
+        Assert.True(config.Healing.GcdEmergencyThreshold < config.Healing.OgcdEmergencyThreshold);
     }
 
     [Fact]
@@ -296,7 +301,7 @@ public class ConfigValidatorTests
             {
                 BenedictionEmergencyThreshold = 0.30f,
                 OgcdEmergencyThreshold = 0.50f,
-                GcdEmergencyThreshold = 0.65f,
+                GcdEmergencyThreshold = 0.40f, // GCD must be strictly lower than oGCD
                 ProactiveBenedictionHpThreshold = 0.50f,
                 EnableProactiveBenediction = false,
                 ModerateLilyDamageRate = 200f,
