@@ -382,6 +382,35 @@ public class BuffModuleTests
             It.IsAny<ulong>()), Times.Never);
     }
 
+    [Fact]
+    public void TryExecute_Zanshin_WhenDisabled_NeverFires()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var config = NikeTestContext.CreateDefaultSamuraiConfiguration();
+        config.Samurai.EnableZanshin = false;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(x => x.IsActionReady(SAMActions.Zanshin.ActionId)).Returns(true);
+
+        var context = CreateContext(
+            inCombat: true,
+            canExecuteOgcd: true,
+            kenki: 50,
+            hasZanshinReady: true,
+            level: 96,
+            actionService: actionService,
+            targetingService: targeting,
+            config: config);
+
+        _module.TryExecute(context, isMoving: false);
+
+        actionService.Verify(x => x.ExecuteOgcd(
+            It.Is<ActionDefinition>(a => a.ActionId == SAMActions.Zanshin.ActionId),
+            It.IsAny<ulong>()), Times.Never);
+    }
+
     #endregion
 
     #region Helpers
@@ -423,9 +452,11 @@ public class BuffModuleTests
         bool hasOgiNamikiriReady = false,
         bool hasZanshinReady = false,
         Mock<IActionService>? actionService = null,
-        Mock<ITargetingService>? targetingService = null)
+        Mock<ITargetingService>? targetingService = null,
+        Configuration? config = null)
     {
         return NikeTestContext.Create(
+            config: config,
             level: level,
             inCombat: inCombat,
             canExecuteOgcd: canExecuteOgcd,

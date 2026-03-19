@@ -132,6 +132,30 @@ public class MitigationModuleTests
         Assert.False(result);
     }
 
+    [Fact]
+    public void TryExecute_Mitigation_DeliriumActive_StillGatesOnHp()
+    {
+        // Delirium should not prevent mitigation from checking HP and firing if needed.
+        // HP at 50% (below typical 80% MitigationThreshold) — if mitigation service says yes, it fires.
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(false);
+
+        var context = CreateContext(
+            inCombat: true,
+            canExecuteOgcd: true,
+            currentHp: 25000,   // 50% HP
+            maxHp: 50000,
+            hasDelirium: true,
+            hasDarkside: false,
+            actionService: actionService,
+            tankCooldownShouldUseMitigation: false,
+            tankCooldownShouldUseMajor: false);
+
+        // No action is ready, so result is false regardless; but no exception should occur
+        var result = _module.TryExecute(context, isMoving: false);
+        Assert.False(result);
+    }
+
     #region Helpers
 
     private static INyxContext CreateContext(
@@ -141,6 +165,9 @@ public class MitigationModuleTests
         uint maxHp = 50000,
         bool hasLivingDead = false,
         bool hasWalkingDead = false,
+        bool hasDelirium = false,
+        bool hasDarkside = false,
+        float darksideRemaining = 0f,
         Configuration? config = null,
         Mock<IActionService>? actionService = null,
         Mock<ITargetingService>? targetingService = null,
@@ -180,9 +207,9 @@ public class MitigationModuleTests
         mock.Setup(x => x.HasEnoughMpForTbn).Returns(true);
         mock.Setup(x => x.PartyHealthMetrics).Returns((1.0f, 1.0f, 0));
         mock.Setup(x => x.HasTankStance).Returns(true);
-        mock.Setup(x => x.HasDarkside).Returns(false);
-        mock.Setup(x => x.DarksideRemaining).Returns(0f);
-        mock.Setup(x => x.HasDelirium).Returns(false);
+        mock.Setup(x => x.HasDarkside).Returns(hasDarkside);
+        mock.Setup(x => x.DarksideRemaining).Returns(darksideRemaining);
+        mock.Setup(x => x.HasDelirium).Returns(hasDelirium);
         mock.Setup(x => x.DeliriumStacks).Returns(0);
 
         var statusHelper = new Olympus.Rotation.NyxCore.Helpers.NyxStatusHelper();

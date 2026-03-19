@@ -176,12 +176,15 @@ public class DamageModuleTests
     [Fact]
     public void TryExecute_Dosis_Moving_SkipsDosis()
     {
-        // Arrange: Dosis has a cast time (1.5s), cannot use while moving
+        // Arrange: Dosis has a cast time (1.5s), cannot use while moving.
+        // Psyche is explicitly disabled to prevent oGCD false-negative: if Psyche fired
+        // while moving it would mask the test intent (no instant-cast GCDs should fire).
         var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
         config.EnableDamage = true;
         config.EnableDoT = false;
         config.Sage.EnablePhlegma = false;
         config.Sage.EnableToxikon = false; // No instant casts
+        config.Sage.EnablePsyche = false;  // No oGCD damage ability either
 
         var enemy = new Mock<IBattleNpc>();
         enemy.Setup(x => x.GameObjectId).Returns(100ul);
@@ -208,6 +211,12 @@ public class DamageModuleTests
                     a.ActionId == SGEActions.Dosis.ActionId ||
                     a.ActionId == SGEActions.DosisII.ActionId ||
                     a.ActionId == SGEActions.DosisIII.ActionId),
+                It.IsAny<ulong>()),
+            Times.Never);
+        // Assert: Psyche not executed (disabled by config and oGCD not available)
+        actionService.Verify(
+            x => x.ExecuteOgcd(
+                It.Is<ActionDefinition>(a => a.ActionId == SGEActions.Psyche.ActionId),
                 It.IsAny<ulong>()),
             Times.Never);
     }

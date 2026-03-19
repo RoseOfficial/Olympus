@@ -630,6 +630,70 @@ public class BuffModuleTests
 
     #endregion
 
+    #region Config Toggle Disable Tests
+
+    [Fact]
+    public void TryExecute_Mug_WhenDisabled_NeverFires()
+    {
+        // At level 66+, Mug is replaced by Dokumori. EnableMug = false disables both.
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var config = HermesTestContext.CreateDefaultNinjaConfiguration();
+        config.Ninja.EnableMug = false;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(x => x.IsActionReady(NINActions.Dokumori.ActionId)).Returns(true);
+
+        var context = CreateContext(
+            inCombat: true,
+            canExecuteOgcd: true,
+            hasSuiton: true,
+            suitonRemaining: 20f,
+            hasTenriJindoReady: false,
+            level: 66,
+            actionService: actionService,
+            targetingService: targeting,
+            config: config);
+
+        _module.TryExecute(context, isMoving: false);
+
+        // Both Mug and Dokumori should never fire
+        actionService.Verify(x => x.ExecuteOgcd(
+            It.Is<ActionDefinition>(a => a.ActionId == NINActions.Mug.ActionId || a.ActionId == NINActions.Dokumori.ActionId),
+            It.IsAny<ulong>()), Times.Never);
+    }
+
+    [Fact]
+    public void TryExecute_TenriJindo_WhenDisabled_NeverFires()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var config = HermesTestContext.CreateDefaultNinjaConfiguration();
+        config.Ninja.EnableTenriJindo = false;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(x => x.IsActionReady(NINActions.TenriJindo.ActionId)).Returns(true);
+
+        var context = CreateContext(
+            inCombat: true,
+            canExecuteOgcd: true,
+            hasTenriJindoReady: true,
+            level: 100,
+            actionService: actionService,
+            targetingService: targeting,
+            config: config);
+
+        _module.TryExecute(context, isMoving: false);
+
+        actionService.Verify(x => x.ExecuteOgcd(
+            It.Is<ActionDefinition>(a => a.ActionId == NINActions.TenriJindo.ActionId),
+            It.IsAny<ulong>()), Times.Never);
+    }
+
+    #endregion
+
     #region Helpers
 
     private static Mock<IBattleNpc> CreateMockEnemy(ulong objectId = 99999UL)
@@ -677,9 +741,11 @@ public class BuffModuleTests
         bool hasTenriJindoReady = false,
         bool hasDokumoriOnTarget = false,
         Mock<IActionService>? actionService = null,
-        Mock<ITargetingService>? targetingService = null)
+        Mock<ITargetingService>? targetingService = null,
+        Configuration? config = null)
     {
         return HermesTestContext.Create(
+            config: config,
             level: level,
             inCombat: inCombat,
             isMoving: isMoving,

@@ -96,9 +96,9 @@ public class CardModuleTests
     [Fact]
     public void TryExecute_Divination_InCombat_Ready_Fires()
     {
+        // EnableCards defaults to true; disable sub-features to isolate Divination
         var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
         config.Astrologian.EnableDivination = true;
-        config.Astrologian.EnableCards = false; // Disable card draw/play to isolate Divination
         config.Astrologian.EnableAstrodyne = false;
         config.Astrologian.EnableMinorArcana = false;
 
@@ -108,9 +108,6 @@ public class CardModuleTests
                 It.Is<ActionDefinition>(a => a.ActionId == ASTActions.Divination.ActionId),
                 It.IsAny<ulong>()))
             .Returns(true);
-
-        // Re-enable cards just for divination
-        config.Astrologian.EnableCards = true;
 
         var context = AstraeaTestContext.Create(
             config: config,

@@ -382,6 +382,73 @@ public class DamageModuleTests
 
     #endregion
 
+    #region Config Toggle Disable Tests
+
+    [Fact]
+    public void TryExecute_FiresReply_WhenDisabled_NeverFires()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var config = KratosTestContext.CreateDefaultMonkConfiguration();
+        config.Monk.EnableFiresReply = false;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        actionService.Setup(x => x.IsActionReady(MNKActions.FiresReply.ActionId)).Returns(true);
+
+        var context = CreateContext(
+            inCombat: true,
+            canExecuteGcd: true,
+            level: 100,
+            beastChakraCount: 0,
+            hasFiresRumination: true,
+            hasWindsRumination: false,
+            hasPerfectBalance: false,
+            actionService: actionService,
+            targetingService: targeting,
+            config: config);
+
+        _module.TryExecute(context, isMoving: false);
+
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == MNKActions.FiresReply.ActionId),
+            It.IsAny<ulong>()), Times.Never);
+    }
+
+    [Fact]
+    public void TryExecute_WindsReply_WhenDisabled_NeverFires()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var config = KratosTestContext.CreateDefaultMonkConfiguration();
+        config.Monk.EnableWindsReply = false;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        actionService.Setup(x => x.IsActionReady(MNKActions.FiresReply.ActionId)).Returns(false);
+        actionService.Setup(x => x.IsActionReady(MNKActions.WindsReply.ActionId)).Returns(true);
+
+        var context = CreateContext(
+            inCombat: true,
+            canExecuteGcd: true,
+            level: 100,
+            beastChakraCount: 0,
+            hasFiresRumination: false,
+            hasWindsRumination: true,
+            hasPerfectBalance: false,
+            actionService: actionService,
+            targetingService: targeting,
+            config: config);
+
+        _module.TryExecute(context, isMoving: false);
+
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == MNKActions.WindsReply.ActionId),
+            It.IsAny<ulong>()), Times.Never);
+    }
+
+    #endregion
+
     #region Helpers
 
     private static Mock<IBattleNpc> CreateMockEnemy(ulong objectId = 99999UL)
@@ -433,9 +500,11 @@ public class DamageModuleTests
         bool hasDemolishOnTarget = false,
         float demolishRemaining = 0f,
         Mock<IActionService>? actionService = null,
-        Mock<ITargetingService>? targetingService = null)
+        Mock<ITargetingService>? targetingService = null,
+        Configuration? config = null)
     {
         return KratosTestContext.Create(
+            config: config,
             level: level,
             inCombat: inCombat,
             canExecuteGcd: canExecuteGcd,

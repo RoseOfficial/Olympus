@@ -3,6 +3,7 @@ using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ThanatosCore.Context;
 using Olympus.Rotation.ThanatosCore.Modules;
+using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Tests.Mocks;
 
@@ -301,6 +302,82 @@ public class BuffModuleTests
 
     #endregion
 
+    #region ArcaneCircle Burst Hold Regression
+
+    [Fact]
+    public void TryExecute_ArcaneCircle_HeldWhenBurstImminent_DoesNotFire()
+    {
+        // Regression: ArcaneCircleHoldTime must be wired into ShouldHoldForBurst.
+        // If burst is imminent (IsBurstImminent=true, IsInBurstWindow=false) and
+        // EnableBurstPooling is enabled, ArcaneCircle must NOT fire.
+        var burstService = new Mock<IBurstWindowService>();
+        burstService.Setup(b => b.IsBurstImminent(It.IsAny<float>())).Returns(true);
+        burstService.Setup(b => b.IsInBurstWindow).Returns(false);
+
+        var config = ThanatosTestContext.CreateDefaultReaperConfiguration();
+        config.Reaper.EnableBurstPooling = true;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(x => x.IsActionReady(RPRActions.ArcaneCircle.ActionId)).Returns(true);
+
+        var context = CreateContext(
+            inCombat: true,
+            canExecuteOgcd: true,
+            level: 100,
+            hasArcaneCircle: false,
+            hasDeathsDesign: true,
+            actionService: actionService,
+            config: config);
+
+        // Use BuffModule constructed with the burst service so ShouldHoldForBurst works
+        var module = new BuffModule(burstService.Object);
+        var result = module.TryExecute(context, isMoving: false);
+
+        Assert.False(result);
+        actionService.Verify(x => x.ExecuteOgcd(
+            It.Is<ActionDefinition>(a => a.ActionId == RPRActions.ArcaneCircle.ActionId),
+            It.IsAny<ulong>()), Times.Never);
+    }
+
+    [Fact]
+    public void TryExecute_ArcaneCircle_FiresWhenBurstNotImminent()
+    {
+        // Companion to above: when burst is NOT imminent, ArcaneCircle should fire
+        // given Death's Design on target and action ready.
+        var burstService = new Mock<IBurstWindowService>();
+        burstService.Setup(b => b.IsBurstImminent(It.IsAny<float>())).Returns(false);
+        burstService.Setup(b => b.IsInBurstWindow).Returns(false);
+
+        var config = ThanatosTestContext.CreateDefaultReaperConfiguration();
+        config.Reaper.EnableBurstPooling = true;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(x => x.IsActionReady(RPRActions.ArcaneCircle.ActionId)).Returns(true);
+        actionService.Setup(x => x.ExecuteOgcd(
+                It.Is<ActionDefinition>(a => a.ActionId == RPRActions.ArcaneCircle.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        var context = CreateContext(
+            inCombat: true,
+            canExecuteOgcd: true,
+            level: 100,
+            hasArcaneCircle: false,
+            hasDeathsDesign: true,
+            actionService: actionService,
+            config: config);
+
+        var module = new BuffModule(burstService.Object);
+        var result = module.TryExecute(context, isMoving: false);
+
+        Assert.True(result);
+        actionService.Verify(x => x.ExecuteOgcd(
+            It.Is<ActionDefinition>(a => a.ActionId == RPRActions.ArcaneCircle.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+    }
+
+    #endregion
+
     #region Helpers
 
     private static IThanatosContext CreateContext(
@@ -316,9 +393,11 @@ public class BuffModuleTests
         float arcaneCircleRemaining = 0f,
         bool hasDeathsDesign = false,
         float deathsDesignRemaining = 0f,
-        Mock<IActionService>? actionService = null)
+        Mock<IActionService>? actionService = null,
+        Configuration? config = null)
     {
         return ThanatosTestContext.Create(
+            config: config,
             level: level,
             inCombat: inCombat,
             canExecuteOgcd: canExecuteOgcd,
