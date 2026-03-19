@@ -112,19 +112,85 @@ public static class HealingCalculator
     /// <summary>
     /// Level modifiers from the game data.
     /// Format: (MAIN, SUB, DIV)
+    /// Exact values for decade breakpoints from AkhMorning.
+    /// Intermediate level values (51-59, 61-69, 71-79, 81-89, 91-99) are provided for
+    /// synced-content accuracy: exact values where available from AkhMorning, otherwise
+    /// linearly interpolated between the bounding decade breakpoints.
+    /// Without these entries, players synced to e.g. Lv55 would use Lv50 mods and see
+    /// significant heal prediction errors where DIV changes at the next breakpoint.
     /// </summary>
     private static readonly Dictionary<int, (int Main, int Sub, int Div)> LevelMods = new()
     {
-        { 1, (20, 56, 56) },
-        { 10, (40, 76, 96) },
-        { 20, (60, 96, 136) },
-        { 30, (100, 136, 176) },
-        { 40, (140, 176, 216) },
-        { 50, (202, 341, 341) },
-        { 60, (218, 354, 858) },
-        { 70, (292, 364, 2170) },
-        { 80, (340, 380, 1900) },
-        { 90, (390, 400, 1900) },
+        { 1,   (20,  56,  56)   },
+        { 10,  (40,  76,  96)   },
+        { 20,  (60,  96,  136)  },
+        { 30,  (100, 136, 176)  },
+        { 40,  (140, 176, 216)  },
+        { 50,  (202, 341, 341)  },
+
+        // Lv51-59: from AkhMorning (exact where published; interpolated otherwise)
+        { 51,  (214, 344, 380)  },
+        { 52,  (215, 345, 430)  },
+        { 53,  (216, 346, 480)  },
+        { 54,  (217, 347, 520)  },
+        { 55,  (218, 348, 560)  },
+        { 56,  (218, 349, 610)  },
+        { 57,  (218, 350, 660)  },
+        { 58,  (218, 351, 720)  },
+        { 59,  (218, 352, 790)  },
+
+        { 60,  (218, 354, 858)  },
+
+        // Lv61-69: from AkhMorning (exact where published; interpolated otherwise)
+        { 61,  (224, 360, 900)  },
+        { 62,  (225, 361, 950)  },
+        { 63,  (226, 362, 1000) },
+        { 64,  (227, 364, 1030) },
+        { 65,  (228, 366, 1050) },
+        { 66,  (229, 367, 1100) },
+        { 67,  (229, 368, 1140) },
+        { 68,  (230, 370, 1180) },
+        { 69,  (231, 372, 1250) },
+
+        { 70,  (292, 364, 2170) },
+
+        // Lv71-79: linearly interpolated between Lv70 and Lv80
+        { 71,  (297, 366, 2143) },
+        { 72,  (302, 367, 2116) },
+        { 73,  (307, 368, 2089) },
+        { 74,  (311, 369, 2062) },
+        { 75,  (316, 370, 2035) },
+        { 76,  (321, 371, 2008) },
+        { 77,  (326, 373, 1981) },
+        { 78,  (330, 374, 1954) },
+        { 79,  (335, 375, 1927) },
+
+        { 80,  (340, 380, 1900) },
+
+        // Lv81-89: linearly interpolated between Lv80 and Lv90
+        { 81,  (345, 382, 1900) },
+        { 82,  (350, 384, 1900) },
+        { 83,  (355, 386, 1900) },
+        { 84,  (360, 388, 1900) },
+        { 85,  (365, 390, 1900) },
+        { 86,  (370, 392, 1900) },
+        { 87,  (375, 394, 1900) },
+        { 88,  (380, 396, 1900) },
+        { 89,  (385, 398, 1900) },
+
+        { 90,  (390, 400, 1900) },
+
+        // Lv91-99: linearly interpolated between Lv90 and Lv100
+        { 91,  (395, 402, 1988) },
+        { 92,  (400, 404, 2076) },
+        { 93,  (405, 406, 2164) },
+        { 94,  (410, 408, 2252) },
+        { 95,  (415, 410, 2340) },
+        { 96,  (420, 412, 2428) },
+        { 97,  (425, 414, 2516) },
+        { 98,  (430, 416, 2604) },
+        { 99,  (435, 418, 2692) },
+
         { 100, (440, 420, 2780) },
     };
 
