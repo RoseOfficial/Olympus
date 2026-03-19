@@ -90,7 +90,9 @@ public abstract class BasePartyHelper
         }
         else
         {
-            // Trust NPC mode
+            // Trust NPC mode — iterate object table directly since PartyList is empty in Trust content.
+            // Trust NPCs are ObjectKind.BattleNpc; the local player is ObjectKind.Player.
+            // IsValidTrustNpc() filtering therefore excludes the player implicitly — no explicit skip needed.
             foreach (var obj in ObjectTable)
             {
                 if (IsValidTrustNpc(obj, out var npc, includeDead))
