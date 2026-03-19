@@ -49,7 +49,7 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
 
     protected BaseHealerRotation(
         IPluginLog log,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

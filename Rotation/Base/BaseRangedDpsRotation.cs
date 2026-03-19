@@ -64,7 +64,7 @@ public abstract class BaseRangedDpsRotation<TContext, TModule> : BaseRotation<TC
 
     protected BaseRangedDpsRotation(
         IPluginLog log,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

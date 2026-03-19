@@ -74,7 +74,7 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
 
     public Hecate(
         IPluginLog log,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

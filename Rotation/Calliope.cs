@@ -77,7 +77,7 @@ public sealed class Calliope : BaseRangedDpsRotation<ICalliopeContext, ICalliope
 
     public Calliope(
         IPluginLog log,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

@@ -74,7 +74,7 @@ public sealed class Astraea : BaseHealerRotation<IAstraeaContext, IAstraeaModule
 
     public Astraea(
         IPluginLog log,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         CombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

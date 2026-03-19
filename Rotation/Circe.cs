@@ -79,7 +79,7 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
 
     public Circe(
         IPluginLog log,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

@@ -30,7 +30,7 @@ public enum GcdState
 /// </summary>
 public sealed unsafe class ActionService : IActionService
 {
-    private readonly ActionTracker _actionTracker;
+    private readonly IActionTracker _actionTracker;
     private readonly IErrorMetricsService? _errorMetrics;
     private readonly WeaveOptimizer _weaveOptimizer;
 
@@ -71,7 +71,7 @@ public sealed unsafe class ActionService : IActionService
     /// <summary>Gets the WeaveOptimizer for intelligent oGCD timing.</summary>
     public IWeaveOptimizer WeaveOptimizer => _weaveOptimizer;
 
-    public ActionService(ActionTracker actionTracker, IErrorMetricsService? errorMetrics = null)
+    public ActionService(IActionTracker actionTracker, IErrorMetricsService? errorMetrics = null)
     {
         _actionTracker = actionTracker;
         _errorMetrics = errorMetrics;

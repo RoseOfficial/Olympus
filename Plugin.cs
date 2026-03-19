@@ -400,7 +400,7 @@ public sealed class Plugin : IDalamudPlugin
 
         // Core services (register both interface and concrete where interface exists)
         container.Register(configuration);
-        container.Register(actionTracker);
+        container.Register<IActionTracker, ActionTracker>(actionTracker);
         container.Register(actionService);
         container.Register<ICombatEventService, CombatEventService>(combatEventService);
         container.Register<IDamageIntakeService, DamageIntakeService>(damageIntakeService);

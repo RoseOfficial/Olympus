@@ -71,7 +71,7 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
 
     public Hephaestus(
         IPluginLog log,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

@@ -77,7 +77,7 @@ public sealed class Prometheus : BaseRangedDpsRotation<IPrometheusContext, IProm
 
     public Prometheus(
         IPluginLog log,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

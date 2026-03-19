@@ -80,7 +80,7 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>
 
     public Nike(
         IPluginLog log,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

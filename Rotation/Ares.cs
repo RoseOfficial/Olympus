@@ -68,7 +68,7 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
 
     public Ares(
         IPluginLog log,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

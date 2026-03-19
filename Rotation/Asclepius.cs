@@ -77,7 +77,7 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
 
     public Asclepius(
         IPluginLog log,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         CombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

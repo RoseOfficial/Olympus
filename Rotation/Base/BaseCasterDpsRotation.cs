@@ -46,7 +46,7 @@ public abstract class BaseCasterDpsRotation<TContext, TModule> : BaseRotation<TC
 
     protected BaseCasterDpsRotation(
         IPluginLog log,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

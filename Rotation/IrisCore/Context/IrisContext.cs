@@ -36,7 +36,7 @@ public sealed class IrisContext : IIrisContext
     public bool CanExecuteOgcd { get; }
 
     public IActionService ActionService { get; }
-    public ActionTracker ActionTracker { get; }
+    public IActionTracker ActionTracker { get; }
     public ICombatEventService CombatEventService { get; }
     public IDamageIntakeService DamageIntakeService { get; }
     public IDamageTrendService DamageTrendService { get; }
@@ -159,7 +159,7 @@ public sealed class IrisContext : IIrisContext
         bool canExecuteGcd,
         bool canExecuteOgcd,
         IActionService actionService,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

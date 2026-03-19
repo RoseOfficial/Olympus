@@ -77,7 +77,7 @@ public abstract class BaseTankRotation<TContext, TModule> : BaseRotation<TContex
 
     protected BaseTankRotation(
         IPluginLog log,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

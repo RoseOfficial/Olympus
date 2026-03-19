@@ -100,7 +100,7 @@ public sealed class AstraeaContext : BaseHealerContext, IAstraeaContext
         bool canExecuteGcd,
         bool canExecuteOgcd,
         IActionService actionService,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         ICombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,

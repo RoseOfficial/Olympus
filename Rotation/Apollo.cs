@@ -64,7 +64,7 @@ public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
 
     public Apollo(
         IPluginLog log,
-        ActionTracker actionTracker,
+        IActionTracker actionTracker,
         CombatEventService combatEventService,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,
