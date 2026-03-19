@@ -3,44 +3,6 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
-## v4.12.0
-
-### Ninja
-- Mug / Dokumori and Tenri Jindo now have their own toggles in settings and can be independently disabled
-
-### Samurai
-- Zanshin now has its own toggle in settings and can be disabled independently
-
-### Summoner
-- Mountain Buster and Searing Flash now have their own toggles in settings and can be independently disabled
-
-### Red Mage
-- Vice of Thorns and Prefulgence now have their own toggles in settings and can be independently disabled
-
-### Pictomancer
-- Mog of the Ages / Retribution of the Madeen (Portraits) now have a single toggle in settings and can be disabled
-- Fixed an issue where Starry Sky Motif could be skipped at high levels due to an incorrect level requirement check — the rotation was checking the Landscape Motif level instead of the Starry Sky Motif level
-
-### Bard
-- Song rotation, Resonant Arrow, and Radiant Encore now have their own toggles in settings and can be independently disabled
-- Fixed Rain of Death using a 12y AoE radius for enemy counting instead of the correct 8y, which caused it to activate with too few nearby enemies
-
-### Dancer
-- Finishing Move now has its own toggle in settings and can be disabled independently
-
-### Monk
-- Fire's Reply and Wind's Reply now have their own toggles in settings and can be independently disabled
-
-### Reaper
-- Enshroud now respects the same configurable burst hold time as Arcane Circle, rather than always using a fixed 8-second window
-
-### Dragoon
-- Lance Charge now respects the same configurable burst hold time as Battle Litany, rather than always using a fixed 8-second window
-
-### Machinist
-- Fixed Barrel Stabilizer incorrectly blocking at 50 Heat; it now correctly waits until Heat is above 70 (matching the +50 Heat it generates)
-
-<!-- LATEST-END -->
 ## v4.11.0
 
 ### All DPS Jobs
