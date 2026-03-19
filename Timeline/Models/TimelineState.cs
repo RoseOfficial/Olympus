@@ -81,8 +81,8 @@ public sealed class TimelineState
         if (LastSyncTime != DateTime.MinValue)
         {
             var secondsSinceSync = (float)(DateTime.UtcNow - LastSyncTime).TotalSeconds;
-            // Confidence decays from 1.0 to 0.5 over 30 seconds
-            Confidence = Math.Clamp(1f - secondsSinceSync / 60f, 0.5f, 1f);
+            // Confidence decays from 1.0 to 0.0 linearly over 120 seconds without a sync
+            Confidence = Math.Clamp(1f - secondsSinceSync / 120f, 0f, 1f);
         }
         else
         {
