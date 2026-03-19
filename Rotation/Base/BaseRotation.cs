@@ -25,7 +25,7 @@ namespace Olympus.Rotation.Base;
 /// </summary>
 /// <typeparam name="TContext">The job-specific context type.</typeparam>
 /// <typeparam name="TModule">The job-specific module interface type.</typeparam>
-public abstract class BaseRotation<TContext, TModule> : IRotation
+public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
     where TContext : IRotationContext
     where TModule : IRotationModule<TContext>
 {
@@ -364,6 +364,23 @@ public abstract class BaseRotation<TContext, TModule> : IRotation
         {
             return false;
         }
+    }
+
+    #endregion
+
+    #region IDisposable
+
+    /// <summary>
+    /// Override in derived classes to release managed or unmanaged resources.
+    /// Always call <c>base.Dispose(disposing)</c> at the end of overrides.
+    /// </summary>
+    protected virtual void Dispose(bool disposing) { }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 
     #endregion

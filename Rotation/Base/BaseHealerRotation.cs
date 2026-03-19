@@ -24,7 +24,7 @@ namespace Olympus.Rotation.Base;
 /// </summary>
 /// <typeparam name="TContext">The healer job-specific context type.</typeparam>
 /// <typeparam name="TModule">The healer job-specific module interface type.</typeparam>
-public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TContext, TModule>, IDisposable
+public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TContext, TModule>
     where TContext : IHealerRotationContext
     where TModule : IRotationModule<TContext>
 {
@@ -153,10 +153,14 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
     /// <summary>
     /// Disposes resources used by the healer rotation.
     /// </summary>
-    public virtual void Dispose()
+    protected override void Dispose(bool disposing)
     {
-        CoHealerDetectionService.Dispose();
-        BossMechanicDetector.Dispose();
+        if (disposing)
+        {
+            CoHealerDetectionService.Dispose();
+            BossMechanicDetector.Dispose();
+        }
+        base.Dispose(disposing);
     }
 
     #endregion

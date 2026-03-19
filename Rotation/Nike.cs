@@ -29,7 +29,7 @@ namespace Olympus.Rotation;
 /// Named after Nike, the Greek goddess of victory.
 /// </summary>
 [Rotation("Nike", JobRegistry.Samurai, Role = RotationRole.MeleeDps)]
-public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>, IDisposable
+public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>
 {
     /// <inheritdoc />
     public override string Name => "Nike";
@@ -302,10 +302,14 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>, IDis
     /// <c>IDisposable.Dispose()</c> on any rotation that implements it, so this cleanup runs
     /// correctly on job-switch and plugin-unload.
     /// </summary>
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
-        // Unsubscribe the Iaijutsu-tracking handler to avoid a dangling reference to this instance.
-        CombatEventService.OnAbilityUsed -= OnAbilityUsed;
+        if (disposing)
+        {
+            // Unsubscribe the Iaijutsu-tracking handler to avoid a dangling reference to this instance.
+            CombatEventService.OnAbilityUsed -= OnAbilityUsed;
+        }
+        base.Dispose(disposing);
     }
 
     #endregion
