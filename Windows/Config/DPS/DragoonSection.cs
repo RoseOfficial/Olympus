@@ -156,12 +156,6 @@ public sealed class DragoonSection
             ConfigUIHelpers.BeginIndent();
 
             ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Dragoon.HoldJumpsForBurst, "Hold Jumps for Burst"),
-                () => config.Dragoon.HoldJumpsForBurst,
-                v => config.Dragoon.HoldJumpsForBurst = v,
-                Loc.T(LocalizedStrings.Dragoon.HoldJumpsForBurstDesc, "Save jumps for Lance Charge windows"), save);
-
-            ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Dragoon.AlignWithParty, "Align Battle Litany with Party"),
                 () => config.Dragoon.AlignBattleLitanyWithParty,
                 v => config.Dragoon.AlignBattleLitanyWithParty = v,

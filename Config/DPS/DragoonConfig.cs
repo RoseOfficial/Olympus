@@ -94,11 +94,6 @@ public sealed class DragoonConfig
     #region Burst Window Settings
 
     /// <summary>
-    /// Hold jumps for Lance Charge windows.
-    /// </summary>
-    public bool HoldJumpsForBurst { get; set; } = true;
-
-    /// <summary>
     /// Align Battle Litany with party burst windows.
     /// </summary>
     public bool AlignBattleLitanyWithParty { get; set; } = true;

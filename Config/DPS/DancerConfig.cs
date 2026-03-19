@@ -239,6 +239,8 @@ public sealed class DancerConfig
 
     /// <summary>
     /// Whether to use Improvisation.
+    /// Defaults to false: Improvisation requires channeling in place and disrupts movement.
+    /// Users should opt in only if they play in phases with no required movement.
     /// </summary>
     public bool EnableImprovisation { get; set; } = false;
 

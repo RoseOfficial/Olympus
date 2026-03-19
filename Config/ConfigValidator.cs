@@ -254,28 +254,6 @@ public static class ConfigValidator
             });
         }
 
-        if (tank.TBNThreshold < 0f)
-        {
-            issues.Add(new ValidationIssue
-            {
-                Severity = ValidationSeverity.Warning,
-                Category = "Tank",
-                Message = "TankConfig.TBNThreshold is negative — resetting to default",
-                SuggestedFix = "Set to 0.80 (default)"
-            });
-        }
-
-        if (tank.HeartOfCorundumThreshold < 0f)
-        {
-            issues.Add(new ValidationIssue
-            {
-                Severity = ValidationSeverity.Warning,
-                Category = "Tank",
-                Message = "TankConfig.HeartOfCorundumThreshold is negative — resetting to default",
-                SuggestedFix = "Set to 0.80 (default)"
-            });
-        }
-
         // Mitigation threshold sanity - very low values may leave tank vulnerable
         if (tank.MitigationThreshold < 0.50f)
         {
@@ -285,6 +263,19 @@ public static class ConfigValidator
                 Category = "Tank",
                 Message = $"Mitigation threshold ({tank.MitigationThreshold:P0}) is very low. Mitigations may not trigger until emergency.",
                 SuggestedFix = "Set to 0.65-0.80 for proactive mitigation"
+            });
+        }
+
+        // TBN is proactive — apply at HIGH HP (>60%) to catch incoming damage for Dark Arts.
+        // A low threshold means TBN fires reactively after damage, defeating its purpose.
+        if (tank.TBNThreshold < 0.60f)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Warning,
+                Category = "Tank",
+                Message = $"TBN threshold ({tank.TBNThreshold:P0}) is very low. TBN should be applied at high HP to absorb incoming hits for Dark Arts.",
+                SuggestedFix = "Set TBN threshold to 0.70–0.85 for proactive usage"
             });
         }
 

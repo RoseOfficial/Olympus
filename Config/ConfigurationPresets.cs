@@ -358,6 +358,24 @@ public static class ConfigurationPresets
 
         // Party Coordination - moderate overlap window
         config.PartyCoordination.CooldownOverlapWindowSeconds = 3.0f;
+
+        // DPS burst pooling — enabled in balanced/proactive modes
+        if (role is null or JobRole.MeleeDps or JobRole.RangedDps or JobRole.CasterDps)
+        {
+            config.Dragoon.EnableBurstPooling = true;
+            config.Monk.EnableBurstPooling = true;
+            config.Ninja.EnableBurstPooling = true;
+            config.Samurai.EnableBurstPooling = true;
+            config.Reaper.EnableBurstPooling = true;
+            config.Viper.EnableBurstPooling = true;
+            config.Bard.EnableBurstPooling = true;
+            config.Machinist.EnableBurstPooling = true;
+            config.Dancer.EnableBurstPooling = true;
+            config.BlackMage.EnableBurstPooling = true;
+            config.Summoner.EnableBurstPooling = true;
+            config.RedMage.EnableBurstPooling = true;
+            config.Pictomancer.EnableBurstPooling = true;
+        }
     }
 
     /// <summary>
@@ -451,5 +469,23 @@ public static class ConfigurationPresets
         config.PartyCoordination.EnableHealerBurstAwareness = true;
         config.PartyCoordination.EnableRaidBuffCoordination = true;
         config.PartyCoordination.CooldownOverlapWindowSeconds = 3.0f;
+
+        // DPS burst pooling — enabled in balanced/proactive modes
+        if (role is null or JobRole.MeleeDps or JobRole.RangedDps or JobRole.CasterDps)
+        {
+            config.Dragoon.EnableBurstPooling = true;
+            config.Monk.EnableBurstPooling = true;
+            config.Ninja.EnableBurstPooling = true;
+            config.Samurai.EnableBurstPooling = true;
+            config.Reaper.EnableBurstPooling = true;
+            config.Viper.EnableBurstPooling = true;
+            config.Bard.EnableBurstPooling = true;
+            config.Machinist.EnableBurstPooling = true;
+            config.Dancer.EnableBurstPooling = true;
+            config.BlackMage.EnableBurstPooling = true;
+            config.Summoner.EnableBurstPooling = true;
+            config.RedMage.EnableBurstPooling = true;
+            config.Pictomancer.EnableBurstPooling = true;
+        }
     }
 }
