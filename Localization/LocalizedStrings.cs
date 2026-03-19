@@ -1101,8 +1101,6 @@ public static class LocalizedStrings
         public const string EnableBattleLitany = "config.job.drg.enable_battle_litany";
         public const string EnableBattleLitanyDesc = "config.job.drg.enable_battle_litany_desc";
         public const string BurstSection = "config.job.drg.burst_section";
-        public const string AlignWithParty = "config.job.drg.align_with_party";
-        public const string AlignWithPartyDesc = "config.job.drg.align_with_party_desc";
         public const string BattleLitanyHoldTime = "config.job.drg.battle_litany_hold_time";
         public const string BattleLitanyHoldTimeDesc = "config.job.drg.battle_litany_hold_time_desc";
         public const string PositionalSection = "config.job.drg.positional_section";
@@ -1149,8 +1147,6 @@ public static class LocalizedStrings
         public const string BurstSection = "config.job.nin.burst_section";
         public const string EnableKunaisBane = "config.job.nin.enable_kunais_bane";
         public const string EnableKunaisBaneDesc = "config.job.nin.enable_kunais_bane_desc";
-        public const string AlignWithParty = "config.job.nin.align_with_party";
-        public const string AlignWithPartyDesc = "config.job.nin.align_with_party_desc";
         public const string KunaisBaneHoldTime = "config.job.nin.kunais_bane_hold_time";
         public const string KunaisBaneHoldTimeDesc = "config.job.nin.kunais_bane_hold_time_desc";
     }
@@ -1188,8 +1184,6 @@ public static class LocalizedStrings
         public const string BurstSection = "config.job.sam.burst_section";
         public const string EnableIkishoten = "config.job.sam.enable_ikishoten";
         public const string EnableIkishotenDesc = "config.job.sam.enable_ikishoten_desc";
-        public const string AlignWithParty = "config.job.sam.align_with_party";
-        public const string AlignWithPartyDesc = "config.job.sam.align_with_party_desc";
         public const string IkishotenHoldTime = "config.job.sam.ikishoten_hold_time";
         public const string IkishotenHoldTimeDesc = "config.job.sam.ikishoten_hold_time_desc";
     }
@@ -1221,10 +1215,10 @@ public static class LocalizedStrings
         public const string EnableRiddleOfFireDesc = "config.job.mnk.enable_riddle_of_fire_desc";
         public const string EnableBrotherhood = "config.job.mnk.enable_brotherhood";
         public const string EnableBrotherhoodDesc = "config.job.mnk.enable_brotherhood_desc";
-        public const string AlignWithParty = "config.job.mnk.align_with_party";
-        public const string AlignWithPartyDesc = "config.job.mnk.align_with_party_desc";
         public const string BrotherhoodHoldTime = "config.job.mnk.brotherhood_hold_time";
         public const string BrotherhoodHoldTimeDesc = "config.job.mnk.brotherhood_hold_time_desc";
+        public const string EnableBurstPooling = "config.job.mnk.enable_burst_pooling";
+        public const string EnableBurstPoolingDesc = "config.job.mnk.enable_burst_pooling_desc";
     }
 
     /// <summary>Keys for Reaper specific settings.</summary>
@@ -1258,8 +1252,6 @@ public static class LocalizedStrings
         public const string BurstSection = "config.job.rpr.burst_section";
         public const string EnableArcaneCircle = "config.job.rpr.enable_arcane_circle";
         public const string EnableArcaneCircleDesc = "config.job.rpr.enable_arcane_circle_desc";
-        public const string AlignWithParty = "config.job.rpr.align_with_party";
-        public const string AlignWithPartyDesc = "config.job.rpr.align_with_party_desc";
         public const string ArcaneCircleHoldTime = "config.job.rpr.arcane_circle_hold_time";
         public const string ArcaneCircleHoldTimeDesc = "config.job.rpr.arcane_circle_hold_time_desc";
     }
@@ -1288,8 +1280,6 @@ public static class LocalizedStrings
         public const string BurstSection = "config.job.vpr.burst_section";
         public const string EnableSerpentsIre = "config.job.vpr.enable_serpents_ire";
         public const string EnableSerpentsIreDesc = "config.job.vpr.enable_serpents_ire_desc";
-        public const string AlignWithParty = "config.job.vpr.align_with_party";
-        public const string AlignWithPartyDesc = "config.job.vpr.align_with_party_desc";
         public const string SerpentsIreHoldTime = "config.job.vpr.serpents_ire_hold_time";
         public const string SerpentsIreHoldTimeDesc = "config.job.vpr.serpents_ire_hold_time_desc";
         public const string PositionalSection = "config.job.vpr.positional_section";
@@ -1297,6 +1287,15 @@ public static class LocalizedStrings
         public const string EnforcePositionalsDesc = "config.job.vpr.enforce_positionals_desc";
         public const string OptimizeVenomPositionals = "config.job.vpr.optimize_venom_positionals";
         public const string OptimizeVenomPositionalsDesc = "config.job.vpr.optimize_venom_positionals_desc";
+        public const string RoleActionsSection = "config.job.vpr.role_actions_section";
+        public const string EnableSecondWind = "config.job.vpr.enable_second_wind";
+        public const string SecondWindHpThreshold = "config.job.vpr.second_wind_hp_threshold";
+        public const string EnableBloodbath = "config.job.vpr.enable_bloodbath";
+        public const string BloodbathHpThreshold = "config.job.vpr.bloodbath_hp_threshold";
+        public const string EnableFeint = "config.job.vpr.enable_feint";
+        public const string EnableTrueNorth = "config.job.vpr.enable_true_north";
+        public const string EnableBurstPooling = "config.job.vpr.enable_burst_pooling";
+        public const string EnableBurstPoolingDesc = "config.job.vpr.enable_burst_pooling_desc";
     }
 
     // ===== RANGED PHYSICAL DPS =====
@@ -1361,8 +1360,6 @@ public static class LocalizedStrings
         public const string BurstSection = "config.job.mch.burst_section";
         public const string EnableWildfire = "config.job.mch.enable_wildfire";
         public const string EnableWildfireDesc = "config.job.mch.enable_wildfire_desc";
-        public const string AlignWithParty = "config.job.mch.align_with_party";
-        public const string AlignWithPartyDesc = "config.job.mch.align_with_party_desc";
         public const string WildfireHoldTime = "config.job.mch.wildfire_hold_time";
         public const string WildfireHoldTimeDesc = "config.job.mch.wildfire_hold_time_desc";
     }
@@ -1404,8 +1401,6 @@ public static class LocalizedStrings
         public const string EnableBattleVoiceDesc = "config.job.brd.enable_battle_voice_desc";
         public const string EnableRadiantFinale = "config.job.brd.enable_radiant_finale";
         public const string EnableRadiantFinaleDesc = "config.job.brd.enable_radiant_finale_desc";
-        public const string AlignWithParty = "config.job.brd.align_with_party";
-        public const string AlignWithPartyDesc = "config.job.brd.align_with_party_desc";
         public const string BuffHoldTime = "config.job.brd.buff_hold_time";
         public const string BuffHoldTimeDesc = "config.job.brd.buff_hold_time_desc";
     }
@@ -1443,8 +1438,6 @@ public static class LocalizedStrings
         public const string BurstSection = "config.job.dnc.burst_section";
         public const string EnableDevilment = "config.job.dnc.enable_devilment";
         public const string EnableDevilmentDesc = "config.job.dnc.enable_devilment_desc";
-        public const string AlignWithParty = "config.job.dnc.align_with_party";
-        public const string AlignWithPartyDesc = "config.job.dnc.align_with_party_desc";
         public const string TechnicalHoldTime = "config.job.dnc.technical_hold_time";
         public const string TechnicalHoldTimeDesc = "config.job.dnc.technical_hold_time_desc";
     }

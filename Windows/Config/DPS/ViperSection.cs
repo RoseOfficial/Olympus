@@ -28,6 +28,7 @@ public sealed class ViperSection
         DrawReawakenSection();
         DrawBurstSection();
         DrawPositionalSection();
+        DrawRoleActionsSection();
     }
 
     private void DrawDamageSection()
@@ -111,17 +112,17 @@ public sealed class ViperSection
             ConfigUIHelpers.BeginIndent();
 
             ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Viper.EnableBurstPooling, "Enable Burst Pooling"),
+                () => config.Viper.EnableBurstPooling,
+                v => config.Viper.EnableBurstPooling = v,
+                Loc.T(LocalizedStrings.Viper.EnableBurstPoolingDesc, "Hold Reawaken for burst windows."), save);
+
+            ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Viper.EnableSerpentsIre, "Enable Serpent's Ire"),
                 () => config.Viper.EnableSerpentsIre,
                 v => config.Viper.EnableSerpentsIre = v,
                 null, save,
                 actionId: VPRActions.SerpentsIre.ActionId);
-
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Viper.AlignWithParty, "Align with Party"),
-                () => config.Viper.AlignSerpentsIreWithParty,
-                v => config.Viper.AlignSerpentsIreWithParty = v,
-                Loc.T(LocalizedStrings.Viper.AlignWithPartyDesc, "Coordinate Serpent's Ire with party burst"), save);
 
             config.Viper.SerpentsIreHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Viper.SerpentsIreHoldTime, "Serpent's Ire Hold Time"),
@@ -149,6 +150,60 @@ public sealed class ViperSection
                 () => config.Viper.OptimizeVenomPositionals,
                 v => config.Viper.OptimizeVenomPositionals = v,
                 Loc.T(LocalizedStrings.Viper.OptimizeVenomPositionalsDesc, "Prioritize venom based on position"), save);
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawRoleActionsSection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Viper.RoleActionsSection, "Role Actions"), "VPR", false))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Viper.EnableSecondWind, "Enable Second Wind"),
+                () => config.Viper.EnableSecondWind,
+                v => config.Viper.EnableSecondWind = v,
+                null, save,
+                actionId: RoleActions.SecondWind.ActionId);
+
+            if (config.Viper.EnableSecondWind)
+            {
+                config.Viper.SecondWindHpThreshold = ConfigUIHelpers.ThresholdSlider(
+                    Loc.T(LocalizedStrings.Viper.SecondWindHpThreshold, "Second Wind HP Threshold"),
+                    config.Viper.SecondWindHpThreshold, 10f, 90f,
+                    null, save);
+            }
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Viper.EnableBloodbath, "Enable Bloodbath"),
+                () => config.Viper.EnableBloodbath,
+                v => config.Viper.EnableBloodbath = v,
+                null, save,
+                actionId: RoleActions.Bloodbath.ActionId);
+
+            if (config.Viper.EnableBloodbath)
+            {
+                config.Viper.BloodbathHpThreshold = ConfigUIHelpers.ThresholdSlider(
+                    Loc.T(LocalizedStrings.Viper.BloodbathHpThreshold, "Bloodbath HP Threshold"),
+                    config.Viper.BloodbathHpThreshold, 10f, 90f,
+                    null, save);
+            }
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Viper.EnableFeint, "Enable Feint"),
+                () => config.Viper.EnableFeint,
+                v => config.Viper.EnableFeint = v,
+                null, save,
+                actionId: RoleActions.Feint.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Viper.EnableTrueNorth, "Enable True North"),
+                () => config.Viper.EnableTrueNorth,
+                v => config.Viper.EnableTrueNorth = v,
+                null, save,
+                actionId: RoleActions.TrueNorth.ActionId);
 
             ConfigUIHelpers.EndIndent();
         }
