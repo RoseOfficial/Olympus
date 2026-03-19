@@ -193,6 +193,13 @@ public sealed class OlympusIpc : IDisposable
         _getVersion.UnregisterFunc();
         _getActiveRotation.UnregisterFunc();
         _getSupportedJobs.UnregisterFunc();
+
+        // _onStateChanged is a SendMessage-only provider (no RegisterAction/RegisterFunc was called on it).
+        // Dalamud cleans up all ICallGateProviders when the plugin interface is released on unload.
+        // Unsubscribing consumers is their responsibility; we have no subscriber handles to release here.
+        // The ICallGateProvider<bool, object> interface does not expose an explicit disposal method for
+        // send-only gates, so cleanup happens implicitly via plugin unload.
+
         _log.Info("Olympus IPC disposed");
     }
 }
