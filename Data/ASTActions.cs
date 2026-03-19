@@ -618,7 +618,7 @@ public static class ASTActions
         RecastTime = 1f,
         Range = 30f,
         MpCost = 0,
-        AppliedStatusId = 0, // TODO: verify correct status ID for The Arrow buff against game data (3888 is TheSpearStatusId)
+        AppliedStatusId = 37024,
         AppliedStatusDuration = 15f
     };
 
