@@ -315,9 +315,13 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
     protected void UpdateSmartAoE(TContext context, IBattleChara target)
     {
         // Guard: only run once per frame even if TryExecute is called from both oGCD and GCD passes.
-        var currentFrame = context.FrameCache.FrameNumber;
-        if (currentFrame == _smartAoELastFrame) return;
-        _smartAoELastFrame = currentFrame;
+        // FrameCache may be null in unit tests (mocked context); skip the guard when unavailable.
+        if (context.FrameCache != null)
+        {
+            var currentFrame = context.FrameCache.FrameNumber;
+            if (currentFrame == _smartAoELastFrame) return;
+            _smartAoELastFrame = currentFrame;
+        }
 
         var svc = SmartAoEService.Instance;
         if (svc == null) return;
