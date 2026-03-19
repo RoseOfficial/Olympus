@@ -128,6 +128,9 @@ public class ResurrectionModuleTests
 
         // Assert
         Assert.False(result);
+        actionService.Verify(
+            a => a.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()),
+            Times.Never);
     }
 
     [Fact]
@@ -157,6 +160,9 @@ public class ResurrectionModuleTests
 
         // Assert
         Assert.False(result);
+        actionService.Verify(
+            a => a.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()),
+            Times.Never);
     }
 
     #endregion

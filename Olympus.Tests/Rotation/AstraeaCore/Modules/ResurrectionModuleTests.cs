@@ -2,6 +2,7 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Moq;
 using Olympus.Data;
+using Olympus.Data.Healers;
 using Olympus.Models.Action;
 using Olympus.Rotation.AstraeaCore.Modules;
 using Olympus.Services.Action;
@@ -122,6 +123,9 @@ public class ResurrectionModuleTests
         var result = _module.TryExecute(context, isMoving: false);
 
         Assert.False(result);
+        actionService.Verify(
+            a => a.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()),
+            Times.Never);
     }
 
     [Fact]
@@ -148,6 +152,9 @@ public class ResurrectionModuleTests
         var result = _module.TryExecute(context, isMoving: false);
 
         Assert.False(result);
+        actionService.Verify(
+            a => a.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()),
+            Times.Never);
     }
 
     #endregion
@@ -199,6 +206,8 @@ public class ResurrectionModuleTests
             .Returns(false);
         actionService.Setup(a => a.GetCooldownRemaining(RoleActions.Swiftcast.ActionId))
             .Returns(60f);
+        actionService.Setup(a => a.GetCooldownRemaining(ASTActions.Lightspeed.ActionId))
+            .Returns(60f);
 
         var context = AstraeaTestContext.Create(
             config: config,
@@ -232,6 +241,8 @@ public class ResurrectionModuleTests
         actionService.Setup(a => a.IsActionReady(RoleActions.Swiftcast.ActionId))
             .Returns(false);
         actionService.Setup(a => a.GetCooldownRemaining(RoleActions.Swiftcast.ActionId))
+            .Returns(60f);
+        actionService.Setup(a => a.GetCooldownRemaining(ASTActions.Lightspeed.ActionId))
             .Returns(60f);
 
         var context = AstraeaTestContext.Create(

@@ -133,6 +133,11 @@ public class ResurrectionModuleTests
 
         // Module should use Swiftcast oGCD first (then raise next frame)
         Assert.True(result);
+        actionService.Verify(
+            a => a.ExecuteOgcd(
+                It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.Swiftcast.ActionId),
+                It.IsAny<ulong>()),
+            Times.Once);
     }
 
     [Fact]
