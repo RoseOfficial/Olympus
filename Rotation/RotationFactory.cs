@@ -153,7 +153,7 @@ public sealed class RotationFactory
                 if (resolved == null && !parameters[i].HasDefaultValue)
                 {
                     canResolve = false;
-                    _log.Debug("Cannot resolve parameter {Param} of type {Type} for {Rotation}",
+                    _log.Warning("[RotationFactory] Cannot resolve required parameter '{ParamName}' ({ParamType}) for rotation '{RotationType}'. Rotation will not be registered.",
                         parameters[i].Name ?? "unknown", paramType.Name, rotationType.Name);
                     break;
                 }
