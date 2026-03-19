@@ -74,6 +74,9 @@ public sealed partial class CactbotTimelineParser : ITimelineParser
         var hiddenPatterns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var labelToTimestamp = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
 
+        // Tracks forward-reference label jumps: (entry index in 'entries', unresolved label name)
+        var pendingLabelJumps = new List<(int EntryIndex, string LabelName)>();
+
         var lines = content.Split('\n', StringSplitOptions.TrimEntries);
 
         // First pass: collect hideall patterns and labels
@@ -99,7 +102,7 @@ public sealed partial class CactbotTimelineParser : ITimelineParser
             if (HideallPattern().IsMatch(line))
                 continue;
 
-            var entry = ParseLine(line, hiddenPatterns, labelToTimestamp);
+            var entry = ParseLine(line, hiddenPatterns, labelToTimestamp, pendingLabelJumps, entries.Count);
             if (entry.HasValue)
             {
                 entries.Add(entry.Value);
@@ -115,23 +118,35 @@ public sealed partial class CactbotTimelineParser : ITimelineParser
         if (entries.Count == 0)
             return null;
 
-        // Third pass: resolve label-based jumps
-        for (var i = 0; i < entries.Count; i++)
+        // Third pass: resolve forward label-based jumps now that labelToTimestamp is complete
+        foreach (var (entryIndex, labelName) in pendingLabelJumps)
         {
-            var entry = entries[i];
-            // JumpTarget of -2 indicates an unresolved label jump (set in ParseLine)
-            if (entry.JumpTarget == -2f && !string.IsNullOrEmpty(entry.Name))
+            if (labelToTimestamp.TryGetValue(labelName, out var resolvedTime))
             {
-                // The label name was stored temporarily
-                // This is a hack - we need to re-parse the jump modifier
-                // Actually, let's handle this differently in ParseLine
+                var existing = entries[entryIndex];
+                entries[entryIndex] = new TimelineEntry(
+                    existing.Timestamp,
+                    existing.Name,
+                    existing.EntryType,
+                    existing.Sync,
+                    existing.Duration,
+                    resolvedTime,
+                    existing.Label,
+                    existing.IsHidden);
             }
+            // If still unresolved after full parse, the entry keeps JumpTarget=-1 (no jump),
+            // which is safe and avoids corrupting the timeline clock with a -1 jump.
         }
 
         return new FightTimeline(zoneId, contentId, name, entries.ToArray());
     }
 
-    private TimelineEntry? ParseLine(string line, HashSet<string> hiddenPatterns, Dictionary<string, float> labelToTimestamp)
+    private TimelineEntry? ParseLine(
+        string line,
+        HashSet<string> hiddenPatterns,
+        Dictionary<string, float> labelToTimestamp,
+        List<(int EntryIndex, string LabelName)> pendingLabelJumps,
+        int currentEntryIndex)
     {
         var match = EntryPattern().Match(line);
         if (!match.Success)
@@ -212,10 +227,16 @@ public sealed partial class CactbotTimelineParser : ITimelineParser
                 var labelName = jumpMatch.Groups[2].Value;
                 if (labelToTimestamp.TryGetValue(labelName, out var labelTime))
                 {
+                    // Label already seen (backward reference) — resolve immediately
                     jumpTarget = labelTime;
                 }
-                // If label not found yet, it might be a forward reference
-                // We'll leave jumpTarget as -1 for now
+                else
+                {
+                    // Forward reference: label not yet seen during this pass.
+                    // Register for resolution in the post-parse pass; leave jumpTarget as -1
+                    // (HasJump returns false for -1, so this entry is safe until resolved).
+                    pendingLabelJumps.Add((currentEntryIndex, labelName));
+                }
             }
         }
 
