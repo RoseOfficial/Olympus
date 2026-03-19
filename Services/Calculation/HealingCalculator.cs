@@ -15,9 +15,12 @@ public static class HealingCalculator
     // Thread safety lock for calibration data
     private static readonly object _calibrationLock = new();
 
-    // Auto-calibration: tracks predicted vs actual to refine the correction factor
-    private static double _calibratedFactor = 1.0;
-    private static int _calibrationSamples = 0;
+    // Per-job calibration: jobId -> (calibratedFactor, sampleCount).
+    // Job ID 0 is the fallback bucket used when the caller does not have job context.
+    // Storing per-job prevents, e.g., WHM calibration samples from contaminating the
+    // correction factor applied to SGE heal predictions and vice-versa.
+    private static readonly Dictionary<uint, (double Factor, int Samples)> _jobCalibration = new();
+
     private const int MaxCalibrationSamples = 20;
     private const double DefaultFactor = 1.10; // Starting point based on testing
 
@@ -26,7 +29,11 @@ public static class HealingCalculator
     /// </summary>
     /// <param name="predicted">The predicted heal amount (before correction).</param>
     /// <param name="actual">The actual heal amount observed.</param>
-    public static void CalibrateFromActual(int predicted, int actual)
+    /// <param name="jobId">
+    /// The healer job ID (e.g., <c>JobRegistry.WhiteMage</c>). Pass 0 (default) when
+    /// the job is not available — samples accumulate in a shared fallback bucket.
+    /// </param>
+    public static void CalibrateFromActual(int predicted, int actual, uint jobId = 0)
     {
         if (predicted <= 0 || actual <= 0)
             return;
@@ -39,46 +46,64 @@ public static class HealingCalculator
 
         lock (_calibrationLock)
         {
+            _jobCalibration.TryGetValue(jobId, out var existing);
+            var (factor, samples) = existing;
+
             // Weighted average: give more weight to existing samples as we accumulate
-            if (_calibrationSamples == 0)
+            double newFactor;
+            if (samples == 0)
             {
-                _calibratedFactor = observedFactor;
+                newFactor = observedFactor;
             }
             else
             {
-                var weight = Math.Min(_calibrationSamples, MaxCalibrationSamples);
-                _calibratedFactor = (_calibratedFactor * weight + observedFactor) / (weight + 1);
+                var weight = Math.Min(samples, MaxCalibrationSamples);
+                newFactor = (factor * weight + observedFactor) / (weight + 1);
             }
 
-            _calibrationSamples = Math.Min(_calibrationSamples + 1, MaxCalibrationSamples);
+            _jobCalibration[jobId] = (newFactor, Math.Min(samples + 1, MaxCalibrationSamples));
         }
     }
 
     /// <summary>
-    /// Gets the current calibrated correction factor.
+    /// Gets the current calibrated correction factor for a specific job.
+    /// Falls back to the shared (jobId=0) bucket if fewer than 3 per-job samples exist.
+    /// Returns <see cref="DefaultFactor"/> if neither bucket has sufficient data.
     /// </summary>
-    public static double GetCorrectionFactor()
+    /// <param name="jobId">The healer job ID. Pass 0 to query the shared fallback bucket.</param>
+    public static double GetCorrectionFactor(uint jobId = 0)
     {
         lock (_calibrationLock)
         {
-            return _calibrationSamples >= 3 ? _calibratedFactor : DefaultFactor;
+            // Try per-job bucket first (only use if enough samples)
+            if (jobId != 0 && _jobCalibration.TryGetValue(jobId, out var jobEntry) && jobEntry.Samples >= 3)
+                return jobEntry.Factor;
+
+            // Fall back to shared bucket
+            if (_jobCalibration.TryGetValue(0, out var sharedEntry) && sharedEntry.Samples >= 3)
+                return sharedEntry.Factor;
+
+            return DefaultFactor;
         }
     }
 
     /// <summary>
-    /// Resets calibration data.
+    /// Resets calibration data for all jobs (or a specific job).
     /// </summary>
-    public static void ResetCalibration()
+    /// <param name="jobId">Job ID to reset, or null to reset all jobs.</param>
+    public static void ResetCalibration(uint? jobId = null)
     {
         lock (_calibrationLock)
         {
-            _calibratedFactor = 1.0;
-            _calibrationSamples = 0;
+            if (jobId.HasValue)
+                _jobCalibration.Remove(jobId.Value);
+            else
+                _jobCalibration.Clear();
         }
     }
 
     /// <summary>
-    /// Loads calibration data from persisted configuration.
+    /// Loads calibration data from persisted configuration into the shared (jobId=0) bucket.
     /// Only loads if the saved data is valid (has enough samples, is not too old, and factor is in valid range).
     /// </summary>
     public static void LoadCalibration(CalibrationConfig config)
@@ -90,21 +115,21 @@ public static class HealingCalculator
                 config.CalibratedFactor >= FFXIVConstants.MinCalibrationFactor &&
                 config.CalibratedFactor <= FFXIVConstants.MaxCalibrationFactor)
             {
-                _calibratedFactor = config.CalibratedFactor;
-                _calibrationSamples = config.CalibrationSamples;
+                _jobCalibration[0] = (config.CalibratedFactor, config.CalibrationSamples);
             }
         }
     }
 
     /// <summary>
-    /// Saves current calibration data to configuration for persistence.
+    /// Saves current calibration data from the shared (jobId=0) bucket to configuration for persistence.
     /// </summary>
     public static void SaveCalibration(CalibrationConfig config)
     {
         lock (_calibrationLock)
         {
-            config.CalibratedFactor = _calibratedFactor;
-            config.CalibrationSamples = _calibrationSamples;
+            _jobCalibration.TryGetValue(0, out var entry);
+            config.CalibratedFactor = entry.Factor > 0 ? entry.Factor : DefaultFactor;
+            config.CalibrationSamples = entry.Samples;
             config.LastCalibrationTicks = DateTime.UtcNow.Ticks;
         }
     }
@@ -208,8 +233,12 @@ public static class HealingCalculator
     /// <param name="determination">Player's current Determination stat.</param>
     /// <param name="weaponDamage">Player's weapon magic damage.</param>
     /// <param name="level">Player's current level (synced if applicable).</param>
+    /// <param name="jobId">
+    /// The healer job ID (e.g., <c>JobRegistry.WhiteMage</c>).
+    /// Pass 0 (default) to use the shared correction factor bucket.
+    /// </param>
     /// <returns>The estimated heal amount (average, no crit/variance).</returns>
-    public static int CalculateHeal(int potency, int mind, int determination, int weaponDamage, int level)
+    public static int CalculateHeal(int potency, int mind, int determination, int weaponDamage, int level, uint jobId = 0)
     {
         if (potency <= 0)
             return 0;
@@ -239,8 +268,8 @@ public static class HealingCalculator
         var h1 = Math.Floor(potency * fHmp * fDet / 100.0 / 1000.0);
         var h2 = Math.Floor(h1 * 1000.0 / 1000.0 * fWd / 100.0 * trait / 100.0);
 
-        // Apply calibrated correction factor (auto-learned from observed heals)
-        var correctionFactor = GetCorrectionFactor();
+        // Apply per-job calibrated correction factor (auto-learned from observed heals)
+        var correctionFactor = GetCorrectionFactor(jobId);
         var corrected = (int)Math.Floor(h2 * correctionFactor);
 
         return corrected;
