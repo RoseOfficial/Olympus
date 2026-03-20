@@ -219,7 +219,7 @@ public sealed class ActionTracker : IActionTracker
         }
         wasOnGcdLastFrame = !gcdReady;
 
-        // Track incapacitation windows (Willful, Stun, etc.)
+        // Track incapacitation windows and categorized downtime when in combat
         var isIncapacitated = !playerAlive;
         lock (historyLock)
         {
@@ -236,37 +236,34 @@ public sealed class ActionTracker : IActionTracker
                     incapacitationWindows.Add((incapacitationStart.Value, now));
                     incapacitationStart = null;
                 }
+
+                // Track categorized downtime
+                if (deltaTime > 0)
+                {
+                    // Incapacitated time counts as death/incapacitated regardless of GCD state
+                    if (isIncapacitated)
+                    {
+                        deathDowntimeSeconds += deltaTime;
+                    }
+                    else if (gcdReady)
+                    {
+                        // GCD ready but not casting — categorize the idle time
+                        if (HasMovedSignificantly(playerPosition))
+                        {
+                            movementDowntimeSeconds += deltaTime;
+                        }
+                        else if (inMechanicWindow)
+                        {
+                            mechanicDowntimeSeconds += deltaTime;
+                        }
+                        else
+                        {
+                            unforcedDowntimeSeconds += deltaTime;
+                        }
+                    }
+                }
             }
             wasIncapacitatedLastFrame = isIncapacitated;
-        }
-
-        // Track categorized downtime when in combat
-        lock (historyLock)
-        {
-            if (combatStartTime != null && deltaTime > 0)
-            {
-                // Incapacitated time counts as death/incapacitated regardless of GCD state
-                if (isIncapacitated)
-                {
-                    deathDowntimeSeconds += deltaTime;
-                }
-                else if (gcdReady)
-                {
-                    // GCD ready but not casting — categorize the idle time
-                    if (HasMovedSignificantly(playerPosition))
-                    {
-                        movementDowntimeSeconds += deltaTime;
-                    }
-                    else if (inMechanicWindow)
-                    {
-                        mechanicDowntimeSeconds += deltaTime;
-                    }
-                    else
-                    {
-                        unforcedDowntimeSeconds += deltaTime;
-                    }
-                }
-            }
         }
 
         // Update last position for movement tracking
@@ -550,19 +547,21 @@ public sealed class ActionTracker : IActionTracker
     /// </summary>
     public List<(string name, uint actionId, int count)> GetSpellUsageCounts()
     {
+        Dictionary<uint, int> snapshot;
         lock (historyLock)
         {
-            var result = new List<(string name, uint actionId, int count)>();
-
-            foreach (var (actionId, count) in spellUsageCounts)
-            {
-                var name = GetActionName(actionId);
-                result.Add((name, actionId, count));
-            }
-
-            result.Sort((a, b) => b.count.CompareTo(a.count));
-            return result;
+            snapshot = new Dictionary<uint, int>(spellUsageCounts);
         }
+
+        var result = new List<(string name, uint actionId, int count)>();
+        foreach (var (actionId, count) in snapshot)
+        {
+            var name = GetActionName(actionId);
+            result.Add((name, actionId, count));
+        }
+
+        result.Sort((a, b) => b.count.CompareTo(a.count));
+        return result;
     }
 
     /// <summary>

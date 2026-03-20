@@ -294,13 +294,31 @@ public sealed class BossMechanicDetector : IBossMechanicDetector, IDisposable
         }
     }
 
-    public float SecondsSinceLastRaidwide => _lastRaidwideTime > float.MinValue
-        ? _currentTime - _lastRaidwideTime
-        : float.MaxValue;
+    public float SecondsSinceLastRaidwide
+    {
+        get
+        {
+            lock (_historyLock)
+            {
+                return _lastRaidwideTime > float.MinValue
+                    ? _currentTime - _lastRaidwideTime
+                    : float.MaxValue;
+            }
+        }
+    }
 
-    public float SecondsSinceLastTankBuster => _lastTankBusterTime > float.MinValue
-        ? _currentTime - _lastTankBusterTime
-        : float.MaxValue;
+    public float SecondsSinceLastTankBuster
+    {
+        get
+        {
+            lock (_historyLock)
+            {
+                return _lastTankBusterTime > float.MinValue
+                    ? _currentTime - _lastTankBusterTime
+                    : float.MaxValue;
+            }
+        }
+    }
 
     public void Update()
     {

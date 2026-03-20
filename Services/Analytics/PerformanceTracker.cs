@@ -15,7 +15,7 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
 {
     private readonly AnalyticsConfig config;
     private readonly IActionTracker actionTracker;
-    private readonly CombatEventService combatEventService;
+    private readonly ICombatEventService combatEventService;
     private readonly IObjectTable objectTable;
     private readonly IPartyList partyList;
     private readonly IPluginLog log;
@@ -37,8 +37,8 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
 
     // Real-time metrics accumulators
     private long totalDamageDealt;
-    private int deathCount;
-    private int nearDeathCount;
+    private volatile int deathCount;
+    private volatile int nearDeathCount;
 
     // HP tracking for near-death detection
     private readonly Dictionary<uint, float> lastHpPercent = new();
@@ -68,7 +68,7 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
     public PerformanceTracker(
         AnalyticsConfig config,
         IActionTracker actionTracker,
-        CombatEventService combatEventService,
+        ICombatEventService combatEventService,
         IObjectTable objectTable,
         IPartyList partyList,
         IPluginLog log,
@@ -175,7 +175,7 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         }
 
         // Reset accumulators
-        totalDamageDealt = 0;
+        System.Threading.Interlocked.Exchange(ref totalDamageDealt, 0);
         deathCount = 0;
         nearDeathCount = 0;
         lastHpPercent.Clear();
@@ -585,7 +585,10 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
 
     public IReadOnlyList<(DateTime Start, DateTime End)> GetUnableToActWindows()
     {
-        return unableToActWindows.ToList();
+        lock (historyLock)
+        {
+            return unableToActWindows.ToList();
+        }
     }
 
     public IReadOnlyList<FightSession> GetSessionHistory()
