@@ -57,7 +57,7 @@ public sealed class DarkKnightSection
                 Loc.T(LocalizedStrings.DarkKnight.TBNThreshold, "TBN Threshold"),
                 config.Tank.TBNThreshold, 50f, 100f,
                 Loc.T(LocalizedStrings.DarkKnight.TBNThresholdDesc, "Apply TBN when HP is above this %, ensuring the shield will break for Dark Arts."),
-                save);
+                save, v => config.Tank.TBNThreshold = v);
             ConfigUIHelpers.EndDisabledGroup();
 
             ConfigUIHelpers.Spacing();
@@ -98,7 +98,7 @@ public sealed class DarkKnightSection
                 Loc.T(LocalizedStrings.DarkKnight.BloodGaugeCap, "Blood Gauge Cap"),
                 config.Tank.BloodGaugeCap, 0, 100,
                 Loc.T(LocalizedStrings.DarkKnight.BloodGaugeCapDesc, "Spend Blood Gauge before reaching this amount to avoid overcapping."),
-                save);
+                save, v => config.Tank.BloodGaugeCap = v);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.DarkKnight.MPManagement, "MP Management:"));

@@ -57,7 +57,7 @@ public sealed class GunbreakerSection
                 Loc.T(LocalizedStrings.Gunbreaker.HeartOfCorundumThreshold, "Heart of Corundum Threshold"),
                 config.Tank.HeartOfCorundumThreshold, 50f, 100f,
                 Loc.T(LocalizedStrings.Gunbreaker.HeartOfCorundumThresholdDesc, "Apply Heart of Corundum when HP falls below this %."),
-                save);
+                save, v => config.Tank.HeartOfCorundumThreshold = v);
             ConfigUIHelpers.EndDisabledGroup();
 
             ConfigUIHelpers.Spacing();

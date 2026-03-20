@@ -82,27 +82,27 @@ public sealed class AstrologianSection
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Astrologian.SingleTargetThresholds, "Single-Target Thresholds:"));
 
             config.Astrologian.BeneficThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Astrologian.BeneficThreshold, "Benefic Threshold"),
-                config.Astrologian.BeneficThreshold, 20f, 80f, null, save);
+                config.Astrologian.BeneficThreshold, 20f, 80f, null, save, v => config.Astrologian.BeneficThreshold = v);
             config.Astrologian.BeneficIIThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Astrologian.BeneficIIThreshold, "Benefic II Threshold"),
-                config.Astrologian.BeneficIIThreshold, 30f, 85f, null, save);
+                config.Astrologian.BeneficIIThreshold, 30f, 85f, null, save, v => config.Astrologian.BeneficIIThreshold = v);
             config.Astrologian.AspectedBeneficThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Astrologian.AspectedBeneficThreshold, "Aspected Benefic Threshold"),
-                config.Astrologian.AspectedBeneficThreshold, 50f, 95f, null, save);
+                config.Astrologian.AspectedBeneficThreshold, 50f, 95f, null, save, v => config.Astrologian.AspectedBeneficThreshold = v);
             config.Astrologian.EssentialDignityThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Astrologian.EssentialDignityThreshold, "Essential Dignity Threshold"),
-                config.Astrologian.EssentialDignityThreshold, 20f, 60f, Loc.T(LocalizedStrings.Astrologian.EssentialDignityThresholdDesc, "Lower = more healing potency (scales with missing HP)."), save);
+                config.Astrologian.EssentialDignityThreshold, 20f, 60f, Loc.T(LocalizedStrings.Astrologian.EssentialDignityThresholdDesc, "Lower = more healing potency (scales with missing HP)."), save, v => config.Astrologian.EssentialDignityThreshold = v);
             config.Astrologian.CelestialIntersectionThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Astrologian.CelestialIntersectionThreshold, "Celestial Intersection Threshold"),
-                config.Astrologian.CelestialIntersectionThreshold, 40f, 90f, null, save);
+                config.Astrologian.CelestialIntersectionThreshold, 40f, 90f, null, save, v => config.Astrologian.CelestialIntersectionThreshold = v);
             config.Astrologian.ExaltationThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Astrologian.ExaltationThreshold, "Exaltation Threshold"),
-                config.Astrologian.ExaltationThreshold, 50f, 95f, null, save);
+                config.Astrologian.ExaltationThreshold, 50f, 95f, null, save, v => config.Astrologian.ExaltationThreshold = v);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Astrologian.AoESettings, "AoE Settings:"));
 
             config.Astrologian.AoEHealThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Astrologian.AoEHpThreshold, "AoE HP Threshold"),
-                config.Astrologian.AoEHealThreshold, 50f, 90f, null, save);
+                config.Astrologian.AoEHealThreshold, 50f, 90f, null, save, v => config.Astrologian.AoEHealThreshold = v);
 
             config.Astrologian.AoEHealMinTargets = ConfigUIHelpers.IntSlider(Loc.T(LocalizedStrings.Astrologian.AoEMinTargets, "AoE Min Targets"),
                 config.Astrologian.AoEHealMinTargets, 1, 8,
-                Loc.T(LocalizedStrings.Astrologian.AoEMinTargetsDesc, "Minimum party members below threshold for AoE heals."), save);
+                Loc.T(LocalizedStrings.Astrologian.AoEMinTargetsDesc, "Minimum party members below threshold for AoE heals."), save, v => config.Astrologian.AoEHealMinTargets = v);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -140,10 +140,10 @@ public sealed class AstrologianSection
             ConfigUIHelpers.Spacing();
 
             config.Astrologian.EarthlyStarDetonateThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Astrologian.DetonateThreshold, "Detonate Threshold"),
-                config.Astrologian.EarthlyStarDetonateThreshold, 40f, 85f, Loc.T(LocalizedStrings.Astrologian.DetonateThresholdDesc, "Party average HP to trigger detonation."), save);
+                config.Astrologian.EarthlyStarDetonateThreshold, 40f, 85f, Loc.T(LocalizedStrings.Astrologian.DetonateThresholdDesc, "Party average HP to trigger detonation."), save, v => config.Astrologian.EarthlyStarDetonateThreshold = v);
 
             config.Astrologian.EarthlyStarMinTargets = ConfigUIHelpers.IntSlider(Loc.T(LocalizedStrings.Astrologian.MinTargetsInRange, "Min Targets in Range"),
-                config.Astrologian.EarthlyStarMinTargets, 1, 8, null, save);
+                config.Astrologian.EarthlyStarMinTargets, 1, 8, null, save, v => config.Astrologian.EarthlyStarMinTargets = v);
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.WaitForGiantDominance, "Wait for Giant Dominance"), () => config.Astrologian.WaitForGiantDominance, v => config.Astrologian.WaitForGiantDominance = v,
                 Loc.T(LocalizedStrings.Astrologian.WaitForGiantDominanceDesc, "Wait 10s for star to mature before detonating."), save);
@@ -152,7 +152,7 @@ public sealed class AstrologianSection
             {
                 config.Astrologian.EarthlyStarEmergencyThreshold = ConfigUIHelpers.ThresholdSliderSmall(Loc.T(LocalizedStrings.Astrologian.EmergencyThreshold, "Emergency Threshold"),
                     config.Astrologian.EarthlyStarEmergencyThreshold, 20f, 60f,
-                    Loc.T(LocalizedStrings.Astrologian.EmergencyThresholdDesc, "Detonate immature star if HP drops below this."), save);
+                    Loc.T(LocalizedStrings.Astrologian.EmergencyThresholdDesc, "Detonate immature star if HP drops below this."), save, v => config.Astrologian.EarthlyStarEmergencyThreshold = v);
             }
 
             ConfigUIHelpers.EndDisabledGroup();
@@ -175,10 +175,10 @@ public sealed class AstrologianSection
                 Loc.T(LocalizedStrings.Astrologian.AutoCastHoroscopeDesc, "Automatically prepare Horoscope."), save);
 
             config.Astrologian.HoroscopeThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Astrologian.HoroscopeThreshold, "Detonate Threshold"),
-                config.Astrologian.HoroscopeThreshold, 50f, 90f, Loc.T(LocalizedStrings.Astrologian.HoroscopeThresholdDesc, "Party HP threshold to detonate."), save);
+                config.Astrologian.HoroscopeThreshold, 50f, 90f, Loc.T(LocalizedStrings.Astrologian.HoroscopeThresholdDesc, "Party HP threshold to detonate."), save, v => config.Astrologian.HoroscopeThreshold = v);
 
             config.Astrologian.HoroscopeMinTargets = ConfigUIHelpers.IntSlider(Loc.T(LocalizedStrings.Astrologian.HoroscopeMinTargets, "Min Injured Targets"),
-                config.Astrologian.HoroscopeMinTargets, 1, 8, null, save);
+                config.Astrologian.HoroscopeMinTargets, 1, 8, null, save, v => config.Astrologian.HoroscopeMinTargets = v);
 
             ConfigUIHelpers.EndDisabledGroup();
             ConfigUIHelpers.EndIndent();
@@ -199,10 +199,10 @@ public sealed class AstrologianSection
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.AutoUseMacrocosmos, "Auto-Use Macrocosmos"), () => config.Astrologian.AutoUseMacrocosmos, v => config.Astrologian.AutoUseMacrocosmos = v, null, save);
 
             config.Astrologian.MacrocosmosThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Astrologian.MacrocosmosThreshold, "Party HP Threshold"),
-                config.Astrologian.MacrocosmosThreshold, 60f, 95f, Loc.T(LocalizedStrings.Astrologian.MacrocosmosThresholdDesc, "Use when party average HP is below this."), save);
+                config.Astrologian.MacrocosmosThreshold, 60f, 95f, Loc.T(LocalizedStrings.Astrologian.MacrocosmosThresholdDesc, "Use when party average HP is below this."), save, v => config.Astrologian.MacrocosmosThreshold = v);
 
             config.Astrologian.MacrocosmosMinTargets = ConfigUIHelpers.IntSlider(Loc.T(LocalizedStrings.Astrologian.MacrocosmosMinTargets, "Min Targets"),
-                config.Astrologian.MacrocosmosMinTargets, 1, 8, null, save);
+                config.Astrologian.MacrocosmosMinTargets, 1, 8, null, save, v => config.Astrologian.MacrocosmosMinTargets = v);
 
             ConfigUIHelpers.EndDisabledGroup();
             ConfigUIHelpers.EndIndent();
@@ -239,7 +239,7 @@ public sealed class AstrologianSection
             ImGui.TextDisabled(strategyDesc);
 
             config.Astrologian.NeutralSectThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Astrologian.NeutralSectThreshold, "HP Threshold"),
-                config.Astrologian.NeutralSectThreshold, 40f, 85f, Loc.T(LocalizedStrings.Astrologian.NeutralSectThresholdDesc, "Party average HP to trigger."), save);
+                config.Astrologian.NeutralSectThreshold, 40f, 85f, Loc.T(LocalizedStrings.Astrologian.NeutralSectThresholdDesc, "Party average HP to trigger."), save, v => config.Astrologian.NeutralSectThreshold = v);
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableSunSign, "Enable Sun Sign"), () => config.Astrologian.EnableSunSign, v => config.Astrologian.EnableSunSign = v,
                 null, save, actionId: ASTActions.SunSign.ActionId);
@@ -296,7 +296,7 @@ public sealed class AstrologianSection
 
                 config.Astrologian.LadyOfCrownsThreshold = ConfigUIHelpers.ThresholdSliderSmall(Loc.T(LocalizedStrings.Astrologian.LadyOfCrownsThreshold, "Lady of Crowns HP"),
                     config.Astrologian.LadyOfCrownsThreshold, 30f, 80f,
-                    Loc.T(LocalizedStrings.Astrologian.LadyOfCrownsThresholdDesc, "HP threshold to use Lady of Crowns heal."), save);
+                    Loc.T(LocalizedStrings.Astrologian.LadyOfCrownsThresholdDesc, "HP threshold to use Lady of Crowns heal."), save, v => config.Astrologian.LadyOfCrownsThreshold = v);
             }
 
             ConfigUIHelpers.Spacing();
@@ -312,7 +312,7 @@ public sealed class AstrologianSection
             {
                 config.Astrologian.AstrodyneMinSeals = ConfigUIHelpers.IntSliderSmall(Loc.T(LocalizedStrings.Astrologian.AstrodyneMinSeals, "Min Unique Seals"),
                     config.Astrologian.AstrodyneMinSeals, 1, 3,
-                    Loc.T(LocalizedStrings.Astrologian.AstrodyneMinSealsDesc, "Wait for this many unique seals (more seals = better buffs)."), save);
+                    Loc.T(LocalizedStrings.Astrologian.AstrodyneMinSealsDesc, "Wait for this many unique seals (more seals = better buffs)."), save, v => config.Astrologian.AstrodyneMinSeals = v);
             }
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableOracle, "Enable Oracle"), () => config.Astrologian.EnableOracle, v => config.Astrologian.EnableOracle = v,
@@ -335,7 +335,7 @@ public sealed class AstrologianSection
             ConfigUIHelpers.BeginDisabledGroup(!config.Astrologian.EnableSynastry);
 
             config.Astrologian.SynastryThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Astrologian.SynastryThreshold, "Synastry Threshold"),
-                config.Astrologian.SynastryThreshold, 30f, 70f, Loc.T(LocalizedStrings.Astrologian.SynastryThresholdDesc, "HP threshold to apply Synastry."), save);
+                config.Astrologian.SynastryThreshold, 30f, 70f, Loc.T(LocalizedStrings.Astrologian.SynastryThresholdDesc, "HP threshold to apply Synastry."), save, v => config.Astrologian.SynastryThreshold = v);
 
             ConfigUIHelpers.EndDisabledGroup();
             ConfigUIHelpers.EndIndent();
@@ -396,7 +396,7 @@ public sealed class AstrologianSection
             {
                 config.Astrologian.DotRefreshThreshold = ConfigUIHelpers.FloatSlider(Loc.T(LocalizedStrings.Astrologian.DotRefreshThreshold, "DoT Refresh (sec)"),
                     config.Astrologian.DotRefreshThreshold, 0f, 10f, "%.1f",
-                    Loc.T(LocalizedStrings.Astrologian.DotRefreshThresholdDesc, "Refresh DoT when this many seconds remain."), save);
+                    Loc.T(LocalizedStrings.Astrologian.DotRefreshThresholdDesc, "Refresh DoT when this many seconds remain."), save, v => config.Astrologian.DotRefreshThreshold = v);
             }
 
             ConfigUIHelpers.Spacing();
@@ -407,7 +407,7 @@ public sealed class AstrologianSection
             if (config.Astrologian.EnableAoEDamage)
             {
                 config.Astrologian.AoEDamageMinTargets = ConfigUIHelpers.IntSlider(Loc.T(LocalizedStrings.Astrologian.AoEMinEnemies, "Min Enemies"),
-                    config.Astrologian.AoEDamageMinTargets, 1, 10, null, save);
+                    config.Astrologian.AoEDamageMinTargets, 1, 10, null, save, v => config.Astrologian.AoEDamageMinTargets = v);
             }
 
             ConfigUIHelpers.Spacing();
@@ -418,7 +418,7 @@ public sealed class AstrologianSection
             if (config.Astrologian.EnableLucidDreaming)
             {
                 config.Astrologian.LucidDreamingThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Astrologian.LucidMpThreshold, "Lucid MP Threshold"),
-                    config.Astrologian.LucidDreamingThreshold, 40f, 90f, null, save);
+                    config.Astrologian.LucidDreamingThreshold, 40f, 90f, null, save, v => config.Astrologian.LucidDreamingThreshold = v);
             }
 
             ConfigUIHelpers.Spacing();
@@ -431,7 +431,7 @@ public sealed class AstrologianSection
             if (config.Astrologian.EnableCollectiveUnconscious)
             {
                 config.Astrologian.CollectiveUnconsciousThreshold = ConfigUIHelpers.ThresholdSliderSmall(Loc.T(LocalizedStrings.Astrologian.CollectiveUnconsciousThreshold, "CU HP Threshold"),
-                    config.Astrologian.CollectiveUnconsciousThreshold, 30f, 70f, null, save);
+                    config.Astrologian.CollectiveUnconsciousThreshold, 30f, 70f, null, save, v => config.Astrologian.CollectiveUnconsciousThreshold = v);
             }
 
             ConfigUIHelpers.EndIndent();

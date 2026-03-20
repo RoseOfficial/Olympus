@@ -84,7 +84,7 @@ public sealed class PaladinSection
                 Loc.T(LocalizedStrings.Paladin.ClemencyThreshold, "Clemency Threshold"),
                 config.Tank.ClemencyThreshold, 20f, 70f,
                 Loc.T(LocalizedStrings.Paladin.ClemencyThresholdDesc, "Use Clemency when HP falls below this %."),
-                save);
+                save, v => config.Tank.ClemencyThreshold = v);
             ConfigUIHelpers.EndDisabledGroup();
 
             ConfigUIHelpers.EndIndent();

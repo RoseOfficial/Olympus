@@ -70,23 +70,23 @@ public sealed class ScholarSection
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.SingleTargetThresholds, "Single-Target Thresholds:"));
 
             config.Scholar.PhysickThreshold = ConfigUIHelpers.ThresholdSlider("Physick",
-                config.Scholar.PhysickThreshold, 20f, 80f, null, save);
+                config.Scholar.PhysickThreshold, 20f, 80f, null, save, v => config.Scholar.PhysickThreshold = v);
             config.Scholar.AdloquiumThreshold = ConfigUIHelpers.ThresholdSlider("Adloquium",
-                config.Scholar.AdloquiumThreshold, 40f, 90f, null, save);
+                config.Scholar.AdloquiumThreshold, 40f, 90f, null, save, v => config.Scholar.AdloquiumThreshold = v);
             config.Scholar.LustrateThreshold = ConfigUIHelpers.ThresholdSlider("Lustrate",
-                config.Scholar.LustrateThreshold, 30f, 80f, null, save);
+                config.Scholar.LustrateThreshold, 30f, 80f, null, save, v => config.Scholar.LustrateThreshold = v);
             config.Scholar.ExcogitationThreshold = ConfigUIHelpers.ThresholdSlider("Excogitation",
                 config.Scholar.ExcogitationThreshold, 60f, 95f,
-                Loc.T(LocalizedStrings.Scholar.ExcogitationDesc, "Apply Excogitation proactively at this HP%."), save);
+                Loc.T(LocalizedStrings.Scholar.ExcogitationDesc, "Apply Excogitation proactively at this HP%."), save, v => config.Scholar.ExcogitationThreshold = v);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.AoEHealing, "AoE Healing:"));
 
             config.Scholar.AoEHealThreshold = ConfigUIHelpers.ThresholdSlider("AoE HP Threshold",
-                config.Scholar.AoEHealThreshold, 50f, 90f, null, save);
+                config.Scholar.AoEHealThreshold, 50f, 90f, null, save, v => config.Scholar.AoEHealThreshold = v);
 
             config.Scholar.AoEHealMinTargets = ConfigUIHelpers.IntSlider("AoE Min Targets##SCH",
-                config.Scholar.AoEHealMinTargets, 2, 8, null, save);
+                config.Scholar.AoEHealMinTargets, 2, 8, null, save, v => config.Scholar.AoEHealMinTargets = v);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.RecitationPriorityLabel, "Recitation Priority:"));
@@ -111,10 +111,10 @@ public sealed class ScholarSection
             {
                 ConfigUIHelpers.BeginIndent();
                 config.Scholar.SacredSoilThreshold = ConfigUIHelpers.ThresholdSliderSmall("Soil HP Threshold",
-                    config.Scholar.SacredSoilThreshold, 50f, 90f, null, save);
+                    config.Scholar.SacredSoilThreshold, 50f, 90f, null, save, v => config.Scholar.SacredSoilThreshold = v);
 
                 config.Scholar.SacredSoilMinTargets = ConfigUIHelpers.IntSliderSmall("Soil Min Targets",
-                    config.Scholar.SacredSoilMinTargets, 2, 8, null, save);
+                    config.Scholar.SacredSoilMinTargets, 2, 8, null, save, v => config.Scholar.SacredSoilMinTargets = v);
                 ConfigUIHelpers.EndIndent();
             }
 
@@ -140,25 +140,25 @@ public sealed class ScholarSection
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.WhisperingDawnLabel, "Whispering Dawn:"));
 
             config.Scholar.WhisperingDawnThreshold = ConfigUIHelpers.ThresholdSlider("WD HP Threshold",
-                config.Scholar.WhisperingDawnThreshold, 50f, 95f, null, save);
+                config.Scholar.WhisperingDawnThreshold, 50f, 95f, null, save, v => config.Scholar.WhisperingDawnThreshold = v);
 
             config.Scholar.WhisperingDawnMinTargets = ConfigUIHelpers.IntSlider("WD Min Targets",
-                config.Scholar.WhisperingDawnMinTargets, 1, 8, null, save);
+                config.Scholar.WhisperingDawnMinTargets, 1, 8, null, save, v => config.Scholar.WhisperingDawnMinTargets = v);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.FeyBlessingLabel, "Fey Blessing:"));
 
             config.Scholar.FeyBlessingThreshold = ConfigUIHelpers.ThresholdSlider("FB HP Threshold",
-                config.Scholar.FeyBlessingThreshold, 50f, 90f, null, save);
+                config.Scholar.FeyBlessingThreshold, 50f, 90f, null, save, v => config.Scholar.FeyBlessingThreshold = v);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.FeyUnionLabel, "Fey Union:"));
 
             config.Scholar.FeyUnionThreshold = ConfigUIHelpers.ThresholdSlider("FU HP Threshold",
-                config.Scholar.FeyUnionThreshold, 40f, 80f, null, save);
+                config.Scholar.FeyUnionThreshold, 40f, 80f, null, save, v => config.Scholar.FeyUnionThreshold = v);
 
             config.Scholar.FeyUnionMinGauge = ConfigUIHelpers.IntSlider("FU Min Gauge",
-                config.Scholar.FeyUnionMinGauge, 10, 100, null, save);
+                config.Scholar.FeyUnionMinGauge, 10, 100, null, save, v => config.Scholar.FeyUnionMinGauge = v);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.SeraphLabel, "Seraph:"));
@@ -173,7 +173,7 @@ public sealed class ScholarSection
             }
 
             config.Scholar.SeraphPartyHpThreshold = ConfigUIHelpers.ThresholdSlider("Seraph HP Trigger",
-                config.Scholar.SeraphPartyHpThreshold, 50f, 90f, null, save);
+                config.Scholar.SeraphPartyHpThreshold, 50f, 90f, null, save, v => config.Scholar.SeraphPartyHpThreshold = v);
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableConsolation, "Enable Consolation"), () => config.Scholar.EnableConsolation, v => config.Scholar.EnableConsolation = v,
                 null, save, actionId: SCHActions.Consolation.ActionId);
@@ -207,7 +207,7 @@ public sealed class ScholarSection
             if (config.Scholar.EnableEmergencyTactics)
             {
                 config.Scholar.EmergencyTacticsThreshold = ConfigUIHelpers.ThresholdSlider("ET HP Threshold",
-                    config.Scholar.EmergencyTacticsThreshold, 20f, 60f, null, save);
+                    config.Scholar.EmergencyTacticsThreshold, 20f, 60f, null, save, v => config.Scholar.EmergencyTacticsThreshold = v);
             }
 
             ConfigUIHelpers.Spacing();
@@ -219,7 +219,7 @@ public sealed class ScholarSection
             if (config.Scholar.EnableDeploymentTactics)
             {
                 config.Scholar.DeploymentMinTargets = ConfigUIHelpers.IntSlider("Deploy Min Targets",
-                    config.Scholar.DeploymentMinTargets, 2, 8, null, save);
+                    config.Scholar.DeploymentMinTargets, 2, 8, null, save, v => config.Scholar.DeploymentMinTargets = v);
             }
 
             ConfigUIHelpers.Spacing();
@@ -236,7 +236,7 @@ public sealed class ScholarSection
             if (config.Scholar.EnableExpedient)
             {
                 config.Scholar.ExpedientThreshold = ConfigUIHelpers.ThresholdSlider("Expedient HP Trigger",
-                    config.Scholar.ExpedientThreshold, 40f, 80f, null, save);
+                    config.Scholar.ExpedientThreshold, 40f, 80f, null, save, v => config.Scholar.ExpedientThreshold = v);
             }
 
             ConfigUIHelpers.EndIndent();
@@ -270,14 +270,14 @@ public sealed class ScholarSection
             ConfigUIHelpers.Spacing();
 
             config.Scholar.AetherflowReserve = ConfigUIHelpers.IntSlider(Loc.T(LocalizedStrings.Scholar.StackReserve, "Stack Reserve"),
-                config.Scholar.AetherflowReserve, 0, 3, Loc.T(LocalizedStrings.Scholar.StackReserveDesc, "Stacks to keep for emergency healing."), save);
+                config.Scholar.AetherflowReserve, 0, 3, Loc.T(LocalizedStrings.Scholar.StackReserveDesc, "Stacks to keep for emergency healing."), save, v => config.Scholar.AetherflowReserve = v);
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableEnergyDrain, "Enable Energy Drain"), () => config.Scholar.EnableEnergyDrain, v => config.Scholar.EnableEnergyDrain = v, null, save,
                 actionId: SCHActions.EnergyDrain.ActionId);
 
             config.Scholar.AetherflowDumpWindow = ConfigUIHelpers.FloatSlider(Loc.T(LocalizedStrings.Scholar.DumpWindow, "Dump Window (sec)"),
                 config.Scholar.AetherflowDumpWindow, 0f, 15f, "%.1f",
-                Loc.T(LocalizedStrings.Scholar.DumpWindowDesc, "Start dumping stacks when Aetherflow CD is below this."), save);
+                Loc.T(LocalizedStrings.Scholar.DumpWindowDesc, "Start dumping stacks when Aetherflow CD is below this."), save, v => config.Scholar.AetherflowDumpWindow = v);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.DissipationLabel, "Dissipation:"));
@@ -291,10 +291,10 @@ public sealed class ScholarSection
                 ConfigUIHelpers.BeginIndent();
                 config.Scholar.DissipationMaxFairyGauge = ConfigUIHelpers.IntSliderSmall(Loc.T(LocalizedStrings.Scholar.MaxFairyGauge, "Max Fairy Gauge"),
                     config.Scholar.DissipationMaxFairyGauge, 0, 100,
-                    Loc.T(LocalizedStrings.Scholar.MaxFairyGaugeDesc, "Only use when gauge is below this (avoid waste)."), save);
+                    Loc.T(LocalizedStrings.Scholar.MaxFairyGaugeDesc, "Only use when gauge is below this (avoid waste)."), save, v => config.Scholar.DissipationMaxFairyGauge = v);
 
                 config.Scholar.DissipationSafePartyHp = ConfigUIHelpers.ThresholdSliderSmall(Loc.T(LocalizedStrings.Scholar.SafePartyHp, "Safe Party HP"),
-                    config.Scholar.DissipationSafePartyHp, 60f, 95f, Loc.T(LocalizedStrings.Scholar.SafePartyHpDesc, "Only use when party HP is above this."), save);
+                    config.Scholar.DissipationSafePartyHp, 60f, 95f, Loc.T(LocalizedStrings.Scholar.SafePartyHpDesc, "Only use when party HP is above this."), save, v => config.Scholar.DissipationSafePartyHp = v);
                 ConfigUIHelpers.EndIndent();
             }
 
@@ -307,7 +307,7 @@ public sealed class ScholarSection
             {
                 config.Scholar.LucidDreamingThreshold = ConfigUIHelpers.ThresholdSlider(
                     Loc.T(LocalizedStrings.Scholar.LucidMpThreshold, "Lucid MP Threshold"),
-                    config.Scholar.LucidDreamingThreshold, 40f, 90f, null, save);
+                    config.Scholar.LucidDreamingThreshold, 40f, 90f, null, save, v => config.Scholar.LucidDreamingThreshold = v);
             }
 
             ConfigUIHelpers.EndIndent();
@@ -337,7 +337,7 @@ public sealed class ScholarSection
             if (config.Scholar.EnableDot)
             {
                 config.Scholar.DotRefreshThreshold = ConfigUIHelpers.FloatSlider("DoT Refresh (sec)",
-                    config.Scholar.DotRefreshThreshold, 0f, 10f, "%.1f", null, save);
+                    config.Scholar.DotRefreshThreshold, 0f, 10f, "%.1f", null, save, v => config.Scholar.DotRefreshThreshold = v);
             }
 
             ConfigUIHelpers.Spacing();
@@ -348,7 +348,7 @@ public sealed class ScholarSection
             if (config.Scholar.EnableAoEDamage)
             {
                 config.Scholar.AoEDamageMinTargets = ConfigUIHelpers.IntSlider("Art of War Min Enemies",
-                    config.Scholar.AoEDamageMinTargets, 2, 10, null, save);
+                    config.Scholar.AoEDamageMinTargets, 2, 10, null, save, v => config.Scholar.AoEDamageMinTargets = v);
             }
 
             ConfigUIHelpers.Spacing();

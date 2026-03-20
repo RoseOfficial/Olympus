@@ -83,19 +83,19 @@ public sealed class PartyCoordinationSection
                 Loc.T(LocalizedStrings.PartyCoordination.HeartbeatInterval, "Heartbeat Interval (ms)"),
                 config.PartyCoordination.HeartbeatIntervalMs, 500, 5000,
                 Loc.T(LocalizedStrings.PartyCoordination.HeartbeatIntervalDesc, "How often to broadcast presence (lower = faster, more overhead)"),
-                save);
+                save, v => config.PartyCoordination.HeartbeatIntervalMs = v);
 
             config.PartyCoordination.InstanceTimeoutMs = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.PartyCoordination.InstanceTimeout, "Instance Timeout (ms)"),
                 config.PartyCoordination.InstanceTimeoutMs, 2000, 15000,
                 Loc.T(LocalizedStrings.PartyCoordination.InstanceTimeoutDesc, "Time before an instance is considered disconnected"),
-                save);
+                save, v => config.PartyCoordination.InstanceTimeoutMs = v);
 
             config.PartyCoordination.HealReservationExpiryMs = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.PartyCoordination.HealReservationExpiry, "Heal Reservation Expiry (ms)"),
                 config.PartyCoordination.HealReservationExpiryMs, 1000, 5000,
                 Loc.T(LocalizedStrings.PartyCoordination.HealReservationExpiryDesc, "How long heal reservations stay valid"),
-                save);
+                save, v => config.PartyCoordination.HealReservationExpiryMs = v);
 
             ConfigUIHelpers.EndIndent();
         }

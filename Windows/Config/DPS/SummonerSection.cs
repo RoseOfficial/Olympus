@@ -61,7 +61,7 @@ public sealed class SummonerSection
                 config.Summoner.AoEMinTargets = ConfigUIHelpers.IntSlider(
                     Loc.T(LocalizedStrings.Summoner.AoEMinTargets, "AoE Min Targets"),
                     config.Summoner.AoEMinTargets, 2, 8,
-                    Loc.T(LocalizedStrings.Summoner.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+                    Loc.T(LocalizedStrings.Summoner.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save, v => config.Summoner.AoEMinTargets = v);
             }
 
             ConfigUIHelpers.EndIndent();
@@ -173,7 +173,7 @@ public sealed class SummonerSection
             config.Summoner.SearingLightHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Summoner.SearingLightHoldTime, "Searing Light Hold Time"),
                 config.Summoner.SearingLightHoldTime, 0f, 10f, "%.1f s",
-                Loc.T(LocalizedStrings.Summoner.SearingLightHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save);
+                Loc.T(LocalizedStrings.Summoner.SearingLightHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save, v => config.Summoner.SearingLightHoldTime = v);
 
             ConfigUIHelpers.EndIndent();
         }

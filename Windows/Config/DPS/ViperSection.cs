@@ -65,7 +65,7 @@ public sealed class ViperSection
             config.Viper.RattlingCoilMinStacks = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Viper.RattlingCoilMinStacks, "Rattling Coil Min Stacks"),
                 config.Viper.RattlingCoilMinStacks, 1, 3,
-                Loc.T(LocalizedStrings.Viper.RattlingCoilMinStacksDesc, "Minimum Rattling Coil stacks before spending with Uncoiled Fury"), save);
+                Loc.T(LocalizedStrings.Viper.RattlingCoilMinStacksDesc, "Minimum Rattling Coil stacks before spending with Uncoiled Fury"), save, v => config.Viper.RattlingCoilMinStacks = v);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Viper.SaveRattlingCoilForBurst, "Save Rattling Coil for Burst"),
@@ -86,7 +86,7 @@ public sealed class ViperSection
                 config.Viper.AoEMinTargets = ConfigUIHelpers.IntSlider(
                     Loc.T(LocalizedStrings.Viper.AoEMinTargets, "AoE Min Targets"),
                     config.Viper.AoEMinTargets, 2, 8,
-                    Loc.T(LocalizedStrings.Viper.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+                    Loc.T(LocalizedStrings.Viper.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save, v => config.Viper.AoEMinTargets = v);
             }
 
             ConfigUIHelpers.EndIndent();
@@ -116,7 +116,7 @@ public sealed class ViperSection
             config.Viper.AnguineMinStacks = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Viper.AnguineMinStacks, "Anguine Min Stacks"),
                 config.Viper.AnguineMinStacks, 1, 5,
-                Loc.T(LocalizedStrings.Viper.AnguineMinStacksDesc, "Minimum Anguine Tribute for Reawaken"), save);
+                Loc.T(LocalizedStrings.Viper.AnguineMinStacksDesc, "Minimum Anguine Tribute for Reawaken"), save, v => config.Viper.AnguineMinStacks = v);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Viper.SaveAnguineForBurst, "Save Anguine for Burst"),
@@ -150,7 +150,7 @@ public sealed class ViperSection
             config.Viper.SerpentsIreHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Viper.SerpentsIreHoldTime, "Serpent's Ire Hold Time"),
                 config.Viper.SerpentsIreHoldTime, 0f, 10f, "%.1f s",
-                Loc.T(LocalizedStrings.Viper.SerpentsIreHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save);
+                Loc.T(LocalizedStrings.Viper.SerpentsIreHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save, v => config.Viper.SerpentsIreHoldTime = v);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Viper.UseReawakenDuringBurst, "Reawaken During Burst"),
@@ -202,7 +202,7 @@ public sealed class ViperSection
                 config.Viper.SecondWindHpThreshold = ConfigUIHelpers.ThresholdSlider(
                     Loc.T(LocalizedStrings.Viper.SecondWindHpThreshold, "Second Wind HP Threshold"),
                     config.Viper.SecondWindHpThreshold, 10f, 90f,
-                    null, save);
+                    null, save, v => config.Viper.SecondWindHpThreshold = v);
             }
 
             ConfigUIHelpers.Toggle(
@@ -217,7 +217,7 @@ public sealed class ViperSection
                 config.Viper.BloodbathHpThreshold = ConfigUIHelpers.ThresholdSlider(
                     Loc.T(LocalizedStrings.Viper.BloodbathHpThreshold, "Bloodbath HP Threshold"),
                     config.Viper.BloodbathHpThreshold, 10f, 90f,
-                    null, save);
+                    null, save, v => config.Viper.BloodbathHpThreshold = v);
             }
 
             ConfigUIHelpers.Toggle(

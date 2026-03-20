@@ -84,7 +84,7 @@ public sealed class PictomancerSection
                 config.Pictomancer.AoEMinTargets = ConfigUIHelpers.IntSlider(
                     Loc.T(LocalizedStrings.Pictomancer.AoEMinTargets, "AoE Min Targets"),
                     config.Pictomancer.AoEMinTargets, 2, 8,
-                    Loc.T(LocalizedStrings.Pictomancer.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+                    Loc.T(LocalizedStrings.Pictomancer.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save, v => config.Pictomancer.AoEMinTargets = v);
             }
 
             ConfigUIHelpers.Spacing();
@@ -94,7 +94,7 @@ public sealed class PictomancerSection
             config.Pictomancer.HolyMinPalette = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Pictomancer.HolyMinPalette, "Holy in White Min Palette"),
                 config.Pictomancer.HolyMinPalette, 25, 100,
-                Loc.T(LocalizedStrings.Pictomancer.HolyMinPaletteDesc, "Minimum Palette gauge to spend on Holy in White"), save);
+                Loc.T(LocalizedStrings.Pictomancer.HolyMinPaletteDesc, "Minimum Palette gauge to spend on Holy in White"), save, v => config.Pictomancer.HolyMinPalette = v);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Pictomancer.SavePaletteForComet, "Save Palette for Comet"),
@@ -285,7 +285,7 @@ public sealed class PictomancerSection
             config.Pictomancer.StarryMuseHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Pictomancer.StarryMuseHoldTime, "Starry Muse Hold Time"),
                 config.Pictomancer.StarryMuseHoldTime, 0f, 10f, "%.1f s",
-                Loc.T(LocalizedStrings.Pictomancer.StarryMuseHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save);
+                Loc.T(LocalizedStrings.Pictomancer.StarryMuseHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save, v => config.Pictomancer.StarryMuseHoldTime = v);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -331,7 +331,7 @@ public sealed class PictomancerSection
             {
                 config.Pictomancer.LucidDreamingThreshold = ConfigUIHelpers.ThresholdSlider(
                     Loc.T(LocalizedStrings.Pictomancer.LucidDreamingThreshold, "Lucid MP Threshold"),
-                    config.Pictomancer.LucidDreamingThreshold, 40f, 90f, null, save);
+                    config.Pictomancer.LucidDreamingThreshold, 40f, 90f, null, save, v => config.Pictomancer.LucidDreamingThreshold = v);
             }
 
             ConfigUIHelpers.EndIndent();

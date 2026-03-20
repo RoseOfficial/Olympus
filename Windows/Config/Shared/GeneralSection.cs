@@ -173,21 +173,21 @@ public sealed class GeneralSection
             config.Analytics.SummaryMinimumDurationSeconds = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.FightSummary.MinDuration, "Minimum Fight Duration (s)"),
                 config.Analytics.SummaryMinimumDurationSeconds, 30, 300,
-                null, save);
+                null, save, v => config.Analytics.SummaryMinimumDurationSeconds = v);
 
             ConfigUIHelpers.Spacing();
 
             config.Analytics.SummaryPopupDelaySeconds = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.FightSummary.PopupDelay, "Popup Delay (s)"),
                 config.Analytics.SummaryPopupDelaySeconds, 0f, 10f, "%.1f",
-                null, save);
+                null, save, v => config.Analytics.SummaryPopupDelaySeconds = v);
 
             ConfigUIHelpers.Spacing();
 
             config.Analytics.MaxStoredSummaries = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.FightSummary.MaxStored, "Max Stored Summaries"),
                 config.Analytics.MaxStoredSummaries, 5, 25,
-                null, save);
+                null, save, v => config.Analytics.MaxStoredSummaries = v);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -230,7 +230,7 @@ public sealed class GeneralSection
                 Loc.T(LocalizedStrings.Resurrection.MinMpForRaise, "Min MP for Raise"),
                 this.config.Resurrection.RaiseMpThreshold, 10f, 50f,
                 Loc.T(LocalizedStrings.Resurrection.MinMpForRaiseDesc, "Minimum MP percentage before attempting to raise."),
-                this.save);
+                this.save, v => this.config.Resurrection.RaiseMpThreshold = v);
 
             ConfigUIHelpers.EndDisabledGroup();
             ConfigUIHelpers.EndIndent();

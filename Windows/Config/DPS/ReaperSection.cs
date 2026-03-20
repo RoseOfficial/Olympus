@@ -97,7 +97,7 @@ public sealed class ReaperSection
                 config.Reaper.AoEMinTargets = ConfigUIHelpers.IntSlider(
                     Loc.T(LocalizedStrings.Reaper.AoEMinTargets, "AoE Min Targets"),
                     config.Reaper.AoEMinTargets, 2, 8,
-                    Loc.T(LocalizedStrings.Reaper.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+                    Loc.T(LocalizedStrings.Reaper.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save, v => config.Reaper.AoEMinTargets = v);
             }
 
             ConfigUIHelpers.EndIndent();
@@ -113,19 +113,19 @@ public sealed class ReaperSection
             config.Reaper.SoulMinGauge = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Reaper.SoulMinGauge, "Soul Min Gauge"),
                 config.Reaper.SoulMinGauge, 50, 100,
-                Loc.T(LocalizedStrings.Reaper.SoulMinGaugeDesc, "Minimum Soul to use Blood Stalk/Grim Swathe"), save);
+                Loc.T(LocalizedStrings.Reaper.SoulMinGaugeDesc, "Minimum Soul to use Blood Stalk/Grim Swathe"), save, v => config.Reaper.SoulMinGauge = v);
 
             config.Reaper.SoulOvercapThreshold = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Reaper.SoulOvercapThreshold, "Soul Overcap Threshold"),
                 config.Reaper.SoulOvercapThreshold, 50, 100,
-                Loc.T(LocalizedStrings.Reaper.SoulOvercapThresholdDesc, "Dump Soul above this to avoid overcap"), save);
+                Loc.T(LocalizedStrings.Reaper.SoulOvercapThresholdDesc, "Dump Soul above this to avoid overcap"), save, v => config.Reaper.SoulOvercapThreshold = v);
 
             ConfigUIHelpers.Spacing();
 
             config.Reaper.ShroudMinGauge = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Reaper.ShroudMinGauge, "Shroud Min Gauge"),
                 config.Reaper.ShroudMinGauge, 50, 100,
-                Loc.T(LocalizedStrings.Reaper.ShroudMinGaugeDesc, "Minimum Shroud to enter Enshroud"), save);
+                Loc.T(LocalizedStrings.Reaper.ShroudMinGaugeDesc, "Minimum Shroud to enter Enshroud"), save, v => config.Reaper.ShroudMinGauge = v);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -182,7 +182,7 @@ public sealed class ReaperSection
             config.Reaper.ArcaneCircleHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Reaper.ArcaneCircleHoldTime, "Arcane Circle Hold Time"),
                 config.Reaper.ArcaneCircleHoldTime, 0f, 10f, "%.1f s",
-                Loc.T(LocalizedStrings.Reaper.ArcaneCircleHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save);
+                Loc.T(LocalizedStrings.Reaper.ArcaneCircleHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save, v => config.Reaper.ArcaneCircleHoldTime = v);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Reaper.UseEnshroudDuringArcaneCircle, "Enshroud During Arcane Circle"),
@@ -221,7 +221,7 @@ public sealed class ReaperSection
             config.Reaper.DeathsDesignRefreshThreshold = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Reaper.DeathsDesignRefreshThreshold, "Death's Design Refresh"),
                 config.Reaper.DeathsDesignRefreshThreshold, 0f, 30f, "%.1f s",
-                Loc.T(LocalizedStrings.Reaper.DeathsDesignRefreshThresholdDesc, "Seconds remaining on Death's Design before refreshing the DoT"), save);
+                Loc.T(LocalizedStrings.Reaper.DeathsDesignRefreshThresholdDesc, "Seconds remaining on Death's Design before refreshing the DoT"), save, v => config.Reaper.DeathsDesignRefreshThreshold = v);
 
             ConfigUIHelpers.EndIndent();
         }

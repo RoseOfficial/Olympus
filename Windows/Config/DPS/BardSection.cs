@@ -88,7 +88,7 @@ public sealed class BardSection
             config.Bard.ApexArrowMinGauge = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Bard.ApexArrowMinGauge, "Apex Arrow Min Gauge"),
                 config.Bard.ApexArrowMinGauge, 20, 100,
-                Loc.T(LocalizedStrings.Bard.ApexArrowMinGaugeDesc, "Minimum Soul Voice for Apex Arrow"), save);
+                Loc.T(LocalizedStrings.Bard.ApexArrowMinGaugeDesc, "Minimum Soul Voice for Apex Arrow"), save, v => config.Bard.ApexArrowMinGauge = v);
 
             ConfigUIHelpers.Spacing();
 
@@ -103,7 +103,7 @@ public sealed class BardSection
                 config.Bard.AoEMinTargets = ConfigUIHelpers.IntSlider(
                     Loc.T(LocalizedStrings.Bard.AoEMinTargets, "AoE Min Targets"),
                     config.Bard.AoEMinTargets, 2, 8,
-                    Loc.T(LocalizedStrings.Bard.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+                    Loc.T(LocalizedStrings.Bard.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save, v => config.Bard.AoEMinTargets = v);
             }
 
             ConfigUIHelpers.EndIndent();
@@ -138,7 +138,7 @@ public sealed class BardSection
             config.Bard.PitchPerfectMinStacks = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Bard.PitchPerfectMinStacks, "Pitch Perfect Min Stacks"),
                 config.Bard.PitchPerfectMinStacks, 1, 3,
-                Loc.T(LocalizedStrings.Bard.PitchPerfectMinStacksDesc, "Minimum Repertoire for Pitch Perfect"), save);
+                Loc.T(LocalizedStrings.Bard.PitchPerfectMinStacksDesc, "Minimum Repertoire for Pitch Perfect"), save, v => config.Bard.PitchPerfectMinStacks = v);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Bard.UsePitchPerfectEarly, "Use Pitch Perfect Early"),
@@ -177,7 +177,7 @@ public sealed class BardSection
             config.Bard.DotRefreshThreshold = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Bard.DotRefreshThreshold, "DoT Refresh Threshold"),
                 config.Bard.DotRefreshThreshold, 0f, 15f, "%.0f s",
-                Loc.T(LocalizedStrings.Bard.DotRefreshThresholdDesc, "Seconds remaining before refreshing DoTs"), save);
+                Loc.T(LocalizedStrings.Bard.DotRefreshThresholdDesc, "Seconds remaining before refreshing DoTs"), save, v => config.Bard.DotRefreshThreshold = v);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Bard.SpreadDots, "Spread DoTs"),
@@ -222,7 +222,7 @@ public sealed class BardSection
             config.Bard.BuffHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Bard.BuffHoldTime, "Buff Hold Time"),
                 config.Bard.BuffHoldTime, 0f, 10f, "%.1f s",
-                Loc.T(LocalizedStrings.Bard.BuffHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save);
+                Loc.T(LocalizedStrings.Bard.BuffHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save, v => config.Bard.BuffHoldTime = v);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Bard.EnableBurstPooling, "Enable Burst Pooling"),

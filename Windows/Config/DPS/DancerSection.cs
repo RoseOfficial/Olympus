@@ -87,7 +87,7 @@ public sealed class DancerSection
                 config.Dancer.AoEMinTargets = ConfigUIHelpers.IntSlider(
                     Loc.T(LocalizedStrings.Dancer.AoEMinTargets, "AoE Min Targets"),
                     config.Dancer.AoEMinTargets, 2, 8,
-                    Loc.T(LocalizedStrings.Dancer.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+                    Loc.T(LocalizedStrings.Dancer.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save, v => config.Dancer.AoEMinTargets = v);
             }
 
             ConfigUIHelpers.EndIndent();
@@ -137,12 +137,12 @@ public sealed class DancerSection
             config.Dancer.SaberDanceMinGauge = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Dancer.SaberDanceMinGauge, "Saber Dance Min Gauge"),
                 config.Dancer.SaberDanceMinGauge, 50, 100,
-                Loc.T(LocalizedStrings.Dancer.SaberDanceMinGaugeDesc, "Minimum Esprit for Saber Dance"), save);
+                Loc.T(LocalizedStrings.Dancer.SaberDanceMinGaugeDesc, "Minimum Esprit for Saber Dance"), save, v => config.Dancer.SaberDanceMinGauge = v);
 
             config.Dancer.EspritOvercapThreshold = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Dancer.EspritOvercapThreshold, "Esprit Overcap Threshold"),
                 config.Dancer.EspritOvercapThreshold, 50, 100,
-                Loc.T(LocalizedStrings.Dancer.EspritOvercapThresholdDesc, "Use Saber Dance above this Esprit to avoid overcap"), save);
+                Loc.T(LocalizedStrings.Dancer.EspritOvercapThresholdDesc, "Use Saber Dance above this Esprit to avoid overcap"), save, v => config.Dancer.EspritOvercapThreshold = v);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Dancer.SaveEspritForBurst, "Save Esprit for Burst"),
@@ -161,12 +161,12 @@ public sealed class DancerSection
             config.Dancer.FanDanceMinFeathers = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Dancer.FanDanceMinFeathers, "Fan Dance Min Feathers"),
                 config.Dancer.FanDanceMinFeathers, 1, 4,
-                Loc.T(LocalizedStrings.Dancer.FanDanceMinFeathersDesc, "Minimum Feathers for Fan Dance"), save);
+                Loc.T(LocalizedStrings.Dancer.FanDanceMinFeathersDesc, "Minimum Feathers for Fan Dance"), save, v => config.Dancer.FanDanceMinFeathers = v);
 
             config.Dancer.FeatherOvercapThreshold = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Dancer.FeatherOvercapThreshold, "Feather Overcap Threshold"),
                 config.Dancer.FeatherOvercapThreshold, 1, 4,
-                Loc.T(LocalizedStrings.Dancer.FeatherOvercapThresholdDesc, "Use Fan Dance above this count to avoid overcap"), save);
+                Loc.T(LocalizedStrings.Dancer.FeatherOvercapThresholdDesc, "Use Fan Dance above this count to avoid overcap"), save, v => config.Dancer.FeatherOvercapThreshold = v);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Dancer.SaveFeathersForBurst, "Save Feathers for Burst"),
@@ -205,7 +205,7 @@ public sealed class DancerSection
             config.Dancer.TechnicalHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Dancer.TechnicalHoldTime, "Technical Hold Time"),
                 config.Dancer.TechnicalHoldTime, 0f, 10f, "%.1f s",
-                Loc.T(LocalizedStrings.Dancer.TechnicalHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save);
+                Loc.T(LocalizedStrings.Dancer.TechnicalHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save, v => config.Dancer.TechnicalHoldTime = v);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Dancer.EnableBurstPooling, "Enable Burst Pooling"),

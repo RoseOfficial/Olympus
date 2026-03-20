@@ -93,7 +93,7 @@ public sealed class MachinistSection
                 config.Machinist.AoEMinTargets = ConfigUIHelpers.IntSlider(
                     Loc.T(LocalizedStrings.Machinist.AoEMinTargets, "AoE Min Targets"),
                     config.Machinist.AoEMinTargets, 2, 8,
-                    Loc.T(LocalizedStrings.Machinist.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+                    Loc.T(LocalizedStrings.Machinist.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save, v => config.Machinist.AoEMinTargets = v);
             }
 
             ConfigUIHelpers.EndIndent();
@@ -111,12 +111,12 @@ public sealed class MachinistSection
             config.Machinist.HeatMinGauge = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Machinist.HeatMinGauge, "Heat Min Gauge"),
                 config.Machinist.HeatMinGauge, 50, 100,
-                Loc.T(LocalizedStrings.Machinist.HeatMinGaugeDesc, "Minimum Heat for Hypercharge"), save);
+                Loc.T(LocalizedStrings.Machinist.HeatMinGaugeDesc, "Minimum Heat for Hypercharge"), save, v => config.Machinist.HeatMinGauge = v);
 
             config.Machinist.HeatOvercapThreshold = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Machinist.HeatOvercapThreshold, "Heat Overcap Threshold"),
                 config.Machinist.HeatOvercapThreshold, 50, 100,
-                Loc.T(LocalizedStrings.Machinist.HeatOvercapThresholdDesc, "Dump Heat above this to avoid overcap"), save);
+                Loc.T(LocalizedStrings.Machinist.HeatOvercapThresholdDesc, "Dump Heat above this to avoid overcap"), save, v => config.Machinist.HeatOvercapThreshold = v);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Machinist.SaveHeatForWildfire, "Save Heat for Wildfire"),
@@ -130,12 +130,12 @@ public sealed class MachinistSection
             config.Machinist.BatteryMinGauge = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Machinist.BatteryMinGauge, "Battery Min Gauge"),
                 config.Machinist.BatteryMinGauge, 50, 100,
-                Loc.T(LocalizedStrings.Machinist.BatteryMinGaugeDesc, "Minimum Battery to summon Queen"), save);
+                Loc.T(LocalizedStrings.Machinist.BatteryMinGaugeDesc, "Minimum Battery to summon Queen"), save, v => config.Machinist.BatteryMinGauge = v);
 
             config.Machinist.BatteryOvercapThreshold = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Machinist.BatteryOvercapThreshold, "Battery Overcap Threshold"),
                 config.Machinist.BatteryOvercapThreshold, 50, 100,
-                Loc.T(LocalizedStrings.Machinist.BatteryOvercapThresholdDesc, "Summon Queen above this to avoid overcap"), save);
+                Loc.T(LocalizedStrings.Machinist.BatteryOvercapThresholdDesc, "Summon Queen above this to avoid overcap"), save, v => config.Machinist.BatteryOvercapThreshold = v);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -206,7 +206,7 @@ public sealed class MachinistSection
             config.Machinist.WildfireHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Machinist.WildfireHoldTime, "Wildfire Hold Time"),
                 config.Machinist.WildfireHoldTime, 0f, 10f, "%.1f s",
-                Loc.T(LocalizedStrings.Machinist.WildfireHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save);
+                Loc.T(LocalizedStrings.Machinist.WildfireHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save, v => config.Machinist.WildfireHoldTime = v);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Machinist.EnableBurstPooling, "Enable Burst Pooling"),

@@ -96,7 +96,7 @@ public sealed class DragoonSection
             config.Dragoon.GeirskogulMinEyes = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Dragoon.GeirskogulMinEyes, "Geirskogul Min Eyes"),
                 config.Dragoon.GeirskogulMinEyes, 0, 2,
-                Loc.T(LocalizedStrings.Dragoon.GeirskogulMinEyesDesc, "0 = use immediately, 2 = wait for full gauge"), save);
+                Loc.T(LocalizedStrings.Dragoon.GeirskogulMinEyesDesc, "0 = use immediately, 2 = wait for full gauge"), save, v => config.Dragoon.GeirskogulMinEyes = v);
 
             ConfigUIHelpers.Spacing();
 
@@ -111,7 +111,7 @@ public sealed class DragoonSection
                 config.Dragoon.AoEMinTargets = ConfigUIHelpers.IntSlider(
                     Loc.T(LocalizedStrings.Dragoon.AoEMinTargets, "AoE Min Targets"),
                     config.Dragoon.AoEMinTargets, 2, 8,
-                    Loc.T(LocalizedStrings.Dragoon.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+                    Loc.T(LocalizedStrings.Dragoon.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save, v => config.Dragoon.AoEMinTargets = v);
             }
 
             ConfigUIHelpers.EndIndent();
@@ -164,7 +164,7 @@ public sealed class DragoonSection
             config.Dragoon.BattleLitanyHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Dragoon.BattleLitanyHoldTime, "Battle Litany Hold Time"),
                 config.Dragoon.BattleLitanyHoldTime, 0f, 10f, "%.1f s",
-                Loc.T(LocalizedStrings.Dragoon.BattleLitanyHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save);
+                Loc.T(LocalizedStrings.Dragoon.BattleLitanyHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save, v => config.Dragoon.BattleLitanyHoldTime = v);
 
             ConfigUIHelpers.EndIndent();
         }

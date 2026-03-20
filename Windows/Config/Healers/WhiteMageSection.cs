@@ -108,7 +108,7 @@ public sealed class WhiteMageSection
             {
                 config.Healing.ConservativeLilyHpThreshold = ConfigUIHelpers.ThresholdSliderSmall(
                     "Conservative HP Threshold", config.Healing.ConservativeLilyHpThreshold, 50f, 90f,
-                    "Only use lily heals when target is below this HP%.", save);
+                    "Only use lily heals when target is below this HP%.", save, v => config.Healing.ConservativeLilyHpThreshold = v);
             }
 
             ConfigUIHelpers.Spacing();
@@ -152,21 +152,21 @@ public sealed class WhiteMageSection
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.WhiteMage.EmergencyThresholds, "Emergency Thresholds:"));
 
             config.Healing.OgcdEmergencyThreshold = ConfigUIHelpers.ThresholdSlider("oGCD Emergency",
-                config.Healing.OgcdEmergencyThreshold, 30f, 70f, "Use emergency oGCD heals (Tetra) when below this HP%.", save);
+                config.Healing.OgcdEmergencyThreshold, 30f, 70f, "Use emergency oGCD heals (Tetra) when below this HP%.", save, v => config.Healing.OgcdEmergencyThreshold = v);
 
             config.Healing.GcdEmergencyThreshold = ConfigUIHelpers.ThresholdSlider("GCD Emergency",
-                config.Healing.GcdEmergencyThreshold, 20f, 60f, "Interrupt DPS to heal when below this HP%.", save);
+                config.Healing.GcdEmergencyThreshold, 20f, 60f, "Interrupt DPS to heal when below this HP%.", save, v => config.Healing.GcdEmergencyThreshold = v);
 
             config.Healing.BenedictionEmergencyThreshold = ConfigUIHelpers.ThresholdSlider("Benediction Threshold",
-                config.Healing.BenedictionEmergencyThreshold, 10f, 50f, "Only use Benediction when target HP is below this %.", save);
+                config.Healing.BenedictionEmergencyThreshold, 10f, 50f, "Only use Benediction when target HP is below this %.", save, v => config.Healing.BenedictionEmergencyThreshold = v);
 
             ConfigUIHelpers.Spacing();
 
             config.Healing.AoEHealMinTargets = ConfigUIHelpers.IntSlider("AoE Min Targets",
-                config.Healing.AoEHealMinTargets, 2, 8, "Use AoE heal when this many party members need healing.", save);
+                config.Healing.AoEHealMinTargets, 2, 8, "Use AoE heal when this many party members need healing.", save, v => config.Healing.AoEHealMinTargets = v);
 
             config.Healing.AoEHealHpThreshold = ConfigUIHelpers.ThresholdSlider("AoE HP Threshold",
-                config.Healing.AoEHealHpThreshold, 50f, 95f, "Count a party member as needing AoE healing when below this HP %.", save);
+                config.Healing.AoEHealHpThreshold, 50f, 95f, "Count a party member as needing AoE healing when below this HP %.", save, v => config.Healing.AoEHealHpThreshold = v);
 
             DrawAdvancedHealingSection();
 
@@ -215,13 +215,13 @@ public sealed class WhiteMageSection
                 if (config.Healing.TriagePreset == TriagePreset.Custom)
                 {
                     config.Healing.CustomTriageWeights.DamageRate = ConfigUIHelpers.ThresholdSliderSmall(
-                        "Damage Rate", config.Healing.CustomTriageWeights.DamageRate, 0f, 60f, null, save);
+                        "Damage Rate", config.Healing.CustomTriageWeights.DamageRate, 0f, 60f, null, save, v => config.Healing.CustomTriageWeights.DamageRate = v);
                     config.Healing.CustomTriageWeights.TankBonus = ConfigUIHelpers.ThresholdSliderSmall(
-                        "Tank Bonus", config.Healing.CustomTriageWeights.TankBonus, 0f, 60f, null, save);
+                        "Tank Bonus", config.Healing.CustomTriageWeights.TankBonus, 0f, 60f, null, save, v => config.Healing.CustomTriageWeights.TankBonus = v);
                     config.Healing.CustomTriageWeights.MissingHp = ConfigUIHelpers.ThresholdSliderSmall(
-                        "Missing HP", config.Healing.CustomTriageWeights.MissingHp, 0f, 60f, null, save);
+                        "Missing HP", config.Healing.CustomTriageWeights.MissingHp, 0f, 60f, null, save, v => config.Healing.CustomTriageWeights.MissingHp = v);
                     config.Healing.CustomTriageWeights.DamageAcceleration = ConfigUIHelpers.ThresholdSliderSmall(
-                        "Acceleration", config.Healing.CustomTriageWeights.DamageAcceleration, 0f, 30f, null, save);
+                        "Acceleration", config.Healing.CustomTriageWeights.DamageAcceleration, 0f, 30f, null, save, v => config.Healing.CustomTriageWeights.DamageAcceleration = v);
                 }
                 ConfigUIHelpers.EndIndent();
             }
@@ -236,9 +236,9 @@ public sealed class WhiteMageSection
             {
                 ConfigUIHelpers.BeginIndent();
                 config.Healing.AssizeHealingMinTargets = ConfigUIHelpers.IntSliderSmall("Min Injured",
-                    config.Healing.AssizeHealingMinTargets, 1, 8, null, save);
+                    config.Healing.AssizeHealingMinTargets, 1, 8, null, save, v => config.Healing.AssizeHealingMinTargets = v);
                 config.Healing.AssizeHealingHpThreshold = ConfigUIHelpers.ThresholdSliderSmall("HP Threshold",
-                    config.Healing.AssizeHealingHpThreshold, 50f, 95f, "Prioritize Assize healing when avg HP below threshold.", save);
+                    config.Healing.AssizeHealingHpThreshold, 50f, 95f, "Prioritize Assize healing when avg HP below threshold.", save, v => config.Healing.AssizeHealingHpThreshold = v);
                 ConfigUIHelpers.EndIndent();
             }
 
@@ -252,12 +252,12 @@ public sealed class WhiteMageSection
             {
                 ConfigUIHelpers.BeginIndent();
                 config.Healing.PreemptiveHealingThreshold = ConfigUIHelpers.ThresholdSliderSmall("HP Trigger",
-                    config.Healing.PreemptiveHealingThreshold, 10f, 80f, "Heal if projected HP would drop below this.", save);
+                    config.Healing.PreemptiveHealingThreshold, 10f, 80f, "Heal if projected HP would drop below this.", save, v => config.Healing.PreemptiveHealingThreshold = v);
                 config.Healing.SpikePatternConfidenceThreshold = ConfigUIHelpers.ThresholdSliderSmall("Pattern Confidence",
-                    config.Healing.SpikePatternConfidenceThreshold, 30f, 95f, "Minimum confidence for spike pattern prediction.", save);
+                    config.Healing.SpikePatternConfidenceThreshold, 30f, 95f, "Minimum confidence for spike pattern prediction.", save, v => config.Healing.SpikePatternConfidenceThreshold = v);
 
                 config.Healing.SpikePredictionLookahead = ConfigUIHelpers.FloatSlider("Lookahead (sec)",
-                    config.Healing.SpikePredictionLookahead, 0.5f, 5f, "%.1f", "How far ahead to predict spikes.", save);
+                    config.Healing.SpikePredictionLookahead, 0.5f, 5f, "%.1f", "How far ahead to predict spikes.", save, v => config.Healing.SpikePredictionLookahead = v);
                 ConfigUIHelpers.EndIndent();
             }
 
@@ -271,13 +271,13 @@ public sealed class WhiteMageSection
             {
                 ConfigUIHelpers.BeginIndent();
                 config.Healing.TimelineConfidenceThreshold = ConfigUIHelpers.ThresholdSliderSmall("Confidence Threshold",
-                    config.Healing.TimelineConfidenceThreshold, 50f, 100f, "Min confidence to trust timeline predictions.", save);
+                    config.Healing.TimelineConfidenceThreshold, 50f, 100f, "Min confidence to trust timeline predictions.", save, v => config.Healing.TimelineConfidenceThreshold = v);
 
                 config.Healing.RaidwidePreparationWindow = ConfigUIHelpers.FloatSlider("Raidwide Window (sec)",
-                    config.Healing.RaidwidePreparationWindow, 2f, 10f, "%.1f", "Seconds before raidwide to prepare shields/mitigation.", save);
+                    config.Healing.RaidwidePreparationWindow, 2f, 10f, "%.1f", "Seconds before raidwide to prepare shields/mitigation.", save, v => config.Healing.RaidwidePreparationWindow = v);
 
                 config.Healing.TankBusterPreparationWindow = ConfigUIHelpers.FloatSlider("Tank Buster Window (sec)",
-                    config.Healing.TankBusterPreparationWindow, 1f, 6f, "%.1f", "Seconds before tank buster to prepare benison/aquaveil.", save);
+                    config.Healing.TankBusterPreparationWindow, 1f, 6f, "%.1f", "Seconds before tank buster to prepare benison/aquaveil.", save, v => config.Healing.TankBusterPreparationWindow = v);
                 ConfigUIHelpers.EndIndent();
             }
 
@@ -330,7 +330,7 @@ public sealed class WhiteMageSection
             ConfigUIHelpers.Spacing();
 
             config.Defensive.DefensiveCooldownThreshold = ConfigUIHelpers.ThresholdSlider("Defensive Threshold",
-                config.Defensive.DefensiveCooldownThreshold, 50f, 95f, "Use defensives when party avg HP falls below this %.", save);
+                config.Defensive.DefensiveCooldownThreshold, 50f, 95f, "Use defensives when party avg HP falls below this %.", save, v => config.Defensive.DefensiveCooldownThreshold = v);
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.WhiteMage.UseWithAoEHeals, "Use with AoE Heals"), () => config.Defensive.UseDefensivesWithAoEHeals, v => config.Defensive.UseDefensivesWithAoEHeals = v,
                 Loc.T(LocalizedStrings.WhiteMage.UseWithAoEHealsDesc, "Sync Plenary Indulgence with AoE healing for bonus potency."), save);
@@ -417,7 +417,7 @@ public sealed class WhiteMageSection
             ConfigUIHelpers.Spacing();
 
             config.Damage.AoEDamageMinTargets = ConfigUIHelpers.IntSlider("AoE Min Enemies",
-                config.Damage.AoEDamageMinTargets, 2, 8, "Use Holy when this many enemies are within range.", save);
+                config.Damage.AoEDamageMinTargets, 2, 8, "Use Holy when this many enemies are within range.", save, v => config.Damage.AoEDamageMinTargets = v);
 
             ConfigUIHelpers.EndDisabledGroup();
             ConfigUIHelpers.EndIndent();

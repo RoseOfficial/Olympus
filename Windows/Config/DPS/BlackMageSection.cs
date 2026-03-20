@@ -67,7 +67,7 @@ public sealed class BlackMageSection
                 config.BlackMage.AoEMinTargets = ConfigUIHelpers.IntSlider(
                     Loc.T(LocalizedStrings.BlackMage.AoEMinTargets, "AoE Min Targets"),
                     config.BlackMage.AoEMinTargets, 2, 8,
-                    Loc.T(LocalizedStrings.BlackMage.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+                    Loc.T(LocalizedStrings.BlackMage.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save, v => config.BlackMage.AoEMinTargets = v);
             }
 
             ConfigUIHelpers.EndIndent();
@@ -83,12 +83,12 @@ public sealed class BlackMageSection
             config.BlackMage.FireIVsBeforeDespair = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.BlackMage.FireIVsBeforeDespair, "Fire IVs Before Despair"),
                 config.BlackMage.FireIVsBeforeDespair, 2, 6,
-                Loc.T(LocalizedStrings.BlackMage.FireIVsBeforeDespairDesc, "Number of Fire IV casts before Despair"), save);
+                Loc.T(LocalizedStrings.BlackMage.FireIVsBeforeDespairDesc, "Number of Fire IV casts before Despair"), save, v => config.BlackMage.FireIVsBeforeDespair = v);
 
             config.BlackMage.FireIVMinMp = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.BlackMage.FireIVMinMp, "Fire IV Min MP"),
                 config.BlackMage.FireIVMinMp, 400, 2000,
-                Loc.T(LocalizedStrings.BlackMage.FireIVMinMpDesc, "Minimum MP to cast Fire IV"), save);
+                Loc.T(LocalizedStrings.BlackMage.FireIVMinMpDesc, "Minimum MP to cast Fire IV"), save, v => config.BlackMage.FireIVMinMp = v);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -116,7 +116,7 @@ public sealed class BlackMageSection
             config.BlackMage.PolyglotMovementReserve = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.BlackMage.PolyglotMovementReserve, "Polyglot Reserve"),
                 config.BlackMage.PolyglotMovementReserve, 0, 2,
-                Loc.T(LocalizedStrings.BlackMage.PolyglotMovementReserveDesc, "Polyglot stacks to reserve for movement"), save);
+                Loc.T(LocalizedStrings.BlackMage.PolyglotMovementReserveDesc, "Polyglot stacks to reserve for movement"), save, v => config.BlackMage.PolyglotMovementReserve = v);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.BlackMage.EnableLeyLines, "Enable Ley Lines"),
@@ -143,7 +143,7 @@ public sealed class BlackMageSection
             config.BlackMage.ThunderRefreshThreshold = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.BlackMage.ThunderRefreshThreshold, "Thunder Refresh"),
                 config.BlackMage.ThunderRefreshThreshold, 0f, 15f, "%.0f s",
-                Loc.T(LocalizedStrings.BlackMage.ThunderRefreshThresholdDesc, "Seconds remaining before refreshing"), save);
+                Loc.T(LocalizedStrings.BlackMage.ThunderRefreshThresholdDesc, "Seconds remaining before refreshing"), save, v => config.BlackMage.ThunderRefreshThreshold = v);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.BlackMage.UseThunderheadImmediately, "Use Thunderhead Immediately"),

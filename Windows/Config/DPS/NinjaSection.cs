@@ -69,7 +69,7 @@ public sealed class NinjaSection
                 config.Ninja.AoEMinTargets = ConfigUIHelpers.IntSlider(
                     Loc.T(LocalizedStrings.Ninja.AoEMinTargets, "AoE Min Targets"),
                     config.Ninja.AoEMinTargets, 2, 8,
-                    Loc.T(LocalizedStrings.Ninja.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+                    Loc.T(LocalizedStrings.Ninja.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save, v => config.Ninja.AoEMinTargets = v);
             }
 
             ConfigUIHelpers.EndIndent();
@@ -99,12 +99,12 @@ public sealed class NinjaSection
             config.Ninja.NinkiMinGauge = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Ninja.NinkiMinGauge, "Ninki Min Gauge"),
                 config.Ninja.NinkiMinGauge, 50, 100,
-                Loc.T(LocalizedStrings.Ninja.NinkiMinGaugeDesc, "Minimum Ninki to use spenders"), save);
+                Loc.T(LocalizedStrings.Ninja.NinkiMinGaugeDesc, "Minimum Ninki to use spenders"), save, v => config.Ninja.NinkiMinGauge = v);
 
             config.Ninja.NinkiOvercapThreshold = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Ninja.NinkiOvercapThreshold, "Ninki Overcap Threshold"),
                 config.Ninja.NinkiOvercapThreshold, 50, 100,
-                Loc.T(LocalizedStrings.Ninja.NinkiOvercapThresholdDesc, "Dump Ninki above this to avoid overcap"), save);
+                Loc.T(LocalizedStrings.Ninja.NinkiOvercapThresholdDesc, "Dump Ninki above this to avoid overcap"), save, v => config.Ninja.NinkiOvercapThreshold = v);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -133,7 +133,7 @@ public sealed class NinjaSection
             config.Ninja.DotonMinTargets = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Ninja.DotonMinTargets, "Doton Min Targets"),
                 config.Ninja.DotonMinTargets, 2, 8,
-                Loc.T(LocalizedStrings.Ninja.DotonMinTargetsDesc, "Minimum enemies for Doton placement"), save);
+                Loc.T(LocalizedStrings.Ninja.DotonMinTargetsDesc, "Minimum enemies for Doton placement"), save, v => config.Ninja.DotonMinTargets = v);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -169,7 +169,7 @@ public sealed class NinjaSection
             config.Ninja.KunaisBaneHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Ninja.KunaisBaneHoldTime, "Kunai's Bane Hold Time"),
                 config.Ninja.KunaisBaneHoldTime, 0f, 10f, "%.1f s",
-                Loc.T(LocalizedStrings.Ninja.KunaisBaneHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save);
+                Loc.T(LocalizedStrings.Ninja.KunaisBaneHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save, v => config.Ninja.KunaisBaneHoldTime = v);
 
             ConfigUIHelpers.Spacing();
 

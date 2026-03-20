@@ -85,7 +85,7 @@ public sealed class WarriorSection
                 Loc.T(LocalizedStrings.Warrior.BeastGaugeCap, "Beast Gauge Cap"),
                 config.Tank.BeastGaugeCap, 0, 100,
                 Loc.T(LocalizedStrings.Warrior.BeastGaugeCapDesc, "Spend Beast Gauge before reaching this amount to avoid overcapping."),
-                save);
+                save, v => config.Tank.BeastGaugeCap = v);
 
             ConfigUIHelpers.EndIndent();
         }

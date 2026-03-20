@@ -77,7 +77,7 @@ public sealed class SamuraiSection
                 config.Samurai.AoEMinTargets = ConfigUIHelpers.IntSlider(
                     Loc.T(LocalizedStrings.Samurai.AoEMinTargets, "AoE Min Targets"),
                     config.Samurai.AoEMinTargets, 2, 8,
-                    Loc.T(LocalizedStrings.Samurai.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+                    Loc.T(LocalizedStrings.Samurai.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save, v => config.Samurai.AoEMinTargets = v);
             }
 
             ConfigUIHelpers.EndIndent();
@@ -128,12 +128,12 @@ public sealed class SamuraiSection
             config.Samurai.KenkiMinGauge = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Samurai.KenkiMinGauge, "Kenki Min Gauge"),
                 config.Samurai.KenkiMinGauge, 25, 100,
-                Loc.T(LocalizedStrings.Samurai.KenkiMinGaugeDesc, "Minimum Kenki to use spenders"), save);
+                Loc.T(LocalizedStrings.Samurai.KenkiMinGaugeDesc, "Minimum Kenki to use spenders"), save, v => config.Samurai.KenkiMinGauge = v);
 
             config.Samurai.KenkiOvercapThreshold = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Samurai.KenkiOvercapThreshold, "Kenki Overcap Threshold"),
                 config.Samurai.KenkiOvercapThreshold, 25, 100,
-                Loc.T(LocalizedStrings.Samurai.KenkiOvercapThresholdDesc, "Dump Kenki above this to avoid overcap"), save);
+                Loc.T(LocalizedStrings.Samurai.KenkiOvercapThresholdDesc, "Dump Kenki above this to avoid overcap"), save, v => config.Samurai.KenkiOvercapThreshold = v);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -154,12 +154,12 @@ public sealed class SamuraiSection
             config.Samurai.HiganbanaRefreshThreshold = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Samurai.HiganbanaRefreshThreshold, "Higanbana Refresh"),
                 config.Samurai.HiganbanaRefreshThreshold, 0f, 30f, "%.0f s",
-                Loc.T(LocalizedStrings.Samurai.HiganbanaRefreshThresholdDesc, "Seconds remaining before refreshing"), save);
+                Loc.T(LocalizedStrings.Samurai.HiganbanaRefreshThresholdDesc, "Seconds remaining before refreshing"), save, v => config.Samurai.HiganbanaRefreshThreshold = v);
 
             config.Samurai.HiganbanaMinTargetHp = ConfigUIHelpers.ThresholdSlider(
                 Loc.T(LocalizedStrings.Samurai.HiganbanaMinTargetHp, "Higanbana Min Target HP"),
                 config.Samurai.HiganbanaMinTargetHp, 0f, 50f,
-                Loc.T(LocalizedStrings.Samurai.HiganbanaMinTargetHpDesc, "Skip Higanbana on low HP targets"), save);
+                Loc.T(LocalizedStrings.Samurai.HiganbanaMinTargetHpDesc, "Skip Higanbana on low HP targets"), save, v => config.Samurai.HiganbanaMinTargetHp = v);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -181,7 +181,7 @@ public sealed class SamuraiSection
             config.Samurai.IkishotenHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Samurai.IkishotenHoldTime, "Ikishoten Hold Time"),
                 config.Samurai.IkishotenHoldTime, 0f, 10f, "%.1f s",
-                Loc.T(LocalizedStrings.Samurai.IkishotenHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save);
+                Loc.T(LocalizedStrings.Samurai.IkishotenHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save, v => config.Samurai.IkishotenHoldTime = v);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Samurai.EnableMeikyoShisui, "Enable Meikyo Shisui"),
@@ -199,7 +199,7 @@ public sealed class SamuraiSection
             config.Samurai.KenkiReserveForBurst = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Samurai.KenkiReserveForBurst, "Kenki Reserve for Burst"),
                 config.Samurai.KenkiReserveForBurst, 0, 50,
-                Loc.T(LocalizedStrings.Samurai.KenkiReserveForBurstDesc, "Reserve this much Kenki for Senei/Guren in burst windows"), save);
+                Loc.T(LocalizedStrings.Samurai.KenkiReserveForBurstDesc, "Reserve this much Kenki for Senei/Guren in burst windows"), save, v => config.Samurai.KenkiReserveForBurst = v);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Samurai.EnableBurstPooling, "Enable Burst Pooling"),

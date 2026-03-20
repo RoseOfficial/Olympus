@@ -241,16 +241,18 @@ public static class ConfigUIHelpers
     /// Renders a percentage threshold slider (0-100%).
     /// Returns the new value if changed, or the original value if unchanged.
     /// </summary>
-    public static float ThresholdSlider(string label, float value, float min, float max, string? description, Action save)
+    public static float ThresholdSlider(string label, float value, float min, float max, string? description, Action save, Action<float>? setter = null)
     {
         var displayValue = value * 100f;
         ImGui.SetNextItemWidth(SliderWidth);
         if (ImGui.SliderFloat(label, ref displayValue, min, max, "%.0f%%"))
         {
+            var newValue = displayValue / 100f;
+            setter?.Invoke(newValue);
             save();
             if (!string.IsNullOrEmpty(description))
                 ImGui.TextDisabled(description);
-            return displayValue / 100f;
+            return newValue;
         }
 
         if (!string.IsNullOrEmpty(description))
@@ -263,16 +265,18 @@ public static class ConfigUIHelpers
     /// Renders a small percentage threshold slider.
     /// Returns the new value if changed, or the original value if unchanged.
     /// </summary>
-    public static float ThresholdSliderSmall(string label, float value, float min, float max, string? description, Action save)
+    public static float ThresholdSliderSmall(string label, float value, float min, float max, string? description, Action save, Action<float>? setter = null)
     {
         var displayValue = value * 100f;
         ImGui.SetNextItemWidth(SmallSliderWidth);
         if (ImGui.SliderFloat(label, ref displayValue, min, max, "%.0f%%"))
         {
+            var newValue = displayValue / 100f;
+            setter?.Invoke(newValue);
             save();
             if (!string.IsNullOrEmpty(description))
                 ImGui.TextDisabled(description);
-            return displayValue / 100f;
+            return newValue;
         }
 
         if (!string.IsNullOrEmpty(description))
@@ -285,12 +289,13 @@ public static class ConfigUIHelpers
     /// Renders an integer slider.
     /// Returns the new value if changed, or the original value if unchanged.
     /// </summary>
-    public static int IntSlider(string label, int value, int min, int max, string? description, Action save)
+    public static int IntSlider(string label, int value, int min, int max, string? description, Action save, Action<int>? setter = null)
     {
         var localValue = value;
         ImGui.SetNextItemWidth(SliderWidth);
         if (ImGui.SliderInt(label, ref localValue, min, max))
         {
+            setter?.Invoke(localValue);
             save();
             if (!string.IsNullOrEmpty(description))
                 ImGui.TextDisabled(description);
@@ -307,12 +312,13 @@ public static class ConfigUIHelpers
     /// Renders a small integer slider.
     /// Returns the new value if changed, or the original value if unchanged.
     /// </summary>
-    public static int IntSliderSmall(string label, int value, int min, int max, string? description, Action save)
+    public static int IntSliderSmall(string label, int value, int min, int max, string? description, Action save, Action<int>? setter = null)
     {
         var localValue = value;
         ImGui.SetNextItemWidth(SmallSliderWidth);
         if (ImGui.SliderInt(label, ref localValue, min, max))
         {
+            setter?.Invoke(localValue);
             save();
             if (!string.IsNullOrEmpty(description))
                 ImGui.TextDisabled(description);
@@ -329,12 +335,13 @@ public static class ConfigUIHelpers
     /// Renders a float slider with custom format.
     /// Returns the new value if changed, or the original value if unchanged.
     /// </summary>
-    public static float FloatSlider(string label, float value, float min, float max, string format, string? description, Action save)
+    public static float FloatSlider(string label, float value, float min, float max, string format, string? description, Action save, Action<float>? setter = null)
     {
         var localValue = value;
         ImGui.SetNextItemWidth(SliderWidth);
         if (ImGui.SliderFloat(label, ref localValue, min, max, format))
         {
+            setter?.Invoke(localValue);
             save();
             if (!string.IsNullOrEmpty(description))
                 ImGui.TextDisabled(description);
@@ -605,7 +612,7 @@ public static class ConfigUIHelpers
     /// <summary>
     /// Renders a slider with search highlighting support.
     /// </summary>
-    public static float HighlightedThresholdSlider(string label, float value, float min, float max, string? description, Action save)
+    public static float HighlightedThresholdSlider(string label, float value, float min, float max, string? description, Action save, Action<float>? setter = null)
     {
         var highlighted = BeginSearchHighlight(label, description);
 
@@ -613,12 +620,14 @@ public static class ConfigUIHelpers
         ImGui.SetNextItemWidth(SliderWidth);
         if (ImGui.SliderFloat(label, ref displayValue, min, max, "%.0f%%"))
         {
+            var newValue = displayValue / 100f;
+            setter?.Invoke(newValue);
             save();
             if (highlighted)
                 EndSearchHighlight();
             if (!string.IsNullOrEmpty(description))
                 HighlightedTextDisabled(description);
-            return displayValue / 100f;
+            return newValue;
         }
 
         if (highlighted)
@@ -633,7 +642,7 @@ public static class ConfigUIHelpers
     /// <summary>
     /// Renders an int slider with search highlighting support.
     /// </summary>
-    public static int HighlightedIntSlider(string label, int value, int min, int max, string? description, Action save)
+    public static int HighlightedIntSlider(string label, int value, int min, int max, string? description, Action save, Action<int>? setter = null)
     {
         var highlighted = BeginSearchHighlight(label, description);
 
@@ -641,6 +650,7 @@ public static class ConfigUIHelpers
         ImGui.SetNextItemWidth(SliderWidth);
         if (ImGui.SliderInt(label, ref localValue, min, max))
         {
+            setter?.Invoke(localValue);
             save();
             if (highlighted)
                 EndSearchHighlight();

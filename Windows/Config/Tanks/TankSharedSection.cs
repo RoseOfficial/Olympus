@@ -43,7 +43,7 @@ public sealed class TankSharedSection
             ConfigUIHelpers.BeginDisabledGroup(!config.Tank.EnableMitigation);
 
             config.Tank.MitigationThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Tank.MitigationThreshold, "Mitigation Threshold"),
-                config.Tank.MitigationThreshold, 40f, 90f, Loc.T(LocalizedStrings.Tank.MitigationThresholdDesc, "Use mitigation when HP drops below this %."), save);
+                config.Tank.MitigationThreshold, 40f, 90f, Loc.T(LocalizedStrings.Tank.MitigationThresholdDesc, "Use mitigation when HP drops below this %."), save, v => config.Tank.MitigationThreshold = v);
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Tank.UseRampartOnCooldown, "Use Rampart on Cooldown"), () => config.Tank.UseRampartOnCooldown, v => config.Tank.UseRampartOnCooldown = v,
                 null, save,
@@ -51,7 +51,7 @@ public sealed class TankSharedSection
 
             config.Tank.SheltronMinGauge = ConfigUIHelpers.IntSlider(Loc.T(LocalizedStrings.Tank.SheltronMinGauge, "Min Gauge for Short CDs"),
                 config.Tank.SheltronMinGauge, 0, 100,
-                Loc.T(LocalizedStrings.Tank.SheltronMinGaugeDesc, "Minimum gauge for Sheltron/TBN/Heart of Stone/etc."), save);
+                Loc.T(LocalizedStrings.Tank.SheltronMinGaugeDesc, "Minimum gauge for Sheltron/TBN/Heart of Stone/etc."), save, v => config.Tank.SheltronMinGauge = v);
 
             ConfigUIHelpers.EndDisabledGroup();
             ConfigUIHelpers.EndIndent();
@@ -104,7 +104,7 @@ public sealed class TankSharedSection
             {
                 config.Tank.ProvokeDelay = ConfigUIHelpers.FloatSlider(Loc.T(LocalizedStrings.Tank.ProvokeDelay, "Provoke Delay"),
                     config.Tank.ProvokeDelay, 0f, 5f, "%.1f sec",
-                    Loc.T(LocalizedStrings.Tank.ProvokeDelayDesc, "Delay before Provoking (prevents accidental provokes during swaps)."), save);
+                    Loc.T(LocalizedStrings.Tank.ProvokeDelayDesc, "Delay before Provoking (prevents accidental provokes during swaps)."), save, v => config.Tank.ProvokeDelay = v);
             }
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Tank.AutoShirk, "Auto Shirk"), () => config.Tank.AutoShirk, v => config.Tank.AutoShirk = v,
@@ -133,7 +133,7 @@ public sealed class TankSharedSection
             {
                 config.Tank.AoEMinTargets = ConfigUIHelpers.IntSlider(Loc.T(LocalizedStrings.Tank.AoEMinTargets, "AoE Min Targets"),
                     config.Tank.AoEMinTargets, 2, 8,
-                    Loc.T(LocalizedStrings.Tank.AoEMinTargetsDesc, "Minimum enemies for AoE rotation."), save);
+                    Loc.T(LocalizedStrings.Tank.AoEMinTargetsDesc, "Minimum enemies for AoE rotation."), save, v => config.Tank.AoEMinTargets = v);
             }
 
             ConfigUIHelpers.EndDisabledGroup();

@@ -47,7 +47,7 @@ public sealed class SageSection
             if (config.Sage.KardiaSwapEnabled)
             {
                 config.Sage.KardiaSwapThreshold = ConfigUIHelpers.ThresholdSliderSmall(Loc.T(LocalizedStrings.Sage.SwapThreshold, "Swap Threshold"),
-                    config.Sage.KardiaSwapThreshold, 30f, 80f, Loc.T(LocalizedStrings.Sage.SwapThresholdDesc, "Swap to target below this HP if current target is above it."), save);
+                    config.Sage.KardiaSwapThreshold, 30f, 80f, Loc.T(LocalizedStrings.Sage.SwapThresholdDesc, "Swap to target below this HP if current target is above it."), save, v => config.Sage.KardiaSwapThreshold = v);
             }
 
             ConfigUIHelpers.Spacing();
@@ -58,7 +58,7 @@ public sealed class SageSection
             if (config.Sage.EnableSoteria)
             {
                 config.Sage.SoteriaThreshold = ConfigUIHelpers.ThresholdSliderSmall(Loc.T(LocalizedStrings.Sage.SoteriaThreshold, "Soteria Threshold"),
-                    config.Sage.SoteriaThreshold, 40f, 85f, Loc.T(LocalizedStrings.Sage.SoteriaThresholdDesc, "Kardia target HP to trigger Soteria."), save);
+                    config.Sage.SoteriaThreshold, 40f, 85f, Loc.T(LocalizedStrings.Sage.SoteriaThresholdDesc, "Kardia target HP to trigger Soteria."), save, v => config.Sage.SoteriaThreshold = v);
             }
 
             ConfigUIHelpers.EndIndent();
@@ -73,7 +73,7 @@ public sealed class SageSection
 
             config.Sage.AddersgallReserve = ConfigUIHelpers.IntSlider(Loc.T(LocalizedStrings.Sage.StackReserve, "Stack Reserve"),
                 config.Sage.AddersgallReserve, 0, 3,
-                Loc.T(LocalizedStrings.Sage.StackReserveDesc, "Stacks to keep for emergency healing."), save);
+                Loc.T(LocalizedStrings.Sage.StackReserveDesc, "Stacks to keep for emergency healing."), save, v => config.Sage.AddersgallReserve = v);
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.PreventAddersgallCap, "Prevent Addersgall Cap"), () => config.Sage.PreventAddersgallCap, v => config.Sage.PreventAddersgallCap = v,
                 Loc.T(LocalizedStrings.Sage.PreventAddersgallCapDesc, "Spend stacks proactively to avoid capping."), save);
@@ -82,7 +82,7 @@ public sealed class SageSection
             {
                 config.Sage.AddersgallCapPreventWindow = ConfigUIHelpers.FloatSlider(Loc.T(LocalizedStrings.Sage.CapPreventionWindow, "Cap Prevention Window"),
                     config.Sage.AddersgallCapPreventWindow, 0f, 10f, "%.1f sec",
-                    Loc.T(LocalizedStrings.Sage.CapPreventionWindowDesc, "Start spending when new stack would be granted within this time."), save);
+                    Loc.T(LocalizedStrings.Sage.CapPreventionWindowDesc, "Start spending when new stack would be granted within this time."), save, v => config.Sage.AddersgallCapPreventWindow = v);
             }
 
             ConfigUIHelpers.Spacing();
@@ -94,7 +94,7 @@ public sealed class SageSection
             {
                 config.Sage.RhizomataMinFreeSlots = ConfigUIHelpers.IntSliderSmall(Loc.T(LocalizedStrings.Sage.RhizomataMinFreeSlots, "Min Free Slots"),
                     config.Sage.RhizomataMinFreeSlots, 1, 3,
-                    Loc.T(LocalizedStrings.Sage.RhizomataMinFreeSlotsDesc, "Only use when this many slots are free."), save);
+                    Loc.T(LocalizedStrings.Sage.RhizomataMinFreeSlotsDesc, "Only use when this many slots are free."), save, v => config.Sage.RhizomataMinFreeSlots = v);
             }
 
             ConfigUIHelpers.EndIndent();
@@ -155,35 +155,35 @@ public sealed class SageSection
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Sage.SingleTargetThresholds, "Single-Target Thresholds:"));
 
             config.Sage.DiagnosisThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Sage.DiagnosisThreshold, "Diagnosis Threshold"),
-                config.Sage.DiagnosisThreshold, 20f, 60f, null, save);
+                config.Sage.DiagnosisThreshold, 20f, 60f, null, save, v => config.Sage.DiagnosisThreshold = v);
             config.Sage.EukrasianDiagnosisThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Sage.EukrasianDiagnosisThreshold, "E.Diagnosis Threshold"),
-                config.Sage.EukrasianDiagnosisThreshold, 50f, 95f, null, save);
+                config.Sage.EukrasianDiagnosisThreshold, 50f, 95f, null, save, v => config.Sage.EukrasianDiagnosisThreshold = v);
             config.Sage.DruocholeThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Sage.DruocholeThreshold, "Druochole Threshold"),
-                config.Sage.DruocholeThreshold, 30f, 75f, null, save);
+                config.Sage.DruocholeThreshold, 30f, 75f, null, save, v => config.Sage.DruocholeThreshold = v);
             config.Sage.TaurocholeThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Sage.TaurocholeThreshold, "Taurochole Threshold"),
-                config.Sage.TaurocholeThreshold, 30f, 75f, null, save);
+                config.Sage.TaurocholeThreshold, 30f, 75f, null, save, v => config.Sage.TaurocholeThreshold = v);
 
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Sage.AoEThresholds, "AoE Thresholds:"));
 
             config.Sage.AoEHealThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Sage.AoEHpThreshold, "AoE HP Threshold"),
-                config.Sage.AoEHealThreshold, 50f, 90f, null, save);
+                config.Sage.AoEHealThreshold, 50f, 90f, null, save, v => config.Sage.AoEHealThreshold = v);
 
             config.Sage.AoEHealMinTargets = ConfigUIHelpers.IntSlider(Loc.T(LocalizedStrings.Sage.AoEMinTargets, "AoE Min Targets"),
-                config.Sage.AoEHealMinTargets, 1, 8, null, save);
+                config.Sage.AoEHealMinTargets, 1, 8, null, save, v => config.Sage.AoEHealMinTargets = v);
 
             config.Sage.KeracholeThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Sage.KeracholeThreshold, "Kerachole Threshold"),
-                config.Sage.KeracholeThreshold, 60f, 95f, null, save);
+                config.Sage.KeracholeThreshold, 60f, 95f, null, save, v => config.Sage.KeracholeThreshold = v);
             config.Sage.IxocholeThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Sage.IxocholeThreshold, "Ixochole Threshold"),
-                config.Sage.IxocholeThreshold, 40f, 85f, null, save);
+                config.Sage.IxocholeThreshold, 40f, 85f, null, save, v => config.Sage.IxocholeThreshold = v);
             config.Sage.PhysisIIThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Sage.PhysisIIThreshold, "Physis II Threshold"),
-                config.Sage.PhysisIIThreshold, 60f, 95f, null, save);
+                config.Sage.PhysisIIThreshold, 60f, 95f, null, save, v => config.Sage.PhysisIIThreshold = v);
             config.Sage.HolosThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Sage.HolosThreshold, "Holos Threshold"),
-                config.Sage.HolosThreshold, 40f, 80f, null, save);
+                config.Sage.HolosThreshold, 40f, 80f, null, save, v => config.Sage.HolosThreshold = v);
             config.Sage.PneumaThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Sage.PneumaThreshold, "Pneuma Threshold"),
-                config.Sage.PneumaThreshold, 40f, 85f, null, save);
+                config.Sage.PneumaThreshold, 40f, 85f, null, save, v => config.Sage.PneumaThreshold = v);
             config.Sage.PepsisThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Sage.PepsisThreshold, "Pepsis Threshold"),
-                config.Sage.PepsisThreshold, 30f, 70f, Loc.T(LocalizedStrings.Sage.PepsisThresholdDesc, "Converts shields to healing when party HP drops below this."), save);
+                config.Sage.PepsisThreshold, 30f, 70f, Loc.T(LocalizedStrings.Sage.PepsisThresholdDesc, "Converts shields to healing when party HP drops below this."), save, v => config.Sage.PepsisThreshold = v);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -201,7 +201,7 @@ public sealed class SageSection
             if (config.Sage.EnableHaima)
             {
                 config.Sage.HaimaThreshold = ConfigUIHelpers.ThresholdSliderSmall(Loc.T(LocalizedStrings.Sage.HaimaThreshold, "Haima Threshold"),
-                    config.Sage.HaimaThreshold, 60f, 95f, Loc.T(LocalizedStrings.Sage.HaimaThresholdDesc, "Apply to tank when HP below this."), save);
+                    config.Sage.HaimaThreshold, 60f, 95f, Loc.T(LocalizedStrings.Sage.HaimaThresholdDesc, "Apply to tank when HP below this."), save, v => config.Sage.HaimaThreshold = v);
             }
 
             ConfigUIHelpers.Spacing();
@@ -212,7 +212,7 @@ public sealed class SageSection
             if (config.Sage.EnablePanhaima)
             {
                 config.Sage.PanhaimaThreshold = ConfigUIHelpers.ThresholdSliderSmall(Loc.T(LocalizedStrings.Sage.PanhaimaThreshold, "Panhaima Threshold"),
-                    config.Sage.PanhaimaThreshold, 65f, 95f, Loc.T(LocalizedStrings.Sage.PanhaimaThresholdDesc, "Use when party average HP below this."), save);
+                    config.Sage.PanhaimaThreshold, 65f, 95f, Loc.T(LocalizedStrings.Sage.PanhaimaThresholdDesc, "Use when party average HP below this."), save, v => config.Sage.PanhaimaThreshold = v);
             }
 
             ConfigUIHelpers.Spacing();
@@ -263,7 +263,7 @@ public sealed class SageSection
             if (config.Sage.EnableKrasis)
             {
                 config.Sage.KrasisThreshold = ConfigUIHelpers.ThresholdSliderSmall(Loc.T(LocalizedStrings.Sage.KrasisThreshold, "Krasis Threshold"),
-                    config.Sage.KrasisThreshold, 40f, 85f, Loc.T(LocalizedStrings.Sage.KrasisThresholdDesc, "Apply when target HP below this."), save);
+                    config.Sage.KrasisThreshold, 40f, 85f, Loc.T(LocalizedStrings.Sage.KrasisThresholdDesc, "Apply when target HP below this."), save, v => config.Sage.KrasisThreshold = v);
             }
 
             ConfigUIHelpers.Spacing();
@@ -274,7 +274,7 @@ public sealed class SageSection
             if (config.Sage.EnablePhilosophia)
             {
                 config.Sage.PhilosophiaThreshold = ConfigUIHelpers.ThresholdSliderSmall(Loc.T(LocalizedStrings.Sage.PhilosophiaThreshold, "Philosophia Threshold"),
-                    config.Sage.PhilosophiaThreshold, 50f, 90f, Loc.T(LocalizedStrings.Sage.PhilosophiaThresholdDesc, "Use when party average HP below this."), save);
+                    config.Sage.PhilosophiaThreshold, 50f, 90f, Loc.T(LocalizedStrings.Sage.PhilosophiaThresholdDesc, "Use when party average HP below this."), save, v => config.Sage.PhilosophiaThreshold = v);
             }
 
             ConfigUIHelpers.EndIndent();
@@ -301,7 +301,7 @@ public sealed class SageSection
             if (config.Sage.EnableDot)
             {
                 config.Sage.DotRefreshThreshold = ConfigUIHelpers.FloatSlider(Loc.T(LocalizedStrings.Sage.DotRefreshThreshold, "DoT Refresh (sec)"),
-                    config.Sage.DotRefreshThreshold, 0f, 10f, "%.1f", null, save);
+                    config.Sage.DotRefreshThreshold, 0f, 10f, "%.1f", null, save, v => config.Sage.DotRefreshThreshold = v);
             }
 
             ConfigUIHelpers.Spacing();
@@ -313,7 +313,7 @@ public sealed class SageSection
             if (config.Sage.EnableAoEDamage)
             {
                 config.Sage.AoEDamageMinTargets = ConfigUIHelpers.IntSlider(Loc.T(LocalizedStrings.Sage.AoEMinEnemies, "Min Enemies"),
-                    config.Sage.AoEDamageMinTargets, 1, 10, null, save);
+                    config.Sage.AoEDamageMinTargets, 1, 10, null, save, v => config.Sage.AoEDamageMinTargets = v);
             }
 
             ConfigUIHelpers.Spacing();
@@ -336,7 +336,7 @@ public sealed class SageSection
             if (config.Sage.EnableLucidDreaming)
             {
                 config.Sage.LucidDreamingThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Sage.LucidMpThreshold, "Lucid MP Threshold"),
-                    config.Sage.LucidDreamingThreshold, 40f, 90f, null, save);
+                    config.Sage.LucidDreamingThreshold, 40f, 90f, null, save, v => config.Sage.LucidDreamingThreshold = v);
             }
 
             ConfigUIHelpers.EndIndent();

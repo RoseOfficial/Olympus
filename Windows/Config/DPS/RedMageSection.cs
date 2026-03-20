@@ -61,7 +61,7 @@ public sealed class RedMageSection
                 config.RedMage.AoEMinTargets = ConfigUIHelpers.IntSlider(
                     Loc.T(LocalizedStrings.RedMage.AoEMinTargets, "AoE Min Targets"),
                     config.RedMage.AoEMinTargets, 2, 8,
-                    Loc.T(LocalizedStrings.RedMage.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+                    Loc.T(LocalizedStrings.RedMage.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save, v => config.RedMage.AoEMinTargets = v);
             }
 
             ConfigUIHelpers.EndIndent();
@@ -83,7 +83,7 @@ public sealed class RedMageSection
             config.RedMage.ManaImbalanceThreshold = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.RedMage.ManaImbalanceThreshold, "Mana Imbalance Threshold"),
                 config.RedMage.ManaImbalanceThreshold, 10, 50,
-                Loc.T(LocalizedStrings.RedMage.ManaImbalanceThresholdDesc, "Max imbalance before prioritizing lower color"), save);
+                Loc.T(LocalizedStrings.RedMage.ManaImbalanceThresholdDesc, "Max imbalance before prioritizing lower color"), save, v => config.RedMage.ManaImbalanceThreshold = v);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -110,7 +110,7 @@ public sealed class RedMageSection
             config.RedMage.MeleeComboMinMana = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.RedMage.MeleeComboMinMana, "Melee Min Mana"),
                 config.RedMage.MeleeComboMinMana, 50, 100,
-                Loc.T(LocalizedStrings.RedMage.MeleeComboMinManaDesc, "Minimum mana to enter melee combo"), save);
+                Loc.T(LocalizedStrings.RedMage.MeleeComboMinManaDesc, "Minimum mana to enter melee combo"), save, v => config.RedMage.MeleeComboMinMana = v);
 
             var finisherPreference = config.RedMage.FinisherPreference;
             if (ConfigUIHelpers.EnumCombo(Loc.T(LocalizedStrings.RedMage.FinisherPreference, "Finisher Preference"), ref finisherPreference,
@@ -156,7 +156,7 @@ public sealed class RedMageSection
             config.RedMage.EmboldenHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.RedMage.EmboldenHoldTime, "Embolden Hold Time"),
                 config.RedMage.EmboldenHoldTime, 0f, 10f, "%.1f s",
-                Loc.T(LocalizedStrings.RedMage.EmboldenHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save);
+                Loc.T(LocalizedStrings.RedMage.EmboldenHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save, v => config.RedMage.EmboldenHoldTime = v);
 
             ConfigUIHelpers.EndIndent();
         }

@@ -83,7 +83,7 @@ public sealed class MonkSection
                 config.Monk.AoEMinTargets = ConfigUIHelpers.IntSlider(
                     Loc.T(LocalizedStrings.Monk.AoEMinTargets, "AoE Min Targets"),
                     config.Monk.AoEMinTargets, 2, 8,
-                    Loc.T(LocalizedStrings.Monk.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save);
+                    Loc.T(LocalizedStrings.Monk.AoEMinTargetsDesc, "Minimum enemies for AoE rotation"), save, v => config.Monk.AoEMinTargets = v);
             }
 
             ConfigUIHelpers.EndIndent();
@@ -105,7 +105,7 @@ public sealed class MonkSection
             config.Monk.ChakraMinGauge = ConfigUIHelpers.IntSlider(
                 Loc.T(LocalizedStrings.Monk.ChakraMinGauge, "Chakra Min Stacks"),
                 config.Monk.ChakraMinGauge, 1, 5,
-                Loc.T(LocalizedStrings.Monk.ChakraMinGaugeDesc, "Minimum Chakra stacks to use spenders"), save);
+                Loc.T(LocalizedStrings.Monk.ChakraMinGaugeDesc, "Minimum Chakra stacks to use spenders"), save, v => config.Monk.ChakraMinGauge = v);
 
             ConfigUIHelpers.EndIndent();
         }
@@ -154,7 +154,7 @@ public sealed class MonkSection
             config.Monk.BrotherhoodHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Monk.BrotherhoodHoldTime, "Brotherhood Hold Time"),
                 config.Monk.BrotherhoodHoldTime, 0f, 10f, "%.1f s",
-                Loc.T(LocalizedStrings.Monk.BrotherhoodHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save);
+                Loc.T(LocalizedStrings.Monk.BrotherhoodHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save, v => config.Monk.BrotherhoodHoldTime = v);
 
             ConfigUIHelpers.EndIndent();
         }
