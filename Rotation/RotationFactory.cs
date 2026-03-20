@@ -41,46 +41,6 @@ public sealed class RotationFactory
     }
 
     /// <summary>
-    /// Discovers all rotation classes with [Rotation] attribute and registers them.
-    /// </summary>
-    /// <param name="manager">The rotation manager to register with.</param>
-    /// <returns>Number of rotations registered.</returns>
-    public int DiscoverAndRegister(RotationManager manager)
-    {
-        var assembly = Assembly.GetExecutingAssembly();
-        var rotationTypes = assembly.GetTypes()
-            .Where(t => t.GetCustomAttribute<RotationAttribute>() != null)
-            .Where(t => typeof(IRotation).IsAssignableFrom(t))
-            .Where(t => !t.IsAbstract && !t.IsInterface);
-
-        int count = 0;
-        foreach (var type in rotationTypes)
-        {
-            try
-            {
-                var rotation = CreateRotation(type);
-                if (rotation != null)
-                {
-                    manager.Register(rotation);
-                    _createdRotations.Add(rotation);
-                    count++;
-
-                    var attr = type.GetCustomAttribute<RotationAttribute>()!;
-                    _log.Debug("Registered rotation {Name} for jobs: {Jobs}",
-                        attr.Name, string.Join(", ", attr.JobIds));
-                }
-            }
-            catch (Exception ex)
-            {
-                _log.Error(ex, "Failed to create rotation {Type}", type.Name);
-            }
-        }
-
-        _log.Information("Discovered and registered {Count} rotations", count);
-        return count;
-    }
-
-    /// <summary>
     /// Discovers all rotation classes and registers factories (preserves lazy loading).
     /// </summary>
     /// <param name="manager">The rotation manager to register factories with.</param>
@@ -213,23 +173,8 @@ public sealed class RotationFactory
         _createdRotations.Clear();
     }
 
-    // Cache for MakeGenericMethod results — avoids repeated reflection per service type
-    private static readonly Dictionary<Type, System.Reflection.MethodInfo> _tryGetMethodCache = new();
-
     private object? ResolveService(Type serviceType)
     {
-        // Use reflection to call TryGet<T> with the correct type
-        if (!_tryGetMethodCache.TryGetValue(serviceType, out var method))
-        {
-            method = typeof(ServiceContainer)
-                .GetMethod(nameof(ServiceContainer.TryGet))!
-                .MakeGenericMethod(serviceType);
-            _tryGetMethodCache[serviceType] = method;
-        }
-
-        var args = new object?[] { null };
-        var result = (bool)method.Invoke(_services, args)!;
-
-        return result ? args[0] : null;
+        return _services.TryGet(serviceType, out var service) ? service : null;
     }
 }

@@ -92,6 +92,17 @@ public sealed class ServiceContainer : IDisposable
     }
 
     /// <summary>
+    /// Tries to get a registered service by type (non-generic).
+    /// </summary>
+    /// <param name="serviceType">The service type to look up.</param>
+    /// <param name="service">The service instance if found.</param>
+    /// <returns>True if the service was found.</returns>
+    public bool TryGet(Type serviceType, out object? service)
+    {
+        return _services.TryGetValue(serviceType, out service);
+    }
+
+    /// <summary>
     /// Checks if a service is registered.
     /// </summary>
     /// <typeparam name="T">The service type.</typeparam>

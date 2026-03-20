@@ -222,27 +222,6 @@ public class RotationFactoryTests
 
     #endregion
 
-    #region DiscoverAndRegister Tests
-
-    [Fact]
-    public void DiscoverAndRegister_WithManager_RegistersFoundRotations()
-    {
-        // This test verifies the discovery mechanism works with real rotation classes
-        // Since we have [Rotation] attributes on Apollo, Athena, etc., this would find them
-        // but we can't easily instantiate them without all their dependencies
-        // Instead, test that the method runs without throwing
-        var factory = new RotationFactory(_services, _mockLog.Object);
-        var manager = new RotationManager();
-
-        // Should not throw - rotations won't be created due to missing dependencies
-        var count = factory.DiscoverAndRegister(manager);
-
-        // We can't assert the exact count since it depends on whether dependencies resolve
-        Assert.True(count >= 0);
-    }
-
-    #endregion
-
     #region Test Helpers
 
     private class TestService { }
