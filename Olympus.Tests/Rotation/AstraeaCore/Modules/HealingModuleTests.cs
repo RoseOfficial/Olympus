@@ -118,6 +118,8 @@ public class HealingModuleTests
 
         // With real counting, 3 injured members meets the AoEHealMinTargets = 3 threshold
         Assert.True(result);
+        actionService.Verify(a => a.ExecuteGcd(
+            It.IsAny<ActionDefinition>(), It.IsAny<ulong>()), Times.Once);
     }
 
     [Fact]
@@ -153,6 +155,8 @@ public class HealingModuleTests
 
         // Real party counting: 3 injured meets the AoEHealMinTargets = 3 threshold
         Assert.True(result);
+        actionService.Verify(a => a.ExecuteGcd(
+            It.IsAny<ActionDefinition>(), It.IsAny<ulong>()), Times.Once);
     }
 
     [Fact]

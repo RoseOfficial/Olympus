@@ -229,6 +229,9 @@ public class FairyModuleTests
         var result = _module.TryExecute(context, isMoving: false);
 
         Assert.True(result);
+        actionService.Verify(a => a.ExecuteOgcd(
+            It.Is<ActionDefinition>(ad => ad.ActionId == SCHActions.WhisperingDawn.ActionId),
+            It.IsAny<ulong>()), Times.Once);
     }
 
     [Fact]
@@ -366,6 +369,9 @@ public class FairyModuleTests
         var result = _module.TryExecute(context, isMoving: false);
 
         Assert.True(result);
+        actionService.Verify(a => a.ExecuteOgcd(
+            It.Is<ActionDefinition>(ad => ad.ActionId == SCHActions.FeyBlessing.ActionId),
+            It.IsAny<ulong>()), Times.Once);
     }
 
     [Fact]

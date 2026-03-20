@@ -447,8 +447,11 @@ public static class MockBuilders
 
     /// <summary>
     /// Creates a mock IPartyList.
+    /// Callers that need a realistic party size should pass length explicitly (e.g. 4 for dungeon, 8 for raid).
+    /// Default 0 represents a solo/non-party scenario. Most rotation test contexts pass this through
+    /// without using the length, so changing the default would be safe but noisy.
     /// </summary>
-    public static Mock<IPartyList> CreateMockPartyList(int length = 0)
+    public static Mock<IPartyList> CreateMockPartyList(int length = 4)
     {
         var mock = new Mock<IPartyList>();
         mock.Setup(x => x.Length).Returns(length);
