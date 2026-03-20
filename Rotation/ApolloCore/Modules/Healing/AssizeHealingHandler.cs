@@ -86,7 +86,7 @@ public sealed class AssizeHealingHandler : IHealingHandler
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = WHMActions.Assize.ActionId,
                     ActionName = "Assize",
                     Category = "Healing",

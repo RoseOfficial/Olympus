@@ -287,8 +287,6 @@ public sealed class Plugin : IDalamudPlugin
         this.aoeTracker = new AoETracker();
         this.smartAoEService = new SmartAoEService(targetingService, dataManager, aoeTracker, log);
         this.smartAoEService.SubscribeToCombatEvents(combatEventService);
-        // Keep static Instance for backward compatibility during transition
-        SmartAoEService.Instance = this.smartAoEService;
 
         // Create service container for rotation dependency injection
         this.serviceContainer = CreateServiceContainer();
@@ -621,7 +619,6 @@ public sealed class Plugin : IDalamudPlugin
         dotTrackingService.Dispose();
         healingIntakeService.Dispose();
         performanceTracker.Dispose();
-        smartAoEService.Dispose();
         drawingService.Dispose();
         localization.Dispose();
         serviceContainer?.Dispose();

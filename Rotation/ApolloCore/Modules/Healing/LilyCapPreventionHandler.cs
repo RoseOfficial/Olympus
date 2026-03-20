@@ -130,7 +130,7 @@ public sealed class LilyCapPreventionHandler : IHealingHandler
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Afflatus Solace",
                     Category = "Resource Management",
@@ -209,7 +209,7 @@ public sealed class LilyCapPreventionHandler : IHealingHandler
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Afflatus Rapture",
                     Category = "Resource Management",

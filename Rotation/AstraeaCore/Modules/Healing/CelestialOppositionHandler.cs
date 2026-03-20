@@ -74,7 +74,7 @@ public sealed class CelestialOppositionHandler : IHealingHandler
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Celestial Opposition",
                     Category = "Healing",

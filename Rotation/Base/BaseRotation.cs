@@ -84,9 +84,17 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
     private DateTime _lastErrorTime = DateTime.MinValue;
     private int _suppressedErrorCount;
 
+    // Pre-computed error key strings to avoid per-error allocations
+    private string? _errorKeySeh;
+    private string? _errorKeyNullRef;
+    private string? _errorKeyGeneral;
+
     // Movement detection
     private Vector3 _lastPosition;
     private DateTime _lastMovementTime = DateTime.MinValue;
+
+    // Cached timestamp for current frame — set once at start of ExecuteInternal
+    protected DateTime FrameTimestamp;
 
     #endregion
 
@@ -171,6 +179,9 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
     /// </summary>
     protected virtual unsafe void ExecuteInternal(IPlayerCharacter player)
     {
+        // Cache timestamp once per frame for all consumers
+        FrameTimestamp = DateTime.UtcNow;
+
         // Invalidate frame cache at start of each frame
         FrameCache.InvalidateAll();
 
@@ -229,11 +240,11 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
 
         // Track when we last detected actual movement
         if (positionChanged)
-            _lastMovementTime = DateTime.UtcNow;
+            _lastMovementTime = FrameTimestamp;
 
         // Consider player as "moving" if position changed OR within grace period after stopping
         // This prevents stutter-casting when player briefly stops during movement
-        var timeSinceMovement = (DateTime.UtcNow - _lastMovementTime).TotalSeconds;
+        var timeSinceMovement = (FrameTimestamp - _lastMovementTime).TotalSeconds;
         var isMoving = positionChanged || timeSinceMovement < Configuration.MovementTolerance;
 
         return (isMoving, positionChanged);
@@ -251,16 +262,30 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
     }
 
     /// <summary>
-    /// Tracks GCD state for debug display.
+    /// Tracks GCD state for debug display and downtime categorization.
     /// </summary>
     protected virtual void TrackGcdState(IPlayerCharacter player)
     {
+        // Check for incapacitation buffs (Willful, Stun, Sleep, etc.)
+        var canAct = true;
+        foreach (var status in player.StatusList)
+        {
+            if (FFXIVConstants.IncapacitationStatusIds.Contains(status.StatusId))
+            {
+                canAct = false;
+                break;
+            }
+        }
+
         ActionTracker.TrackGcdState(
             gcdReady: ActionService.CanExecuteGcd,
             ActionService.GcdRemaining,
             player.IsCasting,
             ActionService.AnimationLockRemaining > 0,
-            ActionService.GcdRemaining > 0);
+            ActionService.GcdRemaining > 0,
+            playerAlive: canAct,
+            playerPosition: player.Position,
+            inMechanicWindow: false);
     }
 
     /// <summary>
@@ -315,7 +340,8 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
     {
         Configuration.Enabled = false;
         Log.Error(ex, "{0} DISABLED due to {1} - memory access error", Name, errorType);
-        ErrorMetrics?.RecordError($"{Name}.Execute.{errorType}", ex.Message);
+        _errorKeySeh ??= string.Concat(Name, ".Execute.", errorType);
+        ErrorMetrics?.RecordError(_errorKeySeh, ex.Message);
     }
 
     /// <summary>
@@ -323,7 +349,8 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
     /// </summary>
     protected virtual void HandleNullReferenceError(Exception ex)
     {
-        ErrorMetrics?.RecordError($"{Name}.Execute.NullRef", ex.Message);
+        _errorKeyNullRef ??= string.Concat(Name, ".Execute.NullRef");
+        ErrorMetrics?.RecordError(_errorKeyNullRef, ex.Message);
         _suppressedErrorCount++;
     }
 
@@ -333,7 +360,8 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
     protected virtual void HandleThrottledError(Exception ex)
     {
         _suppressedErrorCount++;
-        ErrorMetrics?.RecordError($"{Name}.Execute", ex.Message);
+        _errorKeyGeneral ??= string.Concat(Name, ".Execute");
+        ErrorMetrics?.RecordError(_errorKeyGeneral, ex.Message);
 
         var now = DateTime.UtcNow;
         if ((now - _lastErrorTime).TotalSeconds >= FFXIVTimings.ErrorThrottleSeconds)

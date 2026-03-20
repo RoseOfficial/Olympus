@@ -213,12 +213,19 @@ public sealed class RotationFactory
         _createdRotations.Clear();
     }
 
+    // Cache for MakeGenericMethod results — avoids repeated reflection per service type
+    private static readonly Dictionary<Type, System.Reflection.MethodInfo> _tryGetMethodCache = new();
+
     private object? ResolveService(Type serviceType)
     {
         // Use reflection to call TryGet<T> with the correct type
-        var method = typeof(ServiceContainer)
-            .GetMethod(nameof(ServiceContainer.TryGet))!
-            .MakeGenericMethod(serviceType);
+        if (!_tryGetMethodCache.TryGetValue(serviceType, out var method))
+        {
+            method = typeof(ServiceContainer)
+                .GetMethod(nameof(ServiceContainer.TryGet))!
+                .MakeGenericMethod(serviceType);
+            _tryGetMethodCache[serviceType] = method;
+        }
 
         var args = new object?[] { null };
         var result = (bool)method.Invoke(_services, args)!;

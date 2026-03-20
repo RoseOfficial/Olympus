@@ -241,7 +241,7 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = WHMActions.AfflatusMisery.ActionId,
                     ActionName = "Afflatus Misery",
                     Category = "Damage",

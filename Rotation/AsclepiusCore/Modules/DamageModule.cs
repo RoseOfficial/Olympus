@@ -140,7 +140,7 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
                     var targetName = enemy.Name?.TextValue ?? "Unknown";
                     context.TrainingService.RecordDecision(new ActionExplanation
                     {
-                        Timestamp = DateTime.Now,
+                        Timestamp = DateTime.UtcNow,
                         ActionId = dotAction.ActionId,
                         ActionName = dotAction.Name,
                         Category = "Damage",
@@ -199,7 +199,7 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
                 {
                     context.TrainingService.RecordDecision(new ActionExplanation
                     {
-                        Timestamp = DateTime.Now,
+                        Timestamp = DateTime.UtcNow,
                         ActionId = eukrasiaAction.ActionId,
                         ActionName = "Eukrasia",
                         Category = "Damage",
@@ -289,7 +289,7 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
                 var targetName = enemy.Name?.TextValue ?? "Unknown";
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = SGEActions.Psyche.ActionId,
                     ActionName = "Psyche",
                     Category = "Damage",
@@ -378,7 +378,7 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
                 var targetName = enemy.Name?.TextValue ?? "Unknown";
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = phlegmaAction.ActionId,
                     ActionName = phlegmaAction.Name,
                     Category = "Damage",
@@ -456,7 +456,7 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
                 var adderstingStacks = context.AdderstingStacks;
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = toxikonAction.ActionId,
                     ActionName = toxikonAction.Name,
                     Category = "Damage",

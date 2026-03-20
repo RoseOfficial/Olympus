@@ -268,7 +268,7 @@ public sealed class DefensiveModule : IApolloModule
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = WHMActions.Temperance.ActionId,
                     ActionName = "Temperance",
                     Category = "Defensive",
@@ -442,7 +442,7 @@ public sealed class DefensiveModule : IApolloModule
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = WHMActions.DivineBenison.ActionId,
                     ActionName = "Divine Benison",
                     Category = "Defensive",
@@ -571,7 +571,7 @@ public sealed class DefensiveModule : IApolloModule
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = WHMActions.Aquaveil.ActionId,
                     ActionName = "Aquaveil",
                     Category = "Defensive",
@@ -675,7 +675,7 @@ public sealed class DefensiveModule : IApolloModule
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = WHMActions.LiturgyOfTheBell.ActionId,
                     ActionName = "Liturgy of the Bell",
                     Category = "Defensive",

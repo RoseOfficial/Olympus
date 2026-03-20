@@ -51,7 +51,7 @@ public static class TrainingHelper
 
         service.RecordDecision(new ActionExplanation
         {
-            Timestamp = DateTime.Now,
+            Timestamp = DateTime.UtcNow,
             ActionId = actionId,
             ActionName = actionName,
             Category = category,

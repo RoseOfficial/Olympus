@@ -60,7 +60,7 @@ public sealed class RhizomataHandler : IHealingHandler
 
                     context.TrainingService.RecordDecision(new ActionExplanation
                     {
-                        Timestamp = DateTime.Now,
+                        Timestamp = DateTime.UtcNow,
                         ActionId = action.ActionId,
                         ActionName = "Rhizomata",
                         Category = "Resource",
@@ -104,7 +104,7 @@ public sealed class RhizomataHandler : IHealingHandler
                 {
                     context.TrainingService.RecordDecision(new ActionExplanation
                     {
-                        Timestamp = DateTime.Now,
+                        Timestamp = DateTime.UtcNow,
                         ActionId = action.ActionId,
                         ActionName = "Rhizomata",
                         Category = "Resource",

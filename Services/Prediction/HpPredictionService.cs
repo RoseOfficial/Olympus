@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Olympus.Data;
 using Olympus.Services;
 using Olympus.Services.Party;
@@ -200,7 +199,12 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
         {
             lock (_healsLock)
             {
-                return _pendingHealsByTarget.Any(kvp => kvp.Value.Count > 0);
+                foreach (var kvp in _pendingHealsByTarget)
+                {
+                    if (kvp.Value.Count > 0)
+                        return true;
+                }
+                return false;
             }
         }
     }
@@ -217,9 +221,13 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
                 return 0;
 
             var now = _clock();
-            return heals
-                .Where(h => (now - h.RegisteredTime).TotalSeconds <= FFXIVTimings.HpPredictionTimeoutSeconds)
-                .Sum(h => h.Amount);
+            var total = 0;
+            foreach (var h in heals)
+            {
+                if ((now - h.RegisteredTime).TotalSeconds <= FFXIVTimings.HpPredictionTimeoutSeconds)
+                    total += h.Amount;
+            }
+            return total;
         }
     }
 
@@ -236,9 +244,12 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
 
             foreach (var kvp in _pendingHealsByTarget)
             {
-                var total = kvp.Value
-                    .Where(h => (now - h.RegisteredTime).TotalSeconds <= FFXIVTimings.HpPredictionTimeoutSeconds)
-                    .Sum(h => h.Amount);
+                var total = 0;
+                foreach (var h in kvp.Value)
+                {
+                    if ((now - h.RegisteredTime).TotalSeconds <= FFXIVTimings.HpPredictionTimeoutSeconds)
+                        total += h.Amount;
+                }
 
                 if (total > 0)
                 {

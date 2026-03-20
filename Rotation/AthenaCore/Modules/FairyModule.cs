@@ -206,7 +206,7 @@ public sealed class FairyModule : IAthenaModule
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Summon Seraph",
                     Category = "Fairy",
@@ -391,7 +391,7 @@ public sealed class FairyModule : IAthenaModule
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Fey Union",
                     Category = "Healing",
@@ -493,7 +493,7 @@ public sealed class FairyModule : IAthenaModule
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Fey Blessing",
                     Category = "Healing",
@@ -597,7 +597,7 @@ public sealed class FairyModule : IAthenaModule
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Whispering Dawn",
                     Category = "Healing",
@@ -666,7 +666,7 @@ public sealed class FairyModule : IAthenaModule
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Fey Illumination",
                     Category = "Defensive",

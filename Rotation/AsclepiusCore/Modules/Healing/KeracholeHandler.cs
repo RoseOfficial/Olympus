@@ -144,7 +144,7 @@ public sealed class KeracholeHandler : IHealingHandler
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Kerachole",
                     Category = "Healing",

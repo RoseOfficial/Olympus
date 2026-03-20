@@ -87,7 +87,7 @@ public sealed class ResurrectionModule : BaseResurrectionModule<IAsclepiusContex
 
         context.TrainingService.RecordDecision(new ActionExplanation
         {
-            Timestamp = DateTime.Now,
+            Timestamp = DateTime.UtcNow,
             ActionId = RoleActions.Egeiro.ActionId,
             ActionName = "Egeiro",
             Category = "Resurrection",

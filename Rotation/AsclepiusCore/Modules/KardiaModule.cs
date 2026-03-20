@@ -88,7 +88,7 @@ public sealed class KardiaModule : IAsclepiusModule
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Kardia",
                     Category = "Healing",
@@ -165,7 +165,7 @@ public sealed class KardiaModule : IAsclepiusModule
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Soteria",
                     Category = "Healing",
@@ -233,7 +233,7 @@ public sealed class KardiaModule : IAsclepiusModule
             {
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Philosophia",
                     Category = "Healing",
@@ -315,7 +315,7 @@ public sealed class KardiaModule : IAsclepiusModule
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Kardia (Swap)",
                     Category = "Healing",

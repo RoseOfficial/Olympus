@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Olympus.Services.Prediction;
 
@@ -26,6 +25,9 @@ public sealed class HealingIntakeService : IHealingIntakeService, IDisposable
 
     // Maximum entries to keep per entity (prevents unbounded growth)
     private const int MaxEntriesPerEntity = 100;
+
+    // Reusable buffer for cleanup to avoid per-call allocations
+    private readonly List<uint> _cleanupKeyBuffer = new();
 
     public HealingIntakeService(ICombatEventService combatEventService)
     {
@@ -88,9 +90,13 @@ public sealed class HealingIntakeService : IHealingIntakeService, IDisposable
                 return 0;
 
             var cutoff = DateTime.UtcNow.AddSeconds(-windowSeconds);
-            return list
-                .Where(h => h.Timestamp >= cutoff)
-                .Sum(h => h.Amount);
+            var total = 0;
+            foreach (var h in list)
+            {
+                if (h.Timestamp >= cutoff)
+                    total += h.Amount;
+            }
+            return total;
         }
     }
 
@@ -118,9 +124,11 @@ public sealed class HealingIntakeService : IHealingIntakeService, IDisposable
             var total = 0;
             foreach (var kvp in _healingByEntity)
             {
-                total += kvp.Value
-                    .Where(h => h.Timestamp >= cutoff)
-                    .Sum(h => h.Amount);
+                foreach (var h in kvp.Value)
+                {
+                    if (h.Timestamp >= cutoff)
+                        total += h.Amount;
+                }
             }
             return total;
         }
@@ -176,12 +184,13 @@ public sealed class HealingIntakeService : IHealingIntakeService, IDisposable
             }
 
             // Remove empty lists
-            var emptyKeys = _healingByEntity
-                .Where(kvp => kvp.Value.Count == 0)
-                .Select(kvp => kvp.Key)
-                .ToList();
-
-            foreach (var key in emptyKeys)
+            _cleanupKeyBuffer.Clear();
+            foreach (var kvp in _healingByEntity)
+            {
+                if (kvp.Value.Count == 0)
+                    _cleanupKeyBuffer.Add(kvp.Key);
+            }
+            foreach (var key in _cleanupKeyBuffer)
             {
                 _healingByEntity.Remove(key);
             }

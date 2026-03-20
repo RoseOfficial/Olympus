@@ -65,7 +65,7 @@ public sealed class PrognosisHandler : IHealingHandler
             {
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Prognosis",
                     Category = "Healing",

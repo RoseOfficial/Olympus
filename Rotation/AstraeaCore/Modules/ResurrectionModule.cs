@@ -129,7 +129,7 @@ public sealed class ResurrectionModule : BaseResurrectionModule<IAstraeaContext>
 
         context.TrainingService.RecordDecision(new ActionExplanation
         {
-            Timestamp = DateTime.Now,
+            Timestamp = DateTime.UtcNow,
             ActionId = RoleActions.Ascend.ActionId,
             ActionName = "Ascend",
             Category = "Resurrection",

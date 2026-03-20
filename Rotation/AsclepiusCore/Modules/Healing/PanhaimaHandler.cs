@@ -112,7 +112,7 @@ public sealed class PanhaimaHandler : IHealingHandler
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Panhaima",
                     Category = "Healing",

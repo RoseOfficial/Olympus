@@ -63,7 +63,7 @@ public sealed class LucidDreamingHandler : IHealingHandler
             {
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Lucid Dreaming",
                     Category = "Resource",

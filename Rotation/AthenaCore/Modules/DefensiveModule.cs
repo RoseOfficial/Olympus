@@ -152,7 +152,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAthenaContext>, IAthe
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = SCHActions.Expedient.ActionId,
                     ActionName = "Expedient",
                     Category = "Defensive",
@@ -235,7 +235,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAthenaContext>, IAthe
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = SCHActions.DeploymentTactics.ActionId,
                     ActionName = "Deployment Tactics",
                     Category = "Defensive",

@@ -126,7 +126,7 @@ public sealed class ResurrectionModule : BaseResurrectionModule<IApolloContext>,
 
         context.TrainingService.RecordDecision(new ActionExplanation
         {
-            Timestamp = DateTime.Now,
+            Timestamp = DateTime.UtcNow,
             ActionId = RoleActions.Raise.ActionId,
             ActionName = "Raise",
             Category = "Resurrection",

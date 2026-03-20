@@ -114,7 +114,7 @@ public sealed class SingleTargetOgcdHandler : IHealingHandler
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Druochole",
                     Category = "Healing",
@@ -222,7 +222,7 @@ public sealed class SingleTargetOgcdHandler : IHealingHandler
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Taurochole",
                     Category = "Healing",

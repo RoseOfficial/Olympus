@@ -155,7 +155,7 @@ public sealed class TetragrammatonHandler : IHealingHandler
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = WHMActions.Tetragrammaton.ActionId,
                     ActionName = "Tetragrammaton",
                     Category = "Healing",

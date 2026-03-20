@@ -253,7 +253,7 @@ public sealed class BuffModule : IApolloModule
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = WHMActions.ThinAir.ActionId,
                     ActionName = "Thin Air",
                     Category = "Buff",
@@ -338,7 +338,7 @@ public sealed class BuffModule : IApolloModule
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = WHMActions.PresenceOfMind.ActionId,
                     ActionName = "Presence of Mind",
                     Category = "Buff",
@@ -523,7 +523,7 @@ public sealed class BuffModule : IApolloModule
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = WHMActions.Asylum.ActionId,
                     ActionName = "Asylum",
                     Category = "Healing",

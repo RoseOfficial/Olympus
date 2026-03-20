@@ -76,7 +76,7 @@ public sealed class ResurrectionModule : BaseResurrectionModule<IAthenaContext>,
 
         context.TrainingService.RecordDecision(new ActionExplanation
         {
-            Timestamp = DateTime.Now,
+            Timestamp = DateTime.UtcNow,
             ActionId = RoleActions.Resurrection.ActionId,
             ActionName = "Resurrection",
             Category = "Resurrection",

@@ -168,7 +168,7 @@ public sealed class CardModule : IAstraeaModule
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Divination",
                     Category = "Buff",
@@ -251,7 +251,7 @@ public sealed class CardModule : IAstraeaModule
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Astrodyne",
                     Category = "Buff",
@@ -359,7 +359,7 @@ public sealed class CardModule : IAstraeaModule
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = cardAction.ActionId,
                     ActionName = cardAction.Name,
                     Category = "Card",
@@ -455,7 +455,7 @@ public sealed class CardModule : IAstraeaModule
 
         context.TrainingService!.RecordDecision(new ActionExplanation
         {
-            Timestamp = DateTime.Now,
+            Timestamp = DateTime.UtcNow,
             ActionId = isAstral ? ASTActions.AstralDraw.ActionId : ASTActions.UmbralDraw.ActionId,
             ActionName = drawType,
             Category = "Card",
@@ -525,7 +525,7 @@ public sealed class CardModule : IAstraeaModule
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Minor Arcana",
                     Category = "Card",

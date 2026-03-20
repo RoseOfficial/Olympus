@@ -20,18 +20,7 @@ public sealed class SmartAoEService : ISmartAoEService, IDisposable
     private readonly IPluginLog _log;
     private ICombatEventService? _subscribedCombatEventService;
     private uint _lastPredictedActionId;
-
-    /// <summary>
-    /// Global instance — set by Plugin.cs, accessed by BaseDpsDamageModule.
-    /// volatile ensures that writes from the init/dispose thread are immediately
-    /// visible to rotation modules running on the framework thread.
-    /// </summary>
-    private static volatile SmartAoEService? _instance;
-    public static SmartAoEService? Instance
-    {
-        get => _instance;
-        set => _instance = value;
-    }
+    private bool _disposed;
 
     public SmartAoEService(ITargetingService targetingService, IDataManager dataManager, AoETracker tracker, IPluginLog log)
     {
@@ -52,9 +41,12 @@ public sealed class SmartAoEService : ISmartAoEService, IDisposable
 
     public void Dispose()
     {
+        if (_disposed)
+            return;
+        _disposed = true;
+
         if (_subscribedCombatEventService != null)
             _subscribedCombatEventService.OnLocalAbilityResolved -= OnAbilityResolved;
-        Instance = null;
     }
 
     private void OnAbilityResolved(uint actionId, int targetCount)

@@ -133,7 +133,7 @@ public sealed class BuffModule : BaseBuffModule<IAstraeaContext>, IAstraeaModule
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = ASTActions.Lightspeed.ActionId,
                     ActionName = "Lightspeed",
                     Category = "Buff",

@@ -130,7 +130,7 @@ public sealed class BuffModule : BaseBuffModule<IAthenaContext>, IAthenaModule
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = SCHActions.Dissipation.ActionId,
                     ActionName = "Dissipation",
                     Category = "Resource Management",

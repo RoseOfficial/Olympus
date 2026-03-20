@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Olympus.Timeline;
 using Olympus.Timeline.Models;
 
@@ -59,6 +58,10 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
 
     // Maximum entries to keep per entity (prevents unbounded growth)
     private const int MaxEntriesPerEntity = 100;
+
+    // Reusable buffer for cleanup and forecast operations to avoid per-call allocations
+    private readonly List<uint> _cleanupKeyBuffer = new();
+    private readonly List<uint> _forecastEntityBuffer = new();
 
     // Server tick rate for DoT damage (3 seconds)
     private const float DoTTickInterval = 3.0f;
@@ -124,9 +127,13 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
                 return 0;
 
             var cutoff = DateTime.UtcNow.AddSeconds(-windowSeconds);
-            return list
-                .Where(d => d.Timestamp >= cutoff)
-                .Sum(d => d.Amount);
+            var total = 0;
+            foreach (var d in list)
+            {
+                if (d.Timestamp >= cutoff)
+                    total += d.Amount;
+            }
+            return total;
         }
     }
 
@@ -154,9 +161,11 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
             var total = 0;
             foreach (var kvp in _damageByEntity)
             {
-                total += kvp.Value
-                    .Where(d => d.Timestamp >= cutoff)
-                    .Sum(d => d.Amount);
+                foreach (var d in kvp.Value)
+                {
+                    if (d.Timestamp >= cutoff)
+                        total += d.Amount;
+                }
             }
             return total;
         }
@@ -184,7 +193,13 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
             foreach (var entityId in partyEntityIds)
             {
                 if (_damageByEntity.TryGetValue(entityId, out var list))
-                    total += list.Where(d => d.Timestamp >= cutoff).Sum(d => d.Amount);
+                {
+                    foreach (var d in list)
+                    {
+                        if (d.Timestamp >= cutoff)
+                            total += d.Amount;
+                    }
+                }
             }
             return total;
         }
@@ -241,13 +256,14 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
                 kvp.Value.RemoveAll(d => d.Timestamp < cutoff);
             }
 
-            // Remove empty lists
-            var emptyKeys = _damageByEntity
-                .Where(kvp => kvp.Value.Count == 0)
-                .Select(kvp => kvp.Key)
-                .ToList();
-
-            foreach (var key in emptyKeys)
+            // Remove empty lists — collect keys first to avoid modifying during enumeration
+            _cleanupKeyBuffer.Clear();
+            foreach (var kvp in _damageByEntity)
+            {
+                if (kvp.Value.Count == 0)
+                    _cleanupKeyBuffer.Add(kvp.Key);
+            }
+            foreach (var key in _cleanupKeyBuffer)
             {
                 _damageByEntity.Remove(key);
             }
@@ -316,11 +332,13 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
 
         // Collect entity IDs under the lock, then call ForecastEntityDamage outside it
         // to avoid re-entrancy: ForecastEntityDamage → GetRecentDamageIntake also acquires _damageLock.
-        List<uint> entityIds;
+        _forecastEntityBuffer.Clear();
         lock (_damageLock)
         {
-            entityIds = _damageByEntity.Keys.ToList();
+            foreach (var key in _damageByEntity.Keys)
+                _forecastEntityBuffer.Add(key);
         }
+        var entityIds = _forecastEntityBuffer;
 
         foreach (var entityId in entityIds)
         {
@@ -477,12 +495,13 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
             }
 
             // Remove empty lists
-            var emptyKeys = _activeDoTs
-                .Where(kvp => kvp.Value.Count == 0)
-                .Select(kvp => kvp.Key)
-                .ToList();
-
-            foreach (var key in emptyKeys)
+            _cleanupKeyBuffer.Clear();
+            foreach (var kvp in _activeDoTs)
+            {
+                if (kvp.Value.Count == 0)
+                    _cleanupKeyBuffer.Add(kvp.Key);
+            }
+            foreach (var key in _cleanupKeyBuffer)
             {
                 _activeDoTs.Remove(key);
             }

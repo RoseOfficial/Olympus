@@ -167,7 +167,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAstraeaContext>, IAst
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = ASTActions.NeutralSect.ActionId,
                     ActionName = "Neutral Sect",
                     Category = "Defensive",
@@ -260,7 +260,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAstraeaContext>, IAst
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = ASTActions.SunSign.ActionId,
                     ActionName = "Sun Sign",
                     Category = "Defensive",
@@ -369,7 +369,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAstraeaContext>, IAst
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = ASTActions.CollectiveUnconscious.ActionId,
                     ActionName = "Collective Unconscious",
                     Category = "Defensive",

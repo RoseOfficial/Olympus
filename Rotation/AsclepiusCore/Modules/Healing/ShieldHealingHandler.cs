@@ -104,7 +104,7 @@ public sealed class ShieldHealingHandler : IHealingHandler
                 {
                     context.TrainingService.RecordDecision(new ActionExplanation
                     {
-                        Timestamp = DateTime.Now,
+                        Timestamp = DateTime.UtcNow,
                         ActionId = action.ActionId,
                         ActionName = action.Name,
                         Category = "Healing",
@@ -177,7 +177,7 @@ public sealed class ShieldHealingHandler : IHealingHandler
 
                     context.TrainingService.RecordDecision(new ActionExplanation
                     {
-                        Timestamp = DateTime.Now,
+                        Timestamp = DateTime.UtcNow,
                         ActionId = action.ActionId,
                         ActionName = "Eukrasian Diagnosis",
                         Category = "Healing",

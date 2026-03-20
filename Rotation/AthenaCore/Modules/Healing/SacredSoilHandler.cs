@@ -140,7 +140,7 @@ public sealed class SacredSoilHandler : IHealingHandler
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = action.ActionId,
                     ActionName = "Sacred Soil",
                     Category = "Defensive",

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Rotation.Common;
@@ -42,6 +42,11 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
     /// Timer for rate-limiting gauge state broadcasts to once per second.
     /// </summary>
     private readonly Stopwatch _gaugeBroadcastTimer = Stopwatch.StartNew();
+
+    // Reusable lists to avoid per-frame allocations in UpdateJobSpecificServices
+    private readonly List<IBattleChara> _allMembersBuffer = new(8);
+    private readonly List<IBattleChara> _aliveMembersBuffer = new(8);
+    private readonly List<uint> _entityIdBuffer = new(8);
 
     #endregion
 
@@ -183,12 +188,29 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
         // Compute party members once and reuse for both calls to avoid a second object-table scan.
         if (inCombat)
         {
-            var partyMembers = HealerParty.GetAllPartyMembers(player).ToList();
-            var partyEntityIds = partyMembers.Select(m => m.EntityId);
-            UpdateDamageTrend(player, partyEntityIds);
+            // Reuse buffers to avoid per-frame allocations
+            _allMembersBuffer.Clear();
+            _aliveMembersBuffer.Clear();
+            _entityIdBuffer.Clear();
 
-            var (avgHpPercent, lowestHpPercent, injuredCount) = HealerPartyHelper.CalculatePartyHealthMetrics(partyMembers);
+            foreach (var member in HealerParty.GetAllPartyMembers(player, includeDead: true))
+            {
+                _allMembersBuffer.Add(member);
+                if (!member.IsDead)
+                {
+                    _aliveMembersBuffer.Add(member);
+                    _entityIdBuffer.Add(member.EntityId);
+                }
+            }
+
+            UpdateDamageTrend(player, _entityIdBuffer);
+
+            var (avgHpPercent, lowestHpPercent, injuredCount) = HealerPartyHelper.CalculatePartyHealthMetrics(_aliveMembersBuffer);
             UpdateCooldownPlanner(avgHpPercent, lowestHpPercent, injuredCount);
+
+            // Update party counts for overlay display
+            DebugState.PartyListCount = _allMembersBuffer.Count;
+            DebugState.PartyValidCount = _aliveMembersBuffer.Count;
         }
 
         // Broadcast gauge state every 1s (not every frame) for multi-healer coordination

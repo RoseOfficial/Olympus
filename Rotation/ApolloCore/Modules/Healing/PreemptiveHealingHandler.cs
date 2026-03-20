@@ -219,7 +219,7 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
 
                         context.TrainingService.RecordDecision(new ActionExplanation
                         {
-                            Timestamp = DateTime.Now,
+                            Timestamp = DateTime.UtcNow,
                             ActionId = WHMActions.Tetragrammaton.ActionId,
                             ActionName = "Tetragrammaton",
                             Category = "Healing",
@@ -281,7 +281,7 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
 
                         context.TrainingService.RecordDecision(new ActionExplanation
                         {
-                            Timestamp = DateTime.Now,
+                            Timestamp = DateTime.UtcNow,
                             ActionId = WHMActions.Benediction.ActionId,
                             ActionName = "Benediction",
                             Category = "Emergency Healing",
@@ -362,7 +362,7 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
 
                         context.TrainingService.RecordDecision(new ActionExplanation
                         {
-                            Timestamp = DateTime.Now,
+                            Timestamp = DateTime.UtcNow,
                             ActionId = action.ActionId,
                             ActionName = action.Name,
                             Category = "Healing",

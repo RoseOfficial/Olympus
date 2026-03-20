@@ -121,7 +121,7 @@ public sealed class BenedictionHandler : IHealingHandler
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = WHMActions.Benediction.ActionId,
                     ActionName = "Benediction",
                     Category = "Emergency Healing",

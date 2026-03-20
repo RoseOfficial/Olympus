@@ -93,7 +93,7 @@ public sealed class RegenHandler : IHealingHandler
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = WHMActions.Regen.ActionId,
                     ActionName = "Regen",
                     Category = "Healing",

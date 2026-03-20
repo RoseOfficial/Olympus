@@ -118,7 +118,7 @@ public sealed class EsunaHandler : IHealingHandler
 
                 context.TrainingService.RecordDecision(new ActionExplanation
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
                     ActionId = RoleActions.Esuna.ActionId,
                     ActionName = "Esuna",
                     Category = "Utility",
