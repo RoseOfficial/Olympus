@@ -76,19 +76,6 @@ public sealed class BuffModule : IHecateModule
     #region Timeline Awareness
 
     /// <summary>
-    /// Checks if burst abilities should be held for an imminent phase transition.
-    /// Returns true if a phase transition is expected within the window.
-    /// </summary>
-    private bool ShouldHoldBurstForPhase(IHecateContext context, float windowSeconds = 8f)
-    {
-        var nextPhase = context.TimelineService?.GetNextMechanic(TimelineEntryType.Phase);
-        if (nextPhase?.IsSoon != true || !nextPhase.Value.IsHighConfidence)
-            return false;
-
-        return nextPhase.Value.SecondsUntil <= windowSeconds;
-    }
-
-    /// <summary>
     /// Checks if movement is imminent (for Triplecast/Swiftcast planning).
     /// Returns true if a movement mechanic is expected soon.
     /// </summary>
@@ -221,7 +208,7 @@ public sealed class BuffModule : IHecateModule
             return false;
 
         // Timeline: Don't waste burst before phase transition or movement
-        if (ShouldHoldBurstForPhase(context))
+        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
         {
             context.Debug.BuffState = "Holding Ley Lines (phase soon)";
 

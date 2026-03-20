@@ -114,14 +114,15 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
         ActionService actionService,
         IPlayerStatsService playerStatsService,
         IDebuffDetectionService debuffDetectionService,
-        IErrorMetricsService? errorMetrics = null)
+        IErrorMetricsService? errorMetrics = null,
+        IMpForecastService? mpForecastService = null)
     {
         Log = log;
         ActionTracker = actionTracker;
         CombatEventService = combatEventService;
         DamageIntakeService = damageIntakeService;
         DamageTrendService = damageTrendService;
-        MpForecastService = new MpForecastService();
+        MpForecastService = mpForecastService ?? new MpForecastService();
         Configuration = configuration;
         ObjectTable = objectTable;
         PartyList = partyList;

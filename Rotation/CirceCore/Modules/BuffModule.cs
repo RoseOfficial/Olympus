@@ -98,23 +98,6 @@ public sealed class BuffModule : ICirceModule
         // Debug state updated during TryExecute
     }
 
-    #region Timeline Awareness
-
-    /// <summary>
-    /// Checks if burst abilities should be held for an imminent phase transition.
-    /// Returns true if a phase transition is expected within the window.
-    /// </summary>
-    private bool ShouldHoldBurstForPhase(ICirceContext context, float windowSeconds = 8f)
-    {
-        var nextPhase = context.TimelineService?.GetNextMechanic(TimelineEntryType.Phase);
-        if (nextPhase?.IsSoon != true || !nextPhase.Value.IsHighConfidence)
-            return false;
-
-        return nextPhase.Value.SecondsUntil <= windowSeconds;
-    }
-
-    #endregion
-
     #region oGCD Actions
 
     private bool TryFleche(ICirceContext context, Dalamud.Game.ClientState.Objects.Types.IBattleChara? target)
@@ -314,7 +297,7 @@ public sealed class BuffModule : ICirceModule
             return false;
 
         // Timeline: Don't waste burst before phase transition
-        if (ShouldHoldBurstForPhase(context))
+        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
         {
             context.Debug.BuffState = "Holding Embolden (phase soon)";
             return false;
@@ -423,7 +406,7 @@ public sealed class BuffModule : ICirceModule
             return false;
 
         // Timeline: Don't waste burst before phase transition
-        if (ShouldHoldBurstForPhase(context))
+        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
         {
             context.Debug.BuffState = "Holding Manafication (phase soon)";
             return false;

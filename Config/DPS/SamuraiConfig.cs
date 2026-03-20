@@ -74,6 +74,11 @@ public sealed class SamuraiConfig
     /// </summary>
     public bool EnableZanshin { get; set; } = true;
 
+    /// <summary>
+    /// Whether to use True North for positional coverage.
+    /// </summary>
+    public bool EnableTrueNorth { get; set; } = true;
+
     #endregion
 
     #region Kenki Gauge Settings

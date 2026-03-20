@@ -96,23 +96,6 @@ public sealed class BuffModule : ICalliopeModule
         // Debug state updated during TryExecute
     }
 
-    #region Timeline Awareness
-
-    /// <summary>
-    /// Checks if burst abilities should be held for an imminent phase transition.
-    /// Returns true if a phase transition is expected within the window.
-    /// </summary>
-    private bool ShouldHoldBurstForPhase(ICalliopeContext context, float windowSeconds = 8f)
-    {
-        var nextPhase = context.TimelineService?.GetNextMechanic(TimelineEntryType.Phase);
-        if (nextPhase?.IsSoon != true || !nextPhase.Value.IsHighConfidence)
-            return false;
-
-        return nextPhase.Value.SecondsUntil <= windowSeconds;
-    }
-
-    #endregion
-
     #region Pitch Perfect
 
     private bool TryPitchPerfect(ICalliopeContext context, IBattleChara target)
@@ -357,7 +340,7 @@ public sealed class BuffModule : ICalliopeModule
             return false;
 
         // Timeline: Don't waste burst before phase transition
-        if (ShouldHoldBurstForPhase(context))
+        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
         {
             context.Debug.BuffState = "Holding Raging Strikes (phase soon)";
             return false;
@@ -415,7 +398,7 @@ public sealed class BuffModule : ICalliopeModule
             return false;
 
         // Timeline: Don't waste burst before phase transition
-        if (ShouldHoldBurstForPhase(context))
+        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
         {
             context.Debug.BuffState = "Holding Battle Voice (phase soon)";
             return false;
@@ -729,7 +712,8 @@ public sealed class BuffModule : ICalliopeModule
         context.Debug.NearbyEnemies = enemyCount;
 
         // Use Rain of Death for AoE (3+ targets)
-        if (enemyCount >= context.Configuration.Bard.AoEMinTargets && level >= BRDActions.RainOfDeath.MinLevel)
+        if (context.Configuration.Bard.EnableAoERotation &&
+            enemyCount >= context.Configuration.Bard.AoEMinTargets && level >= BRDActions.RainOfDeath.MinLevel)
         {
             if (context.ActionService.IsActionReady(BRDActions.RainOfDeath.ActionId))
             {

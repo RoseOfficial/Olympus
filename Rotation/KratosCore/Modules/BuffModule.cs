@@ -66,23 +66,6 @@ public sealed class BuffModule : IKratosModule
         // Debug state updated during TryExecute
     }
 
-    #region Timeline Awareness
-
-    /// <summary>
-    /// Checks if burst abilities should be held for an imminent phase transition.
-    /// Returns true if a phase transition is expected within the window.
-    /// </summary>
-    private bool ShouldHoldBurstForPhase(IKratosContext context, float windowSeconds = 8f)
-    {
-        var nextPhase = context.TimelineService?.GetNextMechanic(TimelineEntryType.Phase);
-        if (nextPhase?.IsSoon != true || !nextPhase.Value.IsHighConfidence)
-            return false;
-
-        return nextPhase.Value.SecondsUntil <= windowSeconds;
-    }
-
-    #endregion
-
     #region Riddle of Fire
 
     private bool TryRiddleOfFire(IKratosContext context)
@@ -120,7 +103,7 @@ public sealed class BuffModule : IKratosModule
         }
 
         // Timeline: Don't waste burst before phase transition
-        if (ShouldHoldBurstForPhase(context))
+        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
         {
             context.Debug.BuffState = "Holding Riddle of Fire (phase soon)";
             return false;
@@ -190,7 +173,7 @@ public sealed class BuffModule : IKratosModule
         }
 
         // Timeline: Don't waste burst before phase transition
-        if (ShouldHoldBurstForPhase(context))
+        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
         {
             context.Debug.BuffState = "Holding Brotherhood (phase soon)";
             return false;

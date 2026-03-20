@@ -1250,6 +1250,7 @@ public static class LocalizedStrings
         public const string EnforcePositionalsDesc = "config.job.sam.enforce_positionals_desc";
         public const string AllowPositionalLoss = "config.job.sam.allow_positional_loss";
         public const string AllowPositionalLossDesc = "config.job.sam.allow_positional_loss_desc";
+        public const string EnableTrueNorth = "config.job.sam.enable_true_north";
     }
 
     /// <summary>Keys for Monk specific settings.</summary>
