@@ -158,7 +158,6 @@ Each rotation is named after a Greek deity:
 | Phase 3 | ✅ Complete | Full party coordination via IPC |
 | Phase 4 | ✅ Complete | Performance analytics + FFLogs |
 | Phase 5 | ✅ Complete | Training mode + personalized coaching (v4.0) |
-| Phase 6 | 📋 Planned | ML integration + simulation engine |
 
 ## Contributing
 
