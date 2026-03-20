@@ -2,7 +2,7 @@ using System;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
-using Dalamud.Game.ClientState.Party;
+using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Localization;
 using Olympus.Rotation;
@@ -17,6 +17,7 @@ public sealed class OverlayWindow : Window
     private readonly Configuration _configuration;
     private readonly Action _saveConfiguration;
     private readonly RotationManager _rotationManager;
+    private readonly IPartyList _partyList;
     private readonly ITimelineService? _timelineService;
 
     private static readonly Vector4 ActiveColor    = new(0.4f, 0.9f, 0.4f, 1f);
@@ -35,7 +36,7 @@ public sealed class OverlayWindow : Window
     private static readonly Vector4 TankBusterLabelColor    = new(0.5f, 0.8f, 1.0f, 1f);
     private static readonly Vector4 PhaseLabelColor         = new(0.7f, 0.9f, 0.5f, 1f);
 
-    public OverlayWindow(Configuration configuration, Action saveConfiguration, RotationManager rotationManager, ITimelineService? timelineService = null)
+    public OverlayWindow(Configuration configuration, Action saveConfiguration, RotationManager rotationManager, IPartyList partyList, ITimelineService? timelineService = null)
         : base(
             "##OlympusOverlay",
             ImGuiWindowFlags.NoTitleBar
@@ -50,6 +51,7 @@ public sealed class OverlayWindow : Window
         _configuration = configuration;
         _saveConfiguration = saveConfiguration;
         _rotationManager = rotationManager;
+        _partyList = partyList;
         _timelineService = timelineService;
 
         Position = new Vector2(configuration.Overlay.X, configuration.Overlay.Y);
@@ -140,9 +142,10 @@ public sealed class OverlayWindow : Window
         {
             ImGui.Text(Loc.T(LocalizedStrings.Overlay.PartyLabel, "Party:"));
             ImGui.SameLine();
+            var partySize = _partyList.Length > 0 ? _partyList.Length : 1;
             ImGui.TextColored(AlertColor, Loc.TFormat(
                 LocalizedStrings.Overlay.PartyInjured, "{0}/{1} injured",
-                state.AoEInjuredCount, state.PartyListCount));
+                state.AoEInjuredCount, partySize));
         }
 
         // Raise alert

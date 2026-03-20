@@ -322,7 +322,7 @@ public sealed class Plugin : IDalamudPlugin
         this.trainingWindow = new TrainingWindow(trainingService, configuration, decisionValidationService, spacedRepetitionService);
         this.changelogWindow = new ChangelogWindow();
         this.hintOverlay = new HintOverlay(realTimeCoachingService, configuration.Training);
-        this.overlayWindow = new OverlayWindow(configuration, SaveConfiguration, rotationManager, this.timelineService);
+        this.overlayWindow = new OverlayWindow(configuration, SaveConfiguration, rotationManager, partyList, this.timelineService);
 
         // Telemetry service for anonymous usage tracking
         this.telemetryService = new TelemetryService(configuration, log);
