@@ -2,6 +2,7 @@ using System;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
+using Dalamud.Game.ClientState.Party;
 using Olympus.Data;
 using Olympus.Localization;
 using Olympus.Rotation;
@@ -141,7 +142,7 @@ public sealed class OverlayWindow : Window
             ImGui.SameLine();
             ImGui.TextColored(AlertColor, Loc.TFormat(
                 LocalizedStrings.Overlay.PartyInjured, "{0}/{1} injured",
-                state.AoEInjuredCount, state.PartyValidCount));
+                state.AoEInjuredCount, state.PartyListCount));
         }
 
         // Raise alert

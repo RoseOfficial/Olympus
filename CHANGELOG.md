@@ -3,7 +3,7 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
-## v4.11.0
+## v4.11.0 — 2026-03-18
 
 ### All DPS Jobs
 - Ability toggles in settings now actually take effect for all 12 DPS jobs — Dragoon, Monk, Machinist, Samurai, Reaper, Ninja, Bard, Dancer, Black Mage, Summoner, Red Mage, and Pictomancer all had toggles that were displayed but silently ignored by the rotation engine
@@ -40,7 +40,7 @@ All notable changes to Olympus will be documented in this file.
 - Automated integration tests added for all 21 jobs and core services, improving regression detection before changes reach players
 
 <!-- LATEST-END -->
-## v4.10.31
+## v4.10.31 — 2026-03-16
 
 ### Viper
 - The rotation now weaves Legacy oGCDs (First through Fourth Legacy) during Reawaken bursts, significantly improving burst damage output
@@ -50,11 +50,11 @@ All notable changes to Olympus will be documented in this file.
 - Writhing Snap is now used as a ranged filler when out of melee range with no Rattling Coils available
 
 
-## v4.10.30
+## v4.10.30 — 2026-03-16
 
 - Japanese translations are now available for all 21 combat jobs in the Training module — every lesson and quiz can now be displayed in Japanese
 
-## v4.10.29
+## v4.10.29 — 2026-03-16
 
 - Pictomancer (Iris): Creature motifs now correctly alternate between types based on level when painting outside combat — Lv.96+ paints Claw/Maw, lower levels alternate Pom/Wing
 - Pictomancer (Iris): During the Inspiration buff window (Starry Muse), missing canvases are now painted with reduced cast time rather than waiting for the next gap in the rotation
@@ -64,12 +64,12 @@ All notable changes to Olympus will be documented in this file.
 - Pictomancer (Iris): Smudge is now used automatically when moving and no instant GCDs are available
 - Pictomancer (Iris): Swiftcast is now used during movement when no other instant options are available, preventing cast interruption
 
-## v4.10.28
+## v4.10.28 — 2026-03-16
 
 - Tank cooldown abilities now pre-empt tank busters predicted by the fight timeline — major defensives activate up to 8 seconds before a known tank buster rather than only reacting after damage starts
 - Damage forecasts used for healing triage now factor in timeline-predicted raidwides and tank busters, so healers and shields are deployed before mechanics land rather than in response to them
 
-## v4.10.27
+## v4.10.27 — 2026-03-16
 
 - Burst resource pooling is now individually tuned for each DPS job — gauge resources and key cooldowns are held more precisely in the final seconds before a burst window rather than spending freely
   - Dragoon no longer accidentally triggers Life of the Dragon before burst when Geirskogul would activate it at an inopportune time
@@ -83,20 +83,20 @@ All notable changes to Olympus will be documented in this file.
   - Black Mage holds Polyglot stacks for burst timing when below 2 stacks
   - Ninja, Samurai, and Monk hold their primary gauge spender when a burst window is imminent but the gauge is not near cap
 
-## v4.10.26
+## v4.10.26 — 2026-03-16
 
 - Fight timelines are now available for Dragonsong's Reprise (Ultimate), The Omega Protocol (Ultimate), and Futures Rewritten (Ultimate) — the plugin can now predict upcoming raidwides and tankbusters in all three fights.
 
-## v4.10.25
+## v4.10.25 — 2026-03-16
 
 - The overlay window has been rebuilt as a real-time combat HUD — it now shows your active rotation and job, a clickable ACTIVE/INACTIVE status indicator, your next queued action highlighted in green, HP percentage with a color-coded indicator, injured party member count, raise-in-progress alerts, and current positional (Rear/Flank/Front) for melee DPS jobs.
 - The first-run welcome screen is now a three-page onboarding wizard — it walks you through key features, lets you enable the plugin and choose a behavior preset, and ends with practical tips and a Discord link.
 
-## v4.10.24
+## v4.10.24 — 2026-03-16
 
 - Action metadata is now registered for all 21 jobs — previously only White Mage had full action data, which limited features like action-level filtering and heal/damage categorization to WHM only. All jobs now have complete coverage.
 
-## v4.10.23
+## v4.10.23 — 2026-03-16
 
 - Add preset quick-switcher to the main window — switch between Raid, Dungeon, Casual, and other presets without opening the full settings window
 - Fight session history is now saved to disk and restored when the plugin reloads — performance trends in the Analytics window are preserved across sessions
@@ -104,65 +104,65 @@ All notable changes to Olympus will be documented in this file.
 - Add config import/export via clipboard in the settings window footer — share your settings with other players or back up your configuration
 - Add Spanish, Portuguese, and Russian as selectable languages — strings currently display in English until community translations are contributed
 
-## v4.10.19 - Training Mode Now Fully Wired
+## v4.10.19 — 2026-03-16 - Training Mode Now Fully Wired
 
 **Training Mode**
 - Live Coaching now explains decisions for all 21 jobs — every action in every rotation now records what it did and why, feeding the coaching panel in real time.
 - Concept mastery tracking is now active for all jobs, so Struggling Concepts and mastery-driven lesson recommendations work across the full roster.
 - Fixed a bug where skill level could never advance beyond Beginner through the quiz component due to a mismatched quiz ID format.
 
-## v4.10.18
+## v4.10.18 — 2026-03-15
 
-## v4.10.17
+## v4.10.17 — 2026-03-15
 
 - Improved healer performance and reliability (no behavior change)
 
-## v4.10.16 - Training Mode Now Covers All Jobs
+## v4.10.16 — 2026-03-15 - Training Mode Now Covers All Jobs
 
 **Training Mode (All Jobs)**
 - The Lessons and Quizzes tabs now show all 21 jobs, organized by role (Healer, Tank, Melee, Ranged, Caster). Previously only Healers and Tanks were accessible from the tab bar.
 
-## v4.10.15 - White Mage Thin Air and Glare IV Improvements
+## v4.10.15 — 2026-03-15 - White Mage Thin Air and Glare IV Improvements
 
 **White Mage**
 - Thin Air now spends charges immediately when both charges are full, even when the party is healthy and no expensive spell is incoming. Previously charges could sit capped indefinitely during stable phases, wasting charge regeneration. The extra charge is now spent on the next GCD cast (Glare III or Dia) to keep charge regen flowing.
 - Glare IV's recorded potency corrected to 640 (was 350). This affects Training Mode explanations only — rotation behavior is unchanged.
 
 
-## v4.10.14 - White Mage Cooldown Logic Fixes
+## v4.10.14 — 2026-03-15 - White Mage Cooldown Logic Fixes
 
 **White Mage**
 - Asylum no longer places when the party is at full health. It still deploys proactively before predicted raidwides and burst windows as before — the change only prevents it from firing unconditionally on cooldown when no one needs healing.
 - Fixed Temperance, damage trend analysis, and high-damage phase detection incorrectly triggering due to outgoing damage to enemies being counted as party damage intake. These systems now only consider damage received by actual party members.
 
-## v4.10.13 - Debug Checklist Now Shows All Spells
+## v4.10.13 — 2026-03-15 - Debug Checklist Now Shows All Spells
 
 **Debug Menu (All Jobs)**
 - The spell checklist in the debug menu now shows every ability for each job, including full upgrade chains, utility actions, defensive cooldowns, stance toggles, movement abilities, and all role actions. Previously, only a curated subset was displayed.
 
-## v4.10.12 - Internal Quality Improvements
+## v4.10.12 — 2026-03-15 - Internal Quality Improvements
 
 **All Healer Jobs (White Mage, Sage, Astrologian, Scholar)**
 - Healing logic for all four healers has been restructured internally — each healing ability is now an independent, individually tested component. Behavior is unchanged.
 
-## v4.10.11 - Crash Fix on Death and Zone Transition
+## v4.10.11 — 2026-03-15 - Crash Fix on Death and Zone Transition
 
 **All Jobs**
 - Fixed crashes that occurred when the player died or changed zones. Rotation logic now stops immediately when the player is dead, preventing modules from running against an invalid game state. Zone transitions now also reset HP tracking and pending heal state, preventing stale data from a previous zone being misapplied to new entities that happen to share the same ID.
 
-## v4.10.10 - White Mage AoE Healing Fix
+## v4.10.10 — 2026-03-15 - White Mage AoE Healing Fix
 
 **White Mage**
 - Fixed AoE heals (Medica, Medica II, Medica III, Cure III, Afflatus Rapture) not firing when enough party members were below the HP threshold. Two bugs combined to block all AoE healing: (1) a redundant overheal check was rejecting every Medica spell at the HP levels where healing actually triggers — at level 100, heal amounts far exceed the average missing HP at 80–85% HP, so this check was removed entirely since the existing HP threshold is sufficient gating; and (2) Regen was executing before AoE heals in priority order, meaning a single party member needing Regen would consume the GCD window and prevent AoE heals from casting even when multiple members were injured. AoE healing now takes priority over Regen — when the AoE target count is not met, Regen runs next as usual.
 - Fixed Afflatus Rapture not being used as a fallback when the lily strategy is set to Disabled but all Medica options are unavailable — lilies are now always spent as a last resort for AoE healing if other options fail.
 
-## v4.10.9 - Internal Quality Improvements
+## v4.10.9 — 2026-03-14 - Internal Quality Improvements
 
 **All Jobs**
 - Overhauled internal test coverage across all 21 rotations to catch regressions earlier — healing spells, damage rotations, buff timing, and priority logic are now verified by automated checks
 - Sage and Astrologian healing logic has been restructured internally for easier maintenance; behavior is unchanged
 
-## v4.10.8 - Smart AoE Targeting & Visual Overlay
+## v4.10.8 — 2026-03-14 - Smart AoE Targeting & Visual Overlay
 
 **All Melee Jobs (Monk, Dragoon, Ninja, Samurai, Reaper, Warrior)**
 - Added a positional indicator that shows which position you need to be in for your next melee action — rear, flank, or front — updating in real time as your combo progresses
@@ -180,7 +180,7 @@ All notable changes to Olympus will be documented in this file.
 **General**
 - Added an option to start the rotation as soon as your weapon is drawn and auto-attacks begin, rather than waiting for the first GCD
 
-## v4.10.7 - Bug Fixes & Performance
+## v4.10.7 — 2026-03-14 - Bug Fixes & Performance
 
 **White Mage**
 - Fixed AoE heals (Medica, Medica II, Cure III, Liturgy) never triggering in 8-player raid groups — the check for whether party members needed healing used a threshold that was almost never met at level 100, so AoE heals were silently suppressed. They now fire correctly whenever enough party members are below the HP threshold (default 85%, configurable in settings).
@@ -192,33 +192,33 @@ All notable changes to Olympus will be documented in this file.
 - Reduced memory allocations during combat, improving frame consistency for healer jobs in particular — the plugin now reuses internal data structures between frames rather than discarding and recreating them.
 - Internal code maintenance with no changes to rotation behavior.
 
-## v4.10.6 - Internal Maintenance
+## v4.10.6 — 2026-03-14 - Internal Maintenance
 
 No changes to rotation behavior or the user interface. This release contains internal code improvements only.
 
-## v4.10.5 - Debug Window Overhaul
+## v4.10.5 — 2026-03-13 - Debug Window Overhaul
 
 **Debug Window**
 - The 21 per-job tabs have been replaced with a single "Job Details" tab containing a dropdown that lets you pick any job, grouped by role — the tab bar no longer overflows and is much easier to navigate
 - The correct job is automatically selected when you open the window, so you land on your current job's info without scrolling
 
-## v4.10.4 - Melee Range Precision
+## v4.10.4 — 2026-03-13 - Melee Range Precision
 
 **All Melee and Tank Jobs**
 - Melee range detection now uses the game's own built-in range check instead of manual distance math, giving maximum precision — enemies at the very edge of attack range are now reliably detected and engaged
 
-## v4.10.3 - Spell Checklist Debug Tab
+## v4.10.3 — 2026-03-13 - Spell Checklist Debug Tab
 
 **Debug Window**
 - Added a new Checklist tab that shows every spell your current job should be casting, filtered to your actual level, with a cast count per spell and a Reset button to start a fresh session count
 - Spells that have been cast show a green dot; spells not yet cast show a red dot, making it easy to spot gaps in the rotation at a glance
 
-## v4.10.2 - Large Boss Range Fix
+## v4.10.2 — 2026-03-13 - Large Boss Range Fix
 
 **All Jobs**
 - Fixed melee rotations incorrectly using ranged attacks when standing near large bosses: the plugin now accounts for enemy hitbox size when determining whether you are in melee range
 
-## v4.10.1 - Gap Closer & Debug Fixes
+## v4.10.1 — 2026-03-13 - Gap Closer & Debug Fixes
 
 **Dark Knight**
 - Fixed Dark Knight not engaging from range: Unmend now fires to close distance when the target is out of melee reach
@@ -233,7 +233,7 @@ No changes to rotation behavior or the user interface. This release contains int
 **Main Window**
 - Removed the Available Rotations list to keep the window compact; the active job is still shown at the top
 
-## v4.9.9 - Quick Toggle Overlay
+## v4.9.9 — 2026-03-13 - Quick Toggle Overlay
 
 **Main Window**
 - Added always-visible floating overlay with one-click toggles for Rotation, Healing, and Damage — no need to open the main window mid-combat
@@ -244,20 +244,20 @@ No changes to rotation behavior or the user interface. This release contains int
 - Fixed Conjurer rotation silently doing nothing: CNJ now correctly uses Stone/Stone II for damage and Aero/Aero II for DoT instead of WHM-exclusive spells (Glare III, Dia) that the class stone doesn't grant
 - Fixed DoT casting being blocked while moving for all levels — Aero and Aero II are instant cast and were incorrectly restricted
 
-## v4.9.8 - Positional Indicator
+## v4.9.8 — 2026-03-12 - Positional Indicator
 
 **Main Window**
 - Added live positional indicator for all 6 melee DPS jobs (Dragoon, Ninja, Samurai, Monk, Reaper, Viper)
 - Shows current position relative to target: Rear (blue), Flank (purple), Front (gray), or Immune
 - Only visible when a melee DPS job is active and a target is in range; hidden otherwise
 
-## v4.9.7 - Healer Debug Tabs
+## v4.9.7 — 2026-03-12 - Healer Debug Tabs
 
 **Debug**
 - Added dedicated debug tab for White Mage: Lily/Blood Lily gauge, Temperance/Assizes/Asylum/PoM/Thin Air buff states, misery tracking
 - Added dedicated debug tab for Sage: Addersgall/Adersting resources, Kardia/Soteria/Philosophia state, Eukrasia, all healing spells, all shield spells, DoT/Phlegma/Toxikon/Psyche DPS tracking
 
-## v4.9.6 - Tank Debug Tabs
+## v4.9.6 — 2026-03-12 - Tank Debug Tabs
 
 **Debug**
 - Added dedicated debug tabs for all 4 tank rotations (Warrior, Dark Knight, Paladin, Gunbreaker)
@@ -266,7 +266,7 @@ No changes to rotation behavior or the user interface. This release contains int
 - Paladin tab: Oath Gauge, Atonement/Confiteor/Sword Oath steps, Fight or Flight, Goring Blade DoT, execution flow
 - Gunbreaker tab: Cartridges, Gnashing Fang combo step, all 5 Continuation ready states, No Mercy, DoTs, defensive CDs
 
-## v4.9.5 - Tank Role Override & Debug Fixes
+## v4.9.5 — 2026-03-12 - Tank Role Override & Debug Fixes
 
 **Tanks**
 - Added MT/OT role override setting: choose Auto (enmity-based), Main Tank, or Off Tank per session
@@ -275,7 +275,7 @@ No changes to rotation behavior or the user interface. This release contains int
 **Debug**
 - Fixed Action History panel showing no entries for all jobs except White Mage
 
-## v4.9.4 - Tank Rotation Fixes
+## v4.9.4 — 2026-03-12 - Tank Rotation Fixes
 
 **Dark Knight**
 - Fixed gap closer: replaced deprecated Plunge with Shadowstride (Dawntrail action ID update)
@@ -300,7 +300,7 @@ No changes to rotation behavior or the user interface. This release contains int
 - Added option to prevent closing the Olympus window with the Escape key
 - Added option to keep Olympus windows visible during cutscenes
 
-## v4.9.1 - Ultimate Raid Timelines
+## v4.9.1 — 2026-01-31 - Ultimate Raid Timelines
 
 **Timeline System**
 - Added timeline support for The Unending Coil of Bahamut (Ultimate) - UCoB
@@ -309,7 +309,7 @@ No changes to rotation behavior or the user interface. This release contains int
 - All healers and tanks now have predictive mechanics for classic Ultimates
 - Timelines include all major raidwides, tankbusters, and phase transitions
 
-## v4.9.0 - Settings Search
+## v4.9.0 — 2026-01-31 - Settings Search
 
 **Settings Search**
 - Added search box to Settings window for finding options quickly
@@ -319,7 +319,7 @@ No changes to rotation behavior or the user interface. This release contains int
 - Shows "X section(s) found" count or "No settings found" message
 - Clear button (X) to reset search
 
-## v4.8.1 - Configuration System Enhancement
+## v4.8.1 — 2026-01-29 - Configuration System Enhancement
 
 **Role-Aware Configuration Presets**
 - Added 4 new playstyle presets: Conservative, Balanced, Aggressive, Proactive
@@ -346,7 +346,7 @@ No changes to rotation behavior or the user interface. This release contains int
 - Asphodelos Savage timelines (P1S-P4S)
 - Abyssos Savage timelines (P5S-P8S)
 
-## v4.7.0 - Expanded Language Support
+## v4.7.0 — 2026-01-29 - Expanded Language Support
 
 **Settings**
 - Expanded language selection dropdown to include 7 options:
@@ -375,7 +375,7 @@ No changes to rotation behavior or the user interface. This release contains int
 - All new files use English text as baseline
 - Community contributions welcome for translations
 
-## v4.5.0 - Japanese Translation
+## v4.5.0 — 2026-01-27 - Japanese Translation
 
 **Localization**
 - Added Japanese (ja) translation with ~1,191 translated strings
@@ -395,7 +395,7 @@ No changes to rotation behavior or the user interface. This release contains int
 - Ability names use official in-game Japanese names
 - UI follows FFXIV Japanese client conventions
 
-## v4.4.0 - Chinese Simplified Translation
+## v4.4.0 — 2026-01-27 - Chinese Simplified Translation
 
 **Phase 5 - AI Translation Generation**
 - Added Chinese Simplified (zh) translation with ~1,143 translated strings
@@ -409,7 +409,7 @@ No changes to rotation behavior or the user interface. This release contains int
 - Training Window: Live coaching and progress tracking translated
 - Debug Window: All 22 job tabs translated
 
-## v4.3.1 - Debug Window Localization Complete
+## v4.3.1 — 2026-01-27 - Debug Window Localization Complete
 
 **Localization**
 - Completed localization of all 22 Debug Window tabs (755 localized strings)
@@ -424,7 +424,7 @@ No changes to rotation behavior or the user interface. This release contains int
 - All 4 Casters: BLM, SMN, RDM, PCT debug tabs
 - General debug tabs: Overview, Timeline, Actions, Healing, Overheal, Performance, WhyStuck
 
-## v4.3.0 - Localization Infrastructure
+## v4.3.0 — 2026-01-27 - Localization Infrastructure
 
 **Multi-Language Support Foundation**
 - Added localization infrastructure for future multi-language support
@@ -446,7 +446,7 @@ No changes to rotation behavior or the user interface. This release contains int
 - English text provided as fallback ensures functionality without translation files
 - Ability names automatically localized from game data via `GameLoc.Action(id)`
 
-## v4.1.1 - Bug Fixes
+## v4.1.1 — 2026-01-26 - Bug Fixes
 
 **Summoner**
 - Fixed pet detection - now correctly checks ObjectTable instead of always assuming pet is summoned
@@ -458,7 +458,7 @@ No changes to rotation behavior or the user interface. This release contains int
 **Analytics**
 - Improved burst window detection - now uses actual party coordination data when available instead of just 120s heuristics
 
-## v4.1.0 - Lazy Rotation Loading
+## v4.1.0 — 2026-01-26 - Lazy Rotation Loading
 
 **Performance Improvement**
 - Rotations are now created on-demand when switching jobs instead of all 21 at startup
@@ -467,7 +467,7 @@ No changes to rotation behavior or the user interface. This release contains int
 - Simplified Plugin.cs architecture (removed 21 rotation instance fields)
 - No user-facing changes - same functionality, better performance
 
-## v4.0.3 - Fluent Training Builder
+## v4.0.3 — 2026-01-26 - Fluent Training Builder
 
 **Internal Code Quality Improvement**
 - Migrated all training decision calls to fluent builder pattern
@@ -476,7 +476,7 @@ No changes to rotation behavior or the user interface. This release contains int
 - Cleaner, more maintainable training decision recording
 - No user-facing changes - internal refactoring only
 
-## v4.0.2 - Training Content Extraction
+## v4.0.2 — 2026-01-25 - Training Content Extraction
 
 **Internal Code Quality Improvement**
 - Extracted all quiz and lesson data from C# static classes to JSON files
@@ -485,7 +485,7 @@ No changes to rotation behavior or the user interface. This release contains int
 - 21 lesson files + 21 quiz files (735 questions across all jobs)
 - No user-facing changes - internal refactoring only
 
-## v4.0.1 - Training Helper Abstraction
+## v4.0.1 — 2026-01-25 - Training Helper Abstraction
 
 **Internal Code Quality Improvement**
 - Consolidated duplicate `Record*Decision` methods across 5 training helper files into a unified abstraction
@@ -494,7 +494,7 @@ No changes to rotation behavior or the user interface. This release contains int
 - Added `DecisionCategory` constants for consistent category naming
 - No user-facing changes - internal refactoring only
 
-## v4.0.0 - Training Mode Complete
+## v4.0.0 — 2026-01-25 - Training Mode Complete
 
 **Major Milestone: Intelligent Coaching System Complete**
 
@@ -519,7 +519,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Simulation engine for practice scenarios
 - Voice command support
 
-## v3.52.0 - Spaced Repetition
+## v3.52.0 — 2026-01-25 - Spaced Repetition
 
 **Knowledge Retention Tracking**
 - Track how well you remember concepts over time using a forgetting curve
@@ -544,7 +544,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Integrated with TrainingConfig for persistence across sessions
 - SkillProgressTab updated with retention visualization
 
-## v3.51.0 - Coaching Personality
+## v3.51.0 — 2026-01-25 - Coaching Personality
 
 **Configurable Coaching Voice**
 - Choose from 4 distinct coaching personalities that adapt all feedback messages
@@ -568,7 +568,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - PersonalityTextGenerator generates all personality-appropriate messages
 - RealTimeCoachingService and DecisionValidationService integrated with personality
 
-## v3.50.0 - Decision Validation
+## v3.50.0 — 2026-01-25 - Decision Validation
 
 **New Decision Validation System**
 - Decisions now show whether they were optimal, acceptable, or suboptimal
@@ -592,7 +592,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - New DecisionValidationService.cs for tracking and analysis
 - Integrated with TrainingWindow and LiveCoachingTab
 
-## v3.49.0 - Real-Time Coaching Hints
+## v3.49.0 — 2026-01-25 - Real-Time Coaching Hints
 
 **New In-Combat Coaching System**
 - Real-time coaching hints now appear during combat for struggling concepts
@@ -618,7 +618,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - New HintOverlay window with ImGui rendering
 - Integrates with existing concept mastery tracking from v3.28.0
 
-## v3.48.0 - Iris (PCT) Training Mode
+## v3.48.0 — 2026-01-25 - Iris (PCT) Training Mode
 
 **Full Pictomancer Training Mode Integration**
 - Iris (PCT) rotation now records all training decisions with detailed explanations
@@ -647,7 +647,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Concept Mastery**
 - All 25 PCT concepts tracked including Palette Gauge, paint management, canvas system, muse abilities, and burst windows
 
-## v3.47.0 - Circe (RDM) Training Mode
+## v3.47.0 — 2026-01-25 - Circe (RDM) Training Mode
 
 **Full Red Mage Training Mode Integration**
 - Circe (RDM) rotation now records all training decisions with detailed explanations
@@ -689,7 +689,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Concept Mastery**
 - All 25 RDM concepts tracked including mana balance, Dualcast, procs, melee combo, finishers, and burst windows
 
-## v3.46.0 - Persephone (SMN) Training Mode
+## v3.46.0 — 2026-01-25 - Persephone (SMN) Training Mode
 
 **Full Summoner Training Mode Integration**
 - Persephone (SMN) rotation now records all training decisions with detailed explanations
@@ -734,7 +734,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Concept Mastery**
 - All 25 SMN concepts tracked including demi-summons, primal attunement, Aetherflow, burst windows, and party coordination
 
-## v3.45.0 - Hecate (BLM) Training Mode
+## v3.45.0 — 2026-01-25 - Hecate (BLM) Training Mode
 
 **Full Black Mage Training Mode Integration**
 - Hecate (BLM) rotation now records all training decisions with detailed explanations
@@ -786,7 +786,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Concept Mastery**
 - All 25 BLM concepts tracked including element system, proc management, gauges, burst windows, and movement optimization
 
-## v3.44.0 - Terpsichore (DNC) Training Mode
+## v3.44.0 — 2026-01-25 - Terpsichore (DNC) Training Mode
 
 **Full Dancer Training Mode Integration**
 - Terpsichore (DNC) rotation now records all training decisions with detailed explanations
@@ -834,7 +834,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Concept Mastery**
 - All 25 DNC concepts tracked including dance system, proc management, gauges, burst windows, and party utility
 
-## v3.43.0 - Calliope (BRD) Training Mode
+## v3.43.0 — 2026-01-25 - Calliope (BRD) Training Mode
 
 **Full Bard Training Mode Integration**
 - Calliope (BRD) rotation now records all training decisions with detailed explanations
@@ -882,7 +882,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Concept Mastery**
 - All major BRD concepts tracked: `brd.song_rotation`, `brd.wanderers_minuet`, `brd.mages_ballad`, `brd.armys_paeon`, `brd.repertoire_stacks`, `brd.pitch_perfect`, `brd.song_switching`, `brd.soul_voice_gauge`, `brd.apex_arrow`, `brd.blast_arrow`, `brd.soul_voice_overcapping`, `brd.straight_shot_ready`, `brd.refulgent_arrow`, `brd.barrage`, `brd.resonant_arrow`, `brd.caustic_bite`, `brd.stormbite`, `brd.iron_jaws`, `brd.raging_strikes`, `brd.battle_voice`, `brd.radiant_finale`, `brd.radiant_encore`, `brd.empyreal_arrow`, `brd.bloodletter_management`, `brd.party_utility`
 
-## v3.42.0 - Prometheus (MCH) Training Mode
+## v3.42.0 — 2026-01-25 - Prometheus (MCH) Training Mode
 
 **Full Machinist Training Mode Integration**
 - Prometheus (MCH) rotation now records all training decisions with detailed explanations
@@ -920,7 +920,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Concept Mastery**
 - All major MCH concepts tracked: `mch.wildfire_placement`, `mch.burst_party_sync`, `mch.hypercharge_activation`, `mch.hypercharge_timing`, `mch.heat_gauge`, `mch.battery_gauge`, `mch.gauge_overcapping`, `mch.drill_priority`, `mch.air_anchor_usage`, `mch.chain_saw_usage`, `mch.proc_tracking`, `mch.queen_summoning`, `mch.queen_damage_scaling`, `mch.battery_accumulation`, `mch.reassemble_priority`, `mch.reassemble_charges`, `mch.heat_blast_rotation`, `mch.overheated_state`, `mch.ogcd_weaving`, `mch.aoe_rotation`, `mch.interrupt_usage`
 
-## v3.41.0 - Echidna (VPR) Training Mode
+## v3.41.0 — 2026-01-25 - Echidna (VPR) Training Mode
 
 **Full Viper Training Mode Integration**
 - Echidna (VPR) rotation now records all training decisions with detailed explanations
@@ -956,7 +956,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Concept Mastery**
 - All major VPR concepts tracked: `vpr.serpents_ire`, `vpr.reawaken_entry`, `vpr.generation_sequence`, `vpr.vicewinder`, `vpr.noxious_gnash`, `vpr.dread_combo`, `vpr.positional_finishers`, `vpr.combo_basics`, `vpr.buff_cycling`, `vpr.positionals`, `vpr.rattling_coil`, `vpr.twinfang_twinblood`, `vpr.uncoiled_fury`
 
-## v3.40.0 - Thanatos (RPR) Training Mode
+## v3.40.0 — 2026-01-24 - Thanatos (RPR) Training Mode
 
 **Full Reaper Training Mode Integration**
 - Thanatos (RPR) rotation now records all training decisions with detailed explanations
@@ -993,7 +993,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Concept Mastery**
 - All major RPR concepts tracked: `rpr_arcane_circle`, `rpr_enshroud`, `rpr_reaping`, `rpr_communio`, `rpr_perfectio`, `rpr_gibbet`, `rpr_gallows`, `rpr_gluttony`, `rpr_soul_slice`, `rpr_deaths_design`
 
-## v3.39.0 - Kratos (MNK) Training Mode
+## v3.39.0 — 2026-01-24 - Kratos (MNK) Training Mode
 
 **Full Monk Training Mode Integration**
 - Kratos (MNK) rotation now records all training decisions with detailed explanations
@@ -1024,7 +1024,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Concept Mastery**
 - All major MNK concepts tracked: `mnk_riddle_of_fire`, `mnk_brotherhood`, `mnk_perfect_balance`, `mnk_riddle_of_wind`, `mnk_chakra_gauge`, `mnk_beast_chakra`, `mnk_positionals`
 
-## v3.38.0 - Nike (SAM) Training Mode
+## v3.38.0 — 2026-01-24 - Nike (SAM) Training Mode
 
 **Full Samurai Training Mode Integration**
 - Nike (SAM) rotation now records all training decisions with detailed explanations
@@ -1056,7 +1056,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Concept Mastery**
 - All major SAM concepts tracked: `sam_sen_system`, `sam_kenki_gauge`, `sam_iaijutsu`, `sam_burst_window`, `sam_positionals`, `sam_aoe_rotation`
 
-## v3.37.0 - Hermes (NIN) Training Mode
+## v3.37.0 — 2026-01-24 - Hermes (NIN) Training Mode
 
 **Full Ninja Training Mode Integration**
 - Hermes (NIN) rotation now records all training decisions with detailed explanations
@@ -1087,7 +1087,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Concept Mastery**
 - All major NIN concepts tracked: `nin_kunais_bane`, `nin_tenri_jindo`, `nin_kassatsu`, `nin_ten_chi_jin`, `nin_mug_dokumori`, `nin_bunshin`, `nin_meisui`, `nin_ninki_gauge`, `nin_raiju`, `nin_phantom_kamaitachi`, `nin_positionals`, `nin_mudra_system`, `nin_suiton`, `nin_raiton`, `nin_katon`, `nin_hyosho_ranryu`, `nin_doton`
 
-## v3.36.0 - Zeus (DRG) Training Mode
+## v3.36.0 — 2026-01-24 - Zeus (DRG) Training Mode
 
 **Full Dragoon Training Mode Integration**
 - Zeus (DRG) rotation now records all training decisions with detailed explanations
@@ -1107,7 +1107,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Concept Mastery**
 - All major DRG concepts now tracked: `drg_life_surge`, `drg_lance_charge`, `drg_battle_litany`, `drg_life_of_dragon`, `drg_eye_gauge`, `drg_high_jump`, `drg_stardiver`
 
-## v3.35.0 - Hephaestus (GNB) Training Mode
+## v3.35.0 — 2026-01-24 - Hephaestus (GNB) Training Mode
 
 **Full Gunbreaker Training Mode Integration**
 - Hephaestus (GNB) rotation now records all training decisions with detailed explanations
@@ -1137,7 +1137,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Concept Mastery**
 - All major GNB concepts now tracked: `gnb_superbolide`, `gnb_nebula`, `gnb_heart_of_corundum`, `gnb_heart_of_light`, `gnb_no_mercy`, `gnb_double_down`, `gnb_gnashing_fang`, `gnb_burst_strike`, `gnb_bloodfest`, `gnb_cartridge_gauge`, `gnb_provoke`, `gnb_shirk`
 
-## v3.34.0 - Nyx (DRK) Training Mode
+## v3.34.0 — 2026-01-24 - Nyx (DRK) Training Mode
 
 **Full Dark Knight Training Mode Integration**
 - Nyx (DRK) rotation now records all training decisions with detailed explanations
@@ -1164,7 +1164,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Concept Mastery**
 - All major DRK concepts now tracked: `drk_living_dead`, `drk_shadow_wall`, `drk_tbn`, `drk_dark_missionary`, `drk_delirium`, `drk_blood_gauge`, `drk_provoke`, `drk_shirk`
 
-## v3.33.0 - Ares (WAR) Training Mode
+## v3.33.0 — 2026-01-24 - Ares (WAR) Training Mode
 
 **Full Warrior Training Mode Integration**
 - Ares (WAR) rotation now records all training decisions with detailed explanations
@@ -1192,7 +1192,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Concept Mastery**
 - All major WAR concepts now tracked: `war_holmgang`, `war_vengeance`, `war_bloodwhetting`, `war_shake_it_off`, `war_inner_release`, `war_fell_cleave`, `war_infuriate_gauge`, `war_provoke`, `war_shirk`
 
-## v3.32.0 - Themis (PLD) Training Mode
+## v3.32.0 — 2026-01-24 - Themis (PLD) Training Mode
 
 **Full Paladin Training Mode Integration**
 - Themis (PLD) rotation now records all training decisions with detailed explanations
@@ -1216,7 +1216,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Concept Mastery**
 - All major PLD concepts now tracked: `pld_hallowed_ground`, `pld_sentinel`, `pld_sheltron`, `pld_divine_veil`, `pld_fight_or_flight`, `pld_requiescat`, `pld_atonement_chain`, `pld_provoke`, `pld_shirk`
 
-## v3.31.0 - Training Mode Infrastructure
+## v3.31.0 — 2026-01-24 - Training Mode Infrastructure
 
 **Shared Training Helpers**
 - New `TankTrainingHelper` for tank rotations - mitigation, invuln, burst, resource, party mitigation, enmity, and interrupt decisions
@@ -1229,7 +1229,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Enables consistent explanation categories and concept tracking across all jobs
 - Infrastructure for v3.32.0-v3.48.0 which will integrate Training Mode into each job rotation
 
-## v3.30.0 - Adaptive Learning Paths
+## v3.30.0 — 2026-01-24 - Adaptive Learning Paths
 
 **Learning Path Guidance**
 - New "Learning Path" panel at the top of the Lessons tab
@@ -1256,7 +1256,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 4. Struggling concepts from v3.28.0 mastery tracking influence recommendations
 5. Your skill level (from v3.27.0) determines progression style
 
-## v3.29.0 - Mastery-Driven Recommendations
+## v3.29.0 — 2026-01-24 - Mastery-Driven Recommendations
 
 **Smart Lesson Recommendations**
 - Recommendations tab now uses concept mastery data to suggest lessons
@@ -1284,7 +1284,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Lower success rate = higher recommendation priority
 - Complete suggested lessons to improve your weak areas
 
-## v3.28.0 - Concept Mastery Tracking
+## v3.28.0 — 2026-01-24 - Concept Mastery Tracking
 
 **Mastery System**
 - Training Mode now tracks concept "mastery" instead of just "exposure"
@@ -1312,7 +1312,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - After 10+ opportunities, concepts are evaluated for mastery
 - Your skill level adjusts based on actual combat performance
 
-## v3.27.0 - Adaptive Training Mode
+## v3.27.0 — 2026-01-24 - Adaptive Training Mode
 
 **Skill Level Detection**
 - Training Mode now detects your skill level (Beginner/Intermediate/Advanced) per job
@@ -1338,7 +1338,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Foundation for v4.0**
 - This release lays the groundwork for the personalized coaching milestone
 
-## v3.26.0 - PCT Training Mode
+## v3.26.0 — 2026-01-24 - PCT Training Mode
 
 **PCT (Iris) Training Mode**
 - Training Mode now supports Pictomancer - final caster DPS job added
@@ -1365,7 +1365,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - All 21 combat jobs now have full Training Mode support
 - Preparing for v4.0 Training Mode Complete milestone
 
-## v3.25.0 - RDM Training Mode
+## v3.25.0 — 2026-01-24 - RDM Training Mode
 
 **RDM (Circe) Training Mode**
 - Training Mode now supports Red Mage - third caster DPS job added
@@ -1392,7 +1392,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Third caster DPS job added to Training Mode (BLM, SMN, RDM complete)
 - PCT caster job coming next to complete caster training
 
-## v3.24.0 - SMN Training Mode
+## v3.24.0 — 2026-01-24 - SMN Training Mode
 
 **SMN (Persephone) Training Mode**
 - Training Mode now supports Summoner - second caster DPS job added
@@ -1419,7 +1419,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Second caster DPS job added to Training Mode (BLM, SMN complete)
 - RDM, PCT caster jobs coming next
 
-## v3.23.0 - BLM Training Mode
+## v3.23.0 — 2026-01-24 - BLM Training Mode
 
 **BLM (Hecate) Training Mode**
 - Training Mode now supports Black Mage - first caster DPS job added
@@ -1446,7 +1446,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - First caster DPS job added to Training Mode
 - SMN, RDM, PCT caster jobs coming next
 
-## v3.22.0 - DNC Training Mode
+## v3.22.0 — 2026-01-24 - DNC Training Mode
 
 **DNC (Terpsichore) Training Mode**
 - Training Mode now supports Dancer - third and final ranged physical DPS job added
@@ -1472,7 +1472,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Ranged Physical DPS Training Complete**
 - All 3 ranged physical DPS jobs now have Training Mode support (MCH, BRD, DNC)
 
-## v3.21.0 - BRD Training Mode
+## v3.21.0 — 2026-01-24 - BRD Training Mode
 
 **BRD (Calliope) Training Mode**
 - Training Mode now supports Bard - second ranged physical DPS job added
@@ -1498,7 +1498,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Bug Fix**
 - Fixed MCH and VPR concepts not being included in TrainingService.GetAllConcepts() and GetJobPrefix() - these jobs now properly track progress
 
-## v3.20.0 - MCH Training Mode
+## v3.20.0 — 2026-01-24 - MCH Training Mode
 
 **MCH (Prometheus) Training Mode**
 - Training Mode now supports Machinist - first ranged physical DPS job added
@@ -1524,7 +1524,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Ranged Physical DPS Training Started**
 - MCH is the first ranged physical DPS with Training Mode (BRD, DNC to follow)
 
-## v3.19.0 - VPR Training Mode
+## v3.19.0 — 2026-01-24 - VPR Training Mode
 
 **VPR (Echidna) Training Mode**
 - Training Mode now supports Viper - sixth and final melee DPS job added
@@ -1550,7 +1550,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 **Melee DPS Training Complete**
 - All 6 melee DPS jobs now have full Training Mode support (DRG, NIN, SAM, MNK, RPR, VPR)
 
-## v3.18.0 - RPR Training Mode
+## v3.18.0 — 2026-01-24 - RPR Training Mode
 
 **RPR (Thanatos) Training Mode**
 - Training Mode now supports Reaper - fifth melee DPS job added
@@ -1573,7 +1573,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Detailed explanations for every answer
 - Progress tracking and best score persistence
 
-## v3.17.0 - MNK Training Mode
+## v3.17.0 — 2026-01-24 - MNK Training Mode
 
 **MNK (Kratos) Training Mode**
 - Training Mode now supports Monk - fourth melee DPS job added
@@ -1596,7 +1596,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Detailed explanations for every answer
 - Progress tracking and best score persistence
 
-## v3.16.0 - SAM Training Mode
+## v3.16.0 — 2026-01-24 - SAM Training Mode
 
 **SAM (Nike) Training Mode**
 - Training Mode now supports Samurai - third melee DPS job added
@@ -1619,7 +1619,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Detailed explanations for every answer
 - Progress tracking and best score persistence
 
-## v3.15.0 - NIN Training Mode
+## v3.15.0 — 2026-01-24 - NIN Training Mode
 
 **NIN (Hermes) Training Mode**
 - Training Mode now supports Ninja - second melee DPS job added
@@ -1642,7 +1642,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Detailed explanations for every answer
 - Progress tracking and best score persistence
 
-## v3.14.0 - Melee DPS Training Mode (Phase 1)
+## v3.14.0 — 2026-01-24 - Melee DPS Training Mode (Phase 1)
 
 **DRG (Zeus) Training Mode**
 - Training Mode now supports Dragoon - first melee DPS job added
@@ -1665,7 +1665,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Detailed explanations for every answer
 - Progress tracking and best score persistence
 
-## v3.13.0 - Tank Skill Quizzes
+## v3.13.0 — 2026-01-24 - Tank Skill Quizzes
 
 **New Tank Quizzes**
 - 28 skill quizzes (7 per tank) to validate lesson understanding
@@ -1684,7 +1684,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Review mode shows correct answers and why after submission
 - Best score tracking per quiz
 
-## v3.12.0 - Tank Training Mode
+## v3.12.0 — 2026-01-23 - Tank Training Mode
 
 **Training Mode for Tanks**
 - Added Training Mode support for all 4 tanks: Paladin, Warrior, Dark Knight, Gunbreaker
@@ -1704,7 +1704,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Tank swap coordination
 - Party protection abilities
 
-## v3.11.0 - Training Mode: Skill Quizzes
+## v3.11.0 — 2026-01-23 - Training Mode: Skill Quizzes
 
 **New Quizzes Tab**
 - 28 skill quizzes (7 per healer) to validate lesson understanding
@@ -1728,7 +1728,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Pass/fail indicators with score display
 - Overall progress bar per job
 
-## v3.10.0 - Performance-Based Lesson Recommendations
+## v3.10.0 — 2026-01-23 - Performance-Based Lesson Recommendations
 
 **Personalized Learning**
 - New "Recommended" tab in Training Mode suggests lessons based on your fight performance
@@ -1756,7 +1756,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Completing a recommended lesson removes it from suggestions
 - Works with all 4 healers (WHM, SCH, AST, SGE)
 
-## v3.9.0 - Training Mode: Lessons Tab
+## v3.9.0 — 2026-01-23 - Training Mode: Lessons Tab
 
 **Structured Learning Content**
 - New Lessons tab in Training Mode with 28 total lessons across all 4 healers
@@ -1784,7 +1784,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Completing lessons automatically marks all related concepts as learned
 - Locked lessons show prerequisite requirements
 
-## v3.8.0 - Training Mode: Full Explanation Coverage
+## v3.8.0 — 2026-01-23 - Training Mode: Full Explanation Coverage
 
 **Complete Healer Explanations**
 - Every healing decision now provides real-time explanations in Training Mode
@@ -1818,7 +1818,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Priority levels (Critical/High/Normal/Low) help focus on important decisions
 - Job-specific tips explain FFXIV healer mechanics and best practices
 
-## v3.7.0 - Training Mode: Full Healer Coverage
+## v3.7.0 — 2026-01-23 - Training Mode: Full Healer Coverage
 
 **Multi-Healer Training Support**
 - Training Mode now supports all 4 healers: WHM, SCH, AST, and SGE
@@ -1836,7 +1836,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Each healer context now has access to TrainingService for decision explanations
 - Progress tracking automatically detects job from concept ID prefix
 
-## v3.6.0 - Training Mode
+## v3.6.0 — 2026-01-23 - Training Mode
 
 **Training Mode Foundation**
 - New Training Mode transforms Olympus from a rotation assistant into an intelligent coach
@@ -1867,7 +1867,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Configurable verbosity (Minimal, Normal, Detailed)
 - Priority filter to focus on important decisions only
 
-## v3.5.0 - FFLogs Integration
+## v3.5.0 — 2026-01-23 - FFLogs Integration
 
 **FFLogs API Integration**
 - Compare your performance against FFLogs community parses
@@ -1901,7 +1901,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 3. Bind your character (name + server + region)
 4. View your rankings!
 
-## v3.4.0 - Personal DPS Tracking
+## v3.4.0 — 2026-01-23 - Personal DPS Tracking
 
 **DPS Metrics**
 - Analytics now displays real personal DPS (damage per second) during combat
@@ -1917,7 +1917,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Post-fight DPS included in combat metrics
 - Total damage dealt shown alongside healing and other stats
 
-## v3.3.0 - Cooldown Usage Analysis
+## v3.3.0 — 2026-01-23 - Cooldown Usage Analysis
 
 **Detailed Cooldown Tracking**
 - Analytics now shows per-ability cooldown efficiency with visual bars
@@ -1939,7 +1939,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - New `TrackCooldownDetails` option (enabled by default)
 - New section visibility toggle for Cooldown Analysis
 
-## v3.2.0 - Downtime Analysis
+## v3.2.0 — 2026-01-23 - Downtime Analysis
 
 **Downtime Breakdown**
 - Analytics now shows why GCD uptime was lost, not just the percentage
@@ -1960,7 +1960,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - New `TrackDowntimeBreakdown` option (enabled by default)
 - New section visibility toggle for Downtime Analysis
 
-## v3.1.0 - Performance Analytics Foundation
+## v3.1.0 — 2026-01-23 - Performance Analytics Foundation
 
 **New Analytics System**
 - Added performance analytics with real-time combat metrics tracking
@@ -1991,7 +1991,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Minimum combat duration to record (5-60 seconds)
 - Section visibility toggles for all tabs
 
-## v3.0.0 - Phase 3 Complete: Full Party Coordination
+## v3.0.0 — 2026-01-23 - Phase 3 Complete: Full Party Coordination
 
 **Milestone Achievement**
 - Phase 3 complete! Olympus instances now fully coordinate across all party members
@@ -2009,7 +2009,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Esuna targets coordinate to prevent wasted cleanses
 - DPS burst windows align across party
 
-## v2.31.0 - Healer Role & Gauge Coordination
+## v2.31.0 — 2026-01-23 - Healer Role & Gauge Coordination
 
 **Multi-Healer Optimization**
 - All four healers (WHM, SCH, AST, SGE) now share gauge state with other Olympus instances
@@ -2034,7 +2034,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - `PreferredHealerRole` - Override auto-detection (Auto/Primary/Secondary)
 - `SecondaryHealAssistThreshold` - HP% threshold for secondary healer (30-80%, default: 50%)
 
-## v2.30.0 - Tank Swap Coordination
+## v2.30.0 — 2026-01-22 - Tank Swap Coordination
 
 **Tank Coordination**
 - Tanks now coordinate Provoke and Shirk between Olympus instances via IPC
@@ -2052,7 +2052,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - `TankSwapReservationExpiryMs` - How long swap reservations remain valid (3000-10000ms, default: 5000ms)
 - `TankSwapConfirmationTimeoutSeconds` - Timeout before acting solo (0.5-3.0s, default: 1.5s)
 
-## v2.29.0 - Interrupt Coordination
+## v2.29.0 — 2026-01-22 - Interrupt Coordination
 
 **Party Coordination**
 - Tanks and ranged physical DPS now coordinate interrupt abilities between Olympus instances
@@ -2070,7 +2070,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - `EnableInterruptCoordination` - Master toggle for interrupt coordination (default: on)
 - `InterruptReservationExpiryMs` - How long interrupt reservations remain valid (1000-5000ms, default: 3000ms)
 
-## v2.28.0 - Esuna Coordination
+## v2.28.0 — 2026-01-22 - Esuna Coordination
 
 **Healing**
 - Healers now coordinate Esuna usage between Olympus instances
@@ -2087,7 +2087,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - `EnableCleanseCoordination` - Master toggle for cleanse coordination (default: on)
 - `CleanseReservationExpiryMs` - How long cleanse reservations remain valid (1000-5000ms, default: 2000ms)
 
-## v2.27.0 - Tank Invulnerability Coordination
+## v2.27.0 — 2026-01-22 - Tank Invulnerability Coordination
 
 **Tank Coordination**
 - Tank invulnerability abilities now coordinate between Olympus instances
@@ -2099,7 +2099,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - `EnableInvulnerabilityCoordination` - Master toggle for invuln coordination (default: on)
 - `InvulnerabilityStaggerWindowSeconds` - How long to delay if another tank used an invuln recently (1-10s, default: 5s)
 
-## v2.26.0 - Resurrection Coordination
+## v2.26.0 — 2026-01-22 - Resurrection Coordination
 
 **Healing**
 - All healers now coordinate resurrections between Olympus instances
@@ -2121,7 +2121,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - New protocol classes: RaiseIntentMessage, RaiseReservation
 - BaseResurrectionModule now integrates with party coordination service
 
-## v2.25.0 - Multi-Healer Ground Effect Coordination
+## v2.25.0 — 2026-01-22 - Multi-Healer Ground Effect Coordination
 
 **Healing**
 - Ground-targeted healing zones now coordinate between Olympus healers
@@ -2144,7 +2144,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - New data registry: CoordinatedGroundEffects.cs with radius/duration for each ability
 - Foundation laid for gauge sharing and role declaration in future updates
 
-## v2.24.0 - Complete Healer Burst Decision Logic
+## v2.24.0 — 2026-01-22 - Complete Healer Burst Decision Logic
 
 **Healing**
 - Scholar and Astrologian now deploy abilities proactively before DPS burst windows
@@ -2163,7 +2163,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - TimelineHelper.IsRaidwideImminent now accepts optional custom window parameter
 - Completes the healer burst awareness feature from v2.21.0
 
-## v2.23.0 - Tank Defensive Synergy
+## v2.23.0 — 2026-01-22 - Tank Defensive Synergy
 
 **Tank Coordination**
 - Tanks now coordinate personal defensive cooldowns (Rampart, Sentinel, Nebula, etc.)
@@ -2183,7 +2183,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Shadow Wall / Shadowed Vigil (DRK)
 - Nebula / Great Nebula (GNB)
 
-## v2.22.0 - Complete DPS Burst Broadcasting
+## v2.22.0 — 2026-01-21 - Complete DPS Burst Broadcasting
 
 **DPS Coordination**
 - Samurai (Nike), Ninja (Hermes), Viper (Echidna), and Machinist (Prometheus) now broadcast burst intents
@@ -2194,7 +2194,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Added Ikishoten, Kunai's Bane, Serpent's Ire, and Wildfire to coordinated raid buff registry
 - Each job now calls `AnnounceRaidBuffIntent()` before burst and `OnRaidBuffUsed()` after execution
 
-## v2.21.0 - Healer Burst Awareness
+## v2.21.0 — 2026-01-21 - Healer Burst Awareness
 
 **Healing**
 - All healers now aware of DPS burst windows for optimized decision-making
@@ -2216,42 +2216,42 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - When `PreferShieldsBeforeBurst` is enabled, Asylum and Kerachole deploy 3-8 seconds before burst
 - When `DelayMitigationsDuringBurst` is enabled, Temperance/Expedient/etc. wait for burst to end (unless HP is critical)
 
-## v2.20.0 - Pictomancer Starry Muse Coordination
+## v2.20.0 — 2026-01-21 - Pictomancer Starry Muse Coordination
 
 **DPS Coordination**
 - Pictomancer (Iris) now aligns Starry Muse (+5% damage) with party raid buff windows
 - Listens for pending burst intents and synchronizes burst timing with other Olympus users
 - Fills gap where Starry Muse was missed during v2.11.0-v2.13.0 DPS raid buff work
 
-## v2.19.0 - Ninja Party Burst Alignment
+## v2.19.0 — 2026-01-21 - Ninja Party Burst Alignment
 
 **DPS Coordination**
 - Ninja (Hermes) now aligns Kunai's Bane burst window with party raid buff windows
 - Listens for pending burst intents and synchronizes burst timing with other Olympus users
 - Maximizes damage during coordinated burst phases
 
-## v2.18.0 - Viper Party Burst Alignment
+## v2.18.0 — 2026-01-21 - Viper Party Burst Alignment
 
 **DPS Coordination**
 - Viper (Echidna) now aligns Serpent's Ire with party raid buff windows
 - Delays burst briefly when other DPS are about to use Battle Voice, Technical Finish, etc.
 - Maximizes Reawaken damage during coordinated burst phases
 
-## v2.17.0 - Samurai Party Burst Alignment
+## v2.17.0 — 2026-01-21 - Samurai Party Burst Alignment
 
 **DPS Coordination**
 - Samurai (Nike) now aligns Ikishoten burst window with party raid buff windows
 - Delays burst briefly when other DPS are about to use Battle Voice, Technical Finish, etc.
 - Maximizes Ogi Namikiri damage during coordinated burst phases
 
-## v2.16.0 - Machinist Party Burst Alignment
+## v2.16.0 — 2026-01-21 - Machinist Party Burst Alignment
 
 **DPS Coordination**
 - Machinist (Prometheus) now aligns Wildfire with party raid buff windows
 - Delays Wildfire briefly when other DPS are about to use Battle Voice, Technical Finish, etc.
 - Maximizes damage during coordinated burst phases
 
-## v2.15.0 - Tank-Healer Mitigation Avoidance
+## v2.15.0 — 2026-01-21 - Tank-Healer Mitigation Avoidance
 
 **Party Coordination**
 - Healers now broadcast party mitigations to other Olympus instances
@@ -2263,7 +2263,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Prevents wasteful stacking (e.g., Divine Veil + Temperance simultaneously)
 - Completes two-way mitigation coordination between tanks and healers
 
-## v2.14.0 - Tank Mitigation Broadcasting
+## v2.14.0 — 2026-01-21 - Tank Mitigation Broadcasting
 
 **Party Coordination**
 - Tank party mitigations now broadcast to other Olympus instances
@@ -2271,7 +2271,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Reprisal usage is now coordinated between tanks
 - Completes the two-way coordination loop started in v2.7.0
 
-## v2.13.0 - Complete DPS Raid Buff Coordination
+## v2.13.0 — 2026-01-21 - Complete DPS Raid Buff Coordination
 
 **Party Coordination**
 - Added raid buff coordination for remaining DPS jobs
@@ -2281,14 +2281,14 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Monk (Kratos): Brotherhood now synchronizes with party burst windows
 - All DPS raid buffs now coordinate for optimal burst alignment
 
-## v2.12.0 - Summoner Raid Buff Coordination
+## v2.12.0 — 2026-01-21 - Summoner Raid Buff Coordination
 
 **Party Coordination**
 - Added Searing Light coordination for Summoner (Persephone)
 - Multiple Olympus users now synchronize Summoner burst windows with other raid buffs
 - Works seamlessly with existing Dragoon and Bard coordination
 
-## v2.11.0 - DPS Raid Buff Coordination
+## v2.11.0 — 2026-01-21 - DPS Raid Buff Coordination
 
 **DPS Coordination**
 - Added cross-instance raid buff synchronization for DPS jobs
@@ -2306,12 +2306,12 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - New option: `MaxBuffDesyncSeconds` (10-60 seconds, default 30s)
 - New option: `LogRaidBuffCoordination` (debug logging)
 
-## v2.10.1 - Discord Notification Fix
+## v2.10.1 — 2026-01-21 - Discord Notification Fix
 
 **Bug Fix**
 - Fixed Discord release notifications showing `%0A` instead of actual line breaks
 
-## v2.10.0 - AOE Heal Coordination
+## v2.10.0 — 2026-01-21 - AOE Heal Coordination
 
 **Healing**
 - Added cross-instance party-wide (AOE) heal coordination for all healers
@@ -2325,7 +2325,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - New option: `EnableAoEHealCoordination` (enabled by default)
 - New option: `AoEHealReservationExpiryMs` (configurable 1500-5000ms, default 2500ms)
 
-## v2.9.0 - Cross-Healer Coordination
+## v2.9.0 — 2026-01-21 - Cross-Healer Coordination
 
 **Healing**
 - Extended single-target heal coordination to all healers
@@ -2334,7 +2334,7 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Sage (Asclepius): Druochole, Taurochole, Krasis, Haima, Eukrasian Diagnosis, Diagnosis
 - All four healers now coordinate via IPC to prevent double-healing
 
-## v2.8.0 - Cross-Instance Heal Coordination
+## v2.8.0 — 2026-01-21 - Cross-Instance Heal Coordination
 
 **Healing**
 - Added cross-instance single-target heal coordination for Apollo (WHM)
@@ -2345,14 +2345,14 @@ This release marks the completion of Phase 5 (Training Mode), transforming Olymp
 - Extended PartyCoordinationService with heal target tracking
 - Added HealTargetInfo to IPC message protocol
 
-## v2.7.0 - Party Cooldown Sync
+## v2.7.0 — 2026-01-19 - Party Cooldown Sync
 
 **Defensives**
 - Healers and tanks now coordinate major party mitigations
 - Prevents overlapping cooldowns like Divine Veil + Shake It Off
 - Configurable overlap window for fine-tuning
 
-## v2.6.0 - Party Coordination IPC
+## v2.6.0 — 2026-01-19 - Party Coordination IPC
 
 **Multiplayer**
 - Added IPC protocol for multi-Olympus coordination

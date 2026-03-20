@@ -51,6 +51,13 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
     // Cooldown tracking
     private readonly Dictionary<uint, CooldownTrackingState> cooldownStates = new();
 
+    // "Unable to act" window tracking (death + incapacitation buffs).
+    // Tracked here because Update() runs every frame, even when the player is dead
+    // and the rotation is not executing.
+    private readonly List<(DateTime Start, DateTime End)> unableToActWindows = new();
+    private DateTime? unableToActStart;
+    private bool wasUnableToActLastFrame;
+
     public bool IsTracking => isInCombat && config.EnableTracking;
     public float CombatDuration => combatEventService.GetCombatDurationSeconds();
 
@@ -105,11 +112,55 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
             OnCombatEnd();
         }
 
-        // Update tracking while in combat
+        // Track "unable to act" windows during combat (death + incapacitation).
+        // Must run even when dead — the rotation doesn't run then, but we still need
+        // to record the window so the callout engine can subtract it from GCD gaps.
         if (isInCombat)
         {
+            TrackUnableToAct();
             UpdateCombatTracking();
         }
+    }
+
+    /// <summary>
+    /// Detects whether the local player is dead or incapacitated and records windows.
+    /// </summary>
+    private void TrackUnableToAct()
+    {
+        var localPlayer = objectTable.LocalPlayer;
+        var unableToAct = false;
+
+        if (localPlayer == null || localPlayer.CurrentHp == 0)
+        {
+            // Dead or not present
+            unableToAct = true;
+        }
+        else
+        {
+            // Alive — check for incapacitation buffs (Willful, Stun, etc.)
+            foreach (var status in localPlayer.StatusList)
+            {
+                if (Data.FFXIVConstants.IncapacitationStatusIds.Contains(status.StatusId))
+                {
+                    unableToAct = true;
+                    break;
+                }
+            }
+        }
+
+        var now = DateTime.Now;
+
+        if (unableToAct && !wasUnableToActLastFrame)
+        {
+            unableToActStart = now;
+        }
+        else if (!unableToAct && wasUnableToActLastFrame && unableToActStart.HasValue)
+        {
+            unableToActWindows.Add((unableToActStart.Value, now));
+            unableToActStart = null;
+        }
+
+        wasUnableToActLastFrame = unableToAct;
     }
 
     private void OnCombatStart()
@@ -129,6 +180,9 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         nearDeathCount = 0;
         lastHpPercent.Clear();
         cooldownStates.Clear();
+        unableToActWindows.Clear();
+        unableToActStart = null;
+        wasUnableToActLastFrame = false;
 
         // Initialize HP tracking for party members
         foreach (var member in partyList)
@@ -143,11 +197,21 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         // Notify ActionTracker
         actionTracker.StartCombat();
 
+        // Reset overheal statistics so they don't bleed across fights
+        combatEventService.ResetOverhealStatistics();
+
         log.Debug("PerformanceTracker: Combat started for job {JobId}", currentJobId);
     }
 
     private void OnCombatEnd()
     {
+        // Close any open "unable to act" window so it's not lost
+        if (unableToActStart.HasValue)
+        {
+            unableToActWindows.Add((unableToActStart.Value, DateTime.Now));
+            unableToActStart = null;
+        }
+
         // Notify ActionTracker
         actionTracker.EndCombat();
 
@@ -247,21 +311,61 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         var endTime = DateTime.Now;
         var duration = (float)(endTime - combatStartTime.Value).TotalSeconds;
 
+        // Compute total time the player was unable to act (dead + incapacitated).
+        // This is tracked in PerformanceTracker.Update() which runs every frame,
+        // unlike ActionTracker.TrackGcdState() which only runs when the rotation executes.
+        var unableToActSeconds = 0f;
+        foreach (var (start, end) in unableToActWindows)
+        {
+            unableToActSeconds += (float)(end - start).TotalSeconds;
+        }
+
         // Get overheal stats from CombatEventService
         var overhealStats = combatEventService.GetOverhealStatistics();
 
-        // Build downtime breakdown if enabled
+        // Build downtime breakdown if enabled.
+        // Patch in the death/incapacitation time from our own tracking, since
+        // ActionTracker's deathDowntimeSeconds only accumulates when the rotation
+        // runs (player alive) — it misses actual death time entirely.
         DowntimeBreakdown? downtimeBreakdown = null;
         if (config.TrackDowntimeBreakdown)
         {
             downtimeBreakdown = actionTracker.GetDowntimeBreakdown();
+
+            // Transfer any unaccounted unable-to-act time into the Death category.
+            // ActionTracker only sees incapacitation while the rotation runs;
+            // the remainder (actual death time) was invisible to it.
+            if (unableToActSeconds > downtimeBreakdown.DeathSeconds)
+            {
+                var missingDeathTime = unableToActSeconds - downtimeBreakdown.DeathSeconds;
+                // Move from Unforced → Death (the unforced bucket absorbed it as "unexplained")
+                var transferFromUnforced = Math.Min(missingDeathTime, downtimeBreakdown.UnforcedSeconds);
+                downtimeBreakdown.DeathSeconds += missingDeathTime;
+                downtimeBreakdown.UnforcedSeconds = Math.Max(0f, downtimeBreakdown.UnforcedSeconds - transferFromUnforced);
+                downtimeBreakdown.TotalDowntimeSeconds += missingDeathTime - transferFromUnforced;
+            }
+        }
+
+        // Adjust GCD uptime to exclude time the player couldn't act.
+        // Raw uptime = gcdTime / combatDuration, but combatDuration includes
+        // death/incapacitation time when no GCDs are possible. Recalculate
+        // with the effective (actable) duration instead.
+        var rawGcdUptime = actionTracker.GetGcdUptime();
+        var adjustedGcdUptime = rawGcdUptime;
+        if (unableToActSeconds > 0f && duration > unableToActSeconds)
+        {
+            var activeDuration = duration - unableToActSeconds;
+            // Scale: if raw was computed over full duration, the real uptime
+            // over active time is proportionally higher.
+            adjustedGcdUptime = rawGcdUptime * (duration / activeDuration);
+            adjustedGcdUptime = Math.Min(adjustedGcdUptime, 100f);
         }
 
         // Build metrics snapshot
         var metrics = new CombatMetricsSnapshot
         {
             CombatDuration = duration,
-            GcdUptime = actionTracker.GetGcdUptime(),
+            GcdUptime = adjustedGcdUptime,
             PersonalDps = duration > 0 ? (float)System.Threading.Interlocked.Read(ref totalDamageDealt) / duration : 0f,
             TotalDamage = System.Threading.Interlocked.Read(ref totalDamageDealt),
             TotalHealing = overhealStats.TotalHealing,
@@ -328,16 +432,29 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
             ? metrics.Cooldowns.Average(c => Math.Min(c.Efficiency, 100f))
             : 100f;
 
-        // Healing Efficiency: 100% at 0 overheal, 0% at 50%+ overheal
-        var healingScore = Math.Clamp(100f - (metrics.OverhealPercent * 2f), 0f, 100f);
-
         // Survival: 100% with 0 deaths, -20 per death, -5 per near-death
         var survivalScore = Math.Max(0f, 100f - (metrics.Deaths * 20f) - (metrics.NearDeaths * 5f));
 
-        // Overall: weighted average
-        // Weights depend on role, but for now use generic weights
-        var overall = (gcdScore * 0.40f) + (cooldownScore * 0.30f) +
-                     (healingScore * 0.15f) + (survivalScore * 0.15f);
+        // Healing Efficiency: only scored for healers with actual healing data.
+        // Non-healers get a neutral score so it doesn't inflate/deflate their overall.
+        float healingScore;
+        float overall;
+        if (Data.JobRegistry.IsHealer(currentJobId) && metrics.TotalHealing > 0)
+        {
+            // 100% at 0 overheal, scales down to 0% at 80%+ overheal.
+            // FFXIV healers naturally overheal through HoTs and AoE heals,
+            // so 30-40% overheal is normal and shouldn't tank the score.
+            healingScore = Math.Clamp(100f - (metrics.OverhealPercent * 1.25f), 0f, 100f);
+            overall = (gcdScore * 0.40f) + (cooldownScore * 0.30f) +
+                      (healingScore * 0.15f) + (survivalScore * 0.15f);
+        }
+        else
+        {
+            // Non-healer: redistribute healing weight to GCD + cooldowns
+            healingScore = -1f; // Sentinel: not applicable
+            overall = (gcdScore * 0.45f) + (cooldownScore * 0.35f) +
+                      (survivalScore * 0.20f);
+        }
 
         return new PerformanceScore
         {
@@ -464,6 +581,11 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
             Timestamp = DateTime.Now,
             DowntimeAnalysis = downtimeBreakdown
         };
+    }
+
+    public IReadOnlyList<(DateTime Start, DateTime End)> GetUnableToActWindows()
+    {
+        return unableToActWindows.ToList();
     }
 
     public IReadOnlyList<FightSession> GetSessionHistory()

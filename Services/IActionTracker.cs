@@ -67,6 +67,11 @@ public interface IActionTracker
     DowntimeBreakdown GetDowntimeBreakdown();
 
     /// <summary>
+    /// Get recorded incapacitation windows (Willful, Stun, etc.) from the current/last combat session.
+    /// </summary>
+    IReadOnlyList<(DateTime Start, DateTime End)> GetIncapacitationWindows();
+
+    /// <summary>
     /// Start tracking combat time. Call when player enters combat.
     /// </summary>
     void StartCombat();

@@ -53,6 +53,11 @@ public sealed class ActionTracker : IActionTracker
     private DateTime lastFrameTime;
     private const float MovementThreshold = 0.5f; // Units moved to count as "moving"
 
+    // Incapacitation window tracking (Willful, Stun, etc.)
+    private readonly List<(DateTime Start, DateTime End)> incapacitationWindows = new();
+    private DateTime? incapacitationStart;
+    private bool wasIncapacitatedLastFrame;
+
 
     // Statistics
     private int totalAttempts;
@@ -214,26 +219,52 @@ public sealed class ActionTracker : IActionTracker
         }
         wasOnGcdLastFrame = !gcdReady;
 
-        // Track categorized downtime when GCD is ready and we're in combat
+        // Track incapacitation windows (Willful, Stun, etc.)
+        var isIncapacitated = !playerAlive;
         lock (historyLock)
         {
-            if (gcdReady && combatStartTime != null && deltaTime > 0)
+            if (combatStartTime != null)
             {
-                if (!playerAlive)
+                if (isIncapacitated && !wasIncapacitatedLastFrame)
+                {
+                    // Entering incapacitation
+                    incapacitationStart = now;
+                }
+                else if (!isIncapacitated && wasIncapacitatedLastFrame && incapacitationStart.HasValue)
+                {
+                    // Leaving incapacitation — record the window
+                    incapacitationWindows.Add((incapacitationStart.Value, now));
+                    incapacitationStart = null;
+                }
+            }
+            wasIncapacitatedLastFrame = isIncapacitated;
+        }
+
+        // Track categorized downtime when in combat
+        lock (historyLock)
+        {
+            if (combatStartTime != null && deltaTime > 0)
+            {
+                // Incapacitated time counts as death/incapacitated regardless of GCD state
+                if (isIncapacitated)
                 {
                     deathDowntimeSeconds += deltaTime;
                 }
-                else if (HasMovedSignificantly(playerPosition))
+                else if (gcdReady)
                 {
-                    movementDowntimeSeconds += deltaTime;
-                }
-                else if (inMechanicWindow)
-                {
-                    mechanicDowntimeSeconds += deltaTime;
-                }
-                else
-                {
-                    unforcedDowntimeSeconds += deltaTime;
+                    // GCD ready but not casting — categorize the idle time
+                    if (HasMovedSignificantly(playerPosition))
+                    {
+                        movementDowntimeSeconds += deltaTime;
+                    }
+                    else if (inMechanicWindow)
+                    {
+                        mechanicDowntimeSeconds += deltaTime;
+                    }
+                    else
+                    {
+                        unforcedDowntimeSeconds += deltaTime;
+                    }
                 }
             }
         }
@@ -261,6 +292,17 @@ public sealed class ActionTracker : IActionTracker
 
         var distance = Vector3.Distance(lastPlayerPosition, currentPosition);
         return distance > MovementThreshold;
+    }
+
+    /// <summary>
+    /// Get recorded incapacitation windows (Willful, Stun, etc.) from the current/last combat session.
+    /// </summary>
+    public IReadOnlyList<(DateTime Start, DateTime End)> GetIncapacitationWindows()
+    {
+        lock (historyLock)
+        {
+            return incapacitationWindows.ToList();
+        }
     }
 
     /// <summary>
@@ -304,6 +346,9 @@ public sealed class ActionTracker : IActionTracker
                 unforcedDowntimeSeconds = 0f;
                 lastPlayerPosition = Vector3.Zero;
                 lastFrameTime = DateTime.Now;
+                incapacitationWindows.Clear();
+                incapacitationStart = null;
+                wasIncapacitatedLastFrame = false;
             }
         }
     }
@@ -482,6 +527,9 @@ public sealed class ActionTracker : IActionTracker
             unforcedDowntimeSeconds = 0f;
             lastPlayerPosition = Vector3.Zero;
             lastFrameTime = default;
+            incapacitationWindows.Clear();
+            incapacitationStart = null;
+            wasIncapacitatedLastFrame = false;
         }
     }
 

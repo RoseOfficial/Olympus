@@ -112,7 +112,7 @@ public sealed class AnalyticsConfig
     /// <summary>
     /// Whether to automatically show a fight summary popup when combat ends.
     /// </summary>
-    public bool ShowSummaryOnCombatEnd { get; set; } = true;
+    public bool ShowSummaryOnCombatEnd { get; set; } = false;
 
     /// <summary>
     /// Minimum fight duration (seconds) required to show a summary popup.

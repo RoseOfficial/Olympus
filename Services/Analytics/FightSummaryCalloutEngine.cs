@@ -189,9 +189,12 @@ public static class FightSummaryCalloutEngine
 
     /// <summary>
     /// Identifies the 3 largest GCD gaps (> 0.8s) in the action history.
+    /// Subtracts any time the player was incapacitated (Willful, Stun, etc.) from each gap.
     /// Gap > 2s = Critical, otherwise Warning.
     /// </summary>
-    public static IReadOnlyList<FightCallout> GenerateDowntimeCallouts(IReadOnlyList<ActionAttempt> history)
+    public static IReadOnlyList<FightCallout> GenerateDowntimeCallouts(
+        IReadOnlyList<ActionAttempt> history,
+        IReadOnlyList<(DateTime Start, DateTime End)>? incapacitationWindows = null)
     {
         if (history == null || history.Count == 0)
             return Array.Empty<FightCallout>();
@@ -200,8 +203,35 @@ public static class FightSummaryCalloutEngine
 
         foreach (var entry in history)
         {
-            if (entry.TimeSinceLastCast > 0.8f)
-                gaps.Add((entry.TimeSinceLastCast, entry.Timestamp));
+            if (entry.TimeSinceLastCast <= 0.8f)
+                continue;
+
+            // If this gap overlaps with ANY unable-to-act window (death, incapacitation),
+            // skip it entirely. Deaths already generate their own callout via
+            // GenerateDeathCallouts() — reporting "idle" on top double-counts.
+            if (incapacitationWindows != null && incapacitationWindows.Count > 0)
+            {
+                var gapEnd = entry.Timestamp;
+                var gapStart = gapEnd.AddSeconds(-entry.TimeSinceLastCast);
+
+                var overlapsIncapacitation = false;
+                foreach (var (incapStart, incapEnd) in incapacitationWindows)
+                {
+                    var overlapStart = incapStart > gapStart ? incapStart : gapStart;
+                    var overlapEnd = incapEnd < gapEnd ? incapEnd : gapEnd;
+
+                    if (overlapStart < overlapEnd)
+                    {
+                        overlapsIncapacitation = true;
+                        break;
+                    }
+                }
+
+                if (overlapsIncapacitation)
+                    continue;
+            }
+
+            gaps.Add((entry.TimeSinceLastCast, entry.Timestamp));
         }
 
         if (gaps.Count == 0)
@@ -446,7 +476,8 @@ public static class FightSummaryCalloutEngine
         IReadOnlyList<ActionAttempt> actionHistory,
         IReadOnlyList<CooldownAnalysis> cooldowns,
         IReadOnlyList<(DateTime Start, DateTime End)> burstWindows,
-        float gcdUptime)
+        float gcdUptime,
+        IReadOnlyList<(DateTime Start, DateTime End)>? incapacitationWindows = null)
     {
         var allCallouts = new List<FightCallout>();
 
@@ -457,7 +488,7 @@ public static class FightSummaryCalloutEngine
 
         allCallouts.AddRange(GenerateDriftCallouts(cooldowns));
         allCallouts.AddRange(GenerateWasteCallouts(cooldowns));
-        allCallouts.AddRange(GenerateDowntimeCallouts(actionHistory));
+        allCallouts.AddRange(GenerateDowntimeCallouts(actionHistory, incapacitationWindows));
         allCallouts.AddRange(GenerateBurstCallouts(actionHistory, burstWindows, jobId));
         allCallouts.AddRange(GenerateRoleActionCallouts(actionHistory, jobId, fightDuration));
         allCallouts.AddRange(GenerateDeathCallouts(deaths, nearDeaths, fightDuration, estimatedDps));

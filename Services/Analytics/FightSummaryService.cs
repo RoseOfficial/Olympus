@@ -50,10 +50,11 @@ public sealed class FightSummaryService : IFightSummaryService, IDisposable
         var cooldowns = _performanceTracker.GetCooldownAnalysis();
         var burstWindows = _burstWindowService.BurstWindowHistory;
         var gcdUptime = _actionTracker.GetGcdUptime();
+        var unableToActWindows = _performanceTracker.GetUnableToActWindows();
 
         // Generate callouts.
         var callouts = FightSummaryCalloutEngine.Generate(
-            session, session.JobId, history, cooldowns, burstWindows, gcdUptime);
+            session, session.JobId, history, cooldowns, burstWindows, gcdUptime, unableToActWindows);
 
         // Compute average major cooldown drift (120s+ recast, used >= 2 times).
         var majorCooldowns = cooldowns

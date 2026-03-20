@@ -112,8 +112,9 @@ public static class FightSummaryTab
             // Cooldown Efficiency
             DrawScoreRow(Loc.T(LocalizedStrings.Analytics.CooldownEff, "Cooldown Eff."), score.CooldownEfficiency);
 
-            // Healing Efficiency
-            DrawScoreRow(Loc.T(LocalizedStrings.Analytics.HealingEff, "Healing Eff."), score.HealingEfficiency);
+            // Healing Efficiency (hidden for non-healers)
+            if (score.HealingEfficiency >= 0f)
+                DrawScoreRow(Loc.T(LocalizedStrings.Analytics.HealingEff, "Healing Eff."), score.HealingEfficiency);
 
             // Survival
             DrawScoreRow(Loc.T(LocalizedStrings.Analytics.Survival, "Survival"), score.Survival);

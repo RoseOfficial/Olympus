@@ -70,6 +70,12 @@ public interface IPerformanceTracker
     event Action<uint>? OnDeath;
 
     /// <summary>
+    /// Gets recorded periods when the player could not act (dead or incapacitated).
+    /// Used to exclude these periods from GCD gap analysis in fight summaries.
+    /// </summary>
+    IReadOnlyList<(DateTime Start, DateTime End)> GetUnableToActWindows();
+
+    /// <summary>
     /// Records a cooldown use with context for detailed analysis.
     /// Call this when a tracked ability is used.
     /// </summary>

@@ -209,7 +209,9 @@ public abstract class BaseHealerRotation<TContext, TModule> : BaseRotation<TCont
             UpdateCooldownPlanner(avgHpPercent, lowestHpPercent, injuredCount);
 
             // Update party counts for overlay display
-            DebugState.PartyListCount = _allMembersBuffer.Count;
+            // PartyList.Length is stable (known from server data), _allMembersBuffer fluctuates
+            // as objects load in/out of the ObjectTable. Fall back to buffer count for solo/Trust.
+            DebugState.PartyListCount = PartyList.Length > 0 ? PartyList.Length : _allMembersBuffer.Count;
             DebugState.PartyValidCount = _aliveMembersBuffer.Count;
         }
 

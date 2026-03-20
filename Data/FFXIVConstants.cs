@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Olympus.Data;
 
 /// <summary>
@@ -85,4 +87,18 @@ public static class FFXIVConstants
     // Tank Job IDs (array form for iteration)
     /// <summary>All tank job IDs: PLD=19, WAR=21, DRK=32, GNB=37.</summary>
     public static readonly uint[] TankJobIds = [19, 21, 32, 37];
+
+    // Incapacitation status IDs — player is alive but unable to act.
+    // Used by ActionTracker to classify GCD downtime as "incapacitated" instead of "unexplained."
+    /// <summary>Status IDs that prevent the player from taking any action.</summary>
+    public static readonly HashSet<uint> IncapacitationStatusIds = new()
+    {
+        18,    // Stun
+        3,     // Sleep
+        1,     // Petrification
+        4,     // Bind (rooted — can still cast but movement-gated jobs lose uptime)
+        149,   // Deep Freeze
+        2656,  // Transcendent (post-raise invulnerability, actions locked)
+        3581,  // Willful (duty support auto-revive, actions locked ~7s)
+    };
 }
