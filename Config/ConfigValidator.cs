@@ -593,40 +593,40 @@ public static class ConfigValidator
             fixes++;
         }
 
-        // Fix DPS gauge min/overcap inversions — reset min to overcap - 10 (floor 0)
+        // Fix DPS gauge min/overcap inversions — reset min to overcap - 10 (floor 50, matching property setter clamp)
         if (config.Ninja.NinkiMinGauge > config.Ninja.NinkiOvercapThreshold)
         {
-            config.Ninja.NinkiMinGauge = Math.Max(0, config.Ninja.NinkiOvercapThreshold - 10);
+            config.Ninja.NinkiMinGauge = Math.Max(50, config.Ninja.NinkiOvercapThreshold - 10);
             fixes++;
         }
 
         if (config.Samurai.KenkiMinGauge > config.Samurai.KenkiOvercapThreshold)
         {
-            config.Samurai.KenkiMinGauge = Math.Max(0, config.Samurai.KenkiOvercapThreshold - 10);
+            config.Samurai.KenkiMinGauge = Math.Max(50, config.Samurai.KenkiOvercapThreshold - 10);
             fixes++;
         }
 
         if (config.Reaper.SoulMinGauge > config.Reaper.SoulOvercapThreshold)
         {
-            config.Reaper.SoulMinGauge = Math.Max(0, config.Reaper.SoulOvercapThreshold - 10);
+            config.Reaper.SoulMinGauge = Math.Max(50, config.Reaper.SoulOvercapThreshold - 10);
             fixes++;
         }
 
         if (config.Machinist.HeatMinGauge > config.Machinist.HeatOvercapThreshold)
         {
-            config.Machinist.HeatMinGauge = Math.Max(0, config.Machinist.HeatOvercapThreshold - 10);
+            config.Machinist.HeatMinGauge = Math.Max(50, config.Machinist.HeatOvercapThreshold - 10);
             fixes++;
         }
 
         if (config.Machinist.BatteryMinGauge > config.Machinist.BatteryOvercapThreshold)
         {
-            config.Machinist.BatteryMinGauge = Math.Max(0, config.Machinist.BatteryOvercapThreshold - 10);
+            config.Machinist.BatteryMinGauge = Math.Max(50, config.Machinist.BatteryOvercapThreshold - 10);
             fixes++;
         }
 
         if (config.Dancer.SaberDanceMinGauge > config.Dancer.EspritOvercapThreshold)
         {
-            config.Dancer.SaberDanceMinGauge = Math.Max(0, config.Dancer.EspritOvercapThreshold - 10);
+            config.Dancer.SaberDanceMinGauge = Math.Max(50, config.Dancer.EspritOvercapThreshold - 10);
             fixes++;
         }
 

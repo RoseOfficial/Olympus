@@ -398,7 +398,7 @@ public static class ConfigurationPresets
             config.Healing.LilyStrategy = LilyGenerationStrategy.Aggressive;
             config.Healing.EnablePreemptiveHealing = false;
             config.Healing.EnableMechanicAwareness = false;
-            config.Defensive.DefensiveCooldownThreshold = 0.85f;
+            config.Defensive.DefensiveCooldownThreshold = 0.65f;
             config.Scholar.AetherflowReserve = 0;
             config.Scholar.EnableEnergyDrain = true;
             config.Sage.AddersgallReserve = 0;

@@ -2498,5 +2498,10 @@
   "FightSummary.MaxStored": "Max stored summaries",
   "analytics.pull_history_tab": "Pull History",
   "analytics.no_pull_history": "No pulls recorded this session.",
-  "analytics.trend_label": "Trend"
+  "analytics.trend_label": "Trend",
+
+  "config.whm.dps_priority_heal_first": "Heal First",
+  "config.whm.dps_priority_balanced": "Balanced",
+  "config.whm.dps_priority_dps_first": "DPS First",
+  "config.import.party_coord_warning": "Party coordination changes require a plugin reload to take effect."
 }

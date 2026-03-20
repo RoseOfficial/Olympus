@@ -84,6 +84,7 @@ public static class LocalizedStrings
         public const string ExportSuccess = "config.export_success";
         public const string ImportSuccess = "config.import_success";
         public const string ImportError   = "config.import_error";
+        public const string ImportPartyCoordWarning = "config.import.party_coord_warning";
     }
 
     /// <summary>Keys for config sidebar navigation.</summary>
@@ -252,6 +253,7 @@ public static class LocalizedStrings
         public const string AllowHardcast = "config.resurrection.allow_hardcast";
         public const string AllowHardcastDesc = "config.resurrection.allow_hardcast_desc";
         public const string MinMpForRaise = "config.resurrection.min_mp_for_raise";
+        public const string MinMpForRaiseDesc = "config.resurrection.min_mp_for_raise_desc";
     }
 
     /// <summary>Keys for privacy settings.</summary>
@@ -413,6 +415,9 @@ public static class LocalizedStrings
         public const string HolyDesc = "config.job.whm.holy_desc";
         public const string MiseryDesc = "config.job.whm.misery_desc";
         public const string EnableDoT = "config.job.whm.enable_dot";
+        public const string DpsPriorityHealFirst = "config.whm.dps_priority_heal_first";
+        public const string DpsPriorityBalanced = "config.whm.dps_priority_balanced";
+        public const string DpsPriorityDpsFirst = "config.whm.dps_priority_dps_first";
     }
 
     /// <summary>Keys for Scholar specific settings.</summary>

@@ -229,7 +229,7 @@ public sealed class GeneralSection
             this.config.Resurrection.RaiseMpThreshold = ConfigUIHelpers.ThresholdSlider(
                 Loc.T(LocalizedStrings.Resurrection.MinMpForRaise, "Min MP for Raise"),
                 this.config.Resurrection.RaiseMpThreshold, 10f, 50f,
-                Loc.T("config.resurrection.min_mp_for_raise_desc", "Minimum MP percentage before attempting to raise."),
+                Loc.T(LocalizedStrings.Resurrection.MinMpForRaiseDesc, "Minimum MP percentage before attempting to raise."),
                 this.save);
 
             ConfigUIHelpers.EndDisabledGroup();

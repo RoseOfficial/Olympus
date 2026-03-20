@@ -556,7 +556,7 @@ public sealed class ConfigWindow : Window
             saveConfiguration();
             _clipboardStatusMessage = Loc.T(LocalizedStrings.Config.ImportSuccess, "Settings imported!");
             if (configuration.PartyCoordination.EnablePartyCoordination != previousEnablePartyCoordination)
-                _clipboardStatusMessage += " Party coordination changes require a plugin reload to take effect.";
+                _clipboardStatusMessage += " " + Loc.T(LocalizedStrings.Config.ImportPartyCoordWarning, "Party coordination changes require a plugin reload to take effect.");
             _clipboardStatusExpiry  = DateTime.UtcNow.AddSeconds(5);
         }
         catch (Exception ex)

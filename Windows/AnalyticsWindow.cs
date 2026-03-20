@@ -105,6 +105,7 @@ public sealed class AnalyticsWindow : Window
             DrawSectionToggle("SummaryScores", Loc.T(LocalizedStrings.Analytics.Scores, "Scores"));
             DrawSectionToggle("SummaryBreakdown", Loc.T(LocalizedStrings.Analytics.Breakdown, "Breakdown"));
             DrawSectionToggle("SummaryDowntime", Loc.T(LocalizedStrings.Analytics.DowntimeAnalysis, "Downtime Analysis"));
+            DrawSectionToggle("SummaryCooldowns", Loc.T(LocalizedStrings.Analytics.Cooldowns, "Cooldowns"));
             DrawSectionToggle("SummaryIssues", Loc.T(LocalizedStrings.Analytics.Issues, "Issues"));
 
             ImGui.Spacing();

@@ -15,7 +15,12 @@ public sealed class WhiteMageSection
     private readonly Configuration config;
     private readonly Action save;
 
-    private static readonly string[] DpsPriorityNames = ["Heal First", "Balanced", "DPS First"];
+    private static string[] GetDpsPriorityNames() => new[]
+    {
+        Loc.T(LocalizedStrings.WhiteMage.DpsPriorityHealFirst, "Heal First"),
+        Loc.T(LocalizedStrings.WhiteMage.DpsPriorityBalanced, "Balanced"),
+        Loc.T(LocalizedStrings.WhiteMage.DpsPriorityDpsFirst, "DPS First"),
+    };
 
     public WhiteMageSection(Configuration config, Action save)
     {
@@ -347,7 +352,8 @@ public sealed class WhiteMageSection
             // DPS Priority Mode
             var currentPriority = (int)config.Damage.DpsPriority;
             ImGui.SetNextItemWidth(150);
-            if (ImGui.Combo(Loc.T(LocalizedStrings.WhiteMage.DpsPriority, "DPS Priority"), ref currentPriority, DpsPriorityNames, DpsPriorityNames.Length))
+            var dpsPriorityNames = GetDpsPriorityNames();
+            if (ImGui.Combo(Loc.T(LocalizedStrings.WhiteMage.DpsPriority, "DPS Priority"), ref currentPriority, dpsPriorityNames, dpsPriorityNames.Length))
             {
                 config.Damage.DpsPriority = (DpsPriorityMode)currentPriority;
                 save();
