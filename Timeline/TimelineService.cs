@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Dalamud.Plugin.Services;
@@ -77,10 +78,8 @@ public sealed class TimelineService : ITimelineService, IDisposable
         }
         else
         {
-            // Normal mode - use combat state
-            var inCombat = combatEventService.IsInCombat;
-
-            if (!inCombat)
+            // Gate on combat check before calling GetCombatDurationSeconds (which acquires a lock)
+            if (!combatEventService.IsInCombat)
             {
                 // Not in combat - reset state if we were tracking
                 if (state.HasSynced)
@@ -275,7 +274,7 @@ public sealed class TimelineService : ITimelineService, IDisposable
         log.Debug("TimelineService: Advanced simulation to {0:F1}s", newTime);
     }
 
-    public MechanicPrediction[] GetUpcomingMechanics(float windowSeconds)
+    public IReadOnlyList<MechanicPrediction> GetUpcomingMechanics(float windowSeconds)
     {
         if (!IsActive || state == null || loadedTimeline == null)
             return Array.Empty<MechanicPrediction>();
@@ -285,7 +284,7 @@ public sealed class TimelineService : ITimelineService, IDisposable
         var endTime = currentTime + windowSeconds;
 
         var startIndex = loadedTimeline.FindFirstEntryAtOrAfter(currentTime);
-        var results = new System.Collections.Generic.List<MechanicPrediction>();
+        var results = new List<MechanicPrediction>();
 
         for (var i = startIndex; i < loadedTimeline.Entries.Length; i++)
         {
@@ -313,7 +312,7 @@ public sealed class TimelineService : ITimelineService, IDisposable
             }
         }
 
-        return results.ToArray();
+        return results;
     }
 
     private FightTimeline CreateTestTimeline()

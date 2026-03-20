@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text.RegularExpressions;
 using Olympus.Timeline.Models;
 
@@ -300,19 +299,23 @@ public sealed partial class CactbotTimelineParser : ITimelineParser
 
         // Check in priority order. TankBuster is checked first because tank-buster names
         // sometimes also contain raidwide-sounding words (e.g. "stack cleave").
-        if (TankBusterKeywords.Any(k => combined.Contains(k, StringComparison.OrdinalIgnoreCase)))
-            return TimelineEntryType.TankBuster;
+        foreach (var k in TankBusterKeywords)
+            if (combined.Contains(k, StringComparison.OrdinalIgnoreCase))
+                return TimelineEntryType.TankBuster;
 
         // Stack and Spread checked before general raidwide to preserve their specific types.
         // "stack" appeared in the old RaidwideKeywords set but has its own dedicated type.
-        if (StackKeywords.Any(k => combined.Contains(k, StringComparison.OrdinalIgnoreCase)))
-            return TimelineEntryType.Stack;
+        foreach (var k in StackKeywords)
+            if (combined.Contains(k, StringComparison.OrdinalIgnoreCase))
+                return TimelineEntryType.Stack;
 
-        if (SpreadKeywords.Any(k => combined.Contains(k, StringComparison.OrdinalIgnoreCase)))
-            return TimelineEntryType.Spread;
+        foreach (var k in SpreadKeywords)
+            if (combined.Contains(k, StringComparison.OrdinalIgnoreCase))
+                return TimelineEntryType.Spread;
 
-        if (RaidwideKeywords.Any(k => combined.Contains(k, StringComparison.OrdinalIgnoreCase)))
-            return TimelineEntryType.Raidwide;
+        foreach (var k in RaidwideKeywords)
+            if (combined.Contains(k, StringComparison.OrdinalIgnoreCase))
+                return TimelineEntryType.Raidwide;
 
         if (combined.Contains("enrage", StringComparison.OrdinalIgnoreCase))
             return TimelineEntryType.Enrage;

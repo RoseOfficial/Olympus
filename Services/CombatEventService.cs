@@ -73,14 +73,14 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
     private const int ActionUpdateProtectionMs = 3000;
 
     // Recent heals from local player
-    private readonly List<HealEvent> recentHeals = new();
+    private readonly Queue<HealEvent> recentHeals = new();
     private const int MaxHealHistory = 20;
     private readonly object healLock = new();
 
     // Overheal statistics tracking (session only)
     private readonly Dictionary<uint, SpellOverhealStats> spellOverhealStats = new();
     private readonly Dictionary<uint, TargetOverhealStats> targetOverhealStats = new();
-    private readonly List<OverhealEvent> recentOverhealEvents = new();
+    private readonly Queue<OverhealEvent> recentOverhealEvents = new();
     private const int MaxOverhealHistory = 50;
     private readonly object overhealLock = new();
     private DateTime sessionStartTime = DateTime.UtcNow;
@@ -203,7 +203,7 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
     {
         lock (healLock)
         {
-            return recentHeals.ToList();
+            return recentHeals.Reverse().ToList();
         }
     }
 
@@ -242,7 +242,7 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
                 byTarget.Add((kvp.Key, kvp.Value.TargetName, kvp.Value.TotalHealing, kvp.Value.TotalOverheal, kvp.Value.HealCount));
             }
 
-            var recentEvents = recentOverhealEvents.ToList();
+            var recentEvents = recentOverhealEvents.Reverse().ToList();
 
             return new OverhealStatistics(
                 sessionStartTime,
@@ -402,9 +402,9 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
 
                 lock (healLock)
                 {
-                    recentHeals.Insert(0, healEvent);
+                    recentHeals.Enqueue(healEvent);
                     if (recentHeals.Count > MaxHealHistory)
-                        recentHeals.RemoveAt(recentHeals.Count - 1);
+                        recentHeals.Dequeue();
                 }
 
                 // Track overheal statistics
@@ -434,7 +434,7 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
                     // Add to overheal events timeline (only if there was overheal)
                     if (overhealAmount > 0)
                     {
-                        recentOverhealEvents.Insert(0, new OverhealEvent(
+                        recentOverhealEvents.Enqueue(new OverhealEvent(
                             DateTime.UtcNow,
                             $"Action{header->ActionId}",
                             targetName,
@@ -442,7 +442,7 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
                             overhealAmount));
 
                         if (recentOverhealEvents.Count > MaxOverhealHistory)
-                            recentOverhealEvents.RemoveAt(recentOverhealEvents.Count - 1);
+                            recentOverhealEvents.Dequeue();
                     }
                 }
             }

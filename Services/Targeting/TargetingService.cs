@@ -26,6 +26,9 @@ public sealed class TargetingService : ITargetingService
     private readonly Stopwatch _cacheTimer = new();
     private float _lastCacheRange;
 
+    // Reusable work list for AoE target methods (all called from game thread)
+    private readonly List<IBattleNpc> _aoeWorkList = new();
+
     // Tank job IDs: PLD=19, WAR=21, DRK=32, GNB=37
     private static readonly HashSet<uint> TankJobIds = [19, 21, 32, 37];
 
@@ -131,28 +134,28 @@ public sealed class TargetingService : ITargetingService
         IBattleNpc? bestTarget = null;
         int bestHitCount = 0;
 
-        // Collect all valid enemies in a list for efficient iteration
-        var enemies = new List<IBattleNpc>();
+        // Collect all valid enemies in reusable work list
+        _aoeWorkList.Clear();
         foreach (var enemy in GetValidEnemies(maxRange, player))
         {
-            enemies.Add(enemy);
+            _aoeWorkList.Add(enemy);
         }
 
-        if (enemies.Count == 0)
+        if (_aoeWorkList.Count == 0)
             return (null, 0);
 
         // Early exit: if only 1 enemy, no need for O(n²) calculation
-        if (enemies.Count == 1)
-            return (enemies[0], 1);
+        if (_aoeWorkList.Count == 1)
+            return (_aoeWorkList[0], 1);
 
         // For each potential target, count how many enemies would be hit
         var aoeRadiusSquared = aoeRadius * aoeRadius;
-        foreach (var potentialTarget in enemies)
+        foreach (var potentialTarget in _aoeWorkList)
         {
             int hitCount = 1; // Always hits the target itself
 
             // Count other enemies within AoE radius of this target
-            foreach (var other in enemies)
+            foreach (var other in _aoeWorkList)
             {
                 if (other.EntityId == potentialTarget.EntityId)
                     continue;
@@ -538,16 +541,16 @@ public sealed class TargetingService : ITargetingService
     {
         // Use the ability's effect range for candidate filtering, not the rotation's targeting range
         var candidateRange = MathF.Max(radius, maxRange);
-        var enemies = new List<IBattleNpc>();
+        _aoeWorkList.Clear();
         foreach (var e in GetValidEnemies(candidateRange, player))
-            enemies.Add(e);
+            _aoeWorkList.Add(e);
 
-        if (enemies.Count == 0) return (null, 0, 0f);
-        if (enemies.Count == 1)
+        if (_aoeWorkList.Count == 0) return (null, 0, 0f);
+        if (_aoeWorkList.Count == 1)
         {
-            var dx = enemies[0].Position.X - player.Position.X;
-            var dz = enemies[0].Position.Z - player.Position.Z;
-            return (enemies[0], 1, MathF.Atan2(dx, dz));
+            var dx = _aoeWorkList[0].Position.X - player.Position.X;
+            var dz = _aoeWorkList[0].Position.Z - player.Position.Z;
+            return (_aoeWorkList[0], 1, MathF.Atan2(dx, dz));
         }
 
         int bestCount = 0;
@@ -557,14 +560,14 @@ public sealed class TargetingService : ITargetingService
 
         // For each enemy as potential target: aim at them and count how many others
         // the cone/line would clip. We can only face enemies we target (game auto-faces).
-        foreach (var candidate in enemies)
+        foreach (var candidate in _aoeWorkList)
         {
             var dx = candidate.Position.X - playerPos.X;
             var dz = candidate.Position.Z - playerPos.Z;
             var aimAngle = MathF.Atan2(dx, dz);
 
             var count = 0;
-            foreach (var e in enemies)
+            foreach (var e in _aoeWorkList)
             {
                 var edx = e.Position.X - playerPos.X;
                 var edz = e.Position.Z - playerPos.Z;
@@ -594,16 +597,16 @@ public sealed class TargetingService : ITargetingService
     {
         // Use the ability's effect range for candidate filtering, not the rotation's targeting range
         var candidateRange = MathF.Max(length, maxRange);
-        var enemies = new List<IBattleNpc>();
+        _aoeWorkList.Clear();
         foreach (var e in GetValidEnemies(candidateRange, player))
-            enemies.Add(e);
+            _aoeWorkList.Add(e);
 
-        if (enemies.Count == 0) return (null, 0, 0f);
-        if (enemies.Count == 1)
+        if (_aoeWorkList.Count == 0) return (null, 0, 0f);
+        if (_aoeWorkList.Count == 1)
         {
-            var dx = enemies[0].Position.X - player.Position.X;
-            var dz = enemies[0].Position.Z - player.Position.Z;
-            return (enemies[0], 1, MathF.Atan2(dx, dz));
+            var dx = _aoeWorkList[0].Position.X - player.Position.X;
+            var dz = _aoeWorkList[0].Position.Z - player.Position.Z;
+            return (_aoeWorkList[0], 1, MathF.Atan2(dx, dz));
         }
 
         int bestCount = 0;
@@ -614,7 +617,7 @@ public sealed class TargetingService : ITargetingService
 
         // For each enemy as potential target: aim at them and count how many others
         // the line would clip. We can only face enemies we target.
-        foreach (var candidate in enemies)
+        foreach (var candidate in _aoeWorkList)
         {
             var dx = candidate.Position.X - playerPos.X;
             var dz = candidate.Position.Z - playerPos.Z;
@@ -623,7 +626,7 @@ public sealed class TargetingService : ITargetingService
             var cosH = MathF.Cos(aimAngle);
 
             var count = 0;
-            foreach (var e in enemies)
+            foreach (var e in _aoeWorkList)
             {
                 var edx = e.Position.X - playerPos.X;
                 var edz = e.Position.Z - playerPos.Z;

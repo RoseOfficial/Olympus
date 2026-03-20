@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Olympus.Timeline.Models;
 
 namespace Olympus.Timeline;
@@ -120,8 +121,8 @@ public interface ITimelineService
     /// Gets all upcoming mechanics within a time window (for debug display).
     /// </summary>
     /// <param name="windowSeconds">How far ahead to look.</param>
-    /// <returns>Array of predictions.</returns>
-    MechanicPrediction[] GetUpcomingMechanics(float windowSeconds);
+    /// <returns>List of predictions.</returns>
+    IReadOnlyList<MechanicPrediction> GetUpcomingMechanics(float windowSeconds);
 
     #endregion
 }

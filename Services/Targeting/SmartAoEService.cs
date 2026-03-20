@@ -35,6 +35,7 @@ public sealed class SmartAoEService : ISmartAoEService, IDisposable
     /// </summary>
     public void SubscribeToCombatEvents(ICombatEventService combatEventService)
     {
+        _subscribedCombatEventService?.OnLocalAbilityResolved -= OnAbilityResolved;
         _subscribedCombatEventService = combatEventService;
         combatEventService.OnLocalAbilityResolved += OnAbilityResolved;
     }

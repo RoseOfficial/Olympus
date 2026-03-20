@@ -226,7 +226,7 @@ public static class TimelineTab
 
         var upcoming = timelineService.GetUpcomingMechanics(30f);
 
-        if (upcoming.Length == 0)
+        if (upcoming.Count == 0)
         {
             ImGui.TextColored(new Vector4(0.5f, 0.5f, 0.5f, 1), Loc.T(LocalizedStrings.Debug.NoMechanicsInNext30s, "No mechanics in the next 30 seconds"));
             return;

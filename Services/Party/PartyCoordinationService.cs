@@ -73,6 +73,10 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
     private DateTime _lastHeartbeatSent = DateTime.MinValue;
     private DateTime _lastGaugeBroadcast = DateTime.MinValue;
 
+    // Cached booleans for HasRemoteHealers/HasRemoteDps to avoid LINQ allocation per frame
+    private bool _cachedHasRemoteHealers;
+    private bool _cachedHasRemoteDps;
+
     // Lock protecting all remote state against concurrent IPC callbacks
     private readonly object _stateLock = new();
 
@@ -112,7 +116,7 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         get
         {
             lock (_stateLock)
-                return _remoteInstances.Values.Any(i => i.IsEnabled && JobRegistry.IsHealer(i.JobId));
+                return _cachedHasRemoteHealers;
         }
     }
 
@@ -436,7 +440,7 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         get
         {
             lock (_stateLock)
-                return _remoteInstances.Values.Any(i => i.IsEnabled && JobRegistry.IsDps(i.JobId));
+                return _cachedHasRemoteDps;
         }
     }
 
@@ -642,7 +646,7 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         lock (_stateLock)
         {
             // Check if we have any remote DPS instances
-            hasRemoteDps = _remoteInstances.Values.Any(i => i.IsEnabled && JobRegistry.IsDps(i.JobId));
+            hasRemoteDps = _cachedHasRemoteDps;
             if (!hasRemoteDps)
                 return BurstWindowState.NoInfo;
 
@@ -756,20 +760,26 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (IsInBurstWindow())
             return 0f;
 
-        // Find the soonest pending intent
-        var pendingIntents = GetPendingRaidBuffIntents();
-        if (pendingIntents.Count == 0)
-            return -1f;
-
+        // Find the soonest pending intent by iterating directly under the lock
+        // instead of allocating a list via GetPendingRaidBuffIntents()
         var now = DateTime.UtcNow;
         float soonest = float.MaxValue;
 
-        foreach (var intent in pendingIntents)
+        lock (_stateLock)
         {
-            var expectedActivation = intent.IntentAnnouncedAt.AddSeconds(intent.PlannedDelaySeconds);
-            var timeUntil = (float)(expectedActivation - now).TotalSeconds;
-            if (timeUntil > 0 && timeUntil < soonest)
-                soonest = timeUntil;
+            foreach (var kvp in _remoteRaidBuffStates)
+            {
+                foreach (var state in kvp.Value)
+                {
+                    if (state.IsIntentOnly && !state.IsIntentExpired)
+                    {
+                        var expectedActivation = state.IntentAnnouncedAt.AddSeconds(state.PlannedDelaySeconds);
+                        var timeUntil = (float)(expectedActivation - now).TotalSeconds;
+                        if (timeUntil > 0 && timeUntil < soonest)
+                            soonest = timeUntil;
+                    }
+                }
+            }
         }
 
         return soonest < float.MaxValue ? soonest : -1f;
@@ -1487,6 +1497,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         lock (_stateLock)
         {
             _remoteInstances.Clear();
+            _cachedHasRemoteHealers = false;
+            _cachedHasRemoteDps = false;
             _remoteReservations.Clear();
             _remoteCooldowns.Clear();
             _remoteAoEReservation = null;
@@ -1554,6 +1566,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
                 };
                 isNew = true;
             }
+
+            RefreshRemoteInstanceCacheLocked();
         }
 
         if (isNew && _config.LogCoordinationEvents)
@@ -2123,6 +2137,9 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
                     _remoteTankSwapReservations.Remove(targetId);
             }
 
+            if (expiredInstances.Count > 0)
+                RefreshRemoteInstanceCacheLocked();
+
             // Clean up expired cooldowns (no longer on recast)
             CleanupExpiredCooldownsLocked();
 
@@ -2196,6 +2213,25 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
 
         foreach (var key in emptyKeys)
             _remoteRaidBuffStates.Remove(key);
+    }
+
+    /// <summary>
+    /// Recomputes _cachedHasRemoteHealers and _cachedHasRemoteDps from _remoteInstances.
+    /// Caller must hold _stateLock.
+    /// </summary>
+    private void RefreshRemoteInstanceCacheLocked()
+    {
+        var hasHealers = false;
+        var hasDps = false;
+        foreach (var instance in _remoteInstances.Values)
+        {
+            if (!instance.IsEnabled) continue;
+            if (!hasHealers && JobRegistry.IsHealer(instance.JobId)) hasHealers = true;
+            if (!hasDps && JobRegistry.IsDps(instance.JobId)) hasDps = true;
+            if (hasHealers && hasDps) break;
+        }
+        _cachedHasRemoteHealers = hasHealers;
+        _cachedHasRemoteDps = hasDps;
     }
 
     private void CleanupExpiredReservations(DateTime now)

@@ -184,7 +184,7 @@ public sealed class OverlayWindow : Window
             return;
 
         var mechanics = _timelineService.GetUpcomingMechanics(60f);
-        if (mechanics.Length == 0)
+        if (mechanics.Count == 0)
             return;
 
         // First pass: check if any player-relevant mechanics exist
