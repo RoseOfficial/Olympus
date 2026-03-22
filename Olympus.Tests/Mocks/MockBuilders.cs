@@ -359,7 +359,7 @@ public static class MockBuilders
         mock.Setup(x => x.FindBestCureIIITarget(It.IsAny<IPlayerCharacter>(), It.IsAny<int>()))
             .Returns((null, 0, new List<uint>()));
 
-        mock.Setup(x => x.FindRegenTarget(It.IsAny<IPlayerCharacter>(), It.IsAny<float>(), It.IsAny<float>()))
+        mock.Setup(x => x.FindRegenTarget(It.IsAny<IPlayerCharacter>(), It.IsAny<float>(), It.IsAny<float>(), It.IsAny<float>()))
             .Returns((IBattleChara?)null);
 
         mock.Setup(x => x.NeedsRegen(It.IsAny<IBattleChara>(), It.IsAny<float>(), It.IsAny<float>()))

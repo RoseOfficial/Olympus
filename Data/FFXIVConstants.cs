@@ -42,8 +42,11 @@ public static class FFXIVConstants
     public const uint InvalidTargetId = 0xE0000000;
 
     // Thresholds
-    /// <summary>HP percentage below which to consider applying Regen.</summary>
+    /// <summary>HP percentage below which to consider applying Regen to tanks.</summary>
     public const float RegenHpThreshold = 0.90f;
+
+    /// <summary>HP percentage below which to consider applying Regen to non-tanks.</summary>
+    public const float RegenNonTankHpThreshold = 0.80f;
 
     /// <summary>Time remaining on DoT before refreshing (seconds).</summary>
     public const float DotRefreshThreshold = 3f;

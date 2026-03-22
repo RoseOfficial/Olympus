@@ -285,7 +285,7 @@ public class PartyHelper : HealerPartyHelper, IPartyHelper
     /// <summary>
     /// Finds the best target for Regen with tank priority.
     /// </summary>
-    public IBattleChara? FindRegenTarget(IPlayerCharacter player, float regenHpThreshold, float regenRefreshThreshold)
+    public IBattleChara? FindRegenTarget(IPlayerCharacter player, float tankHpThreshold, float nonTankHpThreshold, float regenRefreshThreshold)
     {
         IBattleChara? tankTarget = null;
         IBattleChara? otherTarget = null;
@@ -299,10 +299,13 @@ public class PartyHelper : HealerPartyHelper, IPartyHelper
                 WHMActions.Regen.RangeSquared)
                 continue;
 
-            if (!NeedsRegen(member, regenHpThreshold, regenRefreshThreshold))
+            var isTank = IsTankRole(member);
+            var threshold = isTank ? tankHpThreshold : nonTankHpThreshold;
+
+            if (!NeedsRegen(member, threshold, regenRefreshThreshold))
                 continue;
 
-            if (IsTankRole(member))
+            if (isTank)
             {
                 tankTarget ??= member;
             }

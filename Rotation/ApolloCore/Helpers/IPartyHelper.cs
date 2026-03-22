@@ -54,8 +54,9 @@ public interface IPartyHelper
 
     /// <summary>
     /// Finds the best target for Regen with tank priority.
+    /// Uses separate HP thresholds for tanks vs non-tanks.
     /// </summary>
-    IBattleChara? FindRegenTarget(IPlayerCharacter player, float regenHpThreshold, float regenRefreshThreshold);
+    IBattleChara? FindRegenTarget(IPlayerCharacter player, float tankHpThreshold, float nonTankHpThreshold, float regenRefreshThreshold);
 
     /// <summary>
     /// Checks if a target needs Regen.

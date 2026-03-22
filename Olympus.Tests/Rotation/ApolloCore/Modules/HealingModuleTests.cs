@@ -590,6 +590,7 @@ public class HealingModuleTests
         partyHelperMock.Setup(x => x.FindRegenTarget(
                 It.IsAny<IPlayerCharacter>(),
                 It.IsAny<float>(),
+                It.IsAny<float>(),
                 It.IsAny<float>()))
             .Returns(target.Object);
 
@@ -626,6 +627,7 @@ public class HealingModuleTests
         var partyHelperMock = MockBuilders.CreateMockPartyHelper();
         partyHelperMock.Setup(x => x.FindRegenTarget(
                 It.IsAny<IPlayerCharacter>(),
+                It.IsAny<float>(),
                 It.IsAny<float>(),
                 It.IsAny<float>()))
             .Returns(target.Object);
