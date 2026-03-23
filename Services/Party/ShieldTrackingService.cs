@@ -409,7 +409,7 @@ public sealed class ShieldTrackingService : IShieldTrackingService
         var snapshot = new Dictionary<uint, IReadOnlyList<ShieldInfo>>(_shields.Count);
         foreach (var kvp in _shields)
         {
-            snapshot[kvp.Key] = kvp.Value;
+            snapshot[kvp.Key] = new List<ShieldInfo>(kvp.Value);
         }
         return snapshot;
     }
@@ -421,7 +421,7 @@ public sealed class ShieldTrackingService : IShieldTrackingService
         var snapshot = new Dictionary<uint, IReadOnlyList<MitigationBuff>>(_mitigations.Count);
         foreach (var kvp in _mitigations)
         {
-            snapshot[kvp.Key] = kvp.Value;
+            snapshot[kvp.Key] = new List<MitigationBuff>(kvp.Value);
         }
         return snapshot;
     }

@@ -32,7 +32,15 @@ public sealed class TankCooldownService : ITankCooldownService
         _currentDamageRate = incomingDamageRate;
 
         // Track damage peaks for tank buster detection
-        if (incomingDamageRate > _recentDamagePeak || (DateTime.UtcNow - _lastPeakTime).TotalSeconds > 10)
+        // Clear stale peak data after 10s so old spikes don't persist indefinitely
+        if ((DateTime.UtcNow - _lastPeakTime).TotalSeconds > 10)
+        {
+            _recentDamagePeak = 0f;
+            _lastPeakTime = DateTime.UtcNow;
+        }
+
+        // Record a new peak when the current rate exceeds the tracked peak
+        if (incomingDamageRate > _recentDamagePeak)
         {
             _recentDamagePeak = incomingDamageRate;
             _lastPeakTime = DateTime.UtcNow;

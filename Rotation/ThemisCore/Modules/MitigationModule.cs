@@ -611,7 +611,7 @@ public sealed class MitigationModule : IThemisModule
 
         // Bulwark is good for sustained damage, not tank busters
         // Use when taking moderate consistent damage
-        if (damageRate < 300f || hpPercent > 0.80f)
+        if (damageRate < 300f && hpPercent > 0.80f)
             return false;
 
         // Don't stack with Hallowed Ground

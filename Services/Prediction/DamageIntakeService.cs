@@ -59,9 +59,9 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
     // Maximum entries to keep per entity (prevents unbounded growth)
     private const int MaxEntriesPerEntity = 100;
 
-    // Reusable buffer for cleanup and forecast operations to avoid per-call allocations
-    private readonly List<uint> _cleanupKeyBuffer = new();
-    private readonly List<uint> _forecastEntityBuffer = new();
+    // Reusable buffers for cleanup operations — one per lock scope to avoid cross-lock sharing
+    private readonly List<uint> _damageCleanupKeyBuffer = new();
+    private readonly List<uint> _dotCleanupKeyBuffer = new();
 
     // Server tick rate for DoT damage (3 seconds)
     private const float DoTTickInterval = 3.0f;
@@ -257,13 +257,13 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
             }
 
             // Remove empty lists — collect keys first to avoid modifying during enumeration
-            _cleanupKeyBuffer.Clear();
+            _damageCleanupKeyBuffer.Clear();
             foreach (var kvp in _damageByEntity)
             {
                 if (kvp.Value.Count == 0)
-                    _cleanupKeyBuffer.Add(kvp.Key);
+                    _damageCleanupKeyBuffer.Add(kvp.Key);
             }
-            foreach (var key in _cleanupKeyBuffer)
+            foreach (var key in _damageCleanupKeyBuffer)
             {
                 _damageByEntity.Remove(key);
             }
@@ -332,13 +332,12 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
 
         // Collect entity IDs under the lock, then call ForecastEntityDamage outside it
         // to avoid re-entrancy: ForecastEntityDamage → GetRecentDamageIntake also acquires _damageLock.
-        _forecastEntityBuffer.Clear();
+        // Copy to a local list so the snapshot is not shared across concurrent callers.
+        List<uint> entityIds;
         lock (_damageLock)
         {
-            foreach (var key in _damageByEntity.Keys)
-                _forecastEntityBuffer.Add(key);
+            entityIds = new List<uint>(_damageByEntity.Keys);
         }
-        var entityIds = _forecastEntityBuffer;
 
         foreach (var entityId in entityIds)
         {
@@ -495,13 +494,13 @@ public sealed class DamageIntakeService : IDamageIntakeService, IDisposable
             }
 
             // Remove empty lists
-            _cleanupKeyBuffer.Clear();
+            _dotCleanupKeyBuffer.Clear();
             foreach (var kvp in _activeDoTs)
             {
                 if (kvp.Value.Count == 0)
-                    _cleanupKeyBuffer.Add(kvp.Key);
+                    _dotCleanupKeyBuffer.Add(kvp.Key);
             }
-            foreach (var key in _cleanupKeyBuffer)
+            foreach (var key in _dotCleanupKeyBuffer)
             {
                 _activeDoTs.Remove(key);
             }

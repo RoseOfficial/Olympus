@@ -355,7 +355,10 @@ public sealed class PartyAnalyzerService : IPartyAnalyzer
     {
         ulong hash = 0;
         foreach (var member in _partyList)
+        {
+            if (member == null) continue;
             hash ^= member.EntityId * 2654435761UL;
+        }
         return hash;
     }
 
@@ -378,6 +381,7 @@ public sealed class PartyAnalyzerService : IPartyAnalyzer
                 _cachedPartyEntityIds.Clear();
                 foreach (var partyMember in _partyList)
                 {
+                    if (partyMember == null) continue;
                     if (partyMember.EntityId != _player.EntityId)
                         _cachedPartyEntityIds.Add(partyMember.EntityId);
                 }

@@ -616,12 +616,14 @@ public sealed class Plugin : IDalamudPlugin
         // Dispose rotation manager (handles all instantiated rotations)
         rotationManager.Dispose();
 
-        // Dispose container-registered services first so they can cleanly unsubscribe
-        // from non-container services (e.g., FightSummaryService from PerformanceTracker)
-        serviceContainer?.Dispose();
-
+        // Dispose event subscribers before the container disposes their event sources
+        // (dotTrackingService and healingIntakeService subscribe to CombatEventService)
         dotTrackingService.Dispose();
         healingIntakeService.Dispose();
+
+        // Dispose container-registered services (e.g., CombatEventService)
+        serviceContainer?.Dispose();
+
         performanceTracker.Dispose();
         drawingService.Dispose();
         localization.Dispose();

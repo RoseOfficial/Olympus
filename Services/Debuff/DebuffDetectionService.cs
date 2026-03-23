@@ -120,6 +120,9 @@ public sealed class DebuffDetectionService : IDebuffDetectionService
         var bestPriority = DebuffPriority.None;
         float bestRemainingTime = float.MaxValue;
 
+        if (target.StatusList == null)
+            return (0, DebuffPriority.None, 0);
+
         foreach (var status in target.StatusList)
         {
             // Skip if not dispellable

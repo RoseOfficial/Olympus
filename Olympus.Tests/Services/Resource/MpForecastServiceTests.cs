@@ -300,17 +300,12 @@ public class MpForecastServiceTests
     }
 
     [Fact]
-    public void SecondsUntilOom_AtReserve_WithExpenditure_ReturnsMaxValue()
+    public void SecondsUntilOom_AtReserve_WithExpenditure_ReturnsZero()
     {
         // Arrange — MP is at reserve and an expenditure has been recorded.
-        // GetMpConsumptionRate() requires windowDuration > 0.1s to return a non-zero
-        // value (guards against divide-by-near-zero). Since no real time elapses between
-        // RecordMpExpenditure and SecondsUntilOom in a unit test, windowDuration ≈ 0 and
-        // the consumption rate stays at 0. netRate therefore equals the regen rate (positive),
-        // so the method short-circuits at netRate >= 0 → float.MaxValue.
-        //
-        // The spendableMp <= 0 → 0f branch is only reachable when netRate < 0, which
-        // requires a measurable consumption rate over real elapsed time (integration testing).
+        // The consumption rate floor (1s minimum window) ensures the expenditure
+        // produces a non-zero rate even in unit tests. With netRate < 0 and
+        // spendableMp = currentMp - reserve = 0, the method returns 0f (already at reserve).
         var service = new MpForecastService();
         service.Update(currentMp: 2400, maxMp: 10000, hasLucidDreaming: false);
         service.RecordMpExpenditure(800);
@@ -318,8 +313,8 @@ public class MpForecastServiceTests
         // Act
         var result = service.SecondsUntilOom(reserveMp: 2400);
 
-        // Assert — regen-only net rate (consumption window too short) → float.MaxValue
-        Assert.Equal(float.MaxValue, result);
+        // Assert — already at reserve with net consumption → 0
+        Assert.Equal(0f, result);
     }
 
     // -------------------------------------------------------------------------
@@ -342,15 +337,12 @@ public class MpForecastServiceTests
     }
 
     [Fact]
-    public void GetTimeUntilMpBelowThreshold_BelowThreshold_WithExpenditure_ReturnsMaxValue()
+    public void GetTimeUntilMpBelowThreshold_BelowThreshold_WithExpenditure_ReturnsZero()
     {
-        // Arrange — MP is already below the threshold and an expenditure has been recorded.
-        // As with SecondsUntilOom, GetMpConsumptionRate() returns 0 because the elapsed
-        // window between RecordMpExpenditure and the query is ~0ms (< 0.1s guard).
-        // netRate = regen rate (positive) → method short-circuits at netRate >= 0.
-        //
-        // The mpToLose <= 0 → 0f branch is only reachable when netRate < 0, which requires
-        // a measurable consumption rate over real elapsed time (integration testing).
+        // Arrange — MP (3000) is already below the threshold (4000) and an expenditure
+        // has been recorded. The consumption rate floor (1s minimum window) ensures a
+        // non-zero rate. With netRate < 0 and mpToLose = 3000 - 4000 = -1000 (already
+        // below threshold), the method returns 0f.
         var service = new MpForecastService();
         service.Update(currentMp: 3000, maxMp: 10000, hasLucidDreaming: false);
         service.RecordMpExpenditure(800);
@@ -358,8 +350,8 @@ public class MpForecastServiceTests
         // Act
         var result = service.GetTimeUntilMpBelowThreshold(thresholdMp: 4000);
 
-        // Assert — regen-only net rate (consumption window too short) → float.MaxValue
-        Assert.Equal(float.MaxValue, result);
+        // Assert — already below threshold with net consumption → 0
+        Assert.Equal(0f, result);
     }
 
     [Fact]

@@ -106,7 +106,7 @@ public abstract class PartyMessage
                 return null;
 
             // Reject messages from incompatible schema versions
-            if (doc.RootElement.TryGetProperty("ver", out var verElement) &&
+            if (!doc.RootElement.TryGetProperty("ver", out var verElement) ||
                 verElement.GetInt32() != CurrentProtocolVersion)
                 return null;
 

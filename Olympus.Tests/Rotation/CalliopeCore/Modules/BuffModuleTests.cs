@@ -298,6 +298,8 @@ public class BuffModuleTests
             actionService: actionService,
             targetingService: targeting);
 
+        _module.TryExecute(context, isMoving: false);
+
         // Should not try to switch songs
         actionService.Verify(x => x.ExecuteOgcd(
             It.Is<ActionDefinition>(a =>

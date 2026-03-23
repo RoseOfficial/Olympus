@@ -110,7 +110,7 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
             totalPendingHeal = (int)(totalPendingHeal * (1f - varianceReduction));
         }
 
-        return (uint)Math.Clamp(baseHp + totalPendingHeal, 0, (int)maxHp);
+        return (uint)Math.Clamp(baseHp + totalPendingHeal, 0L, (long)maxHp);
     }
 
     /// <summary>
@@ -310,7 +310,7 @@ public sealed class HpPredictionService : IHpPredictionService, IDisposable
         var predictedHp = baseHp + pendingHeals + shieldValue - predictedDamage;
 
         // Clamp to valid range
-        return Math.Clamp(predictedHp, 0, (int)maxHp);
+        return (int)Math.Clamp((long)predictedHp, 0L, (long)maxHp);
     }
 
     /// <summary>

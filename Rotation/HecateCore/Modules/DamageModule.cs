@@ -156,7 +156,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         }
 
         // Priority 2: Foul for AoE
-        if (context.PolyglotStacks > 0 && level >= BLMActions.Foul.MinLevel && useAoe)
+        if (context.Configuration.BlackMage.EnableFoul && context.PolyglotStacks > 0 && level >= BLMActions.Foul.MinLevel && useAoe)
         {
             if (context.ActionService.ExecuteGcd(BLMActions.Foul, target.GameObjectId))
             {
@@ -238,7 +238,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         }
 
         // Priority 5: Paradox in Umbral Ice III (instant)
-        if (context.HasParadox && context.InUmbralIce && context.UmbralIceStacks == 3 && level >= BLMActions.Paradox.MinLevel)
+        if (context.Configuration.BlackMage.EnableParadox && context.HasParadox && context.InUmbralIce && context.UmbralIceStacks == 3 && level >= BLMActions.Paradox.MinLevel)
         {
             if (context.ActionService.ExecuteGcd(BLMActions.Paradox, target.GameObjectId))
             {
@@ -434,10 +434,11 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         // Use Polyglot if at max stacks (avoid overcapping)
         if (context.PolyglotStacks >= maxPolyglot)
         {
-            var action = (useAoe && level >= BLMActions.Foul.MinLevel) ? BLMActions.Foul :
-                         (context.Configuration.BlackMage.EnableXenoglossy && level >= BLMActions.Xenoglossy.MinLevel) ? BLMActions.Xenoglossy : BLMActions.Foul;
+            var action = (context.Configuration.BlackMage.EnableFoul && useAoe && level >= BLMActions.Foul.MinLevel) ? BLMActions.Foul :
+                         (context.Configuration.BlackMage.EnableXenoglossy && level >= BLMActions.Xenoglossy.MinLevel) ? BLMActions.Xenoglossy :
+                         (context.Configuration.BlackMage.EnableFoul && level >= BLMActions.Foul.MinLevel) ? BLMActions.Foul : null;
 
-            if (level >= action.MinLevel && context.ActionService.ExecuteGcd(action, target.GameObjectId))
+            if (action != null && level >= action.MinLevel && context.ActionService.ExecuteGcd(action, target.GameObjectId))
             {
                 context.Debug.PlannedAction = action.Name;
                 context.Debug.DamageState = $"{action.Name} (cap avoidance)";
@@ -470,10 +471,11 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         // Use for movement if needed
         if (isMoving && !context.HasInstantCast)
         {
-            var action = (useAoe && level >= BLMActions.Foul.MinLevel) ? BLMActions.Foul :
-                         (context.Configuration.BlackMage.EnableXenoglossy && level >= BLMActions.Xenoglossy.MinLevel) ? BLMActions.Xenoglossy : BLMActions.Foul;
+            var action = (context.Configuration.BlackMage.EnableFoul && useAoe && level >= BLMActions.Foul.MinLevel) ? BLMActions.Foul :
+                         (context.Configuration.BlackMage.EnableXenoglossy && level >= BLMActions.Xenoglossy.MinLevel) ? BLMActions.Xenoglossy :
+                         (context.Configuration.BlackMage.EnableFoul && level >= BLMActions.Foul.MinLevel) ? BLMActions.Foul : null;
 
-            if (level >= action.MinLevel && context.ActionService.ExecuteGcd(action, target.GameObjectId))
+            if (action != null && level >= action.MinLevel && context.ActionService.ExecuteGcd(action, target.GameObjectId))
             {
                 context.Debug.PlannedAction = action.Name;
                 context.Debug.DamageState = $"{action.Name} (movement)";
@@ -518,7 +520,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         }
 
         // Use Paradox to refresh timer if available and timer is low
-        if (context.HasParadox && context.ElementTimer < ElementRefreshThreshold && level >= BLMActions.Paradox.MinLevel)
+        if (context.Configuration.BlackMage.EnableParadox && context.HasParadox && context.ElementTimer < ElementRefreshThreshold && level >= BLMActions.Paradox.MinLevel)
         {
             if (context.ActionService.ExecuteGcd(BLMActions.Paradox, target.GameObjectId))
             {
@@ -908,7 +910,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         }
 
         // Priority 3: Use Paradox if available
-        if (context.HasParadox && level >= BLMActions.Paradox.MinLevel)
+        if (context.Configuration.BlackMage.EnableParadox && context.HasParadox && level >= BLMActions.Paradox.MinLevel)
         {
             if (context.ActionService.ExecuteGcd(BLMActions.Paradox, target.GameObjectId))
             {

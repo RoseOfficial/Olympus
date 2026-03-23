@@ -102,10 +102,10 @@ public sealed class AetherflowTrackingService : IAetherflowTrackingService
             var recastGroup = actionManager->GetRecastGroup(1, aetherflowActionId);
             var recastInfo = actionManager->GetRecastGroupDetail(recastGroup);
 
-            if (recastInfo == null)
+            if (recastInfo == null || !recastInfo->IsActive)
                 return 0f;
 
-            return recastInfo->Total - recastInfo->Elapsed;
+            return Math.Max(0f, recastInfo->Total - recastInfo->Elapsed);
         }
         catch
         {

@@ -299,7 +299,7 @@ public static class ConfigurationPresets
         {
             config.Tank.MitigationThreshold = 0.80f;
             config.Tank.UseRampartOnCooldown = true;
-            config.Tank.SheltronMinGauge = 30;
+            config.Tank.SheltronMinGauge = 70;
         }
 
         // Party Coordination - wider overlap window to avoid stacking
@@ -409,7 +409,7 @@ public static class ConfigurationPresets
         {
             config.Tank.MitigationThreshold = 0.60f;
             config.Tank.UseRampartOnCooldown = false;
-            config.Tank.SheltronMinGauge = 50;
+            config.Tank.SheltronMinGauge = 30;
         }
 
         // Party Coordination - narrower overlap window for more cooldown usage

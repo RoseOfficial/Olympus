@@ -112,8 +112,8 @@ public sealed class MpForecastService : IMpForecastService
         if (totalMp == 0)
             return 0f;
 
-        var windowDuration = (float)(now - oldestTime).TotalSeconds;
-        return windowDuration > 0.1f ? totalMp / windowDuration : 0f;
+        var windowDuration = Math.Max((float)(now - oldestTime).TotalSeconds, 1f);
+        return totalMp / windowDuration;
     }
 
     /// <inheritdoc />
