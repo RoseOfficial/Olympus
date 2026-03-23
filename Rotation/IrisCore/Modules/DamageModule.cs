@@ -328,6 +328,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
 
     private bool TryRainbowDrip(IIrisContext context, IBattleChara target, bool isMoving)
     {
+        if (!context.Configuration.Pictomancer.EnableRainbowDrip)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

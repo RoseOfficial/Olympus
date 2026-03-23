@@ -100,7 +100,7 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
     protected override ActionDefinition? GetAoEDamageAction(IApolloContext context) =>
         WHMActions.GetAoEDamageGcdForLevel(context.Player.Level);
 
-    protected override ActionDefinition GetSingleTargetAction(IApolloContext context,bool isMoving)
+    protected override ActionDefinition GetSingleTargetAction(IApolloContext context, bool isMoving)
     {
         // CNJ doesn't have Stone III+ or Glare+ (WHM-only); cap at StoneII/Stone
         if (context.Player.ClassJob.RowId == JobRegistry.Conjurer)
@@ -112,16 +112,16 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
 
     #region Base Class Overrides - Debug State
 
-    protected override void SetDpsState(IApolloContext context,string state) =>
+    protected override void SetDpsState(IApolloContext context, string state) =>
         context.Debug.DpsState = state;
 
-    protected override void SetAoEDpsState(IApolloContext context,string state) =>
+    protected override void SetAoEDpsState(IApolloContext context, string state) =>
         context.Debug.AoEDpsState = state;
 
-    protected override void SetAoEDpsEnemyCount(IApolloContext context,int count) =>
+    protected override void SetAoEDpsEnemyCount(IApolloContext context, int count) =>
         context.Debug.AoEDpsEnemyCount = count;
 
-    protected override void SetPlannedAction(IApolloContext context,string action) =>
+    protected override void SetPlannedAction(IApolloContext context, string action) =>
         context.Debug.PlannedAction = action;
 
     #endregion
@@ -136,12 +136,12 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
     /// <summary>
     /// All WHM/CNJ DoTs (Aero, Aero II, Dia) are instant cast, so DoT is always allowed while moving.
     /// </summary>
-    protected override bool CanDoT(IApolloContext context,bool isMoving) => true;
+    protected override bool CanDoT(IApolloContext context, bool isMoving) => true;
 
     /// <summary>
     /// Check if action is enabled in WHM config.
     /// </summary>
-    protected override bool IsActionEnabled(IApolloContext context,ActionDefinition action)
+    protected override bool IsActionEnabled(IApolloContext context, ActionDefinition action)
     {
         var config = context.Configuration;
 
@@ -161,7 +161,7 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
     /// WHM special damage: Afflatus Misery (Blood Lily) and Sacred Sight (Glare IV).
     /// These have priority over regular damage rotation.
     /// </summary>
-    protected override bool TrySpecialDamage(IApolloContext context,bool isMoving)
+    protected override bool TrySpecialDamage(IApolloContext context, bool isMoving)
     {
         // Priority 1: Afflatus Misery (1240p AoE, costs 3 Blood Lily)
         if (TryAfflatusMisery(context))

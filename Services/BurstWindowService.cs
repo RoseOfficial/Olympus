@@ -121,7 +121,7 @@ public sealed class BurstWindowService : IBurstWindowService
         if (!_isInBurstWindow && _partyCoordinationService?.IsInBurstWindow() == true)
         {
             _isInBurstWindow = true;
-            _secondsRemainingInBurst = _partyCoordinationService.GetBurstWindowRemaining();
+            _secondsRemainingInBurst = _partyCoordinationService?.GetBurstWindowRemaining() ?? 0f;
         }
 
         // Record when the burst window ends for timer-based cycle prediction

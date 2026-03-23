@@ -745,6 +745,9 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
     /// </summary>
     private bool TryInterrupt(ITerpsichoreContext context, IBattleChara target)
     {
+        if (!context.Configuration.Dancer.EnableHeadGraze)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

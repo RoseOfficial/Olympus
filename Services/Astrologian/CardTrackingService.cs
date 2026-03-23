@@ -15,6 +15,8 @@ namespace Olympus.Services.Astrologian;
 /// </summary>
 public sealed class CardTrackingService : ICardTrackingService
 {
+    private const float FallbackCooldownSeconds = 120f;
+
     private readonly IJobGauges _jobGauges;
 
     public CardTrackingService(IJobGauges jobGauges)
@@ -429,7 +431,7 @@ public sealed class CardTrackingService : ICardTrackingService
         {
             var actionManager = ActionManager.Instance();
             if (actionManager == null)
-                return 120f;
+                return FallbackCooldownSeconds;
 
             var recastGroup = actionManager->GetRecastGroup(1, ASTActions.Divination.ActionId);
             var recastInfo = actionManager->GetRecastGroupDetail(recastGroup);
@@ -441,7 +443,7 @@ public sealed class CardTrackingService : ICardTrackingService
         }
         catch
         {
-            return 120f;
+            return FallbackCooldownSeconds;
         }
     }
 
@@ -454,7 +456,7 @@ public sealed class CardTrackingService : ICardTrackingService
         {
             var actionManager = ActionManager.Instance();
             if (actionManager == null)
-                return 120f;
+                return FallbackCooldownSeconds;
 
             var recastGroup = actionManager->GetRecastGroup(1, ASTActions.Astrodyne.ActionId);
             var recastInfo = actionManager->GetRecastGroupDetail(recastGroup);
@@ -466,7 +468,7 @@ public sealed class CardTrackingService : ICardTrackingService
         }
         catch
         {
-            return 120f;
+            return FallbackCooldownSeconds;
         }
     }
 }
