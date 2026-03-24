@@ -3,19 +3,19 @@
     "Author": "Rose",
     "Name": "Olympus",
     "InternalName": "Olympus",
-    "Punchline": "Intelligent White Mage rotation assistant",
-    "Description": "Apollo: An intelligent White Mage rotation assistant that handles healing, damage, defensive cooldowns, and resource management with full level-sync awareness.",
+    "Punchline": "Intelligent rotation assistant for all combat jobs",
+    "Description": "Olympus: An intelligent rotation assistant supporting all 21 combat jobs with healing, damage, mitigation, burst windows, party coordination, and timeline-aware fight predictions.",
     "ApplicableVersion": "any",
     "CategoryTags": ["jobs"],
     "RepoUrl": "https://github.com/RoseOfficial/Olympus",
-    "AssemblyVersion": "4.11.0",
+    "AssemblyVersion": "4.12.0",
     "DalamudApiLevel": 14,
     "IconUrl": "",
     "ImageUrls": [],
     "IsHide": false,
     "IsTestingExclusive": false,
-    "DownloadLinkInstall": "https://github.com/RoseOfficial/Olympus/releases/download/v4.11.0/Olympus.zip",
-    "DownloadLinkTesting": "https://github.com/RoseOfficial/Olympus/releases/download/v4.11.0/Olympus.zip",
-    "DownloadLinkUpdate": "https://github.com/RoseOfficial/Olympus/releases/download/v4.11.0/Olympus.zip"
+    "DownloadLinkInstall": "https://github.com/RoseOfficial/Olympus/releases/download/v4.12.0/Olympus.zip",
+    "DownloadLinkTesting": "https://github.com/RoseOfficial/Olympus/releases/download/v4.12.0/Olympus.zip",
+    "DownloadLinkUpdate": "https://github.com/RoseOfficial/Olympus/releases/download/v4.12.0/Olympus.zip"
   }
 ]
