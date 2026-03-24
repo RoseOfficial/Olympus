@@ -3,6 +3,139 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.12.0 — 2026-03-24
+
+### New — Post-Fight Coaching
+- After each combat encounter, a coaching summary now appears with callouts across 7 categories (healing, mitigation, cooldown usage, burst alignment, resource management, uptime, and deaths) plus an overall grade
+- A new Pull History tab lets you review past encounters from your current session
+- The summary popup is off by default — enable it in settings under Fight Summary
+
+### New — Draw Helper & Targeting
+- A visual Draw Helper overlay shows AoE targeting zones, positional indicators, and facing guides in real time
+- Smart AoE targeting now picks the position that hits the most enemies instead of always centering on your current target
+- Auto-attack is now detected and used as a combat start signal for more reliable rotation activation
+
+### New — Mechanic Forecast Overlay
+- The in-game overlay now shows upcoming boss mechanics from the fight timeline, so you can see what's coming before it happens
+
+### New — Training Mode Expansion
+- Training Mode lessons and quizzes are now available for all 21 combat jobs (previously only a subset had content)
+
+### Main Window
+- The main window has been redesigned with a compact 2×2 navigation grid and footer links, replacing the old vertical button list
+- The Enable/Disable button is now taller and more prominent
+- The status header is more compact with the rotation label removed
+
+### White Mage
+- Fixed Regen being applied to all party members at high HP instead of only those who actually needed it
+- Presence of Mind is no longer attempted on Conjurer (it's a WHM-only ability)
+- Fixed Lucid Dreaming not activating when MP conditions were met
+
+### Astrologian
+- Fixed The Arrow status ID being tracked incorrectly, which could interfere with card buff detection
+- Neutral Sect and Collective Unconscious can now be used proactively when the fight timeline predicts incoming raidwide damage
+
+### Scholar
+- Expedient can now be used proactively when the fight timeline predicts incoming raidwide damage
+
+### Sage
+- Lucid Dreaming no longer fires if the Lucid Dreaming buff is already active
+
+### Healers (General)
+- Fixed a bug where healing could be blocked entirely when the predicted heal amount exceeded the target's missing HP
+- Heal prediction is now calibrated per job instead of mixing samples across different healers, improving accuracy in synced content
+- Added intermediate heal scaling entries for better prediction accuracy in level-synced duties
+
+### Tanks (All)
+- Party mitigation abilities (Shake It Off, Heart of Light, Divine Veil, Dark Missionary) now fire correctly — a logic error previously caused them to almost never activate
+- Reprisal now correctly targets enemies instead of allies and checks the damage gate properly on all four tanks
+- Burst pooling is now connected to the burst window tracker for all four tanks, improving cooldown alignment during party burst windows
+
+### Dark Knight
+- The Blackest Night now falls back to Rampart when TBN is on cooldown during timeline-predicted tank busters
+
+### Gunbreaker
+- Bloodfest no longer holds indefinitely for No Mercy — it now only waits if No Mercy is coming back within 15 seconds
+
+### Dragoon
+- Battle Litany now fires after 5 seconds if Lance Charge alignment isn't available, instead of holding it indefinitely
+- New settings toggles for Dragonfire Dive, Nastrond, Wyrmwind Thrust, Mirage Dive, Starcross, Rise of the Dragon, Spineshatter Dive, and burst pooling
+
+### Samurai
+- Ikishoten burst-hold now works correctly with the burst window tracker
+- New settings toggle for True North
+
+### Reaper
+- Arcane Circle hold time now respects the configurable hold time setting instead of using a hardcoded value
+- Fixed a logic error in Soul Spender that could prevent Gluttony from being used
+
+### Monk
+- New settings toggle for Thunderclap
+
+### Ninja
+- Ninjutsu toggle in settings now actually controls whether ninjutsu abilities are used
+
+### Viper
+- Reawaken toggle in settings now actually controls whether Reawaken is used
+- New settings section for role action toggles and burst pooling
+
+### Bard
+- Bloodletter now respects its enable toggle and reads the AoE minimum targets setting from config
+
+### Dancer
+- Fan Dance III now respects its enable toggle and reads the AoE minimum targets setting from config
+
+### Warrior
+- AoE damage abilities now read the enable toggle and minimum targets setting from config
+
+### Pictomancer
+- New settings controls for Subtractive Combo, Rainbow Drip, Palette usage, burst pooling, Tempera Coat, and Lucid Dreaming
+
+### Summoner
+- Fester now respects its enable toggle
+- Demi-summon phase tracking fixed to prevent abilities from being used out of sequence
+
+### Machinist
+- Full Metal Field and Excavator now respect their enable toggles
+
+### Red Mage
+- Burst pooling is now connected to the burst window tracker
+
+### Black Mage
+- Burst pooling is now connected to the burst window tracker
+
+### Thaumaturge
+- Fixed a softlock where the rotation could get stuck in Astral Fire III with no way to continue — Transpose is now used as an escape
+
+### Settings
+- Party Coordination is now configurable from the settings UI instead of requiring manual configuration
+- Buff hold times for all DPS and tank jobs now use your configured value instead of a hardcoded 8-second default
+- Settings validation now catches negative values in tank configuration fields
+- Many new localization keys added across all settings sections for full language support
+
+### Fight Timeline
+- Forward label jumps in Cactbot timeline files are now resolved correctly instead of being silently dropped
+- Timeline confidence now properly decays to zero after 2 minutes without a sync point (previously it stayed at 50% indefinitely)
+- Boss mechanic prediction timing is now based on actual frame timing instead of an assumed 16ms, preventing drift on non-60fps systems
+
+### Overlay
+- Party member count in the overlay now updates reliably when members join or leave
+
+### Performance
+- Reduced per-frame memory allocations across combat tracking, party analysis, and damage prediction services
+- Action name lookups are now cached instead of reading the game data sheet every frame
+- Healer rotations now build the party member list once per frame instead of twice
+- Party HP checks throttled to 6 times per second (from every frame) to reduce overhead
+
+### Stability
+- Fixed a crash on plugin load when the Smart AoE service wasn't initialized yet
+- Fixed a crash on plugin unload caused by services being cleaned up twice
+- Fixed several thread-safety issues in combat tracking, action history, party coordination, and boss mechanic detection that could cause intermittent crashes or corrupted data
+- Stale damage-over-time entries are now cleared on zone transition instead of persisting from previous duties
+- Fixed double-counting of raidwide damage in the damage forecast
+- Fixed MP forecast rounding to match the game's discrete server tick behavior
+
+<!-- LATEST-END -->
 ## v4.11.0 — 2026-03-18
 
 ### All DPS Jobs
