@@ -282,6 +282,18 @@ public static class ConfigValidator
             });
         }
 
+        // Heart of Corundum is proactive — same reasoning as TBN.
+        if (tank.HeartOfCorundumThreshold < 0.60f)
+        {
+            issues.Add(new ValidationIssue
+            {
+                Severity = ValidationSeverity.Warning,
+                Category = "Tank",
+                Message = $"Heart of Corundum threshold ({tank.HeartOfCorundumThreshold:P0}) is very low. Heart of Corundum should be applied at high HP to absorb incoming hits.",
+                SuggestedFix = "Set Heart of Corundum threshold to 0.70–0.85 for proactive usage"
+            });
+        }
+
         // Invuln stagger should be >= defensive stagger (invulns are longer cooldowns)
         if (tank.InvulnerabilityStaggerWindowSeconds < tank.DefensiveStaggerWindowSeconds)
         {
@@ -593,39 +605,46 @@ public static class ConfigValidator
             fixes++;
         }
 
-        // Fix DPS gauge min/overcap inversions — reset min to overcap - 10 (floor 50, matching property setter clamp)
+        // Fix DPS gauge min/overcap inversions — clamp the overcap threshold first,
+        // then reset min to overcap - 10 (floor 50, matching property setter clamp)
         if (config.Ninja.NinkiMinGauge > config.Ninja.NinkiOvercapThreshold)
         {
+            config.Ninja.NinkiOvercapThreshold = Math.Max(50, config.Ninja.NinkiOvercapThreshold);
             config.Ninja.NinkiMinGauge = Math.Max(50, config.Ninja.NinkiOvercapThreshold - 10);
             fixes++;
         }
 
         if (config.Samurai.KenkiMinGauge > config.Samurai.KenkiOvercapThreshold)
         {
+            config.Samurai.KenkiOvercapThreshold = Math.Max(50, config.Samurai.KenkiOvercapThreshold);
             config.Samurai.KenkiMinGauge = Math.Max(50, config.Samurai.KenkiOvercapThreshold - 10);
             fixes++;
         }
 
         if (config.Reaper.SoulMinGauge > config.Reaper.SoulOvercapThreshold)
         {
+            config.Reaper.SoulOvercapThreshold = Math.Max(50, config.Reaper.SoulOvercapThreshold);
             config.Reaper.SoulMinGauge = Math.Max(50, config.Reaper.SoulOvercapThreshold - 10);
             fixes++;
         }
 
         if (config.Machinist.HeatMinGauge > config.Machinist.HeatOvercapThreshold)
         {
+            config.Machinist.HeatOvercapThreshold = Math.Max(50, config.Machinist.HeatOvercapThreshold);
             config.Machinist.HeatMinGauge = Math.Max(50, config.Machinist.HeatOvercapThreshold - 10);
             fixes++;
         }
 
         if (config.Machinist.BatteryMinGauge > config.Machinist.BatteryOvercapThreshold)
         {
+            config.Machinist.BatteryOvercapThreshold = Math.Max(50, config.Machinist.BatteryOvercapThreshold);
             config.Machinist.BatteryMinGauge = Math.Max(50, config.Machinist.BatteryOvercapThreshold - 10);
             fixes++;
         }
 
         if (config.Dancer.SaberDanceMinGauge > config.Dancer.EspritOvercapThreshold)
         {
+            config.Dancer.EspritOvercapThreshold = Math.Max(50, config.Dancer.EspritOvercapThreshold);
             config.Dancer.SaberDanceMinGauge = Math.Max(50, config.Dancer.EspritOvercapThreshold - 10);
             fixes++;
         }
@@ -633,6 +652,7 @@ public static class ConfigValidator
         // FanDanceMinFeathers ranges 1–4 (not 0–100) — subtract 1, not 10; floor at 1 not 0
         if (config.Dancer.FanDanceMinFeathers > config.Dancer.FeatherOvercapThreshold)
         {
+            config.Dancer.FeatherOvercapThreshold = Math.Max(1, config.Dancer.FeatherOvercapThreshold);
             config.Dancer.FanDanceMinFeathers = Math.Max(1, config.Dancer.FeatherOvercapThreshold - 1);
             fixes++;
         }

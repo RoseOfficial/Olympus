@@ -21,7 +21,7 @@ public sealed class PartyCoordinationSection
 
     public void Draw()
     {
-        ImGui.TextColored(new Vector4(0.4f, 0.8f, 0.9f, 1.0f), "Party Coordination Settings");
+        ImGui.TextColored(new Vector4(0.4f, 0.8f, 0.9f, 1.0f), Loc.T(LocalizedStrings.PartyCoordination.SectionTitle, "Party Coordination Settings"));
         ImGui.Separator();
 
         ConfigUIHelpers.Toggle(

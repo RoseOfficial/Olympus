@@ -60,6 +60,8 @@ public sealed class OverlayWindow : Window
 
     public override void Draw()
     {
+        ImGui.Dummy(new Vector2(200, 0));
+
         var rotation = _rotationManager.ActiveRotation;
 
         DrawHeader(rotation);

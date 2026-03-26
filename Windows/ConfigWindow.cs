@@ -137,7 +137,6 @@ public sealed class ConfigWindow : Window
     {
         // Search box with icon hint
         ImGui.PushItemWidth(ImGui.GetContentRegionAvail().X - 30);
-        var previousQuery = this.searchQuery;
         if (ImGui.InputTextWithHint("##ConfigSearch",
             Loc.T(LocalizedStrings.Config.SearchPlaceholder, "Search settings..."),
             ref this.searchQuery, 256))
@@ -487,8 +486,20 @@ public sealed class ConfigWindow : Window
 
     private void ExportToClipboard()
     {
+        var exportCopy = System.Text.Json.JsonSerializer.Deserialize<Configuration>(
+            System.Text.Json.JsonSerializer.Serialize(configuration));
+        if (exportCopy != null)
+        {
+            exportCopy.HasSeenWelcome = false;
+            exportCopy.MainWindowVisible = true;
+            exportCopy.IsDebugWindowOpen = false;
+            exportCopy.Calibration = new CalibrationConfig();
+            exportCopy.Debug = new DebugConfig();
+            exportCopy.TelemetryEndpoint = string.Empty;
+        }
+
         var json = System.Text.Json.JsonSerializer.Serialize(
-            configuration,
+            exportCopy ?? configuration,
             new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
         ImGui.SetClipboardText(json);
         _clipboardStatusMessage = Loc.T(LocalizedStrings.Config.ExportSuccess, "Copied to clipboard!");

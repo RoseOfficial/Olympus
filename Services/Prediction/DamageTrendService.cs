@@ -42,6 +42,7 @@ public sealed class DamageTrendService : IDamageTrendService
 
     // Spike history per entity (circular buffer style)
     private readonly Dictionary<uint, List<SpikeEvent>> _spikeHistory = new();
+    private readonly object _spikeLock = new();
 
     // Timer for spike timestamps (seconds since service started)
     private float _currentTime = 0f;
@@ -74,18 +75,24 @@ public sealed class DamageTrendService : IDamageTrendService
     {
         _currentTime += deltaSeconds;
 
-        // Cache party IDs and auto-detect spikes in one pass
-        _cachedPartyEntityIds.Clear();
-        foreach (var entityId in partyEntityIds)
+        lock (_spikeLock)
         {
-            _cachedPartyEntityIds.Add(entityId);
-            DetectAndRecordSpike(entityId);
+            // Cache party IDs and auto-detect spikes in one pass
+            _cachedPartyEntityIds.Clear();
+            foreach (var entityId in partyEntityIds)
+            {
+                _cachedPartyEntityIds.Add(entityId);
+                DetectAndRecordSpike(entityId);
+            }
         }
 
         // Track sustained high-damage phases
         UpdateHighDamagePhaseTracking();
 
-        CleanupOldSpikes();
+        lock (_spikeLock)
+        {
+            CleanupOldSpikes();
+        }
     }
 
     /// <summary>
@@ -144,7 +151,7 @@ public sealed class DamageTrendService : IDamageTrendService
 
         if (isSpike)
         {
-            RecordSpikeEvent(entityId, (int)currentRate);
+            RecordSpikeEventInternal(entityId, (int)currentRate);
             _lastSpikeTimes[entityId] = _currentTime;
         }
     }
@@ -152,9 +159,11 @@ public sealed class DamageTrendService : IDamageTrendService
     /// <inheritdoc />
     public DamageTrend GetPartyDamageTrend(float windowSeconds = 10f)
     {
-        // Use party damage rate from underlying service
-        var currentRate = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, windowSeconds / 2);
-        var previousRate = GetPreviousPeriodPartyRate(windowSeconds);
+        List<uint> partyIds;
+        lock (_spikeLock) { partyIds = new List<uint>(_cachedPartyEntityIds); }
+
+        var currentRate = _damageIntakeService.GetPartyMemberDamageRate(partyIds, windowSeconds / 2);
+        var previousRate = GetPreviousPeriodPartyRate(partyIds, windowSeconds);
 
         return ClassifyTrend(currentRate, previousRate);
     }
@@ -173,6 +182,9 @@ public sealed class DamageTrendService : IDamageTrendService
     /// <inheritdoc />
     public bool IsDamageSpikeImminent(float confidenceThreshold = 0.8f)
     {
+        List<uint> partyIds;
+        lock (_spikeLock) { partyIds = new List<uint>(_cachedPartyEntityIds); }
+
         // Check party-wide damage trend
         var partyTrend = GetPartyDamageTrend(5f);
 
@@ -191,8 +203,8 @@ public sealed class DamageTrendService : IDamageTrendService
         if (partyTrend == DamageTrend.Increasing)
         {
             // Check if the increase is significant enough
-            var currentRate = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, 2.5f);
-            var previousRate = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, 5f);
+            var currentRate = _damageIntakeService.GetPartyMemberDamageRate(partyIds, 2.5f);
+            var previousRate = _damageIntakeService.GetPartyMemberDamageRate(partyIds, 5f);
 
             if (previousRate > MinDamageRateForTrend)
             {
@@ -255,7 +267,9 @@ public sealed class DamageTrendService : IDamageTrendService
         var severity = baseSeverity * hpMultiplier;
 
         // Also factor in raw damage rate for additional context
-        var currentRate = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, 3f);
+        List<uint> partyIds;
+        lock (_spikeLock) { partyIds = new List<uint>(_cachedPartyEntityIds); }
+        var currentRate = _damageIntakeService.GetPartyMemberDamageRate(partyIds, 3f);
         if (currentRate > 5000f)  // Very high damage intake
         {
             severity += 0.2f;
@@ -291,14 +305,14 @@ public sealed class DamageTrendService : IDamageTrendService
     /// <summary>
     /// Gets the party damage rate from the previous period.
     /// </summary>
-    private float GetPreviousPeriodPartyRate(float totalWindowSeconds)
+    private float GetPreviousPeriodPartyRate(List<uint> partyIds, float totalWindowSeconds)
     {
         // Full window rate
-        var fullRate = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, totalWindowSeconds);
+        var fullRate = _damageIntakeService.GetPartyMemberDamageRate(partyIds, totalWindowSeconds);
 
         // Recent half rate
         var halfWindow = totalWindowSeconds / 2;
-        var recentRate = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, halfWindow);
+        var recentRate = _damageIntakeService.GetPartyMemberDamageRate(partyIds, halfWindow);
 
         // Previous period = (fullRate * totalWindow - recentRate * halfWindow) / halfWindow
         var fullDamage = fullRate * totalWindowSeconds;
@@ -342,6 +356,14 @@ public sealed class DamageTrendService : IDamageTrendService
     /// <inheritdoc />
     public void RecordSpikeEvent(uint entityId, int damageAmount)
     {
+        lock (_spikeLock)
+        {
+            RecordSpikeEventInternal(entityId, damageAmount);
+        }
+    }
+
+    private void RecordSpikeEventInternal(uint entityId, int damageAmount)
+    {
         if (!_spikeHistory.TryGetValue(entityId, out var history))
         {
             history = new List<SpikeEvent>(MaxSpikeHistoryPerEntity);
@@ -361,17 +383,19 @@ public sealed class DamageTrendService : IDamageTrendService
     /// <inheritdoc />
     public (float secondsUntilSpike, float confidence) PredictNextSpike(uint entityId)
     {
-        if (!_spikeHistory.TryGetValue(entityId, out var history) || history.Count < 3)
+        List<SpikeEvent> historySnapshot;
+        lock (_spikeLock)
         {
-            // Need at least 3 spikes to detect a pattern
-            return (float.MaxValue, 0f);
+            if (!_spikeHistory.TryGetValue(entityId, out var history) || history.Count < 3)
+                return (float.MaxValue, 0f);
+            historySnapshot = new List<SpikeEvent>(history);
         }
 
         // Calculate intervals between consecutive spikes
         var intervals = new List<float>();
-        for (int i = 1; i < history.Count; i++)
+        for (int i = 1; i < historySnapshot.Count; i++)
         {
-            var interval = history[i].Timestamp - history[i - 1].Timestamp;
+            var interval = historySnapshot[i].Timestamp - historySnapshot[i - 1].Timestamp;
             if (interval >= MinPatternIntervalSeconds && interval <= MaxPatternIntervalSeconds)
             {
                 intervals.Add(interval);
@@ -401,7 +425,7 @@ public sealed class DamageTrendService : IDamageTrendService
         }
 
         // Predict next spike based on last spike time + pattern interval
-        var lastSpikeTime = history[^1].Timestamp;
+        var lastSpikeTime = historySnapshot[^1].Timestamp;
         var predictedNextSpike = lastSpikeTime + patternInterval;
         var secondsUntilSpike = predictedNextSpike - _currentTime;
 
@@ -507,8 +531,11 @@ public sealed class DamageTrendService : IDamageTrendService
     /// <inheritdoc />
     public bool IsInHighDamagePhase(float thresholdDps = 800f, float durationSeconds = 3f)
     {
+        List<uint> partyIds;
+        lock (_spikeLock) { partyIds = new List<uint>(_cachedPartyEntityIds); }
+
         // Check if currently above threshold
-        var currentPartyDps = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, 1.5f);
+        var currentPartyDps = _damageIntakeService.GetPartyMemberDamageRate(partyIds, 1.5f);
         if (currentPartyDps < thresholdDps)
             return false;
 
@@ -524,15 +551,18 @@ public sealed class DamageTrendService : IDamageTrendService
         }
 
         // Custom threshold - check damage over the duration window
-        var avgDpsOverDuration = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, durationSeconds);
+        var avgDpsOverDuration = _damageIntakeService.GetPartyMemberDamageRate(partyIds, durationSeconds);
         return avgDpsOverDuration >= thresholdDps;
     }
 
     /// <inheritdoc />
     public float GetHighDamagePhaseDuration(float thresholdDps = 800f)
     {
+        List<uint> partyIds;
+        lock (_spikeLock) { partyIds = new List<uint>(_cachedPartyEntityIds); }
+
         // Check if currently above threshold
-        var currentPartyDps = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, 1.5f);
+        var currentPartyDps = _damageIntakeService.GetPartyMemberDamageRate(partyIds, 1.5f);
         if (currentPartyDps < thresholdDps)
             return 0f;
 
@@ -549,7 +579,7 @@ public sealed class DamageTrendService : IDamageTrendService
 
         foreach (var window in windows)
         {
-            var avgDps = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, window);
+            var avgDps = _damageIntakeService.GetPartyMemberDamageRate(partyIds, window);
             if (avgDps >= thresholdDps)
             {
                 lastValidDuration = window;

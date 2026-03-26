@@ -145,7 +145,8 @@ public sealed class DamageModule : INyxModule
         var level = player.Level;
 
         // Dark Arts grants a free Edge/Flood of Shadow
-        var action = enemyCount >= 3 ? DRKActions.GetFloodAction(level) : DRKActions.GetEdgeAction(level);
+        var action = context.Configuration.Tank.EnableAoEDamage && enemyCount >= context.Configuration.Tank.AoEMinTargets
+            ? DRKActions.GetFloodAction(level) : DRKActions.GetEdgeAction(level);
 
         if (!context.ActionService.IsActionReady(action.ActionId))
             return false;
@@ -306,7 +307,8 @@ public sealed class DamageModule : INyxModule
             return false;
         }
 
-        var action = enemyCount >= 3 ? DRKActions.GetFloodAction(level) : DRKActions.GetEdgeAction(level);
+        var action = context.Configuration.Tank.EnableAoEDamage && enemyCount >= context.Configuration.Tank.AoEMinTargets
+            ? DRKActions.GetFloodAction(level) : DRKActions.GetEdgeAction(level);
 
         // Priority 1: Darkside about to expire (< 10s)
         if (context.HasDarkside && context.DarksideRemaining < 10f && context.DarksideRemaining > 0f)
@@ -673,7 +675,8 @@ public sealed class DamageModule : INyxModule
             return false;
 
         // Choose between Bloodspiller (ST) and Quietus (AoE)
-        if (enemyCount >= 3 && level >= DRKActions.Quietus.MinLevel)
+        if (context.Configuration.Tank.EnableAoEDamage &&
+            enemyCount >= context.Configuration.Tank.AoEMinTargets && level >= DRKActions.Quietus.MinLevel)
         {
             if (context.ActionService.IsActionReady(DRKActions.Quietus.ActionId))
             {
@@ -760,7 +763,8 @@ public sealed class DamageModule : INyxModule
         var level = player.Level;
 
         // AoE combo (3+ enemies)
-        if (enemyCount >= 3 && level >= DRKActions.Unleash.MinLevel)
+        if (context.Configuration.Tank.EnableAoEDamage &&
+            enemyCount >= context.Configuration.Tank.AoEMinTargets && level >= DRKActions.Unleash.MinLevel)
         {
             return TryAoECombo(context, targetId);
         }

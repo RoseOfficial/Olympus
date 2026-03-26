@@ -425,6 +425,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IEchidnaContext>, IEchidn
 
     private bool TryReawakenGcd(IEchidnaContext context, IBattleChara target)
     {
+        if (!context.Configuration.Viper.EnableGenerationAbilities)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -719,6 +722,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IEchidnaContext>, IEchidn
 
     private bool TryUncoiledFury(IEchidnaContext context, IBattleChara target, bool isMoving)
     {
+        if (!context.Configuration.Viper.EnableUncoiledFury)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

@@ -3313,6 +3313,7 @@ public static class LocalizedStrings
     /// <summary>Keys for Party Coordination settings.</summary>
     public static class PartyCoordination
     {
+        public const string SectionTitle = "config.party_coord.section_title";
         public const string EnablePartyCoordination = "config.party_coord.enable";
         public const string EnablePartyCoordinationDesc = "config.party_coord.enable_desc";
         public const string CoordinationSection = "config.party_coord.coordination_section";

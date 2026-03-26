@@ -37,12 +37,13 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
 
     // Real-time metrics accumulators
     private long totalDamageDealt;
-    private volatile int deathCount;
-    private volatile int nearDeathCount;
+    private int deathCount;
+    private int nearDeathCount;
 
     // HP tracking for near-death detection
     private readonly Dictionary<uint, float> lastHpPercent = new();
     private readonly Dictionary<uint, string> _actionNameCache = new();
+    private readonly object _dataLock = new();
 
     // Frame throttle for party HP checks
     private int _hpCheckFrameCounter = 0;
@@ -176,10 +177,13 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
 
         // Reset accumulators
         System.Threading.Interlocked.Exchange(ref totalDamageDealt, 0);
-        deathCount = 0;
-        nearDeathCount = 0;
-        lastHpPercent.Clear();
-        cooldownStates.Clear();
+        System.Threading.Interlocked.Exchange(ref deathCount, 0);
+        System.Threading.Interlocked.Exchange(ref nearDeathCount, 0);
+        lock (_dataLock)
+        {
+            lastHpPercent.Clear();
+            cooldownStates.Clear();
+        }
         unableToActWindows.Clear();
         unableToActStart = null;
         wasUnableToActLastFrame = false;
@@ -270,22 +274,25 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
             var entityId = character.EntityId;
             var hpPercent = character.MaxHp > 0 ? (float)character.CurrentHp / character.MaxHp : 1f;
 
-            // Check for death
-            if (hpPercent <= 0 && lastHpPercent.TryGetValue(entityId, out var lastHp) && lastHp > 0)
+            lock (_dataLock)
             {
-                deathCount++;
-                OnDeath?.Invoke(entityId);
-            }
-            // Check for near-death (crossed threshold from above)
-            else if (hpPercent <= config.NearDeathThreshold &&
-                     lastHpPercent.TryGetValue(entityId, out lastHp) &&
-                     lastHp > config.NearDeathThreshold)
-            {
-                nearDeathCount++;
-                OnNearDeath?.Invoke(entityId, hpPercent);
-            }
+                // Check for death
+                if (hpPercent <= 0 && lastHpPercent.TryGetValue(entityId, out var lastHp) && lastHp > 0)
+                {
+                    System.Threading.Interlocked.Increment(ref deathCount);
+                    OnDeath?.Invoke(entityId);
+                }
+                // Check for near-death (crossed threshold from above)
+                else if (hpPercent <= config.NearDeathThreshold &&
+                         lastHpPercent.TryGetValue(entityId, out lastHp) &&
+                         lastHp > config.NearDeathThreshold)
+                {
+                    System.Threading.Interlocked.Increment(ref nearDeathCount);
+                    OnNearDeath?.Invoke(entityId, hpPercent);
+                }
 
-            lastHpPercent[entityId] = hpPercent;
+                lastHpPercent[entityId] = hpPercent;
+            }
         }
     }
 
@@ -362,6 +369,12 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         }
 
         // Build metrics snapshot
+        List<CooldownUsage> cooldowns;
+        lock (_dataLock)
+        {
+            cooldowns = BuildCooldownUsage(duration);
+        }
+
         var metrics = new CombatMetricsSnapshot
         {
             CombatDuration = duration,
@@ -372,7 +385,7 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
             OverhealPercent = overhealStats.OverhealPercent,
             Deaths = deathCount,
             NearDeaths = nearDeathCount,
-            Cooldowns = BuildCooldownUsage(duration),
+            Cooldowns = cooldowns,
             Timestamp = endTime,
             DowntimeAnalysis = downtimeBreakdown
         };
@@ -567,6 +580,12 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
             downtimeBreakdown = actionTracker.GetDowntimeBreakdown();
         }
 
+        List<CooldownUsage> cooldowns;
+        lock (_dataLock)
+        {
+            cooldowns = BuildCooldownUsage(duration);
+        }
+
         return new CombatMetricsSnapshot
         {
             CombatDuration = duration,
@@ -577,7 +596,7 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
             OverhealPercent = overhealStats.OverhealPercent,
             Deaths = deathCount,
             NearDeaths = nearDeathCount,
-            Cooldowns = BuildCooldownUsage(duration),
+            Cooldowns = cooldowns,
             Timestamp = DateTime.Now,
             DowntimeAnalysis = downtimeBreakdown
         };
@@ -652,6 +671,8 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         var fightTime = CombatDuration;
         var phase = DeterminePhase(fightTime);
 
+        lock (_dataLock)
+        {
         if (!cooldownStates.TryGetValue(actionId, out var state))
         {
             state = new CooldownTrackingState();
@@ -700,6 +721,7 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
 
         log.Debug("PerformanceTracker: Recorded {ActionId} use at {FightTime:F1}s, drift: {Drift:F1}s, phase: {Phase}",
             actionId, fightTime, drift, phase);
+        }
     }
 
     public void OnCooldownBecameReady(uint actionId)
@@ -707,13 +729,16 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
         if (!IsTracking || !config.TrackedCooldowns.ContainsKey(actionId))
             return;
 
-        if (!cooldownStates.TryGetValue(actionId, out var state))
+        lock (_dataLock)
         {
-            state = new CooldownTrackingState();
-            cooldownStates[actionId] = state;
-        }
+            if (!cooldownStates.TryGetValue(actionId, out var state))
+            {
+                state = new CooldownTrackingState();
+                cooldownStates[actionId] = state;
+            }
 
-        state.BecameAvailableAt = DateTime.Now;
+            state.BecameAvailableAt = DateTime.Now;
+        }
     }
 
     public IReadOnlyList<CooldownAnalysis> GetCooldownAnalysis()
@@ -723,7 +748,10 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
             return Array.Empty<CooldownAnalysis>();
 
         // Build enhanced analysis from the last session's cooldown data
-        return BuildCooldownAnalysisList(lastSession.Duration);
+        lock (_dataLock)
+        {
+            return BuildCooldownAnalysisList(lastSession.Duration);
+        }
     }
 
     private CooldownPhase DeterminePhase(float fightTimeSeconds)

@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Threading;
 using Dalamud.Plugin.Services;
 using Olympus.Models;
 using Olympus.Services.Analytics;
@@ -20,7 +22,7 @@ public sealed class ActionTracker : IActionTracker
 
     private readonly LinkedList<ActionAttempt> history = new();
     private readonly object historyLock = new();
-    private readonly Dictionary<uint, string> _actionNameCache = new();
+    private readonly ConcurrentDictionary<uint, string> _actionNameCache = new();
     private IReadOnlyList<ActionAttempt>? cachedHistory;
     private int cachedVersion;
     private int historyVersion;
@@ -42,7 +44,8 @@ public sealed class ActionTracker : IActionTracker
     public string LastDowntimeReason { get; private set; } = "";
     public DateTime LastDowntimeTime { get; private set; }
     private bool wasOnGcdLastFrame = true;
-    public int DowntimeEventCount { get; private set; }
+    private int _downtimeEventCount;
+    public int DowntimeEventCount => _downtimeEventCount;
 
     // Downtime categorization tracking
     private float movementDowntimeSeconds;
@@ -193,13 +196,6 @@ public sealed class ActionTracker : IActionTracker
         Vector3 playerPosition,
         bool inMechanicWindow)
     {
-        // Store debug info
-        DebugGcdRemaining = gcdRemaining;
-        DebugIsCasting = isCasting;
-        DebugHasAnimLock = hasAnimLock;
-        DebugGcdReady = gcdReady;
-        DebugIsActive = isActive;
-
         // Calculate frame delta time
         var now = DateTime.Now;
         var deltaTime = lastFrameTime != default
@@ -213,7 +209,7 @@ public sealed class ActionTracker : IActionTracker
         // Capture the moment downtime starts (transition from on-GCD to ready)
         if (gcdReady && wasOnGcdLastFrame)
         {
-            DowntimeEventCount++;
+            Interlocked.Increment(ref _downtimeEventCount);
             LastDowntimeTime = now;
             LastDowntimeReason = $"GCD:{gcdRemaining:F2}s Cast:{isCasting} Anim:{hasAnimLock} Active:{isActive}";
         }
@@ -223,6 +219,13 @@ public sealed class ActionTracker : IActionTracker
         var isIncapacitated = !playerAlive;
         lock (historyLock)
         {
+            // Store debug info inside lock to ensure consistent reads
+            DebugGcdRemaining = gcdRemaining;
+            DebugIsCasting = isCasting;
+            DebugHasAnimLock = hasAnimLock;
+            DebugGcdReady = gcdReady;
+            DebugIsActive = isActive;
+
             if (combatStartTime != null)
             {
                 if (isIncapacitated && !wasIncapacitatedLastFrame)
@@ -515,7 +518,7 @@ public sealed class ActionTracker : IActionTracker
             combatStartTime = null;
             totalGcdTimeSeconds = 0f;
             lastCombatGcdUptime = 0f;
-            DowntimeEventCount = 0;
+            Interlocked.Exchange(ref _downtimeEventCount, 0);
 
             // Reset downtime categorization
             movementDowntimeSeconds = 0f;
@@ -569,23 +572,18 @@ public sealed class ActionTracker : IActionTracker
     /// </summary>
     private string GetActionName(uint actionId)
     {
-        if (_actionNameCache.TryGetValue(actionId, out var cached)) return cached;
-
-        var actionSheet = dataManager.GetExcelSheet<LuminaAction>();
-        if (actionSheet == null)
-            return $"Action {actionId}";
-
-        var row = actionSheet.GetRowOrDefault(actionId);
-        if (!row.HasValue)
+        return _actionNameCache.GetOrAdd(actionId, id =>
         {
-            var fallback = $"Action {actionId}";
-            _actionNameCache[actionId] = fallback;
-            return fallback;
-        }
+            var actionSheet = dataManager.GetExcelSheet<LuminaAction>();
+            if (actionSheet == null)
+                return $"Action {id}";
 
-        var name = row.Value.Name.ToString();
-        name = string.IsNullOrEmpty(name) ? $"Action {actionId}" : name;
-        _actionNameCache[actionId] = name;
-        return name;
+            var row = actionSheet.GetRowOrDefault(id);
+            if (!row.HasValue)
+                return $"Action {id}";
+
+            var name = row.Value.Name.ToString();
+            return string.IsNullOrEmpty(name) ? $"Action {id}" : name;
+        });
     }
 }

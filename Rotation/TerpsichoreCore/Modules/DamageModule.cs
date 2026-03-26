@@ -323,6 +323,9 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
 
     private bool TryDanceOfTheDawn(ITerpsichoreContext context, IBattleChara target)
     {
+        if (!context.Configuration.Dancer.EnableSaberDance)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

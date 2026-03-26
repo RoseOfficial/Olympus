@@ -139,6 +139,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IThanatosContext>, IThana
 
     private bool TrySacrificium(IThanatosContext context, IBattleChara target)
     {
+        if (!context.Configuration.Reaper.EnableEnshroud)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -468,6 +471,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IThanatosContext>, IThana
 
     private bool TryEnshroudGcd(IThanatosContext context, IBattleChara target, int enemyCount)
     {
+        if (!context.Configuration.Reaper.EnableEnshroud)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

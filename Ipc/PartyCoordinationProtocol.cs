@@ -60,6 +60,9 @@ public abstract class PartyMessage
     /// <summary>Current protocol version. Increment when the message schema changes incompatibly.</summary>
     public const int CurrentProtocolVersion = 1;
 
+    /// <summary>Optional callback invoked when FromJson rejects a message due to version mismatch.</summary>
+    public static Action<int, int>? OnVersionMismatch;
+
     /// <summary>Unique identifier for this Olympus instance (stable across frames).</summary>
     [JsonPropertyName("id")]
     public Guid InstanceId { get; set; }
@@ -108,7 +111,11 @@ public abstract class PartyMessage
             // Reject messages from incompatible schema versions
             if (!doc.RootElement.TryGetProperty("ver", out var verElement) ||
                 verElement.GetInt32() != CurrentProtocolVersion)
+            {
+                var remoteVersion = doc.RootElement.TryGetProperty("ver", out var v) ? v.GetInt32() : -1;
+                OnVersionMismatch?.Invoke(remoteVersion, CurrentProtocolVersion);
                 return null;
+            }
 
             var type = (PartyMessageType)typeElement.GetInt32();
             return type switch

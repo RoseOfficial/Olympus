@@ -104,6 +104,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
 
     private bool TryDemiSummonGcd(IPersephoneContext context, IBattleChara target, bool useAoe)
     {
+        if (context.IsBahamutActive && !context.Configuration.Summoner.EnableBahamut)
+            return false;
+        if (context.IsPhoenixActive && !context.Configuration.Summoner.EnablePhoenix)
+            return false;
+        if (context.IsSolarBahamutActive && !context.Configuration.Summoner.EnableSolarBahamut)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -238,6 +245,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
 
     private bool TryPrimalFavor(IPersephoneContext context, IBattleChara target, bool isMoving)
     {
+        if (!context.Configuration.Summoner.EnablePrimalAbilities)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

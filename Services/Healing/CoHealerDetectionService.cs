@@ -211,12 +211,14 @@ public sealed class CoHealerDetectionService : ICoHealerDetectionService, IDispo
 
     private void OnHealReceived(uint healerEntityId, uint targetEntityId, int amount)
     {
-        // Read co-healer entity ID under lock to avoid tearing from concurrent Update() writes
+        // Read co-healer entity ID under lock to avoid tearing from concurrent Update() writes.
+        // Use the locked value for the subsequent check instead of HasCoHealer (which re-reads
+        // _coHealerEntityId outside the lock, creating a TOCTOU race).
         uint? localCoHealerId;
         lock (_healLock) { localCoHealerId = _coHealerEntityId; }
 
-        // Only track heals from the co-healer
-        if (!HasCoHealer || healerEntityId != localCoHealerId)
+        var hasCoHealer = localCoHealerId.HasValue || _partyCoordination?.HasRemoteHealers == true;
+        if (!hasCoHealer || healerEntityId != localCoHealerId)
             return;
 
         var now = DateTime.UtcNow;

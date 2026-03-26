@@ -150,24 +150,33 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination)
             return true;
 
-        // Check if already reserved by remote
-        if (IsTargetReservedByOther(entityId))
-            return false;
-
         var now = DateTime.UtcNow;
 
-        // Create local reservation
-        var reservation = new HealReservation
+        lock (_stateLock)
         {
-            InstanceId = _instanceId,
-            TargetEntityId = entityId,
-            EstimatedHealAmount = healAmount,
-            ActionId = actionId,
-            ReservedAt = now,
-            ExpectedLandingTime = now.AddMilliseconds(castTimeMs)
-        };
+            // Check remote reservations atomically with the local write
+            if (_remoteReservations.TryGetValue(entityId, out var existing))
+            {
+                var elapsed = (_clock() - existing.ReservedAt).TotalMilliseconds;
+                if (elapsed < _config.HealReservationExpiryMs)
+                    return false;
 
-        _localReservations[entityId] = reservation;
+                _remoteReservations.Remove(entityId);
+            }
+
+            // Create local reservation
+            var reservation = new HealReservation
+            {
+                InstanceId = _instanceId,
+                TargetEntityId = entityId,
+                EstimatedHealAmount = healAmount,
+                ActionId = actionId,
+                ReservedAt = now,
+                ExpectedLandingTime = now.AddMilliseconds(castTimeMs)
+            };
+
+            _localReservations[entityId] = reservation;
+        }
 
         // Only broadcast if heal amount meets threshold
         if (healAmount >= _config.MinHealAmountToBroadcast)
@@ -1518,11 +1527,14 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         // Local reservation collections — most are framework-thread only, but
         // _localRaiseReservations is also read by HandleRemoteRaiseIntent on IPC thread
         // (under _stateLock), so protect it with _stateLock here as well.
+        // Clear cleanse and interrupt reservations under the same lock for consistency.
         _localReservations.Clear();
         lock (_stateLock)
+        {
             _localRaiseReservations.Clear();
-        _localCleanseReservations.Clear();
-        _localInterruptReservations.Clear();
+            _localCleanseReservations.Clear();
+            _localInterruptReservations.Clear();
+        }
         _localTankSwapReservations.Clear();
 
         if (_config.LogCoordinationEvents)

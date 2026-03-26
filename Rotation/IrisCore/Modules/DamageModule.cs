@@ -400,6 +400,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
 
     private bool TryHammerCombo(IIrisContext context, IBattleChara target)
     {
+        if (!context.Configuration.Pictomancer.EnableWeaponMotif)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -578,6 +581,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
 
     private bool TrySubtractiveCombo(IIrisContext context, IBattleChara target)
     {
+        if (!context.Configuration.Pictomancer.EnableSubtractiveCombo)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

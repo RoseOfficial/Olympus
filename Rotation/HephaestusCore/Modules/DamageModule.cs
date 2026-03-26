@@ -758,7 +758,8 @@ public sealed class DamageModule : IHephaestusModule
             return false;
 
         // Choose AoE or ST
-        if (enemyCount >= 3 && level >= GNBActions.FatedCircle.MinLevel)
+        if (context.Configuration.Tank.EnableAoEDamage &&
+            enemyCount >= context.Configuration.Tank.AoEMinTargets && level >= GNBActions.FatedCircle.MinLevel)
         {
             if (context.ActionService.IsActionReady(GNBActions.FatedCircle.ActionId))
             {
@@ -846,7 +847,8 @@ public sealed class DamageModule : IHephaestusModule
         var level = player.Level;
 
         // AoE combo (3+ enemies)
-        if (enemyCount >= 3 && level >= GNBActions.DemonSlice.MinLevel)
+        if (context.Configuration.Tank.EnableAoEDamage &&
+            enemyCount >= context.Configuration.Tank.AoEMinTargets && level >= GNBActions.DemonSlice.MinLevel)
         {
             return TryAoECombo(context, targetId);
         }

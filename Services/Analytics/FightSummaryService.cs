@@ -19,10 +19,14 @@ public sealed class FightSummaryService : IFightSummaryService, IDisposable
     private readonly Configuration _configuration;
 
     private readonly List<FightSummaryRecord> _recentSummaries = new();
+    private readonly object _summaryLock = new();
 
     public event Action<FightSummaryRecord>? OnSummaryReady;
 
-    public IReadOnlyList<FightSummaryRecord> RecentSummaries => _recentSummaries;
+    public IReadOnlyList<FightSummaryRecord> RecentSummaries
+    {
+        get { lock (_summaryLock) { return _recentSummaries.ToList(); } }
+    }
 
     public FightSummaryService(
         IPerformanceTracker performanceTracker,
@@ -89,11 +93,14 @@ public sealed class FightSummaryService : IFightSummaryService, IDisposable
             Callouts = callouts,
         };
 
-        _recentSummaries.Insert(0, record);
+        lock (_summaryLock)
+        {
+            _recentSummaries.Insert(0, record);
 
-        var max = _configuration.Analytics.MaxStoredSummaries;
-        while (_recentSummaries.Count > max)
-            _recentSummaries.RemoveAt(_recentSummaries.Count - 1);
+            var max = _configuration.Analytics.MaxStoredSummaries;
+            while (_recentSummaries.Count > max)
+                _recentSummaries.RemoveAt(_recentSummaries.Count - 1);
+        }
 
         OnSummaryReady?.Invoke(record);
     }

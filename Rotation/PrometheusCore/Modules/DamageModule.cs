@@ -118,6 +118,11 @@ public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPro
         var level = player.Level;
         var useAoe = enemyCount >= AoeThreshold;
 
+        if (useAoe && !context.Configuration.Machinist.EnableAutoCrossbow)
+            return false;
+        if (!useAoe && !context.Configuration.Machinist.EnableHeatBlast)
+            return false;
+
         var action = MCHActions.GetOverheatedGcd(level, useAoe);
 
         if (level < action.MinLevel)

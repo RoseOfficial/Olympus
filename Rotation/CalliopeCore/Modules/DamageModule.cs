@@ -313,6 +313,9 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
 
     private bool TryRefulgentArrow(ICalliopeContext context, IBattleChara target, int enemyCount)
     {
+        if (!context.Configuration.Bard.EnableRefulgentArrow)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

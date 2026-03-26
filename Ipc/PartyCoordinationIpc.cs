@@ -103,6 +103,9 @@ public sealed class PartyCoordinationIpc : IDisposable
         _service.OnInterruptIntentReady += SendInterruptIntent;
         _service.OnTankSwapIntentReady += SendTankSwapIntent;
 
+        PartyMessage.OnVersionMismatch = (remote, local) =>
+            _log.Warning("Received party coordination message with incompatible protocol version (remote: {0}, local: {1})", remote, local);
+
         _log.Info("Party coordination IPC initialized");
     }
 
@@ -537,6 +540,8 @@ public sealed class PartyCoordinationIpc : IDisposable
         _service.OnCleanseIntentReady -= SendCleanseIntent;
         _service.OnInterruptIntentReady -= SendInterruptIntent;
         _service.OnTankSwapIntentReady -= SendTankSwapIntent;
+
+        PartyMessage.OnVersionMismatch = null;
 
         // Unregister IPC handlers
         _heartbeatProvider.UnregisterAction();

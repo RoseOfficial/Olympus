@@ -469,7 +469,7 @@ public sealed class DefensiveModule : IApolloModule
         var player = context.Player;
 
         if (!ActionValidator.CanExecute(player, context.ActionService, WHMActions.Aquaveil, config,
-            c => c.Defensive.EnableAquaveil))
+            c => c.EnableHealing && c.Defensive.EnableAquaveil))
             return false;
 
         var tank = context.PartyHelper.FindTankInParty(player);
