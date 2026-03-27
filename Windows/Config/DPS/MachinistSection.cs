@@ -74,12 +74,6 @@ public sealed class MachinistSection
                 v => config.Machinist.EnableGaussRicochet = v,
                 null, save, actionId: MCHActions.GaussRound.ActionId);
 
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Machinist.EnableCheckAbilities, "Enable Double Check / Checkmate"),
-                () => config.Machinist.EnableCheckAbilities,
-                v => config.Machinist.EnableCheckAbilities = v,
-                null, save, actionId: MCHActions.DoubleCheck.ActionId);
-
             ConfigUIHelpers.Spacing();
 
             ConfigUIHelpers.Toggle(
@@ -152,12 +146,6 @@ public sealed class MachinistSection
                 () => config.Machinist.EnableAutomatonQueen,
                 v => config.Machinist.EnableAutomatonQueen = v,
                 null, save, actionId: MCHActions.AutomatonQueen.ActionId);
-
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Machinist.EnableQueenOverdrive, "Enable Queen Overdrive"),
-                () => config.Machinist.EnableQueenOverdrive,
-                v => config.Machinist.EnableQueenOverdrive = v,
-                null, save, actionId: MCHActions.QueenOverdrive.ActionId);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Machinist.SaveBatteryForBurst, "Save Battery for Burst"),

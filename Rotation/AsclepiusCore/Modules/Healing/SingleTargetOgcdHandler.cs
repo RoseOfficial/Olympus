@@ -40,6 +40,10 @@ public sealed class SingleTargetOgcdHandler : IHealingHandler
     private bool TryDruochole(IAsclepiusContext context)
     {
         var config = context.Configuration.Sage;
+
+        if (!config.EnableDruochole)
+            return false;
+
         var player = context.Player;
 
         if (player.Level < SGEActions.Druochole.MinLevel)

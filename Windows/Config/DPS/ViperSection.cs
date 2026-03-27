@@ -234,12 +234,6 @@ public sealed class ViperSection
                 null, save,
                 actionId: RoleActions.TrueNorth.ActionId);
 
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Viper.EnableSlither, "Enable Slither"),
-                () => config.Viper.EnableSlither,
-                v => config.Viper.EnableSlither = v,
-                Loc.T(LocalizedStrings.Viper.EnableSlitherDesc, "Use Slither as a gap closer when out of melee range"), save);
-
             ConfigUIHelpers.EndIndent();
         }
     }

@@ -24,6 +24,10 @@ public sealed class PrognosisHandler : IHealingHandler
     private bool TryPrognosis(IAsclepiusContext context)
     {
         var config = context.Configuration.Sage;
+
+        if (!config.EnablePrognosis)
+            return false;
+
         var player = context.Player;
 
         if (player.Level < SGEActions.Prognosis.MinLevel)

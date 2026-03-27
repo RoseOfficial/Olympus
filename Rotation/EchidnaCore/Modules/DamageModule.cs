@@ -437,6 +437,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IEchidnaContext>, IEchidn
         // Ouroboros is the finisher at 1 tribute
         if (context.AnguineTribute == 1 && level >= VPRActions.Ouroboros.MinLevel)
         {
+            if (!context.Configuration.Viper.EnableOuroboros)
+                return false;
+
             action = VPRActions.Ouroboros;
         }
 

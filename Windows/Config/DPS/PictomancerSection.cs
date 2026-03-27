@@ -236,12 +236,6 @@ public sealed class PictomancerSection
                 null, save, actionId: PCTActions.SteelMuse.ActionId);
 
             ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Pictomancer.EnableScenicMuse, "Enable Scenic Muse"),
-                () => config.Pictomancer.EnableScenicMuse,
-                v => config.Pictomancer.EnableScenicMuse = v,
-                null, save, actionId: PCTActions.ScenicMuse.ActionId);
-
-            ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Pictomancer.EnablePortraits, "Enable Portraits"),
                 () => config.Pictomancer.EnablePortraits,
                 v => config.Pictomancer.EnablePortraits = v,

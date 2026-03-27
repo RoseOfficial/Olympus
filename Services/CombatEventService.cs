@@ -187,8 +187,13 @@ public sealed unsafe class CombatEventService : ICombatEventService, IDisposable
     /// <summary>
     /// Gets all currently tracked shadow HP values.
     /// </summary>
-    public IEnumerable<(uint EntityId, uint Hp)> GetAllShadowHp()
-        => shadowHp.Select(kvp => (kvp.Key, kvp.Value.Hp));
+    public List<(uint EntityId, uint Hp)> GetAllShadowHp()
+    {
+        var result = new List<(uint EntityId, uint Hp)>(shadowHp.Count);
+        foreach (var kvp in shadowHp)
+            result.Add((kvp.Key, kvp.Value.Hp));
+        return result;
+    }
 
     /// <summary>
     /// Clears all tracked shadow HP. Call on zone transitions.

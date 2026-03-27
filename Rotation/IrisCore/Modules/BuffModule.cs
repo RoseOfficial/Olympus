@@ -556,6 +556,9 @@ public sealed class BuffModule : IIrisModule
 
     private bool TryLucidDreaming(IIrisContext context)
     {
+        if (!context.Configuration.Pictomancer.EnableLucidDreaming)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

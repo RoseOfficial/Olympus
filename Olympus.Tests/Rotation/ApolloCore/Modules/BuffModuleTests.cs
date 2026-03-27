@@ -10,6 +10,7 @@ using Olympus.Rotation.ApolloCore;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.ApolloCore.Modules;
+using Olympus.Rotation.Common;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Debuff;
@@ -169,6 +170,74 @@ public class BuffModuleTests
 
     #endregion
 
+    #region Thin Air Positive Tests
+
+    [Fact]
+    public void TryExecute_ThinAirAtMaxCharges_Fires()
+    {
+        // Arrange: Thin Air at max charges — should fire to avoid wasting charge regen
+        var config = MockBuilders.CreateDefaultConfiguration();
+        config.Buffs.EnableThinAir = true;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        // Set current charges = max charges (2) to trigger charge-cap path
+        actionService.Setup(a => a.GetCurrentCharges(WHMActions.ThinAir.ActionId)).Returns(2u);
+        actionService.Setup(a => a.ExecuteOgcd(
+            It.Is<ActionDefinition>(ad => ad.ActionId == WHMActions.ThinAir.ActionId),
+            It.IsAny<ulong>())).Returns(true);
+
+        var context = CreateTestContext(
+            config: config,
+            actionService: actionService,
+            level: 90,
+            canExecuteOgcd: true);
+
+        // Act
+        var result = _module.TryExecute(context, isMoving: false);
+
+        // Assert
+        Assert.True(result);
+        actionService.Verify(a => a.ExecuteOgcd(
+            It.Is<ActionDefinition>(ad => ad.ActionId == WHMActions.ThinAir.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+    }
+
+    #endregion
+
+    #region Presence of Mind Positive Tests
+
+    [Fact]
+    public void TryExecute_PoMEnabled_Fires()
+    {
+        // Arrange: PoM enabled, level 90 WHM, off cooldown
+        var config = MockBuilders.CreateDefaultConfiguration();
+        config.Buffs.EnablePresenceOfMind = true;
+        config.Buffs.DelayPoMForRaise = false;
+        config.Buffs.StackPoMWithAssize = false;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(a => a.ExecuteOgcd(
+            It.Is<ActionDefinition>(ad => ad.ActionId == WHMActions.PresenceOfMind.ActionId),
+            It.IsAny<ulong>())).Returns(true);
+
+        var context = CreateTestContext(
+            config: config,
+            actionService: actionService,
+            level: 90,
+            canExecuteOgcd: true);
+
+        // Act
+        var result = _module.TryExecute(context, isMoving: false);
+
+        // Assert
+        Assert.True(result);
+        actionService.Verify(a => a.ExecuteOgcd(
+            It.Is<ActionDefinition>(ad => ad.ActionId == WHMActions.PresenceOfMind.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+    }
+
+    #endregion
+
     #region Asylum Tests
 
     [Fact]
@@ -295,6 +364,38 @@ public class BuffModuleTests
             It.IsAny<ulong>()), Times.Never);
     }
 
+    [Fact]
+    public void TryExecute_AssizeEnabled_Fires()
+    {
+        // Arrange: Assize enabled, level 90, off cooldown
+        // Disable higher-priority abilities so Assize is reached
+        var config = MockBuilders.CreateDefaultConfiguration();
+        config.Healing.EnableAssize = true;
+        config.Buffs.EnableThinAir = false;
+        config.Buffs.EnablePresenceOfMind = false;
+        config.EnableHealing = false; // disables Asylum path
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(a => a.ExecuteOgcd(
+            It.Is<ActionDefinition>(ad => ad.ActionId == WHMActions.Assize.ActionId),
+            It.IsAny<ulong>())).Returns(true);
+
+        var context = CreateTestContext(
+            config: config,
+            actionService: actionService,
+            level: 90,
+            canExecuteOgcd: true);
+
+        // Act
+        var result = _module.TryExecute(context, isMoving: false);
+
+        // Assert
+        Assert.True(result);
+        actionService.Verify(a => a.ExecuteOgcd(
+            It.Is<ActionDefinition>(ad => ad.ActionId == WHMActions.Assize.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+    }
+
     #endregion
 
     #region Lucid Dreaming Tests
@@ -394,6 +495,85 @@ public class BuffModuleTests
         actionService.Verify(a => a.ExecuteOgcd(
             It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.Surecast.ActionId),
             It.IsAny<ulong>()), Times.Never);
+    }
+
+    [Fact]
+    public void TryExecute_LucidDreaming_LowMp_Fires()
+    {
+        // Arrange: MP at 50%, threshold is 70% — should trigger
+        var config = MockBuilders.CreateDefaultConfiguration();
+        config.Buffs.EnableLucidDreaming = true;
+        config.Buffs.EnablePredictiveLucid = false; // disable predictive to use threshold-based
+        // Disable higher-priority abilities so Lucid is reached
+        config.Buffs.EnableThinAir = false;
+        config.Buffs.EnablePresenceOfMind = false;
+        config.EnableHealing = false;
+        config.Healing.EnableAssize = false;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(a => a.ExecuteOgcd(
+            It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.LucidDreaming.ActionId),
+            It.IsAny<ulong>())).Returns(true);
+
+        // Create context with low MP mock forecast service
+        var mpForecastService = MockBuilders.CreateMockMpForecastService(
+            currentMp: 5000, maxMp: 10000);
+
+        var playerChar = MockBuilders.CreateMockPlayerCharacter(
+            level: 90,
+            currentHp: 50000,
+            maxHp: 50000,
+            currentMp: 5000);
+
+        var partyHelper = MockBuilders.CreateMockPartyHelper();
+        var debuffDetectionService = MockBuilders.CreateMockDebuffDetectionService();
+        var targetingService = MockBuilders.CreateMockTargetingService();
+        var combatEventService = MockBuilders.CreateMockCombatEventService();
+        var damageIntakeService = MockBuilders.CreateMockDamageIntakeService();
+        var damageTrendService = MockBuilders.CreateMockDamageTrendService();
+        var frameCache = MockBuilders.CreateMockFrameScopedCache();
+        var hpPredictionService = MockBuilders.CreateMockHpPredictionService();
+        var playerStatsService = MockBuilders.CreateMockPlayerStatsService();
+        var objectTable = MockBuilders.CreateMockObjectTable();
+        var partyList = MockBuilders.CreateMockPartyList();
+        var cooldownPlanner = MockBuilders.CreateMockCooldownPlanner();
+        var actionTracker = MockBuilders.CreateMockActionTracker(config);
+        var statusHelper = new StatusHelper();
+        var healingSpellSelector = ApolloTestContext.CreateDefaultHealingSpellSelector();
+
+        var context = new ApolloContext(
+            playerChar.Object,
+            inCombat: false,
+            isMoving: false,
+            canExecuteGcd: true,
+            canExecuteOgcd: true,
+            actionService.Object,
+            actionTracker,
+            combatEventService.Object,
+            damageIntakeService.Object,
+            damageTrendService.Object,
+            frameCache.Object,
+            config,
+            debuffDetectionService.Object,
+            hpPredictionService.Object,
+            mpForecastService.Object,
+            objectTable.Object,
+            partyList.Object,
+            playerStatsService.Object,
+            targetingService.Object,
+            healingSpellSelector.Object,
+            cooldownPlanner.Object,
+            statusHelper,
+            partyHelper.Object);
+
+        // Act
+        var result = _module.TryExecute(context, isMoving: false);
+
+        // Assert
+        Assert.True(result);
+        actionService.Verify(a => a.ExecuteOgcd(
+            It.Is<ActionDefinition>(ad => ad.ActionId == RoleActions.LucidDreaming.ActionId),
+            It.IsAny<ulong>()), Times.Once);
     }
 
     #endregion

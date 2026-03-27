@@ -1,3 +1,4 @@
+using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Helpers;
@@ -31,6 +32,10 @@ public sealed class MitigationModule : IThemisModule
             context.Debug.MitigationState = "Not in combat";
             return false;
         }
+
+        // Clemency is a GCD heal — check it before the oGCD gate
+        if (context.CanExecuteGcd && TryClemency(context))
+            return true;
 
         // Only use defensives during oGCD windows
         if (!context.CanExecuteOgcd)
@@ -842,6 +847,75 @@ public sealed class MitigationModule : IThemisModule
                 .Record();
 
             context.TrainingService?.RecordConceptApplication(PldConcepts.Cover, wasSuccessful: true);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    #endregion
+
+    #region Clemency (Emergency GCD Heal)
+
+    private bool TryClemency(IThemisContext context)
+    {
+        if (!context.Configuration.Tank.EnableClemency)
+            return false;
+
+        var player = context.Player;
+        var level = player.Level;
+
+        if (level < PLDActions.Clemency.MinLevel)
+            return false;
+
+        // Check MP — Clemency costs 2000 MP
+        if (player.CurrentMp < 2000)
+            return false;
+
+        var clemencyThreshold = context.Configuration.Tank.ClemencyThreshold;
+
+        // Find the lowest HP party member (including self)
+        IBattleChara? target = null;
+        float lowestHp = 1f;
+
+        foreach (var member in context.PartyHelper.GetAllPartyMembers(player))
+        {
+            var hp = context.PartyHelper.GetHpPercent(member);
+            if (hp > 0 && hp < lowestHp)
+            {
+                lowestHp = hp;
+                target = member;
+            }
+        }
+
+        // Only use Clemency if someone is below the configured threshold
+        if (target == null || lowestHp >= clemencyThreshold)
+            return false;
+
+        if (!context.ActionService.IsActionReady(PLDActions.Clemency.ActionId))
+            return false;
+
+        if (context.ActionService.ExecuteGcd(PLDActions.Clemency, target.GameObjectId))
+        {
+            var targetName = target.Name?.TextValue ?? "Unknown";
+            context.Debug.PlannedAction = PLDActions.Clemency.Name;
+            context.Debug.MitigationState = $"Clemency ({targetName} at {lowestHp:P0} HP)";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(PLDActions.Clemency.ActionId, PLDActions.Clemency.Name)
+                .AsHealing(lowestHp)
+                .Target(targetName)
+                .Reason(
+                    $"Emergency Clemency on {targetName} at {lowestHp:P0} HP.",
+                    "Clemency is a GCD heal that costs DPS uptime. Only use it when a party member is critically low and healers cannot recover in time.")
+                .Factors($"Target HP: {lowestHp:P0} (below {clemencyThreshold:P0} threshold)", $"MP: {player.CurrentMp}/10000", "GCD available for Clemency cast")
+                .Alternatives("Trust healers to recover", "Use mitigation oGCDs instead", "Hallowed Ground if self is the target")
+                .Tip("Clemency is a DPS loss — only use it in true emergencies. If you find yourself using it frequently, consider adjusting the HP threshold.")
+                .Concept(PldConcepts.PartyProtection)
+                .Record();
+
+            context.TrainingService?.RecordConceptApplication(PldConcepts.PartyProtection, wasSuccessful: true);
 
             return true;
         }

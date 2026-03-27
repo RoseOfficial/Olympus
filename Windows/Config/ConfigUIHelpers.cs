@@ -206,9 +206,9 @@ public static class ConfigUIHelpers
             if (data != null && ImGui.IsItemHovered())
             {
                 ImGui.BeginTooltip();
-                ImGui.Text($"{data.Name} (ID: {data.ActionId}) [{(data.IsGcd ? "GCD" : "oGCD")}]");
-                ImGui.Text($"Cast: {data.CastTime:F1}s   Recast: {data.RecastTime:F1}s");
-                ImGui.Text($"Range: {data.Range}y   AoE: {data.EffectRange}y");
+                ImGui.Text($"{data.Name} (ID: {data.ActionId}) [{(data.IsGcd ? Loc.T(LocalizedStrings.Helpers.TooltipGcd, "GCD") : Loc.T(LocalizedStrings.Helpers.TooltipOgcd, "oGCD"))}]");
+                ImGui.Text($"{Loc.T(LocalizedStrings.Helpers.TooltipCast, "Cast:")} {data.CastTime:F1}s   {Loc.T(LocalizedStrings.Helpers.TooltipRecast, "Recast:")} {data.RecastTime:F1}s");
+                ImGui.Text($"{Loc.T(LocalizedStrings.Helpers.TooltipRange, "Range:")} {data.Range}y   {Loc.T(LocalizedStrings.Helpers.TooltipAoE, "AoE:")} {data.EffectRange}y");
                 ImGui.EndTooltip();
             }
         }
@@ -597,9 +597,9 @@ public static class ConfigUIHelpers
         if (data != null && ImGui.IsItemHovered())
         {
             ImGui.BeginTooltip();
-            ImGui.Text($"{data.Name} (ID: {data.ActionId}) [{(data.IsGcd ? "GCD" : "oGCD")}]");
-            ImGui.Text($"Cast: {data.CastTime:F1}s   Recast: {data.RecastTime:F1}s");
-            ImGui.Text($"Range: {data.Range}y   AoE: {data.EffectRange}y");
+            ImGui.Text($"{data.Name} (ID: {data.ActionId}) [{(data.IsGcd ? Loc.T(LocalizedStrings.Helpers.TooltipGcd, "GCD") : Loc.T(LocalizedStrings.Helpers.TooltipOgcd, "oGCD"))}]");
+            ImGui.Text($"{Loc.T(LocalizedStrings.Helpers.TooltipCast, "Cast:")} {data.CastTime:F1}s   {Loc.T(LocalizedStrings.Helpers.TooltipRecast, "Recast:")} {data.RecastTime:F1}s");
+            ImGui.Text($"{Loc.T(LocalizedStrings.Helpers.TooltipRange, "Range:")} {data.Range}y   {Loc.T(LocalizedStrings.Helpers.TooltipAoE, "AoE:")} {data.EffectRange}y");
             ImGui.EndTooltip();
         }
 

@@ -40,11 +40,6 @@ public sealed class ViperConfig
     /// </summary>
     public bool EnableUncoiledFury { get; set; } = true;
 
-    /// <summary>
-    /// Whether to use Slither for gap closing.
-    /// </summary>
-    public bool EnableSlither { get; set; } = true;
-
     #endregion
 
     #region Buff Toggles

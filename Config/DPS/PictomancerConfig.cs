@@ -103,11 +103,6 @@ public sealed class PictomancerConfig
     /// </summary>
     public bool EnableSteelMuse { get; set; } = true;
 
-    /// <summary>
-    /// Whether to use Scenic Muse.
-    /// </summary>
-    public bool EnableScenicMuse { get; set; } = true;
-
     #endregion
 
     #region Buff Toggles

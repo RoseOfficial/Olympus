@@ -132,6 +132,7 @@ public sealed class Configuration : IPluginConfiguration
         var showDuringCutscenes = ShowDuringCutscenes;
 
         // Reset general behavior
+        EnableOnAutoAttack = false;
         MovementTolerance = 0.1f;
 
         // Reset master toggles

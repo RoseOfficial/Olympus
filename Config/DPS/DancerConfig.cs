@@ -227,23 +227,6 @@ public sealed class DancerConfig
     /// </summary>
     public bool EnableHeadGraze { get; set; } = true;
 
-    /// <summary>
-    /// Whether to use Curing Waltz for party healing.
-    /// </summary>
-    public bool EnableCuringWaltz { get; set; } = true;
-
-    /// <summary>
-    /// Whether to use Shield Samba for party mitigation.
-    /// </summary>
-    public bool EnableShieldSamba { get; set; } = true;
-
-    /// <summary>
-    /// Whether to use Improvisation.
-    /// Defaults to false: Improvisation requires channeling in place and disrupts movement.
-    /// Users should opt in only if they play in phases with no required movement.
-    /// </summary>
-    public bool EnableImprovisation { get; set; } = false;
-
     #endregion
 }
 

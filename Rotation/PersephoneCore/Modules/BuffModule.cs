@@ -647,6 +647,9 @@ public sealed class BuffModule : IPersephoneModule
 
     private bool TryLucidDreaming(IPersephoneContext context)
     {
+        if (!context.Configuration.Summoner.EnableLucidDreaming)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

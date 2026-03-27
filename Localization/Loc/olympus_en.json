@@ -2503,5 +2503,28 @@
   "config.whm.dps_priority_heal_first": "Heal First",
   "config.whm.dps_priority_balanced": "Balanced",
   "config.whm.dps_priority_dps_first": "DPS First",
-  "config.import.party_coord_warning": "Party coordination changes require a plugin reload to take effect."
+  "config.import.party_coord_warning": "Party coordination changes require a plugin reload to take effect.",
+
+  "config.job.whm.lily_strategy_label": "Lily Strategy",
+  "config.job.whm.lily_strategy_aggressive": "Always prefer lily heals when available",
+  "config.job.whm.lily_strategy_balanced": "Prefer lily heals until Blood Lily is full (3/3)",
+  "config.job.whm.lily_strategy_conservative": "Only use lily heals below HP threshold",
+  "config.job.whm.lily_strategy_disabled": "Use normal heal priority (no lily preference)",
+  "config.job.whm.conservative_hp_threshold": "Conservative HP Threshold",
+  "config.job.whm.ogcd_emergency_label": "oGCD Emergency",
+  "config.job.whm.gcd_emergency_label": "GCD Emergency",
+  "config.job.whm.benediction_threshold_label": "Benediction Threshold",
+  "config.job.whm.aoe_min_targets_label": "AoE Min Targets",
+  "config.job.whm.aoe_hp_threshold_label": "AoE HP Threshold",
+  "config.job.whm.advanced_healing_settings": "Advanced Healing Settings",
+  "config.job.whm.dps_priority_heal_first_desc": "Safest - only DPS when party is healthy",
+  "config.job.whm.dps_priority_balanced_desc": "Moderate - more aggressive DPS while healing",
+  "config.job.whm.dps_priority_dps_first_desc": "Maximum DPS - minimal proactive healing",
+
+  "ui.helpers.tooltip_gcd": "GCD",
+  "ui.helpers.tooltip_ogcd": "oGCD",
+  "ui.helpers.tooltip_cast": "Cast:",
+  "ui.helpers.tooltip_recast": "Recast:",
+  "ui.helpers.tooltip_range": "Range:",
+  "ui.helpers.tooltip_aoe": "AoE:"
 }

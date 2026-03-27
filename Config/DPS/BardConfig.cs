@@ -253,16 +253,6 @@ public sealed class BardConfig
     /// </summary>
     public bool EnableHeadGraze { get; set; } = true;
 
-    /// <summary>
-    /// Whether to use Nature's Minne for party support.
-    /// </summary>
-    public bool EnableNaturesMinne { get; set; } = true;
-
-    /// <summary>
-    /// Whether to use Warden's Paean for cleansing.
-    /// </summary>
-    public bool EnableWardensPaean { get; set; } = true;
-
     #endregion
 }
 

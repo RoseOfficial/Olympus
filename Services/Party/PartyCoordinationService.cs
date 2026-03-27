@@ -150,7 +150,7 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination)
             return true;
 
-        var now = DateTime.UtcNow;
+        var now = _clock();
 
         lock (_stateLock)
         {
@@ -197,7 +197,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             return;
 
         // Clear local reservation
-        _localReservations.Remove(entityId);
+        lock (_stateLock)
+            _localReservations.Remove(entityId);
 
         // Broadcast heal landed
         if (amount >= _config.MinHealAmountToBroadcast)
@@ -1400,7 +1401,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             ExpiresAt = now.AddMilliseconds(_config.TankSwapReservationExpiryMs)
         };
 
-        _localTankSwapReservations[targetEntityId] = reservation;
+        lock (_stateLock)
+            _localTankSwapReservations[targetEntityId] = reservation;
 
         // Broadcast the intent
         var message = new TankSwapIntentMessage(_instanceId, targetEntityId, wantToTakeAggro, false, priority);
@@ -1446,9 +1448,11 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         if (!_config.EnablePartyCoordination || !_config.EnableTankSwapCoordination)
             return;
 
-        _localTankSwapReservations.Remove(targetEntityId);
         lock (_stateLock)
+        {
+            _localTankSwapReservations.Remove(targetEntityId);
             _remoteTankSwapReservations.Remove(targetEntityId);
+        }
 
         if (_config.LogCooldownCoordination)
             _log.Debug("[PartyCoord] Cleared tank swap reservation for {0}", targetEntityId);
@@ -1535,7 +1539,8 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
             _localCleanseReservations.Clear();
             _localInterruptReservations.Clear();
         }
-        _localTankSwapReservations.Clear();
+        lock (_stateLock)
+            _localTankSwapReservations.Clear();
 
         if (_config.LogCoordinationEvents)
             _log.Debug("[PartyCoord] Cleared all coordination state");

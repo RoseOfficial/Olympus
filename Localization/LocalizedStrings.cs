@@ -418,6 +418,29 @@ public static class LocalizedStrings
         public const string DpsPriorityHealFirst = "config.whm.dps_priority_heal_first";
         public const string DpsPriorityBalanced = "config.whm.dps_priority_balanced";
         public const string DpsPriorityDpsFirst = "config.whm.dps_priority_dps_first";
+
+        // Lily strategy
+        public const string LilyStrategyLabel = "config.job.whm.lily_strategy_label";
+        public const string LilyStrategyAggressive = "config.job.whm.lily_strategy_aggressive";
+        public const string LilyStrategyBalanced = "config.job.whm.lily_strategy_balanced";
+        public const string LilyStrategyConservative = "config.job.whm.lily_strategy_conservative";
+        public const string LilyStrategyDisabled = "config.job.whm.lily_strategy_disabled";
+        public const string ConservativeHpThreshold = "config.job.whm.conservative_hp_threshold";
+
+        // Emergency thresholds
+        public const string OgcdEmergencyLabel = "config.job.whm.ogcd_emergency_label";
+        public const string GcdEmergencyLabel = "config.job.whm.gcd_emergency_label";
+        public const string BenedictionThresholdLabel = "config.job.whm.benediction_threshold_label";
+        public const string AoEMinTargetsLabel = "config.job.whm.aoe_min_targets_label";
+        public const string AoEHpThresholdLabel = "config.job.whm.aoe_hp_threshold_label";
+
+        // Advanced healing settings
+        public const string AdvancedHealingSettings = "config.job.whm.advanced_healing_settings";
+
+        // DPS priority descriptions
+        public const string DpsPriorityHealFirstDesc = "config.job.whm.dps_priority_heal_first_desc";
+        public const string DpsPriorityBalancedDesc = "config.job.whm.dps_priority_balanced_desc";
+        public const string DpsPriorityDpsFirstDesc = "config.job.whm.dps_priority_dps_first_desc";
     }
 
     /// <summary>Keys for Scholar specific settings.</summary>
@@ -1337,8 +1360,6 @@ public static class LocalizedStrings
         public const string UseEnshroudDuringArcaneCircleDesc = "config.job.rpr.use_enshroud_during_arcane_circle_desc";
         public const string EnableGluttony = "config.job.rpr.enable_gluttony";
         public const string EnableGluttonyDesc = "config.job.rpr.enable_gluttony_desc";
-        public const string EnableAvatarSummon = "config.job.rpr.enable_avatar_summon";
-        public const string EnableAvatarSummonDesc = "config.job.rpr.enable_avatar_summon_desc";
         public const string EnableHarvestMoon = "config.job.rpr.enable_harvest_moon";
         public const string EnableHarvestMoonDesc = "config.job.rpr.enable_harvest_moon_desc";
         public const string EnablePlentifulHarvest = "config.job.rpr.enable_plentiful_harvest";
@@ -1404,8 +1425,6 @@ public static class LocalizedStrings
         public const string EnableGenerationAbilitiesDesc = "config.job.vpr.enable_generation_abilities_desc";
         public const string UseReawakenDuringBurst = "config.job.vpr.use_reawaken_during_burst";
         public const string UseReawakenDuringBurstDesc = "config.job.vpr.use_reawaken_during_burst_desc";
-        public const string EnableSlither = "config.job.vpr.enable_slither";
-        public const string EnableSlitherDesc = "config.job.vpr.enable_slither_desc";
     }
 
     // ===== RANGED PHYSICAL DPS =====
@@ -1463,8 +1482,6 @@ public static class LocalizedStrings
         public const string QueenSection = "config.job.mch.queen_section";
         public const string EnableAutomatonQueen = "config.job.mch.enable_automaton_queen";
         public const string EnableAutomatonQueenDesc = "config.job.mch.enable_automaton_queen_desc";
-        public const string EnableQueenOverdrive = "config.job.mch.enable_queen_overdrive";
-        public const string EnableQueenOverdriveDesc = "config.job.mch.enable_queen_overdrive_desc";
         public const string SaveBatteryForBurst = "config.job.mch.save_battery_for_burst";
         public const string SaveBatteryForBurstDesc = "config.job.mch.save_battery_for_burst_desc";
         public const string BurstSection = "config.job.mch.burst_section";
@@ -1484,8 +1501,6 @@ public static class LocalizedStrings
         public const string EnableFullMetalFieldDesc = "config.job.mch.enable_full_metal_field_desc";
         public const string EnableGaussRicochet = "config.job.mch.enable_gauss_ricochet";
         public const string EnableGaussRicochetDesc = "config.job.mch.enable_gauss_ricochet_desc";
-        public const string EnableCheckAbilities = "config.job.mch.enable_check_abilities";
-        public const string EnableCheckAbilitiesDesc = "config.job.mch.enable_check_abilities_desc";
         public const string EnableBarrelStabilizer = "config.job.mch.enable_barrel_stabilizer";
         public const string EnableBarrelStabilizerDesc = "config.job.mch.enable_barrel_stabilizer_desc";
         public const string EnableReassemble = "config.job.mch.enable_reassemble";
@@ -1572,10 +1587,6 @@ public static class LocalizedStrings
         public const string UtilitySection = "config.job.brd.utility_section";
         public const string EnableHeadGraze = "config.job.brd.enable_head_graze";
         public const string EnableHeadGrazeDesc = "config.job.brd.enable_head_graze_desc";
-        public const string EnableNaturesMinne = "config.job.brd.enable_natures_minne";
-        public const string EnableNaturesMinneDesc = "config.job.brd.enable_natures_minne_desc";
-        public const string EnableWardensPaean = "config.job.brd.enable_wardens_paean";
-        public const string EnableWardensPaeanDesc = "config.job.brd.enable_wardens_paean_desc";
     }
 
     /// <summary>Keys for Dancer specific settings.</summary>
@@ -1641,10 +1652,6 @@ public static class LocalizedStrings
         public const string UtilitySection = "config.job.dnc.utility_section";
         public const string EnableHeadGraze = "config.job.dnc.enable_head_graze";
         public const string EnableHeadGrazeDesc = "config.job.dnc.enable_head_graze_desc";
-        public const string EnableCuringWaltz = "config.job.dnc.enable_curing_waltz";
-        public const string EnableCuringWaltzDesc = "config.job.dnc.enable_curing_waltz_desc";
-        public const string EnableShieldSamba = "config.job.dnc.enable_shield_samba";
-        public const string EnableShieldSambaDesc = "config.job.dnc.enable_shield_samba_desc";
     }
 
     // ===== CASTERS =====
@@ -1823,8 +1830,6 @@ public static class LocalizedStrings
         public const string EnableLivingMuseDesc = "config.job.pct.enable_living_muse_desc";
         public const string EnableSteelMuse = "config.job.pct.enable_steel_muse";
         public const string EnableSteelMuseDesc = "config.job.pct.enable_steel_muse_desc";
-        public const string EnableScenicMuse = "config.job.pct.enable_scenic_muse";
-        public const string EnableScenicMuseDesc = "config.job.pct.enable_scenic_muse_desc";
         public const string BurstSection = "config.job.pct.burst_section";
         public const string EnableStarryMuse = "config.job.pct.enable_starry_muse";
         public const string EnableStarryMuseDesc = "config.job.pct.enable_starry_muse_desc";
@@ -2380,6 +2385,14 @@ public static class LocalizedStrings
     {
         public const string JobHeaderFormat = "ui.helpers.job_header_format";
         public const string Settings = "ui.helpers.settings";
+
+        // Action tooltip labels
+        public const string TooltipGcd = "ui.helpers.tooltip_gcd";
+        public const string TooltipOgcd = "ui.helpers.tooltip_ogcd";
+        public const string TooltipCast = "ui.helpers.tooltip_cast";
+        public const string TooltipRecast = "ui.helpers.tooltip_recast";
+        public const string TooltipRange = "ui.helpers.tooltip_range";
+        public const string TooltipAoE = "ui.helpers.tooltip_aoe";
     }
 
     #endregion

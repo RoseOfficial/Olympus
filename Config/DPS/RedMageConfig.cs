@@ -54,11 +54,6 @@ public sealed class RedMageConfig
     /// </summary>
     public bool EnableAcceleration { get; set; } = true;
 
-    /// <summary>
-    /// Whether to use Swiftcast.
-    /// </summary>
-    public bool EnableSwiftcast { get; set; } = true;
-
     #endregion
 
     #region oGCD Toggles
@@ -227,11 +222,6 @@ public sealed class RedMageConfig
     /// Whether to use Swiftcast/Dualcast for Verraise.
     /// </summary>
     public bool UseDualcastForVerraise { get; set; } = true;
-
-    /// <summary>
-    /// Whether to use Magick Barrier for party mitigation.
-    /// </summary>
-    public bool EnableMagickBarrier { get; set; } = true;
 
     #endregion
 }

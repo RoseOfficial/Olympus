@@ -64,11 +64,6 @@ public sealed class ReaperConfig
     /// </summary>
     public bool EnableGluttony { get; set; } = true;
 
-    /// <summary>
-    /// Whether to summon Avatar for Enshroud.
-    /// </summary>
-    public bool EnableAvatarSummon { get; set; } = true;
-
     #endregion
 
     #region Soul Gauge Settings

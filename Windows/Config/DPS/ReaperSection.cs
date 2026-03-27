@@ -151,12 +151,6 @@ public sealed class ReaperSection
                 Loc.T(LocalizedStrings.Reaper.EnableLemureAbilitiesDesc, "Use Lemure abilities during Enshroud"), save);
 
             ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Reaper.EnableAvatarSummon, "Enable Avatar Summon"),
-                () => config.Reaper.EnableAvatarSummon,
-                v => config.Reaper.EnableAvatarSummon = v,
-                Loc.T(LocalizedStrings.Reaper.EnableAvatarSummonDesc, "Summon Immortal Sacrifice stacks via Enshroud"), save);
-
-            ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Reaper.SaveShroudForBurst, "Save Shroud for Burst"),
                 () => config.Reaper.SaveShroudForBurst,
                 v => config.Reaper.SaveShroudForBurst = v,

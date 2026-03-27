@@ -16,7 +16,7 @@ public sealed class TelemetryService : IDisposable
     private readonly IPluginLog _log;
     private readonly HttpClient _httpClient;
     private readonly CancellationTokenSource _cts;
-    private bool _hasSentPing;
+    private volatile bool _hasSentPing;
 
     public TelemetryService(Configuration configuration, IPluginLog log)
     {

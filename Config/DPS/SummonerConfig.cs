@@ -205,19 +205,6 @@ public sealed class SummonerConfig
 
     #endregion
 
-    #region Utility Settings
-
-    /// <summary>
-    /// Whether to use Resurrection.
-    /// </summary>
-    public bool EnableResurrection { get; set; } = true;
-
-    /// <summary>
-    /// Whether to use Swiftcast for Resurrection.
-    /// </summary>
-    public bool UseSwiftcastForResurrection { get; set; } = true;
-
-    #endregion
 }
 
 /// <summary>

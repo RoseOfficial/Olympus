@@ -571,8 +571,8 @@ public static class ConfigValidator
             fixes++;
         }
 
-        // Fix negative tank thresholds
-        if (config.Tank.MitigationThreshold < 0f)
+        // Fix negative or dangerously low tank thresholds
+        if (config.Tank.MitigationThreshold < 0.50f)
         {
             config.Tank.MitigationThreshold = 0.70f;
             fixes++;

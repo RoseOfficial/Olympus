@@ -246,18 +246,6 @@ public sealed class BardSection
                 v => config.Bard.EnableHeadGraze = v,
                 Loc.T(LocalizedStrings.Bard.EnableHeadGrazeDesc, "Use Head Graze for interrupts"), save);
 
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Bard.EnableNaturesMinne, "Enable Nature's Minne"),
-                () => config.Bard.EnableNaturesMinne,
-                v => config.Bard.EnableNaturesMinne = v,
-                Loc.T(LocalizedStrings.Bard.EnableNaturesMinneDesc, "Use Nature's Minne for party healing support"), save);
-
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Bard.EnableWardensPaean, "Enable Warden's Paean"),
-                () => config.Bard.EnableWardensPaean,
-                v => config.Bard.EnableWardensPaean = v,
-                Loc.T(LocalizedStrings.Bard.EnableWardensPaeanDesc, "Use Warden's Paean for cleansing debuffs"), save);
-
             ConfigUIHelpers.EndIndent();
         }
     }

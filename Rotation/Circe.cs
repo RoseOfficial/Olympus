@@ -124,6 +124,7 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
         // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<ICirceModule>
         {
+            new ResurrectionModule(),              // Priority 15 - Raise dead party members (Dualcast/Swiftcast Verraise)
             new BuffModule(BurstWindowService),    // Priority 20 - oGCD management (Fleche, Contre Sixte, Embolden, etc.)
             new DamageModule(BurstWindowService, SmartAoEService),  // Priority 30 - GCD rotation (Dualcast, melee combo, finishers)
         };

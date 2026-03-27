@@ -136,7 +136,7 @@ public sealed class TimelineState
                 // Handle jump directive
                 if (entry.HasJump)
                 {
-                    JumpToTime(entry.JumpTarget);
+                    JumpToTime(entry.JumpTarget, combatTime);
                 }
 
                 return true;
@@ -150,12 +150,13 @@ public sealed class TimelineState
     /// Jumps the timeline to a specific timestamp.
     /// Used for phase transitions.
     /// </summary>
-    public void JumpToTime(float targetTime)
+    /// <param name="targetTime">The timeline time to jump to.</param>
+    /// <param name="currentCombatTime">Current combat duration, used to recalculate drift. If null, drift is cleared.</param>
+    public void JumpToTime(float targetTime, float? currentCombatTime = null)
     {
-        // When jumping, we need to recalculate drift
-        // The new timeline time should be targetTime
-        // So drift = combatTime - targetTime (will be calculated on next Update)
+        // When jumping, recalculate drift so UpdateTime stays aligned
         CurrentTime = targetTime;
+        DriftSeconds = currentCombatTime.HasValue ? currentCombatTime.Value - targetTime : 0f;
 
         // Find the phase at the target time
         for (var i = Timeline.Entries.Length - 1; i >= 0; i--)

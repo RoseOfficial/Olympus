@@ -88,17 +88,17 @@ public sealed class WhiteMageSection
             var strategyNames = Enum.GetNames<LilyGenerationStrategy>();
             var currentIndex = (int)config.Healing.LilyStrategy;
             ImGui.SetNextItemWidth(150);
-            if (ImGui.Combo("Lily Strategy", ref currentIndex, strategyNames, strategyNames.Length))
+            if (ImGui.Combo(Loc.T(LocalizedStrings.WhiteMage.LilyStrategyLabel, "Lily Strategy"), ref currentIndex, strategyNames, strategyNames.Length))
             {
                 config.Healing.LilyStrategy = (LilyGenerationStrategy)currentIndex;
                 save();
             }
             var strategyDescription = config.Healing.LilyStrategy switch
             {
-                LilyGenerationStrategy.Aggressive => "Always prefer lily heals when available",
-                LilyGenerationStrategy.Balanced => "Prefer lily heals until Blood Lily is full (3/3)",
-                LilyGenerationStrategy.Conservative => "Only use lily heals below HP threshold",
-                LilyGenerationStrategy.Disabled => "Use normal heal priority (no lily preference)",
+                LilyGenerationStrategy.Aggressive => Loc.T(LocalizedStrings.WhiteMage.LilyStrategyAggressive, "Always prefer lily heals when available"),
+                LilyGenerationStrategy.Balanced => Loc.T(LocalizedStrings.WhiteMage.LilyStrategyBalanced, "Prefer lily heals until Blood Lily is full (3/3)"),
+                LilyGenerationStrategy.Conservative => Loc.T(LocalizedStrings.WhiteMage.LilyStrategyConservative, "Only use lily heals below HP threshold"),
+                LilyGenerationStrategy.Disabled => Loc.T(LocalizedStrings.WhiteMage.LilyStrategyDisabled, "Use normal heal priority (no lily preference)"),
                 _ => ""
             };
             ImGui.TextDisabled(strategyDescription);
@@ -107,7 +107,7 @@ public sealed class WhiteMageSection
             if (config.Healing.LilyStrategy == LilyGenerationStrategy.Conservative)
             {
                 config.Healing.ConservativeLilyHpThreshold = ConfigUIHelpers.ThresholdSliderSmall(
-                    "Conservative HP Threshold", config.Healing.ConservativeLilyHpThreshold, 50f, 90f,
+                    Loc.T(LocalizedStrings.WhiteMage.ConservativeHpThreshold, "Conservative HP Threshold"), config.Healing.ConservativeLilyHpThreshold, 50f, 90f,
                     "Only use lily heals when target is below this HP%.", save, v => config.Healing.ConservativeLilyHpThreshold = v);
             }
 
@@ -151,21 +151,21 @@ public sealed class WhiteMageSection
             ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.WhiteMage.EmergencyThresholds, "Emergency Thresholds:"));
 
-            config.Healing.OgcdEmergencyThreshold = ConfigUIHelpers.ThresholdSlider("oGCD Emergency",
+            config.Healing.OgcdEmergencyThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.WhiteMage.OgcdEmergencyLabel, "oGCD Emergency"),
                 config.Healing.OgcdEmergencyThreshold, 30f, 70f, "Use emergency oGCD heals (Tetra) when below this HP%.", save, v => config.Healing.OgcdEmergencyThreshold = v);
 
-            config.Healing.GcdEmergencyThreshold = ConfigUIHelpers.ThresholdSlider("GCD Emergency",
+            config.Healing.GcdEmergencyThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.WhiteMage.GcdEmergencyLabel, "GCD Emergency"),
                 config.Healing.GcdEmergencyThreshold, 20f, 60f, "Interrupt DPS to heal when below this HP%.", save, v => config.Healing.GcdEmergencyThreshold = v);
 
-            config.Healing.BenedictionEmergencyThreshold = ConfigUIHelpers.ThresholdSlider("Benediction Threshold",
+            config.Healing.BenedictionEmergencyThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.WhiteMage.BenedictionThresholdLabel, "Benediction Threshold"),
                 config.Healing.BenedictionEmergencyThreshold, 10f, 50f, "Only use Benediction when target HP is below this %.", save, v => config.Healing.BenedictionEmergencyThreshold = v);
 
             ConfigUIHelpers.Spacing();
 
-            config.Healing.AoEHealMinTargets = ConfigUIHelpers.IntSlider("AoE Min Targets",
+            config.Healing.AoEHealMinTargets = ConfigUIHelpers.IntSlider(Loc.T(LocalizedStrings.WhiteMage.AoEMinTargetsLabel, "AoE Min Targets"),
                 config.Healing.AoEHealMinTargets, 2, 8, "Use AoE heal when this many party members need healing.", save, v => config.Healing.AoEHealMinTargets = v);
 
-            config.Healing.AoEHealHpThreshold = ConfigUIHelpers.ThresholdSlider("AoE HP Threshold",
+            config.Healing.AoEHealHpThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.WhiteMage.AoEHpThresholdLabel, "AoE HP Threshold"),
                 config.Healing.AoEHealHpThreshold, 50f, 95f, "Count a party member as needing AoE healing when below this HP %.", save, v => config.Healing.AoEHealHpThreshold = v);
 
             DrawAdvancedHealingSection();
@@ -180,7 +180,7 @@ public sealed class WhiteMageSection
         ConfigUIHelpers.Spacing();
         ConfigUIHelpers.Separator();
 
-        if (ConfigUIHelpers.BeginTreeNode("Advanced Healing Settings"))
+        if (ConfigUIHelpers.BeginTreeNode(Loc.T(LocalizedStrings.WhiteMage.AdvancedHealingSettings, "Advanced Healing Settings")))
         {
             // Triage Settings
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.WhiteMage.HealingTriageLabel, "Healing Triage:"));
@@ -360,9 +360,9 @@ public sealed class WhiteMageSection
             }
             var priorityDesc = config.Damage.DpsPriority switch
             {
-                DpsPriorityMode.HealFirst => "Safest - only DPS when party is healthy",
-                DpsPriorityMode.Balanced => "Moderate - more aggressive DPS while healing",
-                DpsPriorityMode.DpsFirst => "Maximum DPS - minimal proactive healing",
+                DpsPriorityMode.HealFirst => Loc.T(LocalizedStrings.WhiteMage.DpsPriorityHealFirstDesc, "Safest - only DPS when party is healthy"),
+                DpsPriorityMode.Balanced => Loc.T(LocalizedStrings.WhiteMage.DpsPriorityBalancedDesc, "Moderate - more aggressive DPS while healing"),
+                DpsPriorityMode.DpsFirst => Loc.T(LocalizedStrings.WhiteMage.DpsPriorityDpsFirstDesc, "Maximum DPS - minimal proactive healing"),
                 _ => ""
             };
             ImGui.TextDisabled(priorityDesc);

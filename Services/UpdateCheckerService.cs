@@ -33,6 +33,7 @@ public sealed class UpdateCheckerService : IDisposable
     private readonly CancellationTokenSource _cts;
 
     private bool _startupCheckDone;
+    private readonly object _statusLock = new();
 
     public UpdateCheckStatus Status { get; private set; } = UpdateCheckStatus.Unknown;
     public string? LatestVersion { get; private set; }
@@ -98,10 +99,17 @@ public sealed class UpdateCheckerService : IDisposable
     /// </summary>
     public async Task CheckAsync()
     {
-        if (Status == UpdateCheckStatus.Checking) return;
-
-        Status = UpdateCheckStatus.Checking;
-        LatestVersion = null;
+        bool alreadyChecking;
+        lock (_statusLock)
+        {
+            alreadyChecking = Status == UpdateCheckStatus.Checking;
+            if (!alreadyChecking)
+            {
+                Status = UpdateCheckStatus.Checking;
+                LatestVersion = null;
+            }
+        }
+        if (alreadyChecking) return;
 
         try
         {

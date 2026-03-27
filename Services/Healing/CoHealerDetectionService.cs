@@ -60,9 +60,16 @@ public sealed class CoHealerDetectionService : ICoHealerDetectionService, IDispo
     /// <summary>
     /// Whether a co-healer is detected (either via party scan or IPC).
     /// </summary>
-    public bool HasCoHealer => _coHealerEntityId.HasValue || _partyCoordination?.HasRemoteHealers == true;
-    public uint? CoHealerEntityId => _coHealerEntityId;
-    public uint CoHealerJobId => _coHealerJobId;
+    public bool HasCoHealer
+    {
+        get
+        {
+            lock (_healLock)
+                return _coHealerEntityId.HasValue || _partyCoordination?.HasRemoteHealers == true;
+        }
+    }
+    public uint? CoHealerEntityId { get { lock (_healLock) return _coHealerEntityId; } }
+    public uint CoHealerJobId { get { lock (_healLock) return _coHealerJobId; } }
 
     public bool IsCoHealerActive
     {
@@ -152,8 +159,11 @@ public sealed class CoHealerDetectionService : ICoHealerDetectionService, IDispo
     {
         if (!_config.EnableCoHealerAwareness)
         {
-            _coHealerEntityId = null;
-            _coHealerJobId = 0;
+            lock (_healLock)
+            {
+                _coHealerEntityId = null;
+                _coHealerJobId = 0;
+            }
             return;
         }
 
@@ -170,10 +180,10 @@ public sealed class CoHealerDetectionService : ICoHealerDetectionService, IDispo
 
     public void Clear()
     {
-        _coHealerEntityId = null;
-        _coHealerJobId = 0;
         lock (_healLock)
         {
+            _coHealerEntityId = null;
+            _coHealerJobId = 0;
             _coHealerHeals.Clear();
             _pendingHeals.Clear();
             _lastHealTime = DateTime.MinValue;
@@ -182,30 +192,36 @@ public sealed class CoHealerDetectionService : ICoHealerDetectionService, IDispo
 
     private void ScanPartyForCoHealer(uint localPlayerEntityId)
     {
-        _coHealerEntityId = null;
-        _coHealerJobId = 0;
+        uint? foundEntityId = null;
+        uint foundJobId = 0;
 
         // Only scan in 8-person content (party size > 4)
-        if (_partyList.Length <= 4)
-            return;
-
-        foreach (var member in _partyList)
+        if (_partyList.Length > 4)
         {
-            if (member == null || member.EntityId == localPlayerEntityId)
-                continue;
-
-            // Get the party member's character from object table for job info
-            var character = _objectTable.SearchById(member.EntityId) as IPlayerCharacter;
-            if (character == null)
-                continue;
-
-            var jobId = character.ClassJob.RowId;
-            if (JobRegistry.IsHealer(jobId))
+            foreach (var member in _partyList)
             {
-                _coHealerEntityId = member.EntityId;
-                _coHealerJobId = jobId;
-                break; // Found co-healer
+                if (member == null || member.EntityId == localPlayerEntityId)
+                    continue;
+
+                // Get the party member's character from object table for job info
+                var character = _objectTable.SearchById(member.EntityId) as IPlayerCharacter;
+                if (character == null)
+                    continue;
+
+                var jobId = character.ClassJob.RowId;
+                if (JobRegistry.IsHealer(jobId))
+                {
+                    foundEntityId = member.EntityId;
+                    foundJobId = jobId;
+                    break; // Found co-healer
+                }
             }
+        }
+
+        lock (_healLock)
+        {
+            _coHealerEntityId = foundEntityId;
+            _coHealerJobId = foundJobId;
         }
     }
 

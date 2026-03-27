@@ -55,11 +55,6 @@ public sealed class MachinistConfig
     /// </summary>
     public bool EnableGaussRicochet { get; set; } = true;
 
-    /// <summary>
-    /// Whether to use Double Check and Checkmate (upgraded Gauss/Ricochet).
-    /// </summary>
-    public bool EnableCheckAbilities { get; set; } = true;
-
     #endregion
 
     #region Buff Toggles
@@ -150,11 +145,6 @@ public sealed class MachinistConfig
     /// Whether to summon Automaton Queen.
     /// </summary>
     public bool EnableAutomatonQueen { get; set; } = true;
-
-    /// <summary>
-    /// Whether to use Queen Overdrive for burst.
-    /// </summary>
-    public bool EnableQueenOverdrive { get; set; } = true;
 
     #endregion
 

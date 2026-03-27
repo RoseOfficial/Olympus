@@ -254,8 +254,11 @@ public sealed class GeneralSection
                 "한국어 (Korean)",
                 "Deutsch (German)",
                 "Français (French)",
+                "Español (Spanish)",
+                "Português (Portuguese)",
+                "Русский (Russian)",
             };
-            var languageCodes = new[] { "", "en", "ja", "zh", "ko", "de", "fr" };
+            var languageCodes = new[] { "", "en", "ja", "zh", "ko", "de", "fr", "es", "pt", "ru" };
 
             // Find current selection index
             var currentOverride = this.config.LanguageOverride ?? "";
@@ -268,6 +271,9 @@ public sealed class GeneralSection
                 "ko" => 4,
                 "de" => 5,
                 "fr" => 6,
+                "es" => 7,
+                "pt" => 8,
+                "ru" => 9,
                 _ => 0,
             };
 

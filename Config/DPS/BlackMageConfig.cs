@@ -16,16 +16,6 @@ public sealed class BlackMageConfig
     public bool EnableAoERotation { get; set; } = true;
 
     /// <summary>
-    /// Whether to use Fire IV.
-    /// </summary>
-    public bool EnableFireIV { get; set; } = true;
-
-    /// <summary>
-    /// Whether to use Blizzard IV.
-    /// </summary>
-    public bool EnableBlizzardIV { get; set; } = true;
-
-    /// <summary>
     /// Whether to use Despair.
     /// </summary>
     public bool EnableDespair { get; set; } = true;
@@ -50,21 +40,6 @@ public sealed class BlackMageConfig
     /// </summary>
     public bool EnableFlareStar { get; set; } = true;
 
-    /// <summary>
-    /// Whether to use High Fire II/High Blizzard II for AoE.
-    /// </summary>
-    public bool EnableHighAoE { get; set; } = true;
-
-    /// <summary>
-    /// Whether to use Flare for AoE.
-    /// </summary>
-    public bool EnableFlare { get; set; } = true;
-
-    /// <summary>
-    /// Whether to use Freeze for AoE.
-    /// </summary>
-    public bool EnableFreeze { get; set; } = true;
-
     #endregion
 
     #region Buff Toggles
@@ -78,16 +53,6 @@ public sealed class BlackMageConfig
     /// Whether to use Triplecast.
     /// </summary>
     public bool EnableTriplecast { get; set; } = true;
-
-    /// <summary>
-    /// Whether to use Sharpcast.
-    /// </summary>
-    public bool EnableSharpcast { get; set; } = true;
-
-    /// <summary>
-    /// Whether to use Swiftcast.
-    /// </summary>
-    public bool EnableSwiftcast { get; set; } = true;
 
     /// <summary>
     /// Whether to use Amplifier.
@@ -175,16 +140,6 @@ public sealed class BlackMageConfig
     /// Whether to use Scathe as a last resort while moving.
     /// </summary>
     public bool UseScatheForMovement { get; set; } = false;
-
-    /// <summary>
-    /// Whether to use Aetherial Manipulation for mobility.
-    /// </summary>
-    public bool EnableAetherialManipulation { get; set; } = true;
-
-    /// <summary>
-    /// Whether to use Between the Lines to return to Ley Lines.
-    /// </summary>
-    public bool EnableBetweenTheLines { get; set; } = true;
 
     #endregion
 

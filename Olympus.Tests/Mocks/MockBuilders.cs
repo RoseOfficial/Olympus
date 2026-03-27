@@ -175,6 +175,7 @@ public static class MockBuilders
         mock.Setup(x => x.IsCasting).Returns(false);
         mock.Setup(x => x.GetCooldownRemaining(It.IsAny<uint>())).Returns(0f);
         mock.Setup(x => x.GetCurrentCharges(It.IsAny<uint>())).Returns(0u);
+        mock.Setup(x => x.GetMaxCharges(It.IsAny<uint>(), It.IsAny<uint>())).Returns((ushort)2);
         mock.Setup(x => x.GetAvailableWeaveSlots()).Returns(canExecuteOgcd ? 2 : 0);
 
         return mock;

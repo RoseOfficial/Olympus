@@ -23,6 +23,10 @@ public sealed class DiagnosisHandler : IHealingHandler
     private bool TryDiagnosis(IAsclepiusContext context)
     {
         var config = context.Configuration.Sage;
+
+        if (!config.EnableDiagnosis)
+            return false;
+
         var player = context.Player;
 
         var target = context.PartyHelper.FindLowestHpPartyMember(player);

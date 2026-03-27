@@ -210,8 +210,11 @@ public sealed class ActionTracker : IActionTracker
         if (gcdReady && wasOnGcdLastFrame)
         {
             Interlocked.Increment(ref _downtimeEventCount);
-            LastDowntimeTime = now;
-            LastDowntimeReason = $"GCD:{gcdRemaining:F2}s Cast:{isCasting} Anim:{hasAnimLock} Active:{isActive}";
+            lock (historyLock)
+            {
+                LastDowntimeTime = now;
+                LastDowntimeReason = $"GCD:{gcdRemaining:F2}s Cast:{isCasting} Anim:{hasAnimLock} Active:{isActive}";
+            }
         }
         wasOnGcdLastFrame = !gcdReady;
 

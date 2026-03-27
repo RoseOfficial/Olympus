@@ -100,7 +100,9 @@ public sealed class DamageTrendService : IDamageTrendService
     /// </summary>
     private void UpdateHighDamagePhaseTracking()
     {
-        var currentPartyDps = _damageIntakeService.GetPartyMemberDamageRate(_cachedPartyEntityIds, 1.5f);
+        List<uint> partyIds;
+        lock (_spikeLock) { partyIds = new List<uint>(_cachedPartyEntityIds); }
+        var currentPartyDps = _damageIntakeService.GetPartyMemberDamageRate(partyIds, 1.5f);
 
         if (currentPartyDps >= DefaultHighDamageThreshold)
         {

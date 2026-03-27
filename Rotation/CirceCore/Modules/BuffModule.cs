@@ -640,6 +640,9 @@ public sealed class BuffModule : ICirceModule
 
     private bool TryLucidDreaming(ICirceContext context)
     {
+        if (!context.Configuration.RedMage.EnableLucidDreaming)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

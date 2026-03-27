@@ -252,18 +252,6 @@ public sealed class DancerSection
                 v => config.Dancer.EnableHeadGraze = v,
                 Loc.T(LocalizedStrings.Dancer.EnableHeadGrazeDesc, "Use Head Graze for interrupts"), save);
 
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Dancer.EnableCuringWaltz, "Enable Curing Waltz"),
-                () => config.Dancer.EnableCuringWaltz,
-                v => config.Dancer.EnableCuringWaltz = v,
-                Loc.T(LocalizedStrings.Dancer.EnableCuringWaltzDesc, "Use Curing Waltz for party healing support"), save);
-
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Dancer.EnableShieldSamba, "Enable Shield Samba"),
-                () => config.Dancer.EnableShieldSamba,
-                v => config.Dancer.EnableShieldSamba = v,
-                Loc.T(LocalizedStrings.Dancer.EnableShieldSambaDesc, "Use Shield Samba to mitigate incoming damage"), save);
-
             ConfigUIHelpers.EndIndent();
         }
     }

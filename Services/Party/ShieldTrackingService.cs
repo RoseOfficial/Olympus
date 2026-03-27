@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin.Services;
 using Olympus.Models;
@@ -347,7 +346,10 @@ public sealed class ShieldTrackingService : IShieldTrackingService
         if (!_shields.TryGetValue(targetId, out var shields))
             return 0;
 
-        return shields.Sum(s => s.ShieldValue);
+        var total = 0;
+        foreach (var shield in shields)
+            total += shield.ShieldValue;
+        return total;
     }
 
     public float GetCombinedMitigation(uint targetId)
@@ -385,8 +387,13 @@ public sealed class ShieldTrackingService : IShieldTrackingService
 
     public bool HasShield(uint targetId, uint statusId)
     {
-        return _shields.TryGetValue(targetId, out var shields)
-            && shields.Any(s => s.StatusId == statusId);
+        if (!_shields.TryGetValue(targetId, out var shields))
+            return false;
+
+        foreach (var s in shields)
+            if (s.StatusId == statusId)
+                return true;
+        return false;
     }
 
     public bool HasAnyMitigation(uint targetId)
@@ -399,7 +406,10 @@ public sealed class ShieldTrackingService : IShieldTrackingService
         if (!_mitigations.TryGetValue(targetId, out var mitigations))
             return false;
 
-        return mitigations.Any(m => InvulnStatusIdSet.Contains(m.StatusId));
+        foreach (var m in mitigations)
+            if (InvulnStatusIdSet.Contains(m.StatusId))
+                return true;
+        return false;
     }
 
     public IReadOnlyDictionary<uint, IReadOnlyList<ShieldInfo>> GetAllShields()
