@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics;
 using Olympus.Data;
 
 namespace Olympus.Rotation.HermesCore.Helpers;
@@ -8,6 +10,10 @@ namespace Olympus.Rotation.HermesCore.Helpers;
 /// </summary>
 public sealed class MudraHelper
 {
+    // In-game mudra sequences time out after ~6 seconds. Use 7s as safety margin.
+    private const long SequenceTimeoutMs = 7000;
+    private readonly Stopwatch _sequenceTimer = new();
+
     /// <summary>
     /// Current state of the mudra sequence.
     /// </summary>
@@ -40,8 +46,25 @@ public sealed class MudraHelper
 
     /// <summary>
     /// Whether we're currently in the middle of a mudra sequence.
+    /// Automatically resets if the sequence has been active longer than the game timeout.
     /// </summary>
-    public bool IsSequenceActive => State != MudraState.Idle;
+    public bool IsSequenceActive
+    {
+        get
+        {
+            if (State == MudraState.Idle)
+                return false;
+
+            // Auto-reset if the sequence has been active too long (game timed out)
+            if (MudraCount > 0 && _sequenceTimer.ElapsedMilliseconds > SequenceTimeoutMs)
+            {
+                Reset();
+                return false;
+            }
+
+            return true;
+        }
+    }
 
     /// <summary>
     /// Whether we're ready to execute the Ninjutsu (all mudras input).
@@ -57,6 +80,7 @@ public sealed class MudraHelper
         Reset();
         TargetNinjutsu = ninjutsu;
         State = MudraState.FirstMudra;
+        _sequenceTimer.Restart();
 
         // Pre-calculate the mudra sequence
         var sequence = NINActions.GetMudraSequence(ninjutsu);
@@ -120,6 +144,7 @@ public sealed class MudraHelper
         Mudra2 = NINActions.MudraType.None;
         Mudra3 = NINActions.MudraType.None;
         MudraCount = 0;
+        _sequenceTimer.Reset();
     }
 
     /// <summary>

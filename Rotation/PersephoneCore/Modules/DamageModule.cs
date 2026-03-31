@@ -473,72 +473,76 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
 
         // Check which demi-summon is available
         // At level 100, Solar Bahamut replaces every other Bahamut
+        // Note: Skip IsActionReady for demi summons — GetCurrentCharges doesn't reliably
+        // report availability for replacement actions (Phoenix/Solar Bahamut).
+        // ExecuteGcd checks GetActionStatus internally, which handles replacements correctly.
         if (context.Configuration.Summoner.EnableSolarBahamut && level >= SMNActions.SummonSolarBahamut.MinLevel)
         {
-            // Try Solar Bahamut first (the game handles the alternation)
-            if (context.ActionService.IsActionReady(SMNActions.SummonSolarBahamut.ActionId))
+            if (context.ActionService.ExecuteGcd(SMNActions.SummonSolarBahamut, player.GameObjectId))
             {
-                if (context.ActionService.ExecuteGcd(SMNActions.SummonSolarBahamut, player.GameObjectId))
+                context.Debug.PlannedAction = SMNActions.SummonSolarBahamut.Name;
+                context.Debug.DamageState = "Summon Solar Bahamut";
+
+                // Training Mode recording
+                if (context.TrainingService?.IsTrainingEnabled == true)
                 {
-                    context.Debug.PlannedAction = SMNActions.SummonSolarBahamut.Name;
-                    context.Debug.DamageState = "Summon Solar Bahamut";
-
-                    // Training Mode recording
-                    if (context.TrainingService?.IsTrainingEnabled == true)
-                    {
-                        RecordDemiSummon(context, "Solar Bahamut", SmnConcepts.SolarBahamutPhase,
-                            "Solar Bahamut is the enhanced version of Bahamut at level 100. " +
-                            "It alternates with Phoenix and provides Sunflare (AoE Astral Flow) instead of Deathflare.");
-                    }
-
-                    return true;
+                    RecordDemiSummon(context, "Solar Bahamut", SmnConcepts.SolarBahamutPhase,
+                        "Solar Bahamut is the enhanced version of Bahamut at level 100. " +
+                        "It alternates with Phoenix and provides Sunflare (AoE Astral Flow) instead of Deathflare.");
                 }
+
+                return true;
             }
         }
 
         // Phoenix (Lv.80+)
         if (context.Configuration.Summoner.EnablePhoenix && level >= SMNActions.SummonPhoenix.MinLevel)
         {
-            if (context.ActionService.IsActionReady(SMNActions.SummonPhoenix.ActionId))
+            if (context.ActionService.ExecuteGcd(SMNActions.SummonPhoenix, player.GameObjectId))
             {
-                if (context.ActionService.ExecuteGcd(SMNActions.SummonPhoenix, player.GameObjectId))
+                context.Debug.PlannedAction = SMNActions.SummonPhoenix.Name;
+                context.Debug.DamageState = "Summon Phoenix";
+
+                // Training Mode recording
+                if (context.TrainingService?.IsTrainingEnabled == true)
                 {
-                    context.Debug.PlannedAction = SMNActions.SummonPhoenix.Name;
-                    context.Debug.DamageState = "Summon Phoenix";
-
-                    // Training Mode recording
-                    if (context.TrainingService?.IsTrainingEnabled == true)
-                    {
-                        RecordDemiSummon(context, "Phoenix", SmnConcepts.PhoenixPhase,
-                            "Phoenix provides Rekindle (healing Astral Flow) and replaces Bahamut every other summon. " +
-                            "The healing utility makes it valuable during high-damage phases.");
-                    }
-
-                    return true;
+                    RecordDemiSummon(context, "Phoenix", SmnConcepts.PhoenixPhase,
+                        "Phoenix provides Rekindle (healing Astral Flow) and replaces Bahamut every other summon. " +
+                        "The healing utility makes it valuable during high-damage phases.");
                 }
+
+                return true;
             }
         }
 
         // Bahamut (Lv.70+)
         if (context.Configuration.Summoner.EnableBahamut && level >= SMNActions.SummonBahamut.MinLevel)
         {
-            if (context.ActionService.IsActionReady(SMNActions.SummonBahamut.ActionId))
+            if (context.ActionService.ExecuteGcd(SMNActions.SummonBahamut, player.GameObjectId))
             {
-                if (context.ActionService.ExecuteGcd(SMNActions.SummonBahamut, player.GameObjectId))
+                context.Debug.PlannedAction = SMNActions.SummonBahamut.Name;
+                context.Debug.DamageState = "Summon Bahamut";
+
+                // Training Mode recording
+                if (context.TrainingService?.IsTrainingEnabled == true)
                 {
-                    context.Debug.PlannedAction = SMNActions.SummonBahamut.Name;
-                    context.Debug.DamageState = "Summon Bahamut";
-
-                    // Training Mode recording
-                    if (context.TrainingService?.IsTrainingEnabled == true)
-                    {
-                        RecordDemiSummon(context, "Bahamut", SmnConcepts.BahamutPhase,
-                            "Bahamut is your primary demi-summon that provides Deathflare (AoE Astral Flow). " +
-                            "Align Searing Light with Bahamut for maximum burst damage.");
-                    }
-
-                    return true;
+                    RecordDemiSummon(context, "Bahamut", SmnConcepts.BahamutPhase,
+                        "Bahamut is your primary demi-summon that provides Deathflare (AoE Astral Flow). " +
+                        "Align Searing Light with Bahamut for maximum burst damage.");
                 }
+
+                return true;
+            }
+        }
+
+        // Aethercharge (Lv.6-69) — resets primals without summoning a demi
+        if (level >= SMNActions.Aethercharge.MinLevel && level < SMNActions.SummonBahamut.MinLevel)
+        {
+            if (context.ActionService.ExecuteGcd(SMNActions.Aethercharge, player.GameObjectId))
+            {
+                context.Debug.PlannedAction = SMNActions.Aethercharge.Name;
+                context.Debug.DamageState = "Aethercharge (reset primals)";
+                return true;
             }
         }
 

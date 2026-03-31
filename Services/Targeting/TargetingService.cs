@@ -91,6 +91,11 @@ public sealed class TargetingService : ITargetingService
 
         foreach (var enemy in GetValidEnemies(maxRange, player))
         {
+            // Only apply DoTs to enemies already in combat — avoids hitting
+            // non-engaged targets like dummies the player hasn't pulled
+            if ((enemy.StatusFlags & StatusFlags.InCombat) == 0)
+                continue;
+
             var dotDuration = GetDotDuration(enemy, dotStatusId);
 
             // Needs DoT if none present or expiring soon

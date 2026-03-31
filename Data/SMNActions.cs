@@ -451,6 +451,24 @@ public static class SMNActions
     };
 
     /// <summary>
+    /// Aethercharge - Resets primal summons (Lv.6)
+    /// Upgraded to Dreadwyrm Trance at Lv.58, then Summon Bahamut at Lv.70.
+    /// Grants Further Ruin proc.
+    /// </summary>
+    public static readonly ActionDefinition Aethercharge = new()
+    {
+        ActionId = 25800,
+        Name = "Aethercharge",
+        MinLevel = 6,
+        Category = ActionCategory.GCD,
+        TargetType = ActionTargetType.Self,
+        EffectTypes = ActionEffectType.Buff,
+        CastTime = 0f,
+        RecastTime = 60f,
+        MpCost = 0
+    };
+
+    /// <summary>
     /// Summon Bahamut - Demi-Bahamut (Lv.70)
     /// 15 second duration with auto-attacks
     /// </summary>

@@ -45,6 +45,7 @@ public sealed class NinjutsuModule : IHermesModule
         var enemyCount = context.TargetingService.CountEnemiesInRange(5f, player);
 
         // If we're in the middle of a mudra sequence, continue it
+        // (IsSequenceActive auto-resets after 7s if the game's mudra timed out)
         if (context.MudraHelper.IsSequenceActive)
         {
             return ContinueMudraSequence(context, target);
