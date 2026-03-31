@@ -3,6 +3,44 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.13.0 — 2026-03-31
+
+### New — Paladin Clemency
+- Paladin now uses Clemency as an emergency self-heal when HP drops dangerously low and no other mitigation is available
+
+### New — Red Mage Verraise
+- Red Mage now raises fallen party members using Verraise, with Dualcast and Swiftcast awareness and party coordination to avoid double-raising
+
+### Summoner
+- Fixed a bug where the rotation got stuck casting Ruin III indefinitely — primal summons now properly reset at all levels, and demi-summon activation (Bahamut, Phoenix, Solar Bahamut) no longer fails silently on alternating cycles
+
+### Ninja
+- Fixed a bug where the rotation could stop executing entirely — if a mudra sequence was interrupted or timed out, the rotation would freeze instead of resuming normal combat
+
+### Healers (All)
+- Fixed a bug where healers applied DoTs to training dummies the player hadn't engaged yet (e.g., dummies on the other side of the area)
+
+### Tanks (All)
+- Fixed Dark Knight and Gunbreaker ignoring the AoE enable toggle and minimum targets setting
+
+### Config Cleanup
+- Removed 25+ settings toggles across multiple DPS jobs that were visible in the UI but had no effect on the rotation — this reduces confusion and keeps the settings page honest
+- Fixed 11 DPS rotation abilities that were ignoring their enable/disable toggles
+- Fixed Apollo Aquaveil activating even when healing was disabled
+- White Mage config section is now fully localized
+- Spanish, Portuguese, and Russian added to the language selector
+
+### Settings Validation
+- Fixed overcap thresholds not being clamped during auto-fix
+- Added Gunbreaker Heart of Corundum validation
+- IPC protocol version mismatches now log a warning instead of silently failing
+
+### Stability
+- Fixed multiple thread-safety issues across party coordination, combat tracking, action history, damage trends, and performance monitoring
+- Fixed a timeline sync drift in looping fights
+- Sensitive fields are now excluded from config export
+
+<!-- LATEST-END -->
 ## v4.12.0 — 2026-03-24
 
 ### New — Post-Fight Coaching
