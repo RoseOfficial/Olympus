@@ -1,4 +1,5 @@
 using Dalamud.Game.ClientState.Objects.Types;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
@@ -49,6 +50,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
 
     protected override bool TryGcdDamage(IPersephoneContext context, IBattleChara target, int enemyCount, bool isMoving)
     {
+        // === PRIORITY 0: SUMMON CARBUNCLE (required for all other summons) ===
+        if (!context.HasPetSummoned)
+        {
+            if (TrySummonCarbuncle(context))
+                return true;
+        }
+
         var useAoe = ShouldUseAoE(enemyCount);
 
         // === PRIORITY 1: DEMI-SUMMON PHASE GCDs ===
@@ -72,14 +80,15 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
         // === PRIORITY 4: SUMMON NEXT PRIMAL ===
         if (context.PrimalsAvailable > 0 && !context.IsDemiSummonActive)
         {
-            if (TrySummonPrimal(context))
+            if (TrySummonPrimal(context, target))
                 return true;
         }
 
-        // === PRIORITY 5: SUMMON DEMI (when no primals available) ===
-        if (context.PrimalsAvailable == 0 && !context.IsDemiSummonActive)
+        // === PRIORITY 5: SUMMON DEMI ===
+        // Try demi-summon when no primals are left, OR as fallback if primal summons failed
+        if (!context.IsDemiSummonActive && context.AttunementStacks == 0)
         {
-            if (TrySummonDemi(context))
+            if (TrySummonDemi(context, target))
                 return true;
         }
 
@@ -100,17 +109,33 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
 
     #endregion
 
+    #region Summon Carbuncle
+
+    private bool TrySummonCarbuncle(IPersephoneContext context)
+    {
+        var player = context.Player;
+        if (player.Level < SMNActions.SummonCarbuncle.MinLevel)
+            return false;
+
+        if (context.ActionService.ExecuteGcd(SMNActions.SummonCarbuncle, player.GameObjectId))
+        {
+            context.Debug.PlannedAction = SMNActions.SummonCarbuncle.Name;
+            context.Debug.DamageState = "Summon Carbuncle";
+            return true;
+        }
+
+        return false;
+    }
+
+    #endregion
+
     #region Demi-Summon Phase
 
-    private bool TryDemiSummonGcd(IPersephoneContext context, IBattleChara target, bool useAoe)
+    private unsafe bool TryDemiSummonGcd(IPersephoneContext context, IBattleChara target, bool useAoe)
     {
         if (context.IsBahamutActive && !context.Configuration.Summoner.EnableBahamut)
             return false;
-        if (context.IsBahamutActive && !context.Configuration.Summoner.EnableAstralAbilities)
-            return false;
         if (context.IsPhoenixActive && !context.Configuration.Summoner.EnablePhoenix)
-            return false;
-        if (context.IsPhoenixActive && !context.Configuration.Summoner.EnableFountainAbilities)
             return false;
         if (context.IsSolarBahamutActive && !context.Configuration.Summoner.EnableSolarBahamut)
             return false;
@@ -118,22 +143,27 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
         var player = context.Player;
         var level = player.Level;
 
-        // Get the appropriate demi-summon GCD
-        var action = SMNActions.GetDemiSummonGcd(
-            context.IsBahamutActive,
-            context.IsSolarBahamutActive,
-            useAoe);
+        // During demi-summon phase, Ruin III is replaced by the demi GCD (Astral Impulse / Fountain of Fire / Umbral Impulse).
+        // UseAction rejects replacement action IDs directly, so we use the BASE action (Ruin III / Tri-disaster)
+        // and the game handles the replacement internally.
+        var baseAction = useAoe ? SMNActions.GetAoeSpell(level) : SMNActions.GetRuinSpell(level);
 
-        if (level < action.MinLevel)
-        {
-            // Fallback to Ruin III if demi GCD not unlocked
-            action = useAoe ? SMNActions.GetAoeSpell(level) : SMNActions.GetRuinSpell(level);
-        }
+        var actionManager = SafeGameAccess.GetActionManager(null);
+        if (actionManager == null)
+            return false;
 
-        if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
+        // Check status on the adjusted ID (demi GCD), execute with the base ID
+        var adjustedId = actionManager->GetAdjustedActionId(baseAction.ActionId);
+        if (actionManager->GetActionStatus(ActionType.Action, adjustedId) != 0)
+            return false;
+
+        var result = actionManager->UseAction(ActionType.Action, baseAction.ActionId, target.GameObjectId);
+        if (result)
         {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DamageState = $"{action.Name} (Demi phase)";
+            // Determine which demi GCD was actually used for display
+            var demiGcd = SMNActions.GetDemiSummonGcd(context.IsBahamutActive, context.IsSolarBahamutActive, useAoe);
+            context.Debug.PlannedAction = demiGcd.Name;
+            context.Debug.DamageState = $"{demiGcd.Name} (Demi phase)";
 
             // Training Mode recording
             if (context.TrainingService?.IsTrainingEnabled == true)
@@ -145,12 +175,12 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
                                    SmnConcepts.SolarBahamutPhase;
 
                 TrainingHelper.Decision(context.TrainingService)
-                    .Action(action.ActionId, action.Name)
+                    .Action(demiGcd.ActionId, demiGcd.Name)
                     .AsSummon(demiType)
                     .Target(target.Name?.TextValue)
-                    .Reason($"{action.Name} during {demiType} phase",
+                    .Reason($"{demiGcd.Name} during {demiType} phase",
                         $"During {demiType} phase, your normal GCDs are replaced with powerful summon-specific attacks. " +
-                        $"{action.Name} deals high potency while your demi-summon also attacks alongside you.")
+                        $"{demiGcd.Name} deals high potency while your demi-summon also attacks alongside you.")
                     .Factors($"{demiType} active", $"Timer: {context.DemiSummonTimer:F1}s", $"GCDs left: {context.DemiSummonGcdsRemaining}")
                     .Alternatives("None - always use demi GCDs during demi phase")
                     .Tip($"Maximize GCDs during demi phase - each GCD triggers your {demiType}'s attack.")
@@ -371,7 +401,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
 
     #region Summon Primal
 
-    private bool TrySummonPrimal(IPersephoneContext context)
+    private bool TrySummonPrimal(IPersephoneContext context, IBattleChara target)
     {
         var player = context.Player;
         var level = player.Level;
@@ -386,7 +416,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
 
         if (context.Configuration.Summoner.EnableTitan && context.CanSummonTitan && level >= SMNActions.SummonTitan.MinLevel)
         {
-            if (context.ActionService.ExecuteGcd(SMNActions.SummonTitan, player.GameObjectId))
+            if (context.ActionService.ExecuteGcd(SMNActions.SummonTitan, target.GameObjectId))
             {
                 context.Debug.PlannedAction = "Summon Titan";
                 context.Debug.DamageState = "Summon Titan";
@@ -405,7 +435,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
 
         if (context.Configuration.Summoner.EnableGaruda && context.CanSummonGaruda && level >= SMNActions.SummonGaruda.MinLevel)
         {
-            if (context.ActionService.ExecuteGcd(SMNActions.SummonGaruda, player.GameObjectId))
+            if (context.ActionService.ExecuteGcd(SMNActions.SummonGaruda, target.GameObjectId))
             {
                 context.Debug.PlannedAction = "Summon Garuda";
                 context.Debug.DamageState = "Summon Garuda";
@@ -424,7 +454,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
 
         if (context.Configuration.Summoner.EnableIfrit && context.CanSummonIfrit && level >= SMNActions.SummonIfrit.MinLevel)
         {
-            if (context.ActionService.ExecuteGcd(SMNActions.SummonIfrit, player.GameObjectId))
+            if (context.ActionService.ExecuteGcd(SMNActions.SummonIfrit, target.GameObjectId))
             {
                 context.Debug.PlannedAction = "Summon Ifrit";
                 context.Debug.DamageState = "Summon Ifrit";
@@ -466,7 +496,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
 
     #region Summon Demi
 
-    private bool TrySummonDemi(IPersephoneContext context)
+    private unsafe bool TrySummonDemi(IPersephoneContext context, IBattleChara? enemyTarget = null)
     {
         var player = context.Player;
         var level = player.Level;
@@ -475,77 +505,24 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
         if (context.PrimalsAvailable > 0 || context.AttunementStacks > 0)
             return false;
 
-        // Check which demi-summon is available
-        // At level 100, Solar Bahamut replaces every other Bahamut
-        // Note: Skip IsActionReady for demi summons — GetCurrentCharges doesn't reliably
-        // report availability for replacement actions (Phoenix/Solar Bahamut).
-        // ExecuteGcd checks GetActionStatus internally, which handles replacements correctly.
-        if (context.Configuration.Summoner.EnableSolarBahamut && level >= SMNActions.SummonSolarBahamut.MinLevel)
+        if (level < SMNActions.Aethercharge.MinLevel)
+            return false;
+
+        var actionManager = SafeGameAccess.GetActionManager(null);
+        if (actionManager == null)
+            return false;
+
+        var baseId = SMNActions.Aethercharge.ActionId;
+        var adjustedId = actionManager->GetAdjustedActionId(baseId);
+        var status = actionManager->GetActionStatus(ActionType.Action, adjustedId);
+
+        if (status == 0)
         {
-            if (context.ActionService.ExecuteGcd(SMNActions.SummonSolarBahamut, player.GameObjectId))
+            var targetId = enemyTarget?.GameObjectId ?? player.GameObjectId;
+            var result = actionManager->UseAction(ActionType.Action, adjustedId, targetId);
+            if (result)
             {
-                context.Debug.PlannedAction = SMNActions.SummonSolarBahamut.Name;
-                context.Debug.DamageState = "Summon Solar Bahamut";
-
-                // Training Mode recording
-                if (context.TrainingService?.IsTrainingEnabled == true)
-                {
-                    RecordDemiSummon(context, "Solar Bahamut", SmnConcepts.SolarBahamutPhase,
-                        "Solar Bahamut is the enhanced version of Bahamut at level 100. " +
-                        "It alternates with Phoenix and provides Sunflare (AoE Astral Flow) instead of Deathflare.");
-                }
-
-                return true;
-            }
-        }
-
-        // Phoenix (Lv.80+)
-        if (context.Configuration.Summoner.EnablePhoenix && level >= SMNActions.SummonPhoenix.MinLevel)
-        {
-            if (context.ActionService.ExecuteGcd(SMNActions.SummonPhoenix, player.GameObjectId))
-            {
-                context.Debug.PlannedAction = SMNActions.SummonPhoenix.Name;
-                context.Debug.DamageState = "Summon Phoenix";
-
-                // Training Mode recording
-                if (context.TrainingService?.IsTrainingEnabled == true)
-                {
-                    RecordDemiSummon(context, "Phoenix", SmnConcepts.PhoenixPhase,
-                        "Phoenix provides Rekindle (healing Astral Flow) and replaces Bahamut every other summon. " +
-                        "The healing utility makes it valuable during high-damage phases.");
-                }
-
-                return true;
-            }
-        }
-
-        // Bahamut (Lv.70+)
-        if (context.Configuration.Summoner.EnableBahamut && level >= SMNActions.SummonBahamut.MinLevel)
-        {
-            if (context.ActionService.ExecuteGcd(SMNActions.SummonBahamut, player.GameObjectId))
-            {
-                context.Debug.PlannedAction = SMNActions.SummonBahamut.Name;
-                context.Debug.DamageState = "Summon Bahamut";
-
-                // Training Mode recording
-                if (context.TrainingService?.IsTrainingEnabled == true)
-                {
-                    RecordDemiSummon(context, "Bahamut", SmnConcepts.BahamutPhase,
-                        "Bahamut is your primary demi-summon that provides Deathflare (AoE Astral Flow). " +
-                        "Align Searing Light with Bahamut for maximum burst damage.");
-                }
-
-                return true;
-            }
-        }
-
-        // Aethercharge (Lv.6-69) — resets primals without summoning a demi
-        if (level >= SMNActions.Aethercharge.MinLevel && level < SMNActions.SummonBahamut.MinLevel)
-        {
-            if (context.ActionService.ExecuteGcd(SMNActions.Aethercharge, player.GameObjectId))
-            {
-                context.Debug.PlannedAction = SMNActions.Aethercharge.Name;
-                context.Debug.DamageState = "Aethercharge (reset primals)";
+                context.Debug.DamageState = "Demi-Summon";
                 return true;
             }
         }

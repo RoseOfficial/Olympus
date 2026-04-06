@@ -442,7 +442,7 @@ public static class SMNActions
         ActionId = 25798,
         Name = "Summon Carbuncle",
         MinLevel = 2,
-        Category = ActionCategory.oGCD,
+        Category = ActionCategory.GCD,
         TargetType = ActionTargetType.Self,
         EffectTypes = ActionEffectType.Buff,
         CastTime = 1.5f,

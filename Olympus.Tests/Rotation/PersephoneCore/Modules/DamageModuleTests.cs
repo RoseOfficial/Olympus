@@ -60,9 +60,12 @@ public class DamageModuleTests
         var targeting = CreateTargetingWithEnemy(enemy);
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
-        // Bahamut demi GCD = AstralImpulse (single target)
+        // Demi-summon GCDs now bypass ExecuteGcd and use ActionManager directly
+        // (base Ruin III action, game replaces to Astral Impulse during Bahamut).
+        // In unit tests without a real ActionManager, the unsafe path falls through
+        // to filler which executes the base Ruin III via mocked ExecuteGcd.
         actionService.Setup(x => x.ExecuteGcd(
-                It.Is<ActionDefinition>(a => a.ActionId == SMNActions.AstralImpulse.ActionId),
+                It.Is<ActionDefinition>(a => a.ActionId == SMNActions.Ruin3.ActionId),
                 It.IsAny<ulong>()))
             .Returns(true);
 
@@ -80,7 +83,7 @@ public class DamageModuleTests
 
         Assert.True(result);
         actionService.Verify(x => x.ExecuteGcd(
-            It.Is<ActionDefinition>(a => a.ActionId == SMNActions.AstralImpulse.ActionId),
+            It.Is<ActionDefinition>(a => a.ActionId == SMNActions.Ruin3.ActionId),
             It.IsAny<ulong>()), Times.Once);
     }
 

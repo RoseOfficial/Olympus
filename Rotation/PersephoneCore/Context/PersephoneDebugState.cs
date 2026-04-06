@@ -237,4 +237,5 @@ public sealed class PersephoneDebugState
     public bool HasUsedAstralFlowThisPhase { get; set; }
 
     #endregion
+
 }
