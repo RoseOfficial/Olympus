@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Dalamud.Game.ClientState.JobGauge.Types;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -68,6 +69,9 @@ public sealed class Persephone : BaseCasterDpsRotation<IPersephoneContext, IPers
     // Training service for explaining rotation decisions (optional)
     private readonly ITrainingService? _trainingService;
 
+    // Dalamud job gauge service for reliable SMN gauge access
+    private readonly IJobGauges _jobGauges;
+
     // Gauge values (read each frame)
     private int _aetherflowStacks;
     private int _attunement;
@@ -102,6 +106,7 @@ public sealed class Persephone : BaseCasterDpsRotation<IPersephoneContext, IPers
         ActionService actionService,
         IPlayerStatsService playerStatsService,
         IDebuffDetectionService debuffDetectionService,
+        IJobGauges jobGauges,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
@@ -124,6 +129,7 @@ public sealed class Persephone : BaseCasterDpsRotation<IPersephoneContext, IPers
             burstWindowService,
             errorMetrics)
     {
+        _jobGauges = jobGauges;
         _timelineService = timelineService;
         _partyCoordinationService = partyCoordinationService;
         _trainingService = trainingService;
@@ -148,14 +154,18 @@ public sealed class Persephone : BaseCasterDpsRotation<IPersephoneContext, IPers
     /// <inheritdoc />
     protected override void ReadGaugeValues()
     {
-        _aetherflowStacks = SafeGameAccess.GetSmnAetherflowStacks(ErrorMetrics);
-        _attunement = SafeGameAccess.GetSmnAttunement(ErrorMetrics);
-        _attunementStacks = SafeGameAccess.GetSmnAttunementStacks(ErrorMetrics);
-        _attunementTimer = SafeGameAccess.GetSmnAttunementTimer(ErrorMetrics);
-        _summonTimer = SafeGameAccess.GetSmnSummonTimer(ErrorMetrics);
-        _ifritReady = SafeGameAccess.GetSmnIfritReady(ErrorMetrics);
-        _titanReady = SafeGameAccess.GetSmnTitanReady(ErrorMetrics);
-        _garudaReady = SafeGameAccess.GetSmnGarudaReady(ErrorMetrics);
+        // Use Dalamud's IJobGauges for reliable gauge access instead of raw FFXIVClientStructs
+        // bitfield parsing. Dalamud maintains these properties across game/struct updates.
+        var gauge = _jobGauges.Get<SMNGauge>();
+
+        _aetherflowStacks = gauge.AetherflowStacks;
+        _attunement = (int)gauge.AttunementType;
+        _attunementStacks = gauge.AttunementCount;
+        _attunementTimer = gauge.AttunementTimerRemaining / 1000f;
+        _summonTimer = gauge.SummonTimerRemaining / 1000f;
+        _ifritReady = gauge.IsIfritReady;
+        _titanReady = gauge.IsTitanReady;
+        _garudaReady = gauge.IsGarudaReady;
 
         // Track demi-summon phase changes
         if (_summonTimer > 0 && _lastDemiSummonTimer <= 0)

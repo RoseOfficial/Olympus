@@ -1,5 +1,6 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
+using Olympus.Models.Action;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Rotation.IrisCore.Context;
@@ -170,7 +171,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
         if (context.Configuration.Pictomancer.EnableCreatureMotif && context.NeedsCreatureMotif && level >= PCTActions.CreatureMotif.MinLevel)
         {
             var motif = PCTActions.GetCreatureMotif(level, context.LivingMuseCharges);
-            if (context.ActionService.ExecuteGcd(motif, player.GameObjectId))
+            if (IsCreatureMotifEnabled(context, motif) && context.ActionService.ExecuteGcd(motif, player.GameObjectId))
             {
                 context.Debug.PlannedAction = motif.Name;
                 context.Debug.DamageState = $"Inspiration: Painting {motif.Name}";
@@ -187,6 +188,19 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
             }
         }
         return false;
+    }
+
+    /// <summary>
+    /// Checks if the specific creature motif is enabled in config.
+    /// </summary>
+    private static bool IsCreatureMotifEnabled(IIrisContext context, ActionDefinition motif)
+    {
+        var config = context.Configuration.Pictomancer;
+        if (motif.ActionId == PCTActions.PomMotif.ActionId) return config.EnablePomMotif;
+        if (motif.ActionId == PCTActions.WingMotif.ActionId) return config.EnableWingMotif;
+        if (motif.ActionId == PCTActions.ClawMotif.ActionId) return config.EnableClawMotif;
+        if (motif.ActionId == PCTActions.MawMotif.ActionId) return config.EnableMawMotif;
+        return true; // Unknown motif, allow by default
     }
 
     private bool TryPrepaintMotif(IIrisContext context)
@@ -229,7 +243,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
         if (context.Configuration.Pictomancer.EnableCreatureMotif && context.NeedsCreatureMotif && level >= PCTActions.CreatureMotif.MinLevel)
         {
             var motif = PCTActions.GetCreatureMotif(level, context.LivingMuseCharges);
-            if (context.ActionService.ExecuteGcd(motif, player.GameObjectId))
+            if (IsCreatureMotifEnabled(context, motif) && context.ActionService.ExecuteGcd(motif, player.GameObjectId))
             {
                 context.Debug.PlannedAction = motif.Name;
                 context.Debug.DamageState = $"Painting {motif.Name}";
