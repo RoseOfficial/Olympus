@@ -134,6 +134,8 @@ public sealed class DamageModule : IHephaestusModule
     /// </summary>
     private bool TryContinuation(IHephaestusContext context, ulong targetId)
     {
+        if (!context.Configuration.Tank.EnableContinuation) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -309,6 +311,8 @@ public sealed class DamageModule : IHephaestusModule
 
     private bool TryBowShock(IHephaestusContext context)
     {
+        if (!context.Configuration.Tank.EnableBowShock) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -348,6 +352,8 @@ public sealed class DamageModule : IHephaestusModule
 
     private bool TryTrajectory(IHephaestusContext context, ulong targetId)
     {
+        if (!context.Configuration.Tank.EnableTrajectory) return false;
+
         var player = context.Player;
         var level = player.Level;
 

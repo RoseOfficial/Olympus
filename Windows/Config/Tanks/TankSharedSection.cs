@@ -49,6 +49,41 @@ public sealed class TankSharedSection
                 null, save,
                 actionId: RoleActions.Rampart.ActionId);
 
+            ConfigUIHelpers.Toggle(
+                "Reprisal",
+                () => config.Tank.EnableReprisal,
+                v => config.Tank.EnableReprisal = v,
+                null,
+                save,
+                actionId: RoleActions.Reprisal.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                "Arm's Length",
+                () => config.Tank.EnableArmsLength,
+                v => config.Tank.EnableArmsLength = v,
+                null,
+                save,
+                actionId: RoleActions.ArmsLength.ActionId);
+
+            ConfigUIHelpers.Spacing();
+            ConfigUIHelpers.SectionLabel("Interrupts:");
+
+            ConfigUIHelpers.Toggle(
+                "Interject",
+                () => config.Tank.EnableInterject,
+                v => config.Tank.EnableInterject = v,
+                null,
+                save,
+                actionId: RoleActions.Interject.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                "Low Blow",
+                () => config.Tank.EnableLowBlow,
+                v => config.Tank.EnableLowBlow = v,
+                null,
+                save,
+                actionId: RoleActions.LowBlow.ActionId);
+
             config.Tank.SheltronMinGauge = ConfigUIHelpers.IntSlider(Loc.T(LocalizedStrings.Tank.SheltronMinGauge, "Min Gauge for Short CDs"),
                 config.Tank.SheltronMinGauge, 0, 100,
                 Loc.T(LocalizedStrings.Tank.SheltronMinGaugeDesc, "Minimum gauge for Sheltron/TBN/Heart of Stone/etc."), save, v => config.Tank.SheltronMinGauge = v);

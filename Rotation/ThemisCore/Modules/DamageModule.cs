@@ -51,7 +51,8 @@ public sealed class DamageModule : IThemisModule
         // Out of melee range: try Intervene (oGCD gap close) or Shield Lob (ranged GCD to open weave window)
         if (target == null && engageTarget != null)
         {
-            if (context.CanExecuteOgcd && player.Level >= PLDActions.Intervene.MinLevel)
+            if (context.Configuration.Tank.EnableIntervene &&
+                context.CanExecuteOgcd && player.Level >= PLDActions.Intervene.MinLevel)
             {
                 if (context.ActionService.IsActionReady(PLDActions.Intervene.ActionId))
                 {
@@ -176,7 +177,8 @@ public sealed class DamageModule : IThemisModule
             return false;
 
         // Circle of Scorn (AoE DoT oGCD)
-        if (level >= PLDActions.CircleOfScorn.MinLevel &&
+        if (context.Configuration.Tank.EnableCircleOfScorn &&
+            level >= PLDActions.CircleOfScorn.MinLevel &&
             context.ActionService.IsActionReady(PLDActions.CircleOfScorn.ActionId))
         {
             if (context.ActionService.ExecuteOgcd(PLDActions.CircleOfScorn, player.GameObjectId))
@@ -204,6 +206,9 @@ public sealed class DamageModule : IThemisModule
         }
 
         // Expiacion (Lv.86) or Spirits Within (Lv.30)
+        if (!context.Configuration.Tank.EnableSpiritsWithin)
+            return false;
+
         var spiritsAction = level >= PLDActions.Expiacion.MinLevel
             ? PLDActions.Expiacion
             : PLDActions.SpiritsWithin;

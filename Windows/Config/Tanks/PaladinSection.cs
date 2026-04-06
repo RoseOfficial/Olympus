@@ -46,6 +46,40 @@ public sealed class PaladinSection
             ConfigUIHelpers.Spacing();
 
             ConfigUIHelpers.Toggle(
+                "Sheltron / Holy Sheltron",
+                () => config.Tank.EnableSheltron,
+                v => config.Tank.EnableSheltron = v,
+                null,
+                save,
+                actionId: PLDActions.Sheltron.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                "Sentinel / Guardian",
+                () => config.Tank.EnableSentinel,
+                v => config.Tank.EnableSentinel = v,
+                null,
+                save,
+                actionId: PLDActions.Sentinel.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                "Hallowed Ground",
+                () => config.Tank.EnableHallowedGround,
+                v => config.Tank.EnableHallowedGround = v,
+                null,
+                save,
+                actionId: PLDActions.HallowedGround.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                "Bulwark",
+                () => config.Tank.EnableBulwark,
+                v => config.Tank.EnableBulwark = v,
+                null,
+                save,
+                actionId: PLDActions.Bulwark.ActionId);
+
+            ConfigUIHelpers.Spacing();
+
+            ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Paladin.EnableCover, "Cover"),
                 () => config.Tank.EnableCover,
                 v => config.Tank.EnableCover = v,
@@ -97,10 +131,58 @@ public sealed class PaladinSection
         {
             ConfigUIHelpers.BeginIndent();
 
+            ConfigUIHelpers.SectionLabel("Buff Abilities:");
+
+            ConfigUIHelpers.Toggle(
+                "Fight or Flight",
+                () => config.Tank.EnableFightOrFlight,
+                v => config.Tank.EnableFightOrFlight = v,
+                null,
+                save,
+                actionId: PLDActions.FightOrFlight.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                "Requiescat",
+                () => config.Tank.EnableRequiescat,
+                v => config.Tank.EnableRequiescat = v,
+                null,
+                save,
+                actionId: PLDActions.Requiescat.ActionId);
+
+            ConfigUIHelpers.Spacing();
+            ConfigUIHelpers.SectionLabel("Damage oGCDs:");
+
+            ConfigUIHelpers.Toggle(
+                "Circle of Scorn",
+                () => config.Tank.EnableCircleOfScorn,
+                v => config.Tank.EnableCircleOfScorn = v,
+                null,
+                save,
+                actionId: PLDActions.CircleOfScorn.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                "Spirits Within / Expiacion",
+                () => config.Tank.EnableSpiritsWithin,
+                v => config.Tank.EnableSpiritsWithin = v,
+                null,
+                save,
+                actionId: PLDActions.SpiritsWithin.ActionId);
+
+            ConfigUIHelpers.Spacing();
+            ConfigUIHelpers.SectionLabel("Gap Closer:");
+
+            ConfigUIHelpers.Toggle(
+                "Intervene",
+                () => config.Tank.EnableIntervene,
+                v => config.Tank.EnableIntervene = v,
+                null,
+                save,
+                actionId: PLDActions.Intervene.ActionId);
+
+            ConfigUIHelpers.Spacing();
+
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Paladin.RotationFeatures, "Rotation Features:"));
             ImGui.BulletText(Loc.T(LocalizedStrings.Paladin.FastBladeCombo, "Fast Blade combo"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.Paladin.RequiescatWindow, "Requiescat window"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.Paladin.FightOrFlightWindow, "Fight or Flight window"));
             ImGui.BulletText(Loc.T(LocalizedStrings.Paladin.ConfiteorCombo, "Confiteor combo"));
             ImGui.BulletText(Loc.T(LocalizedStrings.Paladin.BladeOfHonor, "Blade of Honor"));
 
@@ -108,7 +190,6 @@ public sealed class PaladinSection
 
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Paladin.AoERotation, "AoE Rotation:"));
             ImGui.BulletText(Loc.T(LocalizedStrings.Paladin.TotalEclipseCombo, "Total Eclipse combo"));
-            ImGui.BulletText(Loc.T(LocalizedStrings.Paladin.CircleOfScorn, "Circle of Scorn"));
 
             ConfigUIHelpers.Spacing();
             ImGui.TextDisabled(Loc.T(LocalizedStrings.Tank.UsesSharedAoESettings, "Uses shared tank AoE settings."));

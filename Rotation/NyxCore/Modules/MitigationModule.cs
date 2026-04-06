@@ -529,6 +529,8 @@ public sealed class MitigationModule : INyxModule
 
     private bool TryShadowWall(INyxContext context, float hpPercent, float damageRate)
     {
+        if (!context.Configuration.Tank.EnableShadowWall) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -659,6 +661,8 @@ public sealed class MitigationModule : INyxModule
 
     private bool TryDarkMind(INyxContext context, float hpPercent)
     {
+        if (!context.Configuration.Tank.EnableDarkMind) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -708,6 +712,8 @@ public sealed class MitigationModule : INyxModule
 
     private bool TryOblation(INyxContext context, float hpPercent)
     {
+        if (!context.Configuration.Tank.EnableOblation) return false;
+
         var player = context.Player;
         var level = player.Level;
 

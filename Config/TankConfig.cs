@@ -82,6 +82,26 @@ public sealed class TankConfig
     }
 
     /// <summary>
+    /// Enable Reprisal (party-wide mitigation).
+    /// </summary>
+    public bool EnableReprisal { get; set; } = true;
+
+    /// <summary>
+    /// Enable Interject (interrupt).
+    /// </summary>
+    public bool EnableInterject { get; set; } = true;
+
+    /// <summary>
+    /// Enable Low Blow (stun).
+    /// </summary>
+    public bool EnableLowBlow { get; set; } = true;
+
+    /// <summary>
+    /// Enable Arm's Length (knockback immunity + slow).
+    /// </summary>
+    public bool EnableArmsLength { get; set; } = true;
+
+    /// <summary>
     /// Enable AoE damage abilities (Total Eclipse, etc.).
     /// </summary>
     public bool EnableAoEDamage { get; set; } = true;
@@ -98,6 +118,51 @@ public sealed class TankConfig
     }
 
     #region Paladin
+
+    /// <summary>
+    /// Use Fight or Flight buff.
+    /// </summary>
+    public bool EnableFightOrFlight { get; set; } = true;
+
+    /// <summary>
+    /// Use Requiescat / Imperator for magic phase.
+    /// </summary>
+    public bool EnableRequiescat { get; set; } = true;
+
+    /// <summary>
+    /// Use Circle of Scorn (oGCD DoT).
+    /// </summary>
+    public bool EnableCircleOfScorn { get; set; } = true;
+
+    /// <summary>
+    /// Use Spirits Within / Expiacion (oGCD damage).
+    /// </summary>
+    public bool EnableSpiritsWithin { get; set; } = true;
+
+    /// <summary>
+    /// Use Intervene (gap closer).
+    /// </summary>
+    public bool EnableIntervene { get; set; } = true;
+
+    /// <summary>
+    /// Use Sentinel / Guardian (major mitigation).
+    /// </summary>
+    public bool EnableSentinel { get; set; } = true;
+
+    /// <summary>
+    /// Use Sheltron / Holy Sheltron (gauge-based mitigation).
+    /// </summary>
+    public bool EnableSheltron { get; set; } = true;
+
+    /// <summary>
+    /// Use Hallowed Ground (invulnerability).
+    /// </summary>
+    public bool EnableHallowedGround { get; set; } = true;
+
+    /// <summary>
+    /// Use Bulwark (party mitigation).
+    /// </summary>
+    public bool EnableBulwark { get; set; } = true;
 
     /// <summary>
     /// Use Cover to redirect damage from a co-tank to yourself.
@@ -130,6 +195,51 @@ public sealed class TankConfig
     #region Warrior
 
     /// <summary>
+    /// Use Inner Release / Berserk buff window.
+    /// </summary>
+    public bool EnableInnerRelease { get; set; } = true;
+
+    /// <summary>
+    /// Use Infuriate (gauge generation).
+    /// </summary>
+    public bool EnableInfuriate { get; set; } = true;
+
+    /// <summary>
+    /// Use Vengeance / Damnation (major mitigation).
+    /// </summary>
+    public bool EnableVengeance { get; set; } = true;
+
+    /// <summary>
+    /// Use Raw Intuition / Blood Whetting (short mitigation + heal).
+    /// </summary>
+    public bool EnableBloodWhetting { get; set; } = true;
+
+    /// <summary>
+    /// Use Thrill of Battle (HP boost + heal).
+    /// </summary>
+    public bool EnableThrillOfBattle { get; set; } = true;
+
+    /// <summary>
+    /// Use Shake It Off (party shield).
+    /// </summary>
+    public bool EnableShakeItOff { get; set; } = true;
+
+    /// <summary>
+    /// Use Upheaval / Orogeny (oGCD damage).
+    /// </summary>
+    public bool EnableOrogeny { get; set; } = true;
+
+    /// <summary>
+    /// Use Equilibrium (self-heal).
+    /// </summary>
+    public bool EnableEquilibrium { get; set; } = true;
+
+    /// <summary>
+    /// Use Onslaught (gap closer).
+    /// </summary>
+    public bool EnableOnslaught { get; set; } = true;
+
+    /// <summary>
     /// Share mitigation and healing with a party member via Nascent Flash.
     /// </summary>
     public bool EnableNascentFlash { get; set; } = true;
@@ -153,6 +263,61 @@ public sealed class TankConfig
     #endregion
 
     #region Dark Knight
+
+    /// <summary>
+    /// Use Blood Weapon / Delirium (gauge generation buff).
+    /// </summary>
+    public bool EnableBloodWeapon { get; set; } = true;
+
+    /// <summary>
+    /// Use Delirium (burst window).
+    /// </summary>
+    public bool EnableDelirium { get; set; } = true;
+
+    /// <summary>
+    /// Use Shadow Wall / Shadow Vigil (major mitigation).
+    /// </summary>
+    public bool EnableShadowWall { get; set; } = true;
+
+    /// <summary>
+    /// Use Dark Mind (magic mitigation).
+    /// </summary>
+    public bool EnableDarkMind { get; set; } = true;
+
+    /// <summary>
+    /// Use Oblation (short mitigation).
+    /// </summary>
+    public bool EnableOblation { get; set; } = true;
+
+    /// <summary>
+    /// Use Salted Earth (ground DoT).
+    /// </summary>
+    public bool EnableSaltedEarth { get; set; } = true;
+
+    /// <summary>
+    /// Use Carve and Spit (oGCD damage + MP).
+    /// </summary>
+    public bool EnableCarveAndSpit { get; set; } = true;
+
+    /// <summary>
+    /// Use Shadowbringer (oGCD damage).
+    /// </summary>
+    public bool EnableShadowbringer { get; set; } = true;
+
+    /// <summary>
+    /// Use Living Shadow (pet summon).
+    /// </summary>
+    public bool EnableLivingShadow { get; set; } = true;
+
+    /// <summary>
+    /// Use Abyssal Drain (AoE oGCD damage + heal).
+    /// </summary>
+    public bool EnableAbyssalDrain { get; set; } = true;
+
+    /// <summary>
+    /// Use Shadowstride (gap closer).
+    /// </summary>
+    public bool EnableShadowstride { get; set; } = true;
 
     /// <summary>
     /// Use Living Dead as an invulnerability cooldown.
@@ -194,6 +359,51 @@ public sealed class TankConfig
     #endregion
 
     #region Gunbreaker
+
+    /// <summary>
+    /// Use No Mercy (damage buff).
+    /// </summary>
+    public bool EnableNoMercy { get; set; } = true;
+
+    /// <summary>
+    /// Use Bloodfest (cartridge generation).
+    /// </summary>
+    public bool EnableBloodfest { get; set; } = true;
+
+    /// <summary>
+    /// Use Camouflage (mitigation).
+    /// </summary>
+    public bool EnableCamouflage { get; set; } = true;
+
+    /// <summary>
+    /// Use Nebula / Great Nebula (major mitigation).
+    /// </summary>
+    public bool EnableNebula { get; set; } = true;
+
+    /// <summary>
+    /// Use Aurora (regen).
+    /// </summary>
+    public bool EnableAurora { get; set; } = true;
+
+    /// <summary>
+    /// Use Bow Shock (oGCD AoE damage + DoT).
+    /// </summary>
+    public bool EnableBowShock { get; set; } = true;
+
+    /// <summary>
+    /// Use Trajectory (gap closer).
+    /// </summary>
+    public bool EnableTrajectory { get; set; } = true;
+
+    /// <summary>
+    /// Use Continuation abilities (Jugular Rip, Abdomen Tear, Eye Gouge, Hypervelocity).
+    /// </summary>
+    public bool EnableContinuation { get; set; } = true;
+
+    /// <summary>
+    /// Use Superbolide (invulnerability).
+    /// </summary>
+    public bool EnableSuperbolide { get; set; } = true;
 
     /// <summary>
     /// Use Heart of Light for party magic damage mitigation.

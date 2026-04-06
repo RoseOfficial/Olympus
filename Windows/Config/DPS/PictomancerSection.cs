@@ -305,6 +305,13 @@ public sealed class PictomancerSection
                 null, save,
                 actionId: PCTActions.TemperaGrassa.ActionId);
 
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.EnableSmudge, "Enable Smudge"),
+                () => config.Pictomancer.EnableSmudge,
+                v => config.Pictomancer.EnableSmudge = v,
+                Loc.T(LocalizedStrings.Pictomancer.EnableSmudgeDesc, "Use Smudge for movement"),
+                save, actionId: PCTActions.Smudge.ActionId);
+
             ConfigUIHelpers.EndIndent();
         }
     }

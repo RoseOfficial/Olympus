@@ -989,6 +989,21 @@ public static class LocalizedStrings
         public const string EnableHolmgangDesc = "config.job.war.enable_holmgang_desc";
         public const string BeastGaugeCap = "config.job.war.beast_gauge_cap";
         public const string BeastGaugeCapDesc = "config.job.war.beast_gauge_cap_desc";
+
+        // Buff toggles
+        public const string EnableInnerRelease = "config.job.war.enable_inner_release";
+        public const string EnableInfuriate = "config.job.war.enable_infuriate";
+
+        // Mitigation toggles
+        public const string EnableVengeance = "config.job.war.enable_vengeance";
+        public const string EnableBloodWhetting = "config.job.war.enable_blood_whetting";
+        public const string EnableThrillOfBattle = "config.job.war.enable_thrill_of_battle";
+        public const string EnableShakeItOff = "config.job.war.enable_shake_it_off";
+        public const string EnableEquilibrium = "config.job.war.enable_equilibrium";
+
+        // Damage toggles
+        public const string EnableOrogeny = "config.job.war.enable_orogeny";
+        public const string EnableOnslaught = "config.job.war.enable_onslaught";
     }
 
     /// <summary>Keys for Dark Knight specific settings.</summary>
@@ -1092,6 +1107,20 @@ public static class LocalizedStrings
         public const string EnableHeartOfCorundumDesc = "config.job.gnb.enable_heart_of_corundum_desc";
         public const string HeartOfCorundumThreshold = "config.job.gnb.heart_of_corundum_threshold";
         public const string HeartOfCorundumThresholdDesc = "config.job.gnb.heart_of_corundum_threshold_desc";
+        public const string EnableNoMercy = "config.job.gnb.enable_no_mercy";
+        public const string EnableBloodfest = "config.job.gnb.enable_bloodfest";
+        public const string EnableCamouflage = "config.job.gnb.enable_camouflage";
+        public const string EnableNebula = "config.job.gnb.enable_nebula";
+        public const string EnableAurora = "config.job.gnb.enable_aurora";
+        public const string EnableBowShock = "config.job.gnb.enable_bow_shock";
+        public const string EnableTrajectory = "config.job.gnb.enable_trajectory";
+        public const string EnableContinuation = "config.job.gnb.enable_continuation";
+        public const string EnableSuperbolide = "config.job.gnb.enable_superbolide";
+
+        // Section labels for ability groups
+        public const string BuffAbilitiesLabel = "config.job.gnb.buff_abilities_label";
+        public const string DamageOgcdLabel = "config.job.gnb.damage_ogcd_label";
+        public const string GapCloserLabel = "config.job.gnb.gap_closer_label";
     }
 
     // ===== MELEE DPS =====
@@ -1876,6 +1905,8 @@ public static class LocalizedStrings
         public const string EnableHammerMotifDesc = "config.job.pct.enable_hammer_motif_desc";
         public const string EnableStarrySkyMotif = "config.job.pct.enable_starry_sky_motif";
         public const string EnableStarrySkyMotifDesc = "config.job.pct.enable_starry_sky_motif_desc";
+        public const string EnableSmudge = "config.job.pct.enable_smudge";
+        public const string EnableSmudgeDesc = "config.job.pct.enable_smudge_desc";
     }
 
     #endregion

@@ -45,6 +45,46 @@ public sealed class WarriorSection
             ConfigUIHelpers.Spacing();
 
             ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Warrior.EnableVengeance, "Vengeance / Damnation"),
+                () => config.Tank.EnableVengeance,
+                v => config.Tank.EnableVengeance = v,
+                null,
+                save,
+                actionId: WARActions.Vengeance.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Warrior.EnableBloodWhetting, "Bloodwhetting / Raw Intuition"),
+                () => config.Tank.EnableBloodWhetting,
+                v => config.Tank.EnableBloodWhetting = v,
+                null,
+                save,
+                actionId: WARActions.Bloodwhetting.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Warrior.EnableThrillOfBattle, "Thrill of Battle"),
+                () => config.Tank.EnableThrillOfBattle,
+                v => config.Tank.EnableThrillOfBattle = v,
+                null,
+                save,
+                actionId: WARActions.ThrillOfBattle.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Warrior.EnableEquilibrium, "Equilibrium"),
+                () => config.Tank.EnableEquilibrium,
+                v => config.Tank.EnableEquilibrium = v,
+                null,
+                save,
+                actionId: WARActions.Equilibrium.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Warrior.EnableShakeItOff, "Shake It Off"),
+                () => config.Tank.EnableShakeItOff,
+                v => config.Tank.EnableShakeItOff = v,
+                null,
+                save,
+                actionId: WARActions.ShakeItOff.ActionId);
+
+            ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Warrior.EnableNascentFlash, "Nascent Flash"),
                 () => config.Tank.EnableNascentFlash,
                 v => config.Tank.EnableNascentFlash = v,
@@ -75,9 +115,22 @@ public sealed class WarriorSection
             ImGui.TextDisabled(Loc.T(LocalizedStrings.Warrior.GaugeSpent, "Spent on Fell Cleave/Decimate and Raw Intuition."));
 
             ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Warrior.InnerReleaseLabel, "Inner Release:"));
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Warrior.InnerReleaseDesc1, "Burst window with free Fell Cleaves."));
-            ImGui.TextDisabled(Loc.T(LocalizedStrings.Warrior.InnerReleaseDesc2, "Primal Rend follow-up."));
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Warrior.EnableInnerRelease, "Inner Release / Berserk"),
+                () => config.Tank.EnableInnerRelease,
+                v => config.Tank.EnableInnerRelease = v,
+                null,
+                save,
+                actionId: WARActions.InnerRelease.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Warrior.EnableInfuriate, "Infuriate"),
+                () => config.Tank.EnableInfuriate,
+                v => config.Tank.EnableInfuriate = v,
+                null,
+                save,
+                actionId: WARActions.Infuriate.ActionId);
 
             ConfigUIHelpers.Spacing();
 
@@ -103,6 +156,24 @@ public sealed class WarriorSection
             ImGui.BulletText(Loc.T(LocalizedStrings.Warrior.FellCleaveSpam, "Fell Cleave spam"));
             ImGui.BulletText(Loc.T(LocalizedStrings.Warrior.PrimalRendRuination, "Primal Rend + Primal Ruination"));
             ImGui.BulletText(Loc.T(LocalizedStrings.Warrior.OnslaughtCharges, "Onslaught charges"));
+
+            ConfigUIHelpers.Spacing();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Warrior.EnableOrogeny, "Upheaval / Orogeny"),
+                () => config.Tank.EnableOrogeny,
+                v => config.Tank.EnableOrogeny = v,
+                null,
+                save,
+                actionId: WARActions.Upheaval.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Warrior.EnableOnslaught, "Onslaught"),
+                () => config.Tank.EnableOnslaught,
+                v => config.Tank.EnableOnslaught = v,
+                null,
+                save,
+                actionId: WARActions.Onslaught.ActionId);
 
             ConfigUIHelpers.Spacing();
 

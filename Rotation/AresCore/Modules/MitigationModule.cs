@@ -255,7 +255,8 @@ public sealed class MitigationModule : IAresModule
             return false;
 
         // Priority 1: Bloodwhetting/Raw Intuition (short CD)
-        if (level >= WARActions.RawIntuition.MinLevel &&
+        if (context.Configuration.Tank.EnableBloodWhetting &&
+            level >= WARActions.RawIntuition.MinLevel &&
             !context.HasBloodwhetting)
         {
             var bloodwhettingAction = WARActions.GetBloodwhettingAction(level);
@@ -287,7 +288,8 @@ public sealed class MitigationModule : IAresModule
         }
 
         // Priority 3: Vengeance/Damnation (major CD for big hits)
-        if (level >= WARActions.Vengeance.MinLevel &&
+        if (context.Configuration.Tank.EnableVengeance &&
+            level >= WARActions.Vengeance.MinLevel &&
             !context.HasVengeance)
         {
             var vengeanceAction = WARActions.GetVengeanceAction(level);
@@ -382,6 +384,8 @@ public sealed class MitigationModule : IAresModule
 
     private bool TryMajorCooldown(IAresContext context, float hpPercent, float damageRate)
     {
+        if (!context.Configuration.Tank.EnableVengeance) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -512,6 +516,8 @@ public sealed class MitigationModule : IAresModule
 
     private bool TryBloodwhetting(IAresContext context, float hpPercent)
     {
+        if (!context.Configuration.Tank.EnableBloodWhetting) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -576,6 +582,8 @@ public sealed class MitigationModule : IAresModule
 
     private bool TryThrillOfBattle(IAresContext context, float hpPercent)
     {
+        if (!context.Configuration.Tank.EnableThrillOfBattle) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -624,6 +632,8 @@ public sealed class MitigationModule : IAresModule
 
     private bool TryEquilibrium(IAresContext context, float hpPercent)
     {
+        if (!context.Configuration.Tank.EnableEquilibrium) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -746,6 +756,8 @@ public sealed class MitigationModule : IAresModule
 
     private bool TryShakeItOff(IAresContext context)
     {
+        if (!context.Configuration.Tank.EnableShakeItOff) return false;
+
         var player = context.Player;
         var level = player.Level;
 

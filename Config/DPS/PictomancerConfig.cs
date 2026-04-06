@@ -232,6 +232,11 @@ public sealed class PictomancerConfig
     /// </summary>
     public bool EnableTemperaGrassa { get; set; } = true;
 
+    /// <summary>
+    /// Whether to use Smudge for movement.
+    /// </summary>
+    public bool EnableSmudge { get; set; } = true;
+
     #endregion
 }
 

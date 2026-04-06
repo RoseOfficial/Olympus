@@ -140,6 +140,8 @@ public sealed class DamageModule : IAresModule
 
     private bool TryUpheaval(IAresContext context, Dalamud.Game.ClientState.Objects.Types.IBattleChara target, int enemyCount)
     {
+        if (!context.Configuration.Tank.EnableOrogeny) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -183,6 +185,8 @@ public sealed class DamageModule : IAresModule
 
     private bool TryOrogeny(IAresContext context, Dalamud.Game.ClientState.Objects.Types.IBattleChara target, int enemyCount)
     {
+        if (!context.Configuration.Tank.EnableOrogeny) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -225,6 +229,8 @@ public sealed class DamageModule : IAresModule
 
     private bool TryOnslaught(IAresContext context, Dalamud.Game.ClientState.Objects.Types.IBattleChara target)
     {
+        if (!context.Configuration.Tank.EnableOnslaught) return false;
+
         var player = context.Player;
         var level = player.Level;
 

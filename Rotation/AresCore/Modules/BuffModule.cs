@@ -54,6 +54,8 @@ public sealed class BuffModule : BaseTankBuffModule<IAresContext>, IAresModule
 
     private bool TryInnerRelease(IAresContext context)
     {
+        if (!context.Configuration.Tank.EnableInnerRelease) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -130,6 +132,8 @@ public sealed class BuffModule : BaseTankBuffModule<IAresContext>, IAresModule
 
     private bool TryInfuriate(IAresContext context)
     {
+        if (!context.Configuration.Tank.EnableInfuriate) return false;
+
         var player = context.Player;
         var level = player.Level;
 

@@ -333,6 +333,8 @@ public sealed class MitigationModule : IHephaestusModule
 
     private bool TrySuperbolide(IHephaestusContext context, float hpPercent)
     {
+        if (!context.Configuration.Tank.EnableSuperbolide) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -503,6 +505,8 @@ public sealed class MitigationModule : IHephaestusModule
 
     private bool TryNebula(IHephaestusContext context, float hpPercent, float damageRate)
     {
+        if (!context.Configuration.Tank.EnableNebula) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -637,6 +641,8 @@ public sealed class MitigationModule : IHephaestusModule
 
     private bool TryCamouflage(IHephaestusContext context, float hpPercent)
     {
+        if (!context.Configuration.Tank.EnableCamouflage) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -688,6 +694,8 @@ public sealed class MitigationModule : IHephaestusModule
 
     private bool TryAurora(IHephaestusContext context, float hpPercent)
     {
+        if (!context.Configuration.Tank.EnableAurora) return false;
+
         var player = context.Player;
         var level = player.Level;
 

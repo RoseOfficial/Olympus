@@ -106,7 +106,11 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
     {
         if (context.IsBahamutActive && !context.Configuration.Summoner.EnableBahamut)
             return false;
+        if (context.IsBahamutActive && !context.Configuration.Summoner.EnableAstralAbilities)
+            return false;
         if (context.IsPhoenixActive && !context.Configuration.Summoner.EnablePhoenix)
+            return false;
+        if (context.IsPhoenixActive && !context.Configuration.Summoner.EnableFountainAbilities)
             return false;
         if (context.IsSolarBahamutActive && !context.Configuration.Summoner.EnableSolarBahamut)
             return false;
@@ -663,6 +667,9 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
 
     private bool TryFillerGcd(IPersephoneContext context, IBattleChara target, bool useAoe, bool isMoving)
     {
+        if (!context.Configuration.Summoner.EnableRuin)
+            return false;
+
         var player = context.Player;
         var level = player.Level;
 

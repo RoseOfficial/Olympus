@@ -78,6 +78,32 @@ public sealed class DarkKnightSection
                 save,
                 actionId: DRKActions.DarkMissionary.ActionId);
 
+            ConfigUIHelpers.Spacing();
+
+            ConfigUIHelpers.Toggle(
+                "Shadow Wall / Shadowed Vigil",
+                () => config.Tank.EnableShadowWall,
+                v => config.Tank.EnableShadowWall = v,
+                null,
+                save,
+                actionId: DRKActions.ShadowWall.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                "Dark Mind",
+                () => config.Tank.EnableDarkMind,
+                v => config.Tank.EnableDarkMind = v,
+                null,
+                save,
+                actionId: DRKActions.DarkMind.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                "Oblation",
+                () => config.Tank.EnableOblation,
+                v => config.Tank.EnableOblation = v,
+                null,
+                save,
+                actionId: DRKActions.Oblation.ActionId);
+
             ConfigUIHelpers.EndIndent();
         }
     }
@@ -111,6 +137,32 @@ public sealed class DarkKnightSection
             ImGui.TextDisabled(Loc.T(LocalizedStrings.DarkKnight.DeliriumDesc1, "Grants 3 free Bloodspillers."));
             ImGui.TextDisabled(Loc.T(LocalizedStrings.DarkKnight.DeliriumDesc2, "Scarlet Delirium follow-up combo."));
 
+            ConfigUIHelpers.Spacing();
+
+            ConfigUIHelpers.Toggle(
+                "Blood Weapon",
+                () => config.Tank.EnableBloodWeapon,
+                v => config.Tank.EnableBloodWeapon = v,
+                null,
+                save,
+                actionId: DRKActions.BloodWeapon.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                "Delirium",
+                () => config.Tank.EnableDelirium,
+                v => config.Tank.EnableDelirium = v,
+                null,
+                save,
+                actionId: DRKActions.Delirium.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                "Living Shadow",
+                () => config.Tank.EnableLivingShadow,
+                v => config.Tank.EnableLivingShadow = v,
+                null,
+                save,
+                actionId: DRKActions.LivingShadow.ActionId);
+
             ConfigUIHelpers.EndIndent();
         }
     }
@@ -136,6 +188,54 @@ public sealed class DarkKnightSection
             ImGui.BulletText(Loc.T(LocalizedStrings.DarkKnight.QuietusDelirium, "Quietus under Delirium"));
             ImGui.BulletText(Loc.T(LocalizedStrings.DarkKnight.FloodOfShadow, "Flood of Shadow"));
             ImGui.BulletText(Loc.T(LocalizedStrings.DarkKnight.AbyssalDrain, "Abyssal Drain"));
+
+            ConfigUIHelpers.Spacing();
+
+            ConfigUIHelpers.SectionLabel("Damage oGCDs:");
+
+            ConfigUIHelpers.Toggle(
+                "Salted Earth",
+                () => config.Tank.EnableSaltedEarth,
+                v => config.Tank.EnableSaltedEarth = v,
+                null,
+                save,
+                actionId: DRKActions.SaltedEarth.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                "Carve and Spit",
+                () => config.Tank.EnableCarveAndSpit,
+                v => config.Tank.EnableCarveAndSpit = v,
+                null,
+                save,
+                actionId: DRKActions.CarveAndSpit.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                "Shadowbringer",
+                () => config.Tank.EnableShadowbringer,
+                v => config.Tank.EnableShadowbringer = v,
+                null,
+                save,
+                actionId: DRKActions.Shadowbringer.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                "Abyssal Drain",
+                () => config.Tank.EnableAbyssalDrain,
+                v => config.Tank.EnableAbyssalDrain = v,
+                null,
+                save,
+                actionId: DRKActions.AbyssalDrain.ActionId);
+
+            ConfigUIHelpers.Spacing();
+
+            ConfigUIHelpers.SectionLabel("Gap Closer:");
+
+            ConfigUIHelpers.Toggle(
+                "Shadowstride",
+                () => config.Tank.EnableShadowstride,
+                v => config.Tank.EnableShadowstride = v,
+                null,
+                save,
+                actionId: DRKActions.Shadowstride.ActionId);
 
             ConfigUIHelpers.Spacing();
             ImGui.TextDisabled(Loc.T(LocalizedStrings.Tank.UsesSharedAoESettings, "Uses shared tank AoE settings."));

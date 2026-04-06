@@ -56,6 +56,8 @@ public sealed class BuffModule : BaseTankBuffModule<IHephaestusContext>, IHephae
 
     private bool TryNoMercy(IHephaestusContext context)
     {
+        if (!context.Configuration.Tank.EnableNoMercy) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -129,6 +131,8 @@ public sealed class BuffModule : BaseTankBuffModule<IHephaestusContext>, IHephae
 
     private bool TryBloodfest(IHephaestusContext context)
     {
+        if (!context.Configuration.Tank.EnableBloodfest) return false;
+
         var player = context.Player;
         var level = player.Level;
 

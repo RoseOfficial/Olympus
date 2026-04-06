@@ -59,6 +59,8 @@ public sealed class BuffModule : BaseTankBuffModule<IThemisContext>, IThemisModu
 
     private bool TryFightOrFlight(IThemisContext context)
     {
+        if (!context.Configuration.Tank.EnableFightOrFlight) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -147,6 +149,8 @@ public sealed class BuffModule : BaseTankBuffModule<IThemisContext>, IThemisModu
 
     private bool TryRequiescat(IThemisContext context)
     {
+        if (!context.Configuration.Tank.EnableRequiescat) return false;
+
         var player = context.Player;
         var level = player.Level;
 

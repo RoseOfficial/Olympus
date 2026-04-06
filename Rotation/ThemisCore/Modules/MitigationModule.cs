@@ -146,7 +146,8 @@ public sealed class MitigationModule : IThemisModule
         var castTimeMs = (int)remainingCastTime;
 
         // Try Interject first (dedicated interrupt)
-        if (context.ActionService.IsActionReady(RoleActions.Interject.ActionId))
+        if (context.Configuration.Tank.EnableInterject &&
+            context.ActionService.IsActionReady(RoleActions.Interject.ActionId))
         {
             // Reserve the interrupt target
             if (coordConfig.EnableInterruptCoordination)
@@ -186,7 +187,8 @@ public sealed class MitigationModule : IThemisModule
         }
 
         // Try Low Blow as backup (stun can interrupt some casts)
-        if (level >= 12 && context.ActionService.IsActionReady(RoleActions.LowBlow.ActionId))
+        if (context.Configuration.Tank.EnableLowBlow &&
+            level >= 12 && context.ActionService.IsActionReady(RoleActions.LowBlow.ActionId))
         {
             // Reserve the interrupt target
             if (coordConfig.EnableInterruptCoordination)
@@ -257,7 +259,8 @@ public sealed class MitigationModule : IThemisModule
             return false;
 
         // Priority 1: Holy Sheltron (short CD, gauge-based)
-        if (level >= PLDActions.Sheltron.MinLevel &&
+        if (context.Configuration.Tank.EnableSheltron &&
+            level >= PLDActions.Sheltron.MinLevel &&
             context.OathGauge >= 50 &&
             !context.StatusHelper.HasSheltron(player))
         {
@@ -320,7 +323,8 @@ public sealed class MitigationModule : IThemisModule
         }
 
         // Priority 3: Sentinel/Guardian (major CD for big hits)
-        if (level >= PLDActions.Sentinel.MinLevel &&
+        if (context.Configuration.Tank.EnableSentinel &&
+            level >= PLDActions.Sentinel.MinLevel &&
             !context.StatusHelper.HasSentinel(player))
         {
             var sentinelAction = PLDActions.GetSentinelAction(level);
@@ -359,6 +363,8 @@ public sealed class MitigationModule : IThemisModule
 
     private bool TryHallowedGround(IThemisContext context, float hpPercent)
     {
+        if (!context.Configuration.Tank.EnableHallowedGround) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -420,6 +426,8 @@ public sealed class MitigationModule : IThemisModule
 
     private bool TryMajorCooldown(IThemisContext context, float hpPercent, float damageRate)
     {
+        if (!context.Configuration.Tank.EnableSentinel) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -552,6 +560,8 @@ public sealed class MitigationModule : IThemisModule
 
     private bool TrySheltron(IThemisContext context, float hpPercent)
     {
+        if (!context.Configuration.Tank.EnableSheltron) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -608,6 +618,8 @@ public sealed class MitigationModule : IThemisModule
 
     private bool TryBulwark(IThemisContext context, float hpPercent, float damageRate)
     {
+        if (!context.Configuration.Tank.EnableBulwark) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -657,6 +669,8 @@ public sealed class MitigationModule : IThemisModule
 
     private bool TryArmsLength(IThemisContext context)
     {
+        if (!context.Configuration.Tank.EnableArmsLength) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -676,6 +690,8 @@ public sealed class MitigationModule : IThemisModule
 
     private bool TryReprisal(IThemisContext context)
     {
+        if (!context.Configuration.Tank.EnableReprisal) return false;
+
         var player = context.Player;
         var level = player.Level;
 

@@ -178,6 +178,8 @@ public sealed class DamageModule : INyxModule
 
     private bool TryShadowbringer(INyxContext context, ulong targetId)
     {
+        if (!context.Configuration.Tank.EnableShadowbringer) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -216,6 +218,8 @@ public sealed class DamageModule : INyxModule
 
     private bool TrySaltedEarth(INyxContext context)
     {
+        if (!context.Configuration.Tank.EnableSaltedEarth) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -253,6 +257,8 @@ public sealed class DamageModule : INyxModule
 
     private bool TrySaltAndDarkness(INyxContext context)
     {
+        if (!context.Configuration.Tank.EnableSaltedEarth) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -405,6 +411,8 @@ public sealed class DamageModule : INyxModule
 
     private bool TryCarveAndSpit(INyxContext context, ulong targetId)
     {
+        if (!context.Configuration.Tank.EnableCarveAndSpit) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -442,6 +450,8 @@ public sealed class DamageModule : INyxModule
 
     private bool TryAbyssalDrain(INyxContext context, int enemyCount, ulong targetId)
     {
+        if (!context.Configuration.Tank.EnableAbyssalDrain) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -483,6 +493,8 @@ public sealed class DamageModule : INyxModule
 
     private bool TryShadowstride(INyxContext context, ulong targetId)
     {
+        if (!context.Configuration.Tank.EnableShadowstride) return false;
+
         var player = context.Player;
         var level = player.Level;
 

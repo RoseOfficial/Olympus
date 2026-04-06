@@ -70,6 +70,42 @@ public sealed class GunbreakerSection
                 save,
                 actionId: GNBActions.HeartOfLight.ActionId);
 
+            ConfigUIHelpers.Spacing();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Gunbreaker.EnableNebula, "Nebula / Great Nebula"),
+                () => config.Tank.EnableNebula,
+                v => config.Tank.EnableNebula = v,
+                null,
+                save,
+                actionId: GNBActions.Nebula.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Gunbreaker.EnableCamouflage, "Camouflage"),
+                () => config.Tank.EnableCamouflage,
+                v => config.Tank.EnableCamouflage = v,
+                null,
+                save,
+                actionId: GNBActions.Camouflage.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Gunbreaker.EnableAurora, "Aurora"),
+                () => config.Tank.EnableAurora,
+                v => config.Tank.EnableAurora = v,
+                null,
+                save,
+                actionId: GNBActions.Aurora.ActionId);
+
+            ConfigUIHelpers.Spacing();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Gunbreaker.EnableSuperbolide, "Superbolide"),
+                () => config.Tank.EnableSuperbolide,
+                v => config.Tank.EnableSuperbolide = v,
+                null,
+                save,
+                actionId: GNBActions.Superbolide.ActionId);
+
             ConfigUIHelpers.EndIndent();
         }
     }
@@ -101,6 +137,56 @@ public sealed class GunbreakerSection
         if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Gunbreaker.DamageSection, "Damage"), "GNB"))
         {
             ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Gunbreaker.BuffAbilitiesLabel, "Buff Abilities:"));
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Gunbreaker.EnableNoMercy, "No Mercy"),
+                () => config.Tank.EnableNoMercy,
+                v => config.Tank.EnableNoMercy = v,
+                null,
+                save,
+                actionId: GNBActions.NoMercy.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Gunbreaker.EnableBloodfest, "Bloodfest"),
+                () => config.Tank.EnableBloodfest,
+                v => config.Tank.EnableBloodfest = v,
+                null,
+                save,
+                actionId: GNBActions.Bloodfest.ActionId);
+
+            ConfigUIHelpers.Spacing();
+            ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Gunbreaker.DamageOgcdLabel, "Damage oGCDs:"));
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Gunbreaker.EnableBowShock, "Bow Shock"),
+                () => config.Tank.EnableBowShock,
+                v => config.Tank.EnableBowShock = v,
+                null,
+                save,
+                actionId: GNBActions.BowShock.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Gunbreaker.EnableContinuation, "Continuation (Jugular Rip, Abdomen Tear, Eye Gouge, Hypervelocity)"),
+                () => config.Tank.EnableContinuation,
+                v => config.Tank.EnableContinuation = v,
+                null,
+                save,
+                actionId: GNBActions.Continuation.ActionId);
+
+            ConfigUIHelpers.Spacing();
+            ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Gunbreaker.GapCloserLabel, "Gap Closer:"));
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Gunbreaker.EnableTrajectory, "Trajectory"),
+                () => config.Tank.EnableTrajectory,
+                v => config.Tank.EnableTrajectory = v,
+                null,
+                save,
+                actionId: GNBActions.Trajectory.ActionId);
+
+            ConfigUIHelpers.Spacing();
 
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Gunbreaker.RotationFeatures, "Rotation Features:"));
             ImGui.BulletText(Loc.T(LocalizedStrings.Gunbreaker.KeenEdgeCombo, "Keen Edge combo"));

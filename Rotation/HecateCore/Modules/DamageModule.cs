@@ -265,7 +265,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         }
 
         // Priority 6: Scathe (last resort)
-        if (level >= BLMActions.Scathe.MinLevel)
+        if (context.Configuration.BlackMage.UseScatheForMovement && level >= BLMActions.Scathe.MinLevel)
         {
             if (context.ActionService.ExecuteGcd(BLMActions.Scathe, target.GameObjectId))
             {

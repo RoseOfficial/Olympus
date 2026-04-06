@@ -507,6 +507,9 @@ public sealed class BuffModule : IIrisModule
 
     private bool TrySmudge(IIrisContext context, bool isMoving)
     {
+        if (!context.Configuration.Pictomancer.EnableSmudge)
+            return false;
+
         if (!isMoving)
             return false;
 

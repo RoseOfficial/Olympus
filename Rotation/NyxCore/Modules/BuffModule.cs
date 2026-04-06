@@ -57,6 +57,8 @@ public sealed class BuffModule : BaseTankBuffModule<INyxContext>, INyxModule
 
     private bool TryBloodWeapon(INyxContext context)
     {
+        if (!context.Configuration.Tank.EnableBloodWeapon) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -94,6 +96,8 @@ public sealed class BuffModule : BaseTankBuffModule<INyxContext>, INyxModule
 
     private bool TryDelirium(INyxContext context)
     {
+        if (!context.Configuration.Tank.EnableDelirium) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -166,6 +170,8 @@ public sealed class BuffModule : BaseTankBuffModule<INyxContext>, INyxModule
 
     private bool TryLivingShadow(INyxContext context)
     {
+        if (!context.Configuration.Tank.EnableLivingShadow) return false;
+
         var player = context.Player;
         var level = player.Level;
 
