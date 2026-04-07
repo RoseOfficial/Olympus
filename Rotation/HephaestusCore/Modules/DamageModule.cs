@@ -586,7 +586,11 @@ public sealed class DamageModule : IHephaestusModule
     /// <summary>
     /// Reign of Beasts combo at Lv.100.
     /// Triggered by Bloodfest granting Ready to Reign.
-    /// Reign of Beasts → Noble Blood → Lion Heart
+    /// Reign of Beasts → Noble Blood → Lion Heart.
+    /// The ReadyToReign buff is consumed when Reign of Beasts fires.
+    /// Steps 2 (Noble Blood) and 3 (Lion Heart) are tracked via action replacement
+    /// (GetAdjustedActionId on the base Reign of Beasts action).
+    /// All steps execute using the base Reign of Beasts action ID — the game resolves replacements internally.
     /// </summary>
     private bool TryReignOfBeastsCombo(IHephaestusContext context, ulong targetId)
     {
@@ -596,34 +600,92 @@ public sealed class DamageModule : IHephaestusModule
         if (level < GNBActions.ReignOfBeasts.MinLevel)
             return false;
 
-        // Need Ready to Reign (from Bloodfest)
-        if (!context.IsReadyToReign)
+        // Step 1: Start combo when ReadyToReign buff is active
+        if (context.IsReadyToReign)
+        {
+            if (context.ActionService.IsActionReady(GNBActions.ReignOfBeasts.ActionId))
+            {
+                if (context.ActionService.ExecuteGcd(GNBActions.ReignOfBeasts, targetId))
+                {
+                    context.Debug.PlannedAction = GNBActions.ReignOfBeasts.Name;
+                    context.Debug.DamageState = "Reign of Beasts (combo 1/3)";
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(GNBActions.ReignOfBeasts.ActionId, GNBActions.ReignOfBeasts.Name)
+                        .AsTankBurst()
+                        .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                        .Reason(
+                            "Reign of Beasts combo (Lv.100)",
+                            "Reign of Beasts is the first step of GNB's Lv.100 combo (Reign of Beasts → Noble Blood → Lion Heart). " +
+                            "It is triggered by the Ready to Reign proc granted by Bloodfest. " +
+                            "This combo is available every other No Mercy window when Bloodfest aligns.")
+                        .Factors("Ready to Reign proc active (from Bloodfest)", "Lv.100 exclusive combo", "High potency burst sequence")
+                        .Alternatives("Delay (risk losing proc)")
+                        .Tip("The Reign of Beasts combo is a 3-step sequence — always complete all 3 hits for maximum damage.")
+                        .Concept("gnb_reign_of_beasts")
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication("gnb_reign_of_beasts", true, "Reign of Beasts combo started");
+
+                    return true;
+                }
+            }
+        }
+
+        // Steps 2-3: Continue combo via action replacement (ReadyToReign buff is consumed after step 1)
+        if (!context.IsInReignCombo)
             return false;
 
-        // The game handles the combo progression via action replacement
-        // Just check if Reign of Beasts is ready and execute
-        if (context.ActionService.IsActionReady(GNBActions.ReignOfBeasts.ActionId))
+        // Step 2: Noble Blood (ReignComboStep == 1)
+        if (context.ReignComboStep == 1)
         {
+            // Use base Reign of Beasts ID — game resolves to Noble Blood via replacement chain
             if (context.ActionService.ExecuteGcd(GNBActions.ReignOfBeasts, targetId))
             {
-                context.Debug.PlannedAction = "Reign Combo";
-                context.Debug.DamageState = "Reign of Beasts";
+                context.Debug.PlannedAction = GNBActions.NobleBlood.Name;
+                context.Debug.DamageState = "Noble Blood (combo 2/3)";
 
                 TrainingHelper.Decision(context.TrainingService)
-                    .Action(GNBActions.ReignOfBeasts.ActionId, GNBActions.ReignOfBeasts.Name)
+                    .Action(GNBActions.NobleBlood.ActionId, GNBActions.NobleBlood.Name)
                     .AsTankBurst()
                     .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
                     .Reason(
-                        "Reign of Beasts combo (Lv.100)",
-                        "Reign of Beasts is the first step of GNB's Lv.100 combo (Reign of Beasts → Noble Blood → Lion Heart). " +
-                        "It is triggered by the Ready to Reign proc granted by Bloodfest. " +
-                        "This combo is available every other No Mercy window when Bloodfest aligns.")
-                    .Factors("Ready to Reign proc active (from Bloodfest)", "Lv.100 exclusive combo", "High potency burst sequence")
-                    .Alternatives("Complete combo will auto-replace this action through Noble Blood → Lion Heart")
-                    .Tip("The Reign of Beasts combo is a 3-step sequence. The game automatically upgrades the action to Noble Blood, then Lion Heart as you progress.")
+                        "Noble Blood - Reign combo step 2",
+                        "Noble Blood is the second step of the Reign of Beasts combo. " +
+                        "Always continue the combo to completion — breaking it wastes the burst sequence.")
+                    .Factors("In Reign of Beasts combo (step 1 complete)", "Combo step 2 of 3")
+                    .Alternatives("Break combo (never viable - wastes burst)")
+                    .Tip("Continue the combo to Lion Heart for maximum burst damage.")
                     .Concept("gnb_reign_of_beasts")
                     .Record();
-                context.TrainingService?.RecordConceptApplication("gnb_reign_of_beasts", true, "Reign of Beasts combo started");
+                context.TrainingService?.RecordConceptApplication("gnb_reign_of_beasts", true, "Noble Blood combo step");
+
+                return true;
+            }
+        }
+
+        // Step 3: Lion Heart (ReignComboStep == 2)
+        if (context.ReignComboStep == 2)
+        {
+            // Use base Reign of Beasts ID — game resolves to Lion Heart via replacement chain
+            if (context.ActionService.ExecuteGcd(GNBActions.ReignOfBeasts, targetId))
+            {
+                context.Debug.PlannedAction = GNBActions.LionHeart.Name;
+                context.Debug.DamageState = "Lion Heart (combo 3/3)";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(GNBActions.LionHeart.ActionId, GNBActions.LionHeart.Name)
+                    .AsTankBurst()
+                    .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                    .Reason(
+                        "Lion Heart - Reign combo finisher",
+                        "Lion Heart is the third and final step of the Reign of Beasts combo. " +
+                        "This completes the full burst sequence with the highest potency hit (1200).")
+                    .Factors("In Reign of Beasts combo (step 2 complete)", "Final combo step", "Highest potency of the 3 hits")
+                    .Alternatives("Break combo (never viable)")
+                    .Tip("Lion Heart finishes the Reign combo — the full sequence is one of GNB's highest burst windows.")
+                    .Concept("gnb_reign_of_beasts")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("gnb_reign_of_beasts", true, "Lion Heart combo finisher");
 
                 return true;
             }

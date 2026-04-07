@@ -28,6 +28,10 @@ public sealed class HephaestusDebugState
     public int GnashingFangStep { get; set; }
     public bool IsInGnashingFangCombo { get; set; }
 
+    // Reign of Beasts combo state
+    public int ReignComboStep { get; set; }
+    public bool IsInReignCombo { get; set; }
+
     // Continuation ready states
     public bool IsReadyToRip { get; set; }
     public bool IsReadyToTear { get; set; }

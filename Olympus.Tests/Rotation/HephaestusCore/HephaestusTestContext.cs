@@ -37,6 +37,7 @@ public static class HephaestusTestContext
         bool canExecuteOgcd = false,
         int cartridges = 0,
         int gnashingFangStep = 0,
+        int reignComboStep = 0,
         int comboStep = 0,
         uint lastComboAction = 0,
         float comboTimeRemaining = 0f,
@@ -111,6 +112,7 @@ public static class HephaestusTestContext
             debugState ?? new HephaestusDebugState(),
             cartridges,
             gnashingFangStep,
+            reignComboStep,
             comboStep,
             lastComboAction,
             comboTimeRemaining);

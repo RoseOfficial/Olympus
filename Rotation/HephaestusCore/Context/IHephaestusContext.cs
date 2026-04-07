@@ -72,6 +72,21 @@ public interface IHephaestusContext : ITankRotationContext
 
     #endregion
 
+    #region Reign of Beasts Combo State
+
+    /// <summary>
+    /// Current step in Reign of Beasts combo (0=none, 1=Noble Blood next, 2=Lion Heart next).
+    /// Tracked via GetAdjustedActionId on the Reign of Beasts base action.
+    /// </summary>
+    int ReignComboStep { get; }
+
+    /// <summary>
+    /// Whether currently in the middle of a Reign of Beasts combo (Noble Blood or Lion Heart pending).
+    /// </summary>
+    bool IsInReignCombo { get; }
+
+    #endregion
+
     #region Gnashing Fang Combo State
 
     /// <summary>

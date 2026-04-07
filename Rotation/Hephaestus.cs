@@ -69,6 +69,9 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
     // Gnashing Fang combo step tracking
     private int _gnashingFangStep;
 
+    // Reign of Beasts combo step tracking (0=none, 1=Noble Blood next, 2=Lion Heart next)
+    private int _reignComboStep;
+
     public Hephaestus(
         IPluginLog log,
         IActionTracker actionTracker,
@@ -179,6 +182,9 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
         // Update Gnashing Fang step tracking based on Ready buffs
         UpdateGnashingFangStep(player);
 
+        // Update Reign of Beasts combo step via action replacement detection
+        UpdateReignComboStep();
+
         return new HephaestusContext(
             player: player,
             inCombat: inCombat,
@@ -206,6 +212,7 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
             debugState: _hephaestusDebugState,
             cartridges: GaugeValue,
             gnashingFangStep: _gnashingFangStep,
+            reignComboStep: _reignComboStep,
             comboStep: ComboStep,
             lastComboAction: LastComboAction,
             comboTimeRemaining: ComboTimeRemaining,
@@ -242,6 +249,30 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
         {
             _gnashingFangStep = 0; // Not in combo
         }
+    }
+
+    /// <summary>
+    /// Updates the Reign of Beasts combo step using action replacement detection.
+    /// After using Reign of Beasts, the game replaces the action with Noble Blood, then Lion Heart.
+    /// The ReadyToReign buff is consumed at step 1, so we track steps 2/3 via GetAdjustedActionId.
+    /// </summary>
+    private unsafe void UpdateReignComboStep()
+    {
+        var actionManager = SafeGameAccess.GetActionManager(ErrorMetrics);
+        if (actionManager == null)
+        {
+            _reignComboStep = 0;
+            return;
+        }
+
+        var adjustedId = actionManager->GetAdjustedActionId(GNBActions.ReignOfBeasts.ActionId);
+
+        if (adjustedId == GNBActions.NobleBlood.ActionId)
+            _reignComboStep = 1; // After Reign of Beasts, Noble Blood next
+        else if (adjustedId == GNBActions.LionHeart.ActionId)
+            _reignComboStep = 2; // After Noble Blood, Lion Heart next
+        else
+            _reignComboStep = 0; // Not in Reign combo
     }
 
     /// <inheritdoc />

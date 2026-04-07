@@ -86,6 +86,10 @@ public sealed class HephaestusContext : IHephaestusContext
     public bool IsReadyToReign { get; }
     public bool HasAnyContinuationReady => IsReadyToRip || IsReadyToTear || IsReadyToGouge || IsReadyToBlast;
 
+    // Reign of Beasts combo state
+    public int ReignComboStep { get; }
+    public bool IsInReignCombo => ReignComboStep > 0;
+
     // Gnashing Fang combo state
     public int GnashingFangStep { get; }
     public bool IsInGnashingFangCombo => GnashingFangStep > 0 && GnashingFangStep < 3;
@@ -146,6 +150,7 @@ public sealed class HephaestusContext : IHephaestusContext
         HephaestusDebugState debugState,
         int cartridges,
         int gnashingFangStep,
+        int reignComboStep,
         int comboStep,
         uint lastComboAction,
         float comboTimeRemaining,
@@ -186,6 +191,7 @@ public sealed class HephaestusContext : IHephaestusContext
 
         Cartridges = cartridges;
         GnashingFangStep = gnashingFangStep;
+        ReignComboStep = reignComboStep;
         ComboStep = comboStep;
         LastComboAction = lastComboAction;
         ComboTimeRemaining = comboTimeRemaining;
@@ -270,6 +276,10 @@ public sealed class HephaestusContext : IHephaestusContext
         // Gnashing Fang combo
         Debug.GnashingFangStep = GnashingFangStep;
         Debug.IsInGnashingFangCombo = IsInGnashingFangCombo;
+
+        // Reign of Beasts combo
+        Debug.ReignComboStep = ReignComboStep;
+        Debug.IsInReignCombo = IsInReignCombo;
 
         // Continuation ready states
         Debug.IsReadyToRip = IsReadyToRip;
