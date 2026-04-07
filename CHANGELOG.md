@@ -3,6 +3,38 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.14.0 — 2026-04-07
+
+### Summoner
+- Fixed Carbuncle not being summoned automatically at the start of combat
+- Fixed primal summons and demi-summons (Bahamut, Phoenix, Solar Bahamut) failing silently, causing the rotation to loop on filler spells
+- Fixed gauge reading issues that caused primals to never register as available
+
+### Gunbreaker
+- Fixed Reign of Beasts combo dropping after the first hit — Noble Blood and Lion Heart now execute properly
+
+### Healers (All)
+- Healers no longer cast heals out of combat (between pulls or after the boss dies)
+- Healers no longer waste heals on players who just got raised and are still invulnerable
+- Fixed targeting so rotations no longer attack enemies that haven't been pulled yet (e.g., distant training dummies or unengaged packs)
+
+### Sage
+- Fixed Eukrasian Dosis (DoT) failing to apply due to an animation lock timing issue
+- Kardia now reliably stays on the main tank instead of sometimes swapping to DPS
+
+### Pictomancer
+- Added automatic motif repainting during combat downtime as a low-priority fallback
+
+### Black Mage
+- Fixed low-level Fire phase ending prematurely due to incorrect MP threshold ordering
+
+### Tanks (All)
+- Added over 40 new config toggles across all 4 tank jobs covering gap closers, oGCD damage, buff windows, mitigation cooldowns, and shared role actions (Reprisal, Interject, Low Blow, Arm's Length)
+
+### Casters
+- Wired several existing config toggles that were visible but had no effect: Black Mage Scathe movement toggle, Summoner ability group toggles, and Pictomancer individual creature motif toggles
+
+<!-- LATEST-END -->
 ## v4.13.0 — 2026-03-31
 
 ### New — Paladin Clemency
