@@ -136,19 +136,23 @@ public sealed class KardiaManager : IKardiaManager
     /// <param name="currentTargetHpPercent">HP percentage of current Kardia target.</param>
     /// <param name="newTargetHpPercent">HP percentage of potential new target.</param>
     /// <param name="swapThreshold">HP threshold below which to consider swapping.</param>
-    public bool ShouldSwapKardia(float currentTargetHpPercent, float newTargetHpPercent, float swapThreshold)
+    /// <param name="newTargetIsTank">Whether the new target is a tank (prefer returning Kardia to tank).</param>
+    public bool ShouldSwapKardia(float currentTargetHpPercent, float newTargetHpPercent, float swapThreshold, bool newTargetIsTank = false)
     {
         if (!CanSwapKardia)
             return false;
 
-        // Only swap if:
-        // 1. Current target is healthy (above threshold)
-        // 2. New target is low (below threshold)
-        // 3. New target is significantly lower than current
+        // Swap TO a non-tank: current target is healthy, new target is urgently low
         if (currentTargetHpPercent > swapThreshold && newTargetHpPercent < swapThreshold)
         {
             // Require a meaningful HP difference to avoid constant swapping
             return currentTargetHpPercent - newTargetHpPercent > 0.15f;
+        }
+
+        // Swap BACK to tank: current (non-tank) target is healthy, return Kardia to tank
+        if (newTargetIsTank && currentTargetHpPercent > swapThreshold)
+        {
+            return true;
         }
 
         return false;
@@ -247,7 +251,7 @@ public interface IKardiaManager
     /// <summary>
     /// Returns true if we should swap Kardia to a new target.
     /// </summary>
-    bool ShouldSwapKardia(float currentTargetHpPercent, float newTargetHpPercent, float swapThreshold);
+    bool ShouldSwapKardia(float currentTargetHpPercent, float newTargetHpPercent, float swapThreshold, bool newTargetIsTank = false);
 
     /// <summary>
     /// Checks if Soteria is active.

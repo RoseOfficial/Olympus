@@ -646,13 +646,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
             }
         }
 
-        // Fallback: transition to Ice if out of MP
-        if (context.CurrentMp < DespairMpCost)
-        {
-            return TryTransitionToIce(context, target, false);
-        }
-
-        // Low level: use Fire I
+        // Low level: use Fire I (before Fire IV is unlocked)
         if (level < BLMActions.Fire4.MinLevel)
         {
             if (context.ActionService.ExecuteGcd(BLMActions.Fire, target.GameObjectId))
@@ -678,7 +672,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
                 return true;
             }
 
-            // Fire I failed (MP too low in AF to afford another cast) — transition to Ice
+            // Fire failed (MP too low in AF to afford another cast) — transition to Ice
+            return TryTransitionToIce(context, target, false);
+        }
+
+        // Fallback: transition to Ice if out of MP for Fire IV
+        if (context.CurrentMp < DespairMpCost)
+        {
             return TryTransitionToIce(context, target, false);
         }
 

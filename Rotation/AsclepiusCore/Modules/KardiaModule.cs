@@ -26,16 +26,16 @@ public sealed class KardiaModule : IAsclepiusModule
         if (context.CanExecuteOgcd && TryPlaceKardia(context))
             return true;
 
-        // Priority 2: Soteria (boosted Kardia healing)
+        // Priority 2: Ensure Kardia is on the (main) tank — swap if needed
+        if (context.CanExecuteOgcd && TryEnsureKardiaOnTank(context))
+            return true;
+
+        // Priority 3: Soteria (boosted Kardia healing)
         if (context.CanExecuteOgcd && TrySoteria(context))
             return true;
 
-        // Priority 3: Philosophia (party-wide Kardia)
+        // Priority 4: Philosophia (party-wide Kardia)
         if (context.CanExecuteOgcd && TryPhilosophia(context))
-            return true;
-
-        // Priority 4: Swap Kardia to a more needy target
-        if (context.CanExecuteOgcd && TrySwapKardia(context))
             return true;
 
         return false;
@@ -266,80 +266,35 @@ public sealed class KardiaModule : IAsclepiusModule
         return false;
     }
 
-    private bool TrySwapKardia(IAsclepiusContext context)
+    /// <summary>
+    /// Ensures Kardia is on the (main) tank. If Kardia somehow ended up on a non-tank
+    /// (e.g., manual swap or party change), moves it back to the tank.
+    /// </summary>
+    private bool TryEnsureKardiaOnTank(IAsclepiusContext context)
     {
-        var config = context.Configuration.Sage;
-        var player = context.Player;
-
-        if (!config.KardiaSwapEnabled)
-            return false;
-
         if (!context.HasKardiaPlaced)
             return false;
 
         if (!context.CanSwapKardia)
             return false;
 
-        // Get current Kardia target HP
-        var currentTarget = FindKardiaTargetById(context, context.KardiaTargetId);
-        if (currentTarget == null)
+        var player = context.Player;
+        var tank = context.PartyHelper.FindTankInParty(player);
+        if (tank == null)
             return false;
 
-        var currentHpPercent = currentTarget.MaxHp > 0
-            ? (float)currentTarget.CurrentHp / currentTarget.MaxHp
-            : 1f;
-
-        // Find a better target
-        var (newTarget, newHpPercent) = FindBetterKardiaTarget(context, context.KardiaTargetId);
-        if (newTarget == null)
-            return false;
-
-        // Check if we should swap using the KardiaManager logic
-        if (!context.KardiaManager.ShouldSwapKardia(currentHpPercent, newHpPercent, config.KardiaSwapThreshold))
+        // Already on the tank
+        if (tank.GameObjectId == context.KardiaTargetId)
             return false;
 
         var action = SGEActions.Kardia;
-        if (context.ActionService.ExecuteOgcd(action, newTarget.GameObjectId))
+        if (context.ActionService.ExecuteOgcd(action, tank.GameObjectId))
         {
-            context.KardiaManager.RecordSwap(newTarget.GameObjectId);
+            context.KardiaManager.RecordSwap(tank.GameObjectId);
             context.Debug.PlannedAction = action.Name;
-            context.Debug.PlanningState = "Kardia Swap";
-            context.LogKardiaDecision(newTarget.Name?.TextValue ?? "Unknown", "Swap",
-                $"From {currentHpPercent:P0} to {newHpPercent:P0}");
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
-            {
-                var oldTargetName = currentTarget.Name?.TextValue ?? "Unknown";
-                var newTargetName = newTarget.Name?.TextValue ?? "Unknown";
-
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = action.ActionId,
-                    ActionName = "Kardia (Swap)",
-                    Category = "Healing",
-                    TargetName = newTargetName,
-                    ShortReason = $"Kardia swap: {oldTargetName} ({currentHpPercent:P0}) → {newTargetName} ({newHpPercent:P0})",
-                    DetailedReason = $"Kardia swapped from {oldTargetName} ({currentHpPercent:P0} HP) to {newTargetName} ({newHpPercent:P0} HP). The new target has significantly lower HP and will benefit more from Kardia's passive healing. Kardia swaps are instant and free!",
-                    Factors = new[]
-                    {
-                        $"Old target: {oldTargetName} at {currentHpPercent:P0}",
-                        $"New target: {newTargetName} at {newHpPercent:P0}",
-                        $"HP difference: {(currentHpPercent - newHpPercent):P0}",
-                        $"Swap threshold: {config.KardiaSwapThreshold:P0}",
-                    },
-                    Alternatives = new[]
-                    {
-                        "Keep Kardia on current target",
-                        "Direct heal instead of relying on Kardia",
-                    },
-                    Tip = "Smart Kardia swapping is part of SGE mastery! The swap is instant with no cooldown, so don't hesitate to move it to whoever needs it most. Just don't swap too frantically - let it tick a few times before moving again.",
-                    ConceptId = SgeConcepts.KardiaTargetSelection,
-                    Priority = ExplanationPriority.Normal,
-                });
-            }
-
+            context.Debug.PlanningState = "Kardia → Tank";
+            context.LogKardiaDecision(tank.Name?.TextValue ?? "Unknown", "EnsureTank",
+                "Kardia not on tank, moving back");
             return true;
         }
 
@@ -378,32 +333,4 @@ public sealed class KardiaModule : IAsclepiusModule
         return null;
     }
 
-    private (IBattleChara? target, float hpPercent) FindBetterKardiaTarget(
-        IAsclepiusContext context,
-        ulong currentTargetId)
-    {
-        IBattleChara? bestTarget = null;
-        var lowestHp = 1f;
-
-        foreach (var member in context.PartyHelper.GetAllPartyMembers(context.Player))
-        {
-            // Skip current target
-            if (member.GameObjectId == currentTargetId)
-                continue;
-
-            // Skip self
-            if (member.GameObjectId == context.Player.GameObjectId)
-                continue;
-
-            var hpPercent = member.MaxHp > 0 ? (float)member.CurrentHp / member.MaxHp : 1f;
-
-            if (hpPercent < lowestHp)
-            {
-                lowestHp = hpPercent;
-                bestTarget = member;
-            }
-        }
-
-        return (bestTarget, lowestHp);
-    }
 }

@@ -142,6 +142,11 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
         if (TryBaseCombo(context, target))
             return true;
 
+        // Priority 8: Repaint motifs during combat when nothing else is available
+        // Motifs have cast time so only paint when stationary
+        if (!isMoving && TryRepaintMotif(context))
+            return true;
+
         return false;
     }
 
@@ -291,6 +296,55 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
 
                 context.TrainingService?.RecordConceptApplication(PctConcepts.CanvasPrepull, true, "Weapon canvas prepared");
 
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Repaints consumed motifs during combat when no other GCD actions are available.
+    /// Lower priority than all damage actions — only fires as a last resort before auto-attacking.
+    /// </summary>
+    private bool TryRepaintMotif(IIrisContext context)
+    {
+        var player = context.Player;
+        var level = player.Level;
+
+        if (context.IsCasting)
+            return false;
+
+        // Creature motif takes priority (enables Living Muse for burst)
+        if (context.Configuration.Pictomancer.EnableCreatureMotif && context.NeedsCreatureMotif && level >= PCTActions.CreatureMotif.MinLevel)
+        {
+            var motif = PCTActions.GetCreatureMotif(level, context.LivingMuseCharges);
+            if (IsCreatureMotifEnabled(context, motif) && context.ActionService.ExecuteGcd(motif, player.GameObjectId))
+            {
+                context.Debug.PlannedAction = motif.Name;
+                context.Debug.DamageState = $"Repainting {motif.Name}";
+                return true;
+            }
+        }
+
+        // Weapon motif (enables Hammer combo)
+        if (context.Configuration.Pictomancer.EnableWeaponMotif && context.NeedsWeaponMotif && level >= PCTActions.WeaponMotif.MinLevel)
+        {
+            if (context.ActionService.ExecuteGcd(PCTActions.HammerMotif, player.GameObjectId))
+            {
+                context.Debug.PlannedAction = PCTActions.HammerMotif.Name;
+                context.Debug.DamageState = "Repainting Hammer";
+                return true;
+            }
+        }
+
+        // Landscape motif (enables Starry Muse)
+        if (context.Configuration.Pictomancer.EnableLandscapeMotif && context.NeedsLandscapeMotif && level >= PCTActions.StarrySkyMotif.MinLevel)
+        {
+            if (context.ActionService.ExecuteGcd(PCTActions.StarrySkyMotif, player.GameObjectId))
+            {
+                context.Debug.PlannedAction = PCTActions.StarrySkyMotif.Name;
+                context.Debug.DamageState = "Repainting Starry Sky";
                 return true;
             }
         }

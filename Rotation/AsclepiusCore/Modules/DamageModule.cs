@@ -76,11 +76,56 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
     protected override bool BlocksOnExecution => false;
 
     /// <summary>
-    /// SGE oGCD damage: Psyche (AoE damage ability).
+    /// SGE oGCD damage: Psyche and Eukrasia activation for DoT.
     /// </summary>
     protected override bool TryOgcdDamage(IAsclepiusContext context)
     {
-        return TryPsyche(context);
+        if (TryPsyche(context))
+            return true;
+
+        // Activate Eukrasia for DoT during oGCD window.
+        // Uses FindEnemy (current-target aware) instead of FindEnemyNeedingDot
+        // to avoid cache/filter issues with GetValidEnemies on striking dummies.
+        if (!context.HasEukrasia && IsDoTEnabled(context))
+        {
+            var player = context.Player;
+            if (player.Level >= SGEActions.EukrasianDosis.MinLevel)
+            {
+                var dotAction = GetDoTAction(context);
+                if (dotAction != null)
+                {
+                    var enemy = context.TargetingService.FindEnemy(
+                        context.Configuration.Targeting.EnemyStrategy,
+                        dotAction.Range,
+                        player);
+
+                    if (enemy != null)
+                    {
+                        // Check if this enemy actually needs the DoT
+                        var dotStatusId = GetDoTStatusId(context);
+                        bool needsDot = true;
+                        foreach (var status in enemy.StatusList)
+                        {
+                            if (status.StatusId == dotStatusId && status.RemainingTime > DoTRefreshThreshold(context))
+                            {
+                                needsDot = false;
+                                break;
+                            }
+                        }
+
+                        if (needsDot && context.ActionService.ExecuteOgcd(SGEActions.Eukrasia, player.GameObjectId))
+                        {
+                            SetPlannedAction(context, "Eukrasia");
+                            SetDpsState(context, "Eukrasia for DoT");
+                            context.Debug.EukrasiaState = "Activating";
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -184,48 +229,15 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
             return false;
         }
 
-        // Activate Eukrasia for DoT (this is an oGCD)
-        if (context.CanExecuteOgcd)
+        // Activate Eukrasia for DoT — attempt directly without CanExecuteOgcd gate.
+        // Eukrasia is instant with no animation lock; the game will reject if truly unavailable.
+        var eukrasiaAction = SGEActions.Eukrasia;
+        if (context.ActionService.ExecuteOgcd(eukrasiaAction, player.GameObjectId))
         {
-            var eukrasiaAction = SGEActions.Eukrasia;
-            if (context.ActionService.ExecuteOgcd(eukrasiaAction, player.GameObjectId))
-            {
-                SetPlannedAction(context, eukrasiaAction.Name);
-                SetDpsState(context, "Eukrasia for DoT");
-                context.Debug.EukrasiaState = "Activating";
-
-                // Training mode: capture explanation
-                if (context.TrainingService?.IsTrainingEnabled == true)
-                {
-                    context.TrainingService.RecordDecision(new ActionExplanation
-                    {
-                        Timestamp = DateTime.UtcNow,
-                        ActionId = eukrasiaAction.ActionId,
-                        ActionName = "Eukrasia",
-                        Category = "Damage",
-                        TargetName = target.Name?.TextValue ?? "Unknown",
-                        ShortReason = "Eukrasia activated - DoT needs to be applied or refreshed",
-                        DetailedReason = "Eukrasia activated to prepare Eukrasian Dosis. SGE's DoT requires a two-step process: activate Eukrasia (instant oGCD) then cast the enhanced Dosis version. The next GCD must be Eukrasian Dosis or Eukrasia is wasted.",
-                        Factors = new[]
-                        {
-                            "DoT absent or below refresh threshold",
-                            "Eukrasia is free (no resource cost)",
-                            "Must cast Eukrasian Dosis next GCD",
-                            "DoT deals damage passively over 30s",
-                        },
-                        Alternatives = new[]
-                        {
-                            "Skip DoT (only if target will die soon)",
-                            "Wait until next oGCD window",
-                        },
-                        Tip = "Eukrasia transforms your next cast into a Eukrasian version. For DPS, activate Eukrasia in an oGCD window then immediately cast Eukrasian Dosis. Never let your DoT drop completely!",
-                        ConceptId = SgeConcepts.EukrasiaDecisions,
-                        Priority = ExplanationPriority.Normal,
-                    });
-                }
-
-                return true;
-            }
+            SetPlannedAction(context, eukrasiaAction.Name);
+            SetDpsState(context, "Eukrasia for DoT");
+            context.Debug.EukrasiaState = "Activating";
+            return true;
         }
 
         return false;

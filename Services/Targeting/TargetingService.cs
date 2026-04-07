@@ -89,11 +89,15 @@ public sealed class TargetingService : ITargetingService
         IBattleNpc? bestTarget = null;
         float lowestDuration = float.MaxValue;
 
+        // Accept the player's current target even if it lacks InCombat (e.g., striking dummies)
+        var currentTargetId = _targetManager.Target is IBattleNpc ? _targetManager.Target.GameObjectId : 0UL;
+
         foreach (var enemy in GetValidEnemies(maxRange, player))
         {
-            // Only apply DoTs to enemies already in combat — avoids hitting
-            // non-engaged targets like dummies the player hasn't pulled
-            if ((enemy.StatusFlags & StatusFlags.InCombat) == 0)
+            // Only apply DoTs to enemies already in combat or explicitly targeted —
+            // avoids hitting non-engaged enemies like non-pulled packs, while still
+            // allowing DoTs on the player's selected target (e.g., striking dummies)
+            if ((enemy.StatusFlags & StatusFlags.InCombat) == 0 && enemy.GameObjectId != currentTargetId)
                 continue;
 
             var dotDuration = GetDotDuration(enemy, dotStatusId);
@@ -119,8 +123,13 @@ public sealed class TargetingService : ITargetingService
     public int CountEnemiesInRange(float radius, IPlayerCharacter player)
     {
         int count = 0;
-        foreach (var _ in GetValidEnemies(radius, player))
+        var currentTargetId = _targetManager.Target is IBattleNpc ? _targetManager.Target.GameObjectId : 0UL;
+        foreach (var enemy in GetValidEnemies(radius, player))
         {
+            // Only count enemies in combat or explicitly targeted — avoids counting
+            // non-engaged targets like unattacked dummies or non-pulled packs
+            if ((enemy.StatusFlags & StatusFlags.InCombat) == 0 && enemy.GameObjectId != currentTargetId)
+                continue;
             count++;
         }
         return count;
@@ -356,9 +365,15 @@ public sealed class TargetingService : ITargetingService
     {
         IBattleNpc? best = null;
         uint lowestHp = uint.MaxValue;
+        var currentTargetId = _targetManager.Target is IBattleNpc ? _targetManager.Target.GameObjectId : 0UL;
 
         foreach (var enemy in GetValidEnemies(maxRange, player))
         {
+            // Only consider enemies in combat or explicitly targeted by the player —
+            // avoids targeting non-engaged enemies like unattacked dummies or non-pulled packs
+            if ((enemy.StatusFlags & StatusFlags.InCombat) == 0 && enemy.GameObjectId != currentTargetId)
+                continue;
+
             if (enemy.CurrentHp < lowestHp)
             {
                 lowestHp = enemy.CurrentHp;
@@ -373,9 +388,13 @@ public sealed class TargetingService : ITargetingService
     {
         IBattleNpc? best = null;
         uint highestHp = 0;
+        var currentTargetId = _targetManager.Target is IBattleNpc ? _targetManager.Target.GameObjectId : 0UL;
 
         foreach (var enemy in GetValidEnemies(maxRange, player))
         {
+            if ((enemy.StatusFlags & StatusFlags.InCombat) == 0 && enemy.GameObjectId != currentTargetId)
+                continue;
+
             if (enemy.CurrentHp > highestHp)
             {
                 highestHp = enemy.CurrentHp;
@@ -391,9 +410,13 @@ public sealed class TargetingService : ITargetingService
         IBattleNpc? best = null;
         float nearestDist = float.MaxValue;
         var playerPos = player.Position;
+        var currentTargetId = _targetManager.Target is IBattleNpc ? _targetManager.Target.GameObjectId : 0UL;
 
         foreach (var enemy in GetValidEnemies(maxRange, player))
         {
+            if ((enemy.StatusFlags & StatusFlags.InCombat) == 0 && enemy.GameObjectId != currentTargetId)
+                continue;
+
             var dist = Vector3.DistanceSquared(playerPos, enemy.Position);
             if (dist < nearestDist)
             {
