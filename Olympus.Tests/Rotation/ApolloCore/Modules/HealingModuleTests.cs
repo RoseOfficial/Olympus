@@ -1133,7 +1133,7 @@ public class HealingModuleTests
         uint currentHp = 50000,
         uint maxHp = 50000,
         uint currentMp = 10000,
-        bool inCombat = false,
+        bool inCombat = true,
         bool canExecuteGcd = true,
         bool canExecuteOgcd = false)
     {

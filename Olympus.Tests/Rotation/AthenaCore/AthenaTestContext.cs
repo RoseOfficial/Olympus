@@ -39,7 +39,7 @@ public static class AthenaTestContext
         uint maxHp = 50000,
         uint currentMp = 10000,
         uint maxMp = 10000,
-        bool inCombat = false,
+        bool inCombat = true,
         bool isMoving = false,
         bool canExecuteGcd = true,
         bool canExecuteOgcd = false,
@@ -202,7 +202,7 @@ public static class AthenaTestContext
 
         return new AthenaContext(
             player.Object,
-            inCombat: false,
+            inCombat: true,
             isMoving: false,
             canExecuteGcd,
             canExecuteOgcd,

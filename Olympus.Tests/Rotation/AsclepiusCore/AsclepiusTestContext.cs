@@ -45,7 +45,7 @@ public static class AsclepiusTestContext
         uint currentHp = 50000,
         uint maxHp = 50000,
         uint currentMp = 10000,
-        bool inCombat = false,
+        bool inCombat = true,
         bool canExecuteGcd = true,
         bool canExecuteOgcd = false,
         int addersgallStacks = 3,
@@ -220,7 +220,7 @@ public static class AsclepiusTestContext
 
         return new AsclepiusContext(
             player.Object,
-            inCombat: false,
+            inCombat: true,
             isMoving: false,
             canExecuteGcd,
             canExecuteOgcd,

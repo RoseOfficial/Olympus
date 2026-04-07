@@ -37,7 +37,7 @@ public static class ApolloTestContext
         uint currentHp = 50000,
         uint maxHp = 50000,
         uint currentMp = 10000,
-        bool inCombat = false,
+        bool inCombat = true,
         bool isMoving = false,
         bool canExecuteGcd = true,
         bool canExecuteOgcd = false)

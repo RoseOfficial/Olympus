@@ -24,6 +24,12 @@ public abstract class HealerPartyHelper : BasePartyHelper
     /// </summary>
     protected const ushort RaiseStatusId = 148;
 
+    /// <summary>
+    /// Transcendent status ID — post-raise invulnerability where the player cannot act.
+    /// Healing targets with this buff is wasteful since they are invulnerable.
+    /// </summary>
+    protected const ushort TranscendentStatusId = 2656;
+
     protected HealerPartyHelper(
         IObjectTable objectTable,
         IPartyList partyList,
@@ -72,6 +78,8 @@ public abstract class HealerPartyHelper : BasePartyHelper
         foreach (var member in GetAllPartyMembers(player))
         {
             if (member.IsDead)
+                continue;
+            if (HasTranscendent(member))
                 continue;
             if (Vector3.DistanceSquared(player.Position, member.Position) > rangeSquared)
                 continue;
@@ -144,6 +152,23 @@ public abstract class HealerPartyHelper : BasePartyHelper
         return false;
     }
 
+    /// <summary>
+    /// Checks if a target has the Transcendent (post-raise invulnerability) buff.
+    /// Players with this status are invulnerable and should not be healed.
+    /// </summary>
+    protected static bool HasTranscendent(IBattleChara chara)
+    {
+        if (chara.StatusList == null)
+            return false;
+
+        foreach (var status in chara.StatusList)
+        {
+            if (status.StatusId == TranscendentStatusId)
+                return true;
+        }
+        return false;
+    }
+
     #endregion
 
     #region Party Health Metrics
@@ -207,6 +232,8 @@ public abstract class HealerPartyHelper : BasePartyHelper
             if (Vector3.DistanceSquared(player.Position, member.Position) > radiusSquared)
                 continue;
             if (member.IsDead)
+                continue;
+            if (HasTranscendent(member))
                 continue;
 
             var predictedHp = GetPredictedHp(member);

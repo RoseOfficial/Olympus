@@ -44,6 +44,8 @@ public sealed class HealingModule : IApolloModule
     {
         context.HealingCoordination.Clear();
 
+        if (!context.InCombat) return false;
+
         if (context.CanExecuteOgcd)
             foreach (var h in _ogcdHandlers)
                 if (h.TryExecute(context, isMoving)) return true;

@@ -42,8 +42,8 @@ public sealed class HealingModule : IAthenaModule
     {
         context.HealingCoordination.Clear();
 
-        if (!context.Configuration.EnableHealing)
-            return false;
+        if (!context.InCombat) return false;
+        if (!context.Configuration.EnableHealing) return false;
 
         if (context.CanExecuteOgcd)
             foreach (var h in _ogcdHandlers)
