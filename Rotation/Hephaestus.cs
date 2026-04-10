@@ -179,8 +179,8 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
     /// <inheritdoc />
     protected override IHephaestusContext CreateContext(IPlayerCharacter player, bool inCombat, bool isMoving)
     {
-        // Update Gnashing Fang step tracking based on Ready buffs
-        UpdateGnashingFangStep(player);
+        // Update Gnashing Fang step tracking via action replacement detection
+        UpdateGnashingFangStep();
 
         // Update Reign of Beasts combo step via action replacement detection
         UpdateReignComboStep();
@@ -223,32 +223,30 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
     }
 
     /// <summary>
-    /// Updates the Gnashing Fang combo step based on Ready buffs.
+    /// Updates the Gnashing Fang combo step via action replacement detection.
+    /// After using Gnashing Fang, the game replaces the action with Savage Claw, then Wicked Talon.
+    /// This state persists across frames regardless of whether the Continuation oGCDs
+    /// (Jugular Rip, Abdomen Tear, Eye Gouge) have consumed their Ready buffs.
+    /// Tracking via the Ready buffs alone is unreliable because they are consumed by the
+    /// oGCD weave before the next GCD frame, which caused the combo to drop.
     /// </summary>
-    private void UpdateGnashingFangStep(IPlayerCharacter player)
+    private unsafe void UpdateGnashingFangStep()
     {
-        // Check Ready buffs to determine where we are in the combo
-        // After Gnashing Fang: ReadyToRip (step 1)
-        // After Savage Claw: ReadyToTear (step 2)
-        // After Wicked Talon: ReadyToGouge (step 3, combo complete)
-        // After using Eye Gouge: combo is done (step 0)
+        var actionManager = SafeGameAccess.GetActionManager(ErrorMetrics);
+        if (actionManager == null)
+        {
+            _gnashingFangStep = 0;
+            return;
+        }
 
-        if (_statusHelper.HasReadyToRip(player))
-        {
-            _gnashingFangStep = 1; // After Gnashing Fang
-        }
-        else if (_statusHelper.HasReadyToTear(player))
-        {
-            _gnashingFangStep = 2; // After Savage Claw
-        }
-        else if (_statusHelper.HasReadyToGouge(player))
-        {
-            _gnashingFangStep = 3; // After Wicked Talon (combo complete, waiting for Eye Gouge)
-        }
+        var adjustedId = actionManager->GetAdjustedActionId(GNBActions.GnashingFang.ActionId);
+
+        if (adjustedId == GNBActions.SavageClaw.ActionId)
+            _gnashingFangStep = 1; // After Gnashing Fang, Savage Claw next
+        else if (adjustedId == GNBActions.WickedTalon.ActionId)
+            _gnashingFangStep = 2; // After Savage Claw, Wicked Talon next
         else
-        {
             _gnashingFangStep = 0; // Not in combo
-        }
     }
 
     /// <summary>

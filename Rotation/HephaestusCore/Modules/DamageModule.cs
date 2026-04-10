@@ -817,10 +817,16 @@ public sealed class DamageModule : IHephaestusModule
         // Spend conditions:
         // 1. Max cartridges (avoid overcap from combo finisher)
         // 2. During No Mercy window
-        // 3. About to overcap from combo finisher
+        // 3. About to overcap from ST combo finisher (Solid Barrel: ComboStep 2, +1 cart)
+        // 4. About to overcap from AoE combo finisher (Demon Slaughter: ComboStep 1 from Demon Slice, +1 cart)
+        var aboutToOvercapSt = context.ComboStep == 2 && context.Cartridges >= 2;
+        var aboutToOvercapAoe = context.ComboStep == 1 &&
+                                context.LastComboAction == GNBActions.DemonSlice.ActionId &&
+                                context.Cartridges >= 2;
         var shouldSpend = context.HasMaxCartridges ||
                           context.HasNoMercy ||
-                          (context.ComboStep == 2 && context.Cartridges >= 2);
+                          aboutToOvercapSt ||
+                          aboutToOvercapAoe;
 
         if (!shouldSpend)
             return false;

@@ -123,6 +123,16 @@ public interface ICirceContext : ICasterDpsRotationContext
     int MeleeComboStep { get; }
 
     /// <summary>
+    /// Whether currently in the Moulinet (AoE melee) combo chain.
+    /// </summary>
+    bool IsInMoulinetCombo { get; }
+
+    /// <summary>
+    /// Current step in Moulinet combo (0=None, 1=Deux next, 2=Trois next).
+    /// </summary>
+    int MoulinetStep { get; }
+
+    /// <summary>
     /// Whether finisher is ready (after Redoublement).
     /// </summary>
     bool IsFinisherReady { get; }

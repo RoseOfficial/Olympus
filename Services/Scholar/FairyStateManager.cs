@@ -1,4 +1,5 @@
 using System;
+using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin.Services;
@@ -163,22 +164,19 @@ public sealed class FairyStateManager : IFairyStateManager
 
     /// <summary>
     /// Checks if Eos is currently summoned.
+    /// Scholar can only have one pet at a time, and only summons fairies, so any
+    /// owned pet that isn't Seraph is Eos (or Selene). The pet is detected by
+    /// owner + BattleNpcSubKind.Pet rather than by display name, because pet glamours
+    /// change the name (e.g. "Ruby Carbuncle" applied to Eos) and break name matching.
     /// </summary>
     private bool IsEosActive()
     {
-        // Look for Eos pet in object table
-        // Pet names: "Eos" (old) or fairy appearance
-        foreach (var obj in _objectTable)
-        {
-            if (obj is IBattleNpc npc && npc.OwnerId == _objectTable.LocalPlayer?.EntityId)
-            {
-                // Eos has specific pet IDs
-                // BattleNpcSubKind.Pet for summoned pets
-                if (IsFairyPet(npc))
-                    return true;
-            }
-        }
-        return false;
+        var pet = FindOwnedPet();
+        if (pet == null)
+            return false;
+
+        // If the owned pet is Seraph, it's not Eos
+        return !IsSeraphPet(pet);
     }
 
     /// <summary>
@@ -186,35 +184,52 @@ public sealed class FairyStateManager : IFairyStateManager
     /// </summary>
     private bool IsSeraphActive()
     {
+        var pet = FindOwnedPet();
+        if (pet == null)
+            return false;
+
+        return IsSeraphPet(pet);
+    }
+
+    /// <summary>
+    /// Finds the first BattleNpc with SubKind.Pet owned by the local player.
+    /// Scholar only ever has one pet (the fairy), so this is the fairy.
+    /// Works regardless of pet glamours because it uses ownership/type, not name.
+    /// </summary>
+    private IBattleNpc? FindOwnedPet()
+    {
+        var localPlayer = _objectTable.LocalPlayer;
+        if (localPlayer == null)
+            return null;
+
+        var playerEntityId = localPlayer.EntityId;
         foreach (var obj in _objectTable)
         {
-            if (obj is IBattleNpc npc && npc.OwnerId == _objectTable.LocalPlayer?.EntityId)
+            if (obj is IBattleNpc npc &&
+                npc.OwnerId == playerEntityId &&
+                npc.BattleNpcKind == BattleNpcSubKind.Pet)
             {
-                if (IsSeraphPet(npc))
-                    return true;
+                return npc;
             }
         }
-        return false;
+        return null;
     }
 
     /// <summary>
-    /// Checks if a battle NPC is the Eos fairy.
-    /// </summary>
-    private static bool IsFairyPet(IBattleNpc npc)
-    {
-        // Eos/Selene pet check
-        // Pet ModelCharaId or specific identifiers
-        // Common approach: check if it's a summoner pet with fairy model
-        var name = npc.Name?.TextValue ?? "";
-        return name.Contains("Eos", StringComparison.OrdinalIgnoreCase) ||
-               name.Contains("Selene", StringComparison.OrdinalIgnoreCase);
-    }
-
-    /// <summary>
-    /// Checks if a battle NPC is Seraph.
+    /// Checks if a battle NPC is Seraph. Uses BaseId (pet base model) rather than
+    /// display name, because display name is affected by pet glamours.
+    /// BaseId constants come from the game's pet sheet:
+    ///   Eos    = 6
+    ///   Selene = 7
+    ///   Seraph = 14
     /// </summary>
     private static bool IsSeraphPet(IBattleNpc npc)
     {
+        const uint seraphBaseId = 14;
+        if (npc.BaseId == seraphBaseId)
+            return true;
+
+        // Fallback: name match (Seraph is rarely pet-glamoured so the name fallback is fine)
         var name = npc.Name?.TextValue ?? "";
         return name.Contains("Seraph", StringComparison.OrdinalIgnoreCase);
     }

@@ -101,6 +101,8 @@ public sealed class CirceContext : ICirceContext
     // Melee combo state
     public bool IsInMeleeCombo { get; }
     public int MeleeComboStep { get; }
+    public bool IsInMoulinetCombo { get; }
+    public int MoulinetStep { get; }
     public bool IsFinisherReady { get; }
     public bool IsScorchReady { get; }
     public bool IsResolutionReady { get; }
@@ -169,8 +171,8 @@ public sealed class CirceContext : ICirceContext
         int blackMana,
         int whiteMana,
         int manaStacks,
-        uint comboAction,
-        float comboTimer,
+        int meleeComboStep,
+        int moulinetStep,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
@@ -259,14 +261,19 @@ public sealed class CirceContext : ICirceContext
         IsGrandImpactReady = statusHelper.HasGrandImpactReady(player);
         HasMagickBarrier = statusHelper.HasMagickBarrier(player);
 
-        // Melee combo state - determined by combo action and mana stacks
-        DetermineComboState(comboAction, comboTimer, player.Level, out var inCombo, out var comboStep,
+        // Melee combo state - determined by action replacement + mana stacks + game combo field
+        // (computed upstream in Circe.UpdateMeleeComboStep and passed in as meleeComboStep)
+        DetermineComboState(meleeComboStep, player.Level, out var inCombo, out var comboStep,
             out var finisherReady, out var scorchReady, out var resolutionReady);
         IsInMeleeCombo = inCombo;
         MeleeComboStep = comboStep;
         IsFinisherReady = finisherReady;
         IsScorchReady = scorchReady;
         IsResolutionReady = resolutionReady;
+
+        // Moulinet (AoE melee) combo state - from action replacement upstream
+        MoulinetStep = moulinetStep;
+        IsInMoulinetCombo = moulinetStep > 0;
 
         // Calculate party health metrics
         PartyHealthMetrics = CalculatePartyHealth(player);
@@ -307,53 +314,14 @@ public sealed class CirceContext : ICirceContext
         UpdateDebugState();
     }
 
-    private void DetermineComboState(uint comboAction, float comboTimer, byte level,
+    private static void DetermineComboState(int step, byte level,
         out bool inCombo, out int comboStep, out bool finisherReady, out bool scorchReady, out bool resolutionReady)
     {
-        inCombo = false;
-        comboStep = 0;
-        finisherReady = false;
-        scorchReady = false;
-        resolutionReady = false;
-
-        // No combo if timer expired
-        if (comboTimer <= 0)
-            return;
-
-        // Check based on last combo action
-        // Enchanted Riposte (7527) -> Zwerchhau ready
-        if (comboAction == RDMActions.EnchantedRiposte.ActionId)
-        {
-            inCombo = true;
-            comboStep = 1; // Zwerchhau is next
-        }
-        // Enchanted Zwerchhau (7528) -> Redoublement ready
-        else if (comboAction == RDMActions.EnchantedZwerchhau.ActionId)
-        {
-            inCombo = true;
-            comboStep = 2; // Redoublement is next
-        }
-        // Enchanted Redoublement (7529) -> Finisher ready
-        else if (comboAction == RDMActions.EnchantedRedoublement.ActionId)
-        {
-            inCombo = true;
-            comboStep = 3;
-            finisherReady = level >= RDMActions.Verflare.MinLevel;
-        }
-        // Verflare (7525) or Verholy (7526) -> Scorch ready
-        else if (comboAction == RDMActions.Verflare.ActionId || comboAction == RDMActions.Verholy.ActionId)
-        {
-            inCombo = true;
-            comboStep = 4;
-            scorchReady = level >= RDMActions.Scorch.MinLevel;
-        }
-        // Scorch (16530) -> Resolution ready
-        else if (comboAction == RDMActions.Scorch.ActionId)
-        {
-            inCombo = true;
-            comboStep = 5;
-            resolutionReady = level >= RDMActions.Resolution.MinLevel;
-        }
+        inCombo = step > 0;
+        comboStep = step;
+        finisherReady = step == 3 && level >= RDMActions.Verflare.MinLevel;
+        scorchReady = step == 4 && level >= RDMActions.Scorch.MinLevel;
+        resolutionReady = step == 5 && level >= RDMActions.Resolution.MinLevel;
     }
 
     private (float avgHpPercent, float lowestHpPercent, int injuredCount) CalculatePartyHealth(IPlayerCharacter player)

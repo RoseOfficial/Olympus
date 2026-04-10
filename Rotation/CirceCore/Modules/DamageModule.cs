@@ -86,9 +86,23 @@ public sealed class DamageModule : BaseDpsDamageModule<ICirceContext>, ICirceMod
                 return true;
         }
 
-        // === PRIORITY 6: START MELEE COMBO (at 50|50 mana) ===
-        if (context.CanStartMeleeCombo && !context.IsInMeleeCombo)
+        // === PRIORITY 5b: MOULINET CHAIN (AoE melee combo continuation) ===
+        if (context.IsInMoulinetCombo)
         {
+            if (TryMoulinetCombo(context, target))
+                return true;
+        }
+
+        // === PRIORITY 6: START MELEE COMBO (at 50|50 mana) ===
+        if (context.CanStartMeleeCombo && !context.IsInMeleeCombo && !context.IsInMoulinetCombo)
+        {
+            // In AoE, prefer the Moulinet chain over the single-target Riposte chain
+            if (useAoe && level >= RDMActions.EnchantedMoulinet.MinLevel)
+            {
+                if (TryStartMoulinet(context, target))
+                    return true;
+            }
+
             if (TryStartMeleeCombo(context, target))
                 return true;
         }
@@ -376,6 +390,81 @@ public sealed class DamageModule : BaseDpsDamageModule<ICirceContext>, ICirceMod
 
             context.TrainingService?.RecordConceptApplication(RdmConcepts.MeleeEntry, true, "Melee combo started");
 
+            return true;
+        }
+
+        return false;
+    }
+
+    #endregion
+
+    #region Moulinet (AoE) Combo
+
+    private bool TryMoulinetCombo(ICirceContext context, IBattleChara target)
+    {
+        if (!context.Configuration.RedMage.EnableMeleeCombo)
+            return false;
+
+        var level = context.Player.Level;
+
+        // Moulinet Deux/Trois only exist at Lv.96+. Below that, Moulinet is a single hit
+        // and the chain never extends past step 0, so this method never fires for low levels.
+        switch (context.MoulinetStep)
+        {
+            case 1: // Moulinet Deux
+                if (level >= RDMActions.EnchantedMoulinetDeux.MinLevel &&
+                    context.ActionService.ExecuteGcd(RDMActions.EnchantedMoulinetDeux, target.GameObjectId))
+                {
+                    context.Debug.PlannedAction = RDMActions.EnchantedMoulinetDeux.Name;
+                    context.Debug.DamageState = "Moulinet Deux (AoE combo 2/3)";
+                    return true;
+                }
+                break;
+
+            case 2: // Moulinet Trois
+                if (level >= RDMActions.EnchantedMoulinetTrois.MinLevel &&
+                    context.ActionService.ExecuteGcd(RDMActions.EnchantedMoulinetTrois, target.GameObjectId))
+                {
+                    context.Debug.PlannedAction = RDMActions.EnchantedMoulinetTrois.Name;
+                    context.Debug.DamageState = "Moulinet Trois (AoE combo 3/3)";
+                    return true;
+                }
+                break;
+        }
+
+        return false;
+    }
+
+    private bool TryStartMoulinet(ICirceContext context, IBattleChara target)
+    {
+        if (!context.Configuration.RedMage.EnableMeleeCombo)
+            return false;
+
+        var level = context.Player.Level;
+        if (level < RDMActions.EnchantedMoulinet.MinLevel)
+            return false;
+
+        // Same burst-pooling / hold-for-Embolden rules as single-target combo entry
+        var inBurst = context.HasEmbolden || context.HasManafication;
+        var highMana = context.LowerMana >= 80;
+        var verySoon = context.LowerMana >= 90;
+
+        if (!inBurst && !highMana && !verySoon && context.EmboldenReady)
+        {
+            context.Debug.DamageState = "Hold Moulinet for Embolden";
+            return false;
+        }
+
+        if (context.Configuration.RedMage.EnableBurstPooling && ShouldHoldForBurst(8f) && !IsInBurst && !verySoon)
+        {
+            context.Debug.DamageState = "Holding Moulinet for burst";
+            return false;
+        }
+
+        if (context.ActionService.ExecuteGcd(RDMActions.EnchantedMoulinet, target.GameObjectId))
+        {
+            context.Debug.PlannedAction = RDMActions.EnchantedMoulinet.Name;
+            context.Debug.DamageState = "Enchanted Moulinet (AoE combo start)";
             return true;
         }
 

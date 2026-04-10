@@ -205,6 +205,16 @@ public sealed class TankConfig
     public bool EnableInfuriate { get; set; } = true;
 
     /// <summary>
+    /// Use Primal Rend (ranged GCD proc from Inner Release).
+    /// </summary>
+    public bool EnablePrimalRend { get; set; } = true;
+
+    /// <summary>
+    /// Use Primal Ruination (follow-up GCD after Primal Rend).
+    /// </summary>
+    public bool EnablePrimalRuination { get; set; } = true;
+
+    /// <summary>
     /// Use Vengeance / Damnation (major mitigation).
     /// </summary>
     public bool EnableVengeance { get; set; } = true;

@@ -73,9 +73,16 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
     private int _whiteMana;
     private int _manaStacks;
 
-    // Combo tracking (read from game each frame)
-    private uint _comboAction;
-    private float _comboTimer;
+    // Melee combo step tracking (0=None, 1=Zwerchhau next, 2=Redoublement next,
+    // 3=Finisher next, 4=Scorch next, 5=Resolution next).
+    // Computed via action replacement on Enchanted Riposte + ManaStacks + the game's
+    // combo field. Replaces the old raw combo-action/combo-timer pair which was
+    // unreliable for the Enchanted chain.
+    private int _meleeComboStep;
+
+    // Moulinet (AoE melee) combo step tracking (0=None, 1=Deux next, 2=Trois next).
+    // Computed via action replacement on Enchanted Moulinet.
+    private int _moulinetStep;
 
     public Circe(
         IPluginLog log,
@@ -142,9 +149,77 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
         _whiteMana = SafeGameAccess.GetRdmWhiteMana(ErrorMetrics);
         _manaStacks = SafeGameAccess.GetRdmManaStacks(ErrorMetrics);
 
-        // Read combo state from game
-        _comboAction = SafeGameAccess.GetComboAction(ErrorMetrics);
-        _comboTimer = SafeGameAccess.GetComboTimer(ErrorMetrics);
+        UpdateMeleeComboStep();
+        UpdateMoulinetStep();
+    }
+
+    /// <summary>
+    /// Updates the Moulinet (AoE melee) combo step using action replacement on
+    /// Enchanted Moulinet. The chain is Moulinet → Moulinet Deux → Moulinet Trois.
+    /// Only the Deux/Trois steps exist at Lv.96+; below that, Moulinet is a single hit.
+    /// </summary>
+    private unsafe void UpdateMoulinetStep()
+    {
+        _moulinetStep = 0;
+
+        var actionManager = SafeGameAccess.GetActionManager(ErrorMetrics);
+        if (actionManager == null)
+            return;
+
+        var adjustedId = actionManager->GetAdjustedActionId(RDMActions.EnchantedMoulinet.ActionId);
+        if (adjustedId == RDMActions.EnchantedMoulinetDeux.ActionId)
+            _moulinetStep = 1; // Deux next
+        else if (adjustedId == RDMActions.EnchantedMoulinetTrois.ActionId)
+            _moulinetStep = 2; // Trois next
+    }
+
+    /// <summary>
+    /// Updates the melee combo step using action replacement on Enchanted Riposte
+    /// for steps 1-2 (Zwerchhau/Redoublement), Mana Stacks for step 3 (Finisher),
+    /// and the game's combo field for steps 4-5 (Scorch/Resolution).
+    /// Action replacement is used rather than raw combo tracking because the game's
+    /// combo field is unreliable for the Enchanted melee chain.
+    /// </summary>
+    private unsafe void UpdateMeleeComboStep()
+    {
+        _meleeComboStep = 0;
+
+        var actionManager = SafeGameAccess.GetActionManager(ErrorMetrics);
+        if (actionManager == null)
+            return;
+
+        // Steps 1-2: action replacement from Enchanted Riposte
+        var adjustedId = actionManager->GetAdjustedActionId(RDMActions.EnchantedRiposte.ActionId);
+        if (adjustedId == RDMActions.EnchantedZwerchhau.ActionId)
+        {
+            _meleeComboStep = 1; // Zwerchhau next
+            return;
+        }
+        if (adjustedId == RDMActions.EnchantedRedoublement.ActionId)
+        {
+            _meleeComboStep = 2; // Redoublement next
+            return;
+        }
+
+        // Step 3: Finisher (Verflare/Verholy) becomes available at 3 Mana Stacks,
+        // which is granted by Enchanted Redoublement.
+        if (_manaStacks >= 3)
+        {
+            _meleeComboStep = 3;
+            return;
+        }
+
+        // Steps 4-5: Scorch/Resolution are chained via the vanilla combo system,
+        // so the game's combo field reliably tracks them.
+        var comboAction = SafeGameAccess.GetComboAction(ErrorMetrics);
+        var comboTimer = SafeGameAccess.GetComboTimer(ErrorMetrics);
+        if (comboTimer <= 0)
+            return;
+
+        if (comboAction == RDMActions.Verflare.ActionId || comboAction == RDMActions.Verholy.ActionId)
+            _meleeComboStep = 4; // Scorch next
+        else if (comboAction == RDMActions.Scorch.ActionId)
+            _meleeComboStep = 5; // Resolution next
     }
 
     /// <summary>
@@ -188,8 +263,8 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
             blackMana: _blackMana,
             whiteMana: _whiteMana,
             manaStacks: _manaStacks,
-            comboAction: _comboAction,
-            comboTimer: _comboTimer,
+            meleeComboStep: _meleeComboStep,
+            moulinetStep: _moulinetStep,
             timelineService: _timelineService,
             partyCoordinationService: _partyCoordinationService,
             trainingService: _trainingService,

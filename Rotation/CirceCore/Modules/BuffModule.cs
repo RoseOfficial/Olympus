@@ -475,6 +475,14 @@ public sealed class BuffModule : ICirceModule
         if (context.CorpsACorpsCharges == 0)
             return false;
 
+        // HP safety gate: don't dash into boss mechanics at low HP
+        var hpPercent = player.MaxHp > 0 ? (float)player.CurrentHp / player.MaxHp : 1f;
+        if (hpPercent < context.Configuration.RedMage.MeleeDashMinHpPercent)
+        {
+            context.Debug.BuffState = $"Hold Corps-a-corps (HP {hpPercent:P0} low)";
+            return false;
+        }
+
         // Use during melee combo for burst damage
         // Or use when capped on charges to avoid waste
         var inBurst = context.IsInMeleeCombo || context.HasEmbolden || context.HasManafication;
@@ -529,6 +537,14 @@ public sealed class BuffModule : ICirceModule
 
         if (context.EngagementCharges == 0)
             return false;
+
+        // HP safety gate: don't dash into boss mechanics at low HP
+        var hpPercent = player.MaxHp > 0 ? (float)player.CurrentHp / player.MaxHp : 1f;
+        if (hpPercent < context.Configuration.RedMage.MeleeDashMinHpPercent)
+        {
+            context.Debug.BuffState = $"Hold Engagement (HP {hpPercent:P0} low)";
+            return false;
+        }
 
         // Use during melee combo for burst damage
         // Or use when capped on charges to avoid waste

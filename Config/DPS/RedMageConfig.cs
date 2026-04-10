@@ -84,6 +84,18 @@ public sealed class RedMageConfig
     public bool PreferEngagementOverDisplacement { get; set; } = true;
 
     /// <summary>
+    /// Minimum player HP percent required to fire Corps-a-corps / Engagement.
+    /// Prevents dashing into boss mechanics when HP is low.
+    /// Range: 0.0 (always allowed) to 1.0 (only at full HP).
+    /// </summary>
+    private float _meleeDashMinHpPercent = 0.70f;
+    public float MeleeDashMinHpPercent
+    {
+        get => _meleeDashMinHpPercent;
+        set => _meleeDashMinHpPercent = Math.Clamp(value, 0f, 1f);
+    }
+
+    /// <summary>
     /// Whether to use Vice of Thorns (follow-up after Embolden).
     /// </summary>
     public bool EnableViceOfThorns { get; set; } = true;

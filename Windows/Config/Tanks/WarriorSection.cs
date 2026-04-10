@@ -175,6 +175,22 @@ public sealed class WarriorSection
                 save,
                 actionId: WARActions.Onslaught.ActionId);
 
+            ConfigUIHelpers.Toggle(
+                "Primal Rend",
+                () => config.Tank.EnablePrimalRend,
+                v => config.Tank.EnablePrimalRend = v,
+                null,
+                save,
+                actionId: WARActions.PrimalRend.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                "Primal Ruination",
+                () => config.Tank.EnablePrimalRuination,
+                v => config.Tank.EnablePrimalRuination = v,
+                null,
+                save,
+                actionId: WARActions.PrimalRuination.ActionId);
+
             ConfigUIHelpers.Spacing();
 
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Warrior.AoERotation, "AoE Rotation:"));

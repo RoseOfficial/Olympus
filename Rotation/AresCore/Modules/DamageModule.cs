@@ -352,6 +352,8 @@ public sealed class DamageModule : IAresModule
 
     private bool TryPrimalRend(IAresContext context, Dalamud.Game.ClientState.Objects.Types.IBattleChara target)
     {
+        if (!context.Configuration.Tank.EnablePrimalRend) return false;
+
         var player = context.Player;
         var level = player.Level;
 
@@ -394,6 +396,8 @@ public sealed class DamageModule : IAresModule
 
     private bool TryPrimalRuination(IAresContext context, Dalamud.Game.ClientState.Objects.Types.IBattleChara target)
     {
+        if (!context.Configuration.Tank.EnablePrimalRuination) return false;
+
         var player = context.Player;
         var level = player.Level;
 
