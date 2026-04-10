@@ -767,6 +767,13 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
             return false;
 
         var targetId = target.EntityId;
+
+        // Humanize: wait a short time into the cast before interrupting (0.3–0.7s, varies per enemy/cast)
+        var delaySeed = (int)(target.EntityId * 2654435761u ^ (uint)(target.TotalCastTime * 1000f));
+        var interruptDelay = 0.3f + ((delaySeed & 0xFFFF) / 65535f) * 0.4f;
+        if (target.CurrentCastTime < interruptDelay)
+            return false;
+
         var partyCoord = context.PartyCoordinationService;
         var coordConfig = context.Configuration.PartyCoordination;
 
