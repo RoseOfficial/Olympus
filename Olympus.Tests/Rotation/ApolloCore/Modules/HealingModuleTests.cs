@@ -395,7 +395,7 @@ public class HealingModuleTests
         _module.TryExecute(context, isMoving: true); // Moving!
 
         // Assert
-        Assert.Equal("Moving", context.Debug.EsunaState);
+        Assert.Equal("Moving (no Swiftcast)", context.Debug.EsunaState);
     }
 
     [Fact]

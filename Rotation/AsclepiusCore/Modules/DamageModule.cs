@@ -104,12 +104,15 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
                         // Check if this enemy actually needs the DoT
                         var dotStatusId = GetDoTStatusId(context);
                         bool needsDot = true;
-                        foreach (var status in enemy.StatusList)
+                        if (enemy.StatusList != null)
                         {
-                            if (status.StatusId == dotStatusId && status.RemainingTime > DoTRefreshThreshold(context))
+                            foreach (var status in enemy.StatusList)
                             {
-                                needsDot = false;
-                                break;
+                                if (status.StatusId == dotStatusId && status.RemainingTime > DoTRefreshThreshold(context))
+                                {
+                                    needsDot = false;
+                                    break;
+                                }
                             }
                         }
 
@@ -543,6 +546,9 @@ public sealed class DamageModule : BaseDamageModule<IAsclepiusContext>, IAsclepi
 
     private float GetStatusRemainingTime(IBattleChara target, uint statusId, ulong sourceId)
     {
+        if (target.StatusList == null)
+            return 0f;
+
         foreach (var status in target.StatusList)
         {
             if (status.StatusId == statusId && status.SourceId == (uint)sourceId)

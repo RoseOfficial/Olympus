@@ -330,24 +330,20 @@ public class KardiaModuleTests
     }
 
     [Fact]
-    public void TryExecute_KardiaSwap_ShouldSwap_ExecutesSwap()
+    public void TryExecute_KardiaOnNonTank_SwapsBackToTank()
     {
-        // Arrange: current Kardia target at 90% HP, new target at 20% HP
+        // Arrange: Kardia is placed on a DPS (entity 10), tank is entity 20.
+        // TryEnsureKardiaOnTank should move Kardia to the tank.
         var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
-        config.Sage.AutoKardia = false;
+        config.Sage.AutoKardia = false; // Disable initial placement path
         config.Sage.EnableSoteria = false;
         config.Sage.EnablePhilosophia = false;
-        config.Sage.KardiaSwapEnabled = true;
-        config.Sage.KardiaSwapThreshold = 0.60f;
 
-        var currentTarget = MockBuilders.CreateMockBattleChara(
-            entityId: 10u, currentHp: 45000, maxHp: 50000); // 90%
-        var newTarget = MockBuilders.CreateMockBattleChara(
-            entityId: 20u, currentHp: 10000, maxHp: 50000); // 20%
+        var tank = MockBuilders.CreateMockBattleChara(entityId: 20u);
 
         var partyHelper = MockBuilders.CreateMockPartyHelper();
-        partyHelper.Setup(x => x.GetAllPartyMembers(It.IsAny<IPlayerCharacter>(), It.IsAny<bool>()))
-            .Returns(new List<IBattleChara> { currentTarget.Object, newTarget.Object });
+        partyHelper.Setup(x => x.FindTankInParty(It.IsAny<IPlayerCharacter>()))
+            .Returns(tank.Object);
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         actionService.Setup(x => x.ExecuteOgcd(
@@ -357,12 +353,7 @@ public class KardiaModuleTests
 
         var kardiaManager = AsclepiusTestContext.CreateMockKardiaManager(
             hasKardia: true,
-            kardiaTargetId: 10ul,
-            canSwap: true);
-        // ShouldSwapKardia returns true (new target much lower HP)
-        kardiaManager.Setup(x => x.ShouldSwapKardia(
-                It.IsAny<float>(), It.IsAny<float>(), It.IsAny<float>()))
-            .Returns(true);
+            kardiaTargetId: 10ul); // Currently on entity 10 (not the tank)
 
         var context = AsclepiusTestContext.Create(
             config: config,
@@ -377,12 +368,12 @@ public class KardiaModuleTests
         // Act
         var result = _module.TryExecute(context, isMoving: false);
 
-        // Assert
+        // Assert: should swap to tank (entity 20)
         Assert.True(result);
         actionService.Verify(
             x => x.ExecuteOgcd(
                 It.Is<ActionDefinition>(a => a.ActionId == SGEActions.Kardia.ActionId),
-                newTarget.Object.GameObjectId),
+                tank.Object.GameObjectId),
             Times.Once);
     }
 
