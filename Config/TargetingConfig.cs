@@ -22,4 +22,41 @@ public sealed class TargetingConfig
     /// Higher values improve performance but may delay target switching.
     /// </summary>
     public int TargetCacheTtlMs { get; set; } = 100;
+
+    /// <summary>
+    /// When true, all damage targeting is suppressed while the player has no selected target.
+    /// This is the primary safeguard for gaze mechanics (drop target to look away) and for
+    /// any case where the player wants Olympus to stop attacking. Default ON.
+    /// </summary>
+    public bool PauseWhenNoTarget { get; set; } = true;
+
+    /// <summary>
+    /// When true, the fallback that retargets to LowestHp when CurrentTarget/FocusTarget
+    /// strategies fail is disabled — a missing current target simply stops damage. This
+    /// makes "drop target" a hard pause for players using explicit-target strategies.
+    /// Default ON.
+    /// </summary>
+    public bool StrictCurrentTargetStrategy { get; set; } = true;
+
+    /// <summary>
+    /// Master toggle for gap closer safety heuristics. When ON:
+    ///  - Gap closers will only fire on the enemy the player has explicitly targeted.
+    ///  - Gap closers are blocked if the player has been moving away from the target recently.
+    /// Default ON.
+    /// </summary>
+    public bool SafeGapCloser { get; set; } = true;
+
+    /// <summary>
+    /// How far back (milliseconds) to track player movement when deciding whether they are
+    /// actively moving away from the current target. 400ms is roughly a server tick and
+    /// catches intentional repositioning without being noisy on small jitters.
+    /// </summary>
+    public int GapCloserMovementLookbackMs { get; set; } = 400;
+
+    /// <summary>
+    /// Minimum distance the player must have gained from the target within the lookback
+    /// window to be considered "moving away". Expressed in yalms. 1.0y is small enough
+    /// to trigger on deliberate movement but large enough to ignore GCD-stutter jitter.
+    /// </summary>
+    public float GapCloserMovementAwayThresholdY { get; set; } = 1.0f;
 }

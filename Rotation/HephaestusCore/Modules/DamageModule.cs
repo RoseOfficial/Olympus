@@ -28,6 +28,13 @@ public sealed class DamageModule : IHephaestusModule
             return false;
         }
 
+        // Gaze-safety: player has no target, PauseWhenNoTarget is on.
+        if (context.TargetingService.IsDamageTargetingPaused())
+        {
+            context.Debug.DamageState = "Paused (no target)";
+            return false;
+        }
+
         var player = context.Player;
         var level = player.Level;
 
@@ -48,11 +55,16 @@ public sealed class DamageModule : IHephaestusModule
             return false;
         }
 
-        // Out of melee range: try gap closer (Trajectory) then ranged attack (Lightning Shot)
+        // Out of melee range: try gap closer (Trajectory) then ranged attack (Lightning Shot).
+        // Gate the gap-close branch on the safety service — Trajectory actually moves the player
+        // toward the target, which is dangerous during spread markers or ground AoE.
         if (target == null && engageTarget != null)
         {
-            if (context.CanExecuteOgcd && TryTrajectory(context, engageTarget.GameObjectId))
+            var gapCloseBlocked = context.TargetingService.GapCloserSafety.ShouldBlockGapCloser(engageTarget, player);
+            if (!gapCloseBlocked && context.CanExecuteOgcd && TryTrajectory(context, engageTarget.GameObjectId))
                 return true;
+            if (gapCloseBlocked)
+                context.Debug.DamageState = $"Trajectory blocked: {context.TargetingService.GapCloserSafety.LastBlockReason}";
             if (context.CanExecuteGcd && TryLightningShot(context, engageTarget.GameObjectId))
                 return true;
         }
@@ -81,8 +93,10 @@ public sealed class DamageModule : IHephaestusModule
             if (TryBowShock(context))
                 return true;
 
-            // Priority 4: Trajectory (gap closer / damage filler)
-            if (TryTrajectory(context, target.GameObjectId))
+            // Priority 4: Trajectory (gap closer / damage filler).
+            // Gate even in-melee use — Trajectory moves the player forward, unsafe during markers.
+            if (!context.TargetingService.GapCloserSafety.ShouldBlockGapCloser(target, player)
+                && TryTrajectory(context, target.GameObjectId))
                 return true;
         }
 

@@ -101,6 +101,33 @@ public sealed class GeneralSection
 
         ConfigUIHelpers.Spacing();
 
+        // Safety toggles — protect against gaze mechanics and unintentional target retargeting.
+        ConfigUIHelpers.Toggle(
+            Loc.T(LocalizedStrings.Targeting.PauseWhenNoTarget, "Pause damage when no target"),
+            () => this.config.Targeting.PauseWhenNoTarget,
+            v => this.config.Targeting.PauseWhenNoTarget = v,
+            Loc.T(LocalizedStrings.Targeting.PauseWhenNoTargetDesc,
+                "Stop attacking when you drop your target. Lets you look away for gaze mechanics or disengage without Olympus picking a new enemy."),
+            this.save);
+
+        ConfigUIHelpers.Toggle(
+            Loc.T(LocalizedStrings.Targeting.StrictCurrentTargetStrategy, "Strict explicit-target mode"),
+            () => this.config.Targeting.StrictCurrentTargetStrategy,
+            v => this.config.Targeting.StrictCurrentTargetStrategy = v,
+            Loc.T(LocalizedStrings.Targeting.StrictCurrentTargetStrategyDesc,
+                "When using Current Target or Focus Target strategy, never fall back to another enemy if yours is gone."),
+            this.save);
+
+        ConfigUIHelpers.Toggle(
+            Loc.T(LocalizedStrings.Targeting.SafeGapCloser, "Safe gap closers"),
+            () => this.config.Targeting.SafeGapCloser,
+            v => this.config.Targeting.SafeGapCloser = v,
+            Loc.T(LocalizedStrings.Targeting.SafeGapCloserDesc,
+                "Only use gap closers on your explicitly selected target, and block them when you are moving away from the target (spread markers, ground AoE at the end point)."),
+            this.save);
+
+        ConfigUIHelpers.Spacing();
+
         // Movement tolerance
         var moveTolerance = this.config.MovementTolerance * 1000f; // Convert to ms
         ImGui.SetNextItemWidth(200);

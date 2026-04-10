@@ -201,6 +201,14 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
             return false;
         }
 
+        // Phase 1b: Gaze-safety — player has no target, PauseWhenNoTarget is on.
+        // Set a distinctive debug state so players know Olympus is deliberately paused.
+        if (context.TargetingService.IsDamageTargetingPaused())
+        {
+            SetDamageState(context, "Paused (no target)");
+            return false;
+        }
+
         // Phase 2: Target acquisition
         var target = AcquireTarget(context);
         if (target == null)

@@ -332,6 +332,14 @@ public sealed class DamageModule : BaseDpsDamageModule<IZeusContext>, IZeusModul
         if (!context.ActionService.IsActionReady(DRGActions.Stardiver.ActionId))
             return false;
 
+        // Safety gate: Stardiver is a long animation-locked dive that physically moves
+        // the player to the target. Blocks during spread markers / gaze mechanics.
+        if (context.TargetingService.GapCloserSafety.ShouldBlockGapCloser(target, context.Player))
+        {
+            context.Debug.DamageState = $"Stardiver blocked: {context.TargetingService.GapCloserSafety.LastBlockReason}";
+            return false;
+        }
+
         // Use Stardiver during Life window
         // Prefer using it after Nastronds when possible
         if (context.ActionService.ExecuteOgcd(DRGActions.Stardiver, target.GameObjectId))
@@ -438,6 +446,14 @@ public sealed class DamageModule : BaseDpsDamageModule<IZeusContext>, IZeusModul
         if (!context.ActionService.IsActionReady(jumpAction.ActionId))
             return false;
 
+        // Safety gate: all DRG jumps physically move the player to the target's location
+        // — dangerous during spread markers, ground AoE at the destination, or gaze mechanics.
+        if (context.TargetingService.GapCloserSafety.ShouldBlockGapCloser(target, context.Player))
+        {
+            context.Debug.DamageState = $"{jumpAction.Name} blocked: {context.TargetingService.GapCloserSafety.LastBlockReason}";
+            return false;
+        }
+
         if (context.ActionService.ExecuteOgcd(jumpAction, target.GameObjectId))
         {
             context.Debug.PlannedAction = jumpAction.Name;
@@ -477,6 +493,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IZeusContext>, IZeusModul
         if (!context.ActionService.IsActionReady(DRGActions.SpineshatterDive.ActionId))
             return false;
 
+        // Safety gate: Spineshatter Dive physically moves the player to the target.
+        if (context.TargetingService.GapCloserSafety.ShouldBlockGapCloser(target, context.Player))
+        {
+            context.Debug.DamageState = $"Spineshatter Dive blocked: {context.TargetingService.GapCloserSafety.LastBlockReason}";
+            return false;
+        }
+
         // Use as damage oGCD (also works as gap closer)
         if (context.ActionService.ExecuteOgcd(DRGActions.SpineshatterDive, target.GameObjectId))
         {
@@ -514,6 +537,14 @@ public sealed class DamageModule : BaseDpsDamageModule<IZeusContext>, IZeusModul
 
         if (!context.ActionService.IsActionReady(DRGActions.DragonfireDive.ActionId))
             return false;
+
+        // Safety gate: Dragonfire Dive physically moves the player and is AoE — dangerous
+        // during spread markers, moving away, or if target isn't the user's selection.
+        if (context.TargetingService.GapCloserSafety.ShouldBlockGapCloser(target, context.Player))
+        {
+            context.Debug.DamageState = $"Dragonfire Dive blocked: {context.TargetingService.GapCloserSafety.LastBlockReason}";
+            return false;
+        }
 
         if (context.ActionService.ExecuteOgcd(DRGActions.DragonfireDive, target.GameObjectId))
         {

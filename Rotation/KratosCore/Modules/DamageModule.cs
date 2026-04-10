@@ -183,6 +183,14 @@ public sealed class DamageModule : BaseDpsDamageModule<IKratosContext>, IKratosM
         if (!context.ActionService.IsActionReady(MNKActions.Thunderclap.ActionId))
             return false;
 
+        // Safety gate: Thunderclap teleports the player to the target — blocks during
+        // spread markers, while moving away, or if target isn't the player's selection.
+        if (context.TargetingService.GapCloserSafety.ShouldBlockGapCloser(target, player))
+        {
+            context.Debug.DamageState = $"Thunderclap blocked: {context.TargetingService.GapCloserSafety.LastBlockReason}";
+            return false;
+        }
+
         if (context.ActionService.ExecuteOgcd(MNKActions.Thunderclap, target.GameObjectId))
         {
             context.Debug.PlannedAction = MNKActions.Thunderclap.Name;

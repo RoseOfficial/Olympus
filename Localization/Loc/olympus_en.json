@@ -128,6 +128,12 @@
   "config.targeting.strategy_desc.focus_target": "Use your focus target if valid",
   "config.targeting.fallback_to_lowest_hp": "Fallback to Lowest HP",
   "config.targeting.fallback_to_lowest_hp_desc": "If no tank target found, use Lowest HP instead.",
+  "config.targeting.pause_when_no_target": "Pause damage when no target",
+  "config.targeting.pause_when_no_target_desc": "Stop attacking when you drop your target. Lets you look away for gaze mechanics or disengage without Olympus picking a new enemy.",
+  "config.targeting.strict_current_target": "Strict explicit-target mode",
+  "config.targeting.strict_current_target_desc": "When using Current Target or Focus Target strategy, never fall back to another enemy if yours is gone.",
+  "config.targeting.safe_gap_closer": "Safe gap closers",
+  "config.targeting.safe_gap_closer_desc": "Only use gap closers on your explicitly selected target, and block them when you are moving away from the target (spread markers, ground AoE at the end point).",
   "config.targeting.movement_tolerance": "Movement Tolerance",
   "config.targeting.movement_tolerance_desc": "Delay after stopping before casting. Lower = faster, higher = safer.",
 

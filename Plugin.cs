@@ -1,4 +1,5 @@
 using System;
+using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.Command;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
@@ -50,6 +51,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly IDataManager dataManager;
     private readonly ICondition condition;
     private readonly IJobGauges jobGauges;
+    private readonly ITargetManager targetManager;
 
     private readonly Configuration configuration;
     private readonly ActionTracker actionTracker;
@@ -60,6 +62,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly DamageTrendService damageTrendService;
     private readonly CooldownPlanner cooldownPlanner;
     private readonly TargetingService targetingService;
+    private readonly GapCloserSafetyService gapCloserSafetyService;
     private readonly ShieldTrackingService shieldTrackingService;
     private readonly HpPredictionService hpPredictionService;
     private readonly ActionService actionService;
@@ -163,6 +166,7 @@ public sealed class Plugin : IDalamudPlugin
         this.dataManager = dataManager;
         this.condition = condition;
         this.jobGauges = jobGauges;
+        this.targetManager = targetManager;
 
         this.configuration = pluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
 
@@ -180,7 +184,8 @@ public sealed class Plugin : IDalamudPlugin
         this.healingIntakeService = new HealingIntakeService(combatEventService);
         this.damageTrendService = new DamageTrendService(damageIntakeService, healingIntakeService);
         this.cooldownPlanner = new CooldownPlanner(damageIntakeService, damageTrendService, configuration);
-        this.targetingService = new TargetingService(objectTable, partyList, targetManager, configuration);
+        this.gapCloserSafetyService = new GapCloserSafetyService(configuration, targetManager);
+        this.targetingService = new TargetingService(objectTable, partyList, targetManager, configuration, gapCloserSafetyService);
         this.shieldTrackingService = new ShieldTrackingService(objectTable, partyList, log);
 
         // New action system services
@@ -422,6 +427,7 @@ public sealed class Plugin : IDalamudPlugin
         container.Register<IDamageIntakeService, DamageIntakeService>(damageIntakeService);
         container.Register<IDamageTrendService, DamageTrendService>(damageTrendService);
         container.Register<ITargetingService, TargetingService>(targetingService);
+        container.Register<IGapCloserSafetyService, GapCloserSafetyService>(gapCloserSafetyService);
         container.Register<IHpPredictionService, HpPredictionService>(hpPredictionService);
         container.Register<IPlayerStatsService, PlayerStatsService>(playerStatsService);
         container.Register<IDebuffDetectionService, DebuffDetectionService>(debuffDetectionService);
@@ -576,6 +582,9 @@ public sealed class Plugin : IDalamudPlugin
                 localPlayer.EntityId,
                 localPlayer.ClassJob.RowId,
                 configuration.Enabled);
+
+            // Track player-to-target distance for gap closer safety heuristics.
+            gapCloserSafetyService.Update(localPlayer, targetManager.Target as IBattleChara);
 
             // Check if we have a rotation for the current job
             var jobId = localPlayer.ClassJob.RowId;

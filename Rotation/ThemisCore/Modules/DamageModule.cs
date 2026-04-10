@@ -29,6 +29,13 @@ public sealed class DamageModule : IThemisModule
             return false;
         }
 
+        // Gaze-safety: player has no target, PauseWhenNoTarget is on.
+        if (context.TargetingService.IsDamageTargetingPaused())
+        {
+            context.Debug.DamageState = "Paused (no target)";
+            return false;
+        }
+
         var player = context.Player;
 
         // Two-pass target search: melee range first, wide range as fallback for gap closers
@@ -51,7 +58,12 @@ public sealed class DamageModule : IThemisModule
         // Out of melee range: try Intervene (oGCD gap close) or Shield Lob (ranged GCD to open weave window)
         if (target == null && engageTarget != null)
         {
-            if (context.Configuration.Tank.EnableIntervene &&
+            var gapCloseBlocked = context.TargetingService.GapCloserSafety.ShouldBlockGapCloser(engageTarget, player);
+            if (gapCloseBlocked)
+            {
+                context.Debug.DamageState = $"Intervene blocked: {context.TargetingService.GapCloserSafety.LastBlockReason}";
+            }
+            if (!gapCloseBlocked && context.Configuration.Tank.EnableIntervene &&
                 context.CanExecuteOgcd && player.Level >= PLDActions.Intervene.MinLevel)
             {
                 if (context.ActionService.IsActionReady(PLDActions.Intervene.ActionId))

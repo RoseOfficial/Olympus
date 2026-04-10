@@ -28,6 +28,13 @@ public sealed class DamageModule : INyxModule
             return false;
         }
 
+        // Gaze-safety: player has no target, PauseWhenNoTarget is on.
+        if (context.TargetingService.IsDamageTargetingPaused())
+        {
+            context.Debug.DamageState = "Paused (no target)";
+            return false;
+        }
+
         var player = context.Player;
         var level = player.Level;
 
@@ -51,7 +58,10 @@ public sealed class DamageModule : INyxModule
         // Out of melee range: try Shadowstride (oGCD gap close) or Unmend (ranged GCD to open weave window)
         if (target == null && engageTarget != null)
         {
-            if (context.CanExecuteOgcd && TryShadowstride(context, engageTarget.GameObjectId))
+            var gapCloseBlocked = context.TargetingService.GapCloserSafety.ShouldBlockGapCloser(engageTarget, player);
+            if (gapCloseBlocked)
+                context.Debug.DamageState = $"Shadowstride blocked: {context.TargetingService.GapCloserSafety.LastBlockReason}";
+            if (!gapCloseBlocked && context.CanExecuteOgcd && TryShadowstride(context, engageTarget.GameObjectId))
                 return true;
             if (context.CanExecuteGcd && TryUnmend(context, engageTarget.GameObjectId))
                 return true;
@@ -97,8 +107,11 @@ public sealed class DamageModule : INyxModule
             if (TryAbyssalDrain(context, enemyCount, target.GameObjectId))
                 return true;
 
-            // Priority 8: Shadowstride (gap closer / damage filler)
-            if (TryShadowstride(context, target.GameObjectId))
+            // Priority 8: Shadowstride (gap closer / damage filler).
+            // Still gate the in-melee filler use — Shadowstride moves the player, which
+            // is dangerous during spread markers even when already in melee.
+            if (!context.TargetingService.GapCloserSafety.ShouldBlockGapCloser(target, player)
+                && TryShadowstride(context, target.GameObjectId))
                 return true;
         }
 

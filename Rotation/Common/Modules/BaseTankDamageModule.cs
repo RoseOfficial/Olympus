@@ -74,6 +74,13 @@ public abstract class BaseTankDamageModule<TContext> : IRotationModule<TContext>
             return false;
         }
 
+        // Phase 2b: Gaze-safety — player has no target, PauseWhenNoTarget is on.
+        if (context.TargetingService.IsDamageTargetingPaused())
+        {
+            SetDamageState(context, "Paused (no target)");
+            return false;
+        }
+
         var player = context.Player;
 
         // Phase 3: Two-pass target acquisition

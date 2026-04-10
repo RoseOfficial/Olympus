@@ -144,6 +144,15 @@ public abstract class BaseDamageModule<TContext> : IHealerRotationModule<TContex
             return false;
         }
 
+        // Gaze-safety: player has no target, PauseWhenNoTarget is on.
+        // Healers damage as a side effect, so pausing here preserves player intent during
+        // look-away mechanics without interfering with healing (which uses party targeting).
+        if (context.TargetingService.IsDamageTargetingPaused())
+        {
+            SetDpsState(context, "Paused (no target)");
+            return false;
+        }
+
         // oGCD damage abilities first
         if (context.CanExecuteOgcd)
         {

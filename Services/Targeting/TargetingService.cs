@@ -32,17 +32,38 @@ public sealed class TargetingService : ITargetingService
     // Tank job IDs: PLD=19, WAR=21, DRK=32, GNB=37
     private static readonly HashSet<uint> TankJobIds = [19, 21, 32, 37];
 
+    public IGapCloserSafetyService GapCloserSafety { get; }
+
     public TargetingService(
         IObjectTable objectTable,
         IPartyList partyList,
         ITargetManager targetManager,
-        Configuration configuration)
+        Configuration configuration,
+        IGapCloserSafetyService gapCloserSafety)
     {
         _objectTable = objectTable;
         _partyList = partyList;
         _targetManager = targetManager;
         _configuration = configuration;
+        GapCloserSafety = gapCloserSafety;
         _cacheTimer.Start();
+    }
+
+    /// <summary>
+    /// Returns true when damage targeting should be suppressed because the player has
+    /// dropped their target and <see cref="Config.TargetingConfig.PauseWhenNoTarget"/> is on.
+    /// This is the primary safeguard for gaze mechanics and any moment the player wants
+    /// Olympus to stop attacking — dropping the target is a hard pause signal.
+    /// </summary>
+    public bool IsDamageTargetingPaused()
+    {
+        return _configuration.Targeting.PauseWhenNoTarget && _targetManager.Target == null;
+    }
+
+    /// <inheritdoc />
+    public IBattleNpc? GetUserEnemyTarget()
+    {
+        return _targetManager.Target is IBattleNpc enemy && IsStillValid(enemy) ? enemy : null;
     }
 
     /// <summary>
@@ -54,6 +75,10 @@ public sealed class TargetingService : ITargetingService
     /// <returns>Best target according to strategy, or null if none found.</returns>
     public IBattleNpc? FindEnemy(EnemyTargetingStrategy strategy, float maxRange, IPlayerCharacter player)
     {
+        // Hard pause: player has no target and PauseWhenNoTarget is on. Covers gaze mechanics.
+        if (IsDamageTargetingPaused())
+            return null;
+
         // Try primary strategy
         var target = FindEnemyByStrategy(strategy, maxRange, player);
 
@@ -63,8 +88,11 @@ public sealed class TargetingService : ITargetingService
             target = FindEnemyByStrategy(EnemyTargetingStrategy.LowestHp, maxRange, player);
         }
 
-        // If CurrentTarget/FocusTarget fails, fall back to LowestHp
-        if (target == null && strategy is EnemyTargetingStrategy.CurrentTarget or EnemyTargetingStrategy.FocusTarget)
+        // If CurrentTarget/FocusTarget fails, fall back to LowestHp — unless strict mode
+        // is on, in which case an explicit-target strategy with no target stays empty
+        // (prevents auto-retargeting when the player is trying to stop attacking)
+        if (target == null && strategy is EnemyTargetingStrategy.CurrentTarget or EnemyTargetingStrategy.FocusTarget
+            && !_configuration.Targeting.StrictCurrentTargetStrategy)
         {
             target = FindEnemyByStrategy(EnemyTargetingStrategy.LowestHp, maxRange, player);
         }
@@ -73,44 +101,64 @@ public sealed class TargetingService : ITargetingService
     }
 
     /// <summary>
-    /// Finds an enemy that needs DoT applied or refreshed.
+    /// Finds an enemy that needs DoT applied or refreshed. Respects the configured
+    /// <see cref="EnemyTargetingStrategy"/> — on explicit strategies (CurrentTarget,
+    /// FocusTarget) the DoT will never spill onto enemies the player did not pick.
+    /// On aggregate strategies (LowestHp, HighestHp, Nearest, TankAssist) the DoT
+    /// still goes to the strategy's chosen enemy, but only if that enemy actually
+    /// needs the DoT applied or refreshed.
     /// </summary>
     /// <param name="dotStatusId">Status ID to check for (Aero/Dia variant).</param>
     /// <param name="refreshThreshold">Seconds remaining before DoT should be refreshed.</param>
     /// <param name="maxRange">Maximum range in yalms.</param>
     /// <param name="player">Current player character.</param>
-    /// <returns>Enemy needing DoT, prioritizing those without DoT or lowest remaining duration.</returns>
+    /// <returns>Enemy needing DoT under the current strategy, or null.</returns>
     public IBattleNpc? FindEnemyNeedingDot(
         uint dotStatusId,
         float refreshThreshold,
         float maxRange,
         IPlayerCharacter player)
     {
-        IBattleNpc? bestTarget = null;
-        float lowestDuration = float.MaxValue;
+        // Hard pause: player has no target — don't DoT anything.
+        if (IsDamageTargetingPaused())
+            return null;
 
-        // Accept the player's current target even if it lacks InCombat (e.g., striking dummies)
-        var currentTargetId = _targetManager.Target is IBattleNpc ? _targetManager.Target.GameObjectId : 0UL;
+        var strategy = _configuration.Targeting.EnemyStrategy;
 
-        foreach (var enemy in GetValidEnemies(maxRange, player))
+        // Explicit-target strategies: only consider the player's selected target/focus,
+        // never spread DoT to unrelated enemies. This is the "smart DoT" safety fix —
+        // hitting an add that isn't supposed to take damage (reflect, vulnerability down,
+        // damage debuff) breaks fights, so honor player intent here.
+        if (strategy is EnemyTargetingStrategy.CurrentTarget or EnemyTargetingStrategy.FocusTarget)
         {
-            // Only apply DoTs to enemies already in combat or explicitly targeted —
-            // avoids hitting non-engaged enemies like non-pulled packs, while still
-            // allowing DoTs on the player's selected target (e.g., striking dummies)
-            if ((enemy.StatusFlags & StatusFlags.InCombat) == 0 && enemy.GameObjectId != currentTargetId)
-                continue;
+            var explicitTarget = strategy == EnemyTargetingStrategy.CurrentTarget
+                ? _targetManager.Target as IBattleNpc
+                : _targetManager.FocusTarget as IBattleNpc;
 
-            var dotDuration = GetDotDuration(enemy, dotStatusId);
+            if (explicitTarget == null || !IsStillValid(explicitTarget))
+                return null;
 
-            // Needs DoT if none present or expiring soon
-            if (dotDuration < refreshThreshold && dotDuration < lowestDuration)
-            {
-                lowestDuration = dotDuration;
-                bestTarget = enemy;
-            }
+            if (!DistanceHelper.IsInRange(player.Position, explicitTarget.Position, maxRange + explicitTarget.HitboxRadius))
+                return null;
+
+            return GetDotDuration(explicitTarget, dotStatusId) < refreshThreshold ? explicitTarget : null;
         }
 
-        return bestTarget;
+        // Aggregate strategies: pick the strategy's best enemy, but only DoT it if it
+        // actually needs the DoT. This prevents the old behavior of scanning every
+        // in-combat enemy and targeting whichever had the lowest DoT duration.
+        IBattleNpc? strategyTarget = strategy switch
+        {
+            EnemyTargetingStrategy.TankAssist => FindEnemyByStrategy(strategy, maxRange, player),
+            EnemyTargetingStrategy.Nearest => FindEnemyByStrategy(strategy, maxRange, player),
+            EnemyTargetingStrategy.HighestHp => FindEnemyByStrategy(strategy, maxRange, player),
+            _ => FindEnemyByStrategy(EnemyTargetingStrategy.LowestHp, maxRange, player)
+        };
+
+        if (strategyTarget == null)
+            return null;
+
+        return GetDotDuration(strategyTarget, dotStatusId) < refreshThreshold ? strategyTarget : null;
     }
 
     /// <summary>
@@ -122,6 +170,10 @@ public sealed class TargetingService : ITargetingService
     /// <returns>Number of valid enemies within radius.</returns>
     public int CountEnemiesInRange(float radius, IPlayerCharacter player)
     {
+        // Hard pause: no target → report 0 enemies so AoE thresholds can't trigger.
+        if (IsDamageTargetingPaused())
+            return 0;
+
         int count = 0;
         var currentTargetId = _targetManager.Target is IBattleNpc ? _targetManager.Target.GameObjectId : 0UL;
         foreach (var enemy in GetValidEnemies(radius, player))
@@ -145,6 +197,10 @@ public sealed class TargetingService : ITargetingService
     /// <returns>Best AoE target and count of enemies that will be hit (including target).</returns>
     public (IBattleNpc? target, int hitCount) FindBestAoETarget(float aoeRadius, float maxRange, IPlayerCharacter player)
     {
+        // Hard pause: no target.
+        if (IsDamageTargetingPaused())
+            return (null, 0);
+
         IBattleNpc? bestTarget = null;
         int bestHitCount = 0;
 
@@ -194,12 +250,20 @@ public sealed class TargetingService : ITargetingService
     /// <inheritdoc />
     public IBattleNpc? FindEnemyForAction(EnemyTargetingStrategy strategy, uint actionId, IPlayerCharacter player)
     {
+        // Hard pause: no target → no damage targeting at all.
+        if (IsDamageTargetingPaused())
+            return null;
+
         var target = FindEnemyByActionStrategy(strategy, actionId, player);
 
         if (target == null && strategy == EnemyTargetingStrategy.TankAssist && _configuration.Targeting.UseTankAssistFallback)
             target = FindEnemyByActionStrategy(EnemyTargetingStrategy.LowestHp, actionId, player);
 
-        if (target == null && strategy is EnemyTargetingStrategy.CurrentTarget or EnemyTargetingStrategy.FocusTarget)
+        // Fall back from explicit-target strategies to LowestHp only when strict mode
+        // is off. Strict mode keeps explicit-target intent as a hard stop — important
+        // for players who use CurrentTarget to manually control every engagement.
+        if (target == null && strategy is EnemyTargetingStrategy.CurrentTarget or EnemyTargetingStrategy.FocusTarget
+            && !_configuration.Targeting.StrictCurrentTargetStrategy)
             target = FindEnemyByActionStrategy(EnemyTargetingStrategy.LowestHp, actionId, player);
 
         return target;
@@ -567,6 +631,9 @@ public sealed class TargetingService : ITargetingService
     public (IBattleNpc? target, int hitCount, float optimalAngle) FindBestConeAoETarget(
         float coneHalfAngle, float radius, float maxRange, IPlayerCharacter player)
     {
+        if (IsDamageTargetingPaused())
+            return (null, 0, 0f);
+
         // Use the ability's effect range for candidate filtering, not the rotation's targeting range
         var candidateRange = MathF.Max(radius, maxRange);
         _aoeWorkList.Clear();
@@ -623,6 +690,9 @@ public sealed class TargetingService : ITargetingService
     public (IBattleNpc? target, int hitCount, float optimalAngle) FindBestLineAoETarget(
         float lineWidth, float length, float maxRange, IPlayerCharacter player)
     {
+        if (IsDamageTargetingPaused())
+            return (null, 0, 0f);
+
         // Use the ability's effect range for candidate filtering, not the rotation's targeting range
         var candidateRange = MathF.Max(length, maxRange);
         _aoeWorkList.Clear();

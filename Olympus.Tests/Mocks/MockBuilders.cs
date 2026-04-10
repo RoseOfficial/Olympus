@@ -318,6 +318,17 @@ public static class MockBuilders
         mock.Setup(x => x.FindEnemyNeedingDot(It.IsAny<uint>(), It.IsAny<float>(), It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
             .Returns((IBattleNpc?)null);
 
+        // Default: not paused, no user target, gap closers allowed — these safety checks
+        // always evaluate to "permissive" in tests unless a specific test overrides them.
+        mock.Setup(x => x.IsDamageTargetingPaused()).Returns(false);
+        mock.Setup(x => x.GetUserEnemyTarget()).Returns((IBattleNpc?)null);
+
+        var gapCloserSafetyMock = new Mock<IGapCloserSafetyService>();
+        gapCloserSafetyMock.Setup(x => x.ShouldBlockGapCloser(It.IsAny<IBattleChara>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(false);
+        gapCloserSafetyMock.SetupGet(x => x.LastBlockReason).Returns((string?)null);
+        mock.Setup(x => x.GapCloserSafety).Returns(gapCloserSafetyMock.Object);
+
         return mock;
     }
 

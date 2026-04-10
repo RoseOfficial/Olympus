@@ -29,6 +29,13 @@ public sealed class DamageModule : IAresModule
             return false;
         }
 
+        // Gaze-safety: player has no target, PauseWhenNoTarget is on.
+        if (context.TargetingService.IsDamageTargetingPaused())
+        {
+            context.Debug.DamageState = "Paused (no target)";
+            return false;
+        }
+
         var player = context.Player;
         var level = player.Level;
 
@@ -131,7 +138,8 @@ public sealed class DamageModule : IAresModule
         if (TryOrogeny(context, target, enemyCount))
             return true;
 
-        // Priority 3: Onslaught (gap closer / extra damage)
+        // Priority 3: Onslaught (gap closer / extra damage). Safety gating is
+        // handled inside TryOnslaught itself (covers both gap-close and weave paths).
         if (TryOnslaught(context, target))
             return true;
 
@@ -241,6 +249,14 @@ public sealed class DamageModule : IAresModule
         // At level 88+, has 3 charges - can use more freely
         if (!context.ActionService.IsActionReady(WARActions.Onslaught.ActionId))
             return false;
+
+        // Safety gate: Onslaught lunges the player forward regardless of range, so gate
+        // both gap-close and in-melee weave paths. Unsafe during spread markers / ground AoE.
+        if (context.TargetingService.GapCloserSafety.ShouldBlockGapCloser(target, player))
+        {
+            context.Debug.DamageState = $"Onslaught blocked: {context.TargetingService.GapCloserSafety.LastBlockReason}";
+            return false;
+        }
 
         // Check range — gap close if out of melee range but within 20y, else weave as damage
         var inMelee = DistanceHelper.IsActionInRange(WARActions.HeavySwing.ActionId, player, target);

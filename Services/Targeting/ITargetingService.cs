@@ -51,4 +51,26 @@ public interface ITargetingService
     /// Invalidates the enemy cache.
     /// </summary>
     void InvalidateCache();
+
+    /// <summary>
+    /// Returns true when damage targeting should be paused because the player has no
+    /// selected target and <see cref="Config.TargetingConfig.PauseWhenNoTarget"/> is ON.
+    /// Damage modules can check this to set a clear "Paused (no target)" debug state
+    /// before any target acquisition is attempted.
+    /// </summary>
+    bool IsDamageTargetingPaused();
+
+    /// <summary>
+    /// Returns the player's currently selected target, if any, as an <see cref="IBattleNpc"/>.
+    /// Used by gap closer safety and explicit-target checks. Returns null when the player
+    /// has no target or has a non-enemy target.
+    /// </summary>
+    IBattleNpc? GetUserEnemyTarget();
+
+    /// <summary>
+    /// Safety helper for gap closers. Exposed here so rotations can access it via the
+    /// existing <c>context.TargetingService</c> field without plumbing a new dependency
+    /// through every rotation context.
+    /// </summary>
+    IGapCloserSafetyService GapCloserSafety { get; }
 }
