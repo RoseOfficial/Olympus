@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
 
 namespace Olympus.Services;
 
@@ -13,8 +14,10 @@ public interface IBurstWindowService
     /// <summary>
     /// Updates burst window state for the current frame.
     /// Call once per frame from the DPS base class.
+    /// When <paramref name="currentTarget"/> is provided, also checks the target's
+    /// status list for raid debuffs (Chain Stratagem, Dokumori, VulnerabilityUp).
     /// </summary>
-    void Update(IPlayerCharacter player);
+    void Update(IPlayerCharacter player, IBattleChara? currentTarget = null);
 
     /// <summary>
     /// Whether party raid buffs are currently active on the player.

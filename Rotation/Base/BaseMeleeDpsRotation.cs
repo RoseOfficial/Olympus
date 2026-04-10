@@ -251,8 +251,8 @@ public abstract class BaseMeleeDpsRotation<TContext, TModule> : BaseRotation<TCo
         // Update positional state
         UpdatePositionalState(player);
 
-        // Update burst window tracking
-        BurstWindowService?.Update(player);
+        // Update burst window tracking (pass current target for raid debuff detection)
+        BurstWindowService?.Update(player, TargetingService.GetUserEnemyTarget());
 
         // Update damage trend service with player entity ID (melee track their own damage for self-healing considerations)
         if (inCombat)

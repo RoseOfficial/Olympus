@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Services.Party;
 
@@ -19,7 +20,7 @@ public sealed class BurstWindowService : IBurstWindowService
     private readonly IPartyCoordinationService? _partyCoordinationService;
 
     // Raid buff status IDs that appear on the LOCAL PLAYER when burst is active.
-    // These are party-wide buffs applied by DPS jobs to the entire party.
+    // These are party-wide buffs applied by DPS/support jobs to the entire party.
     private static readonly HashSet<uint> RaidBuffStatusIds = new()
     {
         DRGActions.StatusIds.BattleLitany,      // 786  – +10% crit rate
@@ -31,6 +32,17 @@ public sealed class BurstWindowService : IBurstWindowService
         RPRActions.StatusIds.ArcaneCircle,       // 2599 – +3% damage
         MNKActions.StatusIds.Brotherhood,        // 1182 – +5% damage
         PCTActions.StatusIds.StarryMuse,         // 3685 – +5% damage
+        ASTActions.DivinationStatusId,           // 1878 – +6% damage
+    };
+
+    // Raid debuff status IDs that appear on the ENEMY TARGET during burst.
+    // These are vulnerability/crit debuffs applied by support jobs that extend
+    // the effective burst window on a specific target.
+    private static readonly HashSet<uint> RaidDebuffStatusIds = new()
+    {
+        SCHActions.ChainStratagemStatusId,       // 1221 – +10% crit rate on target
+        NINActions.StatusIds.Dokumori,           // 3849 – +5% damage taken
+        NINActions.StatusIds.VulnerabilityUp,    // 638  – +5% damage taken (Trick Attack)
     };
 
     // Burst cycle approximation for timer-based prediction when IPC is unavailable.
@@ -101,7 +113,7 @@ public sealed class BurstWindowService : IBurstWindowService
         }
     }
 
-    public void Update(IPlayerCharacter player)
+    public void Update(IPlayerCharacter player, IBattleChara? currentTarget = null)
     {
         // Scan player status list for active party raid buffs
         _isInBurstWindow = false;
@@ -115,6 +127,20 @@ public sealed class BurstWindowService : IBurstWindowService
             _isInBurstWindow = true;
             if (status.RemainingTime > _secondsRemainingInBurst)
                 _secondsRemainingInBurst = status.RemainingTime;
+        }
+
+        // Scan current target for raid debuffs (Chain Stratagem, Dokumori, VulnerabilityUp)
+        if (currentTarget?.StatusList != null)
+        {
+            foreach (var status in currentTarget.StatusList)
+            {
+                if (!RaidDebuffStatusIds.Contains(status.StatusId))
+                    continue;
+
+                _isInBurstWindow = true;
+                if (status.RemainingTime > _secondsRemainingInBurst)
+                    _secondsRemainingInBurst = status.RemainingTime;
+            }
         }
 
         // Also check IPC burst state (multi-instance scenario)

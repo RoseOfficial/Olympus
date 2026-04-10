@@ -7,6 +7,7 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Common.Component.BGCollision;
 using Olympus.Rotation.ApolloCore.Helpers;
 
 namespace Olympus.Services.Targeting;
@@ -138,7 +139,7 @@ public sealed class TargetingService : ITargetingService
             if (explicitTarget == null || !IsStillValid(explicitTarget))
                 return null;
 
-            if (!DistanceHelper.IsInRange(player.Position, explicitTarget.Position, maxRange + explicitTarget.HitboxRadius))
+            if (!DistanceHelper.IsInRange(player.Position, explicitTarget.Position, maxRange + explicitTarget.HitboxRadius + player.HitboxRadius))
                 return null;
 
             return GetDotDuration(explicitTarget, dotStatusId) < refreshThreshold ? explicitTarget : null;
@@ -589,9 +590,14 @@ public sealed class TargetingService : ITargetingService
             if (npc.BattleNpcKind != BattleNpcSubKind.Enemy && npc.SubKind != 0)
                 continue;
 
-            // Precise distance check — effective range includes enemy hitbox radius
-            var effectiveRange = maxRange + npc.HitboxRadius;
+            // Precise distance check — effective range includes both hitbox radii
+            var effectiveRange = maxRange + npc.HitboxRadius + player.HitboxRadius;
             if (Vector3.DistanceSquared(playerPos, npc.Position) > effectiveRange * effectiveRange)
+                continue;
+
+            // Line-of-sight check — reject enemies behind walls/pillars
+            if (_configuration.Targeting.EnableLineOfSightFiltering &&
+                !HasLineOfSight(playerPos, npc.Position))
                 continue;
 
             _cachedEnemies.Add(npc);
@@ -607,12 +613,36 @@ public sealed class TargetingService : ITargetingService
         if (enemy.BattleNpcKind != BattleNpcSubKind.Enemy && enemy.SubKind != 0)
             return false;
 
-        return DistanceHelper.IsInRange(player.Position, enemy.Position, maxRange + enemy.HitboxRadius);
+        return DistanceHelper.IsInRange(player.Position, enemy.Position, maxRange + enemy.HitboxRadius + player.HitboxRadius);
     }
 
     private static bool IsStillValid(IBattleNpc enemy)
     {
         return enemy.IsTargetable && !enemy.IsDead;
+    }
+
+    /// <summary>
+    /// Checks line of sight from the player's approximate eye height to an enemy position
+    /// using a BGCollision raycast. Returns false if geometry blocks the path.
+    /// </summary>
+    private static unsafe bool HasLineOfSight(Vector3 playerPos, Vector3 enemyPos)
+    {
+        try
+        {
+            var eyePos = playerPos with { Y = playerPos.Y + 2f };
+            var direction = enemyPos - eyePos;
+            var distance = direction.Length();
+            if (distance < 0.01f)
+                return true;
+
+            direction /= distance;
+            return !BGCollisionModule.RaycastMaterialFilter(eyePos, direction, out _, distance);
+        }
+        catch
+        {
+            // BGCollision unavailable (loading screen, etc.) — assume LoS is fine
+            return true;
+        }
     }
 
     private static float GetDotDuration(IBattleChara target, uint statusId)

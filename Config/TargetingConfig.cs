@@ -59,4 +59,11 @@ public sealed class TargetingConfig
     /// to trigger on deliberate movement but large enough to ignore GCD-stutter jitter.
     /// </summary>
     public float GapCloserMovementAwayThresholdY { get; set; } = 1.0f;
+
+    /// <summary>
+    /// When true, auto-targeting filters out enemies that are behind walls or
+    /// other geometry using a BGCollision raycast. Prevents the rotation from
+    /// trying to cast through pillars in dungeons and raids.
+    /// </summary>
+    public bool EnableLineOfSightFiltering { get; set; } = true;
 }

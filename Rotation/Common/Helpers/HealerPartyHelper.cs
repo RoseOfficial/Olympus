@@ -57,6 +57,18 @@ public abstract class HealerPartyHelper : BasePartyHelper
         2685, // Catharsis of Corundum (GNB delayed heal from Heart of Corundum)
     };
 
+    /// <summary>
+    /// Doom status IDs that only clear when the target reaches 100% HP.
+    /// A Doomed player at 85% looks healthy to normal heuristics but will
+    /// die if not topped off before Doom expires.
+    /// </summary>
+    private static readonly ushort[] DoomStatusIds =
+    {
+        910,  // Doom (ARR/HW — Pharos Sirius, Tam-Tara Hard, etc.)
+        1769, // Doom (ShB — Eden's Verse, The Seat of Sacrifice, etc.)
+        2976, // Doom (EW — TOP phase 6, Abyssos, etc.)
+    };
+
     protected HealerPartyHelper(
         IObjectTable objectTable,
         IPartyList partyList,
@@ -117,8 +129,13 @@ public abstract class HealerPartyHelper : BasePartyHelper
             if (predictedHp >= member.MaxHp)
                 continue;
 
-            // Overheal prevention
-            if (healAmount > 0)
+            // Doom forces max priority — Doom only clears at 100% HP, so even a
+            // target at 85% will die if not topped. Treat as near-zero effective HP.
+            if (HasDoom(member))
+                hpPercent = 0.01f;
+
+            // Overheal prevention (skip for Doom targets — they need every heal)
+            if (hpPercent > 0.01f && healAmount > 0)
             {
                 var missingHp = member.MaxHp - predictedHp;
                 if (healAmount > missingHp)
@@ -231,6 +248,37 @@ public abstract class HealerPartyHelper : BasePartyHelper
         for (int i = 0; i < NoHealStatusIds.Length; i++)
         {
             if (NoHealStatusIds[i] == statusId)
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Checks whether a target has a Doom status that clears only at 100% HP.
+    /// Doomed targets must be topped off or they die when Doom expires —
+    /// normal HP-percent heuristics will under-prioritize them.
+    /// </summary>
+    public static bool HasDoom(IBattleChara chara)
+    {
+        if (chara.StatusList == null)
+            return false;
+
+        foreach (var status in chara.StatusList)
+        {
+            if (IsDoomStatusId(status.StatusId))
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Pure predicate: is the given status ID one of the Doom status IDs?
+    /// </summary>
+    public static bool IsDoomStatusId(uint statusId)
+    {
+        for (int i = 0; i < DoomStatusIds.Length; i++)
+        {
+            if (DoomStatusIds[i] == statusId)
                 return true;
         }
         return false;
