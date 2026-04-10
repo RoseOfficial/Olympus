@@ -4,6 +4,7 @@ using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.AstraeaCore.Context;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AstraeaCore.Modules.Healing;
@@ -39,6 +40,11 @@ public sealed class EssentialDignityHandler : IHealingHandler
 
         var target = context.PartyHelper.FindEssentialDignityTarget(player, config.EssentialDignityThreshold);
         if (target == null)
+            return false;
+
+        // Skip invuln/delayed-heal targets (Hallowed, Holmgang, Living Dead,
+        // Superbolide, Excog, Catharsis) — a direct heal is guaranteed waste.
+        if (HealerPartyHelper.HasNoHealStatus(target))
             return false;
 
         // Skip if another handler (local or remote Olympus instance) is already healing this target

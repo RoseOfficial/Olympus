@@ -30,6 +30,12 @@ public sealed class BenedictionHandler : IHealingHandler
         if (target is null)
             return false;
 
+        // Skip if the target has a tank invuln (Hallowed/Holmgang/Living Dead/
+        // Superbolide) or delayed-trigger heal (Excog/Catharsis) active — a
+        // direct instant heal is guaranteed waste in those windows.
+        if (HealerPartyHelper.HasNoHealStatus(target))
+            return false;
+
         // Skip if another handler (local or remote Olympus instance) is already healing this target
         if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
             return false;

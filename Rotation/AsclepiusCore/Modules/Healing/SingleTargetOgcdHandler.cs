@@ -3,6 +3,7 @@ using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.AsclepiusCore.Context;
 using Olympus.Rotation.AsclepiusCore.Helpers;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AsclepiusCore.Modules.Healing;
@@ -67,6 +68,14 @@ public sealed class SingleTargetOgcdHandler : IHealingHandler
         if (target == null)
         {
             context.Debug.DruocholeState = "No target";
+            return false;
+        }
+
+        // Skip invuln/delayed-heal targets (Hallowed, Holmgang, Living Dead,
+        // Superbolide, Excog, Catharsis) — a direct heal is guaranteed waste.
+        if (HealerPartyHelper.HasNoHealStatus(target))
+        {
+            context.Debug.DruocholeState = "Skipped (invuln/delayed heal)";
             return false;
         }
 

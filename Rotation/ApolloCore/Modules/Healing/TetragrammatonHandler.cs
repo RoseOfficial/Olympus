@@ -39,6 +39,11 @@ public sealed class TetragrammatonHandler : IHealingHandler
         if (target is null)
             return false;
 
+        // Skip invuln/delayed-heal targets (Hallowed, Holmgang, Living Dead,
+        // Superbolide, Excog, Catharsis) — a direct heal is guaranteed waste.
+        if (HealerPartyHelper.HasNoHealStatus(target))
+            return false;
+
         // Skip if another handler (local or remote Olympus instance) is already healing this target
         if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
             return false;

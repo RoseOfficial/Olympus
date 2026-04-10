@@ -30,6 +30,33 @@ public abstract class HealerPartyHelper : BasePartyHelper
     /// </summary>
     protected const ushort TranscendentStatusId = 2656;
 
+    /// <summary>
+    /// Status IDs where casting a single-target direct oGCD heal (Benediction,
+    /// Tetragrammaton, Lustrate, Essential Dignity, Druochole) is guaranteed
+    /// waste. Covers tank invulnerability abilities and delayed-trigger heals
+    /// that overlap any heal we would cast in the same window.
+    /// </summary>
+    /// <remarks>
+    /// This does NOT cover shields, regens, ground-targeted heals, or AoE
+    /// party heals — those can still be useful during an invuln window
+    /// (duration outlasts the invuln, party members other than the invuln
+    /// tank still benefit, etc). Check only from handlers that cast a
+    /// target-specific instant heal.
+    /// </remarks>
+    // NOTE: Walking Dead (811) is NOT in this list. Walking Dead kicks in
+    // when Living Dead expires — the DRK MUST be healed back to full during
+    // that window or they die. Skipping heals during Walking Dead would kill
+    // the player. Only the pure invuln (Living Dead, 810) is included.
+    private static readonly ushort[] NoHealStatusIds =
+    {
+        82,   // Hallowed Ground (PLD invuln)
+        409,  // Holmgang (WAR invuln)
+        810,  // Living Dead (DRK invuln — Walking Dead 811 intentionally excluded)
+        1836, // Superbolide (GNB invuln)
+        1220, // Excogitation (SCH delayed heal — triggers before our heal lands)
+        2685, // Catharsis of Corundum (GNB delayed heal from Heart of Corundum)
+    };
+
     protected HealerPartyHelper(
         IObjectTable objectTable,
         IPartyList partyList,
@@ -164,6 +191,46 @@ public abstract class HealerPartyHelper : BasePartyHelper
         foreach (var status in chara.StatusList)
         {
             if (status.StatusId == TranscendentStatusId)
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Checks whether a target is in a state where a single-target direct
+    /// oGCD heal (Benediction/Tetragrammaton/Lustrate/Essential Dignity/
+    /// Druochole) would be wasted — tank invuln active, or a delayed heal
+    /// (Excogitation, Catharsis of Corundum) already covering them.
+    /// </summary>
+    /// <remarks>
+    /// Call this from oGCD ST heal handlers only. Do not apply to shields,
+    /// regens, ground targets, or AoE party heals — those have legitimate
+    /// use during invuln windows (duration outlasts the invuln, or other
+    /// non-invuln party members benefit).
+    /// </remarks>
+    public static bool HasNoHealStatus(IBattleChara chara)
+    {
+        if (chara.StatusList == null)
+            return false;
+
+        foreach (var status in chara.StatusList)
+        {
+            if (IsNoHealStatusId(status.StatusId))
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Pure predicate: is the given status ID one of the NoHeal status IDs?
+    /// Extracted from <see cref="HasNoHealStatus"/> so unit tests can exercise
+    /// the ID list without having to fake Dalamud's <c>StatusList</c>.
+    /// </summary>
+    public static bool IsNoHealStatusId(uint statusId)
+    {
+        for (int i = 0; i < NoHealStatusIds.Length; i++)
+        {
+            if (NoHealStatusIds[i] == statusId)
                 return true;
         }
         return false;

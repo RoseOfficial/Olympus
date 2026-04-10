@@ -3,6 +3,7 @@ using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.AthenaCore.Context;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AthenaCore.Modules.Healing;
@@ -46,6 +47,11 @@ public sealed class LustrateHandler : IHealingHandler
 
         var target = context.PartyHelper.FindLowestHpPartyMember(player);
         if (target == null)
+            return false;
+
+        // Skip invuln/delayed-heal targets (Hallowed, Holmgang, Living Dead,
+        // Superbolide, Excog, Catharsis) — a direct heal is guaranteed waste.
+        if (HealerPartyHelper.HasNoHealStatus(target))
             return false;
 
         // Skip if another handler (local or remote Olympus instance) is already healing this target
