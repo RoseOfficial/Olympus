@@ -32,6 +32,7 @@ public sealed class HealingModule : IAthenaModule
 
         _gcdHandlers = new List<IHealingHandler>
         {
+            new EsunaHandler(),            // 5
             new AoEHealHandler(),          // 10
             new SingleTargetHealHandler(), // 20
         };

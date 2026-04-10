@@ -37,6 +37,7 @@ public sealed class HealingModule : IAsclepiusModule
 
         _gcdHandlers = new List<IHealingHandler>
         {
+            new EsunaHandler(),           // 5
             new PneumaHandler(),          // 10
             new ShieldHealingHandler(),   // 20
             new PrognosisHandler(),       // 30

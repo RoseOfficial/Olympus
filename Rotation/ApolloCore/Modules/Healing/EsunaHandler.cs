@@ -6,6 +6,7 @@ using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Services.Debuff;
+using Olympus.Services.Party;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ApolloCore.Modules.Healing;
@@ -42,7 +43,8 @@ public sealed class EsunaHandler : IHealingHandler
             return false;
         }
 
-        var (target, statusId, priority) = FindBestEsunaTarget(context);
+        var (target, statusId, priority) = EsunaHelper.FindBestTarget(
+            player, context.PartyHelper.GetAllPartyMembers(player), context.DebuffDetectionService);
         if (target is null)
         {
             context.Debug.EsunaState = "No target";
@@ -56,9 +58,9 @@ public sealed class EsunaHandler : IHealingHandler
             return false;
         }
 
-        if (isMoving)
+        if (isMoving && !context.HasSwiftcast)
         {
-            context.Debug.EsunaState = "Moving";
+            context.Debug.EsunaState = "Moving (no Swiftcast)";
             return false;
         }
 
@@ -139,37 +141,4 @@ public sealed class EsunaHandler : IHealingHandler
         return false;
     }
 
-    private static (IBattleChara? target, uint statusId, DebuffPriority priority) FindBestEsunaTarget(IApolloContext context)
-    {
-        var player = context.Player;
-        IBattleChara? bestTarget = null;
-        uint bestStatusId = 0;
-        var bestPriority = DebuffPriority.None;
-        float bestRemainingTime = float.MaxValue;
-
-        foreach (var member in context.PartyHelper.GetAllPartyMembers(player))
-        {
-            if (member.IsDead)
-                continue;
-
-            if (!DistanceHelper.IsInRange(player, member, RoleActions.Esuna.Range))
-                continue;
-
-            var (statusId, priority, remainingTime) = context.DebuffDetectionService.FindHighestPriorityDebuff(member);
-
-            if (priority == DebuffPriority.None)
-                continue;
-
-            if (priority < bestPriority ||
-                (priority == bestPriority && remainingTime < bestRemainingTime))
-            {
-                bestTarget = member;
-                bestStatusId = statusId;
-                bestPriority = priority;
-                bestRemainingTime = remainingTime;
-            }
-        }
-
-        return (bestTarget, bestStatusId, bestPriority);
-    }
 }

@@ -35,6 +35,7 @@ public sealed class HealingModule : IAstraeaModule
 
         _gcdHandlers = new List<IHealingHandler>
         {
+            new EsunaHandler(),                // 5
             new MacrocosmosHandler(),          // 20
             new AoEHealingHandler(),           // 30
             new AspectedBeneficHandler(),      // 40
