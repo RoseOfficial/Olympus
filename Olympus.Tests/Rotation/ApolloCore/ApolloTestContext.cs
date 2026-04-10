@@ -13,6 +13,7 @@ using Olympus.Services.Debuff;
 using Olympus.Services.Healing;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
+using Olympus.Timeline;
 
 namespace Olympus.Tests.Rotation.ApolloCore;
 
@@ -32,6 +33,7 @@ public static class ApolloTestContext
         Mock<ITargetingService>? targetingService = null,
         Mock<IDebuffDetectionService>? debuffDetectionService = null,
         Mock<IHealingSpellSelector>? healingSpellSelector = null,
+        ITimelineService? timelineService = null,
         DebugState? debugState = null,
         byte level = 90,
         uint currentHp = 50000,
@@ -101,6 +103,7 @@ public static class ApolloTestContext
             coHealerDetectionService: null,
             bossMechanicDetector: null,
             shieldTrackingService: null,
+            timelineService: timelineService,
             debugState: debugState);
     }
 

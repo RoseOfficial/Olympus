@@ -882,6 +882,18 @@ public sealed class HealingConfig
         get => _tankBusterPreparationWindow;
         set => _tankBusterPreparationWindow = Math.Clamp(value, 1f, 6f);
     }
+
+    // ============================================================
+    // Mechanic-Aware Casting (Healer DPS)
+    // ============================================================
+
+    /// <summary>
+    /// When enabled, healer damage modules skip cast-time GCDs (Glare, Stone, Broil, Malefic)
+    /// when a raidwide or tankbuster is predicted to hit before the cast would complete.
+    /// This keeps the GCD available for reactive healing instead of locking the healer into
+    /// a damage cast during incoming raid damage.
+    /// </summary>
+    public bool EnableMechanicAwareCasting { get; set; } = true;
 }
 
 /// <summary>

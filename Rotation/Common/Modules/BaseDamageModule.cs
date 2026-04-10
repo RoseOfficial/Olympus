@@ -123,6 +123,42 @@ public abstract class BaseDamageModule<TContext> : IHealerRotationModule<TContex
     protected virtual bool CanSingleTarget(TContext context, bool isMoving) => !isMoving;
 
     /// <summary>
+    /// Returns true if a cast-time damage GCD should be blocked because a mechanic is imminent.
+    /// Prevents healers from starting a damage cast when a raidwide/tankbuster will snapshot
+    /// before the cast completes — keeping the GCD available for reactive healing.
+    /// Only applies to cast-time spells (instant GCDs are never blocked).
+    /// </summary>
+    protected bool ShouldBlockCastForMechanic(TContext context, float castTime)
+    {
+        if (castTime <= 0)
+            return false;
+
+        if (!context.Configuration.Healing.EnableMechanicAwareCasting)
+            return false;
+
+        var timeline = context.TimelineService;
+        if (timeline == null || !timeline.IsActive)
+            return false;
+
+        if (timeline.Confidence < context.Configuration.Healing.TimelineConfidenceThreshold)
+            return false;
+
+        // Block the cast if a mechanic will hit before the cast finishes + a small buffer.
+        // The 0.5s buffer accounts for server tick and reaction time after the cast completes.
+        var deadline = castTime + 0.5f;
+
+        var raidwide = timeline.NextRaidwide;
+        if (raidwide.HasValue && raidwide.Value.SecondsUntil > 0 && raidwide.Value.SecondsUntil <= deadline)
+            return true;
+
+        var tankbuster = timeline.NextTankBuster;
+        if (tankbuster.HasValue && tankbuster.Value.SecondsUntil > 0 && tankbuster.Value.SecondsUntil <= deadline)
+            return true;
+
+        return false;
+    }
+
+    /// <summary>
     /// Override to try job-specific instant cast damage while moving (e.g., Ruin II).
     /// Called when moving and regular damage can't be cast.
     /// Default returns false.
@@ -206,6 +242,29 @@ public abstract class BaseDamageModule<TContext> : IHealerRotationModule<TContex
         if (dotAction == null)
             return false;
 
+        // Skip DoT when enough enemies are present for AoE — AoE GCDs are more damage
+        // than maintaining a single-target DoT during dungeon packs.
+        if (IsAoEDamageEnabled(context))
+        {
+            var aoeAction = GetAoEDamageAction(context);
+            if (aoeAction != null)
+            {
+                var enemyCount = context.TargetingService.CountEnemiesInRange(aoeAction.Radius, context.Player);
+                if (enemyCount >= AoEMinTargets(context))
+                {
+                    SetDpsState(context, $"DoT: skipped ({enemyCount} enemies, AoE preferred)");
+                    return false;
+                }
+            }
+        }
+
+        // Block cast-time DoTs when a mechanic is imminent
+        if (ShouldBlockCastForMechanic(context, dotAction.CastTime))
+        {
+            SetDpsState(context, "DoT: mechanic imminent");
+            return false;
+        }
+
         var dotStatusId = GetDoTStatusId(context);
         if (dotStatusId == 0)
             return false;
@@ -251,6 +310,13 @@ public abstract class BaseDamageModule<TContext> : IHealerRotationModule<TContex
         if (!IsActionEnabled(context, aoeAction))
             return false;
 
+        // Block cast-time AoE when a mechanic is imminent
+        if (ShouldBlockCastForMechanic(context, aoeAction.CastTime))
+        {
+            SetAoEDpsState(context, "Holding: mechanic imminent");
+            return false;
+        }
+
         var enemyCount = context.TargetingService.CountEnemiesInRange(aoeAction.Radius, context.Player);
         SetAoEDpsEnemyCount(context, enemyCount);
 
@@ -295,6 +361,13 @@ public abstract class BaseDamageModule<TContext> : IHealerRotationModule<TContex
         if (!IsActionEnabled(context, action))
         {
             SetDpsState(context, $"Action disabled: {action.Name}");
+            return false;
+        }
+
+        // Block cast-time filler when a mechanic is imminent
+        if (ShouldBlockCastForMechanic(context, action.CastTime))
+        {
+            SetDpsState(context, "Holding: mechanic imminent");
             return false;
         }
 
