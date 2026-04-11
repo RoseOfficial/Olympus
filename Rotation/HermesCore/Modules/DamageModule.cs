@@ -19,9 +19,6 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
 {
     public DamageModule(IBurstWindowService? burstWindowService = null, ISmartAoEService? smartAoEService = null) : base(burstWindowService, smartAoEService) { }
 
-    // Ninki threshold for spending
-    private const int NinkiSpendThreshold = 50;
-
     // Kazematoi threshold for maintaining stacks
     private const int KazematoiLowThreshold = 1;
 
@@ -85,13 +82,15 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
     {
         var player = context.Player;
         var level = player.Level;
+        var ninkiMinGauge = context.Configuration.Ninja.NinkiMinGauge;
+        var ninkiOvercapThreshold = context.Configuration.Ninja.NinkiOvercapThreshold;
 
-        // Need 50 Ninki to spend
-        if (context.Ninki < NinkiSpendThreshold)
+        // Need enough Ninki to spend (configurable, minimum 50)
+        if (context.Ninki < ninkiMinGauge)
             return false;
 
-        // Hold Ninki for burst when not at risk of capping (100 = max, hold below 85 if burst imminent)
-        if (context.Configuration.Ninja.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Ninki < 85)
+        // Hold Ninki for burst when not at risk of capping
+        if (context.Configuration.Ninja.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Ninki < ninkiOvercapThreshold)
             return false;
 
         // Choose ST or AoE based on enemy count
@@ -117,7 +116,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
                         .Reason($"Spending 50 Ninki on {aoeAction.Name} ({enemyCount} enemies)",
                             $"{aoeAction.Name} is the AoE Ninki spender, dealing damage to all nearby enemies. " +
                             "Use when you have 3+ enemies. Spend Ninki regularly to avoid overcapping.")
-                        .Factors(new[] { $"Ninki >= {NinkiSpendThreshold}", $"{enemyCount} enemies nearby", "AoE damage optimal" })
+                        .Factors(new[] { $"Ninki >= {ninkiMinGauge}", $"{enemyCount} enemies nearby", "AoE damage optimal" })
                         .Alternatives(new[] { "Use Bhavacakra (less total damage vs 3+)", "Hold for Bunshin (if coming soon)" })
                         .Tip("In AoE, Hellfrog Medium/Deathfrog Medium outperforms Bhavacakra at 3+ targets.")
                         .Concept(NinConcepts.NinkiGauge)
@@ -152,7 +151,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IHermesContext>, IHermesM
                             $"{stAction.Name} is your primary single-target Ninki spender. " +
                             "Use to avoid overcapping Ninki. If Meisui is active, the damage is enhanced. " +
                             "Prioritize Bunshin when it's ready, then spend excess Ninki on this.")
-                        .Factors(new[] { $"Ninki >= {NinkiSpendThreshold}", "Single target damage", context.HasMeisui ? "Meisui buff active" : "Standard potency" })
+                        .Factors(new[] { $"Ninki >= {ninkiMinGauge}", "Single target damage", context.HasMeisui ? "Meisui buff active" : "Standard potency" })
                         .Alternatives(new[] { "Save for Bunshin (if coming soon)", "Overcap Ninki (wastes gauge)" })
                         .Tip("Spend Ninki before capping. Bunshin > Bhavacakra in priority, but don't sit on full gauge.")
                         .Concept(NinConcepts.Bhavacakra)

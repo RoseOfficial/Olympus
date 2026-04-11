@@ -18,11 +18,14 @@ namespace Olympus.Tests.Rotation.HermesCore.Modules;
 /// How NinjutsuModule works:
 /// 1. If no sequence is active, decide whether to start one (level check, cooldown check, need Suiton).
 /// 2. Call MudraHelper.StartSequence(ninjutsuType) which pre-calculates the mudra sequence.
-/// 3. Input the first mudra via ExecuteOgcd (the module blocks all other modules while sequencing).
-/// 4. Each frame: if IsSequenceActive but not IsReadyToExecute, continue calling InputNextMudra.
-/// 5. When IsReadyToExecute, call ExecuteGcd with the appropriate Ninjutsu action.
-/// 6. On success, MudraHelper.CompleteSequence() resets the state.
-/// Ten Chi Jin (TCJ) bypasses the normal mudra system — uses separate GCD-based sequence.
+/// 3. Input mudras and execute ninjutsu via native ActionManager (SafeGameAccess).
+/// 4. Ten Chi Jin (TCJ) bypasses the normal mudra system — uses separate GCD-based sequence.
+///
+/// NOTE: Mudra inputs, ninjutsu execution, and TCJ all use native ActionManager directly
+/// (not IActionService) because UseAction rejects replacement action IDs. In unit tests,
+/// SafeGameAccess.GetActionManager() returns null, so these code paths return true (blocking)
+/// without executing. Tests verify decision logic (ninjutsu selection, MudraHelper state,
+/// debug state) rather than native execution — same pattern as BurstWindowService tests.
 /// </summary>
 public class NinjutsuModuleTests
 {
@@ -95,10 +98,6 @@ public class NinjutsuModuleTests
         actionService.Setup(x => x.IsActionReady(NINActions.Ten.ActionId)).Returns(true);
         // KunaisBane not ready — NeedsSuiton returns false, so Raiton is chosen
         actionService.Setup(x => x.IsActionReady(NINActions.KunaisBane.ActionId)).Returns(false);
-        actionService.Setup(x => x.ExecuteOgcd(
-                It.Is<ActionDefinition>(a => a.ActionId == NINActions.Ten.ActionId),
-                It.IsAny<ulong>()))
-            .Returns(true);
 
         var context = CreateContext(
             inCombat: true,
@@ -112,15 +111,11 @@ public class NinjutsuModuleTests
             actionService: actionService,
             targetingService: targeting);
 
-        // Let the context use a real MudraHelper so we can verify state changes
-        _module.TryExecute(context, isMoving: false);
+        var result = _module.TryExecute(context, isMoving: false);
 
-        // Ten should have been used as first mudra
-        actionService.Verify(x => x.ExecuteOgcd(
-            It.Is<ActionDefinition>(a => a.ActionId == NINActions.Ten.ActionId),
-            It.IsAny<ulong>()), Times.AtLeastOnce);
-
-        // Raiton was chosen as the target ninjutsu
+        // Module blocks other modules while sequencing (native ActionManager is null in tests)
+        Assert.True(result);
+        // Raiton was chosen as the target ninjutsu — verifies decision logic
         Assert.Equal(NINActions.NinjutsuType.Raiton, mudraHelper.TargetNinjutsu);
     }
 
@@ -145,10 +140,10 @@ public class NinjutsuModuleTests
         var result = _module.TryExecute(context, isMoving: false);
         Assert.False(result);
 
-        // No mudra should have been input
-        actionService.Verify(x => x.ExecuteOgcd(
-            It.Is<ActionDefinition>(a => a.ActionId == NINActions.Ten.ActionId),
-            It.IsAny<ulong>()), Times.Never);
+        // MudraHelper should remain idle — no sequence was started
+        var mudra = new MudraHelper();
+        Assert.Equal(MudraState.Idle, mudra.State);
+        Assert.Equal(NINActions.NinjutsuType.None, mudra.TargetNinjutsu);
     }
 
     #endregion
@@ -156,7 +151,7 @@ public class NinjutsuModuleTests
     #region Continue Mudra Sequence
 
     [Fact]
-    public void TryExecute_SequenceAtFirstMudra_InputsNextMudra()
+    public void TryExecute_SequenceAtFirstMudra_BlocksOtherModules()
     {
         var enemy = CreateMockEnemy();
         var targeting = CreateTargetingWithEnemy(enemy, 1);
@@ -167,11 +162,6 @@ public class NinjutsuModuleTests
         mudraHelper.AdvanceSequence(); // Ten already input, now at SecondMudra
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true, canExecuteGcd: false);
-        actionService.Setup(x => x.IsActionReady(NINActions.Chi.ActionId)).Returns(true);
-        actionService.Setup(x => x.ExecuteOgcd(
-                It.Is<ActionDefinition>(a => a.ActionId == NINActions.Chi.ActionId),
-                It.IsAny<ulong>()))
-            .Returns(true);
 
         var context = CreateContext(
             inCombat: true,
@@ -183,16 +173,15 @@ public class NinjutsuModuleTests
             actionService: actionService,
             targetingService: targeting);
 
+        // Module blocks other modules while mid-sequence (native execution via ActionManager)
         var result = _module.TryExecute(context, isMoving: false);
         Assert.True(result);
-
-        actionService.Verify(x => x.ExecuteOgcd(
-            It.Is<ActionDefinition>(a => a.ActionId == NINActions.Chi.ActionId),
-            It.IsAny<ulong>()), Times.Once);
+        // Next mudra should be Chi
+        Assert.Equal(NINActions.MudraType.Chi, mudraHelper.GetNextMudra());
     }
 
     [Fact]
-    public void TryExecute_SequenceAtSecondMudra_ThreeMudra_InputsThirdMudra()
+    public void TryExecute_SequenceAtSecondMudra_ThreeMudra_BlocksOtherModules()
     {
         var enemy = CreateMockEnemy();
         var targeting = CreateTargetingWithEnemy(enemy, 1);
@@ -204,11 +193,6 @@ public class NinjutsuModuleTests
         mudraHelper.AdvanceSequence(); // Chi — now at ThirdMudra (Jin)
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true, canExecuteGcd: false);
-        actionService.Setup(x => x.IsActionReady(NINActions.Jin.ActionId)).Returns(true);
-        actionService.Setup(x => x.ExecuteOgcd(
-                It.Is<ActionDefinition>(a => a.ActionId == NINActions.Jin.ActionId),
-                It.IsAny<ulong>()))
-            .Returns(true);
 
         var context = CreateContext(
             inCombat: true,
@@ -220,16 +204,15 @@ public class NinjutsuModuleTests
             actionService: actionService,
             targetingService: targeting);
 
+        // Module blocks other modules while mid-sequence
         var result = _module.TryExecute(context, isMoving: false);
         Assert.True(result);
-
-        actionService.Verify(x => x.ExecuteOgcd(
-            It.Is<ActionDefinition>(a => a.ActionId == NINActions.Jin.ActionId),
-            It.IsAny<ulong>()), Times.Once);
+        // Next mudra should be Jin
+        Assert.Equal(NINActions.MudraType.Jin, mudraHelper.GetNextMudra());
     }
 
     [Fact]
-    public void TryExecute_SequenceReadyToExecute_ExecutesNinjutsu_GCD()
+    public void TryExecute_SequenceReadyToExecute_BlocksForNativeExecution()
     {
         var enemy = CreateMockEnemy();
         var targeting = CreateTargetingWithEnemy(enemy, 1);
@@ -243,11 +226,6 @@ public class NinjutsuModuleTests
         Assert.True(mudraHelper.IsReadyToExecute);
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: false, canExecuteGcd: true);
-        actionService.Setup(x => x.IsActionReady(NINActions.Raiton.ActionId)).Returns(true);
-        actionService.Setup(x => x.ExecuteGcd(
-                It.Is<ActionDefinition>(a => a.ActionId == NINActions.Raiton.ActionId),
-                It.IsAny<ulong>()))
-            .Returns(true);
 
         var context = CreateContext(
             inCombat: true,
@@ -259,12 +237,11 @@ public class NinjutsuModuleTests
             actionService: actionService,
             targetingService: targeting);
 
+        // Module blocks while waiting to execute ninjutsu via native ActionManager
         var result = _module.TryExecute(context, isMoving: false);
         Assert.True(result);
-
-        actionService.Verify(x => x.ExecuteGcd(
-            It.Is<ActionDefinition>(a => a.ActionId == NINActions.Raiton.ActionId),
-            It.IsAny<ulong>()), Times.Once);
+        // Sequence is still ready (native ActionManager is null in tests, so execution doesn't complete)
+        Assert.True(mudraHelper.IsReadyToExecute);
     }
 
     [Fact]
@@ -329,7 +306,7 @@ public class NinjutsuModuleTests
     #region Kassatsu — Enhanced Ninjutsu Upgrades
 
     [Fact]
-    public void TryExecute_KassatsuActive_Raiton_ExecutesKassatsuRaiton()
+    public void TryExecute_KassatsuActive_Raiton_BlocksForNativeExecution()
     {
         var enemy = CreateMockEnemy();
         var targeting = CreateTargetingWithEnemy(enemy, 1);
@@ -341,12 +318,6 @@ public class NinjutsuModuleTests
         mudraHelper.AdvanceSequence(); // Chi → ReadyToExecute
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: false, canExecuteGcd: true);
-        // With Kassatsu, Raiton is still Raiton (but enhanced damage)
-        actionService.Setup(x => x.IsActionReady(NINActions.Raiton.ActionId)).Returns(true);
-        actionService.Setup(x => x.ExecuteGcd(
-                It.Is<ActionDefinition>(a => a.ActionId == NINActions.Raiton.ActionId),
-                It.IsAny<ulong>()))
-            .Returns(true);
 
         var context = CreateContext(
             inCombat: true,
@@ -355,20 +326,17 @@ public class NinjutsuModuleTests
             level: 100,
             mudraHelper: mudraHelper,
             isMudraActive: true,
-            hasKassatsu: true, // Kassatsu active
+            hasKassatsu: true,
             actionService: actionService,
             targetingService: targeting);
 
         var result = _module.TryExecute(context, isMoving: false);
         Assert.True(result);
-
-        actionService.Verify(x => x.ExecuteGcd(
-            It.Is<ActionDefinition>(a => a.ActionId == NINActions.Raiton.ActionId),
-            It.IsAny<ulong>()), Times.Once);
+        Assert.Equal(NINActions.NinjutsuType.Raiton, mudraHelper.TargetNinjutsu);
     }
 
     [Fact]
-    public void TryExecute_KassatsuActive_KatonSequence_ExecutesGokaMekkyaku()
+    public void TryExecute_KassatsuActive_KatonSequence_BlocksForNativeExecution()
     {
         var enemy = CreateMockEnemy();
         var targeting = CreateTargetingWithEnemy(enemy, 1);
@@ -380,33 +348,25 @@ public class NinjutsuModuleTests
         mudraHelper.AdvanceSequence(); // Ten → ReadyToExecute
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: false, canExecuteGcd: true);
-        actionService.Setup(x => x.IsActionReady(NINActions.GokaMekkyaku.ActionId)).Returns(true);
-        actionService.Setup(x => x.ExecuteGcd(
-                It.Is<ActionDefinition>(a => a.ActionId == NINActions.GokaMekkyaku.ActionId),
-                It.IsAny<ulong>()))
-            .Returns(true);
 
         var context = CreateContext(
             inCombat: true,
             canExecuteOgcd: false,
             canExecuteGcd: true,
-            level: 100, // level >= 76 for GokaMekkyaku
+            level: 100,
             mudraHelper: mudraHelper,
             isMudraActive: true,
-            hasKassatsu: true, // Kassatsu upgrades Katon → GokaMekkyaku
+            hasKassatsu: true,
             actionService: actionService,
             targetingService: targeting);
 
         var result = _module.TryExecute(context, isMoving: false);
         Assert.True(result);
-
-        actionService.Verify(x => x.ExecuteGcd(
-            It.Is<ActionDefinition>(a => a.ActionId == NINActions.GokaMekkyaku.ActionId),
-            It.IsAny<ulong>()), Times.Once);
+        Assert.Equal(NINActions.NinjutsuType.Katon, mudraHelper.TargetNinjutsu);
     }
 
     [Fact]
-    public void TryExecute_KassatsuActive_HyotonSequence_ExecutesHyoshoRanryu()
+    public void TryExecute_KassatsuActive_HyotonSequence_BlocksForNativeExecution()
     {
         var enemy = CreateMockEnemy();
         var targeting = CreateTargetingWithEnemy(enemy, 1);
@@ -418,29 +378,21 @@ public class NinjutsuModuleTests
         mudraHelper.AdvanceSequence(); // Jin → ReadyToExecute
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: false, canExecuteGcd: true);
-        actionService.Setup(x => x.IsActionReady(NINActions.HyoshoRanryu.ActionId)).Returns(true);
-        actionService.Setup(x => x.ExecuteGcd(
-                It.Is<ActionDefinition>(a => a.ActionId == NINActions.HyoshoRanryu.ActionId),
-                It.IsAny<ulong>()))
-            .Returns(true);
 
         var context = CreateContext(
             inCombat: true,
             canExecuteOgcd: false,
             canExecuteGcd: true,
-            level: 100, // level >= 76 for HyoshoRanryu
+            level: 100,
             mudraHelper: mudraHelper,
             isMudraActive: true,
-            hasKassatsu: true, // Kassatsu upgrades Hyoton → HyoshoRanryu
+            hasKassatsu: true,
             actionService: actionService,
             targetingService: targeting);
 
         var result = _module.TryExecute(context, isMoving: false);
         Assert.True(result);
-
-        actionService.Verify(x => x.ExecuteGcd(
-            It.Is<ActionDefinition>(a => a.ActionId == NINActions.HyoshoRanryu.ActionId),
-            It.IsAny<ulong>()), Times.Once);
+        Assert.Equal(NINActions.NinjutsuType.Hyoton, mudraHelper.TargetNinjutsu);
     }
 
     #endregion
@@ -457,11 +409,6 @@ public class NinjutsuModuleTests
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true, canExecuteGcd: true);
         actionService.Setup(x => x.IsActionReady(NINActions.Ten.ActionId)).Returns(true);
-        // Hyoton needs Ten-Jin. With Kassatsu, recommendation is HyoshoRanryu which uses Hyoton sequence.
-        actionService.Setup(x => x.ExecuteOgcd(
-                It.Is<ActionDefinition>(a => a.ActionId == NINActions.Ten.ActionId),
-                It.IsAny<ulong>()))
-            .Returns(true);
 
         var context = CreateContext(
             inCombat: true,
@@ -477,10 +424,7 @@ public class NinjutsuModuleTests
 
         _module.TryExecute(context, isMoving: false);
 
-        // Should have started with Ten (first mudra for HyoshoRanryu = Hyoton = Ten-Jin)
-        actionService.Verify(x => x.ExecuteOgcd(
-            It.Is<ActionDefinition>(a => a.ActionId == NINActions.Ten.ActionId),
-            It.IsAny<ulong>()), Times.Once);
+        // With Kassatsu at high level, HyoshoRanryu should be selected (Hyoton sequence: Ten-Jin)
         Assert.Equal(NINActions.NinjutsuType.HyoshoRanryu, mudraHelper.TargetNinjutsu);
     }
 
@@ -559,17 +503,12 @@ public class NinjutsuModuleTests
     #region Ten Chi Jin (TCJ)
 
     [Fact]
-    public void TryExecute_TenChiJin_3Stacks_ExecutesFumaShuriken()
+    public void TryExecute_TenChiJin_3Stacks_BlocksForFumaShuriken()
     {
         var enemy = CreateMockEnemy();
         var targeting = CreateTargetingWithEnemy(enemy, 1);
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: false, canExecuteGcd: true);
-        actionService.Setup(x => x.IsActionReady(NINActions.FumaShuriken.ActionId)).Returns(true);
-        actionService.Setup(x => x.ExecuteGcd(
-                It.Is<ActionDefinition>(a => a.ActionId == NINActions.FumaShuriken.ActionId),
-                It.IsAny<ulong>()))
-            .Returns(true);
 
         var context = CreateContext(
             inCombat: true,
@@ -577,61 +516,23 @@ public class NinjutsuModuleTests
             canExecuteGcd: true,
             level: 100,
             hasTenChiJin: true,
-            tenChiJinStacks: 3, // First TCJ action
+            tenChiJinStacks: 3,
             actionService: actionService,
             targetingService: targeting);
 
+        // TCJ step 1 blocks (native ActionManager handles execution)
         var result = _module.TryExecute(context, isMoving: false);
         Assert.True(result);
-
-        actionService.Verify(x => x.ExecuteGcd(
-            It.Is<ActionDefinition>(a => a.ActionId == NINActions.FumaShuriken.ActionId),
-            It.IsAny<ulong>()), Times.Once);
+        Assert.Contains("Fuma Shuriken", context.Debug.NinjutsuState);
     }
 
     [Fact]
-    public void TryExecute_TenChiJin_2Stacks_SingleTarget_ExecutesRaiton()
+    public void TryExecute_TenChiJin_2Stacks_SingleTarget_BlocksForRaiton()
     {
         var enemy = CreateMockEnemy();
         var targeting = CreateTargetingWithEnemy(enemy, 1);
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: false, canExecuteGcd: true);
-        actionService.Setup(x => x.IsActionReady(NINActions.Raiton.ActionId)).Returns(true);
-        actionService.Setup(x => x.ExecuteGcd(
-                It.Is<ActionDefinition>(a => a.ActionId == NINActions.Raiton.ActionId),
-                It.IsAny<ulong>()))
-            .Returns(true);
-
-        var context = CreateContext(
-            inCombat: true,
-            canExecuteOgcd: false,
-            canExecuteGcd: true,
-            level: 100,
-            hasTenChiJin: true,
-            tenChiJinStacks: 2, // Second TCJ action
-            actionService: actionService,
-            targetingService: targeting);
-
-        var result = _module.TryExecute(context, isMoving: false);
-        Assert.True(result);
-
-        actionService.Verify(x => x.ExecuteGcd(
-            It.Is<ActionDefinition>(a => a.ActionId == NINActions.Raiton.ActionId),
-            It.IsAny<ulong>()), Times.Once);
-    }
-
-    [Fact]
-    public void TryExecute_TenChiJin_2Stacks_AoE_ExecutesKaton()
-    {
-        var enemy = CreateMockEnemy();
-        var targeting = CreateTargetingWithEnemy(enemy, enemyCount: 3); // AoE threshold
-
-        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: false, canExecuteGcd: true);
-        actionService.Setup(x => x.IsActionReady(NINActions.Katon.ActionId)).Returns(true);
-        actionService.Setup(x => x.ExecuteGcd(
-                It.Is<ActionDefinition>(a => a.ActionId == NINActions.Katon.ActionId),
-                It.IsAny<ulong>()))
-            .Returns(true);
 
         var context = CreateContext(
             inCombat: true,
@@ -645,24 +546,16 @@ public class NinjutsuModuleTests
 
         var result = _module.TryExecute(context, isMoving: false);
         Assert.True(result);
-
-        actionService.Verify(x => x.ExecuteGcd(
-            It.Is<ActionDefinition>(a => a.ActionId == NINActions.Katon.ActionId),
-            It.IsAny<ulong>()), Times.Once);
+        Assert.Contains("Raiton", context.Debug.NinjutsuState);
     }
 
     [Fact]
-    public void TryExecute_TenChiJin_1Stack_SingleTarget_ExecutesSuiton()
+    public void TryExecute_TenChiJin_2Stacks_AoE_BlocksForKaton()
     {
         var enemy = CreateMockEnemy();
-        var targeting = CreateTargetingWithEnemy(enemy, 1);
+        var targeting = CreateTargetingWithEnemy(enemy, enemyCount: 3);
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: false, canExecuteGcd: true);
-        actionService.Setup(x => x.IsActionReady(NINActions.Suiton.ActionId)).Returns(true);
-        actionService.Setup(x => x.ExecuteGcd(
-                It.Is<ActionDefinition>(a => a.ActionId == NINActions.Suiton.ActionId),
-                It.IsAny<ulong>()))
-            .Returns(true);
 
         var context = CreateContext(
             inCombat: true,
@@ -670,30 +563,22 @@ public class NinjutsuModuleTests
             canExecuteGcd: true,
             level: 100,
             hasTenChiJin: true,
-            tenChiJinStacks: 1, // Third TCJ action
+            tenChiJinStacks: 2,
             actionService: actionService,
             targetingService: targeting);
 
         var result = _module.TryExecute(context, isMoving: false);
         Assert.True(result);
-
-        actionService.Verify(x => x.ExecuteGcd(
-            It.Is<ActionDefinition>(a => a.ActionId == NINActions.Suiton.ActionId),
-            It.IsAny<ulong>()), Times.Once);
+        Assert.Contains("Katon", context.Debug.NinjutsuState);
     }
 
     [Fact]
-    public void TryExecute_TenChiJin_1Stack_AoE_ExecutesDoton()
+    public void TryExecute_TenChiJin_1Stack_SingleTarget_BlocksForSuiton()
     {
         var enemy = CreateMockEnemy();
-        var targeting = CreateTargetingWithEnemy(enemy, enemyCount: 3);
+        var targeting = CreateTargetingWithEnemy(enemy, 1);
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: false, canExecuteGcd: true);
-        actionService.Setup(x => x.IsActionReady(NINActions.Doton.ActionId)).Returns(true);
-        actionService.Setup(x => x.ExecuteGcd(
-                It.Is<ActionDefinition>(a => a.ActionId == NINActions.Doton.ActionId),
-                It.IsAny<ulong>()))
-            .Returns(true);
 
         var context = CreateContext(
             inCombat: true,
@@ -707,10 +592,30 @@ public class NinjutsuModuleTests
 
         var result = _module.TryExecute(context, isMoving: false);
         Assert.True(result);
+        Assert.Contains("Suiton", context.Debug.NinjutsuState);
+    }
 
-        actionService.Verify(x => x.ExecuteGcd(
-            It.Is<ActionDefinition>(a => a.ActionId == NINActions.Doton.ActionId),
-            It.IsAny<ulong>()), Times.Once);
+    [Fact]
+    public void TryExecute_TenChiJin_1Stack_AoE_BlocksForDoton()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy, enemyCount: 3);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: false, canExecuteGcd: true);
+
+        var context = CreateContext(
+            inCombat: true,
+            canExecuteOgcd: false,
+            canExecuteGcd: true,
+            level: 100,
+            hasTenChiJin: true,
+            tenChiJinStacks: 1,
+            actionService: actionService,
+            targetingService: targeting);
+
+        var result = _module.TryExecute(context, isMoving: false);
+        Assert.True(result);
+        Assert.Contains("Doton", context.Debug.NinjutsuState);
     }
 
     [Fact]

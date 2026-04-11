@@ -165,12 +165,16 @@ public sealed class MudraHelper
     /// <param name="hasKassatsu">Whether Kassatsu is active.</param>
     /// <param name="needsSuiton">Whether we need Suiton for Kunai's Bane.</param>
     /// <param name="enemyCount">Number of nearby enemies.</param>
+    /// <param name="useDoton">Whether Doton is enabled for AoE (config toggle).</param>
+    /// <param name="dotonMinTargets">Minimum enemies for Doton (config value).</param>
     /// <returns>The recommended Ninjutsu to use.</returns>
     public static NINActions.NinjutsuType GetRecommendedNinjutsu(
         byte level,
         bool hasKassatsu,
         bool needsSuiton,
-        int enemyCount)
+        int enemyCount,
+        bool useDoton = true,
+        int dotonMinTargets = 3)
     {
         // Kassatsu-enhanced Ninjutsu
         if (hasKassatsu)
@@ -197,11 +201,11 @@ public sealed class MudraHelper
         // AoE situations
         if (enemyCount >= 3)
         {
-            // Doton for stationary AoE
-            if (level >= NINActions.Doton.MinLevel)
+            // Doton for stationary AoE (configurable — enemies may move out of Doton)
+            if (useDoton && enemyCount >= dotonMinTargets && level >= NINActions.Doton.MinLevel)
                 return NINActions.NinjutsuType.Doton;
 
-            // Katon for burst AoE
+            // Katon for burst AoE (always available as AoE fallback)
             if (level >= NINActions.Katon.MinLevel)
                 return NINActions.NinjutsuType.Katon;
         }

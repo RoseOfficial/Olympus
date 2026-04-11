@@ -1,8 +1,10 @@
 using Dalamud.Game.ClientState.Objects.Types;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.HermesCore.Context;
 using Olympus.Rotation.HermesCore.Helpers;
+using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.HermesCore.Modules;
@@ -15,9 +17,6 @@ public sealed class NinjutsuModule : IHermesModule
 {
     public int Priority => 10; // Highest priority - mudras must complete
     public string Name => "Ninjutsu";
-
-    // Threshold for AoE rotation
-    private const int AoeThreshold = 3;
 
     public bool TryExecute(IHermesContext context, bool isMoving)
     {
@@ -96,17 +95,14 @@ public sealed class NinjutsuModule : IHermesModule
             return true; // Block other modules
         }
 
-        // Need to input more mudras
-        if (context.CanExecuteOgcd)
-        {
-            return InputNextMudra(context);
-        }
-
-        context.Debug.NinjutsuState = $"Waiting to input mudra ({mudraHelper.MudraCount}/3)";
-        return true; // Block other modules - we're mid-sequence
+        // Need to input more mudras. Don't gate on CanExecuteOgcd — mid-sequence mudras
+        // use a 0.5s shared recast that doesn't participate in the normal double-weave
+        // system. InputNextMudra checks GetActionStatus directly to know if the mudra
+        // is actually usable (accounts for animation lock and the 0.5s recast).
+        return InputNextMudra(context);
     }
 
-    private bool InputNextMudra(IHermesContext context)
+    private unsafe bool InputNextMudra(IHermesContext context)
     {
         var mudraHelper = context.MudraHelper;
         var nextMudra = mudraHelper.GetNextMudra();
@@ -120,13 +116,21 @@ public sealed class NinjutsuModule : IHermesModule
 
         var mudraAction = NINActions.GetMudraAction(nextMudra);
 
-        if (!context.ActionService.IsActionReady(mudraAction.ActionId))
+        // Mid-sequence mudras share a 0.5s recast but the charge is already consumed by
+        // the first mudra press. IsActionReady uses GetCurrentCharges which returns 0 after
+        // the first mudra, causing a permanent lockup. Use GetActionStatus directly —
+        // it returns 0 when the action is actually usable regardless of charge state.
+        var actionManager = SafeGameAccess.GetActionManager(null);
+        if (actionManager == null)
+            return true; // Block other modules while we wait
+
+        if (actionManager->GetActionStatus(ActionType.Action, mudraAction.ActionId) != 0)
         {
             context.Debug.NinjutsuState = $"Waiting for {mudraAction.Name}";
             return true;
         }
 
-        if (context.ActionService.ExecuteOgcd(mudraAction, context.Player.GameObjectId))
+        if (actionManager->UseAction(ActionType.Action, mudraAction.ActionId, context.Player.GameObjectId))
         {
             mudraHelper.AdvanceSequence();
             context.Debug.PlannedAction = mudraAction.Name;
@@ -137,12 +141,12 @@ public sealed class NinjutsuModule : IHermesModule
         return false;
     }
 
-    private bool ExecuteNinjutsu(IHermesContext context, IBattleChara? target)
+    private unsafe bool ExecuteNinjutsu(IHermesContext context, IBattleChara? target)
     {
         var mudraHelper = context.MudraHelper;
         var targetNinjutsu = mudraHelper.TargetNinjutsu;
 
-        // Get the Ninjutsu action ID based on what we're executing
+        // Get the display action for debug/training (the specific ninjutsu we expect to fire)
         var ninjutsuAction = GetNinjutsuAction(targetNinjutsu, context.HasKassatsu, context.Player.Level);
 
         if (ninjutsuAction == null)
@@ -160,13 +164,25 @@ public sealed class NinjutsuModule : IHermesModule
             targetId = context.Player.GameObjectId;
         }
 
-        if (!context.ActionService.IsActionReady(ninjutsuAction.ActionId))
+        // Ninjutsu results (Raiton, Suiton, etc.) are replacement actions for the base
+        // Ninjutsu action (2260). UseAction rejects replacement IDs but GetActionStatus
+        // accepts them. Use the base Ninjutsu ID for UseAction — the game resolves it
+        // internally to whatever the mudra sequence produced.
+        var actionManager = SafeGameAccess.GetActionManager(null);
+        if (actionManager == null)
+        {
+            context.Debug.NinjutsuState = "ActionManager unavailable";
+            return true;
+        }
+
+        var adjustedId = actionManager->GetAdjustedActionId(NINActions.Ninjutsu.ActionId);
+        if (actionManager->GetActionStatus(ActionType.Action, adjustedId) != 0)
         {
             context.Debug.NinjutsuState = $"Waiting for {ninjutsuAction.Name}";
             return true;
         }
 
-        if (context.ActionService.ExecuteGcd(ninjutsuAction, targetId))
+        if (actionManager->UseAction(ActionType.Action, NINActions.Ninjutsu.ActionId, targetId))
         {
             context.Debug.PlannedAction = ninjutsuAction.Name;
             context.Debug.NinjutsuState = $"Executed {ninjutsuAction.Name}";
@@ -375,7 +391,9 @@ public sealed class NinjutsuModule : IHermesModule
             level,
             context.HasKassatsu,
             needsSuiton,
-            enemyCount);
+            enemyCount,
+            context.Configuration.Ninja.UseDotonForAoE,
+            context.Configuration.Ninja.DotonMinTargets);
 
         if (ninjutsu == NINActions.NinjutsuType.None)
         {
@@ -395,55 +413,59 @@ public sealed class NinjutsuModule : IHermesModule
 
     #region Ten Chi Jin
 
-    private bool HandleTenChiJin(IHermesContext context, IBattleChara? target, int enemyCount)
+    private unsafe bool HandleTenChiJin(IHermesContext context, IBattleChara? target, int enemyCount)
     {
-        // Ten Chi Jin allows instant sequential Ninjutsu without mudra cooldowns
-        // Standard sequence: Fuma Shuriken -> Raiton -> Suiton (or Katon for AoE)
+        if (!context.Configuration.Ninja.EnableTenChiJin) return false;
+
+        // Ten Chi Jin replaces mudra buttons with ninjutsu actions:
+        //   Ten → Fuma Shuriken, Chi → Raiton/Katon, Jin → Suiton/Doton
+        // UseAction rejects replacement IDs, so pass base mudra IDs (Ten/Chi/Jin).
+        // The game resolves them internally during TCJ.
         if (!context.CanExecuteGcd)
         {
             context.Debug.NinjutsuState = "TCJ: Waiting for GCD";
             return true;
         }
 
-        var level = context.Player.Level;
         var stacks = context.TenChiJinStacks;
         var targetId = target?.GameObjectId ?? context.Player.GameObjectId;
 
-        Models.Action.ActionDefinition? action = null;
+        uint baseActionId;
+        Models.Action.ActionDefinition displayAction;
         string actionName;
 
-        // TCJ sequence based on remaining stacks
+        // TCJ sequence based on remaining stacks — use base mudra IDs
         if (stacks >= 3)
         {
-            // First TCJ action - Ten (Fuma Shuriken)
-            action = NINActions.FumaShuriken;
+            baseActionId = NINActions.Ten.ActionId;
+            displayAction = NINActions.FumaShuriken;
             actionName = "TCJ: Fuma Shuriken";
         }
         else if (stacks == 2)
         {
-            // Second TCJ action - Chi (Raiton or Katon)
-            if (enemyCount >= AoeThreshold)
+            baseActionId = NINActions.Chi.ActionId;
+            if (enemyCount >= context.Configuration.Ninja.AoEMinTargets)
             {
-                action = NINActions.Katon;
+                displayAction = NINActions.Katon;
                 actionName = "TCJ: Katon";
             }
             else
             {
-                action = NINActions.Raiton;
+                displayAction = NINActions.Raiton;
                 actionName = "TCJ: Raiton";
             }
         }
         else if (stacks == 1)
         {
-            // Third TCJ action - Jin (Suiton or Doton)
-            if (enemyCount >= AoeThreshold)
+            baseActionId = NINActions.Jin.ActionId;
+            if (enemyCount >= context.Configuration.Ninja.AoEMinTargets)
             {
-                action = NINActions.Doton;
+                displayAction = NINActions.Doton;
                 actionName = "TCJ: Doton";
             }
             else
             {
-                action = NINActions.Suiton;
+                displayAction = NINActions.Suiton;
                 actionName = "TCJ: Suiton";
             }
         }
@@ -453,38 +475,47 @@ public sealed class NinjutsuModule : IHermesModule
             return false;
         }
 
-        if (action != null && context.ActionService.IsActionReady(action.ActionId))
+        // Set debug state for what we're attempting (visible even when native call is unavailable)
+        context.Debug.NinjutsuState = $"TCJ: Waiting for {displayAction.Name}";
+
+        var actionManager = SafeGameAccess.GetActionManager(null);
+        if (actionManager == null)
+            return true;
+
+        // Check readiness via the adjusted (replacement) ID, execute with the base mudra ID
+        var adjustedId = actionManager->GetAdjustedActionId(baseActionId);
+        if (actionManager->GetActionStatus(ActionType.Action, adjustedId) != 0)
+            return true;
+
+        if (actionManager->UseAction(ActionType.Action, baseActionId, targetId))
         {
-            if (context.ActionService.ExecuteGcd(action, targetId))
-            {
-                context.Debug.PlannedAction = action.Name;
-                context.Debug.NinjutsuState = actionName;
+            context.Debug.PlannedAction = displayAction.Name;
+            context.Debug.NinjutsuState = actionName;
 
-                // Training: Record Ten Chi Jin action
-                var tcjConceptId = stacks == 1
-                    ? (enemyCount >= AoeThreshold ? NinConcepts.AoeNinjutsu : NinConcepts.Suiton)
-                    : NinConcepts.TcjOptimization;
-                TrainingHelper.Decision(context.TrainingService)
-                    .Action(action.ActionId, action.Name)
-                    .AsMeleeBurst()
-                    .Target(target?.Name?.TextValue ?? "Target")
-                    .Reason($"TCJ step {4 - stacks}/3: {action.Name}",
-                        "Ten Chi Jin lets you use three Ninjutsu instantly. The standard sequence is: " +
-                        "Fuma Shuriken (Ten) → Raiton/Katon (Chi) → Suiton/Doton (Jin). " +
-                        "Do NOT move during TCJ — any movement cancels the entire effect. " +
-                        "Use this combo inside your Kunai's Bane burst window for maximum damage.")
-                    .Factors(new[] { "TCJ active", $"Step {4 - stacks} of 3", $"{enemyCount} enemies nearby" })
-                    .Alternatives(new[] { "Cannot deviate — TCJ sequences are locked in order" })
-                    .Tip("TCJ is cancelled by movement. Cast it when you're safe to stand still for ~3 GCDs.")
-                    .Concept(tcjConceptId)
-                    .Record();
-                context.TrainingService?.RecordConceptApplication(tcjConceptId, true, $"TCJ step {4 - stacks}");
+            // Training: Record Ten Chi Jin action
+            var tcjConceptId = stacks == 1
+                ? (enemyCount >= context.Configuration.Ninja.AoEMinTargets ? NinConcepts.AoeNinjutsu : NinConcepts.Suiton)
+                : NinConcepts.TcjOptimization;
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(displayAction.ActionId, displayAction.Name)
+                .AsMeleeBurst()
+                .Target(target?.Name?.TextValue ?? "Target")
+                .Reason($"TCJ step {4 - stacks}/3: {displayAction.Name}",
+                    "Ten Chi Jin lets you use three Ninjutsu instantly. The standard sequence is: " +
+                    "Fuma Shuriken (Ten) → Raiton/Katon (Chi) → Suiton/Doton (Jin). " +
+                    "Do NOT move during TCJ — any movement cancels the entire effect. " +
+                    "Use this combo inside your Kunai's Bane burst window for maximum damage.")
+                .Factors(new[] { "TCJ active", $"Step {4 - stacks} of 3", $"{enemyCount} enemies nearby" })
+                .Alternatives(new[] { "Cannot deviate — TCJ sequences are locked in order" })
+                .Tip("TCJ is cancelled by movement. Cast it when you're safe to stand still for ~3 GCDs.")
+                .Concept(tcjConceptId)
+                .Record();
+            context.TrainingService?.RecordConceptApplication(tcjConceptId, true, $"TCJ step {4 - stacks}");
 
-                return true;
-            }
+            return true;
         }
 
-        context.Debug.NinjutsuState = $"TCJ: Waiting for {action?.Name ?? "action"}";
+        context.Debug.NinjutsuState = $"TCJ: Waiting for {displayAction.Name}";
         return true;
     }
 
