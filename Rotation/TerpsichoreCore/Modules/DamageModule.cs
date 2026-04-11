@@ -390,21 +390,23 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
             return false;
         }
 
+        var espritConfig = context.Configuration.Dancer;
+
         // Hold Saber Dance for burst when Esprit is not near cap
-        if (context.Configuration.Dancer.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Esprit < 80)
+        if (espritConfig.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Esprit < espritConfig.EspritOvercapThreshold)
         {
-            context.Debug.DamageState = $"Holding Esprit for burst ({context.Esprit}/80)";
+            context.Debug.DamageState = $"Holding Esprit for burst ({context.Esprit}/{espritConfig.EspritOvercapThreshold})";
             return false;
         }
 
-        // Use at 80+ to prevent overcap
-        // Or use at 50+ during burst (IsInBurst covers Devilment/TechnicalFinish overlap)
-        bool shouldUse = context.Esprit >= 80 ||
-                         (context.Esprit >= 50 && (IsInBurst || context.HasDevilment || context.HasTechnicalFinish));
+        // Use at overcap threshold to prevent overcap
+        // Or use at min gauge during burst (IsInBurst covers Devilment/TechnicalFinish overlap)
+        bool shouldUse = context.Esprit >= espritConfig.EspritOvercapThreshold ||
+                         (context.Esprit >= espritConfig.SaberDanceMinGauge && (IsInBurst || context.HasDevilment || context.HasTechnicalFinish));
 
         if (!shouldUse)
         {
-            context.Debug.DamageState = $"Holding Esprit ({context.Esprit}/50)";
+            context.Debug.DamageState = $"Holding Esprit ({context.Esprit}/{espritConfig.SaberDanceMinGauge})";
             return false;
         }
 

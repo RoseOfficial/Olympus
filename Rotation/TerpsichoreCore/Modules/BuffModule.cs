@@ -1,4 +1,5 @@
 using Dalamud.Game.ClientState.Objects.Types;
+using Olympus.Config.DPS;
 using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.TerpsichoreCore.Context;
@@ -29,20 +30,34 @@ public sealed class BuffModule : ITerpsichoreModule
 
     public bool TryExecute(ITerpsichoreContext context, bool isMoving)
     {
-        if (!context.InCombat)
-        {
-            context.Debug.BuffState = "Not in combat";
-            return false;
-        }
-
         var player = context.Player;
-        var level = player.Level;
 
-        // Priority 1: Execute dance steps when dancing
+        // Always: execute dance steps when dancing (including pre-pull dances)
         if (context.IsDancing)
         {
             if (TryExecuteDanceStep(context))
                 return true;
+        }
+
+        // Pre-combat setup: dance partner and Standard Step for buff preparation
+        if (!context.InCombat)
+        {
+            if (context.CanExecuteOgcd)
+            {
+                // Apply/update dance partner before pull
+                if (TryClosedPosition(context))
+                    return true;
+
+                // Pre-pull Standard Step (only if buff not already active)
+                if (!context.IsDancing && !context.HasStandardFinish)
+                {
+                    if (TryStandardStep(context))
+                        return true;
+                }
+            }
+
+            context.Debug.BuffState = context.IsDancing ? "Dancing (pre-pull)" : "Not in combat";
+            return false;
         }
 
         // oGCDs require weave windows
@@ -51,6 +66,10 @@ public sealed class BuffModule : ITerpsichoreModule
             context.Debug.BuffState = "oGCD not ready";
             return false;
         }
+
+        // Closed Position management in combat (apply or re-partner on death)
+        if (TryClosedPosition(context))
+            return true;
 
         // Find target for targeted oGCDs
         var target = context.TargetingService.FindEnemy(
@@ -64,31 +83,38 @@ public sealed class BuffModule : ITerpsichoreModule
             return false;
         }
 
-        // Priority 2: Technical Step (2-min burst window opener)
+        // When Standard Finish buff is missing, get it up first for personal DPS
+        if (!context.HasStandardFinish)
+        {
+            if (TryStandardStep(context))
+                return true;
+        }
+
+        // Technical Step (2-min burst window opener)
         if (TryTechnicalStep(context))
             return true;
 
-        // Priority 3: Devilment (weave after Technical Finish)
+        // Devilment (weave after Technical Finish)
         if (TryDevilment(context))
             return true;
 
-        // Priority 4: Standard Step (30s CD, use on cooldown)
+        // Standard Step (30s CD, use on cooldown)
         if (TryStandardStep(context))
             return true;
 
-        // Priority 5: Flourish (during burst, grants all procs)
+        // Flourish (during burst, grants all procs)
         if (TryFlourish(context))
             return true;
 
-        // Priority 6: Fan Dance IV (Fourfold proc, use during burst)
+        // Fan Dance IV (Fourfold proc, use during burst)
         if (TryFanDanceIV(context, target))
             return true;
 
-        // Priority 7: Fan Dance III (Threefold proc, use before I/II)
+        // Fan Dance III (Threefold proc, use before I/II)
         if (TryFanDanceIII(context, target))
             return true;
 
-        // Priority 8: Fan Dance I/II (dump feathers at 4 or during burst)
+        // Fan Dance I/II (dump feathers at overcap threshold or during burst)
         if (TryFanDance(context, target))
             return true;
 
@@ -368,6 +394,68 @@ public sealed class BuffModule : ITerpsichoreModule
 
     #endregion
 
+    #region Dance Partner
+
+    private bool TryClosedPosition(ITerpsichoreContext context)
+    {
+        var player = context.Player;
+
+        if (player.Level < DNCActions.ClosedPosition.MinLevel)
+            return false;
+
+        // Don't auto-partner in manual mode
+        if (context.Configuration.Dancer.PartnerSelectionMode == PartnerSelection.Manual)
+            return false;
+
+        // Don't apply during dances
+        if (context.IsDancing)
+            return false;
+
+        // Check if we need a partner
+        var needsPartner = !context.HasDancePartner;
+        if (!needsPartner && context.Configuration.Dancer.AutoRepartner)
+            needsPartner = context.PartyHelper.ShouldUpdatePartner(player, context.StatusHelper);
+
+        if (!needsPartner)
+            return false;
+
+        // Select best partner
+        var partner = context.PartyHelper.SelectDancePartner(player);
+        if (partner == null)
+            return false;
+
+        if (!context.ActionService.IsActionReady(DNCActions.ClosedPosition.ActionId))
+            return false;
+
+        if (context.ActionService.ExecuteOgcd(DNCActions.ClosedPosition, partner.GameObjectId))
+        {
+            context.Debug.PlannedAction = DNCActions.ClosedPosition.Name;
+            context.Debug.BuffState = $"Closed Position → {partner.Name?.TextValue ?? "Partner"}";
+
+            TrainingHelper.Decision(context.TrainingService)
+                .Action(DNCActions.ClosedPosition.ActionId, DNCActions.ClosedPosition.Name)
+                .AsSong("Dance Partner", float.MaxValue)
+                .Target(partner.Name?.TextValue ?? "Partner")
+                .Reason(
+                    "Applied dance partner",
+                    "Closed Position designates a dance partner who shares your Standard Finish buff and generates " +
+                    "Esprit when dealing damage. Always keep a partner selected for maximum Esprit generation.")
+                .Factors(context.HasDancePartner ? "Partner update needed" : "No partner set",
+                         $"Selected: {partner.Name?.TextValue ?? "Partner"}")
+                .Alternatives("Manual partner selection", "Solo (no party)")
+                .Tip("Keep Closed Position active at all times — your partner generates Esprit and gets your Standard Finish buff.")
+                .Concept(DncConcepts.ClosedPosition)
+                .Record();
+            context.TrainingService?.RecordConceptApplication(DncConcepts.ClosedPosition, true, "Partner set");
+
+            return true;
+        }
+
+        return false;
+    }
+
+    #endregion
+
     #region Burst Buffs
 
     private bool TryDevilment(ITerpsichoreContext context)
@@ -601,18 +689,19 @@ public sealed class BuffModule : ITerpsichoreModule
         if (level < DNCActions.FanDance.MinLevel)
             return false;
 
-        if (context.Feathers == 0)
+        var featherConfig = context.Configuration.Dancer;
+
+        if (context.Feathers < featherConfig.FanDanceMinFeathers)
             return false;
 
-        // Dump at 4 feathers to prevent overcap, or during burst
-        bool shouldUse = context.Feathers >= 4 ||
-                         context.HasDevilment ||
-                         context.HasTechnicalFinish;
+        // Dump at overcap threshold or during burst
+        bool inBurst = context.HasDevilment || context.HasTechnicalFinish;
+        bool shouldUse = context.Feathers >= featherConfig.FeatherOvercapThreshold || inBurst;
 
-        // Hold 3 for burst if not in burst window
-        if (!shouldUse && context.Feathers <= 3)
+        // Hold for burst if configured and not at overcap
+        if (!shouldUse && featherConfig.SaveFeathersForBurst)
         {
-            context.Debug.BuffState = $"Holding feathers ({context.Feathers}/4)";
+            context.Debug.BuffState = $"Holding feathers ({context.Feathers}/{featherConfig.FeatherOvercapThreshold})";
             return false;
         }
 
