@@ -126,6 +126,14 @@ public sealed class GeneralSection
                 "Only use gap closers on your explicitly selected target, and block them when you are moving away from the target (spread markers, ground AoE at the end point)."),
             this.save);
 
+        ConfigUIHelpers.Toggle(
+            Loc.T(LocalizedStrings.Targeting.InvulnerabilityFiltering, "Skip invulnerable enemies"),
+            () => this.config.Targeting.EnableInvulnerabilityFiltering,
+            v => this.config.Targeting.EnableInvulnerabilityFiltering = v,
+            Loc.T(LocalizedStrings.Targeting.InvulnerabilityFilteringDesc,
+                "Auto-targeting ignores enemies with invulnerability effects (boss phase transitions, immune adds, invulnerable objects). Prevents wasting actions on targets that take no damage."),
+            this.save);
+
         ConfigUIHelpers.Spacing();
 
         // Movement tolerance

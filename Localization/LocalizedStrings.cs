@@ -210,6 +210,8 @@ public static class LocalizedStrings
         public const string StrictCurrentTargetStrategyDesc = "config.targeting.strict_current_target_desc";
         public const string SafeGapCloser = "config.targeting.safe_gap_closer";
         public const string SafeGapCloserDesc = "config.targeting.safe_gap_closer_desc";
+        public const string InvulnerabilityFiltering = "config.targeting.invulnerability_filtering";
+        public const string InvulnerabilityFilteringDesc = "config.targeting.invulnerability_filtering_desc";
     }
 
     /// <summary>Keys for role action settings section.</summary>

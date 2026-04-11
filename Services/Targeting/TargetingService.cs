@@ -8,6 +8,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Common.Component.BGCollision;
+using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Helpers;
 
 namespace Olympus.Services.Targeting;
@@ -388,6 +389,9 @@ public sealed class TargetingService : ITargetingService
             if (obj.YalmDistanceX > 15) continue;
             if (obj is not IBattleNpc npc) continue;
             if (npc.BattleNpcKind != BattleNpcSubKind.Enemy && npc.SubKind != 0) continue;
+            if (_configuration.Targeting.EnableInvulnerabilityFiltering &&
+                HasInvulnerabilityStatus(npc))
+                continue;
             yield return npc;
         }
     }
@@ -600,6 +604,13 @@ public sealed class TargetingService : ITargetingService
                 !HasLineOfSight(playerPos, npc.Position))
                 continue;
 
+            // Invulnerability check — skip enemies with known invuln status effects
+            // (boss phase transitions, invulnerable adds, untouchable objects).
+            // Only applied to auto-targeting; explicit CurrentTarget/FocusTarget bypass this.
+            if (_configuration.Targeting.EnableInvulnerabilityFiltering &&
+                HasInvulnerabilityStatus(npc))
+                continue;
+
             _cachedEnemies.Add(npc);
             yield return npc;
         }
@@ -653,6 +664,25 @@ public sealed class TargetingService : ITargetingService
                 return status.RemainingTime;
         }
         return 0f;
+    }
+
+    /// <summary>
+    /// Checks whether an enemy has a known invulnerability status effect.
+    /// Used to skip immune targets during auto-targeting (boss phase transitions,
+    /// invulnerable adds, untouchable objects like ARR crystals).
+    /// </summary>
+    private static bool HasInvulnerabilityStatus(IBattleNpc npc)
+    {
+        if (npc.StatusList == null)
+            return false;
+
+        foreach (var status in npc.StatusList)
+        {
+            if (FFXIVConstants.EnemyInvulnerabilityStatusIds.Contains(status.StatusId))
+                return true;
+        }
+
+        return false;
     }
 
     // ── Cone / Line AoE Targeting ──

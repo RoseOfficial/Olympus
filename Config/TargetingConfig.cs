@@ -66,4 +66,13 @@ public sealed class TargetingConfig
     /// trying to cast through pillars in dungeons and raids.
     /// </summary>
     public bool EnableLineOfSightFiltering { get; set; } = true;
+
+    /// <summary>
+    /// When true, auto-targeting skips enemies that have known invulnerability status
+    /// effects (boss phase transitions, invulnerable adds, untouchable objects).
+    /// Prevents the rotation from wasting actions on immune targets.
+    /// Only affects aggregate strategies (LowestHp, HighestHp, Nearest, TankAssist) —
+    /// explicit CurrentTarget/FocusTarget selections are never filtered.
+    /// </summary>
+    public bool EnableInvulnerabilityFiltering { get; set; } = true;
 }

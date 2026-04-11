@@ -104,4 +104,29 @@ public static class FFXIVConstants
         2656,  // Transcendent (post-raise invulnerability, actions locked)
         3581,  // Willful (duty support auto-revive, actions locked ~7s)
     };
+
+    // Enemy invulnerability status IDs — enemy cannot take damage.
+    // Used by TargetingService to skip immune targets during auto-targeting (aggregate
+    // strategies only — explicit CurrentTarget/FocusTarget selections are never filtered).
+    // Covers boss phase transitions, invulnerable adds, and untouchable objects across
+    // ARR through DT content. If a new expansion adds a new invuln status ID, add it here.
+    // To find new IDs: target the invulnerable enemy, check its StatusList in the debug
+    // window or via /xldata, and add the StatusId that appears during the immune phase.
+    /// <summary>Status IDs that indicate an enemy is immune to damage.</summary>
+    public static readonly HashSet<uint> EnemyInvulnerabilityStatusIds = new()
+    {
+        151,   // Invincibility (legacy ARR)
+        325,   // Invincibility (universal — used across all content)
+        394,   // Invincibility (variant)
+        529,   // Invincibility (variant, various duties)
+        656,   // Invincibility (trials, e.g. Thordan)
+        671,   // Invincibility (variant, widely used)
+        775,   // Invincibility (HW content)
+        969,   // Invincibility (SB+ content)
+        981,   // Invincibility (variant)
+        1570,  // Invincibility (ShB content)
+        1697,  // Invincibility (ShB/EW raids)
+        1829,  // Invincibility (EW content)
+        2882,  // Invincibility (EW/DT content)
+    };
 }
