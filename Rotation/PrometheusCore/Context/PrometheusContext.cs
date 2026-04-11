@@ -219,11 +219,11 @@ public sealed class PrometheusContext : IPrometheusContext
             BioblasterRemaining = 0f;
         }
 
-        // Cooldown tracking - get charges from ActionService
+        // Cooldown tracking - use level-appropriate action IDs for replaced actions
         DrillCharges = GetActionCharges(MCHActions.Drill.ActionId);
         ReassembleCharges = GetActionCharges(MCHActions.Reassemble.ActionId);
-        GaussRoundCharges = GetActionCharges(MCHActions.GaussRound.ActionId);
-        RicochetCharges = GetActionCharges(MCHActions.Ricochet.ActionId);
+        GaussRoundCharges = GetActionCharges(MCHActions.GetGaussRound(player.Level).ActionId);
+        RicochetCharges = GetActionCharges(MCHActions.GetRicochet(player.Level).ActionId);
 
         // Update debug state
         UpdateDebugState();

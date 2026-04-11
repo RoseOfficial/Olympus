@@ -60,13 +60,19 @@ public interface IHephaestusContext : ITankRotationContext
     bool IsReadyToBlast { get; }
 
     /// <summary>
+    /// Whether Ready to Brand is active (follow-up to Fated Circle, Lv.96+).
+    /// Must use before next GCD or proc expires.
+    /// </summary>
+    bool IsReadyToBrand { get; }
+
+    /// <summary>
     /// Whether Ready to Reign is active (from Bloodfest at Lv.100).
     /// Enables Reign of Beasts combo.
     /// </summary>
     bool IsReadyToReign { get; }
 
     /// <summary>
-    /// Whether any Continuation action is ready.
+    /// Whether any Continuation action is ready (includes Fated Brand).
     /// </summary>
     bool HasAnyContinuationReady { get; }
 

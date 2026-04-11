@@ -64,6 +64,14 @@ public sealed class HephaestusStatusHelper : BaseStatusHelper
     }
 
     /// <summary>
+    /// Checks if Ready to Brand is active (follow-up to Fated Circle, Lv.96+).
+    /// </summary>
+    public bool HasReadyToBrand(IBattleChara player)
+    {
+        return HasStatus(player, GNBActions.StatusIds.ReadyToBrand);
+    }
+
+    /// <summary>
     /// Checks if any Continuation action is ready.
     /// </summary>
     public bool HasAnyContinuationReady(IBattleChara player)
@@ -71,7 +79,8 @@ public sealed class HephaestusStatusHelper : BaseStatusHelper
         return HasReadyToRip(player) ||
                HasReadyToTear(player) ||
                HasReadyToGouge(player) ||
-               HasReadyToBlast(player);
+               HasReadyToBlast(player) ||
+               HasReadyToBrand(player);
     }
 
     #endregion

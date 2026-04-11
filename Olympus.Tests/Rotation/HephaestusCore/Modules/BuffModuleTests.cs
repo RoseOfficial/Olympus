@@ -173,6 +173,7 @@ public class BuffModuleTests
         mock.Setup(x => x.IsReadyToTear).Returns(false);
         mock.Setup(x => x.IsReadyToGouge).Returns(false);
         mock.Setup(x => x.IsReadyToBlast).Returns(false);
+        mock.Setup(x => x.IsReadyToBrand).Returns(false);
         mock.Setup(x => x.IsReadyToReign).Returns(false);
 
         var debugState = new HephaestusDebugState();

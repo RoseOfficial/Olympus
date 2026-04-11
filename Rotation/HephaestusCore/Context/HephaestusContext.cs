@@ -83,8 +83,9 @@ public sealed class HephaestusContext : IHephaestusContext
     public bool IsReadyToTear { get; }
     public bool IsReadyToGouge { get; }
     public bool IsReadyToBlast { get; }
+    public bool IsReadyToBrand { get; }
     public bool IsReadyToReign { get; }
-    public bool HasAnyContinuationReady => IsReadyToRip || IsReadyToTear || IsReadyToGouge || IsReadyToBlast;
+    public bool HasAnyContinuationReady => IsReadyToRip || IsReadyToTear || IsReadyToGouge || IsReadyToBlast || IsReadyToBrand;
 
     // Reign of Beasts combo state
     public int ReignComboStep { get; }
@@ -218,6 +219,7 @@ public sealed class HephaestusContext : IHephaestusContext
         IsReadyToTear = statusHelper.HasReadyToTear(player);
         IsReadyToGouge = statusHelper.HasReadyToGouge(player);
         IsReadyToBlast = statusHelper.HasReadyToBlast(player);
+        IsReadyToBrand = statusHelper.HasReadyToBrand(player);
         IsReadyToReign = statusHelper.HasReadyToReign(player);
 
         // Damage buff checks
@@ -286,6 +288,7 @@ public sealed class HephaestusContext : IHephaestusContext
         Debug.IsReadyToTear = IsReadyToTear;
         Debug.IsReadyToGouge = IsReadyToGouge;
         Debug.IsReadyToBlast = IsReadyToBlast;
+        Debug.IsReadyToBrand = IsReadyToBrand;
         Debug.IsReadyToReign = IsReadyToReign;
 
         // Tank stance

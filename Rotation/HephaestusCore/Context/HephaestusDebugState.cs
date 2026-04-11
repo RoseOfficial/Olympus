@@ -37,6 +37,7 @@ public sealed class HephaestusDebugState
     public bool IsReadyToTear { get; set; }
     public bool IsReadyToGouge { get; set; }
     public bool IsReadyToBlast { get; set; }
+    public bool IsReadyToBrand { get; set; }
     public bool IsReadyToReign { get; set; }
 
     // Tank stance

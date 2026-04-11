@@ -334,27 +334,38 @@ public sealed class BuffModule : IPrometheusModule
             return false;
         }
 
-        // Don't use if we'd clip a tool action
-        // Check if Drill, Air Anchor, or Chain Saw are about to come off cooldown
-        // Hypercharge is ~10s of Heat Blast spam, so check if tools are ready in next few seconds
-        // For simplicity, check if tools are ready now and skip Hypercharge
-
-        if (level >= MCHActions.Drill.MinLevel && context.ActionService.IsActionReady(MCHActions.Drill.ActionId))
+        // Don't enter Hypercharge if a tool will come off cooldown DURING the window
+        // (~10s of Heat Blast spam where we can't use tool GCDs).
+        // Tools ready NOW (cd == 0) will be used on the next GCD frame naturally —
+        // the DamageModule fires them at higher priority than combo.
         {
-            context.Debug.BuffState = "Drill ready - use first";
-            return false;
-        }
+            var hyperchargeWindow = 10f;
+            bool toolComingDuringWindow = false;
 
-        if (level >= MCHActions.AirAnchor.MinLevel && context.ActionService.IsActionReady(MCHActions.AirAnchor.ActionId))
-        {
-            context.Debug.BuffState = "Air Anchor ready - use first";
-            return false;
-        }
+            if (level >= MCHActions.Drill.MinLevel)
+            {
+                var cd = context.ActionService.GetCooldownRemaining(MCHActions.Drill.ActionId);
+                if (cd > 0 && cd < hyperchargeWindow)
+                    toolComingDuringWindow = true;
+            }
+            if (level >= MCHActions.AirAnchor.MinLevel)
+            {
+                var cd = context.ActionService.GetCooldownRemaining(MCHActions.AirAnchor.ActionId);
+                if (cd > 0 && cd < hyperchargeWindow)
+                    toolComingDuringWindow = true;
+            }
+            if (level >= MCHActions.ChainSaw.MinLevel)
+            {
+                var cd = context.ActionService.GetCooldownRemaining(MCHActions.ChainSaw.ActionId);
+                if (cd > 0 && cd < hyperchargeWindow)
+                    toolComingDuringWindow = true;
+            }
 
-        if (level >= MCHActions.ChainSaw.MinLevel && context.ActionService.IsActionReady(MCHActions.ChainSaw.ActionId))
-        {
-            context.Debug.BuffState = "Chain Saw ready - use first";
-            return false;
+            if (toolComingDuringWindow)
+            {
+                context.Debug.BuffState = "Holding Hypercharge (tool coming off CD)";
+                return false;
+            }
         }
 
         if (!context.ActionService.IsActionReady(MCHActions.Hypercharge.ActionId))
@@ -404,21 +415,32 @@ public sealed class BuffModule : IPrometheusModule
         if (context.IsQueenActive)
             return false;
 
-        // Need at least 50 Battery
-        if (context.Battery < 50)
+        // Use config thresholds for Battery management
+        var batteryMin = context.Configuration.Machinist.BatteryMinGauge;
+        var batteryOvercap = context.Configuration.Machinist.BatteryOvercapThreshold;
+
+        // Need at least minimum Battery
+        if (context.Battery < batteryMin)
         {
-            context.Debug.BuffState = $"Need 50 Battery ({context.Battery}/50)";
+            context.Debug.BuffState = $"Need {batteryMin} Battery ({context.Battery}/{batteryMin})";
             return false;
         }
 
-        // Ideally summon at 100 Battery for maximum damage
-        // But don't overcap - summon at 90+ to be safe
-        bool shouldSummon = context.Battery >= 90 ||
-                            (context.Battery >= 50 && context.Battery < 60); // Use at minimum to avoid overcap from tools
+        // Summon when at overcap threshold or above, or when burst is active
+        bool shouldSummon = context.Battery >= batteryOvercap ||
+                            context.Battery >= 100;
 
-        // If we're at 100, always summon
-        if (context.Battery >= 100)
+        // During burst, summon at any valid Battery level for maximum buff coverage
+        if (!shouldSummon && IsInBurst && context.Battery >= batteryMin)
             shouldSummon = true;
+
+        // If holding for burst and burst is imminent, don't summon early
+        if (!shouldSummon && context.Configuration.Machinist.SaveBatteryForBurst &&
+            ShouldHoldForBurst(8f) && context.Battery < batteryOvercap)
+        {
+            context.Debug.BuffState = $"Holding Battery for burst ({context.Battery}/100)";
+            return false;
+        }
 
         if (!shouldSummon)
         {
@@ -476,8 +498,8 @@ public sealed class BuffModule : IPrometheusModule
         // Try Gauss Round first if more charges
         if (level >= gaussAction.MinLevel && context.GaussRoundCharges > 0)
         {
-            // Use during Overheated or if at max charges
-            bool shouldUse = context.IsOverheated || context.GaussRoundCharges >= 3;
+            // Use during Overheated, or spend to avoid overcapping (>= 2 charges)
+            bool shouldUse = context.IsOverheated || context.GaussRoundCharges >= 2;
 
             if (shouldUse && context.ActionService.IsActionReady(gaussAction.ActionId))
             {
@@ -511,7 +533,8 @@ public sealed class BuffModule : IPrometheusModule
         // Try Ricochet
         if (level >= ricochetAction.MinLevel && context.RicochetCharges > 0)
         {
-            bool shouldUse = context.IsOverheated || context.RicochetCharges >= 3;
+            // Use during Overheated, or spend to avoid overcapping (>= 2 charges)
+            bool shouldUse = context.IsOverheated || context.RicochetCharges >= 2;
 
             if (shouldUse && context.ActionService.IsActionReady(ricochetAction.ActionId))
             {

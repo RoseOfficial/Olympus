@@ -280,6 +280,37 @@ public sealed class DamageModule : IHephaestusModule
             }
         }
 
+        // Ready to Brand (after Fated Circle, Lv.96+)
+        if (context.IsReadyToBrand && level >= GNBActions.FatedBrand.MinLevel)
+        {
+            if (context.ActionService.IsActionReady(GNBActions.FatedBrand.ActionId))
+            {
+                if (context.ActionService.ExecuteOgcd(GNBActions.FatedBrand, targetId))
+                {
+                    context.Debug.PlannedAction = GNBActions.FatedBrand.Name;
+                    context.Debug.DamageState = "Fated Brand!";
+
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(GNBActions.FatedBrand.ActionId, GNBActions.FatedBrand.Name)
+                        .AsTankDamage()
+                        .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                        .Reason(
+                            "Fated Brand - Continuation after Fated Circle",
+                            "Fated Brand is the Continuation oGCD for Fated Circle (available from Lv.96). " +
+                            "Fated Circle grants Ready to Brand, enabling this free AoE oGCD follow-up. " +
+                            "Always weave Fated Brand immediately after Fated Circle.")
+                        .Factors("Ready to Brand proc active (from Fated Circle)", "Available from Lv.96", "Free AoE oGCD follow-up")
+                        .Alternatives("Skip (proc wasted - avoid)")
+                        .Tip("At Lv.96+, Fated Circle generates a free Fated Brand oGCD — always weave it for bonus AoE damage.")
+                        .Concept("gnb_continuation")
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication("gnb_continuation", true, "Fated Brand weave");
+
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
@@ -550,12 +581,17 @@ public sealed class DamageModule : IHephaestusModule
             return false;
         }
 
-        // Prefer to use during No Mercy window
-        // But don't hold forever if cartridges are capped
+        // Gnashing Fang has a 30s CD, No Mercy has a 60s CD — they only align
+        // every other GF. Use on cooldown, but hold briefly when No Mercy is
+        // imminent (<8s away) so the combo benefits from the damage buff.
         if (!context.HasNoMercy && !context.HasMaxCartridges)
         {
-            // No No Mercy and not capped - can wait
-            return false;
+            var nmCooldown = context.ActionService.GetCooldownRemaining(GNBActions.NoMercy.ActionId);
+            if (nmCooldown > 0 && nmCooldown < 8f)
+            {
+                // No Mercy imminent — hold GF briefly to align
+                return false;
+            }
         }
 
         if (!context.ActionService.IsActionReady(GNBActions.GnashingFang.ActionId))

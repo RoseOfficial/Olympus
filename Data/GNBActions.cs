@@ -793,6 +793,7 @@ public static class GNBActions
         public const uint ReadyToTear = 1843;
         public const uint ReadyToGouge = 1844;
         public const uint ReadyToBlast = 2686;
+        public const uint ReadyToBrand = 3841; // From Fated Circle at Lv.96+
         public const uint ReadyToReign = 3840; // From Bloodfest at Lv.100
 
         // Combo/skill-applied
@@ -867,6 +868,26 @@ public static class GNBActions
     }
 
     /// <summary>
+    /// Fated Brand - Follow-up to Fated Circle (Lv.96)
+    /// AoE Continuation proc, triggered by Ready to Brand
+    /// </summary>
+    public static readonly ActionDefinition FatedBrand = new()
+    {
+        ActionId = 36936,
+        Name = "Fated Brand",
+        MinLevel = 96,
+        Category = ActionCategory.oGCD,
+        TargetType = ActionTargetType.SingleEnemy,
+        EffectTypes = ActionEffectType.Damage,
+        CastTime = 0f,
+        RecastTime = 1f,
+        Range = 3f,
+        Radius = 5f,
+        MpCost = 0,
+        DamagePotency = 200
+    };
+
+    /// <summary>
     /// Returns true if the given action ID is a Continuation action.
     /// </summary>
     public static bool IsContinuationAction(uint actionId)
@@ -874,7 +895,8 @@ public static class GNBActions
         return actionId == JugularRip.ActionId ||
                actionId == AbdomenTear.ActionId ||
                actionId == EyeGouge.ActionId ||
-               actionId == Hypervelocity.ActionId;
+               actionId == Hypervelocity.ActionId ||
+               actionId == FatedBrand.ActionId;
     }
 
     /// <summary>

@@ -176,6 +176,7 @@ public class DamageModuleTests
         mock.Setup(x => x.IsReadyToTear).Returns(false);
         mock.Setup(x => x.IsReadyToGouge).Returns(false);
         mock.Setup(x => x.IsReadyToBlast).Returns(false);
+        mock.Setup(x => x.IsReadyToBrand).Returns(false);
         mock.Setup(x => x.IsReadyToReign).Returns(false);
         mock.Setup(x => x.HasSonicBreakDot).Returns(false);
         mock.Setup(x => x.HasBowShockDot).Returns(false);
