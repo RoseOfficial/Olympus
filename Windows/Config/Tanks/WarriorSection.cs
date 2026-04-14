@@ -176,12 +176,26 @@ public sealed class WarriorSection
                 actionId: WARActions.Onslaught.ActionId);
 
             ConfigUIHelpers.Toggle(
+                "Auto-weave Onslaught",
+                () => config.Tank.AutoOnslaught,
+                v => config.Tank.AutoOnslaught = v,
+                "When off, Onslaught is only used to close the gap when you're out of melee range. Charges stay under your control for positioning jumps. Gap-close uptime use is unaffected.",
+                save);
+
+            ConfigUIHelpers.Toggle(
                 "Primal Rend",
                 () => config.Tank.EnablePrimalRend,
                 v => config.Tank.EnablePrimalRend = v,
                 null,
                 save,
                 actionId: WARActions.PrimalRend.ActionId);
+
+            ConfigUIHelpers.Toggle(
+                "Auto-fire Primal Rend",
+                () => config.Tank.AutoPrimalRend,
+                v => config.Tank.AutoPrimalRend = v,
+                "When off, you press Primal Rend yourself (keeps the 20y gap-close under your control). Primal Ruination still auto-fires to complete the combo once you've pressed Rend.",
+                save);
 
             ConfigUIHelpers.Toggle(
                 "Primal Ruination",

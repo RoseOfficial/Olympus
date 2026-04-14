@@ -293,6 +293,10 @@ public sealed class DamageModule : IAresModule
         }
         else if (inMelee)
         {
+            // Player-agency gate: in-melee weave is pure damage; gap-close above
+            // is uptime and stays unconditional.
+            if (!context.Configuration.Tank.AutoOnslaught) return false;
+
             // In melee range — use as damage weave at all levels (level >= 88 guard removed)
             if (context.ActionService.ExecuteOgcd(WARActions.Onslaught, target.GameObjectId))
             {
@@ -369,6 +373,9 @@ public sealed class DamageModule : IAresModule
     private bool TryPrimalRend(IAresContext context, Dalamud.Game.ClientState.Objects.Types.IBattleChara target)
     {
         if (!context.Configuration.Tank.EnablePrimalRend) return false;
+        // Player-agency gate: Primal Rend is a 20y dash, so leave the initial press
+        // to the player. Primal Ruination still auto-fires to complete the combo.
+        if (!context.Configuration.Tank.AutoPrimalRend) return false;
 
         var player = context.Player;
         var level = player.Level;

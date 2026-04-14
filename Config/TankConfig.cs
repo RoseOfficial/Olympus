@@ -210,6 +210,13 @@ public sealed class TankConfig
     public bool EnablePrimalRend { get; set; } = true;
 
     /// <summary>
+    /// Auto-fire Primal Rend. When off, the player presses it manually (keeps
+    /// gap-close agency); Primal Ruination still auto-fires once the combo is
+    /// committed. Ignored when EnablePrimalRend is off.
+    /// </summary>
+    public bool AutoPrimalRend { get; set; } = false;
+
+    /// <summary>
     /// Use Primal Ruination (follow-up GCD after Primal Rend).
     /// </summary>
     public bool EnablePrimalRuination { get; set; } = true;
@@ -248,6 +255,13 @@ public sealed class TankConfig
     /// Use Onslaught (gap closer).
     /// </summary>
     public bool EnableOnslaught { get; set; } = true;
+
+    /// <summary>
+    /// Auto-weave Onslaught as damage when already in melee range. When off,
+    /// Onslaught is only used to close the gap (uptime), leaving charges under
+    /// player control for positioning. Ignored when EnableOnslaught is off.
+    /// </summary>
+    public bool AutoOnslaught { get; set; } = false;
 
     /// <summary>
     /// Share mitigation and healing with a party member via Nascent Flash.
