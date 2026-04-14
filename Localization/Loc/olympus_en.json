@@ -130,6 +130,8 @@
   "config.targeting.fallback_to_lowest_hp_desc": "If no tank target found, use Lowest HP instead.",
   "config.targeting.pause_when_no_target": "Pause damage when no target",
   "config.targeting.pause_when_no_target_desc": "Stop attacking when you drop your target. Lets you look away for gaze mechanics or disengage without Olympus picking a new enemy.",
+  "config.targeting.suppress_damage_on_forced_movement": "Pause damage during forced movement",
+  "config.targeting.suppress_damage_on_forced_movement_desc": "Stop firing damage actions while a Forced March or Confusion debuff is active. Prevents cast-time GCDs from failing repeatedly while your character moves involuntarily.",
   "config.targeting.strict_current_target": "Strict explicit-target mode",
   "config.targeting.strict_current_target_desc": "When using Current Target or Focus Target strategy, never fall back to another enemy if yours is gone.",
   "config.targeting.safe_gap_closer": "Safe gap closers",

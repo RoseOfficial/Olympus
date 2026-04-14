@@ -31,6 +31,16 @@ public sealed class TargetingConfig
     public bool PauseWhenNoTarget { get; set; } = true;
 
     /// <summary>
+    /// When true, damage module execution is suppressed while the player has any
+    /// forced-movement debuff active (Forward/Backward/Left/Right March, Confusion).
+    /// These debuffs interrupt cast-time GCDs, so retrying every frame produces log
+    /// spam and can confuse the player. Instant GCDs and oGCDs still fire because
+    /// other modules (buff, mitigation, healing) continue to run; only the damage
+    /// module returns false. Default ON.
+    /// </summary>
+    public bool SuppressDamageOnForcedMovement { get; set; } = true;
+
+    /// <summary>
     /// When true, the fallback that retargets to LowestHp when CurrentTarget/FocusTarget
     /// strategies fail is disabled — a missing current target simply stops damage. This
     /// makes "drop target" a hard pause for players using explicit-target strategies.
