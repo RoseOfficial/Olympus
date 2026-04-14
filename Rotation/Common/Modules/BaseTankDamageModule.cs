@@ -1,5 +1,6 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Models.Action;
+using Olympus.Rotation.Common.Helpers;
 
 namespace Olympus.Rotation.Common.Modules;
 
@@ -78,6 +79,16 @@ public abstract class BaseTankDamageModule<TContext> : IRotationModule<TContext>
         if (context.TargetingService.IsDamageTargetingPaused())
         {
             SetDamageState(context, "Paused (no target)");
+            return false;
+        }
+
+        // Phase 2c: Forced-movement safety — tank GCDs are instant, but this keeps the
+        // debug state consistent with DPS/healer and future-proofs against any tank GCD
+        // that might gain a cast time in a future expansion.
+        if (context.Configuration.Targeting.SuppressDamageOnForcedMovement
+            && PlayerSafetyHelper.IsForcedMovementActive(context.Player))
+        {
+            SetDamageState(context, "Paused (forced movement)");
             return false;
         }
 

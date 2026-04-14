@@ -1,4 +1,5 @@
 using Dalamud.Game.ClientState.Objects.Types;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Services;
 using Olympus.Services.Targeting;
 
@@ -206,6 +207,16 @@ public abstract class BaseDpsDamageModule<TContext> : IRotationModule<TContext>
         if (context.TargetingService.IsDamageTargetingPaused())
         {
             SetDamageState(context, "Paused (no target)");
+            return false;
+        }
+
+        // Phase 1c: Forced-movement safety — Forward/Backward/Left/Right March / Confusion.
+        // Cast-time GCDs fail during forced movement; suppress the entire damage pass so
+        // buff / utility modules can still weave but damage doesn't spam failing casts.
+        if (context.Configuration.Targeting.SuppressDamageOnForcedMovement
+            && PlayerSafetyHelper.IsForcedMovementActive(context.Player))
+        {
+            SetDamageState(context, "Paused (forced movement)");
             return false;
         }
 

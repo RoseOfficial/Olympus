@@ -1,5 +1,6 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Models.Action;
+using Olympus.Rotation.Common.Helpers;
 
 namespace Olympus.Rotation.Common.Modules;
 
@@ -186,6 +187,15 @@ public abstract class BaseDamageModule<TContext> : IHealerRotationModule<TContex
         if (context.TargetingService.IsDamageTargetingPaused())
         {
             SetDpsState(context, "Paused (no target)");
+            return false;
+        }
+
+        // Forced-movement safety: suppress damage while a Forward/Backward/Left/Right March
+        // or Confusion debuff is active — cast-time GCDs would fail every frame and spam logs.
+        if (context.Configuration.Targeting.SuppressDamageOnForcedMovement
+            && PlayerSafetyHelper.IsForcedMovementActive(context.Player))
+        {
+            SetDpsState(context, "Paused (forced movement)");
             return false;
         }
 
