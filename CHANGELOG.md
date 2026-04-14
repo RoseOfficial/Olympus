@@ -3,6 +3,87 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.15.0 — 2026-04-14
+
+### New — Drop-Target Safety
+- Dropping your target now hard-stops damage — useful for gaze mechanics, disengage, or any moment you need to stop attacking instantly
+- Explicit target strategies (Current Target, Focus Target) no longer silently fall back to "lowest HP" when you drop your target, so the rotation respects your intent
+- Enemy-needing-DoT logic now honors your Enemy strategy — explicit strategies only apply DoTs to your selected enemy instead of spilling them onto adds with reflect or damage-down debuffs
+
+### New — Smart Gap Closers
+- Gap closers (Onslaught, Intervene, Trajectory, Shadowstride, Thunderclap, High Jump, Spineshatter Dive, Dragonfire Dive, Stardiver) are now blocked when the current target isn't your explicit selection, or when you've just gained distance from the target — prevents the rotation from yanking you back into mechanics you were actively running from
+- Toggle available under Targeting (default on)
+
+### New — Forced-Movement Gate
+- Damage GCDs are now suppressed while you're under Forced March, Thin Ice, or similar movement-override statuses, so casts don't fire during mechanics that control your position
+- Toggle under Targeting (default on)
+
+### New — Esuna for Scholar, Sage, and Astrologian
+- All three were missing cleanse support entirely — only White Mage had it. All four healers now cleanse cleansable debuffs with priority-based detection (lethal > high > medium > low) and party coordination to avoid double-cleansing
+- Fixed White Mage Esuna unconditionally blocking while moving — it now casts during movement when Swiftcast is up
+
+### New — Targeting Invulnerability Filter
+- Auto-targeting now skips enemies with known invulnerability status effects (immune boss phases, untouchable adds, ARR invulnerable crystals)
+- Explicit Current Target and Focus Target are never filtered, so player intent is always respected
+- Toggle under Targeting (default on)
+
+### New — Mechanic-Aware Healer Damage
+- Healer damage casts (Glare, Broil, Malefic, Dosis) now hold when the fight timeline predicts a raidwide or tankbuster will hit before the cast completes — keeps your GCD available for reactive healing instead of locking you into a 1.5s damage cast
+- Healers now skip single-target DoT maintenance during dungeon packs when enough enemies are present for AoE damage
+- Toggle under Healing config (default on)
+
+### Ninja
+- Fixed ninjutsu results (Raiton, Suiton, Huton, etc.) silently failing to execute after mudra inputs completed — the rotation was stuck in a "cast" state with nothing happening
+- Fixed Ten Chi Jin doing nothing — all three mudra steps now fire correctly during the buff
+- Fixed mudra sequences locking up mid-combo, which was previously masked as intermittent stalls by a 7-second bandaid timeout
+- Wired several Ninki and Doton config settings that existed but had no effect (overcap threshold, minimum gauge, AoE use, AoE target count)
+
+### Gunbreaker
+- Fixed Gnashing Fang combo dropping back to Keen Edge after the first hit — combo tracking is now resilient to Continuation oGCD weaves
+- Gnashing Fang now fires on its 30s cooldown instead of being held indefinitely for No Mercy
+- Added the missing Fated Brand continuation proc for Fated Circle at level 96+
+- Cartridges are now spent before overcapping from the AoE combo finisher
+
+### Machinist
+- Fixed Hypercharge deadlock where the rotation stalled between burst windows — tool-ready checks no longer block oGCD activation while the tools can only fire during GCD windows
+- Fixed Gauss Round and Ricochet charge tracking reading the wrong action IDs at level 92+, which made the charges appear unusable
+- Wired Queen Battery config thresholds that previously had no effect on the rotation
+
+### Red Mage
+- Fixed the Enchanted melee combo (Riposte → Zwerchhau → Redoublement → Verflare/Verholy → Scorch → Resolution) dropping after the first hit
+- Added the Moulinet AoE chain (Enchanted Moulinet → Deux → Trois) — previously AoE just ran Impact forever
+- Corps-a-corps and Engagement now hold when your HP is below a configurable threshold (default 70%) so they stop pulling you into danger while hurt
+- Added a new Movement / Gap Closers section to the Red Mage config
+
+### Warrior
+- Added Primal Rend and Onslaught player-agency toggles (both default off) — Rend's 20y dash and Onslaught's melee lunge can yank you into mechanics, so the initial press is now left to the player
+- The rotation still completes Primal Ruination once you press Rend, and still uses Onslaught to close gaps when you're out of melee range
+- Added Enable Primal Rend and Enable Primal Ruination toggles in the Warrior config UI
+
+### Dancer
+- Dancer now preps Standard Step before combat in Duty Support and pre-pulls — previously the opener lost ~6 seconds of the personal damage buff because Standard Step wouldn't fire until after combat began
+- Added automatic Closed Position that picks the best dance partner by job priority and re-partners on death (respects Manual selection mode)
+- Reordered the opener so Standard Step fires before Technical Step when the personal buff is missing — cuts opener delay from roughly 9s to 3.5s
+- Wired feather overcap, Fan Dance minimum, Esprit overcap, and Saber Dance minimum config thresholds — they existed in settings but the rotation was using hardcoded values
+
+### Healers (All)
+- Single-target oGCD heals (Benediction, Tetragrammaton, Lustrate, Essential Dignity, Druochole) no longer fire on tanks during invulnerability windows (Hallowed Ground, Holmgang, Living Dead, Superbolide) or on pending-heal buffs (Excogitation, Catharsis of Corundum). Shields, regens, ground targets, and AoE heals are unaffected — they still fire during invuln windows where they have legitimate value
+- Party members afflicted by Doom now jump to the top of heal priority — Doom only clears at 100% HP, so a Doomed player always outranks anyone else missing HP
+- Enemies behind walls are now filtered out of auto-targeting using a line-of-sight raycast (toggle under Targeting, default on)
+- Player hitbox radius is now included in range calculations, so effective range matches what the game actually uses
+
+### Scholar Fairy
+- Fixed the rotation spamming Summon Eos every frame when Eos was glammed as Ruby Carbuncle (or any other pet glamour) — fairy detection now uses the underlying pet ID instead of the display name
+- Seraph is now correctly distinguished from Eos via pet base ID instead of name matching
+
+### Burst Windows
+- The burst detector now scans the current enemy target for Chain Stratagem, Dokumori, and Vulnerability Up debuffs in addition to player buffs, catching team-applied raid damage windows faster
+- AST Divination was added to the tracked player buff list
+
+### Interrupts
+- Interrupts across all 7 jobs that have them (PLD, WAR, DRK, GNB, BRD, MCH, DNC) now fire with a humanized reaction delay (0.3–0.7s into the cast) instead of snapping the moment a cast is detected
+
+<!-- LATEST-END -->
 ## v4.14.0 — 2026-04-07
 
 ### Summoner
