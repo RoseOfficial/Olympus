@@ -129,4 +129,19 @@ public static class FFXIVConstants
         1829,  // Invincibility (EW content)
         2882,  // Invincibility (EW/DT content)
     };
+
+    // Forced movement status IDs — player is still alive and able to cast instants/oGCDs,
+    // but their character moves involuntarily, so any cast-time GCD will fail. We suppress
+    // damage module execution while any of these are active to avoid log spam and to let
+    // the player handle the mechanic without Olympus retrying casts every frame.
+    // Covers PvE encounters that reuse the PvP forced-march status IDs. Verify against
+    // Lumina Status sheet or in-game /xldata if a fight's gate stops firing.
+    /// <summary>Status IDs that force the player into involuntary directional movement.</summary>
+    public static readonly HashSet<uint> ForcedMovementStatusIds = new()
+    {
+        1140,  // Forward March
+        1141,  // Backward March
+        1142,  // Leftward March
+        1143,  // Rightward March
+    };
 }
