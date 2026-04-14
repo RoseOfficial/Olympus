@@ -111,6 +111,14 @@ public sealed class GeneralSection
             this.save);
 
         ConfigUIHelpers.Toggle(
+            Loc.T(LocalizedStrings.Targeting.SuppressDamageOnForcedMovement, "Pause damage during forced movement"),
+            () => this.config.Targeting.SuppressDamageOnForcedMovement,
+            v => this.config.Targeting.SuppressDamageOnForcedMovement = v,
+            Loc.T(LocalizedStrings.Targeting.SuppressDamageOnForcedMovementDesc,
+                "Stop firing damage actions while a Forced March or Confusion debuff is active. Prevents cast-time GCDs from failing repeatedly while your character moves involuntarily."),
+            this.save);
+
+        ConfigUIHelpers.Toggle(
             Loc.T(LocalizedStrings.Targeting.StrictCurrentTargetStrategy, "Strict explicit-target mode"),
             () => this.config.Targeting.StrictCurrentTargetStrategy,
             v => this.config.Targeting.StrictCurrentTargetStrategy = v,
