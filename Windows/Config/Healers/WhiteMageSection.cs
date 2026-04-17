@@ -262,26 +262,6 @@ public sealed class WhiteMageSection
             }
 
             ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.WhiteMage.TimelineIntegrationLabel, "Timeline Integration:"));
-
-            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.WhiteMage.EnableTimelinePredictions, "Enable Timeline Predictions"), () => config.Healing.EnableTimelinePredictions, v => config.Healing.EnableTimelinePredictions = v,
-                Loc.T(LocalizedStrings.WhiteMage.EnableTimelinePredictionsDesc, "Use fight timelines for precise mechanic timing."), save);
-
-            if (config.Healing.EnableTimelinePredictions)
-            {
-                ConfigUIHelpers.BeginIndent();
-                config.Healing.TimelineConfidenceThreshold = ConfigUIHelpers.ThresholdSliderSmall("Confidence Threshold",
-                    config.Healing.TimelineConfidenceThreshold, 50f, 100f, "Min confidence to trust timeline predictions.", save, v => config.Healing.TimelineConfidenceThreshold = v);
-
-                config.Healing.RaidwidePreparationWindow = ConfigUIHelpers.FloatSlider("Raidwide Window (sec)",
-                    config.Healing.RaidwidePreparationWindow, 2f, 10f, "%.1f", "Seconds before raidwide to prepare shields/mitigation.", save, v => config.Healing.RaidwidePreparationWindow = v);
-
-                config.Healing.TankBusterPreparationWindow = ConfigUIHelpers.FloatSlider("Tank Buster Window (sec)",
-                    config.Healing.TankBusterPreparationWindow, 1f, 6f, "%.1f", "Seconds before tank buster to prepare benison/aquaveil.", save, v => config.Healing.TankBusterPreparationWindow = v);
-                ConfigUIHelpers.EndIndent();
-            }
-
-            ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.WhiteMage.ExperimentalLabel, "Experimental:"));
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.WhiteMage.EnableScoredHealSelection, "Enable Scored Heal Selection"), () => config.Healing.EnableScoredHealSelection, v => config.Healing.EnableScoredHealSelection = v,

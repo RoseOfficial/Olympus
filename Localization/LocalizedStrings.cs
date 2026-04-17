@@ -892,6 +892,21 @@ public static class LocalizedStrings
         public const string EnableLucidDreaming = "config.job.healer_shared.enable_lucid_dreaming";
         public const string LucidMpThreshold = "config.job.healer_shared.lucid_mp_threshold";
         public const string LucidMpThresholdDesc = "config.job.healer_shared.lucid_mp_threshold_desc";
+        public const string PredictionSection = "config.job.healer_shared.prediction_section";
+        public const string EnableMechanicAwareness = "config.job.healer_shared.enable_mechanic_awareness";
+        public const string EnableMechanicAwarenessDesc = "config.job.healer_shared.enable_mechanic_awareness_desc";
+        public const string EnableMechanicAwareCasting = "config.job.healer_shared.enable_mechanic_aware_casting";
+        public const string EnableMechanicAwareCastingDesc = "config.job.healer_shared.enable_mechanic_aware_casting_desc";
+        public const string EnableCritVarianceReduction = "config.job.healer_shared.enable_crit_variance_reduction";
+        public const string EnableCritVarianceReductionDesc = "config.job.healer_shared.enable_crit_variance_reduction_desc";
+        public const string EnableSurvivabilityTrending = "config.job.healer_shared.enable_survivability_trending";
+        public const string EnableSurvivabilityTrendingDesc = "config.job.healer_shared.enable_survivability_trending_desc";
+        public const string TimelineSection = "config.job.healer_shared.timeline_section";
+        public const string EnableTimelinePredictions = "config.job.healer_shared.enable_timeline_predictions";
+        public const string EnableTimelinePredictionsDesc = "config.job.healer_shared.enable_timeline_predictions_desc";
+        public const string TimelineConfidenceThreshold = "config.job.healer_shared.timeline_confidence_threshold";
+        public const string RaidwideWindow = "config.job.healer_shared.raidwide_window";
+        public const string TankBusterWindow = "config.job.healer_shared.tank_buster_window";
     }
 
     public static class Tank
