@@ -47,6 +47,10 @@ public sealed unsafe class ActionService : IActionService
     // Track oGCD usage per GCD cycle (allows up to 2 weaves)
     private int _ogcdsUsedThisCycle;
 
+    // Guard so modules can't spam UseAction every frame during the ~0.5s queue window.
+    // Set on successful submit while GcdRemaining > 0; cleared at true rollover (GcdRemaining == 0).
+    private bool _gcdSubmittedThisCycle;
+
     /// <summary>Current GCD state.</summary>
     public GcdState CurrentGcdState { get; private set; } = GcdState.Ready;
 
@@ -59,7 +63,11 @@ public sealed unsafe class ActionService : IActionService
     /// <summary>Whether player is currently casting.</summary>
     public bool IsCasting => _lastIsCasting;
 
-    /// <summary>Whether GCD is ready for a new action.</summary>
+    /// <summary>
+    /// Whether GCD is ready for a new action.
+    /// True during the queue window (last <see cref="FFXIVTimings.QueueWindow"/>s) as well as at true rollover
+    /// so we can submit into the server-side action queue and avoid eating a full latency round-trip on every GCD.
+    /// </summary>
     public bool CanExecuteGcd => CurrentGcdState == GcdState.Ready;
 
     /// <summary>Whether we can weave an oGCD right now.</summary>
@@ -131,6 +139,12 @@ public sealed unsafe class ActionService : IActionService
         {
             CurrentGcdState = GcdState.Ready;
             _ogcdsUsedThisCycle = 0; // Reset for new GCD cycle
+            _gcdSubmittedThisCycle = false;
+        }
+        else if (GcdRemaining <= FFXIVTimings.QueueWindow)
+        {
+            // Queue window: submit the next GCD early so the game's action queue fires it on rollover.
+            CurrentGcdState = GcdState.Ready;
         }
         else if (IsInWeaveWindow())
         {
@@ -156,15 +170,20 @@ public sealed unsafe class ActionService : IActionService
         if (actionManager is null)
             return false;
 
-        // Check if action can be executed
-        if (actionManager->GetActionStatus(ActionType.Action, action.ActionId) != 0)
+        // If we already queued a GCD for this cycle, don't spam UseAction every frame during the queue window.
+        if (_gcdSubmittedThisCycle && GcdRemaining > 0)
             return false;
 
-        // Execute
+        // Do NOT pre-check GetActionStatus here: while the global GCD is rolling it returns 583 ("not ready"),
+        // but UseAction still accepts the call in the last ~0.5s and queues the action to fire on rollover.
+        // Pre-checking defeats the server-side action queue, so we delegate the "can fire now?" decision to UseAction.
         var result = actionManager->UseAction(ActionType.Action, action.ActionId, targetId);
 
         if (result)
         {
+            if (GcdRemaining > 0)
+                _gcdSubmittedThisCycle = true;
+
             _lastExecutedAction = action;
             _lastExecuteTime = DateTime.UtcNow;
 
@@ -265,10 +284,15 @@ public sealed unsafe class ActionService : IActionService
         // 1. Not casting
         // 2. No animation lock blocking us
         // 3. Have available weave slots remaining
+        // 4. Not inside the GCD queue window (last 0.5s is reserved for the next GCD's early-submit)
         var availableSlots = GetAvailableWeaveSlots();
-        return !_lastIsCasting
-            && AnimationLockRemaining < FFXIVConstants.WeaveWindowBuffer
-            && availableSlots > _ogcdsUsedThisCycle;
+        if (_lastIsCasting || AnimationLockRemaining >= FFXIVConstants.WeaveWindowBuffer)
+            return false;
+        if (availableSlots <= _ogcdsUsedThisCycle)
+            return false;
+        if (GcdRemaining > 0 && GcdRemaining <= FFXIVTimings.QueueWindow)
+            return false;
+        return true;
     }
 
     /// <summary>
@@ -363,8 +387,9 @@ public sealed unsafe class ActionService : IActionService
         if (AnimationLockRemaining > FFXIVConstants.WeaveWindowBuffer || _lastIsCasting)
             return 0;
 
-        // Each oGCD takes ~0.7s animation lock
-        var availableTime = GcdRemaining - FFXIVConstants.WeaveWindowBuffer; // Leave small buffer
+        // Each oGCD takes ~0.7s animation lock. Reserve the queue window at the tail of the GCD for the next
+        // GCD's early submission so a weaved oGCD can never clip into it.
+        var availableTime = GcdRemaining - FFXIVTimings.QueueWindow - FFXIVConstants.WeaveWindowBuffer;
         var slots = (int)(availableTime / FFXIVTimings.AnimationLockBase);
 
         return Math.Max(0, Math.Min(2, slots)); // Max 2 weaves (double weave)
