@@ -68,6 +68,11 @@ public sealed unsafe class ActionService : IActionService
     /// <summary>Last executed action (for debugging).</summary>
     public ActionDefinition? LastExecutedAction => _lastExecutedAction;
 
+    /// <summary>
+    /// Fired after a successful action execution. Used by the action feed overlay.
+    /// </summary>
+    public event Action<ActionExecutedEvent>? ActionExecuted;
+
     /// <summary>Gets the WeaveOptimizer for intelligent oGCD timing.</summary>
     public IWeaveOptimizer WeaveOptimizer => _weaveOptimizer;
 
@@ -167,6 +172,7 @@ public sealed unsafe class ActionService : IActionService
             var gcdDuration = actionManager->GetRecastTime(ActionType.Action, action.ActionId);
             _actionTracker.LogGcdCast(gcdDuration);
             _actionTracker.LogAttempt(action.ActionId, null, null, ActionResult.Success, 0);
+            RaiseActionExecuted(action);
         }
 
         return result;
@@ -199,6 +205,7 @@ public sealed unsafe class ActionService : IActionService
             _lastExecuteTime = DateTime.UtcNow;
             _ogcdsUsedThisCycle++; // Increment oGCD count for double-weave tracking
             _actionTracker.LogAttempt(action.ActionId, null, null, ActionResult.Success, 0);
+            RaiseActionExecuted(action);
         }
 
         return result;
@@ -231,6 +238,7 @@ public sealed unsafe class ActionService : IActionService
             _lastExecuteTime = DateTime.UtcNow;
             _ogcdsUsedThisCycle++; // Increment oGCD count for double-weave tracking
             _actionTracker.LogAttempt(action.ActionId, null, null, ActionResult.Success, 0);
+            RaiseActionExecuted(action);
         }
 
         return result;
@@ -395,5 +403,18 @@ public sealed unsafe class ActionService : IActionService
     public ushort GetMaxCharges(uint actionId, uint level)
     {
         return ActionManager.GetMaxCharges(actionId, level);
+    }
+
+    private void RaiseActionExecuted(ActionDefinition action)
+    {
+        var handler = ActionExecuted;
+        if (handler is null)
+            return;
+
+        handler(new ActionExecutedEvent(
+            ActionId: action.ActionId,
+            ActionName: action.Name,
+            IsGcd: action.IsGCD,
+            TimestampUtc: _lastExecuteTime));
     }
 }

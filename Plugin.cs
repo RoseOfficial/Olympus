@@ -122,6 +122,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly ChangelogWindow changelogWindow;
     private readonly HintOverlay hintOverlay;
     private readonly OverlayWindow overlayWindow;
+    private readonly ActionFeedWindow actionFeedWindow;
     private readonly TelemetryService telemetryService;
     private readonly DrawCanvas drawCanvas;
     private readonly DrawingService drawingService;
@@ -328,6 +329,7 @@ public sealed class Plugin : IDalamudPlugin
         this.changelogWindow = new ChangelogWindow();
         this.hintOverlay = new HintOverlay(realTimeCoachingService, configuration.Training);
         this.overlayWindow = new OverlayWindow(configuration, SaveConfiguration, rotationManager, partyList, this.timelineService);
+        this.actionFeedWindow = new ActionFeedWindow(configuration, SaveConfiguration, actionService, textureProvider);
 
         // Telemetry service for anonymous usage tracking
         this.telemetryService = new TelemetryService(configuration, log);
@@ -359,6 +361,10 @@ public sealed class Plugin : IDalamudPlugin
         windowSystem.AddWindow(hintOverlay);
         windowSystem.AddWindow(overlayWindow);
         overlayWindow.IsOpen = configuration.Overlay.IsVisible;
+        windowSystem.AddWindow(actionFeedWindow);
+        // Visibility is gated by DrawConditions via ActionFeed.IsVisible; keep the window open
+        // so the config toggle takes effect without needing to reopen the window.
+        actionFeedWindow.IsOpen = true;
 
         windowSystem.AddWindow(drawCanvas);
 
@@ -615,6 +621,7 @@ public sealed class Plugin : IDalamudPlugin
         pluginInterface.UiBuilder.OpenConfigUi -= OpenConfigUI;
         pluginInterface.UiBuilder.OpenMainUi -= OpenMainUI;
 
+        actionFeedWindow.Dispose();
         windowSystem.RemoveAllWindows();
         olympusIpc.Dispose();
         partyCoordinationIpc?.Dispose();

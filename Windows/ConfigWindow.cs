@@ -68,6 +68,7 @@ public sealed class ConfigWindow : Window
     private readonly RedMageSection redMageSection;
     private readonly PictomancerSection pictomancerSection;
     private readonly DrawHelperSection drawHelperSection;
+    private readonly ActionFeedSection actionFeedSection;
     private readonly PartyCoordinationSection partyCoordinationSection;
 
     public ConfigWindow(Configuration configuration, Action saveConfiguration, UpdateCheckerService updateCheckerService, ITextureProvider textureProvider)
@@ -110,6 +111,7 @@ public sealed class ConfigWindow : Window
         redMageSection = new RedMageSection(configuration, saveConfiguration);
         pictomancerSection = new PictomancerSection(configuration, saveConfiguration);
         drawHelperSection = new DrawHelperSection(configuration, saveConfiguration);
+        actionFeedSection = new ActionFeedSection(configuration, saveConfiguration);
         partyCoordinationSection = new PartyCoordinationSection(configuration, saveConfiguration);
 
         Size = new Vector2(650, 700);
@@ -384,6 +386,10 @@ public sealed class ConfigWindow : Window
 
             case ConfigSection.DrawHelper:
                 drawHelperSection.Draw();
+                break;
+
+            case ConfigSection.ActionFeed:
+                actionFeedSection.Draw();
                 break;
 
             default:
