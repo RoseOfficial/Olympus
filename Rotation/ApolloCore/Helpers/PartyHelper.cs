@@ -18,19 +18,6 @@ namespace Olympus.Rotation.ApolloCore.Helpers;
 /// </summary>
 public class PartyHelper : HealerPartyHelper, IPartyHelper
 {
-    // Pre-allocated arrays for endangered member triage (avoids per-frame allocation)
-    private readonly IBattleChara?[] _endangeredMembers = new IBattleChara?[MaxPartySize];
-    private readonly float[] _endangeredDamageRates = new float[MaxPartySize];
-    private readonly float[] _endangeredMissingHpPcts = new float[MaxPartySize];
-    private readonly float[] _endangeredTankBonuses = new float[MaxPartySize];
-    private readonly float[] _endangeredDamageAccelerations = new float[MaxPartySize];
-
-    // Enhanced triage factors (v1.11.0)
-    private readonly float[] _endangeredShieldPcts = new float[MaxPartySize];
-    private readonly float[] _endangeredMitigations = new float[MaxPartySize];
-    private readonly float[] _endangeredHealerBonuses = new float[MaxPartySize];
-    private readonly float[] _endangeredTtdScores = new float[MaxPartySize];
-
     // Pre-allocated arrays for Cure III target evaluation
     private readonly IBattleChara?[] _cureIIIMembers = new IBattleChara?[MaxPartySize];
     private readonly Vector3[] _cureIIIPositions = new Vector3[MaxPartySize];
@@ -338,10 +325,9 @@ public class PartyHelper : HealerPartyHelper, IPartyHelper
     #region Endangered Member Triage
 
     /// <summary>
-    /// Finds the most endangered party member using enhanced damage intake triage.
-    /// Uses configurable weights including damage rate, tank bonus, missing HP,
-    /// damage acceleration, shield/mitigation penalties, healer bonus, and TTD urgency.
-    /// Optimized single-pass algorithm with deferred normalization.
+    /// Finds the most endangered party member using WHM's Cure cast range.
+    /// Delegates to the shared <see cref="HealerPartyHelper.FindMostEndangeredPartyMember"/>
+    /// with a WHM-specific range override.
     /// </summary>
     public IBattleChara? FindMostEndangeredPartyMember(
         IPlayerCharacter player,
@@ -350,142 +336,9 @@ public class PartyHelper : HealerPartyHelper, IPartyHelper
         IDamageTrendService? damageTrendService = null,
         IShieldTrackingService? shieldTrackingService = null)
     {
-        // Use instance-level arrays to avoid allocation (max 8 party members in FFXIV)
-        var candidateCount = 0;
-        float maxDamageRate = 1f; // Minimum 1 to avoid division by zero
-        float maxAcceleration = 1f; // For normalization
-
-        var playerPos = player.Position;
-        var rangeSquared = WHMActions.Cure.RangeSquared;
-
-        // Single pass: collect candidates and track max damage rate
-        foreach (var member in GetAllPartyMembers(player))
-        {
-            if (member.IsDead)
-                continue;
-
-            // Early exit if we have max candidates
-            if (candidateCount >= MaxPartySize)
-                break;
-
-            // Range check using pre-computed squared value
-            if (Vector3.DistanceSquared(playerPos, member.Position) > rangeSquared)
-                continue;
-
-            var predictedHp = GetPredictedHp(member);
-
-            // Skip if already at full HP
-            if (predictedHp >= member.MaxHp)
-                continue;
-
-            // Skip if heal would overheal too much
-            if (healAmount > 0)
-            {
-                var missingHp = member.MaxHp - predictedHp;
-                if (healAmount > missingHp)
-                    continue;
-            }
-
-            var hpPercent = (float)predictedHp / member.MaxHp;
-            var damageRate = damageIntakeService.GetDamageRate(member.EntityId, 5f);
-
-            // Track max damage rate for normalization
-            if (damageRate > maxDamageRate)
-                maxDamageRate = damageRate;
-
-            // Get damage acceleration if service is available
-            // Positive acceleration = damage increasing (HP dropping faster)
-            var damageAccel = 0f;
-            if (damageTrendService is not null)
-            {
-                damageAccel = damageTrendService.GetDamageAcceleration(member.EntityId, 5f);
-                // Only track positive acceleration (increasing damage) for max calculation
-                if (damageAccel > maxAcceleration)
-                    maxAcceleration = damageAccel;
-            }
-
-            // Store candidate data in pre-allocated arrays
-            _endangeredMembers[candidateCount] = member;
-            _endangeredDamageRates[candidateCount] = damageRate;
-            _endangeredMissingHpPcts[candidateCount] = 1f - hpPercent;
-            _endangeredTankBonuses[candidateCount] = IsTankRole(member) ? 1f : 0f;
-            _endangeredDamageAccelerations[candidateCount] = damageAccel;
-
-            // Enhanced triage factors (v1.11.0)
-            // Shield penalty: targets with shields have effective HP buffer
-            var shieldPct = 0f;
-            var mitigation = 0f;
-            if (shieldTrackingService != null)
-            {
-                var shieldValue = shieldTrackingService.GetTotalShieldValue(member.EntityId);
-                shieldPct = member.MaxHp > 0 ? (float)shieldValue / member.MaxHp : 0f;
-                mitigation = shieldTrackingService.GetCombinedMitigation(member.EntityId);
-            }
-            _endangeredShieldPcts[candidateCount] = shieldPct;
-            _endangeredMitigations[candidateCount] = mitigation;
-
-            // Healer bonus: keep co-healer alive for healing throughput
-            var isHealer = false;
-            if (member is IPlayerCharacter pc)
-            {
-                isHealer = JobRegistry.IsHealer(pc.ClassJob.RowId);
-            }
-            _endangeredHealerBonuses[candidateCount] = isHealer ? 1f : 0f;
-
-            // TTD urgency: prioritize targets about to die
-            var ttdScore = 0f;
-            var survivability = HpPredictionService.GetSurvivabilityInfo(member.EntityId, member.CurrentHp, member.MaxHp);
-            if (survivability.TimeUntilDeath < 10f)
-            {
-                // Normalize: 0s = 1.0, 10s+ = 0.0
-                ttdScore = 1f - (survivability.TimeUntilDeath / 10f);
-            }
-            _endangeredTtdScores[candidateCount] = ttdScore;
-
-            candidateCount++;
-        }
-
-        if (candidateCount == 0)
-            return null;
-
-        // Score candidates with actual max damage rate (no second iteration through game objects)
-        IBattleChara? mostEndangered = null;
-        float highestScore = float.MinValue;
-
-        // Get configurable weights from config
-        var weights = Configuration.Healing.GetEffectiveTriageWeights();
-
-        for (var i = 0; i < candidateCount; i++)
-        {
-            var normalizedDamageRate = _endangeredDamageRates[i] / maxDamageRate;
-
-            // Normalize acceleration (only positive values contribute)
-            // Negative acceleration (damage decreasing) gets 0 contribution
-            var normalizedAcceleration = 0f;
-            if (_endangeredDamageAccelerations[i] > 0 && maxAcceleration > 0)
-            {
-                normalizedAcceleration = _endangeredDamageAccelerations[i] / maxAcceleration;
-            }
-
-            // Weight using configurable triage weights
-            // Enhanced scoring with shield/mitigation penalties and healer/TTD bonuses
-            var score = (normalizedDamageRate * weights.DamageRate) +
-                        (_endangeredTankBonuses[i] * weights.TankBonus) +
-                        (_endangeredMissingHpPcts[i] * weights.MissingHp) +
-                        (normalizedAcceleration * weights.DamageAcceleration) +
-                        (_endangeredHealerBonuses[i] * weights.HealerBonus) +
-                        (_endangeredTtdScores[i] * weights.TtdUrgency) -
-                        (_endangeredShieldPcts[i] * weights.ShieldPenalty) -
-                        (_endangeredMitigations[i] * weights.MitigationPenalty);
-
-            if (score > highestScore)
-            {
-                highestScore = score;
-                mostEndangered = _endangeredMembers[i];
-            }
-        }
-
-        return mostEndangered;
+        return base.FindMostEndangeredPartyMember(
+            player, damageIntakeService, healAmount, damageTrendService, shieldTrackingService,
+            WHMActions.Cure.RangeSquared);
     }
 
     #endregion

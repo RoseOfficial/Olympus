@@ -33,7 +33,10 @@ public sealed class SingleTargetHealHandler : IHealingHandler
         if (!config.EnableAdloquium && !config.EnablePhysick)
             return false;
 
-        var target = context.PartyHelper.FindLowestHpPartyMember(player);
+        var target = context.Configuration.Healing.UseDamageIntakeTriage
+            ? context.PartyHelper.FindMostEndangeredPartyMember(
+                player, context.DamageIntakeService, 0, context.DamageTrendService, context.ShieldTrackingService)
+            : context.PartyHelper.FindLowestHpPartyMember(player);
         if (target == null)
             return false;
 

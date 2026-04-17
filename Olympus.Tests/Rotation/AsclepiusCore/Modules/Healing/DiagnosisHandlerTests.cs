@@ -25,6 +25,7 @@ public class DiagnosisHandlerTests
     {
         var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
         config.Sage.DiagnosisThreshold = 0.80f;
+        config.Healing.UseDamageIntakeTriage = false;
 
         // target at 40% — below threshold
         var target = MockBuilders.CreateMockBattleChara(entityId: 5u, currentHp: 40000, maxHp: 100000);

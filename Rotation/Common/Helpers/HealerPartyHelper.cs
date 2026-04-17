@@ -6,6 +6,7 @@ using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Config;
 using Olympus.Data;
+using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 
 namespace Olympus.Rotation.Common.Helpers;
@@ -18,6 +19,25 @@ public abstract class HealerPartyHelper : BasePartyHelper
 {
     protected readonly HpPredictionService HpPredictionService;
     protected readonly Configuration Configuration;
+
+    /// <summary>
+    /// Default healing range squared (30y × 30y) used when subclass doesn't
+    /// override. Matches the standard GCD-heal cast range shared by Cure,
+    /// Physick, Diagnosis, and Benefic.
+    /// </summary>
+    protected const float DefaultHealingRangeSquared = 900f;
+
+    // Pre-allocated arrays for endangered-member triage (avoids per-frame allocation).
+    // Sized to MaxPartySize (8) — the hard cap on FFXIV party size.
+    private readonly IBattleChara?[] _endangeredMembers = new IBattleChara?[MaxPartySize];
+    private readonly float[] _endangeredDamageRates = new float[MaxPartySize];
+    private readonly float[] _endangeredMissingHpPcts = new float[MaxPartySize];
+    private readonly float[] _endangeredTankBonuses = new float[MaxPartySize];
+    private readonly float[] _endangeredDamageAccelerations = new float[MaxPartySize];
+    private readonly float[] _endangeredShieldPcts = new float[MaxPartySize];
+    private readonly float[] _endangeredMitigations = new float[MaxPartySize];
+    private readonly float[] _endangeredHealerBonuses = new float[MaxPartySize];
+    private readonly float[] _endangeredTtdScores = new float[MaxPartySize];
 
     /// <summary>
     /// Raise status ID used to check for pending resurrections.
@@ -282,6 +302,146 @@ public abstract class HealerPartyHelper : BasePartyHelper
                 return true;
         }
         return false;
+    }
+
+    #endregion
+
+    #region Endangered Member Triage
+
+    /// <summary>
+    /// Finds the most endangered party member using enhanced damage intake triage.
+    /// Uses configurable weights including damage rate, tank bonus, missing HP,
+    /// damage acceleration, shield/mitigation penalties, healer bonus, and TTD urgency.
+    /// Single-pass algorithm with deferred normalization.
+    /// </summary>
+    /// <param name="player">The local player.</param>
+    /// <param name="damageIntakeService">Service providing damage intake data.</param>
+    /// <param name="healAmount">Minimum missing HP to consider (prevents overhealing). 0 skips the check.</param>
+    /// <param name="damageTrendService">Optional service for damage acceleration data.</param>
+    /// <param name="shieldTrackingService">Optional service for shield/mitigation data.</param>
+    /// <param name="rangeSquared">Cast range squared for target filtering. Defaults to 30y.</param>
+    /// <returns>The most endangered party member, or null if none need healing.</returns>
+    public IBattleChara? FindMostEndangeredPartyMember(
+        IPlayerCharacter player,
+        IDamageIntakeService damageIntakeService,
+        int healAmount = 0,
+        IDamageTrendService? damageTrendService = null,
+        IShieldTrackingService? shieldTrackingService = null,
+        float rangeSquared = DefaultHealingRangeSquared)
+    {
+        var candidateCount = 0;
+        float maxDamageRate = 1f;
+        float maxAcceleration = 1f;
+
+        var playerPos = player.Position;
+
+        foreach (var member in GetAllPartyMembers(player))
+        {
+            if (member.IsDead)
+                continue;
+
+            if (candidateCount >= MaxPartySize)
+                break;
+
+            if (Vector3.DistanceSquared(playerPos, member.Position) > rangeSquared)
+                continue;
+
+            var predictedHp = GetPredictedHp(member);
+
+            if (predictedHp >= member.MaxHp)
+                continue;
+
+            if (healAmount > 0)
+            {
+                var missingHp = member.MaxHp - predictedHp;
+                if (healAmount > missingHp)
+                    continue;
+            }
+
+            var hpPercent = (float)predictedHp / member.MaxHp;
+            var damageRate = damageIntakeService.GetDamageRate(member.EntityId, 5f);
+
+            if (damageRate > maxDamageRate)
+                maxDamageRate = damageRate;
+
+            var damageAccel = 0f;
+            if (damageTrendService is not null)
+            {
+                damageAccel = damageTrendService.GetDamageAcceleration(member.EntityId, 5f);
+                if (damageAccel > maxAcceleration)
+                    maxAcceleration = damageAccel;
+            }
+
+            _endangeredMembers[candidateCount] = member;
+            _endangeredDamageRates[candidateCount] = damageRate;
+            _endangeredMissingHpPcts[candidateCount] = 1f - hpPercent;
+            _endangeredTankBonuses[candidateCount] = IsTankRole(member) ? 1f : 0f;
+            _endangeredDamageAccelerations[candidateCount] = damageAccel;
+
+            var shieldPct = 0f;
+            var mitigation = 0f;
+            if (shieldTrackingService != null)
+            {
+                var shieldValue = shieldTrackingService.GetTotalShieldValue(member.EntityId);
+                shieldPct = member.MaxHp > 0 ? (float)shieldValue / member.MaxHp : 0f;
+                mitigation = shieldTrackingService.GetCombinedMitigation(member.EntityId);
+            }
+            _endangeredShieldPcts[candidateCount] = shieldPct;
+            _endangeredMitigations[candidateCount] = mitigation;
+
+            var isHealer = false;
+            if (member is IPlayerCharacter pc)
+            {
+                isHealer = JobRegistry.IsHealer(pc.ClassJob.RowId);
+            }
+            _endangeredHealerBonuses[candidateCount] = isHealer ? 1f : 0f;
+
+            var ttdScore = 0f;
+            var survivability = HpPredictionService.GetSurvivabilityInfo(member.EntityId, member.CurrentHp, member.MaxHp);
+            if (survivability.TimeUntilDeath < 10f)
+            {
+                ttdScore = 1f - (survivability.TimeUntilDeath / 10f);
+            }
+            _endangeredTtdScores[candidateCount] = ttdScore;
+
+            candidateCount++;
+        }
+
+        if (candidateCount == 0)
+            return null;
+
+        IBattleChara? mostEndangered = null;
+        float highestScore = float.MinValue;
+
+        var weights = Configuration.Healing.GetEffectiveTriageWeights();
+
+        for (var i = 0; i < candidateCount; i++)
+        {
+            var normalizedDamageRate = _endangeredDamageRates[i] / maxDamageRate;
+
+            var normalizedAcceleration = 0f;
+            if (_endangeredDamageAccelerations[i] > 0 && maxAcceleration > 0)
+            {
+                normalizedAcceleration = _endangeredDamageAccelerations[i] / maxAcceleration;
+            }
+
+            var score = (normalizedDamageRate * weights.DamageRate) +
+                        (_endangeredTankBonuses[i] * weights.TankBonus) +
+                        (_endangeredMissingHpPcts[i] * weights.MissingHp) +
+                        (normalizedAcceleration * weights.DamageAcceleration) +
+                        (_endangeredHealerBonuses[i] * weights.HealerBonus) +
+                        (_endangeredTtdScores[i] * weights.TtdUrgency) -
+                        (_endangeredShieldPcts[i] * weights.ShieldPenalty) -
+                        (_endangeredMitigations[i] * weights.MitigationPenalty);
+
+            if (score > highestScore)
+            {
+                highestScore = score;
+                mostEndangered = _endangeredMembers[i];
+            }
+        }
+
+        return mostEndangered;
     }
 
     #endregion

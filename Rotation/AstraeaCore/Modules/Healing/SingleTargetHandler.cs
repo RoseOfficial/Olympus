@@ -35,7 +35,10 @@ public sealed class SingleTargetHandler : IHealingHandler
         if (!config.EnableBenefic && !config.EnableBeneficII)
             return false;
 
-        var target = context.PartyHelper.FindLowestHpPartyMember(player);
+        var target = context.Configuration.Healing.UseDamageIntakeTriage
+            ? context.PartyHelper.FindMostEndangeredPartyMember(
+                player, context.DamageIntakeService, 0, context.DamageTrendService, context.ShieldTrackingService)
+            : context.PartyHelper.FindLowestHpPartyMember(player);
         if (target == null)
             return false;
 
