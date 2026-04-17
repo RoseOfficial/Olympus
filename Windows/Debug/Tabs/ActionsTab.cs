@@ -163,17 +163,17 @@ public static class ActionsTab
         ImGui.Text(Loc.T(LocalizedStrings.Debug.ActionHistory, "Action History"));
 
         var childSize = new Vector2(0, -1);
-        if (!ImGui.BeginChild("ActionLog", childSize, true, ImGuiWindowFlags.HorizontalScrollbar))
-            return;
-
-        var history = snapshot.Actions.History;
-
-        foreach (var attempt in history)
+        if (ImGui.BeginChild("ActionLog", childSize, true, ImGuiWindowFlags.HorizontalScrollbar))
         {
-            if (!ShouldShowAttempt(attempt))
-                continue;
+            var history = snapshot.Actions.History;
 
-            DrawAttemptLine(attempt);
+            foreach (var attempt in history)
+            {
+                if (!ShouldShowAttempt(attempt))
+                    continue;
+
+                DrawAttemptLine(attempt);
+            }
         }
 
         ImGui.EndChild();
