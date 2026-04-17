@@ -793,7 +793,7 @@ public static class GNBActions
         public const uint ReadyToTear = 1843;
         public const uint ReadyToGouge = 1844;
         public const uint ReadyToBlast = 2686;
-        public const uint ReadyToBrand = 3841; // From Fated Circle at Lv.96+
+        public const uint ReadyToBrand = 3839; // From Fated Circle at Lv.96+ (game calls this "Ready to Raze")
         public const uint ReadyToReign = 3840; // From Bloodfest at Lv.100
 
         // Combo/skill-applied

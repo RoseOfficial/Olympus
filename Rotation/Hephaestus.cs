@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Dalamud.Game.ClientState.JobGauge;
+using Dalamud.Game.ClientState.JobGauge.Types;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -66,6 +68,9 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
     // Burst window service
     private readonly IBurstWindowService? _burstWindowService;
 
+    // Job gauge access (for reliable AmmoComboStep tracking)
+    private readonly IJobGauges _jobGauges;
+
     // Gnashing Fang combo step tracking
     private int _gnashingFangStep;
 
@@ -88,6 +93,7 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
         IDebuffDetectionService debuffDetectionService,
         IEnmityService enmityService,
         ITankCooldownService tankCooldownService,
+        IJobGauges jobGauges,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
@@ -116,6 +122,7 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
         // Initialize training service
         _trainingService = trainingService;
         _burstWindowService = burstWindowService;
+        _jobGauges = jobGauges;
 
         // Initialize helpers
         _statusHelper = new HephaestusStatusHelper();
@@ -223,55 +230,37 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
     }
 
     /// <summary>
-    /// Updates the Gnashing Fang combo step via action replacement detection.
-    /// After using Gnashing Fang, the game replaces the action with Savage Claw, then Wicked Talon.
-    /// This state persists across frames regardless of whether the Continuation oGCDs
-    /// (Jugular Rip, Abdomen Tear, Eye Gouge) have consumed their Ready buffs.
-    /// Tracking via the Ready buffs alone is unreliable because they are consumed by the
-    /// oGCD weave before the next GCD frame, which caused the combo to drop.
+    /// Updates Gnashing Fang and Reign of Beasts combo step tracking from the job gauge.
+    /// `GNBGauge.AmmoComboStep` encodes both chains in one byte:
+    ///   0 = no combo, 1 = Savage Claw next, 2 = Wicked Talon next,
+    ///   3 = Noble Blood next, 4 = Lion Heart next.
+    /// Earlier versions read `GetAdjustedActionId` on the chain heads, but the action
+    /// replacement only updates on the Gnashing Fang chain — it never advanced for
+    /// Reign of Beasts, so Noble Blood / Lion Heart were never queued and the bot
+    /// fell through to Burst Strike spam after Bloodfest.
     /// </summary>
-    private unsafe void UpdateGnashingFangStep()
+    private void UpdateGnashingFangStep()
     {
-        var actionManager = SafeGameAccess.GetActionManager(ErrorMetrics);
-        if (actionManager == null)
+        byte step;
+        try
         {
-            _gnashingFangStep = 0;
-            return;
+            step = _jobGauges.Get<GNBGauge>().AmmoComboStep;
         }
-
-        var adjustedId = actionManager->GetAdjustedActionId(GNBActions.GnashingFang.ActionId);
-
-        if (adjustedId == GNBActions.SavageClaw.ActionId)
-            _gnashingFangStep = 1; // After Gnashing Fang, Savage Claw next
-        else if (adjustedId == GNBActions.WickedTalon.ActionId)
-            _gnashingFangStep = 2; // After Savage Claw, Wicked Talon next
-        else
-            _gnashingFangStep = 0; // Not in combo
-    }
-
-    /// <summary>
-    /// Updates the Reign of Beasts combo step using action replacement detection.
-    /// After using Reign of Beasts, the game replaces the action with Noble Blood, then Lion Heart.
-    /// The ReadyToReign buff is consumed at step 1, so we track steps 2/3 via GetAdjustedActionId.
-    /// </summary>
-    private unsafe void UpdateReignComboStep()
-    {
-        var actionManager = SafeGameAccess.GetActionManager(ErrorMetrics);
-        if (actionManager == null)
+        catch
         {
+            ErrorMetrics?.RecordError("Hephaestus", "Failed to read GNB AmmoComboStep");
+            _gnashingFangStep = 0;
             _reignComboStep = 0;
             return;
         }
 
-        var adjustedId = actionManager->GetAdjustedActionId(GNBActions.ReignOfBeasts.ActionId);
-
-        if (adjustedId == GNBActions.NobleBlood.ActionId)
-            _reignComboStep = 1; // After Reign of Beasts, Noble Blood next
-        else if (adjustedId == GNBActions.LionHeart.ActionId)
-            _reignComboStep = 2; // After Noble Blood, Lion Heart next
-        else
-            _reignComboStep = 0; // Not in Reign combo
+        _gnashingFangStep = step switch { 1 => 1, 2 => 2, _ => 0 };
+        _reignComboStep = step switch { 3 => 1, 4 => 2, _ => 0 };
     }
+
+    // Kept as a no-op so the existing call site in UpdateRotation still compiles — the
+    // combined update now happens in UpdateGnashingFangStep.
+    private void UpdateReignComboStep() { }
 
     /// <inheritdoc />
     protected override void SyncDebugState(IHephaestusContext context)

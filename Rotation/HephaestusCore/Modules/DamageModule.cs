@@ -119,8 +119,11 @@ public sealed class DamageModule : IHephaestusModule
             if (TrySonicBreak(context, target.GameObjectId))
                 return true;
 
-            // Priority 5: Start Gnashing Fang combo
-            if (TryStartGnashingFang(context, target.GameObjectId))
+            // Priority 5: Start Gnashing Fang combo (single-target only — skip in AoE packs
+            // so cartridges flow into Fated Circle instead of being locked into a 3-GCD ST chain)
+            var startGfAsAoe = context.Configuration.Tank.EnableAoEDamage
+                && enemyCount >= context.Configuration.Tank.AoEMinTargets;
+            if (!startGfAsAoe && TryStartGnashingFang(context, target.GameObjectId))
                 return true;
 
             // Priority 6: Burst Strike / Fated Circle (cartridge spenders)
