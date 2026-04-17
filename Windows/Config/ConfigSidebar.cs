@@ -297,7 +297,7 @@ public sealed class ConfigSidebar
         ImGui.PushStyleColor(ImGuiCol.HeaderActive, SelectedColor);
 
         var selectableWidth = hasIcon ? SidebarWidth - 45 : SidebarWidth - 25;
-        var clicked = ImGui.Selectable($"  {label}", isSelected, ImGuiSelectableFlags.None,
+        var clicked = ImGui.Selectable($"  {label}##{section}", isSelected, ImGuiSelectableFlags.None,
             new Vector2(selectableWidth, 0));
 
         ImGui.PopStyleColor(4);
