@@ -208,6 +208,8 @@ public static class LocalizedStrings
         public const string PauseWhenNoTargetDesc = "config.targeting.pause_when_no_target_desc";
         public const string SuppressDamageOnForcedMovement = "config.targeting.suppress_damage_on_forced_movement";
         public const string SuppressDamageOnForcedMovementDesc = "config.targeting.suppress_damage_on_forced_movement_desc";
+        public const string PauseAllOnStandStillPunisher = "config.targeting.pause_all_on_stand_still_punisher";
+        public const string PauseAllOnStandStillPunisherDesc = "config.targeting.pause_all_on_stand_still_punisher_desc";
         public const string StrictCurrentTargetStrategy = "config.targeting.strict_current_target";
         public const string StrictCurrentTargetStrategyDesc = "config.targeting.strict_current_target_desc";
         public const string SafeGapCloser = "config.targeting.safe_gap_closer";

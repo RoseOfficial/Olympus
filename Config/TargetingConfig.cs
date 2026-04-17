@@ -41,6 +41,14 @@ public sealed class TargetingConfig
     public bool SuppressDamageOnForcedMovement { get; set; } = true;
 
     /// <summary>
+    /// When true, all rotation and healing module execution is suppressed while the
+    /// player has a Pyretic-style "any action kills you" debuff. Unlike forced-movement
+    /// suppression (damage only), this halts healing, mitigation, buffs, and oGCDs as well
+    /// — pressing anything during Pyretic applies a lethal vuln stack. Default ON.
+    /// </summary>
+    public bool PauseAllOnStandStillPunisher { get; set; } = true;
+
+    /// <summary>
     /// When true, the fallback that retargets to LowestHp when CurrentTarget/FocusTarget
     /// strategies fail is disabled — a missing current target simply stops damage. This
     /// makes "drop target" a hard pause for players using explicit-target strategies.

@@ -144,4 +144,15 @@ public static class FFXIVConstants
         1142,  // Leftward March
         1143,  // Rightward March
     };
+
+    // "Stand still, do nothing, or die" punisher debuffs — Pyretic and relatives.
+    // Any player action (or movement, but we can't gate that) while these are active
+    // triggers a lethal vuln stack or outright wipes. Rotation + healing execution must
+    // halt entirely while any of these are on the player. Add IDs here if a fight's
+    // Pyretic-variant is missed — verify in-game via /xldata on the affected player.
+    /// <summary>Status IDs that kill the player if any action is taken.</summary>
+    public static readonly HashSet<uint> StandStillPunisherStatusIds = new()
+    {
+        960,   // Pyretic (canonical)
+    };
 }

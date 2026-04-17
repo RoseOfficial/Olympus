@@ -34,6 +34,24 @@ public class PlayerSafetyHelperTests
         Assert.False(PlayerSafetyHelper.IsForcedMovementStatusId(statusId));
     }
 
+    [Theory]
+    [InlineData(960u)]
+    public void IsStandStillPunisherStatusId_Pyretic_ReturnsTrue(uint statusId)
+    {
+        Assert.True(PlayerSafetyHelper.IsStandStillPunisherStatusId(statusId));
+    }
+
+    [Theory]
+    [InlineData(0u)]
+    [InlineData(959u)]    // boundary below Pyretic
+    [InlineData(961u)]    // boundary above Pyretic
+    [InlineData(1140u)]   // Forward March — forced movement, not a stand-still punisher
+    [InlineData(18u)]     // Stun
+    public void IsStandStillPunisherStatusId_Unrelated_ReturnsFalse(uint statusId)
+    {
+        Assert.False(PlayerSafetyHelper.IsStandStillPunisherStatusId(statusId));
+    }
+
     [Fact]
     public void IsForcedMovementStatusId_BoundariesAroundForwardMarch()
     {

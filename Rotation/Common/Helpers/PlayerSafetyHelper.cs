@@ -39,4 +39,30 @@ public static class PlayerSafetyHelper
 
         return false;
     }
+
+    /// <summary>
+    /// Pure predicate over the stand-still punisher status ID list (Pyretic family).
+    /// </summary>
+    public static bool IsStandStillPunisherStatusId(uint statusId) =>
+        FFXIVConstants.StandStillPunisherStatusIds.Contains(statusId);
+
+    /// <summary>
+    /// Returns true if the player has a Pyretic-style "any action kills you" debuff active.
+    /// Used to halt all rotation/healing module execution until the debuff resolves.
+    /// </summary>
+    public static bool IsStandStillPunisherActive(IBattleChara? player)
+    {
+        if (player?.StatusList == null)
+            return false;
+
+        foreach (var status in player.StatusList)
+        {
+            if (status == null)
+                continue;
+            if (FFXIVConstants.StandStillPunisherStatusIds.Contains(status.StatusId))
+                return true;
+        }
+
+        return false;
+    }
 }

@@ -8,6 +8,7 @@ using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Rotation.Common;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Cache;
@@ -308,6 +309,14 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
     /// </summary>
     protected virtual void ExecuteModules(TContext context, bool isMoving, bool inCombat)
     {
+        // Hard pause: Pyretic-style debuff active — any GCD or oGCD kills the player.
+        // Suppress every module (damage, healing, mitigation, buff) until it resolves.
+        if (Configuration.Targeting.PauseAllOnStandStillPunisher
+            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
+        {
+            return;
+        }
+
         // Try oGCD modules first during weave windows
         if (inCombat && ActionService.CanExecuteOgcd)
         {

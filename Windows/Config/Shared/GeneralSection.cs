@@ -119,6 +119,14 @@ public sealed class GeneralSection
             this.save);
 
         ConfigUIHelpers.Toggle(
+            Loc.T(LocalizedStrings.Targeting.PauseAllOnStandStillPunisher, "Pause everything during Pyretic"),
+            () => this.config.Targeting.PauseAllOnStandStillPunisher,
+            v => this.config.Targeting.PauseAllOnStandStillPunisher = v,
+            Loc.T(LocalizedStrings.Targeting.PauseAllOnStandStillPunisherDesc,
+                "Halt the entire rotation — including healing, mitigation, and oGCDs — while a Pyretic-style 'any action kills you' debuff is active. Resumes automatically the frame it falls off."),
+            this.save);
+
+        ConfigUIHelpers.Toggle(
             Loc.T(LocalizedStrings.Targeting.StrictCurrentTargetStrategy, "Strict explicit-target mode"),
             () => this.config.Targeting.StrictCurrentTargetStrategy,
             v => this.config.Targeting.StrictCurrentTargetStrategy = v,
