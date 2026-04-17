@@ -442,24 +442,7 @@ public sealed class AstrologianConfig
 
     #endregion
 
-    #region Lucid Dreaming Settings
-
-    /// <summary>
-    /// Whether to use Lucid Dreaming automatically.
-    /// </summary>
-    public bool EnableLucidDreaming { get; set; } = true;
-
-    /// <summary>
-    /// MP percentage threshold to trigger Lucid Dreaming.
-    /// </summary>
-    private float _lucidDreamingThreshold = 0.70f;
-    public float LucidDreamingThreshold
-    {
-        get => _lucidDreamingThreshold;
-        set => _lucidDreamingThreshold = Math.Clamp(value, 0f, 1f);
-    }
-
-    #endregion
+    // Lucid Dreaming moved to HealerSharedConfig.
 }
 
 /// <summary>

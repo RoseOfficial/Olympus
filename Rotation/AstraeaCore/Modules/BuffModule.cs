@@ -28,7 +28,7 @@ public sealed class BuffModule : BaseBuffModule<IAstraeaContext>, IAstraeaModule
     #region Base Class Overrides - Configuration
 
     protected override bool IsLucidDreamingEnabled(IAstraeaContext context) =>
-        context.Configuration.Astrologian.EnableLucidDreaming;
+        context.Configuration.HealerShared.EnableLucidDreaming;
 
     protected override ActionDefinition GetLucidDreamingAction() =>
         RoleActions.LucidDreaming;
@@ -37,7 +37,7 @@ public sealed class BuffModule : BaseBuffModule<IAstraeaContext>, IAstraeaModule
         AstraeaStatusHelper.HasLucidDreaming(context.Player);
 
     protected override float GetLucidDreamingThreshold(IAstraeaContext context) =>
-        context.Configuration.Astrologian.LucidDreamingThreshold;
+        context.Configuration.HealerShared.LucidDreamingThreshold;
 
     #endregion
 
@@ -162,7 +162,7 @@ public sealed class BuffModule : BaseBuffModule<IAstraeaContext>, IAstraeaModule
     {
         var player = context.Player;
         var mpPercent = player.MaxMp > 0 ? (float)player.CurrentMp / player.MaxMp : 1f;
-        context.Debug.LucidState = mpPercent < context.Configuration.Astrologian.LucidDreamingThreshold
+        context.Debug.LucidState = mpPercent < context.Configuration.HealerShared.LucidDreamingThreshold
             ? $"Low MP ({mpPercent:P0})"
             : $"OK ({mpPercent:P0})";
 

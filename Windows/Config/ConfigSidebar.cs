@@ -19,6 +19,7 @@ public enum ConfigSection
     RoleActions,
 
     // Healers
+    HealerShared,
     WhiteMage,
     Scholar,
     Astrologian,
@@ -32,7 +33,6 @@ public enum ConfigSection
     Gunbreaker,
 
     // Melee DPS
-    MeleeDpsShared,
     Dragoon,
     Ninja,
     Samurai,
@@ -41,13 +41,12 @@ public enum ConfigSection
     Viper,
 
     // Ranged Physical DPS
-    RangedDpsShared,
+    RangedShared,
     Machinist,
     Bard,
     Dancer,
 
     // Casters
-    CasterShared,
     BlackMage,
     Summoner,
     RedMage,
@@ -56,7 +55,9 @@ public enum ConfigSection
     // Utility
     PartyCoordination,
     DrawHelper,
-    ActionFeed
+    ActionFeed,
+    Display,
+    DebugDisplay
 }
 
 /// <summary>
@@ -70,12 +71,14 @@ public sealed class ConfigSidebar
     private static readonly Vector4 HoverColor = new(0.25f, 0.4f, 0.6f, 1.0f);
     private static readonly Vector4 SearchMatchColor = new(1.0f, 0.9f, 0.4f, 1.0f);
 
-    private static readonly ConfigSection[] GeneralSections  = [ConfigSection.General, ConfigSection.Targeting, ConfigSection.RoleActions, ConfigSection.PartyCoordination, ConfigSection.DrawHelper, ConfigSection.ActionFeed];
-    private static readonly ConfigSection[] HealerSections   = [ConfigSection.WhiteMage, ConfigSection.Scholar, ConfigSection.Astrologian, ConfigSection.Sage];
+    private static readonly ConfigSection[] BehaviorSections    = [ConfigSection.General, ConfigSection.Targeting, ConfigSection.RoleActions];
+    private static readonly ConfigSection[] VisualsSections     = [ConfigSection.Display, ConfigSection.DrawHelper, ConfigSection.ActionFeed, ConfigSection.DebugDisplay];
+    private static readonly ConfigSection[] MultiplayerSections = [ConfigSection.PartyCoordination];
+    private static readonly ConfigSection[] HealerSections   = [ConfigSection.HealerShared, ConfigSection.WhiteMage, ConfigSection.Scholar, ConfigSection.Astrologian, ConfigSection.Sage];
     private static readonly ConfigSection[] TankSections     = [ConfigSection.TankShared, ConfigSection.Paladin, ConfigSection.Warrior, ConfigSection.DarkKnight, ConfigSection.Gunbreaker];
-    private static readonly ConfigSection[] MeleeSections    = [ConfigSection.MeleeDpsShared, ConfigSection.Dragoon, ConfigSection.Ninja, ConfigSection.Samurai, ConfigSection.Monk, ConfigSection.Reaper, ConfigSection.Viper];
-    private static readonly ConfigSection[] RangedSections   = [ConfigSection.RangedDpsShared, ConfigSection.Machinist, ConfigSection.Bard, ConfigSection.Dancer];
-    private static readonly ConfigSection[] CasterSections   = [ConfigSection.CasterShared, ConfigSection.BlackMage, ConfigSection.Summoner, ConfigSection.RedMage, ConfigSection.Pictomancer];
+    private static readonly ConfigSection[] MeleeSections    = [ConfigSection.Dragoon, ConfigSection.Ninja, ConfigSection.Samurai, ConfigSection.Monk, ConfigSection.Reaper, ConfigSection.Viper];
+    private static readonly ConfigSection[] RangedSections   = [ConfigSection.RangedShared, ConfigSection.Machinist, ConfigSection.Bard, ConfigSection.Dancer];
+    private static readonly ConfigSection[] CasterSections   = [ConfigSection.BlackMage, ConfigSection.Summoner, ConfigSection.RedMage, ConfigSection.Pictomancer];
 
     // Maps sidebar sections to their primary job ID for icon lookup.
     private static readonly Dictionary<ConfigSection, uint> SectionJobIds = new()
@@ -130,16 +133,32 @@ public sealed class ConfigSidebar
 
         ImGui.BeginChild("##ConfigSidebar", new Vector2(SidebarWidth, 0), true);
 
-        // GENERAL section
-        if (ShouldShowCategory(GeneralSections, matchingSections, hasSearch))
+        // BEHAVIOR section — core rotation behavior
+        if (ShouldShowCategory(BehaviorSections, matchingSections, hasSearch))
         {
-            DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.General, "GENERAL"));
+            DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.Behavior, "BEHAVIOR"));
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.GeneralItem, "General"), ConfigSection.General, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Targeting, "Targeting"), ConfigSection.Targeting, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.RoleActions, "Role Actions"), ConfigSection.RoleActions, null, matchingSections, hasSearch);
-            sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.PartyCoordination, "Party Coordination"), ConfigSection.PartyCoordination, null, matchingSections, hasSearch);
+            ImGui.Spacing();
+        }
+
+        // VISUALS section — overlays and visualizations
+        if (ShouldShowCategory(VisualsSections, matchingSections, hasSearch))
+        {
+            DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.Visuals, "VISUALS"));
+            sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Display, "Display"), ConfigSection.Display, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.DrawHelper, "Draw Helper"), ConfigSection.DrawHelper, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T("ui.sidebar.action_feed", "Action Feed"), ConfigSection.ActionFeed, null, matchingSections, hasSearch);
+            sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.DebugDisplay, "Debug Display"), ConfigSection.DebugDisplay, null, matchingSections, hasSearch);
+            ImGui.Spacing();
+        }
+
+        // MULTIPLAYER section — cross-instance coordination
+        if (ShouldShowCategory(MultiplayerSections, matchingSections, hasSearch))
+        {
+            DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.Multiplayer, "MULTIPLAYER"));
+            sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.PartyCoordination, "Party Coordination"), ConfigSection.PartyCoordination, null, matchingSections, hasSearch);
             ImGui.Spacing();
         }
 
@@ -147,6 +166,7 @@ public sealed class ConfigSidebar
         if (ShouldShowCategory(HealerSections, matchingSections, hasSearch))
         {
             DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.Healers, "HEALERS"));
+            sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Shared, "Shared"), ConfigSection.HealerShared, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.WhiteMage, "White Mage"), ConfigSection.WhiteMage, ConfigUIHelpers.WhiteMageColor, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Scholar, "Scholar"), ConfigSection.Scholar, ConfigUIHelpers.ScholarColor, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Astrologian, "Astrologian"), ConfigSection.Astrologian, ConfigUIHelpers.AstrologianColor, matchingSections, hasSearch);
@@ -170,7 +190,6 @@ public sealed class ConfigSidebar
         if (ShouldShowCategory(MeleeSections, matchingSections, hasSearch))
         {
             DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.MeleeDps, "MELEE DPS"));
-            sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Shared, "Shared"), ConfigSection.MeleeDpsShared, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Dragoon, "Dragoon"), ConfigSection.Dragoon, ConfigUIHelpers.DragoonColor, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Ninja, "Ninja"), ConfigSection.Ninja, ConfigUIHelpers.NinjaColor, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Samurai, "Samurai"), ConfigSection.Samurai, ConfigUIHelpers.SamuraiColor, matchingSections, hasSearch);
@@ -184,7 +203,7 @@ public sealed class ConfigSidebar
         if (ShouldShowCategory(RangedSections, matchingSections, hasSearch))
         {
             DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.RangedDps, "RANGED DPS"));
-            sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Shared, "Shared"), ConfigSection.RangedDpsShared, null, matchingSections, hasSearch);
+            sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Shared, "Shared"), ConfigSection.RangedShared, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Machinist, "Machinist"), ConfigSection.Machinist, ConfigUIHelpers.MachinistColor, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Bard, "Bard"), ConfigSection.Bard, ConfigUIHelpers.BardColor, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Dancer, "Dancer"), ConfigSection.Dancer, ConfigUIHelpers.DancerColor, matchingSections, hasSearch);
@@ -195,7 +214,6 @@ public sealed class ConfigSidebar
         if (ShouldShowCategory(CasterSections, matchingSections, hasSearch))
         {
             DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.Casters, "CASTERS"));
-            sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Shared, "Shared"), ConfigSection.CasterShared, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.BlackMage, "Black Mage"), ConfigSection.BlackMage, ConfigUIHelpers.BlackMageColor, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Summoner, "Summoner"), ConfigSection.Summoner, ConfigUIHelpers.SummonerColor, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.RedMage, "Red Mage"), ConfigSection.RedMage, ConfigUIHelpers.RedMageColor, matchingSections, hasSearch);

@@ -187,14 +187,7 @@ public sealed class MachinistConfig
 
     #endregion
 
-    #region Interrupt Settings
-
-    /// <summary>
-    /// Whether to use Head Graze for interrupts.
-    /// </summary>
-    public bool EnableHeadGraze { get; set; } = true;
-
-    #endregion
+    // Head Graze moved to RangedSharedConfig.
 }
 
 /// <summary>

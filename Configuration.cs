@@ -87,6 +87,7 @@ public sealed class Configuration : IPluginConfiguration
     public DrawHelperConfig DrawHelper { get; set; } = new();
 
     // Job-specific configuration - Healers
+    public HealerSharedConfig HealerShared { get; set; } = new();
     public ScholarConfig Scholar { get; set; } = new();
     public AstrologianConfig Astrologian { get; set; } = new();
     public SageConfig Sage { get; set; } = new();
@@ -106,6 +107,7 @@ public sealed class Configuration : IPluginConfiguration
     public ViperConfig Viper { get; set; } = new();
 
     // Job-specific configuration - Ranged Physical DPS
+    public RangedSharedConfig RangedShared { get; set; } = new();
     public MachinistConfig Machinist { get; set; } = new();
     public BardConfig Bard { get; set; } = new();
     public DancerConfig Dancer { get; set; } = new();
@@ -158,6 +160,7 @@ public sealed class Configuration : IPluginConfiguration
         Overlay = new OverlayConfig();
         ActionFeed = new ActionFeedConfig();
         DrawHelper = new DrawHelperConfig();
+        HealerShared = new HealerSharedConfig();
         Scholar = new ScholarConfig();
         Astrologian = new AstrologianConfig();
         Sage = new SageConfig();
@@ -171,6 +174,7 @@ public sealed class Configuration : IPluginConfiguration
         Monk = new MonkConfig();
         Reaper = new ReaperConfig();
         Viper = new ViperConfig();
+        RangedShared = new RangedSharedConfig();
         Machinist = new MachinistConfig();
         Bard = new BardConfig();
         Dancer = new DancerConfig();

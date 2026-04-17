@@ -29,7 +29,6 @@ public sealed class DancerSection
         DrawGaugeSection();
         DrawBurstSection();
         DrawPartnerSection();
-        DrawUtilitySection();
     }
 
     private void DrawDamageSection()
@@ -240,19 +239,4 @@ public sealed class DancerSection
         }
     }
 
-    private void DrawUtilitySection()
-    {
-        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Dancer.UtilitySection, "Utility"), "DNC", false))
-        {
-            ConfigUIHelpers.BeginIndent();
-
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Dancer.EnableHeadGraze, "Enable Head Graze"),
-                () => config.Dancer.EnableHeadGraze,
-                v => config.Dancer.EnableHeadGraze = v,
-                Loc.T(LocalizedStrings.Dancer.EnableHeadGrazeDesc, "Use Head Graze for interrupts"), save);
-
-            ConfigUIHelpers.EndIndent();
-        }
-    }
 }

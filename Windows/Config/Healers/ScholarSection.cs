@@ -298,18 +298,6 @@ public sealed class ScholarSection
                 ConfigUIHelpers.EndIndent();
             }
 
-            ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Scholar.MpManagement, "MP Management:"));
-
-            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Scholar.EnableLucidDreaming, "Enable Lucid Dreaming"), () => config.Scholar.EnableLucidDreaming, v => config.Scholar.EnableLucidDreaming = v, null, save);
-
-            if (config.Scholar.EnableLucidDreaming)
-            {
-                config.Scholar.LucidDreamingThreshold = ConfigUIHelpers.ThresholdSlider(
-                    Loc.T(LocalizedStrings.Scholar.LucidMpThreshold, "Lucid MP Threshold"),
-                    config.Scholar.LucidDreamingThreshold, 40f, 90f, null, save, v => config.Scholar.LucidDreamingThreshold = v);
-            }
-
             ConfigUIHelpers.EndIndent();
         }
     }

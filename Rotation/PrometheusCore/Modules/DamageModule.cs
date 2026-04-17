@@ -592,7 +592,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPro
     /// </summary>
     private bool TryInterrupt(IPrometheusContext context, IBattleChara target)
     {
-        if (!context.Configuration.Machinist.EnableHeadGraze)
+        if (!context.Configuration.RangedShared.EnableHeadGraze)
             return false;
 
         var player = context.Player;

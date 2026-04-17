@@ -28,7 +28,7 @@ public sealed class BuffModule : BaseBuffModule<IAthenaContext>, IAthenaModule
     #region Base Class Overrides - Configuration
 
     protected override bool IsLucidDreamingEnabled(IAthenaContext context) =>
-        context.Configuration.Scholar.EnableLucidDreaming;
+        context.Configuration.HealerShared.EnableLucidDreaming;
 
     protected override ActionDefinition GetLucidDreamingAction() =>
         RoleActions.LucidDreaming;
@@ -37,7 +37,7 @@ public sealed class BuffModule : BaseBuffModule<IAthenaContext>, IAthenaModule
         AthenaStatusHelper.HasLucidDreaming(context.Player);
 
     protected override float GetLucidDreamingThreshold(IAthenaContext context) =>
-        context.Configuration.Scholar.LucidDreamingThreshold;
+        context.Configuration.HealerShared.LucidDreamingThreshold;
 
     #endregion
 
@@ -159,7 +159,7 @@ public sealed class BuffModule : BaseBuffModule<IAthenaContext>, IAthenaModule
     {
         var player = context.Player;
         var mpPercent = player.MaxMp > 0 ? (float)player.CurrentMp / player.MaxMp : 1f;
-        context.Debug.LucidState = mpPercent < context.Configuration.Scholar.LucidDreamingThreshold
+        context.Debug.LucidState = mpPercent < context.Configuration.HealerShared.LucidDreamingThreshold
             ? $"Low MP ({mpPercent:P0})"
             : $"OK ({mpPercent:P0})";
     }

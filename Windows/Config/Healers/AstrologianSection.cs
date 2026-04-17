@@ -411,17 +411,6 @@ public sealed class AstrologianSection
             }
 
             ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Astrologian.MpManagement, "MP Management:"));
-
-            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableLucidDreaming, "Enable Lucid Dreaming"), () => config.Astrologian.EnableLucidDreaming, v => config.Astrologian.EnableLucidDreaming = v, null, save);
-
-            if (config.Astrologian.EnableLucidDreaming)
-            {
-                config.Astrologian.LucidDreamingThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Astrologian.LucidMpThreshold, "Lucid MP Threshold"),
-                    config.Astrologian.LucidDreamingThreshold, 40f, 90f, null, save, v => config.Astrologian.LucidDreamingThreshold = v);
-            }
-
-            ConfigUIHelpers.Spacing();
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Astrologian.CollectiveUnconsciousLabel, "Collective Unconscious:"));
 
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Astrologian.EnableCollectiveUnconscious, "Enable Collective Unconscious"), () => config.Astrologian.EnableCollectiveUnconscious, v => config.Astrologian.EnableCollectiveUnconscious = v, null, save,

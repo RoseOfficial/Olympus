@@ -328,17 +328,6 @@ public sealed class SageSection
             ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnablePsyche, "Enable Psyche"), () => config.Sage.EnablePsyche, v => config.Sage.EnablePsyche = v,
                 null, save, actionId: SGEActions.Psyche.ActionId);
 
-            ConfigUIHelpers.Spacing();
-            ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Sage.MpManagement, "MP Management:"));
-
-            ConfigUIHelpers.Toggle(Loc.T(LocalizedStrings.Sage.EnableLucidDreaming, "Enable Lucid Dreaming"), () => config.Sage.EnableLucidDreaming, v => config.Sage.EnableLucidDreaming = v, null, save);
-
-            if (config.Sage.EnableLucidDreaming)
-            {
-                config.Sage.LucidDreamingThreshold = ConfigUIHelpers.ThresholdSlider(Loc.T(LocalizedStrings.Sage.LucidMpThreshold, "Lucid MP Threshold"),
-                    config.Sage.LucidDreamingThreshold, 40f, 90f, null, save, v => config.Sage.LucidDreamingThreshold = v);
-            }
-
             ConfigUIHelpers.EndIndent();
         }
     }

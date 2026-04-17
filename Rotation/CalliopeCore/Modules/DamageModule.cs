@@ -688,7 +688,7 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
     /// </summary>
     private bool TryInterrupt(ICalliopeContext context, IBattleChara target)
     {
-        if (!context.Configuration.Bard.EnableHeadGraze)
+        if (!context.Configuration.RangedShared.EnableHeadGraze)
             return false;
 
         var player = context.Player;

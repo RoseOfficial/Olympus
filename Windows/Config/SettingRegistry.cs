@@ -109,18 +109,15 @@ public sealed class SettingRegistry
             ConfigSection.Warrior => Loc.T(LocalizedStrings.Sidebar.Warrior, "Warrior"),
             ConfigSection.DarkKnight => Loc.T(LocalizedStrings.Sidebar.DarkKnight, "Dark Knight"),
             ConfigSection.Gunbreaker => Loc.T(LocalizedStrings.Sidebar.Gunbreaker, "Gunbreaker"),
-            ConfigSection.MeleeDpsShared => Loc.T(LocalizedStrings.Sidebar.Shared, "Shared"),
             ConfigSection.Dragoon => Loc.T(LocalizedStrings.Sidebar.Dragoon, "Dragoon"),
             ConfigSection.Ninja => Loc.T(LocalizedStrings.Sidebar.Ninja, "Ninja"),
             ConfigSection.Samurai => Loc.T(LocalizedStrings.Sidebar.Samurai, "Samurai"),
             ConfigSection.Monk => Loc.T(LocalizedStrings.Sidebar.Monk, "Monk"),
             ConfigSection.Reaper => Loc.T(LocalizedStrings.Sidebar.Reaper, "Reaper"),
             ConfigSection.Viper => Loc.T(LocalizedStrings.Sidebar.Viper, "Viper"),
-            ConfigSection.RangedDpsShared => Loc.T(LocalizedStrings.Sidebar.Shared, "Shared"),
             ConfigSection.Machinist => Loc.T(LocalizedStrings.Sidebar.Machinist, "Machinist"),
             ConfigSection.Bard => Loc.T(LocalizedStrings.Sidebar.Bard, "Bard"),
             ConfigSection.Dancer => Loc.T(LocalizedStrings.Sidebar.Dancer, "Dancer"),
-            ConfigSection.CasterShared => Loc.T(LocalizedStrings.Sidebar.Shared, "Shared"),
             ConfigSection.BlackMage => Loc.T(LocalizedStrings.Sidebar.BlackMage, "Black Mage"),
             ConfigSection.Summoner => Loc.T(LocalizedStrings.Sidebar.Summoner, "Summoner"),
             ConfigSection.RedMage => Loc.T(LocalizedStrings.Sidebar.RedMage, "Red Mage"),
@@ -425,19 +422,6 @@ public sealed class SettingRegistry
             new("Lion Heart", "Blood follow-up")
         };
 
-        // Melee DPS Shared section
-        this.sectionSettings[ConfigSection.MeleeDpsShared] = new List<SettingInfo>
-        {
-            new("Second Wind", "Self-heal"),
-            new("Bloodbath", "Lifesteal"),
-            new("Feint", "Enemy damage reduction"),
-            new("True North", "Ignore positionals"),
-            new("Arm's Length", "Knockback immunity"),
-            new("Leg Sweep", "Stun"),
-            new("Positionals", "Enforce positional requirements"),
-            new("AoE Threshold", "Minimum enemies for AoE")
-        };
-
         // Dragoon section
         this.sectionSettings[ConfigSection.Dragoon] = new List<SettingInfo>
         {
@@ -600,16 +584,6 @@ public sealed class SettingRegistry
             new("Last Lash", "AoE oGCD")
         };
 
-        // Ranged DPS Shared section
-        this.sectionSettings[ConfigSection.RangedDpsShared] = new List<SettingInfo>
-        {
-            new("Second Wind", "Self-heal"),
-            new("Head Graze", "Interrupt"),
-            new("Arm's Length", "Knockback immunity"),
-            new("Peloton", "Out of combat speed"),
-            new("AoE Threshold", "Minimum enemies for AoE")
-        };
-
         // Machinist section
         this.sectionSettings[ConfigSection.Machinist] = new List<SettingInfo>
         {
@@ -711,17 +685,6 @@ public sealed class SettingRegistry
             new("En Avant", "Gap closer"),
             new("Curing Waltz", "AoE heal"),
             new("Shield Samba", "Party mitigation")
-        };
-
-        // Caster Shared section
-        this.sectionSettings[ConfigSection.CasterShared] = new List<SettingInfo>
-        {
-            new("Lucid Dreaming", "MP regeneration"),
-            new("Swiftcast", "Instant cast"),
-            new("Surecast", "Knockback immunity"),
-            new("Addle", "Enemy damage reduction"),
-            new("Sleep", "Put enemy to sleep"),
-            new("AoE Threshold", "Minimum enemies for AoE")
         };
 
         // Black Mage section

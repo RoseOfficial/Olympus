@@ -28,7 +28,6 @@ public sealed class BardSection
         DrawSongSection();
         DrawDotSection();
         DrawBurstSection();
-        DrawUtilitySection();
     }
 
     private void DrawDamageSection()
@@ -234,19 +233,4 @@ public sealed class BardSection
         }
     }
 
-    private void DrawUtilitySection()
-    {
-        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Bard.UtilitySection, "Utility"), "BRD", false))
-        {
-            ConfigUIHelpers.BeginIndent();
-
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Bard.EnableHeadGraze, "Enable Head Graze"),
-                () => config.Bard.EnableHeadGraze,
-                v => config.Bard.EnableHeadGraze = v,
-                Loc.T(LocalizedStrings.Bard.EnableHeadGrazeDesc, "Use Head Graze for interrupts"), save);
-
-            ConfigUIHelpers.EndIndent();
-        }
-    }
 }

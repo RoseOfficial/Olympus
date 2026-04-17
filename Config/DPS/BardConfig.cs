@@ -248,10 +248,7 @@ public sealed class BardConfig
 
     #region Utility Settings
 
-    /// <summary>
-    /// Whether to use Head Graze for interrupts.
-    /// </summary>
-    public bool EnableHeadGraze { get; set; } = true;
+    // Head Graze moved to RangedSharedConfig.
 
     #endregion
 }

@@ -29,7 +29,6 @@ public sealed class MachinistSection
         DrawHyperchargeSection();
         DrawQueenSection();
         DrawBurstSection();
-        DrawUtilitySection();
     }
 
     private void DrawDamageSection()
@@ -234,19 +233,4 @@ public sealed class MachinistSection
         }
     }
 
-    private void DrawUtilitySection()
-    {
-        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Machinist.UtilitySection, "Utility"), "MCH", false))
-        {
-            ConfigUIHelpers.BeginIndent();
-
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Machinist.EnableHeadGraze, "Enable Head Graze"),
-                () => config.Machinist.EnableHeadGraze,
-                v => config.Machinist.EnableHeadGraze = v,
-                Loc.T(LocalizedStrings.Machinist.EnableHeadGrazeDesc, "Use Head Graze for interrupts"), save);
-
-            ConfigUIHelpers.EndIndent();
-        }
-    }
 }

@@ -11,15 +11,9 @@ public sealed class BuffConfig
     public bool EnableThinAir { get; set; } = true;
     public bool EnableAetherialShift { get; set; } = true;
 
-    // Lucid Dreaming
-
-    /// <summary>
-    /// Master toggle for Lucid Dreaming. When false, Lucid Dreaming is never used.
-    /// Default true.
-    /// </summary>
-    public bool EnableLucidDreaming { get; set; } = true;
-
     // Predictive Lucid Dreaming Settings
+    // Note: The master EnableLucidDreaming toggle lives in HealerSharedConfig
+    // so it is shared across all healer jobs.
 
     /// <summary>
     /// Enable predictive Lucid Dreaming usage based on MP exhaustion forecast.

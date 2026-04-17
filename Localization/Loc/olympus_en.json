@@ -61,6 +61,11 @@
   "config.sidebar.general_item": "General",
   "config.sidebar.targeting": "Targeting",
   "config.sidebar.role_actions": "Role Actions",
+  "config.sidebar.behavior": "BEHAVIOR",
+  "config.sidebar.visuals": "VISUALS",
+  "config.sidebar.multiplayer": "MULTIPLAYER",
+  "config.sidebar.display": "Display",
+  "config.sidebar.debug_display": "Debug Display",
   "config.sidebar.healers": "HEALERS",
   "config.sidebar.white_mage": "White Mage",
   "config.sidebar.scholar": "Scholar",
@@ -1754,6 +1759,7 @@
 
   "debug.window_title": "Olympus Debug",
   "debug.section_visibility": "Section Visibility",
+  "debug.section_visibility_desc": "Choose which sections are visible within each Debug window tab.",
 
   "debug.tab.overview": "Overview",
   "debug.tab.why_stuck": "Why Stuck?",

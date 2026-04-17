@@ -18,7 +18,6 @@ public sealed class DebugWindow : Window
 {
     private readonly DebugService _debugService;
     private readonly Configuration _configuration;
-    private readonly Action _saveConfiguration;
     private readonly ITimelineService? _timelineService;
     private readonly SmartAoETab? _smartAoETab;
 
@@ -56,12 +55,11 @@ public sealed class DebugWindow : Window
         (JobRegistry.Pictomancer, JobRegistry.GetJobName(JobRegistry.Pictomancer)),
     ];
 
-    public DebugWindow(DebugService debugService, Configuration configuration, Action saveConfiguration, ITimelineService? timelineService = null, SmartAoETab? smartAoETab = null)
+    public DebugWindow(DebugService debugService, Configuration configuration, ITimelineService? timelineService = null, SmartAoETab? smartAoETab = null)
         : base(Loc.T(LocalizedStrings.Debug.WindowTitle, "Olympus Debug"), ImGuiWindowFlags.NoSavedSettings)
     {
         _debugService = debugService;
         _configuration = configuration;
-        _saveConfiguration = saveConfiguration;
         _timelineService = timelineService;
         _smartAoETab = smartAoETab;
 
@@ -84,11 +82,6 @@ public sealed class DebugWindow : Window
     {
         var snapshot = _debugService.GetSnapshot();
 
-        // Settings button
-        DrawSettingsButton();
-
-        ImGui.Separator();
-
         // Tab bar
         if (ImGui.BeginTabBar("DebugTabs"))
         {
@@ -105,13 +98,17 @@ public sealed class DebugWindow : Window
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabHealing, "Healing")))
+            // Healing/Overheal only apply to healer jobs — hide for tanks/DPS to reduce clutter.
+            var activeJobId = MapToAdvancedJobId(_debugService.GetJobId());
+            var showHealerTabs = activeJobId == 0 || JobRegistry.IsHealer(activeJobId);
+
+            if (showHealerTabs && ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabHealing, "Healing")))
             {
                 HealingTab.Draw(snapshot, _configuration, _debugService);
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabOverheal, "Overheal")))
+            if (showHealerTabs && ImGui.BeginTabItem(Loc.T(LocalizedStrings.Debug.TabOverheal, "Overheal")))
             {
                 OverhealTab.Draw(snapshot, _configuration, _debugService);
                 ImGui.EndTabItem();
@@ -154,72 +151,6 @@ public sealed class DebugWindow : Window
             }
 
             ImGui.EndTabBar();
-        }
-    }
-
-    private void DrawSettingsButton()
-    {
-        // Settings dropdown for section visibility
-        if (ImGui.BeginCombo("##SectionSettings", Loc.T(LocalizedStrings.Debug.SectionVisibility, "Section Visibility"), ImGuiComboFlags.NoArrowButton))
-        {
-            ImGui.Text(Loc.T(LocalizedStrings.Debug.OverviewTabLabel, "Overview Tab"));
-            ImGui.Separator();
-            DrawSectionToggle("GcdPlanning", Loc.T(LocalizedStrings.Debug.GcdPlanning, "GCD Planning"));
-            DrawSectionToggle("QuickStats", Loc.T(LocalizedStrings.Debug.QuickStats, "Quick Stats"));
-
-            ImGui.Spacing();
-            ImGui.Text(Loc.T(LocalizedStrings.Debug.WhyStuckTabLabel, "Why Stuck? Tab"));
-            ImGui.Separator();
-            DrawSectionToggle("GcdPriority", Loc.T(LocalizedStrings.Debug.GcdPriorityChain, "GCD Priority Chain"));
-            DrawSectionToggle("OgcdState", Loc.T(LocalizedStrings.Debug.OgcdState, "oGCD State"));
-            DrawSectionToggle("DpsDetails", Loc.T(LocalizedStrings.Debug.DpsDetails, "DPS Details"));
-            DrawSectionToggle("Resources", Loc.T(LocalizedStrings.Debug.ResourcesSection, "Resources"));
-
-            ImGui.Spacing();
-            ImGui.Text(Loc.T(LocalizedStrings.Debug.HealingTabLabel, "Healing Tab"));
-            ImGui.Separator();
-            DrawSectionToggle("SpellStatus", Loc.T(LocalizedStrings.Debug.SpellStatus, "Spell Status"));
-            DrawSectionToggle("SpellSelection", Loc.T(LocalizedStrings.Debug.SpellSelection, "Spell Selection"));
-            DrawSectionToggle("HpPrediction", Loc.T(LocalizedStrings.Debug.HpPrediction, "HP Prediction"));
-            DrawSectionToggle("AoEHealing", Loc.T(LocalizedStrings.Debug.AoEHealing, "AoE Healing"));
-            DrawSectionToggle("RecentHeals", Loc.T(LocalizedStrings.Debug.RecentHeals, "Recent Heals"));
-            DrawSectionToggle("ShadowHp", Loc.T(LocalizedStrings.Debug.ShadowHp, "Shadow HP"));
-
-            ImGui.Spacing();
-            ImGui.Text(Loc.T(LocalizedStrings.Debug.OverhealTabLabel, "Overheal Tab"));
-            ImGui.Separator();
-            DrawSectionToggle("OverhealSummary", Loc.T(LocalizedStrings.Debug.OverhealSummary, "Summary"));
-            DrawSectionToggle("OverhealBySpell", Loc.T(LocalizedStrings.Debug.OverhealBySpell, "By Spell"));
-            DrawSectionToggle("OverhealByTarget", Loc.T(LocalizedStrings.Debug.OverhealByTarget, "By Target"));
-            DrawSectionToggle("OverhealTimeline", Loc.T(LocalizedStrings.Debug.OverhealTimeline, "Timeline"));
-            DrawSectionToggle("OverhealControls", Loc.T(LocalizedStrings.Debug.OverhealControls, "Controls"));
-
-            ImGui.Spacing();
-            ImGui.Text(Loc.T(LocalizedStrings.Debug.ActionsTabLabel, "Actions Tab"));
-            ImGui.Separator();
-            DrawSectionToggle("GcdDetails", Loc.T(LocalizedStrings.Debug.GcdDetails, "GCD Details"));
-            DrawSectionToggle("SpellUsage", Loc.T(LocalizedStrings.Debug.SpellUsage, "Spell Usage"));
-            DrawSectionToggle("ActionHistory", Loc.T(LocalizedStrings.Debug.ActionHistory, "Action History"));
-
-            ImGui.Spacing();
-            ImGui.Text(Loc.T(LocalizedStrings.Debug.PerformanceTabLabel, "Performance Tab"));
-            ImGui.Separator();
-            DrawSectionToggle("Statistics", Loc.T(LocalizedStrings.Debug.Statistics, "Statistics"));
-            DrawSectionToggle("Downtime", Loc.T(LocalizedStrings.Debug.Downtime, "Downtime"));
-
-            ImGui.EndCombo();
-        }
-    }
-
-    private void DrawSectionToggle(string key, string label)
-    {
-        if (!_configuration.Debug.DebugSectionVisibility.TryGetValue(key, out var visible))
-            visible = true;
-
-        if (ImGui.Checkbox(label, ref visible))
-        {
-            _configuration.Debug.DebugSectionVisibility[key] = visible;
-            _saveConfiguration();
         }
     }
 

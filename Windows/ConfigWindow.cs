@@ -40,6 +40,7 @@ public sealed class ConfigWindow : Window
 
     // Section renderers
     private readonly GeneralSection generalSection;
+    private readonly HealerSharedSection healerSharedSection;
     private readonly WhiteMageSection whiteMageSection;
     private readonly ScholarSection scholarSection;
     private readonly AstrologianSection astrologianSection;
@@ -51,18 +52,16 @@ public sealed class ConfigWindow : Window
     private readonly GunbreakerSection gunbreakerSection;
 
     // DPS Section renderers
-    private readonly MeleeDpsSharedSection meleeDpsSharedSection;
     private readonly DragoonSection dragoonSection;
     private readonly NinjaSection ninjaSection;
     private readonly SamuraiSection samuraiSection;
     private readonly MonkSection monkSection;
     private readonly ReaperSection reaperSection;
     private readonly ViperSection viperSection;
-    private readonly RangedDpsSharedSection rangedDpsSharedSection;
+    private readonly RangedSharedSection rangedSharedSection;
     private readonly MachinistSection machinistSection;
     private readonly BardSection bardSection;
     private readonly DancerSection dancerSection;
-    private readonly CasterSharedSection casterSharedSection;
     private readonly BlackMageSection blackMageSection;
     private readonly SummonerSection summonerSection;
     private readonly RedMageSection redMageSection;
@@ -70,6 +69,7 @@ public sealed class ConfigWindow : Window
     private readonly DrawHelperSection drawHelperSection;
     private readonly ActionFeedSection actionFeedSection;
     private readonly PartyCoordinationSection partyCoordinationSection;
+    private readonly DebugDisplaySection debugDisplaySection;
 
     public ConfigWindow(Configuration configuration, Action saveConfiguration, UpdateCheckerService updateCheckerService, ITextureProvider textureProvider)
         : base(Loc.T(LocalizedStrings.Config.WindowTitle, "Olympus Settings"), ImGuiWindowFlags.NoCollapse)
@@ -83,6 +83,7 @@ public sealed class ConfigWindow : Window
 
         // Initialize all section renderers
         generalSection = new GeneralSection(configuration, saveConfiguration);
+        healerSharedSection = new HealerSharedSection(configuration, saveConfiguration);
         whiteMageSection = new WhiteMageSection(configuration, saveConfiguration);
         scholarSection = new ScholarSection(configuration, saveConfiguration);
         astrologianSection = new AstrologianSection(configuration, saveConfiguration);
@@ -94,18 +95,16 @@ public sealed class ConfigWindow : Window
         gunbreakerSection = new GunbreakerSection(configuration, saveConfiguration);
 
         // Initialize DPS section renderers
-        meleeDpsSharedSection = new MeleeDpsSharedSection(configuration, saveConfiguration);
         dragoonSection = new DragoonSection(configuration, saveConfiguration);
         ninjaSection = new NinjaSection(configuration, saveConfiguration);
         samuraiSection = new SamuraiSection(configuration, saveConfiguration);
         monkSection = new MonkSection(configuration, saveConfiguration);
         reaperSection = new ReaperSection(configuration, saveConfiguration);
         viperSection = new ViperSection(configuration, saveConfiguration);
-        rangedDpsSharedSection = new RangedDpsSharedSection(configuration, saveConfiguration);
+        rangedSharedSection = new RangedSharedSection(configuration, saveConfiguration);
         machinistSection = new MachinistSection(configuration, saveConfiguration);
         bardSection = new BardSection(configuration, saveConfiguration);
         dancerSection = new DancerSection(configuration, saveConfiguration);
-        casterSharedSection = new CasterSharedSection(configuration, saveConfiguration);
         blackMageSection = new BlackMageSection(configuration, saveConfiguration);
         summonerSection = new SummonerSection(configuration, saveConfiguration);
         redMageSection = new RedMageSection(configuration, saveConfiguration);
@@ -113,6 +112,7 @@ public sealed class ConfigWindow : Window
         drawHelperSection = new DrawHelperSection(configuration, saveConfiguration);
         actionFeedSection = new ActionFeedSection(configuration, saveConfiguration);
         partyCoordinationSection = new PartyCoordinationSection(configuration, saveConfiguration);
+        debugDisplaySection = new DebugDisplaySection(configuration, saveConfiguration);
 
         Size = new Vector2(650, 700);
         SizeCondition = ImGuiCond.FirstUseEver;
@@ -277,6 +277,10 @@ public sealed class ConfigWindow : Window
                 generalSection.DrawRoleActions();
                 break;
 
+            case ConfigSection.HealerShared:
+                healerSharedSection.Draw();
+                break;
+
             case ConfigSection.WhiteMage:
                 whiteMageSection.Draw();
                 break;
@@ -314,10 +318,6 @@ public sealed class ConfigWindow : Window
                 break;
 
             // Melee DPS
-            case ConfigSection.MeleeDpsShared:
-                meleeDpsSharedSection.Draw();
-                break;
-
             case ConfigSection.Dragoon:
                 dragoonSection.Draw();
                 break;
@@ -343,8 +343,8 @@ public sealed class ConfigWindow : Window
                 break;
 
             // Ranged Physical DPS
-            case ConfigSection.RangedDpsShared:
-                rangedDpsSharedSection.Draw();
+            case ConfigSection.RangedShared:
+                rangedSharedSection.Draw();
                 break;
 
             case ConfigSection.Machinist:
@@ -360,10 +360,6 @@ public sealed class ConfigWindow : Window
                 break;
 
             // Casters
-            case ConfigSection.CasterShared:
-                casterSharedSection.Draw();
-                break;
-
             case ConfigSection.BlackMage:
                 blackMageSection.Draw();
                 break;
@@ -390,6 +386,18 @@ public sealed class ConfigWindow : Window
 
             case ConfigSection.ActionFeed:
                 actionFeedSection.Draw();
+                break;
+
+            case ConfigSection.Display:
+                ImGui.TextColored(new Vector4(0.8f, 0.8f, 0.8f, 1f), Loc.T(LocalizedStrings.Sidebar.Display, "Display"));
+                ImGui.Spacing();
+                generalSection.DrawDisplay();
+                break;
+
+            case ConfigSection.DebugDisplay:
+                ImGui.TextColored(new Vector4(0.8f, 0.8f, 0.8f, 1f), Loc.T(LocalizedStrings.Sidebar.DebugDisplay, "Debug Display"));
+                ImGui.Spacing();
+                debugDisplaySection.Draw();
                 break;
 
             default:

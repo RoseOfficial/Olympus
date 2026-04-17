@@ -564,7 +564,7 @@ public sealed class BuffModule : IApolloModule
         var player = context.Player;
         var mpPercent = context.MpForecastService.MpPercent;
 
-        if (!config.Buffs.EnableLucidDreaming)
+        if (!config.HealerShared.EnableLucidDreaming)
             return false;
 
         if (player.Level < RoleActions.LucidDreaming.MinLevel)

@@ -58,11 +58,15 @@ public sealed class GeneralSection
     public void DrawGeneral()
     {
         DrawCombatBehaviorSection();
-        DrawWindowBehaviorSection();
-        DrawCoachingSummarySection();
         DrawResurrectionSection();
         DrawLanguageSection();
         DrawPrivacySection();
+    }
+
+    public void DrawDisplay()
+    {
+        DrawWindowBehaviorSection();
+        DrawCoachingSummarySection();
     }
 
     public void DrawTargeting()

@@ -96,6 +96,11 @@ public static class LocalizedStrings
         public const string RoleActions = "config.sidebar.role_actions";
         public const string DrawHelper = "config.sidebar.draw_helper";
         public const string PartyCoordination = "config.sidebar.party_coordination";
+        public const string Behavior = "config.sidebar.behavior";
+        public const string Visuals = "config.sidebar.visuals";
+        public const string Multiplayer = "config.sidebar.multiplayer";
+        public const string Display = "config.sidebar.display";
+        public const string DebugDisplay = "config.sidebar.debug_display";
         public const string Healers = "config.sidebar.healers";
         public const string WhiteMage = "config.sidebar.white_mage";
         public const string Scholar = "config.sidebar.scholar";
@@ -871,6 +876,24 @@ public static class LocalizedStrings
     }
 
     /// <summary>Keys for Tank shared settings.</summary>
+    public static class RangedShared
+    {
+        public const string Header = "config.job.ranged_shared.header";
+        public const string Description = "config.job.ranged_shared.description";
+        public const string Interrupts = "config.job.ranged_shared.interrupts";
+        public const string EnableHeadGraze = "config.job.ranged_shared.enable_head_graze";
+    }
+
+    public static class HealerShared
+    {
+        public const string Header = "config.job.healer_shared.header";
+        public const string Description = "config.job.healer_shared.description";
+        public const string MpManagement = "config.job.healer_shared.mp_management";
+        public const string EnableLucidDreaming = "config.job.healer_shared.enable_lucid_dreaming";
+        public const string LucidMpThreshold = "config.job.healer_shared.lucid_mp_threshold";
+        public const string LucidMpThresholdDesc = "config.job.healer_shared.lucid_mp_threshold_desc";
+    }
+
     public static class Tank
     {
         public const string Header = "config.job.tank.header";
@@ -2479,6 +2502,7 @@ public static class LocalizedStrings
         // Window
         public const string WindowTitle = "debug.window_title";
         public const string SectionVisibility = "debug.section_visibility";
+        public const string SectionVisibilityDesc = "debug.section_visibility_desc";
 
         // Tab names
         public const string TabOverview = "debug.tab.overview";
