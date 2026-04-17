@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 
@@ -9,7 +10,7 @@ namespace Olympus.Rotation.ApolloCore.Helpers;
 /// <summary>
 /// Interface for party member operations.
 /// </summary>
-public interface IPartyHelper
+public interface IPartyHelper : ISpikeTargetSource
 {
     /// <summary>
     /// Yields all party members (player + party list or Trust NPCs).

@@ -15,7 +15,7 @@ namespace Olympus.Rotation.Common.Helpers;
 /// Base class for healer party helpers.
 /// Extends BasePartyHelper with HP prediction integration and common healing target logic.
 /// </summary>
-public abstract class HealerPartyHelper : BasePartyHelper
+public abstract class HealerPartyHelper : BasePartyHelper, ISpikeTargetSource
 {
     protected readonly HpPredictionService HpPredictionService;
     protected readonly Configuration Configuration;

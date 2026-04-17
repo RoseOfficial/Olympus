@@ -17,8 +17,11 @@ public sealed class HealingModule : IAstraeaModule
 
     public HealingModule()
     {
+        var preemptive = new PreemptiveHealingHandler();
+
         _ogcdHandlers = new List<IHealingHandler>
         {
+            preemptive,                          // 5
             new EssentialDignityHandler(),       // 10
             new CelestialIntersectionHandler(),  // 15
             new CelestialOppositionHandler(),    // 20
@@ -35,6 +38,7 @@ public sealed class HealingModule : IAstraeaModule
 
         _gcdHandlers = new List<IHealingHandler>
         {
+            preemptive,                        // 5 (GCD fallback: Aspected Benefic)
             new EsunaHandler(),                // 5
             new MacrocosmosHandler(),          // 20
             new AoEHealingHandler(),           // 30

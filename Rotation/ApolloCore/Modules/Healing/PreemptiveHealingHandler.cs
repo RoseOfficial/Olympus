@@ -34,88 +34,33 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
         var config = context.Configuration;
         var player = context.Player;
 
-        // Check if preemptive healing is enabled
-        if (!config.EnableHealing || !config.Healing.EnablePreemptiveHealing)
+        if (!config.EnableHealing)
             return false;
 
-        // Three-pronged spike detection:
-        // 1. Timeline: Check if a raidwide is predicted by fight timeline (most accurate)
-        // 2. Reactive: Check if a damage spike is currently imminent
-        // 3. Predictive: Check if a periodic spike pattern predicts incoming damage
-
-        var isTimelineRaidwide = TimelineHelper.IsRaidwideImminent(
+        var detection = PreemptiveSpikeDetectionHelper.Detect(
+            player,
+            config.Healing,
+            context.PartyHelper,
+            context.DamageIntakeService,
+            context.DamageTrendService,
+            context.HpPredictionService,
+            context.ShieldTrackingService,
+            context.CoHealerDetectionService,
             context.TimelineService,
             context.BossMechanicDetector,
-            config.Healing,
-            out var raidwideSource);
+            context.PartyHealthMetrics.avgHpPercent);
 
-        var timelineRaidwideInfo = isTimelineRaidwide
-            ? TimelineHelper.GetNextRaidwide(context.TimelineService, context.BossMechanicDetector, config.Healing)
-            : null;
-
-        var isReactiveSpike = context.DamageTrendService.IsDamageSpikeImminent(0.7f);
-        var isPredictedSpike = false;
-        var patternConfidence = 0f;
-        var secondsUntilPredictedSpike = float.MaxValue;
-
-        // Check pattern prediction for each party member (if no timeline prediction)
-        if (!isTimelineRaidwide)
-        {
-            foreach (var member in context.PartyHelper.GetAllPartyMembers(player))
-            {
-                if (member.IsDead)
-                    continue;
-
-                var (predictedSeconds, confidence) = context.DamageTrendService.PredictNextSpike(member.EntityId);
-
-                // Use prediction if confidence exceeds threshold and spike is within lookahead window
-                if (confidence >= config.Healing.SpikePatternConfidenceThreshold &&
-                    predictedSeconds <= config.Healing.SpikePredictionLookahead &&
-                    confidence > patternConfidence)
-                {
-                    isPredictedSpike = true;
-                    patternConfidence = confidence;
-                    secondsUntilPredictedSpike = predictedSeconds;
-                }
-            }
-        }
-
-        // Only proceed if timeline, reactive, or predictive spike is detected
-        if (!isTimelineRaidwide && !isReactiveSpike && !isPredictedSpike)
+        if (detection is null)
             return false;
 
-        // Get spike severity to determine urgency
-        var avgPartyHpPercent = context.PartyHealthMetrics.avgHpPercent;
-        var spikeSeverity = context.DamageTrendService.GetSpikeSeverity(avgPartyHpPercent);
-
-        // Timeline predictions get highest severity boost (most reliable source)
-        if (isTimelineRaidwide && timelineRaidwideInfo.HasValue)
-        {
-            var timelineConfidence = timelineRaidwideInfo.Value.confidence;
-            // High confidence timeline prediction = high severity regardless of current state
-            spikeSeverity = Math.Max(spikeSeverity, 0.6f + (timelineConfidence * 0.3f));
-        }
-        // Boost severity for high-confidence pattern predictions
-        else if (isPredictedSpike && patternConfidence >= 0.8f)
-        {
-            spikeSeverity = Math.Max(spikeSeverity, 0.5f + (patternConfidence * 0.3f));
-        }
-
-        // Only act on significant spikes (severity > 0.4)
-        // Timeline predictions bypass this check if we're close to the mechanic
-        var bypassSeverityCheck = isTimelineRaidwide &&
-                                  timelineRaidwideInfo.HasValue &&
-                                  timelineRaidwideInfo.Value.secondsUntil <= 3f;
-        if (!bypassSeverityCheck && spikeSeverity < 0.4f)
-            return false;
-
-        // Find the most endangered target - use damage trend to identify who's taking the hit
-        // Pass ShieldTrackingService for shield-aware triage scoring
-        var target = context.PartyHelper.FindMostEndangeredPartyMember(
-            player, context.DamageIntakeService, 0, context.DamageTrendService, context.ShieldTrackingService);
-
-        if (target is null)
-            return false;
+        var target = detection.Value.Target;
+        var spikeSeverity = detection.Value.Severity;
+        var raidwideSource = detection.Value.Source;
+        var isTimelineRaidwide = detection.Value.IsTimelineRaidwide;
+        var isPredictedSpike = !isTimelineRaidwide && detection.Value.PatternConfidence > 0;
+        var patternConfidence = detection.Value.PatternConfidence;
+        var targetHpPercent = detection.Value.TargetHpPercent;
+        var projectedHpPercent = detection.Value.ProjectedHpPercent;
 
         // Skip if another handler (local or remote Olympus instance) is already healing this target
         if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
@@ -127,40 +72,6 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
                 context.CoHealerDetectionService,
                 target,
                 config.Healing.CoHealerPendingHealThreshold))
-            return false;
-
-        // Check if target is actually at risk
-        var targetHpPercent = context.PartyHelper.GetHpPercent(target);
-        var targetDamageRate = context.DamageTrendService.GetCurrentDamageRate(target.EntityId, 3f);
-
-        // Calculate lookahead window based on configuration
-        // Default to 2 seconds if not using spell cast time
-        var defaultLookahead = 2f;
-
-        // For initial risk assessment, use the configured spike prediction lookahead
-        var initialLookahead = config.Healing.UseSpellCastTimeForLookahead
-            ? Math.Max(config.Healing.MinPreemptiveLookahead, 1.5f) // Use Cure II cast time as initial estimate
-            : defaultLookahead;
-
-        // Estimate if target will drop below danger threshold based on current damage rate
-        var projectedDamage = targetDamageRate * initialLookahead;
-        var projectedHp = target.CurrentHp > projectedDamage ? target.CurrentHp - (uint)projectedDamage : 0;
-        var projectedHpPercent = (float)projectedHp / target.MaxHp;
-
-        // Only preemptively heal if projected HP would drop below threshold
-        if (projectedHpPercent > config.Healing.PreemptiveHealingThreshold)
-            return false;
-
-        // Check if target already has pending heals that would save them
-        // Include co-healer pending heals in this calculation
-        var pendingHeals = context.HpPredictionService.GetPendingHealAmount(target.EntityId);
-        if (config.Healing.EnableCoHealerAwareness && context.CoHealerDetectionService?.HasCoHealer == true)
-        {
-            var coHealerPendingHeals = context.CoHealerDetectionService.CoHealerPendingHeals;
-            if (coHealerPendingHeals.TryGetValue(target.EntityId, out var coHealerPending))
-                pendingHeals += coHealerPending;
-        }
-        if (projectedHp + pendingHeals > target.MaxHp * config.Healing.PreemptiveHealingThreshold)
             return false;
 
         // Prioritize oGCD heals first (Tetragrammaton, Benediction) for instant response
@@ -203,7 +114,6 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
                         {
                             $"Current HP: {targetHpPercent:P0}",
                             $"Projected HP: {projectedHpPercent:P0}",
-                            $"Damage rate: {targetDamageRate:F0} DPS",
                             $"Spike severity: {spikeSeverity:F2}",
                             $"Detection source: {source}",
                         };

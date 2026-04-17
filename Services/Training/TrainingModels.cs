@@ -413,6 +413,9 @@ public static class AstConcepts
     public const string EarthlyStarPlacement = "ast.earthly_star_placement";
     public const string EarthlyStarMaturation = "ast.earthly_star_maturation";
 
+    // Proactive Healing
+    public const string ProactiveHealing = "ast.proactive_healing";
+
     // oGCD Healing
     public const string CelestialIntersectionUsage = "ast.celestial_intersection_usage";
     public const string ExaltationUsage = "ast.exaltation_usage";
@@ -442,6 +445,7 @@ public static class AstConcepts
         DivinationTiming, OracleUsage,
         HotManagement, AspectedBeneficUsage, AspectedHeliosUsage, CelestialOppositionUsage,
         EarthlyStarPlacement, EarthlyStarMaturation,
+        ProactiveHealing,
         CelestialIntersectionUsage, ExaltationUsage, HoroscopeUsage, SunSignUsage,
         NeutralSectUsage, CollectiveUnconsciousUsage,
         DpsOptimization, DotMaintenance, RaiseDecision, CoHealerAwareness,
