@@ -4,6 +4,7 @@ using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.AstraeaCore.Context;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AstraeaCore.Modules.Healing;
@@ -43,7 +44,9 @@ public sealed class AspectedBeneficHandler : IHealingHandler
             return false;
 
         var hpPercent = context.PartyHelper.GetHpPercent(target);
-        if (hpPercent > config.AspectedBeneficThreshold)
+        var effectiveThreshold = DynamicRegenThresholdHelper.GetEffectiveThreshold(
+            context.Configuration.Healing, context.DamageIntakeService, config.AspectedBeneficThreshold);
+        if (hpPercent > effectiveThreshold)
             return false;
 
         // Skip if target already has Aspected Benefic regen

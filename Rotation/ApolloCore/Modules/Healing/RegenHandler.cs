@@ -37,7 +37,8 @@ public sealed class RegenHandler : IHealingHandler
             return false;
 
         // Calculate dynamic Regen threshold (applies to tanks only)
-        var tankRegenThreshold = GetDynamicRegenThreshold(context);
+        var tankRegenThreshold = DynamicRegenThresholdHelper.GetEffectiveThreshold(
+            config.Healing, context.DamageIntakeService, FFXIVConstants.RegenHpThreshold);
         var nonTankRegenThreshold = FFXIVConstants.RegenNonTankHpThreshold;
 
         var target = context.PartyHelper.FindRegenTarget(player, tankRegenThreshold, nonTankRegenThreshold, FFXIVConstants.RegenRefreshThreshold);
@@ -113,27 +114,5 @@ public sealed class RegenHandler : IHealingHandler
         }
 
         return false;
-    }
-
-    /// <summary>
-    /// Calculates the dynamic Regen HP threshold based on damage patterns.
-    /// During high-damage phases, Regen is applied at a higher threshold.
-    /// </summary>
-    private static float GetDynamicRegenThreshold(IApolloContext context)
-    {
-        var config = context.Configuration;
-
-        // If dynamic threshold disabled, use default
-        if (!config.Healing.EnableDynamicRegenThreshold)
-            return FFXIVConstants.RegenHpThreshold;
-
-        // Check if anyone is taking high damage
-        var partyDamageRate = context.DamageIntakeService.GetPartyDamageRate(3f);
-
-        // If party is taking significant damage, use higher threshold
-        if (partyDamageRate >= config.Healing.RegenHighDamageDpsThreshold)
-            return config.Healing.RegenHighDamageThreshold;
-
-        return FFXIVConstants.RegenHpThreshold;
     }
 }
