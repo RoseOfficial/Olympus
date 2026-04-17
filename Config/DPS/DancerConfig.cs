@@ -100,7 +100,7 @@ public sealed class DancerConfig
     /// <summary>
     /// Esprit threshold to dump gauge before overcapping.
     /// </summary>
-    private int _espritOvercapThreshold = 80;
+    private int _espritOvercapThreshold = 85;
     public int EspritOvercapThreshold
     {
         get => _espritOvercapThreshold;

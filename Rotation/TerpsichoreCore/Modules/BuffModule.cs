@@ -354,11 +354,13 @@ public sealed class BuffModule : ITerpsichoreModule
         if (!context.ActionService.IsActionReady(DNCActions.StandardStep.ActionId))
             return false;
 
-        // Don't use Standard Step if Technical Step is coming up soon (within 5s)
-        if (level >= DNCActions.TechnicalStep.MinLevel)
+        // Don't use Standard Step if Technical Step is coming up soon (respects user config)
+        if (context.Configuration.Dancer.DelayStandardForTechnical &&
+            level >= DNCActions.TechnicalStep.MinLevel)
         {
             var techCd = context.ActionService.GetCooldownRemaining(DNCActions.TechnicalStep.ActionId);
-            if (techCd > 0 && techCd < 5f)
+            var holdWindow = context.Configuration.Dancer.StandardHoldForTechnical;
+            if (techCd > 0 && techCd < holdWindow)
             {
                 context.Debug.BuffState = "Holding Standard for Technical";
                 return false;
@@ -536,23 +538,24 @@ public sealed class BuffModule : ITerpsichoreModule
         if (context.IsDancing)
             return false;
 
-        // Use during burst window (Devilment or Technical active)
-        bool shouldUse = context.HasDevilment || context.HasTechnicalFinish;
-
-        // Or use if buffs won't be up for a while
-        if (!shouldUse)
+        // Off-minute pattern: fire Flourish when Devilment is on a long cooldown (>55s).
+        // Flourish's 4 procs fill GCD uptime between 2-minute bursts, not inside Devilment —
+        // burst windows already pack Tech Finish procs and Devilment weaves, so stacking
+        // Flourish there crowds the window and drops procs.
+        bool shouldUse;
+        if (level < DNCActions.Devilment.MinLevel)
+        {
+            shouldUse = true;
+        }
+        else
         {
             var devilmentCd = context.ActionService.GetCooldownRemaining(DNCActions.Devilment.ActionId);
-            shouldUse = devilmentCd > 30f;
+            shouldUse = devilmentCd > 55f;
         }
 
         if (!shouldUse)
-            return false;
-
-        // Don't overcap procs - wait if we have symmetry/flow
-        if (context.HasSilkenSymmetry || context.HasSilkenFlow)
         {
-            context.Debug.BuffState = "Consume procs before Flourish";
+            context.Debug.BuffState = "Holding Flourish (burst minute)";
             return false;
         }
 
@@ -564,21 +567,18 @@ public sealed class BuffModule : ITerpsichoreModule
             context.Debug.PlannedAction = DNCActions.Flourish.Name;
             context.Debug.BuffState = "Flourish";
 
-            // Training: Record Flourish decision
-            var burstReason = context.HasDevilment || context.HasTechnicalFinish
-                ? "Used during burst window"
-                : "Used to prevent overcapping";
             TrainingHelper.Decision(context.TrainingService)
                 .Action(DNCActions.Flourish.ActionId, DNCActions.Flourish.Name)
                 .AsRangedBurst()
                 .Reason(
-                    burstReason,
+                    "Flourish on the off-minute (Devilment on long CD)",
                     "Flourish grants all four procs (Silken Symmetry, Silken Flow, Threefold Fan, Fourfold Fan). " +
-                    "Best used during burst windows to maximize proc damage. Don't use if you already have " +
-                    "Symmetry/Flow procs to avoid overcapping.")
-                .Factors("No existing procs", context.HasDevilment ? "Devilment active" : "Burst window", "Grants all 4 procs")
-                .Alternatives("Already have Symmetry/Flow procs", "Would overcap procs")
-                .Tip("Consume Symmetry/Flow procs before using Flourish to avoid wasting procs.")
+                    "Use it on the off 2-minute when Devilment is on long cooldown — the 4 procs fill GCD uptime " +
+                    "between bursts. Inside Devilment the burst window is already full of Tech procs and weaves, " +
+                    "so Flourish there just overwrites and drops procs.")
+                .Factors("Devilment on long cooldown (>55s)", "Fills off-minute GCDs", "Grants all 4 procs")
+                .Alternatives("Devilment imminent or active — save Flourish for the off-minute")
+                .Tip("Flourish on the 1:00 and 3:00 beats, not during Technical/Devilment.")
                 .Concept(DncConcepts.Flourish)
                 .Record();
             context.TrainingService?.RecordConceptApplication(DncConcepts.Flourish, true, "All procs granted");

@@ -104,18 +104,19 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
         if (TryLastDance(context, target))
             return true;
 
-        // Priority 4: Tillana (after Technical Finish)
-        if (TryTillana(context))
-            return true;
-
         // === ESPRIT SPENDERS ===
 
-        // Priority 5: Dance of the Dawn (Lv.100, replaces Saber Dance during buff)
+        // Priority 4: Dance of the Dawn (Lv.100, replaces Saber Dance during buff)
         if (TryDanceOfTheDawn(context, target))
             return true;
 
-        // Priority 6: Saber Dance (Esprit >= 80 to avoid overcap, or >= 50 during burst)
+        // Priority 5: Saber Dance (overcap threshold outside burst, min gauge inside)
         if (TrySaberDance(context, target, enemyCount))
+            return true;
+
+        // Priority 6: Tillana (after Technical Finish) — fires after Saber so Tillana's
+        // Esprit generation has room to be spent rather than overcapping.
+        if (TryTillana(context))
             return true;
 
         // === PROC CONSUMERS ===
@@ -392,21 +393,18 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
 
         var espritConfig = context.Configuration.Dancer;
 
-        // Hold Saber Dance for burst when Esprit is not near cap
-        if (espritConfig.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Esprit < espritConfig.EspritOvercapThreshold)
-        {
-            context.Debug.DamageState = $"Holding Esprit for burst ({context.Esprit}/{espritConfig.EspritOvercapThreshold})";
-            return false;
-        }
-
-        // Use at overcap threshold to prevent overcap
-        // Or use at min gauge during burst (IsInBurst covers Devilment/TechnicalFinish overlap)
-        bool shouldUse = context.Esprit >= espritConfig.EspritOvercapThreshold ||
-                         (context.Esprit >= espritConfig.SaberDanceMinGauge && (IsInBurst || context.HasDevilment || context.HasTechnicalFinish));
+        // Inside burst: fire at the configured minimum (50 default).
+        // Outside burst: fire at the overcap threshold (85 default) to prevent partner-tick overcap.
+        // No "hold for imminent burst" — partner Esprit generation overcaps too easily when we hold.
+        bool inBurst = context.HasDevilment || context.HasTechnicalFinish || IsInBurst;
+        bool shouldUse = inBurst
+            ? context.Esprit >= espritConfig.SaberDanceMinGauge
+            : context.Esprit >= espritConfig.EspritOvercapThreshold;
 
         if (!shouldUse)
         {
-            context.Debug.DamageState = $"Holding Esprit ({context.Esprit}/{espritConfig.SaberDanceMinGauge})";
+            var threshold = inBurst ? espritConfig.SaberDanceMinGauge : espritConfig.EspritOvercapThreshold;
+            context.Debug.DamageState = $"Holding Esprit ({context.Esprit}/{threshold})";
             return false;
         }
 

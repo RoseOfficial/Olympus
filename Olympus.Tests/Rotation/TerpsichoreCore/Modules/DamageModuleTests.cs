@@ -43,7 +43,7 @@ public class DamageModuleTests
     #region Saber Dance
 
     [Fact]
-    public void TryExecute_SaberDance_FiresAt80Esprit_Overcap()
+    public void TryExecute_SaberDance_FiresAt85Esprit_Overcap()
     {
         var enemy = CreateMockEnemy();
         var targeting = CreateTargetingWithEnemy(enemy);
@@ -60,7 +60,7 @@ public class DamageModuleTests
             canExecuteGcd: true,
             level: 100,
             isDancing: false,
-            esprit: 80, // At overcap threshold
+            esprit: 85, // At overcap threshold
             hasDevilment: false,
             hasTechnicalFinish: false,
             hasDanceOfTheDawnReady: false,
