@@ -502,7 +502,7 @@ public class BuffModuleTests
     {
         // Arrange: MP at 50%, threshold is 70% — should trigger
         var config = MockBuilders.CreateDefaultConfiguration();
-        config.Buffs.EnableLucidDreaming = true;
+        config.HealerShared.EnableLucidDreaming = true;
         config.Buffs.EnablePredictiveLucid = false; // disable predictive to use threshold-based
         // Disable higher-priority abilities so Lucid is reached
         config.Buffs.EnableThinAir = false;

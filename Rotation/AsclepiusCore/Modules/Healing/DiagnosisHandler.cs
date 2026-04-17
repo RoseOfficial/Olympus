@@ -2,6 +2,7 @@ using System;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.AsclepiusCore.Context;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AsclepiusCore.Modules.Healing;
@@ -39,6 +40,14 @@ public sealed class DiagnosisHandler : IHealingHandler
 
         var hpPercent = target.MaxHp > 0 ? (float)target.CurrentHp / target.MaxHp : 1f;
         if (hpPercent > config.DiagnosisThreshold)
+            return false;
+
+        // Co-healer awareness: skip if another healer's pending cast will already cover this target
+        if (CoHealerAwarenessHelper.CoHealerWillCover(
+                context.Configuration.Healing.EnableCoHealerAwareness,
+                context.CoHealerDetectionService,
+                target,
+                context.Configuration.Healing.CoHealerPendingHealThreshold))
             return false;
 
         var action = SGEActions.Diagnosis;

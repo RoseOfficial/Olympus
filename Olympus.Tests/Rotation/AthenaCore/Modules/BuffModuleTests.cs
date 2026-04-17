@@ -43,7 +43,7 @@ public class BuffModuleTests
     public void TryExecute_LucidDreamingDisabled_DoesNotFire()
     {
         var config = AthenaTestContext.CreateDefaultScholarConfiguration();
-        config.Scholar.EnableLucidDreaming = false;
+        config.HealerShared.EnableLucidDreaming = false;
         config.Scholar.EnableDissipation = false;
 
         var actionService = MockBuilders.CreateMockActionService(
@@ -72,8 +72,8 @@ public class BuffModuleTests
     public void TryExecute_LucidDreaming_MpAboveThreshold_DoesNotFire()
     {
         var config = AthenaTestContext.CreateDefaultScholarConfiguration();
-        config.Scholar.EnableLucidDreaming = true;
-        config.Scholar.LucidDreamingThreshold = 0.70f;
+        config.HealerShared.EnableLucidDreaming = true;
+        config.HealerShared.LucidDreamingThreshold = 0.70f;
         config.Scholar.EnableDissipation = false;
 
         var actionService = MockBuilders.CreateMockActionService(
@@ -103,8 +103,8 @@ public class BuffModuleTests
     public void TryExecute_LucidDreaming_MpBelowThreshold_Executes()
     {
         var config = AthenaTestContext.CreateDefaultScholarConfiguration();
-        config.Scholar.EnableLucidDreaming = true;
-        config.Scholar.LucidDreamingThreshold = 0.70f;
+        config.HealerShared.EnableLucidDreaming = true;
+        config.HealerShared.LucidDreamingThreshold = 0.70f;
         config.Scholar.EnableDissipation = false;
 
         var actionService = MockBuilders.CreateMockActionService(
@@ -139,8 +139,8 @@ public class BuffModuleTests
     {
         // SCH BuffModule requires combat
         var config = AthenaTestContext.CreateDefaultScholarConfiguration();
-        config.Scholar.EnableLucidDreaming = true;
-        config.Scholar.LucidDreamingThreshold = 0.70f;
+        config.HealerShared.EnableLucidDreaming = true;
+        config.HealerShared.LucidDreamingThreshold = 0.70f;
 
         var actionService = MockBuilders.CreateMockActionService(
             canExecuteGcd: false,
@@ -171,7 +171,7 @@ public class BuffModuleTests
     {
         var config = AthenaTestContext.CreateDefaultScholarConfiguration();
         config.Scholar.EnableDissipation = false;
-        config.Scholar.EnableLucidDreaming = false;
+        config.HealerShared.EnableLucidDreaming = false;
 
         var actionService = MockBuilders.CreateMockActionService(
             canExecuteGcd: false,
@@ -205,7 +205,7 @@ public class BuffModuleTests
         // Cannot use Dissipation without a fairy to dismiss
         var config = AthenaTestContext.CreateDefaultScholarConfiguration();
         config.Scholar.EnableDissipation = true;
-        config.Scholar.EnableLucidDreaming = false;
+        config.HealerShared.EnableLucidDreaming = false;
         config.Scholar.DissipationMaxFairyGauge = 30;
 
         var actionService = MockBuilders.CreateMockActionService(
@@ -243,7 +243,7 @@ public class BuffModuleTests
         // Dissipation should not be used if there are already Aetherflow stacks (would waste it)
         var config = AthenaTestContext.CreateDefaultScholarConfiguration();
         config.Scholar.EnableDissipation = true;
-        config.Scholar.EnableLucidDreaming = false;
+        config.HealerShared.EnableLucidDreaming = false;
         config.Scholar.DissipationMaxFairyGauge = 30;
 
         var actionService = MockBuilders.CreateMockActionService(

@@ -4,6 +4,7 @@ using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.AthenaCore.Context;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AthenaCore.Modules.Healing;
@@ -77,6 +78,16 @@ public sealed class SingleTargetHealHandler : IHealingHandler
         }
 
         if (action == null)
+            return false;
+
+        // Co-healer awareness: skip raw Physick when another healer's cast will already top up target.
+        // Adloquium is left alone — its shield has preemptive value even if HP gets topped up.
+        if (action.ActionId == SCHActions.Physick.ActionId &&
+            CoHealerAwarenessHelper.CoHealerWillCover(
+                context.Configuration.Healing.EnableCoHealerAwareness,
+                context.CoHealerDetectionService,
+                target,
+                context.Configuration.Healing.CoHealerPendingHealThreshold))
             return false;
 
         if (context.ActionService.ExecuteGcd(action, target.GameObjectId))

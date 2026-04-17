@@ -302,8 +302,8 @@ public static class AthenaTestContext
         config.Scholar.EnableExpedient = true;
         config.Scholar.ExpedientThreshold = 0.60f;
 
-        config.Scholar.EnableLucidDreaming = true;
-        config.Scholar.LucidDreamingThreshold = 0.70f;
+        config.HealerShared.EnableLucidDreaming = true;
+        config.HealerShared.LucidDreamingThreshold = 0.70f;
 
         config.Resurrection.EnableRaise = true;
         config.Resurrection.AllowHardcastRaise = true;

@@ -122,19 +122,12 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
             return false;
 
         // Co-healer awareness: Skip if co-healer has pending heal covering most of missing HP
-        if (config.Healing.EnableCoHealerAwareness && context.CoHealerDetectionService?.HasCoHealer == true)
-        {
-            var coHealerPendingHeals = context.CoHealerDetectionService.CoHealerPendingHeals;
-            if (coHealerPendingHeals.TryGetValue(target.EntityId, out var coHealerPending))
-            {
-                var missingHp = target.MaxHp - target.CurrentHp;
-                var pendingHealPercent = missingHp > 0 ? (float)coHealerPending / missingHp : 1f;
-
-                // Skip if co-healer's pending heal covers enough of the missing HP
-                if (pendingHealPercent >= config.Healing.CoHealerPendingHealThreshold)
-                    return false;
-            }
-        }
+        if (CoHealerAwarenessHelper.CoHealerWillCover(
+                config.Healing.EnableCoHealerAwareness,
+                context.CoHealerDetectionService,
+                target,
+                config.Healing.CoHealerPendingHealThreshold))
+            return false;
 
         // Check if target is actually at risk
         var targetHpPercent = context.PartyHelper.GetHpPercent(target);

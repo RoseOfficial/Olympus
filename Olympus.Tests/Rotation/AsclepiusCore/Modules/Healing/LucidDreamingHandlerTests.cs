@@ -17,7 +17,7 @@ public class LucidDreamingHandlerTests
     public void TryExecute_WhenMpLowAndReady_ExecutesLucidDreaming()
     {
         var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
-        config.Sage.LucidDreamingThreshold = 0.80f;
+        config.HealerShared.LucidDreamingThreshold = 0.80f;
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: false, canExecuteOgcd: true);
         actionService.Setup(x => x.IsActionReady(RoleActions.LucidDreaming.ActionId)).Returns(true);
@@ -61,7 +61,7 @@ public class LucidDreamingHandlerTests
     public void TryExecute_WhenMpAboveThreshold_Skips()
     {
         var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
-        config.Sage.LucidDreamingThreshold = 0.70f;
+        config.HealerShared.LucidDreamingThreshold = 0.70f;
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: false, canExecuteOgcd: true);
         actionService.Setup(x => x.IsActionReady(RoleActions.LucidDreaming.ActionId)).Returns(true);

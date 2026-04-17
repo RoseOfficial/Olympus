@@ -48,7 +48,7 @@ public class BuffModuleTests
     {
         var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
         config.Astrologian.EnableLightspeed = false;
-        config.Astrologian.EnableLucidDreaming = false;
+        config.HealerShared.EnableLucidDreaming = false;
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         actionService.Setup(a => a.IsActionReady(It.IsAny<uint>())).Returns(true);
@@ -78,7 +78,7 @@ public class BuffModuleTests
         var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
         config.Astrologian.EnableLightspeed = true;
         config.Astrologian.LightspeedStrategy = LightspeedUsageStrategy.OnCooldown;
-        config.Astrologian.EnableLucidDreaming = false;
+        config.HealerShared.EnableLucidDreaming = false;
 
         var actionService = MockBuilders.CreateMockActionService(
             canExecuteOgcd: true,
@@ -112,7 +112,7 @@ public class BuffModuleTests
         var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
         config.Astrologian.EnableLightspeed = true;
         config.Astrologian.LightspeedStrategy = LightspeedUsageStrategy.OnCooldown;
-        config.Astrologian.EnableLucidDreaming = false;
+        config.HealerShared.EnableLucidDreaming = false;
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         actionService.Setup(a => a.IsActionReady(ASTActions.Lightspeed.ActionId)).Returns(true);
@@ -142,7 +142,7 @@ public class BuffModuleTests
         var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
         config.Astrologian.EnableLightspeed = true;
         config.Astrologian.LightspeedStrategy = LightspeedUsageStrategy.SaveForMovement;
-        config.Astrologian.EnableLucidDreaming = false;
+        config.HealerShared.EnableLucidDreaming = false;
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         actionService.Setup(a => a.IsActionReady(ASTActions.Lightspeed.ActionId)).Returns(true);
@@ -169,7 +169,7 @@ public class BuffModuleTests
         var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
         config.Astrologian.EnableLightspeed = true;
         config.Astrologian.LightspeedStrategy = LightspeedUsageStrategy.SaveForMovement;
-        config.Astrologian.EnableLucidDreaming = false;
+        config.HealerShared.EnableLucidDreaming = false;
 
         var actionService = MockBuilders.CreateMockActionService(
             canExecuteOgcd: true,
@@ -208,7 +208,7 @@ public class BuffModuleTests
         var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
         config.Astrologian.EnableLightspeed = true;
         config.Astrologian.LightspeedStrategy = LightspeedUsageStrategy.SaveForRaise;
-        config.Astrologian.EnableLucidDreaming = false;
+        config.HealerShared.EnableLucidDreaming = false;
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         actionService.Setup(a => a.IsActionReady(ASTActions.Lightspeed.ActionId)).Returns(true);
@@ -239,7 +239,7 @@ public class BuffModuleTests
         var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
         config.Astrologian.EnableLightspeed = true;
         config.Astrologian.LightspeedStrategy = LightspeedUsageStrategy.OnCooldown;
-        config.Astrologian.EnableLucidDreaming = false;
+        config.HealerShared.EnableLucidDreaming = false;
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         actionService.Setup(a => a.IsActionReady(ASTActions.Lightspeed.ActionId)).Returns(true);
@@ -265,8 +265,8 @@ public class BuffModuleTests
     {
         var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
         config.Astrologian.EnableLightspeed = false;
-        config.Astrologian.EnableLucidDreaming = true;
-        config.Astrologian.LucidDreamingThreshold = 0.70f;
+        config.HealerShared.EnableLucidDreaming = true;
+        config.HealerShared.LucidDreamingThreshold = 0.70f;
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         actionService.Setup(a => a.IsActionReady(RoleActions.LucidDreaming.ActionId)).Returns(true);
@@ -294,8 +294,8 @@ public class BuffModuleTests
     {
         var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
         config.Astrologian.EnableLightspeed = false;
-        config.Astrologian.EnableLucidDreaming = true;
-        config.Astrologian.LucidDreamingThreshold = 0.70f;
+        config.HealerShared.EnableLucidDreaming = true;
+        config.HealerShared.LucidDreamingThreshold = 0.70f;
 
         var actionService = MockBuilders.CreateMockActionService(
             canExecuteOgcd: true,
@@ -330,7 +330,7 @@ public class BuffModuleTests
     {
         var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
         config.Astrologian.EnableLightspeed = false;
-        config.Astrologian.EnableLucidDreaming = false;
+        config.HealerShared.EnableLucidDreaming = false;
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
         actionService.Setup(a => a.IsActionReady(RoleActions.LucidDreaming.ActionId)).Returns(true);

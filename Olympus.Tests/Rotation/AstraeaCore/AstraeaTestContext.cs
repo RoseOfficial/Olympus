@@ -280,8 +280,8 @@ public static class AstraeaTestContext
 
         config.Astrologian.EnableLightspeed = true;
         config.Astrologian.LightspeedStrategy = LightspeedUsageStrategy.OnCooldown;
-        config.Astrologian.EnableLucidDreaming = true;
-        config.Astrologian.LucidDreamingThreshold = 0.70f;
+        config.HealerShared.EnableLucidDreaming = true;
+        config.HealerShared.LucidDreamingThreshold = 0.70f;
 
         config.Astrologian.EnableSingleTargetDamage = true;
         config.Astrologian.EnableAoEDamage = true;

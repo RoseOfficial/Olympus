@@ -198,7 +198,7 @@ public static class ApolloTestContext
         config.RoleActions.EnableSurecast = true;
 
         // Buff config (Lucid Dreaming is in Buffs for WHM)
-        config.Buffs.EnableLucidDreaming = true;
+        config.HealerShared.EnableLucidDreaming = true;
 
         return config;
     }

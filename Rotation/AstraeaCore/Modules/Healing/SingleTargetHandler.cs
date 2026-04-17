@@ -4,6 +4,7 @@ using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.AstraeaCore.Context;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AstraeaCore.Modules.Healing;
@@ -59,6 +60,14 @@ public sealed class SingleTargetHandler : IHealingHandler
         }
 
         if (action == null)
+            return false;
+
+        // Co-healer awareness: skip the GCD heal when another healer's pending cast will cover the target.
+        if (CoHealerAwarenessHelper.CoHealerWillCover(
+                context.Configuration.Healing.EnableCoHealerAwareness,
+                context.CoHealerDetectionService,
+                target,
+                context.Configuration.Healing.CoHealerPendingHealThreshold))
             return false;
 
         if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
