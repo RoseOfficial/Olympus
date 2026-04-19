@@ -131,6 +131,14 @@ public sealed class GeneralSection
             this.save);
 
         ConfigUIHelpers.Toggle(
+            Loc.T(LocalizedStrings.Targeting.PauseOnPlayerChannel, "Pause when player is channeling"),
+            () => this.config.Targeting.PauseOnPlayerChannel,
+            v => this.config.Targeting.PauseOnPlayerChannel = v,
+            Loc.T(LocalizedStrings.Targeting.PauseOnPlayerChannelDesc,
+                "Halt the entire rotation while you are holding a channel or stance that any other action would cancel: Passage of Arms, Flamethrower, Meditate, Collective Unconscious, Improvisation. Resumes the instant the buff drops."),
+            this.save);
+
+        ConfigUIHelpers.Toggle(
             Loc.T(LocalizedStrings.Targeting.StrictCurrentTargetStrategy, "Strict explicit-target mode"),
             () => this.config.Targeting.StrictCurrentTargetStrategy,
             v => this.config.Targeting.StrictCurrentTargetStrategy = v,

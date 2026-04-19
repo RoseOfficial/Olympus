@@ -317,6 +317,14 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
             return;
         }
 
+        // Hard pause: player is holding a channel/stance (Passage of Arms, Flamethrower,
+        // Meditate, Collective Unconscious, Improvisation) that cancels on any action.
+        if (Configuration.Targeting.PauseOnPlayerChannel
+            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
+        {
+            return;
+        }
+
         // Try oGCD modules first during weave windows
         if (inCombat && ActionService.CanExecuteOgcd)
         {

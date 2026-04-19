@@ -65,4 +65,31 @@ public static class PlayerSafetyHelper
 
         return false;
     }
+
+    /// <summary>
+    /// Pure predicate over the player-intent channel status ID list.
+    /// </summary>
+    public static bool IsPlayerIntentChannelStatusId(uint statusId) =>
+        FFXIVConstants.PlayerIntentChannelStatusIds.Contains(statusId);
+
+    /// <summary>
+    /// Returns true if the player has an active channel/stance that would be cancelled
+    /// by any other action (Passage of Arms, Flamethrower, Meditate, Collective Unconscious,
+    /// Improvisation). Used to halt rotation execution until the player releases it.
+    /// </summary>
+    public static bool IsPlayerIntentChannelActive(IBattleChara? player)
+    {
+        if (player?.StatusList == null)
+            return false;
+
+        foreach (var status in player.StatusList)
+        {
+            if (status == null)
+                continue;
+            if (FFXIVConstants.PlayerIntentChannelStatusIds.Contains(status.StatusId))
+                return true;
+        }
+
+        return false;
+    }
 }

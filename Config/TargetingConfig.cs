@@ -49,6 +49,15 @@ public sealed class TargetingConfig
     public bool PauseAllOnStandStillPunisher { get; set; } = true;
 
     /// <summary>
+    /// When true, all rotation execution is suppressed while the player has an active
+    /// channel/stance that would be cancelled by any other action (Passage of Arms,
+    /// Flamethrower, Meditate, Collective Unconscious, Improvisation). The player pressed
+    /// these deliberately to trade damage for an effect; the bot must not interfere.
+    /// Resumes the frame the status drops. Default ON.
+    /// </summary>
+    public bool PauseOnPlayerChannel { get; set; } = true;
+
+    /// <summary>
     /// When true, the fallback that retargets to LowestHp when CurrentTarget/FocusTarget
     /// strategies fail is disabled — a missing current target simply stops damage. This
     /// makes "drop target" a hard pause for players using explicit-target strategies.

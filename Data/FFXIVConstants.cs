@@ -155,4 +155,18 @@ public static class FFXIVConstants
     {
         960,   // Pyretic (canonical)
     };
+
+    // Player-initiated channels/stances that are cancelled by any other action input.
+    // When the player presses one of these, they've deliberately traded damage output
+    // for a mitigation/regen/resource effect and the bot must not fire anything until
+    // the buff drops (cancelled by player input, timed out, or finished naturally).
+    /// <summary>Status IDs for player-intent channels that cancel on any action.</summary>
+    public static readonly HashSet<uint> PlayerIntentChannelStatusIds = new()
+    {
+        1175,  // Passage of Arms (PLD)
+        1205,  // Flamethrower (MCH)
+        1231,  // Meditate (SAM)
+        849,   // Collective Unconscious channel (AST)
+        1827,  // Improvisation (DNC)
+    };
 }
