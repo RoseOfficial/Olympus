@@ -20,7 +20,7 @@ public sealed class StatusHelper : BaseStatusHelper
 
         // Medica regen statuses
         public const uint MedicaII = 150;
-        public const uint MedicaIII = 3986;
+        public const uint MedicaIII = 3880;
 
         // Raise/Resurrection
         public const uint Raise = 148;

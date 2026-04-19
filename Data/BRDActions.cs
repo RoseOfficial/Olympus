@@ -717,7 +717,7 @@ public static class BRDActions
     public static class StatusIds
     {
         // Self buffs
-        public const uint StraightShotReady = 122;  // Also called Hawk's Eye
+        public const uint StraightShotReady = 3861;  // Hawk's Eye (post-EW ID)
         public const uint RagingStrikes = 125;
         public const uint BattleVoice = 141;
         public const uint Barrage = 128;

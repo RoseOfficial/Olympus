@@ -396,7 +396,7 @@ public static class SMNActions
     /// </summary>
     public static readonly ActionDefinition CrimsonStrike = new()
     {
-        ActionId = 25836,
+        ActionId = 25885,
         Name = "Crimson Strike",
         MinLevel = 86,
         Category = ActionCategory.GCD,
@@ -702,13 +702,13 @@ public static class SMNActions
     };
 
     /// <summary>
-    /// Painflare - Aetherflow spender, AoE (Lv.52)
+    /// Painflare - Aetherflow spender, AoE (Lv.40)
     /// </summary>
     public static readonly ActionDefinition Painflare = new()
     {
         ActionId = 3578,
         Name = "Painflare",
-        MinLevel = 52,
+        MinLevel = 40,
         Category = ActionCategory.oGCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,

@@ -217,7 +217,7 @@ public static class DRGActions
     {
         ActionId = 36952,
         Name = "Drakesbane",
-        MinLevel = 92,
+        MinLevel = 64,
         Category = ActionCategory.GCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
@@ -678,7 +678,7 @@ public static class DRGActions
         public const uint LanceCharge = 1864;     // +10% damage
         public const uint LifeSurge = 116;        // Next GCD guaranteed crit
         public const uint BattleLitany = 786;     // Party crit buff
-        public const uint RightEye = 1183;        // Dragon Sight self buff
+        public const uint RightEye = 1910;        // Dragon Sight self buff
         public const uint LeftEye = 1454;         // Dragon Sight tether buff
 
         // Combo/Proc statuses

@@ -618,7 +618,7 @@ public static class ASTActions
         RecastTime = 1f,
         Range = 30f,
         MpCost = 0,
-        AppliedStatusId = 37024,
+        AppliedStatusId = 3888,
         AppliedStatusDuration = 15f
     };
 
@@ -806,7 +806,7 @@ public static class ASTActions
         TargetType = ActionTargetType.Self,
         EffectTypes = ActionEffectType.Buff,
         CastTime = 0f,
-        RecastTime = 60f, // 2 charges at 90
+        RecastTime = 90f, // 2 charges, 90s each
         MpCost = 0,
         AppliedStatusId = 841, // Lightspeed buff
         AppliedStatusDuration = 15f
@@ -1026,7 +1026,7 @@ public static class ASTActions
     /// <summary>
     /// Helios Conjunction regen status ID.
     /// </summary>
-    public const ushort HeliosConjunctionStatusId = 3988;
+    public const ushort HeliosConjunctionStatusId = 3894;
 
     /// <summary>
     /// Combust DoT status ID.
@@ -1121,7 +1121,7 @@ public static class ASTActions
     /// <summary>
     /// The Spear card buff status ID.
     /// </summary>
-    public const ushort TheSpearStatusId = 3888;
+    public const ushort TheSpearStatusId = 3889;
 
     /// <summary>
     /// Lord of Crowns buff status ID.

@@ -230,7 +230,7 @@ public static class DRKActions
     /// </summary>
     public static readonly ActionDefinition Disesteem = new()
     {
-        ActionId = 36931,
+        ActionId = 36932,
         Name = "Disesteem",
         MinLevel = 100,
         Category = ActionCategory.GCD,
@@ -255,7 +255,7 @@ public static class DRKActions
     /// </summary>
     public static readonly ActionDefinition EdgeOfDarkness = new()
     {
-        ActionId = 3634,
+        ActionId = 16467,
         Name = "Edge of Darkness",
         MinLevel = 40,
         Category = ActionCategory.oGCD,
@@ -651,7 +651,7 @@ public static class DRKActions
     /// </summary>
     public static readonly ActionDefinition DarkMind = new()
     {
-        ActionId = 3635,
+        ActionId = 3634,
         Name = "Dark Mind",
         MinLevel = 45,
         Category = ActionCategory.oGCD,
@@ -756,7 +756,7 @@ public static class DRKActions
         public const uint ShadowedVigil = 3836;
         public const uint DarkMind = 746;
         public const uint DarkMissionary = 1894;
-        public const uint TheBlackestNight = 1178;
+        public const uint TheBlackestNight = 1308;
         public const uint Oblation = 2682;
         public const uint SaltedEarth = 749;
 

@@ -556,7 +556,7 @@ public static class RDMActions
 
     /// <summary>
     /// Contre Sixte - AoE oGCD (Lv.56)
-    /// 35s recast
+    /// 45s recast
     /// </summary>
     public static readonly ActionDefinition ContreSixte = new()
     {
@@ -567,7 +567,7 @@ public static class RDMActions
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
         CastTime = 0f,
-        RecastTime = 35f,
+        RecastTime = 45f,
         Range = 25f,
         Radius = 6f,
         MpCost = 0,

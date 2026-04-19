@@ -469,7 +469,7 @@ public static class DNCActions
     {
         ActionId = 16008,
         Name = "Fan Dance II",
-        MinLevel = 30,
+        MinLevel = 50,
         Category = ActionCategory.oGCD,
         TargetType = ActionTargetType.Self,
         EffectTypes = ActionEffectType.Damage,

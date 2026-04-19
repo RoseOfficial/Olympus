@@ -462,7 +462,7 @@ public static class NINActions
     /// </summary>
     public static readonly ActionDefinition DeathfrogMedium = new()
     {
-        ActionId = 36961,
+        ActionId = 36959,
         Name = "Deathfrog Medium",
         MinLevel = 96,
         Category = ActionCategory.oGCD,
@@ -701,7 +701,7 @@ public static class NINActions
     /// </summary>
     public static readonly ActionDefinition TenriJindo = new()
     {
-        ActionId = 36959,
+        ActionId = 36961,
         Name = "Tenri Jindo",
         MinLevel = 100,
         Category = ActionCategory.oGCD,

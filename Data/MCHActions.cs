@@ -637,7 +637,7 @@ public static class MCHActions
         TargetType = ActionTargetType.Self,
         EffectTypes = ActionEffectType.Buff,
         CastTime = 0f,
-        RecastTime = 90f,
+        RecastTime = 120f,
         Radius = 30f,
         MpCost = 0,
         AppliedStatusId = StatusIds.Tactician,

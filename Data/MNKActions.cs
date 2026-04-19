@@ -421,7 +421,7 @@ public static class MNKActions
     {
         ActionId = 36949,
         Name = "Wind's Reply",
-        MinLevel = 100,
+        MinLevel = 96,
         Category = ActionCategory.GCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
@@ -445,7 +445,7 @@ public static class MNKActions
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
         CastTime = 0f,
-        RecastTime = 1f,
+        RecastTime = 2.5f,
         Range = 20f,
         Radius = 5f,
         MpCost = 0,
@@ -768,8 +768,8 @@ public static class MNKActions
         public const uint LeadenFist = 1861;
         public const uint DisciplinedFist = 3001;
         public const uint RiddleOfFire = 1181;
-        public const uint Brotherhood = 1182;
-        public const uint BrotherhoodMeditative = 2173; // Chakra generation buff
+        public const uint Brotherhood = 1185;
+        public const uint BrotherhoodMeditative = 1182; // Chakra generation buff (MeditativeBrotherhood)
         public const uint PerfectBalance = 110;
         public const uint RiddleOfWind = 2687;
 
@@ -779,8 +779,8 @@ public static class MNKActions
         public const uint OpooposFury = 3850; // From Coeurl form
 
         // Blitz-related
-        public const uint FiresRumination = 3847; // After Riddle of Fire
-        public const uint WindsRumination = 3846; // After Riddle of Wind
+        public const uint FiresRumination = 3843; // After Riddle of Fire
+        public const uint WindsRumination = 3842; // After Riddle of Wind
 
         // DoT
         public const uint Demolish = 246;

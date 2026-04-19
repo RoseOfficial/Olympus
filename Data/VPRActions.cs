@@ -438,9 +438,9 @@ public static class VPRActions
     /// </summary>
     public static readonly ActionDefinition Twinfang = new()
     {
-        ActionId = 34626,
+        ActionId = 35921,
         Name = "Twinfang",
-        MinLevel = 25,
+        MinLevel = 75,
         Category = ActionCategory.oGCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
@@ -457,9 +457,9 @@ public static class VPRActions
     /// </summary>
     public static readonly ActionDefinition Twinblood = new()
     {
-        ActionId = 34627,
+        ActionId = 35922,
         Name = "Twinblood",
-        MinLevel = 25,
+        MinLevel = 75,
         Category = ActionCategory.oGCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
@@ -475,9 +475,9 @@ public static class VPRActions
     /// </summary>
     public static readonly ActionDefinition TwinfangBite = new()
     {
-        ActionId = 34628,
+        ActionId = 34636,
         Name = "Twinfang Bite",
-        MinLevel = 40,
+        MinLevel = 75,
         Category = ActionCategory.oGCD,
         TargetType = ActionTargetType.Self,
         EffectTypes = ActionEffectType.Damage,
@@ -494,9 +494,9 @@ public static class VPRActions
     /// </summary>
     public static readonly ActionDefinition TwinbloodBite = new()
     {
-        ActionId = 34629,
+        ActionId = 34637,
         Name = "Twinblood Bite",
-        MinLevel = 40,
+        MinLevel = 75,
         Category = ActionCategory.oGCD,
         TargetType = ActionTargetType.Self,
         EffectTypes = ActionEffectType.Damage,
@@ -513,9 +513,9 @@ public static class VPRActions
     /// </summary>
     public static readonly ActionDefinition TwinfangThresh = new()
     {
-        ActionId = 34630,
+        ActionId = 34638,
         Name = "Twinfang Thresh",
-        MinLevel = 40,
+        MinLevel = 80,
         Category = ActionCategory.oGCD,
         TargetType = ActionTargetType.Self,
         EffectTypes = ActionEffectType.Damage,
@@ -532,9 +532,9 @@ public static class VPRActions
     /// </summary>
     public static readonly ActionDefinition TwinbloodThresh = new()
     {
-        ActionId = 34631,
+        ActionId = 34639,
         Name = "Twinblood Thresh",
-        MinLevel = 40,
+        MinLevel = 80,
         Category = ActionCategory.oGCD,
         TargetType = ActionTargetType.Self,
         EffectTypes = ActionEffectType.Damage,
@@ -558,7 +558,7 @@ public static class VPRActions
     {
         ActionId = 34633,
         Name = "Uncoiled Fury",
-        MinLevel = 45,
+        MinLevel = 82,
         Category = ActionCategory.GCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
@@ -577,9 +577,9 @@ public static class VPRActions
     /// </summary>
     public static readonly ActionDefinition UncoiledTwinfang = new()
     {
-        ActionId = 34634,
+        ActionId = 34644,
         Name = "Uncoiled Twinfang",
-        MinLevel = 45,
+        MinLevel = 92,
         Category = ActionCategory.oGCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
@@ -596,9 +596,9 @@ public static class VPRActions
     /// </summary>
     public static readonly ActionDefinition UncoiledTwinblood = new()
     {
-        ActionId = 34635,
+        ActionId = 34645,
         Name = "Uncoiled Twinblood",
-        MinLevel = 45,
+        MinLevel = 92,
         Category = ActionCategory.oGCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
@@ -621,7 +621,7 @@ public static class VPRActions
     {
         ActionId = 34632,
         Name = "Writhing Snap",
-        MinLevel = 50,
+        MinLevel = 15,
         Category = ActionCategory.GCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
@@ -642,9 +642,9 @@ public static class VPRActions
     /// </summary>
     public static readonly ActionDefinition Reawaken = new()
     {
-        ActionId = 34636,
+        ActionId = 34626,
         Name = "Reawaken",
-        MinLevel = 70,
+        MinLevel = 90,
         Category = ActionCategory.GCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage | ActionEffectType.Buff,
@@ -663,9 +663,9 @@ public static class VPRActions
     /// </summary>
     public static readonly ActionDefinition FirstGeneration = new()
     {
-        ActionId = 34637,
+        ActionId = 34627,
         Name = "First Generation",
-        MinLevel = 70,
+        MinLevel = 90,
         Category = ActionCategory.GCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
@@ -683,9 +683,9 @@ public static class VPRActions
     /// </summary>
     public static readonly ActionDefinition SecondGeneration = new()
     {
-        ActionId = 34638,
+        ActionId = 34628,
         Name = "Second Generation",
-        MinLevel = 70,
+        MinLevel = 90,
         Category = ActionCategory.GCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
@@ -703,9 +703,9 @@ public static class VPRActions
     /// </summary>
     public static readonly ActionDefinition ThirdGeneration = new()
     {
-        ActionId = 34639,
+        ActionId = 34629,
         Name = "Third Generation",
-        MinLevel = 70,
+        MinLevel = 90,
         Category = ActionCategory.GCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
@@ -723,9 +723,9 @@ public static class VPRActions
     /// </summary>
     public static readonly ActionDefinition FourthGeneration = new()
     {
-        ActionId = 34640,
+        ActionId = 34630,
         Name = "Fourth Generation",
-        MinLevel = 70,
+        MinLevel = 90,
         Category = ActionCategory.GCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
@@ -742,9 +742,9 @@ public static class VPRActions
     /// </summary>
     public static readonly ActionDefinition FirstLegacy = new()
     {
-        ActionId = 34641,
+        ActionId = 34640,
         Name = "First Legacy",
-        MinLevel = 70,
+        MinLevel = 100,
         Category = ActionCategory.oGCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
@@ -760,9 +760,9 @@ public static class VPRActions
     /// </summary>
     public static readonly ActionDefinition SecondLegacy = new()
     {
-        ActionId = 34642,
+        ActionId = 34641,
         Name = "Second Legacy",
-        MinLevel = 70,
+        MinLevel = 100,
         Category = ActionCategory.oGCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
@@ -778,9 +778,9 @@ public static class VPRActions
     /// </summary>
     public static readonly ActionDefinition ThirdLegacy = new()
     {
-        ActionId = 34643,
+        ActionId = 34642,
         Name = "Third Legacy",
-        MinLevel = 70,
+        MinLevel = 100,
         Category = ActionCategory.oGCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
@@ -796,9 +796,9 @@ public static class VPRActions
     /// </summary>
     public static readonly ActionDefinition FourthLegacy = new()
     {
-        ActionId = 34644,
+        ActionId = 34643,
         Name = "Fourth Legacy",
-        MinLevel = 70,
+        MinLevel = 100,
         Category = ActionCategory.oGCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
@@ -815,9 +815,9 @@ public static class VPRActions
     /// </summary>
     public static readonly ActionDefinition Ouroboros = new()
     {
-        ActionId = 34645,
+        ActionId = 34631,
         Name = "Ouroboros",
-        MinLevel = 80,
+        MinLevel = 96,
         Category = ActionCategory.GCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
@@ -863,9 +863,9 @@ public static class VPRActions
     /// </summary>
     public static readonly ActionDefinition DeathRattle = new()
     {
-        ActionId = 34648,
+        ActionId = 34634,
         Name = "Death Rattle",
-        MinLevel = 92,
+        MinLevel = 55,
         Category = ActionCategory.oGCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
@@ -881,9 +881,9 @@ public static class VPRActions
     /// </summary>
     public static readonly ActionDefinition LastLash = new()
     {
-        ActionId = 34649,
+        ActionId = 34635,
         Name = "Last Lash",
-        MinLevel = 92,
+        MinLevel = 60,
         Category = ActionCategory.oGCD,
         TargetType = ActionTargetType.Self,
         EffectTypes = ActionEffectType.Damage,
@@ -903,7 +903,7 @@ public static class VPRActions
     {
         ActionId = 35920,
         Name = "Serpent's Tail",
-        MinLevel = 92,
+        MinLevel = 55,
         Category = ActionCategory.oGCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
@@ -933,12 +933,12 @@ public static class VPRActions
 
         // Combo enhancement buffs
         public const uint HonedSteel = 3672;
-        public const uint HonedReavers = 3773;
+        public const uint HonedReavers = 3772;
 
         // Venom buffs (dictate next positional)
         public const uint FlankstungVenom = 3645;
-        public const uint HindstungVenom = 3646;
-        public const uint FlanksbaneVenom = 3647;
+        public const uint HindstungVenom = 3647;
+        public const uint FlanksbaneVenom = 3646;
         public const uint HindsbaneVenom = 3648;
 
         // AoE venom buffs
@@ -950,7 +950,7 @@ public static class VPRActions
         public const uint PoisedForTwinblood = 3666;
 
         // Serpent's Ire
-        public const uint ReadyToReawaken = 4094;
+        public const uint ReadyToReawaken = 3671;
 
         // Role buffs
         public const uint TrueNorth = 1250;

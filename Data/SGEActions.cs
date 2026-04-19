@@ -375,7 +375,7 @@ public static class SGEActions
         Radius = 5f,
         MpCost = 400,
         DamagePotency = 0,
-        AppliedStatusId = 2616, // Same DoT status - does not stack
+        AppliedStatusId = 3897, // Eukrasian Dyskrasia DoT (distinct from Dosis III)
         AppliedStatusDuration = 30f
     };
 
@@ -419,7 +419,7 @@ public static class SGEActions
         Range = 30f,
         MpCost = 0, // Restores 7% MP
         HealPotency = 700,
-        AppliedStatusId = 2618, // 10% damage reduction
+        AppliedStatusId = 2619, // Taurochole 10% damage reduction
         AppliedStatusDuration = 15f
     };
 
@@ -567,7 +567,7 @@ public static class SGEActions
         Range = 30f,
         MpCost = 0,
         ShieldPotency = 300, // Per stack (5 stacks + initial)
-        AppliedStatusId = 2621, // Haima
+        AppliedStatusId = 2612, // Haima
         AppliedStatusDuration = 15f
     };
 
@@ -975,7 +975,7 @@ public static class SGEActions
     /// <summary>
     /// Haima status ID.
     /// </summary>
-    public const ushort HaimaStatusId = 2621;
+    public const ushort HaimaStatusId = 2612;
 
     /// <summary>
     /// Krasis buff status ID.

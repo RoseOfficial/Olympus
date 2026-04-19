@@ -789,9 +789,9 @@ public static class RPRActions
 
         // Party buff
         public const uint ArcaneCircle = 2599;
-        public const uint CircleOfSacrifice = 2972; // Party member buff
+        public const uint CircleOfSacrifice = 2600; // Party member buff (granted to allies near Arcane Circle)
         public const uint ImmortalSacrifice = 2592; // Reaper's stacking buff
-        public const uint BloodsownCircle = 2600; // Personal damage buff from Arcane Circle
+        public const uint BloodsownCircle = 2972; // Personal self-buff from Arcane Circle (grants Immortal Sacrifice stacks on expiry)
 
         // Soulsow / Harvest Moon
         public const uint Soulsow = 2594;

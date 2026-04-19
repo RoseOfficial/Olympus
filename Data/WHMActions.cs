@@ -541,7 +541,7 @@ public static class WHMActions
         MpCost = 0,
         ShieldPotency = 400,
         HealPotency = 100, // HoT component
-        AppliedStatusId = 3987,
+        AppliedStatusId = 3903,
         AppliedStatusDuration = 15f
     };
 

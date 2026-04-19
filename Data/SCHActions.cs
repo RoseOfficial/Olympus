@@ -894,7 +894,7 @@ public static class SCHActions
     /// <summary>
     /// Seraphism buff status ID.
     /// </summary>
-    public const ushort SeraphismStatusId = 3963;
+    public const ushort SeraphismStatusId = 3884;
 
     /// <summary>
     /// Protraction buff status ID.
@@ -904,7 +904,7 @@ public static class SCHActions
     /// <summary>
     /// Impact Imminent buff status ID (from Chain Stratagem).
     /// </summary>
-    public const ushort ImpactImminentStatusId = 3961;
+    public const ushort ImpactImminentStatusId = 3882;
 
     #endregion
 }

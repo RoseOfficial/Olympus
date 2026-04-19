@@ -252,7 +252,7 @@ public static class BLMActions
     /// </summary>
     public static readonly ActionDefinition Blizzard2 = new()
     {
-        ActionId = 146,
+        ActionId = 25793,
         Name = "Blizzard II",
         MinLevel = 12,
         Category = ActionCategory.GCD,
@@ -294,7 +294,7 @@ public static class BLMActions
     {
         ActionId = 16506,
         Name = "Umbral Soul",
-        MinLevel = 76,
+        MinLevel = 35,
         Category = ActionCategory.GCD,
         TargetType = ActionTargetType.Self,
         EffectTypes = ActionEffectType.Buff,
