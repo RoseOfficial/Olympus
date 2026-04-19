@@ -95,6 +95,7 @@ public static class LocalizedStrings
         public const string Targeting = "config.sidebar.targeting";
         public const string RoleActions = "config.sidebar.role_actions";
         public const string DrawHelper = "config.sidebar.draw_helper";
+        public const string Timeline = "config.sidebar.timeline";
         public const string PartyCoordination = "config.sidebar.party_coordination";
         public const string Behavior = "config.sidebar.behavior";
         public const string Visuals = "config.sidebar.visuals";
@@ -897,18 +898,26 @@ public static class LocalizedStrings
         public const string PredictionSection = "config.job.healer_shared.prediction_section";
         public const string EnableMechanicAwareness = "config.job.healer_shared.enable_mechanic_awareness";
         public const string EnableMechanicAwarenessDesc = "config.job.healer_shared.enable_mechanic_awareness_desc";
-        public const string EnableMechanicAwareCasting = "config.job.healer_shared.enable_mechanic_aware_casting";
-        public const string EnableMechanicAwareCastingDesc = "config.job.healer_shared.enable_mechanic_aware_casting_desc";
         public const string EnableCritVarianceReduction = "config.job.healer_shared.enable_crit_variance_reduction";
         public const string EnableCritVarianceReductionDesc = "config.job.healer_shared.enable_crit_variance_reduction_desc";
         public const string EnableSurvivabilityTrending = "config.job.healer_shared.enable_survivability_trending";
         public const string EnableSurvivabilityTrendingDesc = "config.job.healer_shared.enable_survivability_trending_desc";
         public const string TimelineSection = "config.job.healer_shared.timeline_section";
-        public const string EnableTimelinePredictions = "config.job.healer_shared.enable_timeline_predictions";
-        public const string EnableTimelinePredictionsDesc = "config.job.healer_shared.enable_timeline_predictions_desc";
-        public const string TimelineConfidenceThreshold = "config.job.healer_shared.timeline_confidence_threshold";
+        public const string TimelineMasterMoved = "config.job.healer_shared.timeline_master_moved";
         public const string RaidwideWindow = "config.job.healer_shared.raidwide_window";
         public const string TankBusterWindow = "config.job.healer_shared.tank_buster_window";
+    }
+
+    /// <summary>Keys for the shared Timeline Integration settings section.</summary>
+    public static class Timeline
+    {
+        public const string SectionHeader = "config.timeline.section_header";
+        public const string EnablePredictions = "config.timeline.enable_predictions";
+        public const string EnablePredictionsDesc = "config.timeline.enable_predictions_desc";
+        public const string ConfidenceThreshold = "config.timeline.confidence_threshold";
+        public const string ConfidenceThresholdDesc = "config.timeline.confidence_threshold_desc";
+        public const string EnableMechanicAwareCasting = "config.timeline.enable_mechanic_aware_casting";
+        public const string EnableMechanicAwareCastingDesc = "config.timeline.enable_mechanic_aware_casting_desc";
     }
 
     public static class Tank

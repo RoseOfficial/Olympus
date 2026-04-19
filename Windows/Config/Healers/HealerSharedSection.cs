@@ -76,14 +76,6 @@ public sealed class HealerSharedSection
                 save);
 
             ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.HealerShared.EnableMechanicAwareCasting, "Block Casts Before Mechanics"),
-                () => config.Timeline.EnableMechanicAwareCasting,
-                v => config.Timeline.EnableMechanicAwareCasting = v,
-                Loc.T(LocalizedStrings.HealerShared.EnableMechanicAwareCastingDesc,
-                    "Stop hardcast damage spells when a raidwide or tank buster will hit before the cast completes."),
-                save);
-
-            ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.HealerShared.EnableCritVarianceReduction, "Account for Crit Variance"),
                 () => config.Healing.EnableCritVarianceReduction,
                 v => config.Healing.EnableCritVarianceReduction = v,
@@ -109,23 +101,12 @@ public sealed class HealerSharedSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.HealerShared.EnableTimelinePredictions, "Enable Timeline Predictions"),
-                () => config.Timeline.EnableTimelinePredictions,
-                v => config.Timeline.EnableTimelinePredictions = v,
-                Loc.T(LocalizedStrings.HealerShared.EnableTimelinePredictionsDesc,
-                    "Use fight timelines for precise mechanic timing (DSU/TOP/FRU)."),
-                save);
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.HealerShared.TimelineMasterMoved,
+                "Timeline master toggles now live in Shared > Timeline Integration."));
+            ImGui.Spacing();
 
             if (config.Timeline.EnableTimelinePredictions)
             {
-                config.Timeline.TimelineConfidenceThreshold = ConfigUIHelpers.ThresholdSliderSmall(
-                    Loc.T(LocalizedStrings.HealerShared.TimelineConfidenceThreshold, "Confidence Threshold"),
-                    config.Timeline.TimelineConfidenceThreshold, 50f, 100f,
-                    "Minimum confidence to trust timeline predictions.",
-                    save,
-                    v => config.Timeline.TimelineConfidenceThreshold = v);
-
                 config.Healing.RaidwidePreparationWindow = ConfigUIHelpers.FloatSlider(
                     Loc.T(LocalizedStrings.HealerShared.RaidwideWindow, "Raidwide Window (sec)"),
                     config.Healing.RaidwidePreparationWindow, 2f, 10f, "%.1f",

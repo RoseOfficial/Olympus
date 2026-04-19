@@ -2250,5 +2250,15 @@
   "FightSummary.MaxStored": "Max stored summaries",
   "analytics.pull_history_tab": "Pull History",
   "analytics.no_pull_history": "No pulls recorded this session.",
-  "analytics.trend_label": "Trend"
+  "analytics.trend_label": "Trend",
+
+  "config.sidebar.timeline": "Timeline",
+  "config.timeline.section_header": "Timeline Integration",
+  "config.timeline.enable_predictions": "Enable Timeline Predictions",
+  "config.timeline.enable_predictions_desc": "Use fight timelines for precise mechanic timing (DSU/TOP/FRU and any future zones).",
+  "config.timeline.confidence_threshold": "Confidence Threshold",
+  "config.timeline.confidence_threshold_desc": "Minimum confidence required before trusting timeline predictions. Higher = more conservative.",
+  "config.timeline.enable_mechanic_aware_casting": "Block Casts Before Mechanics",
+  "config.timeline.enable_mechanic_aware_casting_desc": "Stop hardcast damage spells when a raidwide or tank buster will hit before the cast completes. Applies to all roles.",
+  "config.job.healer_shared.timeline_master_moved": "Timeline master toggles now live in Shared > Timeline Integration."
 }

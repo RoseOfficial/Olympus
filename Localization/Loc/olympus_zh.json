@@ -2243,5 +2243,15 @@
   "FightSummary.MaxStored": "Max stored summaries",
   "analytics.pull_history_tab": "Pull History",
   "analytics.no_pull_history": "No pulls recorded this session.",
-  "analytics.trend_label": "Trend"
+  "analytics.trend_label": "Trend",
+
+  "config.sidebar.timeline": "时间轴",
+  "config.timeline.section_header": "时间轴整合",
+  "config.timeline.enable_predictions": "启用时间轴预测",
+  "config.timeline.enable_predictions_desc": "使用战斗时间轴进行精确的机制时机预测（DSU/TOP/FRU 等副本）。",
+  "config.timeline.confidence_threshold": "置信度阈值",
+  "config.timeline.confidence_threshold_desc": "信任时间轴预测所需的最低置信度。越高越保守。",
+  "config.timeline.enable_mechanic_aware_casting": "在机制前阻止施法",
+  "config.timeline.enable_mechanic_aware_casting_desc": "当读条在团灭或坦克死刑到来前无法完成时停止施法。适用于所有职业。",
+  "config.job.healer_shared.timeline_master_moved": "时间轴主开关已移至 共享 > 时间轴整合。"
 }

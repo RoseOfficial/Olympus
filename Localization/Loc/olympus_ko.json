@@ -2245,5 +2245,15 @@
   "FightSummary.MaxStored": "Max stored summaries",
   "analytics.pull_history_tab": "Pull History",
   "analytics.no_pull_history": "No pulls recorded this session.",
-  "analytics.trend_label": "Trend"
+  "analytics.trend_label": "Trend",
+
+  "config.sidebar.timeline": "타임라인",
+  "config.timeline.section_header": "타임라인 연동",
+  "config.timeline.enable_predictions": "타임라인 예측 활성화",
+  "config.timeline.enable_predictions_desc": "정확한 메카닉 타이밍을 위해 전투 타임라인 사용 (DSU/TOP/FRU 및 향후 구역).",
+  "config.timeline.confidence_threshold": "신뢰도 임계값",
+  "config.timeline.confidence_threshold_desc": "타임라인 예측을 신뢰하기 위한 최소 신뢰도. 높을수록 보수적.",
+  "config.timeline.enable_mechanic_aware_casting": "메카닉 전 시전 차단",
+  "config.timeline.enable_mechanic_aware_casting_desc": "전체 직업 공통: 레이드 전체 공격 또는 탱크버스터가 시전 완료 전에 도달하면 하드캐스트 마법을 중단합니다.",
+  "config.job.healer_shared.timeline_master_moved": "타임라인 주요 설정이 공유 > 타임라인 연동으로 이동되었습니다."
 }

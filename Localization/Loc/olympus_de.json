@@ -2250,5 +2250,15 @@
   "FightSummary.MaxStored": "Max stored summaries",
   "analytics.pull_history_tab": "Pull History",
   "analytics.no_pull_history": "No pulls recorded this session.",
-  "analytics.trend_label": "Trend"
+  "analytics.trend_label": "Trend",
+
+  "config.sidebar.timeline": "Timeline",
+  "config.timeline.section_header": "Timeline-Integration",
+  "config.timeline.enable_predictions": "Timeline-Vorhersagen aktivieren",
+  "config.timeline.enable_predictions_desc": "Kampf-Timelines fuer praezises Mechanik-Timing verwenden (DSU/TOP/FRU und zukuenftige Zonen).",
+  "config.timeline.confidence_threshold": "Vertrauensschwelle",
+  "config.timeline.confidence_threshold_desc": "Minimales Vertrauen, um Timeline-Vorhersagen zu verwenden. Hoeher = konservativer.",
+  "config.timeline.enable_mechanic_aware_casting": "Casts vor Mechaniken blockieren",
+  "config.timeline.enable_mechanic_aware_casting_desc": "Fuer alle Rollen: Hardcast-Schadenszauber stoppen, wenn ein Raidwide oder Tank-Buster den Cast unterbricht. Gilt fuer alle Rollen.",
+  "config.job.healer_shared.timeline_master_moved": "Timeline-Hauptschalter befinden sich jetzt unter Geteilt > Timeline-Integration."
 }

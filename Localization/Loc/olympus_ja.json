@@ -2248,5 +2248,15 @@
   "FightSummary.MaxStored": "Max stored summaries",
   "analytics.pull_history_tab": "Pull History",
   "analytics.no_pull_history": "No pulls recorded this session.",
-  "analytics.trend_label": "Trend"
+  "analytics.trend_label": "Trend",
+
+  "config.sidebar.timeline": "タイムライン",
+  "config.timeline.section_header": "タイムライン連携",
+  "config.timeline.enable_predictions": "タイムライン予測有効",
+  "config.timeline.enable_predictions_desc": "正確なギミックタイミングのためにタイムラインを使用 (DSU/TOP/FRU などのゾーン)。",
+  "config.timeline.confidence_threshold": "信頼度しきい値",
+  "config.timeline.confidence_threshold_desc": "タイムライン予測を信頼するための最低信頼度。高いほど保守的。",
+  "config.timeline.enable_mechanic_aware_casting": "ギミック前のキャストをブロック",
+  "config.timeline.enable_mechanic_aware_casting_desc": "全ロール共通: キャストが完了する前にレイドワイドまたはタンクバスターが来る場合、ハードキャストのダメージスペルを停止します。",
+  "config.job.healer_shared.timeline_master_moved": "タイムラインのメイントグルは 共有 > タイムライン連携 に移動しました。"
 }

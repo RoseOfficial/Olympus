@@ -2250,5 +2250,15 @@
   "FightSummary.MaxStored": "Max stored summaries",
   "analytics.pull_history_tab": "Pull History",
   "analytics.no_pull_history": "No pulls recorded this session.",
-  "analytics.trend_label": "Trend"
+  "analytics.trend_label": "Trend",
+
+  "config.sidebar.timeline": "Timeline",
+  "config.timeline.section_header": "Intégration Timeline",
+  "config.timeline.enable_predictions": "Activer les prédictions de timeline",
+  "config.timeline.enable_predictions_desc": "Utiliser les timelines de combat pour un timing précis des mécaniques (DSU/TOP/FRU et futures zones).",
+  "config.timeline.confidence_threshold": "Seuil de confiance",
+  "config.timeline.confidence_threshold_desc": "Confiance minimale requise avant de faire confiance aux prédictions de timeline. Plus élevé = plus conservateur.",
+  "config.timeline.enable_mechanic_aware_casting": "Bloquer les incantations avant les mécaniques",
+  "config.timeline.enable_mechanic_aware_casting_desc": "Arrêter les sorts à incantation dure quand un raidwide ou tank buster arrive avant la fin. S'applique à tous les rôles.",
+  "config.job.healer_shared.timeline_master_moved": "Les options principales de timeline se trouvent maintenant dans Partagé > Intégration Timeline."
 }

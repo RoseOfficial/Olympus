@@ -68,6 +68,7 @@ public sealed class ConfigWindow : Window
     private readonly PictomancerSection pictomancerSection;
     private readonly DrawHelperSection drawHelperSection;
     private readonly ActionFeedSection actionFeedSection;
+    private readonly TimelineSection timelineSection;
     private readonly PartyCoordinationSection partyCoordinationSection;
     private readonly DebugDisplaySection debugDisplaySection;
 
@@ -111,6 +112,7 @@ public sealed class ConfigWindow : Window
         pictomancerSection = new PictomancerSection(configuration, saveConfiguration);
         drawHelperSection = new DrawHelperSection(configuration, saveConfiguration);
         actionFeedSection = new ActionFeedSection(configuration, saveConfiguration);
+        timelineSection = new TimelineSection(configuration, saveConfiguration);
         partyCoordinationSection = new PartyCoordinationSection(configuration, saveConfiguration);
         debugDisplaySection = new DebugDisplaySection(configuration, saveConfiguration);
 
@@ -374,6 +376,10 @@ public sealed class ConfigWindow : Window
 
             case ConfigSection.Pictomancer:
                 pictomancerSection.Draw();
+                break;
+
+            case ConfigSection.Timeline:
+                timelineSection.Draw();
                 break;
 
             case ConfigSection.PartyCoordination:

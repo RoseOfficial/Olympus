@@ -122,6 +122,7 @@ public sealed class SettingRegistry
             ConfigSection.Summoner => Loc.T(LocalizedStrings.Sidebar.Summoner, "Summoner"),
             ConfigSection.RedMage => Loc.T(LocalizedStrings.Sidebar.RedMage, "Red Mage"),
             ConfigSection.Pictomancer => Loc.T(LocalizedStrings.Sidebar.Pictomancer, "Pictomancer"),
+            ConfigSection.Timeline => Loc.T(LocalizedStrings.Sidebar.Timeline, "Timeline"),
             _ => section.ToString()
         };
     }
@@ -854,6 +855,14 @@ public sealed class SettingRegistry
             new("Smudge", "Movement tool"),
             new("Tempera Coat", "Shield"),
             new("Tempera Grassa", "Party shield")
+        };
+
+        // Timeline section
+        this.sectionSettings[ConfigSection.Timeline] = new List<SettingInfo>
+        {
+            new("Enable Timeline Predictions", "Use fight timelines for precise mechanic timing"),
+            new("Confidence Threshold", "Minimum confidence required before trusting timeline predictions"),
+            new("Block Casts Before Mechanics", "Stop hardcast damage spells when a mechanic will hit before the cast completes")
         };
     }
 }
