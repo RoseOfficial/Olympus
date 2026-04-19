@@ -347,6 +347,66 @@ public static class RPRActions
         // Requires Perfectio Parata buff
     };
 
+    /// <summary>
+    /// Executioner's Gibbet - Enhanced Gibbet during Executioner (Lv.96)
+    /// Game auto-replaces Gibbet when Executioner buff is active. Flank positional.
+    /// </summary>
+    public static readonly ActionDefinition ExecutionersGibbet = new()
+    {
+        ActionId = 36970,
+        Name = "Executioner's Gibbet",
+        MinLevel = 96,
+        Category = ActionCategory.GCD,
+        TargetType = ActionTargetType.SingleEnemy,
+        EffectTypes = ActionEffectType.Damage,
+        CastTime = 0f,
+        RecastTime = 2.5f,
+        Range = 3f,
+        MpCost = 0,
+        DamagePotency = 700
+        // Flank positional, consumes Executioner stack
+    };
+
+    /// <summary>
+    /// Executioner's Gallows - Enhanced Gallows during Executioner (Lv.96)
+    /// Game auto-replaces Gallows when Executioner buff is active. Rear positional.
+    /// </summary>
+    public static readonly ActionDefinition ExecutionersGallows = new()
+    {
+        ActionId = 36971,
+        Name = "Executioner's Gallows",
+        MinLevel = 96,
+        Category = ActionCategory.GCD,
+        TargetType = ActionTargetType.SingleEnemy,
+        EffectTypes = ActionEffectType.Damage,
+        CastTime = 0f,
+        RecastTime = 2.5f,
+        Range = 3f,
+        MpCost = 0,
+        DamagePotency = 700
+        // Rear positional, consumes Executioner stack
+    };
+
+    /// <summary>
+    /// Executioner's Guillotine - Enhanced Guillotine during Executioner (Lv.96)
+    /// Game auto-replaces Guillotine when Executioner buff is active. AoE.
+    /// </summary>
+    public static readonly ActionDefinition ExecutionersGuillotine = new()
+    {
+        ActionId = 36972,
+        Name = "Executioner's Guillotine",
+        MinLevel = 96,
+        Category = ActionCategory.GCD,
+        TargetType = ActionTargetType.SingleEnemy,
+        EffectTypes = ActionEffectType.Damage,
+        CastTime = 0f,
+        RecastTime = 2.5f,
+        Range = 8f,
+        Radius = 8f,
+        MpCost = 0,
+        DamagePotency = 340
+    };
+
     #endregion
 
     #region Soul Spenders (oGCD)
@@ -798,6 +858,10 @@ public static class RPRActions
 
         // Perfectio proc (Dawntrail)
         public const uint PerfectioParata = 3860;
+
+        // Executioner proc (Lv.96+ Gibbet/Gallows/Guillotine enhancement)
+        public const uint Executioner = 3858; // Granted post-Plentiful Harvest at Lv.96+
+        public const uint PerfectioOcculta = 3859; // Precursor to PerfectioParata
 
         // Oblatio proc for Sacrificium (Dawntrail)
         public const uint Oblatio = 3857;

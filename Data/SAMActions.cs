@@ -438,6 +438,84 @@ public static class SAMActions
         DamagePotency = 860
     };
 
+    /// <summary>
+    /// Tendo Goken - Enhanced Tenka Goken during Tendo (Lv.100)
+    /// Game auto-replaces TenkaGoken when Tendo buff is active. 2 Sen spender.
+    /// </summary>
+    public static readonly ActionDefinition TendoGoken = new()
+    {
+        ActionId = 36965,
+        Name = "Tendo Goken",
+        MinLevel = 100,
+        Category = ActionCategory.GCD,
+        TargetType = ActionTargetType.SingleEnemy,
+        EffectTypes = ActionEffectType.Damage,
+        CastTime = 1.8f,
+        RecastTime = 2.5f,
+        Range = 8f,
+        Radius = 8f,
+        MpCost = 0,
+        DamagePotency = 410
+    };
+
+    /// <summary>
+    /// Tendo Setsugekka - Enhanced Midare Setsugekka during Tendo (Lv.100)
+    /// Game auto-replaces MidareSetsugekka when Tendo buff is active. 3 Sen spender.
+    /// </summary>
+    public static readonly ActionDefinition TendoSetsugekka = new()
+    {
+        ActionId = 36966,
+        Name = "Tendo Setsugekka",
+        MinLevel = 100,
+        Category = ActionCategory.GCD,
+        TargetType = ActionTargetType.SingleEnemy,
+        EffectTypes = ActionEffectType.Damage,
+        CastTime = 1.8f,
+        RecastTime = 2.5f,
+        Range = 6f,
+        MpCost = 0,
+        DamagePotency = 1100
+    };
+
+    /// <summary>
+    /// Tendo Kaeshi Goken - Follow-up to Tendo Goken (Lv.100)
+    /// Fired via Tsubame-gaeshi button after Tendo Goken.
+    /// </summary>
+    public static readonly ActionDefinition TendoKaeshiGoken = new()
+    {
+        ActionId = 36967,
+        Name = "Tendo Kaeshi Goken",
+        MinLevel = 100,
+        Category = ActionCategory.GCD,
+        TargetType = ActionTargetType.SingleEnemy,
+        EffectTypes = ActionEffectType.Damage,
+        CastTime = 0f,
+        RecastTime = 60f,
+        Range = 8f,
+        Radius = 8f,
+        MpCost = 0,
+        DamagePotency = 410
+    };
+
+    /// <summary>
+    /// Tendo Kaeshi Setsugekka - Follow-up to Tendo Setsugekka (Lv.100)
+    /// Fired via Tsubame-gaeshi button after Tendo Setsugekka.
+    /// </summary>
+    public static readonly ActionDefinition TendoKaeshiSetsugekka = new()
+    {
+        ActionId = 36968,
+        Name = "Tendo Kaeshi Setsugekka",
+        MinLevel = 100,
+        Category = ActionCategory.GCD,
+        TargetType = ActionTargetType.SingleEnemy,
+        EffectTypes = ActionEffectType.Damage,
+        CastTime = 0f,
+        RecastTime = 60f,
+        Range = 6f,
+        MpCost = 0,
+        DamagePotency = 1100
+    };
+
     #endregion
 
     #region Kenki Spenders (oGCD)
@@ -745,6 +823,11 @@ public static class SAMActions
 
         // Tsubame-gaeshi readiness
         public const uint TsubameGaeshiReady = 4216; // Can use Tsubame-gaeshi
+
+        // Tendo (Meikyo Shisui enhancement at Lv.100)
+        public const uint Tendo = 3856; // Granted by Meikyo Shisui at Lv.100+, enables Tendo Goken/Setsugekka
+        public const uint TendoKaeshiGoken = 4217; // Follow-up proc after Tendo Goken
+        public const uint TendoKaeshiSetsugekka = 4218; // Follow-up proc after Tendo Setsugekka
 
         // DoT
         public const uint Higanbana = 1228; // 60s DoT
