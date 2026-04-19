@@ -1,4 +1,3 @@
-using Olympus.Config;
 using Olympus.Services.Prediction;
 using Olympus.Timeline;
 using Olympus.Timeline.Models;
@@ -18,25 +17,25 @@ public static class TimelineHelper
     /// </summary>
     /// <param name="timelineService">Timeline service (may be null).</param>
     /// <param name="bossMechanicDetector">Boss mechanic detector for fallback (may be null).</param>
-    /// <param name="config">Healing configuration with thresholds.</param>
+    /// <param name="config">Full configuration; reads Timeline.* and Healing.* sub-sections.</param>
     /// <param name="source">Output: source of the prediction ("Timeline" or "Pattern").</param>
-    /// <param name="windowSeconds">Optional custom window (defaults to config.RaidwidePreparationWindow).</param>
+    /// <param name="windowSeconds">Optional custom window (defaults to config.Healing.RaidwidePreparationWindow).</param>
     /// <returns>True if a raidwide is imminent.</returns>
     public static bool IsRaidwideImminent(
         ITimelineService? timelineService,
         IBossMechanicDetector? bossMechanicDetector,
-        HealingConfig config,
+        Configuration config,
         out string source,
         float? windowSeconds = null)
     {
         source = "None";
-        var window = windowSeconds ?? config.RaidwidePreparationWindow;
+        var window = windowSeconds ?? config.Healing.RaidwidePreparationWindow;
 
         // Priority 1: Timeline predictions (more accurate when synced)
-        if (config.EnableTimelinePredictions &&
+        if (config.Timeline.EnableTimelinePredictions &&
             timelineService is not null &&
             timelineService.IsActive &&
-            timelineService.Confidence >= config.TimelineConfidenceThreshold)
+            timelineService.Confidence >= config.Timeline.TimelineConfidenceThreshold)
         {
             var nextRaidwide = timelineService.NextRaidwide;
             if (nextRaidwide.HasValue &&
@@ -49,7 +48,7 @@ public static class TimelineHelper
         }
 
         // Priority 2: Boss mechanic detector (reactive pattern detection)
-        if (config.EnableMechanicAwareness && bossMechanicDetector is not null)
+        if (config.Healing.EnableMechanicAwareness && bossMechanicDetector is not null)
         {
             if (bossMechanicDetector.IsRaidwideImminent)
             {
@@ -68,26 +67,26 @@ public static class TimelineHelper
     /// </summary>
     /// <param name="timelineService">Timeline service (may be null).</param>
     /// <param name="bossMechanicDetector">Boss mechanic detector for fallback (may be null).</param>
-    /// <param name="config">Healing configuration with thresholds.</param>
+    /// <param name="config">Full configuration; reads Timeline.* and Healing.* sub-sections.</param>
     /// <param name="source">Output: source of the prediction ("Timeline" or "Pattern").</param>
     /// <returns>True if a tank buster is imminent.</returns>
     public static bool IsTankBusterImminent(
         ITimelineService? timelineService,
         IBossMechanicDetector? bossMechanicDetector,
-        HealingConfig config,
+        Configuration config,
         out string source)
     {
         source = "None";
 
         // Priority 1: Timeline predictions (more accurate when synced)
-        if (config.EnableTimelinePredictions &&
+        if (config.Timeline.EnableTimelinePredictions &&
             timelineService is not null &&
             timelineService.IsActive &&
-            timelineService.Confidence >= config.TimelineConfidenceThreshold)
+            timelineService.Confidence >= config.Timeline.TimelineConfidenceThreshold)
         {
             var nextTankBuster = timelineService.NextTankBuster;
             if (nextTankBuster.HasValue &&
-                nextTankBuster.Value.SecondsUntil <= config.TankBusterPreparationWindow &&
+                nextTankBuster.Value.SecondsUntil <= config.Healing.TankBusterPreparationWindow &&
                 nextTankBuster.Value.SecondsUntil > 0)
             {
                 source = "Timeline";
@@ -96,7 +95,7 @@ public static class TimelineHelper
         }
 
         // Priority 2: Boss mechanic detector (reactive pattern detection)
-        if (config.EnableMechanicAwareness && bossMechanicDetector is not null)
+        if (config.Healing.EnableMechanicAwareness && bossMechanicDetector is not null)
         {
             if (bossMechanicDetector.IsTankBusterImminent)
             {
@@ -114,18 +113,18 @@ public static class TimelineHelper
     /// </summary>
     /// <param name="timelineService">Timeline service (may be null).</param>
     /// <param name="bossMechanicDetector">Boss mechanic detector for fallback (may be null).</param>
-    /// <param name="config">Healing configuration with thresholds.</param>
+    /// <param name="config">Full configuration; reads Timeline.* and Healing.* sub-sections.</param>
     /// <returns>Prediction info or null if none available.</returns>
     public static (float secondsUntil, float confidence, string name, string source)? GetNextRaidwide(
         ITimelineService? timelineService,
         IBossMechanicDetector? bossMechanicDetector,
-        HealingConfig config)
+        Configuration config)
     {
         // Priority 1: Timeline predictions
-        if (config.EnableTimelinePredictions &&
+        if (config.Timeline.EnableTimelinePredictions &&
             timelineService is not null &&
             timelineService.IsActive &&
-            timelineService.Confidence >= config.TimelineConfidenceThreshold)
+            timelineService.Confidence >= config.Timeline.TimelineConfidenceThreshold)
         {
             var nextRaidwide = timelineService.NextRaidwide;
             if (nextRaidwide.HasValue && nextRaidwide.Value.SecondsUntil > 0)
@@ -138,7 +137,7 @@ public static class TimelineHelper
         }
 
         // Priority 2: Boss mechanic detector
-        if (config.EnableMechanicAwareness && bossMechanicDetector is not null)
+        if (config.Healing.EnableMechanicAwareness && bossMechanicDetector is not null)
         {
             var prediction = bossMechanicDetector.PredictedRaidwide;
             if (prediction is not null && prediction.SecondsUntil > 0)
@@ -159,18 +158,18 @@ public static class TimelineHelper
     /// </summary>
     /// <param name="timelineService">Timeline service (may be null).</param>
     /// <param name="bossMechanicDetector">Boss mechanic detector for fallback (may be null).</param>
-    /// <param name="config">Healing configuration with thresholds.</param>
+    /// <param name="config">Full configuration; reads Timeline.* and Healing.* sub-sections.</param>
     /// <returns>Prediction info or null if none available.</returns>
     public static (float secondsUntil, float confidence, string name, string source)? GetNextTankBuster(
         ITimelineService? timelineService,
         IBossMechanicDetector? bossMechanicDetector,
-        HealingConfig config)
+        Configuration config)
     {
         // Priority 1: Timeline predictions
-        if (config.EnableTimelinePredictions &&
+        if (config.Timeline.EnableTimelinePredictions &&
             timelineService is not null &&
             timelineService.IsActive &&
-            timelineService.Confidence >= config.TimelineConfidenceThreshold)
+            timelineService.Confidence >= config.Timeline.TimelineConfidenceThreshold)
         {
             var nextTankBuster = timelineService.NextTankBuster;
             if (nextTankBuster.HasValue && nextTankBuster.Value.SecondsUntil > 0)
@@ -183,7 +182,7 @@ public static class TimelineHelper
         }
 
         // Priority 2: Boss mechanic detector
-        if (config.EnableMechanicAwareness && bossMechanicDetector is not null)
+        if (config.Healing.EnableMechanicAwareness && bossMechanicDetector is not null)
         {
             var prediction = bossMechanicDetector.PredictedTankBuster;
             if (prediction is not null && prediction.SecondsUntil > 0)
@@ -203,29 +202,29 @@ public static class TimelineHelper
     /// Used to determine whether to use timeline-based decisions or fall back.
     /// </summary>
     /// <param name="timelineService">Timeline service (may be null).</param>
-    /// <param name="config">Healing configuration with thresholds.</param>
+    /// <param name="config">Full configuration; reads Timeline.* sub-section.</param>
     /// <returns>True if timeline is active and above confidence threshold.</returns>
     public static bool IsTimelineHighConfidence(
         ITimelineService? timelineService,
-        HealingConfig config)
+        Configuration config)
     {
-        return config.EnableTimelinePredictions &&
+        return config.Timeline.EnableTimelinePredictions &&
                timelineService is not null &&
                timelineService.IsActive &&
-               timelineService.Confidence >= config.TimelineConfidenceThreshold;
+               timelineService.Confidence >= config.Timeline.TimelineConfidenceThreshold;
     }
 
     /// <summary>
     /// Gets a status string for timeline state (for debug display).
     /// </summary>
     /// <param name="timelineService">Timeline service (may be null).</param>
-    /// <param name="config">Healing configuration with thresholds.</param>
+    /// <param name="config">Full configuration; reads Timeline.* sub-section.</param>
     /// <returns>Human-readable status string.</returns>
     public static string GetTimelineStatus(
         ITimelineService? timelineService,
-        HealingConfig config)
+        Configuration config)
     {
-        if (!config.EnableTimelinePredictions)
+        if (!config.Timeline.EnableTimelinePredictions)
             return "Disabled";
 
         if (timelineService is null)
@@ -237,7 +236,7 @@ public static class TimelineHelper
         var confidencePercent = timelineService.Confidence * 100f;
         var fightName = timelineService.FightName;
 
-        if (timelineService.Confidence >= config.TimelineConfidenceThreshold)
+        if (timelineService.Confidence >= config.Timeline.TimelineConfidenceThreshold)
             return $"{fightName} [{confidencePercent:F0}%]";
 
         return $"{fightName} [Low: {confidencePercent:F0}%]";

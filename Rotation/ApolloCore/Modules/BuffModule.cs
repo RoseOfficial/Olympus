@@ -388,7 +388,7 @@ public sealed class BuffModule : IApolloModule
         var raidwideInfo = TimelineHelper.GetNextRaidwide(
             context.TimelineService,
             context.BossMechanicDetector,
-            config.Healing);
+            config);
 
         var shouldDeployForRaidwide = false;
         var raidwideSource = "None";

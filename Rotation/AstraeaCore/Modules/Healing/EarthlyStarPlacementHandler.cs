@@ -50,7 +50,7 @@ public sealed class EarthlyStarPlacementHandler : IHealingHandler
         var raidwideImminent = TimelineHelper.IsRaidwideImminent(
             context.TimelineService,
             context.BossMechanicDetector,
-            context.Configuration.Healing,
+            context.Configuration,
             out _,
             windowSeconds: 12f); // Longer window for Star maturation
 

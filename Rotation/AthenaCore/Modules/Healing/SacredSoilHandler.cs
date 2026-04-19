@@ -53,7 +53,7 @@ public sealed class SacredSoilHandler : IHealingHandler
         var raidwideImminent = TimelineHelper.IsRaidwideImminent(
             context.TimelineService,
             context.BossMechanicDetector,
-            context.Configuration.Healing,
+            context.Configuration,
             out _);
 
         // Burst awareness: Deploy Sacred Soil proactively before burst windows

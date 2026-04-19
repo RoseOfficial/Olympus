@@ -172,7 +172,7 @@ public sealed class DefensiveModule : IApolloModule
         var raidwideImminent = TimelineHelper.IsRaidwideImminent(
             context.TimelineService,
             context.BossMechanicDetector,
-            config.Healing,
+            config,
             out var raidwideSource);
 
         // Standard threshold or lowered threshold during high damage
@@ -351,7 +351,7 @@ public sealed class DefensiveModule : IApolloModule
         var tankBusterImminent = TimelineHelper.IsTankBusterImminent(
             context.TimelineService,
             context.BossMechanicDetector,
-            config.Healing,
+            config,
             out var tankBusterSource);
         // For pattern-based detection, also check if this is the correct tank
         var shouldApplyForTankBuster = tankBusterImminent &&
@@ -381,7 +381,7 @@ public sealed class DefensiveModule : IApolloModule
             if (shouldApplyForTankBuster)
             {
                 var tbPrediction = TimelineHelper.GetNextTankBuster(
-                    context.TimelineService, context.BossMechanicDetector, config.Healing);
+                    context.TimelineService, context.BossMechanicDetector, config);
                 var secondsUntil = tbPrediction?.secondsUntil ?? 0;
                 reason = $"tank buster in {secondsUntil:F1}s ({tankBusterSource}) ({chargeInfo})";
                 logReason = $"Tank buster predicted ({tankBusterSource}) ({chargeInfo})";
@@ -495,7 +495,7 @@ public sealed class DefensiveModule : IApolloModule
         var tankBusterImminentAquaveil = TimelineHelper.IsTankBusterImminent(
             context.TimelineService,
             context.BossMechanicDetector,
-            config.Healing,
+            config,
             out var aquaveilTankBusterSource);
         // For pattern-based detection, also check if this is the correct tank
         var shouldApplyForTankBuster = tankBusterImminentAquaveil &&
@@ -518,7 +518,7 @@ public sealed class DefensiveModule : IApolloModule
             if (shouldApplyForTankBuster)
             {
                 var tbPrediction = TimelineHelper.GetNextTankBuster(
-                    context.TimelineService, context.BossMechanicDetector, config.Healing);
+                    context.TimelineService, context.BossMechanicDetector, config);
                 var secondsUntil = tbPrediction?.secondsUntil ?? 0;
                 reason = $"tank buster in {secondsUntil:F1}s ({aquaveilTankBusterSource})";
                 logReason = $"Tank buster predicted ({aquaveilTankBusterSource})";

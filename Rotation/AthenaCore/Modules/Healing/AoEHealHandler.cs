@@ -78,7 +78,7 @@ public sealed class AoEHealHandler : IHealingHandler
                 var raidwideImminent = TimelineHelper.IsRaidwideImminent(
                     context.TimelineService,
                     context.BossMechanicDetector,
-                    context.Configuration.Healing,
+                    context.Configuration,
                     out _);
 
                 var isSeraphism = action.ActionId == SCHActions.Concitation.ActionId;
@@ -132,7 +132,7 @@ public sealed class AoEHealHandler : IHealingHandler
         var raidwideImminent = TimelineHelper.IsRaidwideImminent(
             context.TimelineService,
             context.BossMechanicDetector,
-            context.Configuration.Healing,
+            context.Configuration,
             out _);
 
         // Use if party needs healing OR raidwide is imminent (for pre-shielding)

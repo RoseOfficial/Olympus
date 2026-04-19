@@ -437,7 +437,7 @@ public sealed class FairyModule : IAthenaModule
         var raidwideImminent = TimelineHelper.IsRaidwideImminent(
             context.TimelineService,
             context.BossMechanicDetector,
-            context.Configuration.Healing,
+            context.Configuration,
             out _);
 
         // Burst awareness: Deploy Fey Blessing proactively before burst windows
@@ -539,7 +539,7 @@ public sealed class FairyModule : IAthenaModule
         var raidwideImminent = TimelineHelper.IsRaidwideImminent(
             context.TimelineService,
             context.BossMechanicDetector,
-            context.Configuration.Healing,
+            context.Configuration,
             out _);
 
         // Burst awareness: Deploy Whispering Dawn proactively before burst windows

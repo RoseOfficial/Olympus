@@ -111,7 +111,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAthenaContext>, IAthe
         var raidwideImminent = TimelineHelper.IsRaidwideImminent(
             context.TimelineService,
             context.BossMechanicDetector,
-            context.Configuration.Healing,
+            context.Configuration,
             out _);
 
         if (avgHp > config.ExpedientThreshold && !raidwideImminent)

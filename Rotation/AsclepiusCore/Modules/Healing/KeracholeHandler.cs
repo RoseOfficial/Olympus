@@ -57,7 +57,7 @@ public sealed class KeracholeHandler : IHealingHandler
         var raidwideImminent = TimelineHelper.IsRaidwideImminent(
             context.TimelineService,
             context.BossMechanicDetector,
-            context.Configuration.Healing,
+            context.Configuration,
             out var raidwideSource);
 
         // Burst awareness: Deploy Kerachole proactively before burst windows

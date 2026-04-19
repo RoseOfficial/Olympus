@@ -97,7 +97,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAsclepiusContext>, IA
         var tankBusterImminent = TimelineHelper.IsTankBusterImminent(
             context.TimelineService,
             context.BossMechanicDetector,
-            context.Configuration.Healing,
+            context.Configuration,
             out _);
 
         if (hpPercent > config.TaurocholeThreshold && !tankBusterImminent)
@@ -173,7 +173,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAsclepiusContext>, IA
         var raidwideImminent = TimelineHelper.IsRaidwideImminent(
             context.TimelineService,
             context.BossMechanicDetector,
-            context.Configuration.Healing,
+            context.Configuration,
             out _);
 
         if (avgHp > config.PanhaimaThreshold && !raidwideImminent)

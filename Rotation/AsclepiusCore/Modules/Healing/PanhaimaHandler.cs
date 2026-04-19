@@ -73,7 +73,7 @@ public sealed class PanhaimaHandler : IHealingHandler
         var raidwideImminent = TimelineHelper.IsRaidwideImminent(
             context.TimelineService,
             context.BossMechanicDetector,
-            context.Configuration.Healing,
+            context.Configuration,
             out var raidwideSource);
 
         // Panhaima is a 2-minute CD - save for raidwides

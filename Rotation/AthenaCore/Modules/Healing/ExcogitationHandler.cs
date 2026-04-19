@@ -65,7 +65,7 @@ public sealed class ExcogitationHandler : IHealingHandler
         var tankBusterImminent = TimelineHelper.IsTankBusterImminent(
             context.TimelineService,
             context.BossMechanicDetector,
-            context.Configuration.Healing,
+            context.Configuration,
             out _);
 
         // Use if HP is low OR tank buster is imminent

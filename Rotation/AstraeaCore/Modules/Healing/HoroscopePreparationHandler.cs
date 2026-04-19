@@ -46,7 +46,7 @@ public sealed class HoroscopePreparationHandler : IHealingHandler
         var raidwideImminent = TimelineHelper.IsRaidwideImminent(
             context.TimelineService,
             context.BossMechanicDetector,
-            context.Configuration.Healing,
+            context.Configuration,
             out _);
 
         // Only prepare if party might need healing soon (proactive) OR raidwide is imminent

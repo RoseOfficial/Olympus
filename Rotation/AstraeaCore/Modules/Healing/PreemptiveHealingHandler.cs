@@ -45,7 +45,7 @@ public sealed class PreemptiveHealingHandler : IHealingHandler
 
         var detection = PreemptiveSpikeDetectionHelper.Detect(
             player,
-            config.Healing,
+            config,
             context.PartyHelper,
             context.DamageIntakeService,
             context.DamageTrendService,

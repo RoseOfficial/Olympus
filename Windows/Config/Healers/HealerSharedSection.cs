@@ -77,8 +77,8 @@ public sealed class HealerSharedSection
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.HealerShared.EnableMechanicAwareCasting, "Block Casts Before Mechanics"),
-                () => config.Healing.EnableMechanicAwareCasting,
-                v => config.Healing.EnableMechanicAwareCasting = v,
+                () => config.Timeline.EnableMechanicAwareCasting,
+                v => config.Timeline.EnableMechanicAwareCasting = v,
                 Loc.T(LocalizedStrings.HealerShared.EnableMechanicAwareCastingDesc,
                     "Stop hardcast damage spells when a raidwide or tank buster will hit before the cast completes."),
                 save);
@@ -111,20 +111,20 @@ public sealed class HealerSharedSection
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.HealerShared.EnableTimelinePredictions, "Enable Timeline Predictions"),
-                () => config.Healing.EnableTimelinePredictions,
-                v => config.Healing.EnableTimelinePredictions = v,
+                () => config.Timeline.EnableTimelinePredictions,
+                v => config.Timeline.EnableTimelinePredictions = v,
                 Loc.T(LocalizedStrings.HealerShared.EnableTimelinePredictionsDesc,
                     "Use fight timelines for precise mechanic timing (DSU/TOP/FRU)."),
                 save);
 
-            if (config.Healing.EnableTimelinePredictions)
+            if (config.Timeline.EnableTimelinePredictions)
             {
-                config.Healing.TimelineConfidenceThreshold = ConfigUIHelpers.ThresholdSliderSmall(
+                config.Timeline.TimelineConfidenceThreshold = ConfigUIHelpers.ThresholdSliderSmall(
                     Loc.T(LocalizedStrings.HealerShared.TimelineConfidenceThreshold, "Confidence Threshold"),
-                    config.Healing.TimelineConfidenceThreshold, 50f, 100f,
+                    config.Timeline.TimelineConfidenceThreshold, 50f, 100f,
                     "Minimum confidence to trust timeline predictions.",
                     save,
-                    v => config.Healing.TimelineConfidenceThreshold = v);
+                    v => config.Timeline.TimelineConfidenceThreshold = v);
 
                 config.Healing.RaidwidePreparationWindow = ConfigUIHelpers.FloatSlider(
                     Loc.T(LocalizedStrings.HealerShared.RaidwideWindow, "Raidwide Window (sec)"),

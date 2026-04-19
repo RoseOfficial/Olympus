@@ -838,27 +838,6 @@ public sealed class HealingConfig
     // ============================================================
 
     /// <summary>
-    /// Enable timeline-based mechanic predictions.
-    /// When enabled and a timeline is active with high confidence,
-    /// the rotation will use precise timing predictions instead of
-    /// reactive pattern detection for raidwides and tank busters.
-    /// </summary>
-    public bool EnableTimelinePredictions { get; set; } = true;
-
-    /// <summary>
-    /// Minimum timeline confidence required to trust predictions.
-    /// Timeline confidence decays over time since the last sync point.
-    /// Higher values require more recent sync for timeline-based decisions.
-    /// Valid range: 0.5 to 1.0.
-    /// </summary>
-    private float _timelineConfidenceThreshold = 0.8f;
-    public float TimelineConfidenceThreshold
-    {
-        get => _timelineConfidenceThreshold;
-        set => _timelineConfidenceThreshold = Math.Clamp(value, 0.5f, 1f);
-    }
-
-    /// <summary>
     /// Seconds before a raidwide to start preparation (shields, mitigation).
     /// Longer windows allow more proactive preparation but may waste cooldowns
     /// if the mechanic timing is off.
@@ -883,17 +862,6 @@ public sealed class HealingConfig
         set => _tankBusterPreparationWindow = Math.Clamp(value, 1f, 6f);
     }
 
-    // ============================================================
-    // Mechanic-Aware Casting (Healer DPS)
-    // ============================================================
-
-    /// <summary>
-    /// When enabled, healer damage modules skip cast-time GCDs (Glare, Stone, Broil, Malefic)
-    /// when a raidwide or tankbuster is predicted to hit before the cast would complete.
-    /// This keeps the GCD available for reactive healing instead of locking the healer into
-    /// a damage cast during incoming raid damage.
-    /// </summary>
-    public bool EnableMechanicAwareCasting { get; set; } = true;
 }
 
 /// <summary>

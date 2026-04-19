@@ -1,7 +1,6 @@
 using System;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
-using Olympus.Config;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Services.Healing;
 using Olympus.Services.Party;
@@ -38,7 +37,7 @@ public static class PreemptiveSpikeDetectionHelper
     /// </summary>
     public static Result? Detect(
         IPlayerCharacter player,
-        HealingConfig healing,
+        Configuration config,
         ISpikeTargetSource partyHelper,
         IDamageIntakeService damageIntakeService,
         IDamageTrendService damageTrendService,
@@ -49,14 +48,16 @@ public static class PreemptiveSpikeDetectionHelper
         IBossMechanicDetector? bossMechanicDetector,
         float avgPartyHpPercent)
     {
+        var healing = config.Healing;
+
         if (!healing.EnablePreemptiveHealing)
             return null;
 
         var isTimelineRaidwide = TimelineHelper.IsRaidwideImminent(
-            timelineService, bossMechanicDetector, healing, out var raidwideSource);
+            timelineService, bossMechanicDetector, config, out var raidwideSource);
 
         var timelineRaidwideInfo = isTimelineRaidwide
-            ? TimelineHelper.GetNextRaidwide(timelineService, bossMechanicDetector, healing)
+            ? TimelineHelper.GetNextRaidwide(timelineService, bossMechanicDetector, config)
             : null;
 
         var isReactiveSpike = damageTrendService.IsDamageSpikeImminent(0.7f);

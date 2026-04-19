@@ -125,39 +125,11 @@ public abstract class BaseDamageModule<TContext> : IHealerRotationModule<TContex
 
     /// <summary>
     /// Returns true if a cast-time damage GCD should be blocked because a mechanic is imminent.
-    /// Prevents healers from starting a damage cast when a raidwide/tankbuster will snapshot
-    /// before the cast completes — keeping the GCD available for reactive healing.
+    /// Delegates to <see cref="MechanicCastGate.ShouldBlock"/> for the shared decision logic.
     /// Only applies to cast-time spells (instant GCDs are never blocked).
     /// </summary>
     protected bool ShouldBlockCastForMechanic(TContext context, float castTime)
-    {
-        if (castTime <= 0)
-            return false;
-
-        if (!context.Configuration.Healing.EnableMechanicAwareCasting)
-            return false;
-
-        var timeline = context.TimelineService;
-        if (timeline == null || !timeline.IsActive)
-            return false;
-
-        if (timeline.Confidence < context.Configuration.Healing.TimelineConfidenceThreshold)
-            return false;
-
-        // Block the cast if a mechanic will hit before the cast finishes + a small buffer.
-        // The 0.5s buffer accounts for server tick and reaction time after the cast completes.
-        var deadline = castTime + 0.5f;
-
-        var raidwide = timeline.NextRaidwide;
-        if (raidwide.HasValue && raidwide.Value.SecondsUntil > 0 && raidwide.Value.SecondsUntil <= deadline)
-            return true;
-
-        var tankbuster = timeline.NextTankBuster;
-        if (tankbuster.HasValue && tankbuster.Value.SecondsUntil > 0 && tankbuster.Value.SecondsUntil <= deadline)
-            return true;
-
-        return false;
-    }
+        => MechanicCastGate.ShouldBlock(context, castTime);
 
     /// <summary>
     /// Override to try job-specific instant cast damage while moving (e.g., Ruin II).

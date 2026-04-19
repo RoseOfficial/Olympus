@@ -450,9 +450,9 @@ public class DamageModuleTests
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableDamage = true;
         config.Damage.EnableGlareIII = true;
-        config.Healing.EnableMechanicAwareCasting = true;
-        config.Healing.EnableTimelinePredictions = true;
-        config.Healing.TimelineConfidenceThreshold = 0.8f;
+        config.Timeline.EnableMechanicAwareCasting = true;
+        config.Timeline.EnableTimelinePredictions = true;
+        config.Timeline.TimelineConfidenceThreshold = 0.8f;
 
         var enemyMock = CreateMockEnemy();
         var targetingServiceMock = MockBuilders.CreateMockTargetingService();
@@ -494,9 +494,9 @@ public class DamageModuleTests
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableDamage = true;
         config.Damage.EnableGlareIII = true;
-        config.Healing.EnableMechanicAwareCasting = true;
-        config.Healing.EnableTimelinePredictions = true;
-        config.Healing.TimelineConfidenceThreshold = 0.8f;
+        config.Timeline.EnableMechanicAwareCasting = true;
+        config.Timeline.EnableTimelinePredictions = true;
+        config.Timeline.TimelineConfidenceThreshold = 0.8f;
 
         var enemyMock = CreateMockEnemy();
         var targetingServiceMock = MockBuilders.CreateMockTargetingService();
@@ -540,7 +540,7 @@ public class DamageModuleTests
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableDamage = true;
         config.Damage.EnableGlareIII = true;
-        config.Healing.EnableMechanicAwareCasting = false;
+        config.Timeline.EnableMechanicAwareCasting = false;
 
         var enemyMock = CreateMockEnemy();
         var targetingServiceMock = MockBuilders.CreateMockTargetingService();
@@ -584,9 +584,9 @@ public class DamageModuleTests
         var config = MockBuilders.CreateDefaultConfiguration();
         config.EnableDamage = true;
         config.Damage.EnableGlareIII = true;
-        config.Healing.EnableMechanicAwareCasting = true;
-        config.Healing.EnableTimelinePredictions = true;
-        config.Healing.TimelineConfidenceThreshold = 0.8f;
+        config.Timeline.EnableMechanicAwareCasting = true;
+        config.Timeline.EnableTimelinePredictions = true;
+        config.Timeline.TimelineConfidenceThreshold = 0.8f;
 
         var enemyMock = CreateMockEnemy();
         var targetingServiceMock = MockBuilders.CreateMockTargetingService();

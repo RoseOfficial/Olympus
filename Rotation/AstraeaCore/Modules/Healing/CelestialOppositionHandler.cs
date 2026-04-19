@@ -109,7 +109,7 @@ public sealed class CelestialOppositionHandler : IHealingHandler
         var raidwideImminent = TimelineHelper.IsRaidwideImminent(
             context.TimelineService,
             context.BossMechanicDetector,
-            context.Configuration.Healing,
+            context.Configuration,
             out _);
 
         // Use if party needs healing OR raidwide is imminent

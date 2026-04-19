@@ -72,7 +72,7 @@ public sealed class HaimaHandler : IHealingHandler
         var tankBusterImminent = TimelineHelper.IsTankBusterImminent(
             context.TimelineService,
             context.BossMechanicDetector,
-            context.Configuration.Healing,
+            context.Configuration,
             out var busterSource);
 
         // Use if tank buster is coming or tank HP is low

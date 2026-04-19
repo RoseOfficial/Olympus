@@ -134,7 +134,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAstraeaContext>, IAst
             shouldUse = TimelineHelper.IsRaidwideImminent(
                 context.TimelineService,
                 context.BossMechanicDetector,
-                context.Configuration.Healing,
+                context.Configuration,
                 out _);
         }
 
@@ -328,7 +328,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAstraeaContext>, IAst
         var raidwideImminent = TimelineHelper.IsRaidwideImminent(
             context.TimelineService,
             context.BossMechanicDetector,
-            context.Configuration.Healing,
+            context.Configuration,
             out _);
 
         if (avgHp > config.CollectiveUnconsciousThreshold && !raidwideImminent)

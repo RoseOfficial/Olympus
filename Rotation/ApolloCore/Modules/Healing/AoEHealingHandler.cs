@@ -57,7 +57,7 @@ public sealed class AoEHealingHandler : IHealingHandler
         var raidwideImminent = TimelineHelper.IsRaidwideImminent(
             context.TimelineService,
             context.BossMechanicDetector,
-            config.Healing,
+            config,
             out var raidwideSource);
 
         // Lower threshold when raidwide is imminent to ensure party is healthy before damage
