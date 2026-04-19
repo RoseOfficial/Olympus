@@ -72,9 +72,9 @@ public sealed class ConfigSidebar
     private static readonly Vector4 HoverColor = new(0.25f, 0.4f, 0.6f, 1.0f);
     private static readonly Vector4 SearchMatchColor = new(1.0f, 0.9f, 0.4f, 1.0f);
 
-    private static readonly ConfigSection[] BehaviorSections    = [ConfigSection.General, ConfigSection.Targeting, ConfigSection.RoleActions];
+    private static readonly ConfigSection[] BehaviorSections    = [ConfigSection.General, ConfigSection.Targeting, ConfigSection.RoleActions, ConfigSection.Timeline];
     private static readonly ConfigSection[] VisualsSections     = [ConfigSection.Display, ConfigSection.DrawHelper, ConfigSection.ActionFeed, ConfigSection.DebugDisplay];
-    private static readonly ConfigSection[] MultiplayerSections = [ConfigSection.Timeline, ConfigSection.PartyCoordination];
+    private static readonly ConfigSection[] MultiplayerSections = [ConfigSection.PartyCoordination];
     private static readonly ConfigSection[] HealerSections   = [ConfigSection.HealerShared, ConfigSection.WhiteMage, ConfigSection.Scholar, ConfigSection.Astrologian, ConfigSection.Sage];
     private static readonly ConfigSection[] TankSections     = [ConfigSection.TankShared, ConfigSection.Paladin, ConfigSection.Warrior, ConfigSection.DarkKnight, ConfigSection.Gunbreaker];
     private static readonly ConfigSection[] MeleeSections    = [ConfigSection.Dragoon, ConfigSection.Ninja, ConfigSection.Samurai, ConfigSection.Monk, ConfigSection.Reaper, ConfigSection.Viper];
@@ -141,6 +141,7 @@ public sealed class ConfigSidebar
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.GeneralItem, "General"), ConfigSection.General, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Targeting, "Targeting"), ConfigSection.Targeting, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.RoleActions, "Role Actions"), ConfigSection.RoleActions, null, matchingSections, hasSearch);
+            sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Timeline, "Timeline"), ConfigSection.Timeline, null, matchingSections, hasSearch);
             ImGui.Spacing();
         }
 
@@ -159,7 +160,6 @@ public sealed class ConfigSidebar
         if (ShouldShowCategory(MultiplayerSections, matchingSections, hasSearch))
         {
             DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.Multiplayer, "MULTIPLAYER"));
-            sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Timeline, "Timeline"), ConfigSection.Timeline, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.PartyCoordination, "Party Coordination"), ConfigSection.PartyCoordination, null, matchingSections, hasSearch);
             ImGui.Spacing();
         }

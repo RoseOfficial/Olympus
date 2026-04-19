@@ -2259,6 +2259,6 @@
   "config.timeline.confidence_threshold": "Vertrauensschwelle",
   "config.timeline.confidence_threshold_desc": "Minimales Vertrauen, um Timeline-Vorhersagen zu verwenden. Hoeher = konservativer.",
   "config.timeline.enable_mechanic_aware_casting": "Casts vor Mechaniken blockieren",
-  "config.timeline.enable_mechanic_aware_casting_desc": "Fuer alle Rollen: Hardcast-Schadenszauber stoppen, wenn ein Raidwide oder Tank-Buster den Cast unterbricht. Gilt fuer alle Rollen.",
+  "config.timeline.enable_mechanic_aware_casting_desc": "Fuer alle Rollen: Hardcast-Schadenszauber stoppen, wenn ein Raidwide oder Tank-Buster den Cast unterbricht.",
   "config.job.healer_shared.timeline_master_moved": "Timeline-Hauptschalter befinden sich jetzt unter Geteilt > Timeline-Integration."
 }
