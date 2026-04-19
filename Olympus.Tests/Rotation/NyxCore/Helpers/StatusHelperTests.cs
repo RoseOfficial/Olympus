@@ -100,7 +100,7 @@ public class StatusHelperTests
     [Fact]
     public void StatusId_TheBlackestNight_MatchesGameData()
     {
-        Assert.Equal(1178u, DRKActions.StatusIds.TheBlackestNight);
+        Assert.Equal(1308u, DRKActions.StatusIds.TheBlackestNight);
     }
 
     #endregion

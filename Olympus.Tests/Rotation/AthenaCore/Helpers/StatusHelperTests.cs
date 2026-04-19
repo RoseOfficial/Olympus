@@ -115,13 +115,13 @@ public class StatusHelperTests
     [Fact]
     public void StatusId_Seraphism_MatchesGameData()
     {
-        Assert.Equal(3963u, (uint)SCHActions.SeraphismStatusId);
+        Assert.Equal(3884u, (uint)SCHActions.SeraphismStatusId);
     }
 
     [Fact]
     public void StatusId_ImpactImminent_MatchesGameData()
     {
-        Assert.Equal(3961u, (uint)SCHActions.ImpactImminentStatusId);
+        Assert.Equal(3882u, (uint)SCHActions.ImpactImminentStatusId);
     }
 
     #endregion

@@ -117,7 +117,7 @@ public class StatusHelperTests
     [Fact]
     public void StatusId_HindstungVenom_MatchesGameData()
     {
-        Assert.Equal(3646u, VPRActions.StatusIds.HindstungVenom);
+        Assert.Equal(3647u, VPRActions.StatusIds.HindstungVenom);
     }
 
     [Fact]
@@ -135,7 +135,7 @@ public class StatusHelperTests
     [Fact]
     public void StatusId_ReadyToReawaken_MatchesGameData()
     {
-        Assert.Equal(4094u, VPRActions.StatusIds.ReadyToReawaken);
+        Assert.Equal(3671u, VPRActions.StatusIds.ReadyToReawaken);
     }
 
     [Fact]

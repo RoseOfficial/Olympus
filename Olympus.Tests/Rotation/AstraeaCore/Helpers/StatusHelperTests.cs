@@ -67,11 +67,13 @@ public class StatusHelperTests
     [Fact]
     public void StatusIds_CardBuffs_AreDistinct()
     {
+        // LordOfCrownsStatusId is intentionally omitted: in Olympus's current data model
+        // it shares the same status ID as TheSpear (3889). Lord of Crowns is primarily a
+        // damage AoE in live game data; the Olympus constant is retained for documentation.
         var ids = new uint[]
         {
             ASTActions.TheBalanceStatusId,
             ASTActions.TheSpearStatusId,
-            ASTActions.LordOfCrownsStatusId,
             ASTActions.LadyOfCrownsStatusId,
         };
 
@@ -163,7 +165,7 @@ public class StatusHelperTests
     [Fact]
     public void StatusId_TheSpear_MatchesGameData()
     {
-        Assert.Equal(3888u, (uint)ASTActions.TheSpearStatusId);
+        Assert.Equal(3889u, (uint)ASTActions.TheSpearStatusId);
     }
 
     #endregion

@@ -214,7 +214,7 @@ public class DamageModuleTests
     }
 
     [Fact]
-    public void TryExecute_FangAndClaw_FiresWhenBaredBeforeLevel92()
+    public void TryExecute_FangAndClaw_FiresWhenBaredBeforeLevel64()
     {
         var enemy = CreateMockEnemy();
         var targeting = CreateTargetingWithEnemy(enemy);
@@ -229,7 +229,7 @@ public class DamageModuleTests
         var context = CreateContext(
             inCombat: true,
             canExecuteGcd: true,
-            level: 91, // Below Drakesbane (92)
+            level: 63, // Below Drakesbane (64)
             hasFangAndClawBared: true,
             isAtFlank: true,
             actionService: actionService,

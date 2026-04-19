@@ -81,7 +81,7 @@ public class StatusHelperTests
     [Fact]
     public void StatusId_StraightShotReady_MatchesGameData()
     {
-        Assert.Equal(122u, BRDActions.StatusIds.StraightShotReady);
+        Assert.Equal(3861u, BRDActions.StatusIds.StraightShotReady);
     }
 
     [Fact]

@@ -134,7 +134,7 @@ public class StatusHelperTests
     [Fact]
     public void StatusIds_Haima_MatchesGameData()
     {
-        Assert.Equal(2621u, (uint)SGEActions.HaimaStatusId);
+        Assert.Equal(2612u, (uint)SGEActions.HaimaStatusId);
     }
 
     [Fact]

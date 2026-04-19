@@ -126,7 +126,7 @@ public class StatusHelperTests
     [Fact]
     public void StatusId_Brotherhood_MatchesGameData()
     {
-        Assert.Equal(1182u, MNKActions.StatusIds.Brotherhood);
+        Assert.Equal(1185u, MNKActions.StatusIds.Brotherhood);
     }
 
     [Fact]

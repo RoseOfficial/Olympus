@@ -781,7 +781,7 @@ public class DamageModuleTests
             inCombat: true,
             canExecuteOgcd: true,
             canExecuteGcd: false,
-            level: 91,
+            level: 54, // Below DeathRattle (55)
             serpentCombo: VPRActions.SerpentCombo.DeathRattle,
             actionService: actionService,
             targetingService: targeting);

@@ -249,6 +249,7 @@ public static class AresTestContext
         config.Tank.UseRampartOnCooldown = false;
         config.Tank.AutoProvoke = true;
         config.Tank.AutoShirk = false;
+        config.Tank.AutoPrimalRend = true; // Tests exercise rotation behavior; player-agency gate off for coverage
         config.Tank.IsMainTankOverride = true; // Force main tank in tests
         config.Tank.EnableDefensiveCoordination = false;
         config.Tank.EnableInvulnerabilityCoordination = false;

@@ -281,8 +281,8 @@ public class StatusHelperTests
 
     [Theory]
     [InlineData(100, 36952u)] // Drakesbane at level 100
-    [InlineData(92, 36952u)]  // Drakesbane at level 92
-    [InlineData(91, 3556u)]   // WheelingThrust before level 92
+    [InlineData(64, 36952u)]  // Drakesbane at level 64 (new MinLevel)
+    [InlineData(63, 3556u)]   // WheelingThrust below Drakesbane
     [InlineData(58, 3556u)]   // WheelingThrust at level 58
     [InlineData(56, 3554u)]   // FangAndClaw at level 56
     public void GetPositionalFinisher_ReturnsCorrectActionForLevel(byte level, uint expectedActionId)
