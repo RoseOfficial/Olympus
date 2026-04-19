@@ -833,6 +833,24 @@ public static class VPRActions
     #region Serpent's Ire (Party Buff)
 
     /// <summary>
+    /// Slither - Gap closer (Lv.40)
+    /// 30s CD, 2 charges (3 at Lv.84 with EnhancedSlither trait). Dash 20y to target.
+    /// </summary>
+    public static readonly ActionDefinition Slither = new()
+    {
+        ActionId = 34646,
+        Name = "Slither",
+        MinLevel = 40,
+        Category = ActionCategory.oGCD,
+        TargetType = ActionTargetType.SingleEnemy,
+        EffectTypes = ActionEffectType.None,
+        CastTime = 0f,
+        RecastTime = 30f,
+        Range = 20f,
+        MpCost = 0
+    };
+
+    /// <summary>
     /// Serpent's Ire - Party damage buff (Lv.86)
     /// +% damage to party. Grants Ready to Reawaken.
     /// Also grants +1 Rattling Coil.

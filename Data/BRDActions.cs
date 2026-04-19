@@ -358,6 +358,26 @@ public static class BRDActions
         DamagePotency = 170
     };
 
+    /// <summary>
+    /// Wide Volley - AoE version of Straight Shot (Lv.25 via WideVolleyMastery at L72)
+    /// Game auto-replaces Quick Nock / Ladonsbite's Hawk's Eye proc consumer with this.
+    /// </summary>
+    public static readonly ActionDefinition WideVolley = new()
+    {
+        ActionId = 36974,
+        Name = "Wide Volley",
+        MinLevel = 25,
+        Category = ActionCategory.GCD,
+        TargetType = ActionTargetType.SingleEnemy,
+        EffectTypes = ActionEffectType.Damage,
+        CastTime = 0f,
+        RecastTime = 2.5f,
+        Range = 25f,
+        Radius = 5f,
+        MpCost = 0,
+        DamagePotency = 140
+    };
+
     #endregion
 
     #region Songs (oGCD)

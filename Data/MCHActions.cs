@@ -530,6 +530,27 @@ public static class MCHActions
     };
 
     /// <summary>
+    /// Flamethrower - Channeled self-centered AoE (Lv.70)
+    /// 60s cooldown, 10s channel. Not used in standard rotation but useful for niche AoE.
+    /// </summary>
+    public static readonly ActionDefinition Flamethrower = new()
+    {
+        ActionId = 7418,
+        Name = "Flamethrower",
+        MinLevel = 70,
+        Category = ActionCategory.oGCD,
+        TargetType = ActionTargetType.Self,
+        EffectTypes = ActionEffectType.Damage,
+        CastTime = 0f,
+        RecastTime = 60f,
+        Range = 0f,
+        Radius = 8f,
+        MpCost = 0,
+        AppliedStatusId = StatusIds.Flamethrower,
+        AppliedStatusDuration = 10f
+    };
+
+    /// <summary>
     /// Hypercharge - Overheated state (Lv.30)
     /// Costs 50 Heat, enables Heat Blast for 10s
     /// </summary>
@@ -686,8 +707,12 @@ public static class MCHActions
         public const uint AutomatonQueenActive = 2685; // Queen is summoned
 
         // Target debuffs
-        public const uint Wildfire = 861;        // Will detonate after duration
+        public const uint Wildfire = 861;        // Target side debuff (will detonate)
+        public const uint WildfirePlayer = 1946; // Self-side: you're currently in Wildfire window
         public const uint Bioblaster = 1866;     // DoT from Bioblaster
+
+        // Channeled AoE
+        public const uint Flamethrower = 1205;   // Self-side Flamethrower channel
 
         // Role buffs
         public const uint ArmsLength = 1209;

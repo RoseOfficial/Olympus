@@ -469,6 +469,28 @@ public static class SGEActions
     #region oGCD Heals - Free
 
     /// <summary>
+    /// Physis - Pre-Lv.60 party HoT. Upgraded to Physis II at Lv.60 (trait PhysisMastery).
+    /// Fills the L20-59 gap where Olympus previously had no pre-Physis II option.
+    /// </summary>
+    public static readonly ActionDefinition Physis = new()
+    {
+        ActionId = 24288,
+        Name = "Physis",
+        MinLevel = 20,
+        Category = ActionCategory.oGCD,
+        TargetType = ActionTargetType.PartyAoE,
+        EffectTypes = ActionEffectType.HoT,
+        CastTime = 0f,
+        RecastTime = 60f,
+        Range = 0f,
+        Radius = 15f,
+        MpCost = 0,
+        HealPotency = 130, // Per tick
+        AppliedStatusId = 2617, // Physis HoT
+        AppliedStatusDuration = 15f
+    };
+
+    /// <summary>
     /// Physis II - Party HoT + healing received boost.
     /// </summary>
     public static readonly ActionDefinition PhysisII = new()

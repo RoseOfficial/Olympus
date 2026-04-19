@@ -293,6 +293,44 @@ public static class DNCActions
     };
 
     /// <summary>
+    /// Single Standard Finish - Internal ID when Standard Step completes with 1/2 steps.
+    /// The game picks this variant automatically; Olympus keeps all variants so action
+    /// tracking / IPC / logging can correctly identify the fired action.
+    /// </summary>
+    public static readonly ActionDefinition SingleStandardFinish = new()
+    {
+        ActionId = 16191,
+        Name = "Single Standard Finish",
+        MinLevel = 15,
+        Category = ActionCategory.GCD,
+        TargetType = ActionTargetType.Self,
+        EffectTypes = ActionEffectType.Damage | ActionEffectType.Buff,
+        CastTime = 0f,
+        RecastTime = 1.5f,
+        Radius = 15f,
+        MpCost = 0,
+        DamagePotency = 540
+    };
+
+    /// <summary>
+    /// Double Standard Finish - Internal ID when Standard Step completes with 2/2 steps.
+    /// </summary>
+    public static readonly ActionDefinition DoubleStandardFinish = new()
+    {
+        ActionId = 16192,
+        Name = "Double Standard Finish",
+        MinLevel = 15,
+        Category = ActionCategory.GCD,
+        TargetType = ActionTargetType.Self,
+        EffectTypes = ActionEffectType.Damage | ActionEffectType.Buff,
+        CastTime = 0f,
+        RecastTime = 1.5f,
+        Radius = 15f,
+        MpCost = 0,
+        DamagePotency = 850
+    };
+
+    /// <summary>
     /// Technical Finish - Completes Technical Step (Lv.70)
     /// Damage based on successful steps. Applies party buff.
     /// Grants Flourishing Finish at Lv.82.
@@ -310,6 +348,80 @@ public static class DNCActions
         Radius = 15f,
         MpCost = 0,
         DamagePotency = 1300 // At 4 steps
+    };
+
+    /// <summary>
+    /// Single Technical Finish - Internal ID when Technical Step completes with 1/4 steps.
+    /// </summary>
+    public static readonly ActionDefinition SingleTechnicalFinish = new()
+    {
+        ActionId = 16193,
+        Name = "Single Technical Finish",
+        MinLevel = 70,
+        Category = ActionCategory.GCD,
+        TargetType = ActionTargetType.Self,
+        EffectTypes = ActionEffectType.Damage | ActionEffectType.Buff,
+        CastTime = 0f,
+        RecastTime = 1.5f,
+        Radius = 15f,
+        MpCost = 0,
+        DamagePotency = 350
+    };
+
+    /// <summary>
+    /// Double Technical Finish - Internal ID when Technical Step completes with 2/4 steps.
+    /// </summary>
+    public static readonly ActionDefinition DoubleTechnicalFinish = new()
+    {
+        ActionId = 16194,
+        Name = "Double Technical Finish",
+        MinLevel = 70,
+        Category = ActionCategory.GCD,
+        TargetType = ActionTargetType.Self,
+        EffectTypes = ActionEffectType.Damage | ActionEffectType.Buff,
+        CastTime = 0f,
+        RecastTime = 1.5f,
+        Radius = 15f,
+        MpCost = 0,
+        DamagePotency = 540
+    };
+
+    /// <summary>
+    /// Triple Technical Finish - Internal ID when Technical Step completes with 3/4 steps.
+    /// </summary>
+    public static readonly ActionDefinition TripleTechnicalFinish = new()
+    {
+        ActionId = 16195,
+        Name = "Triple Technical Finish",
+        MinLevel = 70,
+        Category = ActionCategory.GCD,
+        TargetType = ActionTargetType.Self,
+        EffectTypes = ActionEffectType.Damage | ActionEffectType.Buff,
+        CastTime = 0f,
+        RecastTime = 1.5f,
+        Radius = 15f,
+        MpCost = 0,
+        DamagePotency = 850
+    };
+
+    /// <summary>
+    /// Quadruple Technical Finish - Internal ID when Technical Step completes with 4/4 steps.
+    /// This is the only variant the rotation should actively target; other variants are
+    /// recorded for logging/IPC correctness when the player drops steps.
+    /// </summary>
+    public static readonly ActionDefinition QuadrupleTechnicalFinish = new()
+    {
+        ActionId = 16196,
+        Name = "Quadruple Technical Finish",
+        MinLevel = 70,
+        Category = ActionCategory.GCD,
+        TargetType = ActionTargetType.Self,
+        EffectTypes = ActionEffectType.Damage | ActionEffectType.Buff,
+        CastTime = 0f,
+        RecastTime = 1.5f,
+        Radius = 15f,
+        MpCost = 0,
+        DamagePotency = 1300
     };
 
     /// <summary>
