@@ -70,6 +70,7 @@ public sealed class Configuration : IPluginConfiguration
 
     // Nested configuration groups
     public HealingConfig Healing { get; set; } = new();
+    public TimelineConfig Timeline { get; set; } = new();
     public DamageConfig Damage { get; set; } = new();
     public DotConfig Dot { get; set; } = new();
     public DefensiveConfig Defensive { get; set; } = new();
@@ -145,6 +146,7 @@ public sealed class Configuration : IPluginConfiguration
 
         // Reset all nested configs to fresh instances
         Healing = new HealingConfig();
+        Timeline = new TimelineConfig();
         Damage = new DamageConfig();
         Dot = new DotConfig();
         Defensive = new DefensiveConfig();
