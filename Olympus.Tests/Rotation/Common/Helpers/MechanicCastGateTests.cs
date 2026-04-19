@@ -131,4 +131,39 @@ public class MechanicCastGateTests
         var ctx = BuildContext(raidwide: null, tankbuster: null);
         Assert.False(MechanicCastGate.ShouldBlock(ctx.Object, castTime: 2.5f));
     }
+
+    [Fact]
+    public void PredictionsDisabled_ReturnsFalse()
+    {
+        var ctx = BuildContext(enablePredictions: false, raidwide: new MechanicPrediction { SecondsUntil = 1f });
+        Assert.False(MechanicCastGate.ShouldBlock(ctx.Object, castTime: 2.5f));
+    }
+
+    [Fact]
+    public void FormatBlockedState_RaidwideCloser_ShowsRaidwide()
+    {
+        var ctx = BuildContext(
+            raidwide: new MechanicPrediction { SecondsUntil = 1.5f },
+            tankbuster: new MechanicPrediction { SecondsUntil = 3.0f });
+        var state = MechanicCastGate.FormatBlockedState(ctx.Object);
+        Assert.StartsWith("Held cast (raidwide", state);
+    }
+
+    [Fact]
+    public void FormatBlockedState_TankbusterOnly_ShowsTankbuster()
+    {
+        var ctx = BuildContext(
+            raidwide: null,
+            tankbuster: new MechanicPrediction { SecondsUntil = 2.0f });
+        var state = MechanicCastGate.FormatBlockedState(ctx.Object);
+        Assert.StartsWith("Held cast (tank buster", state);
+    }
+
+    [Fact]
+    public void FormatBlockedState_NullTimeline_ReturnsFallback()
+    {
+        var ctx = BuildContext(timelineNull: true);
+        var state = MechanicCastGate.FormatBlockedState(ctx.Object);
+        Assert.Equal("Held cast (mechanic)", state);
+    }
 }
