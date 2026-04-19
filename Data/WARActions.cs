@@ -310,6 +310,28 @@ public static class WARActions
         // Requires Primal Ruination Ready buff
     };
 
+    /// <summary>
+    /// Primal Wrath - Fell Cleave burst finisher (Lv.96)
+    /// Granted by Wrathful buff (3 stacks of Burgeoning Fury from Fell Cleave during Inner Release).
+    /// Self-centered AoE oGCD, 1.0s recast, no cooldown other than the proc consumption.
+    /// </summary>
+    public static readonly ActionDefinition PrimalWrath = new()
+    {
+        ActionId = 36924,
+        Name = "Primal Wrath",
+        MinLevel = 96,
+        Category = ActionCategory.oGCD,
+        TargetType = ActionTargetType.Self,
+        EffectTypes = ActionEffectType.Damage,
+        CastTime = 0f,
+        RecastTime = 1f,
+        Range = 0f,
+        Radius = 5f,
+        MpCost = 0,
+        DamagePotency = 700
+        // Requires Wrathful buff
+    };
+
     #endregion
 
     #region Ranged Attack
@@ -675,6 +697,8 @@ public static class WARActions
         public const uint PrimalRendReady = 2624;
         public const uint PrimalRuinationReady = 3834;
         public const uint InnerStrength = 2663; // Inner Release enhanced state
+        public const uint BurgeoningFury = 3833; // Fell Cleave stack accumulator (3 stacks → Wrathful)
+        public const uint Wrathful = 3901; // Enables Primal Wrath at Lv.96+
 
         // Defensive buffs
         public const uint Holmgang = 409;

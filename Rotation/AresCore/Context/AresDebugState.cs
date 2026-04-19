@@ -33,6 +33,7 @@ public sealed class AresDebugState
     public bool HasNascentChaos { get; set; }
     public bool HasPrimalRendReady { get; set; }
     public bool HasPrimalRuinationReady { get; set; }
+    public bool HasWrathful { get; set; }
 
     // Defensive tracking
     public bool HasActiveMitigation { get; set; }

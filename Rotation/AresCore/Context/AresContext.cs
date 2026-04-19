@@ -81,6 +81,7 @@ public sealed class AresContext : IAresContext
     public bool HasNascentChaos { get; }
     public bool HasPrimalRendReady { get; }
     public bool HasPrimalRuinationReady { get; }
+    public bool HasWrathful { get; }
     public bool HasActiveMitigation { get; }
     public bool HasHolmgang { get; }
     public bool HasVengeance { get; }
@@ -189,6 +190,7 @@ public sealed class AresContext : IAresContext
         HasNascentChaos = statusHelper.HasNascentChaos(player);
         HasPrimalRendReady = statusHelper.HasPrimalRendReady(player);
         HasPrimalRuinationReady = statusHelper.HasPrimalRuinationReady(player);
+        HasWrathful = statusHelper.HasWrathful(player);
 
         // Defensive checks
         HasActiveMitigation = statusHelper.HasActiveMitigation(player);
@@ -237,6 +239,7 @@ public sealed class AresContext : IAresContext
         Debug.HasNascentChaos = HasNascentChaos;
         Debug.HasPrimalRendReady = HasPrimalRendReady;
         Debug.HasPrimalRuinationReady = HasPrimalRuinationReady;
+        Debug.HasWrathful = HasWrathful;
         Debug.HasActiveMitigation = HasActiveMitigation;
         Debug.ActiveMitigations = StatusHelper.GetActiveMitigations(Player);
         Debug.IsMainTank = IsMainTank;

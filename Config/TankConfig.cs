@@ -222,6 +222,12 @@ public sealed class TankConfig
     public bool EnablePrimalRuination { get; set; } = true;
 
     /// <summary>
+    /// Use Primal Wrath (oGCD burst at Lv.96+, granted by stacking Burgeoning Fury
+    /// during Inner Release via Fell Cleave). Self-centered AoE, no player-agency concern.
+    /// </summary>
+    public bool EnablePrimalWrath { get; set; } = true;
+
+    /// <summary>
     /// Use Vengeance / Damnation (major mitigation).
     /// </summary>
     public bool EnableVengeance { get; set; } = true;

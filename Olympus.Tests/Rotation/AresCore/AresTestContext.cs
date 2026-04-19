@@ -138,6 +138,7 @@ public static class AresTestContext
         bool hasNascentChaos = false,
         bool hasPrimalRendReady = false,
         bool hasPrimalRuinationReady = false,
+        bool hasWrathful = false,
         bool hasSurgingTempest = true,
         float surgingTempestRemaining = 30f,
         bool hasHolmgang = false,
@@ -185,6 +186,7 @@ public static class AresTestContext
         mock.Setup(x => x.HasNascentChaos).Returns(hasNascentChaos);
         mock.Setup(x => x.HasPrimalRendReady).Returns(hasPrimalRendReady);
         mock.Setup(x => x.HasPrimalRuinationReady).Returns(hasPrimalRuinationReady);
+        mock.Setup(x => x.HasWrathful).Returns(hasWrathful);
         mock.Setup(x => x.HasSurgingTempest).Returns(hasSurgingTempest);
         mock.Setup(x => x.SurgingTempestRemaining).Returns(surgingTempestRemaining);
 

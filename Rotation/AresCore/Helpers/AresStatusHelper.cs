@@ -87,6 +87,15 @@ public sealed class AresStatusHelper : BaseStatusHelper
         return HasStatus(player, WARActions.StatusIds.PrimalRuinationReady);
     }
 
+    /// <summary>
+    /// Checks if Wrathful buff is active (enables Primal Wrath at Lv.96+).
+    /// Granted after stacking 3 Burgeoning Fury during Inner Release (from Fell Cleave).
+    /// </summary>
+    public bool HasWrathful(IBattleChara player)
+    {
+        return HasStatus(player, WARActions.StatusIds.Wrathful);
+    }
+
     #endregion
 
     #region Defensive Buffs

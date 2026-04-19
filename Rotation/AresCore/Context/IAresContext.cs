@@ -64,6 +64,11 @@ public interface IAresContext : ITankRotationContext
     /// </summary>
     bool HasPrimalRuinationReady { get; }
 
+    /// <summary>
+    /// Whether Wrathful buff is active (enables Primal Wrath at Lv.96+).
+    /// </summary>
+    bool HasWrathful { get; }
+
     #endregion
 
     #region Defensive State

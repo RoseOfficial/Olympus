@@ -130,18 +130,48 @@ public sealed class DamageModule : IAresModule
         var player = context.Player;
         var level = player.Level;
 
-        // Priority 1: Upheaval (single target oGCD)
+        // Priority 1: Primal Wrath (Wrathful proc — expires on next GCD without use)
+        if (TryPrimalWrath(context, target, enemyCount))
+            return true;
+
+        // Priority 2: Upheaval (single target oGCD)
         if (TryUpheaval(context, target, enemyCount))
             return true;
 
-        // Priority 2: Orogeny (AoE oGCD)
+        // Priority 3: Orogeny (AoE oGCD)
         if (TryOrogeny(context, target, enemyCount))
             return true;
 
-        // Priority 3: Onslaught (gap closer / extra damage). Safety gating is
+        // Priority 4: Onslaught (gap closer / extra damage). Safety gating is
         // handled inside TryOnslaught itself (covers both gap-close and weave paths).
         if (TryOnslaught(context, target))
             return true;
+
+        return false;
+    }
+
+    private bool TryPrimalWrath(IAresContext context, Dalamud.Game.ClientState.Objects.Types.IBattleChara target, int enemyCount)
+    {
+        if (!context.Configuration.Tank.EnablePrimalWrath) return false;
+
+        var player = context.Player;
+        var level = player.Level;
+
+        if (level < WARActions.PrimalWrath.MinLevel)
+            return false;
+
+        if (!context.HasWrathful)
+            return false;
+
+        if (!context.ActionService.IsActionReady(WARActions.PrimalWrath.ActionId))
+            return false;
+
+        if (context.ActionService.ExecuteOgcd(WARActions.PrimalWrath, target.GameObjectId))
+        {
+            context.Debug.PlannedAction = WARActions.PrimalWrath.Name;
+            context.Debug.DamageState = $"Primal Wrath ({enemyCount} enemies)";
+            return true;
+        }
 
         return false;
     }

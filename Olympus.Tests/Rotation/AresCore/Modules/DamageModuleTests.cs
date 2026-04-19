@@ -206,6 +206,36 @@ public class DamageModuleTests
     }
 
     [Fact]
+    public void TryExecute_PrimalWrath_WhenWrathfulActive_Fires()
+    {
+        var enemy = CreateMockEnemy();
+        var targeting = SetupMeleeRangeTargeting(enemy);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: false, canExecuteOgcd: true);
+        actionService.Setup(x => x.IsActionReady(WARActions.PrimalWrath.ActionId)).Returns(true);
+        actionService.Setup(x => x.ExecuteOgcd(
+                It.Is<ActionDefinition>(a => a.ActionId == WARActions.PrimalWrath.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        var context = CreateContext(
+            inCombat: true,
+            canExecuteGcd: false,
+            canExecuteOgcd: true,
+            level: 96,
+            hasWrathful: true,
+            targetingService: targeting,
+            actionService: actionService);
+
+        var result = _module.TryExecute(context, isMoving: false);
+
+        Assert.True(result);
+        actionService.Verify(x => x.ExecuteOgcd(
+            It.Is<ActionDefinition>(a => a.ActionId == WARActions.PrimalWrath.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+    }
+
+    [Fact]
     public void TryExecute_PrimalRend_WhenRendReadyActive_Fires()
     {
         var enemy = CreateMockEnemy();
@@ -281,6 +311,7 @@ public class DamageModuleTests
         bool hasNascentChaos = false,
         bool hasPrimalRendReady = false,
         bool hasPrimalRuinationReady = false,
+        bool hasWrathful = false,
         bool hasSurgingTempest = true,
         float surgingTempestRemaining = 30f,
         int enemyCount = 1,
@@ -300,6 +331,7 @@ public class DamageModuleTests
             hasNascentChaos: hasNascentChaos,
             hasPrimalRendReady: hasPrimalRendReady,
             hasPrimalRuinationReady: hasPrimalRuinationReady,
+            hasWrathful: hasWrathful,
             hasSurgingTempest: hasSurgingTempest,
             surgingTempestRemaining: surgingTempestRemaining,
             enemyCount: enemyCount,
