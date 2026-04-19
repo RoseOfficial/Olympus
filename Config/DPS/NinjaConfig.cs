@@ -108,11 +108,6 @@ public sealed class NinjaConfig
     #region Mudra Settings
 
     /// <summary>
-    /// Preferred Ninjutsu priority for single-target.
-    /// </summary>
-    public NinjutsuPriority SingleTargetNinjutsuPriority { get; set; } = NinjutsuPriority.Suiton;
-
-    /// <summary>
     /// Whether to use Doton for AoE.
     /// </summary>
     public bool UseDotonForAoE { get; set; } = true;
@@ -181,25 +176,4 @@ public sealed class NinjaConfig
     public bool AllowPositionalLoss { get; set; } = true;
 
     #endregion
-}
-
-/// <summary>
-/// Ninjutsu priority for single-target.
-/// </summary>
-public enum NinjutsuPriority
-{
-    /// <summary>
-    /// Prioritize Suiton for Kunai's Bane setup.
-    /// </summary>
-    Suiton,
-
-    /// <summary>
-    /// Prioritize Raiton for damage.
-    /// </summary>
-    Raiton,
-
-    /// <summary>
-    /// Prioritize Hyosho Ranryu for burst damage.
-    /// </summary>
-    HyoshoRanryu
 }

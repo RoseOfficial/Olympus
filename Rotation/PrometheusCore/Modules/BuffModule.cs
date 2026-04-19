@@ -1,4 +1,5 @@
 using Dalamud.Game.ClientState.Objects.Types;
+using Olympus.Config.DPS;
 using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.PrometheusCore.Context;
@@ -237,74 +238,163 @@ public sealed class BuffModule : IPrometheusModule
         var player = context.Player;
         var level = player.Level;
 
-        if (level < MCHActions.Reassemble.MinLevel)
-            return false;
+        if (level < MCHActions.Reassemble.MinLevel) return false;
+        if (context.HasReassemble) return false;            // Already active — don't reapply
+        if (context.ReassembleCharges == 0) return false;   // No charges
+        if (context.IsOverheated) return false;             // Heat Blast / Auto Crossbow — waste of Reassemble
 
-        // Already have Reassemble active
-        if (context.HasReassemble)
-            return false;
+        var strategy = context.Configuration.Machinist.ReassembleStrategy;
+        if (strategy == ReassembleStrategy.Delay) return false;
 
-        // Don't overcap charges - use if at max
-        if (context.ReassembleCharges == 0)
-            return false;
+        // Predict what GCD DamageModule will fire next. Reassemble decisions hinge on what the tool
+        // is about to land on, not on which tool the player pre-selected (the old "priority" dropdown
+        // was the wrong abstraction — BossMod xan, BossMod akechi, and RSR all use next-GCD lookahead).
+        var enemyCount = context.TargetingService.CountEnemiesInRange(12f, player);
+        var nextGcdId = PredictNextGcd(context, enemyCount);
 
-        // Use before high-potency tool actions
-        // Check if Drill, Air Anchor, Chain Saw, or Excavator are coming up
-        bool hasHighPotencyReady = false;
+        var nextIsBlessed = IsBlessedTool(nextGcdId);
+        var nextIsAnyWeaponskill = nextGcdId != 0 && !IsOverheatedGcd(nextGcdId);
+        var atMaxCharges = context.ReassembleCharges >= 2;
 
-        if (level >= MCHActions.Drill.MinLevel && context.ActionService.IsActionReady(MCHActions.Drill.ActionId))
-            hasHighPotencyReady = true;
+        bool shouldUse = strategy switch
+        {
+            // Default: fire on blessed tool, or fall back to any weaponskill at max charges to avoid overcap.
+            ReassembleStrategy.Automatic => nextIsBlessed || (atMaxCharges && nextIsAnyWeaponskill),
+            // Aggressive: fire on any weaponskill.
+            ReassembleStrategy.Any        => nextIsAnyWeaponskill,
+            // Conservative: fire only on blessed tool AND only when about to overcap — keeps a charge for manual.
+            ReassembleStrategy.HoldOne    => nextIsBlessed && atMaxCharges,
+            _                             => false
+        };
 
-        if (level >= MCHActions.AirAnchor.MinLevel && context.ActionService.IsActionReady(MCHActions.AirAnchor.ActionId))
-            hasHighPotencyReady = true;
+        if (!shouldUse) return false;
 
-        if (level >= MCHActions.ChainSaw.MinLevel && context.ActionService.IsActionReady(MCHActions.ChainSaw.ActionId))
-            hasHighPotencyReady = true;
-
-        if (context.HasExcavatorReady)
-            hasHighPotencyReady = true;
-
-        // Also use before Full Metal Field
-        if (context.HasFullMetalMachinist)
-            hasHighPotencyReady = true;
-
-        // If we have max charges and nothing ready yet, still use to avoid overcap
-        bool shouldUse = hasHighPotencyReady || (context.ReassembleCharges >= 2);
-
-        if (!shouldUse)
-            return false;
-
-        if (!context.ActionService.IsActionReady(MCHActions.Reassemble.ActionId))
-            return false;
+        if (!context.ActionService.IsActionReady(MCHActions.Reassemble.ActionId)) return false;
 
         if (context.ActionService.ExecuteOgcd(MCHActions.Reassemble, player.GameObjectId))
         {
             context.Debug.PlannedAction = MCHActions.Reassemble.Name;
-            context.Debug.BuffState = "Reassemble (charges: " + context.ReassembleCharges + ")";
+            context.Debug.BuffState = nextIsBlessed
+                ? $"Reassemble → next GCD (charges: {context.ReassembleCharges})"
+                : $"Reassemble (overcap save, charges: {context.ReassembleCharges})";
 
-            // Training: Record Reassemble decision
-            var reason = hasHighPotencyReady ? "High-potency action ready" : "Preventing charge overcap";
+            var reason = nextIsBlessed ? "High-potency next GCD" : "Preventing charge overcap";
             TrainingHelper.Decision(context.TrainingService)
                 .Action(MCHActions.Reassemble.ActionId, MCHActions.Reassemble.Name)
                 .AsRangedBurst()
                 .Target(player.Name?.TextValue ?? "Self")
                 .Reason(
                     $"Reassemble activated ({reason})",
-                    "Reassemble guarantees critical direct hit on next weaponskill. Prioritize Drill, Air Anchor, Chain Saw, " +
+                    "Reassemble guarantees critical direct hit on next weaponskill. Pairs best with Drill, Air Anchor, Chain Saw, " +
                     "Excavator, or Full Metal Field. Has 2 charges at Lv.84+, avoid overcapping.")
-                .Factors($"Charges: {context.ReassembleCharges}", reason)
-                .Alternatives("Save for higher potency action", "Wait for Drill/Air Anchor/Chain Saw")
-                .Tip("Use Reassemble before Drill (highest priority), then Air Anchor, Chain Saw, or Excavator.")
+                .Factors($"Charges: {context.ReassembleCharges}", reason, $"Strategy: {strategy}")
+                .Alternatives("Save for higher potency action", "Switch strategy to HoldOne to keep a manual charge")
+                .Tip("Use Reassemble before Drill (highest priority), then Air Anchor, Chain Saw, Excavator, or Full Metal Field.")
                 .Concept("mch.reassemble_priority")
                 .Record();
-            context.TrainingService?.RecordConceptApplication("mch.reassemble_priority", hasHighPotencyReady, "Optimal Reassemble target");
-            context.TrainingService?.RecordConceptApplication("mch.reassemble_charges", context.ReassembleCharges < 2, "Charge management");
+            context.TrainingService?.RecordConceptApplication("mch.reassemble_priority", nextIsBlessed, "Optimal Reassemble target");
+            context.TrainingService?.RecordConceptApplication("mch.reassemble_charges", !atMaxCharges, "Charge management");
 
             return true;
         }
 
         return false;
     }
+
+    /// <summary>
+    /// Mirrors DamageModule.TryGcdDamage priority order to predict which GCD will fire next frame.
+    /// Returns 0 when no valid GCD can be predicted (e.g., all tools disabled, no target reachable).
+    /// Kept in sync with DamageModule manually — the modules don't share state, and a runtime dependency
+    /// would add avoidable coupling.
+    /// </summary>
+    private uint PredictNextGcd(IPrometheusContext context, int enemyCount)
+    {
+        var player = context.Player;
+        var level = player.Level;
+        var cfg = context.Configuration.Machinist;
+        var useAoe = cfg.EnableAoERotation && enemyCount >= cfg.AoEMinTargets;
+
+        // Overheated: Heat Blast / Auto Crossbow only
+        if (context.IsOverheated)
+        {
+            if (useAoe && cfg.EnableAutoCrossbow)
+                return MCHActions.GetOverheatedGcd(level, true).ActionId;
+            if (!useAoe && cfg.EnableHeatBlast)
+                return MCHActions.HeatBlast.ActionId;
+            return 0;
+        }
+
+        // Priority 1: Full Metal Field proc (Lv.100)
+        if (cfg.EnableFullMetalField && context.HasFullMetalMachinist &&
+            level >= MCHActions.FullMetalField.MinLevel &&
+            context.ActionService.IsActionReady(MCHActions.FullMetalField.ActionId))
+            return MCHActions.FullMetalField.ActionId;
+
+        // Priority 2: Excavator proc (Lv.96)
+        if (cfg.EnableExcavator && context.HasExcavatorReady &&
+            level >= MCHActions.Excavator.MinLevel &&
+            context.ActionService.IsActionReady(MCHActions.Excavator.ActionId))
+            return MCHActions.Excavator.ActionId;
+
+        // Priority 3: Drill (or Bioblaster in AoE)
+        if (cfg.EnableDrill)
+        {
+            if (useAoe && level >= MCHActions.Bioblaster.MinLevel &&
+                (!context.HasBioblaster || context.BioblasterRemaining < 3f) &&
+                context.ActionService.IsActionReady(MCHActions.Bioblaster.ActionId))
+                return MCHActions.Bioblaster.ActionId;
+
+            if (level >= MCHActions.Drill.MinLevel && context.DrillCharges > 0 &&
+                context.ActionService.IsActionReady(MCHActions.Drill.ActionId))
+                return MCHActions.Drill.ActionId;
+        }
+
+        // Priority 4: Air Anchor (Lv.76) — HotShot at 40–75
+        if (cfg.EnableAirAnchor)
+        {
+            var aa = MCHActions.GetAirAnchor(level);
+            if (level >= aa.MinLevel && context.Battery <= 80 &&
+                context.ActionService.IsActionReady(aa.ActionId))
+                return aa.ActionId;
+        }
+
+        // Priority 5: Chain Saw (Lv.90)
+        if (cfg.EnableChainSaw && level >= MCHActions.ChainSaw.MinLevel && context.Battery <= 80 &&
+            context.ActionService.IsActionReady(MCHActions.ChainSaw.ActionId))
+            return MCHActions.ChainSaw.ActionId;
+
+        // Priority 6: Filler — AoE or combo step
+        if (useAoe)
+        {
+            if (level >= MCHActions.SpreadShot.MinLevel)
+                return MCHActions.GetAoeAction(level).ActionId;
+        }
+
+        if (context.ComboStep == 2) return MCHActions.GetComboFinisher(level).ActionId;
+        if (context.ComboStep == 1) return MCHActions.GetComboSecond(level).ActionId;
+        return MCHActions.GetComboStarter(level).ActionId;
+    }
+
+    /// <summary>
+    /// True when the action is a high-potency tool worth the Reassemble buff.
+    /// Follows BossMod xan + RSR's list: Drill/Bioblaster, Air Anchor (or pre-76 HotShot), Chain Saw, Excavator, Full Metal Field.
+    /// </summary>
+    private static bool IsBlessedTool(uint actionId)
+    {
+        if (actionId == 0) return false;
+        return actionId == MCHActions.Drill.ActionId
+            || actionId == MCHActions.Bioblaster.ActionId
+            || actionId == MCHActions.AirAnchor.ActionId
+            || actionId == MCHActions.HotShot.ActionId
+            || actionId == MCHActions.ChainSaw.ActionId
+            || actionId == MCHActions.Excavator.ActionId
+            || actionId == MCHActions.FullMetalField.ActionId;
+    }
+
+    private static bool IsOverheatedGcd(uint actionId) =>
+        actionId == MCHActions.HeatBlast.ActionId
+        || actionId == MCHActions.BlazingShot.ActionId
+        || actionId == MCHActions.AutoCrossbow.ActionId;
 
     private bool TryHypercharge(IPrometheusContext context)
     {

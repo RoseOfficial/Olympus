@@ -132,11 +132,6 @@ public sealed class BlackMageConfig
     #region Movement Settings
 
     /// <summary>
-    /// Preferred instant cast priority for movement.
-    /// </summary>
-    public MovementPriority MovementPriority { get; set; } = MovementPriority.Triplecast;
-
-    /// <summary>
     /// Whether to use Scathe as a last resort while moving.
     /// </summary>
     public bool UseScatheForMovement { get; set; } = false;
@@ -240,28 +235,3 @@ public sealed class BlackMageConfig
     #endregion
 }
 
-/// <summary>
-/// Movement instant cast priority.
-/// </summary>
-public enum MovementPriority
-{
-    /// <summary>
-    /// Prioritize Triplecast for movement.
-    /// </summary>
-    Triplecast,
-
-    /// <summary>
-    /// Prioritize Swiftcast for movement.
-    /// </summary>
-    Swiftcast,
-
-    /// <summary>
-    /// Prioritize Xenoglossy/Polyglot for movement.
-    /// </summary>
-    Polyglot,
-
-    /// <summary>
-    /// Use whichever is available first.
-    /// </summary>
-    FirstAvailable
-}

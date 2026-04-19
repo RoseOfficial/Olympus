@@ -100,13 +100,6 @@ public sealed class BlackMageSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var movementPriority = config.BlackMage.MovementPriority;
-            if (ConfigUIHelpers.EnumCombo(Loc.T(LocalizedStrings.BlackMage.MovementPriority, "Movement Priority"), ref movementPriority,
-                Loc.T(LocalizedStrings.BlackMage.MovementPriorityDesc, "Preferred instant cast for movement"), save))
-            {
-                config.BlackMage.MovementPriority = movementPriority;
-            }
-
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.BlackMage.SavePolyglotForMovement, "Save Polyglot for Movement"),
                 () => config.BlackMage.SavePolyglotForMovement,

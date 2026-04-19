@@ -167,9 +167,9 @@ public sealed class MachinistConfig
     }
 
     /// <summary>
-    /// Use Reassemble on Drill/Air Anchor/Chain Saw.
+    /// How aggressively to use Reassemble when a high-potency tool is queued next.
     /// </summary>
-    public ReassemblePriority ReassemblePriority { get; set; } = ReassemblePriority.Drill;
+    public ReassembleStrategy ReassembleStrategy { get; set; } = ReassembleStrategy.Automatic;
 
     #endregion
 
@@ -191,27 +191,29 @@ public sealed class MachinistConfig
 }
 
 /// <summary>
-/// Reassemble usage priority.
+/// Reassemble usage behavior. Controls how aggressively Reassemble is spent,
+/// not which specific tool it pairs with — the rotation always pairs it with
+/// the next queued high-potency tool (Drill / Air Anchor / Chain Saw / Excavator / Full Metal Field).
 /// </summary>
-public enum ReassemblePriority
+public enum ReassembleStrategy
 {
     /// <summary>
-    /// Prioritize Drill for guaranteed crit.
+    /// Fire Reassemble when the next GCD is a high-potency tool. Also fires at max charges to prevent overcap.
     /// </summary>
-    Drill,
+    Automatic,
 
     /// <summary>
-    /// Prioritize Air Anchor for guaranteed crit.
+    /// Fire Reassemble whenever the next GCD is any weaponskill. Spends charges aggressively.
     /// </summary>
-    AirAnchor,
+    Any,
 
     /// <summary>
-    /// Prioritize Chain Saw for guaranteed crit.
+    /// Fire Reassemble only when at max charges and the next GCD is a high-potency tool. Keeps one charge for manual use.
     /// </summary>
-    ChainSaw,
+    HoldOne,
 
     /// <summary>
-    /// Use on whichever is available first.
+    /// Never fire Reassemble automatically. Manual usage only.
     /// </summary>
-    FirstAvailable
+    Delay
 }

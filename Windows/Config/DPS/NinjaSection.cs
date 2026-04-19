@@ -116,13 +116,6 @@ public sealed class NinjaSection
         {
             ConfigUIHelpers.BeginIndent();
 
-            var priority = config.Ninja.SingleTargetNinjutsuPriority;
-            if (ConfigUIHelpers.EnumCombo(Loc.T(LocalizedStrings.Ninja.NinjutsuPriority, "Ninjutsu Priority"), ref priority,
-                Loc.T(LocalizedStrings.Ninja.NinjutsuPriorityDesc, "Preferred Ninjutsu for single-target"), save))
-            {
-                config.Ninja.SingleTargetNinjutsuPriority = priority;
-            }
-
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Ninja.UseDotonForAoE, "Use Doton for AoE"),
                 () => config.Ninja.UseDotonForAoE,

@@ -182,11 +182,11 @@ public sealed class MachinistSection
 
             if (config.Machinist.EnableReassemble)
             {
-                var reassemblePriority = config.Machinist.ReassemblePriority;
-                if (ConfigUIHelpers.EnumCombo(Loc.T(LocalizedStrings.Machinist.ReassemblePriority, "Reassemble Priority"), ref reassemblePriority,
-                    Loc.T(LocalizedStrings.Machinist.ReassemblePriorityDesc, "Which weapon skill to use Reassemble on"), save))
+                var reassembleStrategy = config.Machinist.ReassembleStrategy;
+                if (ConfigUIHelpers.EnumCombo(Loc.T(LocalizedStrings.Machinist.ReassembleStrategy, "Reassemble Strategy"), ref reassembleStrategy,
+                    Loc.T(LocalizedStrings.Machinist.ReassembleStrategyDesc, "How aggressively to spend Reassemble charges. Automatic fires on the next high-potency tool; HoldOne keeps a charge for manual use; Any spends on any weaponskill; Delay disables auto use."), save))
                 {
-                    config.Machinist.ReassemblePriority = reassemblePriority;
+                    config.Machinist.ReassembleStrategy = reassembleStrategy;
                 }
             }
 

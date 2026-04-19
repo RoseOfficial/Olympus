@@ -1260,8 +1260,6 @@ public static class LocalizedStrings
         public const string NinkiOvercapThreshold = "config.job.nin.ninki_overcap_threshold";
         public const string NinkiOvercapThresholdDesc = "config.job.nin.ninki_overcap_threshold_desc";
         public const string MudraSection = "config.job.nin.mudra_section";
-        public const string NinjutsuPriority = "config.job.nin.ninjutsu_priority";
-        public const string NinjutsuPriorityDesc = "config.job.nin.ninjutsu_priority_desc";
         public const string UseDotonForAoE = "config.job.nin.use_doton_for_aoe";
         public const string UseDotonForAoEDesc = "config.job.nin.use_doton_for_aoe_desc";
         public const string DotonMinTargets = "config.job.nin.doton_min_targets";
@@ -1584,8 +1582,8 @@ public static class LocalizedStrings
         public const string EnableBarrelStabilizerDesc = "config.job.mch.enable_barrel_stabilizer_desc";
         public const string EnableReassemble = "config.job.mch.enable_reassemble";
         public const string EnableReassembleDesc = "config.job.mch.enable_reassemble_desc";
-        public const string ReassemblePriority = "config.job.mch.reassemble_priority";
-        public const string ReassemblePriorityDesc = "config.job.mch.reassemble_priority_desc";
+        public const string ReassembleStrategy = "config.job.mch.reassemble_strategy";
+        public const string ReassembleStrategyDesc = "config.job.mch.reassemble_strategy_desc";
         public const string SaveHeatForWildfire = "config.job.mch.save_heat_for_wildfire";
         public const string SaveHeatForWildfireDesc = "config.job.mch.save_heat_for_wildfire_desc";
         public const string EnableBurstPooling = "config.job.mch.enable_burst_pooling";
@@ -1782,8 +1780,6 @@ public static class LocalizedStrings
         public const string FireIVMinMp = "config.job.blm.fire_iv_min_mp";
         public const string FireIVMinMpDesc = "config.job.blm.fire_iv_min_mp_desc";
         public const string MovementSection = "config.job.blm.movement_section";
-        public const string MovementPriority = "config.job.blm.movement_priority";
-        public const string MovementPriorityDesc = "config.job.blm.movement_priority_desc";
         public const string SavePolyglotForMovement = "config.job.blm.save_polyglot_for_movement";
         public const string SavePolyglotForMovementDesc = "config.job.blm.save_polyglot_for_movement_desc";
         public const string PolyglotMovementReserve = "config.job.blm.polyglot_movement_reserve";
