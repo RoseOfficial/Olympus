@@ -80,7 +80,7 @@ public static class BLMActions
         Category = ActionCategory.GCD,
         TargetType = ActionTargetType.SingleEnemy,
         EffectTypes = ActionEffectType.Damage,
-        CastTime = 3.0f,
+        CastTime = 2.0f, // Patch 7.2 reduced from 3.0s to 2.0s; instant at Lv.100 with Enhanced Astral Fire trait.
         RecastTime = 2.5f,
         Range = 25f,
         MpCost = 800, // Uses all remaining MP

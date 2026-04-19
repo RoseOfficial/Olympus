@@ -774,7 +774,7 @@ public static class DRKActions
         public const uint LivingDead = 810;
         public const uint WalkingDead = 811; // Critical state after Living Dead
         public const uint ShadowWall = 747;
-        public const uint ShadowedVigil = 0; // TODO: Verify live ID. Previously 3836 (that ID is EnhancedDelirium). Set to 0 to avoid false positives; HasShadowWall falls back to ShadowWall 747 which the game may still apply during ShadowedVigil.
+        public const uint ShadowedVigil = 3902; // Vigilant buff (confirmed via XIVAPI Row 3902). Applied by Shadowed Vigil at Lv.92+, heals when HP drops below 50%.
         public const uint DarkMind = 746;
         public const uint DarkMissionary = 1894;
         public const uint TheBlackestNight = 1308;
