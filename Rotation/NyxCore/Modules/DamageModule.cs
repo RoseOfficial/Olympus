@@ -119,7 +119,7 @@ public sealed class DamageModule : INyxModule
         if (context.CanExecuteGcd)
         {
             // Priority 1: Delirium combo (Lv.96+)
-            if (TryDeliriumCombo(context, target.GameObjectId))
+            if (TryDeliriumCombo(context, enemyCount, target.GameObjectId))
                 return true;
 
             // Priority 2: Disesteem (after Torcleaver)
@@ -585,9 +585,10 @@ public sealed class DamageModule : INyxModule
 
     /// <summary>
     /// Delirium combo at Lv.96+.
-    /// Scarlet Delirium -> Comeuppance -> Torcleaver -> Disesteem
+    /// ST: Scarlet Delirium -> Comeuppance -> Torcleaver -> Disesteem
+    /// AoE: Impalement (standalone self-centered AoE replacing Quietus)
     /// </summary>
-    private bool TryDeliriumCombo(INyxContext context, ulong targetId)
+    private bool TryDeliriumCombo(INyxContext context, int enemyCount, ulong targetId)
     {
         var player = context.Player;
         var level = player.Level;
@@ -598,6 +599,20 @@ public sealed class DamageModule : INyxModule
         // Only available during Delirium
         if (!context.HasDelirium)
             return false;
+
+        // AoE branch: Impalement at Lv.96+ when threshold met
+        if (context.Configuration.Tank.EnableAoEDamage &&
+            enemyCount >= context.Configuration.Tank.AoEMinTargets &&
+            level >= DRKActions.Impalement.MinLevel &&
+            context.ActionService.IsActionReady(DRKActions.Impalement.ActionId))
+        {
+            if (context.ActionService.ExecuteGcd(DRKActions.Impalement, targetId))
+            {
+                context.Debug.PlannedAction = DRKActions.Impalement.Name;
+                context.Debug.DamageState = $"Impalement ({enemyCount} enemies)";
+                return true;
+            }
+        }
 
         // The game handles combo tracking for Delirium combo
         // Just try to use Scarlet Delirium - it will be replaced by combo actions

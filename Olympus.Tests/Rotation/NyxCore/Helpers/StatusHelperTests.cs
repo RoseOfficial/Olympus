@@ -21,12 +21,13 @@ public class StatusHelperTests
     [Fact]
     public void StatusIds_CoreBuffs_AreDistinct()
     {
+        // DarkArts intentionally omitted: deprecated post-Shadowbringers, set to 0 to
+        // disable HasDarkArts checks. TBN refunds MP rather than granting a proc status.
         var ids = new uint[]
         {
             DRKActions.StatusIds.Grit,
             DRKActions.StatusIds.BloodWeapon,
             DRKActions.StatusIds.Delirium,
-            DRKActions.StatusIds.DarkArts,
         };
 
         Assert.Equal(ids.Length, ids.Distinct().Count());
@@ -51,7 +52,6 @@ public class StatusHelperTests
         Assert.NotEqual(0u, DRKActions.StatusIds.Grit);
         Assert.NotEqual(0u, DRKActions.StatusIds.BloodWeapon);
         Assert.NotEqual(0u, DRKActions.StatusIds.Delirium);
-        Assert.NotEqual(0u, DRKActions.StatusIds.DarkArts);
         Assert.NotEqual(0u, DRKActions.StatusIds.LivingDead);
         Assert.NotEqual(0u, DRKActions.StatusIds.WalkingDead);
         Assert.NotEqual(0u, DRKActions.StatusIds.TheBlackestNight);
@@ -80,9 +80,12 @@ public class StatusHelperTests
     }
 
     [Fact]
-    public void StatusId_DarkArts_MatchesGameData()
+    public void StatusId_DarkArts_Disabled()
     {
-        Assert.Equal(1894u, DRKActions.StatusIds.DarkArts);
+        // Dark Arts was removed from DRK in Shadowbringers. The legacy constant is
+        // kept at 0 so HasDarkArts checks safely return false; the rotation relies on
+        // MP tracking for TBN-refund gameplay instead.
+        Assert.Equal(0u, DRKActions.StatusIds.DarkArts);
     }
 
     [Fact]

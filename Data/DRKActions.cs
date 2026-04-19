@@ -225,6 +225,27 @@ public static class DRKActions
     };
 
     /// <summary>
+    /// Impalement - AoE Delirium combo replacement (Lv.96)
+    /// Replaces Quietus during Delirium at Lv.96+. Standalone self-centered AoE GCD.
+    /// </summary>
+    public static readonly ActionDefinition Impalement = new()
+    {
+        ActionId = 36931,
+        Name = "Impalement",
+        MinLevel = 96,
+        Category = ActionCategory.GCD,
+        TargetType = ActionTargetType.Self,
+        EffectTypes = ActionEffectType.Damage,
+        CastTime = 0f,
+        RecastTime = 2.5f,
+        Range = 0f,
+        Radius = 5f,
+        MpCost = 0,
+        DamagePotency = 540
+        // Requires Delirium active
+    };
+
+    /// <summary>
     /// Disesteem - Follow-up to Torcleaver (Lv.100)
     /// High potency finisher available after Torcleaver
     /// </summary>
@@ -742,7 +763,7 @@ public static class DRKActions
 
         // Darkside and Dark Arts
         public const uint Darkside = 751;
-        public const uint DarkArts = 1894; // Free Edge/Flood when TBN breaks
+        public const uint DarkArts = 0; // Legacy: Dark Arts proc was removed in Shadowbringers. TBN refunds 3000 MP instead. Status kept as 0 to disable HasDarkArts checks.
 
         // Buff statuses
         public const uint BloodWeapon = 742;
@@ -753,7 +774,7 @@ public static class DRKActions
         public const uint LivingDead = 810;
         public const uint WalkingDead = 811; // Critical state after Living Dead
         public const uint ShadowWall = 747;
-        public const uint ShadowedVigil = 3836;
+        public const uint ShadowedVigil = 0; // TODO: Verify live ID. Previously 3836 (that ID is EnhancedDelirium). Set to 0 to avoid false positives; HasShadowWall falls back to ShadowWall 747 which the game may still apply during ShadowedVigil.
         public const uint DarkMind = 746;
         public const uint DarkMissionary = 1894;
         public const uint TheBlackestNight = 1308;
