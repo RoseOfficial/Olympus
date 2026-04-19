@@ -7,6 +7,8 @@ using Olympus.Rotation.HecateCore.Modules;
 using Olympus.Services.Action;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
+using Olympus.Timeline;
+using Olympus.Timeline.Models;
 
 namespace Olympus.Tests.Rotation.HecateCore.Modules;
 
@@ -303,6 +305,54 @@ public class DamageModuleTests
         actionService.Verify(x => x.ExecuteGcd(
             It.Is<ActionDefinition>(a => a.ActionId == BLMActions.Fire3.ActionId),
             It.IsAny<ulong>()), Times.Once);
+    }
+
+    [Fact]
+    public void FireIV_BlockedWhenRaidwideImminent()
+    {
+        // Arrange: raidwide in 1.5s, Fire IV cast = 2.8s → deadline 3.3s → should block
+        var config = HecateTestContext.CreateDefaultBlmConfiguration();
+        config.Timeline.EnableMechanicAwareCasting = true;
+        config.Timeline.EnableTimelinePredictions = true;
+        config.Timeline.TimelineConfidenceThreshold = 0.8f;
+
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var timelineMock = new Mock<ITimelineService>();
+        timelineMock.Setup(x => x.IsActive).Returns(true);
+        timelineMock.Setup(x => x.Confidence).Returns(0.9f);
+        timelineMock.Setup(x => x.NextRaidwide).Returns(
+            new MechanicPrediction(1.5f, TimelineEntryType.Raidwide, "Exaflare", 0.9f));
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        actionService.Setup(x => x.IsActionReady(BLMActions.FlareStar.ActionId)).Returns(false);
+
+        var context = HecateTestContext.Create(
+            config: config,
+            inCombat: true,
+            canExecuteGcd: true,
+            inAstralFire: true,
+            astralFireStacks: 3,
+            umbralHearts: 3,
+            currentMp: 8000,
+            elementTimer: 15f,
+            astralSoulStacks: 0,  // No Flare Star
+            hasFirestarter: false,
+            hasParadox: false,
+            hasInstantCast: false,
+            hasSwiftcast: false,
+            actionService: actionService,
+            targetingService: targeting,
+            timelineService: timelineMock.Object);
+
+        // Act
+        _module.TryExecute(context, isMoving: false);
+
+        // Assert: no GCD should fire — gate should block
+        actionService.Verify(
+            x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()),
+            Times.Never);
     }
 
     #region Helpers

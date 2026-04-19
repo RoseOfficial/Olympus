@@ -317,6 +317,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         if (!context.ActionService.IsActionReady(BLMActions.FlareStar.ActionId))
             return false;
 
+        var flareStarCastTime = context.HasInstantCast ? 0f : BLMActions.FlareStar.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, flareStarCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
+
         if (context.ActionService.ExecuteGcd(BLMActions.FlareStar, target.GameObjectId))
         {
             context.Debug.PlannedAction = BLMActions.FlareStar.Name;
@@ -522,6 +529,14 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         // Use Paradox to refresh timer if available and timer is low
         if (context.Configuration.BlackMage.EnableParadox && context.HasParadox && context.ElementTimer < ElementRefreshThreshold && level >= BLMActions.Paradox.MinLevel)
         {
+            // Paradox in Astral Fire has a 2.5s cast time (not instant like in Umbral Ice)
+            var paradoxFireCastTime = context.HasInstantCast ? 0f : BLMActions.Paradox.CastTime;
+            if (MechanicCastGate.ShouldBlock(context, paradoxFireCastTime))
+            {
+                context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                return false;
+            }
+
             if (context.ActionService.ExecuteGcd(BLMActions.Paradox, target.GameObjectId))
             {
                 context.Debug.PlannedAction = BLMActions.Paradox.Name;
@@ -590,6 +605,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
                 }
             }
 
+            var despairCastTime = context.HasInstantCast || level >= 100 ? 0f : BLMActions.Despair.CastTime;
+            if (MechanicCastGate.ShouldBlock(context, despairCastTime))
+            {
+                context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                return false;
+            }
+
             if (context.ActionService.ExecuteGcd(BLMActions.Despair, target.GameObjectId))
             {
                 context.Debug.PlannedAction = BLMActions.Despair.Name;
@@ -618,6 +640,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         // Spam Fire IV while we have MP
         if (level >= BLMActions.Fire4.MinLevel && context.CurrentMp >= Fire4MpCost)
         {
+            var fire4CastTime = context.HasInstantCast ? 0f : BLMActions.Fire4.CastTime;
+            if (MechanicCastGate.ShouldBlock(context, fire4CastTime))
+            {
+                context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                return false;
+            }
+
             if (context.ActionService.ExecuteGcd(BLMActions.Fire4, target.GameObjectId))
             {
                 context.Debug.PlannedAction = BLMActions.Fire4.Name;
@@ -649,6 +678,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         // Low level: use Fire I (before Fire IV is unlocked)
         if (level < BLMActions.Fire4.MinLevel)
         {
+            var fireCastTime = context.HasInstantCast ? 0f : BLMActions.Fire.CastTime;
+            if (MechanicCastGate.ShouldBlock(context, fireCastTime))
+            {
+                context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                return false;
+            }
+
             if (context.ActionService.ExecuteGcd(BLMActions.Fire, target.GameObjectId))
             {
                 context.Debug.PlannedAction = BLMActions.Fire.Name;
@@ -694,6 +730,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         // Use Flare when possible
         if (level >= BLMActions.Flare.MinLevel && context.CurrentMp >= 800)
         {
+            var flareCastTime = context.HasInstantCast ? 0f : BLMActions.Flare.CastTime;
+            if (MechanicCastGate.ShouldBlock(context, flareCastTime))
+            {
+                context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                return false;
+            }
+
             if (context.ActionService.ExecuteGcd(BLMActions.Flare, target.GameObjectId))
             {
                 context.Debug.PlannedAction = BLMActions.Flare.Name;
@@ -721,6 +764,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         var fireAoe = BLMActions.GetFireAoe(level);
         if (level >= fireAoe.MinLevel && context.CurrentMp >= fireAoe.MpCost)
         {
+            var fireAoeCastTime = context.HasInstantCast ? 0f : fireAoe.CastTime;
+            if (MechanicCastGate.ShouldBlock(context, fireAoeCastTime))
+            {
+                context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                return false;
+            }
+
             if (context.ActionService.ExecuteGcd(fireAoe, target.GameObjectId))
             {
                 context.Debug.PlannedAction = fireAoe.Name;
@@ -753,6 +803,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         var level = player.Level;
 
         var iceTransition = BLMActions.GetIceTransition(level);
+        var iceTransitionCastTime = context.HasInstantCast ? 0f : iceTransition.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, iceTransitionCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
+
         if (context.ActionService.ExecuteGcd(iceTransition, target.GameObjectId))
         {
             context.Debug.PlannedAction = iceTransition.Name;
@@ -806,6 +863,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         if (context.UmbralIceStacks < 3)
         {
             var iceUpgrade = BLMActions.GetIceTransition(level);
+            var iceUpgradeCastTime = context.HasInstantCast ? 0f : iceUpgrade.CastTime;
+            if (MechanicCastGate.ShouldBlock(context, iceUpgradeCastTime))
+            {
+                context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                return false;
+            }
+
             if (context.ActionService.ExecuteGcd(iceUpgrade, target.GameObjectId))
             {
                 context.Debug.PlannedAction = iceUpgrade.Name;
@@ -826,6 +890,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         // Priority 1b: Get Umbral Hearts with Blizzard IV (requires UI3)
         if (context.UmbralHearts < 3 && context.UmbralIceStacks == 3 && level >= BLMActions.Blizzard4.MinLevel)
         {
+            var blizzard4CastTime = context.HasInstantCast ? 0f : BLMActions.Blizzard4.CastTime;
+            if (MechanicCastGate.ShouldBlock(context, blizzard4CastTime))
+            {
+                context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                return false;
+            }
+
             if (context.ActionService.ExecuteGcd(BLMActions.Blizzard4, target.GameObjectId))
             {
                 context.Debug.PlannedAction = BLMActions.Blizzard4.Name;
@@ -857,6 +928,14 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
             if (context.HasThunderhead)
             {
                 var thunderAction = useAoe ? BLMActions.GetThunderAoe(level) : BLMActions.GetThunderST(level);
+                // Thunderhead proc makes Thunder instant regardless of base cast time
+                var thunderProcCastTime = context.HasInstantCast || context.HasThunderhead ? 0f : thunderAction.CastTime;
+                if (MechanicCastGate.ShouldBlock(context, thunderProcCastTime))
+                {
+                    context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                    return false;
+                }
+
                 if (context.ActionService.ExecuteGcd(thunderAction, target.GameObjectId))
                 {
                     context.Debug.PlannedAction = thunderAction.Name;
@@ -884,6 +963,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
             {
                 // Hard cast Thunder if no Thunderhead proc
                 var thunderAction = useAoe ? BLMActions.GetThunderAoe(level) : BLMActions.GetThunderST(level);
+                var thunderHardCastTime = context.HasInstantCast ? 0f : thunderAction.CastTime;
+                if (MechanicCastGate.ShouldBlock(context, thunderHardCastTime))
+                {
+                    context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                    return false;
+                }
+
                 if (context.ActionService.ExecuteGcd(thunderAction, target.GameObjectId))
                 {
                     context.Debug.PlannedAction = thunderAction.Name;
@@ -912,6 +998,14 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         // Priority 3: Use Paradox if available
         if (context.Configuration.BlackMage.EnableParadox && context.HasParadox && level >= BLMActions.Paradox.MinLevel)
         {
+            // Paradox is instant in Umbral Ice III (always the case in TryIcePhase)
+            var paradoxIceCastTime = context.HasInstantCast || context.InUmbralIce ? 0f : BLMActions.Paradox.CastTime;
+            if (MechanicCastGate.ShouldBlock(context, paradoxIceCastTime))
+            {
+                context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                return false;
+            }
+
             if (context.ActionService.ExecuteGcd(BLMActions.Paradox, target.GameObjectId))
             {
                 context.Debug.PlannedAction = BLMActions.Paradox.Name;
@@ -952,6 +1046,15 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         if (useAoe && context.UmbralHearts < 3)
         {
             var iceAoe = BLMActions.GetIceAoe(level);
+            if (level >= iceAoe.MinLevel)
+            {
+                var iceAoeCastTime = context.HasInstantCast ? 0f : iceAoe.CastTime;
+                if (MechanicCastGate.ShouldBlock(context, iceAoeCastTime))
+                {
+                    context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                    return false;
+                }
+            }
             if (level >= iceAoe.MinLevel && context.ActionService.ExecuteGcd(iceAoe, target.GameObjectId))
             {
                 context.Debug.PlannedAction = iceAoe.Name;
@@ -1013,6 +1116,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
         }
 
         var fireTransition = BLMActions.GetFireTransition(level);
+        var fireTransitionCastTime = context.HasInstantCast ? 0f : fireTransition.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, fireTransitionCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
+
         if (context.ActionService.ExecuteGcd(fireTransition, target.GameObjectId))
         {
             context.Debug.PlannedAction = fireTransition.Name;
@@ -1053,6 +1163,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
 
         // Start with Fire III for full AF3
         var fireStarter = BLMActions.GetFireTransition(level);
+        var fireStarterCastTime = context.HasInstantCast ? 0f : fireStarter.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, fireStarterCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
+
         if (context.ActionService.ExecuteGcd(fireStarter, target.GameObjectId))
         {
             context.Debug.PlannedAction = fireStarter.Name;
