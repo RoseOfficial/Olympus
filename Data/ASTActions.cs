@@ -675,8 +675,9 @@ public static class ASTActions
         RecastTime = 1f,
         Range = 30f,
         MpCost = 0,
-        AppliedStatusId = 3889, // Lord of Crowns buff (same status ID as TheSpear, 3889 = LordOfCrownsStatusId; TheSpear is the card form, Lord of Crowns is the Minor Arcana form — both apply the same status by design)
-        AppliedStatusDuration = 15f
+        // Play III (Lord of Crowns) deals AoE damage; it does not apply a persistent status.
+        // Previously shared TheSpear's 3889, which was incorrect.
+        AppliedStatusDuration = 0f
     };
 
     /// <summary>
@@ -1124,9 +1125,11 @@ public static class ASTActions
     public const ushort TheSpearStatusId = 3889;
 
     /// <summary>
-    /// Lord of Crowns buff status ID.
+    /// Lord of Crowns does not apply a persistent status in live game data — it is a
+    /// damage AoE. Constant retained at 0 for API compatibility; callers should not
+    /// rely on status-based detection for Lord of Crowns.
     /// </summary>
-    public const ushort LordOfCrownsStatusId = 3889;
+    public const ushort LordOfCrownsStatusId = 0;
 
     /// <summary>
     /// Lady of Crowns buff status ID.
