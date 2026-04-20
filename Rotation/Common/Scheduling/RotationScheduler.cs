@@ -148,6 +148,17 @@ public sealed class RotationScheduler
                 }
             }
 
+            // Gate: target. Skipped when TargetId == 0 (self-targeted or intentional).
+            if (candidate.TargetId != 0 && ctx.ObjectTable is { } objectTable)
+            {
+                var target = objectTable.SearchById(candidate.TargetId);
+                if (target is null)
+                {
+                    RecordFail(candidate, "Target missing");
+                    continue;
+                }
+            }
+
             // Provisional dispatch so the "level matches" test passes.
             // Tasks 6-13 will add the remaining gates before this line; Task 14 will
             // implement the real dispatch path (raw-ID variant). Until then, use

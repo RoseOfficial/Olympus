@@ -273,6 +273,38 @@ public class RotationSchedulerTests
             It.IsAny<ulong>()), Times.Once);
     }
 
+    [Fact]
+    public void Dispatch_TargetMissing_SkipsCandidate()
+    {
+        var actionService = new Mock<IActionService>();
+        var scheduler = Build(actionService);
+        var behavior = TestBehaviors.InstantGcd(actionId: 8001);
+
+        var ctx = CreateContextWithPlayerLevelAndTarget(level: 80, targetId: 999, targetExists: false);
+        scheduler.PushGcd(behavior, targetId: 999, priority: 10);
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.False(result.Dispatched);
+        Assert.Contains(result.GateFailReasons, r => r.Contains("Target"));
+    }
+
+    [Fact]
+    public void Dispatch_TargetIdZero_SkipsTargetValidation()
+    {
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>())).Returns(true);
+        var scheduler = Build(actionService);
+        var behavior = TestBehaviors.InstantGcd(actionId: 8002);
+
+        var ctx = CreateContextWithPlayerLevel(80);
+        scheduler.PushGcd(behavior, targetId: 0, priority: 10);
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.True(result.Dispatched);
+    }
+
     private static IRotationContext CreateContextWithPlayerLevel(byte level)
     {
         var mock = new Mock<IRotationContext>();
@@ -280,6 +312,23 @@ public class RotationSchedulerTests
         player.Setup(p => p.Level).Returns(level);
         mock.Setup(c => c.Player).Returns(player.Object);
         mock.Setup(c => c.Configuration).Returns(new Configuration());
+        return mock.Object;
+    }
+
+    private static IRotationContext CreateContextWithPlayerLevelAndTarget(
+        byte level, ulong targetId, bool targetExists)
+    {
+        var mock = new Mock<IRotationContext>();
+        var player = new Mock<Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter>();
+        player.Setup(p => p.Level).Returns(level);
+        mock.Setup(c => c.Player).Returns(player.Object);
+        mock.Setup(c => c.Configuration).Returns(new Configuration());
+        var objectTable = new Mock<Dalamud.Plugin.Services.IObjectTable>();
+        if (!targetExists)
+        {
+            objectTable.Setup(t => t.SearchById(targetId)).Returns((Dalamud.Game.ClientState.Objects.Types.IGameObject?)null);
+        }
+        mock.Setup(c => c.ObjectTable).Returns(objectTable.Object);
         return mock.Object;
     }
 }
