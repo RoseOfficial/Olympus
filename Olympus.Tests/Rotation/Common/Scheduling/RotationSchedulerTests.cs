@@ -148,6 +148,49 @@ public class RotationSchedulerTests
         Assert.True(result.Dispatched);
     }
 
+    [Fact]
+    public void Dispatch_ComboStepPredicateFalse_SkipsCandidate()
+    {
+        var jobGauges = new Mock<IJobGauges>();
+        var scheduler = Build(jobGauges: jobGauges);
+
+        var behavior = TestBehaviors.InstantGcd(actionId: 6001) with { ComboStep = _ => false };
+        var ctx = CreateContextWithPlayerLevel(80);
+        scheduler.PushGcd(behavior, targetId: 1, priority: 10);
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.False(result.Dispatched);
+        Assert.Contains(result.GateFailReasons, r => r.Contains("ComboStep"));
+    }
+
+    [Fact]
+    public void Dispatch_ComboStepThrows_RecordsErrorAndSkips()
+    {
+        var jobGauges = new Mock<IJobGauges>();
+        var errorMetrics = new Mock<Olympus.Services.IErrorMetricsService>();
+        var scheduler = new RotationScheduler(
+            new Mock<IActionService>().Object,
+            jobGauges.Object,
+            new Configuration(),
+            null,
+            errorMetrics.Object);
+
+        var behavior = TestBehaviors.InstantGcd(actionId: 6002) with
+        {
+            ComboStep = _ => throw new System.InvalidOperationException("bad gauge")
+        };
+        var ctx = CreateContextWithPlayerLevel(80);
+        scheduler.PushGcd(behavior, targetId: 1, priority: 10);
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.False(result.Dispatched);
+        errorMetrics.Verify(
+            x => x.RecordError("Scheduler", It.Is<string>(s => s.Contains("ComboStep"))),
+            Times.Once);
+    }
+
     private static IRotationContext CreateContextWithPlayerLevel(byte level)
     {
         var mock = new Mock<IRotationContext>();
