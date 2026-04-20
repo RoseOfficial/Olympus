@@ -278,36 +278,64 @@ public sealed unsafe class ActionService : IActionService
     }
 
     /// <inheritdoc/>
-    public bool ExecuteGcdRaw(uint actionId, ulong targetId)
+    public bool ExecuteGcdRaw(ActionDefinition action, uint rawDispatchId, ulong targetId)
     {
-        unsafe
+        var actionManager = SafeGameAccess.GetActionManager(_errorMetrics);
+        if (actionManager is null)
+            return false;
+
+        // Same spam guard as ExecuteGcd — the Raw bypass is for validation checks,
+        // not for cycle accounting.
+        if (_gcdSubmittedThisCycle && GcdRemaining > 0)
+            return false;
+
+        var result = actionManager->UseAction(ActionType.Action, rawDispatchId, targetId);
+
+        if (result)
         {
-            var am = SafeGameAccess.GetActionManager(_errorMetrics);
-            if (am == null) return false;
-            return am->UseAction(ActionType.Action, actionId, targetId);
+            if (GcdRemaining > 0)
+                _gcdSubmittedThisCycle = true;
+
+            _lastExecutedAction = action;
+            _lastExecuteTime = DateTime.UtcNow;
+
+            var gcdDuration = actionManager->GetRecastTime(ActionType.Action, rawDispatchId);
+            _actionTracker.LogGcdCast(gcdDuration);
+            _actionTracker.LogAttempt(action.ActionId, null, null, ActionResult.Success, 0);
+            RaiseActionExecuted(action);
         }
+
+        return result;
     }
 
     /// <inheritdoc/>
-    public bool ExecuteOgcdRaw(uint actionId, ulong targetId)
+    public bool ExecuteOgcdRaw(ActionDefinition action, uint rawDispatchId, ulong targetId)
     {
-        unsafe
+        var actionManager = SafeGameAccess.GetActionManager(_errorMetrics);
+        if (actionManager is null)
+            return false;
+
+        // NO GetActionStatus pre-check — that's what "Raw" intentionally bypasses.
+        var result = actionManager->UseAction(ActionType.Action, rawDispatchId, targetId);
+
+        if (result)
         {
-            var am = SafeGameAccess.GetActionManager(_errorMetrics);
-            if (am == null) return false;
-            return am->UseAction(ActionType.Action, actionId, targetId);
+            _lastExecutedAction = action;
+            _lastExecuteTime = DateTime.UtcNow;
+            _ogcdsUsedThisCycle++;
+            _actionTracker.LogAttempt(action.ActionId, null, null, ActionResult.Success, 0);
+            RaiseActionExecuted(action);
         }
+
+        return result;
     }
 
     /// <inheritdoc/>
     public uint GetAdjustedActionId(uint baseActionId)
     {
-        unsafe
-        {
-            var am = SafeGameAccess.GetActionManager(_errorMetrics);
-            if (am == null) return baseActionId;
-            return am->GetAdjustedActionId(baseActionId);
-        }
+        var am = SafeGameAccess.GetActionManager(_errorMetrics);
+        if (am == null) return baseActionId;
+        return am->GetAdjustedActionId(baseActionId);
     }
 
     /// <inheritdoc/>

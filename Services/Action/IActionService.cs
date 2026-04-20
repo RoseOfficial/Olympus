@@ -111,17 +111,33 @@ public interface IActionService
     bool ExecuteDirectionalGcd(ActionDefinition action, ulong optimalTargetId);
 
     /// <summary>
-    /// Executes a GCD via raw action ID — used for replacement-chain dispatch
-    /// (NIN ninjutsu pattern, SMN demi-phase GCDs) where <c>UseAction</c> must
-    /// receive the base action ID even though the game will substitute a
-    /// replacement at execution time.
+    /// Executes a GCD for a replacement-chain action, bypassing <c>GetActionStatus</c>
+    /// and <c>IsGCD</c> pre-flight validation but still performing all per-cycle
+    /// accounting (spam guard, <c>_lastExecutedAction</c>, tracker, <c>ActionExecuted</c> event).
     /// </summary>
-    bool ExecuteGcdRaw(uint actionId, ulong targetId);
+    /// <param name="action">
+    /// The logical action the rotation chose. Used for tracking, analytics, and the
+    /// <c>ActionExecuted</c> event — e.g. Raiton (2267) when the rotation decided to cast Raiton.
+    /// </param>
+    /// <param name="rawDispatchId">
+    /// The base action ID that must go to <c>UseAction</c>. Different from
+    /// <paramref name="action"/>.ActionId in replacement-chain scenarios — e.g. the
+    /// base Ninjutsu ID (2260) that the game replaces with Raiton at execution time.
+    /// </param>
+    /// <param name="targetId">Target game object ID.</param>
+    bool ExecuteGcdRaw(ActionDefinition action, uint rawDispatchId, ulong targetId);
 
     /// <summary>
-    /// Executes an oGCD via raw action ID — counterpart to <see cref="ExecuteGcdRaw"/>.
+    /// Executes an oGCD for a replacement-chain action — counterpart to
+    /// <see cref="ExecuteGcdRaw(ActionDefinition, uint, ulong)"/>. Bypasses
+    /// <c>GetActionStatus</c> pre-flight validation but still performs
+    /// <c>_ogcdsUsedThisCycle</c> tracking, <c>_lastExecutedAction</c>,
+    /// tracker logging, and the <c>ActionExecuted</c> event.
     /// </summary>
-    bool ExecuteOgcdRaw(uint actionId, ulong targetId);
+    /// <param name="action">The logical action chosen by the rotation (for tracking/events).</param>
+    /// <param name="rawDispatchId">The base action ID sent to <c>UseAction</c>.</param>
+    /// <param name="targetId">Target game object ID.</param>
+    bool ExecuteOgcdRaw(ActionDefinition action, uint rawDispatchId, ulong targetId);
 
     /// <summary>
     /// Returns the action ID the game will actually use if the player presses
