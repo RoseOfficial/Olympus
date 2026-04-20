@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Dalamud.Plugin.Services;
 using Olympus.Models.Action;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Timeline;
@@ -173,6 +174,16 @@ public sealed class RotationScheduler
                 var remaining = _actionService.GetCooldownRemaining(effective.ActionId);
                 RecordFail(candidate, $"Cooldown {remaining:F1}s");
                 continue;
+            }
+
+            // Gate: mechanic
+            if (candidate.Behavior.MechanicGate && effective.CastTime > 0f && _timelineService is not null)
+            {
+                if (MechanicCastGate.ShouldBlock(ctx, effective.CastTime))
+                {
+                    RecordFail(candidate, "Mechanic");
+                    continue;
+                }
             }
 
             // Provisional dispatch so the "level matches" test passes.

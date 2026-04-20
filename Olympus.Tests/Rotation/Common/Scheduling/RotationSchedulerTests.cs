@@ -345,6 +345,23 @@ public class RotationSchedulerTests
         actionService.Verify(x => x.GetCurrentCharges(9999u), Times.AtLeastOnce);
     }
 
+    [Fact]
+    public void Dispatch_MechanicGateInactiveForInstants_DoesNotCheckTimeline()
+    {
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+        actionService.Setup(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>())).Returns(true);
+        var scheduler = Build(actionService);
+        var behavior = TestBehaviors.InstantGcd(actionId: 10001) with { MechanicGate = true };
+
+        var ctx = CreateContextWithPlayerLevel(80);
+        scheduler.PushGcd(behavior, targetId: 0, priority: 10);
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.True(result.Dispatched);
+    }
+
     private static IRotationContext CreateContextWithPlayerLevel(byte level)
     {
         var mock = new Mock<IRotationContext>();
