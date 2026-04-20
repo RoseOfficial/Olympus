@@ -19,7 +19,7 @@ public sealed class GnbGaugeReader : IGnbGaugeReader
         get
         {
             try { return _gauges.Get<GNBGauge>().AmmoComboStep; }
-            catch { _errorMetrics?.RecordError("GnbGaugeReader", "AmmoComboStep read failed"); return 0; }
+            catch { _errorMetrics?.RecordError("GnbGaugeReader", "Failed to read GNB AmmoComboStep"); return 0; }
         }
     }
 
@@ -28,7 +28,7 @@ public sealed class GnbGaugeReader : IGnbGaugeReader
         get
         {
             try { return _gauges.Get<GNBGauge>().Ammo; }
-            catch { _errorMetrics?.RecordError("GnbGaugeReader", "Ammo read failed"); return 0; }
+            catch { _errorMetrics?.RecordError("GnbGaugeReader", "Failed to read GNB Cartridges"); return 0; }
         }
     }
 }
