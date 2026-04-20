@@ -836,12 +836,21 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
 
         // Fallback: if the level-appropriate spell failed (e.g., Blizzard III not yet unlocked),
         // try basic Blizzard which is available from level 1 and always free in Astral Fire
-        if (iceTransition.ActionId != BLMActions.Blizzard.ActionId &&
-            context.ActionService.ExecuteGcd(BLMActions.Blizzard, target.GameObjectId))
+        if (iceTransition.ActionId != BLMActions.Blizzard.ActionId)
         {
-            context.Debug.PlannedAction = BLMActions.Blizzard.Name;
-            context.Debug.DamageState = "Transition to Ice (Blizzard)";
-            return true;
+            var castTime = context.HasInstantCast ? 0f : BLMActions.Blizzard.CastTime;
+            if (MechanicCastGate.ShouldBlock(context, castTime))
+            {
+                context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                return false;
+            }
+
+            if (context.ActionService.ExecuteGcd(BLMActions.Blizzard, target.GameObjectId))
+            {
+                context.Debug.PlannedAction = BLMActions.Blizzard.Name;
+                context.Debug.DamageState = "Transition to Ice (Blizzard)";
+                return true;
+            }
         }
 
         return false;
@@ -878,12 +887,21 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
             }
 
             // Fallback to basic Blizzard if level-appropriate spell unavailable
-            if (iceUpgrade.ActionId != BLMActions.Blizzard.ActionId &&
-                context.ActionService.ExecuteGcd(BLMActions.Blizzard, target.GameObjectId))
+            if (iceUpgrade.ActionId != BLMActions.Blizzard.ActionId)
             {
-                context.Debug.PlannedAction = BLMActions.Blizzard.Name;
-                context.Debug.DamageState = "Blizzard (build UI stacks)";
-                return true;
+                var castTime = context.HasInstantCast ? 0f : BLMActions.Blizzard.CastTime;
+                if (MechanicCastGate.ShouldBlock(context, castTime))
+                {
+                    context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                    return false;
+                }
+
+                if (context.ActionService.ExecuteGcd(BLMActions.Blizzard, target.GameObjectId))
+                {
+                    context.Debug.PlannedAction = BLMActions.Blizzard.Name;
+                    context.Debug.DamageState = "Blizzard (build UI stacks)";
+                    return true;
+                }
             }
         }
 
@@ -928,14 +946,7 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
             if (context.HasThunderhead)
             {
                 var thunderAction = useAoe ? BLMActions.GetThunderAoe(level) : BLMActions.GetThunderST(level);
-                // Thunderhead proc makes Thunder instant regardless of base cast time
-                var thunderProcCastTime = context.HasInstantCast || context.HasThunderhead ? 0f : thunderAction.CastTime;
-                if (MechanicCastGate.ShouldBlock(context, thunderProcCastTime))
-                {
-                    context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
-                    return false;
-                }
-
+                // Thunderhead proc makes Thunder instant -- no cast gate needed
                 if (context.ActionService.ExecuteGcd(thunderAction, target.GameObjectId))
                 {
                     context.Debug.PlannedAction = thunderAction.Name;
