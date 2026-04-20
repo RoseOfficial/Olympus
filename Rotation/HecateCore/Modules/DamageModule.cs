@@ -1065,27 +1065,28 @@ public sealed class DamageModule : BaseDpsDamageModule<IHecateContext>, IHecateM
                     context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
                     return false;
                 }
-            }
-            if (level >= iceAoe.MinLevel && context.ActionService.ExecuteGcd(iceAoe, target.GameObjectId))
-            {
-                context.Debug.PlannedAction = iceAoe.Name;
-                context.Debug.DamageState = $"{iceAoe.Name} (hearts)";
 
-                // Training: Record AoE hearts
-                var enemyCount = context.TargetingService.CountEnemiesInRange(8f, player);
-                TrainingHelper.Decision(context.TrainingService)
-                    .Action(iceAoe.ActionId, iceAoe.Name)
-                    .AsAoE(enemyCount)
-                    .Reason($"{iceAoe.Name} - AoE Umbral Hearts",
-                        "Using AoE ice spell to generate Umbral Hearts in multi-target situations. " +
-                        "This replaces Blizzard IV for AoE Ice phase.")
-                    .Factors($"Enemies: {enemyCount}", "AoE rotation", $"Hearts: {context.UmbralHearts}")
-                    .Alternatives("Single-target Blizzard IV")
-                    .Tip("In AoE, use Freeze/High Blizzard II for hearts instead of Blizzard IV.")
-                    .Concept(BlmConcepts.AoeRotation)
-                    .Record();
+                if (context.ActionService.ExecuteGcd(iceAoe, target.GameObjectId))
+                {
+                    context.Debug.PlannedAction = iceAoe.Name;
+                    context.Debug.DamageState = $"{iceAoe.Name} (hearts)";
 
-                return true;
+                    // Training: Record AoE hearts
+                    var enemyCount = context.TargetingService.CountEnemiesInRange(8f, player);
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(iceAoe.ActionId, iceAoe.Name)
+                        .AsAoE(enemyCount)
+                        .Reason($"{iceAoe.Name} - AoE Umbral Hearts",
+                            "Using AoE ice spell to generate Umbral Hearts in multi-target situations. " +
+                            "This replaces Blizzard IV for AoE Ice phase.")
+                        .Factors($"Enemies: {enemyCount}", "AoE rotation", $"Hearts: {context.UmbralHearts}")
+                        .Alternatives("Single-target Blizzard IV")
+                        .Tip("In AoE, use Freeze/High Blizzard II for hearts instead of Blizzard IV.")
+                        .Concept(BlmConcepts.AoeRotation)
+                        .Record();
+
+                    return true;
+                }
             }
         }
 
