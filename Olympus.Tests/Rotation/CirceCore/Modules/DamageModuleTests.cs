@@ -146,8 +146,11 @@ public class DamageModuleTests
         var targeting = CreateTargetingWithEnemy(enemy);
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        // We pass base Riposte (7504) to UseAction; the game upgrades server-side to
+        // Enchanted Riposte (7527) when mana qualifies. UseAction rejects the Enchanted
+        // replacement IDs for the mid-combo steps, so we use base IDs throughout.
         actionService.Setup(x => x.ExecuteGcd(
-                It.Is<ActionDefinition>(a => a.ActionId == RDMActions.EnchantedRiposte.ActionId),
+                It.Is<ActionDefinition>(a => a.ActionId == RDMActions.Riposte.ActionId),
                 It.IsAny<ulong>()))
             .Returns(true);
 
@@ -169,8 +172,86 @@ public class DamageModuleTests
 
         Assert.True(result);
         actionService.Verify(x => x.ExecuteGcd(
-            It.Is<ActionDefinition>(a => a.ActionId == RDMActions.EnchantedRiposte.ActionId),
+            It.Is<ActionDefinition>(a => a.ActionId == RDMActions.Riposte.ActionId),
             It.IsAny<ulong>()), Times.Once);
+    }
+
+    [Fact]
+    public void TryExecute_MeleeComboStep1_FiresBaseZwerchhauNotEnchanted()
+    {
+        // Regression: UseAction rejects the Enchanted replacement ID (7528), silently dropping
+        // the combo after Enchanted Riposte. Passing base Zwerchhau (7512) lets the game upgrade
+        // server-side. Verify we do NOT call ExecuteGcd with the Enchanted replacement ID.
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        actionService.Setup(x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == RDMActions.Zwerchhau.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        var context = CirceTestContext.Create(
+            inCombat: true,
+            canExecuteGcd: true,
+            isResolutionReady: false,
+            isScorchReady: false,
+            isGrandImpactReady: false,
+            isFinisherReady: false,
+            isInMeleeCombo: true,
+            meleeComboStep: 1, // Zwerchhau next
+            blackMana: 30,
+            whiteMana: 30,
+            actionService: actionService,
+            targetingService: targeting);
+
+        var result = _module.TryExecute(context, isMoving: false);
+
+        Assert.True(result);
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == RDMActions.Zwerchhau.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == RDMActions.EnchantedZwerchhau.ActionId),
+            It.IsAny<ulong>()), Times.Never);
+    }
+
+    [Fact]
+    public void TryExecute_MeleeComboStep2_FiresBaseRedoublementNotEnchanted()
+    {
+        // Regression: UseAction rejects Enchanted Redoublement replacement ID (7529).
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        actionService.Setup(x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == RDMActions.Redoublement.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        var context = CirceTestContext.Create(
+            inCombat: true,
+            canExecuteGcd: true,
+            isResolutionReady: false,
+            isScorchReady: false,
+            isGrandImpactReady: false,
+            isFinisherReady: false,
+            isInMeleeCombo: true,
+            meleeComboStep: 2, // Redoublement next
+            blackMana: 15,
+            whiteMana: 15,
+            actionService: actionService,
+            targetingService: targeting);
+
+        var result = _module.TryExecute(context, isMoving: false);
+
+        Assert.True(result);
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == RDMActions.Redoublement.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == RDMActions.EnchantedRedoublement.ActionId),
+            It.IsAny<ulong>()), Times.Never);
     }
 
     [Fact]

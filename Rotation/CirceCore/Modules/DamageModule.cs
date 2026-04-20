@@ -272,7 +272,12 @@ public sealed class DamageModule : BaseDpsDamageModule<ICirceContext>, ICirceMod
             case 1: // After Riposte, use Zwerchhau
                 if (level >= RDMActions.EnchantedZwerchhau.MinLevel)
                 {
-                    if (context.ActionService.ExecuteGcd(RDMActions.EnchantedZwerchhau, target.GameObjectId))
+                    // Pass base Zwerchhau ID — UseAction rejects the Enchanted replacement ID (7528),
+                    // but the game upgrades the base Zwerchhau (7512) to Enchanted server-side when
+                    // the player's mana and combo state both qualify. See CLAUDE.md: "UseAction
+                    // rejects replacement action IDs". BossMod xan/Casters/RDM.cs uses AID.Zwerchhau
+                    // for the same reason.
+                    if (context.ActionService.ExecuteGcd(RDMActions.Zwerchhau, target.GameObjectId))
                     {
                         context.Debug.PlannedAction = RDMActions.EnchantedZwerchhau.Name;
                         context.Debug.DamageState = "Enchanted Zwerchhau (combo 2)";
@@ -302,7 +307,9 @@ public sealed class DamageModule : BaseDpsDamageModule<ICirceContext>, ICirceMod
             case 2: // After Zwerchhau, use Redoublement
                 if (level >= RDMActions.EnchantedRedoublement.MinLevel)
                 {
-                    if (context.ActionService.ExecuteGcd(RDMActions.EnchantedRedoublement, target.GameObjectId))
+                    // Pass base Redoublement ID — UseAction rejects the Enchanted replacement ID (7529);
+                    // game upgrades Redoublement (7516) to Enchanted server-side based on mana + combo.
+                    if (context.ActionService.ExecuteGcd(RDMActions.Redoublement, target.GameObjectId))
                     {
                         context.Debug.PlannedAction = RDMActions.EnchantedRedoublement.Name;
                         context.Debug.DamageState = "Enchanted Redoublement (combo 3)";
@@ -366,8 +373,12 @@ public sealed class DamageModule : BaseDpsDamageModule<ICirceContext>, ICirceMod
             return false;
         }
 
-        // Start with Enchanted Riposte
-        if (context.ActionService.ExecuteGcd(RDMActions.EnchantedRiposte, target.GameObjectId))
+        // Start the combo. Pass base Riposte (7504) — the game upgrades to Enchanted Riposte
+        // server-side when mana ≥ 50|50. Passing the Enchanted ID (7527) used to work at combo
+        // step 0 but the Enchanted replacement IDs in the rest of the chain (Zwerchhau 7528,
+        // Redoublement 7529) are rejected by UseAction, so we pass base IDs throughout for
+        // consistency. See BossMod xan/Casters/RDM.cs which uses AID.Riposte for the same flow.
+        if (context.ActionService.ExecuteGcd(RDMActions.Riposte, target.GameObjectId))
         {
             context.Debug.PlannedAction = RDMActions.EnchantedRiposte.Name;
             context.Debug.DamageState = "Enchanted Riposte (combo start)";
