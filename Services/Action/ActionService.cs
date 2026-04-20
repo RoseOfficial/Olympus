@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using Olympus.Data;
 using Olympus.Models;
@@ -32,6 +33,7 @@ public sealed unsafe class ActionService : IActionService
 {
     private readonly IActionTracker _actionTracker;
     private readonly IErrorMetricsService? _errorMetrics;
+    private readonly IObjectTable? _objectTable;
     private readonly WeaveOptimizer _weaveOptimizer;
 
     // GCD tracking state
@@ -84,10 +86,11 @@ public sealed unsafe class ActionService : IActionService
     /// <summary>Gets the WeaveOptimizer for intelligent oGCD timing.</summary>
     public IWeaveOptimizer WeaveOptimizer => _weaveOptimizer;
 
-    public ActionService(IActionTracker actionTracker, IErrorMetricsService? errorMetrics = null)
+    public ActionService(IActionTracker actionTracker, IErrorMetricsService? errorMetrics = null, IObjectTable? objectTable = null)
     {
         _actionTracker = actionTracker;
         _errorMetrics = errorMetrics;
+        _objectTable = objectTable;
         _weaveOptimizer = new WeaveOptimizer();
     }
 
@@ -272,6 +275,51 @@ public sealed unsafe class ActionService : IActionService
     {
         // Just a regular ExecuteGcd with the smart-selected target
         return ExecuteGcd(action, optimalTargetId);
+    }
+
+    /// <inheritdoc/>
+    public bool ExecuteGcdRaw(uint actionId, ulong targetId)
+    {
+        unsafe
+        {
+            var am = SafeGameAccess.GetActionManager(_errorMetrics);
+            if (am == null) return false;
+            return am->UseAction(ActionType.Action, actionId, targetId);
+        }
+    }
+
+    /// <inheritdoc/>
+    public bool ExecuteOgcdRaw(uint actionId, ulong targetId)
+    {
+        unsafe
+        {
+            var am = SafeGameAccess.GetActionManager(_errorMetrics);
+            if (am == null) return false;
+            return am->UseAction(ActionType.Action, actionId, targetId);
+        }
+    }
+
+    /// <inheritdoc/>
+    public uint GetAdjustedActionId(uint baseActionId)
+    {
+        unsafe
+        {
+            var am = SafeGameAccess.GetActionManager(_errorMetrics);
+            if (am == null) return baseActionId;
+            return am->GetAdjustedActionId(baseActionId);
+        }
+    }
+
+    /// <inheritdoc/>
+    public bool PlayerHasStatus(uint statusId)
+    {
+        var player = _objectTable?.LocalPlayer;
+        if (player?.StatusList == null) return false;
+        foreach (var status in player.StatusList)
+        {
+            if (status != null && status.StatusId == statusId) return true;
+        }
+        return false;
     }
 
     /// <summary>

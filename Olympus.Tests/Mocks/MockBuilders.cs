@@ -177,6 +177,10 @@ public static class MockBuilders
         mock.Setup(x => x.GetCurrentCharges(It.IsAny<uint>())).Returns(0u);
         mock.Setup(x => x.GetMaxCharges(It.IsAny<uint>(), It.IsAny<uint>())).Returns((ushort)2);
         mock.Setup(x => x.GetAvailableWeaveSlots()).Returns(canExecuteOgcd ? 2 : 0);
+        mock.Setup(x => x.ExecuteGcdRaw(It.IsAny<uint>(), It.IsAny<ulong>())).Returns(true);
+        mock.Setup(x => x.ExecuteOgcdRaw(It.IsAny<uint>(), It.IsAny<ulong>())).Returns(true);
+        mock.Setup(x => x.GetAdjustedActionId(It.IsAny<uint>())).Returns<uint>(id => id);
+        mock.Setup(x => x.PlayerHasStatus(It.IsAny<uint>())).Returns(false);
 
         return mock;
     }

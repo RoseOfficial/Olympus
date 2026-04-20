@@ -109,4 +109,31 @@ public interface IActionService
     /// The game auto-faces toward the target, controlling the cone/line direction.
     /// </summary>
     bool ExecuteDirectionalGcd(ActionDefinition action, ulong optimalTargetId);
+
+    /// <summary>
+    /// Executes a GCD via raw action ID — used for replacement-chain dispatch
+    /// (NIN ninjutsu pattern, SMN demi-phase GCDs) where <c>UseAction</c> must
+    /// receive the base action ID even though the game will substitute a
+    /// replacement at execution time.
+    /// </summary>
+    bool ExecuteGcdRaw(uint actionId, ulong targetId);
+
+    /// <summary>
+    /// Executes an oGCD via raw action ID — counterpart to <see cref="ExecuteGcdRaw"/>.
+    /// </summary>
+    bool ExecuteOgcdRaw(uint actionId, ulong targetId);
+
+    /// <summary>
+    /// Returns the action ID the game will actually use if the player presses
+    /// the given base action ID right now (accounts for combos, status-procs,
+    /// and level upgrades).
+    /// </summary>
+    uint GetAdjustedActionId(uint baseActionId);
+
+    /// <summary>
+    /// Returns true if the local player currently has the given status effect.
+    /// Provided as an action-service-level check so the scheduler's proc gate
+    /// is mockable without touching native <c>StatusList</c>.
+    /// </summary>
+    bool PlayerHasStatus(uint statusId);
 }

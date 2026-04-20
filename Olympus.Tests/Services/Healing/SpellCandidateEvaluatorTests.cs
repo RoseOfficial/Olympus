@@ -59,6 +59,10 @@ public class SpellCandidateEvaluatorTests
         public ushort GetMaxCharges(uint actionId, uint level) => 1;
         public bool IsSafeToWeave(float oGcdAnimationLock = 0.6f) => true;
         public bool WouldClipGcd(float oGcdAnimationLock = 0.6f) => false;
+        public bool ExecuteGcdRaw(uint actionId, ulong targetId) => true;
+        public bool ExecuteOgcdRaw(uint actionId, ulong targetId) => true;
+        public uint GetAdjustedActionId(uint baseActionId) => baseActionId;
+        public bool PlayerHasStatus(uint statusId) => false;
         public IWeaveOptimizer WeaveOptimizer { get; } = new MockWeaveOptimizer();
     }
 
