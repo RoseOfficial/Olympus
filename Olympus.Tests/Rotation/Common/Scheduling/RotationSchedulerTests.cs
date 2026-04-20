@@ -191,6 +191,40 @@ public class RotationSchedulerTests
             Times.Once);
     }
 
+    [Fact]
+    public void Dispatch_AdjustedProbeMismatch_SkipsCandidate()
+    {
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.GetAdjustedActionId(100u)).Returns(200u);
+        var scheduler = Build(actionService);
+
+        var behavior = TestBehaviors.InstantGcd(actionId: 300) with { AdjustedActionProbe = 100u };
+        var ctx = CreateContextWithPlayerLevel(80);
+        scheduler.PushGcd(behavior, targetId: 1, priority: 10);
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.False(result.Dispatched);
+        Assert.Contains(result.GateFailReasons, r => r.Contains("Adjusted"));
+    }
+
+    [Fact]
+    public void Dispatch_AdjustedProbeMatches_AdvancesPastProbe()
+    {
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.GetAdjustedActionId(100u)).Returns(300u);
+        actionService.Setup(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>())).Returns(true);
+        var scheduler = Build(actionService);
+
+        var behavior = TestBehaviors.InstantGcd(actionId: 300) with { AdjustedActionProbe = 100u };
+        var ctx = CreateContextWithPlayerLevel(80);
+        scheduler.PushGcd(behavior, targetId: 1, priority: 10);
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.True(result.Dispatched);
+    }
+
     private static IRotationContext CreateContextWithPlayerLevel(byte level)
     {
         var mock = new Mock<IRotationContext>();

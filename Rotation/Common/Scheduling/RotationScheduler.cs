@@ -136,6 +136,17 @@ public sealed class RotationScheduler
                 }
             }
 
+            // Gate: adjusted action probe
+            if (candidate.Behavior.AdjustedActionProbe is { } probeId)
+            {
+                var adjusted = _actionService.GetAdjustedActionId(probeId);
+                if (adjusted != candidate.Behavior.Action.ActionId)
+                {
+                    RecordFail(candidate, $"AdjustedActionProbe (expected {candidate.Behavior.Action.ActionId}, got {adjusted})");
+                    continue;
+                }
+            }
+
             // Provisional dispatch so the "level matches" test passes.
             // Tasks 6-13 will add the remaining gates before this line; Task 14 will
             // implement the real dispatch path (raw-ID variant). Until then, use
