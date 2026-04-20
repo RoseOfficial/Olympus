@@ -19,6 +19,9 @@ using Olympus.Services.Stats;
 using Olympus.Services.Party;
 using Olympus.Services.Tank;
 using Olympus.Services.Targeting;
+using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.Scheduling;
+using Olympus.Services.JobGauge;
 using Olympus.Services.Training;
 using Olympus.Timeline;
 
@@ -77,6 +80,12 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
     // Reign of Beasts combo step tracking (0=none, 1=Noble Blood next, 2=Lion Heart next)
     private int _reignComboStep;
 
+    // Scheduler (per-rotation, per-frame priority queue)
+    private readonly RotationScheduler _scheduler;
+
+    // Gauge reader for scheduler tests / production alike
+    private readonly IGnbGaugeReader _gaugeReader;
+
     public Hephaestus(
         IPluginLog log,
         IActionTracker actionTracker,
@@ -98,7 +107,8 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
         IErrorMetricsService? errorMetrics = null,
-        IBurstWindowService? burstWindowService = null)
+        IBurstWindowService? burstWindowService = null,
+        IGnbGaugeReader? gaugeReader = null)
         : base(
             log,
             actionTracker,
@@ -123,6 +133,14 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
         _trainingService = trainingService;
         _burstWindowService = burstWindowService;
         _jobGauges = jobGauges;
+
+        _gaugeReader = gaugeReader ?? new GnbGaugeReader(jobGauges, errorMetrics);
+        _scheduler = new RotationScheduler(
+            actionService,
+            jobGauges,
+            configuration,
+            timelineService,
+            errorMetrics);
 
         // Initialize helpers
         _statusHelper = new HephaestusStatusHelper();
@@ -261,6 +279,39 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
     // Kept as a no-op so the existing call site in UpdateRotation still compiles — the
     // combined update now happens in UpdateGnashingFangStep.
     private void UpdateReignComboStep() { }
+
+    /// <inheritdoc />
+    protected override void ExecuteModules(IHephaestusContext context, bool isMoving, bool inCombat)
+    {
+        // Preserve BaseRotation's safety pauses (same as parent loop).
+        if (Configuration.Targeting.PauseAllOnStandStillPunisher
+            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
+        {
+            return;
+        }
+        if (Configuration.Targeting.PauseOnPlayerChannel
+            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
+        {
+            return;
+        }
+
+        _scheduler.Reset();
+        foreach (var module in _modules)
+        {
+            module.CollectCandidates(context, _scheduler, isMoving);
+        }
+
+        if (inCombat && ActionService.CanExecuteOgcd)
+        {
+            _scheduler.DispatchOgcd(context);
+        }
+        if (ActionService.CanExecuteGcd)
+        {
+            _scheduler.DispatchGcd(context);
+        }
+
+        UpdateModuleDebugStates(context);
+    }
 
     /// <inheritdoc />
     protected override void SyncDebugState(IHephaestusContext context)
