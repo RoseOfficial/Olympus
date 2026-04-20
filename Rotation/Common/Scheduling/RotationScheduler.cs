@@ -93,8 +93,50 @@ public sealed class RotationScheduler
             return cmp != 0 ? cmp : a.InsertionOrder.CompareTo(b.InsertionOrder);
         });
 
-        // Tasks 5+ will add gates and dispatch logic here. Skeleton returns Empty so
-        // subsequent TDD loops can start from a clean "nothing dispatches" state.
-        return SchedulerDispatchResult.Empty;
+        foreach (var candidate in queue)
+        {
+            var effective = candidate.Behavior.Action;
+
+            // Gate: level
+            if (ctx.Player.Level < effective.MinLevel)
+            {
+                RecordFail(candidate, $"Level<{effective.MinLevel}");
+                continue;
+            }
+
+            // Provisional dispatch so the "level matches" test passes.
+            // Tasks 6-13 will add the remaining gates before this line; Task 14 will
+            // implement the real dispatch path (raw-ID variant). Until then, use
+            // the existing ExecuteGcd/ExecuteOgcd signature.
+            var dispatched = isOgcd
+                ? _actionService.ExecuteOgcd(effective, candidate.TargetId)
+                : _actionService.ExecuteGcd(effective, candidate.TargetId);
+
+            if (dispatched)
+            {
+                candidate.OnDispatched?.Invoke(ctx);
+                return new SchedulerDispatchResult
+                {
+                    Dispatched = true,
+                    Winner = candidate.Behavior,
+                    GateFailReasons = _lastFailReasons.ToArray(),
+                };
+            }
+
+            RecordFail(candidate, "DispatchRejected");
+        }
+
+        return new SchedulerDispatchResult
+        {
+            Dispatched = false,
+            Winner = null,
+            GateFailReasons = _lastFailReasons.ToArray(),
+        };
+    }
+
+    private void RecordFail(in AbilityCandidate candidate, string reason)
+    {
+        if (_lastFailReasons.Count >= 16) return;
+        _lastFailReasons.Add($"{candidate.Behavior.Action.Name}: {reason}");
     }
 }
