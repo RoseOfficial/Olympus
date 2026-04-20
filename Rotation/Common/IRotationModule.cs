@@ -1,3 +1,5 @@
+using Olympus.Rotation.Common.Scheduling;
+
 namespace Olympus.Rotation.Common;
 
 /// <summary>
@@ -31,6 +33,14 @@ public interface IRotationModule<TContext> where TContext : IRotationContext
     /// Called every frame to keep debug information current.
     /// </summary>
     /// <param name="context">The shared context.</param>
+    /// <summary>
+    /// Scheduler-based execution path. Migrated rotations implement this to
+    /// push candidates into the scheduler instead of returning true/false
+    /// from <see cref="TryExecute"/>. Default empty body lets un-migrated
+    /// rotations compile without change.
+    /// </summary>
+    void CollectCandidates(TContext context, RotationScheduler scheduler, bool isMoving) { }
+
     void UpdateDebugState(TContext context);
 }
 
