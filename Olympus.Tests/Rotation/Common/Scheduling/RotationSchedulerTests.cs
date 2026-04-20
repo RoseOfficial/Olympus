@@ -362,6 +362,28 @@ public class RotationSchedulerTests
         Assert.True(result.Dispatched);
     }
 
+    [Fact]
+    public void Dispatch_ReplacementBaseIdSet_UsesRawVariant()
+    {
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+        actionService.Setup(x => x.ExecuteGcdRaw(
+                It.IsAny<ActionDefinition>(), 2260u, It.IsAny<ulong>()))
+            .Returns(true);
+        var scheduler = Build(actionService);
+
+        var behavior = TestBehaviors.InstantGcd(actionId: 2267) with { ReplacementBaseId = 2260u };
+        var ctx = CreateContextWithPlayerLevel(80);
+        scheduler.PushGcd(behavior, targetId: 0, priority: 10);
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.True(result.Dispatched);
+        actionService.Verify(x => x.ExecuteGcdRaw(
+            It.IsAny<ActionDefinition>(), 2260u, It.IsAny<ulong>()), Times.Once);
+        actionService.Verify(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()), Times.Never);
+    }
+
     private static IRotationContext CreateContextWithPlayerLevel(byte level)
     {
         var mock = new Mock<IRotationContext>();

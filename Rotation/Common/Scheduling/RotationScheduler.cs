@@ -186,13 +186,19 @@ public sealed class RotationScheduler
                 }
             }
 
-            // Provisional dispatch so the "level matches" test passes.
-            // Tasks 6-13 will add the remaining gates before this line; Task 14 will
-            // implement the real dispatch path (raw-ID variant). Until then, use
-            // the existing ExecuteGcd/ExecuteOgcd signature.
-            var dispatched = isOgcd
-                ? _actionService.ExecuteOgcd(effective, candidate.TargetId)
-                : _actionService.ExecuteGcd(effective, candidate.TargetId);
+            bool dispatched;
+            if (candidate.Behavior.ReplacementBaseId is { } rawId)
+            {
+                dispatched = isOgcd
+                    ? _actionService.ExecuteOgcdRaw(effective, rawId, candidate.TargetId)
+                    : _actionService.ExecuteGcdRaw(effective, rawId, candidate.TargetId);
+            }
+            else
+            {
+                dispatched = isOgcd
+                    ? _actionService.ExecuteOgcd(effective, candidate.TargetId)
+                    : _actionService.ExecuteGcd(effective, candidate.TargetId);
+            }
 
             if (dispatched)
             {
