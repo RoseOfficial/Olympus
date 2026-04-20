@@ -7,6 +7,8 @@ using Olympus.Rotation.IrisCore.Modules;
 using Olympus.Services.Action;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
+using Olympus.Timeline;
+using Olympus.Timeline.Models;
 
 namespace Olympus.Tests.Rotation.IrisCore.Modules;
 
@@ -609,6 +611,61 @@ public class DamageModuleTests
 
         // No instants available; base combo blocked by movement
         Assert.False(result);
+    }
+
+    // ---- MechanicCastGate: cast-time GCDs blocked when mechanic is imminent ----
+
+    [Fact]
+    public void FireInRed_BlockedWhenRaidwideImminent()
+    {
+        // Arrange: raidwide in 1.5s, Fire in Red cast = 1.5s → deadline 2.0s → should block
+        var config = IrisTestContext.CreateDefaultPctConfiguration();
+        config.Timeline.EnableMechanicAwareCasting = true;
+        config.Timeline.EnableTimelinePredictions = true;
+        config.Timeline.TimelineConfidenceThreshold = 0.8f;
+
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var timelineMock = new Mock<ITimelineService>();
+        timelineMock.Setup(x => x.IsActive).Returns(true);
+        timelineMock.Setup(x => x.Confidence).Returns(0.9f);
+        timelineMock.Setup(x => x.NextRaidwide).Returns(
+            new MechanicPrediction(1.5f, TimelineEntryType.Raidwide, "Akh Morn", 0.9f));
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+
+        // Route to base combo (Fire in Red): no instant flags, no procs, no special states
+        var context = IrisTestContext.Create(
+            config: config,
+            inCombat: true,
+            canExecuteGcd: true,
+            hasInstantCast: false,
+            hasSwiftcast: false,
+            hasRainbowBright: false,
+            hasStarstruck: false,
+            hasHammerTime: false,
+            isInHammerCombo: false,
+            hasBlackPaint: false,
+            hasWhitePaint: false,
+            hasSubtractivePalette: false,
+            hasSubtractiveSpectrum: false,
+            hasInspiration: false,
+            needsLandscapeMotif: false,
+            needsCreatureMotif: false,
+            needsWeaponMotif: false,
+            baseComboStep: 0,
+            actionService: actionService,
+            targetingService: targeting,
+            timelineService: timelineMock.Object);
+
+        // Act
+        _module.TryExecute(context, isMoving: false);
+
+        // Assert: gate blocks Fire in Red, ExecuteGcd must never fire
+        actionService.Verify(
+            x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()),
+            Times.Never);
     }
 
     #region Helpers

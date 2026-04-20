@@ -26,6 +26,7 @@ public static class IrisTestContext
         Configuration? config = null,
         Mock<IActionService>? actionService = null,
         Mock<ITargetingService>? targetingService = null,
+        ITimelineService? timelineService = null,
         byte level = 100,
         bool inCombat = true,
         bool isMoving = false,
@@ -132,7 +133,7 @@ public static class IrisTestContext
         mock.Setup(x => x.ActionService).Returns(actionService.Object);
         mock.Setup(x => x.TargetingService).Returns(targetingService.Object);
         mock.Setup(x => x.TrainingService).Returns((ITrainingService?)null);
-        mock.Setup(x => x.TimelineService).Returns((ITimelineService?)null);
+        mock.Setup(x => x.TimelineService).Returns(timelineService);
         mock.Setup(x => x.PartyList).Returns(partyList.Object);
         mock.Setup(x => x.HasSwiftcast).Returns(hasSwiftcast);
 

@@ -166,6 +166,11 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
         var player = context.Player;
         if (context.Configuration.Pictomancer.EnableLandscapeMotif && context.NeedsLandscapeMotif && level >= PCTActions.StarrySkyMotif.MinLevel)
         {
+            if (MechanicCastGate.ShouldBlock(context, PCTActions.StarrySkyMotif.CastTime))
+            {
+                context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                return false;
+            }
             if (context.ActionService.ExecuteGcd(PCTActions.StarrySkyMotif, player.GameObjectId))
             {
                 context.Debug.PlannedAction = PCTActions.StarrySkyMotif.Name;
@@ -176,15 +181,28 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
         if (context.Configuration.Pictomancer.EnableCreatureMotif && context.NeedsCreatureMotif && level >= PCTActions.CreatureMotif.MinLevel)
         {
             var motif = PCTActions.GetCreatureMotif(level, context.LivingMuseCharges);
-            if (IsCreatureMotifEnabled(context, motif) && context.ActionService.ExecuteGcd(motif, player.GameObjectId))
+            if (IsCreatureMotifEnabled(context, motif))
             {
-                context.Debug.PlannedAction = motif.Name;
-                context.Debug.DamageState = $"Inspiration: Painting {motif.Name}";
-                return true;
+                if (MechanicCastGate.ShouldBlock(context, motif.CastTime))
+                {
+                    context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                    return false;
+                }
+                if (context.ActionService.ExecuteGcd(motif, player.GameObjectId))
+                {
+                    context.Debug.PlannedAction = motif.Name;
+                    context.Debug.DamageState = $"Inspiration: Painting {motif.Name}";
+                    return true;
+                }
             }
         }
         if (context.Configuration.Pictomancer.EnableWeaponMotif && context.NeedsWeaponMotif && level >= PCTActions.WeaponMotif.MinLevel)
         {
+            if (MechanicCastGate.ShouldBlock(context, PCTActions.HammerMotif.CastTime))
+            {
+                context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                return false;
+            }
             if (context.ActionService.ExecuteGcd(PCTActions.HammerMotif, player.GameObjectId))
             {
                 context.Debug.PlannedAction = PCTActions.HammerMotif.Name;
@@ -319,17 +337,30 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
         if (context.Configuration.Pictomancer.EnableCreatureMotif && context.NeedsCreatureMotif && level >= PCTActions.CreatureMotif.MinLevel)
         {
             var motif = PCTActions.GetCreatureMotif(level, context.LivingMuseCharges);
-            if (IsCreatureMotifEnabled(context, motif) && context.ActionService.ExecuteGcd(motif, player.GameObjectId))
+            if (IsCreatureMotifEnabled(context, motif))
             {
-                context.Debug.PlannedAction = motif.Name;
-                context.Debug.DamageState = $"Repainting {motif.Name}";
-                return true;
+                if (MechanicCastGate.ShouldBlock(context, motif.CastTime))
+                {
+                    context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                    return false;
+                }
+                if (context.ActionService.ExecuteGcd(motif, player.GameObjectId))
+                {
+                    context.Debug.PlannedAction = motif.Name;
+                    context.Debug.DamageState = $"Repainting {motif.Name}";
+                    return true;
+                }
             }
         }
 
         // Weapon motif (enables Hammer combo)
         if (context.Configuration.Pictomancer.EnableWeaponMotif && context.NeedsWeaponMotif && level >= PCTActions.WeaponMotif.MinLevel)
         {
+            if (MechanicCastGate.ShouldBlock(context, PCTActions.HammerMotif.CastTime))
+            {
+                context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                return false;
+            }
             if (context.ActionService.ExecuteGcd(PCTActions.HammerMotif, player.GameObjectId))
             {
                 context.Debug.PlannedAction = PCTActions.HammerMotif.Name;
@@ -341,6 +372,11 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
         // Landscape motif (enables Starry Muse)
         if (context.Configuration.Pictomancer.EnableLandscapeMotif && context.NeedsLandscapeMotif && level >= PCTActions.StarrySkyMotif.MinLevel)
         {
+            if (MechanicCastGate.ShouldBlock(context, PCTActions.StarrySkyMotif.CastTime))
+            {
+                context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                return false;
+            }
             if (context.ActionService.ExecuteGcd(PCTActions.StarrySkyMotif, player.GameObjectId))
             {
                 context.Debug.PlannedAction = PCTActions.StarrySkyMotif.Name;
@@ -416,6 +452,12 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
             // Only hardcast during burst window or if no other options
             if (!context.IsInBurstWindow)
                 return false;
+
+            if (MechanicCastGate.ShouldBlock(context, PCTActions.RainbowDrip.CastTime))
+            {
+                context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                return false;
+            }
         }
 
         if (context.ActionService.ExecuteGcd(PCTActions.RainbowDrip, target.GameObjectId))
@@ -665,6 +707,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
         // Get the appropriate combo action
         var comboAction = PCTActions.GetSubtractiveComboAction(context.BaseComboStep, context.ShouldUseAoe, level);
 
+        var subCastTime = context.HasInstantCast ? 0f : comboAction.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, subCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
+
         if (context.ActionService.ExecuteGcd(comboAction, target.GameObjectId))
         {
             context.Debug.PlannedAction = comboAction.Name;
@@ -727,6 +776,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IIrisContext>, IIrisModul
 
         // Get the appropriate combo action based on step and AoE status
         var comboAction = PCTActions.GetBaseComboAction(context.BaseComboStep, context.ShouldUseAoe, level);
+
+        var baseCastTime = context.HasInstantCast ? 0f : comboAction.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, baseCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
 
         if (context.ActionService.ExecuteGcd(comboAction, target.GameObjectId))
         {
