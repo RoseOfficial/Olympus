@@ -144,6 +144,12 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
         if (!context.ActionService.IsActionReady(BRDActions.ResonantArrow.ActionId))
             return false;
 
+        var resonantCastTime = context.HasSwiftcast ? 0f : BRDActions.ResonantArrow.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, resonantCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
         if (context.ActionService.ExecuteGcd(BRDActions.ResonantArrow, target.GameObjectId))
         {
             context.Debug.PlannedAction = BRDActions.ResonantArrow.Name;
@@ -189,6 +195,12 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
         if (!context.ActionService.IsActionReady(BRDActions.RadiantEncore.ActionId))
             return false;
 
+        var radiantEncoreCastTime = context.HasSwiftcast ? 0f : BRDActions.RadiantEncore.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, radiantEncoreCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
         if (context.ActionService.ExecuteGcd(BRDActions.RadiantEncore, target.GameObjectId))
         {
             context.Debug.PlannedAction = BRDActions.RadiantEncore.Name;
@@ -232,6 +244,12 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
         if (!context.ActionService.IsActionReady(BRDActions.BlastArrow.ActionId))
             return false;
 
+        var blastArrowCastTime = context.HasSwiftcast ? 0f : BRDActions.BlastArrow.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, blastArrowCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
         if (context.ActionService.ExecuteGcd(BRDActions.BlastArrow, target.GameObjectId))
         {
             context.Debug.PlannedAction = BRDActions.BlastArrow.Name;
@@ -282,6 +300,12 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
         if (!context.ActionService.IsActionReady(action.ActionId))
             return false;
 
+        var barragedCastTime = context.HasSwiftcast ? 0f : action.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, barragedCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
         if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
         {
             context.Debug.PlannedAction = $"Barrage + {action.Name}";
@@ -327,6 +351,12 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
         {
             if (context.ActionService.IsActionReady(BRDActions.Shadowbite.ActionId))
             {
+                var shadowbiteCastTime = context.HasSwiftcast ? 0f : BRDActions.Shadowbite.CastTime;
+                if (MechanicCastGate.ShouldBlock(context, shadowbiteCastTime))
+                {
+                    context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                    return false;
+                }
                 if (context.ActionService.ExecuteGcd(BRDActions.Shadowbite, target.GameObjectId))
                 {
                     context.Debug.PlannedAction = BRDActions.Shadowbite.Name;
@@ -359,6 +389,12 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
         if (!context.ActionService.IsActionReady(action.ActionId))
             return false;
 
+        var refulgentCastTime = context.HasSwiftcast ? 0f : action.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, refulgentCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
         if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
         {
             context.Debug.PlannedAction = action.Name;
@@ -429,6 +465,12 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
         if (!context.ActionService.IsActionReady(BRDActions.ApexArrow.ActionId))
             return false;
 
+        var apexCastTime = context.HasSwiftcast ? 0f : BRDActions.ApexArrow.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, apexCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
         if (context.ActionService.ExecuteGcd(BRDActions.ApexArrow, target.GameObjectId))
         {
             context.Debug.PlannedAction = BRDActions.ApexArrow.Name;
@@ -498,6 +540,12 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
         if (!context.ActionService.IsActionReady(BRDActions.IronJaws.ActionId))
             return false;
 
+        var ironJawsCastTime = context.HasSwiftcast ? 0f : BRDActions.IronJaws.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, ironJawsCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
         if (context.ActionService.ExecuteGcd(BRDActions.IronJaws, target.GameObjectId))
         {
             context.Debug.PlannedAction = BRDActions.IronJaws.Name;
@@ -544,6 +592,12 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
             var stormAction = BRDActions.GetStormbite(level);
             if (context.ActionService.IsActionReady(stormAction.ActionId))
             {
+                var stormCastTime = context.HasSwiftcast ? 0f : stormAction.CastTime;
+                if (MechanicCastGate.ShouldBlock(context, stormCastTime))
+                {
+                    context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                    return false;
+                }
                 if (context.ActionService.ExecuteGcd(stormAction, target.GameObjectId))
                 {
                     context.Debug.PlannedAction = stormAction.Name;
@@ -576,6 +630,12 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
             var causticAction = BRDActions.GetCausticBite(level);
             if (context.ActionService.IsActionReady(causticAction.ActionId))
             {
+                var causticCastTime = context.HasSwiftcast ? 0f : causticAction.CastTime;
+                if (MechanicCastGate.ShouldBlock(context, causticCastTime))
+                {
+                    context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                    return false;
+                }
                 if (context.ActionService.ExecuteGcd(causticAction, target.GameObjectId))
                 {
                     context.Debug.PlannedAction = causticAction.Name;
@@ -620,6 +680,12 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
             var aoeAction = BRDActions.GetAoeFiller(level);
             if (context.ActionService.IsActionReady(aoeAction.ActionId))
             {
+                var aoeCastTime = context.HasSwiftcast ? 0f : aoeAction.CastTime;
+                if (MechanicCastGate.ShouldBlock(context, aoeCastTime))
+                {
+                    context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                    return false;
+                }
                 if (context.ActionService.ExecuteGcd(aoeAction, player.GameObjectId))
                 {
                     context.Debug.PlannedAction = aoeAction.Name;
@@ -651,6 +717,12 @@ public sealed class DamageModule : BaseDpsDamageModule<ICalliopeContext>, ICalli
         if (!context.ActionService.IsActionReady(action.ActionId))
             return false;
 
+        var fillerCastTime = context.HasSwiftcast ? 0f : action.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, fillerCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
         if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
         {
             context.Debug.PlannedAction = action.Name;

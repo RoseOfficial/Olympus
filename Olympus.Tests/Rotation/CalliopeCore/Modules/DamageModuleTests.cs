@@ -8,6 +8,8 @@ using Olympus.Rotation.CalliopeCore.Modules;
 using Olympus.Services.Action;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
+using Olympus.Timeline;
+using Olympus.Timeline.Models;
 
 namespace Olympus.Tests.Rotation.CalliopeCore.Modules;
 
@@ -380,6 +382,71 @@ public class DamageModuleTests
         actionService.Verify(x => x.ExecuteGcd(
             It.Is<ActionDefinition>(a => a.ActionId == BRDActions.BurstShot.ActionId),
             It.IsAny<ulong>()), Times.Once);
+    }
+
+    #endregion
+
+    #region MechanicCastGate wiring
+
+    /// <summary>
+    /// Smoke test: MechanicCastGate is wired at every ExecuteGcd call site.
+    /// All BRD GCDs have CastTime=0 so the gate is a practical no-op at cap,
+    /// but this verifies the module completes without exception when a timeline
+    /// with an imminent raidwide is active, and that ExecuteGcd still fires
+    /// normally (because CastTime=0 means ShouldBlock returns false).
+    /// </summary>
+    [Fact]
+    public void CastTimeGateWired_Smoke_FillerFiresEvenWithImminentRaidwide()
+    {
+        // Arrange: timeline active with imminent raidwide in 1.5s
+        var config = CalliopeTestContext.CreateDefaultBardConfiguration();
+        config.Timeline.EnableMechanicAwareCasting = true;
+        config.Timeline.EnableTimelinePredictions = true;
+        config.Timeline.TimelineConfidenceThreshold = 0.8f;
+
+        var timelineMock = new Mock<ITimelineService>();
+        timelineMock.Setup(x => x.IsActive).Returns(true);
+        timelineMock.Setup(x => x.Confidence).Returns(0.9f);
+        timelineMock.Setup(x => x.NextRaidwide).Returns(
+            new MechanicPrediction(1.5f, TimelineEntryType.Raidwide, "Exaflare", 0.9f));
+
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        actionService.Setup(x => x.IsActionReady(BRDActions.BurstShot.ActionId)).Returns(true);
+        actionService.Setup(x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == BRDActions.BurstShot.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        // All BRD GCDs are instant (CastTime=0), so the gate does NOT block.
+        // Filler path (BurstShot) should still execute.
+        var context = CalliopeTestContext.Create(
+            config: config,
+            inCombat: true,
+            canExecuteGcd: true,
+            level: 100,
+            hasHawksEye: false,
+            hasCausticBite: true,
+            causticBiteRemaining: 30f,
+            hasStormbite: true,
+            stormbiteRemaining: 30f,
+            soulVoice: 0,
+            actionService: actionService,
+            targetingService: targeting,
+            timelineService: timelineMock.Object);
+
+        // Act
+        var result = _module.TryExecute(context, isMoving: false);
+
+        // Assert: gate does not block instants, so filler fires normally
+        Assert.True(result);
+        actionService.Verify(
+            x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == BRDActions.BurstShot.ActionId),
+                It.IsAny<ulong>()),
+            Times.Once);
     }
 
     #endregion
