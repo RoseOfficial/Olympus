@@ -225,6 +225,54 @@ public class RotationSchedulerTests
         Assert.True(result.Dispatched);
     }
 
+    [Fact]
+    public void Dispatch_LevelReplacementApplies_UsesUpgradedActionForDispatch()
+    {
+        var baseAction = new ActionDefinition
+        {
+            ActionId = 7001,
+            Name = "Nebula",
+            MinLevel = 38,
+            Category = ActionCategory.oGCD,
+            TargetType = ActionTargetType.Self,
+            CastTime = 0f,
+            RecastTime = 120f,
+            Range = 0f,
+        };
+        var upgraded = new ActionDefinition
+        {
+            ActionId = 7002,
+            Name = "GreatNebula",
+            MinLevel = 92,
+            Category = ActionCategory.oGCD,
+            TargetType = ActionTargetType.Self,
+            CastTime = 0f,
+            RecastTime = 120f,
+            Range = 0f,
+        };
+
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.ExecuteOgcd(
+            It.Is<ActionDefinition>(a => a.ActionId == 7002),
+            It.IsAny<ulong>())).Returns(true);
+        var scheduler = Build(actionService);
+
+        var behavior = new AbilityBehavior
+        {
+            Action = baseAction,
+            LevelReplacements = new[] { ((byte)92, upgraded) },
+        };
+        var ctx = CreateContextWithPlayerLevel(100);
+        scheduler.PushOgcd(behavior, targetId: 0, priority: 10);
+
+        var result = scheduler.DispatchOgcd(ctx);
+
+        Assert.True(result.Dispatched);
+        actionService.Verify(x => x.ExecuteOgcd(
+            It.Is<ActionDefinition>(a => a.ActionId == 7002),
+            It.IsAny<ulong>()), Times.Once);
+    }
+
     private static IRotationContext CreateContextWithPlayerLevel(byte level)
     {
         var mock = new Mock<IRotationContext>();

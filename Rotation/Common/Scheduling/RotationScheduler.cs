@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Dalamud.Plugin.Services;
+using Olympus.Models.Action;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Timeline;
@@ -95,7 +96,7 @@ public sealed class RotationScheduler
 
         foreach (var candidate in queue)
         {
-            var effective = candidate.Behavior.Action;
+            var effective = ResolveLevelReplacement(candidate.Behavior, ctx.Player.Level);
 
             // Gate: level
             if (ctx.Player.Level < effective.MinLevel)
@@ -140,9 +141,9 @@ public sealed class RotationScheduler
             if (candidate.Behavior.AdjustedActionProbe is { } probeId)
             {
                 var adjusted = _actionService.GetAdjustedActionId(probeId);
-                if (adjusted != candidate.Behavior.Action.ActionId)
+                if (adjusted != effective.ActionId)
                 {
-                    RecordFail(candidate, $"AdjustedActionProbe (expected {candidate.Behavior.Action.ActionId}, got {adjusted})");
+                    RecordFail(candidate, $"AdjustedActionProbe (expected {effective.ActionId}, got {adjusted})");
                     continue;
                 }
             }
@@ -181,5 +182,21 @@ public sealed class RotationScheduler
     {
         if (_lastFailReasons.Count >= 16) return;
         _lastFailReasons.Add($"{candidate.Behavior.Action.Name}: {reason}");
+    }
+
+    private static ActionDefinition ResolveLevelReplacement(AbilityBehavior behavior, byte playerLevel)
+    {
+        if (behavior.LevelReplacements is null) return behavior.Action;
+        ActionDefinition current = behavior.Action;
+        byte bestLevel = 0;
+        foreach (var (level, replacement) in behavior.LevelReplacements)
+        {
+            if (playerLevel >= level && level >= bestLevel)
+            {
+                current = replacement;
+                bestLevel = level;
+            }
+        }
+        return current;
     }
 }
