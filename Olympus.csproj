@@ -11,6 +11,13 @@
     <None Remove="Olympus.Tests\**" />
   </ItemGroup>
 
+  <!-- Allow the test assembly to access internal types -->
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>Olympus.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
   <!-- Embedded timeline resources -->
   <ItemGroup>
     <EmbeddedResource Include="Timeline\Data\*.txt" />

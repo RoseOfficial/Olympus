@@ -75,17 +75,11 @@ public sealed class RotationScheduler
     public SchedulerDispatchResult DispatchOgcd(IRotationContext ctx)
         => Dispatch(_ogcdQueue, ctx, isOgcd: true);
 
-    /// <summary>
-    /// Inspection of the GCD queue contents.
-    /// Public because InternalsVisibleTo is not configured in this project; production code uses Dispatch directly.
-    /// </summary>
-    public IReadOnlyList<AbilityCandidate> InspectGcdQueue() => _gcdQueue;
+    /// <summary>Test-only inspection of the GCD queue contents.</summary>
+    internal IReadOnlyList<AbilityCandidate> InspectGcdQueue() => _gcdQueue;
 
-    /// <summary>
-    /// Inspection of the oGCD queue contents.
-    /// Public because InternalsVisibleTo is not configured in this project; production code uses Dispatch directly.
-    /// </summary>
-    public IReadOnlyList<AbilityCandidate> InspectOgcdQueue() => _ogcdQueue;
+    /// <summary>Test-only inspection of the oGCD queue contents.</summary>
+    internal IReadOnlyList<AbilityCandidate> InspectOgcdQueue() => _ogcdQueue;
 
     private SchedulerDispatchResult Dispatch(List<AbilityCandidate> queue, IRotationContext ctx, bool isOgcd)
     {
