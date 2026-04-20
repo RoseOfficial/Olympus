@@ -159,6 +159,22 @@ public sealed class RotationScheduler
                 }
             }
 
+            // Gate: cooldown / charges
+            if (candidate.Behavior.ChargeSource is { } chargeId)
+            {
+                if (_actionService.GetCurrentCharges(chargeId) == 0)
+                {
+                    RecordFail(candidate, $"Cooldown (no charges on {chargeId})");
+                    continue;
+                }
+            }
+            else if (!_actionService.IsActionReady(effective.ActionId))
+            {
+                var remaining = _actionService.GetCooldownRemaining(effective.ActionId);
+                RecordFail(candidate, $"Cooldown {remaining:F1}s");
+                continue;
+            }
+
             // Provisional dispatch so the "level matches" test passes.
             // Tasks 6-13 will add the remaining gates before this line; Task 14 will
             // implement the real dispatch path (raw-ID variant). Until then, use

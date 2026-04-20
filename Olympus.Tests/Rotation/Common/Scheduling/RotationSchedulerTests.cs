@@ -136,6 +136,7 @@ public class RotationSchedulerTests
     {
         var actionService = new Mock<IActionService>();
         actionService.Setup(x => x.PlayerHasStatus(9999)).Returns(true);
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
         actionService.Setup(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>())).Returns(true);
         var scheduler = Build(actionService);
 
@@ -213,6 +214,7 @@ public class RotationSchedulerTests
     {
         var actionService = new Mock<IActionService>();
         actionService.Setup(x => x.GetAdjustedActionId(100u)).Returns(300u);
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
         actionService.Setup(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>())).Returns(true);
         var scheduler = Build(actionService);
 
@@ -252,6 +254,7 @@ public class RotationSchedulerTests
         };
 
         var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
         actionService.Setup(x => x.ExecuteOgcd(
             It.Is<ActionDefinition>(a => a.ActionId == 7002),
             It.IsAny<ulong>())).Returns(true);
@@ -293,6 +296,7 @@ public class RotationSchedulerTests
     public void Dispatch_TargetIdZero_SkipsTargetValidation()
     {
         var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
         actionService.Setup(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>())).Returns(true);
         var scheduler = Build(actionService);
         var behavior = TestBehaviors.InstantGcd(actionId: 8002);
@@ -303,6 +307,42 @@ public class RotationSchedulerTests
         var result = scheduler.DispatchGcd(ctx);
 
         Assert.True(result.Dispatched);
+    }
+
+    [Fact]
+    public void Dispatch_ActionOnCooldown_SkipsCandidate()
+    {
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(false);
+        actionService.Setup(x => x.GetCooldownRemaining(It.IsAny<uint>())).Returns(3.2f);
+        var scheduler = Build(actionService);
+        var behavior = TestBehaviors.InstantGcd(actionId: 9001);
+
+        var ctx = CreateContextWithPlayerLevel(80);
+        scheduler.PushGcd(behavior, targetId: 0, priority: 10);
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.False(result.Dispatched);
+        Assert.Contains(result.GateFailReasons, r => r.Contains("Cooldown"));
+    }
+
+    [Fact]
+    public void Dispatch_ChargeSourceSet_QueriesCorrectActionForCharges()
+    {
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.GetCurrentCharges(9999u)).Returns(1u);
+        actionService.Setup(x => x.ExecuteOgcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>())).Returns(true);
+        var scheduler = Build(actionService);
+
+        var behavior = TestBehaviors.InstantOgcd(actionId: 9002) with { ChargeSource = 9999u };
+        var ctx = CreateContextWithPlayerLevel(80);
+        scheduler.PushOgcd(behavior, targetId: 0, priority: 10);
+
+        var result = scheduler.DispatchOgcd(ctx);
+
+        Assert.True(result.Dispatched);
+        actionService.Verify(x => x.GetCurrentCharges(9999u), Times.AtLeastOnce);
     }
 
     private static IRotationContext CreateContextWithPlayerLevel(byte level)
