@@ -117,6 +117,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
         if (player.Level < SMNActions.SummonCarbuncle.MinLevel)
             return false;
 
+        var castTime = context.HasInstantCast ? 0f : SMNActions.SummonCarbuncle.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, castTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
+
         if (context.ActionService.ExecuteGcd(SMNActions.SummonCarbuncle, player.GameObjectId))
         {
             context.Debug.PlannedAction = SMNActions.SummonCarbuncle.Name;
