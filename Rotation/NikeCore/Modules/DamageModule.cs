@@ -755,6 +755,15 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
         var level = player.Level;
         var useAoe = enemyCount >= AoeThreshold && level >= SAMActions.Fuga.MinLevel;
 
+        // Continue an in-progress AoE combo even if the enemy count dropped below the threshold
+        // mid-chain (e.g. tank pulled a mob out of range). Dropping to single-target after firing
+        // Fuga/Fuko wastes the Sen and buff generation we already committed. BossMod xan/Melee/SAM.cs
+        // does the same: `if (ComboLastMove == AOEStarter && NumAOECircleTargets > 0)`.
+        if (!useAoe && enemyCount > 0 && IsInAoeCombo(context))
+        {
+            useAoe = true;
+        }
+
         if (useAoe)
         {
             return TryAoeCombo(context, target);
@@ -763,6 +772,19 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
         {
             return TrySingleTargetCombo(context, target);
         }
+    }
+
+    /// <summary>
+    /// True when the player just fired the AoE combo starter (Fuga or Fuko) and the combo
+    /// timer has not yet expired. Used to keep the AoE chain going through Mangetsu/Oka even
+    /// if the enemy count drops below the AoE threshold mid-combo.
+    /// </summary>
+    private static bool IsInAoeCombo(INikeContext context)
+    {
+        if (context.ComboStep == 0)
+            return false;
+        return context.LastComboAction == SAMActions.Fuga.ActionId ||
+               context.LastComboAction == SAMActions.Fuko.ActionId;
     }
 
     private bool TrySingleTargetCombo(INikeContext context, IBattleChara target)

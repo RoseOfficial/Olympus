@@ -108,9 +108,12 @@ public sealed class MonkConfig
     #region AoE Settings
 
     /// <summary>
-    /// Minimum enemies for AoE rotation.
+    /// Minimum enemies for AoE rotation. Defaults to 2 because Arm of the Destroyer / Shadow of
+    /// the Destroyer is 100 potency per target vs Bootshine at 200 single-target — break-even is
+    /// at 2 enemies. The AoE chain also builds Chakra per hit, so entering at 2 is a net gain on
+    /// resource generation even without the pure potency uplift.
     /// </summary>
-    private int _aoEMinTargets = 3;
+    private int _aoEMinTargets = 2;
     public int AoEMinTargets
     {
         get => _aoEMinTargets;

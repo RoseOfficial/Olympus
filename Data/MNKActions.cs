@@ -679,18 +679,22 @@ public static class MNKActions
     };
 
     /// <summary>
-    /// Meditation - Chakra generation out of combat (Lv.54)
+    /// Steeled Meditation - Generates 1 Chakra per cast (Lv.15+).
+    /// Replaced the old Lv.54 Meditation (3546) in Dawntrail. The game upgrades this server-side
+    /// to Inspirited (Lv.54), Forbidden (Lv.74), and Enlightened (Lv.90) based on level and Chakra
+    /// count, so passing the Steeled base ID is sufficient at all levels. Used out of combat and
+    /// during phase transitions to build toward 5 Chakra for the next pull's Forbidden Chakra.
     /// </summary>
     public static readonly ActionDefinition Meditation = new()
     {
-        ActionId = 3546,
+        ActionId = 36940,
         Name = "Meditation",
-        MinLevel = 54,
-        Category = ActionCategory.oGCD,
+        MinLevel = 15,
+        Category = ActionCategory.GCD,
         TargetType = ActionTargetType.Self,
         EffectTypes = ActionEffectType.None,
         CastTime = 0f,
-        RecastTime = 1f,
+        RecastTime = 2.5f,
         MpCost = 0
     };
 

@@ -62,6 +62,55 @@ public sealed class DamageModule : BaseDpsDamageModule<IKratosContext>, IKratosM
         context.Configuration.Monk.AoEMinTargets;
 
     /// <summary>
+    /// Overrides base flow to fire Meditation out of combat when Chakra is below 5.
+    /// MNK has no ranged attack, so without this the bot does nothing during pull setup or
+    /// between wipes. Meditation builds toward 5 Chakra so the next opener has Forbidden Chakra
+    /// charges ready. Pre-combat Meditation matches BossMod xan and RSR ChurinMNK behavior.
+    /// </summary>
+    public override bool TryExecute(IKratosContext context, bool isMoving)
+    {
+        if (!context.InCombat)
+        {
+            if (TryDowntimeMeditation(context))
+                return true;
+
+            SetDamageState(context, "Not in combat");
+            return false;
+        }
+
+        return base.TryExecute(context, isMoving);
+    }
+
+    /// <summary>
+    /// Fires Meditation while out of combat if Chakra is below 5 and the GCD is up.
+    /// Modern Meditation (Steeled/Inspirited/Forbidden/Enlightened) auto-upgrades server-side
+    /// based on level and Chakra count, so passing the base Steeled ID is sufficient.
+    /// </summary>
+    private static bool TryDowntimeMeditation(IKratosContext context)
+    {
+        var player = context.Player;
+        var level = player.Level;
+
+        if (level < MNKActions.Meditation.MinLevel)
+            return false;
+
+        if (context.Chakra >= 5)
+            return false;
+
+        if (!context.CanExecuteGcd)
+            return false;
+
+        if (context.ActionService.ExecuteGcd(MNKActions.Meditation, player.GameObjectId))
+        {
+            context.Debug.PlannedAction = MNKActions.Meditation.Name;
+            context.Debug.DamageState = $"Meditation ({context.Chakra}/5 Chakra, downtime)";
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// oGCD damage for Monk - Chakra spenders and Thunderclap.
     /// </summary>
     protected override bool TryOgcdDamage(IKratosContext context, IBattleChara target, int enemyCount)

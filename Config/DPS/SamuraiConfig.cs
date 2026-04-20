@@ -173,9 +173,12 @@ public sealed class SamuraiConfig
     #region AoE Settings
 
     /// <summary>
-    /// Minimum enemies for AoE rotation.
+    /// Minimum enemies for AoE rotation. Defaults to 2 because Fuko/Fuga is 100 potency per
+    /// target vs Hakaze/Gyofu at 200 single-target — break-even is at 2 enemies, and entering
+    /// the AoE chain at 2 also refreshes Fugetsu/Fuka through Mangetsu/Oka. Players can raise
+    /// this in config if they want to reserve AoE for 3+ pulls.
     /// </summary>
-    private int _aoEMinTargets = 3;
+    private int _aoEMinTargets = 2;
     public int AoEMinTargets
     {
         get => _aoEMinTargets;
