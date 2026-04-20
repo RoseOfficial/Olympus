@@ -26,6 +26,7 @@ public static class PrometheusTestContext
         Configuration? config = null,
         Mock<IActionService>? actionService = null,
         Mock<ITargetingService>? targetingService = null,
+        ITimelineService? timelineService = null,
         byte level = 100,
         bool inCombat = true,
         bool isMoving = false,
@@ -90,7 +91,7 @@ public static class PrometheusTestContext
         mock.Setup(x => x.TargetingService).Returns(targetingService.Object);
         mock.Setup(x => x.TrainingService).Returns((ITrainingService?)null);
         mock.Setup(x => x.PartyCoordinationService).Returns((IPartyCoordinationService?)null);
-        mock.Setup(x => x.TimelineService).Returns((ITimelineService?)null);
+        mock.Setup(x => x.TimelineService).Returns(timelineService);
         mock.Setup(x => x.StatusHelper).Returns(statusHelper);
         mock.Setup(x => x.PartyHelper).Returns(partyHelper);
         mock.Setup(x => x.PartyList).Returns(partyList.Object);

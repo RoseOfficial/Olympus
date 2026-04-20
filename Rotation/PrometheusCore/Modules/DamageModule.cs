@@ -137,6 +137,12 @@ public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPro
             return false;
         }
 
+        var overheatedCastTime = context.HasSwiftcast ? 0f : action.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, overheatedCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
         if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
         {
             context.Debug.PlannedAction = action.Name;
@@ -185,6 +191,12 @@ public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPro
         if (!context.ActionService.IsActionReady(MCHActions.FullMetalField.ActionId))
             return false;
 
+        var fullMetalCastTime = context.HasSwiftcast ? 0f : MCHActions.FullMetalField.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, fullMetalCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
         if (context.ActionService.ExecuteGcd(MCHActions.FullMetalField, target.GameObjectId))
         {
             context.Debug.PlannedAction = MCHActions.FullMetalField.Name;
@@ -228,6 +240,12 @@ public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPro
         if (!context.ActionService.IsActionReady(MCHActions.Excavator.ActionId))
             return false;
 
+        var excavatorCastTime = context.HasSwiftcast ? 0f : MCHActions.Excavator.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, excavatorCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
         if (context.ActionService.ExecuteGcd(MCHActions.Excavator, target.GameObjectId))
         {
             context.Debug.PlannedAction = MCHActions.Excavator.Name;
@@ -273,6 +291,12 @@ public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPro
             {
                 if (context.ActionService.IsActionReady(MCHActions.Bioblaster.ActionId))
                 {
+                    var bioblasterCastTime = context.HasSwiftcast ? 0f : MCHActions.Bioblaster.CastTime;
+                    if (MechanicCastGate.ShouldBlock(context, bioblasterCastTime))
+                    {
+                        context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                        return false;
+                    }
                     if (context.ActionService.ExecuteGcd(MCHActions.Bioblaster, target.GameObjectId))
                     {
                         context.Debug.PlannedAction = MCHActions.Bioblaster.Name;
@@ -310,6 +334,12 @@ public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPro
         if (!context.ActionService.IsActionReady(MCHActions.Drill.ActionId))
             return false;
 
+        var drillCastTime = context.HasSwiftcast ? 0f : MCHActions.Drill.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, drillCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
         if (context.ActionService.ExecuteGcd(MCHActions.Drill, target.GameObjectId))
         {
             context.Debug.PlannedAction = MCHActions.Drill.Name;
@@ -360,6 +390,12 @@ public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPro
         if (!context.ActionService.IsActionReady(action.ActionId))
             return false;
 
+        var airAnchorCastTime = context.HasSwiftcast ? 0f : action.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, airAnchorCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
         if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
         {
             context.Debug.PlannedAction = action.Name;
@@ -410,6 +446,12 @@ public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPro
         if (!context.ActionService.IsActionReady(MCHActions.ChainSaw.ActionId))
             return false;
 
+        var chainSawCastTime = context.HasSwiftcast ? 0f : MCHActions.ChainSaw.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, chainSawCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
         if (context.ActionService.ExecuteGcd(MCHActions.ChainSaw, target.GameObjectId))
         {
             context.Debug.PlannedAction = MCHActions.ChainSaw.Name;
@@ -499,6 +541,12 @@ public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPro
         if (!context.ActionService.IsActionReady(action.ActionId))
             return false;
 
+        var comboCastTime = context.HasSwiftcast ? 0f : action.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, comboCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
         if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
         {
             context.Debug.PlannedAction = action.Name;
@@ -554,6 +602,12 @@ public sealed class DamageModule : BaseDpsDamageModule<IPrometheusContext>, IPro
         if (!context.ActionService.IsActionReady(action.ActionId))
             return false;
 
+        var aoeComboCastTime = context.HasSwiftcast ? 0f : action.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, aoeComboCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
         if (context.ActionService.ExecuteGcd(action, player.GameObjectId))
         {
             context.Debug.PlannedAction = action.Name;
