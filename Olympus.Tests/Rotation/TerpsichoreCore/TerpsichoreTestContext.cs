@@ -37,6 +37,7 @@ public static class TerpsichoreTestContext
         int stepIndex = 0,
         byte currentStep = 0,
         byte[]? danceSteps = null,
+        ITimelineService? timelineService = null,
         // Proc state
         bool hasSilkenSymmetry = false,
         bool hasSilkenFlow = false,
@@ -91,7 +92,7 @@ public static class TerpsichoreTestContext
         mock.Setup(x => x.TargetingService).Returns(targetingService.Object);
         mock.Setup(x => x.TrainingService).Returns((ITrainingService?)null);
         mock.Setup(x => x.PartyCoordinationService).Returns((IPartyCoordinationService?)null);
-        mock.Setup(x => x.TimelineService).Returns((ITimelineService?)null);
+        mock.Setup(x => x.TimelineService).Returns(timelineService);
         mock.Setup(x => x.StatusHelper).Returns(statusHelper);
         mock.Setup(x => x.PartyHelper).Returns(partyHelper);
         mock.Setup(x => x.PartyList).Returns(partyList.Object);

@@ -162,6 +162,13 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
         if (!context.ActionService.IsActionReady(DNCActions.StarfallDance.ActionId))
             return false;
 
+        var starfallCastTime = context.HasSwiftcast ? 0f : DNCActions.StarfallDance.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, starfallCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
+
         if (context.ActionService.ExecuteGcd(DNCActions.StarfallDance, target.GameObjectId))
         {
             context.Debug.PlannedAction = DNCActions.StarfallDance.Name;
@@ -207,6 +214,13 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
         if (!context.ActionService.IsActionReady(DNCActions.FinishingMove.ActionId))
             return false;
 
+        var finishingMoveCastTime = context.HasSwiftcast ? 0f : DNCActions.FinishingMove.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, finishingMoveCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
+
         if (context.ActionService.ExecuteGcd(DNCActions.FinishingMove, player.GameObjectId))
         {
             context.Debug.PlannedAction = DNCActions.FinishingMove.Name;
@@ -248,6 +262,13 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
 
         if (!context.ActionService.IsActionReady(DNCActions.LastDance.ActionId))
             return false;
+
+        var lastDanceCastTime = context.HasSwiftcast ? 0f : DNCActions.LastDance.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, lastDanceCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
 
         if (context.ActionService.ExecuteGcd(DNCActions.LastDance, target.GameObjectId))
         {
@@ -291,6 +312,13 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
 
         if (!context.ActionService.IsActionReady(DNCActions.Tillana.ActionId))
             return false;
+
+        var tillanaCastTime = context.HasSwiftcast ? 0f : DNCActions.Tillana.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, tillanaCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
 
         if (context.ActionService.ExecuteGcd(DNCActions.Tillana, player.GameObjectId))
         {
@@ -342,6 +370,13 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
 
         if (!context.ActionService.IsActionReady(DNCActions.DanceOfTheDawn.ActionId))
             return false;
+
+        var dawnCastTime = context.HasSwiftcast ? 0f : DNCActions.DanceOfTheDawn.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, dawnCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
 
         if (context.ActionService.ExecuteGcd(DNCActions.DanceOfTheDawn, target.GameObjectId))
         {
@@ -411,6 +446,13 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
         if (!context.ActionService.IsActionReady(DNCActions.SaberDance.ActionId))
             return false;
 
+        var saberDanceCastTime = context.HasSwiftcast ? 0f : DNCActions.SaberDance.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, saberDanceCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
+
         if (context.ActionService.ExecuteGcd(DNCActions.SaberDance, target.GameObjectId))
         {
             context.Debug.PlannedAction = DNCActions.SaberDance.Name;
@@ -462,6 +504,13 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
         {
             if (context.ActionService.IsActionReady(DNCActions.Bloodshower.ActionId))
             {
+                var bloodshowerCastTime = context.HasSwiftcast ? 0f : DNCActions.Bloodshower.CastTime;
+                if (MechanicCastGate.ShouldBlock(context, bloodshowerCastTime))
+                {
+                    context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                    return false;
+                }
+
                 if (context.ActionService.ExecuteGcd(DNCActions.Bloodshower, player.GameObjectId))
                 {
                     context.Debug.PlannedAction = DNCActions.Bloodshower.Name;
@@ -493,6 +542,13 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
 
         if (!context.ActionService.IsActionReady(DNCActions.Fountainfall.ActionId))
             return false;
+
+        var fountainfallCastTime = context.HasSwiftcast ? 0f : DNCActions.Fountainfall.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, fountainfallCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
 
         if (context.ActionService.ExecuteGcd(DNCActions.Fountainfall, target.GameObjectId))
         {
@@ -536,6 +592,13 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
         {
             if (context.ActionService.IsActionReady(DNCActions.RisingWindmill.ActionId))
             {
+                var risingWindmillCastTime = context.HasSwiftcast ? 0f : DNCActions.RisingWindmill.CastTime;
+                if (MechanicCastGate.ShouldBlock(context, risingWindmillCastTime))
+                {
+                    context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                    return false;
+                }
+
                 if (context.ActionService.ExecuteGcd(DNCActions.RisingWindmill, player.GameObjectId))
                 {
                     context.Debug.PlannedAction = DNCActions.RisingWindmill.Name;
@@ -567,6 +630,13 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
 
         if (!context.ActionService.IsActionReady(DNCActions.ReverseCascade.ActionId))
             return false;
+
+        var reverseCascadeCastTime = context.HasSwiftcast ? 0f : DNCActions.ReverseCascade.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, reverseCascadeCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
 
         if (context.ActionService.ExecuteGcd(DNCActions.ReverseCascade, target.GameObjectId))
         {
@@ -612,6 +682,13 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
             {
                 if (context.ActionService.IsActionReady(DNCActions.Bladeshower.ActionId))
                 {
+                    var bladeshowerCastTime = context.HasSwiftcast ? 0f : DNCActions.Bladeshower.CastTime;
+                    if (MechanicCastGate.ShouldBlock(context, bladeshowerCastTime))
+                    {
+                        context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                        return false;
+                    }
+
                     if (context.ActionService.ExecuteGcd(DNCActions.Bladeshower, player.GameObjectId))
                     {
                         context.Debug.PlannedAction = DNCActions.Bladeshower.Name;
@@ -647,6 +724,13 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
 
         if (!context.ActionService.IsActionReady(DNCActions.Fountain.ActionId))
             return false;
+
+        var fountainCastTime = context.HasSwiftcast ? 0f : DNCActions.Fountain.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, fountainCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
 
         if (context.ActionService.ExecuteGcd(DNCActions.Fountain, target.GameObjectId))
         {
@@ -684,6 +768,13 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
         {
             if (context.ActionService.IsActionReady(DNCActions.Windmill.ActionId))
             {
+                var windmillCastTime = context.HasSwiftcast ? 0f : DNCActions.Windmill.CastTime;
+                if (MechanicCastGate.ShouldBlock(context, windmillCastTime))
+                {
+                    context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                    return false;
+                }
+
                 if (context.ActionService.ExecuteGcd(DNCActions.Windmill, player.GameObjectId))
                 {
                     context.Debug.PlannedAction = DNCActions.Windmill.Name;
@@ -711,6 +802,13 @@ public sealed class DamageModule : BaseDpsDamageModule<ITerpsichoreContext>, ITe
         // Single target - Cascade as filler
         if (!context.ActionService.IsActionReady(DNCActions.Cascade.ActionId))
             return false;
+
+        var cascadeCastTime = context.HasSwiftcast ? 0f : DNCActions.Cascade.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, cascadeCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
 
         if (context.ActionService.ExecuteGcd(DNCActions.Cascade, target.GameObjectId))
         {
