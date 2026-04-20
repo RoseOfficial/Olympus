@@ -233,6 +233,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
             return false;
         }
 
+        var attunementCastTime = context.HasInstantCast ? 0f : action.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, attunementCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
+
         if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
         {
             context.Debug.PlannedAction = action.Name;
@@ -360,6 +367,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
                     }
                 }
                 context.Debug.DamageState = "Moving, hold Slipstream";
+                return false;
+            }
+
+            var slipstreamCastTime = context.HasInstantCast ? 0f : SMNActions.Slipstream.CastTime;
+            if (MechanicCastGate.ShouldBlock(context, slipstreamCastTime))
+            {
+                context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
                 return false;
             }
 
@@ -720,6 +734,13 @@ public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPer
 
         // Standard filler
         var action = useAoe ? SMNActions.GetAoeSpell(level) : SMNActions.GetRuinSpell(level);
+
+        var fillerCastTime = context.HasInstantCast ? 0f : action.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, fillerCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
 
         if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
         {

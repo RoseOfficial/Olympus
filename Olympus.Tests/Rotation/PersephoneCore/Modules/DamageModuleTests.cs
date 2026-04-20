@@ -7,6 +7,8 @@ using Olympus.Rotation.PersephoneCore.Modules;
 using Olympus.Services.Action;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
+using Olympus.Timeline;
+using Olympus.Timeline.Models;
 
 namespace Olympus.Tests.Rotation.PersephoneCore.Modules;
 
@@ -247,6 +249,54 @@ public class DamageModuleTests
         actionService.Verify(x => x.ExecuteGcd(
             It.Is<ActionDefinition>(a => a.ActionId == SMNActions.Ruin3.ActionId),
             It.IsAny<ulong>()), Times.Once);
+    }
+
+    [Fact]
+    public void RuinIII_BlockedWhenRaidwideImminent()
+    {
+        // Arrange: raidwide in 1.5s, Ruin III cast = 1.5s → deadline 2.0s → should block
+        var config = PersephoneTestContext.CreateDefaultSmnConfiguration();
+        config.Timeline.EnableMechanicAwareCasting = true;
+        config.Timeline.EnableTimelinePredictions = true;
+        config.Timeline.TimelineConfidenceThreshold = 0.8f;
+
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var timelineMock = new Mock<ITimelineService>();
+        timelineMock.Setup(x => x.IsActive).Returns(true);
+        timelineMock.Setup(x => x.Confidence).Returns(0.9f);
+        timelineMock.Setup(x => x.NextRaidwide).Returns(
+            new MechanicPrediction(1.5f, TimelineEntryType.Raidwide, "Exaflare", 0.9f));
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+
+        // Put module in filler path: no demi, no attunement, no primals, no FurtherRuin
+        var context = PersephoneTestContext.Create(
+            config: config,
+            inCombat: true,
+            canExecuteGcd: true,
+            isDemiSummonActive: false,
+            isIfritAttuned: false,
+            isTitanAttuned: false,
+            isGarudaAttuned: false,
+            attunementStacks: 0,
+            primalsAvailable: 0,
+            hasFurtherRuin: false,
+            hasInstantCast: false,
+            hasSwiftcast: false,
+            hasPetSummoned: true,  // Pet present so no Summon Carbuncle path
+            actionService: actionService,
+            targetingService: targeting,
+            timelineService: timelineMock.Object);
+
+        // Act
+        _module.TryExecute(context, isMoving: false);
+
+        // Assert: gate blocks Ruin III, so ExecuteGcd must never fire
+        actionService.Verify(
+            x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()),
+            Times.Never);
     }
 
     #region Helpers
