@@ -17,6 +17,7 @@ using Olympus.Services.Cache;
 using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
 using Olympus.Services.Stats;
+using Olympus.Services.JobGauge;
 using Olympus.Services.Targeting;
 
 namespace Olympus.Tests.Mocks;
@@ -591,6 +592,19 @@ public static class MockBuilders
         mock.Setup(x => x.GetHealingUrgency()).Returns(healingUrgency);
         mock.Setup(x => x.GetCooldownPriority(It.IsAny<string>())).Returns(CooldownPriority.Medium);
 
+        return mock;
+    }
+
+    /// <summary>
+    /// Creates a mock IGnbGaugeReader with fixed gauge values.
+    /// </summary>
+    /// <param name="ammoComboStep">AmmoComboStep byte (0=none, 1=Savage Claw, 2=Wicked Talon, 3=Noble Blood, 4=Lion Heart). Default: 0.</param>
+    /// <param name="cartridges">Cartridge count (0-3). Default: 0.</param>
+    public static Mock<IGnbGaugeReader> CreateMockGnbGaugeReader(byte ammoComboStep = 0, byte cartridges = 0)
+    {
+        var mock = new Mock<IGnbGaugeReader>();
+        mock.Setup(x => x.AmmoComboStep).Returns(ammoComboStep);
+        mock.Setup(x => x.Cartridges).Returns(cartridges);
         return mock;
     }
 }

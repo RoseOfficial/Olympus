@@ -21,6 +21,7 @@ using Olympus.Services.Targeting;
 using Olympus.Services.Scholar;
 using Olympus.Services.Cache;
 using Olympus.Services.Tank;
+using Olympus.Services.JobGauge;
 using Olympus.Services.Positional;
 using Olympus.Services.Analytics;
 using Olympus.Services.FFLogs;
@@ -446,6 +447,7 @@ public sealed class Plugin : IDalamudPlugin
         // Tank services
         container.Register<IEnmityService, EnmityService>(enmityService);
         container.Register<ITankCooldownService, TankCooldownService>(tankCooldownService);
+        container.Register<IGnbGaugeReader>(new GnbGaugeReader(jobGauges, errorMetricsService));
 
         // Melee DPS services
         container.Register<IPositionalService, PositionalService>(positionalService);
