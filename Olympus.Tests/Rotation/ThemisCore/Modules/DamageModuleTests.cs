@@ -6,8 +6,12 @@ using Olympus.Models.Action;
 using Olympus.Rotation.ThemisCore.Context;
 using Olympus.Rotation.ThemisCore.Modules;
 using Olympus.Services.Action;
+using Olympus.Services.Party;
 using Olympus.Services.Targeting;
+using Olympus.Services.Training;
 using Olympus.Tests.Mocks;
+using Olympus.Timeline;
+using Olympus.Timeline.Models;
 
 namespace Olympus.Tests.Rotation.ThemisCore.Modules;
 
@@ -150,6 +154,190 @@ public class DamageModuleTests
             It.Is<ActionDefinition>(a => a.ActionId == PLDActions.Intervene.ActionId),
             enemy.Object.GameObjectId), Times.Once);
     }
+
+    #region MechanicCastGate wiring
+
+    /// <summary>
+    /// Behavioral test: when a raidwide is 1.5s away and Holy Spirit would be a
+    /// hardcast (no Requiescat, no Divine Might, no Swiftcast), the gate must
+    /// suppress ExecuteGcd. Uses a direct IThemisContext mock so HasRequiescat
+    /// can be set to true to reach TryMagicPhase while RequiescatStacks is 0 so
+    /// the effective cast time remains 1.5s.
+    /// </summary>
+    [Fact]
+    public void HolySpirit_BlockedWhenRaidwideImminent()
+    {
+        // Arrange: timeline active, raidwide in 1.5s (inside 1.5s + 0.5s buffer)
+        var config = ThemisTestContext.CreateDefaultPaladinConfiguration();
+        config.Timeline.EnableMechanicAwareCasting = true;
+        config.Timeline.EnableTimelinePredictions = true;
+        config.Timeline.TimelineConfidenceThreshold = 0.8f;
+
+        var timelineMock = new Mock<ITimelineService>();
+        timelineMock.Setup(x => x.IsActive).Returns(true);
+        timelineMock.Setup(x => x.Confidence).Returns(0.9f);
+        timelineMock.Setup(x => x.NextRaidwide).Returns(
+            new MechanicPrediction(1.5f, TimelineEntryType.Raidwide, "Exaflare", 0.9f));
+
+        var enemy = CreateMockEnemy();
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.FindEnemyForAction(
+                It.IsAny<EnemyTargetingStrategy>(),
+                It.IsAny<uint>(),
+                It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+        targeting.Setup(x => x.FindEnemy(
+                It.IsAny<EnemyTargetingStrategy>(),
+                It.IsAny<float>(),
+                It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+        targeting.Setup(x => x.CountEnemiesInRange(It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(1);
+        targeting.Setup(x => x.IsDamageTargetingPaused()).Returns(false);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true, canExecuteOgcd: false);
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(false);
+        // HolySpirit would succeed if not blocked
+        actionService.Setup(x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == PLDActions.HolySpirit.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        var player = MockBuilders.CreateMockPlayerCharacter(level: 100);
+        player.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        var mock = new Mock<IThemisContext>();
+        mock.Setup(x => x.Player).Returns(player.Object);
+        mock.Setup(x => x.InCombat).Returns(true);
+        mock.Setup(x => x.IsMoving).Returns(false);
+        mock.Setup(x => x.CanExecuteGcd).Returns(true);
+        mock.Setup(x => x.CanExecuteOgcd).Returns(false);
+        mock.Setup(x => x.Configuration).Returns(config);
+        mock.Setup(x => x.ActionService).Returns(actionService.Object);
+        mock.Setup(x => x.TargetingService).Returns(targeting.Object);
+        mock.Setup(x => x.TimelineService).Returns(timelineMock.Object);
+        mock.Setup(x => x.TrainingService).Returns((ITrainingService?)null);
+        mock.Setup(x => x.PartyCoordinationService).Returns((IPartyCoordinationService?)null);
+
+        // HasRequiescat=true so TryMagicPhase is entered; stacks=0 and no DivineMight/Swiftcast
+        // so effective cast time is 1.5s and the gate should block.
+        mock.Setup(x => x.HasRequiescat).Returns(true);
+        mock.Setup(x => x.RequiescatStacks).Returns(0);
+        mock.Setup(x => x.HasDivineMight).Returns(false);
+        mock.Setup(x => x.HasSwiftcast).Returns(false);
+        mock.Setup(x => x.HasFightOrFlight).Returns(false);
+        mock.Setup(x => x.FightOrFlightRemaining).Returns(0f);
+        mock.Setup(x => x.HasSwordOath).Returns(false);
+        mock.Setup(x => x.SwordOathStacks).Returns(0);
+        mock.Setup(x => x.HasBladeOfHonor).Returns(false);
+        mock.Setup(x => x.ConfiteorStep).Returns(-1);
+        mock.Setup(x => x.AtonementStep).Returns(0);
+        mock.Setup(x => x.GoringBladeRemaining).Returns(30f);
+        mock.Setup(x => x.ComboStep).Returns(0);
+        mock.Setup(x => x.ComboTimeRemaining).Returns(0f);
+        mock.Setup(x => x.LastComboAction).Returns(0u);
+
+        var debugState = new ThemisDebugState();
+        mock.Setup(x => x.Debug).Returns(debugState);
+
+        // Act
+        var result = _module.TryExecute(mock.Object, isMoving: false);
+
+        // Assert: gate must suppress Holy Spirit, returning false
+        Assert.False(result);
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == PLDActions.HolySpirit.ActionId),
+            It.IsAny<ulong>()), Times.Never);
+    }
+
+    /// <summary>
+    /// Gate passes when Holy Spirit is instant (Requiescat stacks > 0): cast time
+    /// resolves to 0 so MechanicCastGate.ShouldBlock returns false and the action fires.
+    /// </summary>
+    [Fact]
+    public void HolySpirit_NotBlockedWhenRequiescatActiveAndInstant()
+    {
+        var config = ThemisTestContext.CreateDefaultPaladinConfiguration();
+        config.Timeline.EnableMechanicAwareCasting = true;
+        config.Timeline.EnableTimelinePredictions = true;
+        config.Timeline.TimelineConfidenceThreshold = 0.8f;
+
+        var timelineMock = new Mock<ITimelineService>();
+        timelineMock.Setup(x => x.IsActive).Returns(true);
+        timelineMock.Setup(x => x.Confidence).Returns(0.9f);
+        timelineMock.Setup(x => x.NextRaidwide).Returns(
+            new MechanicPrediction(1.5f, TimelineEntryType.Raidwide, "Exaflare", 0.9f));
+
+        var enemy = CreateMockEnemy();
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.FindEnemyForAction(
+                It.IsAny<EnemyTargetingStrategy>(),
+                It.IsAny<uint>(),
+                It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+        targeting.Setup(x => x.FindEnemy(
+                It.IsAny<EnemyTargetingStrategy>(),
+                It.IsAny<float>(),
+                It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+        targeting.Setup(x => x.CountEnemiesInRange(It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(1);
+        targeting.Setup(x => x.IsDamageTargetingPaused()).Returns(false);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true, canExecuteOgcd: false);
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(false);
+        actionService.Setup(x => x.ExecuteGcd(
+                It.Is<ActionDefinition>(a => a.ActionId == PLDActions.HolySpirit.ActionId),
+                It.IsAny<ulong>()))
+            .Returns(true);
+
+        var player = MockBuilders.CreateMockPlayerCharacter(level: 100);
+        player.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        var mock = new Mock<IThemisContext>();
+        mock.Setup(x => x.Player).Returns(player.Object);
+        mock.Setup(x => x.InCombat).Returns(true);
+        mock.Setup(x => x.IsMoving).Returns(false);
+        mock.Setup(x => x.CanExecuteGcd).Returns(true);
+        mock.Setup(x => x.CanExecuteOgcd).Returns(false);
+        mock.Setup(x => x.Configuration).Returns(config);
+        mock.Setup(x => x.ActionService).Returns(actionService.Object);
+        mock.Setup(x => x.TargetingService).Returns(targeting.Object);
+        mock.Setup(x => x.TimelineService).Returns(timelineMock.Object);
+        mock.Setup(x => x.TrainingService).Returns((ITrainingService?)null);
+        mock.Setup(x => x.PartyCoordinationService).Returns((IPartyCoordinationService?)null);
+
+        // Requiescat stacks > 0: Holy Spirit is instant, gate must pass through.
+        mock.Setup(x => x.HasRequiescat).Returns(true);
+        mock.Setup(x => x.RequiescatStacks).Returns(4);
+        mock.Setup(x => x.HasDivineMight).Returns(false);
+        mock.Setup(x => x.HasSwiftcast).Returns(false);
+        mock.Setup(x => x.HasFightOrFlight).Returns(false);
+        mock.Setup(x => x.FightOrFlightRemaining).Returns(0f);
+        mock.Setup(x => x.HasSwordOath).Returns(false);
+        mock.Setup(x => x.SwordOathStacks).Returns(0);
+        mock.Setup(x => x.HasBladeOfHonor).Returns(false);
+        mock.Setup(x => x.ConfiteorStep).Returns(-1);
+        mock.Setup(x => x.AtonementStep).Returns(0);
+        mock.Setup(x => x.GoringBladeRemaining).Returns(30f);
+        mock.Setup(x => x.ComboStep).Returns(0);
+        mock.Setup(x => x.ComboTimeRemaining).Returns(0f);
+        mock.Setup(x => x.LastComboAction).Returns(0u);
+
+        var debugState = new ThemisDebugState();
+        mock.Setup(x => x.Debug).Returns(debugState);
+
+        // Act
+        var result = _module.TryExecute(mock.Object, isMoving: false);
+
+        // Assert: instant cast (stacks > 0) not blocked even with imminent raidwide
+        Assert.True(result);
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == PLDActions.HolySpirit.ActionId),
+            It.IsAny<ulong>()), Times.Once);
+    }
+
+    #endregion
 
     #region Helpers
 

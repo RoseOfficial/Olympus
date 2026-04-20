@@ -44,6 +44,12 @@ public interface IThemisContext : ITankRotationContext
     int RequiescatStacks { get; }
 
     /// <summary>
+    /// Whether Divine Might is active (granted by Royal Authority).
+    /// Makes the next Holy Spirit cast instant.
+    /// </summary>
+    bool HasDivineMight { get; }
+
+    /// <summary>
     /// Whether Sword Oath is active (enables Atonement chain).
     /// </summary>
     bool HasSwordOath { get; }

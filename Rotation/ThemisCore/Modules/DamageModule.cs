@@ -3,6 +3,7 @@ using Olympus.Models.Action;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.ThemisCore.Context;
 using Olympus.Services.Training;
+using Olympus.Timeline;
 
 namespace Olympus.Rotation.ThemisCore.Modules;
 
@@ -323,6 +324,16 @@ public sealed class DamageModule : IThemisModule
             enemyCount >= minAoE &&
             context.Configuration.Tank.EnableAoEDamage)
         {
+            // Instant when Requiescat stacks > 0 or Swiftcast; hardcast otherwise.
+            // Divine Might only affects Holy Spirit, not Holy Circle.
+            var holyCircleCastTime = context.RequiescatStacks > 0 || context.HasSwiftcast
+                ? 0f
+                : PLDActions.HolyCircle.CastTime;
+            if (MechanicCastGate.ShouldBlock(context, holyCircleCastTime))
+            {
+                context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                return false;
+            }
             if (context.ActionService.ExecuteGcd(PLDActions.HolyCircle, player.GameObjectId))
             {
                 context.Debug.PlannedAction = PLDActions.HolyCircle.Name;
@@ -350,6 +361,15 @@ public sealed class DamageModule : IThemisModule
         // Holy Spirit (single target)
         if (level >= PLDActions.HolySpirit.MinLevel)
         {
+            // Instant when Requiescat stacks > 0, Divine Might active, or Swiftcast; hardcast otherwise.
+            var holySpiritCastTime = context.RequiescatStacks > 0 || context.HasDivineMight || context.HasSwiftcast
+                ? 0f
+                : PLDActions.HolySpirit.CastTime;
+            if (MechanicCastGate.ShouldBlock(context, holySpiritCastTime))
+            {
+                context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                return false;
+            }
             if (context.ActionService.ExecuteGcd(PLDActions.HolySpirit, target.GameObjectId))
             {
                 context.Debug.PlannedAction = PLDActions.HolySpirit.Name;

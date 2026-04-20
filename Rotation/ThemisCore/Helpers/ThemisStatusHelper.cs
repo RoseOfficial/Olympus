@@ -50,6 +50,15 @@ public sealed class ThemisStatusHelper : BaseStatusHelper
     }
 
     /// <summary>
+    /// Checks if the player has Divine Might active (granted by Royal Authority).
+    /// Makes the next Holy Spirit cast instant.
+    /// </summary>
+    public bool HasDivineMight(IBattleChara player)
+    {
+        return HasStatus(player, PLDActions.StatusIds.DivineMight);
+    }
+
+    /// <summary>
     /// Checks if the player has Sword Oath active (Atonement ready).
     /// </summary>
     public bool HasSwordOath(IBattleChara player)

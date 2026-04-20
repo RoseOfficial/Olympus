@@ -730,6 +730,7 @@ public static class PLDActions
         public const uint FightOrFlight = 76;
         public const uint Requiescat = 1368;
         public const uint SwordOath = 1902;
+        public const uint DivineMight = 2673; // Granted by Royal Authority; makes next Holy Spirit instant
         public const uint GoringBladeDot = 725;
         public const uint CircleOfScornDot = 248;
         public const uint Sheltron = 1856;

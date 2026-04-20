@@ -77,6 +77,7 @@ public sealed class ThemisContext : IThemisContext
     public float FightOrFlightRemaining { get; }
     public bool HasRequiescat { get; }
     public int RequiescatStacks { get; }
+    public bool HasDivineMight { get; }
     public bool HasSwordOath { get; }
     public int SwordOathStacks { get; }
     public int AtonementStep { get; private set; }
@@ -183,6 +184,7 @@ public sealed class ThemisContext : IThemisContext
         FightOrFlightRemaining = statusHelper.GetFightOrFlightRemaining(player);
         HasRequiescat = statusHelper.HasRequiescat(player);
         RequiescatStacks = statusHelper.GetRequiescatStacks(player);
+        HasDivineMight = statusHelper.HasDivineMight(player);
         HasSwordOath = statusHelper.HasSwordOath(player);
         SwordOathStacks = statusHelper.GetSwordOathStacks(player);
         HasActiveMitigation = statusHelper.HasActiveMitigation(player);
