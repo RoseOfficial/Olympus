@@ -96,6 +96,24 @@ public class RotationSchedulerTests
         Assert.True(result.Dispatched);
     }
 
+    [Fact]
+    public void Dispatch_ToggleReturnsFalse_SkipsCandidate()
+    {
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>())).Returns(true);
+        var config = new Configuration();
+        var scheduler = Build(actionService, config: config);
+
+        var behavior = TestBehaviors.InstantGcd(actionId: 4001) with { Toggle = _ => false };
+        var ctx = CreateContextWithPlayerLevel(80);
+        scheduler.PushGcd(behavior, targetId: 1, priority: 10);
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.False(result.Dispatched);
+        Assert.Contains(result.GateFailReasons, r => r.Contains("Toggle"));
+    }
+
     private static IRotationContext CreateContextWithPlayerLevel(byte level)
     {
         var mock = new Mock<IRotationContext>();
