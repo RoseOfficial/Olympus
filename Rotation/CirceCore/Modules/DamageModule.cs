@@ -1,7 +1,7 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
-using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.CirceCore.Context;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
 using Olympus.Services;
 using Olympus.Services.Targeting;
@@ -742,6 +742,12 @@ public sealed class DamageModule : BaseDpsDamageModule<ICirceContext>, ICirceMod
         if (useAoe)
         {
             var aoeHardcast = RDMActions.GetAoeHardcast(level, context.BlackMana, context.WhiteMana);
+            var aoeCastTime = context.HasInstantCast ? 0f : aoeHardcast.CastTime;
+            if (MechanicCastGate.ShouldBlock(context, aoeCastTime))
+            {
+                context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+                return false;
+            }
             if (context.ActionService.ExecuteGcd(aoeHardcast, target.GameObjectId))
             {
                 context.Debug.PlannedAction = aoeHardcast.Name;
@@ -752,6 +758,12 @@ public sealed class DamageModule : BaseDpsDamageModule<ICirceContext>, ICirceMod
 
         // Standard Jolt filler
         var jolt = RDMActions.GetJoltSpell(level);
+        var joltCastTime = context.HasInstantCast ? 0f : jolt.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, joltCastTime))
+        {
+            context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
+            return false;
+        }
         if (context.ActionService.ExecuteGcd(jolt, target.GameObjectId))
         {
             context.Debug.PlannedAction = jolt.Name;

@@ -7,6 +7,8 @@ using Olympus.Rotation.CirceCore.Modules;
 using Olympus.Services.Action;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
+using Olympus.Timeline;
+using Olympus.Timeline.Models;
 
 namespace Olympus.Tests.Rotation.CirceCore.Modules;
 
@@ -209,6 +211,59 @@ public class DamageModuleTests
         actionService.Verify(x => x.ExecuteGcd(
             It.Is<ActionDefinition>(a => a.ActionId == RDMActions.Jolt3.ActionId),
             It.IsAny<ulong>()), Times.Once);
+    }
+
+    [Fact]
+    public void JoltIII_BlockedWhenRaidwideImminent()
+    {
+        // Arrange: raidwide in 1.5s, Jolt III cast = 2.0s → deadline 2.5s → should block
+        var config = CirceTestContext.CreateDefaultRdmConfiguration();
+        config.Timeline.EnableMechanicAwareCasting = true;
+        config.Timeline.EnableTimelinePredictions = true;
+        config.Timeline.TimelineConfidenceThreshold = 0.8f;
+
+        var enemy = CreateMockEnemy();
+        var targeting = CreateTargetingWithEnemy(enemy);
+
+        var timelineMock = new Mock<ITimelineService>();
+        timelineMock.Setup(x => x.IsActive).Returns(true);
+        timelineMock.Setup(x => x.Confidence).Returns(0.9f);
+        timelineMock.Setup(x => x.NextRaidwide).Returns(
+            new MechanicPrediction(1.5f, TimelineEntryType.Raidwide, "Exaflare", 0.9f));
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+
+        // Put module in Jolt III filler path: no special states, no instant casts, no procs
+        var context = CirceTestContext.Create(
+            config: config,
+            inCombat: true,
+            canExecuteGcd: true,
+            isResolutionReady: false,
+            isScorchReady: false,
+            isGrandImpactReady: false,
+            isFinisherReady: false,
+            isInMeleeCombo: false,
+            canStartMeleeCombo: false,
+            hasDualcast: false,
+            hasAcceleration: false,
+            hasSwiftcast: false,
+            hasInstantCast: false,
+            hasVerfire: false,
+            hasVerstone: false,
+            hasAnyProc: false,
+            blackMana: 30,
+            whiteMana: 30,
+            actionService: actionService,
+            targetingService: targeting,
+            timelineService: timelineMock.Object);
+
+        // Act
+        _module.TryExecute(context, isMoving: false);
+
+        // Assert: gate blocks Jolt III, so ExecuteGcd must never fire
+        actionService.Verify(
+            x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()),
+            Times.Never);
     }
 
     #region Helpers
