@@ -114,6 +114,40 @@ public class RotationSchedulerTests
         Assert.Contains(result.GateFailReasons, r => r.Contains("Toggle"));
     }
 
+    [Fact]
+    public void Dispatch_ProcBuffMissing_SkipsCandidate()
+    {
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.PlayerHasStatus(It.IsAny<uint>())).Returns(false);
+        var scheduler = Build(actionService);
+
+        var behavior = TestBehaviors.InstantGcd(actionId: 5001) with { ProcBuff = 9999 };
+        var ctx = CreateContextWithPlayerLevel(80);
+        scheduler.PushGcd(behavior, targetId: 1, priority: 10);
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.False(result.Dispatched);
+        Assert.Contains(result.GateFailReasons, r => r.Contains("ProcBuff"));
+    }
+
+    [Fact]
+    public void Dispatch_ProcBuffPresent_AdvancesPastProcGate()
+    {
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.PlayerHasStatus(9999)).Returns(true);
+        actionService.Setup(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>())).Returns(true);
+        var scheduler = Build(actionService);
+
+        var behavior = TestBehaviors.InstantGcd(actionId: 5002) with { ProcBuff = 9999 };
+        var ctx = CreateContextWithPlayerLevel(80);
+        scheduler.PushGcd(behavior, targetId: 1, priority: 10);
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.True(result.Dispatched);
+    }
+
     private static IRotationContext CreateContextWithPlayerLevel(byte level)
     {
         var mock = new Mock<IRotationContext>();

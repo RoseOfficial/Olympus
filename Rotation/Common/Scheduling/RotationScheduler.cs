@@ -111,6 +111,13 @@ public sealed class RotationScheduler
                 continue;
             }
 
+            // Gate: proc buff
+            if (candidate.Behavior.ProcBuff is { } procId && !_actionService.PlayerHasStatus(procId))
+            {
+                RecordFail(candidate, $"ProcBuff {procId}");
+                continue;
+            }
+
             // Provisional dispatch so the "level matches" test passes.
             // Tasks 6-13 will add the remaining gates before this line; Task 14 will
             // implement the real dispatch path (raw-ID variant). Until then, use
