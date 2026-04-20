@@ -450,6 +450,44 @@ public class RotationSchedulerTests
         Assert.Equal(12002u, result.Winner!.Action.ActionId);
     }
 
+    [Fact]
+    public void Dispatch_InvokesOnDispatchedCallback_AfterSuccessfulDispatch()
+    {
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+        actionService.Setup(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>())).Returns(true);
+        var scheduler = Build(actionService);
+
+        var callbackInvoked = false;
+        var ctx = CreateContextWithPlayerLevel(80);
+        scheduler.PushGcd(TestBehaviors.InstantGcd(actionId: 13001), 0, priority: 1,
+            onDispatched: _ => callbackInvoked = true);
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.True(result.Dispatched);
+        Assert.True(callbackInvoked);
+    }
+
+    [Fact]
+    public void Dispatch_DoesNotInvokeCallback_WhenDispatchFails()
+    {
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+        actionService.Setup(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>())).Returns(false);
+        var scheduler = Build(actionService);
+
+        var callbackInvoked = false;
+        var ctx = CreateContextWithPlayerLevel(80);
+        scheduler.PushGcd(TestBehaviors.InstantGcd(actionId: 13002), 0, priority: 1,
+            onDispatched: _ => callbackInvoked = true);
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.False(result.Dispatched);
+        Assert.False(callbackInvoked);
+    }
+
     private static IRotationContext CreateContextWithPlayerLevel(byte level)
     {
         var mock = new Mock<IRotationContext>();
