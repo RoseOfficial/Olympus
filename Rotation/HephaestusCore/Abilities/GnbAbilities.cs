@@ -269,4 +269,29 @@ public static class GnbAbilities
     {
         Action = RoleActions.Shirk,
     };
+
+    public static readonly AbilityBehavior Rampart = new()
+    {
+        Action = RoleActions.Rampart,
+    };
+
+    public static readonly AbilityBehavior Reprisal = new()
+    {
+        Action = RoleActions.Reprisal,
+    };
+
+    public static readonly AbilityBehavior ArmsLength = new()
+    {
+        Action = RoleActions.ArmsLength,
+    };
+
+    public static readonly AbilityBehavior Interject = new()
+    {
+        Action = RoleActions.Interject,
+    };
+
+    public static readonly AbilityBehavior LowBlow = new()
+    {
+        Action = RoleActions.LowBlow,
+    };
 }
