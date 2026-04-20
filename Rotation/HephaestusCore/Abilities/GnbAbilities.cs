@@ -257,4 +257,16 @@ public static class GnbAbilities
     {
         Action = GNBActions.RoyalGuard,
     };
+
+    // --- Role actions ---
+
+    public static readonly AbilityBehavior Provoke = new()
+    {
+        Action = RoleActions.Provoke,
+    };
+
+    public static readonly AbilityBehavior Shirk = new()
+    {
+        Action = RoleActions.Shirk,
+    };
 }
