@@ -6,7 +6,7 @@ namespace Olympus.Rotation.Common.Scheduling;
 /// <summary>
 /// Internal queue entry. Modules construct these via <c>RotationScheduler.Push*</c>.
 /// </summary>
-internal readonly struct AbilityCandidate
+public readonly struct AbilityCandidate
 {
     public required AbilityBehavior Behavior { get; init; }
     public required ulong TargetId { get; init; }
