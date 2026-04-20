@@ -1147,7 +1147,7 @@
   "config.job.rpr.enforce_positionals": "Enforce Positionals",
   "config.job.rpr.enforce_positionals_desc": "Only use positional actions when in correct position",
   "config.job.rpr.allow_positional_loss": "Allow Positional Loss",
-  "config.job.rpr.allow_positional_loss_desc": "Continue rotation even if positionals will miss",,
+  "config.job.rpr.allow_positional_loss_desc": "Continue rotation even if positionals will miss",
   "config.job.pct.enable_portraits": "Enable Portraits",
   "config.job.pct.enable_portraits_desc": "Use Mog of the Ages / Retribution of the Madeen",
   "config.job.pct.enable_subtractive_palette": "Enable Subtractive Palette",
