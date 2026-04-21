@@ -3,6 +3,156 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.16.0 — 2026-04-21
+
+### New — Hardcast Raise Quick Toggle
+- Added a Hardcast toggle to the overlay so you can flip between Swiftcast-only and hardcast raises without opening settings
+- New `/olympus hardcast` chat command does the same thing, so you can bind it to a hotbar
+
+### New — Action Feed Overlay
+- A new overlay shows a fading strip of icons for actions Olympus just pressed, with hover tooltips (name, GCD or oGCD, action ID, age) and green or blue borders by category
+- Configurable icon size, max count, and fade duration under General > Action Feed
+- Off by default; useful for building trust in what the bot is firing when
+
+### New — Pause on Channeled Abilities
+- The rotation now pauses while you're channeling Passage of Arms, Flamethrower, Meditate, Collective Unconscious, or Improvisation
+- Previously the bot would fire damage GCDs and cancel your channel mid-use
+- Toggle under General (default on)
+
+### New — Pyretic and Stand-Still Punisher Detection
+- The rotation now halts every module (damage, healing, mitigation, buffs) while you have Pyretic or a similar stand-still debuff active
+- Any action under Pyretic applies a lethal Vulnerability stack, so this prevents wipes on fights with stand-still mechanics
+- Resumes automatically the frame the debuff drops
+- Toggle under Targeting (default on)
+
+### Mechanic-Aware Cast Gating Expanded to All Casters
+- Previously only healer cast-time damage GCDs held for predicted raidwides and tank busters. That coverage now extends to Black Mage, Summoner, Red Mage, Pictomancer, Bard, Machinist, Dancer, and Paladin cast-time GCDs
+- Swiftcast is now respected by the gate, so instant casts under Swiftcast are never held
+- Summoner Carbuncle summon and Black Mage Blizzard AoE fallbacks also route through the gate
+- Timeline settings moved to a dedicated Timeline tab under Behavior since they now apply to every role
+
+### Earlier GCD Submission
+- Action dispatch now uses FFXIV's action queue window, letting the next GCD submit in the last 0.5s of the current cycle instead of waiting for full rollover
+- Noticeably reduces the dead air between GCDs, especially under latency
+- Hardcasts still submit at rollover so a follow-up isn't committed before the current cast lands
+
+### Dancer
+- Retuned burst alignment. Flourish now fires on the off-2-minute (when Devilment has more than 55s left) instead of inside Devilment, and no longer waits for an existing Silken proc to drop
+- Saber Dance no longer pools Esprit while a burst window is imminent, so partner Esprit ticks stop overcapping
+- Tillana moved below Dance of the Dawn and Saber Dance so the Esprit it generates has room to spend before Flourishing Finish falls off
+- Standard Step now respects the Delay Standard for Technical and Hold Standard for Technical config options instead of a hardcoded 5s window
+- Added the missing Single and Double Standard Finish and Technical Finish action variants
+- Fan Dance II minimum level corrected to 50
+
+### Samurai
+- Default AoE threshold lowered from 3 enemies to 2 (break-even for Fuko and better Fugetsu/Fuka maintenance on 2-mob pulls)
+- AoE combo no longer drops back to single-target Jinpu if an enemy walks out of range mid-chain; Mangetsu and Oka finish the Sen the rotation already committed to
+- Added Lv.100 Tendo action definitions (Tendo Goken and Tendo Setsugekka) so the bot tracks the buff-upgraded versions
+- Iaijutsu, Higanbana, Tenka Goken, Midare Setsugekka, and Ogi Namikiri cast times corrected to 1.8s
+
+### Monk
+- Default AoE threshold lowered from 3 enemies to 2 (break-even for Arm of the Destroyer and faster Chakra building)
+- Added out-of-combat Meditation so Monk builds Chakra pre-pull instead of standing idle, giving the opener roughly three free Forbidden Chakra of potency
+- Updated Meditation to the Dawntrail Steeled Meditation upgrade chain (the old action was removed)
+- Brotherhood status ID corrected; it was pointing at Meditative Brotherhood, so "during Brotherhood" checks were firing on the wrong buff
+- Fire's Reply recast corrected to 2.5s (was misclassified as an oGCD)
+- Fire's and Wind's Rumination status IDs corrected; Wind's Reply minimum level corrected to 96
+
+### Red Mage
+- Fixed the melee combo silently dropping after Enchanted Riposte. The game rejects the Enchanted Zwerchhau and Redoublement replacement IDs, so the bot was falling through to ranged filler spells instead of finishing the combo. Base action IDs are now used and the game upgrades them server-side during Manafication or Embolden
+- Contre Sixte recast corrected to 45s
+
+### Warrior
+- Added Primal Wrath (Lv.96), the self-centered AoE oGCD granted by the Wrathful status at 3 stacks of Burgeoning Fury. Previously the proc was dropped every burst window because the ability wasn't wired at all
+- New Enable Primal Wrath toggle under Warrior config (default on)
+
+### Dark Knight
+- Disabled the legacy Dark Arts logic. The Dark Arts status was removed in Shadowbringers; the old constant was colliding with Dark Missionary, so "has Dark Arts" was firing whenever Dark Missionary was up
+- Added Impalement (Lv.96), the AoE Delirium finisher that was entirely missing
+- Deferred ShadowedVigil detection to avoid a false-positive Shadow Wall trigger during Lv.96+ Delirium windows
+- Edge of Darkness, Dark Mind, Disesteem, and The Blackest Night status IDs corrected
+
+### Machinist
+- Reworked Reassemble with next-GCD lookahead. It now fires only when the next GCD is a high-potency tool (Drill, Bioblaster, Air Anchor, Hot Shot, Chain Saw, Excavator, Full Metal Field), with a charge-based fallback to avoid overcap
+- Replaced the old Reassemble Priority dropdown with a Reassemble Strategy knob (Automatic, Any, Hold One, Delay). The old dropdown was entirely unwired and let you pick a specific tool to hold Reassemble for, which isn't how any competitor does it
+- Overheated state now short-circuits so Reassemble never lands on Heat Blast, Blazing Shot, or Auto Crossbow
+- Tactician recast corrected to 120s
+
+### Gunbreaker
+- Fixed Fated Brand not weaving after Fated Circle (Ready to Brand status ID was wrong)
+- Fixed Gnashing Fang and Reign of Beasts combo drops. Noble Blood and Lion Heart were being skipped and cartridges were spilling into Burst Strike because combo step detection relied on action replacement, which doesn't advance for the Reign chain. Combo tracking now reads the gauge directly
+- Skip starting a new Gnashing Fang combo when enough enemies are present for AoE, so cartridges flow into Fated Circle during packs
+- Rotation internals rebuilt on a new scheduler, and the 20+ bug fixes from v4.13 through v4.15 are now locked in with dedicated regression tests so these classes of bug can't silently return
+
+### Reaper
+- Added Lv.96 Executioner action definitions (Executioner's Gibbet and Gallows) plus the Executioner status
+- Circle of Sacrifice and Bloodsown Circle status IDs un-swapped
+
+### Astrologian
+- Fixed The Arrow card status tracking. The ID was set to the action ID by mistake and was colliding with The Spear, so card-buff detection was wrong for both cards
+- Fixed Lord of Crowns tracking. Lord of Crowns doesn't apply a persistent status, so the tracker was permanently waiting for a status that would never land
+- Helios Conjunction status ID corrected
+- Lightspeed recast corrected to 90s
+
+### Sage
+- Added Lv.20 through Lv.59 Physis so the pre-60 bracket has a party HoT option (the rotation previously jumped straight to Physis II)
+- Haima, Taurochole, and Eukrasian Dyskrasia status IDs corrected
+- Seraphism and Impact Imminent status IDs corrected
+
+### Scholar
+- Seraphism and Impact Imminent status IDs corrected
+
+### White Mage
+- Divine Caress and Medica III applied-status IDs corrected
+
+### Black Mage
+- Despair cast time corrected to 2.0s per patch notes (it was too long and breaking filler calculations)
+- Umbral Soul minimum level corrected to 35
+- Blizzard II action ID corrected
+- Blizzard AoE fallbacks now route through the mechanic-aware cast gate
+
+### Summoner
+- Crimson Strike ID corrected (was colliding with Mountain Buster)
+- Painflare minimum level corrected to 40
+- Carbuncle summon now routes through the mechanic-aware cast gate
+
+### Viper
+- Remapped 20 Reawaken, Twinblade, and Legacy action IDs that had shifted one section in the game data. Twinfang and Twinblood oGCDs, Generation 1 through 4, Ouroboros, Legacy 1 through 4, Uncoiled Twinfang and Twinblood, Death Rattle, and Last Lash all now point at live game IDs with correct level gates
+- Hindstung and Flanksbane Venom status IDs un-swapped
+- Added the missing Slither gap closer (30s cooldown, 2 charges, 3 at Lv.84)
+
+### Dragoon
+- Drakesbane minimum level corrected to 64 (was 92, so it never fired below that level)
+- Right Eye status ID corrected
+
+### Ninja
+- Ten Jindo and Deathfrog Medium action IDs un-swapped
+
+### Bard
+- Straight Shot Ready status ID corrected to the live Hawk's Eye ID
+
+### Healer Sharing
+- Preemptive spike detection is now shared between White Mage and Astrologian so both react to the same predicted damage signal
+- Dynamic regen threshold is shared between White Mage Regen and Astrologian Aspected Benefic
+- Damage-intake triage target selection (damage rate, tank bonus, shield penalty, healer bonus, time-to-die urgency) is now shared across Sage, Scholar, and Astrologian single-target heals. The toggle previously only worked on White Mage
+- Co-healer awareness is shared across Sage, Scholar, and Astrologian single-target heals, eliminating duplicate per-job copies
+- Shared healer prediction and timeline toggles surface on the shared tab
+
+### Settings UI
+- Sidebar reorganized into Behavior, Visuals, and Multiplayer categories
+- Shared role actions consolidated. Lucid Dreaming (healers) and Head Graze (ranged physical DPS) now live on the shared tab instead of being duplicated on every per-job page
+- Debug section visibility toggles moved out of the Debug window into a dedicated Display settings page
+- Healer-only debug tabs are now hidden when a non-healer job is active
+- Removed dead Shared pages for melee, ranged, and caster DPS that held only informational text
+- Fixed duplicate Shared sidebar entries that were swallowing clicks
+- Fixed the debug tab bar breaking when the Actions tab was selected
+- Removed two unwired priority dropdowns (Ninja Single Target Ninjutsu Priority, Black Mage Movement Priority) that had no effect on the rotation
+
+### Localization
+- Fixed malformed JSON in 8 non-English locale files (de, es, fr, ja, ko, pt, ru, zh) that had been breaking string loads
+- Fixed a duplicate phrase in the German Timeline section
+
+<!-- LATEST-END -->
 ## v4.15.0 — 2026-04-14
 
 ### New — Drop-Target Safety
