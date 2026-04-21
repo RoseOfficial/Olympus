@@ -254,6 +254,11 @@ public sealed class OverlayWindow : Window
             Loc.T(LocalizedStrings.Overlay.DamageToggle, "Damage"),
             _configuration.EnableDamage,
             v => _configuration.EnableDamage = v);
+
+        DrawToggle(
+            Loc.T(LocalizedStrings.Overlay.HardcastToggle, "Hardcast"),
+            _configuration.Resurrection.AllowHardcastRaise,
+            v => _configuration.Resurrection.AllowHardcastRaise = v);
     }
 
     private void DrawToggle(string label, bool value, Action<bool> set)

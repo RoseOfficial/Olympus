@@ -3372,6 +3372,7 @@ public static class LocalizedStrings
         public const string Immune = "ui.overlay.immune";
         public const string HealingToggle = "ui.overlay.healing";
         public const string DamageToggle = "ui.overlay.damage";
+        public const string HardcastToggle = "ui.overlay.hardcast";
         public const string ShowMechanicsForecast = "config.overlay.show_mechanics_forecast";
         public const string ShowMechanicsForecastDesc = "config.overlay.show_mechanics_forecast_desc";
     }

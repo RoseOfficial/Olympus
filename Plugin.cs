@@ -381,7 +381,7 @@ public sealed class Plugin : IDalamudPlugin
 
         this.commandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
         {
-            HelpMessage = "Open Olympus window. Args: toggle (enable/disable), debug (show debug window)"
+            HelpMessage = "Open Olympus window. Subcommands: toggle | debug | hardcast [on|off|toggle]"
         });
 
         this.framework.Update += OnFrameworkUpdate;
@@ -509,9 +509,12 @@ public sealed class Plugin : IDalamudPlugin
 
     private void OnCommand(string command, string args)
     {
-        var arg = args.Trim().ToLowerInvariant();
+        var trimmed = args.Trim().ToLowerInvariant();
+        var spaceIdx = trimmed.IndexOf(' ');
+        var subcommand = spaceIdx >= 0 ? trimmed[..spaceIdx] : trimmed;
+        var subArg = spaceIdx >= 0 ? trimmed[(spaceIdx + 1)..].Trim() : string.Empty;
 
-        switch (arg)
+        switch (subcommand)
         {
             case "toggle":
                 configuration.Enabled = !configuration.Enabled;
@@ -527,10 +530,47 @@ public sealed class Plugin : IDalamudPlugin
                 SaveConfiguration();
                 break;
 
+            case "hardcast":
+                HandleHardcastCommand(subArg);
+                break;
+
             default:
                 mainWindow.Toggle();
                 break;
         }
+    }
+
+    private void HandleHardcastCommand(string subArg)
+    {
+        var current = configuration.Resurrection.AllowHardcastRaise;
+        bool newValue;
+
+        switch (subArg)
+        {
+            case "on":
+            case "enable":
+            case "true":
+                newValue = true;
+                break;
+            case "off":
+            case "disable":
+            case "false":
+                newValue = false;
+                break;
+            case "":
+            case "toggle":
+                newValue = !current;
+                break;
+            default:
+                chatGui.Print($"Usage: /olympus hardcast [on|off|toggle]. Currently {(current ? "on" : "off")}.");
+                return;
+        }
+
+        configuration.Resurrection.AllowHardcastRaise = newValue;
+        SaveConfiguration();
+        var state = newValue ? "enabled" : "disabled";
+        chatGui.Print($"Olympus hardcast raise {state}.");
+        log.Info($"Hardcast raise {state}");
     }
 
     private void OnFrameworkUpdate(IFramework framework)
