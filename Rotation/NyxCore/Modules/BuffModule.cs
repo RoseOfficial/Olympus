@@ -2,6 +2,8 @@ using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
+using Olympus.Rotation.Common.Scheduling;
+using Olympus.Rotation.NyxCore.Abilities;
 using Olympus.Rotation.NyxCore.Context;
 using Olympus.Services;
 using Olympus.Services.Training;
@@ -9,8 +11,7 @@ using Olympus.Services.Training;
 namespace Olympus.Rotation.NyxCore.Modules;
 
 /// <summary>
-/// Handles the Dark Knight buff management.
-/// Manages tank stance, Blood Weapon, Delirium, and Living Shadow.
+/// Handles the Dark Knight buff management (scheduler-driven).
 /// </summary>
 public sealed class BuffModule : BaseTankBuffModule<INyxContext>, INyxModule
 {
@@ -24,215 +25,130 @@ public sealed class BuffModule : BaseTankBuffModule<INyxContext>, INyxModule
     private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
         BurstHoldHelper.ShouldHoldForBurst(_burstWindowService, thresholdSeconds);
 
-    #region Abstract Method Implementations
-
     protected override ActionDefinition GetTankStanceAction() => DRKActions.Grit;
-
     protected override bool HasJobTankStance(INyxContext context) => context.HasGrit;
-
     protected override void SetBuffState(INyxContext context, string state) => context.Debug.BuffState = state;
-
     protected override void SetPlannedAction(INyxContext context, string action) => context.Debug.PlannedAction = action;
 
-    #endregion
+    public override bool TryExecute(INyxContext context, bool isMoving) => false;
+    public override void UpdateDebugState(INyxContext context) { }
 
-    #region Job-Specific Buffs
-
-    protected override bool TryJobSpecificBuffs(INyxContext context)
+    public void CollectCandidates(INyxContext context, RotationScheduler scheduler, bool isMoving)
     {
-        // Priority 1: Blood Weapon (MP/Blood regen)
-        if (TryBloodWeapon(context))
-            return true;
+        if (!context.InCombat) { context.Debug.BuffState = "Not in combat"; return; }
 
-        // Priority 2: Delirium (burst window)
-        if (TryDelirium(context))
-            return true;
+        TryPushTankStance(context, scheduler);
+        if (!context.Configuration.Tank.EnableDamage) { context.Debug.BuffState = "Damage disabled"; return; }
 
-        // Priority 3: Living Shadow (during 2-minute windows)
-        if (TryLivingShadow(context))
-            return true;
-
-        return false;
+        TryPushBloodWeapon(context, scheduler);
+        TryPushDelirium(context, scheduler);
+        TryPushLivingShadow(context, scheduler);
     }
 
-    private bool TryBloodWeapon(INyxContext context)
+    private void TryPushTankStance(INyxContext context, RotationScheduler scheduler)
     {
-        if (!context.Configuration.Tank.EnableBloodWeapon) return false;
-
         var player = context.Player;
-        var level = player.Level;
+        if (player.Level < DRKActions.Grit.MinLevel) return;
+        if (!context.Configuration.Tank.AutoTankStance) { context.Debug.BuffState = "AutoTankStance disabled"; return; }
+        if (context.HasGrit) return;
+        if (!context.ActionService.IsActionReady(DRKActions.Grit.ActionId)) return;
 
-        if (level < DRKActions.BloodWeapon.MinLevel)
-            return false;
+        scheduler.PushOgcd(NyxAbilities.Grit, player.GameObjectId, priority: 1,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = DRKActions.Grit.Name;
+                context.Debug.BuffState = "Enabling Grit";
+            });
+    }
 
-        // Don't use if already active
+    private void TryPushBloodWeapon(INyxContext context, RotationScheduler scheduler)
+    {
+        if (!context.Configuration.Tank.EnableBloodWeapon) return;
+        var player = context.Player;
+        if (player.Level < DRKActions.BloodWeapon.MinLevel) return;
         if (context.HasBloodWeapon)
         {
             context.Debug.BuffState = $"Blood Weapon ({context.BloodWeaponRemaining:F1}s)";
-            return false;
+            return;
         }
+        if (!context.ActionService.IsActionReady(DRKActions.BloodWeapon.ActionId)) return;
+        if (ShouldHoldForBurst(8f)) { context.Debug.BuffState = "Holding Blood Weapon for burst"; return; }
 
-        // Use Blood Weapon on cooldown during combat for MP/Blood generation
-        // Best used when we can land 5 weaponskills
-        if (!context.ActionService.IsActionReady(DRKActions.BloodWeapon.ActionId))
-            return false;
-
-        // Hold Blood Weapon if a burst window is imminent
-        if (ShouldHoldForBurst(8f))
-        {
-            context.Debug.BuffState = "Holding Blood Weapon for burst";
-            return false;
-        }
-
-        if (context.ActionService.ExecuteOgcd(DRKActions.BloodWeapon, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = DRKActions.BloodWeapon.Name;
-            context.Debug.BuffState = "Blood Weapon activated";
-            return true;
-        }
-
-        return false;
+        scheduler.PushOgcd(NyxAbilities.BloodWeapon, player.GameObjectId, priority: 2,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = DRKActions.BloodWeapon.Name;
+                context.Debug.BuffState = "Blood Weapon activated";
+            });
     }
 
-    private bool TryDelirium(INyxContext context)
+    private void TryPushDelirium(INyxContext context, RotationScheduler scheduler)
     {
-        if (!context.Configuration.Tank.EnableDelirium) return false;
-
+        if (!context.Configuration.Tank.EnableDelirium) return;
         var player = context.Player;
         var level = player.Level;
-
-        if (level < DRKActions.Delirium.MinLevel)
-            return false;
-
-        // Don't use if already active
+        if (level < DRKActions.Delirium.MinLevel) return;
         if (context.HasDelirium)
         {
             context.Debug.BuffState = $"Delirium active ({context.DeliriumStacks} stacks)";
-            return false;
+            return;
         }
+        if (!context.HasDarkside) return;
+        if (level < 96 && context.BloodGauge < 30) return;
+        if (!context.ActionService.IsActionReady(DRKActions.Delirium.ActionId)) return;
+        if (ShouldHoldForBurst(8f)) { context.Debug.BuffState = "Holding Delirium for burst"; return; }
 
-        // Requirements:
-        // 1. Have Darkside active
-        // 2. Preferably have gauge for initial Bloodspillers
-        if (!context.HasDarkside)
-        {
-            // Don't pop Delirium without Darkside - wasted damage
-            return false;
-        }
-
-        // At level 96+, Delirium enables Scarlet Delirium combo
-        // At level 68-95, grants 3 free Bloodspillers (need 50 Blood to use efficiently)
-        if (level < 96 && context.BloodGauge < 50)
-        {
-            // Pre-96, want some gauge to start spending during Delirium
-            // But don't wait too long if we have Darkside
-            if (context.BloodGauge < 30)
-                return false;
-        }
-
-        if (!context.ActionService.IsActionReady(DRKActions.Delirium.ActionId))
-            return false;
-
-        // Hold Delirium if a burst window is imminent
-        if (ShouldHoldForBurst(8f))
-        {
-            context.Debug.BuffState = "Holding Delirium for burst";
-            return false;
-        }
-
-        if (context.ActionService.ExecuteOgcd(DRKActions.Delirium, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = DRKActions.Delirium.Name;
-            context.Debug.BuffState = "Delirium activated";
-
-            // Training: Record burst window activation
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(DRKActions.Delirium.ActionId, DRKActions.Delirium.Name)
-                .AsTankBurst()
-                .Reason(
-                    "Delirium activated - your burst window begins now. Spam Bloodspiller for massive damage.",
-                    level >= 96
-                        ? "Delirium at Lv.96+ enables the Scarlet Delirium combo: Scarlet Delirium -> Comeuppance -> Torcleaver. Higher potency than free Bloodspillers."
-                        : "Delirium grants 3 stacks that make Bloodspiller free and guarantee crit + direct hit. 60s cooldown - align with raid buffs.")
-                .Factors($"Darkside active ({context.DarksideRemaining:F1}s)", $"Blood Gauge at {context.BloodGauge}", "Ready to burst")
-                .Alternatives("Wait for more gauge (may overcap)", "Hold for raid buffs (may lose a use)")
-                .Tip("Use Delirium on cooldown when Darkside is active. At Lv.96+, you get the Scarlet Delirium combo instead of free Bloodspillers.")
-                .Concept(DrkConcepts.Delirium)
-                .Record();
-
-            context.TrainingService?.RecordConceptApplication(DrkConcepts.Delirium, wasSuccessful: true);
-
-            return true;
-        }
-
-        return false;
+        var darksideRem = context.DarksideRemaining;
+        var gauge = context.BloodGauge;
+        var lv = level;
+        scheduler.PushOgcd(NyxAbilities.Delirium, player.GameObjectId, priority: 2,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = DRKActions.Delirium.Name;
+                context.Debug.BuffState = "Delirium activated";
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(DRKActions.Delirium.ActionId, DRKActions.Delirium.Name).AsTankBurst()
+                    .Reason("Delirium activated.",
+                        lv >= 96
+                            ? "Enables Scarlet Delirium combo."
+                            : "Grants 3 free Bloodspillers.")
+                    .Factors($"Darkside: {darksideRem:F1}s", $"Blood: {gauge}")
+                    .Alternatives("Wait for more gauge", "Hold for raid buffs")
+                    .Tip("Use Delirium on cooldown with Darkside active.")
+                    .Concept(DrkConcepts.Delirium).Record();
+                context.TrainingService?.RecordConceptApplication(DrkConcepts.Delirium, true);
+            });
     }
 
-    private bool TryLivingShadow(INyxContext context)
+    private void TryPushLivingShadow(INyxContext context, RotationScheduler scheduler)
     {
-        if (!context.Configuration.Tank.EnableLivingShadow) return false;
-
+        if (!context.Configuration.Tank.EnableLivingShadow) return;
         var player = context.Player;
         var level = player.Level;
+        if (level < DRKActions.LivingShadow.MinLevel) return;
+        if (context.BloodGauge < DRKActions.LivingShadowCost) return;
+        if (!context.HasDarkside) return;
+        if (context.HasDelirium && level < 96 && context.DeliriumStacks > 1) return;
+        if (!context.ActionService.IsActionReady(DRKActions.LivingShadow.ActionId)) return;
+        if (ShouldHoldForBurst(8f)) { context.Debug.BuffState = "Holding Living Shadow for burst"; return; }
 
-        if (level < DRKActions.LivingShadow.MinLevel)
-            return false;
-
-        // Living Shadow costs 50 Blood Gauge
-        if (context.BloodGauge < DRKActions.LivingShadowCost)
-        {
-            return false;
-        }
-
-        // Use during burst windows (when Delirium is active or about to be)
-        // Or on cooldown if we have gauge and Darkside
-        if (!context.HasDarkside)
-            return false;
-
-        // Don't use if we'd overcap Blood during Delirium
-        // Living Shadow takes time to start attacking, so use early
-        if (context.HasDelirium && level < 96)
-        {
-            // Pre-96 Delirium gives free Bloodspillers, prioritize those
-            // Use Living Shadow after spending some stacks
-            if (context.DeliriumStacks > 1)
-                return false;
-        }
-
-        if (!context.ActionService.IsActionReady(DRKActions.LivingShadow.ActionId))
-            return false;
-
-        // Hold Living Shadow if a burst window is imminent
-        if (ShouldHoldForBurst(8f))
-        {
-            context.Debug.BuffState = "Holding Living Shadow for burst";
-            return false;
-        }
-
-        if (context.ActionService.ExecuteOgcd(DRKActions.LivingShadow, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = DRKActions.LivingShadow.Name;
-            context.Debug.BuffState = "Living Shadow summoned";
-
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(DRKActions.LivingShadow.ActionId, DRKActions.LivingShadow.Name)
-                .AsTankBurst()
-                .Reason(
-                    "Living Shadow summoned — autonomous shadow companion deals significant sustained damage.",
-                    "Living Shadow costs 50 Blood Gauge and summons a shadow that attacks independently for 20 seconds. It performs a fixed sequence of 7 attacks. Use on cooldown during Darkside for maximum DPS contribution.")
-                .Factors($"Blood Gauge at {context.BloodGauge} (50+ required)", "Darkside active", "Living Shadow ready")
-                .Alternatives("Save Blood for Bloodspiller (lower total damage)", "Skip (loses major DPS)")
-                .Tip("Living Shadow is one of DRK's most powerful abilities. Summon it on cooldown whenever you have 50+ Blood and Darkside is active. It attacks independently, adding to your damage without any extra input.")
-                .Concept(DrkConcepts.LivingShadow)
-                .Record();
-
-            context.TrainingService?.RecordConceptApplication(DrkConcepts.LivingShadow, wasSuccessful: true);
-
-            return true;
-        }
-
-        return false;
+        var gauge = context.BloodGauge;
+        scheduler.PushOgcd(NyxAbilities.LivingShadow, player.GameObjectId, priority: 2,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = DRKActions.LivingShadow.Name;
+                context.Debug.BuffState = "Living Shadow summoned";
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(DRKActions.LivingShadow.ActionId, DRKActions.LivingShadow.Name).AsTankBurst()
+                    .Reason("Living Shadow summoned.", "50 Blood for autonomous shadow damage over 20s.")
+                    .Factors($"Blood: {gauge}", "Darkside active")
+                    .Alternatives("Save Blood for Bloodspiller")
+                    .Tip("Summon Living Shadow on cooldown.")
+                    .Concept(DrkConcepts.LivingShadow).Record();
+                context.TrainingService?.RecordConceptApplication(DrkConcepts.LivingShadow, true);
+            });
     }
 
-    #endregion
+    protected override bool TryJobSpecificBuffs(INyxContext context) => false;
+    protected override bool TryJobSpecificResourceGeneration(INyxContext context) => false;
 }

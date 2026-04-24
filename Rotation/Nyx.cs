@@ -1,10 +1,13 @@
 using System.Collections.Generic;
+using Dalamud.Game.ClientState.JobGauge;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Rotation.Base;
 using Olympus.Rotation.Common;
+using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.NyxCore.Context;
 using Olympus.Rotation.NyxCore.Helpers;
 using Olympus.Rotation.NyxCore.Modules;
@@ -23,50 +26,27 @@ using Olympus.Timeline;
 namespace Olympus.Rotation;
 
 /// <summary>
-/// Dark Knight rotation module (RSR-style reactive execution).
-/// Orchestrates modular execution: each module handles a specific concern.
-/// Named after Nyx, the Greek goddess of night and darkness.
+/// Dark Knight rotation module (scheduler-driven execution).
+/// Named after Nyx, the Greek goddess of night.
 /// </summary>
 [Rotation("Nyx", JobRegistry.DarkKnight, Role = RotationRole.Tank)]
 public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
 {
-    /// <inheritdoc />
     public override string Name => "Nyx";
-
-    /// <inheritdoc />
     public override uint[] SupportedJobIds => [JobRegistry.DarkKnight];
-
-    /// <inheritdoc />
     public override DebugState DebugState => _debugState;
-
-    /// <inheritdoc />
     protected override List<INyxModule> Modules => _modules;
 
-    /// <summary>
-    /// Gets the Nyx-specific debug state. Used for Dark Knight-specific debug display.
-    /// </summary>
     public NyxDebugState NyxDebug => _nyxDebugState;
 
-    // Persistent debug state
     private readonly NyxDebugState _nyxDebugState = new();
-
-    // IRotation-compatible debug state (for common debug interface)
     private readonly DebugState _debugState = new();
-
-    // Helpers (shared across modules)
     private readonly NyxStatusHelper _statusHelper;
     private readonly NyxPartyHelper _partyHelper;
-
-    // Modules (sorted by priority - lower = higher priority)
     private readonly List<INyxModule> _modules;
-
-    // Training
     private readonly ITrainingService? _trainingService;
-
-    // Burst window service
     private readonly IBurstWindowService? _burstWindowService;
-
-    // Darkside timer (read from game gauge)
+    private readonly RotationScheduler _scheduler;
     private float _darksideTimer;
 
     public Nyx(
@@ -85,100 +65,57 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
         IDebuffDetectionService debuffDetectionService,
         IEnmityService enmityService,
         ITankCooldownService tankCooldownService,
+        IJobGauges jobGauges,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
         IErrorMetricsService? errorMetrics = null,
         IBurstWindowService? burstWindowService = null)
-        : base(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            enmityService,
-            tankCooldownService,
-            timelineService,
-            partyCoordinationService,
-            errorMetrics)
+        : base(log, actionTracker, combatEventService, damageIntakeService, damageTrendService,
+               configuration, objectTable, partyList, targetingService, hpPredictionService,
+               actionService, playerStatsService, debuffDetectionService, enmityService,
+               tankCooldownService, timelineService, partyCoordinationService, errorMetrics)
     {
-        // Initialize training service
         _trainingService = trainingService;
         _burstWindowService = burstWindowService;
 
-        // Initialize helpers
+        _scheduler = new RotationScheduler(actionService, jobGauges, configuration, timelineService, errorMetrics);
+
         _statusHelper = new NyxStatusHelper();
         _partyHelper = new NyxPartyHelper(objectTable, partyList);
 
-        // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<INyxModule>
         {
-            new EnmityModule(),                          // Priority 5 - Enmity management is critical
-            new MitigationModule(),                      // Priority 10 - Stay alive (TBN intelligence)
-            new BuffModule(_burstWindowService),         // Priority 20 - Buff management
-            new DamageModule(),                          // Priority 30 - DPS rotation with Darkside
+            new EnmityModule(),
+            new MitigationModule(),
+            new BuffModule(_burstWindowService),
+            new DamageModule(),
         };
 
-        // Sort by priority
         _modules.Sort((a, b) => a.Priority.CompareTo(b.Priority));
     }
 
-    #region Abstract Implementation
-
-    /// <inheritdoc />
     protected override int ReadGaugeValue()
     {
-        // Read Blood Gauge
         var bloodGauge = SafeGameAccess.GetDrkBloodGauge(ErrorMetrics);
-
-        // Also read Darkside timer while we're reading gauges
         _darksideTimer = SafeGameAccess.GetDrkDarksideTimer(ErrorMetrics);
-
         return bloodGauge;
     }
 
-    /// <inheritdoc />
     protected override int DetermineComboStep(uint comboAction, float comboTimer)
     {
-        // No combo active
-        if (comboAction == 0 || comboTimer <= 0)
-            return 0;
-
-        // Check for single-target combo: Hard Slash -> Syphon Strike -> Souleater
-        if (comboAction == DRKActions.HardSlash.ActionId)
-            return 1; // Ready for Syphon Strike
-
-        if (comboAction == DRKActions.SyphonStrike.ActionId)
-            return 2; // Ready for Souleater
-
-        // Check for AoE combo: Unleash -> Stalwart Soul
-        if (comboAction == DRKActions.Unleash.ActionId)
-            return 1; // Ready for Stalwart Soul
-
-        // Unknown combo action, restart
+        if (comboAction == 0 || comboTimer <= 0) return 0;
+        if (comboAction == DRKActions.HardSlash.ActionId) return 1;
+        if (comboAction == DRKActions.SyphonStrike.ActionId) return 2;
+        if (comboAction == DRKActions.Unleash.ActionId) return 1;
         return 0;
     }
 
-    /// <inheritdoc />
     protected override void UpdateMpForecast(IPlayerCharacter player)
     {
-        // Dark Knights use MP heavily for Edge/Flood of Shadow and TBN
-        // Track MP for intelligent resource management
-        MpForecastService.Update(
-            (int)player.CurrentMp,
-            (int)player.MaxMp,
-            hasLucidDreaming: false); // Tanks don't have Lucid Dreaming
+        MpForecastService.Update((int)player.CurrentMp, (int)player.MaxMp, hasLucidDreaming: false);
     }
 
-    /// <inheritdoc />
     protected override INyxContext CreateContext(IPlayerCharacter player, bool inCombat, bool isMoving)
     {
         return new NyxContext(
@@ -217,19 +154,38 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
             log: Log);
     }
 
-    /// <inheritdoc />
+    protected override void ExecuteModules(INyxContext context, bool isMoving, bool inCombat)
+    {
+        if (Configuration.Targeting.PauseAllOnStandStillPunisher
+            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
+            return;
+        if (Configuration.Targeting.PauseOnPlayerChannel
+            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
+            return;
+
+        _scheduler.Reset();
+        foreach (var module in _modules)
+        {
+            module.CollectCandidates(context, _scheduler, isMoving);
+        }
+
+        if (inCombat && ActionService.CanExecuteOgcd)
+        {
+            _scheduler.DispatchOgcd(context);
+        }
+        if (ActionService.CanExecuteGcd)
+        {
+            _scheduler.DispatchGcd(context);
+        }
+    }
+
     protected override void SyncDebugState(INyxContext context)
     {
-        // Map tank debug state to common debug state fields
         _debugState.PlanningState = _nyxDebugState.DamageState;
         _debugState.PlannedAction = _nyxDebugState.PlannedAction;
         _debugState.DpsState = _nyxDebugState.DamageState;
         _debugState.DefensiveState = _nyxDebugState.MitigationState;
-
-        // Party/player info
         _debugState.PlayerHpPercent = (float)context.Player.CurrentHp / context.Player.MaxHp;
         _debugState.PartyListCount = context.PartyList.Length;
     }
-
-    #endregion
 }
