@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Dalamud.Game.ClientState.JobGauge;
 using Dalamud.Game.ClientState.JobGauge.Types;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
@@ -7,6 +8,7 @@ using Olympus.Data;
 using Olympus.Rotation.Base;
 using Olympus.Rotation.Common;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.PersephoneCore.Context;
 using Olympus.Rotation.PersephoneCore.Helpers;
 using Olympus.Rotation.PersephoneCore.Modules;
@@ -92,6 +94,9 @@ public sealed class Persephone : BaseCasterDpsRotation<IPersephoneContext, IPers
     private bool _hasUsedAstralFlowThisPhase;
     private float _lastDemiSummonTimer;
 
+    // Scheduler
+    private readonly RotationScheduler _scheduler;
+
     public Persephone(
         IPluginLog log,
         IActionTracker actionTracker,
@@ -133,6 +138,8 @@ public sealed class Persephone : BaseCasterDpsRotation<IPersephoneContext, IPers
         _timelineService = timelineService;
         _partyCoordinationService = partyCoordinationService;
         _trainingService = trainingService;
+
+        _scheduler = new RotationScheduler(actionService, jobGauges, configuration, timelineService, errorMetrics);
 
         // Initialize helpers
         _statusHelper = new PersephoneStatusHelper();
@@ -297,6 +304,35 @@ public sealed class Persephone : BaseCasterDpsRotation<IPersephoneContext, IPers
         // Party/player info
         _debugState.PlayerHpPercent = (float)context.Player.CurrentHp / context.Player.MaxHp;
         _debugState.PartyListCount = context.PartyList.Length;
+    }
+
+    /// <inheritdoc />
+    protected override void ExecuteModules(IPersephoneContext context, bool isMoving, bool inCombat)
+    {
+        if (Configuration.Targeting.PauseAllOnStandStillPunisher
+            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
+            return;
+        if (Configuration.Targeting.PauseOnPlayerChannel
+            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
+            return;
+
+        _scheduler.Reset();
+        foreach (var module in _modules)
+            module.CollectCandidates(context, _scheduler, isMoving);
+
+        if (inCombat && ActionService.CanExecuteOgcd)
+        {
+            foreach (var module in _modules)
+                if (module.TryExecute(context, isMoving)) return;
+            _scheduler.DispatchOgcd(context);
+        }
+
+        if (ActionService.CanExecuteGcd)
+        {
+            foreach (var module in _modules)
+                if (module.TryExecute(context, isMoving)) return;
+            _scheduler.DispatchGcd(context);
+        }
     }
 
     #endregion

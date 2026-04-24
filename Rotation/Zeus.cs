@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Dalamud.Game.ClientState.JobGauge;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -6,6 +7,7 @@ using Olympus.Data;
 using Olympus.Rotation.Base;
 using Olympus.Rotation.Common;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.ZeusCore.Context;
 using Olympus.Rotation.ZeusCore.Helpers;
 using Olympus.Rotation.ZeusCore.Modules;
@@ -75,6 +77,9 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
     private bool _isLifeOfDragonActive;
     private float _lifeOfDragonRemaining;
 
+    // Scheduler
+    private readonly RotationScheduler _scheduler;
+
     public Zeus(
         IPluginLog log,
         IActionTracker actionTracker,
@@ -90,6 +95,7 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
         IPlayerStatsService playerStatsService,
         IDebuffDetectionService debuffDetectionService,
         IPositionalService positionalService,
+        IJobGauges jobGauges,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
@@ -116,6 +122,8 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
         _timelineService = timelineService;
         _partyCoordinationService = partyCoordinationService;
         _trainingService = trainingService;
+
+        _scheduler = new RotationScheduler(actionService, jobGauges, configuration, timelineService, errorMetrics);
 
         // Initialize helpers
         _statusHelper = new ZeusStatusHelper();
@@ -261,6 +269,39 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
         // Party/player info
         _debugState.PlayerHpPercent = (float)context.Player.CurrentHp / context.Player.MaxHp;
         _debugState.PartyListCount = context.PartyList.Length;
+    }
+
+    /// <summary>
+    /// Scheduler-aware execution. Runs CollectCandidates per module (no-op until deep migration),
+    /// then the authoritative legacy TryExecute priority chain. Scheduler Dispatch calls are
+    /// safe no-ops when no candidates are pushed.
+    /// </summary>
+    protected override void ExecuteModules(IZeusContext context, bool isMoving, bool inCombat)
+    {
+        if (Configuration.Targeting.PauseAllOnStandStillPunisher
+            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
+            return;
+        if (Configuration.Targeting.PauseOnPlayerChannel
+            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
+            return;
+
+        _scheduler.Reset();
+        foreach (var module in _modules)
+            module.CollectCandidates(context, _scheduler, isMoving);
+
+        if (inCombat && ActionService.CanExecuteOgcd)
+        {
+            foreach (var module in _modules)
+                if (module.TryExecute(context, isMoving)) return;
+            _scheduler.DispatchOgcd(context);
+        }
+
+        if (ActionService.CanExecuteGcd)
+        {
+            foreach (var module in _modules)
+                if (module.TryExecute(context, isMoving)) return;
+            _scheduler.DispatchGcd(context);
+        }
     }
 
     #endregion

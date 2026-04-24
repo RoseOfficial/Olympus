@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Dalamud.Game.ClientState.JobGauge;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -6,6 +7,7 @@ using Olympus.Data;
 using Olympus.Rotation.Base;
 using Olympus.Rotation.Common;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.HermesCore.Context;
 using Olympus.Rotation.HermesCore.Helpers;
 using Olympus.Rotation.HermesCore.Modules;
@@ -74,6 +76,9 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
     private int _ninki;
     private int _kazematoi;
 
+    // Scheduler
+    private readonly RotationScheduler _scheduler;
+
     public Hermes(
         IPluginLog log,
         IActionTracker actionTracker,
@@ -89,6 +94,7 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
         IPlayerStatsService playerStatsService,
         IDebuffDetectionService debuffDetectionService,
         IPositionalService positionalService,
+        IJobGauges jobGauges,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
@@ -115,6 +121,8 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
         _timelineService = timelineService;
         _partyCoordinationService = partyCoordinationService;
         _trainingService = trainingService;
+
+        _scheduler = new RotationScheduler(actionService, jobGauges, configuration, timelineService, errorMetrics);
 
         // Initialize helpers
         _statusHelper = new HermesStatusHelper();
@@ -244,6 +252,35 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
         // Party/player info
         _debugState.PlayerHpPercent = (float)context.Player.CurrentHp / context.Player.MaxHp;
         _debugState.PartyListCount = context.PartyList.Length;
+    }
+
+    /// <inheritdoc />
+    protected override void ExecuteModules(IHermesContext context, bool isMoving, bool inCombat)
+    {
+        if (Configuration.Targeting.PauseAllOnStandStillPunisher
+            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
+            return;
+        if (Configuration.Targeting.PauseOnPlayerChannel
+            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
+            return;
+
+        _scheduler.Reset();
+        foreach (var module in _modules)
+            module.CollectCandidates(context, _scheduler, isMoving);
+
+        if (inCombat && ActionService.CanExecuteOgcd)
+        {
+            foreach (var module in _modules)
+                if (module.TryExecute(context, isMoving)) return;
+            _scheduler.DispatchOgcd(context);
+        }
+
+        if (ActionService.CanExecuteGcd)
+        {
+            foreach (var module in _modules)
+                if (module.TryExecute(context, isMoving)) return;
+            _scheduler.DispatchGcd(context);
+        }
     }
 
     #endregion

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Dalamud.Game.ClientState.JobGauge;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -7,6 +8,7 @@ using Olympus.Rotation.Base;
 using Olympus.Rotation.Common;
 using Olympus.Rotation.CirceCore.Context;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.CirceCore.Helpers;
 using Olympus.Rotation.CirceCore.Modules;
 using Olympus.Services;
@@ -84,6 +86,9 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
     // Computed via action replacement on Enchanted Moulinet.
     private int _moulinetStep;
 
+    // Scheduler
+    private readonly RotationScheduler _scheduler;
+
     public Circe(
         IPluginLog log,
         IActionTracker actionTracker,
@@ -98,6 +103,7 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
         ActionService actionService,
         IPlayerStatsService playerStatsService,
         IDebuffDetectionService debuffDetectionService,
+        IJobGauges jobGauges,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
@@ -123,6 +129,8 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
         _timelineService = timelineService;
         _partyCoordinationService = partyCoordinationService;
         _trainingService = trainingService;
+
+        _scheduler = new RotationScheduler(actionService, jobGauges, configuration, timelineService, errorMetrics);
 
         // Initialize helpers
         _statusHelper = new CirceStatusHelper();
@@ -283,6 +291,35 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
         // Party/player info
         _debugState.PlayerHpPercent = (float)context.Player.CurrentHp / context.Player.MaxHp;
         _debugState.PartyListCount = context.PartyList.Length;
+    }
+
+    /// <inheritdoc />
+    protected override void ExecuteModules(ICirceContext context, bool isMoving, bool inCombat)
+    {
+        if (Configuration.Targeting.PauseAllOnStandStillPunisher
+            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
+            return;
+        if (Configuration.Targeting.PauseOnPlayerChannel
+            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
+            return;
+
+        _scheduler.Reset();
+        foreach (var module in _modules)
+            module.CollectCandidates(context, _scheduler, isMoving);
+
+        if (inCombat && ActionService.CanExecuteOgcd)
+        {
+            foreach (var module in _modules)
+                if (module.TryExecute(context, isMoving)) return;
+            _scheduler.DispatchOgcd(context);
+        }
+
+        if (ActionService.CanExecuteGcd)
+        {
+            foreach (var module in _modules)
+                if (module.TryExecute(context, isMoving)) return;
+            _scheduler.DispatchGcd(context);
+        }
     }
 
     #endregion
