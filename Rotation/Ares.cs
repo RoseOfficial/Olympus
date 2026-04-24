@@ -1,10 +1,13 @@
 using System.Collections.Generic;
+using Dalamud.Game.ClientState.JobGauge;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Rotation.Base;
 using Olympus.Rotation.Common;
+using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.AresCore.Context;
 using Olympus.Rotation.AresCore.Helpers;
 using Olympus.Rotation.AresCore.Modules;
@@ -23,48 +26,27 @@ using Olympus.Timeline;
 namespace Olympus.Rotation;
 
 /// <summary>
-/// Warrior rotation module (RSR-style reactive execution).
-/// Orchestrates modular execution: each module handles a specific concern.
+/// Warrior rotation module (scheduler-driven execution).
 /// Named after Ares, the Greek god of war and battle fury.
 /// </summary>
 [Rotation("Ares", JobRegistry.Warrior, JobRegistry.Marauder, Role = RotationRole.Tank)]
 public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
 {
-    /// <inheritdoc />
     public override string Name => "Ares";
-
-    /// <inheritdoc />
     public override uint[] SupportedJobIds => [JobRegistry.Warrior, JobRegistry.Marauder];
-
-    /// <inheritdoc />
     public override DebugState DebugState => _debugState;
-
-    /// <inheritdoc />
     protected override List<IAresModule> Modules => _modules;
 
-    /// <summary>
-    /// Gets the Ares-specific debug state. Used for Warrior-specific debug display.
-    /// </summary>
     public AresDebugState AresDebug => _aresDebugState;
 
-    // Persistent debug state
     private readonly AresDebugState _aresDebugState = new();
-
-    // IRotation-compatible debug state (for common debug interface)
     private readonly DebugState _debugState = new();
-
-    // Helpers (shared across modules)
     private readonly AresStatusHelper _statusHelper;
     private readonly AresPartyHelper _partyHelper;
-
-    // Training
     private readonly ITrainingService? _trainingService;
-
-    // Burst window service
     private readonly IBurstWindowService? _burstWindowService;
-
-    // Modules (sorted by priority - lower = higher priority)
     private readonly List<IAresModule> _modules;
+    private readonly RotationScheduler _scheduler;
 
     public Ares(
         IPluginLog log,
@@ -82,95 +64,55 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
         IDebuffDetectionService debuffDetectionService,
         IEnmityService enmityService,
         ITankCooldownService tankCooldownService,
+        IJobGauges jobGauges,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
         IErrorMetricsService? errorMetrics = null,
         IBurstWindowService? burstWindowService = null)
-        : base(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            enmityService,
-            tankCooldownService,
-            timelineService,
-            partyCoordinationService,
-            errorMetrics)
+        : base(log, actionTracker, combatEventService, damageIntakeService, damageTrendService,
+               configuration, objectTable, partyList, targetingService, hpPredictionService,
+               actionService, playerStatsService, debuffDetectionService, enmityService,
+               tankCooldownService, timelineService, partyCoordinationService, errorMetrics)
     {
-        // Initialize training service
         _trainingService = trainingService;
         _burstWindowService = burstWindowService;
 
-        // Initialize helpers
+        _scheduler = new RotationScheduler(actionService, jobGauges, configuration, timelineService, errorMetrics);
+
         _statusHelper = new AresStatusHelper();
         _partyHelper = new AresPartyHelper(objectTable, partyList);
 
-        // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<IAresModule>
         {
-            new EnmityModule(),                           // Priority 5 - Enmity management is critical
-            new MitigationModule(),                       // Priority 10 - Stay alive
-            new BuffModule(_burstWindowService),          // Priority 20 - Buff management
-            // WAR DamageModule does not pool for burst — gauge spending is reactive, not window-based.
-            new DamageModule(),                           // Priority 30 - DPS rotation
+            new EnmityModule(),
+            new MitigationModule(),
+            new BuffModule(_burstWindowService),
+            new DamageModule(),
         };
 
-        // Sort by priority
         _modules.Sort((a, b) => a.Priority.CompareTo(b.Priority));
     }
 
-    #region Abstract Implementation
-
-    /// <inheritdoc />
     protected override int ReadGaugeValue()
     {
         return SafeGameAccess.GetWarBeastGauge(ErrorMetrics);
     }
 
-    /// <inheritdoc />
     protected override int DetermineComboStep(uint comboAction, float comboTimer)
     {
-        // No combo active
-        if (comboAction == 0 || comboTimer <= 0)
-            return 0;
-
-        // Check for single-target combo: Heavy Swing -> Maim -> Storm's Path/Eye
-        if (comboAction == WARActions.HeavySwing.ActionId)
-            return 1; // Ready for Maim
-
-        if (comboAction == WARActions.Maim.ActionId)
-            return 2; // Ready for Storm's Path/Eye
-
-        // Check for AoE combo: Overpower -> Mythril Tempest
-        if (comboAction == WARActions.Overpower.ActionId)
-            return 1; // Ready for Mythril Tempest
-
-        // Unknown combo action, restart
+        if (comboAction == 0 || comboTimer <= 0) return 0;
+        if (comboAction == WARActions.HeavySwing.ActionId) return 1;
+        if (comboAction == WARActions.Maim.ActionId) return 2;
+        if (comboAction == WARActions.Overpower.ActionId) return 1;
         return 0;
     }
 
-    /// <inheritdoc />
     protected override void UpdateMpForecast(IPlayerCharacter player)
     {
-        // Warriors don't use MP for any abilities
-        // No need to track MP
-        MpForecastService.Update(
-            (int)player.CurrentMp,
-            (int)player.MaxMp,
-            hasLucidDreaming: false);
+        MpForecastService.Update((int)player.CurrentMp, (int)player.MaxMp, hasLucidDreaming: false);
     }
 
-    /// <inheritdoc />
     protected override IAresContext CreateContext(IPlayerCharacter player, bool inCombat, bool isMoving)
     {
         return new AresContext(
@@ -208,19 +150,42 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
             log: Log);
     }
 
-    /// <inheritdoc />
+    protected override void ExecuteModules(IAresContext context, bool isMoving, bool inCombat)
+    {
+        if (Configuration.Targeting.PauseAllOnStandStillPunisher
+            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
+        {
+            return;
+        }
+        if (Configuration.Targeting.PauseOnPlayerChannel
+            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
+        {
+            return;
+        }
+
+        _scheduler.Reset();
+        foreach (var module in _modules)
+        {
+            module.CollectCandidates(context, _scheduler, isMoving);
+        }
+
+        if (inCombat && ActionService.CanExecuteOgcd)
+        {
+            _scheduler.DispatchOgcd(context);
+        }
+        if (ActionService.CanExecuteGcd)
+        {
+            _scheduler.DispatchGcd(context);
+        }
+    }
+
     protected override void SyncDebugState(IAresContext context)
     {
-        // Map tank debug state to common debug state fields
         _debugState.PlanningState = _aresDebugState.DamageState;
         _debugState.PlannedAction = _aresDebugState.PlannedAction;
         _debugState.DpsState = _aresDebugState.DamageState;
         _debugState.DefensiveState = _aresDebugState.MitigationState;
-
-        // Party/player info
         _debugState.PlayerHpPercent = (float)context.Player.CurrentHp / context.Player.MaxHp;
         _debugState.PartyListCount = context.PartyList.Length;
     }
-
-    #endregion
 }

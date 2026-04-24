@@ -1,16 +1,18 @@
 using Olympus.Data;
 using Olympus.Models.Action;
-using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.AresCore.Abilities;
 using Olympus.Rotation.AresCore.Context;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AresCore.Modules;
 
 /// <summary>
-/// Handles the Warrior buff management.
-/// Manages Defiance (tank stance), Inner Release (burst window), and Infuriate (gauge generation).
+/// Handles the Warrior buff management (scheduler-driven).
+/// Manages Defiance, Inner Release, and Infuriate.
 /// </summary>
 public sealed class BuffModule : BaseTankBuffModule<IAresContext>, IAresModule
 {
@@ -24,208 +26,178 @@ public sealed class BuffModule : BaseTankBuffModule<IAresContext>, IAresModule
     private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
         BurstHoldHelper.ShouldHoldForBurst(_burstWindowService, thresholdSeconds);
 
-    #region Abstract Implementation
-
     protected override ActionDefinition GetTankStanceAction() => WARActions.Defiance;
-
     protected override bool HasJobTankStance(IAresContext context) => context.HasDefiance;
-
     protected override void SetBuffState(IAresContext context, string state) => context.Debug.BuffState = state;
-
     protected override void SetPlannedAction(IAresContext context, string action) => context.Debug.PlannedAction = action;
 
-    #endregion
+    public override bool TryExecute(IAresContext context, bool isMoving) => false;
 
-    #region Job-Specific Overrides
+    public override void UpdateDebugState(IAresContext context) { }
 
-    protected override bool TryJobSpecificBuffs(IAresContext context)
+    public void CollectCandidates(IAresContext context, RotationScheduler scheduler, bool isMoving)
     {
-        return TryInnerRelease(context);
+        if (!context.InCombat)
+        {
+            context.Debug.BuffState = "Not in combat";
+            return;
+        }
+
+        TryPushTankStance(context, scheduler);
+
+        if (!context.Configuration.Tank.EnableDamage)
+        {
+            context.Debug.BuffState = "Damage disabled";
+            return;
+        }
+
+        TryPushInnerRelease(context, scheduler);
+        TryPushInfuriate(context, scheduler);
     }
 
-    protected override bool TryJobSpecificResourceGeneration(IAresContext context)
+    private void TryPushTankStance(IAresContext context, RotationScheduler scheduler)
     {
-        return TryInfuriate(context);
+        var player = context.Player;
+        if (player.Level < WARActions.Defiance.MinLevel) return;
+        if (!context.Configuration.Tank.AutoTankStance)
+        {
+            context.Debug.BuffState = "AutoTankStance disabled";
+            return;
+        }
+        if (context.HasDefiance) return;
+        if (!context.ActionService.IsActionReady(WARActions.Defiance.ActionId)) return;
+
+        scheduler.PushOgcd(AresAbilities.Defiance, player.GameObjectId, priority: 1,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = WARActions.Defiance.Name;
+                context.Debug.BuffState = "Enabling Defiance";
+            });
     }
 
-    #endregion
-
-    #region Burst Window
-
-    private bool TryInnerRelease(IAresContext context)
+    private void TryPushInnerRelease(IAresContext context, RotationScheduler scheduler)
     {
-        if (!context.Configuration.Tank.EnableInnerRelease) return false;
+        if (!context.Configuration.Tank.EnableInnerRelease) return;
 
         var player = context.Player;
-        var level = player.Level;
+        if (player.Level < WARActions.InnerRelease.MinLevel) return;
 
-        if (level < WARActions.InnerRelease.MinLevel)
-            return false;
-
-        // Don't use if already in Inner Release
         if (context.HasInnerRelease)
         {
             context.Debug.BuffState = $"Inner Release active ({context.InnerReleaseStacks} stacks)";
-            return false;
+            return;
         }
 
-        // Requirements for Inner Release:
-        // 1. Surging Tempest must be active (damage buff)
-        // 2. Beast Gauge should be at least 50 (to maximize free Fell Cleaves)
         if (!context.HasSurgingTempest)
         {
             context.Debug.BuffState = "Waiting for Surging Tempest";
-            return false;
+            return;
         }
 
-        // Ideally want gauge >= 50 to maximize burst
-        // But if Surging Tempest is about to fall off, use anyway
         if (context.BeastGauge < 50 && context.SurgingTempestRemaining > 15f)
         {
             context.Debug.BuffState = $"Building gauge ({context.BeastGauge}/50)";
-            return false;
+            return;
         }
 
-        // Check if Inner Release is ready
         if (!context.ActionService.IsActionReady(WARActions.InnerRelease.ActionId))
         {
             context.Debug.BuffState = "Inner Release on CD";
-            return false;
+            return;
         }
 
-        // Hold Inner Release if a burst window is imminent
         if (ShouldHoldForBurst(8f))
         {
             context.Debug.BuffState = "Holding Inner Release for burst";
-            return false;
+            return;
         }
 
-        if (context.ActionService.ExecuteOgcd(WARActions.InnerRelease, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = WARActions.InnerRelease.Name;
-            context.Debug.BuffState = "Activating Inner Release";
+        var stempRem = context.SurgingTempestRemaining;
+        var gauge = context.BeastGauge;
 
-            // Training: Record burst window activation
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(WARActions.InnerRelease.ActionId, WARActions.InnerRelease.Name)
-                .AsTankBurst()
-                .Reason(
-                    "Inner Release activated - your burst window begins now. Spam Fell Cleave for massive damage.",
-                    "Inner Release grants 3 stacks that make Fell Cleave/Decimate free and guaranteed crit + direct hit. 60s cooldown - align with raid buffs.")
-                .Factors($"Surging Tempest active ({context.SurgingTempestRemaining:F1}s)", $"Beast Gauge at {context.BeastGauge}", "Ready to burst")
-                .Alternatives("Wait for more gauge (minor optimization)", "Hold for raid buffs (may lose a use)")
-                .Tip("Use Inner Release on cooldown when Surging Tempest is up. Delaying loses damage - the 60s cooldown means frequent windows.")
-                .Concept("war_inner_release")
-                .Record();
-
-            context.TrainingService?.RecordConceptApplication("war_inner_release", true, "Burst window activated");
-
-            return true;
-        }
-
-        return false;
+        scheduler.PushOgcd(AresAbilities.InnerRelease, player.GameObjectId, priority: 2,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = WARActions.InnerRelease.Name;
+                context.Debug.BuffState = "Activating Inner Release";
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(WARActions.InnerRelease.ActionId, WARActions.InnerRelease.Name)
+                    .AsTankBurst()
+                    .Reason("Inner Release activated - burst window begins.", "Grants 3 stacks making Fell Cleave/Decimate free and guaranteed crit + direct hit.")
+                    .Factors($"Surging Tempest active ({stempRem:F1}s)", $"Beast Gauge at {gauge}")
+                    .Alternatives("Wait for more gauge", "Hold for raid buffs")
+                    .Tip("Use Inner Release on cooldown when Surging Tempest is up.")
+                    .Concept("war_inner_release")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("war_inner_release", true, "Burst window activated");
+            });
     }
 
-    #endregion
-
-    #region Gauge Generation
-
-    private bool TryInfuriate(IAresContext context)
+    private void TryPushInfuriate(IAresContext context, RotationScheduler scheduler)
     {
-        if (!context.Configuration.Tank.EnableInfuriate) return false;
+        if (!context.Configuration.Tank.EnableInfuriate) return;
 
         var player = context.Player;
-        var level = player.Level;
+        if (player.Level < WARActions.Infuriate.MinLevel) return;
 
-        if (level < WARActions.Infuriate.MinLevel)
-            return false;
-
-        // Don't overcap gauge - Infuriate grants 50 gauge
         if (context.BeastGauge > 50)
         {
             context.Debug.BuffState = $"Gauge too high ({context.BeastGauge})";
-            return false;
+            return;
         }
 
-        // During Inner Release, save one charge of Infuriate for Nascent Chaos
-        // Infuriate during IR grants Nascent Chaos which enables Inner Chaos
+        // During Inner Release: grab Nascent Chaos if we don't have it
         if (context.HasInnerRelease)
         {
-            // Use Infuriate during IR to get Nascent Chaos if we don't have it
-            if (!context.HasNascentChaos)
-            {
-                return TryExecuteInfuriate(context, "Infuriate for Nascent Chaos");
-            }
-            // Already have Nascent Chaos, save charge
-            return false;
+            if (context.HasNascentChaos) return;
+            if (!context.ActionService.IsActionReady(WARActions.Infuriate.ActionId)) return;
+            PushInfuriate(context, scheduler, "Infuriate for Nascent Chaos");
+            return;
         }
 
-        // Outside of Inner Release, use Infuriate to build gauge
-        // But try to save a charge for the next IR window
-        // Infuriate has 2 charges at level 74+
+        var charges = (int)context.ActionService.GetCurrentCharges(WARActions.Infuriate.ActionId);
+        if (charges < 1) return;
 
-        // Check charges
-        var charges = GetInfuriateCharges(context);
-
-        // At level 74+, we have 2 charges - try to save one for IR
-        // Since we can't easily check charges, use freely when gauge is low
-        if (charges >= 1)
+        if (charges < 2 && ShouldHoldForBurst(8f))
         {
-            // Hold one charge for the upcoming burst window if imminent
-            if (charges < 2 && ShouldHoldForBurst(8f))
-            {
-                context.Debug.BuffState = "Holding Infuriate for burst";
-                return false;
-            }
-
-            return TryExecuteInfuriate(context, "Infuriate");
+            context.Debug.BuffState = "Holding Infuriate for burst";
+            return;
         }
 
-        return false;
+        if (!context.ActionService.IsActionReady(WARActions.Infuriate.ActionId)) return;
+        PushInfuriate(context, scheduler, "Infuriate");
     }
 
-    private bool TryExecuteInfuriate(IAresContext context, string reason)
+    private void PushInfuriate(IAresContext context, RotationScheduler scheduler, string reason)
     {
         var player = context.Player;
+        var duringIR = context.HasInnerRelease;
+        var gauge = context.BeastGauge;
 
-        if (!context.ActionService.IsActionReady(WARActions.Infuriate.ActionId))
-            return false;
-
-        if (context.ActionService.ExecuteOgcd(WARActions.Infuriate, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = WARActions.Infuriate.Name;
-            context.Debug.BuffState = reason;
-
-            // Training: Record gauge generation
-            var duringIR = context.HasInnerRelease;
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(WARActions.Infuriate.ActionId, WARActions.Infuriate.Name)
-                .AsTankResource(context.BeastGauge)
-                .Reason(
-                    duringIR
-                        ? "Infuriate during Inner Release grants Nascent Chaos, enabling Inner Chaos (highest single-hit potency)."
-                        : $"Infuriate to generate 50 Beast Gauge. Current gauge: {context.BeastGauge}.",
-                    "Infuriate grants 50 gauge and, during Inner Release, also grants Nascent Chaos for Inner Chaos. 2 charges - don't overcap.")
-                .Factors(duringIR
-                    ? new[] { "Inner Release active", "Nascent Chaos not active", "Enables Inner Chaos" }
-                    : new[] { $"Gauge at {context.BeastGauge} (room for 50)", "Building resources", "Charge available" })
-                .Alternatives("Save for Inner Release (may overcap charges)", "Wait for lower gauge (may overcap)")
-                .Tip("Use Infuriate when gauge ≤50 to avoid overcapping. During Inner Release, use one to get Nascent Chaos for Inner Chaos.")
-                .Concept("war_infuriate_gauge")
-                .Record();
-
-            context.TrainingService?.RecordConceptApplication("war_infuriate_gauge", true, duringIR ? "Nascent Chaos generation" : "Gauge building");
-
-            return true;
-        }
-
-        return false;
+        scheduler.PushOgcd(AresAbilities.Infuriate, player.GameObjectId, priority: 3,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = WARActions.Infuriate.Name;
+                context.Debug.BuffState = reason;
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(WARActions.Infuriate.ActionId, WARActions.Infuriate.Name)
+                    .AsTankResource(gauge)
+                    .Reason(
+                        duringIR
+                            ? "Infuriate during Inner Release grants Nascent Chaos."
+                            : $"Infuriate to generate 50 Beast Gauge. Current gauge: {gauge}.",
+                        "Infuriate grants 50 gauge and during Inner Release also grants Nascent Chaos.")
+                    .Factors(duringIR
+                        ? new[] { "Inner Release active", "Enables Inner Chaos" }
+                        : new[] { $"Gauge at {gauge}", "Building resources" })
+                    .Alternatives("Save for Inner Release", "Wait for lower gauge")
+                    .Tip("Use Infuriate when gauge ≤50 to avoid overcapping.")
+                    .Concept("war_infuriate_gauge")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("war_infuriate_gauge", true, duringIR ? "Nascent Chaos generation" : "Gauge building");
+            });
     }
 
-    private int GetInfuriateCharges(IAresContext context)
-    {
-        return (int)context.ActionService.GetCurrentCharges(WARActions.Infuriate.ActionId);
-    }
-
-    #endregion
+    protected override bool TryJobSpecificBuffs(IAresContext context) => false;
+    protected override bool TryJobSpecificResourceGeneration(IAresContext context) => false;
 }
