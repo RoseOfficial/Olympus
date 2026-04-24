@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Dalamud.Game.ClientState.JobGauge;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -6,9 +7,10 @@ using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.ApolloCore.Modules;
+using Olympus.Rotation.Base;
 using Olympus.Rotation.Common;
 using Olympus.Rotation.Common.Helpers;
-using Olympus.Rotation.Base;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Cooldown;
@@ -24,43 +26,25 @@ using Olympus.Timeline;
 namespace Olympus.Rotation;
 
 /// <summary>
-/// White Mage rotation module (RSR-style reactive execution).
-/// Orchestrates modular execution: each module handles a specific concern.
-/// Named after the Greek god of healing, light, and music.
+/// White Mage rotation module (scheduler-driven execution).
+/// Named after Apollo, the Greek god of healing and light.
 /// </summary>
 [Rotation("Apollo", JobRegistry.WhiteMage, JobRegistry.Conjurer, Role = RotationRole.Healer)]
 public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
 {
-    /// <inheritdoc />
     public override string Name => "Apollo";
-
-    /// <inheritdoc />
     public override uint[] SupportedJobIds => [JobRegistry.WhiteMage, JobRegistry.Conjurer];
-
-    /// <inheritdoc />
     public override DebugState DebugState => _debugState;
-
-    /// <inheritdoc />
     protected override List<IApolloModule> Modules => _modules;
-
-    /// <inheritdoc />
     protected override HealerPartyHelper HealerParty => _partyHelper;
 
-    // Persistent debug state (shared with contexts, exposed for DebugService)
     private readonly DebugState _debugState = new();
-
-    // Helpers (shared across modules)
     private readonly StatusHelper _statusHelper;
     private readonly PartyHelper _partyHelper;
-
-    // Timeline integration
     private readonly ITimelineService? _timelineService;
-
-    // Training service
     private readonly ITrainingService? _trainingService;
-
-    // Modules (sorted by priority - lower = higher priority)
     private readonly List<IApolloModule> _modules;
+    private readonly RotationScheduler _scheduler;
 
     public Apollo(
         IPluginLog log,
@@ -79,58 +63,37 @@ public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
         DebuffDetectionService debuffDetectionService,
         ICooldownPlanner cooldownPlanner,
         ShieldTrackingService shieldTrackingService,
+        IJobGauges jobGauges,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
         IErrorMetricsService? errorMetrics = null)
-        : base(
-            log,
-            actionTracker,
-            combatEventService,
-            damageIntakeService,
-            damageTrendService,
-            configuration,
-            objectTable,
-            partyList,
-            targetingService,
-            hpPredictionService,
-            actionService,
-            playerStatsService,
-            debuffDetectionService,
-            healingSpellSelector,
-            cooldownPlanner,
-            shieldTrackingService,
-            partyCoordinationService,
-            errorMetrics)
+        : base(log, actionTracker, combatEventService, damageIntakeService, damageTrendService,
+               configuration, objectTable, partyList, targetingService, hpPredictionService,
+               actionService, playerStatsService, debuffDetectionService, healingSpellSelector,
+               cooldownPlanner, shieldTrackingService, partyCoordinationService, errorMetrics)
     {
-        // Store timeline service
         _timelineService = timelineService;
-
-        // Store training service
         _trainingService = trainingService;
 
-        // Initialize helpers
+        _scheduler = new RotationScheduler(actionService, jobGauges, configuration, timelineService, errorMetrics);
+
         _statusHelper = new StatusHelper();
         _partyHelper = new PartyHelper(objectTable, partyList, hpPredictionService, configuration);
 
-        // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<IApolloModule>
         {
-            new ResurrectionModule(),  // Priority 5 - Dead members are useless
-            new HealingModule(),       // Priority 10 - Keep party alive
-            new DefensiveModule(),     // Priority 20 - Mitigation
-            new BuffModule(),          // Priority 30 - Buffs and utilities
-            new DamageModule(),        // Priority 50 - DPS when safe
+            new ResurrectionModule(),
+            new HealingModule(),
+            new DefensiveModule(),
+            new BuffModule(),
+            new DamageModule(),
         };
-
-        // Sort by priority
         _modules.Sort((a, b) => a.Priority.CompareTo(b.Priority));
 
-        // Declare healer role for multi-healer coordination
         PartyCoordinationService?.DeclareHealerRole(JobRegistry.WhiteMage, Configuration.PartyCoordination.PreferredHealerRole);
     }
 
-    /// <inheritdoc />
     protected override void BroadcastHealerGaugeState(IPlayerCharacter player)
     {
         var lilyCount = StatusHelper.GetLilyCount();
@@ -138,18 +101,11 @@ public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
         PartyCoordinationService?.BroadcastGaugeState(JobRegistry.WhiteMage, lilyCount, bloodLily, 0);
     }
 
-    #region Abstract Implementation
-
-    /// <inheritdoc />
     protected override void UpdateMpForecast(IPlayerCharacter player)
     {
-        MpForecastService.Update(
-            (int)player.CurrentMp,
-            (int)player.MaxMp,
-            StatusHelper.HasLucidDreaming(player));
+        MpForecastService.Update((int)player.CurrentMp, (int)player.MaxMp, StatusHelper.HasLucidDreaming(player));
     }
 
-    /// <inheritdoc />
     protected override IApolloContext CreateContext(IPlayerCharacter player, bool inCombat, bool isMoving)
     {
         return new ApolloContext(
@@ -186,5 +142,36 @@ public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
             log: Log);
     }
 
-    #endregion
+    /// <summary>
+    /// Scheduler-aware execution. Runs CollectCandidates per module (no-op for healer modules
+    /// until deep migration), then the authoritative legacy TryExecute priority chain. Scheduler
+    /// Dispatch calls are safe no-ops when no candidates are pushed.
+    /// </summary>
+    protected override void ExecuteModules(IApolloContext context, bool isMoving, bool inCombat)
+    {
+        if (Configuration.Targeting.PauseAllOnStandStillPunisher
+            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
+            return;
+        if (Configuration.Targeting.PauseOnPlayerChannel
+            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
+            return;
+
+        _scheduler.Reset();
+        foreach (var module in _modules)
+            module.CollectCandidates(context, _scheduler, isMoving);
+
+        if (inCombat && ActionService.CanExecuteOgcd)
+        {
+            foreach (var module in _modules)
+                if (module.TryExecute(context, isMoving)) return;
+            _scheduler.DispatchOgcd(context);
+        }
+
+        if (ActionService.CanExecuteGcd)
+        {
+            foreach (var module in _modules)
+                if (module.TryExecute(context, isMoving)) return;
+            _scheduler.DispatchGcd(context);
+        }
+    }
 }

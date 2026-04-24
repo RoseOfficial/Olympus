@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Dalamud.Game.ClientState.JobGauge;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -6,6 +7,7 @@ using Olympus.Data;
 using Olympus.Rotation.AthenaCore.Context;
 using Olympus.Rotation.Common;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.AthenaCore.Helpers;
 using Olympus.Rotation.AthenaCore.Modules;
 using Olympus.Rotation.Base;
@@ -73,6 +75,9 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
     // Modules (sorted by priority)
     private readonly List<IAthenaModule> _modules;
 
+    // Scheduler
+    private readonly RotationScheduler _scheduler;
+
     public Athena(
         IPluginLog log,
         IActionTracker actionTracker,
@@ -90,6 +95,7 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
         ICooldownPlanner cooldownPlanner,
         HealingSpellSelector healingSpellSelector,
         ShieldTrackingService shieldTrackingService,
+        IJobGauges jobGauges,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
@@ -119,6 +125,9 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
 
         // Store training service
         _trainingService = trainingService;
+
+        // Initialize scheduler
+        _scheduler = new RotationScheduler(actionService, jobGauges, configuration, timelineService, errorMetrics);
 
         // Initialize Scholar-specific services
         _aetherflowService = new AetherflowTrackingService();
@@ -224,6 +233,39 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
             trainingService: _trainingService,
             debugState: _debugState,
             log: Log);
+    }
+
+    /// <summary>
+    /// Scheduler-aware execution. Runs CollectCandidates per module (no-op for healer modules
+    /// until deep migration), then the authoritative legacy TryExecute priority chain. Scheduler
+    /// Dispatch calls are safe no-ops when no candidates are pushed.
+    /// </summary>
+    protected override void ExecuteModules(IAthenaContext context, bool isMoving, bool inCombat)
+    {
+        if (Configuration.Targeting.PauseAllOnStandStillPunisher
+            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
+            return;
+        if (Configuration.Targeting.PauseOnPlayerChannel
+            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
+            return;
+
+        _scheduler.Reset();
+        foreach (var module in _modules)
+            module.CollectCandidates(context, _scheduler, isMoving);
+
+        if (inCombat && ActionService.CanExecuteOgcd)
+        {
+            foreach (var module in _modules)
+                if (module.TryExecute(context, isMoving)) return;
+            _scheduler.DispatchOgcd(context);
+        }
+
+        if (ActionService.CanExecuteGcd)
+        {
+            foreach (var module in _modules)
+                if (module.TryExecute(context, isMoving)) return;
+            _scheduler.DispatchGcd(context);
+        }
     }
 
     #endregion

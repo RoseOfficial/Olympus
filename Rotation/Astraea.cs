@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Dalamud.Game.ClientState.JobGauge;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -6,6 +7,7 @@ using Olympus.Data;
 using Olympus.Rotation.AstraeaCore.Context;
 using Olympus.Rotation.Common;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.AstraeaCore.Helpers;
 using Olympus.Rotation.AstraeaCore.Modules;
 using Olympus.Rotation.Base;
@@ -72,6 +74,9 @@ public sealed class Astraea : BaseHealerRotation<IAstraeaContext, IAstraeaModule
     // Modules (sorted by priority)
     private readonly List<IAstraeaModule> _modules;
 
+    // Scheduler
+    private readonly RotationScheduler _scheduler;
+
     public Astraea(
         IPluginLog log,
         IActionTracker actionTracker,
@@ -122,6 +127,9 @@ public sealed class Astraea : BaseHealerRotation<IAstraeaContext, IAstraeaModule
 
         // Initialize Astrologian-specific services
         _cardService = new CardTrackingService(jobGauges);
+
+        // Initialize scheduler
+        _scheduler = new RotationScheduler(actionService, jobGauges, configuration, timelineService, errorMetrics);
         _earthlyStarService = new EarthlyStarService(objectTable);
 
         // Initialize helpers
@@ -228,6 +236,39 @@ public sealed class Astraea : BaseHealerRotation<IAstraeaContext, IAstraeaModule
             trainingService: _trainingService,
             debugState: _debugState,
             log: Log);
+    }
+
+    /// <summary>
+    /// Scheduler-aware execution. Runs CollectCandidates per module (no-op for healer modules
+    /// until deep migration), then the authoritative legacy TryExecute priority chain. Scheduler
+    /// Dispatch calls are safe no-ops when no candidates are pushed.
+    /// </summary>
+    protected override void ExecuteModules(IAstraeaContext context, bool isMoving, bool inCombat)
+    {
+        if (Configuration.Targeting.PauseAllOnStandStillPunisher
+            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
+            return;
+        if (Configuration.Targeting.PauseOnPlayerChannel
+            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
+            return;
+
+        _scheduler.Reset();
+        foreach (var module in _modules)
+            module.CollectCandidates(context, _scheduler, isMoving);
+
+        if (inCombat && ActionService.CanExecuteOgcd)
+        {
+            foreach (var module in _modules)
+                if (module.TryExecute(context, isMoving)) return;
+            _scheduler.DispatchOgcd(context);
+        }
+
+        if (ActionService.CanExecuteGcd)
+        {
+            foreach (var module in _modules)
+                if (module.TryExecute(context, isMoving)) return;
+            _scheduler.DispatchGcd(context);
+        }
     }
 
     #endregion
