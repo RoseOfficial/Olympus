@@ -1,10 +1,13 @@
 using System.Collections.Generic;
+using Dalamud.Game.ClientState.JobGauge;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Rotation.Base;
 using Olympus.Rotation.Common;
+using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.ThemisCore.Context;
 using Olympus.Rotation.ThemisCore.Helpers;
 using Olympus.Rotation.ThemisCore.Modules;
@@ -23,8 +26,7 @@ using Olympus.Timeline;
 namespace Olympus.Rotation;
 
 /// <summary>
-/// Paladin rotation module (RSR-style reactive execution).
-/// Orchestrates modular execution: each module handles a specific concern.
+/// Paladin rotation module (scheduler-driven execution).
 /// Named after Themis, the Greek goddess of divine law and order.
 /// </summary>
 [Rotation("Themis", JobRegistry.Paladin, JobRegistry.Gladiator, Role = RotationRole.Tank)]
@@ -43,28 +45,20 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
     protected override List<IThemisModule> Modules => _modules;
 
     /// <summary>
-    /// Gets the Themis-specific debug state. Used for Paladin-specific debug display.
+    /// Gets the Themis-specific debug state.
     /// </summary>
     public ThemisDebugState ThemisDebug => _themisDebugState;
 
-    // Persistent debug state
     private readonly ThemisDebugState _themisDebugState = new();
-
-    // IRotation-compatible debug state (for common debug interface)
     private readonly DebugState _debugState = new();
-
-    // Helpers (shared across modules)
     private readonly ThemisStatusHelper _statusHelper;
     private readonly ThemisPartyHelper _partyHelper;
-
-    // Training
     private readonly ITrainingService? _trainingService;
-
-    // Burst window service
     private readonly IBurstWindowService? _burstWindowService;
-
-    // Modules (sorted by priority - lower = higher priority)
     private readonly List<IThemisModule> _modules;
+
+    // Scheduler (per-rotation, per-frame priority queue)
+    private readonly RotationScheduler _scheduler;
 
     public Themis(
         IPluginLog log,
@@ -82,6 +76,7 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
         IDebuffDetectionService debuffDetectionService,
         IEnmityService enmityService,
         ITankCooldownService tankCooldownService,
+        IJobGauges jobGauges,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
@@ -107,24 +102,27 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
             partyCoordinationService,
             errorMetrics)
     {
-        // Initialize training service
         _trainingService = trainingService;
         _burstWindowService = burstWindowService;
 
-        // Initialize helpers
+        _scheduler = new RotationScheduler(
+            actionService,
+            jobGauges,
+            configuration,
+            timelineService,
+            errorMetrics);
+
         _statusHelper = new ThemisStatusHelper();
         _partyHelper = new ThemisPartyHelper(objectTable, partyList);
 
-        // Initialize modules (ordered by priority - lower = executed first)
         _modules = new List<IThemisModule>
         {
-            new EnmityModule(),                          // Priority 5 - Enmity management is critical
-            new MitigationModule(),                      // Priority 10 - Stay alive
-            new BuffModule(_burstWindowService),         // Priority 20 - Buff management
-            new DamageModule(),                          // Priority 30 - DPS rotation
+            new EnmityModule(),
+            new MitigationModule(),
+            new BuffModule(_burstWindowService),
+            new DamageModule(),
         };
 
-        // Sort by priority
         _modules.Sort((a, b) => a.Priority.CompareTo(b.Priority));
     }
 
@@ -139,30 +137,24 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
     /// <inheritdoc />
     protected override int DetermineComboStep(uint comboAction, float comboTimer)
     {
-        // No combo active
         if (comboAction == 0 || comboTimer <= 0)
             return 0;
 
-        // Check for single-target combo
         if (comboAction == PLDActions.FastBlade.ActionId)
-            return 2; // Ready for Riot Blade
+            return 2;
 
         if (comboAction == PLDActions.RiotBlade.ActionId)
-            return 3; // Ready for Royal Authority / Rage of Halone
+            return 3;
 
-        // Check for AoE combo
         if (comboAction == PLDActions.TotalEclipse.ActionId)
-            return 2; // Ready for Prominence
+            return 2;
 
-        // Unknown combo action, restart
         return 0;
     }
 
     /// <inheritdoc />
     protected override void UpdateMpForecast(IPlayerCharacter player)
     {
-        // Tanks don't use Lucid Dreaming, so MP forecast is minimal
-        // Paladin uses MP for magic phase, but doesn't have regeneration buffs
         MpForecastService.Update(
             (int)player.CurrentMp,
             (int)player.MaxMp,
@@ -208,18 +200,43 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
     }
 
     /// <inheritdoc />
+    protected override void ExecuteModules(IThemisContext context, bool isMoving, bool inCombat)
+    {
+        // Preserve BaseRotation's safety pauses.
+        if (Configuration.Targeting.PauseAllOnStandStillPunisher
+            && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
+        {
+            return;
+        }
+        if (Configuration.Targeting.PauseOnPlayerChannel
+            && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
+        {
+            return;
+        }
+
+        _scheduler.Reset();
+        foreach (var module in _modules)
+        {
+            module.CollectCandidates(context, _scheduler, isMoving);
+        }
+
+        if (inCombat && ActionService.CanExecuteOgcd)
+        {
+            _scheduler.DispatchOgcd(context);
+        }
+        if (ActionService.CanExecuteGcd)
+        {
+            _scheduler.DispatchGcd(context);
+        }
+    }
+
+    /// <inheritdoc />
     protected override void SyncDebugState(IThemisContext context)
     {
-        // Map execution flow debug info (critical for troubleshooting)
-        // Format: "GCD:Ready Rem:0.00s Combat:True CanGCD:True Target:Striking Dummy"
         _debugState.PlanningState = $"GCD:{_themisDebugState.GcdState} Rem:{_themisDebugState.GcdRemaining:F2}s Combat:{_themisDebugState.InCombat} CanGCD:{_themisDebugState.CanExecuteGcd} Tgt:{_themisDebugState.CurrentTarget}";
-
-        // Map tank debug state to common debug state fields
         _debugState.PlannedAction = _themisDebugState.PlannedAction;
         _debugState.DpsState = _themisDebugState.DamageState;
         _debugState.DefensiveState = _themisDebugState.MitigationState;
-
-        // Party/player info
         _debugState.PlayerHpPercent = (float)context.Player.CurrentHp / context.Player.MaxHp;
         _debugState.PartyListCount = context.PartyList.Length;
     }

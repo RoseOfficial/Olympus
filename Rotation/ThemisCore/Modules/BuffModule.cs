@@ -2,6 +2,8 @@ using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
+using Olympus.Rotation.Common.Scheduling;
+using Olympus.Rotation.ThemisCore.Abilities;
 using Olympus.Rotation.ThemisCore.Context;
 using Olympus.Services;
 using Olympus.Services.Training;
@@ -38,59 +40,78 @@ public sealed class BuffModule : BaseTankBuffModule<IThemisContext>, IThemisModu
 
     #endregion
 
-    #region Overrides
+    public override bool TryExecute(IThemisContext context, bool isMoving) => false;
 
-    protected override bool TryJobSpecificBuffs(IThemisContext context)
+    public override void UpdateDebugState(IThemisContext context)
     {
-        // Priority 1: Fight or Flight (damage buff)
-        if (TryFightOrFlight(context))
-            return true;
-
-        // Priority 2: Requiescat (magic phase enabler)
-        if (TryRequiescat(context))
-            return true;
-
-        return false;
+        // Debug state updated during CollectCandidates
     }
 
-    #endregion
+    #region CollectCandidates (scheduler path)
 
-    #region Fight or Flight
-
-    private bool TryFightOrFlight(IThemisContext context)
+    public void CollectCandidates(IThemisContext context, RotationScheduler scheduler, bool isMoving)
     {
-        if (!context.Configuration.Tank.EnableFightOrFlight) return false;
+        if (!context.InCombat)
+        {
+            context.Debug.BuffState = "Not in combat";
+            return;
+        }
+
+        TryPushTankStance(context, scheduler);
+
+        if (!context.Configuration.Tank.EnableDamage)
+        {
+            context.Debug.BuffState = "Damage disabled";
+            return;
+        }
+
+        TryPushFightOrFlight(context, scheduler);
+        TryPushRequiescat(context, scheduler);
+    }
+
+    private void TryPushTankStance(IThemisContext context, RotationScheduler scheduler)
+    {
+        var player = context.Player;
+        if (player.Level < PLDActions.IronWill.MinLevel) return;
+        if (!context.Configuration.Tank.AutoTankStance)
+        {
+            context.Debug.BuffState = "AutoTankStance disabled";
+            return;
+        }
+        if (context.HasTankStance) return;
+        if (!context.ActionService.IsActionReady(PLDActions.IronWill.ActionId)) return;
+
+        scheduler.PushOgcd(ThemisAbilities.IronWill, player.GameObjectId, priority: 1,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = PLDActions.IronWill.Name;
+                context.Debug.BuffState = "Enabling Iron Will";
+            });
+    }
+
+    private void TryPushFightOrFlight(IThemisContext context, RotationScheduler scheduler)
+    {
+        if (!context.Configuration.Tank.EnableFightOrFlight) return;
 
         var player = context.Player;
         var level = player.Level;
 
-        if (level < PLDActions.FightOrFlight.MinLevel)
-            return false;
+        if (level < PLDActions.FightOrFlight.MinLevel) return;
 
-        // Don't use if already active
         if (context.HasFightOrFlight)
         {
             context.Debug.BuffState = $"FoF active ({context.FightOrFlightRemaining:F1}s)";
-            return false;
+            return;
         }
 
-        // Check if ready
-        if (!context.ActionService.IsActionReady(PLDActions.FightOrFlight.ActionId))
-            return false;
+        if (!context.ActionService.IsActionReady(PLDActions.FightOrFlight.ActionId)) return;
 
-        // Use Fight or Flight when:
-        // 1. We're about to do burst (combo is ready)
-        // 2. Not during magic phase (Requiescat active)
-        // 3. Target is available
-
-        // Don't use during Requiescat - it buffs physical damage
         if (context.HasRequiescat)
         {
             context.Debug.BuffState = "Waiting (Requiescat active)";
-            return false;
+            return;
         }
 
-        // Find a target to verify we're in combat
         var target = context.TargetingService.FindEnemyForAction(
             context.Configuration.Targeting.EnemyStrategy,
             PLDActions.FastBlade.ActionId,
@@ -99,76 +120,59 @@ public sealed class BuffModule : BaseTankBuffModule<IThemisContext>, IThemisModu
         if (target == null)
         {
             context.Debug.BuffState = "No target";
-            return false;
+            return;
         }
 
-        // Hold Fight or Flight if a burst window is imminent
         if (ShouldHoldForBurst(8f))
         {
             context.Debug.BuffState = "Holding Fight or Flight for burst";
-            return false;
+            return;
         }
 
-        // Optimal timing: Use at combo start or when Sword Oath stacks are available
-        // This ensures we get maximum GCDs under the buff
         var goodTiming = context.ComboStep <= 1 || context.HasSwordOath;
+        if (!goodTiming) return;
 
-        if (goodTiming)
-        {
-            if (context.ActionService.ExecuteOgcd(PLDActions.FightOrFlight, player.GameObjectId))
+        var targetName = target.Name?.TextValue;
+        var hasSwordOath = context.HasSwordOath;
+
+        scheduler.PushOgcd(ThemisAbilities.FightOrFlight, player.GameObjectId, priority: 2,
+            onDispatched: _ =>
             {
                 context.Debug.PlannedAction = PLDActions.FightOrFlight.Name;
                 context.Debug.BuffState = "Fight or Flight activated";
-
-                // Training: Record burst window activation
                 TrainingHelper.Decision(context.TrainingService)
                     .Action(PLDActions.FightOrFlight.ActionId, PLDActions.FightOrFlight.Name)
                     .AsTankBurst()
-                    .Target(target.Name?.TextValue)
+                    .Target(targetName)
                     .Reason(
-                        "Fight or Flight is your primary damage buff. Use it at the start of burst windows to maximize GCDs under its effect.",
-                        "Fight or Flight provides +25% physical damage for 20 seconds. Optimally, use it at combo start to get maximum physical GCDs under the buff.")
-                    .Factors(context.HasSwordOath ? "Sword Oath stacks available for Atonement chain" : "Combo at optimal position", "No conflicting buffs (Requiescat not active)", $"Target available: {target.Name?.TextValue}")
-                    .Alternatives("Wait for better combo position (may delay burst)", "Save for adds/phase transition (likely lose damage)")
-                    .Tip("Use Fight or Flight on cooldown at combo start. Don't hold it for 'better' times - the DPS loss from delaying usually outweighs any benefit.")
+                        "Fight or Flight is your primary damage buff. Use it at the start of burst windows.",
+                        "Fight or Flight provides +25% physical damage for 20 seconds.")
+                    .Factors(hasSwordOath ? "Sword Oath stacks available" : "Combo at optimal position", "Requiescat not active", $"Target: {targetName}")
+                    .Alternatives("Wait for better combo position", "Save for adds/phase transition (likely DPS loss)")
+                    .Tip("Use Fight or Flight on cooldown at combo start.")
                     .Concept("pld_fight_or_flight")
                     .Record();
-
                 context.TrainingService?.RecordConceptApplication("pld_fight_or_flight", true, "Activated at optimal timing");
-
-                return true;
-            }
-        }
-
-        return false;
+            });
     }
 
-    #endregion
-
-    #region Requiescat
-
-    private bool TryRequiescat(IThemisContext context)
+    private void TryPushRequiescat(IThemisContext context, RotationScheduler scheduler)
     {
-        if (!context.Configuration.Tank.EnableRequiescat) return false;
+        if (!context.Configuration.Tank.EnableRequiescat) return;
 
         var player = context.Player;
         var level = player.Level;
 
-        if (level < PLDActions.Requiescat.MinLevel)
-            return false;
+        if (level < PLDActions.Requiescat.MinLevel) return;
 
-        // Don't use if already active
         if (context.HasRequiescat)
         {
             context.Debug.BuffState = $"Requiescat active ({context.RequiescatStacks} stacks)";
-            return false;
+            return;
         }
 
-        // Check if ready
-        if (!context.ActionService.IsActionReady(PLDActions.Requiescat.ActionId))
-            return false;
+        if (!context.ActionService.IsActionReady(PLDActions.Requiescat.ActionId)) return;
 
-        // Find a target
         var target = context.TargetingService.FindEnemyForAction(
             context.Configuration.Targeting.EnemyStrategy,
             PLDActions.FastBlade.ActionId,
@@ -177,56 +181,51 @@ public sealed class BuffModule : BaseTankBuffModule<IThemisContext>, IThemisModu
         if (target == null)
         {
             context.Debug.BuffState = "No target for Requiescat";
-            return false;
+            return;
         }
 
-        // Use Requiescat when:
-        // 1. Fight or Flight is on cooldown or has less than 5s remaining
-        // 2. We have enough MP (though Requiescat makes spells free)
-        // 3. Not in the middle of a physical combo
-
-        // Ideal timing: After Fight or Flight window ends
         var fofOnCooldown = !context.ActionService.IsActionReady(PLDActions.FightOrFlight.ActionId);
         var fofAlmostOver = context.HasFightOrFlight && context.FightOrFlightRemaining < 5f;
         var comboReady = context.ComboStep <= 1;
 
-        // Hold Requiescat if a burst window is imminent
         if (ShouldHoldForBurst(8f))
         {
             context.Debug.BuffState = "Holding Requiescat for burst";
-            return false;
+            return;
         }
 
-        // Use when FoF is on cooldown and we're not mid-combo
-        if ((fofOnCooldown || fofAlmostOver) && comboReady)
-        {
-            if (context.ActionService.ExecuteOgcd(PLDActions.Requiescat, target.GameObjectId))
+        if (!((fofOnCooldown || fofAlmostOver) && comboReady)) return;
+
+        var targetName = target.Name?.TextValue;
+        var fofRemaining = context.FightOrFlightRemaining;
+
+        scheduler.PushOgcd(ThemisAbilities.Requiescat, target.GameObjectId, priority: 2,
+            onDispatched: _ =>
             {
                 context.Debug.PlannedAction = PLDActions.Requiescat.Name;
                 context.Debug.BuffState = "Requiescat activated";
-
-                // Training: Record magic phase activation
                 TrainingHelper.Decision(context.TrainingService)
                     .Action(PLDActions.Requiescat.ActionId, PLDActions.Requiescat.Name)
                     .AsTankBurst()
-                    .Target(target.Name?.TextValue)
+                    .Target(targetName)
                     .Reason(
-                        "Requiescat enables your magic phase. Use it after Fight or Flight ends to alternate between physical and magic burst windows.",
-                        "Requiescat grants 4 stacks that power Holy Spirit/Circle and enable the Confiteor combo. This is your secondary burst window.")
-                    .Factors(fofOnCooldown ? "Fight or Flight on cooldown" : $"Fight or Flight ending ({context.FightOrFlightRemaining:F1}s)", "Combo at good position for transition", $"Target available: {target.Name?.TextValue}")
-                    .Alternatives("Wait for Fight or Flight window (delays magic phase)", "Use immediately off cooldown (may conflict with physical burst)")
-                    .Tip("Alternate Fight or Flight and Requiescat windows. After FoF ends, use Requiescat to maintain constant burst phases.")
+                        "Requiescat enables magic phase. Use after Fight or Flight.",
+                        "Requiescat grants 4 stacks that power Holy Spirit/Circle and enable the Confiteor combo.")
+                    .Factors(fofOnCooldown ? "Fight or Flight on cooldown" : $"Fight or Flight ending ({fofRemaining:F1}s)", "Combo at good position", $"Target: {targetName}")
+                    .Alternatives("Wait for Fight or Flight window", "Use immediately off cooldown (may conflict with physical burst)")
+                    .Tip("Alternate Fight or Flight and Requiescat windows.")
                     .Concept("pld_requiescat")
                     .Record();
-
                 context.TrainingService?.RecordConceptApplication("pld_requiescat", true, "Activated after physical burst");
-
-                return true;
-            }
-        }
-
-        return false;
+            });
     }
+
+    #endregion
+
+    #region Legacy Abstract Overrides (unused in scheduler path but required by base class)
+
+    protected override bool TryJobSpecificBuffs(IThemisContext context) => false;
+    protected override bool TryJobSpecificResourceGeneration(IThemisContext context) => false;
 
     #endregion
 }
