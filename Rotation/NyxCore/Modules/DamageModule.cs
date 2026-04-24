@@ -848,8 +848,12 @@ public sealed class DamageModule : INyxModule
             }
         }
 
-        // Combo step 1: Syphon Strike
-        if (context.ComboStep == 1 && level >= DRKActions.SyphonStrike.MinLevel)
+        // Combo step 1: Syphon Strike. ComboStep == 1 is ambiguous — it is set by both
+        // Hard Slash (ST) and Unleash (AoE). The LastComboAction guard prevents firing
+        // Syphon Strike after Unleash (which would break the AoE combo).
+        if (context.ComboStep == 1 &&
+            context.LastComboAction == DRKActions.HardSlash.ActionId &&
+            level >= DRKActions.SyphonStrike.MinLevel)
         {
             if (context.ActionService.IsActionReady(DRKActions.SyphonStrike.ActionId))
             {
@@ -913,8 +917,12 @@ public sealed class DamageModule : INyxModule
         var player = context.Player;
         var level = player.Level;
 
-        // Combo step 1: Stalwart Soul
-        if (context.ComboStep == 1 && level >= DRKActions.StalwartSoul.MinLevel)
+        // Combo step 1: Stalwart Soul. ComboStep == 1 is ambiguous — it is set by both
+        // Hard Slash (ST) and Unleash (AoE). The LastComboAction guard prevents firing
+        // Stalwart Soul after Hard Slash (which would break the ST combo).
+        if (context.ComboStep == 1 &&
+            context.LastComboAction == DRKActions.Unleash.ActionId &&
+            level >= DRKActions.StalwartSoul.MinLevel)
         {
             if (context.ActionService.IsActionReady(DRKActions.StalwartSoul.ActionId))
             {

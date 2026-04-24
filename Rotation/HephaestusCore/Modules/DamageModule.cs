@@ -700,7 +700,12 @@ public sealed class DamageModule : IHephaestusModule
             return;
         }
 
-        if (context.ComboStep == 1 && level >= GNBActions.BrutalShell.MinLevel &&
+        // ComboStep == 1 is ambiguous — it is set by both Keen Edge (ST) and Demon Slice (AoE).
+        // The LastComboAction guard prevents firing Brutal Shell after Demon Slice (which would
+        // break the AoE combo and deal single-target damage instead).
+        if (context.ComboStep == 1 &&
+            context.LastComboAction == GNBActions.KeenEdge.ActionId &&
+            level >= GNBActions.BrutalShell.MinLevel &&
             context.ActionService.IsActionReady(GNBActions.BrutalShell.ActionId))
         {
             scheduler.PushGcd(GnbAbilities.BrutalShell, targetId, priority: 7,
@@ -758,7 +763,12 @@ public sealed class DamageModule : IHephaestusModule
     {
         var level = context.Player.Level;
 
-        if (context.ComboStep == 1 && level >= GNBActions.DemonSlaughter.MinLevel &&
+        // ComboStep == 1 is ambiguous — it is set by both Keen Edge (ST) and Demon Slice (AoE).
+        // The LastComboAction guard prevents firing Demon Slaughter after Keen Edge (which would
+        // break the ST combo and deal AoE damage on a single target at half potency).
+        if (context.ComboStep == 1 &&
+            context.LastComboAction == GNBActions.DemonSlice.ActionId &&
+            level >= GNBActions.DemonSlaughter.MinLevel &&
             context.ActionService.IsActionReady(GNBActions.DemonSlaughter.ActionId))
         {
             scheduler.PushGcd(GnbAbilities.DemonSlaughter, targetId, priority: 7,
