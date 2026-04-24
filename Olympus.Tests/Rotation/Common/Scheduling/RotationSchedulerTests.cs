@@ -310,11 +310,38 @@ public class RotationSchedulerTests
     }
 
     [Fact]
-    public void Dispatch_ActionOnCooldown_SkipsCandidate()
+    public void Dispatch_OgcdOnCooldown_SkipsCandidateViaPreGate()
     {
+        // Non-charge oGCDs on their own cooldown are rejected by the pre-gate.
+        // GetCurrentCharges (via IsActionReady) correctly reflects oGCD own-CD state
+        // because oGCDs are on their own cooldown groups, separate from the global GCD.
         var actionService = new Mock<IActionService>();
         actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(false);
         actionService.Setup(x => x.GetCooldownRemaining(It.IsAny<uint>())).Returns(3.2f);
+        var scheduler = Build(actionService);
+        var behavior = TestBehaviors.InstantOgcd(actionId: 9001);
+
+        var ctx = CreateContextWithPlayerLevel(80);
+        scheduler.PushOgcd(behavior, targetId: 0, priority: 10);
+
+        var result = scheduler.DispatchOgcd(ctx);
+
+        Assert.False(result.Dispatched);
+        Assert.Contains(result.GateFailReasons, r => r.Contains("Cooldown"));
+    }
+
+    [Fact]
+    public void Dispatch_GcdOnOwnCooldown_SkipsViaDispatchRejected()
+    {
+        // Non-charge GCDs bypass the pre-cooldown gate (because GetCurrentCharges returns
+        // 0 during the global GCD roll, which would falsely reject queue-window dispatches).
+        // A GCD that is actually on its own independent cooldown is rejected at dispatch
+        // time: ExecuteGcd returns false when UseAction rejects the action. The scheduler
+        // records "DispatchRejected" and moves to the next candidate.
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(false);
+        actionService.Setup(x => x.GetCooldownRemaining(It.IsAny<uint>())).Returns(3.2f);
+        actionService.Setup(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>())).Returns(false);
         var scheduler = Build(actionService);
         var behavior = TestBehaviors.InstantGcd(actionId: 9001);
 
@@ -324,7 +351,33 @@ public class RotationSchedulerTests
         var result = scheduler.DispatchGcd(ctx);
 
         Assert.False(result.Dispatched);
-        Assert.Contains(result.GateFailReasons, r => r.Contains("Cooldown"));
+        Assert.Contains(result.GateFailReasons, r => r.Contains("DispatchRejected"));
+    }
+
+    [Fact]
+    public void Dispatch_GcdInQueueWindow_DispatchesEvenWhenIsActionReadyFalse()
+    {
+        // Regression test for the scheduler queue-window bug: during the ~0.5s queue window
+        // the global GCD (group 57) is still rolling, which makes GetCurrentCharges (and
+        // thus IsActionReady) return 0 for plain GCDs. A pre-cooldown gate using IsActionReady
+        // would incorrectly reject these dispatches even though UseAction would accept them
+        // and queue the action for rollover. The scheduler skips the pre-gate for GCDs, so
+        // ExecuteGcd (which mirrors UseAction's queue-window semantics) gets to decide.
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(false); // global GCD rolling
+        actionService.Setup(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>())).Returns(true); // UseAction accepts queue-window
+        var scheduler = Build(actionService);
+        var behavior = TestBehaviors.InstantGcd(actionId: 9101);
+
+        var ctx = CreateContextWithPlayerLevel(80);
+        scheduler.PushGcd(behavior, targetId: 0, priority: 10);
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.True(result.Dispatched);
+        actionService.Verify(x => x.ExecuteGcd(
+            It.Is<ActionDefinition>(a => a.ActionId == 9101),
+            It.IsAny<ulong>()), Times.Once);
     }
 
     [Fact]

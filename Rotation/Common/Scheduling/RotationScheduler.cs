@@ -161,6 +161,21 @@ public sealed class RotationScheduler
             }
 
             // Gate: cooldown / charges
+            //
+            // ChargeSource: pre-check charges. Only failing when actually out of charges
+            // (GetCurrentCharges is stable across the global GCD roll for charge-based actions).
+            //
+            // Non-charge oGCDs: pre-check via IsActionReady. oGCDs have their own cooldown
+            // groups separate from the global GCD (group 57), so GetCurrentCharges reflects
+            // only the oGCD's own state.
+            //
+            // Non-charge GCDs: skip the pre-check. For plain GCDs on the global recast group,
+            // GetCurrentCharges returns 0 during the GCD roll — that would incorrectly reject
+            // valid queue-window dispatches (the server-side action queue accepts UseAction
+            // in the last ~0.5s of the GCD and fires the action on rollover). ExecuteGcd
+            // delegates to UseAction which handles the queue window correctly; if the GCD
+            // is on its own independent cooldown (Sonic Break, Gnashing Fang, etc.) UseAction
+            // returns false and we fall through to DispatchRejected at the bottom of the loop.
             if (candidate.Behavior.ChargeSource is { } chargeId)
             {
                 if (_actionService.GetCurrentCharges(chargeId) == 0)
@@ -169,7 +184,7 @@ public sealed class RotationScheduler
                     continue;
                 }
             }
-            else if (!_actionService.IsActionReady(effective.ActionId))
+            else if (isOgcd && !_actionService.IsActionReady(effective.ActionId))
             {
                 var remaining = _actionService.GetCooldownRemaining(effective.ActionId);
                 RecordFail(candidate, $"Cooldown {remaining:F1}s");
