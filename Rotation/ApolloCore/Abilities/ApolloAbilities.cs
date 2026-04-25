@@ -5,9 +5,7 @@ namespace Olympus.Rotation.ApolloCore.Abilities;
 
 /// <summary>
 /// Declarative <see cref="AbilityBehavior"/> for White Mage abilities pushed through
-/// the scheduler. Buff/defensive abilities remain on the legacy TryExecute path because
-/// they include ground-targeted abilities (Asylum, Liturgy of the Bell) that the
-/// scheduler cannot dispatch.
+/// the scheduler.
 /// </summary>
 public static class ApolloAbilities
 {
@@ -50,6 +48,8 @@ public static class ApolloAbilities
         Toggle = cfg => cfg.EnableHealing && cfg.Healing.EnableAssizeHealing,
     };
 
+    public static readonly AbilityBehavior AssizeBuff = new() { Action = WHMActions.Assize };
+
     // --- Healing GCDs ---
     public static readonly AbilityBehavior Cure = new() { Action = WHMActions.Cure };
     public static readonly AbilityBehavior CureII = new() { Action = WHMActions.CureII };
@@ -73,6 +73,22 @@ public static class ApolloAbilities
         Toggle = cfg => cfg.EnableHealing && cfg.Healing.EnableRegen,
     };
 
+    // --- Buff oGCDs ---
+    public static readonly AbilityBehavior ThinAir = new() { Action = WHMActions.ThinAir };
+    public static readonly AbilityBehavior PresenceOfMind = new() { Action = WHMActions.PresenceOfMind };
+    public static readonly AbilityBehavior Asylum = new() { Action = WHMActions.Asylum };
+    public static readonly AbilityBehavior LucidDreaming = new() { Action = RoleActions.LucidDreaming };
+    public static readonly AbilityBehavior Surecast = new() { Action = RoleActions.Surecast };
+    public static readonly AbilityBehavior AetherialShift = new() { Action = WHMActions.AetherialShift };
+
+    // --- Defensive oGCDs ---
+    public static readonly AbilityBehavior Temperance = new() { Action = WHMActions.Temperance };
+    public static readonly AbilityBehavior DivineCaress = new() { Action = WHMActions.DivineCaress };
+    public static readonly AbilityBehavior PlenaryIndulgence = new() { Action = WHMActions.PlenaryIndulgence };
+    public static readonly AbilityBehavior DivineBenison = new() { Action = WHMActions.DivineBenison };
+    public static readonly AbilityBehavior Aquaveil = new() { Action = WHMActions.Aquaveil };
+    public static readonly AbilityBehavior LiturgyOfTheBell = new() { Action = WHMActions.LiturgyOfTheBell };
+
     // --- Damage GCDs ---
     public static readonly AbilityBehavior AfflatusMisery = new()
     {
@@ -86,9 +102,7 @@ public static class ApolloAbilities
         Toggle = cfg => cfg.EnableDamage && cfg.Damage.EnableGlareIV,
     };
 
-    // Single-target damage and AoE damage are picked by level via GetDamageGcdForLevel /
-    // GetAoEDamageGcdForLevel; the module pushes them with the resolved ActionDefinition
-    // wrapped in an inline AbilityBehavior, so no static declarations needed for those.
-
-    // DoTs: same — Aero/AeroII/Dia is selected by level, action chosen at push time.
+    // Single-target damage, AoE, and DoT actions are level-resolved at push time
+    // (Stone/Glare, Holy/HolyIII, Aero/AeroII/Dia). Modules construct an inline
+    // AbilityBehavior { Action = action } when pushing.
 }

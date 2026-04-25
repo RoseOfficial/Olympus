@@ -143,11 +143,11 @@ public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
     }
 
     /// <summary>
-    /// Scheduler-driven execution. CollectCandidates pushes from migrated modules
-    /// (Resurrection, Healing, Damage). Scheduler dispatches first; if it picks no
-    /// winner, the legacy TryExecute fallback runs Buff/Defensive (which contain
-    /// ground-targeted abilities Asylum and Liturgy of the Bell that the scheduler
-    /// cannot dispatch).
+    /// Fully scheduler-driven execution. All modules push candidates; scheduler
+    /// dispatches the highest-priority candidate from each queue. Resurrection (1-2),
+    /// Healing (10-80), Defensive (90-130), Buff (200-250), Damage push priorities
+    /// preserve the legacy module ordering. Damage stays on legacy TryExecute as a
+    /// side effect (BlocksOnExecution = false).
     /// </summary>
     protected override void ExecuteModules(IApolloContext context, bool isMoving, bool inCombat)
     {
@@ -164,22 +164,18 @@ public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
 
         if (inCombat && ActionService.CanExecuteOgcd)
         {
-            var dispatched = _scheduler.DispatchOgcd(context).Dispatched;
-            if (!dispatched)
-            {
-                foreach (var module in _modules)
-                    if (module.TryExecute(context, isMoving)) return;
-            }
+            if (_scheduler.DispatchOgcd(context).Dispatched) return;
+            // DamageModule still uses legacy TryExecute (no migration value — its
+            // BlocksOnExecution = false means it never breaks the loop anyway).
+            foreach (var module in _modules)
+                if (module.TryExecute(context, isMoving)) return;
         }
 
         if (ActionService.CanExecuteGcd)
         {
-            var dispatched = _scheduler.DispatchGcd(context).Dispatched;
-            if (!dispatched)
-            {
-                foreach (var module in _modules)
-                    if (module.TryExecute(context, isMoving)) return;
-            }
+            if (_scheduler.DispatchGcd(context).Dispatched) return;
+            foreach (var module in _modules)
+                if (module.TryExecute(context, isMoving)) return;
         }
     }
 }

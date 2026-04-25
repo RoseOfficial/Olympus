@@ -4,24 +4,24 @@ using System.Numerics;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using Olympus.Config;
 using Olympus.Data;
+using Olympus.Rotation.ApolloCore.Abilities;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Party;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ApolloCore.Modules;
 
 /// <summary>
-/// Handles all defensive cooldowns for the WHM rotation.
-/// Includes Temperance, Divine Caress, Plenary Indulgence, Divine Benison, Aquaveil, Liturgy of the Bell.
+/// Handles all defensive cooldowns for the WHM rotation (scheduler-driven).
 /// </summary>
 public sealed class DefensiveModule : IApolloModule
 {
-    public int Priority => 20; // Medium-high priority for defensive cooldowns
+    public int Priority => 20;
     public string Name => "Defensive";
 
-    // Training explanation arrays
     private static readonly string[] _liturgyOfTheBellAlternatives =
     {
         "Temperance (mitigation + healing boost)",
@@ -29,45 +29,27 @@ public sealed class DefensiveModule : IApolloModule
         "Save for bigger damage phase",
     };
 
-    public bool TryExecute(IApolloContext context, bool isMoving)
+    public bool TryExecute(IApolloContext context, bool isMoving) => false;
+
+    public void CollectCandidates(IApolloContext context, RotationScheduler scheduler, bool isMoving)
     {
-        if (!context.CanExecuteOgcd || !context.InCombat)
-            return false;
+        if (!context.InCombat) return;
 
         var (avgHpPercent, _, injuredCount) = context.PartyHealthMetrics;
 
-        // Divine Caress is auto-triggered when Divine Grace (from Temperance) is active
-        if (TryExecuteDivineCaress(context))
-            return true;
-
-        // Temperance: Major raid cooldown
-        if (TryExecuteTemperance(context, avgHpPercent, injuredCount))
-            return true;
-
-        // Plenary Indulgence: 10% damage reduction, synergizes with AoE heals
-        if (TryExecutePlenaryIndulgence(context, injuredCount))
-            return true;
-
-        // Divine Benison: Shield tank proactively
-        if (TryExecuteDivineBenison(context))
-            return true;
-
-        // Aquaveil: Damage reduction on tank
-        if (TryExecuteAquaveil(context))
-            return true;
-
-        // Liturgy of the Bell: Ground-targeted reactive healer
-        if (TryExecuteLiturgyOfTheBell(context, injuredCount))
-            return true;
+        TryPushDivineCaress(context, scheduler);
+        TryPushTemperance(context, scheduler, avgHpPercent, injuredCount);
+        TryPushPlenaryIndulgence(context, scheduler, injuredCount);
+        TryPushDivineBenison(context, scheduler);
+        TryPushAquaveil(context, scheduler);
+        TryPushLiturgyOfTheBell(context, scheduler, injuredCount);
 
         context.Debug.DefensiveState = $"Idle (avg HP {avgHpPercent:P0}, {injuredCount} injured)";
-        return false;
     }
 
     public void UpdateDebugState(IApolloContext context)
     {
-        if (!context.InCombat)
-            return;
+        if (!context.InCombat) return;
 
         var player = context.Player;
         var config = context.Configuration;
@@ -76,15 +58,10 @@ public sealed class DefensiveModule : IApolloModule
         var partyDamageRate = context.DamageIntakeService.GetPartyMemberDamageRate(partyEntityIds, 5f);
         var dmgRateStr = partyDamageRate > 0 ? $", DPS {partyDamageRate:F0}" : "";
 
-        // Update Temperance state
         if (!config.EnableHealing || !config.Defensive.EnableTemperance)
-        {
             context.Debug.TemperanceState = "Disabled";
-        }
         else if (player.Level < WHMActions.Temperance.MinLevel)
-        {
             context.Debug.TemperanceState = $"Level {player.Level} < {WHMActions.Temperance.MinLevel}";
-        }
         else if (!context.ActionService.IsActionReady(WHMActions.Temperance.ActionId))
         {
             var cd = context.ActionService.GetCooldownRemaining(WHMActions.Temperance.ActionId);
@@ -97,7 +74,6 @@ public sealed class DefensiveModule : IApolloModule
             var effectiveThreshold = highDamageIntake
                 ? config.Defensive.DefensiveCooldownThreshold + 0.10f
                 : config.Defensive.DefensiveCooldownThreshold;
-
             var shouldUse = injuredCount >= 3 || avgHpPercent < effectiveThreshold || highDamageIntake;
             context.Debug.TemperanceState = shouldUse
                 ? $"Ready ({injuredCount} injured, avg HP {avgHpPercent:P0}{dmgRateStr})"
@@ -107,77 +83,53 @@ public sealed class DefensiveModule : IApolloModule
         context.Debug.DefensiveState = $"Monitoring (avg HP {avgHpPercent:P0}, {injuredCount} injured{dmgRateStr})";
     }
 
-    private bool TryExecuteDivineCaress(IApolloContext context)
+    private void TryPushDivineCaress(IApolloContext context, RotationScheduler scheduler)
     {
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableHealing || !config.Defensive.EnableDivineCaress)
-            return false;
+        if (!config.EnableHealing || !config.Defensive.EnableDivineCaress) return;
+        if (player.Level < WHMActions.DivineCaress.MinLevel) return;
+        if (!StatusHelper.HasDivineGrace(player)) return;
+        if (!context.ActionService.IsActionReady(WHMActions.DivineCaress.ActionId)) return;
 
-        if (player.Level < WHMActions.DivineCaress.MinLevel)
-            return false;
-
-        if (!StatusHelper.HasDivineGrace(player))
-            return false;
-
-        if (!context.ActionService.IsActionReady(WHMActions.DivineCaress.ActionId))
-            return false;
-
-        if (ActionExecutor.ExecuteOgcd(context, WHMActions.DivineCaress, player.GameObjectId,
-            player.Name?.TextValue ?? "Unknown", player.CurrentHp))
-        {
-            context.Debug.DefensiveState = "Divine Caress (triggered)";
-            return true;
-        }
-
-        return false;
+        scheduler.PushOgcd(ApolloAbilities.DivineCaress, player.GameObjectId, priority: 90,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = WHMActions.DivineCaress.Name;
+                context.Debug.DefensiveState = "Divine Caress (triggered)";
+            });
     }
 
-    private unsafe bool TryExecuteTemperance(IApolloContext context, float avgHpPercent, int injuredCount)
+    private unsafe void TryPushTemperance(IApolloContext context, RotationScheduler scheduler, float avgHpPercent, int injuredCount)
     {
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableHealing || !config.Defensive.EnableTemperance)
-        {
-            context.Debug.TemperanceState = "Disabled";
-            return false;
-        }
-
+        if (!config.EnableHealing || !config.Defensive.EnableTemperance) { context.Debug.TemperanceState = "Disabled"; return; }
         if (player.Level < WHMActions.Temperance.MinLevel)
         {
             context.Debug.TemperanceState = $"Level {player.Level} < {WHMActions.Temperance.MinLevel}";
-            return false;
+            return;
         }
-
         if (!context.ActionService.IsActionReady(WHMActions.Temperance.ActionId))
         {
             var cd = context.ActionService.GetCooldownRemaining(WHMActions.Temperance.ActionId);
             context.Debug.TemperanceState = $"CD {cd:F1}s";
-            return false;
+            return;
         }
 
-        // Calculate party damage rate for dynamic thresholds (filtered to party members only)
         var partyEntityIds = context.PartyHelper.GetAllPartyMembers(context.Player).Select(m => m.EntityId);
         var partyDamageRate = context.DamageIntakeService.GetPartyMemberDamageRate(partyEntityIds, 5f);
         var highDamageIntake = config.Defensive.UseDynamicDefensiveThresholds &&
                                partyDamageRate >= config.Defensive.DamageSpikeTriggerRate;
-
-        // Check damage trend for proactive Temperance usage
         var damageSpikeImminent = config.Defensive.UseTemperanceTrendAnalysis &&
                                   context.DamageTrendService.IsDamageSpikeImminent(0.8f);
-
-        // Check timeline/pattern detector for predicted raidwide (unified API)
         var raidwideImminent = TimelineHelper.IsRaidwideImminent(
-            context.TimelineService,
-            context.BossMechanicDetector,
-            config,
-            out var raidwideSource);
+            context.TimelineService, context.BossMechanicDetector, config, out var raidwideSource);
 
-        // Standard threshold or lowered threshold during high damage
         var effectiveThreshold = highDamageIntake || damageSpikeImminent || raidwideImminent
-            ? config.Defensive.DefensiveCooldownThreshold + 0.10f  // More proactive during damage spike
+            ? config.Defensive.DefensiveCooldownThreshold + 0.10f
             : config.Defensive.DefensiveCooldownThreshold;
 
         var shouldUse = injuredCount >= 3 ||
@@ -190,19 +142,17 @@ public sealed class DefensiveModule : IApolloModule
         {
             var dmgRateStr = partyDamageRate > 0 ? $", DPS {partyDamageRate:F0}" : "";
             context.Debug.TemperanceState = $"Waiting ({injuredCount} injured, avg HP {avgHpPercent:P0}{dmgRateStr})";
-            return false;
+            return;
         }
 
-        // Check if another instance recently used a party mitigation (cooldown coordination)
         var partyCoord = context.PartyCoordinationService;
         if (config.PartyCoordination.EnableCooldownCoordination &&
             partyCoord?.WasPartyMitigationUsedRecently(config.PartyCoordination.CooldownOverlapWindowSeconds) == true)
         {
             context.Debug.TemperanceState = "Skipped (remote mit active)";
-            return false;
+            return;
         }
 
-        // Burst awareness: Delay mitigations during burst windows unless emergency
         if (config.PartyCoordination.EnableHealerBurstAwareness &&
             config.PartyCoordination.DelayMitigationsDuringBurst &&
             partyCoord != null)
@@ -211,11 +161,10 @@ public sealed class DefensiveModule : IApolloModule
             if (burstState.IsActive && avgHpPercent > config.Healing.GcdEmergencyThreshold)
             {
                 context.Debug.TemperanceState = $"Delayed (burst active, {burstState.SecondsRemaining:F1}s remaining)";
-                return false;
+                return;
             }
         }
 
-        // Check action status before attempting execution
         var actionManager = ActionManager.Instance();
         if (actionManager is not null)
         {
@@ -223,386 +172,346 @@ public sealed class DefensiveModule : IApolloModule
             if (status != 0)
             {
                 context.Debug.TemperanceState = $"Blocked (status={status})";
-                return false;
+                return;
             }
         }
 
-        var execDmgRateStr = partyDamageRate > 0 ? $", DPS {partyDamageRate:F0}" : "";
-        context.Debug.TemperanceState = $"Executing ({injuredCount} injured, avg HP {avgHpPercent:P0}{execDmgRateStr})";
+        var capturedAvgHp = avgHpPercent;
+        var capturedInjured = injuredCount;
+        var capturedDamageRate = partyDamageRate;
+        var capturedRaidwideImminent = raidwideImminent;
+        var capturedDamageSpikeImminent = damageSpikeImminent;
+        var capturedHighDamageIntake = highDamageIntake;
+        var capturedRaidwideSource = raidwideSource;
+        var capturedEffectiveThreshold = effectiveThreshold;
 
-        if (ActionExecutor.ExecuteOgcd(context, WHMActions.Temperance, player.GameObjectId,
-            player.Name?.TextValue ?? "Unknown", player.CurrentHp))
-        {
-            var reason = raidwideImminent ? $"raidwide predicted ({raidwideSource})" :
-                         damageSpikeImminent ? "spike imminent" :
-                         highDamageIntake ? "damage spike" : $"{injuredCount} injured";
-            context.Debug.DefensiveState = $"Temperance ({reason}, avg HP {avgHpPercent:P0})";
-            partyCoord?.OnCooldownUsed(WHMActions.Temperance.ActionId, 120_000);
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushOgcd(ApolloAbilities.Temperance, player.GameObjectId, priority: 80,
+            onDispatched: _ =>
             {
-                var shortReason = raidwideImminent
-                    ? $"Pre-raidwide Temperance ({raidwideSource})"
-                    : $"Temperance - {injuredCount} injured, {avgHpPercent:P0} avg HP";
+                var execDmgRateStr = capturedDamageRate > 0 ? $", DPS {capturedDamageRate:F0}" : "";
+                var reason = capturedRaidwideImminent ? $"raidwide predicted ({capturedRaidwideSource})" :
+                             capturedDamageSpikeImminent ? "spike imminent" :
+                             capturedHighDamageIntake ? "damage spike" : $"{capturedInjured} injured";
+                context.Debug.PlannedAction = WHMActions.Temperance.Name;
+                context.Debug.TemperanceState = $"Executing ({capturedInjured} injured, avg HP {capturedAvgHp:P0}{execDmgRateStr})";
+                context.Debug.DefensiveState = $"Temperance ({reason}, avg HP {capturedAvgHp:P0})";
+                partyCoord?.OnCooldownUsed(WHMActions.Temperance.ActionId, 120_000);
 
-                var factors = new[]
+                if (context.TrainingService?.IsTrainingEnabled == true)
                 {
-                    $"Party average HP: {avgHpPercent:P0}",
-                    $"Injured count: {injuredCount}",
-                    $"Party damage rate: {partyDamageRate:F0} DPS",
-                    $"Effective threshold: {effectiveThreshold:P0}",
-                    raidwideImminent ? $"Raidwide predicted via {raidwideSource}" :
-                    damageSpikeImminent ? "Damage spike imminent (trend analysis)" :
-                    highDamageIntake ? "High party damage intake detected" :
-                    "Multiple party members injured",
-                };
+                    var shortReason = capturedRaidwideImminent
+                        ? $"Pre-raidwide Temperance ({capturedRaidwideSource})"
+                        : $"Temperance - {capturedInjured} injured, {capturedAvgHp:P0} avg HP";
 
-                var alternatives = raidwideImminent
-                    ? new[] { "Liturgy of the Bell (reactive healing)", "Save for later raidwide" }
-                    : new[] { "AoE heals instead", "Wait for better timing", "Save for emergency" };
+                    var factors = new[]
+                    {
+                        $"Party average HP: {capturedAvgHp:P0}",
+                        $"Injured count: {capturedInjured}",
+                        $"Party damage rate: {capturedDamageRate:F0} DPS",
+                        $"Effective threshold: {capturedEffectiveThreshold:P0}",
+                        capturedRaidwideImminent ? $"Raidwide predicted via {capturedRaidwideSource}" :
+                        capturedDamageSpikeImminent ? "Damage spike imminent (trend analysis)" :
+                        capturedHighDamageIntake ? "High party damage intake detected" :
+                        "Multiple party members injured",
+                    };
 
-                var tip = raidwideImminent
-                    ? "Using Temperance BEFORE raidwides provides both mitigation and healing boost - maximize value!"
-                    : "Temperance is your major raid cooldown - don't hold it forever, but use it when the party needs help!";
+                    var alternatives = capturedRaidwideImminent
+                        ? new[] { "Liturgy of the Bell (reactive healing)", "Save for later raidwide" }
+                        : new[] { "AoE heals instead", "Wait for better timing", "Save for emergency" };
 
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = WHMActions.Temperance.ActionId,
-                    ActionName = "Temperance",
-                    Category = "Defensive",
-                    TargetName = "Party",
-                    ShortReason = shortReason,
-                    DetailedReason = $"Temperance provides 10% damage reduction and 20% healing boost for 20 seconds. Used because {reason}. Party average HP was {avgHpPercent:P0} with {injuredCount} injured members.",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = tip,
-                    ConceptId = WhmConcepts.TemperanceUsage,
-                    Priority = raidwideImminent || damageSpikeImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
-                });
-            }
+                    var tip = capturedRaidwideImminent
+                        ? "Using Temperance BEFORE raidwides provides both mitigation and healing boost - maximize value!"
+                        : "Temperance is your major raid cooldown - don't hold it forever, but use it when the party needs help!";
 
-            return true;
-        }
-
-        context.Debug.TemperanceState = "UseAction failed";
-        return false;
+                    context.TrainingService.RecordDecision(new ActionExplanation
+                    {
+                        Timestamp = DateTime.UtcNow,
+                        ActionId = WHMActions.Temperance.ActionId,
+                        ActionName = "Temperance",
+                        Category = "Defensive",
+                        TargetName = "Party",
+                        ShortReason = shortReason,
+                        DetailedReason = $"Temperance provides 10% damage reduction and 20% healing boost for 20 seconds. Used because {reason}. Party average HP was {capturedAvgHp:P0} with {capturedInjured} injured members.",
+                        Factors = factors,
+                        Alternatives = alternatives,
+                        Tip = tip,
+                        ConceptId = WhmConcepts.TemperanceUsage,
+                        Priority = capturedRaidwideImminent || capturedDamageSpikeImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
+                    });
+                }
+            });
     }
 
-    private bool TryExecutePlenaryIndulgence(IApolloContext context, int injuredCount)
+    private void TryPushPlenaryIndulgence(IApolloContext context, RotationScheduler scheduler, int injuredCount)
     {
         var config = context.Configuration;
         var player = context.Player;
 
         if (!ActionValidator.CanExecute(player, context.ActionService, WHMActions.PlenaryIndulgence, config,
             c => c.EnableHealing && c.Defensive.EnablePlenaryIndulgence))
-            return false;
+            return;
 
         var shouldUse = config.Defensive.UseDefensivesWithAoEHeals && injuredCount >= config.Healing.AoEHealMinTargets;
+        if (!shouldUse) return;
 
-        if (!shouldUse)
-            return false;
+        var capturedInjured = injuredCount;
 
-        if (ActionExecutor.ExecuteOgcd(context, WHMActions.PlenaryIndulgence, player.GameObjectId,
-            player.Name?.TextValue ?? "Unknown", player.CurrentHp))
-        {
-            context.Debug.DefensiveState = $"Plenary Indulgence ({injuredCount} injured, pre-AoE heal)";
-            return true;
-        }
-
-        return false;
+        scheduler.PushOgcd(ApolloAbilities.PlenaryIndulgence, player.GameObjectId, priority: 100,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = WHMActions.PlenaryIndulgence.Name;
+                context.Debug.DefensiveState = $"Plenary Indulgence ({capturedInjured} injured, pre-AoE heal)";
+            });
     }
 
-    private bool TryExecuteDivineBenison(IApolloContext context)
+    private void TryPushDivineBenison(IApolloContext context, RotationScheduler scheduler)
     {
         var config = context.Configuration;
         var player = context.Player;
 
         if (!ActionValidator.CanExecute(player, context.ActionService, WHMActions.DivineBenison, config,
             c => c.EnableHealing && c.Defensive.EnableDivineBenison))
-            return false;
+            return;
 
-        // Get charge information for smarter usage
         var currentCharges = context.ActionService.GetCurrentCharges(WHMActions.DivineBenison.ActionId);
         var maxCharges = context.ActionService.GetMaxCharges(WHMActions.DivineBenison.ActionId, 0);
         var isAtMaxCharges = currentCharges >= maxCharges && maxCharges > 0;
 
         var tank = context.PartyHelper.FindTankInParty(player);
-        if (tank is null)
-            return false;
-
-        if (StatusHelper.HasStatus(tank, StatusHelper.StatusIds.DivineBenison))
-            return false;
-
-        if (Vector3.DistanceSquared(player.Position, tank.Position) >
-            WHMActions.DivineBenison.RangeSquared)
-            return false;
+        if (tank is null) return;
+        if (StatusHelper.HasStatus(tank, StatusHelper.StatusIds.DivineBenison)) return;
+        if (Vector3.DistanceSquared(player.Position, tank.Position) > WHMActions.DivineBenison.RangeSquared) return;
 
         var tankHpPct = context.PartyHelper.GetHpPercent(tank);
         var tankDamageRate = context.DamageIntakeService.GetDamageRate(tank.EntityId, 3f);
 
-        // Proactive application: Apply if tank is taking significant sustained damage
-        // even if HP is still high (anticipate tank buster)
         var shouldApplyProactively = config.Defensive.EnableProactiveCooldowns &&
                                      tankDamageRate >= config.Defensive.ProactiveBenisonDamageRate;
 
-        // Check timeline/pattern detector for predicted tank buster (unified API)
         var tankBusterImminent = TimelineHelper.IsTankBusterImminent(
-            context.TimelineService,
-            context.BossMechanicDetector,
-            config,
-            out var tankBusterSource);
-        // For pattern-based detection, also check if this is the correct tank
+            context.TimelineService, context.BossMechanicDetector, config, out var tankBusterSource);
         var shouldApplyForTankBuster = tankBusterImminent &&
             (tankBusterSource == "Timeline" ||
              context.BossMechanicDetector?.PredictedTankBuster?.TargetTankEntityId == tank.EntityId);
 
-        // Standard application thresholds based on charge count
-        // At max charges: Apply more freely (98% HP) to avoid wasting charge regen
-        // Normal: Apply if tank HP below 95%
         var hpThreshold = isAtMaxCharges ? 0.98f : 0.95f;
         var shouldApplyStandard = tankHpPct < hpThreshold;
-
-        // At max charges, also consider applying if tank is taking any damage at all
         var shouldApplyToAvoidCap = isAtMaxCharges && tankDamageRate > 0;
 
         if (!shouldApplyProactively && !shouldApplyStandard && !shouldApplyToAvoidCap && !shouldApplyForTankBuster)
-            return false;
+            return;
 
-        var tankName = tank.Name?.TextValue ?? "Unknown";
-        if (ActionExecutor.ExecuteOgcd(context, WHMActions.DivineBenison, tank.GameObjectId,
-            tankName, tank.CurrentHp))
-        {
-            var chargeInfo = $"{currentCharges}/{maxCharges}";
-            string reason;
-            string logReason;
+        var capturedTank = tank;
+        var capturedTankHpPct = tankHpPct;
+        var capturedTankDamageRate = tankDamageRate;
+        var capturedShouldApplyProactively = shouldApplyProactively;
+        var capturedShouldApplyForTankBuster = shouldApplyForTankBuster;
+        var capturedShouldApplyToAvoidCap = shouldApplyToAvoidCap;
+        var capturedShouldApplyStandard = shouldApplyStandard;
+        var capturedTankBusterSource = tankBusterSource;
+        var capturedChargeInfo = $"{currentCharges}/{maxCharges}";
+        var capturedHpThreshold = hpThreshold;
 
-            if (shouldApplyForTankBuster)
+        scheduler.PushOgcd(ApolloAbilities.DivineBenison, tank.GameObjectId, priority: 110,
+            onDispatched: _ =>
             {
-                var tbPrediction = TimelineHelper.GetNextTankBuster(
-                    context.TimelineService, context.BossMechanicDetector, config);
-                var secondsUntil = tbPrediction?.secondsUntil ?? 0;
-                reason = $"tank buster in {secondsUntil:F1}s ({tankBusterSource}) ({chargeInfo})";
-                logReason = $"Tank buster predicted ({tankBusterSource}) ({chargeInfo})";
-            }
-            else if (shouldApplyToAvoidCap && !shouldApplyProactively && !shouldApplyStandard)
-            {
-                reason = $"avoiding cap ({chargeInfo} charges)";
-                logReason = $"At max charges - using to avoid cap ({chargeInfo})";
-            }
-            else if (shouldApplyProactively)
-            {
-                reason = $"proactive, DPS {tankDamageRate:F0} ({chargeInfo})";
-                logReason = $"Proactive (high damage rate) ({chargeInfo})";
-            }
-            else
-            {
-                reason = $"{tankHpPct:P0} HP ({chargeInfo})";
-                logReason = $"Standard (HP threshold) ({chargeInfo})";
-            }
+                var tankName = capturedTank.Name?.TextValue ?? "Unknown";
+                string reason;
+                string logReason;
 
-            context.Debug.DefensiveState = $"Divine Benison on {tankName} ({reason})";
-
-            // Log defensive decision
-            context.LogDefensiveDecision(
-                tankName,
-                tankHpPct,
-                "Divine Benison",
-                tankDamageRate,
-                logReason);
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
-            {
-                var shortReason = shouldApplyForTankBuster
-                    ? $"Pre-tankbuster shield on {tankName}"
-                    : shouldApplyToAvoidCap
-                        ? $"Avoiding charge cap on {tankName}"
-                        : $"Shield on {tankName} at {tankHpPct:P0}";
-
-                var factors = new[]
+                if (capturedShouldApplyForTankBuster)
                 {
-                    $"Tank HP: {tankHpPct:P0}",
-                    $"Tank damage rate: {tankDamageRate:F0} DPS",
-                    $"Charges: {chargeInfo}",
-                    shouldApplyForTankBuster ? $"Tank buster predicted via {tankBusterSource}" :
-                    shouldApplyToAvoidCap ? "At max charges - avoiding waste" :
-                    shouldApplyProactively ? "High sustained damage on tank" :
-                    $"HP below {hpThreshold:P0} threshold",
-                };
-
-                var alternatives = shouldApplyForTankBuster
-                    ? new[] { "Aquaveil (longer mitigation)", "Save for next tank buster" }
-                    : new[] { "Hold for tank buster", "Use on different target" };
-
-                var tip = shouldApplyForTankBuster
-                    ? "Divine Benison before tank busters provides a solid shield - stack with other mitigations!"
-                    : "Divine Benison has charges - don't let them cap! Use proactively on the tank.";
-
-                context.TrainingService.RecordDecision(new ActionExplanation
+                    var tbPrediction = TimelineHelper.GetNextTankBuster(
+                        context.TimelineService, context.BossMechanicDetector, config);
+                    var secondsUntil = tbPrediction?.secondsUntil ?? 0;
+                    reason = $"tank buster in {secondsUntil:F1}s ({capturedTankBusterSource}) ({capturedChargeInfo})";
+                    logReason = $"Tank buster predicted ({capturedTankBusterSource}) ({capturedChargeInfo})";
+                }
+                else if (capturedShouldApplyToAvoidCap && !capturedShouldApplyProactively && !capturedShouldApplyStandard)
                 {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = WHMActions.DivineBenison.ActionId,
-                    ActionName = "Divine Benison",
-                    Category = "Defensive",
-                    TargetName = tankName,
-                    ShortReason = shortReason,
-                    DetailedReason = $"Divine Benison provides a 500 potency shield on {tankName}. {(shouldApplyForTankBuster ? $"Used proactively before predicted tank buster ({tankBusterSource}). " : shouldApplyToAvoidCap ? "Used to avoid wasting charge regeneration. " : "")}Tank HP: {tankHpPct:P0}, damage rate: {tankDamageRate:F0} DPS. Charges: {chargeInfo}.",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = tip,
-                    ConceptId = WhmConcepts.DivineBenisonUsage,
-                    Priority = shouldApplyForTankBuster ? ExplanationPriority.High : ExplanationPriority.Normal,
-                });
-            }
+                    reason = $"avoiding cap ({capturedChargeInfo} charges)";
+                    logReason = $"At max charges - using to avoid cap ({capturedChargeInfo})";
+                }
+                else if (capturedShouldApplyProactively)
+                {
+                    reason = $"proactive, DPS {capturedTankDamageRate:F0} ({capturedChargeInfo})";
+                    logReason = $"Proactive (high damage rate) ({capturedChargeInfo})";
+                }
+                else
+                {
+                    reason = $"{capturedTankHpPct:P0} HP ({capturedChargeInfo})";
+                    logReason = $"Standard (HP threshold) ({capturedChargeInfo})";
+                }
 
-            return true;
-        }
+                context.Debug.PlannedAction = WHMActions.DivineBenison.Name;
+                context.Debug.DefensiveState = $"Divine Benison on {tankName} ({reason})";
+                context.LogDefensiveDecision(tankName, capturedTankHpPct, "Divine Benison", capturedTankDamageRate, logReason);
 
-        return false;
+                if (context.TrainingService?.IsTrainingEnabled == true)
+                {
+                    var shortReason = capturedShouldApplyForTankBuster
+                        ? $"Pre-tankbuster shield on {tankName}"
+                        : capturedShouldApplyToAvoidCap
+                            ? $"Avoiding charge cap on {tankName}"
+                            : $"Shield on {tankName} at {capturedTankHpPct:P0}";
+
+                    var factors = new[]
+                    {
+                        $"Tank HP: {capturedTankHpPct:P0}",
+                        $"Tank damage rate: {capturedTankDamageRate:F0} DPS",
+                        $"Charges: {capturedChargeInfo}",
+                        capturedShouldApplyForTankBuster ? $"Tank buster predicted via {capturedTankBusterSource}" :
+                        capturedShouldApplyToAvoidCap ? "At max charges - avoiding waste" :
+                        capturedShouldApplyProactively ? "High sustained damage on tank" :
+                        $"HP below {capturedHpThreshold:P0} threshold",
+                    };
+
+                    var alternatives = capturedShouldApplyForTankBuster
+                        ? new[] { "Aquaveil (longer mitigation)", "Save for next tank buster" }
+                        : new[] { "Hold for tank buster", "Use on different target" };
+
+                    var tip = capturedShouldApplyForTankBuster
+                        ? "Divine Benison before tank busters provides a solid shield - stack with other mitigations!"
+                        : "Divine Benison has charges - don't let them cap! Use proactively on the tank.";
+
+                    context.TrainingService.RecordDecision(new ActionExplanation
+                    {
+                        Timestamp = DateTime.UtcNow,
+                        ActionId = WHMActions.DivineBenison.ActionId,
+                        ActionName = "Divine Benison",
+                        Category = "Defensive",
+                        TargetName = tankName,
+                        ShortReason = shortReason,
+                        DetailedReason = $"Divine Benison provides a 500 potency shield on {tankName}. {(capturedShouldApplyForTankBuster ? $"Used proactively before predicted tank buster ({capturedTankBusterSource}). " : capturedShouldApplyToAvoidCap ? "Used to avoid wasting charge regeneration. " : "")}Tank HP: {capturedTankHpPct:P0}, damage rate: {capturedTankDamageRate:F0} DPS. Charges: {capturedChargeInfo}.",
+                        Factors = factors,
+                        Alternatives = alternatives,
+                        Tip = tip,
+                        ConceptId = WhmConcepts.DivineBenisonUsage,
+                        Priority = capturedShouldApplyForTankBuster ? ExplanationPriority.High : ExplanationPriority.Normal,
+                    });
+                }
+            });
     }
 
-    private bool TryExecuteAquaveil(IApolloContext context)
+    private void TryPushAquaveil(IApolloContext context, RotationScheduler scheduler)
     {
         var config = context.Configuration;
         var player = context.Player;
 
         if (!ActionValidator.CanExecute(player, context.ActionService, WHMActions.Aquaveil, config,
             c => c.EnableHealing && c.Defensive.EnableAquaveil))
-            return false;
+            return;
 
         var tank = context.PartyHelper.FindTankInParty(player);
-        if (tank is null)
-            return false;
-
-        if (StatusHelper.HasStatus(tank, StatusHelper.StatusIds.Aquaveil))
-            return false;
-
-        if (Vector3.DistanceSquared(player.Position, tank.Position) >
-            WHMActions.Aquaveil.RangeSquared)
-            return false;
+        if (tank is null) return;
+        if (StatusHelper.HasStatus(tank, StatusHelper.StatusIds.Aquaveil)) return;
+        if (Vector3.DistanceSquared(player.Position, tank.Position) > WHMActions.Aquaveil.RangeSquared) return;
 
         var tankHpPct = context.PartyHelper.GetHpPercent(tank);
         var tankDamageRate = context.DamageIntakeService.GetDamageRate(tank.EntityId, 3f);
 
-        // Proactive application: Apply if tank is taking significant sustained damage
-        // even if HP is still high (anticipate tank buster)
         var shouldApplyProactively = config.Defensive.EnableProactiveCooldowns &&
                                      tankDamageRate >= config.Defensive.ProactiveAquaveilDamageRate;
 
-        // Check timeline/pattern detector for predicted tank buster (unified API)
-        var tankBusterImminentAquaveil = TimelineHelper.IsTankBusterImminent(
-            context.TimelineService,
-            context.BossMechanicDetector,
-            config,
-            out var aquaveilTankBusterSource);
-        // For pattern-based detection, also check if this is the correct tank
-        var shouldApplyForTankBuster = tankBusterImminentAquaveil &&
+        var tankBusterImminent = TimelineHelper.IsTankBusterImminent(
+            context.TimelineService, context.BossMechanicDetector, config, out var aquaveilTankBusterSource);
+        var shouldApplyForTankBuster = tankBusterImminent &&
             (aquaveilTankBusterSource == "Timeline" ||
              context.BossMechanicDetector?.PredictedTankBuster?.TargetTankEntityId == tank.EntityId);
 
-        // Standard application: Apply if tank HP is below threshold
         var shouldApplyStandard = tankHpPct < 0.90f;
 
-        if (!shouldApplyProactively && !shouldApplyStandard && !shouldApplyForTankBuster)
-            return false;
+        if (!shouldApplyProactively && !shouldApplyStandard && !shouldApplyForTankBuster) return;
 
-        var tankName = tank.Name?.TextValue ?? "Unknown";
-        if (ActionExecutor.ExecuteOgcd(context, WHMActions.Aquaveil, tank.GameObjectId,
-            tankName, tank.CurrentHp))
-        {
-            string reason;
-            string logReason;
+        var capturedTank = tank;
+        var capturedTankHpPct = tankHpPct;
+        var capturedTankDamageRate = tankDamageRate;
+        var capturedShouldApplyProactively = shouldApplyProactively;
+        var capturedShouldApplyForTankBuster = shouldApplyForTankBuster;
+        var capturedTankBusterSource = aquaveilTankBusterSource;
 
-            if (shouldApplyForTankBuster)
+        scheduler.PushOgcd(ApolloAbilities.Aquaveil, tank.GameObjectId, priority: 120,
+            onDispatched: _ =>
             {
-                var tbPrediction = TimelineHelper.GetNextTankBuster(
-                    context.TimelineService, context.BossMechanicDetector, config);
-                var secondsUntil = tbPrediction?.secondsUntil ?? 0;
-                reason = $"tank buster in {secondsUntil:F1}s ({aquaveilTankBusterSource})";
-                logReason = $"Tank buster predicted ({aquaveilTankBusterSource})";
-            }
-            else if (shouldApplyProactively)
-            {
-                reason = $"proactive, DPS {tankDamageRate:F0}";
-                logReason = "Proactive (high damage rate)";
-            }
-            else
-            {
-                reason = $"{tankHpPct:P0} HP";
-                logReason = "Standard (HP threshold)";
-            }
+                var tankName = capturedTank.Name?.TextValue ?? "Unknown";
+                string reason;
+                string logReason;
 
-            context.Debug.DefensiveState = $"Aquaveil on {tankName} ({reason})";
-
-            // Log defensive decision
-            context.LogDefensiveDecision(
-                tankName,
-                tankHpPct,
-                "Aquaveil",
-                tankDamageRate,
-                logReason);
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
-            {
-                var shortReason = shouldApplyForTankBuster
-                    ? $"Pre-tankbuster mitigation on {tankName}"
-                    : $"Damage reduction on {tankName} at {tankHpPct:P0}";
-
-                var factors = new[]
+                if (capturedShouldApplyForTankBuster)
                 {
-                    $"Tank HP: {tankHpPct:P0}",
-                    $"Tank damage rate: {tankDamageRate:F0} DPS",
-                    shouldApplyForTankBuster ? $"Tank buster predicted via {aquaveilTankBusterSource}" :
-                    shouldApplyProactively ? "High sustained damage on tank" :
-                    $"HP below 90% threshold",
-                    "15% damage reduction for 8 seconds",
-                };
-
-                var alternatives = shouldApplyForTankBuster
-                    ? new[] { "Divine Benison (shield instead)", "Let tank handle it" }
-                    : new[] { "Hold for tank buster", "Use Divine Benison first" };
-
-                var tip = shouldApplyForTankBuster
-                    ? "Aquaveil's 15% mitigation is great before tank busters - it reduces damage before shields absorb!"
-                    : "Aquaveil is best used proactively when the tank is taking sustained damage.";
-
-                context.TrainingService.RecordDecision(new ActionExplanation
+                    var tbPrediction = TimelineHelper.GetNextTankBuster(
+                        context.TimelineService, context.BossMechanicDetector, config);
+                    var secondsUntil = tbPrediction?.secondsUntil ?? 0;
+                    reason = $"tank buster in {secondsUntil:F1}s ({capturedTankBusterSource})";
+                    logReason = $"Tank buster predicted ({capturedTankBusterSource})";
+                }
+                else if (capturedShouldApplyProactively)
                 {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = WHMActions.Aquaveil.ActionId,
-                    ActionName = "Aquaveil",
-                    Category = "Defensive",
-                    TargetName = tankName,
-                    ShortReason = shortReason,
-                    DetailedReason = $"Aquaveil provides 15% damage reduction on {tankName} for 8 seconds. {(shouldApplyForTankBuster ? $"Used proactively before predicted tank buster ({aquaveilTankBusterSource}). " : "")}Tank HP: {tankHpPct:P0}, damage rate: {tankDamageRate:F0} DPS.",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = tip,
-                    ConceptId = WhmConcepts.AquaveilUsage,
-                    Priority = shouldApplyForTankBuster ? ExplanationPriority.High : ExplanationPriority.Normal,
-                });
-            }
+                    reason = $"proactive, DPS {capturedTankDamageRate:F0}";
+                    logReason = "Proactive (high damage rate)";
+                }
+                else
+                {
+                    reason = $"{capturedTankHpPct:P0} HP";
+                    logReason = "Standard (HP threshold)";
+                }
 
-            return true;
-        }
+                context.Debug.PlannedAction = WHMActions.Aquaveil.Name;
+                context.Debug.DefensiveState = $"Aquaveil on {tankName} ({reason})";
+                context.LogDefensiveDecision(tankName, capturedTankHpPct, "Aquaveil", capturedTankDamageRate, logReason);
 
-        return false;
+                if (context.TrainingService?.IsTrainingEnabled == true)
+                {
+                    var shortReason = capturedShouldApplyForTankBuster
+                        ? $"Pre-tankbuster mitigation on {tankName}"
+                        : $"Damage reduction on {tankName} at {capturedTankHpPct:P0}";
+
+                    var factors = new[]
+                    {
+                        $"Tank HP: {capturedTankHpPct:P0}",
+                        $"Tank damage rate: {capturedTankDamageRate:F0} DPS",
+                        capturedShouldApplyForTankBuster ? $"Tank buster predicted via {capturedTankBusterSource}" :
+                        capturedShouldApplyProactively ? "High sustained damage on tank" :
+                        $"HP below 90% threshold",
+                        "15% damage reduction for 8 seconds",
+                    };
+
+                    var alternatives = capturedShouldApplyForTankBuster
+                        ? new[] { "Divine Benison (shield instead)", "Let tank handle it" }
+                        : new[] { "Hold for tank buster", "Use Divine Benison first" };
+
+                    var tip = capturedShouldApplyForTankBuster
+                        ? "Aquaveil's 15% mitigation is great before tank busters - it reduces damage before shields absorb!"
+                        : "Aquaveil is best used proactively when the tank is taking sustained damage.";
+
+                    context.TrainingService.RecordDecision(new ActionExplanation
+                    {
+                        Timestamp = DateTime.UtcNow,
+                        ActionId = WHMActions.Aquaveil.ActionId,
+                        ActionName = "Aquaveil",
+                        Category = "Defensive",
+                        TargetName = tankName,
+                        ShortReason = shortReason,
+                        DetailedReason = $"Aquaveil provides 15% damage reduction on {tankName} for 8 seconds. {(capturedShouldApplyForTankBuster ? $"Used proactively before predicted tank buster ({capturedTankBusterSource}). " : "")}Tank HP: {capturedTankHpPct:P0}, damage rate: {capturedTankDamageRate:F0} DPS.",
+                        Factors = factors,
+                        Alternatives = alternatives,
+                        Tip = tip,
+                        ConceptId = WhmConcepts.AquaveilUsage,
+                        Priority = capturedShouldApplyForTankBuster ? ExplanationPriority.High : ExplanationPriority.Normal,
+                    });
+                }
+            });
     }
 
-    private bool TryExecuteLiturgyOfTheBell(IApolloContext context, int injuredCount)
+    private void TryPushLiturgyOfTheBell(IApolloContext context, RotationScheduler scheduler, int injuredCount)
     {
         var config = context.Configuration;
         var player = context.Player;
 
         if (!ActionValidator.CanExecute(player, context.ActionService, WHMActions.LiturgyOfTheBell, config,
             c => c.Defensive.EnableLiturgyOfTheBell))
-            return false;
-
-        if (injuredCount < 2)
-            return false;
+            return;
+        if (injuredCount < 2) return;
 
         var tank = context.PartyHelper.FindTankInParty(player);
         Vector3 targetPosition;
@@ -628,16 +537,14 @@ public sealed class DefensiveModule : IApolloModule
             targetName = player.Name?.TextValue ?? "Unknown";
         }
 
-        // Check if another instance recently used a party mitigation (cooldown coordination)
         var partyCoord = context.PartyCoordinationService;
         if (config.PartyCoordination.EnableCooldownCoordination &&
             partyCoord?.WasPartyMitigationUsedRecently(config.PartyCoordination.CooldownOverlapWindowSeconds) == true)
         {
             context.Debug.DefensiveState = "Bell skipped (remote mit)";
-            return false;
+            return;
         }
 
-        // Burst awareness: Delay mitigations during burst windows unless emergency
         if (config.PartyCoordination.EnableHealerBurstAwareness &&
             config.PartyCoordination.DelayMitigationsDuringBurst &&
             partyCoord != null)
@@ -646,53 +553,49 @@ public sealed class DefensiveModule : IApolloModule
             var burstState = partyCoord.GetBurstWindowState();
             if (burstState.IsActive && avgHpPercent > config.Healing.GcdEmergencyThreshold)
             {
-                context.Debug.DefensiveState = $"Bell delayed (burst active)";
-                return false;
+                context.Debug.DefensiveState = "Bell delayed (burst active)";
+                return;
             }
         }
 
-        if (ActionExecutor.ExecuteGroundTargeted(context, WHMActions.LiturgyOfTheBell, targetPosition,
-            targetName, tank?.CurrentHp ?? player.CurrentHp))
-        {
-            context.Debug.DefensiveState = $"Bell placed at {targetName} ({injuredCount} injured)";
-            partyCoord?.OnCooldownUsed(WHMActions.LiturgyOfTheBell.ActionId, 180_000);
+        var capturedTargetName = targetName;
+        var capturedInjured = injuredCount;
 
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushGroundTargetedOgcd(ApolloAbilities.LiturgyOfTheBell, targetPosition, priority: 130,
+            onDispatched: _ =>
             {
-                var shortReason = $"Liturgy placed near {targetName} - {injuredCount} injured";
+                context.Debug.PlannedAction = WHMActions.LiturgyOfTheBell.Name;
+                context.Debug.DefensiveState = $"Bell placed at {capturedTargetName} ({capturedInjured} injured)";
+                partyCoord?.OnCooldownUsed(WHMActions.LiturgyOfTheBell.ActionId, 180_000);
 
-                var factors = new[]
+                if (context.TrainingService?.IsTrainingEnabled == true)
                 {
-                    $"Injured count: {injuredCount}",
-                    $"Placement: Near {targetName}",
-                    "Heals party when they take damage",
-                    "5 stacks, triggers on damage",
-                    "180 second cooldown",
-                };
+                    var shortReason = $"Liturgy placed near {capturedTargetName} - {capturedInjured} injured";
+                    var factors = new[]
+                    {
+                        $"Injured count: {capturedInjured}",
+                        $"Placement: Near {capturedTargetName}",
+                        "Heals party when they take damage",
+                        "5 stacks, triggers on damage",
+                        "180 second cooldown",
+                    };
 
-                var alternatives = _liturgyOfTheBellAlternatives;
-
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = WHMActions.LiturgyOfTheBell.ActionId,
-                    ActionName = "Liturgy of the Bell",
-                    Category = "Defensive",
-                    TargetName = targetName,
-                    ShortReason = shortReason,
-                    DetailedReason = $"Liturgy of the Bell placed near {targetName}. This ground-targeted ability heals party members when they take damage, with 5 charges that trigger automatically. Used because {injuredCount} party members are injured and more damage is expected.",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = "Place Liturgy where the party will stack - it triggers on damage, so it's perfect for multi-hit raidwides!",
-                    ConceptId = WhmConcepts.LiturgyOfTheBellUsage,
-                    Priority = ExplanationPriority.High,
-                });
-            }
-
-            return true;
-        }
-
-        return false;
+                    context.TrainingService.RecordDecision(new ActionExplanation
+                    {
+                        Timestamp = DateTime.UtcNow,
+                        ActionId = WHMActions.LiturgyOfTheBell.ActionId,
+                        ActionName = "Liturgy of the Bell",
+                        Category = "Defensive",
+                        TargetName = capturedTargetName,
+                        ShortReason = shortReason,
+                        DetailedReason = $"Liturgy of the Bell placed near {capturedTargetName}. This ground-targeted ability heals party members when they take damage, with 5 charges that trigger automatically. Used because {capturedInjured} party members are injured and more damage is expected.",
+                        Factors = factors,
+                        Alternatives = _liturgyOfTheBellAlternatives,
+                        Tip = "Place Liturgy where the party will stack - it triggers on damage, so it's perfect for multi-hit raidwides!",
+                        ConceptId = WhmConcepts.LiturgyOfTheBellUsage,
+                        Priority = ExplanationPriority.High,
+                    });
+                }
+            });
     }
 }
