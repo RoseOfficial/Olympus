@@ -246,19 +246,12 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
         foreach (var module in _modules)
             module.CollectCandidates(context, _scheduler, isMoving);
 
+        // PCT pushes pre-pull motif paints (GCD path) out of combat. oGCDs gate on inCombat.
         if (inCombat && ActionService.CanExecuteOgcd)
-        {
-            foreach (var module in _modules)
-                if (module.TryExecute(context, isMoving)) return;
             _scheduler.DispatchOgcd(context);
-        }
 
         if (ActionService.CanExecuteGcd)
-        {
-            foreach (var module in _modules)
-                if (module.TryExecute(context, isMoving)) return;
             _scheduler.DispatchGcd(context);
-        }
     }
 
     #endregion

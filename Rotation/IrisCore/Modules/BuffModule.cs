@@ -1,20 +1,22 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
+using Olympus.Models.Action;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.Scheduling;
+using Olympus.Rotation.IrisCore.Abilities;
 using Olympus.Rotation.IrisCore.Context;
 using Olympus.Services;
 using Olympus.Services.Training;
-using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.IrisCore.Modules;
 
 /// <summary>
-/// Handles Pictomancer oGCD abilities.
-/// Manages Muses, Portraits, Subtractive Palette, and utility oGCDs.
+/// Handles Pictomancer oGCD abilities (scheduler-driven).
+/// Manages Muses, Portraits, Subtractive Palette, utility oGCDs.
 /// </summary>
 public sealed class BuffModule : IIrisModule
 {
-    public int Priority => 30; // Higher priority than damage (lower number = higher priority)
+    public int Priority => 30;
     public string Name => "Buff";
 
     private readonly IBurstWindowService? _burstWindowService;
@@ -27,580 +29,322 @@ public sealed class BuffModule : IIrisModule
     private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
         BurstHoldHelper.ShouldHoldForBurst(_burstWindowService, thresholdSeconds);
 
-    public bool TryExecute(IIrisContext context, bool isMoving)
+    public bool TryExecute(IIrisContext context, bool isMoving) => false;
+
+    public void UpdateDebugState(IIrisContext context) { }
+
+    public void CollectCandidates(IIrisContext context, RotationScheduler scheduler, bool isMoving)
     {
         if (!context.InCombat)
         {
             context.Debug.BuffState = "Not in combat";
-            return false;
-        }
-
-        if (!context.CanExecuteOgcd)
-        {
-            context.Debug.BuffState = "oGCD not ready";
-            return false;
+            return;
         }
 
         var player = context.Player;
-        var level = player.Level;
-
-        // Find target for damage oGCDs
         var target = context.TargetingService.FindEnemy(
             context.Configuration.Targeting.EnemyStrategy,
             FFXIVConstants.CasterTargetingRange,
             player);
 
-        // Priority 1: Star Prism finisher during Starstruck (this is actually a GCD but instant)
-        // This is handled in DamageModule
-
-        // Priority 2: Portraits - use immediately when ready
-        if (TryPortrait(context, target))
-            return true;
-
-        // Priority 3: Starry Muse (align with raid buffs, use off cooldown)
-        if (TryStarryMuse(context))
-            return true;
-
-        // Priority 4: Living Muse (dump charges during burst)
-        if (TryLivingMuse(context, target))
-            return true;
-
-        // Priority 5: Striking Muse (use when hammer painted)
-        if (TryStrikingMuse(context))
-            return true;
-
-        // Priority 6: Subtractive Palette (when gauge >= 50 and not already active)
-        if (TrySubtractivePalette(context))
-            return true;
-
-        // Priority 7: Lucid Dreaming (when MP < 70%)
-        if (TryLucidDreaming(context))
-            return true;
-
-        // Priority 8: Tempera Grassa (party mitigation — triggered by damage)
-        if (TryTemperaGrassa(context))
-            return true;
-
-        // Priority 9: Tempera Coat (self mitigation — triggered by damage)
-        if (TryTemperaCoat(context))
-            return true;
-
-        // Priority 10: Smudge (movement buff)
-        if (TrySmudge(context, isMoving))
-            return true;
-
-        // Priority 11: Swiftcast (movement — only when no instant GCDs available)
-        if (TrySwiftcast(context, isMoving))
-            return true;
-
-        // Surecast: not automated; requires mechanic-specific timeline awareness to use safely.
-
-        context.Debug.BuffState = "No oGCD needed";
-        return false;
+        TryPushPortrait(context, scheduler, target);
+        TryPushStarryMuse(context, scheduler);
+        TryPushLivingMuse(context, scheduler, target);
+        TryPushStrikingMuse(context, scheduler);
+        TryPushSubtractivePalette(context, scheduler);
+        TryPushLucidDreaming(context, scheduler);
+        TryPushTemperaGrassa(context, scheduler);
+        TryPushTemperaCoat(context, scheduler);
+        TryPushSmudge(context, scheduler, isMoving);
+        TryPushSwiftcast(context, scheduler, isMoving);
     }
 
-    public void UpdateDebugState(IIrisContext context)
+    private void TryPushPortrait(IIrisContext context, RotationScheduler scheduler, IBattleChara? target)
     {
-        // Debug state updated during TryExecute
-    }
+        if (!context.Configuration.Pictomancer.EnablePortraits) return;
+        if (target == null) return;
+        var level = context.Player.Level;
 
-    #region oGCD Actions
-
-    private bool TryPortrait(IIrisContext context, IBattleChara? target)
-    {
-        if (!context.Configuration.Pictomancer.EnablePortraits)
-            return false;
-
-        if (target == null)
-            return false;
-
-        var player = context.Player;
-        var level = player.Level;
-
-        // Check Madeen first (higher priority, Lv.96+)
         if (context.MadeenReady && level >= PCTActions.RetributionOfTheMadeen.MinLevel)
         {
-            if (context.ActionService.ExecuteOgcd(PCTActions.RetributionOfTheMadeen, target.GameObjectId))
-            {
-                context.Debug.PlannedAction = PCTActions.RetributionOfTheMadeen.Name;
-                context.Debug.BuffState = "Madeen";
-
-                // Training Mode integration
-                TrainingHelper.Decision(context.TrainingService)
-                    .Action(PCTActions.RetributionOfTheMadeen.ActionId, PCTActions.RetributionOfTheMadeen.Name)
-                    .AsCasterBurst()
-                    .Target(target.Name?.TextValue)
-                    .Reason("Madeen - high damage portrait",
-                        "Retribution of the Madeen is your most powerful portrait ability, available after " +
-                        "summoning 4 Living Muses. Use it immediately when ready for massive burst damage.")
-                    .Factors($"Palette Gauge: {context.PaletteGauge}", context.IsInBurstWindow ? "In burst window" : "Outside burst",
-                        $"Muse Charges: {context.LivingMuseCharges}")
-                    .Alternatives("Hold for burst window", "Wait for Mog")
-                    .Tip("Use Madeen immediately when it becomes available - it's your highest damage oGCD.")
-                    .Concept(PctConcepts.CreatureMotifs)
-                    .Record();
-
-                context.TrainingService?.RecordConceptApplication(PctConcepts.CreatureMotifs, true, "Madeen portrait used");
-
-                return true;
-            }
+            scheduler.PushOgcd(IrisAbilities.RetributionOfTheMadeen, target.GameObjectId, priority: 1,
+                onDispatched: _ =>
+                {
+                    context.Debug.PlannedAction = PCTActions.RetributionOfTheMadeen.Name;
+                    context.Debug.BuffState = "Madeen";
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(PCTActions.RetributionOfTheMadeen.ActionId, PCTActions.RetributionOfTheMadeen.Name)
+                        .AsCasterBurst().Target(target.Name?.TextValue)
+                        .Reason("Madeen - high damage portrait",
+                            "Retribution of the Madeen is your most powerful portrait ability.")
+                        .Factors($"Palette Gauge: {context.PaletteGauge}", $"Muse Charges: {context.LivingMuseCharges}")
+                        .Alternatives("Hold for burst window")
+                        .Tip("Use Madeen immediately when it becomes available.")
+                        .Concept(PctConcepts.CreatureMotifs)
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication(PctConcepts.CreatureMotifs, true, "Madeen portrait used");
+                });
+            return;
         }
 
-        // Check Mog of the Ages
         if (context.MogReady && level >= PCTActions.MogOfTheAges.MinLevel)
         {
-            if (context.ActionService.ExecuteOgcd(PCTActions.MogOfTheAges, target.GameObjectId))
-            {
-                context.Debug.PlannedAction = PCTActions.MogOfTheAges.Name;
-                context.Debug.BuffState = "Mog";
-
-                // Training Mode integration
-                TrainingHelper.Decision(context.TrainingService)
-                    .Action(PCTActions.MogOfTheAges.ActionId, PCTActions.MogOfTheAges.Name)
-                    .AsCasterBurst()
-                    .Target(target.Name?.TextValue)
-                    .Reason("Mog - portrait ability",
-                        "Mog of the Ages becomes available after summoning 2 Living Muses. Use it immediately " +
-                        "when ready as it's high burst damage. Building toward Madeen requires 2 more Muses.")
-                    .Factors($"Palette Gauge: {context.PaletteGauge}", context.IsInBurstWindow ? "In burst window" : "Outside burst",
-                        $"Muse Charges: {context.LivingMuseCharges}")
-                    .Alternatives("Hold for burst window", "Wait for more enemies")
-                    .Tip("Use Mog immediately when ready. It builds toward Madeen for even more damage.")
-                    .Concept(PctConcepts.CreatureMotifs)
-                    .Record();
-
-                context.TrainingService?.RecordConceptApplication(PctConcepts.CreatureMotifs, true, "Mog portrait used");
-
-                return true;
-            }
+            scheduler.PushOgcd(IrisAbilities.MogOfTheAges, target.GameObjectId, priority: 1,
+                onDispatched: _ =>
+                {
+                    context.Debug.PlannedAction = PCTActions.MogOfTheAges.Name;
+                    context.Debug.BuffState = "Mog";
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(PCTActions.MogOfTheAges.ActionId, PCTActions.MogOfTheAges.Name)
+                        .AsCasterBurst().Target(target.Name?.TextValue)
+                        .Reason("Mog - portrait ability",
+                            "Mog of the Ages becomes available after summoning 2 Living Muses.")
+                        .Factors($"Palette Gauge: {context.PaletteGauge}", $"Muse Charges: {context.LivingMuseCharges}")
+                        .Alternatives("Hold for burst window")
+                        .Tip("Use Mog immediately when ready.")
+                        .Concept(PctConcepts.CreatureMotifs)
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication(PctConcepts.CreatureMotifs, true, "Mog portrait used");
+                });
         }
-
-        return false;
     }
 
-    private bool TryStarryMuse(IIrisContext context)
+    private void TryPushStarryMuse(IIrisContext context, RotationScheduler scheduler)
     {
-        if (!context.Configuration.Pictomancer.EnableStarryMuse)
-            return false;
-
+        if (!context.Configuration.Pictomancer.EnableStarryMuse) return;
         var player = context.Player;
-        var level = player.Level;
-
-        if (level < PCTActions.StarryMuse.MinLevel)
-            return false;
-
-        if (!context.StarryMuseReady)
-            return false;
-
-        // Need landscape canvas painted
+        if (player.Level < PCTActions.StarryMuse.MinLevel) return;
+        if (!context.StarryMuseReady) return;
         if (!context.HasLandscapeCanvas)
         {
             context.Debug.BuffState = "Need Landscape for Starry";
-            return false;
+            return;
         }
-
-        // Don't use if already active
-        if (context.HasStarryMuse)
-            return false;
-
-        // Timeline: Don't waste burst before phase transition
+        if (context.HasStarryMuse) return;
         if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
         {
             context.Debug.BuffState = "Holding Starry Muse (phase soon)";
-            return false;
+            return;
         }
-
-        // Hold Starry Muse for imminent burst window
         if (ShouldHoldForBurst(context.Configuration.Pictomancer.StarryMuseHoldTime))
         {
             context.Debug.BuffState = "Holding Starry Muse for burst";
-            return false;
+            return;
         }
 
-        // Party coordination: Synchronize with other Olympus instances
         var partyCoord = context.PartyCoordinationService;
-        if (partyCoord != null && partyCoord.IsPartyCoordinationEnabled &&
-            context.Configuration.PartyCoordination.EnableRaidBuffCoordination)
+        if (partyCoord != null && partyCoord.IsPartyCoordinationEnabled
+            && context.Configuration.PartyCoordination.EnableRaidBuffCoordination)
         {
-            // Check if our buffs are aligned with remote instances
-            // If significantly desynced (e.g., death recovery), use independently
             if (!partyCoord.IsRaidBuffAligned(PCTActions.StarryMuse.ActionId))
-            {
                 context.Debug.BuffState = "Raid buffs desynced, using independently";
-                // Fall through to execute - don't try to align when heavily desynced
-            }
-            // Check if another DPS is about to use a raid buff
-            // If so, align our burst with theirs
             else if (partyCoord.HasPendingRaidBuffIntent(
                 context.Configuration.PartyCoordination.RaidBuffAlignmentWindowSeconds))
-            {
-                // Another player is about to burst - align with them
                 context.Debug.BuffState = "Aligning with party burst";
-                // Fall through to execute and announce our intent
-            }
-
-            // Announce our intent to use Starry Muse
             partyCoord.AnnounceRaidBuffIntent(PCTActions.StarryMuse.ActionId);
         }
 
-        if (context.ActionService.ExecuteOgcd(PCTActions.StarryMuse, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = PCTActions.StarryMuse.Name;
-            context.Debug.BuffState = "Starry Muse (burst)";
-
-            // Notify coordination service that we used the raid buff
-            partyCoord?.OnRaidBuffUsed(PCTActions.StarryMuse.ActionId, 120_000);
-
-            // Training Mode integration
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(PCTActions.StarryMuse.ActionId, PCTActions.StarryMuse.Name)
-                .AsRaidBuff()
-                .Reason("Starry Muse - party damage buff",
-                    "Starry Muse is your 2-minute raid buff that increases damage for you and your party. " +
-                    "It requires a painted Landscape (Starry Sky) canvas and grants Hyperphantasia stacks.")
-                .Factors($"Landscape Canvas: Ready", $"Palette Gauge: {context.PaletteGauge}",
-                    partyCoord != null ? "Party coordination active" : "Solo mode")
-                .Alternatives("Hold for phase transition", "Wait for party buffs")
-                .Tip("Align Starry Muse with other raid buffs when possible. Always paint Landscape before burst.")
-                .Concept(PctConcepts.StarryMuseBurst)
-                .Record();
-
-            context.TrainingService?.RecordConceptApplication(PctConcepts.StarryMuseBurst, true, "Raid buff activated");
-
-            return true;
-        }
-
-        return false;
+        scheduler.PushOgcd(IrisAbilities.StarryMuse, player.GameObjectId, priority: 2,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = PCTActions.StarryMuse.Name;
+                context.Debug.BuffState = "Starry Muse (burst)";
+                partyCoord?.OnRaidBuffUsed(PCTActions.StarryMuse.ActionId, 120_000);
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(PCTActions.StarryMuse.ActionId, PCTActions.StarryMuse.Name)
+                    .AsRaidBuff()
+                    .Reason("Starry Muse - party damage buff",
+                        "Starry Muse is your 2-minute raid buff that increases damage for you and your party.")
+                    .Factors("Landscape Canvas Ready", $"Palette Gauge: {context.PaletteGauge}")
+                    .Alternatives("Hold for phase transition")
+                    .Tip("Always paint Landscape before burst.")
+                    .Concept(PctConcepts.StarryMuseBurst)
+                    .Record();
+                context.TrainingService?.RecordConceptApplication(PctConcepts.StarryMuseBurst, true, "Raid buff activated");
+            });
     }
 
-    private bool TryLivingMuse(IIrisContext context, IBattleChara? target)
+    private void TryPushLivingMuse(IIrisContext context, RotationScheduler scheduler, IBattleChara? target)
     {
-        if (!context.Configuration.Pictomancer.EnableLivingMuse)
-            return false;
-
-        if (target == null)
-            return false;
-
+        if (!context.Configuration.Pictomancer.EnableLivingMuse) return;
+        if (target == null) return;
         var player = context.Player;
-        var level = player.Level;
+        if (player.Level < PCTActions.LivingMuse.MinLevel) return;
+        if (!context.LivingMuseReady) return;
+        if (!context.HasCreatureCanvas) return;
 
-        if (level < PCTActions.LivingMuse.MinLevel)
-            return false;
-
-        if (!context.LivingMuseReady)
-            return false;
-
-        // Need creature canvas painted
-        if (!context.HasCreatureCanvas)
-        {
-            context.Debug.BuffState = "Need Creature for Muse";
-            return false;
-        }
-
-        // Force-use at cap to prevent charge loss — even if burst pooling would otherwise hold.
-        // Currently no burst hold in this method, but this comment documents the intent:
-        // if a hold guard is ever added, the cap case (LivingMuseCharges >= 2) must bypass it.
-
-        // Get the appropriate muse action based on creature type
         var museAction = PCTActions.GetLivingMuse(context.CreatureMotifType);
-
-        if (context.ActionService.ExecuteOgcd(museAction, target.GameObjectId))
+        var ability = museAction.ActionId switch
         {
-            context.Debug.PlannedAction = museAction.Name;
-            context.Debug.BuffState = $"Living Muse ({context.LivingMuseCharges - 1} charges)";
+            var id when id == PCTActions.PomMuse.ActionId => IrisAbilities.PomMuse,
+            var id when id == PCTActions.WingedMuse.ActionId => IrisAbilities.WingedMuse,
+            var id when id == PCTActions.ClawedMuse.ActionId => IrisAbilities.ClawedMuse,
+            var id when id == PCTActions.FangedMuse.ActionId => IrisAbilities.FangedMuse,
+            _ => IrisAbilities.PomMuse,
+        };
 
-            // Training Mode integration
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(museAction.ActionId, museAction.Name)
-                .AsCasterDamage()
-                .Target(target.Name?.TextValue)
-                .Reason("Living Muse - creature summon",
-                    $"Living Muse summons your painted creature ({context.CreatureMotifType}) to deal damage. " +
-                    "It has 2 charges and builds toward portrait abilities (Mog after 2, Madeen after 4).")
-                .Factors($"Creature Type: {context.CreatureMotifType}", $"Charges: {context.LivingMuseCharges}",
-                    context.IsInBurstWindow ? "In burst window" : "Outside burst")
-                .Alternatives("Hold charges for burst", "Wait for portrait ready")
-                .Tip("Don't cap on Living Muse charges. Each summon builds toward portraits.")
-                .Concept(PctConcepts.LivingMuse)
-                .Record();
-
-            context.TrainingService?.RecordConceptApplication(PctConcepts.LivingMuse, true, "Living Muse summoned");
-
-            return true;
-        }
-
-        return false;
+        scheduler.PushOgcd(ability, target.GameObjectId, priority: 3,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = museAction.Name;
+                context.Debug.BuffState = $"Living Muse ({context.LivingMuseCharges - 1} charges)";
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(museAction.ActionId, museAction.Name)
+                    .AsCasterDamage().Target(target.Name?.TextValue)
+                    .Reason("Living Muse - creature summon",
+                        "Living Muse summons your painted creature to deal damage.")
+                    .Factors($"Creature Type: {context.CreatureMotifType}", $"Charges: {context.LivingMuseCharges}")
+                    .Alternatives("Hold charges for burst")
+                    .Tip("Don't cap on Living Muse charges.")
+                    .Concept(PctConcepts.LivingMuse)
+                    .Record();
+                context.TrainingService?.RecordConceptApplication(PctConcepts.LivingMuse, true, "Living Muse summoned");
+            });
     }
 
-    private bool TryStrikingMuse(IIrisContext context)
+    private void TryPushStrikingMuse(IIrisContext context, RotationScheduler scheduler)
     {
-        if (!context.Configuration.Pictomancer.EnableSteelMuse)
-            return false;
-
+        if (!context.Configuration.Pictomancer.EnableSteelMuse) return;
         var player = context.Player;
-        var level = player.Level;
+        if (player.Level < PCTActions.StrikingMuse.MinLevel) return;
+        if (!context.StrikingMuseReady) return;
+        if (!context.HasWeaponCanvas) return;
+        if (context.HasHammerTime) return;
 
-        if (level < PCTActions.StrikingMuse.MinLevel)
-            return false;
-
-        if (!context.StrikingMuseReady)
-            return false;
-
-        // Need weapon canvas painted
-        if (!context.HasWeaponCanvas)
-        {
-            context.Debug.BuffState = "Need Weapon for Striking";
-            return false;
-        }
-
-        // Don't use if already have Hammer Time
-        if (context.HasHammerTime)
-            return false;
-
-        if (context.ActionService.ExecuteOgcd(PCTActions.StrikingMuse, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = PCTActions.StrikingMuse.Name;
-            context.Debug.BuffState = "Striking Muse";
-
-            // Training Mode integration
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(PCTActions.StrikingMuse.ActionId, PCTActions.StrikingMuse.Name)
-                .AsCasterDamage()
-                .Target(null)
-                .Reason("Striking Muse - hammer combo enabler",
-                    "Striking Muse consumes your painted Weapon (Hammer) canvas and grants Hammer Time, " +
-                    "enabling the powerful hammer combo (Stamp → Brush → Polish). All hammer hits are instant.")
-                .Factors("Weapon Canvas: Ready", $"Palette Gauge: {context.PaletteGauge}",
-                    context.IsInBurstWindow ? "In burst window" : "Outside burst")
-                .Alternatives("Hold for burst window", "Wait for better timing")
-                .Tip("Use Striking Muse when Hammer canvas is ready. The hammer combo is high damage and instant.")
-                .Concept(PctConcepts.StrikingMuse)
-                .Record();
-
-            context.TrainingService?.RecordConceptApplication(PctConcepts.StrikingMuse, true, "Hammer Time activated");
-
-            return true;
-        }
-
-        return false;
+        scheduler.PushOgcd(IrisAbilities.StrikingMuse, player.GameObjectId, priority: 3,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = PCTActions.StrikingMuse.Name;
+                context.Debug.BuffState = "Striking Muse";
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(PCTActions.StrikingMuse.ActionId, PCTActions.StrikingMuse.Name)
+                    .AsCasterDamage()
+                    .Reason("Striking Muse - hammer combo enabler",
+                        "Striking Muse consumes Weapon canvas and grants Hammer Time.")
+                    .Factors("Weapon Canvas: Ready", $"Palette Gauge: {context.PaletteGauge}")
+                    .Alternatives("Hold for burst window")
+                    .Tip("Use Striking Muse when Hammer canvas is ready.")
+                    .Concept(PctConcepts.StrikingMuse)
+                    .Record();
+                context.TrainingService?.RecordConceptApplication(PctConcepts.StrikingMuse, true, "Hammer Time activated");
+            });
     }
 
-    private bool TrySubtractivePalette(IIrisContext context)
+    private void TryPushSubtractivePalette(IIrisContext context, RotationScheduler scheduler)
     {
-        if (!context.Configuration.Pictomancer.EnableSubtractivePalette) return false;
-
+        if (!context.Configuration.Pictomancer.EnableSubtractivePalette) return;
         var player = context.Player;
-        var level = player.Level;
-
-        if (level < PCTActions.SubtractivePalette.MinLevel)
-            return false;
-
-        if (!context.SubtractivePaletteReady)
-            return false;
-
-        // Already have subtractive buff
-        if (context.HasSubtractivePalette)
-            return false;
-
-        // SubtractiveSpectrum already provides a free enhanced subtractive combo — don't waste gauge on top of it
-        if (context.HasSubtractiveSpectrum)
-            return false;
-
-        // Need 50+ gauge
-        if (!context.CanUseSubtractivePalette)
-        {
-            context.Debug.BuffState = $"Need 50 gauge ({context.PaletteGauge})";
-            return false;
-        }
-
-        // Prefer to use during burst window
-        // But don't overcap gauge (use at 75+ regardless)
+        if (player.Level < PCTActions.SubtractivePalette.MinLevel) return;
+        if (!context.SubtractivePaletteReady) return;
+        if (context.HasSubtractivePalette) return;
+        if (context.HasSubtractiveSpectrum) return;
+        if (!context.CanUseSubtractivePalette) return;
         if (!context.IsInBurstWindow && context.PaletteGauge < 75)
         {
             context.Debug.BuffState = "Hold Subtractive for burst";
-            return false;
+            return;
         }
 
-        if (context.ActionService.ExecuteOgcd(PCTActions.SubtractivePalette, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = PCTActions.SubtractivePalette.Name;
-            context.Debug.BuffState = "Subtractive Palette";
-
-            // Training Mode integration
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(PCTActions.SubtractivePalette.ActionId, PCTActions.SubtractivePalette.Name)
-                .AsCasterResource("Palette Gauge", context.PaletteGauge)
-                .Reason("Subtractive Palette - enhanced combo",
-                    "Subtractive Palette consumes 50 Palette Gauge to enable the subtractive combo " +
-                    "(Cyan → Yellow → Magenta). This is higher damage than the base combo. Don't overcap gauge.")
-                .Factors($"Palette Gauge: {context.PaletteGauge}", context.IsInBurstWindow ? "In burst (use now)" : "Outside burst",
-                    context.PaletteGauge >= 75 ? "Overcap risk" : "Gauge healthy")
-                .Alternatives("Hold for burst window", "Use base combo instead")
-                .Tip("Use Subtractive Palette at 50+ gauge during burst. At 75+ gauge, use immediately to prevent waste.")
-                .Concept(PctConcepts.SubtractivePalette)
-                .Record();
-
-            context.TrainingService?.RecordConceptApplication(PctConcepts.SubtractivePalette, true, "Subtractive combo enabled");
-
-            return true;
-        }
-
-        return false;
+        scheduler.PushOgcd(IrisAbilities.SubtractivePalette, player.GameObjectId, priority: 4,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = PCTActions.SubtractivePalette.Name;
+                context.Debug.BuffState = "Subtractive Palette";
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(PCTActions.SubtractivePalette.ActionId, PCTActions.SubtractivePalette.Name)
+                    .AsCasterResource("Palette Gauge", context.PaletteGauge)
+                    .Reason("Subtractive Palette - enhanced combo",
+                        "Subtractive Palette consumes 50 Palette Gauge to enable the subtractive combo.")
+                    .Factors($"Palette Gauge: {context.PaletteGauge}")
+                    .Alternatives("Hold for burst window")
+                    .Tip("Use Subtractive Palette at 50+ gauge during burst.")
+                    .Concept(PctConcepts.SubtractivePalette)
+                    .Record();
+                context.TrainingService?.RecordConceptApplication(PctConcepts.SubtractivePalette, true, "Subtractive combo enabled");
+            });
     }
 
-    private bool TryTemperaGrassa(IIrisContext context)
+    private void TryPushLucidDreaming(IIrisContext context, RotationScheduler scheduler)
+    {
+        if (!context.Configuration.Pictomancer.EnableLucidDreaming) return;
+        var player = context.Player;
+        if (player.Level < RoleActions.LucidDreaming.MinLevel) return;
+        if (!context.LucidDreamingReady) return;
+        if (context.MpPercent > 0.7f) return;
+
+        scheduler.PushOgcd(IrisAbilities.LucidDreaming, player.GameObjectId, priority: 5,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = RoleActions.LucidDreaming.Name;
+                context.Debug.BuffState = "Lucid Dreaming (MP)";
+            });
+    }
+
+    private void TryPushTemperaGrassa(IIrisContext context, RotationScheduler scheduler)
     {
         var player = context.Player;
-        var level = player.Level;
-
-        if (level < PCTActions.TemperaGrassa.MinLevel)
-            return false;
-
-        if (!context.Configuration.Pictomancer.EnableTemperaGrassa)
-            return false;
-
-        if (!context.TemperaGrassaReady)
-            return false;
+        if (player.Level < PCTActions.TemperaGrassa.MinLevel) return;
+        if (!context.Configuration.Pictomancer.EnableTemperaGrassa) return;
+        if (!context.TemperaGrassaReady) return;
 
         var playerHpPct = player.MaxHp > 0 ? (float)player.CurrentHp / player.MaxHp : 1f;
         var partyAvgHp = context.PartyHealthMetrics.avgHpPercent;
-        if (playerHpPct > 0.85f && partyAvgHp > 0.85f)
-            return false;
+        if (playerHpPct > 0.85f && partyAvgHp > 0.85f) return;
 
-        if (context.ActionService.ExecuteOgcd(PCTActions.TemperaGrassa, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = PCTActions.TemperaGrassa.Name;
-            context.Debug.BuffState = "Tempera Grassa (party mitigation)";
-            return true;
-        }
-
-        return false;
+        scheduler.PushOgcd(IrisAbilities.TemperaGrassa, player.GameObjectId, priority: 5,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = PCTActions.TemperaGrassa.Name;
+                context.Debug.BuffState = "Tempera Grassa (party mitigation)";
+            });
     }
 
-    private bool TryTemperaCoat(IIrisContext context)
+    private void TryPushTemperaCoat(IIrisContext context, RotationScheduler scheduler)
     {
         var player = context.Player;
-        var level = player.Level;
-
-        if (level < PCTActions.TemperaCoat.MinLevel)
-            return false;
-
-        if (!context.Configuration.Pictomancer.EnableTemperaCoat)
-            return false;
-
-        if (!context.TemperaCoatReady)
-            return false;
+        if (player.Level < PCTActions.TemperaCoat.MinLevel) return;
+        if (!context.Configuration.Pictomancer.EnableTemperaCoat) return;
+        if (!context.TemperaCoatReady) return;
 
         var playerHpPct = player.MaxHp > 0 ? (float)player.CurrentHp / player.MaxHp : 1f;
-        if (playerHpPct > 0.80f)
-            return false;
+        if (playerHpPct > 0.80f) return;
 
-        if (context.ActionService.ExecuteOgcd(PCTActions.TemperaCoat, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = PCTActions.TemperaCoat.Name;
-            context.Debug.BuffState = "Tempera Coat (self mitigation)";
-            return true;
-        }
-
-        return false;
+        scheduler.PushOgcd(IrisAbilities.TemperaCoat, player.GameObjectId, priority: 5,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = PCTActions.TemperaCoat.Name;
+                context.Debug.BuffState = "Tempera Coat (self mitigation)";
+            });
     }
 
-    private bool TrySmudge(IIrisContext context, bool isMoving)
+    private void TryPushSmudge(IIrisContext context, RotationScheduler scheduler, bool isMoving)
     {
-        if (!context.Configuration.Pictomancer.EnableSmudge)
-            return false;
+        if (!context.Configuration.Pictomancer.EnableSmudge) return;
+        if (!isMoving) return;
+        if (context.Player.Level < PCTActions.Smudge.MinLevel) return;
+        if (!context.SmudgeReady) return;
 
-        if (!isMoving)
-            return false;
-
-        var level = context.Player.Level;
-        if (level < PCTActions.Smudge.MinLevel)
-            return false;
-
-        if (!context.SmudgeReady)
-            return false;
-
-        if (context.ActionService.ExecuteOgcd(PCTActions.Smudge, context.Player.GameObjectId))
-        {
-            context.Debug.PlannedAction = PCTActions.Smudge.Name;
-            context.Debug.BuffState = "Smudge (movement)";
-            return true;
-        }
-
-        return false;
+        scheduler.PushOgcd(IrisAbilities.Smudge, context.Player.GameObjectId, priority: 6,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = PCTActions.Smudge.Name;
+                context.Debug.BuffState = "Smudge (movement)";
+            });
     }
 
-    private bool TrySwiftcast(IIrisContext context, bool isMoving)
+    private void TryPushSwiftcast(IIrisContext context, RotationScheduler scheduler, bool isMoving)
     {
-        if (!isMoving)
-            return false;
+        if (!isMoving) return;
+        if (context.Player.Level < RoleActions.Swiftcast.MinLevel) return;
+        if (!context.SwiftcastReady) return;
+        if (context.HasInstantCast || context.HasWhitePaint || context.HasBlackPaint
+            || context.HasRainbowBright || context.HasStarstruck || context.HasHammerTime) return;
 
-        var level = context.Player.Level;
-        if (level < RoleActions.Swiftcast.MinLevel)
-            return false;
-
-        if (!context.SwiftcastReady)
-            return false;
-
-        // Only use if we have no other instant options
-        if (context.HasInstantCast || context.HasWhitePaint || context.HasBlackPaint ||
-            context.HasRainbowBright || context.HasStarstruck || context.HasHammerTime)
-            return false;
-
-        if (context.ActionService.ExecuteOgcd(RoleActions.Swiftcast, context.Player.GameObjectId))
-        {
-            context.Debug.PlannedAction = RoleActions.Swiftcast.Name;
-            context.Debug.BuffState = "Swiftcast (movement)";
-            return true;
-        }
-
-        return false;
+        scheduler.PushOgcd(IrisAbilities.Swiftcast, context.Player.GameObjectId, priority: 6,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = RoleActions.Swiftcast.Name;
+                context.Debug.BuffState = "Swiftcast (movement)";
+            });
     }
-
-    private bool TryLucidDreaming(IIrisContext context)
-    {
-        if (!context.Configuration.Pictomancer.EnableLucidDreaming)
-            return false;
-
-        var player = context.Player;
-        var level = player.Level;
-
-        if (level < RoleActions.LucidDreaming.MinLevel)
-            return false;
-
-        if (!context.LucidDreamingReady)
-            return false;
-
-        // Use when MP is below 70%
-        if (context.MpPercent > 0.7f)
-            return false;
-
-        if (context.ActionService.ExecuteOgcd(RoleActions.LucidDreaming, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = RoleActions.LucidDreaming.Name;
-            context.Debug.BuffState = "Lucid Dreaming (MP)";
-
-            // Training Mode integration
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(RoleActions.LucidDreaming.ActionId, RoleActions.LucidDreaming.Name)
-                .AsCasterResource("MP", context.CurrentMp)
-                .Reason("Lucid Dreaming - MP recovery",
-                    "Lucid Dreaming restores MP over time. Use when below 70% MP to avoid running out " +
-                    "during long fights. Pictomancer uses moderate MP but needs management.")
-                .Factors($"Current MP: {context.CurrentMp}", $"MP%: {context.MpPercent:P0}",
-                    $"Palette Gauge: {context.PaletteGauge}")
-                .Alternatives("Wait for lower MP", "Ignore if fight ending")
-                .Tip("Use Lucid Dreaming proactively around 70% MP - don't wait until you're empty.")
-                .Concept(PctConcepts.PaletteGauge)
-                .Record();
-
-            context.TrainingService?.RecordConceptApplication(PctConcepts.PaletteGauge, true, "Lucid Dreaming used for MP");
-
-            return true;
-        }
-
-        return false;
-    }
-
-    #endregion
 }
