@@ -541,6 +541,86 @@ public class RotationSchedulerTests
         Assert.False(callbackInvoked);
     }
 
+    [Fact]
+    public void PushGroundTargetedOgcd_AddsCandidateWithPosition()
+    {
+        var scheduler = Build();
+        var behavior = TestBehaviors.InstantOgcd(actionId: 7001);
+        var position = new System.Numerics.Vector3(10f, 0f, 20f);
+
+        scheduler.PushGroundTargetedOgcd(behavior, position, priority: 1);
+
+        Assert.Single(scheduler.InspectOgcdQueue());
+        var candidate = scheduler.InspectOgcdQueue()[0];
+        Assert.Equal(position, candidate.GroundPosition);
+        Assert.Equal(0ul, candidate.TargetId);
+    }
+
+    [Fact]
+    public void DispatchOgcd_GroundTargetedCandidate_CallsExecuteGroundTargetedOgcd()
+    {
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+        actionService.Setup(x => x.ExecuteGroundTargetedOgcd(
+                It.IsAny<ActionDefinition>(), It.IsAny<System.Numerics.Vector3>()))
+            .Returns(true);
+
+        var scheduler = Build(actionService);
+        var behavior = TestBehaviors.InstantOgcd(actionId: 7002);
+        var position = new System.Numerics.Vector3(5f, 0f, 5f);
+        var ctx = CreateContextWithPlayerLevel(80);
+
+        scheduler.PushGroundTargetedOgcd(behavior, position, priority: 1);
+        var result = scheduler.DispatchOgcd(ctx);
+
+        Assert.True(result.Dispatched);
+        actionService.Verify(x => x.ExecuteGroundTargetedOgcd(
+            It.Is<ActionDefinition>(a => a.ActionId == 7002), position), Times.Once);
+        actionService.Verify(x => x.ExecuteOgcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>()), Times.Never);
+    }
+
+    [Fact]
+    public void DispatchOgcd_GroundTargetedReject_RecordsFailReason()
+    {
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+        actionService.Setup(x => x.ExecuteGroundTargetedOgcd(
+                It.IsAny<ActionDefinition>(), It.IsAny<System.Numerics.Vector3>()))
+            .Returns(false);
+
+        var scheduler = Build(actionService);
+        var behavior = TestBehaviors.InstantOgcd(actionId: 7003);
+        var ctx = CreateContextWithPlayerLevel(80);
+
+        scheduler.PushGroundTargetedOgcd(behavior, System.Numerics.Vector3.Zero, priority: 1);
+        var result = scheduler.DispatchOgcd(ctx);
+
+        Assert.False(result.Dispatched);
+        Assert.Contains(result.GateFailReasons, r => r.Contains("DispatchRejected"));
+    }
+
+    [Fact]
+    public void DispatchOgcd_GroundTargetedSkipsTargetIdGate()
+    {
+        // Ground-targeted candidates have TargetId=0 by design — the target gate
+        // (which validates the target exists in ObjectTable) should not block them.
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+        actionService.Setup(x => x.ExecuteGroundTargetedOgcd(
+                It.IsAny<ActionDefinition>(), It.IsAny<System.Numerics.Vector3>()))
+            .Returns(true);
+
+        var scheduler = Build(actionService);
+        var behavior = TestBehaviors.InstantOgcd(actionId: 7004);
+        // Context has ObjectTable; ground-target candidate's TargetId = 0 should bypass it.
+        var ctx = CreateContextWithPlayerLevelAndTarget(level: 80, targetId: 0, targetExists: false);
+
+        scheduler.PushGroundTargetedOgcd(behavior, new System.Numerics.Vector3(1f, 0f, 1f), priority: 1);
+        var result = scheduler.DispatchOgcd(ctx);
+
+        Assert.True(result.Dispatched);
+    }
+
     private static IRotationContext CreateContextWithPlayerLevel(byte level)
     {
         var mock = new Mock<IRotationContext>();
