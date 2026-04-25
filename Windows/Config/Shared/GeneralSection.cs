@@ -58,6 +58,7 @@ public sealed class GeneralSection
     public void DrawGeneral()
     {
         DrawCombatBehaviorSection();
+        DrawModifierKeysSection();
         DrawResurrectionSection();
         DrawLanguageSection();
         DrawPrivacySection();
@@ -447,6 +448,62 @@ public sealed class GeneralSection
             ConfigUIHelpers.DangerText(Loc.T(LocalizedStrings.RoleActions.RescueWarning, "WARNING: Rescue can kill party members if misused!"));
         }
         ImGui.TextDisabled(Loc.T(LocalizedStrings.RoleActions.EnableRescueDesc, "Pulls party member to your position. Manual use only."));
+
+        ConfigUIHelpers.EndIndent();
+    }
+
+    private void DrawModifierKeysSection()
+    {
+        if (!ConfigUIHelpers.SectionHeader(Loc.T("ui.config.modifier_keys.header", "Modifier Key Overrides")))
+            return;
+
+        ConfigUIHelpers.BeginIndent();
+
+        ConfigUIHelpers.Toggle(
+            Loc.T("ui.config.modifier_keys.enable", "Enable modifier-key overrides"),
+            () => this.config.Input.EnableModifierOverrides,
+            v => this.config.Input.EnableModifierOverrides = v,
+            Loc.T("ui.config.modifier_keys.enable_desc",
+                "Hold the burst key to dump cooldowns and gauge spenders immediately, ignoring burst pooling. Hold the conservative key to force pooling on. Default off because Shift and Ctrl are commonly held in chat or for game keybinds; an accidental override would dump cooldowns at the wrong moment."),
+            this.save);
+
+        if (!this.config.Input.EnableModifierOverrides)
+        {
+            ConfigUIHelpers.EndIndent();
+            return;
+        }
+
+        var modifierNames = new[] { "None", "Shift", "Control", "Alt" };
+
+        var burstKey = (int)this.config.Input.BurstOverrideKey;
+        ImGui.SetNextItemWidth(160);
+        if (ImGui.Combo(Loc.T("ui.config.modifier_keys.burst", "Burst override key"), ref burstKey, modifierNames, modifierNames.Length))
+        {
+            this.config.Input.BurstOverrideKey = (Olympus.Config.ModifierKey)burstKey;
+            this.save();
+        }
+        ImGui.TextDisabled(Loc.T("ui.config.modifier_keys.burst_desc",
+            "While held: bypass burst pooling and phase-transition holds, fire cooldowns ASAP."));
+
+        ConfigUIHelpers.Spacing();
+
+        var conservativeKey = (int)this.config.Input.ConservativeOverrideKey;
+        ImGui.SetNextItemWidth(160);
+        if (ImGui.Combo(Loc.T("ui.config.modifier_keys.conservative", "Conservative override key"), ref conservativeKey, modifierNames, modifierNames.Length))
+        {
+            this.config.Input.ConservativeOverrideKey = (Olympus.Config.ModifierKey)conservativeKey;
+            this.save();
+        }
+        ImGui.TextDisabled(Loc.T("ui.config.modifier_keys.conservative_desc",
+            "While held: force burst pooling on. Cooldowns and gauge spenders hold even when no imminent burst is detected."));
+
+        if (this.config.Input.BurstOverrideKey != Olympus.Config.ModifierKey.None
+            && this.config.Input.BurstOverrideKey == this.config.Input.ConservativeOverrideKey)
+        {
+            ConfigUIHelpers.Spacing();
+            ConfigUIHelpers.DangerText(Loc.T("ui.config.modifier_keys.same_key_warning",
+                "Both keys are bound to the same modifier. Holding it cancels the override (treated as no override)."));
+        }
 
         ConfigUIHelpers.EndIndent();
     }

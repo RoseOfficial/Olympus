@@ -14,6 +14,7 @@ using Olympus.Services.Cooldown;
 using Olympus.Services.Debuff;
 using Olympus.Services.Debug;
 using Olympus.Services.Healing;
+using Olympus.Services.Input;
 using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
@@ -30,6 +31,7 @@ using Olympus.Timeline;
 using Olympus.Training;
 using Olympus.Localization;
 using Olympus.Services.Drawing;
+using Olympus.Rotation.Common.Helpers;
 using Olympus.Windows;
 using Olympus.Windows.Debug.Tabs;
 using Olympus.Windows.Training;
@@ -85,6 +87,9 @@ public sealed class Plugin : IDalamudPlugin
 
     // Burst window tracking for DPS rotations
     private readonly BurstWindowService burstWindowService;
+
+    // Player-intent overrides (Shift = burst now, Ctrl = conservative)
+    private readonly ModifierKeyService modifierKeyService;
 
     // Timeline service
     private readonly TimelineService timelineService;
@@ -155,7 +160,8 @@ public sealed class Plugin : IDalamudPlugin
         IJobGauges jobGauges,
         ITextureProvider textureProvider,
         IGameGui gameGui,
-        INotificationManager notificationManager)
+        INotificationManager notificationManager,
+        IKeyState keyState)
     {
         this.pluginInterface = pluginInterface;
         this.framework = framework;
@@ -239,6 +245,12 @@ public sealed class Plugin : IDalamudPlugin
         // Burst window service (DPS resource pooling during raid buffs)
         // Created after partyCoordinationService so it can use IPC data when available
         this.burstWindowService = new BurstWindowService(this.partyCoordinationService);
+
+        // Modifier-key overrides (Shift = burst, Ctrl = conservative). Static accessor
+        // on BurstHoldHelper means all 30+ pooling decision sites pick up the override
+        // automatically without threading the service through every constructor.
+        this.modifierKeyService = new ModifierKeyService(keyState, configuration);
+        BurstHoldHelper.ModifierKeys = this.modifierKeyService;
 
         // Performance analytics
         this.performanceTracker = new PerformanceTracker(
@@ -455,6 +467,9 @@ public sealed class Plugin : IDalamudPlugin
         // DPS burst window service
         container.Register<IBurstWindowService, BurstWindowService>(burstWindowService);
 
+        // Player-intent override service
+        container.Register<IModifierKeyService, ModifierKeyService>(modifierKeyService);
+
         // Smart AoE service for directional ability optimization
         container.Register<ISmartAoEService, SmartAoEService>(smartAoEService);
 
@@ -585,6 +600,10 @@ public sealed class Plugin : IDalamudPlugin
 
             // Update timeline service for sync and predictions
             timelineService.Update();
+
+            // Refresh modifier-key state. Cheap (~3 lookups), runs every frame so
+            // BurstHoldHelper sees the latest player intent before the rotation runs.
+            modifierKeyService.Update();
 
             // Update combat state for analytics — must run before performanceTracker
             // and outside the dead-player gate so sessions end correctly when the

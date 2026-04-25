@@ -86,6 +86,7 @@ public sealed class Configuration : IPluginConfiguration
     public OverlayConfig Overlay { get; set; } = new();
     public ActionFeedConfig ActionFeed { get; set; } = new();
     public DrawHelperConfig DrawHelper { get; set; } = new();
+    public InputConfig Input { get; set; } = new();
 
     // Job-specific configuration - Healers
     public HealerSharedConfig HealerShared { get; set; } = new();
