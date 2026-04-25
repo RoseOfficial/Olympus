@@ -46,4 +46,13 @@ public static class AthenaAbilities
     // --- Defensive ---
     public static readonly AbilityBehavior Expedient = new() { Action = SCHActions.Expedient };
     public static readonly AbilityBehavior DeploymentTactics = new() { Action = SCHActions.DeploymentTactics };
+
+    // --- Damage oGCDs ---
+    public static readonly AbilityBehavior ChainStratagem = new() { Action = SCHActions.ChainStratagem };
+    public static readonly AbilityBehavior BanefulImpaction = new() { Action = SCHActions.BanefulImpaction };
+    public static readonly AbilityBehavior EnergyDrain = new() { Action = SCHActions.EnergyDrain };
+    public static readonly AbilityBehavior Aetherflow = new() { Action = SCHActions.Aetherflow };
+
+    // --- Damage GCDs ---
+    public static readonly AbilityBehavior RuinII = new() { Action = SCHActions.RuinII };
 }

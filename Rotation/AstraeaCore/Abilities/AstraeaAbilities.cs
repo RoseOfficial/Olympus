@@ -59,4 +59,8 @@ public static class AstraeaAbilities
     public static readonly AbilityBehavior NeutralSect = new() { Action = ASTActions.NeutralSect };
     public static readonly AbilityBehavior SunSign = new() { Action = ASTActions.SunSign };
     public static readonly AbilityBehavior CollectiveUnconscious = new() { Action = ASTActions.CollectiveUnconscious };
+
+    // --- Damage oGCDs ---
+    public static readonly AbilityBehavior Oracle = new() { Action = ASTActions.Oracle };
+    public static readonly AbilityBehavior LordOfCrowns = new() { Action = ASTActions.LordOfCrowns };
 }

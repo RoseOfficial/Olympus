@@ -1,211 +1,195 @@
-using System;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
+using Olympus.Rotation.AstraeaCore.Abilities;
 using Olympus.Rotation.AstraeaCore.Context;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AstraeaCore.Modules;
 
 /// <summary>
-/// Astrologian-specific damage module.
-/// Extends base damage logic with Oracle (Divination follow-up) and Lord of Crowns.
+/// Astrologian-specific damage module (scheduler-driven).
 /// </summary>
 public sealed class DamageModule : BaseDamageModule<IAstraeaContext>, IAstraeaModule
 {
-    #region Base Class Overrides - Configuration Properties
-
-    protected override bool IsDamageEnabled(IAstraeaContext context) =>
-        context.Configuration.Astrologian.EnableSingleTargetDamage;
-
-    protected override bool IsDoTEnabled(IAstraeaContext context) =>
-        context.Configuration.Astrologian.EnableDot;
-
-    protected override bool IsAoEDamageEnabled(IAstraeaContext context) =>
-        context.Configuration.Astrologian.EnableAoEDamage;
-
-    protected override int AoEMinTargets(IAstraeaContext context) =>
-        context.Configuration.Astrologian.AoEDamageMinTargets;
-
-    protected override float DoTRefreshThreshold(IAstraeaContext context) =>
-        context.Configuration.Astrologian.DotRefreshThreshold;
-
-    #endregion
-
-    #region Base Class Overrides - Action Methods
-
-    protected override uint GetDoTStatusId(IAstraeaContext context) =>
-        ASTActions.GetDotStatusId(context.Player.Level);
-
-    protected override ActionDefinition? GetDoTAction(IAstraeaContext context) =>
-        ASTActions.GetDotForLevel(context.Player.Level);
-
-    protected override ActionDefinition? GetAoEDamageAction(IAstraeaContext context) =>
-        ASTActions.GetAoEDamageForLevel(context.Player.Level);
-
-    protected override ActionDefinition GetSingleTargetAction(IAstraeaContext context, bool isMoving) =>
-        ASTActions.GetDamageGcdForLevel(context.Player.Level);
-
-    #endregion
-
-    #region Base Class Overrides - Debug State
-
-    protected override void SetDpsState(IAstraeaContext context, string state) =>
-        context.Debug.DpsState = state;
-
-    protected override void SetAoEDpsState(IAstraeaContext context, string state) =>
-        context.Debug.AoEDpsState = state;
-
-    protected override void SetAoEDpsEnemyCount(IAstraeaContext context, int count) =>
-        context.Debug.AoEDpsEnemyCount = count;
-
-    protected override void SetPlannedAction(IAstraeaContext context, string action) =>
-        context.Debug.PlannedAction = action;
-
-    #endregion
-
-    #region Base Class Overrides - Behavioral
-
-    /// <summary>
-    /// AST can DoT while moving (Combust is instant).
-    /// </summary>
+    protected override bool IsDamageEnabled(IAstraeaContext context) => context.Configuration.Astrologian.EnableSingleTargetDamage;
+    protected override bool IsDoTEnabled(IAstraeaContext context) => context.Configuration.Astrologian.EnableDot;
+    protected override bool IsAoEDamageEnabled(IAstraeaContext context) => context.Configuration.Astrologian.EnableAoEDamage;
+    protected override int AoEMinTargets(IAstraeaContext context) => context.Configuration.Astrologian.AoEDamageMinTargets;
+    protected override float DoTRefreshThreshold(IAstraeaContext context) => context.Configuration.Astrologian.DotRefreshThreshold;
+    protected override uint GetDoTStatusId(IAstraeaContext context) => ASTActions.GetDotStatusId(context.Player.Level);
+    protected override ActionDefinition? GetDoTAction(IAstraeaContext context) => ASTActions.GetDotForLevel(context.Player.Level);
+    protected override ActionDefinition? GetAoEDamageAction(IAstraeaContext context) => ASTActions.GetAoEDamageForLevel(context.Player.Level);
+    protected override ActionDefinition GetSingleTargetAction(IAstraeaContext context, bool isMoving) => ASTActions.GetDamageGcdForLevel(context.Player.Level);
+    protected override void SetDpsState(IAstraeaContext context, string state) => context.Debug.DpsState = state;
+    protected override void SetAoEDpsState(IAstraeaContext context, string state) => context.Debug.AoEDpsState = state;
+    protected override void SetAoEDpsEnemyCount(IAstraeaContext context, int count) => context.Debug.AoEDpsEnemyCount = count;
+    protected override void SetPlannedAction(IAstraeaContext context, string action) => context.Debug.PlannedAction = action;
+    protected override bool BlocksOnExecution => false;
     protected override bool CanDoT(IAstraeaContext context, bool isMoving) => true;
 
-    /// <summary>
-    /// AST cannot single-target while moving (Malefic has cast time).
-    /// Unless Lightspeed is active.
-    /// </summary>
-    protected override bool CanSingleTarget(IAstraeaContext context, bool isMoving)
+    public override bool TryExecute(IAstraeaContext context, bool isMoving) => false;
+
+    public new void CollectCandidates(IAstraeaContext context, RotationScheduler scheduler, bool isMoving)
     {
-        if (!isMoving)
-            return true;
-
-        // Can cast while moving with Lightspeed
-        return context.HasLightspeed;
-    }
-
-    /// <summary>
-    /// AST oGCD damage: Oracle (Divination follow-up) and Lord of Crowns.
-    /// </summary>
-    protected override bool TryOgcdDamage(IAstraeaContext context)
-    {
-        // Priority 1: Oracle (when Divining proc is active)
-        if (TryOracle(context))
-            return true;
-
-        // Priority 2: Lord of Crowns (if we have Lord card and want to spend it for damage)
-        if (TryLordOfCrowns(context))
-            return true;
-
-        return false;
-    }
-
-    #endregion
-
-    #region AST-Specific oGCD Methods
-
-    private bool TryOracle(IAstraeaContext context)
-    {
-        var config = context.Configuration.Astrologian;
-        var player = context.Player;
-
-        if (!config.EnableOracle)
-            return false;
-
-        if (player.Level < ASTActions.Oracle.MinLevel)
-            return false;
-
-        // Check for Divining buff (Oracle proc from Divination)
-        if (!context.HasDivining)
-            return false;
-
-        var target = context.TargetingService.FindEnemy(
-            context.Configuration.Targeting.EnemyStrategy,
-            ASTActions.Oracle.Range,
-            player);
-
-        if (target == null)
-            return false;
-
-        if (context.ActionService.ExecuteOgcd(ASTActions.Oracle, target.GameObjectId))
+        if (!context.InCombat) return;
+        if (context.TargetingService.IsDamageTargetingPaused()) { SetDpsState(context, "Paused (no target)"); return; }
+        if (context.Configuration.Targeting.SuppressDamageOnForcedMovement
+            && PlayerSafetyHelper.IsForcedMovementActive(context.Player))
         {
-            SetPlannedAction(context, ASTActions.Oracle.Name);
-            context.Debug.OracleState = "Used";
-            SetDpsState(context, "Oracle");
-
-            TrainingHelper.RecordDamageDecision(
-                context.TrainingService,
-                ASTActions.Oracle.ActionId,
-                "Oracle",
-                target.Name?.TextValue,
-                "Oracle - Divination follow-up oGCD damage",
-                "Oracle is triggered by the Divining buff from Divination. It delivers a potent oGCD attack that is the payoff for using Divination. Always spend the Divining buff before it expires — Oracle has no cooldown, it's purely proc-based.",
-                new[] { "Divining buff active", "Free oGCD damage", "High potency follow-up", "Always use before Divining expires" },
-                new[] { "Nothing — Oracle must be used while Divining is active" },
-                "Oracle is your Divination payoff. Use it immediately after Divination while weaving other oGCDs. Never let Divining expire unused!",
-                AstConcepts.OracleUsage,
-                ExplanationPriority.High);
-
-            context.TrainingService?.RecordConceptApplication(AstConcepts.OracleUsage, wasSuccessful: true, "Divining buff consumed");
-
-            return true;
+            SetDpsState(context, "Paused (forced movement)");
+            return;
         }
 
-        return false;
+        TryPushOracle(context, scheduler);
+        TryPushLordOfCrowns(context, scheduler);
+        TryPushDoT(context, scheduler);
+        TryPushAoEDamage(context, scheduler);
+        TryPushSingleTargetDamage(context, scheduler, isMoving);
     }
-
-    private bool TryLordOfCrowns(IAstraeaContext context)
-    {
-        var config = context.Configuration.Astrologian;
-        var player = context.Player;
-
-        // Lord is used for damage when we have it and don't need Lady for healing
-        if (!context.CardService.HasLord)
-            return false;
-
-        if (player.Level < ASTActions.LordOfCrowns.MinLevel)
-            return false;
-
-        var target = context.TargetingService.FindEnemy(
-            context.Configuration.Targeting.EnemyStrategy,
-            ASTActions.LordOfCrowns.Range,
-            player);
-
-        if (target == null)
-            return false;
-
-        if (context.ActionService.ExecuteOgcd(ASTActions.LordOfCrowns, target.GameObjectId))
-        {
-            SetPlannedAction(context, ASTActions.LordOfCrowns.Name);
-            SetDpsState(context, "Lord of Crowns");
-
-            TrainingHelper.RecordDamageDecision(
-                context.TrainingService,
-                ASTActions.LordOfCrowns.ActionId,
-                "Lord of Crowns",
-                target.Name?.TextValue,
-                "Lord of Crowns - Minor Arcana damage card",
-                "Lord of Crowns is the damage outcome from Minor Arcana. It delivers 250 potency AoE oGCD damage. In damage-focused strategies, Lord is spent immediately to contribute DPS. Lady of Crowns is saved in the healing module for emergencies.",
-                new[] { "Minor Arcana gave Lord (damage card)", "250 potency AoE oGCD", "Free damage — no GCD cost", "Lady reserved by healing module" },
-                new[] { "Save Lord for burst window alignment", "Use Lady for emergency party heal (handled in healing module)" },
-                "Lord of Crowns is free damage! Spend it promptly so you can draw Minor Arcana again sooner. Align with burst windows when possible for maximum party buff synergy.",
-                AstConcepts.DpsOptimization,
-                ExplanationPriority.Normal);
-
-            context.TrainingService?.RecordConceptApplication(AstConcepts.DpsOptimization, wasSuccessful: true, "Lord of Crowns damage");
-
-            return true;
-        }
-
-        return false;
-    }
-
-    #endregion
 
     public override void UpdateDebugState(IAstraeaContext context)
     {
         context.Debug.OracleState = context.HasDivining ? "Ready" : "Idle";
+    }
+
+    private void TryPushOracle(IAstraeaContext context, RotationScheduler scheduler)
+    {
+        var config = context.Configuration.Astrologian;
+        var player = context.Player;
+
+        if (!config.EnableOracle) return;
+        if (player.Level < ASTActions.Oracle.MinLevel) return;
+        if (!context.HasDivining) return;
+
+        var target = context.TargetingService.FindEnemy(
+            context.Configuration.Targeting.EnemyStrategy, ASTActions.Oracle.Range, player);
+        if (target == null) return;
+
+        scheduler.PushOgcd(AstraeaAbilities.Oracle, target.GameObjectId, priority: 285,
+            onDispatched: _ =>
+            {
+                SetPlannedAction(context, ASTActions.Oracle.Name);
+                context.Debug.OracleState = "Used";
+                SetDpsState(context, "Oracle");
+                context.TrainingService?.RecordConceptApplication(AstConcepts.OracleUsage, wasSuccessful: true, "Divining buff consumed");
+            });
+    }
+
+    private void TryPushLordOfCrowns(IAstraeaContext context, RotationScheduler scheduler)
+    {
+        var config = context.Configuration.Astrologian;
+        var player = context.Player;
+
+        if (!context.CardService.HasLord) return;
+        if (player.Level < ASTActions.LordOfCrowns.MinLevel) return;
+
+        var target = context.TargetingService.FindEnemy(
+            context.Configuration.Targeting.EnemyStrategy, ASTActions.LordOfCrowns.Range, player);
+        if (target == null) return;
+
+        scheduler.PushOgcd(AstraeaAbilities.LordOfCrowns, target.GameObjectId, priority: 290,
+            onDispatched: _ =>
+            {
+                SetPlannedAction(context, ASTActions.LordOfCrowns.Name);
+                SetDpsState(context, "Lord of Crowns");
+                context.TrainingService?.RecordConceptApplication(AstConcepts.DpsOptimization, wasSuccessful: true, "Lord of Crowns damage");
+            });
+    }
+
+    private void TryPushDoT(IAstraeaContext context, RotationScheduler scheduler)
+    {
+        if (!IsDoTEnabled(context)) return;
+
+        var dotAction = GetDoTAction(context);
+        if (dotAction == null) return;
+
+        if (IsAoEDamageEnabled(context))
+        {
+            var aoeAction = GetAoEDamageAction(context);
+            if (aoeAction != null)
+            {
+                var enemyCount = context.TargetingService.CountEnemiesInRange(aoeAction.Radius, context.Player);
+                if (enemyCount >= AoEMinTargets(context)) { SetDpsState(context, $"DoT: skipped ({enemyCount} enemies)"); return; }
+            }
+        }
+
+        var dotCastTime = context.HasSwiftcast ? 0f : dotAction.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, dotCastTime)) { SetDpsState(context, "DoT: mechanic imminent"); return; }
+
+        var dotStatusId = GetDoTStatusId(context);
+        if (dotStatusId == 0) return;
+
+        var target = context.TargetingService.FindEnemyNeedingDot(dotStatusId, DoTRefreshThreshold(context), dotAction.Range, context.Player);
+        if (target == null) { SetDpsState(context, "DoT: no target"); return; }
+
+        var capturedAction = dotAction;
+        var behavior = new AbilityBehavior { Action = dotAction };
+
+        scheduler.PushGcd(behavior, target.GameObjectId, priority: 310,
+            onDispatched: _ =>
+            {
+                SetPlannedAction(context, capturedAction.Name);
+                SetDpsState(context, "DoT");
+            });
+    }
+
+    private void TryPushAoEDamage(IAstraeaContext context, RotationScheduler scheduler)
+    {
+        if (!IsAoEDamageEnabled(context)) return;
+
+        var aoeAction = GetAoEDamageAction(context);
+        if (aoeAction == null) return;
+
+        var aoeCastTime = context.HasSwiftcast ? 0f : aoeAction.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, aoeCastTime)) { SetAoEDpsState(context, "Holding: mechanic imminent"); return; }
+
+        var enemyCount = context.TargetingService.CountEnemiesInRange(aoeAction.Radius, context.Player);
+        SetAoEDpsEnemyCount(context, enemyCount);
+        if (enemyCount < AoEMinTargets(context)) { SetAoEDpsState(context, $"{enemyCount} < {AoEMinTargets(context)} min"); return; }
+
+        var targetId = aoeAction.TargetType == ActionTargetType.Self
+            ? context.Player.GameObjectId
+            : FindBestAoETarget(context, aoeAction);
+        if (targetId == 0) return;
+
+        var capturedAction = aoeAction;
+        var capturedEnemyCount = enemyCount;
+        var behavior = new AbilityBehavior { Action = aoeAction };
+
+        scheduler.PushGcd(behavior, targetId, priority: 320,
+            onDispatched: _ =>
+            {
+                SetPlannedAction(context, capturedAction.Name);
+                SetDpsState(context, $"AoE ({capturedEnemyCount} targets)");
+                SetAoEDpsState(context, $"{capturedEnemyCount} enemies");
+            });
+    }
+
+    private void TryPushSingleTargetDamage(IAstraeaContext context, RotationScheduler scheduler, bool isMoving)
+    {
+        if (!IsDamageEnabled(context)) { SetDpsState(context, "Damage disabled"); return; }
+        if (isMoving && !context.HasLightspeed) return;
+
+        var action = GetSingleTargetAction(context, isMoving);
+        var stCastTime = context.HasSwiftcast || context.HasLightspeed ? 0f : action.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, stCastTime)) { SetDpsState(context, "Holding: mechanic imminent"); return; }
+
+        var target = context.TargetingService.FindEnemy(
+            context.Configuration.Targeting.EnemyStrategy, action.Range, context.Player);
+        if (target == null) { SetDpsState(context, "No enemy found"); return; }
+
+        var capturedAction = action;
+        var behavior = new AbilityBehavior { Action = action };
+
+        scheduler.PushGcd(behavior, target.GameObjectId, priority: 330,
+            onDispatched: _ =>
+            {
+                SetPlannedAction(context, capturedAction.Name);
+                SetDpsState(context, capturedAction.Name);
+            });
     }
 }
