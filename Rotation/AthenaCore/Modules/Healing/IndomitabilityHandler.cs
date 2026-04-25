@@ -2,15 +2,13 @@ using System;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
+using Olympus.Rotation.AthenaCore.Abilities;
 using Olympus.Rotation.AthenaCore.Context;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AthenaCore.Modules.Healing;
 
-/// <summary>
-/// Handles Indomitability for Scholar. Priority 25 in the oGCD list.
-/// Costs 1 Aetherflow stack (free with Recitation).
-/// </summary>
 public sealed class IndomitabilityHandler : IHealingHandler
 {
     public int Priority => 25;
@@ -23,101 +21,73 @@ public sealed class IndomitabilityHandler : IHealingHandler
         "Fey Blessing (fairy burst)",
     };
 
-    public bool TryExecute(IAthenaContext context, bool isMoving)
-        => TryIndomitability(context);
-
-    private bool TryIndomitability(IAthenaContext context)
+    public void CollectCandidates(IAthenaContext context, RotationScheduler scheduler, bool isMoving)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
 
-        if (!config.EnableIndomitability)
-            return false;
+        if (!config.EnableIndomitability) return;
+        if (player.Level < SCHActions.Indomitability.MinLevel) return;
+        if (!context.ActionService.IsActionReady(SCHActions.Indomitability.ActionId)) return;
 
-        if (player.Level < SCHActions.Indomitability.MinLevel)
-            return false;
+        var hasRecitation = context.StatusHelper.HasRecitation(player);
+        if (!hasRecitation && context.AetherflowService.CurrentStacks <= config.AetherflowReserve) return;
 
-        if (!context.ActionService.IsActionReady(SCHActions.Indomitability.ActionId))
-            return false;
-
-        // Skip if no Aetherflow (unless Recitation is active)
-        if (!context.StatusHelper.HasRecitation(player))
-        {
-            if (context.AetherflowService.CurrentStacks <= config.AetherflowReserve)
-                return false;
-        }
-
-        if (!ShouldUseIndomitability(context))
-            return false;
+        var (avgHp, _, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
+        if (avgHp > config.AoEHealThreshold || injuredCount < config.AoEHealMinTargets) return;
 
         var action = SCHActions.Indomitability;
 
-        // Check AoE coordination - prevent multiple healers from casting AoE heals simultaneously
         if (!context.HealingCoordination.TryReserveAoEHeal(
             context.PartyCoordinationService, action.ActionId, action.HealPotency, 0))
         {
             context.Debug.IndomitabilityState = "Skipped (remote AOE reserved)";
-            return false;
+            return;
         }
 
-        if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
-        {
-            var hasRecitation = context.StatusHelper.HasRecitation(player);
-            if (!hasRecitation)
-                context.AetherflowService.ConsumeStack();
+        var capturedAvgHp = avgHp;
+        var capturedInjuredCount = injuredCount;
+        var capturedHasRecitation = hasRecitation;
 
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.PlanningState = "Indomitability";
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushOgcd(AthenaAbilities.Indomitability, player.GameObjectId, priority: Priority,
+            onDispatched: _ =>
             {
-                var (avgHp, _, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
+                if (!capturedHasRecitation)
+                    context.AetherflowService.ConsumeStack();
 
-                var shortReason = $"Indomitability - {injuredCount} injured, avg HP {avgHp:P0}";
+                context.Debug.PlannedAction = action.Name;
+                context.Debug.PlanningState = "Indomitability";
 
-                var factors = new[]
+                if (context.TrainingService?.IsTrainingEnabled == true)
                 {
-                    $"Party avg HP: {avgHp:P0}",
-                    $"Injured count: {injuredCount}",
-                    hasRecitation ? "Recitation active (guaranteed crit, free)" : $"Aetherflow stacks: {context.AetherflowService.CurrentStacks}/3",
-                    "400 potency AoE heal",
-                    "oGCD - can weave without clipping",
-                };
+                    var shortReason = $"Indomitability - {capturedInjuredCount} injured, avg HP {capturedAvgHp:P0}";
+                    var factors = new[]
+                    {
+                        $"Party avg HP: {capturedAvgHp:P0}",
+                        $"Injured count: {capturedInjuredCount}",
+                        capturedHasRecitation ? "Recitation active (guaranteed crit, free)" : $"Aetherflow stacks: {context.AetherflowService.CurrentStacks}/3",
+                        "400 potency AoE heal",
+                        "oGCD - can weave without clipping",
+                    };
 
-                var alternatives = _indomitabilityAlternatives;
+                    context.TrainingService.RecordDecision(new ActionExplanation
+                    {
+                        Timestamp = DateTime.UtcNow,
+                        ActionId = action.ActionId,
+                        ActionName = "Indomitability",
+                        Category = "Healing",
+                        TargetName = "Party",
+                        ShortReason = shortReason,
+                        DetailedReason = $"Indomitability to heal {capturedInjuredCount} party members at {capturedAvgHp:P0} average HP. 400 potency AoE heal, instant oGCD. {(capturedHasRecitation ? "Recitation made this free and guaranteed critical!" : $"Cost 1 Aetherflow stack ({context.AetherflowService.CurrentStacks}/3 remaining).")} Best used after raidwides when multiple party members are injured.",
+                        Factors = factors,
+                        Alternatives = _indomitabilityAlternatives,
+                        Tip = "Indomitability is your primary AoE oGCD heal. Pair with Recitation for burst healing. Use after raidwides rather than before (shields go before, heals go after).",
+                        ConceptId = SchConcepts.IndomitabilityUsage,
+                        Priority = capturedAvgHp < 0.5f ? ExplanationPriority.High : ExplanationPriority.Normal,
+                    });
 
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = action.ActionId,
-                    ActionName = "Indomitability",
-                    Category = "Healing",
-                    TargetName = "Party",
-                    ShortReason = shortReason,
-                    DetailedReason = $"Indomitability to heal {injuredCount} party members at {avgHp:P0} average HP. 400 potency AoE heal, instant oGCD. {(hasRecitation ? "Recitation made this free and guaranteed critical!" : $"Cost 1 Aetherflow stack ({context.AetherflowService.CurrentStacks}/3 remaining).")} Best used after raidwides when multiple party members are injured.",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = "Indomitability is your primary AoE oGCD heal. Pair with Recitation for burst healing. Use after raidwides rather than before (shields go before, heals go after).",
-                    ConceptId = SchConcepts.IndomitabilityUsage,
-                    Priority = avgHp < 0.5f ? ExplanationPriority.High : ExplanationPriority.Normal,
-                });
-
-                context.TrainingService.RecordConceptApplication(SchConcepts.IndomitabilityUsage, wasSuccessful: true);
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    private static bool ShouldUseIndomitability(IAthenaContext context)
-    {
-        var config = context.Configuration.Scholar;
-        var player = context.Player;
-
-        var (avgHp, _, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
-        return avgHp <= config.AoEHealThreshold && injuredCount >= config.AoEHealMinTargets;
+                    context.TrainingService.RecordConceptApplication(SchConcepts.IndomitabilityUsage, wasSuccessful: true);
+                }
+            });
     }
 }

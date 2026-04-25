@@ -1,86 +1,56 @@
 using Olympus.Data;
+using Olympus.Rotation.AthenaCore.Abilities;
 using Olympus.Rotation.AthenaCore.Context;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Debuff;
 
 namespace Olympus.Rotation.AthenaCore.Modules.Healing;
 
-/// <summary>
-/// Handles debuff cleansing with Esuna for Scholar.
-/// Uses priority-based debuff detection for lethal and high-priority debuffs.
-/// </summary>
 public sealed class EsunaHandler : IHealingHandler
 {
     public int Priority => 5;
     public string Name => "Esuna";
 
-    public bool TryExecute(IAthenaContext context, bool isMoving)
+    public void CollectCandidates(IAthenaContext context, RotationScheduler scheduler, bool isMoving)
     {
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.RoleActions.EnableEsuna)
-        {
-            context.Debug.EsunaState = "Disabled";
-            return false;
-        }
-
-        if (player.Level < RoleActions.Esuna.MinLevel)
-        {
-            context.Debug.EsunaState = $"Level {player.Level} < {RoleActions.Esuna.MinLevel}";
-            return false;
-        }
-
-        if (player.CurrentMp < RoleActions.Esuna.MpCost)
-        {
-            context.Debug.EsunaState = $"MP {player.CurrentMp} < {RoleActions.Esuna.MpCost}";
-            return false;
-        }
+        if (!config.RoleActions.EnableEsuna) { context.Debug.EsunaState = "Disabled"; return; }
+        if (player.Level < RoleActions.Esuna.MinLevel) { context.Debug.EsunaState = $"Level {player.Level} < {RoleActions.Esuna.MinLevel}"; return; }
+        if (player.CurrentMp < RoleActions.Esuna.MpCost) { context.Debug.EsunaState = $"MP {player.CurrentMp} < {RoleActions.Esuna.MpCost}"; return; }
 
         var (target, statusId, priority) = EsunaHelper.FindBestTarget(
             player, context.PartyHelper.GetAllPartyMembers(player), context.DebuffDetectionService);
-
-        if (target is null)
-        {
-            context.Debug.EsunaState = "No target";
-            context.Debug.EsunaTarget = "None";
-            return false;
-        }
+        if (target is null) { context.Debug.EsunaState = "No target"; context.Debug.EsunaTarget = "None"; return; }
 
         if (priority != DebuffPriority.Lethal && (int)priority > config.RoleActions.EsunaPriorityThreshold)
         {
             context.Debug.EsunaState = $"Priority {priority} > threshold {config.RoleActions.EsunaPriorityThreshold}";
-            return false;
+            return;
         }
 
-        if (isMoving && !context.HasSwiftcast)
-        {
-            context.Debug.EsunaState = "Moving (no Swiftcast)";
-            return false;
-        }
+        if (isMoving && !context.HasSwiftcast) { context.Debug.EsunaState = "Moving (no Swiftcast)"; return; }
 
         var partyCoord = context.PartyCoordinationService;
         var targetEntityId = (uint)target.GameObjectId;
         if (partyCoord?.IsCleanseTargetReservedByOther(targetEntityId) == true)
         {
             context.Debug.EsunaState = "Reserved by other";
-            return false;
+            return;
         }
 
         if (partyCoord != null && !partyCoord.ReserveCleanseTarget(targetEntityId, statusId, RoleActions.Esuna.ActionId, (int)priority))
         {
             context.Debug.EsunaState = "Failed to reserve";
-            return false;
+            return;
         }
 
-        var targetName = target.Name?.TextValue ?? "Unknown";
-        context.Debug.EsunaTarget = targetName;
+        context.Debug.EsunaTarget = target.Name?.TextValue ?? "Unknown";
         context.Debug.EsunaState = $"Cleansing {priority} debuff";
 
-        if (context.ActionService.ExecuteGcd(RoleActions.Esuna, target.GameObjectId))
-            return true;
-
-        partyCoord?.ClearCleanseReservation(targetEntityId);
-        return false;
+        scheduler.PushGcd(AthenaAbilities.Esuna, target.GameObjectId, priority: Priority,
+            onDispatched: _ => { });
     }
 }

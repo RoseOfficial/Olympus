@@ -1,18 +1,15 @@
 using System;
-using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Helpers;
-using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.AthenaCore.Abilities;
 using Olympus.Rotation.AthenaCore.Context;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AthenaCore.Modules.Healing;
 
-/// <summary>
-/// Handles AoE GCD heals (Succor / Concitation) for Scholar. Priority 10 in the GCD list.
-/// </summary>
 public sealed class AoEHealHandler : IHealingHandler
 {
     public int Priority => 10;
@@ -25,117 +22,94 @@ public sealed class AoEHealHandler : IHealingHandler
         "Sacred Soil (mitigation + HoT)",
     };
 
-    public bool TryExecute(IAthenaContext context, bool isMoving)
+    public void CollectCandidates(IAthenaContext context, RotationScheduler scheduler, bool isMoving)
     {
-        if (isMoving) return false;
-        return TryAoEHeal(context);
-    }
+        if (isMoving) return;
 
-    private bool TryAoEHeal(IAthenaContext context)
-    {
         var config = context.Configuration.Scholar;
         var player = context.Player;
 
-        if (!config.EnableSuccor)
-            return false;
+        if (!config.EnableSuccor) return;
 
-        if (!ShouldUseAoEHeal(context))
-            return false;
+        var (count, _) = context.PartyHelper.CountPartyMembersNeedingAoEHeal(player, 0);
+        var (avgHp, _, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
 
-        // Choose between Succor and Concitation (Seraphism upgrade)
+        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
+            context.TimelineService, context.BossMechanicDetector, context.Configuration, out _);
+
+        var shouldUse = (avgHp <= config.AoEHealThreshold && count >= config.AoEHealMinTargets) || raidwideImminent;
+        if (!shouldUse) return;
+
         ActionDefinition action;
+        AbilityBehavior behavior;
         if (context.FairyStateManager.IsSeraphOrSeraphismActive && player.Level >= SCHActions.Concitation.MinLevel)
         {
             action = SCHActions.Concitation;
+            behavior = AthenaAbilities.Concitation;
         }
         else if (player.Level >= SCHActions.Succor.MinLevel)
         {
             action = SCHActions.Succor;
+            behavior = AthenaAbilities.Succor;
         }
         else
         {
-            return false;
+            return;
         }
 
-        // Check AoE coordination - prevent multiple healers from casting AoE heals simultaneously
         var castTimeMs = (int)(action.CastTime * 1000);
         if (!context.HealingCoordination.TryReserveAoEHeal(
             context.PartyCoordinationService, action.ActionId, action.HealPotency, castTimeMs))
         {
             context.Debug.AoEHealState = "Skipped (remote AOE reserved)";
-            return false;
+            return;
         }
 
-        if (context.ActionService.ExecuteGcd(action, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.PlanningState = "AoE Heal";
+        var capturedAction = action;
+        var capturedAvgHp = avgHp;
+        var capturedInjuredCount = injuredCount;
+        var capturedRaidwideImminent = raidwideImminent;
 
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushGcd(behavior, player.GameObjectId, priority: Priority,
+            onDispatched: _ =>
             {
-                var (avgHp, _, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
-                var raidwideImminent = TimelineHelper.IsRaidwideImminent(
-                    context.TimelineService,
-                    context.BossMechanicDetector,
-                    context.Configuration,
-                    out _);
+                context.Debug.PlannedAction = capturedAction.Name;
+                context.Debug.PlanningState = "AoE Heal";
 
-                var isSeraphism = action.ActionId == SCHActions.Concitation.ActionId;
-                var shortReason = raidwideImminent
-                    ? $"{action.Name} - pre-shield for raidwide!"
-                    : $"{action.Name} - {injuredCount} injured at {avgHp:P0}";
-
-                var factors = new[]
+                if (context.TrainingService?.IsTrainingEnabled == true)
                 {
-                    $"Party avg HP: {avgHp:P0}",
-                    $"Injured count: {injuredCount}",
-                    raidwideImminent ? "Raidwide damage incoming!" : "No raidwide predicted",
-                    isSeraphism ? "Seraphism active - using Concitation" : "Using Succor",
-                    "Provides heal + Galvanize shield",
-                };
+                    var isSeraphism = capturedAction.ActionId == SCHActions.Concitation.ActionId;
+                    var shortReason = capturedRaidwideImminent
+                        ? $"{capturedAction.Name} - pre-shield for raidwide!"
+                        : $"{capturedAction.Name} - {capturedInjuredCount} injured at {capturedAvgHp:P0}";
 
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = action.ActionId,
-                    ActionName = action.Name,
-                    Category = "Healing",
-                    TargetName = "Party",
-                    ShortReason = shortReason,
-                    DetailedReason = $"{action.Name} cast for {injuredCount} injured party members at {avgHp:P0} average HP. {(raidwideImminent ? "Pre-shielding before incoming raidwide damage. " : "")}Succor/Concitation provides both healing (200 potency) and a Galvanize shield (320 potency). The shield absorbs damage, making it valuable before damage hits.",
-                    Factors = factors,
-                    Alternatives = _succorAlternatives,
-                    Tip = "Succor is best used BEFORE damage (pre-shield) rather than after. After raidwides, prefer oGCD heals like Indomitability to save your GCD for damage.",
-                    ConceptId = SchConcepts.SuccorUsage,
-                    Priority = raidwideImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
-                });
+                    var factors = new[]
+                    {
+                        $"Party avg HP: {capturedAvgHp:P0}",
+                        $"Injured count: {capturedInjuredCount}",
+                        capturedRaidwideImminent ? "Raidwide damage incoming!" : "No raidwide predicted",
+                        isSeraphism ? "Seraphism active - using Concitation" : "Using Succor",
+                        "Provides heal + Galvanize shield",
+                    };
 
-                context.TrainingService.RecordConceptApplication(SchConcepts.SuccorUsage, wasSuccessful: true);
-            }
+                    context.TrainingService.RecordDecision(new ActionExplanation
+                    {
+                        Timestamp = DateTime.UtcNow,
+                        ActionId = capturedAction.ActionId,
+                        ActionName = capturedAction.Name,
+                        Category = "Healing",
+                        TargetName = "Party",
+                        ShortReason = shortReason,
+                        DetailedReason = $"{capturedAction.Name} cast for {capturedInjuredCount} injured party members at {capturedAvgHp:P0} average HP. {(capturedRaidwideImminent ? "Pre-shielding before incoming raidwide damage. " : "")}Succor/Concitation provides both healing (200 potency) and a Galvanize shield (320 potency). The shield absorbs damage, making it valuable before damage hits.",
+                        Factors = factors,
+                        Alternatives = _succorAlternatives,
+                        Tip = "Succor is best used BEFORE damage (pre-shield) rather than after. After raidwides, prefer oGCD heals like Indomitability to save your GCD for damage.",
+                        ConceptId = SchConcepts.SuccorUsage,
+                        Priority = capturedRaidwideImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
+                    });
 
-            return true;
-        }
-
-        return false;
-    }
-
-    private bool ShouldUseAoEHeal(IAthenaContext context)
-    {
-        var config = context.Configuration.Scholar;
-        var player = context.Player;
-
-        var (count, _) = context.PartyHelper.CountPartyMembersNeedingAoEHeal(player, 0);
-        var (avgHp, _, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
-
-        // Timeline-aware: pre-shield before raidwides
-        var raidwideImminent = TimelineHelper.IsRaidwideImminent(
-            context.TimelineService,
-            context.BossMechanicDetector,
-            context.Configuration,
-            out _);
-
-        // Use if party needs healing OR raidwide is imminent (for pre-shielding)
-        return (avgHp <= config.AoEHealThreshold && count >= config.AoEHealMinTargets) || raidwideImminent;
+                    context.TrainingService.RecordConceptApplication(SchConcepts.SuccorUsage, wasSuccessful: true);
+                }
+            });
     }
 }

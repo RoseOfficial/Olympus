@@ -2,15 +2,13 @@ using System;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
+using Olympus.Rotation.AthenaCore.Abilities;
 using Olympus.Rotation.AthenaCore.Context;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AthenaCore.Modules.Healing;
 
-/// <summary>
-/// Handles Emergency Tactics for Scholar. Priority 40 in the oGCD list.
-/// No resource cost. Converts the next shield spell to a pure heal.
-/// </summary>
 public sealed class EmergencyTacticsHandler : IHealingHandler
 {
     public int Priority => 40;
@@ -23,61 +21,45 @@ public sealed class EmergencyTacticsHandler : IHealingHandler
         "Use Physick (no shield component)",
     };
 
-    public bool TryExecute(IAthenaContext context, bool isMoving)
-        => TryEmergencyTactics(context);
-
-    private bool TryEmergencyTactics(IAthenaContext context)
+    public void CollectCandidates(IAthenaContext context, RotationScheduler scheduler, bool isMoving)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
 
-        if (!config.EnableEmergencyTactics)
-            return false;
+        if (!config.EnableEmergencyTactics) return;
+        if (player.Level < SCHActions.EmergencyTactics.MinLevel) return;
+        if (context.StatusHelper.HasEmergencyTactics(player)) return;
+        if (!context.ActionService.IsActionReady(SCHActions.EmergencyTactics.ActionId)) return;
 
-        if (player.Level < SCHActions.EmergencyTactics.MinLevel)
-            return false;
-
-        // Already have Emergency Tactics active
-        if (context.StatusHelper.HasEmergencyTactics(player))
-            return false;
-
-        if (!context.ActionService.IsActionReady(SCHActions.EmergencyTactics.ActionId))
-            return false;
-
-        // Use when we need raw healing, not shields
         var target = context.PartyHelper.FindLowestHpPartyMember(player);
-        if (target == null)
-            return false;
+        if (target == null) return;
 
         var hpPercent = context.PartyHelper.GetHpPercent(target);
-        if (hpPercent > config.EmergencyTacticsThreshold)
-            return false;
+        if (hpPercent > config.EmergencyTacticsThreshold) return;
+        if (!context.StatusHelper.HasGalvanize(target)) return;
 
-        // Check if target already has Galvanize (shield would be wasted)
-        if (context.StatusHelper.HasGalvanize(target))
-        {
-            var action = SCHActions.EmergencyTactics;
-            if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
+        var action = SCHActions.EmergencyTactics;
+        var capturedTarget = target;
+        var capturedHpPercent = hpPercent;
+
+        scheduler.PushOgcd(AthenaAbilities.EmergencyTactics, player.GameObjectId, priority: Priority,
+            onDispatched: _ =>
             {
                 context.Debug.PlannedAction = action.Name;
                 context.Debug.PlanningState = "Emergency Tactics";
 
-                // Training mode: capture explanation
                 if (context.TrainingService?.IsTrainingEnabled == true)
                 {
-                    var targetName = target.Name?.TextValue ?? "Unknown";
+                    var targetName = capturedTarget.Name?.TextValue ?? "Unknown";
                     var shortReason = $"Emergency Tactics - {targetName} already shielded";
-
                     var factors = new[]
                     {
-                        $"Target HP: {hpPercent:P0}",
+                        $"Target HP: {capturedHpPercent:P0}",
                         $"Threshold: {config.EmergencyTacticsThreshold:P0}",
                         "Target has Galvanize (shield)",
                         "Converts next shield spell to pure heal",
                         "Prevents shield overwrite waste",
                     };
-
-                    var alternatives = _emergencyTacticsAlternatives;
 
                     context.TrainingService.RecordDecision(new ActionExplanation
                     {
@@ -87,9 +69,9 @@ public sealed class EmergencyTacticsHandler : IHealingHandler
                         Category = "Healing",
                         TargetName = targetName,
                         ShortReason = shortReason,
-                        DetailedReason = $"Emergency Tactics before healing {targetName} at {hpPercent:P0}. Target already has Galvanize shield, so using Adloquium would overwrite it (wasting the shield). Emergency Tactics converts the shield portion to healing, getting full value from the spell.",
+                        DetailedReason = $"Emergency Tactics before healing {targetName} at {capturedHpPercent:P0}. Target already has Galvanize shield, so using Adloquium would overwrite it (wasting the shield). Emergency Tactics converts the shield portion to healing, getting full value from the spell.",
                         Factors = factors,
-                        Alternatives = alternatives,
+                        Alternatives = _emergencyTacticsAlternatives,
                         Tip = "Emergency Tactics prevents shield waste when the target already has a shield. It's also useful when you need raw healing instead of shields after a raidwide.",
                         ConceptId = SchConcepts.EmergencyTacticsUsage,
                         Priority = ExplanationPriority.Normal,
@@ -97,11 +79,6 @@ public sealed class EmergencyTacticsHandler : IHealingHandler
 
                     context.TrainingService.RecordConceptApplication(SchConcepts.EmergencyTacticsUsage, wasSuccessful: true);
                 }
-
-                return true;
-            }
-        }
-
-        return false;
+            });
     }
 }

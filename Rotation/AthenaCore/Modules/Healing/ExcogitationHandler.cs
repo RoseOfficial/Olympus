@@ -1,20 +1,15 @@
 using System;
-using System.Numerics;
-using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Helpers;
-using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.AthenaCore.Abilities;
 using Olympus.Rotation.AthenaCore.Context;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AthenaCore.Modules.Healing;
 
-/// <summary>
-/// Handles Excogitation for Scholar. Priority 15 in the oGCD list.
-/// Costs 1 Aetherflow stack (free with Recitation).
-/// </summary>
 public sealed class ExcogitationHandler : IHealingHandler
 {
     public int Priority => 15;
@@ -27,107 +22,82 @@ public sealed class ExcogitationHandler : IHealingHandler
         "GCD heal (Adloquium for shield)",
     };
 
-    public bool TryExecute(IAthenaContext context, bool isMoving)
-        => TryExcogitation(context);
-
-    private bool TryExcogitation(IAthenaContext context)
+    public void CollectCandidates(IAthenaContext context, RotationScheduler scheduler, bool isMoving)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
 
-        if (!config.EnableExcogitation)
-            return false;
+        if (!config.EnableExcogitation) return;
+        if (player.Level < SCHActions.Excogitation.MinLevel) return;
+        if (!context.ActionService.IsActionReady(SCHActions.Excogitation.ActionId)) return;
 
-        if (player.Level < SCHActions.Excogitation.MinLevel)
-            return false;
-
-        if (!context.ActionService.IsActionReady(SCHActions.Excogitation.ActionId))
-            return false;
-
-        // Skip if no Aetherflow (unless Recitation is active)
-        if (!context.StatusHelper.HasRecitation(player))
-        {
-            if (context.AetherflowService.CurrentStacks <= config.AetherflowReserve)
-                return false;
-        }
+        var hasRecitation = context.StatusHelper.HasRecitation(player);
+        if (!hasRecitation && context.AetherflowService.CurrentStacks <= config.AetherflowReserve) return;
 
         var target = context.PartyHelper.FindExcogitationTarget(player);
-        if (target == null)
-            return false;
-
-        // Skip if another handler (local or remote Olympus instance) is already healing this target
-        if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
-            return false;
+        if (target == null) return;
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService)) return;
 
         var hpPercent = context.PartyHelper.GetHpPercent(target);
 
-        // Timeline-aware: proactively use before tank busters
         var tankBusterImminent = TimelineHelper.IsTankBusterImminent(
-            context.TimelineService,
-            context.BossMechanicDetector,
-            context.Configuration,
-            out _);
+            context.TimelineService, context.BossMechanicDetector, context.Configuration, out _);
 
-        // Use if HP is low OR tank buster is imminent
-        if (hpPercent > config.ExcogitationThreshold && !tankBusterImminent)
-            return false;
+        if (hpPercent > config.ExcogitationThreshold && !tankBusterImminent) return;
 
         var action = SCHActions.Excogitation;
-        if (context.ActionService.ExecuteOgcd(action, target.GameObjectId))
-        {
-            var hasRecitation = context.StatusHelper.HasRecitation(player);
-            if (!hasRecitation)
-                context.AetherflowService.ConsumeStack();
+        var capturedTarget = target;
+        var capturedHpPercent = hpPercent;
+        var capturedTankBusterImminent = tankBusterImminent;
+        var capturedHasRecitation = hasRecitation;
 
-            // Reserve target to prevent other handlers (local or remote) from double-healing
-            var healAmount = action.HealPotency * 10; // Rough estimate
-            context.HealingCoordination.TryReserveTarget(
-                target.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, 0);
-
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.PlanningState = "Excogitation";
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushOgcd(AthenaAbilities.Excogitation, target.GameObjectId, priority: Priority,
+            onDispatched: _ =>
             {
-                var targetName = target.Name?.TextValue ?? "Unknown";
-                var shortReason = tankBusterImminent
-                    ? $"Excog on {targetName} before tankbuster!"
-                    : $"Excog on {targetName} at {hpPercent:P0}";
+                if (!capturedHasRecitation)
+                    context.AetherflowService.ConsumeStack();
 
-                var factors = new[]
+                var healAmount = action.HealPotency * 10;
+                context.HealingCoordination.TryReserveTarget(
+                    capturedTarget.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, 0);
+
+                context.Debug.PlannedAction = action.Name;
+                context.Debug.PlanningState = "Excogitation";
+
+                if (context.TrainingService?.IsTrainingEnabled == true)
                 {
-                    $"Target HP: {hpPercent:P0}",
-                    $"Threshold: {config.ExcogitationThreshold:P0}",
-                    tankBusterImminent ? "Tank buster imminent!" : "No incoming damage predicted",
-                    hasRecitation ? "Recitation active (guaranteed crit, free)" : $"Aetherflow stacks: {context.AetherflowService.CurrentStacks}/3",
-                    "Auto-triggers at 50% HP or lower",
-                };
+                    var targetName = capturedTarget.Name?.TextValue ?? "Unknown";
+                    var shortReason = capturedTankBusterImminent
+                        ? $"Excog on {targetName} before tankbuster!"
+                        : $"Excog on {targetName} at {capturedHpPercent:P0}";
 
-                var alternatives = _excogitationAlternatives;
+                    var factors = new[]
+                    {
+                        $"Target HP: {capturedHpPercent:P0}",
+                        $"Threshold: {config.ExcogitationThreshold:P0}",
+                        capturedTankBusterImminent ? "Tank buster imminent!" : "No incoming damage predicted",
+                        capturedHasRecitation ? "Recitation active (guaranteed crit, free)" : $"Aetherflow stacks: {context.AetherflowService.CurrentStacks}/3",
+                        "Auto-triggers at 50% HP or lower",
+                    };
 
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = action.ActionId,
-                    ActionName = "Excogitation",
-                    Category = "Healing",
-                    TargetName = targetName,
-                    ShortReason = shortReason,
-                    DetailedReason = $"Excogitation on {targetName} at {hpPercent:P0} HP. {(tankBusterImminent ? "Tank buster detected - proactive Excog provides safety net. " : "")}Excog triggers automatically when target drops below 50% HP, providing a 800 potency heal. {(hasRecitation ? "Recitation made this free and guaranteed critical!" : $"Cost 1 Aetherflow stack ({context.AetherflowService.CurrentStacks}/3 remaining).")}",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = "Excogitation is SCH's best tank maintenance tool. Apply before damage for automatic healing. Pair with Recitation for massive crit heals!",
-                    ConceptId = SchConcepts.ExcogitationUsage,
-                    Priority = tankBusterImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
-                });
+                    context.TrainingService.RecordDecision(new ActionExplanation
+                    {
+                        Timestamp = DateTime.UtcNow,
+                        ActionId = action.ActionId,
+                        ActionName = "Excogitation",
+                        Category = "Healing",
+                        TargetName = targetName,
+                        ShortReason = shortReason,
+                        DetailedReason = $"Excogitation on {targetName} at {capturedHpPercent:P0} HP. {(capturedTankBusterImminent ? "Tank buster detected - proactive Excog provides safety net. " : "")}Excog triggers automatically when target drops below 50% HP, providing a 800 potency heal. {(capturedHasRecitation ? "Recitation made this free and guaranteed critical!" : $"Cost 1 Aetherflow stack ({context.AetherflowService.CurrentStacks}/3 remaining).")}",
+                        Factors = factors,
+                        Alternatives = _excogitationAlternatives,
+                        Tip = "Excogitation is SCH's best tank maintenance tool. Apply before damage for automatic healing. Pair with Recitation for massive crit heals!",
+                        ConceptId = SchConcepts.ExcogitationUsage,
+                        Priority = capturedTankBusterImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
+                    });
 
-                context.TrainingService.RecordConceptApplication(SchConcepts.ExcogitationUsage, wasSuccessful: true);
-            }
-
-            return true;
-        }
-
-        return false;
+                    context.TrainingService.RecordConceptApplication(SchConcepts.ExcogitationUsage, wasSuccessful: true);
+                }
+            });
     }
 }

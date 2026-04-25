@@ -236,9 +236,10 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
     }
 
     /// <summary>
-    /// Scheduler-aware execution. Runs CollectCandidates per module (no-op for healer modules
-    /// until deep migration), then the authoritative legacy TryExecute priority chain. Scheduler
-    /// Dispatch calls are safe no-ops when no candidates are pushed.
+    /// Scheduler-aware execution with phased dispatch. Resurrection (priority 5) and
+    /// Healing (priority 10) are migrated; FairyModule (priority 3) sits above them
+    /// and stays on legacy. Defensive (20), Buff (30), Damage (50) are below and stay legacy.
+    /// Order: FairyModule legacy → scheduler dispatch → other legacy modules.
     /// </summary>
     protected override void ExecuteModules(IAthenaContext context, bool isMoving, bool inCombat)
     {
@@ -256,15 +257,23 @@ public sealed class Athena : BaseHealerRotation<IAthenaContext, IAthenaModule>
         if (inCombat && ActionService.CanExecuteOgcd)
         {
             foreach (var module in _modules)
-                if (module.TryExecute(context, isMoving)) return;
-            _scheduler.DispatchOgcd(context);
+                if (module.Priority < 5 && module.TryExecute(context, isMoving)) return;
+
+            if (_scheduler.DispatchOgcd(context).Dispatched) return;
+
+            foreach (var module in _modules)
+                if (module.Priority >= 5 && module.TryExecute(context, isMoving)) return;
         }
 
         if (ActionService.CanExecuteGcd)
         {
             foreach (var module in _modules)
-                if (module.TryExecute(context, isMoving)) return;
-            _scheduler.DispatchGcd(context);
+                if (module.Priority < 5 && module.TryExecute(context, isMoving)) return;
+
+            if (_scheduler.DispatchGcd(context).Dispatched) return;
+
+            foreach (var module in _modules)
+                if (module.Priority >= 5 && module.TryExecute(context, isMoving)) return;
         }
     }
 

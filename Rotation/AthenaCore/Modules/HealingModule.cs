@@ -1,60 +1,48 @@
 using System.Collections.Generic;
 using Olympus.Rotation.AthenaCore.Context;
 using Olympus.Rotation.AthenaCore.Modules.Healing;
+using Olympus.Rotation.Common.Scheduling;
 
 namespace Olympus.Rotation.AthenaCore.Modules;
 
 /// <summary>
-/// Coordinates healing for Scholar using two priority-sorted handler lists.
-/// FairyModule (separate rotation module, priority 3) handles fairy abilities.
+/// Coordinates healing for Scholar. All handlers push scheduler candidates;
+/// dispatch happens centrally.
 /// </summary>
 public sealed class HealingModule : IAthenaModule
 {
-    private readonly List<IHealingHandler> _ogcdHandlers;
-    private readonly List<IHealingHandler> _gcdHandlers;
+    private readonly List<IHealingHandler> _handlers;
 
     public int Priority => 10;
     public string Name => "Healing";
 
     public HealingModule()
     {
-        _ogcdHandlers = new List<IHealingHandler>
+        _handlers = new List<IHealingHandler>
         {
-            new RecitationHandler(),       // 10
-            new ExcogitationHandler(),     // 15
-            new LustrateHandler(),         // 20
-            new IndomitabilityHandler(),   // 25
-            new SacredSoilHandler(),       // 30
-            new ProtractionHandler(),      // 35
-            new EmergencyTacticsHandler(), // 40
+            new RecitationHandler(),
+            new ExcogitationHandler(),
+            new LustrateHandler(),
+            new IndomitabilityHandler(),
+            new SacredSoilHandler(),
+            new ProtractionHandler(),
+            new EmergencyTacticsHandler(),
+            new EsunaHandler(),
+            new AoEHealHandler(),
+            new SingleTargetHealHandler(),
         };
-        _ogcdHandlers.Sort((a, b) => a.Priority.CompareTo(b.Priority));
-
-        _gcdHandlers = new List<IHealingHandler>
-        {
-            new EsunaHandler(),            // 5
-            new AoEHealHandler(),          // 10
-            new SingleTargetHealHandler(), // 20
-        };
-        _gcdHandlers.Sort((a, b) => a.Priority.CompareTo(b.Priority));
     }
 
-    public bool TryExecute(IAthenaContext context, bool isMoving)
+    public bool TryExecute(IAthenaContext context, bool isMoving) => false;
+
+    public void CollectCandidates(IAthenaContext context, RotationScheduler scheduler, bool isMoving)
     {
         context.HealingCoordination.Clear();
+        if (!context.InCombat) return;
+        if (!context.Configuration.EnableHealing) return;
 
-        if (!context.InCombat) return false;
-        if (!context.Configuration.EnableHealing) return false;
-
-        if (context.CanExecuteOgcd)
-            foreach (var h in _ogcdHandlers)
-                if (h.TryExecute(context, isMoving)) return true;
-
-        if (context.CanExecuteGcd)
-            foreach (var h in _gcdHandlers)
-                if (h.TryExecute(context, isMoving)) return true;
-
-        return false;
+        foreach (var handler in _handlers)
+            handler.CollectCandidates(context, scheduler, isMoving);
     }
 
     public void UpdateDebugState(IAthenaContext context)

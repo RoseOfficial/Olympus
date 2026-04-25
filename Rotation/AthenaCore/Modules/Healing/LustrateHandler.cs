@@ -2,16 +2,14 @@ using System;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
+using Olympus.Rotation.AthenaCore.Abilities;
 using Olympus.Rotation.AthenaCore.Context;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AthenaCore.Modules.Healing;
 
-/// <summary>
-/// Handles Lustrate for Scholar. Priority 20 in the oGCD list.
-/// Costs 1 Aetherflow stack.
-/// </summary>
 public sealed class LustrateHandler : IHealingHandler
 {
     public int Priority => 20;
@@ -24,98 +22,74 @@ public sealed class LustrateHandler : IHealingHandler
         "Wait for fairy abilities",
     };
 
-    public bool TryExecute(IAthenaContext context, bool isMoving)
-        => TryLustrate(context);
-
-    private bool TryLustrate(IAthenaContext context)
+    public void CollectCandidates(IAthenaContext context, RotationScheduler scheduler, bool isMoving)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
 
-        if (!config.EnableLustrate)
-            return false;
-
-        if (player.Level < SCHActions.Lustrate.MinLevel)
-            return false;
-
-        if (!context.ActionService.IsActionReady(SCHActions.Lustrate.ActionId))
-            return false;
-
-        // Respect Aetherflow reserve
-        if (context.AetherflowService.CurrentStacks <= config.AetherflowReserve)
-            return false;
+        if (!config.EnableLustrate) return;
+        if (player.Level < SCHActions.Lustrate.MinLevel) return;
+        if (!context.ActionService.IsActionReady(SCHActions.Lustrate.ActionId)) return;
+        if (context.AetherflowService.CurrentStacks <= config.AetherflowReserve) return;
 
         var target = context.PartyHelper.FindLowestHpPartyMember(player);
-        if (target == null)
-            return false;
-
-        // Skip invuln/delayed-heal targets (Hallowed, Holmgang, Living Dead,
-        // Superbolide, Excog, Catharsis) — a direct heal is guaranteed waste.
-        if (HealerPartyHelper.HasNoHealStatus(target))
-            return false;
-
-        // Skip if another handler (local or remote Olympus instance) is already healing this target
-        if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService))
-            return false;
+        if (target == null) return;
+        if (HealerPartyHelper.HasNoHealStatus(target)) return;
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService)) return;
 
         var hpPercent = context.PartyHelper.GetHpPercent(target);
-        if (hpPercent > config.LustrateThreshold)
-            return false;
+        if (hpPercent > config.LustrateThreshold) return;
 
         var action = SCHActions.Lustrate;
-        if (context.ActionService.ExecuteOgcd(action, target.GameObjectId))
-        {
-            context.AetherflowService.ConsumeStack();
+        var capturedTarget = target;
+        var capturedHpPercent = hpPercent;
 
-            // Reserve target to prevent other handlers (local or remote) from double-healing
-            var healAmount = action.HealPotency * 10; // Rough estimate
-            context.HealingCoordination.TryReserveTarget(
-                target.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, 0);
-
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.PlanningState = "Lustrate";
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushOgcd(AthenaAbilities.Lustrate, target.GameObjectId, priority: Priority,
+            onDispatched: _ =>
             {
-                var targetName = target.Name?.TextValue ?? "Unknown";
-                var shortReason = hpPercent < 0.3f
-                    ? $"Emergency Lustrate on {targetName}!"
-                    : $"Lustrate on {targetName} at {hpPercent:P0}";
+                context.AetherflowService.ConsumeStack();
 
-                var factors = new[]
+                var healAmount = action.HealPotency * 10;
+                context.HealingCoordination.TryReserveTarget(
+                    capturedTarget.EntityId, context.PartyCoordinationService, healAmount, action.ActionId, 0);
+
+                context.Debug.PlannedAction = action.Name;
+                context.Debug.PlanningState = "Lustrate";
+
+                if (context.TrainingService?.IsTrainingEnabled == true)
                 {
-                    $"Target HP: {hpPercent:P0}",
-                    $"Threshold: {config.LustrateThreshold:P0}",
-                    $"Aetherflow stacks: {context.AetherflowService.CurrentStacks}/3",
-                    "600 potency instant heal",
-                    "oGCD - can weave without clipping",
-                };
+                    var targetName = capturedTarget.Name?.TextValue ?? "Unknown";
+                    var shortReason = capturedHpPercent < 0.3f
+                        ? $"Emergency Lustrate on {targetName}!"
+                        : $"Lustrate on {targetName} at {capturedHpPercent:P0}";
 
-                var alternatives = _lustrateAlternatives;
+                    var factors = new[]
+                    {
+                        $"Target HP: {capturedHpPercent:P0}",
+                        $"Threshold: {config.LustrateThreshold:P0}",
+                        $"Aetherflow stacks: {context.AetherflowService.CurrentStacks}/3",
+                        "600 potency instant heal",
+                        "oGCD - can weave without clipping",
+                    };
 
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = action.ActionId,
-                    ActionName = "Lustrate",
-                    Category = "Healing",
-                    TargetName = targetName,
-                    ShortReason = shortReason,
-                    DetailedReason = $"Lustrate on {targetName} at {hpPercent:P0} HP. Lustrate is SCH's emergency single-target oGCD heal at 600 potency. Used 1 Aetherflow stack ({context.AetherflowService.CurrentStacks}/3 remaining). Lustrate is for reactive healing when someone is already low.",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = "Lustrate is best for emergencies. For planned damage, Excogitation is usually better since it's proactive and higher potency (800). Save at least 1 Aetherflow for emergencies!",
-                    ConceptId = SchConcepts.LustrateUsage,
-                    Priority = hpPercent < 0.3f ? ExplanationPriority.Critical : ExplanationPriority.High,
-                });
+                    context.TrainingService.RecordDecision(new ActionExplanation
+                    {
+                        Timestamp = DateTime.UtcNow,
+                        ActionId = action.ActionId,
+                        ActionName = "Lustrate",
+                        Category = "Healing",
+                        TargetName = targetName,
+                        ShortReason = shortReason,
+                        DetailedReason = $"Lustrate on {targetName} at {capturedHpPercent:P0} HP. Lustrate is SCH's emergency single-target oGCD heal at 600 potency. Used 1 Aetherflow stack ({context.AetherflowService.CurrentStacks}/3 remaining). Lustrate is for reactive healing when someone is already low.",
+                        Factors = factors,
+                        Alternatives = _lustrateAlternatives,
+                        Tip = "Lustrate is best for emergencies. For planned damage, Excogitation is usually better since it's proactive and higher potency (800). Save at least 1 Aetherflow for emergencies!",
+                        ConceptId = SchConcepts.LustrateUsage,
+                        Priority = capturedHpPercent < 0.3f ? ExplanationPriority.Critical : ExplanationPriority.High,
+                    });
 
-                context.TrainingService.RecordConceptApplication(SchConcepts.LustrateUsage, wasSuccessful: true);
-            }
-
-            return true;
-        }
-
-        return false;
+                    context.TrainingService.RecordConceptApplication(SchConcepts.LustrateUsage, wasSuccessful: true);
+                }
+            });
     }
 }
