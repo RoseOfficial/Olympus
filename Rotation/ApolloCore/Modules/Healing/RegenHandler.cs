@@ -1,23 +1,23 @@
 using System;
 using Olympus.Config;
 using Olympus.Data;
+using Olympus.Rotation.ApolloCore.Abilities;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ApolloCore.Modules.Healing;
 
 /// <summary>
 /// Handles Regen HoT maintenance with tank priority.
-/// Supports dynamic threshold based on damage rate.
 /// </summary>
 public sealed class RegenHandler : IHealingHandler
 {
     public HealingPriority Priority => HealingPriority.Regen;
     public string Name => "Regen";
 
-    // Training explanation arrays
     private static readonly string[] _regenAlternatives =
     {
         "Wait for HP to drop further",
@@ -25,94 +25,78 @@ public sealed class RegenHandler : IHealingHandler
         "Let co-healer handle it",
     };
 
-    public bool TryExecute(IApolloContext context, bool isMoving)
+    public void CollectCandidates(IApolloContext context, RotationScheduler scheduler, bool isMoving)
     {
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.EnableHealing || !config.Healing.EnableRegen)
-            return false;
+        if (!config.EnableHealing || !config.Healing.EnableRegen) return;
+        if (player.Level < WHMActions.Regen.MinLevel) return;
 
-        if (player.Level < WHMActions.Regen.MinLevel)
-            return false;
-
-        // Calculate dynamic Regen threshold (applies to tanks only)
         var tankRegenThreshold = DynamicRegenThresholdHelper.GetEffectiveThreshold(
             config.Healing, context.DamageIntakeService, FFXIVConstants.RegenHpThreshold);
         var nonTankRegenThreshold = FFXIVConstants.RegenNonTankHpThreshold;
 
         var target = context.PartyHelper.FindRegenTarget(player, tankRegenThreshold, nonTankRegenThreshold, FFXIVConstants.RegenRefreshThreshold);
-        if (target is null)
-            return false;
+        if (target is null) return;
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId)) return;
+        if (isMoving && WHMActions.Regen.CastTime > 0) return;
 
-        // Skip if another handler is already healing this target
-        if (context.HealingCoordination.IsTargetReserved(target.EntityId))
-            return false;
+        var capturedTarget = target;
+        var capturedTankRegenThreshold = tankRegenThreshold;
+        var capturedNonTankRegenThreshold = nonTankRegenThreshold;
 
-        if (isMoving && WHMActions.Regen.CastTime > 0)
-            return false;
-
-        var targetName = target.Name?.TextValue ?? "Unknown";
-        var isTankTarget = JobRegistry.IsTank(target.ClassJob.RowId);
-        var usedThreshold = isTankTarget ? tankRegenThreshold : nonTankRegenThreshold;
-
-        if (ActionExecutor.ExecuteGcd(context, WHMActions.Regen, target.GameObjectId,
-            targetName, target.CurrentHp, "Regen",
-            appendThinAirNote: false))
-        {
-            // Reserve target to prevent other handlers from double-healing
-            context.HealingCoordination.TryReserveTarget(target.EntityId);
-
-            var thresholdNote = usedThreshold > FFXIVConstants.RegenHpThreshold
-                ? $" (dynamic {usedThreshold:P0})"
-                : "";
-            context.Debug.PlannedAction = $"Regen ({(isTankTarget ? "tank" : targetName)}{thresholdNote})";
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushGcd(ApolloAbilities.Regen, target.GameObjectId, priority: (int)Priority,
+            onDispatched: _ =>
             {
-                var hpPercent = context.PartyHelper.GetHpPercent(target);
-                var isDynamicThreshold = isTankTarget && usedThreshold > FFXIVConstants.RegenHpThreshold;
+                context.HealingCoordination.TryReserveTarget(capturedTarget.EntityId);
 
-                var shortReason = isTankTarget
-                    ? $"Regen on tank {targetName}"
-                    : $"Regen on {targetName} at {hpPercent:P0}";
+                var targetName = capturedTarget.Name?.TextValue ?? "Unknown";
+                var isTankTarget = JobRegistry.IsTank(capturedTarget.ClassJob.RowId);
+                var usedThreshold = isTankTarget ? capturedTankRegenThreshold : capturedNonTankRegenThreshold;
+                var thresholdNote = usedThreshold > FFXIVConstants.RegenHpThreshold
+                    ? $" (dynamic {usedThreshold:P0})"
+                    : "";
+                context.Debug.PlannedAction = $"Regen ({(isTankTarget ? "tank" : targetName)}{thresholdNote})";
 
-                var factors = new[]
+                if (context.TrainingService?.IsTrainingEnabled == true)
                 {
-                    $"Target HP: {hpPercent:P0}",
-                    $"HP threshold: {usedThreshold:P0}" + (isDynamicThreshold ? " (raised due to high damage)" : ""),
-                    isTankTarget ? "Tank priority - keeping Regen active" : "Non-tank target needing HoT",
-                    $"Regen duration: 18s",
-                    $"Regen potency: 250 per tick (every 3s)",
-                };
+                    var hpPercent = context.PartyHelper.GetHpPercent(capturedTarget);
+                    var isDynamicThreshold = isTankTarget && usedThreshold > FFXIVConstants.RegenHpThreshold;
 
-                var alternatives = _regenAlternatives;
+                    var shortReason = isTankTarget
+                        ? $"Regen on tank {targetName}"
+                        : $"Regen on {targetName} at {hpPercent:P0}";
 
-                var tip = isTankTarget
-                    ? "Keep Regen rolling on the tank - it's efficient healing that lets you cast damage spells!"
-                    : "Regen is MP-efficient for sustained healing - use it on anyone taking consistent damage.";
+                    var factors = new[]
+                    {
+                        $"Target HP: {hpPercent:P0}",
+                        $"HP threshold: {usedThreshold:P0}" + (isDynamicThreshold ? " (raised due to high damage)" : ""),
+                        isTankTarget ? "Tank priority - keeping Regen active" : "Non-tank target needing HoT",
+                        $"Regen duration: 18s",
+                        $"Regen potency: 250 per tick (every 3s)",
+                    };
 
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = WHMActions.Regen.ActionId,
-                    ActionName = "Regen",
-                    Category = "Healing",
-                    TargetName = targetName,
-                    ShortReason = shortReason,
-                    DetailedReason = $"Regen applied to {targetName} at {hpPercent:P0} HP. {(isTankTarget ? "As the tank, they take consistent damage and benefit most from Regen's sustained healing. " : "")}{(isDynamicThreshold ? "HP threshold was raised due to high party damage rate. " : "")}Regen heals for 250 potency every 3 seconds over 18 seconds.",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = tip,
-                    ConceptId = WhmConcepts.RegenMaintenance,
-                    Priority = ExplanationPriority.Low,
-                });
-            }
+                    var tip = isTankTarget
+                        ? "Keep Regen rolling on the tank - it's efficient healing that lets you cast damage spells!"
+                        : "Regen is MP-efficient for sustained healing - use it on anyone taking consistent damage.";
 
-            return true;
-        }
-
-        return false;
+                    context.TrainingService.RecordDecision(new ActionExplanation
+                    {
+                        Timestamp = DateTime.UtcNow,
+                        ActionId = WHMActions.Regen.ActionId,
+                        ActionName = "Regen",
+                        Category = "Healing",
+                        TargetName = targetName,
+                        ShortReason = shortReason,
+                        DetailedReason = $"Regen applied to {targetName} at {hpPercent:P0} HP. {(isTankTarget ? "As the tank, they take consistent damage and benefit most from Regen's sustained healing. " : "")}{(isDynamicThreshold ? "HP threshold was raised due to high party damage rate. " : "")}Regen heals for 250 potency every 3 seconds over 18 seconds.",
+                        Factors = factors,
+                        Alternatives = _regenAlternatives,
+                        Tip = tip,
+                        ConceptId = WhmConcepts.RegenMaintenance,
+                        Priority = ExplanationPriority.Low,
+                    });
+                }
+            });
     }
 }

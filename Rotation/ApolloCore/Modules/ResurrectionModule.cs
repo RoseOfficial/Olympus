@@ -3,15 +3,17 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
+using Olympus.Rotation.ApolloCore.Abilities;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.Common.Modules;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Party;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ApolloCore.Modules;
 
 /// <summary>
-/// WHM-specific resurrection module.
+/// WHM-specific resurrection module (scheduler-driven).
 /// Extends base resurrection with Thin Air synergy for free raises.
 /// </summary>
 public sealed class ResurrectionModule : BaseResurrectionModule<IApolloContext>, IApolloModule
@@ -52,26 +54,15 @@ public sealed class ResurrectionModule : BaseResurrectionModule<IApolloContext>,
         return true;
     }
 
-    /// <summary>
-    /// Include Thin Air status in raise success notes.
-    /// </summary>
     protected override string GetRaiseSuccessNote(IApolloContext context, bool hasSwiftcast)
     {
         var hasThinAir = context.HasThinAir;
-
-        if (hasSwiftcast && hasThinAir)
-            return " (Swiftcast + Thin Air)";
-        if (hasSwiftcast)
-            return " (Swiftcast)";
-        if (hasThinAir)
-            return " (Thin Air)";
-
+        if (hasSwiftcast && hasThinAir) return " (Swiftcast + Thin Air)";
+        if (hasSwiftcast) return " (Swiftcast)";
+        if (hasThinAir) return " (Thin Air)";
         return "";
     }
 
-    /// <summary>
-    /// Records training explanation for raise decisions.
-    /// </summary>
     protected override void RecordRaiseTraining(IApolloContext context, string targetName, bool hasSwiftcast, bool isHardcast)
     {
         if (context.TrainingService?.IsTrainingEnabled != true)
@@ -139,5 +130,117 @@ public sealed class ResurrectionModule : BaseResurrectionModule<IApolloContext>,
             ConceptId = WhmConcepts.RaiseDecision,
             Priority = ExplanationPriority.High,
         });
+    }
+
+    public override bool TryExecute(IApolloContext context, bool isMoving) => false;
+
+    public void CollectCandidates(IApolloContext context, RotationScheduler scheduler, bool isMoving)
+    {
+        TryPushSwiftcast(context, scheduler);
+        TryPushRaise(context, scheduler, isMoving);
+    }
+
+    private void TryPushSwiftcast(IApolloContext context, RotationScheduler scheduler)
+    {
+        var config = context.Configuration;
+        var player = context.Player;
+
+        if (!config.Resurrection.EnableRaise) return;
+        if (player.Level < SwiftcastAction.MinLevel) return;
+        if (HasSwiftcast(context)) return;
+
+        var deadMember = FindDeadPartyMemberNeedingRaise(context);
+        if (deadMember is null) return;
+
+        if (player.CurrentMp < RaiseMpCost) return;
+        if (!context.ActionService.IsActionReady(SwiftcastAction.ActionId)) return;
+
+        scheduler.PushOgcd(ApolloAbilities.Swiftcast, player.GameObjectId, priority: 1);
+    }
+
+    private void TryPushRaise(IApolloContext context, RotationScheduler scheduler, bool isMoving)
+    {
+        var config = context.Configuration;
+        var player = context.Player;
+
+        if (!config.Resurrection.EnableRaise) { SetRaiseState(context, "Disabled"); return; }
+        if (player.Level < RaiseAction.MinLevel) { SetRaiseState(context, $"Level {player.Level} < {RaiseAction.MinLevel}"); return; }
+
+        var mpPercent = (float)player.CurrentMp / player.MaxMp;
+        if (mpPercent < config.Resurrection.RaiseMpThreshold) { SetRaiseState(context, $"MP {mpPercent:P0} < {config.Resurrection.RaiseMpThreshold:P0}"); return; }
+        if (player.CurrentMp < RaiseMpCost) { SetRaiseState(context, $"MP {player.CurrentMp} < {RaiseMpCost}"); return; }
+
+        var target = FindDeadPartyMemberNeedingRaise(context);
+        if (target is null) { SetRaiseState(context, "No target"); SetRaiseTarget(context, "None"); return; }
+
+        var targetName = target.Name?.TextValue ?? "Unknown";
+        SetRaiseTarget(context, targetName);
+
+        var partyCoord = GetPartyCoordinationService(context);
+        if (partyCoord?.IsRaiseTargetReservedByOther((uint)target.GameObjectId) == true)
+        {
+            SetRaiseState(context, "Reserved by other");
+            return;
+        }
+
+        var hasSwiftcast = HasSwiftcast(context);
+
+        if (hasSwiftcast)
+        {
+            if (ShouldWaitForPreRaiseBuff(context)) { SetRaiseState(context, "Waiting for buff"); return; }
+            if (partyCoord?.ReserveRaiseTarget((uint)target.GameObjectId, RaiseAction.ActionId, 0, usingSwiftcast: true) == false)
+            {
+                SetRaiseState(context, "Failed to reserve");
+                return;
+            }
+
+            scheduler.PushGcd(ApolloAbilities.Raise, target.GameObjectId, priority: 1,
+                onDispatched: _ =>
+                {
+                    var note = GetRaiseSuccessNote(context, hasSwiftcast: true);
+                    SetRaiseState(context, "Swiftcast Raise");
+                    SetPlanningState(context, "Raise");
+                    SetPlannedAction(context, $"{RaiseAction.Name}{note}");
+                    RecordRaiseTraining(context, targetName, hasSwiftcast: true, isHardcast: false);
+                });
+            return;
+        }
+
+        if (config.Resurrection.AllowHardcastRaise && !isMoving)
+        {
+            var swiftcastCooldown = context.ActionService.GetCooldownRemaining(SwiftcastAction.ActionId);
+            if (swiftcastCooldown > 10f)
+            {
+                if (ShouldWaitForPreRaiseBuff(context)) { SetRaiseState(context, "Waiting for buff"); return; }
+                const int hardcastMs = 8000;
+                if (partyCoord?.ReserveRaiseTarget((uint)target.GameObjectId, RaiseAction.ActionId, hardcastMs, usingSwiftcast: false) == false)
+                {
+                    SetRaiseState(context, "Failed to reserve");
+                    return;
+                }
+
+                scheduler.PushGcd(ApolloAbilities.Raise, target.GameObjectId, priority: 1,
+                    onDispatched: _ =>
+                    {
+                        var note = GetRaiseSuccessNote(context, hasSwiftcast: false);
+                        SetRaiseState(context, "Hardcast Raise");
+                        SetPlanningState(context, "Raise");
+                        SetPlannedAction(context, $"{RaiseAction.Name} (Hardcast){note}");
+                        RecordRaiseTraining(context, targetName, hasSwiftcast: false, isHardcast: true);
+                    });
+            }
+            else
+            {
+                SetRaiseState(context, $"Waiting for Swiftcast ({swiftcastCooldown:F1}s)");
+            }
+        }
+        else if (!hasSwiftcast && !config.Resurrection.AllowHardcastRaise)
+        {
+            SetRaiseState(context, "No Swiftcast (hardcast disabled)");
+        }
+        else if (isMoving)
+        {
+            SetRaiseState(context, "Moving (can't hardcast)");
+        }
     }
 }

@@ -2,27 +2,20 @@ using System;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models;
+using Olympus.Rotation.ApolloCore.Abilities;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ApolloCore.Modules.Healing;
 
 /// <summary>
 /// Handles Blood Lily building by preferring Lily heals when close to Afflatus Misery.
-/// When at 2 Blood Lilies, prefers Afflatus Solace/Rapture over regular heals to
-/// build toward Misery (1240 potency AoE damage) faster.
 /// </summary>
-/// <remarks>
-/// Blood Lily mechanics:
-/// - 3 Lily heals (Afflatus Solace/Rapture) = 1 Blood Lily
-/// - 3 Blood Lilies = Afflatus Misery ready
-/// - This handler activates when at 2 Blood Lilies (one more Lily heal to unlock Misery)
-/// </remarks>
 public sealed class BloodLilyBuildingHandler : IHealingHandler
 {
-    // Training explanation arrays
     private static readonly string[] _solaceBuildAlternatives =
     {
         "Cure II (doesn't build Blood Lily)",
@@ -37,13 +30,10 @@ public sealed class BloodLilyBuildingHandler : IHealingHandler
         "Save Lilies for emergencies",
     };
 
-    // Blood Lily thresholds
-    private const int BloodLilyBuildingThreshold = 2; // Activate when at 2 Blood Lilies
+    private const int BloodLilyBuildingThreshold = 2;
     private const int AfflatusSolaceMinLevel = 52;
     private const int AfflatusRaptureMinLevel = 76;
 
-    // Minimum HP thresholds for Blood Lily building
-    // More aggressive than cap prevention - we're building for DPS, so use on more injured targets
     private const float AggressiveHpThreshold = 0.85f;
     private const float BalancedHpThreshold = 0.80f;
     private const float ConservativeHpThreshold = 0.70f;
@@ -51,31 +41,17 @@ public sealed class BloodLilyBuildingHandler : IHealingHandler
     public HealingPriority Priority => HealingPriority.BloodLilyBuilding;
     public string Name => "BloodLilyBuilding";
 
-    public bool TryExecute(IApolloContext context, bool isMoving)
+    public void CollectCandidates(IApolloContext context, RotationScheduler scheduler, bool isMoving)
     {
         var config = context.Configuration;
         var player = context.Player;
 
-        // Check if Blood Lily building is enabled
-        if (!config.EnableHealing || !config.Healing.EnableAggressiveLilyFlush)
-            return false;
+        if (!config.EnableHealing || !config.Healing.EnableAggressiveLilyFlush) return;
+        if (config.Healing.LilyStrategy == LilyGenerationStrategy.Disabled) return;
+        if (context.BloodLilyCount < BloodLilyBuildingThreshold) return;
+        if (context.LilyCount < 1) return;
+        if (player.Level < AfflatusSolaceMinLevel) return;
 
-        // Strategy must not be Disabled
-        if (config.Healing.LilyStrategy == LilyGenerationStrategy.Disabled)
-            return false;
-
-        // Only activate when at 2 Blood Lilies (close to Misery)
-        if (context.BloodLilyCount < BloodLilyBuildingThreshold)
-            return false;
-
-        // Need at least 1 Lily to spend
-        if (context.LilyCount < 1)
-            return false;
-
-        if (player.Level < AfflatusSolaceMinLevel)
-            return false;
-
-        // Determine HP threshold based on strategy
         var hpThreshold = config.Healing.LilyStrategy switch
         {
             LilyGenerationStrategy.Aggressive => AggressiveHpThreshold,
@@ -83,188 +59,148 @@ public sealed class BloodLilyBuildingHandler : IHealingHandler
             _ => BalancedHpThreshold
         };
 
-        // Try AoE first (Afflatus Rapture) if multiple injured
         if (player.Level >= AfflatusRaptureMinLevel)
         {
             var injuredInRange = context.PartyHelper.CountInjuredInAoERange(
                 player, WHMActions.AfflatusRapture.Radius, hpThreshold);
-
-            if (injuredInRange >= 2)
-            {
-                if (TryExecuteAfflatusRapture(context, isMoving, hpThreshold))
-                    return true;
-            }
+            if (injuredInRange >= 2 && TryPushAfflatusRapture(context, scheduler, hpThreshold)) return;
         }
 
-        // Fall back to single-target (Afflatus Solace)
-        return TryExecuteAfflatusSolace(context, isMoving, hpThreshold);
+        TryPushAfflatusSolace(context, scheduler, hpThreshold);
     }
 
-    private bool TryExecuteAfflatusSolace(IApolloContext context, bool isMoving, float hpThreshold)
+    private bool TryPushAfflatusSolace(IApolloContext context, RotationScheduler scheduler, float hpThreshold)
     {
-        if (!context.Configuration.Healing.EnableAfflatusSolace)
-            return false;
+        if (!context.Configuration.Healing.EnableAfflatusSolace) return false;
 
-        // Find lowest HP party member
         var target = context.PartyHelper.FindLowestHpPartyMember(context.Player);
-        if (target is null)
-            return false;
+        if (target is null) return false;
 
-        // Skip if target HP is too high (not actually injured enough for Blood Lily building)
         var targetHpPercent = context.PartyHelper.GetHpPercent(target);
-        if (targetHpPercent >= hpThreshold)
-            return false;
-
-        // Skip if another handler is already healing this target
-        if (context.HealingCoordination.IsTargetReserved(target.EntityId))
-            return false;
-
-        if (!DistanceHelper.IsInRange(context.Player, target, WHMActions.AfflatusSolace.Range))
-            return false;
+        if (targetHpPercent >= hpThreshold) return false;
+        if (context.HealingCoordination.IsTargetReserved(target.EntityId)) return false;
+        if (!DistanceHelper.IsInRange(context.Player, target, WHMActions.AfflatusSolace.Range)) return false;
 
         var action = WHMActions.AfflatusSolace;
         var (mind, det, wd) = context.PlayerStatsService.GetHealingStats(context.Player.Level);
         var healAmount = action.EstimateHealAmount(mind, det, wd, context.Player.Level);
 
-        context.HpPredictionService.RegisterPendingHeal(target.EntityId, healAmount);
+        var capturedTarget = target;
+        var capturedHealAmount = healAmount;
+        var capturedTargetHpPercent = targetHpPercent;
+        var capturedHpThreshold = hpThreshold;
 
-        var targetName = target.Name?.TextValue ?? "Unknown";
-        var success = context.ActionService.ExecuteGcd(action, target.GameObjectId);
-        if (success)
-        {
-            context.HealingCoordination.TryReserveTarget(target.EntityId);
-
-            context.Debug.PlannedAction = $"Afflatus Solace (Blood Lily building)";
-            context.Debug.PlanningState = "Blood Lily Building";
-            context.Debug.MiseryState = $"Building ({context.BloodLilyCount}/3 Blood Lilies)";
-
-            context.LogHealDecision(
-                targetName,
-                targetHpPercent,
-                action.Name,
-                healAmount,
-                $"Blood Lily building ({context.BloodLilyCount}/3 Blood, {context.LilyCount}/3 Lilies - next Lily unlock Misery)");
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushGcd(ApolloAbilities.AfflatusSolace, target.GameObjectId, priority: (int)Priority,
+            onDispatched: _ =>
             {
-                var strategy = context.Configuration.Healing.LilyStrategy.ToString();
-                var shortReason = $"Blood Lily building - {context.BloodLilyCount}/3 Blood, healing {targetName}";
+                context.HealingCoordination.TryReserveTarget(capturedTarget.EntityId);
+                context.HpPredictionService.RegisterPendingHeal(capturedTarget.EntityId, capturedHealAmount);
 
-                var factors = new[]
+                var targetName = capturedTarget.Name?.TextValue ?? "Unknown";
+                context.Debug.PlannedAction = $"Afflatus Solace (Blood Lily building)";
+                context.Debug.PlanningState = "Blood Lily Building";
+                context.Debug.MiseryState = $"Building ({context.BloodLilyCount}/3 Blood Lilies)";
+
+                context.LogHealDecision(targetName, capturedTargetHpPercent, action.Name, capturedHealAmount,
+                    $"Blood Lily building ({context.BloodLilyCount}/3 Blood, {context.LilyCount}/3 Lilies - next Lily unlock Misery)");
+
+                if (context.TrainingService?.IsTrainingEnabled == true)
                 {
-                    $"Blood Lilies: {context.BloodLilyCount}/3 (need 3 for Misery)",
-                    $"Lilies: {context.LilyCount}/3",
-                    $"Target HP: {targetHpPercent:P0}",
-                    $"HP threshold: {hpThreshold:P0} ({strategy} strategy)",
-                    "Using Lily heal builds toward Afflatus Misery (1240p AoE damage)",
-                };
+                    var strategy = context.Configuration.Healing.LilyStrategy.ToString();
+                    var shortReason = $"Blood Lily building - {context.BloodLilyCount}/3 Blood, healing {targetName}";
+                    var factors = new[]
+                    {
+                        $"Blood Lilies: {context.BloodLilyCount}/3 (need 3 for Misery)",
+                        $"Lilies: {context.LilyCount}/3",
+                        $"Target HP: {capturedTargetHpPercent:P0}",
+                        $"HP threshold: {capturedHpThreshold:P0} ({strategy} strategy)",
+                        "Using Lily heal builds toward Afflatus Misery (1240p AoE damage)",
+                    };
 
-                var alternatives = _solaceBuildAlternatives;
+                    context.TrainingService.RecordDecision(new ActionExplanation
+                    {
+                        Timestamp = DateTime.UtcNow,
+                        ActionId = action.ActionId,
+                        ActionName = "Afflatus Solace",
+                        Category = "Resource Management",
+                        TargetName = targetName,
+                        ShortReason = shortReason,
+                        DetailedReason = $"Afflatus Solace on {targetName} to build toward Afflatus Misery. Currently at {context.BloodLilyCount}/3 Blood Lilies - one more Lily heal will unlock Misery (1240 potency AoE damage). Strategy: {strategy}. Target was at {capturedTargetHpPercent:P0} HP, below the {capturedHpThreshold:P0} threshold.",
+                        Factors = factors,
+                        Alternatives = _solaceBuildAlternatives,
+                        Tip = "When at 2 Blood Lilies, prioritize Lily heals over regular GCDs to unlock Misery faster - it's a huge DPS gain!",
+                        ConceptId = WhmConcepts.BloodLilyBuilding,
+                        Priority = ExplanationPriority.Normal,
+                    });
+                }
+            });
 
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = action.ActionId,
-                    ActionName = "Afflatus Solace",
-                    Category = "Resource Management",
-                    TargetName = targetName,
-                    ShortReason = shortReason,
-                    DetailedReason = $"Afflatus Solace on {targetName} to build toward Afflatus Misery. Currently at {context.BloodLilyCount}/3 Blood Lilies - one more Lily heal will unlock Misery (1240 potency AoE damage). Strategy: {strategy}. Target was at {targetHpPercent:P0} HP, below the {hpThreshold:P0} threshold.",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = "When at 2 Blood Lilies, prioritize Lily heals over regular GCDs to unlock Misery faster - it's a huge DPS gain!",
-                    ConceptId = WhmConcepts.BloodLilyBuilding,
-                    Priority = ExplanationPriority.Normal,
-                });
-            }
-        }
-        else
-        {
-            context.HpPredictionService.ClearPendingHeals();
-        }
-
-        return success;
+        return true;
     }
 
-    private bool TryExecuteAfflatusRapture(IApolloContext context, bool isMoving, float hpThreshold)
+    private bool TryPushAfflatusRapture(IApolloContext context, RotationScheduler scheduler, float hpThreshold)
     {
-        if (!context.Configuration.Healing.EnableAfflatusRapture)
-            return false;
+        if (!context.Configuration.Healing.EnableAfflatusRapture) return false;
 
-        // Verify there are actually injured party members
         var injuredCount = context.PartyHelper.CountInjuredInAoERange(
             context.Player, WHMActions.AfflatusRapture.Radius, hpThreshold);
-
-        if (injuredCount < 2)
-            return false;
+        if (injuredCount < 2) return false;
 
         var action = WHMActions.AfflatusRapture;
         var (mind, det, wd) = context.PlayerStatsService.GetHealingStats(context.Player.Level);
         var healAmount = action.EstimateHealAmount(mind, det, wd, context.Player.Level);
 
-        // Register pending heals for injured party members
-        foreach (var member in context.PartyHelper.GetPartyMembers(context.Player))
-        {
-            if (context.PartyHelper.GetHpPercent(member) < hpThreshold)
+        var capturedHealAmount = healAmount;
+        var capturedInjuredCount = injuredCount;
+        var capturedHpThreshold = hpThreshold;
+
+        scheduler.PushGcd(ApolloAbilities.AfflatusRapture, context.Player.GameObjectId, priority: (int)Priority,
+            onDispatched: _ =>
             {
-                context.HpPredictionService.RegisterPendingHeal(member.EntityId, healAmount);
-            }
-        }
-
-        var success = context.ActionService.ExecuteGcd(action, context.Player.GameObjectId);
-        if (success)
-        {
-            context.Debug.PlannedAction = $"Afflatus Rapture (Blood Lily building)";
-            context.Debug.PlanningState = "Blood Lily Building (AoE)";
-            context.Debug.MiseryState = $"Building ({context.BloodLilyCount}/3 Blood Lilies)";
-
-            context.LogHealDecision(
-                "Party",
-                1.0f,
-                action.Name,
-                healAmount,
-                $"Blood Lily building AoE ({context.BloodLilyCount}/3 Blood, {context.LilyCount}/3 Lilies - {injuredCount} injured)");
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
-            {
-                var strategy = context.Configuration.Healing.LilyStrategy.ToString();
-                var shortReason = $"Blood Lily building AoE - {context.BloodLilyCount}/3 Blood, {injuredCount} injured";
-
-                var factors = new[]
+                foreach (var member in context.PartyHelper.GetPartyMembers(context.Player))
                 {
-                    $"Blood Lilies: {context.BloodLilyCount}/3 (need 3 for Misery)",
-                    $"Lilies: {context.LilyCount}/3",
-                    $"Injured count: {injuredCount}",
-                    $"HP threshold: {hpThreshold:P0} ({strategy} strategy)",
-                    "AoE Lily heal builds Blood Lily while healing multiple targets",
-                };
+                    if (context.PartyHelper.GetHpPercent(member) < capturedHpThreshold)
+                        context.HpPredictionService.RegisterPendingHeal(member.EntityId, capturedHealAmount);
+                }
 
-                var alternatives = _raptureBuildAlternatives;
+                context.Debug.PlannedAction = $"Afflatus Rapture (Blood Lily building)";
+                context.Debug.PlanningState = "Blood Lily Building (AoE)";
+                context.Debug.MiseryState = $"Building ({context.BloodLilyCount}/3 Blood Lilies)";
 
-                context.TrainingService.RecordDecision(new ActionExplanation
+                context.LogHealDecision("Party", 1.0f, action.Name, capturedHealAmount,
+                    $"Blood Lily building AoE ({context.BloodLilyCount}/3 Blood, {context.LilyCount}/3 Lilies - {capturedInjuredCount} injured)");
+
+                if (context.TrainingService?.IsTrainingEnabled == true)
                 {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = action.ActionId,
-                    ActionName = "Afflatus Rapture",
-                    Category = "Resource Management",
-                    TargetName = "Party",
-                    ShortReason = shortReason,
-                    DetailedReason = $"Afflatus Rapture to build toward Afflatus Misery while healing {injuredCount} party members. Currently at {context.BloodLilyCount}/3 Blood Lilies - one more Lily heal will unlock Misery (1240 potency AoE damage). Strategy: {strategy}.",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = "Rapture is better than Solace for Blood Lily building when multiple targets need healing - you get both healing efficiency and gauge progress!",
-                    ConceptId = WhmConcepts.AfflatusRaptureUsage,
-                    Priority = ExplanationPriority.Normal,
-                });
-            }
-        }
-        else
-        {
-            context.HpPredictionService.ClearPendingHeals();
-        }
+                    var strategy = context.Configuration.Healing.LilyStrategy.ToString();
+                    var shortReason = $"Blood Lily building AoE - {context.BloodLilyCount}/3 Blood, {capturedInjuredCount} injured";
+                    var factors = new[]
+                    {
+                        $"Blood Lilies: {context.BloodLilyCount}/3 (need 3 for Misery)",
+                        $"Lilies: {context.LilyCount}/3",
+                        $"Injured count: {capturedInjuredCount}",
+                        $"HP threshold: {capturedHpThreshold:P0} ({strategy} strategy)",
+                        "AoE Lily heal builds Blood Lily while healing multiple targets",
+                    };
 
-        return success;
+                    context.TrainingService.RecordDecision(new ActionExplanation
+                    {
+                        Timestamp = DateTime.UtcNow,
+                        ActionId = action.ActionId,
+                        ActionName = "Afflatus Rapture",
+                        Category = "Resource Management",
+                        TargetName = "Party",
+                        ShortReason = shortReason,
+                        DetailedReason = $"Afflatus Rapture to build toward Afflatus Misery while healing {capturedInjuredCount} party members. Currently at {context.BloodLilyCount}/3 Blood Lilies - one more Lily heal will unlock Misery (1240 potency AoE damage). Strategy: {strategy}.",
+                        Factors = factors,
+                        Alternatives = _raptureBuildAlternatives,
+                        Tip = "Rapture is better than Solace for Blood Lily building when multiple targets need healing - you get both healing efficiency and gauge progress!",
+                        ConceptId = WhmConcepts.AfflatusRaptureUsage,
+                        Priority = ExplanationPriority.Normal,
+                    });
+                }
+            });
+
+        return true;
     }
 }

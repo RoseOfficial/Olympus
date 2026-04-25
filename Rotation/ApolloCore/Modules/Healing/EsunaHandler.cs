@@ -1,144 +1,117 @@
 using System;
-using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Config;
 using Olympus.Data;
+using Olympus.Rotation.ApolloCore.Abilities;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Debuff;
-using Olympus.Services.Party;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ApolloCore.Modules.Healing;
 
 /// <summary>
 /// Handles debuff cleansing with Esuna.
-/// Uses priority-based debuff detection for lethal and high-priority debuffs.
 /// </summary>
 public sealed class EsunaHandler : IHealingHandler
 {
     public HealingPriority Priority => HealingPriority.Esuna;
     public string Name => "Esuna";
 
-    public bool TryExecute(IApolloContext context, bool isMoving)
+    public void CollectCandidates(IApolloContext context, RotationScheduler scheduler, bool isMoving)
     {
         var config = context.Configuration;
         var player = context.Player;
 
-        if (!config.RoleActions.EnableEsuna)
-        {
-            context.Debug.EsunaState = "Disabled";
-            return false;
-        }
-
-        if (player.Level < RoleActions.Esuna.MinLevel)
-        {
-            context.Debug.EsunaState = $"Level {player.Level} < {RoleActions.Esuna.MinLevel}";
-            return false;
-        }
-
-        if (player.CurrentMp < RoleActions.Esuna.MpCost)
-        {
-            context.Debug.EsunaState = $"MP {player.CurrentMp} < {RoleActions.Esuna.MpCost}";
-            return false;
-        }
+        if (!config.RoleActions.EnableEsuna) { context.Debug.EsunaState = "Disabled"; return; }
+        if (player.Level < RoleActions.Esuna.MinLevel) { context.Debug.EsunaState = $"Level {player.Level} < {RoleActions.Esuna.MinLevel}"; return; }
+        if (player.CurrentMp < RoleActions.Esuna.MpCost) { context.Debug.EsunaState = $"MP {player.CurrentMp} < {RoleActions.Esuna.MpCost}"; return; }
 
         var (target, statusId, priority) = EsunaHelper.FindBestTarget(
             player, context.PartyHelper.GetAllPartyMembers(player), context.DebuffDetectionService);
-        if (target is null)
-        {
-            context.Debug.EsunaState = "No target";
-            context.Debug.EsunaTarget = "None";
-            return false;
-        }
+        if (target is null) { context.Debug.EsunaState = "No target"; context.Debug.EsunaTarget = "None"; return; }
 
         if (priority != DebuffPriority.Lethal && (int)priority > config.RoleActions.EsunaPriorityThreshold)
         {
             context.Debug.EsunaState = $"Priority {priority} > threshold {config.RoleActions.EsunaPriorityThreshold}";
-            return false;
+            return;
         }
 
-        if (isMoving && !context.HasSwiftcast)
-        {
-            context.Debug.EsunaState = "Moving (no Swiftcast)";
-            return false;
-        }
+        if (isMoving && !context.HasSwiftcast) { context.Debug.EsunaState = "Moving (no Swiftcast)"; return; }
 
-        // Check if another Olympus instance is already cleansing this target
         var partyCoord = context.PartyCoordinationService;
         var targetEntityId = (uint)target.GameObjectId;
         if (partyCoord?.IsCleanseTargetReservedByOther(targetEntityId) == true)
         {
             context.Debug.EsunaState = "Reserved by other";
-            return false;
+            return;
         }
 
-        // Reserve the target before executing
         if (partyCoord != null && !partyCoord.ReserveCleanseTarget(targetEntityId, statusId, RoleActions.Esuna.ActionId, (int)priority))
         {
             context.Debug.EsunaState = "Failed to reserve";
-            return false;
+            return;
         }
+
+        var capturedTarget = target;
+        var capturedPriority = priority;
+        var capturedStatusId = statusId;
+        var capturedTargetEntityId = targetEntityId;
 
         var targetName = target.Name?.TextValue ?? "Unknown";
         context.Debug.EsunaTarget = targetName;
         context.Debug.EsunaState = $"Cleansing {priority} debuff";
 
-        if (ActionExecutor.ExecuteGcd(context, RoleActions.Esuna, target.GameObjectId,
-            targetName, target.CurrentHp, "Esuna",
-            appendThinAirNote: false))
-        {
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushGcd(ApolloAbilities.Esuna, target.GameObjectId, priority: (int)Priority,
+            onDispatched: _ =>
             {
-                var priorityName = priority.ToString();
-                var shortReason = priority == DebuffPriority.Lethal
-                    ? $"Lethal debuff on {targetName}!"
-                    : $"Cleansing {priorityName} debuff on {targetName}";
+                context.Debug.PlannedAction = RoleActions.Esuna.Name;
 
-                var factors = new[]
+                if (context.TrainingService?.IsTrainingEnabled == true)
                 {
-                    $"Target: {targetName}",
-                    $"Debuff priority: {priorityName}",
-                    $"Status ID: {statusId}",
-                    priority == DebuffPriority.Lethal ? "LETHAL - must cleanse immediately!" : "Dispellable debuff detected",
-                };
+                    var priorityName = capturedPriority.ToString();
+                    var name = capturedTarget.Name?.TextValue ?? "Unknown";
+                    var shortReason = capturedPriority == DebuffPriority.Lethal
+                        ? $"Lethal debuff on {name}!"
+                        : $"Cleansing {priorityName} debuff on {name}";
 
-                var alternatives = priority == DebuffPriority.Lethal
-                    ? new[] { "Nothing - lethal debuffs must be cleansed" }
-                    : new[] { "Wait for debuff to expire", "Focus on healing instead", "Let co-healer handle it" };
+                    var factors = new[]
+                    {
+                        $"Target: {name}",
+                        $"Debuff priority: {priorityName}",
+                        $"Status ID: {capturedStatusId}",
+                        capturedPriority == DebuffPriority.Lethal ? "LETHAL - must cleanse immediately!" : "Dispellable debuff detected",
+                    };
 
-                var tip = priority == DebuffPriority.Lethal
-                    ? "Lethal debuffs kill if not cleansed! Always prioritize these over healing."
-                    : "Look for the dispellable icon (white bar above debuff) to know what can be cleansed.";
+                    var alternatives = capturedPriority == DebuffPriority.Lethal
+                        ? new[] { "Nothing - lethal debuffs must be cleansed" }
+                        : new[] { "Wait for debuff to expire", "Focus on healing instead", "Let co-healer handle it" };
 
-                var explanationPriority = priority == DebuffPriority.Lethal
-                    ? ExplanationPriority.Critical
-                    : ExplanationPriority.High;
+                    var tip = capturedPriority == DebuffPriority.Lethal
+                        ? "Lethal debuffs kill if not cleansed! Always prioritize these over healing."
+                        : "Look for the dispellable icon (white bar above debuff) to know what can be cleansed.";
 
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = RoleActions.Esuna.ActionId,
-                    ActionName = "Esuna",
-                    Category = "Utility",
-                    TargetName = targetName,
-                    ShortReason = shortReason,
-                    DetailedReason = $"Esuna cleanses dispellable debuffs from party members. Used on {targetName} to remove a {priorityName} priority debuff. {(priority == DebuffPriority.Lethal ? "This debuff would kill the target if not removed!" : "Removing debuffs improves party performance and safety.")}",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = tip,
-                    ConceptId = WhmConcepts.EsunaUsage,
-                    Priority = explanationPriority,
-                });
-            }
+                    var explanationPriority = capturedPriority == DebuffPriority.Lethal
+                        ? ExplanationPriority.Critical
+                        : ExplanationPriority.High;
 
-            return true;
-        }
-
-        // Clear reservation if execution failed
-        partyCoord?.ClearCleanseReservation(targetEntityId);
-        return false;
+                    context.TrainingService.RecordDecision(new ActionExplanation
+                    {
+                        Timestamp = DateTime.UtcNow,
+                        ActionId = RoleActions.Esuna.ActionId,
+                        ActionName = "Esuna",
+                        Category = "Utility",
+                        TargetName = name,
+                        ShortReason = shortReason,
+                        DetailedReason = $"Esuna cleanses dispellable debuffs from party members. Used on {name} to remove a {priorityName} priority debuff. {(capturedPriority == DebuffPriority.Lethal ? "This debuff would kill the target if not removed!" : "Removing debuffs improves party performance and safety.")}",
+                        Factors = factors,
+                        Alternatives = alternatives,
+                        Tip = tip,
+                        ConceptId = WhmConcepts.EsunaUsage,
+                        Priority = explanationPriority,
+                    });
+                }
+            });
     }
-
 }

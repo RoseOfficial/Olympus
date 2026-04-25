@@ -1,10 +1,12 @@
 using Olympus.Rotation.ApolloCore.Context;
+using Olympus.Rotation.Common.Scheduling;
 
 namespace Olympus.Rotation.ApolloCore.Modules.Healing;
 
 /// <summary>
 /// Interface for healing sub-handlers within the HealingModule.
-/// Each handler is responsible for one healing priority.
+/// Each handler is responsible for one healing priority and pushes
+/// scheduler candidates instead of dispatching directly.
 /// </summary>
 public interface IHealingHandler
 {
@@ -19,10 +21,9 @@ public interface IHealingHandler
     string Name { get; }
 
     /// <summary>
-    /// Attempts to execute the healing action.
+    /// Pushes scheduler candidates for this handler's healing actions.
+    /// Replaces the legacy TryExecute method — gating is local to the handler,
+    /// dispatch is centralized in the scheduler.
     /// </summary>
-    /// <param name="context">The Apollo context.</param>
-    /// <param name="isMoving">Whether the player is moving.</param>
-    /// <returns>True if an action was executed.</returns>
-    bool TryExecute(IApolloContext context, bool isMoving);
+    void CollectCandidates(IApolloContext context, RotationScheduler scheduler, bool isMoving);
 }

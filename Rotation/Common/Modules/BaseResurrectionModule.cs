@@ -103,7 +103,7 @@ public abstract class BaseResurrectionModule<TContext> : IHealerRotationModule<T
 
     #endregion
 
-    public bool TryExecute(TContext context, bool isMoving)
+    public virtual bool TryExecute(TContext context, bool isMoving)
     {
         // oGCD: Swiftcast for pending raise
         if (context.CanExecuteOgcd && TrySwiftcastForRaise(context))

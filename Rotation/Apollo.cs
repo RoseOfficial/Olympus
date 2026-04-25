@@ -143,9 +143,11 @@ public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
     }
 
     /// <summary>
-    /// Scheduler-aware execution. Runs CollectCandidates per module (no-op for healer modules
-    /// until deep migration), then the authoritative legacy TryExecute priority chain. Scheduler
-    /// Dispatch calls are safe no-ops when no candidates are pushed.
+    /// Scheduler-driven execution. CollectCandidates pushes from migrated modules
+    /// (Resurrection, Healing, Damage). Scheduler dispatches first; if it picks no
+    /// winner, the legacy TryExecute fallback runs Buff/Defensive (which contain
+    /// ground-targeted abilities Asylum and Liturgy of the Bell that the scheduler
+    /// cannot dispatch).
     /// </summary>
     protected override void ExecuteModules(IApolloContext context, bool isMoving, bool inCombat)
     {
@@ -162,16 +164,22 @@ public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
 
         if (inCombat && ActionService.CanExecuteOgcd)
         {
-            foreach (var module in _modules)
-                if (module.TryExecute(context, isMoving)) return;
-            _scheduler.DispatchOgcd(context);
+            var dispatched = _scheduler.DispatchOgcd(context).Dispatched;
+            if (!dispatched)
+            {
+                foreach (var module in _modules)
+                    if (module.TryExecute(context, isMoving)) return;
+            }
         }
 
         if (ActionService.CanExecuteGcd)
         {
-            foreach (var module in _modules)
-                if (module.TryExecute(context, isMoving)) return;
-            _scheduler.DispatchGcd(context);
+            var dispatched = _scheduler.DispatchGcd(context).Dispatched;
+            if (!dispatched)
+            {
+                foreach (var module in _modules)
+                    if (module.TryExecute(context, isMoving)) return;
+            }
         }
     }
 }
