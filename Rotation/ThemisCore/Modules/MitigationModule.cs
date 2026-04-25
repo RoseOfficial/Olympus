@@ -545,9 +545,9 @@ public sealed class MitigationModule : IThemisModule
         var partyCoord = context.PartyCoordinationService;
         var coordConfig = context.Configuration.PartyCoordination;
         if (coordConfig.EnableCooldownCoordination &&
-            partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
+            partyCoord?.WasActionUsedByOther(RoleActions.Reprisal.ActionId, 10f) == true)
         {
-            context.Debug.MitigationState = "Reprisal skipped (remote mit)";
+            context.Debug.MitigationState = "Reprisal skipped (remote Reprisal up)";
             return;
         }
 

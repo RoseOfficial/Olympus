@@ -335,4 +335,73 @@ public class PartyCoordinationServiceTests
         // Assert — own message is filtered; no cooldown tracked
         Assert.False(service.WasPartyMitigationUsedRecently(withinSeconds: 3f));
     }
+
+    // -------------------------------------------------------------------------
+    // WasActionUsedByOther — action-specific mit-stack coordination
+    // -------------------------------------------------------------------------
+
+    private const uint ReprisalActionId = 7535;
+    private const uint FeintActionId = 7549;
+
+    [Fact]
+    public void WasActionUsedByOther_WhenCoordinationDisabled_ReturnsFalse()
+    {
+        var service = CreateService(enableCoordination: false);
+        var message = new CooldownUsedMessage(Guid.NewGuid(), ReprisalActionId, recastTimeMs: 60_000);
+        service.HandleRemoteCooldownUsed(message);
+
+        Assert.False(service.WasActionUsedByOther(ReprisalActionId, withinSeconds: 10f));
+    }
+
+    [Fact]
+    public void WasActionUsedByOther_WhenNoRemoteCooldown_ReturnsFalse()
+    {
+        var service = CreateService();
+
+        Assert.False(service.WasActionUsedByOther(ReprisalActionId, withinSeconds: 10f));
+    }
+
+    [Fact]
+    public void WasActionUsedByOther_WhenRemoteFiredRecently_ReturnsTrue()
+    {
+        var service = CreateService();
+        var remote = Guid.NewGuid();
+        service.HandleRemoteCooldownUsed(new CooldownUsedMessage(remote, ReprisalActionId, recastTimeMs: 60_000));
+
+        Assert.True(service.WasActionUsedByOther(ReprisalActionId, withinSeconds: 10f));
+    }
+
+    [Fact]
+    public void WasActionUsedByOther_QueryingDifferentAction_ReturnsFalse()
+    {
+        var service = CreateService();
+        var remote = Guid.NewGuid();
+        service.HandleRemoteCooldownUsed(new CooldownUsedMessage(remote, ReprisalActionId, recastTimeMs: 60_000));
+
+        Assert.False(service.WasActionUsedByOther(FeintActionId, withinSeconds: 15f));
+    }
+
+    [Fact]
+    public void WasActionUsedByOther_OwnFire_NotCountedAsRemote()
+    {
+        var service = CreateService();
+        var ownId = service.InstanceId;
+        service.HandleRemoteCooldownUsed(new CooldownUsedMessage(ownId, ReprisalActionId, recastTimeMs: 60_000));
+
+        Assert.False(service.WasActionUsedByOther(ReprisalActionId, withinSeconds: 10f));
+    }
+
+    [Fact]
+    public void WasActionUsedByOther_ZeroWindow_IsNeverWithinWindow()
+    {
+        var service = CreateService();
+        var remote = Guid.NewGuid();
+        service.HandleRemoteCooldownUsed(new CooldownUsedMessage(remote, ReprisalActionId, recastTimeMs: 60_000));
+
+        // SecondsSinceUsed > 0 (positive elapsed time) so 0-second window cannot satisfy.
+        // Tiny delay ensures the timestamp is in the past by at least one tick.
+        System.Threading.Thread.Sleep(2);
+
+        Assert.False(service.WasActionUsedByOther(ReprisalActionId, withinSeconds: 0f));
+    }
 }

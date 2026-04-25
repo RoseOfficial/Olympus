@@ -441,6 +441,25 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         }
     }
 
+    public bool WasActionUsedByOther(uint actionId, float withinSeconds)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableCooldownCoordination)
+            return false;
+
+        lock (_stateLock)
+        {
+            if (!_remoteCooldowns.TryGetValue(actionId, out var list))
+                return false;
+
+            foreach (var cd in list)
+            {
+                if (cd.SecondsSinceUsed <= withinSeconds)
+                    return true;
+            }
+        }
+        return false;
+    }
+
     #endregion
 
     #region Raid Buff Coordination

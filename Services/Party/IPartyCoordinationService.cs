@@ -155,6 +155,17 @@ public interface IPartyCoordinationService
     /// <returns>List of active cooldown info from remote instances.</returns>
     IReadOnlyList<RemoteCooldownInfo> GetRemoteCooldowns(uint actionId);
 
+    /// <summary>
+    /// Checks whether a specific action was fired by any remote Olympus instance within the time window.
+    /// Use to detect "the buff or debuff this action provides is still up from someone else" so the
+    /// local rotation skips an overlapping fire (e.g., Reprisal layered on Reprisal).
+    /// </summary>
+    /// <param name="actionId">The action ID to check (e.g., RoleActions.Reprisal.ActionId).</param>
+    /// <param name="withinSeconds">Lookback window. For mit-stack coordination this should match
+    /// the buff/debuff duration: ~10s for Reprisal, ~15s for Feint and Addle.</param>
+    /// <returns>True if any remote instance fired the action within the window.</returns>
+    bool WasActionUsedByOther(uint actionId, float withinSeconds);
+
     #endregion
 
     #region Raid Buff Coordination

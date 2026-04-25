@@ -284,8 +284,20 @@ public sealed class DamageModule : IEchidnaModule
             && context.Configuration.Viper.EnableFeint
             && context.ActionService.IsActionReady(RoleActions.Feint.ActionId))
         {
-            scheduler.PushOgcd(EchidnaAbilities.Feint, target.GameObjectId, priority: 6,
-                onDispatched: _ => context.Debug.PlannedAction = RoleActions.Feint.Name);
+            var partyCoord = context.PartyCoordinationService;
+            var coordConfig = context.Configuration.PartyCoordination;
+            var feintBlockedByRemote = coordConfig.EnableCooldownCoordination &&
+                partyCoord?.WasActionUsedByOther(RoleActions.Feint.ActionId, 15f) == true;
+
+            if (!feintBlockedByRemote)
+            {
+                scheduler.PushOgcd(EchidnaAbilities.Feint, target.GameObjectId, priority: 6,
+                    onDispatched: _ =>
+                    {
+                        context.Debug.PlannedAction = RoleActions.Feint.Name;
+                        partyCoord?.OnCooldownUsed(RoleActions.Feint.ActionId, 90_000);
+                    });
+            }
         }
 
         if (level >= RoleActions.TrueNorth.MinLevel
