@@ -307,19 +307,14 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
         foreach (var module in _modules)
             module.CollectCandidates(context, _scheduler, isMoving);
 
-        if (inCombat && ActionService.CanExecuteOgcd)
-        {
-            foreach (var module in _modules)
-                if (module.TryExecute(context, isMoving)) return;
+        // RDM ResurrectionModule fires Verraise via Dualcast/Swiftcast both pre and
+        // post combat (raise during phase resets, downtime). Drop the inCombat gate
+        // on the oGCD pass so Swiftcast can dispatch out of combat.
+        if (ActionService.CanExecuteOgcd)
             _scheduler.DispatchOgcd(context);
-        }
 
         if (ActionService.CanExecuteGcd)
-        {
-            foreach (var module in _modules)
-                if (module.TryExecute(context, isMoving)) return;
             _scheduler.DispatchGcd(context);
-        }
     }
 
     #endregion
