@@ -38,4 +38,12 @@ public static class AthenaAbilities
     public static readonly AbilityBehavior Adloquium = new() { Action = SCHActions.Adloquium };
     public static readonly AbilityBehavior Manifestation = new() { Action = SCHActions.Manifestation };
     public static readonly AbilityBehavior Physick = new() { Action = SCHActions.Physick };
+
+    // --- Buffs ---
+    public static readonly AbilityBehavior LucidDreaming = new() { Action = RoleActions.LucidDreaming };
+    public static readonly AbilityBehavior Dissipation = new() { Action = SCHActions.Dissipation };
+
+    // --- Defensive ---
+    public static readonly AbilityBehavior Expedient = new() { Action = SCHActions.Expedient };
+    public static readonly AbilityBehavior DeploymentTactics = new() { Action = SCHActions.DeploymentTactics };
 }

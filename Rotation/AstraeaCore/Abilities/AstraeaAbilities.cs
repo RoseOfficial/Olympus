@@ -50,4 +50,13 @@ public static class AstraeaAbilities
     public static readonly AbilityBehavior HeliosConjunction = new() { Action = ASTActions.HeliosConjunction };
     public static readonly AbilityBehavior Benefic = new() { Action = ASTActions.Benefic };
     public static readonly AbilityBehavior BeneficII = new() { Action = ASTActions.BeneficII };
+
+    // --- Buffs ---
+    public static readonly AbilityBehavior LucidDreaming = new() { Action = RoleActions.LucidDreaming };
+    public static readonly AbilityBehavior LightspeedBuff = new() { Action = ASTActions.Lightspeed };
+
+    // --- Defensive ---
+    public static readonly AbilityBehavior NeutralSect = new() { Action = ASTActions.NeutralSect };
+    public static readonly AbilityBehavior SunSign = new() { Action = ASTActions.SunSign };
+    public static readonly AbilityBehavior CollectiveUnconscious = new() { Action = ASTActions.CollectiveUnconscious };
 }
