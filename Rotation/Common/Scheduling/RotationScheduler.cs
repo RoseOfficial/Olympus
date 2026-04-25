@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Dalamud.Plugin.Services;
 using Olympus.Models.Action;
 using Olympus.Rotation.Common.Helpers;
@@ -66,6 +67,23 @@ public sealed class RotationScheduler
         {
             Behavior = behavior,
             TargetId = targetId,
+            Priority = priority,
+            InsertionOrder = _insertionCounter++,
+            OnDispatched = onDispatched,
+        });
+
+    /// <summary>
+    /// Push a ground-targeted oGCD candidate. Dispatch routes through
+    /// <c>ExecuteGroundTargetedOgcd(action, position)</c>. Used for healer
+    /// abilities like Asylum, Liturgy of the Bell, and Earthly Star.
+    /// </summary>
+    public void PushGroundTargetedOgcd(AbilityBehavior behavior, Vector3 position, int priority,
+                                       Action<IRotationContext>? onDispatched = null)
+        => _ogcdQueue.Add(new AbilityCandidate
+        {
+            Behavior = behavior,
+            TargetId = 0,
+            GroundPosition = position,
             Priority = priority,
             InsertionOrder = _insertionCounter++,
             OnDispatched = onDispatched,
@@ -149,7 +167,7 @@ public sealed class RotationScheduler
                 }
             }
 
-            // Gate: target. Skipped when TargetId == 0 (self-targeted or intentional).
+            // Gate: target. Skipped when TargetId == 0 (self-targeted, ground-targeted, or intentional).
             if (candidate.TargetId != 0 && ctx.ObjectTable is { } objectTable)
             {
                 var target = objectTable.SearchById(candidate.TargetId);
@@ -202,7 +220,13 @@ public sealed class RotationScheduler
             }
 
             bool dispatched;
-            if (candidate.Behavior.ReplacementBaseId is { } rawId)
+            if (candidate.GroundPosition is { } position)
+            {
+                // Ground-targeted dispatch (oGCD only). Asylum, Liturgy of the Bell,
+                // Earthly Star, Sacred Soil, etc.
+                dispatched = _actionService.ExecuteGroundTargetedOgcd(effective, position);
+            }
+            else if (candidate.Behavior.ReplacementBaseId is { } rawId)
             {
                 dispatched = isOgcd
                     ? _actionService.ExecuteOgcdRaw(effective, rawId, candidate.TargetId)
