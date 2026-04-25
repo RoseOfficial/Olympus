@@ -3,21 +3,23 @@ using System.Collections.Generic;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
+using Olympus.Rotation.ApolloCore.Abilities;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Modules;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.ApolloCore.Modules;
 
 /// <summary>
-/// WHM-specific damage module.
-/// Extends base damage logic with Sacred Sight, Blood Lily (Afflatus Misery), and Lily gauge handling.
+/// WHM-specific damage module (scheduler-driven).
+/// Pushes DoT, AoE, and ST damage candidates plus Sacred Sight (Glare IV) and
+/// Afflatus Misery special damage. Damage runs at the lowest priority.
 /// </summary>
 public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModule
 {
-    // Training explanation arrays
     private static readonly string[] _afflatusMiseryFactors =
     {
         "Blood Lilies: 3/3 (Misery ready!)",
@@ -33,7 +35,6 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
         "Save for add spawn (if imminent)",
     };
 
-    // Action enable lookup maps
     private static readonly Dictionary<uint, Func<Configuration, bool>> DamageSpellEnabledMap = new()
     {
         { WHMActions.Stone.ActionId, c => c.EnableDamage && c.Damage.EnableStone },
@@ -59,30 +60,14 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
         { WHMActions.HolyIII.ActionId, c => c.EnableDamage && c.Damage.EnableHolyIII },
     };
 
-    #region Base Class Overrides - Configuration Properties
-
-    protected override bool IsDamageEnabled(IApolloContext context) =>
-        context.Configuration.EnableDamage;
-
-    protected override bool IsDoTEnabled(IApolloContext context) =>
-        context.Configuration.EnableDoT;
-
-    protected override bool IsAoEDamageEnabled(IApolloContext context) =>
-        context.Configuration.EnableDamage;
-
-    protected override int AoEMinTargets(IApolloContext context) =>
-        context.Configuration.Damage.AoEDamageMinTargets;
-
-    protected override float DoTRefreshThreshold(IApolloContext context) =>
-        FFXIVConstants.DotRefreshThreshold;
-
-    #endregion
-
-    #region Base Class Overrides - Action Methods
+    protected override bool IsDamageEnabled(IApolloContext context) => context.Configuration.EnableDamage;
+    protected override bool IsDoTEnabled(IApolloContext context) => context.Configuration.EnableDoT;
+    protected override bool IsAoEDamageEnabled(IApolloContext context) => context.Configuration.EnableDamage;
+    protected override int AoEMinTargets(IApolloContext context) => context.Configuration.Damage.AoEDamageMinTargets;
+    protected override float DoTRefreshThreshold(IApolloContext context) => FFXIVConstants.DotRefreshThreshold;
 
     protected override uint GetDoTStatusId(IApolloContext context)
     {
-        // CNJ doesn't have Dia (WHM-only at 72+); cap at AeroII/Aero
         if (context.Player.ClassJob.RowId == JobRegistry.Conjurer)
             return context.Player.Level >= 46 ? StatusHelper.StatusIds.AeroII : StatusHelper.StatusIds.Aero;
         return StatusHelper.GetDotStatusId(context.Player.Level);
@@ -90,7 +75,6 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
 
     protected override ActionDefinition? GetDoTAction(IApolloContext context)
     {
-        // CNJ doesn't have Dia (WHM-only at 72+); cap at AeroII/Aero
         if (context.Player.ClassJob.RowId == JobRegistry.Conjurer)
             return context.Player.Level >= WHMActions.AeroII.MinLevel ? WHMActions.AeroII :
                    context.Player.Level >= WHMActions.Aero.MinLevel ? WHMActions.Aero : null;
@@ -102,206 +86,46 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
 
     protected override ActionDefinition GetSingleTargetAction(IApolloContext context, bool isMoving)
     {
-        // CNJ doesn't have Stone III+ or Glare+ (WHM-only); cap at StoneII/Stone
         if (context.Player.ClassJob.RowId == JobRegistry.Conjurer)
             return context.Player.Level >= WHMActions.StoneII.MinLevel ? WHMActions.StoneII : WHMActions.Stone;
         return WHMActions.GetDamageGcdForLevel(context.Player.Level);
     }
 
-    #endregion
+    protected override void SetDpsState(IApolloContext context, string state) => context.Debug.DpsState = state;
+    protected override void SetAoEDpsState(IApolloContext context, string state) => context.Debug.AoEDpsState = state;
+    protected override void SetAoEDpsEnemyCount(IApolloContext context, int count) => context.Debug.AoEDpsEnemyCount = count;
+    protected override void SetPlannedAction(IApolloContext context, string action) => context.Debug.PlannedAction = action;
 
-    #region Base Class Overrides - Debug State
-
-    protected override void SetDpsState(IApolloContext context, string state) =>
-        context.Debug.DpsState = state;
-
-    protected override void SetAoEDpsState(IApolloContext context, string state) =>
-        context.Debug.AoEDpsState = state;
-
-    protected override void SetAoEDpsEnemyCount(IApolloContext context, int count) =>
-        context.Debug.AoEDpsEnemyCount = count;
-
-    protected override void SetPlannedAction(IApolloContext context, string action) =>
-        context.Debug.PlannedAction = action;
-
-    #endregion
-
-    #region Base Class Overrides - Behavioral
-
-    /// <summary>
-    /// WHM DPS doesn't block other actions.
-    /// </summary>
     protected override bool BlocksOnExecution => false;
-
-    /// <summary>
-    /// All WHM/CNJ DoTs (Aero, Aero II, Dia) are instant cast, so DoT is always allowed while moving.
-    /// </summary>
     protected override bool CanDoT(IApolloContext context, bool isMoving) => true;
 
-    /// <summary>
-    /// Check if action is enabled in WHM config.
-    /// </summary>
     protected override bool IsActionEnabled(IApolloContext context, ActionDefinition action)
     {
         var config = context.Configuration;
-
-        if (DamageSpellEnabledMap.TryGetValue(action.ActionId, out var damageCheck))
-            return damageCheck(config);
-
-        if (DotSpellEnabledMap.TryGetValue(action.ActionId, out var dotCheck))
-            return dotCheck(config);
-
-        if (AoEDamageSpellEnabledMap.TryGetValue(action.ActionId, out var aoeCheck))
-            return aoeCheck(config);
-
+        if (DamageSpellEnabledMap.TryGetValue(action.ActionId, out var damageCheck)) return damageCheck(config);
+        if (DotSpellEnabledMap.TryGetValue(action.ActionId, out var dotCheck)) return dotCheck(config);
+        if (AoEDamageSpellEnabledMap.TryGetValue(action.ActionId, out var aoeCheck)) return aoeCheck(config);
         return true;
     }
 
-    /// <summary>
-    /// WHM special damage: Afflatus Misery (Blood Lily) and Sacred Sight (Glare IV).
-    /// These have priority over regular damage rotation.
-    /// </summary>
-    protected override bool TrySpecialDamage(IApolloContext context, bool isMoving)
+    public override bool TryExecute(IApolloContext context, bool isMoving) => false;
+
+    public new void CollectCandidates(IApolloContext context, RotationScheduler scheduler, bool isMoving)
     {
-        // Priority 1: Afflatus Misery (1240p AoE, costs 3 Blood Lily)
-        if (TryAfflatusMisery(context))
-            return true;
+        if (!context.InCombat) return;
+        if (context.TargetingService.IsDamageTargetingPaused()) { SetDpsState(context, "Paused (no target)"); return; }
+        if (context.Configuration.Targeting.SuppressDamageOnForcedMovement
+            && PlayerSafetyHelper.IsForcedMovementActive(context.Player))
+        {
+            SetDpsState(context, "Paused (forced movement)");
+            return;
+        }
 
-        // Priority 2: Sacred Sight Glare IV (instant, uses stacks)
-        if (TrySacredSightGlare(context))
-            return true;
-
-        return false;
+        TryPushSpecialDamage(context, scheduler);
+        TryPushDoT(context, scheduler, isMoving);
+        TryPushAoEDamage(context, scheduler);
+        TryPushSingleTargetDamage(context, scheduler, isMoving);
     }
-
-    /// <summary>
-    /// For AoE, skip Holy when Sacred Sight is available (Glare IV is better).
-    /// </summary>
-    protected override bool TryAoEDamage(IApolloContext context)
-    {
-        // Skip Holy if we have Sacred Sight stacks (Glare IV is better)
-        if (context.SacredSightStacks > 0)
-            return false;
-
-        return base.TryAoEDamage(context);
-    }
-
-    #endregion
-
-    #region WHM-Specific Methods
-
-    private bool TryAfflatusMisery(IApolloContext context)
-    {
-        var player = context.Player;
-        var config = context.Configuration;
-
-        if (context.BloodLilyCount < 3)
-        {
-            context.Debug.MiseryState = $"{context.BloodLilyCount}/3 Blood Lily";
-            return false;
-        }
-
-        if (player.Level < WHMActions.AfflatusMisery.MinLevel)
-        {
-            context.Debug.MiseryState = $"Level {player.Level} < 74";
-            return false;
-        }
-
-        if (!IsActionEnabled(context, WHMActions.AfflatusMisery))
-        {
-            context.Debug.MiseryState = "Disabled";
-            return false;
-        }
-
-        var target = context.TargetingService.FindEnemy(
-            config.Targeting.EnemyStrategy,
-            WHMActions.AfflatusMisery.Range,
-            player);
-
-        if (target == null)
-        {
-            context.Debug.MiseryState = "No target";
-            return false;
-        }
-
-        if (context.ActionService.ExecuteGcd(WHMActions.AfflatusMisery, target.GameObjectId))
-        {
-            context.Debug.DpsState = "Afflatus Misery";
-            context.Debug.MiseryState = "Executing";
-            SetPlannedAction(context, WHMActions.AfflatusMisery.Name);
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
-            {
-                var targetName = target.Name?.TextValue ?? "Unknown";
-                var shortReason = $"Afflatus Misery on {targetName} - 1240p AoE!";
-
-                var factors = _afflatusMiseryFactors;
-                var alternatives = _afflatusMiseryAlternatives;
-
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = WHMActions.AfflatusMisery.ActionId,
-                    ActionName = "Afflatus Misery",
-                    Category = "Damage",
-                    TargetName = targetName,
-                    ShortReason = shortReason,
-                    DetailedReason = $"Afflatus Misery is WHM's strongest GCD damage skill at 1240 potency. It requires 3 Blood Lilies built from using Afflatus Solace/Rapture. Used on {targetName}. Always use Misery when available - it's your reward for using Lily heals!",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = "Never hold Misery too long - it's a huge DPS gain! Build Blood Lilies with Lily heals to unlock it.",
-                    ConceptId = WhmConcepts.AfflatusMiseryTiming,
-                    Priority = ExplanationPriority.Normal,
-                });
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    private bool TrySacredSightGlare(IApolloContext context)
-    {
-        var player = context.Player;
-        var config = context.Configuration;
-
-        if (context.SacredSightStacks == 0)
-            return false;
-
-        if (player.Level < WHMActions.GlareIV.MinLevel)
-            return false;
-
-        if (!IsActionEnabled(context, WHMActions.GlareIV))
-            return false;
-
-        var (aoeTarget, hitCount) = context.TargetingService.FindBestAoETarget(
-            WHMActions.GlareIV.Radius,
-            WHMActions.GlareIV.Range,
-            player);
-
-        if (aoeTarget == null)
-            return false;
-
-        if (context.ActionService.ExecuteGcd(WHMActions.GlareIV, aoeTarget.GameObjectId))
-        {
-            if (hitCount >= config.Damage.AoEDamageMinTargets)
-            {
-                context.Debug.DpsState = $"Glare IV AoE ({hitCount} targets, {context.SacredSightStacks} stacks)";
-            }
-            else
-            {
-                context.Debug.DpsState = $"Sacred Sight Glare IV ({context.SacredSightStacks} stacks)";
-            }
-            SetPlannedAction(context, WHMActions.GlareIV.Name);
-            return true;
-        }
-
-        return false;
-    }
-
-    #endregion
 
     public override void UpdateDebugState(IApolloContext context)
     {
@@ -309,5 +133,179 @@ public sealed class DamageModule : BaseDamageModule<IApolloContext>, IApolloModu
         context.Debug.BloodLilyCount = context.BloodLilyCount;
         context.Debug.LilyStrategy = context.Configuration.Healing.LilyStrategy.ToString();
         context.Debug.SacredSightStacks = context.SacredSightStacks;
+    }
+
+    private void TryPushSpecialDamage(IApolloContext context, RotationScheduler scheduler)
+    {
+        TryPushAfflatusMisery(context, scheduler);
+        TryPushSacredSightGlare(context, scheduler);
+    }
+
+    private void TryPushAfflatusMisery(IApolloContext context, RotationScheduler scheduler)
+    {
+        var player = context.Player;
+        var config = context.Configuration;
+
+        if (context.BloodLilyCount < 3) { context.Debug.MiseryState = $"{context.BloodLilyCount}/3 Blood Lily"; return; }
+        if (player.Level < WHMActions.AfflatusMisery.MinLevel) { context.Debug.MiseryState = $"Level {player.Level} < 74"; return; }
+        if (!IsActionEnabled(context, WHMActions.AfflatusMisery)) { context.Debug.MiseryState = "Disabled"; return; }
+
+        var target = context.TargetingService.FindEnemy(config.Targeting.EnemyStrategy, WHMActions.AfflatusMisery.Range, player);
+        if (target == null) { context.Debug.MiseryState = "No target"; return; }
+
+        var capturedTarget = target;
+
+        scheduler.PushGcd(ApolloAbilities.AfflatusMisery, target.GameObjectId, priority: 300,
+            onDispatched: _ =>
+            {
+                context.Debug.DpsState = "Afflatus Misery";
+                context.Debug.MiseryState = "Executing";
+                SetPlannedAction(context, WHMActions.AfflatusMisery.Name);
+
+                if (context.TrainingService?.IsTrainingEnabled == true)
+                {
+                    var targetName = capturedTarget.Name?.TextValue ?? "Unknown";
+                    context.TrainingService.RecordDecision(new ActionExplanation
+                    {
+                        Timestamp = DateTime.UtcNow,
+                        ActionId = WHMActions.AfflatusMisery.ActionId,
+                        ActionName = "Afflatus Misery",
+                        Category = "Damage",
+                        TargetName = targetName,
+                        ShortReason = $"Afflatus Misery on {targetName} - 1240p AoE!",
+                        DetailedReason = $"Afflatus Misery is WHM's strongest GCD damage skill at 1240 potency. Used on {targetName}. Always use Misery when available!",
+                        Factors = _afflatusMiseryFactors,
+                        Alternatives = _afflatusMiseryAlternatives,
+                        Tip = "Never hold Misery too long - it's a huge DPS gain!",
+                        ConceptId = WhmConcepts.AfflatusMiseryTiming,
+                        Priority = ExplanationPriority.Normal,
+                    });
+                }
+            });
+    }
+
+    private void TryPushSacredSightGlare(IApolloContext context, RotationScheduler scheduler)
+    {
+        var player = context.Player;
+        var config = context.Configuration;
+
+        if (context.SacredSightStacks == 0) return;
+        if (player.Level < WHMActions.GlareIV.MinLevel) return;
+        if (!IsActionEnabled(context, WHMActions.GlareIV)) return;
+
+        var (aoeTarget, hitCount) = context.TargetingService.FindBestAoETarget(
+            WHMActions.GlareIV.Radius, WHMActions.GlareIV.Range, player);
+        if (aoeTarget == null) return;
+
+        var capturedHitCount = hitCount;
+        var capturedStacks = context.SacredSightStacks;
+
+        scheduler.PushGcd(ApolloAbilities.GlareIV, aoeTarget.GameObjectId, priority: 305,
+            onDispatched: _ =>
+            {
+                if (capturedHitCount >= config.Damage.AoEDamageMinTargets)
+                    context.Debug.DpsState = $"Glare IV AoE ({capturedHitCount} targets, {capturedStacks} stacks)";
+                else
+                    context.Debug.DpsState = $"Sacred Sight Glare IV ({capturedStacks} stacks)";
+                SetPlannedAction(context, WHMActions.GlareIV.Name);
+            });
+    }
+
+    private void TryPushDoT(IApolloContext context, RotationScheduler scheduler, bool isMoving)
+    {
+        if (!IsDoTEnabled(context)) return;
+
+        var dotAction = GetDoTAction(context);
+        if (dotAction == null) return;
+
+        if (IsAoEDamageEnabled(context))
+        {
+            var aoeAction = GetAoEDamageAction(context);
+            if (aoeAction != null)
+            {
+                var enemyCount = context.TargetingService.CountEnemiesInRange(aoeAction.Radius, context.Player);
+                if (enemyCount >= AoEMinTargets(context)) { SetDpsState(context, $"DoT: skipped ({enemyCount} enemies, AoE preferred)"); return; }
+            }
+        }
+
+        var dotCastTime = context.HasSwiftcast ? 0f : dotAction.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, dotCastTime)) { SetDpsState(context, "DoT: mechanic imminent"); return; }
+
+        var dotStatusId = GetDoTStatusId(context);
+        if (dotStatusId == 0) return;
+
+        var target = context.TargetingService.FindEnemyNeedingDot(dotStatusId, DoTRefreshThreshold(context), dotAction.Range, context.Player);
+        if (target == null) { SetDpsState(context, "DoT: no target"); return; }
+
+        if (!IsActionEnabled(context, dotAction)) return;
+
+        var capturedAction = dotAction;
+        var behavior = new AbilityBehavior { Action = dotAction };
+
+        scheduler.PushGcd(behavior, target.GameObjectId, priority: 310,
+            onDispatched: _ =>
+            {
+                SetPlannedAction(context, capturedAction.Name);
+                SetDpsState(context, "DoT");
+            });
+    }
+
+    private void TryPushAoEDamage(IApolloContext context, RotationScheduler scheduler)
+    {
+        if (!IsAoEDamageEnabled(context)) return;
+
+        if (context.SacredSightStacks > 0) return;
+
+        var aoeAction = GetAoEDamageAction(context);
+        if (aoeAction == null) return;
+        if (!IsActionEnabled(context, aoeAction)) return;
+
+        var aoeCastTime = context.HasSwiftcast ? 0f : aoeAction.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, aoeCastTime)) { SetAoEDpsState(context, "Holding: mechanic imminent"); return; }
+
+        var enemyCount = context.TargetingService.CountEnemiesInRange(aoeAction.Radius, context.Player);
+        SetAoEDpsEnemyCount(context, enemyCount);
+        if (enemyCount < AoEMinTargets(context)) { SetAoEDpsState(context, $"{enemyCount} < {AoEMinTargets(context)} min"); return; }
+
+        var targetId = aoeAction.TargetType == ActionTargetType.Self
+            ? context.Player.GameObjectId
+            : FindBestAoETarget(context, aoeAction);
+        if (targetId == 0) return;
+
+        var capturedAction = aoeAction;
+        var capturedEnemyCount = enemyCount;
+        var behavior = new AbilityBehavior { Action = aoeAction };
+
+        scheduler.PushGcd(behavior, targetId, priority: 320,
+            onDispatched: _ =>
+            {
+                SetPlannedAction(context, capturedAction.Name);
+                SetDpsState(context, $"AoE ({capturedEnemyCount} targets)");
+                SetAoEDpsState(context, $"{capturedEnemyCount} enemies");
+            });
+    }
+
+    private void TryPushSingleTargetDamage(IApolloContext context, RotationScheduler scheduler, bool isMoving)
+    {
+        if (!IsDamageEnabled(context)) { SetDpsState(context, "Damage disabled"); return; }
+
+        var action = GetSingleTargetAction(context, isMoving);
+        if (!IsActionEnabled(context, action)) { SetDpsState(context, $"Action disabled: {action.Name}"); return; }
+
+        var stCastTime = context.HasSwiftcast ? 0f : action.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, stCastTime)) { SetDpsState(context, "Holding: mechanic imminent"); return; }
+
+        var target = context.TargetingService.FindEnemy(context.Configuration.Targeting.EnemyStrategy, action.Range, context.Player);
+        if (target == null) { SetDpsState(context, "No enemy found"); return; }
+
+        var capturedAction = action;
+        var behavior = new AbilityBehavior { Action = action };
+
+        scheduler.PushGcd(behavior, target.GameObjectId, priority: 330,
+            onDispatched: _ =>
+            {
+                SetPlannedAction(context, capturedAction.Name);
+                SetDpsState(context, capturedAction.Name);
+            });
     }
 }
