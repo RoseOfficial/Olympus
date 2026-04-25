@@ -2,8 +2,10 @@ using Dalamud.Game.ClientState.Objects.Types;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using Olympus.Config;
 using Olympus.Data;
+using Olympus.Models.Action;
 using Olympus.Rotation.Common.Helpers;
-using Olympus.Rotation.Common.Modules;
+using Olympus.Rotation.Common.Scheduling;
+using Olympus.Rotation.PersephoneCore.Abilities;
 using Olympus.Rotation.PersephoneCore.Context;
 using Olympus.Services;
 using Olympus.Services.Targeting;
@@ -12,778 +14,400 @@ using Olympus.Services.Training;
 namespace Olympus.Rotation.PersephoneCore.Modules;
 
 /// <summary>
-/// Handles the Summoner damage rotation.
-/// Manages demi-summon phases, primal attunements, and filler spells.
+/// Handles the Summoner damage rotation (scheduler-driven).
+/// Demi-summon GCDs use ReplacementBaseId so UseAction receives the base Ruin III ID
+/// (the game upgrades server-side). The Aethercharge demi-summon entry uses raw
+/// ActionManager directly because it requires the adjusted ID at the dispatch site.
 /// </summary>
-public sealed class DamageModule : BaseDpsDamageModule<IPersephoneContext>, IPersephoneModule
+public sealed class DamageModule : IPersephoneModule
 {
-    public DamageModule(IBurstWindowService? burstWindowService = null, ISmartAoEService? smartAoEService = null) : base(burstWindowService, smartAoEService) { }
+    public int Priority => 30;
+    public string Name => "Damage";
 
-    #region Abstract Method Implementations
+    private readonly IBurstWindowService? _burstWindowService;
+    private readonly ISmartAoEService? _smartAoEService;
 
-    protected override float GetTargetingRange() => FFXIVConstants.CasterTargetingRange;
-
-    protected override float GetAoECountRange() => 5f;
-
-    protected override void SetDamageState(IPersephoneContext context, string state) =>
-        context.Debug.DamageState = state;
-
-    protected override void SetNearbyEnemies(IPersephoneContext context, int count) =>
-        context.Debug.NearbyEnemies = count;
-
-    protected override void SetPlannedAction(IPersephoneContext context, string action) =>
-        context.Debug.PlannedAction = action;
-
-    protected override bool IsAoEEnabled(IPersephoneContext context) =>
-        context.Configuration.Summoner.EnableAoERotation;
-
-    protected override int GetConfiguredAoEThreshold(IPersephoneContext context) =>
-        context.Configuration.Summoner.AoEMinTargets;
-
-    /// <summary>
-    /// SMN has no damage oGCDs - all abilities are in the GCD phase or BuffModule.
-    /// </summary>
-    protected override bool TryOgcdDamage(IPersephoneContext context, IBattleChara target, int enemyCount)
+    public DamageModule(IBurstWindowService? burstWindowService = null, ISmartAoEService? smartAoEService = null)
     {
-        return false;
+        _burstWindowService = burstWindowService;
+        _smartAoEService = smartAoEService;
     }
 
-    protected override bool TryGcdDamage(IPersephoneContext context, IBattleChara target, int enemyCount, bool isMoving)
+    public bool TryExecute(IPersephoneContext context, bool isMoving) => false;
+
+    public void UpdateDebugState(IPersephoneContext context) { }
+
+    public unsafe void CollectCandidates(IPersephoneContext context, RotationScheduler scheduler, bool isMoving)
     {
-        // === PRIORITY 0: SUMMON CARBUNCLE (required for all other summons) ===
+        if (!context.InCombat)
+        {
+            context.Debug.DamageState = "Not in combat";
+            return;
+        }
+        if (context.TargetingService.IsDamageTargetingPaused())
+        {
+            context.Debug.DamageState = "Paused (no target)";
+            return;
+        }
+        if (context.Configuration.Targeting.SuppressDamageOnForcedMovement
+            && PlayerSafetyHelper.IsForcedMovementActive(context.Player))
+        {
+            context.Debug.DamageState = "Paused (forced movement)";
+            return;
+        }
+
+        var player = context.Player;
+        var target = context.TargetingService.FindEnemy(
+            context.Configuration.Targeting.EnemyStrategy,
+            FFXIVConstants.CasterTargetingRange,
+            player);
+        if (target == null)
+        {
+            context.Debug.DamageState = "No target";
+            return;
+        }
+
+        // Carbuncle first
         if (!context.HasPetSummoned)
         {
-            if (TrySummonCarbuncle(context))
-                return true;
+            TryPushSummonCarbuncle(context, scheduler);
+            return;
         }
 
-        var useAoe = ShouldUseAoE(enemyCount);
+        var aoeEnabled = context.Configuration.Summoner.EnableAoERotation;
+        var aoeThreshold = context.Configuration.Summoner.AoEMinTargets;
+        var rawEnemyCount = context.TargetingService.CountEnemiesInRange(5f, player);
+        context.Debug.NearbyEnemies = rawEnemyCount;
+        var enemyCount = aoeEnabled ? rawEnemyCount : 0;
+        var useAoe = enemyCount >= aoeThreshold;
 
-        // === PRIORITY 1: DEMI-SUMMON PHASE GCDs ===
         if (context.IsDemiSummonActive)
-        {
-            if (TryDemiSummonGcd(context, target, useAoe))
-                return true;
-        }
+            TryPushDemiSummonGcd(context, scheduler, target, useAoe);
 
-        // === PRIORITY 2: PRIMAL ATTUNEMENT GCDs (Gemshine) ===
         if (context.IsIfritAttuned || context.IsTitanAttuned || context.IsGarudaAttuned)
-        {
-            if (TryAttunementGcd(context, target, useAoe, isMoving))
-                return true;
-        }
+            TryPushAttunementGcd(context, scheduler, target, useAoe, isMoving);
 
-        // === PRIORITY 3: PRIMAL FAVOR ABILITIES ===
-        if (TryPrimalFavor(context, target, isMoving))
-            return true;
+        TryPushPrimalFavor(context, scheduler, target, isMoving);
 
-        // === PRIORITY 4: SUMMON NEXT PRIMAL ===
         if (context.PrimalsAvailable > 0 && !context.IsDemiSummonActive)
+            TryPushSummonPrimal(context, scheduler, target);
+
+        // Demi-summon entry (Aethercharge → Bahamut/Phoenix/Solar Bahamut) uses raw ActionManager
+        // because UseAction needs the adjusted ID at dispatch time, not the base ID.
+        if (!context.IsDemiSummonActive && context.AttunementStacks == 0
+            && context.PrimalsAvailable == 0)
         {
-            if (TrySummonPrimal(context, target))
-                return true;
+            FireSummonDemiRaw(context, target);
         }
 
-        // === PRIORITY 5: SUMMON DEMI ===
-        // Try demi-summon when no primals are left, OR as fallback if primal summons failed
-        if (!context.IsDemiSummonActive && context.AttunementStacks == 0)
-        {
-            if (TrySummonDemi(context, target))
-                return true;
-        }
-
-        // === PRIORITY 6: RUIN IV (Further Ruin proc) ===
-        // Only use between phases, not during demi-summon
         if (!context.IsDemiSummonActive && context.HasFurtherRuin)
-        {
-            if (TryRuin4(context, target))
-                return true;
-        }
+            TryPushRuin4(context, scheduler, target);
 
-        // === PRIORITY 7: FILLER (Ruin III / Tri-disaster) ===
-        if (TryFillerGcd(context, target, useAoe, isMoving))
-            return true;
-
-        return false;
+        TryPushFiller(context, scheduler, target, useAoe, isMoving);
     }
 
-    #endregion
-
-    #region Summon Carbuncle
-
-    private bool TrySummonCarbuncle(IPersephoneContext context)
+    private void TryPushSummonCarbuncle(IPersephoneContext context, RotationScheduler scheduler)
     {
-        var player = context.Player;
-        if (player.Level < SMNActions.SummonCarbuncle.MinLevel)
-            return false;
-
+        if (context.Player.Level < SMNActions.SummonCarbuncle.MinLevel) return;
         var castTime = context.HasInstantCast ? 0f : SMNActions.SummonCarbuncle.CastTime;
         if (MechanicCastGate.ShouldBlock(context, castTime))
         {
             context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
-            return false;
+            return;
         }
-
-        if (context.ActionService.ExecuteGcd(SMNActions.SummonCarbuncle, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = SMNActions.SummonCarbuncle.Name;
-            context.Debug.DamageState = "Summon Carbuncle";
-            return true;
-        }
-
-        return false;
-    }
-
-    #endregion
-
-    #region Demi-Summon Phase
-
-    private unsafe bool TryDemiSummonGcd(IPersephoneContext context, IBattleChara target, bool useAoe)
-    {
-        if (context.IsBahamutActive && !context.Configuration.Summoner.EnableBahamut)
-            return false;
-        if (context.IsPhoenixActive && !context.Configuration.Summoner.EnablePhoenix)
-            return false;
-        if (context.IsSolarBahamutActive && !context.Configuration.Summoner.EnableSolarBahamut)
-            return false;
-
-        var player = context.Player;
-        var level = player.Level;
-
-        // During demi-summon phase, Ruin III is replaced by the demi GCD (Astral Impulse / Fountain of Fire / Umbral Impulse).
-        // UseAction rejects replacement action IDs directly, so we use the BASE action (Ruin III / Tri-disaster)
-        // and the game handles the replacement internally.
-        var baseAction = useAoe ? SMNActions.GetAoeSpell(level) : SMNActions.GetRuinSpell(level);
-
-        var actionManager = SafeGameAccess.GetActionManager(null);
-        if (actionManager == null)
-            return false;
-
-        // Check status on the adjusted ID (demi GCD), execute with the base ID
-        var adjustedId = actionManager->GetAdjustedActionId(baseAction.ActionId);
-        if (actionManager->GetActionStatus(ActionType.Action, adjustedId) != 0)
-            return false;
-
-        var result = actionManager->UseAction(ActionType.Action, baseAction.ActionId, target.GameObjectId);
-        if (result)
-        {
-            // Determine which demi GCD was actually used for display
-            var demiGcd = SMNActions.GetDemiSummonGcd(context.IsBahamutActive, context.IsSolarBahamutActive, useAoe);
-            context.Debug.PlannedAction = demiGcd.Name;
-            context.Debug.DamageState = $"{demiGcd.Name} (Demi phase)";
-
-            // Training Mode recording
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushGcd(PersephoneAbilities.SummonCarbuncle, context.Player.GameObjectId, priority: 1,
+            onDispatched: _ =>
             {
-                var demiType = context.IsBahamutActive ? "Bahamut" :
-                               context.IsPhoenixActive ? "Phoenix" : "Solar Bahamut";
-                var phaseConcept = context.IsBahamutActive ? SmnConcepts.BahamutPhase :
-                                   context.IsPhoenixActive ? SmnConcepts.PhoenixPhase :
-                                   SmnConcepts.SolarBahamutPhase;
-
-                TrainingHelper.Decision(context.TrainingService)
-                    .Action(demiGcd.ActionId, demiGcd.Name)
-                    .AsSummon(demiType)
-                    .Target(target.Name?.TextValue)
-                    .Reason($"{demiGcd.Name} during {demiType} phase",
-                        $"During {demiType} phase, your normal GCDs are replaced with powerful summon-specific attacks. " +
-                        $"{demiGcd.Name} deals high potency while your demi-summon also attacks alongside you.")
-                    .Factors($"{demiType} active", $"Timer: {context.DemiSummonTimer:F1}s", $"GCDs left: {context.DemiSummonGcdsRemaining}")
-                    .Alternatives("None - always use demi GCDs during demi phase")
-                    .Tip($"Maximize GCDs during demi phase - each GCD triggers your {demiType}'s attack.")
-                    .Concept(SmnConcepts.DemiPhases)
-                    .Record();
-
-                context.TrainingService.RecordConceptApplication(
-                    SmnConcepts.DemiPhases, true, "Demi-summon GCD used");
-                context.TrainingService.RecordConceptApplication(
-                    phaseConcept, true, $"{demiType} GCD rotation");
-            }
-
-            return true;
-        }
-
-        return false;
+                context.Debug.PlannedAction = SMNActions.SummonCarbuncle.Name;
+                context.Debug.DamageState = "Summon Carbuncle";
+            });
     }
 
-    #endregion
-
-    #region Primal Attunement
-
-    private bool TryAttunementGcd(IPersephoneContext context, IBattleChara target, bool useAoe, bool isMoving)
+    private void TryPushDemiSummonGcd(IPersephoneContext context, RotationScheduler scheduler, IBattleChara target, bool useAoe)
     {
-        if (!context.Configuration.Summoner.EnablePrimalAbilities)
-            return false;
+        if (context.IsBahamutActive && !context.Configuration.Summoner.EnableBahamut) return;
+        if (context.IsPhoenixActive && !context.Configuration.Summoner.EnablePhoenix) return;
+        if (context.IsSolarBahamutActive && !context.Configuration.Summoner.EnableSolarBahamut) return;
 
+        var demiGcd = SMNActions.GetDemiSummonGcd(context.IsBahamutActive, context.IsSolarBahamutActive, useAoe);
+        var ability = demiGcd.ActionId switch
+        {
+            var id when id == SMNActions.AstralImpulse.ActionId => PersephoneAbilities.AstralImpulse,
+            var id when id == SMNActions.AstralFlare.ActionId => PersephoneAbilities.AstralFlare,
+            var id when id == SMNActions.FountainOfFire.ActionId => PersephoneAbilities.FountainOfFire,
+            var id when id == SMNActions.BrandOfPurgatory.ActionId => PersephoneAbilities.BrandOfPurgatory,
+            var id when id == SMNActions.UmbralImpulse.ActionId => PersephoneAbilities.UmbralImpulse,
+            var id when id == SMNActions.UmbralFlare.ActionId => PersephoneAbilities.UmbralFlare,
+            _ => PersephoneAbilities.AstralImpulse,
+        };
+
+        scheduler.PushGcd(ability, target.GameObjectId, priority: 2,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = demiGcd.Name;
+                context.Debug.DamageState = $"{demiGcd.Name} (Demi phase)";
+
+                if (context.TrainingService?.IsTrainingEnabled == true)
+                {
+                    var demiType = context.IsBahamutActive ? "Bahamut" : context.IsPhoenixActive ? "Phoenix" : "Solar Bahamut";
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(demiGcd.ActionId, demiGcd.Name)
+                        .AsSummon(demiType).Target(target.Name?.TextValue)
+                        .Reason($"{demiGcd.Name} during {demiType} phase",
+                            $"During {demiType} phase, your normal GCDs are replaced with powerful summon-specific attacks.")
+                        .Factors($"{demiType} active", $"Timer: {context.DemiSummonTimer:F1}s")
+                        .Alternatives("None - always use demi GCDs")
+                        .Tip($"Maximize GCDs during {demiType} phase.")
+                        .Concept(SmnConcepts.DemiPhases)
+                        .Record();
+                    context.TrainingService.RecordConceptApplication(SmnConcepts.DemiPhases, true, "Demi-summon GCD used");
+                }
+            });
+    }
+
+    private void TryPushAttunementGcd(IPersephoneContext context, RotationScheduler scheduler, IBattleChara target, bool useAoe, bool isMoving)
+    {
+        if (!context.Configuration.Summoner.EnablePrimalAbilities) return;
         var player = context.Player;
-        var level = player.Level;
 
-        // Get Gemshine action based on current attunement
         var action = SMNActions.GetGemshinAction(context.CurrentAttunement, useAoe);
-        if (action == null)
-            return false;
+        if (action == null) return;
 
-        // Ruby Rite has a cast time - check for movement
         if (context.IsIfritAttuned && isMoving && !context.HasInstantCast && !context.CanSlidecast)
         {
-            // Use Swiftcast for Ruby Rite if moving
             if (context.SwiftcastReady)
             {
-                if (context.ActionService.ExecuteOgcd(RoleActions.Swiftcast, player.GameObjectId))
-                {
-                    context.Debug.DamageState = "Swiftcast for Ruby";
-                    return true;
-                }
+                scheduler.PushOgcd(PersephoneAbilities.Swiftcast, player.GameObjectId, priority: 7,
+                    onDispatched: _ => context.Debug.DamageState = "Swiftcast for Ruby");
             }
-            // Otherwise, skip and use movement filler
-            context.Debug.DamageState = "Moving, need instant for Ruby";
-            return false;
+            return;
         }
 
-        var attunementCastTime = context.HasInstantCast ? 0f : action.CastTime;
-        if (MechanicCastGate.ShouldBlock(context, attunementCastTime))
+        var castTime = context.HasInstantCast ? 0f : action.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, castTime))
         {
             context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
-            return false;
+            return;
         }
 
-        if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
+        var ability = action.ActionId switch
         {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DamageState = $"{action.Name} ({context.Debug.AttunementName} {context.AttunementStacks - 1})";
+            var id when id == SMNActions.RubyRite.ActionId => PersephoneAbilities.RubyRite,
+            var id when id == SMNActions.RubyCatastrophe.ActionId => PersephoneAbilities.RubyCatastrophe,
+            var id when id == SMNActions.TopazRite.ActionId => PersephoneAbilities.TopazRite,
+            var id when id == SMNActions.TopazCatastrophe.ActionId => PersephoneAbilities.TopazCatastrophe,
+            var id when id == SMNActions.EmeraldRite.ActionId => PersephoneAbilities.EmeraldRite,
+            var id when id == SMNActions.EmeraldCatastrophe.ActionId => PersephoneAbilities.EmeraldCatastrophe,
+            _ => PersephoneAbilities.RubyRite,
+        };
 
-            // Training Mode recording
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushGcd(ability, target.GameObjectId, priority: 3,
+            onDispatched: _ =>
             {
-                var primalType = context.IsIfritAttuned ? "Ifrit" :
-                                 context.IsTitanAttuned ? "Titan" : "Garuda";
-                var phaseConcept = context.IsIfritAttuned ? SmnConcepts.IfritPhase :
-                                   context.IsTitanAttuned ? SmnConcepts.TitanPhase :
-                                   SmnConcepts.GarudaPhase;
-                var stacksRemaining = context.AttunementStacks - 1;
+                context.Debug.PlannedAction = action.Name;
+                context.Debug.DamageState = $"{action.Name} ({context.Debug.AttunementName} {context.AttunementStacks - 1})";
 
-                TrainingHelper.Decision(context.TrainingService)
-                    .Action(action.ActionId, action.Name)
-                    .AsCasterDamage()
-                    .Target(target.Name?.TextValue)
-                    .Reason($"{action.Name} - {primalType} attunement",
-                        $"Gemshine attacks ({action.Name}) consume attunement stacks. Each primal has a unique attack pattern: " +
-                        "Ifrit has 2 hard-hitting casts, Titan has 4 instant attacks, Garuda has 4 casted attacks with DoT.")
-                    .Factors($"{primalType} attuned", $"Stacks: {context.AttunementStacks} → {stacksRemaining}", $"Timer: {context.AttunementTimer:F1}s")
-                    .Alternatives("None - spend all attunement stacks")
-                    .Tip($"Use all {primalType} attunement stacks before summoning the next primal.")
-                    .Concept(SmnConcepts.AttunementSystem)
-                    .Record();
-
-                context.TrainingService.RecordConceptApplication(
-                    SmnConcepts.AttunementSystem, true, "Attunement stack spent");
-                context.TrainingService.RecordConceptApplication(
-                    phaseConcept, true, $"{primalType} Gemshine used");
-            }
-
-            return true;
-        }
-
-        return false;
+                if (context.TrainingService?.IsTrainingEnabled == true)
+                {
+                    var primalType = context.IsIfritAttuned ? "Ifrit" : context.IsTitanAttuned ? "Titan" : "Garuda";
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(action.ActionId, action.Name)
+                        .AsCasterDamage().Target(target.Name?.TextValue)
+                        .Reason($"{action.Name} - {primalType} attunement",
+                            "Gemshine attacks consume attunement stacks.")
+                        .Factors($"{primalType} attuned", $"Stacks: {context.AttunementStacks}")
+                        .Alternatives("None - spend all attunement stacks")
+                        .Tip($"Use all {primalType} attunement stacks before next primal.")
+                        .Concept(SmnConcepts.AttunementSystem)
+                        .Record();
+                    context.TrainingService.RecordConceptApplication(SmnConcepts.AttunementSystem, true, "Attunement stack spent");
+                }
+            });
     }
 
-    #endregion
-
-    #region Primal Favor Abilities
-
-    private bool TryPrimalFavor(IPersephoneContext context, IBattleChara target, bool isMoving)
+    private void TryPushPrimalFavor(IPersephoneContext context, RotationScheduler scheduler, IBattleChara target, bool isMoving)
     {
-        if (!context.Configuration.Summoner.EnablePrimalAbilities)
-            return false;
-
+        if (!context.Configuration.Summoner.EnablePrimalAbilities) return;
         var player = context.Player;
         var level = player.Level;
 
-        // Crimson Cyclone + Strike (Ifrit's Favor) - gap closer combo
+        // Crimson Cyclone
         if (context.HasIfritsFavor && level >= SMNActions.CrimsonCyclone.MinLevel)
         {
-            // Crimson Cyclone is a gap closer, safe to use when moving
-            if (context.ActionService.ExecuteGcd(SMNActions.CrimsonCyclone, target.GameObjectId))
-            {
-                context.Debug.PlannedAction = SMNActions.CrimsonCyclone.Name;
-                context.Debug.DamageState = "Crimson Cyclone (gap closer)";
-
-                // Training Mode recording
-                if (context.TrainingService?.IsTrainingEnabled == true)
+            scheduler.PushGcd(PersephoneAbilities.CrimsonCyclone, target.GameObjectId, priority: 4,
+                onDispatched: _ =>
                 {
-                    TrainingHelper.Decision(context.TrainingService)
-                        .Action(SMNActions.CrimsonCyclone.ActionId, SMNActions.CrimsonCyclone.Name)
-                        .AsCasterDamage()
-                        .Target(target.Name?.TextValue)
-                        .Reason("Crimson Cyclone - Ifrit's Favor gap closer",
-                            "Crimson Cyclone is a gap closer that dashes to the target and grants Crimson Strike as a follow-up. " +
-                            "It's instant cast, making it excellent for movement. Always follow up with Crimson Strike.")
-                        .Factors("Ifrit's Favor active", "Gap closer + instant")
-                        .Alternatives("None - always use when available")
-                        .Tip("Use Crimson Cyclone for movement - it's a gap closer that doesn't interrupt your rotation.")
-                        .Concept(SmnConcepts.CrimsonCyclone)
-                        .Record();
-
-                    context.TrainingService.RecordConceptApplication(
-                        SmnConcepts.CrimsonCyclone, true, "Ifrit gap closer used");
-                    context.TrainingService.RecordConceptApplication(
-                        SmnConcepts.FavorTiming, true, "Ifrit's Favor ability used");
-                }
-
-                return true;
-            }
+                    context.Debug.PlannedAction = SMNActions.CrimsonCyclone.Name;
+                    context.Debug.DamageState = "Crimson Cyclone (gap closer)";
+                });
         }
 
-        // Crimson Strike follow-up (after Crimson Cyclone)
-        // This is handled by the game automatically when Crimson Cyclone changes to Strike
-
-        // Slipstream (Garuda's Favor) - channeled ability
+        // Slipstream — has cast time, may need swiftcast
         if (context.HasGarudasFavor && level >= SMNActions.Slipstream.MinLevel)
         {
-            // Slipstream is a cast, check for movement
             if (isMoving && !context.HasInstantCast && !context.CanSlidecast)
             {
-                // Use Swiftcast for Slipstream if available
                 if (context.SwiftcastReady)
                 {
-                    if (context.ActionService.ExecuteOgcd(RoleActions.Swiftcast, player.GameObjectId))
-                    {
-                        context.Debug.DamageState = "Swiftcast for Slipstream";
-
-                        // Training Mode recording
-                        if (context.TrainingService?.IsTrainingEnabled == true)
-                        {
-                            TrainingHelper.Decision(context.TrainingService)
-                                .Action(RoleActions.Swiftcast.ActionId, RoleActions.Swiftcast.Name)
-                                .AsMovement()
-                                .Target(target.Name?.TextValue)
-                                .Reason("Swiftcast for Slipstream while moving",
-                                    "Slipstream has a long cast time. Using Swiftcast allows you to use it while moving, " +
-                                    "ensuring you don't lose Garuda's Favor buff to movement requirements.")
-                                .Factors("Garuda's Favor active", "Currently moving", "No instant cast ready")
-                                .Alternatives("Wait to stop moving (may lose buff)")
-                                .Tip("Swiftcast is valuable for Slipstream during movement-heavy phases.")
-                                .Concept(SmnConcepts.Slipstream)
-                                .Record();
-
-                            context.TrainingService.RecordConceptApplication(
-                                SmnConcepts.Slipstream, true, "Swiftcast for movement");
-                        }
-
-                        return true;
-                    }
+                    scheduler.PushOgcd(PersephoneAbilities.Swiftcast, player.GameObjectId, priority: 7,
+                        onDispatched: _ => context.Debug.DamageState = "Swiftcast for Slipstream");
                 }
-                context.Debug.DamageState = "Moving, hold Slipstream";
-                return false;
+                return;
             }
 
-            var slipstreamCastTime = context.HasInstantCast ? 0f : SMNActions.Slipstream.CastTime;
-            if (MechanicCastGate.ShouldBlock(context, slipstreamCastTime))
+            var castTime = context.HasInstantCast ? 0f : SMNActions.Slipstream.CastTime;
+            if (MechanicCastGate.ShouldBlock(context, castTime))
             {
                 context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
-                return false;
+                return;
             }
 
-            if (context.ActionService.ExecuteGcd(SMNActions.Slipstream, target.GameObjectId))
-            {
-                context.Debug.PlannedAction = SMNActions.Slipstream.Name;
-                context.Debug.DamageState = "Slipstream";
-
-                // Training Mode recording
-                if (context.TrainingService?.IsTrainingEnabled == true)
+            scheduler.PushGcd(PersephoneAbilities.Slipstream, target.GameObjectId, priority: 4,
+                onDispatched: _ =>
                 {
-                    TrainingHelper.Decision(context.TrainingService)
-                        .Action(SMNActions.Slipstream.ActionId, SMNActions.Slipstream.Name)
-                        .AsCasterDamage()
-                        .Target(target.Name?.TextValue)
-                        .Reason("Slipstream - Garuda's Favor DoT zone",
-                            "Slipstream places a ground DoT that deals damage over time to enemies in the area. " +
-                            "It's Garuda's signature ability and provides sustained damage after the initial hit.")
-                        .Factors("Garuda's Favor active", context.HasSwiftcast ? "Instant via Swiftcast" : "Stationary to cast")
-                        .Alternatives("None - always use Slipstream")
-                        .Tip("Position Slipstream where enemies will stay - the DoT provides significant damage.")
-                        .Concept(SmnConcepts.Slipstream)
-                        .Record();
-
-                    context.TrainingService.RecordConceptApplication(
-                        SmnConcepts.Slipstream, true, "Garuda DoT zone placed");
-                    context.TrainingService.RecordConceptApplication(
-                        SmnConcepts.FavorTiming, true, "Garuda's Favor ability used");
-                }
-
-                return true;
-            }
+                    context.Debug.PlannedAction = SMNActions.Slipstream.Name;
+                    context.Debug.DamageState = "Slipstream";
+                });
         }
-
-        return false;
     }
 
-    #endregion
-
-    #region Summon Primal
-
-    private bool TrySummonPrimal(IPersephoneContext context, IBattleChara target)
+    private void TryPushSummonPrimal(IPersephoneContext context, RotationScheduler scheduler, IBattleChara target)
     {
         var player = context.Player;
         var level = player.Level;
-
-        // Don't summon if we're in attunement or demi phase
-        if (context.IsDemiSummonActive || context.AttunementStacks > 0)
-            return false;
-
-        // Primal priority for opener: Titan > Garuda > Ifrit
-        // Titan first for instant GCDs during burst
-        // After opener, order matters less but Titan is good for movement
+        if (context.IsDemiSummonActive || context.AttunementStacks > 0) return;
 
         if (context.Configuration.Summoner.EnableTitan && context.CanSummonTitan && level >= SMNActions.SummonTitan.MinLevel)
         {
-            if (context.ActionService.ExecuteGcd(SMNActions.SummonTitan, target.GameObjectId))
-            {
-                context.Debug.PlannedAction = "Summon Titan";
-                context.Debug.DamageState = "Summon Titan";
-
-                // Training Mode recording
-                if (context.TrainingService?.IsTrainingEnabled == true)
+            scheduler.PushGcd(PersephoneAbilities.SummonTitan, target.GameObjectId, priority: 5,
+                onDispatched: _ =>
                 {
-                    RecordPrimalSummon(context, "Titan", SmnConcepts.TitanPhase,
-                        "Titan has 4 instant Topaz Rite attacks plus Mountain Buster oGCDs. " +
-                        "Excellent for movement phases due to all instant casts.");
-                }
-
-                return true;
-            }
+                    context.Debug.PlannedAction = "Summon Titan";
+                    context.Debug.DamageState = "Summon Titan";
+                });
+            return;
         }
-
         if (context.Configuration.Summoner.EnableGaruda && context.CanSummonGaruda && level >= SMNActions.SummonGaruda.MinLevel)
         {
-            if (context.ActionService.ExecuteGcd(SMNActions.SummonGaruda, target.GameObjectId))
-            {
-                context.Debug.PlannedAction = "Summon Garuda";
-                context.Debug.DamageState = "Summon Garuda";
-
-                // Training Mode recording
-                if (context.TrainingService?.IsTrainingEnabled == true)
+            scheduler.PushGcd(PersephoneAbilities.SummonGaruda, target.GameObjectId, priority: 5,
+                onDispatched: _ =>
                 {
-                    RecordPrimalSummon(context, "Garuda", SmnConcepts.GarudaPhase,
-                        "Garuda has 4 casted Emerald Rite attacks plus Slipstream ground DoT. " +
-                        "Best for stationary phases due to cast times.");
-                }
-
-                return true;
-            }
+                    context.Debug.PlannedAction = "Summon Garuda";
+                    context.Debug.DamageState = "Summon Garuda";
+                });
+            return;
         }
-
         if (context.Configuration.Summoner.EnableIfrit && context.CanSummonIfrit && level >= SMNActions.SummonIfrit.MinLevel)
         {
-            if (context.ActionService.ExecuteGcd(SMNActions.SummonIfrit, target.GameObjectId))
-            {
-                context.Debug.PlannedAction = "Summon Ifrit";
-                context.Debug.DamageState = "Summon Ifrit";
-
-                // Training Mode recording
-                if (context.TrainingService?.IsTrainingEnabled == true)
+            scheduler.PushGcd(PersephoneAbilities.SummonIfrit, target.GameObjectId, priority: 5,
+                onDispatched: _ =>
                 {
-                    RecordPrimalSummon(context, "Ifrit", SmnConcepts.IfritPhase,
-                        "Ifrit has 2 high-potency casted Ruby Rite attacks plus Crimson Cyclone gap closer. " +
-                        "Highest potency per attack but requires stationary casting.");
-                }
-
-                return true;
-            }
+                    context.Debug.PlannedAction = "Summon Ifrit";
+                    context.Debug.DamageState = "Summon Ifrit";
+                });
         }
-
-        return false;
     }
 
-    private void RecordPrimalSummon(IPersephoneContext context, string primalName, string phaseConcept, string description)
-    {
-        TrainingHelper.Decision(context.TrainingService)
-            .Action(0, $"Summon {primalName}") // Action ID varies by primal
-            .AsSummon(primalName)
-            .Reason($"Summoning {primalName} primal", description)
-            .Factors($"{primalName} available", $"Primals remaining: {context.PrimalsAvailable}")
-            .Alternatives("Summon different primal based on fight needs")
-            .Tip("Summon order matters: Titan for movement, Garuda for stationary, Ifrit for burst.")
-            .Concept(SmnConcepts.PrimalOrder)
-            .Record();
-
-        context.TrainingService?.RecordConceptApplication(
-            SmnConcepts.PrimalOrder, true, $"Summoned {primalName}");
-        context.TrainingService?.RecordConceptApplication(
-            phaseConcept, true, $"{primalName} phase started");
-    }
-
-    #endregion
-
-    #region Summon Demi
-
-    private unsafe bool TrySummonDemi(IPersephoneContext context, IBattleChara? enemyTarget = null)
+    /// <summary>
+    /// Demi-summon entry (Aethercharge → Bahamut/Phoenix/Solar Bahamut). Bypasses scheduler
+    /// because UseAction must receive the ADJUSTED action ID at dispatch time, which the
+    /// scheduler's ReplacementBaseId path doesn't support. Fires immediately if conditions met.
+    /// </summary>
+    private unsafe void FireSummonDemiRaw(IPersephoneContext context, IBattleChara target)
     {
         var player = context.Player;
-        var level = player.Level;
-
-        // Don't summon if we still have primals or attunement
-        if (context.PrimalsAvailable > 0 || context.AttunementStacks > 0)
-            return false;
-
-        if (level < SMNActions.Aethercharge.MinLevel)
-            return false;
+        if (player.Level < SMNActions.Aethercharge.MinLevel) return;
 
         var actionManager = SafeGameAccess.GetActionManager(null);
-        if (actionManager == null)
-            return false;
+        if (actionManager == null) return;
 
         var baseId = SMNActions.Aethercharge.ActionId;
         var adjustedId = actionManager->GetAdjustedActionId(baseId);
         var status = actionManager->GetActionStatus(ActionType.Action, adjustedId);
+        if (status != 0) return;
 
-        if (status == 0)
+        if (!context.CanExecuteGcd) return;
+
+        var result = actionManager->UseAction(ActionType.Action, adjustedId, target.GameObjectId);
+        if (result)
         {
-            var targetId = enemyTarget?.GameObjectId ?? player.GameObjectId;
-            var result = actionManager->UseAction(ActionType.Action, adjustedId, targetId);
-            if (result)
-            {
-                context.Debug.DamageState = "Demi-Summon";
-                return true;
-            }
+            context.Debug.DamageState = "Demi-Summon";
         }
-
-        return false;
     }
 
-    private void RecordDemiSummon(IPersephoneContext context, string demiName, string phaseConcept, string description)
+    private void TryPushRuin4(IPersephoneContext context, RotationScheduler scheduler, IBattleChara target)
     {
-        TrainingHelper.Decision(context.TrainingService)
-            .Action(0, $"Summon {demiName}") // Action ID varies by demi
-            .AsSummon(demiName)
-            .Priority(ExplanationPriority.High)
-            .Reason($"Summoning {demiName} for burst phase", description)
-            .Factors("All primals used", "Demi-summon ready", "15-second burst window")
-            .Alternatives("Hold for better timing (risky in most cases)")
-            .Tip($"Summon {demiName} immediately when ready - the 15-second window is your biggest burst.")
-            .Concept(SmnConcepts.DemiPhases)
-            .Record();
+        if (!context.Configuration.Summoner.EnableRuinIV) return;
+        var player = context.Player;
+        if (player.Level < SMNActions.Ruin4.MinLevel) return;
+        if (!context.HasFurtherRuin) return;
+        if (context.IsDemiSummonActive) return;
 
-        context.TrainingService?.RecordConceptApplication(
-            SmnConcepts.DemiPhases, true, $"Summoned {demiName}");
-        context.TrainingService?.RecordConceptApplication(
-            phaseConcept, true, $"{demiName} burst phase started");
+        // Expiring proc OR filler between phases
+        bool expiring = context.FurtherRuinRemaining < 5f;
+        bool filler = !context.IsDemiSummonActive && context.PrimalsAvailable == 0 && context.AttunementStacks == 0;
+        if (!expiring && !filler) return;
+
+        scheduler.PushGcd(PersephoneAbilities.Ruin4, target.GameObjectId, priority: 6,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = SMNActions.Ruin4.Name;
+                context.Debug.DamageState = expiring ? $"Ruin IV (expiring: {context.FurtherRuinRemaining:F1}s)" : "Ruin IV (filler)";
+            });
     }
 
-    #endregion
-
-    #region Ruin IV
-
-    private bool TryRuin4(IPersephoneContext context, IBattleChara target)
+    private void TryPushFiller(IPersephoneContext context, RotationScheduler scheduler, IBattleChara target, bool useAoe, bool isMoving)
     {
-        if (!context.Configuration.Summoner.EnableRuinIV)
-            return false;
-
+        if (!context.Configuration.Summoner.EnableRuin) return;
         var player = context.Player;
         var level = player.Level;
 
-        if (level < SMNActions.Ruin4.MinLevel)
-            return false;
-
-        if (!context.HasFurtherRuin)
-            return false;
-
-        // Don't use during demi-summon phase (waste of GCDs)
-        if (context.IsDemiSummonActive)
-            return false;
-
-        // Use if Further Ruin is about to expire
-        if (context.FurtherRuinRemaining < 5f)
-        {
-            if (context.ActionService.ExecuteGcd(SMNActions.Ruin4, target.GameObjectId))
-            {
-                context.Debug.PlannedAction = SMNActions.Ruin4.Name;
-                context.Debug.DamageState = $"Ruin IV (expiring: {context.FurtherRuinRemaining:F1}s)";
-
-                // Training Mode recording
-                if (context.TrainingService?.IsTrainingEnabled == true)
-                {
-                    TrainingHelper.Decision(context.TrainingService)
-                        .Action(SMNActions.Ruin4.ActionId, SMNActions.Ruin4.Name)
-                        .AsCasterProc("Further Ruin")
-                        .Target(target.Name?.TextValue)
-                        .Reason("Ruin IV - proc expiring soon",
-                            "Further Ruin procs are granted by Energy Drain/Siphon and expire after 60 seconds. " +
-                            "Using Ruin IV before it expires ensures you don't waste the proc. It's also instant cast.")
-                        .Factors($"Proc expiring: {context.FurtherRuinRemaining:F1}s", "Instant cast")
-                        .Alternatives("None - always use before expiring")
-                        .Tip("Track Further Ruin duration - use before it expires to avoid wasting procs.")
-                        .Concept(SmnConcepts.RuinIvProcs)
-                        .Record();
-
-                    context.TrainingService.RecordConceptApplication(
-                        SmnConcepts.RuinIvProcs, true, "Used expiring proc");
-                }
-
-                return true;
-            }
-        }
-
-        // Use as filler between phases
-        if (!context.IsDemiSummonActive && context.PrimalsAvailable == 0 && context.AttunementStacks == 0)
-        {
-            if (context.ActionService.ExecuteGcd(SMNActions.Ruin4, target.GameObjectId))
-            {
-                context.Debug.PlannedAction = SMNActions.Ruin4.Name;
-                context.Debug.DamageState = "Ruin IV (filler)";
-
-                // Training Mode recording
-                if (context.TrainingService?.IsTrainingEnabled == true)
-                {
-                    TrainingHelper.Decision(context.TrainingService)
-                        .Action(SMNActions.Ruin4.ActionId, SMNActions.Ruin4.Name)
-                        .AsCasterProc("Further Ruin")
-                        .Target(target.Name?.TextValue)
-                        .Reason("Ruin IV as filler between phases",
-                            "Between primal and demi-summon phases, use Ruin IV procs as filler. " +
-                            "It's higher potency than Ruin III and instant cast, making it ideal filler.")
-                        .Factors("No primals available", "No demi active", "Waiting for summons")
-                        .Alternatives("Use Ruin III if no procs")
-                        .Tip("Save Ruin IV for filler windows - it's your best non-burst GCD.")
-                        .Concept(SmnConcepts.RuinIvProcs)
-                        .Record();
-
-                    context.TrainingService.RecordConceptApplication(
-                        SmnConcepts.RuinIvProcs, true, "Filler Ruin IV used");
-                }
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    #endregion
-
-    #region Filler GCDs
-
-    private bool TryFillerGcd(IPersephoneContext context, IBattleChara target, bool useAoe, bool isMoving)
-    {
-        if (!context.Configuration.Summoner.EnableRuin)
-            return false;
-
-        var player = context.Player;
-        var level = player.Level;
-
-        // Ruin III has a cast time - use Ruin II for movement if needed
         if (isMoving && !context.HasInstantCast && !context.CanSlidecast)
         {
-            // Use Ruin IV if available (instant)
             if (context.HasFurtherRuin && level >= SMNActions.Ruin4.MinLevel)
             {
-                if (context.ActionService.ExecuteGcd(SMNActions.Ruin4, target.GameObjectId))
-                {
-                    context.Debug.PlannedAction = SMNActions.Ruin4.Name;
-                    context.Debug.DamageState = "Ruin IV (movement)";
-
-                    // Training Mode recording
-                    if (context.TrainingService?.IsTrainingEnabled == true)
+                scheduler.PushGcd(PersephoneAbilities.Ruin4, target.GameObjectId, priority: 7,
+                    onDispatched: _ =>
                     {
-                        TrainingHelper.Decision(context.TrainingService)
-                            .Action(SMNActions.Ruin4.ActionId, SMNActions.Ruin4.Name)
-                            .AsMovement()
-                            .Target(target.Name?.TextValue)
-                            .Reason("Ruin IV for movement",
-                                "Using Ruin IV proc during movement. It's instant cast and higher potency than Ruin II, " +
-                                "making it your best movement option when available.")
-                            .Factors("Moving", "Further Ruin proc active", "Instant cast")
-                            .Alternatives("Ruin II if no proc")
-                            .Tip("Prioritize Ruin IV procs for movement - save them when you know movement is coming.")
-                            .Concept(SmnConcepts.RuinIvProcs)
-                            .Record();
-
-                        context.TrainingService.RecordConceptApplication(
-                            SmnConcepts.RuinIvProcs, true, "Movement Ruin IV");
-                    }
-
-                    return true;
-                }
+                        context.Debug.PlannedAction = SMNActions.Ruin4.Name;
+                        context.Debug.DamageState = "Ruin IV (movement)";
+                    });
+                return;
             }
-
-            // Use Ruin II for movement (instant, lower potency)
             if (level >= SMNActions.Ruin2.MinLevel)
             {
-                if (context.ActionService.ExecuteGcd(SMNActions.Ruin2, target.GameObjectId))
-                {
-                    context.Debug.PlannedAction = SMNActions.Ruin2.Name;
-                    context.Debug.DamageState = "Ruin II (movement)";
-
-                    // Training Mode recording
-                    if (context.TrainingService?.IsTrainingEnabled == true)
+                scheduler.PushGcd(PersephoneAbilities.Ruin2, target.GameObjectId, priority: 8,
+                    onDispatched: _ =>
                     {
-                        TrainingHelper.Decision(context.TrainingService)
-                            .Action(SMNActions.Ruin2.ActionId, SMNActions.Ruin2.Name)
-                            .AsMovement()
-                            .Target(target.Name?.TextValue)
-                            .Reason("Ruin II for movement (no procs)",
-                                "Using Ruin II during movement because no Ruin IV procs are available. " +
-                                "Ruin II is lower potency but instant, maintaining GCD uptime.")
-                            .Factors("Moving", "No instant procs available")
-                            .Alternatives("None - last resort movement option")
-                            .Tip("Try to have Ruin IV procs or primal movement options for heavy movement phases.")
-                            .Concept(SmnConcepts.RuinSpells)
-                            .Record();
-
-                        context.TrainingService.RecordConceptApplication(
-                            SmnConcepts.RuinSpells, false, "Had to use Ruin II for movement");
-                    }
-
-                    return true;
-                }
+                        context.Debug.PlannedAction = SMNActions.Ruin2.Name;
+                        context.Debug.DamageState = "Ruin II (movement)";
+                    });
+                return;
             }
         }
 
-        // Standard filler
         var action = useAoe ? SMNActions.GetAoeSpell(level) : SMNActions.GetRuinSpell(level);
+        var ability = action.ActionId switch
+        {
+            var id when id == SMNActions.Ruin3.ActionId => PersephoneAbilities.Ruin3,
+            var id when id == SMNActions.Ruin.ActionId => PersephoneAbilities.Ruin,
+            var id when id == SMNActions.TriDisaster.ActionId => PersephoneAbilities.TriDisaster,
+            var id when id == SMNActions.Outburst.ActionId => PersephoneAbilities.Outburst,
+            _ => PersephoneAbilities.Ruin3,
+        };
 
-        var fillerCastTime = context.HasInstantCast ? 0f : action.CastTime;
-        if (MechanicCastGate.ShouldBlock(context, fillerCastTime))
+        var castTime = context.HasInstantCast ? 0f : action.CastTime;
+        if (MechanicCastGate.ShouldBlock(context, castTime))
         {
             context.Debug.DamageState = MechanicCastGate.FormatBlockedState(context);
-            return false;
+            return;
         }
 
-        if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DamageState = action.Name;
-
-            // Training Mode recording
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushGcd(ability, target.GameObjectId, priority: 9,
+            onDispatched: _ =>
             {
-                var concept = useAoe ? SmnConcepts.AoeRotation : SmnConcepts.RuinSpells;
-                TrainingHelper.Decision(context.TrainingService)
-                    .Action(action.ActionId, action.Name)
-                    .AsCasterDamage()
-                    .Priority(ExplanationPriority.Low)
-                    .Target(target.Name?.TextValue)
-                    .Reason(useAoe ? "AoE filler spell" : "Single target filler",
-                        useAoe
-                            ? "Using AoE Ruin spell as filler between primal/demi phases. At 3+ enemies, AoE is more efficient."
-                            : "Using Ruin III as filler between primal and demi-summon phases. This is your lowest priority GCD.")
-                    .Factors(useAoe ? $"{context.TargetingService.CountEnemiesInRange(5f, context.Player)} enemies" : "Single target", "No summons active")
-                    .Alternatives("Use Ruin IV if proc available")
-                    .Tip(useAoe
-                        ? "Switch to AoE Ruin at 3+ enemies for better efficiency."
-                        : "Minimize Ruin III usage by optimizing summon uptime.")
-                    .Concept(concept)
-                    .Record();
-
-                context.TrainingService.RecordConceptApplication(
-                    concept, true, "Filler GCD used");
-            }
-
-            return true;
-        }
-
-        return false;
+                context.Debug.PlannedAction = action.Name;
+                context.Debug.DamageState = action.Name;
+            });
     }
-
-    #endregion
 }
