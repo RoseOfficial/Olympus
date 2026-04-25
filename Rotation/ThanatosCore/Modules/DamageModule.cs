@@ -3,7 +3,8 @@ using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common.Helpers;
-using Olympus.Rotation.Common.Modules;
+using Olympus.Rotation.Common.Scheduling;
+using Olympus.Rotation.ThanatosCore.Abilities;
 using Olympus.Rotation.ThanatosCore.Context;
 using Olympus.Services;
 using Olympus.Services.Targeting;
@@ -12,235 +13,206 @@ using Olympus.Services.Training;
 namespace Olympus.Rotation.ThanatosCore.Modules;
 
 /// <summary>
-/// Handles the Reaper damage rotation.
-/// Manages Enshroud sequences, Soul Reaver, combo actions, and resource building.
-/// Extends BaseDpsDamageModule for shared damage module patterns.
+/// Handles the Reaper damage rotation (scheduler-driven).
+/// Manages Enshroud sequences, Soul Reaver, combo actions, resource building.
 /// </summary>
-public sealed class DamageModule : BaseDpsDamageModule<IThanatosContext>, IThanatosModule
+public sealed class DamageModule : IThanatosModule
 {
-    public DamageModule(IBurstWindowService? burstWindowService = null, ISmartAoEService? smartAoEService = null) : base(burstWindowService, smartAoEService) { }
+    public int Priority => 30;
+    public string Name => "Damage";
 
-    #region Abstract Method Implementations
+    private readonly IBurstWindowService? _burstWindowService;
+    private readonly ISmartAoEService? _smartAoEService;
 
-    /// <summary>
-    /// Melee targeting range (3y) — used as fallback only.
-    /// </summary>
-    protected override float GetTargetingRange() => FFXIVConstants.MeleeTargetingRange;
-
-    /// <summary>
-    /// Use Slice to check melee range via game API for maximum accuracy.
-    /// </summary>
-    protected override uint GetRangeCheckActionId() => RPRActions.Slice.ActionId;
-
-    /// <summary>
-    /// AoE count range for RPR (5y for melee AoE abilities).
-    /// </summary>
-    protected override float GetAoECountRange() => 5f;
-
-    /// <summary>
-    /// Sets the damage state in the debug display.
-    /// </summary>
-    protected override void SetDamageState(IThanatosContext context, string state) =>
-        context.Debug.DamageState = state;
-
-    /// <summary>
-    /// Sets the nearby enemy count in the debug display.
-    /// </summary>
-    protected override void SetNearbyEnemies(IThanatosContext context, int count) =>
-        context.Debug.NearbyEnemies = count;
-
-    /// <summary>
-    /// Sets the planned action name in the debug display.
-    /// </summary>
-    protected override void SetPlannedAction(IThanatosContext context, string action) =>
-        context.Debug.PlannedAction = action;
-
-    protected override bool IsAoEEnabled(IThanatosContext context) =>
-        context.Configuration.Reaper.EnableAoERotation;
-
-    protected override int GetConfiguredAoEThreshold(IThanatosContext context) =>
-        context.Configuration.Reaper.AoEMinTargets;
-
-    /// <summary>
-    /// oGCD damage for Reaper - Lemure abilities and other damage oGCDs.
-    /// </summary>
-    protected override bool TryOgcdDamage(IThanatosContext context, IBattleChara target, int enemyCount)
+    public DamageModule(IBurstWindowService? burstWindowService = null, ISmartAoEService? smartAoEService = null)
     {
-        var player = context.Player;
-        var level = player.Level;
+        _burstWindowService = burstWindowService;
+        _smartAoEService = smartAoEService;
+    }
 
-        // During Enshroud: Lemure's Slice/Scythe
+    private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
+        BurstHoldHelper.ShouldHoldForBurst(_burstWindowService, thresholdSeconds);
+
+    public bool TryExecute(IThanatosContext context, bool isMoving) => false;
+
+    public void UpdateDebugState(IThanatosContext context) { }
+
+    public void CollectCandidates(IThanatosContext context, RotationScheduler scheduler, bool isMoving)
+    {
+        if (!context.InCombat)
+        {
+            context.Debug.DamageState = "Not in combat";
+            return;
+        }
+        if (context.TargetingService.IsDamageTargetingPaused())
+        {
+            context.Debug.DamageState = "Paused (no target)";
+            return;
+        }
+        if (context.Configuration.Targeting.SuppressDamageOnForcedMovement
+            && PlayerSafetyHelper.IsForcedMovementActive(context.Player))
+        {
+            context.Debug.DamageState = "Paused (forced movement)";
+            return;
+        }
+
+        var player = context.Player;
+        var target = context.TargetingService.FindEnemyForAction(
+            context.Configuration.Targeting.EnemyStrategy,
+            RPRActions.Slice.ActionId,
+            player);
+        if (target == null)
+        {
+            context.Debug.DamageState = "No target";
+            return;
+        }
+
+        var aoeEnabled = context.Configuration.Reaper.EnableAoERotation;
+        var aoeThreshold = context.Configuration.Reaper.AoEMinTargets;
+        var rawEnemyCount = context.TargetingService.CountEnemiesInRange(5f, player);
+        context.Debug.NearbyEnemies = rawEnemyCount;
+        var enemyCount = aoeEnabled ? rawEnemyCount : 0;
+
+        // oGCDs (Lemure during Enshroud, Sacrificium proc, Soul spenders outside)
         if (context.IsEnshrouded)
         {
-            if (TryLemuresSlice(context, target, enemyCount))
-                return true;
-
-            // Sacrificium (Dawntrail)
-            if (TrySacrificium(context, target))
-                return true;
+            TryPushLemuresSlice(context, scheduler, target, enemyCount);
+            TryPushSacrificium(context, scheduler, target);
         }
-
-        // Soul spenders (outside Enshroud and Soul Reaver)
         if (!context.IsEnshrouded && !context.HasSoulReaver)
+            TryPushSoulSpender(context, scheduler, target, enemyCount);
+
+        // GCDs (priority order matters)
+        if (context.IsEnshrouded)
         {
-            if (TrySoulSpender(context, target, enemyCount))
-                return true;
+            TryPushPerfectio(context, scheduler, target);
+            TryPushCommunio(context, scheduler, target);
+            TryPushEnshroudGcd(context, scheduler, target, enemyCount);
         }
 
-        return false;
+        // Outside Enshroud (or fallback if IsEnshrouded paths fail)
+        TryPushPerfectio(context, scheduler, target); // Perfectio Parata can carry outside
+        TryPushPlentifulHarvest(context, scheduler, target);
+        TryPushSoulReaverGcd(context, scheduler, target, enemyCount);
+        TryPushHarvestMoon(context, scheduler, target);
+        TryPushDeathsDesign(context, scheduler, target, enemyCount);
+        TryPushSoulBuilder(context, scheduler, target, enemyCount);
+        TryPushBasicCombo(context, scheduler, target, enemyCount);
     }
 
-    private bool TryLemuresSlice(IThanatosContext context, IBattleChara target, int enemyCount)
+    #region oGCDs
+
+    private void TryPushLemuresSlice(IThanatosContext context, RotationScheduler scheduler, IBattleChara target, int enemyCount)
     {
-        if (!context.Configuration.Reaper.EnableLemureAbilities)
-            return false;
-
+        if (!context.Configuration.Reaper.EnableLemureAbilities) return;
         var player = context.Player;
-        var level = player.Level;
+        if (player.Level < RPRActions.LemuresSlice.MinLevel) return;
+        if (context.VoidShroud < 2) return;
 
-        if (level < RPRActions.LemuresSlice.MinLevel)
-            return false;
-
-        // Need 2 Void Shroud
-        if (context.VoidShroud < 2)
-            return false;
-
-        var useAoe = enemyCount >= AoeThreshold;
+        var aoeThreshold = context.Configuration.Reaper.AoEMinTargets;
+        var useAoe = enemyCount >= aoeThreshold;
         var action = useAoe ? RPRActions.LemuresScythe : RPRActions.LemuresSlice;
+        var ability = useAoe ? ThanatosAbilities.LemuresScythe : ThanatosAbilities.LemuresSlice;
+        if (!context.ActionService.IsActionReady(action.ActionId)) return;
 
-        if (!context.ActionService.IsActionReady(action.ActionId))
-            return false;
-
-        if (context.ActionService.ExecuteOgcd(action, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DamageState = $"{action.Name} (Void: {context.VoidShroud})";
-
-            // Training: Record Lemure's Slice/Scythe decision
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(action.ActionId, action.Name)
-                .AsMeleeDamage()
-                .Target(target.Name?.TextValue ?? "Target")
-                .Reason($"Using {action.Name} during Enshroud",
-                    $"{action.Name} consumes 2 Void Shroud stacks for bonus damage during Enshroud. " +
-                    "Build Void Shroud by using Void/Cross Reaping GCDs, then spend with Lemure's Slice.")
-                .Factors(new[] { $"Void Shroud: {context.VoidShroud}/2", "Enshroud active", "oGCD window" })
-                .Alternatives(new[] { "Wait for more Void Shroud" })
-                .Tip("Weave Lemure's Slice between Reaping GCDs. Build 2 Void Shroud, then spend.")
-                .Concept("rpr_lemure_slice")
-                .Record();
-            context.TrainingService?.RecordConceptApplication("rpr_lemure_slice", true, "Enshroud oGCD");
-
-            return true;
-        }
-
-        return false;
-    }
-
-    private bool TrySacrificium(IThanatosContext context, IBattleChara target)
-    {
-        if (!context.Configuration.Reaper.EnableEnshroud)
-            return false;
-
-        var player = context.Player;
-        var level = player.Level;
-
-        if (level < RPRActions.Sacrificium.MinLevel)
-            return false;
-
-        // Requires Oblatio proc
-        if (!context.HasOblatio)
-            return false;
-
-        if (!context.ActionService.IsActionReady(RPRActions.Sacrificium.ActionId))
-            return false;
-
-        if (context.ActionService.ExecuteOgcd(RPRActions.Sacrificium, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = RPRActions.Sacrificium.Name;
-            context.Debug.DamageState = "Sacrificium";
-
-            // Training: Record Sacrificium decision
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(RPRActions.Sacrificium.ActionId, RPRActions.Sacrificium.Name)
-                .AsMeleeDamage()
-                .Target(target.Name?.TextValue ?? "Target")
-                .Reason("Using Sacrificium (Oblatio proc)",
-                    "Sacrificium is a high-potency oGCD available during Enshroud when Oblatio proc is active. " +
-                    "Oblatio is granted at the start of Enshroud. Use before Communio finisher.")
-                .Factors(new[] { "Oblatio proc active", "Enshroud active", "oGCD window" })
-                .Alternatives(new[] { "No reason to hold" })
-                .Tip("Use Sacrificium immediately when you have Oblatio proc during Enshroud.")
-                .Concept("rpr_sacrificium")
-                .Record();
-            context.TrainingService?.RecordConceptApplication("rpr_sacrificium", true, "Enshroud proc");
-
-            return true;
-        }
-
-        return false;
-    }
-
-    private bool TrySoulSpender(IThanatosContext context, IBattleChara target, int enemyCount)
-    {
-        var player = context.Player;
-        var level = player.Level;
-
-        // Need 50 Soul to spend
-        if (context.Soul < 50)
-            return false;
-
-        // Prioritize Gluttony (2 Soul Reaver stacks, 60s CD)
-        if (level >= RPRActions.Gluttony.MinLevel && context.Configuration.Reaper.EnableGluttony)
-        {
-            if (context.ActionService.IsActionReady(RPRActions.Gluttony.ActionId))
+        scheduler.PushOgcd(ability, target.GameObjectId, priority: 1,
+            onDispatched: _ =>
             {
-                // Hold Gluttony for burst (it gives 2 Soul Reaver stacks - best used in burst)
-                if (context.Configuration.Reaper.EnableBurstPooling && ShouldHoldForBurst(8f))
-                    return false;
+                context.Debug.PlannedAction = action.Name;
+                context.Debug.DamageState = $"{action.Name} (Void: {context.VoidShroud})";
 
-                // Only use Gluttony if we can spend the Soul Reaver stacks
-                // (not about to enter Enshroud)
-                if (context.Shroud < 50 && !context.ActionService.IsActionReady(RPRActions.Enshroud.ActionId))
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(action.ActionId, action.Name)
+                    .AsMeleeDamage()
+                    .Target(target.Name?.TextValue ?? "Target")
+                    .Reason($"Using {action.Name} during Enshroud",
+                        $"{action.Name} consumes 2 Void Shroud stacks for bonus damage during Enshroud. " +
+                        "Build Void Shroud by using Void/Cross Reaping GCDs, then spend with Lemure's Slice.")
+                    .Factors(new[] { $"Void Shroud: {context.VoidShroud}/2", "Enshroud active", "oGCD window" })
+                    .Alternatives(new[] { "Wait for more Void Shroud" })
+                    .Tip("Weave Lemure's Slice between Reaping GCDs. Build 2 Void Shroud, then spend.")
+                    .Concept("rpr_lemure_slice")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("rpr_lemure_slice", true, "Enshroud oGCD");
+            });
+    }
+
+    private void TryPushSacrificium(IThanatosContext context, RotationScheduler scheduler, IBattleChara target)
+    {
+        if (!context.Configuration.Reaper.EnableEnshroud) return;
+        var player = context.Player;
+        if (player.Level < RPRActions.Sacrificium.MinLevel) return;
+        if (!context.HasOblatio) return;
+        if (!context.ActionService.IsActionReady(RPRActions.Sacrificium.ActionId)) return;
+
+        scheduler.PushOgcd(ThanatosAbilities.Sacrificium, target.GameObjectId, priority: 1,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = RPRActions.Sacrificium.Name;
+                context.Debug.DamageState = "Sacrificium";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(RPRActions.Sacrificium.ActionId, RPRActions.Sacrificium.Name)
+                    .AsMeleeDamage()
+                    .Target(target.Name?.TextValue ?? "Target")
+                    .Reason("Using Sacrificium (Oblatio proc)",
+                        "Sacrificium is a high-potency oGCD available during Enshroud when Oblatio proc is active. " +
+                        "Oblatio is granted at the start of Enshroud. Use before Communio finisher.")
+                    .Factors(new[] { "Oblatio proc active", "Enshroud active", "oGCD window" })
+                    .Alternatives(new[] { "No reason to hold" })
+                    .Tip("Use Sacrificium immediately when you have Oblatio proc during Enshroud.")
+                    .Concept("rpr_sacrificium")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("rpr_sacrificium", true, "Enshroud proc");
+            });
+    }
+
+    private void TryPushSoulSpender(IThanatosContext context, RotationScheduler scheduler, IBattleChara target, int enemyCount)
+    {
+        var player = context.Player;
+        var level = player.Level;
+        if (context.Soul < 50) return;
+
+        // Gluttony preferred (60s CD, 2 SR stacks)
+        if (level >= RPRActions.Gluttony.MinLevel && context.Configuration.Reaper.EnableGluttony
+            && context.ActionService.IsActionReady(RPRActions.Gluttony.ActionId)
+            && !(context.Configuration.Reaper.EnableBurstPooling && ShouldHoldForBurst(8f))
+            && context.Shroud < 50 && !context.ActionService.IsActionReady(RPRActions.Enshroud.ActionId))
+        {
+            scheduler.PushOgcd(ThanatosAbilities.Gluttony, target.GameObjectId, priority: 2,
+                onDispatched: _ =>
                 {
-                    if (context.ActionService.ExecuteOgcd(RPRActions.Gluttony, target.GameObjectId))
-                    {
-                        context.Debug.PlannedAction = RPRActions.Gluttony.Name;
-                        context.Debug.DamageState = "Gluttony (2 Soul Reaver)";
+                    context.Debug.PlannedAction = RPRActions.Gluttony.Name;
+                    context.Debug.DamageState = "Gluttony (2 Soul Reaver)";
 
-                        // Training: Record Gluttony decision
-                        TrainingHelper.Decision(context.TrainingService)
-                            .Action(RPRActions.Gluttony.ActionId, RPRActions.Gluttony.Name)
-                            .AsMeleeResource("Soul", context.Soul)
-                            .Reason("Using Gluttony for 2 Soul Reaver stacks",
-                                "Gluttony is your premium Soul spender, granting 2 Soul Reaver stacks on a 60s cooldown. " +
-                                "Soul Reaver enables Gibbet/Gallows finishers for high damage and Shroud generation.")
-                            .Factors(new[] { $"Soul: {context.Soul}/50", "Gluttony ready", "Not entering Enshroud soon" })
-                            .Alternatives(new[] { "Wait for Enshroud alignment", "Save for burst" })
-                            .Tip("Prioritize Gluttony over Blood Stalk. Use before Enshroud to maximize Soul Reaver value.")
-                            .Concept("rpr_gluttony")
-                            .Record();
-                        context.TrainingService?.RecordConceptApplication("rpr_gluttony", true, "Premium Soul spender");
-
-                        return true;
-                    }
-                }
-            }
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(RPRActions.Gluttony.ActionId, RPRActions.Gluttony.Name)
+                        .AsMeleeResource("Soul", context.Soul)
+                        .Reason("Using Gluttony for 2 Soul Reaver stacks",
+                            "Gluttony is your premium Soul spender, granting 2 Soul Reaver stacks on a 60s cooldown. " +
+                            "Soul Reaver enables Gibbet/Gallows finishers for high damage and Shroud generation.")
+                        .Factors(new[] { $"Soul: {context.Soul}/50", "Gluttony ready", "Not entering Enshroud soon" })
+                        .Alternatives(new[] { "Wait for Enshroud alignment", "Save for burst" })
+                        .Tip("Prioritize Gluttony over Blood Stalk. Use before Enshroud to maximize Soul Reaver value.")
+                        .Concept("rpr_gluttony")
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication("rpr_gluttony", true, "Premium Soul spender");
+                });
+            return;
         }
 
-        // Unveiled variants if we have Enhanced buffs
+        // Unveiled variants
         if (level >= RPRActions.UnveiledGibbet.MinLevel)
         {
-            if (context.HasEnhancedGibbet)
+            if (context.HasEnhancedGibbet
+                && context.ActionService.IsActionReady(RPRActions.UnveiledGibbet.ActionId))
             {
-                if (context.ActionService.IsActionReady(RPRActions.UnveiledGibbet.ActionId))
-                {
-                    if (context.ActionService.ExecuteOgcd(RPRActions.UnveiledGibbet, target.GameObjectId))
+                scheduler.PushOgcd(ThanatosAbilities.UnveiledGibbet, target.GameObjectId, priority: 3,
+                    onDispatched: _ =>
                     {
                         context.Debug.PlannedAction = RPRActions.UnveiledGibbet.Name;
                         context.Debug.DamageState = "Unveiled Gibbet";
 
-                        // Training: Record Unveiled Gibbet decision
                         TrainingHelper.Decision(context.TrainingService)
                             .Action(RPRActions.UnveiledGibbet.ActionId, RPRActions.UnveiledGibbet.Name)
                             .AsMeleeResource("Soul", context.Soul)
@@ -253,21 +225,18 @@ public sealed class DamageModule : BaseDpsDamageModule<IThanatosContext>, IThana
                             .Concept("rpr_unveiled")
                             .Record();
                         context.TrainingService?.RecordConceptApplication("rpr_unveiled", true, "Enhanced Soul spender");
-
-                        return true;
-                    }
-                }
+                    });
+                return;
             }
-            else if (context.HasEnhancedGallows)
+            if (context.HasEnhancedGallows
+                && context.ActionService.IsActionReady(RPRActions.UnveiledGallows.ActionId))
             {
-                if (context.ActionService.IsActionReady(RPRActions.UnveiledGallows.ActionId))
-                {
-                    if (context.ActionService.ExecuteOgcd(RPRActions.UnveiledGallows, target.GameObjectId))
+                scheduler.PushOgcd(ThanatosAbilities.UnveiledGallows, target.GameObjectId, priority: 3,
+                    onDispatched: _ =>
                     {
                         context.Debug.PlannedAction = RPRActions.UnveiledGallows.Name;
                         context.Debug.DamageState = "Unveiled Gallows";
 
-                        // Training: Record Unveiled Gallows decision
                         TrainingHelper.Decision(context.TrainingService)
                             .Action(RPRActions.UnveiledGallows.ActionId, RPRActions.UnveiledGallows.Name)
                             .AsMeleeResource("Soul", context.Soul)
@@ -280,642 +249,458 @@ public sealed class DamageModule : BaseDpsDamageModule<IThanatosContext>, IThana
                             .Concept("rpr_unveiled")
                             .Record();
                         context.TrainingService?.RecordConceptApplication("rpr_unveiled", true, "Enhanced Soul spender");
-
-                        return true;
-                    }
-                }
+                    });
+                return;
             }
         }
 
         // Basic Blood Stalk / Grim Swathe
-        var useAoe = enemyCount >= AoeThreshold && level >= RPRActions.GrimSwathe.MinLevel;
-        var action = useAoe ? RPRActions.GrimSwathe : RPRActions.BloodStalk;
+        var aoeThreshold = context.Configuration.Reaper.AoEMinTargets;
+        var useAoeBs = enemyCount >= aoeThreshold && level >= RPRActions.GrimSwathe.MinLevel;
+        var bsAction = useAoeBs ? RPRActions.GrimSwathe : RPRActions.BloodStalk;
+        var bsAbility = useAoeBs ? ThanatosAbilities.GrimSwathe : ThanatosAbilities.BloodStalk;
+        if (level < bsAction.MinLevel) return;
+        if (!context.ActionService.IsActionReady(bsAction.ActionId)) return;
 
-        if (level < action.MinLevel)
-            return false;
+        scheduler.PushOgcd(bsAbility, target.GameObjectId, priority: 4,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = bsAction.Name;
+                context.Debug.DamageState = $"{bsAction.Name} (1 Soul Reaver)";
 
-        if (!context.ActionService.IsActionReady(action.ActionId))
-            return false;
-
-        if (context.ActionService.ExecuteOgcd(action, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DamageState = $"{action.Name} (1 Soul Reaver)";
-
-            // Training: Record Blood Stalk / Grim Swathe decision
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(action.ActionId, action.Name)
-                .AsMeleeResource("Soul", context.Soul)
-                .Reason($"Using {action.Name} for 1 Soul Reaver stack",
-                    $"{action.Name} spends 50 Soul to grant 1 Soul Reaver stack. Use when Gluttony is on cooldown " +
-                    "and no Enhanced buffs are available. Grim Swathe is the AoE version.")
-                .Factors(new[] { $"Soul: {context.Soul}/50", "Gluttony on cooldown", "No Enhanced buffs" })
-                .Alternatives(new[] { "Wait for Gluttony", "Wait for Enhanced buff" })
-                .Tip("Blood Stalk is your fallback Soul spender. Gluttony and Unveiled variants are stronger.")
-                .Concept("rpr_blood_stalk")
-                .Record();
-            context.TrainingService?.RecordConceptApplication("rpr_blood_stalk", true, "Basic Soul spender");
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Main GCD damage rotation for Reaper.
-    /// Handles Enshroud sequences, Soul Reaver, Plentiful Harvest, and combo rotation.
-    /// </summary>
-    protected override bool TryGcdDamage(IThanatosContext context, IBattleChara target, int enemyCount, bool isMoving)
-    {
-        // === ENSHROUD STATE ===
-        if (context.IsEnshrouded)
-        {
-            // Priority 1: Perfectio (post-Communio proc)
-            if (TryPerfectio(context, target))
-                return true;
-
-            // Priority 2: Communio (Enshroud finisher at 1 Lemure Shroud)
-            if (TryCommunio(context, target))
-                return true;
-
-            // Priority 3: Void/Cross Reaping (Enshroud GCDs)
-            if (TryEnshroudGcd(context, target, enemyCount))
-                return true;
-        }
-
-        // === NORMAL STATE ===
-
-        // Priority 4: Perfectio Parata proc (if carried outside Enshroud)
-        if (TryPerfectio(context, target))
-            return true;
-
-        // Priority 5: Plentiful Harvest (consume Immortal Sacrifice)
-        if (TryPlentifulHarvest(context, target))
-            return true;
-
-        // Priority 6: Soul Reaver GCDs (Gibbet/Gallows/Guillotine)
-        if (TrySoulReaverGcd(context, target, enemyCount))
-            return true;
-
-        // Priority 7: Harvest Moon (if Soulsow available and ranged)
-        if (TryHarvestMoon(context, target))
-            return true;
-
-        // Priority 8: Shadow of Death / Whorl of Death (maintain debuff)
-        if (TryDeathsDesign(context, target, enemyCount))
-            return true;
-
-        // Priority 9: Soul Slice / Soul Scythe (build Soul gauge)
-        if (TrySoulBuilder(context, target, enemyCount))
-            return true;
-
-        // Priority 10: Basic combo rotation
-        if (TryBasicCombo(context, target, enemyCount))
-            return true;
-
-        return false;
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(bsAction.ActionId, bsAction.Name)
+                    .AsMeleeResource("Soul", context.Soul)
+                    .Reason($"Using {bsAction.Name} for 1 Soul Reaver stack",
+                        $"{bsAction.Name} spends 50 Soul to grant 1 Soul Reaver stack. Use when Gluttony is on cooldown " +
+                        "and no Enhanced buffs are available. Grim Swathe is the AoE version.")
+                    .Factors(new[] { $"Soul: {context.Soul}/50", "Gluttony on cooldown", "No Enhanced buffs" })
+                    .Alternatives(new[] { "Wait for Gluttony", "Wait for Enhanced buff" })
+                    .Tip("Blood Stalk is your fallback Soul spender. Gluttony and Unveiled variants are stronger.")
+                    .Concept("rpr_blood_stalk")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("rpr_blood_stalk", true, "Basic Soul spender");
+            });
     }
 
     #endregion
 
-    #region Enshroud GCDs
+    #region GCDs
 
-    private bool TryPerfectio(IThanatosContext context, IBattleChara target)
+    private void TryPushPerfectio(IThanatosContext context, RotationScheduler scheduler, IBattleChara target)
     {
-        if (!context.Configuration.Reaper.EnablePerfectio)
-            return false;
-
+        if (!context.Configuration.Reaper.EnablePerfectio) return;
         var player = context.Player;
-        var level = player.Level;
+        if (player.Level < RPRActions.Perfectio.MinLevel) return;
+        if (!context.HasPerfectioParata) return;
+        if (!context.ActionService.IsActionReady(RPRActions.Perfectio.ActionId)) return;
 
-        if (level < RPRActions.Perfectio.MinLevel)
-            return false;
+        scheduler.PushGcd(ThanatosAbilities.Perfectio, target.GameObjectId, priority: 1,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = RPRActions.Perfectio.Name;
+                context.Debug.DamageState = "Perfectio";
 
-        // Requires Perfectio Parata proc (from Communio)
-        if (!context.HasPerfectioParata)
-            return false;
-
-        if (!context.ActionService.IsActionReady(RPRActions.Perfectio.ActionId))
-            return false;
-
-        if (context.ActionService.ExecuteGcd(RPRActions.Perfectio, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = RPRActions.Perfectio.Name;
-            context.Debug.DamageState = "Perfectio";
-
-            // Training: Record Perfectio decision
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(RPRActions.Perfectio.ActionId, RPRActions.Perfectio.Name)
-                .AsMeleeDamage()
-                .Target(target.Name?.TextValue ?? "Target")
-                .Reason("Using Perfectio (Communio proc)",
-                    "Perfectio is RPR's highest potency GCD, granted by Perfectio Parata after using Communio. " +
-                    "This is the true finisher of your Enshroud burst phase.")
-                .Factors(new[] { "Perfectio Parata proc active", "Highest priority GCD" })
-                .Alternatives(new[] { "No reason to hold" })
-                .Tip("Always use Perfectio immediately when available. It's your strongest single GCD.")
-                .Concept("rpr_perfectio")
-                .Record();
-            context.TrainingService?.RecordConceptApplication("rpr_perfectio", true, "Enshroud finisher proc");
-
-            return true;
-        }
-
-        return false;
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(RPRActions.Perfectio.ActionId, RPRActions.Perfectio.Name)
+                    .AsMeleeDamage()
+                    .Target(target.Name?.TextValue ?? "Target")
+                    .Reason("Using Perfectio (Communio proc)",
+                        "Perfectio is RPR's highest potency GCD, granted by Perfectio Parata after using Communio. " +
+                        "This is the true finisher of your Enshroud burst phase.")
+                    .Factors(new[] { "Perfectio Parata proc active", "Highest priority GCD" })
+                    .Alternatives(new[] { "No reason to hold" })
+                    .Tip("Always use Perfectio immediately when available. It's your strongest single GCD.")
+                    .Concept("rpr_perfectio")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("rpr_perfectio", true, "Enshroud finisher proc");
+            });
     }
 
-    private bool TryCommunio(IThanatosContext context, IBattleChara target)
+    private void TryPushCommunio(IThanatosContext context, RotationScheduler scheduler, IBattleChara target)
     {
-        if (!context.Configuration.Reaper.EnableCommunio)
-            return false;
-
+        if (!context.Configuration.Reaper.EnableCommunio) return;
         var player = context.Player;
-        var level = player.Level;
+        if (player.Level < RPRActions.Communio.MinLevel) return;
+        if (context.LemureShroud > 1 && context.EnshroudTimer > 5f) return;
+        if (!context.ActionService.IsActionReady(RPRActions.Communio.ActionId)) return;
 
-        if (level < RPRActions.Communio.MinLevel)
-            return false;
+        scheduler.PushGcd(ThanatosAbilities.Communio, target.GameObjectId, priority: 2,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = RPRActions.Communio.Name;
+                context.Debug.DamageState = "Communio (Enshroud finisher)";
 
-        // Only use at 1 Lemure Shroud remaining (or if timer is low)
-        if (context.LemureShroud > 1 && context.EnshroudTimer > 5f)
-            return false;
-
-        if (!context.ActionService.IsActionReady(RPRActions.Communio.ActionId))
-            return false;
-
-        if (context.ActionService.ExecuteGcd(RPRActions.Communio, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = RPRActions.Communio.Name;
-            context.Debug.DamageState = "Communio (Enshroud finisher)";
-
-            // Training: Record Communio decision
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(RPRActions.Communio.ActionId, RPRActions.Communio.Name)
-                .AsMeleeDamage()
-                .Target(target.Name?.TextValue ?? "Target")
-                .Reason("Using Communio (Enshroud finisher)",
-                    "Communio ends your Enshroud phase with high damage and grants Perfectio Parata proc. " +
-                    "Use at 1 Lemure Shroud remaining after spending all Void Shroud on Lemure's Slice.")
-                .Factors(new[] { $"Lemure Shroud: {context.LemureShroud}", $"Timer: {context.EnshroudTimer:F1}s", "Ending Enshroud" })
-                .Alternatives(new[] { "Use more Reaping GCDs first", "Build more Void Shroud" })
-                .Tip("Communio is the Enshroud finisher. Don't use it early - spend all Lemure and Void Shroud first.")
-                .Concept("rpr_communio")
-                .Record();
-            context.TrainingService?.RecordConceptApplication("rpr_communio", true, "Enshroud finisher");
-
-            return true;
-        }
-
-        return false;
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(RPRActions.Communio.ActionId, RPRActions.Communio.Name)
+                    .AsMeleeDamage()
+                    .Target(target.Name?.TextValue ?? "Target")
+                    .Reason("Using Communio (Enshroud finisher)",
+                        "Communio ends your Enshroud phase with high damage and grants Perfectio Parata proc. " +
+                        "Use at 1 Lemure Shroud remaining after spending all Void Shroud on Lemure's Slice.")
+                    .Factors(new[] { $"Lemure Shroud: {context.LemureShroud}", $"Timer: {context.EnshroudTimer:F1}s", "Ending Enshroud" })
+                    .Alternatives(new[] { "Use more Reaping GCDs first", "Build more Void Shroud" })
+                    .Tip("Communio is the Enshroud finisher. Don't use it early - spend all Lemure and Void Shroud first.")
+                    .Concept("rpr_communio")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("rpr_communio", true, "Enshroud finisher");
+            });
     }
 
-    private bool TryEnshroudGcd(IThanatosContext context, IBattleChara target, int enemyCount)
+    private void TryPushEnshroudGcd(IThanatosContext context, RotationScheduler scheduler, IBattleChara target, int enemyCount)
     {
-        if (!context.Configuration.Reaper.EnableEnshroud)
-            return false;
-
+        if (!context.Configuration.Reaper.EnableEnshroud) return;
         var player = context.Player;
-        var level = player.Level;
+        if (context.LemureShroud <= 0) return;
 
-        // Need Lemure Shroud to use Enshroud GCDs
-        if (context.LemureShroud <= 0)
-            return false;
-
-        var useAoe = enemyCount >= AoeThreshold;
+        var aoeThreshold = context.Configuration.Reaper.AoEMinTargets;
+        var useAoe = enemyCount >= aoeThreshold;
         ActionDefinition action;
-
+        AbilityBehavior ability;
         if (useAoe)
         {
             action = RPRActions.GrimReaping;
+            ability = ThanatosAbilities.GrimReaping;
+        }
+        else if (context.HasEnhancedVoidReaping)
+        {
+            action = RPRActions.VoidReaping;
+            ability = ThanatosAbilities.VoidReaping;
+        }
+        else if (context.HasEnhancedCrossReaping)
+        {
+            action = RPRActions.CrossReaping;
+            ability = ThanatosAbilities.CrossReaping;
         }
         else
         {
-            // Use enhanced version if available
-            if (context.HasEnhancedVoidReaping)
-                action = RPRActions.VoidReaping;
-            else if (context.HasEnhancedCrossReaping)
-                action = RPRActions.CrossReaping;
-            else
-                action = RPRActions.VoidReaping; // Default to Void Reaping
+            action = RPRActions.VoidReaping;
+            ability = ThanatosAbilities.VoidReaping;
         }
 
-        if (level < action.MinLevel)
-            return false;
+        if (player.Level < action.MinLevel) return;
+        if (!context.ActionService.IsActionReady(action.ActionId)) return;
 
-        if (!context.ActionService.IsActionReady(action.ActionId))
-            return false;
+        scheduler.PushGcd(ability, target.GameObjectId, priority: 3,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = action.Name;
+                context.Debug.DamageState = $"{action.Name} (L:{context.LemureShroud})";
 
-        if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DamageState = $"{action.Name} (L:{context.LemureShroud})";
-
-            // Training: Record Enshroud GCD decision
-            var isEnhanced = (action == RPRActions.VoidReaping && context.HasEnhancedVoidReaping) ||
-                            (action == RPRActions.CrossReaping && context.HasEnhancedCrossReaping);
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(action.ActionId, action.Name)
-                .AsMeleeDamage()
-                .Target(target.Name?.TextValue ?? "Target")
-                .Reason($"Using {action.Name} during Enshroud{(isEnhanced ? " (Enhanced)" : "")}",
-                    "Void Reaping and Cross Reaping are your Enshroud GCDs. Each consumes 1 Lemure Shroud and " +
-                    "grants 1 Void Shroud. Alternate between them following Enhanced buffs for bonus damage.")
-                .Factors(new[] { $"Lemure Shroud: {context.LemureShroud}", $"Void Shroud: {context.VoidShroud}", isEnhanced ? "Enhanced buff active" : "Default choice" })
-                .Alternatives(new[] { "Use Communio if last Lemure" })
-                .Tip("Follow Enhanced buffs for 10% bonus damage. Weave Lemure's Slice at 2 Void Shroud.")
-                .Concept("rpr_reaping")
-                .Record();
-            context.TrainingService?.RecordConceptApplication("rpr_reaping", true, "Enshroud GCD rotation");
-
-            return true;
-        }
-
-        return false;
+                var isEnhanced = (action == RPRActions.VoidReaping && context.HasEnhancedVoidReaping) ||
+                                (action == RPRActions.CrossReaping && context.HasEnhancedCrossReaping);
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(action.ActionId, action.Name)
+                    .AsMeleeDamage()
+                    .Target(target.Name?.TextValue ?? "Target")
+                    .Reason($"Using {action.Name} during Enshroud{(isEnhanced ? " (Enhanced)" : "")}",
+                        "Void Reaping and Cross Reaping are your Enshroud GCDs. Each consumes 1 Lemure Shroud and " +
+                        "grants 1 Void Shroud. Alternate between them following Enhanced buffs for bonus damage.")
+                    .Factors(new[] { $"Lemure Shroud: {context.LemureShroud}", $"Void Shroud: {context.VoidShroud}", isEnhanced ? "Enhanced buff active" : "Default choice" })
+                    .Alternatives(new[] { "Use Communio if last Lemure" })
+                    .Tip("Follow Enhanced buffs for 10% bonus damage. Weave Lemure's Slice at 2 Void Shroud.")
+                    .Concept("rpr_reaping")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("rpr_reaping", true, "Enshroud GCD rotation");
+            });
     }
 
-    #endregion
-
-    #region Soul Reaver GCDs
-
-    private bool TrySoulReaverGcd(IThanatosContext context, IBattleChara target, int enemyCount)
+    private void TryPushSoulReaverGcd(IThanatosContext context, RotationScheduler scheduler, IBattleChara target, int enemyCount)
     {
-        if (!context.Configuration.Reaper.EnableSoulReaver)
-            return false;
-
+        if (!context.Configuration.Reaper.EnableSoulReaver) return;
         var player = context.Player;
-        var level = player.Level;
+        if (!context.HasSoulReaver) return;
+        if (player.Level < RPRActions.Gibbet.MinLevel) return;
 
-        // Need Soul Reaver to use these
-        if (!context.HasSoulReaver)
-            return false;
-
-        if (level < RPRActions.Gibbet.MinLevel)
-            return false;
-
-        var useAoe = enemyCount >= AoeThreshold;
+        var aoeThreshold = context.Configuration.Reaper.AoEMinTargets;
+        var useAoe = enemyCount >= aoeThreshold;
         ActionDefinition action;
+        AbilityBehavior ability;
 
         if (useAoe)
         {
             action = RPRActions.Guillotine;
+            ability = ThanatosAbilities.Guillotine;
+        }
+        else if (context.HasEnhancedGibbet)
+        {
+            action = RPRActions.Gibbet;
+            ability = ThanatosAbilities.Gibbet;
+        }
+        else if (context.HasEnhancedGallows)
+        {
+            action = RPRActions.Gallows;
+            ability = ThanatosAbilities.Gallows;
+        }
+        else if (context.IsAtFlank || context.HasTrueNorth || context.TargetHasPositionalImmunity)
+        {
+            action = RPRActions.Gibbet;
+            ability = ThanatosAbilities.Gibbet;
+        }
+        else if (context.IsAtRear)
+        {
+            action = RPRActions.Gallows;
+            ability = ThanatosAbilities.Gallows;
         }
         else
         {
-            // Follow the enhanced buff for optimal damage
-            if (context.HasEnhancedGibbet)
-                action = RPRActions.Gibbet;
-            else if (context.HasEnhancedGallows)
-                action = RPRActions.Gallows;
-            else
+            action = RPRActions.Gibbet;
+            ability = ThanatosAbilities.Gibbet;
+        }
+
+        if (!context.ActionService.IsActionReady(action.ActionId)) return;
+
+        var positional = useAoe ? "" : (action == RPRActions.Gibbet ? " (flank)" : " (rear)");
+
+        scheduler.PushGcd(ability, target.GameObjectId, priority: 4,
+            onDispatched: _ =>
             {
-                // No enhanced buff - choose based on positional
-                // Gibbet = flank, Gallows = rear
-                if (context.IsAtFlank || context.HasTrueNorth || context.TargetHasPositionalImmunity)
-                    action = RPRActions.Gibbet;
-                else if (context.IsAtRear || context.HasTrueNorth || context.TargetHasPositionalImmunity)
-                    action = RPRActions.Gallows;
+                context.Debug.PlannedAction = action.Name;
+                context.Debug.DamageState = $"{action.Name}{positional} [SR:{context.SoulReaverStacks}]";
+
+                if (useAoe)
+                {
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(action.ActionId, action.Name)
+                        .AsAoE(context.Debug.NearbyEnemies)
+                        .Reason($"Using {action.Name} (AoE Soul Reaver)",
+                            "Guillotine is the AoE Soul Reaver spender. Use instead of Gibbet/Gallows when 3+ enemies.")
+                        .Factors(new[] { $"Soul Reaver stacks: {context.SoulReaverStacks}", $"Enemies: {context.Debug.NearbyEnemies}" })
+                        .Alternatives(new[] { "Use Gibbet/Gallows for ST" })
+                        .Tip("Guillotine has no positional. Use for AoE, then continue with AoE combo.")
+                        .Concept("rpr_guillotine")
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication("rpr_guillotine", true, "AoE Soul Reaver");
+                }
                 else
-                    action = RPRActions.Gibbet; // Default
-            }
-        }
+                {
+                    var isGibbet = action == RPRActions.Gibbet;
+                    var correctPosition = isGibbet ? "flank" : "rear";
+                    var hitPositional = isGibbet ? context.IsAtFlank : context.IsAtRear;
+                    hitPositional = hitPositional || context.HasTrueNorth || context.TargetHasPositionalImmunity;
 
-        if (!context.ActionService.IsActionReady(action.ActionId))
-            return false;
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(action.ActionId, action.Name)
+                        .AsPositional(hitPositional, correctPosition)
+                        .Target(target.Name?.TextValue ?? "Target")
+                        .Reason($"Using {action.Name} (Soul Reaver finisher)",
+                            $"{action.Name} is a Soul Reaver finisher with a {correctPosition} positional. " +
+                            "Grants 10 Shroud gauge and Enhanced buff for the opposite finisher.")
+                        .Factors(new[] { $"Soul Reaver stacks: {context.SoulReaverStacks}", context.HasEnhancedGibbet ? "Enhanced Gibbet" : context.HasEnhancedGallows ? "Enhanced Gallows" : "No enhanced buff", hitPositional ? "Positional hit" : "Positional missed" })
+                        .Alternatives(new[] { "Use other finisher if Enhanced" })
+                        .Tip("Follow Enhanced buffs when available. Each finisher grants the opposite Enhanced buff.")
+                        .Concept(isGibbet ? "rpr_gibbet" : "rpr_gallows")
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication(isGibbet ? "rpr_gibbet" : "rpr_gallows", hitPositional, "Soul Reaver finisher");
+                }
+            });
+    }
 
-        string positional = "";
-        if (!useAoe)
-        {
-            positional = action == RPRActions.Gibbet ? " (flank)" : " (rear)";
-        }
+    private void TryPushPlentifulHarvest(IThanatosContext context, RotationScheduler scheduler, IBattleChara target)
+    {
+        if (!context.Configuration.Reaper.EnablePlentifulHarvest) return;
+        var player = context.Player;
+        if (player.Level < RPRActions.PlentifulHarvest.MinLevel) return;
+        if (context.ImmortalSacrificeStacks <= 0) return;
+        if (context.HasSoulReaver) return;
+        if (context.IsEnshrouded) return;
+        if (!context.ActionService.IsActionReady(RPRActions.PlentifulHarvest.ActionId)) return;
 
-        if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DamageState = $"{action.Name}{positional} [SR:{context.SoulReaverStacks}]";
-
-            // Training: Record Soul Reaver GCD decision
-            if (useAoe)
+        scheduler.PushGcd(ThanatosAbilities.PlentifulHarvest, target.GameObjectId, priority: 5,
+            onDispatched: _ =>
             {
-                // Guillotine has no positional
+                context.Debug.PlannedAction = RPRActions.PlentifulHarvest.Name;
+                context.Debug.DamageState = $"Plentiful Harvest ({context.ImmortalSacrificeStacks} stacks)";
+
                 TrainingHelper.Decision(context.TrainingService)
-                    .Action(action.ActionId, action.Name)
-                    .AsAoE(context.Debug.NearbyEnemies)
-                    .Reason($"Using {action.Name} (AoE Soul Reaver)",
-                        "Guillotine is the AoE Soul Reaver spender. Use instead of Gibbet/Gallows when 3+ enemies.")
-                    .Factors(new[] { $"Soul Reaver stacks: {context.SoulReaverStacks}", $"Enemies: {context.Debug.NearbyEnemies}" })
-                    .Alternatives(new[] { "Use Gibbet/Gallows for ST" })
-                    .Tip("Guillotine has no positional. Use for AoE, then continue with AoE combo.")
-                    .Concept("rpr_guillotine")
+                    .Action(RPRActions.PlentifulHarvest.ActionId, RPRActions.PlentifulHarvest.Name)
+                    .AsMeleeResource("Immortal Sacrifice", context.ImmortalSacrificeStacks)
+                    .Reason($"Using Plentiful Harvest ({context.ImmortalSacrificeStacks} stacks)",
+                        "Plentiful Harvest consumes Immortal Sacrifice stacks gained during Arcane Circle. " +
+                        "Damage scales with stacks (max 8). Grants 50 Shroud gauge.")
+                    .Factors(new[] { $"Immortal Sacrifice: {context.ImmortalSacrificeStacks}", "Not in Soul Reaver", "Not in Enshroud" })
+                    .Alternatives(new[] { "Wait for more stacks", "Use during burst window" })
+                    .Tip("Use after Arcane Circle ends to consume all stacks. Grants 50 Shroud toward next Enshroud.")
+                    .Concept("rpr_plentiful_harvest")
                     .Record();
-                context.TrainingService?.RecordConceptApplication("rpr_guillotine", true, "AoE Soul Reaver");
-            }
-            else
+                context.TrainingService?.RecordConceptApplication("rpr_plentiful_harvest", true, "Immortal Sacrifice consumer");
+            });
+    }
+
+    private void TryPushHarvestMoon(IThanatosContext context, RotationScheduler scheduler, IBattleChara target)
+    {
+        if (!context.Configuration.Reaper.EnableHarvestMoon) return;
+        var player = context.Player;
+        if (player.Level < RPRActions.HarvestMoon.MinLevel) return;
+        if (!context.HasSoulsow) return;
+        if (DistanceHelper.IsActionInRange(RPRActions.Slice.ActionId, player, target) && !context.IsMoving) return;
+        if (!context.ActionService.IsActionReady(RPRActions.HarvestMoon.ActionId)) return;
+
+        scheduler.PushGcd(ThanatosAbilities.HarvestMoon, target.GameObjectId, priority: 6,
+            onDispatched: _ =>
             {
-                // Gibbet/Gallows have positionals
-                var isGibbet = action == RPRActions.Gibbet;
-                var correctPosition = isGibbet ? "flank" : "rear";
-                var hitPositional = isGibbet ? context.IsAtFlank : context.IsAtRear;
-                hitPositional = hitPositional || context.HasTrueNorth || context.TargetHasPositionalImmunity;
+                context.Debug.PlannedAction = RPRActions.HarvestMoon.Name;
+                context.Debug.DamageState = "Harvest Moon (ranged)";
 
                 TrainingHelper.Decision(context.TrainingService)
-                    .Action(action.ActionId, action.Name)
-                    .AsPositional(hitPositional, correctPosition)
+                    .Action(RPRActions.HarvestMoon.ActionId, RPRActions.HarvestMoon.Name)
+                    .AsMeleeDamage()
                     .Target(target.Name?.TextValue ?? "Target")
-                    .Reason($"Using {action.Name} (Soul Reaver finisher)",
-                        $"{action.Name} is a Soul Reaver finisher with a {correctPosition} positional. " +
-                        "Grants 10 Shroud gauge and Enhanced buff for the opposite finisher.")
-                    .Factors(new[] { $"Soul Reaver stacks: {context.SoulReaverStacks}", context.HasEnhancedGibbet ? "Enhanced Gibbet" : context.HasEnhancedGallows ? "Enhanced Gallows" : "No enhanced buff", hitPositional ? "Positional hit" : "Positional missed" })
-                    .Alternatives(new[] { "Use other finisher if Enhanced" })
-                    .Tip("Follow Enhanced buffs when available. Each finisher grants the opposite Enhanced buff.")
-                    .Concept(isGibbet ? "rpr_gibbet" : "rpr_gallows")
+                    .Reason("Using Harvest Moon (ranged filler)",
+                        "Harvest Moon is a ranged GCD available when Soulsow buff is active. " +
+                        "Use during forced disengages or movement phases to maintain GCD uptime.")
+                    .Factors(new[] { "Soulsow buff active", context.IsMoving ? "Moving" : "Out of melee range", "Ranged GCD option" })
+                    .Alternatives(new[] { "Use melee GCDs when in range" })
+                    .Tip("Use Soulsow before pulls or during downtime. Harvest Moon is your ranged backup.")
+                    .Concept("rpr_harvest_moon")
                     .Record();
-                context.TrainingService?.RecordConceptApplication(isGibbet ? "rpr_gibbet" : "rpr_gallows", hitPositional, "Soul Reaver finisher");
-            }
-
-            return true;
-        }
-
-        return false;
+                context.TrainingService?.RecordConceptApplication("rpr_harvest_moon", true, "Ranged GCD option");
+            });
     }
 
-    #endregion
-
-    #region Plentiful Harvest
-
-    private bool TryPlentifulHarvest(IThanatosContext context, IBattleChara target)
-    {
-        if (!context.Configuration.Reaper.EnablePlentifulHarvest) return false;
-        var player = context.Player;
-        var level = player.Level;
-
-        if (level < RPRActions.PlentifulHarvest.MinLevel)
-            return false;
-
-        // Requires Immortal Sacrifice stacks
-        if (context.ImmortalSacrificeStacks <= 0)
-            return false;
-
-        // Don't use during Soul Reaver
-        if (context.HasSoulReaver)
-            return false;
-
-        // Don't use during Enshroud
-        if (context.IsEnshrouded)
-            return false;
-
-        if (!context.ActionService.IsActionReady(RPRActions.PlentifulHarvest.ActionId))
-            return false;
-
-        if (context.ActionService.ExecuteGcd(RPRActions.PlentifulHarvest, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = RPRActions.PlentifulHarvest.Name;
-            context.Debug.DamageState = $"Plentiful Harvest ({context.ImmortalSacrificeStacks} stacks)";
-
-            // Training: Record Plentiful Harvest decision
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(RPRActions.PlentifulHarvest.ActionId, RPRActions.PlentifulHarvest.Name)
-                .AsMeleeResource("Immortal Sacrifice", context.ImmortalSacrificeStacks)
-                .Reason($"Using Plentiful Harvest ({context.ImmortalSacrificeStacks} stacks)",
-                    "Plentiful Harvest consumes Immortal Sacrifice stacks gained during Arcane Circle. " +
-                    "Damage scales with stacks (max 8). Grants 50 Shroud gauge.")
-                .Factors(new[] { $"Immortal Sacrifice: {context.ImmortalSacrificeStacks}", "Not in Soul Reaver", "Not in Enshroud" })
-                .Alternatives(new[] { "Wait for more stacks", "Use during burst window" })
-                .Tip("Use after Arcane Circle ends to consume all stacks. Grants 50 Shroud toward next Enshroud.")
-                .Concept("rpr_plentiful_harvest")
-                .Record();
-            context.TrainingService?.RecordConceptApplication("rpr_plentiful_harvest", true, "Immortal Sacrifice consumer");
-
-            return true;
-        }
-
-        return false;
-    }
-
-    #endregion
-
-    #region Harvest Moon
-
-    private bool TryHarvestMoon(IThanatosContext context, IBattleChara target)
-    {
-        if (!context.Configuration.Reaper.EnableHarvestMoon) return false;
-        var player = context.Player;
-        var level = player.Level;
-
-        if (level < RPRActions.HarvestMoon.MinLevel)
-            return false;
-
-        // Requires Soulsow buff
-        if (!context.HasSoulsow)
-            return false;
-
-        // Only use at range or during movement — use game API range check for accuracy
-        if (DistanceHelper.IsActionInRange(RPRActions.Slice.ActionId, player, target) && !context.IsMoving)
-            return false;
-
-        if (!context.ActionService.IsActionReady(RPRActions.HarvestMoon.ActionId))
-            return false;
-
-        if (context.ActionService.ExecuteGcd(RPRActions.HarvestMoon, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = RPRActions.HarvestMoon.Name;
-            context.Debug.DamageState = "Harvest Moon (ranged)";
-
-            // Training: Record Harvest Moon decision
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(RPRActions.HarvestMoon.ActionId, RPRActions.HarvestMoon.Name)
-                .AsMeleeDamage()
-                .Target(target.Name?.TextValue ?? "Target")
-                .Reason("Using Harvest Moon (ranged filler)",
-                    "Harvest Moon is a ranged GCD available when Soulsow buff is active. " +
-                    "Use during forced disengages or movement phases to maintain GCD uptime.")
-                .Factors(new[] { "Soulsow buff active", context.IsMoving ? "Moving" : "Out of melee range", "Ranged GCD option" })
-                .Alternatives(new[] { "Use melee GCDs when in range" })
-                .Tip("Use Soulsow before pulls or during downtime. Harvest Moon is your ranged backup.")
-                .Concept("rpr_harvest_moon")
-                .Record();
-            context.TrainingService?.RecordConceptApplication("rpr_harvest_moon", true, "Ranged GCD option");
-
-            return true;
-        }
-
-        return false;
-    }
-
-    #endregion
-
-    #region Death's Design
-
-    private bool TryDeathsDesign(IThanatosContext context, IBattleChara target, int enemyCount)
+    private void TryPushDeathsDesign(IThanatosContext context, RotationScheduler scheduler, IBattleChara target, int enemyCount)
     {
         var player = context.Player;
         var level = player.Level;
+        if (context.HasDeathsDesign && context.DeathsDesignRemaining > 5f) return;
 
-        // Check if we need to apply/refresh Death's Design
-        // Refresh at < 5s remaining to avoid clipping
-        if (context.HasDeathsDesign && context.DeathsDesignRemaining > 5f)
-            return false;
-
-        var useAoe = enemyCount >= AoeThreshold && level >= RPRActions.WhorlOfDeath.MinLevel;
+        var aoeThreshold = context.Configuration.Reaper.AoEMinTargets;
+        var useAoe = enemyCount >= aoeThreshold && level >= RPRActions.WhorlOfDeath.MinLevel;
         var action = useAoe ? RPRActions.WhorlOfDeath : RPRActions.ShadowOfDeath;
+        var ability = useAoe ? ThanatosAbilities.WhorlOfDeath : ThanatosAbilities.ShadowOfDeath;
+        if (level < action.MinLevel) return;
+        if (!context.ActionService.IsActionReady(action.ActionId)) return;
 
-        if (level < action.MinLevel)
-            return false;
+        scheduler.PushGcd(ability, target.GameObjectId, priority: 7,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = action.Name;
+                context.Debug.DamageState = context.HasDeathsDesign
+                    ? $"{action.Name} (refresh {context.DeathsDesignRemaining:F1}s)"
+                    : $"{action.Name} (apply)";
 
-        if (!context.ActionService.IsActionReady(action.ActionId))
-            return false;
-
-        if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DamageState = context.HasDeathsDesign
-                ? $"{action.Name} (refresh {context.DeathsDesignRemaining:F1}s)"
-                : $"{action.Name} (apply)";
-
-            // Training: Record Death's Design decision
-            var isRefresh = context.HasDeathsDesign;
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(action.ActionId, action.Name)
-                .AsMeleeDamage()
-                .Target(target.Name?.TextValue ?? "Target")
-                .Reason(isRefresh ? $"Refreshing Death's Design ({context.DeathsDesignRemaining:F1}s remaining)" : "Applying Death's Design",
-                    "Death's Design is a 10% damage buff debuff that must be maintained on the target. " +
-                    "Shadow of Death (ST) or Whorl of Death (AoE) applies/refreshes it for 30s and grants 10 Soul.")
-                .Factors(new[] { isRefresh ? $"Remaining: {context.DeathsDesignRemaining:F1}s" : "Not applied", "Grants 10 Soul", "+10% damage debuff" })
-                .Alternatives(new[] { "Refresh above 5s wastes duration" })
-                .Tip("Maintain Death's Design at all times. Refresh below 5s remaining to avoid clipping.")
-                .Concept("rpr_deaths_design")
-                .Record();
-            context.TrainingService?.RecordConceptApplication("rpr_deaths_design", true, "Damage debuff maintenance");
-
-            return true;
-        }
-
-        return false;
+                var isRefresh = context.HasDeathsDesign;
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(action.ActionId, action.Name)
+                    .AsMeleeDamage()
+                    .Target(target.Name?.TextValue ?? "Target")
+                    .Reason(isRefresh ? $"Refreshing Death's Design ({context.DeathsDesignRemaining:F1}s remaining)" : "Applying Death's Design",
+                        "Death's Design is a 10% damage buff debuff that must be maintained on the target. " +
+                        "Shadow of Death (ST) or Whorl of Death (AoE) applies/refreshes it for 30s and grants 10 Soul.")
+                    .Factors(new[] { isRefresh ? $"Remaining: {context.DeathsDesignRemaining:F1}s" : "Not applied", "Grants 10 Soul", "+10% damage debuff" })
+                    .Alternatives(new[] { "Refresh above 5s wastes duration" })
+                    .Tip("Maintain Death's Design at all times. Refresh below 5s remaining to avoid clipping.")
+                    .Concept("rpr_deaths_design")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("rpr_deaths_design", true, "Damage debuff maintenance");
+            });
     }
 
-    #endregion
-
-    #region Soul Builder
-
-    private bool TrySoulBuilder(IThanatosContext context, IBattleChara target, int enemyCount)
+    private void TryPushSoulBuilder(IThanatosContext context, RotationScheduler scheduler, IBattleChara target, int enemyCount)
     {
         var player = context.Player;
         var level = player.Level;
+        if (context.Soul >= 100) return;
 
-        // Soul Slice / Soul Scythe grants 50 Soul
-        // Use when Soul < 100 to avoid overcapping (max is 100, each cast gives 50)
-        if (context.Soul >= 100)
-            return false;
-
-        var useAoe = enemyCount >= AoeThreshold && level >= RPRActions.SoulScythe.MinLevel;
+        var aoeThreshold = context.Configuration.Reaper.AoEMinTargets;
+        var useAoe = enemyCount >= aoeThreshold && level >= RPRActions.SoulScythe.MinLevel;
         var action = useAoe ? RPRActions.SoulScythe : RPRActions.SoulSlice;
+        var ability = useAoe ? ThanatosAbilities.SoulScythe : ThanatosAbilities.SoulSlice;
+        if (level < action.MinLevel) return;
+        if (!context.ActionService.IsActionReady(action.ActionId)) return;
 
-        if (level < action.MinLevel)
-            return false;
+        scheduler.PushGcd(ability, target.GameObjectId, priority: 8,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = action.Name;
+                context.Debug.DamageState = $"{action.Name} (+50 Soul)";
 
-        if (!context.ActionService.IsActionReady(action.ActionId))
-            return false;
-
-        if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DamageState = $"{action.Name} (+50 Soul)";
-
-            // Training: Record Soul Builder decision
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(action.ActionId, action.Name)
-                .AsMeleeResource("Soul", context.Soul)
-                .Reason($"Using {action.Name} to build Soul gauge",
-                    $"{action.Name} grants 50 Soul gauge on a charge system. Use to reach 50 Soul for spenders. " +
-                    "Soul Slice (ST) and Soul Scythe (AoE) share charges.")
-                .Factors(new[] { $"Soul: {context.Soul}/50", "Need 50 for spenders", "Charge available" })
-                .Alternatives(new[] { "Already have 50+ Soul" })
-                .Tip("Use Soul Slice/Scythe when below 50 Soul to enable Gluttony/Blood Stalk.")
-                .Concept("rpr_soul_slice")
-                .Record();
-            context.TrainingService?.RecordConceptApplication("rpr_soul_slice", true, "Soul gauge builder");
-
-            return true;
-        }
-
-        return false;
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(action.ActionId, action.Name)
+                    .AsMeleeResource("Soul", context.Soul)
+                    .Reason($"Using {action.Name} to build Soul gauge",
+                        $"{action.Name} grants 50 Soul gauge on a charge system. Use to reach 50 Soul for spenders. " +
+                        "Soul Slice (ST) and Soul Scythe (AoE) share charges.")
+                    .Factors(new[] { $"Soul: {context.Soul}/50", "Need 50 for spenders", "Charge available" })
+                    .Alternatives(new[] { "Already have 50+ Soul" })
+                    .Tip("Use Soul Slice/Scythe when below 50 Soul to enable Gluttony/Blood Stalk.")
+                    .Concept("rpr_soul_slice")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("rpr_soul_slice", true, "Soul gauge builder");
+            });
     }
 
-    #endregion
-
-    #region Basic Combo
-
-    private bool TryBasicCombo(IThanatosContext context, IBattleChara target, int enemyCount)
+    private void TryPushBasicCombo(IThanatosContext context, RotationScheduler scheduler, IBattleChara target, int enemyCount)
     {
         var player = context.Player;
         var level = player.Level;
-        var useAoe = enemyCount >= AoeThreshold;
+        var aoeThreshold = context.Configuration.Reaper.AoEMinTargets;
+        var useAoe = enemyCount >= aoeThreshold;
 
         ActionDefinition action;
+        AbilityBehavior ability;
 
         if (useAoe && level >= RPRActions.SpinningScythe.MinLevel)
         {
-            // AoE combo: Spinning Scythe -> Nightmare Scythe
-            if (context.ComboStep == 1 && context.LastComboAction == RPRActions.SpinningScythe.ActionId &&
-                level >= RPRActions.NightmareScythe.MinLevel)
+            if (context.ComboStep == 1 && context.LastComboAction == RPRActions.SpinningScythe.ActionId
+                && level >= RPRActions.NightmareScythe.MinLevel)
             {
                 action = RPRActions.NightmareScythe;
+                ability = ThanatosAbilities.NightmareScythe;
             }
             else
             {
                 action = RPRActions.SpinningScythe;
+                ability = ThanatosAbilities.SpinningScythe;
             }
         }
         else
         {
-            // Single target combo: Slice -> Waxing Slice -> Infernal Slice
-            if (context.ComboStep == 2 && context.LastComboAction == RPRActions.WaxingSlice.ActionId &&
-                level >= RPRActions.InfernalSlice.MinLevel)
+            if (context.ComboStep == 2 && context.LastComboAction == RPRActions.WaxingSlice.ActionId
+                && level >= RPRActions.InfernalSlice.MinLevel)
             {
                 action = RPRActions.InfernalSlice;
+                ability = ThanatosAbilities.InfernalSlice;
             }
-            else if (context.ComboStep == 1 && context.LastComboAction == RPRActions.Slice.ActionId &&
-                     level >= RPRActions.WaxingSlice.MinLevel)
+            else if (context.ComboStep == 1 && context.LastComboAction == RPRActions.Slice.ActionId
+                && level >= RPRActions.WaxingSlice.MinLevel)
             {
                 action = RPRActions.WaxingSlice;
+                ability = ThanatosAbilities.WaxingSlice;
             }
             else
             {
                 action = RPRActions.Slice;
+                ability = ThanatosAbilities.Slice;
             }
         }
 
-        if (!context.ActionService.IsActionReady(action.ActionId))
-            return false;
+        if (!context.ActionService.IsActionReady(action.ActionId)) return;
 
-        if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DamageState = $"{action.Name} (combo {context.ComboStep + 1})";
+        scheduler.PushGcd(ability, target.GameObjectId, priority: 9,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = action.Name;
+                context.Debug.DamageState = $"{action.Name} (combo {context.ComboStep + 1})";
 
-            // Training: Record Basic Combo decision
-            var comboType = useAoe ? "AoE" : "Single Target";
-            var comboSequence = useAoe
-                ? "Spinning Scythe → Nightmare Scythe"
-                : "Slice → Waxing Slice → Infernal Slice";
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(action.ActionId, action.Name)
-                .AsMeleeDamage()
-                .Target(target.Name?.TextValue ?? "Target")
-                .Reason($"Using {action.Name} ({comboType} combo step {context.ComboStep + 1})",
-                    $"RPR's basic {comboType.ToLower()} combo: {comboSequence}. " +
-                    "Combo finishers grant 10 Soul gauge. Use when Soul Slice charges are depleted.")
-                .Factors(new[] { $"Combo step: {context.ComboStep + 1}", $"Soul: {context.Soul}", comboType })
-                .Alternatives(new[] { "Use Soul Slice if available" })
-                .Tip("Basic combo is filler. Prioritize Soul Slice for faster Soul generation.")
-                .Concept(useAoe ? "rpr_aoe_combo" : "rpr_st_combo")
-                .Record();
-            context.TrainingService?.RecordConceptApplication(useAoe ? "rpr_aoe_combo" : "rpr_st_combo", true, "Basic combo filler");
-
-            return true;
-        }
-
-        return false;
+                var comboType = useAoe ? "AoE" : "Single Target";
+                var comboSequence = useAoe
+                    ? "Spinning Scythe → Nightmare Scythe"
+                    : "Slice → Waxing Slice → Infernal Slice";
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(action.ActionId, action.Name)
+                    .AsMeleeDamage()
+                    .Target(target.Name?.TextValue ?? "Target")
+                    .Reason($"Using {action.Name} ({comboType} combo step {context.ComboStep + 1})",
+                        $"RPR's basic {comboType.ToLower()} combo: {comboSequence}. " +
+                        "Combo finishers grant 10 Soul gauge. Use when Soul Slice charges are depleted.")
+                    .Factors(new[] { $"Combo step: {context.ComboStep + 1}", $"Soul: {context.Soul}", comboType })
+                    .Alternatives(new[] { "Use Soul Slice if available" })
+                    .Tip("Basic combo is filler. Prioritize Soul Slice for faster Soul generation.")
+                    .Concept(useAoe ? "rpr_aoe_combo" : "rpr_st_combo")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication(useAoe ? "rpr_aoe_combo" : "rpr_st_combo", true, "Basic combo filler");
+            });
     }
 
     #endregion
