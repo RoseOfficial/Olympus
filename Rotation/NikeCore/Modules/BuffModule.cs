@@ -1,16 +1,17 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.Scheduling;
+using Olympus.Rotation.NikeCore.Abilities;
 using Olympus.Rotation.NikeCore.Context;
 using Olympus.Services;
 using Olympus.Services.Training;
-using Olympus.Timeline.Models;
 
 namespace Olympus.Rotation.NikeCore.Modules;
 
 /// <summary>
-/// Handles Samurai buff management.
-/// Manages Meikyo Shisui, Ikishoten, Shoha, and defensive cooldowns.
+/// Handles Samurai buff management (scheduler-driven).
+/// Manages Meikyo Shisui, Ikishoten, Shoha, Senei/Guren burst, Zanshin, True North.
 /// </summary>
 public sealed class BuffModule : INikeModule
 {
@@ -24,493 +25,308 @@ public sealed class BuffModule : INikeModule
     private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
         BurstHoldHelper.ShouldHoldForBurst(_burstWindowService, thresholdSeconds);
 
-    public int Priority => 20; // Before Damage
+    public int Priority => 20;
     public string Name => "Buff";
 
-    // Thresholds
-    private const int KenkiThresholdForIkishoten = 50; // Don't waste Kenki
+    private const int KenkiThresholdForIkishoten = 50;
     private const int MeditationMaxStacks = 3;
-    private const float BuffRefreshThreshold = 5f; // Refresh buffs when < 5s remaining
+    private const float BuffRefreshThreshold = 5f;
 
-    public bool TryExecute(INikeContext context, bool isMoving)
+    public bool TryExecute(INikeContext context, bool isMoving) => false;
+
+    public void UpdateDebugState(INikeContext context) { }
+
+    public void CollectCandidates(INikeContext context, RotationScheduler scheduler, bool isMoving)
     {
         if (!context.InCombat)
         {
             context.Debug.BuffState = "Not in combat";
-            return false;
+            return;
         }
 
         var player = context.Player;
-        var level = player.Level;
-
-        // Find target for oGCDs
         var target = context.TargetingService.FindEnemyForAction(
             context.Configuration.Targeting.EnemyStrategy,
             SAMActions.Hakaze.ActionId,
             player);
-
         if (target == null)
         {
             context.Debug.BuffState = "No target";
-            return false;
+            return;
         }
 
-        // oGCD Phase only
-        if (!context.CanExecuteOgcd)
-        {
-            context.Debug.BuffState = "oGCD not ready";
-            return false;
-        }
-
-        // Priority 1: Shoha at 3 Meditation stacks
-        if (TryShoha(context, target))
-            return true;
-
-        // Priority 2: Zanshin when ready (high priority oGCD)
-        if (TryZanshin(context, target))
-            return true;
-
-        // Priority 3: Ikishoten for Kenki + Ogi Namikiri Ready
-        if (TryIkishoten(context))
-            return true;
-
-        // Priority 4: Meikyo Shisui for combo skip
-        if (TryMeikyoShisui(context))
-            return true;
-
-        // Priority 5: Senei/Guren burst
-        if (TryBurstKenki(context, target))
-            return true;
-
-        // Priority 6: True North for positionals
-        if (TryTrueNorth(context))
-            return true;
-
-        context.Debug.BuffState = "No buff action";
-        return false;
+        TryPushShoha(context, scheduler, target);
+        TryPushZanshin(context, scheduler, target);
+        TryPushIkishoten(context, scheduler);
+        TryPushMeikyoShisui(context, scheduler);
+        TryPushBurstKenki(context, scheduler, target);
+        TryPushTrueNorth(context, scheduler);
     }
 
-    public void UpdateDebugState(INikeContext context)
+    private void TryPushShoha(INikeContext context, RotationScheduler scheduler, IBattleChara target)
     {
-        // Debug state updated during TryExecute
-    }
-
-    #region Shoha
-
-    private bool TryShoha(INikeContext context, IBattleChara target)
-    {
-        if (!context.Configuration.Samurai.EnableShoha) return false;
-
+        if (!context.Configuration.Samurai.EnableShoha) return;
         var player = context.Player;
-        var level = player.Level;
+        if (player.Level < SAMActions.Shoha.MinLevel) return;
+        if (context.Meditation < MeditationMaxStacks) return;
+        if (!context.ActionService.IsActionReady(SAMActions.Shoha.ActionId)) return;
 
-        if (level < SAMActions.Shoha.MinLevel)
-            return false;
+        scheduler.PushOgcd(NikeAbilities.Shoha, target.GameObjectId, priority: 1,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = SAMActions.Shoha.Name;
+                context.Debug.BuffState = $"Shoha ({context.Meditation} Med)";
 
-        // Need 3 Meditation stacks
-        if (context.Meditation < MeditationMaxStacks)
-            return false;
-
-        if (!context.ActionService.IsActionReady(SAMActions.Shoha.ActionId))
-            return false;
-
-        if (context.ActionService.ExecuteOgcd(SAMActions.Shoha, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = SAMActions.Shoha.Name;
-            context.Debug.BuffState = $"Shoha ({context.Meditation} Med)";
-
-            // Training: Record Shoha decision
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(SAMActions.Shoha.ActionId, SAMActions.Shoha.Name)
-                .AsMeleeResource("Meditation", context.Meditation)
-                .Target(target.Name?.TextValue ?? "Target")
-                .Reason($"Spending {MeditationMaxStacks} Meditation on Shoha",
-                    "Shoha is a powerful oGCD that consumes 3 Meditation stacks. " +
-                    "Meditation is generated by Iaijutsu and Ogi Namikiri. " +
-                    "Use Shoha whenever you hit 3 stacks to avoid overcapping.")
-                .Factors(new[] { "3 Meditation stacks", "oGCD window available", "High potency damage" })
-                .Alternatives(new[] { "Wait for burst (risk overcapping)", "Let stacks expire (wastes damage)" })
-                .Tip("Shoha is free damage. Use it whenever you have 3 Meditation stacks.")
-                .Concept("sam_meditation")
-                .Record();
-            context.TrainingService?.RecordConceptApplication("sam_meditation", true, "Meditation spending");
-
-            return true;
-        }
-
-        return false;
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(SAMActions.Shoha.ActionId, SAMActions.Shoha.Name)
+                    .AsMeleeResource("Meditation", context.Meditation)
+                    .Target(target.Name?.TextValue ?? "Target")
+                    .Reason($"Spending {MeditationMaxStacks} Meditation on Shoha",
+                        "Shoha is a powerful oGCD that consumes 3 Meditation stacks. " +
+                        "Meditation is generated by Iaijutsu and Ogi Namikiri. " +
+                        "Use Shoha whenever you hit 3 stacks to avoid overcapping.")
+                    .Factors(new[] { "3 Meditation stacks", "oGCD window available", "High potency damage" })
+                    .Alternatives(new[] { "Wait for burst (risk overcapping)", "Let stacks expire (wastes damage)" })
+                    .Tip("Shoha is free damage. Use it whenever you have 3 Meditation stacks.")
+                    .Concept("sam_meditation")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("sam_meditation", true, "Meditation spending");
+            });
     }
 
-    #endregion
-
-    #region Zanshin
-
-    private bool TryZanshin(INikeContext context, IBattleChara target)
+    private void TryPushZanshin(INikeContext context, RotationScheduler scheduler, IBattleChara target)
     {
-        if (!context.Configuration.Samurai.EnableZanshin)
-            return false;
-
+        if (!context.Configuration.Samurai.EnableZanshin) return;
         var player = context.Player;
-        var level = player.Level;
+        if (player.Level < SAMActions.Zanshin.MinLevel) return;
+        if (!context.HasZanshinReady) return;
+        if (context.Kenki < 50) return;
+        if (!context.ActionService.IsActionReady(SAMActions.Zanshin.ActionId)) return;
 
-        if (level < SAMActions.Zanshin.MinLevel)
-            return false;
+        scheduler.PushOgcd(NikeAbilities.Zanshin, target.GameObjectId, priority: 1,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = SAMActions.Zanshin.Name;
+                context.Debug.BuffState = "Zanshin";
 
-        // Need Zanshin Ready buff and 50 Kenki
-        if (!context.HasZanshinReady)
-            return false;
-
-        if (context.Kenki < 50)
-            return false;
-
-        if (!context.ActionService.IsActionReady(SAMActions.Zanshin.ActionId))
-            return false;
-
-        if (context.ActionService.ExecuteOgcd(SAMActions.Zanshin, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = SAMActions.Zanshin.Name;
-            context.Debug.BuffState = "Zanshin";
-
-            // Training: Record Zanshin decision
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(SAMActions.Zanshin.ActionId, SAMActions.Zanshin.Name)
-                .AsMeleeDamage()
-                .Target(target.Name?.TextValue ?? "Target")
-                .Reason("Using Zanshin proc (from Ogi Namikiri)",
-                    "Zanshin becomes available after using Ogi Namikiri and costs 50 Kenki. " +
-                    "It's a high-potency follow-up attack. Use it during your burst window.")
-                .Factors(new[] { "Zanshin Ready proc", $"Kenki >= 50 ({context.Kenki})", "Burst window" })
-                .Alternatives(new[] { "Delay for other oGCDs (loses proc time)", "Save Kenki (loses burst damage)" })
-                .Tip("Zanshin is part of your burst combo: Ikishoten → Ogi Namikiri → Kaeshi → Zanshin.")
-                .Concept("sam_zanshin")
-                .Record();
-            context.TrainingService?.RecordConceptApplication("sam_zanshin", true, "Ogi Namikiri follow-up");
-
-            return true;
-        }
-
-        return false;
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(SAMActions.Zanshin.ActionId, SAMActions.Zanshin.Name)
+                    .AsMeleeDamage()
+                    .Target(target.Name?.TextValue ?? "Target")
+                    .Reason("Using Zanshin proc (from Ogi Namikiri)",
+                        "Zanshin becomes available after using Ogi Namikiri and costs 50 Kenki. " +
+                        "It's a high-potency follow-up attack. Use it during your burst window.")
+                    .Factors(new[] { "Zanshin Ready proc", $"Kenki >= 50 ({context.Kenki})", "Burst window" })
+                    .Alternatives(new[] { "Delay for other oGCDs (loses proc time)", "Save Kenki (loses burst damage)" })
+                    .Tip("Zanshin is part of your burst combo: Ikishoten → Ogi Namikiri → Kaeshi → Zanshin.")
+                    .Concept("sam_zanshin")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("sam_zanshin", true, "Ogi Namikiri follow-up");
+            });
     }
 
-    #endregion
-
-    #region Ikishoten
-
-    private bool TryIkishoten(INikeContext context)
+    private void TryPushIkishoten(INikeContext context, RotationScheduler scheduler)
     {
-        if (!context.Configuration.Samurai.EnableIkishoten)
-            return false;
-
+        if (!context.Configuration.Samurai.EnableIkishoten) return;
         var player = context.Player;
-        var level = player.Level;
+        if (player.Level < SAMActions.Ikishoten.MinLevel) return;
 
-        if (level < SAMActions.Ikishoten.MinLevel)
-            return false;
-
-        // Hold Ikishoten when burst is imminent — aligns the 120s raid buff with party burst windows
         if (context.Configuration.Samurai.EnableBurstPooling &&
             ShouldHoldForBurst(context.Configuration.Samurai.IkishotenHoldTime))
         {
             context.Debug.BuffState = "Ikishoten held — burst imminent";
-            return false;
+            return;
         }
-
-        // Don't use if we'd overcap Kenki
-        if (context.Kenki > KenkiThresholdForIkishoten)
-            return false;
-
-        // Don't use if we already have Ogi Namikiri Ready
-        if (context.HasOgiNamikiriReady)
-            return false;
-
-        if (!context.ActionService.IsActionReady(SAMActions.Ikishoten.ActionId))
-            return false;
-
-        // Timeline: Don't waste burst before phase transition
+        if (context.Kenki > KenkiThresholdForIkishoten) return;
+        if (context.HasOgiNamikiriReady) return;
+        if (!context.ActionService.IsActionReady(SAMActions.Ikishoten.ActionId)) return;
         if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
         {
             context.Debug.BuffState = "Holding Ikishoten (phase soon)";
-            return false;
+            return;
         }
 
-        // Party coordination: Align with party burst window
         var partyCoord = context.PartyCoordinationService;
         if (partyCoord != null && partyCoord.IsPartyCoordinationEnabled &&
             context.Configuration.PartyCoordination.EnableRaidBuffCoordination)
         {
-            // Check if party is about to burst - if so, execute to align
             if (partyCoord.HasPendingRaidBuffIntent(
                 context.Configuration.PartyCoordination.RaidBuffAlignmentWindowSeconds))
-            {
                 context.Debug.BuffState = "Aligning Ikishoten with party burst";
-                // Fall through to execute - we want to burst WITH the party
-            }
-
-            // Announce our intent to use Ikishoten burst
             partyCoord.AnnounceRaidBuffIntent(SAMActions.Ikishoten.ActionId);
         }
 
-        if (context.ActionService.ExecuteOgcd(SAMActions.Ikishoten, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = SAMActions.Ikishoten.Name;
-            context.Debug.BuffState = "Ikishoten";
+        scheduler.PushOgcd(NikeAbilities.Ikishoten, player.GameObjectId, priority: 2,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = SAMActions.Ikishoten.Name;
+                context.Debug.BuffState = "Ikishoten";
+                partyCoord?.OnRaidBuffUsed(SAMActions.Ikishoten.ActionId, 120_000);
 
-            // Notify coordination service that we used the burst
-            partyCoord?.OnRaidBuffUsed(SAMActions.Ikishoten.ActionId, 120_000);
-
-            // Training: Record Ikishoten decision
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(SAMActions.Ikishoten.ActionId, SAMActions.Ikishoten.Name)
-                .AsMeleeBurst()
-                .Target("Self")
-                .Reason("Activating Ikishoten burst window (+50 Kenki + Ogi Namikiri Ready)",
-                    "Ikishoten is SAM's burst ability. It grants 50 Kenki and Ogi Namikiri Ready. " +
-                    "This starts your burst sequence: Ikishoten → Ogi Namikiri → Kaeshi: Namikiri → Zanshin. " +
-                    "Align with party raid buffs for maximum damage.")
-                .Factors(new[] { "120s cooldown ready", $"Kenki low enough ({context.Kenki})", "No Ogi Namikiri Ready", "Burst window" })
-                .Alternatives(new[] { "Wait for raid buffs (if imminent)", "Use at high Kenki (wastes gauge)" })
-                .Tip("Time Ikishoten with raid buffs. Don't overcap Kenki - use before if at 50+.")
-                .Concept("sam_ikishoten")
-                .Record();
-            context.TrainingService?.RecordConceptApplication("sam_ikishoten", true, "Burst window activation");
-
-            return true;
-        }
-
-        return false;
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(SAMActions.Ikishoten.ActionId, SAMActions.Ikishoten.Name)
+                    .AsMeleeBurst()
+                    .Target("Self")
+                    .Reason("Activating Ikishoten burst window (+50 Kenki + Ogi Namikiri Ready)",
+                        "Ikishoten is SAM's burst ability. It grants 50 Kenki and Ogi Namikiri Ready. " +
+                        "This starts your burst sequence: Ikishoten → Ogi Namikiri → Kaeshi: Namikiri → Zanshin. " +
+                        "Align with party raid buffs for maximum damage.")
+                    .Factors(new[] { "120s cooldown ready", $"Kenki low enough ({context.Kenki})", "No Ogi Namikiri Ready", "Burst window" })
+                    .Alternatives(new[] { "Wait for raid buffs (if imminent)", "Use at high Kenki (wastes gauge)" })
+                    .Tip("Time Ikishoten with raid buffs. Don't overcap Kenki - use before if at 50+.")
+                    .Concept("sam_ikishoten")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("sam_ikishoten", true, "Burst window activation");
+            });
     }
 
-    #endregion
-
-    #region Meikyo Shisui
-
-    private bool TryMeikyoShisui(INikeContext context)
+    private void TryPushMeikyoShisui(INikeContext context, RotationScheduler scheduler)
     {
-        if (!context.Configuration.Samurai.EnableMeikyoShisui) return false;
+        if (!context.Configuration.Samurai.EnableMeikyoShisui) return;
         var player = context.Player;
-        var level = player.Level;
+        if (player.Level < SAMActions.MeikyoShisui.MinLevel) return;
+        if (context.HasMeikyoShisui) return;
 
-        if (level < SAMActions.MeikyoShisui.MinLevel)
-            return false;
-
-        // Don't use if we already have Meikyo active
-        if (context.HasMeikyoShisui)
-            return false;
-
-        // Check if we should use Meikyo based on buff state
-        // Use Meikyo when:
-        // 1. We need to refresh Fugetsu/Fuka soon
-        // 2. We have 0 Sen and want to quickly build to 3
         var shouldUseMeikyo = false;
+        if (!context.HasFugetsu || context.FugetsuRemaining < BuffRefreshThreshold) shouldUseMeikyo = true;
+        if (!context.HasFuka || context.FukaRemaining < BuffRefreshThreshold) shouldUseMeikyo = true;
+        if (context.SenCount == 0 && context.InCombat) shouldUseMeikyo = true;
+        if (!shouldUseMeikyo) return;
 
-        // Need to refresh buffs
-        if (!context.HasFugetsu || context.FugetsuRemaining < BuffRefreshThreshold)
-            shouldUseMeikyo = true;
-        if (!context.HasFuka || context.FukaRemaining < BuffRefreshThreshold)
-            shouldUseMeikyo = true;
+        if (!context.ActionService.IsActionReady(SAMActions.MeikyoShisui.ActionId)) return;
 
-        // Want to quickly build Sen
-        if (context.SenCount == 0 && context.InCombat)
-            shouldUseMeikyo = true;
+        scheduler.PushOgcd(NikeAbilities.MeikyoShisui, player.GameObjectId, priority: 3,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = SAMActions.MeikyoShisui.Name;
+                context.Debug.BuffState = "Meikyo Shisui";
 
-        if (!shouldUseMeikyo)
-            return false;
-
-        if (!context.ActionService.IsActionReady(SAMActions.MeikyoShisui.ActionId))
-            return false;
-
-        if (context.ActionService.ExecuteOgcd(SAMActions.MeikyoShisui, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = SAMActions.MeikyoShisui.Name;
-            context.Debug.BuffState = "Meikyo Shisui";
-
-            // Training: Record Meikyo Shisui decision
-            var reason = !context.HasFugetsu || context.FugetsuRemaining < BuffRefreshThreshold ? "Need to refresh Fugetsu" :
-                        !context.HasFuka || context.FukaRemaining < BuffRefreshThreshold ? "Need to refresh Fuka" :
-                        context.SenCount == 0 ? "Quick Sen building" : "Combo skip for efficiency";
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(SAMActions.MeikyoShisui.ActionId, SAMActions.MeikyoShisui.Name)
-                .AsMeleeBurst()
-                .Target("Self")
-                .Reason($"Activating Meikyo Shisui ({reason})",
-                    "Meikyo Shisui allows you to use combo finishers directly without the combo chain. " +
-                    "Use 3 finishers (Gekko/Kasha/Yukikaze or AoE equivalents) to quickly build Sen. " +
-                    "Prioritize refreshing Fugetsu/Fuka buffs and building missing Sen.")
-                .Factors(new[] { reason, "55s cooldown ready (2 charges)", $"Sen: {context.SenCount}/3" })
-                .Alternatives(new[] { "Wait for optimal timing (risk overcapping charges)", "Use during combos (less efficient)" })
-                .Tip("Meikyo → Gekko → Kasha → Yukikaze builds all 3 Sen instantly.")
-                .Concept("sam_meikyo_shisui")
-                .Record();
-            context.TrainingService?.RecordConceptApplication("sam_meikyo_shisui", true, "Combo skip efficiency");
-
-            return true;
-        }
-
-        return false;
+                var reason = !context.HasFugetsu || context.FugetsuRemaining < BuffRefreshThreshold ? "Need to refresh Fugetsu" :
+                            !context.HasFuka || context.FukaRemaining < BuffRefreshThreshold ? "Need to refresh Fuka" :
+                            context.SenCount == 0 ? "Quick Sen building" : "Combo skip for efficiency";
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(SAMActions.MeikyoShisui.ActionId, SAMActions.MeikyoShisui.Name)
+                    .AsMeleeBurst()
+                    .Target("Self")
+                    .Reason($"Activating Meikyo Shisui ({reason})",
+                        "Meikyo Shisui allows you to use combo finishers directly without the combo chain. " +
+                        "Use 3 finishers (Gekko/Kasha/Yukikaze or AoE equivalents) to quickly build Sen. " +
+                        "Prioritize refreshing Fugetsu/Fuka buffs and building missing Sen.")
+                    .Factors(new[] { reason, "55s cooldown ready (2 charges)", $"Sen: {context.SenCount}/3" })
+                    .Alternatives(new[] { "Wait for optimal timing (risk overcapping charges)", "Use during combos (less efficient)" })
+                    .Tip("Meikyo → Gekko → Kasha → Yukikaze builds all 3 Sen instantly.")
+                    .Concept("sam_meikyo_shisui")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("sam_meikyo_shisui", true, "Combo skip efficiency");
+            });
     }
 
-    #endregion
-
-    #region Burst Kenki (Senei/Guren)
-
-    private bool TryBurstKenki(INikeContext context, IBattleChara target)
+    private void TryPushBurstKenki(INikeContext context, RotationScheduler scheduler, IBattleChara target)
     {
         var player = context.Player;
         var level = player.Level;
+        if (context.Kenki < 25) return;
 
-        // Need at least 25 Kenki
-        if (context.Kenki < 25)
-            return false;
-
-        // Count nearby enemies for AoE decision
         var enemyCount = context.TargetingService.CountEnemiesInRange(5f, player);
         var useAoe = enemyCount >= 3 && level >= SAMActions.Guren.MinLevel;
 
         if (useAoe)
         {
-            if (!context.Configuration.Samurai.EnableGuren)
-                return false;
+            if (!context.Configuration.Samurai.EnableGuren) return;
+            if (!context.ActionService.IsActionReady(SAMActions.Guren.ActionId)) return;
 
-            if (!context.ActionService.IsActionReady(SAMActions.Guren.ActionId))
-                return false;
+            scheduler.PushOgcd(NikeAbilities.Guren, target.GameObjectId, priority: 4,
+                onDispatched: _ =>
+                {
+                    context.Debug.PlannedAction = SAMActions.Guren.Name;
+                    context.Debug.BuffState = $"Guren ({enemyCount} enemies)";
 
-            if (context.ActionService.ExecuteOgcd(SAMActions.Guren, target.GameObjectId))
-            {
-                context.Debug.PlannedAction = SAMActions.Guren.Name;
-                context.Debug.BuffState = $"Guren ({enemyCount} enemies)";
-
-                // Training: Record Guren decision
-                TrainingHelper.Decision(context.TrainingService)
-                    .Action(SAMActions.Guren.ActionId, SAMActions.Guren.Name)
-                    .AsAoE(enemyCount)
-                    .Target($"{enemyCount} enemies")
-                    .Reason($"Spending 25 Kenki on Guren AoE ({enemyCount} enemies)",
-                        "Guren is the AoE version of Senei, dealing line damage. " +
-                        "Use at 3+ enemies for better total potency than Senei.")
-                    .Factors(new[] { "Kenki >= 25", $"{enemyCount} enemies", "120s cooldown ready" })
-                    .Alternatives(new[] { "Use Senei (less total damage vs 3+)", "Save Kenki (if Ikishoten soon)" })
-                    .Tip("Guren vs Senei: Guren wins at 3+ enemies, Senei for single target.")
-                    .Concept("sam_kenki_gauge")
-                    .Record();
-                context.TrainingService?.RecordConceptApplication("sam_kenki_gauge", true, "AoE Kenki burst");
-
-                return true;
-            }
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(SAMActions.Guren.ActionId, SAMActions.Guren.Name)
+                        .AsAoE(enemyCount)
+                        .Target($"{enemyCount} enemies")
+                        .Reason($"Spending 25 Kenki on Guren AoE ({enemyCount} enemies)",
+                            "Guren is the AoE version of Senei, dealing line damage. " +
+                            "Use at 3+ enemies for better total potency than Senei.")
+                        .Factors(new[] { "Kenki >= 25", $"{enemyCount} enemies", "120s cooldown ready" })
+                        .Alternatives(new[] { "Use Senei (less total damage vs 3+)", "Save Kenki (if Ikishoten soon)" })
+                        .Tip("Guren vs Senei: Guren wins at 3+ enemies, Senei for single target.")
+                        .Concept("sam_kenki_gauge")
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication("sam_kenki_gauge", true, "AoE Kenki burst");
+                });
+            return;
         }
-        else if (level >= SAMActions.Senei.MinLevel)
+
+        if (level >= SAMActions.Senei.MinLevel)
         {
-            if (!context.Configuration.Samurai.EnableSenei)
-                return false;
+            if (!context.Configuration.Samurai.EnableSenei) return;
+            if (!context.ActionService.IsActionReady(SAMActions.Senei.ActionId)) return;
 
-            if (!context.ActionService.IsActionReady(SAMActions.Senei.ActionId))
-                return false;
+            scheduler.PushOgcd(NikeAbilities.Senei, target.GameObjectId, priority: 4,
+                onDispatched: _ =>
+                {
+                    context.Debug.PlannedAction = SAMActions.Senei.Name;
+                    context.Debug.BuffState = "Senei";
 
-            if (context.ActionService.ExecuteOgcd(SAMActions.Senei, target.GameObjectId))
-            {
-                context.Debug.PlannedAction = SAMActions.Senei.Name;
-                context.Debug.BuffState = "Senei";
-
-                // Training: Record Senei decision
-                TrainingHelper.Decision(context.TrainingService)
-                    .Action(SAMActions.Senei.ActionId, SAMActions.Senei.Name)
-                    .AsMeleeDamage()
-                    .Target(target.Name?.TextValue ?? "Target")
-                    .Reason("Spending 25 Kenki on Senei burst",
-                        "Senei is your highest potency Kenki spender on a 120s cooldown. " +
-                        "Use during burst windows with raid buffs for maximum damage.")
-                    .Factors(new[] { "Kenki >= 25", "120s cooldown ready", "Single target priority" })
-                    .Alternatives(new[] { "Use Guren (only if 3+ enemies)", "Save for later (if burst imminent)" })
-                    .Tip("Senei deals massive single-target damage. Align with raid buffs.")
-                    .Concept("sam_kenki_gauge")
-                    .Record();
-                context.TrainingService?.RecordConceptApplication("sam_kenki_gauge", true, "ST Kenki burst");
-
-                return true;
-            }
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(SAMActions.Senei.ActionId, SAMActions.Senei.Name)
+                        .AsMeleeDamage()
+                        .Target(target.Name?.TextValue ?? "Target")
+                        .Reason("Spending 25 Kenki on Senei burst",
+                            "Senei is your highest potency Kenki spender on a 120s cooldown. " +
+                            "Use during burst windows with raid buffs for maximum damage.")
+                        .Factors(new[] { "Kenki >= 25", "120s cooldown ready", "Single target priority" })
+                        .Alternatives(new[] { "Use Guren (only if 3+ enemies)", "Save for later (if burst imminent)" })
+                        .Tip("Senei deals massive single-target damage. Align with raid buffs.")
+                        .Concept("sam_kenki_gauge")
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication("sam_kenki_gauge", true, "ST Kenki burst");
+                });
         }
-
-        return false;
     }
 
-    #endregion
-
-    #region True North
-
-    private bool TryTrueNorth(INikeContext context)
+    private void TryPushTrueNorth(INikeContext context, RotationScheduler scheduler)
     {
-        if (!context.Configuration.Samurai.EnableTrueNorth) return false;
-
+        if (!context.Configuration.Samurai.EnableTrueNorth) return;
         var player = context.Player;
-        var level = player.Level;
+        if (player.Level < RoleActions.TrueNorth.MinLevel) return;
+        if (context.HasTrueNorth) return;
+        if (context.TargetHasPositionalImmunity) return;
 
-        if (level < RoleActions.TrueNorth.MinLevel)
-            return false;
-
-        // Already have True North
-        if (context.HasTrueNorth)
-            return false;
-
-        // Target immune to positionals
-        if (context.TargetHasPositionalImmunity)
-            return false;
-
-        // Check if we're about to use a positional finisher and not in position
         var needPositional = false;
-
-        // Will use Gekko (rear) soon
         if (context.HasGetsu == false && context.ComboStep == 2 && context.LastComboAction == SAMActions.Jinpu.ActionId)
-        {
-            if (!context.IsAtRear)
-                needPositional = true;
-        }
-
-        // Will use Kasha (flank) soon
+            if (!context.IsAtRear) needPositional = true;
         if (context.HasKa == false && context.ComboStep == 2 && context.LastComboAction == SAMActions.Shifu.ActionId)
-        {
-            if (!context.IsAtFlank)
-                needPositional = true;
-        }
-
-        // During Meikyo, we'll be using finishers
+            if (!context.IsAtFlank) needPositional = true;
         if (context.HasMeikyoShisui && (!context.IsAtRear && !context.IsAtFlank))
-        {
             needPositional = true;
-        }
 
-        if (!needPositional)
-            return false;
+        if (!needPositional) return;
+        if (!context.ActionService.IsActionReady(RoleActions.TrueNorth.ActionId)) return;
 
-        if (!context.ActionService.IsActionReady(RoleActions.TrueNorth.ActionId))
-            return false;
+        scheduler.PushOgcd(NikeAbilities.TrueNorth, player.GameObjectId, priority: 5,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = RoleActions.TrueNorth.Name;
+                context.Debug.BuffState = "True North";
 
-        if (context.ActionService.ExecuteOgcd(RoleActions.TrueNorth, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = RoleActions.TrueNorth.Name;
-            context.Debug.BuffState = "True North";
-
-            // Training: Record True North decision
-            var reason = context.HasMeikyoShisui ? "Meikyo Shisui active — positionals incoming" :
-                         context.ComboStep == 2 && context.LastComboAction == SAMActions.Jinpu.ActionId ? "Gekko (rear) incoming" :
-                         "Kasha (flank) incoming";
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(RoleActions.TrueNorth.ActionId, RoleActions.TrueNorth.Name)
-                .AsMeleeDamage()
-                .Target("Self")
-                .Reason($"True North — ignoring positional for next hit ({reason})",
-                    "True North lets you get positional bonus damage regardless of your position. " +
-                    "Use before Gekko (rear) or Kasha (flank) when you can't move into position.")
-                .Factors(new[] { reason, "Not in correct positional position", "Positional finisher imminent" })
-                .Alternatives(new[] { "Reposition (preferred if possible)", "Miss bonus damage (suboptimal)" })
-                .Tip("True North has 2 charges and 45s cooldown. Save for when repositioning is impossible.")
-                .Concept("sam_positionals")
-                .Record();
-            context.TrainingService?.RecordConceptApplication("sam_positionals", true, "True North for positionals");
-
-            return true;
-        }
-
-        return false;
+                var reason = context.HasMeikyoShisui ? "Meikyo Shisui active — positionals incoming" :
+                             context.ComboStep == 2 && context.LastComboAction == SAMActions.Jinpu.ActionId ? "Gekko (rear) incoming" :
+                             "Kasha (flank) incoming";
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(RoleActions.TrueNorth.ActionId, RoleActions.TrueNorth.Name)
+                    .AsMeleeDamage()
+                    .Target("Self")
+                    .Reason($"True North — ignoring positional for next hit ({reason})",
+                        "True North lets you get positional bonus damage regardless of your position. " +
+                        "Use before Gekko (rear) or Kasha (flank) when you can't move into position.")
+                    .Factors(new[] { reason, "Not in correct positional position", "Positional finisher imminent" })
+                    .Alternatives(new[] { "Reposition (preferred if possible)", "Miss bonus damage (suboptimal)" })
+                    .Tip("True North has 2 charges and 45s cooldown. Save for when repositioning is impossible.")
+                    .Concept("sam_positionals")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("sam_positionals", true, "True North for positionals");
+            });
     }
-
-    #endregion
 }

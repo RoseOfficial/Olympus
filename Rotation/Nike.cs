@@ -285,18 +285,10 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>
             module.CollectCandidates(context, _scheduler, isMoving);
 
         if (inCombat && ActionService.CanExecuteOgcd)
-        {
-            foreach (var module in _modules)
-                if (module.TryExecute(context, isMoving)) return;
             _scheduler.DispatchOgcd(context);
-        }
 
         if (ActionService.CanExecuteGcd)
-        {
-            foreach (var module in _modules)
-                if (module.TryExecute(context, isMoving)) return;
             _scheduler.DispatchGcd(context);
-        }
     }
 
     #endregion

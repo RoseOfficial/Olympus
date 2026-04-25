@@ -1,7 +1,9 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
+using Olympus.Models.Action;
 using Olympus.Rotation.Common.Helpers;
-using Olympus.Rotation.Common.Modules;
+using Olympus.Rotation.Common.Scheduling;
+using Olympus.Rotation.NikeCore.Abilities;
 using Olympus.Rotation.NikeCore.Context;
 using Olympus.Services;
 using Olympus.Services.Targeting;
@@ -10,144 +12,133 @@ using Olympus.Services.Training;
 namespace Olympus.Rotation.NikeCore.Modules;
 
 /// <summary>
-/// Handles the Samurai damage rotation.
-/// Manages combos, Iaijutsu, Kaeshi, Ogi Namikiri, and Kenki spenders.
-/// Extends BaseDpsDamageModule for shared damage module patterns.
+/// Handles the Samurai damage rotation (scheduler-driven).
+/// Manages combos, Iaijutsu, Kaeshi, Ogi Namikiri, Kenki spenders.
 /// </summary>
-public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModule
+public sealed class DamageModule : INikeModule
 {
-    public DamageModule(IBurstWindowService? burstWindowService = null, ISmartAoEService? smartAoEService = null) : base(burstWindowService, smartAoEService) { }
+    public int Priority => 30;
+    public string Name => "Damage";
 
-    // Kenki threshold for spending (Shinten/Kyuten cost 25)
-    private const int KenkiSpendThreshold = 25;
+    private readonly IBurstWindowService? _burstWindowService;
+    private readonly ISmartAoEService? _smartAoEService;
 
-    // Higanbana refresh threshold (DoT is 60s)
-    private const float HiganbanaRefreshThreshold = 5f;
-
-    #region Abstract Method Implementations
-
-    /// <summary>
-    /// Melee targeting range (3y) — used as fallback only.
-    /// </summary>
-    protected override float GetTargetingRange() => FFXIVConstants.MeleeTargetingRange;
-
-    /// <summary>
-    /// Use Hakaze to check melee range via game API for maximum accuracy.
-    /// </summary>
-    protected override uint GetRangeCheckActionId() => SAMActions.Hakaze.ActionId;
-
-    /// <summary>
-    /// AoE count range for SAM (5y for melee AoE abilities).
-    /// </summary>
-    protected override float GetAoECountRange() => 5f;
-
-    /// <summary>
-    /// Sets the damage state in the debug display.
-    /// </summary>
-    protected override void SetDamageState(INikeContext context, string state) =>
-        context.Debug.DamageState = state;
-
-    /// <summary>
-    /// Sets the nearby enemy count in the debug display.
-    /// </summary>
-    protected override void SetNearbyEnemies(INikeContext context, int count) =>
-        context.Debug.NearbyEnemies = count;
-
-    /// <summary>
-    /// Sets the planned action name in the debug display.
-    /// </summary>
-    protected override void SetPlannedAction(INikeContext context, string action) =>
-        context.Debug.PlannedAction = action;
-
-    protected override bool IsAoEEnabled(INikeContext context) =>
-        context.Configuration.Samurai.EnableAoERotation;
-
-    protected override int GetConfiguredAoEThreshold(INikeContext context) =>
-        context.Configuration.Samurai.AoEMinTargets;
-
-    /// <summary>
-    /// oGCD damage for Samurai - Kenki spenders (Shinten, Kyuten).
-    /// </summary>
-    protected override bool TryOgcdDamage(INikeContext context, IBattleChara target, int enemyCount)
+    public DamageModule(IBurstWindowService? burstWindowService = null, ISmartAoEService? smartAoEService = null)
     {
-        var player = context.Player;
-        var level = player.Level;
-
-        // Kenki spenders (Shinten/Kyuten)
-        if (TryKenkiSpender(context, target, enemyCount))
-            return true;
-
-        return false;
+        _burstWindowService = burstWindowService;
+        _smartAoEService = smartAoEService;
     }
 
-    private bool TryKenkiSpender(INikeContext context, IBattleChara target, int enemyCount)
+    private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
+        BurstHoldHelper.ShouldHoldForBurst(_burstWindowService, thresholdSeconds);
+
+    private const int KenkiSpendThreshold = 25;
+    private const float HiganbanaRefreshThreshold = 5f;
+
+    public bool TryExecute(INikeContext context, bool isMoving) => false;
+
+    public void UpdateDebugState(INikeContext context) { }
+
+    public void CollectCandidates(INikeContext context, RotationScheduler scheduler, bool isMoving)
+    {
+        if (!context.InCombat)
+        {
+            context.Debug.DamageState = "Not in combat";
+            return;
+        }
+        if (context.TargetingService.IsDamageTargetingPaused())
+        {
+            context.Debug.DamageState = "Paused (no target)";
+            return;
+        }
+        if (context.Configuration.Targeting.SuppressDamageOnForcedMovement
+            && PlayerSafetyHelper.IsForcedMovementActive(context.Player))
+        {
+            context.Debug.DamageState = "Paused (forced movement)";
+            return;
+        }
+
+        var player = context.Player;
+        var target = context.TargetingService.FindEnemyForAction(
+            context.Configuration.Targeting.EnemyStrategy,
+            SAMActions.Hakaze.ActionId,
+            player);
+        if (target == null)
+        {
+            context.Debug.DamageState = "No target";
+            return;
+        }
+
+        var aoeEnabled = context.Configuration.Samurai.EnableAoERotation;
+        var aoeThreshold = context.Configuration.Samurai.AoEMinTargets;
+        var rawEnemyCount = context.TargetingService.CountEnemiesInRange(5f, player);
+        context.Debug.NearbyEnemies = rawEnemyCount;
+        var enemyCount = aoeEnabled ? rawEnemyCount : 0;
+        var useAoE = enemyCount >= aoeThreshold;
+
+        // oGCDs
+        TryPushKenkiSpender(context, scheduler, target, useAoE);
+
+        // GCDs (priority order)
+        TryPushKaeshiNamikiri(context, scheduler, target);
+        TryPushTsubameGaeshi(context, scheduler, target);
+        TryPushOgiNamikiri(context, scheduler, target);
+        TryPushIaijutsu(context, scheduler, target, useAoE);
+        TryPushMeikyoFinisher(context, scheduler, target, useAoE);
+        TryPushComboRotation(context, scheduler, target, enemyCount, useAoE);
+    }
+
+    #region oGCDs
+
+    private void TryPushKenkiSpender(INikeContext context, RotationScheduler scheduler, IBattleChara target, bool useAoE)
     {
         var player = context.Player;
         var level = player.Level;
+        if (context.Kenki < KenkiSpendThreshold) return;
+        if (context.Configuration.Samurai.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Kenki < 85) return;
 
-        // Need 25 Kenki to spend
-        if (context.Kenki < KenkiSpendThreshold)
-            return false;
+        var shouldSpend = context.Kenki >= 85 || context.Kenki >= 50;
+        if (!shouldSpend) return;
 
-        // Hold Kenki for burst when not at risk of capping (100 = max, hold below 85 if burst imminent)
-        if (context.Configuration.Samurai.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Kenki < 85)
-            return false;
-
-        // Don't overcap - always spend if near max
-        var shouldSpend = context.Kenki >= 85;
-
-        // Or spend if we have a comfortable amount
-        if (!shouldSpend && context.Kenki >= 50)
-            shouldSpend = true;
-
-        if (!shouldSpend)
-            return false;
-
-        // Choose ST or AoE based on enemy count
-        if (enemyCount >= AoeThreshold && level >= SAMActions.Kyuten.MinLevel)
+        if (useAoE && level >= SAMActions.Kyuten.MinLevel)
         {
-            if (!context.Configuration.Samurai.EnableKyuten)
-                return false;
+            if (!context.Configuration.Samurai.EnableKyuten) return;
+            if (!context.ActionService.IsActionReady(SAMActions.Kyuten.ActionId)) return;
 
-            if (context.ActionService.IsActionReady(SAMActions.Kyuten.ActionId))
-            {
-                if (context.ActionService.ExecuteOgcd(SAMActions.Kyuten, player.GameObjectId))
+            scheduler.PushOgcd(NikeAbilities.Kyuten, player.GameObjectId, priority: 5,
+                onDispatched: _ =>
                 {
                     context.Debug.PlannedAction = SAMActions.Kyuten.Name;
-                    context.Debug.DamageState = $"Kyuten ({enemyCount} enemies)";
+                    context.Debug.DamageState = $"Kyuten (AoE)";
 
-                    // Training: Record Kyuten decision
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(SAMActions.Kyuten.ActionId, SAMActions.Kyuten.Name)
-                        .AsAoE(enemyCount)
-                        .Target($"{enemyCount} enemies")
-                        .Reason($"Spending 25 Kenki on Kyuten ({enemyCount} enemies)",
+                        .AsAoE(0)
+                        .Target("AoE group")
+                        .Reason($"Spending 25 Kenki on Kyuten",
                             "Kyuten is the AoE Kenki spender. Use to prevent Kenki overcap. " +
                             "Prioritize Senei/Guren on cooldown, then use Kyuten/Shinten for excess.")
-                        .Factors(new[] { $"Kenki: {context.Kenki}", $"{enemyCount} enemies", "Avoiding overcap" })
+                        .Factors(new[] { $"Kenki: {context.Kenki}", "AoE situation", "Avoiding overcap" })
                         .Alternatives(new[] { "Use Shinten (less total damage)", "Hold for Senei/Guren (if soon)" })
                         .Tip("Don't sit at max Kenki. Spend regularly on Shinten/Kyuten.")
                         .Concept("sam_kenki_gauge")
                         .Record();
                     context.TrainingService?.RecordConceptApplication("sam_kenki_gauge", true, "AoE Kenki spending");
-
-                    return true;
-                }
-            }
+                });
+            return;
         }
-        else if (level >= SAMActions.Shinten.MinLevel)
-        {
-            if (!context.Configuration.Samurai.EnableShinten)
-                return false;
 
-            if (context.ActionService.IsActionReady(SAMActions.Shinten.ActionId))
-            {
-                if (context.ActionService.ExecuteOgcd(SAMActions.Shinten, target.GameObjectId))
+        if (level >= SAMActions.Shinten.MinLevel)
+        {
+            if (!context.Configuration.Samurai.EnableShinten) return;
+            if (!context.ActionService.IsActionReady(SAMActions.Shinten.ActionId)) return;
+
+            scheduler.PushOgcd(NikeAbilities.Shinten, target.GameObjectId, priority: 5,
+                onDispatched: _ =>
                 {
                     context.Debug.PlannedAction = SAMActions.Shinten.Name;
                     context.Debug.DamageState = "Shinten";
 
-                    // Training: Record Shinten decision
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(SAMActions.Shinten.ActionId, SAMActions.Shinten.Name)
                         .AsMeleeResource("Kenki", context.Kenki)
@@ -161,283 +152,169 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                         .Concept("sam_kenki_gauge")
                         .Record();
                     context.TrainingService?.RecordConceptApplication("sam_kenki_gauge", true, "ST Kenki spending");
-
-                    return true;
-                }
-            }
+                });
         }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Main GCD damage rotation for Samurai.
-    /// Handles Kaeshi, Ogi Namikiri, Iaijutsu, Meikyo finishers, and combo rotation.
-    /// </summary>
-    protected override bool TryGcdDamage(INikeContext context, IBattleChara target, int enemyCount, bool isMoving)
-    {
-        // Priority 1: Kaeshi: Namikiri (after Ogi Namikiri)
-        if (TryKaeshiNamikiri(context, target))
-            return true;
-
-        // Priority 2: Tsubame-gaeshi (after Iaijutsu)
-        if (TryTsubameGaeshi(context, target))
-            return true;
-
-        // Priority 3: Ogi Namikiri (when ready)
-        if (TryOgiNamikiri(context, target))
-            return true;
-
-        // Priority 4: Iaijutsu (when we have Sen)
-        if (TryIaijutsu(context, target, enemyCount))
-            return true;
-
-        // Priority 5: Meikyo finishers (direct finisher usage)
-        if (TryMeikyoFinisher(context, target, enemyCount))
-            return true;
-
-        // Priority 6: Combo rotation
-        if (TryComboRotation(context, target, enemyCount))
-            return true;
-
-        return false;
     }
 
     #endregion
 
-    #region Kaeshi: Namikiri
+    #region GCDs
 
-    private bool TryKaeshiNamikiri(INikeContext context, IBattleChara target)
+    private void TryPushKaeshiNamikiri(INikeContext context, RotationScheduler scheduler, IBattleChara target)
     {
         var player = context.Player;
-        var level = player.Level;
+        if (player.Level < SAMActions.KaeshiNamikiri.MinLevel) return;
+        if (!context.HasKaeshiNamikiriReady) return;
+        if (!context.ActionService.IsActionReady(SAMActions.KaeshiNamikiri.ActionId)) return;
 
-        if (level < SAMActions.KaeshiNamikiri.MinLevel)
-            return false;
+        scheduler.PushGcd(NikeAbilities.KaeshiNamikiri, target.GameObjectId, priority: 1,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = SAMActions.KaeshiNamikiri.Name;
+                context.Debug.DamageState = "Kaeshi: Namikiri";
 
-        // Need Kaeshi: Namikiri Ready buff
-        if (!context.HasKaeshiNamikiriReady)
-            return false;
-
-        if (!context.ActionService.IsActionReady(SAMActions.KaeshiNamikiri.ActionId))
-            return false;
-
-        if (context.ActionService.ExecuteGcd(SAMActions.KaeshiNamikiri, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = SAMActions.KaeshiNamikiri.Name;
-            context.Debug.DamageState = "Kaeshi: Namikiri";
-
-            // Training: Record Kaeshi: Namikiri decision
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(SAMActions.KaeshiNamikiri.ActionId, SAMActions.KaeshiNamikiri.Name)
-                .AsMeleeBurst()
-                .Target(target.Name?.TextValue ?? "Target")
-                .Reason("Following up Ogi Namikiri with Kaeshi: Namikiri",
-                    "Kaeshi: Namikiri is a guaranteed follow-up after Ogi Namikiri. " +
-                    "It has a short window so use it immediately. High potency burst damage.")
-                .Factors(new[] { "Kaeshi: Namikiri Ready buff active", "Ogi Namikiri just used", "Burst window active" })
-                .Alternatives(new[] { "Miss the window (buff expires)" })
-                .Tip("Always use Kaeshi: Namikiri immediately after Ogi Namikiri.")
-                .Concept("sam_iaijutsu")
-                .Record();
-            context.TrainingService?.RecordConceptApplication("sam_iaijutsu", true, "Kaeshi: Namikiri follow-up");
-
-            return true;
-        }
-
-        return false;
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(SAMActions.KaeshiNamikiri.ActionId, SAMActions.KaeshiNamikiri.Name)
+                    .AsMeleeBurst()
+                    .Target(target.Name?.TextValue ?? "Target")
+                    .Reason("Following up Ogi Namikiri with Kaeshi: Namikiri",
+                        "Kaeshi: Namikiri is a guaranteed follow-up after Ogi Namikiri. " +
+                        "It has a short window so use it immediately. High potency burst damage.")
+                    .Factors(new[] { "Kaeshi: Namikiri Ready buff active", "Ogi Namikiri just used", "Burst window active" })
+                    .Alternatives(new[] { "Miss the window (buff expires)" })
+                    .Tip("Always use Kaeshi: Namikiri immediately after Ogi Namikiri.")
+                    .Concept("sam_iaijutsu")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("sam_iaijutsu", true, "Kaeshi: Namikiri follow-up");
+            });
     }
 
-    #endregion
-
-    #region Tsubame-gaeshi
-
-    private bool TryTsubameGaeshi(INikeContext context, IBattleChara target)
+    private void TryPushTsubameGaeshi(INikeContext context, RotationScheduler scheduler, IBattleChara target)
     {
-        if (!context.Configuration.Samurai.EnableTsubamegaeshi)
-            return false;
-
+        if (!context.Configuration.Samurai.EnableTsubamegaeshi) return;
         var player = context.Player;
-        var level = player.Level;
+        if (player.Level < SAMActions.TsubameGaeshi.MinLevel) return;
+        if (!context.HasTsubameGaeshiReady) return;
 
-        if (level < SAMActions.TsubameGaeshi.MinLevel)
-            return false;
-
-        // Need Tsubame-gaeshi Ready buff
-        if (!context.HasTsubameGaeshiReady)
-            return false;
-
-        // Get the correct Kaeshi action based on last Iaijutsu
         var kaeshiAction = SAMActions.GetKaeshiAction(context.LastIaijutsu);
+        if (!context.ActionService.IsActionReady(kaeshiAction.ActionId)) return;
 
-        if (!context.ActionService.IsActionReady(kaeshiAction.ActionId))
-            return false;
-
-        if (context.ActionService.ExecuteGcd(kaeshiAction, target.GameObjectId))
+        var ability = kaeshiAction.ActionId switch
         {
-            context.Debug.PlannedAction = kaeshiAction.Name;
-            context.Debug.DamageState = kaeshiAction.Name;
+            var id when id == SAMActions.KaeshiHiganbana.ActionId => NikeAbilities.KaeshiHiganbana,
+            var id when id == SAMActions.KaeshiGoken.ActionId => NikeAbilities.KaeshiGoken,
+            var id when id == SAMActions.KaeshiSetsugekka.ActionId => NikeAbilities.KaeshiSetsugekka,
+            _ => NikeAbilities.KaeshiSetsugekka,
+        };
 
-            // Training: Record Tsubame-gaeshi decision
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(kaeshiAction.ActionId, kaeshiAction.Name)
-                .AsMeleeBurst()
-                .Target(target.Name?.TextValue ?? "Target")
-                .Reason($"Following up Iaijutsu with {kaeshiAction.Name}",
-                    "Tsubame-gaeshi repeats your last Iaijutsu. " +
-                    "Use immediately after Iaijutsu - the window is short. " +
-                    "Kaeshi: Setsugekka is highest potency, Kaeshi: Goken for AoE.")
-                .Factors(new[] { "Tsubame-gaeshi Ready buff active", $"Last Iaijutsu: {context.LastIaijutsu}", "Burst window active" })
-                .Alternatives(new[] { "Miss the window (buff expires)", "Wrong Iaijutsu order" })
-                .Tip("Iaijutsu → Tsubame-gaeshi is your core burst combo. Never skip it.")
-                .Concept("sam_iaijutsu")
-                .Record();
-            context.TrainingService?.RecordConceptApplication("sam_iaijutsu", true, "Tsubame-gaeshi follow-up");
+        scheduler.PushGcd(ability, target.GameObjectId, priority: 1,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = kaeshiAction.Name;
+                context.Debug.DamageState = kaeshiAction.Name;
 
-            return true;
-        }
-
-        return false;
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(kaeshiAction.ActionId, kaeshiAction.Name)
+                    .AsMeleeBurst()
+                    .Target(target.Name?.TextValue ?? "Target")
+                    .Reason($"Following up Iaijutsu with {kaeshiAction.Name}",
+                        "Tsubame-gaeshi repeats your last Iaijutsu. " +
+                        "Use immediately after Iaijutsu - the window is short. " +
+                        "Kaeshi: Setsugekka is highest potency, Kaeshi: Goken for AoE.")
+                    .Factors(new[] { "Tsubame-gaeshi Ready buff active", $"Last Iaijutsu: {context.LastIaijutsu}", "Burst window active" })
+                    .Alternatives(new[] { "Miss the window (buff expires)", "Wrong Iaijutsu order" })
+                    .Tip("Iaijutsu → Tsubame-gaeshi is your core burst combo. Never skip it.")
+                    .Concept("sam_iaijutsu")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("sam_iaijutsu", true, "Tsubame-gaeshi follow-up");
+            });
     }
 
-    #endregion
-
-    #region Ogi Namikiri
-
-    private bool TryOgiNamikiri(INikeContext context, IBattleChara target)
+    private void TryPushOgiNamikiri(INikeContext context, RotationScheduler scheduler, IBattleChara target)
     {
-        if (!context.Configuration.Samurai.EnableOgiNamikiri)
-            return false;
-
+        if (!context.Configuration.Samurai.EnableOgiNamikiri) return;
         var player = context.Player;
-        var level = player.Level;
+        if (player.Level < SAMActions.OgiNamikiri.MinLevel) return;
+        if (!context.HasOgiNamikiriReady) return;
+        if (!context.ActionService.IsActionReady(SAMActions.OgiNamikiri.ActionId)) return;
 
-        if (level < SAMActions.OgiNamikiri.MinLevel)
-            return false;
+        scheduler.PushGcd(NikeAbilities.OgiNamikiri, target.GameObjectId, priority: 2,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = SAMActions.OgiNamikiri.Name;
+                context.Debug.DamageState = "Ogi Namikiri";
 
-        // Need Ogi Namikiri Ready buff
-        if (!context.HasOgiNamikiriReady)
-            return false;
-
-        if (!context.ActionService.IsActionReady(SAMActions.OgiNamikiri.ActionId))
-            return false;
-
-        if (context.ActionService.ExecuteGcd(SAMActions.OgiNamikiri, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = SAMActions.OgiNamikiri.Name;
-            context.Debug.DamageState = "Ogi Namikiri";
-
-            // Training: Record Ogi Namikiri decision
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(SAMActions.OgiNamikiri.ActionId, SAMActions.OgiNamikiri.Name)
-                .AsMeleeBurst()
-                .Target(target.Name?.TextValue ?? "Target")
-                .Reason("Using Ogi Namikiri (granted by Ikishoten)",
-                    "Ogi Namikiri is SAM's highest potency GCD. Granted by Ikishoten. " +
-                    "Always follow with Kaeshi: Namikiri. Use during burst windows for maximum effect.")
-                .Factors(new[] { "Ogi Namikiri Ready buff active", "From Ikishoten", "Burst window active" })
-                .Alternatives(new[] { "Hold for raid buffs (if close)", "Use outside burst (wastes damage)" })
-                .Tip("Ogi Namikiri → Kaeshi: Namikiri → Zanshin is your biggest burst sequence.")
-                .Concept("sam_burst_window")
-                .Record();
-            context.TrainingService?.RecordConceptApplication("sam_burst_window", true, "Ogi Namikiri burst");
-
-            return true;
-        }
-
-        return false;
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(SAMActions.OgiNamikiri.ActionId, SAMActions.OgiNamikiri.Name)
+                    .AsMeleeBurst()
+                    .Target(target.Name?.TextValue ?? "Target")
+                    .Reason("Using Ogi Namikiri (granted by Ikishoten)",
+                        "Ogi Namikiri is SAM's highest potency GCD. Granted by Ikishoten. " +
+                        "Always follow with Kaeshi: Namikiri. Use during burst windows for maximum effect.")
+                    .Factors(new[] { "Ogi Namikiri Ready buff active", "From Ikishoten", "Burst window active" })
+                    .Alternatives(new[] { "Hold for raid buffs (if close)", "Use outside burst (wastes damage)" })
+                    .Tip("Ogi Namikiri → Kaeshi: Namikiri → Zanshin is your biggest burst sequence.")
+                    .Concept("sam_burst_window")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("sam_burst_window", true, "Ogi Namikiri burst");
+            });
     }
 
-    #endregion
-
-    #region Iaijutsu
-
-    private bool TryIaijutsu(INikeContext context, IBattleChara target, int enemyCount)
+    private void TryPushIaijutsu(INikeContext context, RotationScheduler scheduler, IBattleChara target, bool useAoE)
     {
-        if (!context.Configuration.Samurai.EnableIaijutsu)
-            return false;
-
+        if (!context.Configuration.Samurai.EnableIaijutsu) return;
         var player = context.Player;
         var level = player.Level;
+        if (context.SenCount == 0) return;
 
-        // Need at least 1 Sen
-        if (context.SenCount == 0)
-            return false;
-
-        var iaijutsuType = SAMActions.GetIaijutsuType(context.SenCount);
-
-        // Decide which Iaijutsu to use
         switch (context.SenCount)
         {
             case 1:
-                // Higanbana - only if DoT is not up or about to expire
-                if (!context.Configuration.Samurai.MaintainHiganbana)
-                    return false;
-
-                if (level < SAMActions.Higanbana.MinLevel)
-                    return false;
-
-                // Don't use Higanbana in AoE
-                if (enemyCount >= AoeThreshold)
-                    return false;
-
-                // Check if Higanbana needs to be applied/refreshed
-                if (context.HasHiganbanaOnTarget && context.HiganbanaRemaining > HiganbanaRefreshThreshold)
-                    return false;
-
-                return ExecuteIaijutsu(context, target, SAMActions.Higanbana, iaijutsuType);
+                if (!context.Configuration.Samurai.MaintainHiganbana) return;
+                if (level < SAMActions.Higanbana.MinLevel) return;
+                if (useAoE) return;
+                if (context.HasHiganbanaOnTarget && context.HiganbanaRemaining > HiganbanaRefreshThreshold) return;
+                PushIaijutsu(context, scheduler, target, SAMActions.Higanbana, NikeAbilities.Higanbana, SAMActions.IaijutsuType.Higanbana);
+                break;
 
             case 2:
-                // Tenka Goken - AoE burst
-                if (level < SAMActions.TenkaGoken.MinLevel)
-                    return false;
-
-                // Only use at 2 Sen if in AoE situation
-                if (enemyCount < AoeThreshold)
-                    return false;
-
-                return ExecuteIaijutsu(context, target, SAMActions.TenkaGoken, iaijutsuType);
+                if (level < SAMActions.TenkaGoken.MinLevel) return;
+                if (!useAoE) return;
+                PushIaijutsu(context, scheduler, target, SAMActions.TenkaGoken, NikeAbilities.TenkaGoken, SAMActions.IaijutsuType.TenkaGoken);
+                break;
 
             case 3:
-                // Midare Setsugekka - ST burst
-                if (level < SAMActions.MidareSetsugekka.MinLevel)
-                    return false;
-
-                return ExecuteIaijutsu(context, target, SAMActions.MidareSetsugekka, iaijutsuType);
+                if (level < SAMActions.MidareSetsugekka.MinLevel) return;
+                PushIaijutsu(context, scheduler, target, SAMActions.MidareSetsugekka, NikeAbilities.MidareSetsugekka, SAMActions.IaijutsuType.MidareSetsugekka);
+                break;
         }
-
-        return false;
     }
 
-    private bool ExecuteIaijutsu(INikeContext context, IBattleChara target, Models.Action.ActionDefinition action, SAMActions.IaijutsuType type)
+    private void PushIaijutsu(INikeContext context, RotationScheduler scheduler, IBattleChara target,
+                              ActionDefinition action, AbilityBehavior ability, SAMActions.IaijutsuType type)
     {
-        if (!context.ActionService.IsActionReady(action.ActionId))
-            return false;
+        if (!context.ActionService.IsActionReady(action.ActionId)) return;
 
-        if (context.ActionService.ExecuteGcd(action, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DamageState = $"{action.Name} ({context.SenCount} Sen)";
-            context.Debug.LastIaijutsu = type;
+        scheduler.PushGcd(ability, target.GameObjectId, priority: 3,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = action.Name;
+                context.Debug.DamageState = $"{action.Name} ({context.SenCount} Sen)";
+                context.Debug.LastIaijutsu = type;
 
-            // Training: Record Iaijutsu decision based on type
-            var (description, explanation, tip, conceptId) = GetIaijutsuTrainingInfo(type, context);
-            TrainingHelper.Decision(context.TrainingService)
-                .Action(action.ActionId, action.Name)
-                .AsMeleeDamage()
-                .Target(target.Name?.TextValue ?? "Target")
-                .Reason(description, explanation)
-                .Factors(new[] { $"Sen count: {context.SenCount}", GetSenState(context), "Iaijutsu ready" })
-                .Alternatives(new[] { "Continue building Sen", "Use wrong Sen count" })
-                .Tip(tip)
-                .Concept(conceptId)
-                .Record();
-            context.TrainingService?.RecordConceptApplication("sam_sen_system", true, $"Iaijutsu: {action.Name}");
-
-            return true;
-        }
-
-        return false;
+                var (description, explanation, tip, conceptId) = GetIaijutsuTrainingInfo(type, context);
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(action.ActionId, action.Name)
+                    .AsMeleeDamage()
+                    .Target(target.Name?.TextValue ?? "Target")
+                    .Reason(description, explanation)
+                    .Factors(new[] { $"Sen count: {context.SenCount}", GetSenState(context), "Iaijutsu ready" })
+                    .Alternatives(new[] { "Continue building Sen", "Use wrong Sen count" })
+                    .Tip(tip)
+                    .Concept(conceptId)
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("sam_sen_system", true, $"Iaijutsu: {action.Name}");
+            });
     }
 
     private static (string description, string explanation, string tip, string conceptId) GetIaijutsuTrainingInfo(SAMActions.IaijutsuType type, INikeContext context)
@@ -462,11 +339,7 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                 "Always follow with Tsubame-gaeshi for Kaeshi: Setsugekka.",
                 "Midare → Kaeshi: Setsugekka is your bread-and-butter burst combo.",
                 "sam_iaijutsu"),
-            _ => (
-                "Using Iaijutsu",
-                "Iaijutsu abilities consume Sen to deal high damage.",
-                "Build Sen through combos, spend with Iaijutsu.",
-                "sam_iaijutsu")
+            _ => ("Using Iaijutsu", "Iaijutsu abilities consume Sen.", "Build Sen through combos.", "sam_iaijutsu")
         };
     }
 
@@ -479,60 +352,33 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
         return sen.Count > 0 ? string.Join("+", sen) : "No Sen";
     }
 
-    #endregion
-
-    #region Meikyo Finishers
-
-    private bool TryMeikyoFinisher(INikeContext context, IBattleChara target, int enemyCount)
+    private void TryPushMeikyoFinisher(INikeContext context, RotationScheduler scheduler, IBattleChara target, bool useAoE)
     {
-        var player = context.Player;
-        var level = player.Level;
+        if (!context.HasMeikyoShisui || context.MeikyoStacks <= 0) return;
 
-        // Need Meikyo Shisui active
-        if (!context.HasMeikyoShisui || context.MeikyoStacks <= 0)
-            return false;
-
-        var useAoe = enemyCount >= AoeThreshold;
-
-        if (useAoe)
-        {
-            return TryAoeMeikyoFinisher(context, target);
-        }
-        else
-        {
-            return TrySingleTargetMeikyoFinisher(context, target);
-        }
+        if (useAoE) TryPushAoeMeikyoFinisher(context, scheduler, target);
+        else TryPushSingleTargetMeikyoFinisher(context, scheduler, target);
     }
 
-    private bool TrySingleTargetMeikyoFinisher(INikeContext context, IBattleChara target)
+    private void TryPushSingleTargetMeikyoFinisher(INikeContext context, RotationScheduler scheduler, IBattleChara target)
     {
-        var player = context.Player;
-        var level = player.Level;
+        var level = context.Player.Level;
 
-        // Priority during Meikyo:
-        // 1. Gekko if we don't have Getsu
-        // 2. Kasha if we don't have Ka
-        // 3. Yukikaze if we don't have Setsu
-
-        // Gekko (rear positional)
-        if (!context.HasGetsu && level >= SAMActions.Gekko.MinLevel)
+        if (!context.HasGetsu && level >= SAMActions.Gekko.MinLevel
+            && context.ActionService.IsActionReady(SAMActions.Gekko.ActionId))
         {
-            if (context.ActionService.IsActionReady(SAMActions.Gekko.ActionId))
-            {
-                bool correctPositional = context.IsAtRear || context.HasTrueNorth || context.TargetHasPositionalImmunity;
-                string positionalHint = correctPositional ? "(rear)" : "(WRONG)";
-
-                if (context.ActionService.ExecuteGcd(SAMActions.Gekko, target.GameObjectId))
+            bool correctPositional = context.IsAtRear || context.HasTrueNorth || context.TargetHasPositionalImmunity;
+            scheduler.PushGcd(NikeAbilities.Gekko, target.GameObjectId, priority: 4,
+                onDispatched: _ =>
                 {
                     context.Debug.PlannedAction = SAMActions.Gekko.Name;
-                    context.Debug.DamageState = $"Meikyo Gekko {positionalHint}";
+                    context.Debug.DamageState = $"Meikyo Gekko {(correctPositional ? "(rear)" : "(WRONG)")}";
 
-                    // Training: Record Gekko positional decision
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(SAMActions.Gekko.ActionId, SAMActions.Gekko.Name)
                         .AsPositional(correctPositional, "rear")
                         .Target(target.Name?.TextValue ?? "Target")
-                        .Reason($"Meikyo Gekko for Getsu Sen {positionalHint}",
+                        .Reason($"Meikyo Gekko for Getsu Sen",
                             "Gekko grants Getsu (Moon) Sen and has a rear positional for bonus damage. " +
                             "During Meikyo Shisui, you can use finishers directly without combos.")
                         .Factors(new[] { "Meikyo Shisui active", "Need Getsu Sen", correctPositional ? "At rear" : "Not at rear" })
@@ -541,31 +387,25 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                         .Concept("sam_positionals")
                         .Record();
                     context.TrainingService?.RecordConceptApplication("sam_positionals", correctPositional, "Gekko rear positional");
-
-                    return true;
-                }
-            }
+                });
+            return;
         }
 
-        // Kasha (flank positional)
-        if (!context.HasKa && level >= SAMActions.Kasha.MinLevel)
+        if (!context.HasKa && level >= SAMActions.Kasha.MinLevel
+            && context.ActionService.IsActionReady(SAMActions.Kasha.ActionId))
         {
-            if (context.ActionService.IsActionReady(SAMActions.Kasha.ActionId))
-            {
-                bool correctPositional = context.IsAtFlank || context.HasTrueNorth || context.TargetHasPositionalImmunity;
-                string positionalHint = correctPositional ? "(flank)" : "(WRONG)";
-
-                if (context.ActionService.ExecuteGcd(SAMActions.Kasha, target.GameObjectId))
+            bool correctPositional = context.IsAtFlank || context.HasTrueNorth || context.TargetHasPositionalImmunity;
+            scheduler.PushGcd(NikeAbilities.Kasha, target.GameObjectId, priority: 4,
+                onDispatched: _ =>
                 {
                     context.Debug.PlannedAction = SAMActions.Kasha.Name;
-                    context.Debug.DamageState = $"Meikyo Kasha {positionalHint}";
+                    context.Debug.DamageState = $"Meikyo Kasha {(correctPositional ? "(flank)" : "(WRONG)")}";
 
-                    // Training: Record Kasha positional decision
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(SAMActions.Kasha.ActionId, SAMActions.Kasha.Name)
                         .AsPositional(correctPositional, "flank")
                         .Target(target.Name?.TextValue ?? "Target")
-                        .Reason($"Meikyo Kasha for Ka Sen {positionalHint}",
+                        .Reason($"Meikyo Kasha for Ka Sen",
                             "Kasha grants Ka (Flower) Sen and has a flank positional for bonus damage. " +
                             "During Meikyo Shisui, you can use finishers directly without combos.")
                         .Factors(new[] { "Meikyo Shisui active", "Need Ka Sen", correctPositional ? "At flank" : "Not at flank" })
@@ -574,23 +414,19 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                         .Concept("sam_positionals")
                         .Record();
                     context.TrainingService?.RecordConceptApplication("sam_positionals", correctPositional, "Kasha flank positional");
-
-                    return true;
-                }
-            }
+                });
+            return;
         }
 
-        // Yukikaze
-        if (!context.HasSetsu && level >= SAMActions.Yukikaze.MinLevel)
+        if (!context.HasSetsu && level >= SAMActions.Yukikaze.MinLevel
+            && context.ActionService.IsActionReady(SAMActions.Yukikaze.ActionId))
         {
-            if (context.ActionService.IsActionReady(SAMActions.Yukikaze.ActionId))
-            {
-                if (context.ActionService.ExecuteGcd(SAMActions.Yukikaze, target.GameObjectId))
+            scheduler.PushGcd(NikeAbilities.Yukikaze, target.GameObjectId, priority: 4,
+                onDispatched: _ =>
                 {
                     context.Debug.PlannedAction = SAMActions.Yukikaze.Name;
                     context.Debug.DamageState = "Meikyo Yukikaze";
 
-                    // Training: Record Meikyo Yukikaze decision
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(SAMActions.Yukikaze.ActionId, SAMActions.Yukikaze.Name)
                         .AsMeleeDamage()
@@ -604,24 +440,20 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                         .Concept("sam_meikyo_shisui")
                         .Record();
                     context.TrainingService?.RecordConceptApplication("sam_meikyo_shisui", true, "Meikyo Yukikaze Setsu");
-
-                    return true;
-                }
-            }
+                });
+            return;
         }
 
-        // If we have all Sen, use any finisher to consume Meikyo stacks
-        // Prefer Gekko for damage
-        if (level >= SAMActions.Gekko.MinLevel)
+        // Overflow — all Sen held: prefer Gekko
+        if (level >= SAMActions.Gekko.MinLevel
+            && context.ActionService.IsActionReady(SAMActions.Gekko.ActionId))
         {
-            if (context.ActionService.IsActionReady(SAMActions.Gekko.ActionId))
-            {
-                if (context.ActionService.ExecuteGcd(SAMActions.Gekko, target.GameObjectId))
+            scheduler.PushGcd(NikeAbilities.Gekko, target.GameObjectId, priority: 4,
+                onDispatched: _ =>
                 {
                     context.Debug.PlannedAction = SAMActions.Gekko.Name;
                     context.Debug.DamageState = "Meikyo Gekko (overflow)";
 
-                    // Training: Record overflow Meikyo Gekko decision
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(SAMActions.Gekko.ActionId, SAMActions.Gekko.Name)
                         .AsMeleeDamage()
@@ -635,35 +467,24 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                         .Concept("sam_meikyo_shisui")
                         .Record();
                     context.TrainingService?.RecordConceptApplication("sam_meikyo_shisui", true, "Meikyo overflow Gekko");
-
-                    return true;
-                }
-            }
+                });
         }
-
-        return false;
     }
 
-    private bool TryAoeMeikyoFinisher(INikeContext context, IBattleChara target)
+    private void TryPushAoeMeikyoFinisher(INikeContext context, RotationScheduler scheduler, IBattleChara target)
     {
         var player = context.Player;
         var level = player.Level;
 
-        // AoE Meikyo priority:
-        // 1. Mangetsu if we don't have Getsu (also refreshes Fugetsu)
-        // 2. Oka if we don't have Ka (also refreshes Fuka)
-
-        // Mangetsu
-        if (!context.HasGetsu && level >= SAMActions.Mangetsu.MinLevel)
+        if (!context.HasGetsu && level >= SAMActions.Mangetsu.MinLevel
+            && context.ActionService.IsActionReady(SAMActions.Mangetsu.ActionId))
         {
-            if (context.ActionService.IsActionReady(SAMActions.Mangetsu.ActionId))
-            {
-                if (context.ActionService.ExecuteGcd(SAMActions.Mangetsu, player.GameObjectId))
+            scheduler.PushGcd(NikeAbilities.Mangetsu, player.GameObjectId, priority: 4,
+                onDispatched: _ =>
                 {
                     context.Debug.PlannedAction = SAMActions.Mangetsu.Name;
                     context.Debug.DamageState = "Meikyo Mangetsu";
 
-                    // Training: Record AoE Meikyo Mangetsu decision
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(SAMActions.Mangetsu.ActionId, SAMActions.Mangetsu.Name)
                         .AsAoE(0)
@@ -677,23 +498,19 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                         .Concept("sam_meikyo_shisui")
                         .Record();
                     context.TrainingService?.RecordConceptApplication("sam_meikyo_shisui", true, "AoE Meikyo Mangetsu");
-
-                    return true;
-                }
-            }
+                });
+            return;
         }
 
-        // Oka
-        if (!context.HasKa && level >= SAMActions.Oka.MinLevel)
+        if (!context.HasKa && level >= SAMActions.Oka.MinLevel
+            && context.ActionService.IsActionReady(SAMActions.Oka.ActionId))
         {
-            if (context.ActionService.IsActionReady(SAMActions.Oka.ActionId))
-            {
-                if (context.ActionService.ExecuteGcd(SAMActions.Oka, player.GameObjectId))
+            scheduler.PushGcd(NikeAbilities.Oka, player.GameObjectId, priority: 4,
+                onDispatched: _ =>
                 {
                     context.Debug.PlannedAction = SAMActions.Oka.Name;
                     context.Debug.DamageState = "Meikyo Oka";
 
-                    // Training: Record AoE Meikyo Oka decision
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(SAMActions.Oka.ActionId, SAMActions.Oka.Name)
                         .AsAoE(0)
@@ -707,23 +524,19 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                         .Concept("sam_meikyo_shisui")
                         .Record();
                     context.TrainingService?.RecordConceptApplication("sam_meikyo_shisui", true, "AoE Meikyo Oka");
-
-                    return true;
-                }
-            }
+                });
+            return;
         }
 
-        // Fallback to Mangetsu
-        if (level >= SAMActions.Mangetsu.MinLevel)
+        if (level >= SAMActions.Mangetsu.MinLevel
+            && context.ActionService.IsActionReady(SAMActions.Mangetsu.ActionId))
         {
-            if (context.ActionService.IsActionReady(SAMActions.Mangetsu.ActionId))
-            {
-                if (context.ActionService.ExecuteGcd(SAMActions.Mangetsu, player.GameObjectId))
+            scheduler.PushGcd(NikeAbilities.Mangetsu, player.GameObjectId, priority: 4,
+                onDispatched: _ =>
                 {
                     context.Debug.PlannedAction = SAMActions.Mangetsu.Name;
                     context.Debug.DamageState = "Meikyo Mangetsu (overflow)";
 
-                    // Training: Record AoE overflow Mangetsu decision
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(SAMActions.Mangetsu.ActionId, SAMActions.Mangetsu.Name)
                         .AsAoE(0)
@@ -736,88 +549,55 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                         .Concept("sam_meikyo_shisui")
                         .Record();
                     context.TrainingService?.RecordConceptApplication("sam_meikyo_shisui", true, "AoE Meikyo overflow");
-
-                    return true;
-                }
-            }
+                });
         }
-
-        return false;
     }
 
-    #endregion
-
-    #region Combo Rotation
-
-    private bool TryComboRotation(INikeContext context, IBattleChara target, int enemyCount)
+    private void TryPushComboRotation(INikeContext context, RotationScheduler scheduler, IBattleChara target, int enemyCount, bool useAoE)
     {
-        var player = context.Player;
-        var level = player.Level;
-        var useAoe = enemyCount >= AoeThreshold && level >= SAMActions.Fuga.MinLevel;
+        var level = context.Player.Level;
 
-        // Continue an in-progress AoE combo even if the enemy count dropped below the threshold
-        // mid-chain (e.g. tank pulled a mob out of range). Dropping to single-target after firing
-        // Fuga/Fuko wastes the Sen and buff generation we already committed. BossMod xan/Melee/SAM.cs
-        // does the same: `if (ComboLastMove == AOEStarter && NumAOECircleTargets > 0)`.
-        if (!useAoe && enemyCount > 0 && IsInAoeCombo(context))
-        {
-            useAoe = true;
-        }
+        // Continue an in-progress AoE combo even if the enemy count dropped below threshold mid-chain.
+        if (!useAoE && enemyCount > 0 && IsInAoeCombo(context))
+            useAoE = true;
 
-        if (useAoe)
-        {
-            return TryAoeCombo(context, target);
-        }
-        else
-        {
-            return TrySingleTargetCombo(context, target);
-        }
+        if (useAoE) TryPushAoeCombo(context, scheduler, target);
+        else TryPushSingleTargetCombo(context, scheduler, target);
     }
 
-    /// <summary>
-    /// True when the player just fired the AoE combo starter (Fuga or Fuko) and the combo
-    /// timer has not yet expired. Used to keep the AoE chain going through Mangetsu/Oka even
-    /// if the enemy count drops below the AoE threshold mid-combo.
-    /// </summary>
     private static bool IsInAoeCombo(INikeContext context)
     {
-        if (context.ComboStep == 0)
-            return false;
+        if (context.ComboStep == 0) return false;
         return context.LastComboAction == SAMActions.Fuga.ActionId ||
                context.LastComboAction == SAMActions.Fuko.ActionId;
     }
 
-    private bool TrySingleTargetCombo(INikeContext context, IBattleChara target)
+    private void TryPushSingleTargetCombo(INikeContext context, RotationScheduler scheduler, IBattleChara target)
     {
         var player = context.Player;
         var level = player.Level;
         var comboStep = context.ComboStep;
-
-        // Get combo starter
         var comboStarter = SAMActions.GetComboStarter((byte)level);
+        var starterAbility = comboStarter == SAMActions.Gyofu ? NikeAbilities.Gyofu : NikeAbilities.Hakaze;
 
-        // Combo Step 2 -> Finisher (Gekko, Kasha, or Yukikaze)
+        // Step 2 — finishers
         if (comboStep == 2)
         {
-            // After Jinpu -> Gekko
-            if (context.LastComboAction == SAMActions.Jinpu.ActionId && level >= SAMActions.Gekko.MinLevel)
+            if (context.LastComboAction == SAMActions.Jinpu.ActionId && level >= SAMActions.Gekko.MinLevel
+                && context.ActionService.IsActionReady(SAMActions.Gekko.ActionId))
             {
-                if (context.ActionService.IsActionReady(SAMActions.Gekko.ActionId))
-                {
-                    bool correctPositional = context.IsAtRear || context.HasTrueNorth || context.TargetHasPositionalImmunity;
-                    string positionalHint = correctPositional ? "(rear)" : "(WRONG)";
-
-                    if (context.ActionService.ExecuteGcd(SAMActions.Gekko, target.GameObjectId))
+                bool correctPositional = context.IsAtRear || context.HasTrueNorth || context.TargetHasPositionalImmunity;
+                scheduler.PushGcd(NikeAbilities.Gekko, target.GameObjectId, priority: 6,
+                    onDispatched: _ =>
                     {
                         context.Debug.PlannedAction = SAMActions.Gekko.Name;
-                        context.Debug.DamageState = $"Gekko {positionalHint}";
+                        context.Debug.DamageState = $"Gekko {(correctPositional ? "(rear)" : "(WRONG)")}";
 
-                        // Training: Record Gekko combo finisher
                         TrainingHelper.Decision(context.TrainingService)
                             .Action(SAMActions.Gekko.ActionId, SAMActions.Gekko.Name)
                             .AsPositional(correctPositional, "rear")
                             .Target(target.Name?.TextValue ?? "Target")
-                            .Reason($"Combo finisher Gekko for Getsu Sen {positionalHint}",
+                            .Reason($"Combo finisher Gekko for Getsu Sen",
                                 "Gekko is the finisher after Jinpu. Grants Getsu (Moon) Sen and refreshes Fugetsu buff. " +
                                 "Has a rear positional for bonus damage and extra Kenki.")
                             .Factors(new[] { "Combo step 2 (after Jinpu)", correctPositional ? "At rear" : "Not at rear", "Grants Getsu Sen" })
@@ -826,31 +606,25 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                             .Concept("sam_positionals")
                             .Record();
                         context.TrainingService?.RecordConceptApplication("sam_positionals", correctPositional, "Gekko combo rear");
-
-                        return true;
-                    }
-                }
+                    });
+                return;
             }
 
-            // After Shifu -> Kasha
-            if (context.LastComboAction == SAMActions.Shifu.ActionId && level >= SAMActions.Kasha.MinLevel)
+            if (context.LastComboAction == SAMActions.Shifu.ActionId && level >= SAMActions.Kasha.MinLevel
+                && context.ActionService.IsActionReady(SAMActions.Kasha.ActionId))
             {
-                if (context.ActionService.IsActionReady(SAMActions.Kasha.ActionId))
-                {
-                    bool correctPositional = context.IsAtFlank || context.HasTrueNorth || context.TargetHasPositionalImmunity;
-                    string positionalHint = correctPositional ? "(flank)" : "(WRONG)";
-
-                    if (context.ActionService.ExecuteGcd(SAMActions.Kasha, target.GameObjectId))
+                bool correctPositional = context.IsAtFlank || context.HasTrueNorth || context.TargetHasPositionalImmunity;
+                scheduler.PushGcd(NikeAbilities.Kasha, target.GameObjectId, priority: 6,
+                    onDispatched: _ =>
                     {
                         context.Debug.PlannedAction = SAMActions.Kasha.Name;
-                        context.Debug.DamageState = $"Kasha {positionalHint}";
+                        context.Debug.DamageState = $"Kasha {(correctPositional ? "(flank)" : "(WRONG)")}";
 
-                        // Training: Record Kasha combo finisher
                         TrainingHelper.Decision(context.TrainingService)
                             .Action(SAMActions.Kasha.ActionId, SAMActions.Kasha.Name)
                             .AsPositional(correctPositional, "flank")
                             .Target(target.Name?.TextValue ?? "Target")
-                            .Reason($"Combo finisher Kasha for Ka Sen {positionalHint}",
+                            .Reason($"Combo finisher Kasha for Ka Sen",
                                 "Kasha is the finisher after Shifu. Grants Ka (Flower) Sen and refreshes Fuka buff. " +
                                 "Has a flank positional for bonus damage and extra Kenki.")
                             .Factors(new[] { "Combo step 2 (after Shifu)", correctPositional ? "At flank" : "Not at flank", "Grants Ka Sen" })
@@ -859,253 +633,160 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                             .Concept("sam_positionals")
                             .Record();
                         context.TrainingService?.RecordConceptApplication("sam_positionals", correctPositional, "Kasha combo flank");
-
-                        return true;
-                    }
-                }
+                    });
+                return;
             }
         }
 
-        // Combo Step 1 -> Jinpu, Shifu, or Yukikaze
+        // Step 1 — choose Jinpu/Shifu/Yukikaze
         if (comboStep == 1 && (context.LastComboAction == comboStarter.ActionId || context.LastComboAction == SAMActions.Hakaze.ActionId))
         {
-            // Decide which path to take based on buffs and Sen
-            // Priority: Refresh buffs > Build missing Sen
-
-            // Need Fugetsu buff? -> Jinpu path
-            if ((!context.HasFugetsu || context.FugetsuRemaining < 10f) && level >= SAMActions.Jinpu.MinLevel)
+            if ((!context.HasFugetsu || context.FugetsuRemaining < 10f) && level >= SAMActions.Jinpu.MinLevel
+                && context.ActionService.IsActionReady(SAMActions.Jinpu.ActionId))
             {
-                if (context.ActionService.IsActionReady(SAMActions.Jinpu.ActionId))
-                {
-                    if (context.ActionService.ExecuteGcd(SAMActions.Jinpu, target.GameObjectId))
-                    {
-                        context.Debug.PlannedAction = SAMActions.Jinpu.Name;
-                        context.Debug.DamageState = "Jinpu (Combo 2)";
-
-                        // Training: Record Jinpu for Fugetsu refresh
-                        TrainingHelper.Decision(context.TrainingService)
-                            .Action(SAMActions.Jinpu.ActionId, SAMActions.Jinpu.Name)
-                            .AsMeleeDamage()
-                            .Target(target.Name?.TextValue ?? "Target")
-                            .Reason($"Jinpu to refresh Fugetsu ({(context.HasFugetsu ? $"{context.FugetsuRemaining:F1}s left" : "missing")})",
-                                "Jinpu refreshes Fugetsu (+13% damage up). Keep this buff active at all times. " +
-                                "Follow with Gekko to grant Getsu Sen and deal positional damage.")
-                            .Factors(new[] { "Combo step 2 (after Hakaze/Gyofu)", context.HasFugetsu ? $"Fugetsu {context.FugetsuRemaining:F1}s" : "Fugetsu missing", "Refreshing buff" })
-                            .Alternatives(new[] { "Use Shifu (Fuka more urgent)", "Use Yukikaze (need Setsu faster)" })
-                            .Tip("Keep both Fugetsu and Fuka up. They expire in 40s — refresh before 10s.")
-                            .Concept("sam_fugetsu_fuka")
-                            .Record();
-                        context.TrainingService?.RecordConceptApplication("sam_fugetsu_fuka", true, "Fugetsu refresh via Jinpu");
-
-                        return true;
-                    }
-                }
+                PushComboStep2(context, scheduler, target, SAMActions.Jinpu, NikeAbilities.Jinpu,
+                    $"Jinpu to refresh Fugetsu ({(context.HasFugetsu ? $"{context.FugetsuRemaining:F1}s left" : "missing")})",
+                    "Jinpu refreshes Fugetsu (+13% damage up). Keep this buff active at all times. " +
+                    "Follow with Gekko to grant Getsu Sen and deal positional damage.",
+                    new[] { "Combo step 2 (after Hakaze/Gyofu)", context.HasFugetsu ? $"Fugetsu {context.FugetsuRemaining:F1}s" : "Fugetsu missing", "Refreshing buff" },
+                    "Keep both Fugetsu and Fuka up. They expire in 40s — refresh before 10s.",
+                    "sam_fugetsu_fuka", "Fugetsu refresh via Jinpu");
+                return;
             }
-
-            // Need Fuka buff? -> Shifu path
-            if ((!context.HasFuka || context.FukaRemaining < 10f) && level >= SAMActions.Shifu.MinLevel)
+            if ((!context.HasFuka || context.FukaRemaining < 10f) && level >= SAMActions.Shifu.MinLevel
+                && context.ActionService.IsActionReady(SAMActions.Shifu.ActionId))
             {
-                if (context.ActionService.IsActionReady(SAMActions.Shifu.ActionId))
-                {
-                    if (context.ActionService.ExecuteGcd(SAMActions.Shifu, target.GameObjectId))
-                    {
-                        context.Debug.PlannedAction = SAMActions.Shifu.Name;
-                        context.Debug.DamageState = "Shifu (Combo 2)";
-
-                        // Training: Record Shifu for Fuka refresh
-                        TrainingHelper.Decision(context.TrainingService)
-                            .Action(SAMActions.Shifu.ActionId, SAMActions.Shifu.Name)
-                            .AsMeleeDamage()
-                            .Target(target.Name?.TextValue ?? "Target")
-                            .Reason($"Shifu to refresh Fuka ({(context.HasFuka ? $"{context.FukaRemaining:F1}s left" : "missing")})",
-                                "Shifu refreshes Fuka (+13% haste). Keep this buff active at all times. " +
-                                "Follow with Kasha to grant Ka Sen and deal positional damage.")
-                            .Factors(new[] { "Combo step 2 (after Hakaze/Gyofu)", context.HasFuka ? $"Fuka {context.FukaRemaining:F1}s" : "Fuka missing", "Refreshing buff" })
-                            .Alternatives(new[] { "Use Jinpu (Fugetsu more urgent)", "Use Yukikaze (need Setsu faster)" })
-                            .Tip("Fuka increases GCD speed. Letting it drop costs DPS.")
-                            .Concept("sam_fugetsu_fuka")
-                            .Record();
-                        context.TrainingService?.RecordConceptApplication("sam_fugetsu_fuka", true, "Fuka refresh via Shifu");
-
-                        return true;
-                    }
-                }
+                PushComboStep2(context, scheduler, target, SAMActions.Shifu, NikeAbilities.Shifu,
+                    $"Shifu to refresh Fuka ({(context.HasFuka ? $"{context.FukaRemaining:F1}s left" : "missing")})",
+                    "Shifu refreshes Fuka (+13% haste). Keep this buff active at all times. " +
+                    "Follow with Kasha to grant Ka Sen and deal positional damage.",
+                    new[] { "Combo step 2 (after Hakaze/Gyofu)", context.HasFuka ? $"Fuka {context.FukaRemaining:F1}s" : "Fuka missing", "Refreshing buff" },
+                    "Fuka increases GCD speed. Letting it drop costs DPS.",
+                    "sam_fugetsu_fuka", "Fuka refresh via Shifu");
+                return;
             }
-
-            // Need Setsu? -> Yukikaze
-            if (!context.HasSetsu && level >= SAMActions.Yukikaze.MinLevel)
+            if (!context.HasSetsu && level >= SAMActions.Yukikaze.MinLevel
+                && context.ActionService.IsActionReady(SAMActions.Yukikaze.ActionId))
             {
-                if (context.ActionService.IsActionReady(SAMActions.Yukikaze.ActionId))
-                {
-                    if (context.ActionService.ExecuteGcd(SAMActions.Yukikaze, target.GameObjectId))
-                    {
-                        context.Debug.PlannedAction = SAMActions.Yukikaze.Name;
-                        context.Debug.DamageState = "Yukikaze (Combo 2)";
-
-                        // Training: Record Yukikaze for Setsu Sen
-                        TrainingHelper.Decision(context.TrainingService)
-                            .Action(SAMActions.Yukikaze.ActionId, SAMActions.Yukikaze.Name)
-                            .AsMeleeDamage()
-                            .Target(target.Name?.TextValue ?? "Target")
-                            .Reason("Yukikaze for Setsu Sen (missing)",
-                                "Yukikaze grants Setsu (Snow) Sen when used as a combo finisher. " +
-                                "You need all 3 Sen for Midare Setsugekka. No positional required.")
-                            .Factors(new[] { "Combo step 2", "Setsu Sen missing", "No positional needed" })
-                            .Alternatives(new[] { "Jinpu → Gekko (if Fugetsu low)", "Shifu → Kasha (if Fuka low)" })
-                            .Tip("Yukikaze is the easiest Sen to build — no positional requirement.")
-                            .Concept("sam_sen_system")
-                            .Record();
-                        context.TrainingService?.RecordConceptApplication("sam_sen_system", true, "Setsu Sen via Yukikaze");
-
-                        return true;
-                    }
-                }
+                PushComboStep2(context, scheduler, target, SAMActions.Yukikaze, NikeAbilities.Yukikaze,
+                    "Yukikaze for Setsu Sen (missing)",
+                    "Yukikaze grants Setsu (Snow) Sen when used as a combo finisher. " +
+                    "You need all 3 Sen for Midare Setsugekka. No positional required.",
+                    new[] { "Combo step 2", "Setsu Sen missing", "No positional needed" },
+                    "Yukikaze is the easiest Sen to build — no positional requirement.",
+                    "sam_sen_system", "Setsu Sen via Yukikaze");
+                return;
             }
-
-            // Need Getsu? -> Jinpu path
-            if (!context.HasGetsu && level >= SAMActions.Jinpu.MinLevel)
+            if (!context.HasGetsu && level >= SAMActions.Jinpu.MinLevel
+                && context.ActionService.IsActionReady(SAMActions.Jinpu.ActionId))
             {
-                if (context.ActionService.IsActionReady(SAMActions.Jinpu.ActionId))
-                {
-                    if (context.ActionService.ExecuteGcd(SAMActions.Jinpu, target.GameObjectId))
-                    {
-                        context.Debug.PlannedAction = SAMActions.Jinpu.Name;
-                        context.Debug.DamageState = "Jinpu (for Getsu)";
-
-                        // Training: Record Jinpu for Getsu
-                        TrainingHelper.Decision(context.TrainingService)
-                            .Action(SAMActions.Jinpu.ActionId, SAMActions.Jinpu.Name)
-                            .AsMeleeDamage()
-                            .Target(target.Name?.TextValue ?? "Target")
-                            .Reason("Jinpu to build Getsu Sen (missing)",
-                                "Jinpu leads to Gekko which grants Getsu (Moon) Sen. " +
-                                "Also refreshes Fugetsu buff. Has a rear positional for bonus Kenki.")
-                            .Factors(new[] { "Combo step 2", "Getsu Sen missing", "Fugetsu maintained" })
-                            .Alternatives(new[] { "Shifu (Ka missing and more urgent)" })
-                            .Tip("Jinpu → Gekko (rear) builds Getsu and refreshes Fugetsu.")
-                            .Concept("sam_sen_system")
-                            .Record();
-                        context.TrainingService?.RecordConceptApplication("sam_sen_system", true, "Getsu path via Jinpu");
-
-                        return true;
-                    }
-                }
+                PushComboStep2(context, scheduler, target, SAMActions.Jinpu, NikeAbilities.Jinpu,
+                    "Jinpu to build Getsu Sen (missing)",
+                    "Jinpu leads to Gekko which grants Getsu (Moon) Sen. " +
+                    "Also refreshes Fugetsu buff. Has a rear positional for bonus Kenki.",
+                    new[] { "Combo step 2", "Getsu Sen missing", "Fugetsu maintained" },
+                    "Jinpu → Gekko (rear) builds Getsu and refreshes Fugetsu.",
+                    "sam_sen_system", "Getsu path via Jinpu");
+                return;
             }
-
-            // Need Ka? -> Shifu path
-            if (!context.HasKa && level >= SAMActions.Shifu.MinLevel)
+            if (!context.HasKa && level >= SAMActions.Shifu.MinLevel
+                && context.ActionService.IsActionReady(SAMActions.Shifu.ActionId))
             {
-                if (context.ActionService.IsActionReady(SAMActions.Shifu.ActionId))
-                {
-                    if (context.ActionService.ExecuteGcd(SAMActions.Shifu, target.GameObjectId))
-                    {
-                        context.Debug.PlannedAction = SAMActions.Shifu.Name;
-                        context.Debug.DamageState = "Shifu (for Ka)";
-
-                        // Training: Record Shifu for Ka
-                        TrainingHelper.Decision(context.TrainingService)
-                            .Action(SAMActions.Shifu.ActionId, SAMActions.Shifu.Name)
-                            .AsMeleeDamage()
-                            .Target(target.Name?.TextValue ?? "Target")
-                            .Reason("Shifu to build Ka Sen (missing)",
-                                "Shifu leads to Kasha which grants Ka (Flower) Sen. " +
-                                "Also refreshes Fuka buff. Has a flank positional for bonus Kenki.")
-                            .Factors(new[] { "Combo step 2", "Ka Sen missing", "Fuka maintained" })
-                            .Alternatives(new[] { "Jinpu (Getsu missing and more urgent)" })
-                            .Tip("Shifu → Kasha (flank) builds Ka and refreshes Fuka.")
-                            .Concept("sam_sen_system")
-                            .Record();
-                        context.TrainingService?.RecordConceptApplication("sam_sen_system", true, "Ka path via Shifu");
-
-                        return true;
-                    }
-                }
+                PushComboStep2(context, scheduler, target, SAMActions.Shifu, NikeAbilities.Shifu,
+                    "Shifu to build Ka Sen (missing)",
+                    "Shifu leads to Kasha which grants Ka (Flower) Sen. " +
+                    "Also refreshes Fuka buff. Has a flank positional for bonus Kenki.",
+                    new[] { "Combo step 2", "Ka Sen missing", "Fuka maintained" },
+                    "Shifu → Kasha (flank) builds Ka and refreshes Fuka.",
+                    "sam_sen_system", "Ka path via Shifu");
+                return;
             }
-
-            // Default to Jinpu if nothing specific needed
-            if (level >= SAMActions.Jinpu.MinLevel)
+            // Default to Jinpu
+            if (level >= SAMActions.Jinpu.MinLevel
+                && context.ActionService.IsActionReady(SAMActions.Jinpu.ActionId))
             {
-                if (context.ActionService.IsActionReady(SAMActions.Jinpu.ActionId))
-                {
-                    if (context.ActionService.ExecuteGcd(SAMActions.Jinpu, target.GameObjectId))
-                    {
-                        context.Debug.PlannedAction = SAMActions.Jinpu.Name;
-                        context.Debug.DamageState = "Jinpu (default)";
-
-                        // Training: Record default Jinpu
-                        TrainingHelper.Decision(context.TrainingService)
-                            .Action(SAMActions.Jinpu.ActionId, SAMActions.Jinpu.Name)
-                            .AsMeleeDamage()
-                            .Target(target.Name?.TextValue ?? "Target")
-                            .Reason("Jinpu (combo step 2 — default path)",
-                                "Jinpu leads to Gekko for Getsu Sen and refreshes Fugetsu. " +
-                                "Used as the default mid-combo step when no specific Sen or buff is urgent.")
-                            .Factors(new[] { "Combo step 2", "Buffs maintained", "Default rotation" })
-                            .Alternatives(new[] { "Shifu (if Ka or Fuka more urgent)" })
-                            .Tip("Rotate Jinpu and Shifu paths evenly to maintain both Fugetsu and Fuka.")
-                            .Concept("sam_fugetsu_fuka")
-                            .Record();
-                        context.TrainingService?.RecordConceptApplication("sam_fugetsu_fuka", true, "Default Jinpu path");
-
-                        return true;
-                    }
-                }
+                PushComboStep2(context, scheduler, target, SAMActions.Jinpu, NikeAbilities.Jinpu,
+                    "Jinpu (combo step 2 — default path)",
+                    "Jinpu leads to Gekko for Getsu Sen and refreshes Fugetsu. " +
+                    "Used as the default mid-combo step when no specific Sen or buff is urgent.",
+                    new[] { "Combo step 2", "Buffs maintained", "Default rotation" },
+                    "Rotate Jinpu and Shifu paths evenly to maintain both Fugetsu and Fuka.",
+                    "sam_fugetsu_fuka", "Default Jinpu path");
+                return;
             }
         }
 
-        // Start combo with Hakaze/Gyofu
+        // Combo starter (Hakaze/Gyofu)
         if (context.ActionService.IsActionReady(comboStarter.ActionId))
         {
-            if (context.ActionService.ExecuteGcd(comboStarter, target.GameObjectId))
-            {
-                context.Debug.PlannedAction = comboStarter.Name;
-                context.Debug.DamageState = $"{comboStarter.Name} (Combo 1)";
+            scheduler.PushGcd(starterAbility, target.GameObjectId, priority: 7,
+                onDispatched: _ =>
+                {
+                    context.Debug.PlannedAction = comboStarter.Name;
+                    context.Debug.DamageState = $"{comboStarter.Name} (Combo 1)";
 
-                // Training: Record combo starter
-                TrainingHelper.Decision(context.TrainingService)
-                    .Action(comboStarter.ActionId, comboStarter.Name)
-                    .AsMeleeDamage()
-                    .Target(target.Name?.TextValue ?? "Target")
-                    .Reason($"{comboStarter.Name} — starting single-target combo",
-                        $"{comboStarter.Name} is SAM's combo opener. It leads to Jinpu, Shifu, or Yukikaze. " +
-                        "Always follow up — breaking combo wastes potency.")
-                    .Factors(new[] { "Combo step 1", "No active combo", "Starting rotation" })
-                    .Alternatives(new[] { "Use Meikyo to skip combo (if active)" })
-                    .Tip($"After {comboStarter.Name}: Jinpu → Gekko (rear) or Shifu → Kasha (flank) or Yukikaze.")
-                    .Concept("sam_combo_rotation")
-                    .Record();
-                context.TrainingService?.RecordConceptApplication("sam_combo_rotation", true, $"Combo starter {comboStarter.Name}");
-
-                return true;
-            }
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(comboStarter.ActionId, comboStarter.Name)
+                        .AsMeleeDamage()
+                        .Target(target.Name?.TextValue ?? "Target")
+                        .Reason($"{comboStarter.Name} — starting single-target combo",
+                            $"{comboStarter.Name} is SAM's combo opener. It leads to Jinpu, Shifu, or Yukikaze. " +
+                            "Always follow up — breaking combo wastes potency.")
+                        .Factors(new[] { "Combo step 1", "No active combo", "Starting rotation" })
+                        .Alternatives(new[] { "Use Meikyo to skip combo (if active)" })
+                        .Tip($"After {comboStarter.Name}: Jinpu → Gekko (rear) or Shifu → Kasha (flank) or Yukikaze.")
+                        .Concept("sam_combo_rotation")
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication("sam_combo_rotation", true, $"Combo starter {comboStarter.Name}");
+                });
         }
-
-        return false;
     }
 
-    private bool TryAoeCombo(INikeContext context, IBattleChara target)
+    private static void PushComboStep2(INikeContext context, RotationScheduler scheduler, IBattleChara target,
+                                        ActionDefinition action, AbilityBehavior ability,
+                                        string reason, string explanation, string[] factors, string tip,
+                                        string concept, string conceptApplication)
+    {
+        scheduler.PushGcd(ability, target.GameObjectId, priority: 6,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = action.Name;
+                context.Debug.DamageState = $"{action.Name} (Combo 2)";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(action.ActionId, action.Name)
+                    .AsMeleeDamage()
+                    .Target(target.Name?.TextValue ?? "Target")
+                    .Reason(reason, explanation)
+                    .Factors(factors)
+                    .Alternatives(new[] { "Wait for buff alignment", "Switch combo path" })
+                    .Tip(tip)
+                    .Concept(concept)
+                    .Record();
+                context.TrainingService?.RecordConceptApplication(concept, true, conceptApplication);
+            });
+    }
+
+    private void TryPushAoeCombo(INikeContext context, RotationScheduler scheduler, IBattleChara target)
     {
         var player = context.Player;
         var level = player.Level;
         var comboStep = context.ComboStep;
-
-        // Get AoE combo starter
         var aoeStarter = SAMActions.GetAoeComboStarter((byte)level);
+        var starterAbility = aoeStarter == SAMActions.Fuko ? NikeAbilities.Fuko : NikeAbilities.Fuga;
 
-        // Combo Step 1 -> Mangetsu or Oka
+        // Step 1 → Mangetsu/Oka
         if (comboStep == 1 && (context.LastComboAction == aoeStarter.ActionId || context.LastComboAction == SAMActions.Fuga.ActionId))
         {
-            // Need Fugetsu or Getsu? -> Mangetsu
-            if ((!context.HasFugetsu || !context.HasGetsu) && level >= SAMActions.Mangetsu.MinLevel)
+            if ((!context.HasFugetsu || !context.HasGetsu) && level >= SAMActions.Mangetsu.MinLevel
+                && context.ActionService.IsActionReady(SAMActions.Mangetsu.ActionId))
             {
-                if (context.ActionService.IsActionReady(SAMActions.Mangetsu.ActionId))
-                {
-                    if (context.ActionService.ExecuteGcd(SAMActions.Mangetsu, player.GameObjectId))
+                scheduler.PushGcd(NikeAbilities.Mangetsu, player.GameObjectId, priority: 6,
+                    onDispatched: _ =>
                     {
                         context.Debug.PlannedAction = SAMActions.Mangetsu.Name;
                         context.Debug.DamageState = "Mangetsu (AoE 2)";
 
-                        // Training: Record AoE Mangetsu combo step
                         TrainingHelper.Decision(context.TrainingService)
                             .Action(SAMActions.Mangetsu.ActionId, SAMActions.Mangetsu.Name)
                             .AsAoE(0)
@@ -1119,23 +800,18 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                             .Concept("sam_aoe_rotation")
                             .Record();
                         context.TrainingService?.RecordConceptApplication("sam_aoe_rotation", true, "AoE Mangetsu combo");
-
-                        return true;
-                    }
-                }
+                    });
+                return;
             }
-
-            // Need Fuka or Ka? -> Oka
-            if ((!context.HasFuka || !context.HasKa) && level >= SAMActions.Oka.MinLevel)
+            if ((!context.HasFuka || !context.HasKa) && level >= SAMActions.Oka.MinLevel
+                && context.ActionService.IsActionReady(SAMActions.Oka.ActionId))
             {
-                if (context.ActionService.IsActionReady(SAMActions.Oka.ActionId))
-                {
-                    if (context.ActionService.ExecuteGcd(SAMActions.Oka, player.GameObjectId))
+                scheduler.PushGcd(NikeAbilities.Oka, player.GameObjectId, priority: 6,
+                    onDispatched: _ =>
                     {
                         context.Debug.PlannedAction = SAMActions.Oka.Name;
                         context.Debug.DamageState = "Oka (AoE 2)";
 
-                        // Training: Record AoE Oka combo step
                         TrainingHelper.Decision(context.TrainingService)
                             .Action(SAMActions.Oka.ActionId, SAMActions.Oka.Name)
                             .AsAoE(0)
@@ -1149,23 +825,19 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                             .Concept("sam_aoe_rotation")
                             .Record();
                         context.TrainingService?.RecordConceptApplication("sam_aoe_rotation", true, "AoE Oka combo");
-
-                        return true;
-                    }
-                }
+                    });
+                return;
             }
-
-            // Default to Mangetsu
-            if (level >= SAMActions.Mangetsu.MinLevel)
+            // Default Mangetsu
+            if (level >= SAMActions.Mangetsu.MinLevel
+                && context.ActionService.IsActionReady(SAMActions.Mangetsu.ActionId))
             {
-                if (context.ActionService.IsActionReady(SAMActions.Mangetsu.ActionId))
-                {
-                    if (context.ActionService.ExecuteGcd(SAMActions.Mangetsu, player.GameObjectId))
+                scheduler.PushGcd(NikeAbilities.Mangetsu, player.GameObjectId, priority: 6,
+                    onDispatched: _ =>
                     {
                         context.Debug.PlannedAction = SAMActions.Mangetsu.Name;
                         context.Debug.DamageState = "Mangetsu (default)";
 
-                        // Training: Record default AoE Mangetsu
                         TrainingHelper.Decision(context.TrainingService)
                             .Action(SAMActions.Mangetsu.ActionId, SAMActions.Mangetsu.Name)
                             .AsAoE(0)
@@ -1178,41 +850,35 @@ public sealed class DamageModule : BaseDpsDamageModule<INikeContext>, INikeModul
                             .Concept("sam_aoe_rotation")
                             .Record();
                         context.TrainingService?.RecordConceptApplication("sam_aoe_rotation", true, "AoE default Mangetsu");
-
-                        return true;
-                    }
-                }
+                    });
+                return;
             }
         }
 
-        // Start AoE combo with Fuko/Fuga
+        // AoE combo starter
         if (context.ActionService.IsActionReady(aoeStarter.ActionId))
         {
-            if (context.ActionService.ExecuteGcd(aoeStarter, player.GameObjectId))
-            {
-                context.Debug.PlannedAction = aoeStarter.Name;
-                context.Debug.DamageState = $"{aoeStarter.Name} (AoE 1)";
+            scheduler.PushGcd(starterAbility, player.GameObjectId, priority: 7,
+                onDispatched: _ =>
+                {
+                    context.Debug.PlannedAction = aoeStarter.Name;
+                    context.Debug.DamageState = $"{aoeStarter.Name} (AoE 1)";
 
-                // Training: Record AoE combo starter
-                TrainingHelper.Decision(context.TrainingService)
-                    .Action(aoeStarter.ActionId, aoeStarter.Name)
-                    .AsAoE(0)
-                    .Target("Nearby enemies")
-                    .Reason($"{aoeStarter.Name} — starting AoE combo",
-                        $"{aoeStarter.Name} is the AoE combo opener. Follow with Mangetsu (Getsu) or Oka (Ka). " +
-                        "Use instead of single-target combo at 3+ enemies.")
-                    .Factors(new[] { "AoE combo step 1", "Multiple enemies", "Starting AoE rotation" })
-                    .Alternatives(new[] { "Use Hakaze/Gyofu (fewer enemies)" })
-                    .Tip($"AoE opener: {aoeStarter.Name} → Mangetsu or Oka → Tenka Goken.")
-                    .Concept("sam_aoe_rotation")
-                    .Record();
-                context.TrainingService?.RecordConceptApplication("sam_aoe_rotation", true, $"AoE starter {aoeStarter.Name}");
-
-                return true;
-            }
+                    TrainingHelper.Decision(context.TrainingService)
+                        .Action(aoeStarter.ActionId, aoeStarter.Name)
+                        .AsAoE(0)
+                        .Target("Nearby enemies")
+                        .Reason($"{aoeStarter.Name} — starting AoE combo",
+                            $"{aoeStarter.Name} is the AoE combo opener. Follow with Mangetsu (Getsu) or Oka (Ka). " +
+                            "Use instead of single-target combo at 3+ enemies.")
+                        .Factors(new[] { "AoE combo step 1", "Multiple enemies", "Starting AoE rotation" })
+                        .Alternatives(new[] { "Use Hakaze/Gyofu (fewer enemies)" })
+                        .Tip($"AoE opener: {aoeStarter.Name} → Mangetsu or Oka → Tenka Goken.")
+                        .Concept("sam_aoe_rotation")
+                        .Record();
+                    context.TrainingService?.RecordConceptApplication("sam_aoe_rotation", true, $"AoE starter {aoeStarter.Name}");
+                });
         }
-
-        return false;
     }
 
     #endregion
