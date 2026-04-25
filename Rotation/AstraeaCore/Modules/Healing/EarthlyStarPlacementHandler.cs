@@ -3,8 +3,9 @@ using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Helpers;
-using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.AstraeaCore.Abilities;
 using Olympus.Rotation.AstraeaCore.Context;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AstraeaCore.Modules.Healing;
@@ -21,71 +22,43 @@ public sealed class EarthlyStarPlacementHandler : IHealingHandler
         "Save for emergency healing",
     };
 
-    public bool TryExecute(IAstraeaContext context, bool isMoving)
-        => TryEarthlyStarPlacement(context);
+    public bool TryExecute(IAstraeaContext context, bool isMoving) => false;
 
-    private bool TryEarthlyStarPlacement(IAstraeaContext context)
+    public void CollectCandidates(IAstraeaContext context, RotationScheduler scheduler, bool isMoving)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
 
-        if (!config.EnableEarthlyStar)
-            return false;
+        if (!config.EnableEarthlyStar) return;
+        if (config.StarPlacement == EarthlyStarPlacementStrategy.Manual) return;
+        if (player.Level < ASTActions.EarthlyStar.MinLevel) return;
+        if (context.IsStarPlaced) return;
+        if (!context.ActionService.IsActionReady(ASTActions.EarthlyStar.ActionId)) return;
 
-        if (config.StarPlacement == Config.EarthlyStarPlacementStrategy.Manual)
-            return false;
-
-        if (player.Level < ASTActions.EarthlyStar.MinLevel)
-            return false;
-
-        // Don't place if star is already active
-        if (context.IsStarPlaced)
-            return false;
-
-        if (!context.ActionService.IsActionReady(ASTActions.EarthlyStar.ActionId))
-            return false;
-
-        // Timeline-aware: proactively place before raidwides
-        // Earthly Star needs ~10s to mature for full Giant Dominance potency
         var raidwideImminent = TimelineHelper.IsRaidwideImminent(
-            context.TimelineService,
-            context.BossMechanicDetector,
-            context.Configuration,
-            out _,
-            windowSeconds: 12f); // Longer window for Star maturation
+            context.TimelineService, context.BossMechanicDetector, context.Configuration,
+            out _, windowSeconds: 12f);
 
-        // Burst awareness: Place Earthly Star proactively before burst windows
-        // Star needs ~10s to mature, so place 8-12s before burst
         var burstImminent = false;
         var coordConfig = context.Configuration.PartyCoordination;
         var partyCoord = context.PartyCoordinationService;
-        if (coordConfig.EnableHealerBurstAwareness &&
-            coordConfig.PreferShieldsBeforeBurst &&
-            partyCoord != null)
+        if (coordConfig.EnableHealerBurstAwareness && coordConfig.PreferShieldsBeforeBurst && partyCoord != null)
         {
             var burstState = partyCoord.GetBurstWindowState();
-            // Place Star 8-12 seconds before burst for maturation
             if (burstState.IsImminent && burstState.SecondsUntilBurst >= 8f && burstState.SecondsUntilBurst <= 12f)
-            {
                 burstImminent = true;
-            }
         }
 
-        // Only place proactively if raidwide or burst is imminent
-        // Otherwise, rely on reactive placement when party HP drops
         if (!raidwideImminent && !burstImminent)
         {
-            // Reactive placement: only place if party needs healing
             var (avgHp, _, _) = context.PartyHealthMetrics;
-            if (avgHp > config.EarthlyStarDetonateThreshold)
-                return false;
+            if (avgHp > config.EarthlyStarDetonateThreshold) return;
         }
 
-        // Determine placement position (Earthly Star is ground-targeted, not entity-targeted)
         var targetPosition = player.Position;
         var targetName = "Self";
 
-        if (config.StarPlacement == Config.EarthlyStarPlacementStrategy.OnMainTank)
+        if (config.StarPlacement == EarthlyStarPlacementStrategy.OnMainTank)
         {
             var tank = context.PartyHelper.FindTankInParty(player);
             if (tank != null)
@@ -95,71 +68,67 @@ public sealed class EarthlyStarPlacementHandler : IHealingHandler
             }
         }
 
-        // Check if another Olympus healer already has a ground effect in this area
         if (partyCoord?.WouldOverlapWithRemoteGroundEffect(
-            targetPosition,
-            ASTActions.EarthlyStar.ActionId,
+            targetPosition, ASTActions.EarthlyStar.ActionId,
             coordConfig.GroundEffectOverlapThreshold) == true)
         {
             context.Debug.EarthlyStarState = "Skipped (area covered)";
-            return false;
+            return;
         }
 
+        var capturedPosition = targetPosition;
+        var capturedTargetName = targetName;
+        var capturedRaidwideImminent = raidwideImminent;
+        var capturedBurstImminent = burstImminent;
         var action = ASTActions.EarthlyStar;
-        if (context.ActionService.ExecuteGroundTargetedOgcd(action, targetPosition))
-        {
-            // Notify service for state tracking
-            context.EarthlyStarService.OnStarPlaced(targetPosition);
 
-            // Broadcast ground effect placement to other Olympus instances
-            partyCoord?.OnGroundEffectPlaced(action.ActionId, targetPosition);
-
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.EarthlyStarState = "Placed";
-            var reason = raidwideImminent ? "Raidwide imminent" : (burstImminent ? "Burst imminent" : "Reactive");
-            context.LogEarthlyStarDecision("Placed", $"{config.StarPlacement} ({targetName}) - {reason}");
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushGroundTargetedOgcd(AstraeaAbilities.EarthlyStar, targetPosition, priority: Priority,
+            onDispatched: _ =>
             {
-                var (avgHp, _, _) = context.PartyHealthMetrics;
-                var shortReason = raidwideImminent
-                    ? $"Earthly Star placed - raidwide in ~10s!"
-                    : burstImminent
-                        ? $"Earthly Star placed - burst phase in ~10s"
-                        : $"Earthly Star placed at {targetName}";
+                context.EarthlyStarService.OnStarPlaced(capturedPosition);
+                partyCoord?.OnGroundEffectPlaced(action.ActionId, capturedPosition);
 
-                var factors = new[]
+                context.Debug.PlannedAction = action.Name;
+                context.Debug.EarthlyStarState = "Placed";
+                var reason = capturedRaidwideImminent ? "Raidwide imminent" : (capturedBurstImminent ? "Burst imminent" : "Reactive");
+                context.LogEarthlyStarDecision("Placed", $"{config.StarPlacement} ({capturedTargetName}) - {reason}");
+
+                if (context.TrainingService?.IsTrainingEnabled == true)
                 {
-                    $"Placement: {config.StarPlacement} ({targetName})",
-                    reason,
-                    "Needs 10s to mature for Giant Dominance",
-                    "Mature: 720 potency heal + 720 damage",
-                    "Immature: 360 potency heal + 360 damage",
-                };
+                    var (avgHp, _, _) = context.PartyHealthMetrics;
+                    var shortReason = capturedRaidwideImminent
+                        ? $"Earthly Star placed - raidwide in ~10s!"
+                        : capturedBurstImminent
+                            ? $"Earthly Star placed - burst phase in ~10s"
+                            : $"Earthly Star placed at {capturedTargetName}";
 
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = action.ActionId,
-                    ActionName = "Earthly Star",
-                    Category = "Healing",
-                    TargetName = targetName,
-                    ShortReason = shortReason,
-                    DetailedReason = $"Earthly Star placed at {targetName}'s position. {reason}. Star needs 10 seconds to mature into Giant Dominance (720 potency heal + damage). Placing proactively ensures it's ready when the party needs healing. {config.StarPlacement} strategy places star where it will hit the most party members.",
-                    Factors = factors,
-                    Alternatives = _alternatives,
-                    Tip = "Earthly Star is AST's strongest AoE heal when mature. Place it ~10s before you need it! Don't sit on cooldown - even immature detonation is better than not using it.",
-                    ConceptId = AstConcepts.EarthlyStarPlacement,
-                    Priority = raidwideImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
-                });
+                    var factors = new[]
+                    {
+                        $"Placement: {config.StarPlacement} ({capturedTargetName})",
+                        reason,
+                        "Needs 10s to mature for Giant Dominance",
+                        "Mature: 720 potency heal + 720 damage",
+                        "Immature: 360 potency heal + 360 damage",
+                    };
 
-                context.TrainingService?.RecordConceptApplication(AstConcepts.EarthlyStarPlacement, wasSuccessful: raidwideImminent || burstImminent, raidwideImminent ? "Proactive raidwide placement" : burstImminent ? "Burst window placement" : "Reactive placement");
-            }
+                    context.TrainingService.RecordDecision(new ActionExplanation
+                    {
+                        Timestamp = DateTime.UtcNow,
+                        ActionId = action.ActionId,
+                        ActionName = "Earthly Star",
+                        Category = "Healing",
+                        TargetName = capturedTargetName,
+                        ShortReason = shortReason,
+                        DetailedReason = $"Earthly Star placed at {capturedTargetName}'s position. {reason}. Star needs 10 seconds to mature into Giant Dominance (720 potency heal + damage). Placing proactively ensures it's ready when the party needs healing. {config.StarPlacement} strategy places star where it will hit the most party members.",
+                        Factors = factors,
+                        Alternatives = _alternatives,
+                        Tip = "Earthly Star is AST's strongest AoE heal when mature. Place it ~10s before you need it! Don't sit on cooldown - even immature detonation is better than not using it.",
+                        ConceptId = AstConcepts.EarthlyStarPlacement,
+                        Priority = capturedRaidwideImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
+                    });
 
-            return true;
-        }
-
-        return false;
+                    context.TrainingService?.RecordConceptApplication(AstConcepts.EarthlyStarPlacement, wasSuccessful: capturedRaidwideImminent || capturedBurstImminent, capturedRaidwideImminent ? "Proactive raidwide placement" : capturedBurstImminent ? "Burst window placement" : "Reactive placement");
+                }
+            });
     }
 }

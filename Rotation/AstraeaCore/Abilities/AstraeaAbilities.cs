@@ -41,6 +41,9 @@ public static class AstraeaAbilities
     public static readonly AbilityBehavior Microcosmos = new() { Action = ASTActions.Microcosmos };
     public static readonly AbilityBehavior StellarDetonation = new() { Action = ASTActions.StellarDetonation };
     public static readonly AbilityBehavior Synastry = new() { Action = ASTActions.Synastry };
+    public static readonly AbilityBehavior EarthlyStar = new() { Action = ASTActions.EarthlyStar };
+    public static readonly AbilityBehavior LadyOfCrowns = new() { Action = ASTActions.LadyOfCrowns };
+    public static readonly AbilityBehavior Horoscope = new() { Action = ASTActions.Horoscope };
     public static readonly AbilityBehavior Macrocosmos = new() { Action = ASTActions.Macrocosmos };
     public static readonly AbilityBehavior Helios = new() { Action = ASTActions.Helios };
     public static readonly AbilityBehavior AspectedHelios = new() { Action = ASTActions.AspectedHelios };

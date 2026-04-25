@@ -6,27 +6,21 @@ using Olympus.Rotation.Common.Scheduling;
 namespace Olympus.Rotation.AstraeaCore.Modules;
 
 /// <summary>
-/// Coordinates healing for Astrologian. Most handlers are migrated to scheduler push.
-/// EarthlyStarPlacement (ground-targeted), LadyOfCrowns (priority 60), and
-/// HoroscopePreparation (priority 65) remain on legacy TryExecute. Both migrated
-/// CollectCandidates and legacy TryExecute paths are wired up; the rotation's
-/// ExecuteModules handles which fires when.
+/// Coordinates healing for Astrologian. All 17 healing handlers are now scheduler-driven —
+/// EarthlyStarPlacement uses PushGroundTargetedOgcd, the rest push regular oGCD/GCD candidates.
 /// </summary>
 public sealed class HealingModule : IAstraeaModule
 {
-    private readonly List<IHealingHandler> _allHandlers;
-    private readonly List<IHealingHandler> _ogcdLegacyHandlers;
+    private readonly List<IHealingHandler> _handlers;
 
     public int Priority => 10;
     public string Name => "Healing";
 
     public HealingModule()
     {
-        var preemptive = new PreemptiveHealingHandler();
-
-        _allHandlers = new List<IHealingHandler>
+        _handlers = new List<IHealingHandler>
         {
-            preemptive,
+            new PreemptiveHealingHandler(),
             new EsunaHandler(),
             new EssentialDignityHandler(),
             new CelestialIntersectionHandler(),
@@ -36,35 +30,17 @@ public sealed class HealingModule : IAstraeaModule
             new MicrocosmosHandler(),
             new EarthlyStarDetonationHandler(),
             new SynastryHandler(),
+            new EarthlyStarPlacementHandler(),
+            new LadyOfCrownsHandler(),
+            new HoroscopePreparationHandler(),
             new MacrocosmosHandler(),
             new AoEHealingHandler(),
             new AspectedBeneficHandler(),
             new SingleTargetHandler(),
         };
-
-        // Legacy oGCD handlers (priorities 50, 60, 65) — fire only when scheduler doesn't dispatch
-        _ogcdLegacyHandlers = new List<IHealingHandler>
-        {
-            new EarthlyStarPlacementHandler(),  // 50 — ground-targeted
-            new LadyOfCrownsHandler(),          // 60 — preserve order
-            new HoroscopePreparationHandler(),  // 65 — preserve order
-        };
-        _ogcdLegacyHandlers.Sort((a, b) => a.Priority.CompareTo(b.Priority));
     }
 
-    public bool TryExecute(IAstraeaContext context, bool isMoving)
-    {
-        if (!context.InCombat) return false;
-        if (!context.Configuration.EnableHealing) return false;
-
-        if (context.CanExecuteOgcd)
-        {
-            foreach (var h in _ogcdLegacyHandlers)
-                if (h.TryExecute(context, isMoving)) return true;
-        }
-
-        return false;
-    }
+    public bool TryExecute(IAstraeaContext context, bool isMoving) => false;
 
     public void CollectCandidates(IAstraeaContext context, RotationScheduler scheduler, bool isMoving)
     {
@@ -72,7 +48,7 @@ public sealed class HealingModule : IAstraeaModule
         if (!context.InCombat) return;
         if (!context.Configuration.EnableHealing) return;
 
-        foreach (var handler in _allHandlers)
+        foreach (var handler in _handlers)
             handler.CollectCandidates(context, scheduler, isMoving);
     }
 
