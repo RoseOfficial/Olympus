@@ -63,4 +63,17 @@ public static class AstraeaAbilities
     // --- Damage oGCDs ---
     public static readonly AbilityBehavior Oracle = new() { Action = ASTActions.Oracle };
     public static readonly AbilityBehavior LordOfCrowns = new() { Action = ASTActions.LordOfCrowns };
+
+    // --- Cards ---
+    public static readonly AbilityBehavior Divination = new() { Action = ASTActions.Divination };
+    public static readonly AbilityBehavior Astrodyne = new() { Action = ASTActions.Astrodyne };
+    public static readonly AbilityBehavior AstralDraw = new() { Action = ASTActions.AstralDraw };
+    public static readonly AbilityBehavior UmbralDraw = new() { Action = ASTActions.UmbralDraw };
+    public static readonly AbilityBehavior MinorArcana = new() { Action = ASTActions.MinorArcana };
+    public static readonly AbilityBehavior TheBalance = new() { Action = ASTActions.TheBalance };
+    public static readonly AbilityBehavior TheBole = new() { Action = ASTActions.TheBole };
+    public static readonly AbilityBehavior TheArrow = new() { Action = ASTActions.TheArrow };
+    public static readonly AbilityBehavior TheSpear = new() { Action = ASTActions.TheSpear };
+    public static readonly AbilityBehavior TheEwer = new() { Action = ASTActions.TheEwer };
+    public static readonly AbilityBehavior TheSpire = new() { Action = ASTActions.TheSpire };
 }

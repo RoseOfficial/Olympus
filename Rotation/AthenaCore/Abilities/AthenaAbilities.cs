@@ -55,4 +55,14 @@ public static class AthenaAbilities
 
     // --- Damage GCDs ---
     public static readonly AbilityBehavior RuinII = new() { Action = SCHActions.RuinII };
+
+    // --- Fairy ---
+    public static readonly AbilityBehavior SummonEos = new() { Action = SCHActions.SummonEos };
+    public static readonly AbilityBehavior Seraphism = new() { Action = SCHActions.Seraphism };
+    public static readonly AbilityBehavior SummonSeraph = new() { Action = SCHActions.SummonSeraph };
+    public static readonly AbilityBehavior Consolation = new() { Action = SCHActions.Consolation };
+    public static readonly AbilityBehavior FeyUnion = new() { Action = SCHActions.FeyUnion };
+    public static readonly AbilityBehavior FeyBlessing = new() { Action = SCHActions.FeyBlessing };
+    public static readonly AbilityBehavior WhisperingDawn = new() { Action = SCHActions.WhisperingDawn };
+    public static readonly AbilityBehavior FeyIllumination = new() { Action = SCHActions.FeyIllumination };
 }

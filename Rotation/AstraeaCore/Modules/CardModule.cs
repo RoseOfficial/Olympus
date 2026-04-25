@@ -1,116 +1,56 @@
 using System;
+using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
+using Olympus.Rotation.AstraeaCore.Abilities;
 using Olympus.Rotation.AstraeaCore.Context;
 using Olympus.Rotation.AstraeaCore.Helpers;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AstraeaCore.Modules;
 
 /// <summary>
-/// Handles card system for the Astrologian rotation.
-/// Includes Draw, Play, Minor Arcana, Astrodyne, and Divination.
-/// DPS-focused strategy: play cards on highest-contributing DPS members.
+/// Handles card system for the Astrologian rotation (scheduler-driven).
+/// Push priorities are 0-9 so card play wins against Resurrection (1-2) when needed.
+/// PlayCard pushes all 6 specific card actions; the scheduler dispatches whichever the
+/// game allows (only the actually-drawn card succeeds at UseAction).
 /// </summary>
 public sealed class CardModule : IAstraeaModule
 {
-    public int Priority => 3; // Very high priority - cards should be played immediately
+    public int Priority => 3;
     public string Name => "Card";
 
-    // Training explanation arrays
-    private static readonly string[] _divinationFactors =
-    {
-        "6% damage buff for party",
-        "15s duration",
-        "120s cooldown",
-        "Used on cooldown in combat",
-        "Aligns with other raid buffs",
-    };
+    public bool TryExecute(IAstraeaContext context, bool isMoving) => false;
 
-    private static readonly string[] _divinationAlternatives =
-    {
-        "Hold for burst window alignment",
-        "Wait for more party members in range",
-        "Coordinate with other AST if present",
-    };
-
-    private static readonly string[] _playCardAlternatives =
-    {
-        "Play on different target",
-        "Hold for higher DPS player",
-        "Redraw for different card (if available)",
-    };
-
-    private static readonly string[] _drawAlternatives =
-    {
-        "Wait for current cards to be played",
-        "Save draw charges for burst windows",
-        "Let timer expire (not recommended)",
-    };
-
-    private static readonly string[] _minorArcanaAlternatives =
-    {
-        "Save for emergency (Lady)",
-        "Align with burst windows",
-        "Use Lord immediately for damage",
-    };
-
-    public bool TryExecute(IAstraeaContext context, bool isMoving)
+    public void CollectCandidates(IAstraeaContext context, RotationScheduler scheduler, bool isMoving)
     {
         var config = context.Configuration.Astrologian;
-        var player = context.Player;
+        if (!config.EnableCards) return;
 
-        if (!config.EnableCards)
-            return false;
-
-        // Only execute card abilities as oGCDs
-        if (!context.CanExecuteOgcd)
-            return false;
-
-        // Priority 1: Divination (party damage buff) - use during burst windows
-        if (TryDivination(context))
-            return true;
-
-        // Priority 2: Astrodyne (consume 3 seals for buff)
-        if (TryAstrodyne(context))
-            return true;
-
-        // Priority 3: Play held card
-        if (TryPlayCard(context))
-            return true;
-
-        // Priority 4: Draw a new card
-        if (TryDraw(context))
-            return true;
-
-        // Priority 5: Minor Arcana (if we want to use Lord for damage or have excess cards)
-        if (TryMinorArcana(context))
-            return true;
-
-        return false;
+        TryPushDivination(context, scheduler);
+        TryPushAstrodyne(context, scheduler);
+        TryPushPlayCard(context, scheduler);
+        TryPushDraw(context, scheduler);
+        TryPushMinorArcana(context, scheduler);
     }
 
     public void UpdateDebugState(IAstraeaContext context)
     {
-        // Update card state from service (Dawntrail: 4 cards in hand)
         context.Debug.CurrentCardType = context.CurrentCard.ToString();
         context.Debug.MinorArcanaType = context.MinorArcana.ToString();
         context.Debug.SealCount = context.SealCount;
         context.Debug.UniqueSealCount = context.UniqueSealCount;
 
-        // Update card state with Dawntrail info - include raw types for debugging
-        // Astral cards (Balance, Bole, Arrow) = Play I for melee
-        // Umbral cards (Spear, Ewer, Spire) = Play II for ranged
         var totalCards = context.TotalCardsInHand;
-        var astralCount = context.BalanceCount;  // Renamed: counts all astral cards
-        var umbralCount = context.SpearCount;    // Renamed: counts all umbral cards
+        var astralCount = context.BalanceCount;
+        var umbralCount = context.SpearCount;
         var rawTypes = context.CardService.RawCardTypes;
         context.Debug.CardState = totalCards > 0
             ? $"{totalCards} cards ({astralCount} Astral/{umbralCount} Umbral) Raw: {rawTypes}"
             : "No cards";
 
-        // Update draw state
         if (context.HasCard)
             context.Debug.DrawState = $"Cards: {astralCount} Astral, {umbralCount} Umbral";
         else if (context.ActionService.IsActionReady(ASTActions.AstralDraw.ActionId))
@@ -118,10 +58,8 @@ public sealed class CardModule : IAstraeaModule
         else
             context.Debug.DrawState = "On Cooldown";
 
-        // Update Astrodyne state (removed in Dawntrail)
         context.Debug.AstrodyneState = "N/A (Dawntrail)";
 
-        // Update Divination state
         if (context.HasDivining)
             context.Debug.DivinationState = "Oracle Ready";
         else if (context.ActionService.IsActionReady(ASTActions.Divination.ActionId))
@@ -130,423 +68,140 @@ public sealed class CardModule : IAstraeaModule
             context.Debug.DivinationState = "On Cooldown";
     }
 
-    #region Card Actions
-
-    private bool TryDivination(IAstraeaContext context)
+    private void TryPushDivination(IAstraeaContext context, RotationScheduler scheduler)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
 
-        if (!config.EnableDivination)
-            return false;
+        if (!config.EnableDivination) return;
+        if (player.Level < ASTActions.Divination.MinLevel) return;
+        if (!context.ActionService.IsActionReady(ASTActions.Divination.ActionId)) return;
+        if (!context.InCombat) return;
 
-        if (player.Level < ASTActions.Divination.MinLevel)
-            return false;
-
-        if (!context.ActionService.IsActionReady(ASTActions.Divination.ActionId))
-            return false;
-
-        // Use Divination on cooldown during combat
-        // Could be enhanced with burst window detection
-        if (!context.InCombat)
-            return false;
-
-        var action = ASTActions.Divination;
-        if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.DivinationState = "Used";
-            context.LogCardDecision("Divination", "Party", "Party damage buff");
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushOgcd(AstraeaAbilities.Divination, player.GameObjectId, priority: 0,
+            onDispatched: _ =>
             {
-                var shortReason = "Divination - 6% party damage buff!";
-
-                var factors = _divinationFactors;
-                var alternatives = _divinationAlternatives;
-
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = action.ActionId,
-                    ActionName = "Divination",
-                    Category = "Buff",
-                    TargetName = "Party",
-                    ShortReason = shortReason,
-                    DetailedReason = "Divination provides 6% damage buff to all party members in range for 15 seconds. This is AST's main raid contribution beyond healing. Use it on cooldown during burst windows, or align with other 2-minute raid buffs for maximum party DPS.",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = "Divination is your biggest DPS contribution! Try to align it with other 2-minute buffs like Battle Litany, Battle Voice, Chain Stratagem, etc. Don't hold it too long - losing a use is worse than imperfect alignment.",
-                    ConceptId = AstConcepts.DivinationTiming,
-                    Priority = ExplanationPriority.High,
-                });
-
+                context.Debug.PlannedAction = ASTActions.Divination.Name;
+                context.Debug.DivinationState = "Used";
+                context.LogCardDecision("Divination", "Party", "Party damage buff");
                 context.TrainingService?.RecordConceptApplication(AstConcepts.DivinationTiming, wasSuccessful: true, "Divination burst buff deployed");
-            }
-
-            return true;
-        }
-
-        return false;
+            });
     }
 
-    private bool TryAstrodyne(IAstraeaContext context)
+    private void TryPushAstrodyne(IAstraeaContext context, RotationScheduler scheduler)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
 
-        if (!config.EnableAstrodyne)
-            return false;
+        if (!config.EnableAstrodyne) return;
+        if (player.Level < ASTActions.Astrodyne.MinLevel) return;
+        if (!context.CanUseAstrodyne) return;
+        if (context.UniqueSealCount < config.AstrodyneMinSeals) return;
+        if (!context.ActionService.IsActionReady(ASTActions.Astrodyne.ActionId)) return;
 
-        if (player.Level < ASTActions.Astrodyne.MinLevel)
-            return false;
+        var capturedUniqueCount = context.UniqueSealCount;
 
-        // Need 3 seals to use Astrodyne
-        if (!context.CanUseAstrodyne)
-            return false;
-
-        // Check minimum unique seals requirement
-        if (context.UniqueSealCount < config.AstrodyneMinSeals)
-            return false;
-
-        if (!context.ActionService.IsActionReady(ASTActions.Astrodyne.ActionId))
-            return false;
-
-        var action = ASTActions.Astrodyne;
-        if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.AstrodyneState = $"Used ({context.UniqueSealCount} unique)";
-            context.LogCardDecision("Astrodyne", "Self", $"{context.UniqueSealCount} unique seals");
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushOgcd(AstraeaAbilities.Astrodyne, player.GameObjectId, priority: 1,
+            onDispatched: _ =>
             {
-                var uniqueCount = context.UniqueSealCount;
-                var buffDescription = uniqueCount switch
-                {
-                    3 => "All buffs: Haste + Damage + MP regen",
-                    2 => "Two buffs based on seal types",
-                    _ => "One buff based on seal type",
-                };
-
-                var shortReason = $"Astrodyne ({uniqueCount} unique seals) - {buffDescription}";
-
-                var factors = new[]
-                {
-                    $"Unique seals: {uniqueCount}",
-                    $"Total seals: {context.SealCount}",
-                    buffDescription,
-                    "Consumes all 3 seals",
-                    "120s cooldown",
-                };
-
-                var alternatives = new[]
-                {
-                    uniqueCount < 3 ? "Wait for 3 unique seals (optimal)" : "N/A - already optimal",
-                    "Save for specific buff timing",
-                    "Use immediately to enable more card draws",
-                };
-
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = action.ActionId,
-                    ActionName = "Astrodyne",
-                    Category = "Buff",
-                    TargetName = "Self",
-                    ShortReason = shortReason,
-                    DetailedReason = $"Astrodyne consumed {context.SealCount} seals ({uniqueCount} unique). {buffDescription}. 3 unique seals gives maximum value: 10% haste (faster GCDs), 5% damage, and MP regeneration. Playing cards strategically to collect different seal types is key!",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = uniqueCount == 3
-                        ? "Perfect! 3 unique seals gives you all three buffs. This is optimal Astrodyne usage!"
-                        : "Try to collect 3 different seal types for maximum Astrodyne value. Play cards on appropriate targets (melee vs ranged) to control which seals you get.",
-                    ConceptId = AstConcepts.AstrodyneBuilding,
-                    Priority = uniqueCount == 3 ? ExplanationPriority.High : ExplanationPriority.Normal,
-                });
-
-                context.TrainingService?.RecordConceptApplication(AstConcepts.AstrodyneBuilding, wasSuccessful: uniqueCount == 3, $"{uniqueCount} unique seals consumed");
-            }
-
-            return true;
-        }
-
-        return false;
+                context.Debug.PlannedAction = ASTActions.Astrodyne.Name;
+                context.Debug.AstrodyneState = $"Used ({capturedUniqueCount} unique)";
+                context.LogCardDecision("Astrodyne", "Self", $"{capturedUniqueCount} unique seals");
+                context.TrainingService?.RecordConceptApplication(AstConcepts.AstrodyneBuilding, wasSuccessful: capturedUniqueCount == 3, $"{capturedUniqueCount} unique seals consumed");
+            });
     }
 
-    private bool TryPlayCard(IAstraeaContext context)
+    private void TryPushPlayCard(IAstraeaContext context, RotationScheduler scheduler)
     {
         var player = context.Player;
 
-        // Must have a card to play
-        if (!context.HasCard)
-        {
-            context.Debug.PlayState = "No cards in hand";
-            return false;
-        }
-
-        // In Dawntrail, we need to use the SPECIFIC card action that matches what's drawn.
-        // The game's GetActionStatus only returns 0 (usable) for the actual drawn card.
-        // Try all card actions - only the one matching our drawn card will succeed.
+        if (!context.HasCard) { context.Debug.PlayState = "No cards in hand"; return; }
 
         var target = context.PartyHelper.FindBalanceTarget(player);
-        if (target == null)
-        {
-            context.Debug.PlayState = "No valid target";
-            return false;
-        }
+        if (target == null) { context.Debug.PlayState = "No valid target"; return; }
 
-        context.Debug.PlayState = $"Trying cards → {target.Name?.TextValue ?? "Unknown"}";
-
-        // Try astral cards (melee DPS buff priority): Balance, Bole, Arrow
-        if (TryPlaySpecificCard(context, ASTActions.TheBalance, target))
-            return true;
-        if (TryPlaySpecificCard(context, ASTActions.TheBole, target))
-            return true;
-        if (TryPlaySpecificCard(context, ASTActions.TheArrow, target))
-            return true;
-
-        // Try umbral cards (ranged DPS buff priority): Spear, Ewer, Spire
-        if (TryPlaySpecificCard(context, ASTActions.TheSpear, target))
-            return true;
-        if (TryPlaySpecificCard(context, ASTActions.TheEwer, target))
-            return true;
-        if (TryPlaySpecificCard(context, ASTActions.TheSpire, target))
-            return true;
-
-        context.Debug.PlayState = "No usable cards";
-        return false;
+        // Push all 6 specific card actions. The scheduler will attempt each in priority order;
+        // only the actually-drawn card succeeds at UseAction time. Astral cards (Balance/Bole/Arrow)
+        // pushed before umbral cards (Spear/Ewer/Spire) to match legacy ordering.
+        TryPushSpecificCard(context, scheduler, AstraeaAbilities.TheBalance, ASTActions.TheBalance, target, priority: 2);
+        TryPushSpecificCard(context, scheduler, AstraeaAbilities.TheBole, ASTActions.TheBole, target, priority: 3);
+        TryPushSpecificCard(context, scheduler, AstraeaAbilities.TheArrow, ASTActions.TheArrow, target, priority: 4);
+        TryPushSpecificCard(context, scheduler, AstraeaAbilities.TheSpear, ASTActions.TheSpear, target, priority: 5);
+        TryPushSpecificCard(context, scheduler, AstraeaAbilities.TheEwer, ASTActions.TheEwer, target, priority: 6);
+        TryPushSpecificCard(context, scheduler, AstraeaAbilities.TheSpire, ASTActions.TheSpire, target, priority: 7);
     }
 
-    private bool TryPlaySpecificCard(IAstraeaContext context, ActionDefinition cardAction, Dalamud.Game.ClientState.Objects.Types.IBattleChara target)
+    private void TryPushSpecificCard(IAstraeaContext context, RotationScheduler scheduler,
+        AbilityBehavior behavior, ActionDefinition action, IBattleChara target, int priority)
     {
         var player = context.Player;
+        if (player.Level < action.MinLevel) return;
 
-        if (player.Level < cardAction.MinLevel)
-            return false;
+        var capturedAction = action;
+        var capturedTarget = target;
 
-        if (context.ActionService.ExecuteOgcd(cardAction, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = cardAction.Name;
-            var targetNameForLog = target.Name?.TextValue ?? "Unknown";
-            context.Debug.PlayState = $"{cardAction.Name} → {targetNameForLog}";
-            context.LogCardDecision(cardAction.Name, targetNameForLog, "Specific card played");
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushOgcd(behavior, target.GameObjectId, priority: priority,
+            onDispatched: _ =>
             {
-                var targetName = target.Name?.TextValue ?? "Unknown";
-                var targetJob = target.ClassJob.RowId;
-                var isMelee = JobRegistry.IsMeleeDps(targetJob) || JobRegistry.IsTank(targetJob);
-                var isAstral = cardAction.ActionId == ASTActions.TheBalance.ActionId ||
-                               cardAction.ActionId == ASTActions.TheBole.ActionId ||
-                               cardAction.ActionId == ASTActions.TheArrow.ActionId;
-
-                var shortReason = $"{cardAction.Name} on {targetName} ({(isMelee ? "melee" : "ranged")})";
-
-                var factors = new[]
-                {
-                    $"Card: {cardAction.Name}",
-                    $"Target: {targetName}",
-                    isAstral ? "Astral card (melee bonus)" : "Umbral card (ranged bonus)",
-                    isMelee ? "Target is melee/tank" : "Target is ranged/caster/healer",
-                    "6% damage buff for 15s",
-                };
-
-                var alternatives = _playCardAlternatives;
-
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = cardAction.ActionId,
-                    ActionName = cardAction.Name,
-                    Category = "Card",
-                    TargetName = targetName,
-                    ShortReason = shortReason,
-                    DetailedReason = $"Played {cardAction.Name} on {targetName}. {(isAstral ? "Astral cards (Balance/Bole/Arrow) give bonus damage to melee." : "Umbral cards (Spear/Ewer/Spire) give bonus damage to ranged.")} {(isMelee == isAstral ? "Good match! Target role matches card type." : "Role mismatch - still provides 6% buff but no bonus.")} Always prioritize highest DPS players.",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = isMelee == isAstral
-                        ? "Great card placement! Matching card type to role maximizes damage buff value."
-                        : "Consider the role matching: Astral cards are better on melee, Umbral cards on ranged. But any buff is better than no buff!",
-                    ConceptId = AstConcepts.CardManagement,
-                    Priority = ExplanationPriority.Normal,
-                });
-
-                context.TrainingService?.RecordConceptApplication(AstConcepts.CardManagement, wasSuccessful: isMelee == isAstral, isMelee == isAstral ? "Card matched target role" : "Card role mismatch");
-            }
-
-            return true;
-        }
-
-        return false;
+                context.Debug.PlannedAction = capturedAction.Name;
+                var targetName = capturedTarget.Name?.TextValue ?? "Unknown";
+                context.Debug.PlayState = $"{capturedAction.Name} -> {targetName}";
+                context.LogCardDecision(capturedAction.Name, targetName, "Specific card played");
+                context.TrainingService?.RecordConceptApplication(AstConcepts.CardManagement, wasSuccessful: true, "Card played");
+            });
     }
 
-    private bool TryDraw(IAstraeaContext context)
+    private void TryPushDraw(IAstraeaContext context, RotationScheduler scheduler)
     {
         var player = context.Player;
+        if (player.Level < ASTActions.AstralDraw.MinLevel) return;
+        if (!context.InCombat) return;
 
-        if (player.Level < ASTActions.AstralDraw.MinLevel)
-            return false;
-
-        // Only draw in combat to avoid wasting cards
-        if (!context.InCombat)
-            return false;
-
-        // In Dawntrail, AST alternates between Astral and Umbral draws.
-        // The game will only allow one of them based on the current ActiveDraw state.
-        // Try Astral Draw first (gives Spear for ranged), then Umbral Draw (gives Balance for melee).
-        // Note: Don't check IsActionReady - draw actions don't use traditional charges.
-        // ExecuteOgcd will fail gracefully if the action can't be used.
-
-        // Try Astral Draw first
-        if (context.ActionService.ExecuteOgcd(ASTActions.AstralDraw, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = ASTActions.AstralDraw.Name;
-            context.Debug.DrawState = "Drawing (Astral)";
-            context.LogCardDecision("Astral Draw", "Self", "Draw astral cards");
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        // Push both Astral and Umbral draws — only one will succeed based on game's ActiveDraw state.
+        scheduler.PushOgcd(AstraeaAbilities.AstralDraw, player.GameObjectId, priority: 8,
+            onDispatched: _ =>
             {
-                RecordDrawExplanation(context, "Astral Draw", true);
+                context.Debug.PlannedAction = ASTActions.AstralDraw.Name;
+                context.Debug.DrawState = "Drawing (Astral)";
+                context.LogCardDecision("Astral Draw", "Self", "Draw astral cards");
                 context.TrainingService?.RecordConceptApplication(AstConcepts.DrawTiming, wasSuccessful: true, "Astral Draw executed");
-            }
+            });
 
-            return true;
-        }
-
-        // Try Umbral Draw if Astral didn't work
-        if (context.ActionService.ExecuteOgcd(ASTActions.UmbralDraw, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = ASTActions.UmbralDraw.Name;
-            context.Debug.DrawState = "Drawing (Umbral)";
-            context.LogCardDecision("Umbral Draw", "Self", "Draw umbral cards");
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushOgcd(AstraeaAbilities.UmbralDraw, player.GameObjectId, priority: 9,
+            onDispatched: _ =>
             {
-                RecordDrawExplanation(context, "Umbral Draw", false);
+                context.Debug.PlannedAction = ASTActions.UmbralDraw.Name;
+                context.Debug.DrawState = "Drawing (Umbral)";
+                context.LogCardDecision("Umbral Draw", "Self", "Draw umbral cards");
                 context.TrainingService?.RecordConceptApplication(AstConcepts.DrawTiming, wasSuccessful: true, "Umbral Draw executed");
-            }
-
-            return true;
-        }
-
-        return false;
+            });
     }
 
-    private void RecordDrawExplanation(IAstraeaContext context, string drawType, bool isAstral)
-    {
-        var shortReason = $"{drawType} - getting new cards";
-
-        var factors = new[]
-        {
-            $"Draw type: {drawType}",
-            isAstral ? "Draws Balance/Bole/Arrow" : "Draws Spear/Ewer/Spire",
-            "Dawntrail: Alternates between Astral and Umbral",
-            $"Current cards in hand: {context.TotalCardsInHand}",
-            "Draw immediately to maximize card plays",
-        };
-
-        var alternatives = _drawAlternatives;
-
-        context.TrainingService!.RecordDecision(new ActionExplanation
-        {
-            Timestamp = DateTime.UtcNow,
-            ActionId = isAstral ? ASTActions.AstralDraw.ActionId : ASTActions.UmbralDraw.ActionId,
-            ActionName = drawType,
-            Category = "Card",
-            TargetName = "Self",
-            ShortReason = shortReason,
-            DetailedReason = $"{drawType} used to draw new cards. {(isAstral ? "Astral Draw gives Balance/Bole/Arrow (melee-focused cards)." : "Umbral Draw gives Spear/Ewer/Spire (ranged-focused cards).")} In Dawntrail, AST alternates between Astral and Umbral draws automatically. Keep drawing and playing cards to maximize party buff uptime!",
-            Factors = factors,
-            Alternatives = alternatives,
-            Tip = "Card uptime is key to AST DPS contribution! Draw on cooldown, play immediately, and repeat. Don't let cards sit in hand - they provide no value until played.",
-            ConceptId = AstConcepts.DrawTiming,
-            Priority = ExplanationPriority.Normal,
-        });
-    }
-
-    private bool TryMinorArcana(IAstraeaContext context)
+    private void TryPushMinorArcana(IAstraeaContext context, RotationScheduler scheduler)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
 
-        if (!config.EnableMinorArcana)
-            return false;
+        if (!config.EnableMinorArcana) return;
+        if (player.Level < ASTActions.MinorArcana.MinLevel) return;
+        if (context.HasMinorArcana) return;
 
-        if (player.Level < ASTActions.MinorArcana.MinLevel)
-            return false;
-
-        // Already have a Minor Arcana card (Lady or Lord)
-        if (context.HasMinorArcana)
-            return false;
-
-        // Minor Arcana strategy determines when to draw
         bool shouldDraw = config.MinorArcanaStrategy switch
         {
             MinorArcanaUsageStrategy.OnCooldown => true,
             MinorArcanaUsageStrategy.SaveForBurst => context.ActionService.IsActionReady(ASTActions.Divination.ActionId),
-            MinorArcanaUsageStrategy.EmergencyOnly => false, // Only use Lady from HealingModule
+            MinorArcanaUsageStrategy.EmergencyOnly => false,
             _ => false
         };
+        if (!shouldDraw) return;
+        if (!context.ActionService.IsActionReady(ASTActions.MinorArcana.ActionId)) return;
 
-        if (!shouldDraw)
-            return false;
-
-        if (!context.ActionService.IsActionReady(ASTActions.MinorArcana.ActionId))
-            return false;
-
-        var action = ASTActions.MinorArcana;
-        if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.CardState = "Minor Arcana";
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushOgcd(AstraeaAbilities.MinorArcana, player.GameObjectId, priority: 10,
+            onDispatched: _ =>
             {
-                var strategy = config.MinorArcanaStrategy;
-                var shortReason = $"Minor Arcana drawn ({strategy})";
-
-                var factors = new[]
-                {
-                    $"Strategy: {strategy}",
-                    "Will draw Lord (damage) or Lady (heal)",
-                    "60s cooldown",
-                    strategy == MinorArcanaUsageStrategy.SaveForBurst ? "Divination is ready - burst timing" : "Used on cooldown",
-                    "Lord: 250 potency damage, Lady: 400 potency AoE heal",
-                };
-
-                var alternatives = _minorArcanaAlternatives;
-
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = action.ActionId,
-                    ActionName = "Minor Arcana",
-                    Category = "Card",
-                    TargetName = "Self",
-                    ShortReason = shortReason,
-                    DetailedReason = $"Minor Arcana drawn using {strategy} strategy. You'll receive either Lord of Crowns (250 potency damage) or Lady of Crowns (400 potency AoE heal). Lord is free damage during DPS phases, Lady is emergency healing. Choose your strategy based on content difficulty!",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = "In farm content, use Minor Arcana on cooldown for Lord damage. In progression, consider saving for Lady heals. The 50/50 RNG means you should plan for both outcomes!",
-                    ConceptId = AstConcepts.MinorArcanaUsage,
-                    Priority = ExplanationPriority.Normal,
-                });
-
+                context.Debug.PlannedAction = ASTActions.MinorArcana.Name;
+                context.Debug.CardState = "Minor Arcana";
                 context.TrainingService?.RecordConceptApplication(AstConcepts.MinorArcanaUsage, wasSuccessful: true, "Minor Arcana drawn");
-            }
-
-            return true;
-        }
-
-        return false;
+            });
     }
-
-    #endregion
 }

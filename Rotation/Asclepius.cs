@@ -245,10 +245,10 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
     }
 
     /// <summary>
-    /// Scheduler-aware execution with phased dispatch. Resurrection (priority 5) and
-    /// Healing (priority 10) are migrated; KardiaModule (priority 3) sits above them
-    /// and stays on legacy. Defensive (20) and Damage (50) are below and stay legacy.
-    /// Order: Kardia legacy → scheduler dispatch → other legacy modules.
+    /// Fully scheduler-driven execution. All modules push candidates and the scheduler
+    /// dispatches the highest-priority candidate from each queue. Push priorities preserve
+    /// legacy ordering: Kardia (0-2), Resurrection (1-2), Healing (5-80), Defensive (75-130),
+    /// Damage (285-330).
     /// </summary>
     protected override void ExecuteModules(IAsclepiusContext context, bool isMoving, bool inCombat)
     {
@@ -264,29 +264,10 @@ public sealed class Asclepius : BaseHealerRotation<IAsclepiusContext, IAsclepius
             module.CollectCandidates(context, _scheduler, isMoving);
 
         if (inCombat && ActionService.CanExecuteOgcd)
-        {
-            // Phase 1: legacy modules above Resurrection (KardiaModule priority 3)
-            foreach (var module in _modules)
-                if (module.Priority < 5 && module.TryExecute(context, isMoving)) return;
-
-            // Phase 2: scheduler dispatch (Resurrection + Healing migrated)
-            if (_scheduler.DispatchOgcd(context).Dispatched) return;
-
-            // Phase 3: legacy modules at or below migrated priorities
-            foreach (var module in _modules)
-                if (module.Priority >= 5 && module.TryExecute(context, isMoving)) return;
-        }
+            _scheduler.DispatchOgcd(context);
 
         if (ActionService.CanExecuteGcd)
-        {
-            foreach (var module in _modules)
-                if (module.Priority < 5 && module.TryExecute(context, isMoving)) return;
-
-            if (_scheduler.DispatchGcd(context).Dispatched) return;
-
-            foreach (var module in _modules)
-                if (module.Priority >= 5 && module.TryExecute(context, isMoving)) return;
-        }
+            _scheduler.DispatchGcd(context);
     }
 
     #endregion

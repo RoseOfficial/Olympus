@@ -2,96 +2,37 @@ using System;
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Helpers;
-using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.AthenaCore.Abilities;
 using Olympus.Rotation.AthenaCore.Context;
+using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Scholar;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AthenaCore.Modules;
 
 /// <summary>
-/// Handles fairy management for Scholar.
-/// Responsible for summoning, fairy abilities, and Seraph transformations.
+/// Handles fairy management for Scholar (scheduler-driven).
+/// Push priorities are 0-7 so fairy management wins against Resurrection (1-2)
+/// when Eos isn't summoned and against Healing handlers when fairy abilities fire.
 /// </summary>
 public sealed class FairyModule : IAthenaModule
 {
-    public int Priority => 3; // Very high priority - fairy is essential
+    public int Priority => 3;
     public string Name => "Fairy";
 
-    // Training explanation arrays
-    private static readonly string[] _summonSeraphAlternatives =
+    public bool TryExecute(IAthenaContext context, bool isMoving) => false;
+
+    public void CollectCandidates(IAthenaContext context, RotationScheduler scheduler, bool isMoving)
     {
-        "Save for heavy damage phase",
-        "Use Eos abilities instead",
-        "Hold for emergency healing",
-    };
-
-    private static readonly string[] _feyUnionAlternatives =
-    {
-        "Excogitation (proactive heal)",
-        "Lustrate (instant heal)",
-        "Let Embrace handle it",
-    };
-
-    private static readonly string[] _feyIlluminationAlternatives =
-    {
-        "Direct heals (Indom, Lustrate)",
-        "Whispering Dawn (HoT)",
-        "Save for heavy healing phase",
-    };
-
-    private static readonly string[] _feyBlessingAlternatives =
-    {
-        "Whispering Dawn (HoT instead)",
-        "Indomitability (Aetherflow cost)",
-        "Save for emergency burst heal",
-    };
-
-    private static readonly string[] _whisperingDawnAlternatives =
-    {
-        "Fey Blessing (instant AoE heal)",
-        "Indomitability (Aetherflow cost)",
-        "Save for after next raidwide",
-    };
-
-    public bool TryExecute(IAthenaContext context, bool isMoving)
-    {
-        var config = context.Configuration.Scholar;
-        var player = context.Player;
-
-        // Priority 1: Summon fairy if not present
-        if (TrySummonFairy(context, isMoving))
-            return true;
-
-        // Priority 2: Seraphism (level 100 transformation)
-        if (context.CanExecuteOgcd && TrySeraphism(context))
-            return true;
-
-        // Priority 3: Summon Seraph
-        if (context.CanExecuteOgcd && TrySummonSeraph(context))
-            return true;
-
-        // Priority 4: Consolation (Seraph ability)
-        if (context.CanExecuteOgcd && TryConsolation(context))
-            return true;
-
-        // Priority 5: Fey Union (sustained single-target healing)
-        if (context.CanExecuteOgcd && TryFeyUnion(context))
-            return true;
-
-        // Priority 6: Fey Blessing (AoE heal)
-        if (context.CanExecuteOgcd && TryFeyBlessing(context))
-            return true;
-
-        // Priority 7: Whispering Dawn (AoE HoT)
-        if (context.CanExecuteOgcd && TryWhisperingDawn(context))
-            return true;
-
-        // Priority 8: Fey Illumination (heal buff)
-        if (context.CanExecuteOgcd && TryFeyIllumination(context))
-            return true;
-
-        return false;
+        TryPushSummonFairy(context, scheduler, isMoving);
+        TryPushSeraphism(context, scheduler);
+        TryPushSummonSeraph(context, scheduler);
+        TryPushConsolation(context, scheduler);
+        TryPushFeyUnion(context, scheduler);
+        TryPushFeyBlessing(context, scheduler);
+        TryPushWhisperingDawn(context, scheduler);
+        TryPushFeyIllumination(context, scheduler);
     }
 
     public void UpdateDebugState(IAthenaContext context)
@@ -100,592 +41,213 @@ public sealed class FairyModule : IAthenaModule
         context.Debug.FairyGauge = context.FairyGaugeService.CurrentGauge;
     }
 
-    private bool TrySummonFairy(IAthenaContext context, bool isMoving)
+    private void TryPushSummonFairy(IAthenaContext context, RotationScheduler scheduler, bool isMoving)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
 
-        if (!config.AutoSummonFairy)
-            return false;
+        if (!config.AutoSummonFairy) return;
+        if (!context.FairyStateManager.NeedsSummon) return;
+        if (context.FairyStateManager.IsDissipationActive) return;
+        if (player.Level < SCHActions.SummonEos.MinLevel) return;
+        if (isMoving) return;
 
-        if (!context.FairyStateManager.NeedsSummon)
-            return false;
-
-        // Don't summon during Dissipation
-        if (context.FairyStateManager.IsDissipationActive)
-            return false;
-
-        if (player.Level < SCHActions.SummonEos.MinLevel)
-            return false;
-
-        // Can't summon while moving (has cast time)
-        if (isMoving)
-            return false;
-
-        if (!context.ActionService.CanExecuteGcd)
-            return false;
-
-        var action = SCHActions.SummonEos;
-        if (context.ActionService.ExecuteGcd(action, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.PlanningState = "Summoning Fairy";
-
-            TrainingHelper.RecordUtilityDecision(
-                context.TrainingService,
-                action.ActionId, action.Name,
-                null,
-                "Summon Eos - fairy not present",
-                "Eos (or Selene) must be summoned when not present to restore fairy healing uptime. The fairy passively heals with Embrace and enables all fairy abilities (Whispering Dawn, Fey Blessing, Fey Union, Fey Illumination). Keeping the fairy active is one of SCH's highest priorities.",
-                new[] { "Fairy not summoned", "Not during Dissipation (would cancel it)", "Fairy uptime critical for healing" },
-                new[] { "Continue without fairy (not recommended)", "Wait until out of combat (unnecessary)" },
-                "Fairy uptime is crucial for Scholar. Eos provides constant passive healing and enables powerful fairy abilities. Resummon immediately if the fairy despawns.",
-                SchConcepts.FairyManagement,
-                ExplanationPriority.High);
-
-            context.TrainingService?.RecordConceptApplication(SchConcepts.FairyManagement, wasSuccessful: true);
-
-            return true;
-        }
-
-        return false;
-    }
-
-    private bool TrySummonSeraph(IAthenaContext context)
-    {
-        var config = context.Configuration.Scholar;
-        var player = context.Player;
-
-        if (config.SeraphStrategy == SeraphUsageStrategy.Manual)
-            return false;
-
-        if (player.Level < SCHActions.SummonSeraph.MinLevel)
-            return false;
-
-        if (!context.FairyStateManager.CanUseEosAbilities)
-            return false;
-
-        // Check cooldown
-        if (!context.ActionService.IsActionReady(SCHActions.SummonSeraph.ActionId))
-            return false;
-
-        // SaveForDamage: Check if party HP is low enough
-        if (config.SeraphStrategy == SeraphUsageStrategy.SaveForDamage)
-        {
-            var (avgHp, _, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
-            if (avgHp > config.SeraphPartyHpThreshold)
-                return false;
-        }
-
-        var action = SCHActions.SummonSeraph;
-        if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.PlanningState = "Seraph";
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushGcd(AthenaAbilities.SummonEos, player.GameObjectId, priority: 0,
+            onDispatched: _ =>
             {
-                var (avgHp, _, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
-                var usedForDamage = config.SeraphStrategy == SeraphUsageStrategy.SaveForDamage;
-
-                var shortReason = usedForDamage
-                    ? $"Summon Seraph - party HP {avgHp:P0}"
-                    : "Summon Seraph - on cooldown";
-
-                var factors = new[]
-                {
-                    $"Strategy: {config.SeraphStrategy}",
-                    usedForDamage ? $"Party HP: {avgHp:P0} (below threshold)" : "Using on cooldown",
-                    "Transforms Eos into Seraph (22s)",
-                    "Grants 2 charges of Consolation",
-                    "Seraph provides stronger healing",
-                };
-
-                var alternatives = _summonSeraphAlternatives;
-
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = action.ActionId,
-                    ActionName = "Summon Seraph",
-                    Category = "Fairy",
-                    TargetName = null,
-                    ShortReason = shortReason,
-                    DetailedReason = $"Summoned Seraph to replace Eos for 22 seconds. {(usedForDamage ? $"Party HP at {avgHp:P0}, below the {config.SeraphPartyHpThreshold:P0} threshold. " : "Using on cooldown for maximum value. ")}Seraph provides 2 Consolation charges (AoE heal + shield) and upgraded Embrace healing. Use both Consolation charges before Seraph expires!",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = "Seraph is powerful but temporary. Always use both Consolation charges! Plan Seraph for heavy healing phases.",
-                    ConceptId = SchConcepts.SeraphUsage,
-                    Priority = ExplanationPriority.Normal,
-                });
-
-                context.TrainingService.RecordConceptApplication(SchConcepts.SeraphUsage, wasSuccessful: true);
-            }
-
-            return true;
-        }
-
-        return false;
+                context.Debug.PlannedAction = SCHActions.SummonEos.Name;
+                context.Debug.PlanningState = "Summoning Fairy";
+                context.TrainingService?.RecordConceptApplication(SchConcepts.FairyManagement, wasSuccessful: true);
+            });
     }
 
-    private bool TrySeraphism(IAthenaContext context)
+    private void TryPushSeraphism(IAthenaContext context, RotationScheduler scheduler)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
 
-        if (config.SeraphismStrategy == SeraphismUsageStrategy.Manual)
-            return false;
+        if (config.SeraphismStrategy == SeraphismUsageStrategy.Manual) return;
+        if (player.Level < SCHActions.Seraphism.MinLevel) return;
+        if (!context.ActionService.IsActionReady(SCHActions.Seraphism.ActionId)) return;
 
-        if (player.Level < SCHActions.Seraphism.MinLevel)
-            return false;
-
-        // Check cooldown
-        if (!context.ActionService.IsActionReady(SCHActions.Seraphism.ActionId))
-            return false;
-
-        // SaveForDamage: Check if party HP is low enough
         if (config.SeraphismStrategy == SeraphismUsageStrategy.SaveForDamage)
         {
             var (avgHp, _, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
-            if (avgHp > config.SeraphPartyHpThreshold)
-                return false;
+            if (avgHp > config.SeraphPartyHpThreshold) return;
         }
 
-        var action = SCHActions.Seraphism;
-        if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.PlanningState = "Seraphism";
-
-            var (avgHpSeraphism, _, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
-            var usedForHealingSeraphism = config.SeraphismStrategy == SeraphismUsageStrategy.SaveForDamage;
-
-            TrainingHelper.RecordHealDecision(
-                context.TrainingService,
-                action.ActionId, "Seraphism",
-                null,
-                avgHpSeraphism, 0,
-                usedForHealingSeraphism
-                    ? $"Seraphism - party HP {avgHpSeraphism:P0}"
-                    : "Seraphism - on cooldown",
-                $"Seraphism (level 100) transforms Scholar abilities for 20s. GCD heals become Concitation (upgraded Succor) and Manifestation (upgraded Adloquium). {(usedForHealingSeraphism ? $"Party HP at {avgHpSeraphism:P0} triggered threshold. " : "Using on cooldown for maximum value. ")}During Seraphism all Aetherflow abilities become free (no stack cost) and are automatically guaranteed critical heals.",
-                new[] { $"Strategy: {config.SeraphismStrategy}", usedForHealingSeraphism ? $"Party HP: {avgHpSeraphism:P0}" : "On cooldown", "All heals auto-crit, Aetherflow free", "20s duration" },
-                new[] { "Summon Seraph instead", "Save for next damage phase", "Use oGCDs directly" },
-                "Seraphism is SCH's ultimate healing tool at level 100. During it, spam Manifestation, Excogitation, Indomitability, and Lustrate freely - they cost no Aetherflow and auto-crit!",
-                SchConcepts.SeraphUsage,
-                ExplanationPriority.High);
-
-            context.TrainingService?.RecordConceptApplication(SchConcepts.SeraphUsage, wasSuccessful: true);
-
-            return true;
-        }
-
-        return false;
+        scheduler.PushOgcd(AthenaAbilities.Seraphism, player.GameObjectId, priority: 1,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = SCHActions.Seraphism.Name;
+                context.Debug.PlanningState = "Seraphism";
+                context.TrainingService?.RecordConceptApplication(SchConcepts.SeraphUsage, wasSuccessful: true);
+            });
     }
 
-    private bool TryConsolation(IAthenaContext context)
+    private void TryPushSummonSeraph(IAthenaContext context, RotationScheduler scheduler)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
 
-        if (!config.EnableConsolation)
-            return false;
+        if (config.SeraphStrategy == SeraphUsageStrategy.Manual) return;
+        if (player.Level < SCHActions.SummonSeraph.MinLevel) return;
+        if (!context.FairyStateManager.CanUseEosAbilities) return;
+        if (!context.ActionService.IsActionReady(SCHActions.SummonSeraph.ActionId)) return;
 
-        if (!context.FairyStateManager.CanUseSeraphAbilities)
-            return false;
+        if (config.SeraphStrategy == SeraphUsageStrategy.SaveForDamage)
+        {
+            var (avgHp, _, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
+            if (avgHp > config.SeraphPartyHpThreshold) return;
+        }
 
-        if (player.Level < SCHActions.Consolation.MinLevel)
-            return false;
+        scheduler.PushOgcd(AthenaAbilities.SummonSeraph, player.GameObjectId, priority: 2,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = SCHActions.SummonSeraph.Name;
+                context.Debug.PlanningState = "Seraph";
+                context.TrainingService?.RecordConceptApplication(SchConcepts.SeraphUsage, wasSuccessful: true);
+            });
+    }
 
-        // Check cooldown and charges
-        if (!context.ActionService.IsActionReady(SCHActions.Consolation.ActionId))
-            return false;
+    private void TryPushConsolation(IAthenaContext context, RotationScheduler scheduler)
+    {
+        var config = context.Configuration.Scholar;
+        var player = context.Player;
 
-        // Use when party needs healing
+        if (!config.EnableConsolation) return;
+        if (!context.FairyStateManager.CanUseSeraphAbilities) return;
+        if (player.Level < SCHActions.Consolation.MinLevel) return;
+        if (!context.ActionService.IsActionReady(SCHActions.Consolation.ActionId)) return;
+
         var (avgHp, _, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
-        if (avgHp > config.AoEHealThreshold && injuredCount < config.AoEHealMinTargets)
-            return false;
+        if (avgHp > config.AoEHealThreshold && injuredCount < config.AoEHealMinTargets) return;
 
-        var action = SCHActions.Consolation;
-        if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.PlanningState = "Consolation";
-
-            var (avgHpCons, _, injuredCountCons) = context.PartyHelper.CalculatePartyHealthMetrics(player);
-
-            TrainingHelper.RecordHealDecision(
-                context.TrainingService,
-                action.ActionId, "Consolation",
-                "Party",
-                avgHpCons, 0,
-                $"Consolation - Seraph AoE heal+shield ({injuredCountCons} injured)",
-                $"Consolation is Seraph's exclusive ability. It provides AoE healing and applies Seraphic Veil (shield) to the party. Seraph has 2 charges of Consolation - both should be used before Seraph expires at 22s. {injuredCountCons} party members below HP threshold at {avgHpCons:P0} average HP.",
-                new[] { $"Seraph active (Consolation available)", $"Party avg HP: {avgHpCons:P0}", $"Injured count: {injuredCountCons}", "AoE heal + shield combo", "2 charges per Seraph window" },
-                new[] { "Whispering Dawn (HoT instead)", "Fey Blessing (instant heal)", "Save both charges for next damage" },
-                "Always use both Consolation charges before Seraph expires! Consolation provides both healing and shielding, making it extremely efficient. Time it around incoming damage.",
-                SchConcepts.SeraphUsage,
-                ExplanationPriority.Normal);
-
-            context.TrainingService?.RecordConceptApplication(SchConcepts.SeraphUsage, wasSuccessful: true);
-
-            return true;
-        }
-
-        return false;
+        scheduler.PushOgcd(AthenaAbilities.Consolation, player.GameObjectId, priority: 3,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = SCHActions.Consolation.Name;
+                context.Debug.PlanningState = "Consolation";
+                context.TrainingService?.RecordConceptApplication(SchConcepts.SeraphUsage, wasSuccessful: true);
+            });
     }
 
-    private bool TryFeyUnion(IAthenaContext context)
+    private void TryPushFeyUnion(IAthenaContext context, RotationScheduler scheduler)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
 
-        if (!config.EnableFairyAbilities)
-            return false;
+        if (!config.EnableFairyAbilities) return;
+        if (!context.FairyStateManager.CanUseEosAbilities) return;
+        if (player.Level < SCHActions.FeyUnion.MinLevel) return;
+        if (context.FairyGaugeService.CurrentGauge < config.FeyUnionMinGauge) return;
+        if (context.StatusHelper.HasFeyUnionActive(player)) return;
 
-        if (!context.FairyStateManager.CanUseEosAbilities)
-            return false;
-
-        if (player.Level < SCHActions.FeyUnion.MinLevel)
-            return false;
-
-        // Check gauge requirement
-        if (context.FairyGaugeService.CurrentGauge < config.FeyUnionMinGauge)
-            return false;
-
-        // Don't start if already active
-        if (context.StatusHelper.HasFeyUnionActive(player))
-            return false;
-
-        // Find target needing sustained healing
         var target = context.PartyHelper.FindFeyUnionTarget(player, config.FeyUnionThreshold);
-        if (target == null)
-            return false;
+        if (target == null) return;
 
-        var action = SCHActions.FeyUnion;
-        if (context.ActionService.ExecuteOgcd(action, target.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.PlanningState = "Fey Union";
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushOgcd(AthenaAbilities.FeyUnion, target.GameObjectId, priority: 4,
+            onDispatched: _ =>
             {
-                var targetName = target.Name?.TextValue ?? "Unknown";
-                var hpPercent = context.PartyHelper.GetHpPercent(target);
-                var currentGauge = context.FairyGaugeService.CurrentGauge;
-
-                var shortReason = $"Fey Union on {targetName} at {hpPercent:P0}";
-
-                var factors = new[]
-                {
-                    $"Target HP: {hpPercent:P0}",
-                    $"Threshold: {config.FeyUnionThreshold:P0}",
-                    $"Fairy Gauge: {currentGauge}/100",
-                    "400 potency per tick (sustained)",
-                    "Consumes 10 gauge per tick",
-                };
-
-                var alternatives = _feyUnionAlternatives;
-
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = action.ActionId,
-                    ActionName = "Fey Union",
-                    Category = "Healing",
-                    TargetName = targetName,
-                    ShortReason = shortReason,
-                    DetailedReason = $"Fey Union tether on {targetName} at {hpPercent:P0} HP. Fairy gauge at {currentGauge}/100. Fey Union provides powerful sustained healing (400 potency per tick) while consuming 10 gauge per tick. Best for sustained single-target healing like tank maintenance.",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = "Fey Union is great for tank healing during sustained damage. Cancel it early if you need the gauge for Aetherpact or if the target is full HP.",
-                    ConceptId = SchConcepts.FeyUnionUsage,
-                    Priority = ExplanationPriority.Normal,
-                });
-
-                context.TrainingService.RecordConceptApplication(SchConcepts.FeyUnionUsage, wasSuccessful: true);
-            }
-
-            return true;
-        }
-
-        return false;
+                context.Debug.PlannedAction = SCHActions.FeyUnion.Name;
+                context.Debug.PlanningState = "Fey Union";
+                context.TrainingService?.RecordConceptApplication(SchConcepts.FeyUnionUsage, wasSuccessful: true);
+            });
     }
 
-    private bool TryFeyBlessing(IAthenaContext context)
+    private void TryPushFeyBlessing(IAthenaContext context, RotationScheduler scheduler)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
 
-        if (!config.EnableFairyAbilities)
-            return false;
+        if (!config.EnableFairyAbilities) return;
+        if (!context.FairyStateManager.CanUseEosAbilities) return;
+        if (player.Level < SCHActions.FeyBlessing.MinLevel) return;
+        if (!context.ActionService.IsActionReady(SCHActions.FeyBlessing.ActionId)) return;
 
-        if (!context.FairyStateManager.CanUseEosAbilities)
-            return false;
-
-        if (player.Level < SCHActions.FeyBlessing.MinLevel)
-            return false;
-
-        if (!context.ActionService.IsActionReady(SCHActions.FeyBlessing.ActionId))
-            return false;
-
-        var (avgHp, _, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
-
-        // Timeline-aware: deploy proactively before raidwides
+        var (avgHp, _, _) = context.PartyHealthMetrics;
         var raidwideImminent = TimelineHelper.IsRaidwideImminent(
-            context.TimelineService,
-            context.BossMechanicDetector,
-            context.Configuration,
-            out _);
+            context.TimelineService, context.BossMechanicDetector, context.Configuration, out _);
 
-        // Burst awareness: Deploy Fey Blessing proactively before burst windows
-        // AoE instant heal provides burst healing during high-damage DPS phases
         var burstImminent = false;
         var coordConfig = context.Configuration.PartyCoordination;
         var partyCoord = context.PartyCoordinationService;
-        if (coordConfig.EnableHealerBurstAwareness &&
-            coordConfig.PreferShieldsBeforeBurst &&
-            partyCoord != null)
+        if (coordConfig.EnableHealerBurstAwareness && coordConfig.PreferShieldsBeforeBurst && partyCoord != null)
         {
             var burstState = partyCoord.GetBurstWindowState();
-            // Deploy Fey Blessing 3-8 seconds before burst
             if (burstState.IsImminent && burstState.SecondsUntilBurst >= 3f && burstState.SecondsUntilBurst <= 8f)
-            {
                 burstImminent = true;
-            }
         }
 
-        // Skip HP check if deploying proactively for raidwide/burst
-        if (!raidwideImminent && !burstImminent)
-        {
-            if (avgHp > config.FeyBlessingThreshold)
-                return false;
-        }
+        if (!raidwideImminent && !burstImminent && avgHp > config.FeyBlessingThreshold) return;
 
-        var action = SCHActions.FeyBlessing;
-        if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.PlanningState = "Fey Blessing";
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushOgcd(AthenaAbilities.FeyBlessing, player.GameObjectId, priority: 5,
+            onDispatched: _ =>
             {
-                string trigger;
-                if (raidwideImminent) trigger = "Raidwide imminent";
-                else if (burstImminent) trigger = "DPS burst window imminent";
-                else trigger = $"Party HP low ({avgHp:P0})";
-
-                var shortReason = $"Fey Blessing - {trigger}";
-
-                var factors = new[]
-                {
-                    trigger,
-                    $"Party avg HP: {avgHp:P0}",
-                    $"Injured count: {injuredCount}",
-                    "350 potency instant AoE heal",
-                    "Free fairy ability, no resource cost",
-                };
-
-                var alternatives = _feyBlessingAlternatives;
-
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = action.ActionId,
-                    ActionName = "Fey Blessing",
-                    Category = "Healing",
-                    TargetName = "Party",
-                    ShortReason = shortReason,
-                    DetailedReason = $"Fey Blessing for {injuredCount} injured party members. {trigger}. Fairy casts 350 potency instant AoE heal. Free burst healing with no resource cost! Great for topping off the party after damage.",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = "Fey Blessing is free burst AoE healing. Use it for immediate party HP recovery. Pairs well with Whispering Dawn (HoT + burst).",
-                    ConceptId = SchConcepts.FeyBlessingUsage,
-                    Priority = raidwideImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
-                });
-
-                context.TrainingService.RecordConceptApplication(SchConcepts.FeyBlessingUsage, wasSuccessful: true);
-            }
-
-            return true;
-        }
-
-        return false;
+                context.Debug.PlannedAction = SCHActions.FeyBlessing.Name;
+                context.Debug.PlanningState = "Fey Blessing";
+                context.TrainingService?.RecordConceptApplication(SchConcepts.FeyBlessingUsage, wasSuccessful: true);
+            });
     }
 
-    private bool TryWhisperingDawn(IAthenaContext context)
+    private void TryPushWhisperingDawn(IAthenaContext context, RotationScheduler scheduler)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
 
-        if (!config.EnableFairyAbilities)
-            return false;
+        if (!config.EnableFairyAbilities) return;
+        if (!context.FairyStateManager.IsFairyAvailable) return;
+        if (player.Level < SCHActions.WhisperingDawn.MinLevel) return;
+        if (!context.ActionService.IsActionReady(SCHActions.WhisperingDawn.ActionId)) return;
 
-        if (!context.FairyStateManager.IsFairyAvailable)
-            return false;
-
-        if (player.Level < SCHActions.WhisperingDawn.MinLevel)
-            return false;
-
-        if (!context.ActionService.IsActionReady(SCHActions.WhisperingDawn.ActionId))
-            return false;
-
-        var (avgHp, _, injuredCount) = context.PartyHelper.CalculatePartyHealthMetrics(player);
-
-        // Timeline-aware: deploy proactively before raidwides
+        var (avgHp, _, injuredCount) = context.PartyHealthMetrics;
         var raidwideImminent = TimelineHelper.IsRaidwideImminent(
-            context.TimelineService,
-            context.BossMechanicDetector,
-            context.Configuration,
-            out _);
+            context.TimelineService, context.BossMechanicDetector, context.Configuration, out _);
 
-        // Burst awareness: Deploy Whispering Dawn proactively before burst windows
-        // AoE HoT provides sustained healing during high-damage DPS phases
         var burstImminent = false;
         var coordConfig = context.Configuration.PartyCoordination;
         var partyCoord = context.PartyCoordinationService;
-        if (coordConfig.EnableHealerBurstAwareness &&
-            coordConfig.PreferShieldsBeforeBurst &&
-            partyCoord != null)
+        if (coordConfig.EnableHealerBurstAwareness && coordConfig.PreferShieldsBeforeBurst && partyCoord != null)
         {
             var burstState = partyCoord.GetBurstWindowState();
-            // Deploy Whispering Dawn 3-8 seconds before burst
             if (burstState.IsImminent && burstState.SecondsUntilBurst >= 3f && burstState.SecondsUntilBurst <= 8f)
-            {
                 burstImminent = true;
-            }
         }
 
-        // Skip HP check if deploying proactively for raidwide/burst
         if (!raidwideImminent && !burstImminent)
         {
-            if (avgHp > config.WhisperingDawnThreshold)
-                return false;
-            if (injuredCount < config.WhisperingDawnMinTargets)
-                return false;
+            if (avgHp > config.WhisperingDawnThreshold) return;
+            if (injuredCount < config.WhisperingDawnMinTargets) return;
         }
 
-        var action = SCHActions.WhisperingDawn;
-        if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.PlanningState = "Whispering Dawn";
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushOgcd(AthenaAbilities.WhisperingDawn, player.GameObjectId, priority: 6,
+            onDispatched: _ =>
             {
-                string trigger;
-                if (raidwideImminent) trigger = "Raidwide imminent";
-                else if (burstImminent) trigger = "DPS burst window imminent";
-                else trigger = $"Party HP low ({avgHp:P0})";
-
-                var shortReason = $"Whispering Dawn - {trigger}";
-
-                var factors = new[]
-                {
-                    trigger,
-                    $"Party avg HP: {avgHp:P0}",
-                    $"Injured count: {injuredCount}",
-                    "120 potency HoT (21s duration)",
-                    "Free fairy ability, no resource cost",
-                };
-
-                var alternatives = _whisperingDawnAlternatives;
-
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = action.ActionId,
-                    ActionName = "Whispering Dawn",
-                    Category = "Healing",
-                    TargetName = "Party",
-                    ShortReason = shortReason,
-                    DetailedReason = $"Whispering Dawn for {injuredCount} injured party members. {trigger}. Fairy casts a 21s AoE HoT (120 potency per tick). Free healing with no resource cost! Best used after damage or proactively to top party off.",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = "Whispering Dawn is free sustained healing. Use it often! Great after raidwides or when moving. The fairy has a separate action delay, so don't expect instant casts.",
-                    ConceptId = SchConcepts.WhisperingDawnUsage,
-                    Priority = raidwideImminent ? ExplanationPriority.High : ExplanationPriority.Normal,
-                });
-
-                context.TrainingService.RecordConceptApplication(SchConcepts.WhisperingDawnUsage, wasSuccessful: true);
-            }
-
-            return true;
-        }
-
-        return false;
+                context.Debug.PlannedAction = SCHActions.WhisperingDawn.Name;
+                context.Debug.PlanningState = "Whispering Dawn";
+                context.TrainingService?.RecordConceptApplication(SchConcepts.WhisperingDawnUsage, wasSuccessful: true);
+            });
     }
 
-    private bool TryFeyIllumination(IAthenaContext context)
+    private void TryPushFeyIllumination(IAthenaContext context, RotationScheduler scheduler)
     {
         var config = context.Configuration.Scholar;
         var player = context.Player;
 
-        if (!config.EnableFairyAbilities)
-            return false;
+        if (!config.EnableFairyAbilities) return;
+        if (!context.FairyStateManager.IsFairyAvailable) return;
+        if (player.Level < SCHActions.FeyIllumination.MinLevel) return;
+        if (!context.ActionService.IsActionReady(SCHActions.FeyIllumination.ActionId)) return;
 
-        if (!context.FairyStateManager.IsFairyAvailable)
-            return false;
+        var (avgHp, lowestHp, _) = context.PartyHealthMetrics;
+        if (lowestHp > 0.5f && avgHp > 0.8f) return;
 
-        if (player.Level < SCHActions.FeyIllumination.MinLevel)
-            return false;
-
-        if (!context.ActionService.IsActionReady(SCHActions.FeyIllumination.ActionId))
-            return false;
-
-        // Use proactively when party needs healing boost
-        var (avgHp, lowestHp, _) = context.PartyHelper.CalculatePartyHealthMetrics(player);
-        if (lowestHp > 0.5f && avgHp > 0.8f)
-            return false;
-
-        var action = SCHActions.FeyIllumination;
-        if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
-        {
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.PlanningState = "Fey Illumination";
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushOgcd(AthenaAbilities.FeyIllumination, player.GameObjectId, priority: 7,
+            onDispatched: _ =>
             {
-                var shortReason = $"Fey Illumination - party needs healing boost";
-
-                var factors = new[]
-                {
-                    $"Party avg HP: {avgHp:P0}",
-                    $"Lowest HP: {lowestHp:P0}",
-                    "Increases healing magic potency by 10%",
-                    "5% magic damage reduction",
-                    "20s duration",
-                };
-
-                var alternatives = _feyIlluminationAlternatives;
-
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = action.ActionId,
-                    ActionName = "Fey Illumination",
-                    Category = "Defensive",
-                    TargetName = "Party",
-                    ShortReason = shortReason,
-                    DetailedReason = $"Fey Illumination to boost party healing. Party avg HP at {avgHp:P0}, lowest at {lowestHp:P0}. Fey Illumination increases all healing magic potency by 10% and provides 5% magic damage mitigation for 20 seconds. Free fairy ability!",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = "Fey Illumination is great before heavy healing phases. The 10% healing boost affects all healers, making it excellent for prog or recovery situations.",
-                    ConceptId = SchConcepts.FeyIlluminationUsage,
-                    Priority = ExplanationPriority.Normal,
-                });
-
-                context.TrainingService.RecordConceptApplication(SchConcepts.FeyIlluminationUsage, wasSuccessful: true);
-            }
-
-            return true;
-        }
-
-        return false;
+                context.Debug.PlannedAction = SCHActions.FeyIllumination.Name;
+                context.Debug.PlanningState = "Fey Illumination";
+                context.TrainingService?.RecordConceptApplication(SchConcepts.FeyIlluminationUsage, wasSuccessful: true);
+            });
     }
 }
