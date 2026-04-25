@@ -243,8 +243,15 @@ public sealed class Plugin : IDalamudPlugin
         }
 
         // Burst window service (DPS resource pooling during raid buffs)
-        // Created after partyCoordinationService so it can use IPC data when available
-        this.burstWindowService = new BurstWindowService(this.partyCoordinationService);
+        // Created after partyCoordinationService so it can use IPC data when available.
+        // Wired to CombatEventService for low-latency cast-event burst detection: when
+        // a party member casts a known raid buff, the window opens immediately rather
+        // than waiting for the per-frame status scan to see the buff land.
+        this.burstWindowService = new BurstWindowService(
+            this.partyCoordinationService,
+            this.combatEventService,
+            partyList,
+            clientState);
 
         // Modifier-key overrides (Shift = burst, Ctrl = conservative). Static accessor
         // on BurstHoldHelper means all 30+ pooling decision sites pick up the override

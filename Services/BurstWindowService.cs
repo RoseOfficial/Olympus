@@ -2,22 +2,34 @@ using System;
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
+using Dalamud.Plugin.Services;
 using Olympus.Data;
 using Olympus.Services.Party;
 
 namespace Olympus.Services;
 
 /// <summary>
-/// Detects raid buff burst windows by scanning the local player's status effects
-/// and optionally consulting IPC state from PartyCoordinationService.
+/// Detects raid buff burst windows by scanning the local player's status effects,
+/// subscribing to party cast events for low-latency detection, and optionally
+/// consulting IPC state from PartyCoordinationService.
 ///
 /// Burst window = any of the coordinated party raid buffs is active on the player.
 /// These buffs (Battle Litany, Technical Finish, Brotherhood, etc.) all have ~120s CDs
 /// and ~15–20s durations, creating a predictable ~100s cycle.
+///
+/// Cast-event subscription removes the per-frame status-scan latency: when a party
+/// member's raid buff resolves, we mark the burst window immediately rather than
+/// waiting for the local status list to populate (typically 50-200ms later for
+/// non-self casts due to network propagation + Dalamud refresh). The status scan
+/// stays as a fallback to catch any missed events and to detect buff falloff.
 /// </summary>
-public sealed class BurstWindowService : IBurstWindowService
+public sealed class BurstWindowService : IBurstWindowService, IDisposable
 {
     private readonly IPartyCoordinationService? _partyCoordinationService;
+    private readonly ICombatEventService? _combatEventService;
+    private readonly IPartyList? _partyList;
+    private readonly IClientState? _clientState;
+    private readonly Action<uint, uint>? _onAbilityUsedHandler;
 
     // Raid buff status IDs that appear on the LOCAL PLAYER when burst is active.
     // These are party-wide buffs applied by DPS/support jobs to the entire party.
@@ -61,9 +73,70 @@ public sealed class BurstWindowService : IBurstWindowService
     private DateTime _currentWindowStart;
     private bool _wasInBurst;
 
-    public BurstWindowService(IPartyCoordinationService? partyCoordinationService = null)
+    public BurstWindowService(
+        IPartyCoordinationService? partyCoordinationService = null,
+        ICombatEventService? combatEventService = null,
+        IPartyList? partyList = null,
+        IClientState? clientState = null)
     {
         _partyCoordinationService = partyCoordinationService;
+        _combatEventService = combatEventService;
+        _partyList = partyList;
+        _clientState = clientState;
+
+        if (_combatEventService != null)
+        {
+            _onAbilityUsedHandler = OnAbilityUsed;
+            _combatEventService.OnAbilityUsed += _onAbilityUsedHandler;
+        }
+    }
+
+    public void Dispose()
+    {
+        if (_combatEventService != null && _onAbilityUsedHandler != null)
+            _combatEventService.OnAbilityUsed -= _onAbilityUsedHandler;
+    }
+
+    /// <summary>
+    /// Cast-event handler. Fires when any nearby actor's action effect resolves.
+    /// Filters to coordinated raid buffs cast by the local player or a party member,
+    /// then opens the burst window with the buff's known duration.
+    /// </summary>
+    private void OnAbilityUsed(uint casterEntityId, uint actionId)
+    {
+        if (!CoordinatedRaidBuffs.IsCoordinatedRaidBuff(actionId))
+            return;
+
+        if (!IsCasterInParty(casterEntityId))
+            return;
+
+        var duration = CoordinatedRaidBuffs.GetBuffDuration(actionId);
+
+        if (!_isInBurstWindow)
+        {
+            _isInBurstWindow = true;
+            _currentWindowStart = DateTime.UtcNow;
+            _wasInBurst = true;
+        }
+        if (duration > _secondsRemainingInBurst)
+            _secondsRemainingInBurst = duration;
+    }
+
+    private bool IsCasterInParty(uint casterEntityId)
+    {
+        // Self-cast always counts: the local player's own raid buff applies to them.
+        if (_clientState?.LocalPlayer?.EntityId == casterEntityId)
+            return true;
+
+        // Party member cast: their raid buff applies to the local player.
+        if (_partyList == null)
+            return false;
+        foreach (var member in _partyList)
+        {
+            if (member?.GameObject?.EntityId == casterEntityId)
+                return true;
+        }
+        return false;
     }
 
     #region IBurstWindowService

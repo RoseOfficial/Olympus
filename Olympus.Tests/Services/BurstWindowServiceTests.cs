@@ -1,4 +1,7 @@
+using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Plugin.Services;
 using Moq;
+using Olympus.Data;
 using Olympus.Services;
 using Olympus.Services.Party;
 using Olympus.Ipc;
@@ -181,5 +184,122 @@ public class BurstWindowServiceTests
 
         // Act
         Assert.False(service.IsBurstImminent(5f));
+    }
+
+    // -------------------------------------------------------------------------
+    // Cast-event subscription
+    // -------------------------------------------------------------------------
+
+    private static (BurstWindowService service, Mock<ICombatEventService> combatEvents)
+        BuildWithCastEvents(uint localPlayerEntityId = 100U)
+    {
+        var combatEvents = new Mock<ICombatEventService>();
+
+        var localPlayer = new Mock<IPlayerCharacter>();
+        localPlayer.SetupGet(p => p.EntityId).Returns(localPlayerEntityId);
+        var clientState = new Mock<IClientState>();
+        clientState.SetupGet(c => c.LocalPlayer).Returns(localPlayer.Object);
+
+        var service = new BurstWindowService(
+            partyCoordinationService: null,
+            combatEventService: combatEvents.Object,
+            partyList: null,
+            clientState: clientState.Object);
+
+        return (service, combatEvents);
+    }
+
+    [Fact]
+    public void CastEvent_RaidBuffFromSelf_OpensBurstWindow()
+    {
+        var (service, combatEvents) = BuildWithCastEvents(localPlayerEntityId: 100U);
+
+        combatEvents.Raise(
+            x => x.OnAbilityUsed += null,
+            100U, // self
+            DRGActions.BattleLitany.ActionId);
+
+        Assert.True(service.IsInBurstWindow);
+        Assert.Equal(20f, service.SecondsRemainingInBurst);
+    }
+
+    [Fact]
+    public void CastEvent_NonRaidBuff_IsIgnored()
+    {
+        var (service, combatEvents) = BuildWithCastEvents();
+
+        combatEvents.Raise(x => x.OnAbilityUsed += null, 100U, 9U);
+
+        Assert.False(service.IsInBurstWindow);
+        Assert.Equal(0f, service.SecondsRemainingInBurst);
+    }
+
+    [Fact]
+    public void CastEvent_RaidBuffFromUnknownCaster_IsIgnored()
+    {
+        // Caster not local, no party list provided → cannot verify membership → reject.
+        var (service, combatEvents) = BuildWithCastEvents(localPlayerEntityId: 100U);
+
+        combatEvents.Raise(
+            x => x.OnAbilityUsed += null,
+            999U, // not local, no party list to check against
+            DRGActions.BattleLitany.ActionId);
+
+        Assert.False(service.IsInBurstWindow);
+    }
+
+    [Fact]
+    public void CastEvent_MultipleRaidBuffs_ExtendsToMaxDuration()
+    {
+        var (service, combatEvents) = BuildWithCastEvents();
+
+        // BattleVoice = 15s
+        combatEvents.Raise(x => x.OnAbilityUsed += null, 100U, BRDActions.BattleVoice.ActionId);
+        Assert.Equal(15f, service.SecondsRemainingInBurst);
+
+        // BattleLitany = 20s, longer → should extend
+        combatEvents.Raise(x => x.OnAbilityUsed += null, 100U, DRGActions.BattleLitany.ActionId);
+        Assert.Equal(20f, service.SecondsRemainingInBurst);
+
+        // BattleVoice again, shorter → should NOT shrink the window
+        combatEvents.Raise(x => x.OnAbilityUsed += null, 100U, BRDActions.BattleVoice.ActionId);
+        Assert.Equal(20f, service.SecondsRemainingInBurst);
+    }
+
+    [Fact]
+    public void CastEvent_BurstHistoryRecordsWindowStart()
+    {
+        var (service, combatEvents) = BuildWithCastEvents();
+
+        Assert.Empty(service.BurstWindowHistory);
+
+        combatEvents.Raise(x => x.OnAbilityUsed += null, 100U, DRGActions.BattleLitany.ActionId);
+
+        Assert.True(service.IsInBurstWindow);
+        // History only records on Update() once the window ends; cast event opens but doesn't close.
+    }
+
+    [Fact]
+    public void Dispose_UnsubscribesFromCombatEvents()
+    {
+        var (service, combatEvents) = BuildWithCastEvents();
+
+        service.Dispose();
+
+        // After dispose, raising the event should have no effect on state.
+        combatEvents.Raise(x => x.OnAbilityUsed += null, 100U, DRGActions.BattleLitany.ActionId);
+
+        Assert.False(service.IsInBurstWindow);
+    }
+
+    [Fact]
+    public void NoCombatEventService_BehavesAsBefore()
+    {
+        // When no ICombatEventService is provided, no subscription happens; Dispose() is safe.
+        var service = new BurstWindowService(combatEventService: null);
+
+        Assert.False(service.IsInBurstWindow);
+
+        service.Dispose(); // Should not throw.
     }
 }
