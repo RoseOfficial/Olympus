@@ -1,67 +1,55 @@
 using System.Collections.Generic;
 using Olympus.Rotation.AsclepiusCore.Context;
 using Olympus.Rotation.AsclepiusCore.Modules.Healing;
+using Olympus.Rotation.Common.Scheduling;
 
 namespace Olympus.Rotation.AsclepiusCore.Modules;
 
 /// <summary>
-/// Coordinates healing for Sage using two priority-sorted handler lists.
-/// oGCDs run first (CanExecuteOgcd), GCDs run second (CanExecuteGcd).
+/// Coordinates healing for Sage. All handlers push scheduler candidates;
+/// dispatch happens centrally.
 /// </summary>
 public sealed class HealingModule : IAsclepiusModule
 {
-    private readonly List<IHealingHandler> _ogcdHandlers;
-    private readonly List<IHealingHandler> _gcdHandlers;
+    private readonly List<IHealingHandler> _handlers;
 
     public int Priority => 10;
     public string Name => "Healing";
 
     public HealingModule()
     {
-        _ogcdHandlers = new List<IHealingHandler>
+        _handlers = new List<IHealingHandler>
         {
-            new SingleTargetOgcdHandler(), // 10
-            new IxocholeHandler(),         // 15
-            new KeracholeHandler(),        // 20
-            new PhysisIIHandler(),         // 25
-            new HolosHandler(),            // 30
-            new HaimaHandler(),            // 35
-            new PanhaimaHandler(),         // 40
-            new PepsisHandler(),           // 45
-            new RhizomataHandler(),        // 50
-            new KrasisHandler(),           // 55
-            new ZoeHandler(),              // 60
-            new LucidDreamingHandler(),    // 70
+            new SingleTargetOgcdHandler(),
+            new IxocholeHandler(),
+            new KeracholeHandler(),
+            new PhysisIIHandler(),
+            new HolosHandler(),
+            new HaimaHandler(),
+            new PanhaimaHandler(),
+            new PepsisHandler(),
+            new RhizomataHandler(),
+            new KrasisHandler(),
+            new ZoeHandler(),
+            new LucidDreamingHandler(),
+            new EsunaHandler(),
+            new PneumaHandler(),
+            new ShieldHealingHandler(),
+            new PrognosisHandler(),
+            new DiagnosisHandler(),
         };
-        _ogcdHandlers.Sort((a, b) => a.Priority.CompareTo(b.Priority));
-
-        _gcdHandlers = new List<IHealingHandler>
-        {
-            new EsunaHandler(),           // 5
-            new PneumaHandler(),          // 10
-            new ShieldHealingHandler(),   // 20
-            new PrognosisHandler(),       // 30
-            new DiagnosisHandler(),       // 40
-        };
-        _gcdHandlers.Sort((a, b) => a.Priority.CompareTo(b.Priority));
     }
 
-    public bool TryExecute(IAsclepiusContext context, bool isMoving)
+    public bool TryExecute(IAsclepiusContext context, bool isMoving) => false;
+
+    public void CollectCandidates(IAsclepiusContext context, RotationScheduler scheduler, bool isMoving)
     {
         context.HealingCoordination.Clear();
+        if (!context.InCombat) return;
+        if (!context.Configuration.EnableHealing) return;
 
-        if (!context.InCombat) return false;
-        if (!context.Configuration.EnableHealing) return false;
-
-        if (context.CanExecuteOgcd)
-            foreach (var h in _ogcdHandlers)
-                if (h.TryExecute(context, isMoving)) return true;
-
-        if (context.CanExecuteGcd)
-            foreach (var h in _gcdHandlers)
-                if (h.TryExecute(context, isMoving)) return true;
-
-        return false;
+        foreach (var handler in _handlers)
+            handler.CollectCandidates(context, scheduler, isMoving);
     }
 
     public void UpdateDebugState(IAsclepiusContext context)
