@@ -272,9 +272,8 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
     }
 
     /// <summary>
-    /// Scheduler-aware execution. Runs CollectCandidates per module (no-op until deep migration),
-    /// then the authoritative legacy TryExecute priority chain. Scheduler Dispatch calls are
-    /// safe no-ops when no candidates are pushed.
+    /// Scheduler-driven execution. CollectCandidates runs per module, then the
+    /// scheduler dispatches the highest-priority gate-passing candidate per phase.
     /// </summary>
     protected override void ExecuteModules(IZeusContext context, bool isMoving, bool inCombat)
     {
@@ -290,18 +289,10 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
             module.CollectCandidates(context, _scheduler, isMoving);
 
         if (inCombat && ActionService.CanExecuteOgcd)
-        {
-            foreach (var module in _modules)
-                if (module.TryExecute(context, isMoving)) return;
             _scheduler.DispatchOgcd(context);
-        }
 
         if (ActionService.CanExecuteGcd)
-        {
-            foreach (var module in _modules)
-                if (module.TryExecute(context, isMoving)) return;
             _scheduler.DispatchGcd(context);
-        }
     }
 
     #endregion
