@@ -3,8 +3,9 @@ using Olympus.Config;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Helpers;
-using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.AstraeaCore.Abilities;
 using Olympus.Rotation.AstraeaCore.Context;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Training;
 
 namespace Olympus.Rotation.AstraeaCore.Modules.Healing;
@@ -14,125 +15,106 @@ public sealed class EarthlyStarDetonationHandler : IHealingHandler
     public int Priority => 40;
     public string Name => "EarthlyStarDetonation";
 
-    public bool TryExecute(IAstraeaContext context, bool isMoving)
-        => TryEarthlyStarDetonation(context);
+    public bool TryExecute(IAstraeaContext context, bool isMoving) => false;
 
-    private bool TryEarthlyStarDetonation(IAstraeaContext context)
+    public void CollectCandidates(IAstraeaContext context, RotationScheduler scheduler, bool isMoving)
     {
         var config = context.Configuration.Astrologian;
         var player = context.Player;
 
-        if (!config.EnableEarthlyStar)
-            return false;
+        if (!config.EnableEarthlyStar) return;
+        if (!context.IsStarPlaced) return;
+        if (player.Level < ASTActions.StellarDetonation.MinLevel) return;
+        if (!context.ActionService.IsActionReady(ASTActions.StellarDetonation.ActionId)) return;
 
-        if (!context.IsStarPlaced)
-            return false;
-
-        if (player.Level < ASTActions.StellarDetonation.MinLevel)
-            return false;
-
-        if (!context.ActionService.IsActionReady(ASTActions.StellarDetonation.ActionId))
-            return false;
-
-        var (avgHp, lowestHp, injured) = context.PartyHealthMetrics;
-
-        // Check if star is mature (Giant Dominance)
+        var (avgHp, _, injured) = context.PartyHealthMetrics;
         bool isMature = context.IsStarMature;
 
-        // Timeline-aware: check for imminent raidwide
         var raidwideImminent = TimelineHelper.IsRaidwideImminent(
-            context.TimelineService,
-            context.BossMechanicDetector,
-            context.Configuration,
-            out _);
+            context.TimelineService, context.BossMechanicDetector, context.Configuration, out _);
 
-        // Determine if we should detonate
         bool shouldDetonate = false;
 
         if (isMature)
         {
-            // Mature star: detonate when party needs healing OR raidwide is imminent
             if (avgHp <= config.EarthlyStarDetonateThreshold || injured >= config.EarthlyStarMinTargets || raidwideImminent)
                 shouldDetonate = true;
         }
         else if (!config.WaitForGiantDominance)
         {
-            // Immature star allowed: detonate if party needs healing or raidwide imminent
             if (avgHp <= config.EarthlyStarDetonateThreshold || injured >= config.EarthlyStarMinTargets || raidwideImminent)
                 shouldDetonate = true;
         }
         else
         {
-            // Emergency detonation even if immature
             if (avgHp <= config.EarthlyStarEmergencyThreshold)
                 shouldDetonate = true;
         }
 
-        if (!shouldDetonate)
-            return false;
+        if (!shouldDetonate) return;
 
         var action = ASTActions.StellarDetonation;
-        if (context.ActionService.ExecuteOgcd(action, player.GameObjectId))
-        {
-            // Notify service that star was detonated
-            context.EarthlyStarService.OnStarDetonated();
+        var capturedAvgHp = avgHp;
+        var capturedInjured = injured;
+        var capturedIsMature = isMature;
+        var capturedRaidwideImminent = raidwideImminent;
 
-            context.Debug.PlannedAction = action.Name;
-            context.Debug.EarthlyStarState = isMature ? "Detonated (Mature)" : "Detonated (Immature)";
-            context.LogEarthlyStarDecision("Detonated", isMature ? "Mature star, party needs healing" : "Emergency detonate");
-
-            // Training mode: capture explanation
-            if (context.TrainingService?.IsTrainingEnabled == true)
+        scheduler.PushOgcd(AstraeaAbilities.StellarDetonation, player.GameObjectId, priority: Priority,
+            onDispatched: _ =>
             {
-                string trigger;
-                if (raidwideImminent) trigger = "Raidwide imminent";
-                else if (avgHp <= config.EarthlyStarEmergencyThreshold) trigger = "Emergency HP";
-                else trigger = $"Party HP low ({avgHp:P0})";
+                context.EarthlyStarService.OnStarDetonated();
 
-                var shortReason = isMature
-                    ? $"Giant Dominance detonated - {trigger}"
-                    : $"Immature Star detonated - {trigger}";
+                context.Debug.PlannedAction = action.Name;
+                context.Debug.EarthlyStarState = capturedIsMature ? "Detonated (Mature)" : "Detonated (Immature)";
+                context.LogEarthlyStarDecision("Detonated", capturedIsMature ? "Mature star, party needs healing" : "Emergency detonate");
 
-                var factors = new[]
+                if (context.TrainingService?.IsTrainingEnabled == true)
                 {
-                    isMature ? "Star MATURE (Giant Dominance)" : "Star immature",
-                    $"Party avg HP: {avgHp:P0}",
-                    $"Injured count: {injured}",
-                    trigger,
-                    isMature ? "720 potency heal + 720 damage" : "360 potency heal + 360 damage",
-                };
+                    string trigger;
+                    if (capturedRaidwideImminent) trigger = "Raidwide imminent";
+                    else if (capturedAvgHp <= config.EarthlyStarEmergencyThreshold) trigger = "Emergency HP";
+                    else trigger = $"Party HP low ({capturedAvgHp:P0})";
 
-                var alternatives = new[]
-                {
-                    isMature ? "Detonation is optimal when mature" : "Wait for maturation (if safe)",
-                    "Let star expire naturally",
-                    "Use other oGCDs first",
-                };
+                    var shortReason = capturedIsMature
+                        ? $"Giant Dominance detonated - {trigger}"
+                        : $"Immature Star detonated - {trigger}";
 
-                context.TrainingService.RecordDecision(new ActionExplanation
-                {
-                    Timestamp = DateTime.UtcNow,
-                    ActionId = action.ActionId,
-                    ActionName = "Stellar Detonation",
-                    Category = "Healing",
-                    TargetName = "Party",
-                    ShortReason = shortReason,
-                    DetailedReason = $"Detonated Earthly Star ({(isMature ? "Giant Dominance, 720 potency" : "immature, 360 potency")}). Party avg HP at {avgHp:P0} with {injured} injured. {trigger}. {(isMature ? "Mature star provides maximum healing value!" : "Detonated early due to urgent healing need.")}",
-                    Factors = factors,
-                    Alternatives = alternatives,
-                    Tip = isMature
-                        ? "Perfect timing! Mature Earthly Star is AST's biggest AoE heal. Always aim for Giant Dominance when possible."
-                        : "Sometimes you have to detonate early. An immature heal is better than letting the party die!",
-                    ConceptId = AstConcepts.EarthlyStarMaturation,
-                    Priority = isMature ? ExplanationPriority.High : ExplanationPriority.Normal,
-                });
+                    var factors = new[]
+                    {
+                        capturedIsMature ? "Star MATURE (Giant Dominance)" : "Star immature",
+                        $"Party avg HP: {capturedAvgHp:P0}",
+                        $"Injured count: {capturedInjured}",
+                        trigger,
+                        capturedIsMature ? "720 potency heal + 720 damage" : "360 potency heal + 360 damage",
+                    };
 
-                context.TrainingService?.RecordConceptApplication(AstConcepts.EarthlyStarMaturation, wasSuccessful: isMature, isMature ? "Giant Dominance detonation" : "Early detonation");
-            }
+                    var alternatives = new[]
+                    {
+                        capturedIsMature ? "Detonation is optimal when mature" : "Wait for maturation (if safe)",
+                        "Let star expire naturally",
+                        "Use other oGCDs first",
+                    };
 
-            return true;
-        }
+                    context.TrainingService.RecordDecision(new ActionExplanation
+                    {
+                        Timestamp = DateTime.UtcNow,
+                        ActionId = action.ActionId,
+                        ActionName = "Stellar Detonation",
+                        Category = "Healing",
+                        TargetName = "Party",
+                        ShortReason = shortReason,
+                        DetailedReason = $"Detonated Earthly Star ({(capturedIsMature ? "Giant Dominance, 720 potency" : "immature, 360 potency")}). Party avg HP at {capturedAvgHp:P0} with {capturedInjured} injured. {trigger}. {(capturedIsMature ? "Mature star provides maximum healing value!" : "Detonated early due to urgent healing need.")}",
+                        Factors = factors,
+                        Alternatives = alternatives,
+                        Tip = capturedIsMature
+                            ? "Perfect timing! Mature Earthly Star is AST's biggest AoE heal. Always aim for Giant Dominance when possible."
+                            : "Sometimes you have to detonate early. An immature heal is better than letting the party die!",
+                        ConceptId = AstConcepts.EarthlyStarMaturation,
+                        Priority = capturedIsMature ? ExplanationPriority.High : ExplanationPriority.Normal,
+                    });
 
-        return false;
+                    context.TrainingService?.RecordConceptApplication(AstConcepts.EarthlyStarMaturation, wasSuccessful: capturedIsMature, capturedIsMature ? "Giant Dominance detonation" : "Early detonation");
+                }
+            });
     }
 }
