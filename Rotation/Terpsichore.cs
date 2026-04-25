@@ -254,19 +254,15 @@ public sealed class Terpsichore : BaseRangedDpsRotation<ITerpsichoreContext, ITe
         foreach (var module in _modules)
             module.CollectCandidates(context, _scheduler, isMoving);
 
-        if (inCombat && ActionService.CanExecuteOgcd)
-        {
-            foreach (var module in _modules)
-                if (module.TryExecute(context, isMoving)) return;
+        // Terpsichore is the one DPS that fires oGCDs pre-combat (Closed Position +
+        // Standard Step before the pull). Drop the inCombat gate on the oGCD pass so
+        // BuffModule.CollectCandidates can push those candidates and the scheduler
+        // dispatches them. Per-candidate logic in BuffModule still gates correctly.
+        if (ActionService.CanExecuteOgcd)
             _scheduler.DispatchOgcd(context);
-        }
 
         if (ActionService.CanExecuteGcd)
-        {
-            foreach (var module in _modules)
-                if (module.TryExecute(context, isMoving)) return;
             _scheduler.DispatchGcd(context);
-        }
     }
 
     #endregion
