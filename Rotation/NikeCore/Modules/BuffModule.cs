@@ -186,6 +186,7 @@ public sealed class BuffModule : INikeModule
         var player = context.Player;
         if (player.Level < SAMActions.MeikyoShisui.MinLevel) return;
         if (context.HasMeikyoShisui) return;
+        if (!context.Configuration.Samurai.UseMeikyoInBurst && _burstWindowService?.IsInBurstWindow == true) return;
 
         var shouldUseMeikyo = false;
         if (!context.HasFugetsu || context.FugetsuRemaining < BuffRefreshThreshold) shouldUseMeikyo = true;

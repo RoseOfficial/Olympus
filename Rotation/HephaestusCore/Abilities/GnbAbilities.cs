@@ -278,20 +278,24 @@ public static class GnbAbilities
     public static readonly AbilityBehavior Reprisal = new()
     {
         Action = RoleActions.Reprisal,
+        Toggle = cfg => cfg.Tank.EnableReprisal,
     };
 
     public static readonly AbilityBehavior ArmsLength = new()
     {
         Action = RoleActions.ArmsLength,
+        Toggle = cfg => cfg.Tank.EnableArmsLength,
     };
 
     public static readonly AbilityBehavior Interject = new()
     {
         Action = RoleActions.Interject,
+        Toggle = cfg => cfg.Tank.EnableInterject,
     };
 
     public static readonly AbilityBehavior LowBlow = new()
     {
         Action = RoleActions.LowBlow,
+        Toggle = cfg => cfg.Tank.EnableLowBlow,
     };
 }

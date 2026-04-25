@@ -239,6 +239,15 @@ public sealed class BuffModule : IIrisModule
         if (context.HasSubtractivePalette) return;
         if (context.HasSubtractiveSpectrum) return;
         if (!context.CanUseSubtractivePalette) return;
+        // SavePaletteForComet: defer if Comet will be available soon and gauge is not overflowing
+        if (context.Configuration.Pictomancer.SavePaletteForComet
+            && context.Configuration.Pictomancer.EnableCometInBlack
+            && !context.HasBlackPaint
+            && context.PaletteGauge < 90)
+        {
+            context.Debug.BuffState = "Hold Subtractive (saving for Comet)";
+            return;
+        }
         if (!context.IsInBurstWindow && context.PaletteGauge < 75)
         {
             context.Debug.BuffState = "Hold Subtractive for burst";
@@ -270,7 +279,7 @@ public sealed class BuffModule : IIrisModule
         var player = context.Player;
         if (player.Level < RoleActions.LucidDreaming.MinLevel) return;
         if (!context.LucidDreamingReady) return;
-        if (context.MpPercent > 0.7f) return;
+        if (context.MpPercent > context.Configuration.Pictomancer.LucidDreamingThreshold) return;
 
         scheduler.PushOgcd(IrisAbilities.LucidDreaming, player.GameObjectId, priority: 5,
             onDispatched: _ =>

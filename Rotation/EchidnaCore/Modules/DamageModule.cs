@@ -310,8 +310,9 @@ public sealed class DamageModule : IEchidnaModule
         var player = context.Player;
         if (player.Level < VPRActions.Reawaken.MinLevel) return;
         if (context.IsReawakened) return;
-        if (context.SerpentOffering < 50 && !context.HasReadyToReawaken) return;
-        if (context.Configuration.Viper.EnableBurstPooling && ShouldHoldForBurst(8f) && !context.HasReadyToReawaken) return;
+        if (context.SerpentOffering < context.Configuration.Viper.AnguineMinStacks && !context.HasReadyToReawaken) return;
+        if (!context.Configuration.Viper.UseReawakenDuringBurst && _burstWindowService?.IsInBurstWindow == true && !context.HasReadyToReawaken) return;
+        if (context.Configuration.Viper.EnableBurstPooling && context.Configuration.Viper.SaveAnguineForBurst && ShouldHoldForBurst(8f) && !context.HasReadyToReawaken) return;
         if (!context.HasHuntersInstinct || context.HuntersInstinctRemaining < 10f) return;
         if (!context.HasSwiftscaled || context.SwiftscaledRemaining < 10f) return;
         if (!context.HasNoxiousGnash || context.NoxiousGnashRemaining < 10f) return;
@@ -611,10 +612,13 @@ public sealed class DamageModule : IEchidnaModule
         if (context.RattlingCoils <= 0) return;
         if (context.IsReawakened) return;
 
+        var rattlingCoilMax = context.Configuration.Viper.RattlingCoilMinStacks;
         bool shouldUse = !DistanceHelper.IsActionInRange(VPRActions.SteelFangs.ActionId, player, target)
-                         || context.RattlingCoils >= 3
+                         || context.RattlingCoils >= rattlingCoilMax
                          || isMoving;
         if (!shouldUse) return;
+        if (context.Configuration.Viper.EnableBurstPooling && context.Configuration.Viper.SaveRattlingCoilForBurst
+            && ShouldHoldForBurst(8f) && context.RattlingCoils < rattlingCoilMax) return;
         if (!context.ActionService.IsActionReady(VPRActions.UncoiledFury.ActionId)) return;
 
         scheduler.PushGcd(EchidnaAbilities.UncoiledFury, target.GameObjectId, priority: 3,
@@ -651,16 +655,26 @@ public sealed class DamageModule : IEchidnaModule
         {
             if (context.LastComboAction == VPRActions.HuntersSting.ActionId)
             {
-                if (context.HasHindstungVenom) { action = VPRActions.HindstingStrike; ability = EchidnaAbilities.HindstingStrike; }
-                else if (context.HasFlankstungVenom) { action = VPRActions.FlankstingStrike; ability = EchidnaAbilities.FlankstingStrike; }
-                else { action = VPRActions.FlankstingStrike; ability = EchidnaAbilities.FlankstingStrike; }
+                var maintainVenoms = context.Configuration.Viper.MaintainVenoms;
+                var optimizePositionals = context.Configuration.Viper.OptimizeVenomPositionals;
+                if (maintainVenoms && optimizePositionals && context.HasHindstungVenom)
+                    { action = VPRActions.HindstingStrike; ability = EchidnaAbilities.HindstingStrike; }
+                else if (maintainVenoms && context.HasFlankstungVenom)
+                    { action = VPRActions.FlankstingStrike; ability = EchidnaAbilities.FlankstingStrike; }
+                else
+                    { action = VPRActions.FlankstingStrike; ability = EchidnaAbilities.FlankstingStrike; }
                 isPositional = true;
             }
             else if (context.LastComboAction == VPRActions.SwiftskinsString.ActionId)
             {
-                if (context.HasHindsbaneVenom) { action = VPRActions.HindsbaneFang; ability = EchidnaAbilities.HindsbaneFang; }
-                else if (context.HasFlanksbaneVenom) { action = VPRActions.FlanksbaneFang; ability = EchidnaAbilities.FlanksbaneFang; }
-                else { action = VPRActions.FlanksbaneFang; ability = EchidnaAbilities.FlanksbaneFang; }
+                var maintainVenoms = context.Configuration.Viper.MaintainVenoms;
+                var optimizePositionals = context.Configuration.Viper.OptimizeVenomPositionals;
+                if (maintainVenoms && optimizePositionals && context.HasHindsbaneVenom)
+                    { action = VPRActions.HindsbaneFang; ability = EchidnaAbilities.HindsbaneFang; }
+                else if (maintainVenoms && context.HasFlanksbaneVenom)
+                    { action = VPRActions.FlanksbaneFang; ability = EchidnaAbilities.FlanksbaneFang; }
+                else
+                    { action = VPRActions.FlanksbaneFang; ability = EchidnaAbilities.FlanksbaneFang; }
                 isPositional = true;
             }
             else { action = GetStarterAction(context); ability = MapStarter(action); }
@@ -679,6 +693,15 @@ public sealed class DamageModule : IEchidnaModule
 
         if (level < action.MinLevel) { action = VPRActions.SteelFangs; ability = EchidnaAbilities.SteelFangs; }
         if (!context.ActionService.IsActionReady(action.ActionId)) return;
+
+        if (isPositional && context.Configuration.Viper.EnforcePositionals)
+        {
+            var isRearFinisher = action == VPRActions.HindstingStrike || action == VPRActions.HindsbaneFang;
+            bool positionalOk = isRearFinisher
+                ? (context.IsAtRear || context.HasTrueNorth || context.TargetHasPositionalImmunity)
+                : (context.IsAtFlank || context.HasTrueNorth || context.TargetHasPositionalImmunity);
+            if (!positionalOk && !context.Configuration.Viper.AllowPositionalLoss) return;
+        }
 
         var actionRef = action;
         var abilityRef = ability;

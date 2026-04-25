@@ -31,9 +31,6 @@ public sealed class DamageModule : ICalliopeModule
 
     private bool IsInBurst => BurstHoldHelper.IsInBurst(_burstWindowService);
 
-    private const float DotRefreshMin = 3f;
-    private const float DotRefreshMax = 7f;
-
     public bool TryExecute(ICalliopeContext context, bool isMoving) => false;
 
     public void UpdateDebugState(ICalliopeContext context) { }
@@ -86,6 +83,7 @@ public sealed class DamageModule : ICalliopeModule
         TryPushApexArrow(context, scheduler, target);
         TryPushIronJaws(context, scheduler, target);
         TryPushApplyDots(context, scheduler, target);
+        TryPushSpreadDots(context, scheduler, target);
         TryPushFiller(context, scheduler, target, enemyCount);
     }
 
@@ -315,14 +313,17 @@ public sealed class DamageModule : ICalliopeModule
         var player = context.Player;
         if (player.Level < BRDActions.ApexArrow.MinLevel) return;
 
-        var apexThreshold = (context.Configuration.Bard.EnableBurstPooling && IsInBurst) ? 50 : 80;
+        var brdCfg = context.Configuration.Bard;
+        var normalThreshold = brdCfg.ApexArrowMinGauge;
+        var burstThreshold = (brdCfg.EnableBurstPooling && brdCfg.UseApexDuringBurst && IsInBurst) ? 50 : normalThreshold;
+        var apexThreshold = IsInBurst ? burstThreshold : normalThreshold;
         bool shouldUse = context.SoulVoice >= 100
                          || (context.SoulVoice >= apexThreshold &&
                              (IsInBurst || context.HasRagingStrikes
                               || !context.ActionService.IsActionReady(BRDActions.RagingStrikes.ActionId)));
         if (!shouldUse)
         {
-            context.Debug.DamageState = $"Apex Arrow: {context.SoulVoice}/80";
+            context.Debug.DamageState = $"Apex Arrow: {context.SoulVoice}/{normalThreshold}";
             return;
         }
         if (!context.ActionService.IsActionReady(BRDActions.ApexArrow.ActionId)) return;
@@ -364,11 +365,14 @@ public sealed class DamageModule : ICalliopeModule
         var player = context.Player;
         if (player.Level < BRDActions.IronJaws.MinLevel) return;
         if (!context.HasCausticBite || !context.HasStormbite) return;
+        if (target.MaxHp > 0 && (float)target.CurrentHp / target.MaxHp < context.Configuration.Bard.DotMinTargetHp) return;
 
-        bool needsRefresh = context.CausticBiteRemaining <= DotRefreshMax || context.StormbiteRemaining <= DotRefreshMax;
+        var dotRefreshThreshold = context.Configuration.Bard.DotRefreshThreshold;
+        const float dotRefreshMin = 3f;
+        bool needsRefresh = context.CausticBiteRemaining <= dotRefreshThreshold || context.StormbiteRemaining <= dotRefreshThreshold;
         bool snapshotBuffs = context.HasRagingStrikes && context.CausticBiteRemaining < 20f;
         if (!needsRefresh && !snapshotBuffs) return;
-        if (context.CausticBiteRemaining < DotRefreshMin || context.StormbiteRemaining < DotRefreshMin) needsRefresh = true;
+        if (context.CausticBiteRemaining < dotRefreshMin || context.StormbiteRemaining < dotRefreshMin) needsRefresh = true;
         if (!needsRefresh && !snapshotBuffs) return;
         if (!context.ActionService.IsActionReady(BRDActions.IronJaws.ActionId)) return;
         var castTime = context.HasSwiftcast ? 0f : BRDActions.IronJaws.CastTime;
@@ -410,6 +414,7 @@ public sealed class DamageModule : ICalliopeModule
     private void TryPushApplyDots(ICalliopeContext context, RotationScheduler scheduler, IBattleChara target)
     {
         var level = context.Player.Level;
+        if (target.MaxHp > 0 && (float)target.CurrentHp / target.MaxHp < context.Configuration.Bard.DotMinTargetHp) return;
 
         // Stormbite first
         if (!context.HasStormbite && context.Configuration.Bard.EnableStormbite && level >= BRDActions.Windbite.MinLevel)
@@ -481,6 +486,70 @@ public sealed class DamageModule : ICalliopeModule
                             .Record();
                         context.TrainingService?.RecordConceptApplication(BrdConcepts.CausticBite, true, "DoT application");
                     });
+            }
+        }
+    }
+
+    private void TryPushSpreadDots(ICalliopeContext context, RotationScheduler scheduler, IBattleChara primaryTarget)
+    {
+        var brdCfg = context.Configuration.Bard;
+        if (!brdCfg.SpreadDots) return;
+        var level = context.Player.Level;
+
+        // Try to spread Stormbite to a secondary target
+        if (brdCfg.EnableStormbite && level >= BRDActions.Windbite.MinLevel)
+        {
+            var stormbiteStatusId = BRDActions.GetStormbiteStatusId((byte)level);
+            var spreadTarget = context.TargetingService.FindEnemyNeedingDot(
+                stormbiteStatusId, 0f, FFXIVConstants.RangedTargetingRange, context.Player);
+            if (spreadTarget != null && spreadTarget.GameObjectId != primaryTarget.GameObjectId
+                && spreadTarget.MaxHp > 0
+                && (float)spreadTarget.CurrentHp / spreadTarget.MaxHp >= brdCfg.DotMinTargetHp)
+            {
+                var action = BRDActions.GetStormbite((byte)level);
+                var ability = action == BRDActions.Stormbite ? CalliopeAbilities.Stormbite : CalliopeAbilities.Windbite;
+                if (context.ActionService.IsActionReady(action.ActionId))
+                {
+                    var castTime = context.HasSwiftcast ? 0f : action.CastTime;
+                    if (!MechanicCastGate.ShouldBlock(context, castTime))
+                    {
+                        scheduler.PushGcd(ability, spreadTarget.GameObjectId, priority: 7,
+                            onDispatched: _ =>
+                            {
+                                context.Debug.PlannedAction = action.Name;
+                                context.Debug.DamageState = $"{action.Name} spread";
+                            });
+                        return;
+                    }
+                }
+            }
+        }
+
+        // Try to spread Caustic Bite to a secondary target
+        if (brdCfg.EnableCausticBite && level >= BRDActions.VenomousBite.MinLevel)
+        {
+            var causticStatusId = BRDActions.GetCausticBiteStatusId((byte)level);
+            var spreadTarget = context.TargetingService.FindEnemyNeedingDot(
+                causticStatusId, 0f, FFXIVConstants.RangedTargetingRange, context.Player);
+            if (spreadTarget != null && spreadTarget.GameObjectId != primaryTarget.GameObjectId
+                && spreadTarget.MaxHp > 0
+                && (float)spreadTarget.CurrentHp / spreadTarget.MaxHp >= brdCfg.DotMinTargetHp)
+            {
+                var action = BRDActions.GetCausticBite((byte)level);
+                var ability = action == BRDActions.CausticBite ? CalliopeAbilities.CausticBite : CalliopeAbilities.VenomousBite;
+                if (context.ActionService.IsActionReady(action.ActionId))
+                {
+                    var castTime = context.HasSwiftcast ? 0f : action.CastTime;
+                    if (!MechanicCastGate.ShouldBlock(context, castTime))
+                    {
+                        scheduler.PushGcd(ability, spreadTarget.GameObjectId, priority: 7,
+                            onDispatched: _ =>
+                            {
+                                context.Debug.PlannedAction = action.Name;
+                                context.Debug.DamageState = $"{action.Name} spread";
+                            });
+                    }
+                }
             }
         }
     }

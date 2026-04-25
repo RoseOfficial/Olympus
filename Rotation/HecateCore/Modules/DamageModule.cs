@@ -32,10 +32,8 @@ public sealed class DamageModule : IHecateModule
     private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
         BurstHoldHelper.ShouldHoldForBurst(_burstWindowService, thresholdSeconds);
 
-    private const int Fire4MpCost = 800;
     private const int DespairMpCost = 800;
     private const float ElementRefreshThreshold = 6f;
-    private const float ThunderRefreshThreshold = 3f;
 
     public bool TryExecute(IHecateContext context, bool isMoving) => false;
 
@@ -177,7 +175,9 @@ public sealed class DamageModule : IHecateModule
             return;
         }
 
-        if (context.HasThunderhead)
+        if (context.HasThunderhead
+            && (context.Configuration.BlackMage.UseThunderheadImmediately
+                || context.ThunderDoTRemaining < context.Configuration.BlackMage.ThunderRefreshThreshold))
         {
             var thunderAction = useAoe ? BLMActions.GetThunderAoe(context.Player.Level) : BLMActions.GetThunderST(context.Player.Level);
             var ability = MapThunderAbility(thunderAction);
@@ -286,8 +286,9 @@ public sealed class DamageModule : IHecateModule
                 });
         }
 
+        var thunderRefresh = context.Configuration.BlackMage.ThunderRefreshThreshold;
         if (context.HasThunderhead
-            && (context.ThunderheadRemaining < 5f || context.ThunderDoTRemaining < ThunderRefreshThreshold))
+            && (context.ThunderheadRemaining < 5f || context.ThunderDoTRemaining < thunderRefresh))
         {
             var thunderAction = useAoe ? BLMActions.GetThunderAoe(level) : BLMActions.GetThunderST(level);
             var ability = MapThunderAbility(thunderAction);
@@ -296,7 +297,7 @@ public sealed class DamageModule : IHecateModule
                 {
                     context.Debug.PlannedAction = thunderAction.Name;
                     context.Debug.DamageState = $"Thunderhead expiring ({context.ThunderheadRemaining:F1}s)";
-                    var reason = context.ThunderDoTRemaining < ThunderRefreshThreshold ? "DoT needs refresh" : "Proc expiring";
+                    var reason = context.ThunderDoTRemaining < thunderRefresh ? "DoT needs refresh" : "Proc expiring";
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(thunderAction.ActionId, thunderAction.Name)
                         .AsCasterProc("Thunderhead").Target(target.Name?.TextValue)
@@ -316,6 +317,7 @@ public sealed class DamageModule : IHecateModule
         var level = context.Player.Level;
         if (context.PolyglotStacks == 0) return;
         var maxPolyglot = level >= 98 ? 3 : 2;
+        var cfg = context.Configuration.BlackMage;
 
         if (context.PolyglotStacks >= maxPolyglot)
         {
@@ -343,10 +345,17 @@ public sealed class DamageModule : IHecateModule
             return;
         }
 
-        if (context.Configuration.BlackMage.EnableBurstPooling && ShouldHoldForBurst(8f) && context.PolyglotStacks < 2) return;
+        // Respect minimum stack threshold before spending non-cap stacks
+        if (context.PolyglotStacks < cfg.PolyglotMinStacks) return;
+
+        if (cfg.EnableBurstPooling && ShouldHoldForBurst(8f) && context.PolyglotStacks < 2) return;
 
         if (isMoving && !context.HasInstantCast)
         {
+            // Player wants to reserve stacks specifically for movement
+            if (!cfg.SavePolyglotForMovement) return;
+            if (context.PolyglotStacks <= cfg.PolyglotMovementReserve) return;
+
             var (action, ability) = SelectPolyglotAction(context, level, useAoe);
             if (action == null || level < action.MinLevel) return;
             scheduler.PushGcd(ability!, target.GameObjectId, priority: 3,
@@ -427,8 +436,37 @@ public sealed class DamageModule : IHecateModule
         var level = context.Player.Level;
 
         // Despair finisher window
+        var fire4MinMp = context.Configuration.BlackMage.FireIVMinMp;
+        // Prefer Despair when configured Fire IV count has been reached (tracked via Astral Soul stacks)
+        var fireIVsReached = context.AstralSoulStacks >= context.Configuration.BlackMage.FireIVsBeforeDespair;
+        if (fireIVsReached && context.Configuration.BlackMage.EnableDespair && level >= BLMActions.Despair.MinLevel
+            && context.CurrentMp >= DespairMpCost)
+        {
+            if (context.HasFirestarter)
+            {
+                scheduler.PushGcd(HecateAbilities.Fire3, target.GameObjectId, priority: 5,
+                    onDispatched: _ =>
+                    {
+                        context.Debug.PlannedAction = "Fire III (Firestarter)";
+                        context.Debug.DamageState = "Firestarter before Despair (FireIVs reached)";
+                    });
+                return;
+            }
+            var castTimeD = context.HasInstantCast || level >= 100 ? 0f : BLMActions.Despair.CastTime;
+            if (!MechanicCastGate.ShouldBlock(context, castTimeD))
+            {
+                scheduler.PushGcd(HecateAbilities.Despair, target.GameObjectId, priority: 5,
+                    onDispatched: _ =>
+                    {
+                        context.Debug.PlannedAction = BLMActions.Despair.Name;
+                        context.Debug.DamageState = "Despair (FireIVs before Despair reached)";
+                    });
+                return;
+            }
+        }
+
         if (context.Configuration.BlackMage.EnableDespair && level >= BLMActions.Despair.MinLevel
-            && context.CurrentMp >= DespairMpCost && context.CurrentMp < Fire4MpCost * 2)
+            && context.CurrentMp >= DespairMpCost && context.CurrentMp < fire4MinMp * 2)
         {
             if (context.HasFirestarter)
             {
@@ -468,7 +506,7 @@ public sealed class DamageModule : IHecateModule
             return;
         }
 
-        if (level >= BLMActions.Fire4.MinLevel && context.CurrentMp >= Fire4MpCost)
+        if (level >= BLMActions.Fire4.MinLevel && context.CurrentMp >= fire4MinMp)
         {
             var castTime = context.HasInstantCast ? 0f : BLMActions.Fire4.CastTime;
             if (MechanicCastGate.ShouldBlock(context, castTime))
@@ -526,7 +564,7 @@ public sealed class DamageModule : IHecateModule
     {
         var level = context.Player.Level;
 
-        if (level >= BLMActions.Flare.MinLevel && context.CurrentMp >= 800)
+        if (level >= BLMActions.Flare.MinLevel && context.CurrentMp >= context.Configuration.BlackMage.FireIVMinMp)
         {
             var castTime = context.HasInstantCast ? 0f : BLMActions.Flare.CastTime;
             if (MechanicCastGate.ShouldBlock(context, castTime))
@@ -568,7 +606,9 @@ public sealed class DamageModule : IHecateModule
     private void TryPushIceTransition(IHecateContext context, RotationScheduler scheduler, IBattleChara target)
     {
         var level = context.Player.Level;
-        var iceTransition = BLMActions.GetIceTransition(level);
+        var iceTransition = context.Configuration.BlackMage.UseBlizzardIIITransition
+            ? BLMActions.GetIceTransition(level)
+            : BLMActions.Blizzard;
         var ability = iceTransition == BLMActions.Blizzard3 ? HecateAbilities.Blizzard3 : HecateAbilities.Blizzard;
         var castTime = context.HasInstantCast ? 0f : iceTransition.CastTime;
         if (MechanicCastGate.ShouldBlock(context, castTime))
@@ -604,7 +644,9 @@ public sealed class DamageModule : IHecateModule
         // Build to UI3 if at lower stacks
         if (context.UmbralIceStacks < 3)
         {
-            var iceUpgrade = BLMActions.GetIceTransition(level);
+            var iceUpgrade = context.Configuration.BlackMage.UseBlizzardIIITransition
+                ? BLMActions.GetIceTransition(level)
+                : BLMActions.Blizzard;
             var ability = iceUpgrade == BLMActions.Blizzard3 ? HecateAbilities.Blizzard3 : HecateAbilities.Blizzard;
             var castTime = context.HasInstantCast ? 0f : iceUpgrade.CastTime;
             if (MechanicCastGate.ShouldBlock(context, castTime))
@@ -653,9 +695,18 @@ public sealed class DamageModule : IHecateModule
         }
 
         // Apply/refresh Thunder
-        if (!context.HasThunderDoT || context.ThunderDoTRemaining < ThunderRefreshThreshold)
+        if (!context.Configuration.BlackMage.MaintainThunder)
         {
-            if (context.HasThunderhead)
+            // Thunder maintenance is disabled; fall through to transition/filler
+        }
+        else if (!context.HasThunderDoT || context.ThunderDoTRemaining < context.Configuration.BlackMage.ThunderRefreshThreshold)
+        {
+            var thunderTargetHpPercent = target != null && target.MaxHp > 0 ? (float)target.CurrentHp / target.MaxHp : 1f;
+            if (target != null && thunderTargetHpPercent < context.Configuration.BlackMage.ThunderMinTargetHp)
+            {
+                // Target too low HP — skip Thunder
+            }
+            else if (context.HasThunderhead)
             {
                 var thunderAction = useAoe ? BLMActions.GetThunderAoe(level) : BLMActions.GetThunderST(level);
                 var ability = MapThunderAbility(thunderAction);
@@ -762,7 +813,9 @@ public sealed class DamageModule : IHecateModule
             return;
         }
 
-        var fireTransition = BLMActions.GetFireTransition(level);
+        var fireTransition = context.Configuration.BlackMage.UseFireIIITransition
+            ? BLMActions.GetFireTransition(level)
+            : BLMActions.Fire;
         var ability = fireTransition == BLMActions.Fire3 ? HecateAbilities.Fire3 : HecateAbilities.Fire;
         var castTime = context.HasInstantCast ? 0f : fireTransition.CastTime;
         if (MechanicCastGate.ShouldBlock(context, castTime))
@@ -795,7 +848,9 @@ public sealed class DamageModule : IHecateModule
         var level = context.Player.Level;
         context.Debug.Phase = "Starting";
 
-        var fireStarter = BLMActions.GetFireTransition(level);
+        var fireStarter = context.Configuration.BlackMage.UseFireIIITransition
+            ? BLMActions.GetFireTransition(level)
+            : BLMActions.Fire;
         var ability = fireStarter == BLMActions.Fire3 ? HecateAbilities.Fire3 : HecateAbilities.Fire;
         var castTime = context.HasInstantCast ? 0f : fireStarter.CastTime;
         if (MechanicCastGate.ShouldBlock(context, castTime))

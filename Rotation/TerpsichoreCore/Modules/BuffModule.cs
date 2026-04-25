@@ -72,7 +72,8 @@ public sealed class BuffModule : ITerpsichoreModule
 
         TryPushTechnicalStep(context, scheduler);
         TryPushDevilment(context, scheduler);
-        TryPushStandardStep(context, scheduler);
+        if (context.Configuration.Dancer.UseStandardStepOnCooldown)
+            TryPushStandardStep(context, scheduler);
         TryPushFlourish(context, scheduler);
         TryPushFanDanceIV(context, scheduler, target);
         TryPushFanDanceIII(context, scheduler, target);
@@ -181,7 +182,7 @@ public sealed class BuffModule : ITerpsichoreModule
         if (player.Level < DNCActions.TechnicalStep.MinLevel) return;
         if (context.IsDancing) return;
         if (!context.ActionService.IsActionReady(DNCActions.TechnicalStep.ActionId)) return;
-        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
+        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService, context.Configuration.Dancer.TechnicalHoldTime))
         {
             context.Debug.BuffState = "Holding Technical Step (phase soon)";
             return;
@@ -274,7 +275,7 @@ public sealed class BuffModule : ITerpsichoreModule
             needsPartner = context.PartyHelper.ShouldUpdatePartner(player, context.StatusHelper);
         if (!needsPartner) return;
 
-        var partner = context.PartyHelper.SelectDancePartner(player);
+        var partner = context.PartyHelper.SelectDancePartner(player, context.Configuration.Dancer.PartnerSelectionMode);
         if (partner == null) return;
         if (!context.ActionService.IsActionReady(DNCActions.ClosedPosition.ActionId)) return;
 
@@ -303,6 +304,7 @@ public sealed class BuffModule : ITerpsichoreModule
     private void TryPushDevilment(ITerpsichoreContext context, RotationScheduler scheduler)
     {
         if (!context.Configuration.Dancer.EnableDevilment) return;
+        if (!context.Configuration.Dancer.UseDevilmentAfterTechnical) return;
         var player = context.Player;
         var level = player.Level;
         if (level < DNCActions.Devilment.MinLevel) return;

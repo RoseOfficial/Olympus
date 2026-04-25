@@ -76,7 +76,7 @@ public sealed class BuffModule : IPrometheusModule
             return;
         }
         if (!context.ActionService.IsActionReady(MCHActions.Wildfire.ActionId)) return;
-        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
+        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService, context.Configuration.Machinist.WildfireHoldTime))
         {
             context.Debug.BuffState = "Holding Wildfire (phase soon)";
             return;
@@ -287,11 +287,29 @@ public sealed class BuffModule : IPrometheusModule
         var level = player.Level;
         if (level < MCHActions.Hypercharge.MinLevel) return;
         if (context.IsOverheated) return;
-        if (context.Heat < 50) return;
-        if (context.Configuration.Machinist.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Heat < 90)
+        var mchCfg = context.Configuration.Machinist;
+        if (context.Heat < mchCfg.HeatMinGauge) return;
+
+        // Force-fire at overcap threshold regardless of other holds
+        bool overcapping = context.Heat >= mchCfg.HeatOvercapThreshold;
+
+        if (!overcapping)
         {
-            context.Debug.BuffState = $"Holding Hypercharge for burst ({context.Heat} Heat)";
-            return;
+            if (mchCfg.EnableBurstPooling && ShouldHoldForBurst(8f))
+            {
+                context.Debug.BuffState = $"Holding Hypercharge for burst ({context.Heat} Heat)";
+                return;
+            }
+
+            if (mchCfg.SaveHeatForWildfire && mchCfg.EnableBurstPooling)
+            {
+                var wfCd = context.ActionService.GetCooldownRemaining(MCHActions.Wildfire.ActionId);
+                if (wfCd > 0f && wfCd < 20f)
+                {
+                    context.Debug.BuffState = $"Holding Hypercharge for Wildfire ({context.Heat} Heat, WF in {wfCd:F0}s)";
+                    return;
+                }
+            }
         }
 
         var hyperchargeWindow = 10f;

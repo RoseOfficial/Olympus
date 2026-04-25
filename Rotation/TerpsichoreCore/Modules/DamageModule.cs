@@ -245,9 +245,10 @@ public sealed class DamageModule : ITerpsichoreModule
 
         var espritConfig = context.Configuration.Dancer;
         bool inBurst = context.HasDevilment || context.HasTechnicalFinish || IsInBurst;
-        bool shouldUse = inBurst
-            ? context.Esprit >= espritConfig.SaberDanceMinGauge
-            : context.Esprit >= espritConfig.EspritOvercapThreshold;
+        var espritThreshold = (inBurst && espritConfig.SaveEspritForBurst)
+            ? espritConfig.SaberDanceMinGauge
+            : espritConfig.EspritOvercapThreshold;
+        bool shouldUse = context.Esprit >= espritThreshold;
         if (!shouldUse) return;
         if (!context.ActionService.IsActionReady(DNCActions.SaberDance.ActionId)) return;
         var castTime = context.HasSwiftcast ? 0f : DNCActions.SaberDance.CastTime;

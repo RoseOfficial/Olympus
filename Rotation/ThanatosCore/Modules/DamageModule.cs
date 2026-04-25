@@ -171,7 +171,8 @@ public sealed class DamageModule : IThanatosModule
     {
         var player = context.Player;
         var level = player.Level;
-        if (context.Soul < 50) return;
+        if (context.Soul >= context.Configuration.Reaper.SoulOvercapThreshold) { /* force spend — fall through */ }
+        else if (context.Soul < context.Configuration.Reaper.SoulMinGauge) return;
 
         // Gluttony preferred (60s CD, 2 SR stacks)
         if (level >= RPRActions.Gluttony.MinLevel && context.Configuration.Reaper.EnableGluttony
@@ -422,12 +423,12 @@ public sealed class DamageModule : IThanatosModule
             action = RPRActions.Guillotine;
             ability = ThanatosAbilities.Guillotine;
         }
-        else if (context.HasEnhancedGibbet)
+        else if (context.Configuration.Reaper.AlternateGibbetGallows && context.HasEnhancedGibbet)
         {
             action = RPRActions.Gibbet;
             ability = ThanatosAbilities.Gibbet;
         }
-        else if (context.HasEnhancedGallows)
+        else if (context.Configuration.Reaper.AlternateGibbetGallows && context.HasEnhancedGallows)
         {
             action = RPRActions.Gallows;
             ability = ThanatosAbilities.Gallows;
@@ -449,6 +450,15 @@ public sealed class DamageModule : IThanatosModule
         }
 
         if (!context.ActionService.IsActionReady(action.ActionId)) return;
+
+        if (!useAoe)
+        {
+            var isGibbetPositional = action == RPRActions.Gibbet;
+            bool positionalOk = isGibbetPositional
+                ? (context.IsAtFlank || context.HasTrueNorth || context.TargetHasPositionalImmunity)
+                : (context.IsAtRear || context.HasTrueNorth || context.TargetHasPositionalImmunity);
+            if (context.Configuration.Reaper.EnforcePositionals && !positionalOk && !context.Configuration.Reaper.AllowPositionalLoss) return;
+        }
 
         var positional = useAoe ? "" : (action == RPRActions.Gibbet ? " (flank)" : " (rear)");
 
@@ -562,7 +572,7 @@ public sealed class DamageModule : IThanatosModule
     {
         var player = context.Player;
         var level = player.Level;
-        if (context.HasDeathsDesign && context.DeathsDesignRemaining > 5f) return;
+        if (context.HasDeathsDesign && context.DeathsDesignRemaining > context.Configuration.Reaper.DeathsDesignRefreshThreshold) return;
 
         var aoeThreshold = context.Configuration.Reaper.AoEMinTargets;
         var useAoe = enemyCount >= aoeThreshold && level >= RPRActions.WhorlOfDeath.MinLevel;

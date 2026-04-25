@@ -1,4 +1,5 @@
 using Dalamud.Game.ClientState.Objects.Types;
+using Olympus.Config.DPS;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.Common.Helpers;
@@ -88,11 +89,15 @@ public sealed class DamageModule : IIrisModule
 
     private void TryPushPrepaintMotif(IIrisContext context, RotationScheduler scheduler)
     {
+        if (!context.Configuration.Pictomancer.PrepaintMotifs) return;
         var player = context.Player;
         var level = player.Level;
         if (context.IsCasting) return;
 
-        if (context.Configuration.Pictomancer.EnableLandscapeMotif && context.NeedsLandscapeMotif
+        var prepaintOption = context.Configuration.Pictomancer.PrepaintOption;
+
+        var paintLandscape = prepaintOption == PrepaintOption.All || prepaintOption == PrepaintOption.LandscapeOnly;
+        if (paintLandscape && context.Configuration.Pictomancer.EnableLandscapeMotif && context.NeedsLandscapeMotif
             && level >= PCTActions.StarrySkyMotif.MinLevel)
         {
             scheduler.PushGcd(IrisAbilities.StarrySkyMotif, player.GameObjectId, priority: 1,
@@ -104,10 +109,11 @@ public sealed class DamageModule : IIrisModule
             return;
         }
 
-        if (context.Configuration.Pictomancer.EnableCreatureMotif && context.NeedsCreatureMotif
+        var paintCreature = prepaintOption == PrepaintOption.All || prepaintOption == PrepaintOption.CreatureOnly;
+        if (paintCreature && context.Configuration.Pictomancer.EnableCreatureMotif && context.NeedsCreatureMotif
             && level >= PCTActions.CreatureMotif.MinLevel)
         {
-            var motif = PCTActions.GetCreatureMotif(level, context.LivingMuseCharges);
+            var motif = GetCreatureMotifOrdered(context, level);
             if (IsCreatureMotifEnabled(context, motif))
             {
                 var ability = MapCreatureMotifAbility(motif);
@@ -121,7 +127,8 @@ public sealed class DamageModule : IIrisModule
             }
         }
 
-        if (context.Configuration.Pictomancer.EnableWeaponMotif && context.NeedsWeaponMotif
+        var paintWeapon = prepaintOption == PrepaintOption.All || prepaintOption == PrepaintOption.WeaponOnly;
+        if (paintWeapon && context.Configuration.Pictomancer.EnableWeaponMotif && context.NeedsWeaponMotif
             && level >= PCTActions.WeaponMotif.MinLevel)
         {
             scheduler.PushGcd(IrisAbilities.HammerMotif, player.GameObjectId, priority: 1,
@@ -161,7 +168,7 @@ public sealed class DamageModule : IIrisModule
         if (context.Configuration.Pictomancer.EnableCreatureMotif && context.NeedsCreatureMotif
             && level >= PCTActions.CreatureMotif.MinLevel)
         {
-            var motif = PCTActions.GetCreatureMotif(level, context.LivingMuseCharges);
+            var motif = GetCreatureMotifOrdered(context, level);
             if (IsCreatureMotifEnabled(context, motif))
             {
                 if (MechanicCastGate.ShouldBlock(context, motif.CastTime))
@@ -206,7 +213,7 @@ public sealed class DamageModule : IIrisModule
         if (context.Configuration.Pictomancer.EnableCreatureMotif && context.NeedsCreatureMotif
             && level >= PCTActions.CreatureMotif.MinLevel)
         {
-            var motif = PCTActions.GetCreatureMotif(level, context.LivingMuseCharges);
+            var motif = GetCreatureMotifOrdered(context, level);
             if (IsCreatureMotifEnabled(context, motif))
             {
                 if (MechanicCastGate.ShouldBlock(context, motif.CastTime))
@@ -257,6 +264,14 @@ public sealed class DamageModule : IIrisModule
                     context.Debug.DamageState = "Repainting Starry Sky";
                 });
         }
+    }
+
+    private static ActionDefinition GetCreatureMotifOrdered(IIrisContext context, byte level)
+    {
+        var count = context.LivingMuseCharges;
+        if (context.Configuration.Pictomancer.CreatureMotifOrder == CreatureOrder.MawClawWingPom)
+            count ^= 1;
+        return PCTActions.GetCreatureMotif(level, count);
     }
 
     private static bool IsCreatureMotifEnabled(IIrisContext context, ActionDefinition motif)
@@ -338,6 +353,7 @@ public sealed class DamageModule : IIrisModule
         if (level < PCTActions.HammerStamp.MinLevel) return;
         if (!context.HasHammerTime && !context.IsInHammerCombo) return;
         if (context.Configuration.Pictomancer.EnableBurstPooling && ShouldHoldForBurst(8f) && context.HammerComboStep == 0) return;
+        if (!context.Configuration.Pictomancer.UseHammerDuringBurst && context.IsInBurstWindow) return;
 
         var hammerAction = PCTActions.GetHammerComboAction(context.HammerComboStep, level);
         if (hammerAction == null) return;
@@ -406,6 +422,7 @@ public sealed class DamageModule : IIrisModule
         if (context.Player.Level < PCTActions.HolyInWhite.MinLevel) return;
         if (!context.HasWhitePaint) return;
         if (!isMoving && context.WhitePaint < 4 && !context.IsInBurstWindow) return;
+        if (!isMoving && context.PaletteGauge < context.Configuration.Pictomancer.HolyMinPalette && !context.IsInBurstWindow) return;
 
         scheduler.PushGcd(IrisAbilities.HolyInWhite, target.GameObjectId, priority: 6,
             onDispatched: _ =>

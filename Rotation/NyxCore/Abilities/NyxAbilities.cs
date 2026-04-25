@@ -40,9 +40,9 @@ public static class NyxAbilities
     public static readonly AbilityBehavior Shadowbringer = new() { Action = DRKActions.Shadowbringer, Toggle = cfg => cfg.Tank.EnableShadowbringer };
     public static readonly AbilityBehavior SaltedEarth = new() { Action = DRKActions.SaltedEarth, Toggle = cfg => cfg.Tank.EnableSaltedEarth };
     public static readonly AbilityBehavior SaltAndDarkness = new() { Action = DRKActions.SaltAndDarkness, Toggle = cfg => cfg.Tank.EnableSaltedEarth };
-    public static readonly AbilityBehavior CarveAndSpit = new() { Action = DRKActions.CarveAndSpit, Toggle = cfg => cfg.Tank.EnableDamage };
-    public static readonly AbilityBehavior AbyssalDrain = new() { Action = DRKActions.AbyssalDrain, Toggle = cfg => cfg.Tank.EnableDamage };
-    public static readonly AbilityBehavior Shadowstride = new() { Action = DRKActions.Shadowstride, Toggle = cfg => cfg.Tank.EnableDamage };
+    public static readonly AbilityBehavior CarveAndSpit = new() { Action = DRKActions.CarveAndSpit, Toggle = cfg => cfg.Tank.EnableCarveAndSpit };
+    public static readonly AbilityBehavior AbyssalDrain = new() { Action = DRKActions.AbyssalDrain, Toggle = cfg => cfg.Tank.EnableAbyssalDrain };
+    public static readonly AbilityBehavior Shadowstride = new() { Action = DRKActions.Shadowstride, Toggle = cfg => cfg.Tank.EnableShadowstride };
 
     // --- Ranged ---
     public static readonly AbilityBehavior Unmend = new() { Action = DRKActions.Unmend, Toggle = cfg => cfg.Tank.EnableDamage };
@@ -68,10 +68,10 @@ public static class NyxAbilities
 
     // --- Role actions ---
     public static readonly AbilityBehavior Rampart = new() { Action = RoleActions.Rampart };
-    public static readonly AbilityBehavior Reprisal = new() { Action = RoleActions.Reprisal };
-    public static readonly AbilityBehavior ArmsLength = new() { Action = RoleActions.ArmsLength };
-    public static readonly AbilityBehavior Interject = new() { Action = RoleActions.Interject };
-    public static readonly AbilityBehavior LowBlow = new() { Action = RoleActions.LowBlow };
+    public static readonly AbilityBehavior Reprisal = new() { Action = RoleActions.Reprisal, Toggle = cfg => cfg.Tank.EnableReprisal };
+    public static readonly AbilityBehavior ArmsLength = new() { Action = RoleActions.ArmsLength, Toggle = cfg => cfg.Tank.EnableArmsLength };
+    public static readonly AbilityBehavior Interject = new() { Action = RoleActions.Interject, Toggle = cfg => cfg.Tank.EnableInterject };
+    public static readonly AbilityBehavior LowBlow = new() { Action = RoleActions.LowBlow, Toggle = cfg => cfg.Tank.EnableLowBlow };
     public static readonly AbilityBehavior Provoke = new() { Action = RoleActions.Provoke };
     public static readonly AbilityBehavior Shirk = new() { Action = RoleActions.Shirk };
 }

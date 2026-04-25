@@ -32,8 +32,6 @@ public sealed class DamageModule : INikeModule
     private bool ShouldHoldForBurst(float thresholdSeconds = 8f) =>
         BurstHoldHelper.ShouldHoldForBurst(_burstWindowService, thresholdSeconds);
 
-    private const int KenkiSpendThreshold = 25;
-    private const float HiganbanaRefreshThreshold = 5f;
 
     public bool TryExecute(INikeContext context, bool isMoving) => false;
 
@@ -94,10 +92,10 @@ public sealed class DamageModule : INikeModule
     {
         var player = context.Player;
         var level = player.Level;
-        if (context.Kenki < KenkiSpendThreshold) return;
-        if (context.Configuration.Samurai.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Kenki < 85) return;
+        if (context.Kenki < context.Configuration.Samurai.KenkiMinGauge) return;
+        if (context.Configuration.Samurai.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Kenki < context.Configuration.Samurai.KenkiReserveForBurst) return;
 
-        var shouldSpend = context.Kenki >= 85 || context.Kenki >= 50;
+        var shouldSpend = context.Kenki >= context.Configuration.Samurai.KenkiOvercapThreshold || context.Kenki >= 50;
         if (!shouldSpend) return;
 
         if (useAoE && level >= SAMActions.Kyuten.MinLevel)
@@ -273,7 +271,9 @@ public sealed class DamageModule : INikeModule
                 if (!context.Configuration.Samurai.MaintainHiganbana) return;
                 if (level < SAMActions.Higanbana.MinLevel) return;
                 if (useAoE) return;
-                if (context.HasHiganbanaOnTarget && context.HiganbanaRemaining > HiganbanaRefreshThreshold) return;
+                if (context.HasHiganbanaOnTarget && context.HiganbanaRemaining > context.Configuration.Samurai.HiganbanaRefreshThreshold) return;
+                var targetHpPercent = target.MaxHp > 0 ? (float)target.CurrentHp / target.MaxHp : 1f;
+                if (targetHpPercent < context.Configuration.Samurai.HiganbanaMinTargetHp) return;
                 PushIaijutsu(context, scheduler, target, SAMActions.Higanbana, NikeAbilities.Higanbana, SAMActions.IaijutsuType.Higanbana);
                 break;
 
@@ -368,6 +368,7 @@ public sealed class DamageModule : INikeModule
             && context.ActionService.IsActionReady(SAMActions.Gekko.ActionId))
         {
             bool correctPositional = context.IsAtRear || context.HasTrueNorth || context.TargetHasPositionalImmunity;
+            if (context.Configuration.Samurai.EnforcePositionals && !correctPositional && !context.Configuration.Samurai.AllowPositionalLoss) return;
             scheduler.PushGcd(NikeAbilities.Gekko, target.GameObjectId, priority: 4,
                 onDispatched: _ =>
                 {
@@ -395,6 +396,7 @@ public sealed class DamageModule : INikeModule
             && context.ActionService.IsActionReady(SAMActions.Kasha.ActionId))
         {
             bool correctPositional = context.IsAtFlank || context.HasTrueNorth || context.TargetHasPositionalImmunity;
+            if (context.Configuration.Samurai.EnforcePositionals && !correctPositional && !context.Configuration.Samurai.AllowPositionalLoss) return;
             scheduler.PushGcd(NikeAbilities.Kasha, target.GameObjectId, priority: 4,
                 onDispatched: _ =>
                 {
@@ -587,6 +589,7 @@ public sealed class DamageModule : INikeModule
                 && context.ActionService.IsActionReady(SAMActions.Gekko.ActionId))
             {
                 bool correctPositional = context.IsAtRear || context.HasTrueNorth || context.TargetHasPositionalImmunity;
+                if (context.Configuration.Samurai.EnforcePositionals && !correctPositional && !context.Configuration.Samurai.AllowPositionalLoss) return;
                 scheduler.PushGcd(NikeAbilities.Gekko, target.GameObjectId, priority: 6,
                     onDispatched: _ =>
                     {
@@ -614,6 +617,7 @@ public sealed class DamageModule : INikeModule
                 && context.ActionService.IsActionReady(SAMActions.Kasha.ActionId))
             {
                 bool correctPositional = context.IsAtFlank || context.HasTrueNorth || context.TargetHasPositionalImmunity;
+                if (context.Configuration.Samurai.EnforcePositionals && !correctPositional && !context.Configuration.Samurai.AllowPositionalLoss) return;
                 scheduler.PushGcd(NikeAbilities.Kasha, target.GameObjectId, priority: 6,
                     onDispatched: _ =>
                     {

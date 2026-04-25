@@ -41,8 +41,10 @@ public sealed class ResurrectionModule : ICirceModule
             return;
         }
 
-        // Swiftcast first if no instant available
-        if (!context.HasDualcast && !context.HasSwiftcast && context.SwiftcastReady)
+        var useDualcast = context.Configuration.RedMage.UseDualcastForVerraise;
+
+        // Swiftcast is used when: no instant available AND (UseDualcastForVerraise=false OR no Dualcast available)
+        if (!context.HasDualcast && !context.HasSwiftcast && context.SwiftcastReady && !useDualcast)
         {
             scheduler.PushOgcd(CirceAbilities.Swiftcast, player.GameObjectId, priority: 1,
                 onDispatched: _ =>
@@ -51,8 +53,10 @@ public sealed class ResurrectionModule : ICirceModule
                 });
         }
 
-        // Verraise (only when instant)
-        if (context.HasDualcast || context.HasSwiftcast)
+        // Verraise fires when instant is available
+        // With UseDualcastForVerraise=true, only fire when Dualcast is up (not Swiftcast)
+        var canRaise = useDualcast ? context.HasDualcast : (context.HasDualcast || context.HasSwiftcast);
+        if (canRaise)
         {
             if (partyCoord?.ReserveRaiseTarget((uint)deadTarget.GameObjectId, RDMActions.Verraise.ActionId, 0, usingSwiftcast: true) == false)
             {

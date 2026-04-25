@@ -1,4 +1,5 @@
 using Dalamud.Game.ClientState.Objects.Types;
+using Olympus.Config.DPS;
 using Olympus.Data;
 using Olympus.Rotation.CalliopeCore.Abilities;
 using Olympus.Rotation.CalliopeCore.Context;
@@ -69,8 +70,12 @@ public sealed class BuffModule : ICalliopeModule
         if (player.Level < BRDActions.PitchPerfect.MinLevel) return;
         if (!context.IsWanderersMinuetActive) return;
 
-        bool shouldUse = context.Repertoire >= 3
-                         || (context.Repertoire > 0 && context.SongTimer < SongSwitchThreshold);
+        var brdCfg = context.Configuration.Bard;
+        bool atMinStacks = context.Repertoire >= brdCfg.PitchPerfectMinStacks;
+        bool songEndingEarly = brdCfg.UsePitchPerfectEarly
+                               && context.Repertoire > 0
+                               && context.SongTimer < brdCfg.PitchPerfectEarlyThreshold;
+        bool shouldUse = atMinStacks || songEndingEarly;
         if (!shouldUse) return;
         if (!context.ActionService.IsActionReady(BRDActions.PitchPerfect.ActionId)) return;
 
@@ -80,7 +85,7 @@ public sealed class BuffModule : ICalliopeModule
                 context.Debug.PlannedAction = BRDActions.PitchPerfect.Name;
                 context.Debug.BuffState = $"Pitch Perfect ({context.Repertoire} stacks)";
 
-                var reason = context.Repertoire >= 3 ? "Maximum stacks" : "Song ending soon";
+                var reason = context.Repertoire >= brdCfg.PitchPerfectMinStacks ? "Min stacks reached" : "Song ending soon";
                 TrainingHelper.Decision(context.TrainingService)
                     .Action(BRDActions.PitchPerfect.ActionId, BRDActions.PitchPerfect.Name)
                     .AsRangedBurst()
@@ -91,11 +96,11 @@ public sealed class BuffModule : ICalliopeModule
                         "1 stack = 100 potency, 2 stacks = 220 potency, 3 stacks = 360 potency. Always aim for 3 stacks, " +
                         "but use remaining stacks before WM ends.")
                     .Factors($"Repertoire: {context.Repertoire}/3", $"Song timer: {context.SongTimer:F1}s", "Wanderer's Minuet active")
-                    .Alternatives("Wait for 3 stacks", "Song not ending soon")
+                    .Alternatives($"Wait for {brdCfg.PitchPerfectMinStacks} stacks", "Song not ending soon")
                     .Tip("Use Pitch Perfect at 3 stacks for maximum damage. Don't waste stacks when WM is about to end.")
                     .Concept(BrdConcepts.PitchPerfect)
                     .Record();
-                context.TrainingService?.RecordConceptApplication(BrdConcepts.PitchPerfect, context.Repertoire >= 3, "Stack consumption");
+                context.TrainingService?.RecordConceptApplication(BrdConcepts.PitchPerfect, context.Repertoire >= brdCfg.PitchPerfectMinStacks, "Stack consumption");
                 context.TrainingService?.RecordConceptApplication(BrdConcepts.RepertoireStacks, true, "Repertoire management");
             });
     }
@@ -112,58 +117,121 @@ public sealed class BuffModule : ICalliopeModule
                         || (context.IsArmysPaeonActive && context.SongTimer < 12f);
         if (!needSong) return;
 
-        if (level >= BRDActions.WanderersMinuet.MinLevel
-            && context.ActionService.IsActionReady(BRDActions.WanderersMinuet.ActionId))
-        {
-            scheduler.PushOgcd(CalliopeAbilities.WanderersMinuet, player.GameObjectId, priority: 2,
-                onDispatched: _ =>
-                {
-                    context.Debug.PlannedAction = BRDActions.WanderersMinuet.Name;
-                    context.Debug.BuffState = "Wanderer's Minuet";
+        var songOrder = context.Configuration.Bard.SongRotation;
 
-                    var previousSong = context.NoSongActive ? "None"
-                        : context.IsMagesBalladActive ? "Mage's Ballad"
-                        : context.IsArmysPaeonActive ? "Army's Paeon" : "Unknown";
-                    TrainingHelper.Decision(context.TrainingService)
-                        .Action(BRDActions.WanderersMinuet.ActionId, BRDActions.WanderersMinuet.Name)
-                        .AsSong(previousSong, context.SongTimer)
-                        .Reason($"Wanderer's Minuet (switching from {previousSong})",
-                            "Wanderer's Minuet is the highest priority song for burst. Grants Repertoire stacks for Pitch Perfect. " +
-                            "Standard rotation: WM → MB → AP → WM. Start burst with WM for Raging Strikes alignment.")
-                        .Factors(context.NoSongActive ? "No song active" : $"Previous song: {previousSong}", "Highest priority song", "Enables Pitch Perfect")
-                        .Alternatives("Current song still has time", "WM on cooldown")
-                        .Tip("Always start your song rotation with Wanderer's Minuet. It aligns best with 2-minute burst windows.")
-                        .Concept(BrdConcepts.WanderersMinuet)
-                        .Record();
-                    context.TrainingService?.RecordConceptApplication(BrdConcepts.WanderersMinuet, true, "Song activation");
-                    context.TrainingService?.RecordConceptApplication(BrdConcepts.SongRotation, true, "Song rotation");
-                    context.TrainingService?.RecordConceptApplication(BrdConcepts.SongSwitching, !context.NoSongActive, "Song transition");
-                });
-            return;
+        // Build the preferred order based on SongRotation config.
+        // WanderersMagesBallad: WM → MB → AP (default / DPS-optimal)
+        // ArmysWanderersMages:  AP → WM → MB (used for specific fight timings)
+        bool tryWmFirst = songOrder != SongRotation.ArmysWanderersMages;
+
+        if (tryWmFirst)
+        {
+            if (level >= BRDActions.WanderersMinuet.MinLevel
+                && context.ActionService.IsActionReady(BRDActions.WanderersMinuet.ActionId))
+            {
+                scheduler.PushOgcd(CalliopeAbilities.WanderersMinuet, player.GameObjectId, priority: 2,
+                    onDispatched: _ =>
+                    {
+                        context.Debug.PlannedAction = BRDActions.WanderersMinuet.Name;
+                        context.Debug.BuffState = "Wanderer's Minuet";
+                        var prev = context.NoSongActive ? "None" : context.IsMagesBalladActive ? "Mage's Ballad" : context.IsArmysPaeonActive ? "Army's Paeon" : "Unknown";
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(BRDActions.WanderersMinuet.ActionId, BRDActions.WanderersMinuet.Name)
+                            .AsSong(prev, context.SongTimer)
+                            .Reason($"Wanderer's Minuet (switching from {prev})", "WM → MB → AP rotation. Highest priority song for burst.")
+                            .Factors(context.NoSongActive ? "No song active" : $"Previous: {prev}", "Enables Pitch Perfect")
+                            .Alternatives("WM on cooldown").Tip("Start song rotation with WM for burst alignment.").Concept(BrdConcepts.WanderersMinuet).Record();
+                        context.TrainingService?.RecordConceptApplication(BrdConcepts.WanderersMinuet, true, "Song activation");
+                        context.TrainingService?.RecordConceptApplication(BrdConcepts.SongRotation, true, "Song rotation");
+                        context.TrainingService?.RecordConceptApplication(BrdConcepts.SongSwitching, !context.NoSongActive, "Song transition");
+                    });
+                return;
+            }
+
+            if (context.ActionService.IsActionReady(BRDActions.MagesBallad.ActionId))
+            {
+                scheduler.PushOgcd(CalliopeAbilities.MagesBallad, player.GameObjectId, priority: 2,
+                    onDispatched: _ =>
+                    {
+                        context.Debug.PlannedAction = BRDActions.MagesBallad.Name;
+                        context.Debug.BuffState = "Mage's Ballad";
+                        var prev = context.NoSongActive ? "None" : context.IsWanderersMinuetActive ? "Wanderer's Minuet" : context.IsArmysPaeonActive ? "Army's Paeon" : "Unknown";
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(BRDActions.MagesBallad.ActionId, BRDActions.MagesBallad.Name)
+                            .AsSong(prev, context.SongTimer)
+                            .Reason($"Mage's Ballad (switching from {prev})", "Resets Bloodletter on procs. Second in WM→MB→AP rotation.")
+                            .Factors(context.NoSongActive ? "No song active" : $"Previous: {prev}", "Resets Bloodletter on procs")
+                            .Alternatives("WM available").Tip("Use MB after WM. Spam Bloodletter on procs.").Concept(BrdConcepts.MagesBallad).Record();
+                        context.TrainingService?.RecordConceptApplication(BrdConcepts.MagesBallad, true, "Song activation");
+                        context.TrainingService?.RecordConceptApplication(BrdConcepts.SongRotation, true, "Song rotation");
+                        context.TrainingService?.RecordConceptApplication(BrdConcepts.SongSwitching, !context.NoSongActive, "Song transition");
+                    });
+                return;
+            }
+        }
+        else
+        {
+            // ArmysWanderersMages: AP → WM → MB
+            if (level >= BRDActions.ArmysPaeon.MinLevel
+                && context.ActionService.IsActionReady(BRDActions.ArmysPaeon.ActionId))
+            {
+                scheduler.PushOgcd(CalliopeAbilities.ArmysPaeon, player.GameObjectId, priority: 2,
+                    onDispatched: _ =>
+                    {
+                        context.Debug.PlannedAction = BRDActions.ArmysPaeon.Name;
+                        context.Debug.BuffState = "Army's Paeon";
+                        var prev = context.NoSongActive ? "None" : context.IsWanderersMinuetActive ? "Wanderer's Minuet" : context.IsMagesBalladActive ? "Mage's Ballad" : "Unknown";
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(BRDActions.ArmysPaeon.ActionId, BRDActions.ArmysPaeon.Name)
+                            .AsSong(prev, context.SongTimer)
+                            .Reason($"Army's Paeon (AP→WM→MB rotation, switching from {prev})", "AP first rotation for specific fight timings.")
+                            .Factors(context.NoSongActive ? "No song active" : $"Previous: {prev}", "AP-first rotation")
+                            .Alternatives("AP on cooldown").Tip("AP-first rotation for specific fight timings.").Concept(BrdConcepts.ArmysPaeon).Record();
+                        context.TrainingService?.RecordConceptApplication(BrdConcepts.ArmysPaeon, true, "Song activation");
+                        context.TrainingService?.RecordConceptApplication(BrdConcepts.SongRotation, true, "Song rotation");
+                        context.TrainingService?.RecordConceptApplication(BrdConcepts.SongSwitching, !context.NoSongActive, "Song transition");
+                    });
+                return;
+            }
+
+            if (level >= BRDActions.WanderersMinuet.MinLevel
+                && context.ActionService.IsActionReady(BRDActions.WanderersMinuet.ActionId))
+            {
+                scheduler.PushOgcd(CalliopeAbilities.WanderersMinuet, player.GameObjectId, priority: 2,
+                    onDispatched: _ =>
+                    {
+                        context.Debug.PlannedAction = BRDActions.WanderersMinuet.Name;
+                        context.Debug.BuffState = "Wanderer's Minuet";
+                        var prev = context.NoSongActive ? "None" : context.IsMagesBalladActive ? "Mage's Ballad" : context.IsArmysPaeonActive ? "Army's Paeon" : "Unknown";
+                        TrainingHelper.Decision(context.TrainingService)
+                            .Action(BRDActions.WanderersMinuet.ActionId, BRDActions.WanderersMinuet.Name)
+                            .AsSong(prev, context.SongTimer)
+                            .Reason($"Wanderer's Minuet (AP→WM→MB rotation, switching from {prev})", "WM second in AP-first rotation.")
+                            .Factors(context.NoSongActive ? "No song active" : $"Previous: {prev}", "Enables Pitch Perfect")
+                            .Alternatives("WM on cooldown").Tip("WM second in AP-first rotation.").Concept(BrdConcepts.WanderersMinuet).Record();
+                        context.TrainingService?.RecordConceptApplication(BrdConcepts.WanderersMinuet, true, "Song activation");
+                        context.TrainingService?.RecordConceptApplication(BrdConcepts.SongRotation, true, "Song rotation");
+                        context.TrainingService?.RecordConceptApplication(BrdConcepts.SongSwitching, !context.NoSongActive, "Song transition");
+                    });
+                return;
+            }
         }
 
-        if (context.ActionService.IsActionReady(BRDActions.MagesBallad.ActionId))
+        // Fallback: AP for WM-first, MB for AP-first (the remaining song)
+        if (!tryWmFirst && context.ActionService.IsActionReady(BRDActions.MagesBallad.ActionId))
         {
             scheduler.PushOgcd(CalliopeAbilities.MagesBallad, player.GameObjectId, priority: 2,
                 onDispatched: _ =>
                 {
                     context.Debug.PlannedAction = BRDActions.MagesBallad.Name;
                     context.Debug.BuffState = "Mage's Ballad";
-
-                    var previousSong = context.NoSongActive ? "None"
-                        : context.IsWanderersMinuetActive ? "Wanderer's Minuet"
-                        : context.IsArmysPaeonActive ? "Army's Paeon" : "Unknown";
+                    var prev = context.NoSongActive ? "None" : context.IsWanderersMinuetActive ? "Wanderer's Minuet" : context.IsArmysPaeonActive ? "Army's Paeon" : "Unknown";
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(BRDActions.MagesBallad.ActionId, BRDActions.MagesBallad.Name)
-                        .AsSong(previousSong, context.SongTimer)
-                        .Reason($"Mage's Ballad (switching from {previousSong})",
-                            "Mage's Ballad resets Bloodletter/Rain of Death cooldown on Repertoire procs. Second in the song rotation. " +
-                            "Great for oGCD damage uptime. Provides 1% damage buff to party.")
-                        .Factors(context.NoSongActive ? "No song active" : $"Previous song: {previousSong}", "Resets Bloodletter on procs", "WM on cooldown")
-                        .Alternatives("Wanderer's Minuet available", "Current song still has time")
-                        .Tip("Use Mage's Ballad after WM ends. Spam Bloodletter when it resets from Repertoire procs.")
-                        .Concept(BrdConcepts.MagesBallad)
-                        .Record();
+                        .AsSong(prev, context.SongTimer)
+                        .Reason($"Mage's Ballad (AP→WM→MB rotation, switching from {prev})", "MB last in AP-first rotation.")
+                        .Factors(context.NoSongActive ? "No song active" : $"Previous: {prev}", "Resets Bloodletter on procs")
+                        .Alternatives("WM available").Tip("MB last in AP-first rotation.").Concept(BrdConcepts.MagesBallad).Record();
                     context.TrainingService?.RecordConceptApplication(BrdConcepts.MagesBallad, true, "Song activation");
                     context.TrainingService?.RecordConceptApplication(BrdConcepts.SongRotation, true, "Song rotation");
                     context.TrainingService?.RecordConceptApplication(BrdConcepts.SongSwitching, !context.NoSongActive, "Song transition");
@@ -171,7 +239,7 @@ public sealed class BuffModule : ICalliopeModule
             return;
         }
 
-        if (level >= BRDActions.ArmysPaeon.MinLevel
+        if (tryWmFirst && level >= BRDActions.ArmysPaeon.MinLevel
             && context.ActionService.IsActionReady(BRDActions.ArmysPaeon.ActionId))
         {
             scheduler.PushOgcd(CalliopeAbilities.ArmysPaeon, player.GameObjectId, priority: 2,
@@ -179,21 +247,13 @@ public sealed class BuffModule : ICalliopeModule
                 {
                     context.Debug.PlannedAction = BRDActions.ArmysPaeon.Name;
                     context.Debug.BuffState = "Army's Paeon";
-
-                    var previousSong = context.NoSongActive ? "None"
-                        : context.IsWanderersMinuetActive ? "Wanderer's Minuet"
-                        : context.IsMagesBalladActive ? "Mage's Ballad" : "Unknown";
+                    var prev = context.NoSongActive ? "None" : context.IsWanderersMinuetActive ? "Wanderer's Minuet" : context.IsMagesBalladActive ? "Mage's Ballad" : "Unknown";
                     TrainingHelper.Decision(context.TrainingService)
                         .Action(BRDActions.ArmysPaeon.ActionId, BRDActions.ArmysPaeon.Name)
-                        .AsSong(previousSong, context.SongTimer)
-                        .Reason($"Army's Paeon (switching from {previousSong})",
-                            "Army's Paeon grants attack speed stacks via Repertoire. Lowest priority song, used as filler. " +
-                            "Cut early (around 12s remaining) to realign with WM for burst windows.")
-                        .Factors(context.NoSongActive ? "No song active" : $"Previous song: {previousSong}", "Filler song", "WM and MB on cooldown")
-                        .Alternatives("WM or MB available", "Current song still has time")
-                        .Tip("Army's Paeon is the filler song. Cut it early to get back to WM faster for burst alignment.")
-                        .Concept(BrdConcepts.ArmysPaeon)
-                        .Record();
+                        .AsSong(prev, context.SongTimer)
+                        .Reason($"Army's Paeon (switching from {prev})", "Filler song. Cut early to realign WM for burst.")
+                        .Factors(context.NoSongActive ? "No song active" : $"Previous: {prev}", "Filler song")
+                        .Alternatives("WM or MB available").Tip("Cut AP early to get WM sooner for burst alignment.").Concept(BrdConcepts.ArmysPaeon).Record();
                     context.TrainingService?.RecordConceptApplication(BrdConcepts.ArmysPaeon, true, "Song activation");
                     context.TrainingService?.RecordConceptApplication(BrdConcepts.SongRotation, true, "Song rotation");
                     context.TrainingService?.RecordConceptApplication(BrdConcepts.SongSwitching, !context.NoSongActive, "Song transition");
@@ -212,7 +272,7 @@ public sealed class BuffModule : ICalliopeModule
         bool shouldUse = context.IsWanderersMinuetActive || level < BRDActions.WanderersMinuet.MinLevel;
         if (!shouldUse) return;
         if (!context.ActionService.IsActionReady(BRDActions.RagingStrikes.ActionId)) return;
-        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
+        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService, context.Configuration.Bard.BuffHoldTime))
         {
             context.Debug.BuffState = "Holding Raging Strikes (phase soon)";
             return;
@@ -248,7 +308,7 @@ public sealed class BuffModule : ICalliopeModule
         if (context.HasBattleVoice) return;
         if (!context.HasRagingStrikes && context.ActionService.IsActionReady(BRDActions.RagingStrikes.ActionId)) return;
         if (!context.ActionService.IsActionReady(BRDActions.BattleVoice.ActionId)) return;
-        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
+        if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService, context.Configuration.Bard.BuffHoldTime))
         {
             context.Debug.BuffState = "Holding Battle Voice (phase soon)";
             return;
@@ -294,10 +354,11 @@ public sealed class BuffModule : ICalliopeModule
         var player = context.Player;
         if (player.Level < BRDActions.RadiantFinale.MinLevel) return;
         if (context.HasRadiantFinale) return;
-        if (context.CodaCount == 0) return;
+        var minCoda = context.Configuration.Bard.RadiantFinaleMinCoda;
+        if (context.CodaCount < 1) return;
 
         bool shouldUse = context.HasRagingStrikes && context.HasBattleVoice;
-        if (context.CodaCount >= 3) shouldUse = true;
+        if (context.CodaCount >= minCoda) shouldUse = true;
         if (!shouldUse) return;
         if (!context.ActionService.IsActionReady(BRDActions.RadiantFinale.ActionId)) return;
 

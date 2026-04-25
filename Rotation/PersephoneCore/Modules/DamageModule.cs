@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using Olympus.Config;
+using Olympus.Config.DPS;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.Common.Helpers;
@@ -277,35 +278,72 @@ public sealed class DamageModule : IPersephoneModule
         var level = player.Level;
         if (context.IsDemiSummonActive || context.AttunementStacks > 0) return;
 
-        if (context.Configuration.Summoner.EnableTitan && context.CanSummonTitan && level >= SMNActions.SummonTitan.MinLevel)
+        // Determine summon order based on config
+        var isMoving = context.IsMoving;
+        var cfg = context.Configuration.Summoner;
+
+        // When AdaptOrderForMovement is true and player is moving, prefer Garuda (all instants) first
+        if (cfg.AdaptOrderForMovement && isMoving)
         {
-            scheduler.PushGcd(PersephoneAbilities.SummonTitan, target.GameObjectId, priority: 5,
+            if (cfg.EnableGaruda && context.CanSummonGaruda && level >= SMNActions.SummonGaruda.MinLevel)
+            {
+                scheduler.PushGcd(PersephoneAbilities.SummonGaruda, target.GameObjectId, priority: 5,
+                    onDispatched: _ =>
+                    {
+                        context.Debug.PlannedAction = "Summon Garuda";
+                        context.Debug.DamageState = "Summon Garuda (movement priority)";
+                    });
+                return;
+            }
+        }
+
+        // Ordered list of primals to try, respecting PrimalSummonOrder config
+        switch (cfg.PrimalSummonOrder)
+        {
+            case PrimalOrder.TitanIfritGaruda:
+                if (TryPushPrimalInOrder(context, scheduler, target, level,
+                    (cfg.EnableTitan, context.CanSummonTitan, SMNActions.SummonTitan.MinLevel, PersephoneAbilities.SummonTitan, "Summon Titan"),
+                    (cfg.EnableIfrit, context.CanSummonIfrit, SMNActions.SummonIfrit.MinLevel, PersephoneAbilities.SummonIfrit, "Summon Ifrit"),
+                    (cfg.EnableGaruda, context.CanSummonGaruda, SMNActions.SummonGaruda.MinLevel, PersephoneAbilities.SummonGaruda, "Summon Garuda")))
+                    return;
+                break;
+            case PrimalOrder.GarudaTitanIfrit:
+                if (TryPushPrimalInOrder(context, scheduler, target, level,
+                    (cfg.EnableGaruda, context.CanSummonGaruda, SMNActions.SummonGaruda.MinLevel, PersephoneAbilities.SummonGaruda, "Summon Garuda"),
+                    (cfg.EnableTitan, context.CanSummonTitan, SMNActions.SummonTitan.MinLevel, PersephoneAbilities.SummonTitan, "Summon Titan"),
+                    (cfg.EnableIfrit, context.CanSummonIfrit, SMNActions.SummonIfrit.MinLevel, PersephoneAbilities.SummonIfrit, "Summon Ifrit")))
+                    return;
+                break;
+            case PrimalOrder.IfritGarudaTitan:
+                if (TryPushPrimalInOrder(context, scheduler, target, level,
+                    (cfg.EnableIfrit, context.CanSummonIfrit, SMNActions.SummonIfrit.MinLevel, PersephoneAbilities.SummonIfrit, "Summon Ifrit"),
+                    (cfg.EnableGaruda, context.CanSummonGaruda, SMNActions.SummonGaruda.MinLevel, PersephoneAbilities.SummonGaruda, "Summon Garuda"),
+                    (cfg.EnableTitan, context.CanSummonTitan, SMNActions.SummonTitan.MinLevel, PersephoneAbilities.SummonTitan, "Summon Titan")))
+                    return;
+                break;
+        }
+    }
+
+    private bool TryPushPrimalInOrder(
+        IPersephoneContext context, RotationScheduler scheduler, IBattleChara target, byte level,
+        (bool enabled, bool canSummon, byte minLevel, AbilityBehavior ability, string name) first,
+        (bool enabled, bool canSummon, byte minLevel, AbilityBehavior ability, string name) second,
+        (bool enabled, bool canSummon, byte minLevel, AbilityBehavior ability, string name) third)
+    {
+        foreach (var primal in new[] { first, second, third })
+        {
+            if (!primal.enabled || !primal.canSummon || level < primal.minLevel) continue;
+            var name = primal.name;
+            var ability = primal.ability;
+            scheduler.PushGcd(ability, target.GameObjectId, priority: 5,
                 onDispatched: _ =>
                 {
-                    context.Debug.PlannedAction = "Summon Titan";
-                    context.Debug.DamageState = "Summon Titan";
+                    context.Debug.PlannedAction = name;
+                    context.Debug.DamageState = name;
                 });
-            return;
+            return true;
         }
-        if (context.Configuration.Summoner.EnableGaruda && context.CanSummonGaruda && level >= SMNActions.SummonGaruda.MinLevel)
-        {
-            scheduler.PushGcd(PersephoneAbilities.SummonGaruda, target.GameObjectId, priority: 5,
-                onDispatched: _ =>
-                {
-                    context.Debug.PlannedAction = "Summon Garuda";
-                    context.Debug.DamageState = "Summon Garuda";
-                });
-            return;
-        }
-        if (context.Configuration.Summoner.EnableIfrit && context.CanSummonIfrit && level >= SMNActions.SummonIfrit.MinLevel)
-        {
-            scheduler.PushGcd(PersephoneAbilities.SummonIfrit, target.GameObjectId, priority: 5,
-                onDispatched: _ =>
-                {
-                    context.Debug.PlannedAction = "Summon Ifrit";
-                    context.Debug.DamageState = "Summon Ifrit";
-                });
-        }
+        return false;
     }
 
     /// <summary>
@@ -317,6 +355,8 @@ public sealed class DamageModule : IPersephoneModule
     {
         var player = context.Player;
         if (player.Level < SMNActions.Aethercharge.MinLevel) return;
+        // If player opted out of demi during burst and we're in a burst window, defer
+        if (!context.Configuration.Summoner.UseDemiDuringBurst && context.HasSearingLight) return;
 
         var actionManager = SafeGameAccess.GetActionManager(null);
         if (actionManager == null) return;

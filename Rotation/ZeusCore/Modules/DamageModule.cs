@@ -294,7 +294,7 @@ public sealed class DamageModule : IZeusModule
         if (!context.Configuration.Dragoon.EnableGeirskogul) return;
         if (context.Player.Level < DRGActions.Geirskogul.MinLevel) return;
         if (context.IsLifeOfDragonActive) return;
-        if (context.Configuration.Dragoon.EnableBurstPooling && ShouldHoldForBurst(8f) && context.EyeCount == 2) return;
+        if (context.Configuration.Dragoon.EnableBurstPooling && ShouldHoldForBurst(8f) && context.EyeCount >= context.Configuration.Dragoon.GeirskogulMinEyes) return;
         if (!context.ActionService.IsActionReady(DRGActions.Geirskogul.ActionId)) return;
 
         scheduler.PushOgcd(ZeusAbilities.Geirskogul, targetId, priority: 3,
@@ -482,6 +482,7 @@ public sealed class DamageModule : IZeusModule
             && context.ActionService.IsActionReady(DRGActions.FangAndClaw.ActionId))
         {
             var positionalOk = context.IsAtFlank || context.HasTrueNorth || context.TargetHasPositionalImmunity;
+            if (context.Configuration.Dragoon.EnforcePositionals && !positionalOk && !context.Configuration.Dragoon.AllowPositionalLoss) return;
             scheduler.PushGcd(ZeusAbilities.FangAndClaw, target.GameObjectId, priority: 2,
                 onDispatched: _ =>
                 {
@@ -514,6 +515,7 @@ public sealed class DamageModule : IZeusModule
             && context.ActionService.IsActionReady(DRGActions.WheelingThrust.ActionId))
         {
             var positionalOk = context.IsAtRear || context.HasTrueNorth || context.TargetHasPositionalImmunity;
+            if (context.Configuration.Dragoon.EnforcePositionals && !positionalOk && !context.Configuration.Dragoon.AllowPositionalLoss) return;
             scheduler.PushGcd(ZeusAbilities.WheelingThrust, target.GameObjectId, priority: 2,
                 onDispatched: _ =>
                 {

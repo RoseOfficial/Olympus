@@ -1,4 +1,5 @@
 using Dalamud.Game.ClientState.Objects.Types;
+using Olympus.Config.DPS;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.CirceCore.Abilities;
@@ -180,7 +181,14 @@ public sealed class DamageModule : ICirceModule
     {
         if (!context.Configuration.RedMage.EnableFinisherCombo) return;
         var level = context.Player.Level;
-        var finisher = RDMActions.GetFinisher(level, context.BlackMana, context.WhiteMana);
+        var baseFinisher = RDMActions.GetFinisher(level, context.BlackMana, context.WhiteMana);
+        // Apply FinisherPreference override when both finishers are available
+        var finisher = context.Configuration.RedMage.FinisherPreference switch
+        {
+            FinisherPreference.PreferVerholy when level >= RDMActions.Verholy.MinLevel => RDMActions.Verholy,
+            FinisherPreference.PreferVerflare when level >= RDMActions.Verflare.MinLevel => RDMActions.Verflare,
+            _ => baseFinisher
+        };
         var ability = finisher == RDMActions.Verflare ? CirceAbilities.Verflare : CirceAbilities.Verholy;
 
         scheduler.PushGcd(ability, target.GameObjectId, priority: 3,
@@ -263,18 +271,28 @@ public sealed class DamageModule : ICirceModule
     {
         if (!context.Configuration.RedMage.EnableMeleeCombo) return;
 
+        var rdmCfg = context.Configuration.RedMage;
         var inBurst = context.HasEmbolden || context.HasManafication;
-        var highMana = context.LowerMana >= 80;
+
+        // UseMeleeDuringBurst = false: skip melee entry when in a burst window
+        if (!rdmCfg.UseMeleeDuringBurst && inBurst) return;
+
+        var highMana = context.LowerMana >= rdmCfg.MeleeComboMinMana;
         var verySoon = context.LowerMana >= 90;
         if (!inBurst && !highMana && !verySoon)
         {
-            if (context.EmboldenReady)
+            if (context.EmboldenReady && rdmCfg.HoldMeleeForEmbolden)
             {
-                context.Debug.DamageState = "Hold melee for Embolden";
-                return;
+                // Only hold if Embolden is within the configured window
+                var emboldenCd = context.ActionService.GetCooldownRemaining(RDMActions.Embolden.ActionId);
+                if (emboldenCd <= rdmCfg.MeleeHoldForEmbolden)
+                {
+                    context.Debug.DamageState = "Hold melee for Embolden";
+                    return;
+                }
             }
         }
-        if (context.Configuration.RedMage.EnableBurstPooling && ShouldHoldForBurst(8f) && !IsInBurst && !verySoon) return;
+        if (rdmCfg.EnableBurstPooling && ShouldHoldForBurst(8f) && !IsInBurst && !verySoon) return;
 
         scheduler.PushGcd(CirceAbilities.Riposte, target.GameObjectId, priority: 5,
             onDispatched: _ =>
@@ -425,7 +443,20 @@ public sealed class DamageModule : ICirceModule
             return;
         }
 
-        var longSpell = RDMActions.GetBalancedLongSpell(level, context.BlackMana, context.WhiteMana);
+        // Force deficit color when imbalance exceeds threshold (StrictManaBalance or imbalanced)
+        ActionDefinition longSpell;
+        if (context.AbsoluteManaImbalance >= context.Configuration.RedMage.ManaImbalanceThreshold
+            || context.Configuration.RedMage.StrictManaBalance && context.AbsoluteManaImbalance > 0)
+        {
+            // Pick the spell that restores the lower mana color
+            longSpell = context.BlackMana < context.WhiteMana
+                ? RDMActions.GetVerthunderSpell(level)
+                : RDMActions.GetVeraeroSpell(level);
+        }
+        else
+        {
+            longSpell = RDMActions.GetBalancedLongSpell(level, context.BlackMana, context.WhiteMana);
+        }
         var ability = longSpell == RDMActions.Verthunder3 ? CirceAbilities.Verthunder3
                     : longSpell == RDMActions.Veraero3 ? CirceAbilities.Veraero3
                     : longSpell == RDMActions.Verthunder ? CirceAbilities.Verthunder

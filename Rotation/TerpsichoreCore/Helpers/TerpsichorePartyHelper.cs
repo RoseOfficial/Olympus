@@ -3,6 +3,7 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
+using Olympus.Config.DPS;
 using Olympus.Data;
 
 namespace Olympus.Rotation.TerpsichoreCore.Helpers;
@@ -125,14 +126,23 @@ public sealed class TerpsichorePartyHelper
     }
 
     /// <summary>
-    /// Selects the best dance partner based on job priority.
-    /// Priority: SAM > NIN > VPR > RPR > MNK > DRG > BLM > SMN > RDM > PCT > MCH > BRD > DNC > Tank > Healer
+    /// Selects the best dance partner based on job priority and the configured selection mode.
     /// </summary>
-    public IBattleChara? SelectDancePartner(IPlayerCharacter player)
+    public IBattleChara? SelectDancePartner(IPlayerCharacter player, PartnerSelection mode = PartnerSelection.HighestDps)
     {
         if (_partyList.Length == 0)
             return null; // Solo, no partner available
 
+        return mode switch
+        {
+            PartnerSelection.MeleePriority => SelectPartnerWithRolePriority(player, preferMelee: true),
+            PartnerSelection.RangedPriority => SelectPartnerWithRolePriority(player, preferMelee: false),
+            _ => SelectPartnerByRank(player),
+        };
+    }
+
+    private IBattleChara? SelectPartnerByRank(IPlayerCharacter player)
+    {
         IBattleChara? bestPartner = null;
         var bestPriority = int.MaxValue;
 
@@ -140,18 +150,12 @@ public sealed class TerpsichorePartyHelper
         {
             if (member.GameObject is not IBattleChara battleChara)
                 continue;
-
-            // Skip self
             if (battleChara.EntityId == player.EntityId)
                 continue;
-
-            // Skip dead members
             if (battleChara.CurrentHp == 0)
                 continue;
 
-            var jobId = member.ClassJob.RowId;
-            var priority = GetJobPriority(jobId);
-
+            var priority = GetJobPriority(member.ClassJob.RowId);
             if (priority < bestPriority)
             {
                 bestPriority = priority;
@@ -160,6 +164,44 @@ public sealed class TerpsichorePartyHelper
         }
 
         return bestPartner;
+    }
+
+    private IBattleChara? SelectPartnerWithRolePriority(IPlayerCharacter player, bool preferMelee)
+    {
+        // First pass: look for a partner in the preferred role group
+        IBattleChara? preferred = null;
+        var preferredPriority = int.MaxValue;
+
+        foreach (var member in _partyList)
+        {
+            if (member.GameObject is not IBattleChara battleChara)
+                continue;
+            if (battleChara.EntityId == player.EntityId)
+                continue;
+            if (battleChara.CurrentHp == 0)
+                continue;
+
+            var jobId = member.ClassJob.RowId;
+            bool inPreferredRole = preferMelee
+                ? JobRegistry.IsMeleeDps(jobId)
+                : (JobRegistry.IsRangedPhysicalDps(jobId) || JobRegistry.IsCasterDps(jobId));
+
+            if (!inPreferredRole)
+                continue;
+
+            var priority = GetJobPriority(jobId);
+            if (priority < preferredPriority)
+            {
+                preferredPriority = priority;
+                preferred = battleChara;
+            }
+        }
+
+        if (preferred != null)
+            return preferred;
+
+        // Fallback: no one in the preferred role — use the default rank
+        return SelectPartnerByRank(player);
     }
 
     /// <summary>

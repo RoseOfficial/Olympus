@@ -84,6 +84,7 @@ public sealed class DamageModule : BaseDamageModule<IAstraeaContext>, IAstraeaMo
         var config = context.Configuration.Astrologian;
         var player = context.Player;
 
+        if (!config.EnableMinorArcana) return;
         if (!context.CardService.HasLord) return;
         if (player.Level < ASTActions.LordOfCrowns.MinLevel) return;
 

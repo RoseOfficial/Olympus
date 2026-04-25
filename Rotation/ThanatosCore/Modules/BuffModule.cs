@@ -122,14 +122,15 @@ public sealed class BuffModule : IThanatosModule
             context.Debug.BuffState = "In Soul Reaver state";
             return;
         }
-        if (context.Shroud < 50)
+        if (context.Shroud < context.Configuration.Reaper.ShroudMinGauge)
         {
-            context.Debug.BuffState = $"Need 50 Shroud ({context.Shroud}/50)";
+            context.Debug.BuffState = $"Need {context.Configuration.Reaper.ShroudMinGauge} Shroud ({context.Shroud}/{context.Configuration.Reaper.ShroudMinGauge})";
             return;
         }
         if (!context.ActionService.IsActionReady(RPRActions.Enshroud.ActionId)) return;
 
         if (context.Configuration.Reaper.EnableBurstPooling
+            && context.Configuration.Reaper.SaveShroudForBurst
             && ShouldHoldForBurst(context.Configuration.Reaper.ArcaneCircleHoldTime)
             && context.Shroud < 90)
         {
@@ -137,7 +138,7 @@ public sealed class BuffModule : IThanatosModule
             return;
         }
 
-        bool shouldEnshroud = context.HasArcaneCircle
+        bool shouldEnshroud = (context.Configuration.Reaper.UseEnshroudDuringArcaneCircle && context.HasArcaneCircle)
                               || context.Shroud >= 90
                               || (context.HasDeathsDesign && context.DeathsDesignRemaining > 15f);
         if (!shouldEnshroud)

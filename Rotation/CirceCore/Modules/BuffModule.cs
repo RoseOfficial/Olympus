@@ -234,7 +234,9 @@ public sealed class BuffModule : ICirceModule
         if (!context.ManaficationReady) return;
         if (context.HasManafication) return;
         if (context.IsInMeleeCombo) return;
-        if (context.CanStartMeleeCombo) return;
+        // With UseManaficationWithMelee=true, hold until melee combo can start (existing behavior)
+        // With UseManaficationWithMelee=false, fire on cooldown without waiting for melee context
+        if (context.Configuration.RedMage.UseManaficationWithMelee && context.CanStartMeleeCombo) return;
         if (BurstHoldHelper.ShouldHoldForPhaseTransition(context.TimelineService))
         {
             context.Debug.BuffState = "Holding Manafication (phase soon)";
@@ -391,7 +393,7 @@ public sealed class BuffModule : ICirceModule
         var player = context.Player;
         if (player.Level < RoleActions.LucidDreaming.MinLevel) return;
         if (!context.LucidDreamingReady) return;
-        if (context.MpPercent > 0.7f) return;
+        if (context.MpPercent > context.Configuration.RedMage.LucidDreamingThreshold) return;
 
         scheduler.PushOgcd(CirceAbilities.LucidDreaming, player.GameObjectId, priority: 6,
             onDispatched: _ =>

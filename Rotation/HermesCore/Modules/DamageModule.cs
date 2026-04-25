@@ -95,7 +95,7 @@ public sealed class DamageModule : IHermesModule
         var ninkiOvercapThreshold = context.Configuration.Ninja.NinkiOvercapThreshold;
 
         if (context.Ninki < ninkiMinGauge) return;
-        if (context.Configuration.Ninja.EnableBurstPooling && ShouldHoldForBurst(8f) && context.Ninki < ninkiOvercapThreshold) return;
+        if (context.Configuration.Ninja.EnableBurstPooling && context.Configuration.Ninja.SaveNinkiForBurst && ShouldHoldForBurst(8f) && context.Ninki < ninkiOvercapThreshold) return;
 
         var aoeThreshold = context.Configuration.Ninja.AoEMinTargets;
 
@@ -301,6 +301,7 @@ public sealed class DamageModule : IHermesModule
         if (useArmorCrush && context.ActionService.IsActionReady(NINActions.ArmorCrush.ActionId))
         {
             bool correctPositional = context.IsAtFlank || context.HasTrueNorth || context.TargetHasPositionalImmunity;
+            if (context.Configuration.Ninja.EnforcePositionals && !correctPositional && !context.Configuration.Ninja.AllowPositionalLoss) return;
             scheduler.PushGcd(HermesAbilities.ArmorCrush, target.GameObjectId, priority: 4,
                 onDispatched: _ =>
                 {
@@ -324,6 +325,7 @@ public sealed class DamageModule : IHermesModule
         if (level >= NINActions.AeolianEdge.MinLevel && context.ActionService.IsActionReady(NINActions.AeolianEdge.ActionId))
         {
             bool correctPositional = context.IsAtRear || context.HasTrueNorth || context.TargetHasPositionalImmunity;
+            if (context.Configuration.Ninja.EnforcePositionals && !correctPositional && !context.Configuration.Ninja.AllowPositionalLoss) return;
             scheduler.PushGcd(HermesAbilities.AeolianEdge, target.GameObjectId, priority: 4,
                 onDispatched: _ =>
                 {

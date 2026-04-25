@@ -323,6 +323,7 @@ public sealed class BuffModule : IPersephoneModule
         if (target == null) return;
         var player = context.Player;
         if (!context.HasAetherflow) return;
+        if (context.AetherflowStacks <= context.Configuration.Summoner.AetherflowReserve) return;
 
         var energyDrainSoon = !context.EnergyDrainReady
             && context.ActionService.GetCooldownRemaining(SMNActions.EnergyDrain.ActionId) < 5f;
@@ -330,6 +331,11 @@ public sealed class BuffModule : IPersephoneModule
         if (!inBurst && !energyDrainSoon)
         {
             context.Debug.BuffState = "Hold Aetherflow for burst";
+            return;
+        }
+        if (context.Configuration.Summoner.EnableBurstPooling && ShouldHoldForBurst(10f) && !inBurst)
+        {
+            context.Debug.BuffState = "Hold Aetherflow for imminent burst";
             return;
         }
 
@@ -375,7 +381,7 @@ public sealed class BuffModule : IPersephoneModule
         var player = context.Player;
         if (player.Level < RoleActions.LucidDreaming.MinLevel) return;
         if (!context.LucidDreamingReady) return;
-        if (context.MpPercent > 0.7f) return;
+        if (context.MpPercent > context.Configuration.Summoner.LucidDreamingThreshold) return;
 
         scheduler.PushOgcd(PersephoneAbilities.LucidDreaming, player.GameObjectId, priority: 6,
             onDispatched: _ =>

@@ -327,7 +327,8 @@ public sealed class DamageModule : INyxModule
 
         // Pre-Lv.96 Delirium grants free Bloodspiller
         bool free = context.HasDelirium && level >= DRKActions.Bloodspiller.MinLevel && level < DRKActions.ScarletDelirium.MinLevel;
-        if (!free && context.BloodGauge < 50) return;
+        bool atCap = context.BloodGauge >= context.Configuration.Tank.BloodGaugeCap;
+        if (!free && context.BloodGauge < 50 && !atCap) return;
 
         // AoE: Quietus
         bool useAoE = context.Configuration.Tank.EnableAoEDamage &&

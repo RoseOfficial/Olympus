@@ -65,6 +65,9 @@ public static class KratosAbilities
     public static readonly AbilityBehavior PerfectBalance = new() { Action = MNKActions.PerfectBalance, Toggle = cfg => cfg.Monk.EnablePerfectBalance };
     public static readonly AbilityBehavior RiddleOfWind = new() { Action = MNKActions.RiddleOfWind, Toggle = cfg => cfg.Monk.EnableRiddleOfWind };
 
+    // --- Six-Sided Star ---
+    public static readonly AbilityBehavior SixSidedStar = new() { Action = MNKActions.SixSidedStar, Toggle = cfg => cfg.Monk.EnableSixSidedStar };
+
     // --- Downtime ---
     public static readonly AbilityBehavior Meditation = new() { Action = MNKActions.Meditation };
 }

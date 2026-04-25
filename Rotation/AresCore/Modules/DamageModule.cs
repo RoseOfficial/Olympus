@@ -351,7 +351,8 @@ public sealed class DamageModule : IAresModule
 
     private void TryPushGaugeSpender(IAresContext context, RotationScheduler scheduler, ulong targetId, int enemyCount)
     {
-        bool canSpend = context.HasInnerRelease || context.BeastGauge >= 50;
+        bool atCap = context.BeastGauge >= context.Configuration.Tank.BeastGaugeCap;
+        bool canSpend = context.HasInnerRelease || context.BeastGauge >= 50 || atCap;
         if (!canSpend) return;
 
         var level = context.Player.Level;

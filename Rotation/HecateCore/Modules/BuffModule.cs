@@ -46,6 +46,7 @@ public sealed class BuffModule : IHecateModule
         TryPushTriplecast(context, scheduler, isMoving);
         TryPushManafont(context, scheduler);
         TryPushTranspose(context, scheduler);
+        TryPushLucidDreaming(context, scheduler);
     }
 
     private bool IsMovementImminent(IHecateContext context, float windowSeconds = 5f)
@@ -108,7 +109,8 @@ public sealed class BuffModule : IHecateModule
             context.Debug.BuffState = "Holding Ley Lines (movement soon)";
             return;
         }
-        if (ShouldHoldForBurst(8f)) return;
+        if (context.Configuration.BlackMage.UseLeyLinesDuringBurst
+            && ShouldHoldForBurst(context.Configuration.BlackMage.LeyLinesHoldTime)) return;
         if (!context.InAstralFire && context.InCombat)
         {
             context.Debug.BuffState = "Not in Fire, hold Ley Lines";
@@ -261,6 +263,22 @@ public sealed class BuffModule : IHecateModule
             {
                 context.Debug.PlannedAction = BLMActions.Transpose.Name;
                 context.Debug.BuffState = "Transpose (AF→UI, low MP)";
+            });
+    }
+
+    private void TryPushLucidDreaming(IHecateContext context, RotationScheduler scheduler)
+    {
+        if (!context.Configuration.BlackMage.EnableLucidDreaming) return;
+        var player = context.Player;
+        if (player.Level < RoleActions.LucidDreaming.MinLevel) return;
+        if (!context.ActionService.IsActionReady(RoleActions.LucidDreaming.ActionId)) return;
+        if (context.MpPercent > context.Configuration.BlackMage.LucidDreamingThreshold) return;
+
+        scheduler.PushOgcd(HecateAbilities.LucidDreaming, player.GameObjectId, priority: 6,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = RoleActions.LucidDreaming.Name;
+                context.Debug.BuffState = "Lucid Dreaming (MP)";
             });
     }
 }

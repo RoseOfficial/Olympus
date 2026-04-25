@@ -310,7 +310,7 @@ public sealed class MitigationModule : INyxModule
         if (context.HasWalkingDead) return;
         if (!context.HasEnoughMpForTbn) return;
         // Use proactively before predictable damage or at moderate HP
-        if (hpPercent > 0.75f) return;
+        if (hpPercent > context.Configuration.Tank.TBNThreshold) return;
         if (!context.ActionService.IsActionReady(DRKActions.TheBlackestNight.ActionId)) return;
 
         scheduler.PushOgcd(NyxAbilities.TheBlackestNight, player.GameObjectId, priority: 3,

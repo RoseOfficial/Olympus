@@ -1,4 +1,5 @@
 using Dalamud.Game.ClientState.Objects.Types;
+using Olympus.Config.DPS;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Helpers;
@@ -94,12 +95,26 @@ public sealed class DamageModule : IKratosModule
         TryPushChakraSpender(context, scheduler, target, useAoE);
         TryPushThunderclap(context, scheduler, target);
 
-        // GCDs (priority order: Blitz > Procs > PB GCD > Form rotation)
+        // GCDs (priority order: Blitz > Procs > PB GCD > Form rotation > Six-Sided Star)
         TryPushMasterfulBlitz(context, scheduler, target, useAoE);
         TryPushFiresReply(context, scheduler, target);
         TryPushWindsReply(context, scheduler, target);
         TryPushPerfectBalanceAction(context, scheduler, target, useAoE);
         TryPushFormRotation(context, scheduler, target, useAoE);
+        TryPushSixSidedStar(context, scheduler, target);
+    }
+
+    private static bool ShouldSkipMnkPositional(IKratosContext context, bool correctPositional)
+    {
+        var strictness = context.Configuration.Monk.PositionalStrictness;
+        if (strictness == PositionalStrictness.Strict)
+            return !correctPositional;
+        if (strictness == PositionalStrictness.Moderate)
+            return !correctPositional;
+        // Relaxed: fall back to EnforcePositionals / AllowPositionalLoss
+        if (!context.Configuration.Monk.EnforcePositionals) return false;
+        if (correctPositional) return false;
+        return !context.Configuration.Monk.AllowPositionalLoss;
     }
 
     #region oGCDs
@@ -420,6 +435,7 @@ public sealed class DamageModule : IKratosModule
         bool correctPositional = isRearPositional
             ? (context.IsAtRear || context.HasTrueNorth || context.TargetHasPositionalImmunity)
             : (context.IsAtFlank || context.HasTrueNorth || context.TargetHasPositionalImmunity);
+        if (ShouldSkipMnkPositional(context, correctPositional)) return;
 
         var stAbility = MapToAbility(action);
         scheduler.PushGcd(stAbility, target.GameObjectId, priority: 5,
@@ -484,6 +500,7 @@ public sealed class DamageModule : IKratosModule
         bool correctPositional = isRearPositional
             ? (context.IsAtRear || context.HasTrueNorth || context.TargetHasPositionalImmunity)
             : (context.IsAtFlank || context.HasTrueNorth || context.TargetHasPositionalImmunity);
+        if (ShouldSkipMnkPositional(context, correctPositional)) return;
 
         var stAbility = MapToAbility(action);
         scheduler.PushGcd(stAbility, target.GameObjectId, priority: 5,
@@ -548,6 +565,7 @@ public sealed class DamageModule : IKratosModule
         bool correctPositional = isRearPositional
             ? (context.IsAtRear || context.HasTrueNorth || context.TargetHasPositionalImmunity)
             : (context.IsAtFlank || context.HasTrueNorth || context.TargetHasPositionalImmunity);
+        if (ShouldSkipMnkPositional(context, correctPositional)) return;
 
         var stAbility = MapToAbility(action);
         scheduler.PushGcd(stAbility, target.GameObjectId, priority: 5,
@@ -575,6 +593,36 @@ public sealed class DamageModule : IKratosModule
     }
 
     #endregion
+
+    private void TryPushSixSidedStar(IKratosContext context, RotationScheduler scheduler, IBattleChara target)
+    {
+        if (!context.Configuration.Monk.EnableSixSidedStar) return;
+        var player = context.Player;
+        if (player.Level < MNKActions.SixSidedStar.MinLevel) return;
+        if (context.Chakra < 5) return;
+        if (!context.ActionService.IsActionReady(MNKActions.SixSidedStar.ActionId)) return;
+
+        scheduler.PushGcd(KratosAbilities.SixSidedStar, target.GameObjectId, priority: 6,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = MNKActions.SixSidedStar.Name;
+                context.Debug.DamageState = $"Six-Sided Star (5 Chakra)";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(MNKActions.SixSidedStar.ActionId, MNKActions.SixSidedStar.Name)
+                    .AsMeleeResource("Chakra", context.Chakra)
+                    .Target(target.Name?.TextValue ?? "Target")
+                    .Reason("Six-Sided Star at 5 Chakra",
+                        "Six-Sided Star consumes all 5 Chakra for a powerful AoE strike. " +
+                        "Use when at full Chakra and no higher-priority GCDs are available.")
+                    .Factors(new[] { "5 Chakra stacks", "No higher-priority GCD available" })
+                    .Alternatives(new[] { "Use Forbidden Chakra/Enlightenment (oGCD option)" })
+                    .Tip("Six-Sided Star is a situational filler. The oGCD chakra spenders are generally preferred.")
+                    .Concept("mnk_chakra_gauge")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("mnk_chakra_gauge", true, "Six-Sided Star");
+            });
+    }
 
     #region Action selection helpers
 
