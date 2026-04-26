@@ -248,10 +248,22 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
     }
 
     /// <summary>
-    /// Updates Gnashing Fang and Reign of Beasts combo step tracking from the job gauge.
-    /// `GNBGauge.AmmoComboStep` encodes both chains in one byte:
+    /// Pure mapping from <c>GNBGauge.AmmoComboStep</c> byte to the per-chain step pair.
+    /// Byte semantics:
     ///   0 = no combo, 1 = Savage Claw next, 2 = Wicked Talon next,
     ///   3 = Noble Blood next, 4 = Lion Heart next.
+    /// Anything outside [1, 4] yields (0, 0).
+    /// Extracted from the wrapper for unit-test coverage; no production behavior change.
+    /// </summary>
+    internal static (int gnashingFang, int reign) ComputeStepsFromAmmoCombo(byte ammoComboStep)
+    {
+        int gnashingFang = ammoComboStep switch { 1 => 1, 2 => 2, _ => 0 };
+        int reign = ammoComboStep switch { 3 => 1, 4 => 2, _ => 0 };
+        return (gnashingFang, reign);
+    }
+
+    /// <summary>
+    /// Updates Gnashing Fang and Reign of Beasts combo step tracking from the job gauge.
     /// Earlier versions read `GetAdjustedActionId` on the chain heads, but the action
     /// replacement only updates on the Gnashing Fang chain — it never advanced for
     /// Reign of Beasts, so Noble Blood / Lion Heart were never queued and the bot
@@ -272,8 +284,7 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
             return;
         }
 
-        _gnashingFangStep = step switch { 1 => 1, 2 => 2, _ => 0 };
-        _reignComboStep = step switch { 3 => 1, 4 => 2, _ => 0 };
+        (_gnashingFangStep, _reignComboStep) = ComputeStepsFromAmmoCombo(step);
     }
 
     // Kept as a no-op so the existing call site in UpdateRotation still compiles — the
