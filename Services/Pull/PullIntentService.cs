@@ -23,6 +23,8 @@ public sealed class PullIntentService : IPullIntentService
     private DateTime? _activeSince;
     private DateTime? _queueSeenAt;
     private uint? _queueSeenId;
+    private bool _hasExitedActivePhase;
+    private bool _wasInCombat;
 
     public PullIntent Current => _current;
 
@@ -34,6 +36,11 @@ public sealed class PullIntentService : IPullIntentService
         bool isInCombat,
         DateTime utcNow)
     {
+        // Reset latch on fresh combat entry.
+        if (isInCombat && !_wasInCombat)
+            _hasExitedActivePhase = false;
+        _wasInCombat = isInCombat;
+
         // Track sustained queue presence for 100ms confirmation.
         if (queuedActionId.HasValue && isQueuedActionHostile)
         {
@@ -59,7 +66,7 @@ public sealed class PullIntentService : IPullIntentService
         switch (_current)
         {
             case PullIntent.None:
-                if (isInCombat)
+                if (isInCombat && !_hasExitedActivePhase)
                 {
                     _current = PullIntent.Active;
                     _activeSince = utcNow;
@@ -78,8 +85,7 @@ public sealed class PullIntentService : IPullIntentService
                     _activeSince = utcNow;
                     _imminentSince = null;
                 }
-                else if (_imminentSince.HasValue
-                         && (utcNow - _imminentSince.Value).TotalSeconds >= ImminentTimeoutSeconds
+                else if ((utcNow - _imminentSince!.Value).TotalSeconds >= ImminentTimeoutSeconds
                          && !anyIntent)
                 {
                     _current = PullIntent.None;
@@ -88,11 +94,11 @@ public sealed class PullIntentService : IPullIntentService
                 break;
 
             case PullIntent.Active:
-                if (_activeSince.HasValue
-                    && (utcNow - _activeSince.Value).TotalSeconds >= ActiveDurationSeconds)
+                if ((utcNow - _activeSince!.Value).TotalSeconds >= ActiveDurationSeconds)
                 {
                     _current = PullIntent.None;
                     _activeSince = null;
+                    _hasExitedActivePhase = true;
                 }
                 break;
         }
