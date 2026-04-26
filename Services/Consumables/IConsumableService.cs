@@ -45,3 +45,22 @@ public interface IConsumableService
     /// <summary>Called on territory change; resets per-fight and per-zone warnings.</summary>
     void OnTerritoryChanged();
 }
+
+/// <summary>
+/// Thin abstraction over <c>InventoryManager.GetInventoryItemCount</c> so
+/// <see cref="ConsumableService"/> is unit-testable without native pointers.
+/// </summary>
+public interface IInventoryProbe
+{
+    /// <summary>Returns total count of <paramref name="itemId"/> across the player's bags. 0 if absent.</summary>
+    uint GetItemCount(uint itemId);
+}
+
+/// <summary>
+/// Probe for the tincture recast group cooldown.
+/// </summary>
+public interface ITinctureCooldownProbe
+{
+    /// <summary>Returns remaining cooldown in seconds for the tincture recast group. 0 if ready.</summary>
+    float GetTinctureCooldownRemaining();
+}
