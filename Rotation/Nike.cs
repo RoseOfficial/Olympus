@@ -176,6 +176,9 @@ public sealed class Nike : BaseMeleeDpsRotation<INikeContext, INikeModule>
 
     /// <inheritdoc />
     protected override int DetermineComboStep(uint comboAction, float comboTimer)
+        => ComputeComboStep(comboAction, comboTimer);
+
+    internal static int ComputeComboStep(uint comboAction, float comboTimer)
     {
         // Samurai combos:
         // ST: Hakaze/Gyofu -> Jinpu/Shifu -> Gekko/Kasha

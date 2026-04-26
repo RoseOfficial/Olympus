@@ -103,6 +103,9 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
     }
 
     protected override int DetermineComboStep(uint comboAction, float comboTimer)
+        => ComputeComboStep(comboAction, comboTimer);
+
+    internal static int ComputeComboStep(uint comboAction, float comboTimer)
     {
         if (comboAction == 0 || comboTimer <= 0) return 0;
         if (comboAction == DRKActions.HardSlash.ActionId) return 1;

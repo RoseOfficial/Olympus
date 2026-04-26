@@ -181,6 +181,9 @@ public sealed class Echidna : BaseMeleeDpsRotation<IEchidnaContext, IEchidnaModu
 
     /// <inheritdoc />
     protected override int DetermineComboStep(uint comboAction, float comboTimer)
+        => ComputeComboStep(comboAction, comboTimer);
+
+    internal static int ComputeComboStep(uint comboAction, float comboTimer)
     {
         // Viper dual wield combos (2.5s GCD):
         // ST: Steel Fangs → Hunter's Sting → Positional Finisher

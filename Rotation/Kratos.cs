@@ -153,6 +153,9 @@ public sealed class Kratos : BaseMeleeDpsRotation<IKratosContext, IKratosModule>
 
     /// <inheritdoc />
     protected override int DetermineComboStep(uint comboAction, float comboTimer)
+        => ComputeComboStep(comboAction, comboTimer);
+
+    internal static int ComputeComboStep(uint comboAction, float comboTimer)
     {
         // Monk doesn't have traditional combos like other jobs
         // Instead, forms determine which actions are available

@@ -167,6 +167,9 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
 
     /// <inheritdoc />
     protected override int DetermineComboStep(uint comboAction, float comboTimer)
+        => ComputeComboStep(comboAction, comboTimer);
+
+    internal static int ComputeComboStep(uint comboAction, float comboTimer)
     {
         // Ninja combo: Spinning Edge -> Gust Slash -> Aeolian Edge/Armor Crush
         // AoE combo: Death Blossom -> Hakke Mujinsatsu

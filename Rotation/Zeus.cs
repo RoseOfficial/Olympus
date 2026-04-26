@@ -178,6 +178,9 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
 
     /// <inheritdoc />
     protected override int DetermineComboStep(uint comboAction, float comboTimer)
+        => ComputeComboStep(comboAction, comboTimer);
+
+    internal static int ComputeComboStep(uint comboAction, float comboTimer)
     {
         // Dragoon uses traditional combo system
         if (comboTimer <= 0 || comboAction == 0)

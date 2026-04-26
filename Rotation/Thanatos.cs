@@ -178,6 +178,9 @@ public sealed class Thanatos : BaseMeleeDpsRotation<IThanatosContext, IThanatosM
 
     /// <inheritdoc />
     protected override int DetermineComboStep(uint comboAction, float comboTimer)
+        => ComputeComboStep(comboAction, comboTimer);
+
+    internal static int ComputeComboStep(uint comboAction, float comboTimer)
     {
         // Reaper combos:
         // ST: Slice -> Waxing Slice -> Infernal Slice

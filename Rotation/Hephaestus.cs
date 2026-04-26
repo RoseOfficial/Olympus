@@ -164,6 +164,9 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
 
     /// <inheritdoc />
     protected override int DetermineComboStep(uint comboAction, float comboTimer)
+        => ComputeComboStep(comboAction, comboTimer);
+
+    internal static int ComputeComboStep(uint comboAction, float comboTimer)
     {
         // No combo active
         if (comboAction == 0 || comboTimer <= 0)

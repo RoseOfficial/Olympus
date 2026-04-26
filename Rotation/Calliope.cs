@@ -152,6 +152,9 @@ public sealed class Calliope : BaseRangedDpsRotation<ICalliopeContext, ICalliope
 
     /// <inheritdoc />
     protected override int DetermineComboStep(uint comboAction, float comboTimer)
+        => ComputeComboStep(comboAction, comboTimer);
+
+    internal static int ComputeComboStep(uint comboAction, float comboTimer)
     {
         // Bard has no strict combo system - all GCDs are standalone
         return 0;

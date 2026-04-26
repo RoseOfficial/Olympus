@@ -100,6 +100,9 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
     }
 
     protected override int DetermineComboStep(uint comboAction, float comboTimer)
+        => ComputeComboStep(comboAction, comboTimer);
+
+    internal static int ComputeComboStep(uint comboAction, float comboTimer)
     {
         if (comboAction == 0 || comboTimer <= 0) return 0;
         if (comboAction == WARActions.HeavySwing.ActionId) return 1;

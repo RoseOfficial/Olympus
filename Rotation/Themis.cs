@@ -136,6 +136,9 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
 
     /// <inheritdoc />
     protected override int DetermineComboStep(uint comboAction, float comboTimer)
+        => ComputeComboStep(comboAction, comboTimer);
+
+    internal static int ComputeComboStep(uint comboAction, float comboTimer)
     {
         if (comboAction == 0 || comboTimer <= 0)
             return 0;

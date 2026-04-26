@@ -154,6 +154,9 @@ public sealed class Terpsichore : BaseRangedDpsRotation<ITerpsichoreContext, ITe
 
     /// <inheritdoc />
     protected override int DetermineComboStep(uint comboAction, float comboTimer)
+        => ComputeComboStep(comboAction, comboTimer);
+
+    internal static int ComputeComboStep(uint comboAction, float comboTimer)
     {
         // Dancer has two combo chains:
         // Single target: Cascade (15989) → Fountain (15990)

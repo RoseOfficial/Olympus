@@ -152,6 +152,9 @@ public sealed class Prometheus : BaseRangedDpsRotation<IPrometheusContext, IProm
 
     /// <inheritdoc />
     protected override int DetermineComboStep(uint comboAction, float comboTimer)
+        => ComputeComboStep(comboAction, comboTimer);
+
+    internal static int ComputeComboStep(uint comboAction, float comboTimer)
     {
         // MCH basic combo: Split Shot -> Slug Shot -> Clean Shot
         // (Heated versions at higher levels)
