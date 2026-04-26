@@ -140,6 +140,25 @@ public class MudraHelperTests
         Assert.Equal(NINActions.MudraType.None, helper.Mudra2);
         Assert.Equal(NINActions.MudraType.None, helper.Mudra3);
         Assert.Equal(0, helper.MudraCount);
+        Assert.False(helper.IsSequenceActive);
+        Assert.False(helper.IsReadyToExecute);
+    }
+
+    [Fact]
+    public void AdvanceSequence_From_ReadyToExecute_Keeps_State_But_Increments_Count()
+    {
+        // Once a sequence is fully input, AdvanceSequence is a state-level no-op
+        // but the counter still increments. Pinning this prevents a future refactor
+        // from silently changing over-call semantics (e.g., looping back to Idle).
+        var helper = new MudraHelper();
+        helper.StartSequence(NINActions.NinjutsuType.Raiton); // Ten-Chi
+        helper.AdvanceSequence(); // Second
+        helper.AdvanceSequence(); // ReadyToExecute, MudraCount=2
+
+        helper.AdvanceSequence(); // Over-call
+
+        Assert.Equal(MudraState.ReadyToExecute, helper.State);
+        Assert.Equal(3, helper.MudraCount);
     }
 
     [Fact]
@@ -284,6 +303,21 @@ public class MudraHelperTests
     }
 
     [Fact]
+    public void GetRecommendedNinjutsu_AoE_With_Doton_Enabled_BelowMinTargets_Returns_Katon()
+    {
+        // Doton is enabled and we are in AoE territory (3+), but below dotonMinTargets,
+        // so the Doton branch is skipped and Katon fires instead. This is a separate
+        // branch from the Doton-disabled case -- both fall to Katon but via different
+        // code paths.
+        var result = MudraHelper.GetRecommendedNinjutsu(
+            level: NINActions.Doton.MinLevel, hasKassatsu: false,
+            needsSuiton: false, enemyCount: 3,
+            useDoton: true, dotonMinTargets: 4);
+
+        Assert.Equal(NINActions.NinjutsuType.Katon, result);
+    }
+
+    [Fact]
     public void GetRecommendedNinjutsu_AoE_With_Doton_Disabled_Returns_Katon()
     {
         var result = MudraHelper.GetRecommendedNinjutsu(
@@ -300,6 +334,19 @@ public class MudraHelperTests
         var result = MudraHelper.GetRecommendedNinjutsu(
             level: NINActions.Raiton.MinLevel, hasKassatsu: false,
             needsSuiton: false, enemyCount: 1);
+
+        Assert.Equal(NINActions.NinjutsuType.Raiton, result);
+    }
+
+    [Fact]
+    public void GetRecommendedNinjutsu_AoEThreshold_TwoEnemies_Falls_Back_To_ST_Raiton()
+    {
+        // The AoE branch fires at enemyCount >= 3. Two enemies must fall through to ST.
+        // A threshold drift to >= 2 would silently change the rotation's pull behavior
+        // in 2-target dungeon trash; this test pins the boundary.
+        var result = MudraHelper.GetRecommendedNinjutsu(
+            level: NINActions.Raiton.MinLevel, hasKassatsu: false,
+            needsSuiton: false, enemyCount: 2);
 
         Assert.Equal(NINActions.NinjutsuType.Raiton, result);
     }
