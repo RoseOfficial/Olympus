@@ -137,6 +137,14 @@ public sealed class Plugin : IDalamudPlugin
     private readonly OlympusIpc olympusIpc;
     private readonly UpdateCheckerService updateCheckerService;
 
+    // Pull-intent state machine + consumable services (tincture automation)
+    private readonly Olympus.Services.Pull.PullIntentService pullIntentService;
+    private readonly Olympus.Services.Content.HighEndContentService highEndContentService;
+    private readonly Olympus.Services.Consumables.DalamudInventoryProbe inventoryProbe;
+    private readonly Olympus.Services.Consumables.DalamudTinctureCooldownProbe tinctureCooldownProbe;
+    private readonly Olympus.Services.Consumables.ConsumableService consumableService;
+    private readonly Olympus.Services.Consumables.TinctureDispatcher tinctureDispatcher;
+
     // Error metrics
     private readonly ErrorMetricsService errorMetricsService;
 
@@ -308,6 +316,36 @@ public sealed class Plugin : IDalamudPlugin
         // Error metrics service (aggregates suppressed errors for debugging)
         this.errorMetricsService = new ErrorMetricsService();
 
+        // Pull-intent state machine. Driven each frame by Plugin.Update from
+        // LocalPlayer.IsCasting + ActionManager.QueuedActionId + InCombat.
+        this.pullIntentService = new Olympus.Services.Pull.PullIntentService();
+
+        // High-end content classifier. Hooked to TerritoryChanged and primed for
+        // current zone in case the plugin loads while already in a duty.
+        this.highEndContentService = new Olympus.Services.Content.HighEndContentService(dataManager);
+        this.highEndContentService.OnTerritoryChanged(clientState.TerritoryType);
+
+        // Inventory and tincture-cooldown probes (production-side wrappers).
+        this.inventoryProbe = new Olympus.Services.Consumables.DalamudInventoryProbe(errorMetricsService);
+        this.tinctureCooldownProbe = new Olympus.Services.Consumables.DalamudTinctureCooldownProbe(errorMetricsService);
+
+        // Consumable service: inventory probing + recast cooldown + ShouldUseTinctureNow gate.
+        // Per-fight inventory-empty warning routed through chatGui.
+        this.consumableService = new Olympus.Services.Consumables.ConsumableService(
+            configuration.Consumables,
+            pullIntentService,
+            highEndContentService,
+            inventoryProbe,
+            tinctureCooldownProbe,
+            chatGui);
+
+        // Tincture dispatcher: shared by Path 1 (TinctureCandidate in PrePullModule)
+        // and Path 2 (in-combat re-pot push from BaseRotation).
+        this.tinctureDispatcher = new Olympus.Services.Consumables.TinctureDispatcher(
+            consumableService,
+            burstWindowService,
+            actionService);
+
         // Smart AoE service (must be created before service container)
         this.aoeTracker = new AoETracker();
         this.smartAoEService = new SmartAoEService(targetingService, dataManager, aoeTracker, log);
@@ -422,6 +460,8 @@ public sealed class Plugin : IDalamudPlugin
 
     private void OnTerritoryChanged(ushort zoneId)
     {
+        highEndContentService.OnTerritoryChanged(zoneId);
+        consumableService.OnTerritoryChanged();
         timelineService.LoadForZone(zoneId);
         combatEventService.Clear();
         hpPredictionService.ClearPendingHeals();
@@ -470,6 +510,10 @@ public sealed class Plugin : IDalamudPlugin
 
         // DPS burst window service
         container.Register<IBurstWindowService, BurstWindowService>(burstWindowService);
+
+        // Tincture automation
+        container.Register<Olympus.Services.Pull.IPullIntentService, Olympus.Services.Pull.PullIntentService>(pullIntentService);
+        container.Register<Olympus.Services.Consumables.ITinctureDispatcher, Olympus.Services.Consumables.TinctureDispatcher>(tinctureDispatcher);
 
         // Player-intent override service
         container.Register<IModifierKeyService, ModifierKeyService>(modifierKeyService);
@@ -657,6 +701,31 @@ public sealed class Plugin : IDalamudPlugin
             // Track player-to-target distance for gap closer safety heuristics.
             gapCloserSafetyService.Update(localPlayer, targetManager.Target as IBattleChara);
 
+            // Tincture automation: drive PullIntentService state machine and notify
+            // ConsumableService of combat-state changes so the per-fight warning
+            // throttle resets correctly.
+            {
+                var inCombatNow = (localPlayer.StatusFlags & Dalamud.Game.ClientState.Objects.Enums.StatusFlags.InCombat) != 0;
+                consumableService.OnCombatStateChanged(inCombatNow);
+
+                var (queuedId, queuedHostile) = ReadQueuedActionInfo();
+                var castTargetHostile = false;
+                if (localPlayer.IsCasting && localPlayer.CastTargetObjectId != 0)
+                {
+                    var castTargetObj = objectTable.SearchById(localPlayer.CastTargetObjectId);
+                    castTargetHostile = castTargetObj is Dalamud.Game.ClientState.Objects.Types.IBattleNpc bn
+                                        && bn.SubKind == (byte)Dalamud.Game.ClientState.Objects.Enums.BattleNpcSubKind.Enemy;
+                }
+
+                pullIntentService.Update(
+                    isPlayerCasting: localPlayer.IsCasting,
+                    isCastTargetHostile: castTargetHostile,
+                    queuedActionId: queuedId,
+                    isQueuedActionHostile: queuedHostile,
+                    isInCombat: inCombatNow,
+                    utcNow: DateTime.UtcNow);
+            }
+
             // Check if we have a rotation for the current job
             var jobId = localPlayer.ClassJob.RowId;
             if (!rotationManager.UpdateActiveRotation(jobId))
@@ -668,6 +737,28 @@ public sealed class Plugin : IDalamudPlugin
         {
             log.Error(ex, "Error in OnFrameworkUpdate");
         }
+    }
+
+    /// <summary>
+    /// Reads the currently queued action's ID and hostility for PullIntentService.
+    /// Returns (null, false) if no action is queued or the lookup fails.
+    /// QueuedActionId confirmed present on ActionManager at offset 0x70 in current FFXIVClientStructs.
+    /// </summary>
+    private unsafe (uint? queuedId, bool queuedHostile) ReadQueuedActionInfo()
+    {
+        var am = Olympus.Services.SafeGameAccess.GetActionManager(errorMetricsService);
+        if (am == null) return (null, false);
+
+        var queuedId = am->QueuedActionId;
+        if (queuedId == 0) return (null, false);
+
+        var sheet = dataManager.GetExcelSheet<Lumina.Excel.Sheets.Action>();
+        if (sheet is null) return (queuedId, false);
+
+        var rowOpt = sheet.GetRowOrDefault(queuedId);
+        if (!rowOpt.HasValue) return (queuedId, false);
+
+        return (queuedId, rowOpt.Value.CanTargetHostile);
     }
 
     public void Dispose()
