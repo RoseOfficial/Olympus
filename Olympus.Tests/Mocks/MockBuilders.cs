@@ -186,6 +186,7 @@ public static class MockBuilders
             .Returns(true);
         mock.Setup(x => x.GetAdjustedActionId(It.IsAny<uint>())).Returns<uint>(id => id);
         mock.Setup(x => x.PlayerHasStatus(It.IsAny<uint>())).Returns(false);
+        mock.Setup(x => x.ExecuteItem(It.IsAny<uint>(), It.IsAny<bool>(), It.IsAny<ulong>())).Returns(false);
 
         return mock;
     }

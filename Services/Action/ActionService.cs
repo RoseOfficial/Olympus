@@ -331,6 +331,17 @@ public sealed unsafe class ActionService : IActionService
     }
 
     /// <inheritdoc/>
+    public bool ExecuteItem(uint itemId, bool preferHq, ulong targetId)
+    {
+        var actionManager = SafeGameAccess.GetActionManager(_errorMetrics);
+        if (actionManager is null) return false;
+
+        var resolvedId = preferHq ? itemId + 1_000_000u : itemId;
+        // extraParam: 0xFFFF is the standard "use any quality" sentinel for items.
+        return actionManager->UseAction(ActionType.Item, resolvedId, targetId, 0xFFFF);
+    }
+
+    /// <inheritdoc/>
     public uint GetAdjustedActionId(uint baseActionId)
     {
         var am = SafeGameAccess.GetActionManager(_errorMetrics);

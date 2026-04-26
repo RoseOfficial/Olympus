@@ -152,4 +152,13 @@ public interface IActionService
     /// is mockable without touching native <c>StatusList</c>.
     /// </summary>
     bool PlayerHasStatus(uint statusId);
+
+    /// <summary>
+    /// Execute a consumable item (e.g. combat tincture).
+    /// Routes through <c>ActionManager.UseAction(ActionType.Item, ...)</c>.
+    /// </summary>
+    /// <param name="itemId">NQ item ID. HQ resolution happens internally if <paramref name="preferHq"/> is true.</param>
+    /// <param name="preferHq">When true, dispatches the HQ variant (NQ + 1_000_000).</param>
+    /// <param name="targetId">Target object ID. Pass 0 for self.</param>
+    bool ExecuteItem(uint itemId, bool preferHq, ulong targetId);
 }
