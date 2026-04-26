@@ -163,8 +163,9 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
 
     /// <summary>
     /// Pure mapping from the adjusted Moulinet action ID to the Moulinet AoE
-    /// chain step. Returns 1 if the chain has advanced to Deux, 2 if Trois,
-    /// 0 otherwise. Extracted from the wrapper for unit-test coverage.
+    /// chain step. Returns 1 if Deux is next (after Moulinet), 2 if Trois is
+    /// next (after Deux), 0 otherwise. Extracted from the wrapper for unit-test
+    /// coverage.
     /// </summary>
     internal static int ComputeMoulinetStep(uint adjustedMoulinetId)
     {

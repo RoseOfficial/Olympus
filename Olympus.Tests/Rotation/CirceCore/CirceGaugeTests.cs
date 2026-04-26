@@ -128,6 +128,36 @@ public class CirceGaugeTests
         Assert.Equal(2, step);
     }
 
+    [Fact]
+    public void ComputeMeleeComboStep_Prefers_AdjustedAction_Over_VanillaCombo()
+    {
+        // Action replacement (Zwerchhau next) must shadow the vanilla combo signal.
+        // Without this, mid-chain the rotation would skip Zwerchhau and try to fire
+        // a finisher off a stale comboAction from the previous chain.
+        var step = Circe.ComputeMeleeComboStep(
+            adjustedRiposteId: RDMActions.EnchantedZwerchhau.ActionId,
+            manaStacks: 0,
+            comboAction: RDMActions.Verflare.ActionId,
+            comboTimer: 5f);
+
+        Assert.Equal(1, step);
+    }
+
+    [Fact]
+    public void ComputeMeleeComboStep_Returns_0_When_ManaStacks_Below_3()
+    {
+        // The manaStacks >= 3 threshold is a hard boundary. Two stacks must not
+        // promote to step 3 — a regression flipping this to >= 2 (or removing
+        // the check entirely) would silently fire Verflare/Verholy mid-chain.
+        var step = Circe.ComputeMeleeComboStep(
+            adjustedRiposteId: RDMActions.EnchantedRiposte.ActionId,
+            manaStacks: 2,
+            comboAction: 0,
+            comboTimer: 0f);
+
+        Assert.Equal(0, step);
+    }
+
     // ----- ComputeMoulinetStep -----
 
     [Fact]
