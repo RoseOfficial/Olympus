@@ -264,14 +264,14 @@ public sealed class Hermes : BaseMeleeDpsRotation<IHermesContext, IHermesModule>
     /// <inheritdoc />
     protected override void ExecuteModules(IHermesContext context, bool isMoving, bool inCombat)
     {
-        if (TryDispatchTincture(context, inCombat)) return;
-
         if (Configuration.Targeting.PauseAllOnStandStillPunisher
             && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
             return;
         if (Configuration.Targeting.PauseOnPlayerChannel
             && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
             return;
+
+        if (TryDispatchTincture(context, inCombat)) return;
 
         _scheduler.Reset();
         foreach (var module in _modules)

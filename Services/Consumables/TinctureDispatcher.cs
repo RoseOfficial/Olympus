@@ -19,18 +19,18 @@ public sealed class TinctureDispatcher : ITinctureDispatcher
     private readonly IConsumableService _consumables;
     private readonly IBurstWindowService _burstWindow;
     private readonly IActionService _actionService;
-    private readonly IClientState _clientState;
+    private readonly IObjectTable _objectTable;
 
     public TinctureDispatcher(
         IConsumableService consumables,
         IBurstWindowService burstWindow,
         IActionService actionService,
-        IClientState clientState)
+        IObjectTable objectTable)
     {
         _consumables = consumables;
         _burstWindow = burstWindow;
         _actionService = actionService;
-        _clientState = clientState;
+        _objectTable = objectTable;
     }
 
     /// <summary>
@@ -48,7 +48,7 @@ public sealed class TinctureDispatcher : ITinctureDispatcher
             return false;
         }
 
-        var targetId = _clientState.LocalPlayer?.GameObjectId ?? 0ul;
+        var targetId = _objectTable.LocalPlayer?.GameObjectId ?? 0ul;
         return _actionService.ExecuteItem(itemId, isHq, targetId);
     }
 }

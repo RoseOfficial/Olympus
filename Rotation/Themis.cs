@@ -209,8 +209,6 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
     /// <inheritdoc />
     protected override void ExecuteModules(IThemisContext context, bool isMoving, bool inCombat)
     {
-        if (TryDispatchTincture(context, inCombat)) return;
-
         // Preserve BaseRotation's safety pauses.
         if (Configuration.Targeting.PauseAllOnStandStillPunisher
             && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
@@ -222,6 +220,8 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
         {
             return;
         }
+
+        if (TryDispatchTincture(context, inCombat)) return;
 
         _scheduler.Reset();
         foreach (var module in _modules)

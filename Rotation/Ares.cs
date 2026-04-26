@@ -158,8 +158,6 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
 
     protected override void ExecuteModules(IAresContext context, bool isMoving, bool inCombat)
     {
-        if (TryDispatchTincture(context, inCombat)) return;
-
         if (Configuration.Targeting.PauseAllOnStandStillPunisher
             && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
         {
@@ -170,6 +168,8 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
         {
             return;
         }
+
+        if (TryDispatchTincture(context, inCombat)) return;
 
         _scheduler.Reset();
         foreach (var module in _modules)

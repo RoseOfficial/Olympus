@@ -345,7 +345,7 @@ public sealed class Plugin : IDalamudPlugin
             consumableService,
             burstWindowService,
             actionService,
-            clientState);
+            objectTable);
 
         // Smart AoE service (must be created before service container)
         this.aoeTracker = new AoETracker();

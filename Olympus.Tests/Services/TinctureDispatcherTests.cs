@@ -16,9 +16,9 @@ public class TinctureDispatcherTests
         var consumables = new Mock<IConsumableService>();
         var burst = new Mock<IBurstWindowService>();
         var actions = new Mock<IActionService>();
-        var clientState = new Mock<IClientState>();
-        clientState.Setup(x => x.LocalPlayer).Returns((Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter?)null);
-        var sut = new TinctureDispatcher(consumables.Object, burst.Object, actions.Object, clientState.Object);
+        var objectTable = new Mock<IObjectTable>();
+        objectTable.Setup(x => x.LocalPlayer).Returns((Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter?)null);
+        var sut = new TinctureDispatcher(consumables.Object, burst.Object, actions.Object, objectTable.Object);
         return (sut, consumables, burst, actions);
     }
 

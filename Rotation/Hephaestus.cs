@@ -295,8 +295,6 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
     /// <inheritdoc />
     protected override void ExecuteModules(IHephaestusContext context, bool isMoving, bool inCombat)
     {
-        if (TryDispatchTincture(context, inCombat)) return;
-
         // Preserve BaseRotation's safety pauses (same as parent loop).
         if (Configuration.Targeting.PauseAllOnStandStillPunisher
             && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
@@ -308,6 +306,8 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
         {
             return;
         }
+
+        if (TryDispatchTincture(context, inCombat)) return;
 
         _scheduler.Reset();
         foreach (var module in _modules)
