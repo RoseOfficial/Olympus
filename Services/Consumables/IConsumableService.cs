@@ -25,11 +25,16 @@ public interface IConsumableService
     /// The unified gate. Returns true iff:
     /// - Master toggle is on
     /// - Current zone is high-end
-    /// - <see cref="IsTinctureReady"/> returns true
+    /// - Tincture recast group is off cooldown
     /// - Burst is active or imminent (within 5s)
     /// - AND one of:
     ///   - <paramref name="prePullPhase"/> = true and PullIntent != None (Path 1)
     ///   - <paramref name="prePullPhase"/> = false and inCombat = true (Path 2)
+    ///
+    /// Does NOT check inventory. Callers MUST call <see cref="TryGetTinctureForJob"/>
+    /// separately to resolve the item ID and detect empty-bag (which triggers the warning
+    /// via <see cref="OnTinctureSkippedDueToEmptyBag"/>). The bag check is split out so
+    /// Path 2 callers don't double-probe the inventory when they already need the item ID.
     /// </summary>
     bool ShouldUseTinctureNow(IBurstWindowService burstWindow, bool inCombat, bool prePullPhase);
 
