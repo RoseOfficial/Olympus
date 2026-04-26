@@ -22,7 +22,10 @@ public interface IPullIntentService
     /// Currently queued action ID, or null if no action is queued.
     /// Read from <c>ActionManager.QueuedActionId</c>.
     /// </param>
-    /// <param name="isQueuedActionHostile">True if the queued action is hostile.</param>
+    /// <param name="isQueuedActionHostile">
+    /// True if the queued action targets enemies. Caller derives by looking up
+    /// the action in the Lumina Action sheet and checking <c>CanTargetHostile</c>.
+    /// </param>
     /// <param name="isInCombat">True if <c>LocalPlayer.StatusFlags &amp; InCombat</c>.</param>
     /// <param name="utcNow">Current UTC time. Injected for testability.</param>
     void Update(

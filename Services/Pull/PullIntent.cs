@@ -11,6 +11,6 @@ public enum PullIntent
     /// <summary>Player intent detected, combat has not yet started.</summary>
     Imminent = 1,
 
-    /// <summary>Combat started within the last 2 seconds (opener phase).</summary>
+    /// <summary>Combat started; opener phase. Duration controlled by the implementation.</summary>
     Active = 2,
 }
