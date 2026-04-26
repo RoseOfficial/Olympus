@@ -106,7 +106,9 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
         IBurstWindowService? burstWindowService = null,
         IErrorMetricsService? errorMetrics = null,
         IPartyCoordinationService? partyCoordinationService = null,
-        ITrainingService? trainingService = null)
+        ITrainingService? trainingService = null,
+        Olympus.Services.Consumables.ITinctureDispatcher? tinctureDispatcher = null,
+        Olympus.Services.Pull.IPullIntentService? pullIntentService = null)
         : base(
             log,
             actionTracker,
@@ -122,7 +124,9 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
             playerStatsService,
             debuffDetectionService,
             burstWindowService,
-            errorMetrics)
+            errorMetrics,
+            tinctureDispatcher: tinctureDispatcher,
+            pullIntentService: pullIntentService)
     {
         _timelineService = timelineService;
         _partyCoordinationService = partyCoordinationService;
@@ -235,6 +239,8 @@ public sealed class Iris : BaseCasterDpsRotation<IIrisContext, IIrisModule>
     /// <inheritdoc />
     protected override void ExecuteModules(IIrisContext context, bool isMoving, bool inCombat)
     {
+        if (TryDispatchTincture(context, inCombat)) return;
+
         if (Configuration.Targeting.PauseAllOnStandStillPunisher
             && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
             return;

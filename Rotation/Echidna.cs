@@ -101,7 +101,9 @@ public sealed class Echidna : BaseMeleeDpsRotation<IEchidnaContext, IEchidnaModu
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
         IBurstWindowService? burstWindowService = null,
-        IErrorMetricsService? errorMetrics = null)
+        IErrorMetricsService? errorMetrics = null,
+        Olympus.Services.Consumables.ITinctureDispatcher? tinctureDispatcher = null,
+        Olympus.Services.Pull.IPullIntentService? pullIntentService = null)
         : base(
             log,
             actionTracker,
@@ -118,7 +120,9 @@ public sealed class Echidna : BaseMeleeDpsRotation<IEchidnaContext, IEchidnaModu
             debuffDetectionService,
             positionalService,
             burstWindowService,
-            errorMetrics)
+            errorMetrics,
+            tinctureDispatcher: tinctureDispatcher,
+            pullIntentService: pullIntentService)
     {
         _timelineService = timelineService;
         _partyCoordinationService = partyCoordinationService;
@@ -288,6 +292,8 @@ public sealed class Echidna : BaseMeleeDpsRotation<IEchidnaContext, IEchidnaModu
     /// <inheritdoc />
     protected override void ExecuteModules(IEchidnaContext context, bool isMoving, bool inCombat)
     {
+        if (TryDispatchTincture(context, inCombat)) return;
+
         if (Configuration.Targeting.PauseAllOnStandStillPunisher
             && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
             return;

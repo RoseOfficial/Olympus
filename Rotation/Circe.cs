@@ -108,7 +108,9 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
         IBurstWindowService? burstWindowService = null,
-        IErrorMetricsService? errorMetrics = null)
+        IErrorMetricsService? errorMetrics = null,
+        Olympus.Services.Consumables.ITinctureDispatcher? tinctureDispatcher = null,
+        Olympus.Services.Pull.IPullIntentService? pullIntentService = null)
         : base(
             log,
             actionTracker,
@@ -124,7 +126,9 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
             playerStatsService,
             debuffDetectionService,
             burstWindowService,
-            errorMetrics)
+            errorMetrics,
+            tinctureDispatcher: tinctureDispatcher,
+            pullIntentService: pullIntentService)
     {
         _timelineService = timelineService;
         _partyCoordinationService = partyCoordinationService;
@@ -318,6 +322,8 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
     /// <inheritdoc />
     protected override void ExecuteModules(ICirceContext context, bool isMoving, bool inCombat)
     {
+        if (TryDispatchTincture(context, inCombat)) return;
+
         if (Configuration.Targeting.PauseAllOnStandStillPunisher
             && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
             return;

@@ -67,11 +67,14 @@ public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
-        IErrorMetricsService? errorMetrics = null)
+        IErrorMetricsService? errorMetrics = null,
+        Olympus.Services.Consumables.ITinctureDispatcher? tinctureDispatcher = null,
+        Olympus.Services.Pull.IPullIntentService? pullIntentService = null)
         : base(log, actionTracker, combatEventService, damageIntakeService, damageTrendService,
                configuration, objectTable, partyList, targetingService, hpPredictionService,
                actionService, playerStatsService, debuffDetectionService, healingSpellSelector,
-               cooldownPlanner, shieldTrackingService, partyCoordinationService, errorMetrics)
+               cooldownPlanner, shieldTrackingService, partyCoordinationService, errorMetrics,
+               tinctureDispatcher, pullIntentService)
     {
         _timelineService = timelineService;
         _trainingService = trainingService;
@@ -151,6 +154,8 @@ public sealed class Apollo : BaseHealerRotation<IApolloContext, IApolloModule>
     /// </summary>
     protected override void ExecuteModules(IApolloContext context, bool isMoving, bool inCombat)
     {
+        if (TryDispatchTincture(context, inCombat)) return;
+
         if (Configuration.Targeting.PauseAllOnStandStillPunisher
             && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
             return;

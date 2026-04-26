@@ -107,7 +107,9 @@ public abstract class BaseMeleeDpsRotation<TContext, TModule> : BaseRotation<TCo
         IPositionalService positionalService,
         IBurstWindowService? burstWindowService = null,
         IErrorMetricsService? errorMetrics = null,
-        ISmartAoEService? smartAoEService = null)
+        ISmartAoEService? smartAoEService = null,
+        Olympus.Services.Consumables.ITinctureDispatcher? tinctureDispatcher = null,
+        Olympus.Services.Pull.IPullIntentService? pullIntentService = null)
         : base(
             log,
             actionTracker,
@@ -123,7 +125,9 @@ public abstract class BaseMeleeDpsRotation<TContext, TModule> : BaseRotation<TCo
             playerStatsService,
             debuffDetectionService,
             errorMetrics,
-            burstWindowService: burstWindowService)
+            burstWindowService: burstWindowService,
+            tinctureDispatcher: tinctureDispatcher,
+            pullIntentService: pullIntentService)
     {
         PositionalService = positionalService;
         SmartAoEService = smartAoEService;

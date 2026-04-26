@@ -93,7 +93,9 @@ public abstract class BaseTankRotation<TContext, TModule> : BaseRotation<TContex
         ITankCooldownService tankCooldownService,
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
-        IErrorMetricsService? errorMetrics = null)
+        IErrorMetricsService? errorMetrics = null,
+        Olympus.Services.Consumables.ITinctureDispatcher? tinctureDispatcher = null,
+        Olympus.Services.Pull.IPullIntentService? pullIntentService = null)
         : base(
             log,
             actionTracker,
@@ -108,7 +110,9 @@ public abstract class BaseTankRotation<TContext, TModule> : BaseRotation<TContex
             actionService,
             playerStatsService,
             debuffDetectionService,
-            errorMetrics)
+            errorMetrics,
+            tinctureDispatcher: tinctureDispatcher,
+            pullIntentService: pullIntentService)
     {
         EnmityService = enmityService;
         TankCooldownService = tankCooldownService;

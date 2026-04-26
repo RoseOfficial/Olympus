@@ -321,6 +321,43 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
     }
 
     /// <summary>
+    /// Tincture dispatch entry point for concrete rotations to call from their
+    /// <see cref="ExecuteModules"/> override. Returns true if a tincture fired
+    /// (Path 1 pre-pull or Path 2 in-combat re-pot). Caller should treat this
+    /// frame as having spent its oGCD slot and skip the rest of the dispatch.
+    /// </summary>
+    /// <remarks>
+    /// Concrete rotations call this AT THE TOP of ExecuteModules (after pyretic
+    /// / channel safety pauses, before the rotation's own dispatch logic). Both
+    /// dispatch paths are no-ops when their dependencies are null, so this is
+    /// safe to call from any rotation regardless of whether the optional services
+    /// were injected.
+    /// </remarks>
+    protected bool TryDispatchTincture(IRotationContext context, bool inCombat)
+    {
+        var jobId = context.Player.ClassJob.RowId;
+
+        // Path 1: pre-pull (only fires when PullIntent != None inside PrePullModule)
+        if (PrePullModule is not null
+            && ActionService.CanExecuteOgcd
+            && PrePullModule.TryDispatch(jobId, context))
+        {
+            return true;
+        }
+
+        // Path 2: in-combat re-pot
+        if (inCombat
+            && ActionService.CanExecuteOgcd
+            && TinctureDispatcher is not null
+            && TinctureDispatcher.TryDispatch(jobId, inCombat: true, prePullPhase: false))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Executes modules in priority order for both oGCD and GCD windows.
     /// </summary>
     protected virtual void ExecuteModules(TContext context, bool isMoving, bool inCombat)
@@ -335,28 +372,6 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
         // Hard pause: player is holding a channel/stance.
         if (Configuration.Targeting.PauseOnPlayerChannel
             && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
-        {
-            return;
-        }
-
-        var playerJobId = context.Player.ClassJob.RowId;
-
-        // Pre-pull phase (Path 1): only runs when PullIntent != None. Currently dispatches
-        // tincture for opener; future per-job pre-pull weaves register additional candidates.
-        if (PrePullModule is not null
-            && ActionService.CanExecuteOgcd
-            && PrePullModule.TryDispatch(playerJobId, context))
-        {
-            return;
-        }
-
-        // In-combat re-pot phase (Path 2): direct tincture push during regular oGCD pass.
-        // Same IConsumableService gate as Path 1 (different prePullPhase flag), so the
-        // shared recast cooldown prevents double-firing across both paths.
-        if (inCombat
-            && ActionService.CanExecuteOgcd
-            && TinctureDispatcher is not null
-            && TinctureDispatcher.TryDispatch(playerJobId, inCombat: true, prePullPhase: false))
         {
             return;
         }

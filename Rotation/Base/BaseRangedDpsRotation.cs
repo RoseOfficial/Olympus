@@ -77,7 +77,9 @@ public abstract class BaseRangedDpsRotation<TContext, TModule> : BaseRotation<TC
         IDebuffDetectionService debuffDetectionService,
         IBurstWindowService? burstWindowService = null,
         IErrorMetricsService? errorMetrics = null,
-        ISmartAoEService? smartAoEService = null)
+        ISmartAoEService? smartAoEService = null,
+        Olympus.Services.Consumables.ITinctureDispatcher? tinctureDispatcher = null,
+        Olympus.Services.Pull.IPullIntentService? pullIntentService = null)
         : base(
             log,
             actionTracker,
@@ -93,7 +95,9 @@ public abstract class BaseRangedDpsRotation<TContext, TModule> : BaseRotation<TC
             playerStatsService,
             debuffDetectionService,
             errorMetrics,
-            burstWindowService: burstWindowService)
+            burstWindowService: burstWindowService,
+            tinctureDispatcher: tinctureDispatcher,
+            pullIntentService: pullIntentService)
     {
         SmartAoEService = smartAoEService;
     }

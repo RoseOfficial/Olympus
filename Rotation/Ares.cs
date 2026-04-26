@@ -69,11 +69,14 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
         IErrorMetricsService? errorMetrics = null,
-        IBurstWindowService? burstWindowService = null)
+        IBurstWindowService? burstWindowService = null,
+        Olympus.Services.Consumables.ITinctureDispatcher? tinctureDispatcher = null,
+        Olympus.Services.Pull.IPullIntentService? pullIntentService = null)
         : base(log, actionTracker, combatEventService, damageIntakeService, damageTrendService,
                configuration, objectTable, partyList, targetingService, hpPredictionService,
                actionService, playerStatsService, debuffDetectionService, enmityService,
-               tankCooldownService, timelineService, partyCoordinationService, errorMetrics)
+               tankCooldownService, timelineService, partyCoordinationService, errorMetrics,
+               tinctureDispatcher, pullIntentService)
     {
         _trainingService = trainingService;
         _burstWindowService = burstWindowService;
@@ -155,6 +158,8 @@ public sealed class Ares : BaseTankRotation<IAresContext, IAresModule>
 
     protected override void ExecuteModules(IAresContext context, bool isMoving, bool inCombat)
     {
+        if (TryDispatchTincture(context, inCombat)) return;
+
         if (Configuration.Targeting.PauseAllOnStandStillPunisher
             && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
         {

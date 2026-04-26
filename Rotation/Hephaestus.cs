@@ -103,7 +103,9 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
         IErrorMetricsService? errorMetrics = null,
-        IBurstWindowService? burstWindowService = null)
+        IBurstWindowService? burstWindowService = null,
+        Olympus.Services.Consumables.ITinctureDispatcher? tinctureDispatcher = null,
+        Olympus.Services.Pull.IPullIntentService? pullIntentService = null)
         : base(
             log,
             actionTracker,
@@ -122,7 +124,9 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
             tankCooldownService,
             timelineService,
             partyCoordinationService,
-            errorMetrics)
+            errorMetrics,
+            tinctureDispatcher,
+            pullIntentService)
     {
         // Initialize training service
         _trainingService = trainingService;
@@ -291,6 +295,8 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
     /// <inheritdoc />
     protected override void ExecuteModules(IHephaestusContext context, bool isMoving, bool inCombat)
     {
+        if (TryDispatchTincture(context, inCombat)) return;
+
         // Preserve BaseRotation's safety pauses (same as parent loop).
         if (Configuration.Targeting.PauseAllOnStandStillPunisher
             && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))

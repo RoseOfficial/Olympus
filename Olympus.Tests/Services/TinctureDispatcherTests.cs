@@ -1,3 +1,4 @@
+using Dalamud.Plugin.Services;
 using Moq;
 using Olympus.Data;
 using Olympus.Services;
@@ -15,7 +16,9 @@ public class TinctureDispatcherTests
         var consumables = new Mock<IConsumableService>();
         var burst = new Mock<IBurstWindowService>();
         var actions = new Mock<IActionService>();
-        var sut = new TinctureDispatcher(consumables.Object, burst.Object, actions.Object);
+        var clientState = new Mock<IClientState>();
+        clientState.Setup(x => x.LocalPlayer).Returns((Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter?)null);
+        var sut = new TinctureDispatcher(consumables.Object, burst.Object, actions.Object, clientState.Object);
         return (sut, consumables, burst, actions);
     }
 

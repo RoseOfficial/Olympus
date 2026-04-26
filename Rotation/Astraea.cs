@@ -98,7 +98,9 @@ public sealed class Astraea : BaseHealerRotation<IAstraeaContext, IAstraeaModule
         ITimelineService? timelineService = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
-        IErrorMetricsService? errorMetrics = null)
+        IErrorMetricsService? errorMetrics = null,
+        Olympus.Services.Consumables.ITinctureDispatcher? tinctureDispatcher = null,
+        Olympus.Services.Pull.IPullIntentService? pullIntentService = null)
         : base(
             log,
             actionTracker,
@@ -117,7 +119,9 @@ public sealed class Astraea : BaseHealerRotation<IAstraeaContext, IAstraeaModule
             cooldownPlanner,
             shieldTrackingService,
             partyCoordinationService,
-            errorMetrics)
+            errorMetrics,
+            tinctureDispatcher,
+            pullIntentService)
     {
         // Store timeline service
         _timelineService = timelineService;
@@ -246,6 +250,8 @@ public sealed class Astraea : BaseHealerRotation<IAstraeaContext, IAstraeaModule
     /// </summary>
     protected override void ExecuteModules(IAstraeaContext context, bool isMoving, bool inCombat)
     {
+        if (TryDispatchTincture(context, inCombat)) return;
+
         if (Configuration.Targeting.PauseAllOnStandStillPunisher
             && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
             return;

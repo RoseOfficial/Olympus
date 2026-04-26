@@ -344,7 +344,8 @@ public sealed class Plugin : IDalamudPlugin
         this.tinctureDispatcher = new Olympus.Services.Consumables.TinctureDispatcher(
             consumableService,
             burstWindowService,
-            actionService);
+            actionService,
+            clientState);
 
         // Smart AoE service (must be created before service container)
         this.aoeTracker = new AoETracker();
@@ -679,9 +680,6 @@ public sealed class Plugin : IDalamudPlugin
             realTimeCoachingService.Update();
             hintOverlay.HandleInput();
 
-            if (!configuration.Enabled)
-                return;
-
             if (!clientState.IsLoggedIn)
                 return;
 
@@ -689,21 +687,11 @@ public sealed class Plugin : IDalamudPlugin
             if (localPlayer == null)
                 return;
 
-            if (localPlayer.CurrentHp == 0)
-                return;
-
-            // Update party coordination service (heartbeat, cleanup)
-            partyCoordinationService?.Update(
-                localPlayer.EntityId,
-                localPlayer.ClassJob.RowId,
-                configuration.Enabled);
-
-            // Track player-to-target distance for gap closer safety heuristics.
-            gapCloserSafetyService.Update(localPlayer, targetManager.Target as IBattleChara);
-
             // Tincture automation: drive PullIntentService state machine and notify
             // ConsumableService of combat-state changes so the per-fight warning
-            // throttle resets correctly.
+            // throttle resets correctly. Runs outside the Enabled gate so the latch
+            // state stays correct when re-enabled mid-fight, and outside the dead-player
+            // gate so the combat-entry edge after a wipe correctly resets the latch.
             {
                 var inCombatNow = (localPlayer.StatusFlags & Dalamud.Game.ClientState.Objects.Enums.StatusFlags.InCombat) != 0;
                 consumableService.OnCombatStateChanged(inCombatNow);
@@ -725,6 +713,21 @@ public sealed class Plugin : IDalamudPlugin
                     isInCombat: inCombatNow,
                     utcNow: DateTime.UtcNow);
             }
+
+            if (!configuration.Enabled)
+                return;
+
+            if (localPlayer.CurrentHp == 0)
+                return;
+
+            // Update party coordination service (heartbeat, cleanup)
+            partyCoordinationService?.Update(
+                localPlayer.EntityId,
+                localPlayer.ClassJob.RowId,
+                configuration.Enabled);
+
+            // Track player-to-target distance for gap closer safety heuristics.
+            gapCloserSafetyService.Update(localPlayer, targetManager.Target as IBattleChara);
 
             // Check if we have a rotation for the current job
             var jobId = localPlayer.ClassJob.RowId;

@@ -81,7 +81,9 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
         IErrorMetricsService? errorMetrics = null,
-        IBurstWindowService? burstWindowService = null)
+        IBurstWindowService? burstWindowService = null,
+        Olympus.Services.Consumables.ITinctureDispatcher? tinctureDispatcher = null,
+        Olympus.Services.Pull.IPullIntentService? pullIntentService = null)
         : base(
             log,
             actionTracker,
@@ -100,7 +102,9 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
             tankCooldownService,
             timelineService,
             partyCoordinationService,
-            errorMetrics)
+            errorMetrics,
+            tinctureDispatcher,
+            pullIntentService)
     {
         _trainingService = trainingService;
         _burstWindowService = burstWindowService;
@@ -205,6 +209,8 @@ public sealed class Themis : BaseTankRotation<IThemisContext, IThemisModule>
     /// <inheritdoc />
     protected override void ExecuteModules(IThemisContext context, bool isMoving, bool inCombat)
     {
+        if (TryDispatchTincture(context, inCombat)) return;
+
         // Preserve BaseRotation's safety pauses.
         if (Configuration.Targeting.PauseAllOnStandStillPunisher
             && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))

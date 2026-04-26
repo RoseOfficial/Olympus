@@ -70,11 +70,14 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
         IErrorMetricsService? errorMetrics = null,
-        IBurstWindowService? burstWindowService = null)
+        IBurstWindowService? burstWindowService = null,
+        Olympus.Services.Consumables.ITinctureDispatcher? tinctureDispatcher = null,
+        Olympus.Services.Pull.IPullIntentService? pullIntentService = null)
         : base(log, actionTracker, combatEventService, damageIntakeService, damageTrendService,
                configuration, objectTable, partyList, targetingService, hpPredictionService,
                actionService, playerStatsService, debuffDetectionService, enmityService,
-               tankCooldownService, timelineService, partyCoordinationService, errorMetrics)
+               tankCooldownService, timelineService, partyCoordinationService, errorMetrics,
+               tinctureDispatcher, pullIntentService)
     {
         _trainingService = trainingService;
         _burstWindowService = burstWindowService;
@@ -159,6 +162,8 @@ public sealed class Nyx : BaseTankRotation<INyxContext, INyxModule>
 
     protected override void ExecuteModules(INyxContext context, bool isMoving, bool inCombat)
     {
+        if (TryDispatchTincture(context, inCombat)) return;
+
         if (Configuration.Targeting.PauseAllOnStandStillPunisher
             && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
             return;

@@ -100,7 +100,9 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
         ITrainingService? trainingService = null,
         IBurstWindowService? burstWindowService = null,
         IErrorMetricsService? errorMetrics = null,
-        IPartyCoordinationService? partyCoordinationService = null)
+        IPartyCoordinationService? partyCoordinationService = null,
+        Olympus.Services.Consumables.ITinctureDispatcher? tinctureDispatcher = null,
+        Olympus.Services.Pull.IPullIntentService? pullIntentService = null)
         : base(
             log,
             actionTracker,
@@ -116,7 +118,9 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
             playerStatsService,
             debuffDetectionService,
             burstWindowService,
-            errorMetrics)
+            errorMetrics,
+            tinctureDispatcher: tinctureDispatcher,
+            pullIntentService: pullIntentService)
     {
         _timelineService = timelineService;
         _trainingService = trainingService;
@@ -219,6 +223,8 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
     /// <inheritdoc />
     protected override void ExecuteModules(IHecateContext context, bool isMoving, bool inCombat)
     {
+        if (TryDispatchTincture(context, inCombat)) return;
+
         if (Configuration.Targeting.PauseAllOnStandStillPunisher
             && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
             return;
