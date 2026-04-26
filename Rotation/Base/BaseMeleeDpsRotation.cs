@@ -28,12 +28,6 @@ public abstract class BaseMeleeDpsRotation<TContext, TModule> : BaseRotation<TCo
     protected readonly IPositionalService PositionalService;
 
     /// <summary>
-    /// Optional service for detecting raid buff burst windows.
-    /// Null when party coordination is disabled or unavailable.
-    /// </summary>
-    protected readonly IBurstWindowService? BurstWindowService;
-
-    /// <summary>
     /// Optional service for computing optimal directional AoE facing.
     /// </summary>
     protected readonly ISmartAoEService? SmartAoEService;
@@ -128,10 +122,10 @@ public abstract class BaseMeleeDpsRotation<TContext, TModule> : BaseRotation<TCo
             actionService,
             playerStatsService,
             debuffDetectionService,
-            errorMetrics)
+            errorMetrics,
+            burstWindowService: burstWindowService)
     {
         PositionalService = positionalService;
-        BurstWindowService = burstWindowService;
         SmartAoEService = smartAoEService;
     }
 

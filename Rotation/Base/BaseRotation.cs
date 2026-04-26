@@ -75,6 +75,9 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
     protected readonly IPlayerStatsService PlayerStatsService;
     protected readonly IDebuffDetectionService DebuffDetectionService;
     protected readonly IErrorMetricsService? ErrorMetrics;
+    protected readonly IBurstWindowService? BurstWindowService;
+    protected readonly Olympus.Services.Consumables.ITinctureDispatcher? TinctureDispatcher;
+    protected readonly Olympus.Rotation.Common.Modules.PrePullModule? PrePullModule;
     protected readonly FrameScopedCache FrameCache = new();
 
     #endregion
@@ -116,7 +119,10 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
         IPlayerStatsService playerStatsService,
         IDebuffDetectionService debuffDetectionService,
         IErrorMetricsService? errorMetrics = null,
-        IMpForecastService? mpForecastService = null)
+        IMpForecastService? mpForecastService = null,
+        IBurstWindowService? burstWindowService = null,
+        Olympus.Services.Consumables.ITinctureDispatcher? tinctureDispatcher = null,
+        Olympus.Services.Pull.IPullIntentService? pullIntentService = null)
     {
         Log = log;
         ActionTracker = actionTracker;
@@ -133,6 +139,16 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
         PlayerStatsService = playerStatsService;
         DebuffDetectionService = debuffDetectionService;
         ErrorMetrics = errorMetrics;
+        BurstWindowService = burstWindowService;
+        TinctureDispatcher = tinctureDispatcher;
+
+        // Construct PrePullModule with TinctureCandidate when both deps are available.
+        // Future per-job pre-pull weaves register additional candidates in concrete rotations.
+        if (tinctureDispatcher is not null && pullIntentService is not null)
+        {
+            PrePullModule = new Olympus.Rotation.Common.Modules.PrePullModule(pullIntentService);
+            PrePullModule.Register(new Olympus.Rotation.Common.Modules.TinctureCandidate(tinctureDispatcher));
+        }
     }
 
     #endregion
@@ -310,17 +326,37 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
     protected virtual void ExecuteModules(TContext context, bool isMoving, bool inCombat)
     {
         // Hard pause: Pyretic-style debuff active — any GCD or oGCD kills the player.
-        // Suppress every module (damage, healing, mitigation, buff) until it resolves.
         if (Configuration.Targeting.PauseAllOnStandStillPunisher
             && PlayerSafetyHelper.IsStandStillPunisherActive(context.Player))
         {
             return;
         }
 
-        // Hard pause: player is holding a channel/stance (Passage of Arms, Flamethrower,
-        // Meditate, Collective Unconscious, Improvisation) that cancels on any action.
+        // Hard pause: player is holding a channel/stance.
         if (Configuration.Targeting.PauseOnPlayerChannel
             && PlayerSafetyHelper.IsPlayerIntentChannelActive(context.Player))
+        {
+            return;
+        }
+
+        var playerJobId = context.Player.ClassJob.RowId;
+
+        // Pre-pull phase (Path 1): only runs when PullIntent != None. Currently dispatches
+        // tincture for opener; future per-job pre-pull weaves register additional candidates.
+        if (PrePullModule is not null
+            && ActionService.CanExecuteOgcd
+            && PrePullModule.TryDispatch(playerJobId, context))
+        {
+            return;
+        }
+
+        // In-combat re-pot phase (Path 2): direct tincture push during regular oGCD pass.
+        // Same IConsumableService gate as Path 1 (different prePullPhase flag), so the
+        // shared recast cooldown prevents double-firing across both paths.
+        if (inCombat
+            && ActionService.CanExecuteOgcd
+            && TinctureDispatcher is not null
+            && TinctureDispatcher.TryDispatch(playerJobId, inCombat: true, prePullPhase: false))
         {
             return;
         }

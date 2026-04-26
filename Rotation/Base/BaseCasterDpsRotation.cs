@@ -25,12 +25,6 @@ public abstract class BaseCasterDpsRotation<TContext, TModule> : BaseRotation<TC
     #region Caster DPS-Specific Services
 
     /// <summary>
-    /// Optional service for detecting raid buff burst windows.
-    /// Null when party coordination is disabled or unavailable.
-    /// </summary>
-    protected readonly IBurstWindowService? BurstWindowService;
-
-    /// <summary>
     /// Optional service for computing optimal directional AoE facing.
     /// </summary>
     protected readonly ISmartAoEService? SmartAoEService;
@@ -80,9 +74,9 @@ public abstract class BaseCasterDpsRotation<TContext, TModule> : BaseRotation<TC
             actionService,
             playerStatsService,
             debuffDetectionService,
-            errorMetrics)
+            errorMetrics,
+            burstWindowService: burstWindowService)
     {
-        BurstWindowService = burstWindowService;
         SmartAoEService = smartAoEService;
     }
 
