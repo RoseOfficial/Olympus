@@ -14,6 +14,7 @@ using Olympus.Rotation.HecateCore.Modules;
 using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Debuff;
+using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Stats;
 using Olympus.Services.Targeting;
@@ -66,6 +67,9 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
     // Training service for explaining rotation decisions (optional)
     private readonly ITrainingService? _trainingService;
 
+    // Party coordination service (optional)
+    private readonly IPartyCoordinationService? _partyCoordinationService;
+
     // Gauge values (read each frame)
     private int _elementStacks;
     private float _elementTimer;
@@ -95,7 +99,8 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
         ITimelineService? timelineService = null,
         ITrainingService? trainingService = null,
         IBurstWindowService? burstWindowService = null,
-        IErrorMetricsService? errorMetrics = null)
+        IErrorMetricsService? errorMetrics = null,
+        IPartyCoordinationService? partyCoordinationService = null)
         : base(
             log,
             actionTracker,
@@ -115,6 +120,7 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
     {
         _timelineService = timelineService;
         _trainingService = trainingService;
+        _partyCoordinationService = partyCoordinationService;
 
         _scheduler = new RotationScheduler(actionService, jobGauges, configuration, timelineService, errorMetrics);
 
@@ -192,6 +198,7 @@ public sealed class Hecate : BaseCasterDpsRotation<IHecateContext, IHecateModule
             hasParadox: _hasParadox,
             timelineService: _timelineService,
             trainingService: _trainingService,
+            partyCoordinationService: _partyCoordinationService,
             log: Log);
     }
 

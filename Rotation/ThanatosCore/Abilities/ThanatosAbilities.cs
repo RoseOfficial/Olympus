@@ -56,4 +56,7 @@ public static class ThanatosAbilities
     // --- Soul builder ---
     public static readonly AbilityBehavior SoulSlice = new() { Action = RPRActions.SoulSlice };
     public static readonly AbilityBehavior SoulScythe = new() { Action = RPRActions.SoulScythe };
+
+    // --- Role ---
+    public static readonly AbilityBehavior Feint = new() { Action = RoleActions.Feint, Toggle = cfg => cfg.Reaper.EnableFeint };
 }

@@ -122,6 +122,11 @@ public sealed class PictomancerConfig
     /// </summary>
     public bool EnablePortraits { get; set; } = true;
 
+    /// <summary>
+    /// Whether to use Addle for enemy magic damage reduction.
+    /// </summary>
+    public bool EnableAddle { get; set; } = true;
+
     #endregion
 
     #region Palette Settings

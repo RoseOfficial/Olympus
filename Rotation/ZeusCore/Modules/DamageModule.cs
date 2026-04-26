@@ -77,6 +77,7 @@ public sealed class DamageModule : IZeusModule
         var useAoE = enemyCount >= aoeThreshold;
 
         // oGCDs
+        TryPushFeint(context, scheduler, target);
         TryPushMirageDive(context, scheduler, target.GameObjectId);
         TryPushStarcross(context, scheduler, target.GameObjectId);
         TryPushRiseOfTheDragon(context, scheduler, target.GameObjectId);
@@ -100,6 +101,28 @@ public sealed class DamageModule : IZeusModule
     }
 
     #region oGCD pushes
+
+    private void TryPushFeint(IZeusContext context, RotationScheduler scheduler, IBattleChara target)
+    {
+        var player = context.Player;
+        if (player.Level < RoleActions.Feint.MinLevel) return;
+        if (!context.ActionService.IsActionReady(RoleActions.Feint.ActionId)) return;
+
+        var partyCoord = context.PartyCoordinationService;
+        var coordConfig = context.Configuration.PartyCoordination;
+        if (coordConfig.EnableCooldownCoordination &&
+            partyCoord?.WasActionUsedByOther(RoleActions.Feint.ActionId, 15f) == true)
+        {
+            return;
+        }
+
+        scheduler.PushOgcd(ZeusAbilities.Feint, target.GameObjectId, priority: 7,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = RoleActions.Feint.Name;
+                partyCoord?.OnCooldownUsed(RoleActions.Feint.ActionId, 90_000);
+            });
+    }
 
     private void TryPushMirageDive(IZeusContext context, RotationScheduler scheduler, ulong targetId)
     {

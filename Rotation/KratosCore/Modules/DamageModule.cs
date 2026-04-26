@@ -92,6 +92,7 @@ public sealed class DamageModule : IKratosModule
         var useAoE = enemyCount >= aoeThreshold;
 
         // oGCDs
+        TryPushFeint(context, scheduler, target);
         TryPushChakraSpender(context, scheduler, target, useAoE);
         TryPushThunderclap(context, scheduler, target);
 
@@ -118,6 +119,28 @@ public sealed class DamageModule : IKratosModule
     }
 
     #region oGCDs
+
+    private void TryPushFeint(IKratosContext context, RotationScheduler scheduler, IBattleChara target)
+    {
+        var player = context.Player;
+        if (player.Level < RoleActions.Feint.MinLevel) return;
+        if (!context.ActionService.IsActionReady(RoleActions.Feint.ActionId)) return;
+
+        var partyCoord = context.PartyCoordinationService;
+        var coordConfig = context.Configuration.PartyCoordination;
+        if (coordConfig.EnableCooldownCoordination &&
+            partyCoord?.WasActionUsedByOther(RoleActions.Feint.ActionId, 15f) == true)
+        {
+            return;
+        }
+
+        scheduler.PushOgcd(KratosAbilities.Feint, target.GameObjectId, priority: 7,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = RoleActions.Feint.Name;
+                partyCoord?.OnCooldownUsed(RoleActions.Feint.ActionId, 90_000);
+            });
+    }
 
     private void TryPushChakraSpender(IKratosContext context, RotationScheduler scheduler, IBattleChara target, bool useAoE)
     {

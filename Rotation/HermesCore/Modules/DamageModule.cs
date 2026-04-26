@@ -78,6 +78,7 @@ public sealed class DamageModule : IHermesModule
 
         // oGCDs: Ninki spenders
         TryPushNinkiSpender(context, scheduler, target, enemyCount);
+        TryPushFeint(context, scheduler, target);
 
         // GCDs
         TryPushRaiju(context, scheduler, target);
@@ -152,6 +153,28 @@ public sealed class DamageModule : IHermesModule
                     context.TrainingService?.RecordConceptApplication(NinConcepts.Bhavacakra, true, "ST Ninki spending");
                 });
         }
+    }
+
+    private void TryPushFeint(IHermesContext context, RotationScheduler scheduler, IBattleChara target)
+    {
+        var player = context.Player;
+        if (player.Level < RoleActions.Feint.MinLevel) return;
+        if (!context.ActionService.IsActionReady(RoleActions.Feint.ActionId)) return;
+
+        var partyCoord = context.PartyCoordinationService;
+        var coordConfig = context.Configuration.PartyCoordination;
+        if (coordConfig.EnableCooldownCoordination &&
+            partyCoord?.WasActionUsedByOther(RoleActions.Feint.ActionId, 15f) == true)
+        {
+            return;
+        }
+
+        scheduler.PushOgcd(HermesAbilities.Feint, target.GameObjectId, priority: 7,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = RoleActions.Feint.Name;
+                partyCoord?.OnCooldownUsed(RoleActions.Feint.ActionId, 90_000);
+            });
     }
 
     #endregion

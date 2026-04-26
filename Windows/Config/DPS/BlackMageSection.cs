@@ -28,6 +28,7 @@ public sealed class BlackMageSection
         DrawPhaseSection();
         DrawMovementSection();
         DrawThunderSection();
+        DrawRoleActionsSection();
     }
 
     private void DrawDamageSection()
@@ -143,6 +144,23 @@ public sealed class BlackMageSection
                 () => config.BlackMage.UseThunderheadImmediately,
                 v => config.BlackMage.UseThunderheadImmediately = v,
                 Loc.T(LocalizedStrings.BlackMage.UseThunderheadImmediatelyDesc, "Use Thunderhead procs immediately"), save);
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawRoleActionsSection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.BlackMage.RoleActionsSection, "Role Actions"), "BLM", false))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.BlackMage.EnableAddle, "Enable Addle"),
+                () => config.BlackMage.EnableAddle,
+                v => config.BlackMage.EnableAddle = v,
+                null, save,
+                actionId: RoleActions.Addle.ActionId);
 
             ConfigUIHelpers.EndIndent();
         }

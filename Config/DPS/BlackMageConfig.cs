@@ -64,6 +64,11 @@ public sealed class BlackMageConfig
     /// </summary>
     public bool EnableManafont { get; set; } = true;
 
+    /// <summary>
+    /// Whether to use Addle for enemy magic damage reduction.
+    /// </summary>
+    public bool EnableAddle { get; set; } = true;
+
     #endregion
 
     #region Phase Settings

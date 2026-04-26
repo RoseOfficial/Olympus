@@ -183,4 +183,7 @@ public static class ZeusAbilities
         Action = DRGActions.PiercingTalon,
         Toggle = null,
     };
+
+    // --- Role ---
+    public static readonly AbilityBehavior Feint = new() { Action = RoleActions.Feint, Toggle = cfg => cfg.Dragoon.EnableFeint };
 }

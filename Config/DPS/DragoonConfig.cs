@@ -74,6 +74,11 @@ public sealed class DragoonConfig
     /// </summary>
     public bool EnableLifeSurge { get; set; } = true;
 
+    /// <summary>
+    /// Whether to use Feint for enemy damage reduction.
+    /// </summary>
+    public bool EnableFeint { get; set; } = true;
+
     #endregion
 
     #region Eye Gauge Settings

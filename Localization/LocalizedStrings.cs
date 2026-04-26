@@ -1247,6 +1247,8 @@ public static class LocalizedStrings
         public const string EnableMirageDive = "config.job.drg.enable_mirage_dive";
         public const string EnableBurstPooling = "config.job.drg.enable_burst_pooling";
         public const string EnableBurstPoolingDesc = "config.job.drg.enable_burst_pooling_desc";
+        public const string RoleActionsSection = "config.job.drg.role_actions_section";
+        public const string EnableFeint = "config.job.drg.enable_feint";
     }
 
     /// <summary>Keys for Ninja specific settings.</summary>
@@ -1303,6 +1305,8 @@ public static class LocalizedStrings
         public const string EnforcePositionalsDesc = "config.job.nin.enforce_positionals_desc";
         public const string AllowPositionalLoss = "config.job.nin.allow_positional_loss";
         public const string AllowPositionalLossDesc = "config.job.nin.allow_positional_loss_desc";
+        public const string RoleActionsSection = "config.job.nin.role_actions_section";
+        public const string EnableFeint = "config.job.nin.enable_feint";
     }
 
     /// <summary>Keys for Samurai specific settings.</summary>
@@ -1362,6 +1366,8 @@ public static class LocalizedStrings
         public const string AllowPositionalLoss = "config.job.sam.allow_positional_loss";
         public const string AllowPositionalLossDesc = "config.job.sam.allow_positional_loss_desc";
         public const string EnableTrueNorth = "config.job.sam.enable_true_north";
+        public const string RoleActionsSection = "config.job.sam.role_actions_section";
+        public const string EnableFeint = "config.job.sam.enable_feint";
     }
 
     /// <summary>Keys for Monk specific settings.</summary>
@@ -1407,6 +1413,8 @@ public static class LocalizedStrings
         public const string EnablePerfectBalanceDesc = "config.job.mnk.enable_perfect_balance_desc";
         public const string EnforcePositionals = "config.job.mnk.enforce_positionals";
         public const string EnforcePositionalsDesc = "config.job.mnk.enforce_positionals_desc";
+        public const string RoleActionsSection = "config.job.mnk.role_actions_section";
+        public const string EnableFeint = "config.job.mnk.enable_feint";
     }
 
     /// <summary>Keys for Reaper specific settings.</summary>
@@ -1461,6 +1469,8 @@ public static class LocalizedStrings
         public const string EnforcePositionalsDesc = "config.job.rpr.enforce_positionals_desc";
         public const string AllowPositionalLoss = "config.job.rpr.allow_positional_loss";
         public const string AllowPositionalLossDesc = "config.job.rpr.allow_positional_loss_desc";
+        public const string RoleActionsSection = "config.job.rpr.role_actions_section";
+        public const string EnableFeint = "config.job.rpr.enable_feint";
     }
 
     /// <summary>Keys for Viper specific settings.</summary>
@@ -1804,6 +1814,8 @@ public static class LocalizedStrings
         public const string ThunderRefreshThresholdDesc = "config.job.blm.thunder_refresh_threshold_desc";
         public const string UseThunderheadImmediately = "config.job.blm.use_thunderhead_immediately";
         public const string UseThunderheadImmediatelyDesc = "config.job.blm.use_thunderhead_immediately_desc";
+        public const string RoleActionsSection = "config.job.blm.role_actions_section";
+        public const string EnableAddle = "config.job.blm.enable_addle";
     }
 
     /// <summary>Keys for Summoner specific settings.</summary>
@@ -1845,6 +1857,8 @@ public static class LocalizedStrings
         public const string EnableMountainBusterDesc = "config.job.smn.enable_mountain_buster_desc";
         public const string EnableSearingFlash = "config.job.smn.enable_searing_flash";
         public const string EnableSearingFlashDesc = "config.job.smn.enable_searing_flash_desc";
+        public const string RoleActionsSection = "config.job.smn.role_actions_section";
+        public const string EnableAddle = "config.job.smn.enable_addle";
     }
 
     /// <summary>Keys for Red Mage specific settings.</summary>
@@ -1884,6 +1898,8 @@ public static class LocalizedStrings
         public const string EnableViceOfThornsDesc = "config.job.rdm.enable_vice_of_thorns_desc";
         public const string EnablePrefulgence = "config.job.rdm.enable_prefulgence";
         public const string EnablePrefulgenceDesc = "config.job.rdm.enable_prefulgence_desc";
+        public const string RoleActionsSection = "config.job.rdm.role_actions_section";
+        public const string EnableAddle = "config.job.rdm.enable_addle";
     }
 
     /// <summary>Keys for Pictomancer specific settings.</summary>
@@ -1964,6 +1980,8 @@ public static class LocalizedStrings
         public const string EnableStarrySkyMotifDesc = "config.job.pct.enable_starry_sky_motif_desc";
         public const string EnableSmudge = "config.job.pct.enable_smudge";
         public const string EnableSmudgeDesc = "config.job.pct.enable_smudge_desc";
+        public const string RoleActionsSection = "config.job.pct.role_actions_section";
+        public const string EnableAddle = "config.job.pct.enable_addle";
     }
 
     #endregion

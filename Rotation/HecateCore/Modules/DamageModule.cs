@@ -76,6 +76,9 @@ public sealed class DamageModule : IHecateModule
         var enemyCount = aoeEnabled ? rawEnemyCount : 0;
         var useAoe = enemyCount >= aoeThreshold;
 
+        // Addle (oGCD utility, fires regardless of phase or movement)
+        TryPushAddle(context, scheduler, target);
+
         // Movement handling first
         if (isMoving && !context.HasInstantCast && !context.CanSlidecast)
         {
@@ -227,6 +230,28 @@ public sealed class DamageModule : IHecateModule
     #endregion
 
     #region GCDs
+
+    private void TryPushAddle(IHecateContext context, RotationScheduler scheduler, IBattleChara target)
+    {
+        var player = context.Player;
+        if (player.Level < RoleActions.Addle.MinLevel) return;
+        if (!context.ActionService.IsActionReady(RoleActions.Addle.ActionId)) return;
+
+        var partyCoord = context.PartyCoordinationService;
+        var coordConfig = context.Configuration.PartyCoordination;
+        if (coordConfig.EnableCooldownCoordination &&
+            partyCoord?.WasActionUsedByOther(RoleActions.Addle.ActionId, 15f) == true)
+        {
+            return;
+        }
+
+        scheduler.PushOgcd(HecateAbilities.Addle, target.GameObjectId, priority: 7,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = RoleActions.Addle.Name;
+                partyCoord?.OnCooldownUsed(RoleActions.Addle.ActionId, 90_000);
+            });
+    }
 
     private void TryPushFlareStar(IHecateContext context, RotationScheduler scheduler, IBattleChara target)
     {

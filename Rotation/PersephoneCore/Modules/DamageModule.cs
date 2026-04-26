@@ -82,6 +82,9 @@ public sealed class DamageModule : IPersephoneModule
         var enemyCount = aoeEnabled ? rawEnemyCount : 0;
         var useAoe = enemyCount >= aoeThreshold;
 
+        // Addle (party mit utility)
+        TryPushAddle(context, scheduler, target);
+
         if (context.IsDemiSummonActive)
             TryPushDemiSummonGcd(context, scheduler, target, useAoe);
 
@@ -105,6 +108,28 @@ public sealed class DamageModule : IPersephoneModule
             TryPushRuin4(context, scheduler, target);
 
         TryPushFiller(context, scheduler, target, useAoe, isMoving);
+    }
+
+    private void TryPushAddle(IPersephoneContext context, RotationScheduler scheduler, IBattleChara target)
+    {
+        var player = context.Player;
+        if (player.Level < RoleActions.Addle.MinLevel) return;
+        if (!context.ActionService.IsActionReady(RoleActions.Addle.ActionId)) return;
+
+        var partyCoord = context.PartyCoordinationService;
+        var coordConfig = context.Configuration.PartyCoordination;
+        if (coordConfig.EnableCooldownCoordination &&
+            partyCoord?.WasActionUsedByOther(RoleActions.Addle.ActionId, 15f) == true)
+        {
+            return;
+        }
+
+        scheduler.PushOgcd(PersephoneAbilities.Addle, target.GameObjectId, priority: 7,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = RoleActions.Addle.Name;
+                partyCoord?.OnCooldownUsed(RoleActions.Addle.ActionId, 90_000);
+            });
     }
 
     private void TryPushSummonCarbuncle(IPersephoneContext context, RotationScheduler scheduler)

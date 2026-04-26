@@ -79,6 +79,11 @@ public sealed class NinjaConfig
     /// </summary>
     public bool EnableTenriJindo { get; set; } = true;
 
+    /// <summary>
+    /// Whether to use Feint for enemy damage reduction.
+    /// </summary>
+    public bool EnableFeint { get; set; } = true;
+
     #endregion
 
     #region Ninki Gauge Settings

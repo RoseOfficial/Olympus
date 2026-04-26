@@ -74,6 +74,9 @@ public sealed class DamageModule : IIrisModule
         // Hyperphantasia treats GCDs as instant — disable movement-only branches
         if (context.HasHyperphantasia) isMoving = false;
 
+        // Addle (party mit utility)
+        TryPushAddle(context, scheduler, target);
+
         TryPushMotifDuringInspiration(context, scheduler, isMoving);
         TryPushStarPrism(context, scheduler, target);
         TryPushRainbowDrip(context, scheduler, target, isMoving);
@@ -83,6 +86,28 @@ public sealed class DamageModule : IIrisModule
         TryPushSubtractiveCombo(context, scheduler, target);
         TryPushBaseCombo(context, scheduler, target);
         if (!isMoving) TryPushRepaintMotif(context, scheduler);
+    }
+
+    private void TryPushAddle(IIrisContext context, RotationScheduler scheduler, IBattleChara target)
+    {
+        var player = context.Player;
+        if (player.Level < RoleActions.Addle.MinLevel) return;
+        if (!context.ActionService.IsActionReady(RoleActions.Addle.ActionId)) return;
+
+        var partyCoord = context.PartyCoordinationService;
+        var coordConfig = context.Configuration.PartyCoordination;
+        if (coordConfig.EnableCooldownCoordination &&
+            partyCoord?.WasActionUsedByOther(RoleActions.Addle.ActionId, 15f) == true)
+        {
+            return;
+        }
+
+        scheduler.PushOgcd(IrisAbilities.Addle, target.GameObjectId, priority: 7,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = RoleActions.Addle.Name;
+                partyCoord?.OnCooldownUsed(RoleActions.Addle.ActionId, 90_000);
+            });
     }
 
     #region Pre-pull / Inspiration motif painting

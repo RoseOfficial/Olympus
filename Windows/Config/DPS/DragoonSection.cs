@@ -28,6 +28,7 @@ public sealed class DragoonSection
         DrawBuffSection();
         DrawBurstSection();
         DrawPositionalSection();
+        DrawRoleActionsSection();
     }
 
     private void DrawDamageSection()
@@ -187,6 +188,23 @@ public sealed class DragoonSection
                 () => config.Dragoon.AllowPositionalLoss,
                 v => config.Dragoon.AllowPositionalLoss = v,
                 Loc.T(LocalizedStrings.Dragoon.AllowPositionalLossDesc, "Continue rotation even if positionals will miss"), save);
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawRoleActionsSection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Dragoon.RoleActionsSection, "Role Actions"), "DRG", false))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Dragoon.EnableFeint, "Enable Feint"),
+                () => config.Dragoon.EnableFeint,
+                v => config.Dragoon.EnableFeint = v,
+                null, save,
+                actionId: RoleActions.Feint.ActionId);
 
             ConfigUIHelpers.EndIndent();
         }

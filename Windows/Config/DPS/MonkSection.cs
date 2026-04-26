@@ -28,6 +28,7 @@ public sealed class MonkSection
         DrawChakraSection();
         DrawBuffSection();
         DrawPositionalSection();
+        DrawRoleActionsSection();
     }
 
     private void DrawDamageSection()
@@ -184,6 +185,23 @@ public sealed class MonkSection
                 () => config.Monk.AllowPositionalLoss,
                 v => config.Monk.AllowPositionalLoss = v,
                 Loc.T(LocalizedStrings.Monk.AllowPositionalLossDesc, "Continue rotation even if positionals will miss"), save);
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawRoleActionsSection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Monk.RoleActionsSection, "Role Actions"), "MNK", false))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Monk.EnableFeint, "Enable Feint"),
+                () => config.Monk.EnableFeint,
+                v => config.Monk.EnableFeint = v,
+                null, save,
+                actionId: RoleActions.Feint.ActionId);
 
             ConfigUIHelpers.EndIndent();
         }

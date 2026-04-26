@@ -43,4 +43,7 @@ public static class HermesAbilities
     public static readonly AbilityBehavior TenChiJin = new() { Action = NINActions.TenChiJin, Toggle = cfg => cfg.Ninja.EnableTenChiJin };
     public static readonly AbilityBehavior Bunshin = new() { Action = NINActions.Bunshin, Toggle = cfg => cfg.Ninja.EnableBunshin };
     public static readonly AbilityBehavior Meisui = new() { Action = NINActions.Meisui, Toggle = cfg => cfg.Ninja.EnableMeisui };
+
+    // --- Role ---
+    public static readonly AbilityBehavior Feint = new() { Action = RoleActions.Feint, Toggle = cfg => cfg.Ninja.EnableFeint };
 }

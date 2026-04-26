@@ -69,6 +69,11 @@ public sealed class MonkConfig
     /// </summary>
     public bool EnableWindsReply { get; set; } = true;
 
+    /// <summary>
+    /// Whether to use Feint for enemy damage reduction.
+    /// </summary>
+    public bool EnableFeint { get; set; } = true;
+
     #endregion
 
     #region Chakra Settings

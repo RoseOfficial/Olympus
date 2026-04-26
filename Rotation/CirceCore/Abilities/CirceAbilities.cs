@@ -64,4 +64,5 @@ public static class CirceAbilities
     // --- Role ---
     public static readonly AbilityBehavior Swiftcast = new() { Action = RoleActions.Swiftcast };
     public static readonly AbilityBehavior LucidDreaming = new() { Action = RoleActions.LucidDreaming, Toggle = cfg => cfg.RedMage.EnableLucidDreaming };
+    public static readonly AbilityBehavior Addle = new() { Action = RoleActions.Addle, Toggle = cfg => cfg.RedMage.EnableAddle };
 }

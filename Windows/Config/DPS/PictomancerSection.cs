@@ -30,6 +30,7 @@ public sealed class PictomancerSection
         DrawBurstSection();
         DrawUtilitySection();
         DrawMpManagementSection();
+        DrawRoleActionsSection();
     }
 
     private void DrawDamageSection()
@@ -334,6 +335,23 @@ public sealed class PictomancerSection
                     Loc.T(LocalizedStrings.Pictomancer.LucidDreamingThreshold, "Lucid MP Threshold"),
                     config.Pictomancer.LucidDreamingThreshold, 40f, 90f, null, save, v => config.Pictomancer.LucidDreamingThreshold = v);
             }
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawRoleActionsSection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Pictomancer.RoleActionsSection, "Role Actions"), "PCT", false))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Pictomancer.EnableAddle, "Enable Addle"),
+                () => config.Pictomancer.EnableAddle,
+                v => config.Pictomancer.EnableAddle = v,
+                null, save,
+                actionId: RoleActions.Addle.ActionId);
 
             ConfigUIHelpers.EndIndent();
         }

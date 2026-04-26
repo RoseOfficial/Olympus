@@ -107,6 +107,11 @@ public sealed class SummonerConfig
     /// </summary>
     public bool EnableSearingFlash { get; set; } = true;
 
+    /// <summary>
+    /// Whether to use Addle for enemy magic damage reduction.
+    /// </summary>
+    public bool EnableAddle { get; set; } = true;
+
     #endregion
 
     #region Aetherflow Settings

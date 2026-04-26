@@ -64,6 +64,11 @@ public sealed class ReaperConfig
     /// </summary>
     public bool EnableGluttony { get; set; } = true;
 
+    /// <summary>
+    /// Whether to use Feint for enemy damage reduction.
+    /// </summary>
+    public bool EnableFeint { get; set; } = true;
+
     #endregion
 
     #region Soul Gauge Settings

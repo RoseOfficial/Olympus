@@ -29,6 +29,7 @@ public sealed class ReaperSection
         DrawEnshroudSection();
         DrawBurstSection();
         DrawPositionalSection();
+        DrawRoleActionsSection();
     }
 
     private void DrawDamageSection()
@@ -216,6 +217,23 @@ public sealed class ReaperSection
                 Loc.T(LocalizedStrings.Reaper.DeathsDesignRefreshThreshold, "Death's Design Refresh"),
                 config.Reaper.DeathsDesignRefreshThreshold, 0f, 30f, "%.1f s",
                 Loc.T(LocalizedStrings.Reaper.DeathsDesignRefreshThresholdDesc, "Seconds remaining on Death's Design before refreshing the DoT"), save, v => config.Reaper.DeathsDesignRefreshThreshold = v);
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawRoleActionsSection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Reaper.RoleActionsSection, "Role Actions"), "RPR", false))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Reaper.EnableFeint, "Enable Feint"),
+                () => config.Reaper.EnableFeint,
+                v => config.Reaper.EnableFeint = v,
+                null, save,
+                actionId: RoleActions.Feint.ActionId);
 
             ConfigUIHelpers.EndIndent();
         }

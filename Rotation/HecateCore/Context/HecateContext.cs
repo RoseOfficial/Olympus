@@ -9,6 +9,7 @@ using Olympus.Services;
 using Olympus.Services.Action;
 using Olympus.Services.Cache;
 using Olympus.Services.Debuff;
+using Olympus.Services.Party;
 using Olympus.Services.Prediction;
 using Olympus.Services.Resource;
 using Olympus.Services.Stats;
@@ -51,6 +52,8 @@ public sealed class HecateContext : IHecateContext
     public IPluginLog? Log { get; }
 
     public (float avgHpPercent, float lowestHpPercent, int injuredCount) PartyHealthMetrics { get; }
+
+    public IPartyCoordinationService? PartyCoordinationService { get; }
 
     #endregion
 
@@ -153,6 +156,7 @@ public sealed class HecateContext : IHecateContext
         bool hasParadox,
         ITimelineService? timelineService = null,
         ITrainingService? trainingService = null,
+        IPartyCoordinationService? partyCoordinationService = null,
         IPluginLog? log = null)
     {
         Player = player;
@@ -177,6 +181,7 @@ public sealed class HecateContext : IHecateContext
         ObjectTable = objectTable;
         PartyList = partyList;
         Log = log;
+        PartyCoordinationService = partyCoordinationService;
 
         StatusHelper = statusHelper;
         PartyHelper = partyHelper;

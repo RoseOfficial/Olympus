@@ -54,4 +54,5 @@ public static class NikeAbilities
 
     // --- Role ---
     public static readonly AbilityBehavior TrueNorth = new() { Action = RoleActions.TrueNorth, Toggle = cfg => cfg.Samurai.EnableTrueNorth };
+    public static readonly AbilityBehavior Feint = new() { Action = RoleActions.Feint, Toggle = cfg => cfg.Samurai.EnableFeint };
 }

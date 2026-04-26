@@ -28,6 +28,7 @@ public sealed class SummonerSection
         DrawPrimalSection();
         DrawDemiSection();
         DrawBurstSection();
+        DrawRoleActionsSection();
     }
 
     private void DrawDamageSection()
@@ -174,6 +175,23 @@ public sealed class SummonerSection
                 Loc.T(LocalizedStrings.Summoner.SearingLightHoldTime, "Searing Light Hold Time"),
                 config.Summoner.SearingLightHoldTime, 0f, 10f, "%.1f s",
                 Loc.T(LocalizedStrings.Summoner.SearingLightHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save, v => config.Summoner.SearingLightHoldTime = v);
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawRoleActionsSection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Summoner.RoleActionsSection, "Role Actions"), "SMN", false))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Summoner.EnableAddle, "Enable Addle"),
+                () => config.Summoner.EnableAddle,
+                v => config.Summoner.EnableAddle = v,
+                null, save,
+                actionId: RoleActions.Addle.ActionId);
 
             ConfigUIHelpers.EndIndent();
         }

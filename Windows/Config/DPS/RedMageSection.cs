@@ -29,6 +29,7 @@ public sealed class RedMageSection
         DrawMeleeSection();
         DrawBurstSection();
         DrawMovementSection();
+        DrawRoleActionsSection();
     }
 
     private void DrawDamageSection()
@@ -196,6 +197,23 @@ public sealed class RedMageSection
             }
             ImGui.TextDisabled("Corps-a-corps and Engagement won't fire below this HP threshold.");
             ImGui.TextDisabled("Prevents dashing into boss mechanics when you're already hurt.");
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawRoleActionsSection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.RedMage.RoleActionsSection, "Role Actions"), "RDM", false))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.RedMage.EnableAddle, "Enable Addle"),
+                () => config.RedMage.EnableAddle,
+                v => config.RedMage.EnableAddle = v,
+                null, save,
+                actionId: RoleActions.Addle.ActionId);
 
             ConfigUIHelpers.EndIndent();
         }

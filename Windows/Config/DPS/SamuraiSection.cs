@@ -29,6 +29,7 @@ public sealed class SamuraiSection
         DrawSenSection();
         DrawBurstSection();
         DrawPositionalSection();
+        DrawRoleActionsSection();
     }
 
     private void DrawDamageSection()
@@ -235,6 +236,23 @@ public sealed class SamuraiSection
                 v => config.Samurai.EnableTrueNorth = v,
                 null, save,
                 actionId: RoleActions.TrueNorth.ActionId);
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawRoleActionsSection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Samurai.RoleActionsSection, "Role Actions"), "SAM", false))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Samurai.EnableFeint, "Enable Feint"),
+                () => config.Samurai.EnableFeint,
+                v => config.Samurai.EnableFeint = v,
+                null, save,
+                actionId: RoleActions.Feint.ActionId);
 
             ConfigUIHelpers.EndIndent();
         }

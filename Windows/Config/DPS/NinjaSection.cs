@@ -29,6 +29,7 @@ public sealed class NinjaSection
         DrawMudraSection();
         DrawBurstSection();
         DrawPositionalSection();
+        DrawRoleActionsSection();
     }
 
     private void DrawDamageSection()
@@ -227,6 +228,23 @@ public sealed class NinjaSection
                 () => config.Ninja.AllowPositionalLoss,
                 v => config.Ninja.AllowPositionalLoss = v,
                 Loc.T(LocalizedStrings.Ninja.AllowPositionalLossDesc, "Continue rotation even if positionals will miss"), save);
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawRoleActionsSection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Ninja.RoleActionsSection, "Role Actions"), "NIN", false))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Ninja.EnableFeint, "Enable Feint"),
+                () => config.Ninja.EnableFeint,
+                v => config.Ninja.EnableFeint = v,
+                null, save,
+                actionId: RoleActions.Feint.ActionId);
 
             ConfigUIHelpers.EndIndent();
         }
