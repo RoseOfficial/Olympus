@@ -17,6 +17,7 @@ public enum ConfigSection
     General,
     Targeting,
     RoleActions,
+    Consumables,
 
     // Healers
     HealerShared,
@@ -72,7 +73,7 @@ public sealed class ConfigSidebar
     private static readonly Vector4 HoverColor = new(0.25f, 0.4f, 0.6f, 1.0f);
     private static readonly Vector4 SearchMatchColor = new(1.0f, 0.9f, 0.4f, 1.0f);
 
-    private static readonly ConfigSection[] BehaviorSections    = [ConfigSection.General, ConfigSection.Targeting, ConfigSection.RoleActions, ConfigSection.Timeline];
+    private static readonly ConfigSection[] BehaviorSections    = [ConfigSection.General, ConfigSection.Targeting, ConfigSection.RoleActions, ConfigSection.Consumables, ConfigSection.Timeline];
     private static readonly ConfigSection[] VisualsSections     = [ConfigSection.Display, ConfigSection.DrawHelper, ConfigSection.ActionFeed, ConfigSection.DebugDisplay];
     private static readonly ConfigSection[] MultiplayerSections = [ConfigSection.PartyCoordination];
     private static readonly ConfigSection[] HealerSections   = [ConfigSection.HealerShared, ConfigSection.WhiteMage, ConfigSection.Scholar, ConfigSection.Astrologian, ConfigSection.Sage];
@@ -141,6 +142,7 @@ public sealed class ConfigSidebar
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.GeneralItem, "General"), ConfigSection.General, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Targeting, "Targeting"), ConfigSection.Targeting, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.RoleActions, "Role Actions"), ConfigSection.RoleActions, null, matchingSections, hasSearch);
+            sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Consumables.ConsumablesNav, "Consumables"), ConfigSection.Consumables, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Timeline, "Timeline"), ConfigSection.Timeline, null, matchingSections, hasSearch);
             ImGui.Spacing();
         }

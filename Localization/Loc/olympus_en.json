@@ -2550,5 +2550,12 @@
   "config.timeline.confidence_threshold_desc": "Minimum confidence required before trusting timeline predictions. Higher = more conservative.",
   "config.timeline.enable_mechanic_aware_casting": "Block Casts Before Mechanics",
   "config.timeline.enable_mechanic_aware_casting_desc": "Stop hardcast damage spells when a raidwide or tank buster will hit before the cast completes. Applies to all roles.",
-  "config.job.healer_shared.timeline_master_moved": "Timeline master toggles now live in Shared > Timeline Integration."
+  "config.job.healer_shared.timeline_master_moved": "Timeline master toggles now live in Shared > Timeline Integration.",
+
+  "Config.Consumables.Nav": "Consumables",
+  "Config.Consumables.Header": "Consumables",
+  "Config.Consumables.EnableAutoTincture": "Auto-use combat tinctures",
+  "Config.Consumables.EnableAutoTincture.Desc": "When enabled, Olympus will use a combat tincture during opener and re-pot windows. Only fires in high-end content (savage, extreme, ultimate, criterion, chaotic alliance). Default off because pots cost real gil.",
+  "Config.Consumables.WarnOnEmptyInventory": "Warn when inventory is empty",
+  "Config.Consumables.WarnOnEmptyInventory.Desc": "Fires a one-shot chat warning per fight when auto-tincture is enabled but no matching tincture is in your inventory."
 }

@@ -70,6 +70,7 @@ public sealed class ConfigWindow : Window
     private readonly ActionFeedSection actionFeedSection;
     private readonly TimelineSection timelineSection;
     private readonly PartyCoordinationSection partyCoordinationSection;
+    private readonly ConsumablesSection consumablesSection;
     private readonly DebugDisplaySection debugDisplaySection;
 
     public ConfigWindow(Configuration configuration, Action saveConfiguration, UpdateCheckerService updateCheckerService, ITextureProvider textureProvider)
@@ -114,6 +115,7 @@ public sealed class ConfigWindow : Window
         actionFeedSection = new ActionFeedSection(configuration, saveConfiguration);
         timelineSection = new TimelineSection(configuration, saveConfiguration);
         partyCoordinationSection = new PartyCoordinationSection(configuration, saveConfiguration);
+        consumablesSection = new ConsumablesSection(configuration, saveConfiguration);
         debugDisplaySection = new DebugDisplaySection(configuration, saveConfiguration);
 
         Size = new Vector2(650, 700);
@@ -277,6 +279,10 @@ public sealed class ConfigWindow : Window
                 ImGui.TextColored(new Vector4(0.8f, 0.8f, 0.8f, 1f), Loc.T(LocalizedStrings.RoleActions.Header, "Role Actions"));
                 ImGui.Spacing();
                 generalSection.DrawRoleActions();
+                break;
+
+            case ConfigSection.Consumables:
+                consumablesSection.Draw();
                 break;
 
             case ConfigSection.HealerShared:

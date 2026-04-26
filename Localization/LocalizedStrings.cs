@@ -226,6 +226,17 @@ public static class LocalizedStrings
         public const string InvulnerabilityFilteringDesc = "config.targeting.invulnerability_filtering_desc";
     }
 
+    /// <summary>Keys for consumables config section.</summary>
+    public static class Consumables
+    {
+        public const string ConsumablesNav = "Config.Consumables.Nav";
+        public const string ConsumablesHeader = "Config.Consumables.Header";
+        public const string EnableAutoTincture = "Config.Consumables.EnableAutoTincture";
+        public const string EnableAutoTinctureDesc = "Config.Consumables.EnableAutoTincture.Desc";
+        public const string WarnOnEmptyInventory = "Config.Consumables.WarnOnEmptyInventory";
+        public const string WarnOnEmptyInventoryDesc = "Config.Consumables.WarnOnEmptyInventory.Desc";
+    }
+
     /// <summary>Keys for role action settings section.</summary>
     public static class RoleActions
     {
