@@ -97,6 +97,9 @@ public sealed class Configuration : IPluginConfiguration
     // Party coordination (multi-Olympus IPC)
     public PartyCoordinationConfig PartyCoordination { get; set; } = new();
 
+    // Consumable automation (combat tinctures)
+    public ConsumablesConfig Consumables { get; set; } = new();
+
     // Role-specific configuration - Tanks
     public TankConfig Tank { get; set; } = new();
 
