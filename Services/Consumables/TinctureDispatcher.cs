@@ -2,12 +2,18 @@ using Olympus.Services.Action;
 
 namespace Olympus.Services.Consumables;
 
+public interface ITinctureDispatcher
+{
+    /// <summary>See <see cref="TinctureDispatcher.TryDispatch"/>.</summary>
+    bool TryDispatch(uint jobId, bool inCombat, bool prePullPhase);
+}
+
 /// <summary>
 /// Shared dispatch helper used by both Path 1 (PrePullModule's TinctureCandidate
 /// for opener) and Path 2 (in-combat re-pot push from BaseRotation). Owns the
 /// "check gates -> resolve item -> dispatch" flow so both paths behave identically.
 /// </summary>
-public sealed class TinctureDispatcher
+public sealed class TinctureDispatcher : ITinctureDispatcher
 {
     private readonly IConsumableService _consumables;
     private readonly IBurstWindowService _burstWindow;
