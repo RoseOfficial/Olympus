@@ -21,7 +21,6 @@ using Olympus.Services.Tank;
 using Olympus.Services.Targeting;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Scheduling;
-using Olympus.Services.JobGauge;
 using Olympus.Services.Training;
 using Olympus.Timeline;
 
@@ -83,9 +82,6 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
     // Scheduler (per-rotation, per-frame priority queue)
     private readonly RotationScheduler _scheduler;
 
-    // Gauge reader for scheduler tests / production alike
-    private readonly IGnbGaugeReader _gaugeReader;
-
     public Hephaestus(
         IPluginLog log,
         IActionTracker actionTracker,
@@ -107,8 +103,7 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
         IPartyCoordinationService? partyCoordinationService = null,
         ITrainingService? trainingService = null,
         IErrorMetricsService? errorMetrics = null,
-        IBurstWindowService? burstWindowService = null,
-        IGnbGaugeReader? gaugeReader = null)
+        IBurstWindowService? burstWindowService = null)
         : base(
             log,
             actionTracker,
@@ -134,7 +129,6 @@ public sealed class Hephaestus : BaseTankRotation<IHephaestusContext, IHephaestu
         _burstWindowService = burstWindowService;
         _jobGauges = jobGauges;
 
-        _gaugeReader = gaugeReader ?? new GnbGaugeReader(jobGauges, errorMetrics);
         _scheduler = new RotationScheduler(
             actionService,
             jobGauges,
