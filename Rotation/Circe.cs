@@ -162,6 +162,20 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
     }
 
     /// <summary>
+    /// Pure mapping from the adjusted Moulinet action ID to the Moulinet AoE
+    /// chain step. Returns 1 if the chain has advanced to Deux, 2 if Trois,
+    /// 0 otherwise. Extracted from the wrapper for unit-test coverage.
+    /// </summary>
+    internal static int ComputeMoulinetStep(uint adjustedMoulinetId)
+    {
+        if (adjustedMoulinetId == RDMActions.EnchantedMoulinetDeux.ActionId)
+            return 1;
+        if (adjustedMoulinetId == RDMActions.EnchantedMoulinetTrois.ActionId)
+            return 2;
+        return 0;
+    }
+
+    /// <summary>
     /// Updates the Moulinet (AoE melee) combo step using action replacement on
     /// Enchanted Moulinet. The chain is Moulinet → Moulinet Deux → Moulinet Trois.
     /// Only the Deux/Trois steps exist at Lv.96+; below that, Moulinet is a single hit.
@@ -175,18 +189,52 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
             return;
 
         var adjustedId = actionManager->GetAdjustedActionId(RDMActions.EnchantedMoulinet.ActionId);
-        if (adjustedId == RDMActions.EnchantedMoulinetDeux.ActionId)
-            _moulinetStep = 1; // Deux next
-        else if (adjustedId == RDMActions.EnchantedMoulinetTrois.ActionId)
-            _moulinetStep = 2; // Trois next
+        _moulinetStep = ComputeMoulinetStep(adjustedId);
+    }
+
+    /// <summary>
+    /// Pure mapping from action-replacement / ManaStacks / vanilla-combo state to
+    /// the 5-step Enchanted melee chain index. Precedence (top wins):
+    ///   1) adjusted Riposte → Zwerchhau ⇒ 1
+    ///   2) adjusted Riposte → Redoublement ⇒ 2
+    ///   3) ManaStacks ≥ 3 ⇒ 3
+    ///   4) comboTimer > 0 AND comboAction is Verflare/Verholy ⇒ 4
+    ///   5) comboTimer > 0 AND comboAction is Scorch ⇒ 5
+    ///   else ⇒ 0
+    /// Action replacement is preferred over ManaStacks because the game's
+    /// vanilla combo field is unreliable for the Enchanted melee chain.
+    /// Extracted from the wrapper for unit-test coverage.
+    /// </summary>
+    internal static int ComputeMeleeComboStep(uint adjustedRiposteId, int manaStacks, uint comboAction, float comboTimer)
+    {
+        // Steps 1-2: action replacement from Enchanted Riposte
+        if (adjustedRiposteId == RDMActions.EnchantedZwerchhau.ActionId)
+            return 1;
+        if (adjustedRiposteId == RDMActions.EnchantedRedoublement.ActionId)
+            return 2;
+
+        // Step 3: Finisher (Verflare/Verholy) becomes available at 3 Mana Stacks,
+        // which is granted by Enchanted Redoublement.
+        if (manaStacks >= 3)
+            return 3;
+
+        // Steps 4-5: Scorch/Resolution are chained via the vanilla combo system,
+        // so the game's combo field reliably tracks them.
+        if (comboTimer <= 0)
+            return 0;
+
+        if (comboAction == RDMActions.Verflare.ActionId || comboAction == RDMActions.Verholy.ActionId)
+            return 4;
+        if (comboAction == RDMActions.Scorch.ActionId)
+            return 5;
+
+        return 0;
     }
 
     /// <summary>
     /// Updates the melee combo step using action replacement on Enchanted Riposte
     /// for steps 1-2 (Zwerchhau/Redoublement), Mana Stacks for step 3 (Finisher),
     /// and the game's combo field for steps 4-5 (Scorch/Resolution).
-    /// Action replacement is used rather than raw combo tracking because the game's
-    /// combo field is unreliable for the Enchanted melee chain.
     /// </summary>
     private unsafe void UpdateMeleeComboStep()
     {
@@ -196,38 +244,11 @@ public sealed class Circe : BaseCasterDpsRotation<ICirceContext, ICirceModule>
         if (actionManager == null)
             return;
 
-        // Steps 1-2: action replacement from Enchanted Riposte
         var adjustedId = actionManager->GetAdjustedActionId(RDMActions.EnchantedRiposte.ActionId);
-        if (adjustedId == RDMActions.EnchantedZwerchhau.ActionId)
-        {
-            _meleeComboStep = 1; // Zwerchhau next
-            return;
-        }
-        if (adjustedId == RDMActions.EnchantedRedoublement.ActionId)
-        {
-            _meleeComboStep = 2; // Redoublement next
-            return;
-        }
-
-        // Step 3: Finisher (Verflare/Verholy) becomes available at 3 Mana Stacks,
-        // which is granted by Enchanted Redoublement.
-        if (_manaStacks >= 3)
-        {
-            _meleeComboStep = 3;
-            return;
-        }
-
-        // Steps 4-5: Scorch/Resolution are chained via the vanilla combo system,
-        // so the game's combo field reliably tracks them.
         var comboAction = SafeGameAccess.GetComboAction(ErrorMetrics);
         var comboTimer = SafeGameAccess.GetComboTimer(ErrorMetrics);
-        if (comboTimer <= 0)
-            return;
 
-        if (comboAction == RDMActions.Verflare.ActionId || comboAction == RDMActions.Verholy.ActionId)
-            _meleeComboStep = 4; // Scorch next
-        else if (comboAction == RDMActions.Scorch.ActionId)
-            _meleeComboStep = 5; // Resolution next
+        _meleeComboStep = ComputeMeleeComboStep(adjustedId, _manaStacks, comboAction, comboTimer);
     }
 
     /// <summary>
