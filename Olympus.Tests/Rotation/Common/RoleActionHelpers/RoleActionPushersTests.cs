@@ -222,3 +222,116 @@ public class RoleActionPushersSecondWindTests
         Assert.True(dispatched);
     }
 }
+
+public class RoleActionPushersBloodbathTests
+{
+    private static AbilityBehavior BloodbathBehavior() => new()
+    {
+        Action = RoleActions.Bloodbath,
+        Toggle = _ => true,
+    };
+
+    private static (Mock<IRotationContext> ctx, Mock<IActionService> actionService) BuildContext(
+        byte playerLevel,
+        uint currentHp,
+        uint maxHp,
+        bool actionReady = true,
+        bool buffActive = false)
+    {
+        var player = MockBuilders.CreateMockPlayerCharacter(
+            level: playerLevel,
+            currentHp: currentHp,
+            maxHp: maxHp);
+        player.SetupGet(p => p.GameObjectId).Returns(789ul);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(a => a.IsActionReady(RoleActions.Bloodbath.ActionId)).Returns(actionReady);
+        actionService.Setup(a => a.PlayerHasStatus(RoleActions.Bloodbath.AppliedStatusId.GetValueOrDefault())).Returns(buffActive);
+
+        var ctx = new Mock<IRotationContext>();
+        ctx.SetupGet(c => c.Player).Returns(player.Object);
+        ctx.SetupGet(c => c.ActionService).Returns(actionService.Object);
+
+        return (ctx, actionService);
+    }
+
+    [Fact]
+    public void Skips_When_Level_Too_Low()
+    {
+        var (ctx, _) = BuildContext(
+            playerLevel: (byte)(RoleActions.Bloodbath.MinLevel - 1),
+            currentHp: 4_000,
+            maxHp: 10_000);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushBloodbath(ctx.Object, scheduler, BloodbathBehavior(), 0.85f, 100);
+
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void Skips_When_Buff_Already_Active()
+    {
+        var (ctx, _) = BuildContext(playerLevel: 90, currentHp: 4_000, maxHp: 10_000, buffActive: true);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushBloodbath(ctx.Object, scheduler, BloodbathBehavior(), 0.85f, 100);
+
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void Skips_When_OnCooldown()
+    {
+        var (ctx, _) = BuildContext(playerLevel: 90, currentHp: 4_000, maxHp: 10_000, actionReady: false);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushBloodbath(ctx.Object, scheduler, BloodbathBehavior(), 0.85f, 100);
+
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void Skips_When_Hp_Above_Threshold()
+    {
+        // 90% HP, threshold 85% -- should not push
+        var (ctx, _) = BuildContext(playerLevel: 90, currentHp: 9_000, maxHp: 10_000);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushBloodbath(ctx.Object, scheduler, BloodbathBehavior(), 0.85f, 100);
+
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void Pushes_When_All_Gates_Pass()
+    {
+        // 50% HP, threshold 85% -- should push
+        var (ctx, _) = BuildContext(playerLevel: 90, currentHp: 5_000, maxHp: 10_000);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushBloodbath(ctx.Object, scheduler, BloodbathBehavior(), 0.85f, 100);
+
+        var queue = scheduler.InspectOgcdQueue();
+        Assert.Single(queue);
+        Assert.Equal(100, queue[0].Priority);
+        Assert.Equal(RoleActions.Bloodbath.ActionId, queue[0].Behavior.Action.ActionId);
+    }
+
+    [Fact]
+    public void Invokes_OnDispatched_Callback_Through_Scheduler_Queue()
+    {
+        var (ctx, _) = BuildContext(playerLevel: 90, currentHp: 5_000, maxHp: 10_000);
+        var scheduler = SchedulerFactory.CreateForTest();
+        var dispatched = false;
+
+        RoleActionPushers.TryPushBloodbath(ctx.Object, scheduler, BloodbathBehavior(), 0.85f, 100,
+            onDispatched: _ => dispatched = true);
+
+        var queue = scheduler.InspectOgcdQueue();
+        Assert.Single(queue);
+        // Invoke the callback directly to verify it was wired through correctly
+        queue[0].OnDispatched?.Invoke(ctx.Object);
+        Assert.True(dispatched);
+    }
+}
