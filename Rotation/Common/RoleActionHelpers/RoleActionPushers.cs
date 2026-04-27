@@ -139,7 +139,8 @@ public static class RoleActionPushers
         if (!ctx.ActionService.IsActionReady(RoleActions.Rampart.ActionId)) return;
 
         var partyCoord = ctx.PartyCoordinationService;
-        if (partyCoord?.WasActionUsedByOther(RoleActions.Rampart.ActionId, withinSeconds: 20f) == true) return;
+        if (ctx.Configuration.Tank.EnableDefensiveCoordination &&
+            partyCoord?.WasActionUsedByOther(RoleActions.Rampart.ActionId, withinSeconds: 20f) == true) return;
 
         scheduler.PushOgcd(behavior, player.GameObjectId, priority,
             onDispatched: ctx2 =>

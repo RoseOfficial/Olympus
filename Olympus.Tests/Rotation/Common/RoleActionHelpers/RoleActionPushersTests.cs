@@ -1,4 +1,5 @@
 using Moq;
+using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.Common;
 using Olympus.Rotation.Common.RoleActionHelpers;
@@ -350,7 +351,8 @@ public class RoleActionPushersRampartTests
         bool actionReady = true,
         bool buffActive = false,
         bool coTankUsedRecently = false,
-        bool nullPartyCoord = false)
+        bool nullPartyCoord = false,
+        bool enableDefensiveCoord = true)
     {
         var player = MockBuilders.CreateMockPlayerCharacter(
             level: playerLevel,
@@ -365,10 +367,14 @@ public class RoleActionPushersRampartTests
         var partyCoord = new Mock<IPartyCoordinationService>();
         partyCoord.Setup(p => p.WasActionUsedByOther(RoleActions.Rampart.ActionId, 20f)).Returns(coTankUsedRecently);
 
+        var config = new Configuration();
+        config.Tank.EnableDefensiveCoordination = enableDefensiveCoord;
+
         var ctx = new Mock<ITankRotationContext>();
         ctx.SetupGet(c => c.Player).Returns(player.Object);
         ctx.SetupGet(c => c.ActionService).Returns(actionService.Object);
         ctx.SetupGet(c => c.PartyCoordinationService).Returns(nullPartyCoord ? null : partyCoord.Object);
+        ctx.SetupGet(c => c.Configuration).Returns(config);
 
         return (ctx, actionService, partyCoord);
     }
@@ -460,5 +466,19 @@ public class RoleActionPushersRampartTests
         Assert.Single(queue);
         queue[0].OnDispatched?.Invoke(ctx.Object);
         Assert.True(callerInvoked);
+    }
+
+    [Fact]
+    public void Pushes_When_DefensiveCoordination_Disabled_Even_If_CoTank_Used()
+    {
+        // EnableDefensiveCoordination = false should bypass the WasActionUsedByOther skip
+        var (ctx, actionService, partyCoord) = BuildContext(playerLevel: 90, enableDefensiveCoord: false);
+        actionService.Setup(a => a.IsActionReady(RoleActions.Rampart.ActionId)).Returns(true);
+        partyCoord.Setup(p => p.WasActionUsedByOther(RoleActions.Rampart.ActionId, 20f)).Returns(true);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+
+        RoleActionPushers.TryPushRampart(ctx.Object, scheduler, RampartBehavior(), priority: 100);
+
+        Assert.Single(scheduler.InspectOgcdQueue());  // Push happens despite co-tank overlap
     }
 }
