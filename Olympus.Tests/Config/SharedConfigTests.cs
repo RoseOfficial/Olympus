@@ -30,7 +30,6 @@ public class SharedConfigTests
         Assert.Equal(0.50f, m.SecondWindHpThreshold);
         Assert.True(m.EnableBloodbath);
         Assert.Equal(0.85f, m.BloodbathHpThreshold);
-        Assert.True(m.EnableTrueNorth);
     }
 
     [Fact]
@@ -51,20 +50,4 @@ public class SharedConfigTests
         Assert.Equal(0f, m.BloodbathHpThreshold);
     }
 
-    [Fact]
-    public void TankShared_Defaults()
-    {
-        var t = new TankSharedConfig();
-        Assert.True(t.EnableRampart);
-        Assert.Equal(0.85f, t.RampartHpThreshold);
-    }
-
-    [Fact]
-    public void TankShared_RampartThreshold_ClampedTo01()
-    {
-        var t = new TankSharedConfig { RampartHpThreshold = 1.5f };
-        Assert.Equal(1f, t.RampartHpThreshold);
-        t.RampartHpThreshold = -0.2f;
-        Assert.Equal(0f, t.RampartHpThreshold);
-    }
 }

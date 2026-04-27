@@ -104,7 +104,6 @@ public sealed class SettingRegistry
             ConfigSection.Scholar => Loc.T(LocalizedStrings.Sidebar.Scholar, "Scholar"),
             ConfigSection.Astrologian => Loc.T(LocalizedStrings.Sidebar.Astrologian, "Astrologian"),
             ConfigSection.Sage => Loc.T(LocalizedStrings.Sidebar.Sage, "Sage"),
-            ConfigSection.TankShared => Loc.T(LocalizedStrings.Sidebar.Shared, "Shared"),
             ConfigSection.Paladin => Loc.T(LocalizedStrings.Sidebar.Paladin, "Paladin"),
             ConfigSection.Warrior => Loc.T(LocalizedStrings.Sidebar.Warrior, "Warrior"),
             ConfigSection.DarkKnight => Loc.T(LocalizedStrings.Sidebar.DarkKnight, "Dark Knight"),
@@ -295,21 +294,6 @@ public sealed class SettingRegistry
             new("Toxikon", "Instant damage from Addersting"),
             new("Pneuma", "Line AoE heal and damage"),
             new("Eukrasian Dosis", "Single-target DoT")
-        };
-
-        // Tank Shared section
-        this.sectionSettings[ConfigSection.TankShared] = new List<SettingInfo>
-        {
-            new("Rampart", "20% damage reduction"),
-            new("Reprisal", "10% enemy damage reduction"),
-            new("Arm's Length", "Knockback immunity"),
-            new("Provoke", "Enmity generation"),
-            new("Shirk", "Transfer enmity"),
-            new("Interject", "Interrupt enemy cast"),
-            new("Low Blow", "Stun enemy"),
-            new("Tank Stance", "Automatically enable tank stance"),
-            new("Defensive Threshold", "HP threshold for defensives"),
-            new("Emergency Threshold", "HP threshold for invulnerability")
         };
 
         // Paladin section

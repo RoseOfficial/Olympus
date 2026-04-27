@@ -101,7 +101,6 @@ public sealed class Configuration : IPluginConfiguration
     public ConsumablesConfig Consumables { get; set; } = new();
 
     // Role-specific configuration - Tanks
-    public TankSharedConfig TankShared { get; set; } = new();
     public TankConfig Tank { get; set; } = new();
 
     // Job-specific configuration - Melee DPS
@@ -173,7 +172,6 @@ public sealed class Configuration : IPluginConfiguration
         Scholar = new ScholarConfig();
         Astrologian = new AstrologianConfig();
         Sage = new SageConfig();
-        TankShared = new TankSharedConfig();
         Tank = new TankConfig();
         PartyCoordination = new PartyCoordinationConfig();
 
