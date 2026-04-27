@@ -90,9 +90,6 @@ public sealed class Configuration : IPluginConfiguration
 
     // Job-specific configuration - Healers
     public HealerSharedConfig HealerShared { get; set; } = new();
-    public CasterSharedConfig CasterShared { get; set; } = new();
-    public MeleeSharedConfig MeleeShared { get; set; } = new();
-    public TankSharedConfig TankShared { get; set; } = new();
     public ScholarConfig Scholar { get; set; } = new();
     public AstrologianConfig Astrologian { get; set; } = new();
     public SageConfig Sage { get; set; } = new();
@@ -104,9 +101,11 @@ public sealed class Configuration : IPluginConfiguration
     public ConsumablesConfig Consumables { get; set; } = new();
 
     // Role-specific configuration - Tanks
+    public TankSharedConfig TankShared { get; set; } = new();
     public TankConfig Tank { get; set; } = new();
 
     // Job-specific configuration - Melee DPS
+    public MeleeSharedConfig MeleeShared { get; set; } = new();
     public DragoonConfig Dragoon { get; set; } = new();
     public NinjaConfig Ninja { get; set; } = new();
     public SamuraiConfig Samurai { get; set; } = new();
@@ -121,6 +120,7 @@ public sealed class Configuration : IPluginConfiguration
     public DancerConfig Dancer { get; set; } = new();
 
     // Job-specific configuration - Casters
+    public CasterSharedConfig CasterShared { get; set; } = new();
     public BlackMageConfig BlackMage { get; set; } = new();
     public SummonerConfig Summoner { get; set; } = new();
     public RedMageConfig RedMage { get; set; } = new();
@@ -170,16 +170,15 @@ public sealed class Configuration : IPluginConfiguration
         ActionFeed = new ActionFeedConfig();
         DrawHelper = new DrawHelperConfig();
         HealerShared = new HealerSharedConfig();
-        CasterShared = new CasterSharedConfig();
-        MeleeShared = new MeleeSharedConfig();
-        TankShared = new TankSharedConfig();
         Scholar = new ScholarConfig();
         Astrologian = new AstrologianConfig();
         Sage = new SageConfig();
+        TankShared = new TankSharedConfig();
         Tank = new TankConfig();
         PartyCoordination = new PartyCoordinationConfig();
 
         // Reset DPS configs
+        MeleeShared = new MeleeSharedConfig();
         Dragoon = new DragoonConfig();
         Ninja = new NinjaConfig();
         Samurai = new SamuraiConfig();
@@ -190,6 +189,7 @@ public sealed class Configuration : IPluginConfiguration
         Machinist = new MachinistConfig();
         Bard = new BardConfig();
         Dancer = new DancerConfig();
+        CasterShared = new CasterSharedConfig();
         BlackMage = new BlackMageConfig();
         Summoner = new SummonerConfig();
         RedMage = new RedMageConfig();

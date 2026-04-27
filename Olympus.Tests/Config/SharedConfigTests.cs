@@ -10,16 +10,16 @@ public class SharedConfigTests
     {
         var c = new CasterSharedConfig();
         Assert.True(c.EnableLucidDreaming);
-        Assert.Equal(0.70f, c.LucidDreamingMpThreshold);
+        Assert.Equal(0.70f, c.LucidDreamingThreshold);
     }
 
     [Fact]
     public void CasterShared_LucidThreshold_ClampedTo01()
     {
-        var c = new CasterSharedConfig { LucidDreamingMpThreshold = 1.5f };
-        Assert.Equal(1f, c.LucidDreamingMpThreshold);
-        c.LucidDreamingMpThreshold = -0.2f;
-        Assert.Equal(0f, c.LucidDreamingMpThreshold);
+        var c = new CasterSharedConfig { LucidDreamingThreshold = 1.5f };
+        Assert.Equal(1f, c.LucidDreamingThreshold);
+        c.LucidDreamingThreshold = -0.2f;
+        Assert.Equal(0f, c.LucidDreamingThreshold);
     }
 
     [Fact]
@@ -34,10 +34,37 @@ public class SharedConfigTests
     }
 
     [Fact]
+    public void MeleeShared_SecondWindThreshold_ClampedTo01()
+    {
+        var m = new MeleeSharedConfig { SecondWindHpThreshold = 1.5f };
+        Assert.Equal(1f, m.SecondWindHpThreshold);
+        m.SecondWindHpThreshold = -0.2f;
+        Assert.Equal(0f, m.SecondWindHpThreshold);
+    }
+
+    [Fact]
+    public void MeleeShared_BloodbathThreshold_ClampedTo01()
+    {
+        var m = new MeleeSharedConfig { BloodbathHpThreshold = 1.5f };
+        Assert.Equal(1f, m.BloodbathHpThreshold);
+        m.BloodbathHpThreshold = -0.2f;
+        Assert.Equal(0f, m.BloodbathHpThreshold);
+    }
+
+    [Fact]
     public void TankShared_Defaults()
     {
         var t = new TankSharedConfig();
         Assert.True(t.EnableRampart);
         Assert.Equal(0.85f, t.RampartHpThreshold);
+    }
+
+    [Fact]
+    public void TankShared_RampartThreshold_ClampedTo01()
+    {
+        var t = new TankSharedConfig { RampartHpThreshold = 1.5f };
+        Assert.Equal(1f, t.RampartHpThreshold);
+        t.RampartHpThreshold = -0.2f;
+        Assert.Equal(0f, t.RampartHpThreshold);
     }
 }

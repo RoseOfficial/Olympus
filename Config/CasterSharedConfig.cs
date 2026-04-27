@@ -16,10 +16,10 @@ public sealed class CasterSharedConfig
     /// MP percentage threshold to trigger Lucid Dreaming (0.0 to 1.0).
     /// Default 0.70 = fire when MP drops below 70%.
     /// </summary>
-    private float _lucidDreamingMpThreshold = 0.70f;
-    public float LucidDreamingMpThreshold
+    private float _lucidDreamingThreshold = 0.70f;
+    public float LucidDreamingThreshold
     {
-        get => _lucidDreamingMpThreshold;
-        set => _lucidDreamingMpThreshold = Math.Clamp(value, 0f, 1f);
+        get => _lucidDreamingThreshold;
+        set => _lucidDreamingThreshold = Math.Clamp(value, 0f, 1f);
     }
 }
