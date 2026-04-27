@@ -90,6 +90,9 @@ public sealed class Configuration : IPluginConfiguration
 
     // Job-specific configuration - Healers
     public HealerSharedConfig HealerShared { get; set; } = new();
+    public CasterSharedConfig CasterShared { get; set; } = new();
+    public MeleeSharedConfig MeleeShared { get; set; } = new();
+    public TankSharedConfig TankShared { get; set; } = new();
     public ScholarConfig Scholar { get; set; } = new();
     public AstrologianConfig Astrologian { get; set; } = new();
     public SageConfig Sage { get; set; } = new();
@@ -167,6 +170,9 @@ public sealed class Configuration : IPluginConfiguration
         ActionFeed = new ActionFeedConfig();
         DrawHelper = new DrawHelperConfig();
         HealerShared = new HealerSharedConfig();
+        CasterShared = new CasterSharedConfig();
+        MeleeShared = new MeleeSharedConfig();
+        TankShared = new TankSharedConfig();
         Scholar = new ScholarConfig();
         Astrologian = new AstrologianConfig();
         Sage = new SageConfig();
