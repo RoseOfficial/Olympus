@@ -230,13 +230,6 @@ public sealed class SamuraiSection
                 v => config.Samurai.AllowPositionalLoss = v,
                 Loc.T(LocalizedStrings.Samurai.AllowPositionalLossDesc, "Continue rotation even if positionals will miss"), save);
 
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Samurai.EnableTrueNorth, "Enable True North"),
-                () => config.Samurai.EnableTrueNorth,
-                v => config.Samurai.EnableTrueNorth = v,
-                null, save,
-                actionId: RoleActions.TrueNorth.ActionId);
-
             ConfigUIHelpers.EndIndent();
         }
     }

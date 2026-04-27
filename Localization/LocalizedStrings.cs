@@ -899,6 +899,9 @@ public static class LocalizedStrings
         public const string SecondWindHpThreshold = "config.job.melee_shared.second_wind_hp_threshold";
         public const string EnableBloodbath = "config.job.melee_shared.enable_bloodbath";
         public const string BloodbathHpThreshold = "config.job.melee_shared.bloodbath_hp_threshold";
+        public const string PositionalHelper = "config.job.melee_shared.positional_helper";
+        public const string EnableTrueNorth = "config.job.melee_shared.enable_true_north";
+        public const string EnableTrueNorthDescription = "config.job.melee_shared.enable_true_north_desc";
     }
 
     /// <summary>Keys for Tank shared settings.</summary>

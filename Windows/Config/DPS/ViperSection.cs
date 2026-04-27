@@ -197,13 +197,6 @@ public sealed class ViperSection
                 null, save,
                 actionId: RoleActions.Feint.ActionId);
 
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Viper.EnableTrueNorth, "Enable True North"),
-                () => config.Viper.EnableTrueNorth,
-                v => config.Viper.EnableTrueNorth = v,
-                null, save,
-                actionId: RoleActions.TrueNorth.ActionId);
-
             ConfigUIHelpers.EndIndent();
         }
     }

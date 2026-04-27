@@ -30,6 +30,7 @@ public class SharedConfigTests
         Assert.Equal(0.50f, m.SecondWindHpThreshold);
         Assert.True(m.EnableBloodbath);
         Assert.Equal(0.85f, m.BloodbathHpThreshold);
+        Assert.True(m.EnableTrueNorth);
     }
 
     [Fact]

@@ -299,12 +299,11 @@ public sealed class DamageModule : IEchidnaModule
             }
         }
 
-        if (level >= RoleActions.TrueNorth.MinLevel
-            && context.Configuration.Viper.EnableTrueNorth
+        if (context.Configuration.MeleeShared.EnableTrueNorth
             && !context.HasTrueNorth
             && !context.IsAtRear && !context.IsAtFlank
             && !context.TargetHasPositionalImmunity
-            && context.ActionService.IsActionReady(RoleActions.TrueNorth.ActionId))
+            && RoleActionGates.TrueNorthReady(context))
         {
             scheduler.PushOgcd(EchidnaAbilities.TrueNorth, player.GameObjectId, priority: 6,
                 onDispatched: _ => context.Debug.PlannedAction = RoleActions.TrueNorth.Name);

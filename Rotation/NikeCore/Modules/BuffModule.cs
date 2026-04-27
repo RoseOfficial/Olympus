@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.RoleActionHelpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.NikeCore.Abilities;
 using Olympus.Rotation.NikeCore.Context;
@@ -289,9 +290,8 @@ public sealed class BuffModule : INikeModule
 
     private void TryPushTrueNorth(INikeContext context, RotationScheduler scheduler)
     {
-        if (!context.Configuration.Samurai.EnableTrueNorth) return;
+        if (!context.Configuration.MeleeShared.EnableTrueNorth) return;
         var player = context.Player;
-        if (player.Level < RoleActions.TrueNorth.MinLevel) return;
         if (context.HasTrueNorth) return;
         if (context.TargetHasPositionalImmunity) return;
 
@@ -304,7 +304,7 @@ public sealed class BuffModule : INikeModule
             needPositional = true;
 
         if (!needPositional) return;
-        if (!context.ActionService.IsActionReady(RoleActions.TrueNorth.ActionId)) return;
+        if (!RoleActionGates.TrueNorthReady(context)) return;
 
         scheduler.PushOgcd(NikeAbilities.TrueNorth, player.GameObjectId, priority: 5,
             onDispatched: _ =>

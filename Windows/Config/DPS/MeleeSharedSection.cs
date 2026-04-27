@@ -64,5 +64,22 @@ public sealed class MeleeSharedSection
 
             ConfigUIHelpers.EndIndent();
         }
+
+        if (ConfigUIHelpers.SectionHeader(
+            Loc.T(LocalizedStrings.MeleeShared.PositionalHelper, "Positional Helper"), "Melee"))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.MeleeShared.EnableTrueNorth, "Enable True North"),
+                () => config.MeleeShared.EnableTrueNorth,
+                v => config.MeleeShared.EnableTrueNorth = v,
+                Loc.T(LocalizedStrings.MeleeShared.EnableTrueNorthDescription,
+                    "Auto-fire True North when about to miss a positional. VPR and SAM only."),
+                save,
+                actionId: RoleActions.TrueNorth.ActionId);
+
+            ConfigUIHelpers.EndIndent();
+        }
     }
 }

@@ -163,10 +163,5 @@ public sealed class ViperConfig
     /// </summary>
     public bool EnableFeint { get; set; } = true;
 
-    /// <summary>
-    /// Enable True North to remove positional requirements when out of position.
-    /// </summary>
-    public bool EnableTrueNorth { get; set; } = true;
-
     #endregion
 }

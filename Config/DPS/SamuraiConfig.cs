@@ -75,11 +75,6 @@ public sealed class SamuraiConfig
     public bool EnableZanshin { get; set; } = true;
 
     /// <summary>
-    /// Whether to use True North for positional coverage.
-    /// </summary>
-    public bool EnableTrueNorth { get; set; } = true;
-
-    /// <summary>
     /// Whether to use Feint for enemy damage reduction.
     /// </summary>
     public bool EnableFeint { get; set; } = true;

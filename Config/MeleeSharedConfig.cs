@@ -28,4 +28,12 @@ public sealed class MeleeSharedConfig
         get => _bloodbathHpThreshold;
         set => _bloodbathHpThreshold = Math.Clamp(value, 0f, 1f);
     }
+
+    /// <summary>
+    /// Master toggle for True North auto-fire on missed positionals.
+    /// Per-rotation positional detection logic determines when True North is needed;
+    /// this gate only controls whether the rotation may fire it at all.
+    /// Currently only VPR and SAM have positional detection wired.
+    /// </summary>
+    public bool EnableTrueNorth { get; set; } = true;
 }
