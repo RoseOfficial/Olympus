@@ -48,4 +48,33 @@ public static class RoleActionPushers
 
         scheduler.PushOgcd(behavior, player.GameObjectId, priority, onDispatched);
     }
+
+    /// <summary>
+    /// Pushes Second Wind if HP percentage falls below the supplied threshold,
+    /// the action is off cooldown, and the player meets level requirements.
+    /// Second Wind has no applied status, so there is no buff-active gate.
+    /// </summary>
+    /// <param name="ctx">Rotation context.</param>
+    /// <param name="scheduler">Scheduler queue.</param>
+    /// <param name="behavior">Per-rotation AbilityBehavior carrying the toggle delegate.</param>
+    /// <param name="hpThresholdPct">Fire when HpPercent &lt; this value (0.0 to 1.0).</param>
+    /// <param name="priority">Scheduler priority for the push.</param>
+    /// <param name="onDispatched">Optional callback invoked when the candidate dispatches.</param>
+    public static void TryPushSecondWind(
+        IRotationContext ctx,
+        RotationScheduler scheduler,
+        AbilityBehavior behavior,
+        float hpThresholdPct,
+        int priority,
+        Action<IRotationContext>? onDispatched = null)
+    {
+        var player = ctx.Player;
+        if (player.Level < RoleActions.SecondWind.MinLevel) return;
+        if (!ctx.ActionService.IsActionReady(RoleActions.SecondWind.ActionId)) return;
+
+        var hpPct = player.MaxHp > 0 ? (float)player.CurrentHp / player.MaxHp : 1f;
+        if (hpPct >= hpThresholdPct) return;
+
+        scheduler.PushOgcd(behavior, player.GameObjectId, priority, onDispatched);
+    }
 }

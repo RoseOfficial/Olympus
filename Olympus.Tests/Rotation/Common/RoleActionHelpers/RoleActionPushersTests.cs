@@ -122,3 +122,103 @@ public class RoleActionPushersLucidTests
         Assert.True(dispatched);
     }
 }
+
+public class RoleActionPushersSecondWindTests
+{
+    private static AbilityBehavior SecondWindBehavior() => new()
+    {
+        Action = RoleActions.SecondWind,
+        Toggle = _ => true,
+    };
+
+    private static (Mock<IRotationContext> ctx, Mock<IActionService> actionService) BuildContext(
+        byte playerLevel,
+        uint currentHp,
+        uint maxHp,
+        bool actionReady = true)
+    {
+        var player = MockBuilders.CreateMockPlayerCharacter(
+            level: playerLevel,
+            currentHp: currentHp,
+            maxHp: maxHp);
+        player.SetupGet(p => p.GameObjectId).Returns(456ul);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(a => a.IsActionReady(RoleActions.SecondWind.ActionId)).Returns(actionReady);
+
+        var ctx = new Mock<IRotationContext>();
+        ctx.SetupGet(c => c.Player).Returns(player.Object);
+        ctx.SetupGet(c => c.ActionService).Returns(actionService.Object);
+
+        return (ctx, actionService);
+    }
+
+    [Fact]
+    public void Skips_When_Level_Too_Low()
+    {
+        var (ctx, _) = BuildContext(
+            playerLevel: (byte)(RoleActions.SecondWind.MinLevel - 1),
+            currentHp: 4_000,
+            maxHp: 10_000);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushSecondWind(ctx.Object, scheduler, SecondWindBehavior(), 0.50f, 100);
+
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void Skips_When_OnCooldown()
+    {
+        var (ctx, _) = BuildContext(playerLevel: 90, currentHp: 4_000, maxHp: 10_000, actionReady: false);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushSecondWind(ctx.Object, scheduler, SecondWindBehavior(), 0.50f, 100);
+
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void Skips_When_Hp_Above_Threshold()
+    {
+        // 85% HP, threshold 50% -- should not push
+        var (ctx, _) = BuildContext(playerLevel: 90, currentHp: 8_500, maxHp: 10_000);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushSecondWind(ctx.Object, scheduler, SecondWindBehavior(), 0.50f, 100);
+
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void Pushes_When_All_Gates_Pass()
+    {
+        // 40% HP, threshold 50% -- should push
+        var (ctx, _) = BuildContext(playerLevel: 90, currentHp: 4_000, maxHp: 10_000);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushSecondWind(ctx.Object, scheduler, SecondWindBehavior(), 0.50f, 100);
+
+        var queue = scheduler.InspectOgcdQueue();
+        Assert.Single(queue);
+        Assert.Equal(100, queue[0].Priority);
+        Assert.Equal(RoleActions.SecondWind.ActionId, queue[0].Behavior.Action.ActionId);
+    }
+
+    [Fact]
+    public void Invokes_OnDispatched_Callback_Through_Scheduler_Queue()
+    {
+        var (ctx, _) = BuildContext(playerLevel: 90, currentHp: 4_000, maxHp: 10_000);
+        var scheduler = SchedulerFactory.CreateForTest();
+        var dispatched = false;
+
+        RoleActionPushers.TryPushSecondWind(ctx.Object, scheduler, SecondWindBehavior(), 0.50f, 100,
+            onDispatched: _ => dispatched = true);
+
+        var queue = scheduler.InspectOgcdQueue();
+        Assert.Single(queue);
+        // Invoke the callback directly to verify it was wired through correctly
+        queue[0].OnDispatched?.Invoke(ctx.Object);
+        Assert.True(dispatched);
+    }
+}
