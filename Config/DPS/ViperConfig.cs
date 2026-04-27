@@ -159,22 +159,6 @@ public sealed class ViperConfig
     #region Role Action Settings
 
     /// <summary>
-    /// Enable Second Wind for self-healing when HP is low.
-    /// </summary>
-    public bool EnableSecondWind { get; set; } = true;
-
-    /// <summary>
-    /// HP percentage threshold below which Second Wind fires.
-    /// Range: 0.0 to 1.0.
-    /// </summary>
-    private float _secondWindHpThreshold = 0.5f;
-    public float SecondWindHpThreshold
-    {
-        get => _secondWindHpThreshold;
-        set => _secondWindHpThreshold = Math.Clamp(value, 0f, 1f);
-    }
-
-    /// <summary>
     /// Enable Bloodbath for lifesteal when HP is low.
     /// </summary>
     public bool EnableBloodbath { get; set; } = true;
