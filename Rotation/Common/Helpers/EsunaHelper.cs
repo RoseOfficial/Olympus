@@ -31,7 +31,7 @@ public static class EsunaHelper
             if (member.IsDead)
                 continue;
 
-            if (!DistanceHelper.IsInRange(player, member, RoleActions.Esuna.Range))
+            if (!DistanceHelper.IsInRange(player, member, Olympus.Data.RoleActions.Esuna.Range))
                 continue;
 
             var (statusId, priority, remainingTime) = debuffService.FindHighestPriorityDebuff(member);
