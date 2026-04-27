@@ -1,23 +1,24 @@
 using Moq;
+using Olympus.Data;
 using Olympus.Rotation.Common;
-using Olympus.Rotation.Common.RoleActions;
+using Olympus.Rotation.Common.RoleActionHelpers;
 using Olympus.Rotation.Common.Scheduling;
+using Olympus.Services.Action;
 using Olympus.Tests.Mocks;
 using Olympus.Tests.Rotation.Common.Scheduling;
 using Xunit;
-using OlympusData = Olympus.Data;
 
-namespace Olympus.Tests.Rotation.Common.RoleActions;
+namespace Olympus.Tests.Rotation.Common.RoleActionHelpers;
 
 public class RoleActionPushersLucidTests
 {
     private static AbilityBehavior LucidBehavior() => new()
     {
-        Action = OlympusData.RoleActions.LucidDreaming,
+        Action = RoleActions.LucidDreaming,
         Toggle = _ => true,
     };
 
-    private static (Mock<IRotationContext> ctx, Mock<Olympus.Services.Action.IActionService> actionService) BuildContext(
+    private static (Mock<IRotationContext> ctx, Mock<IActionService> actionService) BuildContext(
         byte playerLevel,
         uint currentMp,
         uint maxMp,
@@ -30,7 +31,8 @@ public class RoleActionPushersLucidTests
         player.SetupGet(p => p.GameObjectId).Returns(123ul);
 
         var actionService = MockBuilders.CreateMockActionService();
-        actionService.Setup(a => a.IsActionReady(OlympusData.RoleActions.LucidDreaming.ActionId)).Returns(actionReady);
+        actionService.Setup(a => a.IsActionReady(RoleActions.LucidDreaming.ActionId)).Returns(actionReady);
+        actionService.Setup(a => a.PlayerHasStatus(RoleActions.LucidDreaming.AppliedStatusId.GetValueOrDefault())).Returns(false);
 
         var ctx = new Mock<IRotationContext>();
         ctx.SetupGet(c => c.Player).Returns(player.Object);
@@ -43,9 +45,21 @@ public class RoleActionPushersLucidTests
     public void Skips_When_Level_Too_Low()
     {
         var (ctx, _) = BuildContext(
-            playerLevel: (byte)(OlympusData.RoleActions.LucidDreaming.MinLevel - 1),
+            playerLevel: (byte)(RoleActions.LucidDreaming.MinLevel - 1),
             currentMp: 5_000,
             maxMp: 10_000);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushLucidDreaming(ctx.Object, scheduler, LucidBehavior(), 0.70f, 100);
+
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void Skips_When_Lucid_Already_Active()
+    {
+        var (ctx, actionService) = BuildContext(playerLevel: 90, currentMp: 5_000, maxMp: 10_000);
+        actionService.Setup(a => a.PlayerHasStatus(RoleActions.LucidDreaming.AppliedStatusId.GetValueOrDefault())).Returns(true);
         var scheduler = SchedulerFactory.CreateForTest();
 
         RoleActionPushers.TryPushLucidDreaming(ctx.Object, scheduler, LucidBehavior(), 0.70f, 100);
@@ -88,7 +102,7 @@ public class RoleActionPushersLucidTests
         var queue = scheduler.InspectOgcdQueue();
         Assert.Single(queue);
         Assert.Equal(100, queue[0].Priority);
-        Assert.Equal(OlympusData.RoleActions.LucidDreaming.ActionId, queue[0].Behavior.Action.ActionId);
+        Assert.Equal(RoleActions.LucidDreaming.ActionId, queue[0].Behavior.Action.ActionId);
     }
 
     [Fact]

@@ -2,7 +2,7 @@ using System;
 using Olympus.Data;
 using Olympus.Rotation.Common.Scheduling;
 
-namespace Olympus.Rotation.Common.RoleActions;
+namespace Olympus.Rotation.Common.RoleActionHelpers;
 
 /// <summary>
 /// Static push helpers for self-contained role actions whose gating shape is
@@ -10,7 +10,7 @@ namespace Olympus.Rotation.Common.RoleActions;
 /// trigger logic. Replaces the duplicated TryPushXxx methods that previously
 /// lived in each rotation's BuffModule / DamageModule / MitigationModule.
 ///
-/// Apollo (WHM) Lucid Dreaming is a documented exception — it uses a
+/// Apollo (WHM) Lucid Dreaming is a documented exception -- it uses a
 /// predictive MP-forecast path that stays in <c>ApolloCore</c>.
 ///
 /// The helpers do not write to <c>ctx.Debug</c>; callers pass debug writes
@@ -21,7 +21,8 @@ public static class RoleActionPushers
 {
     /// <summary>
     /// Pushes Lucid Dreaming if MP percentage falls below the supplied threshold,
-    /// the action is off cooldown, and the player meets level requirements.
+    /// the buff is not already active, the action is off cooldown, and the player
+    /// meets level requirements.
     /// </summary>
     /// <param name="ctx">Rotation context.</param>
     /// <param name="scheduler">Scheduler queue.</param>
@@ -38,8 +39,9 @@ public static class RoleActionPushers
         Action<IRotationContext>? onDispatched = null)
     {
         var player = ctx.Player;
-        if (player.Level < Data.RoleActions.LucidDreaming.MinLevel) return;
-        if (!ctx.ActionService.IsActionReady(Data.RoleActions.LucidDreaming.ActionId)) return;
+        if (player.Level < RoleActions.LucidDreaming.MinLevel) return;
+        if (ctx.ActionService.PlayerHasStatus(RoleActions.LucidDreaming.AppliedStatusId.GetValueOrDefault())) return;
+        if (!ctx.ActionService.IsActionReady(RoleActions.LucidDreaming.ActionId)) return;
 
         var mpPct = player.MaxMp > 0 ? (float)player.CurrentMp / player.MaxMp : 1f;
         if (mpPct >= mpThresholdPct) return;
