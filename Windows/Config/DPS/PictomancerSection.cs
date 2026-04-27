@@ -325,15 +325,15 @@ public sealed class PictomancerSection
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Pictomancer.EnableLucidDreaming, "Enable Lucid Dreaming"),
-                () => config.Pictomancer.EnableLucidDreaming,
-                v => config.Pictomancer.EnableLucidDreaming = v,
+                () => config.CasterShared.EnableLucidDreaming,
+                v => config.CasterShared.EnableLucidDreaming = v,
                 null, save);
 
-            if (config.Pictomancer.EnableLucidDreaming)
+            if (config.CasterShared.EnableLucidDreaming)
             {
-                config.Pictomancer.LucidDreamingThreshold = ConfigUIHelpers.ThresholdSlider(
+                config.CasterShared.LucidDreamingThreshold = ConfigUIHelpers.ThresholdSlider(
                     Loc.T(LocalizedStrings.Pictomancer.LucidDreamingThreshold, "Lucid MP Threshold"),
-                    config.Pictomancer.LucidDreamingThreshold, 40f, 90f, null, save, v => config.Pictomancer.LucidDreamingThreshold = v);
+                    config.CasterShared.LucidDreamingThreshold, 40f, 90f, null, save, v => config.CasterShared.LucidDreamingThreshold = v);
             }
 
             ConfigUIHelpers.EndIndent();

@@ -30,6 +30,7 @@ public sealed class LucidDreamingHandler : IHealingHandler
             onDispatched: _ =>
             {
                 context.Debug.PlannedAction = RoleActions.LucidDreaming.Name;
+                context.Debug.PlanningState = "Lucid Dreaming";
                 context.Debug.LucidState = $"Lucid Dreaming (MP {preCallMp:P0})";
 
                 if (context.TrainingService?.IsTrainingEnabled == true)
