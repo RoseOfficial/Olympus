@@ -52,6 +52,7 @@ public sealed class ConfigWindow : Window
 
     // DPS Section renderers
     private readonly MeleeSharedSection meleeSharedSection;
+    private readonly CasterSharedSection casterSharedSection;
     private readonly DragoonSection dragoonSection;
     private readonly NinjaSection ninjaSection;
     private readonly SamuraiSection samuraiSection;
@@ -107,6 +108,7 @@ public sealed class ConfigWindow : Window
         machinistSection = new MachinistSection(configuration, saveConfiguration);
         bardSection = new BardSection(configuration, saveConfiguration);
         dancerSection = new DancerSection(configuration, saveConfiguration);
+        casterSharedSection = new CasterSharedSection(configuration, saveConfiguration);
         blackMageSection = new BlackMageSection(configuration, saveConfiguration);
         summonerSection = new SummonerSection(configuration, saveConfiguration);
         redMageSection = new RedMageSection(configuration, saveConfiguration);
@@ -368,6 +370,10 @@ public sealed class ConfigWindow : Window
                 break;
 
             // Casters
+            case ConfigSection.CasterShared:
+                casterSharedSection.Draw();
+                break;
+
             case ConfigSection.BlackMage:
                 blackMageSection.Draw();
                 break;

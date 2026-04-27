@@ -117,6 +117,7 @@ public sealed class SettingRegistry
             ConfigSection.Machinist => Loc.T(LocalizedStrings.Sidebar.Machinist, "Machinist"),
             ConfigSection.Bard => Loc.T(LocalizedStrings.Sidebar.Bard, "Bard"),
             ConfigSection.Dancer => Loc.T(LocalizedStrings.Sidebar.Dancer, "Dancer"),
+            ConfigSection.CasterShared => "Shared Caster",
             ConfigSection.BlackMage => Loc.T(LocalizedStrings.Sidebar.BlackMage, "Black Mage"),
             ConfigSection.Summoner => Loc.T(LocalizedStrings.Sidebar.Summoner, "Summoner"),
             ConfigSection.RedMage => Loc.T(LocalizedStrings.Sidebar.RedMage, "Red Mage"),
@@ -670,6 +671,12 @@ public sealed class SettingRegistry
             new("En Avant", "Gap closer"),
             new("Curing Waltz", "AoE heal"),
             new("Shield Samba", "Party mitigation")
+        };
+
+        // Caster shared section
+        this.sectionSettings[ConfigSection.CasterShared] = new List<SettingInfo>
+        {
+            new("Lucid Dreaming", "MP threshold for Lucid Dreaming")
         };
 
         // Black Mage section

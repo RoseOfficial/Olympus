@@ -29,7 +29,6 @@ public sealed class PictomancerSection
         DrawMuseSection();
         DrawBurstSection();
         DrawUtilitySection();
-        DrawMpManagementSection();
         DrawRoleActionsSection();
     }
 
@@ -312,29 +311,6 @@ public sealed class PictomancerSection
                 v => config.Pictomancer.EnableSmudge = v,
                 Loc.T(LocalizedStrings.Pictomancer.EnableSmudgeDesc, "Use Smudge for movement"),
                 save, actionId: PCTActions.Smudge.ActionId);
-
-            ConfigUIHelpers.EndIndent();
-        }
-    }
-
-    private void DrawMpManagementSection()
-    {
-        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.Pictomancer.MpManagementSection, "MP Management"), "PCT", false))
-        {
-            ConfigUIHelpers.BeginIndent();
-
-            ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Pictomancer.EnableLucidDreaming, "Enable Lucid Dreaming"),
-                () => config.CasterShared.EnableLucidDreaming,
-                v => config.CasterShared.EnableLucidDreaming = v,
-                null, save);
-
-            if (config.CasterShared.EnableLucidDreaming)
-            {
-                config.CasterShared.LucidDreamingThreshold = ConfigUIHelpers.ThresholdSlider(
-                    Loc.T(LocalizedStrings.Pictomancer.LucidDreamingThreshold, "Lucid MP Threshold"),
-                    config.CasterShared.LucidDreamingThreshold, 40f, 90f, null, save, v => config.CasterShared.LucidDreamingThreshold = v);
-            }
 
             ConfigUIHelpers.EndIndent();
         }

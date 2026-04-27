@@ -48,6 +48,7 @@ public enum ConfigSection
     Dancer,
 
     // Casters
+    CasterShared,
     BlackMage,
     Summoner,
     RedMage,
@@ -80,7 +81,7 @@ public sealed class ConfigSidebar
     private static readonly ConfigSection[] TankSections     = [ConfigSection.Paladin, ConfigSection.Warrior, ConfigSection.DarkKnight, ConfigSection.Gunbreaker];
     private static readonly ConfigSection[] MeleeSections    = [ConfigSection.MeleeShared, ConfigSection.Dragoon, ConfigSection.Ninja, ConfigSection.Samurai, ConfigSection.Monk, ConfigSection.Reaper, ConfigSection.Viper];
     private static readonly ConfigSection[] RangedSections   = [ConfigSection.RangedShared, ConfigSection.Machinist, ConfigSection.Bard, ConfigSection.Dancer];
-    private static readonly ConfigSection[] CasterSections   = [ConfigSection.BlackMage, ConfigSection.Summoner, ConfigSection.RedMage, ConfigSection.Pictomancer];
+    private static readonly ConfigSection[] CasterSections   = [ConfigSection.CasterShared, ConfigSection.BlackMage, ConfigSection.Summoner, ConfigSection.RedMage, ConfigSection.Pictomancer];
 
     // Maps sidebar sections to their primary job ID for icon lookup.
     private static readonly Dictionary<ConfigSection, uint> SectionJobIds = new()
@@ -218,6 +219,7 @@ public sealed class ConfigSidebar
         if (ShouldShowCategory(CasterSections, matchingSections, hasSearch))
         {
             DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.Casters, "CASTERS"));
+            sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Shared, "Shared"), ConfigSection.CasterShared, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.BlackMage, "Black Mage"), ConfigSection.BlackMage, ConfigUIHelpers.BlackMageColor, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Summoner, "Summoner"), ConfigSection.Summoner, ConfigUIHelpers.SummonerColor, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.RedMage, "Red Mage"), ConfigSection.RedMage, ConfigUIHelpers.RedMageColor, matchingSections, hasSearch);

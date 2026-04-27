@@ -913,6 +913,16 @@ public static class LocalizedStrings
         public const string EnableHeadGraze = "config.job.ranged_shared.enable_head_graze";
     }
 
+    /// <summary>Keys for Caster shared settings (BLM/SMN/RDM/PCT).</summary>
+    public static class CasterShared
+    {
+        public const string Header = "config.job.caster_shared.header";
+        public const string Description = "config.job.caster_shared.description";
+        public const string MpRecovery = "config.job.caster_shared.mp_recovery";
+        public const string EnableLucidDreaming = "config.job.caster_shared.enable_lucid_dreaming";
+        public const string LucidDreamingThreshold = "config.job.caster_shared.lucid_dreaming_threshold";
+    }
+
     public static class HealerShared
     {
         public const string Header = "config.job.healer_shared.header";
