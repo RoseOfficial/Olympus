@@ -4,6 +4,7 @@ using Olympus.Rotation.Common;
 using Olympus.Rotation.Common.RoleActionHelpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Action;
+using Olympus.Services.Party;
 using Olympus.Tests.Mocks;
 using Olympus.Tests.Rotation.Common.Scheduling;
 using Xunit;
@@ -333,5 +334,131 @@ public class RoleActionPushersBloodbathTests
         // Invoke the callback directly to verify it was wired through correctly
         queue[0].OnDispatched?.Invoke(ctx.Object);
         Assert.True(dispatched);
+    }
+}
+
+public class RoleActionPushersRampartTests
+{
+    private static AbilityBehavior RampartBehavior() => new()
+    {
+        Action = RoleActions.Rampart,
+        Toggle = _ => true,
+    };
+
+    private static (Mock<ITankRotationContext> ctx, Mock<IActionService> actionService, Mock<IPartyCoordinationService> partyCoord) BuildContext(
+        byte playerLevel,
+        bool actionReady = true,
+        bool buffActive = false,
+        bool coTankUsedRecently = false,
+        bool nullPartyCoord = false)
+    {
+        var player = MockBuilders.CreateMockPlayerCharacter(
+            level: playerLevel,
+            currentHp: 10_000,
+            maxHp: 10_000);
+        player.SetupGet(p => p.GameObjectId).Returns(321ul);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(a => a.IsActionReady(RoleActions.Rampart.ActionId)).Returns(actionReady);
+        actionService.Setup(a => a.PlayerHasStatus(RoleActions.Rampart.AppliedStatusId.GetValueOrDefault())).Returns(buffActive);
+
+        var partyCoord = new Mock<IPartyCoordinationService>();
+        partyCoord.Setup(p => p.WasActionUsedByOther(RoleActions.Rampart.ActionId, 20f)).Returns(coTankUsedRecently);
+
+        var ctx = new Mock<ITankRotationContext>();
+        ctx.SetupGet(c => c.Player).Returns(player.Object);
+        ctx.SetupGet(c => c.ActionService).Returns(actionService.Object);
+        ctx.SetupGet(c => c.PartyCoordinationService).Returns(nullPartyCoord ? null : partyCoord.Object);
+
+        return (ctx, actionService, partyCoord);
+    }
+
+    [Fact]
+    public void Skips_When_Level_Too_Low()
+    {
+        var (ctx, _, _) = BuildContext(playerLevel: (byte)(RoleActions.Rampart.MinLevel - 1));
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushRampart(ctx.Object, scheduler, RampartBehavior(), 100);
+
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void Skips_When_Buff_Already_Active()
+    {
+        var (ctx, _, _) = BuildContext(playerLevel: 90, buffActive: true);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushRampart(ctx.Object, scheduler, RampartBehavior(), 100);
+
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void Skips_When_OnCooldown()
+    {
+        var (ctx, _, _) = BuildContext(playerLevel: 90, actionReady: false);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushRampart(ctx.Object, scheduler, RampartBehavior(), 100);
+
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void Skips_When_CoTank_Used_Rampart_Recently()
+    {
+        var (ctx, _, _) = BuildContext(playerLevel: 90, coTankUsedRecently: true);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushRampart(ctx.Object, scheduler, RampartBehavior(), 100);
+
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void Pushes_When_All_Gates_Pass()
+    {
+        var (ctx, _, _) = BuildContext(playerLevel: 90);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushRampart(ctx.Object, scheduler, RampartBehavior(), 100);
+
+        var queue = scheduler.InspectOgcdQueue();
+        Assert.Single(queue);
+        Assert.Equal(100, queue[0].Priority);
+        Assert.Equal(RoleActions.Rampart.ActionId, queue[0].Behavior.Action.ActionId);
+    }
+
+    [Fact]
+    public void Broadcasts_OnCooldownUsed_OnDispatch()
+    {
+        var (ctx, _, partyCoord) = BuildContext(playerLevel: 90);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        RoleActionPushers.TryPushRampart(ctx.Object, scheduler, RampartBehavior(), 100);
+
+        var queue = scheduler.InspectOgcdQueue();
+        Assert.Single(queue);
+        queue[0].OnDispatched?.Invoke(ctx.Object);
+
+        partyCoord.Verify(p => p.OnCooldownUsed(RoleActions.Rampart.ActionId, 90_000), Times.Once);
+    }
+
+    [Fact]
+    public void Invokes_Caller_OnDispatched_Callback()
+    {
+        var (ctx, _, _) = BuildContext(playerLevel: 90);
+        var scheduler = SchedulerFactory.CreateForTest();
+        var callerInvoked = false;
+
+        RoleActionPushers.TryPushRampart(ctx.Object, scheduler, RampartBehavior(), 100,
+            onDispatched: _ => callerInvoked = true);
+
+        var queue = scheduler.InspectOgcdQueue();
+        Assert.Single(queue);
+        queue[0].OnDispatched?.Invoke(ctx.Object);
+        Assert.True(callerInvoked);
     }
 }

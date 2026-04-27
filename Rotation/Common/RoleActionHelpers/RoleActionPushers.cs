@@ -1,6 +1,7 @@
 using System;
 using Olympus.Data;
 using Olympus.Rotation.Common.Scheduling;
+using Olympus.Services.Party;
 
 namespace Olympus.Rotation.Common.RoleActionHelpers;
 
@@ -107,5 +108,44 @@ public static class RoleActionPushers
         if (hpPct >= hpThresholdPct) return;
 
         scheduler.PushOgcd(behavior, player.GameObjectId, priority, onDispatched);
+    }
+
+    /// <summary>
+    /// Pushes Rampart subject to: level requirement, buff-active skip, cooldown
+    /// readiness, and a 20-second mit-coordination overlap check via
+    /// <see cref="IPartyCoordinationService.WasActionUsedByOther"/>. On dispatch,
+    /// broadcasts the action via <see cref="IPartyCoordinationService.OnCooldownUsed"/>
+    /// for 90 seconds (the Rampart recast).
+    ///
+    /// Caller is responsible for HP threshold and tank-specific skip conditions
+    /// (<c>TankCooldownService.ShouldUseMitigation</c>, invuln-active skips,
+    /// <c>UseRampartOnCooldown</c> setting). Those vary per tank.
+    /// </summary>
+    /// <param name="ctx">Tank rotation context (provides PartyCoordinationService).</param>
+    /// <param name="scheduler">Scheduler queue.</param>
+    /// <param name="behavior">Per-rotation AbilityBehavior carrying the toggle delegate.</param>
+    /// <param name="priority">Scheduler priority for the push.</param>
+    /// <param name="onDispatched">Optional callback invoked when the candidate dispatches.</param>
+    public static void TryPushRampart(
+        ITankRotationContext ctx,
+        RotationScheduler scheduler,
+        AbilityBehavior behavior,
+        int priority,
+        Action<IRotationContext>? onDispatched = null)
+    {
+        var player = ctx.Player;
+        if (player.Level < RoleActions.Rampart.MinLevel) return;
+        if (ctx.ActionService.PlayerHasStatus(RoleActions.Rampart.AppliedStatusId.GetValueOrDefault())) return;
+        if (!ctx.ActionService.IsActionReady(RoleActions.Rampart.ActionId)) return;
+
+        var partyCoord = ctx.PartyCoordinationService;
+        if (partyCoord?.WasActionUsedByOther(RoleActions.Rampart.ActionId, withinSeconds: 20f) == true) return;
+
+        scheduler.PushOgcd(behavior, player.GameObjectId, priority,
+            onDispatched: ctx2 =>
+            {
+                partyCoord?.OnCooldownUsed(RoleActions.Rampart.ActionId, 90_000);
+                onDispatched?.Invoke(ctx2);
+            });
     }
 }
