@@ -206,25 +206,6 @@ public sealed class PictomancerConfig
 
     #endregion
 
-    #region MP Management
-
-    /// <summary>
-    /// Whether to use Lucid Dreaming.
-    /// </summary>
-    public bool EnableLucidDreaming { get; set; } = true;
-
-    /// <summary>
-    /// MP percentage threshold for Lucid Dreaming.
-    /// </summary>
-    private float _lucidDreamingThreshold = 0.70f;
-    public float LucidDreamingThreshold
-    {
-        get => _lucidDreamingThreshold;
-        set => _lucidDreamingThreshold = Math.Clamp(value, 0f, 1f);
-    }
-
-    #endregion
-
     #region Utility Settings
 
     /// <summary>
