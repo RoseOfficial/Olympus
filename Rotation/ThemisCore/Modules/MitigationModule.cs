@@ -3,6 +3,7 @@ using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.RoleActionHelpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.ThemisCore.Abilities;
 using Olympus.Rotation.ThemisCore.Context;
@@ -421,33 +422,19 @@ public sealed class MitigationModule : IThemisModule
 
     private void TryPushRampart(IThemisContext context, RotationScheduler scheduler, float hpPercent, float damageRate)
     {
-        var player = context.Player;
-        var level = player.Level;
-        if (level < RoleActions.Rampart.MinLevel) return;
         if (!context.TankCooldownService.ShouldUseMitigation(hpPercent, damageRate, context.HasActiveMitigation)) return;
         if (context.HasHallowedGround) return;
-        if (context.StatusHelper.HasRampart(player)) return;
         if (!context.Configuration.Tank.UseRampartOnCooldown && context.HasActiveMitigation) return;
-
-        var partyCoord = context.PartyCoordinationService;
-        var tankConfig = context.Configuration.Tank;
-        if (tankConfig.EnableDefensiveCoordination &&
-            partyCoord?.WasPersonalDefensiveUsedRecently(tankConfig.DefensiveStaggerWindowSeconds) == true)
-        {
-            context.Debug.MitigationState = "Rampart delayed (remote tank mit)";
-            return;
-        }
-
-        if (!context.ActionService.IsActionReady(RoleActions.Rampart.ActionId)) return;
 
         var hp = hpPercent;
         var dr = damageRate;
-        scheduler.PushOgcd(ThemisAbilities.Rampart, player.GameObjectId, priority: 3,
+        RoleActionPushers.TryPushRampart(
+            context, scheduler, ThemisAbilities.Rampart,
+            priority: 3,
             onDispatched: _ =>
             {
                 context.Debug.PlannedAction = RoleActions.Rampart.Name;
                 context.Debug.MitigationState = $"Rampart ({hp:P0} HP)";
-                partyCoord?.OnCooldownUsed(RoleActions.Rampart.ActionId, 90_000);
                 TrainingHelper.Decision(context.TrainingService)
                     .Action(RoleActions.Rampart.ActionId, RoleActions.Rampart.Name)
                     .AsMitigation(hp)

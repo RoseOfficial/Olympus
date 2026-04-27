@@ -1,6 +1,7 @@
 using Olympus.Data;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.RoleActionHelpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.NyxCore.Abilities;
 using Olympus.Rotation.NyxCore.Context;
@@ -245,31 +246,19 @@ public sealed class MitigationModule : INyxModule
 
     private void TryPushRampart(INyxContext context, RotationScheduler scheduler, float hpPercent, float damageRate)
     {
-        var player = context.Player;
-        if (player.Level < RoleActions.Rampart.MinLevel) return;
         if (!context.TankCooldownService.ShouldUseMitigation(hpPercent, damageRate, context.HasActiveMitigation)) return;
         if (context.HasLivingDead) return;
         if (context.HasWalkingDead) return;
-        if (context.StatusHelper.HasRampart(player)) return;
         if (!context.Configuration.Tank.UseRampartOnCooldown && context.HasActiveMitigation) return;
 
-        var partyCoord = context.PartyCoordinationService;
-        var tankConfig = context.Configuration.Tank;
-        if (tankConfig.EnableDefensiveCoordination &&
-            partyCoord?.WasPersonalDefensiveUsedRecently(tankConfig.DefensiveStaggerWindowSeconds) == true)
-        {
-            context.Debug.MitigationState = "Rampart delayed (remote tank mit)";
-            return;
-        }
-        if (!context.ActionService.IsActionReady(RoleActions.Rampart.ActionId)) return;
-
         var hp = hpPercent;
-        scheduler.PushOgcd(NyxAbilities.Rampart, player.GameObjectId, priority: 3,
+        RoleActionPushers.TryPushRampart(
+            context, scheduler, NyxAbilities.Rampart,
+            priority: 3,
             onDispatched: _ =>
             {
                 context.Debug.PlannedAction = RoleActions.Rampart.Name;
                 context.Debug.MitigationState = $"Rampart ({hp:P0} HP)";
-                partyCoord?.OnCooldownUsed(RoleActions.Rampart.ActionId, 90_000);
                 TrainingHelper.Decision(context.TrainingService)
                     .Action(RoleActions.Rampart.ActionId, RoleActions.Rampart.Name).AsMitigation(hp)
                     .Reason($"Rampart at {hp:P0} HP.", "20% mitigation for 20s.")
