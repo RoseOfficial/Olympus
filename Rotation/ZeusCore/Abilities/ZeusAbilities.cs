@@ -185,5 +185,6 @@ public static class ZeusAbilities
     };
 
     // --- Role ---
+    public static readonly AbilityBehavior SecondWind = new() { Action = RoleActions.SecondWind, Toggle = cfg => cfg.MeleeShared.EnableSecondWind };
     public static readonly AbilityBehavior Feint = new() { Action = RoleActions.Feint, Toggle = cfg => cfg.Dragoon.EnableFeint };
 }

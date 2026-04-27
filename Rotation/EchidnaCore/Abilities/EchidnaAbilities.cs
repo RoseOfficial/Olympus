@@ -64,7 +64,7 @@ public static class EchidnaAbilities
     public static readonly AbilityBehavior SerpentsIre = new() { Action = VPRActions.SerpentsIre, Toggle = cfg => cfg.Viper.EnableSerpentsIre };
 
     // --- Role ---
-    public static readonly AbilityBehavior SecondWind = new() { Action = RoleActions.SecondWind, Toggle = cfg => cfg.Viper.EnableSecondWind };
+    public static readonly AbilityBehavior SecondWind = new() { Action = RoleActions.SecondWind, Toggle = cfg => cfg.MeleeShared.EnableSecondWind };
     public static readonly AbilityBehavior Bloodbath = new() { Action = RoleActions.Bloodbath, Toggle = cfg => cfg.Viper.EnableBloodbath };
     public static readonly AbilityBehavior Feint = new() { Action = RoleActions.Feint, Toggle = cfg => cfg.Viper.EnableFeint };
     public static readonly AbilityBehavior TrueNorth = new() { Action = RoleActions.TrueNorth, Toggle = cfg => cfg.Viper.EnableTrueNorth };

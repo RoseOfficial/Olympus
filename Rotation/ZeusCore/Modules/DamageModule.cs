@@ -2,6 +2,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.RoleActionHelpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.ZeusCore.Abilities;
 using Olympus.Rotation.ZeusCore.Context;
@@ -78,6 +79,7 @@ public sealed class DamageModule : IZeusModule
 
         // oGCDs
         TryPushFeint(context, scheduler, target);
+        TryPushSecondWind(context, scheduler);
         TryPushMirageDive(context, scheduler, target.GameObjectId);
         TryPushStarcross(context, scheduler, target.GameObjectId);
         TryPushRiseOfTheDragon(context, scheduler, target.GameObjectId);
@@ -122,6 +124,17 @@ public sealed class DamageModule : IZeusModule
                 context.Debug.PlannedAction = RoleActions.Feint.Name;
                 partyCoord?.OnCooldownUsed(RoleActions.Feint.ActionId, 90_000);
             });
+    }
+
+    private void TryPushSecondWind(IZeusContext context, RotationScheduler scheduler)
+    {
+        if (!context.Configuration.MeleeShared.EnableSecondWind) return;
+
+        RoleActionPushers.TryPushSecondWind(
+            context, scheduler, ZeusAbilities.SecondWind,
+            hpThresholdPct: context.Configuration.MeleeShared.SecondWindHpThreshold,
+            priority: 6,
+            onDispatched: _ => context.Debug.PlannedAction = RoleActions.SecondWind.Name);
     }
 
     private void TryPushMirageDive(IZeusContext context, RotationScheduler scheduler, ulong targetId)

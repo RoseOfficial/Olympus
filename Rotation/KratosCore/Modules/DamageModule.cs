@@ -4,6 +4,7 @@ using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.RoleActionHelpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.KratosCore.Abilities;
 using Olympus.Rotation.KratosCore.Context;
@@ -93,6 +94,7 @@ public sealed class DamageModule : IKratosModule
 
         // oGCDs
         TryPushFeint(context, scheduler, target);
+        TryPushSecondWind(context, scheduler);
         TryPushChakraSpender(context, scheduler, target, useAoE);
         TryPushThunderclap(context, scheduler, target);
 
@@ -140,6 +142,17 @@ public sealed class DamageModule : IKratosModule
                 context.Debug.PlannedAction = RoleActions.Feint.Name;
                 partyCoord?.OnCooldownUsed(RoleActions.Feint.ActionId, 90_000);
             });
+    }
+
+    private void TryPushSecondWind(IKratosContext context, RotationScheduler scheduler)
+    {
+        if (!context.Configuration.MeleeShared.EnableSecondWind) return;
+
+        RoleActionPushers.TryPushSecondWind(
+            context, scheduler, KratosAbilities.SecondWind,
+            hpThresholdPct: context.Configuration.MeleeShared.SecondWindHpThreshold,
+            priority: 6,
+            onDispatched: _ => context.Debug.PlannedAction = RoleActions.SecondWind.Name);
     }
 
     private void TryPushChakraSpender(IKratosContext context, RotationScheduler scheduler, IBattleChara target, bool useAoE)

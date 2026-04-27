@@ -2,6 +2,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.RoleActionHelpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.NikeCore.Abilities;
 using Olympus.Rotation.NikeCore.Context;
@@ -76,6 +77,7 @@ public sealed class DamageModule : INikeModule
 
         // oGCDs
         TryPushFeint(context, scheduler, target);
+        TryPushSecondWind(context, scheduler);
         TryPushKenkiSpender(context, scheduler, target, useAoE);
 
         // GCDs (priority order)
@@ -109,6 +111,17 @@ public sealed class DamageModule : INikeModule
                 context.Debug.PlannedAction = RoleActions.Feint.Name;
                 partyCoord?.OnCooldownUsed(RoleActions.Feint.ActionId, 90_000);
             });
+    }
+
+    private void TryPushSecondWind(INikeContext context, RotationScheduler scheduler)
+    {
+        if (!context.Configuration.MeleeShared.EnableSecondWind) return;
+
+        RoleActionPushers.TryPushSecondWind(
+            context, scheduler, NikeAbilities.SecondWind,
+            hpThresholdPct: context.Configuration.MeleeShared.SecondWindHpThreshold,
+            priority: 6,
+            onDispatched: _ => context.Debug.PlannedAction = RoleActions.SecondWind.Name);
     }
 
     private void TryPushKenkiSpender(INikeContext context, RotationScheduler scheduler, IBattleChara target, bool useAoE)

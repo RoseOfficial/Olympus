@@ -72,5 +72,6 @@ public static class KratosAbilities
     public static readonly AbilityBehavior Meditation = new() { Action = MNKActions.Meditation };
 
     // --- Role ---
+    public static readonly AbilityBehavior SecondWind = new() { Action = RoleActions.SecondWind, Toggle = cfg => cfg.MeleeShared.EnableSecondWind };
     public static readonly AbilityBehavior Feint = new() { Action = RoleActions.Feint, Toggle = cfg => cfg.Monk.EnableFeint };
 }

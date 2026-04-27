@@ -58,5 +58,6 @@ public static class ThanatosAbilities
     public static readonly AbilityBehavior SoulScythe = new() { Action = RPRActions.SoulScythe };
 
     // --- Role ---
+    public static readonly AbilityBehavior SecondWind = new() { Action = RoleActions.SecondWind, Toggle = cfg => cfg.MeleeShared.EnableSecondWind };
     public static readonly AbilityBehavior Feint = new() { Action = RoleActions.Feint, Toggle = cfg => cfg.Reaper.EnableFeint };
 }

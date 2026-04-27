@@ -3,6 +3,7 @@ using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.RoleActionHelpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.HermesCore.Abilities;
 using Olympus.Rotation.HermesCore.Context;
@@ -79,6 +80,7 @@ public sealed class DamageModule : IHermesModule
         // oGCDs: Ninki spenders
         TryPushNinkiSpender(context, scheduler, target, enemyCount);
         TryPushFeint(context, scheduler, target);
+        TryPushSecondWind(context, scheduler);
 
         // GCDs
         TryPushRaiju(context, scheduler, target);
@@ -175,6 +177,17 @@ public sealed class DamageModule : IHermesModule
                 context.Debug.PlannedAction = RoleActions.Feint.Name;
                 partyCoord?.OnCooldownUsed(RoleActions.Feint.ActionId, 90_000);
             });
+    }
+
+    private void TryPushSecondWind(IHermesContext context, RotationScheduler scheduler)
+    {
+        if (!context.Configuration.MeleeShared.EnableSecondWind) return;
+
+        RoleActionPushers.TryPushSecondWind(
+            context, scheduler, HermesAbilities.SecondWind,
+            hpThresholdPct: context.Configuration.MeleeShared.SecondWindHpThreshold,
+            priority: 6,
+            onDispatched: _ => context.Debug.PlannedAction = RoleActions.SecondWind.Name);
     }
 
     #endregion

@@ -4,6 +4,7 @@ using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.RoleActionHelpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.EchidnaCore.Abilities;
 using Olympus.Rotation.EchidnaCore.Context;
@@ -261,12 +262,12 @@ public sealed class DamageModule : IEchidnaModule
         var level = player.Level;
         var hpPercent = player.MaxHp > 0 ? (float)player.CurrentHp / player.MaxHp : 1f;
 
-        if (level >= RoleActions.SecondWind.MinLevel
-            && context.Configuration.Viper.EnableSecondWind
-            && hpPercent < context.Configuration.Viper.SecondWindHpThreshold
-            && context.ActionService.IsActionReady(RoleActions.SecondWind.ActionId))
+        if (context.Configuration.MeleeShared.EnableSecondWind)
         {
-            scheduler.PushOgcd(EchidnaAbilities.SecondWind, player.GameObjectId, priority: 6,
+            RoleActionPushers.TryPushSecondWind(
+                context, scheduler, EchidnaAbilities.SecondWind,
+                hpThresholdPct: context.Configuration.MeleeShared.SecondWindHpThreshold,
+                priority: 6,
                 onDispatched: _ => context.Debug.PlannedAction = RoleActions.SecondWind.Name);
         }
 

@@ -45,5 +45,6 @@ public static class HermesAbilities
     public static readonly AbilityBehavior Meisui = new() { Action = NINActions.Meisui, Toggle = cfg => cfg.Ninja.EnableMeisui };
 
     // --- Role ---
+    public static readonly AbilityBehavior SecondWind = new() { Action = RoleActions.SecondWind, Toggle = cfg => cfg.MeleeShared.EnableSecondWind };
     public static readonly AbilityBehavior Feint = new() { Action = RoleActions.Feint, Toggle = cfg => cfg.Ninja.EnableFeint };
 }
