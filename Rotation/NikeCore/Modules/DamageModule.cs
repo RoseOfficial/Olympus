@@ -78,6 +78,7 @@ public sealed class DamageModule : INikeModule
         // oGCDs
         TryPushFeint(context, scheduler, target);
         TryPushSecondWind(context, scheduler);
+        TryPushBloodbath(context, scheduler);
         TryPushKenkiSpender(context, scheduler, target, useAoE);
 
         // GCDs (priority order)
@@ -122,6 +123,17 @@ public sealed class DamageModule : INikeModule
             hpThresholdPct: context.Configuration.MeleeShared.SecondWindHpThreshold,
             priority: 6,
             onDispatched: _ => context.Debug.PlannedAction = RoleActions.SecondWind.Name);
+    }
+
+    private void TryPushBloodbath(INikeContext context, RotationScheduler scheduler)
+    {
+        if (!context.Configuration.MeleeShared.EnableBloodbath) return;
+
+        RoleActionPushers.TryPushBloodbath(
+            context, scheduler, NikeAbilities.Bloodbath,
+            hpThresholdPct: context.Configuration.MeleeShared.BloodbathHpThreshold,
+            priority: 6,
+            onDispatched: _ => context.Debug.PlannedAction = RoleActions.Bloodbath.Name);
     }
 
     private void TryPushKenkiSpender(INikeContext context, RotationScheduler scheduler, IBattleChara target, bool useAoE)

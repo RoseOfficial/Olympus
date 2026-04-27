@@ -897,6 +897,8 @@ public static class LocalizedStrings
         public const string SelfHeal = "config.job.melee_shared.self_heal";
         public const string EnableSecondWind = "config.job.melee_shared.enable_second_wind";
         public const string SecondWindHpThreshold = "config.job.melee_shared.second_wind_hp_threshold";
+        public const string EnableBloodbath = "config.job.melee_shared.enable_bloodbath";
+        public const string BloodbathHpThreshold = "config.job.melee_shared.bloodbath_hp_threshold";
     }
 
     /// <summary>Keys for Tank shared settings.</summary>

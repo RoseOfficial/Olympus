@@ -81,6 +81,7 @@ public sealed class DamageModule : IHermesModule
         TryPushNinkiSpender(context, scheduler, target, enemyCount);
         TryPushFeint(context, scheduler, target);
         TryPushSecondWind(context, scheduler);
+        TryPushBloodbath(context, scheduler);
 
         // GCDs
         TryPushRaiju(context, scheduler, target);
@@ -188,6 +189,17 @@ public sealed class DamageModule : IHermesModule
             hpThresholdPct: context.Configuration.MeleeShared.SecondWindHpThreshold,
             priority: 6,
             onDispatched: _ => context.Debug.PlannedAction = RoleActions.SecondWind.Name);
+    }
+
+    private void TryPushBloodbath(IHermesContext context, RotationScheduler scheduler)
+    {
+        if (!context.Configuration.MeleeShared.EnableBloodbath) return;
+
+        RoleActionPushers.TryPushBloodbath(
+            context, scheduler, HermesAbilities.Bloodbath,
+            hpThresholdPct: context.Configuration.MeleeShared.BloodbathHpThreshold,
+            priority: 6,
+            onDispatched: _ => context.Debug.PlannedAction = RoleActions.Bloodbath.Name);
     }
 
     #endregion

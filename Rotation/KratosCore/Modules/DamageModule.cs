@@ -95,6 +95,7 @@ public sealed class DamageModule : IKratosModule
         // oGCDs
         TryPushFeint(context, scheduler, target);
         TryPushSecondWind(context, scheduler);
+        TryPushBloodbath(context, scheduler);
         TryPushChakraSpender(context, scheduler, target, useAoE);
         TryPushThunderclap(context, scheduler, target);
 
@@ -153,6 +154,17 @@ public sealed class DamageModule : IKratosModule
             hpThresholdPct: context.Configuration.MeleeShared.SecondWindHpThreshold,
             priority: 6,
             onDispatched: _ => context.Debug.PlannedAction = RoleActions.SecondWind.Name);
+    }
+
+    private void TryPushBloodbath(IKratosContext context, RotationScheduler scheduler)
+    {
+        if (!context.Configuration.MeleeShared.EnableBloodbath) return;
+
+        RoleActionPushers.TryPushBloodbath(
+            context, scheduler, KratosAbilities.Bloodbath,
+            hpThresholdPct: context.Configuration.MeleeShared.BloodbathHpThreshold,
+            priority: 6,
+            onDispatched: _ => context.Debug.PlannedAction = RoleActions.Bloodbath.Name);
     }
 
     private void TryPushChakraSpender(IKratosContext context, RotationScheduler scheduler, IBattleChara target, bool useAoE)

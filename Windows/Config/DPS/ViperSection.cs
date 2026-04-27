@@ -191,21 +191,6 @@ public sealed class ViperSection
             ConfigUIHelpers.BeginIndent();
 
             ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Viper.EnableBloodbath, "Enable Bloodbath"),
-                () => config.Viper.EnableBloodbath,
-                v => config.Viper.EnableBloodbath = v,
-                null, save,
-                actionId: RoleActions.Bloodbath.ActionId);
-
-            if (config.Viper.EnableBloodbath)
-            {
-                config.Viper.BloodbathHpThreshold = ConfigUIHelpers.ThresholdSlider(
-                    Loc.T(LocalizedStrings.Viper.BloodbathHpThreshold, "Bloodbath HP Threshold"),
-                    config.Viper.BloodbathHpThreshold, 10f, 90f,
-                    null, save, v => config.Viper.BloodbathHpThreshold = v);
-            }
-
-            ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Viper.EnableFeint, "Enable Feint"),
                 () => config.Viper.EnableFeint,
                 v => config.Viper.EnableFeint = v,

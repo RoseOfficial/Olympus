@@ -80,6 +80,7 @@ public sealed class DamageModule : IZeusModule
         // oGCDs
         TryPushFeint(context, scheduler, target);
         TryPushSecondWind(context, scheduler);
+        TryPushBloodbath(context, scheduler);
         TryPushMirageDive(context, scheduler, target.GameObjectId);
         TryPushStarcross(context, scheduler, target.GameObjectId);
         TryPushRiseOfTheDragon(context, scheduler, target.GameObjectId);
@@ -135,6 +136,17 @@ public sealed class DamageModule : IZeusModule
             hpThresholdPct: context.Configuration.MeleeShared.SecondWindHpThreshold,
             priority: 6,
             onDispatched: _ => context.Debug.PlannedAction = RoleActions.SecondWind.Name);
+    }
+
+    private void TryPushBloodbath(IZeusContext context, RotationScheduler scheduler)
+    {
+        if (!context.Configuration.MeleeShared.EnableBloodbath) return;
+
+        RoleActionPushers.TryPushBloodbath(
+            context, scheduler, ZeusAbilities.Bloodbath,
+            hpThresholdPct: context.Configuration.MeleeShared.BloodbathHpThreshold,
+            priority: 6,
+            onDispatched: _ => context.Debug.PlannedAction = RoleActions.Bloodbath.Name);
     }
 
     private void TryPushMirageDive(IZeusContext context, RotationScheduler scheduler, ulong targetId)

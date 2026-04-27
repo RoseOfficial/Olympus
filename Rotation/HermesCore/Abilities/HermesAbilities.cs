@@ -46,5 +46,6 @@ public static class HermesAbilities
 
     // --- Role ---
     public static readonly AbilityBehavior SecondWind = new() { Action = RoleActions.SecondWind, Toggle = cfg => cfg.MeleeShared.EnableSecondWind };
+    public static readonly AbilityBehavior Bloodbath = new() { Action = RoleActions.Bloodbath, Toggle = cfg => cfg.MeleeShared.EnableBloodbath };
     public static readonly AbilityBehavior Feint = new() { Action = RoleActions.Feint, Toggle = cfg => cfg.Ninja.EnableFeint };
 }

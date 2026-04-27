@@ -260,7 +260,6 @@ public sealed class DamageModule : IEchidnaModule
     {
         var player = context.Player;
         var level = player.Level;
-        var hpPercent = player.MaxHp > 0 ? (float)player.CurrentHp / player.MaxHp : 1f;
 
         if (context.Configuration.MeleeShared.EnableSecondWind)
         {
@@ -271,13 +270,12 @@ public sealed class DamageModule : IEchidnaModule
                 onDispatched: _ => context.Debug.PlannedAction = RoleActions.SecondWind.Name);
         }
 
-        if (level >= RoleActions.Bloodbath.MinLevel
-            && context.Configuration.Viper.EnableBloodbath
-            && hpPercent < context.Configuration.Viper.BloodbathHpThreshold
-            && !context.StatusHelper.HasBloodbath(player)
-            && context.ActionService.IsActionReady(RoleActions.Bloodbath.ActionId))
+        if (context.Configuration.MeleeShared.EnableBloodbath)
         {
-            scheduler.PushOgcd(EchidnaAbilities.Bloodbath, player.GameObjectId, priority: 6,
+            RoleActionPushers.TryPushBloodbath(
+                context, scheduler, EchidnaAbilities.Bloodbath,
+                hpThresholdPct: context.Configuration.MeleeShared.BloodbathHpThreshold,
+                priority: 6,
                 onDispatched: _ => context.Debug.PlannedAction = RoleActions.Bloodbath.Name);
         }
 

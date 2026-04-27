@@ -77,6 +77,7 @@ public sealed class DamageModule : IThanatosModule
         // Feint (party mit utility)
         TryPushFeint(context, scheduler, target);
         TryPushSecondWind(context, scheduler);
+        TryPushBloodbath(context, scheduler);
 
         // oGCDs (Lemure during Enshroud, Sacrificium proc, Soul spenders outside)
         if (context.IsEnshrouded)
@@ -138,6 +139,17 @@ public sealed class DamageModule : IThanatosModule
             hpThresholdPct: context.Configuration.MeleeShared.SecondWindHpThreshold,
             priority: 6,
             onDispatched: _ => context.Debug.PlannedAction = RoleActions.SecondWind.Name);
+    }
+
+    private void TryPushBloodbath(IThanatosContext context, RotationScheduler scheduler)
+    {
+        if (!context.Configuration.MeleeShared.EnableBloodbath) return;
+
+        RoleActionPushers.TryPushBloodbath(
+            context, scheduler, ThanatosAbilities.Bloodbath,
+            hpThresholdPct: context.Configuration.MeleeShared.BloodbathHpThreshold,
+            priority: 6,
+            onDispatched: _ => context.Debug.PlannedAction = RoleActions.Bloodbath.Name);
     }
 
     private void TryPushLemuresSlice(IThanatosContext context, RotationScheduler scheduler, IBattleChara target, int enemyCount)

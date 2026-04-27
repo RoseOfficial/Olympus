@@ -47,6 +47,21 @@ public sealed class MeleeSharedSection
                     null, save, v => config.MeleeShared.SecondWindHpThreshold = v);
             }
 
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.MeleeShared.EnableBloodbath, "Enable Bloodbath"),
+                () => config.MeleeShared.EnableBloodbath,
+                v => config.MeleeShared.EnableBloodbath = v,
+                null, save,
+                actionId: RoleActions.Bloodbath.ActionId);
+
+            if (config.MeleeShared.EnableBloodbath)
+            {
+                config.MeleeShared.BloodbathHpThreshold = ConfigUIHelpers.ThresholdSlider(
+                    Loc.T(LocalizedStrings.MeleeShared.BloodbathHpThreshold, "Bloodbath HP Threshold"),
+                    config.MeleeShared.BloodbathHpThreshold, 10f, 90f,
+                    null, save, v => config.MeleeShared.BloodbathHpThreshold = v);
+            }
+
             ConfigUIHelpers.EndIndent();
         }
     }
