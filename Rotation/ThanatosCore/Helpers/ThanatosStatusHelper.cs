@@ -213,14 +213,6 @@ public sealed class ThanatosStatusHelper : BaseStatusHelper
         return HasStatus(player, RPRActions.StatusIds.TrueNorth);
     }
 
-    /// <summary>
-    /// Checks if Bloodbath is active.
-    /// </summary>
-    public bool HasBloodbath(IBattleChara player)
-    {
-        return HasStatus(player, RPRActions.StatusIds.Bloodbath);
-    }
-
     #endregion
 
     // Core status methods (HasStatus, GetStatusRemaining, GetStatusStacks) inherited from BaseStatusHelper

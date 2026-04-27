@@ -159,22 +159,6 @@ public sealed class ViperConfig
     #region Role Action Settings
 
     /// <summary>
-    /// Enable Bloodbath for lifesteal when HP is low.
-    /// </summary>
-    public bool EnableBloodbath { get; set; } = true;
-
-    /// <summary>
-    /// HP percentage threshold below which Bloodbath fires.
-    /// Range: 0.0 to 1.0.
-    /// </summary>
-    private float _bloodbathHpThreshold = 0.7f;
-    public float BloodbathHpThreshold
-    {
-        get => _bloodbathHpThreshold;
-        set => _bloodbathHpThreshold = Math.Clamp(value, 0f, 1f);
-    }
-
-    /// <summary>
     /// Enable Feint for enemy damage reduction.
     /// </summary>
     public bool EnableFeint { get; set; } = true;

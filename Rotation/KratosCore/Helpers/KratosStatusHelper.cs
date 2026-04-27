@@ -198,14 +198,6 @@ public sealed class KratosStatusHelper : BaseStatusHelper
         return HasStatus(player, MNKActions.StatusIds.TrueNorth);
     }
 
-    /// <summary>
-    /// Checks if Bloodbath is active.
-    /// </summary>
-    public bool HasBloodbath(IBattleChara player)
-    {
-        return HasStatus(player, MNKActions.StatusIds.Bloodbath);
-    }
-
     #endregion
 
     #region Defensive Buffs

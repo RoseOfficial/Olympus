@@ -165,14 +165,6 @@ public sealed class NikeStatusHelper : BaseStatusHelper
         return HasStatus(player, SAMActions.StatusIds.TrueNorth);
     }
 
-    /// <summary>
-    /// Checks if Bloodbath is active.
-    /// </summary>
-    public bool HasBloodbath(IBattleChara player)
-    {
-        return HasStatus(player, SAMActions.StatusIds.Bloodbath);
-    }
-
     #endregion
 
     // Core status methods (HasStatus, GetStatusRemaining, GetStatusStacks) inherited from BaseStatusHelper

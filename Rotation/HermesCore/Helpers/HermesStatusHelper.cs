@@ -215,14 +215,6 @@ public sealed class HermesStatusHelper : BaseStatusHelper
         return HasStatus(player, NINActions.StatusIds.TrueNorth);
     }
 
-    /// <summary>
-    /// Checks if Bloodbath is active.
-    /// </summary>
-    public bool HasBloodbath(IBattleChara player)
-    {
-        return HasStatus(player, NINActions.StatusIds.Bloodbath);
-    }
-
     #endregion
 
     #region Defensive Buffs

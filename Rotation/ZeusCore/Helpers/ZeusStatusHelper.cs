@@ -181,14 +181,6 @@ public sealed class ZeusStatusHelper : BaseStatusHelper
         return HasStatus(player, DRGActions.StatusIds.TrueNorth);
     }
 
-    /// <summary>
-    /// Checks if Bloodbath is active.
-    /// </summary>
-    public bool HasBloodbath(IBattleChara player)
-    {
-        return HasStatus(player, DRGActions.StatusIds.Bloodbath);
-    }
-
     #endregion
 
     // Core status methods (HasStatus, GetStatusRemaining, GetStatusStacks) inherited from BaseStatusHelper

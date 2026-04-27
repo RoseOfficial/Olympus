@@ -226,14 +226,6 @@ public sealed class EchidnaStatusHelper : BaseStatusHelper
         return HasStatus(player, VPRActions.StatusIds.TrueNorth);
     }
 
-    /// <summary>
-    /// Checks if Bloodbath is active.
-    /// </summary>
-    public bool HasBloodbath(IBattleChara player)
-    {
-        return HasStatus(player, VPRActions.StatusIds.Bloodbath);
-    }
-
     #endregion
 
     // Core status methods (HasStatus, GetStatusRemaining, GetStatusStacks) inherited from BaseStatusHelper

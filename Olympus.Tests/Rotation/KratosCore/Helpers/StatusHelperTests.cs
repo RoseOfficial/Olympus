@@ -236,14 +236,6 @@ public class StatusHelperTests
     }
 
     [Fact]
-    public void HasBloodbath_NullStatusList_ReturnsFalse()
-    {
-        var mock = MockBuilders.CreateMockPlayerCharacter();
-        mock.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
-        Assert.False(_helper.HasBloodbath(mock.Object));
-    }
-
-    [Fact]
     public void GetDisciplinedFistRemaining_NullStatusList_ReturnsZero()
     {
         var mock = MockBuilders.CreateMockPlayerCharacter();
