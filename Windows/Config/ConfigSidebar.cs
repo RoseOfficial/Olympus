@@ -34,6 +34,7 @@ public enum ConfigSection
     Gunbreaker,
 
     // Melee DPS
+    MeleeShared,
     Dragoon,
     Ninja,
     Samurai,
@@ -78,7 +79,7 @@ public sealed class ConfigSidebar
     private static readonly ConfigSection[] MultiplayerSections = [ConfigSection.PartyCoordination];
     private static readonly ConfigSection[] HealerSections   = [ConfigSection.HealerShared, ConfigSection.WhiteMage, ConfigSection.Scholar, ConfigSection.Astrologian, ConfigSection.Sage];
     private static readonly ConfigSection[] TankSections     = [ConfigSection.TankShared, ConfigSection.Paladin, ConfigSection.Warrior, ConfigSection.DarkKnight, ConfigSection.Gunbreaker];
-    private static readonly ConfigSection[] MeleeSections    = [ConfigSection.Dragoon, ConfigSection.Ninja, ConfigSection.Samurai, ConfigSection.Monk, ConfigSection.Reaper, ConfigSection.Viper];
+    private static readonly ConfigSection[] MeleeSections    = [ConfigSection.MeleeShared, ConfigSection.Dragoon, ConfigSection.Ninja, ConfigSection.Samurai, ConfigSection.Monk, ConfigSection.Reaper, ConfigSection.Viper];
     private static readonly ConfigSection[] RangedSections   = [ConfigSection.RangedShared, ConfigSection.Machinist, ConfigSection.Bard, ConfigSection.Dancer];
     private static readonly ConfigSection[] CasterSections   = [ConfigSection.BlackMage, ConfigSection.Summoner, ConfigSection.RedMage, ConfigSection.Pictomancer];
 
@@ -194,6 +195,7 @@ public sealed class ConfigSidebar
         if (ShouldShowCategory(MeleeSections, matchingSections, hasSearch))
         {
             DrawCategoryHeader(Loc.T(LocalizedStrings.Sidebar.MeleeDps, "MELEE DPS"));
+            sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Shared, "Shared"), ConfigSection.MeleeShared, null, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Dragoon, "Dragoon"), ConfigSection.Dragoon, ConfigUIHelpers.DragoonColor, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Ninja, "Ninja"), ConfigSection.Ninja, ConfigUIHelpers.NinjaColor, matchingSections, hasSearch);
             sectionChanged |= DrawNavItemFiltered(Loc.T(LocalizedStrings.Sidebar.Samurai, "Samurai"), ConfigSection.Samurai, ConfigUIHelpers.SamuraiColor, matchingSections, hasSearch);

@@ -191,21 +191,6 @@ public sealed class ViperSection
             ConfigUIHelpers.BeginIndent();
 
             ConfigUIHelpers.Toggle(
-                Loc.T(LocalizedStrings.Viper.EnableSecondWind, "Enable Second Wind"),
-                () => config.Viper.EnableSecondWind,
-                v => config.Viper.EnableSecondWind = v,
-                null, save,
-                actionId: RoleActions.SecondWind.ActionId);
-
-            if (config.Viper.EnableSecondWind)
-            {
-                config.Viper.SecondWindHpThreshold = ConfigUIHelpers.ThresholdSlider(
-                    Loc.T(LocalizedStrings.Viper.SecondWindHpThreshold, "Second Wind HP Threshold"),
-                    config.Viper.SecondWindHpThreshold, 10f, 90f,
-                    null, save, v => config.Viper.SecondWindHpThreshold = v);
-            }
-
-            ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Viper.EnableBloodbath, "Enable Bloodbath"),
                 () => config.Viper.EnableBloodbath,
                 v => config.Viper.EnableBloodbath = v,

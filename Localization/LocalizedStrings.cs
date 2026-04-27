@@ -889,6 +889,16 @@ public static class LocalizedStrings
         public const string LucidMpThreshold = "config.job.sge.lucid_mp_threshold";
     }
 
+    /// <summary>Keys for Melee shared settings.</summary>
+    public static class MeleeShared
+    {
+        public const string Header = "config.job.melee_shared.header";
+        public const string Description = "config.job.melee_shared.description";
+        public const string SelfHeal = "config.job.melee_shared.self_heal";
+        public const string EnableSecondWind = "config.job.melee_shared.enable_second_wind";
+        public const string SecondWindHpThreshold = "config.job.melee_shared.second_wind_hp_threshold";
+    }
+
     /// <summary>Keys for Tank shared settings.</summary>
     public static class RangedShared
     {

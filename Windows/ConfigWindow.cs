@@ -52,6 +52,7 @@ public sealed class ConfigWindow : Window
     private readonly GunbreakerSection gunbreakerSection;
 
     // DPS Section renderers
+    private readonly MeleeSharedSection meleeSharedSection;
     private readonly DragoonSection dragoonSection;
     private readonly NinjaSection ninjaSection;
     private readonly SamuraiSection samuraiSection;
@@ -97,6 +98,7 @@ public sealed class ConfigWindow : Window
         gunbreakerSection = new GunbreakerSection(configuration, saveConfiguration);
 
         // Initialize DPS section renderers
+        meleeSharedSection = new MeleeSharedSection(configuration, saveConfiguration);
         dragoonSection = new DragoonSection(configuration, saveConfiguration);
         ninjaSection = new NinjaSection(configuration, saveConfiguration);
         samuraiSection = new SamuraiSection(configuration, saveConfiguration);
@@ -326,6 +328,10 @@ public sealed class ConfigWindow : Window
                 break;
 
             // Melee DPS
+            case ConfigSection.MeleeShared:
+                meleeSharedSection.Draw();
+                break;
+
             case ConfigSection.Dragoon:
                 dragoonSection.Draw();
                 break;
