@@ -6,6 +6,7 @@ using Olympus.Rotation.ApolloCore.Abilities;
 using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.RoleActionHelpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Training;
 using Olympus.Timeline.Models;
@@ -115,7 +116,7 @@ public sealed class BuffModule : IApolloModule
             var deadMember = context.PartyHelper.FindDeadPartyMemberNeedingRaise(player);
             if (deadMember is not null)
             {
-                var swiftcastReady = context.ActionService.IsActionReady(RoleActions.Swiftcast.ActionId);
+                var swiftcastReady = RoleActionGates.SwiftcastReady(context);
                 if (context.HasSwiftcast || swiftcastReady || config.Resurrection.AllowHardcastRaise)
                 {
                     shouldUseThinAir = true;
@@ -211,7 +212,7 @@ public sealed class BuffModule : IApolloModule
             var deadMember = context.PartyHelper.FindDeadPartyMemberNeedingRaise(player);
             if (deadMember is not null)
             {
-                var swiftcastReady = context.ActionService.IsActionReady(RoleActions.Swiftcast.ActionId);
+                var swiftcastReady = RoleActionGates.SwiftcastReady(context);
                 var swiftcastCooldown = context.ActionService.GetCooldownRemaining(RoleActions.Swiftcast.ActionId);
                 if (!swiftcastReady && swiftcastCooldown <= config.Buffs.PoMRaiseDelayCooldown)
                 {
