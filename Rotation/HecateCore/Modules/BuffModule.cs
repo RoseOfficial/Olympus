@@ -1,6 +1,7 @@
 using Olympus.Config;
 using Olympus.Data;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.RoleActionHelpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.HecateCore.Abilities;
 using Olympus.Rotation.HecateCore.Context;
@@ -268,13 +269,12 @@ public sealed class BuffModule : IHecateModule
 
     private void TryPushLucidDreaming(IHecateContext context, RotationScheduler scheduler)
     {
-        if (!context.Configuration.BlackMage.EnableLucidDreaming) return;
-        var player = context.Player;
-        if (player.Level < RoleActions.LucidDreaming.MinLevel) return;
-        if (!context.ActionService.IsActionReady(RoleActions.LucidDreaming.ActionId)) return;
-        if (context.MpPercent > context.Configuration.BlackMage.LucidDreamingThreshold) return;
+        if (!context.Configuration.CasterShared.EnableLucidDreaming) return;
 
-        scheduler.PushOgcd(HecateAbilities.LucidDreaming, player.GameObjectId, priority: 6,
+        RoleActionPushers.TryPushLucidDreaming(
+            context, scheduler, HecateAbilities.LucidDreaming,
+            mpThresholdPct: context.Configuration.CasterShared.LucidDreamingThreshold,
+            priority: 6,
             onDispatched: _ =>
             {
                 context.Debug.PlannedAction = RoleActions.LucidDreaming.Name;

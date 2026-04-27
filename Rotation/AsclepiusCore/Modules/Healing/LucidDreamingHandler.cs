@@ -4,6 +4,7 @@ using Olympus.Data;
 using Olympus.Rotation.AsclepiusCore.Abilities;
 using Olympus.Rotation.AsclepiusCore.Context;
 using Olympus.Rotation.AsclepiusCore.Helpers;
+using Olympus.Rotation.Common.RoleActionHelpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Training;
 
@@ -17,40 +18,34 @@ public sealed class LucidDreamingHandler : IHealingHandler
     public void CollectCandidates(IAsclepiusContext context, RotationScheduler scheduler, bool isMoving)
     {
         var config = context.Configuration;
-        var player = context.Player;
 
         if (!config.HealerShared.EnableLucidDreaming) { context.Debug.LucidState = "Disabled"; return; }
-        if (player.Level < RoleActions.LucidDreaming.MinLevel) return;
-        if (AsclepiusStatusHelper.HasLucidDreaming(player)) { context.Debug.LucidState = "Already active"; return; }
-        if (!context.ActionService.IsActionReady(RoleActions.LucidDreaming.ActionId)) { context.Debug.LucidState = "On CD"; return; }
 
-        var mpPercent = (float)player.CurrentMp / player.MaxMp;
-        if (mpPercent > config.HealerShared.LucidDreamingThreshold) { context.Debug.LucidState = $"MP {mpPercent:P0}"; return; }
+        var preCallMp = context.Player.MaxMp > 0 ? (float)context.Player.CurrentMp / context.Player.MaxMp : 1f;
 
-        var capturedMpPercent = mpPercent;
-        var action = RoleActions.LucidDreaming;
-
-        scheduler.PushOgcd(AsclepiusAbilities.LucidDreaming, player.GameObjectId, priority: Priority,
+        RoleActionPushers.TryPushLucidDreaming(
+            context, scheduler, AsclepiusAbilities.LucidDreaming,
+            mpThresholdPct: config.HealerShared.LucidDreamingThreshold,
+            priority: 70,
             onDispatched: _ =>
             {
-                context.Debug.PlannedAction = action.Name;
-                context.Debug.PlanningState = "Lucid Dreaming";
-                context.Debug.LucidState = "Executing";
+                context.Debug.PlannedAction = RoleActions.LucidDreaming.Name;
+                context.Debug.LucidState = $"Lucid Dreaming (MP {preCallMp:P0})";
 
                 if (context.TrainingService?.IsTrainingEnabled == true)
                 {
                     context.TrainingService.RecordDecision(new ActionExplanation
                     {
                         Timestamp = DateTime.UtcNow,
-                        ActionId = action.ActionId,
+                        ActionId = RoleActions.LucidDreaming.ActionId,
                         ActionName = "Lucid Dreaming",
                         Category = "Resource",
                         TargetName = "Self",
-                        ShortReason = $"Lucid Dreaming at {capturedMpPercent:P0} MP",
-                        DetailedReason = $"Lucid Dreaming activated at {capturedMpPercent:P0} MP (threshold: {config.HealerShared.LucidDreamingThreshold:P0}). Restores 3850 MP over 21 seconds. SGE is less MP-dependent than other healers (Addersgall heals restore MP!), but Lucid is still important for GCD heals and raises.",
+                        ShortReason = $"Lucid Dreaming at {preCallMp:P0} MP",
+                        DetailedReason = $"Lucid Dreaming activated at {preCallMp:P0} MP (threshold: {config.HealerShared.LucidDreamingThreshold:P0}). Restores 3850 MP over 21 seconds. SGE is less MP-dependent than other healers (Addersgall heals restore MP!), but Lucid is still important for GCD heals and raises.",
                         Factors = new[]
                         {
-                            $"Current MP: {capturedMpPercent:P0}",
+                            $"Current MP: {preCallMp:P0}",
                             $"Threshold: {config.HealerShared.LucidDreamingThreshold:P0}",
                             "3850 MP over 21s",
                             "60s cooldown",
@@ -67,5 +62,9 @@ public sealed class LucidDreamingHandler : IHealingHandler
                     });
                 }
             });
+
+        // Update LucidState even when not pushed (for UI visibility)
+        if (preCallMp > config.HealerShared.LucidDreamingThreshold)
+            context.Debug.LucidState = $"MP {preCallMp:P0}";
     }
 }

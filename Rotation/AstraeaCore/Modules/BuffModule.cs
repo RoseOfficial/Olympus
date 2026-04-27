@@ -6,6 +6,7 @@ using Olympus.Rotation.AstraeaCore.Abilities;
 using Olympus.Rotation.AstraeaCore.Context;
 using Olympus.Rotation.AstraeaCore.Helpers;
 using Olympus.Rotation.Common.Modules;
+using Olympus.Rotation.Common.RoleActionHelpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Training;
 
@@ -124,19 +125,15 @@ public sealed class BuffModule : BaseBuffModule<IAstraeaContext>, IAstraeaModule
 
     private void TryPushLucidDreaming(IAstraeaContext context, RotationScheduler scheduler)
     {
-        var player = context.Player;
-        var lucidAction = RoleActions.LucidDreaming;
-
         if (!IsLucidDreamingEnabled(context)) return;
-        if (player.Level < lucidAction.MinLevel) return;
-        if (!context.ActionService.IsActionReady(lucidAction.ActionId)) return;
-        if (HasLucidDreaming(context)) return;
-        if (!ShouldUseLucidDreaming(context)) return;
 
-        scheduler.PushOgcd(AstraeaAbilities.LucidDreaming, player.GameObjectId, priority: 200,
+        RoleActionPushers.TryPushLucidDreaming(
+            context, scheduler, AstraeaAbilities.LucidDreaming,
+            mpThresholdPct: context.Configuration.HealerShared.LucidDreamingThreshold,
+            priority: 200,
             onDispatched: _ =>
             {
-                SetPlannedAction(context, lucidAction.Name);
+                SetPlannedAction(context, RoleActions.LucidDreaming.Name);
                 SetLucidState(context, "Lucid Dreaming");
             });
     }

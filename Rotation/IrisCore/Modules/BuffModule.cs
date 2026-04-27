@@ -2,6 +2,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Models.Action;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.RoleActionHelpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Rotation.IrisCore.Abilities;
 using Olympus.Rotation.IrisCore.Context;
@@ -275,13 +276,12 @@ public sealed class BuffModule : IIrisModule
 
     private void TryPushLucidDreaming(IIrisContext context, RotationScheduler scheduler)
     {
-        if (!context.Configuration.Pictomancer.EnableLucidDreaming) return;
-        var player = context.Player;
-        if (player.Level < RoleActions.LucidDreaming.MinLevel) return;
-        if (!context.LucidDreamingReady) return;
-        if (context.MpPercent > context.Configuration.Pictomancer.LucidDreamingThreshold) return;
+        if (!context.Configuration.CasterShared.EnableLucidDreaming) return;
 
-        scheduler.PushOgcd(IrisAbilities.LucidDreaming, player.GameObjectId, priority: 5,
+        RoleActionPushers.TryPushLucidDreaming(
+            context, scheduler, IrisAbilities.LucidDreaming,
+            mpThresholdPct: context.Configuration.CasterShared.LucidDreamingThreshold,
+            priority: 5,
             onDispatched: _ =>
             {
                 context.Debug.PlannedAction = RoleActions.LucidDreaming.Name;

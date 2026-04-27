@@ -3,6 +3,7 @@ using Olympus.Data;
 using Olympus.Rotation.CirceCore.Abilities;
 using Olympus.Rotation.CirceCore.Context;
 using Olympus.Rotation.Common.Helpers;
+using Olympus.Rotation.Common.RoleActionHelpers;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services;
 using Olympus.Services.Training;
@@ -389,13 +390,12 @@ public sealed class BuffModule : ICirceModule
 
     private void TryPushLucidDreaming(ICirceContext context, RotationScheduler scheduler)
     {
-        if (!context.Configuration.RedMage.EnableLucidDreaming) return;
-        var player = context.Player;
-        if (player.Level < RoleActions.LucidDreaming.MinLevel) return;
-        if (!context.LucidDreamingReady) return;
-        if (context.MpPercent > context.Configuration.RedMage.LucidDreamingThreshold) return;
+        if (!context.Configuration.CasterShared.EnableLucidDreaming) return;
 
-        scheduler.PushOgcd(CirceAbilities.LucidDreaming, player.GameObjectId, priority: 6,
+        RoleActionPushers.TryPushLucidDreaming(
+            context, scheduler, CirceAbilities.LucidDreaming,
+            mpThresholdPct: context.Configuration.CasterShared.LucidDreamingThreshold,
+            priority: 6,
             onDispatched: _ =>
             {
                 context.Debug.PlannedAction = RoleActions.LucidDreaming.Name;

@@ -71,6 +71,6 @@ public static class IrisAbilities
 
     // --- Role ---
     public static readonly AbilityBehavior Swiftcast = new() { Action = RoleActions.Swiftcast };
-    public static readonly AbilityBehavior LucidDreaming = new() { Action = RoleActions.LucidDreaming, Toggle = cfg => cfg.Pictomancer.EnableLucidDreaming };
+    public static readonly AbilityBehavior LucidDreaming = new() { Action = RoleActions.LucidDreaming, Toggle = cfg => cfg.CasterShared.EnableLucidDreaming };
     public static readonly AbilityBehavior Addle = new() { Action = RoleActions.Addle, Toggle = cfg => cfg.Pictomancer.EnableAddle };
 }
