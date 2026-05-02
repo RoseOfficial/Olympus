@@ -388,7 +388,7 @@ public sealed class TargetingService : ITargetingService
             if (obj.IsDead) continue;
             if (obj.YalmDistanceX > 15) continue;
             if (obj is not IBattleNpc npc) continue;
-            if (npc.BattleNpcKind != BattleNpcSubKind.Enemy && npc.SubKind != 0) continue;
+            if ((byte)npc.BattleNpcKind != Olympus.Compat.BattleNpcKinds.Combatant && npc.SubKind != 0) continue;
             if (_configuration.Targeting.EnableInvulnerabilityFiltering &&
                 HasInvulnerabilityStatus(npc))
                 continue;
@@ -591,7 +591,7 @@ public sealed class TargetingService : ITargetingService
                 continue;
 
             // Check if hostile (enemy or striking dummy)
-            if (npc.BattleNpcKind != BattleNpcSubKind.Enemy && npc.SubKind != 0)
+            if ((byte)npc.BattleNpcKind != Olympus.Compat.BattleNpcKinds.Combatant && npc.SubKind != 0)
                 continue;
 
             // Precise distance check — effective range includes both hitbox radii
@@ -621,7 +621,7 @@ public sealed class TargetingService : ITargetingService
         if (!enemy.IsTargetable || enemy.IsDead)
             return false;
 
-        if (enemy.BattleNpcKind != BattleNpcSubKind.Enemy && enemy.SubKind != 0)
+        if ((byte)enemy.BattleNpcKind != Olympus.Compat.BattleNpcKinds.Combatant && enemy.SubKind != 0)
             return false;
 
         return DistanceHelper.IsInRange(player.Position, enemy.Position, maxRange + enemy.HitboxRadius + player.HitboxRadius);

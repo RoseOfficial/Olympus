@@ -258,7 +258,7 @@ public sealed class Plugin : IDalamudPlugin
             this.partyCoordinationService,
             this.combatEventService,
             partyList,
-            clientState);
+            objectTable);
 
         // Modifier-key overrides (Shift = burst, Ctrl = conservative). Static accessor
         // on BurstHoldHelper means all 30+ pooling decision sites pick up the override
@@ -323,7 +323,7 @@ public sealed class Plugin : IDalamudPlugin
         // High-end content classifier. Hooked to TerritoryChanged and primed for
         // current zone in case the plugin loads while already in a duty.
         this.highEndContentService = new Olympus.Services.Content.HighEndContentService(dataManager);
-        this.highEndContentService.OnTerritoryChanged(clientState.TerritoryType);
+        this.highEndContentService.OnTerritoryChanged((ushort)clientState.TerritoryType);
 
         // Inventory and tincture-cooldown probes (production-side wrappers).
         this.inventoryProbe = new Olympus.Services.Consumables.DalamudInventoryProbe(errorMetricsService);
@@ -458,6 +458,10 @@ public sealed class Plugin : IDalamudPlugin
         // Check for updates in the background (delayed 15s)
         updateCheckerService.StartupCheck();
     }
+
+    // Two overloads so the method-group conversion picks the matching delegate
+    // signature on either old (Action<ushort>) or new (Action<uint>) Dalamud SDKs.
+    private void OnTerritoryChanged(uint zoneId) => OnTerritoryChanged((ushort)zoneId);
 
     private void OnTerritoryChanged(ushort zoneId)
     {
@@ -702,7 +706,7 @@ public sealed class Plugin : IDalamudPlugin
                 {
                     var castTargetObj = objectTable.SearchById(localPlayer.CastTargetObjectId);
                     castTargetHostile = castTargetObj is Dalamud.Game.ClientState.Objects.Types.IBattleNpc bn
-                                        && bn.SubKind == (byte)Dalamud.Game.ClientState.Objects.Enums.BattleNpcSubKind.Enemy;
+                                        && bn.SubKind == Olympus.Compat.BattleNpcKinds.Combatant;
                 }
 
                 pullIntentService.Update(

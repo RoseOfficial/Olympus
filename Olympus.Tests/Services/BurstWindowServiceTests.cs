@@ -197,14 +197,14 @@ public class BurstWindowServiceTests
 
         var localPlayer = new Mock<IPlayerCharacter>();
         localPlayer.SetupGet(p => p.EntityId).Returns(localPlayerEntityId);
-        var clientState = new Mock<IClientState>();
-        clientState.SetupGet(c => c.LocalPlayer).Returns(localPlayer.Object);
+        var objectTable = new Mock<IObjectTable>();
+        objectTable.SetupGet(o => o.LocalPlayer).Returns(localPlayer.Object);
 
         var service = new BurstWindowService(
             partyCoordinationService: null,
             combatEventService: combatEvents.Object,
             partyList: null,
-            clientState: clientState.Object);
+            objectTable: objectTable.Object);
 
         return (service, combatEvents);
     }

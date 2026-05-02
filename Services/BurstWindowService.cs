@@ -28,7 +28,7 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
     private readonly IPartyCoordinationService? _partyCoordinationService;
     private readonly ICombatEventService? _combatEventService;
     private readonly IPartyList? _partyList;
-    private readonly IClientState? _clientState;
+    private readonly IObjectTable? _objectTable;
     private readonly Action<uint, uint>? _onAbilityUsedHandler;
 
     // Raid buff status IDs that appear on the LOCAL PLAYER when burst is active.
@@ -77,12 +77,12 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
         IPartyCoordinationService? partyCoordinationService = null,
         ICombatEventService? combatEventService = null,
         IPartyList? partyList = null,
-        IClientState? clientState = null)
+        IObjectTable? objectTable = null)
     {
         _partyCoordinationService = partyCoordinationService;
         _combatEventService = combatEventService;
         _partyList = partyList;
-        _clientState = clientState;
+        _objectTable = objectTable;
 
         if (_combatEventService != null)
         {
@@ -125,7 +125,7 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
     private bool IsCasterInParty(uint casterEntityId)
     {
         // Self-cast always counts: the local player's own raid buff applies to them.
-        if (_clientState?.LocalPlayer?.EntityId == casterEntityId)
+        if (_objectTable?.LocalPlayer?.EntityId == casterEntityId)
             return true;
 
         // Party member cast: their raid buff applies to the local player.

@@ -395,7 +395,10 @@ public sealed class DrawCanvas : Window
         foreach (var obj in _objectTable)
         {
             if (obj is not IBattleNpc npc) continue;
-            if (npc.BattleNpcKind is BattleNpcSubKind.Pet or BattleNpcSubKind.Chocobo or BattleNpcSubKind.NpcPartyMember)
+            var npcKind = (byte)npc.BattleNpcKind;
+            if (npcKind == Olympus.Compat.BattleNpcKinds.Pet
+                || npcKind == Olympus.Compat.BattleNpcKinds.Chocobo
+                || npcKind == Olympus.Compat.BattleNpcKinds.NpcPartyMember)
                 continue;
             if ((npc.StatusFlags & StatusFlags.Hostile) == 0) continue;
             if (!CanAttack(npc)) continue;
@@ -431,7 +434,10 @@ public sealed class DrawCanvas : Window
         foreach (var obj in _objectTable)
         {
             if (obj is not IBattleNpc npc) continue;
-            if (npc.BattleNpcKind is BattleNpcSubKind.Pet or BattleNpcSubKind.Chocobo or BattleNpcSubKind.NpcPartyMember)
+            var npcKind = (byte)npc.BattleNpcKind;
+            if (npcKind == Olympus.Compat.BattleNpcKinds.Pet
+                || npcKind == Olympus.Compat.BattleNpcKinds.Chocobo
+                || npcKind == Olympus.Compat.BattleNpcKinds.NpcPartyMember)
                 continue;
             if ((npc.StatusFlags & StatusFlags.Hostile) == 0) continue;
 
