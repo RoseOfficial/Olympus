@@ -3,6 +3,58 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.17.0 — 2026-05-02
+
+### New — Pre-Pull Tincture Automation
+- Olympus can now pop a tincture for you on the opener and re-pot on cooldown after that, both aligned to your burst window
+- Picks the matching stat tincture for your job (Strength, Dexterity, Intelligence, or Mind) and prefers HQ if you have one
+- Gated to high-end duties (savage, extreme, ultimate) so it never fires in roulettes or open world by accident
+- Off by default. Opt in under the new Consumables tab if you want it
+
+### New — Modifier-Key Burst Overrides
+- Hold Shift to force the bot to act as if you're already in burst (skip pooling, fire now). Hold Ctrl to force the opposite (always pool resources). Useful for committing early or saving a window the timeline didn't predict
+- Off by default because Shift and Ctrl conflict with chat typing. Turn it on under Input if you want it
+- Affects pooling decisions across roughly 30 sites including Saber Dance, ninjutsu pooling, Manafication, and any gauge spender that holds for burst
+
+### New — Feint and Addle Across All Melee and Caster DPS
+- Olympus now fires Feint on all 6 melee DPS (Monk, Ninja, Dragoon, Samurai, Reaper, Viper) and Addle on all 4 caster DPS (Black Mage, Summoner, Red Mage, Pictomancer). Previously only Viper had Feint wired
+- Both are coordinated across multiple Olympus instances. Two casters running Olympus will not double-Addle the same boss; same for melee Feint
+- Per-job Enable Feint and Enable Addle toggles live on each job's Role Actions section, default on
+
+### New — Second Wind and Bloodbath on All Melee DPS
+- Olympus now uses Second Wind (HP threshold default 50%) and Bloodbath (default 85%) on all 6 melee DPS instead of only Viper
+- Toggles consolidated onto a new Melee shared tab so you set them once for the role
+
+### Faster Burst Detection from Party Buffs
+- Olympus now opens the burst window the instant a party member's coordinated raid buff actually resolves (Divination, Battle Litany, Brotherhood, Embolden, Searing Light, Devilment, Radiant Finale, Chain Stratagem), instead of waiting up to 200ms for the next status scan to pick it up
+- GCDs that should slam during the buff window land sooner, and pooling exits faster on the opener
+- The status scan stays as a fallback so behavior is unchanged if the cast event is missed
+
+### Precise Mit-Stack Coordination
+- Mit coordination across multiple Olympus instances is now per-debuff instead of "anyone on the party used mit recently"
+- Previously, Tank A using Rampart would incorrectly cause Tank B to skip Reprisal even though they are separate mit layers. Each ability now only skips when its own debuff is already active on the boss (Reprisal in its 10s buff window, Feint and Addle in their 15s windows)
+- Wired across all 4 tanks (Reprisal), all 6 melee DPS (Feint), and all 4 caster DPS (Addle)
+- Tank Rampart staggering between Olympus tanks is also coordinated this way, gated by a new "Coordinate defensive cooldowns" toggle on the Tanks shared tab
+
+### Faster GCD Submission for Tanks
+- Fixed a scheduler bug that was rejecting tank GCDs during the action queue window. Gunbreaker, Paladin, Warrior, and Dark Knight now correctly submit the next GCD in the last 0.5s of the current cycle instead of waiting for full rollover
+- Up to half a second of GCD latency removed across the four tank rotations
+
+### Gunbreaker / Dark Knight
+- Fixed an AoE combo step 2 ambiguity. Demon Slaughter (GNB) and Stalwart Soul (DRK) were gated only on combo step 1, which is also set by the single-target starter. In mixed target-count pulls the bot could fire the wrong step 2 and break the combo, dealing half potency. Now each step 2 only fires after its matching starter
+
+### Settings UI
+- Lucid Dreaming, Second Wind, Bloodbath, Rampart, and True North toggles consolidated onto their shared role tabs (Healers, Melee, Tanks) instead of being duplicated on every per-job page
+- White Mage Lucid Dreaming intentionally stays on the White Mage page because it uses a predictive MP forecast that the other casters do not
+- Pictomancer Lucid Dreaming UI now correctly binds to the shared caster setting
+- Many previously-unread config toggles and thresholds are now actually honored across 16 rotations (gauge overcap thresholds, burst-pool flags, behavior knobs that had been defined but ignored)
+
+### Behind the Scenes — Scheduler Migration Complete for All 21 Jobs
+- The per-frame priority scheduler that started as a pilot on Gunbreaker in v4.13 and rolled out for several rotations in v4.16 now covers all 21 jobs. No behavior change you should notice
+- The point is the platform: future fixes apply consistently across rotations, and the regression-test coverage that has been catching the bug classes called out in the last few releases is now in place for every job
+- Adds dedicated scheduler-push tests for Feint, Addle, role-action helpers, and combo-step computation across 13 rotations
+
+<!-- LATEST-END -->
 ## v4.16.0 — 2026-04-21
 
 ### New — Hardcast Raise Quick Toggle
