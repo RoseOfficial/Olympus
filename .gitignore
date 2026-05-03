@@ -10,6 +10,8 @@ Docs/superpowers/
 .superpowers/
 # AI coding assistants
 .claude/
+.claude-flow/
+.mcp.json
 .cursor/
 .copilot/
 .codeium/
