@@ -3,12 +3,18 @@
 All notable changes to Olympus will be documented in this file.
 
 <!-- LATEST-START -->
+## v4.17.2 — 2026-05-06
+
+### Fix — Plugin Marked as Outdated After Dalamud 15
+- Dalamud bumped its API level for the latest game patch, which caused Olympus to show as outdated and incompatible and refuse to load
+- Rebuilt against the new Dalamud and updated the declared API level so Olympus loads again. No behavior changes, just a compatibility fix
+<!-- LATEST-END -->
+
 ## v4.17.1 — 2026-05-02
 
 ### Fix — Plugin Failed to Load After Dalamud Update
 - The latest Dalamud update changed an internal API that Olympus relied on, which caused the plugin to fail loading with a "Method not found" error
 - Rebuilt against the new Dalamud so Olympus loads cleanly again. No behavior changes, just a compatibility fix
-<!-- LATEST-END -->
 
 ## v4.17.0 — 2026-05-02
 

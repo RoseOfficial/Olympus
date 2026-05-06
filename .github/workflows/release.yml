@@ -22,7 +22,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
 
       - name: Download Dalamud
         run: |
@@ -67,7 +67,7 @@ jobs:
               "CategoryTags": ["jobs"],
               "RepoUrl": "https://github.com/RoseOfficial/Olympus",
               "AssemblyVersion": "${{ steps.version.outputs.version }}",
-              "DalamudApiLevel": 14,
+              "DalamudApiLevel": 15,
               "IconUrl": "",
               "ImageUrls": [],
               "IsHide": false,
