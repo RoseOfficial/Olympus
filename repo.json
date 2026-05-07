@@ -17,5 +17,24 @@
     "DownloadLinkInstall": "https://github.com/RoseOfficial/Olympus/releases/download/v4.17.2/Olympus.zip",
     "DownloadLinkTesting": "https://github.com/RoseOfficial/Olympus/releases/download/v4.17.2/Olympus.zip",
     "DownloadLinkUpdate": "https://github.com/RoseOfficial/Olympus/releases/download/v4.17.2/Olympus.zip"
+  },
+  {
+    "Author": "RoseOfficial",
+    "Name": "Memoria",
+    "InternalName": "Memoria",
+    "Punchline": "Player tracker with full history, alt detection, and Lodestone integration.",
+    "Description": "Tracks every player you encounter, with full history of name changes, world transfers, and appearance changes. Links alt characters on the same account via Account ID. Pulls jobs, minions, and mounts from the Lodestone. Stored locally in SQLite, with optional server sync for shared data.",
+    "ApplicableVersion": "any",
+    "CategoryTags": ["utility", "social"],
+    "RepoUrl": "https://github.com/RoseOfficial/Memoria",
+    "AssemblyVersion": "1.0.0",
+    "DalamudApiLevel": 15,
+    "IconUrl": "https://raw.githubusercontent.com/RoseOfficial/Memoria/main/icon.png",
+    "ImageUrls": [],
+    "IsHide": false,
+    "IsTestingExclusive": false,
+    "DownloadLinkInstall": "https://github.com/RoseOfficial/Memoria/releases/download/v1.0.0/latest.zip",
+    "DownloadLinkTesting": "https://github.com/RoseOfficial/Memoria/releases/download/v1.0.0/latest.zip",
+    "DownloadLinkUpdate": "https://github.com/RoseOfficial/Memoria/releases/download/v1.0.0/latest.zip"
   }
 ]

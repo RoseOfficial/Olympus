@@ -53,31 +53,32 @@ jobs:
             echo 'EOF'
           } >> $GITHUB_OUTPUT
 
-      - name: Generate repo.json
+      - name: Update Olympus entry in aggregator repo.json
         run: |
-          cat > repo.json << 'EOF'
-          [
-            {
-              "Author": "Rose",
-              "Name": "Olympus",
-              "InternalName": "Olympus",
-              "Punchline": "Intelligent rotation assistant for all combat jobs",
-              "Description": "Olympus: An intelligent rotation assistant supporting all 21 combat jobs with healing, damage, mitigation, burst windows, party coordination, and timeline-aware fight predictions.",
-              "ApplicableVersion": "any",
-              "CategoryTags": ["jobs"],
-              "RepoUrl": "https://github.com/RoseOfficial/Olympus",
-              "AssemblyVersion": "${{ steps.version.outputs.version }}",
-              "DalamudApiLevel": 15,
-              "IconUrl": "",
-              "ImageUrls": [],
-              "IsHide": false,
-              "IsTestingExclusive": false,
-              "DownloadLinkInstall": "https://github.com/RoseOfficial/Olympus/releases/download/${{ github.ref_name }}/Olympus.zip",
-              "DownloadLinkTesting": "https://github.com/RoseOfficial/Olympus/releases/download/${{ github.ref_name }}/Olympus.zip",
-              "DownloadLinkUpdate": "https://github.com/RoseOfficial/Olympus/releases/download/${{ github.ref_name }}/Olympus.zip"
-            }
-          ]
-          EOF
+          # repo.json is the shared aggregator listing every RoseOfficial plugin.
+          # Update ONLY the Olympus entry; preserve all other plugins (Memoria, etc.).
+          NEW_VERSION="${{ steps.version.outputs.version }}"
+          TAG="${{ github.ref_name }}"
+          ZIP_URL="https://github.com/RoseOfficial/Olympus/releases/download/${TAG}/Olympus.zip"
+          OLYMPUS_API=$(jq -r '.DalamudApiLevel' Olympus.json)
+          jq --arg v "$NEW_VERSION" --arg url "$ZIP_URL" --argjson api "$OLYMPUS_API" '
+            map(
+              if .InternalName == "Olympus" then
+                .AssemblyVersion = $v
+                | .DalamudApiLevel = $api
+                | .DownloadLinkInstall = $url
+                | .DownloadLinkTesting = $url
+                | .DownloadLinkUpdate = $url
+              else . end
+            )
+          ' repo.json > repo.json.tmp
+          mv repo.json.tmp repo.json
+          # Sanity check — ensure the Olympus entry was actually updated.
+          if ! jq -e --arg v "$NEW_VERSION" 'any(.[]; .InternalName == "Olympus" and .AssemblyVersion == $v)' repo.json > /dev/null; then
+            echo "ERROR: Olympus entry missing or version not updated in repo.json" >&2
+            cat repo.json >&2
+            exit 1
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
