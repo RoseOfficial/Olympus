@@ -61,7 +61,11 @@ jobs:
           TAG="${{ github.ref_name }}"
           ZIP_URL="https://github.com/RoseOfficial/Olympus/releases/download/${TAG}/Olympus.zip"
           OLYMPUS_API=$(jq -r '.DalamudApiLevel' Olympus.json)
-          jq --arg v "$NEW_VERSION" --arg url "$ZIP_URL" --argjson api "$OLYMPUS_API" '
+          # Tags are 3-part (vX.Y.Z); Dalamud.NET.Sdk auto-pads the bundled
+          # manifest's AssemblyVersion to 4-part (X.Y.Z.0). repo.json must use
+          # the 4-part form so Dalamud's strict manifest verification passes.
+          ASSEMBLY_VERSION="${NEW_VERSION}.0"
+          jq --arg v "$ASSEMBLY_VERSION" --arg url "$ZIP_URL" --argjson api "$OLYMPUS_API" '
             map(
               if .InternalName == "Olympus" then
                 .AssemblyVersion = $v
@@ -74,7 +78,7 @@ jobs:
           ' repo.json > repo.json.tmp
           mv repo.json.tmp repo.json
           # Sanity check — ensure the Olympus entry was actually updated.
-          if ! jq -e --arg v "$NEW_VERSION" 'any(.[]; .InternalName == "Olympus" and .AssemblyVersion == $v)' repo.json > /dev/null; then
+          if ! jq -e --arg v "$ASSEMBLY_VERSION" 'any(.[]; .InternalName == "Olympus" and .AssemblyVersion == $v)' repo.json > /dev/null; then
             echo "ERROR: Olympus entry missing or version not updated in repo.json" >&2
             cat repo.json >&2
             exit 1
