@@ -148,6 +148,14 @@ public sealed class Plugin : IDalamudPlugin
 
     // Movement subsystem
     private readonly RMIWalkHookService rmiWalkHookService;
+    private readonly Olympus.Services.Movement.Probes.BGCollisionProbe bgCollisionProbe;
+    private readonly Olympus.Services.Movement.Probes.BNpcRankProbe bnpcRankProbe;
+    private readonly Olympus.Services.Movement.Probes.ObjectInteractor objectInteractor;
+    private readonly Olympus.Services.Movement.Humanization.MovementClock movementClock;
+    private readonly Olympus.Services.Movement.EnemyAOECastTracker enemyAoECastTracker;
+    private readonly Olympus.Services.Movement.BossCombatDetector bossCombatDetector;
+    private readonly Olympus.Services.Movement.TrashAvoidanceService trashAvoidanceService;
+    private readonly Olympus.Services.Movement.InteractDispatchService interactDispatchService;
 
     // Error metrics
     private readonly ErrorMetricsService errorMetricsService;
@@ -323,6 +331,24 @@ public sealed class Plugin : IDalamudPlugin
         // Movement subsystem: RMIWalk hook for AoE avoidance input injection.
         // HookInstalled is false on patch-day sigscan failure; banner surfaces this in config UI.
         this.rmiWalkHookService = new RMIWalkHookService(gameInteropProvider, log);
+
+        this.bgCollisionProbe = new Olympus.Services.Movement.Probes.BGCollisionProbe(log);
+        this.bnpcRankProbe = new Olympus.Services.Movement.Probes.BNpcRankProbe(dataManager);
+        this.objectInteractor = new Olympus.Services.Movement.Probes.ObjectInteractor(objectTable, log);
+        this.movementClock = new Olympus.Services.Movement.Humanization.MovementClock();
+
+        this.enemyAoECastTracker = new Olympus.Services.Movement.EnemyAOECastTracker(
+            log, objectTable, clientState, dataManager);
+        this.bossCombatDetector = new Olympus.Services.Movement.BossCombatDetector(
+            objectTable, clientState, bnpcRankProbe,
+            () => configuration.Movement.BossRanks);
+        this.trashAvoidanceService = new Olympus.Services.Movement.TrashAvoidanceService(
+            rmiWalkHookService, enemyAoECastTracker, bossCombatDetector,
+            bgCollisionProbe, movementClock,
+            () => configuration.Movement, log, clientState);
+        this.interactDispatchService = new Olympus.Services.Movement.InteractDispatchService(
+            objectTable, clientState, objectInteractor, movementClock,
+            () => configuration.Movement, log);
 
         // Pull-intent state machine. Driven each frame by Plugin.Update from
         // LocalPlayer.IsCasting + ActionManager.QueuedActionId + InCombat.
@@ -726,6 +752,15 @@ public sealed class Plugin : IDalamudPlugin
                     utcNow: DateTime.UtcNow);
             }
 
+            // Movement subsystem frame update. Runs outside the Enabled gate so AoE
+            // avoidance and auto-interact work even when rotation execution is off.
+            // Order matters: tracker populates active threats, boss detector reads them,
+            // avoidance consumes both, interact is independent but shares the same slot.
+            enemyAoECastTracker.Update(DateTime.UtcNow);
+            bossCombatDetector.Update();
+            trashAvoidanceService.Update();
+            interactDispatchService.Update();
+
             if (!configuration.Enabled)
                 return;
 
@@ -811,6 +846,8 @@ public sealed class Plugin : IDalamudPlugin
         // Dispose container-registered services (e.g., CombatEventService)
         serviceContainer?.Dispose();
 
+        trashAvoidanceService.Dispose();
+        enemyAoECastTracker.Dispose();
         rmiWalkHookService.Dispose();
         performanceTracker.Dispose();
         drawingService.Dispose();
