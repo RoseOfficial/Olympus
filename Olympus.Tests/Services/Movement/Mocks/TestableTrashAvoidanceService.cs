@@ -20,4 +20,7 @@ public sealed class TestableTrashAvoidanceService : TrashAvoidanceService
     protected override Vector3 GetPlayerPos3D() => OverridePlayerPos3D;
     protected override bool IsHighEndZone() => OverrideHighEndZone;
     protected override bool IsPlayerUnavailable() => OverridePlayerDead || OverridePlayerMounted || OverridePlayerInCutscene;
+
+    public new bool HasFirstSeenEntry(ulong casterId) => base.HasFirstSeenEntry(casterId);
+    public new void OnTerritoryChanged(ushort territoryId) => base.OnTerritoryChanged(territoryId);
 }

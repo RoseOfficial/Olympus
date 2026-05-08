@@ -21,6 +21,7 @@ public class TrashAvoidanceService : ITrashAvoidanceService
     private readonly IMovementClock clock;
     private readonly Func<MovementConfig> configAccessor;
     private readonly IPluginLog? log;
+    private readonly IClientState? clientState;
 
     private readonly Dictionary<ulong, DateTime> firstSeenPerCast = new();
     private readonly Dictionary<ulong, int> reactionDelayPerCast = new();
@@ -29,7 +30,8 @@ public class TrashAvoidanceService : ITrashAvoidanceService
 
     public TrashAvoidanceService(IRMIWalkHookService hook, IEnemyAOECastTracker tracker,
         IBossCombatDetector boss, IBGCollisionProbe collision, IMovementClock clock,
-        Func<MovementConfig> configAccessor, IPluginLog log)
+        Func<MovementConfig> configAccessor, IPluginLog log,
+        IClientState? clientState = null)
     {
         this.hook = hook;
         this.tracker = tracker;
@@ -38,10 +40,36 @@ public class TrashAvoidanceService : ITrashAvoidanceService
         this.clock = clock;
         this.configAccessor = configAccessor;
         this.log = log;
+        this.clientState = clientState;
+
+        if (clientState != null)
+            clientState.TerritoryChanged += OnTerritoryChanged;
     }
+
+    public void Dispose()
+    {
+        if (clientState != null)
+            clientState.TerritoryChanged -= OnTerritoryChanged;
+    }
+
+    internal bool HasFirstSeenEntry(ulong casterId) => firstSeenPerCast.ContainsKey(casterId);
+
+    internal void OnTerritoryChanged(ushort _)
+    {
+        firstSeenPerCast.Clear();
+        reactionDelayPerCast.Clear();
+        arrivalTolerancePerCast.Clear();
+        lastDodgeCompleted = DateTime.MinValue;
+    }
+
+    // Two overloads -- same dual-signature pattern as Plugin.OnTerritoryChanged / EnemyAOECastTracker --
+    // so either Action<ushort> or Action<uint> delegate form compiles against the Dalamud SDK in use.
+    private void OnTerritoryChanged(uint id) => OnTerritoryChanged((ushort)id);
 
     public void Update()
     {
+        PrunePerCastStateAgainstTracker();
+
         var cfg = configAccessor();
 
         if (!cfg.EnableTrashAoEAvoidance) { ClearVector(); return; }
@@ -167,6 +195,25 @@ public class TrashAvoidanceService : ITrashAvoidanceService
     }
 
     private void ClearVector() => hook.DesiredInputVector = null;
+
+    private void PrunePerCastStateAgainstTracker()
+    {
+        if (firstSeenPerCast.Count == 0) return;
+
+        var activeIds = new HashSet<ulong>();
+        foreach (var t in tracker.ActiveAOEs) activeIds.Add(t.CasterId);
+
+        var stale = new List<ulong>();
+        foreach (var id in firstSeenPerCast.Keys)
+            if (!activeIds.Contains(id)) stale.Add(id);
+
+        foreach (var id in stale)
+        {
+            firstSeenPerCast.Remove(id);
+            reactionDelayPerCast.Remove(id);
+            arrivalTolerancePerCast.Remove(id);
+        }
+    }
 
     /// <summary>Test seam.</summary>
     protected virtual Vector2 GetPlayerPos2D() => Vector2.Zero;

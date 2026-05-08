@@ -128,4 +128,48 @@ public class TrashAvoidanceServiceTests
         svc.Update();
         ctx.Hook.VerifySet(h => h.DesiredInputVector = It.Is<Vector3?>(v => v != null), Times.Never);
     }
+
+    [Fact]
+    public void Update_RemovedFromTracker_PrunesPerCastState()
+    {
+        var ctx = new MovementTestContext();
+        var threat = new TrackedAOE(
+            100, new Vector2(0, 0), 0f,
+            new Olympus.Services.Movement.Geometry.AOEShapeCircle(5f),
+            ctx.Now.AddSeconds(2));
+        ctx.ActiveAOEs.Add(threat);
+
+        var svc = new TestableTrashAvoidanceService(ctx);
+        svc.OverridePlayerPos2D = new Vector2(0, 0);
+        svc.OverridePlayerPos3D = new Vector3(0, 0, 0);
+
+        svc.Update();
+        Assert.True(svc.HasFirstSeenEntry(100));
+
+        // Cast finished -- tracker no longer reports it
+        ctx.ActiveAOEs.Clear();
+        svc.Update();
+
+        Assert.False(svc.HasFirstSeenEntry(100));
+    }
+
+    [Fact]
+    public void OnTerritoryChanged_ClearsAllState()
+    {
+        var ctx = new MovementTestContext();
+        ctx.ActiveAOEs.Add(new TrackedAOE(
+            100, new Vector2(0, 0), 0f,
+            new Olympus.Services.Movement.Geometry.AOEShapeCircle(5f),
+            ctx.Now.AddSeconds(2)));
+
+        var svc = new TestableTrashAvoidanceService(ctx);
+        svc.OverridePlayerPos2D = new Vector2(0, 0);
+        svc.OverridePlayerPos3D = new Vector3(0, 0, 0);
+
+        svc.Update();
+        Assert.True(svc.HasFirstSeenEntry(100));
+
+        svc.OnTerritoryChanged(0);
+        Assert.False(svc.HasFirstSeenEntry(100));
+    }
 }
