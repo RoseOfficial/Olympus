@@ -546,8 +546,14 @@ public static class ConfigValidator
     /// This mutates the config directly rather than adding issues — the values are
     /// straightforward numeric bounds with no player-visible trade-off to flag.
     /// </summary>
-    public static void ValidateMovement(MovementConfig cfg)
+    private static void ValidateMovement(MovementConfig cfg)
     {
+        // Floor clamps first — ensures Min values are valid before enforcing Max >= Min
+        cfg.ReactionDelayMinMs = Math.Max(0, cfg.ReactionDelayMinMs);
+        cfg.ArrivalToleranceMinYalms = Math.Max(0f, cfg.ArrivalToleranceMinYalms);
+        cfg.InterCastPauseMinMs = Math.Max(0, cfg.InterCastPauseMinMs);
+
+        // Then enforce Max >= Min
         if (cfg.ReactionDelayMaxMs < cfg.ReactionDelayMinMs)
             cfg.ReactionDelayMaxMs = cfg.ReactionDelayMinMs;
         if (cfg.ArrivalToleranceMaxYalms < cfg.ArrivalToleranceMinYalms)
@@ -555,13 +561,10 @@ public static class ConfigValidator
         if (cfg.InterCastPauseMaxMs < cfg.InterCastPauseMinMs)
             cfg.InterCastPauseMaxMs = cfg.InterCastPauseMinMs;
 
-        cfg.ReactionDelayMinMs = System.Math.Max(0, cfg.ReactionDelayMinMs);
-        cfg.ArrivalToleranceMinYalms = System.Math.Max(0f, cfg.ArrivalToleranceMinYalms);
-        cfg.InterCastPauseMinMs = System.Math.Max(0, cfg.InterCastPauseMinMs);
-        cfg.DirectionalNoiseDegrees = System.Math.Clamp(cfg.DirectionalNoiseDegrees, 0f, 30f);
-        cfg.WalkVsSprintThresholdSeconds = System.Math.Max(0.1f, cfg.WalkVsSprintThresholdSeconds);
-        cfg.MaxThreatRangeYalms = System.Math.Max(1f, cfg.MaxThreatRangeYalms);
-        cfg.RaycastBudgetPerFrame = System.Math.Max(1, cfg.RaycastBudgetPerFrame);
+        cfg.DirectionalNoiseDegrees = Math.Clamp(cfg.DirectionalNoiseDegrees, 0f, 30f);
+        cfg.WalkVsSprintThresholdSeconds = Math.Max(0.1f, cfg.WalkVsSprintThresholdSeconds);
+        cfg.MaxThreatRangeYalms = Math.Max(1f, cfg.MaxThreatRangeYalms);
+        cfg.RaycastBudgetPerFrame = Math.Max(1, cfg.RaycastBudgetPerFrame);
 
         if (cfg.BossRanks.Count == 0)
         {
@@ -574,8 +577,8 @@ public static class ConfigValidator
             kind == Dalamud.Game.ClientState.Objects.Enums.ObjectKind.BattleNpc ||
             kind == Dalamud.Game.ClientState.Objects.Enums.ObjectKind.Cutscene);
 
-        cfg.InteractRangeYalms = System.Math.Clamp(cfg.InteractRangeYalms, 0.5f, 10f);
-        cfg.InteractCooldownSeconds = System.Math.Clamp(cfg.InteractCooldownSeconds, 0.1f, 30f);
+        cfg.InteractRangeYalms = Math.Clamp(cfg.InteractRangeYalms, 0.5f, 10f);
+        cfg.InteractCooldownSeconds = Math.Clamp(cfg.InteractCooldownSeconds, 0.1f, 30f);
     }
 
     /// <summary>
