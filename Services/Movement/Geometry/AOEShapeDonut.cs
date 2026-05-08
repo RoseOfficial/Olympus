@@ -1,0 +1,25 @@
+using System.Numerics;
+
+namespace Olympus.Services.Movement.Geometry;
+
+/// <summary>
+/// Annular AoE: ring between <see cref="InnerRadius"/> and <see cref="OuterRadius"/>.
+/// The inner disc is safe; the outer ring is the danger zone.
+/// </summary>
+public sealed class AOEShapeDonut : AOEShape
+{
+    public float InnerRadius { get; }
+    public float OuterRadius { get; }
+
+    public AOEShapeDonut(float innerRadius, float outerRadius)
+    {
+        InnerRadius = innerRadius;
+        OuterRadius = outerRadius;
+    }
+
+    public override bool Contains(Vector2 origin, float rotationRadians, Vector2 point)
+    {
+        var distSq = Vector2.DistanceSquared(origin, point);
+        return distSq >= InnerRadius * InnerRadius && distSq <= OuterRadius * OuterRadius;
+    }
+}
