@@ -23,6 +23,8 @@ public static class GuessShape
                 return new AOEShapeRect(effectRange + casterHitboxRadius, xAxisModifier * 0.5f);
             case 5:
                 return new AOEShapeCircle(effectRange + casterHitboxRadius);
+            case 8:
+                return null; // charge -- ignored in v1
             case 10:
                 return new AOEShapeDonut(ParseDonutInner(omenPath), effectRange);
             case 11:
