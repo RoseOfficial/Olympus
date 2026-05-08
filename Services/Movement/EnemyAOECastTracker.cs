@@ -36,24 +36,23 @@ public class EnemyAOECastTracker : IEnemyAOECastTracker, IDisposable
 
     private readonly Dictionary<ulong, TrackedAOE> entries = new();
 
+    // Parallel list kept in sync with entries — avoids per-frame allocation on ActiveAOEs reads.
+    private readonly List<TrackedAOE> activeSnapshot = new();
+
     // Per-frame polling state: entity ID -> last-seen cast action ID (0 = not casting)
     private readonly Dictionary<ulong, uint> previousCastActionId = new();
+
+    // Scratch collections reused across frames to avoid per-frame allocation.
+    private readonly HashSet<ulong> seenScratch = new();
+    private readonly List<ulong> removeScratch = new();
+    private readonly List<ulong> pruneScratch = new();
 
     private readonly IPluginLog? log;
     private readonly IObjectTable? objectTable;
     private readonly IClientState? clientState;
     private readonly IDataManager? dataManager;
 
-    public IReadOnlyList<TrackedAOE> ActiveAOEs
-    {
-        get
-        {
-            var list = new List<TrackedAOE>(entries.Count);
-            foreach (var kvp in entries)
-                list.Add(kvp.Value);
-            return list;
-        }
-    }
+    public IReadOnlyList<TrackedAOE> ActiveAOEs => activeSnapshot;
 
     public EnemyAOECastTracker(IPluginLog log, IObjectTable objectTable, IClientState clientState, IDataManager? dataManager = null)
     {
@@ -92,7 +91,7 @@ public class EnemyAOECastTracker : IEnemyAOECastTracker, IDisposable
     {
         if (objectTable == null) return;
 
-        var seen = new HashSet<ulong>();
+        seenScratch.Clear();
 
         foreach (var obj in objectTable)
         {
@@ -100,7 +99,7 @@ public class EnemyAOECastTracker : IEnemyAOECastTracker, IDisposable
             if (npc.GameObjectId == 0) continue;
 
             var id = npc.GameObjectId;
-            seen.Add(id);
+            seenScratch.Add(id);
 
             var currentCastId = npc.IsCasting ? npc.CastActionId : 0u;
             previousCastActionId.TryGetValue(id, out var prevCastId);
@@ -127,16 +126,18 @@ public class EnemyAOECastTracker : IEnemyAOECastTracker, IDisposable
         }
 
         // Remove tracking state for entities that left the object table
-        var toRemove = new List<ulong>();
+        removeScratch.Clear();
         foreach (var id in previousCastActionId.Keys)
         {
-            if (!seen.Contains(id))
-                toRemove.Add(id);
+            if (!seenScratch.Contains(id))
+                removeScratch.Add(id);
         }
-        foreach (var id in toRemove)
+        foreach (var id in removeScratch)
         {
             previousCastActionId.Remove(id);
-            entries.Remove(id);
+            // Also remove from entries dict and snapshot list
+            if (entries.Remove(id))
+                RemoveFromSnapshot(id);
         }
     }
 
@@ -179,32 +180,58 @@ public class EnemyAOECastTracker : IEnemyAOECastTracker, IDisposable
         if (shape == null)
             return;
 
-        entries[casterId] = new TrackedAOE(
+        var aoe = new TrackedAOE(
             casterId,
             origin,
             rotation,
             shape,
             DateTime.UtcNow.AddSeconds(castTimeRemainingSeconds));
+
+        if (entries.ContainsKey(casterId))
+        {
+            // Update existing entry in-place in the snapshot list (same caster recast).
+            entries[casterId] = aoe;
+            for (var i = 0; i < activeSnapshot.Count; i++)
+            {
+                if (activeSnapshot[i].CasterId == casterId)
+                {
+                    activeSnapshot[i] = aoe;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            entries[casterId] = aoe;
+            activeSnapshot.Add(aoe);
+        }
     }
 
     /// <summary>
     /// Test seam: remove a tracked AoE by caster ID.
     /// </summary>
-    protected internal void HandleCastFinished(ulong casterId) => entries.Remove(casterId);
+    protected internal void HandleCastFinished(ulong casterId)
+    {
+        if (entries.Remove(casterId))
+            RemoveFromSnapshot(casterId);
+    }
 
     /// <summary>
     /// Test seam: remove all entries whose ResolveAt + grace period has passed.
     /// </summary>
     protected internal void PruneStaleEntries(DateTime now)
     {
-        var stale = new List<ulong>();
+        pruneScratch.Clear();
         foreach (var kvp in entries)
         {
             if (kvp.Value.ResolveAt.AddSeconds(StaleGracePeriodSeconds) < now)
-                stale.Add(kvp.Key);
+                pruneScratch.Add(kvp.Key);
         }
-        foreach (var id in stale)
+        foreach (var id in pruneScratch)
+        {
             entries.Remove(id);
+            RemoveFromSnapshot(id);
+        }
     }
 
     /// <summary>
@@ -213,6 +240,14 @@ public class EnemyAOECastTracker : IEnemyAOECastTracker, IDisposable
     protected internal void ClearAll()
     {
         entries.Clear();
+        activeSnapshot.Clear();
         previousCastActionId.Clear();
+    }
+
+    // Removes the entry with the given caster ID from the snapshot list.
+    // Uses RemoveAll to avoid a secondary linear search when the list is small.
+    private void RemoveFromSnapshot(ulong casterId)
+    {
+        activeSnapshot.RemoveAll(a => a.CasterId == casterId);
     }
 }
