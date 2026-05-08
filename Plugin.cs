@@ -25,6 +25,7 @@ using Olympus.Services.Tank;
 using Olympus.Services.Positional;
 using Olympus.Services.Analytics;
 using Olympus.Services.FFLogs;
+using Olympus.Services.Movement;
 using Olympus.Services.Training;
 using Olympus.Timeline;
 using Olympus.Training;
@@ -144,6 +145,9 @@ public sealed class Plugin : IDalamudPlugin
     private readonly Olympus.Services.Consumables.DalamudTinctureCooldownProbe tinctureCooldownProbe;
     private readonly Olympus.Services.Consumables.ConsumableService consumableService;
     private readonly Olympus.Services.Consumables.TinctureDispatcher tinctureDispatcher;
+
+    // Movement subsystem
+    private readonly RMIWalkHookService rmiWalkHookService;
 
     // Error metrics
     private readonly ErrorMetricsService errorMetricsService;
@@ -316,6 +320,10 @@ public sealed class Plugin : IDalamudPlugin
         // Error metrics service (aggregates suppressed errors for debugging)
         this.errorMetricsService = new ErrorMetricsService();
 
+        // Movement subsystem: RMIWalk hook for AoE avoidance input injection.
+        // HookInstalled is false on patch-day sigscan failure; banner surfaces this in config UI.
+        this.rmiWalkHookService = new RMIWalkHookService(gameInteropProvider, log);
+
         // Pull-intent state machine. Driven each frame by Plugin.Update from
         // LocalPlayer.IsCasting + ActionManager.QueuedActionId + InCombat.
         this.pullIntentService = new Olympus.Services.Pull.PullIntentService();
@@ -377,7 +385,7 @@ public sealed class Plugin : IDalamudPlugin
         this.drawingService = new DrawingService(pluginInterface, configuration.DrawHelper, log);
         this.drawCanvas = new DrawCanvas(drawingService, configuration, objectTable, clientState, targetManager, gameGui, positionalService, rotationManager);
         this.updateCheckerService = new UpdateCheckerService(PluginVersion, notificationManager, log);
-        this.configWindow = new ConfigWindow(configuration, SaveConfiguration, updateCheckerService, textureProvider);
+        this.configWindow = new ConfigWindow(configuration, SaveConfiguration, updateCheckerService, textureProvider, rmiWalkHookService);
         this.mainWindow = new MainWindow(configuration, SaveConfiguration, OpenConfigUI, OpenDebugUI, OpenAnalyticsUI, OpenTrainingUI, OpenChangelogUI, OpenOverlayUI, PluginVersion, rotationManager, textureProvider);
         var smartAoETab = new SmartAoETab(aoeTracker, drawCanvas, objectTable);
         this.debugWindow = new DebugWindow(debugService, configuration, timelineService, smartAoETab);
@@ -803,6 +811,7 @@ public sealed class Plugin : IDalamudPlugin
         // Dispose container-registered services (e.g., CombatEventService)
         serviceContainer?.Dispose();
 
+        rmiWalkHookService.Dispose();
         performanceTracker.Dispose();
         drawingService.Dispose();
         localization.Dispose();

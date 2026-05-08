@@ -8,6 +8,7 @@ using Dalamud.Utility;
 using Olympus.Config;
 using Olympus.Localization;
 using Olympus.Services;
+using Olympus.Services.Movement;
 using Olympus.Windows.Config;
 using Olympus.Windows.Config.DPS;
 using Olympus.Windows.Config.Healers;
@@ -72,9 +73,10 @@ public sealed class ConfigWindow : Window
     private readonly TimelineSection timelineSection;
     private readonly PartyCoordinationSection partyCoordinationSection;
     private readonly ConsumablesSection consumablesSection;
+    private readonly MovementSection movementSection;
     private readonly DebugDisplaySection debugDisplaySection;
 
-    public ConfigWindow(Configuration configuration, Action saveConfiguration, UpdateCheckerService updateCheckerService, ITextureProvider textureProvider)
+    public ConfigWindow(Configuration configuration, Action saveConfiguration, UpdateCheckerService updateCheckerService, ITextureProvider textureProvider, IRMIWalkHookService hookService)
         : base(Loc.T(LocalizedStrings.Config.WindowTitle, "Olympus Settings"), ImGuiWindowFlags.NoCollapse)
     {
         this.configuration = configuration;
@@ -118,6 +120,7 @@ public sealed class ConfigWindow : Window
         timelineSection = new TimelineSection(configuration, saveConfiguration);
         partyCoordinationSection = new PartyCoordinationSection(configuration, saveConfiguration);
         consumablesSection = new ConsumablesSection(configuration, saveConfiguration);
+        movementSection = new MovementSection(configuration, saveConfiguration, hookService);
         debugDisplaySection = new DebugDisplaySection(configuration, saveConfiguration);
 
         Size = new Vector2(650, 700);
@@ -285,6 +288,10 @@ public sealed class ConfigWindow : Window
 
             case ConfigSection.Consumables:
                 consumablesSection.Draw();
+                break;
+
+            case ConfigSection.Movement:
+                movementSection.Draw();
                 break;
 
             case ConfigSection.HealerShared:

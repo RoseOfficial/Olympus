@@ -123,6 +123,7 @@ public sealed class SettingRegistry
             ConfigSection.RedMage => Loc.T(LocalizedStrings.Sidebar.RedMage, "Red Mage"),
             ConfigSection.Pictomancer => Loc.T(LocalizedStrings.Sidebar.Pictomancer, "Pictomancer"),
             ConfigSection.Timeline => Loc.T(LocalizedStrings.Sidebar.Timeline, "Timeline"),
+            ConfigSection.Movement => Loc.T(LocalizedStrings.Movement.MovementHeader, "Movement"),
             _ => section.ToString()
         };
     }
@@ -158,6 +159,24 @@ public sealed class SettingRegistry
             new("Rescue", "Enable Rescue to pull party members"),
             new("Esuna", "Enable Esuna to cleanse debuffs"),
             new("Raise", "Enable resurrection spells")
+        };
+
+        // Movement section
+        this.sectionSettings[ConfigSection.Movement] = new List<SettingInfo>
+        {
+            new("Enable trash AoE avoidance", "Trash mobs only, suspended during boss fights and high-end content"),
+            new("Reaction delay", "Min/max ms before stepping out of an AoE"),
+            new("Arrival tolerance", "Min/max yalms considered on-target"),
+            new("Inter-cast pause", "Min/max ms pause between move segments"),
+            new("Directional noise", "Random heading variation in degrees"),
+            new("Walk vs sprint threshold", "Distance in seconds below which bot walks instead of sprinting"),
+            new("Max threat range", "Ignore AoEs originating beyond this range"),
+            new("Boss-class ranks", "Enemy ranks treated as bosses (avoidance suspended)"),
+            new("Enable auto-interact", "Automatically interact with coffers and other world objects"),
+            new("Object kinds", "Treasure, EventObj, EventNpc, GatheringPoint"),
+            new("Interact range", "Distance in yalms to approach interactable objects"),
+            new("Interact cooldown", "Seconds between interact attempts per object"),
+            new("Allow in combat", "Permit auto-interact while in combat")
         };
 
         // White Mage section
