@@ -23,7 +23,15 @@ public sealed unsafe class RMIWalkHookService : IRMIWalkHookService
     private delegate void RMIWalkDelegate(MoveControllerSubMemberForMine* self, float* sumLeft, float* sumForward, float* sumTurnLeft, byte* haveBackwardOrStrafe, byte* a6, byte bAdditiveUnk);
     private Hook<RMIWalkDelegate>? rmiWalkHook;
 
-    public Vector3? DesiredInputVector { get; set; }
+    private readonly object inputLock = new();
+    private Vector3? desiredInputVector;
+
+    public Vector3? DesiredInputVector
+    {
+        get { lock (inputLock) return desiredInputVector; }
+        set { lock (inputLock) desiredInputVector = value; }
+    }
+
     public bool HookInstalled { get; private set; }
 
     public RMIWalkHookService(IGameInteropProvider interopProvider, IPluginLog log)
@@ -60,21 +68,35 @@ public sealed unsafe class RMIWalkHookService : IRMIWalkHookService
 
     private void RMIWalkDetour(MoveControllerSubMemberForMine* self, float* sumLeft, float* sumForward, float* sumTurnLeft, byte* haveBackwardOrStrafe, byte* a6, byte bAdditiveUnk)
     {
+        // Additive passes (follow-path, misdirection, gamepad layer) must not be overridden.
+        if (bAdditiveUnk != 0)
+        {
+            rmiWalkHook!.Original(self, sumLeft, sumForward, sumTurnLeft, haveBackwardOrStrafe, a6, bAdditiveUnk);
+            return;
+        }
+
         // Always call original first so the game populates input fields with the player's actual input.
         rmiWalkHook!.Original(self, sumLeft, sumForward, sumTurnLeft, haveBackwardOrStrafe, a6, bAdditiveUnk);
 
         var hasUserInput = (*sumLeft != 0f) || (*sumForward != 0f) || (*sumTurnLeft != 0f);
         if (hasUserInput)
         {
-            lastUserInputAt = DateTime.UtcNow;
+            lock (inputLock) lastUserInputAt = DateTime.UtcNow;
             return;
         }
 
         // Within 200ms of last user input, still yield (avoid tap-and-stop oscillation).
-        if ((DateTime.UtcNow - lastUserInputAt).TotalMilliseconds < UserInputDampenerMs)
+        Vector3? v;
+        DateTime lastInput;
+        lock (inputLock)
+        {
+            v = desiredInputVector;
+            lastInput = lastUserInputAt;
+        }
+
+        if ((DateTime.UtcNow - lastInput).TotalMilliseconds < UserInputDampenerMs)
             return;
 
-        var v = DesiredInputVector;
         if (v == null) return;
 
         *sumForward = v.Value.X;
