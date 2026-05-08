@@ -237,6 +237,29 @@ public static class LocalizedStrings
         public const string WarnOnEmptyInventoryDesc = "Config.Consumables.WarnOnEmptyInventory.Desc";
     }
 
+    /// <summary>Keys for movement config section (AoE avoidance and auto-interact).</summary>
+    public static class Movement
+    {
+        public const string MovementHeader = "movement.header";
+        public const string HookUnavailableBanner = "movement.hook_unavailable";
+        public const string EnableTrashAoEAvoidance = "movement.enable_avoidance";
+        public const string EnableTrashAoEAvoidanceDesc = "movement.enable_avoidance_desc";
+        public const string EnableAutoInteract = "movement.enable_interact";
+        public const string EnableAutoInteractDesc = "movement.enable_interact_desc";
+        public const string ReactionDelayLabel = "movement.reaction_delay";
+        public const string ArrivalToleranceLabel = "movement.arrival_tolerance";
+        public const string InterCastPauseLabel = "movement.intercast_pause";
+        public const string DirectionalNoiseLabel = "movement.noise";
+        public const string WalkVsSprintLabel = "movement.walk_sprint";
+        public const string MaxThreatRangeLabel = "movement.threat_range";
+        public const string BossRanksLabel = "movement.boss_ranks";
+        public const string OverrideListLabel = "movement.override_list";
+        public const string InteractKindsLabel = "movement.interact_kinds";
+        public const string InteractRangeLabel = "movement.interact_range";
+        public const string InteractCooldownLabel = "movement.interact_cooldown";
+        public const string InteractInCombatLabel = "movement.interact_in_combat";
+    }
+
     /// <summary>Keys for role action settings section.</summary>
     public static class RoleActions
     {

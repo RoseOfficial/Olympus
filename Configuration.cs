@@ -100,6 +100,9 @@ public sealed class Configuration : IPluginConfiguration
     // Consumable automation (combat tinctures)
     public ConsumablesConfig Consumables { get; set; } = new();
 
+    // Movement subsystem (AoE avoidance, auto-interact)
+    public MovementConfig Movement { get; set; } = new();
+
     // Role-specific configuration - Tanks
     public TankConfig Tank { get; set; } = new();
 

@@ -46,6 +46,7 @@ public static class ConfigValidator
         ValidateTankSettings(config.Tank, issues);
         ValidatePartyCoordinationSettings(config.PartyCoordination, issues);
         ValidateDpsSettings(config, issues);
+        ValidateMovement(config.Movement);
 
         return issues;
     }
@@ -538,6 +539,43 @@ public static class ConfigValidator
                 SuggestedFix = "Set the early threshold to 2-4 seconds to use Pitch Perfect before the song ends."
             });
         }
+    }
+
+    /// <summary>
+    /// Validates and clamps MovementConfig fields to coherent ranges.
+    /// This mutates the config directly rather than adding issues — the values are
+    /// straightforward numeric bounds with no player-visible trade-off to flag.
+    /// </summary>
+    public static void ValidateMovement(MovementConfig cfg)
+    {
+        if (cfg.ReactionDelayMaxMs < cfg.ReactionDelayMinMs)
+            cfg.ReactionDelayMaxMs = cfg.ReactionDelayMinMs;
+        if (cfg.ArrivalToleranceMaxYalms < cfg.ArrivalToleranceMinYalms)
+            cfg.ArrivalToleranceMaxYalms = cfg.ArrivalToleranceMinYalms;
+        if (cfg.InterCastPauseMaxMs < cfg.InterCastPauseMinMs)
+            cfg.InterCastPauseMaxMs = cfg.InterCastPauseMinMs;
+
+        cfg.ReactionDelayMinMs = System.Math.Max(0, cfg.ReactionDelayMinMs);
+        cfg.ArrivalToleranceMinYalms = System.Math.Max(0f, cfg.ArrivalToleranceMinYalms);
+        cfg.InterCastPauseMinMs = System.Math.Max(0, cfg.InterCastPauseMinMs);
+        cfg.DirectionalNoiseDegrees = System.Math.Clamp(cfg.DirectionalNoiseDegrees, 0f, 30f);
+        cfg.WalkVsSprintThresholdSeconds = System.Math.Max(0.1f, cfg.WalkVsSprintThresholdSeconds);
+        cfg.MaxThreatRangeYalms = System.Math.Max(1f, cfg.MaxThreatRangeYalms);
+        cfg.RaycastBudgetPerFrame = System.Math.Max(1, cfg.RaycastBudgetPerFrame);
+
+        if (cfg.BossRanks.Count == 0)
+        {
+            cfg.BossRanks.Add(4);
+            cfg.BossRanks.Add(6);
+        }
+
+        cfg.InteractAllowedKinds.RemoveWhere(kind =>
+            kind == Dalamud.Game.ClientState.Objects.Enums.ObjectKind.Pc ||
+            kind == Dalamud.Game.ClientState.Objects.Enums.ObjectKind.BattleNpc ||
+            kind == Dalamud.Game.ClientState.Objects.Enums.ObjectKind.Cutscene);
+
+        cfg.InteractRangeYalms = System.Math.Clamp(cfg.InteractRangeYalms, 0.5f, 10f);
+        cfg.InteractCooldownSeconds = System.Math.Clamp(cfg.InteractCooldownSeconds, 0.1f, 30f);
     }
 
     /// <summary>
