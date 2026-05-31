@@ -27,14 +27,14 @@
     "ApplicableVersion": "any",
     "CategoryTags": ["utility", "social"],
     "RepoUrl": "https://github.com/RoseOfficial/Memoria",
-    "AssemblyVersion": "1.0.0.0",
+    "AssemblyVersion": "1.2.0.0",
     "DalamudApiLevel": 15,
     "IconUrl": "https://raw.githubusercontent.com/RoseOfficial/Memoria/main/icon.png",
     "ImageUrls": [],
     "IsHide": false,
     "IsTestingExclusive": false,
-    "DownloadLinkInstall": "https://github.com/RoseOfficial/Memoria/releases/download/v1.0.0/latest.zip",
-    "DownloadLinkTesting": "https://github.com/RoseOfficial/Memoria/releases/download/v1.0.0/latest.zip",
-    "DownloadLinkUpdate": "https://github.com/RoseOfficial/Memoria/releases/download/v1.0.0/latest.zip"
+    "DownloadLinkInstall": "https://github.com/RoseOfficial/Memoria/releases/download/v1.2.0/latest.zip",
+    "DownloadLinkTesting": "https://github.com/RoseOfficial/Memoria/releases/download/v1.2.0/latest.zip",
+    "DownloadLinkUpdate": "https://github.com/RoseOfficial/Memoria/releases/download/v1.2.0/latest.zip"
   }
 ]
