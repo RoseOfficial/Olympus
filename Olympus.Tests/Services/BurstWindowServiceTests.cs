@@ -213,14 +213,17 @@ public class BurstWindowServiceTests
     public void CastEvent_RaidBuffFromSelf_OpensBurstWindow()
     {
         var (service, combatEvents) = BuildWithCastEvents(localPlayerEntityId: 100U);
+        var player = new Mock<IPlayerCharacter>();
 
         combatEvents.Raise(
             x => x.OnAbilityUsed += null,
             100U, // self
             DRGActions.BattleLitany.ActionId);
+        // Cast-event signal is merged into burst state on the next frame update.
+        service.Update(player.Object);
 
         Assert.True(service.IsInBurstWindow);
-        Assert.Equal(20f, service.SecondsRemainingInBurst);
+        Assert.InRange(service.SecondsRemainingInBurst, 19f, 20f);
     }
 
     [Fact]
@@ -252,31 +255,39 @@ public class BurstWindowServiceTests
     public void CastEvent_MultipleRaidBuffs_ExtendsToMaxDuration()
     {
         var (service, combatEvents) = BuildWithCastEvents();
+        var player = new Mock<IPlayerCharacter>();
 
         // BattleVoice = 15s
         combatEvents.Raise(x => x.OnAbilityUsed += null, 100U, BRDActions.BattleVoice.ActionId);
-        Assert.Equal(15f, service.SecondsRemainingInBurst);
+        service.Update(player.Object);
+        Assert.InRange(service.SecondsRemainingInBurst, 14f, 15f);
 
         // BattleLitany = 20s, longer → should extend
         combatEvents.Raise(x => x.OnAbilityUsed += null, 100U, DRGActions.BattleLitany.ActionId);
-        Assert.Equal(20f, service.SecondsRemainingInBurst);
+        service.Update(player.Object);
+        Assert.InRange(service.SecondsRemainingInBurst, 19f, 20f);
 
         // BattleVoice again, shorter → should NOT shrink the window
         combatEvents.Raise(x => x.OnAbilityUsed += null, 100U, BRDActions.BattleVoice.ActionId);
-        Assert.Equal(20f, service.SecondsRemainingInBurst);
+        service.Update(player.Object);
+        Assert.InRange(service.SecondsRemainingInBurst, 19f, 20f);
     }
 
     [Fact]
     public void CastEvent_BurstHistoryRecordsWindowStart()
     {
         var (service, combatEvents) = BuildWithCastEvents();
+        var player = new Mock<IPlayerCharacter>();
 
         Assert.Empty(service.BurstWindowHistory);
 
         combatEvents.Raise(x => x.OnAbilityUsed += null, 100U, DRGActions.BattleLitany.ActionId);
+        service.Update(player.Object);
 
         Assert.True(service.IsInBurstWindow);
-        // History only records on Update() once the window ends; cast event opens but doesn't close.
+        // History only records once the window actually ends; an open cast-event window
+        // must not append an entry (regression guard for the near-zero-duration bug).
+        Assert.Empty(service.BurstWindowHistory);
     }
 
     [Fact]

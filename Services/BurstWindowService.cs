@@ -68,6 +68,11 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
     // Tracks when the most recent burst window ended for timer-based prediction
     private DateTime? _lastBurstWindowEnd;
 
+    // Cast-event early-detection expiry: set when a party member's coordinated raid buff
+    // resolves, holds the burst window open across the 50-200ms status propagation delay
+    // before the local status list reflects the buff.
+    private DateTime? _castEventBurstExpiry;
+
     // Burst window history tracking
     private readonly List<(DateTime Start, DateTime End)> _burstWindowHistory = new();
     private DateTime _currentWindowStart;
@@ -111,15 +116,9 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
             return;
 
         var duration = CoordinatedRaidBuffs.GetBuffDuration(actionId);
-
-        if (!_isInBurstWindow)
-        {
-            _isInBurstWindow = true;
-            _currentWindowStart = DateTime.UtcNow;
-            _wasInBurst = true;
-        }
-        if (duration > _secondsRemainingInBurst)
-            _secondsRemainingInBurst = duration;
+        var expiry = DateTime.UtcNow.AddSeconds(duration);
+        if (!_castEventBurstExpiry.HasValue || expiry > _castEventBurstExpiry.Value)
+            _castEventBurstExpiry = expiry;
     }
 
     private bool IsCasterInParty(uint casterEntityId)
@@ -189,17 +188,20 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
     public void Update(IPlayerCharacter player, IBattleChara? currentTarget = null)
     {
         // Scan player status list for active party raid buffs
-        _isInBurstWindow = false;
-        _secondsRemainingInBurst = 0f;
+        var scanActive = false;
+        var scanRemaining = 0f;
 
-        foreach (var status in player.StatusList)
+        if (player.StatusList != null)
         {
-            if (!RaidBuffStatusIds.Contains(status.StatusId))
-                continue;
+            foreach (var status in player.StatusList)
+            {
+                if (!RaidBuffStatusIds.Contains(status.StatusId))
+                    continue;
 
-            _isInBurstWindow = true;
-            if (status.RemainingTime > _secondsRemainingInBurst)
-                _secondsRemainingInBurst = status.RemainingTime;
+                scanActive = true;
+                if (status.RemainingTime > scanRemaining)
+                    scanRemaining = status.RemainingTime;
+            }
         }
 
         // Scan current target for raid debuffs (Chain Stratagem, Dokumori, VulnerabilityUp)
@@ -210,28 +212,51 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
                 if (!RaidDebuffStatusIds.Contains(status.StatusId))
                     continue;
 
-                _isInBurstWindow = true;
-                if (status.RemainingTime > _secondsRemainingInBurst)
-                    _secondsRemainingInBurst = status.RemainingTime;
+                scanActive = true;
+                if (status.RemainingTime > scanRemaining)
+                    scanRemaining = status.RemainingTime;
             }
         }
 
         // Also check IPC burst state (multi-instance scenario)
-        if (!_isInBurstWindow && _partyCoordinationService?.IsInBurstWindow() == true)
+        if (!scanActive && _partyCoordinationService?.IsInBurstWindow() == true)
         {
-            _isInBurstWindow = true;
-            _secondsRemainingInBurst = _partyCoordinationService?.GetBurstWindowRemaining() ?? 0f;
+            scanActive = true;
+            scanRemaining = _partyCoordinationService?.GetBurstWindowRemaining() ?? 0f;
         }
+
+        // Cast-event early detection: keep the burst window open until the signal expires,
+        // covering the 50-200ms status propagation delay after a party member's buff resolves.
+        var now = DateTime.UtcNow;
+        var castEventRemaining = 0f;
+        if (_castEventBurstExpiry.HasValue)
+        {
+            var remaining = (float)(_castEventBurstExpiry.Value - now).TotalSeconds;
+            if (remaining > 0f)
+            {
+                castEventRemaining = remaining;
+                // Status scan has taken over with authoritative data; release the cast-event expiry.
+                if (scanActive && scanRemaining >= remaining)
+                    _castEventBurstExpiry = null;
+            }
+            else
+            {
+                _castEventBurstExpiry = null;
+            }
+        }
+
+        _isInBurstWindow = scanActive || castEventRemaining > 0f;
+        _secondsRemainingInBurst = Math.Max(scanRemaining, castEventRemaining);
 
         // Record when the burst window ends for timer-based cycle prediction
         if (_wasInBurst && !_isInBurstWindow)
-            _lastBurstWindowEnd = DateTime.UtcNow;
+            _lastBurstWindowEnd = now;
 
         // Track burst window history transitions
         if (_isInBurstWindow && !_wasInBurst)
-            _currentWindowStart = DateTime.UtcNow;
+            _currentWindowStart = now;
         else if (!_isInBurstWindow && _wasInBurst)
-            _burstWindowHistory.Add((_currentWindowStart, DateTime.UtcNow));
+            _burstWindowHistory.Add((_currentWindowStart, now));
         _wasInBurst = _isInBurstWindow;
     }
 
@@ -239,6 +264,7 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
     {
         _burstWindowHistory.Clear();
         _wasInBurst = false;
+        _castEventBurstExpiry = null;
     }
 
     #endregion
