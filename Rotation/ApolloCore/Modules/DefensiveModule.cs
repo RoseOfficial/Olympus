@@ -9,6 +9,7 @@ using Olympus.Rotation.ApolloCore.Context;
 using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Rotation.Common.Scheduling;
+using Olympus.Services;
 using Olympus.Services.Party;
 using Olympus.Services.Training;
 
@@ -165,7 +166,7 @@ public sealed class DefensiveModule : IApolloModule
             }
         }
 
-        var actionManager = ActionManager.Instance();
+        var actionManager = SafeGameAccess.GetActionManager();
         if (actionManager is not null)
         {
             var status = actionManager->GetActionStatus(ActionType.Action, WHMActions.Temperance.ActionId);
