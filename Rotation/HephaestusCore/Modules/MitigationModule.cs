@@ -216,7 +216,7 @@ public sealed class MitigationModule : IHephaestusModule
         var castTimeMs = (int)remainingCastTime;
         var targetId = target.EntityId;
 
-        if (level >= RoleActions.Interject.MinLevel)
+        if (level >= RoleActions.Interject.MinLevel && context.Configuration.Tank.EnableInterject)
         {
             if (coordConfig.EnableInterruptCoordination)
             {
@@ -237,7 +237,7 @@ public sealed class MitigationModule : IHephaestusModule
                     context.Debug.MitigationState = "Interrupted cast";
                 });
         }
-        else if (level >= RoleActions.LowBlow.MinLevel)
+        else if (level >= RoleActions.LowBlow.MinLevel && context.Configuration.Tank.EnableLowBlow)
         {
             if (coordConfig.EnableInterruptCoordination)
             {

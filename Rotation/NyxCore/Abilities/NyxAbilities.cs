@@ -70,8 +70,8 @@ public static class NyxAbilities
     public static readonly AbilityBehavior Rampart = new() { Action = RoleActions.Rampart };
     public static readonly AbilityBehavior Reprisal = new() { Action = RoleActions.Reprisal, Toggle = cfg => cfg.Tank.EnableReprisal };
     public static readonly AbilityBehavior ArmsLength = new() { Action = RoleActions.ArmsLength, Toggle = cfg => cfg.Tank.EnableArmsLength };
-    public static readonly AbilityBehavior Interject = new() { Action = RoleActions.Interject, Toggle = cfg => cfg.Tank.EnableInterject };
-    public static readonly AbilityBehavior LowBlow = new() { Action = RoleActions.LowBlow, Toggle = cfg => cfg.Tank.EnableLowBlow };
+    public static readonly AbilityBehavior Interject = new() { Action = RoleActions.Interject };
+    public static readonly AbilityBehavior LowBlow = new() { Action = RoleActions.LowBlow };
     public static readonly AbilityBehavior Provoke = new() { Action = RoleActions.Provoke };
     public static readonly AbilityBehavior Shirk = new() { Action = RoleActions.Shirk };
 }

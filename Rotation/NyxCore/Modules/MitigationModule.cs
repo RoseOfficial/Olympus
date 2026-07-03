@@ -70,7 +70,7 @@ public sealed class MitigationModule : INyxModule
         var castTimeMs = (int)((target.TotalCastTime - target.CurrentCastTime) * 1000f);
         var targetName = target.Name?.TextValue;
 
-        if (context.ActionService.IsActionReady(RoleActions.Interject.ActionId))
+        if (context.Configuration.Tank.EnableInterject && context.ActionService.IsActionReady(RoleActions.Interject.ActionId))
         {
             if (coordConfig.EnableInterruptCoordination &&
                 !(partyCoord?.ReserveInterruptTarget(targetId, RoleActions.Interject.ActionId, castTimeMs) ?? false))
@@ -96,7 +96,7 @@ public sealed class MitigationModule : INyxModule
             return;
         }
 
-        if (player.Level >= 12 && context.ActionService.IsActionReady(RoleActions.LowBlow.ActionId))
+        if (context.Configuration.Tank.EnableLowBlow && player.Level >= 12 && context.ActionService.IsActionReady(RoleActions.LowBlow.ActionId))
         {
             if (coordConfig.EnableInterruptCoordination &&
                 !(partyCoord?.ReserveInterruptTarget(targetId, RoleActions.LowBlow.ActionId, castTimeMs) ?? false))

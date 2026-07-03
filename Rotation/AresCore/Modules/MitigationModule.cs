@@ -83,7 +83,7 @@ public sealed class MitigationModule : IAresModule
         var castTimeMs = (int)remainingCastTime;
         var targetName = target.Name?.TextValue;
 
-        if (context.ActionService.IsActionReady(RoleActions.Interject.ActionId))
+        if (context.Configuration.Tank.EnableInterject && context.ActionService.IsActionReady(RoleActions.Interject.ActionId))
         {
             if (coordConfig.EnableInterruptCoordination)
             {
@@ -113,7 +113,7 @@ public sealed class MitigationModule : IAresModule
             return;
         }
 
-        if (player.Level >= 12 && context.ActionService.IsActionReady(RoleActions.LowBlow.ActionId))
+        if (context.Configuration.Tank.EnableLowBlow && player.Level >= 12 && context.ActionService.IsActionReady(RoleActions.LowBlow.ActionId))
         {
             if (coordConfig.EnableInterruptCoordination)
             {

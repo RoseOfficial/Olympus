@@ -248,13 +248,11 @@ public static class ThemisAbilities
     public static readonly AbilityBehavior Interject = new()
     {
         Action = RoleActions.Interject,
-        Toggle = cfg => cfg.Tank.EnableInterject,
     };
 
     public static readonly AbilityBehavior LowBlow = new()
     {
         Action = RoleActions.LowBlow,
-        Toggle = cfg => cfg.Tank.EnableLowBlow,
     };
 
     public static readonly AbilityBehavior Provoke = new()
