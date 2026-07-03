@@ -67,6 +67,18 @@ public static class TimelineZoneMapping
         // Abyssos: The Eighth Circle (Savage) - Hephaistos
         [1088] = new ZoneInfo("p8s", "Abyssos: The Eighth Circle (Savage)", "Olympus.Timeline.Data.p8s.txt"),
 
+        // Anabaseios: The Ninth Circle (Savage) - Kokytos
+        [1148] = new ZoneInfo("p9s", "Anabaseios: The Ninth Circle (Savage)", "Olympus.Timeline.Data.p9s.txt"),
+
+        // Anabaseios: The Tenth Circle (Savage) - Pandaemonium
+        [1150] = new ZoneInfo("p10s", "Anabaseios: The Tenth Circle (Savage)", "Olympus.Timeline.Data.p10s.txt"),
+
+        // Anabaseios: The Eleventh Circle (Savage) - Themis
+        [1152] = new ZoneInfo("p11s", "Anabaseios: The Eleventh Circle (Savage)", "Olympus.Timeline.Data.p11s.txt"),
+
+        // Anabaseios: The Twelfth Circle (Savage) - Pallas Athena
+        [1154] = new ZoneInfo("p12s", "Anabaseios: The Twelfth Circle (Savage)", "Olympus.Timeline.Data.p12s.txt"),
+
         // Arcadion Savage (Dawntrail)
         // AAC Light-heavyweight M1 (Savage) - Black Cat
         [1226] = new ZoneInfo("r1s", "AAC Light-heavyweight M1 (Savage)", "Olympus.Timeline.Data.r1s.txt"),
@@ -79,6 +91,32 @@ public static class TimelineZoneMapping
 
         // AAC Light-heavyweight M4 (Savage) - Wicked Thunder
         [1232] = new ZoneInfo("r4s", "AAC Light-heavyweight M4 (Savage)", "Olympus.Timeline.Data.r4s.txt"),
+
+        // AAC Cruiserweight Savage (Dawntrail)
+        // AAC Cruiserweight M1 (Savage) - Dancing Green
+        [1257] = new ZoneInfo("r5s", "AAC Cruiserweight M1 (Savage)", "Olympus.Timeline.Data.r5s.txt"),
+
+        // AAC Cruiserweight M2 (Savage) - Sugar Riot
+        [1259] = new ZoneInfo("r6s", "AAC Cruiserweight M2 (Savage)", "Olympus.Timeline.Data.r6s.txt"),
+
+        // AAC Cruiserweight M3 (Savage) - Brute Abombinator
+        [1261] = new ZoneInfo("r7s", "AAC Cruiserweight M3 (Savage)", "Olympus.Timeline.Data.r7s.txt"),
+
+        // AAC Cruiserweight M4 (Savage) - Howling Blade
+        [1263] = new ZoneInfo("r8s", "AAC Cruiserweight M4 (Savage)", "Olympus.Timeline.Data.r8s.txt"),
+
+        // AAC Heavyweight Savage (Dawntrail)
+        // AAC Heavyweight M1 (Savage) - Vamp Fatale
+        [1321] = new ZoneInfo("r9s", "AAC Heavyweight M1 (Savage)", "Olympus.Timeline.Data.r9s.txt"),
+
+        // AAC Heavyweight M2 (Savage) - Red Hot
+        [1323] = new ZoneInfo("r10s", "AAC Heavyweight M2 (Savage)", "Olympus.Timeline.Data.r10s.txt"),
+
+        // AAC Heavyweight M3 (Savage) - The Tyrant
+        [1325] = new ZoneInfo("r11s", "AAC Heavyweight M3 (Savage)", "Olympus.Timeline.Data.r11s.txt"),
+
+        // AAC Heavyweight M4 (Savage) - Lindwurm
+        [1327] = new ZoneInfo("r12s", "AAC Heavyweight M4 (Savage)", "Olympus.Timeline.Data.r12s.txt"),
 
         // Ultimate Raids
         // The Unending Coil of Bahamut (Ultimate) - UCoB
