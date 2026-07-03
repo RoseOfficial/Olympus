@@ -56,7 +56,6 @@ public abstract class BaseHealerContext : IHealerRotationContext
     #region Healer Services
 
     public IHealingSpellSelector HealingSpellSelector { get; }
-    public IPartyAnalyzer? PartyAnalyzer { get; }
     public ICooldownPlanner CooldownPlanner { get; }
 
     #endregion
@@ -157,7 +156,6 @@ public abstract class BaseHealerContext : IHealerRotationContext
         ICoHealerDetectionService? coHealerDetectionService = null,
         IBossMechanicDetector? bossMechanicDetector = null,
         IShieldTrackingService? shieldTrackingService = null,
-        IPartyAnalyzer? partyAnalyzer = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITimelineService? timelineService = null,
         ITrainingService? trainingService = null,
@@ -187,7 +185,6 @@ public abstract class BaseHealerContext : IHealerRotationContext
         CoHealerDetectionService = coHealerDetectionService;
         BossMechanicDetector = bossMechanicDetector;
         ShieldTrackingService = shieldTrackingService;
-        PartyAnalyzer = partyAnalyzer;
         PartyCoordinationService = partyCoordinationService;
         TimelineService = timelineService;
         TrainingService = trainingService;

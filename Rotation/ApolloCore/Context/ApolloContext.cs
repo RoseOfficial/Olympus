@@ -92,7 +92,6 @@ public sealed class ApolloContext : BaseHealerContext, IApolloContext
                objectTable, partyList, playerStatsService, targetingService,
                healingSpellSelector, cooldownPlanner,
                coHealerDetectionService, bossMechanicDetector, shieldTrackingService,
-               partyAnalyzer: null,
                partyCoordinationService, timelineService, trainingService, log)
     {
         StatusHelper = statusHelper;

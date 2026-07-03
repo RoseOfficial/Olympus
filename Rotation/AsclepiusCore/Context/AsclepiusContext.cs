@@ -123,7 +123,6 @@ public sealed class AsclepiusContext : BaseHealerContext, IAsclepiusContext
                objectTable, partyList, playerStatsService, targetingService,
                healingSpellSelector, cooldownPlanner,
                coHealerDetectionService, bossMechanicDetector, shieldTrackingService,
-               partyAnalyzer: null,
                partyCoordinationService, timelineService, trainingService, log)
     {
         AddersgallService = addersgallService;

@@ -88,7 +88,6 @@ public sealed class AthenaContext : BaseHealerContext, IAthenaContext
         ICooldownPlanner cooldownPlanner,
         IHealingSpellSelector healingSpellSelector,
         ICoHealerDetectionService? coHealerDetectionService = null,
-        IPartyAnalyzer? partyAnalyzer = null,
         IBossMechanicDetector? bossMechanicDetector = null,
         IShieldTrackingService? shieldTrackingService = null,
         IPartyCoordinationService? partyCoordinationService = null,
@@ -102,7 +101,6 @@ public sealed class AthenaContext : BaseHealerContext, IAthenaContext
                objectTable, partyList, playerStatsService, targetingService,
                healingSpellSelector, cooldownPlanner,
                coHealerDetectionService, bossMechanicDetector, shieldTrackingService,
-               partyAnalyzer,
                partyCoordinationService, timelineService, trainingService, log)
     {
         AetherflowService = aetherflowService;

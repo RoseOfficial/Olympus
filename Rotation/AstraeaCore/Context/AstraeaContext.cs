@@ -122,7 +122,6 @@ public sealed class AstraeaContext : BaseHealerContext, IAstraeaContext
         ICoHealerDetectionService? coHealerDetectionService = null,
         IBossMechanicDetector? bossMechanicDetector = null,
         IShieldTrackingService? shieldTrackingService = null,
-        IPartyAnalyzer? partyAnalyzer = null,
         IPartyCoordinationService? partyCoordinationService = null,
         ITimelineService? timelineService = null,
         ITrainingService? trainingService = null,
@@ -134,7 +133,6 @@ public sealed class AstraeaContext : BaseHealerContext, IAstraeaContext
                objectTable, partyList, playerStatsService, targetingService,
                healingSpellSelector, cooldownPlanner,
                coHealerDetectionService, bossMechanicDetector, shieldTrackingService,
-               partyAnalyzer,
                partyCoordinationService, timelineService, trainingService, log)
     {
         CardService = cardService;

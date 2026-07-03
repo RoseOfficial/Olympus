@@ -173,11 +173,6 @@ public interface IHealerRotationContext : IRotationContext
     IHealingSpellSelector HealingSpellSelector { get; }
 
     /// <summary>
-    /// Service for analyzing party health and finding heal targets.
-    /// </summary>
-    IPartyAnalyzer? PartyAnalyzer { get; }
-
-    /// <summary>
     /// Service for cooldown planning decisions (defensive cooldowns, resource management).
     /// </summary>
     ICooldownPlanner CooldownPlanner { get; }
