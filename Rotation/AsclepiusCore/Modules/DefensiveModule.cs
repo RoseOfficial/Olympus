@@ -93,7 +93,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAsclepiusContext>, IA
         var partyCoord = context.PartyCoordinationService;
         var coordConfig = context.Configuration.PartyCoordination;
         if (coordConfig.EnableCooldownCoordination &&
-            partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
+            partyCoord?.WasActionUsedByOther(SGEActions.Panhaima.ActionId, 15f) == true)
         {
             context.Debug.PanhaimaState = "Skipped (remote mit)";
             return;

@@ -66,10 +66,10 @@ public class PartyCoordinationServiceTests
         // Arrange
         var service = CreateService();
 
-        // Temperance (16536) is a party mitigation in CoordinatedCooldowns.PartyMitigations.
+        // Reprisal (7535) is a tank party mitigation in CoordinatedCooldowns.TankPartyMitigations.
         // The message must come from a different instance ID so it is not filtered.
         var remoteInstanceId = Guid.NewGuid();
-        var message = new CooldownUsedMessage(remoteInstanceId, ActionIds.Temperance, recastTimeMs: 120_000);
+        var message = new CooldownUsedMessage(remoteInstanceId, ActionIds.Reprisal, recastTimeMs: 60_000);
 
         // Act
         service.HandleRemoteCooldownUsed(message);

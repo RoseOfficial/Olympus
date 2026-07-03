@@ -9,10 +9,11 @@ namespace Olympus.Data;
 public static class CoordinatedCooldowns
 {
     /// <summary>
-    /// Party-wide mitigation cooldowns that should be coordinated.
-    /// These abilities affect multiple party members and are most effective when staggered.
+    /// Tank party-wide mitigation cooldowns.
+    /// Used by WasPartyMitigationUsedRecently so tank staggering checks do not
+    /// cross-suppress healer defensive cooldowns from a different layer.
     /// </summary>
-    public static readonly HashSet<uint> PartyMitigations = new()
+    public static readonly HashSet<uint> TankPartyMitigations = new()
     {
         // Tank Role Actions
         ActionIds.Reprisal,                 // All tanks - 10% damage reduction to enemies
@@ -29,6 +30,23 @@ public static class CoordinatedCooldowns
 
         // Gunbreaker
         36934,                              // Heart of Light - 10% magic damage reduction
+    };
+
+    /// <summary>
+    /// Party-wide mitigation cooldowns that should be coordinated.
+    /// These abilities affect multiple party members and are most effective when staggered.
+    /// Includes both tank and healer party mits; consumed by IsCoordinatedCooldown so that
+    /// all broadcasts are tracked and accessible via WasActionUsedByOther.
+    /// </summary>
+    public static readonly HashSet<uint> PartyMitigations = new()
+    {
+        // Tank party mitigations (also in TankPartyMitigations)
+        ActionIds.Reprisal,
+        ActionIds.DivineVeil,
+        ActionIds.PassageOfArms,
+        ActionIds.ShakeItOff,
+        36927,                              // Dark Missionary
+        36934,                              // Heart of Light
 
         // White Mage
         ActionIds.Temperance,               // 10% mitigation + healing boost
@@ -169,6 +187,14 @@ public static class CoordinatedCooldowns
     {
         return PartyMitigations.Contains(actionId);
     }
+
+    /// <summary>
+    /// Checks if an action is a tank party mitigation.
+    /// Used by WasPartyMitigationUsedRecently to avoid healer broadcasts
+    /// suppressing tank party-mit staggering (and vice versa).
+    /// </summary>
+    public static bool IsTankPartyMitigation(uint actionId)
+        => TankPartyMitigations.Contains(actionId);
 
     /// <summary>
     /// Gets the default recast time for an action.

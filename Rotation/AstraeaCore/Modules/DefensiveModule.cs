@@ -72,7 +72,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAstraeaContext>, IAst
         var partyCoord = context.PartyCoordinationService;
         var coordConfig = context.Configuration.PartyCoordination;
         if (coordConfig.EnableCooldownCoordination &&
-            partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
+            partyCoord?.WasActionUsedByOther(ASTActions.NeutralSect.ActionId, 30f) == true)
         {
             context.Debug.NeutralSectState = "Skipped (remote mit)";
             return;
@@ -224,7 +224,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAstraeaContext>, IAst
         var partyCoord = context.PartyCoordinationService;
         var coordConfig = context.Configuration.PartyCoordination;
         if (coordConfig.EnableCooldownCoordination &&
-            partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
+            partyCoord?.WasActionUsedByOther(ASTActions.CollectiveUnconscious.ActionId, 15f) == true)
         {
             context.Debug.CollectiveUnconsciousState = "Skipped (remote mit)";
             return;

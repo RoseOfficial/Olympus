@@ -62,7 +62,7 @@ public sealed class DefensiveModule : BaseDefensiveModule<IAthenaContext>, IAthe
         var partyCoord = context.PartyCoordinationService;
         var coordConfig = context.Configuration.PartyCoordination;
         if (coordConfig.EnableCooldownCoordination &&
-            partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
+            partyCoord?.WasActionUsedByOther(SCHActions.Expedient.ActionId, 20f) == true)
         {
             SetDefensiveState(context, "Expedient skipped (remote mit)");
             return;

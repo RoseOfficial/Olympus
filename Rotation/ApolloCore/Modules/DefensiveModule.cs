@@ -147,7 +147,7 @@ public sealed class DefensiveModule : IApolloModule
 
         var partyCoord = context.PartyCoordinationService;
         if (config.PartyCoordination.EnableCooldownCoordination &&
-            partyCoord?.WasPartyMitigationUsedRecently(config.PartyCoordination.CooldownOverlapWindowSeconds) == true)
+            partyCoord?.WasActionUsedByOther(WHMActions.Temperance.ActionId, 20f) == true)
         {
             context.Debug.TemperanceState = "Skipped (remote mit active)";
             return;
@@ -539,7 +539,7 @@ public sealed class DefensiveModule : IApolloModule
 
         var partyCoord = context.PartyCoordinationService;
         if (config.PartyCoordination.EnableCooldownCoordination &&
-            partyCoord?.WasPartyMitigationUsedRecently(config.PartyCoordination.CooldownOverlapWindowSeconds) == true)
+            partyCoord?.WasActionUsedByOther(WHMActions.LiturgyOfTheBell.ActionId, 20f) == true)
         {
             context.Debug.DefensiveState = "Bell skipped (remote mit)";
             return;

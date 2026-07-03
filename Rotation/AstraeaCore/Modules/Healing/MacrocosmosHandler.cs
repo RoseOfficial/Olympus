@@ -50,7 +50,7 @@ public sealed class MacrocosmosHandler : IHealingHandler
         var partyCoord = context.PartyCoordinationService;
         var coordConfig = context.Configuration.PartyCoordination;
         if (coordConfig.EnableCooldownCoordination &&
-            partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
+            partyCoord?.WasActionUsedByOther(ASTActions.Macrocosmos.ActionId, 15f) == true)
         {
             context.Debug.MacrocosmosState = "Skipped (remote mit)";
             return;

@@ -357,8 +357,9 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         {
             foreach (var kvp in _remoteCooldowns)
             {
-                // Only check coordinated cooldowns (should already be filtered, but double-check)
-                if (!CoordinatedCooldowns.IsCoordinatedCooldown(kvp.Key))
+                // Only check tank party mitigations so healer defensive broadcasts do not
+                // cross-suppress tank staggering checks (and vice versa).
+                if (!CoordinatedCooldowns.IsTankPartyMitigation(kvp.Key))
                     continue;
 
                 foreach (var cd in kvp.Value)

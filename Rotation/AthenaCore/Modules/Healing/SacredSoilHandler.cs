@@ -60,7 +60,7 @@ public sealed class SacredSoilHandler : IHealingHandler
         if (membersInRange < config.SacredSoilMinTargets) return;
 
         if (coordConfig.EnableCooldownCoordination &&
-            partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
+            partyCoord?.WasActionUsedByOther(SCHActions.SacredSoil.ActionId, 15f) == true)
         {
             context.Debug.PlanningState = "Sacred Soil skipped (remote mit)";
             return;

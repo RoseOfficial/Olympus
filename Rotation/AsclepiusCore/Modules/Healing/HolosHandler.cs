@@ -30,7 +30,7 @@ public sealed class HolosHandler : IHealingHandler
         var partyCoord = context.PartyCoordinationService;
         var coordConfig = context.Configuration.PartyCoordination;
         if (coordConfig.EnableCooldownCoordination &&
-            partyCoord?.WasPartyMitigationUsedRecently(coordConfig.CooldownOverlapWindowSeconds) == true)
+            partyCoord?.WasActionUsedByOther(SGEActions.Holos.ActionId, 20f) == true)
         {
             context.Debug.HolosState = "Skipped (remote mit)";
             return;
