@@ -144,6 +144,8 @@ public sealed class ZeusStatusHelper : BaseStatusHelper
     /// </summary>
     public bool HasDot(IBattleChara target, uint playerId)
     {
+        if (target.StatusList == null)
+            return false;
         foreach (var status in target.StatusList)
         {
             if ((status.StatusId == DRGActions.StatusIds.ChaosThrust ||
@@ -159,6 +161,8 @@ public sealed class ZeusStatusHelper : BaseStatusHelper
     /// </summary>
     public float GetDotRemaining(IBattleChara target, uint playerId)
     {
+        if (target.StatusList == null)
+            return 0f;
         foreach (var status in target.StatusList)
         {
             if ((status.StatusId == DRGActions.StatusIds.ChaosThrust ||

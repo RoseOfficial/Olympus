@@ -136,7 +136,7 @@ public sealed class PerformanceTracker : IPerformanceTracker, IDisposable
             // Dead or not present
             unableToAct = true;
         }
-        else
+        else if (localPlayer.StatusList != null)
         {
             // Alive — check for incapacitation buffs (Willful, Stun, etc.)
             foreach (var status in localPlayer.StatusList)

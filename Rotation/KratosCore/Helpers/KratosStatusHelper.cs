@@ -165,6 +165,8 @@ public sealed class KratosStatusHelper : BaseStatusHelper
     /// </summary>
     public bool HasDemolish(IBattleChara target, uint playerId)
     {
+        if (target.StatusList == null)
+            return false;
         foreach (var status in target.StatusList)
         {
             if (status.StatusId == MNKActions.StatusIds.Demolish && status.SourceId == playerId)
@@ -178,6 +180,8 @@ public sealed class KratosStatusHelper : BaseStatusHelper
     /// </summary>
     public float GetDemolishRemaining(IBattleChara target, uint playerId)
     {
+        if (target.StatusList == null)
+            return 0f;
         foreach (var status in target.StatusList)
         {
             if (status.StatusId == MNKActions.StatusIds.Demolish && status.SourceId == playerId)

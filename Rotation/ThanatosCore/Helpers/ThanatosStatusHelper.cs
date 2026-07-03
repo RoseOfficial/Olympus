@@ -180,6 +180,8 @@ public sealed class ThanatosStatusHelper : BaseStatusHelper
     /// </summary>
     public bool HasDeathsDesign(IBattleChara target, uint playerId)
     {
+        if (target.StatusList == null)
+            return false;
         foreach (var status in target.StatusList)
         {
             if (status.StatusId == RPRActions.StatusIds.DeathsDesign && status.SourceId == playerId)
@@ -193,6 +195,8 @@ public sealed class ThanatosStatusHelper : BaseStatusHelper
     /// </summary>
     public float GetDeathsDesignRemaining(IBattleChara target, uint playerId)
     {
+        if (target.StatusList == null)
+            return 0f;
         foreach (var status in target.StatusList)
         {
             if (status.StatusId == RPRActions.StatusIds.DeathsDesign && status.SourceId == playerId)

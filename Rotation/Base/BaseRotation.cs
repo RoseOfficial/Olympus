@@ -286,12 +286,15 @@ public abstract class BaseRotation<TContext, TModule> : IRotation, IDisposable
     {
         // Check for incapacitation buffs (Willful, Stun, Sleep, etc.)
         var canAct = true;
-        foreach (var status in player.StatusList)
+        if (player.StatusList != null)
         {
-            if (FFXIVConstants.IncapacitationStatusIds.Contains(status.StatusId))
+            foreach (var status in player.StatusList)
             {
-                canAct = false;
-                break;
+                if (FFXIVConstants.IncapacitationStatusIds.Contains(status.StatusId))
+                {
+                    canAct = false;
+                    break;
+                }
             }
         }
 

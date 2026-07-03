@@ -169,14 +169,17 @@ public sealed class Echidna : BaseMeleeDpsRotation<IEchidnaContext, IEchidnaModu
         // Only relevant at combo step 2 (after Hunter's/Swiftskin's Sting)
         if (LastComboAction is not (34608 or 34609)) return null;
 
-        foreach (var s in player.StatusList)
+        if (player.StatusList != null)
         {
-            // Hindstung/Hindsbane venoms → rear
-            if (s.StatusId is VPRActions.StatusIds.HindstungVenom or VPRActions.StatusIds.HindsbaneVenom)
-                return PositionalType.Rear;
-            // Flankstung/Flanksbane venoms → flank
-            if (s.StatusId is VPRActions.StatusIds.FlankstungVenom or VPRActions.StatusIds.FlanksbaneVenom)
-                return PositionalType.Flank;
+            foreach (var s in player.StatusList)
+            {
+                // Hindstung/Hindsbane venoms → rear
+                if (s.StatusId is VPRActions.StatusIds.HindstungVenom or VPRActions.StatusIds.HindsbaneVenom)
+                    return PositionalType.Rear;
+                // Flankstung/Flanksbane venoms → flank
+                if (s.StatusId is VPRActions.StatusIds.FlankstungVenom or VPRActions.StatusIds.FlanksbaneVenom)
+                    return PositionalType.Flank;
+            }
         }
 
         // Default: flank (Flanksting is the default when no venom)

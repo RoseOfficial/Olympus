@@ -658,6 +658,8 @@ public sealed class TargetingService : ITargetingService
 
     private static float GetDotDuration(IBattleChara target, uint statusId)
     {
+        if (target.StatusList == null)
+            return 0f;
         foreach (var status in target.StatusList)
         {
             if (status.StatusId == statusId)

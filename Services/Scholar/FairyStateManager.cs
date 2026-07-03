@@ -128,6 +128,8 @@ public sealed class FairyStateManager : IFairyStateManager
     /// </summary>
     private static bool HasDissipation(IPlayerCharacter player)
     {
+        if (player.StatusList == null)
+            return false;
         foreach (var status in player.StatusList)
         {
             if (status.StatusId == SCHActions.DissipationStatusId)
@@ -141,6 +143,8 @@ public sealed class FairyStateManager : IFairyStateManager
     /// </summary>
     private static bool HasSeraphism(IPlayerCharacter player)
     {
+        if (player.StatusList == null)
+            return false;
         foreach (var status in player.StatusList)
         {
             if (status.StatusId == SCHActions.SeraphismStatusId)
@@ -154,6 +158,8 @@ public sealed class FairyStateManager : IFairyStateManager
     /// </summary>
     private static float GetStatusDuration(IPlayerCharacter player, ushort statusId)
     {
+        if (player.StatusList == null)
+            return 0;
         foreach (var status in player.StatusList)
         {
             if (status.StatusId == statusId)

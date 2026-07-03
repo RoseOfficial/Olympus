@@ -226,6 +226,8 @@ public abstract class BaseMeleeDpsRotation<TContext, TModule> : BaseRotation<TCo
 
     private static bool HasStatusEffect(Dalamud.Game.ClientState.Objects.Types.IBattleChara player, uint statusId)
     {
+        if (player.StatusList == null)
+            return false;
         foreach (var s in player.StatusList)
             if (s.StatusId == statusId) return true;
         return false;

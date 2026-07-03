@@ -104,6 +104,8 @@ public sealed class NikeStatusHelper : BaseStatusHelper
     /// </summary>
     public bool HasHiganbana(IBattleChara target, uint playerId)
     {
+        if (target.StatusList == null)
+            return false;
         foreach (var status in target.StatusList)
         {
             if (status.StatusId == SAMActions.StatusIds.Higanbana && status.SourceId == playerId)
@@ -117,6 +119,8 @@ public sealed class NikeStatusHelper : BaseStatusHelper
     /// </summary>
     public float GetHiganbanaRemaining(IBattleChara target, uint playerId)
     {
+        if (target.StatusList == null)
+            return 0f;
         foreach (var status in target.StatusList)
         {
             if (status.StatusId == SAMActions.StatusIds.Higanbana && status.SourceId == playerId)

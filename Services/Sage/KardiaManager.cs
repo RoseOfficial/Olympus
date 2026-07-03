@@ -81,12 +81,15 @@ public sealed class KardiaManager : IKardiaManager
 
         // Check if player has Kardia status (indicates Kardia is placed)
         bool hasKardiaStatus = false;
-        foreach (var status in player.StatusList)
+        if (player.StatusList != null)
         {
-            if (status.StatusId == SGEActions.KardiaStatusId)
+            foreach (var status in player.StatusList)
             {
-                hasKardiaStatus = true;
-                break;
+                if (status.StatusId == SGEActions.KardiaStatusId)
+                {
+                    hasKardiaStatus = true;
+                    break;
+                }
             }
         }
 
@@ -103,6 +106,9 @@ public sealed class KardiaManager : IKardiaManager
                 continue;
 
             if (member.GameObject is not IBattleChara battleChara)
+                continue;
+
+            if (battleChara.StatusList == null)
                 continue;
 
             foreach (var status in battleChara.StatusList)
@@ -164,7 +170,7 @@ public sealed class KardiaManager : IKardiaManager
     /// <param name="player">The Sage player character.</param>
     public bool HasSoteriaActive(IPlayerCharacter player)
     {
-        if (player == null)
+        if (player == null || player.StatusList == null)
             return false;
 
         foreach (var status in player.StatusList)
@@ -182,7 +188,7 @@ public sealed class KardiaManager : IKardiaManager
     /// <param name="player">The Sage player character.</param>
     public int GetSoteriaStacks(IPlayerCharacter player)
     {
-        if (player == null)
+        if (player == null || player.StatusList == null)
             return 0;
 
         foreach (var status in player.StatusList)
@@ -200,7 +206,7 @@ public sealed class KardiaManager : IKardiaManager
     /// <param name="player">The Sage player character.</param>
     public bool HasPhilosophiaActive(IPlayerCharacter player)
     {
-        if (player == null)
+        if (player == null || player.StatusList == null)
             return false;
 
         foreach (var status in player.StatusList)

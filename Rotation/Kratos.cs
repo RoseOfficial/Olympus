@@ -181,28 +181,31 @@ public sealed class Kratos : BaseMeleeDpsRotation<IKratosContext, IKratosModule>
         if (player == null) return null;
 
         // Check form status effects directly
-        foreach (var status in player.StatusList)
+        if (player.StatusList != null)
         {
-            if (status.StatusId == MNKActions.StatusIds.RaptorForm)
-                return PositionalType.Flank;
-            if (status.StatusId == MNKActions.StatusIds.CoeurlForm)
+            foreach (var status in player.StatusList)
             {
-                // Coeurl alternates: Demolish (rear) when DoT needs refresh, Snap Punch/Pouncing Coeurl (flank) otherwise.
-                // Mirror the GetCoeurlAction condition from DamageModule.
-                var target = TargetingService.FindEnemyForAction(
-                    Configuration.Targeting.EnemyStrategy,
-                    MNKActions.Demolish.ActionId,
-                    player);
-                if (target != null)
+                if (status.StatusId == MNKActions.StatusIds.RaptorForm)
+                    return PositionalType.Flank;
+                if (status.StatusId == MNKActions.StatusIds.CoeurlForm)
                 {
-                    var demolishNeedsRefresh = !_statusHelper.HasDemolish(target, player.EntityId)
-                        || _statusHelper.GetDemolishRemaining(target, player.EntityId) < 3f;
-                    return demolishNeedsRefresh ? PositionalType.Rear : PositionalType.Flank;
+                    // Coeurl alternates: Demolish (rear) when DoT needs refresh, Snap Punch/Pouncing Coeurl (flank) otherwise.
+                    // Mirror the GetCoeurlAction condition from DamageModule.
+                    var target = TargetingService.FindEnemyForAction(
+                        Configuration.Targeting.EnemyStrategy,
+                        MNKActions.Demolish.ActionId,
+                        player);
+                    if (target != null)
+                    {
+                        var demolishNeedsRefresh = !_statusHelper.HasDemolish(target, player.EntityId)
+                            || _statusHelper.GetDemolishRemaining(target, player.EntityId) < 3f;
+                        return demolishNeedsRefresh ? PositionalType.Rear : PositionalType.Flank;
+                    }
+                    return PositionalType.Rear;
                 }
-                return PositionalType.Rear;
+                if (status.StatusId is MNKActions.StatusIds.OpoOpoForm or MNKActions.StatusIds.FormlessFist)
+                    return PositionalType.Rear;
             }
-            if (status.StatusId is MNKActions.StatusIds.OpoOpoForm or MNKActions.StatusIds.FormlessFist)
-                return PositionalType.Rear;
         }
 
         // No form → starting Opo-opo → Rear

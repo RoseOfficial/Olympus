@@ -193,6 +193,8 @@ public sealed class EchidnaStatusHelper : BaseStatusHelper
     /// </summary>
     public bool HasNoxiousGnash(IBattleChara target, uint playerId)
     {
+        if (target.StatusList == null)
+            return false;
         foreach (var status in target.StatusList)
         {
             if (status.StatusId == VPRActions.StatusIds.NoxiousGnash && status.SourceId == playerId)
@@ -206,6 +208,8 @@ public sealed class EchidnaStatusHelper : BaseStatusHelper
     /// </summary>
     public float GetNoxiousGnashRemaining(IBattleChara target, uint playerId)
     {
+        if (target.StatusList == null)
+            return 0f;
         foreach (var status in target.StatusList)
         {
             if (status.StatusId == VPRActions.StatusIds.NoxiousGnash && status.SourceId == playerId)

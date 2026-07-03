@@ -26,7 +26,7 @@ public sealed class EukrasiaStateService : IEukrasiaStateService
     /// <param name="player">The Sage player character.</param>
     public bool IsEukrasiaActive(IPlayerCharacter player)
     {
-        if (player == null)
+        if (player == null || player.StatusList == null)
             return false;
 
         foreach (var status in player.StatusList)
@@ -45,7 +45,7 @@ public sealed class EukrasiaStateService : IEukrasiaStateService
     /// <param name="player">The Sage player character.</param>
     public float GetEukrasiaRemaining(IPlayerCharacter player)
     {
-        if (player == null)
+        if (player == null || player.StatusList == null)
             return 0f;
 
         foreach (var status in player.StatusList)
@@ -101,7 +101,7 @@ public sealed class EukrasiaStateService : IEukrasiaStateService
     /// <param name="player">The Sage player character.</param>
     public bool IsZoeActive(IPlayerCharacter player)
     {
-        if (player == null)
+        if (player == null || player.StatusList == null)
             return false;
 
         foreach (var status in player.StatusList)
@@ -119,7 +119,7 @@ public sealed class EukrasiaStateService : IEukrasiaStateService
     /// <param name="player">The Sage player character.</param>
     public float GetZoeRemaining(IPlayerCharacter player)
     {
-        if (player == null)
+        if (player == null || player.StatusList == null)
             return 0f;
 
         foreach (var status in player.StatusList)

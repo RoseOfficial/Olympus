@@ -165,12 +165,15 @@ public sealed class Zeus : BaseMeleeDpsRotation<IZeusContext, IZeusModule>
         if (player == null) return null;
 
         // Check for Fang and Claw Bared (flank proc) or Wheel in Motion (rear proc)
-        foreach (var s in player.StatusList)
+        if (player.StatusList != null)
         {
-            if (s.StatusId == DRGActions.StatusIds.FangAndClawBared)
-                return PositionalType.Flank;
-            if (s.StatusId == DRGActions.StatusIds.WheelInMotion)
-                return PositionalType.Rear;
+            foreach (var s in player.StatusList)
+            {
+                if (s.StatusId == DRGActions.StatusIds.FangAndClawBared)
+                    return PositionalType.Flank;
+                if (s.StatusId == DRGActions.StatusIds.WheelInMotion)
+                    return PositionalType.Rear;
+            }
         }
 
         // After Disembowel (87) → next is Chaos Thrust (rear)
