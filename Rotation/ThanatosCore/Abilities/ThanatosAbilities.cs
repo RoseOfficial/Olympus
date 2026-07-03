@@ -32,7 +32,7 @@ public static class ThanatosAbilities
     public static readonly AbilityBehavior GrimReaping = new() { Action = RPRActions.GrimReaping, Toggle = cfg => cfg.Reaper.EnableEnshroud };
 
     // --- Communio / Perfectio ---
-    public static readonly AbilityBehavior Communio = new() { Action = RPRActions.Communio, Toggle = cfg => cfg.Reaper.EnableCommunio };
+    public static readonly AbilityBehavior Communio = new() { Action = RPRActions.Communio, Toggle = cfg => cfg.Reaper.EnableCommunio, MechanicGate = true };
     public static readonly AbilityBehavior Perfectio = new() { Action = RPRActions.Perfectio, Toggle = cfg => cfg.Reaper.EnablePerfectio };
 
     // --- Soul spenders ---

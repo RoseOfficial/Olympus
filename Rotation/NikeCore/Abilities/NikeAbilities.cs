@@ -27,9 +27,9 @@ public static class NikeAbilities
     public static readonly AbilityBehavior Oka = new() { Action = SAMActions.Oka, Toggle = cfg => cfg.Samurai.EnableAoERotation };
 
     // --- Iaijutsu ---
-    public static readonly AbilityBehavior Higanbana = new() { Action = SAMActions.Higanbana, Toggle = cfg => cfg.Samurai.EnableIaijutsu };
-    public static readonly AbilityBehavior TenkaGoken = new() { Action = SAMActions.TenkaGoken, Toggle = cfg => cfg.Samurai.EnableIaijutsu };
-    public static readonly AbilityBehavior MidareSetsugekka = new() { Action = SAMActions.MidareSetsugekka, Toggle = cfg => cfg.Samurai.EnableIaijutsu };
+    public static readonly AbilityBehavior Higanbana = new() { Action = SAMActions.Higanbana, Toggle = cfg => cfg.Samurai.EnableIaijutsu, MechanicGate = true };
+    public static readonly AbilityBehavior TenkaGoken = new() { Action = SAMActions.TenkaGoken, Toggle = cfg => cfg.Samurai.EnableIaijutsu, MechanicGate = true };
+    public static readonly AbilityBehavior MidareSetsugekka = new() { Action = SAMActions.MidareSetsugekka, Toggle = cfg => cfg.Samurai.EnableIaijutsu, MechanicGate = true };
 
     // --- Tsubame-gaeshi ---
     public static readonly AbilityBehavior KaeshiHiganbana = new() { Action = SAMActions.KaeshiHiganbana, Toggle = cfg => cfg.Samurai.EnableTsubamegaeshi };
@@ -37,7 +37,7 @@ public static class NikeAbilities
     public static readonly AbilityBehavior KaeshiSetsugekka = new() { Action = SAMActions.KaeshiSetsugekka, Toggle = cfg => cfg.Samurai.EnableTsubamegaeshi };
 
     // --- Ogi Namikiri / Kaeshi: Namikiri / Zanshin ---
-    public static readonly AbilityBehavior OgiNamikiri = new() { Action = SAMActions.OgiNamikiri, Toggle = cfg => cfg.Samurai.EnableOgiNamikiri };
+    public static readonly AbilityBehavior OgiNamikiri = new() { Action = SAMActions.OgiNamikiri, Toggle = cfg => cfg.Samurai.EnableOgiNamikiri, MechanicGate = true };
     public static readonly AbilityBehavior KaeshiNamikiri = new() { Action = SAMActions.KaeshiNamikiri };
     public static readonly AbilityBehavior Zanshin = new() { Action = SAMActions.Zanshin, Toggle = cfg => cfg.Samurai.EnableZanshin };
 
