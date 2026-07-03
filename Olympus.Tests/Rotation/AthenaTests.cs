@@ -1,9 +1,13 @@
+using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
 using Moq;
+using Olympus.Data;
 using Olympus.Rotation.AthenaCore.Context;
 using Olympus.Rotation.AthenaCore.Modules;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
 using Olympus.Tests.Rotation.AthenaCore;
+using Olympus.Tests.Rotation.Common.Scheduling;
 using Xunit;
 
 namespace Olympus.Tests.Rotation;
@@ -205,18 +209,24 @@ public class AthenaTests
     #region Module Integration Tests
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenNotInCombat()
+    public void DamageModule_CollectCandidates_NotInCombat_PushesNothing()
     {
         var module = new DamageModule();
-        var context = AthenaTestContext.Create(inCombat: false);
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        var context = AthenaTestContext.Create(
+            actionService: actionService,
+            inCombat: false,
+            canExecuteGcd: true);
 
-        var result = module.TryExecute(context, isMoving: false);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenDamageDisabled()
+    public void DamageModule_CollectCandidates_AllDamageDisabled_PushesNothing()
     {
         var module = new DamageModule();
         var config = AthenaTestContext.CreateDefaultScholarConfiguration();
@@ -229,68 +239,141 @@ public class AthenaTests
         config.Scholar.EnableAetherflow = false;
         config.Scholar.EnableRuinII = false;
 
-        var enemy = new Moq.Mock<Dalamud.Game.ClientState.Objects.Types.IBattleNpc>();
+        var enemy = new Mock<IBattleNpc>();
         var targetingService = MockBuilders.CreateMockTargetingService();
         targetingService.Setup(x => x.FindEnemy(
             It.IsAny<EnemyTargetingStrategy>(),
             It.IsAny<float>(),
-            It.IsAny<Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter>()))
+            It.IsAny<IPlayerCharacter>()))
             .Returns(enemy.Object);
 
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true, canExecuteOgcd: true);
         var context = AthenaTestContext.Create(
             config: config,
+            actionService: actionService,
             targetingService: targetingService,
+            inCombat: true,
+            canExecuteGcd: true,
+            canExecuteOgcd: true);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void DamageModule_CollectCandidates_ChainStratagemEnabled_PushesAtPriority285()
+    {
+        // ChainStratagem is an oGCD at priority 285. BanefulImpaction blocked (no ImpactImminent
+        // status on player with null StatusList). EnergyDrain may also push (3 stacks, balanced
+        // strategy, empty party avg HP 1.0 > 0.8) at priority 290 -- that doesn't affect this assertion.
+        var module = new DamageModule();
+        var config = AthenaTestContext.CreateDefaultScholarConfiguration();
+
+        var enemy = new Mock<IBattleNpc>();
+        var targetingService = MockBuilders.CreateMockTargetingService();
+        targetingService.Setup(x => x.FindEnemy(
+            It.IsAny<EnemyTargetingStrategy>(),
+            It.IsAny<float>(),
+            It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        var context = AthenaTestContext.Create(
+            config: config,
+            actionService: actionService,
+            targetingService: targetingService,
+            level: 100,
+            inCombat: true,
+            canExecuteOgcd: true);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcdQueue = scheduler.InspectOgcdQueue();
+        Assert.Contains(ogcdQueue,
+            c => c.Behavior.Action.ActionId == SCHActions.ChainStratagem.ActionId && c.Priority == 285);
+    }
+
+    [Fact]
+    public void HealingModule_CollectCandidates_HealingMasterDisabled_PushesNothing()
+    {
+        var module = new HealingModule();
+        var config = AthenaTestContext.CreateDefaultScholarConfiguration();
+        config.EnableHealing = false;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        var context = AthenaTestContext.Create(
+            config: config,
+            actionService: actionService,
             inCombat: true,
             canExecuteGcd: true);
 
-        var result = module.TryExecute(context, isMoving: false);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void HealingModule_ReturnsFalse_WhenNoGcdOrOgcdAvailable()
+    public void ResurrectionModule_CollectCandidates_RaiseDisabled_PushesNothing()
     {
-        var module = new HealingModule();
-        var context = AthenaTestContext.Create(
-            inCombat: true,
-            canExecuteGcd: false,
-            canExecuteOgcd: false);
-
-        var result = module.TryExecute(context, isMoving: false);
-
-        Assert.False(result);
-    }
-
-    [Fact]
-    public void ResurrectionModule_ReturnsFalse_WhenRaiseDisabled()
-    {
+        // EnableRaise=false is the master toggle; even with a dead member present, nothing pushes.
         var module = new ResurrectionModule();
         var config = AthenaTestContext.CreateDefaultScholarConfiguration();
         config.Resurrection.EnableRaise = false;
 
+        var deadMember = MockBuilders.CreateMockBattleChara(entityId: 99u, currentHp: 0, maxHp: 50000, isDead: true);
+        var partyHelper = new TestableAthenaPartyHelper(new[] { deadMember.Object });
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+
         var context = AthenaTestContext.Create(
             config: config,
+            partyHelper: partyHelper,
+            actionService: actionService,
             inCombat: true,
-            canExecuteGcd: true,
-            canExecuteOgcd: false);
+            canExecuteGcd: true);
 
-        var result = module.TryExecute(context, isMoving: false);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void FairyModule_ReturnsFalse_WhenNoOgcdAvailable()
+    public void ResurrectionModule_CollectCandidates_DeadMemberAndHardcastAllowed_PushesResurrectionAtPriorityOne()
     {
-        var module = new FairyModule();
+        // Swiftcast on cooldown (60s) forces the hardcast path.
+        // SCH ShouldWaitForPreRaiseBuff always returns false (base class default -- no pre-raise buff for SCH).
+        var module = new ResurrectionModule();
+        var config = AthenaTestContext.CreateDefaultScholarConfiguration();
+
+        var deadMember = MockBuilders.CreateMockBattleChara(entityId: 99u, currentHp: 0, maxHp: 50000, isDead: true);
+        var partyHelper = new TestableAthenaPartyHelper(new[] { deadMember.Object });
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        actionService.Setup(x => x.IsActionReady(RoleActions.Swiftcast.ActionId)).Returns(false);
+        actionService.Setup(x => x.GetCooldownRemaining(RoleActions.Swiftcast.ActionId)).Returns(60f);
+
         var context = AthenaTestContext.Create(
-            canExecuteOgcd: false,
-            canExecuteGcd: false);
+            config: config,
+            partyHelper: partyHelper,
+            actionService: actionService,
+            level: 100,
+            currentMp: 10000,
+            inCombat: true,
+            canExecuteGcd: true);
 
-        var result = module.TryExecute(context, isMoving: false);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        var gcdQueue = scheduler.InspectGcdQueue();
+        var resCandidate = Assert.Single(gcdQueue, c => c.Behavior.Action.ActionId == RoleActions.Resurrection.ActionId);
+        Assert.Equal(1, resCandidate.Priority);
     }
 
     #endregion

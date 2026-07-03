@@ -1,10 +1,13 @@
 using Moq;
+using Olympus.Rotation.AresCore.Abilities;
 using Olympus.Rotation.AresCore.Context;
 using Olympus.Rotation.AresCore.Modules;
+using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Action;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
 using Olympus.Tests.Rotation.AresCore;
+using Olympus.Tests.Rotation.Common.Scheduling;
 using Xunit;
 
 namespace Olympus.Tests.Rotation;
@@ -160,24 +163,46 @@ public class AresTests
     #region Module Integration Tests
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenNotInCombat()
+    public void DamageModule_CollectCandidates_NotInCombat_PushesNothing()
     {
         var module = new DamageModule();
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = AresTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+        Assert.Equal("Not in combat", context.Debug.DamageState);
     }
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenDamageDisabled()
+    public void DamageModule_CollectCandidates_DamageDisabled_PushesNothing()
     {
         var module = new DamageModule();
         var config = AresTestContext.CreateDefaultWarriorConfiguration();
         config.Tank.EnableDamage = false;
 
+        var scheduler = SchedulerFactory.CreateForTest();
+        var context = AresTestContext.Create(config: config, inCombat: true);
+
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+        Assert.Equal("Disabled", context.Debug.DamageState);
+    }
+
+    [Fact]
+    public void DamageModule_CollectCandidates_InCombatWithTarget_PushesHeavySwingAtPriority7()
+    {
         var enemy = new Moq.Mock<Dalamud.Game.ClientState.Objects.Types.IBattleNpc>();
+        enemy.Setup(x => x.GameObjectId).Returns(99UL);
+        enemy.Setup(x => x.StatusList).Returns((Dalamud.Game.ClientState.Statuses.StatusList?)null!);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+
         var targetingService = MockBuilders.CreateMockTargetingService();
         targetingService.Setup(x => x.FindEnemyForAction(
             It.IsAny<EnemyTargetingStrategy>(),
@@ -185,40 +210,78 @@ public class AresTests
             It.IsAny<Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter>()))
             .Returns(enemy.Object);
 
-        var context = AresTestContext.Create(
-            config: config,
-            targetingService: targetingService,
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = AresTestContext.CreateMock(
             inCombat: true,
-            canExecuteGcd: true);
+            beastGauge: 0,
+            hasSurgingTempest: true,
+            surgingTempestRemaining: 30f,
+            comboStep: 0,
+            actionService: actionService,
+            targetingService: targetingService);
 
-        var result = module.TryExecute(context, isMoving: false);
+        new DamageModule().CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Contains(scheduler.InspectGcdQueue(), c => c.Behavior == AresAbilities.HeavySwing && c.Priority == 7);
     }
 
     [Fact]
-    public void MitigationModule_ReturnsFalse_WhenMitigationDisabled()
+    public void MitigationModule_CollectCandidates_MitigationDisabled_PushesNothing()
     {
         var module = new MitigationModule();
         var config = AresTestContext.CreateDefaultWarriorConfiguration();
         config.Tank.EnableMitigation = false;
 
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = AresTestContext.Create(config: config, inCombat: true);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectOgcdQueue());
+        Assert.Equal("Disabled", context.Debug.MitigationState);
     }
 
     [Fact]
-    public void BuffModule_ReturnsFalse_WhenNotInCombat()
+    public void MitigationModule_CollectCandidates_NotInCombat_PushesNothing()
     {
-        var module = new BuffModule();
+        var module = new MitigationModule();
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = AresTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectOgcdQueue());
+        Assert.Equal("Not in combat", context.Debug.MitigationState);
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_NotInCombat_PushesNothing()
+    {
+        var module = new BuffModule();
+        var scheduler = SchedulerFactory.CreateForTest();
+        var context = AresTestContext.Create(inCombat: false);
+
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Empty(scheduler.InspectOgcdQueue());
+        Assert.Equal("Not in combat", context.Debug.BuffState);
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_AutoTankStance_PushesDefianceAtPriority1()
+    {
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+
+        var config = AresTestContext.CreateDefaultWarriorConfiguration();
+        config.Tank.AutoTankStance = true;
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = AresTestContext.Create(inCombat: true, config: config, actionService: actionService);
+
+        new BuffModule().CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Contains(scheduler.InspectOgcdQueue(), c => c.Behavior == AresAbilities.Defiance && c.Priority == 1);
     }
 
     #endregion

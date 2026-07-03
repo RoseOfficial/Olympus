@@ -1,10 +1,12 @@
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Moq;
+using Olympus.Rotation.TerpsichoreCore.Abilities;
 using Olympus.Rotation.TerpsichoreCore.Context;
 using Olympus.Rotation.TerpsichoreCore.Modules;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
+using Olympus.Tests.Rotation.Common.Scheduling;
 using Olympus.Tests.Rotation.TerpsichoreCore;
 using Xunit;
 
@@ -138,52 +140,107 @@ public class TerpsichoreTests
     #region Module Integration Tests
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenNotInCombat()
+    public void DamageModule_CollectCandidates_NotInCombat_PushesNothing()
     {
         var module = new DamageModule();
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = TerpsichoreTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+        Assert.Equal("Not in combat", context.Debug.DamageState);
     }
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenDancing()
+    public void DamageModule_CollectCandidates_IsDancing_PushesNothing()
+    {
+        var module = new DamageModule();
+        var scheduler = SchedulerFactory.CreateForTest();
+        var context = TerpsichoreTestContext.Create(inCombat: true, isDancing: true);
+
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+        Assert.Equal("Dancing...", context.Debug.DamageState);
+    }
+
+    [Fact]
+    public void DamageModule_CollectCandidates_StarfallDance_Pushed_AtPriority1_WhenProcActive()
     {
         var module = new DamageModule();
 
         var enemy = new Mock<IBattleNpc>();
         enemy.Setup(x => x.GameObjectId).Returns(99999UL);
-        var targetingService = MockBuilders.CreateMockTargetingService();
-        targetingService.Setup(x => x.FindEnemy(
+        enemy.Setup(x => x.CurrentHp).Returns(10000u);
+        enemy.Setup(x => x.MaxHp).Returns(10000u);
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.FindEnemy(
             It.IsAny<EnemyTargetingStrategy>(),
             It.IsAny<float>(),
             It.IsAny<IPlayerCharacter>()))
             .Returns(enemy.Object);
-        targetingService.Setup(x => x.CountEnemiesInRange(It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
+        targeting.Setup(x => x.CountEnemiesInRange(It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
             .Returns(1);
 
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
         var context = TerpsichoreTestContext.Create(
             inCombat: true,
-            canExecuteGcd: true,
-            isDancing: true,
-            targetingService: targetingService);
+            isDancing: false,
+            hasFlourishingStarfall: true,
+            targetingService: targeting,
+            actionService: actionService);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        var gcd = scheduler.InspectGcdQueue();
+        Assert.Contains(gcd, c => c.Behavior == TerpsichoreAbilities.StarfallDance && c.Priority == 1);
     }
 
     [Fact]
-    public void BuffModule_ReturnsFalse_WhenNotInCombat()
+    public void BuffModule_CollectCandidates_NotInCombat_PushesStandardStep_PreCombatAutomation()
     {
         var module = new BuffModule();
-        var context = TerpsichoreTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = TerpsichoreTestContext.Create(
+            inCombat: false,
+            isDancing: false,
+            hasStandardFinish: false,
+            actionService: actionService);
 
-        Assert.False(result);
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcd = scheduler.InspectOgcdQueue();
+        Assert.Contains(ogcd, c => c.Behavior == TerpsichoreAbilities.StandardStep && c.Priority == 4);
+        Assert.Equal("Not in combat", context.Debug.BuffState);
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_StandardStep_Disabled_NotPushed_WhenNotInCombat()
+    {
+        var module = new BuffModule();
+
+        var config = TerpsichoreTestContext.CreateDefaultDancerConfiguration();
+        config.Dancer.EnableStandardStep = false;
+
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = TerpsichoreTestContext.Create(
+            inCombat: false,
+            isDancing: false,
+            hasStandardFinish: false,
+            actionService: actionService,
+            config: config);
+
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Empty(scheduler.InspectOgcdQueue());
+        Assert.Empty(scheduler.InspectGcdQueue());
     }
 
     #endregion

@@ -1,5 +1,12 @@
+using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
+using Moq;
+using Olympus.Rotation.HermesCore.Abilities;
 using Olympus.Rotation.HermesCore.Context;
 using Olympus.Rotation.HermesCore.Modules;
+using Olympus.Services.Targeting;
+using Olympus.Tests.Mocks;
+using Olympus.Tests.Rotation.Common.Scheduling;
 using Olympus.Tests.Rotation.HermesCore;
 using Xunit;
 
@@ -146,47 +153,149 @@ public class HermesTests
     #region Module Integration Tests
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenNotInCombat()
+    public void DamageModule_CollectCandidates_NotInCombat_PushesNothing()
     {
         var module = new DamageModule();
         var context = HermesTestContext.Create(inCombat: false);
+        var scheduler = SchedulerFactory.CreateForTest();
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenCannotExecuteGcd()
+    public void DamageModule_CollectCandidates_PhantomKamaitachi_PushedAtPriority3_WhenReady()
     {
+        // Phantom Kamaitachi is pushed to the GCD queue at priority 3 when the proc is active.
+        var enemy = CreateMockEnemy();
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.FindEnemyForAction(
+                It.IsAny<EnemyTargetingStrategy>(), It.IsAny<uint>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+
+        var config = HermesTestContext.CreateDefaultNinjaConfiguration();
+        config.Ninja.EnablePhantomKamaitachi = true;
+
+        var context = HermesTestContext.Create(
+            config: config,
+            inCombat: true,
+            actionService: actionService,
+            targetingService: targeting,
+            hasPhantomKamaitachiReady: true,
+            level: 100);
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
         var module = new DamageModule();
-        var context = HermesTestContext.Create(inCombat: true, canExecuteGcd: false, canExecuteOgcd: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Contains(scheduler.InspectGcdQueue(),
+            c => c.Behavior == HermesAbilities.PhantomKamaitachi && c.Priority == 3);
     }
 
     [Fact]
-    public void NinjutsuModule_ReturnsFalse_WhenNotInCombat()
+    public void NinjutsuModule_CollectCandidates_NotInCombat_SetsStateAndPushesNothing()
     {
+        // NinjutsuModule sets NinjutsuState and returns before reaching any native code.
+        // Mudra/ninjutsu execution bypasses IActionService so the scheduler queues stay empty.
         var module = new NinjutsuModule();
         var context = HermesTestContext.Create(inCombat: false);
+        var scheduler = SchedulerFactory.CreateForTest();
+        var debug = context.Debug;
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Equal("Not in combat", debug.NinjutsuState);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void BuffModule_ReturnsFalse_WhenNotInCombat()
+    public void BuffModule_CollectCandidates_NotInCombat_PushesNothing()
     {
         var module = new BuffModule();
         var context = HermesTestContext.Create(inCombat: false);
+        var scheduler = SchedulerFactory.CreateForTest();
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_MudraActive_PushesNothing()
+    {
+        // When a mudra sequence is in progress, BuffModule returns immediately.
+        var module = new BuffModule();
+        var context = HermesTestContext.Create(inCombat: true, isMudraActive: true);
+        var scheduler = SchedulerFactory.CreateForTest();
+
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_Kassatsu_PushedAtPriority3_WhenReady()
+    {
+        // Kassatsu: enabled (config), level met, HasKassatsu=false, action ready.
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+
+        var config = HermesTestContext.CreateDefaultNinjaConfiguration();
+        config.Ninja.EnableKassatsu = true;
+
+        var context = HermesTestContext.Create(
+            config: config,
+            inCombat: true,
+            actionService: actionService,
+            hasKassatsu: false,
+            level: 100);
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var module = new BuffModule();
+
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Contains(scheduler.InspectOgcdQueue(),
+            c => c.Behavior == HermesAbilities.Kassatsu && c.Priority == 3);
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_Kassatsu_NotPushed_WhenAlreadyActive()
+    {
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+
+        var config = HermesTestContext.CreateDefaultNinjaConfiguration();
+        config.Ninja.EnableKassatsu = true;
+
+        var context = HermesTestContext.Create(
+            config: config,
+            inCombat: true,
+            actionService: actionService,
+            hasKassatsu: true);
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var module = new BuffModule();
+
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
+            c => c.Behavior == HermesAbilities.Kassatsu);
+    }
+
+    private static Mock<IBattleNpc> CreateMockEnemy(ulong objectId = 99999UL)
+    {
+        var mock = new Mock<IBattleNpc>();
+        mock.Setup(x => x.GameObjectId).Returns(objectId);
+        mock.Setup(x => x.CurrentHp).Returns(10000u);
+        mock.Setup(x => x.MaxHp).Returns(10000u);
+        return mock;
     }
 
     #endregion

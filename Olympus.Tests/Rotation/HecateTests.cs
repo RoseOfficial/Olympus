@@ -1,10 +1,7 @@
-using Dalamud.Game.ClientState.Objects.SubKinds;
-using Dalamud.Game.ClientState.Objects.Types;
-using Moq;
+using Olympus.Rotation.HecateCore.Abilities;
 using Olympus.Rotation.HecateCore.Context;
 using Olympus.Rotation.HecateCore.Modules;
-using Olympus.Services.Targeting;
-using Olympus.Tests.Mocks;
+using Olympus.Tests.Rotation.Common.Scheduling;
 using Olympus.Tests.Rotation.HecateCore;
 using Xunit;
 
@@ -141,52 +138,82 @@ public class HecateTests
     #region Module Integration Tests
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenNotInCombat()
+    public void DamageModule_CollectCandidates_NotInCombat_PushesNothing()
     {
         var module = new DamageModule();
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = HecateTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenGcdNotReady()
+    public void DamageModule_CollectCandidates_NoTarget_PushesNothing()
     {
         var module = new DamageModule();
+        var scheduler = SchedulerFactory.CreateForTest();
+        // Default targetingService returns null from FindEnemy; module exits before any push.
+        var context = HecateTestContext.Create(inCombat: true);
 
-        var enemy = new Mock<IBattleNpc>();
-        enemy.Setup(x => x.GameObjectId).Returns(99999UL);
-        var targetingService = MockBuilders.CreateMockTargetingService();
-        targetingService.Setup(x => x.FindEnemy(
-            It.IsAny<EnemyTargetingStrategy>(),
-            It.IsAny<float>(),
-            It.IsAny<IPlayerCharacter>()))
-            .Returns(enemy.Object);
-        targetingService.Setup(x => x.CountEnemiesInRange(It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
-            .Returns(1);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        var context = HecateTestContext.Create(
-            inCombat: true,
-            canExecuteGcd: false,
-            canExecuteOgcd: false,
-            targetingService: targetingService);
-
-        var result = module.TryExecute(context, isMoving: false);
-
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void BuffModule_ReturnsFalse_WhenNotInCombat()
+    public void BuffModule_CollectCandidates_NotInCombat_PushesNothing()
     {
         var module = new BuffModule();
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = HecateTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_LeyLines_PushedAtPriority2_WhenConditionsMet()
+    {
+        var module = new BuffModule();
+        var scheduler = SchedulerFactory.CreateForTest();
+        var context = HecateTestContext.Create(
+            inCombat: true,
+            level: 52,
+            inAstralFire: true,
+            leyLinesReady: true,
+            hasLeyLines: false);
+
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcd = scheduler.InspectOgcdQueue();
+        Assert.Contains(ogcd, c => c.Behavior == HecateAbilities.LeyLines && c.Priority == 2);
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_LeyLines_NotPushed_WhenToggleOff()
+    {
+        var module = new BuffModule();
+        var scheduler = SchedulerFactory.CreateForTest();
+        var config = HecateTestContext.CreateDefaultBlmConfiguration();
+        config.BlackMage.EnableLeyLines = false;
+        var context = HecateTestContext.Create(
+            inCombat: true,
+            level: 52,
+            inAstralFire: true,
+            leyLinesReady: true,
+            hasLeyLines: false,
+            config: config);
+
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcd = scheduler.InspectOgcdQueue();
+        Assert.DoesNotContain(ogcd, c => c.Behavior == HecateAbilities.LeyLines);
     }
 
     #endregion

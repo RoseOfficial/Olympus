@@ -1,10 +1,7 @@
-using Dalamud.Game.ClientState.Objects.SubKinds;
-using Dalamud.Game.ClientState.Objects.Types;
-using Moq;
+using Olympus.Rotation.PersephoneCore.Abilities;
 using Olympus.Rotation.PersephoneCore.Context;
 using Olympus.Rotation.PersephoneCore.Modules;
-using Olympus.Services.Targeting;
-using Olympus.Tests.Mocks;
+using Olympus.Tests.Rotation.Common.Scheduling;
 using Olympus.Tests.Rotation.PersephoneCore;
 using Xunit;
 
@@ -139,52 +136,83 @@ public class PersephoneTests
     #region Module Integration Tests
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenNotInCombat()
+    public void DamageModule_CollectCandidates_NotInCombat_PushesNothing()
     {
         var module = new DamageModule();
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = PersephoneTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenGcdNotReady()
+    public void DamageModule_CollectCandidates_NoTarget_PushesNothing()
     {
         var module = new DamageModule();
+        var scheduler = SchedulerFactory.CreateForTest();
+        // Default targetingService returns null from FindEnemy; target null check fires before
+        // the pet-summon branch, so both queues stay empty.
+        var context = PersephoneTestContext.Create(inCombat: true);
 
-        var enemy = new Mock<IBattleNpc>();
-        enemy.Setup(x => x.GameObjectId).Returns(99999UL);
-        var targetingService = MockBuilders.CreateMockTargetingService();
-        targetingService.Setup(x => x.FindEnemy(
-            It.IsAny<EnemyTargetingStrategy>(),
-            It.IsAny<float>(),
-            It.IsAny<IPlayerCharacter>()))
-            .Returns(enemy.Object);
-        targetingService.Setup(x => x.CountEnemiesInRange(It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
-            .Returns(1);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        var context = PersephoneTestContext.Create(
-            inCombat: true,
-            canExecuteGcd: false,
-            canExecuteOgcd: false,
-            targetingService: targetingService);
-
-        var result = module.TryExecute(context, isMoving: false);
-
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void BuffModule_ReturnsFalse_WhenNotInCombat()
+    public void BuffModule_CollectCandidates_NotInCombat_PushesNothing()
     {
         var module = new BuffModule();
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = PersephoneTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_SearingLight_PushedAtPriority3_WhenDemiActive()
+    {
+        var module = new BuffModule();
+        var scheduler = SchedulerFactory.CreateForTest();
+        var context = PersephoneTestContext.Create(
+            inCombat: true,
+            level: 66,
+            searingLightReady: true,
+            hasSearingLight: false,
+            isDemiSummonActive: true);
+
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcd = scheduler.InspectOgcdQueue();
+        Assert.Contains(ogcd, c => c.Behavior == PersephoneAbilities.SearingLight && c.Priority == 3);
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_SearingLight_NotPushed_WhenToggleOff()
+    {
+        var module = new BuffModule();
+        var scheduler = SchedulerFactory.CreateForTest();
+        var config = PersephoneTestContext.CreateDefaultSmnConfiguration();
+        config.Summoner.EnableSearingLight = false;
+        var context = PersephoneTestContext.Create(
+            inCombat: true,
+            level: 66,
+            searingLightReady: true,
+            hasSearingLight: false,
+            isDemiSummonActive: true,
+            config: config);
+
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcd = scheduler.InspectOgcdQueue();
+        Assert.DoesNotContain(ogcd, c => c.Behavior == PersephoneAbilities.SearingLight);
     }
 
     #endregion

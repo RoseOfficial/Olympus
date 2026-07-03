@@ -1,10 +1,12 @@
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Moq;
+using Olympus.Rotation.PrometheusCore.Abilities;
 using Olympus.Rotation.PrometheusCore.Context;
 using Olympus.Rotation.PrometheusCore.Modules;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
+using Olympus.Tests.Rotation.Common.Scheduling;
 using Olympus.Tests.Rotation.PrometheusCore;
 using Xunit;
 
@@ -138,52 +140,132 @@ public class PrometheusTests
     #region Module Integration Tests
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenNotInCombat()
+    public void DamageModule_CollectCandidates_NotInCombat_PushesNothing()
     {
         var module = new DamageModule();
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = PrometheusTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+        Assert.Equal("Not in combat", context.Debug.DamageState);
     }
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenGcdNotReady()
+    public void DamageModule_CollectCandidates_Drill_Pushed_AtPriority4_WhenChargesAvailable()
     {
         var module = new DamageModule();
 
         var enemy = new Mock<IBattleNpc>();
         enemy.Setup(x => x.GameObjectId).Returns(99999UL);
-        var targetingService = MockBuilders.CreateMockTargetingService();
-        targetingService.Setup(x => x.FindEnemy(
+        enemy.Setup(x => x.CurrentHp).Returns(10000u);
+        enemy.Setup(x => x.MaxHp).Returns(10000u);
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.FindEnemy(
             It.IsAny<EnemyTargetingStrategy>(),
             It.IsAny<float>(),
             It.IsAny<IPlayerCharacter>()))
             .Returns(enemy.Object);
-        targetingService.Setup(x => x.CountEnemiesInRange(It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
+        targeting.Setup(x => x.CountEnemiesInRange(It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
             .Returns(1);
 
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
         var context = PrometheusTestContext.Create(
             inCombat: true,
-            canExecuteGcd: false,
-            canExecuteOgcd: false,
-            targetingService: targetingService);
+            isOverheated: false,
+            hasFullMetalMachinist: false,
+            hasExcavatorReady: false,
+            drillCharges: 1,
+            targetingService: targeting,
+            actionService: actionService);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        var gcd = scheduler.InspectGcdQueue();
+        Assert.Contains(gcd, c => c.Behavior == PrometheusAbilities.Drill && c.Priority == 4);
     }
 
     [Fact]
-    public void BuffModule_ReturnsFalse_WhenNotInCombat()
+    public void BuffModule_CollectCandidates_NotInCombat_PushesNothing()
     {
         var module = new BuffModule();
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = PrometheusTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+        Assert.Equal("Not in combat", context.Debug.BuffState);
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_Wildfire_Disabled_NotPushed()
+    {
+        var module = new BuffModule();
+
+        var enemy = new Mock<IBattleNpc>();
+        enemy.Setup(x => x.GameObjectId).Returns(99999UL);
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.FindEnemy(
+            It.IsAny<EnemyTargetingStrategy>(),
+            It.IsAny<float>(),
+            It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+        targeting.Setup(x => x.CountEnemiesInRange(It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(0);
+
+        var config = PrometheusTestContext.CreateDefaultMachinistConfiguration();
+        config.Machinist.EnableWildfire = false;
+
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = PrometheusTestContext.Create(
+            inCombat: true,
+            isOverheated: true,
+            heat: 50,
+            targetingService: targeting,
+            actionService: actionService,
+            config: config);
+
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcd = scheduler.InspectOgcdQueue();
+        Assert.DoesNotContain(ogcd, c => c.Behavior == PrometheusAbilities.Wildfire);
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_Hypercharge_Pushed_AtPriority4_WhenHeatReady()
+    {
+        var module = new BuffModule();
+
+        var enemy = new Mock<IBattleNpc>();
+        enemy.Setup(x => x.GameObjectId).Returns(99999UL);
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.FindEnemy(
+            It.IsAny<EnemyTargetingStrategy>(),
+            It.IsAny<float>(),
+            It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+        targeting.Setup(x => x.CountEnemiesInRange(It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(0);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = PrometheusTestContext.Create(
+            inCombat: true,
+            heat: 50,
+            isOverheated: false,
+            targetingService: targeting,
+            actionService: actionService);
+
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcd = scheduler.InspectOgcdQueue();
+        Assert.Contains(ogcd, c => c.Behavior == PrometheusAbilities.Hypercharge && c.Priority == 4);
     }
 
     #endregion

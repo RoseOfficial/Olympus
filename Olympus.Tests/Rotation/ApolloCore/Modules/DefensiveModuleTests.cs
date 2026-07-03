@@ -1,38 +1,22 @@
-using System.Numerics;
 using Dalamud.Game.ClientState.Objects.SubKinds;
-using Dalamud.Game.ClientState.Objects.Types;
-using Dalamud.Game.ClientState.Party;
-using Dalamud.Plugin.Services;
 using Moq;
 using Olympus.Data;
-using Olympus.Models.Action;
 using Olympus.Rotation.ApolloCore;
-using Olympus.Rotation.ApolloCore.Context;
-using Olympus.Rotation.ApolloCore.Helpers;
 using Olympus.Rotation.ApolloCore.Modules;
-using Olympus.Services;
-using Olympus.Services.Action;
-using Olympus.Services.Debuff;
-using Olympus.Services.Healing;
-using Olympus.Services.Prediction;
-using Olympus.Services.Stats;
-using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
+using Olympus.Tests.Rotation.Common.Scheduling;
 
 namespace Olympus.Tests.Rotation.ApolloCore.Modules;
 
 /// <summary>
-/// Tests for DefensiveModule defensive cooldown logic.
-/// Covers configuration toggles, level requirements, and cooldown triggers.
+/// Tests for DefensiveModule. All 21 rotations are scheduler-migrated;
+/// TryExecute is a stub returning false. Tests exercise CollectCandidates
+/// to verify candidates are pushed (or withheld) under the correct gate
+/// conditions for each defensive ability.
 /// </summary>
 public class DefensiveModuleTests
 {
-    private readonly DefensiveModule _module;
-
-    public DefensiveModuleTests()
-    {
-        _module = new DefensiveModule();
-    }
+    private readonly DefensiveModule _module = new();
 
     #region Module Properties
 
@@ -50,462 +34,535 @@ public class DefensiveModuleTests
 
     #endregion
 
-    #region Combat State Tests
+    #region Combat Gate
 
+    /// <summary>
+    /// CollectCandidates returns immediately when not in combat — no candidates of
+    /// any kind should appear in the oGCD queue.
+    /// </summary>
     [Fact]
-    public void TryExecute_NotInCombat_ReturnsFalse()
+    public void CollectCandidates_NotInCombat_PushesNothing()
     {
-        // Arrange
-        var context = CreateTestContext(inCombat: false, canExecuteOgcd: true);
-
-        // Act
-        var result = _module.TryExecute(context, isMoving: false);
-
-        // Assert
-        Assert.False(result);
-    }
-
-    [Fact]
-    public void TryExecute_CannotExecuteOgcd_ReturnsFalse()
-    {
-        // Arrange
-        var context = CreateTestContext(inCombat: true, canExecuteOgcd: false);
-
-        // Act
-        var result = _module.TryExecute(context, isMoving: false);
-
-        // Assert
-        Assert.False(result);
-    }
-
-    #endregion
-
-    #region Divine Benison Tests
-
-    [Fact]
-    public void TryExecute_DivineBenisonDisabled_DoesNotExecute()
-    {
-        // Arrange
-        var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableHealing = true;
-        config.Defensive.EnableDivineBenison = false;
-
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
-        var partyHelper = new Mock<IPartyHelper>();
-        partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
-            .Returns((0.8f, 0.7f, 2));
-
-        var context = CreateTestContext(
+        var context = ApolloTestContext.Create(
             config: config,
             actionService: actionService,
-            partyHelper: partyHelper,
             level: 90,
-            inCombat: true,
+            inCombat: false,
             canExecuteOgcd: true);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
 
-        // Act
-        _module.TryExecute(context, isMoving: false);
+        _module.CollectCandidates(context, scheduler, isMoving: false);
 
-        // Assert
-        actionService.Verify(a => a.ExecuteOgcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == WHMActions.DivineBenison.ActionId),
-            It.IsAny<ulong>()), Times.Never);
-    }
-
-    [Fact]
-    public void TryExecute_DivineBenisonLevelTooLow_DoesNotExecute()
-    {
-        // Arrange
-        var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableHealing = true;
-        config.Defensive.EnableDivineBenison = true;
-
-        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
-        var partyHelper = new Mock<IPartyHelper>();
-        partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
-            .Returns((0.8f, 0.7f, 2));
-
-        // DivineBenison requires level 66
-        var context = CreateTestContext(
-            config: config,
-            actionService: actionService,
-            partyHelper: partyHelper,
-            level: 50,
-            inCombat: true,
-            canExecuteOgcd: true);
-
-        // Act
-        _module.TryExecute(context, isMoving: false);
-
-        // Assert
-        actionService.Verify(a => a.ExecuteOgcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == WHMActions.DivineBenison.ActionId),
-            It.IsAny<ulong>()), Times.Never);
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     #endregion
 
-    #region Aquaveil Tests
+    #region Temperance
 
+    /// <summary>
+    /// When EnableTemperance is false the config gate fires immediately and no
+    /// Temperance candidate reaches the queue, even with the party at low HP.
+    /// </summary>
     [Fact]
-    public void TryExecute_AquaveilDisabled_DoesNotExecute()
+    public void CollectCandidates_TemperanceDisabled_PushesNothing()
     {
-        // Arrange
-        var config = MockBuilders.CreateDefaultConfiguration();
-        config.Defensive.EnableAquaveil = false;
-
-        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
-        var partyHelper = new Mock<IPartyHelper>();
-        partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
-            .Returns((0.8f, 0.7f, 2));
-
-        var context = CreateTestContext(
-            config: config,
-            actionService: actionService,
-            partyHelper: partyHelper,
-            level: 90,
-            inCombat: true,
-            canExecuteOgcd: true);
-
-        // Act
-        _module.TryExecute(context, isMoving: false);
-
-        // Assert
-        actionService.Verify(a => a.ExecuteOgcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == WHMActions.Aquaveil.ActionId),
-            It.IsAny<ulong>()), Times.Never);
-    }
-
-    [Fact]
-    public void TryExecute_AquaveilLevelTooLow_DoesNotExecute()
-    {
-        // Arrange
-        var config = MockBuilders.CreateDefaultConfiguration();
-        config.Defensive.EnableAquaveil = true;
-
-        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
-        var partyHelper = new Mock<IPartyHelper>();
-        partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
-            .Returns((0.8f, 0.7f, 2));
-
-        // Aquaveil requires level 86
-        var context = CreateTestContext(
-            config: config,
-            actionService: actionService,
-            partyHelper: partyHelper,
-            level: 80,
-            inCombat: true,
-            canExecuteOgcd: true);
-
-        // Act
-        _module.TryExecute(context, isMoving: false);
-
-        // Assert
-        actionService.Verify(a => a.ExecuteOgcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == WHMActions.Aquaveil.ActionId),
-            It.IsAny<ulong>()), Times.Never);
-    }
-
-    #endregion
-
-    #region Temperance Tests
-
-    [Fact]
-    public void TryExecute_TemperanceDisabled_DoesNotExecute()
-    {
-        // Arrange
-        var config = MockBuilders.CreateDefaultConfiguration();
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
         config.EnableHealing = true;
         config.Defensive.EnableTemperance = false;
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
-        var partyHelper = new Mock<IPartyHelper>();
+        var partyHelper = MockBuilders.CreateMockPartyHelper();
         partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
-            .Returns((0.5f, 0.3f, 4)); // Low HP to trigger
+            .Returns((0.50f, 0.40f, 4)); // low HP — would satisfy shouldUse if not gated
 
-        var context = CreateTestContext(
+        var context = ApolloTestContext.Create(
             config: config,
             actionService: actionService,
             partyHelper: partyHelper,
             level: 90,
             inCombat: true,
             canExecuteOgcd: true);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
 
-        // Act
-        _module.TryExecute(context, isMoving: false);
+        _module.CollectCandidates(context, scheduler, isMoving: false);
 
-        // Assert
-        actionService.Verify(a => a.ExecuteOgcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == WHMActions.Temperance.ActionId),
-            It.IsAny<ulong>()), Times.Never);
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
+            c => c.Behavior.Action.ActionId == WHMActions.Temperance.ActionId);
     }
 
+    /// <summary>
+    /// Level 70 is below Temperance's MinLevel of 80; the level gate blocks the push
+    /// regardless of party HP.
+    /// </summary>
     [Fact]
-    public void TryExecute_TemperanceLevelTooLow_DoesNotExecute()
+    public void CollectCandidates_TemperanceLevelTooLow_PushesNothing()
     {
-        // Arrange
-        var config = MockBuilders.CreateDefaultConfiguration();
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
         config.EnableHealing = true;
         config.Defensive.EnableTemperance = true;
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
-        var partyHelper = new Mock<IPartyHelper>();
+        var partyHelper = MockBuilders.CreateMockPartyHelper();
         partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
-            .Returns((0.5f, 0.3f, 4)); // Low HP to trigger
+            .Returns((0.50f, 0.40f, 4)); // low HP — would satisfy shouldUse if not gated
 
-        // Temperance requires level 80
-        var context = CreateTestContext(
+        // Temperance requires level 80; level 70 fails the level check.
+        var context = ApolloTestContext.Create(
             config: config,
             actionService: actionService,
             partyHelper: partyHelper,
             level: 70,
             inCombat: true,
             canExecuteOgcd: true);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
 
-        // Act
-        _module.TryExecute(context, isMoving: false);
+        _module.CollectCandidates(context, scheduler, isMoving: false);
 
-        // Assert
-        actionService.Verify(a => a.ExecuteOgcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == WHMActions.Temperance.ActionId),
-            It.IsAny<ulong>()), Times.Never);
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
+            c => c.Behavior.Action.ActionId == WHMActions.Temperance.ActionId);
     }
 
-    #endregion
-
-    #region Liturgy of the Bell Tests
-
+    /// <summary>
+    /// When all gates pass (enabled, level met, ready, party HP below threshold),
+    /// Temperance is pushed at priority 80 in the oGCD queue.
+    /// </summary>
     [Fact]
-    public void TryExecute_LiturgyDisabled_DoesNotExecute()
+    public void CollectCandidates_TemperanceReady_LowPartyHp_PushesAtPriority80()
     {
-        // Arrange
-        var config = MockBuilders.CreateDefaultConfiguration();
-        config.Defensive.EnableLiturgyOfTheBell = false;
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        config.EnableHealing = true;
+        config.Defensive.EnableTemperance = true;
+        config.Defensive.DefensiveCooldownThreshold = 0.80f;
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
-        // Block all actions from being ready — this test verifies only the config gate for Liturgy
-        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(false);
-        var partyHelper = new Mock<IPartyHelper>();
-        partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
-            .Returns((0.5f, 0.3f, 3)); // Multiple injured
+        actionService.Setup(x => x.IsActionReady(WHMActions.Temperance.ActionId)).Returns(true);
 
-        var context = CreateTestContext(
+        var partyHelper = MockBuilders.CreateMockPartyHelper();
+        // avgHp 50% < threshold 80% — satisfies shouldUse; partyCoord is null so no remote mit check.
+        partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
+            .Returns((0.50f, 0.40f, 4));
+
+        var context = ApolloTestContext.Create(
             config: config,
             actionService: actionService,
             partyHelper: partyHelper,
             level: 90,
             inCombat: true,
             canExecuteOgcd: true);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
 
-        // Act
-        _module.TryExecute(context, isMoving: false);
+        _module.CollectCandidates(context, scheduler, isMoving: false);
 
-        // Assert
-        actionService.Verify(a => a.ExecuteGroundTargetedOgcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == WHMActions.LiturgyOfTheBell.ActionId),
-            It.IsAny<Vector3>()), Times.Never);
-    }
-
-    [Fact]
-    public void TryExecute_LiturgyNotEnoughInjured_DoesNotExecute()
-    {
-        // Arrange
-        var config = MockBuilders.CreateDefaultConfiguration();
-        config.Defensive.EnableLiturgyOfTheBell = true;
-
-        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
-        actionService.Setup(a => a.IsActionReady(WHMActions.LiturgyOfTheBell.ActionId))
-            .Returns(true);
-
-        var partyHelper = new Mock<IPartyHelper>();
-        partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
-            .Returns((0.9f, 0.8f, 1)); // Only 1 injured, need >= 2
-
-        var context = CreateTestContext(
-            config: config,
-            actionService: actionService,
-            partyHelper: partyHelper,
-            level: 90,
-            inCombat: true,
-            canExecuteOgcd: true);
-
-        // Act
-        _module.TryExecute(context, isMoving: false);
-
-        // Assert
-        actionService.Verify(a => a.ExecuteGroundTargetedOgcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == WHMActions.LiturgyOfTheBell.ActionId),
-            It.IsAny<Vector3>()), Times.Never);
+        var queue = scheduler.InspectOgcdQueue();
+        Assert.Contains(queue, c => c.Behavior.Action.ActionId == WHMActions.Temperance.ActionId);
+        var candidate = queue.First(c => c.Behavior.Action.ActionId == WHMActions.Temperance.ActionId);
+        Assert.Equal(80, candidate.Priority);
     }
 
     #endregion
 
-    #region Plenary Indulgence Tests
+    #region Divine Benison
 
+    /// <summary>
+    /// When EnableDivineBenison is false the config gate fires and no candidate
+    /// is pushed, even with a tank target present.
+    /// </summary>
     [Fact]
-    public void TryExecute_PlenaryDisabled_DoesNotExecute()
+    public void CollectCandidates_DivineBenisonDisabled_PushesNothing()
     {
-        // Arrange
-        var config = MockBuilders.CreateDefaultConfiguration();
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        config.EnableHealing = true;
+        config.Defensive.EnableDivineBenison = false;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        var context = ApolloTestContext.Create(
+            config: config,
+            actionService: actionService,
+            level: 90,
+            inCombat: true,
+            canExecuteOgcd: true);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
+            c => c.Behavior.Action.ActionId == WHMActions.DivineBenison.ActionId);
+    }
+
+    /// <summary>
+    /// Level 50 is below Divine Benison's MinLevel of 66; the level check inside
+    /// ActionValidator.CanExecute blocks the push.
+    /// </summary>
+    [Fact]
+    public void CollectCandidates_DivineBenisonLevelTooLow_PushesNothing()
+    {
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        config.EnableHealing = true;
+        config.Defensive.EnableDivineBenison = true;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+
+        // Divine Benison requires level 66; level 50 fails the level gate.
+        var context = ApolloTestContext.Create(
+            config: config,
+            actionService: actionService,
+            level: 50,
+            inCombat: true,
+            canExecuteOgcd: true);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
+            c => c.Behavior.Action.ActionId == WHMActions.DivineBenison.ActionId);
+    }
+
+    #endregion
+
+    #region Aquaveil
+
+    /// <summary>
+    /// When EnableAquaveil is false the config gate blocks the push.
+    /// </summary>
+    [Fact]
+    public void CollectCandidates_AquaveilDisabled_PushesNothing()
+    {
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        config.EnableHealing = true;
+        config.Defensive.EnableAquaveil = false;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        var context = ApolloTestContext.Create(
+            config: config,
+            actionService: actionService,
+            level: 90,
+            inCombat: true,
+            canExecuteOgcd: true);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
+            c => c.Behavior.Action.ActionId == WHMActions.Aquaveil.ActionId);
+    }
+
+    /// <summary>
+    /// Level 80 is below Aquaveil's MinLevel of 86; the level gate inside
+    /// ActionValidator.CanExecute blocks the push.
+    /// </summary>
+    [Fact]
+    public void CollectCandidates_AquaveilLevelTooLow_PushesNothing()
+    {
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        config.EnableHealing = true;
+        config.Defensive.EnableAquaveil = true;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+
+        // Aquaveil requires level 86; level 80 fails the level gate.
+        var context = ApolloTestContext.Create(
+            config: config,
+            actionService: actionService,
+            level: 80,
+            inCombat: true,
+            canExecuteOgcd: true);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
+            c => c.Behavior.Action.ActionId == WHMActions.Aquaveil.ActionId);
+    }
+
+    #endregion
+
+    #region Plenary Indulgence
+
+    /// <summary>
+    /// When EnablePlenaryIndulgence is false the config gate in ActionValidator blocks
+    /// the push, even with enough injured party members.
+    /// </summary>
+    [Fact]
+    public void CollectCandidates_PlenaryDisabled_PushesNothing()
+    {
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
         config.EnableHealing = true;
         config.Defensive.EnablePlenaryIndulgence = false;
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
-        // Block all actions from being ready — this test verifies only the config gate for Plenary
-        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(false);
-        var partyHelper = new Mock<IPartyHelper>();
+        var partyHelper = MockBuilders.CreateMockPartyHelper();
         partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
-            .Returns((0.6f, 0.4f, 3));
+            .Returns((0.60f, 0.40f, 4)); // enough injured — would satisfy shouldUse if not gated
 
-        var context = CreateTestContext(
+        var context = ApolloTestContext.Create(
             config: config,
             actionService: actionService,
             partyHelper: partyHelper,
             level: 90,
             inCombat: true,
             canExecuteOgcd: true);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
 
-        // Act
-        _module.TryExecute(context, isMoving: false);
+        _module.CollectCandidates(context, scheduler, isMoving: false);
 
-        // Assert
-        actionService.Verify(a => a.ExecuteOgcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == WHMActions.PlenaryIndulgence.ActionId),
-            It.IsAny<ulong>()), Times.Never);
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
+            c => c.Behavior.Action.ActionId == WHMActions.PlenaryIndulgence.ActionId);
     }
 
+    /// <summary>
+    /// Level 60 is below Plenary Indulgence's MinLevel of 70; ActionValidator.CanExecute
+    /// blocks the push at the level check.
+    /// </summary>
     [Fact]
-    public void TryExecute_PlenaryLevelTooLow_DoesNotExecute()
+    public void CollectCandidates_PlenaryLevelTooLow_PushesNothing()
     {
-        // Arrange
-        var config = MockBuilders.CreateDefaultConfiguration();
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
         config.EnableHealing = true;
         config.Defensive.EnablePlenaryIndulgence = true;
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
-        var partyHelper = new Mock<IPartyHelper>();
+        var partyHelper = MockBuilders.CreateMockPartyHelper();
         partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
-            .Returns((0.6f, 0.4f, 3));
+            .Returns((0.60f, 0.40f, 4));
 
-        // Plenary Indulgence requires level 70
-        var context = CreateTestContext(
+        // Plenary Indulgence requires level 70; level 60 fails the level gate.
+        var context = ApolloTestContext.Create(
             config: config,
             actionService: actionService,
             partyHelper: partyHelper,
             level: 60,
             inCombat: true,
             canExecuteOgcd: true);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
 
-        // Act
-        _module.TryExecute(context, isMoving: false);
+        _module.CollectCandidates(context, scheduler, isMoving: false);
 
-        // Assert
-        actionService.Verify(a => a.ExecuteOgcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == WHMActions.PlenaryIndulgence.ActionId),
-            It.IsAny<ulong>()), Times.Never);
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
+            c => c.Behavior.Action.ActionId == WHMActions.PlenaryIndulgence.ActionId);
     }
 
-    #endregion
-
-    #region Divine Caress Tests
-
+    /// <summary>
+    /// When all gates pass (enabled, level met, ready, enough injured members, and
+    /// UseDefensivesWithAoEHeals is on), Plenary Indulgence is pushed at priority 100.
+    /// </summary>
     [Fact]
-    public void TryExecute_DivineCaressDisabled_DoesNotExecute()
+    public void CollectCandidates_PlenaryReady_EnoughInjured_PushesAtPriority100()
     {
-        // Arrange
-        var config = MockBuilders.CreateDefaultConfiguration();
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
         config.EnableHealing = true;
-        config.Defensive.EnableDivineCaress = false;
-
-        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
-        var partyHelper = new Mock<IPartyHelper>();
-        partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
-            .Returns((0.8f, 0.7f, 2));
-
-        var context = CreateTestContext(
-            config: config,
-            actionService: actionService,
-            partyHelper: partyHelper,
-            level: 100,
-            inCombat: true,
-            canExecuteOgcd: true);
-
-        // Act
-        _module.TryExecute(context, isMoving: false);
-
-        // Assert
-        actionService.Verify(a => a.ExecuteOgcd(
-            It.Is<ActionDefinition>(ad => ad.ActionId == WHMActions.DivineCaress.ActionId),
-            It.IsAny<ulong>()), Times.Never);
-    }
-
-    #endregion
-
-    #region Healing Master Toggle Tests
-
-    [Fact]
-    public void TryExecute_HealingDisabled_DoesNotExecuteDefensives()
-    {
-        // Arrange
-        var config = MockBuilders.CreateDefaultConfiguration();
-        config.EnableHealing = false;
-        config.Defensive.EnableTemperance = true;
-        config.Defensive.EnableDivineBenison = true;
         config.Defensive.EnablePlenaryIndulgence = true;
+        config.Defensive.UseDefensivesWithAoEHeals = true;
+        config.Healing.AoEHealMinTargets = 3;
 
         var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
-        var partyHelper = new Mock<IPartyHelper>();
-        partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
-            .Returns((0.5f, 0.3f, 4)); // Low HP to trigger
+        actionService.Setup(x => x.IsActionReady(WHMActions.PlenaryIndulgence.ActionId)).Returns(true);
 
-        var context = CreateTestContext(
+        var partyHelper = MockBuilders.CreateMockPartyHelper();
+        // injuredCount=3 satisfies injuredCount >= AoEHealMinTargets=3.
+        partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
+            .Returns((0.60f, 0.40f, 3));
+
+        var context = ApolloTestContext.Create(
             config: config,
             actionService: actionService,
             partyHelper: partyHelper,
             level: 90,
             inCombat: true,
             canExecuteOgcd: true);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
 
-        // Act
-        _module.TryExecute(context, isMoving: false);
+        _module.CollectCandidates(context, scheduler, isMoving: false);
 
-        // Assert - None of the defensive actions that require EnableHealing should fire
-        actionService.Verify(a => a.ExecuteOgcd(
-            It.Is<ActionDefinition>(ad =>
-                ad.ActionId == WHMActions.Temperance.ActionId ||
-                ad.ActionId == WHMActions.DivineBenison.ActionId ||
-                ad.ActionId == WHMActions.PlenaryIndulgence.ActionId ||
-                ad.ActionId == WHMActions.DivineCaress.ActionId),
-            It.IsAny<ulong>()), Times.Never);
+        var queue = scheduler.InspectOgcdQueue();
+        Assert.Contains(queue, c => c.Behavior.Action.ActionId == WHMActions.PlenaryIndulgence.ActionId);
+        var candidate = queue.First(c => c.Behavior.Action.ActionId == WHMActions.PlenaryIndulgence.ActionId);
+        Assert.Equal(100, candidate.Priority);
     }
 
     #endregion
 
-    #region Helper Methods
+    #region Liturgy of the Bell
 
-    private static ApolloContext CreateTestContext(
-        Configuration? config = null,
-        Mock<IPartyHelper>? partyHelper = null,
-        Mock<IActionService>? actionService = null,
-        byte level = 90,
-        uint currentHp = 50000,
-        uint maxHp = 50000,
-        uint currentMp = 10000,
-        bool inCombat = false,
-        bool canExecuteGcd = true,
-        bool canExecuteOgcd = false)
+    /// <summary>
+    /// When EnableLiturgyOfTheBell is false the ActionValidator config gate blocks the push,
+    /// even with enough injured party members. Note: Liturgy is NOT gated on EnableHealing —
+    /// only on its own toggle.
+    /// </summary>
+    [Fact]
+    public void CollectCandidates_LiturgyDisabled_PushesNothing()
     {
-        return ApolloTestContext.Create(
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        config.Defensive.EnableLiturgyOfTheBell = false;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        var partyHelper = MockBuilders.CreateMockPartyHelper();
+        partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
+            .Returns((0.60f, 0.40f, 3)); // enough injured — would satisfy threshold if not gated
+
+        var context = ApolloTestContext.Create(
             config: config,
-            partyHelper: partyHelper,
             actionService: actionService,
-            level: level,
-            currentHp: currentHp,
-            maxHp: maxHp,
-            currentMp: currentMp,
-            inCombat: inCombat,
-            canExecuteGcd: canExecuteGcd,
-            canExecuteOgcd: canExecuteOgcd);
+            partyHelper: partyHelper,
+            level: 90,
+            inCombat: true,
+            canExecuteOgcd: true);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
+            c => c.Behavior.Action.ActionId == WHMActions.LiturgyOfTheBell.ActionId);
+    }
+
+    /// <summary>
+    /// When only 1 party member is injured the injuredCount lt 2 guard fires,
+    /// blocking the push even though the action is enabled and ready.
+    /// </summary>
+    [Fact]
+    public void CollectCandidates_LiturgyNotEnoughInjured_PushesNothing()
+    {
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        config.Defensive.EnableLiturgyOfTheBell = true;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(x => x.IsActionReady(WHMActions.LiturgyOfTheBell.ActionId)).Returns(true);
+
+        var partyHelper = MockBuilders.CreateMockPartyHelper();
+        // injuredCount=1 fails the injuredCount >= 2 gate in TryPushLiturgyOfTheBell.
+        partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
+            .Returns((0.90f, 0.80f, 1));
+
+        var context = ApolloTestContext.Create(
+            config: config,
+            actionService: actionService,
+            partyHelper: partyHelper,
+            level: 90,
+            inCombat: true,
+            canExecuteOgcd: true);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
+            c => c.Behavior.Action.ActionId == WHMActions.LiturgyOfTheBell.ActionId);
+    }
+
+    /// <summary>
+    /// When all gates pass (enabled, level 90 met, ready, injuredCount >= 2), the Bell
+    /// is pushed as a ground-targeted oGCD at priority 130 — TargetId is 0 and
+    /// GroundPosition is non-null (placement at player position when no tank is found).
+    /// </summary>
+    [Fact]
+    public void CollectCandidates_LiturgyReady_EnoughInjured_PushesGroundTargetedAtPriority130()
+    {
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        config.Defensive.EnableLiturgyOfTheBell = true;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        actionService.Setup(x => x.IsActionReady(WHMActions.LiturgyOfTheBell.ActionId)).Returns(true);
+
+        var partyHelper = MockBuilders.CreateMockPartyHelper();
+        // injuredCount=3 >= 2; FindTankInParty returns null by default (placement at player pos).
+        partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
+            .Returns((0.60f, 0.40f, 3));
+
+        var context = ApolloTestContext.Create(
+            config: config,
+            actionService: actionService,
+            partyHelper: partyHelper,
+            level: 90,
+            inCombat: true,
+            canExecuteOgcd: true);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var queue = scheduler.InspectOgcdQueue();
+        Assert.Contains(queue, c => c.Behavior.Action.ActionId == WHMActions.LiturgyOfTheBell.ActionId);
+        var candidate = queue.First(c => c.Behavior.Action.ActionId == WHMActions.LiturgyOfTheBell.ActionId);
+        Assert.Equal(130, candidate.Priority);
+        // Ground-targeted push: GroundPosition must be set, TargetId must be 0.
+        Assert.NotNull(candidate.GroundPosition);
+        Assert.Equal(0ul, candidate.TargetId);
+    }
+
+    #endregion
+
+    #region Divine Caress
+
+    /// <summary>
+    /// When EnableDivineCaress is false the config gate fires and no candidate is pushed.
+    /// (In practice DivineCaress also requires the DivineGrace proc status, which is never
+    /// present on the mocked player, so this test specifically isolates the config toggle.)
+    /// </summary>
+    [Fact]
+    public void CollectCandidates_DivineCaressDisabled_PushesNothing()
+    {
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        config.EnableHealing = true;
+        config.Defensive.EnableDivineCaress = false;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        var context = ApolloTestContext.Create(
+            config: config,
+            actionService: actionService,
+            level: 100,
+            inCombat: true,
+            canExecuteOgcd: true);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
+            c => c.Behavior.Action.ActionId == WHMActions.DivineCaress.ActionId);
+    }
+
+    #endregion
+
+    #region Healing Master Toggle
+
+    /// <summary>
+    /// When EnableHealing is false, every defensive that gates on it
+    /// (Temperance, Divine Benison, Plenary Indulgence, Aquaveil, Divine Caress)
+    /// must be absent from the queue. Note: Liturgy of the Bell is NOT gated on
+    /// EnableHealing, so it is intentionally excluded from this assertion.
+    /// </summary>
+    [Fact]
+    public void CollectCandidates_HealingDisabled_PushesNoHealingGatedDefensives()
+    {
+        var config = ApolloTestContext.CreateDefaultWhiteMageConfiguration();
+        config.EnableHealing = false;
+        config.Defensive.EnableTemperance = true;
+        config.Defensive.EnableDivineBenison = true;
+        config.Defensive.EnablePlenaryIndulgence = true;
+        config.Defensive.EnableAquaveil = true;
+        config.Defensive.EnableDivineCaress = true;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteOgcd: true);
+        var partyHelper = MockBuilders.CreateMockPartyHelper();
+        partyHelper.Setup(p => p.CalculatePartyHealthMetrics(It.IsAny<IPlayerCharacter>()))
+            .Returns((0.50f, 0.30f, 4)); // conditions that would fire all defensives if healing were on
+
+        var context = ApolloTestContext.Create(
+            config: config,
+            actionService: actionService,
+            partyHelper: partyHelper,
+            level: 90,
+            inCombat: true,
+            canExecuteOgcd: true);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+
+        _module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var queue = scheduler.InspectOgcdQueue();
+        Assert.DoesNotContain(queue, c => c.Behavior.Action.ActionId == WHMActions.Temperance.ActionId);
+        Assert.DoesNotContain(queue, c => c.Behavior.Action.ActionId == WHMActions.DivineBenison.ActionId);
+        Assert.DoesNotContain(queue, c => c.Behavior.Action.ActionId == WHMActions.PlenaryIndulgence.ActionId);
+        Assert.DoesNotContain(queue, c => c.Behavior.Action.ActionId == WHMActions.Aquaveil.ActionId);
+        Assert.DoesNotContain(queue, c => c.Behavior.Action.ActionId == WHMActions.DivineCaress.ActionId);
     }
 
     #endregion

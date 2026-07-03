@@ -1,11 +1,13 @@
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Moq;
+using Olympus.Rotation.CalliopeCore.Abilities;
 using Olympus.Rotation.CalliopeCore.Context;
 using Olympus.Rotation.CalliopeCore.Modules;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
 using Olympus.Tests.Rotation.CalliopeCore;
+using Olympus.Tests.Rotation.Common.Scheduling;
 using Xunit;
 
 namespace Olympus.Tests.Rotation;
@@ -137,52 +139,129 @@ public class CalliopeTests
     #region Module Integration Tests
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenNotInCombat()
+    public void DamageModule_CollectCandidates_NotInCombat_PushesNothing()
     {
         var module = new DamageModule();
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = CalliopeTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+        Assert.Equal("Not in combat", context.Debug.DamageState);
     }
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenGcdNotReady()
+    public void DamageModule_CollectCandidates_ResonantArrow_Pushed_AtPriority1_WhenProcActive()
     {
         var module = new DamageModule();
 
         var enemy = new Mock<IBattleNpc>();
         enemy.Setup(x => x.GameObjectId).Returns(99999UL);
-        var targetingService = MockBuilders.CreateMockTargetingService();
-        targetingService.Setup(x => x.FindEnemy(
+        enemy.Setup(x => x.CurrentHp).Returns(10000u);
+        enemy.Setup(x => x.MaxHp).Returns(10000u);
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.FindEnemy(
             It.IsAny<EnemyTargetingStrategy>(),
             It.IsAny<float>(),
             It.IsAny<IPlayerCharacter>()))
             .Returns(enemy.Object);
-        targetingService.Setup(x => x.CountEnemiesInRange(It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
+        targeting.Setup(x => x.CountEnemiesInRange(It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
             .Returns(1);
 
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
         var context = CalliopeTestContext.Create(
             inCombat: true,
-            canExecuteGcd: false,
-            canExecuteOgcd: false,
-            targetingService: targetingService);
+            hasResonantArrowReady: true,
+            targetingService: targeting,
+            actionService: actionService);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        var gcd = scheduler.InspectGcdQueue();
+        Assert.Contains(gcd, c => c.Behavior == CalliopeAbilities.ResonantArrow && c.Priority == 1);
     }
 
     [Fact]
-    public void BuffModule_ReturnsFalse_WhenNotInCombat()
+    public void BuffModule_CollectCandidates_NotInCombat_PushesNothing()
     {
         var module = new BuffModule();
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = CalliopeTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+        Assert.Equal("Not in combat", context.Debug.BuffState);
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_SongRotation_Disabled_SongNotPushed()
+    {
+        var module = new BuffModule();
+
+        var enemy = new Mock<IBattleNpc>();
+        enemy.Setup(x => x.GameObjectId).Returns(99999UL);
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.FindEnemy(
+            It.IsAny<EnemyTargetingStrategy>(),
+            It.IsAny<float>(),
+            It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+        targeting.Setup(x => x.CountEnemiesInRange(It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(0);
+
+        var config = CalliopeTestContext.CreateDefaultBardConfiguration();
+        config.Bard.EnableSongRotation = false;
+
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = CalliopeTestContext.Create(
+            inCombat: true,
+            noSongActive: true,
+            targetingService: targeting,
+            actionService: actionService,
+            config: config);
+
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcd = scheduler.InspectOgcdQueue();
+        Assert.DoesNotContain(ogcd, c => c.Behavior == CalliopeAbilities.WanderersMinuet);
+        Assert.DoesNotContain(ogcd, c => c.Behavior == CalliopeAbilities.MagesBallad);
+        Assert.DoesNotContain(ogcd, c => c.Behavior == CalliopeAbilities.ArmysPaeon);
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_WanderersMinuet_Pushed_AtPriority2_WhenNoSong()
+    {
+        var module = new BuffModule();
+
+        var enemy = new Mock<IBattleNpc>();
+        enemy.Setup(x => x.GameObjectId).Returns(99999UL);
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.FindEnemy(
+            It.IsAny<EnemyTargetingStrategy>(),
+            It.IsAny<float>(),
+            It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+        targeting.Setup(x => x.CountEnemiesInRange(It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(0);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = CalliopeTestContext.Create(
+            inCombat: true,
+            noSongActive: true,
+            targetingService: targeting,
+            actionService: actionService);
+
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcd = scheduler.InspectOgcdQueue();
+        Assert.Contains(ogcd, c => c.Behavior == CalliopeAbilities.WanderersMinuet && c.Priority == 2);
     }
 
     #endregion

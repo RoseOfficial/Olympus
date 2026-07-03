@@ -1,5 +1,12 @@
+using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
+using Moq;
+using Olympus.Rotation.NikeCore.Abilities;
 using Olympus.Rotation.NikeCore.Context;
 using Olympus.Rotation.NikeCore.Modules;
+using Olympus.Services.Targeting;
+using Olympus.Tests.Mocks;
+using Olympus.Tests.Rotation.Common.Scheduling;
 using Olympus.Tests.Rotation.NikeCore;
 using Xunit;
 
@@ -141,36 +148,163 @@ public class NikeTests
     #region Module Integration Tests
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenNotInCombat()
+    public void DamageModule_CollectCandidates_PushesNothing_WhenNotInCombat()
     {
         var module = new DamageModule();
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = NikeTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenCannotExecuteGcd()
+    public void DamageModule_CollectCandidates_PushesNothing_WhenNoTarget()
     {
+        // Default targeting mock returns null for FindEnemyForAction.
+        // The module gates all pushes behind the target check.
         var module = new DamageModule();
-        var context = NikeTestContext.Create(inCombat: true, canExecuteGcd: false, canExecuteOgcd: false);
+        var scheduler = SchedulerFactory.CreateForTest();
+        var context = NikeTestContext.Create(inCombat: true);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void BuffModule_ReturnsFalse_WhenNotInCombat()
+    public void BuffModule_CollectCandidates_PushesNothing_WhenNotInCombat()
     {
         var module = new BuffModule();
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = NikeTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_PushesIkishoten_AtPriority2_WhenEnabled()
+    {
+        // Gate conditions: level >= 68, kenki <= 50, !HasOgiNamikiriReady, IsActionReady.
+        // EnableIkishoten defaults to true; burst pooling is a no-op without a service.
+        var enemy = CreateMockEnemy();
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.FindEnemyForAction(
+                It.IsAny<EnemyTargetingStrategy>(), It.IsAny<uint>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = NikeTestContext.Create(
+            actionService: actionService,
+            targetingService: targeting,
+            level: 100,
+            inCombat: true,
+            kenki: 0,
+            hasOgiNamikiriReady: false);
+
+        var module = new BuffModule();
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcd = scheduler.InspectOgcdQueue();
+        Assert.Contains(ogcd, c => c.Behavior == NikeAbilities.Ikishoten && c.Priority == 2);
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_DoesNotPushIkishoten_WhenToggleDisabled()
+    {
+        // EnableIkishoten = false triggers the module guard inside TryPushIkishoten.
+        var enemy = CreateMockEnemy();
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.FindEnemyForAction(
+                It.IsAny<EnemyTargetingStrategy>(), It.IsAny<uint>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+
+        var config = NikeTestContext.CreateDefaultSamuraiConfiguration();
+        config.Samurai.EnableIkishoten = false;
+
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = NikeTestContext.Create(
+            config: config,
+            actionService: actionService,
+            targetingService: targeting,
+            level: 100,
+            inCombat: true,
+            kenki: 0);
+
+        var module = new BuffModule();
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcd = scheduler.InspectOgcdQueue();
+        Assert.DoesNotContain(ogcd, c => c.Behavior == NikeAbilities.Ikishoten);
+    }
+
+    [Fact]
+    public void DamageModule_CollectCandidates_PushesKaeshiNamikiri_AtPriority1_WhenReady()
+    {
+        // KaeshiNamikiri: level >= 90, HasKaeshiNamikiriReady, IsActionReady -> GCD priority 1.
+        var enemy = CreateMockEnemy();
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.FindEnemyForAction(
+                It.IsAny<EnemyTargetingStrategy>(), It.IsAny<uint>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = NikeTestContext.Create(
+            actionService: actionService,
+            targetingService: targeting,
+            level: 100,
+            inCombat: true,
+            hasKaeshiNamikiriReady: true);
+
+        var module = new DamageModule();
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var gcd = scheduler.InspectGcdQueue();
+        Assert.Contains(gcd, c => c.Behavior == NikeAbilities.KaeshiNamikiri && c.Priority == 1);
+    }
+
+    [Fact]
+    public void DamageModule_CollectCandidates_DoesNotPushKaeshiNamikiri_WhenBuffMissing()
+    {
+        // HasKaeshiNamikiriReady = false (default) means the proc gate blocks the push.
+        var enemy = CreateMockEnemy();
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.FindEnemyForAction(
+                It.IsAny<EnemyTargetingStrategy>(), It.IsAny<uint>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = NikeTestContext.Create(
+            actionService: actionService,
+            targetingService: targeting,
+            level: 100,
+            inCombat: true,
+            hasKaeshiNamikiriReady: false);
+
+        var module = new DamageModule();
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var gcd = scheduler.InspectGcdQueue();
+        Assert.DoesNotContain(gcd, c => c.Behavior == NikeAbilities.KaeshiNamikiri);
+    }
+
+    private static Mock<IBattleNpc> CreateMockEnemy(ulong objectId = 99999UL)
+    {
+        var mock = new Mock<IBattleNpc>();
+        mock.Setup(x => x.GameObjectId).Returns(objectId);
+        mock.Setup(x => x.CurrentHp).Returns(10000u);
+        mock.Setup(x => x.MaxHp).Returns(10000u);
+        return mock;
     }
 
     #endregion

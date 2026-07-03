@@ -1,5 +1,9 @@
+using Moq;
+using Olympus.Rotation.KratosCore.Abilities;
 using Olympus.Rotation.KratosCore.Context;
 using Olympus.Rotation.KratosCore.Modules;
+using Olympus.Tests.Mocks;
+using Olympus.Tests.Rotation.Common.Scheduling;
 using Olympus.Tests.Rotation.KratosCore;
 using Xunit;
 
@@ -140,36 +144,88 @@ public class KratosTests
     #region Module Integration Tests
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenNotInCombat()
+    public void DamageModule_CollectCandidates_PreCombat_ChakraBelow5_PushesMediation()
     {
+        // DamageModule pushes Meditation pre-combat when Chakra < 5.
+        // No IsActionReady check on this path — pushes unconditionally once level and chakra gates pass.
         var module = new DamageModule();
-        var context = KratosTestContext.Create(inCombat: false);
+        var context = KratosTestContext.Create(inCombat: false, chakra: 0, level: 100);
+        var scheduler = SchedulerFactory.CreateForTest();
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Contains(scheduler.InspectGcdQueue(),
+            c => c.Behavior == KratosAbilities.Meditation && c.Priority == 10);
     }
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenCannotExecuteGcd()
+    public void DamageModule_CollectCandidates_PreCombat_ChakraAtMax_PushesNothing()
     {
+        // When Chakra is at maximum (5) out of combat, no pre-combat Meditation is pushed.
         var module = new DamageModule();
-        var context = KratosTestContext.Create(inCombat: true, canExecuteGcd: false, canExecuteOgcd: false);
+        var context = KratosTestContext.Create(inCombat: false, chakra: 5, level: 100);
+        var scheduler = SchedulerFactory.CreateForTest();
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void BuffModule_ReturnsFalse_WhenNotInCombat()
+    public void BuffModule_CollectCandidates_NotInCombat_PushesNothing()
     {
         var module = new BuffModule();
         var context = KratosTestContext.Create(inCombat: false);
+        var scheduler = SchedulerFactory.CreateForTest();
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_RiddleOfFire_PushedAtPriority1_WhenDisciplinedFistActive()
+    {
+        // Riddle of Fire requires: enabled (default), level met, not already active,
+        // DisciplinedFist active (required gate), action ready, no burst hold.
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+
+        var context = KratosTestContext.Create(
+            inCombat: true,
+            actionService: actionService,
+            hasRiddleOfFire: false,
+            hasDisciplinedFist: true,
+            level: 100);
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var module = new BuffModule();
+
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Contains(scheduler.InspectOgcdQueue(),
+            c => c.Behavior == KratosAbilities.RiddleOfFire && c.Priority == 1);
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_RiddleOfFire_NotPushed_WhenAlreadyActive()
+    {
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+
+        var context = KratosTestContext.Create(
+            inCombat: true,
+            actionService: actionService,
+            hasRiddleOfFire: true,
+            riddleOfFireRemaining: 15f);
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var module = new BuffModule();
+
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.DoesNotContain(scheduler.InspectOgcdQueue(),
+            c => c.Behavior == KratosAbilities.RiddleOfFire);
     }
 
     #endregion

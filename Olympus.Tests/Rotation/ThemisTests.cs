@@ -1,9 +1,12 @@
 using Moq;
+using Olympus.Rotation.Common.Scheduling;
+using Olympus.Rotation.ThemisCore.Abilities;
 using Olympus.Rotation.ThemisCore.Context;
 using Olympus.Rotation.ThemisCore.Modules;
 using Olympus.Services.Action;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
+using Olympus.Tests.Rotation.Common.Scheduling;
 using Olympus.Tests.Rotation.ThemisCore;
 using Xunit;
 
@@ -159,65 +162,93 @@ public class ThemisTests
     #region Module Integration Tests
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenNotInCombat()
+    public void DamageModule_CollectCandidates_NotInCombat_PushesNothing()
     {
         var module = new DamageModule();
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = ThemisTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+        Assert.Equal("Not in combat", context.Debug.DamageState);
     }
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenDamageDisabled()
+    public void DamageModule_CollectCandidates_DamageDisabled_PushesNothing()
     {
         var module = new DamageModule();
         var config = ThemisTestContext.CreateDefaultPaladinConfiguration();
         config.Tank.EnableDamage = false;
 
-        var enemy = new Moq.Mock<Dalamud.Game.ClientState.Objects.Types.IBattleNpc>();
-        var targetingService = MockBuilders.CreateMockTargetingService();
-        targetingService.Setup(x => x.FindEnemyForAction(
-            It.IsAny<EnemyTargetingStrategy>(),
-            It.IsAny<uint>(),
-            It.IsAny<Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter>()))
-            .Returns(enemy.Object);
+        var scheduler = SchedulerFactory.CreateForTest();
+        var context = ThemisTestContext.Create(config: config, inCombat: true);
 
-        var context = ThemisTestContext.Create(
-            config: config,
-            targetingService: targetingService,
-            inCombat: true,
-            canExecuteGcd: true);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        var result = module.TryExecute(context, isMoving: false);
-
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+        Assert.Equal("Disabled", context.Debug.DamageState);
     }
 
     [Fact]
-    public void MitigationModule_ReturnsFalse_WhenMitigationDisabled()
+    public void MitigationModule_CollectCandidates_MitigationDisabled_PushesNothing()
     {
         var module = new MitigationModule();
         var config = ThemisTestContext.CreateDefaultPaladinConfiguration();
         config.Tank.EnableMitigation = false;
 
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = ThemisTestContext.Create(config: config, inCombat: true);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectOgcdQueue());
+        Assert.Equal("Disabled", context.Debug.MitigationState);
     }
 
     [Fact]
-    public void BuffModule_ReturnsFalse_WhenNotInCombat()
+    public void MitigationModule_CollectCandidates_NotInCombat_PushesNothing()
     {
-        var module = new BuffModule();
+        var module = new MitigationModule();
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = ThemisTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectOgcdQueue());
+        Assert.Equal("Not in combat", context.Debug.MitigationState);
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_NotInCombat_PushesNothing()
+    {
+        var module = new BuffModule();
+        var scheduler = SchedulerFactory.CreateForTest();
+        var context = ThemisTestContext.Create(inCombat: false);
+
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Empty(scheduler.InspectOgcdQueue());
+        Assert.Equal("Not in combat", context.Debug.BuffState);
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_AutoTankStance_PushesIronWillAtPriority1()
+    {
+        var actionService = MockBuilders.CreateMockActionService();
+        actionService.Setup(x => x.IsActionReady(It.IsAny<uint>())).Returns(true);
+
+        var config = ThemisTestContext.CreateDefaultPaladinConfiguration();
+        config.Tank.AutoTankStance = true;
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = ThemisTestContext.Create(inCombat: true, config: config, actionService: actionService);
+
+        new BuffModule().CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Contains(scheduler.InspectOgcdQueue(), c => c.Behavior == ThemisAbilities.IronWill && c.Priority == 1);
     }
 
     #endregion

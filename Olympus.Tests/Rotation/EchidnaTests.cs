@@ -1,5 +1,12 @@
+using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
+using Moq;
+using Olympus.Rotation.EchidnaCore.Abilities;
 using Olympus.Rotation.EchidnaCore.Context;
 using Olympus.Rotation.EchidnaCore.Modules;
+using Olympus.Services.Targeting;
+using Olympus.Tests.Mocks;
+using Olympus.Tests.Rotation.Common.Scheduling;
 using Olympus.Tests.Rotation.EchidnaCore;
 using Xunit;
 
@@ -148,36 +155,180 @@ public class EchidnaTests
     #region Module Integration Tests
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenNotInCombat()
+    public void DamageModule_CollectCandidates_PushesNothing_WhenNotInCombat()
     {
         var module = new DamageModule();
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = EchidnaTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenCannotExecuteGcd()
+    public void DamageModule_CollectCandidates_PushesNothing_WhenNoTarget()
     {
+        // Default targeting mock returns null for FindEnemyForAction.
+        // The module gates all pushes behind the target check.
         var module = new DamageModule();
-        var context = EchidnaTestContext.Create(inCombat: true, canExecuteGcd: false, canExecuteOgcd: false);
+        var scheduler = SchedulerFactory.CreateForTest();
+        var context = EchidnaTestContext.Create(inCombat: true);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void BuffModule_ReturnsFalse_WhenNotInCombat()
+    public void BuffModule_CollectCandidates_PushesNothing_WhenNotInCombat()
     {
         var module = new BuffModule();
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = EchidnaTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_PushesSerpentsIre_AtPriority1_WhenConditionsMet()
+    {
+        // Gate conditions: EnableSerpentsIre (default true), level >= 86, IsActionReady,
+        // !ShouldHoldForPhaseTransition (null timeline), !ShouldHoldForBurst (null service),
+        // HasNoxiousGnash, HasHuntersInstinct, HasSwiftscaled.
+        // BuffModule uses player.GameObjectId as target; no enemy target needed.
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = EchidnaTestContext.Create(
+            actionService: actionService,
+            level: 100,
+            inCombat: true,
+            hasNoxiousGnash: true,
+            hasHuntersInstinct: true,
+            hasSwiftscaled: true);
+
+        var module = new BuffModule();
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcd = scheduler.InspectOgcdQueue();
+        Assert.Contains(ogcd, c => c.Behavior == EchidnaAbilities.SerpentsIre && c.Priority == 1);
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_DoesNotPushSerpentsIre_WhenToggleDisabled()
+    {
+        // EnableSerpentsIre = false triggers the module guard inside TryPushSerpentsIre.
+        var config = EchidnaTestContext.CreateDefaultViperConfiguration();
+        config.Viper.EnableSerpentsIre = false;
+
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = EchidnaTestContext.Create(
+            config: config,
+            actionService: actionService,
+            level: 100,
+            inCombat: true,
+            hasNoxiousGnash: true,
+            hasHuntersInstinct: true,
+            hasSwiftscaled: true);
+
+        var module = new BuffModule();
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcd = scheduler.InspectOgcdQueue();
+        Assert.DoesNotContain(ogcd, c => c.Behavior == EchidnaAbilities.SerpentsIre);
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_DoesNotPushSerpentsIre_WhenHuntersInstinctMissing()
+    {
+        // The buff-gate blocks when HasHuntersInstinct is false, even if HasNoxiousGnash passes.
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = EchidnaTestContext.Create(
+            actionService: actionService,
+            level: 100,
+            inCombat: true,
+            hasNoxiousGnash: true,
+            hasHuntersInstinct: false,
+            hasSwiftscaled: true);
+
+        var module = new BuffModule();
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcd = scheduler.InspectOgcdQueue();
+        Assert.DoesNotContain(ogcd, c => c.Behavior == EchidnaAbilities.SerpentsIre);
+    }
+
+    [Fact]
+    public void DamageModule_CollectCandidates_PushesSteelFangs_AtPriority5_WhenNoCombo()
+    {
+        // With ComboStep = 0 and HasHuntersInstinct = false, GetStarterAction returns SteelFangs.
+        // SteelFangs is pushed as the ST dual-wield combo starter at GCD priority 5.
+        var enemy = CreateMockEnemy();
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.FindEnemyForAction(
+                It.IsAny<EnemyTargetingStrategy>(), It.IsAny<uint>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = EchidnaTestContext.Create(
+            actionService: actionService,
+            targetingService: targeting,
+            level: 100,
+            inCombat: true,
+            comboStep: 0,
+            hasHuntersInstinct: false);
+
+        var module = new DamageModule();
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var gcd = scheduler.InspectGcdQueue();
+        Assert.Contains(gcd, c => c.Behavior == EchidnaAbilities.SteelFangs && c.Priority == 5);
+    }
+
+    [Fact]
+    public void DamageModule_CollectCandidates_DoesNotPushReawaken_WhenToggleDisabled()
+    {
+        // EnableReawaken = false triggers the module guard inside TryPushReawaken.
+        var enemy = CreateMockEnemy();
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.FindEnemyForAction(
+                It.IsAny<EnemyTargetingStrategy>(), It.IsAny<uint>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+
+        var config = EchidnaTestContext.CreateDefaultViperConfiguration();
+        config.Viper.EnableReawaken = false;
+
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = EchidnaTestContext.Create(
+            config: config,
+            actionService: actionService,
+            targetingService: targeting,
+            level: 100,
+            inCombat: true);
+
+        var module = new DamageModule();
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var gcd = scheduler.InspectGcdQueue();
+        Assert.DoesNotContain(gcd, c => c.Behavior == EchidnaAbilities.Reawaken);
+    }
+
+    private static Mock<IBattleNpc> CreateMockEnemy(ulong objectId = 99999UL)
+    {
+        var mock = new Mock<IBattleNpc>();
+        mock.Setup(x => x.GameObjectId).Returns(objectId);
+        mock.Setup(x => x.CurrentHp).Returns(10000u);
+        mock.Setup(x => x.MaxHp).Returns(10000u);
+        return mock;
     }
 
     #endregion

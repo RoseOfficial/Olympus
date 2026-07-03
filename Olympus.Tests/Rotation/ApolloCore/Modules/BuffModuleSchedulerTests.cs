@@ -50,16 +50,12 @@ public class BuffModuleSchedulerTests
         _module.CollectCandidates(context, scheduler, isMoving: false);
 
         var queue = scheduler.InspectOgcdQueue();
-        var asylumCandidate = queue.FirstOrDefault(c => c.Behavior.Action.ActionId == WHMActions.Asylum.ActionId);
-        if (asylumCandidate.Behavior is not null)
-        {
-            // If Asylum was pushed, verify it's ground-targeted (GroundPosition set, TargetId = 0).
-            Assert.NotNull(asylumCandidate.GroundPosition);
-            Assert.Equal(0ul, asylumCandidate.TargetId);
-        }
-        // If Asylum wasn't pushed, the gating prevented it — that's also valid behavior since
-        // PartyHealthMetrics may return different values depending on context details. The key
-        // assertion is that IF pushed, it's ground-targeted, never single-target.
+        // Asylum must be present: injuredCount = 4, IsActionReady = true, EnableAsylum = true.
+        Assert.Contains(queue, c => c.Behavior.Action.ActionId == WHMActions.Asylum.ActionId);
+        var asylumCandidate = queue.First(c => c.Behavior.Action.ActionId == WHMActions.Asylum.ActionId);
+        // Ground-targeted: GroundPosition must be set and TargetId must be 0 (not a unit target).
+        Assert.NotNull(asylumCandidate.GroundPosition);
+        Assert.Equal(0ul, asylumCandidate.TargetId);
     }
 
     [Fact]

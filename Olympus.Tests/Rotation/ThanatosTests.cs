@@ -1,5 +1,12 @@
+using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
+using Moq;
+using Olympus.Rotation.ThanatosCore.Abilities;
 using Olympus.Rotation.ThanatosCore.Context;
 using Olympus.Rotation.ThanatosCore.Modules;
+using Olympus.Services.Targeting;
+using Olympus.Tests.Mocks;
+using Olympus.Tests.Rotation.Common.Scheduling;
 using Olympus.Tests.Rotation.ThanatosCore;
 using Xunit;
 
@@ -148,36 +155,171 @@ public class ThanatosTests
     #region Module Integration Tests
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenNotInCombat()
+    public void DamageModule_CollectCandidates_PushesNothing_WhenNotInCombat()
     {
         var module = new DamageModule();
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = ThanatosTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenCannotExecuteGcd()
+    public void DamageModule_CollectCandidates_PushesNothing_WhenNoTarget()
     {
+        // Default targeting mock returns null for FindEnemyForAction.
+        // The module gates all pushes behind the target check.
         var module = new DamageModule();
-        var context = ThanatosTestContext.Create(inCombat: true, canExecuteGcd: false, canExecuteOgcd: false);
+        var scheduler = SchedulerFactory.CreateForTest();
+        var context = ThanatosTestContext.Create(inCombat: true);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void BuffModule_ReturnsFalse_WhenNotInCombat()
+    public void BuffModule_CollectCandidates_PushesNothing_WhenNotInCombat()
     {
         var module = new BuffModule();
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = ThanatosTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_PushesArcaneCircle_AtPriority1_WhenDeathsDesignActive()
+    {
+        // Gate conditions: EnableArcaneCircle, level >= 72, !HasArcaneCircle,
+        // IsActionReady, !ShouldHoldForBurst (null service), HasDeathsDesign.
+        // BuffModule uses player.GameObjectId as target; no enemy target needed.
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = ThanatosTestContext.Create(
+            actionService: actionService,
+            level: 100,
+            inCombat: true,
+            hasArcaneCircle: false,
+            hasDeathsDesign: true);
+
+        var module = new BuffModule();
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcd = scheduler.InspectOgcdQueue();
+        Assert.Contains(ogcd, c => c.Behavior == ThanatosAbilities.ArcaneCircle && c.Priority == 1);
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_DoesNotPushArcaneCircle_WhenToggleDisabled()
+    {
+        // EnableArcaneCircle = false triggers the module guard inside TryPushArcaneCircle.
+        var config = ThanatosTestContext.CreateDefaultReaperConfiguration();
+        config.Reaper.EnableArcaneCircle = false;
+
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = ThanatosTestContext.Create(
+            config: config,
+            actionService: actionService,
+            level: 100,
+            inCombat: true,
+            hasArcaneCircle: false,
+            hasDeathsDesign: true);
+
+        var module = new BuffModule();
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcd = scheduler.InspectOgcdQueue();
+        Assert.DoesNotContain(ogcd, c => c.Behavior == ThanatosAbilities.ArcaneCircle);
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_DoesNotPushArcaneCircle_WhenDeathsDesignMissing()
+    {
+        // HasDeathsDesign = false (default) causes TryPushArcaneCircle to return early.
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = ThanatosTestContext.Create(
+            actionService: actionService,
+            level: 100,
+            inCombat: true,
+            hasArcaneCircle: false,
+            hasDeathsDesign: false);
+
+        var module = new BuffModule();
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcd = scheduler.InspectOgcdQueue();
+        Assert.DoesNotContain(ogcd, c => c.Behavior == ThanatosAbilities.ArcaneCircle);
+    }
+
+    [Fact]
+    public void DamageModule_CollectCandidates_PushesPerfectio_AtPriority1_WhenProcActive()
+    {
+        // Perfectio: EnablePerfectio (default true), level >= 100, HasPerfectioParata, IsActionReady.
+        var enemy = CreateMockEnemy();
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.FindEnemyForAction(
+                It.IsAny<EnemyTargetingStrategy>(), It.IsAny<uint>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = ThanatosTestContext.Create(
+            actionService: actionService,
+            targetingService: targeting,
+            level: 100,
+            inCombat: true,
+            hasPerfectioParata: true);
+
+        var module = new DamageModule();
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var gcd = scheduler.InspectGcdQueue();
+        Assert.Contains(gcd, c => c.Behavior == ThanatosAbilities.Perfectio && c.Priority == 1);
+    }
+
+    [Fact]
+    public void DamageModule_CollectCandidates_DoesNotPushPerfectio_WhenNoProcBuff()
+    {
+        // HasPerfectioParata = false (default) means the proc gate blocks the push.
+        var enemy = CreateMockEnemy();
+        var targeting = MockBuilders.CreateMockTargetingService();
+        targeting.Setup(x => x.FindEnemyForAction(
+                It.IsAny<EnemyTargetingStrategy>(), It.IsAny<uint>(), It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+
+        var actionService = MockBuilders.CreateMockActionService();
+        var scheduler = SchedulerFactory.CreateForTest(actionService: actionService);
+        var context = ThanatosTestContext.Create(
+            actionService: actionService,
+            targetingService: targeting,
+            level: 100,
+            inCombat: true,
+            hasPerfectioParata: false);
+
+        var module = new DamageModule();
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var gcd = scheduler.InspectGcdQueue();
+        Assert.DoesNotContain(gcd, c => c.Behavior == ThanatosAbilities.Perfectio);
+    }
+
+    private static Mock<IBattleNpc> CreateMockEnemy(ulong objectId = 99999UL)
+    {
+        var mock = new Mock<IBattleNpc>();
+        mock.Setup(x => x.GameObjectId).Returns(objectId);
+        mock.Setup(x => x.CurrentHp).Returns(10000u);
+        mock.Setup(x => x.MaxHp).Returns(10000u);
+        return mock;
     }
 
     #endregion

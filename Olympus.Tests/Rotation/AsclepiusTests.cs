@@ -1,9 +1,13 @@
+using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
 using Moq;
+using Olympus.Data;
 using Olympus.Rotation.AsclepiusCore.Context;
 using Olympus.Rotation.AsclepiusCore.Modules;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
 using Olympus.Tests.Rotation.AsclepiusCore;
+using Olympus.Tests.Rotation.Common.Scheduling;
 using Xunit;
 
 namespace Olympus.Tests.Rotation;
@@ -193,18 +197,24 @@ public class AsclepiusTests
     #region Module Integration Tests
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenNotInCombat()
+    public void DamageModule_CollectCandidates_NotInCombat_PushesNothing()
     {
         var module = new DamageModule();
-        var context = AsclepiusTestContext.Create(inCombat: false);
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        var context = AsclepiusTestContext.Create(
+            actionService: actionService,
+            inCombat: false,
+            canExecuteGcd: true);
 
-        var result = module.TryExecute(context, isMoving: false);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenDamageDisabled()
+    public void DamageModule_CollectCandidates_AllDamageDisabled_PushesNothing()
     {
         var module = new DamageModule();
         var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
@@ -214,65 +224,158 @@ public class AsclepiusTests
         config.Sage.EnablePsyche = false;
         config.Sage.EnableToxikon = false;
 
-        var enemy = new Moq.Mock<Dalamud.Game.ClientState.Objects.Types.IBattleNpc>();
+        var enemy = new Mock<IBattleNpc>();
         var targetingService = MockBuilders.CreateMockTargetingService();
         targetingService.Setup(x => x.FindEnemy(
             It.IsAny<EnemyTargetingStrategy>(),
             It.IsAny<float>(),
-            It.IsAny<Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter>()))
+            It.IsAny<IPlayerCharacter>()))
             .Returns(enemy.Object);
 
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true, canExecuteOgcd: true);
         var context = AsclepiusTestContext.Create(
             config: config,
+            actionService: actionService,
             targetingService: targetingService,
+            inCombat: true,
+            canExecuteGcd: true,
+            canExecuteOgcd: true);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void DamageModule_CollectCandidates_SingleTargetEnabled_PushesDosisIIIAtPriority330()
+    {
+        // At level 90, GetDamageGcdForLevel returns DosisIII (ActionId 24312, MinLevel 82).
+        // Psyche blocked (MinLevel 92 > 90), Phlegma blocked (0 charges by default),
+        // DoT blocked (HasEukrasia=false), AoE blocked (0 enemies < min).
+        var module = new DamageModule();
+        var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
+
+        var enemy = new Mock<IBattleNpc>();
+        var targetingService = MockBuilders.CreateMockTargetingService();
+        targetingService.Setup(x => x.FindEnemy(
+            It.IsAny<EnemyTargetingStrategy>(),
+            It.IsAny<float>(),
+            It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        var context = AsclepiusTestContext.Create(
+            config: config,
+            actionService: actionService,
+            targetingService: targetingService,
+            level: 90,
             inCombat: true,
             canExecuteGcd: true);
 
-        var result = module.TryExecute(context, isMoving: false);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        var gcdQueue = scheduler.InspectGcdQueue();
+        var stCandidate = Assert.Single(gcdQueue, c => c.Behavior.Action.ActionId == SGEActions.DosisIII.ActionId);
+        Assert.Equal(330, stCandidate.Priority);
     }
 
     [Fact]
-    public void HealingModule_ReturnsFalse_WhenNotInCombat()
+    public void HealingModule_CollectCandidates_NotInCombat_PushesNothing()
     {
         var module = new HealingModule();
-        var context = AsclepiusTestContext.Create(inCombat: false, canExecuteGcd: false, canExecuteOgcd: false);
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        var context = AsclepiusTestContext.Create(
+            actionService: actionService,
+            inCombat: false,
+            canExecuteGcd: true);
 
-        var result = module.TryExecute(context, isMoving: false);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void ResurrectionModule_ReturnsFalse_WhenRaiseDisabled()
+    public void HealingModule_CollectCandidates_HealingMasterDisabled_PushesNothing()
     {
+        var module = new HealingModule();
+        var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
+        config.EnableHealing = false;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        var context = AsclepiusTestContext.Create(
+            config: config,
+            actionService: actionService,
+            inCombat: true,
+            canExecuteGcd: true);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void ResurrectionModule_CollectCandidates_RaiseDisabled_PushesNothing()
+    {
+        // EnableRaise=false is the master toggle; even with a dead member present, nothing pushes.
         var module = new ResurrectionModule();
         var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
         config.Resurrection.EnableRaise = false;
 
+        var deadMember = MockBuilders.CreateMockBattleChara(entityId: 99u, currentHp: 0, maxHp: 50000);
+        var partyHelper = MockBuilders.CreateMockPartyHelper(deadMember: deadMember.Object);
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+
         var context = AsclepiusTestContext.Create(
             config: config,
+            partyHelper: partyHelper,
+            actionService: actionService,
             inCombat: true,
-            canExecuteGcd: true,
-            canExecuteOgcd: false);
+            canExecuteGcd: true);
 
-        var result = module.TryExecute(context, isMoving: false);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void KardiaModule_ReturnsFalse_WhenNoOgcdAvailable()
+    public void ResurrectionModule_CollectCandidates_DeadMemberAndHardcastAllowed_PushesEgeiroAtPriorityOne()
     {
-        var module = new KardiaModule();
+        // Swiftcast on cooldown (60s) forces the hardcast path.
+        // SGE ShouldWaitForPreRaiseBuff always returns false, so hardcast proceeds immediately.
+        var module = new ResurrectionModule();
+        var config = AsclepiusTestContext.CreateDefaultSageConfiguration();
+
+        var deadMember = MockBuilders.CreateMockBattleChara(entityId: 99u, currentHp: 0, maxHp: 50000);
+        var partyHelper = MockBuilders.CreateMockPartyHelper(deadMember: deadMember.Object);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        actionService.Setup(x => x.IsActionReady(RoleActions.Swiftcast.ActionId)).Returns(false);
+        actionService.Setup(x => x.GetCooldownRemaining(RoleActions.Swiftcast.ActionId)).Returns(60f);
+
         var context = AsclepiusTestContext.Create(
-            canExecuteOgcd: false,
-            hasKardiaPlaced: false);
+            config: config,
+            partyHelper: partyHelper,
+            actionService: actionService,
+            level: 90,
+            currentMp: 10000,
+            inCombat: true,
+            canExecuteGcd: true);
 
-        var result = module.TryExecute(context, isMoving: false);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        var gcdQueue = scheduler.InspectGcdQueue();
+        var egeiroCandidate = Assert.Single(gcdQueue, c => c.Behavior.Action.ActionId == RoleActions.Egeiro.ActionId);
+        Assert.Equal(1, egeiroCandidate.Priority);
     }
 
     #endregion

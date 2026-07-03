@@ -1,10 +1,7 @@
-using Dalamud.Game.ClientState.Objects.SubKinds;
-using Dalamud.Game.ClientState.Objects.Types;
-using Moq;
+using Olympus.Rotation.CirceCore.Abilities;
 using Olympus.Rotation.CirceCore.Context;
 using Olympus.Rotation.CirceCore.Modules;
-using Olympus.Services.Targeting;
-using Olympus.Tests.Mocks;
+using Olympus.Tests.Rotation.Common.Scheduling;
 using Olympus.Tests.Rotation.CirceCore;
 using Xunit;
 
@@ -142,52 +139,83 @@ public class CirceTests
     #region Module Integration Tests
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenNotInCombat()
+    public void DamageModule_CollectCandidates_NotInCombat_PushesNothing()
     {
         var module = new DamageModule();
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = CirceTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenGcdNotReady()
+    public void DamageModule_CollectCandidates_NoTarget_PushesNothing()
     {
         var module = new DamageModule();
+        var scheduler = SchedulerFactory.CreateForTest();
+        // Default targetingService returns null from FindEnemy; module exits before any push.
+        var context = CirceTestContext.Create(inCombat: true);
 
-        var enemy = new Mock<IBattleNpc>();
-        enemy.Setup(x => x.GameObjectId).Returns(99999UL);
-        var targetingService = MockBuilders.CreateMockTargetingService();
-        targetingService.Setup(x => x.FindEnemy(
-            It.IsAny<EnemyTargetingStrategy>(),
-            It.IsAny<float>(),
-            It.IsAny<IPlayerCharacter>()))
-            .Returns(enemy.Object);
-        targetingService.Setup(x => x.CountEnemiesInRange(It.IsAny<float>(), It.IsAny<IPlayerCharacter>()))
-            .Returns(1);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        var context = CirceTestContext.Create(
-            inCombat: true,
-            canExecuteGcd: false,
-            canExecuteOgcd: false,
-            targetingService: targetingService);
-
-        var result = module.TryExecute(context, isMoving: false);
-
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void BuffModule_ReturnsFalse_WhenNotInCombat()
+    public void BuffModule_CollectCandidates_NotInCombat_PushesNothing()
     {
         var module = new BuffModule();
+        var scheduler = SchedulerFactory.CreateForTest();
         var context = CirceTestContext.Create(inCombat: false);
 
-        var result = module.TryExecute(context, isMoving: false);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_Embolden_PushedAtPriority2_WhenConditionsMet()
+    {
+        var module = new BuffModule();
+        var scheduler = SchedulerFactory.CreateForTest();
+        // canStartMeleeCombo: true bypasses the LowerMana < 40 guard in TryPushEmbolden.
+        var context = CirceTestContext.Create(
+            inCombat: true,
+            level: 58,
+            emboldenReady: true,
+            hasEmbolden: false,
+            canStartMeleeCombo: true);
+
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcd = scheduler.InspectOgcdQueue();
+        Assert.Contains(ogcd, c => c.Behavior == CirceAbilities.Embolden && c.Priority == 2);
+    }
+
+    [Fact]
+    public void BuffModule_CollectCandidates_Embolden_NotPushed_WhenToggleOff()
+    {
+        var module = new BuffModule();
+        var scheduler = SchedulerFactory.CreateForTest();
+        var config = CirceTestContext.CreateDefaultRdmConfiguration();
+        config.RedMage.EnableEmbolden = false;
+        var context = CirceTestContext.Create(
+            inCombat: true,
+            level: 58,
+            emboldenReady: true,
+            hasEmbolden: false,
+            canStartMeleeCombo: true,
+            config: config);
+
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        var ogcd = scheduler.InspectOgcdQueue();
+        Assert.DoesNotContain(ogcd, c => c.Behavior == CirceAbilities.Embolden);
     }
 
     #endregion

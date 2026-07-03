@@ -1,9 +1,13 @@
+using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
 using Moq;
+using Olympus.Data;
 using Olympus.Rotation.AstraeaCore.Context;
 using Olympus.Rotation.AstraeaCore.Modules;
 using Olympus.Services.Targeting;
 using Olympus.Tests.Mocks;
 using Olympus.Tests.Rotation.AstraeaCore;
+using Olympus.Tests.Rotation.Common.Scheduling;
 using Xunit;
 
 namespace Olympus.Tests.Rotation;
@@ -214,18 +218,24 @@ public class AstraeaTests
     #region Module Integration Tests
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenNotInCombat()
+    public void DamageModule_CollectCandidates_NotInCombat_PushesNothing()
     {
         var module = new DamageModule();
-        var context = AstraeaTestContext.Create(inCombat: false);
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        var context = AstraeaTestContext.Create(
+            actionService: actionService,
+            inCombat: false,
+            canExecuteGcd: true);
 
-        var result = module.TryExecute(context, isMoving: false);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void DamageModule_ReturnsFalse_WhenDamageDisabled()
+    public void DamageModule_CollectCandidates_AllDamageDisabled_PushesNothing()
     {
         var module = new DamageModule();
         var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
@@ -233,70 +243,145 @@ public class AstraeaTests
         config.Astrologian.EnableAoEDamage = false;
         config.Astrologian.EnableDot = false;
         config.Astrologian.EnableOracle = false;
+        config.Astrologian.EnableMinorArcana = false;
 
-        var enemy = new Moq.Mock<Dalamud.Game.ClientState.Objects.Types.IBattleNpc>();
+        var enemy = new Mock<IBattleNpc>();
         var targetingService = MockBuilders.CreateMockTargetingService();
         targetingService.Setup(x => x.FindEnemy(
             It.IsAny<EnemyTargetingStrategy>(),
             It.IsAny<float>(),
-            It.IsAny<Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter>()))
+            It.IsAny<IPlayerCharacter>()))
             .Returns(enemy.Object);
 
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true, canExecuteOgcd: true);
         var context = AstraeaTestContext.Create(
             config: config,
+            actionService: actionService,
             targetingService: targetingService,
+            inCombat: true,
+            canExecuteGcd: true,
+            canExecuteOgcd: true);
+
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+        module.CollectCandidates(context, scheduler, isMoving: false);
+
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
+    }
+
+    [Fact]
+    public void DamageModule_CollectCandidates_SingleTargetEnabled_PushesFallMaleficAtPriority330()
+    {
+        // At level 90, GetDamageGcdForLevel returns FallMalefic (ActionId 25871, MinLevel 82).
+        // Oracle blocked (HasDivining=false), LordOfCrowns blocked (HasLord=false by default),
+        // DoT blocked (FindEnemyNeedingDot=null), AoE blocked (0 enemies < min).
+        var module = new DamageModule();
+        var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
+
+        var enemy = new Mock<IBattleNpc>();
+        var targetingService = MockBuilders.CreateMockTargetingService();
+        targetingService.Setup(x => x.FindEnemy(
+            It.IsAny<EnemyTargetingStrategy>(),
+            It.IsAny<float>(),
+            It.IsAny<IPlayerCharacter>()))
+            .Returns(enemy.Object);
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        var context = AstraeaTestContext.Create(
+            config: config,
+            actionService: actionService,
+            targetingService: targetingService,
+            level: 90,
             inCombat: true,
             canExecuteGcd: true);
 
-        var result = module.TryExecute(context, isMoving: false);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        var gcdQueue = scheduler.InspectGcdQueue();
+        var stCandidate = Assert.Single(gcdQueue, c => c.Behavior.Action.ActionId == ASTActions.FallMalefic.ActionId);
+        Assert.Equal(330, stCandidate.Priority);
     }
 
     [Fact]
-    public void HealingModule_ReturnsFalse_WhenNoGcdOrOgcdAvailable()
+    public void HealingModule_CollectCandidates_HealingMasterDisabled_PushesNothing()
     {
         var module = new HealingModule();
+        var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
+        config.EnableHealing = false;
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
         var context = AstraeaTestContext.Create(
+            config: config,
+            actionService: actionService,
             inCombat: true,
-            canExecuteGcd: false,
-            canExecuteOgcd: false);
+            canExecuteGcd: true);
 
-        var result = module.TryExecute(context, isMoving: false);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void ResurrectionModule_ReturnsFalse_WhenRaiseDisabled()
+    public void ResurrectionModule_CollectCandidates_RaiseDisabled_PushesNothing()
     {
+        // EnableRaise=false is the master toggle; even with a dead member present, nothing pushes.
         var module = new ResurrectionModule();
         var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
         config.Resurrection.EnableRaise = false;
 
+        var deadMember = MockBuilders.CreateMockBattleChara(entityId: 99u, currentHp: 0, maxHp: 50000, isDead: true);
+        var partyHelper = new TestableAstraeaPartyHelper(new[] { deadMember.Object });
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+
         var context = AstraeaTestContext.Create(
             config: config,
+            partyHelper: partyHelper,
+            actionService: actionService,
             inCombat: true,
-            canExecuteGcd: true,
-            canExecuteOgcd: false);
+            canExecuteGcd: true);
 
-        var result = module.TryExecute(context, isMoving: false);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        Assert.Empty(scheduler.InspectGcdQueue());
+        Assert.Empty(scheduler.InspectOgcdQueue());
     }
 
     [Fact]
-    public void CardModule_ReturnsFalse_WhenNoCardAndNoOgcd()
+    public void ResurrectionModule_CollectCandidates_DeadMemberAndHardcastAllowed_PushesAscendAtPriorityOne()
     {
-        var module = new CardModule();
+        // Swiftcast and Lightspeed both on cooldown; hardcast Ascend is the only raise path.
+        // AST ShouldWaitForPreRaiseBuff checks lightspeedCooldown -- with 60f (> 10f), it returns false.
+        var module = new ResurrectionModule();
+        var config = AstraeaTestContext.CreateDefaultAstrologianConfiguration();
+
+        var deadMember = MockBuilders.CreateMockBattleChara(entityId: 99u, currentHp: 0, maxHp: 50000, isDead: true);
+        var partyHelper = new TestableAstraeaPartyHelper(new[] { deadMember.Object });
+
+        var actionService = MockBuilders.CreateMockActionService(canExecuteGcd: true);
+        actionService.Setup(x => x.IsActionReady(RoleActions.Swiftcast.ActionId)).Returns(false);
+        actionService.Setup(x => x.GetCooldownRemaining(RoleActions.Swiftcast.ActionId)).Returns(60f);
+        actionService.Setup(x => x.IsActionReady(ASTActions.Lightspeed.ActionId)).Returns(false);
+        actionService.Setup(x => x.GetCooldownRemaining(ASTActions.Lightspeed.ActionId)).Returns(60f);
+
         var context = AstraeaTestContext.Create(
-            hasCard: false,
-            canExecuteOgcd: false,
-            canExecuteGcd: false);
+            config: config,
+            partyHelper: partyHelper,
+            actionService: actionService,
+            level: 90,
+            currentMp: 10000,
+            inCombat: true,
+            canExecuteGcd: true);
 
-        var result = module.TryExecute(context, isMoving: false);
+        var scheduler = SchedulerFactory.CreateForTest(actionService);
+        module.CollectCandidates(context, scheduler, isMoving: false);
 
-        Assert.False(result);
+        var gcdQueue = scheduler.InspectGcdQueue();
+        var ascendCandidate = Assert.Single(gcdQueue, c => c.Behavior.Action.ActionId == RoleActions.Ascend.ActionId);
+        Assert.Equal(1, ascendCandidate.Priority);
     }
 
     #endregion
