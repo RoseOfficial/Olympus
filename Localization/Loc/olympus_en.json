@@ -1040,6 +1040,8 @@
   "config.job.brd.enable_natures_minne_desc": "Use Nature's Minne for party healing support",
   "config.job.brd.enable_wardens_paean": "Enable Warden's Paean",
   "config.job.brd.enable_wardens_paean_desc": "Use Warden's Paean for cleansing debuffs",
+  "config.job.brd.dot_min_target_hp": "DoT Min Target HP",
+  "config.job.brd.dot_min_target_hp_desc": "Skip DoTs on targets below this HP percentage",
 
   "config.job.mch.damage_section": "Damage",
   "config.job.mch.enable_drill": "Enable Drill",
@@ -1309,6 +1311,20 @@
   "config.job.pct.enable_hammer_motif_desc": "Use Hammer Motif (enables Hammer Stamp combo)",
   "config.job.pct.enable_starry_sky_motif": "Enable Starry Sky Motif",
   "config.job.pct.enable_starry_sky_motif_desc": "Use Starry Sky Motif (enables Starry Muse and Star Prism)",
+
+  "config.job.smn.use_demi_during_burst": "Use Demi During Burst",
+  "config.job.smn.use_demi_during_burst_desc": "Summon Bahamut/Phoenix inside burst windows",
+  "config.job.smn.aetherflow_reserve": "Aetherflow Reserve",
+  "config.job.smn.aetherflow_reserve_desc": "Aetherflow stacks to reserve for emergency",
+
+  "config.job.rdm.movement_section": "Movement / Gap Closers",
+  "config.job.rdm.movement_desc": "Controls Corps-a-corps and Engagement/Displacement usage.",
+  "config.job.rdm.movement_desc2": "Disable these if you don't want the rotation to dash into enemies.",
+  "config.job.rdm.use_corps_a_corps": "Use Corps-a-corps",
+  "config.job.rdm.use_engagement": "Use Engagement / Displacement",
+  "config.job.rdm.dash_min_hp_percent": "Dash Min HP %",
+  "config.job.rdm.dash_min_hp_percent_desc": "Corps-a-corps and Engagement won't fire below this HP threshold.",
+  "config.job.rdm.dash_min_hp_percent_desc2": "Prevents dashing into boss mechanics when you're already hurt.",
 
   "analytics.window_title": "Olympus Analytics",
   "analytics.realtime": "Realtime",

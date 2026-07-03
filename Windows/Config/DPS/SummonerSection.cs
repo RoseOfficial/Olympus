@@ -176,6 +176,17 @@ public sealed class SummonerSection
                 config.Summoner.SearingLightHoldTime, 0f, 10f, "%.1f s",
                 Loc.T(LocalizedStrings.Summoner.SearingLightHoldTimeDesc, "Max seconds to hold waiting for party buffs"), save, v => config.Summoner.SearingLightHoldTime = v);
 
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Summoner.UseDemiDuringBurst, "Use Demi During Burst"),
+                () => config.Summoner.UseDemiDuringBurst,
+                v => config.Summoner.UseDemiDuringBurst = v,
+                Loc.T(LocalizedStrings.Summoner.UseDemiDuringBurstDesc, "Summon Bahamut/Phoenix inside burst windows"), save);
+
+            config.Summoner.AetherflowReserve = ConfigUIHelpers.IntSlider(
+                Loc.T(LocalizedStrings.Summoner.AetherflowReserve, "Aetherflow Reserve"),
+                config.Summoner.AetherflowReserve, 0, 2,
+                Loc.T(LocalizedStrings.Summoner.AetherflowReserveDesc, "Aetherflow stacks to reserve for emergency"), save, v => config.Summoner.AetherflowReserve = v);
+
             ConfigUIHelpers.EndIndent();
         }
     }

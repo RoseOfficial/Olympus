@@ -166,23 +166,23 @@ public sealed class RedMageSection
 
     private void DrawMovementSection()
     {
-        if (ConfigUIHelpers.SectionHeader("Movement / Gap Closers", "RDM", false))
+        if (ConfigUIHelpers.SectionHeader(Loc.T(LocalizedStrings.RedMage.MovementSection, "Movement / Gap Closers"), "RDM", false))
         {
             ConfigUIHelpers.BeginIndent();
 
-            ImGui.TextDisabled("Controls Corps-a-corps and Engagement/Displacement usage.");
-            ImGui.TextDisabled("Disable these if you don't want the rotation to dash into enemies.");
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.RedMage.MovementDesc, "Controls Corps-a-corps and Engagement/Displacement usage."));
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.RedMage.MovementDesc2, "Disable these if you don't want the rotation to dash into enemies."));
 
             ConfigUIHelpers.Spacing();
 
             ConfigUIHelpers.Toggle(
-                "Use Corps-a-corps",
+                Loc.T(LocalizedStrings.RedMage.UseCorpsACorps, "Use Corps-a-corps"),
                 () => config.RedMage.EnableCorpsACorps,
                 v => config.RedMage.EnableCorpsACorps = v,
                 null, save, actionId: RDMActions.CorpsACorps.ActionId);
 
             ConfigUIHelpers.Toggle(
-                "Use Engagement / Displacement",
+                Loc.T(LocalizedStrings.RedMage.UseEngagement, "Use Engagement / Displacement"),
                 () => config.RedMage.EnableEngagement,
                 v => config.RedMage.EnableEngagement = v,
                 null, save, actionId: RDMActions.Engagement.ActionId);
@@ -190,13 +190,13 @@ public sealed class RedMageSection
             ConfigUIHelpers.Spacing();
 
             var hpPercent = config.RedMage.MeleeDashMinHpPercent * 100f;
-            if (ImGui.SliderFloat("Dash Min HP %", ref hpPercent, 0f, 100f, "%.0f%%"))
+            if (ImGui.SliderFloat(Loc.T(LocalizedStrings.RedMage.DashMinHpPercent, "Dash Min HP %"), ref hpPercent, 0f, 100f, "%.0f%%"))
             {
                 config.RedMage.MeleeDashMinHpPercent = hpPercent / 100f;
                 save();
             }
-            ImGui.TextDisabled("Corps-a-corps and Engagement won't fire below this HP threshold.");
-            ImGui.TextDisabled("Prevents dashing into boss mechanics when you're already hurt.");
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.RedMage.DashMinHpPercentDesc, "Corps-a-corps and Engagement won't fire below this HP threshold."));
+            ImGui.TextDisabled(Loc.T(LocalizedStrings.RedMage.DashMinHpPercentDesc2, "Prevents dashing into boss mechanics when you're already hurt."));
 
             ConfigUIHelpers.EndIndent();
         }

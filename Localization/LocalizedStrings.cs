@@ -1706,6 +1706,8 @@ public static class LocalizedStrings
         public const string SpreadDotsDesc = "config.job.brd.spread_dots_desc";
         public const string DotRefreshThreshold = "config.job.brd.dot_refresh_threshold";
         public const string DotRefreshThresholdDesc = "config.job.brd.dot_refresh_threshold_desc";
+        public const string DotMinTargetHp = "config.job.brd.dot_min_target_hp";
+        public const string DotMinTargetHpDesc = "config.job.brd.dot_min_target_hp_desc";
         public const string BurstSection = "config.job.brd.burst_section";
         public const string EnableBattleVoice = "config.job.brd.enable_battle_voice";
         public const string EnableBattleVoiceDesc = "config.job.brd.enable_battle_voice_desc";
@@ -1918,6 +1920,10 @@ public static class LocalizedStrings
         public const string EnableSearingFlashDesc = "config.job.smn.enable_searing_flash_desc";
         public const string RoleActionsSection = "config.job.smn.role_actions_section";
         public const string EnableAddle = "config.job.smn.enable_addle";
+        public const string UseDemiDuringBurst = "config.job.smn.use_demi_during_burst";
+        public const string UseDemiDuringBurstDesc = "config.job.smn.use_demi_during_burst_desc";
+        public const string AetherflowReserve = "config.job.smn.aetherflow_reserve";
+        public const string AetherflowReserveDesc = "config.job.smn.aetherflow_reserve_desc";
     }
 
     /// <summary>Keys for Red Mage specific settings.</summary>
@@ -1959,6 +1965,14 @@ public static class LocalizedStrings
         public const string EnablePrefulgenceDesc = "config.job.rdm.enable_prefulgence_desc";
         public const string RoleActionsSection = "config.job.rdm.role_actions_section";
         public const string EnableAddle = "config.job.rdm.enable_addle";
+        public const string MovementSection = "config.job.rdm.movement_section";
+        public const string MovementDesc = "config.job.rdm.movement_desc";
+        public const string MovementDesc2 = "config.job.rdm.movement_desc2";
+        public const string UseCorpsACorps = "config.job.rdm.use_corps_a_corps";
+        public const string UseEngagement = "config.job.rdm.use_engagement";
+        public const string DashMinHpPercent = "config.job.rdm.dash_min_hp_percent";
+        public const string DashMinHpPercentDesc = "config.job.rdm.dash_min_hp_percent_desc";
+        public const string DashMinHpPercentDesc2 = "config.job.rdm.dash_min_hp_percent_desc2";
     }
 
     /// <summary>Keys for Pictomancer specific settings.</summary>

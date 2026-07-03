@@ -171,6 +171,12 @@ public static class ConfigurationPresets
         // Sage - moderate Addersgall reserve
         config.Sage.AddersgallReserve = 1;
         config.Sage.PreventAddersgallCap = true;
+
+        // Shared role-action thresholds - balanced defaults for raid
+        config.MeleeShared.SecondWindHpThreshold = 0.50f;
+        config.MeleeShared.BloodbathHpThreshold = 0.85f;
+        config.CasterShared.LucidDreamingThreshold = 0.70f;
+        config.HealerShared.LucidDreamingThreshold = 0.70f;
     }
 
     /// <summary>
@@ -219,6 +225,12 @@ public static class ConfigurationPresets
         // Sage - no Addersgall reserve, maximize throughput
         config.Sage.AddersgallReserve = 0;
         config.Sage.PreventAddersgallCap = true;
+
+        // Shared role-action thresholds - aggressive for dungeon throughput
+        config.MeleeShared.SecondWindHpThreshold = 0.40f;
+        config.MeleeShared.BloodbathHpThreshold = 0.75f;
+        config.CasterShared.LucidDreamingThreshold = 0.60f;
+        config.HealerShared.LucidDreamingThreshold = 0.60f;
     }
 
     /// <summary>
@@ -267,6 +279,12 @@ public static class ConfigurationPresets
         // Sage - reserve Addersgall for emergencies
         config.Sage.AddersgallReserve = 2;
         config.Sage.PreventAddersgallCap = false;
+
+        // Shared role-action thresholds - conservative for casual safety
+        config.MeleeShared.SecondWindHpThreshold = 0.60f;
+        config.MeleeShared.BloodbathHpThreshold = 0.90f;
+        config.CasterShared.LucidDreamingThreshold = 0.80f;
+        config.HealerShared.LucidDreamingThreshold = 0.80f;
     }
 
     /// <summary>
@@ -292,6 +310,7 @@ public static class ConfigurationPresets
             config.Scholar.AetherflowReserve = 2;
             config.Scholar.EnableEnergyDrain = false;
             config.Sage.AddersgallReserve = 2;
+            config.HealerShared.LucidDreamingThreshold = 0.80f;
         }
 
         // Tanks
@@ -322,6 +341,17 @@ public static class ConfigurationPresets
             config.RedMage.EnableBurstPooling = false;
             config.Pictomancer.EnableBurstPooling = false;
         }
+
+        if (role is null or JobRole.MeleeDps)
+        {
+            config.MeleeShared.SecondWindHpThreshold = 0.60f;
+            config.MeleeShared.BloodbathHpThreshold = 0.90f;
+        }
+
+        if (role is null or JobRole.CasterDps)
+        {
+            config.CasterShared.LucidDreamingThreshold = 0.80f;
+        }
     }
 
     /// <summary>
@@ -347,6 +377,7 @@ public static class ConfigurationPresets
             config.Scholar.AetherflowReserve = 1;
             config.Scholar.EnableEnergyDrain = true;
             config.Sage.AddersgallReserve = 1;
+            config.HealerShared.LucidDreamingThreshold = 0.70f;
         }
 
         // Tanks
@@ -377,6 +408,17 @@ public static class ConfigurationPresets
             config.RedMage.EnableBurstPooling = true;
             config.Pictomancer.EnableBurstPooling = true;
         }
+
+        if (role is null or JobRole.MeleeDps)
+        {
+            config.MeleeShared.SecondWindHpThreshold = 0.50f;
+            config.MeleeShared.BloodbathHpThreshold = 0.85f;
+        }
+
+        if (role is null or JobRole.CasterDps)
+        {
+            config.CasterShared.LucidDreamingThreshold = 0.70f;
+        }
     }
 
     /// <summary>
@@ -402,6 +444,7 @@ public static class ConfigurationPresets
             config.Scholar.AetherflowReserve = 0;
             config.Scholar.EnableEnergyDrain = true;
             config.Sage.AddersgallReserve = 0;
+            config.HealerShared.LucidDreamingThreshold = 0.60f;
         }
 
         // Tanks
@@ -432,6 +475,17 @@ public static class ConfigurationPresets
             config.RedMage.EnableBurstPooling = true;
             config.Pictomancer.EnableBurstPooling = true;
         }
+
+        if (role is null or JobRole.MeleeDps)
+        {
+            config.MeleeShared.SecondWindHpThreshold = 0.40f;
+            config.MeleeShared.BloodbathHpThreshold = 0.75f;
+        }
+
+        if (role is null or JobRole.CasterDps)
+        {
+            config.CasterShared.LucidDreamingThreshold = 0.60f;
+        }
     }
 
     /// <summary>
@@ -457,6 +511,7 @@ public static class ConfigurationPresets
             config.Defensive.UseDynamicDefensiveThresholds = true;
             config.Scholar.AetherflowReserve = 1;
             config.Sage.AddersgallReserve = 1;
+            config.HealerShared.LucidDreamingThreshold = 0.70f;
         }
 
         // Tanks
@@ -488,6 +543,17 @@ public static class ConfigurationPresets
             config.Summoner.EnableBurstPooling = true;
             config.RedMage.EnableBurstPooling = true;
             config.Pictomancer.EnableBurstPooling = true;
+        }
+
+        if (role is null or JobRole.MeleeDps)
+        {
+            config.MeleeShared.SecondWindHpThreshold = 0.50f;
+            config.MeleeShared.BloodbathHpThreshold = 0.85f;
+        }
+
+        if (role is null or JobRole.CasterDps)
+        {
+            config.CasterShared.LucidDreamingThreshold = 0.70f;
         }
     }
 }

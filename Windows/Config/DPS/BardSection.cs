@@ -67,6 +67,12 @@ public sealed class BardSection
                 null, save, actionId: BRDActions.ApexArrow.ActionId);
 
             ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.Bard.UseApexDuringBurst, "Use Apex During Burst"),
+                () => config.Bard.UseApexDuringBurst,
+                v => config.Bard.UseApexDuringBurst = v,
+                Loc.T(LocalizedStrings.Bard.UseApexDuringBurstDesc, "Use Apex Arrow at 50+ during burst windows"), save);
+
+            ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Bard.EnableBlastArrow, "Enable Blast Arrow"),
                 () => config.Bard.EnableBlastArrow,
                 v => config.Bard.EnableBlastArrow = v,
@@ -145,6 +151,14 @@ public sealed class BardSection
                 v => config.Bard.UsePitchPerfectEarly = v,
                 Loc.T(LocalizedStrings.Bard.UsePitchPerfectEarlyDesc, "Use at 2 stacks if song is ending"), save);
 
+            if (config.Bard.UsePitchPerfectEarly)
+            {
+                config.Bard.PitchPerfectEarlyThreshold = ConfigUIHelpers.FloatSlider(
+                    Loc.T(LocalizedStrings.Bard.PitchPerfectEarlyThreshold, "Early Pitch Perfect Threshold"),
+                    config.Bard.PitchPerfectEarlyThreshold, 0f, 10f, "%.1f s",
+                    Loc.T(LocalizedStrings.Bard.PitchPerfectEarlyThresholdDesc, "Seconds remaining on song to use Pitch Perfect early"), save, v => config.Bard.PitchPerfectEarlyThreshold = v);
+            }
+
             ConfigUIHelpers.EndIndent();
         }
     }
@@ -177,6 +191,11 @@ public sealed class BardSection
                 Loc.T(LocalizedStrings.Bard.DotRefreshThreshold, "DoT Refresh Threshold"),
                 config.Bard.DotRefreshThreshold, 0f, 15f, "%.0f s",
                 Loc.T(LocalizedStrings.Bard.DotRefreshThresholdDesc, "Seconds remaining before refreshing DoTs"), save, v => config.Bard.DotRefreshThreshold = v);
+
+            config.Bard.DotMinTargetHp = ConfigUIHelpers.ThresholdSlider(
+                Loc.T(LocalizedStrings.Bard.DotMinTargetHp, "DoT Min Target HP"),
+                config.Bard.DotMinTargetHp, 0f, 50f,
+                Loc.T(LocalizedStrings.Bard.DotMinTargetHpDesc, "Skip DoTs on targets below this HP percentage"), save, v => config.Bard.DotMinTargetHp = v);
 
             ConfigUIHelpers.Toggle(
                 Loc.T(LocalizedStrings.Bard.SpreadDots, "Spread DoTs"),
@@ -217,6 +236,11 @@ public sealed class BardSection
                 () => config.Bard.EnableRadiantFinale,
                 v => config.Bard.EnableRadiantFinale = v,
                 null, save, actionId: BRDActions.RadiantFinale.ActionId);
+
+            config.Bard.RadiantFinaleMinCoda = ConfigUIHelpers.IntSlider(
+                Loc.T(LocalizedStrings.Bard.RadiantFinaleMinCoda, "Radiant Finale Min Coda"),
+                config.Bard.RadiantFinaleMinCoda, 1, 3,
+                Loc.T(LocalizedStrings.Bard.RadiantFinaleMinCodaDesc, "Minimum Coda count for Radiant Finale"), save, v => config.Bard.RadiantFinaleMinCoda = v);
 
             config.Bard.BuffHoldTime = ConfigUIHelpers.FloatSlider(
                 Loc.T(LocalizedStrings.Bard.BuffHoldTime, "Buff Hold Time"),
