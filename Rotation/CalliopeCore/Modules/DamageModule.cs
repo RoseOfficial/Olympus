@@ -83,7 +83,7 @@ public sealed class DamageModule : ICalliopeModule
         TryPushApexArrow(context, scheduler, target);
         TryPushIronJaws(context, scheduler, target);
         TryPushApplyDots(context, scheduler, target);
-        TryPushSpreadDots(context, scheduler, target);
+        TryPushSpreadDots(context, scheduler, target, enemyCount);
         TryPushFiller(context, scheduler, target, enemyCount);
     }
 
@@ -490,11 +490,13 @@ public sealed class DamageModule : ICalliopeModule
         }
     }
 
-    private void TryPushSpreadDots(ICalliopeContext context, RotationScheduler scheduler, IBattleChara primaryTarget)
+    private void TryPushSpreadDots(ICalliopeContext context, RotationScheduler scheduler, IBattleChara primaryTarget, int enemyCount)
     {
         var brdCfg = context.Configuration.Bard;
         if (!brdCfg.SpreadDots) return;
+        if (enemyCount >= brdCfg.AoEMinTargets) return;
         var level = context.Player.Level;
+        var spreadCount = 0;
 
         // Try to spread Stormbite to a secondary target
         if (brdCfg.EnableStormbite && level >= BRDActions.Windbite.MinLevel)
@@ -519,7 +521,8 @@ public sealed class DamageModule : ICalliopeModule
                                 context.Debug.PlannedAction = action.Name;
                                 context.Debug.DamageState = $"{action.Name} spread";
                             });
-                        return;
+                        spreadCount++;
+                        if (spreadCount >= brdCfg.DotSpreadMaxTargets) return;
                     }
                 }
             }

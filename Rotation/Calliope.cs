@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.JobGauge;
+using Dalamud.Game.ClientState.JobGauge.Types;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Plugin.Services;
@@ -70,6 +71,9 @@ public sealed class Calliope : BaseRangedDpsRotation<ICalliopeContext, ICalliope
     // Training service for explaining rotation decisions (optional)
     private readonly ITrainingService? _trainingService;
 
+    // Dalamud job gauge service for reliable BRD gauge access
+    private readonly IJobGauges _jobGauges;
+
     // Gauge values (read each frame)
     private int _soulVoice;
     private float _songTimer;
@@ -121,6 +125,7 @@ public sealed class Calliope : BaseRangedDpsRotation<ICalliopeContext, ICalliope
             tinctureDispatcher: tinctureDispatcher,
             pullIntentService: pullIntentService)
     {
+        _jobGauges = jobGauges;
         _timelineService = timelineService;
         _partyCoordinationService = partyCoordinationService;
         _trainingService = trainingService;
@@ -147,11 +152,16 @@ public sealed class Calliope : BaseRangedDpsRotation<ICalliopeContext, ICalliope
     /// <inheritdoc />
     protected override void ReadGaugeValues()
     {
-        _soulVoice = SafeGameAccess.GetBrdSoulVoice(ErrorMetrics);
-        _songTimer = SafeGameAccess.GetBrdSongTimer(ErrorMetrics);
-        _repertoire = SafeGameAccess.GetBrdRepertoire(ErrorMetrics);
-        _currentSong = SafeGameAccess.GetBrdCurrentSong(ErrorMetrics);
-        _codaCount = SafeGameAccess.GetBrdCodaCount(ErrorMetrics);
+        var gauge = _jobGauges.Get<BRDGauge>();
+        _soulVoice = gauge.SoulVoice;
+        _songTimer = gauge.SongTimer / 1000f;
+        _repertoire = gauge.Repertoire;
+        _currentSong = (byte)gauge.Song;
+        var codaCount = 0;
+        foreach (var c in gauge.Coda)
+            if ((byte)c != 0)
+                codaCount++;
+        _codaCount = codaCount;
     }
 
     /// <inheritdoc />
