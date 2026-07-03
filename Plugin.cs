@@ -129,6 +129,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly HintOverlay hintOverlay;
     private readonly OverlayWindow overlayWindow;
     private readonly ActionFeedWindow actionFeedWindow;
+    private readonly FightSummaryWindow? fightSummaryWindow;
     private readonly TelemetryService telemetryService;
     private readonly DrawCanvas drawCanvas;
     private readonly DrawingService drawingService;
@@ -163,6 +164,9 @@ public sealed class Plugin : IDalamudPlugin
     // Stored event handler delegates to allow removal in Dispose
     private readonly Action<uint, uint> onAbilityUsedHandler;
     private readonly Action<FightSession> onSessionCompletedHandler;
+
+    private DateTime _lastFrameErrorLog;
+    private int _suppressedFrameErrors;
     public Plugin(
         IDalamudPluginInterface pluginInterface,
         IFramework framework,
@@ -437,10 +441,10 @@ public sealed class Plugin : IDalamudPlugin
 
         if (fightSummaryService != null)
         {
-            var fightSummaryWindow = new FightSummaryWindow(
+            this.fightSummaryWindow = new FightSummaryWindow(
                 fightSummaryService, framework, configuration,
                 () => { analyticsWindow.IsOpen = true; });
-            windowSystem.AddWindow(fightSummaryWindow);
+            windowSystem.AddWindow(this.fightSummaryWindow);
         }
 
         windowSystem.AddWindow(configWindow);
@@ -785,7 +789,21 @@ public sealed class Plugin : IDalamudPlugin
         }
         catch (Exception ex)
         {
-            log.Error(ex, "Error in OnFrameworkUpdate");
+            var now = DateTime.UtcNow;
+            if (_lastFrameErrorLog == DateTime.MinValue || (now - _lastFrameErrorLog).TotalSeconds >= 5.0)
+            {
+                if (_suppressedFrameErrors > 0)
+                {
+                    log.Warning("OnFrameworkUpdate: {Count} error(s) suppressed", _suppressedFrameErrors);
+                    _suppressedFrameErrors = 0;
+                }
+                log.Error(ex, "Error in OnFrameworkUpdate");
+                _lastFrameErrorLog = now;
+            }
+            else
+            {
+                _suppressedFrameErrors++;
+            }
         }
     }
 
@@ -828,6 +846,7 @@ public sealed class Plugin : IDalamudPlugin
         pluginInterface.UiBuilder.OpenMainUi -= OpenMainUI;
 
         actionFeedWindow.Dispose();
+        fightSummaryWindow?.Dispose();
         windowSystem.RemoveAllWindows();
         olympusIpc.Dispose();
         partyCoordinationIpc?.Dispose();
@@ -839,9 +858,10 @@ public sealed class Plugin : IDalamudPlugin
         rotationManager.Dispose();
 
         // Dispose event subscribers before the container disposes their event sources
-        // (dotTrackingService and healingIntakeService subscribe to CombatEventService)
+        // (dotTrackingService, healingIntakeService, and performanceTracker subscribe to CombatEventService)
         dotTrackingService.Dispose();
         healingIntakeService.Dispose();
+        performanceTracker.Dispose();
 
         // Dispose container-registered services (e.g., CombatEventService)
         serviceContainer?.Dispose();
@@ -849,7 +869,6 @@ public sealed class Plugin : IDalamudPlugin
         trashAvoidanceService.Dispose();
         enemyAoECastTracker.Dispose();
         rmiWalkHookService.Dispose();
-        performanceTracker.Dispose();
         drawingService.Dispose();
         localization.Dispose();
     }
