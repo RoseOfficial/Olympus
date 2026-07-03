@@ -290,7 +290,7 @@ public sealed class DamageModule : IEchidnaModule
 
             if (!feintBlockedByRemote)
             {
-                scheduler.PushOgcd(EchidnaAbilities.Feint, target.GameObjectId, priority: 6,
+                scheduler.PushOgcd(EchidnaAbilities.Feint, target.GameObjectId, priority: 7,
                     onDispatched: _ =>
                     {
                         context.Debug.PlannedAction = RoleActions.Feint.Name;
