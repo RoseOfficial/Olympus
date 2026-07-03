@@ -43,7 +43,7 @@ public sealed class DrawHelperSection
         ImGui.Text(Loc.T(LocalizedStrings.DrawHelper.RenderingHeader, "Rendering"));
         var usePicto = dh.UsePictomancy;
         if (ImGui.Checkbox(Loc.T(LocalizedStrings.DrawHelper.UsePictomancy, "Use Pictomancy (3D rendering)"), ref usePicto)) { dh.UsePictomancy = usePicto; save(); }
-        if (ImGui.IsItemHovered()) ImGui.SetTooltip(Loc.T(LocalizedStrings.DrawHelper.UsePictomancyTooltip, "Requires Pictomancy plugin. Falls back gracefully if unavailable."));
+        if (ImGui.IsItemHovered()) ImGui.SetTooltip(Loc.T(LocalizedStrings.DrawHelper.UsePictomancyTooltip, "Renders 3D world overlays. Bundled with Olympus, no separate install needed."));
 
         var alpha = dh.PictomancyMaxAlpha;
         if (ImGui.SliderFloat(Loc.T(LocalizedStrings.DrawHelper.MaxAlpha, "Max Alpha"), ref alpha, 0.1f, 1f, "%.2f")) { dh.PictomancyMaxAlpha = alpha; save(); }

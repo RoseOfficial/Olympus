@@ -2212,7 +2212,7 @@
   "DrawHelper.EnableDrawingDisabledHint": "Drawing is disabled. Enable it to use these settings.",
   "DrawHelper.RenderingHeader": "Rendering",
   "DrawHelper.UsePictomancy": "Use Pictomancy",
-  "DrawHelper.UsePictomancyTooltip": "Use the Pictomancy plugin for enhanced rendering if available.",
+  "DrawHelper.UsePictomancyTooltip": "Renders 3D world overlays. Bundled with Olympus, no separate install needed.",
   "DrawHelper.MaxAlpha": "Max Alpha",
   "DrawHelper.ClipToGameUI": "Clip to Game UI",
   "DrawHelper.EnemyHitboxesHeader": "Enemy Hitboxes",
