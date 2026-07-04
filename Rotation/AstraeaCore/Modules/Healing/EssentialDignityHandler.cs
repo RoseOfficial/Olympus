@@ -33,12 +33,25 @@ public sealed class EssentialDignityHandler : IHealingHandler
         if (player.Level < ASTActions.EssentialDignity.MinLevel) return;
         if (!context.ActionService.IsActionReady(ASTActions.EssentialDignity.ActionId)) return;
 
+        var currentEdCharges = context.ActionService.GetCurrentCharges(ASTActions.EssentialDignity.ActionId);
+        var maxEdCharges = context.ActionService.GetMaxCharges(ASTActions.EssentialDignity.ActionId, player.Level);
+
         var target = context.PartyHelper.FindEssentialDignityTarget(player, config.EssentialDignityThreshold);
         if (target == null) return;
         if (HealerPartyHelper.HasNoHealStatus(target)) return;
         if (context.HealingCoordination.IsTargetReserved(target.EntityId, context.PartyCoordinationService)) return;
 
         var hpPercent = context.PartyHelper.GetHpPercent(target);
+
+        if (CoHealerArbitration.ShouldDefer(
+            context.Configuration.PartyCoordination.EnableHealerResourceArbitration,
+            context.PartyCoordinationService,
+            myResourceCount: (int)currentEdCharges,
+            overcapBiasThreshold: maxEdCharges > 0 ? (int)maxEdCharges : 2,
+            targetHpPercent: hpPercent,
+            hardFloor: 0.25f))
+            return;
+
         var action = ASTActions.EssentialDignity;
         var capturedTarget = target;
         var capturedHpPercent = hpPercent;

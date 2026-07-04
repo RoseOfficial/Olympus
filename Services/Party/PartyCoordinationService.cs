@@ -866,6 +866,28 @@ public sealed class PartyCoordinationService : IPartyCoordinationService
         }
     }
 
+    public RemoteHealerGaugeState? GetFreshestRemoteHealerGauge(float staleAgeSeconds = 3f)
+    {
+        if (!_config.EnablePartyCoordination || !_config.EnableHealerGaugeSharing)
+            return null;
+
+        lock (_stateLock)
+        {
+            RemoteHealerGaugeState? freshest = null;
+            foreach (var state in _remoteHealerGauges.Values)
+            {
+                if (freshest == null || state.LastUpdate > freshest.LastUpdate)
+                    freshest = state;
+            }
+
+            if (freshest == null)
+                return null;
+
+            var ageSeconds = (DateTime.UtcNow - freshest.LastUpdate).TotalSeconds;
+            return ageSeconds <= staleAgeSeconds ? freshest : null;
+        }
+    }
+
     #endregion
 
     #region Healer Role Coordination

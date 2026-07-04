@@ -3526,6 +3526,8 @@ public static class LocalizedStrings
         public const string InstanceTimeoutDesc = "config.party_coord.instance_timeout_desc";
         public const string HealReservationExpiry = "config.party_coord.heal_reservation_expiry";
         public const string HealReservationExpiryDesc = "config.party_coord.heal_reservation_expiry_desc";
+        public const string EnableHealerResourceArbitration = "config.party_coord.enable_healer_resource_arbitration";
+        public const string EnableHealerResourceArbitrationDesc = "config.party_coord.enable_healer_resource_arbitration_desc";
     }
 
     /// <summary>Keys for Changelog window.</summary>

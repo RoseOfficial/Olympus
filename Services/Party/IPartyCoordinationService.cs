@@ -278,6 +278,17 @@ public interface IPartyCoordinationService
     /// <param name="minimumPrimaryResource">Minimum primary resource to consider "rich".</param>
     bool IsAnyRemoteHealerResourceRich(int minimumPrimaryResource = 2);
 
+    /// <summary>
+    /// Returns the freshest remote healer gauge snapshot, or null if no snapshot
+    /// exists or the newest snapshot is older than <paramref name="staleAgeSeconds"/>.
+    /// Used by <c>CoHealerArbitration</c> to implement emergency-resource deferral.
+    /// </summary>
+    /// <param name="staleAgeSeconds">
+    ///   Maximum age in seconds before the snapshot is treated as absent.
+    ///   Defaults to 3 seconds.
+    /// </param>
+    RemoteHealerGaugeState? GetFreshestRemoteHealerGauge(float staleAgeSeconds = 3f);
+
     #endregion
 
     #region Healer Role Coordination

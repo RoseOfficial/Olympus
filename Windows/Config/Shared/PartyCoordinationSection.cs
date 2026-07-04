@@ -69,6 +69,14 @@ public sealed class PartyCoordinationSection
                     "Prevent multiple healers casting party-wide heals simultaneously"),
                 save);
 
+            ConfigUIHelpers.Toggle(
+                Loc.T(LocalizedStrings.PartyCoordination.EnableHealerResourceArbitration, "Enable Healer Resource Arbitration"),
+                () => config.PartyCoordination.EnableHealerResourceArbitration,
+                v => config.PartyCoordination.EnableHealerResourceArbitration = v,
+                Loc.T(LocalizedStrings.PartyCoordination.EnableHealerResourceArbitrationDesc,
+                    "The healer with more spare emergency resources answers a spike; the other defers. Requires gauge sharing."),
+                save);
+
             ConfigUIHelpers.EndIndent();
         }
     }

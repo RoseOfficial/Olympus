@@ -45,6 +45,16 @@ public sealed class TetragrammatonHandler : IHealingHandler
         var missingHp = (int)(target.MaxHp - predictedHp);
         if (missingHp <= 0) return;
 
+        var hpPercentForDefer = target.MaxHp > 0 ? (float)predictedHp / target.MaxHp : 1f;
+        if (CoHealerArbitration.ShouldDefer(
+            config.PartyCoordination.EnableHealerResourceArbitration,
+            context.PartyCoordinationService,
+            myResourceCount: (int)currentCharges,
+            overcapBiasThreshold: maxCharges > 0 ? (int)maxCharges : 2,
+            targetHpPercent: hpPercentForDefer,
+            hardFloor: 0.25f))
+            return;
+
         var (mind, det, wd) = context.PlayerStatsService.GetHealingStats(player.Level);
         var healAmount = WHMActions.Tetragrammaton.EstimateHealAmount(mind, det, wd, player.Level);
 

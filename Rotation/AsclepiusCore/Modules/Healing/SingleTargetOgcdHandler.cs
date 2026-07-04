@@ -123,6 +123,15 @@ public sealed class SingleTargetOgcdHandler : IHealingHandler
         if (hpPercent > config.TaurocholeThreshold) { context.Debug.TaurocholeState = $"Tank at {hpPercent:P0}"; return; }
         if (AsclepiusStatusHelper.HasKerachole(tank)) { context.Debug.TaurocholeState = "Already has mit"; return; }
 
+        if (CoHealerArbitration.ShouldDefer(
+            context.Configuration.PartyCoordination.EnableHealerResourceArbitration,
+            context.PartyCoordinationService,
+            myResourceCount: context.AddersgallStacks,
+            overcapBiasThreshold: 3,
+            targetHpPercent: hpPercent,
+            hardFloor: 0.25f))
+        { context.Debug.TaurocholeState = "Deferred (co-healer richer)"; return; }
+
         var capturedTank = tank;
         var capturedHpPercent = hpPercent;
         var capturedStacks = context.AddersgallStacks;

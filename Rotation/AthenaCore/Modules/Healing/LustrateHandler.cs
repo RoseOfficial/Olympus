@@ -40,6 +40,15 @@ public sealed class LustrateHandler : IHealingHandler
         var hpPercent = context.PartyHelper.GetHpPercent(target);
         if (hpPercent > config.LustrateThreshold) return;
 
+        if (CoHealerArbitration.ShouldDefer(
+            context.Configuration.PartyCoordination.EnableHealerResourceArbitration,
+            context.PartyCoordinationService,
+            myResourceCount: context.AetherflowService.CurrentStacks,
+            overcapBiasThreshold: 3,
+            targetHpPercent: hpPercent,
+            hardFloor: 0.25f))
+            return;
+
         var action = SCHActions.Lustrate;
         var capturedTarget = target;
         var capturedHpPercent = hpPercent;

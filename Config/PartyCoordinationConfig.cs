@@ -319,6 +319,17 @@ public sealed class PartyCoordinationConfig
     #region Multi-Healer Optimization
 
     /// <summary>
+    /// Enable healer resource arbitration.
+    /// When enabled, healers with fewer spare emergency resources defer a single-target
+    /// oGCD to the co-healer who has more (e.g., SGE Taurochole defers when the WHM
+    /// has more Tetragrammaton charges). Includes overcap bias: if the local healer is
+    /// near cap they spend their own resource rather than deferring.
+    /// Default false for a release cycle while testing confirms no regressions.
+    /// Requires EnableHealerGaugeSharing and EnablePartyCoordination.
+    /// </summary>
+    public bool EnableHealerResourceArbitration { get; set; } = false;
+
+    /// <summary>
     /// Enable healer gauge state sharing.
     /// When enabled, healers will broadcast their resource counts (Lily, Aetherflow, etc.)
     /// to other Olympus instances for resource-aware healing decisions.
