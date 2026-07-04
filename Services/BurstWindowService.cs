@@ -61,9 +61,16 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
     // Most raid buffs: 120s CD, ~20s duration → gap between windows ≈ 100s.
     private const float BurstCycleGapSeconds = 100f;
 
+    // Synthetic cycle for pre-first-window prediction: opener raid buffs land ~7.8s
+    // into combat, then repeat on the standard 120s cadence with ~20s windows.
+    private const float SyntheticFirstBurstSeconds = 7.8f;
+    private const float SyntheticBurstCycleSeconds = 120f;
+    private const float SyntheticBurstWindowSeconds = 20f;
+
     // Cached per-frame state
     private bool _isInBurstWindow;
     private float _secondsRemainingInBurst;
+    private bool _realRaidBuffObservedThisCombat;
 
     // Tracks when the most recent burst window ended for timer-based prediction
     private DateTime? _lastBurstWindowEnd;
@@ -248,6 +255,25 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
         _isInBurstWindow = scanActive || castEventRemaining > 0f;
         _secondsRemainingInBurst = Math.Max(scanRemaining, castEventRemaining);
 
+        // Synthetic pre-first-window cycle: until a real raid buff is observed this combat
+        // (solo striking dummy, comps without coordinated buffs), rehearse the standard
+        // opener-at-7.8s + 120s cadence so burst pooling behaves like a real fight.
+        var combatSeconds = _combatEventService?.GetCombatDurationSeconds() ?? 0f;
+        if (combatSeconds <= 0f)
+            _realRaidBuffObservedThisCombat = false;
+        else if (_isInBurstWindow)
+            _realRaidBuffObservedThisCombat = true;
+
+        if (!_realRaidBuffObservedThisCombat && combatSeconds > SyntheticFirstBurstSeconds)
+        {
+            var cycleTime = (combatSeconds - SyntheticFirstBurstSeconds) % SyntheticBurstCycleSeconds;
+            if (cycleTime < SyntheticBurstWindowSeconds)
+            {
+                _isInBurstWindow = true;
+                _secondsRemainingInBurst = Math.Max(_secondsRemainingInBurst, SyntheticBurstWindowSeconds - cycleTime);
+            }
+        }
+
         // Record when the burst window ends for timer-based cycle prediction
         if (_wasInBurst && !_isInBurstWindow)
             _lastBurstWindowEnd = now;
@@ -273,18 +299,45 @@ public sealed class BurstWindowService : IBurstWindowService, IDisposable
 
     /// <summary>
     /// Estimates seconds until the next burst using the ~100s cycle gap from the last known end.
-    /// Returns -1 if no timing data is available.
+    /// Before any window has been observed (solo striking dummy, pre-opener), falls back to a
+    /// synthetic cycle anchored to combat start. Returns -1 if no timing data is available.
     /// </summary>
     private float TimerBasedSecondsUntilBurst
     {
         get
         {
             if (!_lastBurstWindowEnd.HasValue)
-                return -1f;
+                return SyntheticSecondsUntilBurst;
 
             var elapsed = (float)(DateTime.UtcNow - _lastBurstWindowEnd.Value).TotalSeconds;
             var remaining = BurstCycleGapSeconds - elapsed;
             return remaining >= 0f ? remaining : -1f;
+        }
+    }
+
+    /// <summary>
+    /// Synthetic burst cycle for when no real raid-buff window has been observed yet:
+    /// first window ~7.8s into combat (opener buffs), repeating every 120s. Covers solo
+    /// striking-dummy practice (no party buffs ever appear) and pre-opener pooling in
+    /// real parties. Real observed windows always take precedence via _lastBurstWindowEnd.
+    /// Returns 0 while inside a synthetic window, -1 when out of combat.
+    /// </summary>
+    private float SyntheticSecondsUntilBurst
+    {
+        get
+        {
+            var elapsed = _combatEventService?.GetCombatDurationSeconds() ?? 0f;
+            if (elapsed <= 0f)
+                return -1f;
+
+            if (elapsed < SyntheticFirstBurstSeconds)
+                return SyntheticFirstBurstSeconds - elapsed;
+
+            var cycleTime = (elapsed - SyntheticFirstBurstSeconds) % SyntheticBurstCycleSeconds;
+            if (cycleTime < SyntheticBurstWindowSeconds)
+                return 0f;
+
+            return SyntheticBurstCycleSeconds - cycleTime;
         }
     }
 

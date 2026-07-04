@@ -313,4 +313,69 @@ public class BurstWindowServiceTests
 
         service.Dispose(); // Should not throw.
     }
+
+    // -------------------------------------------------------------------------
+    // Synthetic burst cycle (solo dummy / pre-first-window)
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void SyntheticCycle_BeforeFirstWindow_ReportsSecondsUntilOpener()
+    {
+        var (service, combatEvents) = BuildWithCastEvents();
+        var player = new Mock<IPlayerCharacter>();
+        combatEvents.Setup(x => x.GetCombatDurationSeconds()).Returns(3f);
+
+        service.Update(player.Object);
+
+        Assert.False(service.IsInBurstWindow);
+        // First synthetic window opens at 7.8s; at 3s elapsed the opener is 4.8s away.
+        Assert.InRange(service.SecondsUntilNextBurst, 4.7f, 4.9f);
+        Assert.True(service.IsBurstImminent(thresholdSeconds: 5f));
+    }
+
+    [Fact]
+    public void SyntheticCycle_InsideWindow_OpensBurstWindow()
+    {
+        var (service, combatEvents) = BuildWithCastEvents();
+        var player = new Mock<IPlayerCharacter>();
+        combatEvents.Setup(x => x.GetCombatDurationSeconds()).Returns(10f);
+
+        service.Update(player.Object);
+
+        Assert.True(service.IsInBurstWindow);
+        // Window spans 7.8s-27.8s; at 10s elapsed, ~17.8s remain.
+        Assert.InRange(service.SecondsRemainingInBurst, 17.7f, 17.9f);
+    }
+
+    [Fact]
+    public void SyntheticCycle_AfterWindowEnds_RecordsHistoryAndPredictsNext()
+    {
+        var (service, combatEvents) = BuildWithCastEvents();
+        var player = new Mock<IPlayerCharacter>();
+
+        combatEvents.Setup(x => x.GetCombatDurationSeconds()).Returns(10f);
+        service.Update(player.Object);
+        Assert.True(service.IsInBurstWindow);
+
+        combatEvents.Setup(x => x.GetCombatDurationSeconds()).Returns(30f);
+        service.Update(player.Object);
+
+        Assert.False(service.IsInBurstWindow);
+        Assert.Single(service.BurstWindowHistory);
+        // Timer path takes over from the recorded window end (~100s gap).
+        Assert.InRange(service.SecondsUntilNextBurst, 90f, 100f);
+    }
+
+    [Fact]
+    public void SyntheticCycle_OutOfCombat_Inert()
+    {
+        var (service, combatEvents) = BuildWithCastEvents();
+        var player = new Mock<IPlayerCharacter>();
+        combatEvents.Setup(x => x.GetCombatDurationSeconds()).Returns(0f);
+
+        service.Update(player.Object);
+
+        Assert.False(service.IsInBurstWindow);
+        Assert.Equal(-1f, service.SecondsUntilNextBurst);
+    }
 }
