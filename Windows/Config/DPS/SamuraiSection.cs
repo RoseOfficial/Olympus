@@ -29,6 +29,7 @@ public sealed class SamuraiSection
         DrawSenSection();
         DrawBurstSection();
         DrawPositionalSection();
+        DrawMovementSection();
         DrawRoleActionsSection();
     }
 
@@ -246,6 +247,34 @@ public sealed class SamuraiSection
                 v => config.Samurai.EnableFeint = v,
                 null, save,
                 actionId: RoleActions.Feint.ActionId);
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawMovementSection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T("samurai.movement_section", "Movement"), "SAM", false))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T("samurai.enable_gyoten", "Enable Gyoten"),
+                () => config.Samurai.EnableGyoten,
+                v => config.Samurai.EnableGyoten = v,
+                Loc.T("samurai.enable_gyoten_desc", "Allow Hissatsu: Gyoten for gap-closing (costs 10 Kenki)."), save,
+                actionId: SAMActions.Gyoten.ActionId);
+
+            if (config.Samurai.EnableGyoten)
+            {
+                ConfigUIHelpers.Toggle(
+                    Loc.T("samurai.auto_gyoten", "Auto Gyoten"),
+                    () => config.Samurai.AutoGyoten,
+                    v => config.Samurai.AutoGyoten = v,
+                    Loc.T("samurai.auto_gyoten_desc",
+                        "Automatically dash to the target when out of melee range. " +
+                        "Only fires when enough Kenki remains for other spenders."), save);
+            }
 
             ConfigUIHelpers.EndIndent();
         }

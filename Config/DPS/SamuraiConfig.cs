@@ -55,6 +55,19 @@ public sealed class SamuraiConfig
     /// </summary>
     public bool EnableGuren { get; set; } = true;
 
+    /// <summary>
+    /// Whether Hissatsu: Gyoten is available for automatic use.
+    /// Gyoten is a gap closer that costs 10 Kenki and dashes to the target.
+    /// </summary>
+    public bool EnableGyoten { get; set; } = true;
+
+    /// <summary>
+    /// Auto-fire Gyoten to close the gap when out of melee range. When off,
+    /// Gyoten only fires under player control; the Enable toggle still governs
+    /// availability. Ignored when EnableGyoten is off.
+    /// </summary>
+    public bool AutoGyoten { get; set; } = false;
+
     #endregion
 
     #region Buff Toggles

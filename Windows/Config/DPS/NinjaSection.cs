@@ -29,6 +29,7 @@ public sealed class NinjaSection
         DrawMudraSection();
         DrawBurstSection();
         DrawPositionalSection();
+        DrawMovementSection();
         DrawRoleActionsSection();
     }
 
@@ -228,6 +229,34 @@ public sealed class NinjaSection
                 () => config.Ninja.AllowPositionalLoss,
                 v => config.Ninja.AllowPositionalLoss = v,
                 Loc.T(LocalizedStrings.Ninja.AllowPositionalLossDesc, "Continue rotation even if positionals will miss"), save);
+
+            ConfigUIHelpers.EndIndent();
+        }
+    }
+
+    private void DrawMovementSection()
+    {
+        if (ConfigUIHelpers.SectionHeader(Loc.T("ninja.movement_section", "Movement"), "NIN", false))
+        {
+            ConfigUIHelpers.BeginIndent();
+
+            ConfigUIHelpers.Toggle(
+                Loc.T("ninja.enable_shukuchi", "Enable Shukuchi"),
+                () => config.Ninja.EnableShukuchi,
+                v => config.Ninja.EnableShukuchi = v,
+                Loc.T("ninja.enable_shukuchi_desc", "Allow Shukuchi for gap-closing (2 charges, teleports to target location)."), save,
+                actionId: NINActions.Shukuchi.ActionId);
+
+            if (config.Ninja.EnableShukuchi)
+            {
+                ConfigUIHelpers.Toggle(
+                    Loc.T("ninja.auto_shukuchi", "Auto Shukuchi"),
+                    () => config.Ninja.AutoShukuchi,
+                    v => config.Ninja.AutoShukuchi = v,
+                    Loc.T("ninja.auto_shukuchi_desc",
+                        "Automatically teleport to the target when out of melee range. " +
+                        "Does not fire during mudra sequences. Requires at least 1 charge."), save);
+            }
 
             ConfigUIHelpers.EndIndent();
         }

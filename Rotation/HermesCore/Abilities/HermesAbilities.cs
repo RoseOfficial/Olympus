@@ -27,6 +27,9 @@ public static class HermesAbilities
     public static readonly AbilityBehavior FleetingRaiju = new() { Action = NINActions.FleetingRaiju, Toggle = cfg => cfg.Ninja.EnableRaiju };
     public static readonly AbilityBehavior PhantomKamaitachi = new() { Action = NINActions.PhantomKamaitachi, Toggle = cfg => cfg.Ninja.EnablePhantomKamaitachi };
 
+    // --- Gap closer ---
+    public static readonly AbilityBehavior Shukuchi = new() { Action = NINActions.Shukuchi, Toggle = cfg => cfg.Ninja.EnableShukuchi };
+
     // --- Ninki spenders ---
     public static readonly AbilityBehavior Bhavacakra = new() { Action = NINActions.Bhavacakra, Toggle = cfg => cfg.Ninja.EnableBhavacakra };
     public static readonly AbilityBehavior HellfrogMedium = new() { Action = NINActions.HellfrogMedium, Toggle = cfg => cfg.Ninja.EnableHellfrogMedium };

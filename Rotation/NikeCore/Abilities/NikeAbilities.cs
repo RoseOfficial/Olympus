@@ -41,6 +41,9 @@ public static class NikeAbilities
     public static readonly AbilityBehavior KaeshiNamikiri = new() { Action = SAMActions.KaeshiNamikiri };
     public static readonly AbilityBehavior Zanshin = new() { Action = SAMActions.Zanshin, Toggle = cfg => cfg.Samurai.EnableZanshin };
 
+    // --- Gap closer ---
+    public static readonly AbilityBehavior Gyoten = new() { Action = SAMActions.Gyoten, Toggle = cfg => cfg.Samurai.EnableGyoten };
+
     // --- Kenki spenders ---
     public static readonly AbilityBehavior Shinten = new() { Action = SAMActions.Shinten, Toggle = cfg => cfg.Samurai.EnableShinten };
     public static readonly AbilityBehavior Kyuten = new() { Action = SAMActions.Kyuten, Toggle = cfg => cfg.Samurai.EnableKyuten };

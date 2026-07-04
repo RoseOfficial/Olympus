@@ -36,6 +36,20 @@ public sealed class NinjaConfig
     public bool EnablePhantomKamaitachi { get; set; } = true;
 
     /// <summary>
+    /// Whether Shukuchi is available for automatic use.
+    /// Shukuchi is a ground-targeted gap closer with 2 charges that teleports
+    /// the ninja to the selected location.
+    /// </summary>
+    public bool EnableShukuchi { get; set; } = true;
+
+    /// <summary>
+    /// Auto-fire Shukuchi to close the gap when out of melee range. When off,
+    /// Shukuchi only fires under player control; the Enable toggle still governs
+    /// availability. Ignored when EnableShukuchi is off.
+    /// </summary>
+    public bool AutoShukuchi { get; set; } = false;
+
+    /// <summary>
     /// Whether to use Forked/Fleeting Raiju procs.
     /// </summary>
     public bool EnableRaiju { get; set; } = true;

@@ -64,7 +64,16 @@ public sealed class DamageModule : INikeModule
             player);
         if (target == null)
         {
-            context.Debug.DamageState = "No target";
+            // Out of melee range — try gap-close before bailing
+            var engageTarget = context.TargetingService.FindEnemy(
+                context.Configuration.Targeting.EnemyStrategy, 20f, player);
+            if (engageTarget == null)
+            {
+                context.Debug.DamageState = "No target";
+                return;
+            }
+            TryPushGyoten(context, scheduler, engageTarget);
+            context.Debug.DamageState = "Out of melee range";
             return;
         }
 
@@ -134,6 +143,47 @@ public sealed class DamageModule : INikeModule
             hpThresholdPct: context.Configuration.MeleeShared.BloodbathHpThreshold,
             priority: 6,
             onDispatched: _ => context.Debug.PlannedAction = RoleActions.Bloodbath.Name);
+    }
+
+    private void TryPushGyoten(INikeContext context, RotationScheduler scheduler, IBattleChara target)
+    {
+        if (!context.Configuration.Samurai.AutoGyoten) return;
+
+        var player = context.Player;
+        if (player.Level < SAMActions.Gyoten.MinLevel) return;
+
+        // Gyoten costs 10 Kenki; preserve at least KenkiMinGauge (default 25) for Shinten/Kyuten spenders.
+        var kenkiReserve = context.Configuration.Samurai.KenkiMinGauge;
+        if (context.Kenki < 10 + kenkiReserve) return;
+
+        if (!context.ActionService.IsActionReady(SAMActions.Gyoten.ActionId)) return;
+
+        if (context.TargetingService.GapCloserSafety.ShouldBlockGapCloser(target, player))
+        {
+            context.Debug.DamageState = $"Gyoten blocked: {context.TargetingService.GapCloserSafety.LastBlockReason}";
+            return;
+        }
+
+        scheduler.PushOgcd(NikeAbilities.Gyoten, target.GameObjectId, priority: 2,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = SAMActions.Gyoten.Name;
+                context.Debug.DamageState = "Hissatsu: Gyoten (gap close)";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(SAMActions.Gyoten.ActionId, SAMActions.Gyoten.Name)
+                    .AsMeleeDamage()
+                    .Target(target.Name?.TextValue ?? "Target")
+                    .Reason("Gyoten to close gap and re-enter melee range",
+                        "Hissatsu: Gyoten is SAM's gap closer. It dashes to the target at the cost of 10 Kenki. " +
+                        "Only fires when enough Kenki is reserved for Shinten and Kyuten spenders.")
+                    .Factors(new[] { "Out of melee range", "Target within 20y", $"Kenki: {context.Kenki} (reserve {kenkiReserve})", "Gyoten ready" })
+                    .Alternatives(new[] { "Sprint + run in (slower)", "Wait for target to move closer" })
+                    .Tip("Gyoten uses Kenki. Make sure you have enough left for Shinten and Senei.")
+                    .Concept("sam_kenki_gauge")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("sam_kenki_gauge", true, "Gap close Gyoten");
+            });
     }
 
     private void TryPushKenkiSpender(INikeContext context, RotationScheduler scheduler, IBattleChara target, bool useAoE)

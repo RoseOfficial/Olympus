@@ -1,3 +1,4 @@
+using System.Numerics;
 using Dalamud.Game.ClientState.Objects.Types;
 using Olympus.Data;
 using Olympus.Models.Action;
@@ -67,7 +68,16 @@ public sealed class DamageModule : IHermesModule
             player);
         if (target == null)
         {
-            context.Debug.DamageState = "No target";
+            // Out of melee range — try gap-close before bailing
+            var engageTarget = context.TargetingService.FindEnemy(
+                context.Configuration.Targeting.EnemyStrategy, 20f, player);
+            if (engageTarget == null)
+            {
+                context.Debug.DamageState = "No target";
+                return;
+            }
+            TryPushShukuchi(context, scheduler, engageTarget);
+            context.Debug.DamageState = "Out of melee range";
             return;
         }
 
@@ -88,6 +98,52 @@ public sealed class DamageModule : IHermesModule
         TryPushPhantomKamaitachi(context, scheduler, target);
         TryPushComboRotation(context, scheduler, target, enemyCount);
     }
+
+    #region Gap closer
+
+    private void TryPushShukuchi(IHermesContext context, RotationScheduler scheduler, IBattleChara target)
+    {
+        if (!context.Configuration.Ninja.AutoShukuchi) return;
+
+        var player = context.Player;
+        if (player.Level < NINActions.Shukuchi.MinLevel) return;
+
+        // Do not interrupt an in-progress mudra sequence.
+        if (context.IsMudraActive) return;
+
+        // Requires at least 1 charge.
+        if (context.ActionService.GetCurrentCharges(NINActions.Shukuchi.ActionId) == 0) return;
+
+        if (context.TargetingService.GapCloserSafety.ShouldBlockGapCloser(target, player))
+        {
+            context.Debug.DamageState = $"Shukuchi blocked: {context.TargetingService.GapCloserSafety.LastBlockReason}";
+            return;
+        }
+
+        var targetPosition = target.Position;
+        scheduler.PushGroundTargetedOgcd(HermesAbilities.Shukuchi, targetPosition, priority: 2,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = NINActions.Shukuchi.Name;
+                context.Debug.DamageState = "Shukuchi (gap close)";
+
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(NINActions.Shukuchi.ActionId, NINActions.Shukuchi.Name)
+                    .AsMeleeDamage()
+                    .Target(target.Name?.TextValue ?? "Target")
+                    .Reason("Shukuchi to close gap and re-enter melee range",
+                        "Shukuchi teleports the ninja to the selected location. Use when out of melee range to instantly return to the target. " +
+                        "Has 2 charges. Does not fire during a mudra sequence.")
+                    .Factors(new[] { "Out of melee range", "Target within 20y", "Shukuchi charge available", "No mudra sequence active" })
+                    .Alternatives(new[] { "Sprint + run in (slower)", "Wait for target to move closer" })
+                    .Tip("Shukuchi has 2 charges. Reserve one if a mudra sequence is coming soon.")
+                    .Concept(NinConcepts.MudraSystem)
+                    .Record();
+                context.TrainingService?.RecordConceptApplication(NinConcepts.MudraSystem, true, "Gap close Shukuchi");
+            });
+    }
+
+    #endregion
 
     #region Ninki spender
 
