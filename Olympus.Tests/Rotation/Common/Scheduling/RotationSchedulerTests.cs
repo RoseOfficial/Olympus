@@ -4,6 +4,7 @@ using Olympus.Models.Action;
 using Olympus.Rotation.Common;
 using Olympus.Rotation.Common.Scheduling;
 using Olympus.Services.Action;
+using Olympus.Services.Targeting;
 using Xunit;
 
 namespace Olympus.Tests.Rotation.Common.Scheduling;
@@ -646,5 +647,93 @@ public class RotationSchedulerTests
         }
         mock.Setup(c => c.ObjectTable).Returns(objectTable.Object);
         return mock.Object;
+    }
+
+    private static IRotationContext CreateContextWithTargetingService(
+        byte level, ITargetingService targetingService)
+    {
+        var mock = new Mock<IRotationContext>();
+        var player = new Mock<Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter>();
+        player.Setup(p => p.Level).Returns(level);
+        mock.Setup(c => c.Player).Returns(player.Object);
+        mock.Setup(c => c.Configuration).Returns(new Configuration());
+        mock.Setup(c => c.TargetingService).Returns(targetingService);
+        return mock.Object;
+    }
+
+    [Fact]
+    public void Dispatch_NoTargetingOverride_DispatchesToPushedTargetId()
+    {
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>())).Returns(true);
+        var scheduler = Build(actionService);
+        var behavior = TestBehaviors.InstantGcd(actionId: 20001);
+
+        var ctx = CreateContextWithPlayerLevel(80);
+        scheduler.PushGcd(behavior, targetId: 999, priority: 10);
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.True(result.Dispatched);
+        actionService.Verify(x => x.ExecuteGcd(
+            It.IsAny<ActionDefinition>(),
+            999ul), Times.Once);
+    }
+
+    [Fact]
+    public void Dispatch_TargetingOverride_DispatchesToResolvedTarget()
+    {
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>())).Returns(true);
+        var scheduler = Build(actionService);
+
+        // The targeting service resolves HighestHp to enemy 888.
+        var resolvedEnemy = new Mock<Dalamud.Game.ClientState.Objects.Types.IBattleNpc>();
+        resolvedEnemy.Setup(e => e.GameObjectId).Returns(888ul);
+        var targetingService = new Mock<ITargetingService>();
+        targetingService
+            .Setup(s => s.FindEnemy(EnemyTargetingStrategy.HighestHp, It.IsAny<float>(), It.IsAny<Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter>()))
+            .Returns(resolvedEnemy.Object);
+
+        var behavior = TestBehaviors.InstantGcd(actionId: 20002) with { TargetingOverride = EnemyTargetingStrategy.HighestHp };
+        var ctx = CreateContextWithTargetingService(80, targetingService.Object);
+        scheduler.PushGcd(behavior, targetId: 999, priority: 10);
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.True(result.Dispatched);
+        // Dispatched to the override-resolved enemy (888), not the pushed id (999).
+        actionService.Verify(x => x.ExecuteGcd(
+            It.IsAny<ActionDefinition>(),
+            888ul), Times.Once);
+        actionService.Verify(x => x.ExecuteGcd(
+            It.IsAny<ActionDefinition>(),
+            999ul), Times.Never);
+    }
+
+    [Fact]
+    public void Dispatch_TargetingOverride_FallsBackToPushedIdWhenServiceReturnsNull()
+    {
+        var actionService = new Mock<IActionService>();
+        actionService.Setup(x => x.ExecuteGcd(It.IsAny<ActionDefinition>(), It.IsAny<ulong>())).Returns(true);
+        var scheduler = Build(actionService);
+
+        // The targeting service finds no enemy for HighestHp.
+        var targetingService = new Mock<ITargetingService>();
+        targetingService
+            .Setup(s => s.FindEnemy(EnemyTargetingStrategy.HighestHp, It.IsAny<float>(), It.IsAny<Dalamud.Game.ClientState.Objects.SubKinds.IPlayerCharacter>()))
+            .Returns((Dalamud.Game.ClientState.Objects.Types.IBattleNpc?)null);
+
+        var behavior = TestBehaviors.InstantGcd(actionId: 20003) with { TargetingOverride = EnemyTargetingStrategy.HighestHp };
+        var ctx = CreateContextWithTargetingService(80, targetingService.Object);
+        scheduler.PushGcd(behavior, targetId: 999, priority: 10);
+
+        var result = scheduler.DispatchGcd(ctx);
+
+        Assert.True(result.Dispatched);
+        // Resolution failed: must fall back to the module-pushed id (999).
+        actionService.Verify(x => x.ExecuteGcd(
+            It.IsAny<ActionDefinition>(),
+            999ul), Times.Once);
     }
 }

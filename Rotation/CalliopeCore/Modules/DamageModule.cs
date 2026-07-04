@@ -430,7 +430,8 @@ public sealed class DamageModule : ICalliopeModule
                     return;
                 }
 
-                scheduler.PushGcd(ability, target.GameObjectId, priority: 7,
+                scheduler.PushGcd(ability with { TargetingOverride = EnemyTargetingStrategy.HighestHp },
+                    target.GameObjectId, priority: 7,
                     onDispatched: _ =>
                     {
                         context.Debug.PlannedAction = action.Name;
@@ -467,7 +468,8 @@ public sealed class DamageModule : ICalliopeModule
                     return;
                 }
 
-                scheduler.PushGcd(ability, target.GameObjectId, priority: 7,
+                scheduler.PushGcd(ability with { TargetingOverride = EnemyTargetingStrategy.HighestHp },
+                    target.GameObjectId, priority: 7,
                     onDispatched: _ =>
                     {
                         context.Debug.PlannedAction = action.Name;

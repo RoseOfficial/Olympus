@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Plugin.Services;
 using Olympus.Models.Action;
+using Olympus.Services.Targeting;
 
 namespace Olympus.Rotation.Common.Scheduling;
 
@@ -66,4 +67,14 @@ public sealed record AbilityBehavior
     /// Instants (CastTime = 0) are never blocked regardless.
     /// </summary>
     public bool MechanicGate { get; init; }
+
+    /// <summary>
+    /// Per-ability targeting strategy override. When set, the scheduler re-resolves the
+    /// dispatch target at dispatch time via <c>TargetingService.FindEnemy</c> using this
+    /// strategy, instead of using the target ID the module pushed. Falls back to the
+    /// pushed target ID if the strategy resolves no result. Results are memoised per
+    /// strategy across the dispatch pass to avoid redundant enemy scans.
+    /// Null means use the pushed target ID as-is (existing behaviour).
+    /// </summary>
+    public EnemyTargetingStrategy? TargetingOverride { get; init; }
 }

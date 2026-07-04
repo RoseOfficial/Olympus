@@ -6,6 +6,7 @@ using Olympus.Models.Action;
 using Olympus.Rotation.Common.Helpers;
 using Olympus.Services;
 using Olympus.Services.Action;
+using Olympus.Services.Targeting;
 using Olympus.Timeline;
 
 namespace Olympus.Rotation.Common.Scheduling;
@@ -113,6 +114,11 @@ public sealed class RotationScheduler
             return cmp != 0 ? cmp : a.InsertionOrder.CompareTo(b.InsertionOrder);
         });
 
+        // Memo for per-ability targeting overrides: each distinct strategy is resolved at
+        // most once per dispatch pass and the result is reused for subsequent candidates
+        // with the same strategy. Only allocated when at least one candidate carries an override.
+        Dictionary<EnemyTargetingStrategy, ulong>? overrideMemo = null;
+
         foreach (var candidate in queue)
         {
             var effective = ResolveLevelReplacement(candidate.Behavior, ctx.Player.Level);
@@ -219,6 +225,29 @@ public sealed class RotationScheduler
                 }
             }
 
+            // Per-ability targeting override: re-resolve the dispatch target using the
+            // declared strategy rather than the target ID the module pre-resolved at push
+            // time. Falls back to the module-pushed ID when the service returns no result.
+            // Results are memoised per strategy to avoid redundant scans within this pass.
+            var dispatchTargetId = candidate.TargetId;
+            if (candidate.Behavior.TargetingOverride is { } overrideStrategy
+                && ctx.TargetingService is { } targetingSvc)
+            {
+                if (overrideMemo is null || !overrideMemo.TryGetValue(overrideStrategy, out var memoHit))
+                {
+                    var range = effective.Range > 0f ? effective.Range : 25f;
+                    var resolved = targetingSvc.FindEnemy(overrideStrategy, range, ctx.Player);
+                    var resolvedId = resolved?.GameObjectId ?? candidate.TargetId;
+                    overrideMemo ??= new Dictionary<EnemyTargetingStrategy, ulong>(4);
+                    overrideMemo[overrideStrategy] = resolvedId;
+                    dispatchTargetId = resolvedId;
+                }
+                else
+                {
+                    dispatchTargetId = memoHit;
+                }
+            }
+
             bool dispatched;
             if (candidate.GroundPosition is { } position)
             {
@@ -229,14 +258,14 @@ public sealed class RotationScheduler
             else if (candidate.Behavior.ReplacementBaseId is { } rawId)
             {
                 dispatched = isOgcd
-                    ? _actionService.ExecuteOgcdRaw(effective, rawId, candidate.TargetId)
-                    : _actionService.ExecuteGcdRaw(effective, rawId, candidate.TargetId);
+                    ? _actionService.ExecuteOgcdRaw(effective, rawId, dispatchTargetId)
+                    : _actionService.ExecuteGcdRaw(effective, rawId, dispatchTargetId);
             }
             else
             {
                 dispatched = isOgcd
-                    ? _actionService.ExecuteOgcd(effective, candidate.TargetId)
-                    : _actionService.ExecuteGcd(effective, candidate.TargetId);
+                    ? _actionService.ExecuteOgcd(effective, dispatchTargetId)
+                    : _actionService.ExecuteGcd(effective, dispatchTargetId);
             }
 
             if (dispatched)
