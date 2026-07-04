@@ -69,7 +69,7 @@ public sealed class DamageModule : IHephaestusModule
             if (gapCloseBlocked)
                 context.Debug.DamageState = $"Trajectory blocked: {context.TargetingService.GapCloserSafety.LastBlockReason}";
             else
-                TryPushTrajectory(context, scheduler, engageTarget.GameObjectId, priority: 4);
+                TryPushTrajectoryGapClose(context, scheduler, engageTarget.GameObjectId);
             TryPushLightningShot(context, scheduler, engageTarget.GameObjectId);
             return;
         }
@@ -81,7 +81,7 @@ public sealed class DamageModule : IHephaestusModule
         TryPushBlastingZone(context, scheduler, target.GameObjectId);
         TryPushBowShock(context, scheduler);
         if (!context.TargetingService.GapCloserSafety.ShouldBlockGapCloser(target, player))
-            TryPushTrajectory(context, scheduler, target.GameObjectId, priority: 4);
+            TryPushTrajectoryWeave(context, scheduler, target.GameObjectId);
 
         // GCD pushes
         TryPushGnashingFangCombo(context, scheduler, target.GameObjectId);
@@ -280,32 +280,59 @@ public sealed class DamageModule : IHephaestusModule
             });
     }
 
-    private void TryPushTrajectory(IHephaestusContext context, RotationScheduler scheduler, ulong targetId, int priority)
+    private void TryPushTrajectoryGapClose(IHephaestusContext context, RotationScheduler scheduler, ulong targetId)
     {
         if (!context.Configuration.Tank.EnableTrajectory) return;
         if (context.Player.Level < GNBActions.Trajectory.MinLevel) return;
         if (!context.ActionService.IsActionReady(GNBActions.Trajectory.ActionId)) return;
 
-        scheduler.PushOgcd(GnbAbilities.Trajectory, targetId, priority: priority,
+        scheduler.PushOgcd(GnbAbilities.Trajectory, targetId, priority: 4,
             onDispatched: _ =>
             {
                 context.Debug.PlannedAction = GNBActions.Trajectory.Name;
-                context.Debug.DamageState = "Trajectory";
+                context.Debug.DamageState = "Trajectory (gap close)";
                 TrainingHelper.Decision(context.TrainingService)
                     .Action(GNBActions.Trajectory.ActionId, GNBActions.Trajectory.Name)
                     .AsTankDamage()
                     .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
                     .Reason(
-                        "Trajectory gap closer / oGCD filler",
+                        "Trajectory gap closer",
                         "Trajectory is a gap-closing oGCD with 2 charges that also deals damage. " +
-                        "Use it to close distance to enemies or as an oGCD filler during the rotation. " +
-                        "Keeping at least 1 charge for mobility is generally advisable.")
-                    .Factors("Trajectory charge available", "Used as gap closer or oGCD filler", "2 charges allow flexible use")
-                    .Alternatives("Save both charges for emergency mobility")
-                    .Tip("Trajectory has 2 charges - use one for damage during rotation and keep the other for repositioning during mechanics.")
+                        "Used here to close distance and restore melee uptime.")
+                    .Factors("Target out of melee range", "Trajectory charge available")
+                    .Alternatives("Lightning Shot (ranged GCD, slower)")
+                    .Tip("Trajectory has 2 charges - one for gap closing, one for repositioning during mechanics.")
                     .Concept("gnb_trajectory")
                     .Record();
-                context.TrainingService?.RecordConceptApplication("gnb_trajectory", true, "Trajectory used");
+                context.TrainingService?.RecordConceptApplication("gnb_trajectory", true, "Trajectory gap close");
+            });
+    }
+
+    private void TryPushTrajectoryWeave(IHephaestusContext context, RotationScheduler scheduler, ulong targetId)
+    {
+        if (!context.Configuration.Tank.EnableTrajectory) return;
+        if (!context.Configuration.Tank.AutoTrajectory) return;
+        if (context.Player.Level < GNBActions.Trajectory.MinLevel) return;
+        if (!context.ActionService.IsActionReady(GNBActions.Trajectory.ActionId)) return;
+
+        scheduler.PushOgcd(GnbAbilities.Trajectory, targetId, priority: 4,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = GNBActions.Trajectory.Name;
+                context.Debug.DamageState = "Trajectory (weave)";
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(GNBActions.Trajectory.ActionId, GNBActions.Trajectory.Name)
+                    .AsTankDamage()
+                    .Target(context.CurrentTarget?.Name.TextValue ?? "Enemy")
+                    .Reason(
+                        "Trajectory woven as extra damage.",
+                        "Trajectory deals damage and costs no GCD.")
+                    .Factors("In melee range", "Charge available")
+                    .Alternatives("Hold charges for gap-close or repositioning")
+                    .Tip("Trajectory has 2 charges. Keep at least 1 for repositioning during mechanics.")
+                    .Concept("gnb_trajectory")
+                    .Record();
+                context.TrainingService?.RecordConceptApplication("gnb_trajectory", true, "Trajectory weave");
             });
     }
 

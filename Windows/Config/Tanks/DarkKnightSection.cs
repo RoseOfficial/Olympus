@@ -237,6 +237,13 @@ public sealed class DarkKnightSection
                 save,
                 actionId: DRKActions.Shadowstride.ActionId);
 
+            ConfigUIHelpers.Toggle(
+                "Auto-weave Shadowstride",
+                () => config.Tank.AutoShadowstride,
+                v => config.Tank.AutoShadowstride = v,
+                "When off, Shadowstride is only used to close the gap when you're out of melee range. Charges stay under your control for positioning. Gap-close uptime use is unaffected.",
+                save);
+
             ConfigUIHelpers.Spacing();
             ImGui.TextDisabled(Loc.T(LocalizedStrings.Tank.UsesSharedAoESettings, "Uses shared tank AoE settings."));
             ImGui.TextDisabled(Loc.TFormat(LocalizedStrings.Tank.CurrentMinTargets, "Current min targets: {0}", config.Tank.AoEMinTargets));

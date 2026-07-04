@@ -145,6 +145,13 @@ public sealed class TankConfig
     public bool EnableIntervene { get; set; } = true;
 
     /// <summary>
+    /// Auto-weave Intervene as damage when already in melee range. When off,
+    /// Intervene is only used to close the gap (uptime), leaving charges under
+    /// player control for positioning. Ignored when EnableIntervene is off.
+    /// </summary>
+    public bool AutoIntervene { get; set; } = false;
+
+    /// <summary>
     /// Use Sentinel / Guardian (major mitigation).
     /// </summary>
     public bool EnableSentinel { get; set; } = true;
@@ -350,6 +357,13 @@ public sealed class TankConfig
     public bool EnableShadowstride { get; set; } = true;
 
     /// <summary>
+    /// Auto-weave Shadowstride as damage when already in melee range. When off,
+    /// Shadowstride is only used to close the gap (uptime), leaving charges under
+    /// player control for positioning. Ignored when EnableShadowstride is off.
+    /// </summary>
+    public bool AutoShadowstride { get; set; } = false;
+
+    /// <summary>
     /// Use Living Dead as an invulnerability cooldown.
     /// </summary>
     public bool EnableLivingDead { get; set; } = true;
@@ -424,6 +438,13 @@ public sealed class TankConfig
     /// Use Trajectory (gap closer).
     /// </summary>
     public bool EnableTrajectory { get; set; } = true;
+
+    /// <summary>
+    /// Auto-weave Trajectory as damage when already in melee range. When off,
+    /// Trajectory is only used to close the gap (uptime), leaving charges under
+    /// player control for positioning. Ignored when EnableTrajectory is off.
+    /// </summary>
+    public bool AutoTrajectory { get; set; } = false;
 
     /// <summary>
     /// Use Continuation abilities (Jugular Rip, Abdomen Tear, Eye Gouge, Hypervelocity).

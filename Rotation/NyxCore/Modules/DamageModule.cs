@@ -248,6 +248,7 @@ public sealed class DamageModule : INyxModule
                                           Dalamud.Game.ClientState.Objects.Types.IBattleChara target)
     {
         if (!context.Configuration.Tank.EnableShadowstride) return;
+        if (!context.Configuration.Tank.AutoShadowstride) return;
         var player = context.Player;
         if (player.Level < DRKActions.Shadowstride.MinLevel) return;
         if (!context.ActionService.IsActionReady(DRKActions.Shadowstride.ActionId)) return;

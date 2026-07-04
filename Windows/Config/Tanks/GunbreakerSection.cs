@@ -186,6 +186,13 @@ public sealed class GunbreakerSection
                 save,
                 actionId: GNBActions.Trajectory.ActionId);
 
+            ConfigUIHelpers.Toggle(
+                "Auto-weave Trajectory",
+                () => config.Tank.AutoTrajectory,
+                v => config.Tank.AutoTrajectory = v,
+                "When off, Trajectory is only used to close the gap when you're out of melee range. Charges stay under your control for positioning. Gap-close uptime use is unaffected.",
+                save);
+
             ConfigUIHelpers.Spacing();
 
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Gunbreaker.RotationFeatures, "Rotation Features:"));

@@ -179,6 +179,13 @@ public sealed class PaladinSection
                 save,
                 actionId: PLDActions.Intervene.ActionId);
 
+            ConfigUIHelpers.Toggle(
+                "Auto-weave Intervene",
+                () => config.Tank.AutoIntervene,
+                v => config.Tank.AutoIntervene = v,
+                "When off, Intervene is only used to close the gap when you're out of melee range. Charges stay under your control for positioning. Gap-close uptime use is unaffected.",
+                save);
+
             ConfigUIHelpers.Spacing();
 
             ConfigUIHelpers.SectionLabel(Loc.T(LocalizedStrings.Paladin.RotationFeatures, "Rotation Features:"));

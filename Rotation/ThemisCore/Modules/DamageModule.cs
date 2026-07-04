@@ -82,7 +82,7 @@ public sealed class DamageModule : IThemisModule
         TryPushCircleOfScorn(context, scheduler, player.GameObjectId, target.GameObjectId);
         TryPushExpiacion(context, scheduler, target.GameObjectId);
         if (!context.TargetingService.GapCloserSafety.ShouldBlockGapCloser(target, player))
-            TryPushIntervene(context, scheduler, target.GameObjectId);
+            TryPushInterveneWeave(context, scheduler, target.GameObjectId);
 
         // GCD pushes — magic phase and burst spenders fire over basic combo
         TryPushConfiteorChain(context, scheduler, target.GameObjectId);
@@ -116,6 +116,33 @@ public sealed class DamageModule : IThemisModule
                     .Factors("Target out of melee range", "Intervene charge available")
                     .Alternatives("Shield Lob (ranged GCD, slower)")
                     .Tip("Intervene has 2 charges. Don't hold both charges.")
+                    .Concept(PldConcepts.Intervene)
+                    .Record();
+                context.TrainingService?.RecordConceptApplication(PldConcepts.Intervene, wasSuccessful: true);
+            });
+    }
+
+    private void TryPushInterveneWeave(IThemisContext context, RotationScheduler scheduler, ulong targetId)
+    {
+        if (!context.Configuration.Tank.EnableIntervene) return;
+        if (!context.Configuration.Tank.AutoIntervene) return;
+        if (context.Player.Level < PLDActions.Intervene.MinLevel) return;
+        if (!context.ActionService.IsActionReady(PLDActions.Intervene.ActionId)) return;
+
+        scheduler.PushOgcd(ThemisAbilities.Intervene, targetId, priority: 4,
+            onDispatched: _ =>
+            {
+                context.Debug.PlannedAction = PLDActions.Intervene.Name;
+                context.Debug.DamageState = "Intervene (weave)";
+                TrainingHelper.Decision(context.TrainingService)
+                    .Action(PLDActions.Intervene.ActionId, PLDActions.Intervene.Name)
+                    .AsTankDamage()
+                    .Reason(
+                        "Intervene woven as extra damage.",
+                        "Intervene deals damage and costs no GCD.")
+                    .Factors("In melee range", "Charge available")
+                    .Alternatives("Hold charges for gap-close")
+                    .Tip("Intervene has 2 charges. Keep at least 1 for repositioning.")
                     .Concept(PldConcepts.Intervene)
                     .Record();
                 context.TrainingService?.RecordConceptApplication(PldConcepts.Intervene, wasSuccessful: true);
