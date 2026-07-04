@@ -71,7 +71,7 @@ jobs:
       - name: Update Olympus entry in aggregator repo.json
         run: |
           # repo.json is the shared aggregator listing every RoseOfficial plugin.
-          # Update ONLY the Olympus entry; preserve all other plugins (Memoria, etc.).
+          # Update ONLY the Olympus entry; preserve any other plugin entries.
           NEW_VERSION="${{ steps.version.outputs.version }}"
           TAG="${{ github.ref_name }}"
           ZIP_URL="https://github.com/RoseOfficial/Olympus/releases/download/${TAG}/Olympus.zip"
